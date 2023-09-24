@@ -4,7 +4,7 @@
 
 {#if data.imageUrl}
   <figure>
-    <img src={data.imageUrl} alt={data.header} />
+    <img class="mx-auto" src={data.imageUrl} alt={data.header} />
   </figure>
 {/if}
 
@@ -28,6 +28,6 @@
   </section>
 
   <article class="prose lg:prose-xl">
-    <p>{data.body}</p>
+    <p>{@html data.body}</p>
   </article>
 </main>

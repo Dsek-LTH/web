@@ -7,7 +7,7 @@
     <a href="/news/{article.id}">
       <article class="my-8">
         {#if article.imageUrl}
-          <figure>
+          <figure class="my-4">
             <img src={article.imageUrl} alt={article.header} />
           </figure>
         {/if}
@@ -25,7 +25,7 @@
         
         <div class="my-3">
           <p class="text-ellipsis line-clamp-4">
-            {article.body || 'If a dog chews shoes whose shoes does he choose?'}
+            {@html article.body}
           </p>
         </div>
 
