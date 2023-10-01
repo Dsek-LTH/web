@@ -24,7 +24,9 @@
   </div>
 </div>
 
-<slot />
+<div class="mb-16 overflow-auto accent-primary">
+  <slot />
+</div>
 
 <div class="btm-nav bg-base-200 md:hidden">
   <button class="text-primary">
