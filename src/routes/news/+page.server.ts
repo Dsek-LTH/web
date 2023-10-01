@@ -1,6 +1,6 @@
-import { articles } from '$lib/articles';
-import type { PageServerLoad } from './$types';
-import { marked } from 'marked';
+import { articles } from "$lib/articles";
+import type { PageServerLoad } from "./$types";
+import { marked } from "marked";
 import { sanitize } from "isomorphic-dompurify";
 
 export const load: PageServerLoad = () => {
@@ -9,8 +9,8 @@ export const load: PageServerLoad = () => {
       return {
         ...article,
         body: sanitize(marked.parse(article.body)),
-        bodyEn: sanitize(marked.parse(article.bodyEn)),
+        bodyEn: sanitize(marked.parse(article.bodyEn))
       };
-    }),
+    })
   };
 };

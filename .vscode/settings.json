@@ -1,3 +1,14 @@
 {
-  "npm.packageManager": "pnpm"
+  "npm.packageManager": "pnpm",
+  "editor.formatOnSave": true,
+  "[svelte]": {
+    "editor.defaultFormatter": "svelte.svelte-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "eslint.validate": ["javascript", "typescript", "svelte"],
+  "files.associations": {
+    "*.css": "tailwindcss"
+  }
 }
