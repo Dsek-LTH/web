@@ -43,6 +43,8 @@
 
         <div class="my-3">
           <p class="line-clamp-4 text-ellipsis">
+            <!-- The article body is sanitized server-side. -->
+            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
             {@html article.body}
           </p>
         </div>

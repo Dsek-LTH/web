@@ -30,6 +30,8 @@
   </section>
 
   <article class="prose lg:prose-xl">
-    <p>{@html data.body}</p>
+    <!-- The article body is sanitized server-side. -->
+    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+    {@html data.body}
   </article>
 </main>
