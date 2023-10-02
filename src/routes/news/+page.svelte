@@ -3,6 +3,14 @@
 </script>
 
 <main class="mx-auto max-w-3xl">
+  <form method="get" class="form-control mx-4 mt-8">
+    <input
+      name="search"
+      type="text"
+      placeholder="Search"
+      class="input input-bordered w-full focus:border-primary-focus"
+    />
+  </form>
   {#each data.articles as article (article.id)}
     <article
       class="m-4 rounded-2xl p-6 shadow-2xl ring-neutral-700 transition ease-in-out md:my-8 md:p-8 md:ring-1 md:hover:scale-105"
