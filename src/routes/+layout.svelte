@@ -1,4 +1,7 @@
-<script>
+<script lang="ts">
+  import { signIn, signOut } from "@auth/sveltekit/client";
+  import { page } from "$app/stores";
+  $: user = $page.data.session?.user;
   import "../app.css";
 </script>
 
@@ -23,6 +26,14 @@
     <a class="btn btn-ghost text-xl normal-case" href="/">D-sektionen</a>
     <a class="btn btn-ghost" href="/news">Nyheter</a>
     <a class="btn btn-ghost" href="/events">Evenemang</a>
+  </div>
+  <div class="flex-none">
+    {#if $page.data.session}
+      <button class="btn btn-neutral" on:click={() => signOut()}> Logga ut </button>
+      <a class="btn btn-ghost" href="/profile"> Profil ({user?.student_id}) </a>
+    {:else}
+      <button class="btn btn-neutral" on:click={() => signIn()}> Logga in </button>
+    {/if}
   </div>
 </nav>
 
