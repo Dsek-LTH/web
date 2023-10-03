@@ -1,3 +1,38 @@
+# Nice to have commands
+
+## create prisma migration
+```sh
+bun x prisma migrate dev --name init
+```
+## push to database
+```sh
+bun x prisma db push
+```
+
+## seed
+```sh
+bun x prisma db 
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # create-svelte
 
 Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).

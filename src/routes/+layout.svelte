@@ -3,7 +3,7 @@
 </script>
 
 <nav class="navbar sticky top-0 z-50 bg-primary text-primary-content shadow-xl">
-  <div class="flex-none md:hidden">
+  <!--   <div class="flex-none md:hidden">
     <button class="btn btn-square btn-ghost">
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -18,18 +18,15 @@
         ></path></svg
       >
     </button>
-  </div>
-  <div class="flex-1">
-    <a class="btn btn-ghost text-xl normal-case" href="/news">D-sektionen</a>
+  </div> -->
+  <div class="ml-44 flex-1">
+    <a class="btn btn-ghost text-xl normal-case" href="/">D-sektionen</a>
     <a class="btn btn-ghost" href="/news">Nyheter</a>
     <a class="btn btn-ghost" href="/events">Evenemang</a>
   </div>
-  <div class="flex-none">
-    <button class="btn btn-neutral"> Logga in </button>
-  </div>
 </nav>
 
-<div class="mb-16 overflow-auto accent-primary">
+<div class="overflow-auto accent-primary">
   <slot />
 </div>
 
