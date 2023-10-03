@@ -2,7 +2,7 @@
   import "../app.css";
 </script>
 
-<div class="navbar sticky top-0 z-50 bg-primary text-primary-content shadow-xl">
+<nav class="navbar sticky top-0 z-50 bg-primary text-primary-content shadow-xl">
   <div class="flex-none md:hidden">
     <button class="btn btn-square btn-ghost">
       <svg
@@ -21,8 +21,13 @@
   </div>
   <div class="flex-1">
     <a class="btn btn-ghost text-xl normal-case" href="/news">D-sektionen</a>
+    <a class="btn btn-ghost" href="/news">Nyheter</a>
+    <a class="btn btn-ghost" href="/events">Evenemang</a>
   </div>
-</div>
+  <div class="flex-none">
+    <button class="btn btn-neutral"> Logga in </button>
+  </div>
+</nav>
 
 <div class="mb-16 overflow-auto accent-primary">
   <slot />
