@@ -5,7 +5,7 @@
     "editor.defaultFormatter": "svelte.svelte-vscode"
   },
   "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "rvest.vs-code-prettier-eslint"
   },
   "eslint.validate": ["javascript", "typescript", "svelte"],
   "files.associations": {

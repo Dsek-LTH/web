@@ -1,0 +1,80 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "darwin-arm64"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Article {
+  id          String        @id @default(uuid())
+  slug        String        @unique
+  header      String
+  body        String
+  author      Author        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId    String        @map("author_id")
+  ArticleLike ArticleLike[]
+  imageUrl    String?
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @default(now()) @map("latest_edit_datetime")
+  publishedAt DateTime?     @map("published_at")
+  tags        Tag[]
+}
+
+model ArticleLike {
+  id        String  @id @default(uuid())
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  articleId String
+  member    Member  @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  memberId  String
+}
+
+model Tag {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  articleId String?
+  articles  Article[]
+}
+
+model Author {
+  id        String    @id @default(uuid())
+  member    Member    @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  memberId  String
+  mandate   Mandate?  @relation(fields: [mandateId], references: [id], onDelete: SetNull)
+  mandateId String?
+  Article   Article[]
+}
+
+model Member {
+  id           String        @id @default(uuid())
+  studentId    String        @unique @map("student_id")
+  firstName    String        @map("first_name")
+  lastName     String        @map("last_name")
+  nickname     String?
+  picture_path String?
+  mandates     Mandate[]
+  Author       Author[]
+  ArticleLike  ArticleLike[]
+}
+
+model Mandate {
+  id         String   @id @default(uuid())
+  member     Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  memberId   String   @map("member_id")
+  start      DateTime
+  end        DateTime
+  position   Position @relation(fields: [positionId], references: [id], onDelete: Cascade)
+  positionId String
+  Author     Author[]
+}
+
+model Position {
+  id      String    @id
+  name    String
+  Mandate Mandate[]
+}

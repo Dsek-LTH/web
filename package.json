@@ -11,10 +11,14 @@
     "lint": "prettier --check . && eslint .",
     "format": "prettier --write ."
   },
+  "prisma": {
+    "seed": "bun run prisma/seed.ts"
+  },
   "devDependencies": {
     "@sveltejs/adapter-auto": "^2.1.0",
     "@sveltejs/kit": "^1.25.0",
     "@tailwindcss/typography": "^0.5.10",
+    "@types/node": "^20.8.2",
     "@typescript-eslint/eslint-plugin": "^6.7.2",
     "@typescript-eslint/parser": "^6.7.2",
     "autoprefixer": "^10.4.16",
@@ -29,14 +33,17 @@
     "svelte": "^4.2.1",
     "svelte-check": "^3.5.2",
     "tailwindcss": "^3.3.3",
+    "ts-node": "^10.9.1",
     "tslib": "^2.6.2",
     "typescript": "^5.2.2",
     "vite": "^4.4.9"
   },
   "type": "module",
   "dependencies": {
+    "@prisma/client": "5.3.1",
     "isomorphic-dompurify": "^1.8.0",
     "marked": "^9.0.3",
+    "prisma": "^5.3.1",
     "theme-change": "^2.5.0"
   }
 }
