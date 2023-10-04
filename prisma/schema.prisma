@@ -78,3 +78,10 @@ model Position {
   name    String
   Mandate Mandate[]
 }
+
+model ApiAccessPolicy {
+  id        String  @id @default(uuid())
+  apiName   String  @map("api_name")
+  role      String?
+  studentId String? @map("student_id")
+}

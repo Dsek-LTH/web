@@ -11,6 +11,7 @@
     "lint": "prettier --check . && eslint .",
     "format": "prettier --write .",
     "generate": "prisma generate",
+    "migrate": "prisma migrate dev",
     "seed": "bun run prisma/seed.ts"
   },
   "prisma": {

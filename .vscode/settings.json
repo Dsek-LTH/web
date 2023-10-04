@@ -10,5 +10,6 @@
   "eslint.validate": ["javascript", "typescript", "svelte"],
   "files.associations": {
     "*.css": "tailwindcss"
-  }
+  },
+  "editor.tabSize": 2,
 }

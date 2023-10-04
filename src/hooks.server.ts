@@ -3,6 +3,8 @@ import Keycloak from "@auth/core/providers/keycloak";
 import type { Session } from "@auth/core/types";
 import { SvelteKitAuth } from "@auth/sveltekit";
 import { KEYCLOAK_CLIENT_ID, KEYCLOAK_CLIENT_SECRET, KEYCLOAK_CLIENT_ISSUER } from "$env/static/private";
+
+
 export const handle = SvelteKitAuth({
     providers: [Keycloak({
       clientId: KEYCLOAK_CLIENT_ID,
