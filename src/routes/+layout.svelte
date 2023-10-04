@@ -32,7 +32,7 @@
       <button class="btn btn-neutral" on:click={() => signOut()}> Logga ut </button>
       <a class="btn btn-ghost" href="/profile"> Profil ({user?.student_id}) </a>
     {:else}
-      <button class="btn btn-neutral" on:click={() => signIn()}> Logga in </button>
+      <button class="btn btn-neutral" on:click={() => signIn("keycloak")}> Logga in </button>
     {/if}
   </div>
 </nav>
