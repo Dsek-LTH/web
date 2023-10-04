@@ -12,10 +12,10 @@
     "format": "prettier --write .",
     "generate": "prisma generate",
     "migrate": "prisma migrate dev",
-    "seed": "bun run prisma/seed.ts"
+    "seed": "ts-node prisma/seed.ts"
   },
   "prisma": {
-    "seed": "bun run prisma/seed.ts"
+    "seed": "ts-node prisma/seed.ts"
   },
   "devDependencies": {
     "@sveltejs/adapter-auto": "^2.1.0",
