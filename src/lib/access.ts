@@ -76,3 +76,29 @@ export const withAccess = async <T>(
         statusDescription: "Unauthorized",
     });
 }
+
+// split all roles in group list. a group list might look like ["dsek.infu.mdlm", "dsek.ordf"] and this will split it into ["dsek", "dsek.infu", "dsek.infu.mdlm", "dsek.ordf"]
+export const splitGroupList = (groupList: string[]) => {
+    const splitGroups = new Set<string>();
+    groupList.forEach((group) => {
+        const groupParts = group.split('.');
+        let currentGroup = '';
+        groupParts.forEach((part) => {
+            currentGroup = currentGroup ? `${currentGroup}.${part}` : part;
+            splitGroups.add(currentGroup);
+        });
+    });
+    splitGroups.add("*");
+    return splitGroups;
+}
+
+export const getUserApis = async (ctx: Context) => {
+    const policies = await prisma.apiAccessPolicy.findMany({
+        where: {
+            role: {
+                in: [...splitGroupList(ctx?.group_list ? [...ctx.group_list, "_"] : [])],
+            }
+        },
+    });
+    return policies.map(p => p.apiName);
+  }

@@ -1,10 +1,11 @@
 import { Prisma } from '@prisma/client';
+import apiNames from '../../src/lib/apiNames';
 
 const apiAccessData: Prisma.ApiAccessPolicyCreateInput[] = [{
-  apiName: 'news.create',
+  apiName: apiNames.NEWS_CREATE,
   role: 'dsek.styr',
 },{
-  apiName: 'news.create',
+  apiName: apiNames.NEWS_CREATE,
   role: 'dsek.infu',
 }];
 

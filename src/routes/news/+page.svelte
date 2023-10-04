@@ -1,4 +1,6 @@
 <script lang="ts">
+  import apiNames from "$lib/apiNames.js";
+
   export let data;
 </script>
 
@@ -11,7 +13,9 @@
       class="input input-bordered w-full focus:border-primary-focus"
     />
   </form>
-  <a class="btn" href="/news/create">+ Create</a>
+  {#if data.apiAccessPolicies.includes(apiNames.NEWS_CREATE)}
+    <a class="btn" href="/news/create">+ Create</a>
+  {/if}
 </div>
 {#each data.articles as article (article.id)}
   <article
