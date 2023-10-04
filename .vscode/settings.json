@@ -12,4 +12,5 @@
     "*.css": "tailwindcss"
   },
   "editor.tabSize": 2,
+  "prettier.configPath": "prettier.config.js",
 }

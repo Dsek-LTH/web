@@ -20,11 +20,11 @@ export const articles = [
         last_name: "Wilke",
         picture_path:
           "https://minio.api.dsek.se/members/public/fi2065wi-s/rimlig profilbild5632.jpg",
-        __typename: "Member"
+        __typename: "Member",
       },
       mandate: null,
       customAuthor: null,
-      __typename: "Author"
+      __typename: "Author",
     },
     imageUrl: null,
     publishedDatetime: "2023-09-22T11:30:17.836Z",
@@ -38,8 +38,8 @@ export const articles = [
         nameEn: "📚 The Student Council",
         color: "#FA9C1B",
         isDefault: true,
-        __typename: "Tag"
-      }
+        __typename: "Tag",
+      },
     ],
     comments: [],
     likers: [
@@ -51,10 +51,10 @@ export const articles = [
         nickname: "Sockerpappa",
         picture_path:
           "https://minio.api.dsek.se/members/public/ax6160sv-s/snickerboa-phest-cropped3245.jpg",
-        __typename: "Member"
-      }
+        __typename: "Member",
+      },
     ],
-    __typename: "Article"
+    __typename: "Article",
   },
   {
     id: "58f7beb4-b1d4-47f7-ac0f-ea45337df87b",
@@ -74,19 +74,19 @@ export const articles = [
         nickname: "Hur många bord?",
         last_name: "Jernstedt",
         picture_path: "https://i.pravatar.cc/?u=lund@student",
-        __typename: "Member"
+        __typename: "Member",
       },
       mandate: {
         id: "a91ec57b-572a-4b70-8428-5d3dd7f08a3f",
         position: {
           id: "dsek.sex.sektkock",
           name: "Sektionskock",
-          __typename: "Position"
+          __typename: "Position",
         },
-        __typename: "Mandate"
+        __typename: "Mandate",
       },
       customAuthor: null,
-      __typename: "Author"
+      __typename: "Author",
     },
     imageUrl: null,
     publishedDatetime: "2023-09-20T11:24:19.540Z",
@@ -100,7 +100,7 @@ export const articles = [
         nameEn: "🍴 Free food",
         color: "#00ab28",
         isDefault: true,
-        __typename: "Tag"
+        __typename: "Tag",
       },
       {
         id: "fd27c2d8-c1fa-4300-9a86-b0696c9c1afb",
@@ -108,7 +108,7 @@ export const articles = [
         nameEn: "🤼 Guild Meetings",
         color: "rgb(200, 80, 100)",
         isDefault: true,
-        __typename: "Tag"
+        __typename: "Tag",
       },
       {
         id: "f3099bb1-0bf1-4be7-9d78-c6bbc890f08d",
@@ -116,8 +116,8 @@ export const articles = [
         nameEn: "🥳 The Festivities Commitee",
         color: "yellow",
         isDefault: true,
-        __typename: "Tag"
-      }
+        __typename: "Tag",
+      },
     ],
     comments: [],
     likers: [
@@ -128,7 +128,7 @@ export const articles = [
         last_name: "Johansson",
         nickname: "",
         picture_path: "https://minio.api.dsek.se/members/public/si5006jo-s/IMG_13631059.jpeg",
-        __typename: "Member"
+        __typename: "Member",
       },
       {
         id: "6a8914ce-bf2a-411e-aecb-91eb517367ae",
@@ -138,7 +138,7 @@ export const articles = [
         nickname: "Patenterat orimlig, *pop*",
         picture_path:
           "https://minio.api.dsek.se/members/public/ju3007ka-s/8376AE12-32CB-40AA-999C-E00EF43232517693.jpeg",
-        __typename: "Member"
+        __typename: "Member",
       },
       {
         id: "942812cc-199d-4d09-b772-6cf78cfa487e",
@@ -148,10 +148,10 @@ export const articles = [
         nickname: "Sockerpappa",
         picture_path:
           "https://minio.api.dsek.se/members/public/ax6160sv-s/snickerboa-phest-cropped3245.jpg",
-        __typename: "Member"
-      }
+        __typename: "Member",
+      },
     ],
-    __typename: "Article"
+    __typename: "Article",
   },
   {
     id: "20ef15d3-7436-4bd7-973e-414c94735a3b",
@@ -172,19 +172,19 @@ export const articles = [
         last_name: "Anderberg",
         picture_path:
           "https://minio.api.dsek.se/members/public/an8521an-s/received_4339647618244196898.jpeg",
-        __typename: "Member"
+        __typename: "Member",
       },
       mandate: {
         id: "0f93ba04-20fe-4f61-ba7a-1d2b4f546066",
         position: {
           id: "dsek.nari.vice_mastare",
           name: "Vice Näringslivsansvarig",
-          __typename: "Position"
+          __typename: "Position",
         },
-        __typename: "Mandate"
+        __typename: "Mandate",
       },
       customAuthor: null,
-      __typename: "Author"
+      __typename: "Author",
     },
     imageUrl: null,
     publishedDatetime: "2023-09-19T11:22:45.959Z",
@@ -198,7 +198,7 @@ export const articles = [
         nameEn: "🍴 Free food",
         color: "#00ab28",
         isDefault: true,
-        __typename: "Tag"
+        __typename: "Tag",
       },
       {
         id: "31f84b2b-c1ce-42a6-be81-9a68382980b0",
@@ -206,7 +206,7 @@ export const articles = [
         nameEn: "💸 The Corporate Relations Committee",
         color: "rgb(0, 100, 150)",
         isDefault: true,
-        __typename: "Tag"
+        __typename: "Tag",
       },
       {
         id: "7a93ea34-f7a3-49fd-ba3d-a2d62f2ae53a",
@@ -214,8 +214,8 @@ export const articles = [
         nameEn: "🤝 Company event",
         color: "#18a0c5",
         isDefault: false,
-        __typename: "Tag"
-      }
+        __typename: "Tag",
+      },
     ],
     comments: [],
     likers: [
@@ -227,10 +227,10 @@ export const articles = [
         nickname: "Sockerpappa",
         picture_path:
           "https://minio.api.dsek.se/members/public/ax6160sv-s/snickerboa-phest-cropped3245.jpg",
-        __typename: "Member"
-      }
+        __typename: "Member",
+      },
     ],
-    __typename: "Article"
+    __typename: "Article",
   },
   {
     id: "90c595a7-912b-4bba-b406-de6240546a03",
@@ -251,19 +251,19 @@ export const articles = [
         last_name: "Coleman",
         picture_path:
           "https://minio.api.dsek.se/members/public/ad3416co-s/9B529651-B3D8-43B1-8408-C0EB0AB9BFEA_1_105_c1489.jpg",
-        __typename: "Member"
+        __typename: "Member",
       },
       mandate: {
         id: "547ab8a2-2157-4de1-81c3-73e9f34cdc3b",
         position: {
           id: "dsek.nari.mastare",
           name: "Näringslivsansvarig",
-          __typename: "Position"
+          __typename: "Position",
         },
-        __typename: "Mandate"
+        __typename: "Mandate",
       },
       customAuthor: null,
-      __typename: "Author"
+      __typename: "Author",
     },
     imageUrl: null,
     publishedDatetime: "2023-09-18T16:50:25.183Z",
@@ -277,7 +277,7 @@ export const articles = [
         nameEn: "🍴 Free food",
         color: "#00ab28",
         isDefault: true,
-        __typename: "Tag"
+        __typename: "Tag",
       },
       {
         id: "31f84b2b-c1ce-42a6-be81-9a68382980b0",
@@ -285,7 +285,7 @@ export const articles = [
         nameEn: "💸 The Corporate Relations Committee",
         color: "rgb(0, 100, 150)",
         isDefault: true,
-        __typename: "Tag"
+        __typename: "Tag",
       },
       {
         id: "7a93ea34-f7a3-49fd-ba3d-a2d62f2ae53a",
@@ -293,8 +293,8 @@ export const articles = [
         nameEn: "🤝 Company event",
         color: "#18a0c5",
         isDefault: false,
-        __typename: "Tag"
-      }
+        __typename: "Tag",
+      },
     ],
     comments: [],
     likers: [
@@ -306,7 +306,7 @@ export const articles = [
         nickname: "Anreas",
         picture_path:
           "https://minio.api.dsek.se/members/public/an8521an-s/received_4339647618244196898.jpeg",
-        __typename: "Member"
+        __typename: "Member",
       },
       {
         id: "942812cc-199d-4d09-b772-6cf78cfa487e",
@@ -316,10 +316,10 @@ export const articles = [
         nickname: "Sockerpappa",
         picture_path:
           "https://minio.api.dsek.se/members/public/ax6160sv-s/snickerboa-phest-cropped3245.jpg",
-        __typename: "Member"
-      }
+        __typename: "Member",
+      },
     ],
-    __typename: "Article"
+    __typename: "Article",
   },
   {
     id: "7322c37b-e5d8-432d-8c1a-e7cccd17459b",
@@ -339,19 +339,19 @@ export const articles = [
         last_name: "Coleman",
         picture_path:
           "https://minio.api.dsek.se/members/public/ad3416co-s/9B529651-B3D8-43B1-8408-C0EB0AB9BFEA_1_105_c1489.jpg",
-        __typename: "Member"
+        __typename: "Member",
       },
       mandate: {
         id: "547ab8a2-2157-4de1-81c3-73e9f34cdc3b",
         position: {
           id: "dsek.nari.mastare",
           name: "Näringslivsansvarig",
-          __typename: "Position"
+          __typename: "Position",
         },
-        __typename: "Mandate"
+        __typename: "Mandate",
       },
       customAuthor: null,
-      __typename: "Author"
+      __typename: "Author",
     },
     imageUrl: null,
     publishedDatetime: "2023-09-18T15:13:17.821Z",
@@ -365,7 +365,7 @@ export const articles = [
         nameEn: "🍴 Free food",
         color: "#00ab28",
         isDefault: true,
-        __typename: "Tag"
+        __typename: "Tag",
       },
       {
         id: "31f84b2b-c1ce-42a6-be81-9a68382980b0",
@@ -373,7 +373,7 @@ export const articles = [
         nameEn: "💸 The Corporate Relations Committee",
         color: "rgb(0, 100, 150)",
         isDefault: true,
-        __typename: "Tag"
+        __typename: "Tag",
       },
       {
         id: "7a93ea34-f7a3-49fd-ba3d-a2d62f2ae53a",
@@ -381,8 +381,8 @@ export const articles = [
         nameEn: "🤝 Company event",
         color: "#18a0c5",
         isDefault: false,
-        __typename: "Tag"
-      }
+        __typename: "Tag",
+      },
     ],
     comments: [],
     likers: [
@@ -394,10 +394,10 @@ export const articles = [
         nickname: "Anreas",
         picture_path:
           "https://minio.api.dsek.se/members/public/an8521an-s/received_4339647618244196898.jpeg",
-        __typename: "Member"
-      }
+        __typename: "Member",
+      },
     ],
-    __typename: "Article"
+    __typename: "Article",
   },
   {
     id: "2789e3ea-b74d-4950-95bb-d5d6d564c344",
@@ -418,11 +418,11 @@ export const articles = [
         last_name: "Holgersson",
         picture_path:
           "https://minio.api.dsek.se/members/public/ra6147ho-s/received_19174982886370365391.jpeg",
-        __typename: "Member"
+        __typename: "Member",
       },
       mandate: null,
       customAuthor: null,
-      __typename: "Author"
+      __typename: "Author",
     },
     imageUrl: null,
     publishedDatetime: "2023-09-18T12:00:34.356Z",
@@ -436,8 +436,8 @@ export const articles = [
         nameEn: "⛷️ The Committee for Activities",
         color: " #06EC84 ",
         isDefault: true,
-        __typename: "Tag"
-      }
+        __typename: "Tag",
+      },
     ],
     comments: [
       {
@@ -452,10 +452,10 @@ export const articles = [
           nickname: "",
           picture_path:
             "https://minio.api.dsek.se/members/public/lo0451ch-s/86E8A0A1-4D18-49B1-9489-CAADDD4FA7951956.jpeg",
-          __typename: "Member"
+          __typename: "Member",
         },
-        __typename: "Comment"
-      }
+        __typename: "Comment",
+      },
     ],
     likers: [
       {
@@ -465,7 +465,7 @@ export const articles = [
         last_name: "Korpi",
         nickname: "korpi",
         picture_path: "https://minio.api.dsek.se/members/public/os2777ko-s/korpi7512.jpg",
-        __typename: "Member"
+        __typename: "Member",
       },
       {
         id: "6f97288d-a2da-48b4-8c4c-851badf0addf",
@@ -474,7 +474,7 @@ export const articles = [
         last_name: "Tegelberg Hägnefors",
         nickname: "",
         picture_path: "https://minio.api.dsek.se/members/public/ad3444te-s/po_kungfu982.png",
-        __typename: "Member"
+        __typename: "Member",
       },
       {
         id: "79da2b7f-c533-4ef4-9481-8e8bc77ee285",
@@ -483,7 +483,7 @@ export const articles = [
         last_name: "Bergstrand",
         nickname: "Valle B",
         picture_path: "https://minio.api.dsek.se/members/public/va2710be-s/IMG-2448408.jpg",
-        __typename: "Member"
+        __typename: "Member",
       },
       {
         id: "db8621fc-eb3f-46fc-9046-20b2756b81dc",
@@ -493,7 +493,7 @@ export const articles = [
         nickname: "Dobbol",
         picture_path:
           "https://minio.api.dsek.se/members/public/da2081de-s/received_33969224939603095102.jpeg",
-        __typename: "Member"
+        __typename: "Member",
       },
       {
         id: "3ed17208-6d54-49d9-b511-56b75688ef2d",
@@ -503,7 +503,7 @@ export const articles = [
         nickname: "",
         picture_path:
           "https://minio.api.dsek.se/members/public/lo0451ch-s/86E8A0A1-4D18-49B1-9489-CAADDD4FA7951956.jpeg",
-        __typename: "Member"
+        __typename: "Member",
       },
       {
         id: "45dbde75-f580-4f3b-8c83-52b069077a58",
@@ -513,10 +513,10 @@ export const articles = [
         nickname: "",
         picture_path:
           "https://minio.api.dsek.se/members/public/da6673he-s/89CCD878-70E2-418C-80B4-B3D19965DE4C9299.jpeg",
-        __typename: "Member"
-      }
+        __typename: "Member",
+      },
     ],
-    __typename: "Article"
+    __typename: "Article",
   },
   {
     id: "17b01384-8737-4d18-a2a9-c3e6a9be12b6",
@@ -536,19 +536,19 @@ export const articles = [
         nickname: "Pisse",
         last_name: "Tatidis",
         picture_path: "https://minio.api.dsek.se/members/public/so2107ta-s/profilbild7723.jpg",
-        __typename: "Member"
+        __typename: "Member",
       },
       mandate: {
         id: "528cc2ca-e748-40f9-b870-d7711af0ee31",
         position: {
           id: "dsek.ordf",
           name: "Sektionsordförande",
-          __typename: "Position"
+          __typename: "Position",
         },
-        __typename: "Mandate"
+        __typename: "Mandate",
       },
       customAuthor: null,
-      __typename: "Author"
+      __typename: "Author",
     },
     imageUrl: null,
     publishedDatetime: "2023-09-11T10:49:31.225Z",
@@ -562,7 +562,7 @@ export const articles = [
         nameEn: "🍴 Free food",
         color: "#00ab28",
         isDefault: true,
-        __typename: "Tag"
+        __typename: "Tag",
       },
       {
         id: "fd27c2d8-c1fa-4300-9a86-b0696c9c1afb",
@@ -570,8 +570,8 @@ export const articles = [
         nameEn: "🤼 Guild Meetings",
         color: "rgb(200, 80, 100)",
         isDefault: true,
-        __typename: "Tag"
-      }
+        __typename: "Tag",
+      },
     ],
     comments: [
       {
@@ -585,9 +585,9 @@ export const articles = [
           last_name: "Jakobsson",
           nickname: null,
           picture_path: null,
-          __typename: "Member"
+          __typename: "Member",
         },
-        __typename: "Comment"
+        __typename: "Comment",
       },
       {
         id: "88eaf7fe-a967-4a5d-bc9c-1d36a0627fdd",
@@ -600,9 +600,9 @@ export const articles = [
           last_name: "Strömberg",
           nickname: null,
           picture_path: null,
-          __typename: "Member"
+          __typename: "Member",
         },
-        __typename: "Comment"
+        __typename: "Comment",
       },
       {
         id: "a479353b-8c57-47c0-b55e-0cfbb9ef3da0",
@@ -616,9 +616,9 @@ export const articles = [
           last_name: "Tatidis",
           nickname: "Pisse",
           picture_path: "https://minio.api.dsek.se/members/public/so2107ta-s/profilbild7723.jpg",
-          __typename: "Member"
+          __typename: "Member",
         },
-        __typename: "Comment"
+        __typename: "Comment",
       },
       {
         id: "fb907f2c-b2c2-4565-8156-03820cf92a23",
@@ -631,10 +631,10 @@ export const articles = [
           last_name: "Jakobsson",
           nickname: null,
           picture_path: null,
-          __typename: "Member"
+          __typename: "Member",
         },
-        __typename: "Comment"
-      }
+        __typename: "Comment",
+      },
     ],
     likers: [
       {
@@ -644,7 +644,7 @@ export const articles = [
         last_name: "Jakobsson",
         nickname: null,
         picture_path: null,
-        __typename: "Member"
+        __typename: "Member",
       },
       {
         id: "bbfd880f-dc08-412c-8b5b-c0f3343694aa",
@@ -653,7 +653,7 @@ export const articles = [
         last_name: "Hartwig",
         nickname: null,
         picture_path: "https://minio.api.dsek.se/members/public/ax0272ha-s/epic bild2340.png",
-        __typename: "Member"
+        __typename: "Member",
       },
       {
         id: "84156d07-9430-4933-824d-47f5bc39b0fd",
@@ -662,7 +662,7 @@ export const articles = [
         last_name: "Johansson",
         nickname: "",
         picture_path: "https://minio.api.dsek.se/members/public/si5006jo-s/IMG_13631059.jpeg",
-        __typename: "Member"
+        __typename: "Member",
       },
       {
         id: "33241ed9-96fd-40db-a417-348eba5cb418",
@@ -671,7 +671,7 @@ export const articles = [
         last_name: "Jansson",
         nickname: null,
         picture_path: null,
-        __typename: "Member"
+        __typename: "Member",
       },
       {
         id: "79da2b7f-c533-4ef4-9481-8e8bc77ee285",
@@ -680,7 +680,7 @@ export const articles = [
         last_name: "Bergstrand",
         nickname: "Valle B",
         picture_path: "https://minio.api.dsek.se/members/public/va2710be-s/IMG-2448408.jpg",
-        __typename: "Member"
+        __typename: "Member",
       },
       {
         id: "618bcde1-155c-44e6-a003-265f7f82b927",
@@ -690,7 +690,7 @@ export const articles = [
         nickname: "Waffers",
         picture_path:
           "https://minio.api.dsek.se/members/public/ra6147ho-s/received_19174982886370365391.jpeg",
-        __typename: "Member"
+        __typename: "Member",
       },
       {
         id: "6db000bc-fe06-4b76-9978-ee81ebbfd66a",
@@ -699,7 +699,7 @@ export const articles = [
         last_name: "Carp",
         nickname: "Hunken i kafeterian",
         picture_path: "https://minio.api.dsek.se/members/public/ar0043ka-s/image_from_ios2348.jpg",
-        __typename: "Member"
+        __typename: "Member",
       },
       {
         id: "6a8914ce-bf2a-411e-aecb-91eb517367ae",
@@ -709,7 +709,7 @@ export const articles = [
         nickname: "Patenterat orimlig, *pop*",
         picture_path:
           "https://minio.api.dsek.se/members/public/ju3007ka-s/8376AE12-32CB-40AA-999C-E00EF43232517693.jpeg",
-        __typename: "Member"
+        __typename: "Member",
       },
       {
         id: "89d58bff-a720-40cb-8a4c-9b03938c6abc",
@@ -718,7 +718,7 @@ export const articles = [
         last_name: "Engblom",
         nickname: null,
         picture_path: null,
-        __typename: "Member"
+        __typename: "Member",
       },
       {
         id: "942812cc-199d-4d09-b772-6cf78cfa487e",
@@ -728,10 +728,10 @@ export const articles = [
         nickname: "Sockerpappa",
         picture_path:
           "https://minio.api.dsek.se/members/public/ax6160sv-s/snickerboa-phest-cropped3245.jpg",
-        __typename: "Member"
-      }
+        __typename: "Member",
+      },
     ],
-    __typename: "Article"
+    __typename: "Article",
   },
   {
     id: "30d0b888-ec4f-42e5-be15-c7fb1a146e32",
@@ -751,11 +751,11 @@ export const articles = [
         nickname: "Valle B",
         last_name: "Bergstrand",
         picture_path: "https://minio.api.dsek.se/members/public/va2710be-s/IMG-2448408.jpg",
-        __typename: "Member"
+        __typename: "Member",
       },
       mandate: null,
       customAuthor: null,
-      __typename: "Author"
+      __typename: "Author",
     },
     imageUrl: null,
     publishedDatetime: "2023-09-10T20:53:38.006Z",
@@ -769,7 +769,7 @@ export const articles = [
         nameEn: "Nominations",
         color: "white",
         isDefault: false,
-        __typename: "Tag"
+        __typename: "Tag",
       },
       {
         id: "cf80214c-ed75-4d68-a1ce-90d61a0067c2",
@@ -777,7 +777,7 @@ export const articles = [
         nameEn: "‼️  Important",
         color: "#ff2727d8",
         isDefault: true,
-        __typename: "Tag"
+        __typename: "Tag",
       },
       {
         id: "f6f77ce7-e237-4a59-88e8-4af713b5b7be",
@@ -785,7 +785,7 @@ export const articles = [
         nameEn: "🐋 The Nomination Committee",
         color: "rgb(0, 122, 240)",
         isDefault: true,
-        __typename: "Tag"
+        __typename: "Tag",
       },
       {
         id: "6ffa65b8-6303-4b71-9071-13839c244a96",
@@ -793,8 +793,8 @@ export const articles = [
         nameEn: "🗳️ Nomination Committee",
         color: "",
         isDefault: false,
-        __typename: "Tag"
-      }
+        __typename: "Tag",
+      },
     ],
     comments: [],
     likers: [
@@ -805,7 +805,7 @@ export const articles = [
         last_name: "Hartwig",
         nickname: null,
         picture_path: "https://minio.api.dsek.se/members/public/ax0272ha-s/epic bild2340.png",
-        __typename: "Member"
+        __typename: "Member",
       },
       {
         id: "84156d07-9430-4933-824d-47f5bc39b0fd",
@@ -814,7 +814,7 @@ export const articles = [
         last_name: "Johansson",
         nickname: "",
         picture_path: "https://minio.api.dsek.se/members/public/si5006jo-s/IMG_13631059.jpeg",
-        __typename: "Member"
+        __typename: "Member",
       },
       {
         id: "6a8914ce-bf2a-411e-aecb-91eb517367ae",
@@ -824,7 +824,7 @@ export const articles = [
         nickname: "Patenterat orimlig, *pop*",
         picture_path:
           "https://minio.api.dsek.se/members/public/ju3007ka-s/8376AE12-32CB-40AA-999C-E00EF43232517693.jpeg",
-        __typename: "Member"
+        __typename: "Member",
       },
       {
         id: "942812cc-199d-4d09-b772-6cf78cfa487e",
@@ -834,10 +834,10 @@ export const articles = [
         nickname: "Sockerpappa",
         picture_path:
           "https://minio.api.dsek.se/members/public/ax6160sv-s/snickerboa-phest-cropped3245.jpg",
-        __typename: "Member"
-      }
+        __typename: "Member",
+      },
     ],
-    __typename: "Article"
+    __typename: "Article",
   },
   {
     id: "baf1039a-4a28-4a98-9b44-63b8a58c4a40",
@@ -858,19 +858,19 @@ export const articles = [
         last_name: "Svedberg",
         picture_path:
           "https://minio.api.dsek.se/members/public/lu4185sv-s/56A5D7B7-12F7-4D62-B989-198B2D1E21EE6476.jpeg",
-        __typename: "Member"
+        __typename: "Member",
       },
       mandate: {
         id: "b8aa3150-c84e-4571-a087-71e4399bff6d",
         position: {
           id: "dsek.sex.mastare",
           name: "Sexmästare",
-          __typename: "Position"
+          __typename: "Position",
         },
-        __typename: "Mandate"
+        __typename: "Mandate",
       },
       customAuthor: null,
-      __typename: "Author"
+      __typename: "Author",
     },
     imageUrl: "https://minio.api.dsek.se/news/public/efterslapp-i-gasque-imorgon-/IMG_2676.png",
     publishedDatetime: "2023-09-06T15:58:52.097Z",
@@ -884,8 +884,8 @@ export const articles = [
         nameEn: "🥳 The Festivities Commitee",
         color: "yellow",
         isDefault: true,
-        __typename: "Tag"
-      }
+        __typename: "Tag",
+      },
     ],
     comments: [],
     likers: [
@@ -896,7 +896,7 @@ export const articles = [
         last_name: "Månsson",
         nickname: "alphamejl",
         picture_path: "http://minio.api.dsek.se:443/members/public/ad6701ma-s/20221007_234353.jpg",
-        __typename: "Member"
+        __typename: "Member",
       },
       {
         id: "974f62a4-64b8-4fb6-985b-fef5687c2afa",
@@ -906,7 +906,7 @@ export const articles = [
         nickname: "",
         picture_path:
           "https://minio.api.dsek.se/members/public/lu4185sv-s/56A5D7B7-12F7-4D62-B989-198B2D1E21EE6476.jpeg",
-        __typename: "Member"
+        __typename: "Member",
       },
       {
         id: "942812cc-199d-4d09-b772-6cf78cfa487e",
@@ -916,10 +916,10 @@ export const articles = [
         nickname: "Sockerpappa",
         picture_path:
           "https://minio.api.dsek.se/members/public/ax6160sv-s/snickerboa-phest-cropped3245.jpg",
-        __typename: "Member"
-      }
+        __typename: "Member",
+      },
     ],
-    __typename: "Article"
+    __typename: "Article",
   },
   {
     id: "7985f14e-22cd-4bf7-814d-e2cc0857f0f8",
@@ -940,11 +940,11 @@ export const articles = [
         last_name: "Wilke",
         picture_path:
           "https://minio.api.dsek.se/members/public/fi2065wi-s/rimlig profilbild5632.jpg",
-        __typename: "Member"
+        __typename: "Member",
       },
       mandate: null,
       customAuthor: null,
-      __typename: "Author"
+      __typename: "Author",
     },
     imageUrl: null,
     publishedDatetime: "2023-09-06T14:48:41.936Z",
@@ -958,8 +958,8 @@ export const articles = [
         nameEn: "📚 The Student Council",
         color: "#FA9C1B",
         isDefault: true,
-        __typename: "Tag"
-      }
+        __typename: "Tag",
+      },
     ],
     comments: [
       {
@@ -974,9 +974,9 @@ export const articles = [
           nickname: "Anreas",
           picture_path:
             "https://minio.api.dsek.se/members/public/an8521an-s/received_4339647618244196898.jpeg",
-          __typename: "Member"
+          __typename: "Member",
         },
-        __typename: "Comment"
+        __typename: "Comment",
       },
       {
         id: "d284e16c-048b-42e5-a9b5-309739d3a94d",
@@ -991,10 +991,10 @@ export const articles = [
           nickname: "borr",
           picture_path:
             "https://minio.api.dsek.se/members/public/fi2065wi-s/rimlig profilbild5632.jpg",
-          __typename: "Member"
+          __typename: "Member",
         },
-        __typename: "Comment"
-      }
+        __typename: "Comment",
+      },
     ],
     likers: [
       {
@@ -1004,7 +1004,7 @@ export const articles = [
         last_name: "Johansson",
         nickname: "",
         picture_path: "https://minio.api.dsek.se/members/public/si5006jo-s/IMG_13631059.jpeg",
-        __typename: "Member"
+        __typename: "Member",
       },
       {
         id: "fcefd258-5161-4cd7-9765-dd7cd9505be3",
@@ -1014,7 +1014,7 @@ export const articles = [
         nickname: "Anreas",
         picture_path:
           "https://minio.api.dsek.se/members/public/an8521an-s/received_4339647618244196898.jpeg",
-        __typename: "Member"
+        __typename: "Member",
       },
       {
         id: "79da2b7f-c533-4ef4-9481-8e8bc77ee285",
@@ -1023,7 +1023,7 @@ export const articles = [
         last_name: "Bergstrand",
         nickname: "Valle B",
         picture_path: "https://minio.api.dsek.se/members/public/va2710be-s/IMG-2448408.jpg",
-        __typename: "Member"
+        __typename: "Member",
       },
       {
         id: "980f4e5d-57c9-42c8-8149-67c9c672269d",
@@ -1032,7 +1032,7 @@ export const articles = [
         last_name: "Sinicka",
         nickname: "Miko",
         picture_path: "https://minio.api.dsek.se/members/public/mi4766si-s/PANA47707510.JPG",
-        __typename: "Member"
+        __typename: "Member",
       },
       {
         id: "6a8914ce-bf2a-411e-aecb-91eb517367ae",
@@ -1042,7 +1042,7 @@ export const articles = [
         nickname: "Patenterat orimlig, *pop*",
         picture_path:
           "https://minio.api.dsek.se/members/public/ju3007ka-s/8376AE12-32CB-40AA-999C-E00EF43232517693.jpeg",
-        __typename: "Member"
+        __typename: "Member",
       },
       {
         id: "1822a1d4-7581-437b-8d1c-166db1a25937",
@@ -1051,9 +1051,9 @@ export const articles = [
         last_name: "af Klinteberg",
         nickname: "Klintan",
         picture_path: "https://minio.api.dsek.se/members/public/fi7584af-s/20230406_2030314369.jpg",
-        __typename: "Member"
-      }
+        __typename: "Member",
+      },
     ],
-    __typename: "Article"
-  }
+    __typename: "Article",
+  },
 ];

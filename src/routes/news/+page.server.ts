@@ -5,5 +5,5 @@ export const load: PageServerLoad = async () => {
   const articles = await getAllArticles();
   return {
     articles,
-  }
+  };
 };

@@ -2,11 +2,15 @@ import type { JWT } from "@auth/core/jwt";
 import Keycloak from "@auth/core/providers/keycloak";
 import type { Session } from "@auth/core/types";
 import { SvelteKitAuth } from "@auth/sveltekit";
-import { KEYCLOAK_CLIENT_ID, KEYCLOAK_CLIENT_SECRET, KEYCLOAK_CLIENT_ISSUER } from "$env/static/private";
-
+import {
+  KEYCLOAK_CLIENT_ID,
+  KEYCLOAK_CLIENT_SECRET,
+  KEYCLOAK_CLIENT_ISSUER,
+} from "$env/static/private";
 
 export const handle = SvelteKitAuth({
-    providers: [Keycloak({
+  providers: [
+    Keycloak({
       clientId: KEYCLOAK_CLIENT_ID,
       clientSecret: KEYCLOAK_CLIENT_SECRET,
       issuer: KEYCLOAK_CLIENT_ISSUER,
@@ -22,40 +26,36 @@ export const handle = SvelteKitAuth({
           id_token: tokens.id_token,
         };
       },
-      
-      
-    })],
-    callbacks: {
-      jwt({ token, user }) {
-        if (user) {
-            token.student_id = user?.student_id;
-            token.group_list = user?.group_list ?? [];
-            token.access_token = user?.access_token;
-            token.id_token = user?.id_token;
-        }
-        return token;
-      },
-      session({ session, token }: {
-        session: Session,
-        token: JWT,
-      }) {
-        if (session?.user) {
-            session.user.student_id = token.student_id;
-            session.user.group_list = token.group_list;
-        }
-        return session;
-      },
+    }),
+  ],
+  callbacks: {
+    jwt({ token, user }) {
+      if (user) {
+        token.student_id = user?.student_id;
+        token.group_list = user?.group_list ?? [];
+        token.access_token = user?.access_token;
+        token.id_token = user?.id_token;
+      }
+      return token;
     },
-    events: {
-      async signOut(message) {
-          if (!('token' in message)) {
-            return;
-          }
-          const idToken = message.token?.id_token;
-          const params = new URLSearchParams();
-          params.append('id_token_hint', idToken as string);
-          fetch(`${KEYCLOAK_CLIENT_ISSUER}/protocol/openid-connect/logout?${params.toString()}`);
-      },
+    session({ session, token }: { session: Session; token: JWT }) {
+      if (session?.user) {
+        session.user.student_id = token.student_id;
+        session.user.group_list = token.group_list;
+      }
+      return session;
     },
-    debug: true,
-  })
+  },
+  events: {
+    async signOut(message) {
+      if (!("token" in message)) {
+        return;
+      }
+      const idToken = message.token?.id_token;
+      const params = new URLSearchParams();
+      params.append("id_token_hint", idToken as string);
+      fetch(`${KEYCLOAK_CLIENT_ISSUER}/protocol/openid-connect/logout?${params.toString()}`);
+    },
+  },
+  debug: true,
+});

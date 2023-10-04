@@ -2,12 +2,12 @@ import { getArticle } from "$lib/articles";
 import { error } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async ({params}) => {
+export const load: PageServerLoad = async ({ params }) => {
   const article = await getArticle(params.id);
   if (article === undefined) {
-		throw error(404, {
-			message: 'Not found'
-		});
+    throw error(404, {
+      message: "Not found",
+    });
   }
   return {
     article,
