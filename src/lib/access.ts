@@ -46,12 +46,9 @@ export const hasAccess = async (
   return false;
 };
 
-export const accessGuard = async (
-  apiName: string | string[],
-  context: Context,
-  myMemberId?: string
-) => {
-  if (await hasAccess(apiName, context, myMemberId)) return;
+export const accessGuard = (apiName: string | string[], userAccessPolicies: string[]) => {
+  const apiNames = typeof apiName === "string" ? [apiName] : apiName;
+  if (userAccessPolicies.some((p) => apiNames.includes(p))) return;
   throw error(403, {
     message: "You do not have permission, have you logged in?",
     statusDescription: "Unauthorized",
@@ -86,6 +83,7 @@ export const splitGroupList = (groupList: string[]) => {
   return splitGroups;
 };
 
+// Will return a list like ["news:create", "news:like", ...etc]
 export const getUserApis = async (ctx: Context) => {
   const policies = await prisma.accessPolicy.findMany({
     where: {
