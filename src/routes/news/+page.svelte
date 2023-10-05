@@ -13,13 +13,13 @@
       class="input input-bordered w-full focus:border-primary-focus"
     />
   </form>
-  {#if data.apiAccessPolicies.includes(apiNames.NEWS_CREATE)}
+  {#if data.accessPolicies.includes(apiNames.NEWS.CREATE)}
     <a class="btn" href="/news/create">+ Create</a>
   {/if}
 </div>
 {#each data.articles as article (article.id)}
   <article
-    class="ease my-4 rounded-2xl p-6 shadow-2xl ring-neutral-700 transition md:my-8 md:p-8 md:ring-1 md:hover:scale-105"
+    class="ease mdNEWS.CREATE8 my-4 rounded-2xl p-6 shadow-2xl ring-neutral-700 transition md:ring-1 md:hover:scale-105"
   >
     <div class="flex flex-row justify-between">
       <div class="flex items-center gap-3">
