@@ -2,7 +2,7 @@
 export default {
   content: ["./src/**/*.{html,js,svelte,ts}"],
   theme: {
-    extend: {}
+    extend: {},
   },
   daisyui: {
     themes: [
@@ -16,8 +16,8 @@ export default {
           info: "#3abff8",
           success: "#36d399",
           warning: "#fbbd23",
-          error: "#f87272"
-        }
+          error: "#f87272",
+        },
       },
       {
         dark: {
@@ -29,11 +29,11 @@ export default {
           info: "#3abff8",
           success: "#36d399",
           warning: "#fbbd23",
-          error: "#f87272"
-        }
-      }
+          error: "#f87272",
+        },
+      },
     ],
-    logs: false
+    logs: false,
   },
-  plugins: [require("@tailwindcss/typography"), require("daisyui")]
+  plugins: [require("@tailwindcss/typography"), require("daisyui")],
 };

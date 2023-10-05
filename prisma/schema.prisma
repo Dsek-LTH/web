@@ -51,15 +51,16 @@ model Author {
 }
 
 model Member {
-  id           String        @id @default(uuid())
-  studentId    String        @unique @map("student_id")
-  firstName    String        @map("first_name")
-  lastName     String        @map("last_name")
+  id           String         @id @default(uuid())
+  studentId    String         @unique @map("student_id")
+  firstName    String         @map("first_name")
+  lastName     String         @map("last_name")
   nickname     String?
   picture_path String?
   mandates     Mandate[]
   Author       Author[]
   ArticleLike  ArticleLike[]
+  AccessPolicy AccessPolicy[]
 }
 
 model Mandate {
@@ -80,8 +81,11 @@ model Position {
 }
 
 model AccessPolicy {
-  id        String  @id @default(uuid())
-  apiName   String  @map("api_name")
+  id        String   @id @default(uuid())
+  apiName   String   @map("api_name")
   role      String?
-  studentId String? @map("student_id")
+  member    Member?  @relation(fields: [studentId], references: [studentId], onDelete: Cascade)
+  studentId String?  @map("student_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
 }

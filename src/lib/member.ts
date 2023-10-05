@@ -16,6 +16,7 @@ export const getCurrentMember = async (context: Context) => {
   }
   return member;
 };
+
 export const getCurrentMemberId = async (context: Context) => {
   const member = await getCurrentMember(context);
   return member.id;
