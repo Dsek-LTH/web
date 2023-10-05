@@ -3,37 +3,35 @@
   import { page } from "$app/stores";
   $: user = $page.data.session?.user;
   import "../app.css";
+  import apiNames from "$lib/apiNames";
+  export let data;
 </script>
 
 <nav class="navbar sticky top-0 z-50 bg-primary text-primary-content shadow-xl">
-  <!--   <div class="flex-none md:hidden">
-    <button class="btn btn-square btn-ghost">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        class="inline-block h-5 w-5 stroke-current"
-        ><path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M4 6h16M4 12h16M4 18h16"
-        ></path></svg
-      >
-    </button>
-  </div> -->
-  <div class="ml-44 flex-1">
-    <a class="btn btn-ghost text-xl normal-case" href="/">D-sektionen</a>
-    <a class="btn btn-ghost" href="/news">Nyheter</a>
-    <a class="btn btn-ghost" href="/events">Evenemang</a>
-  </div>
-  <div class="flex-none">
-    {#if $page.data.session}
-      <button class="btn btn-neutral" on:click={() => signOut()}> Logga ut </button>
-      <a class="btn btn-ghost" href="/profile"> Profil ({user?.student_id}) </a>
-    {:else}
-      <button class="btn btn-neutral" on:click={() => signIn("keycloak")}> Logga in </button>
-    {/if}
+  <div class="layout-container w-full">
+    <div class="flex-1">
+      <a class="btn btn-ghost text-xl normal-case" href="/">D-sektionen</a>
+      <a class="btn btn-ghost" href="/news">Nyheter</a>
+      <a class="btn btn-ghost" href="/events">Evenemang</a>
+      {#if data.accessPolicies.includes(apiNames.ACCESS_POLICY.READ)}
+        <div class="dropdown dropdown-hover">
+          <span class="btn btn-ghost no-animation">Admin</span>
+          <ul
+            class="menu dropdown-content rounded-box z-[1] w-52 bg-base-100 p-2 text-base-content shadow"
+          >
+            <li><a href="/admin/access">Access</a></li>
+          </ul>
+        </div>
+      {/if}
+    </div>
+    <div class="flex-none">
+      {#if $page.data.session}
+        <button class="btn btn-neutral" on:click={() => signOut()}> Logga ut </button>
+        <a class="btn btn-ghost" href="/profile"> Profil ({user?.student_id}) </a>
+      {:else}
+        <button class="btn btn-neutral" on:click={() => signIn("keycloak")}> Logga in </button>
+      {/if}
+    </div>
   </div>
 </nav>
 
