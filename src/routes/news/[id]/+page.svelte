@@ -1,6 +1,6 @@
 <script lang="ts">
   export let data;
-  $: article = data.article!;
+  const article = data.article!;
 </script>
 
 <!-- {#if data.imageUrl}
@@ -28,7 +28,7 @@
 
 <section>
   <p class="my-4 text-sm text-gray-600">
-    <!-- Publicerad {new Date(article.publishedAt).toLocaleDateString()} -->
+    Publicerad {article.publishedAt?.toLocaleDateString("sv")}
   </p>
 </section>
 
