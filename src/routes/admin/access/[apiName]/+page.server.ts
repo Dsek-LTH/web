@@ -35,8 +35,8 @@ export const actions = {
         await prisma.accessPolicy.create({
           data: {
             apiName: params.apiName,
-            role: role as string | undefined,
-            studentId: studentId as string | undefined,
+            role: (role as string | undefined) ? role : undefined,
+            studentId: (studentId as string | undefined) ? studentId : undefined,
           },
         });
         return {
@@ -44,9 +44,6 @@ export const actions = {
         };
       } catch (e) {
         if (e instanceof Prisma.PrismaClientKnownRequestError) {
-          if (e.code === "P2003")
-            // foreign key constraint
-            return fail(400, { role, studentId, error: "Member does not exist" });
           return fail(400, { role, studentId, error: e.message });
         }
         return fail(400, { role, studentId, error: "Unknown error" });
@@ -72,9 +69,8 @@ export const actions = {
         };
       } catch (e) {
         if (e instanceof Prisma.PrismaClientKnownRequestError) {
-          if (e.code === "P2003")
-            // foreign key constraint
-            return fail(400, { id, error: "Member does not exist" });
+          // foreign key constraint
+          if (e.code === "P2003") return fail(400, { id, error: "Member does not exist" });
           return fail(400, { id, error: e.message });
         }
         return fail(400, { id, error: "Unknown error" });

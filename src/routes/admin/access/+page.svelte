@@ -1,6 +1,8 @@
 <script lang="ts">
+  import { enhance } from "$app/forms";
   export let data;
-  const uniqueApiNames = data.allPolicies
+  export let form;
+  $: uniqueApiNames = data.allPolicies
     .map((policy) => policy.apiName)
     .filter((value, index, self) => self.indexOf(value) === index)
     .sort();
@@ -25,4 +27,26 @@
     </tbody>
   </table>
 </div>
-<ul></ul>
+
+<section class="flex flex-col gap-4 py-4">
+  <h2 class="text-xl font-bold">Add new policies</h2>
+  <form class="form-control gap-4" method="POST" action="?/create" use:enhance>
+    <label class="join">
+      <span class="label join-item bg-base-200 px-4">New policy</span>
+      <input
+        type="text"
+        name="apiName"
+        placeholder="Policy name"
+        class="input join-item input-bordered input-primary w-80"
+        value={form?.apiName ?? ""}
+      />
+      <button type="submit" class="btn btn-primary join-item">Add</button>
+    </label>
+  </form>
+  {#if form?.missing}
+    <p class="text-red-500">Du måste faktiskt skriva in något</p>
+  {/if}
+  {#if form?.error}
+    <p class="text-red-500">{form.error}</p>
+  {/if}
+</section>

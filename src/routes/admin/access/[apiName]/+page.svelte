@@ -1,8 +1,9 @@
 <script lang="ts">
+  import { enhance } from "$app/forms";
   export let data;
   export let form;
   import { page } from "$app/stores";
-  const policies = data.policies.sort((a, b) => {
+  $: policies = data.policies.sort((a, b) => {
     if (a.role && b.role) return a.role.localeCompare(b.role);
     if (a.role && !b.role) return -1;
     if (!a.role && b.role) return 1;
@@ -22,6 +23,7 @@
         <th />
       </tr>
     </thead>
+    <!-- body -->
     <tbody>
       {#each policies as policy}<tr>
           <td>{policy.role ?? ""}</td>
@@ -29,7 +31,7 @@
           >
           <td>{policy.createdAt?.toLocaleString("sv")}</td>
           <td class="text-right">
-            <form method="POST" action="?/delete">
+            <form method="POST" action="?/delete" use:enhance>
               <input type="hidden" name="id" value={policy.id} /><button
                 type="submit"
                 class="btn btn-xs px-8">Remove</button
@@ -40,9 +42,9 @@
       {/each}
     </tbody>
   </table>
-  <section class="mt-4 flex flex-col gap-4">
+  <section class="flex flex-col gap-4 py-4">
     <h2 class="text-xl font-bold">Add new policies</h2>
-    <form class="form-control gap-4" method="POST" action="?/create">
+    <form class="form-control gap-4" method="POST" action="?/create" use:enhance>
       <label class="join">
         <span class="label join-item bg-base-200 px-4">Role</span>
         <input
@@ -66,6 +68,8 @@
         <button type="submit" class="btn btn-primary join-item">Add</button>
       </label>
     </form>
+    {#if form?.error}
+      <p class="text-red-500">{form.error}</p>
+    {/if}
   </section>
 </div>
-<ul></ul>
