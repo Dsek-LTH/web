@@ -1,13 +1,13 @@
 import { getCurrentMemberId } from "$lib/member";
 import prisma from "$lib/prisma";
 import type { Session } from "@auth/core/types";
-import type { ApiAccessPolicy } from "@prisma/client";
+import type { AccessPolicy } from "@prisma/client";
 import { error } from "@sveltejs/kit";
 
 export type Context = Session["user"] | undefined;
 
 export const verifyAccess = (
-  policies: Pick<ApiAccessPolicy, "studentId" | "role">[],
+  policies: Pick<AccessPolicy, "studentId" | "role">[],
   context: Context
 ): boolean => {
   const roles = context?.group_list ?? [];
@@ -28,7 +28,7 @@ export const hasAccess = async (
   relevantMemberId?: string
 ): Promise<boolean> => {
   const apiNames = typeof apiName === "string" ? [apiName] : apiName;
-  const policies = await prisma.apiAccessPolicy.findMany({
+  const policies = await prisma.accessPolicy.findMany({
     where: {
       apiName: { in: apiNames },
     },
@@ -87,7 +87,7 @@ export const splitGroupList = (groupList: string[]) => {
 };
 
 export const getUserApis = async (ctx: Context) => {
-  const policies = await prisma.apiAccessPolicy.findMany({
+  const policies = await prisma.accessPolicy.findMany({
     where: {
       role: {
         in: [...splitGroupList(ctx?.group_list ? [...ctx.group_list, "_"] : [])],

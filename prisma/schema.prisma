@@ -79,7 +79,7 @@ model Position {
   Mandate Mandate[]
 }
 
-model ApiAccessPolicy {
+model AccessPolicy {
   id        String  @id @default(uuid())
   apiName   String  @map("api_name")
   role      String?

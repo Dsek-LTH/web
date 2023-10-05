@@ -57,5 +57,4 @@ export const handle = SvelteKitAuth({
       fetch(`${KEYCLOAK_CLIENT_ISSUER}/protocol/openid-connect/logout?${params.toString()}`);
     },
   },
-  debug: true,
 });

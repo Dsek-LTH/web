@@ -4,5 +4,5 @@ import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async (event) => {
   const session = await event.locals.getSession();
-  await accessGuard(apiNames.NEWS_CREATE, session?.user);
+  await accessGuard(apiNames.NEWS.CREATE, session?.user);
 };

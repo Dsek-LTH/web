@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import positionData from "./seed_data/positions";
-import apiAccessData from "./seed_data/apiAccess";
+import accessPolicyData from "./seed_data/accessPolicy";
 import memberData from "./seed_data/members";
 import articleData from "./seed_data/articles";
 
@@ -14,11 +14,11 @@ async function main() {
     prisma.member.deleteMany(),
     prisma.tag.deleteMany(),
     prisma.mandate.deleteMany(),
-    prisma.apiAccessPolicy.deleteMany(),
+    prisma.accessPolicy.deleteMany(),
   ]);
 
   await Promise.all(
-    apiAccessData.map((apiAccessPolicy) => prisma.apiAccessPolicy.create({ data: apiAccessPolicy }))
+    accessPolicyData.map((accessPolicy) => prisma.accessPolicy.create({ data: accessPolicy }))
   );
   await Promise.all(positionData.map((position) => prisma.position.create({ data: position })));
   await Promise.all(memberData.map((member) => prisma.member.create({ data: member })));
