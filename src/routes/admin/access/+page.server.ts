@@ -38,7 +38,7 @@ export const actions = {
           return fail(400, { apiName, error: e.message });
         }
         console.warn(e);
-        return fail(400, { apiName, error: "Unknown error" });
+        return fail(500, { apiName, error: "Unknown error" });
       }
     });
   },

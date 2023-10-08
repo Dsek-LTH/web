@@ -69,7 +69,7 @@
       </label>
     </form>
     {#if form?.error}
-      <p class="text-red-500">{form.error}</p>
+      <p class="text-error">{form.error}</p>
     {/if}
   </section>
 </div>

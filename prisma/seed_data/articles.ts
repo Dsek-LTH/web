@@ -14,7 +14,7 @@ const articles: Prisma.ArticleCreateInput[] = [
         },
       },
     },
-    ArticleLike: {
+    likes: {
       create: [
         {
           member: {

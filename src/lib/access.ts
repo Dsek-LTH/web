@@ -49,10 +49,7 @@ export const hasAccess = async (
 export const accessGuard = (apiName: string | string[], userAccessPolicies: string[]) => {
   const apiNames = typeof apiName === "string" ? [apiName] : apiName;
   if (userAccessPolicies.some((p) => apiNames.includes(p))) return;
-  throw error(403, {
-    message: "You do not have permission, have you logged in?",
-    statusDescription: "Unauthorized",
-  });
+  throw error(403, "You do not have permission, have you logged in?");
 };
 
 export const withAccess = async <T>(
@@ -62,10 +59,7 @@ export const withAccess = async <T>(
   myMemberId?: string
 ) => {
   if (await hasAccess(apiName, context, myMemberId)) return fn();
-  throw error(403, {
-    message: "You do not have permission, have you logged in?",
-    statusDescription: "Unauthorized",
-  });
+  throw error(403, "You do not have permission, have you logged in?");
 };
 
 // split all roles in group list. a group list might look like ["dsek.infu.mdlm", "dsek.ordf"] and this will split it into ["dsek", "dsek.infu", "dsek.infu.mdlm", "dsek.ordf"]

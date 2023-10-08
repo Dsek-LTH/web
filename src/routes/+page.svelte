@@ -18,7 +18,6 @@
   .hero-container {
     background-image: url(/hero-image.jpg);
     background-position: center;
-    background-position-y: -26px;
     background-repeat: no-repeat;
     background-size: cover;
     min-height: calc(100vh - 10rem);
