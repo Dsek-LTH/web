@@ -8,6 +8,9 @@ export const getAllArticles = async () => {
         not: null,
       },
     },
+    orderBy: {
+      publishedAt: "desc",
+    },
     include: {
       author: {
         include: {
@@ -19,7 +22,7 @@ export const getAllArticles = async () => {
           },
         },
       },
-      ArticleLike: {
+      likes: {
         include: {
           member: true,
         },
@@ -50,7 +53,7 @@ export const getArticle = async (slug: string) => {
           },
         },
       },
-      ArticleLike: {
+      likes: {
         include: {
           member: true,
         },
@@ -60,3 +63,5 @@ export const getArticle = async (slug: string) => {
   });
   return response;
 };
+
+export type Article = NonNullable<Awaited<ReturnType<typeof getArticle>>>;

@@ -7,7 +7,7 @@ const crud = (base: string) => ({
 
 const apiNames = {
   NEWS: {
-    CREATE: "news:create",
+    ...crud("news"),
   },
   ACCESS_POLICY: crud("access_policy"),
 };
