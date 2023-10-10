@@ -14,13 +14,13 @@
 
 <h1 class="mb-8 text-2xl font-bold">{article.header}</h1>
 
-<section class="flex items-center border-y border-gray-600 py-4">
-  <!-- <div class="avatar">
-      <div class="w-16 rounded-full">
-        <img src={article.author.member.picture_path} alt={article.author.member.first_name} />
-      </div>
-    </div> -->
+<section class="flex items-center justify-between border-y border-gray-600 py-4">
   <div class="ml-4">
+    <!-- <div class="avatar">
+        <div class="w-16 rounded-full">
+          <img src={article.author.member.picture_path} alt={article.author.member.first_name} />
+        </div>
+      </div> -->
     <p class="font-semibold">
       {article.author.member.firstName}
       {article.author.member.lastName}
@@ -29,6 +29,7 @@
       <p class="font-thin text-primary">{article.author.mandate?.position.name}</p>
     {/if}
   </div>
+  <slot name="actions" />
 </section>
 
 <section class="flex flex-row items-center justify-between">

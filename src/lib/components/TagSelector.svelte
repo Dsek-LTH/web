@@ -4,6 +4,7 @@
   import Tag from "$lib/components/Tag.svelte";
   export let allTags: TagType[] = [];
   export let selectedTags: TagType[] = [];
+  $: console.log(selectedTags);
 </script>
 
 <AutoComplete options={allTags} bind:selected={selectedTags} multiple>
