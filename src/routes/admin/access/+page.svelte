@@ -44,9 +44,9 @@
     </label>
   </form>
   {#if form?.missing}
-    <p class="text-red-500">Du måste faktiskt skriva in något</p>
+    <p class="text-erro">Du måste faktiskt skriva in något</p>
   {/if}
   {#if form?.error}
-    <p class="text-red-500">{form.error}</p>
+    <p class="text-erro">{form.error}</p>
   {/if}
 </section>

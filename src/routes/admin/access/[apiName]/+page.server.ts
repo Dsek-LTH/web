@@ -35,8 +35,8 @@ export const actions = {
         await prisma.accessPolicy.create({
           data: {
             apiName: params.apiName,
-            role: (role as string | undefined) ? role : undefined,
-            studentId: (studentId as string | undefined) ? studentId : undefined,
+            role: role ? (role as string | undefined) : undefined,
+            studentId: studentId ? (studentId as string | undefined) : undefined,
           },
         });
         return {
@@ -73,7 +73,7 @@ export const actions = {
           if (e.code === "P2003") return fail(400, { id, error: "Member does not exist" });
           return fail(400, { id, error: e.message });
         }
-        return fail(400, { id, error: "Unknown error" });
+        return fail(500, { id, error: "Unknown error" });
       }
     });
   },

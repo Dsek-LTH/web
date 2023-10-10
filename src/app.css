@@ -11,25 +11,3 @@
     @apply mx-auto max-w-screen-sm sm:max-w-screen-md md:max-w-screen-lg;
   }
 }
-
-.dropdown:is(:not(details)) .dropdown-content {
-  visibility: visible;
-  pointer-events: none;
-  transform: translateY(-0.75rem);
-  opacity: 0;
-}
-
-.dropdown.dropdown-open .dropdown-content,
-.dropdown:not(.dropdown-hover):focus .dropdown-content,
-.dropdown:focus-within .dropdown-content {
-  pointer-events: initial;
-  transform: translateY(0);
-  opacity: 1;
-}
-@media (hover: hover) {
-  .dropdown.dropdown-hover:hover .dropdown-content {
-    pointer-events: initial;
-    transform: translateY(0);
-    opacity: 1;
-  }
-}

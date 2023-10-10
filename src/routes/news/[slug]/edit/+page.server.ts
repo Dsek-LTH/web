@@ -4,7 +4,7 @@ import prisma from "$lib/prisma";
 import { Prisma, type Member, type Tag } from "@prisma/client";
 import { error, fail, redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
-import { slugifyArticleHeader } from "$lib/slugify";
+import { slugify, slugifyArticleHeader } from "$lib/slugify";
 
 export type AuthorOption = {
   memberId: string;
@@ -16,13 +16,34 @@ export type AuthorOption = {
     };
   }> | null;
 };
-export const load: PageServerLoad = async ({ parent }) => {
+export const load: PageServerLoad = async ({ parent, params }) => {
   const allTags = await prisma.tag.findMany();
-  const { session, accessPolicies } = await parent();
-  accessGuard(apiNames.NEWS.CREATE, accessPolicies);
-  const currentMemberWithMandates = await prisma.member.findUnique({
+  const { accessPolicies } = await parent();
+  accessGuard(apiNames.NEWS.UPDATE, accessPolicies);
+  const article = await prisma.article.findUnique({
     where: {
-      studentId: session?.user.student_id,
+      slug: params.slug,
+    },
+    include: {
+      author: {
+        include: {
+          member: true,
+          mandate: {
+            include: {
+              position: true,
+            },
+          },
+        },
+      },
+      tags: true,
+    },
+  });
+  if (article?.author.id !== undefined) article.author.id = "";
+  if (!article) throw error(404, "Article not found");
+
+  const authorMemberWithMandates = await prisma.member.findUnique({
+    where: {
+      id: article?.author.member.id,
     },
     include: {
       mandates: {
@@ -40,18 +61,18 @@ export const load: PageServerLoad = async ({ parent }) => {
       },
     },
   });
-  if (!currentMemberWithMandates) throw error(500, "Member not found");
+  if (!authorMemberWithMandates) throw error(500, "Author member not found");
   const authorOptions: AuthorOption[] = [
     {
-      memberId: currentMemberWithMandates.id,
-      member: currentMemberWithMandates,
+      memberId: authorMemberWithMandates.id,
+      member: authorMemberWithMandates,
       mandateId: null,
       mandate: null,
     },
-    ...(currentMemberWithMandates?.mandates.map((mandate) => {
+    ...(authorMemberWithMandates?.mandates.map((mandate) => {
       return {
-        memberId: currentMemberWithMandates.id,
-        member: currentMemberWithMandates,
+        memberId: authorMemberWithMandates.id,
+        member: authorMemberWithMandates,
         mandateId: mandate.id,
         mandate: mandate,
       };
@@ -60,18 +81,16 @@ export const load: PageServerLoad = async ({ parent }) => {
   return {
     allTags,
     authorOptions,
+    article,
   };
 };
 
 export const actions = {
   default: async ({ request, locals }) => {
     const session = await locals.getSession();
-    return withAccess(apiNames.NEWS.CREATE, session?.user, async () => {
+    return withAccess(apiNames.NEWS.UPDATE, session?.user, async () => {
       // read the form data sent by the browser
       const formData = await request.formData();
-      const header = String(formData.get("header"));
-      const body = String(formData.get("body"));
-      // const image = formData.get("image");
       let author: AuthorOption;
       let tags: Tag[];
       try {
@@ -87,24 +106,28 @@ export const actions = {
           error: "Invalid author or tags",
         });
       }
-      if (!header)
-        return fail(400, {
-          error: "Missing header",
-        });
       const existingAuthor = await prisma.author.findFirst({
         where: {
           member: {
-            studentId: session!.user.student_id,
+            id: author.memberId,
           },
           mandateId: author.mandateId,
         },
       });
+      const slug = String(formData.get("slug"));
+      const newSlug =
+        slugify(String(formData.get("header"))) === slug
+          ? slug
+          : slugifyArticleHeader(String(formData.get("header")));
       try {
-        await prisma.article.create({
+        await prisma.article.update({
+          where: {
+            slug,
+          },
           data: {
-            slug: slugifyArticleHeader(header),
-            header: header as string,
-            body: (body as string | undefined) ?? "",
+            slug: newSlug,
+            header: String(formData.get("header")),
+            body: String(formData.get("body")),
             author: {
               connect: existingAuthor
                 ? {
@@ -131,7 +154,6 @@ export const actions = {
                       : undefined,
                   },
             },
-            // imageUrl: (image as string | undefined) || null,
             tags: {
               connect: tags
                 .filter((tag) => !!tag)
@@ -139,7 +161,7 @@ export const actions = {
                   id: tag.id,
                 })),
             },
-            publishedAt: new Date(),
+            updatedAt: new Date(),
           },
         });
       } catch (e) {
@@ -153,7 +175,7 @@ export const actions = {
           error: "Unknown error",
         });
       }
-      throw redirect(303, "/news");
+      throw redirect(303, `/news/${newSlug}`);
     });
   },
 };

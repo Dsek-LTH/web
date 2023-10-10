@@ -18,7 +18,7 @@ model Article {
   body        String
   author      Author        @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId    String        @map("author_id")
-  ArticleLike ArticleLike[]
+  likes       ArticleLike[]
   imageUrl    String?
   createdAt   DateTime      @default(now()) @map("created_at")
   updatedAt   DateTime      @default(now()) @map("latest_edit_datetime")
@@ -32,35 +32,38 @@ model ArticleLike {
   articleId String
   member    Member  @relation(fields: [memberId], references: [id], onDelete: Cascade)
   memberId  String
+
+  @@unique([articleId, memberId])
 }
 
 model Tag {
-  id        String    @id @default(uuid())
-  name      String    @unique
-  articleId String?
-  articles  Article[]
+  id       String    @id @default(uuid())
+  name     String    @unique
+  articles Article[]
 }
 
 model Author {
-  id        String    @id @default(uuid())
-  member    Member    @relation(fields: [memberId], references: [id], onDelete: Cascade)
-  memberId  String
-  mandate   Mandate?  @relation(fields: [mandateId], references: [id], onDelete: SetNull)
-  mandateId String?
-  Article   Article[]
+  id               String    @id @default(uuid())
+  member           Member    @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  memberId         String
+  mandate          Mandate?  @relation(fields: [mandateId], references: [id], onDelete: SetNull)
+  mandateId        String?
+  authoredArticles Article[]
+
+  @@unique([memberId, mandateId])
 }
 
 model Member {
-  id           String         @id @default(uuid())
-  studentId    String         @unique @map("student_id")
-  firstName    String         @map("first_name")
-  lastName     String         @map("last_name")
-  nickname     String?
-  picture_path String?
-  mandates     Mandate[]
-  Author       Author[]
-  ArticleLike  ArticleLike[]
-  AccessPolicy AccessPolicy[]
+  id             String         @id @default(uuid())
+  studentId      String         @unique @map("student_id")
+  firstName      String         @map("first_name")
+  lastName       String         @map("last_name")
+  nickname       String?
+  picturePath    String?
+  mandates       Mandate[]
+  Author         Author[]
+  likedArticles  ArticleLike[]
+  accessPolicies AccessPolicy[]
 }
 
 model Mandate {
@@ -72,12 +75,14 @@ model Mandate {
   position   Position @relation(fields: [positionId], references: [id], onDelete: Cascade)
   positionId String
   Author     Author[]
+
+  @@unique([memberId, positionId, start, end])
 }
 
 model Position {
-  id      String    @id
-  name    String
-  Mandate Mandate[]
+  id       String    @id
+  name     String
+  mandates Mandate[]
 }
 
 model AccessPolicy {
@@ -88,4 +93,6 @@ model AccessPolicy {
   studentId String?  @map("student_id")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @map("updated_at")
+
+  @@unique([apiName, role, studentId])
 }

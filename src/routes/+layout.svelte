@@ -7,7 +7,7 @@
   export let data;
 </script>
 
-<nav class="navbar sticky top-0 z-50 bg-primary text-primary-content shadow-xl">
+<nav class="navbar sticky top-0 z-50 h-20 bg-primary text-primary-content shadow-xl">
   <div class="layout-container w-full">
     <div class="flex-1">
       <a class="btn btn-ghost text-xl normal-case" href="/">D-sektionen</a>
@@ -35,7 +35,7 @@
   </div>
 </nav>
 
-<div class="overflow-auto accent-primary">
+<div class="h-[calc(100vh-5rem)] flex-col overflow-auto accent-primary [&>*]:flex-1">
   <slot />
 </div>
 
@@ -86,3 +86,27 @@
     >
   </button>
 </div>
+
+<style>
+  .dropdown:is(:not(details)) .dropdown-content {
+    visibility: visible;
+    pointer-events: none;
+    transform: translateY(-0.75rem);
+    opacity: 0;
+  }
+
+  /* .dropdown.dropdown-open .dropdown-content, */
+  .dropdown:not(.dropdown-hover):focus .dropdown-content,
+  .dropdown:focus-within .dropdown-content {
+    pointer-events: initial;
+    transform: translateY(0);
+    opacity: 1;
+  }
+  @media (hover: hover) {
+    .dropdown.dropdown-hover:hover .dropdown-content {
+      pointer-events: initial;
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+</style>
