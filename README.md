@@ -1,30 +1,45 @@
 # Nice to have commands
 
-## create prisma migration (or migrate local db to latest)
+## Setup localling
+
+### install dependencies
+
+```sh
+bun install
+```
+
+### Setting up DB (if you don't already have one)
+
+```bash
+docker run --name postgres -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=new_web -d postgres:14-alpine
+```
+
+### Setup `.env.local`
+- Override `DATABASE_URL`
+- Insert `AUTH_SECRET` from someone or generate with `openssl rand -hex 32`
+- Insert `KEYCLOAK_CLIENT_SECRET` (secret)
+
+### migrate local db to latest (or create prisma new migration)
 
 ```sh
 bun migrate
 ```
 
-## seed
+### seed database
 
 ```sh
 bun seed
 ```
 
-## generate
+### generate (should automatically be done )
 
 ```sh
 bun generate
 ```
 
-# create-svelte
-
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
-
 ## Developing
 
-Once you've created a project and installed dependencies with `bun install`, start a development server:
+Once you've created a project and installed setup everything like above, start a development server:
 
 ```bash
 bun dev
@@ -33,11 +48,6 @@ bun dev
 bun dev -- --open
 ```
 
-## Setting up DB
-
-```bash
-docker run --name postgres -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=new_web -d postgres:14-alpine
-```
 
 ## Building
 
