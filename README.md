@@ -5,7 +5,7 @@
 ### install dependencies
 
 ```sh
-bun install
+pnpm install
 ```
 
 ### Setting up DB (if you don't already have one)
@@ -22,19 +22,19 @@ docker run --name postgres -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PA
 ### migrate local db to latest (or create prisma new migration)
 
 ```sh
-bun migrate
+pnpm migrate
 ```
 
 ### seed database
 
 ```sh
-bun seed
+pnpm seed
 ```
 
 ### generate (should automatically be done )
 
 ```sh
-bun generate
+pnpm generate
 ```
 
 ## Developing
@@ -42,10 +42,10 @@ bun generate
 Once you've created a project and installed setup everything like above, start a development server:
 
 ```bash
-bun dev
+pnpm dev
 
 # or start the server and open the app in a new browser tab
-bun dev -- --open
+pnpm dev -- --open
 ```
 
 
@@ -54,9 +54,9 @@ bun dev -- --open
 To create a production version of your app:
 
 ```bash
-bun build
+pnpm build
 ```
 
-You can preview the production build with `bun preview`.
+You can preview the production build with `pnpm preview`.
 
 > To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
