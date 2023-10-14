@@ -1,9 +1,28 @@
+import prisma from "$lib/prisma";
+
 export const slugify = (str: string) => {
   const slug = str.replace(/\s+/g, "-").toLowerCase();
   return slug.length > 50 ? slug.slice(0, 50) : slug;
 };
 
-export const slugifyArticleHeader = (header: string) => {
-  const slugifiedHeader = slugify(header);
-  return slugifiedHeader;
+export const slugifyArticleHeader = async (header: string) => {
+  const slug = slugify(header);
+  let number = 0;
+  let count = await prisma.article.count({
+    where: {
+      slug,
+    },
+  });
+  while (count > 0) {
+    number += 1;
+    count = await prisma.article.count({
+      where: {
+        slug: `${slug}-${number}`,
+      },
+    });
+  }
+  if (number > 0) {
+    return `${slug}-${number}`;
+  }
+  return slug;
 };

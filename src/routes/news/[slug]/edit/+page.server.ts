@@ -1,11 +1,10 @@
 import { accessGuard, withAccess } from "$lib/access";
 import apiNames from "$lib/apiNames";
+import { getArticleAuthorOptions, type AuthorOption } from "$lib/articles";
 import prisma from "$lib/prisma";
 import { Prisma, type Tag } from "@prisma/client";
 import { error, fail, redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
-import { slugify, slugifyArticleHeader } from "$lib/slugify";
-import { getArticleAuthorOptions, type AuthorOption } from "$lib/articles";
 
 export const load: PageServerLoad = async ({ parent, params }) => {
   const allTags = await prisma.tag.findMany();
@@ -95,18 +94,13 @@ export const actions = {
           mandateId: author.mandateId,
         },
       });
-      const slug = String(formData.get("slug"));
-      const newSlug =
-        slugify(String(formData.get("header"))) === slug
-          ? slug
-          : slugifyArticleHeader(String(formData.get("header")));
+      let slug: string;
       try {
-        await prisma.article.update({
+        const result = await prisma.article.update({
           where: {
-            slug,
+            slug: String(formData.get("slug")),
           },
           data: {
-            slug: newSlug,
             header: String(formData.get("header")),
             body: String(formData.get("body")),
             author: {
@@ -145,6 +139,7 @@ export const actions = {
             updatedAt: new Date(),
           },
         });
+        slug = result.slug;
       } catch (e) {
         if (e instanceof Prisma.PrismaClientKnownRequestError) {
           return fail(400, {
@@ -158,7 +153,7 @@ export const actions = {
           data: Object.fromEntries(formData),
         });
       }
-      throw redirect(303, `/news/${newSlug}`);
+      throw redirect(303, `/news/${slug}`);
     });
   },
 };

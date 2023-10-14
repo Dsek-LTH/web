@@ -80,7 +80,7 @@ export const actions = {
       try {
         await prisma.article.create({
           data: {
-            slug: slugifyArticleHeader(header),
+            slug: await slugifyArticleHeader(header),
             header: header,
             body: String(formData.get("body")) ?? "",
             author: {
