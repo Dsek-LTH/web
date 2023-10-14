@@ -15,6 +15,7 @@ docker run --name postgres -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PA
 ```
 
 ### Setup `.env.local`
+
 - Override `DATABASE_URL`
 - Insert `AUTH_SECRET` from someone or generate with `openssl rand -hex 32`
 - Insert `KEYCLOAK_CLIENT_SECRET` (secret)
@@ -47,7 +48,6 @@ pnpm dev
 # or start the server and open the app in a new browser tab
 pnpm dev -- --open
 ```
-
 
 ## Building
 
