@@ -1,21 +1,12 @@
 import { accessGuard, withAccess } from "$lib/access";
 import apiNames from "$lib/apiNames";
 import prisma from "$lib/prisma";
-import { Prisma, type Member, type Tag } from "@prisma/client";
+import { Prisma, type Tag } from "@prisma/client";
 import { error, fail, redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 import { slugifyArticleHeader } from "$lib/slugify";
+import { getArticleAuthorOptions, type AuthorOption } from "$lib/articles";
 
-export type AuthorOption = {
-  memberId: string;
-  member: Member;
-  mandateId: string | null;
-  mandate: Prisma.MandateGetPayload<{
-    include: {
-      position: true;
-    };
-  }> | null;
-};
 export const load: PageServerLoad = async ({ parent }) => {
   const allTags = await prisma.tag.findMany();
   const { session, accessPolicies } = await parent();
@@ -41,22 +32,7 @@ export const load: PageServerLoad = async ({ parent }) => {
     },
   });
   if (!currentMemberWithMandates) throw error(500, "Member not found");
-  const authorOptions: AuthorOption[] = [
-    {
-      memberId: currentMemberWithMandates.id,
-      member: currentMemberWithMandates,
-      mandateId: null,
-      mandate: null,
-    },
-    ...(currentMemberWithMandates?.mandates.map((mandate) => {
-      return {
-        memberId: currentMemberWithMandates.id,
-        member: currentMemberWithMandates,
-        mandateId: mandate.id,
-        mandate: mandate,
-      };
-    }) ?? []),
-  ];
+  const authorOptions = getArticleAuthorOptions(currentMemberWithMandates);
   return {
     allTags,
     authorOptions,
@@ -70,7 +46,6 @@ export const actions = {
       // read the form data sent by the browser
       const formData = await request.formData();
       const header = String(formData.get("header"));
-      const body = String(formData.get("body"));
       // const image = formData.get("image");
       let author: AuthorOption;
       let tags: Tag[];
@@ -80,16 +55,19 @@ export const actions = {
         if (!author) {
           return fail(400, {
             error: "Missing author",
+            data: Object.fromEntries(formData),
           });
         }
       } catch (e) {
         return fail(400, {
           error: "Invalid author or tags",
+          data: Object.fromEntries(formData),
         });
       }
       if (!header)
         return fail(400, {
           error: "Missing header",
+          data: Object.fromEntries(formData),
         });
       const existingAuthor = await prisma.author.findFirst({
         where: {
@@ -103,8 +81,8 @@ export const actions = {
         await prisma.article.create({
           data: {
             slug: slugifyArticleHeader(header),
-            header: header as string,
-            body: (body as string | undefined) ?? "",
+            header: header,
+            body: String(formData.get("body")) ?? "",
             author: {
               connect: existingAuthor
                 ? {
@@ -146,11 +124,13 @@ export const actions = {
         if (e instanceof Prisma.PrismaClientKnownRequestError) {
           return fail(400, {
             error: e.message,
+            data: Object.fromEntries(formData),
           });
         }
         console.log(e);
         return fail(500, {
           error: "Unknown error",
+          data: Object.fromEntries(formData),
         });
       }
       throw redirect(303, "/news");

@@ -15,7 +15,7 @@
       <a class="btn btn-ghost" href="/events">Evenemang</a>
       {#if data.accessPolicies.includes(apiNames.ACCESS_POLICY.READ)}
         <div class="dropdown dropdown-hover">
-          <span class="btn btn-ghost no-animation">Admin</span>
+          <span class="btn btn-ghost">Admin</span>
           <ul
             class="menu dropdown-content rounded-box z-[1] w-52 bg-base-100 p-2 text-base-content shadow"
           >

@@ -1,26 +1,19 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
+  import type { Article as ArticleType, AuthorOption } from "$lib/articles.js";
   import Article from "$lib/components/Article.svelte";
   import TagSelector from "$lib/components/TagSelector.svelte";
-  import type { Tag as TagType } from "@prisma/client";
-  import type { AuthorOption } from "../../routes/news/create/+page.server";
+  import type { Tag } from "@prisma/client";
 
   export let authorOptions: AuthorOption[];
-  $: authorOptionsWithId = authorOptions.map((authorOption) => ({
-    ...authorOption,
-    id: "",
-  }));
-  export let allTags: TagType[];
-  export let article: Omit<import("$lib/articles.js").Article, "likes"> = {
+  export let allTags: Tag[];
+  export let article: Omit<ArticleType, "likes"> = {
     id: "",
     slug: "",
     header: "",
     body: "",
     authorId: "",
-    author: {
-      id: "",
-      ...authorOptions[0],
-    },
+    author: authorOptions[0],
     tags: [],
     publishedAt: new Date(),
     createdAt: new Date(),
@@ -28,7 +21,25 @@
     imageUrl: null,
   };
   let submitting: boolean = false;
-  // $: authorOptions = data.authorOptions;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  export let formData: Record<string, any> | undefined;
+  // effect over default value above to work from for "edit article" as well
+  $: (() => {
+    if (!formData) return;
+    if (formData.header) article.header = formData.header;
+    if (formData.body) article.body = formData.body;
+    if (formData.tags) {
+      const oldTagIds = JSON.parse(formData.tags).map((tag: Tag) => tag.id);
+      article.tags = allTags.filter((tag) => oldTagIds.includes(tag.id));
+    }
+    if (formData.author) {
+      const oldAuthor = JSON.parse(formData.author);
+      article.author =
+        authorOptions.find((authorOption) => authorOption.id === oldAuthor.id) ?? article.author;
+    }
+    formData = undefined; // to stop formData from overriding what user changes
+  })();
 </script>
 
 <main class="flex w-screen flex-col gap-8 px-4 pt-8 lg:flex-row lg:px-8 [&>*]:flex-1">
@@ -51,15 +62,10 @@
         bind:value={article.body}
       />
       <select class="select select-bordered w-full max-w-xs" bind:value={article.author} required>
-        {#each authorOptionsWithId as authorOption}
-          <option
-            value={{
-              id: "",
-            }}
-          >
+        {#each authorOptions as authorOption}
+          <option value={authorOption}>
             {authorOption.member.firstName}
-            {authorOption.member.lastName}
-            {#if authorOption.mandate?.position.name}
+            {authorOption.member.lastName}{#if authorOption.mandate?.position.name},
               {authorOption.mandate?.position.name}
             {/if}
           </option>

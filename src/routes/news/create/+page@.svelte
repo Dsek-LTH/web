@@ -6,7 +6,7 @@
   export let form;
 </script>
 
-<ArticleEditor {...data}>
+<ArticleEditor {...data} formData={form?.data}>
   <div slot="error">
     {#if form?.error}
       <p class="text-error">{form.error}</p>

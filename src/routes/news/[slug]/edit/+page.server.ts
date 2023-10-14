@@ -1,21 +1,12 @@
 import { accessGuard, withAccess } from "$lib/access";
 import apiNames from "$lib/apiNames";
 import prisma from "$lib/prisma";
-import { Prisma, type Member, type Tag } from "@prisma/client";
+import { Prisma, type Tag } from "@prisma/client";
 import { error, fail, redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 import { slugify, slugifyArticleHeader } from "$lib/slugify";
+import { getArticleAuthorOptions, type AuthorOption } from "$lib/articles";
 
-export type AuthorOption = {
-  memberId: string;
-  member: Member;
-  mandateId: string | null;
-  mandate: Prisma.MandateGetPayload<{
-    include: {
-      position: true;
-    };
-  }> | null;
-};
 export const load: PageServerLoad = async ({ parent, params }) => {
   const allTags = await prisma.tag.findMany();
   const { accessPolicies } = await parent();
@@ -27,7 +18,23 @@ export const load: PageServerLoad = async ({ parent, params }) => {
     include: {
       author: {
         include: {
-          member: true,
+          member: {
+            include: {
+              mandates: {
+                where: {
+                  start: {
+                    lte: new Date(),
+                  },
+                  end: {
+                    gte: new Date(),
+                  },
+                },
+                include: {
+                  position: true,
+                },
+              },
+            },
+          },
           mandate: {
             include: {
               position: true,
@@ -41,43 +48,15 @@ export const load: PageServerLoad = async ({ parent, params }) => {
   if (article?.author.id !== undefined) article.author.id = "";
   if (!article) throw error(404, "Article not found");
 
-  const authorMemberWithMandates = await prisma.member.findUnique({
-    where: {
-      id: article?.author.member.id,
-    },
-    include: {
-      mandates: {
-        where: {
-          start: {
-            lte: new Date(),
-          },
-          end: {
-            gte: new Date(),
-          },
-        },
-        include: {
-          position: true,
-        },
-      },
-    },
-  });
+  const authorMemberWithMandates = article.author.member;
   if (!authorMemberWithMandates) throw error(500, "Author member not found");
-  const authorOptions: AuthorOption[] = [
-    {
-      memberId: authorMemberWithMandates.id,
-      member: authorMemberWithMandates,
-      mandateId: null,
-      mandate: null,
-    },
-    ...(authorMemberWithMandates?.mandates.map((mandate) => {
-      return {
-        memberId: authorMemberWithMandates.id,
-        member: authorMemberWithMandates,
-        mandateId: mandate.id,
-        mandate: mandate,
-      };
-    }) ?? []),
-  ];
+  const authorOptions = getArticleAuthorOptions(authorMemberWithMandates);
+
+  article.author =
+    (authorOptions.find(
+      (option) =>
+        option.memberId == article.author.memberId && option.mandateId == article.author.mandateId
+    ) as typeof article.author) ?? article.author;
   return {
     allTags,
     authorOptions,
@@ -99,11 +78,13 @@ export const actions = {
         if (!author) {
           return fail(400, {
             error: "Missing author",
+            data: Object.fromEntries(formData),
           });
         }
       } catch (e) {
         return fail(400, {
           error: "Invalid author or tags",
+          data: Object.fromEntries(formData),
         });
       }
       const existingAuthor = await prisma.author.findFirst({
@@ -155,7 +136,7 @@ export const actions = {
                   },
             },
             tags: {
-              connect: tags
+              set: tags
                 .filter((tag) => !!tag)
                 .map((tag) => ({
                   id: tag.id,
@@ -168,11 +149,13 @@ export const actions = {
         if (e instanceof Prisma.PrismaClientKnownRequestError) {
           return fail(400, {
             error: e.message,
+            data: Object.fromEntries(formData),
           });
         }
         console.log(e);
         return fail(500, {
           error: "Unknown error",
+          data: Object.fromEntries(formData),
         });
       }
       throw redirect(303, `/news/${newSlug}`);
