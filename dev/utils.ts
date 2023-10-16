@@ -4,9 +4,9 @@ import { randomBytes } from "crypto";
 import { access, writeFile } from "fs/promises";
 import { resolve } from "path";
 
-const POSTGRES_DOCKER_URL = "postgresql://postgres:postgres@localhost:5432/new_web?schema=public";
+const POSTGRES_DOCKER_URL = "postgresql://postgres:postgres@localhost:5432/dsek_prod?schema=public";
 const POSTGRES_DOCKER_COMMAND =
-  "docker run --name dsek-database -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=new_web -d postgres:14-alpine";
+  "docker run --name dsek-database -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=dsek_prod -d postgres:14-alpine";
 const POSTGRES_URL_REGEX =
   /^(postgres|postgresql):\/\/([^\s:]+):([^\s@]+)@([^\s:]+):(\d+)\/([^\s?]+)(\?schema=([^\s]+))?$/;
 const ENV_FILE_PATH = resolve(__dirname, "..", ".env.local");
