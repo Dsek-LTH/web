@@ -1,4 +1,4 @@
-import { accessGuard, withAccess } from "$lib/access";
+import { policyAccessGuard, withAccess } from "$lib/access";
 import apiNames from "$lib/apiNames";
 import prisma from "$lib/prisma";
 import { Prisma, type Tag } from "@prisma/client";
@@ -10,7 +10,7 @@ import { getArticleAuthorOptions, type AuthorOption } from "$lib/articles";
 export const load: PageServerLoad = async ({ parent }) => {
   const allTags = await prisma.tag.findMany();
   const { session, accessPolicies } = await parent();
-  accessGuard(apiNames.NEWS.CREATE, accessPolicies);
+  policyAccessGuard(apiNames.NEWS.CREATE, accessPolicies);
   const currentMemberWithMandates = await prisma.member.findUnique({
     where: {
       studentId: session?.user.student_id,

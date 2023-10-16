@@ -22,7 +22,6 @@
   };
   let submitting: boolean = false;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   export let formData: Record<string, any> | undefined;
   // effect over default value above to work from for "edit article" as well
   $: (() => {

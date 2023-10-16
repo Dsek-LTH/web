@@ -8,6 +8,7 @@ const crud = (base: string) => ({
 const apiNames = {
   NEWS: {
     ...crud("news"),
+    MANAGE_TAGS: "news:manage_tags",
   },
   ACCESS_POLICY: crud("access_policy"),
 };

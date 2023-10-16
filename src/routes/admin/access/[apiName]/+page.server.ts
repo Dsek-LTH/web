@@ -1,4 +1,4 @@
-import { accessGuard, withAccess } from "$lib/access";
+import { policyAccessGuard, withAccess } from "$lib/access";
 import apiNames from "$lib/apiNames";
 import prisma from "$lib/prisma";
 import { fail } from "@sveltejs/kit";
@@ -15,7 +15,7 @@ export const load: PageServerLoad = async ({ parent, params }) => {
     },
   }); // fetch it immidiately to reduce waterfall delay
   const { accessPolicies } = await parent();
-  accessGuard(apiNames.ACCESS_POLICY.READ, accessPolicies);
+  policyAccessGuard(apiNames.ACCESS_POLICY.READ, accessPolicies);
   return {
     policies,
   };

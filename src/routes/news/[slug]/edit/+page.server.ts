@@ -1,4 +1,4 @@
-import { accessGuard, withAccess } from "$lib/access";
+import { policyAccessGuard, withAccess } from "$lib/access";
 import apiNames from "$lib/apiNames";
 import { getArticleAuthorOptions, type AuthorOption } from "$lib/articles";
 import prisma from "$lib/prisma";
@@ -9,7 +9,7 @@ import type { PageServerLoad } from "./$types";
 export const load: PageServerLoad = async ({ parent, params }) => {
   const allTags = await prisma.tag.findMany();
   const { accessPolicies } = await parent();
-  accessGuard(apiNames.NEWS.UPDATE, accessPolicies);
+  policyAccessGuard(apiNames.NEWS.UPDATE, accessPolicies);
   const article = await prisma.article.findUnique({
     where: {
       slug: params.slug,

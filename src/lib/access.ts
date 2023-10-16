@@ -10,8 +10,9 @@ export const verifyAccess = (
   policies: Pick<AccessPolicy, "studentId" | "role">[],
   context: Context
 ): boolean => {
-  const roles = context?.group_list ?? [];
+  const roles = getRoleList(context);
   const studentId = context?.student_id ?? "";
+  console.log(policies, context);
 
   return policies.some((p) => {
     if (p.studentId === studentId) return true;
@@ -27,13 +28,7 @@ export const hasAccess = async (
   context: Context,
   relevantMemberId?: string
 ): Promise<boolean> => {
-  const apiNames = typeof apiName === "string" ? [apiName] : apiName;
-  const policies = await prisma.accessPolicy.findMany({
-    where: {
-      apiName: { in: apiNames },
-    },
-  });
-  // Check if logged in user actually owns the referenced id
+  // If asking for access where there is a relevant member id, check if said member is current user
   if (relevantMemberId && context?.student_id) {
     try {
       const memberId = await getCurrentMemberId(context);
@@ -42,13 +37,34 @@ export const hasAccess = async (
       return false;
     }
   }
-  if (verifyAccess(policies, context)) return true;
-  return false;
+  // otherwise check for access
+  const apiNames = typeof apiName === "string" ? [apiName] : apiName;
+  // count the amount of policies giving the user access
+  const validPolicyCount = await prisma.accessPolicy.count({
+    where: {
+      apiName: { in: apiNames },
+      // user has access either through a role OR their student id
+      OR: [
+        {
+          role: { in: getRoleList(context) },
+        },
+        {
+          studentId: context?.student_id ?? "",
+        },
+      ],
+    },
+  });
+  return validPolicyCount > 0;
 };
 
-export const accessGuard = (apiName: string | string[], userAccessPolicies: string[]) => {
+export const policyAccessGuard = (apiName: string | string[], userAccessPolicies: string[]) => {
   const apiNames = typeof apiName === "string" ? [apiName] : apiName;
   if (userAccessPolicies.some((p) => apiNames.includes(p))) return;
+  throw error(403, "You do not have permission, have you logged in?");
+};
+
+export const ctxAccessGuard = async (apiName: string | string[], context: Context) => {
+  if (await hasAccess(apiName, context)) return;
   throw error(403, "You do not have permission, have you logged in?");
 };
 
@@ -63,7 +79,7 @@ export const withAccess = async <T>(
 };
 
 // split all roles in group list. a group list might look like ["dsek.infu.mdlm", "dsek.ordf"] and this will split it into ["dsek", "dsek.infu", "dsek.infu.mdlm", "dsek.ordf"]
-export const splitGroupList = (groupList: string[]) => {
+export const getRoleSet = (groupList: string[]) => {
   const splitGroups = new Set<string>();
   groupList.forEach((group) => {
     const groupParts = group.split(".");
@@ -77,13 +93,22 @@ export const splitGroupList = (groupList: string[]) => {
   return splitGroups;
 };
 
+export const getRoleList = (ctx: Context) => [
+  ...getRoleSet(ctx?.group_list ? [...ctx.group_list, "_"] : []),
+];
+
 // Will return a list like ["news:create", "news:like", ...etc]
 export const getUserApis = async (ctx: Context) => {
   const policies = await prisma.accessPolicy.findMany({
     where: {
-      role: {
-        in: [...splitGroupList(ctx?.group_list ? [...ctx.group_list, "_"] : [])],
-      },
+      OR: [
+        {
+          role: { in: getRoleList(ctx) },
+        },
+        {
+          studentId: ctx?.student_id ?? "",
+        },
+      ],
     },
   });
   return policies.map((p) => p.apiName);

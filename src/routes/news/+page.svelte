@@ -4,7 +4,15 @@
   export let data;
 </script>
 
-<div class="flex items-center gap-2">
+<section class="flex flex-col gap-2">
+  <div class="flex items-center gap-2">
+    {#if data.accessPolicies.includes(apiNames.NEWS.CREATE)}
+      <a class="btn" href="/news/create">+ Create</a>
+    {/if}
+    {#if data.accessPolicies.includes(apiNames.NEWS.MANAGE_TAGS)}
+      <a class="btn" href="/news/tags">Tags</a>
+    {/if}
+  </div>
   <form method="get" class="form-control flex-1">
     <input
       name="search"
@@ -13,10 +21,7 @@
       class="input input-bordered w-full focus:border-primary-focus"
     />
   </form>
-  {#if data.accessPolicies.includes(apiNames.NEWS.CREATE)}
-    <a class="btn" href="/news/create">+ Create</a>
-  {/if}
-</div>
+</section>
 {#each data.articles as article (article.id)}
   <article
     class="ease mdNEWS.CREATE8 my-4 rounded-2xl p-6 shadow-2xl ring-neutral-700 transition md:ring-1 md:hover:scale-105"

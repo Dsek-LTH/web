@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Article } from "$lib/articles";
-  import Tag from "$lib/components/Tag.svelte";
+  import TagChip from "$lib/components/TagChip.svelte";
   import { marked } from "marked";
 
   export let article: Article;
@@ -35,7 +35,7 @@
 <section class="flex flex-row items-center justify-between">
   <div class="flex flex-row flex-wrap gap-2">
     {#each article.tags as tag}
-      <Tag {tag} />
+      <TagChip {tag} />
     {/each}
   </div>
   <p class="my-4 text-sm text-gray-600">

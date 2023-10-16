@@ -13,6 +13,10 @@ export const slugifyArticleHeader = async (header: string) => {
       slug,
     },
   });
+  // reserved slugs
+  if (["create", "tags"].includes(slug)) {
+    count = 1;
+  }
   while (count > 0) {
     number += 1;
     count = await prisma.article.count({
