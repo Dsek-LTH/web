@@ -51,18 +51,6 @@ model ArticleComment {
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model ArticleLike {
-  id         String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  article_id String  @db.Uuid
-  member_id  String  @db.Uuid
-  article    Article @relation(fields: [article_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "article_likes_article_id_foreign")
-  member     Member  @relation(fields: [member_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "article_likes_member_id_foreign")
-
-  @@unique([article_id, member_id], map: "article_likes_article_id_member_id_unique")
-  @@map("article_likes")
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model ArticleRequest {
   id                       String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   article_id               String?   @unique(map: "article_requests_article_id_unique") @db.Uuid
@@ -74,21 +62,9 @@ model ArticleRequest {
   notification_body        String?   @db.VarChar(255)
   notification_body_en     String?   @db.VarChar(255)
   article                  Article?  @relation(fields: [article_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "article_requests_article_id_foreign")
-  member                   Member?   @relation(fields: [handled_by], references: [id], onUpdate: NoAction, map: "article_requests_handled_by_foreign")
+  handledBy                Member?   @relation(fields: [handled_by], references: [id], onUpdate: NoAction, map: "article_requests_handled_by_foreign")
 
   @@map("article_requests")
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model ArticleTag {
-  id         String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  article_id String  @db.Uuid
-  tag_id     String  @db.Uuid
-  article    Article @relation(fields: [article_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "article_tags_article_id_foreign")
-  tag        Tag     @relation(fields: [tag_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "article_tags_tag_id_foreign")
-
-  @@unique([article_id, tag_id], map: "article_tags_article_id_tag_id_unique")
-  @@map("article_tags")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -107,21 +83,13 @@ model Article {
   removed_at           DateTime?        @db.Timestamptz(6)
   status               String?          @default("approved")
   created_datetime     DateTime         @default(now()) @db.Timestamptz(6)
-  article_comments     ArticleComment[]
-  article_likes        ArticleLike[]
-  article_request      ArticleRequest?
-  article_tags         ArticleTag[]
+  comments             ArticleComment[]
+  request              ArticleRequest?
+  tags                 Tag[]            @relation("article_tags")
   author               Author           @relation(fields: [author_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "articles_author_id_foreign")
+  Member               Member[]         @relation("article_likes")
 
   @@map("articles")
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model AuthorBackup {
-  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  article_id  String  @db.Uuid
-  author_id   String  @db.Uuid
-  author_type String? @db.VarChar
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -133,9 +101,10 @@ model Author {
   custom_id     String?        @db.Uuid
   created_at    DateTime       @default(now()) @db.Timestamptz(6)
   updated_at    DateTime       @default(now()) @db.Timestamptz(6)
+  // Always "Member", "Mandate" or "Custom"
   type          String?        @default(dbgenerated("\nCASE\n    WHEN ((mandate_id IS NULL) AND (custom_id IS NULL)) THEN 'Member'::text\n    WHEN ((mandate_id IS NOT NULL) AND (custom_id IS NULL)) THEN 'Mandate'::text\n    WHEN ((mandate_id IS NULL) AND (custom_id IS NOT NULL)) THEN 'Custom'::text\n    ELSE NULL::text\nEND")) @db.VarChar
   articles      Article[]
-  custom_author CustomAuthor?  @relation(fields: [custom_id], references: [id], onUpdate: NoAction, map: "authors_custom_id_foreign")
+  customAuthor  CustomAuthor?  @relation(fields: [custom_id], references: [id], onUpdate: NoAction, map: "authors_custom_id_foreign")
   mandate       Mandate?       @relation(fields: [mandate_id], references: [id], onUpdate: NoAction, map: "authors_mandate_id_foreign")
   member        Member         @relation(fields: [member_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "authors_member_id_foreign")
   notifications Notification[]
@@ -155,38 +124,28 @@ model BookableCategory {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model Bookable {
-  id                 String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name               String            @db.VarChar(255)
-  name_en            String?           @db.VarChar(255)
-  isDisabled         Boolean           @default(false)
-  category_id        String?           @db.Uuid
-  door               String?           @db.VarChar(255)
-  bookable_categorie BookableCategory? @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "bookables_category_id_foreign")
-  booking_bookables  BookingBookable[]
+  id          String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String            @db.VarChar(255)
+  name_en     String?           @db.VarChar(255)
+  isDisabled  Boolean           @default(false)
+  category_id String?           @db.Uuid
+  door        String?           @db.VarChar(255)
+  category    BookableCategory? @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "bookables_category_id_foreign")
+  bookings    BookingRequest[]  @relation("booking_requests_bookables")
 
   @@map("bookables")
 }
 
-model BookingBookable {
-  id                 String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  booking_request_id String?         @db.Uuid
-  bookable_id        String?         @db.Uuid
-  bookable           Bookable?       @relation(fields: [bookable_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "booking_bookables_bookable_id_foreign")
-  booking_request    BookingRequest? @relation(fields: [booking_request_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "booking_bookables_booking_request_id_foreign")
-
-  @@map("booking_bookables")
-}
-
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model BookingRequest {
-  id                String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  booker_id         String?           @db.Uuid
-  start             DateTime?         @db.Timestamptz(6)
-  end               DateTime?         @db.Timestamptz(6)
-  created           DateTime?         @default(now()) @db.Timestamptz(6)
-  event             String?           @db.VarChar(255)
-  status            String?           @db.VarChar(255)
-  booking_bookables BookingBookable[]
+  id        String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  booker_id String?    @db.Uuid
+  start     DateTime?  @db.Timestamptz(6)
+  end       DateTime?  @db.Timestamptz(6)
+  created   DateTime?  @default(now()) @db.Timestamptz(6)
+  event     String?    @db.VarChar(255)
+  status    String?    @db.VarChar(255)
+  bookables Bookable[] @relation("booking_requests_bookables")
 
   @@map("booking_requests")
 }
@@ -242,14 +201,14 @@ model CustomAuthorRole {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model CustomAuthor {
-  id                  String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name                String             @db.VarChar(255)
-  name_en             String?            @db.VarChar(255)
-  image_url           String?            @db.VarChar(255)
-  created_at          DateTime           @default(now()) @db.Timestamptz(6)
-  updated_at          DateTime           @default(now()) @db.Timestamptz(6)
-  authors             Author[]
-  custom_author_roles CustomAuthorRole[]
+  id         String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name       String             @db.VarChar(255)
+  name_en    String?            @db.VarChar(255)
+  image_url  String?            @db.VarChar(255)
+  created_at DateTime           @default(now()) @db.Timestamptz(6)
+  updated_at DateTime           @default(now()) @db.Timestamptz(6)
+  authors    Author[]
+  roles      CustomAuthorRole[]
 
   @@map("custom_authors")
 }
@@ -294,59 +253,35 @@ model EventComment {
   content   String?
   published DateTime @db.Timestamptz(6)
   event     Event    @relation(fields: [event_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "event_comments_event_id_foreign")
-  member    Member   @relation(fields: [member_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "event_comments_member_id_foreign")
+  author    Member   @relation(fields: [member_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "event_comments_member_id_foreign")
 
   @@map("event_comments")
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model EventGoing {
-  id        String @id(map: "event_likes_pkey") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  event_id  String @db.Uuid
-  member_id String @db.Uuid
-  event     Event  @relation(fields: [event_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "event_likes_event_id_foreign")
-  member    Member @relation(fields: [member_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "event_likes_member_id_foreign")
-
-  @@unique([event_id, member_id], map: "event_likes_event_id_member_id_unique")
-  @@map("event_going")
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model EventInterested {
-  id        String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  event_id  String @db.Uuid
-  member_id String @db.Uuid
-  event     Event  @relation(fields: [event_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "event_interested_event_id_foreign")
-  member    Member @relation(fields: [member_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "event_interested_member_id_foreign")
-
-  @@unique([event_id, member_id], map: "event_interested_event_id_member_id_unique")
-  @@map("event_interested")
-}
-
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Events{
 model Event {
-  id                   String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  title                String            @db.VarChar(255)
-  title_en             String?           @db.VarChar(255)
+  id                   String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title                String         @db.VarChar(255)
+  title_en             String?        @db.VarChar(255)
   description          String
   description_en       String?
-  link                 String?           @db.VarChar(255)
-  location             String?           @db.VarChar(255)
-  organizer            String            @db.VarChar(255)
-  author_id            String            @db.Uuid
-  short_description    String            @db.VarChar(255)
-  short_description_en String?           @db.VarChar(255)
-  start_datetime       DateTime          @db.Timestamptz(6)
-  end_datetime         DateTime          @db.Timestamptz(6)
-  number_of_updates    Int?              @default(0)
-  slug                 String?           @unique(map: "events_slug_unique") @db.VarChar(255)
-  alarm_active         Boolean?          @default(false)
-  removed_at           DateTime?         @db.Timestamptz(6)
-  event_comments       EventComment[]
-  event_going          EventGoing[]
-  event_interested     EventInterested[]
-  member               Member            @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "events_author_id_foreign")
-  events_tags          EventsTag[]
+  link                 String?        @db.VarChar(255)
+  location             String?        @db.VarChar(255)
+  organizer            String         @db.VarChar(255)
+  author_id            String         @db.Uuid
+  short_description    String         @db.VarChar(255)
+  short_description_en String?        @db.VarChar(255)
+  start_datetime       DateTime       @db.Timestamptz(6)
+  end_datetime         DateTime       @db.Timestamptz(6)
+  number_of_updates    Int?           @default(0)
+  slug                 String?        @unique(map: "events_slug_unique") @db.VarChar(255)
+  alarm_active         Boolean?       @default(false)
+  removed_at           DateTime?      @db.Timestamptz(6)
+  comments             EventComment[]
+  going                Member[]       @relation("event_going")
+  interested           Member[]       @relation("event_interested")
+  author               Member         @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "events_author_id_foreign")
+  tags                 Tag[]          @relation("event_tags")
 
   @@map("events")
 }
@@ -356,8 +291,6 @@ model EventsTag {
   id       String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   event_id String @db.Uuid
   tag_id   String @db.Uuid
-  event    Event  @relation(fields: [event_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "events_tags_event_id_foreign")
-  tag      Tag    @relation(fields: [tag_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "events_tags_tag_id_foreign")
 
   @@unique([event_id, tag_id], map: "events_tags_event_id_tag_id_unique")
   @@map("events_tags")
@@ -393,22 +326,6 @@ model Keycloak {
   @@map("keycloak")
 }
 
-model KnexMigration {
-  id             Int       @id @default(autoincrement())
-  name           String?   @db.VarChar(255)
-  batch          Int?
-  migration_time DateTime? @db.Timestamptz(6)
-
-  @@map("knex_migrations")
-}
-
-model KnexMigrationsLock {
-  index     Int  @id @default(autoincrement())
-  is_locked Int?
-
-  @@map("knex_migrations_lock")
-}
-
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Mandates{
 model Mandate {
   id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -435,30 +352,30 @@ model Markdown {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Members{
 model Member {
-  id                  String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  student_id          String?               @unique(map: "members_student_id_unique") @db.VarChar(255)
-  first_name          String?               @db.VarChar(255)
-  nickname            String?               @db.VarChar(255)
-  last_name           String?               @db.VarChar(255)
-  picture_path        String?               @db.VarChar(255)
-  class_programme     String?               @db.VarChar(255)
-  class_year          Int?
-  visible             Boolean               @default(true)
-  food_preference     String?               @db.VarChar(255)
-  pingsFromMe         Ping[]                @relation("pings_from_memberTomembers")
-  pingsToMe           Ping[]                @relation("pings_to_memberTomembers")
-  ArticleComment      ArticleComment[]
-  ArticleLike         ArticleLike[]
-  ArticleRequest      ArticleRequest[]
-  Author              Author[]
-  EventComment        EventComment[]
-  EventGoing          EventGoing[]
-  EventInterested     EventInterested[]
-  Event               Event[]
-  Mandate             Mandate[]
-  Notification        Notification[]
-  SubscriptionSetting SubscriptionSetting[]
-  TagSubscription     TagSubscription[]
+  id                   String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  student_id           String?               @unique(map: "members_student_id_unique") @db.VarChar(255)
+  first_name           String?               @db.VarChar(255)
+  nickname             String?               @db.VarChar(255)
+  last_name            String?               @db.VarChar(255)
+  picture_path         String?               @db.VarChar(255)
+  class_programme      String?               @db.VarChar(255)
+  class_year           Int?
+  visible              Boolean               @default(true)
+  food_preference      String?               @db.VarChar(255)
+  pingsFromMe          Ping[]                @relation("pings_from_memberTomembers")
+  pingsToMe            Ping[]                @relation("pings_to_memberTomembers")
+  likedArticles        Article[]             @relation("article_likes")
+  articleComments      ArticleComment[]
+  articleRequests      ArticleRequest[]
+  authors              Author[]
+  eventComments        EventComment[]
+  eventsGoingTo        Event[]               @relation("event_going")
+  eventsInterestedIn   Event[]               @relation("event_interested")
+  subscribedTags       Tag[]                 @relation("member_tag_subscriptions")
+  authoredEvents       Event[]
+  mandates             Mandate[]
+  notifications        Notification[]
+  subscriptionSettings SubscriptionSetting[]
 
   @@map("members")
 }
@@ -664,28 +581,16 @@ model SubscriptionSetting {
   @@map("subscription_settings")
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model TagSubscription {
-  id        String @id(map: "token_tags_pkey") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  tag_id    String @db.Uuid
-  member_id String @db.Uuid
-  member    Member @relation(fields: [member_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "tag_subscriptions_member_id_foreign")
-  tag       Tag    @relation(fields: [tag_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "token_tags_tag_id_foreign")
-
-  @@unique([member_id, tag_id], map: "tag_subscriptions_member_id_tag_id_unique")
-  @@map("tag_subscriptions")
-}
-
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Tags{
 model Tag {
-  id              String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name            String            @db.VarChar(255)
-  name_en         String?           @db.VarChar(255)
-  color           String?           @db.VarChar(255)
-  is_default      Boolean?          @default(false)
-  ArticleTag      ArticleTag[]
-  EventsTag       EventsTag[]
-  TagSubscription TagSubscription[]
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name              String    @db.VarChar(255)
+  name_en           String?   @db.VarChar(255)
+  color             String?   @db.VarChar(255)
+  is_default        Boolean?  @default(false)
+  events            Event[]   @relation("event_tags")
+  subscribedMembers Member[]  @relation("member_tag_subscriptions")
+  articles          Article[] @relation("article_tags")
 
   @@map("tags")
 }

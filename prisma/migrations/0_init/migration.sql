@@ -93,17 +93,18 @@ CREATE TABLE "articles" (
     "status" TEXT DEFAULT 'approved',
     "created_datetime" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
+    CONSTRAINT "enforce_status_type" CHECK ((((status)::text = 'draft'::text) OR ((status)::text = 'approved'::text) OR ((status)::text = 'rejected'::text))),
     CONSTRAINT "articles_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "AuthorBackup" (
+CREATE TABLE "author_backup" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "article_id" UUID NOT NULL,
     "author_id" UUID NOT NULL,
     "author_type" VARCHAR,
 
-    CONSTRAINT "AuthorBackup_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "author_backup_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -121,7 +122,7 @@ CREATE TABLE "authors" (
         WHEN ((mandate_id IS NULL) AND (custom_id IS NOT NULL)) THEN 'Custom'::text
         ELSE NULL::text
     END) STORED,
-    CONSTRAINT "enforce_author_type" CHECK ((((mandate_id IS NULL) AND (custom_id IS NULL)) OR ((mandate_id IS NOT NULL) AND (custom_id IS NULL)) OR ((mandate_id IS NULL) AND (custom_id IS NOT NULL))))
+    CONSTRAINT "enforce_author_type" CHECK ((((mandate_id IS NULL) AND (custom_id IS NULL)) OR ((mandate_id IS NOT NULL) AND (custom_id IS NULL)) OR ((mandate_id IS NULL) AND (custom_id IS NOT NULL)))),
 
     CONSTRAINT "authors_pkey" PRIMARY KEY ("id")
 );
