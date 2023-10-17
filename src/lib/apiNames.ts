@@ -7,10 +7,13 @@ const crud = (base: string) => ({
 
 const apiNames = {
   NEWS: {
-    ...crud("news"),
-    MANAGE_TAGS: "news:manage_tags",
+    ...crud("news:article"),
+    MANAGE: "news:article:manage",
   },
-  ACCESS_POLICY: crud("access_policy"),
+  TAGS: {
+    ...crud("tags"),
+  },
+  ACCESS_POLICY: crud("core:access:api"),
 };
 
 export default apiNames;

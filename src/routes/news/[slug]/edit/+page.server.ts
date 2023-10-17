@@ -21,10 +21,10 @@ export const load: PageServerLoad = async ({ parent, params }) => {
             include: {
               mandates: {
                 where: {
-                  start: {
+                  startDate: {
                     lte: new Date(),
                   },
-                  end: {
+                  endDate: {
                     gte: new Date(),
                   },
                 },
@@ -139,7 +139,7 @@ export const actions = {
             updatedAt: new Date(),
           },
         });
-        slug = result.slug;
+        slug = result.slug!;
       } catch (e) {
         if (e instanceof Prisma.PrismaClientKnownRequestError) {
           return fail(400, {

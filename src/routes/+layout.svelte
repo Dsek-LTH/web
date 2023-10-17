@@ -14,10 +14,10 @@
       <a class="btn btn-ghost" href="/news">Nyheter</a>
       <a class="btn btn-ghost" href="/events">Evenemang</a>
       {#if data.accessPolicies.includes(apiNames.ACCESS_POLICY.READ)}
-        <div class="dropdown dropdown-hover">
+        <div class="dropdown-hover dropdown">
           <span class="btn btn-ghost">Admin</span>
           <ul
-            class="menu dropdown-content rounded-box z-[1] w-52 bg-base-100 p-2 text-base-content shadow"
+            class="dropdown-content menu rounded-box z-[1] w-52 bg-base-100 p-2 text-base-content shadow"
           >
             <li><a href="/admin/access">Access</a></li>
           </ul>
@@ -35,7 +35,9 @@
   </div>
 </nav>
 
-<div class="h-[calc(100vh-5rem)] flex-col overflow-auto accent-primary [&>*]:flex-1">
+<div
+  class="h-[calc(100vh-9rem)] flex-col overflow-auto pb-8 accent-primary md:h-[calc(100vh-5rem)] [&>*]:flex-1"
+>
   <slot />
 </div>
 

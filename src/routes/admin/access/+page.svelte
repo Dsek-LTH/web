@@ -20,7 +20,7 @@
     <tbody>
       {#each uniqueApiNames as apiName}
         <tr>
-          <td>{apiName}</td>
+          <td class="font-medium">{apiName}</td>
           <td class="text-right"><a class="btn btn-xs px-8" href="access/{apiName}">Edit</a></td>
         </tr>
       {/each}

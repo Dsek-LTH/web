@@ -18,10 +18,10 @@ export const load: PageServerLoad = async ({ parent }) => {
     include: {
       mandates: {
         where: {
-          start: {
+          startDate: {
             lte: new Date(),
           },
-          end: {
+          endDate: {
             gte: new Date(),
           },
         },

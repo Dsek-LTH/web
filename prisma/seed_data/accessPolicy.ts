@@ -15,10 +15,6 @@ const accessData: Prisma.AccessPolicyCreateInput[] = [
     role: "dsek.infu",
   },
   {
-    apiName: apiNames.NEWS.MANAGE_TAGS,
-    role: "dsek.infu",
-  },
-  {
     apiName: apiNames.ACCESS_POLICY.READ,
     role: "dsek.infu.dwww",
   },

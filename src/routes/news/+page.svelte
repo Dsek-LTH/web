@@ -1,5 +1,6 @@
 <script lang="ts">
   import apiNames from "$lib/apiNames.js";
+  import TagChip from "$lib/components/TagChip.svelte";
 
   export let data;
 </script>
@@ -9,7 +10,7 @@
     {#if data.accessPolicies.includes(apiNames.NEWS.CREATE)}
       <a class="btn" href="/news/create">+ Create</a>
     {/if}
-    {#if data.accessPolicies.includes(apiNames.NEWS.MANAGE_TAGS)}
+    {#if data.accessPolicies.includes(apiNames.TAGS.CREATE) || data.accessPolicies.includes(apiNames.TAGS.UPDATE)}
       <a class="btn" href="/news/tags">Tags</a>
     {/if}
   </div>
@@ -28,14 +29,11 @@
   >
     <div class="flex flex-row justify-between">
       <div class="flex items-center gap-3">
-        <!-- <div class="avatar">
-            <div class="w-10 rounded-full">
-              <img
-                src={article.author.member.picture_path}
-                alt={article.author.member.first_name}
-              />
-            </div>
-          </div> -->
+        <div class="avatar">
+          <div class="w-10 rounded-full">
+            <img src={article.author.member.picturePath} alt={article.author.member.firstName} />
+          </div>
+        </div>
         <div>
           <h3 class="text-sm font-semibold">
             {article.author.member.firstName + " " + article.author.member.lastName}
@@ -78,9 +76,12 @@
 
     <div class="flex flex-row flex-wrap gap-2">
       {#each article.tags as tag}
-        <span class="badge badge-md">
-          {tag.name}
-        </span>
+        <a
+          href="?tags={encodeURIComponent(tag.name)}"
+          class="opacity-70 transition-opacity hover:opacity-100"
+        >
+          <TagChip {tag} />
+        </a>
       {/each}
     </div>
   </article>

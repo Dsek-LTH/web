@@ -7,17 +7,21 @@
 
   export let authorOptions: AuthorOption[];
   export let allTags: Tag[];
-  export let article: Omit<ArticleType, "likes"> = {
+  export let article: Omit<ArticleType, "likers"> = {
     id: "",
     slug: "",
     header: "",
+    headerEn: "",
     body: "",
+    bodyEn: "",
     authorId: "",
     author: authorOptions[0],
     tags: [],
     publishedAt: new Date(),
     createdAt: new Date(),
     updatedAt: new Date(),
+    removedAt: null,
+    status: "draft",
     imageUrl: null,
   };
   let submitting: boolean = false;
@@ -84,7 +88,7 @@
   <section>
     <span class="italic">Preview</span>
     {#if article != null}
-      <Article article={{ ...article, likes: [] }} />
+      <Article article={{ ...article, likers: [] }} />
     {/if}
   </section>
 </main>

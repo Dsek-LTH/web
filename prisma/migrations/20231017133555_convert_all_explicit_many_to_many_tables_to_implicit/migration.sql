@@ -1,5 +1,8 @@
 
 -- DROP OLD FOREIGN KEY CONSTRAINTS
+ALTER TABLE "article_likes" DROP CONSTRAINT "article_likes_article_id_foreign";
+ALTER TABLE "article_likes" DROP CONSTRAINT "article_likes_member_id_foreign";
+
 ALTER TABLE "article_tags" DROP CONSTRAINT "article_tags_article_id_foreign";
 ALTER TABLE "article_tags" DROP CONSTRAINT "article_tags_tag_id_foreign";
 
@@ -20,6 +23,11 @@ ALTER TABLE "tag_subscriptions" DROP CONSTRAINT "token_tags_tag_id_foreign";
 
 
 -- CREATE TABLES
+CREATE TABLE "_article_likes" (
+    "A" UUID NOT NULL,
+    "B" UUID NOT NULL
+);
+
 CREATE TABLE "_article_tags" (
     "A" UUID NOT NULL,
     "B" UUID NOT NULL
@@ -51,6 +59,9 @@ CREATE TABLE "_member_tag_subscriptions" (
 );
 
 -- CreateIndex
+CREATE UNIQUE INDEX "_article_likes_AB_unique" ON "_article_likes"("A", "B");
+CREATE INDEX "_article_likes_B_index" ON "_article_likes"("B");
+
 CREATE UNIQUE INDEX "_article_tags_AB_unique" ON "_article_tags"("A", "B");
 CREATE INDEX "_article_tags_B_index" ON "_article_tags"("B");
 
@@ -70,6 +81,9 @@ CREATE UNIQUE INDEX "_member_tag_subscriptions_AB_unique" ON "_member_tag_subscr
 CREATE INDEX "_member_tag_subscriptions_B_index" ON "_member_tag_subscriptions"("B");
 
 -- ADD FOREIGN KEYS
+ALTER TABLE "_article_likes" ADD CONSTRAINT "_article_likes_A_fkey" FOREIGN KEY ("A") REFERENCES "articles"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "_article_likes" ADD CONSTRAINT "_article_likes_B_fkey" FOREIGN KEY ("B") REFERENCES "members"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
 ALTER TABLE "_article_tags" ADD CONSTRAINT "_article_tags_A_fkey" FOREIGN KEY ("A") REFERENCES "articles"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE "_article_tags" ADD CONSTRAINT "_article_tags_B_fkey" FOREIGN KEY ("B") REFERENCES "tags"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -89,6 +103,7 @@ ALTER TABLE "_member_tag_subscriptions" ADD CONSTRAINT "_member_tag_subscription
 ALTER TABLE "_member_tag_subscriptions" ADD CONSTRAINT "_member_tag_subscriptions_B_fkey" FOREIGN KEY ("B") REFERENCES "tags"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- MIGRATE OVER OLD DATA
+INSERT INTO "_article_likes" ("A", "B") SELECT "article_id", "member_id" FROM "article_likes";
 INSERT INTO "_article_tags" ("A", "B") SELECT "article_id", "tag_id" FROM "article_tags";
 INSERT INTO "_booking_requests_bookables" ("A", "B") SELECT "bookable_id", "booking_request_id" FROM "booking_bookables";
 INSERT INTO "_event_going" ("A", "B") SELECT "event_id", "member_id" FROM "event_going";
@@ -98,6 +113,7 @@ INSERT INTO "_member_tag_subscriptions" ("A", "B") SELECT "member_id", "tag_id" 
 
 
 -- DROP OLD TABLES
+DROP TABLE "article_likes";
 DROP TABLE "article_tags";
 DROP TABLE "booking_bookables";
 DROP TABLE "event_going";

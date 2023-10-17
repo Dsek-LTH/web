@@ -23,11 +23,7 @@ export const getAllArticles = async () => {
           },
         },
       },
-      likes: {
-        include: {
-          member: true,
-        },
-      },
+      likers: true,
       tags: true,
     },
   });
@@ -54,11 +50,7 @@ export const getArticle = async (slug: string) => {
           },
         },
       },
-      likes: {
-        include: {
-          member: true,
-        },
-      },
+      likers: true,
       tags: true,
     },
   });
@@ -77,6 +69,10 @@ export type AuthorOption = {
       position: true;
     };
   }> | null;
+  customId: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  type: string;
 };
 
 export const getArticleAuthorOptions = (
@@ -97,6 +93,10 @@ export const getArticleAuthorOptions = (
       member: memberWithMandates,
       mandateId: null,
       mandate: null,
+      customId: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      type: "Member",
     },
     ...(memberWithMandates?.mandates.map((mandate) => {
       return {
@@ -105,6 +105,10 @@ export const getArticleAuthorOptions = (
         member: memberWithMandates,
         mandateId: mandate.id,
         mandate: mandate,
+        customId: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        type: "Mandate",
       };
     }) ?? []),
   ];

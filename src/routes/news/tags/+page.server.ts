@@ -7,7 +7,7 @@ import type { PageServerLoad } from "./$types";
 export const load: PageServerLoad = async ({ parent }) => {
   const tags = await prisma.tag.findMany({ orderBy: { name: "asc" } });
   const { accessPolicies } = await parent();
-  policyAccessGuard(apiNames.NEWS.MANAGE_TAGS, accessPolicies);
+  policyAccessGuard(apiNames.TAGS.READ, accessPolicies);
   return {
     tags,
   };
@@ -16,7 +16,7 @@ export const load: PageServerLoad = async ({ parent }) => {
 export const actions = {
   create: async ({ request, locals }) => {
     const session = await locals.getSession();
-    await ctxAccessGuard(apiNames.NEWS.MANAGE_TAGS, session?.user);
+    await ctxAccessGuard(apiNames.TAGS.CREATE, session?.user);
     const formData = await request.formData();
     const name = String(formData.get("name"));
     if (!name) return { data: Object.fromEntries(formData), error: "Name is required" };
@@ -38,7 +38,7 @@ export const actions = {
   },
   update: async ({ request, locals }) => {
     const session = await locals.getSession();
-    await ctxAccessGuard(apiNames.NEWS.MANAGE_TAGS, session?.user);
+    await ctxAccessGuard(apiNames.NEWS.UPDATE, session?.user);
     const formData = await request.formData();
     try {
       await prisma.tag.update({

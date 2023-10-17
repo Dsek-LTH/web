@@ -29,10 +29,12 @@ model Alert {
 }
 
 model AccessPolicy {
-  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  apiName   String  @map("api_name") @db.VarChar(255)
-  role      String? @db.VarChar(255)
-  studentId String? @map("student_id") @db.VarChar(255)
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  apiName   String   @map("api_name") @db.VarChar(255)
+  role      String?  @db.VarChar(255)
+  studentId String?  @map("student_id") @db.VarChar(255)
+  member    Member?  @relation(fields: [studentId], references: [studentId], onDelete: NoAction, onUpdate: NoAction, map: "access_policies_member_id_foreign")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
   @@map("api_access_policies")
 }
@@ -77,9 +79,9 @@ model Article {
   bodyEn      String?          @map("body_en")
   imageUrl    String?          @map("image_url") @db.VarChar(255)
   authorId    String           @map("author_id") @db.Uuid
-  publishedat DateTime?        @map("published_datetime") @db.Timestamptz(6)
+  publishedAt DateTime?        @map("published_datetime") @db.Timestamptz(6)
   updatedAt   DateTime?        @map("latest_edit_datetime") @db.Timestamptz(6)
-  slug        String?          @unique(map: "articles_slug_unique") @db.VarChar(255)
+  slug        String           @unique(map: "articles_slug_unique") @db.VarChar(255)
   removedAt   DateTime?        @map("removed_at") @db.Timestamptz(6)
   status      String?          @default("approved")
   createdAt   DateTime         @default(now()) @map("created_datetime") @db.Timestamptz(6)
@@ -87,7 +89,7 @@ model Article {
   request     ArticleRequest?
   tags        Tag[]            @relation("article_tags")
   author      Author           @relation(fields: [authorId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "articles_author_id_foreign")
-  members     Member[]         @relation("article_likes")
+  likers      Member[]         @relation("article_likes")
 
   @@map("articles")
 }
@@ -352,30 +354,31 @@ model Markdown {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Members{
 model Member {
-  id                   String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  studentId            String?               @unique(map: "members_student_id_unique") @map("student_id") @db.VarChar(255)
-  firstName            String?               @map("first_name") @db.VarChar(255)
-  nickname             String?               @db.VarChar(255)
-  lastName             String?               @map("last_name") @db.VarChar(255)
-  picturePath          String?               @map("picture_path") @db.VarChar(255)
-  classProgramme       String?               @map("class_programme") @db.VarChar(255)
-  classYear            Int?                  @map("class_year")
-  visible              Boolean               @default(true)
-  foodPreference       String?               @map("food_preference") @db.VarChar(255)
-  pingsFromMe          Ping[]                @relation("pings_from_memberTomembers")
-  pingsToMe            Ping[]                @relation("pings_to_memberTomembers")
-  likedArticles        Article[]             @relation("article_likes")
-  articleComments      ArticleComment[]
-  articleRequests      ArticleRequest[]
-  authors              Author[]
-  eventComments        EventComment[]
-  eventsGoingTos       Event[]               @relation("event_going")
-  eventsInterestedIns  Event[]               @relation("event_interested")
-  subscribedTags       Tag[]                 @relation("member_tag_subscriptions")
-  authoredEvents       Event[]
-  mandates             Mandate[]
-  notifications        Notification[]
-  subscriptionSettings SubscriptionSetting[]
+  id                     String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  studentId              String?               @unique(map: "members_student_id_unique") @map("student_id") @db.VarChar(255)
+  firstName              String?               @map("first_name") @db.VarChar(255)
+  nickname               String?               @db.VarChar(255)
+  lastName               String?               @map("last_name") @db.VarChar(255)
+  picturePath            String?               @map("picture_path") @db.VarChar(255)
+  classProgramme         String?               @map("class_programme") @db.VarChar(255)
+  classYear              Int?                  @map("class_year")
+  visible                Boolean               @default(true)
+  foodPreference         String?               @map("food_preference") @db.VarChar(255)
+  pingsFromMe            Ping[]                @relation("pings_from_memberTomembers")
+  pingsToMe              Ping[]                @relation("pings_to_memberTomembers")
+  likedArticles          Article[]             @relation("article_likes")
+  articleComments        ArticleComment[]
+  articleRequests        ArticleRequest[]
+  authors                Author[]
+  eventComments          EventComment[]
+  eventsGoingTos         Event[]               @relation("event_going")
+  eventsInterestedIns    Event[]               @relation("event_interested")
+  subscribedTags         Tag[]                 @relation("member_tag_subscriptions")
+  authoredEvents         Event[]
+  mandates               Mandate[]
+  notifications          Notification[]
+  subscriptionSettings   SubscriptionSetting[]
+  memberSpecificPolicies AccessPolicy[]
 
   @@map("members")
 }
