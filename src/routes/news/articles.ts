@@ -39,11 +39,7 @@ export const getAllArticles = async (
       lte: new Date(),
       not: null,
     },
-    // removedAt: {
-    //   not: {
-    //     lte: new Date(),
-    //   },
-    // },
+    OR: [{ removedAt: { gt: new Date() } }, { removedAt: null }],
     // search:
     ...(filters.search && filters.search.length > 0
       ? {
@@ -122,11 +118,7 @@ export const getArticle = async (slug: string) => {
         lte: new Date(),
         not: null,
       },
-      removedAt: {
-        not: {
-          lte: new Date(),
-        },
-      },
+      OR: [{ removedAt: { gt: new Date() } }, { removedAt: null }],
     },
     include,
   });

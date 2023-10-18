@@ -56,11 +56,11 @@
       </div>
 
       <p class="text-right text-xs text-gray-500">
-        <!-- {article.publishedAt?.toLocaleDateString(["sv"])} <br />
+        {article.publishedAt?.toLocaleDateString(["sv"])} <br />
         {article.publishedAt?.toLocaleTimeString(["sv"], {
           hour: "2-digit",
           minute: "2-digit",
-        })} -->
+        })}
       </p>
     </div>
 
