@@ -7,6 +7,8 @@
 
 <Article {article}>
   <div slot="actions">
-    <a class="text-primary hover:underline" href={`/news/${article.slug}/edit`}> Redigera </a>
+    {#if data.canEdit}
+      <a class="text-primary hover:underline" href={`/news/${article.slug}/edit`}> Redigera </a>
+    {/if}
   </div>
 </Article>

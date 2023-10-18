@@ -47,16 +47,17 @@ export const actions = {
         },
         data: {
           name: String(formData.get("name")) || "",
+          color: String(formData.get("color")) || undefined,
         },
       });
+      return {
+        success: true,
+      };
     } catch (e) {
       return fail(400, {
         data: Object.fromEntries(formData),
         error: (e as any).message ?? "Unknown error",
       });
     }
-    return {
-      success: true,
-    };
   },
 };

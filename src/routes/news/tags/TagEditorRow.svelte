@@ -13,21 +13,22 @@
   <td><TagChip tag={internalTag} /></td>
   {#if !isEditing}
     <td>{tag.name}</td>
+    <td style="color: {tag.color}">{tag.color}</td>
     <td class="text-right">
       <button class="btn btn-xs px-8" type="button" on:click={() => (isEditing = !isEditing)}
         >Edit
       </button>
     </td>
   {:else}
-    <td colspan="2">
+    <td colspan="3">
       <form
         action="?/update"
         method="POST"
         use:enhance={() => {
           isLoading = true;
           return async ({ update }) => {
-            internalTag = { ...tag };
             await update();
+            internalTag = { ...tag };
             isLoading = false;
             isEditing = false;
           };
@@ -40,6 +41,13 @@
           name="name"
           bind:value={internalTag.name}
           class="input input-bordered input-xs"
+        />
+        <input
+          type="text"
+          name="color"
+          bind:value={internalTag.color}
+          class="input input-bordered input-xs"
+          style="color: {internalTag.color || 'white'}"
         />
         <button type="submit" class="btn btn-xs px-8" disabled={isLoading}>
           {#if isLoading}

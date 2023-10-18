@@ -6,7 +6,11 @@
   export let selectedTags: Tag[] = [];
 </script>
 
-<AutoComplete options={allTags} bind:selected={selectedTags} multiple>
+<AutoComplete
+  options={allTags}
+  bind:selected={selectedTags}
+  filter={(option, searchValue) => option.name.toLowerCase().includes(searchValue)}
+>
   <TagChip slot="selected-option" let:option tag={option} />
   <!-- <span slot="option" let:option>{option.name}</span> -->
   <TagChip slot="option" let:option tag={option} />

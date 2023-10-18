@@ -3,10 +3,6 @@
 @tailwind utilities;
 
 @layer base {
-  .prose a {
-    @apply text-primary;
-  }
-
   .layout-container {
     @apply mx-auto max-w-screen-sm sm:max-w-screen-md md:max-w-screen-lg;
   }

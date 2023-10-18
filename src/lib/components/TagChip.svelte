@@ -5,7 +5,14 @@
 </script>
 
 {#if tag}
-  <span class="badge badge-md">
+  <span
+    class="badge badge-md relative cursor-pointer text-xs"
+    style="border-color: {tag.color || 'white'}"
+  >
+    <div
+      class="absolute inset-0 opacity-10 transition-colors"
+      style="background-color: {tag.color || 'white'}"
+    />
     {tag.name}
   </span>
 {/if}

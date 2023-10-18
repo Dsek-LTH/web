@@ -15,19 +15,21 @@
 <h1 class="mb-8 text-2xl font-bold">{article.header}</h1>
 
 <section class="flex items-center justify-between border-y border-gray-600 py-4">
-  <div class="ml-4">
-    <!-- <div class="avatar">
-        <div class="w-16 rounded-full">
-          <img src={article.author.member.picture_path} alt={article.author.member.first_name} />
-        </div>
-      </div> -->
-    <p class="font-semibold">
-      {article.author.member.firstName}
-      {article.author.member.lastName}
-    </p>
-    {#if article.author.mandate?.position.name}
-      <p class="font-thin text-primary">{article.author.mandate?.position.name}</p>
-    {/if}
+  <div class="flex flex-row items-center">
+    <div class="avatar">
+      <div class="w-16 rounded-full">
+        <img src={article.author.member.picturePath} alt={article.author.member.firstName} />
+      </div>
+    </div>
+    <div class="ml-4">
+      <p class="font-semibold">
+        {article.author.member.firstName}
+        {article.author.member.lastName}
+      </p>
+      {#if article.author.mandate?.position.name}
+        <p class="font-thin text-primary">{article.author.mandate?.position.name}</p>
+      {/if}
+    </div>
   </div>
   <slot name="actions" />
 </section>
@@ -43,7 +45,7 @@
   </p>
 </section>
 
-<article class="prose lg:prose-xl">
+<article class="prose-a prose lg:prose-xl prose-a:text-primary prose-a:no-underline">
   <!-- The article body is sanitized server-side. -->
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
   {@html marked(article.body)}

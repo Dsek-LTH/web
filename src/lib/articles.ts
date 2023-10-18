@@ -1,17 +1,81 @@
 import prisma from "$lib/prisma";
 import type { Member, Prisma } from "@prisma/client";
 
-export const getAllArticles = async () => {
+type ArticleFilters = {
+  tags?: string[];
+  search?: string;
+  page?: number;
+  pageSize?: number;
+};
+export const getAllArticles = async (filters: ArticleFilters = { page: 0, pageSize: 10 }) => {
+  filters.page = filters.page ?? 0;
+  filters.pageSize = filters.pageSize ?? 10;
   const response = await prisma.article.findMany({
     where: {
       publishedAt: {
         lte: new Date(),
         not: null,
       },
+      // search:
+      ...(filters.search && filters.search.length > 0
+        ? {
+            OR: [
+              {
+                header: {
+                  contains: filters.search,
+                  mode: "insensitive",
+                },
+              },
+              {
+                headerEn: {
+                  contains: filters.search,
+                  mode: "insensitive",
+                },
+              },
+              {
+                body: {
+                  contains: filters.search,
+                  mode: "insensitive",
+                },
+              },
+              {
+                bodyEn: {
+                  contains: filters.search,
+                  mode: "insensitive",
+                },
+              },
+            ],
+          }
+        : {}),
+      // tags
+      ...(filters.tags && filters.tags.length > 0
+        ? {
+            tags: {
+              some: {
+                OR: [
+                  {
+                    name: {
+                      in: filters.tags,
+                      mode: "insensitive",
+                    },
+                  },
+                  {
+                    nameEn: {
+                      in: filters.tags,
+                      mode: "insensitive",
+                    },
+                  },
+                ],
+              },
+            },
+          }
+        : {}),
     },
     orderBy: {
       publishedAt: "desc",
     },
+    skip: filters.page * filters.pageSize,
+    take: filters.pageSize,
     include: {
       author: {
         include: {
