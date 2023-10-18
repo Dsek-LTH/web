@@ -5,7 +5,7 @@ import { Prisma, type Tag } from "@prisma/client";
 import { error, fail, redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 import { slugifyArticleHeader } from "$lib/slugify";
-import { getArticleAuthorOptions, type AuthorOption } from "$lib/articles";
+import { getArticleAuthorOptions, type AuthorOption } from "../articles";
 
 export const load: PageServerLoad = async ({ parent }) => {
   const allTags = await prisma.tag.findMany();

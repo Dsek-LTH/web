@@ -1,7 +1,7 @@
 <script lang="ts">
   import { page } from "$app/stores";
-  import type { Article } from "$lib/articles";
   import type { Tag } from "@prisma/client";
+  import type { Article } from "./articles";
 
   export let onResult: (result: Article[]) => void;
   export let filteredTags: Tag[] = [];

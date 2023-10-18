@@ -50,7 +50,7 @@ docker exec -it postgres psql -U postgres --dbname=new_web --command="SET sessio
 4. Re-enable foreign key checks.
 
 ```sh
-docker exec -it postgres psql -U postgres --dbname=new_web --command="SET session_replication_role = 'replica';"
+docker exec -it postgres psql -U postgres --dbname=new_web --command="SET session_replication_role = 'origin';"
 ```
 
 5. Run the other migrations

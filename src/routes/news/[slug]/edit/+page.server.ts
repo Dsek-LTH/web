@@ -1,6 +1,6 @@
 import { policyAccessGuard, withAccess } from "$lib/access";
 import apiNames from "$lib/apiNames";
-import { getArticleAuthorOptions, type AuthorOption } from "$lib/articles";
+import { getArticleAuthorOptions, type AuthorOption } from "../../articles";
 import prisma from "$lib/prisma";
 import { Prisma, type Tag } from "@prisma/client";
 import { error, fail, redirect } from "@sveltejs/kit";

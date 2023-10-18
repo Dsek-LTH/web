@@ -1,4 +1,4 @@
-import { getArticle } from "$lib/articles";
+import { getArticle } from "../articles";
 import { error } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 import { hasAccess } from "$lib/access";

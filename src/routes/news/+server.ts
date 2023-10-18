@@ -1,4 +1,4 @@
-import { getAllArticles } from "$lib/articles.js";
+import { getAllArticles } from "./articles.js";
 
 export async function GET({ url }) {
   const articles = await getAllArticles({
