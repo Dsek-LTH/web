@@ -11,7 +11,7 @@ const getAndValidatePage = (url: URL) => {
 };
 
 export const load: PageServerLoad = async ({ url }) => {
-  const [articles, allTags] = await Promise.all([
+  const [[articles, pageCount], allTags] = await Promise.all([
     getAllArticles({
       tags: url.searchParams.getAll("tags"),
       search: url.searchParams.get("search") ?? undefined,
@@ -21,6 +21,7 @@ export const load: PageServerLoad = async ({ url }) => {
   ]);
   return {
     articles,
+    pageCount,
     allTags,
   };
 };

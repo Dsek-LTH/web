@@ -7,7 +7,7 @@
 
   export let authorOptions: AuthorOption[];
   export let allTags: Tag[];
-  export let article: Omit<ArticleType, "likers"> = {
+  export let article: Omit<ArticleType, "likers" | "comments"> = {
     id: "",
     slug: "",
     header: "",
@@ -88,7 +88,7 @@
   <section>
     <span class="italic">Preview</span>
     {#if article != null}
-      <Article article={{ ...article, likers: [] }} />
+      <Article article={{ ...article, likers: [], comments: [] }} />
     {/if}
   </section>
 </main>

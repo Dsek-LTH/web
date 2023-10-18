@@ -24,7 +24,7 @@
     {/if}
   </div>
   <form method="get" class="form-control flex-1 flex-row items-end gap-4" id="filter-form">
-    <SearchBar onResult={(result) => (data.articles = result)} {filteredTags} />
+    <SearchBar {filteredTags} />
     <TagSelector allTags={data.allTags} bind:selectedTags={filteredTags} />
     {#each filteredTags as tag (tag.id)}
       <input type="hidden" name="tags" value={tag.name} />
@@ -101,4 +101,4 @@
   </article>
 {/each}
 
-<Pagination pages={10} />
+<Pagination pages={data.pageCount} />

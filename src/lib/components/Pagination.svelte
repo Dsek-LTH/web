@@ -1,7 +1,7 @@
 <script lang="ts">
   import { page } from "$app/stores";
 
-  $: currentPage = Number.parseInt($page.url.searchParams.get("page") ?? "0");
+  $: currentPage = Number.parseInt($page.url.searchParams.get("page") ?? "1");
   export let pages: number = 1;
   $: generateLinkForPage = (pageNumber: number) => {
     const searchParams = new URLSearchParams($page.url.searchParams);
@@ -43,7 +43,7 @@
       <a class="btn btn-disabled join-item" href="/"> ... </a>
     {:else if currentPage > pages - 3}
       <a class="btn btn-disabled join-item" href="/"> ... </a>
-      {#each Array.from({ length: 4 }).map((_, i) => i + pages - 3) as page (page)}
+      {#each Array.from({ length: 4 }).map((_, i) => i + pages - 4) as page (page)}
         <a
           class="btn join-item {page == currentPage ? 'btn-disabled btn-active' : ''}"
           href={generateLinkForPage(page)}
@@ -65,14 +65,14 @@
     {/if}
 
     <a
-      class="btn join-item {currentPage == pages + 1 ? 'btn-disabled btn-active' : ''}"
-      href={generateLinkForPage(pages + 1)}
+      class="btn join-item {currentPage == pages ? 'btn-disabled btn-active' : ''}"
+      href={generateLinkForPage(pages)}
     >
-      {pages + 1}
+      {pages}
     </a>
   {/if}
   <a
-    class="btn join-item {currentPage == pages + 1 ? 'btn-disabled' : ''}"
+    class="btn join-item {currentPage == pages ? 'btn-disabled' : ''}"
     href={generateLinkForPage(currentPage + 1)}>»</a
   >
 </div>

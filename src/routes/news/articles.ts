@@ -7,91 +7,111 @@ type ArticleFilters = {
   page?: number;
   pageSize?: number;
 };
-export const getAllArticles = async (filters: ArticleFilters = { page: 0, pageSize: 10 }) => {
-  filters.page = filters.page ?? 0;
-  filters.pageSize = filters.pageSize ?? 10;
-  const response = await prisma.article.findMany({
-    where: {
-      publishedAt: {
-        lte: new Date(),
-        not: null,
-      },
-      // search:
-      ...(filters.search && filters.search.length > 0
-        ? {
-            OR: [
-              {
-                header: {
-                  contains: filters.search,
-                  mode: "insensitive",
-                },
-              },
-              {
-                headerEn: {
-                  contains: filters.search,
-                  mode: "insensitive",
-                },
-              },
-              {
-                body: {
-                  contains: filters.search,
-                  mode: "insensitive",
-                },
-              },
-              {
-                bodyEn: {
-                  contains: filters.search,
-                  mode: "insensitive",
-                },
-              },
-            ],
-          }
-        : {}),
-      // tags
-      ...(filters.tags && filters.tags.length > 0
-        ? {
-            tags: {
-              some: {
-                OR: [
-                  {
-                    name: {
-                      in: filters.tags,
-                      mode: "insensitive",
-                    },
-                  },
-                  {
-                    nameEn: {
-                      in: filters.tags,
-                      mode: "insensitive",
-                    },
-                  },
-                ],
-              },
-            },
-          }
-        : {}),
-    },
-    orderBy: {
-      publishedAt: "desc",
-    },
-    skip: filters.page * filters.pageSize,
-    take: filters.pageSize,
+
+const include = {
+  author: {
     include: {
-      author: {
+      member: true,
+      mandate: {
         include: {
-          member: true,
-          mandate: {
-            include: {
-              position: true,
-            },
-          },
+          position: true,
         },
       },
-      likers: true,
-      tags: true,
     },
-  });
-  return response;
+  },
+  comments: {
+    include: {
+      member: true,
+    },
+  },
+  likers: true,
+  tags: true,
+};
+
+export const getAllArticles = async (
+  filters: ArticleFilters = { page: 0, pageSize: 10 }
+): Promise<[Article[], number]> => {
+  filters.page = filters.page ?? 0;
+  filters.pageSize = filters.pageSize ?? 10;
+
+  const where: Prisma.ArticleWhereInput = {
+    publishedAt: {
+      lte: new Date(),
+      not: null,
+    },
+    // removedAt: {
+    //   not: {
+    //     lte: new Date(),
+    //   },
+    // },
+    // search:
+    ...(filters.search && filters.search.length > 0
+      ? {
+          OR: [
+            {
+              header: {
+                contains: filters.search,
+                mode: "insensitive",
+              },
+            },
+            {
+              headerEn: {
+                contains: filters.search,
+                mode: "insensitive",
+              },
+            },
+            {
+              body: {
+                contains: filters.search,
+                mode: "insensitive",
+              },
+            },
+            {
+              bodyEn: {
+                contains: filters.search,
+                mode: "insensitive",
+              },
+            },
+          ],
+        }
+      : {}),
+    // tags
+    ...(filters.tags && filters.tags.length > 0
+      ? {
+          tags: {
+            some: {
+              OR: [
+                {
+                  name: {
+                    in: filters.tags,
+                    mode: "insensitive",
+                  },
+                },
+                {
+                  nameEn: {
+                    in: filters.tags,
+                    mode: "insensitive",
+                  },
+                },
+              ],
+            },
+          },
+        }
+      : {}),
+  };
+  const [articles, count] = await prisma.$transaction([
+    prisma.article.findMany({
+      where,
+      orderBy: {
+        publishedAt: "desc",
+      },
+      skip: filters.page * filters.pageSize,
+      take: filters.pageSize,
+      include,
+    }),
+    prisma.article.count({ where }),
+  ]);
+  return [articles, Math.ceil(count / filters.pageSize)];
 };
 
 export const getArticle = async (slug: string) => {
@@ -102,21 +122,13 @@ export const getArticle = async (slug: string) => {
         lte: new Date(),
         not: null,
       },
-    },
-    include: {
-      author: {
-        include: {
-          member: true,
-          mandate: {
-            include: {
-              position: true,
-            },
-          },
+      removedAt: {
+        not: {
+          lte: new Date(),
         },
       },
-      likers: true,
-      tags: true,
     },
+    include,
   });
   return response;
 };
