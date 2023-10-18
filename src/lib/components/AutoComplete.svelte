@@ -12,7 +12,7 @@
 
 <div class="dropdown">
   <div class="flex flex-col gap-2">
-    <div class="flex flex-row items-center gap-2">
+    <div class="absolute bottom-[calc(100%+0.5rem)] flex min-w-full flex-row items-center gap-2">
       {#if selected.length > 0}
         {#each selected as option}
           <button
@@ -35,15 +35,18 @@
         <div class="pointer-events-none opacity-0">
           <slot name="selected-option" option={options[0]} />
         </div>
-        <button type="button" class="btn btn-xs pointer-events-none opacity-0"></button>
+        <button tabindex="-1" type="button" class="btn btn-xs pointer-events-none opacity-0"
+        ></button>
       {/if}
     </div>
     <input
+      id="autocomplete"
       type="text"
       class="input input-bordered w-full"
       placeholder="Taggar"
       tabIndex={0}
       bind:value={searchValue}
+      {...$$restProps}
     />
   </div>
   <ul

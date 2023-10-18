@@ -4,6 +4,8 @@
   import Article from "./Article.svelte";
   import TagSelector from "$lib/components/TagSelector.svelte";
   import type { Tag } from "@prisma/client";
+  import Input from "$lib/components/Input.svelte";
+  import Labeled from "$lib/components/Labeled.svelte";
 
   export let authorOptions: AuthorOption[];
   export let allTags: Tag[];
@@ -47,43 +49,47 @@
 
 <main class="flex w-screen flex-col gap-8 px-4 pt-8 lg:flex-row lg:px-8 [&>*]:flex-1">
   <section>
-    <form method="POST" class="form-control gap-4" use:enhance>
+    <form method="POST" class="form-control gap-2" use:enhance>
       <slot name="form-start" />
-      <input
-        name="header"
-        class="input input-bordered"
-        placeholder="Header"
-        required
-        bind:value={article.header}
-      />
-      <!-- <Tiptap /> -->
-      <textarea
-        id="editor"
-        name="body"
-        class="textarea textarea-bordered min-h-[10rem]"
-        placeholder="Body"
-        bind:value={article.body}
-      />
-      <select class="select select-bordered w-full max-w-xs" bind:value={article.author} required>
-        {#each authorOptions as authorOption}
-          <option value={authorOption}>
-            {#if authorOption.type === "Custom" && authorOption.customAuthor != null}
-              {authorOption.customAuthor.name}
-            {:else}
-              {authorOption.member.firstName}
-              {authorOption.member.lastName}{#if authorOption.mandate?.position.name},
-                {authorOption.mandate?.position.name}
+      <Input name="header" label="Header" required bind:value={article.header} />
+      <Labeled label="Description" id="body">
+        <textarea
+          id="body"
+          name="body"
+          class="textarea textarea-bordered min-h-[10rem]"
+          placeholder="Body"
+          bind:value={article.body}
+        />
+      </Labeled>
+      <Labeled label="Author" id="author">
+        <select
+          id="author"
+          class="select select-bordered w-full max-w-xs"
+          bind:value={article.author}
+          required
+        >
+          {#each authorOptions as authorOption}
+            <option value={authorOption}>
+              {#if authorOption.type === "Custom" && authorOption.customAuthor != null}
+                {authorOption.customAuthor.name}
+              {:else}
+                {authorOption.member.firstName}
+                {authorOption.member.lastName}{#if authorOption.mandate?.position.name},
+                  {authorOption.mandate?.position.name}
+                {/if}
               {/if}
-            {/if}
-          </option>
-        {/each}
-      </select>
+            </option>
+          {/each}
+        </select>
+      </Labeled>
       <input type="hidden" name="author" value={JSON.stringify(article.author)} />
-      <TagSelector {allTags} bind:selectedTags={article.tags} />
+      <Labeled label="Taggar" id="autocomplete">
+        <TagSelector {allTags} bind:selectedTags={article.tags} />
+      </Labeled>
       <input type="hidden" name="tags" value={JSON.stringify(article.tags)} />
       <slot name="form-end" />
       <!-- <button type="submit" disabled style="display: none" aria-hidden="true" /> -->
-      <button type="submit" disabled={submitting} class="btn btn-primary">
+      <button type="submit" disabled={submitting} class="btn btn-primary mt-4">
         {submitting ? "Submitting..." : "Submit"}
       </button>
     </form>

@@ -1,10 +1,8 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
-  import type { Tag } from "@prisma/client";
   import { tick } from "svelte";
 
-  export let filteredTags: Tag[] = [];
   let isLoading = false;
 
   let debouncerTimeout: number;
@@ -13,15 +11,17 @@
     isLoading = true;
     clearTimeout(debouncerTimeout);
     debouncerTimeout = window.setTimeout(async () => {
-      const urlParams = new URLSearchParams(filteredTags.map((tag) => ["tags", tag.name]));
-      if (search) urlParams.set("search", search);
-      await goto(`/news?${urlParams.toString()}`, { replaceState: true });
+      const urlParams = new URLSearchParams($page.url.searchParams);
+      if (search !== undefined) urlParams.set("search", search);
+      else urlParams.delete("search");
+      urlParams.delete("page");
+      await goto(`?${urlParams.toString()}`, { replaceState: true });
       await tick();
       setTimeout(() => {
         inputField.focus();
         isLoading = false;
       }, 0);
-    }, 200);
+    }, 500);
   };
 </script>
 

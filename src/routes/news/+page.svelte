@@ -5,7 +5,7 @@
   import TagSelector from "$lib/components/TagSelector.svelte";
   import type { Tag } from "@prisma/client";
   import { marked } from "marked";
-  import SearchBar from "./SearchBar.svelte";
+  import SearchBar from "../../lib/components/SearchBar.svelte";
   import Pagination from "$lib/components/Pagination.svelte";
   import AuthorSignature from "$lib/components/AuthorSignature.svelte";
 
@@ -15,7 +15,7 @@
   );
 </script>
 
-<section>
+<section class="flex flex-col gap-2">
   <div class="flex items-center gap-2">
     {#if data.accessPolicies.includes(apiNames.NEWS.CREATE)}
       <a class="btn" href="/news/create">+ Create</a>
@@ -24,8 +24,8 @@
       <a class="btn" href="/news/tags">Tags</a>
     {/if}
   </div>
-  <form method="get" class="form-control flex-1 flex-row items-end gap-4" id="filter-form">
-    <SearchBar {filteredTags} />
+  <form method="get" class="form-control flex-1 flex-row items-end gap-2" id="filter-form">
+    <SearchBar />
     <TagSelector allTags={data.allTags} bind:selectedTags={filteredTags} />
     {#each filteredTags as tag (tag.id)}
       <input type="hidden" name="tags" value={tag.name} />
@@ -35,7 +35,7 @@
 </section>
 {#each data.articles as article (article.id)}
   <article
-    class="ease mdNEWS.CREATE8 my-4 rounded-lg p-6 shadow-2xl ring-neutral-700 transition md:ring-1 md:hover:scale-[1.01]"
+    class="ease my-4 rounded-lg p-6 shadow-2xl ring-neutral-700 transition md:ring-1 md:hover:scale-[1.01]"
   >
     <div class="flex flex-row justify-between">
       <AuthorSignature author={article.author} />

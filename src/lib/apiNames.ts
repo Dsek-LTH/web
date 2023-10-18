@@ -13,6 +13,9 @@ const apiNames = {
   TAGS: {
     ...crud("tags"),
   },
+  EVENT: {
+    ...crud("event"),
+  },
   ACCESS_POLICY: crud("core:access:api"),
 };
 

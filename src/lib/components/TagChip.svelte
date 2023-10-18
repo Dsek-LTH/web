@@ -6,7 +6,7 @@
 
 {#if tag}
   <span
-    class="badge badge-md relative cursor-pointer text-xs"
+    class="badge badge-md relative cursor-pointer whitespace-nowrap text-xs"
     style="border-color: {tag.color || 'white'}"
   >
     <div

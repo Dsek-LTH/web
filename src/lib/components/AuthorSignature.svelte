@@ -18,9 +18,35 @@
   <div class="avatar">
     <div class="w-12 rounded-full">
       {#if author.type == "Custom" && author.customAuthor != null}
-        <img src={author.customAuthor.imageUrl} alt={author.customAuthor.name} />
+        <img
+          src={author.customAuthor.imageUrl ?? "https://gravatar.com/avatar?s=100&d=mp"}
+          alt={author.customAuthor.name}
+          on:error={(e) => {
+            const imgElement = e.currentTarget;
+            if (
+              imgElement &&
+              "src" in imgElement &&
+              imgElement.src !== "https://gravatar.com/avatar?s=100&d=mp"
+            ) {
+              imgElement.src = "https://gravatar.com/avatar?s=100&d=mp";
+            }
+          }}
+        />
       {:else}
-        <img src={author.member.picturePath} alt={author.member.firstName} />
+        <img
+          src={author.member.picturePath ?? "https://gravatar.com/avatar?s=100&d=mp"}
+          on:error|preventDefault={(e) => {
+            const imgElement = e.currentTarget;
+            if (
+              imgElement &&
+              "src" in imgElement &&
+              imgElement.src !== "https://gravatar.com/avatar?s=100&d=mp"
+            ) {
+              imgElement.src = "https://gravatar.com/avatar?s=100&d=mp";
+            }
+          }}
+          alt=""
+        />
       {/if}
     </div>
   </div>

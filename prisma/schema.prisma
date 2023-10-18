@@ -280,8 +280,8 @@ model Event {
   alarmActive        Boolean?       @default(false) @map("alarm_active")
   removedAt          DateTime?      @map("removed_at") @db.Timestamptz(6)
   comments           EventComment[]
-  goings             Member[]       @relation("event_going")
-  interesteds        Member[]       @relation("event_interested")
+  going              Member[]       @relation("event_going")
+  interested         Member[]       @relation("event_interested")
   author             Member         @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "events_author_id_foreign")
   tags               Tag[]          @relation("event_tags")
 
