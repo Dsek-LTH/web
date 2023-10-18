@@ -47,6 +47,10 @@ docker exec -it postgres psql -U postgres --dbname=new_web --command="SET sessio
 
    Then import the dump into your database.
 
+```sh
+cat dsek_prod_dump.sql | docker exec -it postgres psql -U postgres --dbname=new_web
+```
+
 4. Re-enable foreign key checks.
 
 ```sh
