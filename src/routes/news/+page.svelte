@@ -6,6 +6,7 @@
   import type { Tag } from "@prisma/client";
   import { marked } from "marked";
   import SearchBar from "./SearchBar.svelte";
+  import Pagination from "$lib/components/Pagination.svelte";
 
   export let data;
   let filteredTags: Tag[] = data.allTags.filter((tag) =>
@@ -99,3 +100,5 @@
     </div>
   </article>
 {/each}
+
+<Pagination pages={10} />
