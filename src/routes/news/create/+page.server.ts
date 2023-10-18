@@ -32,7 +32,7 @@ export const load: PageServerLoad = async ({ parent }) => {
     },
   });
   if (!currentMemberWithMandates) throw error(500, "Member not found");
-  const authorOptions = getArticleAuthorOptions(currentMemberWithMandates);
+  const authorOptions = await getArticleAuthorOptions(currentMemberWithMandates);
   return {
     allTags,
     authorOptions,

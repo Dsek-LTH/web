@@ -39,6 +39,7 @@ export const load: PageServerLoad = async ({ parent, params }) => {
               position: true,
             },
           },
+          customAuthor: true,
         },
       },
       tags: true,
@@ -49,12 +50,14 @@ export const load: PageServerLoad = async ({ parent, params }) => {
 
   const authorMemberWithMandates = article.author.member;
   if (!authorMemberWithMandates) throw error(500, "Author member not found");
-  const authorOptions = getArticleAuthorOptions(authorMemberWithMandates);
+  const authorOptions = await getArticleAuthorOptions(authorMemberWithMandates);
 
   article.author =
     (authorOptions.find(
       (option) =>
-        option.memberId == article.author.memberId && option.mandateId == article.author.mandateId
+        option.memberId == article.author.memberId &&
+        option.mandateId == article.author.mandateId &&
+        option.customId == article.author.customId
     ) as typeof article.author) ?? article.author;
   return {
     allTags,

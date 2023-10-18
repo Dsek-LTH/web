@@ -1,7 +1,8 @@
 <script lang="ts">
-  import type { Article } from "./articles";
+  import AuthorSignature from "$lib/components/AuthorSignature.svelte";
   import TagChip from "$lib/components/TagChip.svelte";
   import { marked } from "marked";
+  import type { Article } from "./articles";
 
   export let article: Article;
 </script>
@@ -15,22 +16,7 @@
 <h1 class="mb-8 text-2xl font-bold">{article.header}</h1>
 
 <section class="flex items-center justify-between border-y border-gray-600 py-4">
-  <div class="flex flex-row items-center">
-    <div class="avatar">
-      <div class="w-16 rounded-full">
-        <img src={article.author.member.picturePath} alt={article.author.member.firstName} />
-      </div>
-    </div>
-    <div class="ml-4">
-      <p class="font-semibold">
-        {article.author.member.firstName}
-        {article.author.member.lastName}
-      </p>
-      {#if article.author.mandate?.position.name}
-        <p class="font-thin text-primary">{article.author.mandate?.position.name}</p>
-      {/if}
-    </div>
-  </div>
+  <AuthorSignature author={article.author} />
   <slot name="actions" />
 </section>
 

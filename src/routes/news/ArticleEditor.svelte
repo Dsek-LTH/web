@@ -67,9 +67,13 @@
       <select class="select select-bordered w-full max-w-xs" bind:value={article.author} required>
         {#each authorOptions as authorOption}
           <option value={authorOption}>
-            {authorOption.member.firstName}
-            {authorOption.member.lastName}{#if authorOption.mandate?.position.name},
-              {authorOption.mandate?.position.name}
+            {#if authorOption.type === "Custom" && authorOption.customAuthor != null}
+              {authorOption.customAuthor.name}
+            {:else}
+              {authorOption.member.firstName}
+              {authorOption.member.lastName}{#if authorOption.mandate?.position.name},
+                {authorOption.mandate?.position.name}
+              {/if}
             {/if}
           </option>
         {/each}

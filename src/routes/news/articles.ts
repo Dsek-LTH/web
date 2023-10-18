@@ -1,5 +1,6 @@
+import { getCustomAuthorOptions } from "$lib/member";
 import prisma from "$lib/prisma";
-import type { Member, Prisma } from "@prisma/client";
+import type { CustomAuthor, Member, Prisma } from "@prisma/client";
 
 type ArticleFilters = {
   tags?: string[];
@@ -17,6 +18,7 @@ const include = {
           position: true,
         },
       },
+      customAuthor: true,
     },
   },
   comments: {
@@ -137,13 +139,14 @@ export type AuthorOption = {
       position: true;
     };
   }> | null;
+  customAuthor: CustomAuthor | null;
   customId: string | null;
   createdAt: Date;
   updatedAt: Date;
   type: string;
 };
 
-export const getArticleAuthorOptions = (
+export const getArticleAuthorOptions = async (
   memberWithMandates: Prisma.MemberGetPayload<{
     include: {
       mandates: {
@@ -154,13 +157,16 @@ export const getArticleAuthorOptions = (
     };
   }>
 ) => {
+  const memberId = memberWithMandates.id;
+  const customAuthorOptions = await getCustomAuthorOptions(memberId);
   const authorOptions: AuthorOption[] = [
     {
       id: "0",
       memberId: memberWithMandates.id,
       member: memberWithMandates,
-      mandateId: null,
       mandate: null,
+      mandateId: null,
+      customAuthor: null,
       customId: null,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -168,15 +174,30 @@ export const getArticleAuthorOptions = (
     },
     ...(memberWithMandates?.mandates.map((mandate) => {
       return {
-        id: String(mandate.id),
+        id: String(mandate.id), // unique
         memberId: memberWithMandates.id,
         member: memberWithMandates,
         mandateId: mandate.id,
         mandate: mandate,
+        customAuthor: null,
         customId: null,
         createdAt: new Date(),
         updatedAt: new Date(),
         type: "Mandate",
+      };
+    }) ?? []),
+    ...(customAuthorOptions?.map((customAuthor) => {
+      return {
+        id: String(customAuthor.id), // unique
+        memberId: memberWithMandates.id,
+        member: memberWithMandates,
+        mandate: null,
+        mandateId: null,
+        customAuthor: customAuthor,
+        customId: customAuthor.id,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        type: "Custom",
       };
     }) ?? []),
   ];

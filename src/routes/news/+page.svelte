@@ -7,6 +7,7 @@
   import { marked } from "marked";
   import SearchBar from "./SearchBar.svelte";
   import Pagination from "$lib/components/Pagination.svelte";
+  import AuthorSignature from "$lib/components/AuthorSignature.svelte";
 
   export let data;
   let filteredTags: Tag[] = data.allTags.filter((tag) =>
@@ -37,23 +38,7 @@
     class="ease mdNEWS.CREATE8 my-4 rounded-lg p-6 shadow-2xl ring-neutral-700 transition md:ring-1 md:hover:scale-[1.01]"
   >
     <div class="flex flex-row justify-between">
-      <div class="flex items-center gap-3">
-        <div class="avatar">
-          <div class="w-10 rounded-full">
-            <img src={article.author.member.picturePath} alt={article.author.member.firstName} />
-          </div>
-        </div>
-        <div>
-          <h3 class="text-sm font-semibold">
-            {article.author.member.firstName + " " + article.author.member.lastName}
-          </h3>
-          {#if article.author.mandate?.position}
-            <h3 class="text-sm font-thin text-primary">
-              {article.author.mandate?.position.name}
-            </h3>
-          {/if}
-        </div>
-      </div>
+      <AuthorSignature author={article.author} />
 
       <p class="text-right text-xs text-gray-500">
         {article.publishedAt?.toLocaleDateString(["sv"])} <br />
