@@ -52,6 +52,3 @@
     </td>
   {/if}
 </tr>
-
-<style>
-</style>
