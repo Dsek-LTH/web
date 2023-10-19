@@ -1,5 +1,5 @@
 <script lang="ts">
-  import apiNames from "$lib/apiNames.js";
+  import apiNames from "$lib/utils/apiNames";
 
   export let data;
 </script>
@@ -24,18 +24,15 @@
 </section>
 {#each data.articles as article (article.id)}
   <article
-    class="ease mdNEWS.CREATE8 my-4 rounded-2xl p-6 shadow-2xl ring-neutral-700 transition md:ring-1 md:hover:scale-105"
+    class="ease my-4 rounded-2xl p-6 shadow-2xl ring-neutral-700 transition md:ring-1 md:hover:scale-105"
   >
     <div class="flex flex-row justify-between">
       <div class="flex items-center gap-3">
-        <!-- <div class="avatar">
-            <div class="w-10 rounded-full">
-              <img
-                src={article.author.member.picture_path}
-                alt={article.author.member.first_name}
-              />
-            </div>
-          </div> -->
+        <div class="avatar">
+          <div class="w-10 rounded-full">
+            <img src={article.author.member.picturePath} alt={article.author.member.firstName} />
+          </div>
+        </div>
         <div>
           <h3 class="text-sm font-semibold">
             {article.author.member.firstName + " " + article.author.member.lastName}
@@ -49,11 +46,11 @@
       </div>
 
       <p class="text-right text-xs text-gray-500">
-        <!-- {new Date(article.publishedAt).toLocaleDateString(["sv"])} <br /> -->
-        <!-- {new Date(article.publishedAt).toLocaleTimeString(["sv"], { -->
-        <!-- hour: "2-digit", -->
-        <!-- minute: "2-digit" -->
-        <!-- })} -->
+        <!-- {new Date(article.publishedAt).toLocaleDateString(["sv"])} <br />
+        {new Date(article.publishedAt).toLocaleTimeString(["sv"], {
+          hour: "2-digit",
+          minute: "2-digit",
+        })} -->
       </p>
     </div>
 

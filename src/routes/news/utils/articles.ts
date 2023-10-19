@@ -1,4 +1,4 @@
-import prisma from "$lib/prisma";
+import prisma from "$lib/utils/prisma";
 import type { Member, Prisma } from "@prisma/client";
 
 export const getAllArticles = async () => {

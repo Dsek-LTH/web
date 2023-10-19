@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Article from "$lib/components/Article.svelte";
+  import Article from "../components/Article.svelte";
 
   export let data;
   $: article = data.article;

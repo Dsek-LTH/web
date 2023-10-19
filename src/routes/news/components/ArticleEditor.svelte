@@ -1,9 +1,9 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
-  import type { Article as ArticleType, AuthorOption } from "$lib/articles.js";
-  import Article from "$lib/components/Article.svelte";
+  import Article from "./Article.svelte";
   import TagSelector from "$lib/components/TagSelector.svelte";
   import type { Tag } from "@prisma/client";
+  import type { Article as ArticleType, AuthorOption } from "../utils/articles";
 
   export let authorOptions: AuthorOption[];
   export let allTags: Tag[];

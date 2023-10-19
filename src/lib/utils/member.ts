@@ -1,6 +1,6 @@
-import type { Context } from "$lib/access";
-import prisma from "$lib/prisma";
 import { error } from "@sveltejs/kit";
+import type { Context } from "./access";
+import prisma from "./prisma";
 
 export const getCurrentMember = async (context: Context) => {
   if (!context?.student_id) {

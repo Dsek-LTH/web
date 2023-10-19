@@ -3,7 +3,7 @@
   import { page } from "$app/stores";
   $: user = $page.data.session?.user;
   import "../app.css";
-  import apiNames from "$lib/apiNames";
+  import apiNames from "$lib/utils/apiNames";
   export let data;
 </script>
 

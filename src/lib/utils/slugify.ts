@@ -1,4 +1,4 @@
-import prisma from "$lib/prisma";
+import prisma from "$lib/utils/prisma";
 
 export const slugify = (str: string) => {
   const slug = str.replace(/\s+/g, "-").toLowerCase();
