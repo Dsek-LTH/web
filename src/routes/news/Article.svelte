@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Article } from "../utils/articles";
+  import type { Article } from "./articles";
   import TagChip from "$lib/components/TagChip.svelte";
   import { marked } from "marked";
 

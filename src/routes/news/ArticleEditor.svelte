@@ -3,7 +3,7 @@
   import Article from "./Article.svelte";
   import TagSelector from "$lib/components/TagSelector.svelte";
   import type { Tag } from "@prisma/client";
-  import type { Article as ArticleType, AuthorOption } from "../utils/articles";
+  import type { Article as ArticleType, AuthorOption } from "./articles";
 
   export let authorOptions: AuthorOption[];
   export let allTags: Tag[];

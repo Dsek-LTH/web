@@ -1,5 +1,5 @@
 <script lang="ts">
-  import ArticleEditor from "../components/ArticleEditor.svelte";
+  import ArticleEditor from "../ArticleEditor.svelte";
 
   // import Tiptap from "$lib/TipTap.svelte";
   export let data;

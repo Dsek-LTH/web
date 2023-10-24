@@ -4,7 +4,7 @@ import prisma from "$lib/utils/prisma";
 import { Prisma, type Tag } from "@prisma/client";
 import { error, fail, redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
-import { getArticleAuthorOptions, type AuthorOption } from "../../utils/articles";
+import { getArticleAuthorOptions, type AuthorOption } from "../../articles";
 
 export const load: PageServerLoad = async ({ parent, params }) => {
   const allTags = await prisma.tag.findMany();

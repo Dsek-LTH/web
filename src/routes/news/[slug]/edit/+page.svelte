@@ -1,6 +1,6 @@
 <script lang="ts">
   import { page } from "$app/stores";
-  import ArticleEditor from "../../components/ArticleEditor.svelte";
+  import ArticleEditor from "../../ArticleEditor.svelte";
 
   export let data;
   export let form;
