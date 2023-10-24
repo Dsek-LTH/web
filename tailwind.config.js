@@ -1,3 +1,5 @@
+import { iconsPlugin, getIconCollections } from "@egoist/tailwindcss-icons";
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./src/**/*.{html,js,svelte,ts}"],
@@ -35,5 +37,11 @@ export default {
     ],
     logs: false,
   },
-  plugins: [require("@tailwindcss/typography"), require("daisyui")],
+  plugins: [
+    require("@tailwindcss/typography"),
+    require("daisyui"),
+    iconsPlugin({
+      collections: getIconCollections(["mdi"]),
+    }),
+  ],
 };
