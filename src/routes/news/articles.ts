@@ -65,8 +65,6 @@ export const getArticle = async (slug: string) => {
   return response;
 };
 
-export type Article = NonNullable<Awaited<ReturnType<typeof getArticle>>>;
-
 export type AuthorOption = {
   id: string;
   memberId: string;

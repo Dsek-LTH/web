@@ -1,9 +1,12 @@
 <script lang="ts">
-  import type { Article } from "./articles";
   import TagChip from "$lib/components/TagChip.svelte";
+  import type { Article, Member, Position, Tag } from "@prisma/client";
   import { marked } from "marked";
 
   export let article: Article;
+  export let member: Member;
+  export let position: Position | undefined = undefined;
+  export let tags: Tag[] = [];
 </script>
 
 <!-- {#if data.imageUrl}
@@ -18,15 +21,15 @@
   <div class="ml-4">
     <!-- <div class="avatar">
         <div class="w-16 rounded-full">
-          <img src={article.author.member.picture_path} alt={article.author.member.first_name} />
+          <img src={member.picture_path} alt={member.first_name} />
         </div>
       </div> -->
     <p class="font-semibold">
-      {article.author.member.firstName}
-      {article.author.member.lastName}
+      {member.firstName}
+      {member.lastName}
     </p>
-    {#if article.author.mandate?.position.name}
-      <p class="font-thin text-primary">{article.author.mandate?.position.name}</p>
+    {#if position?.name}
+      <p class="font-thin text-primary">{position.name}</p>
     {/if}
   </div>
   <slot name="actions" />
@@ -34,7 +37,7 @@
 
 <section class="flex flex-row items-center justify-between">
   <div class="flex flex-row flex-wrap gap-2">
-    {#each article.tags as tag}
+    {#each tags as tag}
       <TagChip {tag} />
     {/each}
   </div>
