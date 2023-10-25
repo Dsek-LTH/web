@@ -15,6 +15,7 @@
       <tr class="bg-base-200">
         <th>Preview</th>
         <th>Name</th>
+        <th>Color</th>
         <th />
       </tr>
     </thead>

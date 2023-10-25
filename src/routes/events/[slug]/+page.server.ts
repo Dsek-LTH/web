@@ -1,24 +1,20 @@
+import { getEvent } from "../events";
 import { error } from "@sveltejs/kit";
-import { getArticle } from "../articles";
 import type { PageServerLoad } from "./$types";
 import { hasAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
 
 export const load: PageServerLoad = async ({ params, parent }) => {
-  const article = await getArticle(params.slug);
-  if (article == undefined) {
+  const event = await getEvent(params.slug);
+  if (event == undefined) {
     throw error(404, {
       message: "Not found",
     });
   }
   const { session } = await parent();
-  const canEdit = await hasAccess(
-    [apiNames.NEWS.UPDATE, apiNames.NEWS.MANAGE],
-    session?.user,
-    article.author.member.id
-  );
+  const canEdit = await hasAccess(apiNames.EVENT.UPDATE, session?.user, event.author.id);
   return {
-    article,
+    event,
     canEdit,
   };
 };

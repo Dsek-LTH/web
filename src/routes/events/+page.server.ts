@@ -1,6 +1,6 @@
 import prisma from "$lib/utils/prisma";
 import type { PageServerLoad } from "./$types";
-import { getAllArticles } from "./articles";
+import { getAllEvents } from "./events";
 
 const getAndValidatePage = (url: URL) => {
   const page = url.searchParams.get("page");
@@ -11,16 +11,17 @@ const getAndValidatePage = (url: URL) => {
 };
 
 export const load: PageServerLoad = async ({ url }) => {
-  const [[articles, pageCount], allTags] = await Promise.all([
-    getAllArticles({
+  const [[events, pageCount], allTags] = await Promise.all([
+    getAllEvents({
       tags: url.searchParams.getAll("tags"),
       search: url.searchParams.get("search") ?? undefined,
       page: getAndValidatePage(url),
+      pastEvents: url.searchParams.get("past") === "on",
     }),
     prisma.tag.findMany({ orderBy: { name: "asc" } }),
   ]);
   return {
-    articles,
+    events,
     pageCount,
     allTags,
   };

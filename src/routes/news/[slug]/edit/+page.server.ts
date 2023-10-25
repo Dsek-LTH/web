@@ -1,10 +1,10 @@
-import { policyAccessGuard, withAccess } from "$lib/utils/access";
-import apiNames from "$lib/utils/apiNames";
-import prisma from "$lib/utils/prisma";
 import { Prisma, type Tag } from "@prisma/client";
 import { error, fail, redirect } from "@sveltejs/kit";
-import type { PageServerLoad } from "./$types";
 import { getArticleAuthorOptions, type AuthorOption } from "../../articles";
+import type { PageServerLoad } from "./$types";
+import prisma from "$lib/utils/prisma";
+import { policyAccessGuard, withAccess } from "$lib/utils/access";
+import apiNames from "$lib/utils/apiNames";
 
 export const load: PageServerLoad = async ({ parent, params }) => {
   const allTags = await prisma.tag.findMany();
@@ -21,10 +21,10 @@ export const load: PageServerLoad = async ({ parent, params }) => {
             include: {
               mandates: {
                 where: {
-                  start: {
+                  startDate: {
                     lte: new Date(),
                   },
-                  end: {
+                  endDate: {
                     gte: new Date(),
                   },
                 },
@@ -39,6 +39,7 @@ export const load: PageServerLoad = async ({ parent, params }) => {
               position: true,
             },
           },
+          customAuthor: true,
         },
       },
       tags: true,
@@ -49,12 +50,14 @@ export const load: PageServerLoad = async ({ parent, params }) => {
 
   const authorMemberWithMandates = article.author.member;
   if (!authorMemberWithMandates) throw error(500, "Author member not found");
-  const authorOptions = getArticleAuthorOptions(authorMemberWithMandates);
+  const authorOptions = await getArticleAuthorOptions(authorMemberWithMandates);
 
   article.author =
     (authorOptions.find(
       (option) =>
-        option.memberId == article.author.memberId && option.mandateId == article.author.mandateId
+        option.memberId == article.author.memberId &&
+        option.mandateId == article.author.mandateId &&
+        option.customId == article.author.customId
     ) as typeof article.author) ?? article.author;
   return {
     allTags,
@@ -139,7 +142,7 @@ export const actions = {
             updatedAt: new Date(),
           },
         });
-        slug = result.slug;
+        slug = result.slug!;
       } catch (e) {
         if (e instanceof Prisma.PrismaClientKnownRequestError) {
           return fail(400, {

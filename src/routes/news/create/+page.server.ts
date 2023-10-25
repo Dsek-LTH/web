@@ -2,7 +2,7 @@ import { policyAccessGuard, withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
 import prisma from "$lib/utils/prisma";
 import { Prisma, type Tag } from "@prisma/client";
-import { error, fail, redirect } from "@sveltejs/kit";
+import { error, fail, redirect, type Actions } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 import { slugifyArticleHeader } from "$lib/utils/slugify";
 import { getArticleAuthorOptions, type AuthorOption } from "../articles";
@@ -18,10 +18,10 @@ export const load: PageServerLoad = async ({ parent }) => {
     include: {
       mandates: {
         where: {
-          start: {
+          startDate: {
             lte: new Date(),
           },
-          end: {
+          endDate: {
             gte: new Date(),
           },
         },
@@ -32,7 +32,7 @@ export const load: PageServerLoad = async ({ parent }) => {
     },
   });
   if (!currentMemberWithMandates) throw error(500, "Member not found");
-  const authorOptions = getArticleAuthorOptions(currentMemberWithMandates);
+  const authorOptions = await getArticleAuthorOptions(currentMemberWithMandates);
   return {
     allTags,
     authorOptions,
@@ -136,4 +136,4 @@ export const actions = {
       throw redirect(303, "/news");
     });
   },
-};
+} satisfies Actions;

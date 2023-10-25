@@ -1,5 +1,5 @@
 import { error } from "@sveltejs/kit";
-import type { Context } from "./access";
+import { getRoleSet, type Context } from "./access";
 import prisma from "./prisma";
 
 export const getCurrentMember = async (context: Context) => {
@@ -20,4 +20,42 @@ export const getCurrentMember = async (context: Context) => {
 export const getCurrentMemberId = async (context: Context) => {
   const member = await getCurrentMember(context);
   return member.id;
+};
+
+export const getMyCustomAuthorOptions = async (context: Context) => {
+  return await getCustomAuthorOptions(await getCurrentMemberId(context));
+};
+
+export const getCustomAuthorOptions = async (memberId: string) => {
+  const activePositionIds = await prisma.position
+    .findMany({
+      select: {
+        id: true,
+      },
+      where: {
+        mandates: {
+          some: {
+            startDate: {
+              lte: new Date(),
+            },
+            endDate: {
+              gte: new Date(),
+            },
+            memberId,
+          },
+        },
+      },
+    })
+    .then((positions) => positions.map((pos) => pos.id));
+  return await prisma.customAuthor.findMany({
+    where: {
+      roles: {
+        some: {
+          role: {
+            in: [...getRoleSet([...activePositionIds, "_"])],
+          },
+        },
+      },
+    },
+  });
 };

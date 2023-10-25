@@ -44,6 +44,9 @@ export const actions = {
         };
       } catch (e) {
         if (e instanceof Prisma.PrismaClientKnownRequestError) {
+          // foreign key constraint
+          if (e.code === "P2003")
+            return fail(400, { role, studentId, error: "Member does not exist" });
           return fail(400, { role, studentId, error: e.message });
         }
         return fail(400, { role, studentId, error: "Unknown error" });
@@ -68,11 +71,6 @@ export const actions = {
           success: true,
         };
       } catch (e) {
-        if (e instanceof Prisma.PrismaClientKnownRequestError) {
-          // foreign key constraint
-          if (e.code === "P2003") return fail(400, { id, error: "Member does not exist" });
-          return fail(400, { id, error: e.message });
-        }
         return fail(500, { id, error: "Unknown error" });
       }
     });

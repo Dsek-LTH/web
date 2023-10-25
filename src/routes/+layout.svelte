@@ -7,7 +7,9 @@
 
 <NavBar accessPolicies={data.accessPolicies} />
 
-<div class="overflow-auto accent-primary">
+<div
+  class="h-[calc(100vh-9rem)] flex-col overflow-auto pb-8 accent-primary md:h-[calc(100vh-5rem)] [&>*]:flex-1"
+>
   <slot />
 </div>
 

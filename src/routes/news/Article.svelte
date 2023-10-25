@@ -1,53 +1,28 @@
 <script lang="ts">
-  import TagChip from "$lib/components/TagChip.svelte";
-  import type { Article, Member, Position, Tag } from "@prisma/client";
-  import { marked } from "marked";
+  import type { Article } from "@prisma/client";
+  import MarkdownBody from "../../lib/components/MarkdownBody.svelte";
 
   export let article: Article;
-  export let member: Member;
-  export let position: Position | undefined = undefined;
-  export let tags: Tag[] = [];
 </script>
 
-<!-- {#if data.imageUrl}
+{#if article.imageUrl}
   <figure>
-    <img class="mx-auto" src={data.imageUrl} alt={data.header} />
+    <img class="mx-auto" src={article.imageUrl} alt={article.imageUrl} />
   </figure>
-{/if} -->
+{/if}
 
 <h1 class="mb-8 text-2xl font-bold">{article.header}</h1>
 
 <section class="flex items-center justify-between border-y border-gray-600 py-4">
-  <div class="ml-4">
-    <!-- <div class="avatar">
-        <div class="w-16 rounded-full">
-          <img src={member.picture_path} alt={member.first_name} />
-        </div>
-      </div> -->
-    <p class="font-semibold">
-      {member.firstName}
-      {member.lastName}
-    </p>
-    {#if position?.name}
-      <p class="font-thin text-primary">{position.name}</p>
-    {/if}
-  </div>
+  <slot name="author" />
   <slot name="actions" />
 </section>
 
 <section class="flex flex-row items-center justify-between">
-  <div class="flex flex-row flex-wrap gap-2">
-    {#each tags as tag}
-      <TagChip {tag} />
-    {/each}
-  </div>
+  <slot name="tags" />
   <p class="my-4 text-sm text-gray-600">
     Publicerad {article.publishedAt?.toLocaleDateString("sv")}
   </p>
 </section>
 
-<article class="prose lg:prose-xl">
-  <!-- The article body is sanitized server-side. -->
-  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-  {@html marked(article.body)}
-</article>
+<MarkdownBody body={article.body} />
