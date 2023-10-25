@@ -1,10 +1,10 @@
-import { policyAccessGuard, withAccess } from "$lib/access";
-import apiNames from "$lib/apiNames";
-import prisma from "$lib/prisma";
+import { policyAccessGuard, withAccess } from "$lib/utils/access";
+import apiNames from "$lib/utils/apiNames";
+import prisma from "$lib/utils/prisma";
 import { Prisma, type Tag } from "@prisma/client";
-import { error, fail, redirect } from "@sveltejs/kit";
+import { error, fail, redirect, type Actions } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
-import { slugifyArticleHeader } from "$lib/slugify";
+import { slugifyArticleHeader } from "$lib/utils/slugify";
 import { getArticleAuthorOptions, type AuthorOption } from "../articles";
 
 export const load: PageServerLoad = async ({ parent }) => {
@@ -136,4 +136,4 @@ export const actions = {
       throw redirect(303, "/news");
     });
   },
-};
+} satisfies Actions;

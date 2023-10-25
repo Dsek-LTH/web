@@ -1,4 +1,4 @@
-import prisma from "$lib/prisma";
+import prisma from "$lib/utils/prisma";
 import type { PageServerLoad } from "./$types";
 import { getAllEvents } from "./events";
 

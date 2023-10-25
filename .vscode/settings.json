@@ -12,5 +12,8 @@
     "*.css": "tailwindcss"
   },
   "editor.tabSize": 2,
+  "editor.quickSuggestions": {
+    "strings": "on"
+  },
   "prettier.configPath": "prettier.config.js"
 }

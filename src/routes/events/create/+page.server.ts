@@ -1,8 +1,8 @@
-import { policyAccessGuard, withAccess } from "$lib/access";
-import apiNames from "$lib/apiNames";
-import { getCurrentMember } from "$lib/member";
-import prisma from "$lib/prisma";
-import { slugifyArticleHeader } from "$lib/slugify";
+import { policyAccessGuard, withAccess } from "$lib/utils/access";
+import apiNames from "$lib/utils/apiNames";
+import { getCurrentMember } from "$lib/utils/member";
+import prisma from "$lib/utils/prisma";
+import { slugifyArticleHeader } from "$lib/utils/slugify";
 import { Prisma, type Tag } from "@prisma/client";
 import { fail, redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";

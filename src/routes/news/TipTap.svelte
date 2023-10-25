@@ -34,29 +34,22 @@
 {#if editor}
   <button
     on:click={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-    class:active={editor.isActive("heading", { level: 1 })}
+    class:bg-primary={editor.isActive("heading", { level: 1 })}
   >
     H1
   </button>
   <button
     on:click={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-    class:active={editor.isActive("heading", { level: 2 })}
+    class:bg-primary={editor.isActive("heading", { level: 2 })}
   >
     H2
   </button>
   <button
     on:click={() => editor.chain().focus().setParagraph().run()}
-    class:active={editor.isActive("paragraph")}
+    class:bg-primary={editor.isActive("paragraph")}
   >
     P
   </button>
 {/if}
 
-<div class="h-" bind:this={element} />
-
-<style>
-  button.active {
-    background: black;
-    color: white;
-  }
-</style>
+<div bind:this={element} />

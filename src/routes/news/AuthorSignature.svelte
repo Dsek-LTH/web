@@ -1,26 +1,19 @@
 <script lang="ts">
-  import type { Prisma } from "@prisma/client";
+  import type { Author, CustomAuthor, Member, Position } from "@prisma/client";
 
-  export let author: Prisma.AuthorGetPayload<{
-    include: {
-      member: true;
-      mandate: {
-        include: {
-          position: true;
-        };
-      };
-      customAuthor: true;
-    };
-  }>;
+  export let member: Member;
+  export let customAuthor: CustomAuthor | undefined = undefined;
+  export let position: Position | undefined = undefined;
+  export let type: Author["type"];
 </script>
 
 <div class="flex flex-row items-center gap-3">
   <div class="avatar">
     <div class="w-12 rounded-full">
-      {#if author.type == "Custom" && author.customAuthor != null}
+      {#if type == "Custom" && customAuthor != null}
         <img
-          src={author.customAuthor.imageUrl ?? "https://gravatar.com/avatar?s=100&d=mp"}
-          alt={author.customAuthor.name}
+          src={customAuthor.imageUrl ?? "https://gravatar.com/avatar?s=100&d=mp"}
+          alt={customAuthor.name}
           on:error={(e) => {
             const imgElement = e.currentTarget;
             if (
@@ -34,7 +27,7 @@
         />
       {:else}
         <img
-          src={author.member.picturePath ?? "https://gravatar.com/avatar?s=100&d=mp"}
+          src={member.picturePath ?? "https://gravatar.com/avatar?s=100&d=mp"}
           on:error|preventDefault={(e) => {
             const imgElement = e.currentTarget;
             if (
@@ -51,17 +44,17 @@
     </div>
   </div>
   <div>
-    {#if author.type == "Custom" && author.customAuthor != null}
+    {#if type == "Custom" && customAuthor != null}
       <h3 class="text-xl font-semibold">
-        {author.customAuthor.name}
+        {customAuthor.name}
       </h3>
     {:else}
       <h3 class="text-xl font-semibold">
-        {author.member.firstName + " " + author.member.lastName}
+        {member.firstName + " " + member.lastName}
       </h3>
-      {#if author.mandate?.position}
+      {#if position}
         <h3 class="text-sm font-thin text-primary">
-          {author.mandate?.position.name}
+          {position.name}
         </h3>
       {/if}
     {/if}

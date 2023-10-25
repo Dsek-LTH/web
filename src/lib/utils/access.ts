@@ -1,8 +1,8 @@
-import { getCurrentMemberId } from "$lib/member";
-import prisma from "$lib/prisma";
+import { getCurrentMemberId } from "$lib/utils/member";
 import type { Session } from "@auth/core/types";
 import type { AccessPolicy } from "@prisma/client";
 import { error } from "@sveltejs/kit";
+import prisma from "./prisma";
 
 export type Context = Session["user"] | undefined;
 

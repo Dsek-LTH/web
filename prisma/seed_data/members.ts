@@ -6,6 +6,7 @@ const members: Prisma.MemberCreateInput[] = [
     studentId: "lu4185sv-s",
     firstName: "Ludvig",
     lastName: "Svedberg",
+    picturePath: "https://i.pravatar.cc/?u=lund@student",
     mandates: {
       create: [
         {
@@ -42,6 +43,7 @@ const members: Prisma.MemberCreateInput[] = [
     studentId: "ol0000le-s",
     firstName: "Oliver",
     lastName: "Levay",
+    picturePath: "https://i.pravatar.cc/?u=lund@student",
     mandates: {
       create: [
         {
@@ -66,9 +68,10 @@ const members: Prisma.MemberCreateInput[] = [
     },
   },
   {
-    studentId: "da0000ad-s",
+    studentId: "ad2313ad-s",
     firstName: "Daniel",
     lastName: "Adu-Gyan",
+    picturePath: "https://i.pravatar.cc/?u=lund@student",
     mandates: {
       create: [
         {

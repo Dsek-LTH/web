@@ -1,8 +1,8 @@
-import { getArticle } from "../articles";
 import { error } from "@sveltejs/kit";
+import { getArticle } from "../articles";
 import type { PageServerLoad } from "./$types";
-import { hasAccess } from "$lib/access";
-import apiNames from "$lib/apiNames";
+import { hasAccess } from "$lib/utils/access";
+import apiNames from "$lib/utils/apiNames";
 
 export const load: PageServerLoad = async ({ params, parent }) => {
   const article = await getArticle(params.slug);

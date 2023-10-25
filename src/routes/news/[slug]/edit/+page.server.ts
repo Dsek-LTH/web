@@ -1,10 +1,10 @@
-import { policyAccessGuard, withAccess } from "$lib/access";
-import apiNames from "$lib/apiNames";
-import { getArticleAuthorOptions, type AuthorOption } from "../../articles";
-import prisma from "$lib/prisma";
 import { Prisma, type Tag } from "@prisma/client";
 import { error, fail, redirect } from "@sveltejs/kit";
+import { getArticleAuthorOptions, type AuthorOption } from "../../articles";
 import type { PageServerLoad } from "./$types";
+import prisma from "$lib/utils/prisma";
+import { policyAccessGuard, withAccess } from "$lib/utils/access";
+import apiNames from "$lib/utils/apiNames";
 
 export const load: PageServerLoad = async ({ parent, params }) => {
   const allTags = await prisma.tag.findMany();

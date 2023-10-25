@@ -1,13 +1,13 @@
 <script lang="ts">
   import { page } from "$app/stores";
-  import apiNames from "$lib/apiNames.js";
+  import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import Pagination from "$lib/components/Pagination.svelte";
   import SearchBar from "$lib/components/SearchBar.svelte";
   import TagChip from "$lib/components/TagChip.svelte";
   import TagSelector from "$lib/components/TagSelector.svelte";
-  import { relativeDate } from "$lib/datetime.js";
+  import apiNames from "$lib/utils/apiNames";
+  import { relativeDate } from "$lib/utils/datetime.js";
   import type { Tag } from "@prisma/client";
-  import { marked } from "marked";
 
   export let data;
   let filteredTags: Tag[] = data.allTags.filter((tag) =>
@@ -19,7 +19,7 @@
 
 <section class="flex flex-col gap-2">
   <div class="flex items-center gap-2">
-    {#if data.accessPolicies.includes(apiNames.NEWS.CREATE)}
+    {#if data.accessPolicies.includes(apiNames.EVENT.CREATE)}
       <a class="btn" href="/events/create">+ Create</a>
     {/if}
     {#if data.accessPolicies.includes(apiNames.TAGS.CREATE) || data.accessPolicies.includes(apiNames.TAGS.UPDATE)}
@@ -51,18 +51,10 @@
         />
       </label>
     </div>
-    <!-- <label
-      class="label cursor-pointer gap-2 rounded-md {past
-        ? 'bg-primary'
-        : ''} px-2 transition-colors"
-    >
-      <span class="label-text font-bold">AVKLARADE</span>
-      <input type="checkbox" name="past" bind:checked={past} class="hidden" />
-    </label> -->
     <SearchBar />
     <TagSelector allTags={data.allTags} bind:selectedTags={filteredTags} />
     {#each filteredTags as tag (tag.id)}
-      <input type="hidden" name="tags" value={tag.name} on:change={() => filterForm.submit()} />
+      <input type="hidden" name="tags" value={tag.name} on:change={() => filterButton.click()} />
     {/each}
     <button type="submit" class="btn btn-primary" bind:this={filterButton}>Filter</button>
   </form>
@@ -108,20 +100,11 @@
     </section>
 
     <div class="my-3 flex flex-col items-start gap-2">
-      <div
-        class="prose-a prose line-clamp-4 text-ellipsis font-bold lg:prose-xl prose-a:text-primary prose-a:no-underline"
-      >
-        <!-- The article body is sanitized server-side. -->
-        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-        {event.shortDescription}
-      </div>
-      <div
-        class="prose-a prose line-clamp-4 text-ellipsis lg:prose prose-a:text-primary prose-a:no-underline"
-      >
-        <!-- The article body is sanitized server-side. -->
-        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-        {@html marked(event.description.slice(0, 400))}
-      </div>
+      <MarkdownBody
+        body={event.shortDescription}
+        class="mb-2 text-xl font-semibold !leading-snug"
+      />
+      <MarkdownBody body={event.description} class="line-clamp-4 text-ellipsis" />
     </div>
 
     <div class="flex flex-row flex-wrap gap-2">

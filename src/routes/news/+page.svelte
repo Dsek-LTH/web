@@ -1,13 +1,13 @@
 <script lang="ts">
   import { page } from "$app/stores";
-  import apiNames from "$lib/apiNames.js";
-  import TagChip from "$lib/components/TagChip.svelte";
-  import TagSelector from "$lib/components/TagSelector.svelte";
-  import type { Tag } from "@prisma/client";
-  import { marked } from "marked";
-  import SearchBar from "../../lib/components/SearchBar.svelte";
   import Pagination from "$lib/components/Pagination.svelte";
-  import AuthorSignature from "$lib/components/AuthorSignature.svelte";
+  import TagChip from "$lib/components/TagChip.svelte";
+  import apiNames from "$lib/utils/apiNames";
+  import type { Tag } from "@prisma/client";
+  import SearchBar from "../../lib/components/SearchBar.svelte";
+  import MarkdownBody from "../../lib/components/MarkdownBody.svelte";
+  import AuthorSignature from "./AuthorSignature.svelte";
+  import TagSelector from "$lib/components/TagSelector.svelte";
 
   export let data;
   let filteredTags: Tag[] = data.allTags.filter((tag) =>
@@ -38,7 +38,12 @@
     class="ease my-4 rounded-lg p-6 shadow-2xl ring-neutral-700 transition md:ring-1 md:hover:scale-[1.01]"
   >
     <div class="flex flex-row justify-between">
-      <AuthorSignature author={article.author} />
+      <AuthorSignature
+        member={article.author.member}
+        position={article.author.mandate?.position}
+        customAuthor={article.author.customAuthor ?? undefined}
+        type={article.author.type}
+      />
 
       <p class="text-right text-xs text-gray-500">
         {article.publishedAt?.toLocaleDateString(["sv"])} <br />
@@ -54,13 +59,7 @@
     </a>
 
     <div class="my-3 flex flex-row items-start gap-2">
-      <div
-        class="prose-a prose line-clamp-4 text-ellipsis lg:prose-xl prose-a:text-primary prose-a:no-underline"
-      >
-        <!-- The article body is sanitized server-side. -->
-        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-        {@html marked(article.body.slice(0, 400))}
-      </div>
+      <MarkdownBody body={article.body.slice(0, 400)} class="line-clamp-4 text-ellipsis" />
       {#if article.imageUrl}
         <figure class="flex-1">
           <img class="rounded-2xl" src={article.imageUrl} alt={article.header} />

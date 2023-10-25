@@ -1,4 +1,4 @@
-<div class="hero-container">
+<div class="min-h-screen bg-[url('/hero-image.jpg')] bg-cover bg-center bg-no-repeat">
   <div class="bg-opacity-60"></div>
   <div class="text-neutral-content">
     <div class="p-2 pt-32 md:p-48">
@@ -13,16 +13,3 @@
     </div>
   </div>
 </div>
-
-<style>
-  .hero-container {
-    background-image: url(/hero-image.jpg);
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
-    min-height: calc(100vh - 10rem);
-    @media (min-width: 768px) {
-      min-height: 100vh;
-    }
-  }
-</style>

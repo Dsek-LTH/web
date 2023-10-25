@@ -1,15 +1,19 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
-  import type { Article as ArticleType, AuthorOption } from "./articles.js";
-  import Article from "./Article.svelte";
-  import TagSelector from "$lib/components/TagSelector.svelte";
-  import type { Tag } from "@prisma/client";
   import Input from "$lib/components/Input.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
+  import type { Article as ArticleType, Tag } from "@prisma/client";
+  import Article from "./Article.svelte";
+  import AuthorSignature from "./AuthorSignature.svelte";
+  import type { AuthorOption } from "./articles.js";
+  import TagSelector from "$lib/components/TagSelector.svelte";
+  import TagChip from "$lib/components/TagChip.svelte";
 
   export let authorOptions: AuthorOption[];
+  export let selectedAuthorOption: AuthorOption = authorOptions[0]!;
   export let allTags: Tag[];
-  export let article: Omit<ArticleType, "likers" | "comments"> = {
+  export let selectedTags: Tag[] = [];
+  export let article: ArticleType = {
     id: "",
     slug: "",
     header: "",
@@ -17,8 +21,6 @@
     body: "",
     bodyEn: "",
     authorId: "",
-    author: authorOptions[0],
-    tags: [],
     publishedAt: new Date(),
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -36,12 +38,13 @@
     if (formData.body) article.body = formData.body;
     if (formData.tags) {
       const oldTagIds = JSON.parse(formData.tags).map((tag: Tag) => tag.id);
-      article.tags = allTags.filter((tag) => oldTagIds.includes(tag.id));
+      selectedTags = allTags.filter((tag) => oldTagIds.includes(tag.id));
     }
     if (formData.author) {
       const oldAuthor = JSON.parse(formData.author);
-      article.author =
-        authorOptions.find((authorOption) => authorOption.id === oldAuthor.id) ?? article.author;
+      selectedAuthorOption =
+        authorOptions.find((authorOption) => authorOption.id === oldAuthor.id) ??
+        selectedAuthorOption;
     }
     formData = undefined; // to stop formData from overriding what user changes
   })();
@@ -65,7 +68,7 @@
         <select
           id="author"
           class="select select-bordered w-full max-w-xs"
-          bind:value={article.author}
+          bind:value={selectedAuthorOption}
           required
         >
           {#each authorOptions as authorOption}
@@ -82,11 +85,11 @@
           {/each}
         </select>
       </Labeled>
-      <input type="hidden" name="author" value={JSON.stringify(article.author)} />
+      <input type="hidden" name="author" value={JSON.stringify(selectedAuthorOption)} />
       <Labeled label="Taggar" id="autocomplete">
-        <TagSelector {allTags} bind:selectedTags={article.tags} />
+        <TagSelector {allTags} bind:selectedTags />
       </Labeled>
-      <input type="hidden" name="tags" value={JSON.stringify(article.tags)} />
+      <input type="hidden" name="tags" value={JSON.stringify(selectedTags)} />
       <slot name="form-end" />
       <!-- <button type="submit" disabled style="display: none" aria-hidden="true" /> -->
       <button type="submit" disabled={submitting} class="btn btn-primary mt-4">
@@ -98,7 +101,21 @@
   <section>
     <span class="italic">Preview</span>
     {#if article != null}
-      <Article article={{ ...article, likers: [], comments: [] }} />
+      <Article {article}>
+        <AuthorSignature
+          slot="author"
+          member={selectedAuthorOption.member}
+          position={selectedAuthorOption.mandate?.position}
+          customAuthor={selectedAuthorOption.customAuthor ?? undefined}
+          type={selectedAuthorOption.type}
+        />
+
+        <div slot="tags" class="flex flex-row flex-wrap gap-2">
+          {#each selectedTags as tag}
+            <TagChip {tag} />
+          {/each}
+        </div>
+      </Article>
     {/if}
   </section>
 </main>

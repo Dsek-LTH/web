@@ -3,21 +3,21 @@
   import DateInput from "$lib/components/DateInput.svelte";
   import Input from "$lib/components/Input.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
+  import TagChip from "$lib/components/TagChip.svelte";
   import TagSelector from "$lib/components/TagSelector.svelte";
-  import type { Member, Tag } from "@prisma/client";
+  import type { Event as EventType, Member, Tag } from "@prisma/client";
   import Event from "./Event.svelte";
-  import type { Event as EventType } from "./events";
 
   export let allTags: Tag[];
+  export let selectedTags: Tag[] = [];
   export let author: Member;
-  export let event: Omit<EventType, "comments" | "going" | "interested"> = {
+  export let event: EventType = {
     title: "",
     titleEn: "",
     description: "",
     descriptionEn: "",
     shortDescription: "",
     shortDescriptionEn: "",
-    tags: [],
     startDatetime: new Date(),
     endDatetime: new Date(),
     link: null,
@@ -29,7 +29,6 @@
     slug: "",
     removedAt: null,
     authorId: "",
-    author,
     numberOfUpdates: 0,
   };
   let submitting: boolean = false;
@@ -46,7 +45,7 @@
     if (formData.endDatetime) event.endDatetime = new Date(formData.endDatetime);
     if (formData.tags) {
       const oldTagIds = JSON.parse(formData.tags).map((tag: Tag) => tag.id);
-      event.tags = allTags.filter((tag) => oldTagIds.includes(tag.id));
+      selectedTags = allTags.filter((tag) => oldTagIds.includes(tag.id));
     }
     formData = undefined; // to stop formData from overriding what user changes
   })();
@@ -99,9 +98,9 @@
         />
       </Labeled>
       <Labeled id="autocomplete" label="Taggar">
-        <TagSelector {allTags} bind:selectedTags={event.tags} />
+        <TagSelector {allTags} bind:selectedTags />
       </Labeled>
-      <input type="hidden" name="tags" value={JSON.stringify(event.tags)} />
+      <input type="hidden" name="tags" value={JSON.stringify(selectedTags)} />
       <slot name="form-end" />
       <!-- <button type="submit" disabled style="display: none" aria-hidden="true" /> -->
       <button type="submit" disabled={submitting} class="btn btn-primary mt-4">
@@ -113,7 +112,13 @@
   <section>
     <span class="italic">Preview</span>
     {#if event != null}
-      <Event event={{ ...event, comments: [], going: [], interested: [] }} />
+      <Event {event}>
+        <div slot="tags" class="flex flex-row flex-wrap gap-2">
+          {#each selectedTags as tag}
+            <TagChip {tag} />
+          {/each}
+        </div>
+      </Event>
     {/if}
   </section>
 </main>

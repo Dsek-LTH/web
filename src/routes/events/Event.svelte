@@ -1,8 +1,7 @@
 <script lang="ts">
-  import TagChip from "$lib/components/TagChip.svelte";
-  import { marked } from "marked";
-  import type { Event } from "./events";
-  import { relativeDate } from "$lib/datetime";
+  import MarkdownBody from "$lib/components/MarkdownBody.svelte";
+  import { relativeDate } from "$lib/utils/datetime";
+  import type { Event } from "@prisma/client";
 
   export let event: Event;
 </script>
@@ -50,19 +49,11 @@
   <slot name="actions" />
 </section>
 <section class="my-2 flex flex-row items-center justify-between">
-  <div class="flex flex-row flex-wrap gap-2">
-    {#each event.tags as tag}
-      <TagChip {tag} />
-    {/each}
-  </div>
+  <slot name="tags" />
 </section>
 
-<article class="prose-a prose lg:prose-xl prose-a:text-primary prose-a:no-underline">
-  <span class=" block text-xl font-semibold">{event.shortDescription}</span>
-  <!-- The article body is sanitized server-side. -->
-  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-  {@html marked(event.description)}
-</article>
+<MarkdownBody body={event.shortDescription} class="mb-4 text-xl font-semibold !leading-snug" />
+<MarkdownBody body={event.description} />
 
 <style>
 </style>

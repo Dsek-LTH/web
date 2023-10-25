@@ -1,6 +1,6 @@
-import { getAllArticles } from "./articles";
-import prisma from "$lib/prisma";
+import prisma from "$lib/utils/prisma";
 import type { PageServerLoad } from "./$types";
+import { getAllArticles } from "./articles";
 
 const getAndValidatePage = (url: URL) => {
   const page = url.searchParams.get("page");

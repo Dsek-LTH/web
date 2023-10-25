@@ -1,9 +1,10 @@
-const crud = (base: string) => ({
-  CREATE: `${base}:create`,
-  READ: `${base}:read`,
-  UPDATE: `${base}:update`,
-  DELETE: `${base}:delete`,
-});
+const crud = <T extends string>(base: T) =>
+  ({
+    CREATE: `${base}:create`,
+    READ: `${base}:read`,
+    UPDATE: `${base}:update`,
+    DELETE: `${base}:delete`,
+  }) as const;
 
 const apiNames = {
   NEWS: {
@@ -17,6 +18,6 @@ const apiNames = {
     ...crud("event"),
   },
   ACCESS_POLICY: crud("core:access:api"),
-};
+} as const;
 
 export default apiNames;

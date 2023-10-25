@@ -1,6 +1,6 @@
-import { getCustomAuthorOptions } from "$lib/member";
-import prisma from "$lib/prisma";
-import type { CustomAuthor, Member, Prisma } from "@prisma/client";
+import { getCustomAuthorOptions } from "$lib/utils/member";
+import prisma from "$lib/utils/prisma";
+import type { Author, CustomAuthor, Mandate, Member, Position, Prisma } from "@prisma/client";
 
 type ArticleFilters = {
   tags?: string[];
@@ -127,23 +127,16 @@ export const getArticle = async (slug: string) => {
   return response;
 };
 
-export type Article = NonNullable<Awaited<ReturnType<typeof getArticle>>>;
+type Article = NonNullable<Awaited<ReturnType<typeof getArticle>>>;
 
-export type AuthorOption = {
-  id: string;
-  memberId: string;
+export type AuthorOption = Author & {
   member: Member;
-  mandateId: string | null;
-  mandate: Prisma.MandateGetPayload<{
-    include: {
-      position: true;
-    };
-  }> | null;
+  mandate:
+    | (Mandate & {
+        position: Position;
+      })
+    | null;
   customAuthor: CustomAuthor | null;
-  customId: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-  type: string;
 };
 
 export const getArticleAuthorOptions = async (

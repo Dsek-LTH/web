@@ -6,7 +6,12 @@
   export let form;
 </script>
 
-<ArticleEditor {...data} formData={form?.data}>
+<ArticleEditor
+  selectedTags={data.article.tags}
+  selectedAuthorOption={data.article.author}
+  {...data}
+  formData={form?.data}
+>
   <input slot="form-end" type="hidden" value={$page.params.slug} name="slug" />
   <div slot="error">
     {#if form?.error}

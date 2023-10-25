@@ -1,7 +1,7 @@
-import { policyAccessGuard, withAccess } from "$lib/access";
-import apiNames from "$lib/apiNames";
+import { policyAccessGuard, withAccess } from "$lib/utils/access";
+import apiNames from "$lib/utils/apiNames";
 import { fail } from "@sveltejs/kit";
-import prisma from "$lib/prisma";
+import prisma from "$lib/utils/prisma";
 import { Prisma } from "@prisma/client";
 import type { PageServerLoad } from "./$types";
 

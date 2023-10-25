@@ -1,4 +1,4 @@
-import { getUserApis } from "$lib/access";
+import { getUserApis } from "$lib/utils/access";
 import type { LayoutServerLoad } from "./$types";
 
 export const load: LayoutServerLoad = async (event) => {
