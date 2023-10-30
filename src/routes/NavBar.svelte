@@ -13,6 +13,7 @@
       <a class="btn btn-ghost text-xl normal-case" href="/">D-sektionen</a>
       <a class="btn btn-ghost" href="/news">Nyheter</a>
       <a class="btn btn-ghost" href="/events">Evenemang</a>
+      <a class="btn btn-ghost" href="/documents">Filer</a>
       {#if accessPolicies.includes(apiNames.ACCESS_POLICY.READ)}
         <div class="group dropdown dropdown-hover">
           <span class="btn btn-ghost">Admin</span>

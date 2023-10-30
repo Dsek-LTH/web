@@ -85,6 +85,31 @@ pnpm seed
 pnpm generate
 ```
 
+## Other services
+
+### MINIO (File system)
+
+Create a folder for minio
+
+```sh
+mkdir -p ~/minio/data
+```
+
+Setup container
+
+```sh
+docker run \                                                                                                                                                                              (base)
+         --name minio1 \
+         --hostname minio1 \
+         -p 9000:9000 \
+         -p 9090:9090 \
+         --name minio \
+         -v ~/minio/data:/data \
+         -e "MINIO_ROOT_USER=user" \
+         -e "MINIO_ROOT_PASSWORD=password" \
+         quay.io/minio/minio server /data --console-address ":9090"
+```
+
 ## Developing
 
 Once you've created a project and installed setup everything like above, start a development server:

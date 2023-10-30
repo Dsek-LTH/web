@@ -1,10 +1,9 @@
-const crud = <T extends string>(base: T) =>
-  ({
-    CREATE: `${base}:create`,
-    READ: `${base}:read`,
-    UPDATE: `${base}:update`,
-    DELETE: `${base}:delete`,
-  }) as const;
+const crud = <prefix extends string>(base: prefix) => ({
+  CREATE: `${base}:create`,
+  READ: `${base}:read`,
+  UPDATE: `${base}:update`,
+  DELETE: `${base}:delete`,
+});
 
 const apiNames = {
   NEWS: {
@@ -20,6 +19,9 @@ const apiNames = {
   },
   ACCESS_POLICY: crud("core:access:api"),
   LOGGED_IN: "_",
+  FILES: {
+    BUCKET: <bucketName extends string>(name: bucketName) => crud(`fileHandler:${name}`),
+  },
 } as const;
 
 export default apiNames;
