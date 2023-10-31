@@ -14,17 +14,17 @@ const articles: Prisma.ArticleCreateInput[] = [
         },
       },
     },
-    likes: {
-      create: [
-        {
-          member: {
-            connect: {
-              studentId: members[1].studentId,
-            },
-          },
-        },
-      ],
-    },
+    // likers: {
+    //   create: [
+    //     {
+    //       member: {
+    //         connect: {
+    //           studentId: members[1].studentId,
+    //         },
+    //       },
+    //     },
+    //   ],
+    // },
     tags: {
       create: [
         {

@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 
 const currentYear = new Date().getFullYear();
-const members: Prisma.MemberCreateInput[] = [
+const members = [
   {
     studentId: "lu4185sv-s",
     firstName: "Ludvig",
@@ -10,8 +10,8 @@ const members: Prisma.MemberCreateInput[] = [
     mandates: {
       create: [
         {
-          start: new Date(`${currentYear}-01-01`),
-          end: new Date(`${currentYear}-12-31`),
+          startDate: new Date(`${currentYear}-01-01`),
+          endDate: new Date(`${currentYear}-12-31`),
           position: {
             connect: {
               id: "dsek.ordf",
@@ -19,8 +19,8 @@ const members: Prisma.MemberCreateInput[] = [
           },
         },
         {
-          start: new Date(`${currentYear}-01-01`),
-          end: new Date(`${currentYear}-12-31`),
+          startDate: new Date(`${currentYear}-01-01`),
+          endDate: new Date(`${currentYear}-12-31`),
           position: {
             connect: {
               id: "dsek.infu.dwww.mdlm",
@@ -28,8 +28,8 @@ const members: Prisma.MemberCreateInput[] = [
           },
         },
         {
-          start: new Date(`${currentYear - 1}-01-01`),
-          end: new Date(`${currentYear - 1}-12-31`),
+          startDate: new Date(`${currentYear - 1}-01-01`),
+          endDate: new Date(`${currentYear - 1}-12-31`),
           position: {
             connect: {
               id: "dsek.infu.dwww.mdlm",
@@ -47,8 +47,8 @@ const members: Prisma.MemberCreateInput[] = [
     mandates: {
       create: [
         {
-          start: new Date(`${currentYear}-01-01`),
-          end: new Date(`${currentYear}-12-31`),
+          startDate: new Date(`${currentYear}-01-01`),
+          endDate: new Date(`${currentYear}-12-31`),
           position: {
             connect: {
               id: "dsek.infu.dwww.mdlm",
@@ -56,8 +56,8 @@ const members: Prisma.MemberCreateInput[] = [
           },
         },
         {
-          start: new Date(`${currentYear - 2}-01-01`),
-          end: new Date(`${currentYear - 2}-12-31`),
+          startDate: new Date(`${currentYear - 2}-01-01`),
+          endDate: new Date(`${currentYear - 2}-12-31`),
           position: {
             connect: {
               id: "dsek.infu.dwww.mdlm",
@@ -75,8 +75,8 @@ const members: Prisma.MemberCreateInput[] = [
     mandates: {
       create: [
         {
-          start: new Date(`${currentYear}-01-01`),
-          end: new Date(`${currentYear}-12-31`),
+          startDate: new Date(`${currentYear}-01-01`),
+          endDate: new Date(`${currentYear}-12-31`),
           position: {
             connect: {
               id: "dsek.infu.dwww.mastare",
@@ -86,6 +86,6 @@ const members: Prisma.MemberCreateInput[] = [
       ],
     },
   },
-];
+] satisfies Prisma.MemberCreateInput[];
 
 export default members;

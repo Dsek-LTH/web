@@ -1,5 +1,5 @@
 import { Prisma } from "@prisma/client";
-import apiNames from "../../src/lib/apiNames";
+import apiNames from "../../src/lib/utils/apiNames";
 
 const accessData: Prisma.AccessPolicyCreateInput[] = [
   {
