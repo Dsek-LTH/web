@@ -1,6 +1,7 @@
 import prisma from "$lib/utils/prisma";
 import type { PageServerLoad } from "./$types";
 import { getAllArticles } from "./articles";
+import { modifyLikes } from "./likes";
 
 const getAndValidatePage = (url: URL) => {
   const page = url.searchParams.get("page");
@@ -24,4 +25,13 @@ export const load: PageServerLoad = async ({ url }) => {
     pageCount,
     allTags,
   };
+};
+
+export const actions = {
+  like: async (props) => {
+    return modifyLikes(props, true);
+  },
+  dislike: async (props) => {
+    return modifyLikes(props, false);
+  },
 };

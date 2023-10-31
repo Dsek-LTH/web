@@ -1,3 +1,4 @@
+import type { Member } from "@prisma/client";
 import { error } from "@sveltejs/kit";
 import { getRoleSet, type Context } from "./access";
 import prisma from "./prisma";
@@ -58,4 +59,9 @@ export const getCustomAuthorOptions = async (memberId: string) => {
       },
     },
   });
+};
+
+export const getFullName = (member: Member) => {
+  if (member?.nickname) return `${member.firstName} "${member.nickname}" ${member.lastName}`;
+  return `${member.firstName} ${member.lastName}`;
 };

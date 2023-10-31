@@ -3,6 +3,7 @@ import { getArticle } from "../articles";
 import type { PageServerLoad } from "./$types";
 import { hasAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
+import { modifyLikes } from "../likes";
 
 export const load: PageServerLoad = async ({ params, parent }) => {
   const article = await getArticle(params.slug);
@@ -21,4 +22,13 @@ export const load: PageServerLoad = async ({ params, parent }) => {
     article,
     canEdit,
   };
+};
+
+export const actions = {
+  like: async (props) => {
+    return modifyLikes(props, true);
+  },
+  dislike: async (props) => {
+    return modifyLikes(props, false);
+  },
 };

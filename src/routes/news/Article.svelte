@@ -26,3 +26,5 @@
 </section>
 
 <MarkdownBody body={article.body} />
+
+<slot name="after-body" />
