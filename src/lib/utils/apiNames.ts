@@ -10,6 +10,7 @@ const apiNames = {
   NEWS: {
     ...crud("news:article"),
     MANAGE: "news:article:manage",
+    LIKE: "news:article:like",
   },
   TAGS: {
     ...crud("tags"),
@@ -18,6 +19,7 @@ const apiNames = {
     ...crud("event"),
   },
   ACCESS_POLICY: crud("core:access:api"),
+  LOGGED_IN: "_",
 } as const;
 
 export default apiNames;

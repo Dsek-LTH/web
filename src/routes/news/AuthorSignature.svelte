@@ -1,4 +1,5 @@
 <script lang="ts">
+  import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import type { Author, CustomAuthor, Member, Position } from "@prisma/client";
 
   export let member: Member;
@@ -26,20 +27,7 @@
           }}
         />
       {:else}
-        <img
-          src={member.picturePath ?? "https://gravatar.com/avatar?s=100&d=mp"}
-          on:error|preventDefault={(e) => {
-            const imgElement = e.currentTarget;
-            if (
-              imgElement &&
-              "src" in imgElement &&
-              imgElement.src !== "https://gravatar.com/avatar?s=100&d=mp"
-            ) {
-              imgElement.src = "https://gravatar.com/avatar?s=100&d=mp";
-            }
-          }}
-          alt=""
-        />
+        <MemberAvatar {member} />
       {/if}
     </div>
   </div>

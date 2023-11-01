@@ -1,5 +1,8 @@
 <script lang="ts">
   import TagChip from "$lib/components/TagChip.svelte";
+  import LikeButton from "$lib/components/socials/LikeButton.svelte";
+  import LikersList from "$lib/components/socials/LikersList.svelte";
+  import apiNames from "$lib/utils/apiNames";
   import Article from "../Article.svelte";
   import AuthorSignature from "../AuthorSignature.svelte";
 
@@ -28,6 +31,16 @@
       {#each article.tags as tag}
         <TagChip {tag} />
       {/each}
+    </div>
+
+    <div slot="after-body" class="mt-4 flex flex-col items-start gap-2">
+      <LikersList likers={article.likers} />
+      <LikeButton
+        likers={article.likers}
+        disabled={!data.accessPolicies.includes(apiNames.NEWS.LIKE)}
+      >
+        <input slot="hidden-input" type="hidden" value={article.id} name="articleId" />
+      </LikeButton>
     </div>
   </Article>
 </article>
