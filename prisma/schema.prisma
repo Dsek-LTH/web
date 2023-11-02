@@ -77,7 +77,7 @@ model Article {
   headerEn    String?          @map("header_en") @db.VarChar(255)
   body        String
   bodyEn      String?          @map("body_en")
-  imageUrl    String?          @map("image_url") @db.VarChar(255)
+  imageUrl    String?          @map("image_url") @db.Text
   authorId    String           @map("author_id") @db.Uuid
   publishedAt DateTime?        @map("published_datetime") @db.Timestamptz(6)
   updatedAt   DateTime?        @map("latest_edit_datetime") @db.Timestamptz(6)
@@ -180,11 +180,14 @@ model CartItem {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Committees{
 model Committee {
-  id        String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name      String     @db.VarChar(255)
-  nameEn    String?    @map("name_en") @db.VarChar(255)
-  shortName String?    @map("short_name") @db.VarChar(255)
-  positions Position[]
+  id            String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name          String     @db.VarChar(255)
+  nameEn        String?    @map("name_en") @db.VarChar(255)
+  shortName     String?    @map("short_name") @db.VarChar(255)
+  positions     Position[]
+  imageUrl      String?    @map("image_url") @db.Text
+  description   String?    @db.VarChar(255)
+  descriptionEn String?    @map("description_en") @db.VarChar(255)
 
   @@map("committees")
 }
@@ -206,7 +209,7 @@ model CustomAuthor {
   id        String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name      String             @db.VarChar(255)
   nameEn    String?            @map("name_en") @db.VarChar(255)
-  imageUrl  String?            @map("image_url") @db.VarChar(255)
+  imageUrl  String?            @map("image_url") @db.Text
   createdAt DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt DateTime           @default(now()) @map("updated_at") @db.Timestamptz(6)
   authors   Author[]
@@ -359,7 +362,7 @@ model Member {
   firstName              String?               @map("first_name") @db.VarChar(255)
   nickname               String?               @db.VarChar(255)
   lastName               String?               @map("last_name") @db.VarChar(255)
-  picturePath            String?               @map("picture_path") @db.VarChar(255)
+  picturePath            String?               @map("picture_path") @db.Text
   classProgramme         String?               @map("class_programme") @db.VarChar(255)
   classYear              Int?                  @map("class_year")
   visible                Boolean               @default(true)
@@ -483,7 +486,7 @@ model Product {
   name               String              @db.VarChar(255)
   description        String              @db.VarChar(255)
   price              Int
-  imageUrl           String              @map("image_url") @db.VarChar(255)
+  imageUrl           String              @map("image_url") @db.Text
   categoryId         String              @map("category_id") @db.Uuid
   maxPerUser         Int                 @default(1000) @map("max_per_user")
   createdAt          DateTime?           @default(now()) @map("created_at") @db.Timestamptz(6)
@@ -617,7 +620,7 @@ model UserInventoryItem {
   studentId          String           @map("student_id") @db.VarChar(255)
   name               String           @db.VarChar(255)
   description        String           @db.VarChar(255)
-  imageUrl           String           @map("image_url") @db.VarChar(255)
+  imageUrl           String           @map("image_url") @db.Text
   paidPrice          Float            @map("paid_price") @db.Real
   variant            String?          @db.VarChar(255)
   paidAt             DateTime?        @default(now()) @map("paid_at") @db.Timestamptz(6)
