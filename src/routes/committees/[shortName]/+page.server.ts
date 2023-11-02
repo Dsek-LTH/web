@@ -38,11 +38,49 @@ export const load: PageServerLoad = async ({ params }) => {
       },
     },
   });
+  const uniqueMembersInCommittee = await prisma.member.count({
+    where: {
+      mandates: {
+        some: {
+          startDate: {
+            lte: new Date(),
+          },
+          endDate: {
+            gte: new Date(),
+          },
+          position: {
+            active: true,
+            committee: {
+              shortName: params.shortName,
+            },
+          },
+        },
+      },
+    },
+  });
+  const numberOfMandates = await prisma.mandate.count({
+    where: {
+      startDate: {
+        lte: new Date(),
+      },
+      endDate: {
+        gte: new Date(),
+      },
+      position: {
+        active: true,
+        committee: {
+          shortName: params.shortName,
+        },
+      },
+    },
+  });
   if (!committee) {
     throw error(404, "Committee not found");
   }
   return {
     committee,
     positions: committee.positions,
+    uniqueMemberCount: uniqueMembersInCommittee,
+    numberOfMandates,
   };
 };

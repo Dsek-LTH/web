@@ -8,6 +8,9 @@
 </script>
 
 <PageHeader title={data.committee.name} />
+<h2 class="-mt-4 mb-4">
+  {data.uniqueMemberCount} funktionärer, {data.numberOfMandates} olika mandat
+</h2>
 <div class="hidden grid-cols-2 gap-4 md:grid">
   <div class="flex flex-col items-stretch gap-4">
     {#each everyOtherPosition as position (position.id)}

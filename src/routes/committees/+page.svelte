@@ -18,11 +18,19 @@
         <img
           src={committee.imageUrl ?? "http://127.0.0.1:9000/material/committees/sigill.svg"}
           alt="Committee icon"
+          class="aspect-square"
         />
       </figure>
-      <div class="card-body">
-        <h2 class="card-title">{committee.name}</h2>
-        <p>{committee.description ?? ""}</p>
+      <div class="card-body px-0 text-center">
+        <h2 class="card-title mx-auto">{committee.name}</h2>
+        <h6 class="-mt-2 px-2 text-sm text-base-content/40">
+          {[
+            ...new Set(
+              committee.positions.flatMap((pos) => pos.mandates.map((mandate) => mandate.memberId))
+            ),
+          ].length} funktionärer
+        </h6>
+        <p class="px-2">{committee.description ?? ""}</p>
       </div>
     </a>
   {/each}
