@@ -42,7 +42,7 @@
   </div>
   <div>
     {#if data.accessPolicies.includes(apiNames.FILES.BUCKET("documents").CREATE)}
-      <a class="btn btn-primary" href="/files/upload">Ladda upp fil</a>
+      <a class="btn btn-primary" href="/documents/upload">Ladda upp fil</a>
     {/if}
   </div>
 </div>

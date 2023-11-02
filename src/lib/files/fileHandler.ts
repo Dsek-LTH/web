@@ -57,19 +57,19 @@ const getFilesInBucket = (ctx: Context, bucket: string, prefix: string, recursiv
   });
 };
 
+const ONE_HOUR_IN_SECONDS = 60 * 60;
 const getPresignedPutUrl = async (
   ctx: Context,
   bucket: string,
   fileName: string
-): Promise<string | undefined> => {
+): Promise<string> => {
   return withAccess(apiNames.FILES.BUCKET(bucket).CREATE, ctx, async () => {
-    if (fileName === "") return undefined;
+    if (fileName === "") throw error(400, "File name cannot be empty");
 
-    const hour = 60 * 60;
     if (await fileExists(bucket, fileName)) {
       throw error(409, `File ${fileName} already exists`);
     }
-    const url: string = await minio.presignedPutObject(bucket, fileName, hour);
+    const url = await minio.presignedPutObject(bucket, fileName, ONE_HOUR_IN_SECONDS);
     return url;
   });
 };

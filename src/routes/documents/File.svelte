@@ -5,10 +5,10 @@
   $: fileName = file.name.substring(0, file.name.lastIndexOf(".")).replace(/_+/g, " ");
 </script>
 
-<div class="tooltip rounded-md bg-primary p-2 px-4" data-tip={fileName}>
+<div class="tooltip" data-tip={fileName}>
   <a
     href={file.thumbnailUrl}
-    class="block overflow-hidden text-ellipsis whitespace-nowrap text-center font-semibold"
+    class="btn btn-primary btn-sm block overflow-hidden text-ellipsis whitespace-nowrap py-2 text-left"
   >
     {fileName}
   </a>
