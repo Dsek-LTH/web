@@ -4,8 +4,8 @@
   import SearchBar from "$lib/components/SearchBar.svelte";
   import TagChip from "$lib/components/TagChip.svelte";
   import TagSelector from "$lib/components/TagSelector.svelte";
-  import LikeButton from "$lib/components/socials/LikeButton.svelte";
-  import LikersList from "$lib/components/socials/LikersList.svelte";
+  import LikeButton from "./LikeButton.svelte";
+  import LikersList from "./LikersList.svelte";
   import apiNames from "$lib/utils/apiNames";
   import type { Tag } from "@prisma/client";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";

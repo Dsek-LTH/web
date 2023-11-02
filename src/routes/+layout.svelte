@@ -5,6 +5,10 @@
   export let data;
 </script>
 
+<svelte:head>
+  <title>D-sektionen</title>
+</svelte:head>
+
 <NavBar accessPolicies={data.accessPolicies} />
 
 <div

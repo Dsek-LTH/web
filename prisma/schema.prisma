@@ -183,7 +183,7 @@ model Committee {
   id            String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name          String     @db.VarChar(255)
   nameEn        String?    @map("name_en") @db.VarChar(255)
-  shortName     String?    @map("short_name") @db.VarChar(255)
+  shortName     String?    @unique @map("short_name") @db.VarChar(255)
   positions     Position[]
   imageUrl      String?    @map("image_url") @db.Text
   description   String?    @db.VarChar(255)

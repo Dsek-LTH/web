@@ -1,5 +1,6 @@
 <script lang="ts">
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
+  import { getFullName } from "$lib/utils/member";
   import type { Author, CustomAuthor, Member, Position } from "@prisma/client";
 
   export let member: Member;
@@ -38,7 +39,7 @@
       </h3>
     {:else}
       <h3 class="text-xl font-semibold">
-        {member.firstName + " " + member.lastName}
+        {getFullName(member)}
       </h3>
       {#if position}
         <h3 class="text-sm font-thin text-primary">

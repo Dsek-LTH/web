@@ -1,10 +1,13 @@
 <script lang="ts">
+  import PageHeader from "$lib/components/PageHeader.svelte";
+
   export let data;
   $: committees = [...data.committees].sort((a, b) => a.name.localeCompare(b.name, "sv"));
 </script>
 
+<PageHeader title="Utskott" />
 <div
-  class="grid grid-cols-2 items-stretch justify-items-stretch gap-4 md:grid-cols-3 lg:grid-cols-4"
+  class="grid grid-cols-1 items-stretch justify-items-stretch gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
 >
   {#each committees as committee (committee.id)}
     <a

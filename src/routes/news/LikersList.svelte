@@ -1,7 +1,7 @@
 <script lang="ts">
   import { getFullName } from "$lib/utils/member";
   import type { Member } from "@prisma/client";
-  import AuthorSignature from "../../../routes/news/AuthorSignature.svelte";
+  import AuthorSignature from "./AuthorSignature.svelte";
 
   let modal: HTMLDialogElement;
   export let likers: Member[];
