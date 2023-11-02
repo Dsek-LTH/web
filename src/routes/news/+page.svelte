@@ -1,14 +1,14 @@
 <script lang="ts">
   import { page } from "$app/stores";
   import Pagination from "$lib/components/Pagination.svelte";
+  import SearchBar from "$lib/components/SearchBar.svelte";
   import TagChip from "$lib/components/TagChip.svelte";
   import TagSelector from "$lib/components/TagSelector.svelte";
   import LikeButton from "$lib/components/socials/LikeButton.svelte";
   import LikersList from "$lib/components/socials/LikersList.svelte";
   import apiNames from "$lib/utils/apiNames";
   import type { Tag } from "@prisma/client";
-  import MarkdownBody from "../../lib/components/MarkdownBody.svelte";
-  import SearchBar from "../../lib/components/SearchBar.svelte";
+  import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import AuthorSignature from "./AuthorSignature.svelte";
 
   export let data;

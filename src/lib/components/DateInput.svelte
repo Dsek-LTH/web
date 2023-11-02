@@ -2,7 +2,6 @@
   export let date: Date;
 
   let internal: string = date.toLocaleString("sv").split(" ").join("T").slice(0, 16);
-  $: console.log(internal);
 
   const input = (x: Date) => {
     const newDateString = x.toLocaleString("sv").split(" ").join("T").slice(0, 16);

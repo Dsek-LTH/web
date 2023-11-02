@@ -3,6 +3,7 @@ import type { Session } from "@auth/core/types";
 import type { AccessPolicy } from "@prisma/client";
 import { error } from "@sveltejs/kit";
 import prisma from "./prisma";
+import { dev } from "$app/environment";
 
 export type Context = Session["user"] | undefined;
 
@@ -63,8 +64,19 @@ export const policyAccessGuard = (apiName: string | string[], userAccessPolicies
   throw error(403, "You do not have permission, have you logged in?");
 };
 
-export const ctxAccessGuard = async (apiName: string | string[], context: Context) => {
-  if (await hasAccess(apiName, context)) return;
+export const ctxAccessGuard = async (
+  apiName: string | string[],
+  context: Context,
+  myMemberId?: string
+) => {
+  if (await hasAccess(apiName, context, myMemberId)) return;
+  if (dev) {
+    throw error(
+      403,
+      "You do not have permission, have you logged in? Required policies: " +
+        (typeof apiName === "string" ? [apiName] : apiName).join(", ")
+    );
+  }
   throw error(403, "You do not have permission, have you logged in?");
 };
 
@@ -74,8 +86,8 @@ export const withAccess = async <T>(
   fn: () => Promise<T>,
   myMemberId?: string
 ) => {
-  if (await hasAccess(apiName, context, myMemberId)) return fn();
-  throw error(403, "You do not have permission, have you logged in?");
+  await ctxAccessGuard(apiName, context, myMemberId);
+  return fn();
 };
 
 // split all roles in group list. a group list might look like ["dsek.infu.mdlm", "dsek.ordf"] and this will split it into ["dsek", "dsek.infu", "dsek.infu.mdlm", "dsek.ordf"]
