@@ -1,5 +1,5 @@
 <script lang="ts">
-  import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
+  import MemberImage from "$lib/components/socials/MemberImage.svelte";
   import { getFullName } from "$lib/utils/member";
   import type { Author, CustomAuthor, Member, Position } from "@prisma/client";
 
@@ -28,7 +28,7 @@
           }}
         />
       {:else}
-        <MemberAvatar {member} />
+        <MemberImage {member} />
       {/if}
     </div>
   </div>

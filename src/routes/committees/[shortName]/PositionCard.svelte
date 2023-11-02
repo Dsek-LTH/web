@@ -24,14 +24,10 @@
       <div class="max-h-80 overflow-y-auto" bind:this={mandatesBox}>
         <ul class="menu menu-vertical p-0">
           {#each mandates as mandate (mandate.id)}
-            <li class="flex">
+            <li>
               <a href="/members/{mandate.member.studentId}">
                 <div class="flex flex-row items-center gap-2">
-                  <div class="avatar">
-                    <div class="w-8 rounded-full">
-                      <MemberAvatar member={mandate.member} />
-                    </div>
-                  </div>
+                  <MemberAvatar member={mandate.member} />
                   <div>
                     <h3 class="font-medium">
                       {getFullName(mandate.member)}
