@@ -96,6 +96,9 @@
       />
     </Labeled>
     <button type="submit" class="btn btn-secondary my-4">Spara</button>
+    {#if form?.error}
+      <p class="text-error">{form.error}</p>
+    {/if}
   </form>
 {/if}
 

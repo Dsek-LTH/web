@@ -15,14 +15,14 @@
     xl: "w-16",
   };
   const sizeToGap = {
-    sm: 2,
-    md: 2,
-    lg: 3,
-    xl: 4,
+    sm: "gap-2",
+    md: "gap-2",
+    lg: "gap-3",
+    xl: "gap-4",
   };
 </script>
 
-<div class="flex flex-row items-center gap-{sizeToGap[size]}">
+<div class="flex flex-row items-center {sizeToGap[size]}">
   <div class="avatar">
     <div class="{sizeToWidth[size]} rounded-full">
       {#if type == "Custom" && customAuthor != null}

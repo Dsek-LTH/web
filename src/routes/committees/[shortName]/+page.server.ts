@@ -97,10 +97,9 @@ export const actions = {
     const image = formData.get("image");
     formData.delete("image"); // for serialization purposes
     let newImageUploaded = false;
-    if (image && image instanceof File) {
+    if (image && image instanceof File && image.size > 0) {
       console.log(image);
       const path = `committees/${params.shortName}.svg`;
-      console.log(path);
       try {
         const putUrl = await fileHandler.getPresignedPutUrl(
           session?.user,
@@ -114,6 +113,7 @@ export const actions = {
         });
         newImageUploaded = true;
       } catch (e: any) {
+        console.log(e);
         return fail(500, {
           error: e?.message ?? "Unable to upload image",
           data: Object.fromEntries(formData),
@@ -127,9 +127,7 @@ export const actions = {
           name: (formData.get("name") as string | null) ?? undefined,
           description: (formData.get("description") as string | null) ?? undefined,
           imageUrl: newImageUploaded
-            ? `http://127.0.0.1:9000/material/committees/${
-                params.shortName
-              }.svg?version=${new Date().getTime()}`
+            ? `minio/material/committees/${params.shortName}.svg?version=${new Date().getTime()}`
             : undefined,
         },
       });
