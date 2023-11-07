@@ -89,26 +89,7 @@ pnpm generate
 
 ### MINIO (File system)
 
-Create a folder for minio
-
-```sh
-mkdir -p ~/minio/data
-```
-
-Setup container
-
-```sh
-docker run \                                                                                                                                                                              (base)
-         --name minio1 \
-         --hostname minio1 \
-         -p 9000:9000 \
-         -p 9090:9090 \
-         --name minio \
-         -v ~/minio/data:/data \
-         -e "MINIO_ROOT_USER=user" \
-         -e "MINIO_ROOT_PASSWORD=password" \
-         quay.io/minio/minio server /data --console-address ":9090"
-```
+This project uses the minio sandbox instance hosted on our servers, contact an admin to receive an access token
 
 ## Developing
 

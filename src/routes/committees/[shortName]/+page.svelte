@@ -3,6 +3,7 @@
   import Input from "$lib/components/Input.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
   import PageHeader from "$lib/components/PageHeader.svelte";
+  import { getImageUrl } from "$lib/files/images";
   import apiNames from "$lib/utils/apiNames";
   import PositionCard from "./PositionCard.svelte";
 
@@ -16,7 +17,7 @@
 <header class="mb-2 flex items-center gap-4">
   <figure class="w-14">
     <img
-      src={data.committee.imageUrl ?? "http://127.0.0.1:9000/material/committees/sigill.svg"}
+      src={getImageUrl(data.committee.imageUrl ?? "minio/material/committees/sigill.svg")}
       alt="Committee icon"
       class="aspect-square"
     />

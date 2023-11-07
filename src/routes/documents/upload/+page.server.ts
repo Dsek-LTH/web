@@ -4,7 +4,7 @@ import { fail } from "@sveltejs/kit";
 export const load = async ({ parent, url }) => {
   const { session } = await parent();
   const year = url.searchParams.get("year") ?? new Date().getFullYear();
-  const files = await fileHandler.getInBucket(session?.user, "documents", `${year}/`, false);
+  const files = await fileHandler.getInBucket(session?.user, "dev-documents", `${year}/`, false);
   return {
     files,
   };
@@ -36,11 +36,13 @@ export const actions = {
         .replace(/[^a-zA-Z0-9_]/g, "") + file.name.slice(file.name.lastIndexOf("."));
     const path = `${year}/${meeting}/${formattedName}`;
     try {
-      const putUrl = await fileHandler.getPresignedPutUrl(session?.user, "documents", path);
-      await fetch(putUrl, {
+      const putUrl = await fileHandler.getPresignedPutUrl(session?.user, "dev-documents", path);
+      console.log(putUrl);
+      const res = await fetch(putUrl, {
         method: "PUT",
         body: file,
       });
+      if (!res.ok) return failWithData(res.statusText);
       formData.delete("files"); // not serializable
       formData.delete("name"); // to edit
       return {
