@@ -7,7 +7,7 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB: dwww_web
+      - POSTGRES_DB=dwww_web
     ports:
       - "5432:5432"
     volumes:
