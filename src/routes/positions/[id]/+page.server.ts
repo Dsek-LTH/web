@@ -47,6 +47,35 @@ export const load: PageServerLoad = async ({ params }) => {
 export const actions = {
   update: async ({ params, request, locals }) => {
     const session = await locals.getSession();
+    await ctxAccessGuard(apiNames.POSITION.UPDATE, session?.user);
+    const formData = await request.formData();
+    try {
+      await prisma.position.update({
+        where: { id: params.id },
+        data: {
+          name: (formData.get("name") as string | null) ?? undefined,
+          description: (formData.get("description") as string | null) ?? undefined,
+          email: (formData.get("email") as string | null) ?? undefined,
+        },
+      });
+      return {
+        success: true,
+        data: Object.fromEntries(formData),
+      };
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError) {
+        if (e.code === "P2025" || e.code === "2016") {
+          return fail(404, { error: "Position not found", data: Object.fromEntries(formData) });
+        }
+        return fail(500, {
+          error: e.message ?? "Unknown error",
+          data: Object.fromEntries(formData),
+        });
+      }
+    }
+  },
+  updateMandate: async ({ params, request, locals }) => {
+    const session = await locals.getSession();
     await ctxAccessGuard(apiNames.MANDATE.UPDATE, session?.user);
     const formData = await request.formData();
     const id = formData.get("mandateId");
@@ -83,7 +112,7 @@ export const actions = {
       }
     }
   },
-  delete: async ({ params, request, locals }) => {
+  deleteMandate: async ({ params, request, locals }) => {
     const session = await locals.getSession();
     await ctxAccessGuard(apiNames.MANDATE.DELETE, session?.user);
     const formData = await request.formData();

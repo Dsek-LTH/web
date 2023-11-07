@@ -11,7 +11,7 @@
   let mandatesBox: HTMLDivElement; // Function to check whether the element is overflowing
 </script>
 
-<div class="card bg-base-200 shadow-xl transition-all">
+<article class="card bg-base-200 shadow-xl transition-all">
   <div class="card-body">
     <h2 class="card-title">
       <a class="link-hover link-primary link" href="/positions/{position.id}">
@@ -19,6 +19,13 @@
       </a>
       ({mandates.length} st)
     </h2>
+    {#if position.email}
+      <section class="-mt-2">
+        <a class="link-hover link-primary link" href="mailto:{position.email}">
+          {position.email}
+        </a>
+      </section>
+    {/if}
     <p class="flex-grow-0">{position.description ?? ""}</p>
     <ScrollIndicatedBox element={mandatesBox}>
       <div class="max-h-80 overflow-y-auto" bind:this={mandatesBox}>
@@ -46,4 +53,4 @@
       </div>
     </ScrollIndicatedBox>
   </div>
-</div>
+</article>

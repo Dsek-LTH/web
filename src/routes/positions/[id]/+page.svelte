@@ -7,6 +7,7 @@
   import { getFullName } from "$lib/utils/member.js";
   import type { Prisma } from "@prisma/client";
   export let data;
+  export let form;
   $: groupedByYear = data.mandates.reduce(
     (acc, mandate) => {
       let year = mandate.startDate.getFullYear().toString();
@@ -25,21 +26,93 @@
 
 <div class="flex items-center justify-between">
   <PageHeader title={data.position.name} />
-  {#if data.accessPolicies.includes(apiNames.MANDATE.UPDATE) || data.accessPolicies.includes(apiNames.MANDATE.DELETE)}
-    <button
-      class="btn btn-secondary btn-sm"
-      on:click={() => {
-        isEditing = !isEditing;
-        editedMandate = undefined;
-      }}
-    >
-      {isEditing ? "Sluta redigera" : "Redigera"}
-    </button>
-  {/if}
+  <div>
+    {#if data.accessPolicies.includes(apiNames.MANDATE.UPDATE) || data.accessPolicies.includes(apiNames.MANDATE.DELETE) || data.accessPolicies.includes(apiNames.POSITION.UPDATE)}
+      <button
+        class="btn btn-secondary btn-sm"
+        on:click={() => {
+          isEditing = !isEditing;
+          editedMandate = undefined;
+        }}
+      >
+        {isEditing ? "Sluta redigera" : "Redigera"}
+      </button>
+    {/if}
+  </div>
 </div>
-{#if editedMandate != undefined}
+{#if data.position.description}
+  <p>{data.position.description}</p>
+{/if}
+
+{#if data.position.email}
+  <section>
+    <a class="link-hover link-primary link" href="mailto:{data.position.email}">
+      {data.position.email}
+    </a>
+  </section>
+{/if}
+{#if data.position.emailAliases.length > 0}
+  <h4 class="text-xs opacity-75">Följande adresser skickas också till posten</h4>
+  <div class="mb-2 flex gap-2 text-xs opacity-75">
+    {#each data.position.emailAliases.filter((alias) => alias.email != data.position.email) as alias}
+      <a class="link-hover link-primary link" href="mailto:{alias.email}">
+        {alias.email}
+      </a>
+    {/each}
+  </div>
+{/if}
+
+<!-- Edit position form -->
+{#if isEditing && data.accessPolicies.includes(apiNames.POSITION.UPDATE)}
   <form
     action="?/update"
+    method="POST"
+    use:enhance={() =>
+      async ({ update }) => {
+        await update({ reset: false });
+        isEditing = false;
+      }}
+    class="form-control"
+  >
+    <Labeled label="Namn" id="name">
+      <input
+        name="name"
+        id="name"
+        value={form?.data?.name ?? data.position.name}
+        class="input input-bordered"
+        type="text"
+      />
+    </Labeled>
+    <Labeled label="Beskrivning" id="description">
+      <textarea
+        name="description"
+        id="description"
+        class="textarea textarea-bordered"
+        rows="3"
+        value={form?.data?.description ?? data.position.description}
+      />
+    </Labeled>
+    <Labeled
+      label="Email"
+      id="email"
+      explanation="Det här ändrar inte mailservern, utan säger bara vilken som är den primära mailadressen för den här posten."
+    >
+      <input
+        name="email"
+        id="email"
+        value={form?.data?.email ?? data.position.email}
+        class="input input-bordered"
+        type="email"
+      />
+    </Labeled>
+    <button type="submit" class="btn btn-secondary my-2">Spara</button>
+  </form>
+{/if}
+
+<!-- Edit mandate form -->
+{#if editedMandate != undefined}
+  <form
+    action="?/updateMandate"
     method="POST"
     use:enhance={() => {
       return async ({ update }) => {
@@ -71,6 +144,8 @@
     <button type="submit" class="btn btn-secondary">Spara</button>
   </form>
 {/if}
+
+<!-- List of mandates -->
 {#each years as year}
   <section class="mb-4">
     <h1 class="mb-2 text-xl font-semibold">{year}</h1>
@@ -97,25 +172,30 @@
               {getFullName(mandate.member)}
             </h3>
 
-            {#if isEditing && data.accessPolicies.includes(apiNames.MANDATE.DELETE)}
-              <button
-                class="btn btn-secondary btn-sm"
-                on:click|preventDefault={() => {
-                  editedMandate = mandate;
-                }}
-              >
-                EDIT
-              </button>
-              <form action="?/delete" method="POST" use:enhance>
-                <input type="hidden" name="mandateId" value={mandate.id} />
+            <!-- Remove and edit buttons -->
+            {#if isEditing}
+              {#if data.accessPolicies.includes(apiNames.MANDATE.UPDATE)}
                 <button
-                  type="submit"
-                  class="btn btn-error btn-sm"
-                  on:click|stopPropagation={() => {}}
+                  class="btn btn-secondary btn-sm"
+                  on:click|preventDefault={() => {
+                    editedMandate = mandate;
+                  }}
                 >
-                  X
+                  EDIT
                 </button>
-              </form>
+              {/if}
+              {#if data.accessPolicies.includes(apiNames.MANDATE.DELETE)}
+                <form action="?/deleteMandate" method="POST" use:enhance>
+                  <input type="hidden" name="mandateId" value={mandate.id} />
+                  <button
+                    type="submit"
+                    class="btn btn-error btn-sm"
+                    on:click|stopPropagation={() => {}}
+                  >
+                    X
+                  </button>
+                </form>
+              {/if}
             {:else if mandate.member.classProgramme && mandate.member.classYear}
               <span
                 class="badge badge-outline badge-sm text-xs font-light {mandate.member
