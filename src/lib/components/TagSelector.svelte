@@ -52,7 +52,9 @@
       {...$$restProps}
     />
   </div>
+  <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
   <ul
+    tabindex={0}
     class="menu-compact menu dropdown-content join join-vertical z-10 flex max-h-80 min-w-[20rem] flex-col flex-nowrap overflow-y-auto rounded-md bg-base-100 shadow"
   >
     {#each filteredTags as tag (tag.id)}
