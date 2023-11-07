@@ -29,6 +29,8 @@ export const hasAccess = async (
   context: Context,
   relevantMemberId?: string
 ): Promise<boolean> => {
+  // If we're in development mode and we're signed in, give full access rights.
+  if (dev && context?.student_id) return true;
   // If asking for access where there is a relevant member id, check if said member is current user
   if (relevantMemberId && context?.student_id) {
     try {
@@ -111,6 +113,13 @@ export const getRoleList = (ctx: Context) => [
 
 // Will return a list like ["news:create", "news:like", ...etc]
 export const getUserApis = async (ctx: Context) => {
+  // If we're running in development mode and we're signed in, give all available roles to the user.
+  if (dev && ctx?.student_id) {
+    const policies = await prisma.accessPolicy.findMany({
+      distinct: "apiName",
+    });
+    return policies.map((p) => p.apiName);
+  }
   const policies = await prisma.accessPolicy.findMany({
     where: {
       OR: [
