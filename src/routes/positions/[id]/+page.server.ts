@@ -74,6 +74,51 @@ export const actions = {
       }
     }
   },
+  addMandate: async ({ params, request, locals }) => {
+    const session = await locals.getSession();
+    await ctxAccessGuard(apiNames.MANDATE.UPDATE, session?.user);
+    const formData = await request.formData();
+    const positionId = params.id;
+    const memberId = formData.get("memberId");
+    const startDate = formData.get("startDate");
+    const endDate = formData.get("endDate");
+    if (!memberId || typeof memberId !== "string")
+      return fail(400, {
+        message: "Missing member id",
+        data: Object.fromEntries(formData),
+      });
+    if (!startDate || typeof startDate !== "string")
+      return fail(400, {
+        message: "Invalid startDate",
+        data: Object.fromEntries(formData),
+      });
+    if (!endDate || typeof endDate !== "string")
+      return fail(400, {
+        message: "Invalid endDate",
+        data: Object.fromEntries(formData),
+      });
+    try {
+      await prisma.mandate.create({
+        data: {
+          positionId,
+          memberId,
+          startDate: new Date(startDate),
+          endDate: new Date(endDate),
+        },
+      });
+      return {
+        success: true,
+        data: Object.fromEntries(formData),
+      };
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError) {
+        return fail(500, {
+          error: e.message ?? "Unknown error",
+          data: Object.fromEntries(formData),
+        });
+      }
+    }
+  },
   updateMandate: async ({ params, request, locals }) => {
     const session = await locals.getSession();
     await ctxAccessGuard(apiNames.MANDATE.UPDATE, session?.user);

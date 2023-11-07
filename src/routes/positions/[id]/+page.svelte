@@ -6,6 +6,7 @@
   import apiNames from "$lib/utils/apiNames";
   import { getFullName } from "$lib/utils/member.js";
   import type { Prisma } from "@prisma/client";
+  import AddMandateForm from "./AddMandateForm.svelte";
   export let data;
   export let form;
   $: groupedByYear = data.mandates.reduce(
@@ -21,13 +22,24 @@
   );
   $: years = Object.keys(groupedByYear).sort((a, b) => b.localeCompare(a, "sv"));
   let isEditing = false;
+  let isAdding = false;
   let editedMandate: (typeof data.mandates)[number] | undefined = undefined;
 </script>
 
 <div class="flex items-center justify-between">
   <PageHeader title={data.position.name} />
   <div>
-    {#if data.accessPolicies.includes(apiNames.MANDATE.UPDATE) || data.accessPolicies.includes(apiNames.MANDATE.DELETE) || data.accessPolicies.includes(apiNames.POSITION.UPDATE)}
+    {#if data.accessPolicies.includes(apiNames.MANDATE.CREATE) && !isEditing}
+      <button
+        class="btn btn-secondary btn-sm"
+        on:click={() => {
+          isAdding = !isAdding;
+        }}
+      >
+        {isAdding ? "Avbryt" : "Lägg till mandat"}
+      </button>
+    {/if}
+    {#if !isAdding && (data.accessPolicies.includes(apiNames.MANDATE.UPDATE) || data.accessPolicies.includes(apiNames.MANDATE.DELETE) || data.accessPolicies.includes(apiNames.POSITION.UPDATE))}
       <button
         class="btn btn-secondary btn-sm"
         on:click={() => {
@@ -109,6 +121,14 @@
   </form>
 {/if}
 
+<!-- Add mandate form -->
+{#if isAdding}
+  <AddMandateForm
+    onClose={() => {
+      isAdding = false;
+    }}
+  />
+{/if}
 <!-- Edit mandate form -->
 {#if editedMandate != undefined}
   <form
@@ -157,13 +177,15 @@
             ? 'col-span-2'
             : ''}"
           data-tip={getFullName(mandate.member) +
-            `\n${mandate.startDate.toLocaleDateString("sv")}-${mandate.endDate.toLocaleDateString(
+            `\n${mandate.startDate.toLocaleDateString("sv")} - ${mandate.endDate.toLocaleDateString(
               "sv"
             )}`}
         >
           <a
             href="/members/{mandate.member.studentId}"
-            class="btn btn-ghost w-full flex-nowrap justify-start normal-case"
+            class="btn btn-ghost w-full flex-nowrap justify-start normal-case {isEditing
+              ? 'pointer-events-none'
+              : ''}"
           >
             <MemberAvatar member={mandate.member} />
             <h3
@@ -176,7 +198,7 @@
             {#if isEditing}
               {#if data.accessPolicies.includes(apiNames.MANDATE.UPDATE)}
                 <button
-                  class="btn btn-secondary btn-sm"
+                  class="btn btn-secondary btn-sm pointer-events-auto"
                   on:click|preventDefault={() => {
                     editedMandate = mandate;
                   }}
@@ -189,7 +211,7 @@
                   <input type="hidden" name="mandateId" value={mandate.id} />
                   <button
                     type="submit"
-                    class="btn btn-error btn-sm"
+                    class="btn btn-error btn-sm pointer-events-auto"
                     on:click|stopPropagation={() => {}}
                   >
                     X
