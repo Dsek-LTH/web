@@ -27,7 +27,8 @@ const apiNames = {
   ACCESS_POLICY: crud("core:access:api"),
   LOGGED_IN: "_",
   FILES: {
-    BUCKET: <bucketName extends string>(name: bucketName) => crud(`fileHandler:${name}`),
+    BUCKET: <bucketName extends string>(name: bucketName) =>
+      crud(`fileHandler:${name.substring(4)}`), // remove "dev-" prefix
   },
 } as const;
 

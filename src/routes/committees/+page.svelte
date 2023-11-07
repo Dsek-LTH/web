@@ -1,5 +1,6 @@
 <script lang="ts">
   import PageHeader from "$lib/components/PageHeader.svelte";
+  import { getImageUrl } from "$lib/files/images";
 
   export let data;
   $: committees = [...data.committees].sort((a, b) => a.name.localeCompare(b.name, "sv"));
@@ -16,7 +17,7 @@
     >
       <figure class="px-12 pt-4 transition-transform group-hover:scale-90">
         <img
-          src={committee.imageUrl ?? "http://127.0.0.1:9000/material/committees/sigill.svg"}
+          src={getImageUrl(committee.imageUrl ?? "minio/material/committees/sigill.svg")}
           alt="Committee icon"
           class="aspect-square"
         />

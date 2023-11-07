@@ -41,7 +41,7 @@
     <Tabs options={typeOptions} bind:currentTab={type} fieldName="type" />
   </div>
   <div>
-    {#if data.accessPolicies.includes(apiNames.FILES.BUCKET("documents").CREATE)}
+    {#if data.accessPolicies.includes(apiNames.FILES.BUCKET("dev-documents").CREATE)}
       <a class="btn btn-primary" href="/documents/upload">Ladda upp fil</a>
     {/if}
   </div>

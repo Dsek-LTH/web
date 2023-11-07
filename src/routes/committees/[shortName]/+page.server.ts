@@ -102,7 +102,12 @@ export const actions = {
       const path = `committees/${params.shortName}.svg`;
       console.log(path);
       try {
-        const putUrl = await fileHandler.getPresignedPutUrl(session?.user, "material", path, true);
+        const putUrl = await fileHandler.getPresignedPutUrl(
+          session?.user,
+          "dev-material",
+          path,
+          true
+        );
         await fetch(putUrl, {
           method: "PUT",
           body: image,

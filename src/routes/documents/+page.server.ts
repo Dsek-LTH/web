@@ -14,7 +14,7 @@ export const load = async ({ parent, url }) => {
   const type: DocumentType = (url.searchParams.get("type") as DocumentType) || "board-meeting";
   const files = await fileHandler.getInBucket(
     session?.user,
-    "documents",
+    "dev-documents",
     year + "/" + (prefixByType[type] ?? ""),
     true
   );
