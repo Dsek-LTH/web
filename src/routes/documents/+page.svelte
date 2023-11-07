@@ -24,7 +24,7 @@
     },
   ];
   $: meetings = Object.keys(data.meetings).sort((a, b) =>
-    type === "board-meeting" ? b.localeCompare(a) : a.localeCompare(b)
+    type === "board-meeting" ? b.localeCompare(a, "sv") : a.localeCompare(b, "sv")
   );
 </script>
 

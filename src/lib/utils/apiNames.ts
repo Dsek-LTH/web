@@ -1,9 +1,10 @@
-const crud = <prefix extends string>(base: prefix) => ({
-  CREATE: `${base}:create`,
-  READ: `${base}:read`,
-  UPDATE: `${base}:update`,
-  DELETE: `${base}:delete`,
-});
+const crud = <prefix extends string>(base: prefix) =>
+  ({
+    CREATE: `${base}:create`,
+    READ: `${base}:read`,
+    UPDATE: `${base}:update`,
+    DELETE: `${base}:delete`,
+  }) as const;
 
 const apiNames = {
   NEWS: {
@@ -16,6 +17,12 @@ const apiNames = {
   },
   EVENT: {
     ...crud("event"),
+  },
+  MANDATE: crud("core:mandate"),
+  COMMITTEE: crud("core:committee"),
+  POSITION: {
+    ...crud("core:position"),
+    SEE_INACTIVE: "core:position:inactive:read",
   },
   ACCESS_POLICY: crud("core:access:api"),
   LOGGED_IN: "_",

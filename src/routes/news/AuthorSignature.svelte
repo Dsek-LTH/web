@@ -1,16 +1,30 @@
 <script lang="ts">
-  import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
+  import MemberImage from "$lib/components/socials/MemberImage.svelte";
+  import { getFullName } from "$lib/utils/member";
   import type { Author, CustomAuthor, Member, Position } from "@prisma/client";
 
   export let member: Member;
   export let customAuthor: CustomAuthor | undefined = undefined;
   export let position: Position | undefined = undefined;
-  export let type: Author["type"];
+  export let type: Author["type"] = "Member";
+  export let size: "sm" | "md" | "lg" | "xl" = "lg";
+  const sizeToWidth = {
+    sm: "w-4",
+    md: "w-8",
+    lg: "w-12",
+    xl: "w-16",
+  };
+  const sizeToGap = {
+    sm: 2,
+    md: 2,
+    lg: 3,
+    xl: 4,
+  };
 </script>
 
-<div class="flex flex-row items-center gap-3">
+<div class="flex flex-row items-center gap-{sizeToGap[size]}">
   <div class="avatar">
-    <div class="w-12 rounded-full">
+    <div class="{sizeToWidth[size]} rounded-full">
       {#if type == "Custom" && customAuthor != null}
         <img
           src={customAuthor.imageUrl ?? "https://gravatar.com/avatar?s=100&d=mp"}
@@ -27,18 +41,18 @@
           }}
         />
       {:else}
-        <MemberAvatar {member} />
+        <MemberImage {member} />
       {/if}
     </div>
   </div>
   <div>
     {#if type == "Custom" && customAuthor != null}
-      <h3 class="text-xl font-semibold">
+      <h3 class="text-{size} font-semibold">
         {customAuthor.name}
       </h3>
     {:else}
-      <h3 class="text-xl font-semibold">
-        {member.firstName + " " + member.lastName}
+      <h3 class="text-{size} font-semibold">
+        {getFullName(member)}
       </h3>
       {#if position}
         <h3 class="text-sm font-thin text-primary">

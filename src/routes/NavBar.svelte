@@ -14,11 +14,19 @@
       <a class="btn btn-ghost" href="/news">Nyheter</a>
       <a class="btn btn-ghost" href="/events">Evenemang</a>
       <a class="btn btn-ghost" href="/documents">Filer</a>
+      <div class="dropdown-hover group dropdown">
+        <span class="btn btn-ghost">Sektionen</span>
+        <ul
+          class="menu dropdown-content rounded-box pointer-events-none !visible z-10 w-52 -translate-y-3 bg-base-100 p-2 text-base-content opacity-0 shadow-lg shadow-black/30 group-hover:pointer-events-auto group-hover:translate-y-0"
+        >
+          <li><a href="/committees">Utskott</a></li>
+        </ul>
+      </div>
       {#if accessPolicies.includes(apiNames.ACCESS_POLICY.READ)}
-        <div class="group dropdown dropdown-hover">
+        <div class="dropdown-hover group dropdown">
           <span class="btn btn-ghost">Admin</span>
           <ul
-            class="menu dropdown-content rounded-box !visible z-10 w-52 -translate-y-3 bg-base-100 p-2 text-base-content opacity-0 shadow group-hover:translate-y-0"
+            class="menu dropdown-content rounded-box pointer-events-none !visible z-10 w-52 -translate-y-3 bg-base-100 p-2 text-base-content opacity-0 shadow-lg shadow-black/30 group-hover:pointer-events-auto group-hover:translate-y-0"
           >
             <li><a href="/admin/access">Access</a></li>
           </ul>
