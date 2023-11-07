@@ -2,9 +2,9 @@
   import type { Member } from "@prisma/client";
 
   export let member: Pick<Member, "picturePath" | "classProgramme" | "classYear">;
-  export let size: "xs" | "md" | "lg" | "xl" = "md";
+  export let size: "sm" | "md" | "lg" | "xl" = "md";
   const sizeToWidth = {
-    xs: "w-4",
+    sm: "w-4",
     md: "w-8",
     lg: "w-12",
     xl: "w-16",
