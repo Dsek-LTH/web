@@ -29,7 +29,7 @@
       return;
     }
 
-    const url = new URL("http://localhost:5173/api/members");
+    const url = new URL(" /api/members");
     url.searchParams.append("search", searchValue);
     const data = await fetch(url, {
       method: "GET",

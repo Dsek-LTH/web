@@ -1,6 +1,6 @@
 <script lang="ts">
+  import CommitteIcon from "$lib/components/CommitteIcon.svelte";
   import PageHeader from "$lib/components/PageHeader.svelte";
-  import { getImageUrl } from "$lib/files/images";
 
   export let data;
   $: committees = [...data.committees].sort((a, b) => a.name.localeCompare(b.name, "sv"));
@@ -16,11 +16,7 @@
       class="group card bg-base-200 shadow-xl transition-all hover:bg-base-200/80"
     >
       <figure class="px-12 pt-4 transition-transform group-hover:scale-90">
-        <img
-          src={getImageUrl(committee.imageUrl ?? "minio/material/committees/sigill.svg")}
-          alt="Committee icon"
-          class="aspect-square"
-        />
+        <CommitteIcon {committee} />
       </figure>
       <div class="card-body px-0 text-center">
         <h2 class="card-title mx-auto">{committee.name}</h2>

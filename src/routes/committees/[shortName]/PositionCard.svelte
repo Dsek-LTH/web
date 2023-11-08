@@ -32,7 +32,7 @@
         <ul class="menu menu-vertical p-0">
           {#each mandates as mandate (mandate.id)}
             <li>
-              <a href="/members/{mandate.member.studentId}">
+              <a href="/member/{mandate.member.studentId}">
                 <div class="flex flex-row items-center gap-2">
                   <MemberAvatar member={mandate.member} />
                   <div>
