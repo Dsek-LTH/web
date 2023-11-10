@@ -37,7 +37,7 @@
       {#if $page.data.session}
         <button class="btn btn-neutral" on:click={() => signOut()}> Logga ut </button>
         {#if user?.student_id}
-          <a class="btn btn-ghost" href="/member/{user.student_id}">
+          <a class="btn btn-ghost" href="/members/{user.student_id}">
             Profil ({user?.student_id})
           </a>
         {/if}

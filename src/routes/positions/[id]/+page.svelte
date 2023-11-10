@@ -184,7 +184,7 @@
             )}`}
         >
           <a
-            href="/member/{mandate.member.studentId}"
+            href="/members/{mandate.member.studentId}"
             class="btn btn-ghost w-full flex-nowrap justify-start normal-case {isEditing
               ? 'pointer-events-none'
               : ''}"
