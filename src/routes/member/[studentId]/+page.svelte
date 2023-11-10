@@ -1,12 +1,18 @@
 <script lang="ts">
+  import { enhance } from "$app/forms";
   import { page } from "$app/stores";
+  import ClassBadge from "$lib/components/ClassBadge.svelte";
   import CommitteIcon from "$lib/components/CommitteIcon.svelte";
+  import Input from "$lib/components/Input.svelte";
+  import Labeled from "$lib/components/Labeled.svelte";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
-  import { getFullName } from "$lib/utils/member.js";
-  import ClassBadge from "$lib/components/ClassBadge.svelte";
+  import apiNames from "$lib/utils/apiNames";
+  import { getFullName } from "$lib/utils/member";
+  import { _classProgrammes } from "./data";
 
   export let data;
+  export let form;
   $: member = data.member;
   $: isMe = data.session?.user?.student_id === $page.params.studentId;
   $: mandatesGroupedByYear = member.mandates.reduce(
@@ -22,6 +28,8 @@
   );
   $: years = Object.keys(mandatesGroupedByYear).sort((a, b) => b.localeCompare(a, "sv"));
   $: publishedEvents = [...member.authoredEvents].reverse();
+  $: canEdit = isMe || data.accessPolicies.includes(apiNames.MEMBER.UPDATE);
+  let isEditing = false;
 </script>
 
 <svelte:head>
@@ -31,17 +39,102 @@
   <div class="col-span-2 row-span-3 sm:col-span-1">
     <MemberAvatar {member} size={null} rounded="rounded-lg" />
   </div>
-  <header class="col-span-3 mb-4 sm:col-span-4">
-    <h1 class="text-3xl font-bold">{getFullName(member)}</h1>
-    {member.studentId} <br />
+  <header class="col-span-3 mb-4 gap-1 sm:col-span-4">
+    <div class="flex items-center">
+      <div class="flex-1">
+        <h1 class="text-3xl font-bold">{getFullName(member)}</h1>
+      </div>
+      {#if canEdit}
+        <button
+          class="btn btn-secondary"
+          on:click={() => {
+            isEditing = !isEditing;
+          }}
+        >
+          {isEditing ? "Spara" : "Redigera"}
+        </button>
+      {/if}
+    </div>
+    {member.studentId}
   </header>
-  <div class="col-span-2">
-    <ClassBadge {member} size="xl" />
+  <div class={isEditing ? "col-span-4 row-span-2" : "col-span-2"}>
+    {#if isEditing}
+      <!-- Update user form -->
+      <form
+        id="edit-member"
+        method="POST"
+        action="?/update"
+        use:enhance={() =>
+          async ({ update }) => {
+            await update({ reset: false });
+            isEditing = false;
+          }}
+        class="form-control gap-2"
+      >
+        <div class="flex gap-2 [&>*]:flex-1">
+          <Input
+            name="firstName"
+            label="First name"
+            value={form?.data?.firstName ?? member.firstName}
+          />
+          <Input name="nickname" label="Nickname" value={form?.data?.nickname ?? member.nickname} />
+          <Input
+            name="lastName"
+            label="Last name"
+            value={form?.data?.lastName ?? member.lastName}
+          />
+        </div>
+        <div class="flex gap-2 [&>*:nth-child(3)]:flex-1">
+          <Labeled label="Program" id="classProgramme">
+            <select
+              id="classProgramme"
+              name="classProgramme"
+              class="select select-bordered w-full max-w-xs"
+              value={form?.data?.classProgramme ?? member.classProgramme ?? "D"}
+              required
+            >
+              {#each _classProgrammes as programme (programme.id)}
+                <option value={programme.id}>{programme.name}</option>
+              {/each}
+            </select>
+          </Labeled>
+          <Labeled label="Year" id="classProgramme">
+            <input
+              type="number"
+              min="1982"
+              max={new Date().getFullYear()}
+              name="classYear"
+              id="classYear"
+              class="input input-bordered"
+              value={form?.data?.classYear ?? member.classYear ?? new Date().getFullYear()}
+            />
+          </Labeled>
+          <Input
+            name="foodPreference"
+            label="Matpreferens"
+            value={form?.data?.foodPreference ?? member.foodPreference ?? ""}
+          />
+        </div>
+        <button type="submit" class="btn btn-secondary mt-4">Spara</button>
+        {#if form?.error}
+          <span class="text-error">{form.error}</span>
+        {/if}
+      </form>
+      <!-- End Update user form -->
+    {:else}
+      <ClassBadge {member} size="xl" />
+    {/if}
   </div>
   {#if member.bio}
     <article class="col-span-5 row-start-4 md:col-span-3">
       <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-      <MarkdownBody body={member.bio} />
+      <MarkdownBody body={member.bio}>
+        <div slot="before-body" class="float-right">
+          <a href="{$page.params.studentId}/edit-bio" class="btn btn-secondary btn-outline btn-sm"
+            >Redigera bio</a
+          >
+        </div>
+      </MarkdownBody>
     </article>
   {/if}
   <div class="col-span-5 row-span-4 flex flex-col sm:flex-row md:col-span-2 md:flex-col">
