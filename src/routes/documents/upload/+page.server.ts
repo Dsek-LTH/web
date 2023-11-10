@@ -49,7 +49,7 @@ export const actions = {
         success: true,
         data: Object.fromEntries(formData),
       };
-    } catch (e: any) {
+    } catch (e) {
       if ("body" in e && "message" in e.body) {
         return failWithData(e.body.message as string);
       }

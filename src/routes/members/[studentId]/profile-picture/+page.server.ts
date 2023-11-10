@@ -3,7 +3,7 @@ import { ctxAccessGuard } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
 import prisma from "$lib/utils/prisma";
 import { Prisma } from "@prisma/client";
-import { error, fail } from "@sveltejs/kit";
+import { error, fail, type HttpError } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 import sharp from "sharp";
 
@@ -133,9 +133,9 @@ export const actions = {
         success: true,
         data: Object.fromEntries(formData),
       };
-    } catch (e: any) {
-      if ("body" in e && "message" in e.body) {
-        return failWithData(e.body.message, 500);
+    } catch (e) {
+      if ((e as HttpError).body?.message) {
+        return failWithData((e as HttpError).body.message, 500);
       }
       return failWithData(String(e), 500);
     }
@@ -159,10 +159,10 @@ export const actions = {
         success: true,
         data: Object.fromEntries(formData),
       };
-    } catch (e: any) {
-      if ("body" in e && "message" in e.body) {
+    } catch (e) {
+      if ((e as HttpError).body?.message) {
         return fail(500, {
-          error: e.body.message,
+          error: (e as HttpError).body.message,
           data: Object.fromEntries(formData),
         });
       }
