@@ -1,19 +1,14 @@
 <script lang="ts">
   import type { Member } from "@prisma/client";
+  import { twMerge } from "tailwind-merge";
 
   export let member: Pick<Member, "picturePath" | "classProgramme" | "classYear">;
-  export let size: "sm" | "md" | "lg" | "xl" | null = "md";
-  const sizeToWidth = {
-    sm: "w-4",
-    md: "w-8",
-    lg: "w-12",
-    xl: "w-32",
-  };
-  export let rounded = "rounded-full";
+  let clazz: string = "";
+  export { clazz as class };
 </script>
 
-<div class="avatar {rounded} aspect-square overflow-hidden">
-  <figure class="{size ? sizeToWidth[size] : 'w-full'} relative">
+<div class={twMerge("avatar aspect-square overflow-hidden", clazz)}>
+  <figure class="relative w-full">
     <img
       src={member.picturePath || "https://gravatar.com/avatar?s=100&d=mp"}
       on:error|preventDefault={(e) => {

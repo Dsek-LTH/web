@@ -37,7 +37,7 @@
 </svelte:head>
 <article class="grid grid-cols-5 gap-x-4" id="container">
   <div class="col-span-2 row-span-3 sm:col-span-1">
-    <MemberAvatar {member} size={null} rounded="rounded-lg">
+    <MemberAvatar {member} class="w-full rounded-lg">
       {#if canEdit}
         <a
           href="{$page.params.studentId}/profile-picture"

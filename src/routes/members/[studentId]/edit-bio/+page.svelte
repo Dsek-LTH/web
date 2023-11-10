@@ -13,7 +13,7 @@
   <title>Bio - {getFullName(member)} | D-sektionen</title>
 </svelte:head>
 <header class="flex gap-4">
-  <MemberAvatar {member} size="xl" rounded="rounded-lg" />
+  <MemberAvatar {member} class="w-32 rounded-lg" />
   <div class="flex flex-col">
     <h1 class="text-3xl font-bold">{getFullName(member)}</h1>
     {member.studentId}
