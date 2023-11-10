@@ -37,7 +37,16 @@
 </svelte:head>
 <article class="grid grid-cols-5 gap-x-4" id="container">
   <div class="col-span-2 row-span-3 sm:col-span-1">
-    <MemberAvatar {member} size={null} rounded="rounded-lg" />
+    <MemberAvatar {member} size={null} rounded="rounded-lg">
+      {#if canEdit}
+        <a
+          href="{$page.params.studentId}/profile-picture"
+          class="btn btn-square btn-secondary glass btn-sm absolute right-2 top-2"
+        >
+          <span class="i-mdi-edit" />
+        </a>
+      {/if}
+    </MemberAvatar>
   </div>
   <header class="col-span-3 mb-4 gap-1 sm:col-span-4">
     <div class="flex items-center">
@@ -130,9 +139,11 @@
       <!-- eslint-disable-next-line svelte/no-at-html-tags -->
       <MarkdownBody body={member.bio}>
         <div slot="before-body" class="float-right">
-          <a href="{$page.params.studentId}/edit-bio" class="btn btn-secondary btn-outline btn-sm"
-            >Redigera bio</a
-          >
+          {#if canEdit}
+            <a href="{$page.params.studentId}/edit-bio" class="btn btn-secondary btn-outline btn-sm"
+              >Redigera bio</a
+            >
+          {/if}
         </div>
       </MarkdownBody>
     </article>

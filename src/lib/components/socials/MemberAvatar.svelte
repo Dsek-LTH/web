@@ -12,8 +12,8 @@
   export let rounded = "rounded-full";
 </script>
 
-<div class="avatar">
-  <div class="{size ? sizeToWidth[size] : 'w-full'} {rounded} ">
+<div class="avatar {rounded} aspect-square overflow-hidden">
+  <figure class="{size ? sizeToWidth[size] : 'w-full'} relative">
     <img
       src={member.picturePath || "https://gravatar.com/avatar?s=100&d=mp"}
       on:error|preventDefault={(e) => {
@@ -28,5 +28,6 @@
       }}
       alt=""
     />
-  </div>
+    <slot />
+  </figure>
 </div>
