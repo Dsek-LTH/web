@@ -33,7 +33,7 @@
   };
   let submitting: boolean = false;
 
-  export let formData: Record<string, any> | undefined;
+  export let formData: Record<string, unknown> | undefined;
   // effect over default value above to work from for "edit article" as well
   $: (() => {
     if (!formData) return;
@@ -41,10 +41,10 @@
       ...event,
       ...formData,
     };
-    if (formData.startDatetime) event.startDatetime = new Date(formData.startDatetime);
-    if (formData.endDatetime) event.endDatetime = new Date(formData.endDatetime);
+    if (formData.startDatetime) event.startDatetime = new Date(formData.startDatetime as string);
+    if (formData.endDatetime) event.endDatetime = new Date(formData.endDatetime as string);
     if (formData.tags) {
-      const oldTagIds = JSON.parse(formData.tags).map((tag: Tag) => tag.id);
+      const oldTagIds = JSON.parse(formData.tags as string).map((tag: Tag) => tag.id);
       selectedTags = allTags.filter((tag) => oldTagIds.includes(tag.id));
     }
     formData = undefined; // to stop formData from overriding what user changes

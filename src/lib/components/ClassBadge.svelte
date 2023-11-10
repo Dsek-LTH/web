@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Member } from "@prisma/client";
-  import type { _classProgrammes } from "../../routes/member/[studentId]/data";
+  import type { _classProgrammes } from "../../routes/members/[studentId]/data";
   export let member: Member;
   export let size: "sm" | "xl" = "sm";
   const colors: Record<(typeof _classProgrammes)[number]["id"], string> = {

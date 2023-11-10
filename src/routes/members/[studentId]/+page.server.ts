@@ -7,7 +7,7 @@ import { Prisma } from "@prisma/client";
 import { _classProgrammes } from "./data";
 
 export const load: PageServerLoad = async ({ params }) => {
-  const [member, publishedArticles] = await Promise.all([
+  const [memberResult, publishedArticlesResult] = await Promise.allSettled([
     prisma.member.findUnique({
       where: {
         studentId: params.studentId,
@@ -49,12 +49,18 @@ export const load: PageServerLoad = async ({ params }) => {
       take: 5,
     }),
   ]);
-  if (!member) {
+  if (memberResult.status === "rejected") {
+    throw error(500, "Could not fetch member");
+  }
+  if (publishedArticlesResult.status === "rejected") {
+    throw error(500, "Could not fetch articles");
+  }
+  if (!memberResult.value) {
     throw error(404, "Member not found");
   }
   return {
-    member,
-    publishedArticles,
+    member: memberResult.value,
+    publishedArticles: publishedArticlesResult.value ?? [],
   };
 };
 
