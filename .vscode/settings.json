@@ -15,5 +15,5 @@
   "editor.quickSuggestions": {
     "strings": "on"
   },
-  "prettier.configPath": "prettier.config.js"
+  "prettier.configPath": "prettier.config.js",
 }
