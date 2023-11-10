@@ -1,6 +1,6 @@
 # Nice to have commands
 
-## Setup localling
+## Setup locally
 
 ### install dependencies
 
@@ -78,6 +78,10 @@ pnpm dev
 # or start the server and open the app in a new browser tab
 pnpm dev -- --open
 ```
+
+### VSCode
+
+See the `.vscode/extensions.json` file for recommendations. They should pop up immidiately in VS Code.
 
 ## Building
 
