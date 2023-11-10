@@ -33,69 +33,88 @@
           >
         </label>
       </div>
-      <div class="flex-1"></div>
-      <ul class="space-x-2">
+      <div class="hidden flex-none lg:block">
         <!-- Navbar menu content here -->
-        <li><a class="btn btn-ghost hidden lg:inline-flex" href="/">D-sektionen</a></li>
-        <li><a class="btn btn-ghost hidden lg:inline-flex" href="/news">Nyheter</a></li>
-        <li><a class="btn btn-ghost hidden lg:inline-flex" href="/events">Evenemang</a></li>
-        <li><a class="btn btn-ghost hidden lg:inline-flex" href="/documents">Filer</a></li>
-        <li class="dropdown-hover dropdown group">
-          <span class="btn btn-ghost hidden lg:inline-flex">Sektionen</span>
+        <a class="btn" href="/">Hem</a>
+        <a class="btn" href="/news">Nyheter</a>
+        <a class="btn" href="/events">Evenemang</a>
+        <a class="btn" href="/documents">Filer</a>
+        <!-- https://bugs.webkit.org/show_bug.cgi?id=22261 -->
+        <div class="dropdown dropdown-hover">
+          <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+          <!-- svelte-ignore a11y-label-has-associated-control -->
+          <label tabindex="0" class="btn">Sektionen</label>
+          <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
           <ul
-            class="menu dropdown-content rounded-box bg-base-100 text-base-content pointer-events-none !visible z-10 w-52 -translate-y-3 p-2 opacity-0 shadow-lg shadow-black/30 group-hover:pointer-events-auto group-hover:translate-y-0"
+            tabindex="0"
+            class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
           >
             <li><a href="/committees">Utskott</a></li>
           </ul>
-        </li>
+        </div>
         {#if accessPolicies.includes(apiNames.ACCESS_POLICY.READ)}
-          <li class="dropdown-hover dropdown group">
-            <span class="btn btn-ghost hidden lg:inline-flex">Admin</span>
+          <!-- https://bugs.webkit.org/show_bug.cgi?id=22261 -->
+          <div class="dropdown dropdown-hover">
+            <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+            <!-- svelte-ignore a11y-label-has-associated-control -->
+            <label tabindex="0" class="btn">Admin</label>
+            <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
             <ul
-              class="menu dropdown-content rounded-box bg-base-100 text-base-content pointer-events-none !visible z-10 w-52 -translate-y-3 p-2 opacity-0 shadow-lg shadow-black/30 group-hover:pointer-events-auto group-hover:translate-y-0"
+              tabindex="0"
+              class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
             >
               <li><a href="/admin/access">Access</a></li>
             </ul>
-          </li>
+          </div>
         {/if}
-        {#if $page.data.session}
-          <li><button class="btn btn-ghost" on:click={() => signOut()}>Logga ut</button></li>
-          <li><a class="btn btn-ghost" href="/profile"> Profil ({user?.student_id})</a></li>
-        {:else}
-          <li>
-            <button class="btn btn-ghost" on:click={() => signIn("keycloak")}>Logga in</button>
-          </li>
-        {/if}
-      </ul>
+      </div>
+      <div class="flex-1" />
+      {#if $page.data.session}
+        <button class="btn" on:click={() => signOut()}>Logga ut</button>
+        <a href="/profile">Profil ({user?.student_id})</a>
+      {:else}
+        <button class="btn" on:click={() => signIn("keycloak")}>Logga in</button>
+      {/if}
     </div>
     <!-- Page content here -->
+    <slot />
   </div>
-  <div class="drawer-side z-10">
+  <div class="drawer-side">
     <label for="my-drawer-3" aria-label="close sidebar" class="drawer-overlay"></label>
-    <ul class="bg-base-200 flex min-h-full w-80 flex-col p-2">
+    <div class="menu bg-base-200 min-h-full w-80">
       <!-- Sidebar content here -->
-      <li><a on:click={close} class="btn btn-ghost flex-1" href="/">D-sektionen</a></li>
-      <li><a on:click={close} class="btn btn-ghost flex-1" href="/news">Nyheter</a></li>
-      <li><a on:click={close} class="btn btn-ghost flex-1" href="/events">Evenemang</a></li>
-      <li><a on:click={close} class="btn btn-ghost flex-1" href="/documents">Filer</a></li>
-      <li class="dropdown-hover dropdown group">
-        <span class="btn btn-ghost flex-1">Sektionen</span>
+      <div><a on:click={close} class="btn" href="/">Hem</a></div>
+      <div><a on:click={close} class="btn" href="/news">Nyheter</a></div>
+      <div><a on:click={close} class="btn" href="/events">Evenemang</a></div>
+      <div><a on:click={close} class="btn" href="/documents">Filer</a></div>
+      <!-- https://bugs.webkit.org/show_bug.cgi?id=22261 -->
+      <div class="dropdown dropdown-hover">
+        <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+        <!-- svelte-ignore a11y-label-has-associated-control -->
+        <label tabindex="0" class="btn">Sektionen</label>
+        <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
         <ul
-          class="menu dropdown-content rounded-box bg-base-100 text-base-content pointer-events-none !visible z-10 w-52 -translate-y-3 p-2 opacity-0 shadow-lg shadow-black/30 group-hover:pointer-events-auto group-hover:translate-y-0"
+          tabindex="0"
+          class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
         >
           <li><a on:click={close} href="/committees">Utskott</a></li>
         </ul>
-      </li>
+      </div>
       {#if accessPolicies.includes(apiNames.ACCESS_POLICY.READ)}
-        <li class="dropdown-hover dropdown group">
-          <span class="btn btn-ghost flex-1">Admin</span>
+        <!-- https://bugs.webkit.org/show_bug.cgi?id=22261 -->
+        <div class="dropdown dropdown-hover">
+          <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+          <!-- svelte-ignore a11y-label-has-associated-control -->
+          <label tabindex="0" class="btn" >Admin</label>
+          <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
           <ul
-            class="menu dropdown-content rounded-box bg-base-100 text-base-content pointer-events-none !visible z-10 w-52 -translate-y-3 p-2 opacity-0 shadow-lg shadow-black/30 group-hover:pointer-events-auto group-hover:translate-y-0"
+            tabindex="0"
+            class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
           >
             <li><a on:click={close} href="/admin/access">Access</a></li>
           </ul>
-        </li>
+        </div>
       {/if}
-    </ul>
+    </div>
   </div>
 </div>
