@@ -30,6 +30,10 @@ const apiNames = {
     BUCKET: <bucketName extends string>(name: bucketName) =>
       crud(`fileHandler:${name.substring(4)}`), // remove "dev-" prefix
   },
+  MEMBER: {
+    ...crud("core:member"),
+    PING: "core:member:ping",
+  },
 } as const;
 
 export default apiNames;

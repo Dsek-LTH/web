@@ -112,10 +112,9 @@ export const actions = {
           body: image,
         });
         newImageUploaded = true;
-      } catch (e: any) {
-        console.log(e);
+      } catch (e) {
         return fail(500, {
-          error: e?.message ?? "Unable to upload image",
+          error: (e as Error | undefined)?.message ?? "Unable to upload image",
           data: Object.fromEntries(formData),
         });
       }

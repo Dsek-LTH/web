@@ -14,7 +14,7 @@
       <a class="btn btn-ghost" href="/news">Nyheter</a>
       <a class="btn btn-ghost" href="/events">Evenemang</a>
       <a class="btn btn-ghost" href="/documents">Filer</a>
-      <div class="dropdown-hover group dropdown">
+      <div class="group dropdown dropdown-hover">
         <span class="btn btn-ghost">Sektionen</span>
         <ul
           class="menu dropdown-content rounded-box pointer-events-none !visible z-10 w-52 -translate-y-3 bg-base-100 p-2 text-base-content opacity-0 shadow-lg shadow-black/30 group-hover:pointer-events-auto group-hover:translate-y-0"
@@ -36,7 +36,11 @@
     <div class="flex-none">
       {#if $page.data.session}
         <button class="btn btn-neutral" on:click={() => signOut()}> Logga ut </button>
-        <a class="btn btn-ghost" href="/profile"> Profil ({user?.student_id}) </a>
+        {#if user?.student_id}
+          <a class="btn btn-ghost" href="/members/{user.student_id}">
+            Profil ({user?.student_id})
+          </a>
+        {/if}
       {:else}
         <button class="btn btn-neutral" on:click={() => signIn("keycloak")}> Logga in </button>
       {/if}
