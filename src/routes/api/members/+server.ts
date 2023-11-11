@@ -69,7 +69,7 @@ export const GET: RequestHandler = async ({ url }) => {
       },
       {
         _relevance: {
-          fields: ["firstName", "lastName", "nickname"],
+          fields: ["lastName"],
           search: search
             .split(" ")
             .filter((part) => part.length > 0)

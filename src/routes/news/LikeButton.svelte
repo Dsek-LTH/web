@@ -21,7 +21,9 @@
   }}
 >
   <slot name="hidden-input" />
-  <button type="submit" class="btn btn-primary" {disabled}>
-    {isLiked ? "Sluta gilla" : "Gilla"}
-  </button>
+  <div class="tooltip" data-tip={disabled ? "Du måste vara inloggad för att gilla" : undefined}>
+    <button type="submit" class="btn btn-primary" {disabled}>
+      {isLiked ? "Sluta gilla" : "Gilla"}
+    </button>
+  </div>
 </form>

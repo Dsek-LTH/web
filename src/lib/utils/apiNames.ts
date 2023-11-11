@@ -11,12 +11,16 @@ const apiNames = {
     ...crud("news:article"),
     MANAGE: "news:article:manage",
     LIKE: "news:article:like",
+    COMMENT: "news:article:comment",
+    COMMENT_DELETE: "news:article:comment:delete",
   },
   TAGS: {
     ...crud("tags"),
   },
   EVENT: {
     ...crud("event"),
+    COMMENT: "event:comment",
+    COMMENT_DELETE: "event:comment:delete",
   },
   MANDATE: crud("core:mandate"),
   COMMITTEE: crud("core:committee"),
@@ -30,6 +34,8 @@ const apiNames = {
     BUCKET: <bucketName extends string>(name: bucketName) =>
       crud(`fileHandler:${name.substring(4)}`), // remove "dev-" prefix
   },
+  MARKDOWN: <markdownDocumentName extends string>(name: markdownDocumentName) =>
+    crud(`markdowns:${name}`),
   MEMBER: {
     ...crud("core:member"),
     PING: "core:member:ping",

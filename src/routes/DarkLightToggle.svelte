@@ -13,8 +13,8 @@
   <input type="checkbox" data-toggle-theme="dark,light" data-act-class="ACTIVECLASS" />
 
   <!-- moon icon -->
-  <span class="swap-on i-mdi-brightness-2 h-10 w-10"> </span>
+  <span class="swap-on i-mdi-weather-night h-10 w-10"> </span>
 
   <!-- sun icon -->
-  <span class="swap-off i-mdi-brightness-5 h-10 w-10"> </span>
+  <span class="swap-off i-mdi-weather-sunny h-10 w-10"> </span>
 </label>

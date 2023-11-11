@@ -1,7 +1,7 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
   import Labeled from "$lib/components/Labeled.svelte";
-  import MemberSearch from "$lib/components/MemberSearch.svelte";
+  import MemberSearchInput from "$lib/components/MemberSearchInput.svelte";
 
   export let onClose: () => void;
   const END_OF_YEAR = `${new Date().getFullYear()}-12-31`;
@@ -19,7 +19,7 @@
   class="form-control my-2 flex-row items-end gap-2"
 >
   <div class="flex flex-1 flex-col items-stretch">
-    <MemberSearch />
+    <MemberSearchInput />
   </div>
   <Labeled label="Start" id="startDate">
     <input

@@ -22,7 +22,7 @@
   <h2 class="mb-2 text-lg font-bold">{name}</h2>
   <div class="grid grid-cols-4 gap-2">
     {#each files as file (file.id)}
-      <File {file} />
+      <File name={file.name} url={file.thumbnailUrl} />
     {/each}
   </div>
 </section>

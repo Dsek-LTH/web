@@ -6,6 +6,10 @@
   export let form;
 </script>
 
+<svelte:head>
+  <title>Redigera nyhet | D-sektionen</title>
+</svelte:head>
+
 <ArticleEditor
   selectedTags={data.article.tags}
   selectedAuthorOption={data.article.author}

@@ -1,13 +1,17 @@
 <script lang="ts">
-  import type { FileData } from "$lib/files/fileHandler";
+  import { displayPdf } from "$lib/utils/servePdf";
 
-  export let file: FileData;
-  $: fileName = file.name.substring(0, file.name.lastIndexOf(".")).replace(/_+/g, " ");
+  export let name: string;
+  export let url: string | undefined;
+  export let host: boolean = false;
+  $: fileName = name.includes(".")
+    ? name.substring(0, name.lastIndexOf(".")).replace(/_+/g, " ")
+    : name;
 </script>
 
 <div class="tooltip" data-tip={fileName}>
   <a
-    href={file.thumbnailUrl}
+    href={host ? displayPdf(url) : url}
     class="btn btn-primary btn-sm block overflow-hidden text-ellipsis whitespace-nowrap py-2 text-left"
   >
     {fileName}

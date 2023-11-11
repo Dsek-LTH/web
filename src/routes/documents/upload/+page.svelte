@@ -7,6 +7,10 @@
   let files: FileList | undefined = undefined;
 </script>
 
+<svelte:head>
+  <title>Ladda upp dokument | D-sektionen</title>
+</svelte:head>
+
 <form
   id="upload-file"
   class="form-control items-stretch"

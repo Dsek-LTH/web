@@ -14,7 +14,7 @@
 {#if likers.length > 0}
   <button
     on:click|preventDefault={() => modal.showModal()}
-    class="text-sm opacity-40 hover:opacity-60"
+    class="link text-sm opacity-40 hover:opacity-60"
   >
     {likersText} gillar detta
   </button>
@@ -22,9 +22,7 @@
     <ul class="menu modal-box">
       {#each likers as liker (liker.id)}
         <li>
-          <a href="/members/{liker.studentId}">
-            <AuthorSignature type="member" member={liker} />
-          </a>
+          <AuthorSignature type="member" member={liker} />
         </li>
       {/each}
     </ul>

@@ -8,6 +8,10 @@
   let createLoading = false;
 </script>
 
+<svelte:head>
+  <title>Nyhetstaggar | D-sektionen</title>
+</svelte:head>
+
 <div class="overflow-x-auto">
   <table class="table">
     <!-- head -->

@@ -15,7 +15,7 @@
   export let form;
   $: member = data.member;
   $: isMe = data.session?.user?.student_id === $page.params.studentId;
-  $: mandatesGroupedByYear = member.mandates.reduce(
+  $: mandatesGroupedByYear = member.mandates.reduce<Record<string, (typeof member)["mandates"]>>(
     (acc, mandate) => {
       let year = mandate.startDate.getFullYear().toString();
       if (mandate.endDate.getFullYear() !== mandate.startDate.getFullYear())
@@ -24,7 +24,7 @@
       acc[year]!.push(mandate);
       return acc;
     },
-    {} as Record<string, (typeof member)["mandates"]>
+    {}
   );
   $: years = Object.keys(mandatesGroupedByYear).sort((a, b) => b.localeCompare(a, "sv"));
   $: publishedEvents = [...member.authoredEvents].reverse();
@@ -79,7 +79,7 @@
     <article class="col-span-5 row-start-4 md:col-span-3">
       <!-- eslint-disable-next-line svelte/no-at-html-tags -->
       <MarkdownBody body={member.bio}>
-        <div slot="before-body" class="float-right">
+        <div class="float-right">
           {#if canEdit}
             <a href="{$page.params.studentId}/edit-bio" class="btn btn-secondary btn-outline btn-sm"
               >Redigera bio</a

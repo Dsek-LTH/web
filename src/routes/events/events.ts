@@ -13,7 +13,7 @@ const include = {
   author: true,
   comments: {
     include: {
-      author: true,
+      member: true,
     },
   },
   going: true,

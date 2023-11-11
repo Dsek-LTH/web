@@ -1,4 +1,7 @@
 // See https://kit.svelte.dev/docs/types#app
+
+import type { Member } from "@prisma/client";
+
 // for information about these interfaces
 declare global {
   namespace App {
@@ -7,7 +10,10 @@ declare global {
       statusDescription?: string;
     }
     // interface Locals {}
-    // interface PageData {}
+    interface PageData {
+      accessPolicies: string[];
+      currentMember: Member | undefined;
+    }
     // interface Platform {}
   }
 }

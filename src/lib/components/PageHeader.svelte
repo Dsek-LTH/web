@@ -5,6 +5,8 @@
 <svelte:head>
   {#if title}
     <title>{title} | D-sektionen</title>
+  {:else}
+    <title>D-sektionen</title>
   {/if}
 </svelte:head>
 
