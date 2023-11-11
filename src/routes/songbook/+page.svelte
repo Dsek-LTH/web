@@ -17,6 +17,17 @@
     return (data.category ?? "").startsWith(catId);
   }
 
+  function hrefWithParam(param: string, value: string | undefined): string {
+    const urlParams = new URLSearchParams(data.params);
+    if (value) {
+      urlParams.set(param, value);
+    } else {
+      urlParams.delete(param);
+    }
+
+    return "?" + urlParams.toString();
+  }
+
   export let data;
 </script>
 
@@ -24,7 +35,7 @@
   {#each Object.keys(data.categories) as catId}
     <a
       class="flex-grow"
-      href={"?category=" + (isCatSelected(catId) ? "" : encodeURIComponent(catId))}
+      href={hrefWithParam("category", isCatSelected(catId) ? "" : catId)}
     >
       <div
         class={(isCatSelected(catId) ? "bg-neutral-600" : "hover:bg-neutral-700") +
