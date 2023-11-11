@@ -2,6 +2,10 @@
   export let data;
 </script>
 
+<svelte:head>
+  <title>D-sektionen</title>
+</svelte:head>
+
 <div class="min-h-screen bg-[url('/hero-image.jpg')] bg-cover bg-center bg-no-repeat">
   <div class="bg-opacity-60"></div>
   <h1>{data.numberOfUniqueVolunteers} unika funkisar</h1>

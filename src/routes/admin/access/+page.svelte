@@ -8,6 +8,10 @@
     .sort();
 </script>
 
+<svelte:head>
+  <title>Access policies | D-sektionen</title>
+</svelte:head>
+
 <div class="overflow-x-auto">
   <table class="table">
     <!-- head -->

@@ -6,6 +6,10 @@
   export let form;
 </script>
 
+<svelte:head>
+  <title>Skapa evenemang | D-sektionen</title>
+</svelte:head>
+
 <EventEditor {...data} formData={form?.data}>
   <div slot="error">
     {#if form?.error}

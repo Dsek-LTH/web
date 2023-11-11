@@ -11,6 +11,10 @@
   });
 </script>
 
+<svelte:head>
+  <title>{$page.params.apiName} | D-sektionen</title>
+</svelte:head>
+
 <h1 class="mb-4 text-4xl font-semibold">{$page.params.apiName}</h1>
 <div class="overflow-x-auto">
   <table class="table">

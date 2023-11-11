@@ -5,6 +5,10 @@
   $: guidelines = data.governingDocuments.filter((doc) => doc.documentType === "GUIDELINE");
 </script>
 
+<svelte:head>
+  <title>Styrdokument | D-sektionen</title>
+</svelte:head>
+
 <h1 class="my-3 text-2xl font-bold">Styrdokument</h1>
 <div class="flex flex-col gap-5">
   <p>
