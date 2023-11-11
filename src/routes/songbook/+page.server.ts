@@ -1,7 +1,8 @@
 import prisma from "$lib/utils/prisma";
 import type { PageServerLoad } from "./$types";
 import type { Prisma } from "@prisma/client";
-import { sanitize } from "isomorphic-dompurify";
+import isomorphicDompurify from "isomorphic-dompurify";
+const { sanitize } = isomorphicDompurify;
 
 const SONGS_PER_PAGE = 10;
 
