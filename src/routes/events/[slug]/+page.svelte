@@ -6,6 +6,10 @@
   $: event = data.event;
 </script>
 
+<svelte:head>
+  <title>{event.title} | D-sektionen</title>
+</svelte:head>
+
 <Event {event}>
   <div slot="actions">
     {#if data.canEdit}

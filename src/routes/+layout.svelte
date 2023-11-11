@@ -5,13 +5,9 @@
   export let data;
 </script>
 
-<svelte:head>
-  <title>D-sektionen</title>
-</svelte:head>
-
 <NavBar accessPolicies={data.accessPolicies}>
   <div
-    class="accent-primary h-[calc(100vh-9rem)] flex-col overflow-auto pb-8 md:h-[calc(100vh-5rem)] [&>*]:flex-1"
+    class="h-[calc(100vh-9rem)] flex-col overflow-auto pb-8 accent-primary md:h-[calc(100vh-5rem)] [&>*]:flex-1"
   >
     <slot />
   </div>

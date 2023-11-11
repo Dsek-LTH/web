@@ -17,6 +17,10 @@
   $: isPast = $page.url.searchParams.get("past") == "on";
 </script>
 
+<svelte:head>
+  <title>Evenemang | D-sektionen</title>
+</svelte:head>
+
 <section class="flex flex-col gap-2">
   <div class="flex items-center gap-2">
     <a class="btn" href="/events/calendar"

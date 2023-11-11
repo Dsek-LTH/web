@@ -41,16 +41,13 @@ export const load = async ({ parent, url }) => {
       });
       break;
   }
-  const filesGroupedByMeeting = filteredFiles.reduce(
-    (acc, file) => {
-      const fileParts = file.id.split("/");
-      const meeting = fileParts[fileParts.length - 2] ?? "unknown";
-      if (!acc[meeting]) acc[meeting] = [];
-      acc[meeting]!.push(file);
-      return acc;
-    },
-    {} as Record<string, FileData[]>
-  );
+  const filesGroupedByMeeting = filteredFiles.reduce<Record<string, FileData[]>>((acc, file) => {
+    const fileParts = file.id.split("/");
+    const meeting = fileParts[fileParts.length - 2] ?? "unknown";
+    if (!acc[meeting]) acc[meeting] = [];
+    acc[meeting]!.push(file);
+    return acc;
+  }, {});
   return {
     files,
     meetings: filesGroupedByMeeting,

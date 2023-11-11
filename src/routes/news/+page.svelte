@@ -17,6 +17,10 @@
   );
 </script>
 
+<svelte:head>
+  <title>Nyheter | D-sektionen</title>
+</svelte:head>
+
 <section class="flex flex-col gap-2">
   <div class="flex items-center gap-2">
     {#if data.accessPolicies.includes(apiNames.NEWS.CREATE)}

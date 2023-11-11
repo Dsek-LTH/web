@@ -11,6 +11,10 @@
   $: author = article.author;
 </script>
 
+<svelte:head>
+  <title>{article.header} | D-sektionen</title>
+</svelte:head>
+
 <article>
   <Article {article}>
     <AuthorSignature
