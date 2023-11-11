@@ -76,7 +76,7 @@ export const load: PageServerLoad = async ({ url }) => {
 
   for (const name of catNames) {
     const split = name?.category?.split(" ");
-    
+
     var id;
     if (split) {
       if (split[0] == "SåS") {
@@ -102,5 +102,6 @@ export const load: PageServerLoad = async ({ url }) => {
     pageCount: Math.max(Math.ceil(pageCount / nPerPage), 1),
     categories,
     category,
+    params: url.searchParams.toString(),
   };
 };
