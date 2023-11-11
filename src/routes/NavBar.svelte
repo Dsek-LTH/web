@@ -18,7 +18,7 @@
   <input id="my-drawer-3" type="checkbox" class="drawer-toggle" bind:checked />
   <div class="drawer-content flex flex-col">
     <!-- Navbar -->
-    <div class="navbar w-full bg-base-200">
+    <div class="navbar bg-base-200 w-full">
       <div class="block lg:hidden">
         <label for="my-drawer-3" aria-label="open sidebar" class="btn btn-square btn-ghost">
           <span class="i-mdi-menu h-10 w-10"> </span>
@@ -28,19 +28,19 @@
         <!-- Navbar menu content here -->
         <a class="btn btn-ghost" href="/"
           ><span
-            class="i-mdi-home h-6 w-6 text-primary-focus
+            class="i-mdi-home text-primary-focus h-6 w-6
           "
           ></span>Hem</a
         >
         <a class="btn btn-ghost" href="/news"
-          ><span class="i-mdi-newspaper h-6 w-6 text-primary-focus"></span> Nyheter</a
+          ><span class="i-mdi-newspaper text-primary-focus h-6 w-6"></span> Nyheter</a
         >
         <a class="btn btn-ghost" href="/events"
-          ><span class="i-mdi-calendar h-6 w-6 text-primary-focus"></span>
+          ><span class="i-mdi-calendar text-primary-focus h-6 w-6"></span>
           Evenemang</a
         >
         <a class="btn btn-ghost" href="/documents"
-          ><span class="i-mdi-text-box-multiple h-6 w-6 text-primary-focus"></span>
+          ><span class="i-mdi-text-box-multiple text-primary-focus h-6 w-6"></span>
           Dokument</a
         >
         <!-- https://bugs.webkit.org/show_bug.cgi?id=22261 -->
@@ -54,11 +54,11 @@
           <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
           <ul
             tabindex="0"
-            class="menu dropdown-content rounded-box z-[1] w-52 bg-base-100 p-2 shadow"
+            class="menu dropdown-content rounded-box bg-base-100 z-[1] w-52 p-2 shadow"
           >
             <li>
               <a href="/committees" class="btn-ghost"
-                ><span class="i-mdi-account-group h-6 w-6 text-primary-focus"></span>
+                ><span class="i-mdi-account-group text-primary-focus h-6 w-6"></span>
                 Utskott</a
               >
             </li>
@@ -66,7 +66,7 @@
               <a href="/songbook" class="btn-ghost">
                 <span
                   class="i-mdi-library-music
-                 h-6 w-6 text-primary-focus"
+                 text-primary-focus h-6 w-6"
                 ></span>
                 Sjungbok</a
               >
@@ -79,17 +79,17 @@
             <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
             <!-- svelte-ignore a11y-label-has-associated-control -->
             <label tabindex="0" class="btn btn-ghost"
-              ><span class="i-mdi-security h-6 w-6 text-primary-focus"></span>
+              ><span class="i-mdi-security text-primary-focus h-6 w-6"></span>
               Admin</label
             >
             <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
             <ul
               tabindex="0"
-              class="menu dropdown-content rounded-box z-[1] w-52 bg-base-100 p-2 shadow"
+              class="menu dropdown-content rounded-box bg-base-100 z-[1] w-52 p-2 shadow"
             >
               <li>
                 <a href="/admin/access" class="btn-ghost"
-                  ><span class="i-mdi-key h-6 w-6 text-primary-focus"> </span>
+                  ><span class="i-mdi-key text-primary-focus h-6 w-6"> </span>
                   Access</a
                 >
               </li>
@@ -117,76 +117,67 @@
   </div>
   <div class="drawer-side">
     <label for="my-drawer-3" aria-label="close sidebar" class="drawer-overlay"></label>
-    <div class="menu min-h-full w-80 bg-base-200">
+    <div class="menu bg-base-200 min-h-full w-80">
       <!-- Sidebar content here -->
-      <div>
-        <a on:click={close} href="/" class="btn btn-ghost"
-          ><span class="i-mdi-home h-6 w-6 text-primary-focus"> </span>
-          Hem</a
-        >
-      </div>
-      <div>
-        <a on:click={close} href="/news" class="btn btn-ghost"
-          ><span class="i-mdi-newspaper h-6 w-6 text-primary-focus"> </span>
-          Nyheter</a
-        >
-      </div>
-      <div>
-        <a on:click={close} href="/events" class="btn btn-ghost"
-          ><span class="i-mdi-calendar h-6 w-6 text-primary-focus"> </span>
-          Evenemang</a
-        >
-      </div>
-      <div>
-        <a on:click={close} href="/documents" class="btn btn-ghost"
-          ><span class="i-mdi-text-box-multiple h-6 w-6 text-primary-focus"> </span>
-          Dokument</a
-        >
-      </div>
-      <!-- https://bugs.webkit.org/show_bug.cgi?id=22261 -->
-      <div class="dropdown-hover dropdown">
-        <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-        <!-- svelte-ignore a11y-label-has-associated-control -->
-        <label tabindex="0" class="btn btn-ghost"
-          ><DsekLogo className="h-6 w-6 text-primary-focus" />
-          Sektionen</label
-        >
-        <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-        <ul
-          tabindex="0"
-          class="menu dropdown-content rounded-box z-[1] w-52 bg-base-100 p-2 shadow"
-        >
-          <li>
-            <a on:click={close} href="/committees"
-              ><span class="i-mdi-account-group h-6 w-6 text-primary-focus"> </span>
-              Utskott</a
-            >
-          </li>
-        </ul>
-      </div>
-      {#if accessPolicies.includes(apiNames.ACCESS_POLICY.READ)}
-        <!-- https://bugs.webkit.org/show_bug.cgi?id=22261 -->
-        <div class="dropdown-hover dropdown">
-          <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-          <!-- svelte-ignore a11y-label-has-associated-control -->
-          <label tabindex="0" class="btn btn-ghost"
-            ><span class="i-mdi-security h-6 w-6 text-primary-focus"> </span>
-            Admin</label
-          >
-          <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-          <ul
-            tabindex="0"
-            class="menu dropdown-content rounded-box z-[1] w-52 bg-base-100 p-2 shadow"
-          >
+      <ul class="menu bg-base-200 rounded-box w-56">
+        <li>
+          <a on:click={close} href="/" class="btn justify-start content-center">
+            <span class="i-mdi-home text-primary-focus h-6 w-6" />
+            Hem
+          </a>
+        </li>
+        <li>
+          <a on:click={close} href="/news" class="btn justify-start content-center">
+            <span class="i-mdi-newspaper text-primary-focus h-6 w-6" />
+            Nyheter
+          </a>
+        </li>
+        <li>
+          <a on:click={close} href="/events" class="btn justify-start content-center">
+            <span class="i-mdi-calendar text-primary-focus h-6 w-6" />
+            Evenemang
+          </a>
+        </li>
+        <li>
+          <a on:click={close} href="/documents" class="btn justify-start content-center">
+            <span class="i-mdi-text-box-multiple text-primary-focus h-6 w-6" />
+            Dokument
+          </a>
+        </li>
+        <li>
+          <span class="btn justify-start content-center"><DsekLogo className="h-6 w-6 text-primary-focus" />Sektionen</span>
+          <ul>
             <li>
-              <a on:click={close} href="/admin/access"
-                ><span class="i-mdi-key h-6 w-6 text-primary-focus"> </span>
-                Access</a
-              >
+              <a on:click={close} href="/committees" class="btn justify-start content-center">
+                <span class="i-mdi-account-group text-primary-focus h-6 w-6" />
+                Utskott
+              </a>
+            </li>
+            <li>
+              <a on:click={close} href="/songbook" class="btn justify-start content-center">
+                <span class="i-mdi-library-music text-primary-focus h-6 w-6" />
+                Sjungbok
+              </a>
             </li>
           </ul>
-        </div>
-      {/if}
+        </li>
+        {#if accessPolicies.includes(apiNames.ACCESS_POLICY.READ)}
+          <li>
+            <span class="btn justify-start content-center">
+              <span class="i-mdi-security text-primary-focus h-6 w-6" />
+              Admin
+            </span>
+            <ul>
+              <li>
+                <a on:click={close} href="/admin/access" class="btn justify-start content-center">
+                  <span class="i-mdi-key text-primary-focus h-6 w-6" />
+                  Access
+                </a>
+              </li>
+            </ul>
+          </li>
+        {/if}
+      </ul>
     </div>
   </div>
 </div>
