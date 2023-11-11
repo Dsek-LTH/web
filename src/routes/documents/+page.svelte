@@ -7,6 +7,8 @@
 
   export let data;
 
+  let isEditing: boolean = false;
+
   const currentYear = new Date().getFullYear();
   let type: string = "board-meeting";
   const typeOptions: { name: string; value: DocumentType }[] = [
@@ -45,15 +47,23 @@
     <span class="text-lg">Filtrera efter dokumenttyp</span>
     <Tabs options={typeOptions} bind:currentTab={type} fieldName="type" />
   </div>
-  <div>
+  <div class="flex flex-col gap-1">
     {#if data.accessPolicies.includes(apiNames.FILES.BUCKET("dev-documents").CREATE)}
-      <a class="btn btn-primary" href="/documents/upload">Ladda upp fil</a>
+      <a class="btn btn-primary btn-sm" href="/documents/upload">Ladda upp fil</a>
+      <button
+        class="btn btn-secondary btn-sm"
+        on:click={() => {
+          isEditing = !isEditing;
+        }}
+      >
+        {isEditing ? "Sluta redigera" : "Redigera"}
+      </button>
     {/if}
   </div>
 </div>
 
 <div class="flex flex-col gap-4">
   {#each meetings as meeting (meeting)}
-    <Meeting name={meeting} files={data.meetings[meeting] ?? []} />
+    <Meeting name={meeting} files={data.meetings[meeting] ?? []} {isEditing} />
   {/each}
 </div>

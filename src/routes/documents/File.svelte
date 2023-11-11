@@ -9,10 +9,10 @@
     : name;
 </script>
 
-<div class="tooltip" data-tip={fileName}>
+<div class="flex w-full" data-tip={fileName}>
   <a
     href={host ? displayPdf(url) : url}
-    class="btn btn-primary btn-sm block overflow-hidden text-ellipsis whitespace-nowrap py-2 text-left"
+    class="btn btn-primary btn-sm block w-full overflow-hidden text-ellipsis whitespace-nowrap py-2 text-left"
   >
     {fileName}
   </a>
