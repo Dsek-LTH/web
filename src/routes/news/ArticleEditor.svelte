@@ -8,6 +8,7 @@
   import type { AuthorOption } from "./articles.js";
   import TagSelector from "$lib/components/TagSelector.svelte";
   import TagChip from "$lib/components/TagChip.svelte";
+  import MarkdownEditor from "$lib/components/MarkdownEditor.svelte";
 
   export let authorOptions: AuthorOption[];
   export let selectedAuthorOption: AuthorOption = authorOptions[0]!;
@@ -56,13 +57,8 @@
       <slot name="form-start" />
       <Input name="header" label="Header" required bind:value={article.header} />
       <Labeled label="Description" id="body">
-        <textarea
-          id="body"
-          name="body"
-          class="textarea textarea-bordered min-h-[10rem]"
-          placeholder="Body"
-          bind:value={article.body}
-        />
+        <MarkdownEditor bind:value={article.body} />
+        <input type="hidden" name="body" value={article.body} />
       </Labeled>
       <Labeled label="Author" id="author">
         <select

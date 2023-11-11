@@ -62,6 +62,7 @@
     "sharp": "^0.32.6",
     "svelte-easy-crop": "^2.0.1",
     "tailwind-merge": "^2.0.0",
-    "theme-change": "^2.5.0"
+    "theme-change": "^2.5.0",
+    "tiptap-markdown": "^0.8.4"
   }
 }
