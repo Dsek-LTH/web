@@ -3,12 +3,38 @@
   import SearchBar from "$lib/components/SearchBar.svelte";
   import { sanitize } from "isomorphic-dompurify";
 
+  function fixText(s: string): string {
+    return sanitize(s)
+      .replaceAll("---", "—")
+      .replaceAll("--", "–")
+      .replaceAll("||:", "𝄆")
+      .replaceAll(":||", "𝄇")
+      .replaceAll("|:", "𝄆")
+      .replaceAll(":|", "𝄇");
+  }
+
+  function isCatSelected(catId: string): Boolean {
+    return (data.category ?? "").startsWith(catId);
+  }
+
   export let data;
 </script>
 
-{#each data.categories as cat}
-  <div>{cat.category}</div>
-{/each}
+<div class="my-4 flex flex-wrap justify-between">
+  {#each Object.keys(data.categories) as catId}
+    <a
+      class="flex-grow"
+      href={"?category=" + (isCatSelected(catId) ? "" : encodeURIComponent(catId))}
+    >
+      <div
+        class={(isCatSelected(catId) ? "bg-neutral-600" : "hover:bg-neutral-700") +
+          " m-1 rounded-lg px-2 py-1 text-center ring-neutral-700 transition hover:scale-105 md:ring-1"}
+      >
+        {data.categories[catId]}
+      </div>
+    </a>
+  {/each}
+</div>
 
 <section>
   <form method="get" id="filter-form">
@@ -20,7 +46,7 @@
   <article class="my-4 rounded-lg p-6 shadow-2xl ring-neutral-700 md:ring-1">
     <div class="flex justify-between">
       <h2 class="my-3 text-2xl font-bold">
-        {@html sanitize(song.title)}
+        {@html fixText(song.title)}
       </h2>
 
       <p class="text-right text-xs text-gray-500">
@@ -36,8 +62,10 @@
       {song.category}
     </h3>
 
-    <p class="mb-4">Melodi: {song.melody}</p>
-    <p class="whitespace-pre-line">{@html sanitize(song.lyrics)}</p>
+    <p class="mb-4 italic">Mel: {song.melody}</p>
+    <p class="whitespace-pre-line">
+      {@html fixText(song.lyrics)}
+    </p>
   </article>
 {/each}
 
