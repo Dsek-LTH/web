@@ -43,6 +43,12 @@ const apiNames = {
     ...crud("core:member"),
     PING: "core:member:ping",
   },
+  GOVERNING_DOCUMENT: {
+    CREATE: "governing_document:write",
+    READ: "governing_document:read",
+    UPDATE: "governing_document:write",
+    DELETE: "governing_document:write",
+  },
 } as const;
 
 export default apiNames;

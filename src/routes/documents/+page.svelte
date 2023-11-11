@@ -50,6 +50,8 @@
   <div class="flex flex-col gap-1">
     {#if data.accessPolicies.includes(apiNames.FILES.BUCKET("dev-documents").CREATE)}
       <a class="btn btn-primary btn-sm" href="/documents/upload">Ladda upp fil</a>
+    {/if}
+    {#if data.accessPolicies.includes(apiNames.FILES.BUCKET("dev-documents").DELETE)}
       <button
         class="btn btn-secondary btn-sm"
         on:click={() => {
