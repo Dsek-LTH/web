@@ -46,12 +46,14 @@
                   class="menu dropdown-content rounded-box z-[1] w-52 bg-base-100 p-2 shadow"
                 >
                   {#each route.children as child (child.title)}
-                    <li>
-                      <a href={child.path} class="btn-ghost">
-                        <span class={`${child.icon} h-6 w-6 text-primary-focus`} />
-                        {child.title}</a
-                      >
-                    </li>
+                    {#if !child.accessRequired || accessPolicies.includes(child.accessRequired)}
+                      <li>
+                        <a href={child.path} class="btn-ghost">
+                          <span class={`${child.icon} h-6 w-6 text-primary-focus`} />
+                          {child.title}</a
+                        >
+                      </li>
+                    {/if}
                   {/each}
                 </ul>
               </div>
@@ -105,16 +107,18 @@
                 >
                 <ul>
                   {#each route.children as child (child.title)}
-                    <li>
-                      <a
-                        on:click={close}
-                        href={child.path}
-                        class="btn content-center justify-start"
-                      >
-                        <span class={`${child.icon} h-6 w-6 text-primary-focus`} />
-                        {child.title}
-                      </a>
-                    </li>
+                    {#if !child.accessRequired || accessPolicies.includes(child.accessRequired)}
+                      <li>
+                        <a
+                          on:click={close}
+                          href={child.path}
+                          class="btn content-center justify-start"
+                        >
+                          <span class={`${child.icon} h-6 w-6 text-primary-focus`} />
+                          {child.title}
+                        </a>
+                      </li>
+                    {/if}
                   {/each}
                 </ul>
               </li>
