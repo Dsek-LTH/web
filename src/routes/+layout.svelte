@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Toast from "$lib/components/Toast.svelte";
   import "../app.css";
   import BottomNav from "./BottomNav.svelte";
   import NavBar from "./NavBar.svelte";
@@ -13,3 +14,5 @@
 
   <BottomNav />
 </NavBar>
+
+<Toast />
