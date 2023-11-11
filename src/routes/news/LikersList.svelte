@@ -14,7 +14,7 @@
 {#if likers.length > 0}
   <button
     on:click|preventDefault={() => modal.showModal()}
-    class="text-sm opacity-40 hover:opacity-60"
+    class="link text-sm opacity-40 hover:opacity-60"
   >
     {likersText} gillar detta
   </button>

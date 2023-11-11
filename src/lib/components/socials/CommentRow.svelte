@@ -34,7 +34,7 @@
   $: fixedContent = replaceTag(comment.content ?? "");
 </script>
 
-<section aria-label="Comment by {getFullName(author)}" class="relative mb-4">
+<section aria-label="Comment by {getFullName(author)}" class="relative mb-4" id="comment-section">
   <header class="flex items-start gap-2">
     <a href="/members/{author.studentId}" class="">
       <MemberAvatar member={author} class="w-8 rounded-lg" />
