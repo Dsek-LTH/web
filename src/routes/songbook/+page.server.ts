@@ -9,7 +9,7 @@ export const load: PageServerLoad = async ({ url }) => {
   const search = url.searchParams.get("search");
   const category = url.searchParams.get("category");
 
-  var where: Prisma.SongWhereInput = search
+  let where: Prisma.SongWhereInput = search
     ? {
         OR: [
           {
@@ -77,7 +77,7 @@ export const load: PageServerLoad = async ({ url }) => {
   for (const name of catNames) {
     const split = name?.category?.split(" ");
 
-    var id;
+    let id;
     if (split) {
       if (split[0] == "SåS") {
         id = split.slice(0, 2).join(" ");
