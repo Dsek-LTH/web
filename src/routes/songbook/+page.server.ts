@@ -57,7 +57,7 @@ export const load: PageServerLoad = async ({ url }) => {
     prisma.song.findMany({
       take: nPerPage,
       skip: page ? Math.max((Number.parseInt(page) - 1) * nPerPage, 0) : 0,
-      orderBy: [{ category: "asc" }, { title: "asc" }],
+      orderBy: { title: "asc" },
       where,
     }),
     prisma.song.count({ where }),
