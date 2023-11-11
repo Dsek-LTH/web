@@ -1,18 +1,6 @@
 <script lang="ts">
   import Pagination from "$lib/components/Pagination.svelte";
   import SearchBar from "$lib/components/SearchBar.svelte";
-  import he from "he";
-
-  function fixText(s: string): string {
-    return he
-      .decode(s)
-      .replaceAll("---", "—")
-      .replaceAll("--", "–")
-      .replaceAll("||:", "𝄆")
-      .replaceAll(":||", "𝄇")
-      .replaceAll("|:", "𝄆")
-      .replaceAll(":|", "𝄇");
-  }
 
   function isCatSelected(catId: string): boolean {
     return (data.category ?? "").startsWith(catId);
@@ -56,7 +44,9 @@
   <article class="my-4 rounded-lg p-6 shadow-2xl ring-neutral-700 md:ring-1">
     <div class="flex justify-between">
       <h2 class="my-3 text-2xl font-bold">
-        {fixText(song.title)}
+        <!-- Sanitized server side -->
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+        {@html song.title}
       </h2>
 
       <p class="text-right text-xs text-gray-500">
@@ -74,7 +64,9 @@
 
     <p class="mb-4 italic">Mel: {song.melody}</p>
     <p class="whitespace-pre-line">
-      {fixText(song.lyrics)}
+      <!-- Sanitized server side -->
+      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+      {@html song.lyrics}
     </p>
   </article>
 {/each}

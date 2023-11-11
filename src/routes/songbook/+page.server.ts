@@ -1,8 +1,9 @@
 import prisma from "$lib/utils/prisma";
 import type { PageServerLoad } from "./$types";
 import type { Prisma } from "@prisma/client";
+import { sanitize } from "isomorphic-dompurify";
 
-const nPerPage = 10;
+const SONGS_PER_PAGE = 10;
 
 export const load: PageServerLoad = async ({ url }) => {
   const page = url.searchParams.get("page");
@@ -55,8 +56,8 @@ export const load: PageServerLoad = async ({ url }) => {
 
   const [songs, pageCount, catNames] = await Promise.all([
     prisma.song.findMany({
-      take: nPerPage,
-      skip: page ? Math.max((Number.parseInt(page) - 1) * nPerPage, 0) : 0,
+      take: SONGS_PER_PAGE,
+      skip: page ? Math.max((Number.parseInt(page) - 1) * SONGS_PER_PAGE, 0) : 0,
       orderBy: { title: "asc" },
       where,
     }),
@@ -98,10 +99,24 @@ export const load: PageServerLoad = async ({ url }) => {
   }
 
   return {
-    songs,
-    pageCount: Math.max(Math.ceil(pageCount / nPerPage), 1),
+    songs: songs.map((song) => ({
+      ...song,
+      title: sanitize(fixSongText(song.title)),
+      lyrics: sanitize(fixSongText(song.lyrics)),
+    })),
+    pageCount: Math.max(Math.ceil(pageCount / SONGS_PER_PAGE), 1),
     categories,
     category,
     params: url.searchParams.toString(),
   };
 };
+
+function fixSongText(s: string): string {
+  return s
+    .replaceAll("---", "—")
+    .replaceAll("--", "–")
+    .replaceAll("||:", "𝄆")
+    .replaceAll(":||", "𝄇")
+    .replaceAll("|:", "𝄆")
+    .replaceAll(":|", "𝄇");
+}
