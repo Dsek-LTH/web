@@ -32,15 +32,9 @@ dependencies:
   '@tiptap/starter-kit':
     specifier: ^2.1.11
     version: 2.1.11(@tiptap/pm@2.1.11)
-  '@types/he':
-    specifier: ^1.2.3
-    version: 1.2.3
   croppie:
     specifier: ^2.6.5
     version: 2.6.5
-  he:
-    specifier: ^1.2.0
-    version: 1.2.0
   isomorphic-dompurify:
     specifier: ^1.8.0
     version: 1.8.0
@@ -982,10 +976,6 @@ packages:
 
   /@types/estree@1.0.1:
     resolution: {integrity: sha512-LG4opVs2ANWZ1TJoKc937iMmNstM/d0ae1vNbnBvBhqCSezgVUOzcLCqbI5elV8Vy6WKwKjaqR+zO9VKirBBCA==}
-
-  /@types/he@1.2.3:
-    resolution: {integrity: sha512-q67/qwlxblDzEDvzHhVkwc1gzVWxaNxeyHUBF4xElrvjL11O+Ytze+1fGpBHlr/H9myiBUaUXNnNPmBHxxfAcA==}
-    dev: false
 
   /@types/json-schema@7.0.13:
     resolution: {integrity: sha512-RbSSoHliUbnXj3ny0CNFOoxrIDV6SUGyStHsvDqosw6CkdPV8TtWGlfecuK4ToyMEAql6pzNxgCFKanovUzlgQ==}
@@ -2132,11 +2122,6 @@ packages:
     engines: {node: '>= 0.4'}
     dependencies:
       function-bind: 1.1.2
-    dev: false
-
-  /he@1.2.0:
-    resolution: {integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==}
-    hasBin: true
     dev: false
 
   /html-encoding-sniffer@3.0.0:
