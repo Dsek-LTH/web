@@ -4,7 +4,7 @@
   import "../app.css";
   import apiNames from "$lib/utils/apiNames";
   import DarkLightToggle from "./DarkLightToggle.svelte";
-  export let accessPolicies: string[] = [];
+  $: accessPolicies = $page.data.accessPolicies;
   $: user = $page.data.session?.user;
 
   let checked = false;
