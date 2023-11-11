@@ -8,7 +8,10 @@
 </script>
 
 <section
-  class={twMerge("prose-a prose lg:prose-xl prose-a:text-primary prose-a:no-underline", clazz)}
+  class={twMerge(
+    "prose-a prose prose-a:link-primary prose-a:link lg:prose-xl prose-a:no-underline",
+    clazz
+  )}
 >
   <slot name="before-body" />
   <!-- The article body is sanitized server-side. -->

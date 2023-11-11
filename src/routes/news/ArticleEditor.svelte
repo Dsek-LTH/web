@@ -99,6 +99,7 @@
     {#if article != null}
       <Article {article}>
         <AuthorSignature
+          links={false}
           slot="author"
           member={selectedAuthorOption.member}
           position={selectedAuthorOption.mandate?.position}

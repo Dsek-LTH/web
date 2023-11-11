@@ -7,7 +7,7 @@
   export { clazz as class };
 </script>
 
-<div class={twMerge("avatar aspect-square overflow-hidden", clazz)}>
+<div class={twMerge("avatar aspect-square w-8 overflow-hidden rounded-full", clazz)}>
   <figure class="relative w-full">
     <img
       src={member.picturePath || "https://gravatar.com/avatar?s=100&d=mp"}

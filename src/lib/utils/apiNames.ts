@@ -11,6 +11,7 @@ const apiNames = {
     ...crud("news:article"),
     MANAGE: "news:article:manage",
     LIKE: "news:article:like",
+    COMMENT: "news:article:comment",
   },
   TAGS: {
     ...crud("tags"),

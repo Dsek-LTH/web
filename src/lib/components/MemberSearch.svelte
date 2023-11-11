@@ -3,6 +3,7 @@
   import AuthorSignature from "../../routes/news/AuthorSignature.svelte";
   import { getFullName } from "$lib/utils/member";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
+  import { page } from "$app/stores";
 
   let searchedMembers: Member[] | null = null;
   let isSearching = false;
@@ -29,7 +30,7 @@
       return;
     }
 
-    const url = new URL(" /api/members");
+    const url = new URL($page.url.protocol + $page.url.host + "/api/members");
     url.searchParams.append("search", searchValue);
     const data = await fetch(url, {
       method: "GET",
@@ -96,7 +97,7 @@
               member = memberOption;
             }}
           >
-            <AuthorSignature member={memberOption} size="md" />
+            <AuthorSignature links={false} member={memberOption} size="md" />
           </button>
         </li>
       {/each}

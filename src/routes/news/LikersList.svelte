@@ -22,9 +22,7 @@
     <ul class="menu modal-box">
       {#each likers as liker (liker.id)}
         <li>
-          <a href="/members/{liker.studentId}">
-            <AuthorSignature type="member" member={liker} />
-          </a>
+          <AuthorSignature type="member" member={liker} />
         </li>
       {/each}
     </ul>
