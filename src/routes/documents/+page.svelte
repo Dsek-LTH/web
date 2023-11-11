@@ -30,6 +30,7 @@
 
 <div class="flex flex-row justify-between">
   <div class="mb-4 flex flex-col items-start gap-2">
+    <a href="/documents/governing">Styrdokument</a>
     <span class="text-lg">Filtrera efter år</span>
     <Pagination
       pages={currentYear - 1981}
