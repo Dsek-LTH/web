@@ -11,7 +11,7 @@ export const load: LayoutServerLoad = async ({ locals }) => {
           studentId: session.user.student_id,
         },
       })
-    : undefined;
+    : null;
   return {
     session,
     accessPolicies,
