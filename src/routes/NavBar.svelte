@@ -14,7 +14,6 @@
   }
 </script>
 
-/** eslint-disable svelte/valid-compile */ /** eslint-disable svelte/valid-compile */
 <div class="drawer">
   <input id="my-drawer-3" type="checkbox" class="drawer-toggle" bind:checked />
   <div class="drawer-content flex flex-col">
