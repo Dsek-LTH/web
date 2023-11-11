@@ -3,12 +3,14 @@
   import { page } from "$app/stores";
 
   export let data;
+  export let form;
+  let type: "role" | "member" = "role";
 
   let removeModal: HTMLDialogElement | undefined = undefined;
   let selectedPolicy: (typeof data)["doorAccessPolicies"][number] | undefined = undefined;
 </script>
 
-<main class="container mx-auto">
+<main class="container mx-auto px-4">
   <h1 class="mb-4 text-2xl font-semibold capitalize">{$page.params.slug}</h1>
 
   <div class="overflow-x-auto">
@@ -60,6 +62,51 @@
     </table>
   </div>
 </main>
+
+<section class="container mx-auto mt-4 px-4">
+  <h2 class="mb-4 text-xl">Grant door access</h2>
+  <form class="form-control gap-4" method="POST" action="?/create" use:enhance>
+    <label class="join join-vertical lg:join-horizontal lg:items-end">
+      <select class="join-item select select-bordered w-full lg:max-w-xs" bind:value={type}>
+        <option value="role">Role</option>
+        <option value="member">Member</option>
+      </select>
+      <input
+        type="text"
+        name={type}
+        placeholder={type === "role" ? "dsek.infu.dwww" : "ab1234bc-s"}
+        class="input join-item input-bordered w-full lg:max-w-xs"
+      />
+      <div class="form-control join-item w-full lg:max-w-[200px]">
+        <label class="label" for="startDatetime">
+          <span class="label-text">Start date (optional)</span>
+        </label>
+        <input
+          id="startDatetime"
+          name="startDatetime"
+          type="datetime-local"
+          class="input join-item input-bordered dark:[color-scheme:dark]"
+        />
+      </div>
+      <div class="form-control join-item w-full lg:max-w-[200px]">
+        <label class="label" for="endDatetime">
+          <span class="label-text">End date (optional)</span>
+        </label>
+        <input
+          id="endDatetime"
+          name="endDatetime"
+          type="datetime-local"
+          class="input join-item input-bordered dark:[color-scheme:dark]"
+        />
+        <!-- slice gives date formatted as yyyy-MM-ddThh:mm -->
+      </div>
+      <button type="submit" class="btn btn-primary join-item">Add</button>
+    </label>
+  </form>
+  {#if form?.error}
+    <p class="text-error">{form.error}</p>
+  {/if}
+</section>
 
 <dialog bind:this={removeModal} class="modal modal-bottom sm:modal-middle">
   <div class="modal-box">
