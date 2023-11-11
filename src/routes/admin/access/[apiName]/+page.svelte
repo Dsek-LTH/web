@@ -4,10 +4,10 @@
   export let form;
   import { page } from "$app/stores";
   $: policies = data.policies.sort((a, b) => {
-    if (a.role && b.role) return a.role.localeCompare(b.role);
+    if (a.role && b.role) return a.role.localeCompare(b.role, "sv");
     if (a.role && !b.role) return -1;
     if (!a.role && b.role) return 1;
-    return a.studentId!.localeCompare(b.studentId!);
+    return a.studentId!.localeCompare(b.studentId!, "sv");
   });
 </script>
 

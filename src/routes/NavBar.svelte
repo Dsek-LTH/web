@@ -3,6 +3,7 @@
   import { page } from "$app/stores";
   import "../app.css";
   import apiNames from "$lib/utils/apiNames";
+  import DarkLightToggle from "./DarkLightToggle.svelte";
   export let accessPolicies: string[] = [];
   $: user = $page.data.session?.user;
 
@@ -69,6 +70,7 @@
         {/if}
       </div>
       <div class="flex-1" />
+      <DarkLightToggle />
       {#if $page.data.session}
         <button class="btn" on:click={() => signOut()}>Logga ut</button>
         <a href="/profile">Profil ({user?.student_id})</a>

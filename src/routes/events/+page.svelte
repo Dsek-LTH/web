@@ -19,11 +19,15 @@
 
 <section class="flex flex-col gap-2">
   <div class="flex items-center gap-2">
+    <a class="btn" href="/events/calendar"
+      ><span class="i-mdi-calendar"></span>
+      Kalender</a
+    >
     {#if data.accessPolicies.includes(apiNames.EVENT.CREATE)}
-      <a class="btn" href="/events/create">+ Create</a>
+      <a class="btn" href="/events/create"><span class="i-mdi-create"></span>Create</a>
     {/if}
     {#if data.accessPolicies.includes(apiNames.TAGS.CREATE) || data.accessPolicies.includes(apiNames.TAGS.UPDATE)}
-      <a class="btn" href="/news/tags">Tags</a>
+      <a class="btn" href="/news/tags"><span class="i-mdi-tag"></span>Tags</a>
     {/if}
   </div>
   <form method="get" class="form-control flex-1 flex-row items-center gap-2" id="filter-form">

@@ -1,6 +1,7 @@
+import { dev } from "$app/environment";
 import { getCurrentMemberId } from "$lib/utils/member";
 import type { Session } from "@auth/core/types";
-import type { AccessPolicy } from "@prisma/client";
+import type { AccessPolicy, Member } from "@prisma/client";
 import { error } from "@sveltejs/kit";
 import prisma from "./prisma";
 
@@ -26,13 +27,19 @@ export const verifyAccess = (
 export const hasAccess = async (
   apiName: string | string[],
   context: Context,
-  relevantMemberId?: string
+  relevantMember?: Pick<Member, "id"> | Pick<Member, "studentId">
 ): Promise<boolean> => {
+  // If we're in development mode and we're signed in, give full access rights.
+  if (dev && context?.student_id) return true;
   // If asking for access where there is a relevant member id, check if said member is current user
-  if (relevantMemberId && context?.student_id) {
+  if (relevantMember && context?.student_id) {
     try {
-      const memberId = await getCurrentMemberId(context);
-      if (relevantMemberId === memberId) return true;
+      if ("studentId" in relevantMember) {
+        if (relevantMember.studentId === context?.student_id) return true;
+      } else {
+        const memberId = await getCurrentMemberId(context);
+        if (memberId === relevantMember.id) return true;
+      }
     } catch (e) {
       return false;
     }
@@ -63,8 +70,19 @@ export const policyAccessGuard = (apiName: string | string[], userAccessPolicies
   throw error(403, "You do not have permission, have you logged in?");
 };
 
-export const ctxAccessGuard = async (apiName: string | string[], context: Context) => {
-  if (await hasAccess(apiName, context)) return;
+export const ctxAccessGuard = async (
+  apiName: string | string[],
+  context: Context,
+  relevantMember?: Pick<Member, "id"> | Pick<Member, "studentId">
+) => {
+  if (await hasAccess(apiName, context, relevantMember)) return;
+  if (dev) {
+    throw error(
+      403,
+      "You do not have permission, have you logged in? Required policies: " +
+        (typeof apiName === "string" ? [apiName] : apiName).join(", ")
+    );
+  }
   throw error(403, "You do not have permission, have you logged in?");
 };
 
@@ -72,10 +90,10 @@ export const withAccess = async <T>(
   apiName: string | string[],
   context: Context,
   fn: () => Promise<T>,
-  myMemberId?: string
+  relevantMember?: Pick<Member, "id"> | Pick<Member, "studentId">
 ) => {
-  if (await hasAccess(apiName, context, myMemberId)) return fn();
-  throw error(403, "You do not have permission, have you logged in?");
+  await ctxAccessGuard(apiName, context, relevantMember);
+  return fn();
 };
 
 // split all roles in group list. a group list might look like ["dsek.infu.mdlm", "dsek.ordf"] and this will split it into ["dsek", "dsek.infu", "dsek.infu.mdlm", "dsek.ordf"]
@@ -99,6 +117,13 @@ export const getRoleList = (ctx: Context) => [
 
 // Will return a list like ["news:create", "news:like", ...etc]
 export const getUserApis = async (ctx: Context) => {
+  // If we're running in development mode and we're signed in, give all available roles to the user.
+  if (dev && ctx?.student_id) {
+    const policies = await prisma.accessPolicy.findMany({
+      distinct: "apiName",
+    });
+    return policies.map((p) => p.apiName);
+  }
   const policies = await prisma.accessPolicy.findMany({
     where: {
       OR: [

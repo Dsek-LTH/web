@@ -13,7 +13,6 @@
     id={name}
     {name}
     class="input input-bordered"
-    on:input
     bind:value
     type="text"
     {placeholder}

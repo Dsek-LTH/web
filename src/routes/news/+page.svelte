@@ -1,13 +1,15 @@
 <script lang="ts">
   import { page } from "$app/stores";
   import Pagination from "$lib/components/Pagination.svelte";
+  import SearchBar from "$lib/components/SearchBar.svelte";
   import TagChip from "$lib/components/TagChip.svelte";
+  import TagSelector from "$lib/components/TagSelector.svelte";
+  import LikeButton from "./LikeButton.svelte";
+  import LikersList from "./LikersList.svelte";
   import apiNames from "$lib/utils/apiNames";
   import type { Tag } from "@prisma/client";
-  import SearchBar from "../../lib/components/SearchBar.svelte";
-  import MarkdownBody from "../../lib/components/MarkdownBody.svelte";
+  import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import AuthorSignature from "./AuthorSignature.svelte";
-  import TagSelector from "$lib/components/TagSelector.svelte";
 
   export let data;
   let filteredTags: Tag[] = data.allTags.filter((tag) =>
@@ -81,6 +83,17 @@
           <TagChip {tag} />
         </a>
       {/each}
+    </div>
+    <div class="mt-4 flex flex-row flex-wrap gap-2">
+      <div class="flex flex-col gap-2">
+        <LikersList likers={article.likers} />
+        <LikeButton
+          likers={article.likers}
+          disabled={!data.accessPolicies.includes(apiNames.NEWS.LIKE)}
+        >
+          <input slot="hidden-input" type="hidden" value={article.id} name="articleId" />
+        </LikeButton>
+      </div>
     </div>
   </article>
 {/each}
