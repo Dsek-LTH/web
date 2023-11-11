@@ -1,8 +1,12 @@
 <script lang="ts">
   import { superForm } from "sveltekit-superforms/client";
   export let data;
-  // export let form;
-  const { form, errors, constraints, enhance, message } = superForm(data.form);
+  const { form, errors, constraints, enhance, message } = superForm(data.form, {
+    onError(event) {
+      message.set(event.result.error.message);
+    },
+    resetForm: true,
+  });
   $: uniqueApiNames = data.allPolicies
     .map((policy) => policy.apiName)
     .filter((value, index, self) => self.indexOf(value) === index)
@@ -44,7 +48,7 @@
         placeholder="Policy name"
         aria-invalid={$errors.apiName ? "true" : undefined}
         class="input join-item input-bordered input-primary w-80"
-        value={$form.apiName}
+        bind:value={$form.apiName}
         {...$constraints.apiName}
       />
       {#if $errors.apiName}<span class="text-error">{$errors.apiName}</span>{/if}
@@ -52,7 +56,7 @@
       <button type="submit" class="btn btn-primary join-item">Add</button>
     </label>
     {#if $message}
-      <div class="alert alert-success">{$message}</div>
+      <div class="text-error">{$message}</div>
     {/if}
   </form>
 </section>

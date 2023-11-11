@@ -18,7 +18,7 @@ export const load: PageServerLoad = async ({ parent }) => {
 };
 
 const createSchema = z.object({
-  apiName: z.string(),
+  apiName: z.string().default(""),
 });
 
 export const actions = {
@@ -38,6 +38,7 @@ export const actions = {
         });
         return {
           success: true,
+          form,
         };
       },
       form

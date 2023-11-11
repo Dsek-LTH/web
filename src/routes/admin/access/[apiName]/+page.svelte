@@ -1,11 +1,22 @@
 <script lang="ts">
+  import DeletePolicyForm from "./DeletePolicyForm.svelte";
+
   import { page } from "$app/stores";
   import { superForm } from "sveltekit-superforms/client";
 
   export let data;
-  const { form, errors, constraints, enhance, message } = superForm(data.createForm);
-  const { enhance: deleteEnhance, errors: deleteErrors } = superForm(data.deleteForm);
-
+  const {
+    form: createForm,
+    errors,
+    constraints,
+    enhance,
+    message,
+  } = superForm(data.createForm, {
+    onError: (event) => {
+      message.set(event.result.error.message);
+    },
+    resetForm: true,
+  });
   $: policies = data.policies.sort((a, b) => {
     if (a.role && b.role) return a.role.localeCompare(b.role, "sv");
     if (a.role && !b.role) return -1;
@@ -38,11 +49,7 @@
           >
           <td>{policy.createdAt?.toLocaleString("sv")}</td>
           <td class="text-right">
-            <form method="POST" action="?/delete" use:deleteEnhance>
-              <input type="hidden" name="id" value={policy.id} />
-              {#if $deleteErrors.id}<span class="text-error">{$deleteErrors.id}</span>{/if}
-              <button type="submit" class="btn btn-xs px-8">Remove</button>
-            </form>
+            <DeletePolicyForm data={data.deleteForm} policyId={policy.id} />
           </td>
         </tr>
       {/each}
@@ -58,12 +65,14 @@
           name="role"
           placeholder="Type here"
           class="input join-item input-bordered input-primary w-80"
-          value={$form.role}
+          bind:value={$createForm.role}
           {...$constraints.role}
         />
-        {#if $errors.role}<span class="text-error">{$errors.role}</span>{/if}
         <button type="submit" class="btn btn-primary join-item">Add</button>
       </label>
+      {#if $errors.role}
+        <span class="text-error">{$errors.role}</span>
+      {/if}
       <label class="join">
         <span class="label join-item bg-base-200 px-4">Student ID</span>
         <input
@@ -71,15 +80,15 @@
           name="studentId"
           placeholder="Type here"
           class="input join-item input-bordered input-primary w-80"
-          value={$form.studentId}
+          bind:value={$createForm.studentId}
           {...$constraints.studentId}
         />
-        {#if $errors.studentId}<span class="text-error">{$errors.studentId}</span>{/if}
         <button type="submit" class="btn btn-primary join-item">Add</button>
       </label>
+      {#if $errors.studentId}<span class="text-error">{$errors.studentId}</span>{/if}
     </form>
     {#if $message}
-      <p class="text-error">{message}</p>
+      <p class="text-error">{$message}</p>
     {/if}
   </section>
 </div>

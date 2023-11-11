@@ -2,7 +2,9 @@ import { dev } from "$app/environment";
 import { getCurrentMemberId } from "$lib/utils/member";
 import type { Session } from "@auth/core/types";
 import { Prisma, type AccessPolicy, type Member } from "@prisma/client";
-import { HttpError_1, error, fail } from "@sveltejs/kit";
+import { error, type HttpError } from "@sveltejs/kit";
+import type { SuperValidated, ZodValidation } from "sveltekit-superforms";
+import type { AnyZodObject } from "zod";
 import prisma from "./prisma";
 
 export type Context = Session["user"] | undefined;
@@ -86,7 +88,11 @@ export const ctxAccessGuard = async (
   throw error(403, "You do not have permission, have you logged in?");
 };
 
-export const withAccess = async <T, F>(
+export const withAccess = async <
+  T,
+  Schema extends ZodValidation<AnyZodObject>,
+  F extends SuperValidated<Schema>,
+>(
   apiName: string | string[],
   context: Context,
   fn: () => Promise<T>,
@@ -95,15 +101,22 @@ export const withAccess = async <T, F>(
 ) => {
   try {
     await ctxAccessGuard(apiName, context, relevantMember);
-    return fn();
+    return await fn();
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
-      return fail(400, { form, error: e.message });
-    } else if (e instanceof HttpError_1) {
-      return fail(e.status, { form, error: e.body.message });
+      // return fail(400, { form, error: e.message });
+      throw error(400, { message: e.message });
+    } else if (
+      "status" in (e as HttpError) &&
+      "body" in (e as HttpError) &&
+      "message" in (e as HttpError).body
+    ) {
+      // return fail((e as HttpError).status, { form, error: (e as HttpError).body.message });
+      throw error((e as HttpError).status, { message: (e as HttpError).body.message });
     }
-    console.warn(e);
-    return fail(500, { form, error: "Unknown error" });
+    console.warn("Unknown error occured", e);
+    // return fail(500, { form, error: "Unknown error" });
+    throw error(500, { message: "Unknown error" });
   }
 };
 

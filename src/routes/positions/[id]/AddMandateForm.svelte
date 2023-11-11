@@ -2,9 +2,13 @@
   import { enhance } from "$app/forms";
   import Labeled from "$lib/components/Labeled.svelte";
   import MemberSearchInput from "$lib/components/MemberSearchInput.svelte";
+  import type { SuperValidated } from "sveltekit-superforms";
+  import type { AddMandateSchema } from "./+page.server";
+  import { superForm } from "sveltekit-superforms/client";
 
+  export let data: SuperValidated<AddMandateSchema>;
+  const { form, errors, constraints } = superForm(data);
   export let onClose: () => void;
-  const END_OF_YEAR = `${new Date().getFullYear()}-12-31`;
 </script>
 
 <form
@@ -20,24 +24,35 @@
 >
   <div class="flex flex-1 flex-col items-stretch">
     <MemberSearchInput />
+    {#if $errors.startDate}
+      <p class="text-error">{$errors.startDate}</p>
+    {/if}
   </div>
   <Labeled label="Start" id="startDate">
     <input
       name="startDate"
       id="startDate"
-      value={new Date().toISOString().substring(0, 10)}
+      value={$form.startDate}
       class="input input-bordered"
       type="date"
+      {...$constraints.startDate}
     />
   </Labeled>
+  {#if $errors.startDate}
+    <p class="text-error">{$errors.startDate}</p>
+  {/if}
   <Labeled label="End" id="endDate">
     <input
       name="endDate"
       id="endDate"
-      value={END_OF_YEAR}
+      value={$form.endDate}
       class="input input-bordered"
       type="date"
+      {...$constraints.endDate}
     />
   </Labeled>
+  {#if $errors.endDate}
+    <p class="text-error">{$errors.endDate}</p>
+  {/if}
   <button type="submit" class="btn btn-secondary">Spara</button>
 </form>

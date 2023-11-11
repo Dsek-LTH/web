@@ -1,14 +1,14 @@
 <script lang="ts">
-  import { enhance } from "$app/forms";
   import CommitteIcon from "$lib/components/CommitteIcon.svelte";
   import Input from "$lib/components/Input.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
   import PageHeader from "$lib/components/PageHeader.svelte";
   import apiNames from "$lib/utils/apiNames";
+  import { superForm } from "sveltekit-superforms/client";
   import PositionCard from "./PositionCard.svelte";
 
   export let data;
-  export let form;
+  const { form, errors, constraints, enhance, message } = superForm(data.form);
   $: everyOtherPosition = data.positions.filter((_, i) => i % 2 === 0);
   $: everyOtherPosition2 = data.positions.filter((_, i) => i % 2 === 1);
   let isEditing = false;
@@ -46,38 +46,27 @@
   <form
     action="?/update"
     method="POST"
-    use:enhance={() =>
-      async ({ update, result }) => {
-        await update({ reset: false });
-        if (result.type === "failure") {
-          console.log(result);
-          return;
-        }
-        console.log(result);
-        isEditing = false;
-      }}
+    use:enhance
     class="form-control"
     enctype="multipart/form-data"
   >
-    <Input label="Namn" name="name" value={form?.data?.name ?? data.committee.name} />
-    <!-- <Labeled label="Namn" id="name">
-      <input
-        name="name"
-        id="name"
-        value={form?.data?.name ?? data.committee.name}
-        class="input input-bordered"
-        type="text"
-      />
-    </Labeled> -->
+    <Input label="Namn" name="name" value={$form.name} {...$constraints.name} />
+    {#if $errors.name}
+      <p class="text-error">{$errors.name}</p>
+    {/if}
     <Labeled label="Beskrivning" id="description">
       <textarea
         name="description"
         id="description"
         class="textarea textarea-bordered"
         rows="3"
-        value={form?.data?.description ?? data.committee.description}
+        value={$form.description}
+        {...$constraints.description}
       />
     </Labeled>
+    {#if $errors.description}
+      <p class="text-error">{$errors.description}</p>
+    {/if}
     <Labeled
       label="Utskottsbild"
       id="image"
@@ -89,11 +78,15 @@
         class=" file-input file-input-bordered w-full max-w-xs"
         type="file"
         accept=".svg"
+        {...$constraints.image}
       />
     </Labeled>
+    {#if $errors.image}
+      <p class="text-error">{$errors.image}</p>
+    {/if}
     <button type="submit" class="btn btn-secondary my-4">Spara</button>
-    {#if form?.error}
-      <p class="text-error">{form.error}</p>
+    {#if $message}
+      <p class="text-success">{$message}</p>
     {/if}
   </form>
 {/if}

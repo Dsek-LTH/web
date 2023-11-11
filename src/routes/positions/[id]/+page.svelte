@@ -1,8 +1,10 @@
 <script lang="ts">
+  import EditPositionForm from "./UpdatePositionForm.svelte";
+
+  import DeleteMandateForm from "./DeleteMandateForm.svelte";
+
   import ClassBadge from "$lib/components/ClassBadge.svelte";
 
-  import { enhance } from "$app/forms";
-  import Labeled from "$lib/components/Labeled.svelte";
   import PageHeader from "$lib/components/PageHeader.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import apiNames from "$lib/utils/apiNames";
@@ -10,8 +12,11 @@
   import { getFullName } from "$lib/utils/member.js";
   import type { Prisma } from "@prisma/client";
   import AddMandateForm from "./AddMandateForm.svelte";
+  import UpdateMandateForm from "./UpdateMandateForm.svelte";
+  import { goto } from "$app/navigation";
+  import { page } from "$app/stores";
   export let data;
-  export let form;
+  // export let form;
   $: groupedByYear = data.mandates.reduce<
     Record<string, Prisma.MandateGetPayload<{ include: { member: true } }>[]>
   >((acc, mandate) => {
@@ -25,7 +30,7 @@
   $: years = Object.keys(groupedByYear).sort((a, b) => b.localeCompare(a, "sv"));
   let isEditing = false;
   let isAdding = false;
-  let editedMandate: (typeof data.mandates)[number] | undefined = undefined;
+  $: editedMandate = $page.url.searchParams.get("editMandate");
 </script>
 
 <svelte:head>
@@ -50,7 +55,7 @@
         class="btn btn-secondary btn-sm"
         on:click={() => {
           isEditing = !isEditing;
-          editedMandate = undefined;
+          goto(`${data.position.id}`);
         }}
       >
         {isEditing ? "Sluta redigera" : "Redigera"}
@@ -82,54 +87,13 @@
 
 <!-- Edit position form -->
 {#if isEditing && data.accessPolicies.includes(apiNames.POSITION.UPDATE)}
-  <form
-    action="?/update"
-    method="POST"
-    use:enhance={() =>
-      async ({ update }) => {
-        await update({ reset: false });
-        isEditing = false;
-      }}
-    class="form-control"
-  >
-    <Labeled label="Namn" id="name">
-      <input
-        name="name"
-        id="name"
-        value={form?.data?.name ?? data.position.name}
-        class="input input-bordered"
-        type="text"
-      />
-    </Labeled>
-    <Labeled label="Beskrivning" id="description">
-      <textarea
-        name="description"
-        id="description"
-        class="textarea textarea-bordered"
-        rows="3"
-        value={form?.data?.description ?? data.position.description}
-      />
-    </Labeled>
-    <Labeled
-      label="Email"
-      id="email"
-      explanation="Det här ändrar inte mailservern, utan säger bara vilken som är den primära mailadressen för den här posten."
-    >
-      <input
-        name="email"
-        id="email"
-        value={form?.data?.email ?? data.position.email}
-        class="input input-bordered"
-        type="email"
-      />
-    </Labeled>
-    <button type="submit" class="btn btn-secondary my-2">Spara</button>
-  </form>
+  <EditPositionForm data={data.updateForm} />
 {/if}
 
 <!-- Add mandate form -->
 {#if isAdding}
   <AddMandateForm
+    data={data.addMandateForm}
     onClose={() => {
       isAdding = false;
     }}
@@ -137,38 +101,7 @@
 {/if}
 <!-- Edit mandate form -->
 {#if editedMandate != undefined}
-  <form
-    action="?/updateMandate"
-    method="POST"
-    use:enhance={() => {
-      return async ({ update }) => {
-        editedMandate = undefined;
-        await update();
-      };
-    }}
-    class="form-control my-2 flex-row items-end gap-2"
-  >
-    <input type="hidden" name="mandateId" value={editedMandate.id} />
-    <Labeled label="Start" id="startDate">
-      <input
-        name="startDate"
-        id="startDate"
-        value={editedMandate.startDate.toISOString().substring(0, 10)}
-        class="input input-bordered"
-        type="date"
-      />
-    </Labeled>
-    <Labeled label="End" id="endDate">
-      <input
-        name="endDate"
-        id="endDate"
-        value={editedMandate.endDate.toISOString().substring(0, 10)}
-        class="input input-bordered"
-        type="date"
-      />
-    </Labeled>
-    <button type="submit" class="btn btn-secondary">Spara</button>
-  </form>
+  <UpdateMandateForm data={data.updateMandateForm} mandateId={editedMandate} />
 {/if}
 
 <!-- List of mandates -->
@@ -206,23 +139,14 @@
                 <button
                   class="btn btn-secondary btn-sm pointer-events-auto"
                   on:click|preventDefault={() => {
-                    editedMandate = mandate;
+                    goto(`${data.position.id}?editMandate=${mandate.id}`);
                   }}
                 >
                   EDIT
                 </button>
               {/if}
               {#if data.accessPolicies.includes(apiNames.MANDATE.DELETE)}
-                <form action="?/deleteMandate" method="POST" use:enhance>
-                  <input type="hidden" name="mandateId" value={mandate.id} />
-                  <button
-                    type="submit"
-                    class="btn btn-error btn-sm pointer-events-auto"
-                    on:click|stopPropagation={() => {}}
-                  >
-                    X
-                  </button>
-                </form>
+                <DeleteMandateForm mandateId={mandate.id} data={data.deleteMandateForm} />
               {/if}
             {:else}
               <ClassBadge member={mandate.member} />

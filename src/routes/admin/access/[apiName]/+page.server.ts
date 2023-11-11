@@ -2,20 +2,21 @@ import { policyAccessGuard, withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
 import prisma from "$lib/utils/prisma";
 import { fail } from "@sveltejs/kit";
-import { superValidate } from "sveltekit-superforms/server";
+import { setError, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { PageServerLoad } from "./$types";
 
 const createSchema = z
   .object({
-    role: z.string().optional(),
-    studentId: z.string().optional(),
+    role: z.string().nullable(),
+    studentId: z.string().nullable(),
   })
   .refine(
     (data) =>
-      (data.role !== undefined || data.studentId !== undefined) &&
-      (data.role === undefined || data.studentId === undefined),
+      (data.role !== null && data.studentId === null) ||
+      (data.role === null && data.studentId !== null),
     {
+      path: ["role"],
       message: "Either 'role' or 'studentId' must be defined",
     }
   );
@@ -23,6 +24,7 @@ const createSchema = z
 const deleteSchema = z.object({
   id: z.string().uuid(),
 });
+export type DeleteSchema = typeof deleteSchema;
 
 export const load: PageServerLoad = async ({ parent, params }) => {
   const policies = await prisma.accessPolicy.findMany({
@@ -53,6 +55,12 @@ export const actions = {
       apiNames.ACCESS_POLICY.CREATE,
       session?.user,
       async () => {
+        if (
+          form.data.studentId &&
+          (await prisma.member.count({ where: { studentId: form.data.studentId } })) === 0
+        ) {
+          return setError(form, "studentId", "Member not found");
+        }
         await prisma.accessPolicy.create({
           data: {
             apiName: params.apiName,
@@ -62,6 +70,7 @@ export const actions = {
         });
         return {
           success: true,
+          form,
         };
       },
       form
@@ -82,6 +91,7 @@ export const actions = {
         });
         return {
           success: true,
+          form,
         };
       },
       form
