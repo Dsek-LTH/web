@@ -21,6 +21,10 @@
   export let data;
 </script>
 
+<svelte:head>
+  <title>Sjungbok | D-sektionen</title>
+</svelte:head>
+
 <div class="my-4 flex flex-wrap justify-between">
   {#each Object.keys(data.categories) as catId}
     <a class="flex-grow" href={hrefWithParam("category", isCatSelected(catId) ? "" : catId)}>
