@@ -25,21 +25,71 @@
       </div>
       <div class="hidden flex-none lg:block">
         <!-- Navbar menu content here -->
-        <a class="btn" href="/">Hem</a>
-        <a class="btn" href="/news">Nyheter</a>
-        <a class="btn" href="/events">Evenemang</a>
-        <a class="btn" href="/documents">Filer</a>
+        <a class="btn btn-ghost" href="/"
+          ><span
+            class="i-mdi-home h-6 w-6 text-primary-focus
+          "
+          ></span>Hem</a
+        >
+        <a class="btn btn-ghost" href="/news"
+          ><span class="i-mdi-newspaper h-6 w-6 text-primary-focus"></span> Nyheter</a
+        >
+        <a class="btn btn-ghost" href="/events"
+          ><span class="i-mdi-calendar h-6 w-6 text-primary-focus"></span>
+          Evenemang</a
+        >
+        <a class="btn btn-ghost" href="/documents"
+          ><span class="i-mdi-text-box-multiple h-6 w-6 text-primary-focus"></span>
+          Dokument</a
+        >
         <!-- https://bugs.webkit.org/show_bug.cgi?id=22261 -->
-        <div class="dropdown-hover dropdown">
+        <div class="dropdown dropdown-hover">
           <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
           <!-- svelte-ignore a11y-label-has-associated-control -->
-          <label tabindex="0" class="btn">Sektionen</label>
+          <label tabindex="0" class="btn btn-ghost">
+            <svg
+              class="h-6 w-6 text-primary-focus"
+              focusable="false"
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              style="font-size:20px"
+              fill="currentColor"
+              ><path
+                d="
+              M16.14,3.88c-0.01-0.29-0.02-0.58-0.03-0.86h1.92c0.23,0.25,0.44,0.53,0.63,0.85L16.14,3.88L16.14,3.88z
+              M19.48,3.16c-1.13-1.98-3.31-2.97-6.52-2.97c-0.84,0-1.59,0.06-2.26,0.18V0h-0.38l-7,3.21v1.71c0.47,0,0.87,0.17,1.21,0.5
+              c0.33,0.33,0.5,0.73,0.5,1.2v13.93l0.01-0.16c0,0.47-0.17,0.88-0.5,1.21c-0.33,0.34-0.74,0.5-1.21,0.5H3.11V24h9.85
+              c3.21,0,5.39-0.99,6.52-2.98c0.94-1.65,1.42-4.63,1.42-8.93C20.89,7.8,20.42,4.82,19.48,3.16L19.48,3.16z M16.18,5.86
+              c0-0.38,0-0.67,0-0.85h3c0.11,0.37,0.19,0.66,0.24,0.85H16.18L16.18,5.86z M16.18,7.84V6.99l3.53-0.01
+              c0.03,0.22,0.07,0.51,0.1,0.86H16.18L16.18,7.84z M16.18,9.83V8.97h3.73c0.01,0.23,0.02,0.51,0.03,0.86H16.18L16.18,9.83z
+               M16.19,11.81l-0.02-0.85h3.77v0.85H16.19L16.19,11.81z M19.95,13.79H16.2v-0.85h3.75C19.95,13.49,19.95,13.78,19.95,13.79
+              L19.95,13.79z M6.52,3.22L5.57,3.21l1.44-0.67C6.84,2.73,6.68,2.95,6.52,3.22L6.52,3.22z M19.87,15.78h-3.7v-0.86h3.74
+              C19.9,15.31,19.89,15.59,19.87,15.78L19.87,15.78z M14.94,22.73c-0.23,0.23-0.5,0.35-0.82,0.35h-0.8v-1h-0.92
+              c-0.47,0-0.87-0.17-1.2-0.5c-0.33-0.33-0.5-0.74-0.5-1.21c0-0.02,0-0.03,0-0.04V2.08c0.13-0.63,0.5-0.94,1.12-0.94h2.3
+              c0.31,0,0.59,0.11,0.81,0.33c0.23,0.22,0.34,0.49,0.34,0.8v19.6v0.04C15.28,22.23,15.16,22.5,14.94,22.73L14.94,22.73z M5.72,5.08
+              C5.55,4.81,5.3,4.56,5,4.35h1C5.85,4.71,5.76,4.95,5.72,5.08L5.72,5.08z M19.6,17.76h-3.42c0-0.38,0-0.66,0-0.85h3.61
+              C19.71,17.29,19.65,17.58,19.6,17.76L19.6,17.76z M19.1,19.75h-2.93c0-0.37,0-0.66,0-0.85h3.23C19.32,19.19,19.22,19.47,19.1,19.75
+              L19.1,19.75z M17.69,21.73h-1.65c0.02-0.23,0.04-0.51,0.06-0.85h2.37C18.2,21.24,17.94,21.52,17.69,21.73L17.69,21.73z M6.01,21.26
+              c0.1-0.25,0.17-0.51,0.2-0.78c0.19,0.42,0.33,0.69,0.39,0.79L6.01,21.26L6.01,21.26z M4.19,23.06l0.02-0.13
+              c0.25-0.08,0.54-0.24,0.87-0.48h2.48c0.28,0.25,0.56,0.45,0.83,0.61H4.19L4.19,23.06z
+            "
+              ></path></svg
+            >
+            <!-- use guild logo -->
+            <!-- <span class="i-mdi-account-group h-6 w-6">Sektionen</span> -->
+            Sektionen</label
+          >
           <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
           <ul
             tabindex="0"
             class="menu dropdown-content rounded-box z-[1] w-52 bg-base-100 p-2 shadow"
           >
-            <li><a href="/committees">Utskott</a></li>
+            <li>
+              <a href="/committees" class="btn-ghost"
+                ><span class="i-mdi-account-group h-6 w-6 text-primary-focus"></span>
+                Utskott</a
+              >
+            </li>
           </ul>
         </div>
         {#if accessPolicies.includes(apiNames.ACCESS_POLICY.READ)}
@@ -47,13 +97,21 @@
           <div class="dropdown-hover dropdown">
             <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
             <!-- svelte-ignore a11y-label-has-associated-control -->
-            <label tabindex="0" class="btn">Admin</label>
+            <label tabindex="0" class="btn btn-ghost"
+              ><span class="i-mdi-security h-6 w-6 text-primary-focus"></span>
+              Admin</label
+            >
             <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
             <ul
               tabindex="0"
               class="menu dropdown-content rounded-box z-[1] w-52 bg-base-100 p-2 shadow"
             >
-              <li><a href="/admin/access">Access</a></li>
+              <li>
+                <a href="/admin/access" class="btn-ghost"
+                  ><span class="i-mdi-key h-6 w-6 text-primary-focus"> </span>
+                  Access</a
+                >
+              </li>
             </ul>
           </div>
         {/if}
@@ -61,10 +119,16 @@
       <div class="flex-1" />
       <DarkLightToggle />
       {#if $page.data.session}
-        <button class="btn" on:click={() => signOut()}>Logga ut</button>
-        <a href="/profile">Profil ({user?.student_id})</a>
+        <button class="btn btn-ghost" on:click={() => signOut()}
+          ><span class="i-mdi-logout h-6 w-6"> </span>
+          Logga ut</button
+        >
+        <a href={`/members/${user?.student_id}`} class="btn btn-ghost">
+          <span class="i-mdi-account-circle h-6 w-6"> </span>
+          Profil ({user?.student_id})</a
+        >
       {:else}
-        <button class="btn" on:click={() => signIn("keycloak")}>Logga in</button>
+        <button class="btn btn-ghost" on:click={() => signIn("keycloak")}>Logga in</button>
       {/if}
     </div>
     <!-- Page content here -->
@@ -74,21 +138,76 @@
     <label for="my-drawer-3" aria-label="close sidebar" class="drawer-overlay"></label>
     <div class="menu min-h-full w-80 bg-base-200">
       <!-- Sidebar content here -->
-      <div><a on:click={close} class="btn" href="/">Hem</a></div>
-      <div><a on:click={close} class="btn" href="/news">Nyheter</a></div>
-      <div><a on:click={close} class="btn" href="/events">Evenemang</a></div>
-      <div><a on:click={close} class="btn" href="/documents">Filer</a></div>
+      <div>
+        <a on:click={close} href="/" class="btn btn-ghost"
+          ><span class="i-mdi-home h-6 w-6 text-primary-focus"> </span>
+          Hem</a
+        >
+      </div>
+      <div>
+        <a on:click={close} href="/news" class="btn btn-ghost"
+          ><span class="i-mdi-newspaper h-6 w-6 text-primary-focus"> </span>
+          Nyheter</a
+        >
+      </div>
+      <div>
+        <a on:click={close} href="/events" class="btn btn-ghost"
+          ><span class="i-mdi-calendar h-6 w-6 text-primary-focus"> </span>
+          Evenemang</a
+        >
+      </div>
+      <div>
+        <a on:click={close} href="/documents" class="btn btn-ghost"
+          ><span class="i-mdi-text-box-multiple h-6 w-6 text-primary-focus"> </span>
+          Dokument</a
+        >
+      </div>
       <!-- https://bugs.webkit.org/show_bug.cgi?id=22261 -->
       <div class="dropdown-hover dropdown">
         <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
         <!-- svelte-ignore a11y-label-has-associated-control -->
-        <label tabindex="0" class="btn">Sektionen</label>
+        <label tabindex="0" class="btn btn-ghost"
+          ><svg
+            class="h-6 w-6 text-primary-focus"
+            focusable="false"
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            style="font-size:20px"
+            fill="currentColor"
+            ><path
+              d="
+          M16.14,3.88c-0.01-0.29-0.02-0.58-0.03-0.86h1.92c0.23,0.25,0.44,0.53,0.63,0.85L16.14,3.88L16.14,3.88z
+          M19.48,3.16c-1.13-1.98-3.31-2.97-6.52-2.97c-0.84,0-1.59,0.06-2.26,0.18V0h-0.38l-7,3.21v1.71c0.47,0,0.87,0.17,1.21,0.5
+          c0.33,0.33,0.5,0.73,0.5,1.2v13.93l0.01-0.16c0,0.47-0.17,0.88-0.5,1.21c-0.33,0.34-0.74,0.5-1.21,0.5H3.11V24h9.85
+          c3.21,0,5.39-0.99,6.52-2.98c0.94-1.65,1.42-4.63,1.42-8.93C20.89,7.8,20.42,4.82,19.48,3.16L19.48,3.16z M16.18,5.86
+          c0-0.38,0-0.67,0-0.85h3c0.11,0.37,0.19,0.66,0.24,0.85H16.18L16.18,5.86z M16.18,7.84V6.99l3.53-0.01
+          c0.03,0.22,0.07,0.51,0.1,0.86H16.18L16.18,7.84z M16.18,9.83V8.97h3.73c0.01,0.23,0.02,0.51,0.03,0.86H16.18L16.18,9.83z
+           M16.19,11.81l-0.02-0.85h3.77v0.85H16.19L16.19,11.81z M19.95,13.79H16.2v-0.85h3.75C19.95,13.49,19.95,13.78,19.95,13.79
+          L19.95,13.79z M6.52,3.22L5.57,3.21l1.44-0.67C6.84,2.73,6.68,2.95,6.52,3.22L6.52,3.22z M19.87,15.78h-3.7v-0.86h3.74
+          C19.9,15.31,19.89,15.59,19.87,15.78L19.87,15.78z M14.94,22.73c-0.23,0.23-0.5,0.35-0.82,0.35h-0.8v-1h-0.92
+          c-0.47,0-0.87-0.17-1.2-0.5c-0.33-0.33-0.5-0.74-0.5-1.21c0-0.02,0-0.03,0-0.04V2.08c0.13-0.63,0.5-0.94,1.12-0.94h2.3
+          c0.31,0,0.59,0.11,0.81,0.33c0.23,0.22,0.34,0.49,0.34,0.8v19.6v0.04C15.28,22.23,15.16,22.5,14.94,22.73L14.94,22.73z M5.72,5.08
+          C5.55,4.81,5.3,4.56,5,4.35h1C5.85,4.71,5.76,4.95,5.72,5.08L5.72,5.08z M19.6,17.76h-3.42c0-0.38,0-0.66,0-0.85h3.61
+          C19.71,17.29,19.65,17.58,19.6,17.76L19.6,17.76z M19.1,19.75h-2.93c0-0.37,0-0.66,0-0.85h3.23C19.32,19.19,19.22,19.47,19.1,19.75
+          L19.1,19.75z M17.69,21.73h-1.65c0.02-0.23,0.04-0.51,0.06-0.85h2.37C18.2,21.24,17.94,21.52,17.69,21.73L17.69,21.73z M6.01,21.26
+          c0.1-0.25,0.17-0.51,0.2-0.78c0.19,0.42,0.33,0.69,0.39,0.79L6.01,21.26L6.01,21.26z M4.19,23.06l0.02-0.13
+          c0.25-0.08,0.54-0.24,0.87-0.48h2.48c0.28,0.25,0.56,0.45,0.83,0.61H4.19L4.19,23.06z
+        "
+            ></path></svg
+          >
+          Sektionen</label
+        >
         <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
         <ul
           tabindex="0"
           class="menu dropdown-content rounded-box z-[1] w-52 bg-base-100 p-2 shadow"
         >
-          <li><a on:click={close} href="/committees">Utskott</a></li>
+          <li>
+            <a on:click={close} href="/committees"
+              ><span class="i-mdi-account-group h-6 w-6 text-primary-focus"> </span>
+              Utskott</a
+            >
+          </li>
         </ul>
       </div>
       {#if accessPolicies.includes(apiNames.ACCESS_POLICY.READ)}
@@ -96,13 +215,21 @@
         <div class="dropdown-hover dropdown">
           <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
           <!-- svelte-ignore a11y-label-has-associated-control -->
-          <label tabindex="0" class="btn">Admin</label>
+          <label tabindex="0" class="btn btn-ghost"
+            ><span class="i-mdi-security h-6 w-6 text-primary-focus"> </span>
+            Admin</label
+          >
           <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
           <ul
             tabindex="0"
             class="menu dropdown-content rounded-box z-[1] w-52 bg-base-100 p-2 shadow"
           >
-            <li><a on:click={close} href="/admin/access">Access</a></li>
+            <li>
+              <a on:click={close} href="/admin/access"
+                ><span class="i-mdi-key h-6 w-6 text-primary-focus"> </span>
+                Access</a
+              >
+            </li>
           </ul>
         </div>
       {/if}
