@@ -1,10 +1,13 @@
-import { Prisma, type Tag } from "@prisma/client";
-import { error, fail, redirect } from "@sveltejs/kit";
-import { getArticleAuthorOptions, type AuthorOption } from "../../articles";
-import type { PageServerLoad } from "./$types";
-import prisma from "$lib/utils/prisma";
 import { policyAccessGuard, withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
+import prisma from "$lib/utils/prisma";
+import { Prisma } from "@prisma/client";
+import { error, fail } from "@sveltejs/kit";
+import { message, superValidate } from "sveltekit-superforms/server";
+import { z } from "zod";
+import { getArticleAuthorOptions } from "../../articles";
+import { articleSchema } from "../../schema";
+import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ parent, params }) => {
   const allTags = await prisma.tag.findMany();
@@ -52,111 +55,98 @@ export const load: PageServerLoad = async ({ parent, params }) => {
   if (!authorMemberWithMandates) throw error(500, "Author member not found");
   const authorOptions = await getArticleAuthorOptions(authorMemberWithMandates);
 
-  article.author =
-    (authorOptions.find(
-      (option) =>
-        option.memberId == article.author.memberId &&
-        option.mandateId == article.author.mandateId &&
-        option.customId == article.author.customId
-    ) as typeof article.author) ?? article.author;
   return {
     allTags,
     authorOptions,
-    article,
+    form: superValidate(article, updateSchema),
   };
 };
 
+const updateSchema = articleSchema.extend({
+  slug: z.string(),
+});
+
 export const actions = {
   default: async ({ request, locals }) => {
+    const form = await superValidate(request, updateSchema);
+    if (!form.valid) return fail(400, { form });
     const session = await locals.getSession();
-    return withAccess(apiNames.NEWS.UPDATE, session?.user, async () => {
-      // read the form data sent by the browser
-      const formData = await request.formData();
-      let author: AuthorOption;
-      let tags: Tag[];
-      try {
-        author = JSON.parse(String(formData.get("author"))) as AuthorOption;
-        tags = JSON.parse(String(formData.get("tags")));
-        if (!author) {
-          return fail(400, {
-            error: "Missing author",
-            data: Object.fromEntries(formData),
-          });
-        }
-      } catch (e) {
-        return fail(400, {
-          error: "Invalid author or tags",
-          data: Object.fromEntries(formData),
-        });
-      }
-      const existingAuthor = await prisma.author.findFirst({
-        where: {
-          member: {
-            id: author.memberId,
-          },
-          mandateId: author.mandateId,
-        },
-      });
-      let slug: string;
-      try {
-        const result = await prisma.article.update({
+    return withAccess(
+      apiNames.NEWS.UPDATE,
+      session?.user,
+      async () => {
+        const { slug, header, body, author, tags } = form.data;
+        const existingAuthor = await prisma.author.findFirst({
           where: {
-            slug: String(formData.get("slug")),
+            member: {
+              id: author.memberId,
+            },
+            mandateId: author.mandateId,
           },
-          data: {
-            header: String(formData.get("header")),
-            body: String(formData.get("body")),
-            author: {
-              connect: existingAuthor
-                ? {
-                    id: existingAuthor.id,
-                  }
-                : undefined,
-              create: existingAuthor
-                ? undefined
-                : {
-                    member: {
-                      connect: {
-                        studentId: session!.user.student_id,
+        });
+        try {
+          await prisma.article.update({
+            where: {
+              slug: slug,
+            },
+            data: {
+              header: header,
+              body: body,
+              author: {
+                connect: existingAuthor
+                  ? {
+                      id: existingAuthor.id,
+                    }
+                  : undefined,
+                create: existingAuthor
+                  ? undefined
+                  : {
+                      member: {
+                        connect: {
+                          studentId: session!.user.student_id,
+                        },
                       },
-                    },
-                    mandate: author.mandateId
-                      ? {
-                          connect: {
-                            member: {
-                              studentId: session!.user.student_id,
+                      mandate: author.mandateId
+                        ? {
+                            connect: {
+                              member: {
+                                studentId: session!.user.student_id,
+                              },
+                              id: author.mandateId,
                             },
-                            id: author.mandateId,
-                          },
-                        }
-                      : undefined,
-                  },
+                          }
+                        : undefined,
+                    },
+              },
+              tags: {
+                set: tags
+                  .filter((tag) => !!tag)
+                  .map((tag) => ({
+                    id: tag.id,
+                  })),
+              },
+              updatedAt: new Date(),
             },
-            tags: {
-              set: tags
-                .filter((tag) => !!tag)
-                .map((tag) => ({
-                  id: tag.id,
-                })),
-            },
-            updatedAt: new Date(),
-          },
-        });
-        slug = result.slug!;
-      } catch (e) {
-        if (e instanceof Prisma.PrismaClientKnownRequestError) {
-          return fail(400, {
-            error: e.message,
-            data: Object.fromEntries(formData),
           });
+        } catch (e) {
+          if (e instanceof Prisma.PrismaClientKnownRequestError) {
+            return message(
+              form,
+              {
+                message: "Artikel kunde inte hittas",
+                type: "error",
+              },
+              { status: 400 }
+            );
+          }
+          throw e;
         }
-        console.log(e);
-        return fail(500, {
-          error: "Unknown error",
-          data: Object.fromEntries(formData),
+        return message(form, {
+          message: "Artikel uppdaterad",
+          type: "success",
         });
-      }
-      throw redirect(303, `/news/${slug}`);
-    });
+      },
+      form
+    );
   },
 };
