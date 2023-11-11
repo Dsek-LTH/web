@@ -3,13 +3,7 @@ import { iconsPlugin, getIconCollections } from "@egoist/tailwindcss-icons";
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./src/**/*.{html,js,svelte,ts}"],
-  safelist: [
-    "alert-error",
-    "alert-success",
-    "alert-warning",
-    "alert-info",
-    "alert-primary",
-  ],
+  safelist: ["alert-error", "alert-success", "alert-warning", "alert-info", "alert-primary"],
   theme: {
     extend: {},
   },
