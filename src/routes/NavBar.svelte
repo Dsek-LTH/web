@@ -3,6 +3,7 @@
   import { page } from "$app/stores";
   import "../app.css";
   import apiNames from "$lib/utils/apiNames";
+  import DarkLightToggle from "./DarkLightToggle.svelte";
   export let accessPolicies: string[] = [];
   $: user = $page.data.session?.user;
 </script>
@@ -23,7 +24,7 @@
         </ul>
       </div>
       {#if accessPolicies.includes(apiNames.ACCESS_POLICY.READ)}
-        <div class="dropdown-hover group dropdown">
+        <div class="group dropdown dropdown-hover">
           <span class="btn btn-ghost">Admin</span>
           <ul
             class="menu dropdown-content rounded-box pointer-events-none !visible z-10 w-52 -translate-y-3 bg-base-100 p-2 text-base-content opacity-0 shadow-lg shadow-black/30 group-hover:pointer-events-auto group-hover:translate-y-0"
@@ -33,6 +34,7 @@
         </div>
       {/if}
     </div>
+    <DarkLightToggle />
     <div class="flex-none">
       {#if $page.data.session}
         <button class="btn btn-neutral" on:click={() => signOut()}> Logga ut </button>
