@@ -6,16 +6,7 @@ import { Prisma } from "@prisma/client";
 import { error, fail, type HttpError } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 import sharp from "sharp";
-
-function generateUUID() {
-  let d = new Date().getTime();
-  const uuid = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
-    const r = (d + Math.random() * 16) % 16 | 0;
-    d = Math.floor(d / 16);
-    return (c == "x" ? r : (r & 0x3) | 0x8).toString(16);
-  });
-  return uuid;
-}
+import generateUUID from "$lib/utils/generateUUID";
 
 export const load: PageServerLoad = async ({ params, parent }) => {
   const member = await prisma.member.findUnique({
