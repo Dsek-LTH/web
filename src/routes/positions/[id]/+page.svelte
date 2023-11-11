@@ -11,22 +11,25 @@
   import AddMandateForm from "./AddMandateForm.svelte";
   export let data;
   export let form;
-  $: groupedByYear = data.mandates.reduce(
-    (acc, mandate) => {
-      let year = mandate.startDate.getFullYear().toString();
-      if (mandate.endDate.getFullYear() !== mandate.startDate.getFullYear())
-        year += `-${mandate.endDate.getFullYear()}`;
-      if (!acc[year]) acc[year] = [];
-      acc[year]!.push(mandate);
-      return acc;
-    },
-    {} as Record<string, Prisma.MandateGetPayload<{ include: { member: true } }>[]>
-  );
+  $: groupedByYear = data.mandates.reduce<
+    Record<string, Prisma.MandateGetPayload<{ include: { member: true } }>[]>
+  >((acc, mandate) => {
+    let year = mandate.startDate.getFullYear().toString();
+    if (mandate.endDate.getFullYear() !== mandate.startDate.getFullYear())
+      year += `-${mandate.endDate.getFullYear()}`;
+    if (!acc[year]) acc[year] = [];
+    acc[year]!.push(mandate);
+    return acc;
+  }, {});
   $: years = Object.keys(groupedByYear).sort((a, b) => b.localeCompare(a, "sv"));
   let isEditing = false;
   let isAdding = false;
   let editedMandate: (typeof data.mandates)[number] | undefined = undefined;
 </script>
+
+<svelte:head>
+  <title>{data.position.name} | D-sektionen</title>
+</svelte:head>
 
 <div class="flex items-center justify-between">
   <PageHeader title={data.position.name} />

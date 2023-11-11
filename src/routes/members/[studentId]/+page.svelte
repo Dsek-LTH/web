@@ -15,7 +15,7 @@
   export let form;
   $: member = data.member;
   $: isMe = data.session?.user?.student_id === $page.params.studentId;
-  $: mandatesGroupedByYear = member.mandates.reduce(
+  $: mandatesGroupedByYear = member.mandates.reduce<Record<string, (typeof member)["mandates"]>>(
     (acc, mandate) => {
       let year = mandate.startDate.getFullYear().toString();
       if (mandate.endDate.getFullYear() !== mandate.startDate.getFullYear())
@@ -24,7 +24,7 @@
       acc[year]!.push(mandate);
       return acc;
     },
-    {} as Record<string, (typeof member)["mandates"]>
+    {}
   );
   $: years = Object.keys(mandatesGroupedByYear).sort((a, b) => b.localeCompare(a, "sv"));
   $: publishedEvents = [...member.authoredEvents].reverse();
