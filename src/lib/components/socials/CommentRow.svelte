@@ -1,6 +1,8 @@
 <script lang="ts">
+  import { page } from "$app/stores";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
+  import apiNames from "$lib/utils/apiNames";
   import { tagRegex } from "$lib/utils/commentTagging";
   import { relativeDate } from "$lib/utils/datetime";
   import { getFullName } from "$lib/utils/member";
@@ -9,6 +11,7 @@
   export let comment: ArticleComment | EventComment;
   export let author: Member;
   export let taggedMembers: Member[];
+  export let onReply: () => void;
   const getReplacementValue = (studentId: string) => {
     const member: Member | undefined = taggedMembers.find(
       (member) => member.studentId === studentId
@@ -29,7 +32,7 @@
   $: fixedContent = replaceTag(comment.content ?? "");
 </script>
 
-<section aria-label="Comment by {getFullName(author)}" class="mb-4">
+<section aria-label="Comment by {getFullName(author)}" class="relative mb-4">
   <header class="flex items-start gap-2">
     <a href="/members/{author.studentId}" class="">
       <MemberAvatar member={author} class="w-8 rounded-lg" />
@@ -41,5 +44,12 @@
       <span class="font-semibold opacity-50">{relativeDate(comment.published)}</span>
     </div>
   </header>
-  <MarkdownBody body={fixedContent} />
+  <MarkdownBody body={fixedContent}></MarkdownBody>
+  {#if $page.data.accessPolicies.includes(apiNames.NEWS.COMMENT)}
+    <div class="absolute -top-4 right-0">
+      <button class="btn btn-square btn-ghost btn-md" on:click={onReply}>
+        <span class="i-mdi-reply text-xl" />
+      </button>
+    </div>
+  {/if}
 </section>

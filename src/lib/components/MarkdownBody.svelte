@@ -13,7 +13,7 @@
     clazz
   )}
 >
-  <slot name="before-body" />
+  <slot />
   <!-- The article body is sanitized server-side. -->
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
   {@html marked(body)}

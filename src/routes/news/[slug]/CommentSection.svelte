@@ -2,14 +2,25 @@
   import { page } from "$app/stores";
   import CommentInput from "$lib/components/socials/CommentInput.svelte";
   import CommentRow from "$lib/components/socials/CommentRow.svelte";
+  import apiNames from "$lib/utils/apiNames";
+  import { getFullName } from "$lib/utils/member";
   import type { ArticleComment, EventComment, Member } from "@prisma/client";
   export let comments: ((ArticleComment | EventComment) & {
     member: Member;
   })[];
   export let taggedMembers: Member[];
-  export let commentContent: string | undefined = undefined;
+  export let commentContent: string = "";
   export let error: string | undefined = undefined;
   const ALWAYS_SHOWN_COMMENTS = 3;
+
+  const onReply = (comment: (typeof comments)[number]) => () => {
+    const tagString = `[@${getFullName(comment.member)}](/members/${comment.member.studentId}) `;
+    if (commentContent.trim().startsWith("[@") || commentContent.trim().length === 0) {
+      commentContent = tagString;
+    } else {
+      commentContent = `${tagString}${commentContent}`;
+    }
+  };
 </script>
 
 {#if comments.length > 0}
@@ -17,7 +28,7 @@
     <input type="checkbox" />
     <div class="px-4">
       {#each comments.slice(comments.length - ALWAYS_SHOWN_COMMENTS) as comment (comment.id)}
-        <CommentRow {comment} author={comment.member} {taggedMembers} />
+        <CommentRow {comment} author={comment.member} {taggedMembers} onReply={onReply(comment)} />
       {/each}
     </div>
     <div class="collapse-title text-xl font-medium">
@@ -27,9 +38,11 @@
     </div>
     <div class="collapse-content !pb-0">
       {#each comments.slice(0, comments.length - ALWAYS_SHOWN_COMMENTS) as comment (comment.id)}
-        <CommentRow {comment} author={comment.member} {taggedMembers} />
+        <CommentRow {comment} author={comment.member} {taggedMembers} onReply={onReply(comment)} />
       {/each}
     </div>
   </div>
 {/if}
-<CommentInput author={$page.data.currentMember} value={commentContent} {error} />
+{#if $page.data.accessPolicies.includes(apiNames.NEWS.COMMENT) && $page.data.currentMember}
+  <CommentInput author={$page.data.currentMember} bind:value={commentContent} {error} />
+{/if}

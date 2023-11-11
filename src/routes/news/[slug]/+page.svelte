@@ -53,7 +53,7 @@
           comments={article.comments}
           taggedMembers={data.allTaggedMembers}
           error={form?.error}
-          commentContent={form?.data?.content}
+          commentContent={form?.data?.content ?? ""}
         />
       </div>
     </div>
