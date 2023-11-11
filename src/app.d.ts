@@ -12,7 +12,7 @@ declare global {
     // interface Locals {}
     interface PageData {
       accessPolicies: string[];
-      currentMember: Member | undefined;
+      currentMember: Member | null;
     }
     // interface Platform {}
   }

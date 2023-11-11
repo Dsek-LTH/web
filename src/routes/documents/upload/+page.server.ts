@@ -50,6 +50,9 @@ export const actions = {
         data: Object.fromEntries(formData),
       };
     } catch (e) {
+      // Ignored until we use better error handling from Superforms
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       if ("body" in e && "message" in e.body) {
         return failWithData(e.body.message as string);
       }
