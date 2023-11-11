@@ -1,12 +1,17 @@
 import { PrismaClient } from "@prisma/client";
 import { insertCommitteeLogos } from "./seed_data/committee";
 import { insertAccessPolicies } from "./seed_data/accessPolicies";
+import { insertProducts } from "./seed_data/products";
 
 const prisma = new PrismaClient();
 
 async function main() {
   console.log(`Start seeding ...`);
-  await Promise.all([insertCommitteeLogos(prisma), insertAccessPolicies(prisma)]);
+  await Promise.all([
+    // insertCommitteeLogos(prisma),
+    insertAccessPolicies(prisma),
+    insertProducts(prisma),
+  ]);
   console.log(`Seeding finished.`);
 }
 
