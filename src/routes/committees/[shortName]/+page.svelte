@@ -1,9 +1,9 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
+  import CommitteIcon from "$lib/components/CommitteIcon.svelte";
   import Input from "$lib/components/Input.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
   import PageHeader from "$lib/components/PageHeader.svelte";
-  import { getImageUrl } from "$lib/files/images";
   import apiNames from "$lib/utils/apiNames";
   import PositionCard from "./PositionCard.svelte";
 
@@ -16,11 +16,7 @@
 
 <header class="mb-2 flex items-center gap-4">
   <figure class="w-14">
-    <img
-      src={getImageUrl(data.committee.imageUrl ?? "minio/material/committees/sigill.svg")}
-      alt="Committee icon"
-      class="aspect-square"
-    />
+    <CommitteIcon committee={data.committee} />
   </figure>
   <div class="flex-1">
     <div class="flex items-center justify-between">

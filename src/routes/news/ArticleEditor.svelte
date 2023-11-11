@@ -8,6 +8,7 @@
   import type { AuthorOption } from "./articles.js";
   import TagSelector from "$lib/components/TagSelector.svelte";
   import TagChip from "$lib/components/TagChip.svelte";
+  import MarkdownEditor from "$lib/components/MarkdownEditor.svelte";
 
   export let authorOptions: AuthorOption[];
   export let selectedAuthorOption: AuthorOption = authorOptions[0]!;
@@ -30,18 +31,18 @@
   };
   let submitting: boolean = false;
 
-  export let formData: Record<string, any> | undefined;
+  export let formData: Record<string, unknown> | undefined;
   // effect over default value above to work from for "edit article" as well
   $: (() => {
     if (!formData) return;
-    if (formData.header) article.header = formData.header;
-    if (formData.body) article.body = formData.body;
+    if (formData.header) article.header = formData.header as string;
+    if (formData.body) article.body = formData.body as string;
     if (formData.tags) {
-      const oldTagIds = JSON.parse(formData.tags).map((tag: Tag) => tag.id);
+      const oldTagIds = JSON.parse(formData.tags as string).map((tag: Tag) => tag.id);
       selectedTags = allTags.filter((tag) => oldTagIds.includes(tag.id));
     }
     if (formData.author) {
-      const oldAuthor = JSON.parse(formData.author);
+      const oldAuthor = JSON.parse(formData.author as string);
       selectedAuthorOption =
         authorOptions.find((authorOption) => authorOption.id === oldAuthor.id) ??
         selectedAuthorOption;
@@ -56,13 +57,8 @@
       <slot name="form-start" />
       <Input name="header" label="Header" required bind:value={article.header} />
       <Labeled label="Description" id="body">
-        <textarea
-          id="body"
-          name="body"
-          class="textarea textarea-bordered min-h-[10rem]"
-          placeholder="Body"
-          bind:value={article.body}
-        />
+        <MarkdownEditor bind:value={article.body} />
+        <input type="hidden" name="body" value={article.body} />
       </Labeled>
       <Labeled label="Author" id="author">
         <select

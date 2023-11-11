@@ -1,4 +1,6 @@
 <script lang="ts">
+  import ClassBadge from "$lib/components/ClassBadge.svelte";
+
   import { enhance } from "$app/forms";
   import Labeled from "$lib/components/Labeled.svelte";
   import PageHeader from "$lib/components/PageHeader.svelte";
@@ -188,11 +190,11 @@
               : ''}"
           >
             <MemberAvatar member={mandate.member} />
-            <h3
+            <span
               class="flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium"
             >
               {getFullName(mandate.member)}
-            </h3>
+            </span>
 
             <!-- Remove and edit buttons -->
             {#if isEditing}
@@ -218,16 +220,8 @@
                   </button>
                 </form>
               {/if}
-            {:else if mandate.member.classProgramme && mandate.member.classYear}
-              <span
-                class="badge badge-outline badge-sm text-xs font-light {mandate.member
-                  .classProgramme === 'C'
-                  ? 'badge-secondary'
-                  : 'badge-primary'} "
-                >{mandate.member.classProgramme}{mandate.member.classYear
-                  ?.toString()
-                  .substring(2)}</span
-              >
+            {:else}
+              <ClassBadge member={mandate.member} />
             {/if}
           </a>
           {#if isEditing}

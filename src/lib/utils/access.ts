@@ -1,9 +1,9 @@
+import { dev } from "$app/environment";
 import { getCurrentMemberId } from "$lib/utils/member";
 import type { Session } from "@auth/core/types";
-import type { AccessPolicy } from "@prisma/client";
+import type { AccessPolicy, Member } from "@prisma/client";
 import { error } from "@sveltejs/kit";
 import prisma from "./prisma";
-import { dev } from "$app/environment";
 
 export type Context = Session["user"] | undefined;
 
@@ -27,15 +27,19 @@ export const verifyAccess = (
 export const hasAccess = async (
   apiName: string | string[],
   context: Context,
-  relevantMemberId?: string
+  relevantMember?: Pick<Member, "id"> | Pick<Member, "studentId">
 ): Promise<boolean> => {
   // If we're in development mode and we're signed in, give full access rights.
   if (dev && context?.student_id) return true;
   // If asking for access where there is a relevant member id, check if said member is current user
-  if (relevantMemberId && context?.student_id) {
+  if (relevantMember && context?.student_id) {
     try {
-      const memberId = await getCurrentMemberId(context);
-      if (relevantMemberId === memberId) return true;
+      if ("studentId" in relevantMember) {
+        if (relevantMember.studentId === context?.student_id) return true;
+      } else {
+        const memberId = await getCurrentMemberId(context);
+        if (memberId === relevantMember.id) return true;
+      }
     } catch (e) {
       return false;
     }
@@ -69,9 +73,9 @@ export const policyAccessGuard = (apiName: string | string[], userAccessPolicies
 export const ctxAccessGuard = async (
   apiName: string | string[],
   context: Context,
-  myMemberId?: string
+  relevantMember?: Pick<Member, "id"> | Pick<Member, "studentId">
 ) => {
-  if (await hasAccess(apiName, context, myMemberId)) return;
+  if (await hasAccess(apiName, context, relevantMember)) return;
   if (dev) {
     throw error(
       403,
@@ -86,9 +90,9 @@ export const withAccess = async <T>(
   apiName: string | string[],
   context: Context,
   fn: () => Promise<T>,
-  myMemberId?: string
+  relevantMember?: Pick<Member, "id"> | Pick<Member, "studentId">
 ) => {
-  await ctxAccessGuard(apiName, context, myMemberId);
+  await ctxAccessGuard(apiName, context, relevantMember);
   return fn();
 };
 

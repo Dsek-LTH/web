@@ -12,7 +12,9 @@ export const load: PageServerLoad = async ({ params, parent }) => {
     });
   }
   const { session } = await parent();
-  const canEdit = await hasAccess(apiNames.EVENT.UPDATE, session?.user, event.author.id);
+  const canEdit = await hasAccess(apiNames.EVENT.UPDATE, session?.user, {
+    studentId: event.author.studentId,
+  });
   return {
     event,
     canEdit,
