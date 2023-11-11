@@ -27,7 +27,7 @@
   <div class="grid grid-cols-4 gap-2">
     {#each files as file (file.id)}
       <div class="flex gap-1">
-        <File name={file.name} url={file.thumbnailUrl} />
+        <File name={file.name} url={file.thumbnailUrl} full />
         {#if $page.data.accessPolicies.includes(apiNames.FILES.BUCKET("dev-documents").DELETE) && isEditing}
           <DeleteFileForm fileId={file.id} fileName={file.name} />
         {/if}

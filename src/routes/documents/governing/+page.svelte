@@ -25,7 +25,7 @@
     ">styrelsen@dsek.se</a
     >
   </p>
-  <div>
+  <div class="flex gap-1">
     <File name="Stadgar" url="https://dsek.se/stadgar" />
     <File name="Reglemente" url="https://dsek.se/reglemente" />
   </div>
