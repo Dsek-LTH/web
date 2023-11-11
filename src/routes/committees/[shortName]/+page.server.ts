@@ -3,19 +3,14 @@ import { withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
 import prisma from "$lib/utils/prisma";
 import { error, fail } from "@sveltejs/kit";
-import { message, superValidate } from "sveltekit-superforms/server";
+import { message, setError, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { PageServerLoad } from "./$types";
 
 const updateSchema = z.object({
   name: z.string().optional(),
   description: z.string().nullable(),
-  image: z
-    .instanceof(File)
-    .optional()
-    .refine((f) => f == undefined || f.size > 0, {
-      message: "Image has no data",
-    }),
+  image: z.any(),
 });
 
 export const load: PageServerLoad = async ({ params }) => {
@@ -112,7 +107,15 @@ export const actions = {
       apiNames.COMMITTEE.UPDATE,
       session?.user,
       async () => {
-        const image = form.data.image;
+        const image = (await request.formData()).get("image");
+        if (
+          !image ||
+          !(image instanceof File) ||
+          image.size <= 0 ||
+          image.type !== "image/svg+xml"
+        ) {
+          return setError(form, "image", "Du måste ladda upp en korrekt bild");
+        }
         let newImageUploaded = false;
         const path = `committees/${params.shortName}.svg`;
         if (image) {
