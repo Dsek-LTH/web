@@ -7,10 +7,31 @@ export const load: PageServerLoad = async ({ parent, params }) => {
   const doorAccessPolicies = await prisma.doorAccessPolicy.findMany({
     where: {
       doorName: params.slug,
+      OR: [
+        {
+          endDatetime: {
+            gte: new Date(),
+          },
+        },
+        {
+          endDatetime: null,
+        },
+      ],
     },
     include: {
       member: true,
     },
+    orderBy: [
+      {
+        startDatetime: "asc",
+      },
+      {
+        role: "asc",
+      },
+      {
+        studentId: "asc",
+      },
+    ],
   });
   const { accessPolicies } = await parent();
   policyAccessGuard(apiNames.DOOR.READ, accessPolicies);
