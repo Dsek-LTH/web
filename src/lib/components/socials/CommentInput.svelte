@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { page } from "$app/stores";
   import { enhance } from "$app/forms";
   import MemberSearch from "$lib/components/MemberSearch.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
@@ -24,6 +25,7 @@
         class="dropdown-top flex-1"
         onSelect={(selectedMember) => {
           value = `${value.substring(0, indexOfTagStart)}[@${getFullName(
+            $page.data.session?.user,
             selectedMember
           )}](/members/${selectedMember.studentId}) `;
           inputEl.focus();

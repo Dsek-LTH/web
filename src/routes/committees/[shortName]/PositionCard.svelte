@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { page } from "$app/stores";
   import ScrollIndicatedBox from "$lib/components/ScrollIndicatedBox.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import { getFullName } from "$lib/utils/member";
@@ -37,7 +38,7 @@
                   <MemberAvatar member={mandate.member} />
                   <div>
                     <h3 class="font-medium">
-                      {getFullName(mandate.member)}
+                      {getFullName($page.data.session?.user, mandate.member)}
                     </h3>
                     <h4 class="text-xs">
                       {mandate.startDate.toLocaleDateString(["sv"])} &gt;&gt; {mandate.endDate.toLocaleDateString(

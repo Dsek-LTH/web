@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { page } from "$app/stores";
   import { getFullName } from "$lib/utils/member";
   import type { Member } from "@prisma/client";
   import AuthorSignature from "./AuthorSignature.svelte";
@@ -7,8 +8,11 @@
   export let likers: Member[];
   $: likersText =
     likers.length > 2
-      ? `${getFullName(likers[0]!)}, ${getFullName(likers[1]!)} och ${likers.length - 2} andra`
-      : `${likers.map((m) => getFullName(m)).join(" och ")}`;
+      ? `${getFullName($page.data.session?.user, likers[0]!)}, ${getFullName(
+          $page.data.session?.user,
+          likers[1]!
+        )} och ${likers.length - 2} andra`
+      : `${likers.map((m) => getFullName($page.data.session?.user, m)).join(" och ")}`;
 </script>
 
 {#if likers.length > 0}

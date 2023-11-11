@@ -21,7 +21,7 @@
     if (!member) return "@Unknown User";
     // Logic to return the replacement value based on the UUID
     // For example, this could be a lookup in a map or an API call
-    return `@${getFullName(member)}`; // Replace this with actual logic
+    return `@${getFullName($page.data.session?.user, member)}`; // Replace this with actual logic
   };
   function replaceTag(inputText: string) {
     return inputText.replace(tagRegex, (match, visibleText, studentId) => {
@@ -34,14 +34,18 @@
   $: fixedContent = replaceTag(comment.content ?? "");
 </script>
 
-<section aria-label="Comment by {getFullName(author)}" class="relative mb-4" id="comment-section">
+<section
+  aria-label="Comment by {getFullName($page.data.session?.user, author)}"
+  class="relative mb-4"
+  id="comment-section"
+>
   <header class="flex items-start gap-2">
     <a href="/members/{author.studentId}" class="">
       <MemberAvatar member={author} class="w-8 rounded-lg" />
     </a>
     <div class="flex-1 text-xs leading-snug">
       <a href="/members/{author.studentId}" class="link-primary link block no-underline">
-        {getFullName(author)}
+        {getFullName($page.data.session?.user, author)}
       </a>
       <span class="font-semibold opacity-50">{relativeDate(comment.published)}</span>
     </div>

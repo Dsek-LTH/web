@@ -3,6 +3,7 @@
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import { getFullName } from "$lib/utils/member";
+  import { page } from "$app/stores";
 
   export let data;
   export let form;
@@ -10,12 +11,12 @@
 </script>
 
 <svelte:head>
-  <title>Bio - {getFullName(member)} | D-sektionen</title>
+  <title>Bio - {getFullName($page.data.session?.user, member)} | D-sektionen</title>
 </svelte:head>
 <header class="flex gap-4">
   <MemberAvatar {member} class="w-32 rounded-lg" />
   <div class="flex flex-col">
-    <h1 class="text-3xl font-bold">{getFullName(member)}</h1>
+    <h1 class="text-3xl font-bold">{getFullName($page.data.session?.user, member)}</h1>
     {member.studentId}
   </div>
 </header>
