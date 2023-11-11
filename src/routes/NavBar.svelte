@@ -30,7 +30,7 @@
         <a class="btn" href="/events">Evenemang</a>
         <a class="btn" href="/documents">Filer</a>
         <!-- https://bugs.webkit.org/show_bug.cgi?id=22261 -->
-        <div class="dropdown-hover dropdown">
+        <div class="dropdown dropdown-hover">
           <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
           <!-- svelte-ignore a11y-label-has-associated-control -->
           <label tabindex="0" class="btn">Sektionen</label>
@@ -40,6 +40,7 @@
             class="menu dropdown-content rounded-box z-[1] w-52 bg-base-100 p-2 shadow"
           >
             <li><a href="/committees">Utskott</a></li>
+            <li><a href="/songbook">Sjungbok</a></li>
           </ul>
         </div>
         {#if accessPolicies.includes(apiNames.ACCESS_POLICY.READ)}
