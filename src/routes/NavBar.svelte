@@ -62,6 +62,15 @@
                 Utskott</a
               >
             </li>
+            <li>
+              <a href="/songbook" class="btn-ghost">
+                <span
+                  class="i-mdi-library-music
+                 h-6 w-6 text-primary-focus"
+                ></span>
+                Sjungbok</a
+              >
+            </li>
           </ul>
         </div>
         {#if accessPolicies.includes(apiNames.ACCESS_POLICY.READ)}
