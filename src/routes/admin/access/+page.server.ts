@@ -1,45 +1,46 @@
 import { policyAccessGuard, withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
-import { fail } from "@sveltejs/kit";
 import prisma from "$lib/utils/prisma";
-import { Prisma } from "@prisma/client";
+import { fail } from "@sveltejs/kit";
+import { superValidate } from "sveltekit-superforms/server";
+import { z } from "zod";
 import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ parent }) => {
   const allPolicies = await prisma.accessPolicy.findMany(); // fetch it immidiately to reduce waterfall delay
   const { accessPolicies } = await parent();
   policyAccessGuard(apiNames.ACCESS_POLICY.READ, accessPolicies);
+  const form = await superValidate(createSchema);
   return {
     allPolicies,
+    form,
   };
 };
 
+const createSchema = z.object({
+  apiName: z.string(),
+});
+
 export const actions = {
   create: async ({ locals, request }) => {
+    const form = await superValidate(request, createSchema);
+    if (!form.valid) return fail(400, { form });
     const session = await locals.getSession();
-    return withAccess(apiNames.ACCESS_POLICY.CREATE, session?.user, async () => {
-      const data = await request.formData();
-      const apiName = data.get("apiName");
-      if (typeof apiName !== "string" || apiName.length === 0) {
-        return fail(400, { apiName, missing: true });
-      }
-      try {
+    return withAccess(
+      apiNames.ACCESS_POLICY.CREATE,
+      session?.user,
+      async () => {
         await prisma.accessPolicy.create({
           data: {
-            apiName,
+            apiName: form.data.apiName,
             role: "*",
           },
         });
         return {
           success: true,
         };
-      } catch (e) {
-        if (e instanceof Prisma.PrismaClientKnownRequestError) {
-          return fail(400, { apiName, error: e.message });
-        }
-        console.warn(e);
-        return fail(500, { apiName, error: "Unknown error" });
-      }
-    });
+      },
+      form
+    );
   },
 };

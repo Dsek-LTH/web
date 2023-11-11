@@ -1,7 +1,8 @@
 <script lang="ts">
-  import { enhance } from "$app/forms";
+  import { superForm } from "sveltekit-superforms/client";
   export let data;
-  export let form;
+  // export let form;
+  const { form, errors, constraints, enhance, message } = superForm(data.form);
   $: uniqueApiNames = data.allPolicies
     .map((policy) => policy.apiName)
     .filter((value, index, self) => self.indexOf(value) === index)
@@ -41,16 +42,17 @@
         type="text"
         name="apiName"
         placeholder="Policy name"
+        aria-invalid={$errors.apiName ? "true" : undefined}
         class="input join-item input-bordered input-primary w-80"
-        value={form?.apiName ?? ""}
+        value={$form.apiName}
+        {...$constraints.apiName}
       />
+      {#if $errors.apiName}<span class="text-error">{$errors.apiName}</span>{/if}
+
       <button type="submit" class="btn btn-primary join-item">Add</button>
     </label>
+    {#if $message}
+      <div class="alert alert-success">{$message}</div>
+    {/if}
   </form>
-  {#if form?.missing}
-    <p class="text-erro">Du måste faktiskt skriva in något</p>
-  {/if}
-  {#if form?.error}
-    <p class="text-erro">{form.error}</p>
-  {/if}
 </section>

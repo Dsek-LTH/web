@@ -1,8 +1,11 @@
 <script lang="ts">
-  import { enhance } from "$app/forms";
-  export let data;
-  export let form;
   import { page } from "$app/stores";
+  import { superForm } from "sveltekit-superforms/client";
+
+  export let data;
+  const { form, errors, constraints, enhance, message } = superForm(data.createForm);
+  const { enhance: deleteEnhance, errors: deleteErrors } = superForm(data.deleteForm);
+
   $: policies = data.policies.sort((a, b) => {
     if (a.role && b.role) return a.role.localeCompare(b.role, "sv");
     if (a.role && !b.role) return -1;
@@ -35,11 +38,10 @@
           >
           <td>{policy.createdAt?.toLocaleString("sv")}</td>
           <td class="text-right">
-            <form method="POST" action="?/delete" use:enhance>
-              <input type="hidden" name="id" value={policy.id} /><button
-                type="submit"
-                class="btn btn-xs px-8">Remove</button
-              >
+            <form method="POST" action="?/delete" use:deleteEnhance>
+              <input type="hidden" name="id" value={policy.id} />
+              {#if $deleteErrors.id}<span class="text-error">{$deleteErrors.id}</span>{/if}
+              <button type="submit" class="btn btn-xs px-8">Remove</button>
             </form>
           </td>
         </tr>
@@ -56,8 +58,10 @@
           name="role"
           placeholder="Type here"
           class="input join-item input-bordered input-primary w-80"
-          value={form?.role ?? ""}
+          value={$form.role}
+          {...$constraints.role}
         />
+        {#if $errors.role}<span class="text-error">{$errors.role}</span>{/if}
         <button type="submit" class="btn btn-primary join-item">Add</button>
       </label>
       <label class="join">
@@ -67,13 +71,15 @@
           name="studentId"
           placeholder="Type here"
           class="input join-item input-bordered input-primary w-80"
-          value={form?.studentId ?? ""}
+          value={$form.studentId}
+          {...$constraints.studentId}
         />
+        {#if $errors.studentId}<span class="text-error">{$errors.studentId}</span>{/if}
         <button type="submit" class="btn btn-primary join-item">Add</button>
       </label>
     </form>
-    {#if form?.error}
-      <p class="text-error">{form.error}</p>
+    {#if $message}
+      <p class="text-error">{message}</p>
     {/if}
   </section>
 </div>
