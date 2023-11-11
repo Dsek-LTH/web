@@ -18,7 +18,6 @@
 >
   <div class="relative flex h-full flex-col gap-2">
     {#if member}
-      <input type="hidden" name="memberId" value={member.id} />
       <div class="absolute left-4 top-1/2 flex -translate-y-1/2 justify-center">
         <MemberAvatar {member} class="w-8" />
       </div>

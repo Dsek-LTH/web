@@ -4,11 +4,7 @@
   import type { UpdatePositionSchema } from "./+page.server";
   import { superForm } from "sveltekit-superforms/client";
   export let data: SuperValidated<UpdatePositionSchema>;
-  const { form, errors, constraints, enhance, message } = superForm(data, {
-    onError: (event) => {
-      message.set(event.result.error.message);
-    },
-  });
+  const { form, errors, constraints, enhance } = superForm(data);
 </script>
 
 <form action="?/update" method="POST" use:enhance class="form-control">
@@ -56,7 +52,4 @@
     {/if}
   </Labeled>
   <button type="submit" class="btn btn-secondary my-2">Spara</button>
-  {#if $message}
-    <p class="text-success">{$message}</p>
-  {/if}
 </form>

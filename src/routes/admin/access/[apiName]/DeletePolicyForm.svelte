@@ -5,10 +5,7 @@
 
   export let data: SuperValidated<DeleteSchema>;
   export let policyId: string;
-  const { errors, enhance, message } = superForm(data, {
-    onError(event) {
-      message.set(event.result.error.message);
-    },
+  const { errors, enhance } = superForm(data, {
     id: policyId,
   });
 </script>

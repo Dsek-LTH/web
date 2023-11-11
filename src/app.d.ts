@@ -15,6 +15,13 @@ declare global {
       currentMember: Member | null;
     }
     // interface Platform {}
+
+    namespace Superforms {
+      type Message = {
+        type: "error" | "success";
+        message: string;
+      };
+    }
   }
 }
 

@@ -2,7 +2,7 @@ import { policyAccessGuard, withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
 import prisma from "$lib/utils/prisma";
 import { fail } from "@sveltejs/kit";
-import { setError, superValidate } from "sveltekit-superforms/server";
+import { message, setError, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { PageServerLoad } from "./$types";
 
@@ -59,7 +59,7 @@ export const actions = {
           form.data.studentId &&
           (await prisma.member.count({ where: { studentId: form.data.studentId } })) === 0
         ) {
-          return setError(form, "studentId", "Member not found");
+          return setError(form, "studentId", "Medlem hittades inte");
         }
         await prisma.accessPolicy.create({
           data: {
@@ -68,10 +68,10 @@ export const actions = {
             studentId: form.data.studentId,
           },
         });
-        return {
-          success: true,
-          form,
-        };
+        return message(form, {
+          message: "Access policy skapad",
+          type: "success",
+        });
       },
       form
     );
@@ -89,10 +89,10 @@ export const actions = {
             id: form.data.id,
           },
         });
-        return {
-          success: true,
-          form,
-        };
+        return message(form, {
+          message: "Policy borttagen",
+          type: "success",
+        });
       },
       form
     );

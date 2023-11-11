@@ -1,10 +1,7 @@
 <script lang="ts">
   import { superForm } from "sveltekit-superforms/client";
   export let data;
-  const { form, errors, constraints, enhance, message } = superForm(data.form, {
-    onError(event) {
-      message.set(event.result.error.message);
-    },
+  const { form, errors, constraints, enhance } = superForm(data.form, {
     resetForm: true,
   });
   $: uniqueApiNames = data.allPolicies
@@ -55,8 +52,5 @@
 
       <button type="submit" class="btn btn-primary join-item">Add</button>
     </label>
-    {#if $message}
-      <div class="text-error">{$message}</div>
-    {/if}
   </form>
 </section>

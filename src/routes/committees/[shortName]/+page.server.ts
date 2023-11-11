@@ -3,7 +3,7 @@ import { withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
 import prisma from "$lib/utils/prisma";
 import { error, fail } from "@sveltejs/kit";
-import { superValidate } from "sveltekit-superforms/server";
+import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { PageServerLoad } from "./$types";
 
@@ -129,10 +129,11 @@ export const actions = {
             });
             newImageUploaded = true;
           } catch (e) {
-            return fail(500, {
-              error: (e as Error | undefined)?.message ?? "Unable to upload image",
+            return message(
               form,
-            });
+              { message: "Kunde inte ladda upp bild", type: "error" },
+              { status: 500 }
+            );
           }
         }
         await prisma.committee.update({
@@ -145,10 +146,7 @@ export const actions = {
               : undefined,
           },
         });
-        return {
-          success: true,
-          form,
-        };
+        return message(form, { message: "Utskott uppdaterat", type: "success" });
       },
       form
     );

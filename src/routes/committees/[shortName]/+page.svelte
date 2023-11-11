@@ -8,7 +8,7 @@
   import PositionCard from "./PositionCard.svelte";
 
   export let data;
-  const { form, errors, constraints, enhance, message } = superForm(data.form);
+  const { form, errors, constraints, enhance } = superForm(data.form);
   $: everyOtherPosition = data.positions.filter((_, i) => i % 2 === 0);
   $: everyOtherPosition2 = data.positions.filter((_, i) => i % 2 === 1);
   let isEditing = false;
@@ -85,9 +85,6 @@
       <p class="text-error">{$errors.image}</p>
     {/if}
     <button type="submit" class="btn btn-secondary my-4">Spara</button>
-    {#if $message}
-      <p class="text-success">{$message}</p>
-    {/if}
   </form>
 {/if}
 

@@ -10,11 +10,7 @@
     errors,
     constraints,
     enhance,
-    message,
   } = superForm(data.createForm, {
-    onError: (event) => {
-      message.set(event.result.error.message);
-    },
     resetForm: true,
   });
   $: policies = data.policies.sort((a, b) => {
@@ -87,8 +83,5 @@
       </label>
       {#if $errors.studentId}<span class="text-error">{$errors.studentId}</span>{/if}
     </form>
-    {#if $message}
-      <p class="text-error">{$message}</p>
-    {/if}
   </section>
 </div>

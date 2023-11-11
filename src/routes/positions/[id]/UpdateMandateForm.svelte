@@ -5,11 +5,7 @@
   import { superForm } from "sveltekit-superforms/client";
   export let data: SuperValidated<UpdateMandateSchema>;
   export let mandateId: string;
-  const { form, errors, constraints, enhance, message } = superForm(data, {
-    onError(event) {
-      message.set(event.result.error.message);
-    },
-  });
+  const { form, errors, constraints, enhance } = superForm(data);
 </script>
 
 <form
@@ -47,7 +43,3 @@
   </Labeled>
   <button type="submit" class="btn btn-secondary">Spara</button>
 </form>
-
-{#if $message}
-  <p class="text-error">{$message}</p>
-{/if}

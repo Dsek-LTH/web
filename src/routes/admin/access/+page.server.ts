@@ -2,7 +2,7 @@ import { policyAccessGuard, withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
 import prisma from "$lib/utils/prisma";
 import { fail } from "@sveltejs/kit";
-import { superValidate } from "sveltekit-superforms/server";
+import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { PageServerLoad } from "./$types";
 
@@ -36,10 +36,10 @@ export const actions = {
             role: "*",
           },
         });
-        return {
-          success: true,
-          form,
-        };
+        return message(form, {
+          message: "Access policy skapad",
+          type: "success",
+        });
       },
       form
     );

@@ -4,6 +4,8 @@ import type { Session } from "@auth/core/types";
 import { Prisma, type AccessPolicy, type Member } from "@prisma/client";
 import { error, type HttpError } from "@sveltejs/kit";
 import type { SuperValidated, ZodValidation } from "sveltekit-superforms";
+import type { NumericRange } from "sveltekit-superforms/dist/utils";
+import { message } from "sveltekit-superforms/server";
 import type { AnyZodObject } from "zod";
 import prisma from "./prisma";
 
@@ -96,7 +98,7 @@ export const withAccess = async <
   apiName: string | string[],
   context: Context,
   fn: () => Promise<T>,
-  form: F | undefined,
+  form: F,
   relevantMember?: Pick<Member, "id"> | Pick<Member, "studentId">
 ) => {
   try {
@@ -105,18 +107,38 @@ export const withAccess = async <
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
       // return fail(400, { form, error: e.message });
-      throw error(400, { message: e.message });
+      // throw error(400, { message: e.message });
+      return message(
+        form,
+        {
+          message: e.message,
+          type: "error",
+        },
+        {
+          status: 400,
+        }
+      );
     } else if (
       "status" in (e as HttpError) &&
       "body" in (e as HttpError) &&
       "message" in (e as HttpError).body
     ) {
       // return fail((e as HttpError).status, { form, error: (e as HttpError).body.message });
-      throw error((e as HttpError).status, { message: (e as HttpError).body.message });
+      // throw error((e as HttpError).status, { message: (e as HttpError).body.message });
+      return message(
+        form,
+        {
+          message: (e as HttpError).body.message,
+          type: "error",
+        },
+        {
+          status: (e as HttpError).status as NumericRange<400, 599>,
+        }
+      );
     }
     console.warn("Unknown error occured", e);
     // return fail(500, { form, error: "Unknown error" });
-    throw error(500, { message: "Unknown error" });
+    throw e;
   }
 };
 

@@ -1,8 +1,8 @@
 import { withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
 import prisma from "$lib/utils/prisma";
-import { error, fail, redirect } from "@sveltejs/kit";
-import { superValidate } from "sveltekit-superforms/server";
+import { error, fail } from "@sveltejs/kit";
+import { actionResult, message, setError, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { PageServerLoad } from "./$types";
 
@@ -98,10 +98,7 @@ export const actions = {
             email: form.data.email,
           },
         });
-        return {
-          success: true,
-          form,
-        };
+        return message(form, { message: "Position uppdaterad", type: "success" });
       },
       form
     );
@@ -114,6 +111,10 @@ export const actions = {
       apiNames.MANDATE.CREATE,
       session?.user,
       async () => {
+        const member = await prisma.member.findUnique({
+          where: { id: form.data.memberId },
+        });
+        if (!member) return setError(form, "memberId", "Medlemmen finns inte");
         await prisma.mandate.create({
           data: {
             positionId: params.id,
@@ -122,10 +123,10 @@ export const actions = {
             endDate: form.data.endDate,
           },
         });
-        return {
-          success: true,
-          form,
-        };
+        return message(form, {
+          message: `Nytt mandat gett till ${member.firstName}`,
+          type: "success",
+        });
       },
       form
     );
@@ -138,6 +139,21 @@ export const actions = {
       apiNames.MANDATE.UPDATE,
       session?.user,
       async () => {
+        const member = await prisma.member.findFirst({
+          where: {
+            mandates: {
+              some: {
+                id: form.data.mandateId,
+              },
+            },
+          },
+        });
+        if (!member)
+          return message(
+            form,
+            { message: "Mandatet hittades inte", type: "error" },
+            { status: 400 }
+          );
         await prisma.mandate.update({
           where: { id: form.data.mandateId, positionId: params.id },
           data: {
@@ -145,11 +161,14 @@ export const actions = {
             endDate: form.data.endDate,
           },
         });
-        // throw redirect(303, `/positions/${params.id}`);
-        return {
-          success: true,
-          form,
-        };
+        return actionResult("redirect", `/positions/${params.id}`, {
+          message: {
+            message: `${member.firstName}${
+              member.firstName?.endsWith("s") ? "" : "s"
+            } mandat har uppdateras`,
+            type: "success",
+          },
+        });
       },
       form
     );
@@ -162,13 +181,30 @@ export const actions = {
       apiNames.MANDATE.DELETE,
       session?.user,
       async () => {
+        const member = await prisma.member.findFirst({
+          where: {
+            mandates: {
+              some: {
+                id: form.data.mandateId,
+              },
+            },
+          },
+        });
+        if (!member)
+          return message(
+            form,
+            { message: "Mandatet hittades inte", type: "error" },
+            { status: 400 }
+          );
         await prisma.mandate.delete({
           where: { id: form.data.mandateId, positionId: params.id },
         });
-        return {
-          success: true,
-          form,
-        };
+        return message(form, {
+          message: `${member.firstName}${
+            member.firstName?.endsWith("s") ? "" : "s"
+          } mandat har tagits bort`,
+          type: "success",
+        });
       },
       form
     );
