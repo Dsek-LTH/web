@@ -79,7 +79,7 @@
     <article class="col-span-5 row-start-4 md:col-span-3">
       <!-- eslint-disable-next-line svelte/no-at-html-tags -->
       <MarkdownBody body={member.bio}>
-        <div slot="before-body" class="float-right">
+        <div class="float-right">
           {#if canEdit}
             <a href="{$page.params.studentId}/edit-bio" class="btn btn-secondary btn-outline btn-sm"
               >Redigera bio</a

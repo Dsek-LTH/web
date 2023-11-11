@@ -11,12 +11,16 @@ const apiNames = {
     ...crud("news:article"),
     MANAGE: "news:article:manage",
     LIKE: "news:article:like",
+    COMMENT: "news:article:comment",
+    COMMENT_DELETE: "news:article:comment:delete",
   },
   TAGS: {
     ...crud("tags"),
   },
   EVENT: {
     ...crud("event"),
+    COMMENT: "event:comment",
+    COMMENT_DELETE: "event:comment:delete",
   },
   MANDATE: crud("core:mandate"),
   COMMITTEE: crud("core:committee"),

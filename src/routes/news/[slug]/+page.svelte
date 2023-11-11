@@ -1,12 +1,14 @@
 <script lang="ts">
   import TagChip from "$lib/components/TagChip.svelte";
-  import LikeButton from "../LikeButton.svelte";
-  import LikersList from "../LikersList.svelte";
   import apiNames from "$lib/utils/apiNames";
   import Article from "../Article.svelte";
   import AuthorSignature from "../AuthorSignature.svelte";
+  import LikeButton from "../LikeButton.svelte";
+  import LikersList from "../LikersList.svelte";
+  import CommentSection from "./CommentSection.svelte";
 
   export let data;
+  export let form;
   $: article = data.article;
   $: author = article.author;
 </script>
@@ -36,15 +38,25 @@
         <TagChip {tag} />
       {/each}
     </div>
-
-    <div slot="after-body" class="mt-4 flex flex-col items-start gap-2">
-      <LikersList likers={article.likers} />
-      <LikeButton
-        likers={article.likers}
-        disabled={!data.accessPolicies.includes(apiNames.NEWS.LIKE)}
-      >
-        <input slot="hidden-input" type="hidden" value={article.id} name="articleId" />
-      </LikeButton>
+    <div slot="after-body" class="mt-4">
+      <div class="flex flex-col items-start gap-2">
+        <LikersList likers={article.likers} />
+        <LikeButton
+          likers={article.likers}
+          disabled={!data.accessPolicies.includes(apiNames.NEWS.LIKE)}
+        >
+          <input slot="hidden-input" type="hidden" value={article.id} name="articleId" />
+        </LikeButton>
+      </div>
+      <div class="mt-4 flex flex-col gap-2">
+        <CommentSection
+          type="NEWS"
+          comments={article.comments}
+          taggedMembers={data.allTaggedMembers}
+          error={form?.error}
+          commentContent={form?.data?.content ?? ""}
+        />
+      </div>
     </div>
   </Article>
 </article>
