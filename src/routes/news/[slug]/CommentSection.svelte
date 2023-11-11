@@ -8,6 +8,7 @@
   export let comments: ((ArticleComment | EventComment) & {
     member: Member;
   })[];
+  export let type: "NEWS" | "EVENT";
   export let taggedMembers: Member[];
   export let commentContent: string = "";
   export let error: string | undefined = undefined;
@@ -28,7 +29,13 @@
     <input type="checkbox" />
     <div class="px-4">
       {#each comments.slice(comments.length - ALWAYS_SHOWN_COMMENTS) as comment (comment.id)}
-        <CommentRow {comment} author={comment.member} {taggedMembers} onReply={onReply(comment)} />
+        <CommentRow
+          {comment}
+          author={comment.member}
+          {taggedMembers}
+          onReply={onReply(comment)}
+          {type}
+        />
       {/each}
     </div>
     <div class="collapse-title text-xl font-medium">
@@ -38,11 +45,17 @@
     </div>
     <div class="collapse-content !pb-0">
       {#each comments.slice(0, comments.length - ALWAYS_SHOWN_COMMENTS) as comment (comment.id)}
-        <CommentRow {comment} author={comment.member} {taggedMembers} onReply={onReply(comment)} />
+        <CommentRow
+          {comment}
+          author={comment.member}
+          {taggedMembers}
+          onReply={onReply(comment)}
+          {type}
+        />
       {/each}
     </div>
   </div>
 {/if}
-{#if $page.data.accessPolicies.includes(apiNames.NEWS.COMMENT) && $page.data.currentMember}
+{#if $page.data.accessPolicies.includes(apiNames[type].COMMENT) && $page.data.currentMember}
   <CommentInput author={$page.data.currentMember} bind:value={commentContent} {error} />
 {/if}

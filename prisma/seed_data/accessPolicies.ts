@@ -38,4 +38,32 @@ export const insertAccessPolicies = async (prisma: PrismaClient) => {
       ],
     });
   }
+  if (
+    (await prisma.accessPolicy.count({
+      where: {
+        apiName: apiNames.EVENT.COMMENT_DELETE,
+      },
+    })) <= 0
+  ) {
+    await prisma.accessPolicy.createMany({
+      data: [
+        {
+          apiName: apiNames.EVENT.COMMENT_DELETE,
+          role: "dsek.infu.dwww",
+        },
+        {
+          apiName: apiNames.EVENT.COMMENT_DELETE,
+          role: "dsek.infu.redaktor",
+        },
+        {
+          apiName: apiNames.EVENT.COMMENT_DELETE,
+          role: "dsek.infu.webmaster",
+        },
+        {
+          apiName: apiNames.EVENT.COMMENT_DELETE,
+          role: "dsek.styr",
+        },
+      ],
+    });
+  }
 };

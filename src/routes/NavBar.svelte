@@ -4,7 +4,7 @@
   import "../app.css";
   import apiNames from "$lib/utils/apiNames";
   import DarkLightToggle from "./DarkLightToggle.svelte";
-  export let accessPolicies: string[] = [];
+  $: accessPolicies = $page.data.accessPolicies;
   $: user = $page.data.session?.user;
 
   let checked = false;
@@ -17,7 +17,7 @@
   <input id="my-drawer-3" type="checkbox" class="drawer-toggle" bind:checked />
   <div class="drawer-content flex flex-col">
     <!-- Navbar -->
-    <div class="navbar bg-base-200 w-full">
+    <div class="navbar w-full bg-base-200">
       <div class="block lg:hidden">
         <label for="my-drawer-3" aria-label="open sidebar" class="btn btn-square btn-ghost">
           <span class="i-mdi-menu h-10 w-10"> </span>
@@ -30,28 +30,28 @@
         <a class="btn" href="/events">Evenemang</a>
         <a class="btn" href="/documents">Filer</a>
         <!-- https://bugs.webkit.org/show_bug.cgi?id=22261 -->
-        <div class="dropdown dropdown-hover">
+        <div class="dropdown-hover dropdown">
           <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
           <!-- svelte-ignore a11y-label-has-associated-control -->
           <label tabindex="0" class="btn">Sektionen</label>
           <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
           <ul
             tabindex="0"
-            class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
+            class="menu dropdown-content rounded-box z-[1] w-52 bg-base-100 p-2 shadow"
           >
             <li><a href="/committees">Utskott</a></li>
           </ul>
         </div>
         {#if accessPolicies.includes(apiNames.ACCESS_POLICY.READ)}
           <!-- https://bugs.webkit.org/show_bug.cgi?id=22261 -->
-          <div class="dropdown dropdown-hover">
+          <div class="dropdown-hover dropdown">
             <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
             <!-- svelte-ignore a11y-label-has-associated-control -->
             <label tabindex="0" class="btn">Admin</label>
             <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
             <ul
               tabindex="0"
-              class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
+              class="menu dropdown-content rounded-box z-[1] w-52 bg-base-100 p-2 shadow"
             >
               <li><a href="/admin/access">Access</a></li>
             </ul>
@@ -72,35 +72,35 @@
   </div>
   <div class="drawer-side">
     <label for="my-drawer-3" aria-label="close sidebar" class="drawer-overlay"></label>
-    <div class="menu bg-base-200 min-h-full w-80">
+    <div class="menu min-h-full w-80 bg-base-200">
       <!-- Sidebar content here -->
       <div><a on:click={close} class="btn" href="/">Hem</a></div>
       <div><a on:click={close} class="btn" href="/news">Nyheter</a></div>
       <div><a on:click={close} class="btn" href="/events">Evenemang</a></div>
       <div><a on:click={close} class="btn" href="/documents">Filer</a></div>
       <!-- https://bugs.webkit.org/show_bug.cgi?id=22261 -->
-      <div class="dropdown dropdown-hover">
+      <div class="dropdown-hover dropdown">
         <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
         <!-- svelte-ignore a11y-label-has-associated-control -->
         <label tabindex="0" class="btn">Sektionen</label>
         <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
         <ul
           tabindex="0"
-          class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
+          class="menu dropdown-content rounded-box z-[1] w-52 bg-base-100 p-2 shadow"
         >
           <li><a on:click={close} href="/committees">Utskott</a></li>
         </ul>
       </div>
       {#if accessPolicies.includes(apiNames.ACCESS_POLICY.READ)}
         <!-- https://bugs.webkit.org/show_bug.cgi?id=22261 -->
-        <div class="dropdown dropdown-hover">
+        <div class="dropdown-hover dropdown">
           <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
           <!-- svelte-ignore a11y-label-has-associated-control -->
           <label tabindex="0" class="btn">Admin</label>
           <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
           <ul
             tabindex="0"
-            class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
+            class="menu dropdown-content rounded-box z-[1] w-52 bg-base-100 p-2 shadow"
           >
             <li><a on:click={close} href="/admin/access">Access</a></li>
           </ul>

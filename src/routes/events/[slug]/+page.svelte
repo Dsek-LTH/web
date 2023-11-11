@@ -1,8 +1,10 @@
 <script lang="ts">
   import TagChip from "$lib/components/TagChip.svelte";
+  import CommentSection from "../../news/[slug]/CommentSection.svelte";
   import Event from "../Event.svelte";
 
   export let data;
+  export let form;
   $: event = data.event;
 </script>
 
@@ -21,5 +23,15 @@
     {#each event.tags as tag}
       <TagChip {tag} />
     {/each}
+  </div>
+
+  <div slot="after" class="flex flex-col gap-2">
+    <CommentSection
+      type="EVENT"
+      comments={event.comments}
+      taggedMembers={data.allTaggedMembers}
+      error={form?.error}
+      commentContent={form?.data?.content ?? ""}
+    />
   </div>
 </Event>

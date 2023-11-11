@@ -50,6 +50,7 @@
       </div>
       <div class="mt-4 flex flex-col gap-2">
         <CommentSection
+          type="NEWS"
           comments={article.comments}
           taggedMembers={data.allTaggedMembers}
           error={form?.error}

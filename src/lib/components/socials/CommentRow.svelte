@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { enhance } from "$app/forms";
   import { page } from "$app/stores";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
@@ -8,6 +9,7 @@
   import { getFullName } from "$lib/utils/member";
   import type { ArticleComment, EventComment, Member } from "@prisma/client";
 
+  export let type: "NEWS" | "EVENT";
   export let comment: ArticleComment | EventComment;
   export let author: Member;
   export let taggedMembers: Member[];
@@ -45,11 +47,19 @@
     </div>
   </header>
   <MarkdownBody body={fixedContent}></MarkdownBody>
-  {#if $page.data.accessPolicies.includes(apiNames.NEWS.COMMENT)}
-    <div class="absolute -top-4 right-0">
+  <div class="absolute -top-4 right-0 flex">
+    {#if $page.data.accessPolicies.includes(apiNames[type].COMMENT)}
       <button class="btn btn-square btn-ghost btn-md" on:click={onReply}>
         <span class="i-mdi-reply text-xl" />
       </button>
-    </div>
-  {/if}
+    {/if}
+    {#if $page.data.accessPolicies.includes(apiNames[type].COMMENT_DELETE)}
+      <form method="POST" action="?/removeComment" use:enhance>
+        <input type="hidden" name="commentId" value={comment.id} />
+        <button type="submit" class="btn btn-square btn-ghost btn-md">
+          <span class="i-mdi-delete text-xl" />
+        </button>
+      </form>
+    {/if}
+  </div>
 </section>
