@@ -6,6 +6,7 @@
   import PageHeader from "$lib/components/PageHeader.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import apiNames from "$lib/utils/apiNames";
+  import { page } from "$app/stores";
   import { getFullName } from "$lib/utils/member.js";
   import type { Prisma } from "@prisma/client";
   import AddMandateForm from "./AddMandateForm.svelte";
@@ -181,7 +182,7 @@
           class="tooltip flex flex-col whitespace-pre {(groupedByYear[year]?.length ?? 0) <= 8
             ? 'col-span-2'
             : ''}"
-          data-tip={getFullName(mandate.member) +
+          data-tip={getFullName($page.data.session?.user, mandate.member) +
             `\n${mandate.startDate.toLocaleDateString("sv")} - ${mandate.endDate.toLocaleDateString(
               "sv"
             )}`}
@@ -196,7 +197,7 @@
             <span
               class="flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium"
             >
-              {getFullName(mandate.member)}
+              {getFullName($page.data.session?.user, mandate.member)}
             </span>
 
             <!-- Remove and edit buttons -->

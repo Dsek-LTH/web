@@ -1,9 +1,9 @@
 <script lang="ts">
   import MemberSearch from "$lib/components/MemberSearch.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
+  import { page } from "$app/stores";
   import { getFullName } from "$lib/utils/member";
   import type { Member } from "@prisma/client";
-
   export let member: Member | undefined = undefined;
   let isSearching: boolean;
   let handleSearch: (search: string) => void;
@@ -31,7 +31,7 @@
       class="input input-bordered w-full {member ? 'indent-10' : ''}"
       placeholder="Sök efter medlem"
       tabIndex={0}
-      value={member ? getFullName(member) : ""}
+      value={member ? getFullName($page.data?.user, member) : ""}
       on:input={(e) => {
         member = undefined;
         handleSearch(e.currentTarget.value);

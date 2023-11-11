@@ -2,7 +2,7 @@
   import MemberImage from "$lib/components/socials/MemberImage.svelte";
   import { getFullName } from "$lib/utils/member";
   import type { Author, CustomAuthor, Member, Position } from "@prisma/client";
-
+  import { page } from "$app/stores";
   export let member: Member;
   export let customAuthor: CustomAuthor | undefined = undefined;
   export let position: Position | undefined = undefined;
@@ -68,7 +68,7 @@
           : 'pointer-events-none'}"
       >
         <h3 class="text-{size} font-semibold">
-          {getFullName(member)}
+          {getFullName($page.data.session?.user, member)}
         </h3>
       </a>
       {#if position}

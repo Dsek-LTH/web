@@ -15,7 +15,9 @@
   const ALWAYS_SHOWN_COMMENTS = 3;
 
   const onReply = (comment: (typeof comments)[number]) => () => {
-    const tagString = `[@${getFullName(comment.member)}](/members/${comment.member.studentId}) `;
+    const tagString = `[@${getFullName($page.data.session?.user, comment.member)}](/members/${
+      comment.member.studentId
+    }) `;
     if (commentContent.trim().startsWith("[@") || commentContent.trim().length === 0) {
       commentContent = tagString;
     } else {

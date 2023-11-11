@@ -33,7 +33,7 @@
 </script>
 
 <svelte:head>
-  <title>{getFullName(member)} | D-sektionen</title>
+  <title>{getFullName($page.data.session?.user, member)} | D-sektionen</title>
 </svelte:head>
 <article class="grid grid-cols-5 gap-x-4" id="container">
   <div class="col-span-2 row-span-3 sm:col-span-1">
@@ -51,7 +51,7 @@
   <header class="col-span-3 mb-4 gap-1 sm:col-span-4">
     <div class="flex items-center">
       <div class="flex-1">
-        <h1 class="text-3xl font-bold">{getFullName(member)}</h1>
+        <h1 class="text-3xl font-bold">{getFullName($page.data.session?.user, member)}</h1>
       </div>
       {#if canEdit}
         <button

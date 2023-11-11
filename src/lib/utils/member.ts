@@ -61,7 +61,11 @@ export const getCustomAuthorOptions = async (memberId: string) => {
   });
 };
 
-export const getFullName = (member: Pick<Member, "nickname" | "firstName" | "lastName">) => {
-  if (member.nickname) return `${member.firstName} "${member.nickname}" ${member.lastName}`;
+export const getFullName = (
+  context: Context,
+  member: Pick<Member, "nickname" | "firstName" | "lastName">
+) => {
+  if (member.nickname && context?.student_id)
+    return `${member.firstName} "${member.nickname}" ${member.lastName}`;
   return `${member.firstName} ${member.lastName}`;
 };
