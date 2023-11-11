@@ -1,5 +1,5 @@
 import prisma from "$lib/utils/prisma";
-import type { PageServerLoad } from "./$types";
+import type { LayoutServerLoad } from "./$types";
 import { getAllEvents } from "./events";
 
 const getAndValidatePage = (url: URL) => {
@@ -10,7 +10,7 @@ const getAndValidatePage = (url: URL) => {
   return page ? Math.max(Number.parseInt(page) - 1, 0) : undefined;
 };
 
-export const load: PageServerLoad = async ({ url }) => {
+export const load: LayoutServerLoad = async ({ url }) => {
   const [[events, pageCount], allTags] = await Promise.all([
     getAllEvents({
       tags: url.searchParams.getAll("tags"),

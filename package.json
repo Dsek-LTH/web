@@ -50,6 +50,8 @@
     "@auth/core": "^0.16.1",
     "@auth/sveltekit": "^0.3.9",
     "@egoist/tailwindcss-icons": "^1.4.0",
+    "@fullcalendar/core": "^6.1.9",
+    "@fullcalendar/daygrid": "^6.1.9",
     "@prisma/client": "5.3.1",
     "@tiptap/core": "^2.1.11",
     "@tiptap/pm": "^2.1.11",
