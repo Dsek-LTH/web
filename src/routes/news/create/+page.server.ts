@@ -39,10 +39,7 @@ export const load: PageServerLoad = async ({ parent }) => {
     authorOptions,
     form: superValidate(
       {
-        header: "",
-        body: "",
         author: authorOptions[0],
-        tags: [],
       },
       articleSchema
     ),

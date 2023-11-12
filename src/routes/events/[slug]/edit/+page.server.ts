@@ -1,89 +1,85 @@
 import { policyAccessGuard, withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
 import prisma from "$lib/utils/prisma";
-import { Prisma, type Tag } from "@prisma/client";
-import { error, fail, redirect } from "@sveltejs/kit";
+import { error, fail } from "@sveltejs/kit";
+import { message, superValidate } from "sveltekit-superforms/server";
+import { eventSchema } from "../../schema";
 import type { PageServerLoad } from "./$types";
+const isUUIDRegex =
+  /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/gi;
 
 export const load: PageServerLoad = async ({ parent, params }) => {
   const allTags = await prisma.tag.findMany();
   const { accessPolicies } = await parent();
   policyAccessGuard(apiNames.NEWS.UPDATE, accessPolicies);
   const event = await prisma.event.findUnique({
-    where: {
-      slug: params.slug,
-    },
+    where: isUUIDRegex.test(params.slug)
+      ? {
+          id: params.slug,
+        }
+      : {
+          slug: params.slug,
+        },
     include: {
       author: true,
       tags: true,
     },
   });
-  if (!event) throw error(404, "Article not found");
+  if (!event) {
+    throw error(404, "Article not found");
+  }
   return {
     allTags,
     author: event.author,
     event,
+    form: await superValidate(event, eventSchema),
   };
 };
 
 export const actions = {
-  default: async ({ request, locals }) => {
+  default: async ({ request, locals, params }) => {
+    const form = await superValidate(request, eventSchema);
+    if (!form.valid) return fail(400, { form });
     const session = await locals.getSession();
-    return withAccess(apiNames.NEWS.UPDATE, session?.user, async () => {
-      // read the form data sent by the browser
-      const formData = await request.formData();
-      let tags: Tag[];
-      try {
-        tags = JSON.parse(String(formData.get("tags")));
-      } catch (e) {
-        return fail(400, {
-          error: "Invalid tags",
-          data: Object.fromEntries(formData),
+    return withAccess(
+      apiNames.EVENT.UPDATE,
+      session?.user,
+      async () => {
+        const event = await prisma.event.findUnique({
+          where: isUUIDRegex.test(params.slug)
+            ? {
+                id: params.slug,
+              }
+            : {
+                slug: params.slug,
+              },
+          select: { id: true },
         });
-      }
-      let slug: string;
-      try {
-        const result = await prisma.event.update({
+        if (!event) {
+          throw error(404, "Event not found");
+        }
+        await prisma.event.update({
           where: {
-            slug: String(formData.get("slug")),
+            id: event.id,
           },
           data: {
-            title: String(formData.get("title")),
-            shortDescription: String(formData.get("shortDescription")),
-            description: String(formData.get("description")),
+            ...form.data,
+            author: undefined,
             tags: {
-              connect: tags
+              connect: form.data.tags
                 .filter((tag) => !!tag)
                 .map((tag) => ({
                   id: tag.id,
                 })),
             },
-            startDatetime: formData.get("startDatetime")
-              ? new Date(String(formData.get("startDatetime")))
-              : new Date(),
-            endDatetime: formData.get("endDatetime")
-              ? new Date(String(formData.get("endDatetime")))
-              : new Date(),
-            location: String(formData.get("location")) ?? null,
-            organizer: String(formData.get("organizer")) ?? "",
-            link: String(formData.get("link")) ?? null,
           },
         });
-        slug = result.slug!;
-      } catch (e) {
-        if (e instanceof Prisma.PrismaClientKnownRequestError) {
-          return fail(400, {
-            error: e.message,
-            data: Object.fromEntries(formData),
-          });
-        }
-        console.log(e);
-        return fail(500, {
-          error: "Unknown error",
-          data: Object.fromEntries(formData),
+        return message(form, {
+          message: "Evenemang uppdaterat",
+          type: "success",
         });
-      }
-      throw redirect(303, `/events/${slug}`);
-    });
+      },
+      form
+    );
   },
 };

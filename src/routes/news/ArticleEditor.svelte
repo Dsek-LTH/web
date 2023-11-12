@@ -41,13 +41,21 @@
   <section>
     <form method="POST" class="form-control gap-2" use:enhance>
       <slot name="form-start" />
-      <Input name="header" label="Header" bind:value={$form.header} {...$constraints.header} />
-      {#if $errors.header}<p class="text-error">{$errors.header}</p>{/if}
-      <Labeled label="Description" id="body">
+      <Input
+        name="header"
+        label="Header"
+        bind:value={$form.header}
+        {...$constraints.header}
+        error={$errors.header}
+      />
+      <Labeled label="Description" id="body" error={$errors.body}>
         <MarkdownEditor bind:value={$form.body} {...$constraints.body} />
       </Labeled>
-      {#if $errors.body}<p class="text-error">{$errors.body}</p>{/if}
-      <Labeled label="Author" id="author">
+      <Labeled
+        label="Författare"
+        id="author"
+        error={$errors.author !== undefined ? "Ogitlig författare" : ""}
+      >
         <select
           id="author"
           class="select select-bordered w-full max-w-xs"
@@ -70,11 +78,13 @@
           {/each}
         </select>
       </Labeled>
-      {#if $errors.author}<p class="text-error">{$errors.author}</p>{/if}
-      <Labeled label="Taggar" id="autocomplete">
+      <Labeled
+        label="Taggar"
+        id="autocomplete"
+        error={$errors.tags !== undefined ? "Ogitliga taggar" : ""}
+      >
         <TagSelector {allTags} bind:selectedTags={$form.tags} />
       </Labeled>
-      {#if $errors.tags}<p class="text-error">{$errors.tags}</p>{/if}
       <slot name="form-end" />
       <!-- <button type="submit" disabled style="display: none" aria-hidden="true" /> -->
       <button type="submit" disabled={submitting} class="btn btn-primary mt-4">
