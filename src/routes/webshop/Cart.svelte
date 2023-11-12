@@ -57,3 +57,9 @@
     </div>
   </div>
 {/each}
+<p>
+  Totalt antal: {cart.totalQuantity}
+</p>
+<p>
+  Total pris: {cart.totalPrice} kr
+</p>

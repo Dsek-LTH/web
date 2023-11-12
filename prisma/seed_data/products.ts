@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 
 export const insertProducts = async (prisma: PrismaClient) => {
+  await prisma.cart.deleteMany({});
   await prisma.product.deleteMany({
     where: {
       productCategory: {

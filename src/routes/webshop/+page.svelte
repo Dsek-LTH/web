@@ -33,7 +33,7 @@
     class="grid gap-2"
     style="grid-template-columns: repeat(auto-fill, minmax(min(40ch, 100%), 1fr))"
   >
-    {#each products as product}
+    {#each products as product (product.id)}
       <Product {product} cart={data.myCart} chest={data.myInventory} />
     {/each}
   </section>
