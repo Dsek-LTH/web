@@ -1,6 +1,6 @@
 # Development setup
 
-The script located here will take you through an interactive setup process to get your development environment ready.
+The `setup.ts` script located here will take you through an interactive setup process to get your development environment ready. `setup_db.sh` is a script that will create a local PostgreSQL database for you and fill it with some data.
 
 ## Prerequisites
 
