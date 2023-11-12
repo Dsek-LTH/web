@@ -124,7 +124,7 @@ export const actions = {
         if (!productInventoryId || typeof productInventoryId !== "string") {
           throw new Error("Invalid product inventory id");
         }
-        let myCart = await prisma.cart.findFirst({
+        const myCart = await prisma.cart.findFirst({
           where: { studentId: session.user.student_id },
         });
         if (!myCart) throw new Error("Cart not found");
@@ -147,7 +147,7 @@ async function cartToInventoryTransaction(
   cartId: string
 ) {
   await prisma.$transaction(async (trx) => {
-    let cartItem = await trx.cartItem.update({
+    const cartItem = await trx.cartItem.update({
       where: {
         cartId: cartId,
         productInventoryId,

@@ -88,7 +88,7 @@
         </div>
       {/if}
 
-      <form use:enhance method="POST" action="?/addToCart">
+      <form use:enhance method="POST" action="/webshop?/addToCart">
         <input
           type="hidden"
           name="productInventoryId"

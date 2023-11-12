@@ -1,5 +1,4 @@
 <script lang="ts">
-  import Cart from "./Cart.svelte";
   import Product from "./Product.svelte";
   export let form;
   export let data;
@@ -12,8 +11,15 @@
 </script>
 
 <div class="flex flex-col gap-3">
+  {#if data.myInventory}
+    <a href="/webshop/inventory" class="link-hover link-primary link"
+      >Kista ({data.myInventory.userInventoryItems.length})</a
+    >
+  {/if}
   {#if data.myCart}
-    <Cart cart={data.myCart} />
+    <a href="/webshop/cart" class="link-hover link-primary link"
+      >Kundvagn ({data.myCart.totalQuantity})</a
+    >
   {/if}
 
   <h1 class="text-3xl font-bold">Webshop</h1>

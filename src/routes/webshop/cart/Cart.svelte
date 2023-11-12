@@ -41,14 +41,14 @@
           </p>
         </div>
         <div class="flex items-center gap-2">
-          <form use:enhance method="POST" action="?/removeFromCart">
+          <form use:enhance method="POST" action="/webshop?/removeFromCart">
             <input type="hidden" name="productInventoryId" value={item.productInventory.id} />
             <button type="submit" class="btn btn-circle btn-primary btn-sm font-bold">-</button>
           </form>
           <p class="font-bold">
             {item.quantity}
           </p>
-          <form use:enhance method="POST" action="?/addToCart">
+          <form use:enhance method="POST" action="/webshop?/addToCart">
             <input type="hidden" name="productInventoryId" value={item.productInventory.id} />
             <button type="submit" class="btn btn-circle btn-primary btn-sm font-bold">+</button>
           </form>
