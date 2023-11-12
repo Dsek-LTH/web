@@ -1,96 +1,164 @@
-# Nice to have commands
+<a name="readme-top"></a>
 
-## Setup locally
+<!-- PROJECT SHIELDS -->
 
-### install dependencies
+[![Version][version-shield]][version-shield]
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Contributors][contributors-shield]][contributors-url]
+[![Issues][issues-shield]][issues-url]
+[![License][license-shield]][license-url]
 
-```sh
-pnpm install
-```
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
+  <a href="https://github.com/Dsek-LTH/web">
+    <img src="https://www.dsek.se/favicon/D-favicon-196.png" alt="Logo" width="80" height="80">
+  </a>
 
-### Setup `.env.local`
+<h3 align="center">Web</h3>
 
-Copy .env into .env.local
+  <p align="center">
+    The main web page for the D-guild
+    <br />
+    <a href="https://www.dsek.se/"><strong>dsek.se</strong></a>
+    <br />
+    <br />
+    <a href="https://github.com/Dsek-LTH/web/issues/new/choose">Report Bug</a>
+    ·
+    <a href="https://github.com/Dsek-LTH/web/issues/new/choose">Request Feature</a>
+  </p>
+</div>
 
-- Override `DATABASE_URL` if you do not use the same names and ports as below
-- Insert `KEYCLOAK_CLIENT_SECRET` (secret)
-- Insert `MINIO_ROOT_USER` and `MINIO_ROOT_PASSWORD`
+<!-- ABOUT -->
 
-## Set up DB and Prisma
+## About
 
-### Create a local database
+This repo contains code for our main web page. You can read more about the project in the [wiki](https://github.com/Dsek-LTH/web/wiki).
 
-We use PostgreSQL 14. Use whatever method you like to do this, below is an example script you can run (all you need is docker) to setup a database called "dwww_web" on port 5432.
+![builtwith][builtwith]
+[![typescript][typescript]][typescript-url]
+[![svelte][svelte]][svelte-url]
+[![prisma][prisma]][prisma-url]
+[![zod][zod]][zod-url]
+[![expo][expo]][expo-url]
 
-```bash
-docker compose up
-```
+![using][using]
+[![node][node]][node-url]
+[![pnpm][pnpm]][pnpm-url]
+[![docker][docker]][docker-url]
 
-If the above command doesn't work, try this
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-```bash
-docker run --name postgres -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=dwww_web -d postgres:14-alpine
-```
+<!-- GETTING STARTED -->
 
-### Setup database
+## Getting Started
 
-The following bash script will setup the database using a big pre-seeded database. Make sure to wait a few seconds to allow the postgres container to start up.
+To get a local copy up and running follow these simple steps.
 
-```sh
-sh ./setup_db.sh
-```
+### Prerequisites
 
-### Alternative: Start with an empty database
+You need to install the following tools by following the instructions on their respective websites. If you're running Windows, it's highly recommended to [first install WSL](https://learn.microsoft.com/en-us/windows/wsl/install).
 
----
+1. Install Node.js: [https://nodejs.org/en/download/](https://nodejs.org/en/download/)
+2. Install pnpm: [https://pnpm.io/installation](https://pnpm.io/installation)
+3. Install Docker: [https://docs.docker.com/get-docker/](https://docs.docker.com/get-docker/)
 
-1. migrate local db to latest (or create prisma new migration)
+### Installation
 
-```sh
-pnpm migrate
-```
+1. Clone the repo
+   ```sh
+   git clone https://github.com/Dsek-LTH/web.git
+   ```
+2. Install dependencies
+   ```sh
+   pnpm install
+   ```
+3. Setup ([learn more](https://github.com/Dsek-LTH/web/tree/main/dev)) your local development environment.
+   ```sh
+   pnpm dev-setup
+   ```
+4. Start the development server. It should be available on [http://localhost:5173](http://localhost:5173).
+   ```sh
+   pnpm dev
+   ```
 
-2. seed database
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-```sh
-pnpm seed
-```
+<!-- USAGE EXAMPLES -->
 
-### Generate (should automatically be done)
+## Development
 
-```sh
-pnpm generate
-```
+The wiki contains a lot of useful information for developers. You can find it [here](https://github.com/Dsek-LTH/web/wiki). Note especially that VS Code is used and there are a few extensions **you should install** before starting development. These should be suggested by VS Code when you open the project for the first time, otherwise they can be found in `.vscode/extensions.json`.
 
-## Other services
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-### MINIO (File system)
+<!-- CONTRIBUTING -->
 
-This project uses the minio sandbox instance hosted on our servers, contact an admin to receive an access token
+## Contributing
 
-## Developing
+Any contributions you make are **greatly appreciated**. If you have a suggestion, please fork the repo and create a pull request. You can also simply open an issue using the links at the top.
 
-Once you've created a project and installed setup everything like above, start a development server:
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-```bash
-pnpm dev
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-# or start the server and open the app in a new browser tab
-pnpm dev -- --open
-```
+<!-- LICENSE -->
 
-### VSCode
+## License
 
-See the `.vscode/extensions.json` file for recommendations. They should pop up immidiately in VS Code.
+Distributed under the EUPL License. See `LICENSE` for more information.
 
-## Building
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-To create a production version of your app:
+<!-- CONTACT -->
 
-```bash
-pnpm build
-```
+## Contact
 
-You can preview the production build with `pnpm preview`.
+Head of DWWW - dwww@dsek.se
 
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+Project Link: [https://github.com/Dsek-LTH/web](https://github.com/Dsek-LTH/web)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+<!-- https://shields.io/ -->
+
+[contributors-shield]: https://img.shields.io/github/contributors/Dsek-LTH/web.svg?style=for-the-badge
+[contributors-url]: https://github.com/Dsek-LTH/web/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/Dsek-LTH/web.svg?style=for-the-badge
+[forks-url]: https://github.com/Dsek-LTH/web/network/members
+[stars-shield]: https://img.shields.io/github/stars/Dsek-LTH/web.svg?style=for-the-badge
+[stars-url]: https://github.com/Dsek-LTH/web/stargazers
+[issues-shield]: https://img.shields.io/github/issues/Dsek-LTH/web.svg?style=for-the-badge
+[issues-url]: https://github.com/Dsek-LTH/web/issues
+[license-shield]: https://img.shields.io/github/license/Dsek-LTH/web.svg?style=for-the-badge
+[license-url]: https://github.com/Dsek-LTH/web/blob/master/LICENSE
+[version-shield]: https://img.shields.io/github/v/release/Dsek-LTH/web?style=for-the-badge
+[product-screenshot]: images/screenshot.png
+
+<!-- Badge icons: https://simpleicons.org/ -->
+
+[builtwith]: https://img.shields.io/badge/built%20with-f280a1?style=for-the-badge
+[using]: https://img.shields.io/badge/using-f280a1?style=for-the-badge
+[typescript]: https://img.shields.io/badge/typescript-3178C6?style=for-the-badge&logo=typescript&logoColor=white
+[typescript-url]: https://www.typescriptlang.org/
+[svelte]: https://img.shields.io/badge/svelte-FF3E00?style=for-the-badge&logo=svelte&logoColor=white
+[svelte-url]: https://svelte.dev/
+[expo]: https://img.shields.io/badge/expo-000020?style=for-the-badge&logo=expo&logoColor=white
+[expo-url]: https://expo.dev/
+[prisma]: https://img.shields.io/badge/prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white
+[prisma-url]: https://www.prisma.io/
+[pnpm]: https://img.shields.io/badge/pnpm-F69220?style=for-the-badge&logo=pnpm&logoColor=white
+[pnpm-url]: https://pnpm.io/
+[zod]: https://img.shields.io/badge/zod-3E67B1?style=for-the-badge&logo=zod&logoColor=white
+[zod-url]: https://zod.dev/
+[docker]: https://img.shields.io/badge/docker-2496ED?style=for-the-badge&logo=docker&logoColor=white
+[docker-url]: https://www.docker.com/
+[node]: https://img.shields.io/badge/node-339933?style=for-the-badge&logo=node.js&logoColor=white
+[node-url]: https://nodejs.org/
