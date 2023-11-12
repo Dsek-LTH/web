@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Cart from "./Cart.svelte";
   import Product from "./Product.svelte";
   export let form;
   export let data;
@@ -6,19 +7,24 @@
   $: products = data.products.filter((product) => product.categoryId === activeCategory?.id);
   $: if (form?.error) {
     console.log(form.error);
+    window.alert(form.error);
   }
 </script>
 
 <div class="flex flex-col gap-3">
-  <section>
+  {#if data.myCart}
+    <Cart cart={data.myCart} />
+  {/if}
+
+  <h1 class="text-3xl font-bold">Webshop</h1>
+  <section class="flex gap-2">
     {#each data.productCategories as category}
       <button
         type="submit"
         on:click={() => {
           activeCategory = category;
         }}
-        class={`btn btn-circle ${activeCategory?.id === category.id && "btn-primary"}`}
-        >{category.name}</button
+        class={`btn ${activeCategory?.id === category.id && "btn-primary"}`}>{category.name}</button
       >
     {/each}
   </section>
@@ -28,7 +34,7 @@
     style="grid-template-columns: repeat(auto-fill, minmax(min(40ch, 100%), 1fr))"
   >
     {#each products as product}
-      <Product {product} />
+      <Product {product} cart={data.myCart} chest={data.myInventory} />
     {/each}
   </section>
 </div>

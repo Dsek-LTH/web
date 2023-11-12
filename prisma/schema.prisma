@@ -169,7 +169,7 @@ model Cart {
 model CartItem {
   id                 String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   cartId             String           @map("cart_id") @db.Uuid
-  productInventoryId String           @map("product_inventory_id") @db.Uuid
+  productInventoryId String           @unique @map("product_inventory_id") @db.Uuid
   quantity           Int
   createdAt          DateTime?        @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt          DateTime?        @default(now()) @map("updated_at") @db.Timestamptz(6)
