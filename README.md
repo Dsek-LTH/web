@@ -66,19 +66,23 @@ You need to install the following tools by following the instructions on their r
 
 ### Installation
 
-1. Clone the repo
+1. Clone the repo and change into the directory
    ```sh
-   git clone https://github.com/Dsek-LTH/web.git
+   git clone https://github.com/Dsek-LTH/web.git && cd web
    ```
 2. Install dependencies
    ```sh
    pnpm install
    ```
-3. Setup ([learn more](https://github.com/Dsek-LTH/web/tree/main/dev)) your local development environment.
+3. Setup .env.local by copying .env and filling in the values (ask a team member for credentials).
    ```sh
-   pnpm dev-setup
+   cp .env .env.local
    ```
-4. Start the development server. It should be available on [http://localhost:5173](http://localhost:5173).
+4. Setup your local development database. You may need to run this command with sudo. Learn more [here](https://github.com/Dsek-LTH/web/tree/main/dev).
+   ```sh
+   sh ./dev/setup_db.sh
+   ```
+5. Start the development server. It should be available on [http://localhost:5173](http://localhost:5173).
    ```sh
    pnpm dev
    ```
