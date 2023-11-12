@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 async function main() {
   console.log(`Start seeding ...`);
   await Promise.all([
-    // insertCommitteeLogos(prisma),
+    insertCommitteeLogos(prisma),
     insertAccessPolicies(prisma),
     insertProducts(prisma),
   ]);

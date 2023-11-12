@@ -4,7 +4,7 @@ const committeesWithImages = ["cafe", "aktu", "infu", "skattm", "srd", "sexm"];
 export const insertCommitteeLogos = async (prisma: PrismaClient) => {
   await Promise.all(
     committeesWithImages.map((shortName) =>
-      prisma.committee.update({
+      prisma.committee.updateMany({
         where: {
           shortName,
           imageUrl: null,
