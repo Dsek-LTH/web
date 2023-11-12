@@ -22,6 +22,9 @@ const apiNames = {
     COMMENT: "event:comment",
     COMMENT_DELETE: "event:comment:delete",
   },
+  BOOKINGS: {
+    ...crud("bookings"),
+  },
   MANDATE: crud("core:mandate"),
   COMMITTEE: crud("core:committee"),
   POSITION: {
