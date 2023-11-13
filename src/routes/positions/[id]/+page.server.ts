@@ -2,7 +2,8 @@ import { withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
 import prisma from "$lib/utils/prisma";
 import { error, fail } from "@sveltejs/kit";
-import { actionResult, message, setError, superValidate } from "sveltekit-superforms/server";
+import { redirect } from "sveltekit-flash-message/server";
+import { message, setError, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { PageServerLoad } from "./$types";
 
@@ -131,7 +132,8 @@ export const actions = {
       form
     );
   },
-  updateMandate: async ({ params, request, locals }) => {
+  updateMandate: async (event) => {
+    const { params, request, locals } = event;
     const form = await superValidate(request, updateMandateSchema);
     if (!form.valid) return fail(400, { form });
     const session = await locals.getSession();
@@ -161,14 +163,16 @@ export const actions = {
             endDate: form.data.endDate,
           },
         });
-        return actionResult("redirect", `/positions/${params.id}`, {
-          message: {
+        throw redirect(
+          `/positions/${params.id}`,
+          {
             message: `${member.firstName}${
               member.firstName?.endsWith("s") ? "" : "s"
             } mandat har uppdateras`,
             type: "success",
           },
-        });
+          event
+        );
       },
       form
     );

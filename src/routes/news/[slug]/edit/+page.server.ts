@@ -8,6 +8,7 @@ import { z } from "zod";
 import { getArticleAuthorOptions } from "../../articles";
 import { articleSchema } from "../../schema";
 import type { PageServerLoad } from "./$types";
+import { redirect } from "sveltekit-flash-message/server";
 
 export const load: PageServerLoad = async ({ parent, params }) => {
   const allTags = await prisma.tag.findMany();
@@ -67,10 +68,10 @@ const updateSchema = articleSchema.extend({
 });
 
 export const actions = {
-  default: async ({ request, locals }) => {
-    const form = await superValidate(request, updateSchema);
+  default: async (event) => {
+    const form = await superValidate(event.request, updateSchema);
     if (!form.valid) return fail(400, { form });
-    const session = await locals.getSession();
+    const session = await event.locals.getSession();
     return withAccess(
       apiNames.NEWS.UPDATE,
       session?.user,
@@ -141,10 +142,14 @@ export const actions = {
           }
           throw e;
         }
-        return message(form, {
-          message: "Artikel uppdaterad",
-          type: "success",
-        });
+        throw redirect(
+          `/news/${event.params.slug}`,
+          {
+            message: "Artikel uppdaterad",
+            type: "success",
+          },
+          event
+        );
       },
       form
     );

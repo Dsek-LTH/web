@@ -1,21 +1,26 @@
 <script lang="ts">
+  import { page } from "$app/stores";
   export let data;
   import MarkdownEditor from "$lib/components/MarkdownEditor.svelte";
-  let markdown = data.markdown?.markdown;
+  import { superForm } from "sveltekit-superforms/client";
+  const { form, errors, enhance } = superForm(data.form);
 </script>
 
 <div class="p-2 text-neutral-content">
-  {#if !data.markdown?.markdown}
+  {#if data.isCreating}
     <div class="toast">
       <div class="alert alert-info">
-        <span>You're creating a new page under {data.slug}.</span>
+        <span>You're creating a new page under {$page.params.slug}.</span>
       </div>
     </div>
   {/if}
-  <form method="POST" action={data.markdown?.markdown ? "?/update" : "?/create"}>
-    <MarkdownEditor bind:value={markdown} />
-    <input type="hidden" name="name" value={data.slug} />
-    <input type="hidden" name="markdown" bind:value={markdown} />
+  <form method="POST" action={data.isCreating ? "?/update" : "?/create"} use:enhance>
+    <MarkdownEditor bind:value={$form.markdown} />
+    <input type="hidden" name="name" value={$page.params.slug} />
+    <input type="hidden" name="markdown" bind:value={$form.markdown} />
+    {#if $errors.markdown}
+      <p class="text-error">{$errors.markdown}</p>
+    {/if}
     <button class="btn" type="submit">Submit</button>
   </form>
 </div>

@@ -3,7 +3,8 @@ import apiNames from "$lib/utils/apiNames";
 import prisma from "$lib/utils/prisma";
 import { slugifyArticleHeader } from "$lib/utils/slugify";
 import { error, fail, type Actions } from "@sveltejs/kit";
-import { message, superValidate } from "sveltekit-superforms/client";
+import { redirect } from "sveltekit-flash-message/server";
+import { superValidate } from "sveltekit-superforms/client";
 import { getArticleAuthorOptions } from "../articles";
 import { articleSchema } from "../schema";
 import type { PageServerLoad } from "./$types";
@@ -47,10 +48,10 @@ export const load: PageServerLoad = async ({ parent }) => {
 };
 
 export const actions = {
-  default: async ({ request, locals }) => {
-    const form = await superValidate(request, articleSchema);
+  default: async (event) => {
+    const form = await superValidate(event.request, articleSchema);
     if (!form.valid) return fail(400, { form });
-    const session = await locals.getSession();
+    const session = await event.locals.getSession();
     return withAccess(
       apiNames.NEWS.CREATE,
       session?.user,
@@ -65,7 +66,7 @@ export const actions = {
             customId: author.customId,
           },
         });
-        await prisma.article.create({
+        const result = await prisma.article.create({
           data: {
             slug: await slugifyArticleHeader(header),
             header: header,
@@ -110,10 +111,14 @@ export const actions = {
             publishedAt: new Date(),
           },
         });
-        return message(form, {
-          message: "Nyhet skapad",
-          type: "success",
-        });
+        throw redirect(
+          `/news/${result.slug}`,
+          {
+            message: "Nyhet skapad",
+            type: "success",
+          },
+          event
+        );
       },
       form
     );

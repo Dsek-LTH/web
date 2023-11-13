@@ -10,21 +10,14 @@
   import Article from "./Article.svelte";
   import AuthorSignature from "./AuthorSignature.svelte";
   import type { AuthorOption } from "./articles.js";
-  import { goto } from "$app/navigation";
   import type { ArticleSchema } from "./schema";
 
   export let data: SuperValidated<ArticleSchema>;
   export let authorOptions: AuthorOption[];
   export let allTags: Tag[];
-  export let redirectUrl: string = "/news";
   let submitting: boolean = false;
   const { form, errors, constraints, enhance } = superForm(data, {
     dataType: "json",
-    onResult: async (event) => {
-      if (event.result.type === "success") {
-        await goto(redirectUrl);
-      }
-    },
   });
 
   const sameAuthorOption = (

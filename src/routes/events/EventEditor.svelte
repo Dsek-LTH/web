@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
   import DateInput from "$lib/components/DateInput.svelte";
   import Input from "$lib/components/Input.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
@@ -12,14 +11,8 @@
   import type { EventSchema } from "./schema";
 
   export let data: SuperValidated<EventSchema>;
-  export let redirectUrl: string = "/events";
   const { form, errors, constraints, enhance, submitting } = superForm(data, {
     dataType: "json",
-    async onResult(event) {
-      if (event.result.type === "success") {
-        await goto(redirectUrl);
-      }
-    },
   });
   export let allTags: Tag[];
 </script>

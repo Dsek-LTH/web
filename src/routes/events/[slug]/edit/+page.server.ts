@@ -2,7 +2,8 @@ import { policyAccessGuard, withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
 import prisma from "$lib/utils/prisma";
 import { error, fail } from "@sveltejs/kit";
-import { message, superValidate } from "sveltekit-superforms/server";
+import { redirect } from "sveltekit-flash-message/server";
+import { superValidate } from "sveltekit-superforms/server";
 import { eventSchema } from "../../schema";
 import type { PageServerLoad } from "./$types";
 const isUUIDRegex =
@@ -37,7 +38,8 @@ export const load: PageServerLoad = async ({ parent, params }) => {
 };
 
 export const actions = {
-  default: async ({ request, locals, params }) => {
+  default: async (event) => {
+    const { request, locals, params } = event;
     const form = await superValidate(request, eventSchema);
     if (!form.valid) return fail(400, { form });
     const session = await locals.getSession();
@@ -45,7 +47,7 @@ export const actions = {
       apiNames.EVENT.UPDATE,
       session?.user,
       async () => {
-        const event = await prisma.event.findUnique({
+        const existingEvent = await prisma.event.findUnique({
           where: isUUIDRegex.test(params.slug)
             ? {
                 id: params.slug,
@@ -55,12 +57,12 @@ export const actions = {
               },
           select: { id: true },
         });
-        if (!event) {
+        if (!existingEvent) {
           throw error(404, "Event not found");
         }
         await prisma.event.update({
           where: {
-            id: event.id,
+            id: existingEvent.id,
           },
           data: {
             ...form.data,
@@ -74,10 +76,15 @@ export const actions = {
             },
           },
         });
-        return message(form, {
-          message: "Evenemang uppdaterat",
-          type: "success",
-        });
+
+        throw redirect(
+          `/event/${params.slug}`,
+          {
+            message: "Evenemang uppdaterat",
+            type: "success",
+          },
+          event
+        );
       },
       form
     );

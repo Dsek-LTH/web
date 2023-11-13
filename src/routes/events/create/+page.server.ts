@@ -3,7 +3,8 @@ import apiNames from "$lib/utils/apiNames";
 import prisma from "$lib/utils/prisma";
 import { slugifyArticleHeader } from "$lib/utils/slugify";
 import { fail } from "@sveltejs/kit";
-import { message, superValidate } from "sveltekit-superforms/server";
+import { redirect } from "sveltekit-flash-message/server";
+import { superValidate } from "sveltekit-superforms/server";
 import { eventSchema } from "../schema";
 import type { PageServerLoad } from "./$types";
 
@@ -20,15 +21,15 @@ export const load: PageServerLoad = async ({ parent }) => {
   };
 };
 export const actions = {
-  default: async ({ request, locals }) => {
-    const form = await superValidate(request, eventSchema);
+  default: async (event) => {
+    const form = await superValidate(event.request, eventSchema);
     if (!form.valid) return fail(400, { form });
-    const session = await locals.getSession();
+    const session = await event.locals.getSession();
     return withAccess(
       apiNames.EVENT.CREATE,
       session?.user,
       async () => {
-        await prisma.event.create({
+        const result = await prisma.event.create({
           data: {
             slug: await slugifyArticleHeader(form.data.title),
             ...form.data,
@@ -46,10 +47,14 @@ export const actions = {
             },
           },
         });
-        return message(form, {
-          message: "Evenemang skapat",
-          type: "success",
-        });
+        throw redirect(
+          `/event/${result.slug}`,
+          {
+            message: "Evenemang skapat",
+            type: "success",
+          },
+          event
+        );
       },
       form
     );
