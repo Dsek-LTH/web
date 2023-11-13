@@ -6,9 +6,9 @@
 </script>
 
 <NavBar>
-  <div
-    class="h-[calc(100vh-9rem)] flex-col overflow-auto pb-8 accent-primary md:h-[calc(100vh-5rem)] [&>*]:flex-1"
-  >
+  <div class="overflow-auto accent-primary" style="height: 4.4rem"></div>
+
+  <div class="flex-col overflow-auto pb-16 accent-primary md:pb-0 [&>*]:flex-1">
     <slot />
   </div>
 
