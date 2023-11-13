@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { enhance } from "$app/forms";
   import { page } from "$app/stores";
   import MemberSearch from "$lib/components/MemberSearch.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
@@ -10,7 +9,7 @@
   import { superForm } from "sveltekit-superforms/client";
   export let author: Member;
   export let commentForm: SuperValidated<CommentSchema>;
-  const { form, errors, constraints } = superForm(commentForm, {
+  const { form, errors, constraints, enhance } = superForm(commentForm, {
     resetForm: true,
   });
 
