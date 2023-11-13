@@ -5,16 +5,15 @@
 
   import ClassBadge from "$lib/components/ClassBadge.svelte";
 
+  import { goto } from "$app/navigation";
+  import { page } from "$app/stores";
   import PageHeader from "$lib/components/PageHeader.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import apiNames from "$lib/utils/apiNames";
-  import { page } from "$app/stores";
   import { getFullName } from "$lib/utils/member.js";
   import type { Prisma } from "@prisma/client";
   import AddMandateForm from "./AddMandateForm.svelte";
   import UpdateMandateForm from "./UpdateMandateForm.svelte";
-  import { goto } from "$app/navigation";
-  import { page } from "$app/stores";
   export let data;
   $: groupedByYear = data.mandates.reduce<
     Record<string, Prisma.MandateGetPayload<{ include: { member: true } }>[]>
