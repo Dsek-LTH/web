@@ -26,7 +26,8 @@ export type UploadSchema = typeof uploadSchema;
 
 export const actions = {
   default: async ({ request, locals }) => {
-    const form = await superValidate(request, uploadSchema);
+    const formData = await request.formData();
+    const form = await superValidate(formData, uploadSchema);
     if (!form.valid) return fail(400, { form });
     const session = await locals.getSession();
     return withAccess(
@@ -34,7 +35,7 @@ export const actions = {
       session?.user,
       async () => {
         const { meeting, name, year } = form.data;
-        const file = (await request.formData()).get("file");
+        const file = formData.get("file");
         if (!file || !(file instanceof File) || file.size <= 0) {
           return setError(form, "file", "Felaktig fil");
         }

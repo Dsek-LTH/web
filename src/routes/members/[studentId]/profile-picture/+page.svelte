@@ -1,18 +1,26 @@
 <script lang="ts">
-  import { enhance } from "$app/forms";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import { getFullName } from "$lib/utils/member";
   import { page } from "$app/stores";
+  import { superForm } from "sveltekit-superforms/client";
   import ProfileImage from "./ProfileImage.svelte";
   import Cropper from "svelte-easy-crop";
 
   export let data;
-  export let form;
   $: member = data.member;
   $: photos = data.photos;
   let isEditing = false;
 
   let crop = { x: 0, y: 0, width: 0, height: 0 };
+  const { form, errors, enhance } = superForm(data.uploadForm, {
+    resetForm: true,
+    onResult(event) {
+      if (event.result.type === "success") {
+        avatar = undefined;
+        isEditing = false;
+      }
+    },
+  });
 
   let avatar: string | undefined = undefined;
   let fileinput;
@@ -64,15 +72,8 @@
       method="POST"
       action="?/upload"
       class="form-control gap-2"
-      use:enhance={() =>
-        async ({ update, result }) => {
-          await update();
-          if (result.type === "success") {
-            isEditing = false;
-            avatar = undefined;
-            crop = { x: 0, y: 0, width: 0, height: 0 };
-          }
-        }}
+      use:enhance
+      enctype="multipart/form-data"
     >
       {#if avatar}
         <div class="relative h-[400px] w-[400px]">
@@ -83,14 +84,33 @@
             image={avatar}
             on:cropcomplete={(e) => {
               crop = e.detail.pixels;
+              form.update((f) => {
+                f.cropX = crop.x;
+                f.cropY = crop.y;
+                f.cropWidth = crop.width;
+                f.cropHeight = crop.height;
+                return f;
+              });
             }}
           />
         </div>
       {/if}
-      <input type="hidden" name="crop-x" value={crop.x} />
-      <input type="hidden" name="crop-y" value={crop.y} />
-      <input type="hidden" name="crop-width" value={crop.width} />
-      <input type="hidden" name="crop-height" value={crop.height} />
+      <input type="hidden" name="cropX" bind:value={$form.cropX} />
+      <input type="hidden" name="cropY" bind:value={$form.cropY} />
+      <input type="hidden" name="cropWidth" bind:value={$form.cropWidth} />
+      <input type="hidden" name="cropHeight" bind:value={$form.cropHeight} />
+      {#if $errors.cropX}
+        <p class="text-error">{$errors.cropX}</p>
+      {/if}
+      {#if $errors.cropY}
+        <p class="text-error">{$errors.cropY}</p>
+      {/if}
+      {#if $errors.cropWidth}
+        <p class="text-error">{$errors.cropWidth}</p>
+      {/if}
+      {#if $errors.cropHeight}
+        <p class="text-error">{$errors.cropHeight}</p>
+      {/if}
       <input
         on:change={(e) => onFileSelected(e)}
         bind:this={fileinput}
@@ -99,10 +119,8 @@
         name="image"
         class="file-input file-input-bordered w-full max-w-xs"
       />
-      {#if form?.success}
-        <p class="text-success">Uppladdad</p>
-      {:else if form?.error}
-        <p class="text-error">{form.error}</p>
+      {#if $errors.image}
+        <p class="text-error">{$errors.image}</p>
       {/if}
       <button type="submit" class="btn btn-primary" on:click={() => {}}> Spara </button>
     </form>
@@ -113,14 +131,10 @@
         <ProfileImage
           url={photo.thumbnailUrl}
           current={member.picturePath === photo.thumbnailUrl}
+          fileName={photo.name}
+          changeForm={data.changeForm}
+          deleteForm={data.deleteForm}
         />
-
-        <form method="POST" action="?/delete" use:enhance>
-          <input type="hidden" value={photo.name} name="fileName" />
-          <button class="btn btn-square btn-secondary btn-sm absolute bottom-1 right-1">
-            <span class="i-mdi-delete" />
-          </button>
-        </form>
       </div>
     {/if}
   {/each}

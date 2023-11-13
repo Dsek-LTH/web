@@ -1,8 +1,9 @@
-import { ctxAccessGuard } from "$lib/utils/access";
+import { ctxAccessGuard, withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
 import prisma from "$lib/utils/prisma";
-import { Prisma } from "@prisma/client";
+import { memberSchema } from "$lib/zod/schemas";
 import { error, fail } from "@sveltejs/kit";
+import { message, superValidate } from "sveltekit-superforms/server";
 import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ params, parent }) => {
@@ -18,43 +19,35 @@ export const load: PageServerLoad = async ({ params, parent }) => {
   await ctxAccessGuard(apiNames.MEMBER.UPDATE, session?.user, { studentId: params.studentId });
   return {
     member,
+    form: await superValidate(member, updateBioSchema),
   };
 };
 
+const updateBioSchema = memberSchema.pick({ bio: true });
+
 export const actions = {
   update: async ({ params, locals, request }) => {
+    const form = await superValidate(request, updateBioSchema);
+    if (!form) return fail(400, { form });
     const session = await locals.getSession();
-    await ctxAccessGuard(apiNames.MEMBER.UPDATE, session?.user, { studentId: params.studentId });
     const studentId = params.studentId;
-    const formData = await request.formData();
-    const bio = (formData.get("bio") as string | null) ?? undefined;
-    if (!bio || typeof bio !== "string")
-      return fail(400, {
-        error: "Invalid bio",
-        data: Object.fromEntries(formData),
-      });
-
-    try {
-      await prisma.member.update({
-        where: { studentId },
-        data: {
-          bio: bio,
-        },
-      });
-      return {
-        success: true,
-        data: Object.fromEntries(formData),
-      };
-    } catch (e) {
-      if (e instanceof Prisma.PrismaClientKnownRequestError) {
-        if (e.code === "P2025" || e.code === "2016") {
-          return fail(404, { error: "Member not found", data: Object.fromEntries(formData) });
-        }
-        return fail(500, {
-          error: e.message ?? "Unknown error",
-          data: Object.fromEntries(formData),
+    return withAccess(
+      apiNames.MEMBER.UPDATE,
+      session?.user,
+      async () => {
+        await prisma.member.update({
+          where: { studentId },
+          data: {
+            bio: form.data.bio,
+          },
         });
-      }
-    }
+        return message(form, {
+          message: "Bio uppdaterad",
+          type: "success",
+        });
+      },
+      form,
+      { studentId }
+    );
   },
 };

@@ -100,14 +100,15 @@ export const load: PageServerLoad = async ({ params }) => {
 
 export const actions = {
   update: async ({ params, request, locals }) => {
-    const form = await superValidate(request, updateSchema);
+    const formData = await request.formData();
+    const form = await superValidate(formData, updateSchema);
     if (!form.valid) return fail(400, { form });
     const session = await locals.getSession();
     return withAccess(
       apiNames.COMMITTEE.UPDATE,
       session?.user,
       async () => {
-        const image = (await request.formData()).get("image");
+        const image = formData.get("image");
         if (
           !image ||
           !(image instanceof File) ||
