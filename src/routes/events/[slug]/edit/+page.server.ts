@@ -6,8 +6,7 @@ import { redirect } from "sveltekit-flash-message/server";
 import { superValidate } from "sveltekit-superforms/server";
 import { eventSchema } from "../../schema";
 import type { PageServerLoad } from "./$types";
-const isUUIDRegex =
-  /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/gi;
+import { isUUIDRegex } from "$lib/utils/generateUUID";
 
 export const load: PageServerLoad = async ({ parent, params }) => {
   const allTags = await prisma.tag.findMany();
