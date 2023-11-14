@@ -7,6 +7,9 @@ export const load: PageServerLoad = async ({ locals }) => {
   const myCart = await prisma.cart.findFirst({
     where: {
       studentId: session?.user?.student_id,
+      expiresAt: {
+        gt: new Date(),
+      },
     },
     include: {
       items: {

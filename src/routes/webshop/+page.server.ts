@@ -33,6 +33,9 @@ export const load: PageServerLoad = async ({ locals }) => {
   const myCart = await prisma.cart.findFirst({
     where: {
       studentId: session?.user?.student_id,
+      expiresAt: {
+        gt: new Date(),
+      },
     },
     include: {
       items: {
@@ -91,7 +94,12 @@ export const actions = {
           throw new Error("Invalid product inventory id");
         }
         let myCart = await prisma.cart.findFirst({
-          where: { studentId: session.user.student_id },
+          where: {
+            studentId: session.user.student_id,
+            expiresAt: {
+              gt: new Date(),
+            },
+          },
         });
         if (!myCart) {
           myCart = await prisma.cart.create({
@@ -125,7 +133,12 @@ export const actions = {
           throw new Error("Invalid product inventory id");
         }
         const myCart = await prisma.cart.findFirst({
-          where: { studentId: session.user.student_id },
+          where: {
+            studentId: session.user.student_id,
+            expiresAt: {
+              gt: new Date(),
+            },
+          },
         });
         if (!myCart) throw new Error("Cart not found");
         const productInventory = await cartToInventoryTransaction(productInventoryId, 1, myCart.id);
@@ -206,7 +219,13 @@ async function cartToInventoryTransaction(
     });
 
     const updatedCart = await prisma.cart.findUnique({
-      where: { id: cartId },
+      where: {
+        id: cartId,
+
+        expiresAt: {
+          gt: new Date(),
+        },
+      },
     });
 
     if (!updatedCart) throw new Error("Failed to update cart");

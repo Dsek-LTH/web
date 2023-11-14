@@ -22,7 +22,7 @@
   $: youHaveQuantity = getMyQuantity(product, cart, chest);
 </script>
 
-<div class="card bg-base-100 shadow-xl">
+<div class="card bg-zinc-800 shadow-xl">
   <figure>
     <img
       class="w-full"
