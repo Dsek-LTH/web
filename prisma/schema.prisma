@@ -224,6 +224,7 @@ model DoorAccessPolicy {
   doorName      String    @map("door_name") @db.VarChar(255)
   role          String?   @db.VarChar(255)
   studentId     String?   @map("student_id") @db.VarChar(255)
+  member        Member?   @relation(fields: [studentId], references: [studentId], onDelete: NoAction, onUpdate: NoAction, map: "door_access_policies_member_id_foreign")
   startDatetime DateTime? @map("start_datetime") @db.Timestamptz(6)
   endDatetime   DateTime? @map("end_datetime") @db.Timestamptz(6)
   door          Door      @relation(fields: [doorName], references: [name], onDelete: NoAction, onUpdate: NoAction, map: "door_access_policies_door_name_foreign")
@@ -384,6 +385,7 @@ model Member {
   notifications          Notification[]
   subscriptionSettings   SubscriptionSetting[]
   memberSpecificPolicies AccessPolicy[]
+  DoorAccessPolicy       DoorAccessPolicy[]
 
   @@map("members")
 }
