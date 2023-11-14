@@ -21,7 +21,11 @@
     <div class="navbar w-full bg-base-200">
       <div class="block lg:hidden">
         <label for="my-drawer-3" aria-label="open sidebar" class="btn btn-square btn-ghost">
-          <span class="i-mdi-menu h-10 w-10"> </span>
+          <span
+            class="i-mdi-menu h-10 w-10 bg-primary
+          "
+          >
+          </span>
         </label>
       </div>
       <div class="hidden flex-none lg:block">
@@ -73,14 +77,46 @@
       <div class="flex-1" />
       <DarkLightToggle />
       {#if $page.data.session}
-        <button class="btn btn-ghost" on:click={() => signOut()}
-          ><span class="i-mdi-logout h-6 w-6"> </span>
-          Logga ut</button
-        >
-        <a href={`/members/${user?.student_id}`} class="btn btn-ghost">
-          <span class="i-mdi-account-circle h-6 w-6"> </span>
-          Profil ({user?.student_id})</a
-        >
+        <div class="dropdown-hover dropdown dropdown-end">
+          <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+          <!-- svelte-ignore a11y-label-has-associated-control -->
+          <label tabindex="0" class="btn btn-ghost m-1"
+            ><span class="i-mdi-account-circle h-10 w-10"> </span></label
+          >
+          <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+          <div
+            tabindex="0"
+            class="card dropdown-content card-compact z-[1] w-max bg-base-100 p-2 text-center text-base-content shadow"
+          >
+            <div class="card-body">
+              <p class="text-center font-semibold">Inloggad som</p>
+              <h3 class="text-xl font-bold">
+                {user?.name}
+              </h3>
+              <p class="text-sm">({user?.student_id})</p>
+              <span class="divider m-1"></span>
+
+              <div class="flex flex-col items-start gap-2">
+                <a
+                  href={`/members/${user?.student_id}`}
+                  class="btn btn-ghost w-48 justify-start text-base-content"
+                >
+                  <span class="i-mdi-account-circle h-6 w-6 bg-primary"> </span>
+                  Profil</a
+                >
+                <a href="/settings" class="btn btn-ghost w-48 justify-start">
+                  <span class="i-mdi-cog h-6 w-6 bg-primary"> </span>
+                  Inställningar</a
+                >
+              </div>
+              <span class="divider m-1"></span>
+              <button class="btn btn-ghost justify-start" on:click={() => signOut()}>
+                <span class="i-mdi-logout h-6 w-6 bg-primary"> </span>
+                Logga ut</button
+              >
+            </div>
+          </div>
+        </div>
       {:else}
         <button class="btn btn-ghost" on:click={() => signIn("keycloak")}>Logga in</button>
       {/if}
