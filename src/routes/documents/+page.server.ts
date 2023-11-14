@@ -1,6 +1,8 @@
 import { fileHandler } from "$lib/files";
 import type { FileData } from "$lib/files/fileHandler.js";
-import { error } from "@sveltejs/kit";
+import { ctxAccessGuard } from "$lib/utils/access";
+import apiNames from "$lib/utils/apiNames";
+import { error, fail } from "@sveltejs/kit";
 
 export type DocumentType = "board-meeting" | "guild-meeting" | "other";
 const prefixByType: Record<DocumentType, string> = {
@@ -52,4 +54,30 @@ export const load = async ({ parent, url }) => {
     files,
     meetings: filesGroupedByMeeting,
   };
+};
+
+export const actions = {
+  deleteFile: async ({ request, locals }) => {
+    const session = await locals.getSession();
+    await ctxAccessGuard(apiNames.FILES.BUCKET("dev-documents").DELETE, session?.user);
+    const formData = await request.formData();
+    const id = formData.get("id");
+    if (!id || typeof id !== "string")
+      return fail(400, {
+        message: "Missing mandate id",
+        data: Object.fromEntries(formData),
+      });
+    try {
+      await fileHandler.remove(session?.user, "dev-documents", [id]);
+      return {
+        success: true,
+        data: Object.fromEntries(formData),
+      };
+    } catch {
+      return fail(500, {
+        error: "Unknown error",
+        data: Object.fromEntries(formData),
+      });
+    }
+  },
 };
