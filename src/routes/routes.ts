@@ -44,6 +44,11 @@ export const routes = [
         path: "/songbook",
         icon: "i-mdi-library-music",
       },
+      {
+        title: "Webshop",
+        path: "/webshop",
+        icon: "i-mdi-store",
+      },
     ],
   },
   {
