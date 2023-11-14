@@ -2,7 +2,7 @@
   import type { GoverningDocument } from "@prisma/client";
   import { enhance } from "$app/forms";
   import Input from "$lib/components/Input.svelte";
-  export let governingDocument: GoverningDocument | undefined | null;
+  export let governingDocument: GoverningDocument | null = null;
   let documentType = governingDocument?.documentType ?? "POLICY";
 </script>
 
