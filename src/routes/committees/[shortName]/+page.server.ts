@@ -110,13 +110,14 @@ export const actions = {
       session?.user,
       async () => {
         const image = formData.get("image");
-        if (
-          !image ||
-          !(image instanceof File) ||
-          image.size <= 0 ||
-          image.type !== "image/svg+xml"
-        ) {
-          return setError(form, "image", "Du måste ladda upp en korrekt bild");
+        if (!image || !(image instanceof File) || image.size <= 0) {
+          return setError(
+            form,
+            "image",
+            "Bilden du laddade upp har ingen data eller är felaktig på annat sätt"
+          );
+        } else if (image.type !== "image/svg+xml") {
+          return setError(form, "image", "Bilden måste vara i .svg format ");
         }
         let newImageUploaded = false;
         const path = `committees/${params.shortName}.svg`;

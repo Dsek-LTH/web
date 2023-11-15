@@ -6,6 +6,15 @@ import { fail } from "@sveltejs/kit";
 import { message, setError, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 
+const getExtensionOfFile = (fileName: string) => {
+  const dotIndex = fileName.lastIndexOf(".");
+  if (dotIndex < 0) return "";
+  return fileName.slice(dotIndex + 1);
+};
+const prepareNameForFilesystem = (name: string, fileName: string) =>
+  name.replace(/\s/g, "_").replace(/[^a-zA-Z0-9_]/g, "") + // replaces spaces with "_" and removes all special characters
+  getExtensionOfFile(fileName);
+
 export const load = async ({ parent, url }) => {
   const { session } = await parent();
   const year = url.searchParams.get("year") ?? new Date().getFullYear();
@@ -45,10 +54,7 @@ export const actions = {
         if (!file || !(file instanceof File) || file.size <= 0) {
           return setError(form, "file", "Felaktig fil");
         }
-        const formattedName =
-          String(name)
-            .replace(/\s/g, "_")
-            .replace(/[^a-zA-Z0-9_]/g, "") + file.name.slice(file.name.lastIndexOf("."));
+        const formattedName = prepareNameForFilesystem(name, file.name);
         const path = `${year}/${meeting}/${formattedName}`;
         const putUrl = await fileHandler.getPresignedPutUrl(
           session?.user,
