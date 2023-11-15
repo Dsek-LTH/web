@@ -10,7 +10,7 @@
   import PageHeader from "$lib/components/PageHeader.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import apiNames from "$lib/utils/apiNames";
-  import { getFullName } from "$lib/utils/member.js";
+  import { getFullName } from "$lib/utils/client/member";
   import type { Prisma } from "@prisma/client";
   import AddMandateForm from "./AddMandateForm.svelte";
   import UpdateMandateForm from "./UpdateMandateForm.svelte";

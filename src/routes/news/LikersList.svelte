@@ -1,6 +1,6 @@
 <script lang="ts">
   import { page } from "$app/stores";
-  import { getFullName } from "$lib/utils/member";
+  import { getFullName } from "$lib/utils/client/member";
   import type { Member } from "@prisma/client";
   import AuthorSignature from "./AuthorSignature.svelte";
 

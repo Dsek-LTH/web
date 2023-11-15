@@ -1,6 +1,6 @@
 <script lang="ts">
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
-  import { getFullName } from "$lib/utils/member";
+  import { getFullName } from "$lib/utils/client/member";
   import { page } from "$app/stores";
   import { superForm } from "sveltekit-superforms/client";
   import ProfileImage from "./ProfileImage.svelte";

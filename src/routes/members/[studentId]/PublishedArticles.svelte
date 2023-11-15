@@ -9,7 +9,7 @@
 <div class="mb-4 flex flex-col gap-2">
   {#each articles as article (article.id)}
     <ActivityButton
-      link="/events/{article.slug}"
+      link="/news/{article.slug}"
       title={article.header}
       rightAdornment={article.publishedAt?.toLocaleDateString("sv") ?? ""}
     />

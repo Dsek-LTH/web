@@ -7,6 +7,7 @@
   import type { ArticleComment, EventComment, Member } from "@prisma/client";
   import type { SuperValidated } from "sveltekit-superforms";
   import { superForm } from "sveltekit-superforms/client";
+
   export let author: Member;
   export let commentForm: SuperValidated<CommentSchema>;
   const { form, errors, constraints, enhance } = superForm(commentForm, {

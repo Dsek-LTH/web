@@ -42,6 +42,7 @@ export const load: PageServerLoad = async ({ params }) => {
             studentId: params.studentId,
           },
         },
+        removedAt: null,
       },
       orderBy: {
         publishedAt: "desc",
