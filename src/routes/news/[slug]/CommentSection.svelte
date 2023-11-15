@@ -3,7 +3,7 @@
   import CommentInput from "$lib/components/socials/CommentInput.svelte";
   import CommentRow from "$lib/components/socials/CommentRow.svelte";
   import apiNames from "$lib/utils/apiNames";
-  import { getFullName } from "$lib/utils/member";
+  import { getFullName } from "$lib/utils/client/member";
   import type { ArticleComment, EventComment, Member } from "@prisma/client";
   export let comments: ((ArticleComment | EventComment) & {
     member: Member;

@@ -35,11 +35,9 @@
   </p>
   <p>
     Om du har några frågor eller funderingar kring styrdokumenten kan du kontakta
-    <a
-      href="mailto:styrelsen@dsek.se"
-      class="link-primary link no-underline hover:underline
-    ">styrelsen@dsek.se</a
-    >
+    <a href="mailto:styrelsen@dsek.se" class="link-primary link no-underline hover:underline">
+      styrelsen@dsek.se
+    </a>
   </p>
   <div class="flex gap-1">
     <File name="Stadgar" url="https://dsek.se/stadgar" />

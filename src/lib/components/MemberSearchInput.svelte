@@ -2,7 +2,7 @@
   import MemberSearch from "$lib/components/MemberSearch.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import { page } from "$app/stores";
-  import { getFullName } from "$lib/utils/member";
+  import { getFullName } from "$lib/utils/client/member";
   import type { Member } from "@prisma/client";
   export let member: Member | undefined = undefined;
   let isSearching: boolean;

@@ -1,6 +1,6 @@
 <script lang="ts">
   import MemberImage from "$lib/components/socials/MemberImage.svelte";
-  import { getFullName } from "$lib/utils/member";
+  import { getFullName } from "$lib/utils/client/member";
   import type { Author, CustomAuthor, Member, Position } from "@prisma/client";
   import { page } from "$app/stores";
   export let member: Member;

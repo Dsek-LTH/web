@@ -2,12 +2,12 @@
   import ClassBadge from "$lib/components/ClassBadge.svelte";
 
   import { enhance } from "$app/forms";
+  import { page } from "$app/stores";
   import Labeled from "$lib/components/Labeled.svelte";
   import PageHeader from "$lib/components/PageHeader.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import apiNames from "$lib/utils/apiNames";
-  import { page } from "$app/stores";
-  import { getFullName } from "$lib/utils/member.js";
+  import { getFullName } from "$lib/utils/client/member";
   import type { Prisma } from "@prisma/client";
   import AddMandateForm from "./AddMandateForm.svelte";
   export let data;

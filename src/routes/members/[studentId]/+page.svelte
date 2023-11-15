@@ -9,7 +9,7 @@
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import apiNames from "$lib/utils/apiNames";
-  import { getFullName } from "$lib/utils/member";
+  import { getFullName } from "$lib/utils/client/member";
 
   export let data;
   export let form;
