@@ -8,6 +8,7 @@ import generateUUID from "$lib/utils/generateUUID";
 import { message, setError, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { PageServerLoad } from "./$types";
+import { PUBLIC_BUCKETS_MEMBERS } from "$env/static/public";
 
 export const load: PageServerLoad = async ({ params, parent }) => {
   const member = await prisma.member.findUnique({
@@ -22,7 +23,7 @@ export const load: PageServerLoad = async ({ params, parent }) => {
   await ctxAccessGuard(apiNames.MEMBER.UPDATE, session?.user, { studentId: params.studentId });
   const photos = await fileHandler.getInBucket(
     session?.user,
-    "dev-members",
+    PUBLIC_BUCKETS_MEMBERS,
     `${params.studentId}/profile-picture`,
     true
   );
@@ -111,7 +112,7 @@ export const actions = {
             .toBuffer();
           const putUrl = await fileHandler.getPresignedPutUrl(
             session?.user,
-            "dev-members",
+            PUBLIC_BUCKETS_MEMBERS,
             `${params.studentId}/profile-picture/${fileName}.webp`
           );
           const res = await fetch(putUrl, {
@@ -154,7 +155,7 @@ export const actions = {
       session?.user,
       async () => {
         const fileName = form.data.fileName;
-        await fileHandler.remove(session?.user, "dev-members", [
+        await fileHandler.remove(session?.user, PUBLIC_BUCKETS_MEMBERS, [
           `${params.studentId}/profile-picture/${fileName}`,
         ]);
         return message(form, {

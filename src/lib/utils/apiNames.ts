@@ -32,7 +32,7 @@ const apiNames = {
   LOGGED_IN: "_",
   FILES: {
     BUCKET: <bucketName extends string>(name: bucketName) =>
-      crud(`fileHandler:${name.substring(4)}`), // remove "dev-" prefix
+      crud(`fileHandler:${name.startsWith("dev-") ? name.substring(4) : name}`), // remove "dev-" prefix
   },
   MARKDOWNS: {
     ...crud("markdowns"),

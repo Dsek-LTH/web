@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
   import Pagination from "$lib/components/Pagination.svelte";
   import Tabs from "$lib/components/Tabs.svelte";
   import apiNames from "$lib/utils/apiNames";
@@ -46,7 +47,7 @@
     <Tabs options={typeOptions} bind:currentTab={type} fieldName="type" />
   </div>
   <div>
-    {#if data.accessPolicies.includes(apiNames.FILES.BUCKET("dev-documents").CREATE)}
+    {#if data.accessPolicies.includes(apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).CREATE)}
       <a class="btn btn-primary" href="/documents/upload">Ladda upp fil</a>
     {/if}
   </div>

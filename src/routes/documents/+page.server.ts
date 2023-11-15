@@ -1,6 +1,7 @@
 import { fileHandler } from "$lib/files";
 import type { FileData } from "$lib/files/fileHandler.js";
 import { error } from "@sveltejs/kit";
+import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
 
 export type DocumentType = "board-meeting" | "guild-meeting" | "other";
 const prefixByType: Record<DocumentType, string> = {
@@ -14,7 +15,7 @@ export const load = async ({ parent, url }) => {
   const type: DocumentType = (url.searchParams.get("type") as DocumentType) || "board-meeting";
   const files = await fileHandler.getInBucket(
     session?.user,
-    "dev-documents",
+    PUBLIC_BUCKETS_DOCUMENTS,
     year + "/" + (prefixByType[type] ?? ""),
     true
   );

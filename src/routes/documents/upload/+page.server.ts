@@ -1,3 +1,4 @@
+import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
 import { fileHandler } from "$lib/files";
 import { withAccess } from "$lib/utils/access.js";
 import apiNames from "$lib/utils/apiNames.js";
@@ -8,7 +9,12 @@ import { z } from "zod";
 export const load = async ({ parent, url }) => {
   const { session } = await parent();
   const year = url.searchParams.get("year") ?? new Date().getFullYear();
-  const files = await fileHandler.getInBucket(session?.user, "dev-documents", `${year}/`, false);
+  const files = await fileHandler.getInBucket(
+    session?.user,
+    PUBLIC_BUCKETS_DOCUMENTS,
+    `${year}/`,
+    false
+  );
   const form = await superValidate(uploadSchema);
   return {
     files,
@@ -31,7 +37,7 @@ export const actions = {
     if (!form.valid) return fail(400, { form });
     const session = await locals.getSession();
     return withAccess(
-      apiNames.FILES.BUCKET("dev-documents").CREATE,
+      apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).CREATE,
       session?.user,
       async () => {
         const { meeting, name, year } = form.data;
@@ -44,7 +50,11 @@ export const actions = {
             .replace(/\s/g, "_")
             .replace(/[^a-zA-Z0-9_]/g, "") + file.name.slice(file.name.lastIndexOf("."));
         const path = `${year}/${meeting}/${formattedName}`;
-        const putUrl = await fileHandler.getPresignedPutUrl(session?.user, "dev-documents", path);
+        const putUrl = await fileHandler.getPresignedPutUrl(
+          session?.user,
+          PUBLIC_BUCKETS_DOCUMENTS,
+          path
+        );
         const res = await fetch(putUrl, {
           method: "PUT",
           body: file,

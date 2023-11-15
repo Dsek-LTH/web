@@ -6,6 +6,7 @@ import { error, fail } from "@sveltejs/kit";
 import { message, setError, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { PageServerLoad } from "./$types";
+import { PUBLIC_BUCKETS_MATERIAL } from "$env/static/public";
 
 const updateSchema = z.object({
   name: z.string().optional(),
@@ -123,7 +124,7 @@ export const actions = {
           try {
             const putUrl = await fileHandler.getPresignedPutUrl(
               session?.user,
-              "dev-material",
+              PUBLIC_BUCKETS_MATERIAL,
               path,
               true
             );
