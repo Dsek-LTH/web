@@ -67,6 +67,11 @@
 
 <div class="flex flex-col gap-4">
   {#each meetings as meeting (meeting)}
-    <Meeting name={meeting} files={data.meetings[meeting] ?? []} {isEditing} />
+    <Meeting
+      name={meeting}
+      files={data.meetings[meeting] ?? []}
+      {isEditing}
+      deleteForm={data.deleteForm}
+    />
   {/each}
 </div>

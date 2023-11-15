@@ -1,7 +1,8 @@
 <script>
+  import { page } from "$app/stores";
   import GoverningDocumentEditor from "../../GoverningDocumentEditor.svelte";
 
   export let data;
 </script>
 
-<GoverningDocumentEditor governingDocument={data.governingDocument} />
+<GoverningDocumentEditor isCreating={false} data={data.form} documentId={$page.params.id} />
