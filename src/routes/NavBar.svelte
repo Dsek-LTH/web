@@ -22,7 +22,7 @@
       <div class="block lg:hidden">
         <label for="my-drawer-3" aria-label="open sidebar" class="btn btn-square btn-ghost">
           <span
-            class="i-mdi-menu h-10 w-10 bg-primary
+            class="i-mdi-menu h-10 w-10 text-primary
           "
           >
           </span>
@@ -33,14 +33,14 @@
         {#each routes as route (route.title)}
           {#if !route.accessRequired || accessPolicies.includes(route.accessRequired)}
             {#if route?.children?.length}
-              <div class="dropdown dropdown-hover">
+              <div class="dropdown-hover dropdown">
                 <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
                 <!-- svelte-ignore a11y-label-has-associated-control -->
                 <label tabindex="0" class="btn btn-ghost">
                   {#if route.isDsekIcon}
-                    <DsekLogo className="h-6 w-6 text-primary-focus" />
+                    <DsekLogo className="h-6 w-6 text-primary" />
                   {:else}
-                    <span class={`${route.icon} h-6 w-6 text-primary-focus`} />
+                    <span class={`${route.icon} h-6 w-6 text-primary`} />
                   {/if}
                   {route.title}</label
                 >
@@ -53,7 +53,7 @@
                     {#if !child.accessRequired || accessPolicies.includes(child.accessRequired)}
                       <li>
                         <a href={child.path} class="btn-ghost">
-                          <span class={`${child.icon} h-6 w-6 text-primary-focus`} />
+                          <span class={`${child.icon} h-6 w-6 text-primary`} />
                           {child.title}</a
                         >
                       </li>
@@ -64,9 +64,9 @@
             {:else}
               <a class="btn btn-ghost" href={route.path}>
                 {#if route.isDsekIcon}
-                  <DsekLogo className="h-6 w-6 text-primary-focus" />
+                  <DsekLogo className="h-6 w-6 text-primary" />
                 {:else}
-                  <span class={`${route.icon} h-6 w-6 text-primary-focus`} />
+                  <span class={`${route.icon} h-6 w-6 text-primary`} />
                 {/if}
                 {route.title}
               </a>
@@ -101,17 +101,17 @@
                   href={`/members/${user?.student_id}`}
                   class="btn btn-ghost w-48 justify-start text-base-content"
                 >
-                  <span class="i-mdi-account-circle h-6 w-6 bg-primary"> </span>
+                  <span class="i-mdi-account-circle h-6 w-6 text-primary"> </span>
                   Profil</a
                 >
                 <a href="/settings" class="btn btn-ghost w-48 justify-start">
-                  <span class="i-mdi-cog h-6 w-6 bg-primary"> </span>
+                  <span class="i-mdi-cog h-6 w-6 text-primary"> </span>
                   Inställningar</a
                 >
               </div>
               <span class="divider m-1"></span>
               <button class="btn btn-ghost justify-start" on:click={() => signOut()}>
-                <span class="i-mdi-logout h-6 w-6 bg-primary"> </span>
+                <span class="i-mdi-logout h-6 w-6 text-primary"> </span>
                 Logga ut</button
               >
             </div>
@@ -135,9 +135,9 @@
               <li>
                 <span class="btn content-center justify-start">
                   {#if route.isDsekIcon}
-                    <DsekLogo className="h-6 w-6 text-primary-focus" />
+                    <DsekLogo className="h-6 w-6 text-primary" />
                   {:else}
-                    <span class={`${route.icon} h-6 w-6 text-primary-focus`} />
+                    <span class={`${route.icon} h-6 w-6 text-primary`} />
                   {/if}
                   {route.title}</span
                 >
@@ -150,7 +150,7 @@
                           href={child.path}
                           class="btn content-center justify-start"
                         >
-                          <span class={`${child.icon} h-6 w-6 text-primary-focus`} />
+                          <span class={`${child.icon} h-6 w-6 text-primary`} />
                           {child.title}
                         </a>
                       </li>
@@ -162,9 +162,9 @@
               <li>
                 <a on:click={close} href="/" class="btn content-center justify-start">
                   {#if route.isDsekIcon}
-                    <DsekLogo className="h-6 w-6 text-primary-focus" />
+                    <DsekLogo className="h-6 w-6 text-primary" />
                   {:else}
-                    <span class={`${route.icon} h-6 w-6 text-primary-focus`} />
+                    <span class={`${route.icon} h-6 w-6 text-primary`} />
                   {/if}
                   {route.title}
                 </a>
