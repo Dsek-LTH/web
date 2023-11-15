@@ -6,7 +6,7 @@
     "dev": "vite dev",
     "dev-setup": "vite-node dev/setup.ts",
     "build": "vite build",
-    "prepare": "svelte-kit sync && prisma generate",
+    "prepare": "svelte-kit sync && prisma generate && husky install",
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
@@ -67,5 +67,9 @@
     "tailwind-merge": "^2.0.0",
     "theme-change": "^2.5.0",
     "tiptap-markdown": "^0.8.4"
+  },
+  "lint-staged": {
+    "*.js": "eslint --cache --fix",
+    "*.{js,css,md}": "prettier --write"
   }
 }
