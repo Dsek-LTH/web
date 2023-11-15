@@ -6,6 +6,8 @@
   const { form, constraints, errors, enhance } = superForm(data.form, {
     onResult: (event) => {
       if (event.result.type === "success") {
+        // On successful upload, set files to undefined and clear the filename
+        // year and meeting is still kept as to easily upload more files for the same meeting
         files = undefined;
         form.update((f) => {
           f.name = "";
@@ -15,6 +17,12 @@
     },
   });
   let files: FileList | undefined = undefined;
+  const setNameInputToFileName = () => {
+    form.update((f) => {
+      f.name = files?.[0]?.name.replace(/_+/g, " ").replace(/\..+$/, "") ?? "";
+      return f;
+    });
+  };
 </script>
 
 <svelte:head>
@@ -64,12 +72,7 @@
       class="file-input file-input-bordered"
       required
       bind:files
-      on:change={() => {
-        form.update((f) => {
-          f.name = files?.[0]?.name.replace(/_+/g, " ").replace(/\..+$/, "") ?? "";
-          return f;
-        });
-      }}
+      on:change={setNameInputToFileName}
       {...$constraints.file}
     />
   </Labeled>

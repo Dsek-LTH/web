@@ -106,14 +106,11 @@ export const withAccess = async <
     return await fn();
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
-      // return fail(400, { form, error: e.message });
-      // throw error(400, { message: e.message });
       console.log("Prisma error", e);
       return message(
         form,
         {
-          // message: e.message,
-          message: "instanceof",
+          message: e.message,
           type: "error",
         },
         {
@@ -126,13 +123,10 @@ export const withAccess = async <
       "message" in (e as HttpError).body
     ) {
       console.log("Http error", e);
-      // return fail((e as HttpError).status, { form, error: (e as HttpError).body.message });
-      // throw error((e as HttpError).status, { message: (e as HttpError).body.message });
       return message(
         form,
         {
-          // message: (e as HttpError).body.message,
-          message: "http error",
+          message: (e as HttpError).body.message,
           type: "error",
         },
         {
@@ -141,7 +135,6 @@ export const withAccess = async <
       );
     }
     console.warn("Unknown error occured", e);
-    // return fail(500, { form, error: "Unknown error" });
     throw e;
   }
 };
