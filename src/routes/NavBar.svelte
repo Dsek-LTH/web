@@ -160,7 +160,7 @@
               </li>
             {:else}
               <li>
-                <a on:click={close} href="/" class="btn content-center justify-start">
+                <a on:click={close} href={route.path} class="btn content-center justify-start">
                   {#if route.isDsekIcon}
                     <DsekLogo className="h-6 w-6 text-primary" />
                   {:else}
