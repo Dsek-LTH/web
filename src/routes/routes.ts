@@ -14,6 +14,12 @@ export const routes = [
     accessRequired: apiNames.NEWS.READ,
   },
   {
+    title: "Evenemang",
+    path: "/events",
+    icon: "i-mdi-calendar",
+    accessRequired: apiNames.EVENT.READ,
+  },
+  {
     title: "Dokument",
     path: null,
     icon: "i-mdi-text-box-multiple",
