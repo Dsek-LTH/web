@@ -1,7 +1,7 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
-  import { getFullName } from "$lib/utils/member";
+  import { getFullName } from "$lib/utils/client/member";
   import { page } from "$app/stores";
   import ProfileImage from "./ProfileImage.svelte";
   import Cropper from "svelte-easy-crop";

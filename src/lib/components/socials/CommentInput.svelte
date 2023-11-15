@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { page } from "$app/stores";
   import { enhance } from "$app/forms";
+  import { page } from "$app/stores";
   import MemberSearch from "$lib/components/MemberSearch.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
-  import { getFullName } from "$lib/utils/member";
+  import { getFullName } from "$lib/utils/client/member";
   import type { Member } from "@prisma/client";
   export let author: Member;
   export let value: string = "";

@@ -4,9 +4,9 @@
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import apiNames from "$lib/utils/apiNames";
-  import { tagRegex } from "$lib/utils/commentTagging";
-  import { relativeDate } from "$lib/utils/datetime";
-  import { getFullName } from "$lib/utils/member";
+  import { relativeDate } from "$lib/utils/client/datetime";
+  import { getFullName } from "$lib/utils/client/member";
+  import { tagRegex } from "$lib/utils/client/commentTagging";
   import type { ArticleComment, EventComment, Member } from "@prisma/client";
 
   export let type: "NEWS" | "EVENT";

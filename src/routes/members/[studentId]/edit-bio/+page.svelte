@@ -2,7 +2,7 @@
   import { enhance } from "$app/forms";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
-  import { getFullName } from "$lib/utils/member";
+  import { getFullName } from "$lib/utils/client/member";
   import { page } from "$app/stores";
 
   export let data;
