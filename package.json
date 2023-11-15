@@ -34,6 +34,7 @@
     "eslint": "^8.50.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-svelte": "^2.33.2",
+    "husky": "^8.0.3",
     "postcss": "^8.4.31",
     "prettier": "^3.0.3",
     "prettier-plugin-svelte": "^3.0.3",
@@ -70,6 +71,7 @@
   },
   "lint-staged": {
     "*.js": "eslint --cache --fix",
-    "*.{js,css,md}": "prettier --write"
+    "*.{js,css,md}": "prettier --write",
+    "*.{ts,svelte}": "prettier --write --parser svelte-ts"
   }
 }
