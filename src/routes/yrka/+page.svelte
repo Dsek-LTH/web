@@ -1,0 +1,35 @@
+<script lang="ts">
+  import Input from "$lib/components/Input.svelte";
+  import Labeled from "$lib/components/Labeled.svelte";
+  import PageHeader from "$lib/components/PageHeader.svelte";
+  import { superForm } from "sveltekit-superforms/client";
+  export let data;
+  const { form, errors, constraints, enhance } = superForm(data.form, {
+    resetForm: true,
+  });
+</script>
+
+<PageHeader title="Yrka på ett sektionsmöte" />
+<form use:enhance method="POST" class="form-control gap-4">
+  <Input
+    label="Yrkandetitel"
+    name="title"
+    placeholder="Toapaus"
+    explanation="Detta är för att hjälpa talmannen i sin inkorg"
+    bind:value={$form.title}
+    error={$errors.title}
+    {...$constraints.title}
+  />
+  <Labeled label="Ditt yrkande" id="content" error={$errors.content}>
+    <textarea
+      id="content"
+      name="content"
+      class="textarea textarea-bordered min-h-[12rem] pt-8"
+      placeholder="att ta en 5 minuter toapaus"
+      bind:value={$form.content}
+      {...$constraints.content}
+    />
+    <span class="absolute left-4 top-12 text-sm italic opacity-50">Jag yrkar på: </span>
+  </Labeled>
+  <button type="submit" class="btn btn-primary btn-outline self-start">Skicka</button>
+</form>

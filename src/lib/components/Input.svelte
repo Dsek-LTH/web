@@ -7,9 +7,10 @@
   export let value: string | null = null;
   export let required: boolean | null = null;
   export let error: string | string[] | undefined = undefined;
+  export let explanation: string | null = null;
 </script>
 
-<Labeled {label} id={name} {error}>
+<Labeled {label} id={name} {error} {explanation} {...$$restProps}>
   <input
     id={name}
     {name}

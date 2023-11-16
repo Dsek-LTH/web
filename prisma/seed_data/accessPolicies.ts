@@ -2,68 +2,65 @@ import { PrismaClient } from "@prisma/client";
 import apiNames from "../../src/lib/utils/apiNames";
 
 export const insertAccessPolicies = async (prisma: PrismaClient) => {
+  return Promise.all([
+    insertMaterialBucketAccessPolicies(prisma),
+    insertEventCommenteDelete(prisma),
+    insertYrkaSend(prisma),
+  ]);
+};
+
+const insertPolicies = async (prisma: PrismaClient, apiName: string, roles: string[]) => {
   if (
     (await prisma.accessPolicy.count({
       where: {
-        apiName: apiNames.FILES.BUCKET("material").CREATE,
+        apiName,
+        role: {
+          in: roles,
+        },
       },
-    })) <= 0
+    })) <= roles.length
   ) {
-    await prisma.accessPolicy.createMany({
-      data: [
-        {
-          apiName: apiNames.FILES.BUCKET("material").READ,
-          role: "*",
-        },
-        {
-          apiName: apiNames.FILES.BUCKET("material").CREATE,
-          role: "dsek.infu.dwww",
-        },
-        {
-          apiName: apiNames.FILES.BUCKET("material").CREATE,
-          role: "dsek.styr",
-        },
-        {
-          apiName: apiNames.FILES.BUCKET("material").UPDATE,
-          role: "dsek.infu.dwww",
-        },
-        {
-          apiName: apiNames.FILES.BUCKET("material").UPDATE,
-          role: "dsek.styr",
-        },
-        {
-          apiName: apiNames.FILES.BUCKET("material").DELETE,
-          role: "dsek.infu.dwww",
-        },
-      ],
-    });
-  }
-  if (
-    (await prisma.accessPolicy.count({
+    await prisma.accessPolicy.deleteMany({
       where: {
-        apiName: apiNames.EVENT.COMMENT_DELETE,
+        apiName,
+        role: {
+          in: roles,
+        },
       },
-    })) <= 0
-  ) {
+    });
     await prisma.accessPolicy.createMany({
-      data: [
-        {
-          apiName: apiNames.EVENT.COMMENT_DELETE,
-          role: "dsek.infu.dwww",
-        },
-        {
-          apiName: apiNames.EVENT.COMMENT_DELETE,
-          role: "dsek.infu.redaktor",
-        },
-        {
-          apiName: apiNames.EVENT.COMMENT_DELETE,
-          role: "dsek.infu.webmaster",
-        },
-        {
-          apiName: apiNames.EVENT.COMMENT_DELETE,
-          role: "dsek.styr",
-        },
-      ],
+      data: roles.map((role) => ({
+        apiName,
+        role,
+      })),
     });
   }
+};
+
+const insertMaterialBucketAccessPolicies = async (prisma: PrismaClient) => {
+  await Promise.all([
+    insertPolicies(prisma, apiNames.FILES.BUCKET("material").CREATE, [
+      "dsek.infu.dwww",
+      "dsek.styr",
+    ]),
+    insertPolicies(prisma, apiNames.FILES.BUCKET("material").READ, ["*"]),
+    insertPolicies(prisma, apiNames.FILES.BUCKET("material").UPDATE, [
+      "dsek.infu.dwww",
+      "dsek.styr",
+    ]),
+    insertPolicies(prisma, apiNames.FILES.BUCKET("material").DELETE, ["dsek.infu.dwww"]),
+  ]);
+};
+
+const insertEventCommenteDelete = async (prisma: PrismaClient) => {
+  await insertPolicies(prisma, apiNames.EVENT.COMMENT_DELETE, [
+    "dsek.infu.dwww",
+    "dsek.infu.redaktor",
+    "dsek.infu.webmaster",
+    "dsek.styr",
+  ]);
+};
+
+const insertYrkaSend = async (prisma: PrismaClient) => {
+  await insertPolicies(prisma, apiNames.YRKA.SEND, ["_"]);
 };
