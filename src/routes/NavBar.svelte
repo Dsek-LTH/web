@@ -12,21 +12,13 @@
   function close() {
     checked = !checked;
   }
-  let y: number;
-  $: top = y == 0;
 </script>
-
-<svelte:window bind:scrollY={y} />
 
 <div class="drawer">
   <input id="my-drawer-3" type="checkbox" class="drawer-toggle" bind:checked />
   <div class="drawer-content flex flex-col">
     <!-- Navbar -->
-    <div
-      class="glass navbar fixed z-20 w-full transition-all"
-      class:glass-fill={top}
-      class:glass={!top}
-    >
+    <div class="glass navbar fixed z-20 w-full shadow-none transition-all">
       <div class="block lg:hidden">
         <label for="my-drawer-3" aria-label="open sidebar" class="btn btn-square btn-ghost">
           <span
@@ -234,13 +226,10 @@
 </div>
 
 <style>
-  :global(.glass) {
+  .glass {
     background: hsl(var(--b2) / 0.6);
     /* box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); */
     backdrop-filter: blur(10.5px);
     -webkit-backdrop-filter: blur(10.5px);
-  }
-  .glass-fill {
-    background: hsl(var(--b2) / 0.9);
   }
 </style>
