@@ -1,13 +1,13 @@
 <script lang="ts">
-  import { page } from "$app/stores";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import TagChip from "$lib/components/TagChip.svelte";
-  import apiNames from "$lib/utils/apiNames";
   import type { Article as ArticleType, Member, Tag } from "@prisma/client";
+  import type { SuperValidated } from "sveltekit-superforms";
   import AuthorSignature from "./AuthorSignature.svelte";
   import LikeButton from "./LikeButton.svelte";
   import LikersList from "./LikersList.svelte";
   import type { AuthorOption } from "./articles";
+  import type { LikeSchema } from "./likes";
 
   export let onTagClick: (tag: Tag) => void;
   export let article: ArticleType;
@@ -15,6 +15,7 @@
   export let tags: Tag[];
   export let likers: Member[];
   export let commentCount: number;
+  export let likeForm: SuperValidated<LikeSchema>;
 </script>
 
 <article
@@ -64,9 +65,7 @@
   <div class="mt-4 flex flex-row flex-wrap items-start justify-between gap-2">
     <div class="flex flex-col gap-2">
       <LikersList {likers} />
-      <LikeButton {likers} disabled={!$page.data.accessPolicies.includes(apiNames.NEWS.LIKE)}>
-        <input slot="hidden-input" type="hidden" value={article.id} name="articleId" />
-      </LikeButton>
+      <LikeButton {likers} {likeForm} articleId={article.id} />
     </div>
     {#if commentCount > 0}
       <a

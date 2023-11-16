@@ -1,8 +1,8 @@
 import { getUserApis } from "$lib/utils/access";
 import prisma from "$lib/utils/prisma";
-import type { LayoutServerLoad } from "./$types";
+import { loadFlash } from "sveltekit-flash-message/server";
 
-export const load: LayoutServerLoad = async ({ locals }) => {
+export const load = loadFlash(async ({ locals }) => {
   const session = await locals.getSession();
   const accessPolicies = await getUserApis(session?.user);
   const currentMember = session?.user?.student_id
@@ -17,4 +17,4 @@ export const load: LayoutServerLoad = async ({ locals }) => {
     accessPolicies,
     currentMember,
   };
-};
+});

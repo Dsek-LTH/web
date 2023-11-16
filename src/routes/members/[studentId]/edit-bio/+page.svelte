@@ -1,13 +1,13 @@
 <script lang="ts">
-  import { enhance } from "$app/forms";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
-  import { getFullName } from "$lib/utils/member";
+  import { getFullName } from "$lib/utils/client/member";
   import { page } from "$app/stores";
+  import { superForm } from "sveltekit-superforms/client";
 
   export let data;
-  export let form;
   $: member = data.member;
+  const { form, errors, constraints, enhance } = superForm(data.form);
 </script>
 
 <svelte:head>
@@ -21,32 +21,22 @@
   </div>
 </header>
 <div class="mt-4 grid gap-2 md:grid-cols-2">
-  <form
-    id="edit-member"
-    method="POST"
-    action="?/update"
-    use:enhance={() =>
-      async ({ update }) => {
-        await update({ reset: false });
-      }}
-    class="form-control gap-2"
-  >
-    {#if form?.success}
-      <p class="text-success">Uppdaterad!</p>
-    {:else if form?.error}
-      <p class="text-error">{form.error}</p>
-    {/if}
+  <form id="edit-member" method="POST" action="?/update" use:enhance class="form-control gap-2">
     <button type="submit" class="btn btn-secondary">Spara</button>
+    {#if $errors.bio}
+      <p class="text-error">{$errors.bio}</p>
+    {/if}
     <textarea
       id="bio"
       name="bio"
       class="textarea min-h-[20rem] rounded-none p-0"
       placeholder="Bio"
-      bind:value={member.bio}
+      bind:value={$form.bio}
+      {...$constraints.bio}
     />
   </form>
   <div>
     <h2 class="py-3 text-xl italic">Preview</h2>
-    <MarkdownBody body={member.bio ?? ""} />
+    <MarkdownBody body={$form.bio ?? ""} />
   </div>
 </div>

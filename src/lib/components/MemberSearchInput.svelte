@@ -2,7 +2,7 @@
   import MemberSearch from "$lib/components/MemberSearch.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import { page } from "$app/stores";
-  import { getFullName } from "$lib/utils/member";
+  import { getFullName } from "$lib/utils/client/member";
   import type { Member } from "@prisma/client";
   export let member: Member | undefined = undefined;
   let isSearching: boolean;
@@ -18,7 +18,6 @@
 >
   <div class="relative flex h-full flex-col gap-2">
     {#if member}
-      <input type="hidden" name="memberId" value={member.id} />
       <div class="absolute left-4 top-1/2 flex -translate-y-1/2 justify-center">
         <MemberAvatar {member} class="w-8" />
       </div>

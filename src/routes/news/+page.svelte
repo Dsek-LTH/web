@@ -43,6 +43,7 @@
     tags={article.tags}
     likers={article.likers}
     commentCount={article.comments.length}
+    likeForm={data.likeForm}
     onTagClick={(tag) => {
       const referencedTag = data.allTags.find((t) => t.name === tag.name);
       if (!referencedTag) return console.error("Tag not found");

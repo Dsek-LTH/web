@@ -1,10 +1,10 @@
-import prisma from "$lib/utils/prisma";
-import { error, fail } from "@sveltejs/kit";
-import type { PageServerLoad } from "./$types";
-import { ctxAccessGuard } from "$lib/utils/access";
+import { withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
-import { Prisma } from "@prisma/client";
-import { _classProgrammes } from "./data";
+import prisma from "$lib/utils/prisma";
+import { memberSchema } from "$lib/zod/schemas";
+import { error, fail } from "@sveltejs/kit";
+import { message, superValidate } from "sveltekit-superforms/server";
+import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ params }) => {
   const [memberResult, publishedArticlesResult] = await Promise.allSettled([
@@ -42,6 +42,7 @@ export const load: PageServerLoad = async ({ params }) => {
             studentId: params.studentId,
           },
         },
+        removedAt: null,
       },
       orderBy: {
         publishedAt: "desc",
@@ -58,63 +59,48 @@ export const load: PageServerLoad = async ({ params }) => {
   if (!memberResult.value) {
     throw error(404, "Member not found");
   }
+  const member = memberResult.value;
   return {
-    member: memberResult.value,
+    form: await superValidate(member, memberSchema),
+    member,
     publishedArticles: publishedArticlesResult.value ?? [],
   };
 };
 
+const updateSchema = memberSchema.pick({
+  firstName: true,
+  lastName: true,
+  nickname: true,
+  foodPreference: true,
+  classProgramme: true,
+  classYear: true,
+});
+
+export type UpdateSchema = typeof updateSchema;
+
 export const actions = {
   update: async ({ params, locals, request }) => {
+    const form = await superValidate(request, updateSchema);
+    if (!form.valid) return fail(400, { form });
     const session = await locals.getSession();
-    await ctxAccessGuard(apiNames.MEMBER.UPDATE, session?.user, { studentId: params.studentId });
-    const studentId = params.studentId;
-    const formData = await request.formData();
-    const classProgramme = (formData.get("classProgramme") as string | null) ?? undefined;
-    if (classProgramme && !_classProgrammes.some((p) => p.id === classProgramme))
-      return fail(400, {
-        error: "Invalid class programme",
-        data: Object.fromEntries(formData),
-      });
-    const classYear = (formData.get("classYear") as string | null) ?? undefined;
-
-    if (
-      !classYear ||
-      typeof classYear !== "string" ||
-      Number.isNaN(Number(classYear)) ||
-      Number(classYear) < 1982 ||
-      Number(classYear) > new Date().getFullYear()
-    )
-      return fail(400, {
-        error: "Invalid class year",
-        data: Object.fromEntries(formData),
-      });
-    try {
-      await prisma.member.update({
-        where: { studentId },
-        data: {
-          firstName: (formData.get("firstName") as string | null) ?? undefined,
-          nickname: (formData.get("nickname") as string | null) ?? undefined,
-          lastName: (formData.get("lastName") as string | null) ?? undefined,
-          classProgramme,
-          classYear: Number(classYear),
-          foodPreference: (formData.get("foodPreference") as string | null) ?? undefined,
-        },
-      });
-      return {
-        success: true,
-        data: Object.fromEntries(formData),
-      };
-    } catch (e) {
-      if (e instanceof Prisma.PrismaClientKnownRequestError) {
-        if (e.code === "P2025" || e.code === "2016") {
-          return fail(404, { error: "Member not found", data: Object.fromEntries(formData) });
-        }
-        return fail(500, {
-          error: e.message ?? "Unknown error",
-          data: Object.fromEntries(formData),
+    const { studentId } = params;
+    return withAccess(
+      apiNames.MEMBER.UPDATE,
+      session?.user,
+      async () => {
+        await prisma.member.update({
+          where: { studentId },
+          data: {
+            ...form.data,
+          },
         });
-      }
-    }
+        return message(form, {
+          message: "Medlem uppdaterad",
+          type: "success",
+        });
+      },
+      form,
+      { studentId }
+    );
   },
 };

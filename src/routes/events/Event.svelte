@@ -1,6 +1,6 @@
 <script lang="ts">
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
-  import { relativeDate } from "$lib/utils/datetime";
+  import { relativeDate } from "$lib/utils/client/datetime";
   import type { Event } from "@prisma/client";
 
   export let event: Event;

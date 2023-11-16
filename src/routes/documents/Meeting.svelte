@@ -1,9 +1,16 @@
 <script lang="ts">
+  import { page } from "$app/stores";
   import type { FileData } from "$lib/files/fileHandler";
+  import apiNames from "$lib/utils/apiNames";
+  import DeleteFileForm from "./DeleteFileForm.svelte";
   import File from "./File.svelte";
+  import type { SuperValidated } from "sveltekit-superforms";
+  import type { DeleteSchema } from "./+page.server.ts";
 
+  export let deleteForm: SuperValidated<DeleteSchema>;
   export let name: string;
   export let files: FileData[];
+  export let isEditing: boolean = false;
   // I do not use this because lexical ordering (default from minio) is preferred in my opinion
   // $: filesSortedByDate = [...files].sort((a, b) => {
   //   if (a.modDate && b.modDate) {
@@ -22,7 +29,12 @@
   <h2 class="mb-2 text-lg font-bold">{name}</h2>
   <div class="grid grid-cols-4 gap-2">
     {#each files as file (file.id)}
-      <File name={file.name} url={file.thumbnailUrl} />
+      <div class="flex gap-1">
+        <File name={file.name} url={file.thumbnailUrl} full />
+        {#if $page.data.accessPolicies.includes(apiNames.FILES.BUCKET("dev-documents").DELETE) && isEditing}
+          <DeleteFileForm fileId={file.id} fileName={file.name} data={deleteForm} />
+        {/if}
+      </div>
     {/each}
   </div>
 </section>

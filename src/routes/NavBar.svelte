@@ -2,9 +2,9 @@
   import { signIn, signOut } from "@auth/sveltekit/client";
   import { page } from "$app/stores";
   import "../app.css";
-  import apiNames from "$lib/utils/apiNames";
   import DarkLightToggle from "./DarkLightToggle.svelte";
   import DsekLogo from "$lib/components/DsekLogo.svelte";
+  import { routes } from "./routes";
   $: accessPolicies = $page.data.accessPolicies;
   $: user = $page.data.session?.user;
 
@@ -18,11 +18,11 @@
   <input id="my-drawer-3" type="checkbox" class="drawer-toggle" bind:checked />
   <div class="drawer-content flex flex-col">
     <!-- Navbar -->
-    <div class="glass navbar fixed z-20 w-full shadow-none transition-all">
+    <div class="navbar glass fixed z-20 w-full shadow-none transition-all">
       <div class="block lg:hidden">
         <label for="my-drawer-3" aria-label="open sidebar" class="btn btn-square btn-ghost">
           <span
-            class="i-mdi-menu h-10 w-10 bg-primary
+            class="i-mdi-menu h-10 w-10 text-primary
           "
           >
           </span>
@@ -30,76 +30,49 @@
       </div>
       <div class="hidden flex-none lg:block">
         <!-- Navbar menu content here -->
-        <a class="btn btn-ghost" href="/"
-          ><span
-            class="i-mdi-home h-6 w-6 bg-primary
-          "
-          ></span>Hem</a
-        >
-        <a class="btn btn-ghost" href="/news"
-          ><span class="i-mdi-newspaper h-6 w-6 bg-primary"></span> Nyheter</a
-        >
-        <a class="btn btn-ghost" href="/events"
-          ><span class="i-mdi-calendar h-6 w-6 bg-primary"></span>
-          Evenemang</a
-        >
-        <a class="btn btn-ghost" href="/documents"
-          ><span class="i-mdi-text-box-multiple h-6 w-6 bg-primary"></span>
-          Dokument</a
-        >
-        <!-- https://bugs.webkit.org/show_bug.cgi?id=22261 -->
-        <div class="dropdown dropdown-hover">
-          <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-          <!-- svelte-ignore a11y-label-has-associated-control -->
-          <label tabindex="0" class="btn btn-ghost">
-            <DsekLogo className="h-6 w-6 text-primary" />
-            Sektionen</label
-          >
-          <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-          <ul
-            tabindex="0"
-            class="menu dropdown-content rounded-box z-[1] w-52 bg-base-100 p-2 shadow"
-          >
-            <li>
-              <a href="/committees" class="btn-ghost"
-                ><span class="i-mdi-account-group h-6 w-6 bg-primary"></span>
-                Utskott</a
-              >
-            </li>
-            <li>
-              <a href="/songbook" class="btn-ghost">
-                <span
-                  class="i-mdi-library-music
-                 h-6 w-6 bg-primary"
-                ></span>
-                Sjungbok</a
-              >
-            </li>
-          </ul>
-        </div>
-        {#if accessPolicies.includes(apiNames.ACCESS_POLICY.READ)}
-          <!-- https://bugs.webkit.org/show_bug.cgi?id=22261 -->
-          <div class="dropdown-hover dropdown">
-            <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-            <!-- svelte-ignore a11y-label-has-associated-control -->
-            <label tabindex="0" class="btn btn-ghost"
-              ><span class="i-mdi-security h-6 w-6 bg-primary"></span>
-              Admin</label
-            >
-            <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-            <ul
-              tabindex="0"
-              class="menu dropdown-content rounded-box z-[1] w-52 bg-base-100 p-2 shadow"
-            >
-              <li>
-                <a href="/admin/access" class="btn-ghost"
-                  ><span class="i-mdi-key h-6 w-6 bg-primary"> </span>
-                  Access</a
+        {#each routes as route (route.title)}
+          {#if !route.accessRequired || accessPolicies.includes(route.accessRequired)}
+            {#if route?.children?.length}
+              <div class="dropdown-hover dropdown">
+                <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+                <!-- svelte-ignore a11y-label-has-associated-control -->
+                <label tabindex="0" class="btn btn-ghost">
+                  {#if route.isDsekIcon}
+                    <DsekLogo className="h-6 w-6 text-primary" />
+                  {:else}
+                    <span class={`${route.icon} h-6 w-6 text-primary`} />
+                  {/if}
+                  {route.title}</label
                 >
-              </li>
-            </ul>
-          </div>
-        {/if}
+                <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+                <ul
+                  tabindex="0"
+                  class="menu dropdown-content rounded-box z-[1] w-52 bg-base-100 p-2 shadow"
+                >
+                  {#each route.children as child (child.title)}
+                    {#if !child.accessRequired || accessPolicies.includes(child.accessRequired)}
+                      <li>
+                        <a href={child.path} class="btn-ghost">
+                          <span class={`${child.icon} h-6 w-6 text-primary`} />
+                          {child.title}</a
+                        >
+                      </li>
+                    {/if}
+                  {/each}
+                </ul>
+              </div>
+            {:else}
+              <a class="btn btn-ghost" href={route.path}>
+                {#if route.isDsekIcon}
+                  <DsekLogo className="h-6 w-6 text-primary" />
+                {:else}
+                  <span class={`${route.icon} h-6 w-6 text-primary`} />
+                {/if}
+                {route.title}
+              </a>
+            {/if}
+          {/if}
+        {/each}
       </div>
       <div class="flex-1" />
       <DarkLightToggle />
@@ -128,17 +101,17 @@
                   href={`/members/${user?.student_id}`}
                   class="btn btn-ghost w-48 justify-start text-base-content"
                 >
-                  <span class="i-mdi-account-circle h-6 w-6 bg-primary"> </span>
+                  <span class="i-mdi-account-circle h-6 w-6 text-primary"> </span>
                   Profil</a
                 >
                 <a href="/settings" class="btn btn-ghost w-48 justify-start">
-                  <span class="i-mdi-cog h-6 w-6 bg-primary"> </span>
+                  <span class="i-mdi-cog h-6 w-6 text-primary"> </span>
                   Inställningar</a
                 >
               </div>
               <span class="divider m-1"></span>
               <button class="btn btn-ghost justify-start" on:click={() => signOut()}>
-                <span class="i-mdi-logout h-6 w-6 bg-primary"> </span>
+                <span class="i-mdi-logout h-6 w-6 text-primary"> </span>
                 Logga ut</button
               >
             </div>
@@ -151,75 +124,54 @@
     <!-- Page content here -->
     <slot />
   </div>
-  <div class="drawer-side z-30">
-    <label
-      for="my-drawer-3"
-      aria-label="close sidebar"
-      class="drawer-overlay
-    "
-    ></label>
+  <div class="drawer-side">
+    <label for="my-drawer-3" aria-label="close sidebar" class="drawer-overlay"></label>
     <div class="menu min-h-full w-80 bg-base-200">
       <!-- Sidebar content here -->
       <ul class="menu rounded-box w-56 bg-base-200">
-        <li>
-          <a on:click={close} href="/" class="btn content-center justify-start">
-            <span class="i-mdi-home h-6 w-6 bg-primary" />
-            Hem
-          </a>
-        </li>
-        <li>
-          <a on:click={close} href="/news" class="btn content-center justify-start">
-            <span class="i-mdi-newspaper h-6 w-6 bg-primary" />
-            Nyheter
-          </a>
-        </li>
-        <li>
-          <a on:click={close} href="/events" class="btn content-center justify-start">
-            <span class="i-mdi-calendar h-6 w-6 bg-primary" />
-            Evenemang
-          </a>
-        </li>
-        <li>
-          <a on:click={close} href="/documents" class="btn content-center justify-start">
-            <span class="i-mdi-text-box-multiple h-6 w-6 bg-primary" />
-            Dokument
-          </a>
-        </li>
-        <li>
-          <span class="btn content-center justify-start"
-            ><DsekLogo className="h-6 w-6 text-primary" />Sektionen</span
-          >
-          <ul>
-            <li>
-              <a on:click={close} href="/committees" class="btn content-center justify-start">
-                <span class="i-mdi-account-group h-6 w-6 bg-primary" />
-                Utskott
-              </a>
-            </li>
-            <li>
-              <a on:click={close} href="/songbook" class="btn content-center justify-start">
-                <span class="i-mdi-library-music h-6 w-6 bg-primary" />
-                Sjungbok
-              </a>
-            </li>
-          </ul>
-        </li>
-        {#if accessPolicies.includes(apiNames.ACCESS_POLICY.READ)}
-          <li>
-            <span class="btn content-center justify-start">
-              <span class="i-mdi-security h-6 w-6 bg-primary" />
-              Admin
-            </span>
-            <ul>
+        {#each routes as route (route.title)}
+          {#if !route.accessRequired || accessPolicies.includes(route.accessRequired)}
+            {#if route?.children?.length}
               <li>
-                <a on:click={close} href="/admin/access" class="btn content-center justify-start">
-                  <span class="i-mdi-key h-6 w-6 bg-primary" />
-                  Access
+                <span class="btn content-center justify-start">
+                  {#if route.isDsekIcon}
+                    <DsekLogo className="h-6 w-6 text-primary" />
+                  {:else}
+                    <span class={`${route.icon} h-6 w-6 text-primary`} />
+                  {/if}
+                  {route.title}</span
+                >
+                <ul>
+                  {#each route.children as child (child.title)}
+                    {#if !child.accessRequired || accessPolicies.includes(child.accessRequired)}
+                      <li>
+                        <a
+                          on:click={close}
+                          href={child.path}
+                          class="btn content-center justify-start"
+                        >
+                          <span class={`${child.icon} h-6 w-6 text-primary`} />
+                          {child.title}
+                        </a>
+                      </li>
+                    {/if}
+                  {/each}
+                </ul>
+              </li>
+            {:else}
+              <li>
+                <a on:click={close} href={route.path} class="btn content-center justify-start">
+                  {#if route.isDsekIcon}
+                    <DsekLogo className="h-6 w-6 text-primary" />
+                  {:else}
+                    <span class={`${route.icon} h-6 w-6 text-primary`} />
+                  {/if}
+                  {route.title}
                 </a>
               </li>
-            </ul>
-          </li>
-        {/if}
+            {/if}
+          {/if}
+        {/each}
       </ul>
     </div>
   </div>

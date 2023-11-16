@@ -1,10 +1,9 @@
 <script lang="ts">
   import TagChip from "$lib/components/TagChip.svelte";
-  import CommentSection from "../../news/[slug]/CommentSection.svelte";
+  import CommentSection from "../../../lib/components/socials/CommentSection.svelte";
   import Event from "../Event.svelte";
 
   export let data;
-  export let form;
   $: event = data.event;
 </script>
 
@@ -30,8 +29,8 @@
       type="EVENT"
       comments={event.comments}
       taggedMembers={data.allTaggedMembers}
-      error={form?.error}
-      commentContent={form?.data?.content ?? ""}
+      commentForm={data.commentForm}
+      removeCommentForm={data.removeCommentForm}
     />
   </div>
 </Event>

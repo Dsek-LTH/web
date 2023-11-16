@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Tag } from "@prisma/client";
 
-  export let tag: Tag | undefined = undefined;
+  export let tag: Pick<Tag, "color" | "name"> | undefined = undefined;
 </script>
 
 {#if tag}

@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Article } from "@prisma/client";
-  import MarkdownBody from "../../lib/components/MarkdownBody.svelte";
+  import MarkdownBody from "$lib/components/MarkdownBody.svelte";
 
   export let article: Article;
 </script>
