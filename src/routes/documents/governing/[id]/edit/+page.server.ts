@@ -45,6 +45,7 @@ export const actions = {
             url,
             title,
             documentType: documentType as GoverningDocumentType,
+            updatedAt: new Date(),
           },
         });
         throw redirect(

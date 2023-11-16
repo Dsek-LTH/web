@@ -3,9 +3,10 @@ import apiNames from "../../src/lib/utils/apiNames";
 
 export const insertAccessPolicies = async (prisma: PrismaClient) => {
   return Promise.all([
-    insertMaterialBucketAccessPolicies(prisma),
-    insertEventCommenteDelete(prisma),
-    insertYrkaSend(prisma),
+    materialBucketAccessPolicies(prisma),
+    eventCommenteDelete(prisma),
+    yrkaSend(prisma),
+    meetings(prisma),
   ]);
 };
 
@@ -18,7 +19,7 @@ const insertPolicies = async (prisma: PrismaClient, apiName: string, roles: stri
           in: roles,
         },
       },
-    })) <= roles.length
+    })) < roles.length
   ) {
     await prisma.accessPolicy.deleteMany({
       where: {
@@ -37,7 +38,7 @@ const insertPolicies = async (prisma: PrismaClient, apiName: string, roles: stri
   }
 };
 
-const insertMaterialBucketAccessPolicies = async (prisma: PrismaClient) => {
+const materialBucketAccessPolicies = async (prisma: PrismaClient) => {
   await Promise.all([
     insertPolicies(prisma, apiNames.FILES.BUCKET("material").CREATE, [
       "dsek.infu.dwww",
@@ -52,7 +53,7 @@ const insertMaterialBucketAccessPolicies = async (prisma: PrismaClient) => {
   ]);
 };
 
-const insertEventCommenteDelete = async (prisma: PrismaClient) => {
+const eventCommenteDelete = async (prisma: PrismaClient) => {
   await insertPolicies(prisma, apiNames.EVENT.COMMENT_DELETE, [
     "dsek.infu.dwww",
     "dsek.infu.redaktor",
@@ -61,6 +62,15 @@ const insertEventCommenteDelete = async (prisma: PrismaClient) => {
   ]);
 };
 
-const insertYrkaSend = async (prisma: PrismaClient) => {
+const yrkaSend = async (prisma: PrismaClient) => {
   await insertPolicies(prisma, apiNames.YRKA.SEND, ["_"]);
+};
+
+const meetings = async (prisma: PrismaClient) => {
+  await Promise.all([
+    insertPolicies(prisma, apiNames.MEETINGS.CREATE, ["dsek.infu.dwww", "dsek.styr"]),
+    insertPolicies(prisma, apiNames.MEETINGS.READ, ["*"]),
+    insertPolicies(prisma, apiNames.MEETINGS.UPDATE, ["dsek.infu.dwww", "dsek.styr"]),
+    insertPolicies(prisma, apiNames.MEETINGS.DELETE, ["dsek.infu.dwww", "dsek.styr"]),
+  ]);
 };

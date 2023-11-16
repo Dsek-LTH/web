@@ -645,3 +645,45 @@ enum GoverningDocumentType {
 
   @@map("governing_document_type")
 }
+
+model Meeting {
+  id          String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title       String              @db.VarChar(255)
+  description String?             @db.VarChar(255)
+  type        String              @db.VarChar(255)
+  createdAt   DateTime?           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime?           @default(now()) @map("updated_at") @db.Timestamptz(6)
+  start       DateTime            @db.Timestamptz(6)
+  end         DateTime            @db.Timestamptz(6)
+  items       MeetingAgendaItem[]
+  attachments MeetingAttachment[]
+
+  @@map("meetings")
+}
+
+// These are the bullet points of a meeting, equal to the ones in the meeting agenda document
+model MeetingAgendaItem {
+  id          String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  meetingId   String              @map("meeting_id") @db.Uuid
+  meeting     Meeting             @relation(fields: [meetingId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "meeting_agenda_items_meeting_id_foreign")
+  title       String              @db.VarChar(255)
+  createdAt   DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime            @default(now()) @map("updated_at") @db.Timestamptz(6)
+  attachments MeetingAttachment[]
+  order       Int                 @default(0)
+  concluded   Boolean             @default(false)
+  comment     String?             @db.VarChar(255)
+
+  @@map("meeting_agenda_items")
+}
+
+// An attachment to either an item or a meeting
+model MeetingAttachment {
+  id                  String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  agendaItem          MeetingAgendaItem? @relation(fields: [meetingAgendaItemId], references: [id])
+  meetingAgendaItemId String?            @db.Uuid
+  fileUrl             String             @map("file_url") @db.VarChar(255)
+  order               Int                @default(0)
+  meeting             Meeting?           @relation(fields: [meetingId], references: [id])
+  meetingId           String?            @db.Uuid
+}
