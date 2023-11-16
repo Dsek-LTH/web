@@ -18,7 +18,7 @@
   <input id="my-drawer-3" type="checkbox" class="drawer-toggle" bind:checked />
   <div class="drawer-content flex flex-col">
     <!-- Navbar -->
-    <div class="navbar glass fixed z-20 w-full shadow-none transition-all">
+    <div class="glass navbar fixed z-20 w-full shadow-none transition-all">
       <div class="block lg:hidden">
         <label for="my-drawer-3" aria-label="open sidebar" class="btn btn-square btn-ghost">
           <span
@@ -33,7 +33,7 @@
         {#each routes as route (route.title)}
           {#if !route.accessRequired || accessPolicies.includes(route.accessRequired)}
             {#if route?.children?.length}
-              <div class="dropdown-hover dropdown">
+              <div class="dropdown dropdown-hover">
                 <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
                 <!-- svelte-ignore a11y-label-has-associated-control -->
                 <label tabindex="0" class="btn btn-ghost">
@@ -124,7 +124,7 @@
     <!-- Page content here -->
     <slot />
   </div>
-  <div class="drawer-side">
+  <div class="drawer-side z-30">
     <label for="my-drawer-3" aria-label="close sidebar" class="drawer-overlay"></label>
     <div class="menu min-h-full w-80 bg-base-200">
       <!-- Sidebar content here -->
