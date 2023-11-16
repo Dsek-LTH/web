@@ -1,9 +1,15 @@
 <script lang="ts">
-  import { enhance } from "$app/forms";
+  import type { SuperValidated } from "sveltekit-superforms";
+  import { superForm } from "sveltekit-superforms/client";
+  import type { DeleteSchema } from "./+page.server.ts";
 
+  export let data: SuperValidated<DeleteSchema>;
   export let fileId: string;
   export let fileName: string;
   let deleteModal: HTMLDialogElement | undefined = undefined;
+  const { enhance } = superForm(data, {
+    id: fileId,
+  });
 </script>
 
 <button

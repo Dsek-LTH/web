@@ -6,7 +6,7 @@
   import TagChip from "$lib/components/TagChip.svelte";
   import TagSelector from "$lib/components/TagSelector.svelte";
   import apiNames from "$lib/utils/apiNames";
-  import { relativeDate } from "$lib/utils/datetime.js";
+  import { relativeDate } from "$lib/utils/client/datetime.js";
   import type { Tag } from "@prisma/client";
 
   export let data;

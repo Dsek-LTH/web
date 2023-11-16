@@ -1,8 +1,12 @@
 import { dev } from "$app/environment";
 import { getCurrentMemberId } from "$lib/utils/member";
 import type { Session } from "@auth/core/types";
-import type { AccessPolicy, Member } from "@prisma/client";
-import { error } from "@sveltejs/kit";
+import { Prisma, type AccessPolicy, type Member } from "@prisma/client";
+import { error, type HttpError } from "@sveltejs/kit";
+import type { SuperValidated, ZodValidation } from "sveltekit-superforms";
+import type { NumericRange } from "sveltekit-superforms/dist/utils";
+import { message } from "sveltekit-superforms/server";
+import type { AnyZodObject } from "zod";
 import prisma from "./prisma";
 
 export type Context = Session["user"] | undefined;
@@ -86,14 +90,53 @@ export const ctxAccessGuard = async (
   throw error(403, "You do not have permission, have you logged in?");
 };
 
-export const withAccess = async <T>(
+export const withAccess = async <
+  T,
+  Schema extends ZodValidation<AnyZodObject>,
+  F extends SuperValidated<Schema>,
+>(
   apiName: string | string[],
   context: Context,
   fn: () => Promise<T>,
+  form: F,
   relevantMember?: Pick<Member, "id"> | Pick<Member, "studentId">
 ) => {
-  await ctxAccessGuard(apiName, context, relevantMember);
-  return fn();
+  try {
+    await ctxAccessGuard(apiName, context, relevantMember);
+    return await fn();
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError) {
+      console.log("Prisma error", e);
+      return message(
+        form,
+        {
+          message: e.message,
+          type: "error",
+        },
+        {
+          status: 400,
+        }
+      );
+    } else if (
+      "status" in (e as HttpError) &&
+      "body" in (e as HttpError) &&
+      "message" in (e as HttpError).body
+    ) {
+      console.log("Http error", e);
+      return message(
+        form,
+        {
+          message: (e as HttpError).body.message,
+          type: "error",
+        },
+        {
+          status: (e as HttpError).status as NumericRange<400, 599>,
+        }
+      );
+    }
+    console.warn("Unknown error occured", e);
+    throw e;
+  }
 };
 
 // split all roles in group list. a group list might look like ["dsek.infu.mdlm", "dsek.ordf"] and this will split it into ["dsek", "dsek.infu", "dsek.infu.mdlm", "dsek.ordf"]

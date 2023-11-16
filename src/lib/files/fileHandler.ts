@@ -1,6 +1,6 @@
 import { fileExists, isDir } from "$lib/files/helpers";
 import minio, { CopyConditions, MINIO_BASE_URL } from "$lib/files/minio";
-import { withAccess, type Context } from "$lib/utils/access";
+import { ctxAccessGuard, type Context } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
 import { error } from "@sveltejs/kit";
 import path from "path";
@@ -42,19 +42,23 @@ const getFilesInFolder = (bucket: string, prefix: string, recursive: boolean) =>
     });
   });
 };
-const getFilesInBucket = (ctx: Context, bucket: string, prefix: string, recursive = false) => {
+const getFilesInBucket = async (
+  ctx: Context,
+  bucket: string,
+  prefix: string,
+  recursive = false
+) => {
   if (!bucket) {
     return Promise.resolve([]);
   }
-  return withAccess(apiNames.FILES.BUCKET(bucket).READ, ctx, async () => {
-    const basePath = "";
-    const files = await getFilesInFolder(
-      bucket,
-      prefix !== "/" ? basePath + prefix : basePath,
-      recursive
-    );
-    return files;
-  });
+  await ctxAccessGuard(apiNames.FILES.BUCKET(bucket).READ, ctx);
+  const basePath = "";
+  const files = await getFilesInFolder(
+    bucket,
+    prefix !== "/" ? basePath + prefix : basePath,
+    recursive
+  );
+  return files;
 };
 
 const ONE_HOUR_IN_SECONDS = 60 * 60;
@@ -64,15 +68,14 @@ const getPresignedPutUrl = async (
   fileName: string,
   allowOverwrite = false
 ): Promise<string> => {
-  return withAccess(apiNames.FILES.BUCKET(bucket).CREATE, ctx, async () => {
-    if (fileName === "") throw error(400, "File name cannot be empty");
+  await ctxAccessGuard(apiNames.FILES.BUCKET(bucket).CREATE, ctx);
+  if (fileName === "") throw error(400, "File name cannot be empty");
 
-    if (!allowOverwrite && (await fileExists(bucket, fileName))) {
-      throw error(409, `File ${fileName} already exists`);
-    }
-    const url = await minio.presignedPutObject(bucket, fileName, ONE_HOUR_IN_SECONDS);
-    return url;
-  });
+  if (!allowOverwrite && (await fileExists(bucket, fileName))) {
+    throw error(409, `File ${fileName} already exists`);
+  }
+  const url = await minio.presignedPutObject(bucket, fileName, ONE_HOUR_IN_SECONDS);
+  return url;
 };
 
 /**
@@ -112,137 +115,134 @@ export const removeFilesWithoutAccessCheck = async (
   return deleted;
 };
 
-const removeObjects = (ctx: Context, bucket: string, fileNames: string[]) => {
-  return withAccess(apiNames.FILES.BUCKET(bucket).DELETE, ctx, async () =>
-    removeFilesWithoutAccessCheck(ctx, bucket, fileNames)
-  );
+const removeObjects = async (ctx: Context, bucket: string, fileNames: string[]) => {
+  await ctxAccessGuard(apiNames.FILES.BUCKET(bucket).DELETE, ctx);
+  removeFilesWithoutAccessCheck(ctx, bucket, fileNames);
 };
 
 type FileChange = {
   file: FileData;
   oldFile?: FileData;
 };
-const moveObject = (ctx: Context, bucket: string, fileNames: string[], newFolder: string) => {
-  return withAccess(apiNames.FILES.BUCKET(bucket).UPDATE, ctx, async () => {
-    const moved: FileChange[] = [];
+const moveObject = async (ctx: Context, bucket: string, fileNames: string[], newFolder: string) => {
+  await ctxAccessGuard(apiNames.FILES.BUCKET(bucket).UPDATE, ctx);
+  const moved: FileChange[] = [];
 
-    await Promise.all(
-      fileNames.map(async (fileName) => {
-        const basename = path.basename(fileName);
+  await Promise.all(
+    fileNames.map(async (fileName) => {
+      const basename = path.basename(fileName);
 
-        if (isDir(fileName)) {
-          const filesInFolder = await getFilesInBucket(ctx, bucket, fileName);
-          if (filesInFolder) {
-            const recursivedMoved = await moveObject(
-              ctx,
-              bucket,
-              filesInFolder.map((file) => file.id),
-              `${newFolder + basename}/`
-            );
-            const FileChange = {
-              file: { id: `${newFolder + basename}/`, name: basename, isDir: true },
-              oldFile: { id: fileName, name: basename, isDir: true },
-            };
-            moved.push(FileChange);
-            moved.push(...recursivedMoved);
-          }
-        } else {
-          const newFileName = path.join(newFolder, basename);
-
-          const objectStats = await minio.statObject(bucket, fileName);
-
-          if (await fileExists(bucket, newFileName)) {
-            return;
-          }
-
-          const oldFile = {
-            id: fileName,
-            name: path.basename(fileName),
-            modDate: objectStats.lastModified,
-            size: objectStats.size,
-            thumbnailUrl: `${MINIO_BASE_URL}${bucket}/${fileName}`,
-          };
-
-          const newFile = {
-            id: newFileName,
-            name: path.basename(newFileName),
-            size: objectStats.size,
-            thumbnailUrl: `${MINIO_BASE_URL}${bucket}/${newFileName}`,
-          };
-
-          await minio.copyObject(
+      if (isDir(fileName)) {
+        const filesInFolder = await getFilesInBucket(ctx, bucket, fileName);
+        if (filesInFolder) {
+          const recursivedMoved = await moveObject(
+            ctx,
             bucket,
-            newFileName,
-            `/${bucket}/${fileName}`,
-            new CopyConditions()
+            filesInFolder.map((file) => file.id),
+            `${newFolder + basename}/`
           );
-          await minio.removeObject(bucket, fileName);
-
           const FileChange = {
-            file: newFile,
-            oldFile,
+            file: { id: `${newFolder + basename}/`, name: basename, isDir: true },
+            oldFile: { id: fileName, name: basename, isDir: true },
           };
-
           moved.push(FileChange);
+          moved.push(...recursivedMoved);
         }
-      })
-    );
-    return moved;
-  });
+      } else {
+        const newFileName = path.join(newFolder, basename);
+
+        const objectStats = await minio.statObject(bucket, fileName);
+
+        if (await fileExists(bucket, newFileName)) {
+          return;
+        }
+
+        const oldFile = {
+          id: fileName,
+          name: path.basename(fileName),
+          modDate: objectStats.lastModified,
+          size: objectStats.size,
+          thumbnailUrl: `${MINIO_BASE_URL}${bucket}/${fileName}`,
+        };
+
+        const newFile = {
+          id: newFileName,
+          name: path.basename(newFileName),
+          size: objectStats.size,
+          thumbnailUrl: `${MINIO_BASE_URL}${bucket}/${newFileName}`,
+        };
+
+        await minio.copyObject(bucket, newFileName, `/${bucket}/${fileName}`, new CopyConditions());
+        await minio.removeObject(bucket, fileName);
+
+        const FileChange = {
+          file: newFile,
+          oldFile,
+        };
+
+        moved.push(FileChange);
+      }
+    })
+  );
+  return moved;
 };
 
-const renameObject = (ctx: Context, bucket: string, fileName: string, newFileName: string) => {
-  return withAccess(apiNames.FILES.BUCKET(bucket).UPDATE, ctx, async () => {
-    if (await fileExists(bucket, newFileName)) {
-      throw error(409, `File ${newFileName} already exists`);
+const renameObject = async (
+  ctx: Context,
+  bucket: string,
+  fileName: string,
+  newFileName: string
+) => {
+  await ctxAccessGuard(apiNames.FILES.BUCKET(bucket).UPDATE, ctx);
+  if (await fileExists(bucket, newFileName)) {
+    throw error(409, `File ${newFileName} already exists`);
+  }
+  const dirname = path.dirname(fileName);
+
+  if (isDir(fileName)) {
+    const filesInFolder = await getFilesInBucket(ctx, bucket, fileName);
+    if (filesInFolder) {
+      moveObject(
+        ctx,
+        bucket,
+        filesInFolder.map((file) => file.id),
+        `${newFileName}/`
+      );
     }
-    const dirname = path.dirname(fileName);
+    return undefined;
+  }
+  const newFileId = path.join(`${dirname}/`, newFileName);
 
-    if (isDir(fileName)) {
-      const filesInFolder = await getFilesInBucket(ctx, bucket, fileName);
-      if (filesInFolder) {
-        moveObject(
-          ctx,
-          bucket,
-          filesInFolder.map((file) => file.id),
-          `${newFileName}/`
-        );
-      }
-      return undefined;
-    }
-    const newFileId = path.join(`${dirname}/`, newFileName);
+  const objectStats = await minio.statObject(bucket, fileName);
 
-    const objectStats = await minio.statObject(bucket, fileName);
+  if (await fileExists(bucket, newFileId)) {
+    return undefined;
+  }
 
-    if (await fileExists(bucket, newFileId)) {
-      return undefined;
-    }
+  const oldFile = {
+    id: fileName,
+    name: path.basename(fileName),
+    modDate: objectStats.lastModified,
+    size: objectStats.size,
+    thumbnailUrl: `${MINIO_BASE_URL}${bucket}/${fileName}`,
+  };
 
-    const oldFile = {
-      id: fileName,
-      name: path.basename(fileName),
-      modDate: objectStats.lastModified,
-      size: objectStats.size,
-      thumbnailUrl: `${MINIO_BASE_URL}${bucket}/${fileName}`,
-    };
+  const newFile = {
+    id: newFileId,
+    name: path.basename(newFileId),
+    size: objectStats.size,
+    thumbnailUrl: `${MINIO_BASE_URL}${bucket}/${newFileId}`,
+  };
 
-    const newFile = {
-      id: newFileId,
-      name: path.basename(newFileId),
-      size: objectStats.size,
-      thumbnailUrl: `${MINIO_BASE_URL}${bucket}/${newFileId}`,
-    };
+  await minio.copyObject(bucket, newFileName, `/${bucket}/${fileName}`, new CopyConditions());
+  await minio.removeObject(bucket, fileName);
 
-    await minio.copyObject(bucket, newFileName, `/${bucket}/${fileName}`, new CopyConditions());
-    await minio.removeObject(bucket, fileName);
+  const FileChange = {
+    file: newFile,
+    oldFile,
+  };
 
-    const FileChange = {
-      file: newFile,
-      oldFile,
-    };
-
-    return FileChange;
-  });
+  return FileChange;
 };
 const fileHandler = {
   getInBucket: getFilesInBucket,

@@ -1,15 +1,15 @@
 import generateUUID from "$lib/utils/generateUUID";
 import { writable } from "svelte/store";
 
-type Notification = {
+export type ToastNotification = {
   message: string;
   type: "success" | "error" | "info" | "warning" | "primary";
   id: string;
 };
 
-export const toasts = writable<Notification[]>([]);
+export const toasts = writable<ToastNotification[]>([]);
 
-export function toast(message: string, type: Notification["type"] = "info") {
+export function toast(message: string, type: ToastNotification["type"] = "info") {
   toasts.update((state) => [
     ...state,
     {

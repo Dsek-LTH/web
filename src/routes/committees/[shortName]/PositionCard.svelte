@@ -2,7 +2,7 @@
   import { page } from "$app/stores";
   import ScrollIndicatedBox from "$lib/components/ScrollIndicatedBox.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
-  import { getFullName } from "$lib/utils/member";
+  import { getFullName } from "$lib/utils/client/member";
   import type { Mandate, Member, Position } from "@prisma/client";
 
   export let position: Position;

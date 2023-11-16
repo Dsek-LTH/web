@@ -1,9 +1,11 @@
-import { Prisma } from "@prisma/client";
-import { fail, redirect } from "@sveltejs/kit";
-import prisma from "$lib/utils/prisma";
 import { policyAccessGuard, withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
+import prisma from "$lib/utils/prisma";
+import { fail } from "@sveltejs/kit";
+import { superValidate } from "sveltekit-superforms/server";
+import { z } from "zod";
 import type { PageServerLoad } from "./$types";
+import { redirect } from "sveltekit-flash-message/server";
 
 export const load: PageServerLoad = async ({ parent, params }) => {
   const markdownPage = await prisma.markdown.findUnique({
@@ -18,21 +20,37 @@ export const load: PageServerLoad = async ({ parent, params }) => {
     policyAccessGuard(apiNames.MARKDOWNS.PAGE(params.slug).UPDATE, accessPolicies);
   }
 
-  return { markdown: markdownPage, slug: params.slug };
+  return {
+    form: await superValidate(
+      {
+        markdown: markdownPage?.markdown ?? "",
+      },
+      markdownSchema
+    ),
+    isCreating: markdownPage == undefined,
+  };
 };
 
+const markdownSchema = z.object({
+  markdown: z.string(),
+});
+
 export const actions = {
-  create: async ({ request, locals }) => {
-    const formData = await request.formData();
-    const name = String(formData.get("name"));
-    const markdownContent = String(formData.get("markdown"));
+  create: async (event) => {
+    const { request, locals, params } = event;
+    const form = await superValidate(request, markdownSchema);
+    if (!form.valid) return fail(400, { form });
+    const name = params.slug;
+    // read the form data sent by the browser
     const session = await locals.getSession();
-    return withAccess(apiNames.MARKDOWNS.CREATE, session?.user, async () => {
-      try {
+    return withAccess(
+      apiNames.MARKDOWNS.CREATE,
+      session?.user,
+      async () => {
         await prisma.markdown.create({
           data: {
             name: name,
-            markdown: markdownContent,
+            markdown: form.data.markdown,
           },
         });
         await prisma.accessPolicy.create({
@@ -41,49 +59,47 @@ export const actions = {
             studentId: session?.user?.student_id,
           },
         });
-      } catch (e) {
-        if (e instanceof Prisma.PrismaClientKnownRequestError) {
-          return fail(400, {
-            error: e.message,
-            data: Object.fromEntries(formData),
-          });
-        }
-        return fail(500, {
-          error: "Unknown error",
-          data: Object.fromEntries(formData),
-        });
-      }
-      throw redirect(303, `/info/${name}`);
-    });
+        throw redirect(
+          `/info/${name}`,
+          {
+            message: `"${name}"-sida uppdaterad`,
+            type: "success",
+          },
+          event
+        );
+      },
+      form
+    );
   },
-  update: async ({ request, locals }) => {
-    const formData = await request.formData();
-    const name = String(formData.get("name"));
-    const markdownContent = String(formData.get("markdown"));
+  update: async (event) => {
+    const { request, locals, params } = event;
+    const form = await superValidate(request, markdownSchema);
+    if (!form.valid) return fail(400, { form });
+    const name = params.slug;
+    // read the form data sent by the browser
     const session = await locals.getSession();
-    return withAccess(apiNames.MARKDOWNS.PAGE(name).UPDATE, session?.user, async () => {
-      try {
+    return withAccess(
+      apiNames.MARKDOWNS.PAGE(name).UPDATE,
+      session?.user,
+      async () => {
         await prisma.markdown.update({
           where: {
             name: name,
           },
           data: {
-            markdown: markdownContent,
+            markdown: form.data.markdown,
           },
         });
-      } catch (e) {
-        if (e instanceof Prisma.PrismaClientKnownRequestError) {
-          return fail(400, {
-            error: e.message,
-            data: Object.fromEntries(formData),
-          });
-        }
-        return fail(500, {
-          error: "Unknown error",
-          data: Object.fromEntries(formData),
-        });
-      }
-      throw redirect(303, `/info/${name}`);
-    });
+        throw redirect(
+          `/info/${name}`,
+          {
+            message: `"${name}"-sida uppdaterad`,
+            type: "success",
+          },
+          event
+        );
+      },
+      form
+    );
   },
 };
