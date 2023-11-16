@@ -1,9 +1,9 @@
 <script lang="ts">
   import type { Member } from "@prisma/client";
-  import type { _classProgrammes } from "../../routes/members/[studentId]/data";
+  import type { classProgrammes } from "../../routes/members/[studentId]/data";
   export let member: Member;
   export let size: "sm" | "xl" = "sm";
-  const colors: Record<(typeof _classProgrammes)[number]["id"], string> = {
+  const colors: Record<(typeof classProgrammes)[number]["id"], string> = {
     D: "badge-primary",
     C: "badge-secondary",
     "VR/AR": "badge-primary",

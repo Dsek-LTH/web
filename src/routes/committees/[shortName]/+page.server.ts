@@ -1,10 +1,18 @@
 import { fileHandler } from "$lib/files";
-import { ctxAccessGuard } from "$lib/utils/access";
+import { withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
 import prisma from "$lib/utils/prisma";
-import { Prisma } from "@prisma/client";
 import { error, fail } from "@sveltejs/kit";
+import { message, setError, superValidate } from "sveltekit-superforms/server";
+import { z } from "zod";
 import type { PageServerLoad } from "./$types";
+import { PUBLIC_BUCKETS_MATERIAL } from "$env/static/public";
+
+const updateSchema = z.object({
+  name: z.string().optional(),
+  description: z.string().nullable(),
+  image: z.any(),
+});
 
 export const load: PageServerLoad = async ({ params }) => {
   const committee = await prisma.committee.findUnique({
@@ -42,6 +50,9 @@ export const load: PageServerLoad = async ({ params }) => {
       },
     },
   });
+  if (!committee) {
+    throw error(404, "Committee not found");
+  }
   const uniqueMembersInCommittee = await prisma.member.count({
     where: {
       mandates: {
@@ -78,72 +89,72 @@ export const load: PageServerLoad = async ({ params }) => {
       },
     },
   });
-  if (!committee) {
-    throw error(404, "Committee not found");
-  }
+  const form = superValidate(committee, updateSchema);
   return {
     committee,
     positions: committee.positions,
     uniqueMemberCount: uniqueMembersInCommittee,
     numberOfMandates,
+    form,
   };
 };
 
 export const actions = {
   update: async ({ params, request, locals }) => {
-    const session = await locals.getSession();
-    await ctxAccessGuard(apiNames.COMMITTEE.UPDATE, session?.user);
     const formData = await request.formData();
-    const image = formData.get("image");
-    formData.delete("image"); // for serialization purposes
-    let newImageUploaded = false;
-    if (image && image instanceof File && image.size > 0) {
-      console.log(image);
-      const path = `committees/${params.shortName}.svg`;
-      try {
-        const putUrl = await fileHandler.getPresignedPutUrl(
-          session?.user,
-          "dev-material",
-          path,
-          true
-        );
-        await fetch(putUrl, {
-          method: "PUT",
-          body: image,
-        });
-        newImageUploaded = true;
-      } catch (e) {
-        return fail(500, {
-          error: (e as Error | undefined)?.message ?? "Unable to upload image",
-          data: Object.fromEntries(formData),
-        });
-      }
-    }
-    try {
-      await prisma.committee.update({
-        where: { shortName: params.shortName },
-        data: {
-          name: (formData.get("name") as string | null) ?? undefined,
-          description: (formData.get("description") as string | null) ?? undefined,
-          imageUrl: newImageUploaded
-            ? `minio/material/committees/${params.shortName}.svg?version=${new Date().getTime()}`
-            : undefined,
-        },
-      });
-      return {
-        success: true,
-        data: Object.fromEntries(formData),
-      };
-    } catch (e) {
-      if (e instanceof Prisma.PrismaClientKnownRequestError) {
-        if (e.code === "P2025" || e.code === "2016") {
-          return fail(404, { error: "Committee not found", data: Object.fromEntries(formData) });
+    const form = await superValidate(formData, updateSchema);
+    if (!form.valid) return fail(400, { form });
+    const session = await locals.getSession();
+    return withAccess(
+      apiNames.COMMITTEE.UPDATE,
+      session?.user,
+      async () => {
+        const image = formData.get("image");
+        if (!image || !(image instanceof File) || image.size <= 0) {
+          return setError(
+            form,
+            "image",
+            "Bilden du laddade upp har ingen data eller är felaktig på annat sätt"
+          );
+        } else if (image.type !== "image/svg+xml") {
+          return setError(form, "image", "Bilden måste vara i .svg format ");
         }
-        return fail(500, {
-          error: e.message ?? "Unknown error",
-          data: Object.fromEntries(formData),
+        let newImageUploaded = false;
+        const path = `committees/${params.shortName}.svg`;
+        if (image) {
+          try {
+            const putUrl = await fileHandler.getPresignedPutUrl(
+              session?.user,
+              PUBLIC_BUCKETS_MATERIAL,
+              path,
+              true
+            );
+            await fetch(putUrl, {
+              method: "PUT",
+              body: image,
+            });
+            newImageUploaded = true;
+          } catch (e) {
+            return message(
+              form,
+              { message: "Kunde inte ladda upp bild", type: "error" },
+              { status: 500 }
+            );
+          }
+        }
+        await prisma.committee.update({
+          where: { shortName: params.shortName },
+          data: {
+            name: form.data.name,
+            description: form.data.description,
+            imageUrl: newImageUploaded
+              ? `minio/material/committees/${params.shortName}.svg?version=${new Date().getTime()}`
+              : undefined,
+          },
         });
-      }
-    }
+        return message(form, { message: "Utskott uppdaterat", type: "success" });
+      },
+      form
+    );
   },
 };

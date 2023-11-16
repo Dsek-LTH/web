@@ -51,7 +51,7 @@
           <div class="flex gap-1">
             <File name={policy.title} url={policy.url} host />
             {#if data.accessPolicies.includes(apiNames.GOVERNING_DOCUMENT.DELETE) && isEditing}
-              <DeleteFileForm fileId={policy.id} fileName={policy.title} />
+              <DeleteFileForm fileId={policy.id} fileName={policy.title} data={data.deleteForm} />
             {/if}
             {#if data.accessPolicies.includes(apiNames.GOVERNING_DOCUMENT.UPDATE) && isEditing}
               <a
@@ -70,7 +70,11 @@
           <div class="flex gap-1">
             <File name={guideline.title} url={guideline.url} host />
             {#if data.accessPolicies.includes(apiNames.GOVERNING_DOCUMENT.DELETE) && isEditing}
-              <DeleteFileForm fileId={guideline.id} fileName={guideline.title} />
+              <DeleteFileForm
+                fileId={guideline.id}
+                fileName={guideline.title}
+                data={data.deleteForm}
+              />
             {/if}
             {#if data.accessPolicies.includes(apiNames.GOVERNING_DOCUMENT.UPDATE) && isEditing}
               <a

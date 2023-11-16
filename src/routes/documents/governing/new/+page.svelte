@@ -1,5 +1,6 @@
 <script>
-  import CreateGoverningDocumentForm from "../GoverningDocumentEditor.svelte";
+  import GoverningDocumentEditor from "../GoverningDocumentEditor.svelte";
+  export let data;
 </script>
 
-<CreateGoverningDocumentForm />
+<GoverningDocumentEditor isCreating documentId={undefined} data={data.form} />

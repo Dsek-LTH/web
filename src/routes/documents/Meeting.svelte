@@ -4,7 +4,10 @@
   import apiNames from "$lib/utils/apiNames";
   import DeleteFileForm from "./DeleteFileForm.svelte";
   import File from "./File.svelte";
+  import type { SuperValidated } from "sveltekit-superforms";
+  import type { DeleteSchema } from "./+page.server.ts";
 
+  export let deleteForm: SuperValidated<DeleteSchema>;
   export let name: string;
   export let files: FileData[];
   export let isEditing: boolean = false;
@@ -29,7 +32,7 @@
       <div class="flex gap-1">
         <File name={file.name} url={file.thumbnailUrl} full />
         {#if $page.data.accessPolicies.includes(apiNames.FILES.BUCKET("dev-documents").DELETE) && isEditing}
-          <DeleteFileForm fileId={file.id} fileName={file.name} />
+          <DeleteFileForm fileId={file.id} fileName={file.name} data={deleteForm} />
         {/if}
       </div>
     {/each}

@@ -21,8 +21,7 @@ jobs:
       - name: Use Node.js 18
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: "18"
           cache: "pnpm"
       - run: pnpm i
       - run: pnpm run check
-     

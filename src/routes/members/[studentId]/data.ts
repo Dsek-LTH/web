@@ -1,4 +1,4 @@
-export const _classProgrammes = [
+export const classProgrammes = [
   { id: "D", name: "Datateknik" },
   { id: "C", name: "InfoCom" },
   { id: "VR/AR", name: "Masterprogram inom VR/AR" },

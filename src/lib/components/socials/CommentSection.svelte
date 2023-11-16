@@ -3,27 +3,20 @@
   import CommentInput from "$lib/components/socials/CommentInput.svelte";
   import CommentRow from "$lib/components/socials/CommentRow.svelte";
   import apiNames from "$lib/utils/apiNames";
-  import { getFullName } from "$lib/utils/client/member";
+  import type { CommentSchema, RemoveCommentSchema } from "$lib/zod/comments";
   import type { ArticleComment, EventComment, Member } from "@prisma/client";
+  import type { SuperValidated } from "sveltekit-superforms";
   export let comments: ((ArticleComment | EventComment) & {
     member: Member;
   })[];
   export let type: "NEWS" | "EVENT";
   export let taggedMembers: Member[];
-  export let commentContent: string = "";
-  export let error: string | undefined = undefined;
+  export let commentForm: SuperValidated<CommentSchema>;
+  export let removeCommentForm: SuperValidated<RemoveCommentSchema>;
+
   const ALWAYS_SHOWN_COMMENTS = 3;
 
-  const onReply = (comment: (typeof comments)[number]) => () => {
-    const tagString = `[@${getFullName($page.data.session?.user, comment.member)}](/members/${
-      comment.member.studentId
-    }) `;
-    if (commentContent.trim().startsWith("[@") || commentContent.trim().length === 0) {
-      commentContent = tagString;
-    } else {
-      commentContent = `${tagString}${commentContent}`;
-    }
-  };
+  let onReply: (comment: (ArticleComment | EventComment) & { member: Member }) => void;
 </script>
 
 {#if comments.length > 0}
@@ -35,8 +28,9 @@
           {comment}
           author={comment.member}
           {taggedMembers}
-          onReply={onReply(comment)}
+          onReply={() => onReply(comment)}
           {type}
+          {removeCommentForm}
         />
       {/each}
     </div>
@@ -51,13 +45,14 @@
           {comment}
           author={comment.member}
           {taggedMembers}
-          onReply={onReply(comment)}
+          onReply={() => onReply(comment)}
           {type}
+          {removeCommentForm}
         />
       {/each}
     </div>
   </div>
 {/if}
 {#if $page.data.accessPolicies.includes(apiNames[type].COMMENT) && $page.data.currentMember}
-  <CommentInput author={$page.data.currentMember} bind:value={commentContent} {error} />
+  <CommentInput author={$page.data.currentMember} {commentForm} bind:onReply />
 {/if}

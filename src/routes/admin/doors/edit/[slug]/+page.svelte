@@ -1,13 +1,14 @@
 <script lang="ts">
-  import { enhance } from "$app/forms";
   import { page } from "$app/stores";
+  import Labeled from "$lib/components/Labeled.svelte";
+  import { superForm } from "sveltekit-superforms/client";
 
   export let data;
-  export let form;
-  let type: "role" | "member" = "role";
+  let type: "role" | "studentId" = "role";
 
   let removeModal: HTMLDialogElement | undefined = undefined;
   let selectedPolicy: (typeof data)["doorAccessPolicies"][number] | undefined = undefined;
+  const { form, errors, constraints, enhance } = superForm(data.createForm);
 </script>
 
 <main class="container mx-auto px-4">
@@ -67,45 +68,53 @@
   <h2 class="mb-4 text-xl">Grant door access</h2>
   <form class="form-control gap-4" method="POST" action="?/create" use:enhance>
     <label class="join join-vertical lg:join-horizontal lg:items-end">
-      <select class="join-item select select-bordered w-full lg:max-w-xs" bind:value={type}>
+      <select class="select join-item select-bordered w-full lg:max-w-xs" bind:value={type}>
         <option value="role">Role</option>
-        <option value="member">Member</option>
+        <option value="studentId">Member</option>
       </select>
       <input
         type="text"
         name={type}
         placeholder={type === "role" ? "dsek.infu.dwww" : "ab1234bc-s"}
         class="input join-item input-bordered w-full lg:max-w-xs"
+        bind:value={$form[type]}
+        {...$constraints[type]}
       />
       <div class="form-control join-item w-full lg:max-w-[200px]">
-        <label class="label" for="startDatetime">
-          <span class="label-text">Start date (optional)</span>
-        </label>
-        <input
-          id="startDatetime"
-          name="startDatetime"
-          type="datetime-local"
-          class="input join-item input-bordered dark:[color-scheme:dark]"
-        />
+        <Labeled id="startDatetime" label="Start date (optional)">
+          <input
+            id="startDatetime"
+            name="startDatetime"
+            type="datetime-local"
+            class="input join-item input-bordered dark:[color-scheme:dark]"
+            bind:value={$form.startDatetime}
+            {...$constraints.startDatetime}
+          />
+        </Labeled>
       </div>
       <div class="form-control join-item w-full lg:max-w-[200px]">
-        <label class="label" for="endDatetime">
-          <span class="label-text">End date (optional)</span>
-        </label>
-        <input
-          id="endDatetime"
-          name="endDatetime"
-          type="datetime-local"
-          class="input join-item input-bordered dark:[color-scheme:dark]"
-        />
+        <Labeled id="startDatetime" label="End date (optional)">
+          <input
+            id="endDatetime"
+            name="endDatetime"
+            type="datetime-local"
+            class="input join-item input-bordered dark:[color-scheme:dark]"
+            bind:value={$form.endDatetime}
+            {...$constraints.endDatetime}
+          />
+        </Labeled>
         <!-- slice gives date formatted as yyyy-MM-ddThh:mm -->
       </div>
       <button type="submit" class="btn btn-primary join-item">Add</button>
     </label>
+    {#if Object.keys($errors).length > 0}
+      <div class="text-error">
+        <ul class="list-inside list-disc">
+          {#each Object.values($errors) as error}<li>{error}</li>{/each}
+        </ul>
+      </div>
+    {/if}
   </form>
-  {#if form?.error}
-    <p class="text-error">{form.error}</p>
-  {/if}
 </section>
 
 <dialog bind:this={removeModal} class="modal modal-bottom sm:modal-middle">

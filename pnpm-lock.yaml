@@ -124,6 +124,12 @@ devDependencies:
   svelte-check:
     specifier: ^3.5.2
     version: 3.5.2(postcss@8.4.31)(svelte@4.2.1)
+  sveltekit-flash-message:
+    specifier: ^2.2.1
+    version: 2.2.1(@sveltejs/kit@1.25.0)(svelte@4.2.1)
+  sveltekit-superforms:
+    specifier: ^1.10.1
+    version: 1.10.1(@sveltejs/kit@1.25.0)(svelte@4.2.1)(zod@3.22.4)
   tailwindcss:
     specifier: ^3.3.3
     version: 3.3.3
@@ -139,6 +145,9 @@ devDependencies:
   vite-node:
     specifier: ^0.34.6
     version: 0.34.6(@types/node@20.8.2)
+  zod:
+    specifier: ^3.22.4
+    version: 3.22.4
 
 packages:
 
@@ -3892,6 +3901,28 @@ packages:
       magic-string: 0.30.3
       periscopic: 3.1.0
 
+  /sveltekit-flash-message@2.2.1(@sveltejs/kit@1.25.0)(svelte@4.2.1):
+    resolution: {integrity: sha512-KnVuC7Q07crRTwgm/N5CQEebNbzPWoMrtlKXRMq608T+/by8kETXmyTUnuZ5wsnfJEwhWQyXsXBOY2a6NzCPQQ==}
+    peerDependencies:
+      '@sveltejs/kit': 1.x
+      svelte: 3.x || 4.x
+    dependencies:
+      '@sveltejs/kit': 1.25.0(svelte@4.2.1)(vite@4.4.9)
+      svelte: 4.2.1
+    dev: true
+
+  /sveltekit-superforms@1.10.1(@sveltejs/kit@1.25.0)(svelte@4.2.1)(zod@3.22.4):
+    resolution: {integrity: sha512-xNRLuncJf7UoJSr543IpFRu5si2Vv7dd8lsc6w1MAodGcIvDFn76T6jF/idftos7Vt/OOi3btFsvrJvT99n4dg==}
+    peerDependencies:
+      '@sveltejs/kit': 1.x
+      svelte: 3.x || 4.x
+      zod: 3.x
+    dependencies:
+      '@sveltejs/kit': 1.25.0(svelte@4.2.1)(vite@4.4.9)
+      svelte: 4.2.1
+      zod: 3.22.4
+    dev: true
+
   /symbol-tree@3.2.4:
     resolution: {integrity: sha512-9QNk5KwDF+Bvz+PyObkmSYjI5ksVUYtjW7AU22r2NKcfLJcXp96hkDWU3+XndOsUb+AQ9QhfzfCT2O+CNWT5Tw==}
     dev: false
@@ -4363,3 +4394,7 @@ packages:
   /yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
+
+  /zod@3.22.4:
+    resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
+    dev: true

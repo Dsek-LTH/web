@@ -1,8 +1,11 @@
+import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
 import { fileHandler } from "$lib/files";
 import type { FileData } from "$lib/files/fileHandler.js";
-import { ctxAccessGuard } from "$lib/utils/access";
+import { withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
 import { error, fail } from "@sveltejs/kit";
+import { message, superValidate } from "sveltekit-superforms/server";
+import { z } from "zod";
 
 export type DocumentType = "board-meeting" | "guild-meeting" | "other";
 const prefixByType: Record<DocumentType, string> = {
@@ -16,7 +19,7 @@ export const load = async ({ parent, url }) => {
   const type: DocumentType = (url.searchParams.get("type") as DocumentType) || "board-meeting";
   const files = await fileHandler.getInBucket(
     session?.user,
-    "dev-documents",
+    PUBLIC_BUCKETS_DOCUMENTS,
     year + "/" + (prefixByType[type] ?? ""),
     true
   );
@@ -53,31 +56,32 @@ export const load = async ({ parent, url }) => {
   return {
     files,
     meetings: filesGroupedByMeeting,
+    deleteForm: await superValidate(deleteSchema),
   };
 };
 
+const deleteSchema = z.object({
+  id: z.string(),
+});
+export type DeleteSchema = typeof deleteSchema;
+
 export const actions = {
   deleteFile: async ({ request, locals }) => {
+    const form = await superValidate(request, deleteSchema);
+    if (!form.valid) return fail(400, { form });
     const session = await locals.getSession();
-    await ctxAccessGuard(apiNames.FILES.BUCKET("dev-documents").DELETE, session?.user);
-    const formData = await request.formData();
-    const id = formData.get("id");
-    if (!id || typeof id !== "string")
-      return fail(400, {
-        message: "Missing mandate id",
-        data: Object.fromEntries(formData),
-      });
-    try {
-      await fileHandler.remove(session?.user, "dev-documents", [id]);
-      return {
-        success: true,
-        data: Object.fromEntries(formData),
-      };
-    } catch {
-      return fail(500, {
-        error: "Unknown error",
-        data: Object.fromEntries(formData),
-      });
-    }
+    return withAccess(
+      apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).DELETE,
+      session?.user,
+      async () => {
+        const { id } = form.data;
+        await fileHandler.remove(session?.user, PUBLIC_BUCKETS_DOCUMENTS, [id]);
+        return message(form, {
+          message: "Fil borttagen",
+          type: "success",
+        });
+      },
+      form
+    );
   },
 };
