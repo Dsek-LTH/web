@@ -55,6 +55,9 @@ const apiNames = {
   DOOR: {
     ...crud("core:access:door"),
   },
+  YRKA: {
+    SEND: "yrka:send",
+  },
 } as const;
 
 export default apiNames;

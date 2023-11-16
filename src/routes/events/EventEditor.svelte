@@ -40,7 +40,6 @@
           <DateInput
             id="start"
             name="startDatetime"
-            class="input input-bordered"
             placeholder="Start"
             bind:date={$form.startDatetime}
             error={$errors.startDatetime}
@@ -51,7 +50,6 @@
           <DateInput
             id="end"
             name="endDatetime"
-            class="input input-bordered"
             placeholder="End"
             bind:date={$form.endDatetime}
             error={$errors.endDatetime}

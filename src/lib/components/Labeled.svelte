@@ -5,7 +5,7 @@
   export let error: string | string[] | undefined = undefined;
 </script>
 
-<div class="inline-flex flex-col items-stretch">
+<div class="relative inline-flex flex-col items-stretch">
   {#if label}
     <label class="label" for={id}>
       <span class="label-text">

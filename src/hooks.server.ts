@@ -6,9 +6,11 @@ import {
   KEYCLOAK_CLIENT_ID,
   KEYCLOAK_CLIENT_SECRET,
   KEYCLOAK_CLIENT_ISSUER,
+  AUTH_SECRET,
 } from "$env/static/private";
 
 export const handle = SvelteKitAuth({
+  secret: AUTH_SECRET,
   providers: [
     Keycloak({
       clientId: KEYCLOAK_CLIENT_ID,
