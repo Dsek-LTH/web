@@ -5,6 +5,7 @@ import { error, fail } from "@sveltejs/kit";
 import { redirect } from "sveltekit-flash-message/server";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { MEETING_TYPE, meetingSchema } from "../schemas.js";
+import { z } from "zod";
 export const load = async ({ parent, params }) => {
   const meeting = await prisma.meeting.findUnique({
     where: {
@@ -12,6 +13,14 @@ export const load = async ({ parent, params }) => {
     },
     include: {
       attachments: true,
+      items: {
+        orderBy: {
+          order: "asc",
+        },
+        include: {
+          attachments: true,
+        },
+      },
     },
   });
   if (!meeting) throw error(404);
@@ -20,8 +29,28 @@ export const load = async ({ parent, params }) => {
   return {
     meeting,
     updateForm: superValidate({ ...meeting, type: meeting.type as MEETING_TYPE }, meetingSchema),
+    addItemsForm: superValidate({ items: [] }, addItemSchema),
+    updateItemForm: superValidate(updateItemSchema),
   };
 };
+
+const addItemSchema = z.object({
+  items: z.array(
+    z.object({
+      title: z.string().min(1),
+      order: z.number().int().min(0),
+    })
+  ),
+});
+export type AddItemSchema = typeof addItemSchema;
+const updateItemSchema = z.object({
+  id: z.string().uuid(),
+  title: z.string().min(1).optional(),
+  order: z.number().int().min(0).optional(),
+  concluded: z.boolean().optional(),
+  comment: z.string().nullable().optional(),
+});
+export type UpdateItemSchema = typeof updateItemSchema;
 
 export const actions = {
   update: async (event) => {
@@ -69,6 +98,68 @@ export const actions = {
         );
       },
       undefined
+    );
+  },
+  addItems: async (event) => {
+    const form = await superValidate(event.request, addItemSchema);
+    if (!form.valid) return fail(400, { form });
+    const session = await event.locals.getSession();
+    return withAccess(
+      apiNames.MEETINGS.UPDATE,
+      session?.user,
+      async () => {
+        const currentCount = await prisma.meetingAgendaItem.count({
+          where: {
+            meeting: {
+              id: event.params.id,
+            },
+          },
+        });
+        await prisma.meeting.update({
+          where: {
+            id: event.params.id,
+          },
+          data: {
+            items: {
+              createMany: {
+                data: form.data.items.map((item) => ({
+                  ...item,
+                  order: currentCount + item.order,
+                })),
+              },
+            },
+          },
+        });
+        return message(form, {
+          message: "Möte uppdaterat",
+          type: "success",
+        });
+      },
+      form
+    );
+  },
+  updateItem: async (event) => {
+    const form = await superValidate(event.request, updateItemSchema);
+    if (!form.valid) return fail(400, { form });
+    const session = await event.locals.getSession();
+    return withAccess(
+      apiNames.MEETINGS.UPDATE,
+      session?.user,
+      async () => {
+        await prisma.meetingAgendaItem.update({
+          where: {
+            id: form.data.id,
+          },
+          data: {
+            ...form.data,
+          },
+        });
+        return message(form, {
+          message: "Punkt uppdaterad",
+          type: "hidden",
+        });
+      },
+      form
     );
   },
 };
