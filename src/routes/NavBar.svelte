@@ -18,7 +18,7 @@
   <input id="my-drawer-3" type="checkbox" class="drawer-toggle" bind:checked />
   <div class="drawer-content flex flex-col">
     <!-- Navbar -->
-    <div class="glass navbar fixed z-20 w-full shadow-none transition-all">
+    <div class="bg-base-200 bg-opacity-60 navbar fixed z-20 w-full shadow-none filter backdrop-blur transition-all">
       <div class="block lg:hidden">
         <label for="my-drawer-3" aria-label="open sidebar" class="btn btn-square btn-ghost">
           <span
@@ -33,7 +33,7 @@
         {#each routes as route (route.title)}
           {#if !route.accessRequired || accessPolicies.includes(route.accessRequired)}
             {#if route?.children?.length}
-              <div class="dropdown dropdown-hover">
+              <div class="dropdown-hover dropdown">
                 <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
                 <!-- svelte-ignore a11y-label-has-associated-control -->
                 <label tabindex="0" class="btn btn-ghost">
@@ -176,12 +176,3 @@
     </div>
   </div>
 </div>
-
-<style>
-  .glass {
-    background: hsl(var(--b2) / 0.6);
-    /* box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); */
-    backdrop-filter: blur(10.5px);
-    -webkit-backdrop-filter: blur(10.5px);
-  }
-</style>
