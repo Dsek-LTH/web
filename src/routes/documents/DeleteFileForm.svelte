@@ -16,8 +16,9 @@
   on:click={() => {
     deleteModal?.showModal();
   }}
-  class="btn btn-error btn-sm pointer-events-auto">X</button
->
+  class="pointer-events-auto"
+  ><span class="i-mdi-delete-outline align-middle text-xl text-error"></span>
+</button>
 <dialog bind:this={deleteModal} class="modal modal-bottom sm:modal-middle">
   <div class="modal-box">
     <h3 class="text-lg font-bold">Delete file</h3>
