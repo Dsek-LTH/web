@@ -14,7 +14,8 @@
     "format": "prettier --write .",
     "generate": "prisma generate",
     "migrate": "prisma migrate dev",
-    "seed": "vite-node prisma/seed.ts"
+    "seed": "vite-node prisma/seed.ts",
+    "bot": "vite-node bot/bot.ts"
   },
   "prisma": {
     "seed": "vite-node prisma/seed.ts"
@@ -61,6 +62,8 @@
     "@tiptap/pm": "^2.1.11",
     "@tiptap/starter-kit": "^2.1.11",
     "croppie": "^2.6.5",
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.3.1",
     "isomorphic-dompurify": "^1.9.0",
     "marked": "^9.0.3",
     "minio": "^7.1.3",
