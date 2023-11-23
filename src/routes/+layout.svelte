@@ -6,6 +6,7 @@
   import "../app.css";
   import BottomNav from "./BottomNav.svelte";
   import NavBar from "./NavBar.svelte";
+  import Footer from "./Footer.svelte";
 
   const flash = getFlash(page);
   // Message from form (not redirect)
@@ -17,10 +18,11 @@
 </script>
 
 <NavBar>
-  <div class="h-16 overflow-auto bg-base-200 accent-primary"></div>
-
-  <div class="flex-col overflow-auto pb-16 accent-primary md:pb-0 [&>*]:flex-1">
+  <div
+    class="accent-primary h-[calc(100vh-9rem)] flex-col overflow-auto md:h-[calc(100vh-5rem)] [&>*]:flex-1"
+  >
     <slot />
+    <Footer />
   </div>
 
   <BottomNav />
