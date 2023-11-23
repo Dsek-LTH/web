@@ -9,4 +9,4 @@ curl -L "https://minio.api.sandbox.dsek.se/dev-files/dev/dwww_web.dmp" | docker 
 # Re-enable foreign key checks
 docker exec -it dsek-db psql -U postgres --dbname=dsek --command="SET session_replication_role = 'origin';"
 # Setup migrations for prisma
-pnpm migrate --skip-seed
+pnpm migrate

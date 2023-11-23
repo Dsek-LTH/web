@@ -6,7 +6,19 @@ import { error, fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
 import type { PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, parent }) => {
+  const { currentMember } = await parent();
+  let secretCode: string | null = null;
+  if (currentMember?.studentId === params.studentId) {
+    const discordMember = await prisma.discordMember.findFirst({
+      where: {
+        memberId: currentMember.id,
+      },
+    });
+    if (discordMember) {
+      secretCode = discordMember.secretCode;
+    }
+  }
   const [memberResult, publishedArticlesResult] = await Promise.allSettled([
     prisma.member.findUnique({
       where: {
@@ -63,6 +75,7 @@ export const load: PageServerLoad = async ({ params }) => {
   return {
     form: await superValidate(member, memberSchema),
     member,
+    secretCode,
     publishedArticles: publishedArticlesResult.value ?? [],
   };
 };

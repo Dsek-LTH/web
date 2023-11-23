@@ -64,6 +64,12 @@
       {/if}
     </div>
     {member.studentId}
+    {#if isMe && data.secretCode}
+      <div class="text-sm text-gray-500">
+        <span class="font-bold">Hemlig kod för discord:</span>
+        {data.secretCode}
+      </div>
+    {/if}
   </header>
   <div class={isEditing ? "col-span-4 row-span-2" : "col-span-2"}>
     {#if isEditing}
