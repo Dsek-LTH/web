@@ -18,6 +18,10 @@
   });
   let isAdding = false;
   let newItems: { title: string; order: number }[] = [];
+  $: currentItemIdx = items.findIndex((item, index) => {
+    if (index === 0) return !item.concluded;
+    return items[index - 1]!.concluded && !item.concluded;
+  });
 </script>
 
 <header class="flex justify-between">
@@ -36,7 +40,7 @@
 <div class="flex">
   <ol class="steps steps-vertical flex-1">
     {#each items as item, index (item.id)}
-      <AgendaItem {item} data={updateItemsForm} previousItem={items[index - 1]} />
+      <AgendaItem {item} data={updateItemsForm} isCurrentItem={currentItemIdx === index} />
     {/each}
   </ol>
 
