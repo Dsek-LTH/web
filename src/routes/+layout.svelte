@@ -6,6 +6,7 @@
   import "../app.css";
   import BottomNav from "./BottomNav.svelte";
   import NavBar from "./NavBar.svelte";
+  import Footer from "../Footer.svelte";
 
   const flash = getFlash(page);
   // Message from form (not redirect)
@@ -21,6 +22,7 @@
 
   <div class="flex-col overflow-auto pb-16 accent-primary md:pb-0 [&>*]:flex-1">
     <slot />
+    <Footer />
   </div>
 
   <BottomNav />
