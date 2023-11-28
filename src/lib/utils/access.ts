@@ -105,17 +105,33 @@ export const withAccess = async <
     await ctxAccessGuard(apiName, context, relevantMember);
     return await fn();
   } catch (e) {
-    if (e instanceof Prisma.PrismaClientKnownRequestError) {
+    if (
+      e instanceof Prisma.PrismaClientKnownRequestError ||
+      e instanceof Prisma.PrismaClientUnknownRequestError ||
+      e instanceof Prisma.PrismaClientInitializationError ||
+      e instanceof Prisma.PrismaClientRustPanicError ||
+      e instanceof Prisma.PrismaClientKnownRequestError
+    ) {
+      if (e.name !== "PrismaClientKnownRequestError") {
+        if (form === undefined) throw error(500, "Unknown error occured");
+        return message(
+          form,
+          {
+            message: "Unkown error occured",
+            type: "error",
+          },
+          { status: 500 }
+        );
+      }
       if (form === undefined) throw error(400, e.message);
+      console.log("Prisma error", e);
       return message(
         form,
         {
           message: e.message,
           type: "error",
         },
-        {
-          status: 400,
-        }
+        { status: 400 }
       );
     } else if (
       "status" in (e as HttpError) &&

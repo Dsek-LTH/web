@@ -308,7 +308,7 @@ model EventsTag {
 model ExpoToken {
   id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   memberId  String? @map("member_id") @db.Uuid
-  expoToken String? @unique(map: "expo_tokens_expo_token_unique") @map("expo_token") @db.VarChar(255)
+  expoToken String  @unique(map: "expo_tokens_expo_token_unique") @map("expo_token") @db.VarChar(255)
 
   @@map("expo_tokens")
 }

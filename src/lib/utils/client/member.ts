@@ -9,3 +9,10 @@ export const getFullName = (
     return `${member.firstName} "${member.nickname}" ${member.lastName}`;
   return `${member.firstName} ${member.lastName}`;
 };
+
+export const getAuthorizedFullName = (
+  member: Pick<Member, "nickname" | "firstName" | "lastName">
+) => {
+  if (member.nickname) return `${member.firstName} "${member.nickname}" ${member.lastName}`;
+  return `${member.firstName} ${member.lastName}`;
+};
