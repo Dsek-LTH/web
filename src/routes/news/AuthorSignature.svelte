@@ -27,9 +27,9 @@
   };
 </script>
 
-<div class="flex flex-row items-center {sizeToGap[size]}">
+<div class="flex flex-row items-center {sizeToGap[size]}, m-4">
   <div class="avatar">
-    <div class="{sizeToWidth[size]} rounded-full">
+    <div class="{sizeToWidth[size]} rounded-full m-2">
       {#if type == "Custom" && customAuthor != null}
         <img
           src={customAuthor.imageUrl ?? "https://gravatar.com/avatar?s=100&d=mp"}
@@ -53,7 +53,7 @@
             ? ''
             : 'pointer-events-none'}"
         >
-          <MemberImage {member} />
+        <MemberImage {member} />
         </a>
       {/if}
     </div>

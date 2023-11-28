@@ -21,26 +21,20 @@
 <article
   class="ease my-4 rounded-lg p-6 shadow-2xl ring-neutral-700 transition md:ring-1 md:hover:scale-[1.01]"
 >
-  <div class="flex flex-row justify-between">
-    <AuthorSignature
-      member={author.member}
-      position={author.mandate?.position}
-      customAuthor={author.customAuthor ?? undefined}
-      type={author.type}
-    />
+  <a href="/news/{article.slug}">
+    <h2 class="my-3 text-2xl font-bold">{article.header}</h2>
+  </a>
 
+  <div class="flex flex-row justify-between">
     <p class="text-right text-xs text-gray-500">
-      {article.publishedAt?.toLocaleDateString(["sv"])} <br />
+      {article.publishedAt?.toLocaleDateString(["sv"])}
+      ,
       {article.publishedAt?.toLocaleTimeString(["sv"], {
         hour: "2-digit",
         minute: "2-digit",
       })}
     </p>
   </div>
-
-  <a href="/news/{article.slug}">
-    <h2 class="my-3 text-2xl font-bold">{article.header}</h2>
-  </a>
 
   <div class="my-3 flex flex-row items-start gap-2">
     <MarkdownBody body={article.body.slice(0, 400)} class="line-clamp-4 text-ellipsis" />
@@ -75,5 +69,13 @@
         {commentCount} kommentarer
       </a>
     {/if}
+    <div class="m-2">
+      <AuthorSignature
+        member={author.member}
+        position={author.mandate?.position}
+        customAuthor={author.customAuthor ?? undefined}
+        type={author.type}
+      />
+    </div>
   </div>
 </article>

@@ -21,9 +21,17 @@
   {#if $errors.articleId}
     <div class="text-error">{$errors.articleId}</div>
   {/if}
-  <div class="tooltip" data-tip={disabled ? "Du måste vara inloggad för att gilla" : undefined}>
-    <button type="submit" class="btn btn-primary" {disabled}>
-      {isLiked ? "Sluta gilla" : "Gilla"}
+  <div class="tooltip m-4" data-tip={disabled ? "Du måste vara inloggad för att gilla" : undefined}>
+    <button {disabled}>
+      <label class="swap">
+        <!-- this hidden checkbox controls the state -->
+        <input type="checkbox" checked={isLiked} />
+
+        <!-- volume on icon -->
+        <span class="swap-on i-mdi-thumb-up h-10 w-10"> </span>
+
+        <span class="swap-off i-mdi-thumb-up-outline h-10 w-10"> </span>
+      </label>
     </button>
   </div>
 </form>
