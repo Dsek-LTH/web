@@ -10,10 +10,13 @@
 <form method="get" class="form-control flex-1 flex-row items-center gap-2" id="create-form">
   <div class="join">
     <label>
-      <SearchBar />
       <BookableSelector allBookables={data.bookables} />
-      <input type="" name="past" />
-    </label>
+      <div class="flex flex-row">
+        <input type="text" placeholder="Start" class="input input-bordered w-full max-w-xs" />
+        <input type="text" placeholder="End" class="input input-bordered w-full max-w-xs" />
+      </div>
+      <button type="submit" class="btn btn-primary">Create</button>
+      </label>
   </div>
 </form>
 

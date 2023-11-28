@@ -23,7 +23,10 @@
               selectedBookables = selectedBookables.filter((o) => o !== bookable);
             }}
           >
-            <bookableChip {bookable} />
+            <span class="badge badge-md relative cursor-pointer whitespace-nowrap text-xs">
+              <div class="absolute inset-0 opacity-10 transition-colors" />
+              {bookable.name}
+            </span>
           </button>
         {/each}
         <button
@@ -45,7 +48,7 @@
       autocapitalize="off"
       type="text"
       class="input input-bordered w-full"
-      placeholder="Taggar"
+      placeholder="Bookables"
       tabIndex={0}
       bind:value={searchValue}
       {...$$restProps}
@@ -82,7 +85,7 @@
     {/each}
     {#if filteredBookables.length === 0}
       <li class="w-full border-b border-b-base-content/10">
-        <button type="button" disabled class="disabled">No tags</button>
+        <button type="button" disabled class="disabled">No Bookables</button>
       </li>
     {/if}
   </ul>

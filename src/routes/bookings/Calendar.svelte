@@ -28,12 +28,6 @@
         right: "dayGridDay,dayGridWeek,dayGridMonth",
       },
       customButtons: {
-        addEvent: {
-          text: "Skapa Bokning",
-          click: () => {
-            goto("/events/create");
-          },
-        },
         subscribe: {
           text: "Subscribe",
           click: () => {
