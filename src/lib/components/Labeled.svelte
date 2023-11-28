@@ -2,6 +2,7 @@
   export let id: string;
   export let label: string | null = null;
   export let explanation: string | null = null;
+  export let error: string | string[] | undefined = undefined;
 </script>
 
 <div class="inline-flex flex-col items-stretch">
@@ -16,4 +17,9 @@
     </label>
   {/if}
   <slot {label} />
+  {#if error}
+    <p class="text-error">
+      {#if typeof error === "string"}{error}{:else}{error.join(", ")}{/if}
+    </p>
+  {/if}
 </div>

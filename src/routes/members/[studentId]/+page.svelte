@@ -12,7 +12,6 @@
   import { getFullName } from "$lib/utils/client/member";
 
   export let data;
-  export let form;
   $: member = data.member;
   $: isMe = data.session?.user?.student_id === $page.params.studentId;
   $: mandatesGroupedByYear = member.mandates.reduce<Record<string, (typeof member)["mandates"]>>(
@@ -69,26 +68,33 @@
   <div class={isEditing ? "col-span-4 row-span-2" : "col-span-2"}>
     {#if isEditing}
       <!-- Update user form -->
-      <UpdateMemberForm bind:isEditing {member} {form} />
+      <UpdateMemberForm bind:isEditing data={data.form} />
       <!-- End Update user form -->
     {:else}
       <ClassBadge {member} size="xl" />
     {/if}
   </div>
-  {#if member.bio}
-    <article class="col-span-5 row-start-4 md:col-span-3">
-      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+  <article class="col-span-5 row-start-4 md:col-span-3">
+    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+    {#if member.bio}
       <MarkdownBody body={member.bio}>
         <div class="float-right">
           {#if canEdit}
-            <a href="{$page.params.studentId}/edit-bio" class="btn btn-secondary btn-outline btn-sm"
-              >Redigera bio</a
+            <a
+              href="{$page.params.studentId}/edit-bio"
+              class="btn btn-secondary btn-outline btn-sm"
             >
+              Redigera bio
+            </a>
           {/if}
         </div>
       </MarkdownBody>
-    </article>
-  {/if}
+    {:else if canEdit}
+      <a href="{$page.params.studentId}/edit-bio" class="btn btn-secondary btn-outline btn-sm">
+        Lägg till bio
+      </a>
+    {/if}
+  </article>
   <div class="col-span-5 row-span-4 flex flex-col sm:flex-row md:col-span-2 md:flex-col">
     <div class="flex-1 md:flex-grow-0">
       <h2 class="mb-2 text-lg">Innehavda poster</h2>

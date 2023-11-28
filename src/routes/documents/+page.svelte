@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
   import Pagination from "$lib/components/Pagination.svelte";
   import Tabs from "$lib/components/Tabs.svelte";
   import apiNames from "$lib/utils/apiNames";
@@ -48,10 +49,10 @@
     <Tabs options={typeOptions} bind:currentTab={type} fieldName="type" />
   </div>
   <div class="flex flex-col gap-1">
-    {#if data.accessPolicies.includes(apiNames.FILES.BUCKET("dev-documents").CREATE)}
+    {#if data.accessPolicies.includes(apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).CREATE)}
       <a class="btn btn-primary btn-sm" href="/documents/upload">Ladda upp fil</a>
     {/if}
-    {#if data.accessPolicies.includes(apiNames.FILES.BUCKET("dev-documents").DELETE)}
+    {#if data.accessPolicies.includes(apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).DELETE)}
       <button
         class="btn btn-secondary btn-sm"
         on:click={() => {
@@ -66,6 +67,11 @@
 
 <div class="flex flex-col gap-4">
   {#each meetings as meeting (meeting)}
-    <Meeting name={meeting} files={data.meetings[meeting] ?? []} {isEditing} />
+    <Meeting
+      name={meeting}
+      files={data.meetings[meeting] ?? []}
+      {isEditing}
+      deleteForm={data.deleteForm}
+    />
   {/each}
 </div>

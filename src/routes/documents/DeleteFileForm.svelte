@@ -1,17 +1,24 @@
 <script lang="ts">
-  import { enhance } from "$app/forms";
+  import type { SuperValidated } from "sveltekit-superforms";
+  import { superForm } from "sveltekit-superforms/client";
+  import type { DeleteSchema } from "./+page.server.ts";
 
+  export let data: SuperValidated<DeleteSchema>;
   export let fileId: string;
   export let fileName: string;
   let deleteModal: HTMLDialogElement | undefined = undefined;
+  const { enhance } = superForm(data, {
+    id: fileId,
+  });
 </script>
 
 <button
   on:click={() => {
     deleteModal?.showModal();
   }}
-  class="btn btn-error btn-sm pointer-events-auto">X</button
->
+  class="pointer-events-auto"
+  ><span class="i-mdi-delete-outline align-middle text-xl text-error"></span>
+</button>
 <dialog bind:this={deleteModal} class="modal modal-bottom sm:modal-middle">
   <div class="modal-box">
     <h3 class="text-lg font-bold">Delete file</h3>

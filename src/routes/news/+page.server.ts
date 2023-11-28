@@ -1,7 +1,8 @@
 import prisma from "$lib/utils/prisma";
+import { superValidate } from "sveltekit-superforms/server";
 import type { PageServerLoad } from "./$types";
 import { getAllArticles } from "./articles";
-import { modifyLikes } from "./likes";
+import { likeSchema, likesAction } from "./likes";
 
 const getAndValidatePage = (url: URL) => {
   const page = url.searchParams.get("page");
@@ -24,14 +25,11 @@ export const load: PageServerLoad = async ({ url }) => {
     articles,
     pageCount,
     allTags,
+    likeForm: await superValidate(likeSchema),
   };
 };
 
 export const actions = {
-  like: async (props) => {
-    return modifyLikes(props, true);
-  },
-  dislike: async (props) => {
-    return modifyLikes(props, false);
-  },
+  like: likesAction(true),
+  dislike: likesAction(false),
 };

@@ -18,7 +18,9 @@
   <input id="my-drawer-3" type="checkbox" class="drawer-toggle" bind:checked />
   <div class="drawer-content flex flex-col">
     <!-- Navbar -->
-    <div class="navbar w-full bg-base-200">
+    <div
+      class="navbar fixed z-20 w-full bg-base-200 bg-opacity-60 shadow-none filter backdrop-blur transition-all"
+    >
       <div class="block lg:hidden">
         <label for="my-drawer-3" aria-label="open sidebar" class="btn btn-square btn-ghost">
           <span
@@ -33,7 +35,7 @@
         {#each routes as route (route.title)}
           {#if !route.accessRequired || accessPolicies.includes(route.accessRequired)}
             {#if route?.children?.length}
-              <div class="dropdown-hover dropdown">
+              <div class="dropdown dropdown-hover">
                 <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
                 <!-- svelte-ignore a11y-label-has-associated-control -->
                 <label tabindex="0" class="btn btn-ghost">
@@ -160,7 +162,7 @@
               </li>
             {:else}
               <li>
-                <a on:click={close} href="/" class="btn content-center justify-start">
+                <a on:click={close} href={route.path} class="btn content-center justify-start">
                   {#if route.isDsekIcon}
                     <DsekLogo className="h-6 w-6 text-primary" />
                   {:else}

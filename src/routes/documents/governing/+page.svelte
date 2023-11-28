@@ -12,20 +12,24 @@
   <title>Styrdokument | D-sektionen</title>
 </svelte:head>
 
-<h1 class="my-3 text-2xl font-bold">Styrdokument</h1>
-{#if data.accessPolicies.includes(apiNames.GOVERNING_DOCUMENT.DELETE)}
-  {#if data.accessPolicies.includes(apiNames.GOVERNING_DOCUMENT.CREATE)}
-    <a class="btn btn-primary btn-sm" href="/documents/governing/new"> + Skapa ny </a>
-  {/if}
-  <button
-    class="btn btn-secondary btn-sm"
-    on:click={() => {
-      isEditing = !isEditing;
-    }}
-  >
-    {isEditing ? "Sluta redigera" : "Redigera"}
-  </button>
-{/if}
+<div class="flex w-full flex-row items-center justify-between">
+  <h1 class="my-3 text-2xl font-bold">Styrdokument</h1>
+  <div>
+    {#if data.accessPolicies.includes(apiNames.GOVERNING_DOCUMENT.DELETE)}
+      {#if data.accessPolicies.includes(apiNames.GOVERNING_DOCUMENT.CREATE)}
+        <a class="btn btn-primary btn-sm" href="/documents/governing/new"> + Skapa ny </a>
+      {/if}
+      <button
+        class="btn btn-secondary btn-sm"
+        on:click={() => {
+          isEditing = !isEditing;
+        }}
+      >
+        {isEditing ? "Sluta redigera" : "Redigera"}
+      </button>
+    {/if}
+  </div>
+</div>
 <div class="flex flex-col gap-5">
   <p>
     Här finns alla styrdokument som gäller för D-sektionen. Styrdokumenten är uppdelade i tre
@@ -39,25 +43,24 @@
       styrelsen@dsek.se
     </a>
   </p>
-  <div class="flex gap-1">
-    <File name="Stadgar" url="https://dsek.se/stadgar" />
-    <File name="Reglemente" url="https://dsek.se/reglemente" />
+  <div class="flex items-center gap-5">
+    <strong><File name="Stadgar" url="https://dsek.se/stadgar" /></strong>
+    <strong><File name="Reglemente" url="https://dsek.se/reglemente" /></strong>
   </div>
   <div class="flex flex-col gap-4 md:flex-row">
     <div>
       <h1 class="my-3 text-2xl font-bold">Policyer</h1>
-      <div class="flex flex-col gap-5">
+      <div class="flex flex-col gap-2">
         {#each policies as policy}
-          <div class="flex gap-1">
+          <div class="flex items-center gap-1">
             <File name={policy.title} url={policy.url} host />
             {#if data.accessPolicies.includes(apiNames.GOVERNING_DOCUMENT.DELETE) && isEditing}
-              <DeleteFileForm fileId={policy.id} fileName={policy.title} />
+              <DeleteFileForm fileId={policy.id} fileName={policy.title} data={data.deleteForm} />
             {/if}
             {#if data.accessPolicies.includes(apiNames.GOVERNING_DOCUMENT.UPDATE) && isEditing}
-              <a
-                class="btn btn-secondary btn-sm pointer-events-auto"
-                href={`/documents/governing/${policy.id}/edit`}>Edit</a
-              >
+              <a class="pointer-events-auto" href={`/documents/governing/${policy.id}/edit`}
+                ><span class="i-mdi-pencil align-middle text-xl text-secondary"></span>
+              </a>
             {/if}
           </div>
         {/each}
@@ -65,18 +68,21 @@
     </div>
     <div>
       <h1 class="my-3 text-2xl font-bold">Riktlinjer</h1>
-      <div class="flex flex-col gap-5">
+      <div class="flex flex-col gap-2">
         {#each guidelines as guideline}
-          <div class="flex gap-1">
+          <div class="flex items-center gap-1">
             <File name={guideline.title} url={guideline.url} host />
             {#if data.accessPolicies.includes(apiNames.GOVERNING_DOCUMENT.DELETE) && isEditing}
-              <DeleteFileForm fileId={guideline.id} fileName={guideline.title} />
+              <DeleteFileForm
+                fileId={guideline.id}
+                fileName={guideline.title}
+                data={data.deleteForm}
+              />
             {/if}
             {#if data.accessPolicies.includes(apiNames.GOVERNING_DOCUMENT.UPDATE) && isEditing}
-              <a
-                class="btn btn-secondary btn-sm pointer-events-auto"
-                href={`/documents/governing/${guideline.id}/edit`}>Edit</a
-              >
+              <a class="pointer-events-auto" href={`/documents/governing/${guideline.id}/edit`}
+                ><span class="i-mdi-pencil align-middle text-xl text-secondary"></span>
+              </a>
             {/if}
           </div>
         {/each}
