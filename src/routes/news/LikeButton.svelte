@@ -22,7 +22,7 @@
     <div class="text-error">{$errors.articleId}</div>
   {/if}
   <div class="tooltip m-4" data-tip={disabled ? "Du måste vara inloggad för att gilla" : undefined}>
-    <button {disabled}>
+    <button {disabled} type="submit">
       <label class="swap">
         <!-- this hidden checkbox controls the state -->
         <input type="checkbox" checked={isLiked} />

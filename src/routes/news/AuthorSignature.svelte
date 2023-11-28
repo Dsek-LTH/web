@@ -27,7 +27,7 @@
   };
 </script>
 
-<div class="flex flex-row items-center {sizeToGap[size]}, m-4">
+<div class="flex flex-row items-center {sizeToGap[size]}">
   <div class="avatar">
     <div class="{sizeToWidth[size]} rounded-full m-2">
       {#if type == "Custom" && customAuthor != null}
