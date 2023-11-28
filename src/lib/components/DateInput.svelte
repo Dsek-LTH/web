@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { twMerge } from "tailwind-merge";
+
   export let date: Date;
 
   let internal: string = date.toLocaleString("sv").split(" ").join("T").slice(0, 16);
@@ -18,4 +20,9 @@
   $: output(internal);
 </script>
 
-<input type="datetime-local" bind:value={internal} {...$$props} />
+<input
+  type="datetime-local"
+  bind:value={internal}
+  {...$$props}
+  class={twMerge("input input-bordered", $$props["class"] ?? "")}
+/>

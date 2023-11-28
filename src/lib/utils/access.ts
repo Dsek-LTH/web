@@ -98,7 +98,7 @@ export const withAccess = async <
   apiName: string | string[],
   context: Context,
   fn: () => Promise<T>,
-  form: F,
+  form: F | undefined,
   relevantMember?: Pick<Member, "id"> | Pick<Member, "studentId">
 ) => {
   try {
@@ -106,7 +106,7 @@ export const withAccess = async <
     return await fn();
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
-      console.log("Prisma error", e);
+      if (form === undefined) throw error(400, e.message);
       return message(
         form,
         {
@@ -122,7 +122,7 @@ export const withAccess = async <
       "body" in (e as HttpError) &&
       "message" in (e as HttpError).body
     ) {
-      console.log("Http error", e);
+      if (form === undefined) throw e;
       return message(
         form,
         {
