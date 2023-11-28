@@ -56,9 +56,6 @@
       </a>
     {/each}
   </div>
-  <div class="mt-2">
-    <LikersList {likers} />
-  </div>
   <div class="mt-4 flex flex-row flex-wrap items-start justify-between gap-2">
     <div class="flex flex-col gap-2">
       <LikersList {likers} />
@@ -72,11 +69,13 @@
         {commentCount} kommentarer
       </a>
     {/if}
-    <AuthorSignature
-      member={author.member}
-      position={author.mandate?.position}
-      customAuthor={author.customAuthor ?? undefined}
-      type={author.type}
-    />
+    <div class="m-2">
+      <AuthorSignature
+        member={author.member}
+        position={author.mandate?.position}
+        customAuthor={author.customAuthor ?? undefined}
+        type={author.type}
+      />
+    </div>
   </div>
 </article>
