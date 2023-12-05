@@ -56,6 +56,11 @@ export const routes = [
         icon: "i-mdi-library-music",
         accessRequired: null,
       },
+      {
+        title: "Webshop",
+        path: "/webshop",
+        icon: "i-mdi-store",
+      },
     ],
   },
   {
