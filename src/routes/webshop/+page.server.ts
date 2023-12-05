@@ -4,13 +4,7 @@ import prisma from "$lib/utils/prisma";
 import type { Cart } from "@prisma/client";
 import type { PageServerLoad } from "./$types";
 import { fail } from "@sveltejs/kit";
-
-let transactions = 0;
-
-const generateTransactionId = () => {
-  transactions += 1;
-  return transactions;
-};
+import { randomUUID } from "crypto";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const productCategories = await prisma.productCategory.findMany({
@@ -21,7 +15,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 
   const products = await prisma.product.findMany({
     where: {
-      // deletedAt: null,
+      // deletedAt: null, @TODO remove this when webshop is finished
     },
     include: {
       productInventories: true,
@@ -239,7 +233,7 @@ async function inventoryToCartTransaction(
   quantity: number,
   cart: Cart
 ) {
-  const transactionId = generateTransactionId();
+  const transactionId = randomUUID();
   const result = await prisma.$transaction(async (trx) => {
     // Decrement inventory quantity
     const inventory = await trx.productInventory.updateMany({

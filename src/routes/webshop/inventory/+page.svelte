@@ -1,6 +1,5 @@
 <script>
   export let data;
-  console.log(data?.myInventory?.userInventoryItems);
 </script>
 
 {#if data?.myInventory?.userInventoryItems.length}

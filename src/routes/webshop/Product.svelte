@@ -18,7 +18,7 @@
     | null;
   let selectedInventoryIndex = 0;
   $: first = product.productInventories[0];
-  $: hasNoVariants = product.productInventories.length === 1;
+  $: hasVariants = product.productInventories.length === 1;
   $: youHaveQuantity = getMyQuantity(product, cart, chest);
 </script>
 
@@ -42,7 +42,7 @@
         {/if}
       </div>
       <div class="text-right">
-        {#if hasNoVariants && first}
+        {#if !hasVariants && first}
           <p class="font-bold">
             {#if first.quantity > 0}
               {first.quantity} kvar
@@ -72,7 +72,7 @@
     </div>
     <p>{product.description}</p>
     <div class=" card-actions flex flex-col justify-end gap-2">
-      {#if !hasNoVariants}
+      {#if hasVariants}
         <div>
           <p class="font-bold">Välj variant</p>
           <select

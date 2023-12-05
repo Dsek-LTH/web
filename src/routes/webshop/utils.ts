@@ -19,8 +19,6 @@ export function getMyQuantity(
   const productInventoryIds = product?.productInventories.map((p) => p.id) ?? [];
   const cartItems = cart?.items.filter((p) => productInventoryIds.includes(p.productInventoryId));
   const chestItems = chest?.userInventoryItems.filter((p) => p.productId === product?.id);
-  //console.log(chestItems);
-  //console.log(cart);
   let inCart = 0;
   let inChest = 0;
   if (cartItems?.length) {
