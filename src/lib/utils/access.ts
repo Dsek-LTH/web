@@ -98,7 +98,7 @@ export const withAccess = async <
   apiName: string | string[],
   context: Context,
   fn: () => Promise<T>,
-  form: F | undefined,
+  form?: F,
   relevantMember?: Pick<Member, "id"> | Pick<Member, "studentId">
 ) => {
   try {
