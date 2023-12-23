@@ -21,7 +21,7 @@ const transporter = nodemailer.createTransport({
 
 export const load: PageServerLoad = async ({ parent }) => {
   const { accessPolicies } = await parent();
-  await policyAccessGuard(apiNames.YRKA.SEND, accessPolicies);
+  policyAccessGuard(apiNames.YRKA.SEND, accessPolicies);
   return {
     form: await superValidate(createSchema),
   };
