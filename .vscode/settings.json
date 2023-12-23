@@ -16,4 +16,8 @@
     "strings": "on"
   },
   "prettier.configPath": "prettier.config.js",
+  "tailwindCSS.experimental.classRegex": [
+    "class:(.+)", // for svelte class: directive
+    ".*icon: \"(.+)\"", // for icon property in routes.ts
+  ],
 }
