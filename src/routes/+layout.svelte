@@ -1,12 +1,11 @@
 <script lang="ts">
   import { page } from "$app/stores";
-  import Toast from "$lib/components/Toast.svelte";
   import { toast } from "$lib/stores/toast";
   import { getFlash } from "sveltekit-flash-message";
   import "../app.css";
-  import BottomNav from "./BottomNav.svelte";
-  import NavBar from "./NavBar.svelte";
-  import Footer from "../Footer.svelte";
+  import Drawer from "./Drawer.svelte";
+  import Navbar from "./Navbar.svelte";
+  import Footer from "./Footer.svelte";
 
   const flash = getFlash(page);
   // Message from form (not redirect)
@@ -19,15 +18,13 @@
     : null;
 </script>
 
-<NavBar>
-  <div class="h-16 overflow-auto bg-base-200 accent-primary"></div>
+<header class="contents">
+  <nav class="contents" aria-label="Main"><Drawer /></nav>
+  <nav class="contents" aria-label="Main"><Navbar /></nav>
+</header>
 
-  <div class="flex-col overflow-auto pb-16 accent-primary md:pb-0 [&>*]:flex-1">
-    <slot />
-    <Footer />
-  </div>
+<main class="flex-1">
+  <slot />
+</main>
 
-  <BottomNav />
-</NavBar>
-
-<Toast />
+<Footer />

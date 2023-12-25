@@ -1,10 +1,18 @@
-<footer class="footer mt-8 items-center bg-base-200 p-2 text-neutral-content">
-  <nav class="grid-flow-col place-self-center md:place-self-start">
-    <a class="btn normal-case" href="/info/contact">Kontakt</a>
-    <a class="btn normal-case" href="https://github.com/Dsek-LTH/web">Källkod</a
-    >
+<footer
+  class="footer items-center gap-y-2 bg-base-200 p-2 text-neutral-content"
+>
+  <nav
+    class="grid-flow-col place-self-center md:place-self-start"
+    aria-label="Contact and source code"
+  >
+    <a class="btn" href="/info/contact">Kontakt</a>
+    <a class="btn" href="https://github.com/Dsek-LTH/web">Källkod</a>
   </nav>
-  <nav class="grid-flow-col place-self-center md:place-self-end">
+
+  <nav
+    class="grid-flow-col place-self-center md:place-self-end"
+    aria-label="Social media"
+  >
     <a class="btn" href="https://instagram.com/dseklth">
       <span class="i-mdi-instagram h-6 w-6" />
     </a>

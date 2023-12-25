@@ -1,3 +1,3 @@
-<main class="layout-container pt-8">
+<div class="layout-container">
   <slot />
-</main>
+</div>

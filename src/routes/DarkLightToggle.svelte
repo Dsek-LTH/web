@@ -17,8 +17,8 @@
   />
 
   <!-- moon icon -->
-  <span class="swap-on i-mdi-weather-night h-10 w-10"> </span>
+  <span class="swap-on i-mdi-weather-night h-8 w-8"> </span>
 
   <!-- sun icon -->
-  <span class="swap-off i-mdi-weather-sunny h-10 w-10"> </span>
+  <span class="swap-off i-mdi-weather-sunny h-8 w-8"> </span>
 </label>
