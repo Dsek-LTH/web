@@ -21,4 +21,6 @@
     "class:(.+)", // for svelte class: directive
     ".*icon: \"(.+)\"", // for icon property in routes.ts
   ],
+  "workbench.editor.labelFormat": "short", // show filename + route in tab
+  "explorer.compactFolders": false, // present folders in explorer as a tree
 }
