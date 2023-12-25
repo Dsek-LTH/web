@@ -115,9 +115,12 @@ export const actions = {
           success: true,
           productInventory,
         };
-      } catch (e: any) {
+      } catch (e) {
+        let message;
+        if (e instanceof Error) message = e.message;
+        else message = String(e);
         console.log(e);
-        return fail(400, { error: e.message });
+        return fail(400, { error: message });
       }
     });
   },
@@ -150,9 +153,12 @@ export const actions = {
           success: true,
           productInventory,
         };
-      } catch (e: any) {
+      } catch (e) {
+        let message;
+        if (e instanceof Error) message = e.message;
+        else message = String(e);
         console.log(e);
-        return fail(400, { error: e.message });
+        return fail(400, { error: message });
       }
     });
   },

@@ -1,6 +1,7 @@
 <script lang="ts">
-  import type { Bookable, Tag } from "@prisma/client";
-  import TagChip from "../../lib/components/TagChip.svelte";
+  import type { Bookable } from "@prisma/client";
+  // import type { Bookable, Tag } from "@prisma/client";
+  // import TagChip from "../../lib/components/TagChip.svelte";
 
   export let allBookables: Bookable[] = [];
   let searchValue = "";

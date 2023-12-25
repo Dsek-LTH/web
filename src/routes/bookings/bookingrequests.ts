@@ -1,5 +1,5 @@
 import prisma from "$lib/utils/prisma";
-import type { Bookable, BookingRequest, Prisma } from "@prisma/client";
+import type { Bookable, BookingRequest } from "@prisma/client";
 
 export const getAllBookingRequests = async (): Promise<
   (BookingRequest & { bookables: Bookable[] })[]
