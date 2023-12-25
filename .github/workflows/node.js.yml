@@ -24,4 +24,6 @@ jobs:
           node-version: lts/*
           cache: "pnpm"
       - run: pnpm i
+      - run: pnpm run lint
+      - run: pnpm run format
       - run: pnpm run check
