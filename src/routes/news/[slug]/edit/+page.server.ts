@@ -59,7 +59,7 @@ export const load: PageServerLoad = async ({ parent, params }) => {
   return {
     allTags,
     authorOptions,
-    form: superValidate(article, updateSchema),
+    form: await superValidate(article, updateSchema),
   };
 };
 

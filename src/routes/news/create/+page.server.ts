@@ -40,7 +40,7 @@ export const load: PageServerLoad = async ({ parent }) => {
   return {
     allTags,
     authorOptions,
-    form: superValidate(
+    form: await superValidate(
       {
         author: authorOptions[0],
       },

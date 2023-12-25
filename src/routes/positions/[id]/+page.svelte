@@ -1,20 +1,19 @@
 <script lang="ts">
-  import EditPositionForm from "./UpdatePositionForm.svelte";
-
-  import DeleteMandateForm from "./DeleteMandateForm.svelte";
-
-  import ClassBadge from "$lib/components/ClassBadge.svelte";
-
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
+  import ClassBadge from "$lib/components/ClassBadge.svelte";
   import PageHeader from "$lib/components/PageHeader.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import apiNames from "$lib/utils/apiNames";
   import { getFullName } from "$lib/utils/client/member";
   import type { Prisma } from "@prisma/client";
   import AddMandateForm from "./AddMandateForm.svelte";
+  import DeleteMandateForm from "./DeleteMandateForm.svelte";
   import UpdateMandateForm from "./UpdateMandateForm.svelte";
+  import UpdatePositionForm from "./UpdatePositionForm.svelte";
+
   export let data;
+
   $: groupedByYear = data.mandates.reduce<
     Record<string, Prisma.MandateGetPayload<{ include: { member: true } }>[]>
   >((acc, mandate) => {
@@ -89,21 +88,27 @@
 
 <!-- Edit position form -->
 {#if isEditing && data.accessPolicies.includes(apiNames.POSITION.UPDATE)}
-  <EditPositionForm data={data.updateForm} />
+  {#await data.updateForm then form}
+    <UpdatePositionForm data={form} />
+  {/await}
 {/if}
 
 <!-- Add mandate form -->
 {#if isAdding}
-  <AddMandateForm
-    data={data.addMandateForm}
-    onClose={() => {
-      isAdding = false;
-    }}
-  />
+  {#await data.addMandateForm then form}
+    <AddMandateForm
+      data={form}
+      onClose={() => {
+        isAdding = false;
+      }}
+    />
+  {/await}
 {/if}
 <!-- Edit mandate form -->
 {#if editedMandate != undefined}
-  <UpdateMandateForm data={data.updateMandateForm} mandateId={editedMandate} />
+  {#await data.updateMandateForm then form}
+    <UpdateMandateForm data={form} mandateId={editedMandate} />
+  {/await}
 {/if}
 
 <!-- List of mandates -->
@@ -149,10 +154,9 @@
                 </button>
               {/if}
               {#if data.accessPolicies.includes(apiNames.MANDATE.DELETE)}
-                <DeleteMandateForm
-                  mandateId={mandate.id}
-                  data={data.deleteMandateForm}
-                />
+                {#await data.deleteMandateForm then form}
+                  <DeleteMandateForm mandateId={mandate.id} data={form} />
+                {/await}
               {/if}
             {:else}
               <ClassBadge member={mandate.member} />

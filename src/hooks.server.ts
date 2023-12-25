@@ -1,6 +1,4 @@
-import type { JWT } from "@auth/core/jwt";
 import Keycloak from "@auth/core/providers/keycloak";
-import type { Session } from "@auth/core/types";
 import { SvelteKitAuth } from "@auth/sveltekit";
 import {
   KEYCLOAK_CLIENT_ID,
@@ -40,8 +38,10 @@ export const handle = SvelteKitAuth({
       }
       return token;
     },
-    session({ session, token }: { session: Session; token: JWT }) {
-      if (session?.user) {
+    session(params) {
+      const { session } = params;
+      if ("token" in params && params.session?.user) {
+        const { token } = params;
         session.user.student_id = token.student_id;
         session.user.group_list = token.group_list;
       }

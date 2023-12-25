@@ -89,7 +89,7 @@ export const load: PageServerLoad = async ({ params }) => {
       },
     },
   });
-  const form = superValidate(committee, updateSchema);
+  const form = await superValidate(committee, updateSchema);
   return {
     committee,
     positions: committee.positions,
