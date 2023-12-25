@@ -14,7 +14,12 @@
 <Event {event}>
   <div slot="actions">
     {#if data.canEdit}
-      <a class="text-primary hover:underline" href={`/events/${event.slug}/edit`}> Redigera </a>
+      <a
+        class="text-primary hover:underline"
+        href={`/events/${event.slug}/edit`}
+      >
+        Redigera
+      </a>
     {/if}
   </div>
 

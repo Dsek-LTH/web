@@ -89,7 +89,7 @@ export const actions = {
           type: "success",
         });
       },
-      form
+      form,
     );
   },
   delete: async ({ request, locals }) => {
@@ -109,7 +109,7 @@ export const actions = {
           type: "success",
         });
       },
-      form
+      form,
     );
   },
 };

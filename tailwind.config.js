@@ -4,7 +4,13 @@ import { iconsPlugin, getIconCollections } from "@egoist/tailwindcss-icons";
 export default {
   mode: "jit",
   content: ["./src/**/*.{html,js,svelte,ts}"],
-  safelist: ["alert-error", "alert-success", "alert-warning", "alert-info", "alert-primary"],
+  safelist: [
+    "alert-error",
+    "alert-success",
+    "alert-warning",
+    "alert-info",
+    "alert-primary",
+  ],
   // 👆 this forces tailwind to include these classes, used for dynamically setting toast colors
   theme: {
     extend: {},

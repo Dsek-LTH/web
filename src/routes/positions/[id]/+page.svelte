@@ -25,7 +25,9 @@
     acc[year]!.push(mandate);
     return acc;
   }, {});
-  $: years = Object.keys(groupedByYear).sort((a, b) => b.localeCompare(a, "sv"));
+  $: years = Object.keys(groupedByYear).sort((a, b) =>
+    b.localeCompare(a, "sv"),
+  );
   let isEditing = false;
   let isAdding = false;
   $: editedMandate = $page.url.searchParams.get("editMandate");
@@ -67,16 +69,18 @@
 
 {#if data.position.email}
   <section>
-    <a class="link-hover link-primary link" href="mailto:{data.position.email}">
+    <a class="link-hover link link-primary" href="mailto:{data.position.email}">
       {data.position.email}
     </a>
   </section>
 {/if}
 {#if data.position.emailAliases.length > 0}
-  <h4 class="text-xs opacity-75">Följande adresser skickas också till posten</h4>
+  <h4 class="text-xs opacity-75">
+    Följande adresser skickas också till posten
+  </h4>
   <div class="mb-2 flex gap-2 text-xs opacity-75">
     {#each data.position.emailAliases.filter((alias) => alias.email != data.position.email) as alias}
-      <a class="link-hover link-primary link" href="mailto:{alias.email}">
+      <a class="link-hover link link-primary" href="mailto:{alias.email}">
         {alias.email}
       </a>
     {/each}
@@ -110,13 +114,14 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
       {#each groupedByYear[year] ?? [] as mandate (mandate.id)}
         <div
-          class="tooltip flex flex-col whitespace-pre {(groupedByYear[year]?.length ?? 0) <= 8
+          class="tooltip flex flex-col whitespace-pre {(groupedByYear[year]
+            ?.length ?? 0) <= 8
             ? 'col-span-2'
             : ''}"
           data-tip={getFullName($page.data.session?.user, mandate.member) +
-            `\n${mandate.startDate.toLocaleDateString("sv")} - ${mandate.endDate.toLocaleDateString(
-              "sv"
-            )}`}
+            `\n${mandate.startDate.toLocaleDateString(
+              "sv",
+            )} - ${mandate.endDate.toLocaleDateString("sv")}`}
         >
           <a
             href="/members/{mandate.member.studentId}"
@@ -144,7 +149,10 @@
                 </button>
               {/if}
               {#if data.accessPolicies.includes(apiNames.MANDATE.DELETE)}
-                <DeleteMandateForm mandateId={mandate.id} data={data.deleteMandateForm} />
+                <DeleteMandateForm
+                  mandateId={mandate.id}
+                  data={data.deleteMandateForm}
+                />
               {/if}
             {:else}
               <ClassBadge member={mandate.member} />
@@ -153,7 +161,7 @@
           {#if isEditing}
             <span class="text-xs">
               {mandate.startDate.toLocaleDateString("sv")} - {mandate.endDate.toLocaleDateString(
-                "sv"
+                "sv",
               )}
             </span>
           {/if}

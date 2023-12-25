@@ -137,7 +137,7 @@ export const actions = {
                 message: "Artikel kunde inte hittas",
                 type: "error",
               },
-              { status: 400 }
+              { status: 400 },
             );
           }
           throw e;
@@ -148,10 +148,10 @@ export const actions = {
             message: "Artikel uppdaterad",
             type: "success",
           },
-          event
+          event,
         );
       },
-      form
+      form,
     );
   },
 };

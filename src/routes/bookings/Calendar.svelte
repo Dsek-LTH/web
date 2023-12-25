@@ -6,7 +6,8 @@
   import { goto } from "$app/navigation";
   import "$lib/FullCalendar.css";
 
-  export let bookingRequests: (BookingRequest & { bookables: Bookable[] })[] = [];
+  export let bookingRequests: (BookingRequest & { bookables: Bookable[] })[] =
+    [];
 
   let calendarEl: HTMLElement;
   let calendar: Calendar;

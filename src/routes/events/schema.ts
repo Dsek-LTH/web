@@ -10,7 +10,9 @@ export const eventSchema = z
     location: z.string().nullable().default(null),
     organizer: z.string().default(""),
     startDatetime: z.date().default(() => new Date()),
-    endDatetime: z.date().default(() => new Date(new Date().getTime() + 60 * 60 * 1000)), // one hour later
+    endDatetime: z
+      .date()
+      .default(() => new Date(new Date().getTime() + 60 * 60 * 1000)), // one hour later
     alarmActive: z.boolean().nullable().default(null),
     tags: z.array(tagSchema).default([]),
   })

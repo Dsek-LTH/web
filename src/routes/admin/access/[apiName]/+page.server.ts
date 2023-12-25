@@ -18,7 +18,7 @@ const createSchema = z
     {
       path: ["role"],
       message: "Either 'role' or 'studentId' must be defined",
-    }
+    },
   );
 
 const deleteSchema = z.object({
@@ -57,7 +57,9 @@ export const actions = {
       async () => {
         if (
           form.data.studentId &&
-          (await prisma.member.count({ where: { studentId: form.data.studentId } })) === 0
+          (await prisma.member.count({
+            where: { studentId: form.data.studentId },
+          })) === 0
         ) {
           return setError(form, "studentId", "Medlem hittades inte");
         }
@@ -73,7 +75,7 @@ export const actions = {
           type: "success",
         });
       },
-      form
+      form,
     );
   },
   delete: async ({ request, locals }) => {
@@ -94,7 +96,7 @@ export const actions = {
           type: "success",
         });
       },
-      form
+      form,
     );
   },
 };

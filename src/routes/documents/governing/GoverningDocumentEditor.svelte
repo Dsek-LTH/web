@@ -17,7 +17,9 @@
   use:enhance
   class="flex flex-col gap-3"
 >
-  <h1 class="text-2xl font-bold">{isCreating ? "Skapa nytt" : "Redigera"} styrdokument</h1>
+  <h1 class="text-2xl font-bold">
+    {isCreating ? "Skapa nytt" : "Redigera"} styrdokument
+  </h1>
   <Input
     name="title"
     label="Titel"
@@ -44,7 +46,9 @@
         bind:value={$form.url}
         {...$constraints.url}
       />
-      <p class="text-xs">example: reglemente/releases/download/latest/reglemente.pdf</p>
+      <p class="text-xs">
+        example: reglemente/releases/download/latest/reglemente.pdf
+      </p>
     </div>
   </div>
   {#if $errors.url}

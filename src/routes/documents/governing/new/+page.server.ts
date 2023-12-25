@@ -35,10 +35,10 @@ export const actions = {
             message: "Styrdokument skapat",
             type: "success",
           },
-          event
+          event,
         );
       },
-      form
+      form,
     );
   },
 };

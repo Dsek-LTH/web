@@ -51,7 +51,7 @@ export const actions = {
           type: "success",
         });
       },
-      form
+      form,
     );
   },
   update: async ({ request, locals }) => {
@@ -80,7 +80,7 @@ export const actions = {
                 message: "Tagg hittades inte",
                 type: "error",
               },
-              { status: 400 }
+              { status: 400 },
             );
           }
           throw error;
@@ -90,7 +90,7 @@ export const actions = {
           type: "success",
         });
       },
-      form
+      form,
     );
   },
 };

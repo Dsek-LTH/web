@@ -44,9 +44,10 @@ const sendNotification = async ({
   fromMemberId,
 }: SendNotificationProps) => {
   // Find corresponding setting type, example "COMMENT" for "EVENT_COMMENT"
-  const settingType: NotificationSettingType = (Object.entries(SUBSCRIPTION_SETTINGS_MAP).find(
-    ([, internalTypes]) => internalTypes.includes(type)
-  )?.[0] ?? type) as NotificationSettingType;
+  const settingType: NotificationSettingType = (Object.entries(
+    SUBSCRIPTION_SETTINGS_MAP,
+  ).find(([, internalTypes]) => internalTypes.includes(type))?.[0] ??
+    type) as NotificationSettingType;
   // Who sent the notification, as an Author
   const existingAuthor =
     fromAuthor ??
@@ -79,7 +80,9 @@ const sendNotification = async ({
           },
       id: {
         not: notificationAuthor?.memberId,
-        ...(memberIds !== undefined && memberIds.length > 0 ? { in: memberIds } : {}),
+        ...(memberIds !== undefined && memberIds.length > 0
+          ? { in: memberIds }
+          : {}),
       },
     },
     select: {
@@ -99,11 +102,11 @@ const sendNotification = async ({
       notificationAuthor
         ? `, sent from author:${notificationAuthor.id} [${notificationAuthor.type}, member: ${notificationAuthor.memberId}]`
         : ""
-    }`
+    }`,
   );
 
   const pushNotificationMembers = receivingMembers.filter((s) =>
-    s.subscriptionSettings.some((ss) => ss.pushNotification)
+    s.subscriptionSettings.some((ss) => ss.pushNotification),
   );
   const pushTokens = await prisma.expoToken.findMany({
     where: {
@@ -121,7 +124,7 @@ const sendNotification = async ({
       title,
       message,
       settingType,
-      link
+      link,
     ),
     await prisma.notification.createMany({
       data: receivingMembers.map(({ id: memberId }) => ({
@@ -134,7 +137,10 @@ const sendNotification = async ({
       })),
     }),
   ]);
-  if (pushResult.status === "rejected" && databaseResult.status === "rejected") {
+  if (
+    pushResult.status === "rejected" &&
+    databaseResult.status === "rejected"
+  ) {
     throw error(500, "Failed to send notifications");
   }
   if (pushResult.status === "rejected") {

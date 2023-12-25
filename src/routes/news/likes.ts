@@ -46,7 +46,9 @@ export const likesAction =
         });
         sendNotification({
           title: `${article.header}`,
-          message: `${getAuthorizedFullName(currentMember)} har gillat din nyhet`,
+          message: `${getAuthorizedFullName(
+            currentMember,
+          )} har gillat din nyhet`,
           type: NotificationType.LIKE,
           link: `/news/${article.slug}`,
           memberIds: [article.author.memberId],
@@ -57,6 +59,6 @@ export const likesAction =
           type: "hidden",
         });
       },
-      form
+      form,
     );
   };

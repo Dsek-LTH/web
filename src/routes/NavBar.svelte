@@ -22,7 +22,11 @@
       class="navbar fixed z-20 w-full bg-base-200 bg-opacity-60 shadow-none filter backdrop-blur transition-all"
     >
       <div class="block lg:hidden">
-        <label for="my-drawer-3" aria-label="open sidebar" class="btn btn-square btn-ghost">
+        <label
+          for="my-drawer-3"
+          aria-label="open sidebar"
+          class="btn btn-square btn-ghost"
+        >
           <span
             class="i-mdi-menu h-10 w-10 text-primary
           "
@@ -49,7 +53,7 @@
                 <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
                 <ul
                   tabindex="0"
-                  class="menu dropdown-content rounded-box z-[1] w-52 bg-base-100 p-2 shadow"
+                  class="menu dropdown-content z-[1] w-52 rounded-box bg-base-100 p-2 shadow"
                 >
                   {#each route.children as child (child.title)}
                     {#if !child.accessRequired || accessPolicies.includes(child.accessRequired)}
@@ -79,7 +83,7 @@
       <div class="flex-1" />
       <DarkLightToggle />
       {#if $page.data.session}
-        <div class="dropdown-hover dropdown dropdown-end">
+        <div class="dropdown dropdown-end dropdown-hover">
           <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
           <!-- svelte-ignore a11y-label-has-associated-control -->
           <label tabindex="0" class="btn btn-ghost m-1"
@@ -103,7 +107,8 @@
                   href={`/members/${user?.student_id}`}
                   class="btn btn-ghost w-48 justify-start text-base-content"
                 >
-                  <span class="i-mdi-account-circle h-6 w-6 text-primary"> </span>
+                  <span class="i-mdi-account-circle h-6 w-6 text-primary">
+                  </span>
                   Profil</a
                 >
                 <a href="/settings" class="btn btn-ghost w-48 justify-start">
@@ -112,7 +117,10 @@
                 >
               </div>
               <span class="divider m-1"></span>
-              <button class="btn btn-ghost justify-start" on:click={() => signOut()}>
+              <button
+                class="btn btn-ghost justify-start"
+                on:click={() => signOut()}
+              >
                 <span class="i-mdi-logout h-6 w-6 text-primary"> </span>
                 Logga ut</button
               >
@@ -120,17 +128,20 @@
           </div>
         </div>
       {:else}
-        <button class="btn btn-ghost" on:click={() => signIn("keycloak")}>Logga in</button>
+        <button class="btn btn-ghost" on:click={() => signIn("keycloak")}
+          >Logga in</button
+        >
       {/if}
     </div>
     <!-- Page content here -->
     <slot />
   </div>
   <div class="drawer-side">
-    <label for="my-drawer-3" aria-label="close sidebar" class="drawer-overlay"></label>
+    <label for="my-drawer-3" aria-label="close sidebar" class="drawer-overlay"
+    ></label>
     <div class="menu min-h-full w-80 bg-base-200">
       <!-- Sidebar content here -->
-      <ul class="menu rounded-box w-56 bg-base-200">
+      <ul class="menu w-56 rounded-box bg-base-200">
         {#each routes as route (route.title)}
           {#if !route.accessRequired || accessPolicies.includes(route.accessRequired)}
             {#if route?.children?.length}
@@ -162,7 +173,11 @@
               </li>
             {:else}
               <li>
-                <a on:click={close} href={route.path} class="btn content-center justify-start">
+                <a
+                  on:click={close}
+                  href={route.path}
+                  class="btn content-center justify-start"
+                >
                   {#if route.isDsekIcon}
                     <DsekLogo className="h-6 w-6 text-primary" />
                   {:else}

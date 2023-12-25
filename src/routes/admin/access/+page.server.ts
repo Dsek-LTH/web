@@ -41,7 +41,7 @@ export const actions = {
           type: "success",
         });
       },
-      form
+      form,
     );
   },
 };

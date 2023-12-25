@@ -7,16 +7,28 @@
   export let data;
 </script>
 
-<form method="get" class="form-control flex-1 flex-row items-center gap-2" id="create-form">
+<form
+  method="get"
+  class="form-control flex-1 flex-row items-center gap-2"
+  id="create-form"
+>
   <div class="join">
     <label>
       <BookableSelector allBookables={data.bookables} />
       <div class="flex flex-row">
-        <input type="text" placeholder="Start" class="input input-bordered w-full max-w-xs" />
-        <input type="text" placeholder="End" class="input input-bordered w-full max-w-xs" />
+        <input
+          type="text"
+          placeholder="Start"
+          class="input input-bordered w-full max-w-xs"
+        />
+        <input
+          type="text"
+          placeholder="End"
+          class="input input-bordered w-full max-w-xs"
+        />
       </div>
       <button type="submit" class="btn btn-primary">Create</button>
-      </label>
+    </label>
   </div>
 </form>
 

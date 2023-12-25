@@ -14,11 +14,16 @@ export function getMyQuantity(
     | (UserInventory & {
         userInventoryItems: UserInventoryItem[];
       })
-    | null
+    | null,
 ) {
-  const productInventoryIds = product?.productInventories.map((p) => p.id) ?? [];
-  const cartItems = cart?.items.filter((p) => productInventoryIds.includes(p.productInventoryId));
-  const chestItems = chest?.userInventoryItems.filter((p) => p.productId === product?.id);
+  const productInventoryIds =
+    product?.productInventories.map((p) => p.id) ?? [];
+  const cartItems = cart?.items.filter((p) =>
+    productInventoryIds.includes(p.productInventoryId),
+  );
+  const chestItems = chest?.userInventoryItems.filter(
+    (p) => p.productId === product?.id,
+  );
   let inCart = 0;
   let inChest = 0;
   if (cartItems?.length) {

@@ -27,7 +27,7 @@
   const onFileSelected = (
     event: Event & {
       currentTarget: EventTarget & HTMLInputElement;
-    }
+    },
   ) => {
     let image = event.currentTarget.files?.[0];
     if (!image) return;
@@ -38,7 +38,10 @@
       // If array buffer, convert to base64
       if (result instanceof ArrayBuffer) {
         avatar = btoa(
-          new Uint8Array(result).reduce((data, byte) => data + String.fromCharCode(byte), "")
+          new Uint8Array(result).reduce(
+            (data, byte) => data + String.fromCharCode(byte),
+            "",
+          ),
         );
       } else {
         avatar = result;
@@ -48,12 +51,16 @@
 </script>
 
 <svelte:head>
-  <title>Bio - {getFullName($page.data.session?.user, member)} | D-sektionen</title>
+  <title
+    >Bio - {getFullName($page.data.session?.user, member)} | D-sektionen</title
+  >
 </svelte:head>
 <header class="flex gap-4">
   <MemberAvatar {member} class="w-32 rounded-lg" />
   <div class="flex flex-col">
-    <h1 class="text-3xl font-bold">{getFullName($page.data.session?.user, member)}</h1>
+    <h1 class="text-3xl font-bold">
+      {getFullName($page.data.session?.user, member)}
+    </h1>
     {member.studentId}
   </div>
 </header>
@@ -122,7 +129,9 @@
       {#if $errors.image}
         <p class="text-error">{$errors.image}</p>
       {/if}
-      <button type="submit" class="btn btn-primary" on:click={() => {}}> Spara </button>
+      <button type="submit" class="btn btn-primary" on:click={() => {}}>
+        Spara
+      </button>
     </form>
   {/if}
   {#each photos as photo (photo.id)}

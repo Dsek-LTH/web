@@ -82,10 +82,10 @@ export const actions = {
             message: "Evenemang uppdaterat",
             type: "success",
           },
-          event
+          event,
         );
       },
-      form
+      form,
     );
   },
 };

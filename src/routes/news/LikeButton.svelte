@@ -13,7 +13,9 @@
   const { errors, constraints, enhance } = superForm(likeForm, {
     id: articleId, // needs to be unique since there could be multiple like buttons on a page
   });
-  $: isLiked = likers.some((member) => member.studentId === $page.data.session?.user?.student_id);
+  $: isLiked = likers.some(
+    (member) => member.studentId === $page.data.session?.user?.student_id,
+  );
 </script>
 
 <form method="POST" action="/news?/{isLiked ? 'dislike' : 'like'}" use:enhance>
@@ -21,7 +23,10 @@
   {#if $errors.articleId}
     <div class="text-error">{$errors.articleId}</div>
   {/if}
-  <div class="tooltip m-4" data-tip={disabled ? "Du måste vara inloggad för att gilla" : undefined}>
+  <div
+    class="tooltip m-4"
+    data-tip={disabled ? "Du måste vara inloggad för att gilla" : undefined}
+  >
     <button {disabled} type="submit">
       <label class="swap">
         <!-- this hidden checkbox controls the state -->

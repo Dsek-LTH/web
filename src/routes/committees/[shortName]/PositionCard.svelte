@@ -15,14 +15,14 @@
 <article class="card bg-base-200 shadow-xl transition-all">
   <div class="card-body">
     <h2 class="card-title">
-      <a class="link-hover link-primary link" href="/positions/{position.id}">
+      <a class="link-hover link link-primary" href="/positions/{position.id}">
         {position.name}
       </a>
       ({mandates.length} st)
     </h2>
     {#if position.email}
       <section class="-mt-2">
-        <a class="link-hover link-primary link" href="mailto:{position.email}">
+        <a class="link-hover link link-primary" href="mailto:{position.email}">
           {position.email}
         </a>
       </section>
@@ -42,7 +42,7 @@
                     </h3>
                     <h4 class="text-xs">
                       {mandate.startDate.toLocaleDateString(["sv"])} &gt;&gt; {mandate.endDate.toLocaleDateString(
-                        ["sv"]
+                        ["sv"],
                       )}
                     </h4>
                   </div>

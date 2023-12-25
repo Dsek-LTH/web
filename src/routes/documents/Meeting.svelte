@@ -32,7 +32,11 @@
       <div class="flex gap-1">
         <File name={file.name} url={file.thumbnailUrl} full />
         {#if $page.data.accessPolicies.includes(apiNames.FILES.BUCKET("dev-documents").DELETE) && isEditing}
-          <DeleteFileForm fileId={file.id} fileName={file.name} data={deleteForm} />
+          <DeleteFileForm
+            fileId={file.id}
+            fileName={file.name}
+            data={deleteForm}
+          />
         {/if}
       </div>
     {/each}

@@ -2,7 +2,7 @@
   import { page } from "$app/stores";
 
   $: currentPage = Number.parseInt(
-    $page.url.searchParams.get(fieldName) ?? getNumber(1).toString()
+    $page.url.searchParams.get(fieldName) ?? getNumber(1).toString(),
   );
   export let pages: number = 1;
   export let getNumber = (n: number) => n;
@@ -18,14 +18,17 @@
 <div class="join">
   <a
     class="btn join-item {currentPage == getNumber(1) ? 'btn-disabled' : ''}"
-    href={generateLinkForPage(getNumber(reverseGetNumber(currentPage) - 1))}>«</a
+    href={generateLinkForPage(getNumber(reverseGetNumber(currentPage) - 1))}
+    >«</a
   >
   {#if pages <= 5}
     {#each Array.from({ length: pages })
       .map((_, i) => i + 1)
       .map(getNumber) as page (page)}
       <a
-        class="btn join-item {page == currentPage ? 'btn-disabled btn-active' : ''}"
+        class="btn join-item {page == currentPage
+          ? 'btn-disabled btn-active'
+          : ''}"
         href={generateLinkForPage(page)}
       >
         {page}
@@ -33,7 +36,9 @@
     {/each}
   {:else}
     <a
-      class="btn join-item {currentPage == getNumber(1) ? 'btn-disabled btn-active' : ''}"
+      class="btn join-item {currentPage == getNumber(1)
+        ? 'btn-disabled btn-active'
+        : ''}"
       href={generateLinkForPage(getNumber(1))}
     >
       {getNumber(1)}
@@ -43,7 +48,9 @@
         .map((_, i) => i + 2)
         .map(getNumber) as page (page)}
         <a
-          class="btn join-item {page == currentPage ? 'btn-disabled btn-active' : ''}"
+          class="btn join-item {page == currentPage
+            ? 'btn-disabled btn-active'
+            : ''}"
           href={generateLinkForPage(page)}
         >
           {page}
@@ -56,7 +63,9 @@
         .map((_, i) => i + pages - 4)
         .map(getNumber) as page (page)}
         <a
-          class="btn join-item {page == currentPage ? 'btn-disabled btn-active' : ''}"
+          class="btn join-item {page == currentPage
+            ? 'btn-disabled btn-active'
+            : ''}"
           href={generateLinkForPage(page)}
         >
           {page}
@@ -68,7 +77,9 @@
         .map((_, i) => i + reverseGetNumber(currentPage) - 1)
         .map(getNumber) as page (page)}
         <a
-          class="btn join-item {page == currentPage ? 'btn-disabled btn-active' : ''}"
+          class="btn join-item {page == currentPage
+            ? 'btn-disabled btn-active'
+            : ''}"
           href={generateLinkForPage(page)}
         >
           {page}
@@ -78,14 +89,19 @@
     {/if}
 
     <a
-      class="btn join-item {currentPage == getNumber(pages) ? 'btn-disabled btn-active' : ''}"
+      class="btn join-item {currentPage == getNumber(pages)
+        ? 'btn-disabled btn-active'
+        : ''}"
       href={generateLinkForPage(getNumber(pages))}
     >
       {getNumber(pages)}
     </a>
   {/if}
   <a
-    class="btn join-item {currentPage == getNumber(pages) ? 'btn-disabled' : ''}"
-    href={generateLinkForPage(getNumber(reverseGetNumber(currentPage) + 1))}>»</a
+    class="btn join-item {currentPage == getNumber(pages)
+      ? 'btn-disabled'
+      : ''}"
+    href={generateLinkForPage(getNumber(reverseGetNumber(currentPage) + 1))}
+    >»</a
   >
 </div>

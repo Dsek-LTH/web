@@ -4,9 +4,12 @@
   import PageHeader from "$lib/components/PageHeader.svelte";
   import { superForm } from "sveltekit-superforms/client";
   export let data;
-  const { form, errors, constraints, enhance, submitting } = superForm(data.form, {
-    resetForm: true,
-  });
+  const { form, errors, constraints, enhance, submitting } = superForm(
+    data.form,
+    {
+      resetForm: true,
+    },
+  );
 </script>
 
 <PageHeader title="Yrka på ett sektionsmöte" />
@@ -29,9 +32,11 @@
       bind:value={$form.content}
       {...$constraints.content}
     />
-    <span class="absolute left-4 top-12 text-sm italic opacity-50">Jag yrkar på: </span>
+    <span class="absolute left-4 top-12 text-sm italic opacity-50"
+      >Jag yrkar på:
+    </span>
   </Labeled>
-  <button type="submit" class="btn btn-primary btn-outline self-start">
+  <button type="submit" class="btn btn-outline btn-primary self-start">
     {#if $submitting}
       <span class="loading" />
     {:else}

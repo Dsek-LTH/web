@@ -9,7 +9,11 @@ export const insertAccessPolicies = async (prisma: PrismaClient) => {
   ]);
 };
 
-const insertPolicies = async (prisma: PrismaClient, apiName: string, roles: string[]) => {
+const insertPolicies = async (
+  prisma: PrismaClient,
+  apiName: string,
+  roles: string[],
+) => {
   if (
     (await prisma.accessPolicy.count({
       where: {
@@ -48,7 +52,9 @@ const materialBucketAccessPolicies = async (prisma: PrismaClient) => {
       "dsek.infu.dwww",
       "dsek.styr",
     ]),
-    insertPolicies(prisma, apiNames.FILES.BUCKET("material").DELETE, ["dsek.infu.dwww"]),
+    insertPolicies(prisma, apiNames.FILES.BUCKET("material").DELETE, [
+      "dsek.infu.dwww",
+    ]),
   ]);
 };
 

@@ -3,9 +3,12 @@
   import TagEditorRow from "./TagEditorRow.svelte";
 
   export let data;
-  const { form, errors, constraints, enhance, submitting } = superForm(data.createForm, {
-    resetForm: true,
-  });
+  const { form, errors, constraints, enhance, submitting } = superForm(
+    data.createForm,
+    {
+      resetForm: true,
+    },
+  );
 </script>
 
 <svelte:head>
@@ -44,7 +47,13 @@
         bind:value={$form.name}
         {...$constraints.name}
       />
-      <button type="submit" class="btn btn-primary join-item" disabled={$submitting}> Skapa</button>
+      <button
+        type="submit"
+        class="btn btn-primary join-item"
+        disabled={$submitting}
+      >
+        Skapa</button
+      >
     </label>
     {#if $errors.name}
       <p class="text-error">{$errors.name}</p>

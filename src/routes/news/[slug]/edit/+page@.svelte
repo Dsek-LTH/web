@@ -8,4 +8,8 @@
   <title>Redigera nyhet | D-sektionen</title>
 </svelte:head>
 
-<ArticleEditor allTags={data.allTags} authorOptions={data.authorOptions} data={data.form} />
+<ArticleEditor
+  allTags={data.allTags}
+  authorOptions={data.authorOptions}
+  data={data.form}
+/>

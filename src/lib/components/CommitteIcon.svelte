@@ -6,7 +6,9 @@
 </script>
 
 <img
-  src={getImageUrl(committee.imageUrl ?? "minio/material/committees/sigill.svg")}
+  src={getImageUrl(
+    committee.imageUrl ?? "minio/material/committees/sigill.svg",
+  )}
   alt="Committee icon"
   class="aspect-square"
 />

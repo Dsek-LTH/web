@@ -22,7 +22,10 @@
   <slot name="tags" />
 </section>
 
-<MarkdownBody body={event.shortDescription} class="mb-4 text-xl font-semibold !leading-snug" />
+<MarkdownBody
+  body={event.shortDescription}
+  class="mb-4 text-xl font-semibold !leading-snug"
+/>
 <MarkdownBody body={event.description} />
 
 <slot name="after" />

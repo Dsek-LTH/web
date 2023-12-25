@@ -27,7 +27,9 @@
     },
   ];
   $: meetings = Object.keys(data.meetings).sort((a, b) =>
-    type === "board-meeting" ? b.localeCompare(a, "sv") : a.localeCompare(b, "sv")
+    type === "board-meeting"
+      ? b.localeCompare(a, "sv")
+      : a.localeCompare(b, "sv"),
   );
 </script>
 
@@ -49,7 +51,9 @@
   </div>
   <div class="flex flex-col gap-1">
     {#if data.accessPolicies.includes(apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).CREATE)}
-      <a class="btn btn-primary btn-sm" href="/documents/upload">Ladda upp fil</a>
+      <a class="btn btn-primary btn-sm" href="/documents/upload"
+        >Ladda upp fil</a
+      >
     {/if}
     {#if data.accessPolicies.includes(apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).DELETE)}
       <button

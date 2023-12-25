@@ -61,7 +61,7 @@ export const actions = {
               message: "Kunde inte skicka e-postmeddelande",
               type: "error",
             },
-            { status: 500 }
+            { status: 500 },
           );
         }
         return message(form, {
@@ -69,7 +69,7 @@ export const actions = {
           type: "success",
         });
       },
-      form
+      form,
     );
   },
 };

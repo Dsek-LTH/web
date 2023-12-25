@@ -8,22 +8,28 @@
   $: filteredBookables = allBookables.filter(
     (bookable) =>
       bookable.name.toLowerCase().includes(searchValue.toLowerCase()) &&
-      !selectedBookables.includes(bookable)
+      !selectedBookables.includes(bookable),
   );
 </script>
 
 <div class="dropdown">
   <div class="flex flex-col gap-2">
-    <div class="absolute bottom-[calc(100%+0.5rem)] flex min-w-full flex-row items-center gap-2">
+    <div
+      class="absolute bottom-[calc(100%+0.5rem)] flex min-w-full flex-row items-center gap-2"
+    >
       {#if selectedBookables.length > 0}
         {#each selectedBookables as bookable}
           <button
             type="button"
             on:click={() => {
-              selectedBookables = selectedBookables.filter((o) => o !== bookable);
+              selectedBookables = selectedBookables.filter(
+                (o) => o !== bookable,
+              );
             }}
           >
-            <span class="badge badge-md relative cursor-pointer whitespace-nowrap text-xs">
+            <span
+              class="badge badge-md relative cursor-pointer whitespace-nowrap text-xs"
+            >
               <div class="absolute inset-0 opacity-10 transition-colors" />
               {bookable.name}
             </span>
@@ -38,7 +44,10 @@
         >
       {:else}
         <div class="pointer-events-none opacity-0">allBookables[0].name</div>
-        <button tabindex="-1" type="button" class="btn btn-xs pointer-events-none opacity-0"
+        <button
+          tabindex="-1"
+          type="button"
+          class="btn btn-xs pointer-events-none opacity-0"
         ></button>
       {/if}
     </div>
@@ -64,19 +73,23 @@
         <button
           type="button"
           class="join-item w-full border-b border-b-base-content/10 {selectedBookables.includes(
-            bookable
+            bookable,
           )
             ? 'bg-primary hover:bg-primary-content hover:text-primary'
             : ''}"
           on:click={() => {
             if (selectedBookables.includes(bookable)) {
-              selectedBookables = selectedBookables.filter((o) => o !== bookable);
+              selectedBookables = selectedBookables.filter(
+                (o) => o !== bookable,
+              );
             } else {
               selectedBookables = [...selectedBookables, bookable];
             }
           }}
         >
-          <span class="badge badge-md relative cursor-pointer whitespace-nowrap text-xs">
+          <span
+            class="badge badge-md relative cursor-pointer whitespace-nowrap text-xs"
+          >
             <div class="absolute inset-0 opacity-10 transition-colors" />
             {bookable.name}
           </span>

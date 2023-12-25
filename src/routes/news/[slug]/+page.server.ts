@@ -22,9 +22,13 @@ export const load: PageServerLoad = async ({ params, parent }) => {
   }
   const allTaggedMembers = await getAllTaggedMembers(article.comments);
   const { session } = await parent();
-  const canEdit = await hasAccess([apiNames.NEWS.UPDATE, apiNames.NEWS.MANAGE], session?.user, {
-    studentId: article.author.member.studentId,
-  });
+  const canEdit = await hasAccess(
+    [apiNames.NEWS.UPDATE, apiNames.NEWS.MANAGE],
+    session?.user,
+    {
+      studentId: article.author.member.studentId,
+    },
+  );
   return {
     article,
     allTaggedMembers,

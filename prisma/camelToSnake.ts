@@ -28,7 +28,11 @@ function snakeToPascal(str: string) {
 }
 
 const PRISMA_PRIMITIVES = ["String", "Boolean", "Int", "Float", "DateTime"];
-const KNEX_INTERNAL_MODELS = ["knex_migrations", "knex_migrations_lock", "pgmigrations"];
+const KNEX_INTERNAL_MODELS = [
+  "knex_migrations",
+  "knex_migrations_lock",
+  "pgmigrations",
+];
 
 function isKnexInternalModel(typeName: string) {
   return KNEX_INTERNAL_MODELS.includes(typeName);
@@ -115,7 +119,9 @@ async function fixPrismaFile() {
       const fieldTypeIndex = fieldTypeMatch[0].lastIndexOf(currentFieldType);
       const fixedFieldType = snakeToPascal(currentFieldType);
       const startOfLine = fixedLine.substr(0, fieldTypeIndex);
-      const restOfLine = fixedLine.substr(fieldTypeIndex + currentFieldType.length);
+      const restOfLine = fixedLine.substr(
+        fieldTypeIndex + currentFieldType.length,
+      );
       fixedLine = `${startOfLine}${fixedFieldType}${restOfLine}`;
     }
 

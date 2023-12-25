@@ -20,12 +20,14 @@ export const load: PageServerLoad = async ({ params, parent }) => {
     throw error(404, "Member not found");
   }
   const { session } = await parent();
-  await ctxAccessGuard(apiNames.MEMBER.UPDATE, session?.user, { studentId: params.studentId });
+  await ctxAccessGuard(apiNames.MEMBER.UPDATE, session?.user, {
+    studentId: params.studentId,
+  });
   const photos = await fileHandler.getInBucket(
     session?.user,
     PUBLIC_BUCKETS_MEMBERS,
     `${params.studentId}/profile-picture`,
-    true
+    true,
   );
   return {
     member,
@@ -74,7 +76,7 @@ export const actions = {
         });
       },
       form,
-      { studentId }
+      { studentId },
     );
   },
   upload: async ({ params, locals, request }) => {
@@ -113,7 +115,7 @@ export const actions = {
           const putUrl = await fileHandler.getPresignedPutUrl(
             session?.user,
             PUBLIC_BUCKETS_MEMBERS,
-            `${params.studentId}/profile-picture/${fileName}.webp`
+            `${params.studentId}/profile-picture/${fileName}.webp`,
           );
           const res = await fetch(putUrl, {
             method: "PUT",
@@ -123,7 +125,7 @@ export const actions = {
             return message(
               form,
               { message: "Kunde inte ladda upp fil", type: "error" },
-              { status: 500 }
+              { status: 500 },
             );
         } catch (e) {
           console.log(e);
@@ -133,7 +135,7 @@ export const actions = {
               message: "Kunde inte ladda upp fil",
               type: "error",
             },
-            { status: 500 }
+            { status: 500 },
           );
         }
         return message(form, {
@@ -142,7 +144,7 @@ export const actions = {
         });
       },
       form,
-      { studentId }
+      { studentId },
     );
   },
   delete: async ({ params, locals, request }) => {
@@ -164,7 +166,7 @@ export const actions = {
         });
       },
       form,
-      { studentId }
+      { studentId },
     );
   },
 };

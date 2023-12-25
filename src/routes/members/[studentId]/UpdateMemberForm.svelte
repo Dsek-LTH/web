@@ -16,7 +16,13 @@
   });
 </script>
 
-<form id="edit-member" method="POST" action="?/update" use:enhance class="form-control gap-2">
+<form
+  id="edit-member"
+  method="POST"
+  action="?/update"
+  use:enhance
+  class="form-control gap-2"
+>
   <div class="flex gap-2 [&>*]:flex-1">
     <Input
       name="firstName"

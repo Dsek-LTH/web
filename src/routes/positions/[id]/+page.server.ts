@@ -99,9 +99,12 @@ export const actions = {
             email: form.data.email,
           },
         });
-        return message(form, { message: "Position uppdaterad", type: "success" });
+        return message(form, {
+          message: "Position uppdaterad",
+          type: "success",
+        });
       },
-      form
+      form,
     );
   },
   addMandate: async ({ params, request, locals }) => {
@@ -129,7 +132,7 @@ export const actions = {
           type: "success",
         });
       },
-      form
+      form,
     );
   },
   updateMandate: async (event) => {
@@ -154,7 +157,7 @@ export const actions = {
           return message(
             form,
             { message: "Mandatet hittades inte", type: "error" },
-            { status: 400 }
+            { status: 400 },
           );
         await prisma.mandate.update({
           where: { id: form.data.mandateId, positionId: params.id },
@@ -171,10 +174,10 @@ export const actions = {
             } mandat har uppdateras`,
             type: "success",
           },
-          event
+          event,
         );
       },
-      form
+      form,
     );
   },
   deleteMandate: async ({ params, request, locals }) => {
@@ -198,7 +201,7 @@ export const actions = {
           return message(
             form,
             { message: "Mandatet hittades inte", type: "error" },
-            { status: 400 }
+            { status: 400 },
           );
         await prisma.mandate.delete({
           where: { id: form.data.mandateId, positionId: params.id },
@@ -210,7 +213,7 @@ export const actions = {
           type: "success",
         });
       },
-      form
+      form,
     );
   },
 };

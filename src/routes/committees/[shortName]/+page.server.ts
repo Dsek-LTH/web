@@ -114,7 +114,7 @@ export const actions = {
           return setError(
             form,
             "image",
-            "Bilden du laddade upp har ingen data eller är felaktig på annat sätt"
+            "Bilden du laddade upp har ingen data eller är felaktig på annat sätt",
           );
         } else if (image.type !== "image/svg+xml") {
           return setError(form, "image", "Bilden måste vara i .svg format ");
@@ -127,7 +127,7 @@ export const actions = {
               session?.user,
               PUBLIC_BUCKETS_MATERIAL,
               path,
-              true
+              true,
             );
             await fetch(putUrl, {
               method: "PUT",
@@ -138,7 +138,7 @@ export const actions = {
             return message(
               form,
               { message: "Kunde inte ladda upp bild", type: "error" },
-              { status: 500 }
+              { status: 500 },
             );
           }
         }
@@ -148,13 +148,18 @@ export const actions = {
             name: form.data.name,
             description: form.data.description,
             imageUrl: newImageUploaded
-              ? `minio/material/committees/${params.shortName}.svg?version=${new Date().getTime()}`
+              ? `minio/material/committees/${
+                  params.shortName
+                }.svg?version=${new Date().getTime()}`
               : undefined,
           },
         });
-        return message(form, { message: "Utskott uppdaterat", type: "success" });
+        return message(form, {
+          message: "Utskott uppdaterat",
+          type: "success",
+        });
       },
-      form
+      form,
     );
   },
 };

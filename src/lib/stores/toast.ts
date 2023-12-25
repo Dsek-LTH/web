@@ -9,7 +9,10 @@ export type ToastNotification = {
 
 export const toasts = writable<ToastNotification[]>([]);
 
-export function toast(message: string, type: ToastNotification["type"] = "info") {
+export function toast(
+  message: string,
+  type: ToastNotification["type"] = "info",
+) {
   toasts.update((state) => [
     ...state,
     {

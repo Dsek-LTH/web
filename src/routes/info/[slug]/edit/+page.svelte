@@ -14,7 +14,11 @@
       </div>
     </div>
   {/if}
-  <form method="POST" action={data.isCreating ? "?/create" : "?/update"} use:enhance>
+  <form
+    method="POST"
+    action={data.isCreating ? "?/create" : "?/update"}
+    use:enhance
+  >
     <MarkdownEditor bind:value={$form.markdown} />
     <input type="hidden" name="name" value={$page.params.slug} />
     <input type="hidden" name="markdown" bind:value={$form.markdown} />

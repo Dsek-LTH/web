@@ -56,7 +56,9 @@ export const handle = SvelteKitAuth({
       const idToken = message.token?.id_token;
       const params = new URLSearchParams();
       params.append("id_token_hint", idToken as string);
-      fetch(`${KEYCLOAK_CLIENT_ISSUER}/protocol/openid-connect/logout?${params.toString()}`);
+      fetch(
+        `${KEYCLOAK_CLIENT_ISSUER}/protocol/openid-connect/logout?${params.toString()}`,
+      );
     },
   },
 });

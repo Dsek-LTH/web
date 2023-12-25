@@ -9,7 +9,7 @@
 
   export let data;
   let filteredTags: Tag[] = data.allTags.filter((tag) =>
-    $page.url.searchParams.getAll("tags").includes(tag.name)
+    $page.url.searchParams.getAll("tags").includes(tag.name),
   );
 </script>
 
@@ -26,7 +26,11 @@
       <a class="btn" href="/news/tags">Tags</a>
     {/if}
   </div>
-  <form method="get" class="form-control flex-1 flex-row items-end gap-2" id="filter-form">
+  <form
+    method="get"
+    class="form-control flex-1 flex-row items-end gap-2"
+    id="filter-form"
+  >
     <SearchBar />
     <TagSelector allTags={data.allTags} bind:selectedTags={filteredTags} />
     {#each filteredTags as tag (tag.id)}

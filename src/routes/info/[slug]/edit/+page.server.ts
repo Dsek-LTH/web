@@ -17,7 +17,10 @@ export const load: PageServerLoad = async ({ parent, params }) => {
   if (markdownPage == undefined) {
     policyAccessGuard(apiNames.MARKDOWNS.CREATE, accessPolicies);
   } else {
-    policyAccessGuard(apiNames.MARKDOWNS.PAGE(params.slug).UPDATE, accessPolicies);
+    policyAccessGuard(
+      apiNames.MARKDOWNS.PAGE(params.slug).UPDATE,
+      accessPolicies,
+    );
   }
 
   return {
@@ -25,7 +28,7 @@ export const load: PageServerLoad = async ({ parent, params }) => {
       {
         markdown: markdownPage?.markdown ?? "",
       },
-      markdownSchema
+      markdownSchema,
     ),
     isCreating: markdownPage == undefined,
   };
@@ -65,10 +68,10 @@ export const actions = {
             message: `"${name}"-sida uppdaterad`,
             type: "success",
           },
-          event
+          event,
         );
       },
-      form
+      form,
     );
   },
   update: async (event) => {
@@ -96,10 +99,10 @@ export const actions = {
             message: `"${name}"-sida uppdaterad`,
             type: "success",
           },
-          event
+          event,
         );
       },
-      form
+      form,
     );
   },
 };

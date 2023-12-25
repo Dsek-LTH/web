@@ -27,7 +27,10 @@ export enum NotificationSettingType {
  * Maps subscription settings to internal notification types.
  * A subscription setting controls said notification types.
  */
-export const SUBSCRIPTION_SETTINGS_MAP: Record<NotificationSettingType, NotificationType[]> = {
+export const SUBSCRIPTION_SETTINGS_MAP: Record<
+  NotificationSettingType,
+  NotificationType[]
+> = {
   LIKE: [NotificationType.LIKE, NotificationType.EVENT_LIKE],
   COMMENT: [
     NotificationType.COMMENT,
@@ -39,7 +42,10 @@ export const SUBSCRIPTION_SETTINGS_MAP: Record<NotificationSettingType, Notifica
   ],
   MENTION: [NotificationType.MENTION],
   NEW_ARTICLE: [NotificationType.NEW_ARTICLE],
-  EVENT_GOING: [NotificationType.EVENT_GOING, NotificationType.EVENT_INTERESTED],
+  EVENT_GOING: [
+    NotificationType.EVENT_GOING,
+    NotificationType.EVENT_INTERESTED,
+  ],
   CREATE_MANDATE: [NotificationType.CREATE_MANDATE],
   BOOKING_REQUEST: [NotificationType.BOOKING_REQUEST],
   PING: [NotificationType.PING],

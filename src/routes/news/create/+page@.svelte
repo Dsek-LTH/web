@@ -8,4 +8,8 @@
   <title>Skapa nyhet | D-sektionen</title>
 </svelte:head>
 
-<ArticleEditor data={data.form} allTags={data.allTags} authorOptions={data.authorOptions} />
+<ArticleEditor
+  data={data.form}
+  allTags={data.allTags}
+  authorOptions={data.authorOptions}
+/>

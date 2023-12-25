@@ -14,7 +14,9 @@
     ? toast($page.form.form.message.message, $page.form.form.message.type)
     : null;
   // Message from form on redirect
-  $: $flash && $flash.type !== "hidden" ? toast($flash.message, $flash.type) : null;
+  $: $flash && $flash.type !== "hidden"
+    ? toast($flash.message, $flash.type)
+    : null;
 </script>
 
 <NavBar>

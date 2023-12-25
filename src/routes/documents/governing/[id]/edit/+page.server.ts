@@ -54,10 +54,10 @@ export const actions = {
             message: "Styrdokument uppdaterat",
             type: "success",
           },
-          event
+          event,
         );
       },
-      form
+      form,
     );
   },
 };

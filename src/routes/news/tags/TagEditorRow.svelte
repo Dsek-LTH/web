@@ -40,13 +40,21 @@
     <td>{tag.name}</td>
     <td style="color: {tag.color}">{tag.color}</td>
     <td class="text-right">
-      <button class="btn btn-xs px-8" type="button" on:click={() => (isEditing = !isEditing)}
+      <button
+        class="btn btn-xs px-8"
+        type="button"
+        on:click={() => (isEditing = !isEditing)}
         >Edit
       </button>
     </td>
   {:else}
     <td colspan="3">
-      <form action="?/update" method="POST" use:enhance class="flex justify-between">
+      <form
+        action="?/update"
+        method="POST"
+        use:enhance
+        class="flex justify-between"
+      >
         <input type="hidden" name="id" value={tag.id} {...$constraints.id} />
         {#if $errors.id}<span class="text-error">{$errors.id}</span>{/if}
         <input

@@ -79,9 +79,16 @@
   {#if $errors.file}
     <p class="text-error">{$errors.file}</p>
   {/if}
-  <Input label="Namn" name="name" bind:value={$form.name} {...$constraints.name} />
+  <Input
+    label="Namn"
+    name="name"
+    bind:value={$form.name}
+    {...$constraints.name}
+  />
   {#if $errors.name}
     <p class="text-error">{$errors.name}</p>
   {/if}
-  <button type="submit" form="upload-file" class="btn btn-primary mt-8">Ladda upp</button>
+  <button type="submit" form="upload-file" class="btn btn-primary mt-8"
+    >Ladda upp</button
+  >
 </form>

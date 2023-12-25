@@ -1,6 +1,13 @@
 import { getCustomAuthorOptions } from "$lib/utils/member";
 import prisma from "$lib/utils/prisma";
-import type { Author, CustomAuthor, Mandate, Member, Position, Prisma } from "@prisma/client";
+import type {
+  Author,
+  CustomAuthor,
+  Mandate,
+  Member,
+  Position,
+  Prisma,
+} from "@prisma/client";
 
 type ArticleFilters = {
   tags?: string[];
@@ -31,7 +38,7 @@ const include = {
 };
 
 export const getAllArticles = async (
-  filters: ArticleFilters = { page: 0, pageSize: 10 }
+  filters: ArticleFilters = { page: 0, pageSize: 10 },
 ): Promise<[Article[], number]> => {
   filters.page = filters.page ?? 0;
   filters.pageSize = filters.pageSize ?? 10;
@@ -148,7 +155,7 @@ export const getArticleAuthorOptions = async (
         };
       };
     };
-  }>
+  }>,
 ) => {
   const memberId = memberWithMandates.id;
   const customAuthorOptions = await getCustomAuthorOptions(memberId);

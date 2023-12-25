@@ -14,7 +14,11 @@ export type FileData = {
   isDir?: boolean;
 };
 
-const getFilesInFolder = (bucket: string, prefix: string, recursive: boolean) => {
+const getFilesInFolder = (
+  bucket: string,
+  prefix: string,
+  recursive: boolean,
+) => {
   return new Promise<FileData[]>((resolve, reject) => {
     const stream = minio.listObjectsV2(bucket, prefix, recursive);
     const chonkyFiles: FileData[] = [];
@@ -46,7 +50,7 @@ const getFilesInBucket = async (
   ctx: Context,
   bucket: string,
   prefix: string,
-  recursive = false
+  recursive = false,
 ) => {
   if (!bucket) {
     return Promise.resolve([]);
@@ -56,7 +60,7 @@ const getFilesInBucket = async (
   const files = await getFilesInFolder(
     bucket,
     prefix !== "/" ? basePath + prefix : basePath,
-    recursive
+    recursive,
   );
   return files;
 };
@@ -66,7 +70,7 @@ const getPresignedPutUrl = async (
   ctx: Context,
   bucket: string,
   fileName: string,
-  allowOverwrite = false
+  allowOverwrite = false,
 ): Promise<string> => {
   await ctxAccessGuard(apiNames.FILES.BUCKET(bucket).CREATE, ctx);
   if (fileName === "") throw error(400, "File name cannot be empty");
@@ -74,7 +78,11 @@ const getPresignedPutUrl = async (
   if (!allowOverwrite && (await fileExists(bucket, fileName))) {
     throw error(409, `File ${fileName} already exists`);
   }
-  const url = await minio.presignedPutObject(bucket, fileName, ONE_HOUR_IN_SECONDS);
+  const url = await minio.presignedPutObject(
+    bucket,
+    fileName,
+    ONE_HOUR_IN_SECONDS,
+  );
   return url;
 };
 
@@ -84,7 +92,7 @@ const getPresignedPutUrl = async (
 export const removeFilesWithoutAccessCheck = async (
   ctx: Context,
   bucket: string,
-  fileNames: string[]
+  fileNames: string[],
 ) => {
   const deleted: FileData[] = [];
 
@@ -96,7 +104,7 @@ export const removeFilesWithoutAccessCheck = async (
           await removeFilesWithoutAccessCheck(
             ctx,
             bucket,
-            filesInFolder.map((file) => file.id)
+            filesInFolder.map((file) => file.id),
           );
         }
         deleted.push({
@@ -110,12 +118,16 @@ export const removeFilesWithoutAccessCheck = async (
           name: path.basename(fileName),
         });
       }
-    })
+    }),
   );
   return deleted;
 };
 
-const removeObjects = async (ctx: Context, bucket: string, fileNames: string[]) => {
+const removeObjects = async (
+  ctx: Context,
+  bucket: string,
+  fileNames: string[],
+) => {
   await ctxAccessGuard(apiNames.FILES.BUCKET(bucket).DELETE, ctx);
   removeFilesWithoutAccessCheck(ctx, bucket, fileNames);
 };
@@ -124,7 +136,12 @@ type FileChange = {
   file: FileData;
   oldFile?: FileData;
 };
-const moveObject = async (ctx: Context, bucket: string, fileNames: string[], newFolder: string) => {
+const moveObject = async (
+  ctx: Context,
+  bucket: string,
+  fileNames: string[],
+  newFolder: string,
+) => {
   await ctxAccessGuard(apiNames.FILES.BUCKET(bucket).UPDATE, ctx);
   const moved: FileChange[] = [];
 
@@ -139,10 +156,14 @@ const moveObject = async (ctx: Context, bucket: string, fileNames: string[], new
             ctx,
             bucket,
             filesInFolder.map((file) => file.id),
-            `${newFolder + basename}/`
+            `${newFolder + basename}/`,
           );
           const FileChange = {
-            file: { id: `${newFolder + basename}/`, name: basename, isDir: true },
+            file: {
+              id: `${newFolder + basename}/`,
+              name: basename,
+              isDir: true,
+            },
             oldFile: { id: fileName, name: basename, isDir: true },
           };
           moved.push(FileChange);
@@ -172,7 +193,12 @@ const moveObject = async (ctx: Context, bucket: string, fileNames: string[], new
           thumbnailUrl: `${MINIO_BASE_URL}${bucket}/${newFileName}`,
         };
 
-        await minio.copyObject(bucket, newFileName, `/${bucket}/${fileName}`, new CopyConditions());
+        await minio.copyObject(
+          bucket,
+          newFileName,
+          `/${bucket}/${fileName}`,
+          new CopyConditions(),
+        );
         await minio.removeObject(bucket, fileName);
 
         const FileChange = {
@@ -182,7 +208,7 @@ const moveObject = async (ctx: Context, bucket: string, fileNames: string[], new
 
         moved.push(FileChange);
       }
-    })
+    }),
   );
   return moved;
 };
@@ -191,7 +217,7 @@ const renameObject = async (
   ctx: Context,
   bucket: string,
   fileName: string,
-  newFileName: string
+  newFileName: string,
 ) => {
   await ctxAccessGuard(apiNames.FILES.BUCKET(bucket).UPDATE, ctx);
   if (await fileExists(bucket, newFileName)) {
@@ -206,7 +232,7 @@ const renameObject = async (
         ctx,
         bucket,
         filesInFolder.map((file) => file.id),
-        `${newFileName}/`
+        `${newFileName}/`,
       );
     }
     return undefined;
@@ -234,7 +260,12 @@ const renameObject = async (
     thumbnailUrl: `${MINIO_BASE_URL}${bucket}/${newFileId}`,
   };
 
-  await minio.copyObject(bucket, newFileName, `/${bucket}/${fileName}`, new CopyConditions());
+  await minio.copyObject(
+    bucket,
+    newFileName,
+    `/${bucket}/${fileName}`,
+    new CopyConditions(),
+  );
   await minio.removeObject(bucket, fileName);
 
   const FileChange = {

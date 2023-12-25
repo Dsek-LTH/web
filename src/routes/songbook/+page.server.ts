@@ -58,7 +58,9 @@ export const load: PageServerLoad = async ({ url }) => {
   const [songs, pageCount, catNames] = await Promise.all([
     prisma.song.findMany({
       take: SONGS_PER_PAGE,
-      skip: page ? Math.max((Number.parseInt(page) - 1) * SONGS_PER_PAGE, 0) : 0,
+      skip: page
+        ? Math.max((Number.parseInt(page) - 1) * SONGS_PER_PAGE, 0)
+        : 0,
       orderBy: { title: "asc" },
       where,
     }),

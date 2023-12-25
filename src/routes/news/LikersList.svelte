@@ -10,9 +10,11 @@
     likers.length > 2
       ? `${getFullName($page.data.session?.user, likers[0]!)}, ${getFullName(
           $page.data.session?.user,
-          likers[1]!
+          likers[1]!,
         )} och ${likers.length - 2} andra`
-      : `${likers.map((m) => getFullName($page.data.session?.user, m)).join(" och ")}`;
+      : `${likers
+          .map((m) => getFullName($page.data.session?.user, m))
+          .join(" och ")}`;
 </script>
 
 {#if likers.length > 0}

@@ -14,18 +14,19 @@
   export let data;
   $: member = data.member;
   $: isMe = data.session?.user?.student_id === $page.params.studentId;
-  $: mandatesGroupedByYear = member.mandates.reduce<Record<string, (typeof member)["mandates"]>>(
-    (acc, mandate) => {
-      let year = mandate.startDate.getFullYear().toString();
-      if (mandate.endDate.getFullYear() !== mandate.startDate.getFullYear())
-        year += `-${mandate.endDate.getFullYear()}`;
-      if (!acc[year]) acc[year] = [];
-      acc[year]!.push(mandate);
-      return acc;
-    },
-    {}
+  $: mandatesGroupedByYear = member.mandates.reduce<
+    Record<string, (typeof member)["mandates"]>
+  >((acc, mandate) => {
+    let year = mandate.startDate.getFullYear().toString();
+    if (mandate.endDate.getFullYear() !== mandate.startDate.getFullYear())
+      year += `-${mandate.endDate.getFullYear()}`;
+    if (!acc[year]) acc[year] = [];
+    acc[year]!.push(mandate);
+    return acc;
+  }, {});
+  $: years = Object.keys(mandatesGroupedByYear).sort((a, b) =>
+    b.localeCompare(a, "sv"),
   );
-  $: years = Object.keys(mandatesGroupedByYear).sort((a, b) => b.localeCompare(a, "sv"));
   $: publishedEvents = [...member.authoredEvents].reverse();
   $: canEdit = isMe || data.accessPolicies.includes(apiNames.MEMBER.UPDATE);
   let isEditing = false;
@@ -40,7 +41,7 @@
       {#if canEdit}
         <a
           href="{$page.params.studentId}/profile-picture"
-          class="btn btn-square btn-secondary glass btn-sm absolute right-2 top-2"
+          class="btn btn-square glass btn-secondary btn-sm absolute right-2 top-2"
         >
           <span class="i-mdi-edit" />
         </a>
@@ -50,7 +51,9 @@
   <header class="col-span-3 mb-4 gap-1 sm:col-span-4">
     <div class="flex items-center">
       <div class="flex-1">
-        <h1 class="text-3xl font-bold">{getFullName($page.data.session?.user, member)}</h1>
+        <h1 class="text-3xl font-bold">
+          {getFullName($page.data.session?.user, member)}
+        </h1>
       </div>
       {#if canEdit}
         <button
@@ -82,7 +85,7 @@
           {#if canEdit}
             <a
               href="{$page.params.studentId}/edit-bio"
-              class="btn btn-secondary btn-outline btn-sm"
+              class="btn btn-outline btn-secondary btn-sm"
             >
               Redigera bio
             </a>
@@ -90,16 +93,24 @@
         </div>
       </MarkdownBody>
     {:else if canEdit}
-      <a href="{$page.params.studentId}/edit-bio" class="btn btn-secondary btn-outline btn-sm">
+      <a
+        href="{$page.params.studentId}/edit-bio"
+        class="btn btn-outline btn-secondary btn-sm"
+      >
         Lägg till bio
       </a>
     {/if}
   </article>
-  <div class="col-span-5 row-span-4 flex flex-col sm:flex-row md:col-span-2 md:flex-col">
+  <div
+    class="col-span-5 row-span-4 flex flex-col sm:flex-row md:col-span-2 md:flex-col"
+  >
     <div class="flex-1 md:flex-grow-0">
       <h2 class="mb-2 text-lg">Innehavda poster</h2>
       {#each years as year}
-        <HeldPositionsYear mandates={mandatesGroupedByYear[year] ?? []} {year} />
+        <HeldPositionsYear
+          mandates={mandatesGroupedByYear[year] ?? []}
+          {year}
+        />
       {/each}
     </div>
     <div class="flex-1 md:flex-grow-0">

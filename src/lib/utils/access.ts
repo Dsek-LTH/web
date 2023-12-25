@@ -13,7 +13,7 @@ export type Context = Session["user"] | undefined;
 
 export const verifyAccess = (
   policies: Pick<AccessPolicy, "studentId" | "role">[],
-  context: Context
+  context: Context,
 ): boolean => {
   const roles = getRoleList(context);
   const studentId = context?.student_id ?? "";
@@ -31,7 +31,7 @@ export const verifyAccess = (
 export const hasAccess = async (
   apiName: string | string[],
   context: Context,
-  relevantMember?: Pick<Member, "id"> | Pick<Member, "studentId">
+  relevantMember?: Pick<Member, "id"> | Pick<Member, "studentId">,
 ): Promise<boolean> => {
   // If we're in development mode and we're signed in, give full access rights.
   if (dev && context?.student_id) return true;
@@ -68,7 +68,10 @@ export const hasAccess = async (
   return validPolicyCount > 0;
 };
 
-export const policyAccessGuard = (apiName: string | string[], userAccessPolicies: string[]) => {
+export const policyAccessGuard = (
+  apiName: string | string[],
+  userAccessPolicies: string[],
+) => {
   const apiNames = typeof apiName === "string" ? [apiName] : apiName;
   if (userAccessPolicies.some((p) => apiNames.includes(p))) return;
   throw error(403, "You do not have permission, have you logged in?");
@@ -77,14 +80,14 @@ export const policyAccessGuard = (apiName: string | string[], userAccessPolicies
 export const ctxAccessGuard = async (
   apiName: string | string[],
   context: Context,
-  relevantMember?: Pick<Member, "id"> | Pick<Member, "studentId">
+  relevantMember?: Pick<Member, "id"> | Pick<Member, "studentId">,
 ) => {
   if (await hasAccess(apiName, context, relevantMember)) return;
   if (dev) {
     throw error(
       403,
       "You do not have permission, have you logged in? Required policies: " +
-        (typeof apiName === "string" ? [apiName] : apiName).join(", ")
+        (typeof apiName === "string" ? [apiName] : apiName).join(", "),
     );
   }
   throw error(403, "You do not have permission, have you logged in?");
@@ -99,7 +102,7 @@ export const withAccess = async <
   context: Context,
   fn: () => Promise<T>,
   form?: F,
-  relevantMember?: Pick<Member, "id"> | Pick<Member, "studentId">
+  relevantMember?: Pick<Member, "id"> | Pick<Member, "studentId">,
 ) => {
   try {
     await ctxAccessGuard(apiName, context, relevantMember);
@@ -120,7 +123,7 @@ export const withAccess = async <
             message: "Unkown error occured",
             type: "error",
           },
-          { status: 500 }
+          { status: 500 },
         );
       }
       if (form === undefined) throw error(400, e.message);
@@ -131,7 +134,7 @@ export const withAccess = async <
           message: e.message,
           type: "error",
         },
-        { status: 400 }
+        { status: 400 },
       );
     } else if (
       "status" in (e as HttpError) &&
@@ -147,7 +150,7 @@ export const withAccess = async <
         },
         {
           status: (e as HttpError).status as NumericRange<400, 599>,
-        }
+        },
       );
     }
     console.warn("Unknown error occured", e);

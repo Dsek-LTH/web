@@ -7,7 +7,8 @@
   let type: "role" | "studentId" = "role";
 
   let removeModal: HTMLDialogElement | undefined = undefined;
-  let selectedPolicy: (typeof data)["doorAccessPolicies"][number] | undefined = undefined;
+  let selectedPolicy: (typeof data)["doorAccessPolicies"][number] | undefined =
+    undefined;
   const { form, errors, constraints, enhance } = superForm(data.createForm);
 </script>
 
@@ -30,14 +31,18 @@
         {#each data.doorAccessPolicies as policy}<tr>
             {#if policy.role}
               <td class="flex items-center gap-3"
-                ><span class="i-mdi-account-group h-6 w-6"></span>{policy.role ?? "N/A"}</td
+                ><span class="i-mdi-account-group h-6 w-6"
+                ></span>{policy.role ?? "N/A"}</td
               >
             {:else if policy.member}
               <td class="flex items-center gap-3">
                 <div class="avatar">
                   <div class="w-6 rounded-full">
                     {#if policy.member.picturePath}
-                      <img src={policy.member.picturePath} alt="Profile avatar" />
+                      <img
+                        src={policy.member.picturePath}
+                        alt="Profile avatar"
+                      />
                     {:else}
                       <span class="i-mdi-account-circle h-6 w-6"></span>
                     {/if}
@@ -68,7 +73,10 @@
   <h2 class="mb-4 text-xl">Grant door access</h2>
   <form class="form-control gap-4" method="POST" action="?/create" use:enhance>
     <label class="join join-vertical lg:join-horizontal lg:items-end">
-      <select class="select join-item select-bordered w-full lg:max-w-xs" bind:value={type}>
+      <select
+        class="join-item select select-bordered w-full lg:max-w-xs"
+        bind:value={type}
+      >
         <option value="role">Role</option>
         <option value="studentId">Member</option>
       </select>
@@ -121,7 +129,10 @@
   <div class="modal-box">
     <h3 class="text-lg font-bold">Revoke door access</h3>
     <p class="py-4">
-      Are you sure you want to revoke access to <b class="capitalize">{$page.params.slug}</b> for
+      Are you sure you want to revoke access to <b class="capitalize"
+        >{$page.params.slug}</b
+      >
+      for
       <b>{selectedPolicy?.role || selectedPolicy?.studentId}</b>?
     </p>
     <div class="modal-action">

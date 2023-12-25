@@ -8,7 +8,10 @@ export const GET: RequestHandler = async ({ url }) => {
     throw error(400, "you need to provide a search value");
   }
 
-  let [firstName, lastName]: [string | undefined, string | undefined] = [undefined, undefined];
+  let [firstName, lastName]: [string | undefined, string | undefined] = [
+    undefined,
+    undefined,
+  ];
   if (search.split(" ").length >= 2) {
     [firstName, lastName] = search.split(" ");
   }

@@ -22,7 +22,7 @@ export const load = async ({ parent, url }) => {
     session?.user,
     PUBLIC_BUCKETS_DOCUMENTS,
     `${year}/`,
-    false
+    false,
   );
   const form = await superValidate(uploadSchema);
   return {
@@ -34,7 +34,12 @@ export const load = async ({ parent, url }) => {
 const uploadSchema = z.object({
   meeting: z.string().default(""),
   name: z.string().default(""),
-  year: z.number().int().min(1982).max(new Date().getFullYear()).default(new Date().getFullYear()),
+  year: z
+    .number()
+    .int()
+    .min(1982)
+    .max(new Date().getFullYear())
+    .default(new Date().getFullYear()),
   file: z.any(),
 });
 export type UploadSchema = typeof uploadSchema;
@@ -59,7 +64,7 @@ export const actions = {
         const putUrl = await fileHandler.getPresignedPutUrl(
           session?.user,
           PUBLIC_BUCKETS_DOCUMENTS,
-          path
+          path,
         );
         const res = await fetch(putUrl, {
           method: "PUT",
@@ -68,15 +73,18 @@ export const actions = {
         if (!res.ok)
           return message(
             form,
-            { message: `Kunde inte ladda upp fil: ${res.statusText}`, type: "error" },
-            { status: 500 }
+            {
+              message: `Kunde inte ladda upp fil: ${res.statusText}`,
+              type: "error",
+            },
+            { status: 500 },
           );
         return message(form, {
           message: "Fil uppladdad",
           type: "success",
         });
       },
-      form
+      form,
     );
   },
 };

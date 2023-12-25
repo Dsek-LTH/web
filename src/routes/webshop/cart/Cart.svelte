@@ -23,7 +23,9 @@
     <div class="card-body">
       <h2 class="card-title">
         {item.productInventory.product.name}
-        {item.productInventory.variant ? `( ${item.productInventory.variant} )` : ""}
+        {item.productInventory.variant
+          ? `( ${item.productInventory.variant} )`
+          : ""}
       </h2>
       <div class="flex flex-row justify-between">
         <div class="avatar">
@@ -36,21 +38,35 @@
         </div>
         <div class="text-right">
           <p class="font-bold">
-            {item.productInventory.product.price * item.quantity} kr (á {item.productInventory
-              .product.price} kr)
+            {item.productInventory.product.price * item.quantity} kr (á {item
+              .productInventory.product.price} kr)
           </p>
         </div>
         <div class="flex items-center gap-2">
           <form use:enhance method="POST" action="/webshop?/removeFromCart">
-            <input type="hidden" name="productInventoryId" value={item.productInventory.id} />
-            <button type="submit" class="btn btn-circle btn-primary btn-sm font-bold">-</button>
+            <input
+              type="hidden"
+              name="productInventoryId"
+              value={item.productInventory.id}
+            />
+            <button
+              type="submit"
+              class="btn btn-circle btn-primary btn-sm font-bold">-</button
+            >
           </form>
           <p class="font-bold">
             {item.quantity}
           </p>
           <form use:enhance method="POST" action="/webshop?/addToCart">
-            <input type="hidden" name="productInventoryId" value={item.productInventory.id} />
-            <button type="submit" class="btn btn-circle btn-primary btn-sm font-bold">+</button>
+            <input
+              type="hidden"
+              name="productInventoryId"
+              value={item.productInventory.id}
+            />
+            <button
+              type="submit"
+              class="btn btn-circle btn-primary btn-sm font-bold">+</button
+            >
           </form>
         </div>
       </div>

@@ -16,7 +16,7 @@ export const load: PageServerLoad = async ({ parent }) => {
     allTags,
     form: await superValidate(
       { organizer: `${currentMember!.firstName} ${currentMember!.lastName}` },
-      eventSchema
+      eventSchema,
     ),
   };
 };
@@ -53,10 +53,10 @@ export const actions = {
             message: "Evenemang skapat",
             type: "success",
           },
-          event
+          event,
         );
       },
-      form
+      form,
     );
   },
 };

@@ -34,7 +34,9 @@ export const load: PageServerLoad = async ({ parent }) => {
     },
   });
   if (!currentMemberWithMandates) throw error(500, "Member not found");
-  const authorOptions = await getArticleAuthorOptions(currentMemberWithMandates);
+  const authorOptions = await getArticleAuthorOptions(
+    currentMemberWithMandates,
+  );
   return {
     allTags,
     authorOptions,
@@ -42,7 +44,7 @@ export const load: PageServerLoad = async ({ parent }) => {
       {
         author: authorOptions[0],
       },
-      articleSchema
+      articleSchema,
     ),
   };
 };
@@ -117,10 +119,10 @@ export const actions = {
             message: "Nyhet skapad",
             type: "success",
           },
-          event
+          event,
         );
       },
-      form
+      form,
     );
   },
 } satisfies Actions;

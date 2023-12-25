@@ -27,7 +27,9 @@
       {#each uniqueApiNames as apiName}
         <tr>
           <td class="font-medium">{apiName}</td>
-          <td class="text-right"><a class="btn btn-xs px-8" href="access/{apiName}">Edit</a></td>
+          <td class="text-right"
+            ><a class="btn btn-xs px-8" href="access/{apiName}">Edit</a></td
+          >
         </tr>
       {/each}
     </tbody>
@@ -48,7 +50,8 @@
         bind:value={$form.apiName}
         {...$constraints.apiName}
       />
-      {#if $errors.apiName}<span class="text-error">{$errors.apiName}</span>{/if}
+      {#if $errors.apiName}<span class="text-error">{$errors.apiName}</span
+        >{/if}
 
       <button type="submit" class="btn btn-primary join-item">Add</button>
     </label>

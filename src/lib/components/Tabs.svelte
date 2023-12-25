@@ -26,7 +26,8 @@
   {#each options as tabOption (tabOption.value)}
     <a
       href={generateLink(tabOption.value)}
-      class="tab {tabOption.value === currentTab ? 'tab-active' : ''}">{tabOption.name}</a
+      class="tab {tabOption.value === currentTab ? 'tab-active' : ''}"
+      >{tabOption.name}</a
     >
   {/each}
 </div>

@@ -100,7 +100,7 @@ export const actions = {
         });
       },
       form,
-      { studentId }
+      { studentId },
     );
   },
 };

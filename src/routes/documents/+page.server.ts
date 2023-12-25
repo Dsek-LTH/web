@@ -16,12 +16,13 @@ const prefixByType: Record<DocumentType, string> = {
 export const load = async ({ parent, url }) => {
   const { session } = await parent();
   const year = url.searchParams.get("year") || new Date().getFullYear();
-  const type: DocumentType = (url.searchParams.get("type") as DocumentType) || "board-meeting";
+  const type: DocumentType =
+    (url.searchParams.get("type") as DocumentType) || "board-meeting";
   const files = await fileHandler.getInBucket(
     session?.user,
     PUBLIC_BUCKETS_DOCUMENTS,
     year + "/" + (prefixByType[type] ?? ""),
-    true
+    true,
   );
   if (!files) throw error(404, "No files found");
   let filteredFiles = files;
@@ -46,7 +47,9 @@ export const load = async ({ parent, url }) => {
       });
       break;
   }
-  const filesGroupedByMeeting = filteredFiles.reduce<Record<string, FileData[]>>((acc, file) => {
+  const filesGroupedByMeeting = filteredFiles.reduce<
+    Record<string, FileData[]>
+  >((acc, file) => {
     const fileParts = file.id.split("/");
     const meeting = fileParts[fileParts.length - 2] ?? "unknown";
     if (!acc[meeting]) acc[meeting] = [];
@@ -81,7 +84,7 @@ export const actions = {
           type: "success",
         });
       },
-      form
+      form,
     );
   },
 };

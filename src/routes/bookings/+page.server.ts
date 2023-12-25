@@ -11,11 +11,11 @@ import { getAllBookables } from "./bookables";
 export const load: PageServerLoad = async ({ url }) => {
   const bookingRequests = await getAllBookingRequests();
   const bookables = await getAllBookables();
-  return {bookingRequests, bookables};
-}
+  return { bookingRequests, bookables };
+};
 
 export const actions = {
-  default: async ({request, locals}) => {
+  default: async ({ request, locals }) => {
     // const session = await locals.getSession();
     // return withAccess(apiNames.BOOKINGS.CREATE, session?.user, async () => {
     //   // read the form data sent by the browser
@@ -44,13 +44,10 @@ export const actions = {
     //         end: formData.get("end") ? new Date(String(formData.get("end"))) : new Date(),
     //         // bookables: bookables,
     //         // status: "PENDING"
-    //         }, 
+    //         },
     //       })
     //   } catch (e) {
-
     //   }
-
     // })
-  }
-}
-
+  },
+};

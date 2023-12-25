@@ -16,11 +16,16 @@
 
   const ALWAYS_SHOWN_COMMENTS = 3;
 
-  let onReply: (comment: (ArticleComment | EventComment) & { member: Member }) => void;
+  let onReply: (
+    comment: (ArticleComment | EventComment) & { member: Member },
+  ) => void;
 </script>
 
 {#if comments.length > 0}
-  <div class:collapse-open={comments.length <= ALWAYS_SHOWN_COMMENTS} class="collapse bg-base-200">
+  <div
+    class:collapse-open={comments.length <= ALWAYS_SHOWN_COMMENTS}
+    class="collapse bg-base-200"
+  >
     <input type="checkbox" />
     <div class="px-4">
       {#each comments.slice(comments.length - ALWAYS_SHOWN_COMMENTS) as comment (comment.id)}

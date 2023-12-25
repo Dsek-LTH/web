@@ -7,13 +7,16 @@
   export let selectedTags: Tag[] = [];
   $: filteredTags = allTags.filter(
     (tag) =>
-      tag.name.toLowerCase().includes(searchValue.toLowerCase()) && !selectedTags.includes(tag)
+      tag.name.toLowerCase().includes(searchValue.toLowerCase()) &&
+      !selectedTags.includes(tag),
   );
 </script>
 
 <div class="dropdown">
   <div class="flex flex-col gap-2">
-    <div class="absolute bottom-[calc(100%+0.5rem)] flex min-w-full flex-row items-center gap-2">
+    <div
+      class="absolute bottom-[calc(100%+0.5rem)] flex min-w-full flex-row items-center gap-2"
+    >
       {#if selectedTags.length > 0}
         {#each selectedTags as tag}
           <button
@@ -36,7 +39,10 @@
         <div class="pointer-events-none opacity-0">
           <TagChip tag={allTags[0]} />
         </div>
-        <button tabindex="-1" type="button" class="btn btn-xs pointer-events-none opacity-0"
+        <button
+          tabindex="-1"
+          type="button"
+          class="btn btn-xs pointer-events-none opacity-0"
         ></button>
       {/if}
     </div>
@@ -61,7 +67,9 @@
       <li>
         <button
           type="button"
-          class="join-item w-full border-b border-b-base-content/10 {selectedTags.includes(tag)
+          class="join-item w-full border-b border-b-base-content/10 {selectedTags.includes(
+            tag,
+          )
             ? 'bg-primary hover:bg-primary-content hover:text-primary'
             : ''}"
           on:click={() => {

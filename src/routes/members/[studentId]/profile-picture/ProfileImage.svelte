@@ -8,12 +8,18 @@
   export let current: boolean = false;
   export let changeForm: SuperValidated<ChangeSchema>;
   export let deleteForm: SuperValidated<DeleteSchema>;
-  const { errors: changeErrors, enhance: changeEnhance } = superForm(changeForm, {
-    id: `change-${fileName}`,
-  });
-  const { errors: deleteErrors, enhance: deleteEnhance } = superForm(deleteForm, {
-    id: `delete-${fileName}`,
-  });
+  const { errors: changeErrors, enhance: changeEnhance } = superForm(
+    changeForm,
+    {
+      id: `change-${fileName}`,
+    },
+  );
+  const { errors: deleteErrors, enhance: deleteEnhance } = superForm(
+    deleteForm,
+    {
+      id: `delete-${fileName}`,
+    },
+  );
 </script>
 
 <div class="relative">
@@ -29,7 +35,10 @@
           : 'border-transparent'}"
       >
         <figure class="relative w-48">
-          <img src={url} alt="Profile avatar option, {current ? 'currently selected' : ''}" />
+          <img
+            src={url}
+            alt="Profile avatar option, {current ? 'currently selected' : ''}"
+          />
         </figure>
       </div>
     </button>
@@ -40,7 +49,9 @@
     {#if $deleteErrors.fileName}
       <p class="text-error">{$deleteErrors.fileName}</p>
     {/if}
-    <button class="btn btn-square btn-secondary btn-sm absolute bottom-1 right-1">
+    <button
+      class="btn btn-square btn-secondary btn-sm absolute bottom-1 right-1"
+    >
       <span class="i-mdi-delete" />
     </button>
   </form>

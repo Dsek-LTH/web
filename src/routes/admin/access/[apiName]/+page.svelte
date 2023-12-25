@@ -41,7 +41,10 @@
     <tbody>
       {#each policies as policy}<tr>
           <td>{policy.role ?? ""}</td>
-          <td>{policy.studentId ? `${policy.member?.firstName} ${policy.member?.lastName}` : ""}</td
+          <td
+            >{policy.studentId
+              ? `${policy.member?.firstName} ${policy.member?.lastName}`
+              : ""}</td
           >
           <td>{policy.createdAt?.toLocaleString("sv")}</td>
           <td class="text-right">
@@ -53,7 +56,12 @@
   </table>
   <section class="flex flex-col gap-4 py-4">
     <h2 class="text-xl font-bold">Add new policies</h2>
-    <form class="form-control gap-4" method="POST" action="?/create" use:enhance>
+    <form
+      class="form-control gap-4"
+      method="POST"
+      action="?/create"
+      use:enhance
+    >
       <label class="join">
         <span class="label join-item bg-base-200 px-4">Role</span>
         <input
@@ -81,7 +89,8 @@
         />
         <button type="submit" class="btn btn-primary join-item">Add</button>
       </label>
-      {#if $errors.studentId}<span class="text-error">{$errors.studentId}</span>{/if}
+      {#if $errors.studentId}<span class="text-error">{$errors.studentId}</span
+        >{/if}
     </form>
   </section>
 </div>

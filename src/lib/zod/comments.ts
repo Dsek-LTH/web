@@ -17,7 +17,11 @@ export type RemoveCommentSchema = typeof removeCommentSchema;
 
 export const commentAction =
   (entityType: "NEWS" | "EVENT") =>
-  async ({ locals, request, params }: RequestEvent<Record<string, string>, string>) => {
+  async ({
+    locals,
+    request,
+    params,
+  }: RequestEvent<Record<string, string>, string>) => {
     const form = await superValidate(request, commentSchema);
     if (!form.valid) return fail(400, { form });
     const session = await locals.getSession();
@@ -53,12 +57,13 @@ export const commentAction =
             return message(
               form,
               {
-                message: 'Kommentar skickades inte. "Invalid comment entity type"',
+                message:
+                  'Kommentar skickades inte. "Invalid comment entity type"',
                 type: "error",
               },
               {
                 status: 400,
-              }
+              },
             );
         }
         return message(form, {
@@ -66,13 +71,17 @@ export const commentAction =
           type: "hidden",
         });
       },
-      form
+      form,
     );
   };
 
 export const removeCommentAction =
   (entityType: "NEWS" | "EVENT") =>
-  async ({ locals, request, params }: RequestEvent<Record<string, string>, string>) => {
+  async ({
+    locals,
+    request,
+    params,
+  }: RequestEvent<Record<string, string>, string>) => {
     const form = await superValidate(request, removeCommentSchema);
     if (!form.valid) return fail(400, { form });
     const session = await locals.getSession();
@@ -101,12 +110,13 @@ export const removeCommentAction =
             return message(
               form,
               {
-                message: 'Kommentar kunde inte tas bort. "Invalid comment entity type"',
+                message:
+                  'Kommentar kunde inte tas bort. "Invalid comment entity type"',
                 type: "error",
               },
               {
                 status: 400,
-              }
+              },
             );
         }
         return message(form, {
@@ -114,6 +124,6 @@ export const removeCommentAction =
           type: "success",
         });
       },
-      form
+      form,
     );
   };

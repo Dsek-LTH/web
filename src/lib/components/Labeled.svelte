@@ -11,7 +11,9 @@
       <span class="label-text">
         {label}
         {#if explanation}
-          <span class="badge badge-neutral tooltip px-1" data-tip={explanation}>?</span>
+          <span class="badge badge-neutral tooltip px-1" data-tip={explanation}
+            >?</span
+          >
         {/if}
       </span>
     </label>

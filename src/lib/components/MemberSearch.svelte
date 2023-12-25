@@ -78,7 +78,9 @@
       {/each}
       {#if searchedMembers.length === 0}
         <li class="w-full border-b border-b-base-content/10">
-          <button type="button" disabled class="disabled">Inga medlemmar hittades</button>
+          <button type="button" disabled class="disabled"
+            >Inga medlemmar hittades</button
+          >
         </li>
       {/if}
     {/if}

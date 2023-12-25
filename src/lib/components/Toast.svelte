@@ -6,7 +6,11 @@
 {#if $toasts}
   <div class="toast bottom-2 right-2">
     {#each $toasts as toast (toast.id)}
-      <div role="alert" class="alert alert-{toast.type}" out:fade={{ duration: 750 }}>
+      <div
+        role="alert"
+        class="alert alert-{toast.type}"
+        out:fade={{ duration: 750 }}
+      >
         {toast.message}
       </div>
     {/each}

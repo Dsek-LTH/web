@@ -6,7 +6,7 @@ async function sendPushNotifications(
   title: string,
   body: string,
   type: string,
-  link: string
+  link: string,
 ) {
   const expo = new Expo();
 
@@ -25,7 +25,9 @@ async function sendPushNotifications(
 
   const chunks = expo.chunkPushNotifications(messages);
   const results = await Promise.allSettled(
-    new Array(chunks.length).map((i) => expo.sendPushNotificationsAsync(chunks[i]!))
+    new Array(chunks.length).map((i) =>
+      expo.sendPushNotificationsAsync(chunks[i]!),
+    ),
   );
   const failedMessages = results
     .map((r, i) => [r, i] as const)

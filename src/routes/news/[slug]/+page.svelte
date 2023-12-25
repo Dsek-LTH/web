@@ -27,7 +27,12 @@
 
     <div slot="actions">
       {#if data.canEdit}
-        <a class="text-primary hover:underline" href={`/news/${article.slug}/edit`}> Redigera </a>
+        <a
+          class="text-primary hover:underline"
+          href={`/news/${article.slug}/edit`}
+        >
+          Redigera
+        </a>
       {/if}
     </div>
 
@@ -39,7 +44,11 @@
     <div slot="after-body" class="mt-4">
       <div class="flex flex-col items-start gap-2">
         <LikersList likers={article.likers} />
-        <LikeButton likers={article.likers} likeForm={data.likeForm} articleId={article.id} />
+        <LikeButton
+          likers={article.likers}
+          likeForm={data.likeForm}
+          articleId={article.id}
+        />
       </div>
       <div class="mt-4 flex flex-col gap-2">
         <CommentSection

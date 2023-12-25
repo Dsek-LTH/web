@@ -39,10 +39,17 @@
 
   {#if !hideBody}
     <div class="my-3 flex flex-row items-start gap-2">
-      <MarkdownBody body={article.body.slice(0, 400)} class="line-clamp-4 text-ellipsis" />
+      <MarkdownBody
+        body={article.body.slice(0, 400)}
+        class="line-clamp-4 text-ellipsis"
+      />
       {#if article.imageUrl}
         <figure class="flex-1">
-          <img class="rounded-2xl" src={article.imageUrl} alt={article.header} />
+          <img
+            class="rounded-2xl"
+            src={article.imageUrl}
+            alt={article.header}
+          />
         </figure>
       {/if}
     </div>

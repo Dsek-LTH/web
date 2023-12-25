@@ -3,7 +3,9 @@
   import PageHeader from "$lib/components/PageHeader.svelte";
 
   export let data;
-  $: committees = [...data.committees].sort((a, b) => a.name.localeCompare(b.name, "sv"));
+  $: committees = [...data.committees].sort((a, b) =>
+    a.name.localeCompare(b.name, "sv"),
+  );
 </script>
 
 <PageHeader title="Utskott" />
@@ -23,7 +25,9 @@
         <h6 class="-mt-2 px-2 text-sm text-base-content/40">
           {[
             ...new Set(
-              committee.positions.flatMap((pos) => pos.mandates.map((mandate) => mandate.memberId))
+              committee.positions.flatMap((pos) =>
+                pos.mandates.map((mandate) => mandate.memberId),
+              ),
             ),
           ].length} funktionärer
         </h6>

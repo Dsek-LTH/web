@@ -3,10 +3,18 @@
 
   export let date: Date;
 
-  let internal: string = date.toLocaleString("sv").split(" ").join("T").slice(0, 16);
+  let internal: string = date
+    .toLocaleString("sv")
+    .split(" ")
+    .join("T")
+    .slice(0, 16);
 
   const input = (x: Date) => {
-    const newDateString = x.toLocaleString("sv").split(" ").join("T").slice(0, 16);
+    const newDateString = x
+      .toLocaleString("sv")
+      .split(" ")
+      .join("T")
+      .slice(0, 16);
     if (internal === newDateString) return;
     internal = newDateString;
   };

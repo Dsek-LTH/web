@@ -31,13 +31,14 @@
     name="search"
     type="text"
     placeholder="Search"
-    class="input input-bordered w-full focus:border-primary-focus"
+    class="focus:border-primary-focus input input-bordered w-full"
     value={$page.url.searchParams.get("search") ?? ""}
     on:input={(e) => {
       refetchArticles(e.currentTarget.value);
     }}
   />
   {#if isLoading}
-    <span class="loading loading-sm absolute right-4 top-1/2 -translate-y-1/2"></span>
+    <span class="loading loading-sm absolute right-4 top-1/2 -translate-y-1/2"
+    ></span>
   {/if}
 </div>

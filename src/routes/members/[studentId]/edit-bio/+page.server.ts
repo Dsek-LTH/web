@@ -16,7 +16,9 @@ export const load: PageServerLoad = async ({ params, parent }) => {
     throw error(404, "Member not found");
   }
   const { session } = await parent();
-  await ctxAccessGuard(apiNames.MEMBER.UPDATE, session?.user, { studentId: params.studentId });
+  await ctxAccessGuard(apiNames.MEMBER.UPDATE, session?.user, {
+    studentId: params.studentId,
+  });
   return {
     member,
     form: await superValidate(member, updateBioSchema),
@@ -47,7 +49,7 @@ export const actions = {
         });
       },
       form,
-      { studentId }
+      { studentId },
     );
   },
 };

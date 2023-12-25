@@ -13,7 +13,9 @@
 
 <h1 class="mb-8 text-2xl font-bold">{article.header}</h1>
 
-<section class="flex items-center justify-between border-y border-gray-600 py-4">
+<section
+  class="flex items-center justify-between border-y border-gray-600 py-4"
+>
   <slot name="author" />
   <slot name="actions" />
 </section>

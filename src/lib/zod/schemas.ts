@@ -8,7 +8,12 @@ export const memberSchema = z.object({
   nickname: z.string().nullable(),
   bio: z.string().nullish(),
   picturePath: z.string().nullable(),
-  classYear: z.number().min(1962).max(new Date().getFullYear()).nullable().default(null),
+  classYear: z
+    .number()
+    .min(1962)
+    .max(new Date().getFullYear())
+    .nullable()
+    .default(null),
   classProgramme: z
     .string()
     .nullable()

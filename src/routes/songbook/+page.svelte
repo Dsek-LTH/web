@@ -27,9 +27,14 @@
 
 <div class="my-4 flex flex-wrap justify-between">
   {#each Object.keys(data.categories) as catId}
-    <a class="flex-grow" href={hrefWithParam("category", isCatSelected(catId) ? "" : catId)}>
+    <a
+      class="flex-grow"
+      href={hrefWithParam("category", isCatSelected(catId) ? "" : catId)}
+    >
       <div
-        class={(isCatSelected(catId) ? "bg-neutral-600" : "hover:bg-neutral-700") +
+        class={(isCatSelected(catId)
+          ? "bg-neutral-600"
+          : "hover:bg-neutral-700") +
           " m-1 rounded-lg px-2 py-1 text-center ring-neutral-700 transition hover:scale-105 md:ring-1"}
       >
         {data.categories[catId]}

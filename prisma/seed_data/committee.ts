@@ -1,6 +1,14 @@
 import { PrismaClient } from "@prisma/client";
 
-const committeesWithImages = ["cafe", "aktu", "infu", "skattm", "srd", "sexm", "km"];
+const committeesWithImages = [
+  "cafe",
+  "aktu",
+  "infu",
+  "skattm",
+  "srd",
+  "sexm",
+  "km",
+];
 export const insertCommitteeLogos = async (prisma: PrismaClient) => {
   await Promise.all(
     committeesWithImages.map((shortName) =>
@@ -12,7 +20,7 @@ export const insertCommitteeLogos = async (prisma: PrismaClient) => {
         data: {
           imageUrl: `minio/material/committees/${shortName}.svg`,
         },
-      })
-    )
+      }),
+    ),
   );
 };

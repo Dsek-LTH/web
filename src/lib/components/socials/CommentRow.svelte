@@ -26,7 +26,7 @@
 
   const getReplacementValue = (studentId: string) => {
     const member: Member | undefined = taggedMembers.find(
-      (member) => member.studentId === studentId
+      (member) => member.studentId === studentId,
     );
     if (!member) return "@Unknown User";
     // Logic to return the replacement value based on the UUID
@@ -55,10 +55,15 @@
       <MemberAvatar member={author} class="w-8 rounded-lg" />
     </a>
     <div class="flex-1 text-xs leading-snug">
-      <a href="/members/{author.studentId}" class="link-primary link block no-underline">
+      <a
+        href="/members/{author.studentId}"
+        class="link link-primary block no-underline"
+      >
         {getFullName($page.data.session?.user, author)}
       </a>
-      <span class="font-semibold opacity-50">{relativeDate(comment.published)}</span>
+      <span class="font-semibold opacity-50"
+        >{relativeDate(comment.published)}</span
+      >
     </div>
   </header>
   <MarkdownBody body={fixedContent}></MarkdownBody>
@@ -70,7 +75,12 @@
     {/if}
     {#if $page.data.accessPolicies.includes(apiNames[type].COMMENT_DELETE)}
       <form method="POST" action="?/removeComment" use:enhance>
-        <input type="hidden" name="commentId" value={comment.id} {...$constraints.commentId} />
+        <input
+          type="hidden"
+          name="commentId"
+          value={comment.id}
+          {...$constraints.commentId}
+        />
         {#if $errors.commentId}
           <p class="text-error">{$errors.commentId}</p>
         {/if}

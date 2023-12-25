@@ -17,7 +17,9 @@
   export let allTags: Tag[];
 </script>
 
-<main class="flex w-screen flex-col gap-8 px-4 pt-8 lg:flex-row lg:px-8 [&>*]:flex-1">
+<main
+  class="flex w-screen flex-col gap-8 px-4 pt-8 lg:flex-row lg:px-8 [&>*]:flex-1"
+>
   <section>
     <form method="POST" class="form-control gap-2" use:enhance>
       <slot name="form-start" />

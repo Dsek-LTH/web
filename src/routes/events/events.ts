@@ -22,7 +22,7 @@ const include = {
 };
 
 export const getAllEvents = async (
-  filters: EventFilters = { page: 0, pageSize: 10 }
+  filters: EventFilters = { page: 0, pageSize: 10 },
 ): Promise<[EventWithIncludes[], number]> => {
   filters.page = filters.page ?? 0;
   filters.pageSize = filters.pageSize ?? 10;

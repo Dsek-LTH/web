@@ -4,8 +4,12 @@
   import File from "../File.svelte";
   export let data;
   let isEditing = false;
-  $: policies = data.governingDocuments.filter((doc) => doc.documentType === "POLICY");
-  $: guidelines = data.governingDocuments.filter((doc) => doc.documentType === "GUIDELINE");
+  $: policies = data.governingDocuments.filter(
+    (doc) => doc.documentType === "POLICY",
+  );
+  $: guidelines = data.governingDocuments.filter(
+    (doc) => doc.documentType === "GUIDELINE",
+  );
 </script>
 
 <svelte:head>
@@ -17,7 +21,9 @@
   <div>
     {#if data.accessPolicies.includes(apiNames.GOVERNING_DOCUMENT.DELETE)}
       {#if data.accessPolicies.includes(apiNames.GOVERNING_DOCUMENT.CREATE)}
-        <a class="btn btn-primary btn-sm" href="/documents/governing/new"> + Skapa ny </a>
+        <a class="btn btn-primary btn-sm" href="/documents/governing/new">
+          + Skapa ny
+        </a>
       {/if}
       <button
         class="btn btn-secondary btn-sm"
@@ -32,14 +38,19 @@
 </div>
 <div class="flex flex-col gap-5">
   <p>
-    Här finns alla styrdokument som gäller för D-sektionen. Styrdokumenten är uppdelade i tre
-    kategorier: Styrdokument, Reglemente och Policy. Styrdokument är de dokument som styr hur
-    sektionen ska fungera. Reglemente är de dokument som styr hur sektionens organ ska fungera.
-    Policy är de dokument som styr hur sektionen ska förhålla sig till olika frågor.
+    Här finns alla styrdokument som gäller för D-sektionen. Styrdokumenten är
+    uppdelade i tre kategorier: Styrdokument, Reglemente och Policy.
+    Styrdokument är de dokument som styr hur sektionen ska fungera. Reglemente
+    är de dokument som styr hur sektionens organ ska fungera. Policy är de
+    dokument som styr hur sektionen ska förhålla sig till olika frågor.
   </p>
   <p>
-    Om du har några frågor eller funderingar kring styrdokumenten kan du kontakta
-    <a href="mailto:styrelsen@dsek.se" class="link-primary link no-underline hover:underline">
+    Om du har några frågor eller funderingar kring styrdokumenten kan du
+    kontakta
+    <a
+      href="mailto:styrelsen@dsek.se"
+      class="link link-primary no-underline hover:underline"
+    >
       styrelsen@dsek.se
     </a>
   </p>
@@ -55,11 +66,18 @@
           <div class="flex items-center gap-1">
             <File name={policy.title} url={policy.url} host />
             {#if data.accessPolicies.includes(apiNames.GOVERNING_DOCUMENT.DELETE) && isEditing}
-              <DeleteFileForm fileId={policy.id} fileName={policy.title} data={data.deleteForm} />
+              <DeleteFileForm
+                fileId={policy.id}
+                fileName={policy.title}
+                data={data.deleteForm}
+              />
             {/if}
             {#if data.accessPolicies.includes(apiNames.GOVERNING_DOCUMENT.UPDATE) && isEditing}
-              <a class="pointer-events-auto" href={`/documents/governing/${policy.id}/edit`}
-                ><span class="i-mdi-pencil align-middle text-xl text-secondary"></span>
+              <a
+                class="pointer-events-auto"
+                href={`/documents/governing/${policy.id}/edit`}
+                ><span class="i-mdi-pencil align-middle text-xl text-secondary"
+                ></span>
               </a>
             {/if}
           </div>
@@ -80,8 +98,11 @@
               />
             {/if}
             {#if data.accessPolicies.includes(apiNames.GOVERNING_DOCUMENT.UPDATE) && isEditing}
-              <a class="pointer-events-auto" href={`/documents/governing/${guideline.id}/edit`}
-                ><span class="i-mdi-pencil align-middle text-xl text-secondary"></span>
+              <a
+                class="pointer-events-auto"
+                href={`/documents/governing/${guideline.id}/edit`}
+                ><span class="i-mdi-pencil align-middle text-xl text-secondary"
+                ></span>
               </a>
             {/if}
           </div>

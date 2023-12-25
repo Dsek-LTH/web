@@ -2,12 +2,20 @@
   import type { Member } from "@prisma/client";
   import { twMerge } from "tailwind-merge";
 
-  export let member: Pick<Member, "picturePath" | "classProgramme" | "classYear">;
+  export let member: Pick<
+    Member,
+    "picturePath" | "classProgramme" | "classYear"
+  >;
   let clazz: string = "";
   export { clazz as class };
 </script>
 
-<div class={twMerge("avatar aspect-square w-8 overflow-hidden rounded-full", clazz)}>
+<div
+  class={twMerge(
+    "avatar aspect-square w-8 overflow-hidden rounded-full",
+    clazz,
+  )}
+>
   <figure class="relative w-full">
     <img
       src={member.picturePath || "https://gravatar.com/avatar?s=100&d=mp"}

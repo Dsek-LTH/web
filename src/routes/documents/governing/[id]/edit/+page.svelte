@@ -5,4 +5,8 @@
   export let data;
 </script>
 
-<GoverningDocumentEditor isCreating={false} data={data.form} documentId={$page.params.id} />
+<GoverningDocumentEditor
+  isCreating={false}
+  data={data.form}
+  documentId={$page.params.id}
+/>

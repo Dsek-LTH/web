@@ -18,12 +18,14 @@
         <div
           class="tooltip -mx-4 whitespace-pre"
           data-tip={mandate.position.committee?.name +
-            `\n${mandate.startDate.toLocaleDateString("sv")} - ${mandate.endDate.toLocaleDateString(
-              "sv"
-            )}`}
+            `\n${mandate.startDate.toLocaleDateString(
+              "sv",
+            )} - ${mandate.endDate.toLocaleDateString("sv")}`}
         >
           <a href="/positions/{mandate.position.id}">
-            <button class="btn btn-ghost w-full justify-start gap-2 normal-case text-primary">
+            <button
+              class="btn btn-ghost w-full justify-start gap-2 normal-case text-primary"
+            >
               {#if mandate.position.committee}
                 <figure class="h-8 w-8 overflow-hidden">
                   <CommitteIcon committee={mandate.position.committee} />

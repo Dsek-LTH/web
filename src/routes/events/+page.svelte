@@ -11,7 +11,7 @@
 
   export let data;
   let filteredTags: Tag[] = data.allTags.filter((tag) =>
-    $page.url.searchParams.getAll("tags").includes(tag.name)
+    $page.url.searchParams.getAll("tags").includes(tag.name),
   );
   let filterButton: HTMLButtonElement;
   $: isPast = $page.url.searchParams.get("past") == "on";
@@ -28,15 +28,25 @@
       Kalender</a
     >
     {#if data.accessPolicies.includes(apiNames.EVENT.CREATE)}
-      <a class="btn" href="/events/create"><span class="i-mdi-create"></span>Create</a>
+      <a class="btn" href="/events/create"
+        ><span class="i-mdi-create"></span>Create</a
+      >
     {/if}
     {#if data.accessPolicies.includes(apiNames.TAGS.CREATE) || data.accessPolicies.includes(apiNames.TAGS.UPDATE)}
       <a class="btn" href="/news/tags"><span class="i-mdi-tag"></span>Tags</a>
     {/if}
   </div>
-  <form method="get" class="form-control flex-1 flex-row items-center gap-2" id="filter-form">
+  <form
+    method="get"
+    class="form-control flex-1 flex-row items-center gap-2"
+    id="filter-form"
+  >
     <div class="join">
-      <label class="btn btn-primary join-item {!isPast ? 'pointer-events-none' : 'btn-outline'}">
+      <label
+        class="btn btn-primary join-item {!isPast
+          ? 'pointer-events-none'
+          : 'btn-outline'}"
+      >
         Kommande
         <input
           type="radio"
@@ -47,7 +57,11 @@
           on:change={() => filterButton.click()}
         />
       </label>
-      <label class="btn btn-primary join-item {isPast ? 'pointer-events-none' : 'btn-outline'}">
+      <label
+        class="btn btn-primary join-item {isPast
+          ? 'pointer-events-none'
+          : 'btn-outline'}"
+      >
         Tidigare
         <input
           type="radio"
@@ -62,9 +76,16 @@
     <SearchBar />
     <TagSelector allTags={data.allTags} bind:selectedTags={filteredTags} />
     {#each filteredTags as tag (tag.id)}
-      <input type="hidden" name="tags" value={tag.name} on:change={() => filterButton.click()} />
+      <input
+        type="hidden"
+        name="tags"
+        value={tag.name}
+        on:change={() => filterButton.click()}
+      />
     {/each}
-    <button type="submit" class="btn btn-primary" bind:this={filterButton}>Filter</button>
+    <button type="submit" class="btn btn-primary" bind:this={filterButton}
+      >Filter</button
+    >
   </form>
 </section>
 {#each data.events as event (event.id)}
@@ -77,7 +98,8 @@
 
     <section class="text-primary">
       {#if Math.abs(event.startDatetime.valueOf() - event.endDatetime.valueOf()) < 24 * 60 * 60 * 1000}
-        <span class="font-semibold">{relativeDate(event.startDatetime)}</span> <br />
+        <span class="font-semibold">{relativeDate(event.startDatetime)}</span>
+        <br />
         {event.startDatetime?.toLocaleTimeString(["sv"], {
           hour: "2-digit",
           minute: "2-digit",
@@ -89,7 +111,9 @@
       {:else}
         <div class="flex flex-row items-center gap-4">
           <div>
-            <span class="font-semibold">{relativeDate(event.startDatetime)}</span> <br />
+            <span class="font-semibold"
+              >{relativeDate(event.startDatetime)}</span
+            > <br />
             {event.startDatetime?.toLocaleTimeString(["sv"], {
               hour: "2-digit",
               minute: "2-digit",
@@ -97,7 +121,8 @@
           </div>
           →
           <div>
-            <span class="font-semibold">{relativeDate(event.endDatetime)}</span> <br />
+            <span class="font-semibold">{relativeDate(event.endDatetime)}</span>
+            <br />
             {event.endDatetime?.toLocaleTimeString(["sv"], {
               hour: "2-digit",
               minute: "2-digit",
@@ -112,7 +137,10 @@
         body={event.shortDescription}
         class="mb-2 text-xl font-semibold !leading-snug"
       />
-      <MarkdownBody body={event.description} class="line-clamp-4 text-ellipsis" />
+      <MarkdownBody
+        body={event.description}
+        class="line-clamp-4 text-ellipsis"
+      />
     </div>
 
     <div class="flex flex-row flex-wrap gap-2">

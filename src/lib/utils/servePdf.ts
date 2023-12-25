@@ -1,6 +1,6 @@
 export default async function servePdf(
   pathName: string | undefined,
-  setHeaders: (headers: Record<string, string>) => void
+  setHeaders: (headers: Record<string, string>) => void,
 ) {
   if (typeof pathName !== "string" || !/^[\w/.-]+$/.test(pathName)) {
     return new Response("Invalid path name", {

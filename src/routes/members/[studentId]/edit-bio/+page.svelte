@@ -11,17 +11,27 @@
 </script>
 
 <svelte:head>
-  <title>Bio - {getFullName($page.data.session?.user, member)} | D-sektionen</title>
+  <title
+    >Bio - {getFullName($page.data.session?.user, member)} | D-sektionen</title
+  >
 </svelte:head>
 <header class="flex gap-4">
   <MemberAvatar {member} class="w-32 rounded-lg" />
   <div class="flex flex-col">
-    <h1 class="text-3xl font-bold">{getFullName($page.data.session?.user, member)}</h1>
+    <h1 class="text-3xl font-bold">
+      {getFullName($page.data.session?.user, member)}
+    </h1>
     {member.studentId}
   </div>
 </header>
 <div class="mt-4 grid gap-2 md:grid-cols-2">
-  <form id="edit-member" method="POST" action="?/update" use:enhance class="form-control gap-2">
+  <form
+    id="edit-member"
+    method="POST"
+    action="?/update"
+    use:enhance
+    class="form-control gap-2"
+  >
     <button type="submit" class="btn btn-secondary">Spara</button>
     {#if $errors.bio}
       <p class="text-error">{$errors.bio}</p>

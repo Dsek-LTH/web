@@ -48,7 +48,8 @@ export const insertProducts = async (prisma: PrismaClient) => {
         create: {
           name: "T-shirt",
           price: 10,
-          imageUrl: "https://www.wexman.se/static/webimages/original/royal_blue_tshirt_bl.jpg",
+          imageUrl:
+            "https://www.wexman.se/static/webimages/original/royal_blue_tshirt_bl.jpg",
           description: "En kopp kaffe",
           maxPerUser: 1000,
           productInventories: {

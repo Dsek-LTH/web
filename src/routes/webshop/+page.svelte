@@ -3,7 +3,9 @@
   export let form;
   export let data;
   let activeCategory = data.productCategories[0];
-  $: products = data.products.filter((product) => product.categoryId === activeCategory?.id);
+  $: products = data.products.filter(
+    (product) => product.categoryId === activeCategory?.id,
+  );
   $: if (form?.error) {
     console.log(form.error);
     window.alert(form.error);
@@ -12,12 +14,12 @@
 
 <div class="flex flex-col gap-3">
   {#if data.myInventory}
-    <a href="/webshop/inventory" class="link-hover link-primary link"
+    <a href="/webshop/inventory" class="link-hover link link-primary"
       >Kista ({data.myInventory.userInventoryItems.length})</a
     >
   {/if}
   {#if data.myCart}
-    <a href="/webshop/cart" class="link-hover link-primary link"
+    <a href="/webshop/cart" class="link-hover link link-primary"
       >Kundvagn ({data.myCart.totalQuantity})</a
     >
   {/if}
@@ -30,7 +32,8 @@
         on:click={() => {
           activeCategory = category;
         }}
-        class={`btn ${activeCategory?.id === category.id && "btn-primary"}`}>{category.name}</button
+        class={`btn ${activeCategory?.id === category.id && "btn-primary"}`}
+        >{category.name}</button
       >
     {/each}
   </section>

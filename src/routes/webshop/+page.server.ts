@@ -81,7 +81,8 @@ export const actions = {
     const session = await locals.getSession();
     return withAccess(apiNames.NEWS.CREATE, session?.user, async () => {
       try {
-        if (!session?.user?.student_id) throw new Error("You are not logged in");
+        if (!session?.user?.student_id)
+          throw new Error("You are not logged in");
         const data = await request.formData();
         const productInventoryId = data.get("productInventoryId");
         if (!productInventoryId || typeof productInventoryId !== "string") {
@@ -105,7 +106,11 @@ export const actions = {
             },
           });
         }
-        const productInventory = await inventoryToCartTransaction(productInventoryId, 1, myCart);
+        const productInventory = await inventoryToCartTransaction(
+          productInventoryId,
+          1,
+          myCart,
+        );
         return {
           success: true,
           productInventory,
@@ -120,7 +125,8 @@ export const actions = {
     const session = await locals.getSession();
     return withAccess(apiNames.NEWS.CREATE, session?.user, async () => {
       try {
-        if (!session?.user?.student_id) throw new Error("You are not logged in");
+        if (!session?.user?.student_id)
+          throw new Error("You are not logged in");
         const data = await request.formData();
         const productInventoryId = data.get("productInventoryId");
         if (!productInventoryId || typeof productInventoryId !== "string") {
@@ -135,7 +141,11 @@ export const actions = {
           },
         });
         if (!myCart) throw new Error("Cart not found");
-        const productInventory = await cartToInventoryTransaction(productInventoryId, 1, myCart.id);
+        const productInventory = await cartToInventoryTransaction(
+          productInventoryId,
+          1,
+          myCart.id,
+        );
         return {
           success: true,
           productInventory,
@@ -151,7 +161,7 @@ export const actions = {
 async function cartToInventoryTransaction(
   productInventoryId: string,
   quantity: number,
-  cartId: string
+  cartId: string,
 ) {
   await prisma.$transaction(async (trx) => {
     const cartItem = await trx.cartItem.update({
@@ -184,7 +194,8 @@ async function cartToInventoryTransaction(
       },
     });
 
-    if (!inventory) throw new Error(`Inventory with id ${productInventoryId} not found`);
+    if (!inventory)
+      throw new Error(`Inventory with id ${productInventoryId} not found`);
 
     await trx.productInventory.update({
       where: { id: productInventoryId },
@@ -231,7 +242,7 @@ async function cartToInventoryTransaction(
 async function inventoryToCartTransaction(
   productInventoryId: string,
   quantity: number,
-  cart: Cart
+  cart: Cart,
 ) {
   const transactionId = randomUUID();
   const result = await prisma.$transaction(async (trx) => {
@@ -269,7 +280,9 @@ async function inventoryToCartTransaction(
     });
 
     if (!product) {
-      throw new Error(`Product with id ${updatedInventory.productId} not found`);
+      throw new Error(
+        `Product with id ${updatedInventory.productId} not found`,
+      );
     }
 
     if (new Date(product.releaseDate) > new Date()) {
@@ -292,7 +305,10 @@ async function inventoryToCartTransaction(
     });
 
     if (cartItem) {
-      if (userInventoryQuantity + cartItem.quantity + quantity > product.maxPerUser) {
+      if (
+        userInventoryQuantity + cartItem.quantity + quantity >
+        product.maxPerUser
+      ) {
         throw new Error("You already have the maximum amount of this product.");
       }
 
@@ -322,7 +338,8 @@ async function inventoryToCartTransaction(
      * @TODO use a different system to determine if there's supposed to be a transaction cost, this is not good.
      */
     // Update cart total price and quantity
-    const diffTransactionCost = cart.totalPrice === 0 && product.price > 0 ? TRANSACTION_COST : 0;
+    const diffTransactionCost =
+      cart.totalPrice === 0 && product.price > 0 ? TRANSACTION_COST : 0;
 
     await trx.cart.update({
       where: { id: cart.id },
@@ -338,7 +355,7 @@ async function inventoryToCartTransaction(
 
     // Log the transaction
     console.log(
-      `Transaction ${transactionId}: ${cart.studentId} added ${quantity} ${product.name} to cart.`
+      `Transaction ${transactionId}: ${cart.studentId} added ${quantity} ${product.name} to cart.`,
     );
 
     return cartItem;

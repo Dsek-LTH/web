@@ -14,10 +14,13 @@
     resetForm: true,
   });
 
-  export const onReply = (comment: (ArticleComment | EventComment) & { member: Member }) => {
-    const tagString = `[@${getFullName($page.data.session?.user, comment.member)}](/members/${
-      comment.member.studentId
-    }) `;
+  export const onReply = (
+    comment: (ArticleComment | EventComment) & { member: Member },
+  ) => {
+    const tagString = `[@${getFullName(
+      $page.data.session?.user,
+      comment.member,
+    )}](/members/${comment.member.studentId}) `;
     form.update((f) => {
       if (f.content.trim().startsWith("[@") || f.content.trim().length === 0) {
         f.content = tagString;
@@ -39,15 +42,23 @@
     <label class="label w-auto self-start" for="comment">
       <span class="label-text">Kommentera</span>
     </label>
-    <form class="join join-horizontal w-full" method="POST" action="?/comment" use:enhance>
+    <form
+      class="join join-horizontal w-full"
+      method="POST"
+      action="?/comment"
+      use:enhance
+    >
       <MemberSearch
         bind:handleSearch
         class="dropdown-top flex-1"
         onSelect={(selectedMember) => {
           form.update((f) => {
-            f.content = `${f.content.substring(0, indexOfTagStart)}[@${getFullName(
+            f.content = `${f.content.substring(
+              0,
+              indexOfTagStart,
+            )}[@${getFullName(
               $page.data.session?.user,
-              selectedMember
+              selectedMember,
             )}](/members/${selectedMember.studentId}) `;
             return f;
           });

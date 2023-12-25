@@ -74,5 +74,7 @@ export const GET: RequestHandler = async ({ params }) => {
   )
     .map((mandate) => mandate.member.studentId)
     .filter((id): id is string => id !== null);
-  return new Response(JSON.stringify([...new Set([...studentIds, ...studentsFromRoles])]));
+  return new Response(
+    JSON.stringify([...new Set([...studentIds, ...studentsFromRoles])]),
+  );
 };

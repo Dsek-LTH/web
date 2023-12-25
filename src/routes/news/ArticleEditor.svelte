@@ -22,7 +22,7 @@
 
   const sameAuthorOption = (
     a: Pick<AuthorOption, "memberId" | "mandateId" | "customId" | "type">,
-    b: Pick<AuthorOption, "memberId" | "mandateId" | "customId" | "type">
+    b: Pick<AuthorOption, "memberId" | "mandateId" | "customId" | "type">,
   ) =>
     a.memberId === b.memberId &&
     a.mandateId === b.mandateId &&
@@ -30,7 +30,9 @@
     a.type === b.type;
 </script>
 
-<main class="flex w-screen flex-col gap-8 px-4 pt-8 lg:flex-row lg:px-8 [&>*]:flex-1">
+<main
+  class="flex w-screen flex-col gap-8 px-4 pt-8 lg:flex-row lg:px-8 [&>*]:flex-1"
+>
   <section>
     <form method="POST" class="form-control gap-2" use:enhance>
       <slot name="form-start" />
@@ -57,13 +59,16 @@
         >
           {#each authorOptions as authorOption}
             <option
-              value={sameAuthorOption(authorOption, $form.author) ? $form.author : authorOption}
+              value={sameAuthorOption(authorOption, $form.author)
+                ? $form.author
+                : authorOption}
             >
               {#if authorOption.type === "Custom" && authorOption.customAuthor != null}
                 {authorOption.customAuthor.name}
               {:else}
                 {authorOption.member.firstName}
-                {authorOption.member.lastName}{#if authorOption.mandate?.position.name},
+                {authorOption.member
+                  .lastName}{#if authorOption.mandate?.position.name},
                   {authorOption.mandate?.position.name}
                 {/if}
               {/if}

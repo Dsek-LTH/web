@@ -17,7 +17,9 @@
 {#if member.classProgramme && member.classYear}
   <span
     class="badge badge-outline
-      {size === 'sm' ? 'badge-sm text-xs font-light' : 'badge-lg text-xl font-semibold'} 
+      {size === 'sm'
+      ? 'badge-sm text-xs font-light'
+      : 'badge-lg text-xl font-semibold'} 
       {colors[member.classProgramme] ?? 'badge-primary'}"
   >
     {member.classProgramme}{member.classYear?.toString().substring(2)}
