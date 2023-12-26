@@ -65,7 +65,7 @@
               class="flex h-5 items-center justify-center bg-primary text-sm font-bold capitalize text-black"
             >
               {event.startDatetime.toLocaleString("sv-SE", {
-                month: "short",
+                weekday: "long",
               })}
             </div>
             <p class="text-center text-6xl font-semibold">
@@ -86,4 +86,16 @@
       </li>
     {/each}
   </ol>
+
+  <section class="flex justify-between bg-base-300 p-6">
+    <article>
+      <h2>Senaste mötet</h2>
+      <p class="text-xl font-bold">S29</p>
+    </article>
+
+    <article>
+      <h2>Nästa möte</h2>
+      <p class="text-xl font-bold">S30</p>
+    </article>
+  </section>
 </div>
