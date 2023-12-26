@@ -38,7 +38,7 @@
   </header>
 
   <article
-    class="row-span-3 bg-primary px-6 lg:col-start-3 lg:row-span-2 lg:row-start-1"
+    class="row-span-6 bg-primary px-6 lg:col-start-3 lg:row-span-2 lg:row-start-1"
   >
     <ol class="flex flex-col divide-y divide-stone-700">
       {#each data.news as article}
@@ -86,15 +86,35 @@
     {/each}
   </ol>
 
-  <section class="flex justify-between bg-base-300 p-6">
+  <section class="flex gap-6 bg-base-300 p-6">
+    <span class="i-mdi-clock self-center text-2xl" />
+
     <article>
-      <h2>Senaste mötet</h2>
-      <p class="text-xl font-bold">S29</p>
+      <p>Caféets öppettider</p>
+      <h2 class="text-xl font-bold">11:30 – 13:00</h2>
+    </article>
+  </section>
+
+  <section class="flex gap-6 bg-base-300 p-6">
+    <span class="i-mdi-gavel self-center text-2xl" />
+
+    <article class="flex-1">
+      <p>Nästa möte</p>
+      <h2 class="text-xl font-bold">S30</h2>
     </article>
 
     <article>
-      <h2>Nästa möte</h2>
-      <p class="text-xl font-bold">S30</p>
+      <p class="font-light">Senaste möte</p>
+      <h2 class="text-xl font-light">S29</h2>
+    </article>
+  </section>
+
+  <section class="flex gap-6 bg-base-300 p-6">
+    <span class="i-mdi-question-mark-circle self-center text-2xl" />
+
+    <article>
+      <p>What should be here?</p>
+      <h2 class="text-xl font-bold">TBD</h2>
     </article>
   </section>
 </div>
