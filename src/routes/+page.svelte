@@ -59,27 +59,25 @@
   <ol class="contents" role="article">
     {#each data.events as event}
       <li>
-        <div class="flex h-full items-center">
-          <div class="mr-5 h-24 w-24 min-w-24 rounded-lg shadow-lg">
+        <div class="flex align-top">
+          <div class="mr-5 h-24 w-24 min-w-24 bg-base-300">
             <div
-              class="flex h-5 items-center justify-center rounded-t-lg bg-primary text-sm font-bold capitalize text-black"
+              class="flex h-5 items-center justify-center bg-primary text-sm font-bold capitalize text-black"
             >
               {event.startDatetime.toLocaleString("sv-SE", {
                 month: "short",
               })}
             </div>
-            <div>
-              <p class="text-center text-6xl font-semibold">
-                {event.startDatetime.getDay().toString().padStart(2, "0")}
-              </p>
-            </div>
+            <p class="text-center text-6xl font-semibold">
+              {event.startDatetime.getDay().toString().padStart(2, "0")}
+            </p>
           </div>
 
           <div>
             <a href="/events/{event.slug}">
-              <h2 class="my-4 text-xl font-bold">{event.title}</h2>
+              <h2 class="mb-4 text-xl font-bold">{event.title}</h2>
             </a>
-            <p class="line-clamp-3 text-ellipsis break-all">
+            <p class="line-clamp-2 text-ellipsis break-all">
               <!-- eslint-disable-next-line svelte/no-at-html-tags - Sanitized server-side -->
               {@html marked(event.description)}
             </p>
