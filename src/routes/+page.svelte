@@ -62,7 +62,7 @@
         <div class="flex h-full items-center">
           <div class="mr-5 h-24 w-24 min-w-24 rounded-lg shadow-lg">
             <div
-              class="flex h-5 items-center justify-center rounded-t-lg bg-primary text-sm font-bold capitalize"
+              class="flex h-5 items-center justify-center rounded-t-lg bg-primary text-sm font-bold capitalize text-black"
             >
               {event.startDatetime.toLocaleString("sv-SE", {
                 month: "short",
