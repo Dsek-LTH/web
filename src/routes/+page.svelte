@@ -38,9 +38,8 @@
   </header>
 
   <article
-    class="row-span-3 bg-primary px-6 py-8 lg:col-start-3 lg:row-span-2 lg:row-start-1"
+    class="row-span-3 bg-primary px-6 lg:col-start-3 lg:row-span-2 lg:row-start-1"
   >
-    <h1 class="text-5xl font-bold text-black">Nyheter</h1>
     <ol class="flex flex-col divide-y divide-stone-700">
       {#each data.news as article}
         <li class="py-10 text-black">
