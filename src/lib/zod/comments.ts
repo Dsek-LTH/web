@@ -30,7 +30,7 @@ export const commentAction =
       session?.user,
       async () => {
         const args = {
-          where: { slug: params.slug },
+          where: { slug: params["slug"] },
           data: {
             comments: {
               create: {
@@ -90,7 +90,7 @@ export const removeCommentAction =
       session?.user,
       async () => {
         const args = {
-          where: { slug: params.slug },
+          where: { slug: params["slug"] },
           data: {
             comments: {
               delete: {

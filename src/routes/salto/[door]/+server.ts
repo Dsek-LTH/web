@@ -7,7 +7,7 @@ export const GET: RequestHandler = async ({ params }) => {
     where: {
       AND: [
         {
-          doorName: params.door,
+          doorName: params["door"],
         },
         {
           OR: [

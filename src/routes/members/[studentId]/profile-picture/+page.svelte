@@ -23,7 +23,6 @@
   });
 
   let avatar: string | undefined = undefined;
-  let fileinput;
   const onFileSelected = (
     event: Event & {
       currentTarget: EventTarget & HTMLInputElement;
@@ -120,7 +119,6 @@
       {/if}
       <input
         on:change={(e) => onFileSelected(e)}
-        bind:this={fileinput}
         type="file"
         accept="image/*"
         name="image"

@@ -13,7 +13,7 @@
 
   export let data;
   $: member = data.member;
-  $: isMe = data.session?.user?.student_id === $page.params.studentId;
+  $: isMe = data.session?.user?.student_id === $page.params["studentId"];
   $: mandatesGroupedByYear = member.mandates.reduce<
     Record<string, (typeof member)["mandates"]>
   >((acc, mandate) => {
@@ -40,7 +40,7 @@
     <MemberAvatar {member} class="w-full rounded-lg">
       {#if canEdit}
         <a
-          href="{$page.params.studentId}/profile-picture"
+          href="{$page.params['studentId']}/profile-picture"
           class="btn btn-square glass btn-secondary btn-sm absolute right-2 top-2"
         >
           <span class="i-mdi-edit" />
@@ -84,7 +84,7 @@
         <div class="float-right">
           {#if canEdit}
             <a
-              href="{$page.params.studentId}/edit-bio"
+              href="{$page.params['studentId']}/edit-bio"
               class="btn btn-outline btn-secondary btn-sm"
             >
               Redigera bio
@@ -94,7 +94,7 @@
       </MarkdownBody>
     {:else if canEdit}
       <a
-        href="{$page.params.studentId}/edit-bio"
+        href="{$page.params['studentId']}/edit-bio"
         class="btn btn-outline btn-secondary btn-sm"
       >
         Lägg till bio

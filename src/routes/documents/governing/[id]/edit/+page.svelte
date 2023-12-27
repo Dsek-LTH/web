@@ -8,5 +8,5 @@
 <GoverningDocumentEditor
   isCreating={false}
   data={data.form}
-  documentId={$page.params.id}
+  documentId={$page.params["id"]}
 />

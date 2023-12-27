@@ -10,7 +10,7 @@
   {#if data.isCreating}
     <div class="toast">
       <div class="alert alert-info">
-        <span>You're creating a new page under {$page.params.slug}.</span>
+        <span>You're creating a new page under {$page.params["slug"]}.</span>
       </div>
     </div>
   {/if}
@@ -20,7 +20,7 @@
     use:enhance
   >
     <MarkdownEditor bind:value={$form.markdown} />
-    <input type="hidden" name="name" value={$page.params.slug} />
+    <input type="hidden" name="name" value={$page.params["slug"]} />
     <input type="hidden" name="markdown" bind:value={$form.markdown} />
     {#if $errors.markdown}
       <p class="text-error">{$errors.markdown}</p>

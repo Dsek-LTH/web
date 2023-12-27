@@ -30,7 +30,7 @@
       class="input input-bordered w-full {member ? 'indent-10' : ''}"
       placeholder="Sök efter medlem"
       tabIndex={0}
-      value={member ? getFullName($page.data?.user, member) : ""}
+      value={member ? getFullName($page.data?.["user"], member) : ""}
       on:input={(e) => {
         member = undefined;
         handleSearch(e.currentTarget.value);

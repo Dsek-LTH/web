@@ -35,7 +35,7 @@
   };
 
   function replaceTag(inputText: string) {
-    return inputText.replace(tagRegex, (match, visibleText, studentId) => {
+    return inputText.replace(tagRegex, (_, __, studentId) => {
       // Use the UUID to get the replacement value
       const replacement = getReplacementValue(studentId);
       // Replace the text in brackets with the replacement value

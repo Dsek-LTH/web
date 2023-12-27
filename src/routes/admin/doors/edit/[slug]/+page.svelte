@@ -13,7 +13,7 @@
 </script>
 
 <main class="container mx-auto px-4">
-  <h1 class="mb-4 text-2xl font-semibold capitalize">{$page.params.slug}</h1>
+  <h1 class="mb-4 text-2xl font-semibold capitalize">{$page.params["slug"]}</h1>
 
   <div class="overflow-x-auto">
     <table class="table">
@@ -130,8 +130,8 @@
     <h3 class="text-lg font-bold">Revoke door access</h3>
     <p class="py-4">
       Are you sure you want to revoke access to <b class="capitalize"
-        >{$page.params.slug}</b
-      >
+        >{$page.params["slug"]}
+      </b>
       for
       <b>{selectedPolicy?.role || selectedPolicy?.studentId}</b>?
     </p>
@@ -140,8 +140,9 @@
         <input type="hidden" name="id" value={selectedPolicy?.id} /><button
           type="submit"
           class="btn btn-error"
-          on:click={() => removeModal?.close()}>Remove</button
-        >
+          on:click={() => removeModal?.close()}
+          >Remove
+        </button>
       </form>
     </div>
   </div>
