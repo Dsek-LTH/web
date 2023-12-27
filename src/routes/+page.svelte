@@ -38,11 +38,11 @@
   </header>
 
   <article
-    class="row-span-6 bg-primary px-6 lg:col-start-3 lg:row-span-2 lg:row-start-1"
+    class="row-span-6 bg-primary px-6 py-3 lg:col-start-3 lg:row-span-2 lg:row-start-1"
   >
-    <ol class="flex flex-col divide-y divide-stone-700">
+    <ol class="flex flex-col divide-y divide-dotted divide-stone-700">
       {#each data.news as article}
-        <li class="py-10 text-black">
+        <li class="py-5 text-black">
           <a href="/news/{article.slug}">
             <h2 class="mb-2 text-xl font-bold">{article.header}</h2>
           </a>

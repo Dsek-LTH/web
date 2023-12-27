@@ -9,7 +9,7 @@ export const load: PageServerLoad = async () => {
       orderBy: {
         createdAt: "desc",
       },
-      take: 4,
+      take: 5,
     })
     .then((articles) =>
       articles.map((article) => ({
