@@ -68,7 +68,7 @@ You need to install the following tools by following the instructions on their r
 
 1. Clone the repo and change into the directory
    ```sh
-   git clone https://github.com/Dsek-LTH/web.git && cd web
+   git clone https://github.com/Dsek-LTH/web.git dsek-web && cd dsek-web
    ```
 2. Install dependencies
    ```sh
