@@ -46,7 +46,7 @@
           <a href="/news/{article.slug}">
             <h2 class="mb-2 text-xl font-bold">{article.header}</h2>
           </a>
-          <p class="line-clamp-3 text-ellipsis break-all">
+          <p class="line-clamp-3 break-words">
             <!-- eslint-disable-next-line svelte/no-at-html-tags - Sanitized server-side -->
             {@html marked(article.body)}
           </p>
@@ -72,11 +72,11 @@
             </p>
           </div>
 
-          <div>
+          <div class="min-w-0">
             <a href="/events/{event.slug}">
               <h2 class="mb-4 text-xl font-bold">{event.title}</h2>
             </a>
-            <p class="line-clamp-2 text-ellipsis break-all">
+            <p class="line-clamp-3 break-words">
               <!-- eslint-disable-next-line svelte/no-at-html-tags - Sanitized server-side -->
               {@html marked(event.description)}
             </p>
