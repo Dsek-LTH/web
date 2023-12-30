@@ -74,7 +74,9 @@
 
           <div class="min-w-0">
             <a href="/events/{event.slug}">
-              <h2 class="mb-4 text-xl font-bold">{event.title}</h2>
+              <h2 class="mb-4 text-xl font-bold leading-none">
+                {event.title}
+              </h2>
             </a>
             <p class="line-clamp-3 break-words">
               <!-- eslint-disable-next-line svelte/no-at-html-tags - Sanitized server-side -->
