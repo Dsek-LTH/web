@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-pnpm lint && pnpm format && pnpm check ||
+pnpm concurrently "pnpm:lint" "pnpm:format" "pnpm:check" --prefix-colors "auto" --group ||
   (echo "Pre-push checks failed" && exit 1)
