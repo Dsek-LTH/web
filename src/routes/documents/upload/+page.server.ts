@@ -1,7 +1,8 @@
 import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
 import { fileHandler } from "$lib/files";
-import { withAccess } from "$lib/utils/access.js";
-import apiNames from "$lib/utils/apiNames.js";
+import { withAccess } from "$lib/utils/access";
+import apiNames from "$lib/utils/apiNames";
+import prisma from "$lib/utils/prisma";
 import { fail } from "@sveltejs/kit";
 import { message, setError, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
@@ -34,12 +35,7 @@ export const load = async ({ parent, url }) => {
 const uploadSchema = z.object({
   meeting: z.string().default(""),
   name: z.string().default(""),
-  year: z
-    .number()
-    .int()
-    .min(1982)
-    .max(new Date().getFullYear())
-    .default(new Date().getFullYear()),
+  date: z.date().default(new Date()),
   file: z.any(),
 });
 export type UploadSchema = typeof uploadSchema;
@@ -54,17 +50,26 @@ export const actions = {
       apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).CREATE,
       session?.user,
       async () => {
-        const { meeting, name, year } = form.data;
+        const { meeting, name, date } = form.data;
         const file = formData.get("file");
         if (!file || !(file instanceof File) || file.size <= 0) {
           return setError(form, "file", "Felaktig fil");
         }
+
+        const year = date.getFullYear();
         const formattedName = prepareNameForFilesystem(name, file.name);
-        const path = `${year}/${meeting}/${formattedName}`;
+        const folderPath = `${year}/${meeting}`;
+        await prisma.meeting.upsert({
+          where: { url: folderPath },
+          update: {},
+          create: { title: meeting, date, url: folderPath },
+        });
+
+        const filePath = `${folderPath}/${formattedName}`;
         const putUrl = await fileHandler.getPresignedPutUrl(
           session?.user,
           PUBLIC_BUCKETS_DOCUMENTS,
-          path,
+          filePath,
         );
         const res = await fetch(putUrl, {
           method: "PUT",

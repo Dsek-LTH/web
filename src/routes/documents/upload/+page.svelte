@@ -1,7 +1,7 @@
 <script lang="ts">
   import Input from "$lib/components/Input.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
-  import { superForm } from "sveltekit-superforms/client";
+  import { superForm, dateProxy } from "sveltekit-superforms/client";
   export let data;
   const { form, constraints, errors, enhance } = superForm(data.form, {
     onResult: (event) => {
@@ -23,6 +23,9 @@
       return f;
     });
   };
+
+  // @ts-expect-error - TS complains about the type, but it works
+  const proxyDate = dateProxy(form, "date", { format: "date" });
 </script>
 
 <svelte:head>
@@ -36,19 +39,19 @@
   enctype="multipart/form-data"
   use:enhance
 >
-  <Labeled label="Year" id="year">
+  <Labeled label="Date" id="date">
     <input
-      id="year"
-      name="year"
+      id="date"
+      name="date"
       class="input input-bordered"
-      type="number"
-      placeholder="Year"
-      bind:value={$form.year}
-      {...$constraints.year}
+      type="date"
+      placeholder="Date"
+      bind:value={$proxyDate}
+      {...$constraints.date}
     />
   </Labeled>
-  {#if $errors.year}
-    <p class="text-error">{$errors.year}</p>
+  {#if $errors.date}
+    <p class="text-error">{$errors.date}</p>
   {/if}
   <Labeled label="Meeting" id="meeting">
     <input
