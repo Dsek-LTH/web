@@ -89,12 +89,20 @@ export const load: PageServerLoad = async ({ params }) => {
       },
     },
   });
+  const markdown = committee.shortName
+    ? await prisma.markdown.findUnique({
+        where: {
+          name: committee.shortName,
+        },
+      })
+    : null;
   const form = await superValidate(committee, updateSchema);
   return {
     committee,
     positions: committee.positions,
     uniqueMemberCount: uniqueMembersInCommittee,
     numberOfMandates,
+    markdown,
     form,
   };
 };

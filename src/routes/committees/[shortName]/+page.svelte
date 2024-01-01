@@ -6,6 +6,7 @@
   import apiNames from "$lib/utils/apiNames";
   import { superForm } from "sveltekit-superforms/client";
   import PositionCard from "./PositionCard.svelte";
+  import MarkdownBody from "$lib/components/MarkdownBody.svelte";
 
   export let data;
   const { form, errors, constraints, enhance } = superForm(data.form);
@@ -39,6 +40,9 @@
 </header>
 {#if data.committee.description}
   <p class="mb-4">{data.committee.description}</p>
+{/if}
+{#if data.markdown?.markdown}
+  <MarkdownBody body={data.markdown?.markdown} />
 {/if}
 
 <!-- Edit committee form -->
