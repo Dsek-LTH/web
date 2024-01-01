@@ -59,6 +59,11 @@ export const load: PageServerLoad = async () => {
       date: "desc",
     },
   });
+  const cafeOpen = prisma.markdown.findFirst({
+    where: {
+      name: "cafe:open",
+    },
+  });
   return {
     news: await news,
     events: await events,
@@ -66,5 +71,6 @@ export const load: PageServerLoad = async () => {
       upcoming: await upcomingMeeting,
       previous: await previousMeeting,
     },
+    cafeOpen: await cafeOpen,
   };
 };

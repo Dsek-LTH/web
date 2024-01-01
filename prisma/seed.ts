@@ -3,6 +3,7 @@ import { insertCommitteeLogos } from "./seed_data/committee";
 import { insertAccessPolicies } from "./seed_data/accessPolicies";
 import { insertProducts } from "./seed_data/products";
 import { insertMeetings } from "./seed_data/meetings";
+import { insertMarkdowns } from "./seed_data/markdowns";
 
 const prisma = new PrismaClient();
 
@@ -13,6 +14,7 @@ async function main() {
     insertAccessPolicies(prisma),
     insertProducts(prisma),
     insertMeetings(prisma),
+    insertMarkdowns(prisma),
   ]);
   console.log(`Seeding finished.`);
 }

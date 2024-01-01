@@ -93,7 +93,13 @@
 
     <article>
       <p>Caféets öppettider</p>
-      <h2 class="text-xl font-bold">11:30 – 13:00</h2>
+      <h2 class="text-xl font-bold">
+        {#if data.cafeOpen}
+          {data.cafeOpen.markdown}
+        {:else}
+          N/A
+        {/if}
+      </h2>
     </article>
   </section>
 
