@@ -1,4 +1,6 @@
 <script lang="ts">
+  import dompurify from "isomorphic-dompurify";
+  const { sanitize } = dompurify;
   import { marked } from "marked";
   import { twMerge } from "tailwind-merge";
 
@@ -14,7 +16,6 @@
   )}
 >
   <slot />
-  <!-- The article body is sanitized server-side. -->
-  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-  {@html marked(body)}
+  <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized client-side -->
+  {@html marked(sanitize(body))}
 </section>
