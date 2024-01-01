@@ -1,5 +1,5 @@
 <script lang="ts">
-  import CommitteIcon from "$lib/components/CommitteIcon.svelte";
+  import CommitteeIcon from "$lib/components/CommitteeIcon.svelte";
   import PageHeader from "$lib/components/PageHeader.svelte";
 
   export let data;
@@ -18,7 +18,7 @@
       class="group card bg-base-200 shadow-xl transition-all hover:bg-base-200/80"
     >
       <figure class="px-12 pt-4 transition-transform group-hover:scale-90">
-        <CommitteIcon {committee} />
+        <CommitteeIcon {committee} />
       </figure>
       <div class="card-body px-0 text-center">
         <h2 class="card-title mx-auto">{committee.name}</h2>

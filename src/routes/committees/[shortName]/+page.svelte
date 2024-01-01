@@ -1,5 +1,5 @@
 <script lang="ts">
-  import CommitteIcon from "$lib/components/CommitteIcon.svelte";
+  import CommitteeIcon from "$lib/components/CommitteeIcon.svelte";
   import Input from "$lib/components/Input.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
   import PageHeader from "$lib/components/PageHeader.svelte";
@@ -16,7 +16,7 @@
 
 <header class="mb-2 flex items-center gap-4">
   <figure class="w-14">
-    <CommitteIcon committee={data.committee} />
+    <CommitteeIcon committee={data.committee} />
   </figure>
   <div class="flex-1">
     <div class="flex items-center justify-between">

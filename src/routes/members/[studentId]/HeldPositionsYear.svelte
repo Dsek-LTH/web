@@ -1,5 +1,5 @@
 <script lang="ts">
-  import CommitteIcon from "$lib/components/CommitteIcon.svelte";
+  import CommitteeIcon from "$lib/components/CommitteeIcon.svelte";
   import type { Committee, Mandate, Position } from "@prisma/client";
 
   export let year: string;
@@ -28,7 +28,7 @@
             >
               {#if mandate.position.committee}
                 <figure class="h-8 w-8 overflow-hidden">
-                  <CommitteIcon committee={mandate.position.committee} />
+                  <CommitteeIcon committee={mandate.position.committee} />
                 </figure>
               {/if}
               <span
