@@ -1,5 +1,6 @@
 <script lang="ts">
   import { page } from "$app/stores";
+  import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
   import type { FileData } from "$lib/files/fileHandler";
   import apiNames from "$lib/utils/apiNames";
   import DeleteFileForm from "./DeleteFileForm.svelte";
@@ -31,7 +32,7 @@
     {#each files as file (file.id)}
       <div class="flex gap-1">
         <File name={file.name} url={file.thumbnailUrl} full />
-        {#if $page.data.accessPolicies.includes(apiNames.FILES.BUCKET("dev-documents").DELETE) && isEditing}
+        {#if $page.data.accessPolicies.includes(apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).DELETE) && isEditing}
           <DeleteFileForm
             fileId={file.id}
             fileName={file.name}
