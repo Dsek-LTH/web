@@ -17,7 +17,6 @@
 
   <div class="overflow-x-auto">
     <table class="table">
-      <!-- head -->
       <thead>
         <tr class="bg-base-200">
           <th>Role/Member</th>
@@ -26,7 +25,7 @@
           <th />
         </tr>
       </thead>
-      <!-- body -->
+
       <tbody>
         {#each data.doorAccessPolicies as policy}<tr>
             {#if policy.role}
@@ -111,7 +110,6 @@
             {...$constraints.endDatetime}
           />
         </Labeled>
-        <!-- slice gives date formatted as yyyy-MM-ddThh:mm -->
       </div>
       <button type="submit" class="btn btn-primary join-item">Add</button>
     </label>

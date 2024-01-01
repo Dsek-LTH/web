@@ -36,17 +36,17 @@
   </table>
 </div>
 
-<section class="flex flex-col gap-4 py-4">
+<section class="my-4 space-y-4">
   <h2 class="text-xl font-bold">Add new policies</h2>
   <form class="form-control gap-4" method="POST" action="?/create" use:enhance>
-    <label class="join">
+    <label class="join join-vertical md:join-horizontal">
       <span class="label join-item bg-base-200 px-4">New policy</span>
       <input
         type="text"
         name="apiName"
         placeholder="Policy name"
         aria-invalid={$errors.apiName ? "true" : undefined}
-        class="input join-item input-bordered input-primary w-80"
+        class="input join-item input-bordered input-primary md:flex-1"
         bind:value={$form.apiName}
         {...$constraints.apiName}
       />

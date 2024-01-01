@@ -37,7 +37,7 @@
   <title>Dokument | D-sektionen</title>
 </svelte:head>
 
-<div class="flex flex-row justify-between">
+<div class="flex flex-row flex-wrap justify-between">
   <div class="mb-4 flex flex-col items-start gap-2">
     <span class="text-lg">Filtrera efter år</span>
     <Pagination

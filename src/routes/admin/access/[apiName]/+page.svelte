@@ -25,10 +25,9 @@
   <title>{$page.params["apiName"]} | D-sektionen</title>
 </svelte:head>
 
-<h1 class="mb-4 text-4xl font-semibold">{$page.params["apiName"]}</h1>
+<h1 class="mb-4 text-2xl font-semibold">{$page.params["apiName"]}</h1>
 <div class="overflow-x-auto">
   <table class="table">
-    <!-- head -->
     <thead>
       <tr class="bg-base-200">
         <th>Role</th>
@@ -37,7 +36,7 @@
         <th />
       </tr>
     </thead>
-    <!-- body -->
+
     <tbody>
       {#each policies as policy}<tr>
           <td>{policy.role ?? ""}</td>
@@ -54,43 +53,39 @@
       {/each}
     </tbody>
   </table>
-  <section class="flex flex-col gap-4 py-4">
-    <h2 class="text-xl font-bold">Add new policies</h2>
-    <form
-      class="form-control gap-4"
-      method="POST"
-      action="?/create"
-      use:enhance
-    >
-      <label class="join">
-        <span class="label join-item bg-base-200 px-4">Role</span>
-        <input
-          type="text"
-          name="role"
-          placeholder="Type here"
-          class="input join-item input-bordered input-primary w-80"
-          bind:value={$createForm.role}
-          {...$constraints.role}
-        />
-        <button type="submit" class="btn btn-primary join-item">Add</button>
-      </label>
-      {#if $errors.role}
-        <span class="text-error">{$errors.role}</span>
-      {/if}
-      <label class="join">
-        <span class="label join-item bg-base-200 px-4">Student ID</span>
-        <input
-          type="text"
-          name="studentId"
-          placeholder="Type here"
-          class="input join-item input-bordered input-primary w-80"
-          bind:value={$createForm.studentId}
-          {...$constraints.studentId}
-        />
-        <button type="submit" class="btn btn-primary join-item">Add</button>
-      </label>
-      {#if $errors.studentId}<span class="text-error">{$errors.studentId}</span
-        >{/if}
-    </form>
-  </section>
 </div>
+
+<section class="my-4 space-y-4">
+  <h2 class="text-xl font-bold">Add new policies</h2>
+  <form class="form-control gap-4" method="POST" action="?/create" use:enhance>
+    <label class="join join-vertical md:join-horizontal">
+      <span class="label join-item bg-base-200 px-4">Role</span>
+      <input
+        type="text"
+        name="role"
+        placeholder="Type here"
+        class="input join-item input-bordered input-primary md:flex-1"
+        bind:value={$createForm.role}
+        {...$constraints.role}
+      />
+      <button type="submit" class="btn btn-primary join-item">Add</button>
+    </label>
+    {#if $errors.role}
+      <span class="text-error">{$errors.role}</span>
+    {/if}
+    <label class="join join-vertical md:join-horizontal">
+      <span class="label join-item bg-base-200 px-4">Student ID</span>
+      <input
+        type="text"
+        name="studentId"
+        placeholder="Type here"
+        class="input join-item input-bordered input-primary md:flex-1"
+        bind:value={$createForm.studentId}
+        {...$constraints.studentId}
+      />
+      <button type="submit" class="btn btn-primary join-item">Add</button>
+    </label>
+    {#if $errors.studentId}<span class="text-error">{$errors.studentId}</span
+      >{/if}
+  </form>
+</section>

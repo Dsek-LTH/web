@@ -16,7 +16,9 @@
   <title>Styrdokument | D-sektionen</title>
 </svelte:head>
 
-<div class="flex w-full flex-row items-center justify-between">
+<div
+  class="flex w-full flex-row flex-wrap items-center justify-between gap-x-4"
+>
   <h1 class="my-3 text-2xl font-bold">Styrdokument</h1>
   <div>
     {#if data.accessPolicies.includes(apiNames.GOVERNING_DOCUMENT.DELETE)}

@@ -49,7 +49,7 @@
     </MemberAvatar>
   </div>
   <header class="col-span-3 mb-4 gap-1 sm:col-span-4">
-    <div class="flex items-center">
+    <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
       <div class="flex-1">
         <h1 class="text-3xl font-bold">
           {getFullName($page.data.session?.user, member)}
@@ -57,7 +57,7 @@
       </div>
       {#if canEdit}
         <button
-          class="btn btn-secondary"
+          class="btn"
           on:click={() => {
             isEditing = !isEditing;
           }}
@@ -85,7 +85,7 @@
           {#if canEdit}
             <a
               href="{$page.params['studentId']}/edit-bio"
-              class="btn btn-outline btn-secondary btn-sm"
+              class="btn btn-outline btn-sm"
             >
               Redigera bio
             </a>
@@ -95,7 +95,7 @@
     {:else if canEdit}
       <a
         href="{$page.params['studentId']}/edit-bio"
-        class="btn btn-outline btn-secondary btn-sm"
+        class="btn btn-outline btn-sm"
       >
         Lägg till bio
       </a>

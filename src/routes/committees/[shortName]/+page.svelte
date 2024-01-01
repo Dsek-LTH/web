@@ -19,8 +19,8 @@
     <CommitteeIcon committee={data.committee} />
   </figure>
   <div class="flex-1">
-    <div class="flex items-center justify-between">
-      <PageHeader title={data.committee.name} />
+    <div class="flex flex-wrap items-center justify-between">
+      <PageHeader title={data.committee.name} class="mb-0" />
       {#if data.accessPolicies.includes(apiNames.COMMITTEE.UPDATE) || data.accessPolicies.includes(apiNames.POSITION.CREATE)}
         <button
           class="btn btn-secondary btn-sm"
@@ -32,7 +32,7 @@
         </button>
       {/if}
     </div>
-    <h2 class="-mt-4">
+    <h2>
       {data.uniqueMemberCount} funktionärer, {data.numberOfMandates} olika mandat
     </h2>
   </div>

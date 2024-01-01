@@ -36,7 +36,7 @@
   <title>{data.position.name} | D-sektionen</title>
 </svelte:head>
 
-<div class="flex items-center justify-between">
+<div class="flex flex-wrap items-center justify-between gap-x-2">
   <PageHeader title={data.position.name} />
   <div>
     {#if data.accessPolicies.includes(apiNames.MANDATE.CREATE) && !isEditing}
@@ -51,7 +51,7 @@
     {/if}
     {#if !isAdding && (data.accessPolicies.includes(apiNames.MANDATE.UPDATE) || data.accessPolicies.includes(apiNames.MANDATE.DELETE) || data.accessPolicies.includes(apiNames.POSITION.UPDATE))}
       <button
-        class="btn btn-secondary btn-sm"
+        class="btn btn-sm"
         on:click={() => {
           isEditing = !isEditing;
           goto(`${data.position.id}`);
@@ -62,6 +62,7 @@
     {/if}
   </div>
 </div>
+
 {#if data.position.description}
   <p>{data.position.description}</p>
 {/if}

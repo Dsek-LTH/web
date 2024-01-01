@@ -38,7 +38,7 @@
   </div>
   <form
     method="get"
-    class="form-control flex-1 flex-row items-center gap-2"
+    class="form-control flex-1 gap-2 md:flex-row md:items-center"
     id="filter-form"
   >
     <div class="join">

@@ -28,7 +28,7 @@
   </div>
   <form
     method="get"
-    class="form-control flex-1 flex-row items-end gap-2"
+    class="form-control flex-1 gap-2 md:flex-row md:items-end"
     id="filter-form"
   >
     <SearchBar />
