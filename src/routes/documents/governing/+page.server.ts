@@ -7,14 +7,16 @@ import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 
 export const load: PageServerLoad = async () => {
-  const governingDocuments = await prisma.governingDocument.findMany({
-    where: {
-      deletedAt: null,
-    },
-  });
+  const governingDocuments = await prisma.document
+    .findMany({ where: { deletedAt: null } })
+    .then((documents) => ({
+      policies: documents.filter((document) => document.type === "POLICY"),
+      guidelines: documents.filter((document) => document.type === "GUIDELINE"),
+    }));
 
   return {
-    governingDocuments,
+    policies: governingDocuments.policies,
+    guidelines: governingDocuments.guidelines,
     deleteForm: await superValidate(deleteSchema),
   };
 };
@@ -33,7 +35,7 @@ export const actions = {
       session?.user,
       async () => {
         const { id } = form.data;
-        await prisma.governingDocument.delete({
+        await prisma.document.delete({
           where: {
             id,
           },

@@ -314,16 +314,16 @@ model ExpoToken {
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model GoverningDocument {
-  id           String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  title        String                @db.VarChar(255)
-  url          String                @db.VarChar(255)
-  documentType GoverningDocumentType @map("document_type")
-  createdAt    DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt    DateTime              @default(now()) @map("updated_at") @db.Timestamptz(6)
-  deletedAt    DateTime?             @map("deleted_at") @db.Timestamptz(6)
+model Document {
+  id        String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title     String       @db.VarChar(255)
+  url       String       @db.VarChar(255)
+  type      DocumentType
+  createdAt DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime     @default(now()) @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime?    @map("deleted_at") @db.Timestamptz(6)
 
-  @@map("governing_documents")
+  @@map("documents")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Keycloak{
@@ -356,6 +356,15 @@ model Markdown {
   markdownEn String? @map("markdown_en")
 
   @@map("markdowns")
+}
+
+model Meeting {
+  id    String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title String   @db.VarChar(255)
+  date  DateTime @db.Date
+  url   String   @unique @db.VarChar(255)
+
+  @@map("meetings")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Members{
@@ -639,9 +648,11 @@ model UserInventoryItem {
   @@map("user_inventory_item")
 }
 
-enum GoverningDocumentType {
+enum DocumentType {
   POLICY
   GUIDELINE
+  MEETING
+  OTHER
 
-  @@map("governing_document_type")
+  @@map("document_type")
 }

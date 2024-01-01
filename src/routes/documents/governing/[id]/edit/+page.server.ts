@@ -3,13 +3,12 @@ import { error, fail } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 import { withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
-import type { GoverningDocumentType } from "@prisma/client";
 import { superValidate } from "sveltekit-superforms/server";
 import { redirect } from "sveltekit-flash-message/server";
-import { governingDocumetSchema } from "../../schemas";
+import { governingDocumentSchema } from "../../schemas";
 
 export const load: PageServerLoad = async ({ params }) => {
-  const governingDocument = await prisma.governingDocument.findFirst({
+  const governingDocument = await prisma.document.findFirst({
     where: {
       id: params.id,
     },
@@ -21,14 +20,14 @@ export const load: PageServerLoad = async ({ params }) => {
 
   return {
     governingDocument,
-    form: await superValidate(governingDocumetSchema),
+    form: await superValidate(governingDocumentSchema),
   };
 };
 
 export const actions = {
   update: async (event) => {
     const { request, locals, params } = event;
-    const form = await superValidate(request, governingDocumetSchema);
+    const form = await superValidate(request, governingDocumentSchema);
     if (!form.valid) return fail(400, { form });
     const id = params.id;
     const session = await locals.getSession();
@@ -36,15 +35,15 @@ export const actions = {
       apiNames.GOVERNING_DOCUMENT.CREATE,
       session?.user,
       async () => {
-        const { url, title, documentType } = form.data;
-        await prisma.governingDocument.update({
+        const { url, title, type } = form.data;
+        await prisma.document.update({
           where: {
             id: id as string,
           },
           data: {
             url,
             title,
-            documentType: documentType as GoverningDocumentType,
+            type,
             updatedAt: new Date(),
           },
         });

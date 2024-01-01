@@ -4,12 +4,6 @@
   import File from "../File.svelte";
   export let data;
   let isEditing = false;
-  $: policies = data.governingDocuments.filter(
-    (doc) => doc.documentType === "POLICY",
-  );
-  $: guidelines = data.governingDocuments.filter(
-    (doc) => doc.documentType === "GUIDELINE",
-  );
 </script>
 
 <svelte:head>
@@ -64,7 +58,7 @@
     <div>
       <h1 class="my-3 text-2xl font-bold">Policyer</h1>
       <div class="flex flex-col gap-2">
-        {#each policies as policy}
+        {#each data.policies as policy}
           <div class="flex items-center gap-1">
             <File name={policy.title} url={policy.url} host />
             {#if data.accessPolicies.includes(apiNames.GOVERNING_DOCUMENT.DELETE) && isEditing}
@@ -89,7 +83,7 @@
     <div>
       <h1 class="my-3 text-2xl font-bold">Riktlinjer</h1>
       <div class="flex flex-col gap-2">
-        {#each guidelines as guideline}
+        {#each data.guidelines as guideline}
           <div class="flex items-center gap-1">
             <File name={guideline.title} url={guideline.url} host />
             {#if data.accessPolicies.includes(apiNames.GOVERNING_DOCUMENT.DELETE) && isEditing}

@@ -55,17 +55,17 @@
     <p class="text-error">{$errors.url}</p>
   {/if}
   <select
-    id="documentType"
-    name="documentType"
+    id="type"
+    name="type"
     class="max-w select select-bordered w-full"
-    bind:value={$form.documentType}
-    {...$constraints.documentType}
+    bind:value={$form.type}
+    {...$constraints.type}
   >
     <option value="POLICY">Policy</option>
     <option value="GUIDELINE">Riktlinje</option>
   </select>
-  {#if $errors.documentType}
-    <p class="text-error">{$errors.documentType}</p>
+  {#if $errors.type}
+    <p class="text-error">{$errors.type}</p>
   {/if}
   <button type="submit" class="btn btn-primary btn-sm mt-4">
     {isCreating ? "Skapa" : "Uppdatera"}
