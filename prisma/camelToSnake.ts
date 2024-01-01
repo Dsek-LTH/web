@@ -10,11 +10,13 @@
 
 import * as fs from "fs";
 import * as path from "path";
-// the following two imports are assumed to be installed globally on your machine if you wish to run this script
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+
+/* eslint-disable-next-line @typescript-eslint/ban-ts-comment -- 
+   This import is assumed to be installed globally on your machine if you wish to run this script. */
 // @ts-ignore
 import { camelCase, upperFirst } from "lodash";
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+/* eslint-disable-next-line @typescript-eslint/ban-ts-comment -- 
+   This import is assumed to be installed globally on your machine if you wish to run this script. */
 // @ts-ignore
 import * as pluralize from "pluralize";
 

@@ -2,6 +2,7 @@ module.exports = {
   root: true,
   extends: [
     "eslint:recommended",
+    "plugin:eslint-comments/recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:svelte/recommended",
     "plugin:svelte/prettier",
@@ -28,4 +29,8 @@ module.exports = {
       },
     },
   ],
+  rules: {
+    "eslint-comments/require-description": "error",
+  },
+  reportUnusedDisableDirectives: true,
 };
