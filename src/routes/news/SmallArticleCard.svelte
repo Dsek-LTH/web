@@ -23,7 +23,7 @@
   class="ease my-4 rounded-lg p-6 shadow-2xl ring-neutral-700 transition md:ring-1 md:hover:scale-[1.01]"
 >
   <a href="/news/{article.slug}">
-    <h2 class="my-3 text-2xl font-bold">{article.header}</h2>
+    <h2 class="my-3 break-words text-2xl font-bold">{article.header}</h2>
   </a>
 
   <div class="flex flex-row justify-between">
