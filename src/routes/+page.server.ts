@@ -39,8 +39,32 @@ export const load: PageServerLoad = async () => {
           : event.descriptionEn,
       })),
     );
+  const upcomingMeeting = prisma.meeting.findFirst({
+    where: {
+      date: {
+        gt: new Date(),
+      },
+    },
+    orderBy: {
+      date: "asc",
+    },
+  });
+  const previousMeeting = prisma.meeting.findFirst({
+    where: {
+      date: {
+        lt: new Date(),
+      },
+    },
+    orderBy: {
+      date: "desc",
+    },
+  });
   return {
     news: await news,
     events: await events,
+    meetings: {
+      upcoming: await upcomingMeeting,
+      previous: await previousMeeting,
+    },
   };
 };

@@ -102,13 +102,23 @@
 
     <article class="flex-1">
       <p>Nästa möte</p>
-      <h2 class="text-xl font-bold">S30</h2>
+      <h2 class="text-xl font-bold">
+        {#if data.meetings.upcoming}
+          {data.meetings.upcoming.title}
+        {:else}
+          TBD
+        {/if}
+      </h2>
     </article>
 
-    <article>
-      <p class="font-light">Senaste möte</p>
-      <h2 class="text-xl font-light">S29</h2>
-    </article>
+    {#if data.meetings.previous}
+      <article>
+        <p class="font-light">Senaste möte</p>
+        <h2 class="text-xl font-light">
+          {data.meetings.previous.title}
+        </h2>
+      </article>
+    {/if}
   </section>
 
   <section class="flex gap-6 bg-base-300 p-6">
