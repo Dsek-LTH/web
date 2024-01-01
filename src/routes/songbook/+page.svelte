@@ -80,4 +80,4 @@
   </article>
 {/each}
 
-<Pagination pages={data.pageCount} />
+<Pagination count={data.pageCount} />

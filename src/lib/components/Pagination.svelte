@@ -1,107 +1,68 @@
 <script lang="ts">
   import { page } from "$app/stores";
+  import { twMerge } from "tailwind-merge";
 
-  $: currentPage = Number.parseInt(
-    $page.url.searchParams.get(fieldName) ?? getNumber(1).toString(),
-  );
-  export let pages: number = 1;
-  export let getNumber = (n: number) => n;
-  export let reverseGetNumber = (n: number) => n;
+  let clazz: string = "";
+  export { clazz as class };
+  export let count: number;
+  export let getPageName = (n: number): string => (n + 1).toString();
   export let fieldName = "page";
-  $: generateLinkForPage = (pageNumber: number) => {
+
+  $: currentPage =
+    $page.url.searchParams.get(fieldName) ?? getPageName(0).toString();
+
+  $: getPageLink = (page: number | string) => {
+    // eslint-disable-next-line svelte/valid-compile -- I think this is a bug, see https://github.com/sveltejs/svelte/issues/5162
     const searchParams = new URLSearchParams($page.url.searchParams);
-    searchParams.set(fieldName, pageNumber.toString());
+    if (typeof page === "number") page = getPageName(page);
+    searchParams.set(fieldName, page);
     return `?${searchParams.toString()}`;
   };
+
+  function scrollToActive(node: HTMLElement) {
+    const active = node.querySelector(".btn-active");
+    if (active) {
+      const activeRect = active.getBoundingClientRect();
+      const elRect = node.getBoundingClientRect();
+      node.scrollLeft =
+        activeRect.left -
+        elRect.left +
+        node.scrollLeft -
+        (elRect.width - activeRect.width) / 2;
+    }
+  }
 </script>
 
-<div class="join">
+<div class={twMerge("join w-full", clazz)}>
   <a
-    class="btn join-item {currentPage == getNumber(1) ? 'btn-disabled' : ''}"
-    href={generateLinkForPage(getNumber(reverseGetNumber(currentPage) - 1))}
-    >«</a
+    class="btn join-item"
+    class:btn-disabled={currentPage == getPageName(0)}
+    href={getPageLink(0)}
   >
-  {#if pages <= 5}
-    {#each Array.from({ length: pages })
-      .map((_, i) => i + 1)
-      .map(getNumber) as page (page)}
-      <a
-        class="btn join-item {page == currentPage
-          ? 'btn-disabled btn-active'
-          : ''}"
-        href={generateLinkForPage(page)}
-      >
-        {page}
-      </a>
-    {/each}
-  {:else}
-    <a
-      class="btn join-item {currentPage == getNumber(1)
-        ? 'btn-disabled btn-active'
-        : ''}"
-      href={generateLinkForPage(getNumber(1))}
-    >
-      {getNumber(1)}
-    </a>
-    {#if reverseGetNumber(currentPage) < 5}
-      {#each Array.from({ length: 4 })
-        .map((_, i) => i + 2)
-        .map(getNumber) as page (page)}
-        <a
-          class="btn join-item {page == currentPage
-            ? 'btn-disabled btn-active'
-            : ''}"
-          href={generateLinkForPage(page)}
-        >
-          {page}
-        </a>
-      {/each}
-      <a class="btn btn-disabled join-item" href="/"> ... </a>
-    {:else if reverseGetNumber(currentPage) > pages - 3}
-      <a class="btn btn-disabled join-item" href="/"> ... </a>
-      {#each Array.from({ length: 4 })
-        .map((_, i) => i + pages - 4)
-        .map(getNumber) as page (page)}
-        <a
-          class="btn join-item {page == currentPage
-            ? 'btn-disabled btn-active'
-            : ''}"
-          href={generateLinkForPage(page)}
-        >
-          {page}
-        </a>
-      {/each}
-    {:else}
-      <a class="btn btn-disabled join-item" href="/"> ... </a>
-      {#each Array.from({ length: 3 })
-        .map((_, i) => i + reverseGetNumber(currentPage) - 1)
-        .map(getNumber) as page (page)}
-        <a
-          class="btn join-item {page == currentPage
-            ? 'btn-disabled btn-active'
-            : ''}"
-          href={generateLinkForPage(page)}
-        >
-          {page}
-        </a>
-      {/each}
-      <a class="btn btn-disabled join-item" href="/"> ... </a>
-    {/if}
+    <span class="i-mdi-page-first" />
+  </a>
 
-    <a
-      class="btn join-item {currentPage == getNumber(pages)
-        ? 'btn-disabled btn-active'
-        : ''}"
-      href={generateLinkForPage(getNumber(pages))}
-    >
-      {getNumber(pages)}
-    </a>
-  {/if}
+  <!-- #key forces a remount on page change to trigger scrollToActive -->
+  {#key currentPage}
+    <div class="carousel flex" use:scrollToActive>
+      {#each [...Array(count).keys()].map(getPageName) as page (page)}
+        <a
+          class="btn carousel-item join-item"
+          class:btn-active={page == currentPage}
+          class:btn-disabled={page == currentPage}
+          href={getPageLink(page)}
+        >
+          {page}
+        </a>
+      {/each}
+    </div>
+  {/key}
+
   <a
-    class="btn join-item {currentPage == getNumber(pages)
-      ? 'btn-disabled'
-      : ''}"
-    href={generateLinkForPage(getNumber(reverseGetNumber(currentPage) + 1))}
-    >»</a
+    class="btn join-item"
+    class:btn-disabled={currentPage == getPageName(count - 1)}
+    href={getPageLink(count - 1)}
   >
+    <span class="i-mdi-page-last" />
+  </a>
 </div>

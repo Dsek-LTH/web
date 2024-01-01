@@ -38,12 +38,11 @@
 </svelte:head>
 
 <div class="flex flex-row flex-wrap justify-between">
-  <div class="mb-4 flex flex-col items-start gap-2">
+  <div class="mb-4 flex w-full flex-col items-start gap-2">
     <span class="text-lg">Filtrera efter år</span>
     <Pagination
-      pages={currentYear - 1981}
-      getNumber={(n) => currentYear - n + 1}
-      reverseGetNumber={(n) => -n + 1 + currentYear}
+      count={currentYear - 1981}
+      getPageName={(pageNumber) => (currentYear - pageNumber).toString()}
       fieldName="year"
     />
     <span class="text-lg">Filtrera efter dokumenttyp</span>
