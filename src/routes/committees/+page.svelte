@@ -17,7 +17,9 @@
       href="/committees/{committee.shortName}"
       class="group card bg-base-200 shadow-xl transition-all hover:bg-base-200/80"
     >
-      <figure class="px-12 pt-4 transition-transform group-hover:scale-90">
+      <figure
+        class="max-h-24 px-12 pt-4 transition-transform *:max-h-full group-hover:scale-90 md:max-h-48"
+      >
         <CommitteeIcon {committee} />
       </figure>
       <div class="card-body px-0 text-center">
