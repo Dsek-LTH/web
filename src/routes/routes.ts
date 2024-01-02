@@ -45,6 +45,12 @@ export const routes = [
     isDsekIcon: true,
     children: [
       {
+        title: "Styrelsen",
+        path: "/board",
+        icon: "i-mdi-account-tie",
+        accessRequired: null,
+      },
+      {
         title: "Utskott",
         path: "/committees",
         icon: "i-mdi-account-group",
