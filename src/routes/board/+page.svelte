@@ -25,7 +25,7 @@
   class="grid grid-cols-1 items-stretch justify-items-stretch gap-4 sm:grid-cols-2 md:grid-cols-3"
 >
   {#each data.boardPositions as member (member.position.id)}
-    <div class="bg-base-200 transition-all">
+    <div class="card bg-base-200 transition-all">
       {#if member.studentId && member.firstName && member.nickname && member.lastName}
         <a
           href="/members/{member.studentId}"
@@ -59,7 +59,6 @@
         <div
           class="group card bg-base-200 shadow-xl transition-all hover:bg-base-200/80"
         >
-          -
           <figure class="mt-4 transition-transform group-hover:scale-90">
             <!-- MemberAvatar renders well even with null-values -->
             <MemberAvatar {member} class="h-24 w-24 rounded-full" />
