@@ -7,6 +7,7 @@ import { message, setError, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { PageServerLoad } from "./$types";
 import { PUBLIC_BUCKETS_MATERIAL } from "$env/static/public";
+import { sortCommitteePos } from "$lib/utils/sortCommittee";
 
 const updateSchema = z.object({
   name: z.string().optional(),
@@ -43,9 +44,6 @@ export const load: PageServerLoad = async ({ params }) => {
               email: true,
             },
           },
-        },
-        orderBy: {
-          name: "asc",
         },
       },
     },
@@ -99,7 +97,9 @@ export const load: PageServerLoad = async ({ params }) => {
   const form = await superValidate(committee, updateSchema);
   return {
     committee,
-    positions: committee.positions,
+    positions: committee.positions.toSorted((a, b) =>
+      sortCommitteePos(a.id, b.id, committee.shortName),
+    ),
     uniqueMemberCount: uniqueMembersInCommittee,
     numberOfMandates,
     markdown,
