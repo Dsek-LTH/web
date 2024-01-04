@@ -7,7 +7,7 @@ import { message, setError, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { PageServerLoad } from "./$types";
 import { PUBLIC_BUCKETS_MATERIAL } from "$env/static/public";
-import { sortCommitteePos } from "$lib/utils/sortCommittee";
+import { sortCommitteePos } from "$lib/utils/committee-ordering/sort";
 
 const updateSchema = z.object({
   name: z.string().optional(),
