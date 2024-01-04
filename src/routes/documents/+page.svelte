@@ -44,6 +44,7 @@
       class="max-w-prose"
       count={currentYear - 1981}
       getPageName={(pageNumber) => (currentYear - pageNumber).toString()}
+      getPageNumber={(pageName) => currentYear - +pageName}
       fieldName="year"
     />
     <span class="text-lg">Filtrera efter dokumenttyp</span>

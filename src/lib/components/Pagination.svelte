@@ -20,10 +20,24 @@ e.g. `?page=1`, `?page=2`, etc. The page number is stored in the URL query.
    */
   export let getPageName = (n: number): string => (n + 1).toString();
   /**
+   * Given a page name, return the number of the page.
+   * If `getPageName` is provided, this must also be provided
+   * and it must be the inverse of `getPageName`.
+   */
+  export let getPageNumber = (n: string): number => +n - 1;
+  /**
    * The URL query string key to use for the page number, e.g `?page=1`.
    * Defaults to `"page"`.
    */
   export let fieldName = "page";
+  /** Whether to show the previous page button. */
+  export let showPrev: boolean = true;
+  /** Whether to show the next page button. */
+  export let showNext: boolean = true;
+  /** Whether to show the first page button. */
+  export let showFirst: boolean = false;
+  /** Whether to show the last page button. */
+  export let showLast: boolean = false;
 
   $: currentPage =
     $page.url.searchParams.get(fieldName) ?? getPageName(0).toString();
@@ -50,14 +64,26 @@ e.g. `?page=1`, `?page=2`, etc. The page number is stored in the URL query.
   }
 </script>
 
-<div class={twMerge("join w-full", clazz)}>
-  <a
-    class="btn carousel-item join-item btn-xs sm:btn-sm md:btn-md"
-    class:btn-disabled={currentPage == getPageName(0)}
-    href={getPageLink(0)}
-  >
-    <span class="i-mdi-page-first" />
-  </a>
+<div class={twMerge("join w-full", clazz)} role="listbox" tabindex="0">
+  {#if showFirst}
+    <a
+      class="btn carousel-item join-item btn-xs sm:btn-sm md:btn-md"
+      class:btn-disabled={currentPage == getPageName(0)}
+      href={getPageLink(0)}
+    >
+      <span class="i-mdi-page-first" />
+    </a>
+  {/if}
+
+  {#if showPrev}
+    <a
+      class="btn carousel-item join-item btn-xs sm:btn-sm md:btn-md"
+      class:btn-disabled={currentPage == getPageName(0)}
+      href={getPageLink(getPageNumber(currentPage) - 1)}
+    >
+      <span class="i-mdi-chevron-left" />
+    </a>
+  {/if}
 
   <!-- #key forces a remount on page change to trigger scrollToActive -->
   {#key currentPage}
@@ -75,11 +101,23 @@ e.g. `?page=1`, `?page=2`, etc. The page number is stored in the URL query.
     </div>
   {/key}
 
-  <a
-    class="btn carousel-item join-item btn-xs sm:btn-sm md:btn-md"
-    class:btn-disabled={currentPage == getPageName(count - 1)}
-    href={getPageLink(count - 1)}
-  >
-    <span class="i-mdi-page-last" />
-  </a>
+  {#if showNext}
+    <a
+      class="btn carousel-item join-item btn-xs sm:btn-sm md:btn-md"
+      class:btn-disabled={currentPage == getPageName(count - 1)}
+      href={getPageLink(getPageNumber(currentPage) + 1)}
+    >
+      <span class="i-mdi-chevron-right" />
+    </a>
+  {/if}
+
+  {#if showLast}
+    <a
+      class="btn carousel-item join-item btn-xs sm:btn-sm md:btn-md"
+      class:btn-disabled={currentPage == getPageName(count - 1)}
+      href={getPageLink(count - 1)}
+    >
+      <span class="i-mdi-page-last" />
+    </a>
+  {/if}
 </div>
