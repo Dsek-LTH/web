@@ -22,12 +22,15 @@
   };
 </script>
 
-<div class="tabs-boxed tabs">
+<div role="tablist" class="tabs-boxed tabs items-stretch">
   {#each options as tabOption (tabOption.value)}
     <a
       href={generateLink(tabOption.value)}
-      class="tab {tabOption.value === currentTab ? 'tab-active' : ''}"
-      >{tabOption.name}</a
+      role="tab"
+      class="tab h-auto"
+      class:tab-active={tabOption.value === currentTab}
     >
+      {tabOption.name}
+    </a>
   {/each}
 </div>
