@@ -36,7 +36,7 @@ export function sortCommitteePos(
   posId2: Position["id"],
   committeeShortName: NonNullable<Committee["shortName"]>,
 ): number {
-  if (!(committeeShortName in committeeEnums)) return 1; // No committee? Assume pos B comes before
+  if (!(committeeShortName in committeeEnums)) return 0; // No committee? Preserve order
   const committee =
     committeeEnums[committeeShortName as keyof typeof committeeEnums];
   const aIndex = Object.values(committee).indexOf(posId1);
