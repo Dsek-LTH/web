@@ -29,11 +29,12 @@
         arrangemang, näringslivskontakter, studiebevakning, och allt annat som
         hjälper studenter och alumner.
       </p>
-      <button
+      <a
         class="btn btn-primary justify-self-start rounded-none px-10 font-bold uppercase"
+        href="/info/for-foretag"
       >
         För företag
-      </button>
+      </a>
     </div>
   </header>
 

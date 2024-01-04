@@ -8,5 +8,5 @@
 {/if}
 
 <div class="p-2 text-neutral-content">
-  <MarkdownBody body={data.markdown?.markdown} />
+  <MarkdownBody body={data.markdown?.markdown} class="mx-auto" />
 </div>
