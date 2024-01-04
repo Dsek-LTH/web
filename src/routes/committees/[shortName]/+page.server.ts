@@ -7,7 +7,7 @@ import { message, setError, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { PageServerLoad } from "./$types";
 import { PUBLIC_BUCKETS_MATERIAL } from "$env/static/public";
-import { sortCommitteePos } from "$lib/utils/committee-ordering/sort";
+import { compareCommitteePositions } from "$lib/utils/committee-ordering/sort";
 
 const updateSchema = z.object({
   name: z.string().optional(),
@@ -98,7 +98,7 @@ export const load: PageServerLoad = async ({ params }) => {
   return {
     committee,
     positions: committee.positions.toSorted((a, b) =>
-      sortCommitteePos(a.id, b.id, params.shortName),
+      compareCommitteePositions(a.id, b.id, params.shortName),
     ),
     uniqueMemberCount: uniqueMembersInCommittee,
     numberOfMandates,

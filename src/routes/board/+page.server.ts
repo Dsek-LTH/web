@@ -1,5 +1,5 @@
 import prisma from "$lib/utils/prisma";
-import { sortBoardPos } from "$lib/utils/committee-ordering/sort";
+import { compareBoardPositions } from "$lib/utils/committee-ordering/sort";
 import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async () => {
@@ -96,7 +96,7 @@ export const load: PageServerLoad = async () => {
   }
 
   mergedBoardPositions.sort((a, b) =>
-    sortBoardPos(a.position.id, b.position.id),
+    compareBoardPositions(a.position.id, b.position.id),
   );
   return {
     boardPositions: mergedBoardPositions,
