@@ -50,6 +50,7 @@ e.g. `?page=1`, `?page=2`, etc. The page number is stored in the URL query.
     return `?${searchParams.toString()}`;
   };
 
+  let carousel: HTMLElement;
   function scrollToActive(node: HTMLElement) {
     const active = node.querySelector(".btn-active");
     if (active) {
@@ -64,7 +65,13 @@ e.g. `?page=1`, `?page=2`, etc. The page number is stored in the URL query.
   }
 </script>
 
-<div class={twMerge("join w-full", clazz)} role="listbox" tabindex="0">
+<div
+  class={twMerge("join w-full", clazz)}
+  on:click={() => scrollToActive(carousel)}
+  on:keydown={() => scrollToActive(carousel)}
+  role="listbox"
+  tabindex="0"
+>
   {#if showFirst}
     <a
       class="btn carousel-item join-item btn-xs sm:btn-sm md:btn-md"
@@ -85,21 +92,18 @@ e.g. `?page=1`, `?page=2`, etc. The page number is stored in the URL query.
     </a>
   {/if}
 
-  <!-- #key forces a remount on page change to trigger scrollToActive -->
-  {#key currentPage}
-    <div class="carousel join-item flex" use:scrollToActive>
-      {#each [...Array(count).keys()].map(getPageName) as page (page)}
-        <a
-          class="btn carousel-item join-item btn-xs sm:btn-sm md:btn-md"
-          class:btn-active={page == currentPage}
-          class:btn-disabled={page == currentPage}
-          href={getPageLink(page)}
-        >
-          {page}
-        </a>
-      {/each}
-    </div>
-  {/key}
+  <div class="carousel join-item flex" use:scrollToActive bind:this={carousel}>
+    {#each [...Array(count).keys()].map(getPageName) as page (page)}
+      <a
+        class="btn carousel-item join-item btn-xs sm:btn-sm md:btn-md"
+        class:btn-active={page == currentPage}
+        class:btn-disabled={page == currentPage}
+        href={getPageLink(page)}
+      >
+        {page}
+      </a>
+    {/each}
+  </div>
 
   {#if showNext}
     <a
