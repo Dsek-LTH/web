@@ -1,11 +1,28 @@
+<!--
+@component
+This component should be used when you want to display a list of pages and
+allow the user to navigate between them. It's responsive and will show as
+many pages as possible on the screen, and will scroll if there are too many.
+It works by navigating to the same page with a different query string,
+e.g. `?page=1`, `?page=2`, etc. The page number is stored in the URL query.
+-->
 <script lang="ts">
   import { page } from "$app/stores";
   import { twMerge } from "tailwind-merge";
 
   let clazz: string = "";
   export { clazz as class };
+  /** The number of pages. */
   export let count: number;
+  /**
+   * Given a page number, return the name of the page.
+   * By default pages are named 1, 2, 3, ...
+   */
   export let getPageName = (n: number): string => (n + 1).toString();
+  /**
+   * The URL query string key to use for the page number, e.g `?page=1`.
+   * Defaults to `"page"`.
+   */
   export let fieldName = "page";
 
   $: currentPage =
