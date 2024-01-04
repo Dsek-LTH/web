@@ -15,43 +15,41 @@
 <div class="drawer-side z-20">
   <label for="main-drawer" aria-label="close sidebar" class="drawer-overlay"
   ></label>
-  <ul class="menu min-h-full bg-base-200 pr-6">
+  <ul class="menu min-h-full min-w-60 bg-base-200 pr-6 font-semibold">
     {#each routes as route (route.title)}
       {#if !route.accessRequired || accessPolicies.includes(route.accessRequired)}
         {#if route?.children?.length}
-          <li>
-            <span class="btn content-center justify-start">
-              {#if route.isDsekIcon}
-                <DsekLogo className="h-6 w-6 text-primary" />
-              {:else}
-                <span class={`${route.icon} h-6 w-6 text-primary`} />
-              {/if}
-              {route.title}</span
-            >
-            <ul>
-              {#each route.children as child (child.title)}
-                {#if !child.accessRequired || accessPolicies.includes(child.accessRequired)}
-                  <li>
-                    <a
-                      on:click={close}
-                      href={child.path}
-                      class="btn content-center justify-start"
-                    >
-                      <span class={`${child.icon} h-6 w-6 text-primary`} />
-                      {child.title}
-                    </a>
-                  </li>
+          <li class="py-1">
+            <details open>
+              <summary class="active:!bg-primary/10">
+                {#if route.isDsekIcon}
+                  <DsekLogo className="h-6 w-6 text-primary" />
+                {:else}
+                  <span class={`${route.icon} h-6 w-6 text-primary`} />
                 {/if}
-              {/each}
-            </ul>
+                {route.title}
+              </summary>
+              <ul>
+                {#each route.children as child (child.title)}
+                  {#if !child.accessRequired || accessPolicies.includes(child.accessRequired)}
+                    <li class="py-1">
+                      <a
+                        on:click={close}
+                        href={child.path}
+                        class="active:!bg-primary/10"
+                      >
+                        <span class={`${child.icon} h-6 w-6 text-primary`} />
+                        {child.title}
+                      </a>
+                    </li>
+                  {/if}
+                {/each}
+              </ul>
+            </details>
           </li>
         {:else}
-          <li>
-            <a
-              on:click={close}
-              href={route.path}
-              class="btn content-center justify-start"
-            >
+          <li class="py-1">
+            <a on:click={close} href={route.path} class="active:!bg-primary/10">
               {#if route.isDsekIcon}
                 <DsekLogo className="h-6 w-6 text-primary" />
               {:else}

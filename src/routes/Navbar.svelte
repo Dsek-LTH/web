@@ -47,7 +47,10 @@
               {#each route.children as child (child.title)}
                 {#if !child.accessRequired || accessPolicies.includes(child.accessRequired)}
                   <li>
-                    <a href={child.path} class="btn-ghost">
+                    <a
+                      href={child.path}
+                      class="btn-ghost active:!bg-primary/10"
+                    >
                       <span class={`${child.icon} h-6 w-6 text-primary`} />
                       {child.title}</a
                     >
