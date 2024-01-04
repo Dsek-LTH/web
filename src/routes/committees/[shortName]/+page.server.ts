@@ -7,6 +7,7 @@ import { message, setError, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { PageServerLoad } from "./$types";
 import { PUBLIC_BUCKETS_MATERIAL } from "$env/static/public";
+import { sortCommitteePos } from "$lib/utils/committee-ordering/sort";
 
 const updateSchema = z.object({
   name: z.string().optional(),
@@ -43,9 +44,6 @@ export const load: PageServerLoad = async ({ params }) => {
               email: true,
             },
           },
-        },
-        orderBy: {
-          name: "asc",
         },
       },
     },
@@ -92,14 +90,16 @@ export const load: PageServerLoad = async ({ params }) => {
   const markdown = committee.shortName
     ? await prisma.markdown.findUnique({
         where: {
-          name: committee.shortName,
+          name: params.shortName,
         },
       })
     : null;
   const form = await superValidate(committee, updateSchema);
   return {
     committee,
-    positions: committee.positions,
+    positions: committee.positions.toSorted((a, b) =>
+      sortCommitteePos(a.id, b.id, params.shortName),
+    ),
     uniqueMemberCount: uniqueMembersInCommittee,
     numberOfMandates,
     markdown,
