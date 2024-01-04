@@ -90,7 +90,7 @@ export const load: PageServerLoad = async ({ params }) => {
   const markdown = committee.shortName
     ? await prisma.markdown.findUnique({
         where: {
-          name: committee.shortName,
+          name: params.shortName,
         },
       })
     : null;
@@ -98,7 +98,7 @@ export const load: PageServerLoad = async ({ params }) => {
   return {
     committee,
     positions: committee.positions.toSorted((a, b) =>
-      sortCommitteePos(a.id, b.id, committee.shortName),
+      sortCommitteePos(a.id, b.id, params.shortName),
     ),
     uniqueMemberCount: uniqueMembersInCommittee,
     numberOfMandates,

@@ -34,10 +34,9 @@ export function sortBoardPos(
 export function sortCommitteePos(
   posId1: Position["id"],
   posId2: Position["id"],
-  committeeShortName: Committee["shortName"],
+  committeeShortName: NonNullable<Committee["shortName"]>,
 ): number {
-  if (committeeShortName == null) return 1; // No committee? Assume pos B comes before
-  if (!(committeeShortName in committeeEnums)) return 1;
+  if (!(committeeShortName in committeeEnums)) return 1; // No committee? Assume pos B comes before
   const committee =
     committeeEnums[committeeShortName as keyof typeof committeeEnums];
   const aIndex = Object.values(committee).indexOf(posId1);
