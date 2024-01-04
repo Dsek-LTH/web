@@ -35,7 +35,7 @@
 
 <div class={twMerge("join w-full", clazz)}>
   <a
-    class="btn join-item"
+    class="btn carousel-item join-item btn-xs sm:btn-sm md:btn-md"
     class:btn-disabled={currentPage == getPageName(0)}
     href={getPageLink(0)}
   >
@@ -44,10 +44,10 @@
 
   <!-- #key forces a remount on page change to trigger scrollToActive -->
   {#key currentPage}
-    <div class="carousel flex" use:scrollToActive>
+    <div class="carousel join-item flex" use:scrollToActive>
       {#each [...Array(count).keys()].map(getPageName) as page (page)}
         <a
-          class="btn carousel-item join-item"
+          class="btn carousel-item join-item btn-xs sm:btn-sm md:btn-md"
           class:btn-active={page == currentPage}
           class:btn-disabled={page == currentPage}
           href={getPageLink(page)}
@@ -59,7 +59,7 @@
   {/key}
 
   <a
-    class="btn join-item"
+    class="btn carousel-item join-item btn-xs sm:btn-sm md:btn-md"
     class:btn-disabled={currentPage == getPageName(count - 1)}
     href={getPageLink(count - 1)}
   >

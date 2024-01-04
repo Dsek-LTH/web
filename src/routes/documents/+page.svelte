@@ -41,6 +41,7 @@
   <div class="mb-4 flex w-full flex-col items-start gap-2">
     <span class="text-lg">Filtrera efter år</span>
     <Pagination
+      class="max-w-prose"
       count={currentYear - 1981}
       getPageName={(pageNumber) => (currentYear - pageNumber).toString()}
       fieldName="year"
