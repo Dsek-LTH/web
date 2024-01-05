@@ -4,7 +4,7 @@
   import apiNames from "$lib/utils/apiNames";
   import { superForm } from "sveltekit-superforms/client";
   import type { SuperValidated } from "sveltekit-superforms";
-  import type { UpdateSchema } from "./[shortName]/+page.server";
+  import type { UpdateSchema } from "./committee.server";
 
   let formData: SuperValidated<UpdateSchema>;
   export { formData as form };
