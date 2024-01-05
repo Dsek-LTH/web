@@ -61,7 +61,7 @@ export const load: PageServerLoad = async () => {
   });
   const cafeOpen = prisma.markdown.findFirst({
     where: {
-      name: "cafe:open",
+      name: `cafe:open:${new Date().getDay() - 1}`, // we assign monday to 0, not sunday
     },
   });
   return {

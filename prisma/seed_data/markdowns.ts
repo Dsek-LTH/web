@@ -1,14 +1,16 @@
 import { PrismaClient } from "@prisma/client";
 
 export const insertMarkdowns = async (prisma: PrismaClient) => {
-  await prisma.markdown.upsert({
-    where: { name: "cafe:open" },
-    create: {
-      name: "cafe:open",
-      markdown: "11:30 - 13:00",
-    },
-    update: {},
-  });
+  for (const dayIndex in [...Array(5).keys()]) {
+    await prisma.markdown.upsert({
+      where: { name: `cafe:open:${dayIndex}` },
+      create: {
+        name: `cafe:open:${dayIndex}`,
+        markdown: "11:30 - 13:00",
+      },
+      update: {},
+    });
+  }
 
   await prisma.markdown.upsert({
     where: { name: "for-foretag" },
