@@ -17,14 +17,14 @@
   toggleEditing={() => (isEditing = !isEditing)}
 />
 
-{#if data.markdown?.markdown}
-  <MarkdownBody body={data.markdown.markdown} />
-{/if}
-
 <EditCommitteeForm
   form={data.form}
   open={isEditing}
   accessPolicies={data.accessPolicies}
 />
+
+{#if data.markdown?.markdown}
+  <MarkdownBody body={data.markdown.markdown} />
+{/if}
 
 <PositionGrid positions={data.positions} />

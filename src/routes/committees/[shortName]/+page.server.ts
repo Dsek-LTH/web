@@ -4,4 +4,4 @@ import { committeeActions, committeeLoad } from "../committee.server";
 export const load: PageServerLoad = ({ params }) =>
   committeeLoad(params.shortName);
 
-export const actions = committeeActions;
+export const actions = committeeActions();

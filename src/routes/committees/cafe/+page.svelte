@@ -3,6 +3,7 @@
   import PositionGrid from "../PositionGrid.svelte";
   import EditCommitteeForm from "../EditCommitteeForm.svelte";
   import CommitteeHeader from "../CommitteeHeader.svelte";
+  import { enhance } from "$app/forms";
 
   export let data;
   let isEditing = false;
@@ -26,6 +27,12 @@
   numberOfMandates={data.numberOfMandates}
   editing={isEditing}
   toggleEditing={() => (isEditing = !isEditing)}
+/>
+
+<EditCommitteeForm
+  form={data.form}
+  open={isEditing}
+  accessPolicies={data.accessPolicies}
 />
 
 <div class="mb-4 flex flex-wrap items-start justify-between gap-4">
@@ -54,17 +61,40 @@
           class:font-bold={isToday}
         >
           <p class="flex-1 capitalize">{weekday}</p>
-          {openingHour.markdown}
+          {#if isEditing}
+            <form
+              class="flex gap-4"
+              action="?/update"
+              method="POST"
+              use:enhance
+            >
+              <input
+                hidden
+                type="text"
+                name="markdownSlug"
+                value={openingHour.name}
+              />
+              <input
+                type="text"
+                class="input input-bordered font-normal"
+                name="markdown"
+                placeholder={openingHour.markdown}
+                size="8"
+              />
+              <button
+                class="btn btn-outline btn-primary btn-sm h-auto"
+                type="submit"
+              >
+                <span class="i-mdi-content-save text-base" />
+              </button>
+            </form>
+          {:else}
+            {openingHour.markdown}
+          {/if}
         </li>
       {/each}
     </ol>
   </div>
 </div>
-
-<EditCommitteeForm
-  form={data.form}
-  open={isEditing}
-  accessPolicies={data.accessPolicies}
-/>
 
 <PositionGrid positions={data.positions} />

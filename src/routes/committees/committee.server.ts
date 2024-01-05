@@ -12,6 +12,8 @@ const updateSchema = z.object({
   name: z.string().optional(),
   description: z.string().nullable(),
   image: z.any().optional(),
+  markdown: z.string().optional(),
+  markdownSlug: z.string().optional(),
 });
 
 export type UpdateSchema = typeof updateSchema;
@@ -113,7 +115,7 @@ export const committeeLoad = async (shortName: string) => {
   };
 };
 
-export const committeeActions: Actions<ParamType> = {
+export const committeeActions = (shortName?: string): Actions<ParamType> => ({
   update: async ({ params, request, locals }) => {
     const formData = await request.formData();
     const form = await superValidate(formData, updateSchema);
@@ -129,7 +131,7 @@ export const committeeActions: Actions<ParamType> = {
           if (image.type !== "image/svg+xml") {
             return setError(form, "image", "Bilden måste vara i .svg format ");
           }
-          const path = `committees/${params.shortName}.svg`;
+          const path = `committees/${shortName || params.shortName}.svg`;
           if (image) {
             try {
               const putUrl = await fileHandler.getPresignedPutUrl(
@@ -153,17 +155,30 @@ export const committeeActions: Actions<ParamType> = {
           }
         }
         await prisma.committee.update({
-          where: { shortName: params.shortName },
+          where: { shortName: shortName || params.shortName },
           data: {
             name: form.data.name,
             description: form.data.description,
             imageUrl: newImageUploaded
               ? `minio/material/committees/${
-                  params.shortName
+                  shortName || params.shortName
                 }.svg?version=${new Date().getTime()}`
               : undefined,
           },
         });
+
+        const markdownSlug = form.data.markdownSlug;
+        const markdown = form.data.markdown;
+        if (markdownSlug && markdown) {
+          await prisma.markdown.update({
+            where: {
+              name: markdownSlug,
+            },
+            data: {
+              markdown: form.data.markdown,
+            },
+          });
+        }
         return message(form, {
           message: "Utskott uppdaterat",
           type: "success",
@@ -172,7 +187,7 @@ export const committeeActions: Actions<ParamType> = {
       form,
     );
   },
-};
+});
 
 function isFileSubmitted(file: unknown): file is File {
   return file instanceof File && file.size > 0;

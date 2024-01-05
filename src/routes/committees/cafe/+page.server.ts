@@ -20,4 +20,4 @@ export const load: PageServerLoad = () => {
   }));
 };
 
-export const actions = committeeActions;
+export const actions = committeeActions("cafe");
