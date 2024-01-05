@@ -46,11 +46,11 @@
         <li class="py-5 text-black">
           <a href="/news/{article.slug}">
             <h2 class="mb-2 text-xl font-bold">{article.header}</h2>
+            <p class="line-clamp-3 break-words">
+              <!-- eslint-disable-next-line svelte/no-at-html-tags - Sanitized server-side -->
+              {@html marked(article.body)}
+            </p>
           </a>
-          <p class="line-clamp-3 break-words">
-            <!-- eslint-disable-next-line svelte/no-at-html-tags - Sanitized server-side -->
-            {@html marked(article.body)}
-          </p>
         </li>
       {/each}
     </ol>
@@ -59,7 +59,7 @@
   <ol class="contents" role="article">
     {#each data.events as event}
       <li>
-        <div class="flex align-top">
+        <a href="/events/{event.slug}" class="flex align-top">
           <div class="mr-5 h-24 w-24 min-w-24 bg-base-300">
             <div
               class="flex h-5 items-center justify-center bg-primary text-sm font-bold capitalize text-black"
@@ -74,22 +74,23 @@
           </div>
 
           <div class="min-w-0">
-            <a href="/events/{event.slug}">
-              <h2 class="mb-4 text-xl font-bold leading-none">
-                {event.title}
-              </h2>
-            </a>
+            <h2 class="mb-4 text-xl font-bold leading-none">
+              {event.title}
+            </h2>
             <p class="line-clamp-3 break-words">
               <!-- eslint-disable-next-line svelte/no-at-html-tags - Sanitized server-side -->
               {@html marked(event.description)}
             </p>
           </div>
-        </div>
+        </a>
       </li>
     {/each}
   </ol>
 
-  <section class="flex gap-6 bg-base-300 p-6">
+  <a
+    class="flex cursor-pointer gap-6 bg-base-300 p-6 transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:bg-base-200 hover:shadow-xl"
+    href="/info/cafe"
+  >
     <span class="i-mdi-clock self-center text-2xl" />
 
     <article>
@@ -102,9 +103,12 @@
         {/if}
       </h2>
     </article>
-  </section>
+  </a>
 
-  <section class="flex gap-6 bg-base-300 p-6">
+  <a
+    class="flex cursor-pointer gap-6 bg-base-300 p-6 transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:bg-base-200 hover:shadow-xl"
+    href="/documents"
+  >
     <span class="i-mdi-gavel self-center text-2xl" />
 
     <article class="flex-1">
@@ -126,14 +130,17 @@
         </h2>
       </article>
     {/if}
-  </section>
+  </a>
 
-  <section class="flex gap-6 bg-base-300 p-6">
+  <a
+    class="flex cursor-pointer gap-6 bg-base-300 p-6 transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:bg-base-200 hover:shadow-xl"
+    href="/"
+  >
     <span class="i-mdi-question-mark-circle self-center text-2xl" />
 
     <article>
       <p>What should be here?</p>
       <h2 class="text-xl font-bold">TBD</h2>
     </article>
-  </section>
+  </a>
 </div>
