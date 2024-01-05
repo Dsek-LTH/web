@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Tag } from "@prisma/client";
-  import TagChip from "../../lib/components/TagChip.svelte";
+  import TagChip from "./TagChip.svelte";
 
   export let allTags: Tag[] = [];
   let searchValue = "";
@@ -10,13 +10,21 @@
       tag.name.toLowerCase().includes(searchValue.toLowerCase()) &&
       !selectedTags.includes(tag),
   );
+
+  let autocompleteEl: HTMLInputElement;
 </script>
 
 <div class="dropdown">
-  <div class="flex flex-col gap-2">
-    <div
-      class="absolute bottom-[calc(100%+0.5rem)] flex min-w-full flex-row items-center gap-2"
-    >
+  <!-- svelte-ignore a11y-click-events-have-key-events -->
+  <div
+    class="input input-bordered flex h-auto min-h-12 items-center gap-2 py-2"
+    tabindex={0}
+    role="combobox"
+    aria-controls="tags-panel"
+    aria-expanded="false"
+    on:click={() => autocompleteEl?.focus()}
+  >
+    <div class="flex flex-1 flex-wrap gap-1">
       {#if selectedTags.length > 0}
         {#each selectedTags as tag}
           <button
@@ -25,43 +33,40 @@
               selectedTags = selectedTags.filter((o) => o !== tag);
             }}
           >
-            <TagChip {tag} />
+            <TagChip {tag} class="after:ml-2 after:content-['x']" />
           </button>
         {/each}
-        <button
-          type="button"
-          class="btn btn-xs"
-          on:click={() => {
-            selectedTags = [];
-          }}>Clear</button
-        >
-      {:else}
-        <div class="pointer-events-none opacity-0">
-          <TagChip tag={allTags[0]} />
-        </div>
-        <button
-          tabindex="-1"
-          type="button"
-          class="btn btn-xs pointer-events-none opacity-0"
-        ></button>
       {/if}
+
+      <input
+        id="autocomplete"
+        autocomplete="off"
+        autocapitalize="off"
+        type="text"
+        placeholder="Taggar"
+        class="bg-transparent"
+        bind:value={searchValue}
+        bind:this={autocompleteEl}
+        {...$$restProps}
+      />
     </div>
-    <input
-      id="autocomplete"
-      autocomplete="off"
-      autocapitalize="off"
-      type="text"
-      class="input input-bordered w-full"
-      placeholder="Taggar"
-      tabIndex={0}
-      bind:value={searchValue}
-      {...$$restProps}
-    />
+
+    {#if selectedTags.length > 0}
+      <button
+        type="button"
+        class="btn btn-xs"
+        on:click={() => {
+          selectedTags = [];
+        }}>Clear</button
+      >
+    {/if}
   </div>
-  <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+
   <ul
     tabindex={0}
-    class="menu-compact menu dropdown-content join join-vertical z-10 flex max-h-80 min-w-[20rem] flex-col flex-nowrap overflow-y-auto rounded-md bg-base-100 shadow"
+    role="listbox"
+    class="menu-compact menu dropdown-content join join-vertical z-10 flex max-h-80 w-full flex-col flex-nowrap overflow-y-auto rounded-md bg-base-100 shadow lg:max-w-[20rem]"
+    id="tags-panel"
   >
     {#each filteredTags as tag (tag.id)}
       <li>

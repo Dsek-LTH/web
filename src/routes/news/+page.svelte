@@ -31,8 +31,8 @@
     class="form-control flex-1 gap-2 md:flex-row md:items-end"
     id="filter-form"
   >
-    <SearchBar />
     <TagSelector allTags={data.allTags} bind:selectedTags={filteredTags} />
+    <SearchBar />
     {#each filteredTags as tag (tag.id)}
       <input type="hidden" name="tags" value={tag.name} />
     {/each}

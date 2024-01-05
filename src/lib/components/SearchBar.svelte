@@ -25,7 +25,7 @@
   };
 </script>
 
-<div class="relative flex-1">
+<div class="relative min-w-72 flex-1">
   <input
     bind:this={inputField}
     name="search"

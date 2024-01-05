@@ -73,8 +73,8 @@
         />
       </label>
     </div>
-    <SearchBar />
     <TagSelector allTags={data.allTags} bind:selectedTags={filteredTags} />
+    <SearchBar />
     {#each filteredTags as tag (tag.id)}
       <input
         type="hidden"
