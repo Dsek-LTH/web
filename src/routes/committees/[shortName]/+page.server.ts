@@ -12,8 +12,10 @@ import { compareCommitteePositions } from "$lib/utils/committee-ordering/sort";
 const updateSchema = z.object({
   name: z.string().optional(),
   description: z.string().nullable(),
-  image: z.any(),
+  image: z.any().optional(),
 });
+
+export type UpdateSchema = typeof updateSchema;
 
 export const load: PageServerLoad = async ({ params }) => {
   const committee = await prisma.committee.findUnique({
@@ -118,36 +120,32 @@ export const actions = {
       session?.user,
       async () => {
         const image = formData.get("image");
-        if (!image || !(image instanceof File) || image.size <= 0) {
-          return setError(
-            form,
-            "image",
-            "Bilden du laddade upp har ingen data eller är felaktig på annat sätt",
-          );
-        } else if (image.type !== "image/svg+xml") {
-          return setError(form, "image", "Bilden måste vara i .svg format ");
-        }
         let newImageUploaded = false;
-        const path = `committees/${params.shortName}.svg`;
-        if (image) {
-          try {
-            const putUrl = await fileHandler.getPresignedPutUrl(
-              session?.user,
-              PUBLIC_BUCKETS_MATERIAL,
-              path,
-              true,
-            );
-            await fetch(putUrl, {
-              method: "PUT",
-              body: image,
-            });
-            newImageUploaded = true;
-          } catch (e) {
-            return message(
-              form,
-              { message: "Kunde inte ladda upp bild", type: "error" },
-              { status: 500 },
-            );
+        if (isFileSubmitted(image)) {
+          if (image.type !== "image/svg+xml") {
+            return setError(form, "image", "Bilden måste vara i .svg format ");
+          }
+          const path = `committees/${params.shortName}.svg`;
+          if (image) {
+            try {
+              const putUrl = await fileHandler.getPresignedPutUrl(
+                session?.user,
+                PUBLIC_BUCKETS_MATERIAL,
+                path,
+                true,
+              );
+              await fetch(putUrl, {
+                method: "PUT",
+                body: image,
+              });
+              newImageUploaded = true;
+            } catch (e) {
+              return message(
+                form,
+                { message: "Kunde inte ladda upp bild", type: "error" },
+                { status: 500 },
+              );
+            }
           }
         }
         await prisma.committee.update({
@@ -171,3 +169,7 @@ export const actions = {
     );
   },
 };
+
+function isFileSubmitted(file: unknown): file is File {
+  return file instanceof File && file.size > 0;
+}

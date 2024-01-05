@@ -2,13 +2,11 @@
   import { getImageUrl } from "$lib/files/images";
   import type { Committee } from "@prisma/client";
 
-  export let committee: Pick<Committee, "imageUrl">;
+  export let imageUrl: Committee["imageUrl"];
 </script>
 
 <img
-  src={getImageUrl(
-    committee.imageUrl ?? "minio/material/committees/sigill.svg",
-  )}
+  src={getImageUrl(imageUrl ?? "minio/material/committees/sigill.svg")}
   alt="Committee icon"
   class="aspect-square"
 />

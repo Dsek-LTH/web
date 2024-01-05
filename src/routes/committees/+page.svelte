@@ -20,7 +20,7 @@
       <figure
         class="max-h-24 px-12 pt-4 transition-transform *:max-h-full group-hover:scale-90 md:max-h-48"
       >
-        <CommitteeIcon {committee} />
+        <CommitteeIcon imageUrl={committee.imageUrl} />
       </figure>
       <div class="card-body px-0 text-center">
         <h2 class="card-title mx-auto">{committee.name}</h2>

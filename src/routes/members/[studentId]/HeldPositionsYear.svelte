@@ -28,7 +28,9 @@
             >
               {#if mandate.position.committee}
                 <figure class="h-8 w-8 overflow-hidden">
-                  <CommitteeIcon committee={mandate.position.committee} />
+                  <CommitteeIcon
+                    imageUrl={mandate.position.committee.imageUrl}
+                  />
                 </figure>
               {/if}
               <span

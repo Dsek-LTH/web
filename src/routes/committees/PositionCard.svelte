@@ -15,10 +15,19 @@
 <article class="card bg-base-200 shadow-xl transition-all">
   <div class="card-body">
     <h2 class="card-title">
+      {#if position.boardMember}
+        <a href="/board">
+          <div class="tooltip" data-tip="Styrelsemedlem">
+            <span class="i-mdi-account-tie" />
+          </div>
+        </a>
+      {/if}
       <a class="link-hover link link-primary" href="/positions/{position.id}">
         {position.name}
       </a>
-      ({mandates.length} st)
+      {#if mandates.length > 1}
+        ({mandates.length} st)
+      {/if}
     </h2>
     {#if position.email}
       <section class="-mt-2">
