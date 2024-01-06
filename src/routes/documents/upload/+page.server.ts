@@ -2,10 +2,11 @@ import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
 import { fileHandler } from "$lib/files";
 import { withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
-import prisma from "$lib/utils/prisma";
 import { fail } from "@sveltejs/kit";
 import { message, setError, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
+
+const CURRENT_YEAR = new Date().getFullYear();
 
 const getExtensionOfFile = (fileName: string) => {
   const dotIndex = fileName.lastIndexOf(".");
@@ -18,7 +19,7 @@ const prepareNameForFilesystem = (name: string, fileName: string) =>
 
 export const load = async ({ parent, url }) => {
   const { session } = await parent();
-  const year = url.searchParams.get("year") ?? new Date().getFullYear();
+  const year = url.searchParams.get("year") ?? CURRENT_YEAR;
   const files = await fileHandler.getInBucket(
     session?.user,
     PUBLIC_BUCKETS_DOCUMENTS,
@@ -33,9 +34,14 @@ export const load = async ({ parent, url }) => {
 };
 
 const uploadSchema = z.object({
-  meeting: z.string().default(""),
+  type: z.enum(["meeting", "srd", "requirement"]).default("meeting"),
+  folder: z.string().default(""),
   name: z.string().default(""),
-  date: z.date().default(new Date()),
+  year: z
+    .number()
+    .min(1962)
+    .max(CURRENT_YEAR + 1)
+    .default(CURRENT_YEAR),
   file: z.any(),
 });
 export type UploadSchema = typeof uploadSchema;
@@ -50,20 +56,19 @@ export const actions = {
       apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).CREATE,
       session?.user,
       async () => {
-        const { meeting, name, date } = form.data;
+        const { folder, name, year, type } = form.data;
         const file = formData.get("file");
         if (!file || !(file instanceof File) || file.size <= 0) {
           return setError(form, "file", "Felaktig fil");
         }
 
-        const year = date.getFullYear();
         const formattedName = prepareNameForFilesystem(name, file.name);
-        const folderPath = `${year}/${meeting}`;
-        await prisma.meeting.upsert({
-          where: { url: folderPath },
-          update: {},
-          create: { title: meeting, date, url: folderPath },
-        });
+        const folderPath = `${type}/${year}/${folder}`;
+        // await prisma.meeting.upsert({
+        //   where: { url: folderPath },
+        //   update: {},
+        //   create: { title: meeting, date, url: folderPath },
+        // });
 
         const filePath = `${folderPath}/${formattedName}`;
         const putUrl = await fileHandler.getPresignedPutUrl(

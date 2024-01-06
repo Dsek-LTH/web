@@ -1,7 +1,7 @@
 <script lang="ts">
-  import Input from "$lib/components/Input.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
-  import { superForm, dateProxy } from "sveltekit-superforms/client";
+  import { superForm } from "sveltekit-superforms/client";
+  import DocumentTypeSelector from "./DocumentTypeSelector.svelte";
   export let data;
   const { form, constraints, errors, enhance } = superForm(data.form, {
     onResult: (event) => {
@@ -23,9 +23,6 @@
       return f;
     });
   };
-
-  // @ts-expect-error - TS complains about the type, but it works
-  const proxyDate = dateProxy(form, "date", { format: "date" });
 </script>
 
 <svelte:head>
@@ -34,40 +31,37 @@
 
 <form
   id="upload-file"
-  class="form-control items-stretch"
+  class="form-control items-stretch gap-4"
   method="POST"
   enctype="multipart/form-data"
   use:enhance
 >
-  <Labeled label="Date" id="date">
+  <div>
+    <p class="mb-5 text-lg font-medium">1. Välj dokumenttyp</p>
+    <DocumentTypeSelector bind:type={$form.type} />
+  </div>
+
+  <Labeled id="folder" error={$errors.folder}>
+    <label class="mb-5 text-lg font-medium" for="folder">
+      2. Skriv {$form.type === "requirement" ? "postnamn" : "mötesnamn"}
+    </label>
     <input
-      id="date"
-      name="date"
+      id="folder"
+      name="folder"
       class="input input-bordered"
-      type="date"
-      placeholder="Date"
-      bind:value={$proxyDate}
-      {...$constraints.date}
-    />
-  </Labeled>
-  {#if $errors.date}
-    <p class="text-error">{$errors.date}</p>
-  {/if}
-  <Labeled label="Meeting" id="meeting">
-    <input
-      id="meeting"
-      name="meeting"
-      class="input input-bordered"
-      bind:value={$form.meeting}
+      bind:value={$form.folder}
       type="text"
-      placeholder="S18, HTM1, VTM-extra..."
-      {...$constraints.meeting}
+      placeholder={$form.type === "requirement"
+        ? "Øverphøs, Aktivitetsanssvarig..."
+        : "S18, HTM1, VTM-extra..."}
+      {...$constraints.folder}
     />
   </Labeled>
-  {#if $errors.meeting}
-    <p class="text-error">{$errors.meeting}</p>
-  {/if}
-  <Labeled label="Fil" id="file">
+
+  <Labeled id="file" error={$errors.file}>
+    <label class="mb-5 text-lg font-medium" for="file">
+      3. Ladda upp fil
+    </label>
     <input
       id="file"
       type="file"
@@ -79,19 +73,40 @@
       {...$constraints.file}
     />
   </Labeled>
-  {#if $errors.file}
-    <p class="text-error">{$errors.file}</p>
+
+  <Labeled id="name" error={$errors.name}>
+    <label class="mb-5 text-lg font-medium" for="name">
+      4. Skriv namn på dokumentet
+    </label>
+    <input
+      id="name"
+      name="name"
+      class="input input-bordered"
+      type="text"
+      placeholder="Namn"
+      bind:value={$form.name}
+      {...$constraints.name}
+    />
+  </Labeled>
+
+  <Labeled id="year" error={$errors.year}>
+    <label class="mb-5 text-lg font-medium" for="year">5. Välj mötesår</label>
+    <input
+      id="year"
+      name="year"
+      class="input input-bordered"
+      type="number"
+      bind:value={$form.year}
+      {...$constraints.year}
+    />
+  </Labeled>
+
+  {#if $form.type && $form.folder && $form.name}
+    <pre
+      class="input input-bordered input-disabled">{$form.type}/{$form.year}/{$form.folder}/{$form.name}</pre>
   {/if}
-  <Input
-    label="Namn"
-    name="name"
-    bind:value={$form.name}
-    {...$constraints.name}
-  />
-  {#if $errors.name}
-    <p class="text-error">{$errors.name}</p>
-  {/if}
-  <button type="submit" form="upload-file" class="btn btn-primary mt-8"
-    >Ladda upp</button
-  >
+
+  <button type="submit" form="upload-file" class="btn btn-primary">
+    Ladda upp
+  </button>
 </form>
