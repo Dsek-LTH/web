@@ -1,5 +1,5 @@
+/** @type {import('eslint').Linter.Config} */
 module.exports = {
-  root: true,
   extends: [
     "eslint:recommended",
     "plugin:eslint-comments/recommended",
@@ -29,8 +29,14 @@ module.exports = {
       },
     },
   ],
+  /**
+   * Rule overrides and additions.
+   * In general, we want to use the recommended rules.
+   * However, there are some aspects that we may want to be stricter about
+   * to keep the code more maintainable.
+   */
   rules: {
-    "eslint-comments/require-description": "error",
+    "eslint-comments/require-description": "warn", // Helpful for understanding why a rule is disabled.
   },
   reportUnusedDisableDirectives: true,
 };
