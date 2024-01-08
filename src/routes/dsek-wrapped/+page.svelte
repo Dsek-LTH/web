@@ -1,5 +1,5 @@
 <script lang="ts">
-  import SmallArticleCard from "../news/SmallArticleCard.svelte";
+  // import SmallArticleCard from "../news/SmallArticleCard.svelte";
 
   export let data;
   let year: number | null = new Date().getFullYear();
@@ -10,7 +10,7 @@
 <p>Mest gillade artiklarna från {year}</p>
 
 {#each data.mostLikedArticles as article (article.id)}
-  <SmallArticleCard
+  <!-- <SmallArticleCard
     {article}
     author={article.author}
     tags={article.tags}
@@ -18,5 +18,5 @@
     commentCount={article.comments.length}
     likeForm={data.likeForm}
     hideBody
-  />
+  /> -->
 {/each}

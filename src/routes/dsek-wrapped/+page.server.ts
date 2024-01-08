@@ -1,7 +1,11 @@
 import prisma from "$lib/utils/prisma";
 import { superValidate } from "sveltekit-superforms/server";
 import type { PageServerLoad } from "./$types";
-import { likeSchema } from "../news/likes";
+import { z } from "zod";
+
+const likeSchema = z.object({
+  articleId: z.string(),
+});
 
 export const load: PageServerLoad = async () => {
   const mostLikedArticles = await prisma.article.findMany({
