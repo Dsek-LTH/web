@@ -1,6 +1,6 @@
 <script lang="ts">
   import TagChip from "$lib/components/TagChip.svelte";
-  import CommentSection from "../../../lib/components/socials/CommentSection.svelte";
+  import CommentSection from "$lib/components/socials/CommentSection.svelte";
   import Event from "../Event.svelte";
 
   export let data;

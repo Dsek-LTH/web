@@ -37,6 +37,26 @@ module.exports = {
    */
   rules: {
     "eslint-comments/require-description": "warn", // Helpful for understanding why a rule is disabled.
+    "no-restricted-imports": [
+      // Forces the folder structure to reflect the dependency graph.
+      // This makes it easier to understand how code may be coupled.
+      "warn",
+      {
+        patterns: [
+          {
+            // any path beginning with ../ and ending with /<folder>/<file>
+            // e.g. import { foo } from "../bar/baz";
+            group: ["../**/*[a-zA-Z0-9_-]*/*"],
+            message:
+              "\nIt looks like you're importing from a different subtree. " +
+              "Consider whether the imported code should really be shared. Suggestions:\n" +
+              "1) Write new code specific to your usage.\n" +
+              "2) Move the imported code to a shared location, e.g. a parent folder.\n" +
+              "3) Verify that you're using the correct path alias, e.g. $lib.",
+          },
+        ],
+      },
+    ],
   },
   reportUnusedDisableDirectives: true,
 };

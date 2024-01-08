@@ -1,6 +1,6 @@
 <script lang="ts">
   import TagChip from "$lib/components/TagChip.svelte";
-  import CommentSection from "../../../lib/components/socials/CommentSection.svelte";
+  import CommentSection from "$lib/components/socials/CommentSection.svelte";
   import Article from "../Article.svelte";
   import AuthorSignature from "../AuthorSignature.svelte";
   import LikeButton from "../LikeButton.svelte";
