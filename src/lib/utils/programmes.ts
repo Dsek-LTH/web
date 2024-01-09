@@ -1,4 +1,4 @@
-export const classProgrammes = [
+export const programmes = [
   { id: "D", name: "Datateknik" },
   { id: "C", name: "InfoCom" },
   { id: "VR/AR", name: "Masterprogram inom VR/AR" },
@@ -6,4 +6,4 @@ export const classProgrammes = [
   { id: "BME", name: "Medicin och teknik" },
   { id: "Dokt", name: "Doktorand" },
   { id: "?", name: "Annat" },
-];
+] as const;

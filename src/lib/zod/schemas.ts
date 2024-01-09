@@ -1,5 +1,5 @@
+import { programmes } from "$lib/utils/programmes";
 import { z } from "zod";
-import { classProgrammes } from "../../routes/members/[studentId]/data";
 
 export const memberSchema = z.object({
   studentId: z.string().nullable(),
@@ -18,7 +18,7 @@ export const memberSchema = z.object({
     .string()
     .nullable()
     .default("D")
-    .refine((p) => p == null || classProgrammes.some((c) => c.id === p), {
+    .refine((p) => p == null || programmes.some((c) => c.id === p), {
       message: "Ogiltigt program",
     }),
   foodPreference: z.string().nullable().default(null),

@@ -3,7 +3,7 @@
   import Labeled from "$lib/components/Labeled.svelte";
   import type { SuperValidated } from "sveltekit-superforms";
   import type { UpdateSchema } from "./+page.server";
-  import { classProgrammes } from "./data";
+  import { programmes } from "$lib/utils/programmes";
   import { superForm } from "sveltekit-superforms/client";
   export let isEditing;
   export let data: SuperValidated<UpdateSchema>;
@@ -55,7 +55,7 @@
         bind:value={$form.classProgramme}
         {...$constraints.classProgramme}
       >
-        {#each classProgrammes as programme (programme.id)}
+        {#each programmes as programme (programme.id)}
           <option value={programme.id}>{programme.name}</option>
         {/each}
       </select>
