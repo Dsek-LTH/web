@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
+    "ci": "concurrently 'pnpm:lint' 'pnpm:format' 'pnpm:check' --prefix-colors 'auto' --group",
     "dev": "vite dev",
     "dev-setup": "vite-node dev/setup.ts",
     "build": "vite build",
