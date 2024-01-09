@@ -16,10 +16,11 @@
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "generate": "prisma generate",
     "migrate": "prisma migrate dev",
-    "seed": "vite-node prisma/seed.ts"
+    "seed": "prisma db seed"
   },
   "prisma": {
-    "seed": "vite-node prisma/seed.ts"
+    "schema": "src/database/schema.prisma",
+    "seed": "vite-node src/database/seed/main.ts"
   },
   "devDependencies": {
     "@clack/prompts": "^0.7.0",

@@ -1,5 +1,5 @@
+import apiNames from "$lib/utils/apiNames";
 import { PrismaClient } from "@prisma/client";
-import apiNames from "../../src/lib/utils/apiNames";
 
 export const insertAccessPolicies = async (prisma: PrismaClient) => {
   return Promise.all([
