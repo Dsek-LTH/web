@@ -10,6 +10,10 @@ const config = {
   kit: {
     // See https://kit.svelte.dev/docs/adapters for more information about adapters.
     adapter: adapter(),
+
+    alias: {
+      $intl: "./src/translations/paraglide", // same as outdir for paraglide in vite.config.ts
+    },
   },
 };
 
