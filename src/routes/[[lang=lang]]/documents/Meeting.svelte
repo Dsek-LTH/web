@@ -6,7 +6,7 @@
   import DeleteFileForm from "./DeleteFileForm.svelte";
   import File from "./File.svelte";
   import type { SuperValidated } from "sveltekit-superforms";
-  import type { DeleteSchema } from "./+page.server.ts";
+  import type { DeleteSchema } from "./+page.server";
 
   export let deleteForm: SuperValidated<DeleteSchema>;
   export let name: string;
