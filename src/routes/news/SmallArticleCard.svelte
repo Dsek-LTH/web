@@ -3,7 +3,7 @@
   import TagChip from "$lib/components/TagChip.svelte";
   import type { Article as ArticleType, Member, Tag } from "@prisma/client";
   import type { SuperValidated } from "sveltekit-superforms";
-  import AuthorSignature from "./AuthorSignature.svelte";
+  import AuthorSignature from "$lib/components/AuthorSignature.svelte";
   import LikeButton from "./LikeButton.svelte";
   import LikersList from "./LikersList.svelte";
   import type { AuthorOption } from "./articles";

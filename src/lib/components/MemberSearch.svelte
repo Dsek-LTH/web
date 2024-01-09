@@ -1,7 +1,7 @@
 <script lang="ts">
   import { page } from "$app/stores";
   import type { Member } from "@prisma/client";
-  import AuthorSignature from "../../routes/news/AuthorSignature.svelte";
+  import AuthorSignature from "./AuthorSignature.svelte";
   import { twMerge } from "tailwind-merge";
 
   let clazz = "";

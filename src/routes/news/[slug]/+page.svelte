@@ -2,7 +2,7 @@
   import TagChip from "$lib/components/TagChip.svelte";
   import CommentSection from "$lib/components/socials/CommentSection.svelte";
   import Article from "../Article.svelte";
-  import AuthorSignature from "../AuthorSignature.svelte";
+  import AuthorSignature from "$lib/components/AuthorSignature.svelte";
   import LikeButton from "../LikeButton.svelte";
   import LikersList from "../LikersList.svelte";
 

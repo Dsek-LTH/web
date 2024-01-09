@@ -2,7 +2,7 @@
   import { page } from "$app/stores";
   import { getFullName } from "$lib/utils/client/member";
   import type { Member } from "@prisma/client";
-  import AuthorSignature from "./AuthorSignature.svelte";
+  import AuthorSignature from "$lib/components/AuthorSignature.svelte";
 
   let modal: HTMLDialogElement;
   export let likers: Member[];

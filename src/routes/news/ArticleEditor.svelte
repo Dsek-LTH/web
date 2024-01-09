@@ -8,7 +8,7 @@
   import type { SuperValidated } from "sveltekit-superforms";
   import { superForm } from "sveltekit-superforms/client";
   import Article from "./Article.svelte";
-  import AuthorSignature from "./AuthorSignature.svelte";
+  import AuthorSignature from "$lib/components/AuthorSignature.svelte";
   import type { AuthorOption } from "./articles.js";
   import type { ArticleSchema } from "./schema";
 
