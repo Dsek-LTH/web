@@ -1,6 +1,18 @@
 <script lang="ts">
+  import { page } from "$app/stores";
+  import { toast, toasts } from "$lib/stores/toast";
   import { fade } from "svelte/transition";
-  import { toasts } from "$lib/stores/toast";
+  import { getFlash } from "sveltekit-flash-message";
+
+  const flash = getFlash(page);
+  // Message from form (not redirect)
+  $: $page.form?.form?.message && $page.form.form.message.type !== "hidden"
+    ? toast($page.form.form.message.message, $page.form.form.message.type)
+    : null;
+  // Message from form on redirect
+  $: $flash && $flash.type !== "hidden"
+    ? toast($flash.message, $flash.type)
+    : null;
 </script>
 
 {#if $toasts}
