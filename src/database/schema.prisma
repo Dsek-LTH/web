@@ -395,7 +395,7 @@ model Member {
   notifications          Notification[]
   subscriptionSettings   SubscriptionSetting[]
   memberSpecificPolicies AccessPolicy[]
-  DoorAccessPolicy       DoorAccessPolicy[]
+  doorAccessPolicies     DoorAccessPolicy[]
 
   @@map("members")
 }
