@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
   import SmallArticleCard from "../news/SmallArticleCard.svelte";
 
   export let data;
@@ -19,4 +19,4 @@
     likeForm={data.likeForm}
     hideBody
   />
-{/each}
+{/each} -->
