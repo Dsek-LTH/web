@@ -3,7 +3,7 @@
   import { page } from "$app/stores";
   import "../app.css";
   import DarkLightToggle from "./DarkLightToggle.svelte";
-  import DsekLogo from "$lib/components/DsekLogo.svelte";
+  import DsekLogo from "./DsekLogo.svelte";
   import { routes } from "./routes";
   $: accessPolicies = $page.data.accessPolicies;
   $: user = $page.data.session?.user;

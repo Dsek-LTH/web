@@ -1,7 +1,7 @@
 <script lang="ts">
   import { page } from "$app/stores";
   import "../app.css";
-  import DsekLogo from "$lib/components/DsekLogo.svelte";
+  import DsekLogo from "./DsekLogo.svelte";
   import { routes } from "./routes";
   $: accessPolicies = $page.data.accessPolicies;
 

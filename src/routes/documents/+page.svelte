@@ -1,7 +1,7 @@
 <script lang="ts">
   import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
   import Pagination from "$lib/components/Pagination.svelte";
-  import Tabs from "$lib/components/Tabs.svelte";
+  import Tabs from "./Tabs.svelte";
   import apiNames from "$lib/utils/apiNames";
   import type { DocumentType } from "./+page.server";
   import Meeting from "./Meeting.svelte";

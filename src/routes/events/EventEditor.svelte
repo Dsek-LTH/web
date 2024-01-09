@@ -1,5 +1,5 @@
 <script lang="ts">
-  import DateInput from "$lib/components/DateInput.svelte";
+  import DateInput from "./DateInput.svelte";
   import Input from "$lib/components/Input.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
   import TagChip from "$lib/components/TagChip.svelte";

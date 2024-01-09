@@ -1,5 +1,5 @@
 <script lang="ts">
-  import DateSpan from "$lib/components/DateSpan.svelte";
+  import DateSpan from "./DateSpan.svelte";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import type { Event } from "@prisma/client";
 

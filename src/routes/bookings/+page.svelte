@@ -1,5 +1,5 @@
 <script lang="ts">
-  import BookableSelector from "$lib/components/BookableSelector.svelte";
+  import BookableSelector from "./BookableSelector.svelte";
   // import SearchBar from "$lib/components/SearchBar.svelte";
   // import TagSelector from "$lib/components/TagSelector.svelte";
   import Calendar from "./Calendar.svelte";
