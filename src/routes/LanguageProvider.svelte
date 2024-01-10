@@ -5,7 +5,9 @@
     setLanguageTag,
     sourceLanguageTag,
     type AvailableLanguageTag,
+    availableLanguageTags,
   } from "$intl/runtime";
+  import { route } from "$lib/utils/i18nRouting";
 
   // Use the default language if no language is given
   $: lang = ($page.params["lang"] as AvailableLanguageTag) ?? sourceLanguageTag;
@@ -14,6 +16,17 @@
   // Set the lang attribute on the <html> tag
   $: if (browser) document.documentElement.lang = lang;
 </script>
+
+<!-- SEO: Add alternate links for each language -->
+<svelte:head>
+  {#each availableLanguageTags as lang}
+    <link
+      rel="alternate"
+      hreflang={lang}
+      href={route($page.url.pathname, lang)}
+    />
+  {/each}
+</svelte:head>
 
 <!-- Remount the page when the language changes -->
 {#key lang}
