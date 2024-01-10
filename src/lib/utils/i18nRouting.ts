@@ -2,7 +2,7 @@ import {
   sourceLanguageTag,
   type AvailableLanguageTag,
   availableLanguageTags,
-} from "$intl/runtime";
+} from "$paraglide/runtime";
 
 /**
  * Returns the path in the given language, regardless of which language the path is in.

@@ -3,7 +3,7 @@
 import {
   availableLanguageTags,
   type AvailableLanguageTag,
-} from "$intl/runtime";
+} from "$paraglide/runtime";
 
 export const match = (param): param is AvailableLanguageTag => {
   return (availableLanguageTags as readonly string[]).includes(param);

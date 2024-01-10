@@ -12,7 +12,7 @@ const config = {
     adapter: adapter(),
 
     alias: {
-      $intl: "./src/translations/paraglide", // same as outdir for paraglide in vite.config.ts
+      $paraglide: "./src/translations/paraglide", // same as outdir for paraglide in vite.config.ts
     },
   },
 };

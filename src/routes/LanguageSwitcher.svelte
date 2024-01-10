@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { languageTag } from "$intl/runtime";
+  import { languageTag } from "$paraglide/runtime";
   import { page } from "$app/stores";
   import { route } from "$lib/utils/i18nRouting";
 </script>

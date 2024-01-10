@@ -6,7 +6,7 @@ import {
   KEYCLOAK_CLIENT_ISSUER,
   AUTH_SECRET,
 } from "$env/static/private";
-import { sourceLanguageTag } from "$intl/runtime";
+import { sourceLanguageTag } from "$paraglide/runtime";
 
 export async function handle({ event, resolve }) {
   const lang = event.params["lang"] ?? sourceLanguageTag;

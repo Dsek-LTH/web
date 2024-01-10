@@ -6,7 +6,7 @@
     sourceLanguageTag,
     type AvailableLanguageTag,
     availableLanguageTags,
-  } from "$intl/runtime";
+  } from "$paraglide/runtime";
   import { route } from "$lib/utils/i18nRouting";
 
   // Use the default language if no language is given
