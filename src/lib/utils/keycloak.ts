@@ -1,14 +1,14 @@
-import { dev } from "$app/environment";
 import KcAdminClient from "@keycloak/keycloak-admin-client";
 import {
   KEYCLOAK_ADMIN_USERNAME,
   KEYCLOAK_ADMIN_PASSWORD,
   KEYCLOAK_ENDPOINT,
+  KEYCLOAK_ENABLED,
 } from "$env/static/private";
 
-async function auth() {
-  if (dev) return;
+const enabled = KEYCLOAK_ENABLED === "true";
 
+async function auth() {
   const kcAdminClient = new KcAdminClient({
     baseUrl: KEYCLOAK_ENDPOINT || "",
     realmName: "master",
@@ -27,6 +27,7 @@ async function auth() {
 }
 
 async function addMandate(memberId: string, positionId: string) {
+  if (!enabled) return;
   const client = await auth();
 
   await client!.users.addToGroup({
@@ -36,6 +37,7 @@ async function addMandate(memberId: string, positionId: string) {
 }
 
 async function deleteMandate(memberId: string, positionId: string) {
+  if (!enabled) return;
   const client = await auth();
 
   await client!.users.delFromGroup({
