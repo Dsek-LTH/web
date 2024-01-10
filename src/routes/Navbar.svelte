@@ -5,6 +5,7 @@
   import DarkLightToggle from "./DarkLightToggle.svelte";
   import DsekLogo from "./DsekLogo.svelte";
   import { routes } from "./routes";
+  import LanguageSwitcher from "./LanguageSwitcher.svelte";
   $: accessPolicies = $page.data.accessPolicies;
   $: user = $page.data.session?.user;
 </script>
@@ -73,54 +74,57 @@
     {/each}
   </div>
 
-  <DarkLightToggle />
-  {#if $page.data.session}
-    <div class="dropdown dropdown-end dropdown-hover">
-      <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-      <!-- svelte-ignore a11y-label-has-associated-control -->
-      <label tabindex="0" class="btn btn-ghost m-1"
-        ><span class="i-mdi-account-circle h-10 w-10"> </span></label
-      >
-      <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-      <div
-        tabindex="0"
-        class="card dropdown-content card-compact z-[1] w-max bg-base-100 p-2 text-center text-base-content shadow"
-      >
-        <div class="card-body">
-          <p class="text-center font-semibold">Inloggad som</p>
-          <h3 class="text-xl font-bold">
-            {user?.name}
-          </h3>
-          <p class="text-sm">({user?.student_id})</p>
-          <span class="divider m-1"></span>
+  <div class="flex">
+    <LanguageSwitcher />
+    <DarkLightToggle />
+    {#if $page.data.session}
+      <div class="dropdown dropdown-end dropdown-hover">
+        <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+        <!-- svelte-ignore a11y-label-has-associated-control -->
+        <label tabindex="0" class="btn btn-ghost">
+          <span class="i-mdi-account-circle text-2xl" />
+        </label>
+        <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+        <div
+          tabindex="0"
+          class="card dropdown-content card-compact z-[1] w-max bg-base-100 p-2 text-center text-base-content shadow"
+        >
+          <div class="card-body">
+            <p class="text-center font-semibold">Inloggad som</p>
+            <h3 class="text-xl font-bold">
+              {user?.name}
+            </h3>
+            <p class="text-sm">({user?.student_id})</p>
+            <span class="divider m-1" />
 
-          <div class="flex flex-col items-start gap-2">
-            <a
-              href={`/members/${user?.student_id}`}
-              class="btn btn-ghost w-48 justify-start text-base-content"
+            <div class="flex flex-col items-start gap-2">
+              <a
+                href={`/members/${user?.student_id}`}
+                class="btn btn-ghost w-48 justify-start text-base-content"
+              >
+                <span class="i-mdi-account-circle h-6 w-6 text-primary" />
+                Profil
+              </a>
+              <a href="/settings" class="btn btn-ghost w-48 justify-start">
+                <span class="i-mdi-cog h-6 w-6 text-primary" />
+                Inställningar
+              </a>
+            </div>
+            <span class="divider m-1" />
+            <button
+              class="btn btn-ghost justify-start"
+              on:click={() => signOut()}
             >
-              <span class="i-mdi-account-circle h-6 w-6 text-primary"> </span>
-              Profil</a
-            >
-            <a href="/settings" class="btn btn-ghost w-48 justify-start">
-              <span class="i-mdi-cog h-6 w-6 text-primary"> </span>
-              Inställningar</a
+              <span class="i-mdi-logout h-6 w-6 text-primary" />
+              Logga ut</button
             >
           </div>
-          <span class="divider m-1"></span>
-          <button
-            class="btn btn-ghost justify-start"
-            on:click={() => signOut()}
-          >
-            <span class="i-mdi-logout h-6 w-6 text-primary"> </span>
-            Logga ut</button
-          >
         </div>
       </div>
-    </div>
-  {:else}
-    <button class="btn btn-ghost" on:click={() => signIn("keycloak")}
-      >Logga in</button
-    >
-  {/if}
+    {:else}
+      <button class="btn btn-ghost" on:click={() => signIn("keycloak")}>
+        Logga in
+      </button>
+    {/if}
+  </div>
 </div>
