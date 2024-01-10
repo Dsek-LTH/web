@@ -57,6 +57,7 @@
     "@egoist/tailwindcss-icons": "^1.4.0",
     "@fullcalendar/core": "^6.1.9",
     "@fullcalendar/daygrid": "^6.1.9",
+    "@keycloak/keycloak-admin-client": "^23.0.1",
     "@prisma/client": "5.3.1",
     "@tiptap/core": "^2.1.11",
     "@tiptap/pm": "^2.1.11",
