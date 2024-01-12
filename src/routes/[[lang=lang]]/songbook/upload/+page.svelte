@@ -14,7 +14,7 @@
 </svelte:head>
 
 <main>
-  <section class="grid grid-cols-2 gap-4">
+  <section>
     <form
       method="POST"
       action="?/create"
@@ -30,7 +30,7 @@
       />
       <Labeled label="Melodi" id="melody" error={$errors.melody}>
         <p class="text-sm text-gray-400">
-          Sök efter en melodi eller skriv in en ny.
+          Sök efter en melodi eller skriv in en ny
         </p>
         <AutoCompleteSelector
           name="melody"
@@ -42,7 +42,7 @@
       >
       <Labeled label="Kategori" id="category" error={$errors.category}
         ><p class="text-sm text-gray-400">
-          Sök efter en kategori eller skriv in en ny.
+          Sök efter en kategori eller skriv in en ny
         </p>
         <AutoCompleteSelector
           name="category"
@@ -61,7 +61,9 @@
           {...$constraints.lyrics}
         ></textarea>
       </Labeled>
-      <button class="btn btn-primary mt-4" type="submit"> Skapa sång </button>
+      <button class="btn btn-primary mt-4 w-fit" type="submit">
+        Ladda upp
+      </button>
     </form>
   </section>
 </main>

@@ -17,15 +17,61 @@
   <meta name="description" content={data.song.lyrics} />
 </svelte:head>
 
-<button
-  class="btn btn-secondary w-fit"
-  on:click={() => (isEditing = !isEditing)}
->
-  {isEditing ? "Sluta redigera" : "Redigera"}
-</button>
+<div class="flex justify-between">
+  <button
+    class="btn btn-secondary w-fit"
+    on:click={() => (isEditing = !isEditing)}
+  >
+    {isEditing ? "Sluta redigera" : "Redigera"}
+  </button>
+  {#if isEditing && data.accessPolicies.includes(apiNames.SONG.DELETE)}
+    <form
+      method="POST"
+      action="?/delete"
+      class="form-control gap-2"
+      on:submit={async (event) => {
+        if (!confirm("Är säker på att du vill ta bort sången?")) {
+          event.preventDefault();
+          return;
+        }
+        if (
+          !confirm(
+            `D-sektionens sångarkiv är viktigt för att bevara vår historia. 
+Är du verkligen helt säker på att du vill ta bort sången?`,
+          )
+        ) {
+          event.preventDefault();
+          return;
+        }
+        if (
+          !confirm("Detta går inte att ångra! Förstår du innebörden av detta?")
+        ) {
+          event.preventDefault();
+          return;
+        }
+      }}
+    >
+      <input type="hidden" name="id" value={data.song.id} />
+      <button
+        class="btn btn-error w-fit
+    "
+        type="submit"
+        formaction="?/delete"
+      >
+        Ta bort sång
+      </button>
+    </form>
+  {/if}
+</div>
 
 {#if isEditing && data.accessPolicies.includes(apiNames.SONG.UPDATE)}
-  <form method="POST" action="?/update" class="form-control gap-2" use:enhance>
+  <form
+    method="POST"
+    action="?/update"
+    class="form-control gap-2"
+    use:enhance
+    name="update-song"
+  >
     <input type="hidden" name="id" value={data.song.id} />
     <input
       type="hidden"
@@ -35,7 +81,7 @@
     />
     <Labeled label="Melodi" id="melody" error={$errors.melody}>
       <p class="text-sm text-gray-400">
-        Sök efter en melodi eller skriv in en ny.
+        Sök efter en melodi eller skriv in en ny
       </p>
       <AutoCompleteSelector
         name="melody"
@@ -48,7 +94,7 @@
     </Labeled>
     <Labeled label="Kategori" id="category" error={$errors.category}>
       <p class="text-sm text-gray-400">
-        Sök efter en kategori eller skriv in en ny.
+        Sök efter en kategori eller skriv in en ny
       </p>
       <AutoCompleteSelector
         name="category"
@@ -74,6 +120,7 @@
       on:click={() => {
         isEditing = false;
       }}
+      form="update-song"
     >
       Spara
     </button>
@@ -81,42 +128,5 @@
 {/if}
 
 <SongElement song={data.song} />
-
-{#if isEditing && data.accessPolicies.includes(apiNames.SONG.DELETE)}
-  <form
-    method="POST"
-    action="?/delete"
-    class="form-control gap-2"
-    on:submit={async (event) => {
-      if (!confirm("Är säker på att du vill ta bort sången?")) {
-        event.preventDefault();
-        return;
-      }
-      if (
-        !confirm(
-          `D-sektionens sångarkiv är viktigt för att bevara vår historia. 
-Är du verkligen helt säker på att du vill ta bort sången?`,
-        )
-      ) {
-        event.preventDefault();
-        return;
-      }
-      if (
-        !confirm("Detta går inte att ångra! Förstår du innebörden av detta?")
-      ) {
-        event.preventDefault();
-        return;
-      }
-    }}
-  >
-    <input type="hidden" name="id" value={data.song.id} />
-    <button
-      class="btn btn-error w-fit
-    "
-    >
-      Ta bort
-    </button>
-  </form>
-{/if}
 
 <Disclaimer />
