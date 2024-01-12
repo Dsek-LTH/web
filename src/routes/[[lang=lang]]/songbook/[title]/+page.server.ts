@@ -8,7 +8,7 @@ import isomorphicDompurify from "isomorphic-dompurify";
 const { sanitize } = isomorphicDompurify;
 import { fixSongText } from "$lib/utils/song";
 import { updateSongSchema } from "../schema";
-import { message, superValidate } from "sveltekit-superforms/server";
+import { message, setError, superValidate } from "sveltekit-superforms/server";
 import type { Song } from "@prisma/client";
 
 export const load: PageServerLoad = async ({ params, parent }) => {
@@ -73,15 +73,27 @@ export const actions = {
     const session = await locals.getSession();
     return withAccess(apiNames.SONG.UPDATE, session?.user, async () => {
       const data = form.data;
+      if (data.title == null) {
+        return setError(form, "title", "Titel saknas");
+      }
+      if (data.lyrics == null) {
+        return setError(form, "lyrics", "Text saknas");
+      }
+      if (data.category == null) {
+        return setError(form, "category", "Kategori saknas");
+      }
+      if (data.melody == null) {
+        return setError(form, "melody", "Melodi saknas");
+      }
       await prisma.song.update({
         where: {
           id: data.id,
         },
         data: {
-          title: data.title,
-          lyrics: data.lyrics,
-          melody: data.melody,
-          category: data.category,
+          title: data.title.trim(),
+          lyrics: data.lyrics.trim(),
+          melody: data.melody.trim(),
+          category: data.category.trim(),
           updatedAt: new Date(),
         },
       });
