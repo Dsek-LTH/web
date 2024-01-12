@@ -74,8 +74,15 @@ const yrkaSend = async (prisma: PrismaClient) => {
 
 const song = async (prisma: PrismaClient) => {
   await Promise.all([
-    insertPolicies(prisma, apiNames.SONG.CREATE, ["dsek.infu.arkivarie"]),
+    insertPolicies(prisma, apiNames.SONG.CREATE, [
+      "dsek.infu.mastare",
+      "dsek.infu.arkivarie",
+    ]),
     insertPolicies(prisma, apiNames.SONG.READ, ["*"]),
+    insertPolicies(prisma, apiNames.SONG.UPDATE, [
+      "dsek.infu.mastare",
+      "dsek.infu.arkivarie",
+    ]),
     insertPolicies(prisma, apiNames.SONG.DELETE, [
       "dsek.infu.mastare",
       "dsek.infu.arkivarie",
