@@ -1,4 +1,5 @@
 import prisma from "$lib/utils/prisma";
+import { fixSongText } from "$lib/utils/song";
 import type { PageServerLoad } from "./$types";
 import type { Prisma } from "@prisma/client";
 import isomorphicDompurify from "isomorphic-dompurify";
@@ -6,7 +7,8 @@ const { sanitize } = isomorphicDompurify;
 
 const SONGS_PER_PAGE = 10;
 
-export const load: PageServerLoad = async ({ url }) => {
+export const load: PageServerLoad = async ({ url, parent }) => {
+  const { accessPolicies } = await parent();
   const page = url.searchParams.get("page");
   const search = url.searchParams.get("search");
   const category = url.searchParams.get("category");
@@ -111,15 +113,6 @@ export const load: PageServerLoad = async ({ url }) => {
     categories,
     category,
     params: url.searchParams.toString(),
+    accessPolicies,
   };
 };
-
-function fixSongText(s: string): string {
-  return s
-    .replaceAll("---", "—")
-    .replaceAll("--", "–")
-    .replaceAll("||:", "𝄆")
-    .replaceAll(":||", "𝄇")
-    .replaceAll("|:", "𝄆")
-    .replaceAll(":|", "𝄇");
-}

@@ -1,6 +1,10 @@
 <script lang="ts">
+  import PageHeader from "$lib/components/PageHeader.svelte";
   import Pagination from "$lib/components/Pagination.svelte";
   import SearchBar from "$lib/components/SearchBar.svelte";
+  import apiNames from "$lib/utils/apiNames";
+  import Disclaimer from "./Disclaimer.svelte";
+  import SongElement from "./SongElement.svelte";
 
   function isCatSelected(catId: string): boolean {
     return (data.category ?? "").startsWith(catId);
@@ -21,9 +25,21 @@
   export let data;
 </script>
 
-<svelte:head>
-  <title>Sjungbok | D-sektionen</title>
-</svelte:head>
+<div class="flex flex-row">
+  <PageHeader title="Sjungbok" />
+  {#if data.accessPolicies.includes(apiNames.SONG.REQUEST.CREATE) || data.accessPolicies.includes(apiNames.SONG.CREATE)}
+    <div class="ml-auto">
+      <a href="/songbook/upload">
+        <button class="btn btn-primary">Ladda upp sång!</button>
+      </a>
+    </div>
+  {/if}
+</div>
+
+<p class="text-xl font-bold">
+  Här hittar du alla sånger som finns i D-sektionens digitala sångarkiv!
+</p>
+<Disclaimer />
 
 <div class="my-4 flex flex-wrap justify-between">
   {#each Object.keys(data.categories) as catId}
@@ -50,34 +66,11 @@
 </section>
 
 {#each data.songs as song}
-  <article class="my-4 rounded-lg p-6 shadow-2xl ring-neutral-700 md:ring-1">
-    <div class="flex justify-between">
-      <h2 class="my-3 text-2xl font-bold">
-        <!-- Sanitized server side -->
-        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-        {@html song.title}
-      </h2>
-
-      <p class="text-right text-xs text-gray-500">
-        {song.createdAt?.toLocaleDateString(["sv"])} <br />
-        {song.createdAt?.toLocaleTimeString(["sv"], {
-          hour: "2-digit",
-          minute: "2-digit",
-        })}
-      </p>
-    </div>
-
-    <h3 class="mb-4 text-lg italic text-gray-500">
-      {song.category}
-    </h3>
-
-    <p class="mb-4 italic">Mel: {song.melody}</p>
-    <p class="whitespace-pre-line">
-      <!-- Sanitized server side -->
-      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-      {@html song.lyrics}
-    </p>
-  </article>
+  <div class="rounded-lg hover:ring-2 hover:ring-primary">
+    <a href={`/songbook/${song.title}`}>
+      <SongElement {song} />
+    </a>
+  </div>
 {/each}
 
 <Pagination count={data.pageCount} />

@@ -61,6 +61,10 @@ const apiNames = {
   YRKA: {
     SEND: "yrka:send",
   },
+  SONG: {
+    ...crud("song"),
+    REQUEST: { ...crud("song:request") },
+  },
 } as const;
 
 export default apiNames;
