@@ -4,7 +4,7 @@
   import Disclaimer from "../Disclaimer.svelte";
   import SongElement from "../SongElement.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
-  import FuzzySelector from "../upload/FuzzySelector.svelte";
+  import AutoCompleteSelector from "$lib/components/AutoCompleteSelector.svelte";
 
   export let data;
   let isEditing = false;
@@ -37,7 +37,7 @@
       <p class="text-sm text-gray-400">
         Sök efter en melodi eller skriv in en ny.
       </p>
-      <FuzzySelector
+      <AutoCompleteSelector
         name="melody"
         bind:value={$form.melody}
         allItems={data.existingMelodies}
@@ -50,7 +50,7 @@
       <p class="text-sm text-gray-400">
         Sök efter en kategori eller skriv in en ny.
       </p>
-      <FuzzySelector
+      <AutoCompleteSelector
         name="category"
         bind:value={$form.category}
         allItems={data.existingCategories}

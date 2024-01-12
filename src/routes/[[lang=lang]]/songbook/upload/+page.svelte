@@ -2,7 +2,7 @@
   import Input from "$lib/components/Input.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
   import { superForm } from "sveltekit-superforms/client";
-  import FuzzySelector from "./FuzzySelector.svelte";
+  import AutoCompleteSelector from "$lib/components/AutoCompleteSelector.svelte";
 
   export let data;
 
@@ -32,7 +32,7 @@
         <p class="text-sm text-gray-400">
           Sök efter en melodi eller skriv in en ny.
         </p>
-        <FuzzySelector
+        <AutoCompleteSelector
           name="melody"
           bind:value={$form.melody}
           allItems={data.existingMelodies}
@@ -44,7 +44,7 @@
         ><p class="text-sm text-gray-400">
           Sök efter en kategori eller skriv in en ny.
         </p>
-        <FuzzySelector
+        <AutoCompleteSelector
           name="category"
           bind:value={$form.category}
           allItems={data.existingCategories}
