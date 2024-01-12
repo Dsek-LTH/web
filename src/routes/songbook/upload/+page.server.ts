@@ -52,6 +52,29 @@ export const actions = {
   create: async (event) => {
     const form = await superValidate(event.request, createSongSchema);
     if (!form.valid) return fail(400, { form });
+    const existingTitles = await prisma.song.findMany({
+      where: {
+        title: {
+          contains: form.data.title,
+          mode: "insensitive",
+        },
+      },
+    });
+    if (existingTitles.length > 0) {
+      for (const song of existingTitles) {
+        if (song.title.toLowerCase() === form.data.title.toLowerCase()) {
+          return fail(400, {
+            form: {
+              ...form,
+              errors: {
+                title: "En sång med denna titel finns redan",
+              },
+            },
+          });
+        }
+      }
+    }
+
     const session = await event.locals.getSession();
     return withAccess(apiNames.SONG.CREATE, session?.user, async () => {
       const { title, melody, category, lyrics } = form.data;
