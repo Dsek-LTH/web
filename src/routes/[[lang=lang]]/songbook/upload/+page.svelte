@@ -3,15 +3,14 @@
   import Labeled from "$lib/components/Labeled.svelte";
   import { superForm } from "sveltekit-superforms/client";
   import AutoCompleteSelector from "$lib/components/AutoCompleteSelector.svelte";
+  import PageHeader from "$lib/components/PageHeader.svelte";
 
   export let data;
 
   const { form, errors, constraints, enhance } = superForm(data.form);
 </script>
 
-<svelte:head>
-  <title>Skapa sång | D-sektionen</title>
-</svelte:head>
+<PageHeader title="Ladda upp sång" />
 
 <main>
   <section>
