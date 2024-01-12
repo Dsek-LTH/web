@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { SuperValidated } from "sveltekit-superforms";
   import { superForm } from "sveltekit-superforms/client";
-  import type { DeleteSchema } from "./+page.server.ts";
+  import type { DeleteSchema } from "./+page.server.js";
 
   export let data: SuperValidated<DeleteSchema>;
   export let fileId: string;

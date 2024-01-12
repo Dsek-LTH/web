@@ -17,8 +17,8 @@
     "allowUnreachableCode": false,
     "noPropertyAccessFromIndexSignature": true,
     "noUncheckedIndexedAccess": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedLocals": false, // eslint no-unused-vars is more configurable
+    "noUnusedParameters": false, // eslint no-unused-vars is more configurable
     "typeRoots": ["types", "./node_modules/@types"]
   }
   // Path aliases are handled by https://kit.svelte.dev/docs/configuration#alias

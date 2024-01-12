@@ -3,11 +3,11 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "ci": "concurrently 'pnpm:lint' 'pnpm:format' 'pnpm:check' --prefix-colors 'auto' --group",
+    "prepare": "husky install && svelte-kit sync && prisma generate && pnpm paraglide",
+    "setup-dev": "vite-node dev/setup.ts",
+    "ci-check": "concurrently 'pnpm:lint' 'pnpm:format' 'pnpm:check' --prefix-colors 'auto' --group",
     "dev": "vite dev",
-    "dev-setup": "vite-node dev/setup.ts",
     "build": "vite build",
-    "prepare": "svelte-kit sync && prisma generate",
     "preview": "vite preview",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -18,7 +18,8 @@
     "generate": "prisma generate",
     "migrate": "prisma migrate dev",
     "seed": "prisma db seed",
-    "prisma-case-format": "prisma-case-format -f src/database/schema.prisma"
+    "prisma-case-format": "prisma-case-format -f src/database/schema.prisma",
+    "paraglide": "paraglide-js compile --project ./project.inlang --outdir ./src/translations/paraglide"
   },
   "prisma": {
     "schema": "src/database/schema.prisma",
