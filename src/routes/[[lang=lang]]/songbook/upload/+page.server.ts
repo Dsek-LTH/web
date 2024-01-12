@@ -3,8 +3,8 @@ import apiNames from "$lib/utils/apiNames";
 import prisma from "$lib/utils/prisma";
 import { fail, type Actions } from "@sveltejs/kit";
 import { redirect } from "sveltekit-flash-message/server";
-import { superValidate } from "sveltekit-superforms/client";
-import { createSongSchema } from "./schema";
+import { setError, superValidate } from "sveltekit-superforms/client";
+import { createSongSchema } from "../schema";
 import type { PageServerLoad } from "./$types";
 import type { Song } from "@prisma/client";
 
@@ -63,14 +63,7 @@ export const actions = {
     if (existingTitles.length > 0) {
       for (const song of existingTitles) {
         if (song.title.toLowerCase() === form.data.title.toLowerCase()) {
-          return fail(400, {
-            form: {
-              ...form,
-              errors: {
-                title: "En sång med denna titel finns redan",
-              },
-            },
-          });
+          return setError(form, "title", "En sång med detta namn finns redan");
         }
       }
     }

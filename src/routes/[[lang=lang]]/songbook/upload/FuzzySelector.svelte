@@ -1,6 +1,6 @@
 <script lang="ts">
   export let allItems: string[] = [];
-  let searchValue = "";
+  export let searchValue = "";
   $: filteredItems = allItems.filter(
     (item) =>
       item.toLowerCase().includes(searchValue.toLowerCase()) &&
