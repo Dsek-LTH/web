@@ -63,7 +63,6 @@ const apiNames = {
   },
   SONG: {
     ...crud("song"),
-    REQUEST: { ...crud("song:request") },
   },
 } as const;
 
