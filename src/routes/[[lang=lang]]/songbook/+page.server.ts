@@ -3,6 +3,7 @@ import { fixSongText } from "$lib/utils/song";
 import type { PageServerLoad } from "./$types";
 import type { Prisma } from "@prisma/client";
 import isomorphicDompurify from "isomorphic-dompurify";
+import { canAccessDeletedSongs, getExistingCategories } from "./songUtils";
 const { sanitize } = isomorphicDompurify;
 
 const SONGS_PER_PAGE = 10;
@@ -57,7 +58,19 @@ export const load: PageServerLoad = async ({ url, parent }) => {
     };
   }
 
-  const [songs, pageCount, catNames] = await Promise.all([
+  // Only show non-deleted songs if the user doesn't have access to deleted songs
+  if (!canAccessDeletedSongs(accessPolicies)) {
+    where = {
+      AND: [
+        where,
+        {
+          deletedAt: null,
+        },
+      ],
+    };
+  }
+
+  const [songs, pageCount, existingCategories] = await Promise.all([
     prisma.song.findMany({
       take: SONGS_PER_PAGE,
       skip: page
@@ -67,21 +80,13 @@ export const load: PageServerLoad = async ({ url, parent }) => {
       where,
     }),
     prisma.song.count({ where }),
-    prisma.song.findMany({
-      select: {
-        category: true,
-      },
-      distinct: ["category"],
-      orderBy: {
-        category: "asc",
-      },
-    }),
+    getExistingCategories(),
   ]);
 
   const categories: { [key: string]: string } = {};
 
-  for (const name of catNames) {
-    const split = name?.category?.split(" ");
+  for (const cat of existingCategories) {
+    const split = cat.split(" ");
 
     let id;
     if (split) {
@@ -98,7 +103,7 @@ export const load: PageServerLoad = async ({ url, parent }) => {
       if (categories[id]) {
         categories[id] = id;
       } else {
-        categories[id] = name.category ?? id;
+        categories[id] = cat ?? id;
       }
     }
   }

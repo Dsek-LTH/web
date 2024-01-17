@@ -27,7 +27,7 @@
 
 <div class="flex flex-row">
   <PageHeader title="Sjungbok" />
-  {#if data.accessPolicies.includes(apiNames.SONG.REQUEST.CREATE) || data.accessPolicies.includes(apiNames.SONG.CREATE)}
+  {#if data.accessPolicies.includes(apiNames.SONG.CREATE)}
     <div class="ml-auto">
       <a href="/songbook/upload">
         <button class="btn btn-primary">Ladda upp sång!</button>
@@ -67,8 +67,8 @@
 
 {#each data.songs as song}
   <div class="rounded-lg hover:ring-2 hover:ring-primary">
-    <a href={`/songbook/${song.title}`}>
-      <SongElement {song} />
+    <a href={`/songbook/${song.slug}`}>
+      <SongElement {song} accessPolicies={data.accessPolicies} />
     </a>
   </div>
 {/each}
