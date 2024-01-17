@@ -5,11 +5,17 @@
   import SongElement from "../SongElement.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
   import AutoCompleteSelector from "$lib/components/AutoCompleteSelector.svelte";
+  import Input from "$lib/components/Input.svelte";
 
   export let data;
   let isEditing = false;
 
-  const { form, errors, constraints, enhance } = superForm(data.form);
+  const {
+    form: updateForm,
+    errors,
+    constraints,
+    enhance: updateEnhance,
+  } = superForm(data.updateForm);
 </script>
 
 <svelte:head>
@@ -25,42 +31,34 @@
     {isEditing ? "Sluta redigera" : "Redigera"}
   </button>
   {#if isEditing && data.accessPolicies.includes(apiNames.SONG.DELETE)}
-    <form
-      method="POST"
-      action="?/delete"
-      class="form-control gap-2"
-      on:submit={async (event) => {
-        if (!confirm("Är säker på att du vill ta bort sången?")) {
-          event.preventDefault();
-          return;
-        }
-        if (
-          !confirm(
-            `D-sektionens sångarkiv är viktigt för att bevara vår historia. 
-Är du verkligen helt säker på att du vill ta bort sången?`,
-          )
-        ) {
-          event.preventDefault();
-          return;
-        }
-        if (
-          !confirm("Detta går inte att ångra! Förstår du innebörden av detta?")
-        ) {
-          event.preventDefault();
-          return;
-        }
-      }}
-    >
-      <input type="hidden" name="id" value={data.song.id} />
-      <button
-        class="btn btn-error w-fit
-    "
-        type="submit"
-        formaction="?/delete"
-      >
-        Ta bort sång
-      </button>
-    </form>
+    <div class="flex flex-col items-end">
+      {#if data.song.deletedAt === null}
+        <form method="POST" action="?/delete" class="form-control gap-2">
+          <input type="hidden" name="id" value={data.song.id} />
+          <button
+            class="btn btn-error w-fit"
+            type="submit"
+            formaction="?/delete"
+          >
+            Ta bort sång
+          </button>
+        </form>
+        <p class="w-48 text-sm text-gray-400">
+          Sången kommer att markeras som borttagen, men går att återställa
+        </p>
+      {:else}
+        <form method="POST" action="?/restore" class="form-control gap-2">
+          <input type="hidden" name="id" value={data.song.id} />
+          <button
+            class="btn btn-success w-fit"
+            type="submit"
+            formaction="?/restore"
+          >
+            Återställ sången till sångboken
+          </button>
+        </form>
+      {/if}
+    </div>
   {/if}
 </div>
 
@@ -69,15 +67,16 @@
     method="POST"
     action="?/update"
     class="form-control gap-2"
-    use:enhance
-    name="update-song"
+    use:updateEnhance
+    on:submit={() => (isEditing = false)}
   >
     <input type="hidden" name="id" value={data.song.id} />
-    <input
-      type="hidden"
+    <Input
       name="title"
-      value={data.song.title}
+      label="Titel"
+      bind:value={$updateForm.title}
       {...$constraints.title}
+      error={$errors.title}
     />
     <Labeled label="Melodi" id="melody" error={$errors.melody}>
       <p class="text-sm text-gray-400">
@@ -85,7 +84,7 @@
       </p>
       <AutoCompleteSelector
         name="melody"
-        bind:value={$form.melody}
+        bind:value={$updateForm.melody}
         allItems={data.existingMelodies}
         {...$constraints.melody}
         error={$errors.melody}
@@ -98,7 +97,7 @@
       </p>
       <AutoCompleteSelector
         name="category"
-        bind:value={$form.category}
+        bind:value={$updateForm.category}
         allItems={data.existingCategories}
         {...$constraints.category}
         error={$errors.category}
@@ -110,23 +109,14 @@
         id="lyrics"
         name="lyrics"
         class="textarea textarea-bordered h-96"
-        bind:value={$form.lyrics}
+        bind:value={$updateForm.lyrics}
         {...$constraints.lyrics}
       />
     </Labeled>
-    <button
-      class="btn btn-success mt-4 w-fit"
-      type="submit"
-      on:click={() => {
-        isEditing = false;
-      }}
-      form="update-song"
-    >
-      Spara
-    </button>
+    <button class="btn btn-success mt-4 w-fit" type="submit"> Spara </button>
   </form>
 {/if}
 
-<SongElement song={data.song} />
+<SongElement song={data.song} accessPolicies={data.accessPolicies} />
 
 <Disclaimer />

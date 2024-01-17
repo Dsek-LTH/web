@@ -3,43 +3,19 @@ import apiNames from "$lib/utils/apiNames";
 import prisma from "$lib/utils/prisma";
 import { fail, type Actions } from "@sveltejs/kit";
 import { redirect } from "sveltekit-flash-message/server";
-import { setError, superValidate } from "sveltekit-superforms/client";
+import { superValidate } from "sveltekit-superforms/client";
 import { createSongSchema } from "../schema";
 import type { PageServerLoad } from "./$types";
-import type { Song } from "@prisma/client";
+import { slugifySongTitle } from "$lib/utils/slugify";
+import { getExistingCategories, getExistingMelodies } from "../songUtils";
 
 export const load: PageServerLoad = async ({ parent }) => {
   const { accessPolicies } = await parent();
   policyAccessGuard(apiNames.SONG.CREATE, accessPolicies);
-
-  const existingCategories = (
-    await prisma.song.findMany({
-      distinct: ["category"],
-      orderBy: {
-        category: "asc",
-      },
-    })
-  ).reduce<Array<NonNullable<Song["category"]>>>((acc, cur) => {
-    if (cur.category !== null) {
-      acc.push(cur.category);
-    }
-    return acc;
-  }, []);
-
-  const existingMelodies = (
-    await prisma.song.findMany({
-      distinct: ["melody"],
-      orderBy: {
-        melody: "asc",
-      },
-    })
-  ).reduce<Array<NonNullable<Song["melody"]>>>((acc, cur) => {
-    if (cur.melody !== null) {
-      acc.push(cur.melody);
-    }
-    return acc;
-  }, []);
-
+  const [existingCategories, existingMelodies] = await Promise.all([
+    getExistingCategories(),
+    getExistingMelodies(),
+  ]);
   return {
     form: await superValidate(createSongSchema),
     accessPolicies,
@@ -52,22 +28,6 @@ export const actions = {
   create: async (event) => {
     const form = await superValidate(event.request, createSongSchema);
     if (!form.valid) return fail(400, { form });
-    const existingTitles = await prisma.song.findMany({
-      where: {
-        title: {
-          contains: form.data.title,
-          mode: "insensitive",
-        },
-      },
-    });
-    if (existingTitles.length > 0) {
-      for (const song of existingTitles) {
-        if (song.title.toLowerCase() === form.data.title.toLowerCase()) {
-          return setError(form, "title", "En sång med detta namn finns redan");
-        }
-      }
-    }
-
     const session = await event.locals.getSession();
     return withAccess(apiNames.SONG.CREATE, session?.user, async () => {
       const { title, melody, category, lyrics } = form.data;
@@ -75,6 +35,7 @@ export const actions = {
       const result = await prisma.song.create({
         data: {
           title: title,
+          slug: await slugifySongTitle(title),
           melody: melody,
           category: category,
           lyrics: lyrics,
@@ -83,7 +44,7 @@ export const actions = {
         },
       });
       throw redirect(
-        `/songbook/${result.title}`,
+        `/songbook/${result.slug}`,
         {
           message: "Sång skapad",
           type: "success",
