@@ -37,11 +37,21 @@ SET "slug" = trim(
   );
 DROP EXTENSION "unaccent";
 
--- handle duplicates
-UPDATE "songs" AS t1
-  JOIN "songs" AS t2 ON t1.id < t2.id
-  AND t1.slug = t2.slug
-SET t2.slug = CONCAT(t2.slug, '-', substr(t2.created_at, 1, 5));
+-- handle duplicates by incrementing slug, e.g. "my-song" -> "my-song-2"
+WITH "duplicates" AS (
+  SELECT id,
+    slug,
+    ROW_NUMBER() OVER (
+      PARTITION BY slug
+      ORDER BY created_at
+    ) as row_num
+  FROM songs
+)
+UPDATE "songs"
+SET slug = CONCAT(songs.slug, '-', duplicates.row_num)
+FROM "duplicates"
+WHERE songs.id = duplicates.id
+  and duplicates.row_num > 1;
 
 -- AlterTable
 ALTER TABLE "songs"
