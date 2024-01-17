@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { goto } from "$app/navigation";
   import PageHeader from "$lib/components/PageHeader.svelte";
   import Pagination from "$lib/components/Pagination.svelte";
   import SearchBar from "$lib/components/SearchBar.svelte";
@@ -40,6 +41,28 @@
   Här hittar du alla sånger som finns i D-sektionens digitala sångarkiv!
 </p>
 <Disclaimer />
+
+{#if data.accessPolicies.includes(apiNames.SONG.DELETE)}
+  <div class="my-4 flex items-center justify-end gap-2">
+    <input
+      class="checkbox"
+      type="checkbox"
+      id="show-deleted"
+      name="show-deleted"
+      on:click={async () => {
+        const urlParams = new URLSearchParams(data.params);
+        if (urlParams.has("show-deleted")) {
+          urlParams.delete("show-deleted");
+        } else {
+          urlParams.set("show-deleted", "true");
+        }
+        urlParams.delete("page"); // Reset the page counter
+        await goto(`?${urlParams.toString()}`, { replaceState: true });
+      }}
+      checked={data.params.includes("show-deleted")}
+    /> <label class="label" for="show-deleted">Visa borttagna sånger</label>
+  </div>
+{/if}
 
 <div class="my-4 flex flex-wrap justify-between">
   {#each Object.keys(data.categories) as catId}

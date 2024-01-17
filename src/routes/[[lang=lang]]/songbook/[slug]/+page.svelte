@@ -54,7 +54,7 @@
             type="submit"
             formaction="?/restore"
           >
-            Återställ sången till sångboken
+            Återställ sången till arkivet
           </button>
         </form>
       {/if}
