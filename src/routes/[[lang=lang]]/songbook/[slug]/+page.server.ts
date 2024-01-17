@@ -42,8 +42,11 @@ export const load: PageServerLoad = async ({ params, parent }) => {
   }
 
   const [existingCategories, existingMelodies] = await Promise.all([
-    getExistingCategories(),
-    getExistingMelodies(),
+    getExistingCategories(
+      accessPolicies,
+      canAccessDeletedSongs(accessPolicies),
+    ),
+    getExistingMelodies(accessPolicies, canAccessDeletedSongs(accessPolicies)),
   ]);
 
   const form = await superValidate(song, updateSongSchema);

@@ -13,7 +13,9 @@ export const load: PageServerLoad = async ({ url, parent }) => {
   const page = url.searchParams.get("page");
   const search = url.searchParams.get("search");
   const category = url.searchParams.get("category");
-  const showDeleted = url.searchParams.get("show-deleted") === "true";
+  const showDeleted =
+    canAccessDeletedSongs(accessPolicies) &&
+    url.searchParams.get("show-deleted") === "true";
 
   let where: Prisma.SongWhereInput = search
     ? {
@@ -60,7 +62,7 @@ export const load: PageServerLoad = async ({ url, parent }) => {
   }
 
   // If the user can access deleted songs, show them if the user wants to
-  if (canAccessDeletedSongs(accessPolicies) && showDeleted) {
+  if (showDeleted) {
     where = {
       AND: [
         where,
@@ -91,7 +93,7 @@ export const load: PageServerLoad = async ({ url, parent }) => {
       where,
     }),
     prisma.song.count({ where }),
-    getExistingCategories(),
+    getExistingCategories(accessPolicies, showDeleted),
   ]);
 
   const categories: { [key: string]: string } = {};

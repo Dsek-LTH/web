@@ -2,7 +2,13 @@ import apiNames from "$lib/utils/apiNames";
 import prisma from "$lib/utils/prisma";
 import type { Song } from "@prisma/client";
 
-export async function getExistingCategories(): Promise<string[]> {
+export async function getExistingCategories(
+  accessPolicies: string[] = [],
+  includeDeleted = false,
+): Promise<string[]> {
+  if (!accessPolicies.includes(apiNames.SONG.DELETE)) {
+    includeDeleted = false;
+  }
   const existingCategories = (
     await prisma.song.findMany({
       distinct: ["category"],
@@ -12,6 +18,11 @@ export async function getExistingCategories(): Promise<string[]> {
       select: {
         category: true,
       },
+      where: includeDeleted
+        ? {}
+        : {
+            deletedAt: null,
+          },
     })
   ).reduce<Array<NonNullable<Song["category"]>>>((acc, cur) => {
     if (cur.category !== null) {
@@ -22,7 +33,13 @@ export async function getExistingCategories(): Promise<string[]> {
   return existingCategories;
 }
 
-export async function getExistingMelodies(): Promise<string[]> {
+export async function getExistingMelodies(
+  accessPolicies: string[] = [],
+  includeDeleted = false,
+): Promise<string[]> {
+  if (!accessPolicies.includes(apiNames.SONG.DELETE)) {
+    includeDeleted = false;
+  }
   const existingMelodies = (
     await prisma.song.findMany({
       distinct: ["melody"],
@@ -32,6 +49,11 @@ export async function getExistingMelodies(): Promise<string[]> {
       select: {
         melody: true,
       },
+      where: includeDeleted
+        ? {}
+        : {
+            deletedAt: null,
+          },
     })
   ).reduce<Array<NonNullable<Song["melody"]>>>((acc, cur) => {
     if (cur.melody !== null) {
