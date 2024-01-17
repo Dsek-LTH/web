@@ -95,7 +95,7 @@ export const actions = {
         },
       });
       throw redirect(
-        `/songbook/${updatedSong.slug}`,
+        encodeURI(`/songbook/${updatedSong.slug}`),
         {
           message: "Sång uppdaterad",
           type: "success",
@@ -130,7 +130,7 @@ export const actions = {
         },
       });
       return redirect(
-        `/songbook/${song.slug}`,
+        encodeURI(`/songbook/${song.slug}`),
         {
           message: "Sång borttagen",
           type: "success",
@@ -165,7 +165,7 @@ export const actions = {
         },
       });
       return redirect(
-        `/songbook/${song.slug}`,
+        encodeURI(`/songbook/${song.slug}`),
         {
           message: "Sång återställd",
           type: "success",
