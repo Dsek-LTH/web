@@ -30,3 +30,25 @@ export const slugifyArticleHeader = async (header: string) => {
   }
   return slug;
 };
+
+export const slugifySongTitle = async (title: string) => {
+  const slug = slugify(title);
+  let number = 0;
+  let count = await prisma.song.count({
+    where: {
+      slug,
+    },
+  });
+  while (count > 0) {
+    number += 1;
+    count = await prisma.song.count({
+      where: {
+        slug: `${slug}-${number}`,
+      },
+    });
+  }
+  if (number > 0) {
+    return `${slug}-${number}`;
+  }
+  return slug;
+};
