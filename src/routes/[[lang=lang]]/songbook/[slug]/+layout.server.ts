@@ -10,25 +10,15 @@ import {
   getExistingCategories,
   getExistingMelodies,
 } from "../helpers";
-import type { Song } from "@prisma/client";
 
 export const load = async ({ params, parent }) => {
   const { accessPolicies } = await parent();
-  let song: Song | null = null;
-  if (canAccessDeletedSongs(accessPolicies)) {
-    song = await prisma.song.findFirst({
-      where: {
-        slug: params.slug,
-      },
-    });
-  } else {
-    song = await prisma.song.findFirst({
-      where: {
-        slug: params.slug,
-        deletedAt: null,
-      },
-    });
-  }
+  const song = await prisma.song.findUnique({
+    where: {
+      slug: params.slug,
+      deletedAt: canAccessDeletedSongs(accessPolicies) ? {} : null,
+    },
+  });
 
   if (song == null) {
     throw error(404, {
