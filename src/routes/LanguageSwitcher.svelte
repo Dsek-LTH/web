@@ -7,8 +7,7 @@
 <div class="btn btn-ghost">
   {#if languageTag() === "sv"}
     <a href={route($page.url.pathname, "en")} hreflang="en">EN</a>
-  {/if}
-  {#if languageTag() === "en"}
+  {:else if languageTag() === "en"}
     <a href={route($page.url.pathname, "sv")} hreflang="sv">SV</a>
   {/if}
 </div>
