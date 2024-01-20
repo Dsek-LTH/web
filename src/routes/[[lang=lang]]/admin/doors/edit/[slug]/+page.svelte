@@ -127,24 +127,25 @@
   <div class="modal-box">
     <h3 class="text-lg font-bold">Revoke door access</h3>
     <p class="py-4">
-      Are you sure you want to revoke access to <b class="capitalize"
-        >{$page.params["slug"]}
-      </b>
+      Are you sure you want to revoke access to
+      <b class="capitalize">{$page.params["slug"]}</b>
       for
       <b>{selectedPolicy?.role || selectedPolicy?.studentId}</b>?
     </p>
     <div class="modal-action">
       <form method="POST" action="?/delete" use:enhance>
-        <input type="hidden" name="id" value={selectedPolicy?.id} /><button
+        <input type="hidden" name="id" value={selectedPolicy?.id} />
+        <button
           type="submit"
           class="btn btn-error"
           on:click={() => removeModal?.close()}
-          >Remove
+        >
+          Remove
         </button>
       </form>
     </div>
   </div>
   <form method="dialog" class="modal-backdrop">
-    <button></button>
+    <button class="cursor-auto"></button>
   </form>
 </dialog>
