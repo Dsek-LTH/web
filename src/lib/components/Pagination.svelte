@@ -7,6 +7,7 @@ It works by navigating to the same page with a different query string,
 e.g. `?page=1`, `?page=2`, etc. The page number is stored in the URL query.
 -->
 <script lang="ts">
+  import { afterNavigate } from "$app/navigation";
   import { page } from "$app/stores";
   import { twMerge } from "tailwind-merge";
 
@@ -51,27 +52,23 @@ e.g. `?page=1`, `?page=2`, etc. The page number is stored in the URL query.
   };
 
   let carousel: HTMLElement;
-  function scrollToActive(node: HTMLElement) {
-    const active = node.querySelector(".btn-active");
+  let pageButtons: HTMLElement[] = [];
+  function scrollToActive() {
+    const active = pageButtons[getPageNumber(currentPage)];
     if (active) {
       const activeRect = active.getBoundingClientRect();
-      const elRect = node.getBoundingClientRect();
-      node.scrollLeft =
+      const elRect = carousel.getBoundingClientRect();
+      carousel.scrollLeft =
         activeRect.left -
         elRect.left +
-        node.scrollLeft -
+        carousel.scrollLeft -
         (elRect.width - activeRect.width) / 2;
     }
   }
+  afterNavigate(scrollToActive);
 </script>
 
-<div
-  class={twMerge("join w-full", clazz)}
-  on:click={() => scrollToActive(carousel)}
-  on:keydown={() => scrollToActive(carousel)}
-  role="listbox"
-  tabindex="0"
->
+<div class={twMerge("join w-full", clazz)} role="listbox" tabindex="0">
   {#if showFirst}
     <a
       class="btn carousel-item join-item btn-xs sm:btn-sm md:btn-md"
@@ -92,13 +89,14 @@ e.g. `?page=1`, `?page=2`, etc. The page number is stored in the URL query.
     </a>
   {/if}
 
-  <div class="carousel join-item flex" use:scrollToActive bind:this={carousel}>
-    {#each [...Array(count).keys()].map(getPageName) as page (page)}
+  <div class="carousel join-item flex" bind:this={carousel}>
+    {#each [...Array(count).keys()].map(getPageName) as page, i (page)}
       <a
         class="btn carousel-item join-item btn-xs sm:btn-sm md:btn-md"
         class:btn-active={page == currentPage}
         class:btn-disabled={page == currentPage}
         href={getPageLink(page)}
+        bind:this={pageButtons[i]}
       >
         {page}
       </a>
