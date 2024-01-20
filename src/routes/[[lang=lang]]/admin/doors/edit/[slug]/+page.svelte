@@ -93,7 +93,7 @@
             id="startDatetime"
             name="startDatetime"
             type="datetime-local"
-            class="input join-item input-bordered dark:[color-scheme:dark]"
+            class="input join-item input-bordered"
             bind:value={$form.startDatetime}
             {...$constraints.startDatetime}
           />
@@ -105,7 +105,7 @@
             id="endDatetime"
             name="endDatetime"
             type="datetime-local"
-            class="input join-item input-bordered dark:[color-scheme:dark]"
+            class="input join-item input-bordered"
             bind:value={$form.endDatetime}
             {...$constraints.endDatetime}
           />
