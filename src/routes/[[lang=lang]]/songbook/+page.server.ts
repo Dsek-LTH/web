@@ -12,7 +12,7 @@ export const load: PageServerLoad = async ({ url, parent }) => {
   const { accessPolicies } = await parent();
   const page = url.searchParams.get("page");
   const search = url.searchParams.get("search");
-  const category = url.searchParams.get("category");
+  const categories = url.searchParams.getAll("category");
   const showDeleted =
     canAccessDeletedSongs(accessPolicies) &&
     url.searchParams.get("show-deleted") === "true";
@@ -48,14 +48,17 @@ export const load: PageServerLoad = async ({ url, parent }) => {
       }
     : {};
 
-  if (category) {
+  if (categories.length > 0) {
     where = {
       AND: [
         where,
         {
-          category: {
-            startsWith: category,
-          },
+          OR: categories.map((category) => ({
+            category: {
+              contains: category,
+              mode: "insensitive",
+            },
+          })),
         },
       ],
     };
@@ -85,7 +88,7 @@ export const load: PageServerLoad = async ({ url, parent }) => {
     getExistingCategories(accessPolicies, showDeleted),
   ]);
 
-  const categories: { [key: string]: string } = {};
+  const categoryMap: { [key: string]: string } = {};
 
   for (const category of existingCategories) {
     const split = category.split(" ");
@@ -102,10 +105,10 @@ export const load: PageServerLoad = async ({ url, parent }) => {
     }
 
     if (id) {
-      if (categories[id]) {
-        categories[id] = id;
+      if (categoryMap[id]) {
+        categoryMap[id] = id;
       } else {
-        categories[id] = category ?? id;
+        categoryMap[id] = category ?? id;
       }
     }
   }
@@ -118,7 +121,7 @@ export const load: PageServerLoad = async ({ url, parent }) => {
     })),
     pageCount: Math.max(Math.ceil(pageCount / SONGS_PER_PAGE), 1),
     categories,
-    category,
+    categoryMap,
     params: url.searchParams.toString(),
   };
 };

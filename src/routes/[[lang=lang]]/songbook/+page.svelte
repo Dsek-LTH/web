@@ -7,7 +7,7 @@
   import SongElement from "./SongElement.svelte";
 
   function isCatSelected(catId: string): boolean {
-    return (data.category ?? "").startsWith(catId);
+    return data.categories.includes(catId);
   }
 
   export let data;
@@ -48,15 +48,15 @@
   {/if}
 
   <div class="my-4 flex flex-wrap justify-between">
-    {#each Object.keys(data.categories) as catId}
+    {#each Object.keys(data.categoryMap) as catId}
       <label
         class="m-1 flex-grow cursor-pointer rounded-lg px-2 py-1 text-center ring-neutral-700 transition hover:scale-105 hover:bg-neutral-700 md:ring-1"
         class:bg-neutral-600={isCatSelected(catId)}
       >
-        {data.categories[catId]}
+        {data.categoryMap[catId]}
         <input
           hidden
-          type="radio"
+          type="checkbox"
           name="category"
           value={catId}
           checked={isCatSelected(catId)}
