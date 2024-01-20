@@ -98,8 +98,8 @@ export const load: PageServerLoad = async ({ url, parent }) => {
 
   const categories: { [key: string]: string } = {};
 
-  for (const cat of existingCategories) {
-    const split = cat.split(" ");
+  for (const category of existingCategories) {
+    const split = category.split(" ");
 
     let id;
     if (split) {
@@ -116,7 +116,7 @@ export const load: PageServerLoad = async ({ url, parent }) => {
       if (categories[id]) {
         categories[id] = id;
       } else {
-        categories[id] = cat ?? id;
+        categories[id] = category ?? id;
       }
     }
   }
