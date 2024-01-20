@@ -30,8 +30,8 @@
   <PageHeader title="Sjungbok" />
   {#if data.accessPolicies.includes(apiNames.SONG.CREATE)}
     <div class="ml-auto">
-      <a href="/songbook/upload">
-        <button class="btn">Ladda upp sång!</button>
+      <a href="/songbook/create">
+        <button class="btn">Skapa ny sång</button>
       </a>
     </div>
   {/if}

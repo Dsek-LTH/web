@@ -10,7 +10,7 @@
   const { form, errors, constraints, enhance } = superForm(data.form);
 </script>
 
-<PageHeader title="Ladda upp sång" />
+<PageHeader title="Skapa ny sång" />
 
 <main>
   <section>
@@ -65,7 +65,7 @@
         />
       </Labeled>
       <button class="btn btn-primary mt-4 w-fit" type="submit">
-        Ladda upp
+        Skapa
       </button>
     </form>
   </section>
