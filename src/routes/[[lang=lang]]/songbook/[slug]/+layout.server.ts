@@ -9,7 +9,7 @@ import {
   canAccessDeletedSongs,
   getExistingCategories,
   getExistingMelodies,
-} from "../songUtils";
+} from "../helpers";
 import type { Song } from "@prisma/client";
 
 export const load = async ({ params, parent }) => {

@@ -67,3 +67,13 @@ export async function getExistingMelodies(
 export function canAccessDeletedSongs(accessPolicies: string[]): boolean {
   return accessPolicies.includes(apiNames.SONG.DELETE);
 }
+
+export function fixSongText(s: string): string {
+  return s
+    .replaceAll("---", "—")
+    .replaceAll("--", "–")
+    .replaceAll("||:", "𝄆")
+    .replaceAll(":||", "𝄇")
+    .replaceAll("|:", "𝄆")
+    .replaceAll(":|", "𝄇");
+}

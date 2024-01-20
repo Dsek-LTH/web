@@ -1,9 +1,9 @@
 import prisma from "$lib/utils/prisma";
-import { fixSongText } from "$lib/utils/song";
+import { fixSongText } from "./helpers";
 import type { PageServerLoad } from "./$types";
 import type { Prisma } from "@prisma/client";
 import isomorphicDompurify from "isomorphic-dompurify";
-import { canAccessDeletedSongs, getExistingCategories } from "./songUtils";
+import { canAccessDeletedSongs, getExistingCategories } from "./helpers";
 const { sanitize } = isomorphicDompurify;
 
 const SONGS_PER_PAGE = 10;

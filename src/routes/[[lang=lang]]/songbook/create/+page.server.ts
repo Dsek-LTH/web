@@ -7,7 +7,7 @@ import { superValidate } from "sveltekit-superforms/client";
 import { createSongSchema } from "../schema";
 import type { PageServerLoad } from "./$types";
 import { slugifySongTitle } from "./helpers";
-import { getExistingCategories, getExistingMelodies } from "../songUtils";
+import { getExistingCategories, getExistingMelodies } from "../helpers";
 
 export const load: PageServerLoad = async ({ parent }) => {
   const { accessPolicies } = await parent();
