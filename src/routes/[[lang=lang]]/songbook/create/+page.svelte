@@ -64,9 +64,7 @@
           {...$constraints.lyrics}
         />
       </Labeled>
-      <button class="btn btn-primary mt-4 w-fit" type="submit">
-        Skapa
-      </button>
+      <button class="btn btn-primary mt-4" type="submit">Skapa</button>
     </form>
   </section>
 </main>

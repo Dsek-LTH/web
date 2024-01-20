@@ -2,7 +2,7 @@ import { error } from "@sveltejs/kit";
 import prisma from "$lib/utils/prisma";
 import isomorphicDompurify from "isomorphic-dompurify";
 const { sanitize } = isomorphicDompurify;
-import { fixSongText } from "$lib/utils/song";
+import { fixSongText } from "../helpers";
 import { updateSongSchema } from "../schema";
 import { superValidate } from "sveltekit-superforms/server";
 import {
