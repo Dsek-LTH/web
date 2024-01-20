@@ -61,27 +61,16 @@ export const load: PageServerLoad = async ({ url, parent }) => {
     };
   }
 
-  // If the user can access deleted songs, show them if the user wants to
-  if (showDeleted) {
-    where = {
-      AND: [
-        where,
-        {
-          deletedAt: { not: null },
-        },
-      ],
-    };
-  } else {
-    // Otherwise, don't show deleted songs
-    where = {
-      AND: [
-        where,
-        {
-          deletedAt: null,
-        },
-      ],
-    };
-  }
+  where = {
+    AND: [
+      where,
+      {
+        // If the user can access deleted songs, show them if the user wants to
+        // Otherwise, don't show deleted songs
+        deletedAt: showDeleted ? { not: null } : null,
+      },
+    ],
+  };
 
   const [songs, pageCount, existingCategories] = await Promise.all([
     prisma.song.findMany({
@@ -131,6 +120,5 @@ export const load: PageServerLoad = async ({ url, parent }) => {
     categories,
     category,
     params: url.searchParams.toString(),
-    accessPolicies,
   };
 };
