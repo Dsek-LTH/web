@@ -1,16 +1,24 @@
 <script lang="ts">
   import apiNames from "$lib/utils/apiNames";
   import type { Song } from "@prisma/client";
+  import { twMerge } from "tailwind-merge";
 
   export let song: Song;
   export let accessPolicies: string[];
+  let clazz: string = "";
+  export { clazz as class };
 </script>
 
-<article class="my-4 rounded-lg p-6 shadow-2xl ring-neutral-700 md:ring-1">
+<article
+  class={twMerge(
+    "my-4 rounded-lg p-6 shadow-2xl ring-neutral-700 md:ring-1",
+    clazz,
+  )}
+>
   {#if accessPolicies.includes(apiNames.SONG.DELETE) && song.deletedAt != null}
     <p class="text-xl font-bold text-red-500">Borttagen</p>
     <p class="text-sm text-red-300">
-      Men du har access att se och återställa den
+      Du har åtkomst till att se sången och återställa den
     </p>
   {/if}
 

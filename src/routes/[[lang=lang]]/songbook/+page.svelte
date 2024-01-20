@@ -31,7 +31,7 @@
   {#if data.accessPolicies.includes(apiNames.SONG.CREATE)}
     <div class="ml-auto">
       <a href="/songbook/upload">
-        <button class="btn btn-primary">Ladda upp sång!</button>
+        <button class="btn">Ladda upp sång!</button>
       </a>
     </div>
   {/if}

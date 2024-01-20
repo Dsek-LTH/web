@@ -59,7 +59,7 @@
         <textarea
           id="lyrics"
           name="lyrics"
-          class="textarea textarea-bordered h-96 hover:border-base-content"
+          class="textarea textarea-bordered h-80 hover:border-base-content"
           bind:value={$form.lyrics}
           {...$constraints.lyrics}
         />

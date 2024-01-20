@@ -1,68 +1,11 @@
-import { error, fail, type Actions } from "@sveltejs/kit";
+import { error, fail } from "@sveltejs/kit";
 import prisma from "$lib/utils/prisma";
 import { withAccess } from "$lib/utils/access";
-import type { PageServerLoad } from "./$types";
 import apiNames from "$lib/utils/apiNames";
 import { redirect } from "sveltekit-flash-message/server";
-import isomorphicDompurify from "isomorphic-dompurify";
-const { sanitize } = isomorphicDompurify;
-import { fixSongText } from "$lib/utils/song";
-import { updateSongSchema } from "../schema";
+import { updateSongSchema } from "../../schema";
 import { setError, superValidate } from "sveltekit-superforms/server";
 import { slugifyArticleHeader } from "$lib/utils/slugify";
-import {
-  canAccessDeletedSongs,
-  getExistingCategories,
-  getExistingMelodies,
-} from "../songUtils";
-import type { Song } from "@prisma/client";
-
-export const load: PageServerLoad = async ({ params, parent }) => {
-  const { accessPolicies } = await parent();
-  let song: Song | null = null;
-  if (canAccessDeletedSongs(accessPolicies)) {
-    song = await prisma.song.findFirst({
-      where: {
-        slug: params.slug,
-      },
-    });
-  } else {
-    song = await prisma.song.findFirst({
-      where: {
-        slug: params.slug,
-        deletedAt: null,
-      },
-    });
-  }
-
-  if (song == null) {
-    throw error(404, {
-      message: "Song not found",
-    });
-  }
-
-  const [existingCategories, existingMelodies] = await Promise.all([
-    getExistingCategories(
-      accessPolicies,
-      canAccessDeletedSongs(accessPolicies),
-    ),
-    getExistingMelodies(accessPolicies, canAccessDeletedSongs(accessPolicies)),
-  ]);
-
-  const form = await superValidate(song, updateSongSchema);
-
-  return {
-    song: {
-      ...song,
-      title: sanitize(fixSongText(song.title)),
-      lyrics: sanitize(fixSongText(song.lyrics)),
-    },
-    accessPolicies,
-    updateForm: form,
-    existingCategories,
-    existingMelodies,
-  };
-};
 
 export const actions = {
   update: async (event) => {
@@ -177,4 +120,4 @@ export const actions = {
       );
     });
   },
-} satisfies Actions;
+};
