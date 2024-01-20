@@ -17,7 +17,7 @@
   <input
     id={name}
     {name}
-    class={twMerge("input input-bordered", clazz)}
+    class={twMerge("input input-bordered hover:border-base-content", clazz)}
     bind:value
     type="text"
     {placeholder}

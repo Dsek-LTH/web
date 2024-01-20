@@ -4,14 +4,14 @@
   import Disclaimer from "../Disclaimer.svelte";
   import SongElement from "../SongElement.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
-  import AutoCompleteSelector from "$lib/components/AutoCompleteSelector.svelte";
+  import Autocomplete from "$lib/components/Autocomplete.svelte";
   import Input from "$lib/components/Input.svelte";
 
   export let data;
   let isEditing = false;
 
   const {
-    form: updateForm,
+    form,
     errors,
     constraints,
     enhance: updateEnhance,
@@ -74,7 +74,7 @@
     <Input
       name="title"
       label="Titel"
-      bind:value={$updateForm.title}
+      bind:value={$form.title}
       {...$constraints.title}
       error={$errors.title}
     />
@@ -82,10 +82,10 @@
       <p class="text-sm text-gray-400">
         Sök efter en melodi eller skriv in en ny
       </p>
-      <AutoCompleteSelector
+      <Autocomplete
         name="melody"
-        bind:value={$updateForm.melody}
-        allItems={data.existingMelodies}
+        bind:value={$form.melody}
+        options={data.existingMelodies}
         {...$constraints.melody}
         error={$errors.melody}
         searchValue={data.song.melody ?? ""}
@@ -95,10 +95,10 @@
       <p class="text-sm text-gray-400">
         Sök efter en kategori eller skriv in en ny
       </p>
-      <AutoCompleteSelector
+      <Autocomplete
         name="category"
-        bind:value={$updateForm.category}
-        allItems={data.existingCategories}
+        bind:value={$form.category}
+        options={data.existingCategories}
         {...$constraints.category}
         error={$errors.category}
         searchValue={data.song.category ?? ""}
@@ -109,7 +109,7 @@
         id="lyrics"
         name="lyrics"
         class="textarea textarea-bordered h-96"
-        bind:value={$updateForm.lyrics}
+        bind:value={$form.lyrics}
         {...$constraints.lyrics}
       />
     </Labeled>

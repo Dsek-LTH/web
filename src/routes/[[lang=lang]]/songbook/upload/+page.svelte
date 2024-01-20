@@ -2,7 +2,7 @@
   import Input from "$lib/components/Input.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
   import { superForm } from "sveltekit-superforms/client";
-  import AutoCompleteSelector from "$lib/components/AutoCompleteSelector.svelte";
+  import Autocomplete from "$lib/components/Autocomplete.svelte";
   import PageHeader from "$lib/components/PageHeader.svelte";
 
   export let data;
@@ -27,38 +27,42 @@
         {...$constraints.title}
         error={$errors.title}
       />
-      <Labeled label="Melodi" id="melody" error={$errors.melody}>
-        <p class="text-sm text-gray-400">
-          Sök efter en melodi eller skriv in en ny
-        </p>
-        <AutoCompleteSelector
+      <Labeled
+        label="Melodi"
+        id="melody"
+        error={$errors.melody}
+        explanation="Sök efter en melodi eller skriv in en ny"
+      >
+        <Autocomplete
           name="melody"
           bind:value={$form.melody}
-          allItems={data.existingMelodies}
+          options={data.existingMelodies}
           {...$constraints.melody}
           error={$errors.melody}
-        /></Labeled
+        />
+      </Labeled>
+      <Labeled
+        label="Kategori"
+        id="category"
+        error={$errors.category}
+        explanation="Sök efter en kategori eller skriv in en ny"
       >
-      <Labeled label="Kategori" id="category" error={$errors.category}
-        ><p class="text-sm text-gray-400">
-          Sök efter en kategori eller skriv in en ny
-        </p>
-        <AutoCompleteSelector
+        <Autocomplete
           name="category"
           bind:value={$form.category}
-          allItems={data.existingCategories}
+          options={data.existingCategories}
           {...$constraints.category}
           error={$errors.category}
-        /></Labeled
-      >
+        />
+      </Labeled>
       <Labeled label="Text" id="lyrics" error={$errors.lyrics}>
         <textarea
           id="lyrics"
           name="lyrics"
-          class="textarea textarea-bordered h-96"
+          class="textarea textarea-bordered h-96 hover:border-base-content"
           bind:value={$form.lyrics}
           {...$constraints.lyrics}
-        ></textarea>
+        />
       </Labeled>
       <button class="btn btn-primary mt-4 w-fit" type="submit">
         Ladda upp
