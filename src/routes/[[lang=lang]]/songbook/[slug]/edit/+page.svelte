@@ -79,7 +79,15 @@
   </Labeled>
 
   <div class="flex justify-between">
-    <button class="btn btn-primary" type="submit">Spara</button>
+    <div class="flex gap-2">
+      <button class="btn btn-primary" type="submit">Spara</button>
+      <button
+        class="btn"
+        type="button"
+        on:click={() => (window.location.href = `/songbook/${data.song.slug}`)}
+        >Avbryt</button
+      >
+    </div>
     {#if data.accessPolicies.includes(apiNames.SONG.DELETE)}
       {#if data.song.deletedAt === null}
         <button
@@ -112,9 +120,18 @@
     <div class="modal-action">
       <form method="POST" action="?/delete" class="form-control gap-2">
         <input type="hidden" name="id" value={data.song.id} />
-        <button class="btn btn-error" type="submit" formaction="?/delete">
-          Ta bort
-        </button>
+        <div class="flex gap-2">
+          <button
+            class="btn"
+            type="button"
+            on:click={() => removeModal?.close()}
+          >
+            Avbryt
+          </button>
+          <button class="btn btn-error" type="submit" formaction="?/delete">
+            Ta bort
+          </button>
+        </div>
       </form>
     </div>
   </div>
