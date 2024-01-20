@@ -6,7 +6,7 @@ import { redirect } from "sveltekit-flash-message/server";
 import { superValidate } from "sveltekit-superforms/client";
 import { createSongSchema } from "../schema";
 import type { PageServerLoad } from "./$types";
-import { slugifySongTitle } from "$lib/utils/slugify";
+import { slugifySongTitle } from "./helpers";
 import { getExistingCategories, getExistingMelodies } from "../songUtils";
 
 export const load: PageServerLoad = async ({ parent }) => {
