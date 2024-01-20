@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { enhance } from "$app/forms";
   import PageHeader from "$lib/components/PageHeader.svelte";
   import Pagination from "$lib/components/Pagination.svelte";
   import SearchBar from "$lib/components/SearchBar.svelte";
@@ -9,18 +8,6 @@
 
   function isCatSelected(catId: string): boolean {
     return (data.category ?? "").startsWith(catId);
-  }
-
-  function hrefWithParam(param: string, value: string | undefined): string {
-    const urlParams = new URLSearchParams(data.params);
-    if (value) {
-      urlParams.set(param, value);
-    } else {
-      urlParams.delete(param);
-    }
-    urlParams.delete("page");
-
-    return "?" + urlParams.toString();
   }
 
   export let data;
@@ -43,48 +30,44 @@
 </p>
 <Disclaimer />
 
-{#if data.accessPolicies.includes(apiNames.SONG.DELETE)}
-  <form
-    method="get"
-    class="my-4 flex items-center justify-end gap-2"
-    use:enhance
-    bind:this={form}
-  >
-    <input
-      class="checkbox"
-      type="checkbox"
-      name="show-deleted"
-      value="true"
-      checked={data.params.includes("show-deleted")}
-      on:change={() => form.requestSubmit()}
-    />
-    <label class="label" for="show-deleted">Visa borttagna sånger</label>
-  </form>
-{/if}
+<form method="GET" bind:this={form} data-sveltekit-keepfocus>
+  {#if data.accessPolicies.includes(apiNames.SONG.DELETE)}
+    <div class="my-4 flex items-center justify-end gap-2">
+      <input
+        class="checkbox"
+        type="checkbox"
+        name="show-deleted"
+        value="true"
+        checked={data.params.includes("show-deleted")}
+        on:change={() => form.requestSubmit()}
+      />
+      <label class="label" for="show-deleted">
+        Visa endast borttagna sånger
+      </label>
+    </div>
+  {/if}
 
-<div class="my-4 flex flex-wrap justify-between">
-  {#each Object.keys(data.categories) as catId}
-    <a
-      class="flex-grow"
-      href={hrefWithParam("category", isCatSelected(catId) ? "" : catId)}
-    >
-      <div
-        class={(isCatSelected(catId)
-          ? "bg-neutral-600"
-          : "hover:bg-neutral-700") +
-          " m-1 rounded-lg px-2 py-1 text-center ring-neutral-700 transition hover:scale-105 md:ring-1"}
+  <div class="my-4 flex flex-wrap justify-between">
+    {#each Object.keys(data.categories) as catId}
+      <label
+        class="m-1 flex-grow cursor-pointer rounded-lg px-2 py-1 text-center ring-neutral-700 transition hover:scale-105 hover:bg-neutral-700 md:ring-1"
+        class:bg-neutral-600={isCatSelected(catId)}
       >
         {data.categories[catId]}
-      </div>
-    </a>
-  {/each}
-</div>
+        <input
+          hidden
+          type="radio"
+          name="category"
+          value={catId}
+          checked={isCatSelected(catId)}
+          on:change={() => form.requestSubmit()}
+        />
+      </label>
+    {/each}
+  </div>
 
-<section>
-  <form method="get" id="filter-form" use:enhance>
-    <SearchBar />
-  </form>
-</section>
+  <SearchBar />
+</form>
 
 {#each data.songs as song}
   <div class="rounded-lg hover:ring-2 hover:ring-primary">
