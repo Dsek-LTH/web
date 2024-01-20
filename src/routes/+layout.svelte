@@ -8,16 +8,15 @@
 </script>
 
 <LanguageProvider>
-  <header class="contents">
-    <nav class="contents" aria-label="Main"><Drawer /></nav>
-    <nav class="contents" aria-label="Main"><Navbar /></nav>
-  </header>
+  <nav class="contents">
+    <Navbar />
+    <Drawer />
+  </nav>
 
   <main class="flex-1">
     <slot />
   </main>
 
-  <Footer />
-
   <Toast />
+  <Footer />
 </LanguageProvider>
