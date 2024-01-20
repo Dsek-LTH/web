@@ -1,6 +1,8 @@
 <script lang="ts">
   import apiNames from "$lib/utils/apiNames";
   import type { Song } from "@prisma/client";
+  import dompurify from "isomorphic-dompurify";
+  const { sanitize } = dompurify;
   import { twMerge } from "tailwind-merge";
 
   export let song: Song;
@@ -24,9 +26,8 @@
 
   <div class="flex justify-between">
     <h2 class="my-3 text-2xl font-bold">
-      <!-- Sanitized server side -->
-      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-      {@html song.title ?? ""}
+      <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized client-side -->
+      {@html sanitize(song.title)}
     </h2>
 
     <p class="text-right text-xs text-gray-500">
@@ -48,8 +49,7 @@
 
   <p class="mb-4 italic">Mel: {song.melody}</p>
   <p class="whitespace-pre-line">
-    <!-- Sanitized server side -->
-    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-    {@html song.lyrics}
+    <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized client-side -->
+    {@html sanitize(song.lyrics)}
   </p>
 </article>

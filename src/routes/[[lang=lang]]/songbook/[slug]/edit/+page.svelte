@@ -1,9 +1,11 @@
 <script lang="ts">
-  import apiNames from "$lib/utils/apiNames";
-  import { superForm } from "sveltekit-superforms/client";
-  import Labeled from "$lib/components/Labeled.svelte";
   import Autocomplete from "$lib/components/Autocomplete.svelte";
   import Input from "$lib/components/Input.svelte";
+  import Labeled from "$lib/components/Labeled.svelte";
+  import apiNames from "$lib/utils/apiNames";
+  import dompurify from "isomorphic-dompurify";
+  const { sanitize } = dompurify;
+  import { superForm } from "sveltekit-superforms/client";
 
   export let data;
 
@@ -104,8 +106,8 @@
     <h3 class="text-lg font-bold">Ta bort sång</h3>
     <p class="py-4">
       Är du säker på att du vill ta bort sången
-      <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized server-side -->
-      <b class="capitalize">{@html data.song.title}</b>?
+      <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized client-side -->
+      <b class="capitalize">{@html sanitize(data.song.title)}</b>?
     </p>
     <div class="modal-action">
       <form method="POST" action="?/delete" class="form-control gap-2">
