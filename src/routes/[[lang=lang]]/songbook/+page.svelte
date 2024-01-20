@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
+  import { enhance } from "$app/forms";
   import PageHeader from "$lib/components/PageHeader.svelte";
   import Pagination from "$lib/components/Pagination.svelte";
   import SearchBar from "$lib/components/SearchBar.svelte";
@@ -24,6 +24,7 @@
   }
 
   export let data;
+  let form: HTMLFormElement;
 </script>
 
 <div class="flex flex-row">
@@ -43,25 +44,22 @@
 <Disclaimer />
 
 {#if data.accessPolicies.includes(apiNames.SONG.DELETE)}
-  <div class="my-4 flex items-center justify-end gap-2">
+  <form
+    method="get"
+    class="my-4 flex items-center justify-end gap-2"
+    use:enhance
+    bind:this={form}
+  >
     <input
       class="checkbox"
       type="checkbox"
-      id="show-deleted"
       name="show-deleted"
-      on:click={async () => {
-        const urlParams = new URLSearchParams(data.params);
-        if (urlParams.has("show-deleted")) {
-          urlParams.delete("show-deleted");
-        } else {
-          urlParams.set("show-deleted", "true");
-        }
-        urlParams.delete("page"); // Reset the page counter
-        await goto(`?${urlParams.toString()}`, { replaceState: true });
-      }}
+      value="true"
       checked={data.params.includes("show-deleted")}
-    /> <label class="label" for="show-deleted">Visa borttagna sånger</label>
-  </div>
+      on:change={() => form.requestSubmit()}
+    />
+    <label class="label" for="show-deleted">Visa borttagna sånger</label>
+  </form>
 {/if}
 
 <div class="my-4 flex flex-wrap justify-between">
@@ -83,7 +81,7 @@
 </div>
 
 <section>
-  <form method="get" id="filter-form">
+  <form method="get" id="filter-form" use:enhance>
     <SearchBar />
   </form>
 </section>
