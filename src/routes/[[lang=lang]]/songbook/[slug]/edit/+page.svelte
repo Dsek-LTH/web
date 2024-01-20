@@ -81,12 +81,9 @@
   <div class="flex justify-between">
     <div class="flex gap-2">
       <button class="btn btn-primary" type="submit">Spara</button>
-      <button
-        class="btn"
-        type="button"
-        on:click={() => (window.location.href = `/songbook/${data.song.slug}`)}
-        >Avbryt</button
-      >
+      <a class="btn" type="button" href={`/songbook/${data.song.slug}`}>
+        Avbryt
+      </a>
     </div>
     {#if data.accessPolicies.includes(apiNames.SONG.DELETE)}
       {#if data.song.deletedAt === null}
