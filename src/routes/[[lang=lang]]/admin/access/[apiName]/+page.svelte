@@ -64,7 +64,7 @@
         type="text"
         name="role"
         placeholder="Type here"
-        class="input join-item input-bordered input-primary md:flex-1"
+        class="input join-item input-bordered hover:border-base-content md:flex-1"
         bind:value={$createForm.role}
         {...$constraints.role}
       />
@@ -79,7 +79,7 @@
         type="text"
         name="studentId"
         placeholder="Type here"
-        class="input join-item input-bordered input-primary md:flex-1"
+        class="input join-item input-bordered hover:border-base-content md:flex-1"
         bind:value={$createForm.studentId}
         {...$constraints.studentId}
       />
