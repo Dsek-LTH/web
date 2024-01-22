@@ -7,7 +7,8 @@
   import LikersList from "../LikersList.svelte";
 
   export let data;
-  $: article = data.article;
+  import type { PageData } from "./$types";
+  export let data: PageData;
   $: author = article.author;
 </script>
 

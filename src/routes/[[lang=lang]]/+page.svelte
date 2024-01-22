@@ -1,7 +1,8 @@
 <script lang="ts">
   import { marked } from "marked";
 
-  export let data;
+  import type { PageData } from "./$types";
+  export let data: PageData;
 </script>
 
 <svelte:head>

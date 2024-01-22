@@ -4,7 +4,8 @@
   import EditCommitteeForm from "../EditCommitteeForm.svelte";
   import CommitteeHeader from "../CommitteeHeader.svelte";
 
-  export let data;
+  import type { PageData } from "./$types";
+  export let data: PageData;
   let isEditing = false;
 </script>
 

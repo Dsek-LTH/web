@@ -3,7 +3,8 @@
   import Labeled from "$lib/components/Labeled.svelte";
   import { superForm } from "sveltekit-superforms/client";
 
-  export let data;
+  import type { PageData } from "./$types";
+  export let data: PageData;
   let type: "role" | "studentId" = "role";
 
   let removeModal: HTMLDialogElement | undefined = undefined;

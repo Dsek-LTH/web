@@ -2,7 +2,8 @@
   import { page } from "$app/stores";
   import GoverningDocumentEditor from "../../GoverningDocumentEditor.svelte";
 
-  export let data;
+  import type { PageData } from "./$types";
+  export let data: PageData;
 </script>
 
 <GoverningDocumentEditor

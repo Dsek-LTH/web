@@ -2,7 +2,8 @@
   import apiNames from "$lib/utils/apiNames";
   import DeleteFileForm from "../DeleteFileForm.svelte";
   import File from "../File.svelte";
-  export let data;
+  import type { PageData } from "./$types";
+  export let data: PageData;
   let isEditing = false;
 </script>
 

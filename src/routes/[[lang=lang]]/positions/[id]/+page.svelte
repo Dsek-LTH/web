@@ -12,7 +12,8 @@
   import UpdateMandateForm from "./UpdateMandateForm.svelte";
   import UpdatePositionForm from "./UpdatePositionForm.svelte";
 
-  export let data;
+  import type { PageData } from "./$types";
+  export let data: PageData;
 
   $: groupedByYear = data.mandates.reduce<
     Record<string, Prisma.MandateGetPayload<{ include: { member: true } }>[]>

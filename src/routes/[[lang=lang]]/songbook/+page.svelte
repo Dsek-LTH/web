@@ -10,7 +10,8 @@
     return data.categories.includes(catId);
   }
 
-  export let data;
+  import type { PageData } from "./$types";
+  export let data: PageData;
   let form: HTMLFormElement;
 </script>
 

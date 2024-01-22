@@ -6,7 +6,8 @@
   import type { DocumentType } from "./+page.server";
   import Meeting from "./Meeting.svelte";
 
-  export let data;
+  import type { PageData } from "./$types";
+  export let data: PageData;
 
   let isEditing: boolean = false;
 

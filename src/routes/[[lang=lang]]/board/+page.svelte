@@ -3,7 +3,8 @@
   import PageHeader from "$lib/components/PageHeader.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import { getFullName } from "$lib/utils/client/member";
-  export let data;
+  import type { PageData } from "./$types";
+  export let data: PageData;
 </script>
 
 <PageHeader title="Styrelsen" />

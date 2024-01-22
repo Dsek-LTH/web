@@ -3,7 +3,8 @@
   import Disclaimer from "../Disclaimer.svelte";
   import SongElement from "../SongElement.svelte";
 
-  export let data;
+  import type { PageData } from "./$types";
+  export let data: PageData;
 </script>
 
 <svelte:head>

@@ -2,7 +2,8 @@
   import Labeled from "$lib/components/Labeled.svelte";
   import { superForm } from "sveltekit-superforms/client";
   import DocumentTypeSelector from "./DocumentTypeSelector.svelte";
-  export let data;
+  import type { PageData } from "./$types";
+  export let data: PageData;
   const { form, constraints, errors, enhance } = superForm(data.form, {
     onResult: (event) => {
       if (event.result.type === "success") {

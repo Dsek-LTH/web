@@ -2,7 +2,8 @@
   import EventEditor from "../EventEditor.svelte";
 
   // import Tiptap from "$lib/TipTap.svelte";
-  export let data;
+  import type { PageData } from "./$types";
+  export let data: PageData;
 </script>
 
 <svelte:head>

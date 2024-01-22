@@ -1,6 +1,7 @@
 <script lang="ts">
   import { page } from "$app/stores";
-  export let data;
+  import type { PageData } from "./$types";
+  export let data: PageData;
   import MarkdownEditor from "$lib/components/MarkdownEditor.svelte";
   import { superForm } from "sveltekit-superforms/client";
   const { form, errors, enhance } = superForm(data.form);

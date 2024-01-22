@@ -1,7 +1,8 @@
 <!-- <script lang="ts">
   import SmallArticleCard from "../news/SmallArticleCard.svelte";
 
-  export let data;
+  import type { PageData } from "./$types";
+  export let data: PageData;
   let year: number | null = new Date().getFullYear();
 </script>
 

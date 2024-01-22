@@ -3,7 +3,8 @@
   import Labeled from "$lib/components/Labeled.svelte";
   import PageHeader from "$lib/components/PageHeader.svelte";
   import { superForm } from "sveltekit-superforms/client";
-  export let data;
+  import type { PageData } from "./$types";
+  export let data: PageData;
   const { form, errors, constraints, enhance, submitting } = superForm(
     data.form,
     {
