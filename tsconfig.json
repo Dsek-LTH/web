@@ -20,9 +20,22 @@
     "noUnusedLocals": false, // eslint no-unused-vars is more configurable
     "noUnusedParameters": false, // eslint no-unused-vars is more configurable
     "typeRoots": ["types", "./node_modules/@types"]
-  }
+  },
   // Path aliases are handled by https://kit.svelte.dev/docs/configuration#alias
   //
   // If you want to overwrite includes/excludes, make sure to copy over the relevant includes/excludes
   // from the referenced tsconfig.json - TypeScript does not merge them in
+  //
+  // copied over per comment above
+  "include": [
+    "./.svelte-kit/ambient.d.ts",
+    "./.svelte-kit/non-ambient.d.ts",
+    "./.svelte-kit/types/**/$types.d.ts",
+    "./vite.config.ts",
+    "./.eslintrc.cjs",
+    "./svelte.config.js",
+    "**/*.js",
+    "**/*.ts",
+    "**/*.svelte"
+  ]
 }

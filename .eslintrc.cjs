@@ -3,7 +3,7 @@ module.exports = {
   extends: [
     "eslint:recommended",
     "plugin:eslint-comments/recommended",
-    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended-type-checked",
     "plugin:svelte/recommended",
     "plugin:svelte/prettier",
     "prettier",
@@ -11,6 +11,8 @@ module.exports = {
   parser: "@typescript-eslint/parser",
   plugins: ["@typescript-eslint"],
   parserOptions: {
+    project: true,
+    tsconfigRootDir: __dirname,
     sourceType: "module",
     ecmaVersion: 2020,
     extraFileExtensions: [".svelte"],
@@ -29,6 +31,7 @@ module.exports = {
       },
     },
   ],
+  reportUnusedDisableDirectives: true,
   /**
    * Rule overrides and additions.
    * In general, we want to use the recommended rules.
@@ -58,5 +61,4 @@ module.exports = {
       },
     ],
   },
-  reportUnusedDisableDirectives: true,
 };
