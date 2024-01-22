@@ -135,22 +135,21 @@ export const withAccess = async <
         },
         { status: 400 },
       );
-    } else if (
-      "status" in (e as HttpError) &&
-      "body" in (e as HttpError) &&
-      "message" in (e as HttpError).body
-    ) {
+    } else if ("status" in (e as HttpError)) {
       if (form === undefined) throw e;
-      return message(
-        form,
-        {
-          message: (e as HttpError).body.message,
-          type: "error",
-        },
-        {
-          status: (e as HttpError).status as NumericRange<400, 599>,
-        },
-      );
+
+      if ("body" in (e as HttpError) && "message" in (e as HttpError).body) {
+        return message(
+          form,
+          {
+            message: (e as HttpError).body.message,
+            type: "error",
+          },
+          {
+            status: (e as HttpError).status as NumericRange<400, 599>,
+          },
+        );
+      }
     }
     console.warn("Unknown error occured", e);
     throw e;
