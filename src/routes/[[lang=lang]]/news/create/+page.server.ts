@@ -7,7 +7,7 @@ import { redirect } from "sveltekit-flash-message/server";
 import { superValidate } from "sveltekit-superforms/client";
 import { getArticleAuthorOptions } from "../articles";
 import { articleSchema } from "../schema";
-import type { PageServerLoad } from "./$types";
+import type { ActionsExport, PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ parent }) => {
   const allTags = await prisma.tag.findMany();
@@ -49,7 +49,7 @@ export const load: PageServerLoad = async ({ parent }) => {
   };
 };
 
-export const actions = {
+export const actions: ActionsExport = {
   default: async (event) => {
     const form = await superValidate(event.request, articleSchema);
     if (!form.valid) return fail(400, { form });

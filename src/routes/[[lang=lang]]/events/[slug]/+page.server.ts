@@ -10,7 +10,7 @@ import {
 import { error } from "@sveltejs/kit";
 import { superValidate } from "sveltekit-superforms/server";
 import { getEvent } from "../events";
-import type { PageServerLoad } from "./$types";
+import type { Actions, PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ params, parent }) => {
   const event = await getEvent(params.slug);
@@ -33,7 +33,7 @@ export const load: PageServerLoad = async ({ params, parent }) => {
   };
 };
 
-export const actions = {
+export const actions: Actions = {
   comment: commentAction("EVENT"),
   removeComment: removeCommentAction("EVENT"),
 };

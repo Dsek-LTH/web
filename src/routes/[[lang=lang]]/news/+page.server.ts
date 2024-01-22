@@ -1,6 +1,6 @@
 import prisma from "$lib/utils/prisma";
 import { superValidate } from "sveltekit-superforms/server";
-import type { PageServerLoad } from "./$types";
+import type { Actions, PageServerLoad } from "./$types";
 import { getAllArticles } from "./articles";
 import { likeSchema, likesAction } from "./likes";
 
@@ -29,7 +29,7 @@ export const load: PageServerLoad = async ({ url }) => {
   };
 };
 
-export const actions = {
+export const actions: Actions = {
   like: likesAction(true),
   dislike: likesAction(false),
 };

@@ -4,7 +4,7 @@ import prisma from "$lib/utils/prisma";
 import { fail } from "@sveltejs/kit";
 import { message, setError, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
-import type { PageServerLoad } from "./$types";
+import type { Actions, PageServerLoad } from "./$types";
 
 const createSchema = z
   .object({
@@ -46,7 +46,7 @@ export const load: PageServerLoad = async ({ parent, params }) => {
   };
 };
 
-export const actions = {
+export const actions: Actions = {
   create: async ({ params, request, locals }) => {
     const form = await superValidate(request, createSchema);
     if (!form.valid) return fail(400, { form });

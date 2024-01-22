@@ -5,7 +5,7 @@ import { error, fail } from "@sveltejs/kit";
 import { redirect } from "sveltekit-flash-message/server";
 import { superValidate } from "sveltekit-superforms/server";
 import { eventSchema } from "../../schema";
-import type { PageServerLoad } from "./$types";
+import type { Actions, PageServerLoad } from "./$types";
 import { isUUIDRegex } from "$lib/utils/generateUUID";
 
 export const load: PageServerLoad = async ({ parent, params }) => {
@@ -36,7 +36,7 @@ export const load: PageServerLoad = async ({ parent, params }) => {
   };
 };
 
-export const actions = {
+export const actions: Actions = {
   default: async (event) => {
     const { request, locals, params } = event;
     const form = await superValidate(request, eventSchema);

@@ -1,6 +1,6 @@
 import prisma from "$lib/utils/prisma";
 import { error, fail } from "@sveltejs/kit";
-import type { PageServerLoad } from "./$types";
+import type { Actions, PageServerLoad } from "./$types";
 import { withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
 import { superValidate } from "sveltekit-superforms/server";
@@ -24,7 +24,7 @@ export const load: PageServerLoad = async ({ params }) => {
   };
 };
 
-export const actions = {
+export const actions: Actions = {
   update: async (event) => {
     const { request, locals, params } = event;
     const form = await superValidate(request, governingDocumentSchema);

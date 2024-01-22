@@ -11,7 +11,7 @@ import { error } from "@sveltejs/kit";
 import { superValidate } from "sveltekit-superforms/server";
 import { getArticle } from "../articles";
 import { likeSchema, likesAction } from "../likes";
-import type { PageServerLoad } from "./$types";
+import type { Actions, PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ params, parent }) => {
   const article = await getArticle(params.slug);
@@ -39,7 +39,7 @@ export const load: PageServerLoad = async ({ params, parent }) => {
   };
 };
 
-export const actions = {
+export const actions: Actions = {
   like: likesAction(true),
   dislike: likesAction(false),
   comment: commentAction("NEWS"),

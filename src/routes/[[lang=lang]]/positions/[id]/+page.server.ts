@@ -5,7 +5,7 @@ import { error, fail } from "@sveltejs/kit";
 import { redirect } from "sveltekit-flash-message/server";
 import { message, setError, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
-import type { PageServerLoad } from "./$types";
+import type { Actions, PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ params, url }) => {
   const position = await prisma.position.findUnique({
@@ -82,7 +82,7 @@ const deleteMandateSchema = z.object({
 });
 export type DeleteMandateSchema = typeof deleteMandateSchema;
 
-export const actions = {
+export const actions: Actions = {
   update: async ({ params, request, locals }) => {
     const form = await superValidate(request, updateSchema);
     if (!form.valid) return fail(400, { form });

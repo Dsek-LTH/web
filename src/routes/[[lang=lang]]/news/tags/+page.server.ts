@@ -5,7 +5,7 @@ import { Prisma } from "@prisma/client";
 import { fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
-import type { PageServerLoad } from "./$types";
+import type { Actions, PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ parent }) => {
   const tags = await prisma.tag.findMany({ orderBy: { name: "asc" } });
@@ -32,7 +32,7 @@ const updateSchema = z.object({
 });
 export type UpdateSchema = typeof updateSchema;
 
-export const actions = {
+export const actions: Actions = {
   create: async ({ request, locals }) => {
     const form = await superValidate(request, createSchema);
     if (!form.valid) return fail(400, { form });

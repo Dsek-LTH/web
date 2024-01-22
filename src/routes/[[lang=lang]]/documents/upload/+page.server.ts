@@ -5,6 +5,7 @@ import apiNames from "$lib/utils/apiNames";
 import { fail } from "@sveltejs/kit";
 import { message, setError, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
+import type { Actions } from "./$types";
 
 const CURRENT_YEAR = new Date().getFullYear();
 
@@ -46,7 +47,7 @@ const uploadSchema = z.object({
 });
 export type UploadSchema = typeof uploadSchema;
 
-export const actions = {
+export const actions: Actions = {
   default: async ({ request, locals }) => {
     const formData = await request.formData();
     const form = await superValidate(formData, uploadSchema);

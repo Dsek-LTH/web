@@ -14,7 +14,7 @@ export const load: PageServerLoad = async () => {
   return { bookingRequests, bookables };
 };
 
-// export const actions = {
+// export const actions: Actions = {
 //   default: async ({ request, locals }) => {
 //     const session = await locals.getSession();
 //     return withAccess(apiNames.BOOKINGS.CREATE, session?.user, async () => {

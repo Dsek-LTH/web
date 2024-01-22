@@ -2,7 +2,7 @@ import { policyAccessGuard, withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
 import prisma from "$lib/utils/prisma";
 import { z } from "zod";
-import type { PageServerLoad } from "./$types";
+import type { Actions, PageServerLoad } from "./$types";
 import { message, setError, superValidate } from "sveltekit-superforms/server";
 import { fail } from "@sveltejs/kit";
 
@@ -59,7 +59,7 @@ const deleteSchema = z.object({
   id: z.string(),
 });
 
-export const actions = {
+export const actions: Actions = {
   create: async ({ request, locals, params }) => {
     const form = await superValidate(request, createSchema);
     if (!form.valid) return fail(400, { form });

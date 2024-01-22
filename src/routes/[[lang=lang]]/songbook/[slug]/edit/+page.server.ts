@@ -5,8 +5,9 @@ import apiNames from "$lib/utils/apiNames";
 import { redirect } from "sveltekit-flash-message/server";
 import { updateSongSchema } from "../../schema";
 import { setError, superValidate } from "sveltekit-superforms/server";
+import type { Actions } from "./$types";
 
-export const actions = {
+export const actions: Actions = {
   update: async (event) => {
     const formData = await event.request.formData();
     const form = await superValidate(formData, updateSongSchema);

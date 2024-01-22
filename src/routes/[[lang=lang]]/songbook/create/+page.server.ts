@@ -1,11 +1,11 @@
 import { policyAccessGuard, withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
 import prisma from "$lib/utils/prisma";
-import { fail, type Actions } from "@sveltejs/kit";
+import { fail } from "@sveltejs/kit";
 import { redirect } from "sveltekit-flash-message/server";
 import { superValidate } from "sveltekit-superforms/client";
 import { createSongSchema } from "../schema";
-import type { PageServerLoad } from "./$types";
+import type { PageServerLoad, Actions } from "./$types";
 import { slugifySongTitle } from "./helpers";
 import { getExistingCategories, getExistingMelodies } from "../helpers";
 
@@ -24,7 +24,7 @@ export const load: PageServerLoad = async ({ parent }) => {
   };
 };
 
-export const actions = {
+export const actions: Actions = {
   create: async (event) => {
     const form = await superValidate(event.request, createSongSchema);
     if (!form.valid) return fail(400, { form });
@@ -53,4 +53,4 @@ export const actions = {
       );
     });
   },
-} satisfies Actions;
+};
