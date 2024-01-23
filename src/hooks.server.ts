@@ -1,4 +1,4 @@
-import Keycloak from "@auth/core/providers/keycloak";
+import Keycloak, { type KeycloakProfile } from "@auth/core/providers/keycloak";
 import { SvelteKitAuth } from "@auth/sveltekit";
 import {
   KEYCLOAK_CLIENT_ID,
@@ -8,6 +8,7 @@ import {
 } from "$env/static/private";
 import { sourceLanguageTag } from "$paraglide/runtime";
 import type { Handle } from "@sveltejs/kit";
+import type { TokenSet } from "@auth/core/types";
 
 export const handle: Handle = async ({ event, resolve }) => {
   const lang = event.params["lang"] ?? sourceLanguageTag;
@@ -35,16 +36,18 @@ export const handle: Handle = async ({ event, resolve }) => {
         clientId: KEYCLOAK_CLIENT_ID,
         clientSecret: KEYCLOAK_CLIENT_SECRET,
         issuer: KEYCLOAK_CLIENT_ISSUER,
-        profile: (profile, tokens) => {
+        profile: (profile: KeycloakProfile, tokens: TokenSet) => {
           return {
+            access_token: tokens.access_token,
+            id_token: tokens.id_token,
             id: profile.sub,
             name: profile.name,
             email: profile.email,
-            image: profile.image,
             student_id: profile.preferred_username,
-            group_list: profile.group_list,
-            access_token: tokens.access_token,
-            id_token: tokens.id_token,
+            // The keycloak client doesn't guarantee these fields
+            // to be present, but we assume they always are.
+            image: profile["image"] as string | undefined,
+            group_list: profile["group_list"] as string[],
           };
         },
       }),
