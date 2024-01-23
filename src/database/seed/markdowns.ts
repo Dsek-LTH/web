@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 
 export const insertMarkdowns = async (prisma: PrismaClient) => {
-  for (const dayIndex in [...Array(5).keys()]) {
+  for (const dayIndex of [...Array(5).keys()]) {
     await prisma.markdown.upsert({
       where: { name: `cafe:open:${dayIndex}` },
       create: {
