@@ -1,7 +1,6 @@
 import prisma from "$lib/utils/prisma";
-import isomorphicDompurify from "isomorphic-dompurify";
+import DOMPurify from "isomorphic-dompurify";
 import type { PageServerLoad } from "./$types";
-const { sanitize } = isomorphicDompurify;
 
 export const load: PageServerLoad = async () => {
   const news = prisma.article
@@ -14,8 +13,10 @@ export const load: PageServerLoad = async () => {
     .then((articles) =>
       articles.map((article) => ({
         ...article,
-        body: sanitize(article.body),
-        bodyEn: article.bodyEn ? sanitize(article.bodyEn) : article.bodyEn,
+        body: DOMPurify.sanitize(article.body),
+        bodyEn: article.bodyEn
+          ? DOMPurify.sanitize(article.bodyEn)
+          : article.bodyEn,
       })),
     );
   const events = prisma.event
@@ -33,9 +34,9 @@ export const load: PageServerLoad = async () => {
     .then((events) =>
       events.map((event) => ({
         ...event,
-        description: sanitize(event.description),
+        description: DOMPurify.sanitize(event.description),
         descriptionEn: event.descriptionEn
-          ? sanitize(event.descriptionEn)
+          ? DOMPurify.sanitize(event.descriptionEn)
           : event.descriptionEn,
       })),
     );

@@ -3,10 +3,8 @@
   import Input from "$lib/components/Input.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
   import apiNames from "$lib/utils/apiNames";
-  import dompurify from "isomorphic-dompurify";
-  const { sanitize } = dompurify;
+  import DOMPurify from "isomorphic-dompurify";
   import { superForm } from "sveltekit-superforms/client";
-
   import type { PageData } from "./$types";
   export let data: PageData;
 
@@ -113,7 +111,7 @@
     <p class="py-4">
       Är du säker på att du vill ta bort sången
       <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized client-side -->
-      <b class="capitalize">{@html sanitize(data.song.title)}</b>?
+      <b class="capitalize">{@html DOMPurify.sanitize(data.song.title)}</b>?
     </p>
     <div class="modal-action">
       <form method="POST" action="?/delete" class="form-control gap-2">

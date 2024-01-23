@@ -1,7 +1,6 @@
 import { error } from "@sveltejs/kit";
 import prisma from "$lib/utils/prisma";
-import isomorphicDompurify from "isomorphic-dompurify";
-const { sanitize } = isomorphicDompurify;
+import DOMPurify from "isomorphic-dompurify";
 import { fixSongText } from "../helpers";
 import { updateSongSchema } from "../schema";
 import { superValidate } from "sveltekit-superforms/server";
@@ -40,8 +39,8 @@ export const load: LayoutServerLoad = async ({ params, parent }) => {
   return {
     song: {
       ...song,
-      title: sanitize(fixSongText(song.title)),
-      lyrics: sanitize(fixSongText(song.lyrics)),
+      title: DOMPurify.sanitize(fixSongText(song.title)),
+      lyrics: DOMPurify.sanitize(fixSongText(song.lyrics)),
     },
     updateForm: form,
     existingCategories,
