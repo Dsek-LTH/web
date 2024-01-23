@@ -33,7 +33,7 @@
         subscribe: {
           text: "Subscribe",
           click: () => {
-            goto("/events/subscribe");
+            void goto("/events/subscribe");
           },
         },
       },

@@ -44,7 +44,7 @@ export const likesAction =
             },
           },
         });
-        sendNotification({
+        await sendNotification({
           title: `${article.header}`,
           message: `${getAuthorizedFullName(
             currentMember,

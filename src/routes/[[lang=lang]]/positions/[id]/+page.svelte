@@ -53,9 +53,9 @@
     {#if !isAdding && (data.accessPolicies.includes(apiNames.MANDATE.UPDATE) || data.accessPolicies.includes(apiNames.MANDATE.DELETE) || data.accessPolicies.includes(apiNames.POSITION.UPDATE))}
       <button
         class="btn btn-sm"
-        on:click={() => {
+        on:click={async () => {
           isEditing = !isEditing;
-          goto(`${data.position.id}`);
+          await goto(`${data.position.id}`);
         }}
       >
         {isEditing ? "Sluta redigera" : "Redigera"}
