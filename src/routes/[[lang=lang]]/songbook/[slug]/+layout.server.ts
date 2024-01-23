@@ -10,8 +10,9 @@ import {
   getExistingCategories,
   getExistingMelodies,
 } from "../helpers";
+import type { LayoutServerLoad } from "./$types";
 
-export const load = async ({ params, parent }) => {
+export const load: LayoutServerLoad = async ({ params, parent }) => {
   const { accessPolicies } = await parent();
   const song = await prisma.song.findUnique({
     where: {

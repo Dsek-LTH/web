@@ -5,9 +5,9 @@ import { fail } from "@sveltejs/kit";
 import { redirect } from "sveltekit-flash-message/server";
 import { superValidate } from "sveltekit-superforms/server";
 import { governingDocumentSchema } from "../schemas";
-import type { Actions } from "./$types";
+import type { Actions, PageServerLoad } from "./$types";
 
-export const load = async () => ({
+export const load: PageServerLoad = async () => ({
   form: await superValidate(governingDocumentSchema),
 });
 

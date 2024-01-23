@@ -6,7 +6,7 @@ import apiNames from "$lib/utils/apiNames";
 import { error, fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
-import type { Actions } from "./$types";
+import type { Actions, PageServerLoad } from "./$types";
 
 export type DocumentType = "board-meeting" | "guild-meeting" | "other";
 const prefixByType: Record<DocumentType, string> = {
@@ -14,7 +14,7 @@ const prefixByType: Record<DocumentType, string> = {
   "guild-meeting": "",
   other: "",
 };
-export const load = async ({ parent, url }) => {
+export const load: PageServerLoad = async ({ parent, url }) => {
   const { session } = await parent();
   const year = url.searchParams.get("year") || new Date().getFullYear();
   const type: DocumentType =
