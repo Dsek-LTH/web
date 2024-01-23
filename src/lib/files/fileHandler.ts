@@ -22,7 +22,7 @@ const getFilesInFolder = (
   return new Promise<FileData[]>((resolve, reject) => {
     const stream = minio.listObjectsV2(bucket, prefix, recursive);
     const chonkyFiles: FileData[] = [];
-    stream.on("data", async (obj) => {
+    stream.on("data", (obj) => {
       if (obj.name) {
         chonkyFiles.push({
           id: obj.name,

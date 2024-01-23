@@ -148,8 +148,8 @@
               {#if data.accessPolicies.includes(apiNames.MANDATE.UPDATE)}
                 <button
                   class="btn btn-secondary btn-sm pointer-events-auto"
-                  on:click|preventDefault={() => {
-                    goto(`${data.position.id}?editMandate=${mandate.id}`);
+                  on:click|preventDefault={async () => {
+                    await goto(`${data.position.id}?editMandate=${mandate.id}`);
                   }}
                 >
                   EDIT
