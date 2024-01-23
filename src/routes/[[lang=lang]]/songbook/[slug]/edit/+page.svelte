@@ -13,7 +13,7 @@
     errors,
     constraints,
     enhance: updateEnhance,
-  } = superForm(data.updateForm);
+  } = superForm(data.form);
 
   let removeModal: HTMLDialogElement | undefined = undefined;
 </script>
