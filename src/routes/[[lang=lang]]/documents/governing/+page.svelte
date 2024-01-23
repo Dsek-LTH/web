@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import apiNames from "$lib/utils/apiNames";
   import DeleteFileForm from "../DeleteFileForm.svelte";
   import File from "../File.svelte";

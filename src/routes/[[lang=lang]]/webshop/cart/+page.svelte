@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import Cart from "./Cart.svelte";
   import type { PageData } from "./$types";
   export let data: PageData;
