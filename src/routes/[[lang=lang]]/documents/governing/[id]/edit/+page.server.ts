@@ -38,7 +38,7 @@ export const actions: Actions = {
         const { url, title, type } = form.data;
         await prisma.document.update({
           where: {
-            id: id as string,
+            id,
           },
           data: {
             url,
