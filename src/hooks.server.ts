@@ -7,8 +7,9 @@ import {
   AUTH_SECRET,
 } from "$env/static/private";
 import { sourceLanguageTag } from "$paraglide/runtime";
+import type { Handle } from "@sveltejs/kit";
 
-export async function handle({ event, resolve }) {
+export const handle: Handle = async ({ event, resolve }) => {
   const lang = event.params["lang"] ?? sourceLanguageTag;
 
   /*
@@ -76,7 +77,7 @@ export async function handle({ event, resolve }) {
         const idToken = message.token?.id_token;
         const params = new URLSearchParams();
         params.append("id_token_hint", idToken as string);
-        fetch(
+        await fetch(
           `${KEYCLOAK_CLIENT_ISSUER}/protocol/openid-connect/logout?${params.toString()}`,
         );
       },
@@ -85,4 +86,4 @@ export async function handle({ event, resolve }) {
   const response = await authHandle({ event, resolve: resolveWithOptions });
 
   return response;
-}
+};
