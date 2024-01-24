@@ -1,15 +1,14 @@
 #!/bin/bash
-source /run/current-system/profile/etc/profile.d/nix.sh
 docker run \
        --name dsek-db \
        --publish 5432:5432 \
-       -e POSTGRES_USER=postgres \
-       -e POSTGRES_PASSWORD=postgres \
-       -e POSTGRES_DB=dsek \
+       --env POSTGRES_USER=postgres \
+       --env POSTGRES_PASSWORD=postgres \
+       --env POSTGRES_DB=dsek \
        --detach \
        postgres:14-alpine
 
-# Wait for postgres to start
+echo "\nWaiting for database to start..."
 until docker exec dsek-db pg_isready
 do
     sleep 0.5;
@@ -36,5 +35,6 @@ docker exec --interactive --tty dsek-db \
             --dbname=dsek \
             --command="SET session_replication_role = 'origin';"
 
-# Setup migrations for prisma
+# Setup migrations for prisma and seed database
 pnpm migrate
+pnpm seed
