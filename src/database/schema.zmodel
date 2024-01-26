@@ -99,6 +99,7 @@ model Article {
   author Author @relation(fields: [authorId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "articles_author_id_foreign")
   likers Member[] @relation("article_likes")
 
+  @@allow('read', has(auth().policies, 'news:article:read'))
   @@map("articles")
 }
 
@@ -297,6 +298,7 @@ model Event {
   author Member @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "events_author_id_foreign")
   tags Tag[] @relation("event_tags")
 
+  @@allow('read', has(auth().policies, 'event:read'))
   @@map("events")
 }
 
@@ -361,6 +363,7 @@ model Markdown {
   markdown String
   markdownEn String? @map("markdown_en")
 
+  @@allow('read', true)
   @@map("markdowns")
 }
 
@@ -370,6 +373,7 @@ model Meeting {
   date DateTime @db.Date
   url String @unique @db.VarChar(255)
 
+  @@allow('read', has(auth().policies, 'fileHandler:documents:read'))
   @@map("meetings")
 }
 

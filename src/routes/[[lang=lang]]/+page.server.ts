@@ -1,8 +1,8 @@
-import prisma from "$lib/utils/prisma";
 import DOMPurify from "isomorphic-dompurify";
 import type { PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ locals }) => {
+  const { prisma } = locals;
   const news = prisma.article
     .findMany({
       orderBy: {

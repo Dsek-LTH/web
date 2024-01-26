@@ -1,7 +1,7 @@
 // See https://kit.svelte.dev/docs/types#app
 
 import type { ToastNotification } from "$lib/stores/toast";
-import type { Member } from "@prisma/client";
+import type { Member, PrismaClient } from "@prisma/client";
 
 // for information about these interfaces
 declare global {
@@ -15,7 +15,10 @@ declare global {
       message: string;
       statusDescription?: string;
     }
-    // interface Locals {}
+    interface Locals {
+      prisma: PrismaClient;
+      user?: Member;
+    }
     interface PageData {
       accessPolicies: string[];
       currentMember: Member | null;
