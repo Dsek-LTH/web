@@ -91,6 +91,7 @@ model ArticleRequest {
     @@map("article_requests")
 }
 
+/// @@allow('read', has(auth().policies, 'news:article:read'))
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model Article {
@@ -285,6 +286,7 @@ model EventComment {
     @@map("event_comments")
 }
 
+/// @@allow('read', has(auth().policies, 'event:read'))
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Events{
 model Event {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
@@ -368,6 +370,7 @@ model Mandate {
     @@map("mandates")
 }
 
+/// @@allow('read', true)
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Markdowns{
 model Markdown {
     name String @id() @db.VarChar(255)
@@ -377,6 +380,7 @@ model Markdown {
     @@map("markdowns")
 }
 
+/// @@allow('read', has(auth().policies, 'fileHandler:documents:read'))
 model Meeting {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
     title String @db.VarChar(255)
