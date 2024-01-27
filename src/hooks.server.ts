@@ -5,11 +5,11 @@ import {
   KEYCLOAK_CLIENT_SECRET,
 } from "$env/static/private";
 import { getRoleSet } from "$lib/utils/access";
-import prisma from "$lib/utils/prisma";
 import { sourceLanguageTag } from "$paraglide/runtime";
 import Keycloak, { type KeycloakProfile } from "@auth/core/providers/keycloak";
 import type { TokenSet } from "@auth/core/types";
 import { SvelteKitAuth } from "@auth/sveltekit";
+import { PrismaClient } from "@prisma/client";
 import type { Handle } from "@sveltejs/kit";
 import { sequence } from "@sveltejs/kit/hooks";
 import { enhance } from "@zenstackhq/runtime";
@@ -72,6 +72,7 @@ const authHandle = SvelteKitAuth({
   },
 });
 
+const prisma = new PrismaClient();
 const databaseHandle: Handle = async ({ event, resolve }) => {
   try {
     const session = await event.locals.getSession();

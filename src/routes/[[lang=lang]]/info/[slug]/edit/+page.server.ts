@@ -1,13 +1,13 @@
 import { policyAccessGuard, withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
-import prisma from "$lib/utils/prisma";
 import { fail } from "@sveltejs/kit";
 import { superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import { redirect } from "sveltekit-flash-message/server";
 
-export const load: PageServerLoad = async ({ parent, params }) => {
+export const load: PageServerLoad = async ({ locals, parent, params }) => {
+  const { prisma } = locals;
   const markdownPage = await prisma.markdown.findUnique({
     where: {
       name: params.slug,
@@ -41,6 +41,7 @@ const markdownSchema = z.object({
 export const actions: Actions = {
   create: async (event) => {
     const { request, locals, params } = event;
+    const { prisma } = locals;
     const form = await superValidate(request, markdownSchema);
     if (!form.valid) return fail(400, { form });
     const name = params.slug;
@@ -76,6 +77,7 @@ export const actions: Actions = {
   },
   update: async (event) => {
     const { request, locals, params } = event;
+    const { prisma } = locals;
     const form = await superValidate(request, markdownSchema);
     if (!form.valid) return fail(400, { form });
     const name = params.slug;

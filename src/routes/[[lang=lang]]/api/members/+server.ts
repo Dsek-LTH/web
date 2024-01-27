@@ -1,7 +1,8 @@
-import { error, type RequestHandler } from "@sveltejs/kit";
-import prisma from "$lib/utils/prisma";
+import { error } from "@sveltejs/kit";
+import type { RequestHandler } from "./$types";
 
-export const GET: RequestHandler = async ({ url }) => {
+export const GET: RequestHandler = async ({ locals, url }) => {
+  const { prisma } = locals;
   const search = url.searchParams.get("search")?.toLowerCase();
 
   if (search == undefined || search.length === 0) {

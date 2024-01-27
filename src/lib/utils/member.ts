@@ -1,8 +1,11 @@
 import { error } from "@sveltejs/kit";
 import { getRoleSet, type Context } from "./access";
-import prisma from "./prisma";
+import type { PrismaClient } from "@prisma/client";
 
-export const getCurrentMember = async (context: Context) => {
+export const getCurrentMember = async (
+  prisma: PrismaClient,
+  context: Context,
+) => {
   if (!context?.student_id) {
     throw error(401, "Not logged in");
   }
@@ -17,16 +20,28 @@ export const getCurrentMember = async (context: Context) => {
   return member;
 };
 
-export const getCurrentMemberId = async (context: Context) => {
-  const member = await getCurrentMember(context);
+export const getCurrentMemberId = async (
+  prisma: PrismaClient,
+  context: Context,
+) => {
+  const member = await getCurrentMember(prisma, context);
   return member.id;
 };
 
-export const getMyCustomAuthorOptions = async (context: Context) => {
-  return await getCustomAuthorOptions(await getCurrentMemberId(context));
+export const getMyCustomAuthorOptions = async (
+  prisma: PrismaClient,
+  context: Context,
+) => {
+  return await getCustomAuthorOptions(
+    prisma,
+    await getCurrentMemberId(prisma, context),
+  );
 };
 
-export const getCustomAuthorOptions = async (memberId: string) => {
+export const getCustomAuthorOptions = async (
+  prisma: PrismaClient,
+  memberId: string,
+) => {
   const activePositionIds = await prisma.position
     .findMany({
       select: {

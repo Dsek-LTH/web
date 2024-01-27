@@ -4,8 +4,7 @@ import {
   SUBSCRIPTION_SETTINGS_MAP,
   type NotificationSettingType,
 } from "$lib/utils/notifications/types";
-import prisma from "$lib/utils/prisma";
-import type { Author } from "@prisma/client";
+import type { Author, PrismaClient } from "@prisma/client";
 import { error } from "@sveltejs/kit";
 
 const DUPLICATE_ALLOWED_TYPES = [
@@ -34,15 +33,18 @@ type SendNotificationProps = {
  * @param fromAuthor (optional)
  * @param fromMemberId (optional), if fromAuthor is not given, use this member id to find/create author
  */
-const sendNotification = async ({
-  title,
-  message,
-  type,
-  link,
-  memberIds,
-  fromAuthor,
-  fromMemberId,
-}: SendNotificationProps) => {
+const sendNotification = async (
+  prisma: PrismaClient,
+  {
+    title,
+    message,
+    type,
+    link,
+    memberIds,
+    fromAuthor,
+    fromMemberId,
+  }: SendNotificationProps,
+) => {
   // Find corresponding setting type, example "COMMENT" for "EVENT_COMMENT"
   const settingType: NotificationSettingType = (Object.entries(
     SUBSCRIPTION_SETTINGS_MAP,

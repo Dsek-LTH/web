@@ -1,7 +1,7 @@
-import prisma from "$lib/utils/prisma";
 import { slugify } from "$lib/utils/slugify";
+import type { PrismaClient } from "@prisma/client";
 
-export const slugifySongTitle = async (title: string) => {
+export const slugifySongTitle = async (prisma: PrismaClient, title: string) => {
   const slug = slugify(title);
   const count = await prisma.song.count({
     where: {

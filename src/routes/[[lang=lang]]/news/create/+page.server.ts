@@ -1,15 +1,15 @@
 import { policyAccessGuard, withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
-import prisma from "$lib/utils/prisma";
-import { error, fail, type Actions } from "@sveltejs/kit";
+import { slugWithCount, slugify } from "$lib/utils/slugify";
+import { error, fail } from "@sveltejs/kit";
 import { redirect } from "sveltekit-flash-message/server";
 import { superValidate } from "sveltekit-superforms/client";
 import { getArticleAuthorOptions } from "../articles";
 import { articleSchema } from "../schema";
-import type { ActionsExport, PageServerLoad } from "./$types";
-import { slugWithCount, slugify } from "$lib/utils/slugify";
+import type { Actions, PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async ({ parent }) => {
+export const load: PageServerLoad = async ({ locals, parent }) => {
+  const { prisma } = locals;
   const allTags = await prisma.tag.findMany();
   const { session, accessPolicies } = await parent();
   policyAccessGuard(apiNames.NEWS.CREATE, accessPolicies);
@@ -35,6 +35,7 @@ export const load: PageServerLoad = async ({ parent }) => {
   });
   if (!currentMemberWithMandates) throw error(500, "Member not found");
   const authorOptions = await getArticleAuthorOptions(
+    prisma,
     currentMemberWithMandates,
   );
   return {
@@ -49,11 +50,13 @@ export const load: PageServerLoad = async ({ parent }) => {
   };
 };
 
-export const actions: ActionsExport = {
+export const actions: Actions = {
   default: async (event) => {
-    const form = await superValidate(event.request, articleSchema);
+    const { request, locals } = event;
+    const { prisma } = locals;
+    const form = await superValidate(request, articleSchema);
     if (!form.valid) return fail(400, { form });
-    const session = await event.locals.getSession();
+    const session = await locals.getSession();
     return withAccess(
       apiNames.NEWS.CREATE,
       session?.user,
@@ -133,4 +136,4 @@ export const actions: ActionsExport = {
       form,
     );
   },
-} satisfies Actions;
+};

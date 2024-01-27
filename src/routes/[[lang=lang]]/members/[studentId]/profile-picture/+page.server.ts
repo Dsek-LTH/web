@@ -1,7 +1,6 @@
 import { fileHandler } from "$lib/files";
 import { ctxAccessGuard, withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
-import prisma from "$lib/utils/prisma";
 import { error, fail } from "@sveltejs/kit";
 import sharp from "sharp";
 import generateUUID from "$lib/utils/generateUUID";
@@ -10,7 +9,8 @@ import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import { PUBLIC_BUCKETS_MEMBERS } from "$env/static/public";
 
-export const load: PageServerLoad = async ({ params, parent }) => {
+export const load: PageServerLoad = async ({ locals, params, parent }) => {
+  const { prisma } = locals;
   const member = await prisma.member.findUnique({
     where: {
       studentId: params.studentId,
@@ -56,6 +56,7 @@ export type DeleteSchema = typeof deleteSchema;
 
 export const actions: Actions = {
   change: async ({ params, locals, request }) => {
+    const { prisma } = locals;
     const form = await superValidate(request, changeSchema);
     if (!form.valid) return fail(400, { form });
     const session = await locals.getSession();

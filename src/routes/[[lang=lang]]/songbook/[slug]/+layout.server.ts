@@ -1,5 +1,4 @@
 import { error } from "@sveltejs/kit";
-import prisma from "$lib/utils/prisma";
 import DOMPurify from "isomorphic-dompurify";
 import { fixSongText } from "../helpers";
 import { updateSongSchema } from "../schema";
@@ -11,7 +10,8 @@ import {
 } from "../helpers";
 import type { LayoutServerLoad } from "./$types";
 
-export const load: LayoutServerLoad = async ({ params, parent }) => {
+export const load: LayoutServerLoad = async ({ locals, params, parent }) => {
+  const { prisma } = locals;
   const { accessPolicies } = await parent();
   const song = await prisma.song.findUnique({
     where: {

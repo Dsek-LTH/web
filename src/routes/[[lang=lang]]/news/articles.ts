@@ -1,5 +1,4 @@
 import { getCustomAuthorOptions } from "$lib/utils/member";
-import prisma from "$lib/utils/prisma";
 import type {
   Author,
   CustomAuthor,
@@ -7,6 +6,7 @@ import type {
   Member,
   Position,
   Prisma,
+  PrismaClient,
 } from "@prisma/client";
 
 type ArticleFilters = {
@@ -38,6 +38,7 @@ const include = {
 };
 
 export const getAllArticles = async (
+  prisma: PrismaClient,
   filters: ArticleFilters = { page: 0, pageSize: 10 },
 ): Promise<[Article[], number]> => {
   filters.page = filters.page ?? 0;
@@ -119,7 +120,7 @@ export const getAllArticles = async (
   return [articles, Math.ceil(count / filters.pageSize)];
 };
 
-export const getArticle = async (slug: string) => {
+export const getArticle = async (prisma: PrismaClient, slug: string) => {
   const response = await prisma.article.findUnique({
     where: {
       slug,
@@ -147,6 +148,7 @@ export type AuthorOption = Author & {
 };
 
 export const getArticleAuthorOptions = async (
+  prisma: PrismaClient,
   memberWithMandates: Prisma.MemberGetPayload<{
     include: {
       mandates: {
@@ -158,7 +160,7 @@ export const getArticleAuthorOptions = async (
   }>,
 ) => {
   const memberId = memberWithMandates.id;
-  const customAuthorOptions = await getCustomAuthorOptions(memberId);
+  const customAuthorOptions = await getCustomAuthorOptions(prisma, memberId);
   const authorOptions: AuthorOption[] = [
     {
       id: "0",

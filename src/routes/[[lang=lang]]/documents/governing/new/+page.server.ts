@@ -1,6 +1,5 @@
 import { withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
-import prisma from "$lib/utils/prisma";
 import { fail } from "@sveltejs/kit";
 import { redirect } from "sveltekit-flash-message/server";
 import { superValidate } from "sveltekit-superforms/server";
@@ -14,6 +13,7 @@ export const load: PageServerLoad = async () => ({
 export const actions: Actions = {
   create: async (event) => {
     const { request, locals } = event;
+    const { prisma } = locals;
     const form = await superValidate(request, governingDocumentSchema);
     if (!form.valid) return fail(400, { form });
     const session = await locals.getSession();

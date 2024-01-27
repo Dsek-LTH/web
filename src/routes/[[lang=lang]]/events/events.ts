@@ -1,5 +1,4 @@
-import prisma from "$lib/utils/prisma";
-import type { Prisma } from "@prisma/client";
+import type { Prisma, PrismaClient } from "@prisma/client";
 
 type EventFilters = {
   tags?: string[];
@@ -22,6 +21,7 @@ const include = {
 };
 
 export const getAllEvents = async (
+  prisma: PrismaClient,
   filters: EventFilters = { page: 0, pageSize: 10 },
 ): Promise<[EventWithIncludes[], number]> => {
   filters.page = filters.page ?? 0;
@@ -118,7 +118,7 @@ export const getAllEvents = async (
   return [events, Math.ceil(count / filters.pageSize)];
 };
 
-export const getEvent = async (slug: string) => {
+export const getEvent = async (prisma: PrismaClient, slug: string) => {
   const response = await prisma.event.findUnique({
     where: {
       slug,

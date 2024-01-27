@@ -1,4 +1,3 @@
-import prisma from "$lib/utils/prisma";
 import { superValidate } from "sveltekit-superforms/server";
 import type { Actions, PageServerLoad } from "./$types";
 import { getAllArticles } from "./articles";
@@ -12,7 +11,8 @@ const getAndValidatePage = (url: URL) => {
   return page ? Math.max(Number.parseInt(page) - 1, 0) : undefined;
 };
 
-export const load: PageServerLoad = async ({ url }) => {
+export const load: PageServerLoad = async ({ locals, url }) => {
+  const { prisma } = locals;
   const [[articles, pageCount], allTags] = await Promise.all([
     getAllArticles({
       tags: url.searchParams.getAll("tags"),
