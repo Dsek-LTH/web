@@ -1,12 +1,12 @@
 import { policyAccessGuard, withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
-import prisma from "$lib/utils/prisma";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import { message, setError, superValidate } from "sveltekit-superforms/server";
 import { fail } from "@sveltejs/kit";
 
-export const load: PageServerLoad = async ({ parent, params }) => {
+export const load: PageServerLoad = async ({ locals, parent, params }) => {
+  const { prisma } = locals;
   const doorAccessPolicies = await prisma.doorAccessPolicy.findMany({
     where: {
       doorName: params.slug,
@@ -61,6 +61,7 @@ const deleteSchema = z.object({
 
 export const actions: Actions = {
   create: async ({ request, locals, params }) => {
+    const { prisma } = locals;
     const form = await superValidate(request, createSchema);
     if (!form.valid) return fail(400, { form });
     const session = await locals.getSession();
@@ -93,6 +94,7 @@ export const actions: Actions = {
     );
   },
   delete: async ({ request, locals }) => {
+    const { prisma } = locals;
     const form = await superValidate(request, deleteSchema);
     if (!form.valid) return fail(400, { form });
     const session = await locals.getSession();

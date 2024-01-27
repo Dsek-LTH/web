@@ -1,6 +1,5 @@
 import { policyAccessGuard, withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
-import prisma from "$lib/utils/prisma";
 import { fail } from "@sveltejs/kit";
 import { redirect } from "sveltekit-flash-message/server";
 import { superValidate } from "sveltekit-superforms/client";
@@ -26,9 +25,11 @@ export const load: PageServerLoad = async ({ parent }) => {
 
 export const actions: Actions = {
   create: async (event) => {
-    const form = await superValidate(event.request, createSongSchema);
+    const { request, locals } = event;
+    const { prisma } = locals;
+    const form = await superValidate(request, createSongSchema);
     if (!form.valid) return fail(400, { form });
-    const session = await event.locals.getSession();
+    const session = await locals.getSession();
     return withAccess(apiNames.SONG.CREATE, session?.user, async () => {
       const { title, melody, category, lyrics } = form.data;
       const now = new Date();

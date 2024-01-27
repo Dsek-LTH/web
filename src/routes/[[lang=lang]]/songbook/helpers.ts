@@ -1,8 +1,8 @@
 import apiNames from "$lib/utils/apiNames";
-import prisma from "$lib/utils/prisma";
-import type { Song } from "@prisma/client";
+import type { PrismaClient, Song } from "@prisma/client";
 
 export async function getExistingCategories(
+  prisma: PrismaClient,
   accessPolicies: string[] = [],
   includeDeleted = false,
 ): Promise<string[]> {
@@ -34,6 +34,7 @@ export async function getExistingCategories(
 }
 
 export async function getExistingMelodies(
+  prisma: PrismaClient,
   accessPolicies: string[] = [],
   includeDeleted = false,
 ): Promise<string[]> {

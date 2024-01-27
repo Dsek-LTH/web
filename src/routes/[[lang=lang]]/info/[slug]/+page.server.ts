@@ -1,8 +1,8 @@
-import prisma from "$lib/utils/prisma";
 import { error } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ locals, params }) => {
+  const { prisma } = locals;
   const markdownPage = await prisma.markdown.findUnique({
     where: {
       name: params.slug,

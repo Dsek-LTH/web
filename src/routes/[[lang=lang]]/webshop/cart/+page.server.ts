@@ -1,7 +1,7 @@
-import prisma from "$lib/utils/prisma";
 import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ locals }) => {
+  const { prisma } = locals;
   const session = await locals.getSession();
 
   const myCart = await prisma.cart.findFirst({

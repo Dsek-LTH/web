@@ -1,13 +1,13 @@
 import { withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
-import prisma from "$lib/utils/prisma";
 import { error, fail } from "@sveltejs/kit";
 import { redirect } from "sveltekit-flash-message/server";
 import { message, setError, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async ({ params, url }) => {
+export const load: PageServerLoad = async ({ locals, params, url }) => {
+  const { prisma } = locals;
   const position = await prisma.position.findUnique({
     where: {
       id: params.id,
@@ -84,6 +84,7 @@ export type DeleteMandateSchema = typeof deleteMandateSchema;
 
 export const actions: Actions = {
   update: async ({ params, request, locals }) => {
+    const { prisma } = locals;
     const form = await superValidate(request, updateSchema);
     if (!form.valid) return fail(400, { form });
     const session = await locals.getSession();
@@ -108,6 +109,7 @@ export const actions: Actions = {
     );
   },
   addMandate: async ({ params, request, locals }) => {
+    const { prisma } = locals;
     const form = await superValidate(request, addManadateSchema);
     if (!form.valid) return fail(400, { form });
     const session = await locals.getSession();
@@ -137,6 +139,7 @@ export const actions: Actions = {
   },
   updateMandate: async (event) => {
     const { params, request, locals } = event;
+    const { prisma } = locals;
     const form = await superValidate(request, updateMandateSchema);
     if (!form.valid) return fail(400, { form });
     const session = await locals.getSession();
@@ -181,6 +184,7 @@ export const actions: Actions = {
     );
   },
   deleteMandate: async ({ params, request, locals }) => {
+    const { prisma } = locals;
     const form = await superValidate(request, deleteMandateSchema);
     if (!form.valid) return fail(400, { form });
     const session = await locals.getSession();

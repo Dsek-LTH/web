@@ -1,12 +1,12 @@
 import { fileHandler } from "$lib/files";
 import { withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
-import prisma from "$lib/utils/prisma";
 import { error, fail, type Actions } from "@sveltejs/kit";
 import { message, setError, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import { PUBLIC_BUCKETS_MATERIAL } from "$env/static/public";
 import { compareCommitteePositions } from "$lib/utils/committee-ordering/sort";
+import type { PrismaClient } from "@prisma/client";
 
 const updateSchema = z.object({
   name: z.string().optional(),
@@ -23,7 +23,10 @@ type ParamType = { shortName: string };
  * @param shortName The committee's short name
  * @returns All data that the every committee load function needs
  */
-export const committeeLoad = async (shortName: string) => {
+export const committeeLoad = async (
+  prisma: PrismaClient,
+  shortName: string,
+) => {
   const committee = await prisma.committee.findUnique({
     where: {
       shortName,
@@ -117,6 +120,7 @@ export const committeeLoad = async (shortName: string) => {
 
 export const committeeActions = (shortName?: string): Actions<ParamType> => ({
   update: async ({ params, request, locals }) => {
+    const { prisma } = locals;
     const formData = await request.formData();
     const form = await superValidate(formData, updateSchema);
     if (!form.valid) return fail(400, { form });

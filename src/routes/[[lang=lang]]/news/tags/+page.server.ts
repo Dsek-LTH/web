@@ -1,13 +1,13 @@
 import { policyAccessGuard, withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
-import prisma from "$lib/utils/prisma";
 import { Prisma } from "@prisma/client";
 import { fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async ({ parent }) => {
+export const load: PageServerLoad = async ({ locals, parent }) => {
+  const { prisma } = locals;
   const tags = await prisma.tag.findMany({ orderBy: { name: "asc" } });
   const { accessPolicies } = await parent();
   policyAccessGuard(apiNames.TAGS.READ, accessPolicies);
@@ -34,6 +34,7 @@ export type UpdateSchema = typeof updateSchema;
 
 export const actions: Actions = {
   create: async ({ request, locals }) => {
+    const { prisma } = locals;
     const form = await superValidate(request, createSchema);
     if (!form.valid) return fail(400, { form });
     const session = await locals.getSession();
@@ -55,6 +56,7 @@ export const actions: Actions = {
     );
   },
   update: async ({ request, locals }) => {
+    const { prisma } = locals;
     const form = await superValidate(request, updateSchema);
     if (!form.valid) return fail(400, { form });
     const session = await locals.getSession();

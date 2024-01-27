@@ -1,12 +1,12 @@
 import { policyAccessGuard, withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
-import prisma from "$lib/utils/prisma";
 import { fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async ({ parent }) => {
+export const load: PageServerLoad = async ({ locals, parent }) => {
+  const { prisma } = locals;
   const allPolicies = await prisma.accessPolicy.findMany(); // fetch it immidiately to reduce waterfall delay
   const { accessPolicies } = await parent();
   policyAccessGuard(apiNames.ACCESS_POLICY.READ, accessPolicies);
@@ -23,6 +23,7 @@ const createSchema = z.object({
 
 export const actions: Actions = {
   create: async ({ locals, request }) => {
+    const { prisma } = locals;
     const form = await superValidate(request, createSchema);
     if (!form.valid) return fail(400, { form });
     const session = await locals.getSession();

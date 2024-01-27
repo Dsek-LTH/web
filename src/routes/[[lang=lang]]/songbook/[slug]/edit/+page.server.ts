@@ -1,5 +1,4 @@
 import { error, fail } from "@sveltejs/kit";
-import prisma from "$lib/utils/prisma";
 import { withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
 import { redirect } from "sveltekit-flash-message/server";
@@ -14,10 +13,12 @@ export const load: PageServerLoad = async () => {
 
 export const actions: Actions = {
   update: async (event) => {
-    const formData = await event.request.formData();
+    const { request, locals } = event;
+    const { prisma } = locals;
+    const formData = await request.formData();
     const form = await superValidate(formData, updateSongSchema);
     if (!form.valid) return fail(400, { form });
-    const session = await event.locals.getSession();
+    const session = await locals.getSession();
     return withAccess(apiNames.SONG.UPDATE, session?.user, async () => {
       const data = form.data;
       if (data.title == null) {
@@ -57,6 +58,7 @@ export const actions: Actions = {
 
   delete: async (event) => {
     const { locals, request } = event;
+    const { prisma } = locals;
     const session = await locals.getSession();
     const data = await request.formData();
     const id = data.get("id");
@@ -92,6 +94,7 @@ export const actions: Actions = {
 
   restore: async (event) => {
     const { locals, request } = event;
+    const { prisma } = locals;
     const session = await locals.getSession();
     const data = await request.formData();
     const id = data.get("id");

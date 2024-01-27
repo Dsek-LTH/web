@@ -1,7 +1,7 @@
-import prisma from "$lib/utils/prisma";
-import type { RequestHandler } from "@sveltejs/kit";
+import type { RequestHandler } from "./$types";
 
-export const GET: RequestHandler = async () => {
+export const GET: RequestHandler = async ({ locals }) => {
+  const { prisma } = locals;
   const currentDate = new Date().toISOString();
 
   const alarmActiveEvent = await prisma.event.findFirst({

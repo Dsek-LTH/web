@@ -1,6 +1,5 @@
 import { policyAccessGuard, withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
-import prisma from "$lib/utils/prisma";
 import { fail } from "@sveltejs/kit";
 import { redirect } from "sveltekit-flash-message/server";
 import { superValidate } from "sveltekit-superforms/server";
@@ -8,7 +7,8 @@ import { eventSchema } from "../schema";
 import type { Actions, PageServerLoad } from "./$types";
 import { slugWithCount, slugify } from "$lib/utils/slugify";
 
-export const load: PageServerLoad = async ({ parent }) => {
+export const load: PageServerLoad = async ({ locals, parent }) => {
+  const { prisma } = locals;
   const allTags = await prisma.tag.findMany();
   const { accessPolicies, currentMember } = await parent();
   policyAccessGuard(apiNames.EVENT.CREATE, accessPolicies);
@@ -22,9 +22,11 @@ export const load: PageServerLoad = async ({ parent }) => {
 };
 export const actions: Actions = {
   default: async (event) => {
-    const form = await superValidate(event.request, eventSchema);
+    const { request, locals } = event;
+    const { prisma } = locals;
+    const form = await superValidate(request, eventSchema);
     if (!form.valid) return fail(400, { form });
-    const session = await event.locals.getSession();
+    const session = await locals.getSession();
     return withAccess(
       apiNames.EVENT.CREATE,
       session?.user,

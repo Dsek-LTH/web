@@ -1,4 +1,3 @@
-import prisma from "$lib/utils/prisma";
 import { error, fail } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 import { withAccess } from "$lib/utils/access";
@@ -7,7 +6,8 @@ import { superValidate } from "sveltekit-superforms/server";
 import { redirect } from "sveltekit-flash-message/server";
 import { governingDocumentSchema } from "../../schemas";
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ locals, params }) => {
+  const { prisma } = locals;
   const governingDocument = await prisma.document.findFirst({
     where: {
       id: params.id,
@@ -27,6 +27,7 @@ export const load: PageServerLoad = async ({ params }) => {
 export const actions: Actions = {
   update: async (event) => {
     const { request, locals, params } = event;
+    const { prisma } = locals;
     const form = await superValidate(request, governingDocumentSchema);
     if (!form.valid) return fail(400, { form });
     const id = params.id;

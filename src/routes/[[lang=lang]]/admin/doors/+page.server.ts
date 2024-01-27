@@ -1,9 +1,9 @@
 import { policyAccessGuard } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
-import prisma from "$lib/utils/prisma";
 import type { PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async ({ parent }) => {
+export const load: PageServerLoad = async ({ locals, parent }) => {
+  const { prisma } = locals;
   const doors = await prisma.door.findMany();
   const { accessPolicies } = await parent();
   policyAccessGuard(apiNames.DOOR.READ, accessPolicies);

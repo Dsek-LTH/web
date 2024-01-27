@@ -1,4 +1,3 @@
-import prisma from "$lib/utils/prisma";
 import { fixSongText } from "./helpers";
 import type { PageServerLoad } from "./$types";
 import type { Prisma } from "@prisma/client";
@@ -7,7 +6,8 @@ import { canAccessDeletedSongs, getExistingCategories } from "./helpers";
 
 const SONGS_PER_PAGE = 10;
 
-export const load: PageServerLoad = async ({ url, parent }) => {
+export const load: PageServerLoad = async ({ locals, url, parent }) => {
+  const { prisma } = locals;
   const { accessPolicies } = await parent();
   const page = url.searchParams.get("page");
   const search = url.searchParams.get("search");

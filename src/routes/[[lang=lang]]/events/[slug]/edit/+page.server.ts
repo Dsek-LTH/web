@@ -1,6 +1,5 @@
 import { policyAccessGuard, withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
-import prisma from "$lib/utils/prisma";
 import { error, fail } from "@sveltejs/kit";
 import { redirect } from "sveltekit-flash-message/server";
 import { superValidate } from "sveltekit-superforms/server";
@@ -8,7 +7,8 @@ import { eventSchema } from "../../schema";
 import type { Actions, PageServerLoad } from "./$types";
 import { isUUIDRegex } from "$lib/utils/generateUUID";
 
-export const load: PageServerLoad = async ({ parent, params }) => {
+export const load: PageServerLoad = async ({ locals, parent, params }) => {
+  const { prisma } = locals;
   const allTags = await prisma.tag.findMany();
   const { accessPolicies } = await parent();
   policyAccessGuard(apiNames.NEWS.UPDATE, accessPolicies);
@@ -39,6 +39,7 @@ export const load: PageServerLoad = async ({ parent, params }) => {
 export const actions: Actions = {
   default: async (event) => {
     const { request, locals, params } = event;
+    const { prisma } = locals;
     const form = await superValidate(request, eventSchema);
     if (!form.valid) return fail(400, { form });
     const session = await locals.getSession();

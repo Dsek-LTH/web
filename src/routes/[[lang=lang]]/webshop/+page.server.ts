@@ -1,12 +1,12 @@
 import { withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
-import prisma from "$lib/utils/prisma";
-import type { Cart } from "@prisma/client";
+import type { Cart, PrismaClient } from "@prisma/client";
 import type { Actions, PageServerLoad } from "./$types";
 import { fail } from "@sveltejs/kit";
 import { randomUUID } from "crypto";
 
 export const load: PageServerLoad = async ({ locals }) => {
+  const { prisma } = locals;
   const productCategories = await prisma.productCategory.findMany({
     where: {
       deletedAt: null,
@@ -78,6 +78,7 @@ const TRANSACTION_COST = 2;
 
 export const actions: Actions = {
   addToCart: async ({ request, locals }) => {
+    const { prisma } = locals;
     const session = await locals.getSession();
     return withAccess(apiNames.NEWS.CREATE, session?.user, async () => {
       try {
@@ -107,6 +108,7 @@ export const actions: Actions = {
           });
         }
         const productInventory = await inventoryToCartTransaction(
+          prisma,
           productInventoryId,
           1,
           myCart,
@@ -125,6 +127,7 @@ export const actions: Actions = {
     });
   },
   removeFromCart: async ({ request, locals }) => {
+    const { prisma } = locals;
     const session = await locals.getSession();
     return withAccess(apiNames.NEWS.CREATE, session?.user, async () => {
       try {
@@ -145,6 +148,7 @@ export const actions: Actions = {
         });
         if (!myCart) throw new Error("Cart not found");
         const productInventory = await cartToInventoryTransaction(
+          prisma,
           productInventoryId,
           1,
           myCart.id,
@@ -165,6 +169,7 @@ export const actions: Actions = {
 };
 
 async function cartToInventoryTransaction(
+  prisma: PrismaClient,
   productInventoryId: string,
   quantity: number,
   cartId: string,
@@ -246,6 +251,7 @@ async function cartToInventoryTransaction(
 }
 
 async function inventoryToCartTransaction(
+  prisma: PrismaClient,
   productInventoryId: string,
   quantity: number,
   cart: Cart,
