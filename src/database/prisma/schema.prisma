@@ -24,12 +24,17 @@ enum DocumentType {
 }
 
 model User {
-    id String @id()
+    studentId String @id()
+    memberId String
     policies String[]
 
     @@ignore()
 }
 
+/// @@allow('create', has(auth().policies, 'admin:settings:create'))
+/// @@allow('read', has(auth().policies, 'admin:settings:read'))
+/// @@allow('update', has(auth().policies, 'admin:settings:update'))
+/// @@allow('delete', has(auth().policies, 'admin:settings:delete'))
 model AdminSetting {
     key String @id() @db.VarChar(255)
     value String? @db.VarChar(255)
@@ -39,6 +44,8 @@ model AdminSetting {
     @@map("admin_settings")
 }
 
+/// @@allow('all', has(auth().policies, 'alert'))
+/// @@allow('read', true)
 model Alert {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
     severity String @db.VarChar(255)
@@ -50,6 +57,10 @@ model Alert {
     @@map("alerts")
 }
 
+/// @@allow('create', has(auth().policies, 'core:access:api:create'))
+/// @@allow('read', has(auth().policies, 'core:access:api:read'))
+/// @@allow('update', has(auth().policies, 'core:access:api:update'))
+/// @@allow('delete', has(auth().policies, 'core:access:api:delete'))
 model AccessPolicy {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
     apiName String @map("api_name") @db.VarChar(255)
@@ -61,6 +72,10 @@ model AccessPolicy {
     @@map("api_access_policies")
 }
 
+/// @@allow('create', auth() != null)
+/// @@allow('read', true)
+/// @@allow('delete', has(auth().policies, 'news:article:comment:delete'))
+/// @@allow('delete', auth().memberId == memberId)
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model ArticleComment {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
@@ -74,6 +89,12 @@ model ArticleComment {
     @@map("article_comments")
 }
 
+/// @@allow('create', has(auth().policies, 'news:article:create'))
+/// @@allow('read', has(auth().policies, 'news:article:manage'))
+/// @@allow('read', auth().memberId == article.authorId)
+/// @@allow('update', has(auth().policies, 'news:article:manage'))
+/// @@allow('delete', auth().memberId == article.authorId)
+/// @@allow('delete', has(auth().policies, 'news:article:manage'))
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model ArticleRequest {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
@@ -91,7 +112,12 @@ model ArticleRequest {
     @@map("article_requests")
 }
 
+/// @@allow('create', has(auth().policies, 'news:article:create'))
 /// @@allow('read', has(auth().policies, 'news:article:read'))
+/// @@allow('update', has(auth().policies, 'news:article:update'))
+/// @@allow('update', auth().memberId == author.memberId)
+/// @@allow('delete', has(auth().policies, 'news:article:delete'))
+/// @@allow('delete', auth().memberId == author.memberId)
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model Article {
@@ -117,6 +143,8 @@ model Article {
     @@map("articles")
 }
 
+/// @@allow('create', has(auth().policies, 'news:article:create'))
+/// @@allow('read', has(auth().policies, 'news:article:read'))
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model Author {
@@ -146,6 +174,9 @@ model BookableCategory {
     @@map("bookable_categories")
 }
 
+/// @@allow('create', has(auth().policies, 'booking_request:bookable:create'))
+/// @@allow('read', has(auth().policies, 'booking_request:bookable:read'))
+/// @@allow('update', has(auth().policies, 'booking_request:bookable:update'))
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model Bookable {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
@@ -160,6 +191,10 @@ model Bookable {
     @@map("bookables")
 }
 
+/// @@allow('create', has(auth().policies, 'booking_request:create'))
+/// @@allow('read', has(auth().policies, 'booking_request:read'))
+/// @@allow('update', has(auth().policies, 'booking_request:update'))
+/// @@allow('delete', has(auth().policies, 'booking_request:delete'))
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model BookingRequest {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
@@ -200,6 +235,10 @@ model CartItem {
     @@map("cart_item")
 }
 
+/// @@allow('create', has(auth().policies, 'core:committee:create'))
+/// @@allow('read', has(auth().policies, 'core:committee:read'))
+/// @@allow('update', has(auth().policies, 'core:committee:update'))
+/// @@allow('delete', has(auth().policies, 'core:committee:delete'))
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Committees{
 model Committee {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
@@ -214,6 +253,8 @@ model Committee {
     @@map("committees")
 }
 
+/// @@allow('create', has(auth().policies, 'news:article:create'))
+/// @@allow('read', has(auth().policies, 'news:article:read'))
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model CustomAuthorRole {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
@@ -226,6 +267,8 @@ model CustomAuthorRole {
     @@map("custom_author_roles")
 }
 
+/// @@allow('create', has(auth().policies, 'news:article:create'))
+/// @@allow('read', has(auth().policies, 'news:article:read'))
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model CustomAuthor {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
@@ -240,6 +283,9 @@ model CustomAuthor {
     @@map("custom_authors")
 }
 
+/// @@allow('create', has(auth().policies, 'core:access:door:update'))
+/// @@allow('read', true)
+/// @@allow('delete', has(auth().policies, 'core:access:api:delete'))
 model DoorAccessPolicy {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
     doorName String @map("door_name") @db.VarChar(255)
@@ -253,6 +299,9 @@ model DoorAccessPolicy {
     @@map("door_access_policies")
 }
 
+/// @@allow('create', has(auth().policies, 'core:access:door:create'))
+/// @@allow('read', has(auth().policies, 'core:access:door:read'))
+/// @@allow('delete', has(auth().policies, 'core:access:door:delete'))
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Doors{
 model Door {
     name String @id() @db.VarChar(255)
@@ -262,6 +311,10 @@ model Door {
     @@map("doors")
 }
 
+/// @@allow('create', has(auth().policies, 'core:mail:alias:create'))
+/// @@allow('read', has(auth().policies, 'core:mail:alias:read'))
+/// @@allow('update', has(auth().policies, 'core:mail:alias:update'))
+/// @@allow('delete', has(auth().policies, 'core:mail:alias:create'))
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model EmailAlias {
     id String @id(map: "mail_aliases_pkey") @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
@@ -273,6 +326,10 @@ model EmailAlias {
     @@map("email_aliases")
 }
 
+/// @@allow('create', has(auth().policies, 'event:comment'))
+/// @@allow('read', has(auth().policies, 'event:read'))
+/// @@allow('delete', has(auth().policies, 'event:comment:delete'))
+/// @@allow('delete', auth().memberId == memberId)
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model EventComment {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
@@ -286,7 +343,10 @@ model EventComment {
     @@map("event_comments")
 }
 
+/// @@allow('create', has(auth().policies, 'event:create'))
 /// @@allow('read', has(auth().policies, 'event:read'))
+/// @@allow('update', has(auth().policies, 'event:update'))
+/// @@allow('delete', has(auth().policies, 'event:delete'))
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Events{
 model Event {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
@@ -315,6 +375,10 @@ model Event {
     @@map("events")
 }
 
+/// @@allow('create', has(auth().policies, 'event:create'))
+/// @@allow('read', has(auth().policies, 'event:read'))
+/// @@allow('update', has(auth().policies, 'event:update'))
+/// @@allow('delete', has(auth().policies, 'event:delete'))
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model EventsTag {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
@@ -325,6 +389,8 @@ model EventsTag {
     @@map("events_tags")
 }
 
+/// @@allow('create', auth().memberId == memberId)
+/// @@allow('update', auth().memberId == memberId && auth().memberId == future().memberId)
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model ExpoToken {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
@@ -334,6 +400,10 @@ model ExpoToken {
     @@map("expo_tokens")
 }
 
+/// @@allow('create', has(auth().policies, 'governing_document:write'))
+/// @@allow('read', has(auth().policies, 'governing_document:read'))
+/// @@allow('update', has(auth().policies, 'governing_document:write'))
+/// @@allow('delete', has(auth().policies, 'governing_document:write'))
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model Document {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
@@ -355,6 +425,10 @@ model Keycloak {
     @@map("keycloak")
 }
 
+/// @@allow('create', has(auth().policies, 'core:mandate:create'))
+/// @@allow('read', has(auth().policies, 'core:mandate:read'))
+/// @@allow('update', has(auth().policies, 'core:mandate:update'))
+/// @@allow('delete', has(auth().policies, 'core:mandate:delete'))
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Mandates{
 model Mandate {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
@@ -380,7 +454,10 @@ model Markdown {
     @@map("markdowns")
 }
 
+/// @@allow('create', has(auth().policies, 'fileHandler:documents:create'))
 /// @@allow('read', has(auth().policies, 'fileHandler:documents:read'))
+/// @@allow('update', has(auth().policies, 'fileHandler:documents:update'))
+/// @@allow('delete', has(auth().policies, 'fileHandler:documents:delete'))
 model Meeting {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
     title String @db.VarChar(255)
@@ -390,6 +467,12 @@ model Meeting {
     @@map("meetings")
 }
 
+/// @@allow('create', has(auth().policies, 'core:member:create'))
+/// @@allow('create', auth().studentId == studentId)
+/// @@allow('read', has(auth().policies, 'core:member:read'))
+/// @@allow('update', auth().studentId == studentId)
+/// @@allow('update', has(auth().policies, 'core:member:update'))
+/// @@allow('delete', has(auth().policies, 'core:member:delete'))
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Members{
 model Member {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
@@ -423,6 +506,7 @@ model Member {
     @@map("members")
 }
 
+/// @@allow('read', auth().memberId == memberId)
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Notifications{
 model Notification {
     id Int @id() @default(autoincrement())
@@ -430,6 +514,7 @@ model Notification {
     message String @db.VarChar(255)
     type String @db.VarChar(255)
     link String @db.VarChar(255)
+    /// @allow('update', auth().memberId == memberId, true)
     readAt DateTime? @map("read_at") @db.Timestamptz(6)
     memberId String @map("member_id") @db.Uuid()
     createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
@@ -484,6 +569,7 @@ model Payment {
     @@map("payment")
 }
 
+/// @@allow('create', has(auth().policies, 'core:member:ping'))
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Pings{
 model Ping {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
@@ -500,6 +586,11 @@ model Ping {
     @@map("pings")
 }
 
+/// @@allow('create', has(auth().policies, 'core:position:create'))
+/// @@allow('read', has(auth().policies, 'core:position:read'))
+/// @@allow('update', has(auth().policies, 'core:position:update'))
+/// @@allow('delete', has(auth().policies, 'core:position:delete'))
+/// @@deny('read', active == false && !has(auth().policies, 'core:position:inactive:read'))
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Positions{
 model Position {
     id String @id() @db.VarChar(255)
@@ -581,6 +672,10 @@ model ProductInventory {
     @@map("product_inventory")
 }
 
+/// @@allow('create', has(auth().policies, 'songs:create'))
+/// @@allow('read', has(auth().policies, 'songs:read'))
+/// @@allow('update', has(auth().policies, 'songs:update'))
+/// @@allow('delete', has(auth().policies, 'songs:delete'))
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Songs{
 model Song {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
@@ -596,6 +691,9 @@ model Song {
     @@map("songs")
 }
 
+/// @@allow('create', has(auth().policies, 'core:mail:alias:create'))
+/// @@allow('read', has(auth().policies, 'core:mail:alias:read'))
+/// @@allow('delete', has(auth().policies, 'core:mail:alias:create'))
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model SpecialReceiver {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
@@ -605,6 +703,9 @@ model SpecialReceiver {
     @@map("special_receivers")
 }
 
+/// @@allow('create', has(auth().policies, 'core:mail:alias:create'))
+/// @@allow('read', has(auth().policies, 'core:mail:alias:read'))
+/// @@allow('delete', has(auth().policies, 'core:mail:alias:create'))
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model SpecialSender {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
@@ -615,6 +716,9 @@ model SpecialSender {
     @@map("special_senders")
 }
 
+/// @@allow('create', auth().memberId == memberId)
+/// @@allow('read', auth().memberId == memberId)
+/// @@allow('update', auth().memberId == memberId && auth().memberId == future().memberId)
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model SubscriptionSetting {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
@@ -626,6 +730,9 @@ model SubscriptionSetting {
     @@map("subscription_settings")
 }
 
+/// @@allow('create', has(auth().policies, 'tags:create'))
+/// @@allow('read', has(auth().policies, 'tags:read'))
+/// @@allow('update', has(auth().policies, 'tags:update'))
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Tags{
 model Tag {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
