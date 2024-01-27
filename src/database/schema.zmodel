@@ -459,7 +459,7 @@ model Member {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   studentId String? @unique(map: "members_student_id_unique") @map("student_id") @db.VarChar(255)
   firstName String? @map("first_name") @db.VarChar(255)
-  nickname String? @db.VarChar(255)
+  nickname String? @db.VarChar(255) @deny("read", auth() == null)
   lastName String? @map("last_name") @db.VarChar(255)
   bio String? @db.Text
   picturePath String? @map("picture_path") @db.Text
