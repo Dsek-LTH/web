@@ -11,7 +11,8 @@ datasource db {
 }
 
 model User {
-  id String @id
+  studentId String @id
+  memberId String
   policies String[]
   @@ignore
 }
@@ -22,6 +23,10 @@ model AdminSetting {
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
 
+  @@allow("create", has(auth().policies, "admin:settings:create"))
+  @@allow("read", has(auth().policies, "admin:settings:read"))
+  @@allow("update", has(auth().policies, "admin:settings:update"))
+  @@allow("delete", has(auth().policies, "admin:settings:delete"))
   @@map("admin_settings")
 }
 
@@ -33,6 +38,8 @@ model Alert {
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   removedAt DateTime? @map("removed_at") @db.Timestamptz(6)
 
+  @@allow("all", has(auth().policies, "alert"))
+  @@allow("read", true)
   @@map("alerts")
 }
 
@@ -44,6 +51,10 @@ model AccessPolicy {
   member Member? @relation(fields: [studentId], references: [studentId], onDelete: NoAction, onUpdate: NoAction, map: "access_policies_member_id_foreign")
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
+  @@allow("create", has(auth().policies, "core:access:api:create"))
+  @@allow("read", has(auth().policies, "core:access:api:read"))
+  @@allow("update", has(auth().policies, "core:access:api:update"))
+  @@allow("delete", has(auth().policies, "core:access:api:delete"))
   @@map("api_access_policies")
 }
 
@@ -57,6 +68,10 @@ model ArticleComment {
   article Article @relation(fields: [articleId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "article_comments_article_id_foreign")
   member Member @relation(fields: [memberId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "article_comments_member_id_foreign")
 
+  @@allow("create", auth() != null)
+  @@allow("read", true)
+  @@allow("delete", has(auth().policies, "news:article:comment:delete"))
+  @@allow("delete", auth().memberId == memberId)
   @@map("article_comments")
 }
 
@@ -74,6 +89,12 @@ model ArticleRequest {
   article Article? @relation(fields: [articleId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "article_requests_article_id_foreign")
   handledBy Member? @relation(fields: [handledById], references: [id], onUpdate: NoAction, map: "article_requests_handled_by_foreign")
 
+  @@allow("create", has(auth().policies, "news:article:create"))
+  @@allow("read", has(auth().policies, "news:article:manage"))
+  @@allow("read", auth().memberId == article.authorId)
+  @@allow("update", has(auth().policies, "news:article:manage"))
+  @@allow("delete", auth().memberId == article.authorId)
+  @@allow("delete", has(auth().policies, "news:article:manage"))
   @@map("article_requests")
 }
 
@@ -99,7 +120,12 @@ model Article {
   author Author @relation(fields: [authorId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "articles_author_id_foreign")
   likers Member[] @relation("article_likes")
 
-  @@allow('read', has(auth().policies, 'news:article:read'))
+  @@allow("create", has(auth().policies, "news:article:create"))
+  @@allow("read", has(auth().policies, "news:article:read"))
+  @@allow("update", has(auth().policies, "news:article:update"))
+  @@allow("update", auth().memberId == author.memberId)
+  @@allow("delete", has(auth().policies, "news:article:delete"))
+  @@allow("delete", auth().memberId == author.memberId)
   @@map("articles")
 }
 
@@ -120,6 +146,8 @@ model Author {
   member Member @relation(fields: [memberId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "authors_member_id_foreign")
   notifications Notification[]
 
+  @@allow("create", has(auth().policies, "news:article:create"))
+  @@allow("read", has(auth().policies, "news:article:read"))
   @@unique([memberId, mandateId, customId], map: "authors_member_id_mandate_id_custom_id_unique")
   @@map("authors")
 }
@@ -144,6 +172,9 @@ model Bookable {
   category BookableCategory? @relation(fields: [categoryId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "bookables_category_id_foreign")
   bookings BookingRequest[] @relation("booking_requests_bookables")
 
+  @@allow("create", has(auth().policies, "booking_request:bookable:create"))
+  @@allow("read", has(auth().policies, "booking_request:bookable:read"))
+  @@allow("update", has(auth().policies, "booking_request:bookable:update"))
   @@map("bookables")
 }
 
@@ -158,6 +189,10 @@ model BookingRequest {
   status String? @db.VarChar(255)
   bookables Bookable[] @relation("booking_requests_bookables")
 
+  @@allow("create", has(auth().policies, "booking_request:create"))
+  @@allow("read", has(auth().policies, "booking_request:read"))
+  @@allow("update", has(auth().policies, "booking_request:update"))
+  @@allow("delete", has(auth().policies, "booking_request:delete"))
   @@map("booking_requests")
 }
 
@@ -198,6 +233,10 @@ model Committee {
   description String? @db.VarChar(255)
   descriptionEn String? @map("description_en") @db.VarChar(255)
 
+  @@allow("create", has(auth().policies, "core:committee:create"))
+  @@allow("read", has(auth().policies, "core:committee:read"))
+  @@allow("update", has(auth().policies, "core:committee:update"))
+  @@allow("delete", has(auth().policies, "core:committee:delete"))
   @@map("committees")
 }
 
@@ -210,6 +249,8 @@ model CustomAuthorRole {
   updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
   customAuthor CustomAuthor @relation(fields: [customAuthorId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "custom_author_roles_custom_author_id_foreign")
 
+  @@allow("create", has(auth().policies, "news:article:create"))
+  @@allow("read", has(auth().policies, "news:article:read"))
   @@map("custom_author_roles")
 }
 
@@ -224,6 +265,8 @@ model CustomAuthor {
   authors Author[]
   roles CustomAuthorRole[]
 
+  @@allow("create", has(auth().policies, "news:article:create"))
+  @@allow("read", has(auth().policies, "news:article:read"))
   @@map("custom_authors")
 }
 
@@ -237,6 +280,9 @@ model DoorAccessPolicy {
   endDatetime DateTime? @map("end_datetime") @db.Timestamptz(6)
   door Door @relation(fields: [doorName], references: [name], onDelete: NoAction, onUpdate: NoAction, map: "door_access_policies_door_name_foreign")
 
+  @@allow("create", has(auth().policies, "core:access:door:update"))
+  @@allow("read", true)
+  @@allow("delete", has(auth().policies, "core:access:api:delete"))
   @@map("door_access_policies")
 }
 
@@ -246,6 +292,9 @@ model Door {
   id String? @db.VarChar(255)
   accessPolicies DoorAccessPolicy[]
 
+  @@allow("create", has(auth().policies, "core:access:door:create"))
+  @@allow("read", has(auth().policies, "core:access:door:read"))
+  @@allow("delete", has(auth().policies, "core:access:door:delete"))
   @@map("doors")
 }
 
@@ -257,6 +306,10 @@ model EmailAlias {
   canSend Boolean? @default(false) @map("can_send")
   position Position? @relation(fields: [positionId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "email_aliases_position_id_foreign")
 
+  @@allow("create", has(auth().policies, "core:mail:alias:create"))
+  @@allow("read", has(auth().policies, "core:mail:alias:read"))
+  @@allow("update", has(auth().policies, "core:mail:alias:update"))
+  @@allow("delete", has(auth().policies, "core:mail:alias:create"))
   @@map("email_aliases")
 }
 
@@ -270,6 +323,10 @@ model EventComment {
   event Event @relation(fields: [eventId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "event_comments_event_id_foreign")
   member Member @relation(fields: [memberId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "event_comments_member_id_foreign")
 
+  @@allow("create", has(auth().policies, "event:comment"))
+  @@allow("read", has(auth().policies, "event:read"))
+  @@allow("delete", has(auth().policies, "event:comment:delete"))
+  @@allow("delete", auth().memberId == memberId)
   @@map("event_comments")
 }
 
@@ -298,7 +355,10 @@ model Event {
   author Member @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "events_author_id_foreign")
   tags Tag[] @relation("event_tags")
 
-  @@allow('read', has(auth().policies, 'event:read'))
+  @@allow("create", has(auth().policies, "event:create"))
+  @@allow("read", has(auth().policies, "event:read"))
+  @@allow("update", has(auth().policies, "event:update"))
+  @@allow("delete", has(auth().policies, "event:delete"))
   @@map("events")
 }
 
@@ -308,6 +368,10 @@ model EventsTag {
   eventId String @map("event_id") @db.Uuid
   tagId String @map("tag_id") @db.Uuid
 
+  @@allow("create", has(auth().policies, "event:create"))
+  @@allow("read", has(auth().policies, "event:read"))
+  @@allow("update", has(auth().policies, "event:update"))
+  @@allow("delete", has(auth().policies, "event:delete"))
   @@unique([eventId, tagId], map: "events_tags_event_id_tag_id_unique")
   @@map("events_tags")
 }
@@ -318,6 +382,8 @@ model ExpoToken {
   memberId String? @map("member_id") @db.Uuid
   expoToken String @unique(map: "expo_tokens_expo_token_unique") @map("expo_token") @db.VarChar(255)
 
+  @@allow('create', auth().memberId == memberId)
+  @@allow('update', auth().memberId == memberId && auth().memberId == future().memberId)
   @@map("expo_tokens")
 }
 
@@ -331,6 +397,10 @@ model Document {
   updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
 
+  @@allow("create", has(auth().policies, "governing_document:write"))
+  @@allow("read", has(auth().policies, "governing_document:read"))
+  @@allow("update", has(auth().policies, "governing_document:write"))
+  @@allow("delete", has(auth().policies, "governing_document:write"))
   @@map("documents")
 }
 
@@ -354,6 +424,10 @@ model Mandate {
   member Member @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "mandates_member_id_foreign")
   position Position @relation(fields: [positionId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "mandates_position_id_foreign")
 
+  @@allow("create", has(auth().policies, "core:mandate:create"))
+  @@allow("read", has(auth().policies, "core:mandate:read"))
+  @@allow("update", has(auth().policies, "core:mandate:update"))
+  @@allow("delete", has(auth().policies, "core:mandate:delete"))
   @@map("mandates")
 }
 
@@ -363,7 +437,7 @@ model Markdown {
   markdown String
   markdownEn String? @map("markdown_en")
 
-  @@allow('read', true)
+  @@allow("read", true)
   @@map("markdowns")
 }
 
@@ -373,7 +447,10 @@ model Meeting {
   date DateTime @db.Date
   url String @unique @db.VarChar(255)
 
-  @@allow('read', has(auth().policies, 'fileHandler:documents:read'))
+  @@allow("create", has(auth().policies, "fileHandler:documents:create"))
+  @@allow("read", has(auth().policies, "fileHandler:documents:read"))
+  @@allow("update", has(auth().policies, "fileHandler:documents:update"))
+  @@allow("delete", has(auth().policies, "fileHandler:documents:delete"))
   @@map("meetings")
 }
 
@@ -407,6 +484,12 @@ model Member {
   memberSpecificPolicies AccessPolicy[]
   doorAccessPolicies DoorAccessPolicy[]
 
+  @@allow('create', has(auth().policies, "core:member:create"))
+  @@allow('create', auth().studentId == studentId)
+  @@allow('read', has(auth().policies, "core:member:read"))
+  @@allow('update', auth().studentId == studentId)
+  @@allow('update', has(auth().policies, "core:member:update"))
+  @@allow('delete', has(auth().policies, "core:member:delete"))
   @@map("members")
 }
 
@@ -417,7 +500,7 @@ model Notification {
   message String @db.VarChar(255)
   type String @db.VarChar(255)
   link String @db.VarChar(255)
-  readAt DateTime? @map("read_at") @db.Timestamptz(6)
+  readAt DateTime? @map("read_at") @db.Timestamptz(6) @allow('update', auth().memberId == memberId, true)
   memberId String @map("member_id") @db.Uuid
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
@@ -425,6 +508,7 @@ model Notification {
   fromAuthor Author? @relation(fields: [fromAuthorId], references: [id], onUpdate: NoAction, map: "notifications_from_author_id_foreign")
   toMember Member @relation(fields: [memberId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "notifications_member_id_foreign")
 
+  @@allow('read', auth().memberId == memberId)
   @@map("notifications")
 }
 
@@ -483,6 +567,7 @@ model Ping {
   fromMember Member? @relation("pings_from_memberTomembers", fields: [fromMemberId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "pings_from_member_foreign")
   toMember Member? @relation("pings_to_memberTomembers", fields: [toMemberId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "pings_to_member_foreign")
 
+  @@allow('create', has(auth().policies, "core:member:ping"))
   @@unique([fromMemberId, toMemberId], map: "pings_from_member_to_member_unique")
   @@map("pings")
 }
@@ -502,6 +587,11 @@ model Position {
   emailAliases EmailAlias[]
   mandates Mandate[]
 
+  @@allow("create", has(auth().policies, "core:position:create"))
+  @@allow("read", has(auth().policies, "core:position:read"))
+  @@allow("update", has(auth().policies, "core:position:update"))
+  @@allow("delete", has(auth().policies, "core:position:delete"))
+  @@deny("read", active == false && !has(auth().policies, "core:position:inactive:read"))
   @@map("positions")
 }
 
@@ -580,6 +670,10 @@ model Song {
   updatedAt DateTime? @map("updated_at") @db.Timestamptz(6)
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
 
+  @@allow("create", has(auth().policies, "songs:create"))
+  @@allow("read", has(auth().policies, "songs:read"))
+  @@allow("update", has(auth().policies, "songs:update"))
+  @@allow("delete", has(auth().policies, "songs:delete"))
   @@map("songs")
 }
 
@@ -589,6 +683,9 @@ model SpecialReceiver {
   email String @db.VarChar(255)
   targetEmail String @map("target_email") @db.VarChar(255)
 
+  @@allow('create', has(auth().policies, "core:mail:alias:create"))
+  @@allow('read', has(auth().policies, "core:mail:alias:read"))
+  @@allow('delete', has(auth().policies, "core:mail:alias:create"))
   @@map("special_receivers")
 }
 
@@ -599,6 +696,9 @@ model SpecialSender {
   studentId String @map("student_id") @db.VarChar(255)
   keycloakId String? @map("keycloak_id") @db.VarChar(255)
 
+  @@allow('create', has(auth().policies, "core:mail:alias:create"))
+  @@allow('read', has(auth().policies, "core:mail:alias:read"))
+  @@allow('delete', has(auth().policies, "core:mail:alias:create"))
   @@map("special_senders")
 }
 
@@ -610,6 +710,9 @@ model SubscriptionSetting {
   pushNotification Boolean @default(false) @map("push_notification")
   member Member @relation(fields: [memberId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "subscription_settings_member_id_foreign")
 
+  @@allow('create', auth().memberId == memberId)
+  @@allow('read', auth().memberId == memberId)
+  @@allow('update', auth().memberId == memberId && auth().memberId == future().memberId)
   @@map("subscription_settings")
 }
 
@@ -624,6 +727,9 @@ model Tag {
   subscribedMembers Member[] @relation("member_tag_subscriptions")
   articles Article[] @relation("article_tags")
 
+  @@allow('create', has(auth().policies, "tags:create"))
+  @@allow('read', has(auth().policies, "tags:read"))
+  @@allow('update', has(auth().policies, "tags:update"))
   @@map("tags")
 }
 
