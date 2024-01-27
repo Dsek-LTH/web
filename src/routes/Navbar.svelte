@@ -5,8 +5,8 @@
   import DsekLogo from "./DsekLogo.svelte";
   import LanguageSwitcher from "./LanguageSwitcher.svelte";
   import { routes } from "./routes";
-  $: accessPolicies = $page.data.accessPolicies;
-  $: user = $page.data.session?.user;
+  import { isAuthorized } from "$lib/utils/authorization";
+  import { getFullName } from "$lib/utils/client/member";
 </script>
 
 <div
@@ -26,7 +26,7 @@
   <!-- Navbar content -->
   <div class="hidden flex-1 lg:block">
     {#each routes as route (route.title)}
-      {#if !route.accessRequired || accessPolicies.includes(route.accessRequired)}
+      {#if !route.accessRequired || isAuthorized(route.accessRequired, $page.data.user)}
         {#if route?.children?.length}
           <div class="dropdown dropdown-hover">
             <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
@@ -45,7 +45,7 @@
               class="menu dropdown-content z-[1] w-52 rounded-box bg-base-100 p-2 shadow"
             >
               {#each route.children as child (child.title)}
-                {#if !child.accessRequired || accessPolicies.includes(child.accessRequired)}
+                {#if !child.accessRequired || isAuthorized(child.accessRequired, $page.data.user)}
                   <li>
                     <a
                       href={child.path}
@@ -76,7 +76,7 @@
   <div class="flex">
     <LanguageSwitcher />
     <DarkLightToggle />
-    {#if $page.data.session}
+    {#if $page.data.user && $page.data.member}
       <div class="dropdown dropdown-end dropdown-hover">
         <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
         <!-- svelte-ignore a11y-label-has-associated-control -->
@@ -91,14 +91,14 @@
           <div class="card-body">
             <p class="text-center font-semibold">Inloggad som</p>
             <h3 class="text-xl font-bold">
-              {user?.name}
+              {getFullName($page.data.member)}
             </h3>
-            <p class="text-sm">({user?.student_id})</p>
+            <p class="text-sm">({$page.data.user?.studentId})</p>
             <span class="divider m-1" />
 
             <div class="flex flex-col items-start gap-2">
               <a
-                href={`/members/${user?.student_id}`}
+                href={`/members/${$page.data.user?.studentId}`}
                 class="btn btn-ghost w-48 justify-start text-base-content"
               >
                 <span class="i-mdi-account-circle h-6 w-6 text-primary" />

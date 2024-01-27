@@ -1,5 +1,3 @@
-import { withAccess } from "$lib/utils/access";
-import apiNames from "$lib/utils/apiNames";
 import { memberSchema } from "$lib/zod/schemas";
 import { error, fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
@@ -83,25 +81,16 @@ export const actions: Actions = {
     const { prisma } = locals;
     const form = await superValidate(request, updateSchema);
     if (!form.valid) return fail(400, { form });
-    const session = await locals.getSession();
     const { studentId } = params;
-    return withAccess(
-      apiNames.MEMBER.UPDATE,
-      session?.user,
-      async () => {
-        await prisma.member.update({
-          where: { studentId },
-          data: {
-            ...form.data,
-          },
-        });
-        return message(form, {
-          message: "Medlem uppdaterad",
-          type: "success",
-        });
+    await prisma.member.update({
+      where: { studentId },
+      data: {
+        ...form.data,
       },
-      form,
-      { studentId },
-    );
+    });
+    return message(form, {
+      message: "Medlem uppdaterad",
+      type: "success",
+    });
   },
 };

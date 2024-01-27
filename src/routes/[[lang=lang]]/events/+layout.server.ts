@@ -12,7 +12,7 @@ const getAndValidatePage = (url: URL) => {
 export const load: LayoutServerLoad = async ({ locals, url }) => {
   const { prisma } = locals;
   const [[events, pageCount], allTags] = await Promise.all([
-    getAllEvents({
+    getAllEvents(prisma, {
       tags: url.searchParams.getAll("tags"),
       search: url.searchParams.get("search") ?? undefined,
       page: getAndValidatePage(url),

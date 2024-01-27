@@ -1,20 +1,20 @@
 <script lang="ts">
-  import UpdateMemberForm from "./UpdateMemberForm.svelte";
-  import PublishedEvents from "./PublishedEvents.svelte";
-  import PublishedArticles from "./PublishedArticles.svelte";
-  import HeldPositionsYear from "./HeldPositionsYear.svelte";
-
   import { page } from "$app/stores";
   import ClassBadge from "$lib/components/ClassBadge.svelte";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import apiNames from "$lib/utils/apiNames";
+  import { isAuthorized } from "$lib/utils/authorization";
   import { getFullName } from "$lib/utils/client/member";
+  import HeldPositionsYear from "./HeldPositionsYear.svelte";
+  import PublishedArticles from "./PublishedArticles.svelte";
+  import PublishedEvents from "./PublishedEvents.svelte";
+  import UpdateMemberForm from "./UpdateMemberForm.svelte";
 
   import type { PageData } from "./$types";
   export let data: PageData;
   $: member = data.member;
-  $: isMe = data.session?.user?.student_id === $page.params["studentId"];
+  $: isMe = data.user?.studentId === $page.params["studentId"];
   $: mandatesGroupedByYear = member.mandates.reduce<
     Record<string, (typeof member)["mandates"]>
   >((acc, mandate) => {
@@ -29,12 +29,12 @@
     b.localeCompare(a, "sv"),
   );
   $: publishedEvents = [...member.authoredEvents].reverse();
-  $: canEdit = isMe || data.accessPolicies.includes(apiNames.MEMBER.UPDATE);
+  $: canEdit = isMe || isAuthorized(apiNames.MEMBER.UPDATE, data.user);
   let isEditing = false;
 </script>
 
 <svelte:head>
-  <title>{getFullName($page.data.session?.user, member)} | D-sektionen</title>
+  <title>{getFullName(member)} | D-sektionen</title>
 </svelte:head>
 <article class="grid grid-cols-5 gap-x-4" id="container">
   <div class="col-span-2 row-span-3 sm:col-span-1">
@@ -53,7 +53,7 @@
     <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
       <div class="flex-1">
         <h1 class="text-3xl font-bold">
-          {getFullName($page.data.session?.user, member)}
+          {getFullName(member)}
         </h1>
       </div>
       {#if canEdit}

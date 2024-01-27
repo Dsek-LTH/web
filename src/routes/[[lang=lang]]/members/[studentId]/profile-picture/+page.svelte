@@ -1,7 +1,6 @@
 <script lang="ts">
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import { getFullName } from "$lib/utils/client/member";
-  import { page } from "$app/stores";
   import { superForm } from "sveltekit-superforms/client";
   import ProfileImage from "./ProfileImage.svelte";
   import Cropper from "svelte-easy-crop";
@@ -51,15 +50,13 @@
 </script>
 
 <svelte:head>
-  <title
-    >Bio - {getFullName($page.data.session?.user, member)} | D-sektionen</title
-  >
+  <title>Bio - {getFullName(member)} | D-sektionen</title>
 </svelte:head>
 <header class="flex gap-4">
   <MemberAvatar {member} class="w-32 rounded-lg" />
   <div class="flex flex-col">
     <h1 class="text-3xl font-bold">
-      {getFullName($page.data.session?.user, member)}
+      {getFullName(member)}
     </h1>
     {member.studentId}
   </div>

@@ -1,7 +1,5 @@
 import { error, fail } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
-import { withAccess } from "$lib/utils/access";
-import apiNames from "$lib/utils/apiNames";
 import { superValidate } from "sveltekit-superforms/server";
 import { redirect } from "sveltekit-flash-message/server";
 import { governingDocumentSchema } from "../../schemas";
@@ -31,33 +29,25 @@ export const actions: Actions = {
     const form = await superValidate(request, governingDocumentSchema);
     if (!form.valid) return fail(400, { form });
     const id = params.id;
-    const session = await locals.getSession();
-    return withAccess(
-      apiNames.GOVERNING_DOCUMENT.CREATE,
-      session?.user,
-      async () => {
-        const { url, title, type } = form.data;
-        await prisma.document.update({
-          where: {
-            id,
-          },
-          data: {
-            url,
-            title,
-            type,
-            updatedAt: new Date(),
-          },
-        });
-        throw redirect(
-          "/documents/governing",
-          {
-            message: "Styrdokument uppdaterat",
-            type: "success",
-          },
-          event,
-        );
+    const { url, title, type } = form.data;
+    await prisma.document.update({
+      where: {
+        id,
       },
-      form,
+      data: {
+        url,
+        title,
+        type,
+        updatedAt: new Date(),
+      },
+    });
+    throw redirect(
+      "/documents/governing",
+      {
+        message: "Styrdokument uppdaterat",
+        type: "success",
+      },
+      event,
     );
   },
 };

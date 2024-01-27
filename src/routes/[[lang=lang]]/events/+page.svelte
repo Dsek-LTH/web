@@ -8,6 +8,7 @@
   import apiNames from "$lib/utils/apiNames";
   import { relativeDate } from "$lib/utils/client/datetime.js";
   import type { Tag } from "@prisma/client";
+  import { isAuthorized } from "$lib/utils/authorization";
 
   import type { PageData } from "./$types";
   export let data: PageData;
@@ -28,12 +29,12 @@
       ><span class="i-mdi-calendar"></span>
       Kalender</a
     >
-    {#if data.accessPolicies.includes(apiNames.EVENT.CREATE)}
+    {#if isAuthorized(apiNames.EVENT.CREATE, data.user)}
       <a class="btn" href="/events/create"
         ><span class="i-mdi-create"></span>Create</a
       >
     {/if}
-    {#if data.accessPolicies.includes(apiNames.TAGS.CREATE) || data.accessPolicies.includes(apiNames.TAGS.UPDATE)}
+    {#if isAuthorized(apiNames.TAGS.CREATE, data.user) || isAuthorized(apiNames.TAGS.UPDATE, data.user)}
       <a class="btn" href="/news/tags"><span class="i-mdi-tag"></span>Tags</a>
     {/if}
   </div>

@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { page } from "$app/stores";
   import PageHeader from "$lib/components/PageHeader.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import { getFullName } from "$lib/utils/client/member";
@@ -37,7 +36,7 @@
           </figure>
           <div class="card-body px-0 text-center">
             <h2 class="card-title mx-auto">
-              {getFullName($page.data.session?.user, member)}
+              {getFullName(member)}
             </h2>
             <div class="flex flex-col gap-1 px-2 text-base-content/90">
               <a

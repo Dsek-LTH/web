@@ -4,7 +4,6 @@ import {
   KEYCLOAK_CLIENT_ISSUER,
   KEYCLOAK_CLIENT_SECRET,
 } from "$env/static/private";
-import { getRoleSet } from "$lib/utils/access";
 import { sourceLanguageTag } from "$paraglide/runtime";
 import Keycloak, { type KeycloakProfile } from "@auth/core/providers/keycloak";
 import type { TokenSet } from "@auth/core/types";
@@ -13,6 +12,7 @@ import { PrismaClient } from "@prisma/client";
 import type { Handle } from "@sveltejs/kit";
 import { sequence } from "@sveltejs/kit/hooks";
 import { enhance } from "@zenstackhq/runtime";
+import { getAccessPolicies } from "./hooks.server.helpers";
 
 const authHandle = SvelteKitAuth({
   secret: AUTH_SECRET,
@@ -31,8 +31,8 @@ const authHandle = SvelteKitAuth({
           student_id: profile.preferred_username,
           // The keycloak client doesn't guarantee these fields
           // to be present, but we assume they always are.
-          image: profile["image"] as string | undefined,
-          group_list: profile["group_list"] as string[],
+          image: profile["image"],
+          group_list: profile["group_list"] ?? [],
         };
       },
     }),
@@ -74,42 +74,35 @@ const authHandle = SvelteKitAuth({
 
 const prisma = new PrismaClient();
 const databaseHandle: Handle = async ({ event, resolve }) => {
+  const session = await event.locals.getSession();
   try {
-    const session = await event.locals.getSession();
-    if (!session?.user) throw new Error();
+    if (!session?.user) throw new Error("User session not found");
 
-    const { student_id: studentId, group_list: groupList } = session.user;
-    const user = await prisma.member.findUnique({
-      where: { studentId },
-      include: {
-        mandates: true,
-        memberSpecificPolicies: true,
-      },
+    const member = await prisma.member.findUnique({
+      where: { studentId: session.user.student_id },
     });
-    if (!user) throw new Error();
+    if (!member) throw new Error("Member not found");
 
-    const policies = await prisma.accessPolicy
-      .findMany({
-        select: { apiName: true },
-        where: {
-          OR: [
-            { role: { in: [...getRoleSet(groupList), "_"] } },
-            { studentId },
-          ],
-        },
-      })
-      .then((policies) => policies.map((policy) => policy.apiName));
-    const memberSpecificPolicies =
-      user.memberSpecificPolicies.map((policy) => policy.apiName) ?? [];
-
+    const user = {
+      studentId: session.user.student_id,
+      memberId: member.id,
+      policies: await getAccessPolicies(
+        prisma,
+        session.user.student_id,
+        session.user.group_list,
+      ),
+    };
+    event.locals.prisma = enhance(prisma, { user });
+    event.locals.user = user;
+    event.locals.member = member;
+  } catch (e) {
     event.locals.prisma = enhance(prisma, {
       user: {
-        id: user.studentId,
-        policies: [...policies, ...memberSpecificPolicies],
+        studentId: "anonymous",
+        memberId: "anonymous",
+        policies: await getAccessPolicies(prisma),
       },
     });
-  } catch (e) {
-    event.locals.prisma = enhance(prisma); // logged out user
   }
 
   return resolve(event);

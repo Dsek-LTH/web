@@ -11,18 +11,13 @@
 
 <CommitteeHeader
   committee={data.committee}
-  accessPolicies={data.accessPolicies}
   uniqueMemberCount={data.uniqueMemberCount}
   numberOfMandates={data.numberOfMandates}
   editing={isEditing}
   toggleEditing={() => (isEditing = !isEditing)}
 />
 
-<EditCommitteeForm
-  form={data.form}
-  open={isEditing}
-  accessPolicies={data.accessPolicies}
-/>
+<EditCommitteeForm form={data.form} open={isEditing} />
 
 {#if data.markdown?.markdown}
   <MarkdownBody body={data.markdown.markdown} />

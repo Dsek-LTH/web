@@ -1,8 +1,6 @@
 import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
 import { fileHandler } from "$lib/files";
 import type { FileData } from "$lib/files/fileHandler.js";
-import { withAccess } from "$lib/utils/access";
-import apiNames from "$lib/utils/apiNames";
 import { error, fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
@@ -14,13 +12,13 @@ const prefixByType: Record<DocumentType, string> = {
   "guild-meeting": "",
   other: "",
 };
-export const load: PageServerLoad = async ({ parent, url }) => {
-  const { session } = await parent();
+export const load: PageServerLoad = async ({ locals, url }) => {
+  const { user } = locals;
   const year = url.searchParams.get("year") || new Date().getFullYear();
   const type: DocumentType =
     (url.searchParams.get("type") as DocumentType) || "board-meeting";
   const files = await fileHandler.getInBucket(
-    session?.user,
+    user,
     PUBLIC_BUCKETS_DOCUMENTS,
     year + "/" + (prefixByType[type] ?? ""),
     true,
@@ -71,21 +69,14 @@ export type DeleteSchema = typeof deleteSchema;
 
 export const actions: Actions = {
   deleteFile: async ({ request, locals }) => {
+    const { user } = locals;
     const form = await superValidate(request, deleteSchema);
     if (!form.valid) return fail(400, { form });
-    const session = await locals.getSession();
-    return withAccess(
-      apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).DELETE,
-      session?.user,
-      async () => {
-        const { id } = form.data;
-        await fileHandler.remove(session?.user, PUBLIC_BUCKETS_DOCUMENTS, [id]);
-        return message(form, {
-          message: "Fil borttagen",
-          type: "success",
-        });
-      },
-      form,
-    );
+    const { id } = form.data;
+    await fileHandler.remove(user, PUBLIC_BUCKETS_DOCUMENTS, [id]);
+    return message(form, {
+      message: "Fil borttagen",
+      type: "success",
+    });
   },
 };

@@ -1,7 +1,7 @@
 import type { PageServerLoad } from "./$types";
 import { committeeActions, committeeLoad } from "../committee.server";
 
-export const load: PageServerLoad = ({ locals }) => {
+export const load: PageServerLoad = async ({ locals }) => {
   const { prisma } = locals;
   const openingHours = prisma.markdown.findMany({
     where: {
@@ -14,7 +14,7 @@ export const load: PageServerLoad = ({ locals }) => {
     },
   });
 
-  return committeeLoad("cafe").then(async (data) => ({
+  return committeeLoad(prisma, "cafe").then(async (data) => ({
     ...data,
     openingHours: await openingHours,
   }));

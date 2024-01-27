@@ -1,5 +1,3 @@
-import { hasAccess } from "$lib/utils/access";
-import apiNames from "$lib/utils/apiNames";
 import { getAllTaggedMembers } from "$lib/utils/commentTagging";
 import {
   commentAction,
@@ -13,26 +11,18 @@ import { getArticle } from "../articles";
 import { likeSchema, likesAction } from "../likes";
 import type { Actions, PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async ({ params, parent }) => {
-  const article = await getArticle(params.slug);
+export const load: PageServerLoad = async ({ locals, params }) => {
+  const { prisma } = locals;
+  const article = await getArticle(prisma, params.slug);
   if (article == undefined) {
     throw error(404, {
       message: "Not found",
     });
   }
-  const allTaggedMembers = await getAllTaggedMembers(article.comments);
-  const { session } = await parent();
-  const canEdit = await hasAccess(
-    [apiNames.NEWS.UPDATE, apiNames.NEWS.MANAGE],
-    session?.user,
-    {
-      studentId: article.author.member.studentId,
-    },
-  );
+  const allTaggedMembers = await getAllTaggedMembers(prisma, article.comments);
   return {
     article,
     allTaggedMembers,
-    canEdit,
     likeForm: await superValidate(likeSchema),
     commentForm: await superValidate(commentSchema),
     removeCommentForm: await superValidate(removeCommentSchema),

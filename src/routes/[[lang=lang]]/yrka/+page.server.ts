@@ -1,4 +1,3 @@
-import { policyAccessGuard, withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
 import { fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
@@ -8,6 +7,7 @@ import { getCurrentMember } from "$lib/utils/member";
 import { getFullName } from "$lib/utils/client/member";
 import nodemailer from "nodemailer";
 import { EMAIL_YRKA_PASS, EMAIL_YRKA_USER } from "$env/static/private";
+import { authorize } from "$lib/utils/authorization";
 
 const transporter = nodemailer.createTransport({
   host: "mailmaster.blossom.dsek.se",
@@ -19,9 +19,9 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export const load: PageServerLoad = async ({ parent }) => {
-  const { accessPolicies } = await parent();
-  policyAccessGuard(apiNames.YRKA.SEND, accessPolicies);
+export const load: PageServerLoad = async ({ locals }) => {
+  const { user } = locals;
+  authorize(apiNames.YRKA.SEND, user);
   return {
     form: await superValidate(createSchema),
   };
@@ -33,43 +33,36 @@ const createSchema = z.object({
 });
 export const actions: Actions = {
   default: async ({ request, locals }) => {
+    const { prisma, user } = locals;
     const form = await superValidate(request, createSchema);
     if (!form) return fail(400, { form });
-    const session = await locals.getSession();
-    return withAccess(
-      apiNames.YRKA.SEND,
-      session?.user,
-      async () => {
-        const member = await getCurrentMember(session?.user);
-        const name = getFullName(session?.user, member);
-        const { title, content } = form.data;
-        // send email
-        try {
-          const result = await transporter.sendMail({
-            from: `"${name}" <yrka@dsek.se>`,
-            to: "yrka@dsek.se",
-            subject: `YRKANDE: ${title}`,
-            text: `${content}`,
-            html: `<p>${content}</p><p>Från: ${name}</p>`,
-          });
-          console.log(result);
-        } catch (e) {
-          console.error(e);
-          return message(
-            form,
-            {
-              message: "Kunde inte skicka e-postmeddelande",
-              type: "error",
-            },
-            { status: 500 },
-          );
-        }
-        return message(form, {
-          message: "Yrkande skickat!",
-          type: "success",
-        });
-      },
-      form,
-    );
+    const member = await getCurrentMember(prisma, user);
+    const name = getFullName(member);
+    const { title, content } = form.data;
+    // send email
+    try {
+      const result = await transporter.sendMail({
+        from: `"${name}" <yrka@dsek.se>`,
+        to: "yrka@dsek.se",
+        subject: `YRKANDE: ${title}`,
+        text: `${content}`,
+        html: `<p>${content}</p><p>Från: ${name}</p>`,
+      });
+      console.log(result);
+    } catch (e) {
+      console.error(e);
+      return message(
+        form,
+        {
+          message: "Kunde inte skicka e-postmeddelande",
+          type: "error",
+        },
+        { status: 500 },
+      );
+    }
+    return message(form, {
+      message: "Yrkande skickat!",
+      type: "success",
+    });
   },
 };

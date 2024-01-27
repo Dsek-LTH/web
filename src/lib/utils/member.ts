@@ -1,17 +1,18 @@
 import { error } from "@sveltejs/kit";
-import { getRoleSet, type Context } from "./access";
 import type { PrismaClient } from "@prisma/client";
+import type { AuthUser } from "@zenstackhq/runtime";
+import { getDerivedRoles } from "./authorization";
 
 export const getCurrentMember = async (
   prisma: PrismaClient,
-  context: Context,
+  user?: AuthUser,
 ) => {
-  if (!context?.student_id) {
+  if (!user?.studentId) {
     throw error(401, "Not logged in");
   }
   const member = await prisma.member.findUnique({
     where: {
-      studentId: context?.student_id,
+      studentId: user?.studentId,
     },
   });
   if (!member) {
@@ -22,19 +23,19 @@ export const getCurrentMember = async (
 
 export const getCurrentMemberId = async (
   prisma: PrismaClient,
-  context: Context,
+  user?: AuthUser,
 ) => {
-  const member = await getCurrentMember(prisma, context);
+  const member = await getCurrentMember(prisma, user);
   return member.id;
 };
 
 export const getMyCustomAuthorOptions = async (
   prisma: PrismaClient,
-  context: Context,
+  user?: AuthUser,
 ) => {
   return await getCustomAuthorOptions(
     prisma,
-    await getCurrentMemberId(prisma, context),
+    await getCurrentMemberId(prisma, user),
   );
 };
 
@@ -67,7 +68,7 @@ export const getCustomAuthorOptions = async (
       roles: {
         some: {
           role: {
-            in: [...getRoleSet([...activePositionIds, "_"])],
+            in: getDerivedRoles(activePositionIds),
           },
         },
       },

@@ -41,8 +41,8 @@ export const getAllArticles = async (
   prisma: PrismaClient,
   filters: ArticleFilters = { page: 0, pageSize: 10 },
 ): Promise<[Article[], number]> => {
-  filters.page = filters.page ?? 0;
-  filters.pageSize = filters.pageSize ?? 10;
+  const pageNumber = filters.page ?? 0;
+  const pageSize = filters.pageSize ?? 10;
 
   const where: Prisma.ArticleWhereInput = {
     publishedAt: {
@@ -105,19 +105,20 @@ export const getAllArticles = async (
         }
       : {}),
   };
-  const [articles, count] = await prisma.$transaction([
-    prisma.article.findMany({
+  const [articles, count] = await prisma.$transaction(async (tx) => {
+    const articles = tx.article.findMany({
       where,
       orderBy: {
         publishedAt: "desc",
       },
-      skip: filters.page * filters.pageSize,
-      take: filters.pageSize,
+      skip: pageNumber * pageSize,
+      take: pageSize,
       include,
-    }),
-    prisma.article.count({ where }),
-  ]);
-  return [articles, Math.ceil(count / filters.pageSize)];
+    });
+    const count = tx.article.count({ where });
+    return [await articles, await count];
+  });
+  return [articles, Math.ceil(count / pageSize)];
 };
 
 export const getArticle = async (prisma: PrismaClient, slug: string) => {
