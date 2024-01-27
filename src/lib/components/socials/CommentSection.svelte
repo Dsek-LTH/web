@@ -3,6 +3,7 @@
   import CommentInput from "$lib/components/socials/CommentInput.svelte";
   import CommentRow from "$lib/components/socials/CommentRow.svelte";
   import apiNames from "$lib/utils/apiNames";
+  import { isAuthorized } from "$lib/utils/authorization";
   import type { CommentSchema, RemoveCommentSchema } from "$lib/zod/comments";
   import type { ArticleComment, EventComment, Member } from "@prisma/client";
   import type { SuperValidated } from "sveltekit-superforms";
@@ -58,6 +59,6 @@
     </div>
   </div>
 {/if}
-{#if $page.data.accessPolicies.includes(apiNames[type].COMMENT) && $page.data.currentMember}
-  <CommentInput author={$page.data.currentMember} {commentForm} bind:onReply />
+{#if isAuthorized(apiNames[type].COMMENT, $page.data.user) && $page.data.member}
+  <CommentInput author={$page.data.member} {commentForm} bind:onReply />
 {/if}

@@ -1,12 +1,11 @@
 import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ locals }) => {
-  const { prisma } = locals;
-  const session = await locals.getSession();
+  const { prisma, user } = locals;
 
   const myCart = await prisma.cart.findFirst({
     where: {
-      studentId: session?.user?.student_id,
+      studentId: user?.studentId,
       expiresAt: {
         gt: new Date(),
       },

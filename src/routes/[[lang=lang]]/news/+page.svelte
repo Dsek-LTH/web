@@ -6,6 +6,7 @@
   import apiNames from "$lib/utils/apiNames";
   import type { Tag } from "@prisma/client";
   import SmallArticleCard from "./SmallArticleCard.svelte";
+  import { isAuthorized } from "$lib/utils/authorization";
 
   import type { PageData } from "./$types";
   export let data: PageData;
@@ -20,10 +21,10 @@
 
 <section class="flex flex-col gap-2">
   <div class="flex items-center gap-2">
-    {#if data.accessPolicies.includes(apiNames.NEWS.CREATE)}
+    {#if isAuthorized(apiNames.NEWS.CREATE, data.user)}
       <a class="btn" href="/news/create">+ Create</a>
     {/if}
-    {#if data.accessPolicies.includes(apiNames.TAGS.CREATE) || data.accessPolicies.includes(apiNames.TAGS.UPDATE)}
+    {#if isAuthorized(apiNames.TAGS.CREATE, data.user) || isAuthorized(apiNames.TAGS.UPDATE, data.user)}
       <a class="btn" href="/news/tags">Tags</a>
     {/if}
   </div>

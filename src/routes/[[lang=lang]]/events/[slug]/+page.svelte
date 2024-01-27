@@ -1,6 +1,8 @@
 <script lang="ts">
   import TagChip from "$lib/components/TagChip.svelte";
   import CommentSection from "$lib/components/socials/CommentSection.svelte";
+  import apiNames from "$lib/utils/apiNames";
+  import { isAuthorized } from "$lib/utils/authorization";
   import Event from "../Event.svelte";
 
   import type { PageData } from "./$types";
@@ -14,7 +16,7 @@
 
 <Event {event}>
   <div slot="actions">
-    {#if data.canEdit}
+    {#if isAuthorized(apiNames.EVENT.UPDATE, data.user)}
       <a
         class="text-primary hover:underline"
         href={`/events/${event.slug}/edit`}

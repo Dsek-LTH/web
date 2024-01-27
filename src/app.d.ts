@@ -2,6 +2,7 @@
 
 import type { ToastNotification } from "$lib/stores/toast";
 import type { Member, PrismaClient } from "@prisma/client";
+import type { AuthUser } from "@zenstackhq/runtime";
 
 // for information about these interfaces
 declare global {
@@ -16,12 +17,13 @@ declare global {
       statusDescription?: string;
     }
     interface Locals {
+      user?: AuthUser;
+      member?: Member;
       prisma: PrismaClient;
-      user?: Member;
     }
     interface PageData {
-      accessPolicies: string[];
-      currentMember: Member | null;
+      user?: AuthUser;
+      member?: Member;
       flash?: Message;
     }
     // interface Platform {}

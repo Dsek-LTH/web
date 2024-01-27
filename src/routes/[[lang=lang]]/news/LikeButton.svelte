@@ -5,16 +5,17 @@
   import { superForm } from "sveltekit-superforms/client";
   import type { LikeSchema } from "./likes";
   import apiNames from "$lib/utils/apiNames";
+  import { isAuthorized } from "$lib/utils/authorization";
 
   export let likers: Member[];
-  $: disabled = !$page.data.accessPolicies.includes(apiNames.NEWS.LIKE);
+  $: disabled = isAuthorized(apiNames.NEWS.LIKE, $page.data.user);
   export let articleId: string;
   export let likeForm: SuperValidated<LikeSchema>;
   const { errors, constraints, enhance } = superForm(likeForm, {
     id: articleId, // needs to be unique since there could be multiple like buttons on a page
   });
   $: isLiked = likers.some(
-    (member) => member.studentId === $page.data.session?.user?.student_id,
+    (member) => member.studentId === $page.data.user?.studentId,
   );
 </script>
 

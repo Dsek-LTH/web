@@ -1,5 +1,3 @@
-import { withAccess } from "$lib/utils/access";
-import apiNames from "$lib/utils/apiNames";
 import { fail } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 import { message, superValidate } from "sveltekit-superforms/server";
@@ -30,23 +28,15 @@ export const actions: Actions = {
     const { prisma } = locals;
     const form = await superValidate(request, deleteSchema);
     if (!form.valid) return fail(400, { form });
-    const session = await locals.getSession();
-    return withAccess(
-      apiNames.GOVERNING_DOCUMENT.DELETE,
-      session?.user,
-      async () => {
-        const { id } = form.data;
-        await prisma.document.delete({
-          where: {
-            id,
-          },
-        });
-        return message(form, {
-          message: "Styrdokument raderat",
-          type: "success",
-        });
+    const { id } = form.data;
+    await prisma.document.delete({
+      where: {
+        id,
       },
-      form,
-    );
+    });
+    return message(form, {
+      message: "Styrdokument raderat",
+      type: "success",
+    });
   },
 };

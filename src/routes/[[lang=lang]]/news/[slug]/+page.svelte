@@ -5,7 +5,9 @@
   import AuthorSignature from "$lib/components/AuthorSignature.svelte";
   import LikeButton from "../LikeButton.svelte";
   import LikersList from "../LikersList.svelte";
+  import { isAuthorized } from "$lib/utils/authorization";
   import type { PageData } from "./$types";
+  import apiNames from "$lib/utils/apiNames";
 
   export let data: PageData;
   $: article = data.article;
@@ -27,7 +29,7 @@
     />
 
     <div slot="actions">
-      {#if data.canEdit}
+      {#if isAuthorized(apiNames.NEWS.UPDATE, data.user)}
         <a
           class="text-primary hover:underline"
           href={`/news/${article.slug}/edit`}

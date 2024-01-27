@@ -5,6 +5,7 @@
   import apiNames from "$lib/utils/apiNames";
   import DOMPurify from "isomorphic-dompurify";
   import { superForm } from "sveltekit-superforms/client";
+  import { isAuthorized } from "$lib/utils/authorization";
   import type { PageData } from "./$types";
   export let data: PageData;
 
@@ -84,7 +85,7 @@
         Avbryt
       </a>
     </div>
-    {#if data.accessPolicies.includes(apiNames.SONG.DELETE)}
+    {#if isAuthorized(apiNames.SONG.DELETE, data.user)}
       {#if data.song.deletedAt === null}
         <button
           class="btn"

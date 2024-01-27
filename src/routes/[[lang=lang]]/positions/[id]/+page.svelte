@@ -5,6 +5,7 @@
   import PageHeader from "$lib/components/PageHeader.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import apiNames from "$lib/utils/apiNames";
+  import { isAuthorized } from "$lib/utils/authorization";
   import { getFullName } from "$lib/utils/client/member";
   import type { Prisma } from "@prisma/client";
   import AddMandateForm from "./AddMandateForm.svelte";
@@ -40,7 +41,7 @@
 <div class="flex flex-wrap items-center justify-between gap-x-2">
   <PageHeader title={data.position.name} />
   <div>
-    {#if data.accessPolicies.includes(apiNames.MANDATE.CREATE) && !isEditing}
+    {#if isAuthorized(apiNames.MANDATE.CREATE, data.user) && !isEditing}
       <button
         class="btn btn-secondary btn-sm"
         on:click={() => {
@@ -50,7 +51,7 @@
         {isAdding ? "Avbryt" : "Lägg till mandat"}
       </button>
     {/if}
-    {#if !isAdding && (data.accessPolicies.includes(apiNames.MANDATE.UPDATE) || data.accessPolicies.includes(apiNames.MANDATE.DELETE) || data.accessPolicies.includes(apiNames.POSITION.UPDATE))}
+    {#if (!isAdding && isAuthorized(apiNames.MANDATE.UPDATE, data.user)) || isAuthorized(apiNames.MANDATE.DELETE, data.user) || isAuthorized(apiNames.POSITION.UPDATE, data.user)}
       <button
         class="btn btn-sm"
         on:click={async () => {
@@ -89,7 +90,7 @@
 {/if}
 
 <!-- Edit position form -->
-{#if isEditing && data.accessPolicies.includes(apiNames.POSITION.UPDATE)}
+{#if isEditing && isAuthorized(apiNames.POSITION.UPDATE, data.user)}
   {#await data.updateForm then form}
     <UpdatePositionForm data={form} />
   {/await}
@@ -125,7 +126,7 @@
             ?.length ?? 0) <= 8
             ? 'col-span-2'
             : ''}"
-          data-tip={getFullName($page.data.session?.user, mandate.member) +
+          data-tip={getFullName(mandate.member) +
             `\n${mandate.startDate.toLocaleDateString(
               "sv",
             )} - ${mandate.endDate.toLocaleDateString("sv")}`}
@@ -140,12 +141,12 @@
             <span
               class="flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium"
             >
-              {getFullName($page.data.session?.user, mandate.member)}
+              {getFullName(mandate.member)}
             </span>
 
             <!-- Remove and edit buttons -->
             {#if isEditing}
-              {#if data.accessPolicies.includes(apiNames.MANDATE.UPDATE)}
+              {#if isAuthorized(apiNames.MANDATE.UPDATE, data.user)}
                 <button
                   class="btn btn-secondary btn-sm pointer-events-auto"
                   on:click|preventDefault={async () => {
@@ -155,7 +156,7 @@
                   EDIT
                 </button>
               {/if}
-              {#if data.accessPolicies.includes(apiNames.MANDATE.DELETE)}
+              {#if isAuthorized(apiNames.MANDATE.DELETE, data.user)}
                 {#await data.deleteMandateForm then form}
                   <DeleteMandateForm mandateId={mandate.id} data={form} />
                 {/await}

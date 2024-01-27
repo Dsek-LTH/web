@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { page } from "$app/stores";
   import MemberSearch from "$lib/components/MemberSearch.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import { getFullName } from "$lib/utils/client/member";
@@ -17,10 +16,9 @@
   export const onReply = (
     comment: (ArticleComment | EventComment) & { member: Member },
   ) => {
-    const tagString = `[@${getFullName(
-      $page.data.session?.user,
-      comment.member,
-    )}](/members/${comment.member.studentId}) `;
+    const tagString = `[@${getFullName(comment.member)}](/members/${
+      comment.member.studentId
+    }) `;
     form.update((f) => {
       if (f.content.trim().startsWith("[@") || f.content.trim().length === 0) {
         f.content = tagString;
@@ -56,10 +54,9 @@
             f.content = `${f.content.substring(
               0,
               indexOfTagStart,
-            )}[@${getFullName(
-              $page.data.session?.user,
-              selectedMember,
-            )}](/members/${selectedMember.studentId}) `;
+            )}[@${getFullName(selectedMember)}](/members/${
+              selectedMember.studentId
+            }) `;
             return f;
           });
           inputEl.focus();

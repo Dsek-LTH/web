@@ -1,11 +1,12 @@
 <script lang="ts">
+  import { page } from "$app/stores";
   import apiNames from "$lib/utils/apiNames";
+  import { isAuthorized } from "$lib/utils/authorization";
   import type { Song } from "@prisma/client";
   import DOMPurify from "isomorphic-dompurify";
   import { twMerge } from "tailwind-merge";
 
   export let song: Song;
-  export let accessPolicies: string[];
   let clazz: string = "";
   export { clazz as class };
 </script>
@@ -16,7 +17,7 @@
     clazz,
   )}
 >
-  {#if accessPolicies.includes(apiNames.SONG.DELETE) && song.deletedAt != null}
+  {#if isAuthorized(apiNames.SONG.DELETE, $page.data.user) && song.deletedAt != null}
     <p class="text-xl font-bold text-red-500">Borttagen</p>
     <p class="text-sm text-red-300">
       Du har åtkomst till att se sången och återställa den
