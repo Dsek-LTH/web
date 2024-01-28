@@ -3,7 +3,6 @@ import { fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
-import { getCurrentMember } from "$lib/utils/member";
 import { getFullName } from "$lib/utils/client/member";
 import nodemailer from "nodemailer";
 import { EMAIL_YRKA_PASS, EMAIL_YRKA_USER } from "$env/static/private";
@@ -33,11 +32,10 @@ const createSchema = z.object({
 });
 export const actions: Actions = {
   default: async ({ request, locals }) => {
-    const { prisma, user } = locals;
+    const { member } = locals;
     const form = await superValidate(request, createSchema);
     if (!form) return fail(400, { form });
-    const member = await getCurrentMember(prisma, user);
-    const name = getFullName(member);
+    const name = member ? getFullName(member) : "Anonym";
     const { title, content } = form.data;
     // send email
     try {

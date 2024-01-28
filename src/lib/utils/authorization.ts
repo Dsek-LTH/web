@@ -28,9 +28,13 @@ export const authorize = (apiName: string, user?: AuthUser) => {
 /**
  * Derive all roles from the group list.
  * @param groupList e.g. `["dsek.infu.mdlm", "dsek.ordf"]`
+ * @param signedIn Whether the user is signed in. If `groupList` contains groups, the user is assumed to be signed in.
  * @returns e.g. `["*", "_", "dsek", "dsek.infu", "dsek.infu.mdlm", "dsek.ordf"]`
  */
-export const getDerivedRoles = (groupList?: string[]) => {
+export const getDerivedRoles = (
+  groupList?: string[],
+  signedIn: boolean = false,
+) => {
   const splitGroups = new Set<string>();
   groupList?.forEach((group) =>
     group
@@ -38,6 +42,6 @@ export const getDerivedRoles = (groupList?: string[]) => {
       .forEach((_, i, arr) => splitGroups.add(arr.slice(0, i + 1).join("."))),
   );
   splitGroups.add("*"); // all users
-  if (groupList?.length) splitGroups.add("_"); // logged in users
+  if (groupList?.length || signedIn) splitGroups.add("_"); // logged in users
   return [...splitGroups];
 };
