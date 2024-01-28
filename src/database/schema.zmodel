@@ -399,8 +399,8 @@ model Document {
 
   @@allow("create", has(auth().policies, "governing_document:write"))
   @@allow("read", has(auth().policies, "governing_document:read"))
+  @@deny("read", deletedAt != null)
   @@allow("update", has(auth().policies, "governing_document:write"))
-  @@allow("delete", has(auth().policies, "governing_document:write"))
   @@map("documents")
 }
 
@@ -611,6 +611,7 @@ model Product {
   productInventories ProductInventory[]
   userInventoryItems UserInventoryItem[]
 
+  @@deny("read", deletedAt != null)
   @@map("product")
 }
 
@@ -624,6 +625,7 @@ model ProductCategory {
   products Product[]
   userInventoryItems UserInventoryItem[]
 
+  @@deny("read", deletedAt != null)
   @@map("product_category")
 }
 
@@ -637,6 +639,7 @@ model ProductDiscount {
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
   productInventories ProductInventory[]
 
+  @@deny("read", deletedAt != null)
   @@map("product_discount")
 }
 
@@ -655,6 +658,7 @@ model ProductInventory {
   orderItems OrderItem[]
   userInventoryItems UserInventoryItem[]
 
+  @@deny("read", deletedAt != null)
   @@map("product_inventory")
 }
 
@@ -672,8 +676,8 @@ model Song {
 
   @@allow("create", has(auth().policies, "songs:create"))
   @@allow("read", has(auth().policies, "songs:read"))
+  @@deny("read", deletedAt != null)
   @@allow("update", has(auth().policies, "songs:update"))
-  @@allow("delete", has(auth().policies, "songs:delete"))
   @@map("songs")
 }
 
@@ -741,6 +745,7 @@ model UserInventory {
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
   userInventoryItems UserInventoryItem[]
 
+  @@deny("read", deletedAt != null)
   @@map("user_inventory")
 }
 
