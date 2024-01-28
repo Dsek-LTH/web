@@ -1,5 +1,4 @@
 import { getFullName } from "$lib/utils/client/member";
-import { getCurrentMember } from "$lib/utils/member";
 import sendNotification from "$lib/utils/notifications";
 import { NotificationType } from "$lib/utils/notifications/types";
 import { fail, type RequestEvent } from "@sveltejs/kit";
@@ -14,10 +13,9 @@ export type LikeSchema = typeof likeSchema;
 export const likesAction =
   (shouldLike: boolean) =>
   async ({ request, locals }: RequestEvent<Record<string, string>, string>) => {
-    const { prisma, user } = locals;
+    const { prisma, user, member } = locals;
     const form = await superValidate(request, likeSchema);
     if (!form.valid) return fail(400, { form });
-    const currentMember = await getCurrentMember(prisma, user);
 
     const article = await prisma.article.update({
       where: { id: form.data.articleId },
@@ -38,14 +36,16 @@ export const likesAction =
         },
       },
     });
-    await sendNotification(prisma, {
-      title: `${article.header}`,
-      message: `${getFullName(currentMember)} har gillat din nyhet`,
-      type: NotificationType.LIKE,
-      link: `/news/${article.slug}`,
-      memberIds: [article.author.memberId],
-      fromMemberId: currentMember.id,
-    });
+    if (member) {
+      await sendNotification(prisma, {
+        title: `${article.header}`,
+        message: `${getFullName(member)} har gillat din nyhet`,
+        type: NotificationType.LIKE,
+        link: `/news/${article.slug}`,
+        memberIds: [article.author.memberId],
+        fromMemberId: member.id,
+      });
+    }
     return message(form, {
       message: `${shouldLike ? "Gillat" : "Slutat gilla"} artikel`,
       type: "hidden",

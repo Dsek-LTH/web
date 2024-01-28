@@ -20,7 +20,10 @@ export const getAccessPolicies = async (
   return prisma.accessPolicy
     .findMany({
       where: {
-        OR: [{ role: { in: getDerivedRoles(groupList) } }, { studentId }],
+        OR: [
+          { role: { in: getDerivedRoles(groupList, !!studentId) } },
+          { studentId },
+        ],
       },
     })
     .then((policies) => policies.map((p) => p.apiName));
