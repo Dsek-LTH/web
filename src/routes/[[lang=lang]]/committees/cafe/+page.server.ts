@@ -1,18 +1,21 @@
 import type { PageServerLoad } from "./$types";
 import { committeeActions, committeeLoad } from "../committee.server";
+import translated from "$lib/utils/translated";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma } = locals;
-  const openingHours = prisma.markdown.findMany({
-    where: {
-      name: {
-        startsWith: "cafe:open",
+  const openingHours = prisma.markdown
+    .findMany({
+      where: {
+        name: {
+          startsWith: "cafe:open",
+        },
       },
-    },
-    orderBy: {
-      name: "asc",
-    },
-  });
+      orderBy: {
+        name: "asc",
+      },
+    })
+    .then(translated);
 
   return committeeLoad(prisma, "cafe").then(async (data) => ({
     ...data,

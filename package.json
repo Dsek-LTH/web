@@ -91,6 +91,7 @@
     "nodemailer": "^6.9.7",
     "prisma": "^5.7.1",
     "sharp": "^0.33.1",
+    "superjson": "^2.2.1",
     "svelte-easy-crop": "^2.0.2",
     "tailwind-merge": "^2.2.0",
     "theme-change": "^2.5.0",

@@ -4,7 +4,10 @@ import {
   KEYCLOAK_CLIENT_ISSUER,
   KEYCLOAK_CLIENT_SECRET,
 } from "$env/static/private";
-import { sourceLanguageTag } from "$paraglide/runtime";
+import {
+  sourceLanguageTag,
+  type AvailableLanguageTag,
+} from "$paraglide/runtime";
 import Keycloak, { type KeycloakProfile } from "@auth/core/providers/keycloak";
 import type { TokenSet } from "@auth/core/types";
 import { SvelteKitAuth } from "@auth/sveltekit";
@@ -13,6 +16,7 @@ import type { Handle } from "@sveltejs/kit";
 import { sequence } from "@sveltejs/kit/hooks";
 import { enhance } from "@zenstackhq/runtime";
 import { getAccessPolicies } from "./hooks.server.helpers";
+import translatedExtension from "./database/prisma/translationExtension";
 
 const authHandle = SvelteKitAuth({
   secret: AUTH_SECRET,
@@ -72,8 +76,26 @@ const authHandle = SvelteKitAuth({
   },
 });
 
-const prisma = new PrismaClient();
+const translationHandle: Handle = async ({ event, resolve }) => {
+  const lang = event.params["lang"] ?? sourceLanguageTag;
+  event.locals.lang = lang as AvailableLanguageTag; // enforced by lang.ts matcher
+
+  return resolve(event, {
+    transformPageChunk({ done, html }) {
+      // Set the `lang` variable in the app.html file
+      // Only do it at the very end of the rendering process
+      if (done) {
+        return html.replace("%lang%", lang);
+      }
+    },
+  });
+};
+
+const prismaClient = new PrismaClient();
 const databaseHandle: Handle = async ({ event, resolve }) => {
+  const prisma = prismaClient.$extends(
+    translatedExtension(event.locals.lang),
+  ) as PrismaClient;
   const session = await event.locals.getSession();
   try {
     if (!session?.user) throw new Error("User session not found");
@@ -108,18 +130,4 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
   return resolve(event);
 };
 
-const translationHandle: Handle = async ({ event, resolve }) => {
-  const lang = event.params["lang"] ?? sourceLanguageTag;
-
-  return resolve(event, {
-    transformPageChunk({ done, html }) {
-      // Set the `lang` variable in the app.html file
-      // Only do it at the very end of the rendering process
-      if (done) {
-        return html.replace("%lang%", lang);
-      }
-    },
-  });
-};
-
-export const handle = sequence(authHandle, databaseHandle, translationHandle);
+export const handle = sequence(authHandle, translationHandle, databaseHandle);

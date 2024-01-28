@@ -1,3 +1,4 @@
+import translated from "$lib/utils/translated";
 import type { LayoutServerLoad } from "./$types";
 import { getAllEvents } from "./events";
 
@@ -18,7 +19,7 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
       page: getAndValidatePage(url),
       pastEvents: url.searchParams.get("past") === "on",
     }),
-    prisma.tag.findMany({ orderBy: { name: "asc" } }),
+    prisma.tag.findMany({ orderBy: { name: "asc" } }).then(translated),
   ]);
   return {
     events,

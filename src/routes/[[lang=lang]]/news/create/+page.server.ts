@@ -7,12 +7,13 @@ import { getArticleAuthorOptions } from "../articles";
 import { articleSchema } from "../schema";
 import type { Actions, PageServerLoad } from "./$types";
 import { authorize } from "$lib/utils/authorization";
+import translated from "$lib/utils/translated";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma, user } = locals;
   authorize(apiNames.NEWS.CREATE, user);
 
-  const allTags = await prisma.tag.findMany();
+  const allTags = await prisma.tag.findMany().then(translated);
   const currentMemberWithMandates = await prisma.member.findUnique({
     where: {
       studentId: user?.studentId,
