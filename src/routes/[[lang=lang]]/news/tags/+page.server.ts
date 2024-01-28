@@ -5,12 +5,15 @@ import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import { authorize } from "$lib/utils/authorization";
+import translated from "$lib/utils/translated";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma, user } = locals;
   authorize(apiNames.TAGS.READ, user);
 
-  const tags = await prisma.tag.findMany({ orderBy: { name: "asc" } });
+  const tags = await prisma.tag
+    .findMany({ orderBy: { name: "asc" } })
+    .then(translated);
   const createForm = await superValidate(createSchema);
   const updateForm = await superValidate(updateSchema);
   return {

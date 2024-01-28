@@ -2,6 +2,7 @@ import { superValidate } from "sveltekit-superforms/server";
 import type { Actions, PageServerLoad } from "./$types";
 import { getAllArticles } from "./articles";
 import { likeSchema, likesAction } from "./likes";
+import translated from "$lib/utils/translated";
 
 const getAndValidatePage = (url: URL) => {
   const page = url.searchParams.get("page");
@@ -19,7 +20,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
       search: url.searchParams.get("search") ?? undefined,
       page: getAndValidatePage(url),
     }),
-    prisma.tag.findMany({ orderBy: { name: "asc" } }),
+    prisma.tag.findMany({ orderBy: { name: "asc" } }).then(translated),
   ]);
   return {
     articles,

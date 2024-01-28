@@ -1,5 +1,6 @@
 import DOMPurify from "isomorphic-dompurify";
 import type { PageServerLoad } from "./$types";
+import translated from "$lib/utils/translated";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma } = locals;
@@ -18,7 +19,8 @@ export const load: PageServerLoad = async ({ locals }) => {
           ? DOMPurify.sanitize(article.bodyEn)
           : article.bodyEn,
       })),
-    );
+    )
+    .then(translated);
   const events = prisma.event
     .findMany({
       where: {
@@ -31,6 +33,7 @@ export const load: PageServerLoad = async ({ locals }) => {
       },
       take: 3,
     })
+    .then(translated)
     .then((events) =>
       events.map((event) => ({
         ...event,
@@ -60,11 +63,13 @@ export const load: PageServerLoad = async ({ locals }) => {
       date: "desc",
     },
   });
-  const cafeOpen = prisma.markdown.findFirst({
-    where: {
-      name: `cafe:open:${new Date().getDay() - 1}`, // we assign monday to 0, not sunday
-    },
-  });
+  const cafeOpen = prisma.markdown
+    .findFirst({
+      where: {
+        name: `cafe:open:${new Date().getDay() - 1}`, // we assign monday to 0, not sunday
+      },
+    })
+    .then(translated);
   return {
     news: await news,
     events: await events,

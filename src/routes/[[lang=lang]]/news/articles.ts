@@ -1,4 +1,5 @@
 import { getCustomAuthorOptions } from "$lib/utils/member";
+import translated from "$lib/utils/translated";
 import type {
   Author,
   CustomAuthor,
@@ -106,15 +107,17 @@ export const getAllArticles = async (
       : {}),
   };
   const [articles, count] = await prisma.$transaction(async (tx) => {
-    const articles = tx.article.findMany({
-      where,
-      orderBy: {
-        publishedAt: "desc",
-      },
-      skip: pageNumber * pageSize,
-      take: pageSize,
-      include,
-    });
+    const articles = tx.article
+      .findMany({
+        where,
+        orderBy: {
+          publishedAt: "desc",
+        },
+        skip: pageNumber * pageSize,
+        take: pageSize,
+        include,
+      })
+      .then(translated);
     const count = tx.article.count({ where });
     return [await articles, await count];
   });
@@ -133,7 +136,7 @@ export const getArticle = async (prisma: PrismaClient, slug: string) => {
     },
     include,
   });
-  return response;
+  return response ? translated(response) : response;
 };
 
 type Article = NonNullable<Awaited<ReturnType<typeof getArticle>>>;

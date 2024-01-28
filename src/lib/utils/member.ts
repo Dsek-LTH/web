@@ -1,5 +1,6 @@
 import type { PrismaClient } from "@prisma/client";
 import { getDerivedRoles } from "./authorization";
+import translated from "./translated";
 
 export const getCustomAuthorOptions = async (
   prisma: PrismaClient,
@@ -25,15 +26,17 @@ export const getCustomAuthorOptions = async (
       },
     })
     .then((positions) => positions.map((pos) => pos.id));
-  return await prisma.customAuthor.findMany({
-    where: {
-      roles: {
-        some: {
-          role: {
-            in: getDerivedRoles(activePositionIds, !!memberId),
+  return await prisma.customAuthor
+    .findMany({
+      where: {
+        roles: {
+          some: {
+            role: {
+              in: getDerivedRoles(activePositionIds, !!memberId),
+            },
           },
         },
       },
-    },
-  });
+    })
+    .then(translated);
 };

@@ -6,25 +6,28 @@ import { eventSchema } from "../../schema";
 import type { Actions, PageServerLoad } from "./$types";
 import { isUUIDRegex } from "$lib/utils/generateUUID";
 import { authorize } from "$lib/utils/authorization";
+import translated from "$lib/utils/translated";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
   authorize(apiNames.NEWS.UPDATE, user);
 
-  const allTags = await prisma.tag.findMany();
-  const event = await prisma.event.findUnique({
-    where: isUUIDRegex.test(params.slug)
-      ? {
-          id: params.slug,
-        }
-      : {
-          slug: params.slug,
-        },
-    include: {
-      author: true,
-      tags: true,
-    },
-  });
+  const allTags = await prisma.tag.findMany().then(translated);
+  const event = await prisma.event
+    .findUnique({
+      where: isUUIDRegex.test(params.slug)
+        ? {
+            id: params.slug,
+          }
+        : {
+            slug: params.slug,
+          },
+      include: {
+        author: true,
+        tags: true,
+      },
+    })
+    .then(translated);
   if (!event) {
     throw error(404, "Article not found");
   }

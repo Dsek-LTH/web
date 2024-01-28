@@ -2,6 +2,7 @@ import { memberSchema } from "$lib/zod/schemas";
 import { error, fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
 import type { Actions, PageServerLoad } from "./$types";
+import translated from "$lib/utils/translated";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma } = locals;
@@ -33,20 +34,22 @@ export const load: PageServerLoad = async ({ locals, params }) => {
         },
       },
     }),
-    prisma.article.findMany({
-      where: {
-        author: {
-          member: {
-            studentId: params.studentId,
+    prisma.article
+      .findMany({
+        where: {
+          author: {
+            member: {
+              studentId: params.studentId,
+            },
           },
+          removedAt: null,
         },
-        removedAt: null,
-      },
-      orderBy: {
-        publishedAt: "desc",
-      },
-      take: 5,
-    }),
+        orderBy: {
+          publishedAt: "desc",
+        },
+        take: 5,
+      })
+      .then(translated),
   ]);
   if (memberResult.status === "rejected") {
     throw error(500, "Could not fetch member");

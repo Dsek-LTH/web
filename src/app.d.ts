@@ -1,6 +1,7 @@
 // See https://kit.svelte.dev/docs/types#app
 
 import type { ToastNotification } from "$lib/stores/toast";
+import type { AvailableLanguageTag } from "$paraglide/runtime";
 import type { Member, PrismaClient } from "@prisma/client";
 import type { AuthUser } from "@zenstackhq/runtime";
 
@@ -20,6 +21,7 @@ declare global {
       user?: AuthUser;
       member?: Member;
       prisma: PrismaClient;
+      lang: AvailableLanguageTag;
     }
     interface PageData {
       user?: AuthUser;

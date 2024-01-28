@@ -1,6 +1,7 @@
 // import { withAccess } from "$lib/utils/access";
 // import prisma from "$lib/utils/prisma";
 // import apiNames from "$lib/utils/apiNames";
+import translated from "$lib/utils/translated";
 import type { PageServerLoad } from "./$types";
 // import type { Bookable } from "@prisma/client";
 // import { ObjectCreatedAll } from "minio";
@@ -13,7 +14,7 @@ export const load: PageServerLoad = async ({ locals }) => {
       bookables: true,
     },
   });
-  const bookables = await prisma.bookable.findMany();
+  const bookables = await prisma.bookable.findMany().then(translated);
   return { bookingRequests, bookables };
 };
 
