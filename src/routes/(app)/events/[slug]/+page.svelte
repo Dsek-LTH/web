@@ -26,6 +26,13 @@
         Redigera
       </a>
     {/if}
+    {#if data.canDelete}
+      <form method="POST" action="/events/{event.slug}/delete">
+        <button type="submit">
+          <span class="text-primary hover:underline">Radera</span>
+        </button>
+      </form>
+    {/if}
   </div>
 
   <div slot="tags" class="flex flex-row flex-wrap gap-2">
