@@ -50,7 +50,7 @@ export const actions: Actions = {
       },
     });
     throw redirect(
-      `/event/${result.slug}`,
+      `/events/${result.slug}`,
       {
         message: "Evenemang skapat",
         type: "success",
