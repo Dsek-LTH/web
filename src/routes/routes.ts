@@ -93,6 +93,12 @@ export const routes = [
         icon: "i-mdi-door-open",
         accessRequired: apiNames.DOOR.READ,
       },
+      {
+        title: "Mail-alias",
+        path: "/admin/mail-alias",
+        icon: "i-mdi-email",
+        accessRequired: apiNames.MAIL_ALIAS.READ,
+      },
     ],
   },
 ];
