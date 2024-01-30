@@ -7,6 +7,7 @@
   import { routes } from "./routes";
   import { isAuthorized } from "$lib/utils/authorization";
   import { getFullName } from "$lib/utils/client/member";
+  import Notification from "./NotificationBell.svelte";
 </script>
 
 <div
@@ -76,6 +77,7 @@
   <div class="flex">
     <LanguageSwitcher />
     <DarkLightToggle />
+    <Notification />
     {#if $page.data.user && $page.data.member}
       <div class="dropdown dropdown-end dropdown-hover">
         <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
