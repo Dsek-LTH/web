@@ -6,9 +6,9 @@ import {
   KEYCLOAK_ENABLED,
 } from "$env/static/private";
 import prisma from "$lib/utils/prisma";
+import type GroupRepresentation from "@keycloak/keycloak-admin-client/lib/defs/groupRepresentation";
 
 const enabled = KEYCLOAK_ENABLED === "true";
-let client: KcAdminClient;
 
 async function connect() {
   const kcAdminClient = new KcAdminClient({
@@ -24,27 +24,47 @@ async function connect() {
   });
 
   kcAdminClient.setConfig({ realmName: "dsek" });
-  client = kcAdminClient;
+
+  return kcAdminClient
 }
 
-async function getId(username: string) {
-  if (client === undefined) await connect();
-
+async function getUserId(client: KcAdminClient, username: string) {
   const response = await client.users.find({ username });
   if (response.length !== 1) {
-    throw new Error(`for ${username} ${response.length} users returned`);
+    throw new Error(`${username} returned ${response.length} users`);
   }
   return response[0]!.id;
+}
+
+// turns dsek.sexm.kok.mastare into ['dsek', 'dsek.sexm', 'dsek.sexm.kok', 'dsek.sexm.kok.mastare']
+function getRoleNames(id: string): string[] {
+  const parts = id.split('.');
+  return [...Array(parts.length).keys()].map((i) => parts.slice(0, i + 1).join('.'));
+}
+
+async function getGroupId(client: KcAdminClient, positionId: string) {
+  const roleNames = getRoleNames(positionId);
+  const groups = await client.groups.find();
+  let group = groups.find(g => g.name === roleNames[0]);
+  roleNames.slice(1).forEach(name => {
+    group = group?.subGroups?.find(g => g.name === name);
+  });
+  if (!group) {
+    throw new Error(`Failed to find group for position ${positionId}`)
+  }
+  return group?.id;
 }
 
 async function addMandate(username: string, positionId: string) {
   if (!enabled) return;
 
   try {
-    const id = await getId(username);
-    await client!.users.addToGroup({
+    const client = await connect();
+    const id = await getUserId(client, username);
+    const groupId = await getGroupId(client, positionId);
+    await client.users.addToGroup({
       id: id!,
-      groupId: positionId,
+      groupId: groupId!,
     });
   } catch (error) {
     console.log(error);
@@ -55,10 +75,12 @@ async function deleteMandate(username: string, positionId: string) {
   if (!enabled) return;
 
   try {
-    const id = await getId(username);
-    await client!.users.delFromGroup({
+    const client = await connect();
+    const id = await getUserId(client, username);
+    const groupId = await getGroupId(client, positionId);
+    await client.users.delFromGroup({
       id: id!,
-      groupId: positionId,
+      groupId: groupId!,
     });
   } catch (error) {
     console.log(error);
@@ -99,6 +121,8 @@ async function updateMandate() {
       },
     },
   });
+
+  console.log(`updating ${result.length} users`)
 
   result.forEach(async ({ positionId, member: { studentId } }) => {
     await deleteMandate(studentId!, positionId);

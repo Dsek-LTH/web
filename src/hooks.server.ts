@@ -12,6 +12,8 @@ import type { TokenSet } from "@auth/core/types";
 import schedule from "node-schedule";
 import keycloak from "$lib/utils/keycloak";
 
+keycloak.updateMandate()
+
 schedule.scheduleJob("* */24 * * *", keycloak.updateMandate);
 
 export const handle: Handle = async ({ event, resolve }) => {
