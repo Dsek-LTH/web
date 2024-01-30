@@ -6,7 +6,8 @@
   import ProfileImage from "./ProfileImage.svelte";
   import Cropper from "svelte-easy-crop";
 
-  export let data;
+  import type { PageData } from "./$types";
+  export let data: PageData;
   $: member = data.member;
   $: photos = data.photos;
   let isEditing = false;

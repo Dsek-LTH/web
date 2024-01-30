@@ -5,8 +5,9 @@
   import AuthorSignature from "$lib/components/AuthorSignature.svelte";
   import LikeButton from "../LikeButton.svelte";
   import LikersList from "../LikersList.svelte";
+  import type { PageData } from "./$types";
 
-  export let data;
+  export let data: PageData;
   $: article = data.article;
   $: author = article.author;
 </script>

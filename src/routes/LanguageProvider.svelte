@@ -1,3 +1,11 @@
+<!--
+@component
+Remounts its children when the language changes,
+which is necessary to update the translations.
+Should wrap all translatable content, i.e the entire app.
+
+Also handles some additional language-related tasks.
+-->
 <script lang="ts">
   import { browser } from "$app/environment";
   import { page } from "$app/stores";

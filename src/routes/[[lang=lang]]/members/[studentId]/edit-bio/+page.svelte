@@ -5,7 +5,8 @@
   import { page } from "$app/stores";
   import { superForm } from "sveltekit-superforms/client";
 
-  export let data;
+  import type { PageData } from "./$types";
+  export let data: PageData;
   $: member = data.member;
   const { form, errors, constraints, enhance } = superForm(data.form);
 </script>

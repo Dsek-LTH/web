@@ -1,15 +1,11 @@
 <script lang="ts">
   import Product from "./Product.svelte";
-  export let form;
-  export let data;
+  import type { PageData } from "./$types";
+  export let data: PageData;
   let activeCategory = data.productCategories[0];
   $: products = data.products.filter(
     (product) => product.categoryId === activeCategory?.id,
   );
-  $: if (form?.error) {
-    console.log(form.error);
-    window.alert(form.error);
-  }
 </script>
 
 <div class="flex flex-col gap-3">

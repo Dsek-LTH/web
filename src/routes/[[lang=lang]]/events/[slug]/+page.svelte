@@ -3,7 +3,8 @@
   import CommentSection from "$lib/components/socials/CommentSection.svelte";
   import Event from "../Event.svelte";
 
-  export let data;
+  import type { PageData } from "./$types";
+  export let data: PageData;
   $: event = data.event;
 </script>
 

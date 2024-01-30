@@ -5,7 +5,8 @@
   import CommitteeHeader from "../CommitteeHeader.svelte";
   import { enhance } from "$app/forms";
 
-  export let data;
+  import type { PageData } from "./$types";
+  export let data: PageData;
   let isEditing = false;
 
   const getWeekdayName = (weekday: number): string => {

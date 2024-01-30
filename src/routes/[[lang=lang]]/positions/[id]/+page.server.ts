@@ -5,8 +5,8 @@ import { error, fail } from "@sveltejs/kit";
 import { redirect } from "sveltekit-flash-message/server";
 import { message, setError, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
-import type { PageServerLoad } from "./$types";
 import keycloak from "$lib/utils/keycloak";
+import type { Actions, PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ params, url }) => {
   const position = await prisma.position.findUnique({
@@ -83,7 +83,7 @@ const deleteMandateSchema = z.object({
 });
 export type DeleteMandateSchema = typeof deleteMandateSchema;
 
-export const actions = {
+export const actions: Actions = {
   update: async ({ params, request, locals }) => {
     const form = await superValidate(request, updateSchema);
     if (!form.valid) return fail(400, { form });
@@ -128,7 +128,7 @@ export const actions = {
             endDate: form.data.endDate,
           },
         });
-        await keycloak.addMandate(member.id, params.id);
+        await keycloak.addMandate(member.studentId!, params.id);
         return message(form, {
           message: `Nytt mandat gett till ${member.firstName}`,
           type: "success",
@@ -208,7 +208,7 @@ export const actions = {
         await prisma.mandate.delete({
           where: { id: form.data.mandateId, positionId: params.id },
         });
-        await keycloak.deleteMandate(member.id, params.id);
+        await keycloak.deleteMandate(member.studentId!, params.id);
         return message(form, {
           message: `${member.firstName}${
             member.firstName?.endsWith("s") ? "" : "s"

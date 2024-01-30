@@ -7,7 +7,7 @@ import sharp from "sharp";
 import generateUUID from "$lib/utils/generateUUID";
 import { message, setError, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
-import type { PageServerLoad } from "./$types";
+import type { Actions, PageServerLoad } from "./$types";
 import { PUBLIC_BUCKETS_MEMBERS } from "$env/static/public";
 
 export const load: PageServerLoad = async ({ params, parent }) => {
@@ -54,7 +54,7 @@ const deleteSchema = z.object({
 });
 export type DeleteSchema = typeof deleteSchema;
 
-export const actions = {
+export const actions: Actions = {
   change: async ({ params, locals, request }) => {
     const form = await superValidate(request, changeSchema);
     if (!form.valid) return fail(400, { form });

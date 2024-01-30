@@ -6,6 +6,7 @@ export const insertAccessPolicies = async (prisma: PrismaClient) => {
     materialBucketAccessPolicies(prisma),
     eventCommenteDelete(prisma),
     yrkaSend(prisma),
+    song(prisma),
   ]);
 };
 
@@ -69,4 +70,22 @@ const eventCommenteDelete = async (prisma: PrismaClient) => {
 
 const yrkaSend = async (prisma: PrismaClient) => {
   await insertPolicies(prisma, apiNames.YRKA.SEND, ["_"]);
+};
+
+const song = async (prisma: PrismaClient) => {
+  await Promise.all([
+    insertPolicies(prisma, apiNames.SONG.CREATE, [
+      "dsek.infu.mastare",
+      "dsek.infu.arkivarie",
+    ]),
+    insertPolicies(prisma, apiNames.SONG.READ, ["*"]),
+    insertPolicies(prisma, apiNames.SONG.UPDATE, [
+      "dsek.infu.mastare",
+      "dsek.infu.arkivarie",
+    ]),
+    insertPolicies(prisma, apiNames.SONG.DELETE, [
+      "dsek.infu.mastare",
+      "dsek.infu.arkivarie",
+    ]),
+  ]);
 };

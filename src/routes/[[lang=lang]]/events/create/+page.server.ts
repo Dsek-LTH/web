@@ -1,12 +1,12 @@
 import { policyAccessGuard, withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
 import prisma from "$lib/utils/prisma";
-import { slugifyArticleHeader } from "$lib/utils/slugify";
 import { fail } from "@sveltejs/kit";
 import { redirect } from "sveltekit-flash-message/server";
 import { superValidate } from "sveltekit-superforms/server";
 import { eventSchema } from "../schema";
-import type { PageServerLoad } from "./$types";
+import type { Actions, PageServerLoad } from "./$types";
+import { slugWithCount, slugify } from "$lib/utils/slugify";
 
 export const load: PageServerLoad = async ({ parent }) => {
   const allTags = await prisma.tag.findMany();
@@ -20,7 +20,7 @@ export const load: PageServerLoad = async ({ parent }) => {
     ),
   };
 };
-export const actions = {
+export const actions: Actions = {
   default: async (event) => {
     const form = await superValidate(event.request, eventSchema);
     if (!form.valid) return fail(400, { form });
@@ -29,9 +29,17 @@ export const actions = {
       apiNames.EVENT.CREATE,
       session?.user,
       async () => {
+        const slug = slugify(form.data.title);
+        const slugCount = await prisma.event.count({
+          where: {
+            slug: {
+              startsWith: slug,
+            },
+          },
+        });
         const result = await prisma.event.create({
           data: {
-            slug: await slugifyArticleHeader(form.data.title),
+            slug: slugWithCount(slug, slugCount),
             ...form.data,
             author: {
               connect: {

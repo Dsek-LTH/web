@@ -1,7 +1,8 @@
 <script lang="ts">
   import { marked } from "marked";
 
-  export let data;
+  import type { PageData } from "./$types";
+  export let data: PageData;
 </script>
 
 <svelte:head>
@@ -134,13 +135,13 @@
 
   <a
     class="flex cursor-pointer gap-6 bg-base-300 p-6 transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:bg-base-200 hover:shadow-xl"
-    href="/"
+    href="https://bit.ly/kontaktatrivsel"
   >
-    <span class="i-mdi-question-mark-circle self-center text-2xl" />
+    <span class="i-mdi-speak self-center text-2xl" />
 
     <article>
-      <p>What should be here?</p>
-      <h2 class="text-xl font-bold">TBD</h2>
+      <p>Tankar eller åsikter?</p>
+      <h2 class="text-xl font-bold">Kontakta Trivselrådet</h2>
     </article>
   </a>
 </div>

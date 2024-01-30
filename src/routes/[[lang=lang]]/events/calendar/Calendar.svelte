@@ -33,13 +33,13 @@
         addEvent: {
           text: "Skapa evenemang",
           click: () => {
-            goto("/events/create");
+            void goto("/events/create");
           },
         },
         subscribe: {
           text: "Subscribe",
           click: () => {
-            goto("/events/subscribe");
+            void goto("/events/subscribe");
           },
         },
       },

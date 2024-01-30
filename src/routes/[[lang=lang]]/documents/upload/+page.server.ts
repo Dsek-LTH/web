@@ -5,6 +5,7 @@ import apiNames from "$lib/utils/apiNames";
 import { fail } from "@sveltejs/kit";
 import { message, setError, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
+import type { Actions, PageServerLoad } from "./$types";
 
 const CURRENT_YEAR = new Date().getFullYear();
 
@@ -17,7 +18,7 @@ const prepareNameForFilesystem = (name: string, fileName: string) =>
   name.replace(/\s/g, "_").replace(/[^a-zA-Z0-9_]/g, "") + // replaces spaces with "_" and removes all special characters
   getExtensionOfFile(fileName);
 
-export const load = async ({ parent, url }) => {
+export const load: PageServerLoad = async ({ parent, url }) => {
   const { session } = await parent();
   const year = url.searchParams.get("year") ?? CURRENT_YEAR;
   const files = await fileHandler.getInBucket(
@@ -46,7 +47,7 @@ const uploadSchema = z.object({
 });
 export type UploadSchema = typeof uploadSchema;
 
-export const actions = {
+export const actions: Actions = {
   default: async ({ request, locals }) => {
     const formData = await request.formData();
     const form = await superValidate(formData, uploadSchema);

@@ -1,11 +1,11 @@
-import { policyAccessGuard, withAccess } from "$lib/utils/access.js";
-import apiNames from "$lib/utils/apiNames.js";
+import { policyAccessGuard, withAccess } from "$lib/utils/access";
+import apiNames from "$lib/utils/apiNames";
 import { fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
-import type { PageServerLoad } from "./$types.js";
-import { getCurrentMember } from "$lib/utils/member.js";
-import { getFullName } from "$lib/utils/client/member.js";
+import type { Actions, PageServerLoad } from "./$types";
+import { getCurrentMember } from "$lib/utils/member";
+import { getFullName } from "$lib/utils/client/member";
 import nodemailer from "nodemailer";
 import { EMAIL_YRKA_PASS, EMAIL_YRKA_USER } from "$env/static/private";
 
@@ -31,7 +31,7 @@ const createSchema = z.object({
   title: z.string().min(1).default(""),
   content: z.string().min(1),
 });
-export const actions = {
+export const actions: Actions = {
   default: async ({ request, locals }) => {
     const form = await superValidate(request, createSchema);
     if (!form) return fail(400, { form });

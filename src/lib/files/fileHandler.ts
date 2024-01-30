@@ -22,7 +22,7 @@ const getFilesInFolder = (
   return new Promise<FileData[]>((resolve, reject) => {
     const stream = minio.listObjectsV2(bucket, prefix, recursive);
     const chonkyFiles: FileData[] = [];
-    stream.on("data", async (obj) => {
+    stream.on("data", (obj) => {
       if (obj.name) {
         chonkyFiles.push({
           id: obj.name,
@@ -129,7 +129,7 @@ const removeObjects = async (
   fileNames: string[],
 ) => {
   await ctxAccessGuard(apiNames.FILES.BUCKET(bucket).DELETE, ctx);
-  removeFilesWithoutAccessCheck(ctx, bucket, fileNames);
+  await removeFilesWithoutAccessCheck(ctx, bucket, fileNames);
 };
 
 type FileChange = {
@@ -228,7 +228,7 @@ const renameObject = async (
   if (isDir(fileName)) {
     const filesInFolder = await getFilesInBucket(ctx, bucket, fileName);
     if (filesInFolder) {
-      moveObject(
+      await moveObject(
         ctx,
         bucket,
         filesInFolder.map((file) => file.id),

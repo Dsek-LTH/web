@@ -3,7 +3,8 @@
   import Labeled from "$lib/components/Labeled.svelte";
   import { superForm } from "sveltekit-superforms/client";
 
-  export let data;
+  import type { PageData } from "./$types";
+  export let data: PageData;
   let type: "role" | "studentId" = "role";
 
   let removeModal: HTMLDialogElement | undefined = undefined;
@@ -93,7 +94,7 @@
             id="startDatetime"
             name="startDatetime"
             type="datetime-local"
-            class="input join-item input-bordered dark:[color-scheme:dark]"
+            class="input join-item input-bordered"
             bind:value={$form.startDatetime}
             {...$constraints.startDatetime}
           />
@@ -105,7 +106,7 @@
             id="endDatetime"
             name="endDatetime"
             type="datetime-local"
-            class="input join-item input-bordered dark:[color-scheme:dark]"
+            class="input join-item input-bordered"
             bind:value={$form.endDatetime}
             {...$constraints.endDatetime}
           />
@@ -127,24 +128,25 @@
   <div class="modal-box">
     <h3 class="text-lg font-bold">Revoke door access</h3>
     <p class="py-4">
-      Are you sure you want to revoke access to <b class="capitalize"
-        >{$page.params["slug"]}
-      </b>
+      Are you sure you want to revoke access to
+      <b class="capitalize">{$page.params["slug"]}</b>
       for
       <b>{selectedPolicy?.role || selectedPolicy?.studentId}</b>?
     </p>
     <div class="modal-action">
       <form method="POST" action="?/delete" use:enhance>
-        <input type="hidden" name="id" value={selectedPolicy?.id} /><button
+        <input type="hidden" name="id" value={selectedPolicy?.id} />
+        <button
           type="submit"
           class="btn btn-error"
           on:click={() => removeModal?.close()}
-          >Remove
+        >
+          Remove
         </button>
       </form>
     </div>
   </div>
   <form method="dialog" class="modal-backdrop">
-    <button></button>
+    <button class="cursor-auto"></button>
   </form>
 </dialog>

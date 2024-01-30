@@ -4,7 +4,7 @@ import prisma from "$lib/utils/prisma";
 import { memberSchema } from "$lib/zod/schemas";
 import { error, fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
-import type { PageServerLoad } from "./$types";
+import type { Actions, PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ params }) => {
   const [memberResult, publishedArticlesResult] = await Promise.allSettled([
@@ -78,7 +78,7 @@ const updateSchema = memberSchema.pick({
 
 export type UpdateSchema = typeof updateSchema;
 
-export const actions = {
+export const actions: Actions = {
   update: async ({ params, locals, request }) => {
     const form = await superValidate(request, updateSchema);
     if (!form.valid) return fail(400, { form });

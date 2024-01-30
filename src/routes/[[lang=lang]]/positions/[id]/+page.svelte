@@ -12,7 +12,8 @@
   import UpdateMandateForm from "./UpdateMandateForm.svelte";
   import UpdatePositionForm from "./UpdatePositionForm.svelte";
 
-  export let data;
+  import type { PageData } from "./$types";
+  export let data: PageData;
 
   $: groupedByYear = data.mandates.reduce<
     Record<string, Prisma.MandateGetPayload<{ include: { member: true } }>[]>
@@ -52,9 +53,9 @@
     {#if !isAdding && (data.accessPolicies.includes(apiNames.MANDATE.UPDATE) || data.accessPolicies.includes(apiNames.MANDATE.DELETE) || data.accessPolicies.includes(apiNames.POSITION.UPDATE))}
       <button
         class="btn btn-sm"
-        on:click={() => {
+        on:click={async () => {
           isEditing = !isEditing;
-          goto(`${data.position.id}`);
+          await goto(`${data.position.id}`);
         }}
       >
         {isEditing ? "Sluta redigera" : "Redigera"}
@@ -147,8 +148,8 @@
               {#if data.accessPolicies.includes(apiNames.MANDATE.UPDATE)}
                 <button
                   class="btn btn-secondary btn-sm pointer-events-auto"
-                  on:click|preventDefault={() => {
-                    goto(`${data.position.id}?editMandate=${mandate.id}`);
+                  on:click|preventDefault={async () => {
+                    await goto(`${data.position.id}?editMandate=${mandate.id}`);
                   }}
                 >
                   EDIT

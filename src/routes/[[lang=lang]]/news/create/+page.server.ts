@@ -1,13 +1,13 @@
 import { policyAccessGuard, withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
 import prisma from "$lib/utils/prisma";
-import { slugifyArticleHeader } from "$lib/utils/slugify";
 import { error, fail, type Actions } from "@sveltejs/kit";
 import { redirect } from "sveltekit-flash-message/server";
 import { superValidate } from "sveltekit-superforms/client";
 import { getArticleAuthorOptions } from "../articles";
 import { articleSchema } from "../schema";
-import type { PageServerLoad } from "./$types";
+import type { ActionsExport, PageServerLoad } from "./$types";
+import { slugWithCount, slugify } from "$lib/utils/slugify";
 
 export const load: PageServerLoad = async ({ parent }) => {
   const allTags = await prisma.tag.findMany();
@@ -49,7 +49,7 @@ export const load: PageServerLoad = async ({ parent }) => {
   };
 };
 
-export const actions = {
+export const actions: ActionsExport = {
   default: async (event) => {
     const form = await superValidate(event.request, articleSchema);
     if (!form.valid) return fail(400, { form });
@@ -68,9 +68,17 @@ export const actions = {
             customId: author.customId,
           },
         });
+        const slug = slugify(header);
+        const slugCount = await prisma.article.count({
+          where: {
+            slug: {
+              startsWith: slug,
+            },
+          },
+        });
         const result = await prisma.article.create({
           data: {
-            slug: await slugifyArticleHeader(header),
+            slug: slugWithCount(slug, slugCount),
             header: header,
             body: body,
             author: {

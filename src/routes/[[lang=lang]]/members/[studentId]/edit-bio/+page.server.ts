@@ -4,7 +4,7 @@ import prisma from "$lib/utils/prisma";
 import { memberSchema } from "$lib/zod/schemas";
 import { error, fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
-import type { PageServerLoad } from "./$types";
+import type { Actions, PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ params, parent }) => {
   const member = await prisma.member.findUnique({
@@ -27,7 +27,7 @@ export const load: PageServerLoad = async ({ params, parent }) => {
 
 const updateBioSchema = memberSchema.pick({ bio: true });
 
-export const actions = {
+export const actions: Actions = {
   update: async ({ params, locals, request }) => {
     const form = await superValidate(request, updateBioSchema);
     if (!form) return fail(400, { form });

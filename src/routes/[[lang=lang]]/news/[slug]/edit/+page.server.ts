@@ -7,7 +7,7 @@ import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import { getArticleAuthorOptions } from "../../articles";
 import { articleSchema } from "../../schema";
-import type { PageServerLoad } from "./$types";
+import type { Actions, PageServerLoad } from "./$types";
 import { redirect } from "sveltekit-flash-message/server";
 
 export const load: PageServerLoad = async ({ parent, params }) => {
@@ -67,7 +67,7 @@ const updateSchema = articleSchema.extend({
   slug: z.string(),
 });
 
-export const actions = {
+export const actions: Actions = {
   default: async (event) => {
     const form = await superValidate(event.request, updateSchema);
     if (!form.valid) return fail(400, { form });

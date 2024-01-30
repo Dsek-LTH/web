@@ -1,15 +1,20 @@
 import prisma from "$lib/utils/prisma";
+import { fixSongText } from "./helpers";
 import type { PageServerLoad } from "./$types";
 import type { Prisma } from "@prisma/client";
-import isomorphicDompurify from "isomorphic-dompurify";
-const { sanitize } = isomorphicDompurify;
+import DOMPurify from "isomorphic-dompurify";
+import { canAccessDeletedSongs, getExistingCategories } from "./helpers";
 
 const SONGS_PER_PAGE = 10;
 
-export const load: PageServerLoad = async ({ url }) => {
+export const load: PageServerLoad = async ({ url, parent }) => {
+  const { accessPolicies } = await parent();
   const page = url.searchParams.get("page");
   const search = url.searchParams.get("search");
-  const category = url.searchParams.get("category");
+  const categories = url.searchParams.getAll("category");
+  const showDeleted =
+    canAccessDeletedSongs(accessPolicies) &&
+    url.searchParams.get("show-deleted") === "true";
 
   let where: Prisma.SongWhereInput = search
     ? {
@@ -42,20 +47,34 @@ export const load: PageServerLoad = async ({ url }) => {
       }
     : {};
 
-  if (category) {
+  if (categories.length > 0) {
     where = {
       AND: [
         where,
         {
-          category: {
-            startsWith: category,
-          },
+          OR: categories.map((category) => ({
+            category: {
+              contains: category,
+              mode: "insensitive",
+            },
+          })),
         },
       ],
     };
   }
 
-  const [songs, pageCount, catNames] = await Promise.all([
+  where = {
+    AND: [
+      where,
+      {
+        // If the user can access deleted songs, show them if the user wants to
+        // Otherwise, don't show deleted songs
+        deletedAt: showDeleted ? { not: null } : null,
+      },
+    ],
+  };
+
+  const [songs, pageCount, existingCategories] = await Promise.all([
     prisma.song.findMany({
       take: SONGS_PER_PAGE,
       skip: page
@@ -65,21 +84,13 @@ export const load: PageServerLoad = async ({ url }) => {
       where,
     }),
     prisma.song.count({ where }),
-    prisma.song.findMany({
-      select: {
-        category: true,
-      },
-      distinct: ["category"],
-      orderBy: {
-        category: "asc",
-      },
-    }),
+    getExistingCategories(accessPolicies, showDeleted),
   ]);
 
-  const categories: { [key: string]: string } = {};
+  const categoryMap: { [key: string]: string } = {};
 
-  for (const name of catNames) {
-    const split = name?.category?.split(" ");
+  for (const category of existingCategories) {
+    const split = category.split(" ");
 
     let id;
     if (split) {
@@ -93,10 +104,10 @@ export const load: PageServerLoad = async ({ url }) => {
     }
 
     if (id) {
-      if (categories[id]) {
-        categories[id] = id;
+      if (categoryMap[id]) {
+        categoryMap[id] = id;
       } else {
-        categories[id] = name.category ?? id;
+        categoryMap[id] = category ?? id;
       }
     }
   }
@@ -104,22 +115,12 @@ export const load: PageServerLoad = async ({ url }) => {
   return {
     songs: songs.map((song) => ({
       ...song,
-      title: sanitize(fixSongText(song.title)),
-      lyrics: sanitize(fixSongText(song.lyrics)),
+      title: DOMPurify.sanitize(fixSongText(song.title)),
+      lyrics: DOMPurify.sanitize(fixSongText(song.lyrics)),
     })),
     pageCount: Math.max(Math.ceil(pageCount / SONGS_PER_PAGE), 1),
     categories,
-    category,
+    categoryMap,
     params: url.searchParams.toString(),
   };
 };
-
-function fixSongText(s: string): string {
-  return s
-    .replaceAll("---", "—")
-    .replaceAll("--", "–")
-    .replaceAll("||:", "𝄆")
-    .replaceAll(":||", "𝄇")
-    .replaceAll("|:", "𝄆")
-    .replaceAll(":|", "𝄇");
-}

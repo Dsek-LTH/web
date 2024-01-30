@@ -5,12 +5,13 @@ import { fail } from "@sveltejs/kit";
 import { redirect } from "sveltekit-flash-message/server";
 import { superValidate } from "sveltekit-superforms/server";
 import { governingDocumentSchema } from "../schemas";
+import type { Actions, PageServerLoad } from "./$types";
 
-export const load = async () => ({
+export const load: PageServerLoad = async () => ({
   form: await superValidate(governingDocumentSchema),
 });
 
-export const actions = {
+export const actions: Actions = {
   create: async (event) => {
     const { request, locals } = event;
     const form = await superValidate(request, governingDocumentSchema);

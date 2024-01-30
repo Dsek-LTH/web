@@ -1,5 +1,5 @@
 import { cancel, isCancel, spinner } from "@clack/prompts";
-import { ExecException, exec } from "child_process";
+import { type ExecException, exec } from "child_process";
 import { randomBytes } from "crypto";
 import { access, writeFile } from "fs/promises";
 import { resolve } from "path";
@@ -39,7 +39,7 @@ async function writeEnvFile(
   authSecret: string,
   keycloakClientSecret: string,
 ) {
-  writeFile(
+  await writeFile(
     ENV_FILE_PATH,
     `DATABASE_URL=${String(
       url,

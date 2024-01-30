@@ -2,7 +2,8 @@
   import { superForm } from "sveltekit-superforms/client";
   import TagEditorRow from "./TagEditorRow.svelte";
 
-  export let data;
+  import type { PageData } from "./$types";
+  export let data: PageData;
   const { form, errors, constraints, enhance, submitting } = superForm(
     data.createForm,
     {

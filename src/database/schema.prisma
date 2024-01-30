@@ -563,10 +563,12 @@ model Song {
   id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   title     String    @db.VarChar(255)
   lyrics    String
+  slug      String    @unique(map: "songs_slug_unique") @db.VarChar(255)
   melody    String?   @db.VarChar(255)
   category  String?   @db.VarChar(255)
   createdAt DateTime? @map("created_at") @db.Timestamptz(6)
   updatedAt DateTime? @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
 
   @@map("songs")
 }
@@ -655,4 +657,11 @@ enum DocumentType {
   OTHER
 
   @@map("document_type")
+}
+
+model LastKeycloakUpdate {
+  id   Int      @id @default(autoincrement())
+  time DateTime
+
+  @@map("last_keycloak_update")
 }

@@ -7,7 +7,7 @@
 
   let debouncerTimeout: number;
   let inputField: HTMLInputElement;
-  const refetchArticles = async (search?: string) => {
+  const refetchArticles = (search?: string) => {
     isLoading = true;
     clearTimeout(debouncerTimeout);
     debouncerTimeout = window.setTimeout(async () => {

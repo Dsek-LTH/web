@@ -2,7 +2,8 @@
   import CommitteeIcon from "$lib/components/CommitteeIcon.svelte";
   import PageHeader from "$lib/components/PageHeader.svelte";
 
-  export let data;
+  import type { PageData } from "./$types";
+  export let data: PageData;
   $: committees = [...data.committees].sort((a, b) =>
     a.name.localeCompare(b.name, "sv"),
   );

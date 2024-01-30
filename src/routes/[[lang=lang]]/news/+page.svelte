@@ -7,7 +7,8 @@
   import type { Tag } from "@prisma/client";
   import SmallArticleCard from "./SmallArticleCard.svelte";
 
-  export let data;
+  import type { PageData } from "./$types";
+  export let data: PageData;
   let filteredTags: Tag[] = data.allTags.filter((tag) =>
     $page.url.searchParams.getAll("tags").includes(tag.name),
   );

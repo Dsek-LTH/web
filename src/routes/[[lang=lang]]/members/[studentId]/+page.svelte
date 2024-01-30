@@ -11,7 +11,8 @@
   import apiNames from "$lib/utils/apiNames";
   import { getFullName } from "$lib/utils/client/member";
 
-  export let data;
+  import type { PageData } from "./$types";
+  export let data: PageData;
   $: member = data.member;
   $: isMe = data.session?.user?.student_id === $page.params["studentId"];
   $: mandatesGroupedByYear = member.mandates.reduce<

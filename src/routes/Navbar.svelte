@@ -1,11 +1,10 @@
 <script lang="ts">
-  import { signIn, signOut } from "@auth/sveltekit/client";
   import { page } from "$app/stores";
-  import "../app.css";
+  import { signIn, signOut } from "@auth/sveltekit/client";
   import DarkLightToggle from "./DarkLightToggle.svelte";
   import DsekLogo from "./DsekLogo.svelte";
-  import { routes } from "./routes";
   import LanguageSwitcher from "./LanguageSwitcher.svelte";
+  import { routes } from "./routes";
   $: accessPolicies = $page.data.accessPolicies;
   $: user = $page.data.session?.user;
 </script>
