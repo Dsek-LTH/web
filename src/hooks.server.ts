@@ -12,7 +12,7 @@ import type { TokenSet } from "@auth/core/types";
 import schedule from "node-schedule";
 import keycloak from "$lib/utils/keycloak";
 
-keycloak.updateMandate()
+keycloak.updateMandate();
 
 schedule.scheduleJob("* */24 * * *", keycloak.updateMandate);
 

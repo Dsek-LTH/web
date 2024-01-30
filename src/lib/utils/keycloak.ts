@@ -25,7 +25,7 @@ async function connect() {
 
   kcAdminClient.setConfig({ realmName: "dsek" });
 
-  return kcAdminClient
+  return kcAdminClient;
 }
 
 async function getUserId(client: KcAdminClient, username: string) {
@@ -38,19 +38,21 @@ async function getUserId(client: KcAdminClient, username: string) {
 
 // turns dsek.sexm.kok.mastare into ['dsek', 'dsek.sexm', 'dsek.sexm.kok', 'dsek.sexm.kok.mastare']
 function getRoleNames(id: string): string[] {
-  const parts = id.split('.');
-  return [...Array(parts.length).keys()].map((i) => parts.slice(0, i + 1).join('.'));
+  const parts = id.split(".");
+  return [...Array(parts.length).keys()].map((i) =>
+    parts.slice(0, i + 1).join("."),
+  );
 }
 
 async function getGroupId(client: KcAdminClient, positionId: string) {
   const roleNames = getRoleNames(positionId);
   const groups = await client.groups.find();
-  let group = groups.find(g => g.name === roleNames[0]);
-  roleNames.slice(1).forEach(name => {
-    group = group?.subGroups?.find(g => g.name === name);
+  let group = groups.find((g) => g.name === roleNames[0]);
+  roleNames.slice(1).forEach((name) => {
+    group = group?.subGroups?.find((g) => g.name === name);
   });
   if (!group) {
-    throw new Error(`Failed to find group for position ${positionId}`)
+    throw new Error(`Failed to find group for position ${positionId}`);
   }
   return group?.id;
 }
@@ -122,7 +124,7 @@ async function updateMandate() {
     },
   });
 
-  console.log(`updating ${result.length} users`)
+  console.log(`updating ${result.length} users`);
 
   result.forEach(async ({ positionId, member: { studentId } }) => {
     await deleteMandate(studentId!, positionId);
