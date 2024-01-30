@@ -8,13 +8,13 @@
     open = !open;
   };
 
-  const handleFocusloss = (
-    relatedTarget: FocusEventHandler<HTMLDivElement> | undefined | null,
-    currentTarget: any,
-  ) => {
-    if (currentTarget.contains(relatedTarget)) return;
-    open = false;
-  };
+  // const handleFocusloss = (
+  //   relatedTarget: FocusEventHandler<HTMLDivElement> | undefined | null,
+  //   currentTarget: any,
+  // ) => {
+  //   if (currentTarget.contains(relatedTarget)) return;
+  //   open = false;
+  // };
 </script>
 
 <div
