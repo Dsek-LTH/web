@@ -47,7 +47,7 @@ async function addMandate(username: string, positionId: string) {
       groupId: positionId,
     });
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
 }
 
@@ -61,7 +61,7 @@ async function deleteMandate(username: string, positionId: string) {
       groupId: positionId,
     });
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
 }
 
@@ -94,9 +94,9 @@ async function updateMandate() {
       positionId: true,
       member: {
         select: {
-          studentId: true
-        }
-      }
+          studentId: true,
+        },
+      },
     },
   });
 
