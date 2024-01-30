@@ -7,7 +7,7 @@
 
   let debouncerTimeout: number;
   let inputField: HTMLInputElement;
-  const refetchArticles = async (search?: string) => {
+  const refetchArticles = (search?: string) => {
     isLoading = true;
     clearTimeout(debouncerTimeout);
     debouncerTimeout = window.setTimeout(async () => {
@@ -25,19 +25,20 @@
   };
 </script>
 
-<div class="relative flex-1">
+<div class="relative min-w-72 flex-1">
   <input
     bind:this={inputField}
     name="search"
     type="text"
     placeholder="Search"
-    class="input input-bordered w-full focus:border-primary-focus"
+    class="focus:border-primary-focus input input-bordered w-full"
     value={$page.url.searchParams.get("search") ?? ""}
     on:input={(e) => {
       refetchArticles(e.currentTarget.value);
     }}
   />
   {#if isLoading}
-    <span class="loading loading-sm absolute right-4 top-1/2 -translate-y-1/2"></span>
+    <span class="loading loading-sm absolute right-4 top-1/2 -translate-y-1/2"
+    ></span>
   {/if}
 </div>

@@ -3,14 +3,22 @@
   "compilerOptions": {
     "allowJs": true,
     "checkJs": true,
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "verbatimModuleSyntax": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "incremental": true,
-    "noUncheckedIndexedAccess": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
+    "allowUnreachableCode": false,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": false, // eslint no-unused-vars is more configurable
+    "noUnusedParameters": false, // eslint no-unused-vars is more configurable
     "typeRoots": ["types", "./node_modules/@types"]
   }
   // Path aliases are handled by https://kit.svelte.dev/docs/configuration#alias

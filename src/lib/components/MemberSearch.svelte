@@ -1,7 +1,7 @@
 <script lang="ts">
   import { page } from "$app/stores";
   import type { Member } from "@prisma/client";
-  import AuthorSignature from "../../routes/news/AuthorSignature.svelte";
+  import AuthorSignature from "./AuthorSignature.svelte";
   import { twMerge } from "tailwind-merge";
 
   let clazz = "";
@@ -78,7 +78,9 @@
       {/each}
       {#if searchedMembers.length === 0}
         <li class="w-full border-b border-b-base-content/10">
-          <button type="button" disabled class="disabled">Inga medlemmar hittades</button>
+          <button type="button" disabled class="disabled"
+            >Inga medlemmar hittades</button
+          >
         </li>
       {/if}
     {/if}

@@ -22,17 +22,23 @@ const apiNames = {
     COMMENT: "event:comment",
     COMMENT_DELETE: "event:comment:delete",
   },
+  BOOKINGS: {
+    ...crud("bookings"),
+  },
   MANDATE: crud("core:mandate"),
   COMMITTEE: crud("core:committee"),
   POSITION: {
     ...crud("core:position"),
     SEE_INACTIVE: "core:position:inactive:read",
   },
+  ADMIN: {
+    READ: "core:access:admin:read",
+  },
   ACCESS_POLICY: crud("core:access:api"),
   LOGGED_IN: "_",
   FILES: {
     BUCKET: <bucketName extends string>(name: bucketName) =>
-      crud(`fileHandler:${name.substring(4)}`), // remove "dev-" prefix
+      crud(`fileHandler:${name.startsWith("dev-") ? name.substring(4) : name}`), // remove "dev-" prefix
   },
   MARKDOWNS: {
     ...crud("markdowns"),
@@ -42,6 +48,21 @@ const apiNames = {
   MEMBER: {
     ...crud("core:member"),
     PING: "core:member:ping",
+  },
+  GOVERNING_DOCUMENT: {
+    CREATE: "governing_document:write",
+    READ: "governing_document:read",
+    UPDATE: "governing_document:write",
+    DELETE: "governing_document:write",
+  },
+  DOOR: {
+    ...crud("core:access:door"),
+  },
+  YRKA: {
+    SEND: "yrka:send",
+  },
+  SONG: {
+    ...crud("song"),
   },
 } as const;
 

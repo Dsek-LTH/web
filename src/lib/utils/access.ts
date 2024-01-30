@@ -1,15 +1,18 @@
 import { dev } from "$app/environment";
 import { getCurrentMemberId } from "$lib/utils/member";
 import type { Session } from "@auth/core/types";
-import type { AccessPolicy, Member } from "@prisma/client";
-import { error } from "@sveltejs/kit";
+import { Prisma, type AccessPolicy, type Member } from "@prisma/client";
+import { error, type HttpError, type NumericRange } from "@sveltejs/kit";
+import type { SuperValidated, ZodValidation } from "sveltekit-superforms";
+import { message } from "sveltekit-superforms/server";
+import type { AnyZodObject } from "zod";
 import prisma from "./prisma";
 
 export type Context = Session["user"] | undefined;
 
 export const verifyAccess = (
   policies: Pick<AccessPolicy, "studentId" | "role">[],
-  context: Context
+  context: Context,
 ): boolean => {
   const roles = getRoleList(context);
   const studentId = context?.student_id ?? "";
@@ -27,7 +30,7 @@ export const verifyAccess = (
 export const hasAccess = async (
   apiName: string | string[],
   context: Context,
-  relevantMember?: Pick<Member, "id"> | Pick<Member, "studentId">
+  relevantMember?: Pick<Member, "id"> | Pick<Member, "studentId">,
 ): Promise<boolean> => {
   // If we're in development mode and we're signed in, give full access rights.
   if (dev && context?.student_id) return true;
@@ -64,7 +67,10 @@ export const hasAccess = async (
   return validPolicyCount > 0;
 };
 
-export const policyAccessGuard = (apiName: string | string[], userAccessPolicies: string[]) => {
+export const policyAccessGuard = (
+  apiName: string | string[],
+  userAccessPolicies: string[],
+) => {
   const apiNames = typeof apiName === "string" ? [apiName] : apiName;
   if (userAccessPolicies.some((p) => apiNames.includes(p))) return;
   throw error(403, "You do not have permission, have you logged in?");
@@ -73,27 +79,81 @@ export const policyAccessGuard = (apiName: string | string[], userAccessPolicies
 export const ctxAccessGuard = async (
   apiName: string | string[],
   context: Context,
-  relevantMember?: Pick<Member, "id"> | Pick<Member, "studentId">
+  relevantMember?: Pick<Member, "id"> | Pick<Member, "studentId">,
 ) => {
   if (await hasAccess(apiName, context, relevantMember)) return;
   if (dev) {
     throw error(
       403,
       "You do not have permission, have you logged in? Required policies: " +
-        (typeof apiName === "string" ? [apiName] : apiName).join(", ")
+        (typeof apiName === "string" ? [apiName] : apiName).join(", "),
     );
   }
   throw error(403, "You do not have permission, have you logged in?");
 };
 
-export const withAccess = async <T>(
+export const withAccess = async <
+  T,
+  Schema extends ZodValidation<AnyZodObject>,
+  F extends SuperValidated<Schema>,
+>(
   apiName: string | string[],
   context: Context,
   fn: () => Promise<T>,
-  relevantMember?: Pick<Member, "id"> | Pick<Member, "studentId">
+  form?: F,
+  relevantMember?: Pick<Member, "id"> | Pick<Member, "studentId">,
 ) => {
-  await ctxAccessGuard(apiName, context, relevantMember);
-  return fn();
+  try {
+    await ctxAccessGuard(apiName, context, relevantMember);
+    return await fn();
+  } catch (e) {
+    if (
+      e instanceof Prisma.PrismaClientKnownRequestError ||
+      e instanceof Prisma.PrismaClientUnknownRequestError ||
+      e instanceof Prisma.PrismaClientInitializationError ||
+      e instanceof Prisma.PrismaClientRustPanicError ||
+      e instanceof Prisma.PrismaClientKnownRequestError
+    ) {
+      if (e.name !== "PrismaClientKnownRequestError") {
+        if (form === undefined) throw error(500, "Unknown error occured");
+        return message(
+          form,
+          {
+            message: "Unkown error occured",
+            type: "error",
+          },
+          { status: 500 },
+        );
+      }
+      if (form === undefined) throw error(400, e.message);
+      console.log("Prisma error", e);
+      return message(
+        form,
+        {
+          message: e.message,
+          type: "error",
+        },
+        { status: 400 },
+      );
+    } else if ("status" in (e as HttpError)) {
+      if (form === undefined) throw e;
+
+      if ("body" in (e as HttpError) && "message" in (e as HttpError).body) {
+        return message(
+          form,
+          {
+            message: (e as HttpError).body.message,
+            type: "error",
+          },
+          {
+            status: (e as HttpError).status as NumericRange<400, 599>,
+          },
+        );
+      }
+    }
+    console.warn("Unknown error occured", e);
+    throw e;
+  }
 };
 
 // split all roles in group list. a group list might look like ["dsek.infu.mdlm", "dsek.ordf"] and this will split it into ["dsek", "dsek.infu", "dsek.infu.mdlm", "dsek.ordf"]
