@@ -3,6 +3,7 @@
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import apiNames from "$lib/utils/apiNames";
+  import { isAuthorized } from "$lib/utils/authorization";
   import { tagRegex } from "$lib/utils/client/commentTagging";
   import { relativeDate } from "$lib/utils/client/datetime";
   import { getFullName } from "$lib/utils/client/member";
@@ -31,7 +32,7 @@
     if (!member) return "@Unknown User";
     // Logic to return the replacement value based on the UUID
     // For example, this could be a lookup in a map or an API call
-    return `@${getFullName($page.data.session?.user, member)}`; // Replace this with actual logic
+    return `@${getFullName(member)}`; // Replace this with actual logic
   };
 
   function replaceTag(inputText: string) {
@@ -46,7 +47,7 @@
 </script>
 
 <section
-  aria-label="Comment by {getFullName($page.data.session?.user, author)}"
+  aria-label="Comment by {getFullName(author)}"
   class="relative mb-4"
   id="comment-section"
 >
@@ -59,7 +60,7 @@
         href="/members/{author.studentId}"
         class="link link-primary block no-underline"
       >
-        {getFullName($page.data.session?.user, author)}
+        {getFullName(author)}
       </a>
       <span class="font-semibold opacity-50"
         >{relativeDate(comment.published)}</span
@@ -68,12 +69,12 @@
   </header>
   <MarkdownBody body={fixedContent}></MarkdownBody>
   <div class="absolute -top-4 right-0 flex">
-    {#if $page.data.accessPolicies.includes(apiNames[type].COMMENT)}
+    {#if isAuthorized(apiNames[type].COMMENT, $page.data.user)}
       <button class="btn btn-square btn-ghost btn-md" on:click={onReply}>
         <span class="i-mdi-reply text-xl" />
       </button>
     {/if}
-    {#if $page.data.accessPolicies.includes(apiNames[type].COMMENT_DELETE)}
+    {#if isAuthorized(apiNames[type].COMMENT_DELETE, $page.data.user)}
       <form method="POST" action="?/removeComment" use:enhance>
         <input
           type="hidden"

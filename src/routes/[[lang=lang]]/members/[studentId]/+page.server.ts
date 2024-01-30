@@ -1,12 +1,11 @@
-import { withAccess } from "$lib/utils/access";
-import apiNames from "$lib/utils/apiNames";
-import prisma from "$lib/utils/prisma";
 import { memberSchema } from "$lib/zod/schemas";
 import { error, fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
 import type { Actions, PageServerLoad } from "./$types";
+import translated from "$lib/utils/translated";
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ locals, params }) => {
+  const { prisma } = locals;
   const [memberResult, publishedArticlesResult] = await Promise.allSettled([
     prisma.member.findUnique({
       where: {
@@ -35,20 +34,22 @@ export const load: PageServerLoad = async ({ params }) => {
         },
       },
     }),
-    prisma.article.findMany({
-      where: {
-        author: {
-          member: {
-            studentId: params.studentId,
+    prisma.article
+      .findMany({
+        where: {
+          author: {
+            member: {
+              studentId: params.studentId,
+            },
           },
+          removedAt: null,
         },
-        removedAt: null,
-      },
-      orderBy: {
-        publishedAt: "desc",
-      },
-      take: 5,
-    }),
+        orderBy: {
+          publishedAt: "desc",
+        },
+        take: 5,
+      })
+      .then(translated),
   ]);
   if (memberResult.status === "rejected") {
     throw error(500, "Could not fetch member");
@@ -80,27 +81,19 @@ export type UpdateSchema = typeof updateSchema;
 
 export const actions: Actions = {
   update: async ({ params, locals, request }) => {
+    const { prisma } = locals;
     const form = await superValidate(request, updateSchema);
     if (!form.valid) return fail(400, { form });
-    const session = await locals.getSession();
     const { studentId } = params;
-    return withAccess(
-      apiNames.MEMBER.UPDATE,
-      session?.user,
-      async () => {
-        await prisma.member.update({
-          where: { studentId },
-          data: {
-            ...form.data,
-          },
-        });
-        return message(form, {
-          message: "Medlem uppdaterad",
-          type: "success",
-        });
+    await prisma.member.update({
+      where: { studentId },
+      data: {
+        ...form.data,
       },
-      form,
-      { studentId },
-    );
+    });
+    return message(form, {
+      message: "Medlem uppdaterad",
+      type: "success",
+    });
   },
 };

@@ -5,16 +5,17 @@
   import { superForm } from "sveltekit-superforms/client";
   import type { SuperValidated } from "sveltekit-superforms";
   import type { UpdateSchema } from "./committee.server";
+  import { isAuthorized } from "$lib/utils/authorization";
+  import { page } from "$app/stores";
 
   let formData: SuperValidated<UpdateSchema>;
   export { formData as form };
-  export let accessPolicies: string[];
   export let open = false;
 
   const { form, errors, constraints, enhance } = superForm(formData);
 </script>
 
-{#if open && accessPolicies.includes(apiNames.COMMITTEE.UPDATE)}
+{#if open && isAuthorized(apiNames.COMMITTEE.UPDATE, $page.data.user)}
   <form
     action="?/update"
     method="POST"

@@ -1,43 +1,46 @@
-import prisma from "$lib/utils/prisma";
 import { compareBoardPositions } from "$lib/utils/committee-ordering/sort";
+import translated from "$lib/utils/translated";
 import type { PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async () => {
-  const boardPositions = await prisma.committee.findMany({
-    where: {
-      positions: {
-        some: {
-          active: true,
-          boardMember: true,
+export const load: PageServerLoad = async ({ locals }) => {
+  const { prisma } = locals;
+  const boardPositions = await prisma.committee
+    .findMany({
+      where: {
+        positions: {
+          some: {
+            active: true,
+            boardMember: true,
+          },
         },
       },
-    },
-    include: {
-      positions: {
-        where: {
-          active: true,
-          boardMember: true,
-          NOT: undefined,
-        },
-        include: {
-          mandates: {
-            where: {
-              startDate: {
-                lte: new Date(),
+      include: {
+        positions: {
+          where: {
+            active: true,
+            boardMember: true,
+            NOT: undefined,
+          },
+          include: {
+            mandates: {
+              where: {
+                startDate: {
+                  lte: new Date(),
+                },
+                endDate: {
+                  gte: new Date(),
+                },
+                NOT: undefined,
               },
-              endDate: {
-                gte: new Date(),
+              select: {
+                memberId: true,
               },
-              NOT: undefined,
-            },
-            select: {
-              memberId: true,
             },
           },
         },
       },
-    },
-  });
+    })
+    .then(translated);
   const boardMembers = await prisma.member.findMany({
     where: {
       id: {

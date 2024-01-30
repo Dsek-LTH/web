@@ -5,10 +5,6 @@
   const { form, errors, constraints, enhance } = superForm(data.form, {
     resetForm: true,
   });
-  $: uniqueApiNames = data.allPolicies
-    .map((policy) => policy.apiName)
-    .filter((value, index, self) => self.indexOf(value) === index)
-    .sort();
 </script>
 
 <svelte:head>
@@ -25,7 +21,7 @@
       </tr>
     </thead>
     <tbody>
-      {#each uniqueApiNames as apiName}
+      {#each data.accessPolicies as apiName}
         <tr>
           <td class="font-medium">{apiName}</td>
           <td class="text-right"

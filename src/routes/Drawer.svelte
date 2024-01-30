@@ -1,8 +1,8 @@
 <script lang="ts">
   import { page } from "$app/stores";
+  import { isAuthorized } from "$lib/utils/authorization";
   import DsekLogo from "./DsekLogo.svelte";
   import { routes } from "./routes";
-  $: accessPolicies = $page.data.accessPolicies;
 
   let checked = false;
   function close() {
@@ -16,7 +16,7 @@
   ></label>
   <ul class="menu min-h-full min-w-60 bg-base-200 pr-6 font-semibold">
     {#each routes as route (route.title)}
-      {#if !route.accessRequired || accessPolicies.includes(route.accessRequired)}
+      {#if !route.accessRequired || isAuthorized(route.accessRequired, $page.data.user)}
         {#if route?.children?.length}
           <li class="py-1">
             <details open>
@@ -30,7 +30,7 @@
               </summary>
               <ul>
                 {#each route.children as child (child.title)}
-                  {#if !child.accessRequired || accessPolicies.includes(child.accessRequired)}
+                  {#if !child.accessRequired || isAuthorized(child.accessRequired, $page.data.user)}
                     <li class="py-1">
                       <a
                         on:click={close}

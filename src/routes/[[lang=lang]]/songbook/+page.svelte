@@ -3,6 +3,7 @@
   import Pagination from "$lib/components/Pagination.svelte";
   import SearchBar from "$lib/components/SearchBar.svelte";
   import apiNames from "$lib/utils/apiNames";
+  import { isAuthorized } from "$lib/utils/authorization";
   import Disclaimer from "./Disclaimer.svelte";
   import SongElement from "./SongElement.svelte";
 
@@ -17,7 +18,7 @@
 
 <div class="flex flex-row">
   <PageHeader title="Sjungbok" />
-  {#if data.accessPolicies.includes(apiNames.SONG.CREATE)}
+  {#if isAuthorized(apiNames.SONG.CREATE, data.user)}
     <div class="ml-auto">
       <a href="/songbook/create">
         <button class="btn">Skapa ny sång</button>
@@ -32,7 +33,7 @@
 <Disclaimer />
 
 <form method="GET" bind:this={form} data-sveltekit-keepfocus>
-  {#if data.accessPolicies.includes(apiNames.SONG.DELETE)}
+  {#if isAuthorized(apiNames.SONG.DELETE, data.user)}
     <div class="my-4 flex items-center justify-end gap-2">
       <input
         class="checkbox"
@@ -73,7 +74,7 @@
 {#each data.songs as song}
   <div class="rounded-lg hover:ring-2 hover:ring-primary">
     <a href={`/songbook/${song.slug}`}>
-      <SongElement {song} accessPolicies={data.accessPolicies} />
+      <SongElement {song} />
     </a>
   </div>
 {/each}

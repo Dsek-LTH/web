@@ -1,5 +1,4 @@
 import { error } from "@sveltejs/kit";
-import prisma from "$lib/utils/prisma";
 import DOMPurify from "isomorphic-dompurify";
 import { fixSongText } from "../helpers";
 import { updateSongSchema } from "../schema";
@@ -11,8 +10,9 @@ import {
 } from "../helpers";
 import type { LayoutServerLoad } from "./$types";
 
-export const load: LayoutServerLoad = async ({ params, parent }) => {
-  const { accessPolicies } = await parent();
+export const load: LayoutServerLoad = async ({ locals, params }) => {
+  const { prisma, user } = locals;
+  const accessPolicies = user?.policies ?? [];
   const song = await prisma.song.findUnique({
     where: {
       slug: params.slug,
@@ -28,10 +28,15 @@ export const load: LayoutServerLoad = async ({ params, parent }) => {
 
   const [existingCategories, existingMelodies] = await Promise.all([
     getExistingCategories(
+      prisma,
       accessPolicies,
       canAccessDeletedSongs(accessPolicies),
     ),
-    getExistingMelodies(accessPolicies, canAccessDeletedSongs(accessPolicies)),
+    getExistingMelodies(
+      prisma,
+      accessPolicies,
+      canAccessDeletedSongs(accessPolicies),
+    ),
   ]);
 
   const form = await superValidate(song, updateSongSchema);

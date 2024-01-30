@@ -1,4 +1,3 @@
-import prisma from "$lib/utils/prisma";
 import { fixSongText } from "./helpers";
 import type { PageServerLoad } from "./$types";
 import type { Prisma } from "@prisma/client";
@@ -7,11 +6,12 @@ import { canAccessDeletedSongs, getExistingCategories } from "./helpers";
 
 const SONGS_PER_PAGE = 10;
 
-export const load: PageServerLoad = async ({ url, parent }) => {
-  const { accessPolicies } = await parent();
+export const load: PageServerLoad = async ({ locals, url }) => {
+  const { prisma, user } = locals;
   const page = url.searchParams.get("page");
   const search = url.searchParams.get("search");
   const categories = url.searchParams.getAll("category");
+  const accessPolicies = user?.policies ?? [];
   const showDeleted =
     canAccessDeletedSongs(accessPolicies) &&
     url.searchParams.get("show-deleted") === "true";
@@ -84,7 +84,7 @@ export const load: PageServerLoad = async ({ url, parent }) => {
       where,
     }),
     prisma.song.count({ where }),
-    getExistingCategories(accessPolicies, showDeleted),
+    getExistingCategories(prisma, accessPolicies, showDeleted),
   ]);
 
   const categoryMap: { [key: string]: string } = {};

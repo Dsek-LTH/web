@@ -1,5 +1,5 @@
 import { getCustomAuthorOptions } from "$lib/utils/member";
-import prisma from "$lib/utils/prisma";
+import translated from "$lib/utils/translated";
 import type {
   Author,
   CustomAuthor,
@@ -7,6 +7,7 @@ import type {
   Member,
   Position,
   Prisma,
+  PrismaClient,
 } from "@prisma/client";
 
 type ArticleFilters = {
@@ -38,10 +39,11 @@ const include = {
 };
 
 export const getAllArticles = async (
+  prisma: PrismaClient,
   filters: ArticleFilters = { page: 0, pageSize: 10 },
 ): Promise<[Article[], number]> => {
-  filters.page = filters.page ?? 0;
-  filters.pageSize = filters.pageSize ?? 10;
+  const pageNumber = filters.page ?? 0;
+  const pageSize = filters.pageSize ?? 10;
 
   const where: Prisma.ArticleWhereInput = {
     publishedAt: {
@@ -104,22 +106,25 @@ export const getAllArticles = async (
         }
       : {}),
   };
-  const [articles, count] = await prisma.$transaction([
-    prisma.article.findMany({
-      where,
-      orderBy: {
-        publishedAt: "desc",
-      },
-      skip: filters.page * filters.pageSize,
-      take: filters.pageSize,
-      include,
-    }),
-    prisma.article.count({ where }),
-  ]);
-  return [articles, Math.ceil(count / filters.pageSize)];
+  const [articles, count] = await prisma.$transaction(async (tx) => {
+    const articles = tx.article
+      .findMany({
+        where,
+        orderBy: {
+          publishedAt: "desc",
+        },
+        skip: pageNumber * pageSize,
+        take: pageSize,
+        include,
+      })
+      .then(translated);
+    const count = tx.article.count({ where });
+    return [await articles, await count];
+  });
+  return [articles, Math.ceil(count / pageSize)];
 };
 
-export const getArticle = async (slug: string) => {
+export const getArticle = async (prisma: PrismaClient, slug: string) => {
   const response = await prisma.article.findUnique({
     where: {
       slug,
@@ -131,7 +136,7 @@ export const getArticle = async (slug: string) => {
     },
     include,
   });
-  return response;
+  return response ? translated(response) : response;
 };
 
 type Article = NonNullable<Awaited<ReturnType<typeof getArticle>>>;
@@ -147,6 +152,7 @@ export type AuthorOption = Author & {
 };
 
 export const getArticleAuthorOptions = async (
+  prisma: PrismaClient,
   memberWithMandates: Prisma.MemberGetPayload<{
     include: {
       mandates: {
@@ -158,7 +164,7 @@ export const getArticleAuthorOptions = async (
   }>,
 ) => {
   const memberId = memberWithMandates.id;
-  const customAuthorOptions = await getCustomAuthorOptions(memberId);
+  const customAuthorOptions = await getCustomAuthorOptions(prisma, memberId);
   const authorOptions: AuthorOption[] = [
     {
       id: "0",

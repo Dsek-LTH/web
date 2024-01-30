@@ -1,7 +1,5 @@
 import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
 import { fileHandler } from "$lib/files";
-import { withAccess } from "$lib/utils/access";
-import apiNames from "$lib/utils/apiNames";
 import { fail } from "@sveltejs/kit";
 import { message, setError, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
@@ -18,11 +16,11 @@ const prepareNameForFilesystem = (name: string, fileName: string) =>
   name.replace(/\s/g, "_").replace(/[^a-zA-Z0-9_]/g, "") + // replaces spaces with "_" and removes all special characters
   getExtensionOfFile(fileName);
 
-export const load: PageServerLoad = async ({ parent, url }) => {
-  const { session } = await parent();
+export const load: PageServerLoad = async ({ locals, url }) => {
+  const { user } = locals;
   const year = url.searchParams.get("year") ?? CURRENT_YEAR;
   const files = await fileHandler.getInBucket(
-    session?.user,
+    user,
     PUBLIC_BUCKETS_DOCUMENTS,
     `${year}/`,
     false,
@@ -49,53 +47,46 @@ export type UploadSchema = typeof uploadSchema;
 
 export const actions: Actions = {
   default: async ({ request, locals }) => {
+    const { user } = locals;
     const formData = await request.formData();
     const form = await superValidate(formData, uploadSchema);
     if (!form.valid) return fail(400, { form });
-    const session = await locals.getSession();
-    return withAccess(
-      apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).CREATE,
-      session?.user,
-      async () => {
-        const { folder, name, year, type } = form.data;
-        const file = formData.get("file");
-        if (!file || !(file instanceof File) || file.size <= 0) {
-          return setError(form, "file", "Felaktig fil");
-        }
+    const { folder, name, year, type } = form.data;
+    const file = formData.get("file");
+    if (!file || !(file instanceof File) || file.size <= 0) {
+      return setError(form, "file", "Felaktig fil");
+    }
 
-        const formattedName = prepareNameForFilesystem(name, file.name);
-        const folderPath = `${type}/${year}/${folder}`;
-        // await prisma.meeting.upsert({
-        //   where: { url: folderPath },
-        //   update: {},
-        //   create: { title: meeting, date, url: folderPath },
-        // });
+    const formattedName = prepareNameForFilesystem(name, file.name);
+    const folderPath = `${type}/${year}/${folder}`;
+    // await prisma.meeting.upsert({
+    //   where: { url: folderPath },
+    //   update: {},
+    //   create: { title: meeting, date, url: folderPath },
+    // });
 
-        const filePath = `${folderPath}/${formattedName}`;
-        const putUrl = await fileHandler.getPresignedPutUrl(
-          session?.user,
-          PUBLIC_BUCKETS_DOCUMENTS,
-          filePath,
-        );
-        const res = await fetch(putUrl, {
-          method: "PUT",
-          body: file,
-        });
-        if (!res.ok)
-          return message(
-            form,
-            {
-              message: `Kunde inte ladda upp fil: ${res.statusText}`,
-              type: "error",
-            },
-            { status: 500 },
-          );
-        return message(form, {
-          message: "Fil uppladdad",
-          type: "success",
-        });
-      },
-      form,
+    const filePath = `${folderPath}/${formattedName}`;
+    const putUrl = await fileHandler.getPresignedPutUrl(
+      user,
+      PUBLIC_BUCKETS_DOCUMENTS,
+      filePath,
     );
+    const res = await fetch(putUrl, {
+      method: "PUT",
+      body: file,
+    });
+    if (!res.ok)
+      return message(
+        form,
+        {
+          message: `Kunde inte ladda upp fil: ${res.statusText}`,
+          type: "error",
+        },
+        { status: 500 },
+      );
+    return message(form, {
+      message: "Fil uppladdad",
+      type: "success",
+    });
   },
 };

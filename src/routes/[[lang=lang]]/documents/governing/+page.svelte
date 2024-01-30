@@ -1,5 +1,6 @@
 <script lang="ts">
   import apiNames from "$lib/utils/apiNames";
+  import { isAuthorized } from "$lib/utils/authorization";
   import DeleteFileForm from "../DeleteFileForm.svelte";
   import File from "../File.svelte";
   import type { PageData } from "./$types";
@@ -16,8 +17,8 @@
 >
   <h1 class="my-3 text-2xl font-bold">Styrdokument</h1>
   <div>
-    {#if data.accessPolicies.includes(apiNames.GOVERNING_DOCUMENT.DELETE)}
-      {#if data.accessPolicies.includes(apiNames.GOVERNING_DOCUMENT.CREATE)}
+    {#if isAuthorized(apiNames.GOVERNING_DOCUMENT.DELETE, data.user)}
+      {#if isAuthorized(apiNames.GOVERNING_DOCUMENT.CREATE, data.user)}
         <a class="btn btn-primary btn-sm" href="/documents/governing/new">
           + Skapa ny
         </a>
@@ -62,14 +63,14 @@
         {#each data.policies as policy}
           <div class="flex items-center gap-1">
             <File name={policy.title} url={policy.url} host />
-            {#if data.accessPolicies.includes(apiNames.GOVERNING_DOCUMENT.DELETE) && isEditing}
+            {#if isAuthorized(apiNames.GOVERNING_DOCUMENT.DELETE, data.user) && isEditing}
               <DeleteFileForm
                 fileId={policy.id}
                 fileName={policy.title}
                 data={data.deleteForm}
               />
             {/if}
-            {#if data.accessPolicies.includes(apiNames.GOVERNING_DOCUMENT.UPDATE) && isEditing}
+            {#if isAuthorized(apiNames.GOVERNING_DOCUMENT.UPDATE, data.user) && isEditing}
               <a
                 class="pointer-events-auto"
                 href={`/documents/governing/${policy.id}/edit`}
@@ -87,14 +88,14 @@
         {#each data.guidelines as guideline}
           <div class="flex items-center gap-1">
             <File name={guideline.title} url={guideline.url} host />
-            {#if data.accessPolicies.includes(apiNames.GOVERNING_DOCUMENT.DELETE) && isEditing}
+            {#if isAuthorized(apiNames.GOVERNING_DOCUMENT.DELETE, data.user) && isEditing}
               <DeleteFileForm
                 fileId={guideline.id}
                 fileName={guideline.title}
                 data={data.deleteForm}
               />
             {/if}
-            {#if data.accessPolicies.includes(apiNames.GOVERNING_DOCUMENT.UPDATE) && isEditing}
+            {#if isAuthorized(apiNames.GOVERNING_DOCUMENT.UPDATE, data.user) && isEditing}
               <a
                 class="pointer-events-auto"
                 href={`/documents/governing/${guideline.id}/edit`}

@@ -1,5 +1,3 @@
-import { hasAccess } from "$lib/utils/access";
-import apiNames from "$lib/utils/apiNames";
 import { getAllTaggedMembers } from "$lib/utils/commentTagging";
 import {
   commentAction,
@@ -12,22 +10,18 @@ import { superValidate } from "sveltekit-superforms/server";
 import { getEvent } from "../events";
 import type { Actions, PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async ({ params, parent }) => {
-  const event = await getEvent(params.slug);
+export const load: PageServerLoad = async ({ locals, params }) => {
+  const { prisma } = locals;
+  const event = await getEvent(prisma, params.slug);
   if (event == undefined) {
     throw error(404, {
       message: "Not found",
     });
   }
-  const allTaggedMembers = await getAllTaggedMembers(event.comments);
-  const { session } = await parent();
-  const canEdit = await hasAccess(apiNames.EVENT.UPDATE, session?.user, {
-    studentId: event.author.studentId,
-  });
+  const allTaggedMembers = await getAllTaggedMembers(prisma, event.comments);
   return {
     event,
     allTaggedMembers,
-    canEdit,
     commentForm: await superValidate(commentSchema),
     removeCommentForm: await superValidate(removeCommentSchema),
   };
