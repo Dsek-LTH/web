@@ -6,7 +6,6 @@ import {
   KEYCLOAK_ENABLED,
 } from "$env/static/private";
 import prisma from "$lib/utils/prisma";
-import type GroupRepresentation from "@keycloak/keycloak-admin-client/lib/defs/groupRepresentation";
 
 const enabled = KEYCLOAK_ENABLED === "true";
 
