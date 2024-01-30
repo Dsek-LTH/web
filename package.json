@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "prepare": "husky install && svelte-kit sync && prisma generate && pnpm paraglide",
+    "prepare": "husky install && svelte-kit sync && zenstack generate && prisma generate && pnpm paraglide",
     "setup-dev": "vite-node dev/setup.ts",
     "ci-check": "concurrently 'pnpm:lint' 'pnpm:format' 'pnpm:test' 'pnpm:check' --prefix-colors 'auto' --group",
     "dev": "vite dev",
