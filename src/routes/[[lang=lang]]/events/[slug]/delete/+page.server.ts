@@ -12,10 +12,11 @@ export const actions: Actions = {
   default: async (event) => {
     const { request, locals, params } = event;
     const form = await superValidate(request, eventSchema);
+    console.log("here");
     if (!form.valid) return fail(400, { form });
     const session = await locals.getSession();
     return withAccess(
-      apiNames.EVENT.UPDATE,
+      apiNames.EVENT.DELETE,
       session?.user,
       async () => {
         const existingEvent = await prisma.event.findUnique({
@@ -31,9 +32,12 @@ export const actions: Actions = {
         if (!existingEvent) {
           throw error(404, "Event not found");
         }
-        await prisma.event.delete({
+        await prisma.event.update({
           where: {
             id: existingEvent.id,
+          },
+          data: {
+            removedAt: new Date(),
           },
         });
 
