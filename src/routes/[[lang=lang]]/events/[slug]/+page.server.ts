@@ -24,10 +24,14 @@ export const load: PageServerLoad = async ({ params, parent }) => {
   const canEdit = await hasAccess(apiNames.EVENT.UPDATE, session?.user, {
     studentId: event.author.studentId,
   });
+  const canDelete = await hasAccess(apiNames.EVENT.DELETE, session?.user, {
+    studentId: event.author.studentId,
+  });
   return {
     event,
     allTaggedMembers,
     canEdit,
+    canDelete,
     commentForm: await superValidate(commentSchema),
     removeCommentForm: await superValidate(removeCommentSchema),
   };
