@@ -6,10 +6,15 @@ import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 
-export type DocumentType = "board-meeting" | "guild-meeting" | "other";
+export type DocumentType =
+  | "board-meeting"
+  | "guild-meeting"
+  | "SRD-meeting"
+  | "other";
 const prefixByType: Record<DocumentType, string> = {
   "board-meeting": "S",
   "guild-meeting": "",
+  "SRD-meeting": "Möte ",
   other: "",
 };
 export const load: PageServerLoad = async ({ locals, url }) => {
@@ -23,6 +28,12 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     year + "/" + (prefixByType[type] ?? ""),
     true,
   );
+  const srdFiles = await fileHandler.getInBucket(
+    user,
+    PUBLIC_BUCKETS_DOCUMENTS,
+    "srd/" + year,
+    true,
+  );
   if (!files) throw error(404, "No files found");
   let filteredFiles = files;
   switch (type) {
@@ -33,6 +44,11 @@ export const load: PageServerLoad = async ({ locals, url }) => {
         return meeting.startsWith("HTM") || meeting.startsWith("VTM");
       });
       break;
+
+    case "SRD-meeting":
+      filteredFiles = srdFiles;
+      break;
+
     case "other":
       filteredFiles = files.filter((file) => {
         const fileParts = file.id.split("/");
@@ -49,6 +65,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   const filesGroupedByMeeting = filteredFiles.reduce<
     Record<string, FileData[]>
   >((acc, file) => {
+    console.log(file);
     const fileParts = file.id.split("/");
     const meeting = fileParts[fileParts.length - 2] ?? "unknown";
     if (!acc[meeting]) acc[meeting] = [];
