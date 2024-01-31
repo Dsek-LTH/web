@@ -8,50 +8,47 @@ import { articleSchema } from "../../schema";
 import type { Actions, PageServerLoad } from "./$types";
 import { redirect } from "sveltekit-flash-message/server";
 import { authorize } from "$lib/utils/authorization";
-import translated from "$lib/utils/translated";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
   authorize(apiNames.NEWS.UPDATE, user);
 
-  const allTags = await prisma.tag.findMany().then(translated);
-  const article = await prisma.article
-    .findUnique({
-      where: {
-        slug: params.slug,
-      },
-      include: {
-        author: {
-          include: {
-            member: {
-              include: {
-                mandates: {
-                  where: {
-                    startDate: {
-                      lte: new Date(),
-                    },
-                    endDate: {
-                      gte: new Date(),
-                    },
+  const allTags = await prisma.tag.findMany();
+  const article = await prisma.article.findUnique({
+    where: {
+      slug: params.slug,
+    },
+    include: {
+      author: {
+        include: {
+          member: {
+            include: {
+              mandates: {
+                where: {
+                  startDate: {
+                    lte: new Date(),
                   },
-                  include: {
-                    position: true,
+                  endDate: {
+                    gte: new Date(),
                   },
+                },
+                include: {
+                  position: true,
                 },
               },
             },
-            mandate: {
-              include: {
-                position: true,
-              },
-            },
-            customAuthor: true,
           },
+          mandate: {
+            include: {
+              position: true,
+            },
+          },
+          customAuthor: true,
         },
-        tags: true,
       },
-    })
-    .then(translated);
+      tags: true,
+    },
+  });
   if (article?.author.id !== undefined) article.author.id = "";
   if (!article) throw error(404, "Article not found");
 
