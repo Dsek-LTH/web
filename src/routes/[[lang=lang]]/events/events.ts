@@ -1,4 +1,3 @@
-import translated from "$lib/utils/translated";
 import type { Prisma, PrismaClient } from "@prisma/client";
 
 type EventFilters = {
@@ -105,17 +104,15 @@ export const getAllEvents = async (
       : {}),
   };
   const [events, count] = await prisma.$transaction(async (tx) => {
-    const events = tx.event
-      .findMany({
-        where,
-        orderBy: {
-          startDatetime: filters.pastEvents ? "desc" : "asc",
-        },
-        skip: pageNumber * pageSize,
-        take: pageSize,
-        include,
-      })
-      .then(translated);
+    const events = tx.event.findMany({
+      where,
+      orderBy: {
+        startDatetime: filters.pastEvents ? "desc" : "asc",
+      },
+      skip: pageNumber * pageSize,
+      take: pageSize,
+      include,
+    });
     const count = tx.event.count({ where });
     return [await events, await count];
   });
@@ -123,15 +120,13 @@ export const getAllEvents = async (
 };
 
 export const getEvent = async (prisma: PrismaClient, slug: string) => {
-  const response = await prisma.event
-    .findUnique({
-      where: {
-        slug,
-        OR: [{ removedAt: { gt: new Date() } }, { removedAt: null }],
-      },
-      include,
-    })
-    .then(translated);
+  const response = await prisma.event.findUnique({
+    where: {
+      slug,
+      OR: [{ removedAt: { gt: new Date() } }, { removedAt: null }],
+    },
+    include,
+  });
   return response;
 };
 

@@ -2,56 +2,51 @@ import { memberSchema } from "$lib/zod/schemas";
 import { error, fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
 import type { Actions, PageServerLoad } from "./$types";
-import translated from "$lib/utils/translated";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma } = locals;
   const [memberResult, publishedArticlesResult] = await Promise.allSettled([
-    prisma.member
-      .findUnique({
-        where: {
-          studentId: params.studentId,
-        },
-        include: {
-          mandates: {
-            include: {
-              position: {
-                include: {
-                  committee: {
-                    select: {
-                      name: true,
-                      imageUrl: true,
-                    },
+    prisma.member.findUnique({
+      where: {
+        studentId: params.studentId,
+      },
+      include: {
+        mandates: {
+          include: {
+            position: {
+              include: {
+                committee: {
+                  select: {
+                    name: true,
+                    imageUrl: true,
                   },
                 },
               },
             },
           },
-          authoredEvents: {
-            orderBy: {
-              startDatetime: "desc",
-            },
-            take: 5,
+        },
+        authoredEvents: {
+          orderBy: {
+            startDatetime: "desc",
+          },
+          take: 5,
+        },
+      },
+    }),
+    prisma.article.findMany({
+      where: {
+        author: {
+          member: {
+            studentId: params.studentId,
           },
         },
-      })
-      .then(translated),
-    prisma.article
-      .findMany({
-        where: {
-          author: {
-            member: {
-              studentId: params.studentId,
-            },
-          },
-          removedAt: null,
-        },
-        orderBy: {
-          publishedAt: "desc",
-        },
-        take: 5,
-      })
-      .then(translated),
+        removedAt: null,
+      },
+      orderBy: {
+        publishedAt: "desc",
+      },
+      take: 5,
+    }),
   ]);
   if (memberResult.status === "rejected") {
     throw error(500, "Could not fetch member");
