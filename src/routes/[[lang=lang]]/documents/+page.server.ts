@@ -22,18 +22,19 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   const year = url.searchParams.get("year") || new Date().getFullYear();
   const type: DocumentType =
     (url.searchParams.get("type") as DocumentType) || "board-meeting";
-  const files = await fileHandler.getInBucket(
-    user,
-    PUBLIC_BUCKETS_DOCUMENTS,
-    year + "/" + (prefixByType[type] ?? ""),
-    true,
-  );
-  const srdFiles = await fileHandler.getInBucket(
-    user,
-    PUBLIC_BUCKETS_DOCUMENTS,
-    "srd/" + year,
-    true,
-  );
+  const files = await Promise.all([
+      ...await fileHandler.getInBucket(
+        user,
+        PUBLIC_BUCKETS_DOCUMENTS,
+          year + "/" + (prefixByType[type] ?? ""),
+          true,
+  ),  ...await fileHandler.getInBucket(
+        user,
+        PUBLIC_BUCKETS_DOCUMENTS,
+        "meeting/" + year + "/" + (prefixByType[type] ?? ""),
+        true,
+    )]);
+
   if (!files) throw error(404, "No files found");
   let filteredFiles = files;
   switch (type) {
@@ -46,7 +47,12 @@ export const load: PageServerLoad = async ({ locals, url }) => {
       break;
 
     case "SRD-meeting":
-      filteredFiles = srdFiles;
+      filteredFiles = await fileHandler.getInBucket(
+          user,
+          PUBLIC_BUCKETS_DOCUMENTS,
+          "srd/" + year,
+          true,
+      );
       break;
 
     case "other":
