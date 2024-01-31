@@ -65,7 +65,6 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   const filesGroupedByMeeting = filteredFiles.reduce<
     Record<string, FileData[]>
   >((acc, file) => {
-    console.log(file);
     const fileParts = file.id.split("/");
     const meeting = fileParts[fileParts.length - 2] ?? "unknown";
     if (!acc[meeting]) acc[meeting] = [];
