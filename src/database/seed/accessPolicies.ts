@@ -7,6 +7,7 @@ export const insertAccessPolicies = async (prisma: PrismaClient) => {
     eventCommenteDelete(prisma),
     yrkaSend(prisma),
     song(prisma),
+    emailAlias(prisma),
   ]);
 };
 
@@ -87,5 +88,14 @@ const song = async (prisma: PrismaClient) => {
       "dsek.infu.mastare",
       "dsek.infu.arkivarie",
     ]),
+  ]);
+};
+
+const emailAlias = async (prisma: PrismaClient) => {
+  await Promise.all([
+    insertPolicies(prisma, apiNames.EMAIL_ALIAS.CREATE, ["dsek.infu.dwww"]),
+    insertPolicies(prisma, apiNames.EMAIL_ALIAS.READ, ["dsek.infu.dwww"]),
+    insertPolicies(prisma, apiNames.EMAIL_ALIAS.UPDATE, ["dsek.infu.dwww"]),
+    insertPolicies(prisma, apiNames.EMAIL_ALIAS.DELETE, ["dsek.infu.dwww"]),
   ]);
 };
