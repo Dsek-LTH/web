@@ -1,4 +1,4 @@
-import { setError, superValidate } from "sveltekit-superforms/server";
+import { message, setError, superValidate } from "sveltekit-superforms/server";
 import type { PageServerLoad } from "./$types";
 import {
   createEmailPositionSchema,
@@ -97,14 +97,10 @@ export const actions: Actions = {
         },
       },
     });
-    throw redirect(
-      "/admin/mail-alias",
-      {
-        message: "E-postadressen skapad",
-        type: "success",
-      },
-      event,
-    );
+    return message(form, {
+      message: "E-postadressen skapad",
+      type: "success",
+    });
   },
   createEmailSpecialSender: async (event) => {
     const { user, prisma } = event.locals;
@@ -129,7 +125,7 @@ export const actions: Actions = {
     }
     // TODO: Create special sender
     throw redirect(
-      "/admin/mail-alias",
+      "/admin/email-alias",
       {
         message: "E-postadressen skapad",
         type: "success",
@@ -160,7 +156,7 @@ export const actions: Actions = {
     }
     // TODO: Create special receiver
     throw redirect(
-      "/admin/mail-alias",
+      "/admin/email-alias",
       {
         message: "E-postadressen skapad",
         type: "success",
