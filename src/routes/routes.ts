@@ -94,10 +94,10 @@ export const routes = [
         accessRequired: apiNames.DOOR.READ,
       },
       {
-        title: "Mail-alias",
-        path: "/admin/mail-alias",
+        title: "Email-alias",
+        path: "/admin/email-alias",
         icon: "i-mdi-email",
-        accessRequired: apiNames.MAIL_ALIAS.READ,
+        accessRequired: apiNames.EMAIL_ALIAS.READ,
       },
     ],
   },
