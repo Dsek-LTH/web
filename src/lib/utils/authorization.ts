@@ -16,7 +16,18 @@ export const isAuthorized = (apiName: string, user?: AuthUser): boolean => {
  * Authorize a user to perform an action.
  * @throws {HttpError} If the user is not authorized.
  */
-export const authorize = (apiName: string, user?: AuthUser) => {
+export const authorize = (apiName: string | string[], user?: AuthUser) => {
+  if (Array.isArray(apiName)) {
+    for (const name of apiName) {
+      if (!isAuthorized(name, user)) {
+        throw error(
+          403,
+          `You do not have permission, have you logged in? Required policy: ${name}`,
+        );
+      }
+    }
+    return;
+  }
   if (!isAuthorized(apiName, user)) {
     throw error(
       403,
