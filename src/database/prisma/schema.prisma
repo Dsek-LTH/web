@@ -318,10 +318,10 @@ model Door {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model EmailAlias {
     id String @id(map: "mail_aliases_pkey") @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-    positionId String? @map("position_id") @db.VarChar(255)
-    email String? @db.VarChar(255)
-    canSend Boolean? @default(false) @map("can_send")
-    position Position? @relation(fields: [positionId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "email_aliases_position_id_foreign")
+    positionId String @map("position_id") @db.VarChar(255)
+    email String @db.VarChar(255)
+    canSend Boolean @default(false) @map("can_send")
+    position Position @relation(fields: [positionId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "email_aliases_position_id_foreign")
 
     @@map("email_aliases")
 }
@@ -402,8 +402,8 @@ model ExpoToken {
 
 /// @@allow('create', has(auth().policies, 'governing_document:write'))
 /// @@allow('read', has(auth().policies, 'governing_document:read'))
+/// @@deny('read', deletedAt != null)
 /// @@allow('update', has(auth().policies, 'governing_document:write'))
-/// @@allow('delete', has(auth().policies, 'governing_document:write'))
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model Document {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
@@ -610,6 +610,7 @@ model Position {
     @@map("positions")
 }
 
+/// @@deny('read', deletedAt != null)
 model Product {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
     name String @db.VarChar(255)
@@ -629,6 +630,7 @@ model Product {
     @@map("product")
 }
 
+/// @@deny('read', deletedAt != null)
 model ProductCategory {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
     name String @db.VarChar(255)
@@ -642,6 +644,7 @@ model ProductCategory {
     @@map("product_category")
 }
 
+/// @@deny('read', deletedAt != null)
 model ProductDiscount {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
     name String @db.VarChar(255)
@@ -655,6 +658,7 @@ model ProductDiscount {
     @@map("product_discount")
 }
 
+/// @@deny('read', deletedAt != null)
 model ProductInventory {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
     productId String @map("product_id") @db.Uuid()
@@ -675,8 +679,8 @@ model ProductInventory {
 
 /// @@allow('create', has(auth().policies, 'songs:create'))
 /// @@allow('read', has(auth().policies, 'songs:read'))
+/// @@deny('read', deletedAt != null)
 /// @@allow('update', has(auth().policies, 'songs:update'))
-/// @@allow('delete', has(auth().policies, 'songs:delete'))
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Songs{
 model Song {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
@@ -748,6 +752,7 @@ model Tag {
     @@map("tags")
 }
 
+/// @@deny('read', deletedAt != null)
 model UserInventory {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
     studentId String @unique(map: "user_inventory_student_id_unique") @map("student_id") @db.VarChar(255)
