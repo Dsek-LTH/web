@@ -7,33 +7,35 @@ import translated from "$lib/utils/translated";
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma } = locals;
   const [memberResult, publishedArticlesResult] = await Promise.allSettled([
-    prisma.member.findUnique({
-      where: {
-        studentId: params.studentId,
-      },
-      include: {
-        mandates: {
-          include: {
-            position: {
-              include: {
-                committee: {
-                  select: {
-                    name: true,
-                    imageUrl: true,
+    prisma.member
+      .findUnique({
+        where: {
+          studentId: params.studentId,
+        },
+        include: {
+          mandates: {
+            include: {
+              position: {
+                include: {
+                  committee: {
+                    select: {
+                      name: true,
+                      imageUrl: true,
+                    },
                   },
                 },
               },
             },
           },
-        },
-        authoredEvents: {
-          orderBy: {
-            startDatetime: "desc",
+          authoredEvents: {
+            orderBy: {
+              startDatetime: "desc",
+            },
+            take: 5,
           },
-          take: 5,
         },
-      },
-    }),
+      })
+      .then(translated),
     prisma.article
       .findMany({
         where: {
