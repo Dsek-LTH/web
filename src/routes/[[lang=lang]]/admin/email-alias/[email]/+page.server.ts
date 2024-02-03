@@ -84,7 +84,7 @@ export const actions = {
       },
     });
     throw redirect(
-      "/admin/mail-alias",
+      "/admin/email-alias",
       {
         message: "Aliaset borttaget",
         type: "success",
@@ -107,7 +107,7 @@ export const actions = {
       },
     });
     throw redirect(
-      `/admin/mail-alias/${email}`,
+      `/admin/email-alias/${email}`,
       {
         message: "Aliaset uppdaterat",
         type: "success",
@@ -133,7 +133,7 @@ export const actions = {
       },
     });
     throw redirect(
-      `/admin/mail-alias/${email}`,
+      `/admin/email-alias/${email}`,
       {
         message: "Aliaset uppdaterat",
         type: "success",

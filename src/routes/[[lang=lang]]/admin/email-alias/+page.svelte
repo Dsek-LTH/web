@@ -230,7 +230,7 @@
               {/each}
             </td>
             <td class="text-right">
-              <a class="btn btn-xs px-8" href="mail-alias/{emailAlias[0]}"
+              <a class="btn btn-xs px-8" href="email-alias/{emailAlias[0]}"
                 >Ändra</a
               ></td
             >
