@@ -5,17 +5,14 @@ import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import { redirect } from "sveltekit-flash-message/server";
 import { authorize } from "$lib/utils/authorization";
-import translated from "$lib/utils/translated";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
-  const markdownPage = await prisma.markdown
-    .findUnique({
-      where: {
-        name: params.slug,
-      },
-    })
-    .then(translated);
+  const markdownPage = await prisma.markdown.findUnique({
+    where: {
+      name: params.slug,
+    },
+  });
   if (markdownPage == undefined) {
     authorize(apiNames.MARKDOWNS.CREATE, user);
   } else {
