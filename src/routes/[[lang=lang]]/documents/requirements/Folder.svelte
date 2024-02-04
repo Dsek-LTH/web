@@ -1,7 +1,5 @@
 <script lang="ts">
   import File from "../File.svelte";
-  import type { FileData } from "$lib/files/fileHandler";
-  import { displayPdf } from "$lib/utils/servePdf";
 
   type Folder = {
     name: string;
@@ -13,12 +11,6 @@
   export let name: string;
   export let folders: Folder[];
 
-  console.log("SENASTE========");
-  console.log(folders);
-  console.log(folders[0]);
-  console.log(folders[0]?.files);
-  console.log(folders[0]?.name);
-  console.log(folders[0]?.url);
   function toggle() {
     expanded = !expanded;
   }
