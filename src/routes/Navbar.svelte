@@ -77,8 +77,8 @@
   <div class="flex">
     <LanguageSwitcher />
     <DarkLightToggle />
-    <Notification />
     {#if $page.data.user && $page.data.member}
+      <Notification />
       <div class="dropdown dropdown-end dropdown-hover">
         <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
         <!-- svelte-ignore a11y-label-has-associated-control -->
