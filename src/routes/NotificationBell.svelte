@@ -1,20 +1,15 @@
 <script lang="ts">
   import Notification from "$lib/components/Notification.svelte";
 
-  let open = false;
+  // let open = false;
 
-  const handleClick = () => {
-    open = true;
-  };
+  // const handleClick = () => {
+  //   open = true;
+  // };
 </script>
 
-<div
-  class="dropdown"
-  on:focusout={() => {
-    open = false;
-  }}
->
-  <button class="btn btn-ghost *:text-2xl" on:click={handleClick}
+<div class="dropdown">
+  <button class="btn btn-ghost *:text-2xl"
     ><span class="i-mdi-bell-outline" /></button
   >
   <ul
