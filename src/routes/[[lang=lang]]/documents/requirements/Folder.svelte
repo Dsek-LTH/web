@@ -10,13 +10,15 @@
   export let expanded = true;
   export let name: string;
   export let folders: Folder[];
+  folders.sort((a,b) => a.isFolder && !b.isFolder ? 0 : 1)
+  console.log(folders)
 
   function toggle() {
     expanded = !expanded;
   }
 </script>
 
-<div class="flex" class:w-full={true} class:expanded data-tip={name}>
+<div class="flex" data-tip={name}>
   <button on:click={toggle}
     ><span class="i-mdi-folder-outline align-text-top text-xl text-primary"
     ></span>
@@ -24,11 +26,9 @@
   </button>
 </div>
 
-<div class="m-2 border-l border-white pl-5">
+<div class="m-2 border-l border-gray-400 pl-5 ">
   {#if expanded}
-    <ul>
       {#each folders as folder}
-        <li>
           {#if folder.isFolder}
             <svelte:self
               name={folder.name}
@@ -38,8 +38,6 @@
           {:else}
             <File name={folder.name} url={folder.url} />
           {/if}
-        </li>
       {/each}
-    </ul>
   {/if}
 </div>

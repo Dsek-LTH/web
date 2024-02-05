@@ -15,7 +15,6 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     "requirement/" + year,
     true,
   );
-  console.log(files);
   const filesGroupedByFolder = files.reduce<Record<string, FileData[]>>(
     (acc, file) => {
       const fileParts = file.id.split("/");
