@@ -1,7 +1,15 @@
 <script lang="ts">
+  import type { SuperValidated } from "sveltekit-superforms";
+  import DeleteFileForm from "../DeleteFileForm.svelte";
   import File from "../File.svelte";
+  import type { DeleteSchema } from "./+page.server";
+  import { isAuthorized } from "$lib/utils/authorization";
+  import apiNames from "$lib/utils/apiNames";
+  import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
+  import { page } from "$app/stores";
 
   type Folder = {
+    id: string;
     name: string;
     isFolder: boolean;
     url: string;
@@ -10,8 +18,10 @@
   export let expanded = true;
   export let name: string;
   export let folders: Folder[];
-  folders.sort((a,b) => a.isFolder && !b.isFolder ? 0 : 1)
-  console.log(folders)
+  export let isEditing: boolean = false;
+  export let deleteForm: SuperValidated<DeleteSchema>;
+  folders.sort((a, b) => (a.isFolder && !b.isFolder ? 0 : 1));
+  console.log(isEditing);
 
   function toggle() {
     expanded = !expanded;
@@ -26,18 +36,27 @@
   </button>
 </div>
 
-<div class="m-2 border-l border-gray-400 pl-5 ">
+<div class="m-2 border-l border-gray-400 pl-5">
   {#if expanded}
-      {#each folders as folder}
-          {#if folder.isFolder}
-            <svelte:self
-              name={folder.name}
-              folders={folder.files}
-              expanded={false}
+    {#each folders as folder}
+      {#if folder.isFolder}
+        <svelte:self
+          name={folder.name}
+          folders={folder.files}
+          expanded={false}
+        />
+      {:else}
+        <div class="flex flex-row gap-1">
+          <File name={folder.name} url={folder.url} />
+          {#if isAuthorized(apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).DELETE, $page.data.user) && isEditing}
+            <DeleteFileForm
+              fileId={folder.id}
+              fileName={folder.name}
+              data={deleteForm}
             />
-          {:else}
-            <File name={folder.name} url={folder.url} />
           {/if}
-      {/each}
+        </div>
+      {/if}
+    {/each}
   {/if}
 </div>

@@ -2,10 +2,14 @@
   import type { PageData } from "./$types";
   import Folder from "./Folder.svelte";
   import Pagination from "$lib/components/Pagination.svelte";
+  import { isAuthorized } from "$lib/utils/authorization";
+  import apiNames from "$lib/utils/apiNames";
+  import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
 
   export let data: PageData;
 
   type Folder = {
+    id: string;
     name: string;
     isFolder: boolean;
     url: string;
@@ -34,6 +38,7 @@
         newArray = exists.files;
       } else {
         array.push({
+          id: "",
           url: "",
           name: name ? name : "undefined",
           isFolder: true,
@@ -50,6 +55,7 @@
       data.folders[pathSoFar]?.forEach((file) => {
         console.log(file);
         array.push({
+          id: file.id,
           name: file.name,
           isFolder: false,
           url: file.thumbnailUrl ? file.thumbnailUrl : "",
@@ -58,7 +64,6 @@
       });
     }
   }
-  console.log(folders);
 </script>
 
 <svelte:head>
@@ -74,8 +79,26 @@
     getPageNumber={(pageName) => currentYear - +pageName}
     fieldName="year"
   />
+
+  <div class="flex flex-col gap-1">
+    {#if isAuthorized(apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).CREATE, data.user)}
+      <a class="btn btn-primary btn-sm" href="/documents/upload"
+        >Ladda upp fil</a
+      >
+    {/if}
+    {#if isAuthorized(apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).DELETE, data.user)}
+      <button
+        class="btn btn-secondary btn-sm"
+        on:click={() => {
+          isEditing = !isEditing;
+        }}
+      >
+        {isEditing ? "Sluta redigera" : "Redigera"}
+      </button>
+    {/if}
+  </div>
 </div>
 
 <div class="flex flex-col rounded-lg bg-base-200 p-5">
-  <Folder name={""} {folders} />
+  <Folder name={""} {folders} deleteForm={data.deleteForm} {isEditing} />
 </div>
