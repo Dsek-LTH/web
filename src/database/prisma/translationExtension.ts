@@ -1,80 +1,96 @@
 import type { AvailableLanguageTag } from "$paraglide/runtime";
 import { Prisma } from "@prisma/client";
 
-type ModelFields = Partial<{
-  [Model in keyof Prisma.TypeMap["model"]]: (keyof Prisma.TypeMap["model"][Model]["fields"])[];
-}>;
+/** All database models; camelCased to match the Prisma result extension. */
+type Models = Uncapitalize<keyof Prisma.TypeMap["model"]>;
 
-const translatedModelFields = {
-  Alert: ["message", "messageEn"],
-  ArticleRequest: ["notificationBody", "notificationBodyEn"],
-  Article: ["header", "headerEn", "body", "bodyEn"],
-  BookableCategory: ["name", "nameEn"],
-  Bookable: ["name", "nameEn"],
-  Committee: ["name", "nameEn", "description", "descriptionEn"],
-  CustomAuthor: ["name", "nameEn"],
-  Event: [
-    "title",
-    "titleEn",
-    "description",
-    "descriptionEn",
-    "shortDescription",
-    "shortDescriptionEn",
-  ],
-  Markdown: ["markdown", "markdownEn"],
-  Position: ["name", "nameEn", "description", "descriptionEn"],
-  Tag: ["name", "nameEn"],
-} as const satisfies ModelFields;
+/** Takes a camelCased model name and return the fields of that model. */
+type Fields<Model extends Models> =
+  keyof Prisma.TypeMap["model"][Capitalize<Model>]["fields"];
 
+/** A map of models -> fields -> translated field. */
+type ModelFields = {
+  [Model in Models]?: {
+    [Field in Fields<Model>]?: Exclude<Fields<Model>, Field>;
+  };
+};
+
+const translatedModelFields: ModelFields = {
+  alert: {
+    message: "messageEn",
+  },
+  articleRequest: {
+    notificationBody: "notificationBodyEn",
+  },
+  article: {
+    header: "headerEn",
+    body: "bodyEn",
+  },
+  bookableCategory: {
+    name: "nameEn",
+  },
+  bookable: {
+    name: "nameEn",
+  },
+  committee: {
+    name: "nameEn",
+    description: "descriptionEn",
+  },
+  customAuthor: {
+    name: "nameEn",
+  },
+  event: {
+    title: "titleEn",
+    description: "descriptionEn",
+    shortDescription: "shortDescriptionEn",
+  },
+  markdown: {
+    markdown: "markdownEn",
+  },
+  position: {
+    name: "nameEn",
+    description: "descriptionEn",
+  },
+  tag: {
+    name: "nameEn",
+  },
+};
+
+/**
+ * This Prisma extension redirects all read operations to the translated fields.
+ * For example, if the language is English then reading from the
+ * `alert.message` field will read from the `alert.messageEn` instead.
+ */
 export default (lang: AvailableLanguageTag) =>
   Prisma.defineExtension({
     name: "translations",
-    query: {
-      $allModels: {
-        // Redirect all write operations to the translated fields
-        $allOperations({ model, args, query }) {
-          if (model in translatedModelFields && "data" in args && args.data) {
-            const fields =
-              translatedModelFields[
-                model as keyof typeof translatedModelFields
-              ];
-            const data = Object.entries(args.data)
-              .map(([key, value]) => {
-                if ((fields as string[]).includes(key) && lang === "en") {
-                  return {
-                    [`${key}En`]: value,
-                  };
-                }
-                return { [key]: value };
-              })
-              .reduce((acc, curr) => ({ ...acc, ...curr }), {});
-            args.data = data;
-          }
-          return query(args);
-        },
-      },
-    },
-    // Redirect all read operations to the translated fields
     result: Object.entries(translatedModelFields).reduce(
-      (acc, [model, fields]) => ({
-        ...acc,
-        [model.toLowerCase()]: fields
-          .filter((field) => !field.endsWith("En"))
-          .reduce(
-            (acc, field) => ({
+      (acc, [model, fieldTranslationMap]) => {
+        const modelFields = Object.keys(fieldTranslationMap);
+        return {
+          ...acc,
+          [model]: modelFields.reduce((acc, field) => {
+            const translatedField =
+              fieldTranslationMap[field as keyof typeof fieldTranslationMap];
+            return {
               ...acc,
               [field]: {
-                needs: { [field]: true, [`${field}En`]: true },
+                needs: {
+                  [field]: true,
+                  [translatedField]: true,
+                },
                 compute(data: { [x: string]: unknown }) {
-                  return lang === "en" && data[`${field}En`]
-                    ? data[`${field}En`]
+                  // If the language is English and there is translated text, return it.
+                  // Otherwise, return the original text.
+                  return lang === "en" && data[translatedField]
+                    ? data[translatedField]
                     : data[field];
                 },
               },
-            }),
-            {},
-          ),
-      }),
+            };
+          }, {}),
+        };
+      },
       {},
     ),
   });

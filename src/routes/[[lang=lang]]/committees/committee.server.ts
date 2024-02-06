@@ -5,7 +5,6 @@ import { z } from "zod";
 import { PUBLIC_BUCKETS_MATERIAL } from "$env/static/public";
 import { compareCommitteePositions } from "$lib/utils/committee-ordering/sort";
 import type { PrismaClient } from "@prisma/client";
-import translated from "$lib/utils/translated";
 
 const updateSchema = z.object({
   name: z.string().optional(),
@@ -26,40 +25,38 @@ export const committeeLoad = async (
   prisma: PrismaClient,
   shortName: string,
 ) => {
-  const committee = await prisma.committee
-    .findUnique({
-      where: {
-        shortName,
-      },
-      include: {
-        positions: {
-          where: {
-            active: true,
-          },
-          include: {
-            mandates: {
-              where: {
-                startDate: {
-                  lte: new Date(),
-                },
-                endDate: {
-                  gte: new Date(),
-                },
+  const committee = await prisma.committee.findUnique({
+    where: {
+      shortName,
+    },
+    include: {
+      positions: {
+        where: {
+          active: true,
+        },
+        include: {
+          mandates: {
+            where: {
+              startDate: {
+                lte: new Date(),
               },
-              include: {
-                member: true,
+              endDate: {
+                gte: new Date(),
               },
             },
-            emailAliases: {
-              select: {
-                email: true,
-              },
+            include: {
+              member: true,
+            },
+          },
+          emailAliases: {
+            select: {
+              email: true,
             },
           },
         },
       },
-    })
-    .then(translated);
+    },
+  });
   if (!committee) {
     throw error(404, "Committee not found");
   }
@@ -100,13 +97,11 @@ export const committeeLoad = async (
     },
   });
   const markdown = committee.shortName
-    ? await prisma.markdown
-        .findUnique({
-          where: {
-            name: shortName,
-          },
-        })
-        .then(translated)
+    ? await prisma.markdown.findUnique({
+        where: {
+          name: shortName,
+        },
+      })
     : null;
   const form = await superValidate(committee, updateSchema);
   return {
