@@ -17,19 +17,24 @@
 </svelte:head>
 
 <Event {event}>
-  <div slot="actions">
-    {#if isAuthorized(apiNames.EVENT.UPDATE, data.user)}
+  <div slot="actions" class="flex flex-row">
+    {#if data.canEdit}
       <a
-        class="text-primary hover:underline"
-        href={`/events/${event.slug}/edit`}
+        href="/events/{event.slug}/edit"
+        class="btn btn-square btn-ghost btn-md"
+        title="Redigera"
       >
-        Redigera
+        <span class="i-mdi-edit text-xl" />
       </a>
     {/if}
     {#if data.canDelete}
       <form method="POST" action="/events/{event.slug}/delete">
-        <button type="submit">
-          <span class="text-primary hover:underline">Radera</span>
+        <button
+          type="submit"
+          class="btn btn-square btn-ghost btn-md"
+          title="Radera"
+        >
+          <span class="i-mdi-delete text-xl" />
         </button>
       </form>
     {/if}
