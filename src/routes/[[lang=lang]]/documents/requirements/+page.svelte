@@ -5,10 +5,9 @@
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
   import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
-  import type { FolderType } from "./+page.server"
+  import type { FolderType } from "./+page.server";
 
   export let data: PageData;
-
 
   let isEditing: boolean = false;
 
@@ -22,7 +21,11 @@
     });
   }
 
-  function processFolder(folder: string, pathSoFar: string, array: FolderType[]) {
+  function processFolder(
+    folder: string,
+    pathSoFar: string,
+    array: FolderType[],
+  ) {
     if (pathSoFar.startsWith("/")) pathSoFar = pathSoFar.substring(1);
     const name = folder.split("/")[0];
     if (folder) {
@@ -76,8 +79,9 @@
 
   <div class="flex flex-col gap-1">
     {#if isAuthorized(apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).CREATE, data.user)}
-      <a class="btn btn-primary btn-sm" href="/documents/upload"
-        >Ladda upp fil</a
+      <a
+        class="btn btn-primary btn-sm"
+        href="/documents/upload?type=requirement">Ladda upp fil</a
       >
     {/if}
     {#if isAuthorized(apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).DELETE, data.user)}
@@ -94,5 +98,5 @@
 </div>
 
 <div class="flex flex-col rounded-lg bg-base-200 p-5">
-  <Folder name={""} folders={folders} deleteForm={data.deleteForm} isEditing={isEditing} />
+  <Folder name={""} {folders} deleteForm={data.deleteForm} {isEditing} />
 </div>

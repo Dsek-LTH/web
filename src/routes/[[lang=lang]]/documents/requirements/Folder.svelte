@@ -7,8 +7,7 @@
   import apiNames from "$lib/utils/apiNames";
   import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
   import { page } from "$app/stores";
-  import type { FolderType } from "./+page.server"
-
+  import type { FolderType } from "./+page.server";
 
   export let expanded = true;
   export let name: string;
@@ -38,8 +37,8 @@
           name={folder.name}
           folders={folder.files}
           expanded={false}
-          isEditing={isEditing}
-          deleteForm={deleteForm}
+          {isEditing}
+          {deleteForm}
         />
       {:else}
         <div class="flex flex-row gap-1">
