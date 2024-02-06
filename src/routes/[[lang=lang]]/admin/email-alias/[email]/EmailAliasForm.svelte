@@ -10,6 +10,8 @@
     id: emailAlias.id,
   });
 
+  let canSendFormHTML: HTMLFormElement;
+
   export let removePositionForm: SuperValidated<RemovePositionForm>;
   const { enhance: removePositionEnhance } = superForm(removePositionForm);
 </script>
@@ -20,6 +22,7 @@
     method="post"
     class="flex flex-row"
     use:canSendEnchance
+    bind:this={canSendFormHTML}
   >
     <div class="flex flex-row gap-6 py-4">
       <h1 class="font-medium">{emailAlias.position.name}</h1>
@@ -27,7 +30,20 @@
       <input type="hidden" name="canSend" value={emailAlias.canSend} />
       <p class="font-mono">{emailAlias.positionId}</p>
       <label for="canSend">Kan skicka?</label>
-      <button
+      <input
+        type="checkbox"
+        name="canSend"
+        id="canSend"
+        class="toggle toggle-primary"
+        on:click={async () => {
+          emailAlias.canSend = !emailAlias.canSend;
+          setTimeout(() => {
+            canSendFormHTML.requestSubmit();
+          }, 0);
+        }}
+        checked={emailAlias.canSend}
+      />
+      <!-- <button
         type="submit"
         class="btn btn-primary btn-xs"
         on:click={async () => {
@@ -35,7 +51,7 @@
         }}
       >
         {emailAlias.canSend ? "Ja" : "Nej"}
-      </button>
+      </button> -->
     </div>
   </form>
 

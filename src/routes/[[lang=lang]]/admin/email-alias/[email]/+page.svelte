@@ -51,9 +51,11 @@
         <h1 class="font-medium">{emailAlias.position.name}</h1>
         <p class="font-mono">{emailAlias.positionId}</p>
         <label for="canSend">Kan skicka? </label>
-        <p class="btn btn-primary btn-xs pointer-events-none">
-          {emailAlias.canSend ? "Ja" : "Nej"}
-        </p>
+        <input
+          type="checkbox"
+          class="toggle toggle-primary pointer-events-none"
+          checked={emailAlias.canSend}
+        />
       </div>
     {/if}
   </div>
