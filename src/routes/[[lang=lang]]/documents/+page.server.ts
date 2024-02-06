@@ -46,7 +46,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 
   if (!files) throw error(404, "No files found");
   let filteredFiles = files;
-  let oldFormatSRDFiles: FileData[] = [];
+  const oldFormatSRDFiles: FileData[] = [];
   switch (type) {
     case "guild-meeting":
       filteredFiles = files.filter((file) => {
@@ -57,15 +57,14 @@ export const load: PageServerLoad = async ({ locals, url }) => {
       break;
 
     case "SRD-meeting":
-      filteredFiles = SRDfiles.filter((file) => {
+      SRDfiles.forEach((file) => {
         const fileParts = file.id.split("/");
         const meeting = fileParts[fileParts.length - 2] ?? "unknown";
-        return meeting.startsWith("Möte");
-      });
-      oldFormatSRDFiles = SRDfiles.filter((file) => {
-        const fileParts = file.id.split("/");
-        const meeting = fileParts[fileParts.length - 2] ?? "unknown";
-        return !meeting.startsWith("Möte");
+        if (meeting.startsWith("Möte")) {
+          filteredFiles.push(file);
+        } else {
+          oldFormatSRDFiles.push(file);
+        }
       });
       break;
 
@@ -88,14 +87,13 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   >((acc, file) => {
     const fileParts = file.id.split("/");
     const fileName = fileParts[fileParts.length - 1] ?? "unknown";
-    const meeting = fileName!.substring(
+    const extensions = ["pdf", "html"];
+    const fileExtension = extensions.find((ext) => fileName.endsWith(ext));
+    const meeting = fileName.substring(
       0,
-      fileName.endsWith("pdf")
-        ? fileName.length - 3
-        : fileName.endsWith("html")
-          ? fileName.length - 4
-          : fileName.length,
+      fileName.length - (fileExtension ? fileExtension.length : 0),
     );
+
     if (!acc[meeting]) acc[meeting] = [];
     acc[meeting]!.push(file);
     return acc;
