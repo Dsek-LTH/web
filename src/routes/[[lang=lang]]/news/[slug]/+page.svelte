@@ -6,6 +6,15 @@
   import LikeButton from "../LikeButton.svelte";
   import LikersList from "../LikersList.svelte";
   import type { PageData } from "./$types";
+  import { superForm } from "sveltekit-superforms/client";
+  import type { SuperValidated } from "sveltekit-superforms";
+  import type { RemoveArticleSchema } from "../removeArticleAction";
+
+  export let articleId: string;
+  export let removeForm: SuperValidated<RemoveArticleSchema>;
+  const { enhance } = superForm(removeForm, {
+    id: articleId,
+  });
 
   export let data: PageData;
   $: article = data.article;
@@ -26,14 +35,27 @@
       type={article.author.type}
     />
 
-    <div slot="actions">
+    <div slot="actions" class="flex flex-row">
       {#if data.canEdit}
         <a
-          class="text-primary hover:underline"
           href={`/news/${article.slug}/edit`}
+          class="btn btn-square btn-ghost btn-md"
+          title="Redigera"
         >
-          Redigera
+          <span class="i-mdi-edit text-xl" />
         </a>
+      {/if}
+      {#if data.canDelete}
+        <form method="POST" action="?/removeArticle" use:enhance>
+          <input type="hidden" name="articleId" value={article.id} />
+          <button
+            type="submit"
+            class="btn btn-square btn-ghost btn-md"
+            title="Radera"
+          >
+            <span class="i-mdi-delete text-xl" />
+          </button>
+        </form>
       {/if}
     </div>
 

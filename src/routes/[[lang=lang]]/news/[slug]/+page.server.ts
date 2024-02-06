@@ -12,6 +12,10 @@ import { superValidate } from "sveltekit-superforms/server";
 import { getArticle } from "../articles";
 import { likeSchema, likesAction } from "../likes";
 import type { Actions, PageServerLoad } from "./$types";
+import {
+  removeArticleAction,
+  removeArticleSchema,
+} from "../removeArticleAction";
 
 export const load: PageServerLoad = async ({ params, parent }) => {
   const article = await getArticle(params.slug);
@@ -29,13 +33,18 @@ export const load: PageServerLoad = async ({ params, parent }) => {
       studentId: article.author.member.studentId,
     },
   );
+  const canDelete = await hasAccess(apiNames.NEWS.DELETE, session?.user, {
+    studentId: article.author.member.studentId,
+  });
   return {
     article,
     allTaggedMembers,
     canEdit,
+    canDelete,
     likeForm: await superValidate(likeSchema),
     commentForm: await superValidate(commentSchema),
     removeCommentForm: await superValidate(removeCommentSchema),
+    removeArticleForm: await superValidate(removeArticleSchema),
   };
 };
 
@@ -44,4 +53,5 @@ export const actions: Actions = {
   dislike: likesAction(false),
   comment: commentAction("NEWS"),
   removeComment: removeCommentAction("NEWS"),
+  removeArticle: removeArticleAction(),
 };

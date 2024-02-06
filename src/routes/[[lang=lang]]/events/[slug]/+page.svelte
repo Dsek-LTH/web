@@ -2,8 +2,17 @@
   import TagChip from "$lib/components/TagChip.svelte";
   import CommentSection from "$lib/components/socials/CommentSection.svelte";
   import Event from "../Event.svelte";
-
+  import type { SuperValidated } from "sveltekit-superforms";
   import type { PageData } from "./$types";
+  import type { RemoveArticleSchema } from "../../news/removeArticleAction";
+  import { superForm } from "sveltekit-superforms/client";
+
+  export let articleId: string;
+  export let removeForm: SuperValidated<RemoveArticleSchema>;
+  const { enhance } = superForm(removeForm, {
+    id: articleId,
+  });
+
   export let data: PageData;
   $: event = data.event;
 </script>
@@ -24,7 +33,8 @@
       </a>
     {/if}
     {#if data.canDelete}
-      <form method="POST" action="/events/{event.slug}/delete">
+      <form method="POST" action="?/removeEvent" use:enhance>
+        <input type="hidden" name="eventId" value={event.id} />
         <button
           type="submit"
           class="btn btn-square btn-ghost btn-md"
