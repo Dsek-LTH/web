@@ -102,7 +102,7 @@
       <h2 class="text-lg font-semibold">Add Special Sender</h2>
       <form
         class="flex flex-row items-end gap-2"
-        action="?/createSpecialSender"
+        action="?/createEmailSpecialSender"
         name="createEmailSpecialSender"
         method="POST"
         use:createEmailSpecialSenderEnhance
@@ -161,7 +161,7 @@
       <h2 class="text-lg font-semibold">Add Special Receiver</h2>
       <form
         class="flex flex-row items-end gap-2"
-        action="?/createSpecialReceiver"
+        action="?/createEmailSpecialReceiver"
         name="createEmailSpecialReceiver"
         method="POST"
         use:createEmailSpecialReceiverEnhance
