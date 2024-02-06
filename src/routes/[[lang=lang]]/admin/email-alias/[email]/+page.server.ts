@@ -1,6 +1,5 @@
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
-import translated from "$lib/utils/translated";
 import { z } from "zod";
 import type { PageServerLoad } from "./$types";
 import { message, superValidate } from "sveltekit-superforms/server";
@@ -20,29 +19,25 @@ export const load: PageServerLoad = async (event) => {
   );
   const { email } = event.params;
   const [emailAliasResult, allPositionsResult] = await Promise.allSettled([
-    prisma.emailAlias
-      .findMany({
-        where: {
-          email,
-        },
-        include: {
-          position: true,
-        },
-        orderBy: {
-          positionId: "asc",
-        },
-      })
-      .then(translated),
-    prisma.position
-      .findMany({
-        where: {
-          active: true,
-        },
-        orderBy: {
-          name: "asc",
-        },
-      })
-      .then(translated),
+    prisma.emailAlias.findMany({
+      where: {
+        email,
+      },
+      include: {
+        position: true,
+      },
+      orderBy: {
+        positionId: "asc",
+      },
+    }),
+    prisma.position.findMany({
+      where: {
+        active: true,
+      },
+      orderBy: {
+        name: "asc",
+      },
+    }),
   ]);
   if (emailAliasResult.status === "rejected") {
     throw fail(404, { message: "E-postadressen kunde inte hittas" });

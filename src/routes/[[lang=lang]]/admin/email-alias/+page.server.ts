@@ -8,7 +8,6 @@ import {
 import { fuseEmail, getEmailDomains } from "./emailutils";
 import { fail, type Actions } from "@sveltejs/kit";
 import { redirect } from "sveltekit-flash-message/server";
-import translated from "$lib/utils/translated";
 import { authorize } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
 
@@ -24,20 +23,16 @@ export const load: PageServerLoad = async (event) => {
     await superValidate(event.request, createEmailSpecialReceiverSchema),
   ]);
   const [emailAliases, positions] = await Promise.all([
-    await prisma.emailAlias
-      .findMany({
-        orderBy: {
-          email: "asc",
-        },
-      })
-      .then(translated),
-    await prisma.position
-      .findMany({
-        where: {
-          active: true,
-        },
-      })
-      .then(translated),
+    await prisma.emailAlias.findMany({
+      orderBy: {
+        email: "asc",
+      },
+    }),
+    await prisma.position.findMany({
+      where: {
+        active: true,
+      },
+    }),
   ]);
   const domains = getEmailDomains();
 
@@ -127,8 +122,8 @@ export const actions: Actions = {
     throw redirect(
       "/admin/email-alias",
       {
-        message: "E-postadressen skapad",
-        type: "success",
+        message: "Inte implementerat",
+        type: "error",
       },
       event,
     );
@@ -158,8 +153,8 @@ export const actions: Actions = {
     throw redirect(
       "/admin/email-alias",
       {
-        message: "E-postadressen skapad",
-        type: "success",
+        message: "Inte implementerat",
+        type: "error",
       },
       event,
     );
