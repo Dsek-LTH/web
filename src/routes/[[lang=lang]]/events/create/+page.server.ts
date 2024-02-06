@@ -4,11 +4,10 @@ import { superValidate } from "sveltekit-superforms/server";
 import { eventSchema } from "../schema";
 import type { Actions, PageServerLoad } from "./$types";
 import { slugWithCount, slugify } from "$lib/utils/slugify";
-import translated from "$lib/utils/translated";
 
 export const load: PageServerLoad = async ({ locals, parent }) => {
   const { prisma } = locals;
-  const allTags = await prisma.tag.findMany().then(translated);
+  const allTags = await prisma.tag.findMany();
   const { member } = await parent();
   return {
     allTags,

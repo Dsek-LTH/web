@@ -24,6 +24,10 @@
       value: "board-meeting",
     },
     {
+      name: "SRD Meetings",
+      value: "SRD-meeting",
+    },
+    {
       name: "Other",
       value: "other",
     },
