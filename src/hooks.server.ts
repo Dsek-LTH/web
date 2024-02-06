@@ -129,7 +129,9 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
     });
   }
 
-  schedule.scheduleJob("* */24 * * *", () => keycloak.updateMandate(prismaClient));
+  schedule.scheduleJob("* */24 * * *", () =>
+    keycloak.updateMandate(prismaClient),
+  );
 
   return resolve(event);
 };
