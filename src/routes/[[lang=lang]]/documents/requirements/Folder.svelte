@@ -14,7 +14,7 @@
   export let folders: FolderType[];
   export let isEditing: boolean = false;
   export let deleteForm: SuperValidated<DeleteSchema>;
-  folders.sort((a, b) => (a.isFolder && !b.isFolder ? 0 : 1));
+  $: folders.sort((a, b) => (a.isFolder && !b.isFolder ? 0 : 1));
 
   function toggle() {
     expanded = !expanded;
