@@ -11,6 +11,10 @@ import { getEvent } from "../events";
 import type { Actions, PageServerLoad } from "./$types";
 import { isAuthorized } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
+import {
+  removeEventAction,
+  removeEventSchema,
+} from "../../news/removeEventAction";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
@@ -30,10 +34,12 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     canDelete,
     commentForm: await superValidate(commentSchema),
     removeCommentForm: await superValidate(removeCommentSchema),
+    removeEventForm: await superValidate(removeEventSchema),
   };
 };
 
 export const actions: Actions = {
   comment: commentAction("EVENT"),
   removeComment: removeCommentAction("EVENT"),
+  removeEvent: removeEventAction(),
 };
