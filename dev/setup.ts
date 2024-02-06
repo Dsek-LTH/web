@@ -20,7 +20,11 @@ const database = await select({
   options: [
     { value: "docker", label: "Docker", hint: "Recommended" },
     { value: "install", label: "Local install", hint: "Manual" },
-    { value: "skip", label: "Skip", hint: "You'll need to provide a database yourself" },
+    {
+      value: "skip",
+      label: "Skip",
+      hint: "You'll need to provide a database yourself",
+    },
   ],
   initialValue: "docker",
 });
@@ -32,13 +36,14 @@ switch (database) {
     break;
   case "install":
     console.log(
-      "\nPlease install PostgreSQL yourself before continuing.\nThere is a guide over at https://www.prisma.io/dataguide/postgresql/setting-up-a-local-postgresql-database"
+      "\nPlease install PostgreSQL yourself before continuing.\nThere is a guide over at https://www.prisma.io/dataguide/postgresql/setting-up-a-local-postgresql-database",
     );
   // Fall through - prompt for database URL if user choose to install or skip
   case "skip":
     databaseUrl = await text({
       message: "What is the URL to your PostgreSQL database?",
-      placeholder: "postgresql://USER:PASSWORD@HOST:PORT/DATABASE?schema=SCHEMA",
+      placeholder:
+        "postgresql://USER:PASSWORD@HOST:PORT/DATABASE?schema=SCHEMA",
       validate: validateDbUrl,
     });
     handleCancellation(databaseUrl);
@@ -65,11 +70,15 @@ const setup = await group(
         initialValue: "secret",
       }),
   },
-  { onCancel }
+  { onCancel },
 );
 
 if (setup.migrate) {
-  await runWithSpinner("pnpm migrate", "Running database migrations", "Migrations complete!");
+  await runWithSpinner(
+    "pnpm migrate",
+    "Running database migrations",
+    "Migrations complete!",
+  );
 }
 
 if (setup.seed) {
@@ -86,10 +95,16 @@ if (await envFileExists()) {
 
 if (writeEnv) {
   spin.start("Writing environment variables to .env.local");
-  await writeEnvFile(String(databaseUrl), setup.authSecret, setup.keycloakClientSecret);
+  await writeEnvFile(
+    String(databaseUrl),
+    setup.authSecret,
+    setup.keycloakClientSecret,
+  );
   spin.stop("Environment variables written!");
 } else {
-  console.log("\nIn that case, please set the following values manually in the .env.local file:");
+  console.log(
+    "\nIn that case, please set the following values manually in the .env.local file:",
+  );
   console.log(`DATABASE_URL=${String(databaseUrl)}`);
   console.log(`AUTH_SECRET=${setup.authSecret}`);
   console.log(`KEYCLOAK_CLIENT_SECRET=${setup.keycloakClientSecret}`);

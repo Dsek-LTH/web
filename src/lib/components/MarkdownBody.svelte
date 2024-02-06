@@ -1,4 +1,5 @@
 <script lang="ts">
+  import DOMPurify from "isomorphic-dompurify";
   import { marked } from "marked";
   import { twMerge } from "tailwind-merge";
 
@@ -9,12 +10,11 @@
 
 <section
   class={twMerge(
-    "prose-a prose prose-a:link-primary prose-a:link lg:prose-xl prose-a:no-underline",
-    clazz
+    "prose-a prose prose-a:link prose-a:link-primary lg:prose-xl prose-a:no-underline",
+    clazz,
   )}
 >
   <slot />
-  <!-- The article body is sanitized server-side. -->
-  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-  {@html marked(body)}
+  <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized client-side -->
+  {@html marked(DOMPurify.sanitize(body))}
 </section>

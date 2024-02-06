@@ -1,12 +1,34 @@
 <script lang="ts">
-  import { enhance } from "$app/forms";
   import MemberSearch from "$lib/components/MemberSearch.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
-  import { getFullName } from "$lib/utils/member";
-  import type { Member } from "@prisma/client";
+  import { getFullName } from "$lib/utils/client/member";
+  import type { CommentSchema } from "$lib/zod/comments";
+  import type { ArticleComment, EventComment, Member } from "@prisma/client";
+  import type { SuperValidated } from "sveltekit-superforms";
+  import { superForm } from "sveltekit-superforms/client";
+
   export let author: Member;
-  export let value: string = "";
-  export let error: string | undefined = undefined;
+  export let commentForm: SuperValidated<CommentSchema>;
+  const { form, errors, constraints, enhance } = superForm(commentForm, {
+    resetForm: true,
+  });
+
+  export const onReply = (
+    comment: (ArticleComment | EventComment) & { member: Member },
+  ) => {
+    const tagString = `[@${getFullName(comment.member)}](/members/${
+      comment.member.studentId
+    }) `;
+    form.update((f) => {
+      if (f.content.trim().startsWith("[@") || f.content.trim().length === 0) {
+        f.content = tagString;
+      } else {
+        f.content = `${tagString}${f.content}`;
+      }
+      return f;
+    });
+  };
+
   let handleSearch: (searchValue: string) => void;
   let indexOfTagStart = -1;
   let inputEl: HTMLInputElement;
@@ -18,14 +40,25 @@
     <label class="label w-auto self-start" for="comment">
       <span class="label-text">Kommentera</span>
     </label>
-    <form class="join join-horizontal w-full" method="POST" action="?/comment" use:enhance>
+    <form
+      class="join join-horizontal w-full"
+      method="POST"
+      action="?/comment"
+      use:enhance
+    >
       <MemberSearch
         bind:handleSearch
         class="dropdown-top flex-1"
         onSelect={(selectedMember) => {
-          value = `${value.substring(0, indexOfTagStart)}[@${getFullName(
-            selectedMember
-          )}](/members/${selectedMember.studentId}) `;
+          form.update((f) => {
+            f.content = `${f.content.substring(
+              0,
+              indexOfTagStart,
+            )}[@${getFullName(selectedMember)}](/members/${
+              selectedMember.studentId
+            }) `;
+            return f;
+          });
           inputEl.focus();
         }}
       >
@@ -37,7 +70,8 @@
           type="text"
           class="input join-item input-bordered w-full"
           placeholder="Kommentera något kul..."
-          bind:value
+          bind:value={$form.content}
+          {...$constraints}
           on:keypress={(e) => {
             // on @ -> start tagging
             if (e.key === "@") {
@@ -60,10 +94,10 @@
           }}
         />
       </MemberSearch>
+      {#if $errors.content}
+        <p class="text-error">{$errors.content}</p>
+      {/if}
       <button type="submit" class="btn btn-primary join-item">Skicka</button>
     </form>
   </div>
-  {#if error}
-    <p class="text-error">{error}</p>
-  {/if}
 </div>

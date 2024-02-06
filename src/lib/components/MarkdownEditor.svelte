@@ -17,7 +17,7 @@
         editor = editor;
       },
       onUpdate: () => {
-        value = editor?.storage.markdown.getMarkdown();
+        value = editor?.storage["markdown"].getMarkdown();
       },
     });
   });

@@ -1,18 +1,20 @@
 <script lang="ts">
   import type { Tag } from "@prisma/client";
+  import { twMerge } from "tailwind-merge";
 
-  export let tag: Tag | undefined = undefined;
+  export let tag: Pick<Tag, "color" | "name"> | undefined = undefined;
+  let clazz: string = "";
+  export { clazz as class };
 </script>
 
 {#if tag}
   <span
-    class="badge badge-md relative cursor-pointer whitespace-nowrap text-xs"
-    style="border-color: {tag.color || 'white'}"
+    class={twMerge(
+      "badge badge-md relative cursor-pointer overflow-hidden whitespace-nowrap border-[--tag-color] text-xs before:absolute before:inset-0 before:bg-[--tag-color] before:opacity-10 before:content-['']",
+      clazz,
+    )}
+    style="--tag-color: {tag.color || 'var(--bc)'}"
   >
-    <div
-      class="absolute inset-0 opacity-10 transition-colors"
-      style="background-color: {tag.color || 'white'}"
-    />
     {tag.name}
   </span>
 {/if}

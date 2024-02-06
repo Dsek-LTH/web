@@ -4,6 +4,14 @@
 
 @layer base {
   .layout-container {
-    @apply mx-auto max-w-screen-sm sm:max-w-screen-md md:max-w-screen-lg;
+    @apply container mx-auto px-4 py-8;
   }
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
 }

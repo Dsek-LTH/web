@@ -1,10 +1,11 @@
 import { cancel, isCancel, spinner } from "@clack/prompts";
-import { ExecException, exec } from "child_process";
+import { type ExecException, exec } from "child_process";
 import { randomBytes } from "crypto";
 import { access, writeFile } from "fs/promises";
 import { resolve } from "path";
 
-const POSTGRES_DOCKER_URL = "postgresql://postgres:postgres@localhost:5432/dsek_prod?schema=public";
+const POSTGRES_DOCKER_URL =
+  "postgresql://postgres:postgres@localhost:5432/dsek_prod?schema=public";
 const POSTGRES_DOCKER_COMMAND =
   "docker run --name dsek-database -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=dsek_prod -d postgres:14-alpine";
 const POSTGRES_URL_REGEX =
@@ -33,12 +34,16 @@ function envFileExists() {
  * @param keycloakClientSecret The Keycloak client secret
  * @returns A promise that resolves when the file is written
  */
-async function writeEnvFile(url: string, authSecret: string, keycloakClientSecret: string) {
-  writeFile(
+async function writeEnvFile(
+  url: string,
+  authSecret: string,
+  keycloakClientSecret: string,
+) {
+  await writeFile(
     ENV_FILE_PATH,
     `DATABASE_URL=${String(
-      url
-    )}\nAUTH_SECRET=${authSecret}\nKEYCLOAK_CLIENT_SECRET=${keycloakClientSecret}`
+      url,
+    )}\nAUTH_SECRET=${authSecret}\nKEYCLOAK_CLIENT_SECRET=${keycloakClientSecret}`,
   );
 }
 
@@ -84,7 +89,7 @@ function run(command: string): Promise<void> {
 function runWithSpinner(
   command: string,
   startMessage?: string,
-  stopMessage?: string
+  stopMessage?: string,
 ): Promise<void> {
   spin.start(startMessage);
   return run(command).finally(() => spin.stop(stopMessage));
@@ -98,7 +103,7 @@ function setupDatabase() {
   return runWithSpinner(
     POSTGRES_DOCKER_COMMAND,
     "Setting up PostgreSQL",
-    "PostgreSQL setup complete!"
+    "PostgreSQL setup complete!",
   );
 }
 

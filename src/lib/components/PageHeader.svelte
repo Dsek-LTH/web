@@ -1,5 +1,9 @@
 <script lang="ts">
+  import { twMerge } from "tailwind-merge";
+
   export let title: string | undefined;
+  let clazz: string = "";
+  export { clazz as class };
 </script>
 
 <svelte:head>
@@ -10,7 +14,7 @@
   {/if}
 </svelte:head>
 
-<h1 class="mb-4 text-2xl font-bold">
+<h1 class={twMerge("mb-4 text-2xl font-bold", clazz)}>
   {title}
   <slot name="after-title" />
 </h1>

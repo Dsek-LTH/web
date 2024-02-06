@@ -1,33 +1,10 @@
-import type { Member } from "@prisma/client";
-import { error } from "@sveltejs/kit";
-import { getRoleSet, type Context } from "./access";
-import prisma from "./prisma";
+import type { PrismaClient } from "@prisma/client";
+import { getDerivedRoles } from "./authorization";
 
-export const getCurrentMember = async (context: Context) => {
-  if (!context?.student_id) {
-    throw error(401, "Not logged in");
-  }
-  const member = await prisma.member.findUnique({
-    where: {
-      studentId: context?.student_id,
-    },
-  });
-  if (!member) {
-    throw error(401, "Member not found");
-  }
-  return member;
-};
-
-export const getCurrentMemberId = async (context: Context) => {
-  const member = await getCurrentMember(context);
-  return member.id;
-};
-
-export const getMyCustomAuthorOptions = async (context: Context) => {
-  return await getCustomAuthorOptions(await getCurrentMemberId(context));
-};
-
-export const getCustomAuthorOptions = async (memberId: string) => {
+export const getCustomAuthorOptions = async (
+  prisma: PrismaClient,
+  memberId: string,
+) => {
   const activePositionIds = await prisma.position
     .findMany({
       select: {
@@ -53,15 +30,10 @@ export const getCustomAuthorOptions = async (memberId: string) => {
       roles: {
         some: {
           role: {
-            in: [...getRoleSet([...activePositionIds, "_"])],
+            in: getDerivedRoles(activePositionIds, !!memberId),
           },
         },
       },
     },
   });
-};
-
-export const getFullName = (member: Pick<Member, "nickname" | "firstName" | "lastName">) => {
-  if (member.nickname) return `${member.firstName} "${member.nickname}" ${member.lastName}`;
-  return `${member.firstName} ${member.lastName}`;
 };

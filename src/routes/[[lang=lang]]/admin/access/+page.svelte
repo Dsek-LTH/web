@@ -1,0 +1,56 @@
+<script lang="ts">
+  import { superForm } from "sveltekit-superforms/client";
+  import type { PageData } from "./$types";
+  export let data: PageData;
+  const { form, errors, constraints, enhance } = superForm(data.form, {
+    resetForm: true,
+  });
+</script>
+
+<svelte:head>
+  <title>Access policies | D-sektionen</title>
+</svelte:head>
+
+<div class="overflow-x-auto">
+  <table class="table">
+    <!-- head -->
+    <thead>
+      <tr class="bg-base-200">
+        <th>Policy code</th>
+        <th />
+      </tr>
+    </thead>
+    <tbody>
+      {#each data.accessPolicies as apiName}
+        <tr>
+          <td class="font-medium">{apiName}</td>
+          <td class="text-right"
+            ><a class="btn btn-xs px-8" href="access/{apiName}">Edit</a></td
+          >
+        </tr>
+      {/each}
+    </tbody>
+  </table>
+</div>
+
+<section class="my-4 space-y-4">
+  <h2 class="text-xl font-bold">Add new policies</h2>
+  <form class="form-control gap-4" method="POST" action="?/create" use:enhance>
+    <label class="join join-vertical md:join-horizontal">
+      <span class="label join-item bg-base-200 px-4">New policy</span>
+      <input
+        type="text"
+        name="apiName"
+        placeholder="Policy name"
+        aria-invalid={$errors.apiName ? "true" : undefined}
+        class="input join-item input-bordered input-primary md:flex-1"
+        bind:value={$form.apiName}
+        {...$constraints.apiName}
+      />
+      {#if $errors.apiName}<span class="text-error">{$errors.apiName}</span
+        >{/if}
+
+      <button type="submit" class="btn btn-primary join-item">Add</button>
+    </label>
+  </form>
+</section>

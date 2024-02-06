@@ -1,32 +1,14 @@
-import prisma from "$lib/utils/prisma";
+export const slugify = (str: string, maxLength = 50) =>
+  str
+    .trim() // trim leading/trailing whitespace
+    .normalize("NFKD") // normalize unicode characters and...
+    .replace(/\p{Diacritic}/gu, "") // ...remove floating diacritics
+    .replace(/['"]+/g, "") // remove quotes
+    .replace(/[^a-z0-9]+/gi, "-") // replace non-alphanumeric characters with hyphens
+    .replace(/-+/g, "-") // replace multiple hyphens with a single hyphen
+    .substring(0, maxLength) // truncate to maxLength characters
+    .replace(/^-+|-+$/g, "") // trim leading/trailing hyphens
+    .toLowerCase(); // convert to lowercase
 
-export const slugify = (str: string) => {
-  const slug = str.replace(/\s+/g, "-").toLowerCase();
-  return slug.length > 50 ? slug.slice(0, 50) : slug;
-};
-
-export const slugifyArticleHeader = async (header: string) => {
-  const slug = slugify(header);
-  let number = 0;
-  let count = await prisma.article.count({
-    where: {
-      slug,
-    },
-  });
-  // reserved slugs
-  if (["create", "tags"].includes(slug)) {
-    count = 1;
-  }
-  while (count > 0) {
-    number += 1;
-    count = await prisma.article.count({
-      where: {
-        slug: `${slug}-${number}`,
-      },
-    });
-  }
-  if (number > 0) {
-    return `${slug}-${number}`;
-  }
-  return slug;
-};
+export const slugWithCount = (slug: string, count: number) =>
+  count > 0 ? `${slug}-${count + 1}` : slug;

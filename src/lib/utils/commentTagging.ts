@@ -1,9 +1,14 @@
-import prisma from "$lib/utils/prisma";
-import type { ArticleComment, EventComment } from "@prisma/client";
+import { tagRegex } from "$lib/utils/client/commentTagging";
+import type {
+  ArticleComment,
+  EventComment,
+  PrismaClient,
+} from "@prisma/client";
 
-export const tagRegex = /\[([^\]]*)\]\(\/members\/([^)]+)\)/g;
-
-export const getAllTaggedMembers = async (comments: (ArticleComment | EventComment)[]) => {
+export const getAllTaggedMembers = async (
+  prisma: PrismaClient,
+  comments: (ArticleComment | EventComment)[],
+) => {
   return await prisma.member.findMany({
     where: {
       studentId: {
@@ -13,8 +18,8 @@ export const getAllTaggedMembers = async (comments: (ArticleComment | EventComme
               (comment) =>
                 [...(comment.content ?? "").matchAll(tagRegex)]
                   .map((match) => match[2])
-                  .filter((taggedMember) => taggedMember) as string[]
-            )
+                  .filter((taggedMember) => taggedMember) as string[],
+            ),
           ),
         ],
       },

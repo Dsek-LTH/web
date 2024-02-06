@@ -16,4 +16,13 @@
     "strings": "on"
   },
   "prettier.configPath": "prettier.config.js",
+  "prettier.documentSelectors": ["**/*.svelte"],
+  "tailwindCSS.experimental.classRegex": [
+    "class:(.+)", // for svelte class: directive
+    ".*icon: \"(.+)\"", // for icon property in routes.ts
+  ],
+  "workbench.editor.labelFormat": "short", // show filename + route in tab
+  "explorer.compactFolders": false, // present folders in explorer as a tree
+  "git.inputValidation": "warn", // if many users prefer "always" we can change this
+  "git.inputValidationSubjectLength": 50,
 }

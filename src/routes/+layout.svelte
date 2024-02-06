@@ -1,15 +1,22 @@
 <script lang="ts">
   import "../app.css";
-  import BottomNav from "./BottomNav.svelte";
-  import NavBar from "./NavBar.svelte";
+  import Drawer from "./Drawer.svelte";
+  import Footer from "./Footer.svelte";
+  import LanguageProvider from "./LanguageProvider.svelte";
+  import Navbar from "./Navbar.svelte";
+  import Toast from "./Toast.svelte";
 </script>
 
-<NavBar>
-  <div
-    class="h-[calc(100vh-9rem)] flex-col overflow-auto pb-8 accent-primary md:h-[calc(100vh-5rem)] [&>*]:flex-1"
-  >
-    <slot />
-  </div>
+<LanguageProvider>
+  <nav class="contents">
+    <Navbar />
+    <Drawer />
+  </nav>
 
-  <BottomNav />
-</NavBar>
+  <main class="flex-1">
+    <slot />
+  </main>
+
+  <Toast />
+  <Footer />
+</LanguageProvider>
