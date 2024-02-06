@@ -13,14 +13,14 @@
       <Notification
         notificationText={"test"}
         notificationTitle={"Title test"}
-        notificationLink={"www.google.com"}
+        notificationLink={"events/qwerty-1"}
       />
     </li>
     <li class="m-0 w-full p-0">
       <Notification
         notificationText={"longer text longer text longer text longer rtext tea wasdawdasdadawdasdaw yeeeee buddyyyyyyyyyyy"}
         notificationTitle={"Title test 2 longer text buddyyyy light weeeeeeeeeight"}
-        notificationLink={"test"}
+        notificationLink={"events/qwerty-1"}
       />
     </li>
     <button
