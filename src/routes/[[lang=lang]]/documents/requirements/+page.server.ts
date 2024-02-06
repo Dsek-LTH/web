@@ -34,7 +34,6 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     },
     {},
   );
-  console.log(filesGroupedByFolder);
   return {
     files,
     folders: filesGroupedByFolder,

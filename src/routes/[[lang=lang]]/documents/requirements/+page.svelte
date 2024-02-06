@@ -28,9 +28,11 @@
   ) {
     if (pathSoFar.startsWith("/")) pathSoFar = pathSoFar.substring(1);
     const name = folder.split("/")[0];
+    //If reached the end of the folder path, add all files with pathSoFar to array
     if (folder) {
       const exists = array?.find((f) => f.name === name);
       let newArray: FolderType[];
+      //If path already exists use that, otherwise add to the array
       if (exists) {
         newArray = exists.files;
       } else {
@@ -50,7 +52,6 @@
       );
     } else {
       data.folders[pathSoFar]?.forEach((file) => {
-        console.log(file);
         array.push({
           id: file.id,
           name: file.name,
