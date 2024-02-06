@@ -17,6 +17,8 @@ import { sequence } from "@sveltejs/kit/hooks";
 import { enhance } from "@zenstackhq/runtime";
 import { getAccessPolicies } from "./hooks.server.helpers";
 import translatedExtension from "./database/prisma/translationExtension";
+import schedule from "node-schedule";
+import keycloak from "$lib/utils/keycloak";
 
 const authHandle = SvelteKitAuth({
   secret: AUTH_SECRET,
@@ -129,5 +131,9 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
 
   return resolve(event);
 };
+
+schedule.scheduleJob("* */24 * * *", () =>
+  keycloak.updateMandate(prismaClient),
+);
 
 export const handle = sequence(authHandle, translationHandle, databaseHandle);
