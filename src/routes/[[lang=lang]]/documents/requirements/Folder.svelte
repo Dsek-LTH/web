@@ -7,21 +7,15 @@
   import apiNames from "$lib/utils/apiNames";
   import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
   import { page } from "$app/stores";
+  import type { FolderType } from "./+page.server"
 
-  type Folder = {
-    id: string;
-    name: string;
-    isFolder: boolean;
-    url: string;
-    files: Folder[];
-  };
+
   export let expanded = true;
   export let name: string;
-  export let folders: Folder[];
+  export let folders: FolderType[];
   export let isEditing: boolean = false;
   export let deleteForm: SuperValidated<DeleteSchema>;
   folders.sort((a, b) => (a.isFolder && !b.isFolder ? 0 : 1));
-  console.log(isEditing);
 
   function toggle() {
     expanded = !expanded;
@@ -44,6 +38,8 @@
           name={folder.name}
           folders={folder.files}
           expanded={false}
+          isEditing={isEditing}
+          deleteForm={deleteForm}
         />
       {:else}
         <div class="flex flex-row gap-1">

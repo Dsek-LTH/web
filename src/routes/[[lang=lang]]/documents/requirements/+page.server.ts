@@ -6,6 +6,14 @@ import { z } from "zod";
 import type { FileData } from "$lib/files/fileHandler";
 import { fail } from "@sveltejs/kit";
 
+export type FolderType = {
+  id: string;
+  name: string;
+  isFolder: boolean;
+  url: string;
+  files: FolderType[];
+};
+
 export const load: PageServerLoad = async ({ locals, url }) => {
   const { user } = locals;
   const year = url.searchParams.get("year") || new Date().getFullYear();

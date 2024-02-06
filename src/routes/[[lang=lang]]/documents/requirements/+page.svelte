@@ -5,21 +5,15 @@
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
   import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
+  import type { FolderType } from "./+page.server"
 
   export let data: PageData;
 
-  type Folder = {
-    id: string;
-    name: string;
-    isFolder: boolean;
-    url: string;
-    files: Folder[];
-  };
 
   let isEditing: boolean = false;
 
   const currentYear = new Date().getFullYear();
-  let folders: Folder[] = [];
+  let folders: FolderType[] = [];
 
   $: {
     folders = [];
@@ -28,12 +22,12 @@
     });
   }
 
-  function processFolder(folder: string, pathSoFar: string, array: Folder[]) {
+  function processFolder(folder: string, pathSoFar: string, array: FolderType[]) {
     if (pathSoFar.startsWith("/")) pathSoFar = pathSoFar.substring(1);
     const name = folder.split("/")[0];
     if (folder) {
       const exists = array?.find((f) => f.name === name);
-      let newArray: Folder[];
+      let newArray: FolderType[];
       if (exists) {
         newArray = exists.files;
       } else {
@@ -100,5 +94,5 @@
 </div>
 
 <div class="flex flex-col rounded-lg bg-base-200 p-5">
-  <Folder name={""} {folders} deleteForm={data.deleteForm} {isEditing} />
+  <Folder name={""} folders={folders} deleteForm={data.deleteForm} isEditing={isEditing} />
 </div>
