@@ -9,7 +9,6 @@ async function sendPushNotifications(
   type: string,
   link: string,
 ) {
-
   if (dev) return;
 
   const expo = new Expo();
