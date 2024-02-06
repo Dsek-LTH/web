@@ -1,8 +1,9 @@
 import { fileExists, isDir } from "$lib/files/helpers";
 import minio, { CopyConditions, MINIO_BASE_URL } from "$lib/files/minio";
-import { ctxAccessGuard, type Context } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
+import { authorize } from "$lib/utils/authorization";
 import { error } from "@sveltejs/kit";
+import type { AuthUser } from "@zenstackhq/runtime";
 import path from "path";
 
 export type FileData = {
@@ -47,7 +48,7 @@ const getFilesInFolder = (
   });
 };
 const getFilesInBucket = async (
-  ctx: Context,
+  user: AuthUser | undefined,
   bucket: string,
   prefix: string,
   recursive = false,
@@ -55,7 +56,7 @@ const getFilesInBucket = async (
   if (!bucket) {
     return Promise.resolve([]);
   }
-  await ctxAccessGuard(apiNames.FILES.BUCKET(bucket).READ, ctx);
+  authorize(apiNames.FILES.BUCKET(bucket).READ, user);
   const basePath = "";
   const files = await getFilesInFolder(
     bucket,
@@ -67,12 +68,12 @@ const getFilesInBucket = async (
 
 const ONE_HOUR_IN_SECONDS = 60 * 60;
 const getPresignedPutUrl = async (
-  ctx: Context,
+  user: AuthUser | undefined,
   bucket: string,
   fileName: string,
   allowOverwrite = false,
 ): Promise<string> => {
-  await ctxAccessGuard(apiNames.FILES.BUCKET(bucket).CREATE, ctx);
+  authorize(apiNames.FILES.BUCKET(bucket).CREATE, user);
   if (fileName === "") throw error(400, "File name cannot be empty");
 
   if (!allowOverwrite && (await fileExists(bucket, fileName))) {
@@ -90,7 +91,7 @@ const getPresignedPutUrl = async (
  * As the name implies this removes an object from the storage without checking any valid access, make sure to check access before calling this function
  */
 export const removeFilesWithoutAccessCheck = async (
-  ctx: Context,
+  user: AuthUser | undefined,
   bucket: string,
   fileNames: string[],
 ) => {
@@ -99,10 +100,10 @@ export const removeFilesWithoutAccessCheck = async (
   await Promise.all(
     fileNames.map(async (fileName) => {
       if (isDir(fileName)) {
-        const filesInFolder = await getFilesInBucket(ctx, bucket, fileName);
+        const filesInFolder = await getFilesInBucket(user, bucket, fileName);
         if (filesInFolder) {
           await removeFilesWithoutAccessCheck(
-            ctx,
+            user,
             bucket,
             filesInFolder.map((file) => file.id),
           );
@@ -124,12 +125,12 @@ export const removeFilesWithoutAccessCheck = async (
 };
 
 const removeObjects = async (
-  ctx: Context,
+  user: AuthUser | undefined,
   bucket: string,
   fileNames: string[],
 ) => {
-  await ctxAccessGuard(apiNames.FILES.BUCKET(bucket).DELETE, ctx);
-  await removeFilesWithoutAccessCheck(ctx, bucket, fileNames);
+  authorize(apiNames.FILES.BUCKET(bucket).DELETE, user);
+  await removeFilesWithoutAccessCheck(user, bucket, fileNames);
 };
 
 type FileChange = {
@@ -137,12 +138,12 @@ type FileChange = {
   oldFile?: FileData;
 };
 const moveObject = async (
-  ctx: Context,
+  user: AuthUser | undefined,
   bucket: string,
   fileNames: string[],
   newFolder: string,
 ) => {
-  await ctxAccessGuard(apiNames.FILES.BUCKET(bucket).UPDATE, ctx);
+  authorize(apiNames.FILES.BUCKET(bucket).UPDATE, user);
   const moved: FileChange[] = [];
 
   await Promise.all(
@@ -150,10 +151,10 @@ const moveObject = async (
       const basename = path.basename(fileName);
 
       if (isDir(fileName)) {
-        const filesInFolder = await getFilesInBucket(ctx, bucket, fileName);
+        const filesInFolder = await getFilesInBucket(user, bucket, fileName);
         if (filesInFolder) {
           const recursivedMoved = await moveObject(
-            ctx,
+            user,
             bucket,
             filesInFolder.map((file) => file.id),
             `${newFolder + basename}/`,
@@ -214,22 +215,22 @@ const moveObject = async (
 };
 
 const renameObject = async (
-  ctx: Context,
+  user: AuthUser | undefined,
   bucket: string,
   fileName: string,
   newFileName: string,
 ) => {
-  await ctxAccessGuard(apiNames.FILES.BUCKET(bucket).UPDATE, ctx);
+  authorize(apiNames.FILES.BUCKET(bucket).UPDATE, user);
   if (await fileExists(bucket, newFileName)) {
     throw error(409, `File ${newFileName} already exists`);
   }
   const dirname = path.dirname(fileName);
 
   if (isDir(fileName)) {
-    const filesInFolder = await getFilesInBucket(ctx, bucket, fileName);
+    const filesInFolder = await getFilesInBucket(user, bucket, fileName);
     if (filesInFolder) {
       await moveObject(
-        ctx,
+        user,
         bucket,
         filesInFolder.map((file) => file.id),
         `${newFileName}/`,

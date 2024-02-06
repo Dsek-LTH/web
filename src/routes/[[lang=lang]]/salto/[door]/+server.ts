@@ -1,7 +1,7 @@
-import prisma from "$lib/utils/prisma";
-import type { RequestHandler } from "@sveltejs/kit";
+import type { RequestHandler } from "./$types";
 
-export const GET: RequestHandler = async ({ params }) => {
+export const GET: RequestHandler = async ({ locals, params }) => {
+  const { prisma } = locals;
   const now = new Date().toISOString();
   const policies = await prisma.doorAccessPolicy.findMany({
     where: {

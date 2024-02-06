@@ -1,6 +1,4 @@
-import { policyAccessGuard, withAccess } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
-import prisma from "$lib/utils/prisma";
 import { Prisma } from "@prisma/client";
 import { error, fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
@@ -9,11 +7,13 @@ import { getArticleAuthorOptions } from "../../articles";
 import { articleSchema } from "../../schema";
 import type { Actions, PageServerLoad } from "./$types";
 import { redirect } from "sveltekit-flash-message/server";
+import { authorize } from "$lib/utils/authorization";
 
-export const load: PageServerLoad = async ({ parent, params }) => {
+export const load: PageServerLoad = async ({ locals, params }) => {
+  const { prisma, user } = locals;
+  authorize(apiNames.NEWS.UPDATE, user);
+
   const allTags = await prisma.tag.findMany();
-  const { accessPolicies } = await parent();
-  policyAccessGuard(apiNames.NEWS.UPDATE, accessPolicies);
   const article = await prisma.article.findUnique({
     where: {
       slug: params.slug,
@@ -54,7 +54,10 @@ export const load: PageServerLoad = async ({ parent, params }) => {
 
   const authorMemberWithMandates = article.author.member;
   if (!authorMemberWithMandates) throw error(500, "Author member not found");
-  const authorOptions = await getArticleAuthorOptions(authorMemberWithMandates);
+  const authorOptions = await getArticleAuthorOptions(
+    prisma,
+    authorMemberWithMandates,
+  );
 
   return {
     allTags,
@@ -69,89 +72,83 @@ const updateSchema = articleSchema.extend({
 
 export const actions: Actions = {
   default: async (event) => {
-    const form = await superValidate(event.request, updateSchema);
+    const { request, locals } = event;
+    const { prisma, user } = locals;
+    const form = await superValidate(request, updateSchema);
     if (!form.valid) return fail(400, { form });
-    const session = await event.locals.getSession();
-    return withAccess(
-      apiNames.NEWS.UPDATE,
-      session?.user,
-      async () => {
-        const { slug, header, body, author, tags } = form.data;
-        const existingAuthor = await prisma.author.findFirst({
-          where: {
-            member: {
-              id: author.memberId,
-            },
-            mandateId: author.mandateId,
-          },
-        });
-        try {
-          await prisma.article.update({
-            where: {
-              slug: slug,
-            },
-            data: {
-              header: header,
-              body: body,
-              author: {
-                connect: existingAuthor
-                  ? {
-                      id: existingAuthor.id,
-                    }
-                  : undefined,
-                create: existingAuthor
-                  ? undefined
-                  : {
-                      member: {
-                        connect: {
-                          studentId: session!.user.student_id,
-                        },
-                      },
-                      mandate: author.mandateId
-                        ? {
-                            connect: {
-                              member: {
-                                studentId: session!.user.student_id,
-                              },
-                              id: author.mandateId,
-                            },
-                          }
-                        : undefined,
-                    },
-              },
-              tags: {
-                set: tags
-                  .filter((tag) => !!tag)
-                  .map((tag) => ({
-                    id: tag.id,
-                  })),
-              },
-              updatedAt: new Date(),
-            },
-          });
-        } catch (e) {
-          if (e instanceof Prisma.PrismaClientKnownRequestError) {
-            return message(
-              form,
-              {
-                message: "Artikel kunde inte hittas",
-                type: "error",
-              },
-              { status: 400 },
-            );
-          }
-          throw e;
-        }
-        throw redirect(
-          `/news/${event.params.slug}`,
-          {
-            message: "Artikel uppdaterad",
-            type: "success",
-          },
-          event,
-        );
+    const { slug, header, body, author, tags } = form.data;
+    const existingAuthor = await prisma.author.findFirst({
+      where: {
+        member: {
+          id: author.memberId,
+        },
+        mandateId: author.mandateId,
       },
-      form,
+    });
+    try {
+      await prisma.article.update({
+        where: {
+          slug: slug,
+        },
+        data: {
+          header: header,
+          body: body,
+          author: {
+            connect: existingAuthor
+              ? {
+                  id: existingAuthor.id,
+                }
+              : undefined,
+            create: existingAuthor
+              ? undefined
+              : {
+                  member: {
+                    connect: {
+                      studentId: user?.studentId,
+                    },
+                  },
+                  mandate: author.mandateId
+                    ? {
+                        connect: {
+                          member: {
+                            studentId: user?.studentId,
+                          },
+                          id: author.mandateId,
+                        },
+                      }
+                    : undefined,
+                },
+          },
+          tags: {
+            set: tags
+              .filter((tag) => !!tag)
+              .map((tag) => ({
+                id: tag.id,
+              })),
+          },
+          updatedAt: new Date(),
+        },
+      });
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError) {
+        return message(
+          form,
+          {
+            message: "Artikel kunde inte hittas",
+            type: "error",
+          },
+          { status: 400 },
+        );
+      }
+      throw e;
+    }
+    throw redirect(
+      `/news/${event.params.slug}`,
+      {
+        message: "Artikel uppdaterad",
+        type: "success",
+      },
+      event,
     );
   },
 };

@@ -5,6 +5,7 @@
   import apiNames from "$lib/utils/apiNames";
   import type { DocumentType } from "./+page.server";
   import Meeting from "./Meeting.svelte";
+  import { isAuthorized } from "$lib/utils/authorization";
 
   import type { PageData } from "./$types";
   export let data: PageData;
@@ -21,6 +22,10 @@
     {
       name: "Board Meetings",
       value: "board-meeting",
+    },
+    {
+      name: "SRD Meetings",
+      value: "SRD-meeting",
     },
     {
       name: "Other",
@@ -52,12 +57,12 @@
     <Tabs options={typeOptions} bind:currentTab={type} fieldName="type" />
   </div>
   <div class="flex flex-col gap-1">
-    {#if data.accessPolicies.includes(apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).CREATE)}
+    {#if isAuthorized(apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).CREATE, data.user)}
       <a class="btn btn-primary btn-sm" href="/documents/upload"
         >Ladda upp fil</a
       >
     {/if}
-    {#if data.accessPolicies.includes(apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).DELETE)}
+    {#if isAuthorized(apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).DELETE, data.user)}
       <button
         class="btn btn-secondary btn-sm"
         on:click={() => {

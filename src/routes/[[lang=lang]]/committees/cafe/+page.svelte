@@ -23,18 +23,13 @@
 
 <CommitteeHeader
   committee={data.committee}
-  accessPolicies={data.accessPolicies}
   uniqueMemberCount={data.uniqueMemberCount}
   numberOfMandates={data.numberOfMandates}
   editing={isEditing}
   toggleEditing={() => (isEditing = !isEditing)}
 />
 
-<EditCommitteeForm
-  form={data.form}
-  open={isEditing}
-  accessPolicies={data.accessPolicies}
-/>
+<EditCommitteeForm form={data.form} open={isEditing} />
 
 <div class="mb-4 flex flex-wrap items-start justify-between gap-4">
   {#if data.markdown?.markdown}

@@ -1,7 +1,7 @@
-import prisma from "$lib/utils/prisma";
 import type { PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ locals }) => {
+  const { prisma } = locals;
   const committees = await prisma.committee.findMany({
     include: {
       positions: {
@@ -29,7 +29,6 @@ export const load: PageServerLoad = async () => {
       },
     },
   });
-
   return {
     committees,
   };

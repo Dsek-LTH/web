@@ -5,7 +5,7 @@ import {
   KEYCLOAK_ENDPOINT,
   KEYCLOAK_ENABLED,
 } from "$env/static/private";
-import prisma from "$lib/utils/prisma";
+import type { PrismaClient } from "@prisma/client";
 
 const enabled = KEYCLOAK_ENABLED === "true";
 
@@ -88,7 +88,7 @@ async function deleteMandate(username: string, positionId: string) {
   }
 }
 
-async function updateMandate() {
+async function updateMandate(prisma: PrismaClient) {
   if (!enabled) return;
 
   const now = new Date().toISOString();

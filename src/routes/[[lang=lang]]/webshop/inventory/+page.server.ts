@@ -1,11 +1,10 @@
-import prisma from "$lib/utils/prisma";
 import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ locals }) => {
-  const session = await locals.getSession();
+  const { prisma, user } = locals;
   const myInventory = await prisma.userInventory.findFirst({
     where: {
-      studentId: session?.user?.student_id,
+      studentId: user?.studentId,
     },
     include: {
       userInventoryItems: true,

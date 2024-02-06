@@ -1,12 +1,10 @@
-import { withAccess } from "$lib/utils/access";
-import apiNames from "$lib/utils/apiNames";
-import prisma from "$lib/utils/prisma";
-import type { Cart } from "@prisma/client";
+import type { Cart, PrismaClient } from "@prisma/client";
 import type { Actions, PageServerLoad } from "./$types";
 import { fail } from "@sveltejs/kit";
 import { randomUUID } from "crypto";
 
 export const load: PageServerLoad = async ({ locals }) => {
+  const { prisma, user } = locals;
   const productCategories = await prisma.productCategory.findMany({
     where: {
       deletedAt: null,
@@ -22,11 +20,9 @@ export const load: PageServerLoad = async ({ locals }) => {
     },
   });
 
-  const session = await locals.getSession();
-
   const myCart = await prisma.cart.findFirst({
     where: {
-      studentId: session?.user?.student_id,
+      studentId: user?.studentId,
       expiresAt: {
         gt: new Date(),
       },
@@ -54,7 +50,7 @@ export const load: PageServerLoad = async ({ locals }) => {
   });
   const myInventory = await prisma.userInventory.findFirst({
     where: {
-      studentId: session?.user?.student_id,
+      studentId: user?.studentId,
     },
     include: {
       userInventoryItems: true,
@@ -78,93 +74,90 @@ const TRANSACTION_COST = 2;
 
 export const actions: Actions = {
   addToCart: async ({ request, locals }) => {
-    const session = await locals.getSession();
-    return withAccess(apiNames.NEWS.CREATE, session?.user, async () => {
-      try {
-        if (!session?.user?.student_id)
-          throw new Error("You are not logged in");
-        const data = await request.formData();
-        const productInventoryId = data.get("productInventoryId");
-        if (!productInventoryId || typeof productInventoryId !== "string") {
-          throw new Error("Invalid product inventory id");
-        }
-        let myCart = await prisma.cart.findFirst({
-          where: {
-            studentId: session.user.student_id,
-            expiresAt: {
-              gt: new Date(),
-            },
+    const { prisma, user } = locals;
+    try {
+      if (!user?.studentId) throw new Error("You are not logged in");
+      const data = await request.formData();
+      const productInventoryId = data.get("productInventoryId");
+      if (!productInventoryId || typeof productInventoryId !== "string") {
+        throw new Error("Invalid product inventory id");
+      }
+      let myCart = await prisma.cart.findFirst({
+        where: {
+          studentId: user.studentId,
+          expiresAt: {
+            gt: new Date(),
+          },
+        },
+      });
+      if (!myCart) {
+        myCart = await prisma.cart.create({
+          data: {
+            studentId: user.studentId,
+            expiresAt: addMinutes(new Date(), CART_EXPIRY_MINUTES),
+            totalPrice: 0,
+            totalQuantity: 0,
           },
         });
-        if (!myCart) {
-          myCart = await prisma.cart.create({
-            data: {
-              studentId: session.user.student_id,
-              expiresAt: addMinutes(new Date(), CART_EXPIRY_MINUTES),
-              totalPrice: 0,
-              totalQuantity: 0,
-            },
-          });
-        }
-        const productInventory = await inventoryToCartTransaction(
-          productInventoryId,
-          1,
-          myCart,
-        );
-        return {
-          success: true,
-          productInventory,
-        };
-      } catch (e) {
-        let message;
-        if (e instanceof Error) message = e.message;
-        else message = String(e);
-        console.log(e);
-        return fail(400, { error: message });
       }
-    });
+      const productInventory = await inventoryToCartTransaction(
+        prisma,
+        productInventoryId,
+        1,
+        myCart,
+      );
+      return {
+        success: true,
+        productInventory,
+      };
+    } catch (e) {
+      let message;
+      if (e instanceof Error) message = e.message;
+      else message = String(e);
+      console.log(e);
+      return fail(400, { error: message });
+    }
   },
   removeFromCart: async ({ request, locals }) => {
-    const session = await locals.getSession();
-    return withAccess(apiNames.NEWS.CREATE, session?.user, async () => {
-      try {
-        if (!session?.user?.student_id)
-          throw new Error("You are not logged in");
-        const data = await request.formData();
-        const productInventoryId = data.get("productInventoryId");
-        if (!productInventoryId || typeof productInventoryId !== "string") {
-          throw new Error("Invalid product inventory id");
-        }
-        const myCart = await prisma.cart.findFirst({
-          where: {
-            studentId: session.user.student_id,
-            expiresAt: {
-              gt: new Date(),
-            },
-          },
-        });
-        if (!myCart) throw new Error("Cart not found");
-        const productInventory = await cartToInventoryTransaction(
-          productInventoryId,
-          1,
-          myCart.id,
-        );
-        return {
-          success: true,
-          productInventory,
-        };
-      } catch (e) {
-        let message;
-        if (e instanceof Error) message = e.message;
-        else message = String(e);
-        console.log(e);
-        return fail(400, { error: message });
+    const { prisma, user } = locals;
+    try {
+      if (!user?.studentId) throw new Error("You are not logged in");
+      const data = await request.formData();
+      const productInventoryId = data.get("productInventoryId");
+      if (!productInventoryId || typeof productInventoryId !== "string") {
+        throw new Error("Invalid product inventory id");
       }
-    });
+      const myCart = await prisma.cart.findFirst({
+        where: {
+          studentId: user.studentId,
+          expiresAt: {
+            gt: new Date(),
+          },
+        },
+      });
+      if (!myCart) throw new Error("Cart not found");
+      const productInventory = await cartToInventoryTransaction(
+        prisma,
+        productInventoryId,
+        1,
+        myCart.id,
+      );
+      return {
+        success: true,
+        productInventory,
+      };
+    } catch (e) {
+      let message;
+      if (e instanceof Error) message = e.message;
+      else message = String(e);
+      console.log(e);
+      return fail(400, { error: message });
+    }
   },
 };
 
 async function cartToInventoryTransaction(
+  prisma: PrismaClient,
   productInventoryId: string,
   quantity: number,
   cartId: string,
@@ -246,6 +239,7 @@ async function cartToInventoryTransaction(
 }
 
 async function inventoryToCartTransaction(
+  prisma: PrismaClient,
   productInventoryId: string,
   quantity: number,
   cart: Cart,

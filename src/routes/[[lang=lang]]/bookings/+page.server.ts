@@ -1,16 +1,20 @@
 // import { withAccess } from "$lib/utils/access";
 // import prisma from "$lib/utils/prisma";
 // import apiNames from "$lib/utils/apiNames";
+
 import type { PageServerLoad } from "./$types";
-import { getAllBookingRequests } from "./bookingrequests";
 // import type { Bookable } from "@prisma/client";
 // import { ObjectCreatedAll } from "minio";
 // import { fail } from "@sveltejs/kit";
-import { getAllBookables } from "./bookables";
 
-export const load: PageServerLoad = async () => {
-  const bookingRequests = await getAllBookingRequests();
-  const bookables = await getAllBookables();
+export const load: PageServerLoad = async ({ locals }) => {
+  const { prisma } = locals;
+  const bookingRequests = await prisma.bookingRequest.findMany({
+    include: {
+      bookables: true,
+    },
+  });
+  const bookables = await prisma.bookable.findMany();
   return { bookingRequests, bookables };
 };
 

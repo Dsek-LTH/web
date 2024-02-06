@@ -1,5 +1,4 @@
-import prisma from "$lib/utils/prisma";
-import type { Prisma } from "@prisma/client";
+import type { Prisma, PrismaClient } from "@prisma/client";
 
 type EventFilters = {
   tags?: string[];
@@ -22,10 +21,11 @@ const include = {
 };
 
 export const getAllEvents = async (
+  prisma: PrismaClient,
   filters: EventFilters = { page: 0, pageSize: 10 },
 ): Promise<[EventWithIncludes[], number]> => {
-  filters.page = filters.page ?? 0;
-  filters.pageSize = filters.pageSize ?? 10;
+  const pageNumber = filters.page ?? 0;
+  const pageSize = filters.pageSize ?? 10;
 
   const where: Prisma.EventWhereInput = {
     endDatetime: filters.pastEvents
@@ -103,22 +103,23 @@ export const getAllEvents = async (
         }
       : {}),
   };
-  const [events, count] = await prisma.$transaction([
-    prisma.event.findMany({
+  const [events, count] = await prisma.$transaction(async (tx) => {
+    const events = tx.event.findMany({
       where,
       orderBy: {
         startDatetime: filters.pastEvents ? "desc" : "asc",
       },
-      skip: filters.page * filters.pageSize,
-      take: filters.pageSize,
+      skip: pageNumber * pageSize,
+      take: pageSize,
       include,
-    }),
-    prisma.event.count({ where }),
-  ]);
-  return [events, Math.ceil(count / filters.pageSize)];
+    });
+    const count = tx.event.count({ where });
+    return [await events, await count];
+  });
+  return [events, Math.ceil(count / pageSize)];
 };
 
-export const getEvent = async (slug: string) => {
+export const getEvent = async (prisma: PrismaClient, slug: string) => {
   const response = await prisma.event.findUnique({
     where: {
       slug,

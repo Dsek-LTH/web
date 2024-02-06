@@ -7,6 +7,7 @@
   import File from "./File.svelte";
   import type { SuperValidated } from "sveltekit-superforms";
   import type { DeleteSchema } from "./+page.server";
+  import { isAuthorized } from "$lib/utils/authorization";
 
   export let deleteForm: SuperValidated<DeleteSchema>;
   export let name: string;
@@ -32,7 +33,7 @@
     {#each files as file (file.id)}
       <div class="flex gap-1">
         <File name={file.name} url={file.thumbnailUrl} full />
-        {#if $page.data.accessPolicies.includes(apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).DELETE) && isEditing}
+        {#if isAuthorized(apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).DELETE, $page.data.user) && isEditing}
           <DeleteFileForm
             fileId={file.id}
             fileName={file.name}

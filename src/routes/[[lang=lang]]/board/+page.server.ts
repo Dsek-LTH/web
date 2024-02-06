@@ -1,8 +1,9 @@
-import prisma from "$lib/utils/prisma";
 import { compareBoardPositions } from "$lib/utils/committee-ordering/sort";
+
 import type { PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ locals }) => {
+  const { prisma } = locals;
   const boardPositions = await prisma.committee.findMany({
     where: {
       positions: {
