@@ -787,8 +787,8 @@ model UserInventoryItem {
 }
 
 model LastKeycloakUpdate {
-  id   Int      @id @default(autoincrement())
-  time DateTime
+    id Int @id() @default(autoincrement())
+    time DateTime
 
-  @@map("last_keycloak_update")
+    @@map("last_keycloak_update")
 }

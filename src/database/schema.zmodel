@@ -779,3 +779,10 @@ enum DocumentType {
 
   @@map("document_type")
 }
+
+model LastKeycloakUpdate {
+  id   Int      @id @default(autoincrement())
+  time DateTime
+
+  @@map("last_keycloak_update")
+}
