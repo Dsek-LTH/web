@@ -8,6 +8,7 @@
   import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
   import { page } from "$app/stores";
   import type { FolderType } from "./+page.server";
+    import exp from "constants";
 
   export let expanded = true;
   export let name: string;
@@ -16,6 +17,7 @@
   export let deleteForm: SuperValidated<DeleteSchema>;
   $: folders.sort((a, b) => (a.isFolder && !b.isFolder ? 0 : 1));
 
+  $: foldericon = expanded ? "i-mdi-folder-open-outline" : "i-mdi-folder-outline"
   function toggle() {
     expanded = !expanded;
   }
@@ -23,7 +25,7 @@
 
 <div class="flex" data-tip={name}>
   <button on:click={toggle}
-    ><span class="i-mdi-folder-outline align-text-top text-xl text-primary"
+    ><span class={foldericon + " align-text-top text-xl text-primary"}
     ></span>
     {name}
   </button>
