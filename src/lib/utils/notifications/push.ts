@@ -1,5 +1,6 @@
 import { error } from "@sveltejs/kit";
 import Expo, { type ExpoPushMessage } from "expo-server-sdk";
+import { dev } from "$app/environment";
 
 async function sendPushNotifications(
   tokens: string[],
@@ -8,6 +9,9 @@ async function sendPushNotifications(
   type: string,
   link: string,
 ) {
+
+  if (dev) return;
+
   const expo = new Expo();
 
   const messages: ExpoPushMessage[] = tokens
