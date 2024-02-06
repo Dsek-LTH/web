@@ -5,7 +5,7 @@ import {
   createEmailSpecialSenderSchema,
   createEmailSpecialReceiverSchema,
 } from "./schema";
-import { fuseEmail, getEmailDomains } from "./emailutils";
+import { fuseEmail, getEmailDomains, isValidEmail } from "./emailutils";
 import { fail, type Actions } from "@sveltejs/kit";
 import { redirect } from "sveltekit-flash-message/server";
 import { authorize } from "$lib/utils/authorization";
@@ -60,7 +60,7 @@ export const actions: Actions = {
       localPart,
       domain,
     });
-    if (email == null) {
+    if (email == null || !isValidEmail(email)) {
       return setError(form, "localPart", "Ogiltig e-postadress");
     }
     const position = await prisma.position.findUnique({

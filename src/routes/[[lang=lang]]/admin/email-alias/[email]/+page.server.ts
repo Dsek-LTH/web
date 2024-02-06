@@ -104,7 +104,7 @@ export const actions = {
     throw redirect(
       `/admin/email-alias/${email}`,
       {
-        message: "Aliaset uppdaterat",
+        message: "Posten borttagen från aliaset",
         type: "success",
       },
       event,
@@ -117,6 +117,18 @@ export const actions = {
     const form = await superValidate(event.request, addPositionSchema);
     if (!form.valid) return fail(400, { form });
     const { positionId } = form.data;
+    const existingAlias = await prisma.emailAlias.findFirst({
+      where: {
+        email,
+        positionId,
+      },
+    });
+    if (existingAlias) {
+      return message(form, {
+        message: "Aliaset går redan till den posten",
+        type: "error",
+      });
+    }
     await prisma.emailAlias.create({
       data: {
         email,
@@ -142,7 +154,6 @@ export const actions = {
     const form = await superValidate(event.request, setCanSendSchema);
     if (!form.valid) return fail(400, { form });
     const { aliasId, canSend } = form.data;
-    console.log(form.data);
     await prisma.emailAlias.update({
       where: {
         id: aliasId,
