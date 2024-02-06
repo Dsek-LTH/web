@@ -40,9 +40,6 @@ dependencies:
   '@tiptap/starter-kit':
     specifier: ^2.1.13
     version: 2.1.13(@tiptap/pm@2.1.13)
-  '@types/node-schedule':
-    specifier: ^2.1.5
-    version: 2.1.6
   '@zenstackhq/runtime':
     specifier: ^1.7.1
     version: 1.7.1
@@ -120,6 +117,9 @@ devDependencies:
   '@types/node':
     specifier: ^20.10.5
     version: 20.10.5
+  '@types/node-schedule':
+    specifier: ^2.1.5
+    version: 2.1.6
   '@types/nodemailer':
     specifier: ^6.4.14
     version: 6.4.14
@@ -2163,7 +2163,7 @@ packages:
     resolution: {integrity: sha512-6AlZSUiNTdaVmH5jXYxX9YgmF1zfOlbjUqw0EllTBmZCnN1R5RR/m/u3No1OiWR05bnQ4jM4/+w4FcGvkAtnKQ==}
     dependencies:
       '@types/node': 20.10.5
-    dev: false
+    dev: true
 
   /@types/node@20.10.5:
     resolution: {integrity: sha512-nNPsNE65wjMxEKI93yOP+NPGGBJz/PoN3kZsVLee0XMiJolxSekEVD8wRwBUBqkwc7UWop0edW50yrCQW4CyRw==}

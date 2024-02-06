@@ -129,11 +129,11 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
     });
   }
 
-  schedule.scheduleJob("* */24 * * *", () =>
-    keycloak.updateMandate(prismaClient),
-  );
-
   return resolve(event);
 };
+
+schedule.scheduleJob("* */24 * * *", () =>
+  keycloak.updateMandate(prismaClient),
+);
 
 export const handle = sequence(authHandle, translationHandle, databaseHandle);
