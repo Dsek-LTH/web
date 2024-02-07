@@ -22,20 +22,31 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   const year = url.searchParams.get("year") || new Date().getFullYear();
   const type: DocumentType =
     (url.searchParams.get("type") as DocumentType) || "board-meeting";
-  const files = await fileHandler.getInBucket(
-    user,
-    PUBLIC_BUCKETS_DOCUMENTS,
-    year + "/" + (prefixByType[type] ?? ""),
-    true,
-  );
-  const srdFiles = await fileHandler.getInBucket(
+  const files = await Promise.all([
+    ...(await fileHandler.getInBucket(
+      user,
+      PUBLIC_BUCKETS_DOCUMENTS,
+      year + "/" + (prefixByType[type] ?? ""),
+      true,
+    )),
+    ...(await fileHandler.getInBucket(
+      user,
+      PUBLIC_BUCKETS_DOCUMENTS,
+      "meeting/" + year + "/" + (prefixByType[type] ?? ""),
+      true,
+    )),
+  ]);
+
+  const SRDfiles = await fileHandler.getInBucket(
     user,
     PUBLIC_BUCKETS_DOCUMENTS,
     "srd/" + year,
     true,
   );
+
   if (!files) throw error(404, "No files found");
   let filteredFiles = files;
+  const oldFormatSRDFiles: FileData[] = [];
   switch (type) {
     case "guild-meeting":
       filteredFiles = files.filter((file) => {
@@ -46,7 +57,15 @@ export const load: PageServerLoad = async ({ locals, url }) => {
       break;
 
     case "SRD-meeting":
-      filteredFiles = srdFiles;
+      SRDfiles.forEach((file) => {
+        const fileParts = file.id.split("/");
+        const meeting = fileParts[fileParts.length - 2] ?? "unknown";
+        if (meeting.startsWith("Möte")) {
+          filteredFiles.push(file);
+        } else {
+          oldFormatSRDFiles.push(file);
+        }
+      });
       break;
 
     case "other":
@@ -62,6 +81,24 @@ export const load: PageServerLoad = async ({ locals, url }) => {
       });
       break;
   }
+
+  const oldSRDGroupedByMeeting = oldFormatSRDFiles.reduce<
+    Record<string, FileData[]>
+  >((acc, file) => {
+    const fileParts = file.id.split("/");
+    const fileName = fileParts[fileParts.length - 1] ?? "unknown";
+    const extensions = ["pdf", "html"];
+    const fileExtension = extensions.find((ext) => fileName.endsWith(ext));
+    const meeting = fileName.substring(
+      0,
+      fileName.length - (fileExtension ? fileExtension.length : 0),
+    );
+
+    if (!acc[meeting]) acc[meeting] = [];
+    acc[meeting]!.push(file);
+    return acc;
+  }, {});
+
   const filesGroupedByMeeting = filteredFiles.reduce<
     Record<string, FileData[]>
   >((acc, file) => {
@@ -70,7 +107,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     if (!acc[meeting]) acc[meeting] = [];
     acc[meeting]!.push(file);
     return acc;
-  }, {});
+  }, oldSRDGroupedByMeeting);
   return {
     files,
     meetings: filesGroupedByMeeting,
