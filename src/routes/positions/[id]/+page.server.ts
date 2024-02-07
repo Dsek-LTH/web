@@ -2,6 +2,7 @@ import { error, fail } from "@sveltejs/kit";
 import { redirect } from "sveltekit-flash-message/server";
 import { message, setError, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
+import keycloak from "$lib/utils/keycloak";
 import type { Actions, PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ locals, params, url }) => {
@@ -114,6 +115,7 @@ export const actions: Actions = {
         endDate: form.data.endDate,
       },
     });
+    keycloak.addMandate(member.studentId!, params.id);
     return message(form, {
       message: `Nytt mandat gett till ${member.firstName}`,
       type: "success",
@@ -179,6 +181,7 @@ export const actions: Actions = {
     await prisma.mandate.delete({
       where: { id: form.data.mandateId, positionId: params.id },
     });
+    keycloak.deleteMandate(member.studentId!, params.id);
     return message(form, {
       message: `${member.firstName}${
         member.firstName?.endsWith("s") ? "" : "s"
