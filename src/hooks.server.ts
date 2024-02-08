@@ -4,10 +4,6 @@ import {
   KEYCLOAK_CLIENT_ISSUER,
   KEYCLOAK_CLIENT_SECRET,
 } from "$env/static/private";
-import {
-  sourceLanguageTag,
-  type AvailableLanguageTag,
-} from "$paraglide/runtime";
 import Keycloak, { type KeycloakProfile } from "@auth/core/providers/keycloak";
 import type { TokenSet } from "@auth/core/types";
 import { SvelteKitAuth } from "@auth/sveltekit";
@@ -15,8 +11,11 @@ import { PrismaClient } from "@prisma/client";
 import type { Handle } from "@sveltejs/kit";
 import { sequence } from "@sveltejs/kit/hooks";
 import { enhance } from "@zenstackhq/runtime";
-import { getAccessPolicies } from "./hooks.server.helpers";
 import translatedExtension from "./database/prisma/translationExtension";
+import schedule from "node-schedule";
+import keycloak from "$lib/utils/keycloak";
+import { getAccessPolicies } from "./hooks.server.helpers";
+import { sourceLanguageTag, isAvailableLanguageTag } from "$paraglide/runtime";
 
 const authHandle = SvelteKitAuth({
   secret: AUTH_SECRET,
@@ -76,25 +75,13 @@ const authHandle = SvelteKitAuth({
   },
 });
 
-const translationHandle: Handle = async ({ event, resolve }) => {
-  const lang = event.params["lang"] ?? sourceLanguageTag;
-  event.locals.lang = lang as AvailableLanguageTag; // enforced by lang.ts matcher
-
-  return resolve(event, {
-    transformPageChunk({ done, html }) {
-      // Set the `lang` variable in the app.html file
-      // Only do it at the very end of the rendering process
-      if (done) {
-        return html.replace("%lang%", lang);
-      }
-    },
-  });
-};
-
 const prismaClient = new PrismaClient();
 const databaseHandle: Handle = async ({ event, resolve }) => {
+  const lang = isAvailableLanguageTag(event.locals.paraglide?.lang)
+    ? event.locals.paraglide?.lang
+    : sourceLanguageTag;
   const prisma = prismaClient.$extends(
-    translatedExtension(event.locals.lang),
+    translatedExtension(lang),
   ) as PrismaClient;
   const session = await event.locals.getSession();
   try {
@@ -130,4 +117,8 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
   return resolve(event);
 };
 
-export const handle = sequence(authHandle, translationHandle, databaseHandle);
+schedule.scheduleJob("* */24 * * *", () =>
+  keycloak.updateMandate(prismaClient),
+);
+
+export const handle = sequence(authHandle, databaseHandle);

@@ -785,3 +785,10 @@ model UserInventoryItem {
 
     @@map("user_inventory_item")
 }
+
+model LastKeycloakUpdate {
+    id Int @id() @default(autoincrement())
+    time DateTime
+
+    @@map("last_keycloak_update")
+}
