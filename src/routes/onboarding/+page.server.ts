@@ -1,0 +1,56 @@
+import { memberSchema } from "$lib/zod/schemas";
+import { message, superValidate } from "sveltekit-superforms/server";
+import type { Actions, PageServerLoad } from "./$types";
+import { error, fail } from "@sveltejs/kit";
+
+export const load: PageServerLoad = async ({ locals }) => {
+  const { prisma } = locals;
+  const [memberResult] = await Promise.allSettled([
+    prisma.member.findUnique({
+      where: {
+        studentId: locals.user?.studentId,
+      },
+    }),
+  ]);
+  if (memberResult.status === "rejected") {
+    throw error(500, "Could not fetch member");
+  }
+  if (!memberResult.value) {
+    throw error(404, "Member not found");
+  }
+  const member = memberResult.value;
+  return {
+    form: await superValidate(member, memberSchema),
+    member,
+  };
+};
+
+const updateSchema = memberSchema.pick({
+  firstName: true,
+  lastName: true,
+  nickname: true,
+  foodPreference: true,
+  classProgramme: true,
+  classYear: true,
+});
+
+export type UpdateSchema = typeof updateSchema;
+
+export const actions: Actions = {
+  update: async ({ locals, request }) => {
+    const { prisma } = locals;
+    const form = await superValidate(request, updateSchema);
+    if (!form.valid) return fail(400, { form });
+    const studentId = locals.user?.studentId;
+    await prisma.member.update({
+      where: { studentId },
+      data: {
+        ...form.data,
+      },
+    });
+    return message(form, {
+      message: "Medlem uppdaterad",
+      type: "success",
+    });
+  },
+};
