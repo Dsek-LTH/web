@@ -29,7 +29,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
       const folder =
         fileParts.slice(2, fileParts.length - 1).join("/") ?? "unknown";
       if (!acc[folder]) acc[folder] = [];
-      acc[folder]!.push(file);
+      acc[folder]?.push(file);
       return acc;
     },
     {},
