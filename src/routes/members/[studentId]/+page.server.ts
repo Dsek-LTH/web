@@ -109,6 +109,7 @@ export const actions: Actions = {
     const sender = await prisma.member.findFirst({
       where: { ...form.data },
     });
+    if (sender == null || sender.firstName == null) return fail(400, { form });
     const { studentId } = params;
     await sendNotification(prisma, {
       title: "Ping",
@@ -116,7 +117,7 @@ export const actions: Actions = {
       type: NotificationType.PING,
       link: "https://www.dsek.se",
       memberIds: [studentId],
-      fromMemberId: sender?.firstName!,
+      fromMemberId: sender?.firstName,
     });
   },
 };
