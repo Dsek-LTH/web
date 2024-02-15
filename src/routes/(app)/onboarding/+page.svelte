@@ -5,13 +5,9 @@
   import type { PageData } from "./$types";
   import Labeled from "$lib/components/Labeled.svelte";
   import { programmes } from "$lib/utils/programmes";
+  import { goto } from "$app/navigation";
 
   export let data: PageData;
-  const currentYear = new Date().getFullYear();
-  const years: number[] = Array.from(
-    { length: currentYear - 1961 + 1 },
-    (value, index) => 2024 - index,
-  );
   const { form, errors, constraints, enhance } = superForm<UpdateSchema>(
     data.form,
     {},
@@ -68,27 +64,31 @@
             {/each}
           </select>
         </Labeled>
-        <Labeled label="År" id="classYear" error={$errors.classProgramme}>
-          <select
-            id="classYear"
+        <Labeled label="Year" id="classYear" error={$errors.classYear}>
+          <input
+            type="number"
             name="classYear"
-            class="select select-bordered w-full max-w-xs"
+            id="classYear"
+            class="input input-bordered"
             bind:value={$form.classYear}
-            {...$constraints.classProgramme}
-          >
-            {#each years as year}
-              <option value={year}>{year}</option>
-            {/each}
-          </select>
+            {...$constraints.classYear}
+          />
         </Labeled>
-        <div class="pt-6">
+        <div class="flex w-1/2 gap-2 pt-6">
           <button
             name="save"
             type="submit"
-            class="btn bg-base-300 text-primary"
+            class="btn w-full bg-base-300 text-primary"
           >
             <span class="i-mdi-floppy-disc size-5 bg-primary"></span>
             Spara
+          </button>
+          <button
+            class="btn w-full bg-base-300 text-secondary"
+            type="button"
+            on:click={() => goto("/")}
+          >
+            Klar
           </button>
         </div>
       </div>
