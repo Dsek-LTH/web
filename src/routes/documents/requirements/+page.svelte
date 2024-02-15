@@ -99,5 +99,5 @@
 </div>
 
 <div class="flex flex-col rounded-lg bg-base-200 p-5">
-  <Folder name={""} {folders} deleteForm={data.deleteForm} {isEditing} />
+  <Folder name="" {folders} deleteForm={data.deleteForm} {isEditing} />
 </div>
