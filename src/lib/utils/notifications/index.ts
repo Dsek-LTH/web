@@ -56,12 +56,15 @@ const sendNotification = async (
     (await prisma.author.findFirst({
       where: { memberId: fromMemberId, mandateId: null, customId: null },
     }));
+
+  // If member doesn't have author since before, create one
   const notificationAuthor =
     existingAuthor ?? fromMemberId
       ? await prisma.author.create({
           data: { memberId: fromMemberId! },
         })
       : undefined;
+
   const shouldReceiveDuplicates = DUPLICATE_ALLOWED_TYPES.includes(type); // if the notification type allows for duplicates
 
   const receivingMembers = await prisma.member.findMany({

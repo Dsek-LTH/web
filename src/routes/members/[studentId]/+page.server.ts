@@ -2,6 +2,8 @@ import { memberSchema } from "$lib/zod/schemas";
 import { error, fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
 import type { Actions, PageServerLoad } from "./$types";
+import sendNotification from "$lib/utils/notifications";
+import { NotificationType } from "$lib/utils/notifications/types";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma } = locals;
@@ -76,6 +78,13 @@ const updateSchema = memberSchema.pick({
 
 export type UpdateSchema = typeof updateSchema;
 
+const pingSchema = memberSchema.pick({
+  firstName: true,
+  lastName: true,
+});
+
+export type PingSchema = typeof pingSchema;
+
 export const actions: Actions = {
   update: async ({ params, locals, request }) => {
     const { prisma } = locals;
@@ -91,6 +100,23 @@ export const actions: Actions = {
     return message(form, {
       message: "Medlem uppdaterad",
       type: "success",
+    });
+  },
+  ping: async ({ params, locals, request }) => {
+    const { prisma } = locals;
+    const form = await superValidate(request, pingSchema);
+    if (!form.valid) return fail(400, { form });
+    const sender = await prisma.member.findFirst({
+      where: { ...form.data },
+    });
+    const { studentId } = params;
+    await sendNotification(prisma, {
+      title: "Ping",
+      message: "Pinged!",
+      type: NotificationType.PING,
+      link: "https://www.dsek.se",
+      memberIds: [studentId],
+      fromMemberId: sender?.firstName!,
     });
   },
 };

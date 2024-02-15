@@ -66,6 +66,11 @@
           {isEditing ? "Spara" : "Redigera"}
         </button>
       {/if}
+      {#if data.user}
+        <form method="POST" action="?/ping">
+          <button class="btn" on:click={() => {}}>Ping</button>
+        </form>
+      {/if}
     </div>
     {member.studentId}
   </header>
