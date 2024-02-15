@@ -3,10 +3,7 @@
 
   export let type: string;
 
-  const urlType = $page.url.searchParams.get("type");
-  if (urlType) {
-    type = urlType;
-  }
+  type = $page.url.searchParams.get("type") ?? "meeting";
 </script>
 
 <ul class="xyz flex flex-wrap gap-4">

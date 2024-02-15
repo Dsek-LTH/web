@@ -23,13 +23,14 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     "requirement/" + year,
     true,
   );
+  console.log(files);
   const filesGroupedByFolder = files.reduce<Record<string, FileData[]>>(
     (acc, file) => {
       const fileParts = file.id.split("/");
-      const folder =
+      const folder = //get the folder structure starting 2 "steps" in, we don't want the requirements/[year] part of the filepath
         fileParts.slice(2, fileParts.length - 1).join("/") ?? "unknown";
       if (!acc[folder]) acc[folder] = [];
-      acc[folder]!.push(file);
+      acc[folder]?.push(file);
       return acc;
     },
     {},

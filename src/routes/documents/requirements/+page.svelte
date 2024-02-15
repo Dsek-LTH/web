@@ -12,15 +12,21 @@
   let isEditing: boolean = false;
 
   const currentYear = new Date().getFullYear();
-  let folders: FolderType[] = [];
+  const folders: FolderType[] = [];
 
   $: {
-    folders = [];
+    folders.length = 0; // make folders empty
     Object.keys(data["folders"]).forEach((folder) => {
       processFolder(folder, "", folders);
     });
   }
 
+  /*
+      The purpose of this function is to take the input from data.folders and make it into a recursive folder structure that works
+      well with the Folder component, which is also recursive. 
+      For each of the items in data.folders, which is a path to a file. It recursively goes down the path, adding it to pathSoFar,
+      pathSoFar is used because multiple files can share parts of their path.
+  */
   function processFolder(
     folder: string,
     pathSoFar: string,
@@ -99,5 +105,5 @@
 </div>
 
 <div class="flex flex-col rounded-lg bg-base-200 p-5">
-  <Folder name={""} {folders} deleteForm={data.deleteForm} {isEditing} />
+  <Folder name="" {folders} deleteForm={data.deleteForm} {isEditing} />
 </div>
