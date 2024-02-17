@@ -6,7 +6,11 @@
   export let fullWidth: boolean = false;
 </script>
 
-<div class={`relative inline-flex flex-col items-stretch ${fullWidth ? 'w-full md:w-auto' : ''}`}>
+<div
+  class={`relative inline-flex flex-col items-stretch ${
+    fullWidth ? "w-full md:w-auto" : ""
+  }`}
+>
   {#if label}
     <label class="label" for={id}>
       <span class="label-text">
