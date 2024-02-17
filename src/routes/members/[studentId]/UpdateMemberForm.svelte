@@ -51,7 +51,7 @@
       label="Program"
       id="classProgramme"
       error={$errors.classProgramme}
-      fullWidth={true}
+      fullWidth
     >
       <select
         id="classProgramme"
