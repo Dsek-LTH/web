@@ -21,7 +21,7 @@
   method="POST"
   action="?/update"
   use:enhance
-  class="form-control max-w-full gap-2 p-5"
+  class="form-control max-w-full gap-2"
 >
   <div class="flex flex-wrap gap-2 [&>*]:flex-1">
     <Input
