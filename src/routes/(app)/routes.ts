@@ -36,6 +36,12 @@ export const routes = [
         icon: "i-mdi-text-box-multiple",
         accessRequired: null,
       },
+      {
+        title: "Kravprofiler",
+        path: "/documents/requirements",
+        icon: "i-mdi-vote",
+        accessRequired: null,
+      },
     ],
   },
   {
