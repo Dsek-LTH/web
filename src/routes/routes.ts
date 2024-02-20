@@ -99,6 +99,12 @@ export const routes = [
         icon: "i-mdi-door-open",
         accessRequired: apiNames.DOOR.READ,
       },
+      {
+        title: "Alerts",
+        path: "/admin/alerts",
+        icon: "i-mdi-alert-circle",
+        accessRequired: apiNames.DOOR.READ, //temporary, make right api accsess
+      },
     ],
   },
 ];

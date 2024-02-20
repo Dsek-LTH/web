@@ -1,0 +1,25 @@
+<script lang="ts">
+  const options = ["Info", "Success", "Warning", "Error"];
+  let severity: string;
+</script>
+
+<form method="POST" class="flex flex-col gap-2 max-w-lg">
+  <input
+    type="text"
+    placeholder="Meddelande Svenska"
+    class="input input-bordered w-full"
+  />
+  <input
+    type="text"
+    placeholder="Meddelande Engelska"
+    class="input input-bordered w-full"
+  />
+  <select class="select select-bordered w-full">
+    <option disabled selected>Severity</option>
+    <option>Info</option>
+    <option>Success</option>
+    <option>Warning</option>
+    <option>Error</option>
+  </select>
+  <button class="btn">Create</button>
+</form>
