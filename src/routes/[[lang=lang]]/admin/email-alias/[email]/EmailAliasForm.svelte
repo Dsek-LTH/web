@@ -1,11 +1,12 @@
 <script lang="ts">
   import type { SuperValidated } from "sveltekit-superforms";
-  import type { RemovePositionForm, SetCanSendForm } from "./+page.server";
   import { superForm } from "sveltekit-superforms/client";
   import type { EmailAlias, Position } from "@prisma/client";
+  import type { RemovePositionForm, SetCanSendForm } from "./schema";
 
   export let emailAlias: EmailAlias & { position: Position };
   export let canSendForm: SuperValidated<SetCanSendForm>;
+  export let isEditing: boolean;
   const { enhance: canSendEnchance } = superForm(canSendForm, {
     id: emailAlias.id,
   });
@@ -24,34 +25,33 @@
     use:canSendEnchance
     bind:this={canSendFormHTML}
   >
-    <div class="flex flex-row gap-6 py-4">
+    <div class="my-4 flex flex-row gap-6">
       <h1 class="font-medium">{emailAlias.position.name}</h1>
       <input type="hidden" name="aliasId" value={emailAlias.id} />
       <input type="hidden" name="canSend" value={emailAlias.canSend} />
       <p class="font-mono">{emailAlias.positionId}</p>
       <label for="canSend">Kan skicka?</label>
-      <input
-        type="checkbox"
-        name="canSend"
-        id="canSend"
-        class="toggle toggle-primary"
-        on:click={async () => {
-          emailAlias.canSend = !emailAlias.canSend;
-          setTimeout(() => {
-            canSendFormHTML.requestSubmit();
-          }, 0);
-        }}
-        checked={emailAlias.canSend}
-      />
-      <!-- <button
-        type="submit"
-        class="btn btn-primary btn-xs"
-        on:click={async () => {
-          emailAlias.canSend = !emailAlias.canSend;
-        }}
-      >
-        {emailAlias.canSend ? "Ja" : "Nej"}
-      </button> -->
+      {#if isEditing}
+        <input
+          type="checkbox"
+          name="canSend"
+          id="canSend"
+          class="toggle toggle-primary"
+          on:click={async () => {
+            emailAlias.canSend = !emailAlias.canSend;
+            setTimeout(() => {
+              canSendFormHTML.requestSubmit();
+            }, 0);
+          }}
+          checked={emailAlias.canSend}
+        />
+      {:else}
+        <input
+          type="checkbox"
+          class="toggle toggle-primary pointer-events-none"
+          checked={emailAlias.canSend}
+        />
+      {/if}
     </div>
   </form>
 
@@ -64,6 +64,10 @@
     <input type="hidden" name="aliasId" value={emailAlias.id} />
     <input type="hidden" name="positionId" value={emailAlias.positionId} />
     <input type="hidden" name="email" value={emailAlias.email} />
-    <button class="btn btn-error btn-xs" type="submit"> Ta bort posten </button>
+    {#if isEditing}
+      <button class="btn btn-error btn-xs" type="submit">
+        Ta bort posten
+      </button>
+    {/if}
   </form>
 </div>

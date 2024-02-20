@@ -1,0 +1,32 @@
+<script lang="ts">
+  import type { SuperValidated } from "sveltekit-superforms";
+  import { superForm } from "sveltekit-superforms/client";
+  import type { SpecialSender } from "@prisma/client";
+  import type { RemoveSpecialSenderForm } from "./schema";
+
+  export let specialSender: SpecialSender;
+  export let isEditing: boolean;
+
+  export let removeSenderForm: SuperValidated<RemoveSpecialSenderForm>;
+  const { enhance: removeSenderEnhance } = superForm(removeSenderForm);
+</script>
+
+<div class="flex flex-row items-center justify-between border-b border-neutral">
+  <div class="my-4 flex flex-row gap-6">
+    <p class="font-mono">{specialSender.studentId}</p>
+    <p class="font-mono">{specialSender.keycloakId}</p>
+  </div>
+  <form
+    action="?/removeSpecialSender"
+    method="post"
+    class="flex flex-row"
+    use:removeSenderEnhance
+  >
+    <input type="hidden" name="id" value={specialSender.id} />
+    {#if isEditing}
+      <button class="btn btn-error btn-xs" type="submit">
+        Ta bort special sender
+      </button>
+    {/if}
+  </form>
+</div>

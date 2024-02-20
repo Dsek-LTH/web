@@ -1,10 +1,26 @@
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
-import { z } from "zod";
 import type { PageServerLoad } from "./$types";
-import { message, superValidate } from "sveltekit-superforms/server";
-import { fail } from "@sveltejs/kit";
+import { message, setError, superValidate } from "sveltekit-superforms/server";
+import { error, fail } from "@sveltejs/kit";
 import { redirect } from "sveltekit-flash-message/server";
+import {
+  addPositionSchema,
+  addSpecialReceiverSchema,
+  addSpecialSenderSchema,
+  deleteEmailAliasSchema,
+  deleteSpecialReceiverSchema,
+  deleteSpecialSenderSchema,
+  removePositionSchema,
+  removeSpecialReceiverSchema,
+  removeSpecialSenderSchema,
+  setCanSendSchema,
+} from "./schema";
+import { isValidEmail } from "../emailutils";
+import keycloak from "$lib/utils/keycloak";
+import type { PrismaClient } from "@prisma/client";
+// eslint-disable-next-line no-restricted-imports -- the function should be in the API route
+import { _handleUpdate } from "../../../api/mail/alias/+server";
 
 export const load: PageServerLoad = async (event) => {
   const { user, prisma } = event.locals;
@@ -18,7 +34,12 @@ export const load: PageServerLoad = async (event) => {
     user,
   );
   const { email } = event.params;
-  const [emailAliasResult, allPositionsResult] = await Promise.allSettled([
+  const [
+    emailAliasResult,
+    allPositionsResult,
+    specialReceiverResult,
+    specialSenderResult,
+  ] = await Promise.allSettled([
     prisma.emailAlias.findMany({
       where: {
         email,
@@ -38,33 +59,84 @@ export const load: PageServerLoad = async (event) => {
         name: "asc",
       },
     }),
+    prisma.specialReceiver.findMany({
+      where: {
+        email,
+      },
+      orderBy: {
+        targetEmail: "asc",
+      },
+    }),
+    prisma.specialSender.findMany({
+      where: {
+        email,
+      },
+      orderBy: {
+        studentId: "asc",
+      },
+    }),
   ]);
-  if (emailAliasResult.status === "rejected") {
-    throw fail(404, { message: "E-postadressen kunde inte hittas" });
+  if (
+    emailAliasResult.status === "rejected" ||
+    specialReceiverResult.status === "rejected" ||
+    specialSenderResult.status === "rejected"
+  ) {
+    throw error(404, { message: "E-postadressen kunde inte hittas" });
   }
   if (allPositionsResult.status === "rejected") {
-    throw fail(500, { message: "Kunde inte hämta positioner" });
+    throw error(500, { message: "Kunde inte hämta positioner" });
   }
 
   const [
-    removePositionForm,
     addPositionForm,
-    deleteEmailAliasForm,
+    removePositionForm,
     setCanSendForm,
+    deleteEmailAliasForm,
+    addSpecialReceiverForm,
+    removeSpecialReceiverForm,
+    deleteSpecialReceiverForm,
+    addSpecialSenderForm,
+    removeSpecialSenderForm,
+    deleteSpecialSenderForm,
   ] = await Promise.all([
-    superValidate(removePositionSchema),
     superValidate(addPositionSchema),
-    superValidate(deleteEmailAliasSchema),
+    superValidate(removePositionSchema),
     superValidate(setCanSendSchema),
+    superValidate(deleteEmailAliasSchema),
+    superValidate(addSpecialReceiverSchema),
+    superValidate(removeSpecialReceiverSchema),
+    superValidate(deleteSpecialReceiverSchema),
+    superValidate(addSpecialSenderSchema),
+    superValidate(removeSpecialSenderSchema),
+    superValidate(deleteSpecialSenderSchema),
   ]);
 
+  const emailAliases = emailAliasResult.value;
+  const specialReceiver = specialReceiverResult.value;
+  const specialSender = specialSenderResult.value;
+  if (
+    emailAliases.length === 0 &&
+    specialReceiver.length === 0 &&
+    specialSender.length === 0
+  ) {
+    throw error(404, { message: "E-postadressen kunde inte hittas" });
+  }
+
   return {
-    emailAlias: emailAliasResult.value,
+    emailAlias: emailAliases,
+    allPositions: allPositionsResult.value,
+    specialReceivers: specialReceiver,
+    specialSenders: specialSender,
     addPositionForm,
     removePositionForm,
-    deleteEmailAliasForm,
     setCanSendForm,
-    allPositions: allPositionsResult.value,
+    deleteEmailAliasForm,
+    addSpecialReceiverForm,
+    removeSpecialReceiverForm,
+    deleteSpecialReceiverForm,
+    addSpecialSenderForm,
+    removeSpecialSenderForm,
+    deleteSpecialSenderForm,
   };
 };
 
@@ -72,51 +144,41 @@ export const actions = {
   deleteEmailAlias: async (event) => {
     const { user, prisma } = event.locals;
     authorize(apiNames.EMAIL_ALIAS.DELETE, user);
-    const { email } = event.params;
+    const form = await superValidate(event.request, deleteEmailAliasSchema);
+    if (!form.valid) return fail(400, { form });
+    const { email } = form.data;
     await prisma.emailAlias.deleteMany({
       where: {
         email,
       },
     });
-    throw redirect(
-      "/admin/email-alias",
-      {
+    _handleUpdate();
+    if (await hasAnyLeft(prisma, email)) {
+      return message(form, {
         message: "Aliaset borttaget",
         type: "success",
-      },
-      event,
-    );
-  },
-  removePosition: async (event) => {
-    const { user, prisma } = event.locals;
-    authorize(apiNames.EMAIL_ALIAS.UPDATE, user);
-    const { email } = event.params;
-    const form = await superValidate(event.request, removePositionSchema);
-    if (!form.valid) return fail(400, { form });
-    const { aliasId, positionId } = form.data;
-    await prisma.emailAlias.delete({
-      where: {
-        id: aliasId,
-        email,
-        positionId,
-      },
-    });
-    throw redirect(
-      `/admin/email-alias/${email}`,
-      {
-        message: "Posten borttagen från aliaset",
-        type: "success",
-      },
-      event,
-    );
+      });
+    } else {
+      throw redirect(
+        "/admin/email-alias",
+        {
+          message: "Aliaset borttaget",
+          type: "success",
+        },
+        event,
+      );
+    }
   },
   addPosition: async (event) => {
     const { user, prisma } = event.locals;
     authorize([apiNames.EMAIL_ALIAS.CREATE, apiNames.EMAIL_ALIAS.UPDATE], user);
-    const { email } = event.params;
     const form = await superValidate(event.request, addPositionSchema);
     if (!form.valid) return fail(400, { form });
-    const { positionId } = form.data;
+    const { positionId, email } = form.data;
+    console.log("Adding position", positionId, email);
+    if (!isValidEmail(email)) {
+      return setError(form, "email", "E-postadressen är inte giltig");
+    }
     const existingAlias = await prisma.emailAlias.findFirst({
       where: {
         email,
@@ -124,10 +186,7 @@ export const actions = {
       },
     });
     if (existingAlias) {
-      return message(form, {
-        message: "Aliaset går redan till den posten",
-        type: "error",
-      });
+      return setError(form, "positionId", "Positionen finns redan");
     }
     await prisma.emailAlias.create({
       data: {
@@ -139,14 +198,28 @@ export const actions = {
         },
       },
     });
-    throw redirect(
-      `/admin/email-alias/${email}`,
-      {
-        message: "Aliaset uppdaterat",
-        type: "success",
+    _handleUpdate();
+    return message(form, {
+      message: "Positionen tillagd",
+      type: "success",
+    });
+  },
+  removePosition: async (event) => {
+    const { user, prisma } = event.locals;
+    authorize(apiNames.EMAIL_ALIAS.UPDATE, user);
+    const form = await superValidate(event.request, removePositionSchema);
+    if (!form.valid) return fail(400, { form });
+    const { aliasId } = form.data;
+    await prisma.emailAlias.delete({
+      where: {
+        id: aliasId,
       },
-      event,
-    );
+    });
+    _handleUpdate();
+    return message(form, {
+      message: "Positionen borttagen",
+      type: "success",
+    });
   },
   setCanSend: async (event) => {
     const { user, prisma } = event.locals;
@@ -167,27 +240,183 @@ export const actions = {
       type: "success",
     });
   },
+  deleteSpecialReceiver: async (event) => {
+    const { user, prisma } = event.locals;
+    authorize(apiNames.EMAIL_ALIAS.DELETE, user);
+    const form = await superValidate(event.request, deleteEmailAliasSchema);
+    if (!form.valid) return fail(400, { form });
+    const { email } = form.data;
+    await prisma.specialReceiver.deleteMany({
+      where: {
+        email,
+      },
+    });
+    _handleUpdate();
+    if (await hasAnyLeft(prisma, email)) {
+      return message(form, {
+        message: "Special receivers borttagna",
+        type: "success",
+      });
+    } else {
+      throw redirect(
+        "/admin/email-alias",
+        {
+          message: "Special receivers borttagna",
+          type: "success",
+        },
+        event,
+      );
+    }
+  },
+  addSpecialReceiver: async (event) => {
+    const { user, prisma } = event.locals;
+    authorize(apiNames.EMAIL_ALIAS.CREATE, user);
+    const form = await superValidate(event.request, addSpecialReceiverSchema);
+    if (!form.valid) return fail(400, { form });
+    const { email, targetEmailReceiver } = form.data;
+    if (!isValidEmail(targetEmailReceiver)) {
+      return setError(
+        form,
+        "targetEmailReceiver",
+        "E-postadressen är inte giltig",
+      );
+    }
+    await prisma.specialReceiver.create({
+      data: {
+        email,
+        targetEmail: targetEmailReceiver,
+      },
+    });
+    _handleUpdate();
+    return message(form, {
+      message: "Special receiver tillagd",
+      type: "success",
+    });
+  },
+  removeSpecialReceiver: async (event) => {
+    const { user, prisma } = event.locals;
+    authorize(apiNames.EMAIL_ALIAS.DELETE, user);
+    const form = await superValidate(
+      event.request,
+      removeSpecialReceiverSchema,
+    );
+    if (!form.valid) return fail(400, { form });
+    const { id } = form.data;
+    await prisma.specialReceiver.delete({
+      where: {
+        id,
+      },
+    });
+    _handleUpdate();
+    return message(form, {
+      message: "Special receiver borttagen",
+      type: "success",
+    });
+  },
+  deleteSpecialSender: async (event) => {
+    const { user, prisma } = event.locals;
+    authorize(apiNames.EMAIL_ALIAS.DELETE, user);
+    const form = await superValidate(event.request, deleteEmailAliasSchema);
+    if (!form.valid) return fail(400, { form });
+    const { email } = form.data;
+    await prisma.specialSender.deleteMany({
+      where: {
+        email,
+      },
+    });
+    _handleUpdate();
+    if (await hasAnyLeft(prisma, email)) {
+      return message(form, {
+        message: "Special senders borttagna",
+        type: "success",
+      });
+    } else {
+      throw redirect(
+        "/admin/email-alias",
+        {
+          message: "Special senders borttagna",
+          type: "success",
+        },
+        event,
+      );
+    }
+  },
+  addSpecialSender: async (event) => {
+    const { user, prisma } = event.locals;
+    authorize(apiNames.EMAIL_ALIAS.CREATE, user);
+    const form = await superValidate(event.request, addSpecialSenderSchema);
+    if (!form.valid) return fail(400, { form });
+    const { email, usernameSender } = form.data;
+    if (!isValidEmail(email)) {
+      return setError(form, "email", "E-postadressen är inte giltig");
+    }
+    if (!(await keycloak.hasUsername(usernameSender))) {
+      return setError(
+        form,
+        "usernameSender",
+        "Användaren finns inte i Keycloak",
+      );
+    }
+    const keycloakId = await keycloak.getUserId(usernameSender);
+    if (keycloakId == null) {
+      return setError(
+        form,
+        "usernameSender",
+        "Användaren finns inte i Keycloak",
+      );
+    }
+    await prisma.specialSender.create({
+      data: {
+        email,
+        studentId: usernameSender,
+        keycloakId: keycloakId,
+      },
+    });
+    _handleUpdate();
+    return message(form, {
+      message: "Special sender tillagd",
+      type: "success",
+    });
+  },
+  removeSpecialSender: async (event) => {
+    const { user, prisma } = event.locals;
+    authorize(apiNames.EMAIL_ALIAS.DELETE, user);
+    const form = await superValidate(event.request, removeSpecialSenderSchema);
+    if (!form.valid) return fail(400, { form });
+    const { id } = form.data;
+    await prisma.specialSender.delete({
+      where: {
+        id,
+      },
+    });
+    _handleUpdate();
+    return message(form, {
+      message: "Special sender borttagen",
+      type: "success",
+    });
+  },
 };
 
-const removePositionSchema = z.object({
-  email: z.string(),
-  aliasId: z.string(),
-  positionId: z.string(),
-});
-
-export type RemovePositionForm = typeof removePositionSchema;
-
-const addPositionSchema = z.object({
-  positionId: z.string(),
-});
-
-const deleteEmailAliasSchema = z.object({
-  email: z.string(),
-});
-
-const setCanSendSchema = z.object({
-  aliasId: z.string(),
-  canSend: z.boolean(),
-});
-
-export type SetCanSendForm = typeof setCanSendSchema;
+async function hasAnyLeft(
+  prisma: PrismaClient,
+  email: string,
+): Promise<boolean> {
+  const [aliasCount, receiverCount, senderCount] = await Promise.all([
+    prisma.emailAlias.count({
+      where: {
+        email,
+      },
+    }),
+    prisma.specialReceiver.count({
+      where: {
+        email,
+      },
+    }),
+    prisma.specialSender.count({
+      where: {
+        email,
+      },
+    }),
+  ]);
+  return aliasCount + receiverCount + senderCount > 0;
+}
