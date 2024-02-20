@@ -69,7 +69,7 @@
       label="Year"
       id="classProgramme"
       error={$errors.classYear}
-      fullWidth={true}
+      fullWidth
     >
       <input
         type="number"
