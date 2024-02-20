@@ -5,13 +5,22 @@
   import AuthorSignature from "$lib/components/AuthorSignature.svelte";
   import LikeButton from "../LikeButton.svelte";
   import LikersList from "../LikersList.svelte";
-  import { isAuthorized } from "$lib/utils/authorization";
   import type { PageData } from "./$types";
+  import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
 
   export let data: PageData;
   $: article = data.article;
   $: author = article.author;
+
+  import { superForm } from "sveltekit-superforms/client";
+  import type { SuperValidated } from "sveltekit-superforms";
+  import type { RemoveArticleSchema } from "../removeArticleAction";
+  export let articleId: string;
+  export let removeForm: SuperValidated<RemoveArticleSchema>;
+  const { enhance } = superForm(removeForm, {
+    id: articleId,
+  });
 </script>
 
 <svelte:head>
@@ -28,14 +37,27 @@
       type={article.author.type}
     />
 
-    <div slot="actions">
-      {#if isAuthorized(apiNames.NEWS.UPDATE, data.user)}
+    <div slot="actions" class="flex flex-row">
+      {#if isAuthorized(apiNames.EVENT.UPDATE, data.user)}
         <a
-          class="text-primary hover:underline"
-          href={`/news/${article.slug}/edit`}
+          href="/news/{article.slug}/edit"
+          class="btn btn-square btn-ghost btn-md"
+          title="Redigera"
         >
-          Redigera
+          <span class="i-mdi-edit text-xl" />
         </a>
+      {/if}
+      {#if isAuthorized(apiNames.EVENT.DELETE, data.user)}
+        <form method="POST" action="?/removeArticle" use:enhance>
+          <input type="hidden" name="articleId" value={article.id} />
+          <button
+            type="submit"
+            class="btn btn-square btn-ghost btn-md"
+            title="Radera"
+          >
+            <span class="i-mdi-delete text-xl" />
+          </button>
+        </form>
       {/if}
     </div>
 

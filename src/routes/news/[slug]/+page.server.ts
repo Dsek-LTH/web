@@ -10,6 +10,10 @@ import { superValidate } from "sveltekit-superforms/server";
 import { getArticle } from "../articles";
 import { likeSchema, likesAction } from "../likes";
 import type { Actions, PageServerLoad } from "./$types";
+import {
+  removeArticleAction,
+  removeArticleSchema,
+} from "../removeArticleAction";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma } = locals;
@@ -26,6 +30,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     likeForm: await superValidate(likeSchema),
     commentForm: await superValidate(commentSchema),
     removeCommentForm: await superValidate(removeCommentSchema),
+    removeArticleForm: await superValidate(removeArticleSchema),
   };
 };
 
@@ -34,4 +39,5 @@ export const actions: Actions = {
   dislike: likesAction(false),
   comment: commentAction("NEWS"),
   removeComment: removeCommentAction("NEWS"),
+  removeArticle: removeArticleAction(),
 };
