@@ -56,7 +56,7 @@
       <select
         id="classProgramme"
         name="classProgramme"
-        class="w-xs select select-bordered w-full"
+        class="select select-bordered w-full md:max-w-20"
         bind:value={$form.classProgramme}
         {...$constraints.classProgramme}
       >
