@@ -75,7 +75,7 @@
         type="number"
         name="classYear"
         id="classYear"
-        class="w-xs input input-bordered"
+        class="input input-bordered md:max-w-20"
         bind:value={$form.classYear}
         {...$constraints.classYear}
       />
