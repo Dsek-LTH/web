@@ -1,6 +1,4 @@
 <script lang="ts">
-  const options = ["Info", "Success", "Warning", "Error"];
-  let severity: string;
 </script>
 
 <form method="POST" class="flex max-w-lg flex-col gap-2">
