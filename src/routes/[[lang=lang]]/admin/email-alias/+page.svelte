@@ -29,7 +29,7 @@
 
   const domains = data.domains.map((d) => d);
   const positions = data.positions;
-  $: grouped = Array.from(
+  $: groupedEmailAliases = Array.from(
     data.emailAliases.reduce((acc, emailAlias) => {
       if (!acc.has(emailAlias.email)) {
         acc.set(emailAlias.email, []);
@@ -37,6 +37,29 @@
       acc.get(emailAlias.email)?.push(emailAlias.positionId);
       return acc;
     }, new Map<string, string[]>()),
+  );
+  $: groupedSpecialReceivers = Array.from(
+    data.specialReceivers.reduce((acc, emailSpecialReceiver) => {
+      if (!acc.has(emailSpecialReceiver.email)) {
+        acc.set(emailSpecialReceiver.email, []);
+      }
+      acc
+        .get(emailSpecialReceiver.email)
+        ?.push(emailSpecialReceiver.targetEmail);
+      return acc;
+    }, new Map<string, string[]>()),
+  );
+  $: groupedSpecialSenders = Array.from(
+    data.specialSenders.reduce((acc, emailSpecialSender) => {
+      if (!acc.has(emailSpecialSender.email)) {
+        acc.set(emailSpecialSender.email, []);
+      }
+      acc.get(emailSpecialSender.email)?.push({
+        studentId: emailSpecialSender.studentId,
+        keycloakId: emailSpecialSender.keycloakId,
+      });
+      return acc;
+    }, new Map<string, Array<{ studentId: string; keycloakId: string | null }>>()),
   );
 </script>
 
@@ -54,25 +77,25 @@
         method="POST"
       >
         <Input
-          name="localPart"
-          id="localPart"
+          name="localPartAlias"
+          id="localPartAlias"
           label="Email"
           required
-          bind:value={$createEmailPositionForm.localPart}
-          {...$createEmailPositionConstraints.localPart}
-          error={$createEmailPositionErrors.localPart}
+          bind:value={$createEmailPositionForm.localPartAlias}
+          {...$createEmailPositionConstraints.localPartAlias}
+          error={$createEmailPositionErrors.localPartAlias}
         />
         <Labeled
           label="Domain"
-          id="domain"
-          error={$createEmailPositionErrors.domain}
+          id="domainAlias"
+          error={$createEmailPositionErrors.domainAlias}
         >
           <select
-            id="domain"
-            name="domain"
+            id="domainAlias"
+            name="domainAlias"
             class="select select-bordered w-full max-w-xs"
-            bind:value={$createEmailPositionForm.domain}
-            {...$createEmailPositionConstraints.domain}
+            bind:value={$createEmailPositionForm.domainAlias}
+            {...$createEmailPositionConstraints.domainAlias}
             required
           >
             {#each domains as domain}
@@ -80,13 +103,13 @@
             {/each}
           </select>
         </Labeled>
-        <Labeled label="Post" id="positionId">
+        <Labeled label="Post" id="positionIdAlias">
           <select
-            id="positionId"
-            name="positionId"
+            id="positionIdAlias"
+            name="positionIdAlias"
             class="select select-bordered w-full max-w-xs"
-            bind:value={$createEmailPositionForm.positionId}
-            {...$createEmailPositionConstraints.positionId}
+            bind:value={$createEmailPositionForm.positionIdAlias}
+            {...$createEmailPositionConstraints.positionIdAlias}
             required
           >
             {#each positions as position (position.id)}
@@ -110,23 +133,23 @@
         <Input
           name="localPartSender"
           label="Email"
-          id="localPart"
+          id="localPartSender"
           required
-          bind:value={$createEmailSpecialSenderForm.localPart}
-          {...$createEmailSpecialSenderConstraints.localPart}
-          error={$createEmailSpecialSenderErrors.localPart}
+          bind:value={$createEmailSpecialSenderForm.localPartSender}
+          {...$createEmailSpecialSenderConstraints.localPartSender}
+          error={$createEmailSpecialSenderErrors.localPartSender}
         />
         <Labeled
           label="Domain"
-          id="domain"
-          error={$createEmailSpecialSenderErrors.domain}
+          id="domainSender"
+          error={$createEmailSpecialSenderErrors.domainSender}
         >
           <select
-            id="domain"
+            id="domainSender"
             name="domainSender"
             class="select select-bordered w-full max-w-xs"
-            bind:value={$createEmailSpecialSenderForm.domain}
-            {...$createEmailSpecialSenderConstraints.domain}
+            bind:value={$createEmailSpecialSenderForm.domainSender}
+            {...$createEmailSpecialSenderConstraints.domainSender}
             required
           >
             {#each domains as domain}
@@ -135,22 +158,13 @@
           </select>
         </Labeled>
         <Input
-          name="username"
-          label="Username"
+          name="usernameSender"
+          label="StudentId || Username"
           required
-          id="username"
-          bind:value={$createEmailSpecialSenderForm.username}
-          {...$createEmailSpecialSenderConstraints.username}
-          error={$createEmailSpecialSenderErrors.username}
-        />
-        <Input
-          name="keycloakId"
-          label="Keycloak-ID"
-          required
-          id="keycloakId"
-          bind:value={$createEmailSpecialSenderForm.keycloakId}
-          {...$createEmailSpecialSenderConstraints.keycloakId}
-          error={$createEmailSpecialSenderErrors.keycloakId}
+          id="usernameSender"
+          bind:value={$createEmailSpecialSenderForm.usernameSender}
+          {...$createEmailSpecialSenderConstraints.usernameSender}
+          error={$createEmailSpecialSenderErrors.usernameSender}
         />
 
         <button class="btn btn-primary" type="submit">Lägg till</button>
@@ -167,25 +181,25 @@
         use:createEmailSpecialReceiverEnhance
       >
         <Input
-          name="localPart"
+          name="localPartReceiver"
           label="Email"
           required
-          id="localPart"
-          bind:value={$createEmailSpecialReceiverForm.localPart}
-          {...$createEmailSpecialReceiverConstraints.localPart}
-          error={$createEmailSpecialReceiverErrors.localPart}
+          id="localPartReceiver"
+          bind:value={$createEmailSpecialReceiverForm.localPartReceiver}
+          {...$createEmailSpecialReceiverConstraints.localPartReceiver}
+          error={$createEmailSpecialReceiverErrors.localPartReceiver}
         />
         <Labeled
           label="Domain"
-          id="domain"
-          error={$createEmailSpecialReceiverErrors.domain}
+          id="domainReceiver"
+          error={$createEmailSpecialReceiverErrors.domainReceiver}
         >
           <select
-            id="domain"
-            name="domain"
+            id="domainReceiver"
+            name="domainReceiver"
             class="select select-bordered w-full max-w-xs"
-            bind:value={$createEmailSpecialReceiverForm.domain}
-            {...$createEmailSpecialReceiverConstraints.domain}
+            bind:value={$createEmailSpecialReceiverForm.domainReceiver}
+            {...$createEmailSpecialReceiverConstraints.domainReceiver}
             required
           >
             {#each domains as domain}
@@ -194,13 +208,13 @@
           </select>
         </Labeled>
         <Input
-          name="targetEmail"
+          name="targetEmailReceiver"
           label="Target Email"
           required
-          id="targetEmail"
-          bind:value={$createEmailSpecialReceiverForm.targetEmail}
-          {...$createEmailSpecialReceiverConstraints.targetEmail}
-          error={$createEmailSpecialReceiverErrors.targetEmail}
+          id="targetEmailReceiver"
+          bind:value={$createEmailSpecialReceiverForm.targetEmailReceiver}
+          error={$createEmailSpecialReceiverErrors.targetEmailReceiver}
+          {...$createEmailSpecialReceiverConstraints.targetEmailReceiver}
         />
         <button class="btn btn-primary" type="submit">Lägg till</button>
       </form>
@@ -208,6 +222,7 @@
   </div>
 
   <div class="overflow-x-auto">
+    <h1 class="my-4 text-2xl font-bold">Email-alias</h1>
     <table class="table">
       <!-- head -->
       <thead>
@@ -218,7 +233,7 @@
         </tr>
       </thead>
       <tbody>
-        {#each grouped as emailAlias}
+        {#each groupedEmailAliases as emailAlias}
           <tr>
             <td class="font-medium">{emailAlias[0]}</td>
             <td>
@@ -239,4 +254,72 @@
       </tbody>
     </table>
   </div>
+  <hr />
+  <div class="overflow-x-auto">
+    <h1 class="my-4 text-2xl font-bold">Special senders</h1>
+    <table class="table">
+      <!-- head -->
+      <thead>
+        <tr class="bg-base-200">
+          <th>E-mail</th>
+          <th>StudentId || username</th>
+          <th />
+        </tr>
+      </thead>
+      <tbody>
+        {#each groupedSpecialSenders as { 0: email, 1: ids }}
+          <tr>
+            <td class="font-medium">{email}</td>
+            <td>
+              {#each ids as { studentId }, i}
+                {#if i > 0}
+                  ,&nbsp;
+                {/if}
+                <span class="font-mono">{studentId}</span>
+              {/each}
+            </td>
+
+            <td class="text-right">
+              <a class="btn btn-xs px-8" href="email-alias/{email}">Ändra</a
+              ></td
+            >
+          </tr>
+        {/each}
+      </tbody>
+    </table>
+  </div>
+  <hr />
+  <div class="overflow-x-auto">
+    <h1 class="my-4 text-2xl font-bold">Special receivers</h1>
+    <table class="table">
+      <!-- head -->
+      <thead>
+        <tr class="bg-base-200">
+          <th>E-mail</th>
+          <th>Target email</th>
+          <th />
+        </tr>
+      </thead>
+      <tbody>
+        {#each groupedSpecialReceivers as { 0: email, 1: targetEmails }}
+          <tr>
+            <td class="font-medium">{email}</td>
+            <td>
+              {#each targetEmails as targetEmail, i}
+                {#if i > 0}
+                  ,&nbsp;
+                {/if}
+                <span class="font-mono">{targetEmail}</span>
+              {/each}
+            </td>
+            <td class="text-right">
+              <a class="btn btn-xs px-8" href="email-alias/{email}">Ändra</a
+              ></td
+            >
+          </tr>
+        {/each}
+      </tbody>
+    </table>
+  </div>
+  <hr />
 </div>

@@ -29,7 +29,7 @@ const emailRegex =
   /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(dsek.se|nolla.nu|yrka.nu|teknikfokus.se|juble.se|geekend.se)$/;
 
 export const isValidEmail = (email: string): boolean => {
-  return emailRegex.test(email);
+  return email.trim() != "" && emailRegex.test(email);
 };
 
 const OWNED_DOMAINS = [

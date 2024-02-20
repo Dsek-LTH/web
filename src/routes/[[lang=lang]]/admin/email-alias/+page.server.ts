@@ -7,9 +7,11 @@ import {
 } from "./schema";
 import { fuseEmail, getEmailDomains, isValidEmail } from "./emailutils";
 import { fail, type Actions } from "@sveltejs/kit";
-import { redirect } from "sveltekit-flash-message/server";
 import { authorize } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
+import keycloak from "$lib/utils/keycloak";
+// eslint-disable-next-line no-restricted-imports -- the function should be in the API route
+import { _handleUpdate } from "../../api/mail/alias/+server";
 
 export const load: PageServerLoad = async (event) => {
   const { prisma } = event.locals;
@@ -32,12 +34,27 @@ export const load: PageServerLoad = async (event) => {
       where: {
         active: true,
       },
+      orderBy: {
+        name: "asc",
+      },
     }),
   ]);
+  const specialReceivers = await prisma.specialReceiver.findMany({
+    orderBy: {
+      email: "asc",
+    },
+  });
+  const specialSenders = await prisma.specialSender.findMany({
+    orderBy: {
+      email: "asc",
+    },
+  });
   const domains = getEmailDomains();
 
   return {
     emailAliases,
+    specialReceivers,
+    specialSenders,
     positions,
     domains,
     createEmailPositionForm,
@@ -52,16 +69,20 @@ export const actions: Actions = {
     authorize(apiNames.EMAIL_ALIAS.CREATE, user);
     const form = await superValidate(event.request, createEmailPositionSchema);
     if (!form.valid) return fail(400, { form });
-    const { localPart, positionId, domain } = form.data;
+    const {
+      localPartAlias: localPart,
+      positionIdAlias: positionId,
+      domainAlias: domain,
+    } = form.data;
     if (!getEmailDomains().includes(domain)) {
-      return setError(form, "domain", "Ogiltig domän");
+      return setError(form, "domainAlias", "Ogiltig domän");
     }
     const email = fuseEmail({
       localPart,
       domain,
     });
     if (email == null || !isValidEmail(email)) {
-      return setError(form, "localPart", "Ogiltig e-postadress");
+      return setError(form, "localPartAlias", "Ogiltig e-postadress");
     }
     const position = await prisma.position.findUnique({
       where: {
@@ -69,9 +90,9 @@ export const actions: Actions = {
       },
     });
     if (position == null) {
-      return setError(form, "positionId", "Positionen finns inte");
+      return setError(form, "positionIdAlias", "Positionen finns inte");
     }
-    const existingEmailAlias = await prisma.emailAlias.findMany({
+    const existingEmailAlias = await prisma.emailAlias.findFirst({
       where: {
         AND: {
           positionId: positionId,
@@ -79,8 +100,8 @@ export const actions: Actions = {
         },
       },
     });
-    if (existingEmailAlias.length > 0) {
-      return setError(form, "localPart", "Aliaset finns redan");
+    if (existingEmailAlias != null) {
+      return setError(form, "localPartAlias", "Aliaset finns redan");
     }
     await prisma.emailAlias.create({
       data: {
@@ -92,11 +113,13 @@ export const actions: Actions = {
         },
       },
     });
+    _handleUpdate();
     return message(form, {
       message: "E-postadressen skapad",
       type: "success",
     });
   },
+
   createEmailSpecialSender: async (event) => {
     const { user, prisma } = event.locals;
     authorize(apiNames.EMAIL_ALIAS.CREATE, user);
@@ -105,29 +128,64 @@ export const actions: Actions = {
       createEmailSpecialSenderSchema,
     );
     if (!form.valid) return fail(400, { form });
-    const { localPart, domain } = form.data;
+    const {
+      localPartSender: localPart,
+      domainSender: domain,
+      usernameSender: username,
+    } = form.data;
     const email = fuseEmail({
       localPart,
       domain,
     });
-    const existingEmailAlias = await prisma.emailAlias.findMany({
+    if (email == null || !isValidEmail(email)) {
+      return setError(form, "localPartSender", "Ogiltig e-postadress");
+    }
+    const existingEmailAlias = await prisma.emailAlias.findFirst({
       where: {
         email: email,
       },
     });
-    if (existingEmailAlias.length > 0) {
-      return setError(form, "localPart", "Aliaset finns redan");
+    if (existingEmailAlias != null) {
+      return setError(form, "localPartSender", "Aliaset finns redan");
     }
-    // TODO: Create special sender
-    throw redirect(
-      "/admin/email-alias",
-      {
-        message: "Inte implementerat",
-        type: "error",
+    const existingSpecialSender = await prisma.specialSender.findFirst({
+      where: {
+        email: email,
       },
-      event,
-    );
+    });
+    if (existingSpecialSender != null) {
+      return setError(form, "localPartSender", "Aliaset finns redan");
+    }
+    const usernameInKeycloak = await keycloak.hasUsername(username);
+    if (!usernameInKeycloak) {
+      return setError(
+        form,
+        "usernameSender",
+        "Användaren finns inte i Keycloak",
+      );
+    }
+    const keycloakId = await keycloak.getUserId(username);
+    if (keycloakId == null) {
+      return setError(
+        form,
+        "usernameSender",
+        "Användaren finns inte i Keycloak",
+      );
+    }
+    await prisma.specialSender.create({
+      data: {
+        email,
+        studentId: username,
+        keycloakId,
+      },
+    });
+    _handleUpdate();
+    return message(form, {
+      message: "E-postadressen skapad",
+      type: "success",
+    });
   },
+
   createEmailSpecialReceiver: async (event) => {
     const { user, prisma } = event.locals;
     authorize(apiNames.EMAIL_ALIAS.CREATE, user);
@@ -136,27 +194,46 @@ export const actions: Actions = {
       createEmailSpecialReceiverSchema,
     );
     if (!form.valid) return fail(400, { form });
-    const { localPart, domain } = form.data;
+    const {
+      localPartReceiver: localPart,
+      domainReceiver: domain,
+      targetEmailReceiver: targetEmail,
+    } = form.data;
     const email = fuseEmail({
       localPart,
       domain,
     });
-    const existingEmailAlias = await prisma.emailAlias.findMany({
+    if (email == null || !isValidEmail(email)) {
+      return setError(form, "localPartReceiver", "Ogiltig e-postadress");
+    }
+    const existingEmailAlias = await prisma.emailAlias.findFirst({
       where: {
         email: email,
       },
     });
-    if (existingEmailAlias.length > 0) {
-      return setError(form, "localPart", "Aliaset finns redan");
+    if (existingEmailAlias != null) {
+      return setError(form, "localPartReceiver", "Aliaset finns redan");
     }
-    // TODO: Create special receiver
-    throw redirect(
-      "/admin/email-alias",
-      {
-        message: "Inte implementerat",
-        type: "error",
+    const existingSpecialReceiver = await prisma.specialReceiver.findFirst({
+      where: {
+        email: email,
+        targetEmail: targetEmail,
       },
-      event,
-    );
+    });
+    if (existingSpecialReceiver != null) {
+      return setError(form, "localPartReceiver", "Aliaset finns redan");
+    }
+
+    await prisma.specialReceiver.create({
+      data: {
+        email,
+        targetEmail,
+      },
+    });
+    _handleUpdate();
+    return message(form, {
+      message: "E-postadressen skapad",
+      type: "success",
+    });
   },
 } satisfies Actions;

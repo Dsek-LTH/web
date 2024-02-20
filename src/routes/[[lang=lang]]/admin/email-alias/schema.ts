@@ -1,20 +1,20 @@
 import { z } from "zod";
 
 export const createEmailPositionSchema = z.object({
-  localPart: z.string().toLowerCase(),
-  domain: z.string(),
-  positionId: z.string(),
+  localPartAlias: z.string().toLowerCase(),
+  domainAlias: z.string(),
+  positionIdAlias: z.string(),
 });
 
 export const createEmailSpecialSenderSchema = z.object({
-  localPart: z.string().toLowerCase(),
-  domain: z.string(),
-  username: z.string(),
-  keycloakId: z.string(),
+  localPartSender: z.string().toLowerCase(),
+  domainSender: z.string(),
+  usernameSender: z.string(),
+  keycloakIdSender: z.string(),
 });
 
 export const createEmailSpecialReceiverSchema = z.object({
-  localPart: z.string().toLowerCase(),
-  domain: z.string(),
-  targetEmail: z.string().email(),
+  localPartReceiver: z.string().toLowerCase(),
+  domainReceiver: z.string(),
+  targetEmailReceiver: z.string().email(),
 });
