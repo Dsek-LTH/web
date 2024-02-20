@@ -1,13 +1,13 @@
 <script lang="ts">
   import { languageTag } from "$paraglide/runtime";
   import { page } from "$app/stores";
-  import { route } from "$lib/utils/i18nRouting";
+  import { i18n } from "$lib/utils/i18n";
 </script>
 
 <div class="btn btn-ghost">
   {#if languageTag() === "sv"}
-    <a href={route($page.url.pathname, "en")} hreflang="en">EN</a>
+    <a href={i18n.route($page.url.pathname)} hreflang="en">EN</a>
   {:else if languageTag() === "en"}
-    <a href={route($page.url.pathname, "sv")} hreflang="sv">SV</a>
+    <a href={i18n.route($page.url.pathname)} hreflang="sv">SV</a>
   {/if}
 </div>

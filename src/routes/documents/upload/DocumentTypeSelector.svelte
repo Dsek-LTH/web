@@ -1,5 +1,9 @@
 <script lang="ts">
+  import { page } from "$app/stores";
+
   export let type: string;
+
+  type = $page.url.searchParams.get("type") ?? "meeting";
 </script>
 
 <ul class="xyz flex flex-wrap gap-4">
