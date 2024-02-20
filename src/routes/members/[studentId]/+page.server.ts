@@ -1,4 +1,4 @@
-import { memberSchema } from "$lib/zod/schemas";
+import { authorSchema, memberSchema } from "$lib/zod/schemas";
 import { error, fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
 import type { Actions, PageServerLoad } from "./$types";
@@ -78,9 +78,8 @@ const updateSchema = memberSchema.pick({
 
 export type UpdateSchema = typeof updateSchema;
 
-const pingSchema = memberSchema.pick({
-  firstName: true,
-  lastName: true,
+const pingSchema = authorSchema.pick({
+  memberId: true,
 });
 
 export type PingSchema = typeof pingSchema;
@@ -107,9 +106,13 @@ export const actions: Actions = {
     const form = await superValidate(request, pingSchema);
     if (!form.valid) return fail(400, { form });
     const sender = await prisma.member.findFirst({
-      where: { ...form.data },
+      where: {
+        id: {
+          equals: form.data.memberId,
+        },
+      },
     });
-    if (sender == null || sender.firstName == null) return fail(400, { form });
+    if (sender == null || sender.id == null) return fail(400, { form });
     const { studentId } = params;
     await sendNotification(prisma, {
       title: "Ping",
@@ -117,7 +120,7 @@ export const actions: Actions = {
       type: NotificationType.PING,
       link: "https://www.dsek.se",
       memberIds: [studentId],
-      fromMemberId: sender?.firstName,
+      fromMemberId: sender?.id,
     });
   },
 };

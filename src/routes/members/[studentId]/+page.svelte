@@ -68,6 +68,8 @@
       {/if}
       {#if data.user}
         <form method="POST" action="?/ping">
+          <!-- Hidden input to send the id of user who sent ping -->
+          <input type="hidden" name="id" value={data.user.memberId} />
           <button class="btn" on:click={() => {}}>Ping</button>
         </form>
       {/if}
