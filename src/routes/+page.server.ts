@@ -67,9 +67,9 @@ export const load: PageServerLoad = async ({ locals }) => {
   });
   const alert = prisma.alert.findMany({
     where: {
-      removedAt: null
-    }
-  })
+      removedAt: null,
+    },
+  });
   return {
     news: await news,
     events: await events,

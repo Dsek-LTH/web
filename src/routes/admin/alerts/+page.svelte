@@ -3,7 +3,7 @@
   let severity: string;
 </script>
 
-<form method="POST" class="flex flex-col gap-2 max-w-lg">
+<form method="POST" class="flex max-w-lg flex-col gap-2">
   <input
     type="text"
     placeholder="Meddelande Svenska"

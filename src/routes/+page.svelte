@@ -50,7 +50,7 @@
   </header>
 
   <article
-    class="bg-primary row-span-6 px-6 py-3 lg:col-start-3 lg:row-span-2 lg:row-start-1"
+    class="row-span-6 bg-primary px-6 py-3 lg:col-start-3 lg:row-span-2 lg:row-start-1"
   >
     <ol class="flex flex-col divide-y divide-dotted divide-stone-700">
       {#each data.news as article}
@@ -71,9 +71,9 @@
     {#each data.events as event}
       <li>
         <a href="/events/{event.slug}" class="flex align-top">
-          <div class="min-w-24 bg-base-300 mr-5 h-24 w-24">
+          <div class="mr-5 h-24 w-24 min-w-24 bg-base-300">
             <div
-              class="bg-primary flex h-5 items-center justify-center text-sm font-bold capitalize text-black"
+              class="flex h-5 items-center justify-center bg-primary text-sm font-bold capitalize text-black"
             >
               {event.startDatetime.toLocaleString("sv-SE", {
                 weekday: "long",
@@ -99,7 +99,7 @@
   </ol>
 
   <a
-    class="bg-base-300 hover:bg-base-200 flex cursor-pointer gap-6 p-6 transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:shadow-xl"
+    class="flex cursor-pointer gap-6 bg-base-300 p-6 transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:bg-base-200 hover:shadow-xl"
     href="/committees/cafe"
   >
     <span class="i-mdi-coffee self-center text-2xl" />
@@ -117,7 +117,7 @@
   </a>
 
   <a
-    class="bg-base-300 hover:bg-base-200 flex cursor-pointer gap-6 p-6 transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:shadow-xl"
+    class="flex cursor-pointer gap-6 bg-base-300 p-6 transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:bg-base-200 hover:shadow-xl"
     href="/documents"
   >
     <span class="i-mdi-gavel self-center text-2xl" />
@@ -144,7 +144,7 @@
   </a>
 
   <a
-    class="bg-base-300 hover:bg-base-200 flex cursor-pointer gap-6 p-6 transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:shadow-xl"
+    class="flex cursor-pointer gap-6 bg-base-300 p-6 transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:bg-base-200 hover:shadow-xl"
     href="https://bit.ly/kontaktatrivsel"
   >
     <span class="i-mdi-speak self-center text-2xl" />
