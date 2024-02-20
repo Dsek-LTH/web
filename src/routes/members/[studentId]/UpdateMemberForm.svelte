@@ -91,10 +91,3 @@
   <button type="submit" class="btn btn-secondary mt-4">Spara</button>
 </form>
 
-<style>
-  @media (min-width: 768px) {
-    .w-xs {
-      max-width: 20rem;
-    }
-  }
-</style>
