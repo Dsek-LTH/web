@@ -102,8 +102,6 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
       event.url.pathname != "/onboarding" &&
       (!member || !member.classProgramme || !member.classYear)
     ) {
-      console.log(event.url);
-      console.log(session);
       if (!member) {
         await prisma.member.create({
           data: {

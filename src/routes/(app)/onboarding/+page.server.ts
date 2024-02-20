@@ -1,7 +1,8 @@
 import { memberSchema } from "$lib/zod/schemas";
-import { message, superValidate } from "sveltekit-superforms/server";
+import { superValidate } from "sveltekit-superforms/server";
 import type { Actions, PageServerLoad } from "./$types";
 import { error, fail } from "@sveltejs/kit";
+import { redirect } from "sveltekit-flash-message/server";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma } = locals;
@@ -37,7 +38,7 @@ const updateSchema = memberSchema.pick({
 export type UpdateSchema = typeof updateSchema;
 
 export const actions: Actions = {
-  update: async ({ locals, request }) => {
+  update: async ({ locals, request, cookies }) => {
     const { prisma } = locals;
     const form = await superValidate(request, updateSchema);
     if (!form.valid) return fail(400, { form });
@@ -48,9 +49,10 @@ export const actions: Actions = {
         ...form.data,
       },
     });
-    return message(form, {
-      message: "Medlem uppdaterad",
-      type: "success",
-    });
+    return redirect(
+      "/",
+      { type: "success", message: "Member updated" },
+      cookies,
+    );
   },
 };

@@ -5,7 +5,6 @@
   import type { PageData } from "./$types";
   import Labeled from "$lib/components/Labeled.svelte";
   import { programmes } from "$lib/utils/programmes";
-  import { goto } from "$app/navigation";
   import { onMount } from "svelte";
 
   export let data: PageData;
@@ -34,18 +33,25 @@
   class="min-h-screen bg-cover bg-center"
   style="background-image: url('./hero-image.jpg'); "
 >
-  <div class="min-h-screen bg-base-100 bg-cover py-16 md:bg-transparent">
+  <div class="min-h-screen bg-cover py-16 md:bg-transparent">
     <div
-      class="mx-10 rounded-lg bg-base-200 p-10 backdrop-blur-xl md:mx-32 md:max-w-xl md:bg-base-200/35"
+      class="mx-10 rounded-lg bg-base-200/35 p-10 backdrop-blur-xl md:mx-32 md:max-w-xl"
     >
-      <div class="text-5xl">Welcome</div>
+      <div class="text-5xl font-bold">Welcome</div>
       <div class="text-lg">Fill in your information below</div>
 
-      <form id="edit-member" method="POST" action="?/update" use:enhance>
-        <div class="flex flex-wrap gap-2 [&>*]:flex-1">
+      <form
+        id="edit-member"
+        method="POST"
+        action="?/update"
+        use:enhance
+        class="form-control gap-2"
+      >
+        <div class="flex flex-wrap gap-2 [&>*]:min-w-32 [&>*]:flex-1">
           <Input
             name="firstName"
             label="Förnamn"
+            required={true}
             bind:value={$form.firstName}
             {...$constraints.firstName}
             error={$errors.firstName}
@@ -53,6 +59,7 @@
           <Input
             name="lastName"
             label="Efternamn"
+            required={true}
             bind:value={$form.lastName}
             {...$constraints.lastName}
             error={$errors.lastName}
@@ -68,7 +75,7 @@
             error={$errors.foodPreference}
           />
         </div>
-        <div class="flex flex-wrap gap-2 [&>*]:flex-1">
+        <div class="flex flex-wrap gap-2 [&>*]:min-w-32 [&>*]:flex-1">
           <Labeled
             label="Program"
             id="classProgramme"
@@ -78,6 +85,7 @@
               id="classProgramme"
               name="classProgramme"
               class="select select-bordered"
+              required={true}
               bind:value={$form.classProgramme}
               {...$constraints.classProgramme}
             >
@@ -92,6 +100,7 @@
               name="classYear"
               id="classYear"
               class="input input-bordered"
+              required={true}
               bind:value={$form.classYear}
               {...$constraints.classYear}
             />
@@ -105,13 +114,6 @@
           >
             <span class="i-mdi-floppy-disc size-5 bg-primary"></span>
             Spara
-          </button>
-          <button
-            class="btn w-full bg-base-300 text-secondary"
-            type="button"
-            on:click={() => goto("/")}
-          >
-            Klar
           </button>
         </div>
       </form>
