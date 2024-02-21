@@ -1,8 +1,8 @@
 import sendPushNotifications from "$lib/utils/notifications/push";
 import {
+  NotificationSettingType,
   NotificationType,
   SUBSCRIPTION_SETTINGS_MAP,
-  type NotificationSettingType,
 } from "$lib/utils/notifications/types";
 import type { Author, PrismaClient } from "@prisma/client";
 import { error } from "@sveltejs/kit";
@@ -22,6 +22,13 @@ type SendNotificationProps = {
   fromAuthor?: Author;
   fromMemberId?: string;
 };
+
+// type SendPingProps = {
+//   link: string;
+//   toMemberId: string;
+//   fromMemberId: string;
+//   fromSent: boolean;
+// };
 
 /**
  *
@@ -45,6 +52,11 @@ const sendNotification = async (
     fromMemberId,
   }: SendNotificationProps,
 ) => {
+  if (type === NotificationType.PING) {
+    console.error("Incorrect call");
+    throw error(500, "Incorrect call");
+  }
+
   // Find corresponding setting type, example "COMMENT" for "EVENT_COMMENT"
   const settingType: NotificationSettingType = (Object.entries(
     SUBSCRIPTION_SETTINGS_MAP,
@@ -132,16 +144,21 @@ const sendNotification = async (
       settingType,
       link,
     ),
-    await prisma.notification.createMany({
-      data: receivingMembers.map(({ id: memberId }) => ({
-        title,
-        message,
-        type,
-        link,
-        memberId,
-        fromAuthorId: fromAuthor?.id,
-      })),
-    }),
+    await prisma.notification
+      .createMany({
+        data: receivingMembers.map(({ id: memberId }) => ({
+          title,
+          message,
+          type,
+          link,
+          memberId,
+          fromAuthorId: fromAuthor?.id,
+        })),
+      })
+      .catch((reason) => {
+        console.error("Failed to create notifications due to:");
+        console.error(reason);
+      }),
   ]);
   if (
     pushResult.status === "rejected" &&
@@ -153,8 +170,92 @@ const sendNotification = async (
     throw error(500, "Failed to send push notifications");
   }
   if (databaseResult.status === "rejected") {
-    throw error(500, "Failed to save notifications to database");
+    throw error(500, "Failed to save ping to database");
   }
 };
+
+// const sendPing = async (
+//   prisma: PrismaClient,
+//   { link, fromMemberId, toMemberId, fromSent }: SendPingProps,
+// ) => {
+//   const receivingMember = await prisma.member.findFirst({
+//     where: {
+//       id: {
+//         equals: fromSent ? toMemberId : fromMemberId,
+//       },
+//     },
+//     select: {
+//       id: true,
+//       firstName: true,
+//       subscriptionSettings: {
+//         select: {
+//           pushNotification: true,
+//         },
+//       },
+//     },
+//   });
+//   if (receivingMember == null || !receivingMember)
+//     throw error(500, "Couldn't find member");
+//   // const shouldPushNotification =
+//   //   receivingMember.subscriptionSettings.pushNotification;
+//   const pushTokens = await prisma.expoToken.findMany({
+//     where: {
+//       memberId: {
+//         equals: fromSent ? toMemberId : fromMemberId,
+//       },
+//     },
+//     select: {
+//       expoToken: true,
+//     },
+//   });
+//   // const [pushResult, databaseResult] = await Promise.allSettled([
+//   //   sendPushNotifications(
+//   //     pushTokens.map((t) => t.expoToken!),
+//   //     "Ping",
+//   //     "Pinged by someone!",
+//   //     NotificationSettingType.PING,
+//   //     link,
+//   //   ),
+//   //   await prisma.ping
+//   //     .upsert({
+//   //       create: {
+//   //         fromMemberId: fromMemberId,
+//   //         toMemberId: toMemberId,
+//   //         fromSentAt: new Date(),
+//   //         createdAt: new Date(),
+//   //         count: 0,
+//   //       },
+//   //       update: {
+//   //         fromSentAt: fromSent ? new Date() : undefined,
+//   //         toSentAt: fromSent ? undefined : new Date(),
+//   //         count: { increment: 1 },
+//   //       },
+//   //       where: {
+//   //         fromMember: {
+//   //           id: fromMemberId,
+//   //         },
+//   //         toMember: {
+//   //           id: toMemberId,
+//   //         },
+//   //       },
+//   //     })
+//   //     .catch((reason) => {
+//   //       console.error("Failed to create ping due to:");
+//   //       console.error(reason);
+//   //     }),
+//   // ]);
+//   // if (
+//   //   pushResult.status === "rejected" &&
+//   //   databaseResult.status === "rejected"
+//   // ) {
+//   //   throw error(500, "Failed to send notifications");
+//   // }
+//   // if (pushResult.status === "rejected") {
+//   //   throw error(500, "Failed to send push notifications");
+//   // }
+//   // if (databaseResult.status === "rejected") {
+//   //   throw error(500, "Failed to save notifications to database");
+//   // }
+// };
 
 export default sendNotification;

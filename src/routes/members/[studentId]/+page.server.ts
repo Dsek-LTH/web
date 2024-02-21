@@ -112,15 +112,26 @@ export const actions: Actions = {
         },
       },
     });
-    if (sender == null || sender.id == null) return fail(400, { form });
+    if (sender == null || !sender || sender.id == null)
+      return fail(400, { form });
     const { studentId } = params;
+    const receiveingUser = await prisma.member.findFirst({
+      where: {
+        studentId: {
+          equals: studentId,
+        },
+      },
+    });
+    if (!receiveingUser) return fail(400, { form });
+    console.log(studentId);
+    console.log(sender?.id);
     await sendNotification(prisma, {
       title: "Ping",
       message: "Pinged!",
       type: NotificationType.PING,
       link: "https://www.dsek.se",
-      memberIds: [studentId],
-      fromMemberId: sender?.id,
+      memberIds: [receiveingUser.id],
+      fromMemberId: sender.id,
     });
   },
 };
