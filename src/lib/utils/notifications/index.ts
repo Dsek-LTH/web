@@ -1,4 +1,4 @@
-import sendPushNotifications from "$lib/utils/notifications/push";
+// import sendPushNotifications from "$lib/utils/notifications/push";
 import {
   NotificationSettingType,
   NotificationType,

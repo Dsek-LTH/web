@@ -3,7 +3,6 @@ import { error, fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
 import type { Actions, PageServerLoad } from "./$types";
 import { sendPing } from "$lib/utils/notifications";
-import { NotificationType } from "$lib/utils/notifications/types";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma } = locals;
