@@ -6,6 +6,7 @@
   import Labeled from "$lib/components/Labeled.svelte";
   import { programmes } from "$lib/utils/programmes";
   import { onMount } from "svelte";
+  import { goto } from "$app/navigation";
 
   export let data: PageData;
   const { form, errors, constraints, enhance } = superForm<UpdateSchema>(
@@ -20,7 +21,7 @@
       data.member.classProgramme &&
       data.member.classYear
     ) {
-      //goto("/") temporarily commented out for testing
+      goto("/");
     }
   });
 </script>

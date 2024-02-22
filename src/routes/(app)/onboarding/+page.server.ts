@@ -43,12 +43,16 @@ export const actions: Actions = {
     const form = await superValidate(request, updateSchema);
     if (!form.valid) return fail(400, { form });
     const studentId = locals.user?.studentId;
-    await prisma.member.update({
-      where: { studentId },
-      data: {
-        ...form.data,
-      },
-    });
+    if (studentId) {
+      await prisma.member.update({
+        where: { studentId },
+        data: {
+          ...form.data,
+        },
+      });
+    } else {
+      throw error(500, "Could not find student-id");
+    }
     return redirect(
       "/",
       { type: "success", message: "Member updated" },
