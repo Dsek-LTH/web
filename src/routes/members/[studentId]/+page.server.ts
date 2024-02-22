@@ -2,7 +2,7 @@ import { authorSchema, memberSchema } from "$lib/zod/schemas";
 import { error, fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
 import type { Actions, PageServerLoad } from "./$types";
-import sendNotification from "$lib/utils/notifications";
+import { sendPing } from "$lib/utils/notifications";
 import { NotificationType } from "$lib/utils/notifications/types";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
@@ -115,23 +115,36 @@ export const actions: Actions = {
     if (sender == null || !sender || sender.id == null)
       return fail(400, { form });
     const { studentId } = params;
-    const receiveingUser = await prisma.member.findFirst({
+    const receivingUser = await prisma.member.findFirst({
       where: {
         studentId: {
           equals: studentId,
         },
       },
     });
-    if (!receiveingUser) return fail(400, { form });
-    console.log(studentId);
-    console.log(sender?.id);
-    await sendNotification(prisma, {
-      title: "Ping",
-      message: "Pinged!",
-      type: NotificationType.PING,
-      link: "https://www.dsek.se",
-      memberIds: [receiveingUser.id],
+    if (!receivingUser) return fail(400, { form });
+    const previouslyPinged = await prisma.ping.findFirst({
+      where: {
+        OR: [
+          {
+            fromMemberId: sender.id,
+            toMemberId: receivingUser.id,
+          },
+          {
+            fromMemberId: receivingUser.id,
+            toMemberId: sender.id,
+          },
+        ],
+      },
+    });
+    const fromSent =
+      previouslyPinged == undefined ||
+      previouslyPinged?.fromMemberId == sender.id;
+    await sendPing(prisma, {
+      link: "https://dsek.se/members/" + sender.studentId,
       fromMemberId: sender.id,
+      toMemberId: receivingUser.id,
+      fromSent: fromSent,
     });
   },
 };

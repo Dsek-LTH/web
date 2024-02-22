@@ -6,11 +6,12 @@
   import Footer from "./Footer.svelte";
   import Navbar from "./Navbar.svelte";
   import Toast from "./Toast.svelte";
+  export let data;
 </script>
 
 <ParaglideJS {i18n}>
   <nav class="contents">
-    <Navbar />
+    <Navbar notifications={data.notifications} />
     <Drawer />
   </nav>
 

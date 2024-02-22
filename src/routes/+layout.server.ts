@@ -5,6 +5,14 @@ import { loadFlash } from "sveltekit-flash-message/server";
  * Propagates the user and member to the page data.
  */
 export const load = loadFlash(async ({ locals }) => {
-  const { user, member } = locals;
-  return { user, member };
+  const { user, member, prisma } = locals;
+  return {
+    user,
+    member,
+    notifications: await prisma.notification.findMany({
+      where: {
+        memberId: user?.memberId,
+      },
+    }),
+  };
 });
