@@ -11,6 +11,7 @@
   import { isAuthorized } from "$lib/utils/authorization";
 
   import type { PageData } from "./$types";
+  import InterestedGoingButtons from "./InterestedGoingButtons.svelte";
   export let data: PageData;
   let filteredTags: Tag[] = data.allTags.filter((tag) =>
     $page.url.searchParams.getAll("tags").includes(tag.name),
@@ -134,16 +135,7 @@
       {/if}
     </section>
 
-    <div class="my-3 flex flex-row gap-2">
-      <div class="btn btn-outline btn-primary">
-        <span class="i-mdi-check-circle-outline"></span>
-        Kommer
-      </div>
-      <div class="btn btn-ghost btn-secondary">
-        <span class="i-mdi-star"></span>
-        Intresserad
-      </div>
-    </div>
+    <InterestedGoingButtons />
 
     <div class="my-3 flex flex-col items-start gap-2">
       <MarkdownBody
