@@ -1,7 +1,7 @@
 import { fail } from "@sveltejs/kit";
 import type { PageServerLoad, Actions } from "./$types";
 import { z } from "zod";
-import { message, setError, superValidate } from "sveltekit-superforms/server";
+import { message, superValidate } from "sveltekit-superforms/server";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma } = locals;
