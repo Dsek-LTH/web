@@ -134,6 +134,17 @@
       {/if}
     </section>
 
+    <div class="my-3 flex flex-row gap-2">
+      <div class="btn btn-outline btn-primary">
+        <span class="i-mdi-check-circle-outline"></span>
+        Kommer
+      </div>
+      <div class="btn btn-ghost btn-secondary">
+        <span class="i-mdi-star"></span>
+        Intresserad
+      </div>
+    </div>
+
     <div class="my-3 flex flex-col items-start gap-2">
       <MarkdownBody
         body={event.shortDescription}
