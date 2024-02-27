@@ -5,8 +5,6 @@
   import GlobalAlert from "$lib/components/GlobalAlert.svelte";
   import { languageTag } from "$paraglide/runtime";
   export let data: PageData;
-
-  console.log(data.alert);
 </script>
 
 <svelte:head>
