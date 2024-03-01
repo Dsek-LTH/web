@@ -6,6 +6,7 @@ import {
   KEYCLOAK_ENABLED,
 } from "$env/static/private";
 import type { PrismaClient } from "@prisma/client";
+import { error } from "@sveltejs/kit";
 
 const enabled = KEYCLOAK_ENABLED === "true";
 
@@ -29,10 +30,22 @@ async function connect(): Promise<KcAdminClient> {
 
 async function _getUserId(client: KcAdminClient, username: string) {
   const response = await client.users.find({ username });
-  if (response.length !== 1) {
-    throw new Error(`${username} returned ${response.length} users`);
+  if (response.length === 0) error(404, `${username} not found in Keycloak`);
+  if (!response[0] || response.length !== 1)
+    error(400, `${username} returned ${response.length} users in Keycloak`);
+
+  return response[0].id;
+}
+
+async function getUserId(username: string) {
+  if (!enabled) return;
+  const client = await connect();
+  try {
+    return await _getUserId(client, username);
+  } catch (error) {
+    console.log(error);
+    return null;
   }
-  return response[0]!.id;
 }
 
 // turns dsek.sexm.kok.mastare into ['dsek', 'dsek.sexm', 'dsek.sexm.kok', 'dsek.sexm.kok.mastare']
@@ -170,17 +183,6 @@ async function hasEmail(email: string) {
   const client = await connect();
   const user = await client.users.find({ email });
   return user.filter((u) => u.email === email).length > 0;
-}
-
-async function getUserId(username: string) {
-  if (!enabled) return;
-  const client = await connect();
-  try {
-    return await _getUserId(client, username);
-  } catch (error) {
-    console.log(error);
-    return null;
-  }
 }
 
 export default {
