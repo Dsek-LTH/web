@@ -12,6 +12,7 @@
 
   import type { PageData } from "./$types";
   import InterestedGoingButtons from "./InterestedGoingButtons.svelte";
+  import InterestedGoingList from "./InterestedGoingList.svelte";
   export let data: PageData;
   let filteredTags: Tag[] = data.allTags.filter((tag) =>
     $page.url.searchParams.getAll("tags").includes(tag.name),
@@ -135,7 +136,14 @@
       {/if}
     </section>
 
-    <InterestedGoingButtons />
+    <InterestedGoingButtons
+      eventId={event.id}
+      interestedGoingForm={data.interestedGoingForm}
+      going={event.going}
+      interested={event.interested}
+    />
+
+    <InterestedGoingList going={event.going} interested={event.interested} />
 
     <div class="my-3 flex flex-col items-start gap-2">
       <MarkdownBody

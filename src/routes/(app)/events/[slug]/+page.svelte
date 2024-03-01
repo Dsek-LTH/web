@@ -14,7 +14,7 @@
   <title>{event.title} | D-sektionen</title>
 </svelte:head>
 
-<Event {event}>
+<Event {event} {data}>
   <div slot="actions">
     {#if isAuthorized(apiNames.EVENT.UPDATE, data.user)}
       <a

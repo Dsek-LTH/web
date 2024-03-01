@@ -2,26 +2,63 @@
   import { page } from "$app/stores";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
+  import type { SuperValidated } from "sveltekit-superforms";
+  import type { InterestedGoingSchema } from "./interestedGoing";
+  import { superForm } from "sveltekit-superforms/client";
+  import type { Member } from "@prisma/client";
+
+  export let eventId: string;
+  export let interested: Member[];
+  export let going: Member[];
+  export let interestedGoingForm: SuperValidated<InterestedGoingSchema>;
+  const { constraints, enhance } = superForm(interestedGoingForm, {
+    id: eventId, // needs to be unique since there could be multiple like buttons on a page
+  });
 
   $: authorized = isAuthorized(apiNames.NEWS.LIKE, $page.data.user);
-  $: isGoing = false;
+  let isGoing = going.some(
+    (member) => member.studentId === $page.data.user?.studentId,
+  );
+  $: isGoingIcon = isGoing
+    ? "i-mdi-check-circle"
+    : "i-mdi-check-circle-outline";
+
+  let isInterested = interested.some(
+    (member) => member.studentId === $page.data.user?.studentId,
+  );
+  $: isInterestedIcon = isInterested ? "i-mdi-star" : "i-mdi-star-outline";
 </script>
 
 <div class="my-3 flex flex-row gap-2">
-  <div class="btn btn-outline btn-primary">
-    <span class="i-mdi-check-circle-outline"></span>
-    Kommer
-  </div>
-  <button disabled={!authorized} type="submit" class="">
-    <label class="btn btn-outline swap flex flex-row">
-      <input type="checkbox" disabled={!authorized} checked={isGoing} />
-      <span class="swap-on i-mdi-check-circle size-6"></span>
-      <span class="swap-off i-mdi-check-circle-outline size-6"></span>
+  <form
+    method="POST"
+    action="/events?/{isInterested ? 'interested' : isGoing ? 'going' : 'none'}"
+    use:enhance
+  >
+    <input type="hidden" value={eventId} name="eventId" {...$constraints} />
+    <button
+      disabled={!authorized}
+      type="submit"
+      class="btn btn-outline btn-primary"
+      on:click={() => {
+        isGoing = !isGoing;
+        isInterested = false;
+      }}
+    >
+      <span class={isGoingIcon + " size-6"}></span>
       Kommer
-    </label>
-  </button>
-  <div class="btn btn-ghost btn-secondary">
-    <span class="i-mdi-star"></span>
-    Intresserad
-  </div>
+    </button>
+    <button
+      disabled={!authorized}
+      type="submit"
+      class="btn btn-outline btn-primary"
+      on:click={() => {
+        isInterested = !isInterested;
+        isGoing = false;
+      }}
+    >
+      <span class={isInterestedIcon + " size-6"}></span>
+      Intresserad
+    </button>
+  </form>
 </div>
