@@ -202,4 +202,10 @@ describe("isValidEmail", () => {
     result = isValidEmail(email);
     expect(result).toBe(true);
   });
+
+  test("returns false for empty email", () => {
+    const email = "";
+    const result = isValidEmail(email);
+    expect(result).toBe(false);
+  });
 });
