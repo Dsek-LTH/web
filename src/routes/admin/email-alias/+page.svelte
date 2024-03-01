@@ -27,8 +27,6 @@
     enhance: createEmailSpecialReceiverEnhance,
   } = superForm(data.createEmailSpecialReceiverForm);
 
-  const domains = data.domains.map((d) => d);
-  const positions = data.positions;
   $: groupedEmailAliases = Array.from(
     data.emailAliases.reduce((acc, emailAlias) => {
       if (!acc.has(emailAlias.email)) {
@@ -98,7 +96,7 @@
             {...$createEmailPositionConstraints.domainAlias}
             required
           >
-            {#each domains as domain}
+            {#each data.domains as domain}
               <option value={domain}>{domain}</option>
             {/each}
           </select>
@@ -112,7 +110,7 @@
             {...$createEmailPositionConstraints.positionIdAlias}
             required
           >
-            {#each positions as position (position.id)}
+            {#each data.positions as position (position.id)}
               <option value={position.id}>{position.name}</option>
             {/each}
           </select>
@@ -152,7 +150,7 @@
             {...$createEmailSpecialSenderConstraints.domainSender}
             required
           >
-            {#each domains as domain}
+            {#each data.domains as domain}
               <option value={domain}>{domain}</option>
             {/each}
           </select>
@@ -202,7 +200,7 @@
             {...$createEmailSpecialReceiverConstraints.domainReceiver}
             required
           >
-            {#each domains as domain}
+            {#each data.domains as domain}
               <option value={domain}>{domain}</option>
             {/each}
           </select>
