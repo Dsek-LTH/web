@@ -52,7 +52,7 @@
     method="POST"
     action="/?/deletenotification"
     use:enhance={() => {
-      return ({ result, update }) => {
+      return () => {
         removeFunc(notification.id);
       };
     }}

@@ -81,7 +81,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 // These actions will be accessed from throughout the whole application
 export const actions: Actions = {
   // Update on database that these notifications have been read by user
-  readnotifications: async ({ params, locals, request }) => {
+  readnotifications: async ({ locals, request }) => {
     const { prisma } = locals;
     const form = await superValidate(request, notificationSchema);
     if (!form.valid) return;
@@ -95,7 +95,7 @@ export const actions: Actions = {
     });
   },
   // Delete single or multiple notifications on database
-  deletenotification: async ({ params, locals, request }) => {
+  deletenotification: async ({ locals, request }) => {
     const { prisma } = locals;
     const form = await superValidate(request, notificationSchema);
     if (!form.valid) return;

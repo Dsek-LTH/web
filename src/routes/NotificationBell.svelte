@@ -27,7 +27,7 @@
 
   // This deletes the notification on the client as well
   const removeNotification = (id: number) => {
-    notifications = notifications.filter((data, index) => data.id != id);
+    notifications = notifications.filter((data) => data.id != id);
   };
 </script>
 
@@ -37,7 +37,7 @@
     action="/?/readnotifications"
     method="POST"
     use:enhance={() => {
-      return ({ result, update }) => {
+      return () => {
         unread = 0;
       };
     }}
@@ -74,7 +74,7 @@
         method="POST"
         action="/?/deletenotification"
         use:enhance={() => {
-          return ({ result, update }) => {
+          return () => {
             notifications = [];
           };
         }}
