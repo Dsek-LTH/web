@@ -24,11 +24,13 @@
     );
     const minutes = Math.floor(seconds / 60);
     const hours = Math.floor(minutes / 60);
-    return minutes < 1 && hours < 1
-      ? seconds + " sekunder"
-      : hours < 1
-        ? minutes + " minuter"
-        : hours + " timmar";
+    return hours > 23
+      ? (hours % 24) + " dagar"
+      : minutes < 1 && hours < 1
+        ? seconds + " sekunder"
+        : hours < 1
+          ? minutes + " minuter"
+          : hours + " timmar";
   };
 </script>
 
