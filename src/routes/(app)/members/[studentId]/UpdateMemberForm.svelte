@@ -21,9 +21,9 @@
   method="POST"
   action="?/update"
   use:enhance
-  class="form-control gap-2"
+  class="form-control max-w-full gap-2"
 >
-  <div class="flex gap-2 [&>*]:flex-1">
+  <div class="flex flex-wrap gap-2 [&>*]:flex-1">
     <Input
       name="firstName"
       label="First name"
@@ -46,12 +46,17 @@
       error={$errors.lastName}
     />
   </div>
-  <div class="flex gap-2 [&>*:nth-child(3)]:flex-1">
-    <Labeled label="Program" id="classProgramme" error={$errors.classProgramme}>
+  <div class="flex w-full flex-wrap gap-2 [&>*:nth-child(3)]:flex-1">
+    <Labeled
+      label="Program"
+      id="classProgramme"
+      error={$errors.classProgramme}
+      fullWidth
+    >
       <select
         id="classProgramme"
         name="classProgramme"
-        class="select select-bordered w-full max-w-xs"
+        class="select select-bordered w-full md:max-w-20"
         bind:value={$form.classProgramme}
         {...$constraints.classProgramme}
       >
@@ -60,12 +65,17 @@
         {/each}
       </select>
     </Labeled>
-    <Labeled label="Year" id="classProgramme" error={$errors.classYear}>
+    <Labeled
+      label="Year"
+      id="classProgramme"
+      error={$errors.classYear}
+      fullWidth
+    >
       <input
         type="number"
         name="classYear"
         id="classYear"
-        class="input input-bordered"
+        class="input input-bordered md:max-w-20"
         bind:value={$form.classYear}
         {...$constraints.classYear}
       />

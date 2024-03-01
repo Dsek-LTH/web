@@ -67,6 +67,11 @@ export const load: PageServerLoad = async ({ locals }) => {
       name: `cafe:open:${new Date().getDay() - 1}`, // we assign monday to 0, not sunday
     },
   });
+  const alert = prisma.alert.findMany({
+    where: {
+      removedAt: null,
+    },
+  });
   return {
     news: await news,
     events: await events,
@@ -75,6 +80,7 @@ export const load: PageServerLoad = async ({ locals }) => {
       previous: await previousMeeting,
     },
     cafeOpen: await cafeOpen,
+    alert: await alert,
   };
 };
 

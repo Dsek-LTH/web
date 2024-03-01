@@ -512,6 +512,7 @@ model Notification {
   @@allow('update', auth().memberId == memberId)
   @@allow('delete', auth().memberId == memberId)
   @@allow('read', auth().memberId == memberId)
+  @@allow('create', auth() != null)
   @@map("notifications")
 }
 

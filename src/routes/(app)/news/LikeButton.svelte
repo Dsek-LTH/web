@@ -8,7 +8,7 @@
   import { isAuthorized } from "$lib/utils/authorization";
 
   export let likers: Member[];
-  $: disabled = isAuthorized(apiNames.NEWS.LIKE, $page.data.user);
+  $: authorized = isAuthorized(apiNames.NEWS.LIKE, $page.data.user);
   export let articleId: string;
   export let likeForm: SuperValidated<LikeSchema>;
   const { errors, constraints, enhance } = superForm(likeForm, {
@@ -25,17 +25,14 @@
     <div class="text-error">{$errors.articleId}</div>
   {/if}
   <div
-    class="tooltip m-4"
-    data-tip={disabled ? "Du måste vara inloggad för att gilla" : undefined}
+    class:tooltip={!authorized}
+    class="m-4 hover:opacity-50 hover:transition-opacity"
+    data-tip="Du måste vara inloggad för att gilla"
   >
-    <button {disabled} type="submit">
+    <button disabled={!authorized} type="submit">
       <label class="swap">
-        <!-- this hidden checkbox controls the state -->
-        <input type="checkbox" checked={isLiked} />
-
-        <!-- volume on icon -->
+        <input type="checkbox" disabled={!authorized} checked={isLiked} />
         <span class="swap-on i-mdi-thumb-up h-10 w-10"> </span>
-
         <span class="swap-off i-mdi-thumb-up-outline h-10 w-10"> </span>
       </label>
     </button>
