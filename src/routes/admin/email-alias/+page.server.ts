@@ -24,31 +24,32 @@ export const load: PageServerLoad = async (event) => {
     await superValidate(event.request, createEmailSpecialSenderSchema),
     await superValidate(event.request, createEmailSpecialReceiverSchema),
   ]);
-  const [emailAliases, positions] = await Promise.all([
-    await prisma.emailAlias.findMany({
-      orderBy: {
-        email: "asc",
-      },
-    }),
-    await prisma.position.findMany({
-      where: {
-        active: true,
-      },
-      orderBy: {
-        name: "asc",
-      },
-    }),
-  ]);
-  const specialReceivers = await prisma.specialReceiver.findMany({
-    orderBy: {
-      email: "asc",
-    },
-  });
-  const specialSenders = await prisma.specialSender.findMany({
-    orderBy: {
-      email: "asc",
-    },
-  });
+  const [emailAliases, positions, specialReceivers, specialSenders] =
+    await Promise.all([
+      await prisma.emailAlias.findMany({
+        orderBy: {
+          email: "asc",
+        },
+      }),
+      await prisma.position.findMany({
+        where: {
+          active: true,
+        },
+        orderBy: {
+          name: "asc",
+        },
+      }),
+      await prisma.specialReceiver.findMany({
+        orderBy: {
+          email: "asc",
+        },
+      }),
+      await prisma.specialSender.findMany({
+        orderBy: {
+          email: "asc",
+        },
+      }),
+    ]);
   const domains = getEmailDomains();
 
   return {
