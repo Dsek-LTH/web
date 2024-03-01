@@ -1,5 +1,5 @@
 import apiNames from "$lib/utils/apiNames";
-import { Prisma } from "@prisma/client";
+import { Prisma, type Author } from "@prisma/client";
 import { error, fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
@@ -8,6 +8,8 @@ import { articleSchema } from "../../schema";
 import type { Actions, PageServerLoad } from "./$types";
 import { redirect } from "sveltekit-flash-message/server";
 import { authorize } from "$lib/utils/authorization";
+import sendNotification from "$lib/utils/notifications";
+import { NotificationType } from "$lib/utils/notifications/types";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
@@ -142,6 +144,15 @@ export const actions: Actions = {
       }
       throw e;
     }
+
+    sendNotification(prisma, {
+      title: header,
+      message: body,
+      type: NotificationType.ARTICLE_UPDATE,
+      link: slug,
+      fromAuthor: existingAuthor as Author | undefined,
+    });
+
     throw redirect(
       `/news/${event.params.slug}`,
       {

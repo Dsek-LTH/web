@@ -7,6 +7,9 @@ import { getArticleAuthorOptions } from "../articles";
 import { articleSchema } from "../schema";
 import type { Actions, PageServerLoad } from "./$types";
 import { authorize } from "$lib/utils/authorization";
+import sendNotification from "$lib/utils/notifications";
+import { NotificationType } from "$lib/utils/notifications/types";
+import type { Author } from "@prisma/client";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma, user } = locals;
@@ -119,6 +122,15 @@ export const actions: Actions = {
         publishedAt: new Date(),
       },
     });
+
+    sendNotification(prisma, {
+      title: header,
+      message: body,
+      type: NotificationType.NEW_ARTICLE,
+      link: slugWithCount(slug, slugCount),
+      fromAuthor: existingAuthor as Author | undefined,
+    });
+
     throw redirect(
       `/news/${result.slug}`,
       {

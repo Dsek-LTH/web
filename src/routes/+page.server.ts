@@ -1,5 +1,7 @@
 import DOMPurify from "isomorphic-dompurify";
-import type { PageServerLoad } from "./$types";
+import type { Actions, PageServerLoad } from "./$types";
+import { notificationSchema } from "$lib/zod/schemas";
+import { superValidate } from "sveltekit-superforms/server";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma } = locals;
@@ -74,4 +76,47 @@ export const load: PageServerLoad = async ({ locals }) => {
     },
     cafeOpen: await cafeOpen,
   };
+};
+
+// These actions will be accessed from throughout the whole application
+export const actions: Actions = {
+  // Update on database that these notifications have been read by user
+  readnotifications: async ({ params, locals, request }) => {
+    const { prisma } = locals;
+    const form = await superValidate(request, notificationSchema);
+    if (!form.valid) return;
+    await prisma.notification.updateMany({
+      data: {
+        readAt: new Date(),
+      },
+      where: {
+        memberId: form.data.memberId,
+      },
+    });
+  },
+  // Delete single or multiple notifications on database
+  deletenotification: async ({ params, locals, request }) => {
+    const { prisma } = locals;
+    const form = await superValidate(request, notificationSchema);
+    if (!form.valid) return;
+    // If multiple ids and not a single id have been provided, delete many, otherwise,
+    // if a single has been provided, delete single, else return
+    if (!form.data.notificationId && form.data.notificationIds) {
+      await prisma.notification.deleteMany({
+        where: {
+          memberId: form.data.memberId,
+          id: {
+            in: form.data.notificationIds,
+          },
+        },
+      });
+    } else if (form.data.notificationId) {
+      await prisma.notification.delete({
+        where: {
+          memberId: form.data.memberId,
+          id: form.data.notificationId,
+        },
+      });
+    } else return;
+  },
 };

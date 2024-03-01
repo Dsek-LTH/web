@@ -55,3 +55,8 @@ export const tagSchema = z.object({
   color: z.string().nullable(),
   isDefault: z.boolean().nullable(),
 });
+export const notificationSchema = z.object({
+  memberId: z.string().uuid(),
+  notificationId: z.number().nullable(),
+  notificationIds: z.number().array().nullable(),
+});
