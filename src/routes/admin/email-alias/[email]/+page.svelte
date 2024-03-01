@@ -14,7 +14,6 @@
 
   const {
     form: addPositionForm,
-    // errors: addPositionErrors,
     constraints: addPositionConstraints,
     enhance: addPositionEnhance,
   } = superForm(data.addPositionForm);
