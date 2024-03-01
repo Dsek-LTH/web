@@ -14,7 +14,7 @@ export const load: PageServerLoad = async ({ locals }) => {
     }),
   ]);
   if (memberResult.status === "rejected") {
-    throw error(500, "Could not fetch member");
+    redirect(302, "/");
   }
   if (!memberResult.value) {
     throw error(404, "Member not found");
