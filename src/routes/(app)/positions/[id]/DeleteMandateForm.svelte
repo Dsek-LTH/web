@@ -15,7 +15,7 @@
   <button
     type="submit"
     class="btn btn-error btn-sm pointer-events-auto"
-    on:click|stopPropagation={() => {}}
+    on:click|stopPropagation
   >
     X
   </button>

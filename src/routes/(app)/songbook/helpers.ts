@@ -24,7 +24,7 @@ export async function getExistingCategories(
             deletedAt: null,
           },
     })
-  ).reduce<Array<NonNullable<Song["category"]>>>((acc, cur) => {
+  ).reduce<NonNullable<Song["category"]>[]>((acc, cur) => {
     if (cur.category !== null) {
       acc.push(cur.category);
     }
@@ -56,7 +56,7 @@ export async function getExistingMelodies(
             deletedAt: null,
           },
     })
-  ).reduce<Array<NonNullable<Song["melody"]>>>((acc, cur) => {
+  ).reduce<NonNullable<Song["melody"]>[]>((acc, cur) => {
     if (cur.melody !== null) {
       acc.push(cur.melody);
     }
