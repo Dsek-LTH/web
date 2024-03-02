@@ -18,9 +18,7 @@
 </script>
 
 {#if member.classProgramme && member.classYear}
-  <a
-    href="/members/?classProgramme={member.classProgramme}&classYear={member.classYear}"
-  >
+  <a href="/members/?programme={member.classProgramme}&year={member.classYear}">
     <span
       class="badge badge-outline
       {size === 'sm'
