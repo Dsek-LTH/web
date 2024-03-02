@@ -1,91 +1,62 @@
 <script lang="ts">
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
-  import TagChip from "$lib/components/TagChip.svelte";
-  import type { Article as ArticleType, Member, Tag } from "@prisma/client";
-  import type { SuperValidated } from "sveltekit-superforms";
-  import AuthorSignature from "$lib/components/AuthorSignature.svelte";
-  import LikeButton from "./LikeButton.svelte";
-  import LikersList from "./LikersList.svelte";
-  import type { AuthorOption } from "./articles";
-  import type { LikeSchema } from "./likes";
+  import { getFullName } from "$lib/utils/client/member";
+  import type { Article } from "./articles";
 
-  export let hideBody = false;
-  export let onTagClick: ((tag: Tag) => void) | null = null;
-  export let article: ArticleType;
-  export let author: AuthorOption;
-  export let tags: Tag[];
-  export let likers: Member[];
-  export let commentCount: number;
-  export let likeForm: SuperValidated<LikeSchema>;
+  export let article: Article;
 </script>
 
-<article
-  class="ease my-4 rounded-lg p-6 shadow-2xl ring-neutral-700 transition md:ring-1 md:hover:scale-[1.01]"
->
-  <a href="/news/{article.slug}">
-    <h2 class="my-3 break-words text-2xl font-bold">{article.header}</h2>
-  </a>
-
-  <div class="flex flex-row justify-between">
-    <p class="text-right text-xs text-gray-500">
-      {article.publishedAt?.toLocaleDateString(["sv"])}
-      ,
-      {article.publishedAt?.toLocaleTimeString(["sv"], {
-        hour: "2-digit",
-        minute: "2-digit",
-      })}
-    </p>
+<div class="flex flex-col overflow-hidden rounded-xl bg-base-200">
+  <div class="flex justify-between gap-4 bg-base-300 p-4">
+    <div class="flex flex-wrap gap-2">
+      {#each article.tags as tag}
+        <span class="badge text-xs text-neutral-400">{tag.name}</span>
+      {/each}
+    </div>
   </div>
 
-  {#if !hideBody}
-    <div class="my-3 flex flex-row items-start gap-2">
-      <MarkdownBody
-        body={article.body.slice(0, 400)}
-        class="line-clamp-4 text-ellipsis"
-      />
-      {#if article.imageUrl}
-        <figure class="flex-1">
-          <img
-            class="rounded-2xl"
-            src={article.imageUrl}
-            alt={article.header}
+  <div class="p-8">
+    <div class="flex-1">
+      <a href={"news/" + article.slug} class="group">
+        <h1 class="text-2xl font-bold group-hover:underline">
+          {article.header}
+        </h1>
+        <div>
+          <MarkdownBody
+            class="!prose-base mb-8 mt-2 line-clamp-3"
+            body={article.body}
           />
-        </figure>
-      {/if}
+        </div>
+      </a>
     </div>
-  {/if}
 
-  <div class="flex flex-row flex-wrap gap-2">
-    {#each tags as tag}
-      <a
-        href="?tags={encodeURIComponent(tag.name)}"
-        class="opacity-80 transition-opacity hover:opacity-100"
-        on:click={() => onTagClick?.(tag)}
-      >
-        <TagChip {tag} />
+    <div class="flex gap-4">
+      <a href={"members/" + article.author.member.studentId}>
+        <img
+          class="size-10 rounded-full object-cover"
+          src={article.author.member.picturePath}
+          alt={article.author.member.firstName}
+        />
       </a>
-    {/each}
-  </div>
-  <div class="mt-4 flex flex-row flex-wrap items-start justify-between gap-2">
-    <div class="flex flex-col gap-2">
-      <LikersList {likers} />
-      <LikeButton {likers} {likeForm} articleId={article.id} />
-    </div>
-    {#if commentCount > 0}
-      <a
-        href="/news/{article.slug}#comment-section"
-        class="link text-sm opacity-40 hover:opacity-60"
-      >
-        {commentCount} kommentarer
-      </a>
-    {/if}
-    <div class="m-2">
-      <AuthorSignature
-        member={author.member}
-        position={author.mandate?.position}
-        customAuthor={author.customAuthor ?? undefined}
-        type={author.type}
-      />
+      <div class="flex w-full items-center justify-between gap-4">
+        <div>
+          <a href={"members/" + article.author.member.studentId}>
+            <h2 class="text-sm font-semibold text-primary hover:underline">
+              {getFullName(article.author.member)}
+            </h2>
+          </a>
+          {#if article.author.mandate}
+            <a href={"positions/" + article.author.mandate.position.id}>
+              <p class="my-1 text-xs font-light hover:underline">
+                {article.author.mandate.position.name}
+              </p>
+            </a>
+          {/if}
+        </div>
+        <p class="my-1 self-end text-xs font-light text-neutral-600">
+          {article.createdAt.toLocaleDateString()}
+        </p>
+      </div>
     </div>
   </div>
-</article>
+</div>
