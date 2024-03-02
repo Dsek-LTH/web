@@ -21,15 +21,6 @@
 
 <div class="space-y-4">
   <section class="flex flex-col gap-2">
-    <div class="flex items-center gap-2">
-      {#if isAuthorized(apiNames.NEWS.CREATE, data.user)}
-        <a class="btn" href="/news/create">+ Create</a>
-      {/if}
-      {#if isAuthorized(apiNames.TAGS.CREATE, data.user) || isAuthorized(apiNames.TAGS.UPDATE, data.user)}
-        <a class="btn" href="/news/tags">Tags</a>
-      {/if}
-    </div>
-
     <form
       method="get"
       class="form-control flex-1 gap-2 md:flex-row md:items-end"
@@ -40,7 +31,12 @@
       {#each filteredTags as tag (tag.id)}
         <input type="hidden" name="tags" value={tag.name} />
       {/each}
-      <button type="submit" class="btn btn-primary">Filter</button>
+      {#if isAuthorized(apiNames.TAGS.CREATE, data.user) || isAuthorized(apiNames.TAGS.UPDATE, data.user)}
+        <a class="btn" href="/news/tags">Tags</a>
+      {/if}
+      {#if isAuthorized(apiNames.NEWS.CREATE, data.user)}
+        <a class="btn btn-primary" href="/news/create">+ Create</a>
+      {/if}
     </form>
   </section>
 
