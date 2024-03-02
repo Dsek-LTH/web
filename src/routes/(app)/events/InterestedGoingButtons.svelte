@@ -20,16 +20,18 @@
     (member) => member.studentId === $page.data.user?.studentId,
   );
   $: isGoingIcon = isGoing
-    ? "i-mdi-check-circle"
+    ? "i-mdi-check-circle bg-primary"
     : "i-mdi-check-circle-outline";
 
   let isInterested = interested.some(
     (member) => member.studentId === $page.data.user?.studentId,
   );
-  $: isInterestedIcon = isInterested ? "i-mdi-star" : "i-mdi-star-outline";
+  $: isInterestedIcon = isInterested
+    ? "i-mdi-star bg-yellow-500"
+    : "i-mdi-star-outline";
 </script>
 
-<div class="my-3 flex flex-row gap-2">
+<div class="bg-yell my-3 flex flex-row gap-2">
   <form
     method="POST"
     action="/events?/{isInterested ? 'interested' : isGoing ? 'going' : 'none'}"
@@ -39,7 +41,7 @@
     <button
       disabled={!authorized}
       type="submit"
-      class="btn btn-outline btn-primary"
+      class="btn btn-ghost"
       on:click={() => {
         isGoing = !isGoing;
         isInterested = false;
@@ -51,7 +53,7 @@
     <button
       disabled={!authorized}
       type="submit"
-      class="btn btn-outline btn-primary"
+      class="btn btn-ghost"
       on:click={() => {
         isInterested = !isInterested;
         isGoing = false;
