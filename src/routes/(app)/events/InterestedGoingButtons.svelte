@@ -15,7 +15,7 @@
     id: eventId, // needs to be unique since there could be multiple like buttons on a page
   });
 
-  $: authorized = isAuthorized(apiNames.NEWS.LIKE, $page.data.user);
+  $: authorized = Boolean($page.data.user);
   let isGoing = going.some(
     (member) => member.studentId === $page.data.user?.studentId,
   );
