@@ -31,6 +31,7 @@
   $: publishedEvents = [...member.authoredEvents].reverse();
   $: canEdit = isMe || isAuthorized(apiNames.MEMBER.UPDATE, data.user);
   let isEditing = false;
+  const currentDate = new Date();
 </script>
 
 <svelte:head>
@@ -78,7 +79,7 @@
       <ClassBadge {member} size="xl" />
     {/if}
   </div>
-  <article class="col-span-5 row-start-4 md:col-span-3">
+  <article class="col-span-5 row-start-4 md:col-span-1">
     <!-- eslint-disable-next-line svelte/no-at-html-tags -->
     {#if member.bio}
       <MarkdownBody body={member.bio}>
@@ -100,6 +101,33 @@
       >
         Lägg till bio
       </a>
+    {/if}
+    {#if isMe}
+      <br />
+      <div class="my-2 text-xl font-bold">Dörrar</div>
+      {#each member.doorAccessPolicies as door}
+        {#if door.startDatetime == null || door.endDatetime == null || (currentDate > door.startDatetime && currentDate < door.endDatetime)}
+          <div class="my-2 flex justify-between rounded-lg bg-base-200 p-3">
+            <div class="my-auto font-bold">
+              {door.doorName}
+            </div>
+            <div class="flex flex-col">
+              {#if door.role}
+                <span class="text-xs font-bold opacity-50">
+                  {door.role.replaceAll(".", " ")}
+                </span>
+              {/if}
+              {#if door.startDatetime != null && door.endDatetime != null}
+                <div>
+                  <span class="text-xs font-bold opacity-50">
+                    {door.startDatetime?.toLocaleDateString()}-{door.endDatetime?.toLocaleDateString()}
+                  </span>
+                </div>
+              {/if}
+            </div>
+          </div>
+        {/if}
+      {/each}
     {/if}
   </article>
   <div

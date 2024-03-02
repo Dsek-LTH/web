@@ -31,6 +31,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
           },
           take: 5,
         },
+        doorAccessPolicies: {},
       },
     }),
     prisma.article.findMany({
