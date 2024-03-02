@@ -103,5 +103,8 @@
     "patchedDependencies": {
       "devalue@4.3.2": "patches/devalue@4.3.2.patch"
     }
+  },
+  "engines": {
+    "node": "<=20"
   }
 }
