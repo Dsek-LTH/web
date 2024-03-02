@@ -1,6 +1,5 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import { page } from "$app/stores";
   import ClassBadge from "$lib/components/ClassBadge.svelte";
   import Pagination from "$lib/components/Pagination.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
@@ -8,10 +7,29 @@
 
   export let data;
   $: members = data.members;
-  $: programme = $page.url.searchParams.get("classProgramme") ?? "D";
-  $: year =
-    $page.url.searchParams.get("classYear") ??
-    new Date().getFullYear().toString();
+  $: programme = data.programme;
+  $: year = data.year;
+
+  const thisYear = new Date().getFullYear();
+
+  function getProgrammeYear(programme: string): number {
+    let count = 0;
+    switch (programme) {
+      case "D":
+        count = thisYear - 1982 + 1;
+        break;
+      case "C":
+        count = thisYear - 2001 + 1;
+        break;
+      case "VR/AR":
+        count = thisYear - 2021 + 1;
+        break;
+      default:
+        count = thisYear - 1982 + 1;
+        break;
+    }
+    return count;
+  }
 </script>
 
 <svelte:head>
@@ -21,50 +39,38 @@
   >
 </svelte:head>
 
-<!-- classProgramme -->
-<div class="mb-4 flex items-center gap-4">
-  <span class="text-lg text-primary">D</span>
-  <input
-    class="toggle"
-    class:[--tglbg-primary]={programme === "D"}
-    class:[--tglbg-secondary]={programme === "C"}
-    class:bg-primary={programme === "D"}
-    class:bg-secondary={programme === "C"}
-    class:hover:bg-primary={programme === "D"}
-    class:hover:bg-secondary={programme === "C"}
-    class:border-primary={programme === "D"}
-    class:border-secondary={programme === "C"}
-    type="checkbox"
-    checked={programme === "C"}
-    on:click={async () =>
-      await goto(
-        `/members/?classProgramme=${
-          programme === "C" ? "D" : "C"
-        }&classYear=${year}`,
-      )}
-  />
-  <span class="text-lg text-secondary">C</span>
-</div>
+<select
+  class="select my-2 border-current"
+  class:text-primary={programme === "D" || programme === "VR/AR"}
+  class:text-secondary={programme === "C"}
+  value={programme}
+  on:change={async (e) =>
+    await goto(`/members/?programme=${e.currentTarget.value}&year=${year}`)}
+>
+  <option value="all">Alla</option>
+  <option class="text-primary" value="D">D</option>
+  <option class="text-secondary" value="C">C</option>
+  <option value="VR/AR">VR/AR</option>
+</select>
 
 <!-- classYear -->
 <Pagination
-  count={programme === "D"
-    ? new Date().getFullYear() - 1982 + 1
-    : new Date().getFullYear() - 2001 + 1}
-  fieldName="classYear"
-  getPageName={(n) => (new Date().getFullYear() - n).toString()}
-  getPageNumber={(n) =>
-    parseInt((new Date().getFullYear() - parseInt(n)).toString())}
+  count={getProgrammeYear(programme)}
+  fieldName="year"
+  getPageName={(n) => (thisYear - n).toString()}
+  getPageNumber={(n) => parseInt((thisYear - parseInt(n)).toString())}
 />
 
 <div class="my-4 flex items-center gap-4">
-  <ClassBadge
-    member={{
-      classProgramme: programme,
-      classYear: parseInt(year),
-    }}
-    size="xl"
-  />
+  {#if programme !== "all"}
+    <ClassBadge
+      member={{
+        classProgramme: programme,
+        classYear: year,
+      }}
+      size="xl"
+    />
+  {/if}
   <p>
     {#if members.length === 0}
       Inga medlemmar hittades
