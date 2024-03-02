@@ -157,7 +157,7 @@
         </Labeled>
         <Input
           name="usernameSender"
-          label="StudentId || Username"
+          label="Student ID or Username"
           required
           id="usernameSender"
           bind:value={$createEmailSpecialSenderForm.usernameSender}
@@ -260,7 +260,7 @@
       <thead>
         <tr class="bg-base-200">
           <th>E-mail</th>
-          <th>StudentId || username</th>
+          <th>Student ID or Username</th>
           <th />
         </tr>
       </thead>

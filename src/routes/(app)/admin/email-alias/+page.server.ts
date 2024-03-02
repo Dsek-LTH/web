@@ -10,8 +10,7 @@ import { fail, type Actions } from "@sveltejs/kit";
 import { authorize } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
 import keycloak from "$lib/utils/keycloak";
-import { _handleUpdate } from "../../api/mail/alias/+server";
-
+import { mailAliasUpdateHandler } from "$lib/server/mail/alias/mailAliasUpdateHandler";
 export const load: PageServerLoad = async (event) => {
   const { prisma } = event.locals;
   const [
@@ -113,7 +112,7 @@ export const actions: Actions = {
         },
       },
     });
-    _handleUpdate();
+    mailAliasUpdateHandler.handleUpdate();
     return message(form, {
       message: "E-postadressen skapad",
       type: "success",
@@ -179,7 +178,7 @@ export const actions: Actions = {
         keycloakId,
       },
     });
-    _handleUpdate();
+    mailAliasUpdateHandler.handleUpdate();
     return message(form, {
       message: "E-postadressen skapad",
       type: "success",
@@ -230,7 +229,7 @@ export const actions: Actions = {
         targetEmail,
       },
     });
-    _handleUpdate();
+    mailAliasUpdateHandler.handleUpdate();
     return message(form, {
       message: "E-postadressen skapad",
       type: "success",

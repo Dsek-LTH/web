@@ -19,7 +19,7 @@ import {
 import { isValidEmail } from "../emailutils";
 import keycloak from "$lib/utils/keycloak";
 import type { PrismaClient } from "@prisma/client";
-import { _handleUpdate } from "../../../api/mail/alias/+server";
+import { mailAliasUpdateHandler } from "$lib/server/mail/alias/mailAliasUpdateHandler";
 
 export const load: PageServerLoad = async (event) => {
   const { user, prisma } = event.locals;
@@ -151,7 +151,7 @@ export const actions = {
         email,
       },
     });
-    _handleUpdate();
+    mailAliasUpdateHandler.handleUpdate();
     if (await emailStillInUse(prisma, email)) {
       return message(form, {
         message: "Aliaset borttaget",
@@ -196,7 +196,7 @@ export const actions = {
         },
       },
     });
-    _handleUpdate();
+    mailAliasUpdateHandler.handleUpdate();
     return message(form, {
       message: "Positionen tillagd",
       type: "success",
@@ -213,7 +213,7 @@ export const actions = {
         id: aliasId,
       },
     });
-    _handleUpdate();
+    mailAliasUpdateHandler.handleUpdate();
     return message(form, {
       message: "Positionen borttagen",
       type: "success",
@@ -249,7 +249,7 @@ export const actions = {
         email,
       },
     });
-    _handleUpdate();
+    mailAliasUpdateHandler.handleUpdate();
     if (await emailStillInUse(prisma, email)) {
       return message(form, {
         message: "Special receivers borttagna",
@@ -285,7 +285,7 @@ export const actions = {
         targetEmail: targetEmailReceiver,
       },
     });
-    _handleUpdate();
+    mailAliasUpdateHandler.handleUpdate();
     return message(form, {
       message: "Special receiver tillagd",
       type: "success",
@@ -305,7 +305,7 @@ export const actions = {
         id,
       },
     });
-    _handleUpdate();
+    mailAliasUpdateHandler.handleUpdate();
     return message(form, {
       message: "Special receiver borttagen",
       type: "success",
@@ -322,7 +322,7 @@ export const actions = {
         email,
       },
     });
-    _handleUpdate();
+    mailAliasUpdateHandler.handleUpdate();
     if (await emailStillInUse(prisma, email)) {
       return message(form, {
         message: "Special senders borttagna",
@@ -370,7 +370,7 @@ export const actions = {
         keycloakId: keycloakId,
       },
     });
-    _handleUpdate();
+    mailAliasUpdateHandler.handleUpdate();
     return message(form, {
       message: "Special sender tillagd",
       type: "success",
@@ -387,7 +387,7 @@ export const actions = {
         id,
       },
     });
-    _handleUpdate();
+    mailAliasUpdateHandler.handleUpdate();
     return message(form, {
       message: "Special sender borttagen",
       type: "success",

@@ -6,29 +6,21 @@ import {
   getEmailsForManyMembers,
   getAliasToPositions,
 } from "./utils";
-
-// To speed up the response time, we "cache" the response for 1 hour
-let lastTimeSince = Date.now();
-let prevResponse: string | null = null;
-let hasReceivedUpdate = false;
-const oneHourInMs = 1000 * 60 * 60;
-
-export function _handleUpdate() {
-  hasReceivedUpdate = true;
-}
+import { mailAliasUpdateHandler } from "$lib/server/mail/alias/mailAliasUpdateHandler";
 
 export const GET: RequestHandler = async ({ locals, setHeaders }) => {
   setHeaders({
     "Content-Type": "text/plain; charset=utf-8",
   });
   if (
-    prevResponse !== null &&
-    Date.now() - lastTimeSince < oneHourInMs &&
-    !hasReceivedUpdate
+    mailAliasUpdateHandler.prevResponse !== null &&
+    Date.now() - mailAliasUpdateHandler.lastTimeSince <
+      mailAliasUpdateHandler.cacheDuration &&
+    !mailAliasUpdateHandler.hasReceivedUpdate
   ) {
-    return new Response(prevResponse);
+    return new Response(mailAliasUpdateHandler.prevResponse);
   }
-  hasReceivedUpdate = false;
+  mailAliasUpdateHandler.hasReceivedUpdate = false;
 
   const prisma = locals.prisma;
 
@@ -149,7 +141,7 @@ export const GET: RequestHandler = async ({ locals, setHeaders }) => {
   }
 
   // "Cache" the response
-  prevResponse = text;
-  lastTimeSince = Date.now();
+  mailAliasUpdateHandler.prevResponse = text;
+  mailAliasUpdateHandler.lastTimeSince = Date.now();
   return new Response(text);
 };

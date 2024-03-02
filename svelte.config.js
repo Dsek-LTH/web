@@ -13,7 +13,6 @@ const config = {
 
     alias: {
       $paraglide: "./src/translations/paraglide", // same as outdir for paraglide in vite.config.ts
-      $api: "./src/(app)/routes/api",
     },
   },
 };
