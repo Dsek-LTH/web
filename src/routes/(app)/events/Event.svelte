@@ -2,7 +2,6 @@
   import DateSpan from "./DateSpan.svelte";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import type { Event } from "@prisma/client";
-
   export let event: Event;
 </script>
 
@@ -18,6 +17,9 @@
   <DateSpan start={event.startDatetime} end={event.endDatetime} />
   <slot name="actions" />
 </section>
+
+<slot name="buttons" />
+
 <section class="my-2 flex flex-row items-center justify-between">
   <slot name="tags" />
 </section>
