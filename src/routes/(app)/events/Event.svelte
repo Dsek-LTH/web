@@ -1,12 +1,7 @@
 <script lang="ts">
   import DateSpan from "./DateSpan.svelte";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
-  import InterestedGoingButtons from "./InterestedGoingButtons.svelte";
-  import InterestedGoingList from "./InterestedGoingList.svelte";
-  import type { PageData } from "./$types";
-  import type { Event, Member } from "@prisma/client";
-  import type { InterestedGoingSchema } from "./interestedGoing";
-
+  import type { Event } from "@prisma/client";
   export let event: Event;
 </script>
 

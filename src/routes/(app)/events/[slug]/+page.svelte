@@ -46,13 +46,13 @@
   <div slot="after">
     <InterestedGoingList going={event.going} interested={event.interested} />
     <div class="flex flex-col gap-2">
-    <CommentSection
-      type="EVENT"
-      comments={event.comments}
-      taggedMembers={data.allTaggedMembers}
-      commentForm={data.commentForm}
-      removeCommentForm={data.removeCommentForm}
-    />
+      <CommentSection
+        type="EVENT"
+        comments={event.comments}
+        taggedMembers={data.allTaggedMembers}
+        commentForm={data.commentForm}
+        removeCommentForm={data.removeCommentForm}
+      />
     </div>
   </div>
 </Event>
