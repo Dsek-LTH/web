@@ -19,7 +19,7 @@ import {
 import { isValidEmail } from "../emailutils";
 import keycloak from "$lib/utils/keycloak";
 import type { PrismaClient } from "@prisma/client";
-import { _handleUpdate } from "$api/mail/alias/+server";
+import { _handleUpdate } from "../../../api/mail/alias/+server";
 
 export const load: PageServerLoad = async (event) => {
   const { user, prisma } = event.locals;

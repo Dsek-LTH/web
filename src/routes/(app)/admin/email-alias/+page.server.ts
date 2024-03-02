@@ -10,7 +10,7 @@ import { fail, type Actions } from "@sveltejs/kit";
 import { authorize } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
 import keycloak from "$lib/utils/keycloak";
-import { _handleUpdate } from "$api/mail/alias/+server";
+import { _handleUpdate } from "../../api/mail/alias/+server";
 
 export const load: PageServerLoad = async (event) => {
   const { prisma } = event.locals;
