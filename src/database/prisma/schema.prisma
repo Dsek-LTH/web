@@ -507,7 +507,6 @@ model Member {
     @@map("members")
 }
 
-/// @@allow('create', has(auth().policies, 'core:member:ping'))
 /// @@allow('update', auth().memberId == memberId)
 /// @@allow('delete', auth().memberId == memberId)
 /// @@allow('read', auth().memberId == memberId)
