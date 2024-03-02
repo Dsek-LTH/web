@@ -9,7 +9,7 @@ import { error } from "@sveltejs/kit";
 
 const DUPLICATE_ALLOWED_TYPES = [
   NotificationType.CREATE_MANDATE,
-  NotificationType.ARTICLE_UPDATE,
+  NotificationType.ARTICLE_REQUEST_UPDATE,
   NotificationType.BOOKING_REQUEST,
 ];
 
