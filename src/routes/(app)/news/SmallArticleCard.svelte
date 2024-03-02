@@ -10,7 +10,7 @@
 
 <div class="flex flex-col overflow-hidden rounded-xl bg-base-200">
   <div class="flex justify-between gap-4 bg-base-300 p-4">
-    <div class="flex flex-wrap gap-2">
+    <div class="flex min-h-5 flex-wrap items-center gap-2">
       {#each article.tags as tag}
         <span class="badge text-xs text-neutral-400">{tag.name}</span>
       {/each}
