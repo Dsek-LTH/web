@@ -1,5 +1,7 @@
+import { superValidate } from "sveltekit-superforms/server";
 import type { LayoutServerLoad } from "./$types";
 import { getAllEvents } from "./events";
+import { interestedGoingSchema } from "./interestedGoing";
 
 const getAndValidatePage = (url: URL) => {
   const page = url.searchParams.get("page");
@@ -24,5 +26,6 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
     events,
     pageCount,
     allTags,
+    interestedGoingForm: await superValidate(interestedGoingSchema),
   };
 };
