@@ -130,7 +130,7 @@
       <br />
       <div class="my-2 text-xl font-bold">Dörrar</div>
       {#each member.doorAccessPolicies as door}
-        {#if door.startDatetime == null || door.endDatetime == null || (currentDate > door.startDatetime && currentDate < door.endDatetime)}
+        {#if (door.startDatetime == null || currentDate > door.startDatetime) && (door.endDatetime == null || currentDate < door.endDatetime)}
           <div class="my-2 flex justify-between rounded-lg bg-base-200 p-3">
             <div class="my-auto font-bold">
               {door.doorName}
@@ -141,10 +141,12 @@
                   {data.doorPositions.find((m) => m.id === door.role)?.name}
                 </span>
               {/if}
-              {#if door.startDatetime != null && door.endDatetime != null}
+              {#if door.startDatetime != null || door.endDatetime != null}
                 <div>
                   <span class="text-xs font-bold opacity-50">
-                    {door.startDatetime?.toLocaleDateString()}-{door.endDatetime?.toLocaleDateString()}
+                    {door.startDatetime?.toLocaleDateString() ?? ""}
+                    -
+                    {door.endDatetime?.toLocaleDateString() ?? ""}
                   </span>
                 </div>
               {/if}
