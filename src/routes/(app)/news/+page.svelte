@@ -7,12 +7,15 @@
   import type { Tag } from "@prisma/client";
   import { isAuthorized } from "$lib/utils/authorization";
   import SmallArticleCard from "./SmallArticleCard.svelte";
+  export let data: PageData;
 
   import type { PageData } from "./$types";
-  export let data: PageData;
+  import { enhance } from "$app/forms";
   let filteredTags: Tag[] = data.allTags.filter((tag) =>
     $page.url.searchParams.getAll("tags").includes(tag.name),
   );
+
+  let form: HTMLFormElement;
 </script>
 
 <svelte:head>
@@ -25,8 +28,14 @@
       method="get"
       class="form-control flex-1 gap-2 md:flex-row md:items-end"
       id="filter-form"
+      bind:this={form}
+      use:enhance
     >
-      <TagSelector allTags={data.allTags} bind:selectedTags={filteredTags} />
+      <TagSelector
+        allTags={data.allTags}
+        bind:selectedTags={filteredTags}
+        onChange={() => setTimeout(() => form.requestSubmit())}
+      />
       <SearchBar />
       {#each filteredTags as tag (tag.id)}
         <input type="hidden" name="tags" value={tag.name} />
