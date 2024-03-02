@@ -21,17 +21,14 @@ export const GET: RequestHandler = async ({ locals, setHeaders }) => {
   setHeaders({
     "Content-Type": "text/plain; charset=utf-8",
   });
-  console.log("hasReceivedUpdate", hasReceivedUpdate);
   if (
     prevResponse !== null &&
     Date.now() - lastTimeSince < oneHourInMs &&
     !hasReceivedUpdate
   ) {
-    console.log("Using cached data");
     return new Response(prevResponse);
   }
   hasReceivedUpdate = false;
-  console.log("Fetching new data");
 
   const prisma = locals.prisma;
 

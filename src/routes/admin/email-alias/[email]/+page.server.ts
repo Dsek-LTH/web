@@ -175,7 +175,6 @@ export const actions = {
     const form = await superValidate(event.request, addPositionSchema);
     if (!form.valid) return fail(400, { form });
     const { positionId, email } = form.data;
-    console.log("Adding position", positionId, email);
     if (!isValidEmail(email)) {
       return setError(form, "email", "E-postadressen är inte giltig");
     }
