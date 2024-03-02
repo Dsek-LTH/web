@@ -3,6 +3,7 @@
   import { marked } from "marked";
   import { getFullName } from "$lib/utils/client/member";
   import type { Article } from "./articles";
+  import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
 
   export let article: Article;
 </script>
@@ -31,12 +32,7 @@
 
     <div class="flex gap-4">
       <a href={"members/" + article.author.member.studentId}>
-        <img
-          class="size-10 rounded-full object-cover"
-          src={article.author.member.picturePath ??
-            "https://gravatar.com/avatar?s=100&d=mp"}
-          alt={article.author.member.firstName}
-        />
+        <MemberAvatar class="size-10" member={article.author.member} />
       </a>
       <div class="flex w-full items-center justify-between gap-4">
         <div>
