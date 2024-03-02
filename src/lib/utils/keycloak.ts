@@ -6,10 +6,11 @@ import {
   KEYCLOAK_ENABLED,
 } from "$env/static/private";
 import type { PrismaClient } from "@prisma/client";
+import { error } from "@sveltejs/kit";
 
 const enabled = KEYCLOAK_ENABLED === "true";
 
-async function connect() {
+async function connect(): Promise<KcAdminClient> {
   const kcAdminClient = new KcAdminClient({
     baseUrl: KEYCLOAK_ENDPOINT || "",
     realmName: "master",
@@ -27,12 +28,24 @@ async function connect() {
   return kcAdminClient;
 }
 
-async function getUserId(client: KcAdminClient, username: string) {
+async function _getUserId(client: KcAdminClient, username: string) {
   const response = await client.users.find({ username });
-  if (response.length !== 1) {
-    throw new Error(`${username} returned ${response.length} users`);
+  if (response.length === 0) error(404, `${username} not found in Keycloak`);
+  if (!response[0] || response.length !== 1)
+    error(400, `${username} returned ${response.length} users in Keycloak`);
+
+  return response[0].id;
+}
+
+async function getUserId(username: string) {
+  if (!enabled) return;
+  const client = await connect();
+  try {
+    return await _getUserId(client, username);
+  } catch (error) {
+    console.log(error);
+    return null;
   }
-  return response[0]!.id;
 }
 
 // turns dsek.sexm.kok.mastare into ['dsek', 'dsek.sexm', 'dsek.sexm.kok', 'dsek.sexm.kok.mastare']
@@ -61,7 +74,7 @@ async function addMandate(username: string, positionId: string) {
 
   try {
     const client = await connect();
-    const id = await getUserId(client, username);
+    const id = await _getUserId(client, username);
     const groupId = await getGroupId(client, positionId);
     await client.users.addToGroup({
       id: id!,
@@ -77,7 +90,7 @@ async function deleteMandate(username: string, positionId: string) {
 
   try {
     const client = await connect();
-    const id = await getUserId(client, username);
+    const id = await _getUserId(client, username);
     const groupId = await getGroupId(client, positionId);
     await client.users.delFromGroup({
       id: id!,
@@ -136,8 +149,48 @@ async function updateMandate(prisma: PrismaClient) {
   });
 }
 
+// To reduce the amount of requests to Keycloak,
+// we fetch all emails for all users in one request
+// and then filter out the ones we need
+async function getManyUserEmails(
+  usernames: Set<string>,
+): Promise<Map<string, string>> {
+  if (!enabled) return new Map();
+  const client = await connect();
+  const userEmails: Map<string, string> = new Map();
+
+  (await client.users.find({ username: "" })).forEach((user) => {
+    if (
+      user.email !== undefined &&
+      user.username !== undefined &&
+      usernames.has(user.username)
+    ) {
+      userEmails.set(user.username, user.email);
+    }
+  });
+  return userEmails;
+}
+
+async function hasUsername(username: string) {
+  if (!enabled) return false;
+  const client = await connect();
+  const user = await client.users.find({ username });
+  return user.filter((u) => u.username === username).length > 0;
+}
+
+async function hasEmail(email: string) {
+  if (!enabled) return false;
+  const client = await connect();
+  const user = await client.users.find({ email });
+  return user.filter((u) => u.email === email).length > 0;
+}
+
 export default {
   addMandate,
   deleteMandate,
   updateMandate,
+  getUserId,
+  getManyUserEmails,
+  hasUsername,
+  hasEmail,
 };
