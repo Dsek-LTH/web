@@ -1,11 +1,11 @@
 <script lang="ts">
   import DateSpan from "./DateSpan.svelte";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
-  import type { Event } from "@prisma/client";
   import InterestedGoingButtons from "./InterestedGoingButtons.svelte";
   import InterestedGoingList from "./InterestedGoingList.svelte";
   import type { PageData } from "./$types";
-  export let data: PageData;
+  import type { Event, Member } from "@prisma/client";
+  import type { InterestedGoingSchema } from "./interestedGoing";
 
   export let event: Event;
 </script>
@@ -22,14 +22,8 @@
   <DateSpan start={event.startDatetime} end={event.endDatetime} />
   <slot name="actions" />
 </section>
-<InterestedGoingButtons
-  eventId={event.id}
-  interestedGoingForm={data.interestedGoingForm}
-  interested={event.interested}
-  going={event.going}
-/>
 
-<InterestedGoingList going={event.going} interested={event.interested} />
+<slot name="buttons" />
 
 <section class="my-2 flex flex-row items-center justify-between">
   <slot name="tags" />

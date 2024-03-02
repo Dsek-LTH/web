@@ -143,8 +143,6 @@
       interested={event.interested}
     />
 
-    <InterestedGoingList going={event.going} interested={event.interested} />
-
     <div class="my-3 flex flex-col items-start gap-2">
       <MarkdownBody
         body={event.shortDescription}
@@ -171,6 +169,7 @@
         </a>
       {/each}
     </div>
+    <InterestedGoingList going={event.going} interested={event.interested} />
   </article>
 {/each}
 

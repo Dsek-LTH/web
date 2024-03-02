@@ -130,4 +130,4 @@ export const getEvent = async (prisma: PrismaClient, slug: string) => {
   return response;
 };
 
-type EventWithIncludes = NonNullable<Awaited<ReturnType<typeof getEvent>>>;
+export type EventWithIncludes = NonNullable<Awaited<ReturnType<typeof getEvent>>>;

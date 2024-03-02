@@ -4,6 +4,8 @@
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
   import Event from "../Event.svelte";
+  import InterestedGoingButtons from "../InterestedGoingButtons.svelte";
+  import InterestedGoingList from "../InterestedGoingList.svelte";
 
   import type { PageData } from "./$types";
   export let data: PageData;
@@ -14,7 +16,7 @@
   <title>{event.title} | D-sektionen</title>
 </svelte:head>
 
-<Event {event} {data}>
+<Event {event}>
   <div slot="actions">
     {#if isAuthorized(apiNames.EVENT.UPDATE, data.user)}
       <a
@@ -32,7 +34,18 @@
     {/each}
   </div>
 
-  <div slot="after" class="flex flex-col gap-2">
+  <div slot="buttons">
+    <InterestedGoingButtons
+      eventId={event.id}
+      interestedGoingForm={data.interestedGoingForm}
+      interested={event.interested}
+      going={event.going}
+    />
+  </div>
+
+  <div slot="after">
+    <InterestedGoingList going={event.going} interested={event.interested} />
+    <div class="flex flex-col gap-2">
     <CommentSection
       type="EVENT"
       comments={event.comments}
@@ -40,5 +53,6 @@
       commentForm={data.commentForm}
       removeCommentForm={data.removeCommentForm}
     />
+    </div>
   </div>
 </Event>
