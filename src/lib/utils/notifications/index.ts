@@ -91,7 +91,8 @@ const sendNotification = async (
             },
           },
       id: {
-        // not: notificationAuthor?.memberId,
+        // Uncomment the line below to test
+        not: notificationAuthor?.memberId,
         ...(memberIds !== undefined && memberIds.length > 0
           ? { in: memberIds }
           : {}),
@@ -218,7 +219,7 @@ export const sendPing = async (
           toMemberId: toMemberId,
           fromSentAt: new Date(),
           createdAt: new Date(),
-          count: 0,
+          count: 1,
         },
         update: {
           fromSentAt: fromSent ? new Date() : undefined,

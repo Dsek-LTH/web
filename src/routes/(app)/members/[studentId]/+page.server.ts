@@ -3,9 +3,10 @@ import { error, fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
 import type { Actions, PageServerLoad } from "./$types";
 import { sendPing } from "$lib/utils/notifications";
+import { userInfo } from "os";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
-  const { prisma } = locals;
+  const { user, prisma } = locals;
   const [memberResult, publishedArticlesResult] = await Promise.allSettled([
     prisma.member.findUnique({
       where: {
@@ -63,6 +64,20 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     form: await superValidate(member, memberSchema),
     member,
     publishedArticles: publishedArticlesResult.value ?? [],
+    ping: await prisma.ping.findFirst({
+      where: {
+        OR: [
+          {
+            fromMemberId: member.id,
+            toMemberId: user?.memberId,
+          },
+          {
+            fromMemberId: user?.memberId,
+            toMemberId: member.id,
+          },
+        ],
+      },
+    }),
   };
 };
 

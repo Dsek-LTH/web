@@ -30,6 +30,7 @@
   );
   $: publishedEvents = [...member.authoredEvents].reverse();
   $: canEdit = isMe || isAuthorized(apiNames.MEMBER.UPDATE, data.user);
+  $: ping = data.ping;
   let isEditing = false;
 </script>
 
@@ -66,11 +67,27 @@
           {isEditing ? "Spara" : "Redigera"}
         </button>
       {/if}
-      {#if data.user}
+      {#if data.user && !isMe}
         <form method="POST" action="?/ping">
           <!-- Hidden input to send the id of user who sent ping -->
           <input type="hidden" name="memberId" value={data.user.memberId} />
-          <button class="btn" on:click={() => {}}>Ping</button>
+          <!-- Button is disabled for the user who sent the last ping -->
+          <button
+            class="btn"
+            disabled={ping?.fromMemberId == data.user.memberId
+              ? ping?.toSentAt == null || ping?.fromSentAt > ping?.toSentAt
+              : ping?.toSentAt != null && ping?.toSentAt > ping?.fromSentAt}
+            >Ping</button
+          >
+          {#if ping}
+            <span class="text-xs text-gray-500"
+              >{`Ping count: ${ping?.count}\nLast ping: ${
+                ping?.toSentAt != null && ping?.toSentAt > ping?.fromSentAt
+                  ? ping?.toSentAt
+                  : ping?.fromSentAt.toLocaleString()
+              }`}</span
+            >
+          {/if}
         </form>
       {/if}
     </div>
