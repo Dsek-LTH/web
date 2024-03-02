@@ -1,5 +1,6 @@
 <script lang="ts">
-  import MarkdownBody from "$lib/components/MarkdownBody.svelte";
+  import DOMPurify from "isomorphic-dompurify";
+  import { marked } from "marked";
   import { getFullName } from "$lib/utils/client/member";
   import type { Article } from "./articles";
 
@@ -21,11 +22,9 @@
         <h1 class="text-2xl font-bold group-hover:underline">
           {article.header}
         </h1>
-        <div>
-          <MarkdownBody
-            class="!prose-base mb-8 mt-2 line-clamp-3"
-            body={article.body}
-          />
+        <div class="prose mb-8 mt-2 line-clamp-3 prose-headings:text-sm">
+          <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized client-side -->
+          {@html marked(DOMPurify.sanitize(article.body))}
         </div>
       </a>
     </div>
