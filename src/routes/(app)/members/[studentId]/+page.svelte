@@ -102,6 +102,30 @@
         Lägg till bio
       </a>
     {/if}
+  </article>
+
+  <div
+    class="col-span-5 row-span-4 flex flex-col sm:flex-row md:col-span-2 md:flex-col"
+  >
+    <div class="flex-1 md:flex-grow-0">
+      <h2 class="mb-2 text-lg">Innehavda poster</h2>
+      {#each years as year}
+        <HeldPositionsYear
+          mandates={mandatesGroupedByYear[year] ?? []}
+          {year}
+        />
+      {/each}
+    </div>
+    <div class="flex-1 md:flex-grow-0">
+      {#if data.publishedArticles.length > 0}
+        <PublishedArticles articles={data.publishedArticles} />
+      {/if}
+      {#if publishedEvents.length > 0}
+        <PublishedEvents events={data.member.authoredEvents} />
+      {/if}
+    </div>
+  </div>
+  <div class="col-span-5 sm:col-span-3 lg:col-span-2 lg:col-start-1">
     {#if isMe}
       <br />
       <div class="my-2 text-xl font-bold">Dörrar</div>
@@ -129,26 +153,5 @@
         {/if}
       {/each}
     {/if}
-  </article>
-  <div
-    class="col-span-5 row-span-4 flex flex-col sm:flex-row md:col-span-2 md:flex-col"
-  >
-    <div class="flex-1 md:flex-grow-0">
-      <h2 class="mb-2 text-lg">Innehavda poster</h2>
-      {#each years as year}
-        <HeldPositionsYear
-          mandates={mandatesGroupedByYear[year] ?? []}
-          {year}
-        />
-      {/each}
-    </div>
-    <div class="flex-1 md:flex-grow-0">
-      {#if data.publishedArticles.length > 0}
-        <PublishedArticles articles={data.publishedArticles} />
-      {/if}
-      {#if publishedEvents.length > 0}
-        <PublishedEvents events={data.member.authoredEvents} />
-      {/if}
-    </div>
   </div>
 </article>
