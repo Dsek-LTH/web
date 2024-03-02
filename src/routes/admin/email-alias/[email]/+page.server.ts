@@ -153,7 +153,7 @@ export const actions = {
       },
     });
     _handleUpdate();
-    if (await hasAnyLeft(prisma, email)) {
+    if (await emailStillInUse(prisma, email)) {
       return message(form, {
         message: "Aliaset borttaget",
         type: "success",
@@ -252,7 +252,7 @@ export const actions = {
       },
     });
     _handleUpdate();
-    if (await hasAnyLeft(prisma, email)) {
+    if (await emailStillInUse(prisma, email)) {
       return message(form, {
         message: "Special receivers borttagna",
         type: "success",
@@ -325,7 +325,7 @@ export const actions = {
       },
     });
     _handleUpdate();
-    if (await hasAnyLeft(prisma, email)) {
+    if (await emailStillInUse(prisma, email)) {
       return message(form, {
         message: "Special senders borttagna",
         type: "success",
@@ -397,7 +397,10 @@ export const actions = {
   },
 };
 
-async function hasAnyLeft(
+// An email alias might be used for a position, a special receiver or a special sender
+// This function checks if an email alias is used for any of these
+// If it is, it should not be deleted, and thus there should still be a page for that email
+async function emailStillInUse(
   prisma: PrismaClient,
   email: string,
 ): Promise<boolean> {
