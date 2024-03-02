@@ -4,6 +4,7 @@ module.exports = {
     "eslint:recommended",
     "plugin:eslint-comments/recommended",
     "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/stylistic",
     // "plugin:@typescript-eslint/recommended-type-checked", // type-checked rules seem to not understand svelte's generated types
     "plugin:svelte/recommended",
     "plugin:svelte/prettier",
@@ -61,5 +62,7 @@ module.exports = {
         ],
       },
     ],
+    "@typescript-eslint/no-inferrable-types": "off", // We want to be explicit about types, even if they are primitives.
+    "@typescript-eslint/consistent-type-definitions": "off", // Using either type or interface is fine.
   },
 };
