@@ -59,12 +59,25 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     throw error(404, "Member not found");
   }
   const member = memberResult.value;
+  const roles = member.doorAccessPolicies.map((d) => d.role).filter(notEmpty);
+  const doorPositions = await prisma.position.findMany({
+    where: {
+      id: {
+        in: roles,
+      },
+    },
+  });
   return {
     form: await superValidate(member, memberSchema),
     member,
+    doorPositions,
     publishedArticles: publishedArticlesResult.value ?? [],
   };
 };
+
+function notEmpty<TValue>(value: TValue | null | undefined): value is TValue {
+  return value !== null && value !== undefined;
+}
 
 const updateSchema = memberSchema.pick({
   firstName: true,

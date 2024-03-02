@@ -138,7 +138,7 @@
             <div class="flex flex-col">
               {#if door.role}
                 <span class="text-xs font-bold opacity-50">
-                  {door.role.replaceAll(".", " ")}
+                  {data.doorPositions.find((m) => m.id === door.role)?.name}
                 </span>
               {/if}
               {#if door.startDatetime != null && door.endDatetime != null}
