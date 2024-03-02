@@ -33,7 +33,8 @@
       <a href={"members/" + article.author.member.studentId}>
         <img
           class="size-10 rounded-full object-cover"
-          src={article.author.member.picturePath}
+          src={article.author.member.picturePath ??
+            "https://gravatar.com/avatar?s=100&d=mp"}
           alt={article.author.member.firstName}
         />
       </a>
