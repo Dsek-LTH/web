@@ -1,7 +1,5 @@
 <script lang="ts">
   import { page } from "$app/stores";
-  import apiNames from "$lib/utils/apiNames";
-  import { isAuthorized } from "$lib/utils/authorization";
   import type { SuperValidated } from "sveltekit-superforms";
   import type { InterestedGoingSchema } from "./interestedGoing";
   import { superForm } from "sveltekit-superforms/client";
