@@ -8,16 +8,18 @@
   export let article: Article;
 </script>
 
-<div class="flex flex-col overflow-hidden rounded-xl bg-base-200">
+<div
+  class="row-span-2 grid grid-rows-subgrid gap-0 overflow-hidden rounded-xl bg-base-200"
+>
   <div class="flex justify-between gap-4 bg-base-300 p-4">
-    <div class="flex min-h-5 flex-wrap items-center gap-2">
+    <div class="flex flex-wrap gap-2">
       {#each article.tags as tag}
         <span class="badge text-xs text-neutral-400">{tag.name}</span>
       {/each}
     </div>
   </div>
 
-  <div class="p-8">
+  <div class="overflow-hidden p-8">
     <div class="flex-1">
       <a href={"news/" + article.slug} class="group">
         <h1 class="text-2xl font-bold group-hover:underline">
