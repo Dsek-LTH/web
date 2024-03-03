@@ -9,7 +9,7 @@ import { fuseEmail, getEmailDomains, isValidEmail } from "./emailutils";
 import { fail, type Actions } from "@sveltejs/kit";
 import { authorize } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
-import keycloak from "$lib/utils/keycloak";
+import keycloak from "$lib/server/keycloak/keycloak";
 import { mailAliasUpdateHandler } from "$lib/server/mail/alias/mailAliasUpdateHandler";
 export const load: PageServerLoad = async (event) => {
   const { prisma } = event.locals;
