@@ -34,7 +34,10 @@
 
     <div class="flex gap-4">
       <a href={"members/" + article.author.member.studentId}>
-        <MemberAvatar class="size-10" member={article.author.member} />
+        <MemberAvatar
+          class="size-10 hover:opacity-60"
+          member={article.author.member}
+        />
       </a>
       <div class="flex w-full items-center justify-between gap-4">
         <div>
