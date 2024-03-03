@@ -1,0 +1,35 @@
+<script lang="ts">
+  import type { SuperValidated } from "sveltekit-superforms";
+  import { superForm } from "sveltekit-superforms/client";
+  import type { SpecialReceiver } from "@prisma/client";
+  import type { RemoveSpecialReceiverForm } from "./schema";
+
+  export let specialReceiver: SpecialReceiver;
+  export let isEditing: boolean;
+
+  export let removeReceiverForm: SuperValidated<RemoveSpecialReceiverForm>;
+  const { enhance: removeReceiverEnhance } = superForm(removeReceiverForm);
+</script>
+
+<div class="flex flex-row items-center justify-between border-b border-neutral">
+  <p class="my-4 font-mono">{specialReceiver.targetEmail}</p>
+  <form
+    action="?/removeSpecialReceiver"
+    method="post"
+    class="flex flex-row"
+    use:removeReceiverEnhance
+  >
+    <input type="hidden" name="id" value={specialReceiver.id} />
+    <input type="hidden" name="email" value={specialReceiver.email} />
+    <input
+      type="hidden"
+      name="targetEmailreceiver"
+      value={specialReceiver.targetEmail}
+    />
+    {#if isEditing}
+      <button class="btn btn-error btn-xs" type="submit">
+        Ta bort special receiver
+      </button>
+    {/if}
+  </form>
+</div>

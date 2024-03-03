@@ -3,9 +3,14 @@
   export let label: string | null = null;
   export let explanation: string | null = null;
   export let error: string | string[] | undefined = undefined;
+  export let fullWidth: boolean = false;
 </script>
 
-<div class="relative inline-flex flex-col items-stretch">
+<div
+  class={`relative inline-flex flex-col items-stretch ${
+    fullWidth ? "w-full md:w-auto" : ""
+  }`}
+>
   {#if label}
     <label class="label" for={id}>
       <span class="label-text">
