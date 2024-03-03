@@ -5,32 +5,45 @@
   import Calendar from "./Calendar.svelte";
 
   import type { PageData } from "./$types";
+  import { enhance } from "$app/forms";
+  import type { Bookable } from "@prisma/client";
   export let data: PageData;
+  let selectedBookables: Bookable[] = [];
 </script>
 
-<form
-  method="get"
-  class="form-control flex-1 flex-row items-center gap-2"
-  id="create-form"
->
-  <div class="join">
+<div>
+  <form method="POST" use:enhance class="join">
     <label>
-      <BookableSelector allBookables={data.bookables} />
+      <BookableSelector allBookables={data.bookables} bind:selectedBookables />
+      <input
+        type="text"
+        name="bookables"
+        hidden
+        value={selectedBookables.map((a) => a.id)}
+      />
       <div class="flex flex-row">
         <input
           type="text"
+          name="start"
           placeholder="Start"
           class="input input-bordered w-full max-w-xs"
         />
         <input
           type="text"
+          name="end"
           placeholder="End"
           class="input input-bordered w-full max-w-xs"
         />
+        <input
+          type="text"
+          name="event"
+          placeholder="Event"
+          class="input input-bordered w-full max-w-xs"
+        />
+        <button class="btn btn-primary">Create</button>
       </div>
-      <button type="submit" class="btn btn-primary">Create</button>
     </label>
-  </div>
-</form>
+  </form>
+</div>
 
 <Calendar bookingRequests={data.bookingRequests} />

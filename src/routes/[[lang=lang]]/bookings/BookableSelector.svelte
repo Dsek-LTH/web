@@ -23,12 +23,11 @@
           <button
             type="button"
             on:click={() => {
-              selectedBookables = selectedBookables.filter(
-                (o) => o !== bookable,
-              );
+              //TODO: implement remove bookable
+              console.log(bookable);
             }}
-          >
-            <span
+          >  
+          <span
               class="badge badge-md relative cursor-pointer whitespace-nowrap text-xs"
             >
               <div class="absolute inset-0 opacity-10 transition-colors" />
@@ -81,7 +80,7 @@
           on:click={() => {
             if (selectedBookables.includes(bookable)) {
               selectedBookables = selectedBookables.filter(
-                (o) => o !== bookable,
+                (o) => o !== bookable
               );
             } else {
               selectedBookables = [...selectedBookables, bookable];
