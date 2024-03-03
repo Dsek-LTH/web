@@ -9,3 +9,4 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 /.vercel
 .zenstack_repl_history
+project.inlang/project_id

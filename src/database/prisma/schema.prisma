@@ -318,10 +318,10 @@ model Door {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model EmailAlias {
     id String @id(map: "mail_aliases_pkey") @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-    positionId String? @map("position_id") @db.VarChar(255)
-    email String? @db.VarChar(255)
-    canSend Boolean? @default(false) @map("can_send")
-    position Position? @relation(fields: [positionId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "email_aliases_position_id_foreign")
+    positionId String @map("position_id") @db.VarChar(255)
+    email String @db.VarChar(255)
+    canSend Boolean @default(false) @map("can_send")
+    position Position @relation(fields: [positionId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "email_aliases_position_id_foreign")
 
     @@map("email_aliases")
 }
@@ -508,6 +508,7 @@ model Member {
 }
 
 /// @@allow('read', auth().memberId == memberId)
+/// @@allow('create', auth() != null)
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Notifications{
 model Notification {
     id Int @id() @default(autoincrement())
@@ -784,4 +785,11 @@ model UserInventoryItem {
     userInventory UserInventory @relation(fields: [userInventoryId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "user_inventory_item_user_inventory_id_foreign")
 
     @@map("user_inventory_item")
+}
+
+model LastKeycloakUpdate {
+    id Int @id() @default(autoincrement())
+    time DateTime
+
+    @@map("last_keycloak_update")
 }
