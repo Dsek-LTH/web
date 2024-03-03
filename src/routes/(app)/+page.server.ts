@@ -88,7 +88,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 export const actions: Actions = {
   // Update on database that these notifications have been read by user
   readnotifications: async ({ locals, request }) => {
-    const { prisma } = locals;
+    const { user, prisma } = locals;
     const form = await superValidate(request, notificationSchema);
     if (!form.valid) return;
     await prisma.notification.updateMany({
@@ -96,13 +96,13 @@ export const actions: Actions = {
         readAt: new Date(),
       },
       where: {
-        memberId: form.data.memberId,
+        memberId: user?.memberId,
       },
     });
   },
   // Delete single or multiple notifications on database
   deletenotification: async ({ locals, request }) => {
-    const { prisma } = locals;
+    const { user, prisma } = locals;
     const form = await superValidate(request, notificationSchema);
     if (!form.valid) return;
     // If multiple ids and not a single id have been provided, delete many, otherwise,
@@ -110,7 +110,7 @@ export const actions: Actions = {
     if (!form.data.notificationId && form.data.notificationIds) {
       await prisma.notification.deleteMany({
         where: {
-          memberId: form.data.memberId,
+          memberId: user?.memberId,
           id: {
             in: form.data.notificationIds,
           },
@@ -119,7 +119,7 @@ export const actions: Actions = {
     } else if (form.data.notificationId) {
       await prisma.notification.delete({
         where: {
-          memberId: form.data.memberId,
+          memberId: user?.memberId,
           id: form.data.notificationId,
         },
       });

@@ -9,10 +9,12 @@ export const load = loadFlash(async ({ locals }) => {
   return {
     user,
     member,
-    notifications: await prisma.notification.findMany({
-      where: {
-        memberId: user?.memberId,
-      },
-    }),
+    notifications: user
+      ? await prisma.notification.findMany({
+          where: {
+            memberId: user?.memberId,
+          },
+        })
+      : [],
   };
 });

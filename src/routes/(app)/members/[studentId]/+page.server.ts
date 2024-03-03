@@ -63,20 +63,22 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     form: await superValidate(member, memberSchema),
     member,
     publishedArticles: publishedArticlesResult.value ?? [],
-    ping: await prisma.ping.findFirst({
-      where: {
-        OR: [
-          {
-            fromMemberId: member.id,
-            toMemberId: user?.memberId,
+    ping: user
+      ? await prisma.ping.findFirst({
+          where: {
+            OR: [
+              {
+                fromMemberId: member.id,
+                toMemberId: user?.memberId,
+              },
+              {
+                fromMemberId: user?.memberId,
+                toMemberId: member.id,
+              },
+            ],
           },
-          {
-            fromMemberId: user?.memberId,
-            toMemberId: member.id,
-          },
-        ],
-      },
-    }),
+        })
+      : null,
   };
 };
 
