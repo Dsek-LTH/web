@@ -46,6 +46,9 @@ dependencies:
   croppie:
     specifier: ^2.6.5
     version: 2.6.5
+  dayjs:
+    specifier: ^1.11.10
+    version: 1.11.10
   expo-server-sdk:
     specifier: ^3.7.0
     version: 3.7.0
@@ -3304,6 +3307,10 @@ packages:
     dependencies:
       '@babel/runtime': 7.23.6
     dev: true
+
+  /dayjs@1.11.10:
+    resolution: {integrity: sha512-vjAczensTgRcqDERK0SR2XMwsF/tSvnvlv6VcF2GIhg6Sx4yOIt/irsr1RDJsKiIyBzJDpCoXiWWq28MqH2cnQ==}
+    dev: false
 
   /debug@4.3.4:
     resolution: {integrity: sha512-PRWFHuSU3eDtQJPvnNY7Jcket1j0t5OuOsFzPPzsekD52Zl8qUfFIPEiswXqIvHWGVHOgX+7G/vCNNhehwxfkQ==}

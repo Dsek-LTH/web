@@ -4,7 +4,7 @@
   import { getFullName } from "$lib/utils/client/member";
   import type { Article } from "./articles";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
-
+  import dayjs from "dayjs";
   export let article: Article;
 </script>
 
@@ -19,7 +19,7 @@
     </div>
   </div>
 
-  <div class="overflow-hidden p-8">
+  <div class="flex flex-col overflow-hidden p-8">
     <div class="flex-1">
       <a href={"news/" + article.slug} class="group">
         <h1 class="text-2xl font-bold group-hover:underline">
@@ -52,7 +52,11 @@
           {/if}
         </div>
         <p class="my-1 self-end text-xs font-light text-neutral-600">
-          {article.createdAt.toLocaleDateString()}
+          {#if dayjs(article.createdAt).diff(dayjs(), "week") < -1}
+            {dayjs(article.createdAt).format("YYYY-MM-DD")}
+          {:else}
+            {dayjs(article.createdAt).fromNow()}
+          {/if}
         </p>
       </div>
     </div>
