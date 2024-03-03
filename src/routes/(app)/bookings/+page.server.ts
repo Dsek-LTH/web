@@ -25,7 +25,7 @@ export const actions: Actions = {
     const { request, locals } = event;
     const { prisma, user } = locals;
     const data = await request.formData();
-    const bookables: string[] = (data.get("bookables") || "").split(",");
+    const bookables: string[] = (data.get("bookables") as string).split(",");
     console.log(bookables);
 
     const createBookingRequest = await prisma.bookingRequest.create({

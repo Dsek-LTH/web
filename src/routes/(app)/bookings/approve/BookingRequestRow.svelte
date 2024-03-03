@@ -3,7 +3,7 @@
   import StatusComponent from "./StatusComponent.svelte";
   import { enhance } from "$app/forms";
 
-  export let bookingRequest: BookingRequest;
+  export let bookingRequest: Bookable[] & BookingRequest;
 </script>
 
 <tr>

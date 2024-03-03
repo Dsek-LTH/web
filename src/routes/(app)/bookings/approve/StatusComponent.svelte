@@ -1,5 +1,6 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
+  import type { BookingRequest } from "@prisma/client";
 
   export let bookingRequest: BookingRequest;
   let status = bookingRequest.status;
@@ -8,7 +9,7 @@
 
 <div>
   {#if status === "PENDING"}
-    <form method="POST" formaction="?/accept" use:enhance>
+    <form method="POST" use:enhance>
       <input hidden name="id" type="text" value={bookingRequest.id} />
       <button formaction="?/accept" class="btn w-20 bg-green-800">
         ACCEPT
