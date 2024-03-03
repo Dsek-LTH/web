@@ -1,12 +1,4 @@
-// import { withAccess } from "$lib/utils/access";
-// import prisma from "$lib/utils/prisma";
-// import apiNames from "$lib/utils/apiNames";
-
-import { start } from "repl";
 import type { Actions, PageServerLoad } from "./$types";
-// import type { Bookable } from "@prisma/client";
-// import { ObjectCreatedAll } from "minio";
-// import { fail } from "@sveltejs/kit";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma } = locals;
@@ -28,7 +20,7 @@ export const actions: Actions = {
     const bookables: string[] = (data.get("bookables") as string).split(",");
     console.log(bookables);
 
-    const createBookingRequest = await prisma.bookingRequest.create({
+    await prisma.bookingRequest.create({
       data: {
         bookerId: user?.memberId,
         start: new Date(data.get("start") as string),
@@ -40,13 +32,6 @@ export const actions: Actions = {
           })),
         },
         status: "PENDING",
-
-        // start: data.get("start")
-        // end: data.get("end") // TODO: add event thingy
-        // created: new Date(),
-        // event: data.get("event"),
-        // status: "pending",
-        // bookables:
       },
     });
   },

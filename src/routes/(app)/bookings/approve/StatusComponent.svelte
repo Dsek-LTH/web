@@ -4,7 +4,6 @@
 
   export let bookingRequest: BookingRequest;
   let status = bookingRequest.status;
-  let action = "accept";
 </script>
 
 <div>

@@ -16,7 +16,7 @@ export const actions: Actions = {
     const { request, locals } = event;
     const { prisma } = locals;
     const formData = await request.formData();
-    const bookingRequest = await prisma.bookingRequest.update({
+    await prisma.bookingRequest.update({
       where: {
         id: formData.get("id") as string,
       },
@@ -29,7 +29,7 @@ export const actions: Actions = {
     const { request, locals } = event;
     const { prisma } = locals;
     const formData = await request.formData();
-    const bookingRequest = await prisma.bookingRequest.update({
+    await prisma.bookingRequest.update({
       where: {
         id: formData.get("id") as string,
       },

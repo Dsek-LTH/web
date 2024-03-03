@@ -1,6 +1,5 @@
 <script lang="ts">
   import type { PageData } from "./$types";
-  import BookingRequestTable from "./BookingRequestTable.svelte";
   import BookingRequestRow from "./BookingRequestRow.svelte";
   export let data: PageData;
   $: bookingRequests = data.bookingRequests;
@@ -26,5 +25,4 @@
       {/each}
     </tbody>
   </table>
-  <!-- <BookingRequestTable bookingRequests={data.bookingRequests} /> -->
 </div>

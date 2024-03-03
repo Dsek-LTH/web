@@ -1,9 +1,8 @@
 <script lang="ts">
   import type { BookingRequest, Bookable } from "@prisma/client";
   import StatusComponent from "./StatusComponent.svelte";
-  import { enhance } from "$app/forms";
 
-  export let bookingRequest: Bookable[] & BookingRequest;
+  export let bookingRequest: { bookables: Bookable[] } & BookingRequest;
 </script>
 
 <tr>
