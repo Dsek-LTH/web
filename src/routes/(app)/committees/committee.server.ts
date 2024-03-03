@@ -19,29 +19,32 @@ type ParamType = { shortName: string };
 
 /**
  * @param shortName The committee's short name
+ * @param year The year to load the committee for, defaults to current year
  * @returns All data that the every committee load function needs
  */
 export const committeeLoad = async (
   prisma: PrismaClient,
   shortName: string,
+  year = new Date().getFullYear(),
 ) => {
+  // const date = new Date(year, 0, 1);
+  // 👆 doing this actually gives us last day of previous year for some reason
+  const date = new Date(year, 0, 2);
+
   const committee = await prisma.committee.findUnique({
     where: {
       shortName,
     },
     include: {
       positions: {
-        where: {
-          active: true,
-        },
         include: {
           mandates: {
             where: {
               startDate: {
-                lte: new Date(),
+                lte: date,
               },
               endDate: {
-                gte: new Date(),
+                gte: date,
               },
             },
             include: {
@@ -60,58 +63,74 @@ export const committeeLoad = async (
   if (!committee) {
     throw error(404, "Committee not found");
   }
-  const uniqueMembersInCommittee = await prisma.member.count({
-    where: {
-      mandates: {
-        some: {
+  const [uniqueMembersInCommittee, numberOfMandates, markdown] =
+    await Promise.allSettled([
+      prisma.member.count({
+        where: {
+          mandates: {
+            some: {
+              startDate: {
+                lte: date,
+              },
+              endDate: {
+                gte: date,
+              },
+              position: {
+                committee: {
+                  shortName,
+                },
+              },
+            },
+          },
+        },
+      }),
+      prisma.mandate.count({
+        where: {
           startDate: {
-            lte: new Date(),
+            lte: date,
           },
           endDate: {
-            gte: new Date(),
+            gte: date,
           },
           position: {
-            active: true,
             committee: {
               shortName,
             },
           },
         },
-      },
-    },
-  });
-  const numberOfMandates = await prisma.mandate.count({
-    where: {
-      startDate: {
-        lte: new Date(),
-      },
-      endDate: {
-        gte: new Date(),
-      },
-      position: {
-        active: true,
-        committee: {
-          shortName,
-        },
-      },
-    },
-  });
-  const markdown = committee.shortName
-    ? await prisma.markdown.findUnique({
+      }),
+      prisma.markdown.findUnique({
         where: {
           name: shortName,
         },
-      })
-    : null;
+      }),
+      prisma.committee.findUnique({
+        where: {
+          shortName,
+        },
+      }),
+    ]);
+  if (uniqueMembersInCommittee.status === "rejected") {
+    error(500, "Failed to fetch unique members in committee");
+  }
+  if (numberOfMandates.status === "rejected") {
+    error(500, "Failed to fetch number of mandates");
+  }
+  if (markdown.status === "rejected") {
+    error(500, "Failed to fetch markdown");
+  }
+
   const form = await superValidate(committee, updateSchema);
+
   return {
     committee,
-    positions: committee.positions.toSorted((a, b) =>
-      compareCommitteePositions(a.id, b.id, shortName),
-    ),
-    uniqueMemberCount: uniqueMembersInCommittee,
-    numberOfMandates,
-    markdown,
+    positions: committee.positions
+      // include active positions, or inactive positions with mandates
+      .filter((pos) => pos.mandates.length > 0 || pos.active)
+      .toSorted((a, b) => compareCommitteePositions(a.id, b.id, shortName)),
+    uniqueMemberCount: uniqueMembersInCommittee.value,
+    numberOfMandates: numberOfMandates.value,
+    markdown: markdown.value,
     form,
   };
 };
@@ -128,7 +147,7 @@ export const committeeActions = (shortName?: string): Actions<ParamType> => ({
       if (image.type !== "image/svg+xml") {
         return setError(form, "image", "Bilden måste vara i .svg format ");
       }
-      const path = `committees/${shortName || params.shortName}.svg`;
+      const path = `committees/${shortName ?? params.shortName}.svg`;
       if (image) {
         try {
           const putUrl = await fileHandler.getPresignedPutUrl(
@@ -152,13 +171,13 @@ export const committeeActions = (shortName?: string): Actions<ParamType> => ({
       }
     }
     await prisma.committee.update({
-      where: { shortName: shortName || params.shortName },
+      where: { shortName: shortName ?? params.shortName },
       data: {
         name: form.data.name,
         description: form.data.description,
         imageUrl: newImageUploaded
           ? `minio/material/committees/${
-              shortName || params.shortName
+              shortName ?? params.shortName
             }.svg?version=${new Date().getTime()}`
           : undefined,
       },
