@@ -62,7 +62,6 @@ module.exports = {
         ],
       },
     ],
-    "@typescript-eslint/no-inferrable-types": "off", // We want to be able to be explicit about types, even if they are primitives.
     "@typescript-eslint/consistent-type-definitions": "off", // Using either type or interface is fine.
   },
 };

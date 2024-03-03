@@ -12,7 +12,7 @@
   export let deleteForm: SuperValidated<DeleteSchema>;
   export let name: string;
   export let files: FileData[];
-  export let isEditing: boolean = false;
+  export let isEditing = false;
   // I do not use this because lexical ordering (default from minio) is preferred in my opinion
   // $: filesSortedByDate = [...files].sort((a, b) => {
   //   if (a.modDate && b.modDate) {
