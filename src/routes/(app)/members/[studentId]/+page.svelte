@@ -128,7 +128,7 @@
   <div
     class="col-span-5 sm:col-span-3 sm:col-start-3 md:col-start-1 lg:col-span-2 lg:col-start-1 xl:col-span-1 xl:col-start-1"
   >
-    {#if isMe}
+    {#if isMe && data.allMemberDoors.size > 0}
       <br />
       <div class="my-2 text-xl font-bold">Dörrar</div>
       {#each Array.from(data.allMemberDoors.entries()) as [doorName, doorData]}
