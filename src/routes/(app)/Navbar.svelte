@@ -12,7 +12,7 @@
   import type { SuperValidated } from "sveltekit-superforms";
   import type { NotificationSchema } from "$lib/zod/schemas";
 
-  export let notifications: Notification[];
+  export let notifications: Notification[] | null;
   export let deleteNotificationForm: SuperValidated<NotificationSchema>;
 </script>
 
@@ -84,7 +84,9 @@
     <LanguageSwitcher />
     <DarkLightToggle />
     {#if $page.data.user && $page.data.member}
-      <NotificationBell {notifications} deleteForm={deleteNotificationForm} />
+      {#if notifications !== null}
+        <NotificationBell {notifications} deleteForm={deleteNotificationForm} />
+      {/if}
       <div class="dropdown dropdown-end dropdown-hover">
         <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
         <!-- svelte-ignore a11y-label-has-associated-control -->

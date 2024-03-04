@@ -106,7 +106,10 @@ export const actions: Actions = {
           },
         },
       });
-      return;
+      return message(form, {
+        message: "Notiser borttagna",
+        type: "hidden",
+      });
     } else if (form.data.notificationId) {
       await prisma.notification.delete({
         where: {
@@ -114,7 +117,10 @@ export const actions: Actions = {
           id: form.data.notificationId,
         },
       });
-      return;
+      return message(form, {
+        message: "Notis borttagen",
+        type: "hidden",
+      });
     }
     return message(
       form,
