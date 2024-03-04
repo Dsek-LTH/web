@@ -105,7 +105,7 @@
   </article>
 
   <div
-    class="col-span-5 row-span-4 flex flex-col sm:flex-row md:col-span-2 md:flex-col"
+    class="col-span-5 row-span-4 flex flex-col sm:col-span-2 sm:col-start-1 md:col-span-2 md:flex-col"
   >
     <div class="flex-1 md:flex-grow-0">
       <h2 class="mb-2 text-lg">Innehavda poster</h2>
@@ -125,28 +125,28 @@
       {/if}
     </div>
   </div>
-  <div class="col-span-5 sm:col-span-3 lg:col-span-2 lg:col-start-1">
+  <div
+    class="col-span-5 sm:col-span-3 sm:col-start-3 md:col-start-1 lg:col-span-2 lg:col-start-1 xl:col-span-1 xl:col-start-1"
+  >
     {#if isMe}
       <br />
       <div class="my-2 text-xl font-bold">Dörrar</div>
-      {#each member.doorAccessPolicies as door}
-        {#if (door.startDatetime == null || currentDate > door.startDatetime) && (door.endDatetime == null || currentDate < door.endDatetime)}
+      {#each Array.from(data.allMemberDoors.entries()) as [doorName, doorData]}
+        {#if (doorData.startDate == null || currentDate > doorData.startDate) && (doorData.endDate == null || currentDate < doorData.endDate)}
           <div class="my-2 flex justify-between rounded-lg bg-base-200 p-3">
             <div class="my-auto font-bold">
-              {door.doorName}
+              {doorName}
             </div>
-            <div class="flex flex-col">
-              {#if door.role}
-                <span class="text-xs font-bold opacity-50">
-                  {data.doorPositions.find((m) => m.id === door.role)?.name}
-                </span>
-              {/if}
-              {#if door.startDatetime != null || door.endDatetime != null}
+            <div class="flex flex-col text-right">
+              <span class="text-xs font-bold opacity-50">
+                {doorData.roles.join(" ")}
+              </span>
+              {#if doorData.startDate != null || doorData.endDate != null}
                 <div>
                   <span class="text-xs font-bold opacity-50">
-                    {door.startDatetime?.toLocaleDateString() ?? ""}
+                    {doorData.startDate?.toLocaleDateString() ?? ""}
                     -
-                    {door.endDatetime?.toLocaleDateString() ?? ""}
+                    {doorData.endDate?.toLocaleDateString() ?? ""}
                   </span>
                 </div>
               {/if}
