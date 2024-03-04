@@ -1,4 +1,5 @@
 <script lang="ts">
+  import LiveTimeSince from "$lib/components/LiveTimeSince.svelte";
   import type { NotificationSchema } from "$lib/zod/schemas";
   import type { Notification } from "@prisma/client";
   import type { SuperValidated } from "sveltekit-superforms";
@@ -10,26 +11,10 @@
 
   export let notification: NotificationItem;
   export let deleteForm: SuperValidated<NotificationSchema>;
+
   const { enhance } = superForm(deleteForm, {
     id: notification.id.toString(),
   });
-
-  // Gets hours, minutes and seconds and then returns hour, if it's been at least 59 minutes,
-  // returns seconds if it's been less than a minute, and else minutes
-  $: time = (() => {
-    const seconds = Math.floor(
-      (new Date().getTime() - notification.createdAt.getTime()) / 1000,
-    );
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    return hours > 23
-      ? (hours % 24) + " dagar"
-      : minutes < 1 && hours < 1
-        ? seconds + " sekunder"
-        : hours < 1
-          ? minutes + " minuter"
-          : hours + " timmar";
-  })();
 </script>
 
 <div class="relative m-0 rounded-none">
@@ -44,7 +29,7 @@
       >{notification.message}</span
     >
     <span class="w-11/12 truncate text-wrap text-xs text-gray-500">
-      {time + " sedan"}
+      <LiveTimeSince timeStamp={notification.createdAt.getTime()} />
     </span>
   </a>
   <!-- Deletes this notification -->
