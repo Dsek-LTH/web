@@ -3,7 +3,6 @@ import { authorize } from "$lib/utils/authorization";
 import sendNotification from "$lib/utils/notifications";
 import { NotificationType } from "$lib/utils/notifications/types";
 import { slugWithCount, slugify } from "$lib/utils/slugify";
-import type { Prisma } from "@prisma/client";
 import { error, fail } from "@sveltejs/kit";
 import { redirect } from "sveltekit-flash-message/server";
 import { superValidate } from "sveltekit-superforms/client";
@@ -60,12 +59,17 @@ export const actions: Actions = {
     const form = await superValidate(request, articleSchema);
     if (!form.valid) return fail(400, { form });
     const { header, body, author, tags } = form.data;
+    const existingAuthor = await prisma.author.findFirst({
+      where: {
+        member: { studentId: user?.studentId },
+        mandateId: author.mandateId,
+        customId: author.customId,
+      },
+    });
     const slug = slugify(header);
     const slugCount = await prisma.article.count({
       where: {
-        slug: {
-          startsWith: slug,
-        },
+        slug: { startsWith: slug },
       },
     });
     const result = await prisma.article.create({
@@ -74,30 +78,31 @@ export const actions: Actions = {
         header: header,
         body: body,
         author: {
-          connectOrCreate: {
-            where: {
-              member: {
-                studentId: user?.studentId,
-              },
-              mandateId: author.mandateId,
-              customId: author.customId,
-              // SEE src/lib/utils/notifications/index.ts why we have to to the type casting below
-            } as Prisma.AuthorWhereUniqueInput,
-            create: {
-              member: { connect: { studentId: user?.studentId } },
-              mandate: author.mandateId
-                ? {
-                    connect: {
-                      member: { studentId: user?.studentId },
-                      id: author.mandateId,
-                    },
-                  }
-                : undefined,
-              customAuthor: author.customId
-                ? { connect: { id: author.customId } }
-                : undefined,
-            },
-          },
+          connect: existingAuthor
+            ? {
+                id: existingAuthor.id,
+              }
+            : undefined,
+          create: !existingAuthor
+            ? {
+                member: {
+                  connect: { studentId: user?.studentId },
+                },
+                mandate: author.mandateId
+                  ? {
+                      connect: {
+                        member: { studentId: user?.studentId },
+                        id: author.mandateId,
+                      },
+                    }
+                  : undefined,
+                customAuthor: author.customId
+                  ? {
+                      connect: { id: author.customId },
+                    }
+                  : undefined,
+              }
+            : undefined,
         },
         // imageUrl: (image as string | undefined) || null,
         tags: {
@@ -116,11 +121,11 @@ export const actions: Actions = {
 
     // fetch the created author,
 
-    sendNotification(prisma, {
+    await sendNotification(prisma, {
       title: header,
       message: body,
       type: NotificationType.NEW_ARTICLE,
-      link: slugWithCount(slug, slugCount),
+      link: `/news/${result.slug}`,
       fromAuthor: result.author,
     });
 

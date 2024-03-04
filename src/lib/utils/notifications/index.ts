@@ -4,7 +4,7 @@ import {
   NotificationType,
   SUBSCRIPTION_SETTINGS_MAP,
 } from "$lib/utils/notifications/types";
-import type { Author, Prisma, PrismaClient } from "@prisma/client";
+import type { Author, PrismaClient } from "@prisma/client";
 import { error } from "@sveltejs/kit";
 
 const DUPLICATE_ALLOWED_TYPES = [
@@ -60,27 +60,20 @@ const sendNotification = async (
   ).find(([, internalTypes]) => internalTypes.includes(type))?.[0] ??
     type) as NotificationSettingType;
   // Who sent the notification, as an Author
-  // If the author is not given, then find or create the author from the member id
-  const notificationAuthor =
+  const existingAuthor =
     fromAuthor ??
-    (await prisma.author.upsert({
-      where: {
-        memberId: fromMemberId,
-        mandateId: null,
-        customId: null,
-        // The following can not be done because prisma does not support uniqueness on nullable fields
-        // SEE: https://github.com/prisma/prisma/issues/3387#issuecomment-1379686316
-        // memberId_mandateId_customId: {
-        //   memberId: fromMemberId,
-        //   mandateId: null,
-        //   customId: null,
-        // },
-      } as Prisma.AuthorWhereUniqueInput, // Because we can't do the above, we have to
-      update: {},
-      create: {
-        memberId: fromMemberId,
-      },
+    (await prisma.author.findFirst({
+      where: { memberId: fromMemberId, mandateId: null, customId: null },
     }));
+
+  // If member doesn't have author since before, create one
+  const notificationAuthor =
+    existingAuthor ??
+    (fromMemberId
+      ? await prisma.author.create({
+          data: { memberId: fromMemberId! },
+        })
+      : undefined);
 
   const shouldReceiveDuplicates = DUPLICATE_ALLOWED_TYPES.includes(type); // if the notification type allows for duplicates
   const receivingMembers = await prisma.member.findMany({
