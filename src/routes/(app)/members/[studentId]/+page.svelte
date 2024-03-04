@@ -1,4 +1,6 @@
 <script lang="ts">
+  import DoorAccess from "./DoorAccess.svelte";
+
   import { page } from "$app/stores";
   import ClassBadge from "$lib/components/ClassBadge.svelte";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
@@ -127,30 +129,8 @@
   <div
     class="col-span-5 sm:col-span-3 sm:col-start-3 md:col-start-1 lg:col-span-2 lg:col-start-1 xl:col-span-1 xl:col-start-1"
   >
-    {#if isMe && data.allMemberDoors.size > 0}
-      <br />
-      <div class="my-2 text-xl font-bold">Dörrar</div>
-      {#each Array.from(data.allMemberDoors.entries()) as [doorName, doorData]}
-        <div class="my-2 flex justify-between rounded-lg bg-base-200 p-3">
-          <div class="my-auto font-bold">
-            {doorName}
-          </div>
-          <div class="flex flex-col text-right">
-            <span class="text-xs font-bold opacity-50">
-              {doorData.roles.join(" ")}
-            </span>
-            {#if doorData.startDate != null || doorData.endDate != null}
-              <div>
-                <span class="text-xs font-bold opacity-50">
-                  {doorData.startDate?.toLocaleDateString() ?? ""}
-                  -
-                  {doorData.endDate?.toLocaleDateString() ?? ""}
-                </span>
-              </div>
-            {/if}
-          </div>
-        </div>
-      {/each}
+    {#if data.doorAccess.length > 0}
+      <DoorAccess doorAccess={data.doorAccess} />
     {/if}
   </div>
 </article>

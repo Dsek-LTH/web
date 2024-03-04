@@ -5,11 +5,12 @@ import type { Actions, PageServerLoad } from "./$types";
 import { getCurrentDoorPoliciesForMember } from "$lib/utils/member";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
-  const { prisma } = locals;
+  const { prisma, user } = locals;
+  const { studentId } = params;
   const [memberResult, publishedArticlesResult] = await Promise.allSettled([
     prisma.member.findUnique({
       where: {
-        studentId: params.studentId,
+        studentId: studentId,
       },
       include: {
         mandates: {
@@ -39,7 +40,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
       where: {
         author: {
           member: {
-            studentId: params.studentId,
+            studentId: studentId,
           },
         },
         removedAt: null,
@@ -61,15 +62,17 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   }
   const member = memberResult.value;
 
-  const allMemberDoors = await getCurrentDoorPoliciesForMember(
-    prisma,
-    member.id,
-  );
+  const doorAccess =
+    member.id === user?.memberId
+      ? await getCurrentDoorPoliciesForMember(prisma, studentId)
+      : (new Map() as Awaited<
+          ReturnType<typeof getCurrentDoorPoliciesForMember>
+        >);
 
   return {
     form: await superValidate(member, memberSchema),
     member,
-    allMemberDoors,
+    doorAccess,
     publishedArticles: publishedArticlesResult.value ?? [],
   };
 };
