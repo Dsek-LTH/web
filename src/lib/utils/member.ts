@@ -1,6 +1,6 @@
 import type { PrismaClient } from "@prisma/client";
-import { getDerivedRoles } from "./authorization";
 import { error } from "@sveltejs/kit";
+import { getDerivedRoles } from "./authorization";
 
 export const getCustomAuthorOptions = async (
   prisma: PrismaClient,
@@ -39,18 +39,30 @@ export const getCustomAuthorOptions = async (
   });
 };
 
+export type MemberDoorPolicies = {
+  name: string;
+  roles: string[];
+  startDate: Date | null;
+  endDate: Date | null;
+}[];
+
 export const getCurrentDoorPoliciesForMember = async (
   prisma: PrismaClient,
-  memberId: string,
+  studentId: string,
 ) => {
-  const [memberResult] = await Promise.allSettled([
-    prisma.member.findUnique({
-      where: {
-        id: memberId,
+  const memberPositionIds = await prisma.position
+    .findMany({
+      select: {
+        id: true,
+        name: true,
+        boardMember: true,
       },
-      include: {
+      where: {
         mandates: {
-          where: {
+          some: {
+            member: {
+              studentId,
+            },
             startDate: {
               lte: new Date(),
             },
@@ -58,98 +70,110 @@ export const getCurrentDoorPoliciesForMember = async (
               gte: new Date(),
             },
           },
-          include: {
-            position: {},
-          },
-        },
-        doorAccessPolicies: {},
-      },
-    }),
-  ]);
-
-  if (memberResult.status === "rejected") {
-    throw error(500, "Could not fetch member");
-  }
-  if (!memberResult.value) {
-    throw error(404, "Member not found");
-  }
-
-  const member = memberResult.value;
-  const allDoorPolicies = await prisma.doorAccessPolicy.findMany();
-
-  const roles = member.doorAccessPolicies.map((d) => d.role).filter(notEmpty);
-  const positions = (
-    await prisma.position.findMany({
-      where: {
-        id: {
-          in: roles,
         },
       },
     })
-  ).concat(member.mandates.map((m) => m.position));
-
-  // Map a doorname to roles, startDate and endDate
-  const allMemberDoors = new Map<
-    string,
-    {
-      roles: string[];
-      startDate: Date | null;
-      endDate: Date | null;
-    }
-  >();
-
-  allDoorPolicies
-    .filter((doorPolicy) =>
-      member.mandates.some(
-        (mandate) =>
-          // A doorpolicy is associated with either a role or a specific member
-          (doorPolicy.role && mandate.positionId.startsWith(doorPolicy.role)) ||
-          doorPolicy.studentId === member.studentId,
-      ),
-    )
-    .forEach((doorPolicy) => {
-      // Get a nice name for a position instead of using the id
-      const positionNamesFromMandates = positions
-        .filter(
-          (position) =>
-            doorPolicy.role && position.id.startsWith(doorPolicy.role),
-        )
-        .map((position) => position.name);
-      const positionNames: string[] =
-        positionNamesFromMandates.length > 0
-          ? positionNamesFromMandates
-          : ["Du"];
-
-      const oldData = allMemberDoors.get(doorPolicy.doorName);
-      const newData = oldData ?? {
-        roles: [...positionNames],
-        startDate: doorPolicy.startDatetime,
-        endDate: doorPolicy.endDatetime,
-      };
-      if (oldData) {
-        // Remove duplicates
-        newData.roles = [...new Set(oldData.roles.concat(...positionNames))];
-
-        if (doorPolicy.startDatetime) {
-          newData.startDate =
-            oldData.startDate === null ||
-            doorPolicy.startDatetime > oldData.startDate
-              ? oldData.startDate
-              : doorPolicy.startDatetime;
-        }
-        if (doorPolicy.endDatetime) {
-          newData.endDate =
-            oldData.endDate === null || doorPolicy.endDatetime < oldData.endDate
-              ? oldData.endDate
-              : doorPolicy.endDatetime;
-        }
-      }
-      allMemberDoors.set(doorPolicy.doorName, newData);
+    .catch(() => {
+      throw error(500, "Could not fetch member positions");
+    });
+  const userDoorPolicies = await prisma.doorAccessPolicy
+    .findMany({
+      where: {
+        AND: [
+          {
+            // is active, or indefinite
+            OR: [
+              {
+                startDatetime: null,
+              },
+              {
+                startDatetime: {
+                  lte: new Date(),
+                },
+              },
+            ],
+          },
+          {
+            // is active, or indefinite
+            OR: [
+              {
+                endDatetime: null,
+              },
+              {
+                endDatetime: {
+                  gte: new Date(),
+                },
+              },
+            ],
+          },
+          {
+            OR: [
+              {
+                studentId, // is for this user
+              },
+              {
+                role: {
+                  in: getDerivedRoles(
+                    memberPositionIds.map((pos) => pos.id),
+                    true,
+                  ).concat(
+                    memberPositionIds.some((pos) => pos.boardMember)
+                      ? ["dsek.styr"]
+                      : [],
+                  ),
+                },
+              },
+            ],
+          },
+        ],
+      },
+    })
+    .catch(() => {
+      throw error(500, "Could not fetch door access");
     });
 
-  return allMemberDoors;
-};
+  const policiesByDoor: MemberDoorPolicies = userDoorPolicies.reduce(
+    (acc, policy) => {
+      const role = policy.role ?? "Du";
+      const duplicate = acc.find(
+        (p) =>
+          p.name === policy.doorName &&
+          p.startDate === policy.startDatetime &&
+          p.endDate === policy.endDatetime,
+      );
+      if (duplicate) {
+        duplicate.roles.push(role);
+        return acc;
+      }
+      acc.push({
+        name: policy.doorName,
+        roles: [role],
+        startDate: policy.startDatetime,
+        endDate: policy.endDatetime,
+      });
+      return acc;
+    },
+    [] as MemberDoorPolicies,
+  );
+  const memberDoorPolicies: MemberDoorPolicies = policiesByDoor.map(
+    (policy) => {
+      const positionsMappedToThisDoor = memberPositionIds
+        .filter((pos) =>
+          policy.roles.some(
+            (role) =>
+              pos.id.startsWith(role) ||
+              (pos.boardMember && role === "dsek.styr"),
+          ),
+        )
+        .map((pos) => pos.name);
+      positionsMappedToThisDoor.sort();
+      return {
+        ...policy,
+        roles: positionsMappedToThisDoor || ["Du"],
+      };
+    },
+  );
+  memberDoorPolicies.sort((a, b) => a.name.localeCompare(b.name));
 
-function notEmpty<TValue>(value: TValue | null | undefined): value is TValue {
-  return value !== null && value !== undefined;
-}
+  return memberDoorPolicies;
+};
