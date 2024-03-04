@@ -59,3 +59,4 @@ export const notificationSchema = z.object({
   notificationId: z.number().nullable(),
   notificationIds: z.number().array().nullable(),
 });
+export type NotificationSchema = typeof notificationSchema;

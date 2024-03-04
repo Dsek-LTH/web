@@ -1,7 +1,10 @@
 import DOMPurify from "isomorphic-dompurify";
 import type { Actions, PageServerLoad } from "./$types";
 import { notificationSchema } from "$lib/zod/schemas";
-import { superValidate } from "sveltekit-superforms/server";
+import { message, superValidate } from "sveltekit-superforms/server";
+import { authorize } from "$lib/utils/authorization";
+import apiNames from "$lib/utils/apiNames";
+import { fail } from "@sveltejs/kit";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma } = locals;
@@ -86,43 +89,37 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 // These actions will be accessed from throughout the whole application
 export const actions: Actions = {
-  // Update on database that these notifications have been read by user
-  readnotifications: async ({ locals, request }) => {
-    const { user, prisma } = locals;
-    const form = await superValidate(request, notificationSchema);
-    if (!form.valid) return;
-    await prisma.notification.updateMany({
-      data: {
-        readAt: new Date(),
-      },
-      where: {
-        memberId: user?.memberId,
-      },
-    });
-  },
   // Delete single or multiple notifications on database
-  deletenotification: async ({ locals, request }) => {
+  deleteNotification: async ({ locals, request }) => {
     const { user, prisma } = locals;
+    authorize(apiNames.LOGGED_IN, user);
     const form = await superValidate(request, notificationSchema);
-    if (!form.valid) return;
+    if (!form.valid) return fail(400, { form });
     // If multiple ids and not a single id have been provided, delete many, otherwise,
     // if a single has been provided, delete single, else return
-    if (!form.data.notificationId && form.data.notificationIds) {
+    if (form.data.notificationIds && form.data.notificationIds.length > 0) {
       await prisma.notification.deleteMany({
         where: {
-          memberId: user?.memberId,
+          memberId: user!.memberId,
           id: {
             in: form.data.notificationIds,
           },
         },
       });
+      return;
     } else if (form.data.notificationId) {
       await prisma.notification.delete({
         where: {
-          memberId: user?.memberId,
+          memberId: user!.memberId,
           id: form.data.notificationId,
         },
       });
-    } else return;
+      return;
+    }
+    return message(
+      form,
+      { message: "Kunde inte ta bort notes", type: "error" },
+      { status: 500 },
+    );
   },
 };

@@ -7,19 +7,13 @@
   import { routes } from "./routes";
   import { isAuthorized } from "$lib/utils/authorization";
   import { getFullName } from "$lib/utils/client/member";
-  import Notification from "./NotificationBell.svelte";
-  export let notifications: {
-    id: number;
-    title: string;
-    message: string;
-    type: string;
-    link: string;
-    readAt: Date | null;
-    memberId: string;
-    createdAt: Date;
-    updatedAt: Date;
-    fromAuthorId: string | null;
-  }[];
+  import NotificationBell from "./NotificationBell.svelte";
+  import type { Notification } from "@prisma/client";
+  import type { SuperValidated } from "sveltekit-superforms";
+  import type { NotificationSchema } from "$lib/zod/schemas";
+
+  export let notifications: Notification[];
+  export let deleteNotificationForm: SuperValidated<NotificationSchema>;
 </script>
 
 <div
@@ -90,7 +84,7 @@
     <LanguageSwitcher />
     <DarkLightToggle />
     {#if $page.data.user && $page.data.member}
-      <Notification {notifications} />
+      <NotificationBell {notifications} deleteForm={deleteNotificationForm} />
       <div class="dropdown dropdown-end dropdown-hover">
         <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
         <!-- svelte-ignore a11y-label-has-associated-control -->

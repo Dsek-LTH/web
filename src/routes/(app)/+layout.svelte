@@ -11,7 +11,10 @@
 
 <ParaglideJS {i18n}>
   <nav class="contents">
-    <Navbar notifications={data.notifications} />
+    <Navbar
+      notifications={data.notifications}
+      deleteNotificationForm={data.deleteNotificationForm}
+    />
     <Drawer />
   </nav>
 

@@ -1,23 +1,28 @@
+import { notificationSchema } from "$lib/zod/schemas";
 import { loadFlash } from "sveltekit-flash-message/server";
+import { superValidate } from "sveltekit-superforms/server";
 
 /**
  * Load the form flash message.
  * Propagates the user and member to the page data.
  */
-export const load = loadFlash(async ({ locals }) => {
+export const load = loadFlash(async ({ locals, depends }) => {
   const { user, member, prisma } = locals;
+  depends("/notifications");
+  const notifications = user?.memberId
+    ? await prisma.notification.findMany({
+        where: {
+          memberId: user.memberId,
+        },
+        orderBy: {
+          createdAt: "desc", // latest first
+        },
+      })
+    : null;
   return {
     user,
     member,
-    notifications: user?.memberId
-      ? await prisma.notification.findMany({
-          where: {
-            memberId: user.memberId,
-          },
-          orderBy: {
-            createdAt: "desc", // latest first
-          },
-        })
-      : [],
+    notifications: notifications,
+    deleteNotificationForm: await superValidate(notificationSchema),
   };
 });
