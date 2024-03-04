@@ -32,6 +32,7 @@ const readNotifications: RequestHandler = async ({ locals, url }) => {
       where: {
         memberId: user.memberId,
         id: parsedId,
+        readAt: null,
       },
       data: {
         readAt: new Date(),

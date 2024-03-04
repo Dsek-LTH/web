@@ -4,7 +4,7 @@ import {
   NotificationType,
   SUBSCRIPTION_SETTINGS_MAP,
 } from "$lib/utils/notifications/types";
-import type { Author, PrismaClient } from "@prisma/client";
+import type { Author, Prisma, PrismaClient } from "@prisma/client";
 import { error } from "@sveltejs/kit";
 
 const DUPLICATE_ALLOWED_TYPES = [
@@ -13,22 +13,24 @@ const DUPLICATE_ALLOWED_TYPES = [
   NotificationType.BOOKING_REQUEST,
 ];
 
-type SendNotificationProps = {
+type BaseSendNotificationProps = {
   title: string;
   message: string;
   type: NotificationType;
   link: string;
   memberIds?: string[];
-  fromAuthor?: Author;
-  fromMemberId?: string;
 };
-
-type SendPingProps = {
-  link: string;
-  toMemberId: string;
-  fromMemberId: string;
-  fromSent: boolean;
-};
+type SendNotificationProps = BaseSendNotificationProps &
+  (
+    | {
+        fromAuthor: Author;
+        fromMemberId?: undefined;
+      }
+    | {
+        fromAuthor?: undefined;
+        fromMemberId: string;
+      }
+  );
 
 /**
  *
@@ -58,20 +60,27 @@ const sendNotification = async (
   ).find(([, internalTypes]) => internalTypes.includes(type))?.[0] ??
     type) as NotificationSettingType;
   // Who sent the notification, as an Author
-  const existingAuthor =
-    fromAuthor ??
-    (await prisma.author.findFirst({
-      where: { memberId: fromMemberId, mandateId: null, customId: null },
-    }));
-
-  // If member doesn't have author since before, create one
+  // If the author is not given, then find or create the author from the member id
   const notificationAuthor =
-    existingAuthor ??
-    (fromMemberId
-      ? await prisma.author.create({
-          data: { memberId: fromMemberId! },
-        })
-      : undefined);
+    fromAuthor ??
+    (await prisma.author.upsert({
+      where: {
+        memberId: fromMemberId,
+        mandateId: null,
+        customId: null,
+        // The following can not be done because prisma does not support uniqueness on nullable fields
+        // SEE: https://github.com/prisma/prisma/issues/3387#issuecomment-1379686316
+        // memberId_mandateId_customId: {
+        //   memberId: fromMemberId,
+        //   mandateId: null,
+        //   customId: null,
+        // },
+      } as Prisma.AuthorWhereUniqueInput, // Because we can't do the above, we have to
+      update: {},
+      create: {
+        memberId: fromMemberId,
+      },
+    }));
 
   const shouldReceiveDuplicates = DUPLICATE_ALLOWED_TYPES.includes(type); // if the notification type allows for duplicates
   const receivingMembers = await prisma.member.findMany({
@@ -92,7 +101,7 @@ const sendNotification = async (
           },
       id: {
         // Uncomment the line below to test
-        not: notificationAuthor?.memberId,
+        // not: notificationAuthor?.memberId,
         ...(memberIds !== undefined && memberIds.length > 0
           ? { in: memberIds }
           : {}),
@@ -118,138 +127,27 @@ const sendNotification = async (
     }`,
   );
 
-  // const pushTokens = await getPushTokens(prisma, receivingMembers);
-  //   const [pushResult, databaseResult] = await Promise.allSettled([
-  //     sendPushNotifications(
-  //       pushTokens.map((t) => t.expoToken!),
-  //       title,
-  //       message,
-  //       settingType,
-  //       link,
-  //     ),
-  //     await prisma.notification
-  //       .createMany({
-  //         data: receivingMembers.map(({ id: memberId }) => ({
-  //           title,
-  //           message,
-  //           type,
-  //           link,
-  //           memberId,
-  //           fromAuthorId: fromAuthor?.id,
-  //         })),
-  //       })
-  //       .catch((reason) => {
-  //         console.error("Failed to create notifications due to:");
-  //         console.error(reason);
-  //       }),
-  //   ]);
-  //   if (
-  //     pushResult.status === "rejected" &&
-  //     databaseResult.status === "rejected"
-  //   ) {
-  //     throw error(500, "Failed to send notifications");
-  //   }
-  //   if (pushResult.status === "rejected") {
-  //     throw error(500, "Failed to send push notifications");
-  //   }
-  //   if (databaseResult.status === "rejected") {
-  //     throw error(500, "Failed to save ping to database");
-  //   }
-  // };
-
   const [databaseResult] = await Promise.allSettled([
-    await prisma.notification
-      .createMany({
-        data: receivingMembers.map(({ id: memberId }) => ({
-          title,
-          message,
-          type,
-          link,
-          memberId,
-          fromAuthorId: notificationAuthor?.id,
-        })),
-      })
-      .catch((reason) => {
-        console.error("Failed to create notifications due to:");
-        console.error(reason);
-      }),
+    prisma.notification.createMany({
+      data: receivingMembers.map(({ id: memberId }) => ({
+        title,
+        message,
+        type,
+        link,
+        memberId,
+        fromAuthorId: notificationAuthor?.id,
+      })),
+    }),
   ]);
-  if (
-    // pushResult.status === "rejected" &&
-    databaseResult.status === "rejected"
-  ) {
-    throw error(500, "Failed to send notifications");
+  if (databaseResult.status === "rejected") {
+    throw error(
+      500,
+      `Failed to create notifications. Error: ${databaseResult.reason}`,
+    );
   }
   // if (pushResult.status === "rejected") {
   //   throw error(500, "Failed to send push notifications");
   // }
-  // if (databaseResult.status === "rejected") {
-  //   throw error(500, "Failed to save ping to database");
-  // }
-};
-
-export const sendPing = async (
-  prisma: PrismaClient,
-  { link, fromMemberId, toMemberId, fromSent }: SendPingProps,
-) => {
-  const receivingMember = await prisma.member.findFirst({
-    where: {
-      id: {
-        equals: fromSent ? toMemberId : fromMemberId,
-      },
-    },
-    select: {
-      id: true,
-      firstName: true,
-      subscriptionSettings: {
-        select: {
-          pushNotification: true,
-        },
-      },
-    },
-  });
-  if (receivingMember == null || !receivingMember)
-    throw error(500, "Couldn't find member");
-
-  const [databaseResult] = await Promise.allSettled([
-    await prisma.ping
-      .upsert({
-        create: {
-          fromMemberId: fromMemberId,
-          toMemberId: toMemberId,
-          fromSentAt: new Date(),
-          createdAt: new Date(),
-          count: 1,
-        },
-        update: {
-          fromSentAt: fromSent ? new Date() : undefined,
-          toSentAt: fromSent ? undefined : new Date(),
-          count: { increment: 1 },
-        },
-        where: {
-          fromMemberId_toMemberId: {
-            fromMemberId: fromMemberId,
-            toMemberId: toMemberId,
-          },
-        },
-      })
-      .catch((reason) => {
-        console.error("Failed to create ping due to:");
-        console.error(reason);
-      }),
-  ]);
-  if (databaseResult.status === "rejected") {
-    throw error(500, "Failed to ping");
-  }
-
-  await sendNotification(prisma, {
-    title: "Ping!",
-    message: "You received a ping!",
-    type: NotificationType.PING,
-    link: link,
-    memberIds: [receivingMember.id],
-    fromMemberId: fromSent ? fromMemberId : toMemberId,
-  });
 };
 
 // const getPushTokens = async (

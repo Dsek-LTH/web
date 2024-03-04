@@ -77,14 +77,6 @@ export const actions: Actions = {
     const form = await superValidate(request, updateSchema);
     if (!form.valid) return fail(400, { form });
     const { slug, header, body, author, tags } = form.data;
-    const existingAuthor = await prisma.author.findFirst({
-      where: {
-        member: {
-          id: author.memberId,
-        },
-        mandateId: author.mandateId,
-      },
-    });
     try {
       await prisma.article.update({
         where: {
@@ -94,30 +86,30 @@ export const actions: Actions = {
           header: header,
           body: body,
           author: {
-            connect: existingAuthor
-              ? {
-                  id: existingAuthor.id,
-                }
-              : undefined,
-            create: existingAuthor
-              ? undefined
-              : {
-                  member: {
-                    connect: {
-                      studentId: user?.studentId,
-                    },
-                  },
-                  mandate: author.mandateId
-                    ? {
-                        connect: {
-                          member: {
-                            studentId: user?.studentId,
-                          },
-                          id: author.mandateId,
-                        },
-                      }
-                    : undefined,
+            connectOrCreate: {
+              where: {
+                member: {
+                  studentId: user?.studentId,
                 },
+                mandateId: author.mandateId,
+                customId: author.customId,
+                // SEE src/lib/utils/notifications/index.ts why we have to to the type casting below
+              } as Prisma.AuthorWhereUniqueInput,
+              create: {
+                member: { connect: { studentId: user?.studentId } },
+                mandate: author.mandateId
+                  ? {
+                      connect: {
+                        member: { studentId: user?.studentId },
+                        id: author.mandateId,
+                      },
+                    }
+                  : undefined,
+                customAuthor: author.customId
+                  ? { connect: { id: author.customId } }
+                  : undefined,
+              },
+            },
           },
           tags: {
             set: tags
