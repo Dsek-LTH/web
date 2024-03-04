@@ -73,8 +73,9 @@ export const getCurrentDoorPoliciesForMember = async (
   if (!memberResult.value) {
     throw error(404, "Member not found");
   }
+
   const member = memberResult.value;
-  const allDoorPolicies = await prisma.doorAccessPolicy.findMany({});
+  const allDoorPolicies = await prisma.doorAccessPolicy.findMany();
 
   const roles = member.doorAccessPolicies.map((d) => d.role).filter(notEmpty);
   const positions = (
@@ -102,47 +103,48 @@ export const getCurrentDoorPoliciesForMember = async (
       member.mandates.some(
         (mandate) =>
           // A doorpolicy is associated with either a role or a specific member
-          (doorPolicy.role !== null &&
-            mandate.positionId.startsWith(doorPolicy.role)) ||
+          (doorPolicy.role && mandate.positionId.startsWith(doorPolicy.role)) ||
           doorPolicy.studentId === member.studentId,
       ),
     )
     .forEach((doorPolicy) => {
       // Get a nice name for a position instead of using the id
-      const positionNames =
-        positions
-          .filter(
-            (position) =>
-              doorPolicy.role && position.id.startsWith(doorPolicy.role),
-          )
-          .map((position) => position.name) ??
-        doorPolicy.role ??
-        "Du";
+      const positionNamesFromMandates = positions
+        .filter(
+          (position) =>
+            doorPolicy.role && position.id.startsWith(doorPolicy.role),
+        )
+        .map((position) => position.name);
+      const positionNames: string[] =
+        positionNamesFromMandates.length > 0
+          ? positionNamesFromMandates
+          : ["Du"];
 
-      const old = allMemberDoors.get(doorPolicy.doorName);
-      const newDoor = old ?? {
+      const oldData = allMemberDoors.get(doorPolicy.doorName);
+      const newData = oldData ?? {
         roles: [...positionNames],
         startDate: doorPolicy.startDatetime,
         endDate: doorPolicy.endDatetime,
       };
-      if (old) {
-        newDoor.roles = old.roles.concat(...positionNames);
+      if (oldData) {
+        // Remove duplicates
+        newData.roles = [...new Set(oldData.roles.concat(...positionNames))];
 
         if (doorPolicy.startDatetime) {
-          newDoor.startDate =
-            old.startDate === null || doorPolicy.startDatetime > old.startDate
-              ? old.startDate
+          newData.startDate =
+            oldData.startDate === null ||
+            doorPolicy.startDatetime > oldData.startDate
+              ? oldData.startDate
               : doorPolicy.startDatetime;
         }
         if (doorPolicy.endDatetime) {
-          newDoor.endDate =
-            old.endDate === null || doorPolicy.endDatetime < old.endDate
-              ? old.endDate
+          newData.endDate =
+            oldData.endDate === null || doorPolicy.endDatetime < oldData.endDate
+              ? oldData.endDate
               : doorPolicy.endDatetime;
         }
       }
-      newDoor.roles = [...new Set(newDoor.roles)]; // remove duplicates
-      allMemberDoors.set(doorPolicy.doorName, newDoor);
+      allMemberDoors.set(doorPolicy.doorName, newData);
     });
 
   return allMemberDoors;

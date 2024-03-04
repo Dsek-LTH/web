@@ -31,7 +31,6 @@
   $: publishedEvents = [...member.authoredEvents].reverse();
   $: canEdit = isMe || isAuthorized(apiNames.MEMBER.UPDATE, data.user);
   let isEditing = false;
-  const currentDate = new Date();
 </script>
 
 <svelte:head>
@@ -132,27 +131,25 @@
       <br />
       <div class="my-2 text-xl font-bold">Dörrar</div>
       {#each Array.from(data.allMemberDoors.entries()) as [doorName, doorData]}
-        {#if (doorData.startDate == null || currentDate > doorData.startDate) && (doorData.endDate == null || currentDate < doorData.endDate)}
-          <div class="my-2 flex justify-between rounded-lg bg-base-200 p-3">
-            <div class="my-auto font-bold">
-              {doorName}
-            </div>
-            <div class="flex flex-col text-right">
-              <span class="text-xs font-bold opacity-50">
-                {doorData.roles.join(" ")}
-              </span>
-              {#if doorData.startDate != null || doorData.endDate != null}
-                <div>
-                  <span class="text-xs font-bold opacity-50">
-                    {doorData.startDate?.toLocaleDateString() ?? ""}
-                    -
-                    {doorData.endDate?.toLocaleDateString() ?? ""}
-                  </span>
-                </div>
-              {/if}
-            </div>
+        <div class="my-2 flex justify-between rounded-lg bg-base-200 p-3">
+          <div class="my-auto font-bold">
+            {doorName}
           </div>
-        {/if}
+          <div class="flex flex-col text-right">
+            <span class="text-xs font-bold opacity-50">
+              {doorData.roles.join(" ")}
+            </span>
+            {#if doorData.startDate != null || doorData.endDate != null}
+              <div>
+                <span class="text-xs font-bold opacity-50">
+                  {doorData.startDate?.toLocaleDateString() ?? ""}
+                  -
+                  {doorData.endDate?.toLocaleDateString() ?? ""}
+                </span>
+              </div>
+            {/if}
+          </div>
+        </div>
       {/each}
     {/if}
   </div>
