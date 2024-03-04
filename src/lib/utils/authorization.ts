@@ -13,15 +13,18 @@ export const isAuthorized = (apiName: string, user?: AuthUser): boolean => {
 };
 
 /**
- * Authorize a user to perform an action.
+ * Authorize a user to perform an action or a list of actions.
  * @throws {HttpError} If the user is not authorized.
  */
-export const authorize = (apiName: string, user?: AuthUser) => {
-  if (!isAuthorized(apiName, user)) {
-    throw error(
-      403,
-      `You do not have permission, have you logged in? Required policy: ${apiName}`,
-    );
+export const authorize = (apiName: string | string[], user?: AuthUser) => {
+  const apiNames = Array.isArray(apiName) ? apiName : [apiName];
+  for (const name of apiNames) {
+    if (!isAuthorized(name, user)) {
+      throw error(
+        403,
+        `You do not have permission, have you logged in? Required policy: ${name}`,
+      );
+    }
   }
 };
 

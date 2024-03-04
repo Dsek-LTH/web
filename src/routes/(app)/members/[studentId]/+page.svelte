@@ -85,7 +85,7 @@
       <ClassBadge {member} size="xl" />
     {/if}
   </div>
-  <article class="col-span-5 row-start-4 md:col-span-3">
+  <article class="col-span-5 row-start-4 md:col-span-1">
     <!-- eslint-disable-next-line svelte/no-at-html-tags -->
     {#if member.bio}
       <MarkdownBody body={member.bio}>
@@ -109,8 +109,9 @@
       </a>
     {/if}
   </article>
+
   <div
-    class="col-span-5 row-span-4 flex flex-col sm:flex-row md:col-span-2 md:flex-col"
+    class="col-span-5 row-span-4 flex flex-col sm:col-span-2 sm:col-start-1 md:col-span-2 md:flex-col"
   >
     <div class="flex-1 md:flex-grow-0">
       <h2 class="mb-2 text-lg">Innehavda poster</h2>
@@ -129,5 +130,34 @@
         <PublishedEvents events={data.member.authoredEvents} />
       {/if}
     </div>
+  </div>
+  <div
+    class="col-span-5 sm:col-span-3 sm:col-start-3 md:col-start-1 lg:col-span-2 lg:col-start-1 xl:col-span-1 xl:col-start-1"
+  >
+    {#if isMe && data.allMemberDoors.size > 0}
+      <br />
+      <div class="my-2 text-xl font-bold">Dörrar</div>
+      {#each Array.from(data.allMemberDoors.entries()) as [doorName, doorData]}
+        <div class="my-2 flex justify-between rounded-lg bg-base-200 p-3">
+          <div class="my-auto font-bold">
+            {doorName}
+          </div>
+          <div class="flex flex-col text-right">
+            <span class="text-xs font-bold opacity-50">
+              {doorData.roles.join(" ")}
+            </span>
+            {#if doorData.startDate != null || doorData.endDate != null}
+              <div>
+                <span class="text-xs font-bold opacity-50">
+                  {doorData.startDate?.toLocaleDateString() ?? ""}
+                  -
+                  {doorData.endDate?.toLocaleDateString() ?? ""}
+                </span>
+              </div>
+            {/if}
+          </div>
+        </div>
+      {/each}
+    {/if}
   </div>
 </article>

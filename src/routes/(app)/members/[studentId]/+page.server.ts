@@ -5,6 +5,7 @@ import type { Actions, PageServerLoad } from "./$types";
 import { authorize } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
 import { sendPing } from "./pings";
+import { getCurrentDoorPoliciesForMember } from "$lib/utils/member";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { user, prisma } = locals;
@@ -34,6 +35,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
           },
           take: 5,
         },
+        doorAccessPolicies: {},
       },
     }),
     prisma.article.findMany({
@@ -87,6 +89,18 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   } catch (e) {
     throw error(500, "Could not fetch ping");
   }
+
+  const allMemberDoors = await getCurrentDoorPoliciesForMember(
+    prisma,
+    member.id,
+  );
+
+  return {
+    form: await superValidate(member, memberSchema),
+    member,
+    allMemberDoors,
+    publishedArticles: publishedArticlesResult.value ?? [],
+  };
 };
 
 const updateSchema = memberSchema.pick({
