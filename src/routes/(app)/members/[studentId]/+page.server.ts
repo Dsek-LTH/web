@@ -61,8 +61,11 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   }
   const member = memberResult.value;
 
-  const allMemberDoors = await getCurrentDoorPoliciesForMember(prisma, member.id);
-  
+  const allMemberDoors = await getCurrentDoorPoliciesForMember(
+    prisma,
+    member.id,
+  );
+
   return {
     form: await superValidate(member, memberSchema),
     member,
@@ -70,8 +73,6 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     publishedArticles: publishedArticlesResult.value ?? [],
   };
 };
-
-
 
 const updateSchema = memberSchema.pick({
   firstName: true,

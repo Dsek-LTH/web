@@ -109,19 +109,24 @@ export const getCurrentDoorPoliciesForMember = async (
     )
     .forEach((doorPolicy) => {
       // Get a nice name for a position instead of using the id
-      const positionName =
-        positions.find((position) => position.id === doorPolicy.role)?.name ??
+      const positionNames =
+        positions
+          .filter(
+            (position) =>
+              doorPolicy.role && position.id.startsWith(doorPolicy.role),
+          )
+          .map((position) => position.name) ??
         doorPolicy.role ??
         "Du";
 
       const old = allMemberDoors.get(doorPolicy.doorName);
       const newDoor = old ?? {
-        roles: [positionName],
+        roles: [...positionNames],
         startDate: doorPolicy.startDatetime,
         endDate: doorPolicy.endDatetime,
       };
       if (old) {
-        newDoor.roles = old.roles.concat(positionName);
+        newDoor.roles = old.roles.concat(...positionNames);
 
         if (doorPolicy.startDatetime) {
           newDoor.startDate =
