@@ -23,6 +23,6 @@
   ],
   "workbench.editor.labelFormat": "short", // show filename + route in tab
   "explorer.compactFolders": false, // present folders in explorer as a tree
-  "git.inputValidation": true, // if many users prefer "always" we can change this
+  "git.inputValidation": "warn", // if many users prefer "always" we can change this
   "git.inputValidationSubjectLength": 50,
 }
