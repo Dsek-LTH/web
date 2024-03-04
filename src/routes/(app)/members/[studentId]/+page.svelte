@@ -1,4 +1,10 @@
 <script lang="ts">
+  import HeldPositionsYear from "./HeldPositionsYear.svelte";
+  import PublishedArticles from "./PublishedArticles.svelte";
+  import PublishedEvents from "./PublishedEvents.svelte";
+  import UpdateMemberForm from "./UpdateMemberForm.svelte";
+  import PingButton from "./PingButton.svelte";
+
   import { page } from "$app/stores";
   import ClassBadge from "$lib/components/ClassBadge.svelte";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
@@ -6,12 +12,9 @@
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
   import { getFullName } from "$lib/utils/client/member";
-  import HeldPositionsYear from "./HeldPositionsYear.svelte";
-  import PublishedArticles from "./PublishedArticles.svelte";
-  import PublishedEvents from "./PublishedEvents.svelte";
-  import UpdateMemberForm from "./UpdateMemberForm.svelte";
 
   import type { PageData } from "./$types";
+
   export let data: PageData;
   $: member = data.member;
   $: isMe = data.user?.studentId === $page.params["studentId"];
@@ -68,27 +71,7 @@
         </button>
       {/if}
       {#if data.user && !isMe}
-        <form method="POST" action="?/ping">
-          <!-- Hidden input to send the id of user who sent ping -->
-          <input type="hidden" name="memberId" value={data.user.memberId} />
-          <!-- Button is disabled for the user who sent the last ping -->
-          <button
-            class="btn"
-            disabled={ping?.fromMemberId == data.user.memberId
-              ? ping?.toSentAt == null || ping?.fromSentAt > ping?.toSentAt
-              : ping?.toSentAt != null && ping?.toSentAt > ping?.fromSentAt}
-            >Ping</button
-          >
-          {#if ping}
-            <span class="text-xs text-gray-500"
-              >{`Ping count: ${ping?.count}\nLast ping: ${
-                ping?.toSentAt != null && ping?.toSentAt > ping?.fromSentAt
-                  ? ping?.toSentAt
-                  : ping?.fromSentAt.toLocaleString()
-              }`}</span
-            >
-          {/if}
-        </form>
+        <PingButton {ping} />
       {/if}
     </div>
     {member.studentId}

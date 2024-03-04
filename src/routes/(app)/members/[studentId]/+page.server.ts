@@ -1,8 +1,10 @@
-import { authorSchema, memberSchema } from "$lib/zod/schemas";
-import { error, fail } from "@sveltejs/kit";
+import { emptySchema, memberSchema } from "$lib/zod/schemas";
+import { error, fail, isHttpError, type NumericRange } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
 import type { Actions, PageServerLoad } from "./$types";
-import { sendPing } from "$lib/utils/notifications";
+import { authorize } from "$lib/utils/authorization";
+import apiNames from "$lib/utils/apiNames";
+import { sendPing } from "./pings";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { user, prisma } = locals;
@@ -59,27 +61,32 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     throw error(404, "Member not found");
   }
   const member = memberResult.value;
-  return {
-    form: await superValidate(member, memberSchema),
-    member,
-    publishedArticles: publishedArticlesResult.value ?? [],
-    ping: user
-      ? await prisma.ping.findFirst({
-          where: {
-            OR: [
-              {
-                fromMemberId: member.id,
-                toMemberId: user?.memberId,
-              },
-              {
-                fromMemberId: user?.memberId,
-                toMemberId: member.id,
-              },
-            ],
-          },
-        })
-      : null,
-  };
+  try {
+    return {
+      form: await superValidate(member, memberSchema),
+      pingForm: await superValidate(emptySchema),
+      member,
+      publishedArticles: publishedArticlesResult.value ?? [],
+      ping: user
+        ? await prisma.ping.findFirst({
+            where: {
+              OR: [
+                {
+                  fromMemberId: member.id,
+                  toMemberId: user?.memberId,
+                },
+                {
+                  fromMemberId: user?.memberId,
+                  toMemberId: member.id,
+                },
+              ],
+            },
+          })
+        : null,
+    };
+  } catch (e) {
+    throw error(500, "Could not fetch ping");
+  }
 };
 
 const updateSchema = memberSchema.pick({
@@ -92,12 +99,6 @@ const updateSchema = memberSchema.pick({
 });
 
 export type UpdateSchema = typeof updateSchema;
-
-const pingSchema = authorSchema.pick({
-  memberId: true,
-});
-
-export type PingSchema = typeof pingSchema;
 
 export const actions: Actions = {
   update: async ({ params, locals, request }) => {
@@ -117,49 +118,42 @@ export const actions: Actions = {
     });
   },
   ping: async ({ params, locals, request }) => {
-    const { prisma } = locals;
-    const form = await superValidate(request, pingSchema);
-    if (!form.valid) return fail(400, { form });
-    const sender = await prisma.member.findFirst({
-      where: {
-        id: {
-          equals: form.data.memberId,
-        },
-      },
-    });
-    if (sender == null || !sender || sender.id == null)
-      return fail(400, { form });
+    const { user, prisma } = locals;
+    const form = await superValidate(request, emptySchema);
+    authorize(apiNames.MEMBER.PING, user);
+    if (!user) return fail(401, { form });
+
     const { studentId } = params;
-    const receivingUser = await prisma.member.findFirst({
-      where: {
-        studentId: {
-          equals: studentId,
-        },
-      },
-    });
-    if (!receivingUser) return fail(400, { form });
-    const previouslyPinged = await prisma.ping.findFirst({
-      where: {
-        OR: [
+    try {
+      const url = new URL(request.url);
+      await sendPing(prisma, {
+        link: url.pathname,
+        fromMemberId: { memberId: user.memberId },
+        toMemberId: { studentId },
+      });
+    } catch (e) {
+      if (isHttpError(e)) {
+        console.log(e.body.message);
+        return message(
+          form,
           {
-            fromMemberId: sender.id,
-            toMemberId: receivingUser.id,
+            message: e.body.message,
+            type: "error",
           },
           {
-            fromMemberId: receivingUser.id,
-            toMemberId: sender.id,
+            status: e.status as NumericRange<400, 599>,
           },
-        ],
-      },
-    });
-    const fromSent =
-      previouslyPinged == undefined ||
-      previouslyPinged?.fromMemberId == sender.id;
-    await sendPing(prisma, {
-      link: "https://dsek.se/members/" + sender.studentId,
-      fromMemberId: sender.id,
-      toMemberId: receivingUser.id,
-      fromSent: fromSent,
+        );
+      }
+      console.log(e);
+      return message(form, {
+        message: `${e}`,
+        type: "error",
+      });
+    }
+    return message(form, {
+      message: "Ping skickad",
+      type: "success",
     });
   },
 };
