@@ -38,6 +38,15 @@ const include = {
   tags: true,
 };
 
+// function so "new Date()" is not called at import time
+export const BASE_ARTICLE_WHERE = () => ({
+  publishedAt: {
+    lte: new Date(),
+    not: null,
+  },
+  OR: [{ removedAt: { gt: new Date() } }, { removedAt: null }],
+});
+
 export const getAllArticles = async (
   prisma: PrismaClient,
   filters: ArticleFilters = { page: 0, pageSize: 10 },
@@ -46,11 +55,7 @@ export const getAllArticles = async (
   const pageSize = filters.pageSize ?? 10;
 
   const where: Prisma.ArticleWhereInput = {
-    publishedAt: {
-      lte: new Date(),
-      not: null,
-    },
-    OR: [{ removedAt: { gt: new Date() } }, { removedAt: null }],
+    ...BASE_ARTICLE_WHERE(),
     // search:
     ...(filters.search && filters.search.length > 0
       ? {
