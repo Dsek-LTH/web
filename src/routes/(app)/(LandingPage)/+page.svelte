@@ -1,10 +1,10 @@
 <script lang="ts">
-  import LandingPageHeader from "./(LandingPage)/LandingPageHeader.svelte";
-  import LandingPageArticles from "./(LandingPage)/LandingPageArticles.svelte";
-  import LandingPageEvents from "./(LandingPage)/LandingPageEvents.svelte";
-  import LandingPageCaféOpenTimes from "./(LandingPage)/LandingPageCaféOpenTimes.svelte";
-  import LandingPageMeetings from "./(LandingPage)/LandingPageMeetings.svelte";
-  import LandingPageWellbeingCTA from "./(LandingPage)/LandingPageWellbeingCTA.svelte";
+  import LandingPageHeader from "./LandingPageHeader.svelte";
+  import LandingPageArticles from "./LandingPageArticles.svelte";
+  import LandingPageEvents from "./LandingPageEvents.svelte";
+  import LandingPageCaféOpenTimes from "./LandingPageCaféOpenTimes.svelte";
+  import LandingPageMeetings from "./LandingPageMeetings.svelte";
+  import LandingPageWellbeingCTA from "./LandingPageWellbeingCTA.svelte";
 
   import GlobalAlert from "$lib/components/GlobalAlert.svelte";
   import { languageTag } from "$paraglide/runtime";

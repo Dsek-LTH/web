@@ -1,14 +1,14 @@
 import DOMPurify from "isomorphic-dompurify";
 import type { PageServerLoad } from "./$types";
 import { error } from "@sveltejs/kit";
-import { BASE_ARTICLE_WHERE } from "./news/articles";
+import { BASIC_ARTICLE_FILTER } from "$lib/utils/articles";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma } = locals;
   const newsPromise = prisma.article
     .findMany({
       where: {
-        ...BASE_ARTICLE_WHERE(),
+        ...BASIC_ARTICLE_FILTER(),
       },
       orderBy: {
         createdAt: "desc",
