@@ -2,11 +2,12 @@ import { superValidate } from "sveltekit-superforms/server";
 import type { Actions, PageServerLoad } from "./$types";
 import { getAllArticles } from "./articles";
 import { likeSchema, likesAction } from "./likes";
+import { error } from "@sveltejs/kit";
 
 const getAndValidatePage = (url: URL) => {
   const page = url.searchParams.get("page");
   if (page && Number.isNaN(Number.parseInt(page))) {
-    throw new Error("Invalid page");
+    error(422, `Invalid page "${page}"`);
   }
   return page ? Math.max(Number.parseInt(page) - 1, 0) : undefined;
 };
