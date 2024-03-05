@@ -6,7 +6,7 @@
 <div class="my-2 text-xl font-bold">Dörraccess</div>
 {#each doorAccess as doorPolicy (doorPolicy.name + doorPolicy.startDate + doorPolicy.endDate)}
   <div
-    class="my-2 flex items-center justify-between gap-4 rounded-lg bg-base-200 p-3"
+    class="flex items-center justify-between gap-4 rounded-lg bg-base-200 p-3"
   >
     <div class="flex flex-col">
       <span class="font-semibold">{doorPolicy.verboseName}</span>

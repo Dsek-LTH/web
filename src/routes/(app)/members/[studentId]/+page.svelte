@@ -7,7 +7,6 @@
   import PingButton from "./PingButton.svelte";
 
   import { page } from "$app/stores";
-  import ClassBadge from "$lib/components/ClassBadge.svelte";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import apiNames from "$lib/utils/apiNames";
@@ -41,26 +40,20 @@
 <svelte:head>
   <title>{getFullName(member)} | D-sektionen</title>
 </svelte:head>
-<article class="grid grid-cols-5 gap-x-4" id="container">
-  <div class="col-span-2 row-span-3 sm:col-span-1">
-    <MemberAvatar {member} class="w-full rounded-lg">
-      {#if canEdit}
-        <a
-          href="{$page.params['studentId']}/profile-picture"
-          class="btn btn-square glass btn-secondary btn-sm absolute right-2 top-2"
-        >
-          <span class="i-mdi-edit" />
-        </a>
-      {/if}
-    </MemberAvatar>
-  </div>
-  <header class="col-span-3 mb-4 gap-1 sm:col-span-4">
-    <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
-      <div class="flex-1">
-        <h1 class="text-3xl font-bold">
-          {getFullName(member)}
-        </h1>
-      </div>
+<article class="profile-grid grid gap-x-4 gap-y-2 self-stretch" id="container">
+  <MemberAvatar {member} class="avatar-area w-full rounded-lg">
+    {#if canEdit}
+      <a
+        href="{$page.params['studentId']}/profile-picture"
+        class="btn btn-square glass btn-secondary btn-sm absolute right-2 top-2"
+      >
+        <span class="i-mdi-edit" />
+      </a>
+    {/if}
+  </MemberAvatar>
+  <header class="header grid">
+    <h1 class="name text-3xl font-bold lg:text-6xl">{getFullName(member)}</h1>
+    <div class="actions">
       {#if canEdit}
         <button
           class="btn"
@@ -79,19 +72,19 @@
       {data.email}<br />
     {/if}
     {member.studentId}
+    <!-- {/if} 
+    <div class="details flex flex-row gap-2 text-nowrap">
+      {member.studentId}
+      <ClassBadge {member} size="xl" />
+    </div> -->
   </header>
-  <div class={isEditing ? "col-span-4 row-span-2" : "col-span-2"}>
+
+  <article class="bio">
     {#if isEditing}
       <!-- Update user form -->
       <UpdateMemberForm bind:isEditing data={data.form} />
       <!-- End Update user form -->
-    {:else}
-      <ClassBadge {member} size="xl" />
-    {/if}
-  </div>
-  <article class="col-span-5 row-start-4 md:col-span-1">
-    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-    {#if member.bio}
+    {:else if member.bio}
       <MarkdownBody body={member.bio}>
         <div class="float-right">
           {#if canEdit}
@@ -114,9 +107,7 @@
     {/if}
   </article>
 
-  <div
-    class="col-span-5 row-span-4 flex flex-col sm:col-span-2 sm:col-start-1 md:col-span-2 md:flex-col"
-  >
+  <div class="sidebar flex flex-col">
     <div class="flex-1 md:flex-grow-0">
       <h2 class="mb-2 text-lg">Innehavda poster</h2>
       {#each years as year}
@@ -135,11 +126,84 @@
       {/if}
     </div>
   </div>
-  <div
-    class="col-span-5 sm:col-span-3 sm:col-start-3 md:col-start-1 lg:col-span-2 lg:col-start-1 xl:col-span-2 xl:col-start-1"
-  >
+
+  <div class="footer flex flex-col items-stretch gap-2">
     {#if data.doorAccess.length > 0}
       <DoorAccess doorAccess={data.doorAccess} />
     {/if}
   </div>
 </article>
+
+<style lang="postcss">
+  .bio {
+    grid-area: bio;
+  }
+  .footer {
+    grid-area: footer;
+  }
+
+  .sidebar {
+    grid-area: sidebar;
+  }
+
+  .avatar-area {
+    grid-area: avatar;
+  }
+  .actions {
+    grid-area: actions;
+  }
+  .name {
+    grid-area: name;
+  }
+  .details {
+    grid-area: details;
+  }
+
+  .profile-grid {
+    grid-template-columns: minmax(2rem, 12rem) 3fr;
+    grid-template-rows: auto auto auto auto;
+    grid-template-areas:
+      "avatar   header"
+      "bio      bio    "
+      "sidebar  sidebar"
+      "footer   footer ";
+  }
+  .header {
+    @apply grid justify-between;
+    grid-area: header;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "name"
+      "actions"
+      "details";
+  }
+
+  @media (min-width: 640px) {
+    .profile-grid {
+      grid-template-columns: 1fr 2fr 2fr;
+      grid-template-rows: auto auto 1fr;
+      grid-template-areas:
+        "avatar   header  header"
+        "bio      bio     sidebar"
+        "footer   footer  sidebar";
+    }
+    .header {
+      @apply grid justify-between;
+      grid-area: header;
+      grid-template-rows: auto 1fr;
+      grid-template-columns: 1fr auto;
+      grid-template-areas:
+        "name actions"
+        "details details";
+    }
+  }
+  @media (min-width: 1024px) {
+    .profile-grid {
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-areas:
+        "avatar   header  header"
+        "bio      bio     sidebar"
+        "footer   .  sidebar";
+    }
+  }
+</style>
