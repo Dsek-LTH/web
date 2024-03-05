@@ -33,10 +33,10 @@
 </script>
 
 <svelte:head>
-  <title
-    >{programme}
-    {year} | D-sektionen</title
-  >
+  <title>
+    {programme.toUpperCase()}
+    {year} | D-sektionen
+  </title>
 </svelte:head>
 
 <select
