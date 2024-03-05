@@ -41,16 +41,18 @@
   <title>{getFullName(member)} | D-sektionen</title>
 </svelte:head>
 <article class="profile-grid grid gap-x-4 gap-y-2 self-stretch" id="container">
-  <MemberAvatar {member} class="avatar-area w-full rounded-lg">
-    {#if canEdit}
-      <a
-        href="{$page.params['studentId']}/profile-picture"
-        class="btn btn-square glass btn-secondary btn-sm absolute right-2 top-2"
-      >
-        <span class="i-mdi-edit" />
-      </a>
-    {/if}
-  </MemberAvatar>
+  <div class="avatar-area">
+    <MemberAvatar {member} class="w-full rounded-lg">
+      {#if canEdit}
+        <a
+          href="{$page.params['studentId']}/profile-picture"
+          class="btn btn-square glass btn-secondary btn-sm absolute right-2 top-2"
+        >
+          <span class="i-mdi-edit" />
+        </a>
+      {/if}
+    </MemberAvatar>
+  </div>
   <header class="header grid">
     <h1 class="name text-3xl font-bold lg:text-6xl">{getFullName(member)}</h1>
     <div class="actions">
