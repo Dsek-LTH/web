@@ -58,7 +58,9 @@
             </a>
           {/if}
         </div>
-        <p class="my-1 self-end text-xs font-light text-neutral-600">
+        <p
+          class="my-1 self-end text-nowrap text-xs font-light text-neutral-600"
+        >
           {#if dayjs(article.createdAt).diff(dayjs(), "week") < -1}
             {dayjs(article.createdAt).format("YYYY-MM-DD")}
           {:else}
