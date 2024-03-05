@@ -10,7 +10,6 @@
   export let data: PageData;
 
   import type { PageData } from "./$types";
-  import { enhance } from "$app/forms";
   let filteredTags: Tag[] = data.allTags.filter((tag) =>
     $page.url.searchParams.getAll("tags").includes(tag.name),
   );
@@ -29,7 +28,6 @@
       class="form-control flex-1 gap-2 md:flex-row md:items-end"
       id="filter-form"
       bind:this={form}
-      use:enhance
     >
       <TagSelector
         allTags={data.allTags}

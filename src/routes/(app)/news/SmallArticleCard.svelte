@@ -5,6 +5,7 @@
   import type { Article } from "./articles";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import dayjs from "dayjs";
+  import { goto } from "$app/navigation";
   export let article: Article;
 </script>
 
@@ -21,7 +22,10 @@
 
   <div class="flex flex-col overflow-hidden p-8">
     <div class="flex-1">
-      <a href={"news/" + article.slug} class="group">
+      <button
+        on:click={() => goto("news/" + article.slug)}
+        class="group text-start"
+      >
         <h1 class="text-2xl font-bold group-hover:underline">
           {article.header}
         </h1>
@@ -29,7 +33,7 @@
           <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized client-side -->
           {@html marked(DOMPurify.sanitize(article.body))}
         </div>
-      </a>
+      </button>
     </div>
 
     <div class="flex gap-4">
