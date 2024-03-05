@@ -3,8 +3,8 @@
 
   export let name: string;
   export let url: string | undefined;
-  export let host: boolean = false;
-  export let full: boolean = false;
+  export let host = false;
+  export let full = false;
 
   let pdf: HTMLIFrameElement;
 
