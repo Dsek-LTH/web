@@ -90,9 +90,18 @@
     >
       <MemberAvatar {member} />
       <span
-        class="flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium"
+        class="flex flex-1 flex-wrap gap-2 overflow-hidden text-ellipsis text-left font-medium"
       >
         {getFullName(member)}
+        {#if programme === "all"}
+          <ClassBadge
+            member={{
+              classProgramme: member.classProgramme,
+              classYear: member.classYear,
+            }}
+            size="sm"
+          />
+        {/if}
       </span>
     </a>
   {/each}
