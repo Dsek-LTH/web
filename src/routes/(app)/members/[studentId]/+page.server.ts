@@ -65,9 +65,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   const doorAccess =
     member.id === user?.memberId
       ? await getCurrentDoorPoliciesForMember(prisma, studentId)
-      : (new Map() as Awaited<
-          ReturnType<typeof getCurrentDoorPoliciesForMember>
-        >);
+      : [];
 
   return {
     form: await superValidate(member, memberSchema),
