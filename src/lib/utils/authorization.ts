@@ -7,21 +7,24 @@ import type { AuthUser } from "@zenstackhq/runtime";
  * @returns Whether the user is authorized.
  */
 export const isAuthorized = (apiName: string, user?: AuthUser): boolean => {
-  if (dev) return true;
+  if (dev && user) return true;
   if (user?.policies.includes(apiName)) return true;
   return false;
 };
 
 /**
- * Authorize a user to perform an action.
+ * Authorize a user to perform an action or a list of actions.
  * @throws {HttpError} If the user is not authorized.
  */
-export const authorize = (apiName: string, user?: AuthUser) => {
-  if (!isAuthorized(apiName, user)) {
-    throw error(
-      403,
-      `You do not have permission, have you logged in? Required policy: ${apiName}`,
-    );
+export const authorize = (apiName: string | string[], user?: AuthUser) => {
+  const apiNames = Array.isArray(apiName) ? apiName : [apiName];
+  for (const name of apiNames) {
+    if (!isAuthorized(name, user)) {
+      throw error(
+        403,
+        `You do not have permission, have you logged in? Required policy: ${name}`,
+      );
+    }
   }
 };
 
@@ -31,10 +34,7 @@ export const authorize = (apiName: string, user?: AuthUser) => {
  * @param signedIn Whether the user is signed in. If `groupList` contains groups, the user is assumed to be signed in.
  * @returns e.g. `["*", "_", "dsek", "dsek.infu", "dsek.infu.mdlm", "dsek.ordf"]`
  */
-export const getDerivedRoles = (
-  groupList?: string[],
-  signedIn: boolean = false,
-) => {
+export const getDerivedRoles = (groupList?: string[], signedIn = false) => {
   const splitGroups = new Set<string>();
   groupList?.forEach((group) =>
     group

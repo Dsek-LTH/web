@@ -21,7 +21,7 @@
     {likersText} gillar detta
   </button>
   <dialog id="likers_modal" class="modal" bind:this={modal}>
-    <ul class="menu modal-box">
+    <ul class="modal-box m-1 flex flex-col">
       {#each likers as liker (liker.id)}
         <li>
           <AuthorSignature type="member" member={liker} />

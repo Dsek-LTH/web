@@ -100,6 +100,12 @@ export const routes = [
         accessRequired: apiNames.DOOR.READ,
       },
       {
+        title: "Email alias",
+        path: "/admin/email-alias",
+        icon: "i-mdi-email",
+        accessRequired: apiNames.EMAIL_ALIAS.READ,
+      },
+      {
         title: "Alerts",
         path: "/admin/alerts",
         icon: "i-mdi-alert-circle",

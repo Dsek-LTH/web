@@ -40,6 +40,7 @@ model Alert {
 
   @@allow("all", has(auth().policies, "alert"))
   @@allow("read", true)
+  @@deny("read", removedAt != null)
   @@map("alerts")
 }
 
@@ -122,6 +123,7 @@ model Article {
 
   @@allow("create", has(auth().policies, "news:article:create"))
   @@allow("read", has(auth().policies, "news:article:read"))
+  @@deny("read", removedAt != null)
   @@allow("update", has(auth().policies, "news:article:update"))
   @@allow("update", auth().memberId == author.memberId)
   @@allow("delete", has(auth().policies, "news:article:delete"))
@@ -301,10 +303,10 @@ model Door {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model EmailAlias {
   id String @id(map: "mail_aliases_pkey") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  positionId String? @map("position_id") @db.VarChar(255)
-  email String? @db.VarChar(255)
-  canSend Boolean? @default(false) @map("can_send")
-  position Position? @relation(fields: [positionId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "email_aliases_position_id_foreign")
+  positionId String @map("position_id") @db.VarChar(255)
+  email String @db.VarChar(255)
+  canSend Boolean @default(false) @map("can_send")
+  position Position @relation(fields: [positionId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "email_aliases_position_id_foreign")
 
   @@allow("create", has(auth().policies, "core:mail:alias:create"))
   @@allow("read", has(auth().policies, "core:mail:alias:read"))
@@ -357,6 +359,7 @@ model Event {
 
   @@allow("create", has(auth().policies, "event:create"))
   @@allow("read", has(auth().policies, "event:read"))
+  @@deny("read", removedAt != null)
   @@allow("update", has(auth().policies, "event:update"))
   @@allow("delete", has(auth().policies, "event:delete"))
   @@map("events")
@@ -782,7 +785,7 @@ enum DocumentType {
 }
 
 model LastKeycloakUpdate {
-  id   Int      @id @default(autoincrement())
+  id Int @id @default(autoincrement())
   time DateTime
 
   @@map("last_keycloak_update")

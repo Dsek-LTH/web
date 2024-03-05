@@ -46,6 +46,7 @@ model AdminSetting {
 
 /// @@allow('all', has(auth().policies, 'alert'))
 /// @@allow('read', true)
+/// @@deny('read', removedAt != null)
 model Alert {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
     severity String @db.VarChar(255)
@@ -114,6 +115,7 @@ model ArticleRequest {
 
 /// @@allow('create', has(auth().policies, 'news:article:create'))
 /// @@allow('read', has(auth().policies, 'news:article:read'))
+/// @@deny('read', removedAt != null)
 /// @@allow('update', has(auth().policies, 'news:article:update'))
 /// @@allow('update', auth().memberId == author.memberId)
 /// @@allow('delete', has(auth().policies, 'news:article:delete'))
@@ -318,10 +320,10 @@ model Door {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model EmailAlias {
     id String @id(map: "mail_aliases_pkey") @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-    positionId String? @map("position_id") @db.VarChar(255)
-    email String? @db.VarChar(255)
-    canSend Boolean? @default(false) @map("can_send")
-    position Position? @relation(fields: [positionId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "email_aliases_position_id_foreign")
+    positionId String @map("position_id") @db.VarChar(255)
+    email String @db.VarChar(255)
+    canSend Boolean @default(false) @map("can_send")
+    position Position @relation(fields: [positionId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "email_aliases_position_id_foreign")
 
     @@map("email_aliases")
 }
@@ -345,6 +347,7 @@ model EventComment {
 
 /// @@allow('create', has(auth().policies, 'event:create'))
 /// @@allow('read', has(auth().policies, 'event:read'))
+/// @@deny('read', removedAt != null)
 /// @@allow('update', has(auth().policies, 'event:update'))
 /// @@allow('delete', has(auth().policies, 'event:delete'))
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Events{
