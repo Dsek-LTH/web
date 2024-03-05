@@ -6,7 +6,11 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                echo 'Building..'
+              nodejs('nodejs-20.0') {
+                sh '''pnpm i
+                  pnpm run ci-check
+                  pnpm run build'''
+              }
             }
         }
     }
