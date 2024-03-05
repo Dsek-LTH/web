@@ -17,7 +17,7 @@ import {
   setCanSendSchema,
 } from "./schema";
 import { isValidEmail } from "../emailutils";
-import keycloak from "$lib/server/keycloak/keycloak";
+import keycloak from "$lib/server/keycloak";
 import type { PrismaClient } from "@prisma/client";
 import { mailAliasUpdateHandler } from "$lib/server/mail/alias/mailAliasUpdateHandler";
 
