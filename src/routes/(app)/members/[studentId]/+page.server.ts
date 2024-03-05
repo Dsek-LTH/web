@@ -63,11 +63,16 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     throw error(404, "Member not found");
   }
   const member = memberResult.value;
+  const allMemberDoors = await getCurrentDoorPoliciesForMember(
+    prisma,
+    member.id,
+  );
   try {
     return {
       form: await superValidate(member, memberSchema),
       pingForm: await superValidate(emptySchema),
       member,
+      allMemberDoors,
       publishedArticles: publishedArticlesResult.value ?? [],
       ping: user
         ? await prisma.ping.findFirst({
@@ -89,18 +94,6 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   } catch (e) {
     throw error(500, "Could not fetch ping");
   }
-
-  const allMemberDoors = await getCurrentDoorPoliciesForMember(
-    prisma,
-    member.id,
-  );
-
-  return {
-    form: await superValidate(member, memberSchema),
-    member,
-    allMemberDoors,
-    publishedArticles: publishedArticlesResult.value ?? [],
-  };
 };
 
 const updateSchema = memberSchema.pick({
