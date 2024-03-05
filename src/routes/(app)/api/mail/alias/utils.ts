@@ -1,5 +1,5 @@
 import type { EmailAlias, Member, PrismaClient } from "@prisma/client";
-import keyKloackAdminClient from "$lib/utils/keycloak";
+import keyKloackAdminClient from "$lib/server/keycloak";
 
 export async function getAliasToPositions(
   prisma: PrismaClient,
