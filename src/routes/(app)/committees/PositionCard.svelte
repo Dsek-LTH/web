@@ -5,9 +5,9 @@
   import type { Mandate, Member, Position } from "@prisma/client";
 
   export let position: Position;
-  export let mandates: (Mandate & {
+  export let mandates: Array<Mandate & {
     member: Member;
-  })[];
+  }>;
   let mandatesBox: HTMLDivElement; // Function to check whether the element is overflowing
 </script>
 

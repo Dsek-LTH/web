@@ -3,9 +3,9 @@
   import type { ComponentProps } from "svelte";
 
   type CardProps = ComponentProps<PositionCard>;
-  export let positions: (CardProps["position"] & {
+  export let positions: Array<CardProps["position"] & {
     mandates: CardProps["mandates"];
-  })[];
+  }>;
 
   $: everyOtherPosition = positions.filter((_, i) => i % 2 === 0);
   $: everyOtherPosition2 = positions.filter((_, i) => i % 2 === 1);

@@ -7,9 +7,9 @@
   import type { CommentSchema, RemoveCommentSchema } from "$lib/zod/comments";
   import type { ArticleComment, EventComment, Member } from "@prisma/client";
   import type { SuperValidated } from "sveltekit-superforms";
-  export let comments: ((ArticleComment | EventComment) & {
+  export let comments: Array<(ArticleComment | EventComment) & {
     member: Member;
-  })[];
+  }>;
   export let type: "NEWS" | "EVENT";
   export let taggedMembers: Member[];
   export let commentForm: SuperValidated<CommentSchema>;

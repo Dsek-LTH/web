@@ -63,5 +63,6 @@ module.exports = {
       },
     ],
     "@typescript-eslint/consistent-type-definitions": "off", // Using either type or interface is fine.
+    "@typescript-eslint/array-type": ["error", { default: "array-simple" }], // When defining arrays of complex types, use the `Array<type>` syntax.
   },
 };

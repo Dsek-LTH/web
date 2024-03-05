@@ -17,7 +17,7 @@
   export let data: PageData;
 
   $: groupedByYear = data.mandates.reduce<
-    Record<string, Prisma.MandateGetPayload<{ include: { member: true } }>[]>
+    Record<string, Array<Prisma.MandateGetPayload<{ include: { member: true } }>>>
   >((acc, mandate) => {
     let year = mandate.startDate.getFullYear().toString();
     if (mandate.endDate.getFullYear() !== mandate.startDate.getFullYear())

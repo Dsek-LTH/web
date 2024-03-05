@@ -14,7 +14,7 @@
 
   const currentYear = new Date().getFullYear();
   let type = "board-meeting";
-  const typeOptions: { name: string; value: DocumentType }[] = [
+  const typeOptions: Array<{ name: string; value: DocumentType }> = [
     {
       name: "Guild Meetings",
       value: "guild-meeting",

@@ -3,11 +3,11 @@
   import type { Committee, Mandate, Position } from "@prisma/client";
 
   export let year: string;
-  export let mandates: (Mandate & {
+  export let mandates: Array<Mandate & {
     position: Pick<Position, "id" | "name"> & {
       committee: Pick<Committee, "name" | "imageUrl"> | null;
     };
-  })[];
+  }>;
 </script>
 
 <section class="mb-4">

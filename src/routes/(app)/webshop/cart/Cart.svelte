@@ -2,11 +2,11 @@
   import { enhance } from "$app/forms";
   import type { Cart, CartItem, ProductInventory } from "@prisma/client";
   export let cart: Cart & {
-    items: (CartItem & {
+    items: Array<CartItem & {
       productInventory: ProductInventory & {
         product: { name: string; price: number; imageUrl: string };
       };
-    })[];
+    }>;
   };
 </script>
 
