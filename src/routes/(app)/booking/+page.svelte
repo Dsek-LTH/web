@@ -1,7 +1,5 @@
 <script lang="ts">
   import BookableSelector from "./BookableSelector.svelte";
-  // import SearchBar from "$lib/components/SearchBar.svelte";
-  // import TagSelector from "$lib/components/TagSelector.svelte";
   import Calendar from "./Calendar.svelte";
 
   import type { PageData } from "./$types";
@@ -13,36 +11,32 @@
 
 <div>
   <form method="POST" use:enhance class="join">
-    <label>
-      <BookableSelector allBookables={data.bookables} bind:selectedBookables />
-      <input
-        type="text"
-        name="bookables"
-        hidden
-        value={selectedBookables.map((a) => a.id)}
-      />
-      <div class="flex flex-row">
-        <input
-          type="text"
-          name="start"
-          placeholder="Start"
-          class="input input-bordered w-full max-w-xs"
-        />
-        <input
-          type="text"
-          name="end"
-          placeholder="End"
-          class="input input-bordered w-full max-w-xs"
-        />
-        <input
-          type="text"
-          name="event"
-          placeholder="Event"
-          class="input input-bordered w-full max-w-xs"
-        />
-        <button class="btn btn-primary">Create</button>
-      </div>
-    </label>
+    <BookableSelector allBookables={data.bookables} bind:selectedBookables />
+    <input
+      type="text"
+      name="bookables"
+      hidden
+      value={selectedBookables.map((a) => a.id)}
+    />
+    <input
+      type="text"
+      name="start"
+      placeholder="Start"
+      class="input input-bordered w-full max-w-xs"
+    />
+    <input
+      type="text"
+      name="end"
+      placeholder="End"
+      class="input input-bordered w-full max-w-xs"
+    />
+    <input
+      type="text"
+      name="event"
+      placeholder="Event"
+      class="input input-bordered w-full max-w-xs"
+    />
+    <button class="btn btn-primary">Create</button>
   </form>
 </div>
 
