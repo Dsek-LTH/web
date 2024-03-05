@@ -125,9 +125,7 @@
       {#if $errors.image}
         <p class="text-error">{$errors.image}</p>
       {/if}
-      <button type="submit" class="btn btn-primary" on:click={() => {}}>
-        Spara
-      </button>
+      <button type="submit" class="btn btn-primary"> Spara </button>
     </form>
   {/if}
   {#each photos as photo (photo.id)}

@@ -2,7 +2,7 @@
   import { twMerge } from "tailwind-merge";
 
   export let title: string | undefined;
-  let clazz: string = "";
+  let clazz = "";
   export { clazz as class };
 </script>
 

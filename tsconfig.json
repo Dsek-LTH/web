@@ -19,7 +19,8 @@
     "noUncheckedIndexedAccess": true,
     "noUnusedLocals": false, // eslint no-unused-vars is more configurable
     "noUnusedParameters": false, // eslint no-unused-vars is more configurable
-    "typeRoots": ["types", "./node_modules/@types"]
+    "typeRoots": ["types", "./node_modules/@types"],
+    "strictNullChecks": true
   }
   // Path aliases are handled by https://kit.svelte.dev/docs/configuration#alias
   //

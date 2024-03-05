@@ -5,7 +5,7 @@
 
   export let fileName: string;
   export let url: string;
-  export let current: boolean = false;
+  export let current = false;
   export let changeForm: SuperValidated<ChangeSchema>;
   export let deleteForm: SuperValidated<DeleteSchema>;
   const { errors: changeErrors, enhance: changeEnhance } = superForm(

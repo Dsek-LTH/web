@@ -12,7 +12,7 @@
   export let expanded = true;
   export let name: string;
   export let folders: FolderType[];
-  export let isEditing: boolean = false;
+  export let isEditing = false;
   export let deleteForm: SuperValidated<DeleteSchema>;
   $: folders.sort((a, b) => (a.isFolder && !b.isFolder ? 0 : 1));
 

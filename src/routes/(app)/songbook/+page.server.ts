@@ -87,7 +87,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     getExistingCategories(prisma, accessPolicies, showDeleted),
   ]);
 
-  const categoryMap: { [key: string]: string } = {};
+  const categoryMap: Record<string, string> = {};
 
   for (const category of existingCategories) {
     const split = category.split(" ");

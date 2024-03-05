@@ -3,7 +3,7 @@
   export let label: string | null = null;
   export let explanation: string | null = null;
   export let error: string | string[] | undefined = undefined;
-  export let fullWidth: boolean = false;
+  export let fullWidth = false;
 </script>
 
 <div

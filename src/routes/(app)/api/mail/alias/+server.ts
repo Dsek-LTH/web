@@ -27,23 +27,23 @@ export const GET: RequestHandler = async ({ locals, setHeaders }) => {
   // This is the main data structure that we will use to create the response
   // It stores all the positions for a given alias, and the user emails for those positions
   // All code below is to fill this data structure
-  const aliasToPosToUserEmails: Map<string, Map<string, string[]>> = new Map();
+  const aliasToPosToUserEmails = new Map<string, Map<string, string[]>>();
 
   // Fetch all positions which have an alias (could be multiple aliases for a position)
   const posToAlias: Map<string, EmailAlias[]> =
     await getAliasToPositions(prisma);
 
-  const positionIds: Set<string> = new Set(
+  const positionIds = new Set<string>(
     Array.from(posToAlias.values()).flatMap((alist) =>
       alist.map((a) => a.positionId),
     ),
   );
 
   // Store all the members which have a mandate for a position
-  const positionIdsToMembers: Map<
+  const positionIdsToMembers = new Map<
     string,
     Set<{ memberId: Member["id"]; studentId: Member["studentId"] }>
-  > = new Map();
+  >();
   for (const posId of positionIds) {
     // Fetch which members currently have a mandate for the position
     const members = await getCurrentMembersForPosition(posId, prisma);

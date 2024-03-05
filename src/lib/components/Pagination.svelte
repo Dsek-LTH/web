@@ -11,7 +11,7 @@ e.g. `?page=1`, `?page=2`, etc. The page number is stored in the URL query.
   import { page } from "$app/stores";
   import { twMerge } from "tailwind-merge";
 
-  let clazz: string = "";
+  let clazz = "";
   export { clazz as class };
   /** The number of pages. */
   export let count: number;
@@ -32,13 +32,13 @@ e.g. `?page=1`, `?page=2`, etc. The page number is stored in the URL query.
    */
   export let fieldName = "page";
   /** Whether to show the previous page button. */
-  export let showPrev: boolean = true;
+  export let showPrev = true;
   /** Whether to show the next page button. */
-  export let showNext: boolean = true;
+  export let showNext = true;
   /** Whether to show the first page button. */
-  export let showFirst: boolean = false;
+  export let showFirst = false;
   /** Whether to show the last page button. */
-  export let showLast: boolean = false;
+  export let showLast = false;
 
   $: currentPage =
     $page.url.searchParams.get(fieldName) ?? getPageName(0).toString();

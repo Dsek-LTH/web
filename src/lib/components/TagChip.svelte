@@ -3,7 +3,7 @@
   import { twMerge } from "tailwind-merge";
 
   export let tag: Pick<Tag, "color" | "name"> | undefined = undefined;
-  let clazz: string = "";
+  let clazz = "";
   export { clazz as class };
 </script>
 

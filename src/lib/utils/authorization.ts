@@ -34,10 +34,7 @@ export const authorize = (apiName: string | string[], user?: AuthUser) => {
  * @param signedIn Whether the user is signed in. If `groupList` contains groups, the user is assumed to be signed in.
  * @returns e.g. `["*", "_", "dsek", "dsek.infu", "dsek.infu.mdlm", "dsek.ordf"]`
  */
-export const getDerivedRoles = (
-  groupList?: string[],
-  signedIn: boolean = false,
-) => {
+export const getDerivedRoles = (groupList?: string[], signedIn = false) => {
   const splitGroups = new Set<string>();
   groupList?.forEach((group) =>
     group

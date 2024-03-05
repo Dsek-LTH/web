@@ -15,7 +15,6 @@ const updateSchema = z.object({
 });
 
 export type UpdateSchema = typeof updateSchema;
-type ParamType = { shortName: string };
 
 /**
  * @param shortName The committee's short name
@@ -116,7 +115,9 @@ export const committeeLoad = async (
   };
 };
 
-export const committeeActions = (shortName?: string): Actions<ParamType> => ({
+export const committeeActions = (
+  shortName?: string,
+): Actions<{ shortName: string }> => ({
   update: async ({ params, request, locals }) => {
     const { prisma, user } = locals;
     const formData = await request.formData();
@@ -128,7 +129,7 @@ export const committeeActions = (shortName?: string): Actions<ParamType> => ({
       if (image.type !== "image/svg+xml") {
         return setError(form, "image", "Bilden måste vara i .svg format ");
       }
-      const path = `committees/${shortName || params.shortName}.svg`;
+      const path = `committees/${shortName ?? params.shortName}.svg`;
       if (image) {
         try {
           const putUrl = await fileHandler.getPresignedPutUrl(
