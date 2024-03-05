@@ -32,13 +32,13 @@ export const load: PageServerLoad = async (request) => {
     },
     orderBy: [
       {
-        classProgramme: "asc",
-      },
-      {
         firstName: "asc",
       },
       {
         lastName: "asc",
+      },
+      {
+        classProgramme: "asc",
       },
     ],
   });
