@@ -31,7 +31,7 @@
     name="search"
     type="text"
     placeholder="Search"
-    class="focus:border-primary-focus input input-bordered w-full"
+    class="input input-bordered w-full"
     value={$page.url.searchParams.get("search") ?? ""}
     on:input={(e) => {
       refetchArticles(e.currentTarget.value);

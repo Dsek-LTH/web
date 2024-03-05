@@ -2,13 +2,20 @@
   import type { Tag } from "@prisma/client";
   import TagChip from "./TagChip.svelte";
 
+  /** Called when the list of selected tags changes */
+  export let onChange: () => void = () => {};
+
+  /** All available tags */
   export let allTags: Tag[] = [];
-  let searchValue = "";
+
+  /** All selected tags */
   export let selectedTags: Tag[] = [];
+
+  let searchValue = "";
   $: filteredTags = allTags.filter(
     (tag) =>
       tag.name.toLowerCase().includes(searchValue.toLowerCase()) &&
-      !selectedTags.includes(tag),
+      !selectedTags.map((tag) => tag.id).includes(tag.id),
   );
 
   let autocompleteEl: HTMLInputElement;
@@ -31,6 +38,7 @@
             type="button"
             on:click={() => {
               selectedTags = selectedTags.filter((o) => o !== tag);
+              onChange();
             }}
           >
             <TagChip {tag} class="after:ml-2 after:content-['x']" />
@@ -57,6 +65,7 @@
         class="btn btn-xs"
         on:click={() => {
           selectedTags = [];
+          onChange();
         }}>Clear</button
       >
     {/if}
@@ -83,6 +92,7 @@
             } else {
               selectedTags = [...selectedTags, tag];
             }
+            onChange();
           }}
         >
           <TagChip {tag} />
