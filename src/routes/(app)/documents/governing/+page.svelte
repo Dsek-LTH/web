@@ -1,21 +1,19 @@
 <script lang="ts">
+  import PageHeader from "$lib/components/PageHeader.svelte";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
+  import { getGitHubUrl } from "$lib/utils/servePdf";
   import DeleteFileForm from "../DeleteFileForm.svelte";
-  import File from "../File.svelte";
+  import PdfModal from "../PDFModal.svelte";
   import type { PageData } from "./$types";
   export let data: PageData;
   let isEditing = false;
 </script>
 
-<svelte:head>
-  <title>Styrdokument | D-sektionen</title>
-</svelte:head>
-
 <div
   class="flex w-full flex-row flex-wrap items-center justify-between gap-x-4"
 >
-  <h1 class="my-3 text-2xl font-bold">Styrdokument</h1>
+  <PageHeader title="Styrdokument" />
   <div>
     {#if isAuthorized(apiNames.GOVERNING_DOCUMENT.DELETE, data.user)}
       {#if isAuthorized(apiNames.GOVERNING_DOCUMENT.CREATE, data.user)}
@@ -53,8 +51,10 @@
     </a>
   </p>
   <div class="flex items-center gap-5">
-    <strong><File name="Stadgar" url="https://dsek.se/stadgar" /></strong>
-    <strong><File name="Reglemente" url="https://dsek.se/reglemente" /></strong>
+    <strong><PdfModal name="Stadgar" url="https://dsek.se/stadgar" /></strong>
+    <strong
+      ><PdfModal name="Reglemente" url="https://dsek.se/reglemente" /></strong
+    >
   </div>
   <div class="flex flex-col gap-4 md:flex-row">
     <div>
@@ -62,7 +62,11 @@
       <div class="flex flex-col gap-2">
         {#each data.policies as policy}
           <div class="flex items-center gap-1">
-            <File name={policy.title} url={policy.url} host />
+            <PdfModal
+              name={policy.title}
+              url={getGitHubUrl(policy.url).toString()}
+              host={true}
+            />
             {#if isAuthorized(apiNames.GOVERNING_DOCUMENT.DELETE, data.user) && isEditing}
               <DeleteFileForm
                 fileId={policy.id}
@@ -87,7 +91,11 @@
       <div class="flex flex-col gap-2">
         {#each data.guidelines as guideline}
           <div class="flex items-center gap-1">
-            <File name={guideline.title} url={guideline.url} host />
+            <PdfModal
+              name={guideline.title}
+              url={getGitHubUrl(guideline.url).toString()}
+              host
+            />
             {#if isAuthorized(apiNames.GOVERNING_DOCUMENT.DELETE, data.user) && isEditing}
               <DeleteFileForm
                 fileId={guideline.id}
