@@ -9,7 +9,7 @@
   export let article: Article;
 </script>
 
-<div
+<article
   class="row-span-2 grid grid-rows-subgrid gap-0 overflow-hidden rounded-xl bg-base-200"
 >
   <div class="flex justify-between gap-4 bg-base-300 p-4">
@@ -70,4 +70,4 @@
       </div>
     </div>
   </div>
-</div>
+</article>

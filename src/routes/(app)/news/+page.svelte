@@ -47,11 +47,11 @@
     </form>
   </section>
 
-  <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
+  <section class="grid grid-cols-1 gap-8 md:grid-cols-2">
     {#each data.articles as article (article.id)}
       <SmallArticleCard {article} />
     {/each}
-  </div>
+  </section>
 
   <Pagination count={data.pageCount} />
 </div>
