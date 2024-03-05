@@ -1,5 +1,9 @@
 import { error, type NumericRange } from "@sveltejs/kit";
 
+export function getGitHubUrl(pathName: string) {
+  return new URL(pathName, "https://github.com/Dsek-LTH/");
+}
+
 /**
  * Fetch a PDF file from the Dsek-LTH GitHub and serve it.
  *
