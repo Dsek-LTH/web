@@ -38,6 +38,7 @@ export const getCustomAuthorOptions = async (
     },
   });
 };
+const date = "2023-11-04";
 
 export type MemberDoorPolicies = Array<{
   name: string;
@@ -65,10 +66,10 @@ export const getCurrentDoorPoliciesForMember = async (
               studentId,
             },
             startDate: {
-              lte: new Date(),
+              lte: new Date(date),
             },
             endDate: {
-              gte: new Date(),
+              gte: new Date(date),
             },
           },
         },
@@ -89,7 +90,7 @@ export const getCurrentDoorPoliciesForMember = async (
               },
               {
                 startDatetime: {
-                  lte: new Date(),
+                  lte: new Date(date),
                 },
               },
             ],
@@ -102,7 +103,7 @@ export const getCurrentDoorPoliciesForMember = async (
               },
               {
                 endDatetime: {
-                  gte: new Date(),
+                  gte: new Date(date),
                 },
               },
             ],
