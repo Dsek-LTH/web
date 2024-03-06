@@ -38,7 +38,7 @@ export const getCustomAuthorOptions = async (
     },
   });
 };
-const date = "2023-11-04";
+const date = "2022-11-04";
 
 export type MemberDoorPolicies = Array<{
   name: string;
