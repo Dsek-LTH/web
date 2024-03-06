@@ -46,7 +46,7 @@
       error={$errors.lastName}
     />
   </div>
-  <div class="flex w-full flex-wrap gap-2 [&>*:nth-child(3)]:flex-1">
+  <div class="flex gap-2 *:flex-1">
     <Labeled
       label="Program"
       id="classProgramme"
@@ -56,7 +56,7 @@
       <select
         id="classProgramme"
         name="classProgramme"
-        class="select select-bordered w-full md:max-w-20"
+        class="select select-bordered w-full"
         bind:value={$form.classProgramme}
         {...$constraints.classProgramme}
       >
@@ -75,7 +75,7 @@
         type="number"
         name="classYear"
         id="classYear"
-        class="input input-bordered md:max-w-20"
+        class="input input-bordered"
         bind:value={$form.classYear}
         {...$constraints.classYear}
       />

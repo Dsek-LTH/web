@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { programmes } from "$lib/utils/programmes";
   import type { Member } from "@prisma/client";
-  export let member: Member;
+  export let member: Pick<Member, "classProgramme" | "classYear">;
   export let size: "sm" | "xl" = "sm";
 
   // Couldn't make TS happy with colors[member.classProgramme] without
