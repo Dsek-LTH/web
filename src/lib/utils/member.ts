@@ -169,7 +169,10 @@ export const getCurrentDoorPoliciesForMember = async (
       positionsMappedToThisDoor.sort();
       return {
         ...policy,
-        roles: positionsMappedToThisDoor || ["Du"],
+        roles:
+          positionsMappedToThisDoor.length > 0
+            ? positionsMappedToThisDoor
+            : ["Du"],
       };
     },
   );

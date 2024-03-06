@@ -70,9 +70,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   const doorAccess =
     member.id === user?.memberId
       ? await getCurrentDoorPoliciesForMember(prisma, studentId)
-      : (new Map() as unknown as Awaited<
-          ReturnType<typeof getCurrentDoorPoliciesForMember>
-        >);
+      : [];
 
   const email =
     member.studentId !== null
