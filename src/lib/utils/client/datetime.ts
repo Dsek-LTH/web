@@ -11,9 +11,17 @@ export const relativeDate = (date: Date) => {
   if (Math.abs(minutes) < 60) return formatter.format(minutes, "minute");
   if (Math.abs(hours) < 24) return formatter.format(hours, "hour");
   if (Math.abs(days) < 3) return formatter.format(days, "day");
+  if (date.getFullYear() == new Date(Date.now()).getFullYear())
+    return date.toLocaleDateString("sv", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+    });
+
   return date.toLocaleDateString("sv", {
     weekday: "long",
     day: "numeric",
     month: "long",
+    year: "numeric",
   });
 };
