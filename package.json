@@ -84,6 +84,7 @@
     "@tiptap/core": "^2.1.13",
     "@tiptap/pm": "^2.1.13",
     "@tiptap/starter-kit": "^2.1.13",
+    "@vercel/speed-insights": "^1.0.10",
     "@zenstackhq/runtime": "^1.7.1",
     "croppie": "^2.6.5",
     "dayjs": "^1.11.10",
