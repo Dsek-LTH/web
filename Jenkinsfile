@@ -1,5 +1,7 @@
 pipeline {
-  agent any
+  agent { 
+    label 'Buildnode-2'
+  }
 
   options {
     ansiColor('xterm')
