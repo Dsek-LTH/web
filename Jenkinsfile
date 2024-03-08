@@ -2,7 +2,7 @@ pipeline {
   agent any
 
   options {
-    ansiColor('xterm') //test
+    ansiColor('xterm')
   }
   stages {
     stage('Build') {
