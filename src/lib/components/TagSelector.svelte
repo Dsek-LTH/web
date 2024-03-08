@@ -3,7 +3,9 @@
   import TagChip from "./TagChip.svelte";
 
   /** Called when the list of selected tags changes */
-  export let onChange: () => void = () => undefined;
+  export let onChange: () => void = () => {
+    searchValue = "";
+  };
 
   /** All available tags */
   export let allTags: Tag[] = [];
