@@ -15,7 +15,6 @@ const updateSchema = z.object({
 });
 
 export type UpdateSchema = typeof updateSchema;
-type ParamType = { shortName: string };
 
 /**
  * @param shortName The committee's short name
@@ -135,7 +134,9 @@ export const committeeLoad = async (
   };
 };
 
-export const committeeActions = (shortName?: string): Actions<ParamType> => ({
+export const committeeActions = (
+  shortName?: string,
+): Actions<{ shortName: string }> => ({
   update: async ({ params, request, locals }) => {
     const { prisma, user } = locals;
     const formData = await request.formData();

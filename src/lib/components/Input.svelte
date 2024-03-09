@@ -9,7 +9,7 @@
   export let required: boolean | null = null;
   export let error: string | string[] | undefined = undefined;
   export let explanation: string | null = null;
-  let clazz: string = "";
+  let clazz = "";
   export { clazz as class };
 </script>
 

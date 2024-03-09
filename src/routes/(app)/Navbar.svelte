@@ -11,7 +11,7 @@
 </script>
 
 <div
-  class="navbar sticky top-0 z-10 bg-base-200 bg-opacity-60 filter backdrop-blur transition-all"
+  class="navbar sticky top-0 z-10 bg-base-300 bg-opacity-60 filter backdrop-blur transition-all"
 >
   <!-- Open drawer icon -->
   <div class="block flex-1 lg:hidden">
@@ -43,7 +43,7 @@
             <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
             <ul
               tabindex="0"
-              class="menu dropdown-content z-[1] w-52 rounded-box bg-base-100 p-2 shadow"
+              class="menu dropdown-content z-[1] w-52 rounded-box bg-base-200 p-2 shadow"
             >
               {#each route.children as child (child.title)}
                 {#if !child.accessRequired || isAuthorized(child.accessRequired, $page.data.user)}
@@ -88,7 +88,7 @@
         <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
         <div
           tabindex="0"
-          class="card dropdown-content card-compact z-[1] w-max bg-base-100 p-2 text-center text-base-content shadow"
+          class="card dropdown-content card-compact z-[1] w-max bg-base-200 p-2 text-center text-base-content shadow"
         >
           <div class="card-body">
             <p class="text-center font-semibold">Inloggad som</p>

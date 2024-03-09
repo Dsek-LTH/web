@@ -4,8 +4,13 @@
   @apply btn;
 }
 
-.fc-button.fc-button.fc-button-primary.fc-button-active {
-  @apply btn-primary;
+.fc-button.fc-button.fc-button-primary.fc-button-active,
+fc-button-primary {
+  @apply btn-primary bg-primary;
+}
+
+.fc .fc-button-primary:not(:disabled):active {
+  @apply bg-primary/20;
 }
 
 .fc-toolbar-title {
