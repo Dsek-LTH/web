@@ -24,15 +24,6 @@
   const thisYear = new Date().getFullYear();
 </script>
 
-<Pagination
-  count={thisYear - 1982 + 1}
-  getPageName={(i) => (thisYear - i).toString()}
-  getPageNumber={(page) => thisYear - parseInt(page)}
-  fieldName="year"
-  showFirst={true}
-  class="mb-4"
-/>
-
 <CommitteeHeader
   committee={data.committee}
   uniqueMemberCount={data.uniqueMemberCount}
@@ -104,5 +95,15 @@
     </ol>
   </div>
 </div>
+
+<Pagination
+  count={thisYear - 1982 + 1}
+  getPageName={(i) => (thisYear - i).toString()}
+  getPageNumber={(page) => thisYear - parseInt(page)}
+  fieldName="year"
+  showFirst={true}
+  class="my-4"
+  keepScrollPosition={true}
+/>
 
 <PositionGrid positions={data.positions} />
