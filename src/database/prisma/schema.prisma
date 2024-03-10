@@ -15,6 +15,12 @@ generator client {
     previewFeatures = ["fullTextSearch"]
 }
 
+enum BookingRequestStatus {
+    ACCEPTED
+    DENIED
+    PENDING
+}
+
 enum DocumentType {
     POLICY
     GUIDELINE
@@ -203,7 +209,7 @@ model BookingRequest {
     end DateTime? @db.Timestamptz(6)
     created DateTime? @default(now()) @db.Timestamptz(6)
     event String? @db.VarChar(255)
-    status String? @db.VarChar(255)
+    status BookingRequestStatus @default(PENDING)
     bookables Bookable[] @relation("booking_requests_bookables")
 
     @@map("booking_requests")
