@@ -44,7 +44,7 @@
         admin: {
           text: "Hantera bokningar",
           click: () => {
-            void goto("/booking/approve");
+            void goto("/booking/admin");
           },
         },
         subscribe: {
