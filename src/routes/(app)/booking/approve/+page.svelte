@@ -1,27 +1,70 @@
 <script lang="ts">
-  import type { PageData } from "./$types";
-  import BookingRequestRow from "./BookingRequestRow.svelte";
-  export let data: PageData;
-  $: bookingRequests = data.bookingRequests;
-  $: filteredRquests = bookingRequests.filter(
-    (request) => request.status === "PENDING",
-  );
+  import dayjs from "dayjs";
+  import StatusComponent from "./StatusComponent.svelte";
+  import { enhance } from "$app/forms";
+  export let data;
 </script>
 
-<div>
+<div class="overflow-x-auto">
   <table class="table">
     <thead>
-      <tr>
-        <th>Bookable</th>
-        <th>Start</th>
-        <th>End</th>
-        <th>Event</th>
-        <th>Actions</th>
+      <tr class="bg-base-200">
+        <th>Bokning</th>
+        <th>Från</th>
+        <th>Till</th>
+        <th>Evenemang</th>
+        <th>Status</th>
+        <th />
       </tr>
     </thead>
+
     <tbody>
-      {#each filteredRquests as bookingRequest}
-        <BookingRequestRow {bookingRequest} />
+      {#each data.bookingRequests as bookingRequest (bookingRequest.id)}
+        <tr>
+          <td>
+            {#each bookingRequest.bookables.map((a) => a.name) as bookable}
+              <p class="min-w-max">{bookable}</p>
+            {/each}
+          </td>
+          <td>{dayjs(bookingRequest.start).format("YYYY-MM-DD HH:MM")}</td>
+          <td>{dayjs(bookingRequest.end).format("YYYY-MM-DD HH:MM")}</td>
+          <td>{bookingRequest.event}</td>
+          <td>
+            <StatusComponent
+              bind:bookingRequest
+              bind:bookingRequests={data.bookingRequests}
+            />
+          </td>
+          <td>
+            <form
+              method="POST"
+              use:enhance
+              class="form-control gap-2"
+              id={`form-${bookingRequest.id}`}
+            >
+              <input
+                hidden
+                name="id"
+                type="text"
+                bind:value={bookingRequest.id}
+              />
+              <button
+                formaction="?/accept"
+                class="btn btn-xs px-8"
+                class:btn-disabled={bookingRequest.status === "ACCEPTED"}
+              >
+                GODKÄNN
+              </button>
+              <button
+                formaction="?/reject"
+                class="btn btn-xs px-8"
+                class:btn-disabled={bookingRequest.status === "DENIED"}
+              >
+                NEKA
+              </button>
+            </form>
+          </td>
+        </tr>
       {/each}
     </tbody>
   </table>

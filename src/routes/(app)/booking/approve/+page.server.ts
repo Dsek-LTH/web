@@ -1,8 +1,13 @@
-import type { Actions, PageServerLoad } from "../$types";
+import type { Actions, PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma } = locals;
   const bookingRequests = await prisma.bookingRequest.findMany({
+    where: {
+      start: {
+        gte: new Date(),
+      },
+    },
     include: {
       bookables: true,
     },
@@ -16,26 +21,28 @@ export const actions: Actions = {
     const { request, locals } = event;
     const { prisma } = locals;
     const formData = await request.formData();
-    await prisma.bookingRequest.update({
-      where: {
-        id: formData.get("id") as string,
-      },
-      data: {
-        status: "APPROVED",
-      },
-    });
+    const id = formData.get("id");
+    if (id && typeof id === "string") {
+      await prisma.bookingRequest.update({
+        where: { id },
+        data: {
+          status: "ACCEPTED",
+        },
+      });
+    }
   },
   reject: async (event) => {
     const { request, locals } = event;
     const { prisma } = locals;
     const formData = await request.formData();
-    await prisma.bookingRequest.update({
-      where: {
-        id: formData.get("id") as string,
-      },
-      data: {
-        status: "REJECTED",
-      },
-    });
+    const id = formData.get("id");
+    if (id && typeof id === "string") {
+      await prisma.bookingRequest.update({
+        where: { id },
+        data: {
+          status: "DENIED",
+        },
+      });
+    }
   },
 };

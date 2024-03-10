@@ -16,10 +16,12 @@ const schema = z
     path: ["end"],
   });
 
-export const load = async () => {
+export const load = async ({ locals }) => {
+  const { prisma } = locals;
+  const bookables = await prisma.bookable.findMany();
   const form = await superValidate(schema);
 
-  return { form };
+  return { bookables, form };
 };
 
 export const actions = {

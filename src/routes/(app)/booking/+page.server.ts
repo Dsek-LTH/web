@@ -5,7 +5,6 @@ export const load = async ({ locals }) => {
       bookables: true,
     },
   });
-  const bookables = await prisma.bookable.findMany();
 
-  return { bookingRequests, bookables };
+  return { bookingRequests };
 };
