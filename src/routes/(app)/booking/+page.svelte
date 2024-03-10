@@ -19,13 +19,13 @@
       value={selectedBookables.map((a) => a.id)}
     />
     <input
-      type="text"
+      type="datetime-local"
       name="start"
       placeholder="Start"
       class="input input-bordered w-full max-w-xs"
     />
     <input
-      type="text"
+      type="datetime-local"
       name="end"
       placeholder="End"
       class="input input-bordered w-full max-w-xs"
