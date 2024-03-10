@@ -28,7 +28,8 @@ export const committeeLoad = async (
 ) => {
   // const date = new Date(year, 0, 1);
   // 👆 doing this actually gives us last day of previous year for some reason
-  const date = new Date(year, 0, 2);
+  const firstDayOfYear = new Date(year, 0, 2);
+  const lastDayOfYear = new Date(year, 11, 31);
 
   const committee = await prisma.committee.findUnique({
     where: {
@@ -40,15 +41,30 @@ export const committeeLoad = async (
           mandates: {
             where: {
               startDate: {
-                lte: date,
+                lte: lastDayOfYear,
               },
               endDate: {
-                gte: date,
+                gte: firstDayOfYear,
               },
             },
             include: {
               member: true,
             },
+            orderBy: [
+              {
+                startDate: "desc",
+              },
+              {
+                member: {
+                  firstName: "asc",
+                },
+              },
+              {
+                member: {
+                  lastName: "asc",
+                },
+              },
+            ],
           },
           emailAliases: {
             select: {
@@ -69,10 +85,10 @@ export const committeeLoad = async (
           mandates: {
             some: {
               startDate: {
-                lte: date,
+                lte: lastDayOfYear,
               },
               endDate: {
-                gte: date,
+                gte: firstDayOfYear,
               },
               position: {
                 committee: {
@@ -86,10 +102,10 @@ export const committeeLoad = async (
       prisma.mandate.count({
         where: {
           startDate: {
-            lte: date,
+            lte: lastDayOfYear,
           },
           endDate: {
-            gte: date,
+            gte: firstDayOfYear,
           },
           position: {
             committee: {
