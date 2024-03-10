@@ -25,11 +25,17 @@
       eventColor: "#f280a1",
       firstDay: 1,
       headerToolbar: {
-        left: "prev,next,addEvent",
+        left: "prev,next,addBooking",
         center: "title",
         right: "dayGridDay,dayGridWeek,dayGridMonth",
       },
       customButtons: {
+        addBooking: {
+          text: "Skapa bokning",
+          click: () => {
+            void goto("/bookings/create");
+          },
+        },
         subscribe: {
           text: "Subscribe",
           click: () => {
