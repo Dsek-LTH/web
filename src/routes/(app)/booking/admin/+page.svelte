@@ -5,6 +5,11 @@
   export let data;
 </script>
 
+<a class="btn mb-4" href="/booking">
+  <span class="i-mdi-arrow-expand-left" />
+  Tillbaka
+</a>
+
 <div class="overflow-x-auto">
   <table class="table">
     <thead>

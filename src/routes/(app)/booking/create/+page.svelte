@@ -7,6 +7,11 @@
 </script>
 
 <form method="POST" use:enhance class="form-control mx-auto max-w-sm gap-4">
+  <a class="btn" href="/booking">
+    <span class="i-mdi-arrow-expand-left" />
+    Tillbaka
+  </a>
+
   <fieldset
     class="input-bordered rounded-xl border px-6 py-2"
     class:border-error={$errors.bookables?._errors ?? 0 > 0}
