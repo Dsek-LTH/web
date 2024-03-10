@@ -5,12 +5,17 @@
   import type { Bookable, BookingRequest } from "@prisma/client";
   import { goto } from "$app/navigation";
   import "$lib/FullCalendar.css";
+  import { isAuthorized } from "$lib/utils/authorization";
+  import { page } from "$app/stores";
+  import apiNames from "$lib/utils/apiNames";
 
   export let bookingRequests: (BookingRequest & { bookables: Bookable[] })[] =
     [];
 
   let calendarEl: HTMLElement;
   let calendar: Calendar;
+
+  const admin = isAuthorized(apiNames.BOOKINGS.UPDATE, $page.data.user);
 
   onMount(() => {
     calendar = new Calendar(calendarEl, {
@@ -25,7 +30,7 @@
       eventColor: "#f280a1",
       firstDay: 1,
       headerToolbar: {
-        left: "prev,next,addBooking",
+        left: "prev,next,addBooking" + (admin ? ",admin" : ""),
         center: "title",
         right: "dayGridDay,dayGridWeek,dayGridMonth",
       },
@@ -34,6 +39,12 @@
           text: "Skapa bokning",
           click: () => {
             void goto("/bookings/create");
+          },
+        },
+        admin: {
+          text: "Hantera bokningar",
+          click: () => {
+            void goto("/booking/approve");
           },
         },
         subscribe: {
