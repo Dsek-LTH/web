@@ -11,6 +11,7 @@
     }
   >;
   let mandatesBox: HTMLDivElement; // Function to check whether the element is overflowing
+  const today = new Date();
 </script>
 
 <article class="card bg-base-200 shadow-xl transition-all">
@@ -42,6 +43,8 @@
       <div class="max-h-80 overflow-y-auto" bind:this={mandatesBox}>
         <ul class="menu menu-vertical p-0">
           {#each mandates as mandate (mandate.id)}
+            {@const isMandateHeldNow =
+              mandate.startDate <= today && mandate.endDate >= today}
             <li>
               <a href="/members/{mandate.member.studentId}">
                 <div class="flex flex-row items-center gap-2">
@@ -50,10 +53,14 @@
                     <h3 class="font-medium">
                       {getFullName(mandate.member)}
                     </h3>
-                    <h4 class="text-xs">
-                      {mandate.startDate.toLocaleDateString(["sv"])} &gt;&gt; {mandate.endDate.toLocaleDateString(
-                        ["sv"],
-                      )}
+                    <h4
+                      class={`text-xs ${
+                        isMandateHeldNow ? "font-semibold" : "italic"
+                      }`}
+                    >
+                      {mandate.startDate.toLocaleDateString(["sv"])}
+                      &#8702;
+                      {mandate.endDate.toLocaleDateString(["sv"])}
                     </h4>
                   </div>
                 </div>
