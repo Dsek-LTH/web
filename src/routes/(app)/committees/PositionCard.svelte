@@ -3,6 +3,7 @@
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import { getFullName } from "$lib/utils/client/member";
   import type { Mandate, Member, Position } from "@prisma/client";
+  import { page } from "$app/stores";
 
   export let position: Position;
   export let mandates: Array<
@@ -11,7 +12,9 @@
     }
   >;
   let mandatesBox: HTMLDivElement; // Function to check whether the element is overflowing
-  const today = new Date();
+  $: year =
+    parseInt($page.url.searchParams.get("year") ?? "") ||
+    new Date().getFullYear();
 </script>
 
 <article class="card bg-base-200 shadow-xl transition-all">
@@ -43,8 +46,6 @@
       <div class="max-h-80 overflow-y-auto" bind:this={mandatesBox}>
         <ul class="menu menu-vertical p-0">
           {#each mandates as mandate (mandate.id)}
-            {@const isMandateHeldNow =
-              mandate.startDate <= today && mandate.endDate >= today}
             <li>
               <a href="/members/{mandate.member.studentId}">
                 <div class="flex flex-row items-center gap-2">
@@ -53,14 +54,18 @@
                     <h3 class="font-medium">
                       {getFullName(mandate.member)}
                     </h3>
-                    <h4
-                      class={`text-xs ${
-                        isMandateHeldNow ? "font-semibold" : "italic"
-                      }`}
-                    >
-                      {mandate.startDate.toLocaleDateString(["sv"])}
+                    <h4 class="text-xs">
+                      {#if mandate.startDate.getFullYear() !== year}
+                        <i>{mandate.startDate.toLocaleDateString(["sv"])}</i>
+                      {:else}
+                        {mandate.startDate.toLocaleDateString(["sv"])}
+                      {/if}
                       &#8702;
-                      {mandate.endDate.toLocaleDateString(["sv"])}
+                      {#if mandate.endDate.getFullYear() !== year}
+                        <i>{mandate.endDate.toLocaleDateString(["sv"])}</i>
+                      {:else}
+                        {mandate.endDate.toLocaleDateString(["sv"])}
+                      {/if}
                     </h4>
                   </div>
                 </div>
