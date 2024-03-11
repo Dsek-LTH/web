@@ -39,7 +39,7 @@ e.g. `?page=1`, `?page=2`, etc. The page number is stored in the URL query.
   export let showFirst = false;
   /** Whether to show the last page button. */
   export let showLast = false;
-  /** Wether to keep the scroll position after a page button has been clicked */
+  /** Whether to keep the scroll position after a page button has been clicked */
   export let keepScrollPosition = false;
 
   $: currentPage =
