@@ -26,10 +26,16 @@ export const committeeLoad = async (
   shortName: string,
   year = new Date().getFullYear(),
 ) => {
-  // const date = new Date(year, 0, 1);
-  // 👆 doing this actually gives us last day of previous year for some reason
-  const firstDayOfYear = new Date(year, 0, 2);
-  const lastDayOfYear = new Date(year, 11, 31);
+  const firstDayOfYear = new Date(`${year}-01-01`);
+  const lastDayOfYear = new Date(`${year}-12-31`);
+  if (
+    firstDayOfYear.toString() === "Invalid Date" ||
+    lastDayOfYear.toString() === "Invalid Date" ||
+    firstDayOfYear.getFullYear() !== year ||
+    lastDayOfYear.getFullYear() !== year
+  ) {
+    error(400, "Invalid year");
+  }
 
   const committee = await prisma.committee.findUnique({
     where: {
