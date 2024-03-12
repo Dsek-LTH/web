@@ -6,7 +6,7 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  url       = env("POSTGRES_URL") // uses connection pooling
   directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
 }
 
@@ -40,6 +40,7 @@ model Alert {
 
   @@allow("all", has(auth().policies, "alert"))
   @@allow("read", true)
+  @@deny("read", removedAt != null)
   @@map("alerts")
 }
 
@@ -122,6 +123,7 @@ model Article {
 
   @@allow("create", has(auth().policies, "news:article:create"))
   @@allow("read", has(auth().policies, "news:article:read"))
+  @@deny("read", removedAt != null)
   @@allow("update", has(auth().policies, "news:article:update"))
   @@allow("update", auth().memberId == author.memberId)
   @@allow("delete", has(auth().policies, "news:article:delete"))
@@ -363,6 +365,7 @@ model Event {
 
   @@allow("create", has(auth().policies, "event:create"))
   @@allow("read", has(auth().policies, "event:read"))
+  @@deny("read", removedAt != null)
   @@allow("update", has(auth().policies, "event:update"))
   @@allow("delete", has(auth().policies, "event:delete"))
   @@map("events")
@@ -788,7 +791,7 @@ enum DocumentType {
 }
 
 model LastKeycloakUpdate {
-  id   Int      @id @default(autoincrement())
+  id Int @id @default(autoincrement())
   time DateTime
 
   @@map("last_keycloak_update")

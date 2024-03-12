@@ -10,11 +10,11 @@
   import type { PageData } from "./$types";
   export let data: PageData;
 
-  let isEditing: boolean = false;
+  let isEditing = false;
 
   const currentYear = new Date().getFullYear();
-  let type: string = "board-meeting";
-  const typeOptions: { name: string; value: DocumentType }[] = [
+  let type = "board-meeting";
+  const typeOptions: Array<{ name: string; value: DocumentType }> = [
     {
       name: "Guild Meetings",
       value: "guild-meeting",

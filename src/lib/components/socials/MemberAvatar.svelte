@@ -6,7 +6,7 @@
     Member,
     "picturePath" | "classProgramme" | "classYear"
   >;
-  let clazz: string = "";
+  let clazz = "";
   export { clazz as class };
 </script>
 

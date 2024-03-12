@@ -2,6 +2,7 @@ import { memberSchema } from "$lib/zod/schemas";
 import { error, fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
 import type { Actions, PageServerLoad } from "./$types";
+import { getCurrentDoorPoliciesForMember } from "$lib/utils/member";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma } = locals;
@@ -31,6 +32,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
           },
           take: 5,
         },
+        doorAccessPolicies: {},
       },
     }),
     prisma.article.findMany({
@@ -58,9 +60,16 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     throw error(404, "Member not found");
   }
   const member = memberResult.value;
+
+  const allMemberDoors = await getCurrentDoorPoliciesForMember(
+    prisma,
+    member.id,
+  );
+
   return {
     form: await superValidate(member, memberSchema),
     member,
+    allMemberDoors,
     publishedArticles: publishedArticlesResult.value ?? [],
   };
 };

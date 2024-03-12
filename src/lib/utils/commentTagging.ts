@@ -7,7 +7,7 @@ import type {
 
 export const getAllTaggedMembers = async (
   prisma: PrismaClient,
-  comments: (ArticleComment | EventComment)[],
+  comments: Array<ArticleComment | EventComment>,
 ) => {
   return await prisma.member.findMany({
     where: {

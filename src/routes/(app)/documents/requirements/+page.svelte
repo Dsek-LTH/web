@@ -9,7 +9,7 @@
 
   export let data: PageData;
 
-  let isEditing: boolean = false;
+  let isEditing = false;
 
   const currentYear = new Date().getFullYear();
   const folders: FolderType[] = [];

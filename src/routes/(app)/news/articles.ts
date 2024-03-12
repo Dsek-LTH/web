@@ -137,7 +137,7 @@ export const getArticle = async (prisma: PrismaClient, slug: string) => {
   return response;
 };
 
-type Article = NonNullable<Awaited<ReturnType<typeof getArticle>>>;
+export type Article = NonNullable<Awaited<ReturnType<typeof getArticle>>>;
 
 export type AuthorOption = Author & {
   member: Member;

@@ -79,12 +79,6 @@ export const routes = [
         path: "/webshop",
         icon: "i-mdi-store",
       },
-      {
-        title: "D-sek wrapped",
-        path: "/dsek-wrapped",
-        icon: "i-mdi-spotify",
-        accessRequired: null,
-      },
     ],
   },
   {

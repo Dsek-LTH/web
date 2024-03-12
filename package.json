@@ -84,8 +84,10 @@
     "@tiptap/core": "^2.1.13",
     "@tiptap/pm": "^2.1.13",
     "@tiptap/starter-kit": "^2.1.13",
+    "@vercel/speed-insights": "^1.0.10",
     "@zenstackhq/runtime": "^1.7.1",
     "croppie": "^2.6.5",
+    "dayjs": "^1.11.10",
     "expo-server-sdk": "^3.7.0",
     "isomorphic-dompurify": "^2.0.0",
     "marked": "^11.1.0",
@@ -103,5 +105,8 @@
     "patchedDependencies": {
       "devalue@4.3.2": "patches/devalue@4.3.2.patch"
     }
+  },
+  "engines": {
+    "node": "<=20"
   }
 }

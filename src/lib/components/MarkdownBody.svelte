@@ -3,7 +3,7 @@
   import { marked } from "marked";
   import { twMerge } from "tailwind-merge";
 
-  let clazz: string = "";
+  let clazz = "";
   export { clazz as class };
   export let body: string;
 </script>

@@ -15,7 +15,7 @@
   export let data: SuperValidated<ArticleSchema>;
   export let authorOptions: AuthorOption[];
   export let allTags: Tag[];
-  let submitting: boolean = false;
+  let submitting = false;
   const { form, errors, constraints, enhance } = superForm(data, {
     dataType: "json",
   });

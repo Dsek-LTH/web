@@ -9,8 +9,9 @@
   import { page } from "$app/stores";
   import apiNames from "$lib/utils/apiNames";
 
-  export let bookingRequests: (BookingRequest & { bookables: Bookable[] })[] =
-    [];
+  export let bookingRequests: Array<
+    BookingRequest & { bookables: Bookable[] }
+  > = [];
 
   let calendarEl: HTMLElement;
   let calendar: Calendar;
