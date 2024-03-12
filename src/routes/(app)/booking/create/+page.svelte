@@ -6,14 +6,9 @@
   const { form, errors, constraints, enhance } = superForm(data.form);
 </script>
 
-<form method="POST" use:enhance class="form-control mx-auto max-w-sm gap-4">
-  <a class="btn" href="/booking">
-    <span class="i-mdi-arrow-expand-left" />
-    Tillbaka
-  </a>
-
+<form method="POST" use:enhance class="form-control mx-auto max-w-5xl gap-4">
   <fieldset
-    class="input-bordered rounded-xl border px-6 py-2"
+    class="input-bordered grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-x-4 rounded-xl border px-6 py-2"
     class:border-error={$errors.bookables?._errors ?? 0 > 0}
   >
     <legend class="text-xl font-bold">Bokning</legend>
@@ -66,5 +61,9 @@
       {...$constraints.name}
     />
   </label>
-  <button class="btn btn-primary">Create</button>
+
+  <div class="flex *:flex-1">
+    <a class="btn" href="/booking">Tillbaka</a>
+    <button class="btn btn-primary">Create</button>
+  </div>
 </form>
