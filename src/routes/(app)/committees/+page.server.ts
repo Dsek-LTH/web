@@ -5,9 +5,6 @@ export const load: PageServerLoad = async ({ locals }) => {
   const committees = await prisma.committee.findMany({
     include: {
       positions: {
-        where: {
-          active: true,
-        },
         select: {
           mandates: {
             where: {

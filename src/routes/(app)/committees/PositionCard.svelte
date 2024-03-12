@@ -3,6 +3,7 @@
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import { getFullName } from "$lib/utils/client/member";
   import type { Mandate, Member, Position } from "@prisma/client";
+  import { page } from "$app/stores";
 
   export let position: Position;
   export let mandates: Array<
@@ -11,6 +12,9 @@
     }
   >;
   let mandatesBox: HTMLDivElement; // Function to check whether the element is overflowing
+  $: year =
+    parseInt($page.url.searchParams.get("year") ?? "") ||
+    new Date().getFullYear();
 </script>
 
 <article class="card bg-base-200 shadow-xl transition-all">
@@ -51,9 +55,17 @@
                       {getFullName(mandate.member)}
                     </h3>
                     <h4 class="text-xs">
-                      {mandate.startDate.toLocaleDateString(["sv"])} &gt;&gt; {mandate.endDate.toLocaleDateString(
-                        ["sv"],
-                      )}
+                      {#if mandate.startDate.getFullYear() !== year}
+                        <i>{mandate.startDate.toLocaleDateString(["sv"])}</i>
+                      {:else}
+                        {mandate.startDate.toLocaleDateString(["sv"])}
+                      {/if}
+                      &#8702;
+                      {#if mandate.endDate.getFullYear() !== year}
+                        <i>{mandate.endDate.toLocaleDateString(["sv"])}</i>
+                      {:else}
+                        {mandate.endDate.toLocaleDateString(["sv"])}
+                      {/if}
                     </h4>
                   </div>
                 </div>
