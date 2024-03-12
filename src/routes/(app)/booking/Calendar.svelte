@@ -39,7 +39,7 @@
         addBooking: {
           text: "Skapa bokning",
           click: () => {
-            void goto("/bookings/create");
+            void goto("/booking/create");
           },
         },
         admin: {
