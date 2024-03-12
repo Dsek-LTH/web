@@ -10,11 +10,7 @@
 
 <label class="btn btn-ghost swap swap-rotate *:text-2xl">
   <!-- this hidden checkbox controls the state -->
-  <input
-    type="checkbox"
-    data-toggle-theme="dark,light"
-    data-act-class="ACTIVECLASS"
-  />
+  <input type="checkbox" data-toggle-theme="dark,light" />
 
   <!-- moon icon -->
   <span class="swap-on i-mdi-weather-night" />
