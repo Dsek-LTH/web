@@ -4,10 +4,12 @@
   import { i18n } from "$lib/utils/i18n";
 </script>
 
-<div class="btn btn-ghost">
-  {#if languageTag() === "sv"}
-    <a href={i18n.route($page.url.pathname)} hreflang="en">EN</a>
-  {:else if languageTag() === "en"}
-    <a href={i18n.route($page.url.pathname)} hreflang="sv">SV</a>
-  {/if}
-</div>
+{#if languageTag() === "sv"}
+  <a href={i18n.route($page.url.pathname)} class="btn btn-ghost" hreflang="en">
+    EN
+  </a>
+{:else if languageTag() === "en"}
+  <a href={i18n.route($page.url.pathname)} class="btn btn-ghost" hreflang="sv">
+    SV
+  </a>
+{/if}
