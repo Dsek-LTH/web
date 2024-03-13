@@ -5,7 +5,7 @@
 
 datasource db {
     provider = "postgresql"
-    url = env("POSTGRES_PRISMA_URL")
+    url = env("POSTGRES_URL")
     directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
@@ -46,6 +46,7 @@ model AdminSetting {
 
 /// @@allow('all', has(auth().policies, 'alert'))
 /// @@allow('read', true)
+/// @@deny('read', removedAt != null)
 model Alert {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
     severity String @db.VarChar(255)
@@ -114,6 +115,7 @@ model ArticleRequest {
 
 /// @@allow('create', has(auth().policies, 'news:article:create'))
 /// @@allow('read', has(auth().policies, 'news:article:read'))
+/// @@deny('read', removedAt != null)
 /// @@allow('update', has(auth().policies, 'news:article:update'))
 /// @@allow('update', auth().memberId == author.memberId)
 /// @@allow('delete', has(auth().policies, 'news:article:delete'))
@@ -302,11 +304,12 @@ model DoorAccessPolicy {
 /// @@allow('create', has(auth().policies, 'core:access:door:create'))
 /// @@allow('read', has(auth().policies, 'core:access:door:read'))
 /// @@allow('delete', has(auth().policies, 'core:access:door:delete'))
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Doors{
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model Door {
     name String @id() @db.VarChar(255)
     id String? @db.VarChar(255)
     accessPolicies DoorAccessPolicy[]
+    verboseName String @map("verbose_name") @db.VarChar(255)
 
     @@map("doors")
 }
@@ -345,6 +348,7 @@ model EventComment {
 
 /// @@allow('create', has(auth().policies, 'event:create'))
 /// @@allow('read', has(auth().policies, 'event:read'))
+/// @@deny('read', removedAt != null)
 /// @@allow('update', has(auth().policies, 'event:update'))
 /// @@allow('delete', has(auth().policies, 'event:delete'))
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Events{

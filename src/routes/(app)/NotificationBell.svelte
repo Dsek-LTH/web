@@ -2,7 +2,6 @@
   import Notification from "$lib/components/Notification.svelte";
   import type { Notification as NotificationType } from "@prisma/client";
   import { flip } from "svelte/animate";
-  // Enhance is used for actions without loading a page, similar to ajax
   import { invalidate } from "$app/navigation";
   import type { NotificationSchema } from "$lib/zod/schemas";
   import type { SuperValidated } from "sveltekit-superforms";

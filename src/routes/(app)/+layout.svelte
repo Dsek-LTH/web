@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { i18n } from "$lib/utils/i18n";
-  import { ParaglideJS } from "@inlang/paraglide-js-adapter-sveltekit";
   import "../../app.css";
   import Drawer from "./Drawer.svelte";
   import Footer from "./Footer.svelte";
@@ -9,19 +7,17 @@
   export let data;
 </script>
 
-<ParaglideJS {i18n}>
-  <nav class="contents">
-    <Navbar
-      notifications={data.notifications}
-      deleteNotificationForm={data.deleteNotificationForm}
-    />
-    <Drawer />
-  </nav>
+<nav class="contents">
+  <Navbar
+    notifications={data.notifications}
+    deleteNotificationForm={data.deleteNotificationForm}
+  />
+  <Drawer />
+</nav>
 
-  <main class="flex-1">
-    <slot />
-  </main>
+<main class="flex-1">
+  <slot />
+</main>
 
-  <Toast />
-  <Footer />
-</ParaglideJS>
+<Toast />
+<Footer />

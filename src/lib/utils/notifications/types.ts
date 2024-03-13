@@ -51,10 +51,10 @@ export const SUBSCRIPTION_SETTINGS_MAP: Record<
   PING: [NotificationType.PING],
 };
 
-export const DEFAULT_SUBSCRIPTION_SETTINGS: {
+export const DEFAULT_SUBSCRIPTION_SETTINGS: Array<{
   type: NotificationSettingType;
   push_notification: boolean;
-}[] = [
+}> = [
   {
     type: NotificationSettingType.LIKE,
     push_notification: false,
