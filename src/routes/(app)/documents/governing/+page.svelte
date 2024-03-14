@@ -58,16 +58,8 @@
     </a>
   </p>
   <div class="flex items-center gap-5">
-    <FileButton
-      name="Stadgar"
-      url="https://dsek.se/stadgar"
-      onClick={onPdfClick}
-    />
-    <FileButton
-      name="Reglemente"
-      url="https://dsek.se/reglemente"
-      onClick={onPdfClick}
-    />
+    <FileButton name="Stadgar" url="/stadgar" onClick={onPdfClick} />
+    <FileButton name="Reglemente" url="/reglemente" onClick={onPdfClick} />
   </div>
   <div class="flex flex-col gap-4 md:flex-row">
     <div>
