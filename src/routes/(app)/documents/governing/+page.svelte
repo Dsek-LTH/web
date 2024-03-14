@@ -4,7 +4,7 @@
   import { isAuthorized } from "$lib/utils/authorization";
   import { getPdfApiUrl } from "$lib/utils/servePdf";
   import DeleteFileForm from "../DeleteFileForm.svelte";
-  import FileButton from "../FileButton.svelte";
+  import FileButton from "../FileWithDownload.svelte";
   import type { PageData } from "./$types";
   export let data: PageData;
 
