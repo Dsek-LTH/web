@@ -4,7 +4,7 @@
   import { isAuthorized } from "$lib/utils/authorization";
   import { getPdfApiUrl } from "$lib/utils/servePdf";
   import DeleteFileForm from "../DeleteFileForm.svelte";
-  import PdfModal from "../PDFModal.svelte";
+  import FileButton from "../FileButton.svelte";
   import type { PageData } from "./$types";
   export let data: PageData;
 
@@ -58,12 +58,12 @@
     </a>
   </p>
   <div class="flex items-center gap-5">
-    <PdfModal
+    <FileButton
       name="Stadgar"
       url="https://dsek.se/stadgar"
       onClick={onPdfClick}
     />
-    <PdfModal
+    <FileButton
       name="Reglemente"
       url="https://dsek.se/reglemente"
       onClick={onPdfClick}
@@ -75,7 +75,7 @@
       <div class="flex flex-col gap-2">
         {#each data.policies as policy}
           <div class="flex items-center gap-1">
-            <PdfModal
+            <FileButton
               name={policy.title}
               url={getPdfApiUrl(policy.url)}
               onClick={onPdfClick}
@@ -104,7 +104,7 @@
       <div class="flex flex-col gap-2">
         {#each data.guidelines as guideline}
           <div class="flex items-center gap-1">
-            <PdfModal
+            <FileButton
               name={guideline.title}
               url={getPdfApiUrl(guideline.url)}
               onClick={onPdfClick}
