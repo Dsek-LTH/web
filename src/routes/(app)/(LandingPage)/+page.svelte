@@ -1,10 +1,10 @@
 <script lang="ts">
-  import LandingPageHeader from "./LandingPageHeader.svelte";
-  import LandingPageArticles from "./LandingPageArticles.svelte";
-  import LandingPageEvents from "./LandingPageEvents.svelte";
-  import LandingPageCaféOpenTimes from "./LandingPageCaféOpenTimes.svelte";
-  import LandingPageMeetings from "./LandingPageMeetings.svelte";
-  import LandingPageWellbeingCTA from "./LandingPageWellbeingCTA.svelte";
+  import Header from "./Header.svelte";
+  import Articles from "./Articles.svelte";
+  import Events from "./Events.svelte";
+  import CaféOpenTimes from "./CaféOpenTimes.svelte";
+  import Meetings from "./Meetings.svelte";
+  import WellbeingCTA from "./WellbeingCTA.svelte";
 
   import GlobalAlert from "$lib/components/GlobalAlert.svelte";
   import { languageTag } from "$paraglide/runtime";
@@ -25,19 +25,20 @@
 <div
   class="container mx-auto grid grid-cols-1 gap-8 p-4 md:grid-cols-2 lg:grid-cols-3"
 >
-  <LandingPageHeader />
+  <Header />
+
   <article
     class="row-span-6 bg-primary px-6 py-3 lg:col-start-3 lg:row-span-2 lg:row-start-1"
   >
-    <LandingPageArticles news={data.news} />
+    <Articles news={data.news} />
   </article>
-  <LandingPageEvents events={data.events} />
-  <LandingPageCaféOpenTimes cafeOpen={data.cafeOpen} />
 
-  <LandingPageMeetings
+  <Events events={data.events} />
+
+  <CaféOpenTimes cafeOpen={data.cafeOpen} />
+  <Meetings
     upcoming={data.meetings.upcoming}
     previous={data.meetings.previous}
   />
-
-  <LandingPageWellbeingCTA />
+  <WellbeingCTA />
 </div>
