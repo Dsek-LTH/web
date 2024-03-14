@@ -1,15 +1,15 @@
 <script lang="ts">
-  import { displayPdf } from "$lib/utils/servePdf";
+  import { getPdfApiUrl } from "$lib/utils/servePdf";
 
   export let name: string;
-  export let url: string | undefined;
+  export let url: string;
   export let host = false;
   export let full = false;
 
   let pdf: HTMLIFrameElement;
 
   let dialog: HTMLDialogElement;
-  let src = (host ? displayPdf(url) : url) ?? "";
+  let src = (host ? getPdfApiUrl(url) : url) ?? "";
   let open = false;
   if (!src?.includes("#pagemode=none")) {
     src = `${url}#pagemode=none`;
@@ -42,7 +42,7 @@
       <iframe
         bind:this={pdf}
         title=""
-        src={displayPdf(src)}
+        src={getPdfApiUrl(src)}
         class="menu modal-box h-full max-h-[95vh] w-full max-w-[70vw]"
         on:error={() => {
           open = false;
@@ -54,7 +54,7 @@
   </dialog>
   <!-- download link -->
   <a
-    href={displayPdf(url)}
+    href={getPdfApiUrl(url)}
     download={name}
     class="link no-underline hover:link-primary hover:underline"
     ><span class="i-mdi-download align-text-top text-xl"></span></a

@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { displayPdf } from "$lib/utils/servePdf";
+  import { getPdfApiUrl } from "$lib/utils/servePdf";
 
   export let name: string;
-  export let url: string | undefined;
+  export let url: string;
   export let host = false;
   export let full = false;
   $: fileName = name.includes(".")
@@ -12,7 +12,7 @@
 
 <div class="flex" class:w-full={full} data-tip={fileName}>
   <a
-    href={host ? displayPdf(url) : url}
+    href={host ? getPdfApiUrl(url) : url}
     class="block py-2 hover:underline"
     class:w-full={full}
     ><span

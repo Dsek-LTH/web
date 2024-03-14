@@ -2,7 +2,6 @@
   import PageHeader from "$lib/components/PageHeader.svelte";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
-  import { getGitHubUrl } from "$lib/utils/servePdf";
   import DeleteFileForm from "../DeleteFileForm.svelte";
   import PdfModal from "../PDFModal.svelte";
   import type { PageData } from "./$types";
@@ -62,11 +61,7 @@
       <div class="flex flex-col gap-2">
         {#each data.policies as policy}
           <div class="flex items-center gap-1">
-            <PdfModal
-              name={policy.title}
-              url={getGitHubUrl(policy.url).toString()}
-              host={true}
-            />
+            <PdfModal name={policy.title} url={policy.url} host={true} />
             {#if isAuthorized(apiNames.GOVERNING_DOCUMENT.DELETE, data.user) && isEditing}
               <DeleteFileForm
                 fileId={policy.id}
@@ -91,11 +86,7 @@
       <div class="flex flex-col gap-2">
         {#each data.guidelines as guideline}
           <div class="flex items-center gap-1">
-            <PdfModal
-              name={guideline.title}
-              url={getGitHubUrl(guideline.url).toString()}
-              host
-            />
+            <PdfModal name={guideline.title} url={guideline.url} host />
             {#if isAuthorized(apiNames.GOVERNING_DOCUMENT.DELETE, data.user) && isEditing}
               <DeleteFileForm
                 fileId={guideline.id}

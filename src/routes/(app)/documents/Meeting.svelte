@@ -32,7 +32,9 @@
   <div class="flex flex-wrap gap-2">
     {#each files as file (file.id)}
       <div class="flex gap-1">
-        <File name={file.name} url={file.thumbnailUrl} full />
+        {#if file.thumbnailUrl}
+          <File name={file.name} url={file.thumbnailUrl} full />
+        {/if}
         {#if isAuthorized(apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).DELETE, $page.data.user) && isEditing}
           <DeleteFileForm
             fileId={file.id}
