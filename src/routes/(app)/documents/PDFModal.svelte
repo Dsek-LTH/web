@@ -1,62 +1,27 @@
 <script lang="ts">
-  import { getPdfApiUrl } from "$lib/utils/servePdf";
-
   export let name: string;
   export let url: string;
-  export let host = false;
-  export let full = false;
-
-  let pdf: HTMLIFrameElement;
-
-  let dialog: HTMLDialogElement;
-  let src = (host ? getPdfApiUrl(url) : url) ?? "";
-  let open = false;
-  if (!src?.includes("#pagemode=none")) {
-    src = `${url}#pagemode=none`;
-  }
-
-  $: fileName = name.includes(".")
-    ? name.substring(0, name.lastIndexOf(".")).replace(/_+/g, " ")
-    : name;
+  export let onClick: (url: string) => void;
 </script>
 
-<div class="flex items-center gap-2" class:w-full={full} data-tip={fileName}>
+<div class="flex items-center gap-2 py-2">
   <button
-    class="link
-  py-2 no-underline hover:underline
-  "
-    on:click|preventDefault={() => {
-      open = true;
-      dialog.showModal();
+    class="link flex items-center gap-2 text-left no-underline hover:underline"
+    on:click={() => {
+      onClick(url);
     }}
   >
     <span
       class="i-mdi-file-document-outline align-text-top text-xl text-primary"
-    ></span>{name}
+    />
+    {name}
   </button>
-  <dialog class="modal modal-middle" bind:this={dialog}>
-    <form method="dialog" class="modal-backdrop">
-      <button class="cursor-auto"></button>
-    </form>
-    {#if open}
-      <iframe
-        bind:this={pdf}
-        title=""
-        src={getPdfApiUrl(src)}
-        class="menu modal-box h-full max-h-[95vh] w-full max-w-[70vw]"
-        on:error={() => {
-          open = false;
-          dialog.close();
-          pdf.src = "";
-        }}
-      />
-    {/if}
-  </dialog>
-  <!-- download link -->
+
   <a
-    href={getPdfApiUrl(url)}
+    href={url}
     download={name}
     class="link no-underline hover:link-primary hover:underline"
-    ><span class="i-mdi-download align-text-top text-xl"></span></a
   >
+    <span class="i-mdi-download align-text-top text-xl" />
+  </a>
 </div>

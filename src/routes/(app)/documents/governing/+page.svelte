@@ -2,11 +2,19 @@
   import PageHeader from "$lib/components/PageHeader.svelte";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
+  import { getPdfApiUrl } from "$lib/utils/servePdf";
   import DeleteFileForm from "../DeleteFileForm.svelte";
   import PdfModal from "../PDFModal.svelte";
   import type { PageData } from "./$types";
   export let data: PageData;
+
   let isEditing = false;
+  let selectedPdf: string | null = null;
+  let dialog: HTMLDialogElement;
+  $: onPdfClick = (url: string) => {
+    selectedPdf = url;
+    dialog.showModal();
+  };
 </script>
 
 <div
@@ -50,10 +58,16 @@
     </a>
   </p>
   <div class="flex items-center gap-5">
-    <strong><PdfModal name="Stadgar" url="https://dsek.se/stadgar" /></strong>
-    <strong
-      ><PdfModal name="Reglemente" url="https://dsek.se/reglemente" /></strong
-    >
+    <PdfModal
+      name="Stadgar"
+      url="https://dsek.se/stadgar"
+      onClick={onPdfClick}
+    />
+    <PdfModal
+      name="Reglemente"
+      url="https://dsek.se/reglemente"
+      onClick={onPdfClick}
+    />
   </div>
   <div class="flex flex-col gap-4 md:flex-row">
     <div>
@@ -61,7 +75,11 @@
       <div class="flex flex-col gap-2">
         {#each data.policies as policy}
           <div class="flex items-center gap-1">
-            <PdfModal name={policy.title} url={policy.url} host={true} />
+            <PdfModal
+              name={policy.title}
+              url={getPdfApiUrl(policy.url)}
+              onClick={onPdfClick}
+            />
             {#if isAuthorized(apiNames.GOVERNING_DOCUMENT.DELETE, data.user) && isEditing}
               <DeleteFileForm
                 fileId={policy.id}
@@ -86,7 +104,11 @@
       <div class="flex flex-col gap-2">
         {#each data.guidelines as guideline}
           <div class="flex items-center gap-1">
-            <PdfModal name={guideline.title} url={guideline.url} host />
+            <PdfModal
+              name={guideline.title}
+              url={getPdfApiUrl(guideline.url)}
+              onClick={onPdfClick}
+            />
             {#if isAuthorized(apiNames.GOVERNING_DOCUMENT.DELETE, data.user) && isEditing}
               <DeleteFileForm
                 fileId={guideline.id}
@@ -108,3 +130,20 @@
     </div>
   </div>
 </div>
+
+<dialog class="modal modal-middle" bind:this={dialog}>
+  <form method="dialog" class="modal-backdrop">
+    <button
+      class="cursor-auto"
+      on:click={() => {
+        selectedPdf = null;
+      }}
+    />
+  </form>
+  <iframe
+    title="PDF viewer"
+    src={selectedPdf}
+    class="menu modal-box h-full max-h-[95vh] w-full max-w-[70vw]"
+    on:error={() => dialog.close()}
+  />
+</dialog>
