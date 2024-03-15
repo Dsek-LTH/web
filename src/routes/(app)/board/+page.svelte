@@ -28,7 +28,7 @@
 <section class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
   {#each data.boardPositions as boardMember (boardMember.position.id)}
     <div class="card bg-base-200 shadow-xl">
-      {#if boardMember.studentId && boardMember.firstName && boardMember.nickname && boardMember.lastName}
+      {#if boardMember.studentId}
         <div class="group/photo card-body p-4 text-center">
           <a href="/members/{boardMember.studentId}" class="group/link">
             <figure class="transition-transform group-hover/photo:scale-90">
