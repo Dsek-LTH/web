@@ -77,6 +77,7 @@
     "@auth/core": "^0.19.0",
     "@auth/sveltekit": "^0.5.0",
     "@egoist/tailwindcss-icons": "^1.7.1",
+    "@friendofsvelte/tipex": "0.0.1-prev.0.2",
     "@fullcalendar/core": "^6.1.10",
     "@fullcalendar/daygrid": "^6.1.10",
     "@keycloak/keycloak-admin-client": "^23.0.4",
