@@ -124,7 +124,7 @@ export const actions: Actions = {
     }
     return message(
       form,
-      { message: "Kunde inte ta bort notes", type: "error" },
+      { message: "Kunde inte ta bort notis", type: "error" },
       { status: 500 },
     );
   },

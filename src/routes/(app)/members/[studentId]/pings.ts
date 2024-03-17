@@ -67,14 +67,14 @@ export const sendPing = async (
 const assertMemberExists = async (
   prisma: PrismaClient,
   member: MemberIdentification,
-  errorMsg: string = "Member does not exist",
+  errorMsg = "Member does not exist",
 ) => {
   try {
     const foundMember = await prisma.member.findFirst({
       where: member.memberId
-        ? { id: { equals: member.memberId! } }
+        ? { id: { equals: member.memberId } }
         : {
-            studentId: member.studentId!,
+            studentId: member.studentId,
           },
       select: {
         id: true,

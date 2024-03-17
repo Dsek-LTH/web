@@ -47,7 +47,7 @@
   };
 </script>
 
-<Navbar />
+<Navbar notifications={null} deleteNotificationForm={null} />
 
 <main class="gap flex flex-1 flex-col items-center gap-2 pt-20">
   <h1 class="text-6xl font-bold">{$page.status}</h1>

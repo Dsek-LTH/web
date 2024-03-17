@@ -80,10 +80,10 @@ export const load: PageServerLoad = async ({ locals, params }) => {
               OR: [
                 {
                   fromMemberId: member.id,
-                  toMemberId: user?.memberId,
+                  toMemberId: user.memberId,
                 },
                 {
-                  fromMemberId: user?.memberId,
+                  fromMemberId: user.memberId,
                   toMemberId: member.id,
                 },
               ],

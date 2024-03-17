@@ -13,7 +13,7 @@
   import type { NotificationSchema } from "$lib/zod/schemas";
 
   export let notifications: Notification[] | null;
-  export let deleteNotificationForm: SuperValidated<NotificationSchema>;
+  export let deleteNotificationForm: SuperValidated<NotificationSchema> | null;
 </script>
 
 <div
@@ -84,7 +84,7 @@
     <LanguageSwitcher />
     <DarkLightToggle />
     {#if $page.data.user && $page.data.member}
-      {#if notifications !== null}
+      {#if notifications !== null && deleteNotificationForm !== null}
         <NotificationBell {notifications} deleteForm={deleteNotificationForm} />
       {/if}
       <div class="dropdown dropdown-end dropdown-hover">

@@ -93,7 +93,7 @@ const sendNotification = async (
             },
           },
       id: {
-        // Uncomment the line below to test
+        // Comment the line below to test notifications, it allow sending notifications to yourself
         // not: notificationAuthor?.memberId,
         ...(memberIds !== undefined && memberIds.length > 0
           ? { in: memberIds }
@@ -120,52 +120,20 @@ const sendNotification = async (
     }`,
   );
 
-  const [databaseResult] = await Promise.allSettled([
-    prisma.notification.createMany({
-      data: receivingMembers.map(({ id: memberId }) => ({
-        title,
-        message,
-        type,
-        link,
-        memberId,
-        fromAuthorId: notificationAuthor?.id,
-      })),
-    }),
-  ]);
-  if (databaseResult.status === "rejected") {
-    throw error(
-      500,
-      `Failed to create notifications. Error: ${databaseResult.reason}`,
-    );
-  }
-  // if (pushResult.status === "rejected") {
-  //   throw error(500, "Failed to send push notifications");
-  // }
-};
+  const databaseResult = await prisma.notification.createMany({
+    data: receivingMembers.map(({ id: memberId }) => ({
+      title,
+      message,
+      type,
+      link,
+      memberId,
+      fromAuthorId: notificationAuthor?.id,
+    })),
+  });
 
-// const getPushTokens = async (
-//   prisma: PrismaClient,
-//   receivingMembers: {
-//     id: string;
-//     subscriptionSettings: {
-//       pushNotification: boolean;
-//     }[];
-//   }[],
-// ) => {
-//   const pushNotificationMembers = receivingMembers.filter((s) =>
-//     s.subscriptionSettings.some((ss) => ss.pushNotification),
-//   );
-//   const pushTokens = await prisma.expoToken.findMany({
-//     where: {
-//       memberId: {
-//         in: pushNotificationMembers.map((m) => m.id),
-//       },
-//     },
-//     select: {
-//       expoToken: true,
-//     },
-//   });
-//   return pushTokens;
-// };
+  if (databaseResult.count < 1) {
+    throw error(500, `Failed to create notifications`);
+  }
+};
 
 export default sendNotification;

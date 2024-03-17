@@ -35,13 +35,14 @@
 
 <script lang="ts">
   import { onMount } from "svelte";
+  import dayjs from "dayjs";
 
   export let timeStamp: number;
 
-  let now = Date.now() / 1000;
+  let now = Date.now();
   onMount(() => {
     const remove = synchronizedIntervals.add((time) => {
-      now = time / 1000;
+      now = time;
     });
     return () => {
       remove();
@@ -49,18 +50,10 @@
   });
   // Gets hours, minutes and seconds and then returns hour, if it's been at least 59 minutes,
   // returns seconds if it's been less than a minute, and else minutes
-  $: time = (() => {
-    const seconds = Math.floor(now - timeStamp / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    return hours > 23
-      ? (hours % 24) + " dagar"
-      : minutes < 1 && hours < 1
-        ? seconds + " sekunder"
-        : hours < 1
-          ? minutes + " minuter"
-          : hours + " timmar";
-  })();
+  $: time =
+    dayjs(timeStamp).diff(dayjs(), "week") < -1
+      ? dayjs(timeStamp).format("YYYY-MM-DD")
+      : dayjs(timeStamp).from(now);
 </script>
 
-{time} sedan
+{time}
