@@ -4,7 +4,7 @@
 
   /** Called when the list of selected tags changes */
   export let onChange: () => void = () => {
-    // searchValue = "";
+    searchValue = "";
   };
 
   const actualOnChange: () => void = () => {
