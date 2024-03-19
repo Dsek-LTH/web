@@ -3,7 +3,7 @@ import { loadFlash } from "sveltekit-flash-message/server";
 import { superValidate } from "sveltekit-superforms/server";
 
 export const load = loadFlash(async ({ locals, depends }) => {
-  const { user, member, prisma } = locals;
+  const { user, prisma } = locals;
   depends("/notifications");
   const notifications = user?.memberId
     ? await prisma.notification.findMany({

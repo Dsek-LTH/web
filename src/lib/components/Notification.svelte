@@ -33,7 +33,7 @@
     </span>
   </a>
   <!-- Deletes this notification -->
-  <form method="POST" action="/?/deleteNotification" use:enhance>
+  <form method="POST" action="/notifications?/deleteNotification" use:enhance>
     <input type="hidden" name="notificationId" value={notification.id} />
     <button
       class="btn btn-ghost pointer-events-auto absolute right-0 top-0 z-10 h-full w-auto rounded-none p-2 *:text-2xl"
