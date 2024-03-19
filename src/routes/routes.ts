@@ -63,6 +63,12 @@ export const routes = [
         accessRequired: null,
       },
       {
+        title: "Bokningar",
+        path: "/booking",
+        icon: "i-mdi-calendar-cursor",
+        accessRequired: apiNames.BOOKINGS.READ,
+      },
+      {
         title: "Sjungbok",
         path: "/songbook",
         icon: "i-mdi-library-music",
