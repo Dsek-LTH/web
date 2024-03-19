@@ -6,7 +6,7 @@
 
 <div class="flex items-center gap-2 py-2">
   <a
-    class="link flex items-center gap-2 text-left no-underline hover:underline"
+    class="link flex min-w-fit items-center gap-2 text-left no-underline hover:underline"
     href={url}
     on:click={(e) => {
       // don't open modal if we're on too small a screen
