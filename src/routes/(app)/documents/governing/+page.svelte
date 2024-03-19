@@ -4,7 +4,7 @@
   import { isAuthorized } from "$lib/utils/authorization";
   import { getPdfApiUrl } from "$lib/utils/servePdf";
   import DeleteFileForm from "../DeleteFileForm.svelte";
-  import FileButton from "../FileWithDownload.svelte";
+  import FileWithDownload from "../FileWithDownload.svelte";
   import type { PageData } from "./$types";
   export let data: PageData;
 
@@ -58,8 +58,12 @@
     </a>
   </p>
   <div class="flex items-center gap-5">
-    <FileButton name="Stadgar" url="/stadgar" onClick={onPdfClick} />
-    <FileButton name="Reglemente" url="/reglemente" onClick={onPdfClick} />
+    <FileWithDownload name="Stadgar" url="/stadgar" onClick={onPdfClick} />
+    <FileWithDownload
+      name="Reglemente"
+      url="/reglemente"
+      onClick={onPdfClick}
+    />
   </div>
   <div class="flex flex-col gap-4 md:flex-row">
     <div>
@@ -67,7 +71,7 @@
       <div class="flex flex-col gap-2">
         {#each data.policies as policy}
           <div class="flex items-center gap-1">
-            <FileButton
+            <FileWithDownload
               name={policy.title}
               url={getPdfApiUrl(policy.url)}
               onClick={onPdfClick}
@@ -96,7 +100,7 @@
       <div class="flex flex-col gap-2">
         {#each data.guidelines as guideline}
           <div class="flex items-center gap-1">
-            <FileButton
+            <FileWithDownload
               name={guideline.title}
               url={getPdfApiUrl(guideline.url)}
               onClick={onPdfClick}
