@@ -11,12 +11,14 @@
   {#each news as article (article.slug)}
     <li class="group py-5 text-black">
       <a href="/news/{article.slug}">
-        <h2 class="mb-2 text-xl font-bold group-hover:underline">
-          {article.header}
-        </h2>
-        <p class="line-clamp-2 text-ellipsis leading-normal md:line-clamp-3">
-          {markdownToTxt(article.body)}
-        </p>
+        <div>
+          <h2 class="mb-2 text-xl font-bold group-hover:underline">
+            {article.header}
+          </h2>
+          <p class="line-clamp-2 text-ellipsis leading-normal md:line-clamp-3">
+            {markdownToTxt(article.body)}
+          </p>
+        </div>
       </a>
     </li>
   {/each}
