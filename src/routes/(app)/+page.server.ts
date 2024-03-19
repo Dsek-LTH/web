@@ -1,10 +1,15 @@
 import DOMPurify from "isomorphic-dompurify";
 import type { PageServerLoad } from "./$types";
+import { error } from "@sveltejs/kit";
+import { BASIC_ARTICLE_FILTER } from "$lib/utils/articles";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma } = locals;
-  const news = prisma.article
+  const newsPromise = prisma.article
     .findMany({
+      where: {
+        ...BASIC_ARTICLE_FILTER(),
+      },
       orderBy: {
         createdAt: "desc",
       },
@@ -19,7 +24,7 @@ export const load: PageServerLoad = async ({ locals }) => {
           : article.bodyEn,
       })),
     );
-  const events = prisma.event
+  const eventsPromise = prisma.event
     .findMany({
       where: {
         startDatetime: {
@@ -40,7 +45,7 @@ export const load: PageServerLoad = async ({ locals }) => {
           : event.descriptionEn,
       })),
     );
-  const upcomingMeeting = prisma.meeting.findFirst({
+  const upcomingMeetingPromise = prisma.meeting.findFirst({
     where: {
       date: {
         gt: new Date(),
@@ -50,7 +55,7 @@ export const load: PageServerLoad = async ({ locals }) => {
       date: "asc",
     },
   });
-  const previousMeeting = prisma.meeting.findFirst({
+  const previousMeetingPromise = prisma.meeting.findFirst({
     where: {
       date: {
         lt: new Date(),
@@ -60,24 +65,51 @@ export const load: PageServerLoad = async ({ locals }) => {
       date: "desc",
     },
   });
-  const cafeOpen = prisma.markdown.findFirst({
+  const cafeOpenPromise = prisma.markdown.findFirst({
     where: {
       name: `cafe:open:${new Date().getDay() - 1}`, // we assign monday to 0, not sunday
     },
   });
-  const alert = prisma.alert.findMany({
+  const alertPromise = prisma.alert.findMany({
     where: {
       removedAt: null,
     },
   });
+  const [news, events, upcomingMeeting, previousMeeting, cafeOpen, alert] =
+    await Promise.allSettled([
+      newsPromise,
+      eventsPromise,
+      upcomingMeetingPromise,
+      previousMeetingPromise,
+      cafeOpenPromise,
+      alertPromise,
+    ]);
+  if (news.status === "rejected") {
+    throw error(500, "Failed to fetch news");
+  }
+  if (events.status === "rejected") {
+    throw error(500, "Failed to fetch events");
+  }
+  if (upcomingMeeting.status === "rejected") {
+    throw error(500, "Failed to fetch upcoming meeting");
+  }
+  if (previousMeeting.status === "rejected") {
+    throw error(500, "Failed to fetch previous meeting");
+  }
+  if (cafeOpen.status === "rejected") {
+    throw error(500, "Failed to fetch cafe open");
+  }
+  if (alert.status === "rejected") {
+    throw error(500, "Failed to fetch alerts");
+  }
   return {
-    news: await news,
-    events: await events,
+    news: news.value,
+    events: events.value,
     meetings: {
-      upcoming: await upcomingMeeting,
-      previous: await previousMeeting,
+      upcoming: upcomingMeeting.value,
+      previous: previousMeeting.value,
     },
-    cafeOpen: await cafeOpen,
-    alert: await alert,
+    cafeOpen: cafeOpen.value,
+    alert: alert.value,
   };
 };

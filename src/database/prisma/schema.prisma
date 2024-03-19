@@ -304,11 +304,12 @@ model DoorAccessPolicy {
 /// @@allow('create', has(auth().policies, 'core:access:door:create'))
 /// @@allow('read', has(auth().policies, 'core:access:door:read'))
 /// @@allow('delete', has(auth().policies, 'core:access:door:delete'))
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Doors{
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model Door {
     name String @id() @db.VarChar(255)
     id String? @db.VarChar(255)
     accessPolicies DoorAccessPolicy[]
+    verboseName String @map("verbose_name") @db.VarChar(255)
 
     @@map("doors")
 }

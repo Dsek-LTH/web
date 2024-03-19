@@ -3,7 +3,7 @@ import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 
 export const commentSchema = z.object({
-  content: z.string(),
+  content: z.string().min(1),
 });
 export type CommentSchema = typeof commentSchema;
 
