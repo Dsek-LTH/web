@@ -79,7 +79,7 @@ export default (lang: AvailableLanguageTag) =>
                   [field]: true,
                   [translatedField]: true,
                 },
-                compute(data: { [x: string]: unknown }) {
+                compute(data: Record<string, unknown>) {
                   // If the language is English and there is translated text, return it.
                   // Otherwise, return the original text.
                   return lang === "en" && data[translatedField]

@@ -7,7 +7,7 @@
     ><span class="i-mdi-bell-outline" /></button
   >
   <ul
-    class="menu dropdown-content absolute right-0 w-96 overflow-clip rounded-box bg-base-100 p-0 shadow"
+    class="menu dropdown-content absolute right-0 w-96 overflow-clip rounded-box bg-base-200 p-0 shadow"
   >
     <li class="pointer-events-none m-0 w-full p-0">
       <Notification

@@ -6,7 +6,7 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  url       = env("POSTGRES_URL") // uses connection pooling
   directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
 }
 
@@ -40,6 +40,7 @@ model Alert {
 
   @@allow("all", has(auth().policies, "alert"))
   @@allow("read", true)
+  @@deny("read", removedAt != null)
   @@map("alerts")
 }
 
@@ -122,6 +123,7 @@ model Article {
 
   @@allow("create", has(auth().policies, "news:article:create"))
   @@allow("read", has(auth().policies, "news:article:read"))
+  @@deny("read", removedAt != null)
   @@allow("update", has(auth().policies, "news:article:update"))
   @@allow("update", auth().memberId == author.memberId)
   @@allow("delete", has(auth().policies, "news:article:delete"))
@@ -286,11 +288,12 @@ model DoorAccessPolicy {
   @@map("door_access_policies")
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Doors{
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model Door {
   name String @id @db.VarChar(255)
   id String? @db.VarChar(255)
   accessPolicies DoorAccessPolicy[]
+  verboseName String @map("verbose_name") @db.VarChar(255)
 
   @@allow("create", has(auth().policies, "core:access:door:create"))
   @@allow("read", has(auth().policies, "core:access:door:read"))
@@ -357,6 +360,7 @@ model Event {
 
   @@allow("create", has(auth().policies, "event:create"))
   @@allow("read", has(auth().policies, "event:read"))
+  @@deny("read", removedAt != null)
   @@allow("update", has(auth().policies, "event:update"))
   @@allow("delete", has(auth().policies, "event:delete"))
   @@map("events")
@@ -782,7 +786,7 @@ enum DocumentType {
 }
 
 model LastKeycloakUpdate {
-  id   Int      @id @default(autoincrement())
+  id Int @id @default(autoincrement())
   time DateTime
 
   @@map("last_keycloak_update")

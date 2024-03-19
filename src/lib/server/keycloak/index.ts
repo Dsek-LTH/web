@@ -157,7 +157,7 @@ async function getManyUserEmails(
 ): Promise<Map<string, string>> {
   if (!enabled) return new Map();
   const client = await connect();
-  const userEmails: Map<string, string> = new Map();
+  const userEmails = new Map<string, string>();
 
   (await client.users.find({ username: "" })).forEach((user) => {
     if (

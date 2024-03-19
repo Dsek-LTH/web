@@ -2,7 +2,7 @@ import { error, fail } from "@sveltejs/kit";
 import { redirect } from "sveltekit-flash-message/server";
 import { message, setError, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
-import keycloak from "$lib/utils/keycloak";
+import keycloak from "$lib/server/keycloak";
 import type { Actions, PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ locals, params, url }) => {

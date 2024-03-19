@@ -11,7 +11,7 @@ e.g. `?page=1`, `?page=2`, etc. The page number is stored in the URL query.
   import { page } from "$app/stores";
   import { twMerge } from "tailwind-merge";
 
-  let clazz: string = "";
+  let clazz = "";
   export { clazz as class };
   /** The number of pages. */
   export let count: number;
@@ -32,13 +32,15 @@ e.g. `?page=1`, `?page=2`, etc. The page number is stored in the URL query.
    */
   export let fieldName = "page";
   /** Whether to show the previous page button. */
-  export let showPrev: boolean = true;
+  export let showPrev = true;
   /** Whether to show the next page button. */
-  export let showNext: boolean = true;
+  export let showNext = true;
   /** Whether to show the first page button. */
-  export let showFirst: boolean = false;
+  export let showFirst = false;
   /** Whether to show the last page button. */
-  export let showLast: boolean = false;
+  export let showLast = false;
+  /** Whether to keep the scroll position after a page button has been clicked */
+  export let keepScrollPosition = false;
 
   $: currentPage =
     $page.url.searchParams.get(fieldName) ?? getPageName(0).toString();
@@ -74,6 +76,7 @@ e.g. `?page=1`, `?page=2`, etc. The page number is stored in the URL query.
       class="btn carousel-item join-item btn-xs sm:btn-sm md:btn-md"
       class:btn-disabled={currentPage == getPageName(0)}
       href={getPageLink(0)}
+      data-sveltekit-noscroll={keepScrollPosition}
     >
       <span class="i-mdi-page-first" />
     </a>
@@ -84,6 +87,7 @@ e.g. `?page=1`, `?page=2`, etc. The page number is stored in the URL query.
       class="btn carousel-item join-item btn-xs sm:btn-sm md:btn-md"
       class:btn-disabled={currentPage == getPageName(0)}
       href={getPageLink(getPageNumber(currentPage) - 1)}
+      data-sveltekit-noscroll={keepScrollPosition}
     >
       <span class="i-mdi-chevron-left" />
     </a>
@@ -97,6 +101,7 @@ e.g. `?page=1`, `?page=2`, etc. The page number is stored in the URL query.
         class:btn-disabled={page == currentPage}
         href={getPageLink(page)}
         bind:this={pageButtons[i]}
+        data-sveltekit-noscroll={keepScrollPosition}
       >
         {page}
       </a>
@@ -108,6 +113,7 @@ e.g. `?page=1`, `?page=2`, etc. The page number is stored in the URL query.
       class="btn carousel-item join-item btn-xs sm:btn-sm md:btn-md"
       class:btn-disabled={currentPage == getPageName(count - 1)}
       href={getPageLink(getPageNumber(currentPage) + 1)}
+      data-sveltekit-noscroll={keepScrollPosition}
     >
       <span class="i-mdi-chevron-right" />
     </a>
@@ -118,6 +124,7 @@ e.g. `?page=1`, `?page=2`, etc. The page number is stored in the URL query.
       class="btn carousel-item join-item btn-xs sm:btn-sm md:btn-md"
       class:btn-disabled={currentPage == getPageName(count - 1)}
       href={getPageLink(count - 1)}
+      data-sveltekit-noscroll={keepScrollPosition}
     >
       <span class="i-mdi-page-last" />
     </a>

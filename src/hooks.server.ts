@@ -13,7 +13,7 @@ import { sequence } from "@sveltejs/kit/hooks";
 import { enhance } from "@zenstackhq/runtime";
 import translatedExtension from "./database/prisma/translationExtension";
 import schedule from "node-schedule";
-import keycloak from "$lib/utils/keycloak";
+import keycloak from "$lib/server/keycloak";
 import { getAccessPolicies } from "./hooks.server.helpers";
 import { sourceLanguageTag, isAvailableLanguageTag } from "$paraglide/runtime";
 

@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { programmes } from "$lib/utils/programmes";
   import type { Member } from "@prisma/client";
-  export let member: Member;
+  export let member: Pick<Member, "classProgramme" | "classYear">;
   export let size: "sm" | "xl" = "sm";
 
   // Couldn't make TS happy with colors[member.classProgramme] without
@@ -18,13 +18,15 @@
 </script>
 
 {#if member.classProgramme && member.classYear}
-  <span
-    class="badge badge-outline
+  <a href="/members/?programme={member.classProgramme}&year={member.classYear}">
+    <span
+      class="badge badge-outline
       {size === 'sm'
-      ? 'badge-sm text-xs font-light'
-      : 'badge-lg text-xl font-semibold'} 
+        ? 'badge-sm text-xs font-light'
+        : 'badge-lg text-xl font-semibold'} 
       {colors[member.classProgramme] ?? colors['?']}"
-  >
-    {member.classProgramme}{member.classYear?.toString().substring(2)}
-  </span>
+    >
+      {member.classProgramme}{member.classYear?.toString().substring(2)}
+    </span>
+  </a>
 {/if}

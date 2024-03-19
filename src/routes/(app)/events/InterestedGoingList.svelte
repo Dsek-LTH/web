@@ -31,7 +31,7 @@
     {goingText} kommer
   </button>
   <dialog id="going_modal" class="modal" bind:this={goingModal}>
-    <ul class="menu modal-box">
+    <ul class="modal-box m-1 flex flex-col">
       {#each going as person (person.id)}
         <li>
           <AuthorSignature type="member" member={person} />
@@ -52,7 +52,7 @@
     {interestedText} är intresserade
   </button>
   <dialog id="interested_modal" class="modal" bind:this={interestedModal}>
-    <ul class="menu modal-box">
+    <ul class="modal-box m-1 flex flex-col">
       {#each interested as person (person.id)}
         <li>
           <AuthorSignature type="member" member={person} />
