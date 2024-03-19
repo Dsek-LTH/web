@@ -1,7 +1,7 @@
 <script lang="ts">
   import { page } from "$app/stores";
-  import Footer from "./(app)/Footer.svelte";
-  import Navbar from "./(app)/Navbar.svelte";
+  import Footer from "./Footer.svelte";
+  import Navbar from "./Navbar.svelte";
   const codeToMessage: Record<number, string> = {
     200: "OK",
     201: "Created",

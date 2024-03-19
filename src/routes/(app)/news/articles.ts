@@ -1,3 +1,4 @@
+import { BASIC_ARTICLE_FILTER } from "$lib/utils/articles";
 import { getCustomAuthorOptions } from "$lib/utils/member";
 
 import type {
@@ -46,11 +47,7 @@ export const getAllArticles = async (
   const pageSize = filters.pageSize ?? 10;
 
   const where: Prisma.ArticleWhereInput = {
-    publishedAt: {
-      lte: new Date(),
-      not: null,
-    },
-    OR: [{ removedAt: { gt: new Date() } }, { removedAt: null }],
+    ...BASIC_ARTICLE_FILTER(),
     // search:
     ...(filters.search && filters.search.length > 0
       ? {
