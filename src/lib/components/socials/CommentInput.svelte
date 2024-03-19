@@ -36,7 +36,7 @@
 
 <div class="flex items-end gap-4">
   <MemberAvatar member={author} class="w-12 rounded-lg" />
-  <div class="flex flex-1 flex-col">
+  <div class="flex flex-1 flex-col flex-nowrap">
     <label class="label w-auto self-start" for="comment">
       <span class="label-text">Kommentera</span>
     </label>
@@ -94,10 +94,10 @@
           }}
         />
       </MemberSearch>
-      {#if $errors.content}
-        <p class="text-error">{$errors.content}</p>
-      {/if}
       <button type="submit" class="btn btn-primary join-item">Skicka</button>
     </form>
   </div>
 </div>
+{#if $errors.content}
+  <p class="text-error">{$errors.content}</p>
+{/if}
