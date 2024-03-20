@@ -2,6 +2,8 @@
   import dayjs from "dayjs";
   import StatusComponent from "./StatusComponent.svelte";
   import { enhance } from "$app/forms";
+  import { getFullName } from "$lib/utils/client/member";
+  import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   export let data;
 </script>
 
@@ -18,6 +20,7 @@
         <th>Från</th>
         <th>Till</th>
         <th>Evenemang</th>
+        <th>Ansvarig</th>
         <th>Status</th>
         <th />
       </tr>
@@ -34,6 +37,21 @@
           <td>{dayjs(bookingRequest.start).format("YYYY-MM-DD HH:MM")}</td>
           <td>{dayjs(bookingRequest.end).format("YYYY-MM-DD HH:MM")}</td>
           <td>{bookingRequest.event}</td>
+          <td>
+            <div class="flex items-center gap-2">
+              {#if bookingRequest.booker}
+                <MemberAvatar
+                  member={bookingRequest.booker}
+                  class="size-5 flex-shrink-0"
+                />
+                <a
+                  href="/members/{bookingRequest.booker.studentId}"
+                  class="link-hover link"
+                  >{getFullName(bookingRequest.booker)}
+                </a>
+              {/if}
+            </div>
+          </td>
           <td>
             <StatusComponent
               bind:bookingRequest

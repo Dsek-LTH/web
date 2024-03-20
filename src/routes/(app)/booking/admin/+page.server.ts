@@ -1,5 +1,6 @@
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
+import type { Member } from "@prisma/client";
 import type { Actions, PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ locals }) => {
@@ -18,7 +19,22 @@ export const load: PageServerLoad = async ({ locals }) => {
     },
   });
 
-  return { bookingRequests };
+  type AugmentedBookingRequest = Array<
+    (typeof bookingRequests)[number] & { booker?: Member | null }
+  >;
+  const bookingRequestsWithBooker: AugmentedBookingRequest = [];
+
+  for (const bookingRequest of bookingRequests) {
+    const id = bookingRequest.bookerId;
+    if (id) {
+      const booker = await prisma.member.findUnique({ where: { id } });
+      bookingRequestsWithBooker.push({ ...bookingRequest, booker });
+    } else {
+      bookingRequestsWithBooker.push(bookingRequest);
+    }
+  }
+
+  return { bookingRequests: bookingRequestsWithBooker };
 };
 
 export const actions: Actions = {
