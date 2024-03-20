@@ -15,6 +15,7 @@ export const load: PageServerLoad = async ({ locals }) => {
     orderBy: [{ start: "asc" }, { end: "asc" }, { status: "asc" }],
     include: {
       bookables: true,
+      booker: true,
     },
   });
 
