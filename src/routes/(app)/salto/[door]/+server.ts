@@ -1,4 +1,5 @@
 import type { RequestHandler } from "./$types";
+import { BACKUP_LIST_OF_STUDENT_IDS } from "./constants";
 
 export const GET: RequestHandler = async ({ locals, params }) => {
   const { prisma } = locals;
@@ -75,6 +76,12 @@ export const GET: RequestHandler = async ({ locals, params }) => {
     .map((mandate) => mandate.member.studentId)
     .filter((id): id is string => id !== null);
   return new Response(
-    JSON.stringify([...new Set([...studentIds, ...studentsFromRoles])]),
+    JSON.stringify([
+      ...new Set([
+        ...BACKUP_LIST_OF_STUDENT_IDS,
+        ...studentIds,
+        ...studentsFromRoles,
+      ]),
+    ]),
   );
 };
