@@ -1,11 +1,11 @@
 <script lang="ts">
   import DOMPurify from "isomorphic-dompurify";
-  import { marked } from "marked";
   import { getFullName } from "$lib/utils/client/member";
   import type { Article } from "./articles";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import dayjs from "dayjs";
   import { goto } from "$app/navigation";
+  import markdownToTxt from "markdown-to-txt";
   export let article: Article;
 </script>
 
@@ -30,8 +30,7 @@
           {article.header}
         </h1>
         <div class="prose mb-8 mt-2 line-clamp-3 prose-headings:text-sm">
-          <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized client-side -->
-          {@html marked(DOMPurify.sanitize(article.body))}
+          {markdownToTxt(DOMPurify.sanitize(article.body))}
         </div>
       </button>
     </div>
