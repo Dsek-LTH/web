@@ -10,6 +10,14 @@ datasource db {
   directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
 }
 
+plugin openapi {
+  provider = '@zenstackhq/openapi'
+  output = './openapi.yaml'
+  title = 'D-sektionen API'
+  version = '1.0.0'
+  prefix = '/api/model'
+}
+
 model User {
   studentId String @id
   memberId String
