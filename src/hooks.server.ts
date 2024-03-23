@@ -11,9 +11,11 @@ import Keycloak, { type KeycloakProfile } from "@auth/core/providers/keycloak";
 import type { TokenSet } from "@auth/core/types";
 import { SvelteKitAuth } from "@auth/sveltekit";
 import { PrismaClient } from "@prisma/client";
-import { redirect, type Handle } from "@sveltejs/kit";
+import { error, redirect, type Handle } from "@sveltejs/kit";
 import { sequence } from "@sveltejs/kit/hooks";
 import { enhance } from "@zenstackhq/runtime";
+import RPCApiHandler from "@zenstackhq/server/api/rpc";
+import zenstack from "@zenstackhq/server/sveltekit";
 import { randomBytes } from "crypto";
 import schedule from "node-schedule";
 import translatedExtension from "./database/prisma/translationExtension";
@@ -151,8 +153,22 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
   return resolve(event);
 };
 
+const apiHandle = zenstack.SvelteKitHandler({
+  prefix: "/api/model",
+  getPrisma: (event) => event.locals.prisma,
+  handler: (req) => {
+    if (req.method !== "GET") error(403); // until we have proper field-level policies, only allow reads
+    return RPCApiHandler()(req);
+  },
+});
+
 schedule.scheduleJob("* */24 * * *", () =>
   keycloak.updateMandate(prismaClient),
 );
 
-export const handle = sequence(authHandle, i18n.handle(), databaseHandle);
+export const handle = sequence(
+  authHandle,
+  i18n.handle(),
+  databaseHandle,
+  apiHandle,
+);
