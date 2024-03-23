@@ -16,6 +16,7 @@ import schedule from "node-schedule";
 import keycloak from "$lib/server/keycloak";
 import { getAccessPolicies } from "./hooks.server.helpers";
 import { sourceLanguageTag, isAvailableLanguageTag } from "$paraglide/runtime";
+import { i18n } from "$lib/utils/i18n";
 
 const authHandle = SvelteKitAuth({
   secret: AUTH_SECRET,
@@ -134,4 +135,4 @@ schedule.scheduleJob("* */24 * * *", () =>
   keycloak.updateMandate(prismaClient),
 );
 
-export const handle = sequence(authHandle, databaseHandle);
+export const handle = sequence(authHandle, i18n.handle(), databaseHandle);
