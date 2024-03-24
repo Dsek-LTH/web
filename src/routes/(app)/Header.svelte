@@ -1,3 +1,7 @@
+<script lang="ts">
+  import * as m from "$paraglide/messages";
+</script>
+
 <header class="contents">
   <img
     class="h-full w-full object-cover md:col-span-2"
@@ -5,22 +9,19 @@
     alt="Cover"
   />
   <h1 class="text-balance text-5xl font-bold lg:text-6xl">
-    Det <span class="text-primary">roliga</span> med plugget
+    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+    {@html m.landing_splash()}
   </h1>
   <div>
     <p class="mb-8">
-      <strong>D-sektionen inom TLTH</strong> är en ideell organisation för
-      studenter och alumner vid programmen
-      <span class="text-primary">Datateknik</span> och
-      <span class="text-secondary">InfoCom</span>. Sektionen har sociala
-      arrangemang, näringslivskontakter, studiebevakning, och allt annat som
-      hjälper studenter och alumner.
+      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+      {@html m.landing_info()}
     </p>
     <a
       class="btn btn-primary justify-self-start rounded-none px-10 font-bold uppercase"
       href="/info/for-foretag"
     >
-      För företag
+      {m.landing_forCompanies()}
     </a>
   </div>
 </header>
