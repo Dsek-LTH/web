@@ -6,8 +6,6 @@
   import Meetings from "./Meetings.svelte";
   import WellbeingCTA from "./WellbeingCTA.svelte";
 
-  import GlobalAlert from "$lib/components/GlobalAlert.svelte";
-  import { languageTag } from "$paraglide/runtime";
   import type { PageData } from "./$types";
   export let data: PageData;
 </script>
@@ -16,12 +14,6 @@
   <title>D-sektionen</title>
 </svelte:head>
 
-{#each data.alert as alert}
-  <GlobalAlert
-    message={languageTag() === "sv" ? alert.message : alert.messageEn}
-    severity={alert.severity}
-  />
-{/each}
 <div
   class="container mx-auto grid grid-cols-1 gap-8 p-4 md:grid-cols-2 lg:grid-cols-3"
 >
