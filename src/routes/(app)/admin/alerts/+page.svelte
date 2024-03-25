@@ -1,7 +1,12 @@
 <script lang="ts">
+  import { enhance } from "$app/forms";
+  import type { Alert } from "@prisma/client";
   import dayjs from "dayjs";
 
   export let data;
+
+  let removeModal: HTMLDialogElement | undefined = undefined;
+  let selectedAlert: Alert | undefined = undefined;
 </script>
 
 <form
@@ -35,29 +40,53 @@
   <thead>
     <tr>
       <th>Severity</th>
-      <th>Svenska</th>
-      <th>Engelska</th>
+      <th>Message</th>
       <th>Skapad</th>
       <th />
     </tr>
   </thead>
 
   <tbody>
-    {#each data.alert as { severity, message, messageEn, createdAt, id }}
+    {#each data.alert as alert}
       <tr>
-        <th class="capitalize">{severity}</th>
-        <td>{message}</td>
-        <td>{messageEn}</td>
-        <td>{dayjs(createdAt).format("YYYY-MM-DD HH:mm:ss")}</td>
+        <th class="capitalize">{alert.severity}</th>
+        <td>{alert.message}</td>
+        <td>{dayjs(alert.createdAt).format("YYYY-MM-DD HH:mm:ss")}</td>
         <td>
-          <form method="POST" action="?/delete">
-            <input class="hidden" type="text" name="id" value={id} />
-            <button class="btn btn-square" type="submit">
-              <span class="i-mdi-delete text-xl"></span>
-            </button>
-          </form>
+          <button
+            class="btn btn-square"
+            on:click={() => {
+              selectedAlert = alert;
+              removeModal?.showModal();
+            }}
+          >
+            <span class="i-mdi-delete text-xl" />
+          </button>
         </td>
       </tr>
     {/each}
   </tbody>
 </table>
+
+<dialog bind:this={removeModal} class="modal modal-bottom sm:modal-middle">
+  <div class="modal-box">
+    <h3 class="text-lg font-bold">Remove alert</h3>
+    <p class="py-4">Are you sure you want to remove this alert?</p>
+    <p class="text-xs text-base-content/60">{selectedAlert?.message}</p>
+    <div class="modal-action">
+      <form method="POST" action="?/delete" use:enhance>
+        <input type="hidden" name="id" value={selectedAlert?.id} />
+        <button
+          type="submit"
+          class="btn btn-error"
+          on:click={() => removeModal?.close()}
+        >
+          Remove
+        </button>
+      </form>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button class="cursor-auto" />
+  </form>
+</dialog>
