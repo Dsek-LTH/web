@@ -1,13 +1,7 @@
 <script lang="ts">
-  export let data;
+  import dayjs from "dayjs";
 
-  // YYYY-MM-DD HH:MM:SS
-  function formatTimestamp(timestamp: Date): string {
-    return timestamp
-      .toISOString()
-      .replace("T", " ")
-      .replace(/\.\d{3}Z$/, "");
-  }
+  export let data;
 </script>
 
 <form
@@ -38,23 +32,23 @@
 </form>
 <div class="divider">Aktiva alerts</div>
 <table class="table">
-  <!-- head -->
   <thead>
     <tr>
       <th>Severity</th>
       <th>Svenska</th>
       <th>Engelska</th>
       <th>Skapad</th>
-      <th>Ta bort</th>
+      <th />
     </tr>
   </thead>
+
   <tbody>
     {#each data.alert as { severity, message, messageEn, createdAt, id }}
       <tr>
         <th class="capitalize">{severity}</th>
         <td>{message}</td>
         <td>{messageEn}</td>
-        <td>{formatTimestamp(createdAt)}</td>
+        <td>{dayjs(createdAt).format("YYYY-MM-DD HH:mm:ss")}</td>
         <td>
           <form method="POST" action="?/delete">
             <input class="hidden" type="text" name="id" value={id} />
