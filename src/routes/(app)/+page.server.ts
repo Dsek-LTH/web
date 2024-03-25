@@ -70,19 +70,13 @@ export const load: PageServerLoad = async ({ locals }) => {
       name: `cafe:open:${new Date().getDay() - 1}`, // we assign monday to 0, not sunday
     },
   });
-  const alertPromise = prisma.alert.findMany({
-    where: {
-      removedAt: null,
-    },
-  });
-  const [news, events, upcomingMeeting, previousMeeting, cafeOpen, alert] =
+  const [news, events, upcomingMeeting, previousMeeting, cafeOpen] =
     await Promise.allSettled([
       newsPromise,
       eventsPromise,
       upcomingMeetingPromise,
       previousMeetingPromise,
       cafeOpenPromise,
-      alertPromise,
     ]);
   if (news.status === "rejected") {
     throw error(500, "Failed to fetch news");
@@ -99,9 +93,6 @@ export const load: PageServerLoad = async ({ locals }) => {
   if (cafeOpen.status === "rejected") {
     throw error(500, "Failed to fetch cafe open");
   }
-  if (alert.status === "rejected") {
-    throw error(500, "Failed to fetch alerts");
-  }
   return {
     news: news.value,
     events: events.value,
@@ -110,6 +101,5 @@ export const load: PageServerLoad = async ({ locals }) => {
       previous: previousMeeting.value,
     },
     cafeOpen: cafeOpen.value,
-    alert: alert.value,
   };
 };
