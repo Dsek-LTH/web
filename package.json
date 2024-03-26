@@ -69,6 +69,7 @@
     "vite": "^5.0.12",
     "vite-node": "^1.1.0",
     "vitest": "^1.2.2",
+    "vitest-mock-extended": "^1.3.1",
     "zenstack": "^1.7.1",
     "zod": "^3.22.4"
   },
