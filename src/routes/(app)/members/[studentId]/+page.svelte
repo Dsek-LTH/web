@@ -67,6 +67,9 @@
         </button>
       {/if}
     </div>
+    {#if data.email}
+      {data.email}<br />
+    {/if}
     {member.studentId}
   </header>
   <div class={isEditing ? "col-span-4 row-span-2" : "col-span-2"}>
