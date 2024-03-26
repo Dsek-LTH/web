@@ -68,7 +68,7 @@
       {/if}
     </div>
     {#if data.email}
-      {data.email}<br>
+      {data.email}<br />
     {/if}
     {member.studentId}
   </header>
@@ -134,7 +134,7 @@
       <br />
       <div class="my-2 text-xl font-bold">Dörrar</div>
       {#each Array.from(data.allMemberDoors.entries()) as [doorName, doorData]}
-        <div class="bg-base-200 my-2 flex justify-between rounded-lg p-3">
+        <div class="my-2 flex justify-between rounded-lg bg-base-200 p-3">
           <div class="my-auto font-bold">
             {doorName}
           </div>
