@@ -1,13 +1,23 @@
+<!--
+  @component
+  This component should be used to display how long 
+  it's been since something has been posted, such as notifications. 
+  If it has been long enough time, it will show the date instead. 
+  This will also periodically update the time for the client every second.
+  
+-->
 <script lang="ts" context="module">
-  // This is only ran ONCE, on first component load, instead of on every component load
-  // This makes sure every live time updates synchronously, and not every xsecond independently
+  // This is part of the code is ran globally for all components of this kind.
   type Callback = (time: number) => void;
 
   const synchronizedIntervals = {
+    // Keeps track of all callbacks
     callbacks: [] as Callback[],
+    // Interval being ran at the moment
     interval: null as ReturnType<typeof setInterval> | null,
     add: (callback: Callback) => {
       synchronizedIntervals.callbacks.push(callback);
+      // If no interval tracking, start tracking intervals of 1 sec
       if (synchronizedIntervals.interval === null) {
         synchronizedIntervals.interval = setInterval(() => {
           const time = Date.now();
@@ -22,6 +32,7 @@
       synchronizedIntervals.callbacks = synchronizedIntervals.callbacks.filter(
         (c) => c !== callback,
       );
+      // If there are no more callbacks, clear interval tracking
       if (
         synchronizedIntervals.callbacks.length === 0 &&
         synchronizedIntervals.interval
@@ -40,6 +51,7 @@
   export let timeStamp: number;
 
   let now = Date.now();
+  // When component is mounted, add this to be periodically updated
   onMount(() => {
     const remove = synchronizedIntervals.add((time) => {
       now = time;
@@ -48,8 +60,7 @@
       remove();
     };
   });
-  // Gets hours, minutes and seconds and then returns hour, if it's been at least 59 minutes,
-  // returns seconds if it's been less than a minute, and else minutes
+  // Returns date format if it's been a week or more.
   $: time =
     dayjs(timeStamp).diff(dayjs(), "week") < -1
       ? dayjs(timeStamp).format("YYYY-MM-DD")
