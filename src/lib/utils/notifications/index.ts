@@ -1,27 +1,36 @@
-import sendPushNotifications from "$lib/utils/notifications/push";
+// import sendPushNotifications from "$lib/utils/notifications/push";
 import {
+  NotificationSettingType,
   NotificationType,
   SUBSCRIPTION_SETTINGS_MAP,
-  type NotificationSettingType,
 } from "$lib/utils/notifications/types";
 import type { Author, PrismaClient } from "@prisma/client";
 import { error } from "@sveltejs/kit";
 
 const DUPLICATE_ALLOWED_TYPES = [
   NotificationType.CREATE_MANDATE,
-  NotificationType.ARTICLE_UPDATE,
+  NotificationType.ARTICLE_REQUEST_UPDATE,
   NotificationType.BOOKING_REQUEST,
 ];
 
-type SendNotificationProps = {
+type BaseSendNotificationProps = {
   title: string;
   message: string;
   type: NotificationType;
   link: string;
   memberIds?: string[];
-  fromAuthor?: Author;
-  fromMemberId?: string;
 };
+type SendNotificationProps = BaseSendNotificationProps &
+  (
+    | {
+        fromAuthor: Author;
+        fromMemberId?: undefined;
+      }
+    | {
+        fromAuthor?: undefined;
+        fromMemberId: string;
+      }
+  );
 
 /**
  *
@@ -56,14 +65,17 @@ const sendNotification = async (
     (await prisma.author.findFirst({
       where: { memberId: fromMemberId, mandateId: null, customId: null },
     }));
+
+  // If member doesn't have author since before, create one
   const notificationAuthor =
-    existingAuthor ?? fromMemberId
+    existingAuthor ??
+    (fromMemberId
       ? await prisma.author.create({
           data: { memberId: fromMemberId! },
         })
-      : undefined;
-  const shouldReceiveDuplicates = DUPLICATE_ALLOWED_TYPES.includes(type); // if the notification type allows for duplicates
+      : undefined);
 
+  const shouldReceiveDuplicates = DUPLICATE_ALLOWED_TYPES.includes(type); // if the notification type allows for duplicates
   const receivingMembers = await prisma.member.findMany({
     where: {
       subscriptionSettings: {
@@ -81,7 +93,8 @@ const sendNotification = async (
             },
           },
       id: {
-        not: notificationAuthor?.memberId,
+        // Comment the line below to test notifications, it allow sending notifications to yourself
+        // not: notificationAuthor?.memberId,
         ...(memberIds !== undefined && memberIds.length > 0
           ? { in: memberIds }
           : {}),
@@ -107,49 +120,19 @@ const sendNotification = async (
     }`,
   );
 
-  const pushNotificationMembers = receivingMembers.filter((s) =>
-    s.subscriptionSettings.some((ss) => ss.pushNotification),
-  );
-  const pushTokens = await prisma.expoToken.findMany({
-    where: {
-      memberId: {
-        in: pushNotificationMembers.map((m) => m.id),
-      },
-    },
-    select: {
-      expoToken: true,
-    },
-  });
-  const [pushResult, databaseResult] = await Promise.allSettled([
-    sendPushNotifications(
-      pushTokens.map((t) => t.expoToken!),
+  const databaseResult = await prisma.notification.createMany({
+    data: receivingMembers.map(({ id: memberId }) => ({
       title,
       message,
-      settingType,
+      type,
       link,
-    ),
-    await prisma.notification.createMany({
-      data: receivingMembers.map(({ id: memberId }) => ({
-        title,
-        message,
-        type,
-        link,
-        memberId,
-        fromAuthorId: fromAuthor?.id,
-      })),
-    }),
-  ]);
-  if (
-    pushResult.status === "rejected" &&
-    databaseResult.status === "rejected"
-  ) {
-    throw error(500, "Failed to send notifications");
-  }
-  if (pushResult.status === "rejected") {
-    throw error(500, "Failed to send push notifications");
-  }
-  if (databaseResult.status === "rejected") {
-    throw error(500, "Failed to save notifications to database");
+      memberId,
+      fromAuthorId: notificationAuthor?.id,
+    })),
+  });
+
+  if (databaseResult.count < 1) {
+    throw error(500, `Failed to create notifications`);
   }
 };
 

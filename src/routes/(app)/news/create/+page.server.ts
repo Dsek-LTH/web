@@ -1,4 +1,7 @@
 import apiNames from "$lib/utils/apiNames";
+import { authorize } from "$lib/utils/authorization";
+import sendNotification from "$lib/utils/notifications";
+import { NotificationType } from "$lib/utils/notifications/types";
 import { slugWithCount, slugify } from "$lib/utils/slugify";
 import { error, fail } from "@sveltejs/kit";
 import { redirect } from "sveltekit-flash-message/server";
@@ -6,7 +9,6 @@ import { superValidate } from "sveltekit-superforms/client";
 import { getArticleAuthorOptions } from "../articles";
 import { articleSchema } from "../schema";
 import type { Actions, PageServerLoad } from "./$types";
-import { authorize } from "$lib/utils/authorization";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma, user } = locals;
@@ -59,9 +61,7 @@ export const actions: Actions = {
     const { header, body, author, tags } = form.data;
     const existingAuthor = await prisma.author.findFirst({
       where: {
-        member: {
-          studentId: user?.studentId,
-        },
+        member: { studentId: user?.studentId },
         mandateId: author.mandateId,
         customId: author.customId,
       },
@@ -69,9 +69,7 @@ export const actions: Actions = {
     const slug = slugify(header);
     const slugCount = await prisma.article.count({
       where: {
-        slug: {
-          startsWith: slug,
-        },
+        slug: { startsWith: slug },
       },
     });
     const result = await prisma.article.create({
@@ -85,28 +83,26 @@ export const actions: Actions = {
                 id: existingAuthor.id,
               }
             : undefined,
-          create: existingAuthor
-            ? undefined
-            : {
+          create: !existingAuthor
+            ? {
                 member: {
-                  connect: {
-                    studentId: user?.studentId,
-                  },
+                  connect: { studentId: user?.studentId },
                 },
                 mandate: author.mandateId
                   ? {
                       connect: {
-                        member: {
-                          studentId: user?.studentId,
-                        },
+                        member: { studentId: user?.studentId },
                         id: author.mandateId,
                       },
                     }
                   : undefined,
                 customAuthor: author.customId
-                  ? { connect: { id: author.customId } }
+                  ? {
+                      connect: { id: author.customId },
+                    }
                   : undefined,
-              },
+              }
+            : undefined,
         },
         // imageUrl: (image as string | undefined) || null,
         tags: {
@@ -118,7 +114,21 @@ export const actions: Actions = {
         },
         publishedAt: new Date(),
       },
+      include: {
+        author: true,
+      },
     });
+
+    // fetch the created author,
+
+    await sendNotification(prisma, {
+      title: header,
+      message: body,
+      type: NotificationType.NEW_ARTICLE,
+      link: `/news/${result.slug}`,
+      fromAuthor: result.author,
+    });
+
     throw redirect(
       `/news/${result.slug}`,
       {

@@ -6,12 +6,14 @@
   import Footer from "../Footer.svelte";
   import Navbar from "../Navbar.svelte";
   import Toast from "../Toast.svelte";
-
   export let data;
 </script>
 
 <nav class="contents">
-  <Navbar />
+  <Navbar
+    notifications={data.notifications}
+    deleteNotificationForm={data.deleteNotificationForm}
+  />
   <Drawer />
 </nav>
 

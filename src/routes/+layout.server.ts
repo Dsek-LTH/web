@@ -5,5 +5,8 @@ import { loadFlash } from "sveltekit-flash-message/server";
  */
 export const load = loadFlash(async ({ locals }) => {
   const { user, member } = locals;
-  return { user, member };
+  return {
+    user,
+    member,
+  };
 });

@@ -3,7 +3,7 @@ export enum NotificationType {
   EVENT_LIKE = "EVENT_LIKE",
   COMMENT = "COMMENT",
   EVENT_COMMENT = "EVENT_COMMENT",
-  ARTICLE_UPDATE = "ARTICLE_UPDATE",
+  ARTICLE_REQUEST_UPDATE = "ARTICLE_REQUEST_UPDATE",
   MENTION = "MENTION",
   NEW_ARTICLE = "NEW_ARTICLE",
   EVENT_GOING = "EVENT_GOING",
@@ -35,10 +35,10 @@ export const SUBSCRIPTION_SETTINGS_MAP: Record<
   COMMENT: [
     NotificationType.COMMENT,
     NotificationType.EVENT_COMMENT,
-    // I think using "COMMENT" for ARTICLE_UPDATE makes sense.
+    // I think using "COMMENT" for ARTICLE_REQUEST_UPDATE makes sense.
     // We don't want to overwhelm user with TOO many notification options, and I feel like
     // the same demographic want notifications for comments and approvements.
-    NotificationType.ARTICLE_UPDATE,
+    NotificationType.ARTICLE_REQUEST_UPDATE,
   ],
   MENTION: [NotificationType.MENTION],
   NEW_ARTICLE: [NotificationType.NEW_ARTICLE],

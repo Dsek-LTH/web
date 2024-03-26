@@ -1,4 +1,10 @@
 <script lang="ts">
+  import HeldPositionsYear from "./HeldPositionsYear.svelte";
+  import PublishedArticles from "./PublishedArticles.svelte";
+  import PublishedEvents from "./PublishedEvents.svelte";
+  import UpdateMemberForm from "./UpdateMemberForm.svelte";
+  import PingButton from "./PingButton.svelte";
+
   import { page } from "$app/stores";
   import ClassBadge from "$lib/components/ClassBadge.svelte";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
@@ -6,12 +12,9 @@
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
   import { getFullName } from "$lib/utils/client/member";
-  import HeldPositionsYear from "./HeldPositionsYear.svelte";
-  import PublishedArticles from "./PublishedArticles.svelte";
-  import PublishedEvents from "./PublishedEvents.svelte";
-  import UpdateMemberForm from "./UpdateMemberForm.svelte";
 
   import type { PageData } from "./$types";
+
   export let data: PageData;
   $: member = data.member;
   $: isMe = data.user?.studentId === $page.params["studentId"];
@@ -30,6 +33,7 @@
   );
   $: publishedEvents = [...member.authoredEvents].reverse();
   $: canEdit = isMe || isAuthorized(apiNames.MEMBER.UPDATE, data.user);
+  $: ping = data.ping;
   let isEditing = false;
 </script>
 
@@ -65,6 +69,9 @@
         >
           {isEditing ? "Spara" : "Redigera"}
         </button>
+      {/if}
+      {#if data.user && !isMe}
+        <PingButton {ping} />
       {/if}
     </div>
     {member.studentId}

@@ -20,10 +20,12 @@
     {#each $toasts as toast (toast.id)}
       <div
         role="alert"
-        class="alert alert-{toast.type}"
+        class="alert alert-{toast.type} select-all"
         out:fade={{ duration: 750 }}
       >
-        {toast.message}
+        <span class="max-w-full select-all overflow-hidden text-ellipsis">
+          {toast.message}
+        </span>
       </div>
     {/each}
   </div>
