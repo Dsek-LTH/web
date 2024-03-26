@@ -1,4 +1,4 @@
-import generateUUID from "$lib/utils/generateUUID";
+import { v4 as uuid } from "uuid";
 import { writable } from "svelte/store";
 
 export type ToastNotification = {
@@ -18,7 +18,7 @@ export function toast(
     {
       message: message,
       type,
-      id: generateUUID(),
+      id: uuid(),
     },
   ]);
   setTimeout(removeToast, 2000);
