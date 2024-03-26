@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Markdown } from "@prisma/client";
+  import * as m from "$paraglide/messages";
 
   export let cafeOpen: Pick<Markdown, "markdown"> | null;
 </script>
@@ -11,7 +12,7 @@
   <span class="i-mdi-coffee self-center text-2xl" />
 
   <article>
-    <p>Caféets öppettider</p>
+    <p>{m.landing_cafeOpenHours()}</p>
     <h2 class="text-xl font-bold">
       {#if cafeOpen}
         {cafeOpen.markdown}

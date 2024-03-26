@@ -1,3 +1,11 @@
 {
-  "$schema": "https://inlang.com/schema/inlang-message-format"
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "landing_info": "<strong>The D-guild within TLTH</strong> is a non-profit organization for students and alumni of the programs <span class=\"text-primary\">Computer Science</span> and <span class=\"text-secondary\">Information and Communication Technology</span> . The guild has social arrangements, business contacts, study supervision, and everything else that helps students and alumni.",
+  "landing_forCompanies": "For companies",
+  "landing_splash": "Experience the <span class=\"text-primary\">fun</span> of University",
+  "landing_cafeOpenHours": "Café opening hours",
+  "landing_meetingNext": "Next meeting",
+  "landing_meetingPrev": "Previous meeting",
+  "landing_feedback": "Thoughts or opinions?",
+  "landing_contactWellbeing": "Contact the Wellbeing Committee"
 }

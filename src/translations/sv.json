@@ -1,3 +1,11 @@
 {
-  "$schema": "https://inlang.com/schema/inlang-message-format"
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "landing_info": "<strong>D-sektionen inom TLTH</strong> är en ideell organisation för studenter och alumner vid programmen <span class=\"text-primary\">Datateknik</span> och <span class=\"text-secondary\">InfoCom</span>. Sektionen har sociala arrangemang, näringslivskontakter, studiebevakning, och allt annat som hjälper studenter och alumner.",
+  "landing_forCompanies": "För företag",
+  "landing_splash": "Det <span class=\"text-primary\">roliga</span> med plugget",
+  "landing_cafeOpenHours": "Caféets öppettider",
+  "landing_meetingNext": "Nästa möte",
+  "landing_meetingPrev": "Senaste möte",
+  "landing_feedback": "Tankar eller åsikter?",
+  "landing_contactWellbeing": "Kontakta Trivselrådet"
 }
