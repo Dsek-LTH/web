@@ -3,7 +3,15 @@
   import TagChip from "./TagChip.svelte";
 
   /** Called when the list of selected tags changes */
-  export let onChange: () => void = () => undefined;
+  export let onChange: () => void = () => {
+    searchValue = "";
+  };
+
+  const actualOnChange: () => void = () => {
+    onChange();
+    searchValue = "";
+    autocompleteEl?.focus();
+  };
 
   /** All available tags */
   export let allTags: Tag[] = [];
@@ -38,7 +46,7 @@
             type="button"
             on:click={() => {
               selectedTags = selectedTags.filter((o) => o !== tag);
-              onChange();
+              actualOnChange();
             }}
           >
             <TagChip {tag} class="after:ml-2 after:content-['x']" />
@@ -65,7 +73,7 @@
         class="btn btn-xs"
         on:click={() => {
           selectedTags = [];
-          onChange();
+          actualOnChange();
         }}>Clear</button
       >
     {/if}
@@ -92,7 +100,7 @@
             } else {
               selectedTags = [...selectedTags, tag];
             }
-            onChange();
+            actualOnChange();
           }}
         >
           <TagChip {tag} />
