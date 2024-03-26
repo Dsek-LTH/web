@@ -17,30 +17,21 @@
   <label for="main-drawer" aria-label="close sidebar" class="drawer-overlay" />
 
   <ul class="menu min-h-full min-w-60 bg-base-200 p-0 font-semibold">
-    <div class="navbar justify-between p-2 pl-6 pr-4 shadow-md">
-      <div class="flex gap-2">
-        <DsekLogo className="size-6 text-primary" />
-        <p class="font-thin">D-SEKTIONEN</p>
-      </div>
-      <div class="flex *:px-1">
-        <label class="btn btn-ghost swap swap-rotate btn-sm rounded *:text-xl">
-          <!-- this hidden checkbox controls the state -->
-          <input type="checkbox" data-toggle-theme="dark,light" />
-
-          <!-- moon icon -->
-          <span class="swap-on i-mdi-weather-night" />
-
-          <!-- sun icon -->
-          <span class="swap-off i-mdi-weather-sunny" />
-        </label>
-        <div class="btn btn-ghost btn-sm rounded">
-          {#if languageTag() === "sv"}
-            <a href={i18n.route($page.url.pathname)} hreflang="en">EN</a>
-          {:else if languageTag() === "en"}
-            <a href={i18n.route($page.url.pathname)} hreflang="sv">SV</a>
-          {/if}
-        </div>
-      </div>
+    <div class="flex gap-2 p-2 pb-0">
+      <label class="btn btn-ghost swap swap-rotate flex-1 bg-base-300">
+        <input type="checkbox" data-toggle-theme="dark,light" />
+        <span class="swap-on i-mdi-weather-night size-6" />
+        <span class="swap-off i-mdi-weather-sunny size-6" />
+      </label>
+      {#if languageTag() === "sv" || languageTag() === "en"}
+        <a
+          class="btn btn-ghost flex-1 bg-base-300"
+          href={i18n.route($page.url.pathname)}
+          hreflang={languageTag() === "sv" ? "en" : "sv"}
+        >
+          <span class="i-mdi-translate size-6" />
+        </a>
+      {/if}
     </div>
 
     <div class="p-2 pr-6">
