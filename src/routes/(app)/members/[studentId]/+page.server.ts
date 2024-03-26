@@ -3,6 +3,7 @@ import { error, fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
 import type { Actions, PageServerLoad } from "./$types";
 import { getCurrentDoorPoliciesForMember } from "$lib/utils/member";
+import keycloak from "$lib/server/keycloak";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma } = locals;
@@ -66,11 +67,17 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     member.id,
   );
 
+  let email;
+  if (member.studentId !== null) {
+    email = await keycloak.getEmail(member.studentId);
+  }
+
   return {
     form: await superValidate(member, memberSchema),
     member,
     allMemberDoors,
     publishedArticles: publishedArticlesResult.value ?? [],
+    email,
   };
 };
 
