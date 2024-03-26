@@ -16,7 +16,7 @@
 </script>
 
 {#if $toasts}
-  <div class="toast bottom-2 right-2">
+  <div class="toast bottom-2 right-2 z-10">
     {#each $toasts as toast (toast.id)}
       <div
         role="alert"

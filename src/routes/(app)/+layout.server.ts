@@ -15,7 +15,13 @@ export const load = loadFlash(async ({ locals, depends }) => {
         },
       })
     : null;
+  const alerts = await prisma.alert.findMany({
+    where: {
+      removedAt: null,
+    },
+  });
   return {
+    alerts,
     notifications: notifications,
     deleteNotificationForm: await superValidate(notificationSchema),
   };

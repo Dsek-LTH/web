@@ -2,6 +2,7 @@ import { fail } from "@sveltejs/kit";
 import type { PageServerLoad, Actions } from "./$types";
 import { z } from "zod";
 import { message, superValidate } from "sveltekit-superforms/server";
+import softDelete from "$lib/utils/softDelete";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma } = locals;
@@ -51,14 +52,16 @@ export const actions = {
     const { prisma } = locals;
     const form = await superValidate(request, deleteAlertSchema);
     if (!form.valid) return fail(400, { form });
-    await prisma.alert.update({
-      where: { id: form.data.id },
-      data: {
-        removedAt: new Date(),
-      },
-    });
+    softDelete(() =>
+      prisma.alert.update({
+        where: { id: form.data.id },
+        data: {
+          removedAt: new Date(),
+        },
+      }),
+    );
     return message(form, {
-      message: "Global alert stängd",
+      message: "Global alert removed",
       type: "success",
     });
   },
