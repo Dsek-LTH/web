@@ -1,9 +1,9 @@
 <script lang="ts">
   import { page } from "$app/stores";
   import { isAuthorized } from "$lib/utils/authorization";
-  import { i18n } from "$lib/utils/i18n";
-  import { languageTag } from "$paraglide/runtime";
+  import DarkLightToggle from "./DarkLightToggle.svelte";
   import DsekLogo from "./DsekLogo.svelte";
+  import LanguageSwitcher from "./LanguageSwitcher.svelte";
   import { routes } from "./routes";
 
   let checked = false;
@@ -18,20 +18,10 @@
 
   <ul class="menu min-h-full min-w-60 bg-base-200 p-0 font-semibold">
     <div class="flex gap-2 p-2 pb-0">
-      <label class="btn btn-ghost swap swap-rotate flex-1 bg-base-300">
-        <input type="checkbox" data-toggle-theme="dark,light" />
-        <span class="swap-on i-mdi-weather-night size-6" />
-        <span class="swap-off i-mdi-weather-sunny size-6" />
-      </label>
-      {#if languageTag() === "sv" || languageTag() === "en"}
-        <a
-          class="btn btn-ghost flex-1 bg-base-300"
-          href={i18n.route($page.url.pathname)}
-          hreflang={languageTag() === "sv" ? "en" : "sv"}
-        >
-          <span class="i-mdi-translate size-6" />
-        </a>
-      {/if}
+      <DarkLightToggle class="flex-1 bg-base-300 *:size-6" />
+      <LanguageSwitcher class="flex-1 bg-base-300">
+        <span class="i-mdi-translate size-6" />
+      </LanguageSwitcher>
     </div>
 
     <div class="p-2 pr-6">
