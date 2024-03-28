@@ -339,9 +339,40 @@ model EventComment {
   @@map("event_comments")
 }
 
+enum recurringType{
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
+model RecurringEvent{
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  separationCount Int @map("separation_count")
+  recurringType recurringType @map("recurring_type")
+  title String @db.VarChar(255)
+  titleEn String? @map("title_en") @db.VarChar(255)
+  description String
+  descriptionEn String? @map("description_en")
+  link String? @db.VarChar(255)
+  location String? @db.VarChar(255)
+  organizer String @db.VarChar(255)
+  authorId String @map("author_id") @db.Uuid
+  shortDescription String @map("short_description") @db.VarChar(255)
+  shortDescriptionEn String? @map("short_description_en") @db.VarChar(255)
+  startDatetime DateTime @map("start_datetime") @db.Timestamptz(6)
+  endDatetime DateTime @map("end_datetime") @db.Timestamptz(6)
+  numberOfUpdates Int? @default(0) @map("number_of_updates")
+  slug String? @unique(map: "recurring_events_slug_unique") @db.VarChar(255)
+  alarmActive Boolean? @default(false) @map("alarm_active")
+  events Event[]
+}
+
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Events{
 model Event {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  recurringParentId String? @db.Uuid @map("recurring_parent_id")
+  isDetatched Boolean @default(false) @map("is_detatched")
   title String @db.VarChar(255)
   titleEn String? @map("title_en") @db.VarChar(255)
   description String
@@ -363,6 +394,7 @@ model Event {
   interested Member[] @relation("event_interested")
   author Member @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "events_author_id_foreign")
   tags Tag[] @relation("event_tags")
+  recurringEventParent RecurringEvent? @relation(fields: [recurringParentId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "recurring_event_parent")
 
   @@allow("create", has(auth().policies, "event:create"))
   @@allow("read", has(auth().policies, "event:read"))
