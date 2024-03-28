@@ -1,6 +1,7 @@
 import { tagSchema } from "$lib/zod/schemas";
 import { z } from "zod";
 
+export const recurringTypes = new Map([["DAILY", "Dagsvis"], ["WEEKLY", "Veckovis"], ["MONTHLY", "Månadsvis"], ["YEARLY", "Årsvis"]]);
 export const eventSchema = z
   .object({
     title: z.string().default(""),
@@ -14,9 +15,13 @@ export const eventSchema = z
       .date()
       .default(() => new Date(new Date().getTime() + 60 * 60 * 1000)), // one hour later
     alarmActive: z.boolean().nullable().default(null),
+    isRecurring: z.boolean().default(false),
+    recurringType: z.enum(["", ...recurringTypes.keys()]).default("WEEKLY"),
+    separationCount: z.number().default(0),
+    recurringEndDatetime: z.date().default(() => new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000)), // one week later
     tags: z.array(tagSchema).default([]),
   })
-  .refine((data) => data.startDatetime < data.endDatetime, {
+  .refine((data) => data.startDatetime < data.endDatetime && data.startDatetime < data.recurringEndDatetime, {
     message: "End must be after start",
     path: ["endDatetime"],
   });

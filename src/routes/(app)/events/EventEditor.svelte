@@ -4,11 +4,11 @@
   import Labeled from "$lib/components/Labeled.svelte";
   import TagChip from "$lib/components/TagChip.svelte";
   import TagSelector from "$lib/components/TagSelector.svelte";
-  import type { Tag } from "@prisma/client";
+  import type { Tag, recurringType } from "@prisma/client";
   import type { SuperValidated } from "sveltekit-superforms";
   import { superForm } from "sveltekit-superforms/client";
   import Event from "./Event.svelte";
-  import type { EventSchema } from "./schema";
+  import { recurringTypes, type EventSchema, type eventSchema } from "./schema";
 
   export let data: SuperValidated<EventSchema>;
   const { form, errors, constraints, enhance, submitting } = superForm(data, {
@@ -37,28 +37,16 @@
         error={$errors.shortDescription}
         {...$constraints.shortDescription}
       />
-      <div class="flex flex-row justify-between gap-4 [&>*]:flex-1">
-        <Labeled id="start" label="Start" error={$errors.startDatetime}>
-          <DateInput
-            id="start"
-            name="startDatetime"
-            placeholder="Start"
-            bind:date={$form.startDatetime}
-            error={$errors.startDatetime}
-            {...$constraints.startDatetime}
-          />
-        </Labeled>
-        <Labeled id="end" label="End" error={$errors.endDatetime}>
-          <DateInput
-            id="end"
-            name="endDatetime"
-            placeholder="End"
-            bind:date={$form.endDatetime}
-            error={$errors.endDatetime}
-            {...$constraints.endDatetime}
-          />
-        </Labeled>
-      </div>
+      <Labeled label="Description" id="description" error={$errors.description}>
+        <textarea
+          id="description"
+          name="description"
+          class="textarea textarea-bordered min-h-[10rem]"
+          placeholder="Description"
+          bind:value={$form.description}
+          {...$constraints.description}
+        />
+      </Labeled>
       <div class="flex flex-row justify-between gap-4 [&>*]:flex-1">
         <Input
           label="Organizer"
@@ -85,16 +73,52 @@
           {...$constraints.link}
         />
       </div>
-      <Labeled label="Description" id="description" error={$errors.description}>
-        <textarea
-          id="description"
-          name="description"
-          class="textarea textarea-bordered min-h-[10rem]"
-          placeholder="Description"
-          bind:value={$form.description}
-          {...$constraints.description}
-        />
-      </Labeled>
+      <div class="flex flex-row justify-between gap-4 [&>*]:flex-1">
+        <Labeled id="start" label="Start" error={$errors.startDatetime}>
+          <DateInput
+            id="start"
+            name="startDatetime"
+            placeholder="Start"
+            bind:date={$form.startDatetime}
+            error={$errors.startDatetime}
+            {...$constraints.startDatetime}
+          />
+        </Labeled>
+        <Labeled id="end" label="End" error={$errors.endDatetime}>
+          <DateInput
+            id="end"
+            name="endDatetime"
+            placeholder="End"
+            bind:date={$form.endDatetime}
+            error={$errors.endDatetime}
+            {...$constraints.endDatetime}
+          />
+        </Labeled>
+      </div>
+      <div class="flex flex-row justify-between gap-4 [&>*]:flex-1">
+        <label class="label cursor-pointer">
+          <span class="label-text">Återkommande event</span> 
+          <input type="checkbox" class="checkbox" />
+        </label>
+        <Labeled
+      label="Hur ofta?"
+      id="recurringType"
+      error={$errors.recurringType}
+      fullWidth
+    >
+      <select
+        id="classProgramme"
+        name="classProgramme"
+        class="select select-bordered"
+        bind:value={$form.recurringType}
+        {...$constraints.recurringType}
+      >
+        {#each recurringTypes as type}
+          <option value={type[0]}>{type[1]}</option>
+        {/each}
+      </select>
+    </Labeled>
+      </div>
       <Labeled
         id="autocomplete"
         label="Taggar"
