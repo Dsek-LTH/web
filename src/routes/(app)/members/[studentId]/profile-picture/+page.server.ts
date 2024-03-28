@@ -1,11 +1,11 @@
 import { fileHandler } from "$lib/files";
 import { error, fail } from "@sveltejs/kit";
 import sharp from "sharp";
-import generateUUID from "$lib/utils/generateUUID";
 import { message, setError, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import { PUBLIC_BUCKETS_MEMBERS } from "$env/static/public";
+import { v4 as uuid } from "uuid";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma } = locals;
@@ -73,7 +73,7 @@ export const actions: Actions = {
     const image = formData.get("image");
     if (!image || !(image instanceof File) || image.size <= 0)
       return setError(form, "image", "Ogiltig bild");
-    const fileName = generateUUID();
+    const fileName = uuid();
     try {
       const buffer = await sharp(await image.arrayBuffer())
         // this is required to keep the image upright

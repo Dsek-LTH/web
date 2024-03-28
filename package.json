@@ -44,6 +44,7 @@
     "@types/node": "^20.10.5",
     "@types/node-schedule": "^2.1.5",
     "@types/nodemailer": "^6.4.14",
+    "@types/uuid": "^9.0.8",
     "@typescript-eslint/eslint-plugin": "^6.15.0",
     "@typescript-eslint/parser": "^6.15.0",
     "autoprefixer": "^10.4.16",
@@ -101,7 +102,8 @@
     "svelte-easy-crop": "^2.0.2",
     "tailwind-merge": "^2.2.0",
     "theme-change": "^2.5.0",
-    "tiptap-markdown": "^0.8.8"
+    "tiptap-markdown": "^0.8.8",
+    "uuid": "^9.0.1"
   },
   "pnpm": {
     "patchedDependencies": {
