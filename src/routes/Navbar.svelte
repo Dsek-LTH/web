@@ -11,9 +11,10 @@
   import type { Notification } from "@prisma/client";
   import type { SuperValidated } from "sveltekit-superforms";
   import type { NotificationSchema } from "$lib/zod/schemas";
-
-  export let notifications: Notification[] | null;
-  export let deleteNotificationForm: SuperValidated<NotificationSchema> | null;
+  $: notifications = $page.data["notifications"] as Notification[] | null;
+  $: deleteNotificationForm = $page.data[
+    "deleteNotificationForm"
+  ] as SuperValidated<NotificationSchema> | null;
 </script>
 
 <div

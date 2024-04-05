@@ -13,6 +13,7 @@
   export let likeForm: SuperValidated<LikeSchema>;
   const { errors, constraints, enhance } = superForm(likeForm, {
     id: articleId, // needs to be unique since there could be multiple like buttons on a page
+    invalidateAll: true,
   });
   $: isLiked = likers.some(
     (member) => member.studentId === $page.data.user?.studentId,

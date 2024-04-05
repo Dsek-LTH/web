@@ -10,10 +10,7 @@
 </script>
 
 <nav class="contents">
-  <Navbar
-    notifications={data.notifications}
-    deleteNotificationForm={data.deleteNotificationForm}
-  />
+  <Navbar />
   <Drawer />
 </nav>
 

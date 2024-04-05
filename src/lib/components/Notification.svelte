@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { invalidate } from "$app/navigation";
+  import { page } from "$app/stores";
   import LiveTimeSince from "$lib/components/LiveTimeSince.svelte";
   import type { NotificationSchema } from "$lib/zod/schemas";
   import type { Notification } from "@prisma/client";
@@ -6,18 +8,50 @@
   import { superForm } from "sveltekit-superforms/client";
   type NotificationItem = Pick<
     Notification,
-    "link" | "title" | "message" | "createdAt" | "id"
+    "link" | "title" | "message" | "createdAt" | "id" | "readAt"
   >;
 
   export let notification: NotificationItem;
   export let deleteForm: SuperValidated<NotificationSchema>;
 
+  let readForm: HTMLFormElement;
+  const readNotification = () => {
+    // read notification
+    readForm.requestSubmit();
+    invalidate("/notifications");
+  };
+
+  // Handle "reading" notification when visiting relevant link
+  $: isUnread = notification.readAt === null;
+  $: isPathSame = $page.url.pathname === notification.link;
+  $: (() => {
+    if (isUnread && isPathSame) {
+      setTimeout(() => {
+        readNotification();
+      });
+    }
+  })();
+
+  // can be used for reading as well, same types
   const { enhance } = superForm(deleteForm, {
-    id: notification.id.toString(),
+    id: notification.id.toString() + "-delete",
+  });
+  const { enhance: readEnhance } = superForm(deleteForm, {
+    id: notification.id.toString() + "-read",
   });
 </script>
 
 <div class="relative m-0 rounded-none">
+  <form
+    bind:this={readForm}
+    method="POST"
+    action="/notifications?/readNotifications"
+    use:readEnhance
+    class="hidden"
+    aria-hidden="true"
+  >
+    <input type="hidden" name="notificationId" value={notification.id} />
+  </form>
   <a
     href={notification.link}
     class="flex h-full w-80 max-w-80 flex-col justify-center"

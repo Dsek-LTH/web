@@ -112,6 +112,9 @@ const sendNotification = async (
       },
     },
   });
+  if (receivingMembers.length < 1) {
+    return;
+  }
   console.log(
     `Sending ${type} notification to ${receivingMembers.length} members${
       notificationAuthor
