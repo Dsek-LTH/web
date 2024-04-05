@@ -54,12 +54,12 @@
   </form>
   <a
     href={notification.link}
-    class="flex h-full w-80 max-w-80 flex-col justify-center"
+    class="flex h-full w-80 max-w-80 flex-col justify-center {isUnread
+      ? 'font-semibold'
+      : 'opacity-80'}"
   >
-    <span class="my-1 w-11/12 truncate text-lg font-bold"
-      >{notification.title}</span
-    >
-    <span class="w-11/12 truncate text-wrap text-xs"
+    <span class="mt-1 w-11/12 truncate text-lg">{notification.title}</span>
+    <span class="mb-1 w-11/12 truncate text-wrap text-xs"
       >{notification.message}</span
     >
     <span class="w-11/12 truncate text-wrap text-xs text-gray-500">
