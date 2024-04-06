@@ -20,7 +20,7 @@
   );
 </script>
 
-<form method="POST" action="/news?/{isLiked ? 'dislike' : 'like'}" use:enhance>
+<form method="POST" action="?/{isLiked ? 'dislike' : 'like'}" use:enhance>
   <input type="hidden" value={articleId} name="articleId" {...$constraints} />
   {#if $errors.articleId}
     <div class="text-error">{$errors.articleId}</div>
