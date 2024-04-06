@@ -75,6 +75,11 @@ export const routes = [
         accessRequired: null,
       },
       {
+        title: "Biljetter",
+        path: "/tickets",
+        icon: "i-mdi-ticket",
+      },
+      {
         title: "Webshop",
         path: "/webshop",
         icon: "i-mdi-store",
