@@ -93,8 +93,10 @@ const sendNotification = async (
             },
           },
       id: {
-        // Comment the line below to test notifications, it allow sending notifications to yourself
-        // not: notificationAuthor?.memberId,
+        not:
+          process.env["NODE_ENV"] === "development"
+            ? undefined
+            : notificationAuthor?.memberId,
         ...(memberIds !== undefined && memberIds.length > 0
           ? { in: memberIds }
           : {}),
