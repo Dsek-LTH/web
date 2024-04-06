@@ -369,6 +369,7 @@ model Event {
     titleEn String? @map("title_en") @db.VarChar(255)
     description String
     descriptionEn String? @map("description_en")
+    imageUrl String? @db.Text()
     link String? @db.VarChar(255)
     location String? @db.VarChar(255)
     organizer String @db.VarChar(255)
