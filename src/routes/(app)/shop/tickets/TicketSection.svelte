@@ -1,10 +1,11 @@
 <script lang="ts">
   import type { SuperValidated } from "sveltekit-superforms";
-  import type { AddToCartSchema, Ticket } from "./+page.server";
+  import type { AddToCartSchema } from "./+page.server";
   import TicketCard from "./TicketCard/TicketCard.svelte";
+  import type { TicketWithEvent } from "./types";
 
   export let title: string;
-  export let tickets: Ticket[];
+  export let tickets: TicketWithEvent[];
   export let addToCartForm: SuperValidated<AddToCartSchema>;
 </script>
 

@@ -1,8 +1,8 @@
 <script lang="ts">
   import dayjs from "dayjs";
-  import type { Ticket } from "../+page.server";
+  import type { TicketWithEvent } from "../types";
 
-  export let event: Ticket["event"];
+  export let event: TicketWithEvent["event"];
 </script>
 
 <a href="/events/{event.slug}">
