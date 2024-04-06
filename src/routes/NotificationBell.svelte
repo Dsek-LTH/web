@@ -16,7 +16,7 @@
   // this is a somewhat ugly way to keep focus on the bell button after a notification is removed
   // if this is not here, whenever an action is taken (such as removing a notification), the form will cause the elements to lose focus and the menu will close
   let bellButton: HTMLDivElement;
-  const onUpdated = () => {
+  const onDeleted = () => {
     bellButton.focus();
   };
   $: (() => {
@@ -24,13 +24,13 @@
       // a notification was removed
       setTimeout(() => {
         // needs to be done next update cycle, otherwise it doesn' work. In practice, is still instant
-        onUpdated();
+        onDeleted();
       });
     }
   })();
 
   const { enhance } = superForm(deleteForm, {
-    onUpdated,
+    onUpdate: onDeleted,
     id: "deleteNotification",
   });
   const { enhance: readEnhance } = superForm(deleteForm, {

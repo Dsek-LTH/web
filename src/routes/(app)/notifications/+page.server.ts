@@ -1,15 +1,17 @@
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 import { notificationSchema } from "$lib/zod/schemas";
-import { fail } from "@sveltejs/kit";
-import { redirect } from "sveltekit-flash-message/server";
-import { superValidate } from "sveltekit-superforms/server";
+import { fail, redirect } from "@sveltejs/kit";
+import { message, superValidate } from "sveltekit-superforms/server";
 import type { Actions } from "./$types";
+
+export const load = async ({ request }) => {
+  throw redirect(302, request.headers.get("referer") || "/");
+};
 
 export const actions: Actions = {
   // Mark all unread notifications as read
-  readNotifications: async (event) => {
-    const { locals, request } = event;
+  readNotifications: async ({ locals, request }) => {
     const { user, prisma } = locals;
     authorize(apiNames.LOGGED_IN, user);
     const form = await superValidate(request, notificationSchema);
@@ -21,7 +23,6 @@ export const actions: Actions = {
             in: form.data.notificationIds!,
           }
         : undefined);
-    console.log("reading", idFilter);
     await prisma.notification.updateMany({
       where: {
         memberId: user?.memberId,
@@ -33,23 +34,17 @@ export const actions: Actions = {
       },
     });
 
-    throw redirect(
-      request.headers.get("referer") || "/",
-      {
-        message: "Notiser lästa",
-        type: "hidden",
-      },
-      event,
-    );
+    return message(form, {
+      message: "Notiser lästa",
+      type: "hidden",
+    });
   },
   // Delete single or multiple notifications on database
-  deleteNotification: async (event) => {
-    const { locals, request } = event;
+  deleteNotification: async ({ locals, request }) => {
     const { user, prisma } = locals;
     authorize(apiNames.LOGGED_IN, user);
     const form = await superValidate(request, notificationSchema);
     if (!form.valid) return fail(400, { form });
-    const redirectUrl = request.headers.get("referer") || "/";
     // If multiple ids and not a single id have been provided, delete many, otherwise,
     // if a single has been provided, delete single, else return
     if (form.data.notificationIds && form.data.notificationIds.length > 0) {
@@ -61,14 +56,10 @@ export const actions: Actions = {
           },
         },
       });
-      throw redirect(
-        redirectUrl,
-        {
-          message: "Notiser borttagna",
-          type: "hidden",
-        },
-        event,
-      );
+      return message(form, {
+        message: "Notiser borttagna",
+        type: "hidden",
+      });
     } else if (form.data.notificationId) {
       await prisma.notification.delete({
         where: {
@@ -76,22 +67,11 @@ export const actions: Actions = {
           id: form.data.notificationId,
         },
       });
-      throw redirect(
-        redirectUrl,
-        {
-          message: "Notis borttagen",
-          type: "hidden",
-        },
-        event,
-      );
+      return message(form, { message: "Notis borttagen", type: "success" });
     }
-    throw redirect(
-      redirectUrl,
-      {
-        message: "Kunde inte ta bort notis",
-        type: "error",
-      },
-      event,
-    );
+    return message(form, {
+      message: "Kunde inte ta bort notis",
+      type: "error",
+    });
   },
 };
