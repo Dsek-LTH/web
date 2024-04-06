@@ -4,12 +4,18 @@
 
   export let data;
   $: activeTickets = data.tickets.filter(
-    (ticket) => ticket.availableFrom <= $now && ticket.availableTo >= $now,
+    (ticket) =>
+      ticket.shoppable.availableFrom <= $now &&
+      (ticket.shoppable.availableTo === null ||
+        ticket.shoppable.availableTo >= $now),
   );
   $: upcomingTickets = data.tickets.filter(
-    (ticket) => ticket.availableFrom > $now,
+    (ticket) => ticket.shoppable.availableFrom > $now,
   );
-  $: pastTickets = data.tickets.filter((ticket) => ticket.availableTo < $now);
+  $: pastTickets = data.tickets.filter(
+    (ticket) =>
+      ticket.shoppable.availableTo && ticket.shoppable.availableTo < $now,
+  );
 </script>
 
 <svelte:head>

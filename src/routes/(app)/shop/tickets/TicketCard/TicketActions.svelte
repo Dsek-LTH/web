@@ -4,13 +4,15 @@
   import { now } from "$lib/stores/date";
   import type { SuperValidated } from "sveltekit-superforms";
   import { superForm } from "sveltekit-superforms/client";
-  import type { AddToCartSchema, Ticket } from "../+page.server";
+  import type { AddToCartSchema } from "../+page.server";
+  import type { TicketWithEvent } from "../types";
 
-  export let ticket: Ticket;
+  export let ticket: TicketWithEvent;
   export let addToCartForm: SuperValidated<AddToCartSchema>;
 
-  $: isUpcoming = ticket.availableFrom > $now;
-  $: isPast = ticket.availableTo < $now;
+  $: isUpcoming = ticket.shoppable.availableFrom > $now;
+  $: isPast =
+    ticket.shoppable.availableTo && ticket.shoppable.availableTo < $now;
   $: isActive = !isUpcoming && !isPast;
 
   const { enhance } = superForm(addToCartForm);
@@ -19,11 +21,11 @@
 <div class="card-actions items-baseline justify-between">
   <span>
     {#if isUpcoming}
-      Öppnar {dayjs(ticket.availableFrom).fromNow()}
+      Öppnar {dayjs(ticket.shoppable.availableFrom).fromNow()}
     {:else if isPast}
-      Stängde {dayjs(ticket.availableTo).fromNow()}
+      Stängde {dayjs(ticket.shoppable.availableTo).fromNow()}
     {:else}
-      Stänger {dayjs(ticket.availableTo).fromNow()}
+      Stänger {dayjs(ticket.shoppable.availableTo).fromNow()}
     {/if}
   </span>
   <form method="POST" action="?/addToCart" use:enhance>

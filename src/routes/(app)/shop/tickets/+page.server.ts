@@ -1,115 +1,60 @@
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
-import type { Event, PrismaClient, Tag } from "@prisma/client";
 import { fail } from "@sveltejs/kit";
 import { redirect } from "sveltekit-flash-message/server";
-import { message, superValidate } from "sveltekit-superforms/server";
+import { superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { PageServerLoad } from "./$types";
 
-export type Ticket = {
-  id: string;
-  event: Event & {
-    tags: Tag[];
-    imageUrl: string;
-  };
-
-  title: string;
-  description: string;
-
-  price: number;
-
-  availableFrom: Date;
-  availableTo: Date;
-};
-
-// Function to generate mock tickets
-const generateMockTickets = async (
-  prisma: PrismaClient,
-  amount: number,
-  daysAgoStart = 30,
-): Promise<Ticket[]> => {
-  const mockTickets: Ticket[] = [];
-  const startDate = new Date(Date.now() - 1000 * 60 * 60 * 24 * daysAgoStart); // start a month ago
-  const tags = await prisma.tag.findMany();
-  const daysBetween = (daysAgoStart * 2) / amount;
-
-  for (let i = 1; i < amount; i++) {
-    const id = i.toString();
-    const title = `Ticket ${i}`;
-    const description = `Description for Ticket ${i}`;
-    const availableFrom = new Date(
-      startDate.valueOf() + i * 1000 * 60 * 60 * 24 * daysBetween,
-    );
-    const availableTo = new Date(
-      availableFrom.valueOf() + (1000 * 60 * 60 * 24 * daysBetween) / 2,
-    );
-
-    const eventId = i % 10;
-
-    // Create a new ticket object
-    const ticket: Ticket = {
-      id,
-      event: {
-        id: eventId.toString(),
-        slug: `event-${eventId}`,
-        imageUrl: `https://picsum.photos/seed/${eventId}/600/400`,
-        title: `Event ${eventId}`,
-        titleEn: null,
-        description: `This is a long description for event ${eventId} spanning multiple lines and could include markdown. **All right?** This is *italic* and this is _underlined_.`,
-        descriptionEn: null,
-        shortDescription: `Come join us at event ${eventId}`,
-        shortDescriptionEn: null,
-        location: [
-          "iDét",
-          "Foajén",
-          "E:A",
-          "Gasquesalen",
-          "Lophtet",
-          "Victoriastadion",
-          "Edekvata",
-          "GG",
-          "AF-borgen",
-        ][eventId % 9]!,
-        organizer: ["Sexet", "Styrelsen", "Staben", "D-sek", "AktU", "NärU"][
-          eventId % 6
-        ]!,
-        startDatetime: new Date(
-          availableFrom.valueOf() + 1000 * 60 * 60 * 24 * 30,
-        ),
-        endDatetime: new Date(
-          availableFrom.valueOf() +
-            1000 * 60 * 60 * 24 * 30 +
-            1000 * 60 * 60 * 4,
-        ),
-        tags: new Array(eventId % 4).map(
-          (_, index) => tags[(eventId + index) % tags.length]!,
-        ),
-        numberOfUpdates: 1,
-        removedAt: null,
-        alarmActive: false,
-        link: null,
-        authorId: "1",
-      },
-      title,
-      description,
-      availableFrom,
-      availableTo,
-      price: Math.floor(((i * 736) % 18000) / 100) * 100 + 1300,
-    };
-
-    // Push the ticket to the array
-    mockTickets.push(ticket);
-  }
-
-  return mockTickets;
-};
-
 export const load: PageServerLoad = async ({ locals }) => {
+  const tenDaysAgo = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000);
+  const allTickets = await locals.prisma.ticket.findMany({
+    where: {
+      shoppable: {
+        AND: [
+          {
+            OR: [
+              {
+                removedAt: null,
+              },
+              {
+                removedAt: {
+                  lt: new Date(),
+                },
+              },
+            ],
+          },
+          {
+            OR: [
+              {
+                availableTo: null,
+              },
+              {
+                availableTo: {
+                  gt: tenDaysAgo, // show items which were available in the last 10 days
+                },
+              },
+            ],
+          },
+        ],
+      },
+    },
+    include: {
+      shoppable: true,
+      event: {
+        include: {
+          tags: true,
+        },
+      },
+    },
+    orderBy: {
+      shoppable: {
+        availableFrom: "asc",
+      },
+    },
+  });
   return {
-    tickets: (await generateMockTickets(locals.prisma, 102, 30)).toSorted(
-      (a, b) => a.availableFrom.valueOf() - b.availableFrom.valueOf(),
-    ),
+    tickets: allTickets,
     addToCartForm: await superValidate(addToCartSchema),
   };
 };
