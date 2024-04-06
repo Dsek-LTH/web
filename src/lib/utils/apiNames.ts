@@ -65,6 +65,9 @@ const apiNames = {
   SONG: {
     ...crud("song"),
   },
+  WEBSHOP: {
+    PURCHASE: "webshop:purchase",
+  },
 } as const;
 
 export default apiNames;

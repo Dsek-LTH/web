@@ -8,6 +8,13 @@
   import Footer from "../Footer.svelte";
   import Navbar from "../Navbar.svelte";
   import Toast from "../Toast.svelte";
+  import dayjs from "dayjs";
+  import "dayjs/locale/sv";
+
+  $: (() => {
+    const locale = languageTag();
+    dayjs.locale(locale);
+  })();
 
   onMount(() => {
     themeChange(false);
