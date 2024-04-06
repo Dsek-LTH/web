@@ -41,9 +41,9 @@
             <!-- svelte-ignore a11y-label-has-associated-control -->
             <label tabindex="0" class="btn btn-ghost">
               {#if route.isDsekIcon}
-                <DsekLogo className="h-6 w-6 text-primary" />
+                <DsekLogo className="size-6 text-primary" />
               {:else}
-                <span class={`${route.icon} h-6 w-6 text-primary`} />
+                <span class={`${route.icon} size-6 text-primary`} />
               {/if}
               {route.title}</label
             >
@@ -59,7 +59,7 @@
                       href={child.path}
                       class="btn-ghost active:!bg-primary/10"
                     >
-                      <span class={`${child.icon} h-6 w-6 text-primary`} />
+                      <span class={`${child.icon} size-6 text-primary`} />
                       {child.title}</a
                     >
                   </li>
@@ -70,9 +70,9 @@
         {:else}
           <a class="btn btn-ghost" href={route.path}>
             {#if route.isDsekIcon}
-              <DsekLogo className="h-6 w-6 text-primary" />
+              <DsekLogo className="size-6 text-primary" />
             {:else}
-              <span class={`${route.icon} h-6 w-6 text-primary`} />
+              <span class={`${route.icon} size-6 text-primary`} />
             {/if}
             {route.title}
           </a>
@@ -82,8 +82,12 @@
   </div>
 
   <div class="flex">
-    <LanguageSwitcher />
-    <DarkLightToggle />
+    <div class="hidden lg:flex">
+      <!-- This will be shown in the drawer instead. -->
+      <DarkLightToggle />
+      <LanguageSwitcher />
+    </div>
+
     {#if $page.data.user && $page.data.member}
       {#if notifications !== null && deleteNotificationForm !== null}
         <NotificationBell {notifications} deleteForm={deleteNotificationForm} />
@@ -112,11 +116,11 @@
                 href={`/members/${$page.data.user?.studentId}`}
                 class="btn btn-ghost w-48 justify-start text-base-content"
               >
-                <span class="i-mdi-account-circle h-6 w-6 text-primary" />
+                <span class="i-mdi-account-circle size-6 text-primary" />
                 Profil
               </a>
               <a href="/settings" class="btn btn-ghost w-48 justify-start">
-                <span class="i-mdi-cog h-6 w-6 text-primary" />
+                <span class="i-mdi-cog size-6 text-primary" />
                 Inställningar
               </a>
             </div>
@@ -125,7 +129,7 @@
               class="btn btn-ghost justify-start"
               on:click={() => signOut()}
             >
-              <span class="i-mdi-logout h-6 w-6 text-primary" />
+              <span class="i-mdi-logout size-6 text-primary" />
               Logga ut</button
             >
           </div>

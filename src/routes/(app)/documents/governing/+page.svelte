@@ -1,21 +1,26 @@
 <script lang="ts">
+  import PageHeader from "$lib/components/PageHeader.svelte";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
+  import { getPdfApiUrl } from "$lib/utils/servePdf";
   import DeleteFileForm from "../DeleteFileForm.svelte";
-  import File from "../File.svelte";
+  import FileWithDownload from "../FileWithDownload.svelte";
   import type { PageData } from "./$types";
   export let data: PageData;
-  let isEditing = false;
-</script>
 
-<svelte:head>
-  <title>Styrdokument | D-sektionen</title>
-</svelte:head>
+  let isEditing = false;
+  let selectedPdf: string | null = null;
+  let dialog: HTMLDialogElement;
+  $: onPdfClick = (url: string) => {
+    selectedPdf = url;
+    dialog.showModal();
+  };
+</script>
 
 <div
   class="flex w-full flex-row flex-wrap items-center justify-between gap-x-4"
 >
-  <h1 class="my-3 text-2xl font-bold">Styrdokument</h1>
+  <PageHeader title="Styrdokument" />
   <div>
     {#if isAuthorized(apiNames.GOVERNING_DOCUMENT.DELETE, data.user)}
       {#if isAuthorized(apiNames.GOVERNING_DOCUMENT.CREATE, data.user)}
@@ -53,8 +58,12 @@
     </a>
   </p>
   <div class="flex items-center gap-5">
-    <strong><File name="Stadgar" url="https://dsek.se/stadgar" /></strong>
-    <strong><File name="Reglemente" url="https://dsek.se/reglemente" /></strong>
+    <FileWithDownload name="Stadgar" url="/stadgar" onClick={onPdfClick} />
+    <FileWithDownload
+      name="Reglemente"
+      url="/reglemente"
+      onClick={onPdfClick}
+    />
   </div>
   <div class="flex flex-col gap-4 md:flex-row">
     <div>
@@ -62,7 +71,11 @@
       <div class="flex flex-col gap-2">
         {#each data.policies as policy}
           <div class="flex items-center gap-1">
-            <File name={policy.title} url={policy.url} host />
+            <FileWithDownload
+              name={policy.title}
+              url={getPdfApiUrl(policy.url)}
+              onClick={onPdfClick}
+            />
             {#if isAuthorized(apiNames.GOVERNING_DOCUMENT.DELETE, data.user) && isEditing}
               <DeleteFileForm
                 fileId={policy.id}
@@ -87,7 +100,11 @@
       <div class="flex flex-col gap-2">
         {#each data.guidelines as guideline}
           <div class="flex items-center gap-1">
-            <File name={guideline.title} url={guideline.url} host />
+            <FileWithDownload
+              name={guideline.title}
+              url={getPdfApiUrl(guideline.url)}
+              onClick={onPdfClick}
+            />
             {#if isAuthorized(apiNames.GOVERNING_DOCUMENT.DELETE, data.user) && isEditing}
               <DeleteFileForm
                 fileId={guideline.id}
@@ -109,3 +126,20 @@
     </div>
   </div>
 </div>
+
+<dialog class="modal modal-middle" bind:this={dialog}>
+  <form method="dialog" class="modal-backdrop">
+    <button
+      class="cursor-auto"
+      on:click={() => {
+        selectedPdf = null;
+      }}
+    />
+  </form>
+  <iframe
+    title="PDF viewer"
+    src={selectedPdf}
+    class="menu modal-box h-full max-h-[95vh] w-full max-w-[70vw]"
+    on:error={() => dialog.close()}
+  />
+</dialog>

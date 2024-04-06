@@ -4,7 +4,7 @@
   import type { FileData } from "$lib/files/fileHandler";
   import apiNames from "$lib/utils/apiNames";
   import DeleteFileForm from "./DeleteFileForm.svelte";
-  import File from "./File.svelte";
+  import FileLink from "./FileLink.svelte";
   import type { SuperValidated } from "sveltekit-superforms";
   import type { DeleteSchema } from "./+page.server";
   import { isAuthorized } from "$lib/utils/authorization";
@@ -32,7 +32,9 @@
   <div class="flex flex-wrap gap-2">
     {#each files as file (file.id)}
       <div class="flex gap-1">
-        <File name={file.name} url={file.thumbnailUrl} full />
+        {#if file.thumbnailUrl}
+          <FileLink name={file.name} url={file.thumbnailUrl} full />
+        {/if}
         {#if isAuthorized(apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).DELETE, $page.data.user) && isEditing}
           <DeleteFileForm
             fileId={file.id}
