@@ -7,6 +7,7 @@ import {
   type ShopIdentification,
   type TransactionClient,
 } from "./types";
+import authorizedPrismaClient from "./authorizedPrisma";
 
 const checkUserMaxAmount = async (
   prisma: TransactionClient,
@@ -103,7 +104,6 @@ const addReservationInReserveWindow = async (
   return "Biljetten är reserverad, du får en notis när lottning är avklarad.";
 };
 
-const authorizedPrismaClient = new PrismaClient();
 export const addTicketToCart = async (
   prisma: PrismaClient,
   ticketId: string,
