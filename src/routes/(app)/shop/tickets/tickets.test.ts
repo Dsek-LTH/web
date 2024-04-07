@@ -1,6 +1,14 @@
 import { PrismaClient } from "@prisma/client";
 import { enhance } from "@zenstackhq/runtime";
-import { afterAll, afterEach, beforeEach, describe, expect, it } from "vitest";
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+} from "vitest";
 import { getAccessPolicies } from "../../../../hooks.server.helpers";
 import { addMockTickets, removeMockTickets } from "./mock";
 import { addTicketToCart, getTickets } from "./tickets";
@@ -8,8 +16,8 @@ const prisma = new PrismaClient();
 
 let prismaWithAccess = enhance(prisma, {
   user: {
-    studentId: "anonymous",
-    memberId: "anonymous",
+    studentId: undefined,
+    memberId: undefined,
     policies: [],
   },
 });
@@ -38,11 +46,26 @@ describe("Get tickets", () => {
   it("should get all tickets", async () => {
     const result = await getTickets(prismaWithAccess);
     expect(result.length).toBe(4);
-    expect(result[0]!.id).toEqual(tickets.pastTicket.id);
-    expect(result[0]).toEqual(tickets.pastTicket);
-    expect(result[1]).toEqual(tickets.activeTicket);
-    expect(result[2]).toEqual(tickets.activeEarlyTicket);
-    expect(result[3]).toEqual(tickets.upcomingTicket);
+    // in order of available from (earliest first)
+    expect(result).toEqual([
+      tickets.pastTicket,
+      tickets.activeTicket,
+      tickets.activeEarlyTicket,
+      tickets.upcomingTicket,
+    ]);
+  });
+  it("anonymous should get all tickets", async () => {
+    const result = await getTickets(
+      enhance(prisma, {
+        user: {
+          studentId: undefined,
+          memberId: undefined,
+          policies: await getAccessPolicies(prisma),
+          externalCode: "external-code",
+        },
+      }),
+    );
+    expect(result.length).toBe(4);
     // in order of available from (earliest first)
     expect(result).toEqual([
       tickets.pastTicket,
@@ -247,5 +270,81 @@ describe("Add tickets to cart", () => {
         .length,
     ).toBe(1);
     expect((await prisma.consumableReservation.findMany()).length).toBe(0);
+  });
+
+  describe("anonymous user", () => {
+    let prismaWithAccess: PrismaClient;
+    beforeAll(async () => {
+      prismaWithAccess = enhance(prisma, {
+        user: {
+          studentId: undefined,
+          memberId: undefined,
+          policies: await getAccessPolicies(prisma),
+          externalCode: "external-code",
+        },
+      });
+    });
+    it("should add a valid ticket request", async () => {
+      await addTicketToCart(prismaWithAccess, tickets.activeTicket.id, {
+        externalCode: "external-code",
+      });
+      const consumables = await prisma.consumable.findMany();
+      expect(consumables.length).toBe(1);
+      expect(consumables[0]).toBeDefined();
+      expect(consumables[0]!.memberId).toBeNull();
+      expect(consumables[0]!.shoppableId).toBe(
+        tickets.activeTicket.shoppable.id,
+      );
+      expect(consumables[0]!.purchasedAt).toBeNull();
+      expect(consumables[0]!.externalCustomerCode).toBe("external-code");
+      expect(consumables[0]!.externalCustomerEmail).toBeNull();
+      expect(consumables[0]!.consumedAt).toBeNull();
+    });
+    it("should not add a ticket twice to cart", async () => {
+      await addTicketToCart(prismaWithAccess, tickets.activeTicket.id, {
+        externalCode: "external-code",
+      });
+      try {
+        await addTicketToCart(prismaWithAccess, tickets.activeTicket.id, {
+          externalCode: "external-code",
+        });
+        expect.fail();
+      } catch (error) {
+        expect(error).toBeDefined();
+      }
+      expect((await prisma.consumable.findMany()).length).toBe(1);
+      expect((await prisma.consumableReservation.findMany()).length).toBe(0);
+    });
+
+    it("should reserve a ticket instead initially", async () => {
+      await addTicketToCart(prismaWithAccess, tickets.activeEarlyTicket.id, {
+        externalCode: "external-code",
+      });
+      const consumables = await prisma.consumable.findMany();
+      expect(consumables.length).toBe(0);
+      const reservations = await prisma.consumableReservation.findMany();
+      expect(reservations.length).toBe(1);
+      expect(reservations[0]).toBeDefined();
+      expect(reservations[0]?.memberId).toBeNull();
+      expect(reservations[0]?.externalCustomerCode).toBe("external-code");
+      expect(reservations[0]?.shoppableId).toBe(
+        tickets.activeEarlyTicket.shoppable.id,
+      );
+      expect(reservations[0]?.order).toBeNull();
+    });
+    it("should not reserve twice", async () => {
+      await addTicketToCart(prismaWithAccess, tickets.activeEarlyTicket.id, {
+        externalCode: "external-code",
+      });
+      try {
+        await addTicketToCart(prismaWithAccess, tickets.activeEarlyTicket.id, {
+          externalCode: "external-code",
+        });
+        expect.fail();
+      } catch (error) {
+        expect(error).toBeDefined();
+      }
+      expect((await prisma.consumableReservation.findMany()).length).toBe(1);
+    });
   });
 });

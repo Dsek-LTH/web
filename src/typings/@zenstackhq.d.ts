@@ -5,5 +5,6 @@ declare module "@zenstackhq/runtime" {
     studentId: string;
     memberId: string;
     policies: string[];
+    externalCode?: string; // for non-authenticated users
   }
 }
