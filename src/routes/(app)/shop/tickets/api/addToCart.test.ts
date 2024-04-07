@@ -15,11 +15,13 @@ import { enhance } from "@zenstackhq/runtime";
 import { getAccessPolicies } from "../../../../../hooks.server.helpers";
 import {
   addMockTickets,
+  addMockUser,
   addMockUsers,
   removeMockTickets,
   removeMockUsers,
   type MockTickets,
 } from "./mock";
+import { performLotteryIfNecessary } from "./reservations";
 const prisma = new PrismaClient();
 
 const expectConsumableCount = async (shoppableId: string, count: number) =>
@@ -258,6 +260,9 @@ const addTicketsTestForUser = (
         where: {
           shoppableId: ticket.id,
         },
+        orderBy: {
+          order: "asc",
+        },
       });
       expect(reservations.length).toBe(2);
       expect(reservations[0]?.memberId).toBe(adminMember.id);
@@ -306,12 +311,54 @@ const addTicketsTestForUser = (
       vi.useRealTimers();
       vi.setSystemTime(timeAfter);
       await new Promise((resolve) => setTimeout(resolve, 20)); // to allow for the transaction to finish
-      console.log("checking");
       await expectReservationCount(ticket.id, 0);
       await expectConsumableCount(ticket.id, 1);
     });
 
-    // it("ensures users adding after grace period are placed last", async () => {});
+    it("ensures users adding after grace period are placed last", async () => {
+      const ticket = tickets.activeEarlyTicket;
+      for (let i = 0; i < ticket.stock + 5; i++) {
+        const newMember = await addMockUser(prisma);
+        await addTicketToCart(prisma, ticket.id, {
+          memberId: newMember.id,
+        });
+      }
+      await expectConsumableCount(ticket.id, 0);
+      await expectReservationCount(ticket.id, ticket.stock + 5);
+
+      vi.setSystemTime(
+        vi.getMockedSystemTime()!.valueOf() + GRACE_PERIOD_WINDOW,
+      );
+      await performLotteryIfNecessary(prisma, new Date(), ticket.id);
+      await expectConsumableCount(ticket.id, ticket.stock);
+      await expectReservationCount(ticket.id, 5);
+      const result = await addTicketToCart(
+        prismaWithAccess,
+        ticket.id,
+        identification,
+      );
+      console.log("result", result);
+      expect(result).toContain("6"); // tell user they are in position 6
+      await expectConsumableCount(ticket.id, ticket.stock);
+      await expectReservationCount(ticket.id, 6);
+      const reservations = await prisma.consumableReservation.findMany({
+        where: {
+          shoppableId: ticket.id,
+          order: {
+            not: null,
+          },
+        },
+        orderBy: {
+          order: "asc",
+        },
+      });
+      expect(reservations.length).toBe(6);
+      expect(reservations[5]?.order).toBe(5);
+      expect(reservations[5]?.memberId).toBe(identification.memberId ?? null);
+      expect(reservations[5]?.externalCustomerCode).toBe(
+        identification.externalCode ?? null,
+      );
+    });
   });
 };
 

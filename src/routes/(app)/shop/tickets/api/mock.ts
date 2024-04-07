@@ -1,4 +1,5 @@
 import { ShoppableType, type Member, type PrismaClient } from "@prisma/client";
+import type { TransactionClient } from "./types";
 
 export const MOCK_EVENT_1 = {
   title: "Event 1",
@@ -64,18 +65,17 @@ export const MOCK_UPCOMING_TICKET = {
 };
 
 export type MockTickets = Awaited<ReturnType<typeof addMockTickets>>;
+export const addMockUser = async (prisma: TransactionClient | PrismaClient) => {
+  return await prisma.member.create({
+    data: {
+      studentId: "test" + crypto.randomUUID(),
+    },
+  });
+};
 export const addMockUsers = async (prisma: PrismaClient) => {
   return await prisma.$transaction(async (prisma) => {
-    const adminMember = await prisma.member.create({
-      data: {
-        studentId: "test" + Math.random().toString(36).substring(10),
-      },
-    });
-    const customerMember = await prisma.member.create({
-      data: {
-        studentId: "test" + Math.random().toString(36).substring(10),
-      },
-    });
+    const adminMember = await addMockUser(prisma);
+    const customerMember = await addMockUser(prisma);
     return {
       adminMember,
       customerMember,
