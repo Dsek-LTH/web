@@ -4,11 +4,11 @@ import {
   TIME_TO_BUY,
   type TransactionClient,
 } from "./types";
+import authorizedPrismaClient from "./authorizedPrisma";
 
 /**
  * Ensures the reservation state of the given shoppable. It will ensure the state at the timepoint "now".
  * It removes all consumables which have expired at "now". It also performs the reservation lottery if "now" is after the grace period window.
- * TODO: This function should be called periodically to ensure that expired consumables are removed, not only when someone queries it.
  */
 export const ensureState = async (
   prisma: TransactionClient,
@@ -21,7 +21,6 @@ export const ensureState = async (
 
 /**
  * Removes all expired consumables. Also updates any necessary queues for tickets where spots just opened up.
- * TODO: This function should be called periodically to ensure that expired consumables are removed, not only when someone queries it.
  */
 export const removeExpiredConsumables = async (
   prisma: TransactionClient,
@@ -35,6 +34,24 @@ export const removeExpiredConsumables = async (
       purchasedAt: null,
     },
   });
+  // get next time something will expire
+  const nextConsumableToExpire = await prisma.consumable.findFirst({
+    where: {
+      expiresAt: {
+        not: null,
+      },
+      purchasedAt: null,
+    },
+    orderBy: {
+      expiresAt: "asc",
+    },
+  });
+  if (nextConsumableToExpire) {
+    setTimeout(() => {
+      removeExpiredConsumables(authorizedPrismaClient, new Date());
+    }, nextConsumableToExpire.expiresAt!.valueOf() - Date.now());
+  }
+
   if (removed.count > 0) {
     const modifiedTickes = await updateAllNecessaryQueues(prisma);
     return modifiedTickes;
