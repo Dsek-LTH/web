@@ -1,4 +1,4 @@
-import { ShoppableType, type PrismaClient } from "@prisma/client";
+import { ShoppableType, type Member, type PrismaClient } from "@prisma/client";
 
 export const MOCK_EVENT_1 = {
   title: "Event 1",
@@ -63,18 +63,30 @@ export const MOCK_UPCOMING_TICKET = {
   },
 };
 
-export const addMockTickets = async (prisma: PrismaClient) => {
+export type MockTickets = Awaited<ReturnType<typeof addMockTickets>>;
+export const addMockUsers = async (prisma: PrismaClient) => {
   return await prisma.$transaction(async (prisma) => {
     const adminMember = await prisma.member.create({
       data: {
-        studentId: "admin-member",
+        studentId: "test" + Math.random().toString(36).substring(10),
       },
     });
     const customerMember = await prisma.member.create({
       data: {
-        studentId: "tickets-test",
+        studentId: "test" + Math.random().toString(36).substring(10),
       },
     });
+    return {
+      adminMember,
+      customerMember,
+    };
+  });
+};
+export const addMockTickets = async (
+  prisma: PrismaClient,
+  adminMember: Member,
+) => {
+  return await prisma.$transaction(async (prisma) => {
     const event1 = await prisma.event.create({
       data: {
         ...MOCK_EVENT_1,
@@ -184,9 +196,6 @@ export const addMockTickets = async (prisma: PrismaClient) => {
       },
     });
     return {
-      adminMember,
-      customerMember,
-      event1,
       activeTicket,
       activeEarlyTicket,
       pastTicket,
@@ -195,30 +204,62 @@ export const addMockTickets = async (prisma: PrismaClient) => {
   });
 };
 
-export const removeMockTickets = async (prisma: PrismaClient) => {
+export const removeMockTickets = async (
+  prisma: PrismaClient,
+  ticketIds: string[],
+) => {
   await prisma.$transaction(async (prisma) => {
+    await prisma.consumable.deleteMany({
+      where: {
+        shoppableId: {
+          in: ticketIds,
+        },
+      },
+    }); // remove all consumables
+    await prisma.consumableReservation.deleteMany({
+      where: {
+        shoppableId: {
+          in: ticketIds,
+        },
+      },
+    }); // remove all reservations
     await prisma.shoppable.deleteMany({
       where: {
-        author: {
-          studentId: {
-            in: ["admin-member", "tickets-test"],
-          },
+        id: {
+          in: ticketIds,
         },
       },
     });
     await prisma.event.deleteMany({
       where: {
-        author: {
-          studentId: {
-            in: ["admin-member", "tickets-test"],
+        tickets: {
+          some: {
+            id: {
+              in: ticketIds,
+            },
           },
+        },
+      },
+    });
+  });
+};
+
+export const removeMockUsers = async (
+  prisma: PrismaClient,
+  memberIds: string[],
+) => {
+  await prisma.$transaction(async (prisma) => {
+    await prisma.event.deleteMany({
+      where: {
+        authorId: {
+          in: memberIds,
         },
       },
     });
     await prisma.member.deleteMany({
       where: {
-        studentId: {
-          in: ["admin-member", "tickets-test"],
+        id: {
+          in: memberIds,
         },
       },
     });

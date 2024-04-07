@@ -1,7 +1,7 @@
-import type { PrismaClient, Shoppable, Ticket } from "@prisma/client";
-import { removeExpiredConsumables, updateQueue } from "./reservations";
+import { PrismaClient, type Shoppable, type Ticket } from "@prisma/client";
+import { ensureState } from "./reservations";
 import {
-  RESERVATION_WINDOW,
+  GRACE_PERIOD_WINDOW,
   TIME_TO_BUY,
   dbIdentification,
   type ShopIdentification,
@@ -75,15 +75,17 @@ const addReservationInReserveWindow = async (
   return "Biljetten är reserverad, du får en notis när lottning är avklarad.";
 };
 
+const authorizedPrismaClient = new PrismaClient();
 export const addTicketToCart = async (
   prisma: PrismaClient,
   ticketId: string,
   identification: ShopIdentification,
 ) => {
+  const now = new Date(); // ensures checks between the two transactions
+  await authorizedPrismaClient.$transaction(async (prisma) => {
+    await ensureState(prisma, now, ticketId);
+  });
   return await prisma.$transaction(async (prisma) => {
-    const now = new Date();
-    const removed = await removeExpiredConsumables(prisma, now);
-
     const ticket = await prisma.ticket.findUnique({
       where: {
         id: ticketId,
@@ -136,7 +138,7 @@ export const addTicketToCart = async (
 
     if (
       now.valueOf() - ticket.shoppable.availableFrom.valueOf() <=
-      RESERVATION_WINDOW
+      GRACE_PERIOD_WINDOW
     ) {
       return await addReservationInReserveWindow(
         prisma,
@@ -145,13 +147,7 @@ export const addTicketToCart = async (
       );
     }
 
-    if (removed.count > 0) {
-      // if we removed some expired reservations, we need to update the queue in case there is space left
-      const { spaceLeft } = await updateQueue(prisma, ticket.shoppable.id);
-      if (spaceLeft == 0) {
-        return addToQueue(prisma, idPart, ticket);
-      }
-    } else if (ticket.shoppable.consumables.length >= ticket.stock) {
+    if (ticket.shoppable.consumables.length >= ticket.stock) {
       return addToQueue(prisma, idPart, ticket);
     }
 
