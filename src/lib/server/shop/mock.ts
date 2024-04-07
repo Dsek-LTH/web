@@ -1,3 +1,4 @@
+import type { TransactionClient } from "$lib/server/shop/types";
 import { ShoppableType, type Member, type PrismaClient } from "@prisma/client";
 
 export const MOCK_EVENT_1 = {
@@ -64,18 +65,23 @@ export const MOCK_UPCOMING_TICKET = {
 };
 
 export type MockTickets = Awaited<ReturnType<typeof addMockTickets>>;
-export const addMockUsers = async (prisma: PrismaClient) => {
+export const addMockUser = async (
+  prisma: TransactionClient | PrismaClient,
+  suitePrefix: string,
+) => {
+  return await prisma.member.create({
+    data: {
+      studentId: "test" + suitePrefix + crypto.randomUUID(),
+    },
+  });
+};
+export const addMockUsers = async (
+  prisma: PrismaClient,
+  suitePrefix: string,
+) => {
   return await prisma.$transaction(async (prisma) => {
-    const adminMember = await prisma.member.create({
-      data: {
-        studentId: "test" + Math.random().toString(36).substring(10),
-      },
-    });
-    const customerMember = await prisma.member.create({
-      data: {
-        studentId: "test" + Math.random().toString(36).substring(10),
-      },
-    });
+    const adminMember = await addMockUser(prisma, suitePrefix);
+    const customerMember = await addMockUser(prisma, suitePrefix);
     return {
       adminMember,
       customerMember,
@@ -263,5 +269,36 @@ export const removeMockUsers = async (
         },
       },
     });
+  });
+};
+
+export const removeAllTestData = async (
+  prisma: PrismaClient,
+  suitePrefix: string,
+) => {
+  await prisma.shoppable.deleteMany({
+    where: {
+      author: {
+        studentId: {
+          startsWith: "test" + suitePrefix,
+        },
+      },
+    },
+  });
+  await prisma.event.deleteMany({
+    where: {
+      author: {
+        studentId: {
+          startsWith: "test" + suitePrefix,
+        },
+      },
+    },
+  });
+  await prisma.member.deleteMany({
+    where: {
+      studentId: {
+        startsWith: "test" + suitePrefix,
+      },
+    },
   });
 };
