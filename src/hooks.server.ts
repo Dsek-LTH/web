@@ -4,6 +4,9 @@ import {
   KEYCLOAK_CLIENT_ISSUER,
   KEYCLOAK_CLIENT_SECRET,
 } from "$env/static/private";
+import keycloak from "$lib/server/keycloak";
+import { i18n } from "$lib/utils/i18n";
+import { isAvailableLanguageTag, sourceLanguageTag } from "$paraglide/runtime";
 import Keycloak, { type KeycloakProfile } from "@auth/core/providers/keycloak";
 import type { TokenSet } from "@auth/core/types";
 import { SvelteKitAuth } from "@auth/sveltekit";
@@ -11,12 +14,10 @@ import { PrismaClient } from "@prisma/client";
 import { redirect, type Handle } from "@sveltejs/kit";
 import { sequence } from "@sveltejs/kit/hooks";
 import { enhance } from "@zenstackhq/runtime";
-import translatedExtension from "./database/prisma/translationExtension";
+import { randomBytes } from "crypto";
 import schedule from "node-schedule";
-import keycloak from "$lib/server/keycloak";
+import translatedExtension from "./database/prisma/translationExtension";
 import { getAccessPolicies } from "./hooks.server.helpers";
-import { sourceLanguageTag, isAvailableLanguageTag } from "$paraglide/runtime";
-import { i18n } from "$lib/utils/i18n";
 
 const authHandle = SvelteKitAuth({
   secret: AUTH_SECRET,
@@ -87,11 +88,23 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
   const session = await event.locals.getSession();
 
   if (!session?.user) {
+    let externalCode = event.cookies.get("externalCode"); // Retrieve the externalCode from cookies
+    if (!externalCode) {
+      // Generate a new externalCode if it doesn't exist
+      externalCode = randomBytes(16).toString("hex");
+      event.cookies.set("externalCode", externalCode, {
+        httpOnly: false, // Make the cookie accessible to client-side JavaScript
+        path: "/", // Cookie is available on all pages
+        maxAge: 86400 * 7, // Set cookie expiry (7 days)
+        secure: process.env["NODE_ENV"] === "production", // Only send cookie over HTTPS in production
+      });
+    }
     event.locals.prisma = enhance(prisma, {
       user: {
-        studentId: "anonymous",
-        memberId: "anonymous",
+        studentId: undefined,
+        memberId: undefined,
         policies: await getAccessPolicies(prisma),
+        externalCode: externalCode, // For anonymous users
       },
     });
   } else {

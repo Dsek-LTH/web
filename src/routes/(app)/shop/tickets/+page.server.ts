@@ -1,5 +1,3 @@
-import apiNames from "$lib/utils/apiNames";
-import { authorize } from "$lib/utils/authorization";
 import { fail } from "@sveltejs/kit";
 import { redirect } from "sveltekit-flash-message/server";
 import { message, superValidate } from "sveltekit-superforms/server";
@@ -27,12 +25,21 @@ export const actions = {
 
     const form = await superValidate(request, addToCartSchema);
     if (!form.valid) return fail(400, { form });
-    authorize(apiNames.WEBSHOP.PURCHASE, user);
+    if (!user?.memberId && !user?.externalCode) {
+      return fail(401);
+    }
     try {
-      const res = await addTicketToCart(prisma, form.data.ticketId, {
-        memberId: user!.memberId,
-        externalCode: undefined,
-      });
+      const res = await addTicketToCart(
+        prisma,
+        form.data.ticketId,
+        user.memberId
+          ? {
+              memberId: user.memberId,
+            }
+          : {
+              externalCode: user.externalCode!, // guaranteed by guard above
+            },
+      );
 
       throw redirect(
         "/cart",
