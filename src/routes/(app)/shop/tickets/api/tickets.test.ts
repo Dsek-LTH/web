@@ -9,9 +9,10 @@ import {
   expect,
   it,
 } from "vitest";
-import { getAccessPolicies } from "../../../../hooks.server.helpers";
+import { getAccessPolicies } from "../../../../../hooks.server.helpers";
 import { addMockTickets, removeMockTickets } from "./mock";
-import { addTicketToCart, getTickets } from "./tickets";
+import { addTicketToCart } from "./addToCart";
+import { getTickets } from "./getTickets";
 const prisma = new PrismaClient();
 
 let prismaWithAccess = enhance(prisma, {
