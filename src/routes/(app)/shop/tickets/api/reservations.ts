@@ -142,8 +142,10 @@ const moveReservationsToCart = async (
   await prisma.consumable.createMany({
     data: reservationsToMove.map((r) => ({
       ...r,
-      shoppableId,
+      id: undefined,
+      createdAt: undefined,
       order: undefined,
+      shoppableId,
       expiresAt: new Date(Date.now() + TIME_TO_BUY),
     })),
   });
@@ -176,7 +178,7 @@ export const performLotteryIfNecessary = async (
   now: Date,
   shoppableId: string,
 ) => {
-  await prisma.ticket.findUnique({
+  const ticket = await prisma.ticket.findUnique({
     where: {
       id: shoppableId,
       shoppable: {
@@ -191,6 +193,8 @@ export const performLotteryIfNecessary = async (
       },
     },
   });
+  if (ticket == null) return;
+  await performReservationLottery(prisma, shoppableId);
 };
 /**
  * Once the initial grace period is over, call this method. It goes through all reservations and performs the following logic:

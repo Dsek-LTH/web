@@ -1,5 +1,5 @@
 import { PrismaClient, type Shoppable, type Ticket } from "@prisma/client";
-import { ensureState } from "./reservations";
+import { ensureState, performLotteryIfNecessary } from "./reservations";
 import {
   GRACE_PERIOD_WINDOW,
   TIME_TO_BUY,
@@ -23,6 +23,17 @@ const checkUserMaxAmount = async (
     throw new Error("Du har redan den här biljetten (i varukorgen)");
   else if (currentlyInCart >= ticket.maxAmountPerUser)
     throw new Error("Du har redan max antal biljetter (i varukorgen)");
+
+  const currentlyReserved = await prisma.consumableReservation.count({
+    where: {
+      ...id,
+      shoppableId: ticket.shoppable.id,
+    },
+  });
+  if (currentlyReserved > 0)
+    throw new Error(
+      "Biljetten är redan reserverad, du får en notis när lottning är avklarad.",
+    );
 };
 
 const addToQueue = async (
@@ -51,10 +62,22 @@ const addToQueue = async (
   }, du får en notis om det blir din tur att köpa.`;
 };
 
+const afterGracePeriod = async (shoppableId: string) => {
+  try {
+    await authorizedPrismaClient.$transaction(async (prisma) => {
+      await performLotteryIfNecessary(prisma, new Date(), shoppableId);
+    });
+  } catch (err) {
+    console.error("problem performing reservation lottery:", err);
+  }
+};
+
+const gracePeriodTimeouts: Record<string, NodeJS.Timeout> = {};
 const addReservationInReserveWindow = async (
   prisma: TransactionClient,
   id: ReturnType<typeof dbIdentification>,
   shoppableId: string,
+  timeUntilGracePeriod: number,
 ) => {
   const existingReservation = await prisma.consumableReservation.findFirst({
     where: {
@@ -72,6 +95,11 @@ const addReservationInReserveWindow = async (
       order: null,
     },
   });
+  if (gracePeriodTimeouts[shoppableId] === undefined) {
+    gracePeriodTimeouts[shoppableId] = setTimeout(() => {
+      afterGracePeriod(shoppableId);
+    }, timeUntilGracePeriod);
+  }
   return "Biljetten är reserverad, du får en notis när lottning är avklarad.";
 };
 
@@ -144,6 +172,9 @@ export const addTicketToCart = async (
         prisma,
         idPart,
         ticket.shoppable.id,
+        ticket.shoppable.availableFrom.valueOf() +
+          GRACE_PERIOD_WINDOW -
+          Date.now(),
       );
     }
 
