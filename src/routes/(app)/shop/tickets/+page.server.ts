@@ -3,7 +3,8 @@ import { redirect } from "sveltekit-flash-message/server";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { PageServerLoad } from "./$types";
-import { addTicketToCart, getTickets } from "./api/addToCart";
+import { addTicketToCart } from "./api/addToCart";
+import { getTickets } from "./api/getTickets";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const allTickets = await getTickets(locals.prisma);

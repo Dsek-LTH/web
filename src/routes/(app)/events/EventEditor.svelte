@@ -118,6 +118,7 @@
         titleEn: "",
         descriptionEn: "",
         shortDescriptionEn: "",
+        imageUrl: null,
 
         id: "",
         slug: "",
