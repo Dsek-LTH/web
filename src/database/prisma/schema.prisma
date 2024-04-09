@@ -504,6 +504,7 @@ model Member {
     classYear Int? @map("class_year")
     visible Boolean @default(true)
     foodPreference String? @map("food_preference") @db.VarChar(255)
+    stripeCustomerId String? @map("stripe_customer_id")
     pingsFromMe Ping[] @relation("pings_from_memberTomembers")
     pingsToMe Ping[] @relation("pings_to_memberTomembers")
     likedArticles Article[] @relation("article_likes")
@@ -935,6 +936,8 @@ model Consumable {
     expiresAt DateTime? @map("expires_at") @db.Timestamptz(6)
 
     purchasedAt DateTime? @map("purchased_at") @db.Timestamptz(6)
+    /// @allow('update', purchasedAt == null && (memberId == auth().memberId || auth().externalCode != null && externalCustomerCode == auth().externalCode))
+    stripeIntentId String? @map("stripe_intent_id")
     /// @allow('update', has(auth().policies, 'webshop:consume') && consumedAt == null || has(auth().policies, 'webshop:manage'), true)
     consumedAt DateTime? @map("consumed_at") @db.Timestamptz(6)
     questionResponses ItemQuestionResponse[]

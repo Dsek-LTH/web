@@ -1,16 +1,18 @@
-import { SECRET_STRIPE_KEY } from "$env/static/private";
+import { getFullName } from "$lib/utils/client/member";
 import {
   ShoppableType,
   type ItemQuestionResponse,
   type PrismaClient,
   type Shoppable,
 } from "@prisma/client";
-import Stripe from "stripe";
 import authorizedPrismaClient from "./authorizedPrisma";
+import {
+  createPaymentIntent,
+  creteConsumableMetadata,
+  updatePaymentIntent,
+} from "./stripeMethods";
 import { dbIdentification, type ShopIdentification } from "./types";
-
-// initialize Stripe
-const stripe = new Stripe(SECRET_STRIPE_KEY);
+import { obtainStripeCustomer } from "$lib/server/shop/customer";
 
 const clearOutConsumablesAfterSellingOut = async (
   soldOutShoppableIds: string[],
@@ -84,27 +86,83 @@ const purchaseCart = async (
     throw new Error("Biljetten blev slutsåld under köpet"); // with our reservation system, this shouldn't happen, but it's just a safety measure
   }
 
+  let modification = false;
+  for (const consumable of userConsumables) {
+    if (consumable.stripeIntentId) {
+      const intent = await updatePaymentIntent(consumable.stripeIntentId);
+      if (intent.status === "succeeded") modification = true;
+    }
+  }
+  if (modification) {
+    return {
+      message:
+        "En (eller flera) av produkterna i din kundvagn har redan betalats för, din kundvagn har uppdaterats och berörda produkter är köpta.",
+      type: "success",
+    };
+  }
+
   // Step 3: Calculate price
   const price = calculateCartPrice(userConsumables);
   if (price <= 0) {
-    // TODO: Handle consumables as if they cost something and set them to purchased
+    await authorizedPrismaClient.consumable.updateMany({
+      where: {
+        id: {
+          in: userConsumables.map((c) => c.id),
+        },
+        shoppable: {
+          // in case any price is negative we filter by price=0.
+          // A product's price should never be negative, but we check just in case.
+          // We do not want to give away another product for free accidentally.
+          price: 0,
+        },
+      },
+      data: {
+        purchasedAt: new Date(),
+      },
+    });
+    return {
+      message: "Dina gratisprodukter i kundvagnen har blivit köpta.",
+      type: "success",
+    };
   }
+
+  const member = identification.memberId
+    ? await prisma.member.findUnique({
+        where: {
+          id: identification.memberId,
+        },
+      })
+    : null;
+  const customer = member ? await obtainStripeCustomer(member) : null;
 
   // Step 4: Create stripe payment intent
   try {
-    const intent = await stripe.paymentIntents.create(
-      {
-        amount: price + transactionFee(price),
-        currency: "SEK",
-        automatic_payment_methods: {
-          enabled: true,
+    const intent = await createPaymentIntent({
+      amount: price + transactionFee(price),
+      customer: customer?.id ?? undefined,
+      metadata: {
+        isAnonymousUser: !member ? "true" : "false", // metadata can only be string or number
+        customerStudentId: member ? member.studentId : null,
+        customerName: member
+          ? getFullName({
+              ...member,
+              nickname: null,
+            })
+          : null,
+        ...creteConsumableMetadata(userConsumables),
+      },
+      idempotencyKey: idempotencyKey, // makes sure if user presses button twice, only one payment intent is created
+    });
+    await prisma.consumable.updateMany({
+      where: {
+        id: {
+          in: userConsumables.map((c) => c.id),
         },
-        description: "D-sek webshop purchase",
       },
-      {
-        idempotencyKey: idempotencyKey,
+      data: {
+        stripeIntentId: intent.id,
       },
-    );
+    });
     return {
       clientSecret: intent.client_secret,
       message: "Du kan betala nu.",
@@ -144,11 +202,5 @@ const STRIPE_PERCENTAGE_FEE_MODIFIER = 1.0152284264; // 1/(1-0.015) i.e. 1.5%
 const STRIPE_FIXED_FEE = 180; // 1.8 SEK
 export const transactionFee = (price: number) =>
   (price + STRIPE_FIXED_FEE) * STRIPE_PERCENTAGE_FEE_MODIFIER;
-
-const handleStripePayment = async () => {
-  // STEPS:
-  // Step 1: Verify the payment
-  // Step 2: Update the consumables to be purchased
-};
 
 export default purchaseCart;

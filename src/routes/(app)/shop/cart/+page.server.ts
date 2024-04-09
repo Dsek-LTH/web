@@ -41,7 +41,7 @@ export const actions = {
       throw error(401, "Du har ingen kundvagn.");
     }
     try {
-      const { clientSecret } = await purchaseCart(
+      const data = await purchaseCart(
         prisma,
         user.memberId
           ? {
@@ -52,11 +52,7 @@ export const actions = {
             },
         form.data.idempotencyKey,
       );
-      return message(form, {
-        clientSecret: clientSecret,
-        message: "Du kan betala nu.",
-        type: "hidden",
-      });
+      return message(form, data);
     } catch (err) {
       return message(
         form,
