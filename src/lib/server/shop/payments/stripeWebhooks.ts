@@ -1,4 +1,4 @@
-import authorizedPrismaClient from "./authorizedPrisma";
+import authorizedPrismaClient from "../authorizedPrisma";
 import Stripe from "stripe";
 
 export const onPaymentSuccess = async (intent: Stripe.PaymentIntent) => {

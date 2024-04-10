@@ -6,8 +6,8 @@ import {
   dbIdentification,
   type ShopIdentification,
   type TransactionClient,
-} from "./types";
-import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
+} from "../types";
+import authorizedPrismaClient from "../authorizedPrisma";
 
 const checkUserMaxAmount = async (
   prisma: TransactionClient,

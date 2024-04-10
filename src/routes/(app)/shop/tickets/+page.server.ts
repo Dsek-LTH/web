@@ -3,7 +3,7 @@ import { redirect } from "sveltekit-flash-message/server";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { PageServerLoad } from "./$types";
-import { addTicketToCart } from "$lib/server/shop/addToCart";
+import { addTicketToCart } from "$lib/server/shop/addToCart/addToCart";
 import { getTickets } from "$lib/server/shop/getTickets";
 
 export const load: PageServerLoad = async ({ locals }) => {

@@ -5,14 +5,14 @@ import {
   type PrismaClient,
   type Shoppable,
 } from "@prisma/client";
-import authorizedPrismaClient from "./authorizedPrisma";
+import authorizedPrismaClient from "../authorizedPrisma";
 import {
   createPaymentIntent,
   creteConsumableMetadata,
   updatePaymentIntent,
 } from "./stripeMethods";
-import { dbIdentification, type ShopIdentification } from "./types";
-import { obtainStripeCustomer } from "$lib/server/shop/customer";
+import { dbIdentification, type ShopIdentification } from "../types";
+import { obtainStripeCustomer } from "$lib/server/shop/payments/customer";
 
 const clearOutConsumablesAfterSellingOut = async (
   soldOutShoppableIds: string[],
@@ -153,7 +153,7 @@ const purchaseCart = async (
       },
       idempotencyKey: idempotencyKey, // makes sure if user presses button twice, only one payment intent is created
     });
-    await prisma.consumable.updateMany({
+    await authorizedPrismaClient.consumable.updateMany({
       where: {
         id: {
           in: userConsumables.map((c) => c.id),
@@ -171,10 +171,6 @@ const purchaseCart = async (
   } catch (err) {
     throw new Error(`Något gick fel: ${err}`);
   }
-  // STEPS:
-  // Step 3: Create stripe session and request
-  // Step 4: Store stripe session in the database (connected to consumables)
-  // Step 4: Send stripe session for frontend to show
 };
 
 type ConsumableFieldsForPrice = {

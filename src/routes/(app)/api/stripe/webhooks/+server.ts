@@ -1,11 +1,11 @@
 // in src/routes/stripe/webhooks/+server.js
 import { SECRET_STRIPE_WEBHOOK_SIGNING } from "$env/static/private";
-import { stripe } from "$lib/server/shop/stripe.js";
+import stripe from "$lib/server/shop/payments/stripe.js";
 import {
   onPaymentFailure,
   onPaymentProcessing,
   onPaymentSuccess,
-} from "$lib/server/shop/stripeWebhooks.js";
+} from "$lib/server/shop/payments/stripeWebhooks.js";
 import { error, json } from "@sveltejs/kit";
 import type Stripe from "stripe";
 

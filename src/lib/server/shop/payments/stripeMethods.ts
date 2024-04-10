@@ -1,8 +1,8 @@
-import { onPaymentSuccess } from "$lib/server/shop/stripeWebhooks";
+import { onPaymentSuccess } from "$lib/server/shop/payments/stripeWebhooks";
 import type { Consumable, Shoppable } from "@prisma/client";
 import Stripe from "stripe";
-import authorizedPrismaClient from "./authorizedPrisma";
-import { stripe } from "./stripe";
+import authorizedPrismaClient from "../authorizedPrisma";
+import stripe from "./stripe";
 
 type RequiredProps = "amount" | "metadata" | "customer";
 type Props = Pick<Stripe.PaymentIntentCreateParams, RequiredProps> &

@@ -214,29 +214,29 @@ export const removeMockTickets = async (
   prisma: PrismaClient,
   ticketIds: string[],
 ) => {
-  await prisma.$transaction(async (prisma) => {
-    await prisma.consumable.deleteMany({
+  await prisma.$transaction(async (tx) => {
+    await tx.consumable.deleteMany({
       where: {
         shoppableId: {
           in: ticketIds,
         },
       },
     }); // remove all consumables
-    await prisma.consumableReservation.deleteMany({
+    await tx.consumableReservation.deleteMany({
       where: {
         shoppableId: {
           in: ticketIds,
         },
       },
     }); // remove all reservations
-    await prisma.shoppable.deleteMany({
+    await tx.shoppable.deleteMany({
       where: {
         id: {
           in: ticketIds,
         },
       },
     });
-    await prisma.event.deleteMany({
+    await tx.event.deleteMany({
       where: {
         tickets: {
           some: {
@@ -254,15 +254,15 @@ export const removeMockUsers = async (
   prisma: PrismaClient,
   memberIds: string[],
 ) => {
-  await prisma.$transaction(async (prisma) => {
-    await prisma.event.deleteMany({
+  await prisma.$transaction(async (tx) => {
+    await tx.event.deleteMany({
       where: {
         authorId: {
           in: memberIds,
         },
       },
     });
-    await prisma.member.deleteMany({
+    await tx.member.deleteMany({
       where: {
         id: {
           in: memberIds,

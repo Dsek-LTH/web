@@ -3,7 +3,7 @@ import {
   GRACE_PERIOD_WINDOW,
   TIME_TO_BUY,
   type TransactionClient,
-} from "./types";
+} from "../types";
 
 /**
  * Ensures the reservation state of the given shoppable. It will ensure the state at the timepoint "now".

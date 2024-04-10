@@ -1,5 +1,5 @@
-import authorizedPrismaClient from "./authorizedPrisma";
-import { stripe } from "./stripe";
+import authorizedPrismaClient from "../authorizedPrisma";
+import stripe from "./stripe";
 import { getFullName } from "$lib/utils/client/member";
 import type { Member } from "@prisma/client";
 
@@ -45,9 +45,10 @@ export const obtainStripeCustomer = async (member: Member) => {
     if (!customer.deleted) {
       return customer;
     }
-    // if customer is deleted, create a new one
-  } catch (error) {
-    console.error("Could not get customer", error);
+    // customer deleted, create new
+    return await createStripeCustomer({ member });
+  } catch {
+    // customer not found
+    return await createStripeCustomer({ member });
   }
-  return await createStripeCustomer({ member });
 };

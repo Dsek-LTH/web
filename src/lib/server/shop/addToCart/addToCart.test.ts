@@ -9,10 +9,10 @@ import {
   vi,
 } from "vitest";
 import { addTicketToCart } from "./addToCart";
-import { GRACE_PERIOD_WINDOW, type ShopIdentification } from "./types";
+import { GRACE_PERIOD_WINDOW, type ShopIdentification } from "../types";
 
 import { enhance } from "@zenstackhq/runtime";
-import { getAccessPolicies } from "../../../hooks.server.helpers";
+import { getAccessPolicies } from "../../../../hooks.server.helpers";
 import {
   addMockTickets,
   addMockUser,
@@ -21,8 +21,8 @@ import {
   removeMockTickets,
   removeMockUsers,
   type MockTickets,
-} from "./mock";
-import { performLotteryIfNecessary } from "$lib/server/shop/reservations";
+} from "../mock";
+import { performLotteryIfNecessary } from "./reservations";
 const prisma = new PrismaClient();
 
 const SUITE_PREFIX = "addToCart";
@@ -454,7 +454,6 @@ const addTicketsTestForUser = (
         ticket.id,
         identification,
       );
-      console.log("result", result);
       expect(result).toContain("6"); // tell user they are in position 6
       await expectConsumableCount(ticket.id, ticket.stock);
       await expectReservationCount(ticket.id, 6);

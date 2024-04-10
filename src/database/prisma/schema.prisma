@@ -936,7 +936,6 @@ model Consumable {
     expiresAt DateTime? @map("expires_at") @db.Timestamptz(6)
 
     purchasedAt DateTime? @map("purchased_at") @db.Timestamptz(6)
-    /// @allow('update', purchasedAt == null && (memberId == auth().memberId || auth().externalCode != null && externalCustomerCode == auth().externalCode))
     stripeIntentId String? @map("stripe_intent_id")
     /// @allow('update', has(auth().policies, 'webshop:consume') && consumedAt == null || has(auth().policies, 'webshop:manage'), true)
     consumedAt DateTime? @map("consumed_at") @db.Timestamptz(6)

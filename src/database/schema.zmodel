@@ -962,9 +962,7 @@ model Consumable {
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   expiresAt DateTime? @map("expires_at") @db.Timestamptz(6)
   purchasedAt DateTime? @map("purchased_at") @db.Timestamptz(6)
-  stripeIntentId String? @map("stripe_intent_id") @allow("update", purchasedAt == null 
-                                                                && (memberId == auth().memberId 
-                                                                    || auth().externalCode != null && externalCustomerCode == auth().externalCode))
+  stripeIntentId String? @map("stripe_intent_id")
 
   // customer or webshop:consume can always consume from unconsumed state. manager can "unconsume" from consumed state
   consumedAt DateTime? @map("consumed_at") @db.Timestamptz(6) @allow("update",  (has(auth().policies, "webshop:consume") && consumedAt == null) 

@@ -1,5 +1,5 @@
 import { getCart } from "$lib/server/shop/getTickets";
-import purchaseCart from "$lib/server/shop/purchase";
+import purchaseCart from "$lib/server/shop/payments/purchase";
 import { error, fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
