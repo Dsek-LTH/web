@@ -1,3 +1,5 @@
+import { removeExpiredConsumables } from "$lib/server/shop/addToCart/reservations";
+import { obtainStripeCustomer } from "$lib/server/shop/payments/customer";
 import { getFullName } from "$lib/utils/client/member";
 import {
   ShoppableType,
@@ -6,14 +8,13 @@ import {
   type Shoppable,
 } from "@prisma/client";
 import authorizedPrismaClient from "../authorizedPrisma";
+import { dbIdentification, type ShopIdentification } from "../types";
 import {
   createPaymentIntent,
   creteConsumableMetadata,
   removePaymentIntent,
   updatePaymentIntent,
 } from "./stripeMethods";
-import { dbIdentification, type ShopIdentification } from "../types";
-import { obtainStripeCustomer } from "$lib/server/shop/payments/customer";
 
 const clearOutConsumablesAfterSellingOut = async (
   soldOutShoppableIds: string[],
@@ -43,6 +44,7 @@ const purchaseCart = async (
   idempotencyKey: string,
 ) => {
   const soldOutShoppableIds: string[] = [];
+  const now = new Date();
 
   // Step 1: Get all consumables in the user's cart
   const userConsumables = await prisma.consumable.findMany({
@@ -75,6 +77,10 @@ const purchaseCart = async (
   }
   // Step 2: Check if the consumables are still available (should not happen but you never know I guess)
   for (const consumable of userConsumables) {
+    if (consumable.expiresAt && consumable.expiresAt < now) {
+      await removeExpiredConsumables(prisma, new Date());
+      throw new Error("En eller flera produkter i din kundvagn har löpt ut.");
+    }
     if (
       consumable.shoppable.type === ShoppableType.TICKET &&
       consumable.shoppable._count.consumables >=
@@ -165,13 +171,20 @@ const purchaseCart = async (
       (id) => id !== intent.id,
     );
     if (existingDifferentPaymentIntents.length > 0) {
+      console.log(
+        "Removing existing different payment intents",
+        existingDifferentPaymentIntents.length,
+        existingDifferentPaymentIntents[0],
+        intent.id,
+        existingPaymentIntents,
+      );
       await Promise.all(
         existingDifferentPaymentIntents.map((id) => removePaymentIntent(id)),
       );
     }
     try {
       // there is a race condition error here. If two calls to this method are done simultaneously, both will succeed, but one will be overwritten by another. COuld lead to an intent not connected to a consumable.
-      await authorizedPrismaClient.$transaction(async (tx) => {
+      await authorizedPrismaClient.$transaction(async (tx): Promise<void> => {
         // ensure all of the consumables are still without a stripeIntentId, and not removed
         const consumables = await tx.consumable.findMany({
           where: {
@@ -191,9 +204,8 @@ const purchaseCart = async (
           },
         });
         if (consumables.length !== userConsumables.length) {
-          throw new Error(
-            "Något gick fel. Försök igen eller kontakta support.",
-          );
+          console.log(consumables, userConsumables, intent.id);
+          throw new Error("Du hade flera betalningar igång samtidigt.");
         }
         const updated = await tx.consumable.updateMany({
           where: {
@@ -203,12 +215,12 @@ const purchaseCart = async (
           },
           data: {
             stripeIntentId: intent.id,
+            expiresAt: null, // should not expire while intent is active.
+            // expiresAt should be set again when payment fails, intent is cancelled, or other stripe timeout (if it exists)
           },
         });
         if (updated.count !== userConsumables.length) {
-          throw new Error(
-            "Något gick fel. Försök igen eller kontakta support.",
-          );
+          throw new Error("Kunde inte uppdatera databas.");
         }
       });
     } catch (err) {

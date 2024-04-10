@@ -8,20 +8,21 @@ import {
 /**
  * Ensures the reservation state of the given shoppable. It will ensure the state at the timepoint "now".
  * It removes all consumables which have expired at "now". It also performs the reservation lottery if "now" is after the grace period window.
- * TODO: This function should be called periodically to ensure that expired consumables are removed, not only when someone queries it.
+ * @returns an array of ticket ids that were modified, if any
  */
 export const ensureState = async (
   prisma: TransactionClient,
   now: Date,
   shoppableId: string,
-): Promise<void> => {
-  await removeExpiredConsumables(prisma, now);
+): Promise<string[] | undefined> => {
+  const modifiedTickets = await removeExpiredConsumables(prisma, now);
   await performLotteryIfNecessary(prisma, now, shoppableId);
+  return modifiedTickets;
 };
 
 /**
  * Removes all expired consumables. Also updates any necessary queues for tickets where spots just opened up.
- * TODO: This function should be called periodically to ensure that expired consumables are removed, not only when someone queries it.
+ * @returns an array of ticket ids that were modified
  */
 export const removeExpiredConsumables = async (
   prisma: TransactionClient,
@@ -30,7 +31,7 @@ export const removeExpiredConsumables = async (
   const removed = await prisma.consumable.deleteMany({
     where: {
       expiresAt: {
-        lt: now,
+        lte: now,
       },
       purchasedAt: null,
     },
