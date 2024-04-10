@@ -31,7 +31,11 @@ import {
   removeMockUsers,
   type MockTickets,
 } from "../mock";
-import { dbIdentification, type ShopIdentification } from "../types";
+import {
+  TIME_TO_BUY,
+  dbIdentification,
+  type ShopIdentification,
+} from "../types";
 
 const mockFns = vi.hoisted(() => ({
   customers: {
@@ -156,12 +160,10 @@ const addPurchaseTestForUser = (
         shoppableId: tickets.activeTicket.id,
       },
     });
-    try {
-      await purchaseCart(prismaWithAccess, identification, "idempotency-key");
-      expect.fail("should not purchase empty cart");
-    } catch (e) {
-      expect(e).toBeDefined();
-    }
+    await expect(
+      purchaseCart(prismaWithAccess, identification, "idempotency-key"),
+      "should not purchase empty cart",
+    ).rejects.toThrow();
   });
   it("creates a payment intent", async () => {
     const res = await purchaseCart(
@@ -201,6 +203,7 @@ const addPurchaseTestForUser = (
     });
     mockFns.paymentIntents.retrieve.mockResolvedValueOnce({
       status: "requires_payment_method",
+      id: "intent-id",
     });
     const res2 = await purchaseCart(
       prismaWithAccess,
@@ -354,13 +357,10 @@ const addPurchaseTestForUser = (
       },
     });
 
-    try {
-      await purchaseCart(prismaWithAccess, identification, "idempotency-key");
-      // after this point, user may fill in their info and pay. We do not want to expire it during this.
-      expect.fail("should not allow purchase of expired consumable");
-    } catch (e) {
-      expect(e).toBeDefined();
-    }
+    await expect(
+      purchaseCart(prismaWithAccess, identification, "idempotency-key"),
+      "should not allow purchase of expired consumable",
+    ).rejects.toThrow();
   });
 
   describe("expiration during payment", async () => {
@@ -397,7 +397,7 @@ const addPurchaseTestForUser = (
           shoppableId: ticketId,
         },
         data: {
-          expiresAt: new Date(Date.now() + 1000), // set to be expired in 1 second
+          expiresAt: new Date(Date.now() + TIME_TO_BUY), // set it from now
         },
       });
       await purchaseCart(prismaWithAccess, identification, "idempotency-key");
@@ -419,7 +419,7 @@ const addPurchaseTestForUser = (
         true,
       );
 
-      vi.setSystemTime(vi.getMockedSystemTime()!.valueOf() + 1000); // 2 seconds later
+      vi.setSystemTime(vi.getMockedSystemTime()!.valueOf() + TIME_TO_BUY);
       await removeExpiredConsumables(prisma, new Date()); // should NOT remove the consumable
       await expectConsumableCount(
         1,
@@ -430,7 +430,7 @@ const addPurchaseTestForUser = (
 
     it("does expire a purchase after failed attempt", async () => {
       await purchaseCart(prismaWithAccess, identification, "idempotency-key");
-      vi.setSystemTime(vi.getMockedSystemTime()!.valueOf() + 2000); // 2 seconds later
+      vi.setSystemTime(vi.getMockedSystemTime()!.valueOf() + TIME_TO_BUY); // 2 seconds later
       await removeExpiredConsumables(prisma, new Date()); // should NOT remove the consumable
       await expectConsumableCount(
         1,
@@ -446,7 +446,7 @@ const addPurchaseTestForUser = (
         "consumable after failed payment should exist",
       );
 
-      vi.setSystemTime(vi.getMockedSystemTime()!.valueOf() + 1000); // 2 seconds later
+      vi.setSystemTime(vi.getMockedSystemTime()!.valueOf() + TIME_TO_BUY); // 2 seconds later
 
       await removeExpiredConsumables(prisma, new Date()); // should NOT remove the consumable
       await expectConsumableCount(
@@ -486,24 +486,21 @@ const addPurchaseTestForUser = (
     });
 
     it("throw error if stripe webhook towards nonexisting intent", async () => {
-      try {
-        await onPaymentSuccess({
+      await expect(
+        onPaymentSuccess({
           id: "non-existing-intent-1",
           status: "succeeded",
-        } as unknown as Stripe.PaymentIntent);
-        expect.fail("no error on success to non-existing intent");
-      } catch (e) {
-        expect(e).toBeDefined();
-      }
-      try {
-        await onPaymentFailure({
+        } as unknown as Stripe.PaymentIntent),
+        "no error on success on non-existing intent",
+      ).rejects.toThrow();
+
+      await expect(
+        onPaymentFailure({
           id: "non-existing-intent-2",
           status: "succeeded",
-        } as unknown as Stripe.PaymentIntent);
-        expect.fail("no error on failure to non-existing intent");
-      } catch (e) {
-        expect(e).toBeDefined();
-      }
+        } as unknown as Stripe.PaymentIntent),
+        "no error on failure on non-existing intent",
+      ).rejects.toThrow();
     });
   });
 

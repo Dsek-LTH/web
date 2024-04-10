@@ -85,84 +85,28 @@ const addTicketsTestForUser = (
     it("doesn't add a ticket twice to cart", async () => {
       const ticket = tickets.activeTicket;
       await addTicketToCart(prismaWithAccess, ticket.id, identification);
-      try {
-        await addTicketToCart(prismaWithAccess, ticket.id, identification);
-        expect.fail("Second call should fail");
-      } catch (error) {
-        expect(error).toBeDefined();
-      }
-      expect(
-        (
-          await prisma.consumable.findMany({
-            where: {
-              shoppableId: ticket.id,
-            },
-          })
-        ).length,
-      ).toBe(1);
-      expect(
-        (
-          await prisma.consumableReservation.findMany({
-            where: {
-              shoppableId: ticket.id,
-            },
-          })
-        ).length,
-      ).toBe(0);
+      await expect(
+        addTicketToCart(prismaWithAccess, ticket.id, identification),
+        "Second call should fail",
+      ).rejects.toThrow();
+      await expectConsumableCount(ticket.id, 1);
+      await expectReservationCount(ticket.id, 0);
     });
     it("doesn't add an upcoming ticket to cart", async () => {
       const ticket = tickets.upcomingTicket;
-      try {
-        await addTicketToCart(prismaWithAccess, ticket.id, identification);
-        expect.fail();
-      } catch (error) {
-        expect(error).toBeDefined();
-      }
-      expect(
-        (
-          await prisma.consumable.findMany({
-            where: {
-              shoppableId: ticket.id,
-            },
-          })
-        ).length,
-      ).toBe(0);
-      expect(
-        (
-          await prisma.consumableReservation.findMany({
-            where: {
-              shoppableId: ticket.id,
-            },
-          })
-        ).length,
-      ).toBe(0);
+      await expect(
+        addTicketToCart(prismaWithAccess, ticket.id, identification),
+      ).rejects.toThrow();
+      await expectConsumableCount(ticket.id, 0);
+      await expectReservationCount(ticket.id, 0);
     });
     it("doesn't add a past ticket to cart", async () => {
       const ticket = tickets.pastTicket;
-      try {
-        await addTicketToCart(prismaWithAccess, ticket.id, identification);
-        expect.fail();
-      } catch (error) {
-        expect(error).toBeDefined();
-      }
-      expect(
-        (
-          await prisma.consumable.findMany({
-            where: {
-              shoppableId: ticket.id,
-            },
-          })
-        ).length,
-      ).toBe(0);
-      expect(
-        (
-          await prisma.consumableReservation.findMany({
-            where: {
-              shoppableId: ticket.id,
-            },
-          })
-        ).length,
-      ).toBe(0);
+      await expect(
+        addTicketToCart(prismaWithAccess, ticket.id, identification),
+      ).rejects.toThrow();
+      await expectConsumableCount(ticket.id, 0);
+      await expectReservationCount(ticket.id, 0);
     });
   });
 
@@ -193,21 +137,10 @@ const addTicketsTestForUser = (
     it("doesn't reserve twice", async () => {
       const ticket = tickets.activeEarlyTicket;
       await addTicketToCart(prismaWithAccess, ticket.id, identification);
-      try {
-        await addTicketToCart(prismaWithAccess, ticket.id, identification);
-        expect.fail();
-      } catch (error) {
-        expect(error).toBeDefined();
-      }
-      expect(
-        (
-          await prisma.consumableReservation.findMany({
-            where: {
-              shoppableId: ticket.id,
-            },
-          })
-        ).length,
-      ).toBe(1);
+      await expect(
+        addTicketToCart(prismaWithAccess, ticket.id, identification),
+      ).rejects.toThrow();
+      await expectReservationCount(ticket.id, 1);
     });
   });
 
@@ -275,39 +208,12 @@ const addTicketsTestForUser = (
           purchasedAt: new Date(),
         },
       });
-      expect(
-        (
-          await prisma.consumable.findMany({
-            where: {
-              shoppableId: ticket.id,
-            },
-          })
-        ).length,
-      ).toBe(10);
-      try {
-        await addTicketToCart(prismaWithAccess, ticket.id, identification);
-        expect.fail();
-      } catch (error) {
-        expect(error).toBeDefined();
-      }
-      expect(
-        (
-          await prisma.consumable.findMany({
-            where: {
-              shoppableId: ticket.id,
-            },
-          })
-        ).length,
-      ).toBe(10);
-      expect(
-        (
-          await prisma.consumableReservation.findMany({
-            where: {
-              shoppableId: ticket.id,
-            },
-          })
-        ).length,
-      ).toBe(0);
+      await expectConsumableCount(ticket.id, 10);
+      await expect(
+        addTicketToCart(prismaWithAccess, ticket.id, identification),
+      ).rejects.toThrow();
+      await expectConsumableCount(ticket.id, 10);
+      await expectReservationCount(ticket.id, 0);
     });
 
     it("expires un-purchased consumables", async () => {
@@ -414,12 +320,9 @@ const addTicketsTestForUser = (
       vi.setSystemTime(
         vi.getMockedSystemTime()!.valueOf() + GRACE_PERIOD_WINDOW / 2,
       );
-      try {
-        await addTicketToCart(prismaWithAccess, ticket.id, identification);
-        expect.fail();
-      } catch (error) {
-        expect(error).toBeDefined();
-      }
+      await expect(
+        addTicketToCart(prismaWithAccess, ticket.id, identification),
+      ).rejects.toThrow();
       await expectConsumableCount(ticket.id, 0);
       await expectReservationCount(ticket.id, 1);
 
