@@ -75,31 +75,37 @@ export const removePaymentIntent = async (intentId: string) => {
   });
 };
 
-export const updatePaymentIntent = async (intentId: string) => {
+export const updatePaymentIntent = async (
+  intentId: string,
+): Promise<[Stripe.Response<Stripe.PaymentIntent>, boolean]> => {
   const intent = await getPaymentIntent(intentId);
+  let canTryAgain = false;
   switch (intent.status) {
+    case "succeeded":
+      // payment was successful
+      await onPaymentSuccess(intent); // mark as successful
+      break;
     case "requires_payment_method":
       // payment intent was started but never finished, or it failed.
-      await removePaymentIntent(intent.id);
+      canTryAgain = true;
       break;
     case "requires_action":
       // user is required to confirm with another platform, like SMS or BankID.
-      await removePaymentIntent(intent.id);
+      canTryAgain = true;
       break;
     case "requires_capture":
       // only valid if you use the stripe "authorization then capture" workflow, where payment method is authorized, and THEN payment is captured at a later time.
-      await removePaymentIntent(intent.id);
+      canTryAgain = true;
       break;
     case "requires_confirmation":
       // a popup whether or not the user want's to confirm the payment has been showed to the user but not confirmed yet.
-      await removePaymentIntent(intent.id);
+      canTryAgain = true;
       break;
     case "processing":
       // payment in progress, do not start a new transaction
       throw new Error("Du har redan en pågående betalning.");
     case "canceled":
       // payment was canceled
-      await removePaymentIntent(intent.id);
       await authorizedPrismaClient.consumable.updateMany({
         where: {
           stripeIntentId: intentId,
@@ -110,14 +116,10 @@ export const updatePaymentIntent = async (intentId: string) => {
         },
       });
       break;
-    case "succeeded":
-      // payment was successful
-      await onPaymentSuccess(intent); // mark as successful
-      break;
     default:
       // Unknown status. Remove intent
       await removePaymentIntent(intent.id);
       break;
   }
-  return intent;
+  return [intent, canTryAgain];
 };

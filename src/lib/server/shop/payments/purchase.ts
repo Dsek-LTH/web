@@ -9,6 +9,7 @@ import authorizedPrismaClient from "../authorizedPrisma";
 import {
   createPaymentIntent,
   creteConsumableMetadata,
+  removePaymentIntent,
   updatePaymentIntent,
 } from "./stripeMethods";
 import { dbIdentification, type ShopIdentification } from "../types";
@@ -42,6 +43,7 @@ const purchaseCart = async (
   idempotencyKey: string,
 ) => {
   const soldOutShoppableIds: string[] = [];
+
   // Step 1: Get all consumables in the user's cart
   const userConsumables = await prisma.consumable.findMany({
     where: {
@@ -87,10 +89,15 @@ const purchaseCart = async (
   }
 
   let modification = false;
+  const existingPaymentIntents = [];
   for (const consumable of userConsumables) {
     if (consumable.stripeIntentId) {
-      const intent = await updatePaymentIntent(consumable.stripeIntentId);
+      const [intent, canTryAgain] = await updatePaymentIntent(
+        consumable.stripeIntentId,
+      );
       if (intent.status === "succeeded") modification = true;
+      if (!canTryAgain) await removePaymentIntent(consumable.stripeIntentId);
+      else existingPaymentIntents.push(intent.id);
     }
   }
   if (modification) {
@@ -153,16 +160,61 @@ const purchaseCart = async (
       },
       idempotencyKey: idempotencyKey, // makes sure if user presses button twice, only one payment intent is created
     });
-    await authorizedPrismaClient.consumable.updateMany({
-      where: {
-        id: {
-          in: userConsumables.map((c) => c.id),
-        },
-      },
-      data: {
-        stripeIntentId: intent.id,
-      },
-    });
+
+    const existingDifferentPaymentIntents = existingPaymentIntents.filter(
+      (id) => id !== intent.id,
+    );
+    if (existingDifferentPaymentIntents.length > 0) {
+      await Promise.all(
+        existingDifferentPaymentIntents.map((id) => removePaymentIntent(id)),
+      );
+    }
+    try {
+      // there is a race condition error here. If two calls to this method are done simultaneously, both will succeed, but one will be overwritten by another. COuld lead to an intent not connected to a consumable.
+      await authorizedPrismaClient.$transaction(async (tx) => {
+        // ensure all of the consumables are still without a stripeIntentId, and not removed
+        const consumables = await tx.consumable.findMany({
+          where: {
+            id: {
+              in: userConsumables.map((c) => c.id),
+            },
+            OR: [
+              {
+                stripeIntentId: null,
+              },
+              {
+                stripeIntentId: {
+                  equals: intent.id, // it's fine if its the same (might be due to idempotencyKey)
+                },
+              },
+            ],
+          },
+        });
+        if (consumables.length !== userConsumables.length) {
+          throw new Error(
+            "Något gick fel. Försök igen eller kontakta support.",
+          );
+        }
+        const updated = await tx.consumable.updateMany({
+          where: {
+            id: {
+              in: userConsumables.map((c) => c.id),
+            },
+          },
+          data: {
+            stripeIntentId: intent.id,
+          },
+        });
+        if (updated.count !== userConsumables.length) {
+          throw new Error(
+            "Något gick fel. Försök igen eller kontakta support.",
+          );
+        }
+      });
+    } catch (err) {
+      await removePaymentIntent(intent.id);
+      throw new Error(`Något gick fel: ${err}`);
+    }
     return {
       clientSecret: intent.client_secret,
       message: "Du kan betala nu.",
