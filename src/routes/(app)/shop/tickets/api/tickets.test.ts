@@ -24,7 +24,7 @@ let prismaWithAccess = enhance(prisma, {
 });
 let tickets: Awaited<ReturnType<typeof addMockTickets>>;
 afterAll(async () => {
-  removeMockTickets(prisma);
+  await removeMockTickets(prisma);
 });
 beforeEach(async () => {
   tickets = await addMockTickets(prisma);
@@ -103,7 +103,7 @@ describe("Add tickets to cart", () => {
       await addTicketToCart(prismaWithAccess, tickets.activeTicket.id, {
         memberId: tickets.customerMember.id,
       });
-      expect.fail();
+      expect.fail("Second call should fail");
     } catch (error) {
       expect(error).toBeDefined();
     }
@@ -341,7 +341,7 @@ describe("Add tickets to cart", () => {
         await addTicketToCart(prismaWithAccess, tickets.activeEarlyTicket.id, {
           externalCode: "external-code",
         });
-        expect.fail();
+        expect.fail("Second call should fail");
       } catch (error) {
         expect(error).toBeDefined();
       }
