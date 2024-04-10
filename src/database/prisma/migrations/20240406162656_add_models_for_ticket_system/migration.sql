@@ -15,7 +15,7 @@ CREATE TABLE "shoppable" (
     "authorId" UUID NOT NULL,
     "price" INTEGER NOT NULL,
     "available_from" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "available_to" TIMESTAMP(3),
+    "available_to" TIMESTAMPTZ(6),
     "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "removed_at" TIMESTAMPTZ(6),
@@ -46,14 +46,14 @@ CREATE TABLE "item_question" (
 );
 
 -- CreateTable
-CREATE TABLE "item_question_answer" (
+CREATE TABLE "item_question_option" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "questionId" UUID NOT NULL,
     "answer" TEXT NOT NULL,
     "answerEn" TEXT,
     "extraPrice" INTEGER,
 
-    CONSTRAINT "item_question_answer_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "item_question_option_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -94,7 +94,7 @@ ALTER TABLE "ticket" ADD CONSTRAINT "ticket_eventId_fkey" FOREIGN KEY ("eventId"
 ALTER TABLE "item_question" ADD CONSTRAINT "item_question_shoppableId_fkey" FOREIGN KEY ("shoppableId") REFERENCES "shoppable"("id") ON DELETE CASCADE ON UPDATE NO ACTION;
 
 -- AddForeignKey
-ALTER TABLE "item_question_answer" ADD CONSTRAINT "item_question_answer_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "item_question"("id") ON DELETE CASCADE ON UPDATE NO ACTION;
+ALTER TABLE "item_question_option" ADD CONSTRAINT "item_question_option_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "item_question"("id") ON DELETE CASCADE ON UPDATE NO ACTION;
 
 -- AddForeignKey
 ALTER TABLE "item_question_response" ADD CONSTRAINT "item_question_response_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "item_question"("id") ON DELETE CASCADE ON UPDATE NO ACTION;

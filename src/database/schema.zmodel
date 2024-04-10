@@ -912,7 +912,7 @@ model ItemQuestionOption {
   @@allow("update", auth().memberId == question.shoppable.authorId || has(auth().policies, "webshop:manage"))
   @@allow("delete", auth().memberId == question.shoppable.authorId || has(auth().policies, "webshop:manage"))
 
-  @@map("item_question_answer")
+  @@map("item_question_option")
 }
 
 model ItemQuestionResponse {
