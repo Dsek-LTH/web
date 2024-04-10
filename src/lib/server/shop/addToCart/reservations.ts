@@ -31,6 +31,7 @@ export const removeExpiredConsumables = async (
   const removed = await prisma.consumable.deleteMany({
     where: {
       expiresAt: {
+        not: null,
         lte: now,
       },
       purchasedAt: null,
@@ -53,6 +54,14 @@ export const updateAllNecessaryQueues = async (prisma: TransactionClient) => {
       shoppable: {
         reservations: {
           some: {}, // 'some' ensures that there is at least one reservation
+          every: {
+            order: {
+              not: null, // if there is a null order, lotter should have been performed or should be performed
+            },
+          },
+        },
+        availableFrom: {
+          lte: new Date(Date.now() - GRACE_PERIOD_WINDOW),
         },
       },
     },

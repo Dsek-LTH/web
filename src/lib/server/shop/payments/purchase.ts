@@ -166,18 +166,10 @@ const purchaseCart = async (
       },
       idempotencyKey: idempotencyKey, // makes sure if user presses button twice, only one payment intent is created
     });
-
     const existingDifferentPaymentIntents = existingPaymentIntents.filter(
       (id) => id !== intent.id,
     );
     if (existingDifferentPaymentIntents.length > 0) {
-      console.log(
-        "Removing existing different payment intents",
-        existingDifferentPaymentIntents.length,
-        existingDifferentPaymentIntents[0],
-        intent.id,
-        existingPaymentIntents,
-      );
       await Promise.all(
         existingDifferentPaymentIntents.map((id) => removePaymentIntent(id)),
       );
@@ -204,10 +196,10 @@ const purchaseCart = async (
           },
         });
         if (consumables.length !== userConsumables.length) {
-          console.log(consumables, userConsumables, intent.id);
+          console.log(intent.id, consumables, userConsumables);
           throw new Error("Du hade flera betalningar igång samtidigt.");
         }
-        const updated = await tx.consumable.updateMany({
+        await tx.consumable.updateMany({
           where: {
             id: {
               in: userConsumables.map((c) => c.id),
@@ -219,9 +211,6 @@ const purchaseCart = async (
             // expiresAt should be set again when payment fails, intent is cancelled, or other stripe timeout (if it exists)
           },
         });
-        if (updated.count !== userConsumables.length) {
-          throw new Error("Kunde inte uppdatera databas.");
-        }
       });
     } catch (err) {
       await removePaymentIntent(intent.id);
