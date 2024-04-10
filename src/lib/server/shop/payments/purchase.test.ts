@@ -29,7 +29,6 @@ import {
   removeAllTestData,
   removeMockTickets,
   removeMockUsers,
-  type MockTickets,
 } from "../mock";
 import {
   TIME_TO_BUY,
@@ -77,6 +76,7 @@ vi.mock("./stripe", () => ({
 /* eslint-enable @typescript-eslint/no-explicit-any -- End of mocking*/
 
 const prisma = new PrismaClient();
+
 const SUITE_PREFIX = "purchase";
 
 const addPurchaseTestForUser = (
@@ -84,12 +84,11 @@ const addPurchaseTestForUser = (
   adminMember: Member,
   identification: ShopIdentification,
 ) => {
-  let tickets: MockTickets;
-  beforeEach(async () => {
-    tickets = await addMockTickets(prisma, adminMember);
+  beforeEach(async (context) => {
+    context.tickets = await addMockTickets(prisma, adminMember);
     await addTicketToCart(
       prismaWithAccess,
-      tickets.activeTicket.id,
+      context.tickets.activeTicket.id,
       identification,
     ).catch(() => expect.fail("Failed to add ticket to cart"));
 
@@ -111,16 +110,13 @@ const addPurchaseTestForUser = (
       status: "requires_payment_method",
     });
   });
-  afterEach(async () => {
+
+  afterEach(async ({ tickets }) => {
     const ticketIds = Object.values(tickets).map((t) => t.id);
     await removeMockTickets(prisma, ticketIds).catch(() =>
       expect.fail("Failed to remove tickets"),
     );
-    Object.values(mockFns).forEach((mock) => {
-      Object.values(mock).forEach((fn) => {
-        fn.mockClear();
-      });
-    });
+    vi.clearAllMocks();
     if (identification.memberId) {
       await prisma.member.update({
         where: {
@@ -132,6 +128,7 @@ const addPurchaseTestForUser = (
       });
     }
   });
+
   it("mocks stripe correctly", async () => {
     const { default: stripe } = await import("./stripe");
     const customer = await stripe.customers.retrieve("customer-id");
@@ -153,7 +150,7 @@ const addPurchaseTestForUser = (
     expect(priceWithFee).toBe(price + fee);
   });
 
-  it("doesn't create intent for empty cart", async () => {
+  it("doesn't create intent for empty cart", async ({ tickets }) => {
     await prisma.consumable.deleteMany({
       where: {
         ...dbIdentification(identification),
@@ -191,7 +188,7 @@ const addPurchaseTestForUser = (
     expect(consumable!.stripeIntentId).toBe("intent-id");
   });
 
-  it("removes old payment intent on multiple calls", async () => {
+  it("removes old payment intent on multiple calls", async ({ tickets }) => {
     try {
       await purchaseCart(prismaWithAccess, identification, "idempotency-key");
     } catch (err) {
@@ -235,7 +232,7 @@ const addPurchaseTestForUser = (
     expect(consumables[0]!.stripeIntentId).toBe("intent-id2");
   });
 
-  it("creates a payment intent with multiple items", async () => {
+  it("creates a payment intent with multiple items", async ({ tickets }) => {
     await addTicketToCart(
       prismaWithAccess,
       tickets.activeTicket2.id,
@@ -266,7 +263,7 @@ const addPurchaseTestForUser = (
     expect(consumables.length).toBe(2);
   });
 
-  it("marks a free item as purchased without stripe", async () => {
+  it("marks a free item as purchased without stripe", async ({ tickets }) => {
     const updatedShoppable = await prisma.shoppable.update({
       where: {
         id: tickets.activeTicket.id,
@@ -282,12 +279,6 @@ const addPurchaseTestForUser = (
     });
     expect(updatedShoppable).toBeDefined();
     expect(updatedShoppable.price).toBe(0);
-    const intent = {
-      client_secret: "abc",
-      id: "intent-id-purchase-test-1",
-      status: "payment_method_required",
-    };
-    mockFns.paymentIntents.create.mockResolvedValueOnce(intent);
     const before = new Date();
     const res = await purchaseCart(
       prismaWithAccess,
@@ -314,12 +305,13 @@ const addPurchaseTestForUser = (
     );
   });
 
-  it("marks as purchased after purchase", async () => {
+  it("marks as purchased after purchase", async ({ tickets }) => {
     const intent = {
       client_secret: "abc",
-      id: "intent-id-purchase-test-1",
+      id: "intent-id-purchase-test-2",
       status: "payment_method_required",
     };
+
     mockFns.paymentIntents.create.mockResolvedValueOnce(intent);
     await purchaseCart(prismaWithAccess, identification, "idempotency-key");
     const before = new Date();
@@ -327,6 +319,7 @@ const addPurchaseTestForUser = (
       id: intent.id,
       status: "succeeded",
     } as unknown as Stripe.PaymentIntent);
+
     const consumables = await prisma.consumable.findMany({
       where: {
         ...dbIdentification(identification),
@@ -346,7 +339,7 @@ const addPurchaseTestForUser = (
     );
   });
 
-  it("doesn't purchase expired consumable", async () => {
+  it("doesn't purchase expired consumable", async ({ tickets }) => {
     await prisma.consumable.updateMany({
       where: {
         ...dbIdentification(identification),
@@ -366,7 +359,7 @@ const addPurchaseTestForUser = (
   describe("expiration during payment", async () => {
     const intent = {
       client_secret: "abc",
-      id: "intent-id-purchase-test-2",
+      id: "intent-id-purchase-test-3",
       status: "payment_method_required",
     };
     let ticketId: string;
@@ -383,14 +376,18 @@ const addPurchaseTestForUser = (
         },
       });
       expect(consumables.length, message).toBe(count);
-      if (purchased) expect(consumables[0]!.purchasedAt, message).toBeDefined();
-      else expect(consumables[0]!.purchasedAt, message).toBeNull();
+      if (count !== 0) {
+        if (purchased)
+          expect(consumables[0]!.purchasedAt, message).toBeDefined();
+        else expect(consumables[0]!.purchasedAt, message).toBeNull();
+      }
     };
-    beforeEach(async () => {
+    beforeEach(async ({ tickets }) => {
       ticketId = tickets.activeTicket.id;
+
       mockFns.paymentIntents.create.mockResolvedValueOnce(intent);
       vi.useFakeTimers();
-      vi.setSystemTime(Date.now());
+      vi.setSystemTime(vi.getRealSystemTime());
       await prisma.consumable.updateMany({
         where: {
           ...dbIdentification(identification),
@@ -408,6 +405,10 @@ const addPurchaseTestForUser = (
         "payment in progress should not be expired",
       );
     });
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
     it("doesn't expire a purchase in-progress", async () => {
       await onPaymentSuccess({
         id: intent.id,
@@ -429,14 +430,6 @@ const addPurchaseTestForUser = (
     });
 
     it("does expire a purchase after failed attempt", async () => {
-      await purchaseCart(prismaWithAccess, identification, "idempotency-key");
-      vi.setSystemTime(vi.getMockedSystemTime()!.valueOf() + TIME_TO_BUY); // 2 seconds later
-      await removeExpiredConsumables(prisma, new Date()); // should NOT remove the consumable
-      await expectConsumableCount(
-        1,
-        "payment in progress should not be expired",
-      );
-
       await onPaymentFailure({
         id: intent.id,
         status: "payment_method_required",
@@ -454,18 +447,16 @@ const addPurchaseTestForUser = (
         "consumable should be expired after failed payment",
       );
     });
-    afterEach(() => {
-      vi.useRealTimers();
-    });
   });
 
   describe("webhooks", () => {
-    it("handles failed payment", async () => {
+    it("handles failed payment", async ({ tickets }) => {
       const intent = {
         client_secret: "abc",
         id: "intent-id-purchase-test-1",
         status: "payment_method_required",
       };
+
       mockFns.paymentIntents.create.mockResolvedValueOnce(intent);
       await purchaseCart(prismaWithAccess, identification, "idempotency-key");
       await onPaymentFailure({

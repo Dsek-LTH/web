@@ -8,8 +8,8 @@ import {
   it,
   vi,
 } from "vitest";
-import { addTicketToCart } from "./addToCart";
 import { GRACE_PERIOD_WINDOW, type ShopIdentification } from "../types";
+import { addTicketToCart } from "./addToCart";
 
 import { enhance } from "@zenstackhq/runtime";
 import { getAccessPolicies } from "../../../../hooks.server.helpers";
@@ -20,7 +20,6 @@ import {
   removeAllTestData,
   removeMockTickets,
   removeMockUsers,
-  type MockTickets,
 } from "../mock";
 import { performLotteryIfNecessary } from "./reservations";
 const prisma = new PrismaClient();
@@ -53,17 +52,16 @@ const addTicketsTestForUser = (
   adminMember: Member,
   identification: ShopIdentification,
 ) => {
-  let tickets: MockTickets;
-  beforeEach(async () => {
-    tickets = await addMockTickets(prisma, adminMember);
+  beforeEach(async (context) => {
+    context.tickets = await addMockTickets(prisma, adminMember);
   });
-  afterEach(async () => {
+  afterEach(async ({ tickets }) => {
     const ticketIds = Object.values(tickets).map((t) => t.id);
     await removeMockTickets(prisma, ticketIds);
   });
 
   describe("post-grace, no queue", () => {
-    it("adds a valid ticket request", async () => {
+    it("adds a valid ticket request", async ({ tickets }) => {
       const ticket = tickets.activeTicket;
       await addTicketToCart(prismaWithAccess, ticket.id, identification);
       const consumables = await prisma.consumable.findMany({
@@ -82,7 +80,7 @@ const addTicketsTestForUser = (
       expect(consumables[0]!.externalCustomerEmail).toBeNull();
       expect(consumables[0]!.consumedAt).toBeNull();
     });
-    it("doesn't add a ticket twice to cart", async () => {
+    it("doesn't add a ticket twice to cart", async ({ tickets }) => {
       const ticket = tickets.activeTicket;
       await addTicketToCart(prismaWithAccess, ticket.id, identification);
       await expect(
@@ -92,7 +90,7 @@ const addTicketsTestForUser = (
       await expectConsumableCount(ticket.id, 1);
       await expectReservationCount(ticket.id, 0);
     });
-    it("doesn't add an upcoming ticket to cart", async () => {
+    it("doesn't add an upcoming ticket to cart", async ({ tickets }) => {
       const ticket = tickets.upcomingTicket;
       await expect(
         addTicketToCart(prismaWithAccess, ticket.id, identification),
@@ -100,7 +98,7 @@ const addTicketsTestForUser = (
       await expectConsumableCount(ticket.id, 0);
       await expectReservationCount(ticket.id, 0);
     });
-    it("doesn't add a past ticket to cart", async () => {
+    it("doesn't add a past ticket to cart", async ({ tickets }) => {
       const ticket = tickets.pastTicket;
       await expect(
         addTicketToCart(prismaWithAccess, ticket.id, identification),
@@ -111,7 +109,7 @@ const addTicketsTestForUser = (
   });
 
   describe("during grace period", () => {
-    it("reserves a ticket", async () => {
+    it("reserves a ticket", async ({ tickets }) => {
       const ticket = tickets.activeEarlyTicket;
       await addTicketToCart(prismaWithAccess, ticket.id, identification);
       const consumables = await prisma.consumable.findMany({
@@ -134,7 +132,7 @@ const addTicketsTestForUser = (
       expect(reservations[0]!.shoppableId).toBe(ticket.id);
       expect(reservations[0]?.order).toBeNull();
     });
-    it("doesn't reserve twice", async () => {
+    it("doesn't reserve twice", async ({ tickets }) => {
       const ticket = tickets.activeEarlyTicket;
       await addTicketToCart(prismaWithAccess, ticket.id, identification);
       await expect(
@@ -145,7 +143,7 @@ const addTicketsTestForUser = (
   });
 
   describe("post-grace, with items in other's carts", () => {
-    beforeEach(async () => {
+    beforeEach(async ({ tickets }) => {
       const ticket = tickets.activeTicket;
       await prisma.consumable.createMany({
         data: [
@@ -162,7 +160,9 @@ const addTicketsTestForUser = (
       });
     });
 
-    it("adds reservation if all available tickets are in cart(s)", async () => {
+    it("adds reservation if all available tickets are in cart(s)", async ({
+      tickets,
+    }) => {
       const ticket = tickets.activeTicket;
       expect(
         (
@@ -197,7 +197,7 @@ const addTicketsTestForUser = (
       expect(reservations[0]?.order).toBe(0);
     });
 
-    it("doesn't add sold out ticket", async () => {
+    it("doesn't add sold out ticket", async ({ tickets }) => {
       const ticket = tickets.activeTicket;
       await prisma.consumable.updateMany({
         where: {
@@ -216,7 +216,7 @@ const addTicketsTestForUser = (
       await expectReservationCount(ticket.id, 0);
     });
 
-    it("expires un-purchased consumables", async () => {
+    it("expires un-purchased consumables", async ({ tickets }) => {
       const ticket = tickets.activeTicket;
       await prisma.consumable.updateMany({
         where: {
@@ -248,7 +248,7 @@ const addTicketsTestForUser = (
     });
   });
   describe("post-grace, with queue", () => {
-    beforeEach(async () => {
+    beforeEach(async ({ tickets }) => {
       const ticket = tickets.activeTicket;
       await prisma.consumable.createMany({
         data: [
@@ -271,7 +271,9 @@ const addTicketsTestForUser = (
         },
       });
     });
-    it("places new reservation last after initial lottery", async () => {
+    it("places new reservation last after initial lottery", async ({
+      tickets,
+    }) => {
       const ticket = tickets.activeTicket;
       expect(
         (
@@ -310,11 +312,12 @@ const addTicketsTestForUser = (
   });
 
   describe("right after grace period", () => {
-    beforeEach(async () => {
+    beforeEach(async ({ tickets }) => {
+      const start = tickets.activeEarlyTicket.shoppable.availableFrom;
       vi.useFakeTimers();
-      vi.setSystemTime(tickets.activeEarlyTicket.shoppable.availableFrom);
+      vi.setSystemTime(start);
     });
-    it("performs lottery after grace period", async () => {
+    it("performs lottery after grace period", async ({ tickets }) => {
       const ticket = tickets.activeEarlyTicket;
       vi.advanceTimersByTime(GRACE_PERIOD_WINDOW / 2);
       vi.setSystemTime(
@@ -352,7 +355,9 @@ const addTicketsTestForUser = (
       await expectConsumableCount(ticket.id, 1);
     });
 
-    it("ensures users adding after grace period are placed last", async () => {
+    it("ensures users adding after grace period are placed last", async ({
+      tickets,
+    }) => {
       const ticket = tickets.activeEarlyTicket;
       for (let i = 0; i < ticket.stock + 5; i++) {
         const newMember = await addMockUser(prisma, SUITE_PREFIX);
