@@ -1,8 +1,13 @@
-import { onPaymentSuccess } from "$lib/server/shop/payments/stripeWebhooks";
+import {
+  onPaymentCancellation,
+  onPaymentProcessing,
+  onPaymentSuccess,
+} from "$lib/server/shop/payments/stripeWebhooks";
 import type { Consumable, Shoppable } from "@prisma/client";
 import Stripe from "stripe";
 import authorizedPrismaClient from "../authorizedPrisma";
 import stripe from "./stripe";
+import { TIME_TO_BUY } from "$lib/server/shop/types";
 
 type RequiredProps = "amount" | "metadata" | "customer";
 type Props = Pick<Stripe.PaymentIntentCreateParams, RequiredProps> &
@@ -55,6 +60,20 @@ export const getPaymentIntent = (intentId: string) => {
   return stripe.paymentIntents.retrieve(intentId);
 };
 
+export const resetConsumablesForIntent = async (intentId: string) => {
+  await authorizedPrismaClient.consumable.updateMany({
+    where: {
+      stripeIntentId: intentId,
+      purchasedAt: null,
+    },
+    data: {
+      stripeIntentId: null,
+      expiresAt: new Date(Date.now() + TIME_TO_BUY), // give them more time payment fails or in other ways has to be re-done. Also re-enables expiration
+      // There is a way to game the system, but expiration is really there for inactive users, and this is not an inactive user
+    },
+  });
+};
+
 /**
  * You can cancel a PaymentIntent object when it's in one of these statuses: requires_payment_method, requires_capture, requires_confirmation, requires_action or, in rare cases, processing.
 
@@ -64,15 +83,7 @@ You can't cancel the PaymentIntent for a Checkout Session. Expire the Checkout S
  */
 export const removePaymentIntent = async (intentId: string) => {
   await stripe.paymentIntents.cancel(intentId);
-  await authorizedPrismaClient.consumable.updateMany({
-    where: {
-      stripeIntentId: intentId,
-    },
-    data: {
-      purchasedAt: null,
-      stripeIntentId: null,
-    },
-  });
+  await resetConsumablesForIntent(intentId);
 };
 
 export const updatePaymentIntent = async (
@@ -103,18 +114,11 @@ export const updatePaymentIntent = async (
       break;
     case "processing":
       // payment in progress, do not start a new transaction
+      await onPaymentProcessing(intent);
       throw new Error("Du har redan en pågående betalning.");
     case "canceled":
       // payment was canceled
-      await authorizedPrismaClient.consumable.updateMany({
-        where: {
-          stripeIntentId: intentId,
-        },
-        data: {
-          purchasedAt: null,
-          stripeIntentId: null,
-        },
-      });
+      await onPaymentCancellation(intent);
       break;
     default:
       // Unknown status. Remove intent

@@ -1,8 +1,10 @@
+import { resetConsumablesForIntent } from "$lib/server/shop/payments/stripeMethods";
+import { TIME_TO_BUY } from "$lib/server/shop/types";
 import authorizedPrismaClient from "../authorizedPrisma";
 import Stripe from "stripe";
 
 export const onPaymentSuccess = async (intent: Stripe.PaymentIntent) => {
-  await authorizedPrismaClient.consumable.updateMany({
+  const updated = await authorizedPrismaClient.consumable.updateMany({
     where: {
       stripeIntentId: intent.id,
     },
@@ -10,18 +12,33 @@ export const onPaymentSuccess = async (intent: Stripe.PaymentIntent) => {
       purchasedAt: new Date(),
     },
   });
+  if (updated.count === 0) {
+    console.error(`No consumables found for intent ${intent.id}`);
+    throw new Error("No consumables found for intent"); // this is a big issue
+  }
   // TODO: Notify user of successful payment
 };
 
 export const onPaymentFailure = async (intent: Stripe.PaymentIntent) => {
-  await authorizedPrismaClient.consumable.updateMany({
+  const updated = await authorizedPrismaClient.consumable.updateMany({
     where: {
       stripeIntentId: intent.id,
     },
     data: {
       purchasedAt: null, // make sure the consumable is not marked as purchased
+      expiresAt: new Date(Date.now() + TIME_TO_BUY), // give them more time if payment fails. Also re-enables expiration
     },
   });
+
+  if (updated.count === 0) {
+    console.error(`No consumables found for intent ${intent.id}`);
+    throw new Error("No consumables found for intent"); // this is not as big of an issue
+  }
+  // TODO: Notify user of payment failure
+};
+
+export const onPaymentCancellation = async (intent: Stripe.PaymentIntent) => {
+  await resetConsumablesForIntent(intent.id);
   // TODO: Notify user of payment failure
 };
 
