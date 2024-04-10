@@ -10,7 +10,8 @@
 
   export let clientSecret: string;
   $: member = $page.data.member;
-  let elements: StripeJS.StripeElements | undefined;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- The lib we use for display the elements uses an older version of stripe. It works but has the wrong type
+  let elements: any;
 
   let isProcessing = false;
   let paymentError: string | null = null;
@@ -54,11 +55,14 @@
       }
     }
   };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- The lib we use for display the elements uses an older version of stripe. It works but has the wrong type
+  $: untypedStripe = stripe as any;
 </script>
 
 {#if stripe}
   <Elements
-    {stripe}
+    stripe={untypedStripe}
     {clientSecret}
     bind:elements
     theme="night"
