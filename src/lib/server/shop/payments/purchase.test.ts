@@ -1,10 +1,16 @@
 import { addTicketToCart } from "$lib/server/shop/addToCart/addToCart";
+import { removeExpiredConsumables } from "$lib/server/shop/addToCart/reservations";
 import purchaseCart, {
   priceWithTransactionFee,
   transactionFee,
 } from "$lib/server/shop/payments/purchase";
+import {
+  onPaymentFailure,
+  onPaymentSuccess,
+} from "$lib/server/shop/payments/stripeWebhooks";
 import { PrismaClient, type Member } from "@prisma/client";
 import { enhance } from "@zenstackhq/runtime";
+import type Stripe from "stripe";
 import {
   afterAll,
   afterEach,
@@ -26,8 +32,6 @@ import {
   type MockTickets,
 } from "../mock";
 import { dbIdentification, type ShopIdentification } from "../types";
-import { onPaymentSuccess } from "$lib/server/shop/payments/stripeWebhooks";
-import type Stripe from "stripe";
 
 const mockFns = vi.hoisted(() => ({
   customers: {
@@ -145,6 +149,20 @@ const addPurchaseTestForUser = (
     expect(priceWithFee).toBe(price + fee);
   });
 
+  it("doesn't create intent for empty cart", async () => {
+    await prisma.consumable.deleteMany({
+      where: {
+        ...dbIdentification(identification),
+        shoppableId: tickets.activeTicket.id,
+      },
+    });
+    try {
+      await purchaseCart(prismaWithAccess, identification, "idempotency-key");
+      expect.fail("should not purchase empty cart");
+    } catch (e) {
+      expect(e).toBeDefined();
+    }
+  });
   it("creates a payment intent", async () => {
     const res = await purchaseCart(
       prismaWithAccess,
@@ -177,11 +195,10 @@ const addPurchaseTestForUser = (
     } catch (err) {
       expect.fail(`Failed to purchase cart ${err}`);
     }
-    mockFns.paymentIntents.create =
-      mockFns.paymentIntents.create.mockResolvedValueOnce({
-        client_secret: "def",
-        id: "intent-id2",
-      });
+    mockFns.paymentIntents.create.mockResolvedValueOnce({
+      client_secret: "def",
+      id: "intent-id2",
+    });
     mockFns.paymentIntents.retrieve.mockResolvedValueOnce({
       status: "requires_payment_method",
     });
@@ -246,6 +263,54 @@ const addPurchaseTestForUser = (
     expect(consumables.length).toBe(2);
   });
 
+  it("marks a free item as purchased without stripe", async () => {
+    const updatedShoppable = await prisma.shoppable.update({
+      where: {
+        id: tickets.activeTicket.id,
+        consumables: {
+          some: {
+            ...dbIdentification(identification),
+          },
+        },
+      },
+      data: {
+        price: 0,
+      },
+    });
+    expect(updatedShoppable).toBeDefined();
+    expect(updatedShoppable.price).toBe(0);
+    const intent = {
+      client_secret: "abc",
+      id: "intent-id-purchase-test-1",
+      status: "payment_method_required",
+    };
+    mockFns.paymentIntents.create.mockResolvedValueOnce(intent);
+    const before = new Date();
+    const res = await purchaseCart(
+      prismaWithAccess,
+      identification,
+      "idempotency-key",
+    );
+    expect(res).toBeDefined();
+    expect(res.clientSecret).toBeUndefined();
+    const consumables = await prisma.consumable.findMany({
+      where: {
+        ...dbIdentification(identification),
+        purchasedAt: {
+          not: null,
+        },
+        shoppableId: {
+          in: [tickets.activeTicket.id, tickets.activeTicket2.id],
+        },
+      },
+    });
+    expect(consumables.length).toBe(1);
+    expect(consumables[0]!.stripeIntentId).toBeNull();
+    expect(consumables[0]!.purchasedAt!.valueOf()).toBeGreaterThanOrEqual(
+      before.valueOf(),
+    );
+  });
+
   it("marks as purchased after purchase", async () => {
     const intent = {
       client_secret: "abc",
@@ -276,6 +341,170 @@ const addPurchaseTestForUser = (
     expect(consumables[0]!.purchasedAt?.valueOf()).toBeGreaterThanOrEqual(
       before.valueOf(),
     );
+  });
+
+  it("doesn't purchase expired consumable", async () => {
+    await prisma.consumable.updateMany({
+      where: {
+        ...dbIdentification(identification),
+        shoppableId: tickets.activeTicket.id,
+      },
+      data: {
+        expiresAt: new Date(Date.now() - 1000), // set consumable to expired
+      },
+    });
+
+    try {
+      await purchaseCart(prismaWithAccess, identification, "idempotency-key");
+      // after this point, user may fill in their info and pay. We do not want to expire it during this.
+      expect.fail("should not allow purchase of expired consumable");
+    } catch (e) {
+      expect(e).toBeDefined();
+    }
+  });
+
+  describe("expiration during payment", async () => {
+    const intent = {
+      client_secret: "abc",
+      id: "intent-id-purchase-test-2",
+      status: "payment_method_required",
+    };
+    let ticketId: string;
+    const expectConsumableCount = async (
+      count: number,
+      message: string,
+      purchased = false,
+    ) => {
+      const consumables = await prisma.consumable.findMany({
+        where: {
+          ...dbIdentification(identification),
+          stripeIntentId: intent.id,
+          shoppableId: ticketId,
+        },
+      });
+      expect(consumables.length, message).toBe(count);
+      if (purchased) expect(consumables[0]!.purchasedAt, message).toBeDefined();
+      else expect(consumables[0]!.purchasedAt, message).toBeNull();
+    };
+    beforeEach(async () => {
+      ticketId = tickets.activeTicket.id;
+      mockFns.paymentIntents.create.mockResolvedValueOnce(intent);
+      vi.useFakeTimers();
+      vi.setSystemTime(Date.now());
+      await prisma.consumable.updateMany({
+        where: {
+          ...dbIdentification(identification),
+          shoppableId: ticketId,
+        },
+        data: {
+          expiresAt: new Date(Date.now() + 1000), // set to be expired in 1 second
+        },
+      });
+      await purchaseCart(prismaWithAccess, identification, "idempotency-key");
+      vi.setSystemTime(vi.getMockedSystemTime()!.valueOf() + 2000); // 2 seconds later
+      await removeExpiredConsumables(prisma, new Date()); // should NOT remove the consumable
+      await expectConsumableCount(
+        1,
+        "payment in progress should not be expired",
+      );
+    });
+    it("doesn't expire a purchase in-progress", async () => {
+      await onPaymentSuccess({
+        id: intent.id,
+        status: "succeeded",
+      } as unknown as Stripe.PaymentIntent);
+      await expectConsumableCount(
+        1,
+        "consumable after payment should exist",
+        true,
+      );
+
+      vi.setSystemTime(vi.getMockedSystemTime()!.valueOf() + 1000); // 2 seconds later
+      await removeExpiredConsumables(prisma, new Date()); // should NOT remove the consumable
+      await expectConsumableCount(
+        1,
+        "consumable should not be expired after payment",
+        true,
+      );
+    });
+
+    it("does expire a purchase after failed attempt", async () => {
+      await purchaseCart(prismaWithAccess, identification, "idempotency-key");
+      vi.setSystemTime(vi.getMockedSystemTime()!.valueOf() + 2000); // 2 seconds later
+      await removeExpiredConsumables(prisma, new Date()); // should NOT remove the consumable
+      await expectConsumableCount(
+        1,
+        "payment in progress should not be expired",
+      );
+
+      await onPaymentFailure({
+        id: intent.id,
+        status: "payment_method_required",
+      } as unknown as Stripe.PaymentIntent);
+      await expectConsumableCount(
+        1,
+        "consumable after failed payment should exist",
+      );
+
+      vi.setSystemTime(vi.getMockedSystemTime()!.valueOf() + 1000); // 2 seconds later
+
+      await removeExpiredConsumables(prisma, new Date()); // should NOT remove the consumable
+      await expectConsumableCount(
+        0,
+        "consumable should be expired after failed payment",
+      );
+    });
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+  });
+
+  describe("webhooks", () => {
+    it("handles failed payment", async () => {
+      const intent = {
+        client_secret: "abc",
+        id: "intent-id-purchase-test-1",
+        status: "payment_method_required",
+      };
+      mockFns.paymentIntents.create.mockResolvedValueOnce(intent);
+      await purchaseCart(prismaWithAccess, identification, "idempotency-key");
+      await onPaymentFailure({
+        id: intent.id,
+        status: "requires_payment_method",
+      } as unknown as Stripe.PaymentIntent);
+      const consumables = await prisma.consumable.findMany({
+        where: {
+          ...dbIdentification(identification),
+          stripeIntentId: intent.id,
+          shoppableId: {
+            in: [tickets.activeTicket.id, tickets.activeTicket2.id],
+          },
+        },
+      });
+      expect(consumables.length).toBe(1);
+      expect(consumables[0]!.purchasedAt).toBeNull();
+    });
+
+    it("throw error if stripe webhook towards nonexisting intent", async () => {
+      try {
+        await onPaymentSuccess({
+          id: "non-existing-intent-1",
+          status: "succeeded",
+        } as unknown as Stripe.PaymentIntent);
+        expect.fail("no error on success to non-existing intent");
+      } catch (e) {
+        expect(e).toBeDefined();
+      }
+      try {
+        await onPaymentFailure({
+          id: "non-existing-intent-2",
+          status: "succeeded",
+        } as unknown as Stripe.PaymentIntent);
+        expect.fail("no error on failure to non-existing intent");
+      } catch (e) {
+        expect(e).toBeDefined();
+      }
+    });
   });
 
   describe("stripe customer creation", () => {
