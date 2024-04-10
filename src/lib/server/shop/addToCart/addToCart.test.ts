@@ -440,11 +440,11 @@ describe("Add to cart as anonymous user", async () => {
       studentId: undefined,
       memberId: undefined,
       policies: [],
-      externalCode: "external-code",
+      externalCode: SUITE_PREFIX + "external-code",
     },
   });
   addTicketsTestForUser(prismaWithAccess, users.adminMember, {
-    externalCode: "external-code",
+    externalCode: SUITE_PREFIX + "external-code",
   });
 });
 

@@ -575,11 +575,11 @@ describe("Purchase as anonymous user", async () => {
       studentId: undefined,
       memberId: undefined,
       policies: [],
-      externalCode: "external-code",
+      externalCode: SUITE_PREFIX + "external-code",
     },
   });
   addPurchaseTestForUser(prismaWithAccess, users.adminMember, {
-    externalCode: "external-code",
+    externalCode: SUITE_PREFIX + "external-code",
   });
   afterAll(async () => {
     await removeMockUsers(

@@ -196,7 +196,6 @@ const purchaseCart = async (
           },
         });
         if (consumables.length !== userConsumables.length) {
-          console.log(intent.id, consumables, userConsumables);
           throw new Error("Du hade flera betalningar igång samtidigt.");
         }
         await tx.consumable.updateMany({
