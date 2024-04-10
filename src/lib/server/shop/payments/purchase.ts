@@ -138,7 +138,7 @@ const purchaseCart = async (
   // Step 4: Create stripe payment intent
   try {
     const intent = await createPaymentIntent({
-      amount: price + transactionFee(price),
+      amount: priceWithTransactionFee(price),
       customer: customer?.id ?? undefined,
       metadata: {
         isAnonymousUser: !member ? "true" : "false", // metadata can only be string or number
@@ -194,9 +194,25 @@ export const calculateCartPrice = (consumables: ConsumableFieldsForPrice[]) =>
     0,
   );
 
-const STRIPE_PERCENTAGE_FEE_MODIFIER = 1.0152284264; // 1/(1-0.015) i.e. 1.5%
-const STRIPE_FIXED_FEE = 180; // 1.8 SEK
+// SWISH: 1% + 3kr (most common, cap of 7 kr fee)
+// Cards: 1.5% + 1.8kr
+// Klarna: 2.99% + 4kr
+// It's illegal in the EU to charge a different amount depending on the user's choice of payment
+
+// Because swish is most common, we use its fee as the one we charge the user. If they choose another option, the fee will be more, but that's fine I think.
+const STRIPE_PERCENTAGE_FEE = 1 / 100; // 1%
+const STRIPE_FIXED_FEE = 3; // 3 SEK
+const STRIPE_PERCENTAGE_FEE_MODIFIER = 1 / (1 - STRIPE_PERCENTAGE_FEE); // 1/(1-0.015) i.e. 1.5%
+/**
+ * Calculates the transaction fee for a given price.
+ */
 export const transactionFee = (price: number) =>
+  price * STRIPE_PERCENTAGE_FEE + STRIPE_FIXED_FEE;
+
+/**
+ * Calculates the required price to charge the user for us to receive `price` after Stripe takes its cut.
+ */
+export const priceWithTransactionFee = (price: number) =>
   (price + STRIPE_FIXED_FEE) * STRIPE_PERCENTAGE_FEE_MODIFIER;
 
 export default purchaseCart;

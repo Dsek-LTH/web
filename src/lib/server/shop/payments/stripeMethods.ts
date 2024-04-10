@@ -46,7 +46,7 @@ export const creteConsumableMetadata = (
   }
   return {
     consumableIds: consumables.map((c) => c.id).join(", "),
-    consumableNames: consumables.map((c) => c.id).join(", "),
+    consumableNames: consumables.map((c) => c.shoppable.title).join(", "),
     consumableCount: consumables.length,
   };
 };

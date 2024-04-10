@@ -267,9 +267,11 @@ const addTicketsTestForUser = (
     it("doesn't add sold out ticket", async () => {
       const ticket = tickets.activeTicket;
       await prisma.consumable.updateMany({
-        data: {
+        where: {
           shoppableId: ticket.id,
           memberId: adminMember.id, // duplicates, but that's fine
+        },
+        data: {
           purchasedAt: new Date(),
         },
       });
@@ -427,7 +429,22 @@ const addTicketsTestForUser = (
       vi.setSystemTime(timeAfter);
       vi.useRealTimers();
       vi.setSystemTime(timeAfter);
-      await new Promise((resolve) => setTimeout(resolve, 20)); // to allow for the transaction to finish
+      let count = 0;
+      while (
+        (
+          await prisma.consumableReservation.findMany({
+            where: {
+              shoppableId: ticket.id,
+            },
+          })
+        ).length > 0
+      ) {
+        ++count;
+        if (++count > 100) {
+          expect.fail("Took too long to perform lottery");
+        }
+        await new Promise((resolve) => setTimeout(resolve, 10)); // to allow for the transaction to finish
+      }
       await expectReservationCount(ticket.id, 0);
       await expectConsumableCount(ticket.id, 1);
     });

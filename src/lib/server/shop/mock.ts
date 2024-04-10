@@ -24,12 +24,24 @@ export const MOCK_ACTIVE_TICKET = {
   shoppable: {
     type: ShoppableType.TICKET,
     title: "Active ticket",
-    description: "Active ticketdescription",
+    description: "Active ticket description",
     price: 10000,
     availableFrom: new Date(Date.now() - 1000 * 60 * 60 * 24),
     availableTo: new Date(Date.now() + 1000 * 60 * 60 * 24),
   },
 };
+export const MOCK_ACTIVE_TICKET_2 = {
+  stock: 2,
+  shoppable: {
+    type: ShoppableType.TICKET,
+    title: "Active ticket 2",
+    description: "Active ticket description 2",
+    price: 8900,
+    availableFrom: new Date(Date.now() - 1000 * 60 * 60 * 23),
+    availableTo: new Date(Date.now() + 1000 * 60 * 60 * 24),
+  },
+};
+
 export const MOCK_ACTIVE_EARLY_TICKET = {
   stock: 10,
   shoppable: {
@@ -105,107 +117,54 @@ export const addMockTickets = async (
         tags: true,
       },
     });
-    const activeTicket = await prisma.ticket.create({
-      data: {
-        ...MOCK_ACTIVE_TICKET,
-        shoppable: {
-          create: {
-            ...MOCK_ACTIVE_TICKET.shoppable,
-            authorId: adminMember.id,
+    const tickets = [];
+    for (const ticket of [
+      MOCK_ACTIVE_TICKET,
+      MOCK_ACTIVE_TICKET_2,
+      MOCK_ACTIVE_EARLY_TICKET,
+      MOCK_PAST_TICKET,
+      MOCK_UPCOMING_TICKET,
+    ]) {
+      const createdTicket = await prisma.ticket.create({
+        data: {
+          ...ticket,
+          shoppable: {
+            create: {
+              ...ticket.shoppable,
+              authorId: adminMember.id,
+            },
+          },
+          event: {
+            connect: {
+              id: event1.id,
+            },
+          }, // Add the missing event property
+        },
+        include: {
+          shoppable: true,
+          event: {
+            include: {
+              tags: true,
+            },
           },
         },
-        event: {
-          connect: {
-            id: event1.id,
-          },
-        }, // Add the missing event property
-      },
-      include: {
-        shoppable: true,
-        event: {
-          include: {
-            tags: true,
-          },
-        },
-      },
-    });
-    const activeEarlyTicket = await prisma.ticket.create({
-      data: {
-        ...MOCK_ACTIVE_EARLY_TICKET,
-        shoppable: {
-          create: {
-            ...MOCK_ACTIVE_EARLY_TICKET.shoppable,
-            authorId: adminMember.id,
-          },
-        },
-        event: {
-          connect: {
-            id: event1.id,
-          },
-        }, // Add the missing event property
-      },
-      include: {
-        shoppable: true,
-        event: {
-          include: {
-            tags: true,
-          },
-        },
-      },
-    });
-    const pastTicket = await prisma.ticket.create({
-      data: {
-        ...MOCK_PAST_TICKET,
-        shoppable: {
-          create: {
-            ...MOCK_PAST_TICKET.shoppable,
-            authorId: adminMember.id,
-          },
-        },
-        event: {
-          connect: {
-            id: event1.id,
-          },
-        }, // Add the missing event property
-      },
-      include: {
-        shoppable: true,
-        event: {
-          include: {
-            tags: true,
-          },
-        },
-      },
-    });
-    const upcomingTicket = await prisma.ticket.create({
-      data: {
-        ...MOCK_UPCOMING_TICKET,
-        shoppable: {
-          create: {
-            ...MOCK_UPCOMING_TICKET.shoppable,
-            authorId: adminMember.id,
-          },
-        },
-        event: {
-          connect: {
-            id: event1.id,
-          },
-        }, // Add the missing event property
-      },
-      include: {
-        shoppable: true,
-        event: {
-          include: {
-            tags: true,
-          },
-        },
-      },
-    });
-    return {
+      });
+      tickets.push(createdTicket);
+    }
+    if (tickets.length != 5) throw new Error("Failed to create tickets");
+    const [
       activeTicket,
+      activeTicket2,
       activeEarlyTicket,
       pastTicket,
       upcomingTicket,
+    ] = tickets;
+    return {
+      activeTicket: activeTicket!,
+      activeTicket2: activeTicket2!,
+      activeEarlyTicket: activeEarlyTicket!,
+      pastTicket: pastTicket!,
+      upcomingTicket: upcomingTicket!,
     };
   });
 };
