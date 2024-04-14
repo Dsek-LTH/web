@@ -14,7 +14,7 @@
 <div
   class="flex flex-col justify-between gap-4 md:flex-row md:items-end [&>*]:flex-1"
 >
-  <Labeled id="start" label="Tillgång från" error={$errors.availableFrom}>
+  <Labeled label="Tillgång från" error={$errors.availableFrom}>
     <DateInput
       bind:date={$form.availableFrom}
       name="availableFrom"
@@ -23,7 +23,7 @@
   </Labeled>
 
   {#if $form.availableTo != undefined}
-    <Labeled id="end" label="Tillgänglig till" error={$errors.availableTo}>
+    <Labeled label="Tillgänglig till" error={$errors.availableTo}>
       <DateInput
         bind:date={$form.availableTo}
         name="availableTo"

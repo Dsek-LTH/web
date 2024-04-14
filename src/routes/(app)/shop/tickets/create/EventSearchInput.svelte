@@ -34,22 +34,26 @@
     event = selected;
   }}
 >
-  <Labeled error={$errors.eventId} label="Event" id="event" class="w-full">
+  <Labeled error={$errors.eventId} label="Event">
     <input
       type="hidden"
       name="eventId"
       value={$form.eventId}
       {...$constraints.eventId}
     />
-    <div class="relative">
+    <div
+      class="input input-bordered flex items-center gap-2 {isSelected
+        ? 'input-primary'
+        : ''}"
+    >
+      <span class="i-mdi-search text-xl" />
       <input
         id="event"
         autocomplete="off"
         autocapitalize="off"
         type="text"
-        class="input input-bordered w-full {isSelected ? 'input-primary' : ''}"
+        class="grow bg-transparent"
         placeholder="Sök efter evenemang"
-        tabIndex={0}
         value={event
           ? `${event.title} (${dayjs(event.startDatetime).format("YYYY")}, ${
               event.slug ?? event.id
@@ -59,10 +63,11 @@
           event = undefined;
           handleSearch(e.currentTarget.value);
         }}
+        required
         {...$$restProps}
       />
       <span
-        class="loading loading-spinner loading-md absolute right-2 top-1/2 -translate-y-1/2 text-primary transition-opacity opacity-{isSearching
+        class="loading loading-spinner loading-md text-primary transition-opacity opacity-{isSearching
           ? '100'
           : '0'}"
       />

@@ -38,7 +38,7 @@
         {...$constraints.shortDescription}
       />
       <div class="flex flex-row justify-between gap-4 [&>*]:flex-1">
-        <Labeled id="start" label="Start" error={$errors.startDatetime}>
+        <Labeled label="Start" error={$errors.startDatetime}>
           <DateInput
             id="start"
             name="startDatetime"
@@ -48,7 +48,7 @@
             {...$constraints.startDatetime}
           />
         </Labeled>
-        <Labeled id="end" label="End" error={$errors.endDatetime}>
+        <Labeled label="End" error={$errors.endDatetime}>
           <DateInput
             id="end"
             name="endDatetime"
@@ -85,7 +85,7 @@
           {...$constraints.link}
         />
       </div>
-      <Labeled label="Description" id="description" error={$errors.description}>
+      <Labeled label="Description" error={$errors.description}>
         <textarea
           id="description"
           name="description"
@@ -96,7 +96,6 @@
         />
       </Labeled>
       <Labeled
-        id="autocomplete"
         label="Taggar"
         error={$errors.tags !== undefined ? "Ogiltiga taggar" : ""}
       >

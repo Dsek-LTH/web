@@ -14,7 +14,6 @@
 
 <Labeled
   label="Max antal biljetter per person"
-  id="maxAmountPerUser"
   error={$errors.maxAmountPerUser}
 >
   {#if isActive}

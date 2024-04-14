@@ -42,7 +42,7 @@
     <DocumentTypeSelector bind:type={$form.type} />
   </div>
 
-  <Labeled id="folder" error={$errors.folder}>
+  <Labeled error={$errors.folder}>
     <label class="mb-5 text-lg font-medium" for="folder">
       2. Skriv {$form.type === "requirement" ? "postnamn" : "mötesnamn"}
     </label>
@@ -59,7 +59,7 @@
     />
   </Labeled>
 
-  <Labeled id="file" error={$errors.file}>
+  <Labeled error={$errors.file}>
     <label class="mb-5 text-lg font-medium" for="file">
       3. Ladda upp fil
     </label>
@@ -75,7 +75,7 @@
     />
   </Labeled>
 
-  <Labeled id="name" error={$errors.name}>
+  <Labeled error={$errors.name}>
     <label class="mb-5 text-lg font-medium" for="name">
       4. Skriv namn på dokumentet
     </label>
@@ -90,7 +90,7 @@
     />
   </Labeled>
 
-  <Labeled id="year" error={$errors.year}>
+  <Labeled error={$errors.year}>
     <label class="mb-5 text-lg font-medium" for="year">5. Välj mötesår</label>
     <input
       id="year"

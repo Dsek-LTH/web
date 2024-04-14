@@ -26,7 +26,9 @@
 
 <article class="flex flex-col gap-4">
   {#if isAuthorized(apiNames.WEBSHOP.CREATE, data.user)}
-    <a class="btn" href="/shop/tickets/create">Skapa ny biljett</a>
+    <a class="btn btn-secondary self-start" href="/shop/tickets/create"
+      >Skapa ny biljett</a
+    >
   {/if}
   <TicketSection
     title="Biljetter som kan köpas nu"

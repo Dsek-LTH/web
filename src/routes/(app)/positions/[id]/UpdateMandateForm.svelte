@@ -15,7 +15,7 @@
   class="form-control my-2 flex-row items-end gap-2"
 >
   <input type="hidden" name="mandateId" value={mandateId} />
-  <Labeled label="Start" id="startDate">
+  <Labeled label="Start">
     <input
       name="startDate"
       id="startDate"
@@ -28,7 +28,7 @@
       <p class="text-error">{$errors.startDate}</p>
     {/if}
   </Labeled>
-  <Labeled label="End" id="endDate">
+  <Labeled label="End">
     <input
       name="endDate"
       id="endDate"

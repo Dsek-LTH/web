@@ -29,7 +29,7 @@
       <p class="text-error">{$errors.memberId}</p>
     {/if}
   </div>
-  <Labeled label="Start" id="startDate">
+  <Labeled label="Start">
     <input
       name="startDate"
       id="startDate"
@@ -42,7 +42,7 @@
   {#if $errors.startDate}
     <p class="text-error">{$errors.startDate}</p>
   {/if}
-  <Labeled label="End" id="endDate">
+  <Labeled label="End">
     <input
       name="endDate"
       id="endDate"

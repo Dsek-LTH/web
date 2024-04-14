@@ -24,7 +24,7 @@
     error={$errors.title}
     {...$constraints.title}
   />
-  <Labeled label="Ditt yrkande" id="content" error={$errors.content}>
+  <Labeled label="Ditt yrkande" error={$errors.content}>
     <textarea
       id="content"
       name="content"

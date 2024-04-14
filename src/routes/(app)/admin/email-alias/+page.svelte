@@ -83,11 +83,7 @@
           {...$createEmailPositionConstraints.localPartAlias}
           error={$createEmailPositionErrors.localPartAlias}
         />
-        <Labeled
-          label="Domain"
-          id="domainAlias"
-          error={$createEmailPositionErrors.domainAlias}
-        >
+        <Labeled label="Domain" error={$createEmailPositionErrors.domainAlias}>
           <select
             id="domainAlias"
             name="domainAlias"
@@ -101,7 +97,7 @@
             {/each}
           </select>
         </Labeled>
-        <Labeled label="Post" id="positionIdAlias">
+        <Labeled label="Post">
           <select
             id="positionIdAlias"
             name="positionIdAlias"
@@ -139,7 +135,6 @@
         />
         <Labeled
           label="Domain"
-          id="domainSender"
           error={$createEmailSpecialSenderErrors.domainSender}
         >
           <select
@@ -189,7 +184,6 @@
         />
         <Labeled
           label="Domain"
-          id="domainReceiver"
           error={$createEmailSpecialReceiverErrors.domainReceiver}
         >
           <select

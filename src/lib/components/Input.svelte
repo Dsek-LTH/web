@@ -13,7 +13,7 @@
   export { clazz as class };
 </script>
 
-<Labeled {label} id={name} {error} {explanation}>
+<Labeled {label} {error} {explanation}>
   <input
     id={name}
     {name}
