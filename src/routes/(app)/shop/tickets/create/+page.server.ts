@@ -36,21 +36,21 @@ const createTicketSchema = z
     titleEn: z.string().nullable().optional(),
     description: z.string().min(1, "Description cannot be empty"),
     descriptionEn: z.string().nullable().optional(),
+    // price is in SEK, with a maximum of two decimals
     price: z
       .number()
-      .int("Price must be an integer, in öre")
-      .gte(0, "Price must be positive"),
+      .gte(0)
+      .transform((v) => {
+        return Math.round(v * 100);
+      }),
     availableFrom: z.date(),
     availableTo: z.date().nullable().optional(), // cannot be before availableFRom
     eventId: z.string().uuid(),
-    stock: z
-      .number()
-      .int("Stock must be an integer")
-      .gte(0, "Stock must be positive"),
+    stock: z.number().int("Stock must be an integer").gte(0),
     maxAmountPerUser: z
       .number()
       .int("Max amount per user must be an integer")
-      .gte(0, "Max amount per user must be positive")
+      .positive()
       .optional(),
   })
   .refine(

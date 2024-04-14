@@ -6,6 +6,7 @@
   import AvailableDates from "./AvailableDates.svelte";
   import MaxAmountPerUser from "./MaxAmountPerUser.svelte";
   import EventSearchInput from "./EventSearchInput.svelte";
+  import PriceInput from "./PriceInput.svelte";
   // Assuming you have a schema definition based on zod
 
   let createForm: SuperValidated<CreateTicketSchema>;
@@ -46,14 +47,7 @@
     error={$errors.descriptionEn}
     optional
   />
-  <Input
-    name="price"
-    label="Pris (i öre)"
-    bind:value={$form.price}
-    {...$constraints.price}
-    error={$errors.price}
-    type="number"
-  />
+  <PriceInput {form} {constraints} {errors} />
   <AvailableDates {form} {constraints} {errors} />
   <Input
     name="stock"
