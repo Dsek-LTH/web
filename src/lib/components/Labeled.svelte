@@ -7,6 +7,7 @@
   export let explanation: string | null = null;
   export let error: string | string[] | undefined = undefined;
   export let fullWidth = false;
+  export let required: boolean | null = null;
 </script>
 
 <label
@@ -19,7 +20,9 @@
   {#if label}
     <div class="label">
       <span class="label-text">
-        {label}
+        {label}{#if required}
+          <span class="font-bold">*</span>
+        {/if}
         {#if explanation}
           <span class="badge badge-neutral tooltip px-1" data-tip={explanation}>
             ?

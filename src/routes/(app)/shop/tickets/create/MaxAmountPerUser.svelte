@@ -12,12 +12,12 @@
   $: isActive = $form.maxAmountPerUser !== undefined;
 </script>
 
-<Labeled
-  label="Max antal biljetter per person"
-  error={$errors.maxAmountPerUser}
->
-  {#if isActive}
-    <div class="flex items-end gap-4 [&>*:first-child]:flex-1">
+{#if isActive}
+  <div class="flex items-end gap-4 [&>*:first-child]:flex-1">
+    <Labeled
+      label="Max antal biljetter per person"
+      error={$errors.maxAmountPerUser}
+    >
       <input
         id="maxAmountPerUser"
         name="maxAmountPerUser"
@@ -26,21 +26,26 @@
         {...$constraints.maxAmountPerUser}
         type="number"
       />
-      <button
-        class="btn"
-        type="button"
-        on:click={() => ($form.maxAmountPerUser = undefined)}
-      >
-        Ta bort max antal
-      </button>
-    </div>
-  {:else}
+    </Labeled>
     <button
       class="btn"
+      type="button"
+      on:click={() => ($form.maxAmountPerUser = undefined)}
+    >
+      Ta bort max antal
+    </button>
+  </div>
+{:else}
+  <Labeled
+    label="Max antal biljetter per person"
+    error={$errors.maxAmountPerUser}
+  >
+    <button
+      class="btn self-start"
       type="button"
       on:click={() => ($form.maxAmountPerUser = 1)}
     >
       Lägg till max antal biljetter per person
     </button>
-  {/if}
-</Labeled>
+  </Labeled>
+{/if}

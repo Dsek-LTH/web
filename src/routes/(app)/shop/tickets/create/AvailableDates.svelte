@@ -43,6 +43,7 @@
       class="btn"
       on:click={() => ($form.availableTo = $form.availableFrom)}
     >
+      <span class="i-mdi-plus text-xl" />
       Lägg till sluttid
     </button>
   {/if}

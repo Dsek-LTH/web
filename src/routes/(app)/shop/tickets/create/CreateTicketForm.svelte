@@ -18,21 +18,21 @@
   <EventSearchInput {form} {constraints} {errors} />
   <Input
     name="title"
-    label="Title"
+    label="Biljettnamn"
     bind:value={$form.title}
     {...$constraints.title}
     error={$errors.title}
   />
   <Input
     name="description"
-    label="Description"
+    label="Biljettbeskrivning"
     bind:value={$form.description}
     {...$constraints.description}
     error={$errors.description}
   />
   <Input
     name="titleEn"
-    label="Title (English)"
+    label="Engelskt biljettnamn"
     bind:value={$form.titleEn}
     {...$constraints.titleEn}
     error={$errors.titleEn}
@@ -40,7 +40,7 @@
   />
   <Input
     name="descriptionEn"
-    label="Description (English)"
+    label="Engelsk beskrivning"
     bind:value={$form.descriptionEn}
     {...$constraints.descriptionEn}
     error={$errors.descriptionEn}
@@ -48,7 +48,7 @@
   />
   <Input
     name="price"
-    label="Price (öre)"
+    label="Pris (i öre)"
     bind:value={$form.price}
     {...$constraints.price}
     error={$errors.price}
@@ -57,7 +57,7 @@
   <AvailableDates {form} {constraints} {errors} />
   <Input
     name="stock"
-    label="Antal biljetter till salut"
+    label="Antal biljetter till salu"
     bind:value={$form.stock}
     {...$constraints.stock}
     error={$errors.stock}
