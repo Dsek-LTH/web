@@ -37,7 +37,7 @@
       {...$$restProps}
     />
     <span
-      class="loading-sspinner loading loading-md absolute right-2 top-1/2 -translate-y-1/2 text-primary transition-opacity opacity-{isSearching
+      class="loading loading-spinner loading-md absolute right-2 top-1/2 -translate-y-1/2 text-primary transition-opacity opacity-{isSearching
         ? '100'
         : '0'}"
     />

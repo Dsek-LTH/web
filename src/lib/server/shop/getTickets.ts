@@ -36,7 +36,21 @@ export const getTickets = (prisma: PrismaClient) => {
       },
     },
     include: {
-      shoppable: true,
+      shoppable: {
+        include: {
+          _count: {
+            select: {
+              consumables: {
+                where: {
+                  purchasedAt: {
+                    not: null,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
       event: {
         include: {
           tags: true,

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import DateInput from "$lib/components/DateInput.svelte";
   import Input from "$lib/components/Input.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
   import TagChip from "$lib/components/TagChip.svelte";
@@ -6,7 +7,6 @@
   import type { Tag } from "@prisma/client";
   import type { SuperValidated } from "sveltekit-superforms";
   import { superForm } from "sveltekit-superforms/client";
-  import DateInput from "./DateInput.svelte";
   import Event from "./Event.svelte";
   import type { EventSchema } from "./schema";
 

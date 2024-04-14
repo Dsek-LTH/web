@@ -16,11 +16,16 @@
 <div class="group card card-compact overflow-hidden bg-base-300 shadow-xl">
   <TicketEvent event={ticket.event} />
   <div class="card-body">
-    <div class="flex justify-between">
+    <div class="flex items-start justify-between">
       <h2 class="card-title">{ticket.shoppable.title}</h2>
-      <span class="card-title text-success"
-        >{ticket.shoppable.price / 100} SEK</span
-      >
+      <div class="flex flex-col">
+        <span class="card-title text-success">
+          {ticket.shoppable.price / 100} SEK
+        </span>
+        <span class="text-right">
+          {ticket.stock - ticket.shoppable._count.consumables} kvar
+        </span>
+      </div>
     </div>
     <p>{ticket.shoppable.description}</p>
     <TicketActions {ticket} {addToCartForm} />

@@ -5,7 +5,7 @@
   export let name: string;
   export let label: string | null = null;
   export let placeholder: string | null = label;
-  export let value: string | null = null;
+  export let value: string | number | null = null;
   export let required: boolean | null = null;
   export let error: string | string[] | undefined = undefined;
   export let explanation: string | null = null;

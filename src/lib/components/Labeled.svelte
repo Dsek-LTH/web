@@ -1,4 +1,8 @@
 <script lang="ts">
+  import { twMerge } from "tailwind-merge";
+
+  let clazz = "";
+  export { clazz as class };
   export let id: string;
   export let label: string | null = null;
   export let explanation: string | null = null;
@@ -7,9 +11,11 @@
 </script>
 
 <div
-  class={`relative inline-flex flex-col items-stretch ${
-    fullWidth ? "w-full md:w-auto" : ""
-  }`}
+  class={twMerge(
+    "relative inline-flex flex-col items-stretch",
+    fullWidth ? "w-full md:w-auto " : "",
+    clazz,
+  )}
 >
   {#if label}
     <label class="label" for={id}>

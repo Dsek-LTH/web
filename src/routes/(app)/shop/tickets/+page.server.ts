@@ -5,6 +5,8 @@ import { z } from "zod";
 import type { PageServerLoad } from "./$types";
 import { addTicketToCart } from "$lib/server/shop/addToCart/addToCart";
 import { getTickets } from "$lib/server/shop/getTickets";
+import { authorize } from "$lib/utils/authorization";
+import apiNames from "$lib/utils/apiNames";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const allTickets = await getTickets(locals.prisma);
@@ -25,6 +27,7 @@ export const actions = {
     const { prisma, user } = locals;
 
     const form = await superValidate(request, addToCartSchema);
+    authorize(apiNames.WEBSHOP.PURCHASE, user);
     if (!form.valid) return fail(400, { form });
     if (!user?.memberId && !user?.externalCode) {
       return fail(401);
