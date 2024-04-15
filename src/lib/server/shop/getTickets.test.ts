@@ -22,12 +22,13 @@ const getTicketsTest = async (
     const result = await getTickets(prismaWithAccess);
     const ticketIds = Object.values(tickets).map((t) => t.id);
     const filteredResult = result.filter((t) => ticketIds.includes(t.id));
-    expect(filteredResult.length).toBe(5);
+    expect(filteredResult.length).toBe(6);
     // in order of available from (earliest first)
     expect(filteredResult.map((t) => t.id)).toEqual([
       tickets.pastTicket.id,
       tickets.activeTicket.id,
       tickets.activeTicket2.id,
+      tickets.freeActiveTicket.id,
       tickets.activeEarlyTicket.id,
       tickets.upcomingTicket.id,
     ]);

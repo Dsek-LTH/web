@@ -10,10 +10,10 @@ import {
 import authorizedPrismaClient from "../authorizedPrisma";
 
 export enum AddToCartStatus {
-  AddedToCart,
-  Reserved,
-  PutInQueue,
-  AddedToInventory,
+  AddedToCart = "AddedToCart",
+  Reserved = "Reserved",
+  PutInQueue = "PutInQueue",
+  AddedToInventory = "AddedToInventory",
 }
 
 export type AddToCartResult =
@@ -111,7 +111,7 @@ export const addTicketToCart = async (
           purchasedAt: now,
         },
       });
-      return { status: AddToCartStatus.AddedToCart };
+      return { status: AddToCartStatus.AddedToInventory };
     }
 
     await prisma.consumable.create({
@@ -178,7 +178,7 @@ const addToQueue = async (
   });
   return {
     status: AddToCartStatus.PutInQueue,
-    queuePosition: lastInQueueOrder + 1,
+    queuePosition: currentPeopleInQueue.length + 1,
   };
 };
 

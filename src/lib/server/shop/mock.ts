@@ -41,6 +41,17 @@ export const MOCK_ACTIVE_TICKET_2 = {
     availableTo: new Date(Date.now() + 1000 * 60 * 60 * 24),
   },
 };
+export const MOCK_FREE_ACTIVE_TICKET = {
+  stock: 10,
+  shoppable: {
+    type: ShoppableType.TICKET,
+    title: "Free ticket",
+    description: "Free ticket description",
+    price: 0,
+    availableFrom: new Date(Date.now() - 1000 * 60 * 60 * 22),
+    availableTo: new Date(Date.now() + 1000 * 60 * 60 * 24),
+  },
+};
 
 export const MOCK_ACTIVE_EARLY_TICKET = {
   stock: 10,
@@ -121,6 +132,7 @@ export const addMockTickets = async (
     for (const ticket of [
       MOCK_ACTIVE_TICKET,
       MOCK_ACTIVE_TICKET_2,
+      MOCK_FREE_ACTIVE_TICKET,
       MOCK_ACTIVE_EARLY_TICKET,
       MOCK_PAST_TICKET,
       MOCK_UPCOMING_TICKET,
@@ -151,20 +163,14 @@ export const addMockTickets = async (
       });
       tickets.push(createdTicket);
     }
-    if (tickets.length != 5) throw new Error("Failed to create tickets");
-    const [
-      activeTicket,
-      activeTicket2,
-      activeEarlyTicket,
-      pastTicket,
-      upcomingTicket,
-    ] = tickets;
+    if (tickets.length != 6) throw new Error("Failed to create tickets");
     return {
-      activeTicket: activeTicket!,
-      activeTicket2: activeTicket2!,
-      activeEarlyTicket: activeEarlyTicket!,
-      pastTicket: pastTicket!,
-      upcomingTicket: upcomingTicket!,
+      activeTicket: tickets[0]!,
+      activeTicket2: tickets[1]!,
+      freeActiveTicket: tickets[2]!,
+      activeEarlyTicket: tickets[3]!,
+      pastTicket: tickets[4]!,
+      upcomingTicket: tickets[5]!,
     };
   });
 };
