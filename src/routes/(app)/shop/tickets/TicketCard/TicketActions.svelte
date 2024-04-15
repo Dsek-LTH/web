@@ -21,17 +21,17 @@
 <div class="card-actions items-baseline justify-between">
   <span>
     {#if isUpcoming}
-      Öppnar relativeTime(ticket.shoppable.availableFrom) Öppnar {dayjs(
-        ticket.shoppable.availableFrom,
-      ).fromNow()}
-    {:else if isPast}
-      Stängde {dayjs(ticket.shoppable.availableTo).fromNow()}
-    {:else}
-      Stänger {dayjs(ticket.shoppable.availableTo).fromNow()}
+      Öppnar {dayjs(ticket.shoppable.availableFrom).fromNow()}
+    {:else if ticket.shoppable.availableTo}
+      {#if isPast}
+        Stängde {dayjs(ticket.shoppable.availableTo).fromNow()}
+      {:else}
+        Stänger {dayjs(ticket.shoppable.availableTo).fromNow()}
+      {/if}
     {/if}
   </span>
   <form method="POST" action="?/addToCart" use:enhance>
-    <input type="hidden" name="ticket-id" value={ticket.id} />
+    <input type="hidden" name="ticketId" value={ticket.id} />
     <button
       type="submit"
       disabled={!isActive || $submitting}

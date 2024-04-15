@@ -102,7 +102,8 @@ const purchaseCart = async (
         consumable.stripeIntentId,
       );
       if (intent.status === "succeeded") modification = true;
-      if (!canTryAgain) await removePaymentIntent(consumable.stripeIntentId);
+      else if (!canTryAgain)
+        await removePaymentIntent(consumable.stripeIntentId);
       else existingPaymentIntents.push(intent.id);
     }
   }
@@ -149,80 +150,79 @@ const purchaseCart = async (
   const customer = member ? await obtainStripeCustomer(member) : null;
 
   // Step 4: Create stripe payment intent
-  try {
-    const intent = await createPaymentIntent({
-      amount: priceWithTransactionFee(price),
-      customer: customer?.id ?? undefined,
-      metadata: {
-        isAnonymousUser: !member ? "true" : "false", // metadata can only be string or number
-        customerStudentId: member ? member.studentId : null,
-        customerName: member
-          ? getFullName({
-              ...member,
-              nickname: null,
-            })
-          : null,
-        ...creteConsumableMetadata(userConsumables),
-      },
-      idempotencyKey: idempotencyKey, // makes sure if user presses button twice, only one payment intent is created
-    });
-    const existingDifferentPaymentIntents = existingPaymentIntents.filter(
-      (id) => id !== intent.id,
+  const intent = await createPaymentIntent({
+    amount: priceWithTransactionFee(price),
+    customer: customer?.id ?? undefined,
+    metadata: {
+      isAnonymousUser: !member ? "true" : "false", // metadata can only be string or number
+      customerStudentId: member ? member.studentId : null,
+      customerName: member
+        ? getFullName({
+            ...member,
+            nickname: null,
+          })
+        : null,
+      ...creteConsumableMetadata(userConsumables),
+    },
+    idempotencyKey: idempotencyKey, // makes sure if user presses button twice, only one payment intent is created
+  }).catch((err) => {
+    console.error(err);
+    throw new Error("Kunde inte skapa betalning. Försök igen.");
+  });
+  const existingDifferentPaymentIntents = existingPaymentIntents.filter(
+    (id) => id !== intent.id,
+  );
+  if (existingDifferentPaymentIntents.length > 0) {
+    await Promise.all(
+      existingDifferentPaymentIntents.map((id) => removePaymentIntent(id)),
     );
-    if (existingDifferentPaymentIntents.length > 0) {
-      await Promise.all(
-        existingDifferentPaymentIntents.map((id) => removePaymentIntent(id)),
-      );
-    }
-    try {
-      // there is a race condition error here. If two calls to this method are done simultaneously, both will succeed, but one will be overwritten by another. COuld lead to an intent not connected to a consumable.
-      await authorizedPrismaClient.$transaction(async (tx): Promise<void> => {
-        // ensure all of the consumables are still without a stripeIntentId, and not removed
-        const consumables = await tx.consumable.findMany({
-          where: {
-            id: {
-              in: userConsumables.map((c) => c.id),
-            },
-            OR: [
-              {
-                stripeIntentId: null,
-              },
-              {
-                stripeIntentId: {
-                  equals: intent.id, // it's fine if its the same (might be due to idempotencyKey)
-                },
-              },
-            ],
-          },
-        });
-        if (consumables.length !== userConsumables.length) {
-          throw new Error("Du hade flera betalningar igång samtidigt.");
-        }
-        await tx.consumable.updateMany({
-          where: {
-            id: {
-              in: userConsumables.map((c) => c.id),
-            },
-          },
-          data: {
-            stripeIntentId: intent.id,
-            expiresAt: null, // should not expire while intent is active.
-            // expiresAt should be set again when payment fails, intent is cancelled, or other stripe timeout (if it exists)
-          },
-        });
-      });
-    } catch (err) {
-      await removePaymentIntent(intent.id);
-      throw new Error(`Något gick fel: ${err}`);
-    }
-    return {
-      clientSecret: intent.client_secret,
-      message: "Du kan betala nu.",
-      type: "hidden",
-    };
-  } catch (err) {
-    throw new Error(`Något gick fel: ${err}`);
   }
+  try {
+    // there is a race condition error here. If two calls to this method are done simultaneously, both will succeed, but one will be overwritten by another. COuld lead to an intent not connected to a consumable.
+    await authorizedPrismaClient.$transaction(async (tx): Promise<void> => {
+      // ensure all of the consumables are still without a stripeIntentId, and not removed
+      const consumables = await tx.consumable.findMany({
+        where: {
+          id: {
+            in: userConsumables.map((c) => c.id),
+          },
+          OR: [
+            {
+              stripeIntentId: null,
+            },
+            {
+              stripeIntentId: {
+                equals: intent.id, // it's fine if its the same (might be due to idempotencyKey)
+              },
+            },
+          ],
+        },
+      });
+      if (consumables.length !== userConsumables.length) {
+        throw new Error("Du hade flera betalningar igång samtidigt.");
+      }
+      await tx.consumable.updateMany({
+        where: {
+          id: {
+            in: userConsumables.map((c) => c.id),
+          },
+        },
+        data: {
+          stripeIntentId: intent.id,
+          expiresAt: null, // should not expire while intent is active.
+          // expiresAt should be set again when payment fails, intent is cancelled, or other stripe timeout (if it exists)
+        },
+      });
+    });
+  } catch (err) {
+    await removePaymentIntent(intent.id);
+    throw err;
+  }
+  return {
+    clientSecret: intent.client_secret,
+    message: "Du kan betala nu.",
+    type: "hidden",
+  };
 };
 
 type ConsumableFieldsForPrice = {
@@ -259,12 +259,12 @@ const STRIPE_PERCENTAGE_FEE_MODIFIER = 1 / (1 - STRIPE_PERCENTAGE_FEE); // 1/(1-
  * Calculates the transaction fee for a given price.
  */
 export const transactionFee = (price: number) =>
-  price * STRIPE_PERCENTAGE_FEE + STRIPE_FIXED_FEE;
+  Math.floor(price * STRIPE_PERCENTAGE_FEE + STRIPE_FIXED_FEE);
 
 /**
  * Calculates the required price to charge the user for us to receive `price` after Stripe takes its cut.
  */
 export const priceWithTransactionFee = (price: number) =>
-  (price + STRIPE_FIXED_FEE) * STRIPE_PERCENTAGE_FEE_MODIFIER;
+  Math.floor((price + STRIPE_FIXED_FEE) * STRIPE_PERCENTAGE_FEE_MODIFIER);
 
 export default purchaseCart;

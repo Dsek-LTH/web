@@ -1,7 +1,16 @@
 <script lang="ts">
+  import dayjs from "dayjs";
   import PurchaseSection from "./PurchaseSection.svelte";
+  import { now } from "$lib/stores/date";
 
   export let data;
+
+  const expiresIn = (expiresAt: Date, now: Date) => {
+    const seconds = dayjs(expiresAt).diff(now, "seconds");
+    return `${Math.floor(seconds / 60)
+      .toString()
+      .padStart(2, "0")}:${(seconds % 60).toString().padStart(2, "0")}`;
+  };
 
   // const examleitem = {
   //   // ...info,
@@ -46,5 +55,19 @@
   <!-- If any tickets with unanswered questions exists, open a modal showing one item at a time. At the top, display the item info (name, price, info etc) and then all the questsions at once below it.render
 Some questions are multiple choice, some are free-text (says in the data which). If multiple choice, some choices might result in a higher price. -->
   <h1>Kundvagn</h1>
+  <ul>
+    {#each data.inCart as cartItem (cartItem.id)}
+      <li>
+        <span>
+          {cartItem.shoppable.title} - {cartItem.shoppable.price / 100} kr</span
+        >
+        {#if cartItem.expiresAt}
+          <span>
+            Bokad i {expiresIn(cartItem.expiresAt, $now)}
+          </span>
+        {/if}
+      </li>
+    {/each}
+  </ul>
   <PurchaseSection purchaseForm={data.purchaseForm} />
 </article>

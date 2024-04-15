@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { beforeNavigate } from "$app/navigation";
   import { PUBLIC_STRIPE_KEY } from "$env/static/public";
   import type StripeJS from "@stripe/stripe-js";
   import { loadStripe } from "@stripe/stripe-js";
@@ -14,21 +13,10 @@
     stripe = await loadStripe(PUBLIC_STRIPE_KEY);
   });
 
-  $: beforeNavigate(({ cancel }) => {
-    if (
-      $message.clientSecret !== undefined &&
-      !confirm(
-        "Are you sure you want to leave the page? Your payment will be canceled.",
-      )
-    ) {
-      cancel();
-    }
-  });
-
   const idempotencyKey = crypto.randomUUID();
 
   export let purchaseForm: SuperValidated<PurchaseForm>;
-  const { enhance, message } = superForm(purchaseForm);
+  const { enhance, message, submitting } = superForm(purchaseForm);
 </script>
 
 {#if $message?.["clientSecret"] !== undefined}
@@ -38,6 +26,8 @@
 {:else}
   <form method="POST" action="?/purchase" use:enhance>
     <input type="hidden" name="idempotencyKey" value={idempotencyKey} />
-    <button type="submit" class="btn btn-primary"> Betala </button>
+    <button type="submit" class="btn btn-primary" disabled={$submitting}>
+      {$submitting ? "Processar..." : "Betala"}
+    </button>
   </form>
 {/if}

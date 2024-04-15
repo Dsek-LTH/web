@@ -25,7 +25,7 @@
       elements,
       redirect: "if_required",
       confirmParams: {
-        return_url: $page.url.origin + "/shop/success",
+        return_url: $page.url.origin + "/shop/success?intentId",
       },
     });
 
