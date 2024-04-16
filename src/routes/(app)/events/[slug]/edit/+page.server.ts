@@ -4,7 +4,7 @@ import { redirect } from "sveltekit-flash-message/server";
 import { superValidate } from "sveltekit-superforms/server";
 import { eventSchema } from "../../schema";
 import type { Actions, PageServerLoad } from "./$types";
-import { isUUIDRegex } from "$lib/utils/generateUUID";
+import { validate as uuidValidate } from "uuid";
 import { authorize } from "$lib/utils/authorization";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
@@ -13,7 +13,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
   const allTags = await prisma.tag.findMany();
   const event = await prisma.event.findUnique({
-    where: isUUIDRegex.test(params.slug)
+    where: uuidValidate(params.slug)
       ? {
           id: params.slug,
         }
@@ -43,7 +43,7 @@ export const actions: Actions = {
     const form = await superValidate(request, eventSchema);
     if (!form.valid) return fail(400, { form });
     const existingEvent = await prisma.event.findUnique({
-      where: isUUIDRegex.test(params.slug)
+      where: uuidValidate(params.slug)
         ? {
             id: params.slug,
           }
@@ -73,7 +73,7 @@ export const actions: Actions = {
     });
 
     throw redirect(
-      `/event/${params.slug}`,
+      `/events/${params.slug}`,
       {
         message: "Evenemang uppdaterat",
         type: "success",

@@ -1,13 +1,21 @@
 <script lang="ts">
   import TagChip from "$lib/components/TagChip.svelte";
   import CommentSection from "$lib/components/socials/CommentSection.svelte";
-  import apiNames from "$lib/utils/apiNames";
-  import { isAuthorized } from "$lib/utils/authorization";
   import Event from "../Event.svelte";
   import InterestedGoingButtons from "../InterestedGoingButtons.svelte";
   import InterestedGoingList from "../InterestedGoingList.svelte";
 
+  import type { SuperValidated } from "sveltekit-superforms";
   import type { PageData } from "./$types";
+  import { superForm } from "sveltekit-superforms/client";
+  import type { RemoveEventSchema } from "../removeEventAction";
+
+  export let articleId: string;
+  export let removeForm: SuperValidated<RemoveEventSchema>;
+  const { enhance } = superForm(removeForm, {
+    id: articleId,
+  });
+
   export let data: PageData;
   $: event = data.event;
 </script>
@@ -17,14 +25,27 @@
 </svelte:head>
 
 <Event {event}>
-  <div slot="actions">
-    {#if isAuthorized(apiNames.EVENT.UPDATE, data.user)}
+  <div slot="actions" class="flex flex-row">
+    {#if data.canEdit}
       <a
-        class="text-primary hover:underline"
-        href={`/events/${event.slug}/edit`}
+        href="/events/{event.slug}/edit"
+        class="btn btn-square btn-ghost btn-md"
+        title="Redigera"
       >
-        Redigera
+        <span class="i-mdi-edit text-xl" />
       </a>
+    {/if}
+    {#if data.canDelete}
+      <form method="POST" action="?/removeEvent" use:enhance>
+        <input type="hidden" name="eventId" value={event.id} />
+        <button
+          type="submit"
+          class="btn btn-square btn-ghost btn-md"
+          title="Radera"
+        >
+          <span class="i-mdi-delete text-xl" />
+        </button>
+      </form>
     {/if}
   </div>
 

@@ -1,13 +1,13 @@
 import apiNames from "$lib/utils/apiNames";
+import { authorize } from "$lib/utils/authorization";
 import { Prisma } from "@prisma/client";
 import { error, fail } from "@sveltejs/kit";
+import { redirect } from "sveltekit-flash-message/server";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import { getArticleAuthorOptions } from "../../articles";
 import { articleSchema } from "../../schema";
 import type { Actions, PageServerLoad } from "./$types";
-import { redirect } from "sveltekit-flash-message/server";
-import { authorize } from "$lib/utils/authorization";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
@@ -79,10 +79,9 @@ export const actions: Actions = {
     const { slug, header, body, author, tags } = form.data;
     const existingAuthor = await prisma.author.findFirst({
       where: {
-        member: {
-          id: author.memberId,
-        },
+        member: { id: author.memberId },
         mandateId: author.mandateId,
+        customId: author.customId,
       },
     });
     try {
@@ -100,24 +99,25 @@ export const actions: Actions = {
                 }
               : undefined,
             create: existingAuthor
-              ? undefined
-              : {
+              ? {
                   member: {
-                    connect: {
-                      studentId: user?.studentId,
-                    },
+                    connect: { studentId: user?.studentId },
                   },
                   mandate: author.mandateId
                     ? {
                         connect: {
-                          member: {
-                            studentId: user?.studentId,
-                          },
+                          member: { studentId: user?.studentId },
                           id: author.mandateId,
                         },
                       }
                     : undefined,
-                },
+                  customAuthor: author.customId
+                    ? {
+                        connect: { id: author.customId },
+                      }
+                    : undefined,
+                }
+              : undefined,
           },
           tags: {
             set: tags
@@ -142,6 +142,7 @@ export const actions: Actions = {
       }
       throw e;
     }
+
     throw redirect(
       `/news/${event.params.slug}`,
       {
