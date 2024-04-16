@@ -6,6 +6,7 @@ import { authorize } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
 import { sendPing } from "./pings";
 import { getCurrentDoorPoliciesForMember } from "$lib/utils/member";
+import keycloak from "$lib/server/keycloak";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { user, prisma } = locals;
@@ -67,6 +68,12 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     prisma,
     member.id,
   );
+
+  const email =
+    member.studentId !== null
+      ? await keycloak.getEmail(member.studentId)
+      : undefined;
+
   try {
     return {
       form: await superValidate(member, memberSchema),
@@ -74,6 +81,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
       viewedMember: member, // https://github.com/Dsek-LTH/web/issues/194
       allMemberDoors,
       publishedArticles: publishedArticlesResult.value ?? [],
+      email,
       ping: user
         ? await prisma.ping.findFirst({
             where: {
