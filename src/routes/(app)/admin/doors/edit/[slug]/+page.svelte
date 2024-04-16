@@ -112,11 +112,17 @@
           />
         </Labeled>
       </div>
+      <label class="switch">
+        <input 
+          id="isBan"
+          name="isBan"
+          type="true"
+          bind:value={$form.isBan}
+          >
+        <span class="slider round"></span>
+      </label>
       <div class="flex-auto">
         <button type="submit" class="btn btn-primary join-item">Add</button>
-        <button type="submit" formaction="?/ban" class="btn btn-error join-item"
-          >Ban (tmp)</button
-        >
       </div>
     </label>
     {#if Object.keys($errors).length > 0}
