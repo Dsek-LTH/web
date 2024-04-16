@@ -16,7 +16,6 @@
 
 <main class="container mx-auto px-4">
   <h1 class="mb-4 text-2xl font-semibold capitalize">{$page.params["slug"]}</h1>
-
   <div class="overflow-x-auto">
     <table class="table">
       <thead>
@@ -113,9 +112,12 @@
           />
         </Labeled>
       </div>
-      <button type="submit" class="btn btn-primary join-item"
-        >{m.admin_doors_add()}</button
-      >
+      <div class="flex-auto">
+        <button type="submit" class="btn btn-primary join-item">Add</button>
+        <button type="submit" formaction="?/ban" class="btn btn-error join-item"
+          >Ban (tmp)</button
+        >
+      </div>
     </label>
     {#if Object.keys($errors).length > 0}
       <div class="text-error">
