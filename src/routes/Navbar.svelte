@@ -89,7 +89,7 @@
     </div>
 
     {#if $page.data.user && $page.data.member}
-      {#if notifications !== null && deleteNotificationForm !== null}
+      {#if notifications !== null && notifications !== undefined && deleteNotificationForm !== null}
         <NotificationBell {notifications} deleteForm={deleteNotificationForm} />
       {/if}
       <div class="dropdown dropdown-end dropdown-hover">
