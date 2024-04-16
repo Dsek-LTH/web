@@ -39,12 +39,12 @@ export const getCustomAuthorOptions = async (
   });
 };
 
-export type MemberDoorPolicies = {
+export type MemberDoorPolicies = Array<{
   name: string;
   roles: string[];
   startDate: Date | null;
   endDate: Date | null;
-}[];
+}>;
 
 export const getCurrentDoorPoliciesForMember = async (
   prisma: PrismaClient,
