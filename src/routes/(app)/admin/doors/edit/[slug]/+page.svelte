@@ -150,6 +150,9 @@
           />
         </Labeled>
       </div>
+      <button type="submit" class="btn btn-primary join-item">
+        {m.admin_doors_add()}
+      </button>
       <div
         class="flex w-full items-center justify-center py-2 transition-colors lg:max-w-[200px]"
         class:bg-error={$form.isBan}
