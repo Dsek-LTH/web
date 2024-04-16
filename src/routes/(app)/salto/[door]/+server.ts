@@ -18,12 +18,24 @@ export const GET: RequestHandler = async ({ locals, params }) => {
     },
   });
 
-  const studentIds = policies
+  const banPolicies = policies.filter((policy) => policy.isBan);
+
+  const bannedStudentIds = banPolicies
     .map((policy) => policy.studentId)
     .filter((id): id is string => id !== null);
-  const positionIds = policies
+
+  const bannedPositionIds = banPolicies
     .map((policy) => policy.role)
     .filter((id): id is string => id !== null);
+
+  const studentIds = policies
+    .map((policy) => policy.studentId)
+    .filter((id): id is string => id !== null)
+    .filter((id) => !bannedStudentIds.includes(id));
+  const positionIds = policies
+    .map((policy) => policy.role)
+    .filter((id): id is string => id !== null)
+    .filter((id) => !bannedPositionIds.includes(id));
 
   // Find
   const positions = await prisma.position.findMany({

@@ -51,6 +51,8 @@ const createSchema = z
     role: z.string().min(1).optional(),
     startDatetime: z.date().optional(),
     endDatetime: z.date().optional(),
+    information: z.string().optional(),
+    isBan: z.boolean(),
   })
   .refine((data) => data.studentId != null || data.role != null, {
     message: "Du måste ange roll och studentid",

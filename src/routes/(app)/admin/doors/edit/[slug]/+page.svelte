@@ -9,6 +9,7 @@
   let type: "role" | "studentId" = "role";
 
   let removeModal: HTMLDialogElement | undefined = undefined;
+  let informationModal: HTMLDialogElement | undefined = undefined;
   let selectedPolicy: (typeof data)["doorAccessPolicies"][number] | undefined =
     undefined;
   const { form, errors, constraints, enhance } = superForm(data.createForm);
@@ -16,7 +17,6 @@
 
 <main class="container mx-auto px-4">
   <h1 class="mb-4 text-2xl font-semibold capitalize">{$page.params["slug"]}</h1>
-
   <div class="overflow-x-auto">
     <table class="table">
       <thead>
@@ -29,7 +29,10 @@
       </thead>
 
       <tbody>
-        {#each data.doorAccessPolicies as policy}<tr>
+        {#each data.doorAccessPolicies as policy}<tr
+            class:bg-error={policy.isBan}
+            class:text-black={policy.isBan}
+          >
             {#if policy.role}
               <td class="flex items-center gap-3"
                 ><span class="i-mdi-account-group h-6 w-6"
@@ -54,6 +57,40 @@
             {/if}
             <td>{policy.startDatetime?.toLocaleString("sv") ?? "N/A"}</td>
             <td>{policy.endDatetime?.toLocaleString("sv") ?? "N/A"}</td>
+            {#if policy.information}
+              <td class="policy-information">
+                <button
+                  on:click={() => {
+                    informationModal?.showModal();
+                    selectedPolicy = policy;
+                  }}
+                  class="btn-error rounded fill-base-content"
+                  ><svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="32"
+                    height="32"
+                    viewBox="0 0 24 24"
+                    ><path
+                      d="M13 9h-2V7h2m0 10h-2v-6h2m-1-9A10 10 0 0 0 2 12a10 10 0 0 0 10 10a10 10 0 0 0 10-10A10 10 0 0 0 12 2"
+                    /></svg
+                  ></button
+                >
+                <dialog id="my_modal_1" class="modal">
+                  <div class="modal-box">
+                    <h3 class="text-lg font-bold">Information!</h3>
+                    <p class="py-4">{policy.information}</p>
+                    <div class="modal-action">
+                      <form method="dialog">
+                        <!-- if there is a button in form, it will close the modal -->
+                        <button class="btn">Close</button>
+                      </form>
+                    </div>
+                  </div>
+                </dialog>
+              </td>
+            {:else}
+              <div></div>
+            {/if}
             <td class="text-right">
               <button
                 on:click={() => {
@@ -113,9 +150,40 @@
           />
         </Labeled>
       </div>
-      <button type="submit" class="btn btn-primary join-item"
-        >{m.admin_doors_add()}</button
+      <button type="submit" class="btn btn-primary join-item">
+        {m.admin_doors_add()}
+      </button>
+      <div
+        class="flex w-full items-center justify-center py-2 transition-colors lg:max-w-[200px]"
+        class:bg-error={$form.isBan}
       >
+        <p class="p-2" id="banText" class:text-black={$form.isBan}>
+          {$form.isBan ? "Banning Access" : "Ban Access?"}
+        </p>
+        <input
+          id="isBan"
+          name="isBan"
+          type="checkbox"
+          class="toggle"
+          bind:checked={$form.isBan}
+        />
+        <span class="slider round"></span>
+      </div>
+      <div class="form-control w-full">
+        <input
+          id="information"
+          name="information"
+          type="text"
+          class="input join-item input-bordered"
+          placeholder="Additional information"
+          bind:value={$form.information}
+        />
+      </div>
+      <label class="switch">
+        <div class="flex-auto">
+          <button type="submit" class="btn btn-primary join-item">Add</button>
+        </div>
+      </label>
     </label>
     {#if Object.keys($errors).length > 0}
       <div class="text-error">
@@ -149,6 +217,39 @@
         </button>
       </form>
     </div>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button class="cursor-auto"></button>
+  </form>
+</dialog>
+
+<dialog bind:this={informationModal} class="modal modal-bottom sm:modal-middle">
+  <div class="modal-box">
+    <div class="flex items-center">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="32"
+        height="32"
+        viewBox="0 0 24 24"
+        ><path
+          fill="currentColor"
+          d="M13 9h-2V7h2m0 10h-2v-6h2m-1-9A10 10 0 0 0 2 12a10 10 0 0 0 10 10a10 10 0 0 0 10-10A10 10 0 0 0 12 2"
+        /></svg
+      >
+      <h3 class="px-1 text-lg font-bold">
+        <b class="capitalize">{$page.params["slug"]}</b>
+      </h3>
+    </div>
+    <p class="py-4">
+      <b class="normal-case">{selectedPolicy?.information}</b>
+    </p>
+    <button
+      type="submit"
+      class="btn btn-error"
+      on:click={() => informationModal?.close()}
+    >
+      OK
+    </button>
   </div>
   <form method="dialog" class="modal-backdrop">
     <button class="cursor-auto"></button>
