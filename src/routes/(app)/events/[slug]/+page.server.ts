@@ -11,10 +11,7 @@ import { getEvent } from "../events";
 import type { Actions, PageServerLoad } from "./$types";
 import { isAuthorized } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
-import {
-  removeEventAction,
-  removeEventSchema,
-} from "../../news/removeEventAction";
+import { removeEventAction, removeEventSchema } from "../removeEventAction";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;

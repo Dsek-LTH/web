@@ -10,12 +10,12 @@ import { superValidate } from "sveltekit-superforms/server";
 import { getArticle } from "../articles";
 import { likeSchema, likesAction } from "../likes";
 import type { Actions, PageServerLoad } from "./$types";
+import { isAuthorized } from "$lib/utils/authorization";
+import apiNames from "$lib/utils/apiNames";
 import {
   removeArticleAction,
   removeArticleSchema,
 } from "../removeArticleAction";
-import { isAuthorized } from "$lib/utils/authorization";
-import apiNames from "$lib/utils/apiNames";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;

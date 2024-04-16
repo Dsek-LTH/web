@@ -7,11 +7,11 @@
 
   import type { SuperValidated } from "sveltekit-superforms";
   import type { PageData } from "./$types";
-  import type { RemoveArticleSchema } from "../../news/removeArticleAction";
   import { superForm } from "sveltekit-superforms/client";
+  import type { RemoveEventSchema } from "../removeEventAction";
 
   export let articleId: string;
-  export let removeForm: SuperValidated<RemoveArticleSchema>;
+  export let removeForm: SuperValidated<RemoveEventSchema>;
   const { enhance } = superForm(removeForm, {
     id: articleId,
   });
