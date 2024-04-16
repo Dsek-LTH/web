@@ -71,7 +71,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     return {
       form: await superValidate(member, memberSchema),
       pingForm: await superValidate(emptySchema),
-      member,
+      viewedMember: member, // https://github.com/Dsek-LTH/web/issues/194
       allMemberDoors,
       publishedArticles: publishedArticlesResult.value ?? [],
       ping: user

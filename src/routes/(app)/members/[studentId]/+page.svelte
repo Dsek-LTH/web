@@ -16,7 +16,7 @@
   import type { PageData } from "./$types";
 
   export let data: PageData;
-  $: member = data.member;
+  $: member = data.viewedMember;
   $: isMe = data.user?.studentId === $page.params["studentId"];
   $: mandatesGroupedByYear = member.mandates.reduce<
     Record<string, (typeof member)["mandates"]>
@@ -127,7 +127,7 @@
         <PublishedArticles articles={data.publishedArticles} />
       {/if}
       {#if publishedEvents.length > 0}
-        <PublishedEvents events={data.member.authoredEvents} />
+        <PublishedEvents events={member.authoredEvents} />
       {/if}
     </div>
   </div>
