@@ -73,7 +73,7 @@ export const actions: Actions = {
     });
 
     throw redirect(
-      `/event/${params.slug}`,
+      `/events/${params.slug}`,
       {
         message: "Evenemang uppdaterat",
         type: "success",
