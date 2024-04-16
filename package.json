@@ -18,7 +18,7 @@
     "test": "vitest run",
     "test:watch": "vitest watch",
     "generate": "prisma generate",
-    "migrate": "prisma migrate dev",
+    "migrate": "zenstack generate && prisma migrate dev",
     "seed": "prisma db seed",
     "prisma-case-format": "prisma-case-format -f src/database/prisma/schema.prisma",
     "paraglide": "paraglide-js compile --project ./project.inlang --outdir ./src/translations/paraglide"

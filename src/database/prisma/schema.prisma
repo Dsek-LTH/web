@@ -517,6 +517,8 @@ model Member {
     @@map("members")
 }
 
+/// @@allow('update', auth().memberId == memberId)
+/// @@allow('delete', auth().memberId == memberId)
 /// @@allow('read', auth().memberId == memberId)
 /// @@allow('create', auth() != null)
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Notifications{
@@ -581,6 +583,8 @@ model Payment {
     @@map("payment")
 }
 
+/// @@allow('read', auth().memberId == fromMemberId || auth().memberId == toMemberId)
+/// @@allow('update', auth().memberId == fromMemberId || auth().memberId == toMemberId)
 /// @@allow('create', has(auth().policies, 'core:member:ping'))
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Pings{
 model Ping {
