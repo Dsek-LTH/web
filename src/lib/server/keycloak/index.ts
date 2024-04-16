@@ -186,7 +186,7 @@ async function hasEmail(email: string) {
 }
 
 async function getEmail(username: string) {
-  if (!enabled) return false;
+  if (!enabled) return;
   const client = await connect();
   const user = await client.users.find({ username });
   if (user.length === 1) return user[0]?.email;
