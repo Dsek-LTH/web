@@ -522,7 +522,8 @@ model Member {
     doorAccessPolicies DoorAccessPolicy[]
     authoredShoppables Shoppable[]
     inventory Consumable[]
-
+    shopReservations ConsumableReservation[]
+    
     @@map("members")
 }
 
@@ -839,7 +840,8 @@ model Shoppable {
     updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6) @updatedAt()
     removedAt DateTime? @map("removed_at") @db.Timestamptz(6)
     ticket Ticket?
-    consumable Consumable[]
+    consumables Consumable[]
+    reservations ConsumableReservation[]
     questions ItemQuestion[]
 
     @@map("shoppable")
@@ -855,7 +857,10 @@ model Ticket {
     shoppable Shoppable @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: NoAction)
     eventId String @db.Uuid()
     event Event @relation(fields: [eventId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
+    
+    stock Int @default(0)
+    maxAmountPerUser Int @default(1)
+    
     @@map("ticket")
 }
 
@@ -913,9 +918,10 @@ model ItemQuestionResponse {
 }
 
 /// @@allow('create', memberId == auth().memberId || auth().externalCode != null && externalCustomerCode == auth().externalCode)
-/// @@allow('read', memberId == auth().memberId || auth().externalCode != null && externalCustomerCode == auth().externalCode || shoppable.authorId == auth().memberId || hasSome(auth().policies, ['webshop:manage', 'webshop:read_purchases']))
+/// @@allow('read', true)
 /// @@deny('update', true)
-/// @@allow('delete', memberId == auth().memberId || auth().externalCode != null && externalCustomerCode == auth().externalCode && purchasedAt == null)
+/// @@allow('delete', memberId == auth().memberId || auth().externalCode != null && externalCustomerCode == auth().externalCode)
+/// @@allow('delete', expiresAt != null && expiresAt < now())
 /// @@deny('delete', purchasedAt != null)
 model Consumable {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
@@ -926,10 +932,31 @@ model Consumable {
     externalCustomerEmail String?
     externalCustomerCode String?
     createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    expiresAt DateTime? @map("expires_at") @db.Timestamptz(6)
+
     purchasedAt DateTime? @map("purchased_at") @db.Timestamptz(6)
     /// @allow('update', has(auth().policies, 'webshop:consume') && consumedAt == null || has(auth().policies, 'webshop:manage'), true)
     consumedAt DateTime? @map("consumed_at") @db.Timestamptz(6)
     questionResponses ItemQuestionResponse[]
 
     @@map("consumable")
+
+}
+
+/// @@allow('create', memberId == auth().memberId || auth().externalCode != null && externalCustomerCode == auth().externalCode)
+/// @@allow('read', true)
+/// @@deny('update', true)
+/// @@allow('delete', memberId == auth().memberId || auth().externalCode != null && externalCustomerCode == auth().externalCode)
+model ConsumableReservation {
+    id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+    shoppableId String @db.Uuid()
+    shoppable Shoppable @relation(fields: [shoppableId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+    memberId String? @db.Uuid()
+    member Member? @relation(fields: [memberId], references: [id])
+    externalCustomerEmail String?
+    externalCustomerCode String?
+    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    order Int?
+
+    @@map("consumable_reservation")
 }

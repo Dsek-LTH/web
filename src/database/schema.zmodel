@@ -499,6 +499,7 @@ model Member {
   doorAccessPolicies DoorAccessPolicy[]
 	authoredShoppables Shoppable[]
 	inventory Consumable[]
+	shopReservations ConsumableReservation[]
 
   @@allow('create', has(auth().policies, "core:member:create"))
   @@allow('create', auth().studentId == studentId)
@@ -507,8 +508,6 @@ model Member {
   @@allow('update', has(auth().policies, "core:member:update"))
   @@allow('delete', has(auth().policies, "core:member:delete"))
   @@map("members")
-
-
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Notifications{
@@ -840,7 +839,8 @@ model Shoppable {
   removedAt DateTime? @map("removed_at") @db.Timestamptz(6)
 
   ticket Ticket?
-	consumable Consumable[]
+	consumables Consumable[]
+	reservations ConsumableReservation[]
 	questions ItemQuestion[]
 
   // create: acces and mark self as author
@@ -854,8 +854,6 @@ model Shoppable {
   @@allow("delete", has(auth().policies, "webshop:manage"))
 
   @@map("shoppable")
-
-
 }
 
 model Ticket {
@@ -865,6 +863,8 @@ model Ticket {
   eventId String @db.Uuid
   event Event @relation(fields: [eventId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
+  stock Int @default(0) // amount of tickets available
+  maxAmountPerUser Int @default(1) // how many tickets a user can buy in one purchase
 
   // same access as shoppable
   @@allow("create", has(auth().policies, "webshop:create") && shoppable.authorId == auth().memberId)
@@ -946,8 +946,6 @@ model ItemQuestionResponse {
   @@map("item_question_response")
 }
 
-
-
 model Consumable {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
 
@@ -960,6 +958,7 @@ model Consumable {
   externalCustomerCode String? // if purchased by a non-member, unique code used in link as security
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  expiresAt DateTime? @map("expires_at") @db.Timestamptz(6)
   purchasedAt DateTime? @map("purchased_at") @db.Timestamptz(6)
   // customer or webshop:consume can always consume from unconsumed state. manager can "unconsume" from consumed state
   consumedAt DateTime? @map("consumed_at") @db.Timestamptz(6) @allow("update",  (has(auth().policies, "webshop:consume") && consumedAt == null) 
@@ -969,17 +968,40 @@ model Consumable {
 
   // create: anyone, but only for themselves
   @@allow("create", memberId == auth().memberId || auth().externalCode != null && externalCustomerCode == auth().externalCode)
-  // read: customer, item author, anyone with manager or read_purchase priviliges
-  @@allow("read", memberId == auth().memberId 
-                  || auth().externalCode != null && externalCustomerCode == auth().externalCode 
-                  || shoppable.authorId == auth().memberId 
-                  || hasSome(auth().policies, ["webshop:manage", "webshop:read_purchases"]))
+  // read: anyone can read. Necessary for purchase checks
+  @@allow("read", true)
   // no one can update (except overriden fields)
   @@deny("update", true)
   // customer can delete non-purchased
-  @@allow("delete", (memberId == auth().memberId || auth().externalCode != null && externalCustomerCode == auth().externalCode) && purchasedAt == null)
+  @@allow("delete", (memberId == auth().memberId || auth().externalCode != null && externalCustomerCode == auth().externalCode))
+  @@allow("delete", expiresAt != null && expiresAt < now()) // anyone can delete an expired consumable (not purchased of course)
   // no one can delete purchased
   @@deny("delete", purchasedAt != null)
 
   @@map("consumable")
+}
+model ConsumableReservation {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  shoppableId String @db.Uuid
+  shoppable Shoppable @relation(fields: [shoppableId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  memberId String? @db.Uuid 
+  member Member? @relation(fields: [memberId], references: [id])
+  externalCustomerEmail String? // if purchased by a non-member
+  externalCustomerCode String? // if purchased by a non-member, unique code used in link as security
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  order Int?
+
+  // create: anyone, but only for themselves
+  @@allow("create", memberId == auth().memberId || auth().externalCode != null && externalCustomerCode == auth().externalCode)
+  // read: anyone can read. Necessary for purchase checks
+  @@allow("read", true)
+  // no one can update (except overriden fields)
+  @@deny("update", true)
+  // customer can delete
+  @@allow("delete", (memberId == auth().memberId || auth().externalCode != null && externalCustomerCode == auth().externalCode))
+  @@map("consumable_reservation")
+
 }
