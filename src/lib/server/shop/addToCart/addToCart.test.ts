@@ -9,7 +9,7 @@ import {
   vi,
 } from "vitest";
 import { GRACE_PERIOD_WINDOW, type ShopIdentification } from "../types";
-import { addTicketToCart } from "./addToCart";
+import { AddToCartStatus, addTicketToCart } from "./addToCart";
 
 import { enhance } from "@zenstackhq/runtime";
 import { getAccessPolicies } from "../../../../hooks.server.helpers";
@@ -105,6 +105,30 @@ const addTicketsTestForUser = (
       ).rejects.toThrow();
       await expectConsumableCount(ticket.id, 0);
       await expectReservationCount(ticket.id, 0);
+    });
+    it("purchases free item immidiately", async ({ tickets }) => {
+      const ticket = tickets.freeActiveTicket;
+      const before = new Date();
+      const result = await addTicketToCart(
+        prismaWithAccess,
+        ticket.id,
+        identification,
+      );
+      expect(result.status).toBe(AddToCartStatus.AddedToInventory);
+      const consumables = await prisma.consumable.findMany({
+        where: {
+          shoppableId: ticket.id,
+        },
+      });
+      expect(consumables.length).toBe(1);
+      expect(consumables[0]).toBeDefined();
+      expect(consumables[0]!.memberId).toBe(identification.memberId ?? null);
+      expect(consumables[0]!.externalCustomerCode).toBe(
+        identification.externalCode ?? null,
+      );
+      expect(consumables[0]!.purchasedAt?.valueOf()).toBeGreaterThanOrEqual(
+        before.valueOf(),
+      );
     });
   });
 
@@ -379,7 +403,10 @@ const addTicketsTestForUser = (
         ticket.id,
         identification,
       );
-      expect(result).toContain("6"); // tell user they are in position 6
+      expect(result.status).toBe(AddToCartStatus.PutInQueue);
+      if (result.status === AddToCartStatus.PutInQueue)
+        // if statement for typescript
+        expect(result.queuePosition).toBe(6); // tell user they are in position 6
       await expectConsumableCount(ticket.id, ticket.stock);
       await expectReservationCount(ticket.id, 6);
       const reservations = await prisma.consumableReservation.findMany({

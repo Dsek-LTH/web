@@ -1,5 +1,5 @@
 import { PrismaClient, type Shoppable, type Ticket } from "@prisma/client";
-import { ensureState } from "./reservations";
+import { ensureState, performLotteryIfNecessary } from "./reservations";
 import {
   GRACE_PERIOD_WINDOW,
   TIME_TO_BUY,
@@ -9,78 +9,26 @@ import {
 } from "../types";
 import authorizedPrismaClient from "../authorizedPrisma";
 
-const checkUserMaxAmount = async (
-  prisma: TransactionClient,
-  id: ReturnType<typeof dbIdentification>,
-  ticket: Ticket & { shoppable: Shoppable },
-) => {
-  const currentlyInCart = await prisma.consumable.count({
-    where: {
-      ...id,
-      shoppableId: ticket.shoppable.id,
-    },
-  });
-  if (ticket.maxAmountPerUser == 1 && currentlyInCart > 0)
-    throw new Error("Du har redan den här biljetten (i varukorgen)");
-  else if (currentlyInCart >= ticket.maxAmountPerUser)
-    throw new Error("Du har redan max antal biljetter (i varukorgen)");
-};
+export enum AddToCartStatus {
+  AddedToCart = "AddedToCart",
+  Reserved = "Reserved",
+  PutInQueue = "PutInQueue",
+  AddedToInventory = "AddedToInventory",
+}
 
-const addToQueue = async (
-  prisma: TransactionClient,
-  id: ReturnType<typeof dbIdentification>,
-  ticket: Ticket & { shoppable: Shoppable },
-) => {
-  const currentPeopleInQueue = await prisma.consumableReservation.findMany({
-    where: {
-      shoppableId: ticket.shoppable.id,
-    },
-    orderBy: {
-      order: "desc",
-    },
-  });
-  const lastInQueueOrder = currentPeopleInQueue[0]?.order ?? -1;
-  await prisma.consumableReservation.create({
-    data: {
-      ...id,
-      shoppableId: ticket.shoppable.id,
-      order: lastInQueueOrder + 1,
-    },
-  });
-  return `Du är i kö på biljetten och är på plats ${
-    currentPeopleInQueue.length + 1
-  }, du får en notis om det blir din tur att köpa.`;
-};
-
-const addReservationInReserveWindow = async (
-  prisma: TransactionClient,
-  id: ReturnType<typeof dbIdentification>,
-  shoppableId: string,
-) => {
-  const existingReservation = await prisma.consumableReservation.findFirst({
-    where: {
-      ...id,
-    },
-  });
-  if (existingReservation)
-    throw new Error(
-      "Biljetten är redan reserverad, du får en notis när lottning är avklarad.",
-    );
-  await prisma.consumableReservation.create({
-    data: {
-      ...id,
-      shoppableId: shoppableId,
-      order: null,
-    },
-  });
-  return "Biljetten är reserverad, du får en notis när lottning är avklarad.";
-};
-
+export type AddToCartResult =
+  | {
+      status: Exclude<AddToCartStatus, AddToCartStatus.PutInQueue>;
+    }
+  | {
+      status: AddToCartStatus.PutInQueue;
+      queuePosition: number;
+    };
 export const addTicketToCart = async (
   prisma: PrismaClient,
   ticketId: string,
   identification: ShopIdentification,
-) => {
+): Promise<AddToCartResult> => {
   const now = new Date(); // ensures checks between the two transactions
   await authorizedPrismaClient.$transaction(async (prisma) => {
     await ensureState(prisma, now, ticketId);
@@ -130,6 +78,7 @@ export const addTicketToCart = async (
     if (ticket.shoppable.availableFrom > now)
       throw new Error("Biljettförsäljning har inte börjat");
     if (ticket.shoppable._count.consumables >= ticket.stock)
+      // purchased items
       throw new Error("Biljetten är slutsåld");
 
     const idPart = dbIdentification(identification);
@@ -144,11 +93,25 @@ export const addTicketToCart = async (
         prisma,
         idPart,
         ticket.shoppable.id,
+        ticket.shoppable.availableFrom.valueOf() +
+          GRACE_PERIOD_WINDOW -
+          now.valueOf(),
       );
     }
 
     if (ticket.shoppable.consumables.length >= ticket.stock) {
       return addToQueue(prisma, idPart, ticket);
+    }
+
+    if (ticket.shoppable.price === 0) {
+      await prisma.consumable.create({
+        data: {
+          ...idPart,
+          shoppableId: ticket.shoppable.id,
+          purchasedAt: now,
+        },
+      });
+      return { status: AddToCartStatus.AddedToInventory };
     }
 
     await prisma.consumable.create({
@@ -158,8 +121,104 @@ export const addTicketToCart = async (
         expiresAt: new Date(now.valueOf() + TIME_TO_BUY),
       },
     });
-    return "Biljett tillagd i varukorgen!";
+    return { status: AddToCartStatus.AddedToCart };
   });
 };
 
 export default addTicketToCart;
+
+const checkUserMaxAmount = async (
+  prisma: TransactionClient,
+  id: ReturnType<typeof dbIdentification>,
+  ticket: Ticket & { shoppable: Shoppable },
+) => {
+  const currentlyInCart = await prisma.consumable.count({
+    where: {
+      ...id,
+      shoppableId: ticket.shoppable.id,
+    },
+  });
+  if (ticket.maxAmountPerUser == 1 && currentlyInCart > 0)
+    throw new Error("Du har redan den här biljetten (i varukorgen)");
+  else if (currentlyInCart >= ticket.maxAmountPerUser)
+    throw new Error("Du har redan max antal biljetter (i varukorgen)");
+
+  const currentlyReserved = await prisma.consumableReservation.count({
+    where: {
+      ...id,
+      shoppableId: ticket.shoppable.id,
+    },
+  });
+  if (currentlyReserved > 0)
+    throw new Error(
+      "Biljetten är redan reserverad, du får en notis när lottning är avklarad.",
+    );
+};
+
+const addToQueue = async (
+  prisma: TransactionClient,
+  id: ReturnType<typeof dbIdentification>,
+  ticket: Ticket & { shoppable: Shoppable },
+): Promise<AddToCartResult> => {
+  const currentPeopleInQueue = await prisma.consumableReservation.findMany({
+    where: {
+      shoppableId: ticket.shoppable.id,
+    },
+    orderBy: {
+      order: "desc",
+    },
+  });
+  const lastInQueueOrder = currentPeopleInQueue[0]?.order ?? -1;
+  await prisma.consumableReservation.create({
+    data: {
+      ...id,
+      shoppableId: ticket.shoppable.id,
+      order: lastInQueueOrder + 1,
+    },
+  });
+  return {
+    status: AddToCartStatus.PutInQueue,
+    queuePosition: currentPeopleInQueue.length + 1,
+  };
+};
+
+const afterGracePeriod = async (shoppableId: string) => {
+  try {
+    await authorizedPrismaClient.$transaction(async (prisma) => {
+      await performLotteryIfNecessary(prisma, new Date(), shoppableId);
+    });
+  } catch (err) {
+    console.error("problem performing reservation lottery:", err);
+  }
+};
+
+const gracePeriodTimeouts: Record<string, NodeJS.Timeout> = {};
+const addReservationInReserveWindow = async (
+  prisma: TransactionClient,
+  id: ReturnType<typeof dbIdentification>,
+  shoppableId: string,
+  timeUntilGracePeriod: number,
+): Promise<AddToCartResult> => {
+  const existingReservation = await prisma.consumableReservation.findFirst({
+    where: {
+      ...id,
+    },
+  });
+  if (existingReservation)
+    throw new Error(
+      "Biljetten är redan reserverad, du får en notis när lottning är avklarad.",
+    );
+  await prisma.consumableReservation.create({
+    data: {
+      ...id,
+      shoppableId: shoppableId,
+      order: null,
+    },
+  });
+  if (gracePeriodTimeouts[shoppableId] === undefined) {
+    gracePeriodTimeouts[shoppableId] = setTimeout(() => {
+      afterGracePeriod(shoppableId);
+    }, timeUntilGracePeriod);
+  }
+  return { status: AddToCartStatus.Reserved };
+};

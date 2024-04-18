@@ -3,7 +3,11 @@ import { redirect } from "sveltekit-flash-message/server";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { PageServerLoad } from "./$types";
-import { addTicketToCart } from "$lib/server/shop/addToCart/addToCart";
+import {
+  AddToCartStatus,
+  addTicketToCart,
+  type AddToCartResult,
+} from "$lib/server/shop/addToCart/addToCart";
 import { getTickets } from "$lib/server/shop/getTickets";
 import { authorize } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
@@ -31,9 +35,9 @@ export const actions = {
     if (!user?.memberId && !user?.externalCode) {
       return fail(401, { form });
     }
-    let successMessage: string;
+    let result: AddToCartResult;
     try {
-      successMessage = await addTicketToCart(
+      result = await addTicketToCart(
         prisma,
         form.data.ticketId,
         user.memberId
@@ -52,6 +56,34 @@ export const actions = {
         message: errorMsg,
         type: "error",
       });
+    }
+    if (result.status === AddToCartStatus.AddedToInventory) {
+      throw redirect(
+        "/shop/inventory",
+        {
+          message: "Biljetten har köpts.",
+          type: "success",
+        },
+        event,
+      );
+    }
+    let successMessage: string;
+    switch (result.status) {
+      case AddToCartStatus.AddedToCart:
+        successMessage = "Biljetten har lagts till i varukorgen.";
+        break;
+      case AddToCartStatus.Reserved:
+        successMessage =
+          "Biljetten har reserverats. Du får en notis när lottningen är klar.";
+        break;
+      case AddToCartStatus.PutInQueue:
+        successMessage = `Du är i kö för biljetten, din plats i kön är ${result.queuePosition}.`;
+        break;
+      default:
+        return message(form, {
+          message: "Okänd resultatstatus från addToCart.",
+          type: "error",
+        });
     }
     throw redirect(
       "/shop/cart",
