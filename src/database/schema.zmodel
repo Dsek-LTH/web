@@ -508,9 +508,6 @@ model Member {
   @@allow('update', has(auth().policies, "core:member:update"))
   @@allow('delete', has(auth().policies, "core:member:delete"))
   @@map("members")
-
-
-
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Notifications{
@@ -528,6 +525,8 @@ model Notification {
   fromAuthor Author? @relation(fields: [fromAuthorId], references: [id], onUpdate: NoAction, map: "notifications_from_author_id_foreign")
   toMember Member @relation(fields: [memberId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "notifications_member_id_foreign")
 
+  @@allow('update', auth().memberId == memberId)
+  @@allow('delete', auth().memberId == memberId)
   @@allow('read', auth().memberId == memberId)
   @@allow('create', auth() != null)
   @@map("notifications")
@@ -588,6 +587,8 @@ model Ping {
   fromMember Member? @relation("pings_from_memberTomembers", fields: [fromMemberId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "pings_from_member_foreign")
   toMember Member? @relation("pings_to_memberTomembers", fields: [toMemberId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "pings_to_member_foreign")
 
+  @@allow('read', auth().memberId == fromMemberId || auth().memberId == toMemberId)
+  @@allow('update', auth().memberId == fromMemberId || auth().memberId == toMemberId)
   @@allow('create', has(auth().policies, "core:member:ping"))
   @@unique([fromMemberId, toMemberId], map: "pings_from_member_to_member_unique")
   @@map("pings")
@@ -853,9 +854,6 @@ model Shoppable {
   @@allow("delete", has(auth().policies, "webshop:manage"))
 
   @@map("shoppable")
-
-
-
 }
 
 model Ticket {
@@ -867,7 +865,6 @@ model Ticket {
 
   stock Int @default(0) // amount of tickets available
   maxAmountPerUser Int @default(1) // how many tickets a user can buy in one purchase
-
 
   // same access as shoppable
   @@allow("create", has(auth().policies, "webshop:create") && shoppable.authorId == auth().memberId)
@@ -983,7 +980,6 @@ model Consumable {
 
   @@map("consumable")
 }
-
 model ConsumableReservation {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
 

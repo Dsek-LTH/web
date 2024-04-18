@@ -1,4 +1,10 @@
 <script lang="ts">
+  import HeldPositionsYear from "./HeldPositionsYear.svelte";
+  import PublishedArticles from "./PublishedArticles.svelte";
+  import PublishedEvents from "./PublishedEvents.svelte";
+  import UpdateMemberForm from "./UpdateMemberForm.svelte";
+  import PingButton from "./PingButton.svelte";
+
   import { page } from "$app/stores";
   import ClassBadge from "$lib/components/ClassBadge.svelte";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
@@ -6,14 +12,11 @@
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
   import { getFullName } from "$lib/utils/client/member";
-  import HeldPositionsYear from "./HeldPositionsYear.svelte";
-  import PublishedArticles from "./PublishedArticles.svelte";
-  import PublishedEvents from "./PublishedEvents.svelte";
-  import UpdateMemberForm from "./UpdateMemberForm.svelte";
 
   import type { PageData } from "./$types";
+
   export let data: PageData;
-  $: member = data.member;
+  $: member = data.viewedMember;
   $: isMe = data.user?.studentId === $page.params["studentId"];
   $: mandatesGroupedByYear = member.mandates.reduce<
     Record<string, (typeof member)["mandates"]>
@@ -30,6 +33,7 @@
   );
   $: publishedEvents = [...member.authoredEvents].reverse();
   $: canEdit = isMe || isAuthorized(apiNames.MEMBER.UPDATE, data.user);
+  $: ping = data.ping;
   let isEditing = false;
 </script>
 
@@ -66,7 +70,13 @@
           {isEditing ? "Spara" : "Redigera"}
         </button>
       {/if}
+      {#if data.user && !isMe}
+        <PingButton {ping} />
+      {/if}
     </div>
+    {#if data.email}
+      {data.email}<br />
+    {/if}
     {member.studentId}
   </header>
   <div class={isEditing ? "col-span-4 row-span-2" : "col-span-2"}>
@@ -120,7 +130,7 @@
         <PublishedArticles articles={data.publishedArticles} />
       {/if}
       {#if publishedEvents.length > 0}
-        <PublishedEvents events={data.member.authoredEvents} />
+        <PublishedEvents events={member.authoredEvents} />
       {/if}
     </div>
   </div>

@@ -185,6 +185,13 @@ async function hasEmail(email: string) {
   return user.filter((u) => u.email === email).length > 0;
 }
 
+async function getEmail(username: string) {
+  if (!enabled) return;
+  const client = await connect();
+  const user = await client.users.find({ username });
+  if (user.length === 1) return user[0]?.email;
+}
+
 export default {
   addMandate,
   deleteMandate,
@@ -193,4 +200,5 @@ export default {
   getManyUserEmails,
   hasUsername,
   hasEmail,
+  getEmail,
 };

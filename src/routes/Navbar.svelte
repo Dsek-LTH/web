@@ -7,7 +7,14 @@
   import { routes } from "./routes";
   import { isAuthorized } from "$lib/utils/authorization";
   import { getFullName } from "$lib/utils/client/member";
-  import Notification from "./NotificationBell.svelte";
+  import NotificationBell from "./NotificationBell.svelte";
+  import type { Notification } from "@prisma/client";
+  import type { SuperValidated } from "sveltekit-superforms";
+  import type { NotificationSchema } from "$lib/zod/schemas";
+  $: notifications = $page.data["notifications"] as Notification[] | null;
+  $: deleteNotificationForm = $page.data[
+    "deleteNotificationForm"
+  ] as SuperValidated<NotificationSchema> | null;
 </script>
 
 <div
@@ -82,7 +89,9 @@
     </div>
 
     {#if $page.data.user && $page.data.member}
-      <Notification />
+      {#if notifications !== null && notifications !== undefined && deleteNotificationForm !== null}
+        <NotificationBell {notifications} deleteForm={deleteNotificationForm} />
+      {/if}
       <div class="dropdown dropdown-end dropdown-hover">
         <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
         <!-- svelte-ignore a11y-label-has-associated-control -->

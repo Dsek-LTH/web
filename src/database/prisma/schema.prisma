@@ -523,10 +523,12 @@ model Member {
     authoredShoppables Shoppable[]
     inventory Consumable[]
     shopReservations ConsumableReservation[]
-
+    
     @@map("members")
 }
 
+/// @@allow('update', auth().memberId == memberId)
+/// @@allow('delete', auth().memberId == memberId)
 /// @@allow('read', auth().memberId == memberId)
 /// @@allow('create', auth() != null)
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Notifications{
@@ -591,6 +593,8 @@ model Payment {
     @@map("payment")
 }
 
+/// @@allow('read', auth().memberId == fromMemberId || auth().memberId == toMemberId)
+/// @@allow('update', auth().memberId == fromMemberId || auth().memberId == toMemberId)
 /// @@allow('create', has(auth().policies, 'core:member:ping'))
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Pings{
 model Ping {
@@ -853,9 +857,10 @@ model Ticket {
     shoppable Shoppable @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: NoAction)
     eventId String @db.Uuid()
     event Event @relation(fields: [eventId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+    
     stock Int @default(0)
     maxAmountPerUser Int @default(1)
-
+    
     @@map("ticket")
 }
 
@@ -928,12 +933,14 @@ model Consumable {
     externalCustomerCode String?
     createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
     expiresAt DateTime? @map("expires_at") @db.Timestamptz(6)
+
     purchasedAt DateTime? @map("purchased_at") @db.Timestamptz(6)
     /// @allow('update', has(auth().policies, 'webshop:consume') && consumedAt == null || has(auth().policies, 'webshop:manage'), true)
     consumedAt DateTime? @map("consumed_at") @db.Timestamptz(6)
     questionResponses ItemQuestionResponse[]
 
     @@map("consumable")
+
 }
 
 /// @@allow('create', memberId == auth().memberId || auth().externalCode != null && externalCustomerCode == auth().externalCode)

@@ -13,13 +13,14 @@
   export let likeForm: SuperValidated<LikeSchema>;
   const { errors, constraints, enhance } = superForm(likeForm, {
     id: articleId, // needs to be unique since there could be multiple like buttons on a page
+    invalidateAll: true,
   });
   $: isLiked = likers.some(
     (member) => member.studentId === $page.data.user?.studentId,
   );
 </script>
 
-<form method="POST" action="/news?/{isLiked ? 'dislike' : 'like'}" use:enhance>
+<form method="POST" action="?/{isLiked ? 'dislike' : 'like'}" use:enhance>
   <input type="hidden" value={articleId} name="articleId" {...$constraints} />
   {#if $errors.articleId}
     <div class="text-error">{$errors.articleId}</div>

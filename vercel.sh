@@ -1,7 +1,6 @@
 #!/bin/bash
  
-if test "$VERCEL_ENV" = "production"
-then 
+if [[ $VERCEL_ENV == "production"  ]] ; then 
   pnpm run build && pnpm prisma migrate deploy
 else 
   # prod and preview use the same database.
