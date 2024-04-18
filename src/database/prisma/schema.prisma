@@ -828,7 +828,7 @@ model Shoppable {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
     title String
     titleEn String?
-    description String
+    description String?
     descriptionEn String?
     type ShoppableType
     /// @deny('update', true)

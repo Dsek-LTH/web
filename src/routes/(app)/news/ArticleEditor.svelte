@@ -43,12 +43,11 @@
         {...$constraints.header}
         error={$errors.header}
       />
-      <Labeled label="Description" id="body" error={$errors.body}>
+      <Labeled label="Description" error={$errors.body}>
         <MarkdownEditor bind:value={$form.body} {...$constraints.body} />
       </Labeled>
       <Labeled
         label="Författare"
-        id="author"
         error={$errors.author !== undefined ? "Ogitlig författare" : ""}
       >
         <select
@@ -78,7 +77,6 @@
       </Labeled>
       <Labeled
         label="Taggar"
-        id="autocomplete"
         error={$errors.tags !== undefined ? "Ogitliga taggar" : ""}
       >
         <TagSelector {allTags} bind:selectedTags={$form.tags} />

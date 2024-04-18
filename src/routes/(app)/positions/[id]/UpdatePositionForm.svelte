@@ -8,7 +8,7 @@
 </script>
 
 <form action="?/update" method="POST" use:enhance class="form-control">
-  <Labeled label="Namn" id="name">
+  <Labeled label="Namn">
     <input
       type="text"
       name="name"
@@ -21,7 +21,7 @@
       <p class="text-error">{$errors.name}</p>
     {/if}
   </Labeled>
-  <Labeled label="Beskrivning" id="description">
+  <Labeled label="Beskrivning">
     <textarea
       name="description"
       id="description"
@@ -36,7 +36,6 @@
   </Labeled>
   <Labeled
     label="Email"
-    id="email"
     explanation="Det här ändrar inte mailservern, utan säger bara vilken som är den primära mailadressen för den här posten."
   >
     <input

@@ -27,7 +27,7 @@
     {#if $errors.name}
       <p class="text-error">{$errors.name}</p>
     {/if}
-    <Labeled label="Beskrivning" id="description">
+    <Labeled label="Beskrivning">
       <textarea
         name="description"
         id="description"
@@ -42,7 +42,6 @@
     {/if}
     <Labeled
       label="Utskottsbild"
-      id="image"
       explanation="Detta ska vara svg format, utan bakgrundsfärg, utan onödigt whitespace och med vit text."
     >
       <input

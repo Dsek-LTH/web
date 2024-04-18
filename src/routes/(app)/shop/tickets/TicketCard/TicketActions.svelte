@@ -15,26 +15,32 @@
     ticket.shoppable.availableTo && ticket.shoppable.availableTo < $now;
   $: isActive = !isUpcoming && !isPast;
 
-  const { enhance } = superForm(addToCartForm);
+  const { enhance, submitting } = superForm(addToCartForm);
 </script>
 
 <div class="card-actions items-baseline justify-between">
   <span>
     {#if isUpcoming}
       Öppnar {dayjs(ticket.shoppable.availableFrom).fromNow()}
-    {:else if isPast}
-      Stängde {dayjs(ticket.shoppable.availableTo).fromNow()}
-    {:else}
-      Stänger {dayjs(ticket.shoppable.availableTo).fromNow()}
+    {:else if ticket.shoppable.availableTo}
+      {#if isPast}
+        Stängde {dayjs(ticket.shoppable.availableTo).fromNow()}
+      {:else}
+        Stänger {dayjs(ticket.shoppable.availableTo).fromNow()}
+      {/if}
     {/if}
   </span>
   <form method="POST" action="?/addToCart" use:enhance>
-    <input type="hidden" name="ticket-id" value={ticket.id} />
-    <button type="submit" disabled={!isActive} class="btn btn-primary">
+    <input type="hidden" name="ticketId" value={ticket.id} />
+    <button
+      type="submit"
+      disabled={!isActive || $submitting}
+      class="btn btn-primary"
+    >
       {#if isPast}
         Stängd
       {:else}
-        Köp
+        {$submitting ? "Processar..." : "Köp"}
       {/if}
     </button>
   </form>

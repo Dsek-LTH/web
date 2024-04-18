@@ -24,12 +24,12 @@ const getTicketsTest = async (
     const filteredResult = result.filter((t) => ticketIds.includes(t.id));
     expect(filteredResult.length).toBe(5);
     // in order of available from (earliest first)
-    expect(filteredResult).toEqual([
-      tickets.pastTicket,
-      tickets.activeTicket,
-      tickets.activeTicket2,
-      tickets.activeEarlyTicket,
-      tickets.upcomingTicket,
+    expect(filteredResult.map((t) => t.id)).toEqual([
+      tickets.pastTicket.id,
+      tickets.activeTicket.id,
+      tickets.activeTicket2.id,
+      tickets.activeEarlyTicket.id,
+      tickets.upcomingTicket.id,
     ]);
     await removeMockTickets(prisma, ticketIds);
   });

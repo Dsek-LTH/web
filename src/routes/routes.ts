@@ -76,7 +76,7 @@ export const routes = [
       },
       {
         title: "Biljetter",
-        path: "/tickets",
+        path: "/shop/tickets",
         icon: "i-mdi-ticket",
       },
       {

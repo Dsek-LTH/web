@@ -30,7 +30,6 @@
       />
       <Labeled
         label="Melodi"
-        id="melody"
         error={$errors.melody}
         explanation="Sök efter en melodi eller skriv in en ny"
       >
@@ -44,7 +43,6 @@
       </Labeled>
       <Labeled
         label="Kategori"
-        id="category"
         error={$errors.category}
         explanation="Sök efter en kategori eller skriv in en ny"
       >
@@ -56,7 +54,7 @@
           error={$errors.category}
         />
       </Labeled>
-      <Labeled label="Text" id="lyrics" error={$errors.lyrics}>
+      <Labeled label="Text" error={$errors.lyrics}>
         <textarea
           id="lyrics"
           name="lyrics"
