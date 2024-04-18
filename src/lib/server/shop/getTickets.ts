@@ -66,14 +66,40 @@ export const getTickets = (prisma: PrismaClient) => {
 };
 
 export const getCart = async (prisma: PrismaClient, id: ShopIdentification) => {
-  return await prisma.$transaction(async (prisma) => {
-    const now = new Date();
-    await removeExpiredConsumables(prisma, now);
-    await prisma.consumable.findMany({
-      where: {
-        ...dbIdentification(id),
-        purchasedAt: null,
+  const now = new Date();
+  await removeExpiredConsumables(prisma, now);
+  const inCart = await prisma.consumable.findMany({
+    where: {
+      ...dbIdentification(id),
+      purchasedAt: null,
+    },
+    include: {
+      questionResponses: true,
+      shoppable: {
+        include: {
+          ticket: true,
+          _count: {
+            select: {
+              consumables: {
+                where: {
+                  purchasedAt: {
+                    not: null,
+                  },
+                },
+              },
+            },
+          },
+        },
       },
-    });
+    },
   });
+  const reservations = await prisma.consumableReservation.findMany({
+    where: {
+      ...dbIdentification(id),
+    },
+  });
+  return {
+    inCart,
+    reservations,
+  };
 };

@@ -143,7 +143,7 @@ export const actions: Actions = {
       const url = new URL(request.url);
       await sendPing(prisma, {
         link: url.pathname,
-        fromMemberId: { memberId: user.memberId },
+        fromMemberId: { memberId: user.memberId! },
         toMemberId: { studentId },
       });
     } catch (e) {

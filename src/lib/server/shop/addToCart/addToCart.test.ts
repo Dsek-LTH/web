@@ -341,8 +341,17 @@ const addTicketsTestForUser = (
       vi.useFakeTimers();
       vi.setSystemTime(start);
     });
+    afterEach(() => {
+      vi.useRealTimers();
+    });
     it("performs lottery after grace period", async ({ tickets }) => {
       const ticket = tickets.activeEarlyTicket;
+      const first = await addTicketToCart(
+        prismaWithAccess,
+        ticket.id,
+        identification,
+      );
+      expect(first.status).toBe(AddToCartStatus.Reserved);
       vi.advanceTimersByTime(GRACE_PERIOD_WINDOW / 2);
       vi.setSystemTime(
         vi.getMockedSystemTime()!.valueOf() + GRACE_PERIOD_WINDOW / 2,
