@@ -14,6 +14,7 @@ model User {
   studentId String @id
   memberId String
   policies String[]
+  externalCode String? // for non-authenticated users, like purchasing tickets
   @@ignore
 }
 
@@ -363,6 +364,7 @@ model Event {
   interested Member[] @relation("event_interested")
   author Member @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "events_author_id_foreign")
   tags Tag[] @relation("event_tags")
+	tickets Ticket[]
 
   @@allow("create", has(auth().policies, "event:create"))
   @@allow("read", has(auth().policies, "event:read"))
@@ -370,6 +372,7 @@ model Event {
   @@allow("update", has(auth().policies, "event:update"))
   @@allow("delete", has(auth().policies, "event:delete"))
   @@map("events")
+
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -493,6 +496,8 @@ model Member {
   subscriptionSettings SubscriptionSetting[]
   memberSpecificPolicies AccessPolicy[]
   doorAccessPolicies DoorAccessPolicy[]
+	authoredShoppables Shoppable[]
+	inventory Consumable[]
 
   @@allow('create', has(auth().policies, "core:member:create"))
   @@allow('create', auth().studentId == studentId)
@@ -501,6 +506,8 @@ model Member {
   @@allow('update', has(auth().policies, "core:member:update"))
   @@allow('delete', has(auth().policies, "core:member:delete"))
   @@map("members")
+
+
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Notifications{
@@ -800,4 +807,178 @@ model LastKeycloakUpdate {
   time DateTime
 
   @@map("last_keycloak_update")
+}
+
+
+
+// SHOP SYSTEM
+
+enum ShoppableType {
+  TICKET
+}
+
+// Base entity to be inherited by actual purchasables
+model Shoppable {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title String
+  titleEn String?
+  description String
+  descriptionEn String?
+  type ShoppableType
+
+  authorId String @db.Uuid @deny("update", true) // never allow updating wh created the shoppable
+  author Member @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  price Int
+  availableFrom DateTime @map("available_from") @db.Timestamptz(6) @default(now())
+  availableTo DateTime? @map("available_to") @db.Timestamptz(6)
+
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6) @ignore()
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6) @updatedAt()
+  removedAt DateTime? @map("removed_at") @db.Timestamptz(6)
+
+  ticket Ticket?
+	consumable Consumable[]
+	questions ItemQuestion[]
+
+  // create: acces and mark self as author
+  @@allow("create", has(auth().policies, "webshop:create") && authorId == auth().memberId)
+  // update: author or manage access
+  @@allow("update", auth().memberId == authorId || has(auth().policies, "webshop:manage"))
+  @@allow("read", true)
+  // cannot read if removed, unless author or manager
+  @@deny("read", removedAt != null && !(auth().memberId == authorId || has(auth().policies, "webshop:manage")))
+  // only managers can delete (should very rarely be done)
+  @@allow("delete", has(auth().policies, "webshop:manage"))
+
+  @@map("shoppable")
+
+
+}
+
+model Ticket {
+  id String @id @db.Uuid
+  shoppable Shoppable @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  eventId String @db.Uuid
+  event Event @relation(fields: [eventId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+
+  // same access as shoppable
+  @@allow("create", has(auth().policies, "webshop:create") && shoppable.authorId == auth().memberId)
+  @@allow("update", auth().memberId == shoppable.authorId || has(auth().policies, "webshop:manage"))
+  @@allow("read", true)
+  @@deny("read", shoppable.removedAt != null && !(auth().memberId == shoppable.authorId || has(auth().policies, "webshop:manage")))
+  @@allow("delete", has(auth().policies, "webshop:manage"))
+
+  @@map("ticket")
+}
+
+model ItemQuestion {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  shoppableId String @db.Uuid
+  shoppable Shoppable @relation(fields: [shoppableId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  title String
+  titleEn String?
+  description String
+  descriptionEn String?
+  type String @db.VarChar(255) // like "choice", "free-text" etc
+  forExternalsOnly Boolean @default(false) // if question should only be shown for people without an account
+	options ItemQuestionOption[]
+	responses ItemQuestionResponse[]
+
+  // create: author of shoppable
+  @@allow("create", shoppable.authorId == auth().memberId)
+  @@allow("read", true)
+  // Unreadable if removed, unless author or manager
+  @@deny("read", shoppable.removedAt != null && !(auth().memberId == shoppable.authorId || has(auth().policies, "webshop:manage")))
+  // author (and managers) can update and delete questions
+  @@allow("update", auth().memberId == shoppable.authorId || has(auth().policies, "webshop:manage"))
+  @@allow("delete", auth().memberId == shoppable.authorId || has(auth().policies, "webshop:manage"))
+
+  @@map("item_question")
+}
+
+model ItemQuestionOption {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  questionId String @db.Uuid
+  question ItemQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  
+  answer String
+  answerEn String?
+  extraPrice Int?
+
+  // same access as ItemQuestion
+  @@allow("create", question.shoppable.authorId == auth().memberId)
+  @@allow("read", true)
+  @@deny("read", question.shoppable.removedAt != null && !(auth().memberId == question.shoppable.authorId || has(auth().policies, "webshop:manage")))
+  @@allow("update", auth().memberId == question.shoppable.authorId || has(auth().policies, "webshop:manage"))
+  @@allow("delete", auth().memberId == question.shoppable.authorId || has(auth().policies, "webshop:manage"))
+
+  @@map("item_question_option")
+}
+
+model ItemQuestionResponse {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  questionId String @db.Uuid
+  question ItemQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  consumableId String @db.Uuid
+  consumable Consumable @relation(fields: [consumableId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  answer String
+  extraPrice Int?
+
+  // create: customer
+  @@allow("create", consumable.memberId == auth().memberId
+  || auth().externalCode != null && consumable.externalCustomerCode == auth().externalCode)
+  // read: customer, author of shoppable, anyone with manage or read_purchases
+  @@allow("read", consumable.memberId == auth().memberId 
+  || auth().externalCode != null && consumable.externalCustomerCode == auth().externalCode 
+  || question.shoppable.authorId == auth().memberId 
+  || hasSome(auth().policies, ["webshop:manage", "webshop:read_purchases"]))
+  // update: customer as long as not purchased
+  @@allow("update", consumable.purchasedAt == null && (auth().memberId == consumable.memberId || auth().externalCode != null))
+  // no one can delete
+  @@deny("delete", false)
+
+  @@map("item_question_response")
+}
+
+
+
+model Consumable {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  shoppableId String @db.Uuid
+  shoppable Shoppable @relation(fields: [shoppableId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  memberId String? @db.Uuid 
+  member Member? @relation(fields: [memberId], references: [id])
+  externalCustomerEmail String? // if purchased by a non-member
+  externalCustomerCode String? // if purchased by a non-member, unique code used in link as security
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  purchasedAt DateTime? @map("purchased_at") @db.Timestamptz(6)
+  // customer or webshop:consume can always consume from unconsumed state. manager can "unconsume" from consumed state
+  consumedAt DateTime? @map("consumed_at") @db.Timestamptz(6) @allow("update",  (has(auth().policies, "webshop:consume") && consumedAt == null) 
+                                                                                || has(auth().policies, "webshop:manage"), true)
+
+	questionResponses ItemQuestionResponse[]
+
+  // create: anyone, but only for themselves
+  @@allow("create", memberId == auth().memberId || auth().externalCode != null && externalCustomerCode == auth().externalCode)
+  // read: customer, item author, anyone with manager or read_purchase priviliges
+  @@allow("read", memberId == auth().memberId 
+                  || auth().externalCode != null && externalCustomerCode == auth().externalCode 
+                  || shoppable.authorId == auth().memberId 
+                  || hasSome(auth().policies, ["webshop:manage", "webshop:read_purchases"]))
+  // no one can update (except overriden fields)
+  @@deny("update", true)
+  // customer can delete non-purchased
+  @@allow("delete", (memberId == auth().memberId || auth().externalCode != null && externalCustomerCode == auth().externalCode) && purchasedAt == null)
+  // no one can delete purchased
+  @@deny("delete", purchasedAt != null)
+
+  @@map("consumable")
 }
