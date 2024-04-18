@@ -1,5 +1,5 @@
 import type { PrismaClient } from "@prisma/client";
-import { removeExpiredConsumables } from "./reservations";
+import { removeExpiredConsumables } from "./addToCart/reservations";
 import { dbIdentification, type ShopIdentification } from "./types";
 
 export const getTickets = (prisma: PrismaClient) => {

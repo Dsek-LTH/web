@@ -1,3 +1,4 @@
+import type { TransactionClient } from "$lib/server/shop/types";
 import { ShoppableType, type Member, type PrismaClient } from "@prisma/client";
 
 export const MOCK_EVENT_1 = {
@@ -23,12 +24,24 @@ export const MOCK_ACTIVE_TICKET = {
   shoppable: {
     type: ShoppableType.TICKET,
     title: "Active ticket",
-    description: "Active ticketdescription",
+    description: "Active ticket description",
     price: 10000,
     availableFrom: new Date(Date.now() - 1000 * 60 * 60 * 24),
     availableTo: new Date(Date.now() + 1000 * 60 * 60 * 24),
   },
 };
+export const MOCK_ACTIVE_TICKET_2 = {
+  stock: 2,
+  shoppable: {
+    type: ShoppableType.TICKET,
+    title: "Active ticket 2",
+    description: "Active ticket description 2",
+    price: 8900,
+    availableFrom: new Date(Date.now() - 1000 * 60 * 60 * 23),
+    availableTo: new Date(Date.now() + 1000 * 60 * 60 * 24),
+  },
+};
+
 export const MOCK_ACTIVE_EARLY_TICKET = {
   stock: 10,
   shoppable: {
@@ -64,18 +77,23 @@ export const MOCK_UPCOMING_TICKET = {
 };
 
 export type MockTickets = Awaited<ReturnType<typeof addMockTickets>>;
-export const addMockUsers = async (prisma: PrismaClient) => {
+export const addMockUser = async (
+  prisma: TransactionClient | PrismaClient,
+  suitePrefix: string,
+) => {
+  return await prisma.member.create({
+    data: {
+      studentId: "test" + suitePrefix + crypto.randomUUID(),
+    },
+  });
+};
+export const addMockUsers = async (
+  prisma: PrismaClient,
+  suitePrefix: string,
+) => {
   return await prisma.$transaction(async (prisma) => {
-    const adminMember = await prisma.member.create({
-      data: {
-        studentId: "test" + Math.random().toString(36).substring(10),
-      },
-    });
-    const customerMember = await prisma.member.create({
-      data: {
-        studentId: "test" + Math.random().toString(36).substring(10),
-      },
-    });
+    const adminMember = await addMockUser(prisma, suitePrefix);
+    const customerMember = await addMockUser(prisma, suitePrefix);
     return {
       adminMember,
       customerMember,
@@ -99,107 +117,54 @@ export const addMockTickets = async (
         tags: true,
       },
     });
-    const activeTicket = await prisma.ticket.create({
-      data: {
-        ...MOCK_ACTIVE_TICKET,
-        shoppable: {
-          create: {
-            ...MOCK_ACTIVE_TICKET.shoppable,
-            authorId: adminMember.id,
+    const tickets = [];
+    for (const ticket of [
+      MOCK_ACTIVE_TICKET,
+      MOCK_ACTIVE_TICKET_2,
+      MOCK_ACTIVE_EARLY_TICKET,
+      MOCK_PAST_TICKET,
+      MOCK_UPCOMING_TICKET,
+    ]) {
+      const createdTicket = await prisma.ticket.create({
+        data: {
+          ...ticket,
+          shoppable: {
+            create: {
+              ...ticket.shoppable,
+              authorId: adminMember.id,
+            },
+          },
+          event: {
+            connect: {
+              id: event1.id,
+            },
+          }, // Add the missing event property
+        },
+        include: {
+          shoppable: true,
+          event: {
+            include: {
+              tags: true,
+            },
           },
         },
-        event: {
-          connect: {
-            id: event1.id,
-          },
-        }, // Add the missing event property
-      },
-      include: {
-        shoppable: true,
-        event: {
-          include: {
-            tags: true,
-          },
-        },
-      },
-    });
-    const activeEarlyTicket = await prisma.ticket.create({
-      data: {
-        ...MOCK_ACTIVE_EARLY_TICKET,
-        shoppable: {
-          create: {
-            ...MOCK_ACTIVE_EARLY_TICKET.shoppable,
-            authorId: adminMember.id,
-          },
-        },
-        event: {
-          connect: {
-            id: event1.id,
-          },
-        }, // Add the missing event property
-      },
-      include: {
-        shoppable: true,
-        event: {
-          include: {
-            tags: true,
-          },
-        },
-      },
-    });
-    const pastTicket = await prisma.ticket.create({
-      data: {
-        ...MOCK_PAST_TICKET,
-        shoppable: {
-          create: {
-            ...MOCK_PAST_TICKET.shoppable,
-            authorId: adminMember.id,
-          },
-        },
-        event: {
-          connect: {
-            id: event1.id,
-          },
-        }, // Add the missing event property
-      },
-      include: {
-        shoppable: true,
-        event: {
-          include: {
-            tags: true,
-          },
-        },
-      },
-    });
-    const upcomingTicket = await prisma.ticket.create({
-      data: {
-        ...MOCK_UPCOMING_TICKET,
-        shoppable: {
-          create: {
-            ...MOCK_UPCOMING_TICKET.shoppable,
-            authorId: adminMember.id,
-          },
-        },
-        event: {
-          connect: {
-            id: event1.id,
-          },
-        }, // Add the missing event property
-      },
-      include: {
-        shoppable: true,
-        event: {
-          include: {
-            tags: true,
-          },
-        },
-      },
-    });
-    return {
+      });
+      tickets.push(createdTicket);
+    }
+    if (tickets.length != 5) throw new Error("Failed to create tickets");
+    const [
       activeTicket,
+      activeTicket2,
       activeEarlyTicket,
       pastTicket,
       upcomingTicket,
+    ] = tickets;
+    return {
+      activeTicket: activeTicket!,
+      activeTicket2: activeTicket2!,
+      activeEarlyTicket: activeEarlyTicket!,
+      pastTicket: pastTicket!,
+      upcomingTicket: upcomingTicket!,
     };
   });
 };
@@ -208,29 +173,29 @@ export const removeMockTickets = async (
   prisma: PrismaClient,
   ticketIds: string[],
 ) => {
-  await prisma.$transaction(async (prisma) => {
-    await prisma.consumable.deleteMany({
+  await prisma.$transaction(async (tx) => {
+    await tx.consumable.deleteMany({
       where: {
         shoppableId: {
           in: ticketIds,
         },
       },
     }); // remove all consumables
-    await prisma.consumableReservation.deleteMany({
+    await tx.consumableReservation.deleteMany({
       where: {
         shoppableId: {
           in: ticketIds,
         },
       },
     }); // remove all reservations
-    await prisma.shoppable.deleteMany({
+    await tx.shoppable.deleteMany({
       where: {
         id: {
           in: ticketIds,
         },
       },
     });
-    await prisma.event.deleteMany({
+    await tx.event.deleteMany({
       where: {
         tickets: {
           some: {
@@ -248,20 +213,51 @@ export const removeMockUsers = async (
   prisma: PrismaClient,
   memberIds: string[],
 ) => {
-  await prisma.$transaction(async (prisma) => {
-    await prisma.event.deleteMany({
+  await prisma.$transaction(async (tx) => {
+    await tx.event.deleteMany({
       where: {
         authorId: {
           in: memberIds,
         },
       },
     });
-    await prisma.member.deleteMany({
+    await tx.member.deleteMany({
       where: {
         id: {
           in: memberIds,
         },
       },
     });
+  });
+};
+
+export const removeAllTestData = async (
+  prisma: PrismaClient,
+  suitePrefix: string,
+) => {
+  await prisma.shoppable.deleteMany({
+    where: {
+      author: {
+        studentId: {
+          startsWith: "test" + suitePrefix,
+        },
+      },
+    },
+  });
+  await prisma.event.deleteMany({
+    where: {
+      author: {
+        studentId: {
+          startsWith: "test" + suitePrefix,
+        },
+      },
+    },
+  });
+  await prisma.member.deleteMany({
+    where: {
+      studentId: {
+        startsWith: "test" + suitePrefix,
+      },
+    },
   });
 };

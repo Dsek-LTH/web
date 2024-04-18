@@ -99,14 +99,21 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
         secure: process.env["NODE_ENV"] === "production", // Only send cookie over HTTPS in production
       });
     }
+    const policies = await getAccessPolicies(prisma);
     event.locals.prisma = enhance(prisma, {
       user: {
         studentId: undefined,
         memberId: undefined,
-        policies: await getAccessPolicies(prisma),
+        policies,
         externalCode: externalCode, // For anonymous users
       },
     });
+    event.locals.user = {
+      studentId: undefined,
+      memberId: undefined,
+      policies,
+      externalCode: externalCode,
+    };
   } else {
     const member = await prisma.member.findUnique({
       where: { studentId: session.user.student_id },
