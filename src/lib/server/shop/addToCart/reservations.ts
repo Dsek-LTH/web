@@ -186,21 +186,26 @@ export const performLotteryIfNecessary = async (
   now: Date,
   shoppableId: string,
 ) => {
-  await prisma.ticket.findUnique({
-    where: {
-      id: shoppableId,
-      shoppable: {
-        reservations: {
-          some: {
-            order: null,
+  const ticketAfterGracePeriodWithReservations = await prisma.ticket.findUnique(
+    {
+      where: {
+        id: shoppableId,
+        shoppable: {
+          reservations: {
+            some: {
+              order: null,
+            },
           },
-        },
-        availableFrom: {
-          lte: new Date(now.valueOf() - GRACE_PERIOD_WINDOW),
+          availableFrom: {
+            lte: new Date(now.valueOf() - GRACE_PERIOD_WINDOW),
+          },
         },
       },
     },
-  });
+  );
+  if (ticketAfterGracePeriodWithReservations !== null) {
+    await performReservationLottery(prisma, shoppableId);
+  }
 };
 /**
  * Once the initial grace period is over, call this method. It goes through all reservations and performs the following logic:

@@ -86,7 +86,7 @@ export const addTicketToCart = async (
     await checkUserMaxAmount(prisma, idPart, ticket);
 
     if (
-      now.valueOf() - ticket.shoppable.availableFrom.valueOf() <=
+      now.valueOf() - ticket.shoppable.availableFrom.valueOf() <
       GRACE_PERIOD_WINDOW
     ) {
       return await addReservationInReserveWindow(
