@@ -1,4 +1,4 @@
-// import sendPushNotifications from "$lib/utils/notifications/push";
+import sendPushNotifications from "$lib/utils/notifications/push";
 import {
   NotificationSettingType,
   NotificationType,
@@ -139,6 +139,31 @@ const sendNotification = async (
   if (databaseResult.count < 1) {
     throw error(500, `Failed to create notifications`);
   }
+
+  // Get user's expo tokens and use them to send push notifications
+  const expoTokens = await prisma.expoToken.findMany({
+    where: {
+      memberId: {
+        in: receivingMembers
+          .map((member) => {
+            if (member.subscriptionSettings[0]?.pushNotification)
+              return member.id;
+            else return "";
+          })
+          .filter((i) => i != ""),
+      },
+    },
+    select: {
+      expoToken: true,
+    },
+  });
+  sendPushNotifications(
+    expoTokens.map((token) => token.expoToken), // need to convert this into string[]
+    title,
+    message,
+    type,
+    link,
+  );
 };
 
 export default sendNotification;
