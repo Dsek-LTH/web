@@ -218,6 +218,7 @@ model BookingRequest {
     event String? @db.VarChar(255)
     status BookingRequestStatus @default(PENDING)
     bookables Bookable[] @relation("booking_requests_bookables")
+    booker Member? @relation(fields: [bookerId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "booking_requests_booker_id_foreign")
 
     @@map("booking_requests")
 }
@@ -524,6 +525,7 @@ model Member {
     authoredShoppables Shoppable[]
     inventory Consumable[]
     shopReservations ConsumableReservation[]
+    bookingRequests BookingRequest[]
 
     @@map("members")
 }

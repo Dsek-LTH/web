@@ -39,17 +39,15 @@
           <td>{bookingRequest.event}</td>
           <td>
             <div class="flex items-center gap-2">
-              {#if bookingRequest.booker}
-                <MemberAvatar
-                  member={bookingRequest.booker}
-                  class="size-5 flex-shrink-0"
-                />
-                <a
-                  href="/members/{bookingRequest.booker.studentId}"
-                  class="link-hover link"
-                  >{getFullName(bookingRequest.booker)}
-                </a>
-              {/if}
+              <MemberAvatar
+                member={bookingRequest.booker}
+                class="size-5 flex-shrink-0"
+              />
+              <a
+                href="/members/{bookingRequest.booker.studentId}"
+                class="link-hover link"
+                >{getFullName(bookingRequest.booker)}
+              </a>
             </div>
           </td>
           <td>
