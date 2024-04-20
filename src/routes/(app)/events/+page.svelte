@@ -87,9 +87,8 @@
       >Filter</button
     >
   </form>
+  {#each data.events as event (event.id)}
+    <SmallEventCard {event} interestedGoingForm={data.interestedGoingForm} />
+  {/each}
+  <Pagination count={data.pageCount} />
 </section>
-{#each data.events as event (event.id)}
-  <SmallEventCard {event} interestedGoingForm={data.interestedGoingForm}/>
-{/each}
-
-<Pagination count={data.pageCount} />
