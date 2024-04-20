@@ -24,7 +24,7 @@
           <div
             class="flex flex-1 items-center justify-center rounded-b-lg bg-base-100 text-4xl font-semibold"
           >
-            {event.startDatetime.getDay().toString().padStart(2, "0")}
+            {event.startDatetime.getDate().toString().padStart(2, "0")}
           </div>
         </div>
 
