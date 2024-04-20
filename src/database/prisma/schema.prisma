@@ -705,10 +705,10 @@ model ProductInventory {
     @@map("product_inventory")
 }
 
-/// @@allow('create', has(auth().policies, 'songs:create'))
-/// @@allow('read', has(auth().policies, 'songs:read'))
+/// @@allow('create', has(auth().policies, 'song:create'))
+/// @@allow('read', has(auth().policies, 'song:read'))
 /// @@deny('read', deletedAt != null)
-/// @@allow('update', has(auth().policies, 'songs:update'))
+/// @@allow('update', has(auth().policies, 'song:update'))
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Songs{
 model Song {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
