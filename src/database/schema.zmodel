@@ -199,6 +199,7 @@ model BookingRequest {
   event String? @db.VarChar(255)
   status BookingRequestStatus @default(PENDING)
   bookables Bookable[] @relation("booking_requests_bookables")
+  booker Member? @relation(fields: [bookerId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "booking_requests_booker_id_foreign")
 
   @@allow("create", has(auth().policies, "booking_request:create"))
   @@allow("read", has(auth().policies, "booking_request:read"))
@@ -509,6 +510,7 @@ model Member {
   authoredShoppables Shoppable[]
   inventory Consumable[]
   shopReservations ConsumableReservation[]
+  bookingRequests BookingRequest[]
 
   @@allow('create', has(auth().policies, "core:member:create"))
   @@allow('create', auth().studentId == studentId)
