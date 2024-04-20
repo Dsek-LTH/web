@@ -5,5 +5,7 @@ export const getFullName = (
 ) => {
   if (member.nickname)
     return `${member.firstName} "${member.nickname}" ${member.lastName}`;
-  return `${member.firstName} ${member.lastName}`;
+  if (member.firstName && member.lastName)
+    return `${member.firstName} ${member.lastName}`;
+  return member.firstName || member.lastName || "No name";
 };

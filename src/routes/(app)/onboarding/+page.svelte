@@ -77,11 +77,7 @@
           />
         </div>
         <div class="flex flex-wrap gap-2 [&>*]:min-w-32 [&>*]:flex-1">
-          <Labeled
-            label="Program"
-            id="classProgramme"
-            error={$errors.classProgramme}
-          >
+          <Labeled label="Program" error={$errors.classProgramme}>
             <select
               id="classProgramme"
               name="classProgramme"
@@ -95,7 +91,7 @@
               {/each}
             </select>
           </Labeled>
-          <Labeled label="Year" id="classYear" error={$errors.classYear}>
+          <Labeled label="Year" error={$errors.classYear}>
             <input
               type="number"
               name="classYear"

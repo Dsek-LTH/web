@@ -8,6 +8,7 @@ export const insertAccessPolicies = async (prisma: PrismaClient) => {
     yrkaSend(prisma),
     song(prisma),
     emailAlias(prisma),
+    webshop(prisma),
   ]);
 };
 
@@ -97,5 +98,15 @@ const emailAlias = async (prisma: PrismaClient) => {
     insertPolicies(prisma, apiNames.EMAIL_ALIAS.READ, ["dsek.infu.dwww"]),
     insertPolicies(prisma, apiNames.EMAIL_ALIAS.UPDATE, ["dsek.infu.dwww"]),
     insertPolicies(prisma, apiNames.EMAIL_ALIAS.DELETE, ["dsek.infu.dwww"]),
+  ]);
+};
+
+const webshop = async (prisma: PrismaClient) => {
+  await Promise.all([
+    insertPolicies(prisma, apiNames.WEBSHOP.CREATE, ["dsek.styr"]),
+    insertPolicies(prisma, apiNames.WEBSHOP.CONSUME, ["dsek.styr"]),
+    insertPolicies(prisma, apiNames.WEBSHOP.MANAGE, ["dsek.styr"]),
+    insertPolicies(prisma, apiNames.WEBSHOP.PURCHASE, ["*"]),
+    insertPolicies(prisma, apiNames.WEBSHOP.READ_PURCHASES, ["dsek.styr"]),
   ]);
 };

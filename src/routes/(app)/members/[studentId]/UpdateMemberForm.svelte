@@ -47,12 +47,7 @@
     />
   </div>
   <div class="flex w-full flex-wrap gap-2 [&>*:nth-child(3)]:flex-1">
-    <Labeled
-      label="Program"
-      id="classProgramme"
-      error={$errors.classProgramme}
-      fullWidth
-    >
+    <Labeled label="Program" error={$errors.classProgramme} fullWidth>
       <select
         id="classProgramme"
         name="classProgramme"
@@ -65,12 +60,7 @@
         {/each}
       </select>
     </Labeled>
-    <Labeled
-      label="Year"
-      id="classProgramme"
-      error={$errors.classYear}
-      fullWidth
-    >
+    <Labeled label="Year" error={$errors.classYear} fullWidth>
       <input
         type="number"
         name="classYear"

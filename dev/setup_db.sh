@@ -13,6 +13,8 @@ until docker exec dsek-db pg_isready
 do
     sleep 0.5;
 done
+echo "Database is ready! Loading data..."
+sleep 0.5; # Sometimes the database is not ready yet even though pg_isready returns true
 
 # Set `session_replication_role` to `'replica'`, this will temporarily disable
 # all foreign key checks. If you used the parameters for your postgresql docker

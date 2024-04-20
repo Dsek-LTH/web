@@ -31,7 +31,7 @@
 </script>
 
 <main
-  class="flex w-screen flex-col gap-8 px-4 pt-8 lg:flex-row lg:px-8 [&>*]:flex-1"
+  class="container mx-auto flex flex-col gap-8 px-4 pt-8 lg:flex-row [&>*]:flex-1"
 >
   <section>
     <form method="POST" class="form-control gap-2" use:enhance>
@@ -43,12 +43,11 @@
         {...$constraints.header}
         error={$errors.header}
       />
-      <Labeled label="Description" id="body" error={$errors.body}>
+      <Labeled label="Description" error={$errors.body}>
         <MarkdownEditor bind:value={$form.body} {...$constraints.body} />
       </Labeled>
       <Labeled
         label="Författare"
-        id="author"
         error={$errors.author !== undefined ? "Ogitlig författare" : ""}
       >
         <select
@@ -78,7 +77,6 @@
       </Labeled>
       <Labeled
         label="Taggar"
-        id="autocomplete"
         error={$errors.tags !== undefined ? "Ogitliga taggar" : ""}
       >
         <TagSelector {allTags} bind:selectedTags={$form.tags} />

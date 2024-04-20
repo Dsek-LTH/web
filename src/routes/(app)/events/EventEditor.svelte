@@ -1,5 +1,5 @@
 <script lang="ts">
-  import DateInput from "./DateInput.svelte";
+  import DateInput from "$lib/components/DateInput.svelte";
   import Input from "$lib/components/Input.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
   import TagChip from "$lib/components/TagChip.svelte";
@@ -18,7 +18,7 @@
 </script>
 
 <main
-  class="flex w-screen flex-col gap-8 px-4 pt-8 lg:flex-row lg:px-8 [&>*]:flex-1"
+  class="container mx-auto flex flex-col gap-8 px-4 pt-8 lg:flex-row [&>*]:flex-1"
 >
   <section>
     <form method="POST" class="form-control gap-2" use:enhance>
@@ -38,7 +38,7 @@
         {...$constraints.shortDescription}
       />
       <div class="flex flex-row justify-between gap-4 [&>*]:flex-1">
-        <Labeled id="start" label="Start" error={$errors.startDatetime}>
+        <Labeled label="Start" error={$errors.startDatetime}>
           <DateInput
             id="start"
             name="startDatetime"
@@ -48,7 +48,7 @@
             {...$constraints.startDatetime}
           />
         </Labeled>
-        <Labeled id="end" label="End" error={$errors.endDatetime}>
+        <Labeled label="End" error={$errors.endDatetime}>
           <DateInput
             id="end"
             name="endDatetime"
@@ -78,14 +78,13 @@
         />
         <Input
           label="Link"
-          required
           name="link"
           bind:value={$form.link}
           error={$errors.link}
           {...$constraints.link}
         />
       </div>
-      <Labeled label="Description" id="description" error={$errors.description}>
+      <Labeled label="Description" error={$errors.description}>
         <textarea
           id="description"
           name="description"
@@ -96,7 +95,6 @@
         />
       </Labeled>
       <Labeled
-        id="autocomplete"
         label="Taggar"
         error={$errors.tags !== undefined ? "Ogiltiga taggar" : ""}
       >
@@ -118,6 +116,7 @@
         titleEn: "",
         descriptionEn: "",
         shortDescriptionEn: "",
+        imageUrl: null,
 
         id: "",
         slug: "",

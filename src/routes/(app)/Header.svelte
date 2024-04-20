@@ -4,7 +4,7 @@
 
 <header class="contents">
   <img
-    class="h-full w-full object-cover md:col-span-2"
+    class="h-full w-full rounded-2xl object-cover md:col-span-2"
     src="./hero-image.jpg"
     alt="Cover"
   />
@@ -18,7 +18,7 @@
       {@html m.landing_info()}
     </p>
     <a
-      class="btn btn-primary justify-self-start rounded-none px-10 font-bold uppercase"
+      class="btn btn-primary justify-self-start px-10 font-bold uppercase"
       href="/info/for-foretag"
     >
       {m.landing_forCompanies()}

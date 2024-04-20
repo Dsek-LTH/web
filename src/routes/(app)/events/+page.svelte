@@ -144,10 +144,12 @@
     />
 
     <div class="my-3 flex flex-col items-start gap-2">
-      <MarkdownBody
-        body={event.shortDescription}
-        class="mb-2 text-xl font-semibold !leading-snug"
-      />
+      {#if event.shortDescription}
+        <MarkdownBody
+          body={event.shortDescription}
+          class="mb-2 text-xl font-semibold !leading-snug"
+        />
+      {/if}
       <MarkdownBody
         body={event.description}
         class="line-clamp-4 text-ellipsis"

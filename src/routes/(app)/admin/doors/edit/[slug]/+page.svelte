@@ -89,7 +89,7 @@
         {...$constraints[type]}
       />
       <div class="form-control join-item w-full lg:max-w-[200px]">
-        <Labeled id="startDatetime" label="Start date (optional)">
+        <Labeled label="Start date (optional)">
           <input
             id="startDatetime"
             name="startDatetime"
@@ -101,7 +101,7 @@
         </Labeled>
       </div>
       <div class="form-control join-item w-full lg:max-w-[200px]">
-        <Labeled id="startDatetime" label="End date (optional)">
+        <Labeled label="End date (optional)">
           <input
             id="endDatetime"
             name="endDatetime"
