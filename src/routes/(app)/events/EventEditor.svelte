@@ -78,7 +78,6 @@
         />
         <Input
           label="Link"
-          required
           name="link"
           bind:value={$form.link}
           error={$errors.link}

@@ -352,7 +352,7 @@ model Event {
   location String? @db.VarChar(255)
   organizer String @db.VarChar(255)
   authorId String @map("author_id") @db.Uuid
-  shortDescription String @map("short_description") @db.VarChar(255)
+  shortDescription String? @map("short_description") @db.VarChar(255)
   shortDescriptionEn String? @map("short_description_en") @db.VarChar(255)
   startDatetime DateTime @map("start_datetime") @db.Timestamptz(6)
   endDatetime DateTime @map("end_datetime") @db.Timestamptz(6)
