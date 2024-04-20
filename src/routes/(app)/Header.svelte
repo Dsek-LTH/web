@@ -10,11 +10,14 @@
     <div
       class="max-w-lg rounded-xl bg-base-300 bg-opacity-60 p-8 filter backdrop-blur lg:max-w-xl"
     >
+      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
       <h1 class="mb-5 text-5xl font-bold">{@html m.landing_splash()}</h1>
       <p class="mb-5">
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
         {@html m.landing_info()}
       </p>
       <a class="btn btn-primary font-bold uppercase" href="/info/for-foretag">
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
         {m.landing_forCompanies()}
       </a>
     </div>
