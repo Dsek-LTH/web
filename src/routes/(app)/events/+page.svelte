@@ -1,18 +1,14 @@
 <script lang="ts">
   import { page } from "$app/stores";
-  import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import Pagination from "$lib/components/Pagination.svelte";
   import SearchBar from "$lib/components/SearchBar.svelte";
-  import TagChip from "$lib/components/TagChip.svelte";
   import TagSelector from "$lib/components/TagSelector.svelte";
   import apiNames from "$lib/utils/apiNames";
-  import { relativeDate } from "$lib/utils/client/datetime.js";
-  import type { Tag } from "@prisma/client";
   import { isAuthorized } from "$lib/utils/authorization";
+  import SmallEventCard from "./SmallEventCard.svelte";
+  import type { Tag } from "@prisma/client";
 
   import type { PageData } from "./$types";
-  import InterestedGoingButtons from "./InterestedGoingButtons.svelte";
-  import InterestedGoingList from "./InterestedGoingList.svelte";
   export let data: PageData;
   let filteredTags: Tag[] = data.allTags.filter((tag) =>
     $page.url.searchParams.getAll("tags").includes(tag.name),
@@ -93,86 +89,7 @@
   </form>
 </section>
 {#each data.events as event (event.id)}
-  <article
-    class="ease my-4 rounded-lg p-6 shadow-2xl ring-neutral-700 transition md:ring-1 md:hover:scale-[1.01]"
-  >
-    <a href="/events/{event.slug}">
-      <h2 class="text-2xl font-bold">{event.title}</h2>
-    </a>
-
-    <section class="text-primary">
-      {#if Math.abs(event.startDatetime.valueOf() - event.endDatetime.valueOf()) < 24 * 60 * 60 * 1000}
-        <span class="font-semibold">{relativeDate(event.startDatetime)}</span>
-        <br />
-        {event.startDatetime?.toLocaleTimeString(["sv"], {
-          hour: "2-digit",
-          minute: "2-digit",
-        })} →
-        {event.endDatetime?.toLocaleTimeString(["sv"], {
-          hour: "2-digit",
-          minute: "2-digit",
-        })}
-      {:else}
-        <div class="flex flex-row items-center gap-4">
-          <div>
-            <span class="font-semibold"
-              >{relativeDate(event.startDatetime)}</span
-            > <br />
-            {event.startDatetime?.toLocaleTimeString(["sv"], {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </div>
-          →
-          <div>
-            <span class="font-semibold">{relativeDate(event.endDatetime)}</span>
-            <br />
-            {event.endDatetime?.toLocaleTimeString(["sv"], {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </div>
-        </div>
-      {/if}
-    </section>
-
-    <InterestedGoingButtons
-      eventId={event.id}
-      interestedGoingForm={data.interestedGoingForm}
-      going={event.going}
-      interested={event.interested}
-    />
-
-    <div class="my-3 flex flex-col items-start gap-2">
-      {#if event.shortDescription}
-        <MarkdownBody
-          body={event.shortDescription}
-          class="mb-2 text-xl font-semibold !leading-snug"
-        />
-      {/if}
-      <MarkdownBody
-        body={event.description}
-        class="line-clamp-4 text-ellipsis"
-      />
-    </div>
-
-    <div class="flex flex-row flex-wrap gap-2">
-      {#each event.tags as tag}
-        <a
-          href="?tags={encodeURIComponent(tag.name)}"
-          class="opacity-80 transition-opacity hover:opacity-100"
-          on:click={() => {
-            const referencedTag = data.allTags.find((t) => t.name === tag.name);
-            if (!referencedTag) return console.error("Tag not found");
-            filteredTags = [referencedTag]; // we need correct reference for selector
-          }}
-        >
-          <TagChip {tag} />
-        </a>
-      {/each}
-    </div>
-    <InterestedGoingList going={event.going} interested={event.interested} />
-  </article>
+  <SmallEventCard {event} interestedGoingForm={data.interestedGoingForm}/>
 {/each}
 
 <Pagination count={data.pageCount} />
