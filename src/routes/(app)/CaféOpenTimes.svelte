@@ -6,7 +6,7 @@
 </script>
 
 <a
-  class="flex cursor-pointer gap-6 bg-base-300 p-6 transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:bg-base-200 hover:shadow-xl"
+  class="flex cursor-pointer gap-6 rounded-lg bg-base-300 p-6 transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:bg-base-200 hover:shadow-xl"
   href="/committees/cafe"
 >
   <span class="i-mdi-coffee self-center text-2xl" />
