@@ -4,7 +4,7 @@ import {
   NotificationType,
   SUBSCRIPTION_SETTINGS_MAP,
 } from "$lib/utils/notifications/types";
-import type { Author, PrismaClient } from "@prisma/client";
+import { PrismaClient, type Author } from "@prisma/client";
 import { error } from "@sveltejs/kit";
 
 const DUPLICATE_ALLOWED_TYPES = [
@@ -32,6 +32,9 @@ type SendNotificationProps = BaseSendNotificationProps &
       }
   );
 
+// Need permissions to read expo tokens and send notifications without sharing expo tokens to the public
+const prisma = new PrismaClient();
+
 /**
  *
  * @param title
@@ -42,18 +45,15 @@ type SendNotificationProps = BaseSendNotificationProps &
  * @param fromAuthor (optional)
  * @param fromMemberId (optional), if fromAuthor is not given, use this member id to find/create author
  */
-const sendNotification = async (
-  prisma: PrismaClient,
-  {
-    title,
-    message,
-    type,
-    link,
-    memberIds,
-    fromAuthor,
-    fromMemberId,
-  }: SendNotificationProps,
-) => {
+const sendNotification = async ({
+  title,
+  message,
+  type,
+  link,
+  memberIds,
+  fromAuthor,
+  fromMemberId,
+}: SendNotificationProps) => {
   // Find corresponding setting type, example "COMMENT" for "EVENT_COMMENT"
   const settingType: NotificationSettingType = (Object.entries(
     SUBSCRIPTION_SETTINGS_MAP,
@@ -136,34 +136,39 @@ const sendNotification = async (
     })),
   });
 
+  // If no fields in database were affected, it failed
   if (databaseResult.count < 1) {
     throw error(500, `Failed to create notifications`);
   }
 
   // Get user's expo tokens and use them to send push notifications
+  const pushNotificationMembers = receivingMembers
+    .filter(
+      (
+        member, // Filter all members who don't have push notification enabled for this type of notifications
+      ) =>
+        member.subscriptionSettings.some(
+          (settings) => settings.pushNotification,
+        ),
+    )
+    .map((member) => member.id); // Return an array of strings with their memberIds
   const expoTokens = await prisma.expoToken.findMany({
     where: {
       memberId: {
-        in: receivingMembers
-          .map((member) => {
-            if (member.subscriptionSettings[0]?.pushNotification)
-              return member.id;
-            else return "";
-          })
-          .filter((i) => i != ""),
+        in: pushNotificationMembers,
       },
     },
-    select: {
-      expoToken: true,
-    },
   });
-  sendPushNotifications(
-    expoTokens.map((token) => token.expoToken), // need to convert this into string[]
-    title,
-    message,
-    type,
-    link,
-  );
+
+  if (expoTokens != undefined) {
+    sendPushNotifications(
+      expoTokens.map((token) => token.expoToken),
+      title,
+      message,
+      type,
+      link,
+    );
+  }
 };
 
 export default sendNotification;
