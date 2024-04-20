@@ -10,9 +10,9 @@
   {#each events as event}
     <li>
       <a href="/events/{event.slug}" class="flex align-top">
-        <div class="mr-5 h-24 w-24 min-w-24 bg-base-300">
+        <div class="mr-5 size-24 min-w-24 rounded-md bg-base-300">
           <div
-            class="flex h-5 items-center justify-center bg-primary text-sm font-bold capitalize text-black"
+            class="flex h-5 items-center justify-center rounded-t-md bg-primary text-sm font-bold capitalize text-black"
           >
             {event.startDatetime.toLocaleString("sv-SE", {
               weekday: "long",

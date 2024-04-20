@@ -20,7 +20,7 @@
   <Header />
 
   <article
-    class="row-span-6 bg-primary px-6 py-3 lg:col-start-3 lg:row-span-2 lg:row-start-1"
+    class="row-span-6 rounded-2xl bg-primary px-6 py-3 lg:col-start-3 lg:row-span-2 lg:row-start-1"
   >
     <Articles news={data.news} />
   </article>
