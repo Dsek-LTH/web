@@ -12,7 +12,7 @@ datasource db {
 
 plugin openapi {
   provider = '@zenstackhq/openapi'
-  output = './openapi.yaml'
+  output = '../routes/api/openapi.json/openapi.json'
   title = 'D-sektionen API'
   version = '1.0.0'
   prefix = '/api/model'
