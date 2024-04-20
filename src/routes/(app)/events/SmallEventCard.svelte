@@ -4,18 +4,18 @@
   import InterestedGoingList from "./InterestedGoingList.svelte";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import type { InterestedGoingSchema } from "./interestedGoing";
-  import type { SuperForm } from "sveltekit-superforms/client";
-  import type { Event } from "@prisma/client";
+  import type { EventWithIncludes } from "./events";
+  import type { SuperValidated } from "sveltekit-superforms";
 
-  export let event: Event;
-  export let interestedGoingForm: SuperForm<InterestedGoingSchema>;
+  export let event: EventWithIncludes;
+  export let interestedGoingForm: SuperValidated<InterestedGoingSchema>;
 </script>
 
 <article
   class="row-span-2 grid grid-rows-subgrid gap-0 overflow-hidden rounded-xl bg-base-200"
 >
   <div class="flex justify-between gap-4 bg-base-300 p-4">
-    <div class="flex flex-wrap flex-wrap gap-2">
+    <div class="flex flex-wrap gap-2">
       {#each event.tags as tag}
         <span class="badge text-xs text-neutral-400">{tag.name}</span>
       {/each}
