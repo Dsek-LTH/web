@@ -91,6 +91,8 @@
     "@zenstackhq/runtime": "^1.7.1",
     "croppie": "^2.6.5",
     "dayjs": "^1.11.10",
+    "embla-carousel-autoplay": "^8.0.2",
+    "embla-carousel-svelte": "^8.0.2",
     "expo-server-sdk": "^3.7.0",
     "isomorphic-dompurify": "^2.0.0",
     "markdown-to-txt": "^2.0.1",
