@@ -1,0 +1,13 @@
+pipeline {
+  agent { 
+    label 'Buildnode-2'
+  }
+
+  stages {
+    stage('Build') {
+      steps {
+        sh 'wget https://github.com/Dsek-LTH/web/releases/latest/download/build.zip'
+      }
+    }
+  }
+}
