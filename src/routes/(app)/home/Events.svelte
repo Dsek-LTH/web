@@ -6,30 +6,29 @@
   >;
 </script>
 
-<ol class="flex flex-col gap-4" role="article">
+<ol class="flex flex-col gap-4">
   {#each events as event}
     <li>
       <a
         href="/events/{event.slug}"
-        class="flex gap-4 rounded-2xl bg-base-300 p-4 transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:bg-base-200 hover:shadow-xl"
+        class="pop-out grid grid-flow-col gap-4 rounded-2xl bg-base-300 p-4"
       >
-        <div>
+        <div class="flex h-20 w-20 flex-col">
           <div
-            class="rounded-t-lg bg-primary text-center text-sm font-bold capitalize text-black"
+            class="rounded-t-lg bg-primary text-center font-bold capitalize text-black"
           >
             {event.startDatetime.toLocaleString("sv-SE", {
               weekday: "long",
             })}
           </div>
           <div
-            class="rounded-b-lg bg-base-100 p-4 text-center text-6xl font-semibold"
+            class="flex flex-1 items-center justify-center rounded-b-lg bg-base-100 text-4xl font-semibold"
           >
             {event.startDatetime.getDay().toString().padStart(2, "0")}
           </div>
         </div>
 
-        <div class="flex min-w-0 flex-col justify-between overflow-hidden">
-          <!-- for screen readers, we icnlude this anchor -->
+        <div class="">
           <h2 class="line-clamp-1 text-xl font-bold leading-none">
             {event.title}
           </h2>

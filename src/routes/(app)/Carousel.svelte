@@ -1,11 +1,7 @@
 <script>
   import emblaCarouselSvelte from "embla-carousel-svelte";
 
-  const images = [
-    "https://esek.se/_app/immutable/assets/2-6f686f25.webp",
-    "https://esek.se/_app/immutable/assets/1-9f687283.webp",
-    "https://esek.se/_app/immutable/assets/5-c7f1ff3f.webp",
-  ];
+  const images = ["./hero-image.jpg", "./hero-image.jpg", "./hero-image.jpg"];
 
   /**
      * @type {{

@@ -5,10 +5,7 @@
   export let previous: Pick<Meeting, "title"> | null;
 </script>
 
-<a
-  class="flex cursor-pointer gap-6 bg-base-300 p-6 transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:bg-base-200 hover:shadow-xl"
-  href="/documents"
->
+<a class="pop-out flex gap-6 rounded-2xl bg-base-300 p-6" href="/documents">
   <span class="i-mdi-gavel self-center text-2xl" />
 
   <article class="flex-1">

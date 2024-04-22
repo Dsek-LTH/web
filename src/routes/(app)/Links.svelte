@@ -4,7 +4,7 @@
     {
       title: m.landing_feedback(),
       description: m.landing_contactWellbeing(),
-      path: "/",
+      path: "https://bit.ly/kontaktatrivsel",
       icon: "i-mdi-speak",
     },
     {
@@ -16,25 +16,25 @@
     {
       title: "Engagera dig",
       description: "Hur blir jag aktiv på D-sektionen",
-      path: "/",
+      path: "/committees",
       icon: "i-mdi-account-multiple",
     },
     {
       title: "Dokument",
       description: "Kolla in senaste styrdokumenten",
-      path: "/",
+      path: "/documents/governing",
       icon: "i-mdi-gavel",
     },
     {
       title: "Webshop",
       description: "Köp merch",
-      path: "/",
+      path: "/webshop",
       icon: "i-mdi-store",
     },
     {
       title: "Styrelsen",
       description: "Mer om styrelsen",
-      path: "/",
+      path: "/board",
       icon: "i-mdi-account-tie",
     },
   ];
