@@ -32,12 +32,6 @@
     </div>
     {#if ticket.description}
       <p>{ticket.description}</p>
-    {:else}
-      <p>
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor libero,
-        ut, quas optio ipsam labore in vel, ea suscipit voluptatem eaque
-        molestias. Unde laudantium porro quidem sunt quisquam delectus aperiam.
-      </p>
     {/if}
     <TicketActions {ticket} {addToCartForm} />
   </div>
