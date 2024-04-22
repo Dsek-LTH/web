@@ -5,10 +5,12 @@
   import { getFullName } from "$lib/utils/client/member";
   import type StripeJS from "@stripe/stripe-js";
   import { Elements, PaymentElement } from "svelte-stripe";
+  import Price from "$lib/components/Price.svelte";
 
   export let stripe: StripeJS.Stripe | null;
-
   export let clientSecret: string;
+  export let price: number;
+
   $: member = $page.data.member;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- The lib we use for display the elements uses an older version of stripe. It works but has the wrong type
   let elements: any;
@@ -55,8 +57,6 @@
       }
     }
   };
-  $: console.log(elements);
-
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- The lib we use for display the elements uses an older version of stripe. It works but has the wrong type
   $: untypedStripe = stripe as any;
 </script>
@@ -97,11 +97,15 @@
           },
         }}
       />
-      <button class="btn btn-primary mt-4" disabled={isProcessing}>
-        {#if isProcessing}
-          Processar...
-        {:else}Betala{/if}
-      </button>
+      <div class="mt-4 flex items-center justify-between gap-2">
+        <button class="btn btn-primary" disabled={isProcessing}>
+          {#if isProcessing}
+            Processar...
+          {:else}Betala
+          {/if}
+        </button>
+        <Price {price} />
+      </div>
       {#if paymentError}
         <p class="text-error">{paymentError}</p>
       {/if}
