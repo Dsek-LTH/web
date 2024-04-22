@@ -1,8 +1,13 @@
 <script lang="ts">
+  import { invalidateAll } from "$app/navigation";
   import Timer from "$lib/components/Timer/Timer.svelte";
   import { now } from "$lib/stores/date";
 
   export let expiresAt: Date | null = null;
+
+  $: if (expiresAt && $now > expiresAt) {
+    invalidateAll();
+  }
 </script>
 
 {#if expiresAt}
