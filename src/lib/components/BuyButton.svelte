@@ -21,12 +21,12 @@
   $: isCurrentlyAvailable =
     !isUpcoming && (!ticket.availableTo || ticket.availableTo > $now);
 
-  $: isGracePeriod = ticket.gracePeriodEndsAt > $now;
+  $: isInGracePeriod = ticket.gracePeriodEndsAt > $now;
   $: hasQueue = false;
 
   $: if (
     ticket.isInUsersCart &&
-    isGracePeriod &&
+    isInGracePeriod &&
     $now > ticket.gracePeriodEndsAt
   ) {
     invalidateAll();
@@ -47,7 +47,7 @@
  -->
 {#if isCurrentlyAvailable}
   {#if ticket.isInUsersCart}
-    {#if isGracePeriod}
+    {#if isInGracePeriod}
       <span class="text-xl">
         Du har en lott. Dragning om <Timer
           milliseconds={ticket.gracePeriodEndsAt.valueOf() - $now.valueOf()}
@@ -74,7 +74,7 @@
         Ägs redan
       {:else if hasQueue}
         {isSubmitting ? "Ställer dig i kö..." : "Ställ i kö"}
-      {:else if isGracePeriod}
+      {:else if isInGracePeriod}
         {isSubmitting ? "Skaffar lott..." : "Skaffa lott"}
       {:else if ticket.price === 0}
         {isSubmitting ? "Skaffar..." : "Skaffa"}
