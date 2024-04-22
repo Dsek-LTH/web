@@ -27,3 +27,9 @@ jobs:
       - uses: softprops/action-gh-release@v2
         with:
           files: build.zip
+
+      - shell: bash
+        env: 
+          JENKINS_DEPLOY_TOKEN: ${{ secrets.JENKINS_DEPLOY_TRIGGER }}
+        run: |
+          curl -L "jenkins.dsek.se/buildByToken/build?job=Deploy_web&token=$JENKINS_DEPLOY_TOKEN"
