@@ -19,7 +19,12 @@
   />
 
   <main class="m-4 flex flex-col gap-4">
-    <h1 class="text-xl font-bold">{ticket.title}</h1>
+    <h1 class="text-xl font-bold">
+      {ticket.title}
+      <span class="ml-4 text-success">
+        {ticket.price / 100} SEK
+      </span>
+    </h1>
     <div
       class="flex flex-wrap items-center gap-2 text-sm text-base-content/60 *:flex *:items-center *:gap-1"
     >
