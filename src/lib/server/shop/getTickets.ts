@@ -1,3 +1,4 @@
+import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
 import {
   PrismaClient,
   type Event,
@@ -146,9 +147,11 @@ type ItemMetadata = {
     Ticket & {
       event: Event;
     };
-  questionResponses: ItemQuestionResponse[];
 };
-export type CartItem = Consumable & ItemMetadata;
+export type CartItem = Consumable &
+  ItemMetadata & {
+    questionResponses: ItemQuestionResponse[];
+  };
 export type CartReservation = ConsumableReservation & ItemMetadata;
 
 export const getCart = async (
@@ -159,7 +162,7 @@ export const getCart = async (
   reservations: CartReservation[];
 }> => {
   const now = new Date();
-  await removeExpiredConsumables(prisma, now);
+  await removeExpiredConsumables(authorizedPrismaClient, now);
   const inCart = await prisma.consumable.findMany({
     where: {
       ...dbIdentification(id),

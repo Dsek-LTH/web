@@ -52,8 +52,8 @@ export const onPaymentFailure = async (intent: Stripe.PaymentIntent) => {
       stripeIntentId: intent.id,
     },
     data: {
+      stripeIntentId: null, // remove the intent id
       purchasedAt: null, // make sure the consumable is not marked as purchased
-      expiresAt: new Date(Date.now() + TIME_TO_BUY), // give them more time if payment fails. Also re-enables expiration
     },
   });
 
