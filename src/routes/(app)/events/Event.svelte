@@ -1,8 +1,13 @@
 <script lang="ts">
   import DateSpan from "./DateSpan.svelte";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
-  import type { Event } from "@prisma/client";
-  export let event: Event;
+  export let event: {
+    title: string;
+    startDatetime: Date;
+    endDatetime: Date;
+    shortDescription: string | null;
+    description: string;
+  };
 </script>
 
 <!-- {#if data.imageUrl}
