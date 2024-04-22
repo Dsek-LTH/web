@@ -1,8 +1,8 @@
 <script lang="ts">
+  import type { TicketWithMoreInfo } from "$lib/server/shop/getTickets";
   import dayjs from "dayjs";
-  import type { TicketWithEvent } from "../types";
 
-  export let event: TicketWithEvent["event"];
+  export let event: TicketWithMoreInfo["event"];
 </script>
 
 <figure class="relative aspect-video">

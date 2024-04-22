@@ -1,19 +1,29 @@
-import { fail } from "@sveltejs/kit";
-import { redirect } from "sveltekit-flash-message/server";
-import { message, superValidate } from "sveltekit-superforms/server";
-import { z } from "zod";
-import type { PageServerLoad } from "./$types";
 import {
   AddToCartStatus,
   addTicketToCart,
   type AddToCartResult,
 } from "$lib/server/shop/addToCart/addToCart";
 import { getTickets } from "$lib/server/shop/getTickets";
-import { authorize } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
+import { authorize } from "$lib/utils/authorization";
+import { error, fail } from "@sveltejs/kit";
+import { redirect } from "sveltekit-flash-message/server";
+import { message, superValidate } from "sveltekit-superforms/server";
+import { z } from "zod";
+import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ locals }) => {
-  const allTickets = await getTickets(locals.prisma);
+  const { user, prisma } = locals;
+  const { memberId, externalCode } = user ?? {};
+  if (!memberId && !externalCode) error(401);
+  const identification = memberId
+    ? {
+        memberId: memberId,
+      }
+    : {
+        externalCode: externalCode!,
+      };
+  const allTickets = await getTickets(prisma, identification);
   return {
     tickets: allTickets,
     addToCartForm: await superValidate(addToCartSchema),

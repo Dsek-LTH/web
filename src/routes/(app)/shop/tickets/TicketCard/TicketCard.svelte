@@ -1,33 +1,38 @@
 <script lang="ts">
+  import type { TicketWithMoreInfo } from "$lib/server/shop/getTickets";
   import type { SuperValidated } from "sveltekit-superforms";
   import type { AddToCartSchema } from "../+page.server";
-  import type { TicketWithEvent } from "../types";
   import TicketActions from "./TicketActions.svelte";
   import TicketEvent from "./TicketEvent.svelte";
 
-  export let ticket: TicketWithEvent;
+  export let ticket: TicketWithMoreInfo;
   export let addToCartForm: SuperValidated<AddToCartSchema>;
 </script>
 
-<a href="/shop/tickets/{ticket.id}">
-  <div class="group card card-compact overflow-hidden bg-base-300 shadow-xl">
-    <TicketEvent event={ticket.event} />
-    <div class="card-body">
-      <div class="flex items-start justify-between">
-        <h2 class="card-title">
-          {ticket.shoppable.title}
-        </h2>
-        <div class="flex flex-col">
-          <span class="card-title text-success">
-            {ticket.shoppable.price / 100} SEK
-          </span>
+<a
+  href="/shop/tickets/{ticket.id}"
+  class="group card card-compact overflow-hidden bg-base-300 shadow-xl"
+>
+  <TicketEvent event={ticket.event} />
+  <div class="card-body">
+    <div class="flex items-start justify-between">
+      <h2 class="card-title">
+        {ticket.title}
+      </h2>
+      <div class="flex flex-col">
+        <span class="card-title text-success">
+          {ticket.price / 100} SEK
+        </span>
+        {#if ticket.ticketsLeft < 10 && ticket.ticketsLeft > 0}
           <span class="text-right">
-            {ticket.stock - ticket.shoppable._count.consumables} kvar
+            {ticket.ticketsLeft} kvar
           </span>
-        </div>
+        {/if}
       </div>
-      <p>{ticket.shoppable.description}</p>
-      <TicketActions {ticket} {addToCartForm} />
     </div>
+    {#if ticket.description}
+      <p>{ticket.description}</p>
+    {/if}
+    <TicketActions {ticket} {addToCartForm} />
   </div>
 </a>
