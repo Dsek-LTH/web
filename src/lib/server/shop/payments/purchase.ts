@@ -253,18 +253,22 @@ export const calculateCartPrice = (consumables: ConsumableFieldsForPrice[]) =>
 
 // Because swish is most common, we use its fee as the one we charge the user. If they choose another option, the fee will be more, but that's fine I think.
 const STRIPE_PERCENTAGE_FEE = 1 / 100; // 1%
-const STRIPE_FIXED_FEE = 3; // 3 SEK
+const STRIPE_FIXED_FEE = 300; // 3 SEK
 const STRIPE_PERCENTAGE_FEE_MODIFIER = 1 / (1 - STRIPE_PERCENTAGE_FEE); // 1/(1-0.015) i.e. 1.5%
 /**
  * Calculates the transaction fee for a given price.
  */
 export const transactionFee = (price: number) =>
-  Math.floor(price * STRIPE_PERCENTAGE_FEE + STRIPE_FIXED_FEE);
+  price === 0
+    ? 0
+    : Math.floor(price * STRIPE_PERCENTAGE_FEE + STRIPE_FIXED_FEE);
 
 /**
  * Calculates the required price to charge the user for us to receive `price` after Stripe takes its cut.
  */
 export const priceWithTransactionFee = (price: number) =>
-  Math.floor((price + STRIPE_FIXED_FEE) * STRIPE_PERCENTAGE_FEE_MODIFIER);
+  price === 0
+    ? 0
+    : Math.floor((price + STRIPE_FIXED_FEE) * STRIPE_PERCENTAGE_FEE_MODIFIER);
 
 export default purchaseCart;

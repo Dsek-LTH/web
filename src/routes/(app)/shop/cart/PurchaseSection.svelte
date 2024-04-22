@@ -8,6 +8,8 @@
   import type { PurchaseForm } from "./+page.server";
   import SveltePaymentElement from "./SveltePaymentElement.svelte";
 
+  export let totalPrice: number;
+
   let stripe: StripeJS.Stripe | null = null;
   onMount(async () => {
     stripe = await loadStripe(PUBLIC_STRIPE_KEY);
@@ -24,10 +26,20 @@
     <SveltePaymentElement {stripe} clientSecret={$message["clientSecret"]} />
   </section>
 {:else}
-  <form method="POST" action="?/purchase" use:enhance>
+  <form
+    method="POST"
+    action="?/purchase"
+    use:enhance
+    class="flex flex-col items-start gap-2"
+  >
     <input type="hidden" name="idempotencyKey" value={idempotencyKey} />
+    <span class="font-semibold text-success">{totalPrice / 100} SEK</span>
     <button type="submit" class="btn btn-primary" disabled={$submitting}>
-      {$submitting ? "Processar..." : "Betala"}
+      {#if $submitting}
+        Processar...
+      {:else}
+        {totalPrice === 0 ? "Skaffa" : "Betala"}
+      {/if}
     </button>
   </form>
 {/if}

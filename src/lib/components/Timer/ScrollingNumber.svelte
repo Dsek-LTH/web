@@ -24,7 +24,7 @@
     ((lastI === 0 && currentI > 1) || (lastI > 1 && currentI === 0));
 </script>
 
-<div class="relative h-[1em] overflow-hidden text-center transition-all">
+<div class="relative h-[1em] text-center transition-all">
   <span class="opacity-0">{currentI}</span>
   <div
     class="absolute bottom-0 left-0 right-0 transition-all duration-300 ease-out"

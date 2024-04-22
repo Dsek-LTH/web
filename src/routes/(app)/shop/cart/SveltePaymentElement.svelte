@@ -55,6 +55,7 @@
       }
     }
   };
+  $: console.log(elements);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- The lib we use for display the elements uses an older version of stripe. It works but has the wrong type
   $: untypedStripe = stripe as any;
