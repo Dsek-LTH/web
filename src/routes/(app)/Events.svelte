@@ -6,19 +6,24 @@
   >;
 </script>
 
-<ol class="contents" role="article">
+<ol class="flex flex-col gap-4" role="article">
   {#each events as event}
     <li>
-      <a href="/events/{event.slug}" class="flex align-top">
-        <div class="mr-5 h-24 w-24 min-w-24 bg-base-300">
+      <a
+        href="/events/{event.slug}"
+        class="flex gap-4 rounded-2xl bg-base-300 p-4 transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:bg-base-200 hover:shadow-xl"
+      >
+        <div>
           <div
-            class="flex h-5 items-center justify-center bg-primary text-sm font-bold capitalize text-black"
+            class="rounded-t-lg bg-primary text-center text-sm font-bold capitalize text-black"
           >
             {event.startDatetime.toLocaleString("sv-SE", {
               weekday: "long",
             })}
           </div>
-          <div class="text-center text-6xl font-semibold">
+          <div
+            class="rounded-b-lg bg-base-100 p-4 text-center text-6xl font-semibold"
+          >
             {event.startDatetime.getDay().toString().padStart(2, "0")}
           </div>
         </div>

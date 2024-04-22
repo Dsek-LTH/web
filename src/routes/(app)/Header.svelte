@@ -23,4 +23,4 @@
     </div>
   </div>
 </div>
-<div class="-mt-20 h-20 bg-gradient-to-t from-base-100 to-transparent"></div>
+<div class="-mt-20 h-20 bg-gradient-to-t from-base-100 to-transparent" />

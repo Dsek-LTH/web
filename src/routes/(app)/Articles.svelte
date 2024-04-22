@@ -5,21 +5,19 @@
   export let news: Array<Pick<Article, "header" | "body" | "slug">>;
 </script>
 
-<ol
-  class="flex flex-col divide-y divide-dashed divide-base-100 divide-opacity-50"
->
-  {#each news as article (article.slug)}
-    <li class="group py-5 text-black">
-      <a href="/news/{article.slug}">
-        <div>
-          <h2 class="mb-2 text-xl font-bold group-hover:underline">
+<article class="rounded-2xl px-4">
+  <ol class="flex flex-col gap-4">
+    {#each news as article (article.slug)}
+      <li class="rounded-2xl bg-base-300 p-4">
+        <a href="/news/{article.slug}">
+          <h2 class="mb-2 text-xl font-bold">
             {article.header}
           </h2>
           <p class="line-clamp-2 text-ellipsis leading-normal md:line-clamp-3">
             {markdownToTxt(article.body)}
           </p>
-        </div>
-      </a>
-    </li>
-  {/each}
-</ol>
+        </a>
+      </li>
+    {/each}
+  </ol>
+</article>

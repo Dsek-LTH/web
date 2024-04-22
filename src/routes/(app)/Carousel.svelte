@@ -15,12 +15,12 @@
   let embla;
 </script>
 
-<div class="flex items-center justify-center">
+<div class="flex items-center justify-center p-2">
   <button class="btn btn-circle z-10 -mr-6" on:click={() => embla.scrollPrev()}>
     <span class="i-mdi-arrow-left size-6" />
   </button>
   <div
-    class="embla mb-4 h-1/2 w-1/2 overflow-hidden rounded-lg"
+    class="embla mb-4 w-full max-w-xl overflow-hidden rounded-lg"
     use:emblaCarouselSvelte={{ options: { loop: true }, plugins: [] }}
     on:emblaInit={(/** @type {{ detail: any; }} */ event) =>
       (embla = event.detail)}

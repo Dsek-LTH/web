@@ -2,9 +2,49 @@ import DOMPurify from "isomorphic-dompurify";
 import type { PageServerLoad } from "./$types";
 import { error } from "@sveltejs/kit";
 import { BASIC_ARTICLE_FILTER } from "$lib/utils/articles";
+import { fileHandler } from "$lib/files";
+import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
 
 export const load: PageServerLoad = async ({ locals }) => {
-  const { prisma } = locals;
+  const { prisma, user } = locals;
+
+  /* files - subject to change */
+
+  const year = new Date().getFullYear() - 1;
+  const files = await Promise.all([
+    ...(await fileHandler.getInBucket(
+      user,
+      PUBLIC_BUCKETS_DOCUMENTS,
+      year + "/",
+      true,
+    )),
+  ]);
+
+  const boardMeetingFileNameRegex = /^S\d+$/;
+  const boardMeetings = Array.from(
+    new Set(
+      files
+        .map((obj) => obj.id.split("/")[1])
+        .filter((str) => boardMeetingFileNameRegex.test(str!))
+        .map((str) => parseInt(str!.substring(1)))
+        .sort(),
+    ),
+  );
+
+  const nextBoardMeeting = boardMeetings.pop();
+  const lastBoardMeeting = boardMeetings.pop();
+
+  function filterFilesByBoardMeeting(boardMeeting: number | undefined) {
+    return boardMeeting === undefined
+      ? []
+      : files.filter((obj) => obj.id.split("/")[1] === "S" + boardMeeting);
+  }
+
+  const nextBoardMeetingFiles = filterFilesByBoardMeeting(nextBoardMeeting);
+  const lastBoardMeetingFiles = filterFilesByBoardMeeting(lastBoardMeeting);
+
+  /* files ends */
+
   const newsPromise = prisma.article
     .findMany({
       where: {
@@ -94,6 +134,7 @@ export const load: PageServerLoad = async ({ locals }) => {
     throw error(500, "Failed to fetch cafe open");
   }
   return {
+    files: { next: nextBoardMeetingFiles, last: lastBoardMeetingFiles },
     news: news.value,
     events: events.value,
     meetings: {
