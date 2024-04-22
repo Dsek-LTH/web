@@ -7,16 +7,16 @@
   export let data;
   $: activeTickets = data.tickets.filter(
     (ticket) =>
-      ticket.shoppable.availableFrom <= $now &&
-      (ticket.shoppable.availableTo === null ||
-        ticket.shoppable.availableTo >= $now),
+      ticket.availableFrom <= $now &&
+      (ticket.availableTo === null ||
+        ticket.availableTo >= $now),
   );
   $: upcomingTickets = data.tickets.filter(
-    (ticket) => ticket.shoppable.availableFrom > $now,
+    (ticket) => ticket.availableFrom > $now,
   );
   $: pastTickets = data.tickets.filter(
     (ticket) =>
-      ticket.shoppable.availableTo && ticket.shoppable.availableTo < $now,
+      ticket.availableTo && ticket.availableTo < $now,
   );
 </script>
 
