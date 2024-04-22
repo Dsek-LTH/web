@@ -19,7 +19,9 @@ const getTicketsTest = async (
 ) => {
   it("should get all tickets", async () => {
     const tickets = await addMockTickets(prisma, adminMember);
-    const result = await getTickets(prismaWithAccess);
+    const result = await getTickets(prismaWithAccess, {
+      memberId: adminMember.id,
+    });
     const ticketIds = Object.values(tickets).map((t) => t.id);
     const filteredResult = result.filter((t) => ticketIds.includes(t.id));
     expect(filteredResult.length).toBe(6);

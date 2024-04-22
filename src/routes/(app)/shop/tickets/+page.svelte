@@ -8,15 +8,13 @@
   $: activeTickets = data.tickets.filter(
     (ticket) =>
       ticket.availableFrom <= $now &&
-      (ticket.availableTo === null ||
-        ticket.availableTo >= $now),
+      (ticket.availableTo === null || ticket.availableTo >= $now),
   );
   $: upcomingTickets = data.tickets.filter(
     (ticket) => ticket.availableFrom > $now,
   );
   $: pastTickets = data.tickets.filter(
-    (ticket) =>
-      ticket.availableTo && ticket.availableTo < $now,
+    (ticket) => ticket.availableTo && ticket.availableTo < $now,
   );
 </script>
 
