@@ -32,6 +32,16 @@ const ticketIncludedFields = (id: DBShopIdentification) => ({
       consumables: {
         where: {
           ...id,
+          OR: [
+            {
+              expiresAt: {
+                gt: new Date(),
+              },
+            },
+            {
+              expiresAt: null,
+            },
+          ],
         },
       },
       reservations: {
