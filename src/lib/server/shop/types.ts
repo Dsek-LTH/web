@@ -14,6 +14,7 @@ export type ShopIdentification =
       externalCode: string;
     };
 
+export type DBShopIdentification = ReturnType<typeof dbIdentification>;
 export const dbIdentification = ({
   memberId,
   externalCode,

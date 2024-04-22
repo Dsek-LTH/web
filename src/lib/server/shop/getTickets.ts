@@ -1,10 +1,125 @@
-import type { PrismaClient } from "@prisma/client";
+import type {
+  Event,
+  Prisma,
+  PrismaClient,
+  Shoppable,
+  Tag,
+  Ticket,
+} from "@prisma/client";
 import { removeExpiredConsumables } from "./addToCart/reservations";
-import { dbIdentification, type ShopIdentification } from "./types";
+import {
+  GRACE_PERIOD_WINDOW,
+  dbIdentification,
+  type DBShopIdentification,
+  type ShopIdentification,
+} from "./types";
 
-export const getTickets = (prisma: PrismaClient) => {
+export type TicketWithMoreInfo = Ticket &
+  Shoppable & {
+    event: Event & {
+      tags: Tag[];
+    };
+    gracePeriodEndsAt: Date;
+    isInUsersCart: boolean;
+    userAlreadyHasMax: boolean;
+    ticketsLeft: number;
+  };
+
+const ticketIncludedFields = (id: DBShopIdentification) => ({
+  shoppable: {
+    include: {
+      // Get the user's consumables and reservations for this ticket
+      consumables: {
+        where: {
+          ...id,
+        },
+      },
+      reservations: {
+        where: {
+          ...id,
+        },
+      },
+      _count: {
+        select: {
+          // Number of bought tickets
+          consumables: {
+            where: {
+              purchasedAt: {
+                not: null,
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  event: {
+    include: {
+      tags: true,
+    },
+  },
+});
+
+type TicketInclude = ReturnType<typeof ticketIncludedFields>;
+type TicketFromPrisma = Prisma.TicketGetPayload<{ include: TicketInclude }>;
+
+const formatTicket = (ticket: TicketFromPrisma): TicketWithMoreInfo => {
+  const base: TicketWithMoreInfo &
+    Partial<
+      Pick<
+        TicketFromPrisma["shoppable"],
+        "consumables" | "reservations" | "_count"
+      > &
+        Pick<TicketFromPrisma, "shoppable">
+    > = {
+    ...ticket.shoppable,
+    ...ticket,
+    gracePeriodEndsAt: new Date(
+      ticket.shoppable.availableFrom.valueOf() + GRACE_PERIOD_WINDOW,
+    ),
+    isInUsersCart:
+      ticket.shoppable.consumables.filter((c) => !c.purchasedAt).length > 0 ||
+      ticket.shoppable.reservations.length > 0,
+    userAlreadyHasMax:
+      ticket.shoppable.consumables.filter((c) => c.purchasedAt !== null)
+        .length >= ticket.maxAmountPerUser,
+    ticketsLeft: Math.min(
+      ticket.stock - ticket.shoppable._count.consumables,
+      10,
+    ), // don't show more resolution to the client than > 10 or the exact number left (so people can't see how many other people buy tickets)
+  };
+  // do not show the following info to the client
+  delete base.consumables;
+  delete base.reservations;
+  delete base.shoppable;
+  delete base._count;
+  return base;
+};
+
+export const getTicket = async (
+  prisma: PrismaClient,
+  id: string,
+  userId: ShopIdentification,
+): Promise<TicketWithMoreInfo | null> => {
+  const dbId = dbIdentification(userId);
+  const ticket = await prisma.ticket.findFirst({
+    where: {
+      id,
+    },
+    include: ticketIncludedFields(dbId),
+  });
+  if (!ticket) {
+    return null;
+  }
+  return formatTicket(ticket);
+};
+export const getTickets = async (
+  prisma: PrismaClient,
+  identification: ShopIdentification,
+): Promise<TicketWithMoreInfo[]> => {
+  const dbId = dbIdentification(identification);
   const tenDaysAgo = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000);
-  return prisma.ticket.findMany({
+  const tickets = await prisma.ticket.findMany({
     where: {
       shoppable: {
         AND: [
@@ -35,34 +150,14 @@ export const getTickets = (prisma: PrismaClient) => {
         ],
       },
     },
-    include: {
-      shoppable: {
-        include: {
-          _count: {
-            select: {
-              consumables: {
-                where: {
-                  purchasedAt: {
-                    not: null,
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-      event: {
-        include: {
-          tags: true,
-        },
-      },
-    },
+    include: ticketIncludedFields(dbId),
     orderBy: {
       shoppable: {
         availableFrom: "asc",
       },
     },
   });
+  return tickets.map(formatTicket);
 };
 
 export const getCart = async (prisma: PrismaClient, id: ShopIdentification) => {
