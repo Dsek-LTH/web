@@ -1,5 +1,5 @@
 import { programmes } from "$lib/utils/programmes";
-import { z } from "zod";
+import { string, z } from "zod";
 
 export const emptySchema = z.object({}); // for forms without a body
 export type EmptySchema = typeof emptySchema;
@@ -58,8 +58,19 @@ export const tagSchema = z.object({
   color: z.string().nullable(),
   isDefault: z.boolean().nullable(),
 });
+export type TagSchema = typeof tagSchema;
 export const notificationSchema = z.object({
   notificationId: z.number().nullable(),
   notificationIds: z.number().array().nullable(),
 });
 export type NotificationSchema = typeof notificationSchema;
+export const subscriptionSchema = z.object({
+  id: z.string().uuid(),
+  type: z.string(),
+  pushNotification: z.boolean(),
+});
+export type SubscriptionSchema = typeof subscriptionSchema;
+export const settingsSchema = z.object({
+  subscribedSettings: z.array(subscriptionSchema),
+  tags: z.array(tagSchema),
+});

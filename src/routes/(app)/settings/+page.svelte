@@ -4,15 +4,19 @@
   import NotificationSetting from "./NotificationSetting.svelte";
   import SubscriptionTags from "./SubscriptionTags.svelte";
   import type { Tag } from "@prisma/client";
+  import { superForm } from "sveltekit-superforms/client";
 
   export let data: PageData;
   $: subscriptionSettings = data.subscriptionSettings;
-  $: subscribedTags = data.subscribedTags as { subscribedTags: Tag[] };
-  $: nonSubscribedTags = data.tags.filter(
-    (tag) =>
-      subscribedTags.subscribedTags.find((subTag) => tag.id == subTag.id) ==
-      undefined,
-  );
+  $: subscribedTags = data.subscribedTags as { subscribedTags: Tag[] }.subscribedTags;
+  $: tags = data.tags;
+  // $: nonSubscribedTags = data.tags.filter(
+  //   (tag) =>
+  //     subscribedTags.subscribedTags.find((subTag) => tag.id == subTag.id) ==
+  //     undefined,
+  // );
+
+  const { form } = superForm(data.form);
 </script>
 
 <svelte:head>
@@ -25,9 +29,7 @@
     method="POST"
     class="mt-2 flex w-full flex-col items-center justify-start pb-24 lg:flex-row lg:items-start lg:justify-center"
   >
-    <div
-      class="m-2 flex w-full max-w-2xl flex-col items-center pl-2 pr-2 lg:p-0"
-    >
+    <div class="m-2 flex w-full max-w-2xl flex-col items-center lg:p-0">
       <h2 class="mb-2 text-2xl font-bold">Notifikationer</h2>
       {#each Object.entries(NotificationSettingType) as notificationSettingType}
         <NotificationSetting
@@ -38,14 +40,12 @@
         />
       {/each}
     </div>
-    <div
-      class="m-2 flex w-full max-w-2xl flex-col items-center pl-2 pr-2 lg:p-0"
-    >
+    <div class="m-2 flex w-full max-w-2xl flex-col items-center lg:p-0">
       <h2 class="mb-2 text-2xl font-bold">Nyhetsprenumerationer</h2>
-      <SubscriptionTags {subscribedTags} {nonSubscribedTags} />
+      <SubscriptionTags {tags} {subscribedTags} data={data.form} />
     </div>
     <button
-      class="btn absolute bottom-0 mt-4 w-full max-w-xl bg-primary"
+      class="btn absolute bottom-0 mb-4 mt-4 w-full max-w-xl bg-primary"
       type="submit">Tillämpa</button
     >
   </form>
