@@ -750,6 +750,7 @@ model SubscriptionSetting {
   @@allow('create', auth().memberId == memberId)
   @@allow('read', auth().memberId == memberId)
   @@allow('update', auth().memberId == memberId && auth().memberId == future().memberId)
+  @@allow('delete', auth().memberId == memberId)
   @@map("subscription_settings")
 }
 

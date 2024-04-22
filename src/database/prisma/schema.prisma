@@ -752,6 +752,7 @@ model SpecialSender {
 /// @@allow('create', auth().memberId == memberId)
 /// @@allow('read', auth().memberId == memberId)
 /// @@allow('update', auth().memberId == memberId && auth().memberId == future().memberId)
+/// @@allow('delete', auth().memberId == memberId)
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model SubscriptionSetting {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
