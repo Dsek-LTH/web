@@ -1,5 +1,5 @@
 <script lang="ts">
-  import EventEditor from "../../EventEditor.svelte";
+  import EventEditor from "./EventEditor.svelte";
 
   import type { PageData } from "./$types";
   export let data: PageData;

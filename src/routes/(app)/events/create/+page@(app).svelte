@@ -1,5 +1,5 @@
 <script lang="ts">
-  import EventEditor from "../EventEditor.svelte";
+  import EventCreator from "./EventCreator.svelte";
 
   // import Tiptap from "$lib/TipTap.svelte";
   import type { PageData } from "./$types";
@@ -10,4 +10,4 @@
   <title>Skapa evenemang | D-sektionen</title>
 </svelte:head>
 
-<EventEditor data={data.form} allTags={data.allTags} />
+<EventCreator data={data.form} allTags={data.allTags} />
