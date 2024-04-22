@@ -1,47 +1,18 @@
 <script lang="ts">
-  import dayjs from "dayjs";
-
-  import { now } from "$lib/stores/date";
+  import type { TicketWithMoreInfo } from "$lib/server/shop/getTickets";
   import type { SuperValidated } from "sveltekit-superforms";
   import { superForm } from "sveltekit-superforms/client";
   import type { AddToCartSchema } from "../+page.server";
-  import type { TicketWithEvent } from "../types";
+  import BuyButton from "$lib/components/BuyButton.svelte";
 
-  export let ticket: TicketWithEvent;
+  export let ticket: TicketWithMoreInfo;
   export let addToCartForm: SuperValidated<AddToCartSchema>;
-
-  $: isUpcoming = ticket.shoppable.availableFrom > $now;
-  $: isPast =
-    ticket.shoppable.availableTo && ticket.shoppable.availableTo < $now;
-  $: isActive = !isUpcoming && !isPast;
-
-  const { enhance, submitting } = superForm(addToCartForm);
+  const { enhance, submitting } = superForm(addToCartForm, {
+    id: ticket.id,
+  });
 </script>
 
-<div class="card-actions items-baseline justify-between">
-  <span>
-    {#if isUpcoming}
-      Öppnar {dayjs(ticket.shoppable.availableFrom).fromNow()}
-    {:else if ticket.shoppable.availableTo}
-      {#if isPast}
-        Stängde {dayjs(ticket.shoppable.availableTo).fromNow()}
-      {:else}
-        Stänger {dayjs(ticket.shoppable.availableTo).fromNow()}
-      {/if}
-    {/if}
-  </span>
-  <form method="POST" action="?/addToCart" use:enhance>
-    <input type="hidden" name="ticketId" value={ticket.id} />
-    <button
-      type="submit"
-      disabled={!isActive || $submitting}
-      class="btn btn-primary"
-    >
-      {#if isPast}
-        Stängd
-      {:else}
-        {$submitting ? "Processar..." : "Köp"}
-      {/if}
-    </button>
-  </form>
-</div>
+<form method="POST" action="?/addToCart" use:enhance class="self-end">
+  <input type="hidden" name="ticketId" value={ticket.id} />
+  <BuyButton {ticket} isSubmitting={$submitting} />
+</form>

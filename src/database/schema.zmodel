@@ -10,6 +10,14 @@ datasource db {
   directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
 }
 
+plugin openapi {
+  provider = '@zenstackhq/openapi'
+  output = '../routes/api/openapi.json/openapi.json'
+  title = 'D-sektionen API'
+  version = '1.0.0'
+  prefix = '/api/model'
+}
+
 model User {
   studentId String @id
   memberId String
@@ -191,6 +199,7 @@ model BookingRequest {
   event String? @db.VarChar(255)
   status BookingRequestStatus @default(PENDING)
   bookables Bookable[] @relation("booking_requests_bookables")
+  booker Member? @relation(fields: [bookerId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "booking_requests_booker_id_foreign")
 
   @@allow("create", has(auth().policies, "booking_request:create"))
   @@allow("read", has(auth().policies, "booking_request:read"))
@@ -365,7 +374,7 @@ model Event {
   interested Member[] @relation("event_interested")
   author Member @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "events_author_id_foreign")
   tags Tag[] @relation("event_tags")
-	tickets Ticket[]
+  tickets Ticket[]
 
   @@allow("create", has(auth().policies, "event:create"))
   @@allow("read", has(auth().policies, "event:read"))
@@ -373,7 +382,6 @@ model Event {
   @@allow("update", has(auth().policies, "event:update"))
   @@allow("delete", has(auth().policies, "event:delete"))
   @@map("events")
-
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -499,9 +507,10 @@ model Member {
   subscriptionSettings SubscriptionSetting[]
   memberSpecificPolicies AccessPolicy[]
   doorAccessPolicies DoorAccessPolicy[]
-	authoredShoppables Shoppable[]
-	inventory Consumable[]
-	shopReservations ConsumableReservation[]
+  authoredShoppables Shoppable[]
+  inventory Consumable[]
+  shopReservations ConsumableReservation[]
+  bookingRequests BookingRequest[]
 
   @@allow('create', has(auth().policies, "core:member:create"))
   @@allow('create', auth().studentId == studentId)
@@ -698,10 +707,10 @@ model Song {
   updatedAt DateTime? @map("updated_at") @db.Timestamptz(6)
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
 
-  @@allow("create", has(auth().policies, "songs:create"))
-  @@allow("read", has(auth().policies, "songs:read"))
+  @@allow("create", has(auth().policies, "song:create"))
+  @@allow("read", has(auth().policies, "song:read"))
   @@deny("read", deletedAt != null)
-  @@allow("update", has(auth().policies, "songs:update"))
+  @@allow("update", has(auth().policies, "song:update"))
   @@map("songs")
 }
 
@@ -841,9 +850,9 @@ model Shoppable {
   removedAt DateTime? @map("removed_at") @db.Timestamptz(6)
 
   ticket Ticket?
-	consumables Consumable[]
-	reservations ConsumableReservation[]
-	questions ItemQuestion[]
+  consumables Consumable[]
+  reservations ConsumableReservation[]
+  questions ItemQuestion[]
 
   // create: acces and mark self as author
   @@allow("create", has(auth().policies, "webshop:create") && authorId == auth().memberId)
@@ -888,8 +897,8 @@ model ItemQuestion {
   descriptionEn String?
   type String @db.VarChar(255) // like "choice", "free-text" etc
   forExternalsOnly Boolean @default(false) // if question should only be shown for people without an account
-	options ItemQuestionOption[]
-	responses ItemQuestionResponse[]
+  options ItemQuestionOption[]
+  responses ItemQuestionResponse[]
 
   // create: author of shoppable
   @@allow("create", shoppable.authorId == auth().memberId)
@@ -907,7 +916,7 @@ model ItemQuestionOption {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   questionId String @db.Uuid
   question ItemQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  
+
   answer String
   answerEn String?
   extraPrice Int?
@@ -936,9 +945,9 @@ model ItemQuestionResponse {
   @@allow("create", consumable.memberId == auth().memberId
   || auth().externalCode != null && consumable.externalCustomerCode == auth().externalCode)
   // read: customer, author of shoppable, anyone with manage or read_purchases
-  @@allow("read", consumable.memberId == auth().memberId 
-  || auth().externalCode != null && consumable.externalCustomerCode == auth().externalCode 
-  || question.shoppable.authorId == auth().memberId 
+  @@allow("read", consumable.memberId == auth().memberId
+  || auth().externalCode != null && consumable.externalCustomerCode == auth().externalCode
+  || question.shoppable.authorId == auth().memberId
   || hasSome(auth().policies, ["webshop:manage", "webshop:read_purchases"]))
   // update: customer as long as not purchased
   @@allow("update", consumable.purchasedAt == null && (auth().memberId == consumable.memberId || auth().externalCode != null))
@@ -954,7 +963,7 @@ model Consumable {
   shoppableId String @db.Uuid
   shoppable Shoppable @relation(fields: [shoppableId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  memberId String? @db.Uuid 
+  memberId String? @db.Uuid
   member Member? @relation(fields: [memberId], references: [id])
   externalCustomerEmail String? // if purchased by a non-member
   externalCustomerCode String? // if purchased by a non-member, unique code used in link as security
@@ -965,10 +974,10 @@ model Consumable {
   stripeIntentId String? @map("stripe_intent_id")
 
   // customer or webshop:consume can always consume from unconsumed state. manager can "unconsume" from consumed state
-  consumedAt DateTime? @map("consumed_at") @db.Timestamptz(6) @allow("update",  (has(auth().policies, "webshop:consume") && consumedAt == null) 
+  consumedAt DateTime? @map("consumed_at") @db.Timestamptz(6) @allow("update", (has(auth().policies, "webshop:consume") && consumedAt == null)
                                                                                 || has(auth().policies, "webshop:manage"), true)
 
-	questionResponses ItemQuestionResponse[]
+  questionResponses ItemQuestionResponse[]
 
   // create: anyone, but only for themselves
   @@allow("create", memberId == auth().memberId || auth().externalCode != null && externalCustomerCode == auth().externalCode)
@@ -990,7 +999,7 @@ model ConsumableReservation {
   shoppableId String @db.Uuid
   shoppable Shoppable @relation(fields: [shoppableId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  memberId String? @db.Uuid 
+  memberId String? @db.Uuid
   member Member? @relation(fields: [memberId], references: [id])
   externalCustomerEmail String? // if purchased by a non-member
   externalCustomerCode String? // if purchased by a non-member, unique code used in link as security
@@ -1007,5 +1016,4 @@ model ConsumableReservation {
   // customer can delete
   @@allow("delete", (memberId == auth().memberId || auth().externalCode != null && externalCustomerCode == auth().externalCode))
   @@map("consumable_reservation")
-
 }

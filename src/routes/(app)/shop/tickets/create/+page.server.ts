@@ -34,7 +34,11 @@ const createTicketSchema = z
   .object({
     title: z.string().min(1, "Title cannot be empty"),
     titleEn: z.string().nullable().optional(),
-    description: z.string().min(1, "Description cannot be empty"),
+    description: z
+      .string()
+      .min(1, "Description cannot be empty")
+      .nullable()
+      .optional(),
     descriptionEn: z.string().nullable().optional(),
     // price is in SEK, with a maximum of two decimals
     price: z
@@ -74,9 +78,9 @@ export const actions = {
     authorize(apiNames.WEBSHOP.CREATE, user);
     if (!member) {
       // this should be handled by the authorization call above
-      return fail(403, {
-        form,
-        message: "You must be logged in to create tickets",
+      return message(form, {
+        message: "Du måste vara inloggad för att skapa biljetter",
+        type: "error,",
       });
     }
     const data = form.data;
@@ -109,6 +113,7 @@ export const actions = {
       let errorMsg;
       if (err instanceof Error) errorMsg = err.message;
       else errorMsg = String(err);
+      console.log("Error creating ticket", errorMsg);
       return message(form, {
         message: "Kunde inte skapa biljett: " + errorMsg,
         type: "error,",

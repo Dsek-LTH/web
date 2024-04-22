@@ -218,6 +218,7 @@ model BookingRequest {
     event String? @db.VarChar(255)
     status BookingRequestStatus @default(PENDING)
     bookables Bookable[] @relation("booking_requests_bookables")
+    booker Member? @relation(fields: [bookerId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "booking_requests_booker_id_foreign")
 
     @@map("booking_requests")
 }
@@ -524,6 +525,7 @@ model Member {
     authoredShoppables Shoppable[]
     inventory Consumable[]
     shopReservations ConsumableReservation[]
+    bookingRequests BookingRequest[]
 
     @@map("members")
 }
@@ -703,10 +705,10 @@ model ProductInventory {
     @@map("product_inventory")
 }
 
-/// @@allow('create', has(auth().policies, 'songs:create'))
-/// @@allow('read', has(auth().policies, 'songs:read'))
+/// @@allow('create', has(auth().policies, 'song:create'))
+/// @@allow('read', has(auth().policies, 'song:read'))
 /// @@deny('read', deletedAt != null)
-/// @@allow('update', has(auth().policies, 'songs:update'))
+/// @@allow('update', has(auth().policies, 'song:update'))
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Songs{
 model Song {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()

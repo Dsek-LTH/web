@@ -1,5 +1,6 @@
 import { paraglide } from "@inlang/paraglide-js-adapter-sveltekit/vite";
 import { sveltekit } from "@sveltejs/kit/vite";
+import { cjsInterop } from "vite-plugin-cjs-interop";
 import { defineConfig } from "vite";
 
 export default defineConfig({
@@ -8,6 +9,9 @@ export default defineConfig({
     paraglide({
       project: "./project.inlang",
       outdir: "./src/translations/paraglide",
+    }),
+    cjsInterop({
+      dependencies: ["@zenstackhq/server/**"],
     }),
   ],
 });

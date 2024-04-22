@@ -47,6 +47,7 @@
     "@types/uuid": "^9.0.8",
     "@typescript-eslint/eslint-plugin": "^6.15.0",
     "@typescript-eslint/parser": "^6.15.0",
+    "@zenstackhq/openapi": "^1.12.3",
     "autoprefixer": "^10.4.16",
     "concurrently": "^8.2.2",
     "daisyui": "^4.4.24",
@@ -71,7 +72,7 @@
     "vite-node": "^1.1.0",
     "vitest": "^1.2.2",
     "vitest-mock-extended": "^1.3.1",
-    "zenstack": "^1.7.1",
+    "zenstack": "^1.12.3",
     "zod": "^3.22.4"
   },
   "type": "module",
@@ -88,7 +89,8 @@
     "@tiptap/pm": "^2.1.13",
     "@tiptap/starter-kit": "^2.1.13",
     "@vercel/speed-insights": "^1.0.10",
-    "@zenstackhq/runtime": "^1.7.1",
+    "@zenstackhq/runtime": "^1.12.3",
+    "@zenstackhq/server": "^1.12.3",
     "croppie": "^2.6.5",
     "dayjs": "^1.11.10",
     "embla-carousel-autoplay": "^8.0.2",
@@ -108,7 +110,8 @@
     "tailwind-merge": "^2.2.0",
     "theme-change": "^2.5.0",
     "tiptap-markdown": "^0.8.8",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "vite-plugin-cjs-interop": "^2.1.0"
   },
   "pnpm": {
     "patchedDependencies": {
@@ -116,6 +119,6 @@
     }
   },
   "engines": {
-    "node": "<=20"
+    "node": "<=22"
   }
 }
