@@ -1,6 +1,13 @@
+<!--
+  @component
+  This component shows a number scrolling (up or down) whenever `i` changes
+  from one number to another. It will show the previous number scrolling
+  out of view and the new number scrolling into view.  
+-->
 <script lang="ts">
-  // This component shows a number scrolling (up or down) whenever i changes
+  /** The number to display. */
   export let i = 0;
+
   let lastI: number | undefined = undefined;
   let currentI: number = i;
 
@@ -27,9 +34,8 @@
       {#each allNumbers as number (number)}
         <span
           aria-hidden="true"
-          class="absolute inset-0 block leading-[1em] duration-300 ease-out {isBigJump
-            ? 'transition-none'
-            : 'transition-all'}"
+          class="absolute inset-0 block leading-[1em] transition-all duration-300 ease-out"
+          class:transition-none={isBigJump}
           style="top: {number - currentI + (isBigJump ? -1 : 0)}em;"
         >
           {(number + 10) % 10}

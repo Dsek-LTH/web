@@ -1,10 +1,16 @@
+<!--
+  @component
+  This component shows a live countdown (or count up) timer. 
+  The number of seconds will be displayed as `mm:ss`. On every tick,
+  each changed number is changed in a scrolling fashion.
+  Negative values will be displayed as `-mm:ss`.
+-->
 <script lang="ts">
-  // This component shows a live countdown (or count up) timer.
-
   import ScrollingNumber from "$lib/components/Timer/ScrollingNumber.svelte";
 
-  // It assumes the time is less than an hour. It shows a time where each changed number is changed in a scrolling fashion.
+  /** Seconds to display as `mm:ss`. Must be less than an hour. */
   export let seconds: number;
+
   $: absSeconds = Math.abs(seconds);
   $: minutesLargeNumber = Math.floor(absSeconds / 600);
   $: minutesSmallNumber = Math.floor(absSeconds / 60) % 10;
