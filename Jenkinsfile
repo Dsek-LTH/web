@@ -2,9 +2,9 @@ pipeline {
   agent any
 
   stages {
-    stage('Build') {
+    stage('Deploy') {
       steps {
-        sh 'wget https://github.com/Dsek-LTH/web/releases/latest/download/build.zip'
+        sh 'curl -LO https://github.com/Dsek-LTH/web/releases/latest/download/build.zip --output build.zip'
       }
     }
   }
