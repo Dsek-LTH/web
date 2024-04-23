@@ -1,20 +1,22 @@
 <script lang="ts">
   import { page } from "$app/stores";
-  import { signIn, signOut } from "@auth/sveltekit/client";
+  import { isAuthorized } from "$lib/utils/authorization";
+  import type { NotificationSchema } from "$lib/zod/schemas";
+  import { signIn } from "@auth/sveltekit/client";
+  import type { Notification } from "@prisma/client";
+  import type { SuperValidated } from "sveltekit-superforms";
   import DarkLightToggle from "./DarkLightToggle.svelte";
   import DsekLogo from "./DsekLogo.svelte";
   import LanguageSwitcher from "./LanguageSwitcher.svelte";
-  import { routes } from "./routes";
-  import { isAuthorized } from "$lib/utils/authorization";
-  import { getFullName } from "$lib/utils/client/member";
   import NotificationBell from "./NotificationBell.svelte";
-  import type { Notification } from "@prisma/client";
-  import type { SuperValidated } from "sveltekit-superforms";
-  import type { NotificationSchema } from "$lib/zod/schemas";
+  import UserMenu from "./UserMenu.svelte";
+  import { routes } from "./routes";
+  import type { UserShopItemCounts } from "$lib/server/shop/countUserShopItems";
   $: notifications = $page.data["notifications"] as Notification[] | null;
   $: deleteNotificationForm = $page.data[
     "deleteNotificationForm"
   ] as SuperValidated<NotificationSchema> | null;
+  $: shopItemCounts = $page.data["shopItemCounts"] as UserShopItemCounts;
 </script>
 
 <div
@@ -96,49 +98,11 @@
             deleteForm={deleteNotificationForm}
           />
         {/if}
-        <div class="dropdown dropdown-end dropdown-hover">
-          <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-          <!-- svelte-ignore a11y-label-has-associated-control -->
-          <label tabindex="0" class="btn btn-ghost">
-            <span class="i-mdi-account-circle text-2xl" />
-          </label>
-          <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-          <div
-            tabindex="0"
-            class="card dropdown-content card-compact z-[1] w-max bg-base-200 p-2 text-center text-base-content shadow"
-          >
-            <div class="card-body">
-              <p class="text-center font-semibold">Inloggad som</p>
-              <h3 class="text-xl font-bold">
-                {getFullName($page.data.member)}
-              </h3>
-              <p class="text-sm">({$page.data.user?.studentId})</p>
-              <span class="divider m-1" />
-
-              <div class="flex flex-col items-start gap-2">
-                <a
-                  href={`/members/${$page.data.user?.studentId}`}
-                  class="btn btn-ghost w-48 justify-start text-base-content"
-                >
-                  <span class="i-mdi-account-circle size-6 text-primary" />
-                  Profil
-                </a>
-                <a href="/settings" class="btn btn-ghost w-48 justify-start">
-                  <span class="i-mdi-cog size-6 text-primary" />
-                  Inställningar
-                </a>
-              </div>
-              <span class="divider m-1" />
-              <button
-                class="btn btn-ghost justify-start"
-                on:click={() => signOut()}
-              >
-                <span class="i-mdi-logout size-6 text-primary" />
-                Logga ut</button
-              >
-            </div>
-          </div>
-        </div>
+        <UserMenu
+          user={$page.data.user}
+          member={$page.data.member}
+          {shopItemCounts}
+        />
       {:else}
         <button class="btn btn-ghost" on:click={() => signIn("keycloak")}>
           Logga in
