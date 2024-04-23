@@ -20,7 +20,6 @@ import {
   it,
   vi,
 } from "vitest";
-import { getAccessPolicies } from "../../../../hooks.server.helpers";
 import {
   MOCK_ACTIVE_TICKET,
   MOCK_ACTIVE_TICKET_2,
@@ -35,6 +34,7 @@ import {
   dbIdentification,
   type ShopIdentification,
 } from "../types";
+import apiNames from "$lib/utils/apiNames";
 
 const mockFns = vi.hoisted(() => ({
   customers: {
@@ -497,7 +497,7 @@ const addPurchaseTestForUser = (
 
   describe("stripe customer creation", () => {
     if (identification.memberId) {
-      it("creates a stripe customer if no stripe id in db", async () => {
+      it("creates a stripe customer if no stripe is in db", async () => {
         await purchaseCart(prismaWithAccess, identification, "idempotency-key");
         expect(mockFns.customers.retrieve).not.toHaveBeenCalled();
         expect(mockFns.customers.create).toHaveBeenCalledOnce();
@@ -550,10 +550,7 @@ describe("Purchase as logged in user", async () => {
     user: {
       studentId: users.customerMember.studentId,
       memberId: users.customerMember.id,
-      policies: await getAccessPolicies(
-        prisma,
-        users.customerMember.studentId!,
-      ),
+      policies: [apiNames.EVENT.READ, apiNames.MEMBER.READ],
     },
   });
   addPurchaseTestForUser(prismaWithAccess, users.adminMember, {
