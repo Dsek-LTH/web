@@ -12,7 +12,12 @@
   });
 </script>
 
-<form method="POST" action="?/addToCart" use:enhance class="self-end">
+<form
+  method="POST"
+  action="?/addToCart"
+  use:enhance
+  class="card-actions justify-end"
+>
   <input type="hidden" name="ticketId" value={ticket.id} />
   <BuyButton {ticket} isSubmitting={$submitting} />
 </form>
