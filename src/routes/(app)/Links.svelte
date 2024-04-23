@@ -27,8 +27,8 @@
     },
     {
       title: "Webshop",
-      description: "Köp merch",
-      path: "/webshop",
+      description: "Köp biljetter",
+      path: "/shop/tickets",
       icon: "i-mdi-store",
     },
     {
