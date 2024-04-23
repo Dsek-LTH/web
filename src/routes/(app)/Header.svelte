@@ -10,11 +10,11 @@
     <div
       class="max-w-lg rounded-xl bg-base-300 bg-opacity-60 p-8 filter backdrop-blur lg:max-w-xl"
     >
-      <h1 class="mb-5 text-balance text-5xl font-bold">
+      <h1 class="mb-5 text-balance text-5xl font-bold text-base-content">
         <!-- eslint-disable-next-line svelte/no-at-html-tags -->
         {@html m.landing_splash()}
       </h1>
-      <p class="mb-5">
+      <p class="mb-5 text-base-content">
         <!-- eslint-disable-next-line svelte/no-at-html-tags -->
         {@html m.landing_info()}
       </p>
