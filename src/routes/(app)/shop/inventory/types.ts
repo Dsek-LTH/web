@@ -2,7 +2,7 @@ import { ShoppableType } from "@prisma/client";
 import type { Consumable, Event, Shoppable, Ticket } from "@prisma/client";
 
 export type TicketShoppable = Omit<Shoppable, "type"> & {
-  type: (typeof ShoppableType.TICKET);
+  type: typeof ShoppableType.TICKET;
 } & Ticket & {
     event: Event;
   };
