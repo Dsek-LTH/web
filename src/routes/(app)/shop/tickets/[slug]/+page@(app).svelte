@@ -3,6 +3,8 @@
   import dayjs from "dayjs";
   import BuyButton from "$lib/components/BuyButton.svelte";
   import Price from "$lib/components/Price.svelte";
+  import { isAuthorized } from "$lib/utils/authorization";
+  import apiNames from "$lib/utils/apiNames";
 
   export let data;
   $: ticket = data.ticket;
@@ -57,6 +59,10 @@
 
     {#if ticket.description}
       <p>{ticket.description}</p>
+    {/if}
+
+    {#if isAuthorized(apiNames.WEBSHOP.MANAGE, data.user)}
+      <a href="{ticket.id}/edit" class="btn btn-secondary">Redigera</a>
     {/if}
 
     <form

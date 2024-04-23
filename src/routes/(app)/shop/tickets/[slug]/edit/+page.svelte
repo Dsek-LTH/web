@@ -4,7 +4,7 @@
 </script>
 
 <svelte:head>
-  <title>Skapa biljett | D-sektionen</title>
+  <title>Uppdatera biljett | D-sektionen</title>
 </svelte:head>
 
-<TicketForm form={data.form} />
+<TicketForm form={data.form} event={data.event} type="edit" />

@@ -2,31 +2,44 @@ import { ticketSchema } from "$lib/components/shop/types.js";
 import apiNames from "$lib/utils/apiNames.js";
 import { authorize } from "$lib/utils/authorization.js";
 import { ShoppableType } from "@prisma/client";
-import { fail } from "@sveltejs/kit";
-import dayjs from "dayjs";
+import { error, fail } from "@sveltejs/kit";
 import { redirect } from "sveltekit-flash-message/server";
 import { message, superValidate } from "sveltekit-superforms/server";
 
-export const load = async ({ locals }) => {
+export const load = async ({ locals, params }) => {
   const { user } = locals;
-  authorize(apiNames.WEBSHOP.CREATE, user);
+  authorize(apiNames.WEBSHOP.MANAGE, user);
+  const ticket = await locals.prisma.ticket.findUnique({
+    where: {
+      id: params.slug,
+    },
+    include: {
+      shoppable: true,
+      event: true,
+    },
+  });
+  if (!ticket) {
+    error(404, { message: "Biljetten kunde inte hittas" });
+  }
 
   return {
     form: await superValidate(
       {
-        availableFrom: dayjs(new Date())
-          .add(1, "day")
-          .hour(12)
-          .minute(15)
-          .second(0)
-          .toDate(),
-        maxAmountPerUser: 1,
-        stock: 0,
-        price: 0,
+        title: ticket.shoppable.title,
+        titleEn: ticket.shoppable.titleEn,
+        description: ticket.shoppable.descriptionEn,
+        descriptionEn: ticket.shoppable.descriptionEn,
+        price: ticket.shoppable.price / 100,
+        availableFrom: ticket.shoppable.availableFrom,
+        availableTo: ticket.shoppable.availableTo,
+        eventId: ticket.eventId,
+        stock: ticket.stock,
+        maxAmountPerUser: ticket.maxAmountPerUser,
       },
       ticketSchema,
       { errors: false },
     ),
+    event: ticket.event,
   };
 };
 
@@ -45,12 +58,15 @@ export const actions = {
       });
     }
     const data = form.data;
-    let ticketId: string;
+    const ticketId = event.params.slug;
     try {
-      const ticket = await prisma.ticket.create({
+      await prisma.ticket.update({
+        where: {
+          id: ticketId,
+        },
         data: {
           shoppable: {
-            create: {
+            update: {
               title: data.title,
               titleEn: data.titleEn,
               description: data.description,
@@ -59,7 +75,6 @@ export const actions = {
               availableFrom: data.availableFrom,
               availableTo: data.availableTo,
               type: ShoppableType.TICKET,
-              authorId: member.id,
             },
           },
           event: {
@@ -71,7 +86,6 @@ export const actions = {
           maxAmountPerUser: data.maxAmountPerUser, // optional
         },
       });
-      ticketId = ticket.id;
     } catch (err) {
       let errorMsg;
       if (err instanceof Error) errorMsg = err.message;
@@ -85,7 +99,7 @@ export const actions = {
     throw redirect(
       `/shop/tickets/${ticketId}`,
       {
-        message: "Biljett skapad",
+        message: "Biljett uppdaterad",
         type: "success",
       },
       event,

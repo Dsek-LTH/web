@@ -5,12 +5,12 @@
   import dayjs from "dayjs";
   import type { UnwrapEffects } from "sveltekit-superforms";
   import type { SuperForm } from "sveltekit-superforms/client";
-  import type { CreateTicketSchema } from "./+page.server";
-  let event: Event | undefined = undefined;
+  import type { TicketSchema } from "$lib/components/shop/types";
+  export let event: Event | undefined = undefined;
   let isSearching: boolean;
   let handleSearch: (search: string) => void;
 
-  type Form = SuperForm<UnwrapEffects<CreateTicketSchema>>;
+  type Form = SuperForm<UnwrapEffects<TicketSchema>>;
   export let form: Form["form"];
   export let constraints: Form["constraints"];
   export let errors: Form["errors"];

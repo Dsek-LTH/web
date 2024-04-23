@@ -2,9 +2,9 @@
   import Labeled from "$lib/components/Labeled.svelte";
   import type { UnwrapEffects } from "sveltekit-superforms";
   import type { SuperForm } from "sveltekit-superforms/client";
-  import type { CreateTicketSchema } from "./+page.server";
+  import type { TicketSchema } from "$lib/components/shop/types";
 
-  type Form = SuperForm<UnwrapEffects<CreateTicketSchema>>;
+  type Form = SuperForm<UnwrapEffects<TicketSchema>>;
   export let form: Form["form"];
   export let constraints: Form["constraints"];
   export let errors: Form["errors"];
