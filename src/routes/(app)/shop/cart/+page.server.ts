@@ -11,11 +11,12 @@ import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async ({ locals, depends }) => {
   const { user, prisma } = locals;
   if (!user?.memberId && !user?.externalCode) {
     throw error(401, "Du har ingen kundvagn.");
   }
+  depends("cart");
   const { inCart, reservations } = await getCart(
     prisma,
     user?.memberId

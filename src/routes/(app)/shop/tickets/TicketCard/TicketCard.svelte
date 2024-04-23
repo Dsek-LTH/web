@@ -17,9 +17,9 @@
   <TicketEvent event={ticket.event} />
   <div class="card-body">
     <div class="flex items-start justify-between">
-      <h2 class="card-title">
+      <span class="card-title">
         {ticket.title}
-      </h2>
+      </span>
       <div class="flex flex-col">
         <Price price={ticket.price} class="card-title" />
         {#if ticket.ticketsLeft < 10 && ticket.ticketsLeft > 0}
@@ -30,7 +30,7 @@
       </div>
     </div>
     {#if ticket.description}
-      <p>{ticket.description}</p>
+      <span>{ticket.description}</span>
     {/if}
     <TicketActions {ticket} {addToCartForm} />
   </div>

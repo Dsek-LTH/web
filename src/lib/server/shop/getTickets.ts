@@ -22,6 +22,8 @@ import {
 
 export type TicketWithMoreInfo = Ticket &
   Shoppable & {
+    userItemsInCart: Consumable[];
+    userReservations: ConsumableReservation[];
     event: Event & {
       tags: Tag[];
     };
@@ -29,6 +31,7 @@ export type TicketWithMoreInfo = Ticket &
     isInUsersCart: boolean;
     userAlreadyHasMax: boolean;
     ticketsLeft: number;
+    hasQueue: boolean;
   };
 
 const ticketIncludedFields = (id: DBShopIdentification) => ({
@@ -47,6 +50,9 @@ const ticketIncludedFields = (id: DBShopIdentification) => ({
           // Number of bought tickets
           consumables: {
             where: { purchasedAt: { not: null } },
+          },
+          reservations: {
+            where: { order: { not: null } },
           },
         },
       },
@@ -69,6 +75,8 @@ const formatTicket = (ticket: TicketFromPrisma): TicketWithMoreInfo => {
     > = {
     ...ticket.shoppable,
     ...ticket,
+    userItemsInCart: ticket.shoppable.consumables,
+    userReservations: ticket.shoppable.reservations,
     gracePeriodEndsAt: new Date(
       ticket.shoppable.availableFrom.valueOf() + GRACE_PERIOD_WINDOW,
     ),
@@ -82,6 +90,7 @@ const formatTicket = (ticket: TicketFromPrisma): TicketWithMoreInfo => {
       ticket.stock - ticket.shoppable._count.consumables,
       10,
     ), // don't show more resolution to the client than > 10 or the exact number left (so people can't see how many other people buy tickets)
+    hasQueue: ticket.shoppable._count.reservations > 0,
   };
   // do not show the following info to the client
   delete base.consumables;

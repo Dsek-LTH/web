@@ -6,7 +6,7 @@
   Negative values will be displayed as `-mm:ss`.
 -->
 <script lang="ts">
-  import ScrollingNumber from "$lib/components/Timer/ScrollingNumber.svelte";
+  import ScrollingDigit from "$lib/components/Timer/ScrollingDigit.svelte";
   import { twMerge } from "tailwind-merge";
 
   /** Seconds to display as `mm:ss`. Must be less than an hour. */
@@ -36,9 +36,9 @@
   {#if inSeconds < 0}
     -
   {/if}
-  <ScrollingNumber i={minutesLargeNumber} />
-  <ScrollingNumber i={minutesSmallNumber} />
+  <ScrollingDigit i={minutesLargeNumber} />
+  <ScrollingDigit i={minutesSmallNumber} />
   <span class="relative">:</span>
-  <ScrollingNumber i={secondsLargeNumber} />
-  <ScrollingNumber i={secondsSmallNumber} />
+  <ScrollingDigit i={secondsLargeNumber} />
+  <ScrollingDigit i={secondsSmallNumber} />
 </span>

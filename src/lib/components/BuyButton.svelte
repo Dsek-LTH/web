@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { invalidateAll } from "$app/navigation";
+  import { goto, invalidate } from "$app/navigation";
   import Timer from "$lib/components/Timer/Timer.svelte";
   import type { TicketWithMoreInfo } from "$lib/server/shop/getTickets";
   import { now } from "$lib/stores/date";
@@ -14,6 +14,9 @@
     | "availableFrom"
     | "availableTo"
     | "gracePeriodEndsAt"
+    | "hasQueue"
+    | "userItemsInCart"
+    | "userReservations"
     | "price"
   >;
   /* If ticket is available time-wise (not upcoming, not past)*/
@@ -22,14 +25,14 @@
     !isUpcoming && (!ticket.availableTo || ticket.availableTo > $now);
 
   $: isInGracePeriod = ticket.gracePeriodEndsAt > $now;
-  $: hasQueue = false;
 
   $: if (
+    isCurrentlyAvailable &&
     ticket.isInUsersCart &&
     isInGracePeriod &&
     $now > ticket.gracePeriodEndsAt
   ) {
-    invalidateAll();
+    invalidate("tickets");
   }
 </script>
 
@@ -55,8 +58,18 @@
       </span>
     {:else}
       <div class="flex flex-col items-center gap-2">
-        <span>Ligger i kundvagn</span>
-        <a href="/shop/cart" class="btn btn-primary"> Gå till kundvagn </a>
+        {#if ticket.userReservations.length > 0}
+          <span>Står i kö</span>
+        {:else}
+          <span>Ligger i kundvagn</span>
+        {/if}
+        <button
+          type="button"
+          on:click|preventDefault={() => goto("/shop/cart")}
+          class="btn btn-primary"
+        >
+          Gå till kundvagn
+        </button>
       </div>
     {/if}
   {:else}
@@ -72,7 +85,7 @@
         Slutsåld
       {:else if ticket.userAlreadyHasMax}
         Ägs redan
-      {:else if hasQueue}
+      {:else if ticket.hasQueue}
         {isSubmitting ? "Ställer dig i kö..." : "Ställ i kö"}
       {:else if isInGracePeriod}
         {isSubmitting ? "Skaffar lott..." : "Skaffa lott"}

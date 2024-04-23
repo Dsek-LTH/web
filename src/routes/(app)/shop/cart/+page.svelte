@@ -1,5 +1,6 @@
 <script lang="ts">
   import Cart from "./Cart.svelte";
+  import Reservations from "./Reservations.svelte";
 
   export let data;
 </script>
@@ -9,16 +10,20 @@
 </svelte:head>
 
 <article class="flex flex-col">
-  <h1 class="text-2xl">Kundvagn</h1>
+  {#if data.inCart.length > 0 || data.reservations.length > 0}
+    {#if data.inCart.length > 0}
+      <Cart
+        inCart={data.inCart}
+        transactionFee={data.transactionFee}
+        totalPrice={data.totalPrice}
+        purchaseForm={data.purchaseForm}
+      />
+    {/if}
 
-  {#if data.inCart.length > 0}
-    <Cart
-      inCart={data.inCart}
-      transactionFee={data.transactionFee}
-      totalPrice={data.totalPrice}
-      purchaseForm={data.purchaseForm}
-    />
+    {#if data.reservations.length > 0}
+      <Reservations reservations={data.reservations} />
+    {/if}
   {:else}
-    <p>Din kundvagn är tom.</p>
+    <p class="text-2xl">Din kundvagn är tom.</p>
   {/if}
 </article>
