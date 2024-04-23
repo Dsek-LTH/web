@@ -5,42 +5,32 @@
   out of view and the new number scrolling into view.  
 -->
 <script lang="ts">
+  import ScrollingDigit from "$lib/components/Timer/ScrollingDigit.svelte";
+  import { slide } from "svelte/transition";
+  import { twMerge } from "tailwind-merge";
+
+  let clazz = "";
+  export { clazz as class };
+
   /** The number to display. */
-  export let i = 0;
+  export let number = 0;
 
-  let lastI: number | undefined = undefined;
-  let currentI: number = i;
-
-  const updateI = (newI: number) => {
-    lastI = currentI;
-    currentI = newI;
-  };
-
-  $: updateI(i);
-
-  $: allNumbers = Array.from({ length: 12 }, (_, i) => i - 1);
-  $: isBigJump =
-    lastI !== undefined &&
-    ((lastI === 0 && currentI > 1) || (lastI > 1 && currentI === 0));
+  // array with each digit of the number (in reverse order), so the number 123 => [3,2,1] and 41 => [1,4] and 8 => [8]
+  $: digits = number.toString().split("").reverse().map(Number);
 </script>
 
-<div class="relative h-[1em] text-center transition-all">
-  <span class="opacity-0">{currentI}</span>
-  <div
-    class="absolute bottom-0 left-0 right-0 transition-all duration-300 ease-out"
-    style="top: {isBigJump ? 1 : 0}em"
-  >
-    <div class="relative">
-      {#each allNumbers as number (number)}
-        <span
-          aria-hidden="true"
-          class="absolute inset-0 block leading-[1em] transition-all duration-300 ease-out"
-          class:transition-none={isBigJump}
-          style="top: {number - currentI + (isBigJump ? -1 : 0)}em;"
-        >
-          {(number + 10) % 10}
-        </span>
-      {/each}
-    </div>
-  </div>
-</div>
+<span
+  class={twMerge(
+    "inline-flex h-[1em] flex-row-reverse items-center overflow-hidden leading-[1em]",
+    clazz ?? "",
+  )}
+>
+  {#if number < 0}
+    -
+  {/if}
+  {#each digits as digit, index (index)}
+    <span class="h-[1em]" transition:slide={{ axis: "x" }}>
+      <ScrollingDigit i={digit} />
+    </span>
+  {/each}
+</span>
