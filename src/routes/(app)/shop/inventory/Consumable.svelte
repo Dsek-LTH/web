@@ -48,7 +48,9 @@
       <div class="text-sm opacity-50">
         Köptes {dayjs(consumable.purchasedAt).fromNow()}
       </div>
-      <a href="/shop/inventory/{consumable.id}" class="btn btn-primary">Visa</a>
+      <a href="/shop/inventory/{consumable.id}" class="btn btn-primary"
+        >Visa biljett</a
+      >
     </div>
   </div>
 </div>
