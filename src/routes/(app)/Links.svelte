@@ -40,7 +40,7 @@
   ];
 </script>
 
-<div class="grid grid-cols-2 gap-4 p-4 lg:grid-cols-3">
+<div class="grid gap-4 p-4 md:grid-cols-2 lg:grid-cols-3">
   {#each links as link}
     <a
       class="flex gap-6 rounded-md bg-base-300 p-6 transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:bg-base-200 hover:shadow-xl"

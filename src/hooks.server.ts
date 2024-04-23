@@ -23,6 +23,7 @@ import { getAccessPolicies } from "./hooks.server.helpers";
 
 const authHandle = SvelteKitAuth({
   secret: AUTH_SECRET,
+  trustHost: true,
   providers: [
     Keycloak({
       clientId: KEYCLOAK_CLIENT_ID,
