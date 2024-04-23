@@ -7,10 +7,10 @@ export type TransactionClient = Parameters<
 export type ShopIdentification =
   | {
       memberId: string;
-      externalCode?: undefined;
+      externalCode?: never;
     }
   | {
-      memberId?: undefined;
+      memberId?: never;
       externalCode: string;
     };
 

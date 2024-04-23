@@ -1,10 +1,10 @@
-import type {
-  Event,
-  Prisma,
+import {
   PrismaClient,
-  Shoppable,
-  Tag,
-  Ticket,
+  type Event,
+  type Prisma,
+  type Shoppable,
+  type Tag,
+  type Ticket,
 } from "@prisma/client";
 import { removeExpiredConsumables } from "./addToCart/reservations";
 import {
@@ -13,6 +13,7 @@ import {
   type DBShopIdentification,
   type ShopIdentification,
 } from "./types";
+import dayjs from "dayjs";
 
 export type TicketWithMoreInfo = Ticket &
   Shoppable & {
@@ -32,42 +33,21 @@ const ticketIncludedFields = (id: DBShopIdentification) => ({
       consumables: {
         where: {
           ...id,
-          OR: [
-            {
-              expiresAt: {
-                gt: new Date(),
-              },
-            },
-            {
-              expiresAt: null,
-            },
-          ],
+          OR: [{ expiresAt: { gt: new Date() } }, { expiresAt: null }],
         },
       },
-      reservations: {
-        where: {
-          ...id,
-        },
-      },
+      reservations: { where: { ...id } },
       _count: {
         select: {
           // Number of bought tickets
           consumables: {
-            where: {
-              purchasedAt: {
-                not: null,
-              },
-            },
+            where: { purchasedAt: { not: null } },
           },
         },
       },
     },
   },
-  event: {
-    include: {
-      tags: true,
-    },
-  },
+  event: { include: { tags: true } },
 });
 
 type TicketInclude = ReturnType<typeof ticketIncludedFields>;
@@ -123,33 +103,27 @@ export const getTicket = async (
   }
   return formatTicket(ticket);
 };
+
+/**
+ * Retrieves tickets from the database based on the provided shop identification.
+ * @param prisma - The Prisma client instance.
+ * @param identification - Either the user's ID or the user's session ID.
+ * @returns A promise that resolves to an array of tickets.
+ */
 export const getTickets = async (
   prisma: PrismaClient,
   identification: ShopIdentification,
 ): Promise<TicketWithMoreInfo[]> => {
   const dbId = dbIdentification(identification);
-  const tenDaysAgo = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000);
+  const tenDaysAgo = dayjs().subtract(10, "days").toDate();
   const tickets = await prisma.ticket.findMany({
     where: {
       shoppable: {
         AND: [
+          { OR: [{ removedAt: null }, { removedAt: { lt: new Date() } }] },
           {
             OR: [
-              {
-                removedAt: null,
-              },
-              {
-                removedAt: {
-                  lt: new Date(),
-                },
-              },
-            ],
-          },
-          {
-            OR: [
-              {
-                availableTo: null,
-              },
+              { availableTo: null },
               {
                 availableTo: {
                   gt: tenDaysAgo, // show items which were available in the last 10 days
