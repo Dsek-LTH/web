@@ -27,7 +27,7 @@
       elements,
       redirect: "if_required",
       confirmParams: {
-        return_url: $page.url.origin + "/shop/success?intentId",
+        return_url: $page.url.origin + "/shop/success",
       },
     });
 
@@ -41,8 +41,7 @@
     } else {
       switch (paymentIntent.status) {
         case "succeeded":
-          toast("Payment succeeded!", "success");
-          goto("/shop/success");
+          goto(`/shop/success?payment_intent=${paymentIntent.id}`);
           break;
         case "processing":
           isProcessing = true;

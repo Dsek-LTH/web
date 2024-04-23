@@ -66,8 +66,8 @@
       use:enhance={() => {
         isSubmitting = true;
         return ({ update }) => {
-          isSubmitting = false;
           update();
+          isSubmitting = false;
         };
       }}
     >
