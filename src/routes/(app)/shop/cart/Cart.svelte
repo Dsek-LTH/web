@@ -12,6 +12,8 @@
   export let purchaseForm: SuperValidated<PurchaseForm>;
 </script>
 
+<h1 class="text-2xl">Kundvagn</h1>
+
 <table class="table mt-4">
   <thead class="hidden md:table-header-group">
     <tr class="border-none">

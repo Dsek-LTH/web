@@ -12,10 +12,11 @@ import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async ({ locals, depends }) => {
   const { user, prisma } = locals;
   const { memberId, externalCode } = user ?? {};
   if (!memberId && !externalCode) error(401);
+  depends("tickets");
   const identification = memberId
     ? {
         memberId: memberId,
