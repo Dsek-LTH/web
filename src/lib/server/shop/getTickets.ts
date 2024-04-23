@@ -1,19 +1,17 @@
 import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
 import {
   PrismaClient,
-  type Event,
-  type Prisma,
   ShoppableType,
   type Consumable,
   type ConsumableReservation,
   type Event,
   type ItemQuestionResponse,
   type Prisma,
-  type PrismaClient,
   type Shoppable,
   type Tag,
   type Ticket,
 } from "@prisma/client";
+import dayjs from "dayjs";
 import { removeExpiredConsumables } from "./addToCart/reservations";
 import {
   GRACE_PERIOD_WINDOW,
@@ -21,7 +19,6 @@ import {
   type DBShopIdentification,
   type ShopIdentification,
 } from "./types";
-import dayjs from "dayjs";
 
 export type TicketWithMoreInfo = Ticket &
   Shoppable & {
