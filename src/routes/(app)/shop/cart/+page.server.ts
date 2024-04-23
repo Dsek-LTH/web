@@ -1,4 +1,7 @@
-import { ensureState } from "$lib/server/shop/addToCart/reservations";
+import {
+  moveQueueForwardOneStep,
+  moveQueueToCart,
+} from "$lib/server/shop/addToCart/reservations";
 import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
 import { getCart } from "$lib/server/shop/getTickets";
 import purchaseCart, {
@@ -64,16 +67,15 @@ export const actions = {
         type: "error",
       });
     }
-    await prisma.consumable.delete({
-      where: {
-        id: consumable.id,
-      },
+    await authorizedPrismaClient.$transaction(async (tx) => {
+      await tx.consumable.delete({
+        where: {
+          id: consumable.id,
+        },
+      });
+      await moveQueueToCart(tx, consumable.shoppableId, 1);
     });
-    await ensureState(
-      authorizedPrismaClient,
-      new Date(),
-      consumable.shoppableId,
-    );
+
     return message(form, {
       message: "Varan har tagits bort.",
       type: "success",
@@ -100,16 +102,20 @@ export const actions = {
         type: "error",
       });
     }
-    await prisma.consumableReservation.delete({
-      where: {
-        id: reservation.id,
-      },
+    await authorizedPrismaClient.$transaction(async (tx) => {
+      await tx.consumableReservation.delete({
+        where: {
+          id: reservation.id,
+        },
+      });
+      if (reservation.order)
+        await moveQueueForwardOneStep(
+          tx,
+          reservation.shoppableId,
+          reservation.order,
+        );
     });
-    await ensureState(
-      authorizedPrismaClient,
-      new Date(),
-      reservation.shoppableId,
-    );
+
     return message(form, {
       message: "Reservationen har tagits bort.",
       type: "success",

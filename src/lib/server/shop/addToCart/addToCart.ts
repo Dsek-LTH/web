@@ -178,7 +178,7 @@ const addToQueue = async (
   });
   return {
     status: AddToCartStatus.PutInQueue,
-    queuePosition: currentPeopleInQueue.length + 1,
+    queuePosition: lastInQueueOrder + 2,
   };
 };
 

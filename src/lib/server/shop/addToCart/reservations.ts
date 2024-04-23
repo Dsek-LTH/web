@@ -176,6 +176,53 @@ const updateQueueGivenStock = async (
   return { moved: toMove, spaceLeft: stock - inCartOrPurchased - toMove };
 };
 
+export const moveQueueForwardOneStep = async (
+  prisma: TransactionClient,
+  shoppableId: string,
+  fromOrder: number,
+) => {
+  return await prisma.consumableReservation.updateMany({
+    where: {
+      shoppableId,
+      order: {
+        not: null,
+        gt: fromOrder,
+      },
+    },
+    data: {
+      order: {
+        decrement: 1,
+      },
+    },
+  });
+};
+
+export const moveQueueToCart = async (
+  prisma: TransactionClient,
+  shoppableId: string,
+  amountToMove: number,
+  updateOrder?: boolean,
+) => {
+  const reservationsToMove = await prisma.consumableReservation.findMany({
+    where: {
+      shoppableId,
+      order: {
+        not: null,
+      },
+    },
+    orderBy: {
+      order: "asc",
+    },
+    take: amountToMove,
+  });
+  await moveReservationsToCart(
+    prisma,
+    shoppableId,
+    reservationsToMove,
+    updateOrder,
+  );
+};
+
 const moveReservationsToCart = async (
   prisma: TransactionClient,
   shoppableId: string,
