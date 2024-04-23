@@ -1,3 +1,4 @@
+import { countUserShopItems } from "$lib/server/shop/countUserShopItems";
 import { emptySchema, notificationSchema } from "$lib/zod/schemas";
 import { loadFlash } from "sveltekit-flash-message/server";
 import { superValidate } from "sveltekit-superforms/server";
@@ -28,6 +29,8 @@ export const load = loadFlash(async ({ locals, depends, request }) => {
         },
       })
     : null;
+  depends("cart");
+  const shopItemCounts = await countUserShopItems(prisma, user);
   const alerts = await prisma.alert.findMany({
     where: {
       removedAt: null,
@@ -38,5 +41,6 @@ export const load = loadFlash(async ({ locals, depends, request }) => {
     notifications: notifications,
     deleteNotificationForm: await superValidate(notificationSchema),
     readNotificationForm: await superValidate(emptySchema),
+    shopItemCounts,
   };
 });
