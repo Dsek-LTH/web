@@ -28,7 +28,10 @@
 </script>
 
 <span
-  class={twMerge("inline-flex h-[1em] items-center leading-[1em]", clazz ?? "")}
+  class={twMerge(
+    "inline-flex h-[1em] items-center overflow-hidden leading-[1em]",
+    clazz ?? "",
+  )}
 >
   {#if inSeconds < 0}
     -

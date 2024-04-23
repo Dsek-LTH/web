@@ -7,7 +7,6 @@ import type { Consumable, Shoppable } from "@prisma/client";
 import Stripe from "stripe";
 import authorizedPrismaClient from "../authorizedPrisma";
 import stripe from "./stripe";
-import { TIME_TO_BUY } from "$lib/server/shop/types";
 
 type RequiredProps = "amount" | "metadata" | "customer";
 type Props = Pick<Stripe.PaymentIntentCreateParams, RequiredProps> &
@@ -32,6 +31,17 @@ export const createPaymentIntent = ({ idempotencyKey, ...params }: Props) => {
       idempotencyKey: idempotencyKey,
     },
   );
+};
+
+export const updatePaymentIntent = (
+  id: string,
+  params: Omit<Stripe.PaymentIntentUpdateParams, "currency" | "description">,
+) => {
+  return stripe.paymentIntents.update(id, {
+    currency: "SEK",
+    description: "D-sek webshop purchase",
+    ...params,
+  });
 };
 
 export const creteConsumableMetadata = (
@@ -68,8 +78,6 @@ export const resetConsumablesForIntent = async (intentId: string) => {
     },
     data: {
       stripeIntentId: null,
-      expiresAt: new Date(Date.now() + TIME_TO_BUY), // give them more time payment fails or in other ways has to be re-done. Also re-enables expiration
-      // There is a way to game the system, but expiration is really there for inactive users, and this is not an inactive user
     },
   });
 };
@@ -86,11 +94,11 @@ export const removePaymentIntent = async (intentId: string) => {
   await resetConsumablesForIntent(intentId);
 };
 
-export const updatePaymentIntent = async (
+export const ensurePaymentIntentState = async (
   intentId: string,
 ): Promise<[Stripe.Response<Stripe.PaymentIntent>, boolean]> => {
   const intent = await getPaymentIntent(intentId);
-  let canTryAgain = false;
+  let canRetryPayment = false;
   switch (intent.status) {
     case "succeeded":
       // payment was successful
@@ -98,19 +106,19 @@ export const updatePaymentIntent = async (
       break;
     case "requires_payment_method":
       // payment intent was started but never finished, or it failed.
-      canTryAgain = true;
+      canRetryPayment = true;
       break;
     case "requires_action":
       // user is required to confirm with another platform, like SMS or BankID.
-      canTryAgain = true;
+      canRetryPayment = true;
       break;
     case "requires_capture":
       // only valid if you use the stripe "authorization then capture" workflow, where payment method is authorized, and THEN payment is captured at a later time.
-      canTryAgain = true;
+      canRetryPayment = true;
       break;
     case "requires_confirmation":
       // a popup whether or not the user want's to confirm the payment has been showed to the user but not confirmed yet.
-      canTryAgain = true;
+      canRetryPayment = true;
       break;
     case "processing":
       // payment in progress, do not start a new transaction
@@ -125,5 +133,5 @@ export const updatePaymentIntent = async (
       await removePaymentIntent(intent.id);
       break;
   }
-  return [intent, canTryAgain];
+  return [intent, canRetryPayment];
 };

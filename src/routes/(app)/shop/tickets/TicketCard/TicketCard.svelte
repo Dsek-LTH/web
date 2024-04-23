@@ -4,6 +4,7 @@
   import type { AddToCartSchema } from "../+page.server";
   import TicketActions from "./TicketActions.svelte";
   import TicketEvent from "./TicketEvent.svelte";
+  import Price from "$lib/components/Price.svelte";
 
   export let ticket: TicketWithMoreInfo;
   export let addToCartForm: SuperValidated<AddToCartSchema>;
@@ -20,9 +21,7 @@
         {ticket.title}
       </h2>
       <div class="flex flex-col">
-        <span class="card-title text-success">
-          {ticket.price / 100} SEK
-        </span>
+        <Price price={ticket.price} class="card-title" />
         {#if ticket.ticketsLeft < 10 && ticket.ticketsLeft > 0}
           <span class="text-right">
             {ticket.ticketsLeft} kvar

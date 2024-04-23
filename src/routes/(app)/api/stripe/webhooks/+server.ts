@@ -2,6 +2,7 @@
 import { SECRET_STRIPE_WEBHOOK_SIGNING } from "$env/static/private";
 import stripe from "$lib/server/shop/payments/stripe.js";
 import {
+  onPaymentCancellation,
   onPaymentFailure,
   onPaymentProcessing,
   onPaymentSuccess,
@@ -48,6 +49,9 @@ export async function POST({ request }) {
     case "payment_intent.payment_failed":
       await onPaymentFailure(event.data.object);
       return json({ message: "Marked as failed" });
+    case "payment_intent.canceled":
+      await onPaymentCancellation(event.data.object);
+      return json({ message: "Marked as canceled" });
     default:
       console.log(`Unhandled event type: ${event.type}`);
       throw error(400, "Invalid request");

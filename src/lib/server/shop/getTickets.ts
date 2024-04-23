@@ -1,11 +1,17 @@
+import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
 import {
   PrismaClient,
+  ShoppableType,
+  type Consumable,
+  type ConsumableReservation,
   type Event,
+  type ItemQuestionResponse,
   type Prisma,
   type Shoppable,
   type Tag,
   type Ticket,
 } from "@prisma/client";
+import dayjs from "dayjs";
 import { removeExpiredConsumables } from "./addToCart/reservations";
 import {
   GRACE_PERIOD_WINDOW,
@@ -13,7 +19,6 @@ import {
   type DBShopIdentification,
   type ShopIdentification,
 } from "./types";
-import dayjs from "dayjs";
 
 export type TicketWithMoreInfo = Ticket &
   Shoppable & {
@@ -93,9 +98,7 @@ export const getTicket = async (
 ): Promise<TicketWithMoreInfo | null> => {
   const dbId = dbIdentification(userId);
   const ticket = await prisma.ticket.findFirst({
-    where: {
-      id,
-    },
+    where: { id },
     include: ticketIncludedFields(dbId),
   });
   if (!ticket) {
@@ -122,49 +125,59 @@ export const getTickets = async (
         AND: [
           { OR: [{ removedAt: null }, { removedAt: { lt: new Date() } }] },
           {
-            OR: [
-              { availableTo: null },
-              {
-                availableTo: {
-                  gt: tenDaysAgo, // show items which were available in the last 10 days
-                },
-              },
-            ],
+            // show items which were available in the last 10 days
+            OR: [{ availableTo: null }, { availableTo: { gt: tenDaysAgo } }],
           },
         ],
       },
     },
     include: ticketIncludedFields(dbId),
     orderBy: {
-      shoppable: {
-        availableFrom: "asc",
-      },
+      shoppable: { availableFrom: "asc" },
     },
   });
   return tickets.map(formatTicket);
 };
 
-export const getCart = async (prisma: PrismaClient, id: ShopIdentification) => {
+type ItemMetadata = {
+  shoppable: Shoppable &
+    Ticket & {
+      event: Event;
+    };
+};
+export type CartItem = Consumable &
+  ItemMetadata & {
+    questionResponses: ItemQuestionResponse[];
+  };
+export type CartReservation = ConsumableReservation & ItemMetadata;
+
+export const getCart = async (
+  prisma: PrismaClient,
+  id: ShopIdentification,
+): Promise<{
+  inCart: CartItem[];
+  reservations: CartReservation[];
+}> => {
   const now = new Date();
-  await removeExpiredConsumables(prisma, now);
+  await removeExpiredConsumables(authorizedPrismaClient, now);
   const inCart = await prisma.consumable.findMany({
     where: {
       ...dbIdentification(id),
+      OR: [{ expiresAt: { gt: now } }, { expiresAt: null }],
       purchasedAt: null,
+      shoppable: { type: ShoppableType.TICKET },
     },
     include: {
       questionResponses: true,
       shoppable: {
         include: {
-          ticket: true,
+          ticket: {
+            include: { event: true },
+          },
           _count: {
             select: {
               consumables: {
-                where: {
-                  purchasedAt: {
-                    not: null,
-                  },
-                },
+                where: { purchasedAt: { not: null } },
               },
             },
           },
@@ -175,10 +188,32 @@ export const getCart = async (prisma: PrismaClient, id: ShopIdentification) => {
   const reservations = await prisma.consumableReservation.findMany({
     where: {
       ...dbIdentification(id),
+      shoppable: { type: ShoppableType.TICKET },
+    },
+    include: {
+      shoppable: {
+        include: {
+          ticket: { include: { event: true } },
+        },
+      },
     },
   });
   return {
-    inCart,
-    reservations,
+    inCart: inCart.map((c) => ({
+      ...c,
+      shoppable: {
+        ...c.shoppable.ticket!,
+        ...c.shoppable,
+        ticket: undefined,
+      },
+    })),
+    reservations: reservations.map((c) => ({
+      ...c,
+      shoppable: {
+        ...c.shoppable.ticket!,
+        ...c.shoppable,
+        ticket: undefined,
+      },
+    })),
   };
 };
