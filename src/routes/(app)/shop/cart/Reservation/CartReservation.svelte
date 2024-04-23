@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { enhance } from "$app/forms";
   import Price from "$lib/components/Price.svelte";
   import ScrollingNumber from "$lib/components/Timer/ScrollingNumber.svelte";
   import type { CartReservation } from "$lib/server/shop/getTickets";
@@ -8,7 +9,7 @@
   $: event = shoppable.event;
 </script>
 
-<li class="flex items-center gap-4">
+<li class="flex flex-wrap items-center gap-x-4">
   <div class="flex items-center gap-3">
     <div class="avatar">
       <div class="mask mask-squircle h-12 w-12">
@@ -37,21 +38,10 @@
       Inväntar lotteri
     {/if}
   </div>
+  <form method="POST" action="?/removeReservation" use:enhance>
+    <input type="hidden" name="id" value={item.id} />
+    <button type="submit" class="btn btn-ghost">
+      <span class="i-mdi-trash-can text-xl" />
+    </button>
+  </form>
 </li>
-<!-- <tr class="hidden border-none md:table-row">
-  <td>
-    <CartItemEvent {event} />
-  </td>
-  <td class="font-medium">
-    {shoppable.title}
-  </td>
-  <td class="text-right">
-    <Price price={shoppable.price} />
-  </td>
-  <td class="text-center">
-    <CartItemExpiresAt {expiresAt} />
-  </td>
-  <td class="text-center">
-    <CartItemRemoveButton itemId={item.id} />
-  </td>
-</tr> -->

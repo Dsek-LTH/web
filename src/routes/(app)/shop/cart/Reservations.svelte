@@ -15,7 +15,7 @@
 </script>
 
 <h1 class="mb-4 text-2xl">Reservationer</h1>
-<ul class="flex flex-col gap-2">
+<ul class="flex flex-col gap-4">
   {#each reservations as reservation (reservation.id)}
     <CartReservation item={reservation} />
   {/each}
