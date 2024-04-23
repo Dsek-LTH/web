@@ -1,11 +1,11 @@
 <script lang="ts">
+  import DateInput from "$lib/components/DateInput.svelte";
+  import Labeled from "$lib/components/Labeled.svelte";
+  import type { TicketSchema } from "$lib/components/shop/types";
   import type { UnwrapEffects } from "sveltekit-superforms";
   import type { SuperForm } from "sveltekit-superforms/client";
-  import type { CreateTicketSchema } from "./+page.server";
-  import Labeled from "$lib/components/Labeled.svelte";
-  import DateInput from "$lib/components/DateInput.svelte";
 
-  type Form = SuperForm<UnwrapEffects<CreateTicketSchema>>;
+  type Form = SuperForm<UnwrapEffects<TicketSchema>>;
   export let form: Form["form"];
   export let constraints: Form["constraints"];
   export let errors: Form["errors"];

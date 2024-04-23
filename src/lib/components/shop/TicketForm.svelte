@@ -2,21 +2,24 @@
   import Input from "$lib/components/Input.svelte";
   import type { SuperValidated } from "sveltekit-superforms";
   import { superForm } from "sveltekit-superforms/client";
-  import type { CreateTicketSchema } from "./+page.server";
   import AvailableDates from "./AvailableDates.svelte";
   import MaxAmountPerUser from "./MaxAmountPerUser.svelte";
   import EventSearchInput from "./EventSearchInput.svelte";
   import PriceInput from "./PriceInput.svelte";
+  import type { TicketSchema } from "$lib/components/shop/types";
+  import type { Event } from "@prisma/client";
   // Assuming you have a schema definition based on zod
 
-  let createForm: SuperValidated<CreateTicketSchema>;
+  export let event: Event | undefined = undefined;
+  export let type: "create" | "edit" = "create";
+  let createForm: SuperValidated<TicketSchema>;
   export { createForm as form };
   const { form, errors, constraints, enhance, submitting } =
     superForm(createForm);
 </script>
 
 <form method="POST" class="form-control max-w-xl gap-4" use:enhance>
-  <EventSearchInput {form} {constraints} {errors} />
+  <EventSearchInput {form} {constraints} {errors} {event} />
   <Input
     name="title"
     label="Biljettnamn"
@@ -59,6 +62,10 @@
   />
   <MaxAmountPerUser {form} {constraints} {errors} />
   <button type="submit" disabled={$submitting} class="btn btn-primary mt-4">
-    {$submitting ? "Skapar..." : "Skapa biljett"}
+    {#if type === "edit"}
+      {$submitting ? "Uppdaterar..." : "Uppdatera biljett"}
+    {:else}
+      {$submitting ? "Skapar..." : "Skapa biljett"}
+    {/if}
   </button>
 </form>
