@@ -11,7 +11,7 @@
     <li>
       <a
         href="/events/{event.slug}"
-        class="pop-out grid grid-flow-col gap-4 rounded-2xl bg-base-300 p-4"
+        class="pop-out grid grid-flow-col justify-start gap-4 rounded-2xl bg-base-300 p-4"
       >
         <div class="flex h-20 w-20 flex-col">
           <div
@@ -28,11 +28,11 @@
           </div>
         </div>
 
-        <div class="">
+        <div>
           <h2 class="line-clamp-1 text-xl font-bold leading-none">
             {event.title}
           </h2>
-          <p class="line-clamp-3 text-ellipsis leading-snug">
+          <p class="line-clamp-3 text-ellipsis break-all leading-snug">
             {markdownToTxt(event.description)}
           </p>
         </div>
