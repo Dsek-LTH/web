@@ -136,7 +136,7 @@ export const actions: Actions = {
     const { user, prisma } = locals;
     const form = await superValidate(request, emptySchema);
     authorize(apiNames.MEMBER.PING, user);
-    if (!user) return fail(401, { form });
+    if (!user?.memberId) return fail(401, { form });
 
     const { studentId } = params;
     try {

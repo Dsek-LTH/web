@@ -5,7 +5,7 @@ const allowedProgrammes = ["D", "C", "VR/AR"];
 
 export const load: PageServerLoad = async (request) => {
   const { prisma, user } = request.locals;
-  if (!user) {
+  if (!user?.memberId) {
     error(401, "Not logged in");
   }
   let classProgramme = request.url.searchParams.get("programme");
