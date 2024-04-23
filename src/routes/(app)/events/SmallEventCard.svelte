@@ -22,7 +22,7 @@
     </div>
   </div>
 
-  <div class="flex flex-col overflow-hidden p-8">
+  <div class="flex flex-col p-8">
     <a href="/events/{event.slug}">
       <h2 class="text-2xl font-bold">{event.title}</h2>
     </a>
