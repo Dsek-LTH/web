@@ -37,7 +37,6 @@ const apiNames = {
   },
   ACCESS_POLICY: crud("core:access:policy"),
   EMAIL_ALIAS: crud("core:mail:alias"),
-  LOGGED_IN: "_",
   FILES: {
     BUCKET: <bucketName extends string>(name: bucketName) =>
       crud(`fileHandler:${name.startsWith("dev-") ? name.substring(4) : name}`), // remove "dev-" prefix
