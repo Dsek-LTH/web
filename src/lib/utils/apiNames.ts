@@ -7,6 +7,7 @@ const crud = <prefix extends string>(base: prefix) =>
   }) as const;
 
 const apiNames = {
+  ALERT: "alert",
   NEWS: {
     ...crud("news:article"),
     MANAGE: "news:article:manage",
@@ -34,7 +35,7 @@ const apiNames = {
   ADMIN: {
     READ: "core:access:admin:read",
   },
-  ACCESS_POLICY: crud("core:access:api"),
+  ACCESS_POLICY: crud("core:access:policy"),
   EMAIL_ALIAS: crud("core:mail:alias"),
   LOGGED_IN: "_",
   FILES: {

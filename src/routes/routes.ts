@@ -85,7 +85,7 @@ export const routes = [
     title: "Admin",
     path: null,
     icon: "i-mdi-security",
-    accessRequired: apiNames.ACCESS_POLICY.READ,
+    accessRequired: apiNames.ADMIN.READ,
     children: [
       {
         title: "Access",
@@ -109,7 +109,7 @@ export const routes = [
         title: "Alerts",
         path: "/admin/alerts",
         icon: "i-mdi-alert-circle",
-        accessRequired: apiNames.DOOR.READ, //temporary, make right api accsess
+        accessRequired: apiNames.ALERT,
       },
     ],
   },

@@ -1,4 +1,7 @@
 <script lang="ts">
+  import { page } from "$app/stores";
+  import apiNames from "$lib/utils/apiNames";
+  import { isAuthorized } from "$lib/utils/authorization";
   import type { PageData } from "./$types";
   export let data: PageData;
 </script>
@@ -18,9 +21,11 @@
           <td class="font-medium">
             {door.verboseName}
           </td>
-          <td class="text-right">
-            <a class="btn btn-xs px-8" href="doors/edit/{door.name}">Edit</a>
-          </td>
+          {#if isAuthorized(apiNames.DOOR.UPDATE, $page.data.user)}
+            <td class="text-right">
+              <a class="btn btn-xs px-8" href="doors/edit/{door.name}">Edit</a>
+            </td>
+          {/if}
         </tr>
       {/each}
     </tbody>
