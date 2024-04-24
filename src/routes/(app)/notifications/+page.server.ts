@@ -1,7 +1,5 @@
-import apiNames from "$lib/utils/apiNames";
-import { authorize } from "$lib/utils/authorization";
 import { notificationSchema } from "$lib/zod/schemas";
-import { fail, redirect } from "@sveltejs/kit";
+import { error, fail, redirect } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
 import type { Actions } from "./$types";
 
@@ -13,7 +11,9 @@ export const actions: Actions = {
   // Mark all unread notifications as read
   readNotifications: async ({ locals, request }) => {
     const { user, prisma } = locals;
-    authorize(apiNames.LOGGED_IN, user);
+    if (!user.memberId) {
+      error(403, "Not logged in");
+    }
     const form = await superValidate(request, notificationSchema);
     if (!form.valid) return fail(400, { form });
     const idFilter =
@@ -42,7 +42,9 @@ export const actions: Actions = {
   // Delete single or multiple notifications on database
   deleteNotification: async ({ locals, request }) => {
     const { user, prisma } = locals;
-    authorize(apiNames.LOGGED_IN, user);
+    if (!user.memberId) {
+      error(403, "Not logged in");
+    }
     const form = await superValidate(request, notificationSchema);
     if (!form.valid) return fail(400, { form });
     // If multiple ids and not a single id have been provided, delete many, otherwise,
