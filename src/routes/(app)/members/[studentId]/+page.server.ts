@@ -77,7 +77,6 @@ export const load: PageServerLoad = async ({ locals, params }) => {
       ? await keycloak.getEmail(member.studentId)
       : undefined;
 
-
   try {
     return {
       form: await superValidate(member, memberSchema),
