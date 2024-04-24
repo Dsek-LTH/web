@@ -41,6 +41,7 @@ export const getCustomAuthorOptions = async (
 
 export type MemberDoorPolicies = Array<{
   name: string;
+  verboseName: string | undefined;
   roles: string[];
   startDate: Date | null;
   endDate: Date | null;
@@ -132,6 +133,8 @@ export const getCurrentDoorPoliciesForMember = async (
       throw error(500, "Could not fetch door access");
     });
 
+  const doors = await prisma.door.findMany();
+
   const policiesByDoor: MemberDoorPolicies = userDoorPolicies.reduce(
     (acc, policy) => {
       const role = policy.role ?? "Du";
@@ -147,6 +150,8 @@ export const getCurrentDoorPoliciesForMember = async (
       }
       acc.push({
         name: policy.doorName,
+        verboseName: doors.find((door) => door.name == policy.doorName)
+          ?.verboseName,
         roles: [role],
         startDate: policy.startDatetime,
         endDate: policy.endDatetime,

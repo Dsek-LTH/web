@@ -9,7 +9,7 @@
     class="my-2 flex items-center justify-between gap-4 rounded-lg bg-base-200 p-3"
   >
     <div class="flex flex-col">
-      <span class="font-semibold">{doorPolicy.name}</span>
+      <span class="font-semibold">{doorPolicy.verboseName}</span>
       {#if doorPolicy.startDate != null || doorPolicy.endDate != null}
         <span class="text-nowrap text-[0.5rem] font-semibold opacity-50">
           {doorPolicy.startDate?.toLocaleDateString("sv-SE") ?? ""}

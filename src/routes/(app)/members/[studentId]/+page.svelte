@@ -136,7 +136,7 @@
     </div>
   </div>
   <div
-    class="col-span-5 sm:col-span-3 sm:col-start-3 md:col-start-1 lg:col-span-2 lg:col-start-1 xl:col-span-1 xl:col-start-1"
+    class="col-span-5 sm:col-span-3 sm:col-start-3 md:col-start-1 lg:col-span-2 lg:col-start-1 xl:col-span-2 xl:col-start-1"
   >
     {#if data.doorAccess.length > 0}
       <DoorAccess doorAccess={data.doorAccess} />
