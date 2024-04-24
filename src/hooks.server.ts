@@ -118,22 +118,22 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
       externalCode: externalCode,
     };
   } else {
-    const member = await prisma.member.findUnique({
+    const memberQuery = await prisma.member.findUnique({
       where: { studentId: session.user.student_id },
     });
-
-    if (
-      event.url.pathname != "/onboarding" &&
-      (!member || !member.classProgramme || !member.classYear)
-    ) {
-      if (!member) {
-        await prisma.member.create({
+    const member = memberQuery
+      ? memberQuery
+      : await prisma.member.create({
           data: {
             studentId: session.user.student_id,
             firstName: session.user.name?.split(" ")[0],
           },
         });
-      }
+
+    if (
+      event.url.pathname != "/onboarding" &&
+      (!member.classProgramme || !member.classYear)
+    ) {
       redirect(302, "/onboarding");
     }
 
