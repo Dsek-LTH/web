@@ -61,8 +61,11 @@
       <p>{ticket.description}</p>
     {/if}
 
-    {#if isAuthorized(apiNames.WEBSHOP.MANAGE, data.user)}
-      <a href="{ticket.id}/edit" class="btn btn-secondary">Redigera</a>
+    {#if ticket.authorId == data.member?.id || isAuthorized(apiNames.WEBSHOP.MANAGE, data.user)}
+      <div class="flex gap-2 [&>*]:flex-1">
+        <a href="{ticket.id}/manage" class="btn btn-primary">Visa admin</a>
+        <a href="{ticket.id}/edit" class="btn btn-secondary">Redigera</a>
+      </div>
     {/if}
 
     <form

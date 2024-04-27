@@ -837,7 +837,7 @@ model Shoppable {
   descriptionEn String?
   type ShoppableType
 
-  authorId String @db.Uuid @deny("update", true) // never allow updating wh created the shoppable
+  authorId String @db.Uuid @deny("update", true) // never allow updating who created the shoppable
   author Member @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   price Int
