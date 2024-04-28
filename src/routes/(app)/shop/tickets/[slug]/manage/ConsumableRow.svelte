@@ -1,25 +1,15 @@
 <script lang="ts">
-  import { enhance } from "$app/forms";
   import Price from "$lib/components/Price.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import { getFullName } from "$lib/utils/client/member";
   import type { Consumable, Member } from "@prisma/client";
-  import type { SubmitFunction } from "@sveltejs/kit";
   import dayjs from "dayjs";
+  import RowAction from "./RowAction.svelte";
 
   export let stripeIntentBaseUrl: string;
   export let consumable: Consumable & {
     member: Member | null;
   };
-  const enhanceMethod =
-    (title: string): SubmitFunction =>
-    ({ cancel }) => {
-      if (!confirm(title)) cancel();
-      return ({ update }) => {
-        update();
-      };
-    };
-
   $: member = consumable.member;
 </script>
 
@@ -77,39 +67,26 @@
   </td>
   <th>
     {#if consumable.consumedAt === null}
-      <form method="POST" action="?/consume" use:enhance>
-        <input type="hidden" name="consumableId" value={consumable.id} />
-        <button class="btn btn-ghost">
-          <span class="i-mdi-flame-circle text-xl text-secondary" />
-        </button>
-      </form>
+      <RowAction action="?/consume" consumableId={consumable.id}>
+        <span class="i-mdi-flame-circle text-xl text-secondary" />
+      </RowAction>
     {:else}
-      <form
-        method="POST"
+      <RowAction
         action="?/unconsume"
-        use:enhance={enhanceMethod(
-          "Är du säker på att du vill avkonsumera biljetten?",
-        )}
+        consumableId={consumable.id}
+        warningMessage="Är du säker på att du vill avkonsumera biljetten?"
       >
-        <input type="hidden" name="consumableId" value={consumable.id} />
-        <button class="btn btn-ghost">
-          <span class="i-mdi-redo-variant text-xl text-error" />
-        </button>
-      </form>
+        <span class="i-mdi-redo-variant text-xl text-error" />
+      </RowAction>
     {/if}
   </th>
   <th>
-    <form
-      method="POST"
+    <RowAction
       action="?/refund"
-      use:enhance={enhanceMethod(
-        "Är du säker på att du vill ge personen en återbetalning?",
-      )}
+      consumableId={consumable.id}
+      warningMessage="Är du säker på att du vill ge personen en återbetalning?"
     >
-      <input type="hidden" name="consumableId" value={consumable.id} />
-      <button class="btn btn-ghost">
-        <span class="i-mdi-cash-refund text-xl text-success" />
-      </button>
-    </form>
+      <span class="i-mdi-cash-refund text-xl text-success" />
+    </RowAction>
   </th>
 </tr>
