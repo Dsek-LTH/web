@@ -229,6 +229,7 @@ const moveReservationsToCart = async (
   reservationsToMove: ConsumableReservation[],
   updateOrder = true,
 ) => {
+  if (reservationsToMove.length === 0) return;
   await prisma.consumable.createMany({
     data: reservationsToMove.map((r) => ({
       ...r,

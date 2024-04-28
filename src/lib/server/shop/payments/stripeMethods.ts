@@ -78,6 +78,7 @@ export const resetConsumablesForIntent = async (intentId: string) => {
     },
     data: {
       stripeIntentId: null,
+      priceAtPurchase: null,
     },
   });
 };
@@ -134,4 +135,22 @@ export const ensurePaymentIntentState = async (
       break;
   }
   return [intent, canRetryPayment];
+};
+
+export const refundConsumable = async (
+  stripeIntentId: string,
+  amount: number,
+) => {
+  try {
+    const refund = await stripe.refunds.create({
+      amount,
+      payment_intent: stripeIntentId,
+    });
+    return refund;
+  } catch (e) {
+    if (e instanceof Error) {
+      throw new Error(`Kunde inte återbetala: ${e}`);
+    }
+    throw new Error("Kunde inte återbetala.");
+  }
 };

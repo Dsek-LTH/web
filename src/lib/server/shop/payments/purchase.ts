@@ -194,6 +194,7 @@ const purchaseCart = async (
           : null,
         ...creteConsumableMetadata(userConsumables),
       },
+
       idempotencyKey: idempotencyKey, // makes sure if user presses button twice, only one payment intent is created
     }).catch((err) => {
       console.error(err);
@@ -224,16 +225,22 @@ const purchaseCart = async (
       if (consumables.length !== userConsumables.length) {
         throw new Error("Du hade flera betalningar igång samtidigt.");
       }
-      await tx.consumable.updateMany({
-        where: {
-          id: {
-            in: userConsumables.map((c) => c.id),
-          },
-        },
-        data: {
-          stripeIntentId: intent.id,
-        },
-      });
+      const results = await Promise.allSettled(
+        userConsumables.map((consumable) =>
+          tx.consumable.update({
+            where: {
+              id: consumable.id,
+            },
+            data: {
+              stripeIntentId: intent.id,
+              priceAtPurchase: consumable.shoppable.price,
+            },
+          }),
+        ),
+      );
+      if (results.some((result) => result.status === "rejected")) {
+        throw new Error("Det gick inte att spara transaktions id och pris");
+      }
     });
   } catch (err) {
     await removePaymentIntent(intent.id);
