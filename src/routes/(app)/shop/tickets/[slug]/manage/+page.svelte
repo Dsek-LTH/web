@@ -26,6 +26,7 @@
         <th>Person</th>
         <th>Köptes</th>
         <th>Konsumerades</th>
+        <th>Betalat</th>
         <th>Stripeköp ID</th>
         <th>Konsumera</th>
         <th>Återbetala</th>

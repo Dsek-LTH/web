@@ -134,6 +134,7 @@ const purchaseCart = async (
       },
       data: {
         purchasedAt: new Date(),
+        priceAtPurchase: 0,
       },
     });
     return {

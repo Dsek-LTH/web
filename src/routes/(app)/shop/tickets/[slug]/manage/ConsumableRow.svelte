@@ -1,5 +1,6 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
+  import Price from "$lib/components/Price.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import { getFullName } from "$lib/utils/client/member";
   import type { Consumable, Member } from "@prisma/client";
@@ -53,6 +54,13 @@
       </span>
     {:else}
       <span class="">Ej konsumerad</span>
+    {/if}
+  </td>
+  <td>
+    {#if consumable.priceAtPurchase}
+      <Price price={consumable.priceAtPurchase} />
+    {:else}
+      <span>Okänt</span>
     {/if}
   </td>
   <td>
