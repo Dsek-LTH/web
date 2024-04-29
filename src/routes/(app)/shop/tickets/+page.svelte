@@ -2,6 +2,7 @@
   import { now } from "$lib/stores/date";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
+  import FoodPreferenceModal from "./FoodPreferenceModal.svelte";
   import TicketSection from "./TicketSection.svelte";
 
   export let data;
@@ -21,6 +22,8 @@
 <svelte:head>
   <title>Biljetter | D-sektionen</title>
 </svelte:head>
+
+<FoodPreferenceModal />
 
 <article class="flex flex-col gap-4">
   {#if isAuthorized(apiNames.WEBSHOP.CREATE, data.user)}
