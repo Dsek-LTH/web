@@ -1,23 +1,24 @@
 <script lang="ts">
-  import type { TicketWithMoreInfo } from "$lib/server/shop/getTickets";
-  import type { SuperValidated } from "sveltekit-superforms";
-  import { superForm } from "sveltekit-superforms/client";
-  import type { AddToCartSchema } from "../+page.server";
+  import { enhance } from "$app/forms";
   import BuyButton from "$lib/components/BuyButton.svelte";
+  import type { TicketWithMoreInfo } from "$lib/server/shop/getTickets";
 
   export let ticket: TicketWithMoreInfo;
-  export let addToCartForm: SuperValidated<AddToCartSchema>;
-  const { enhance, submitting } = superForm(addToCartForm, {
-    id: ticket.id,
-  });
+  let isSubmitting = false;
 </script>
 
 <form
   method="POST"
   action="?/addToCart"
-  use:enhance
+  use:enhance={() => {
+    isSubmitting = true;
+    return ({ update }) => {
+      update();
+      isSubmitting = false;
+    };
+  }}
   class="card-actions justify-end"
 >
   <input type="hidden" name="ticketId" value={ticket.id} />
-  <BuyButton {ticket} isSubmitting={$submitting} />
+  <BuyButton {ticket} {isSubmitting} />
 </form>

@@ -28,19 +28,7 @@
       >Skapa ny biljett</a
     >
   {/if}
-  <TicketSection
-    title="Biljetter som kan köpas nu"
-    tickets={activeTickets}
-    addToCartForm={data.addToCartForm}
-  />
-  <TicketSection
-    title="Kommande biljetter"
-    tickets={upcomingTickets}
-    addToCartForm={data.addToCartForm}
-  />
-  <TicketSection
-    title="Tidigare biljetter"
-    tickets={pastTickets}
-    addToCartForm={data.addToCartForm}
-  />
+  <TicketSection title="Biljetter som kan köpas nu" tickets={activeTickets} />
+  <TicketSection title="Kommande biljetter" tickets={upcomingTickets} />
+  <TicketSection title="Tidigare biljetter" tickets={pastTickets} />
 </article>

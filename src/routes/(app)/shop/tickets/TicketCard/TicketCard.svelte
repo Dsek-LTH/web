@@ -1,13 +1,10 @@
 <script lang="ts">
+  import Price from "$lib/components/Price.svelte";
   import type { TicketWithMoreInfo } from "$lib/server/shop/getTickets";
-  import type { SuperValidated } from "sveltekit-superforms";
-  import type { AddToCartSchema } from "../+page.server";
   import TicketActions from "./TicketActions.svelte";
   import TicketEvent from "./TicketEvent.svelte";
-  import Price from "$lib/components/Price.svelte";
 
   export let ticket: TicketWithMoreInfo;
-  export let addToCartForm: SuperValidated<AddToCartSchema>;
 </script>
 
 <a
@@ -32,6 +29,6 @@
     {#if ticket.description}
       <span>{ticket.description}</span>
     {/if}
-    <TicketActions {ticket} {addToCartForm} />
+    <TicketActions {ticket} />
   </div>
 </a>

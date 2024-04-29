@@ -13,6 +13,8 @@ import { error, fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { PageServerLoad } from "./$types";
+import { authorize } from "$lib/utils/authorization";
+import apiNames from "$lib/utils/apiNames";
 
 export const load: PageServerLoad = async ({ locals, depends }) => {
   const { user, prisma } = locals;
@@ -20,6 +22,7 @@ export const load: PageServerLoad = async ({ locals, depends }) => {
     throw error(401, "Du har ingen kundvagn.");
   }
   depends("cart");
+  authorize(apiNames.WEBSHOP.PURCHASE, user);
   const { inCart, reservations } = await getCart(
     prisma,
     user?.memberId
@@ -123,6 +126,7 @@ export const actions = {
   },
   purchase: async ({ locals, request }) => {
     const { user, prisma } = locals;
+    authorize(apiNames.WEBSHOP.PURCHASE, user);
     const form = await superValidate(request, purchaseForm);
     if (!form.valid) return fail(400, { form });
     if (!user?.memberId && !user?.externalCode) {
