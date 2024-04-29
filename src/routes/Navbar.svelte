@@ -24,7 +24,7 @@
 >
   <div class="container navbar mx-auto">
     <!-- Open drawer icon -->
-    <div class="block flex-1 lg:hidden">
+    <div class="block flex-1 xl:hidden">
       <label
         for="main-drawer"
         aria-label="open sidebar"
@@ -35,7 +35,7 @@
     </div>
 
     <!-- Navbar content -->
-    <div class="container hidden flex-1 lg:block">
+    <div class="container hidden flex-1 xl:block">
       {#each routes as route (route.title)}
         {#if !route.accessRequired || isAuthorized(route.accessRequired, $page.data.user)}
           {#if route?.children?.length}
@@ -85,7 +85,7 @@
     </div>
 
     <div class="flex">
-      <div class="hidden lg:flex">
+      <div class="hidden xl:flex">
         <!-- This will be shown in the drawer instead. -->
         <DarkLightToggle />
         <LanguageSwitcher />
