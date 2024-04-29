@@ -2,7 +2,7 @@
   import { now } from "$lib/stores/date";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
-  import FoodPreferenceModal from "./FoodPreferenceModal.svelte";
+  import FoodPreferenceModal from "$lib/components/FoodPreferenceModal.svelte";
   import TicketSection from "./TicketSection.svelte";
 
   export let data;
