@@ -13,7 +13,6 @@
   $: member = consumable.member;
 </script>
 
-<!-- row 1 -->
 <tr>
   <td>
     <div class="flex items-center gap-3">
@@ -33,6 +32,9 @@
         {/if}
       </div>
     </div>
+  </td>
+  <td>
+    {member ? member.foodPreference ?? "" : ""}
   </td>
   <td>
     {dayjs(consumable.purchasedAt).format("HH:MM:ss DD-MM-YYYY")}

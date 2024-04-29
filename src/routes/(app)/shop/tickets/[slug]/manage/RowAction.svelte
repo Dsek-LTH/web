@@ -11,8 +11,8 @@
   $: enhanceMethod = ({
     cancel,
   }: Parameters<SubmitFunction>[0]): ReturnType<SubmitFunction> => {
-    isLoading = true;
     if (warningMessage !== null && !confirm(warningMessage)) cancel();
+    else isLoading = true;
     return ({ update }) => {
       isLoading = false;
       update();

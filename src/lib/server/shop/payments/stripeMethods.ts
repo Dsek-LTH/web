@@ -148,7 +148,6 @@ export const refundConsumable = async (
     const intent = await getPaymentIntent(stripeIntentId, {
       expand: ["latest_charge"],
     });
-    console.log(intent);
     if (intent.status !== "succeeded") return; // refund can be seen as not necessary
     // if already refunded, or disputed and lost
     if ((intent.latest_charge as Stripe.Charge | null)?.refunded) return; // already refunded

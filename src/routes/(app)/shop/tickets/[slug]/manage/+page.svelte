@@ -27,6 +27,7 @@
     <thead>
       <tr>
         <th>Person</th>
+        <th>Preferens</th>
         <th>Köptes</th>
         <th>Konsumerades</th>
         <th>Betalat</th>
