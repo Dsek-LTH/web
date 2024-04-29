@@ -18,6 +18,9 @@
   <p class="text-lg">{ticket.description}</p>
 {/if}
 
+<a href="manage/download-csv" class="btn btn-primary btn-sm"
+  ><span class="i-mdi-download" /> Ladda ner CSV</a
+>
 <div class="overflow-x-auto">
   <table class="table">
     <!-- head -->
