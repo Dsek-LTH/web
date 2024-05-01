@@ -1,13 +1,14 @@
 <script lang="ts">
-  import { goto, invalidate } from "$app/navigation";
+  import { invalidate } from "$app/navigation";
   import { page } from "$app/stores";
   import Timer from "$lib/components/Timer/Timer.svelte";
   import type { TicketWithMoreInfo } from "$lib/server/shop/getTickets";
   import { now } from "$lib/stores/date";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
-  import dayjs from "dayjs";
+  import { goto } from "$lib/utils/redirect";
   import * as m from "$paraglide/messages";
+  import dayjs from "dayjs";
   /* If form that button is part of is currently submitting */
   export let isSubmitting: boolean;
   export let ticket: Pick<

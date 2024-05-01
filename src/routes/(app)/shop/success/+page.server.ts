@@ -1,5 +1,5 @@
 import { ensurePaymentIntentState } from "$lib/server/shop/payments/stripeMethods";
-import { redirect } from "sveltekit-flash-message/server";
+import { redirect } from "$lib/utils/redirect";
 import * as m from "$paraglide/messages";
 import type { PageServerLoad } from "./$types";
 import { error } from "@sveltejs/kit";

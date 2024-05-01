@@ -3,7 +3,7 @@ import { fail } from "@sveltejs/kit";
 import { superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
-import { redirect } from "sveltekit-flash-message/server";
+import { redirect } from "$lib/utils/redirect";
 import { authorize } from "$lib/utils/authorization";
 
 export const load: PageServerLoad = async ({ locals, params }) => {

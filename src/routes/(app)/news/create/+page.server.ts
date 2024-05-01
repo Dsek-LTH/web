@@ -4,7 +4,7 @@ import sendNotification from "$lib/utils/notifications";
 import { NotificationType } from "$lib/utils/notifications/types";
 import { slugWithCount, slugify } from "$lib/utils/slugify";
 import { error, fail } from "@sveltejs/kit";
-import { redirect } from "sveltekit-flash-message/server";
+import { redirect } from "$lib/utils/redirect";
 import { superValidate } from "sveltekit-superforms/client";
 import { getArticleAuthorOptions } from "../articles";
 import { articleSchema } from "../schema";
