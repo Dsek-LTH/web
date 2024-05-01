@@ -25,5 +25,5 @@
   "explorer.compactFolders": false, // present folders in explorer as a tree
   "git.inputValidation": true,
   "git.inputValidationSubjectLength": 50,
-  "i18next.i18nPaths": "/Users/ludvigsvedberg/Programming/dsek/web/src/translations",
+  "i18next.i18nPaths": "./src/translations",
 }
