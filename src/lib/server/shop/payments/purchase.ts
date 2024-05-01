@@ -240,7 +240,7 @@ const purchaseCart = async (
         ),
       );
       if (results.some((result) => result.status === "rejected")) {
-        throw new Error("Det gick inte att spara transaktions id och pris");
+        throw new Error("Det gick inte att spara transaktions-ID och pris");
       }
     });
   } catch (err) {
