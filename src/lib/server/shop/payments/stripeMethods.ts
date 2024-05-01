@@ -66,8 +66,11 @@ export const creteConsumableMetadata = (
   };
 };
 
-export const getPaymentIntent = (intentId: string) => {
-  return stripe.paymentIntents.retrieve(intentId);
+export const getPaymentIntent = (
+  intentId: string,
+  params?: Stripe.PaymentIntentRetrieveParams,
+) => {
+  return stripe.paymentIntents.retrieve(intentId, params);
 };
 
 export const resetConsumablesForIntent = async (intentId: string) => {
@@ -78,6 +81,7 @@ export const resetConsumablesForIntent = async (intentId: string) => {
     },
     data: {
       stripeIntentId: null,
+      priceAtPurchase: null,
     },
   });
 };
@@ -134,4 +138,28 @@ export const ensurePaymentIntentState = async (
       break;
   }
   return [intent, canRetryPayment];
+};
+
+export const refundConsumable = async (
+  stripeIntentId: string,
+  amount: number,
+) => {
+  try {
+    const intent = await getPaymentIntent(stripeIntentId, {
+      expand: ["latest_charge"],
+    });
+    if (intent.status !== "succeeded") return; // refund can be seen as not necessary
+    // if already refunded, or disputed and lost
+    if ((intent.latest_charge as Stripe.Charge | null)?.refunded) return; // already refunded
+    const refund = await stripe.refunds.create({
+      amount: Math.min(intent.amount_received, amount),
+      payment_intent: stripeIntentId,
+    });
+    return refund;
+  } catch (e) {
+    if (e instanceof Error) {
+      throw new Error(`Kunde inte återbetala: ${e}`);
+    }
+    throw new Error("Kunde inte återbetala.");
+  }
 };

@@ -1,9 +1,10 @@
 import { addTicketToCart } from "$lib/server/shop/addToCart/addToCart";
 import { removeExpiredConsumables } from "$lib/server/shop/addToCart/reservations";
-import purchaseCart, {
+import purchaseCart from "$lib/server/shop/payments/purchase";
+import {
   priceWithTransactionFee,
   transactionFee,
-} from "$lib/server/shop/payments/purchase";
+} from "$lib/utils/payments/transactionFee";
 import {
   onPaymentFailure,
   onPaymentSuccess,
@@ -172,7 +173,7 @@ const addPurchaseTestForUser = (
     expect(res.clientSecret).toBe("abc");
     expect(mockFns.paymentIntents.create).toHaveBeenCalledOnce();
     expect(mockFns.paymentIntents.create.mock.calls[0][0].amount).toBe(
-      priceWithTransactionFee(MOCK_ACTIVE_TICKET.shoppable.price),
+      MOCK_ACTIVE_TICKET.shoppable.price,
     );
 
     expect(mockFns.paymentIntents.create.mock.calls[0][1].idempotencyKey).toBe(
@@ -215,7 +216,7 @@ const addPurchaseTestForUser = (
     expect(mockFns.paymentIntents.cancel).not.toHaveBeenCalled();
     expect(mockFns.paymentIntents.update.mock.calls[0][0]).toBe("intent-id");
     expect(mockFns.paymentIntents.update.mock.calls[0][1].amount).toBe(
-      priceWithTransactionFee(MOCK_ACTIVE_TICKET.shoppable.price),
+      MOCK_ACTIVE_TICKET.shoppable.price,
     );
 
     await addTicketToCart(
@@ -240,10 +241,7 @@ const addPurchaseTestForUser = (
     expect(mockFns.paymentIntents.retrieve).toHaveBeenCalledOnce();
     expect(mockFns.paymentIntents.cancel).not.toHaveBeenCalled();
     expect(mockFns.paymentIntents.update.mock.calls[0][1].amount).toBe(
-      priceWithTransactionFee(
-        MOCK_ACTIVE_TICKET.shoppable.price +
-          MOCK_ACTIVE_TICKET_2.shoppable.price,
-      ),
+      MOCK_ACTIVE_TICKET.shoppable.price + MOCK_ACTIVE_TICKET_2.shoppable.price,
     );
 
     const consumables = await prisma.consumable.findMany({
@@ -272,9 +270,7 @@ const addPurchaseTestForUser = (
     expect(mockFns.paymentIntents.create).toHaveBeenCalledOnce();
     const price =
       MOCK_ACTIVE_TICKET.shoppable.price + MOCK_ACTIVE_TICKET_2.shoppable.price;
-    expect(mockFns.paymentIntents.create.mock.calls[0][0].amount).toBe(
-      priceWithTransactionFee(price),
-    );
+    expect(mockFns.paymentIntents.create.mock.calls[0][0].amount).toBe(price);
 
     expect(mockFns.paymentIntents.create.mock.calls[0][1].idempotencyKey).toBe(
       "idempotency-key",

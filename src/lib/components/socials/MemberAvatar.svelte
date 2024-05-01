@@ -2,12 +2,14 @@
   import type { Member } from "@prisma/client";
   import { twMerge } from "tailwind-merge";
 
-  export let member: Pick<
-    Member,
-    "picturePath" | "classProgramme" | "classYear"
-  >;
+  export let member: Pick<Member, "picturePath"> | null = null;
+  export let identficationHash: string | null = null;
   let clazz = "";
   export { clazz as class };
+
+  $: backupUrl = identficationHash
+    ? `https://gravatar.com/avatar/${identficationHash}?s=100&d=mp`
+    : "https://gravatar.com/avatar?s=100&d=mp";
 </script>
 
 <div
@@ -18,15 +20,11 @@
 >
   <figure class="relative w-full">
     <img
-      src={member.picturePath || "https://gravatar.com/avatar?s=100&d=mp"}
+      src={member?.picturePath || backupUrl}
       on:error|preventDefault={(e) => {
         const imgElement = e.currentTarget;
-        if (
-          imgElement &&
-          "src" in imgElement &&
-          imgElement.src !== "https://gravatar.com/avatar?s=100&d=mp"
-        ) {
-          imgElement.src = "https://gravatar.com/avatar?s=100&d=mp";
+        if (imgElement && "src" in imgElement && imgElement.src !== backupUrl) {
+          imgElement.src = backupUrl;
         }
       }}
       alt=""
