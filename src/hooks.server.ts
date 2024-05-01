@@ -133,7 +133,7 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
       event.url.pathname != "/onboarding" &&
       (!member.classProgramme || !member.classYear)
     ) {
-      redirect(302, "/onboarding");
+      redirect(302, i18n.resolveRoute("/onboarding"));
     }
 
     const user = {

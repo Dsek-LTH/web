@@ -8,6 +8,7 @@ import {
   removePaymentIntent,
   ensurePaymentIntentState,
 } from "$lib/server/shop/payments/stripeMethods";
+import * as m from "$paraglide/messages";
 
 /**
  * Ensures the reservation state of the given shoppable. It will ensure the state at the timepoint "now".
@@ -310,7 +311,7 @@ export const performReservationLottery = async (
     },
   });
   if (ticket == null) {
-    throw new Error("Ticket not found");
+    throw new Error(m.tickets_errors_ticketNotFound());
   }
   const stock = ticket?.stock ?? 0;
   if (reservations.length <= stock) {

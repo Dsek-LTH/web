@@ -3,7 +3,7 @@ import apiNames from "$lib/utils/apiNames.js";
 import { authorize } from "$lib/utils/authorization.js";
 import { ShoppableType } from "@prisma/client";
 import { error, fail } from "@sveltejs/kit";
-import { redirect } from "sveltekit-flash-message/server";
+import { redirect } from "$lib/utils/redirect";
 import { message, superValidate } from "sveltekit-superforms/server";
 
 export const load = async ({ locals, params }) => {

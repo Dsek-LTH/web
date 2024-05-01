@@ -6,7 +6,7 @@
   import Labeled from "$lib/components/Labeled.svelte";
   import { programmes } from "$lib/utils/programmes";
   import { onMount } from "svelte";
-  import { goto } from "$app/navigation";
+  import { goto } from "$lib/utils/redirect";
 
   export let data: PageData;
   const { form, errors, constraints, enhance } = superForm<UpdateSchema>(

@@ -1,7 +1,7 @@
 import { error, fail } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 import { superValidate } from "sveltekit-superforms/server";
-import { redirect } from "sveltekit-flash-message/server";
+import { redirect } from "$lib/utils/redirect";
 import { governingDocumentSchema } from "../../schemas";
 
 export const load: PageServerLoad = async ({ locals, params }) => {

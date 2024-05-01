@@ -3,7 +3,7 @@
   import { Calendar } from "@fullcalendar/core";
   import daygridPlugin from "@fullcalendar/daygrid";
   import type { Bookable, BookingRequest } from "@prisma/client";
-  import { goto } from "$app/navigation";
+  import { goto } from "$lib/utils/redirect";
   import "$lib/FullCalendar.css";
   import { isAuthorized } from "$lib/utils/authorization";
   import { page } from "$app/stores";

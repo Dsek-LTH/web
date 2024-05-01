@@ -7,10 +7,11 @@ import { getTickets } from "$lib/server/shop/getTickets";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 import { error, fail } from "@sveltejs/kit";
-import { redirect } from "sveltekit-flash-message/server";
+import { redirect } from "$lib/utils/redirect";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { PageServerLoad } from "./$types";
+import * as m from "$paraglide/messages";
 
 export const load: PageServerLoad = async ({ locals, depends }) => {
   const { user, prisma } = locals;
@@ -71,7 +72,7 @@ export const actions = {
       throw redirect(
         "/shop/inventory",
         {
-          message: "Biljetten har köpts.",
+          message: m.tickets_addToCart_addedToInventory(),
           type: "success",
         },
         event,
@@ -80,18 +81,19 @@ export const actions = {
     let successMessage: string;
     switch (result.status) {
       case AddToCartStatus.AddedToCart:
-        successMessage = "Biljetten har lagts till i varukorgen.";
+        successMessage = m.tickets_addToCart_addedToCart();
         break;
       case AddToCartStatus.Reserved:
-        successMessage =
-          "Biljetten har reserverats. Du får en notis när lottningen är klar.";
+        successMessage = m.tickets_addToCart_lotteryReservation();
         break;
       case AddToCartStatus.PutInQueue:
-        successMessage = `Du är i kö för biljetten, din plats i kön är ${result.queuePosition}.`;
+        successMessage = m.tickets_addToCart_inQueue({
+          queuePosition: result.queuePosition,
+        });
         break;
       default:
         return message(form, {
-          message: "Okänd resultatstatus från addToCart.",
+          message: m.tickets_addToCart_unknownResult(),
           type: "error",
         });
     }

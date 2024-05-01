@@ -1,7 +1,7 @@
 import { fail } from "@sveltejs/kit";
 import dayjs from "dayjs";
 import { superValidate } from "sveltekit-superforms/server";
-import { redirect } from "sveltekit-flash-message/server";
+import { redirect } from "$lib/utils/redirect";
 import { z } from "zod";
 
 const schema = z

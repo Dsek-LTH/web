@@ -1,11 +1,13 @@
 <script lang="ts">
-  import { goto, invalidate } from "$app/navigation";
+  import { invalidate } from "$app/navigation";
   import { page } from "$app/stores";
   import Timer from "$lib/components/Timer/Timer.svelte";
   import type { TicketWithMoreInfo } from "$lib/server/shop/getTickets";
   import { now } from "$lib/stores/date";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
+  import { goto } from "$lib/utils/redirect";
+  import * as m from "$paraglide/messages";
   import dayjs from "dayjs";
   /* If form that button is part of is currently submitting */
   export let isSubmitting: boolean;
@@ -56,23 +58,24 @@
     {#if ticket.isInUsersCart}
       {#if isInGracePeriod}
         <span class="text-xl">
-          Du har en lott. Dragning om <Timer
+          {m.tickets_buyButton_partOfLottery()}
+          <Timer
             milliseconds={ticket.gracePeriodEndsAt.valueOf() - $now.valueOf()}
           />
         </span>
       {:else}
         <div class="flex flex-col items-center gap-2">
           {#if ticket.userReservations.length > 0}
-            <span>Står i kö</span>
+            <span>{m.tickets_buyButton_inQueue()}</span>
           {:else}
-            <span>Ligger i kundvagn</span>
+            <span>{m.tickets_buyButton_inCart()}</span>
           {/if}
           <button
             type="button"
             on:click|preventDefault={() => goto("/shop/cart")}
             class="btn btn-primary"
           >
-            Gå till kundvagn
+            {m.tickets_buyButton_goToCart()}
           </button>
         </div>
       {/if}
@@ -86,17 +89,25 @@
         on:click|stopPropagation
       >
         {#if ticket.ticketsLeft <= 0}
-          Slutsåld
+          {m.tickets_buyButton_soldOut()}
         {:else if ticket.userAlreadyHasMax}
-          Ägs redan
+          {m.tickets_buyButton_alreadyOwned()}
         {:else if ticket.hasQueue}
-          {isSubmitting ? "Ställer dig i kö..." : "Ställ i kö"}
+          {isSubmitting
+            ? m.tickets_buyButton_enteringQueue()
+            : m.tickets_buyButton_enterQueue()}
         {:else if isInGracePeriod}
-          {isSubmitting ? "Skaffar lott..." : "Skaffa lott"}
+          {isSubmitting
+            ? m.tickets_buyButton_gettingLotteryEntry()
+            : m.tickets_buyButton_getLotteryEntry()}
         {:else if ticket.price === 0}
-          {isSubmitting ? "Skaffar..." : "Skaffa"}
+          {isSubmitting
+            ? m.tickets_buyButton_getting()
+            : m.tickets_buyButton_get()}
         {:else}
-          {isSubmitting ? "Processerar..." : "Köp"}
+          {isSubmitting
+            ? m.tickets_buyButton_processing()
+            : m.tickets_buyButton_purchase()}
         {/if}
       </button>
     {/if}
@@ -104,19 +115,20 @@
     {#if ticket.availableFrom.valueOf() - $now.valueOf() < 1000 * 60 * 5}
       <!-- Less than 5 minutes -->
       <span class="text-2xl"
-        >Släpps om <Timer
+        >{m.tickets_buyButton_releasesIn()}
+        <Timer
           milliseconds={ticket.availableFrom.valueOf() - $now.valueOf()}
         /></span
       >
     {:else}
       <span>
-        Öppnar {dayjs(ticket.availableFrom).fromNow()}
-        <!-- Stänger {dayjs(ticket.availableTo).fromNow()} -->
+        {m.tickets_buyButton_opensIn()}
+        {dayjs(ticket.availableFrom).fromNow()}
       </span>
     {/if}
   {/if}
 {:else}
   <button type="button" disabled class="btn btn-disabled">
-    Logga in för att köpa
+    {m.tickets_buyButton_logInToBuy()}
   </button>
 {/if}

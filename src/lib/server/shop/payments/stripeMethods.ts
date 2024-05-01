@@ -3,6 +3,7 @@ import {
   onPaymentProcessing,
   onPaymentSuccess,
 } from "$lib/server/shop/payments/stripeWebhooks";
+import * as m from "$paraglide/messages";
 import type { Consumable, Shoppable } from "@prisma/client";
 import Stripe from "stripe";
 import authorizedPrismaClient from "../authorizedPrisma";
@@ -127,7 +128,7 @@ export const ensurePaymentIntentState = async (
     case "processing":
       // payment in progress, do not start a new transaction
       await onPaymentProcessing(intent);
-      throw new Error("Du har redan en pågående betalning.");
+      throw new Error(m.tickets_purchase_errors_existingPaymentIsOngoing());
     case "canceled":
       // payment was canceled
       await onPaymentCancellation(intent);
@@ -158,8 +159,8 @@ export const refundConsumable = async (
     return refund;
   } catch (e) {
     if (e instanceof Error) {
-      throw new Error(`Kunde inte återbetala: ${e}`);
+      throw new Error(`${m.tickets_errors_couldNotRefund()}: ${e}`);
     }
-    throw new Error("Kunde inte återbetala.");
+    throw new Error(m.tickets_errors_couldNotRefund());
   }
 };

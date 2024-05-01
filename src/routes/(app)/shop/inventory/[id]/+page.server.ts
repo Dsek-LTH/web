@@ -1,12 +1,13 @@
 import { dbIdentification } from "$lib/server/shop/types";
 import { error } from "@sveltejs/kit";
+import * as m from "$paraglide/messages";
 import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ locals, depends, params }) => {
   const { prisma, user } = locals;
   const { memberId, externalCode } = user ?? {};
   if (!memberId && !externalCode) {
-    error(401, "Du måste logga in för att se din kista");
+    error(401, m.inventory_errors_unauthorized());
   }
   const userId = dbIdentification(
     memberId
@@ -38,7 +39,7 @@ export const load: PageServerLoad = async ({ locals, depends, params }) => {
     },
   });
   if (!consumable) {
-    error(404, "Hittade inte produkten");
+    error(404, m.inventory_errors_consumableNotFound());
   }
   return {
     consumable: {

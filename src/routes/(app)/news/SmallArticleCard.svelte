@@ -4,7 +4,7 @@
   import type { Article } from "./articles";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import dayjs from "dayjs";
-  import { goto } from "$app/navigation";
+  import { goto } from "$lib/utils/redirect";
   import markdownToTxt from "markdown-to-txt";
   export let article: Article;
 </script>

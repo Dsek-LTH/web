@@ -3,7 +3,7 @@ import { authorize } from "$lib/utils/authorization";
 import type { PageServerLoad } from "./$types";
 import { message, setError, superValidate } from "sveltekit-superforms/server";
 import { error, fail } from "@sveltejs/kit";
-import { redirect } from "sveltekit-flash-message/server";
+import { redirect } from "$lib/utils/redirect";
 import {
   addPositionSchema,
   addSpecialReceiverSchema,
