@@ -7,5 +7,13 @@
   "landing_meetingNext": "Nästa möte",
   "landing_meetingPrev": "Senaste möte",
   "landing_feedback": "Tankar eller åsikter?",
-  "landing_contactWellbeing": "Kontakta Trivselrådet"
+  "landing_contactWellbeing": "Kontakta Trivselrådet",
+  "tickets_foodPreferenceModal_title": "Du har inte angett någon matpreferens!",
+  "tickets_foodPreferenceModal_preferenceInitialQuestion": "Har du någon matpreferens?",
+  "no": "Nej",
+  "yes": "Ja",
+  "tickets_foodPreferenceModal_preferenceQuestion": "Vad har du för matpreferens?",
+  "tickets_foodPreferenceModal_iDontHaveAPreference": "Jag har ingen matpref",
+  "member_foodPreference": "Matpreferens",
+  "save": "Spara"
 }
