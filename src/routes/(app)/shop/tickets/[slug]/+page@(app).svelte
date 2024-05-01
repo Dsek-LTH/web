@@ -5,6 +5,7 @@
   import Price from "$lib/components/Price.svelte";
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
+  import FoodPreferenceModal from "$lib/components/FoodPreferenceModal.svelte";
 
   export let data;
   $: ticket = data.ticket;
@@ -12,6 +13,8 @@
 
   let isSubmitting = false;
 </script>
+
+<FoodPreferenceModal />
 
 <div class="mx-auto md:container md:mt-8 md:grid md:grid-cols-2">
   <img

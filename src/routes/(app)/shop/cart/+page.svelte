@@ -1,4 +1,5 @@
 <script lang="ts">
+  import FoodPreferenceModal from "$lib/components/FoodPreferenceModal.svelte";
   import Cart from "./Cart.svelte";
   import Reservations from "./Reservations.svelte";
 
@@ -8,6 +9,8 @@
 <svelte:head>
   <title>Kundvagn | D-sektionen</title>
 </svelte:head>
+
+<FoodPreferenceModal />
 
 <article class="flex flex-col">
   {#if data.inCart.length > 0 || data.reservations.length > 0}
