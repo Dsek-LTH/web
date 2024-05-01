@@ -3,6 +3,7 @@
   import { page } from "$app/stores";
   import { toast } from "$lib/stores/toast";
   import { getFullName } from "$lib/utils/client/member";
+  import * as m from "$paraglide/messages";
   import type StripeJS from "@stripe/stripe-js";
   import { Elements, PaymentElement } from "svelte-stripe";
   import Price from "$lib/components/Price.svelte";
@@ -30,9 +31,6 @@
         return_url: $page.url.origin + "/shop/success",
       },
     });
-
-    // log results, for debugging
-    console.log({ error });
 
     isProcessing = false;
     // payment failed, notify user
@@ -99,8 +97,8 @@
       <div class="mt-4 flex items-center justify-between gap-2">
         <button class="btn btn-primary" disabled={isProcessing}>
           {#if isProcessing}
-            Processar...
-          {:else}Betala
+            {m.cart_processing()}
+          {:else}{m.cart_pay()}
           {/if}
         </button>
         <Price {price} />

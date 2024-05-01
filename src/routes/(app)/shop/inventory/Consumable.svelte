@@ -1,5 +1,6 @@
 <script lang="ts">
   import dayjs from "dayjs";
+  import * as m from "$paraglide/messages";
   import type { ConsumableWithMoreInfo } from "./types";
 
   export let consumable: ConsumableWithMoreInfo;
@@ -27,7 +28,7 @@
         <span
           class="font-semibold text-primary underline underline-offset-8 transition-all group-hover:underline-offset-2 group-hover:opacity-80"
         >
-          Gå till eventet
+          {m.inventory_goToEvent()}
         </span>
 
         <span class="absolute left-4 top-4">{event.organizer}</span>
@@ -46,10 +47,11 @@
     {/if}
     <div class="card-actions items-end justify-between">
       <div class="text-sm opacity-50">
-        Köptes {dayjs(consumable.purchasedAt).fromNow()}
+        {m.inventory_boughtAt()}
+        {dayjs(consumable.purchasedAt).fromNow()}
       </div>
       <a href="/shop/inventory/{consumable.id}" class="btn btn-primary"
-        >Visa biljett</a
+        >{m.inventory_showTicket()}</a
       >
     </div>
   </div>

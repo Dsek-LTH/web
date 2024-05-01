@@ -6,6 +6,7 @@
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
   import FoodPreferenceModal from "$lib/components/FoodPreferenceModal.svelte";
+  import * as m from "$paraglide/messages";
 
   export let data;
   $: ticket = data.ticket;
@@ -13,6 +14,10 @@
 
   let isSubmitting = false;
 </script>
+
+<svelte:head>
+  <title>{ticket.title} | D-sektionen</title>
+</svelte:head>
 
 <FoodPreferenceModal />
 
@@ -66,8 +71,12 @@
 
     {#if ticket.authorId == data.member?.id || isAuthorized(apiNames.WEBSHOP.MANAGE, data.user)}
       <div class="flex gap-2 [&>*]:flex-1">
-        <a href="{ticket.id}/manage" class="btn btn-primary">Visa admin</a>
-        <a href="{ticket.id}/edit" class="btn btn-secondary">Redigera</a>
+        <a href="{ticket.id}/manage" class="btn btn-primary"
+          >{m.tickets_ticketPage_showAdmin()}</a
+        >
+        <a href="{ticket.id}/edit" class="btn btn-secondary"
+          >{m.tickets_ticketPage_edit()}</a
+        >
       </div>
     {/if}
 

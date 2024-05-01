@@ -12,6 +12,7 @@ import {
   type Shoppable,
 } from "@prisma/client";
 import type Stripe from "stripe";
+import * as m from "$paraglide/messages";
 import authorizedPrismaClient from "../authorizedPrisma";
 import { dbIdentification, type ShopIdentification } from "../types";
 import {
@@ -79,13 +80,13 @@ const purchaseCart = async (
     },
   });
   if (userConsumables.length === 0) {
-    throw new Error("Din kundvagn är tom.");
+    throw new Error(m.tickets_purchase_errors_cartEmpty());
   }
   // Step 2: Check if the consumables are still available (should not happen but you never know I guess)
   for (const consumable of userConsumables) {
     if (consumable.expiresAt && consumable.expiresAt < now) {
       await removeExpiredConsumables(prisma, new Date());
-      throw new Error("En eller flera produkter i din kundvagn har löpt ut.");
+      throw new Error(m.tickets_purchase_errors_expiredConsumable());
     }
     if (
       consumable.shoppable.type === ShoppableType.TICKET &&
@@ -97,7 +98,7 @@ const purchaseCart = async (
   }
   if (soldOutShoppableIds.length > 0) {
     await clearOutConsumablesAfterSellingOut(soldOutShoppableIds);
-    throw new Error("Biljetten blev slutsåld under köpet"); // with our reservation system, this shouldn't happen, but it's just a safety measure
+    throw new Error(m.tickets_purchase_errors_soldOutDuringPurchase()); // with our reservation system, this shouldn't happen, but it's just a safety measure
   }
 
   let didUpdateAlreadyPaidFor = false;
@@ -115,8 +116,7 @@ const purchaseCart = async (
   }
   if (didUpdateAlreadyPaidFor) {
     return {
-      message:
-        "En (eller flera) av produkterna i din kundvagn har redan betalats för, din kundvagn har uppdaterats och berörda produkter är köpta.",
+      message: m.tickets_purchase_alreadyPaidFor(),
       type: "success",
     };
   }
@@ -142,7 +142,7 @@ const purchaseCart = async (
       },
     });
     return {
-      message: "Dina gratisprodukter i kundvagnen har blivit köpta.",
+      message: m.tickets_purchase_freeConsumablesPurchased(),
       type: "success",
     };
   }
@@ -193,7 +193,7 @@ const purchaseCart = async (
       idempotencyKey: idempotencyKey, // makes sure if user presses button twice, only one payment intent is created
     }).catch((err) => {
       console.error(err);
-      throw new Error("Kunde inte skapa betalning. Försök igen.");
+      throw new Error(m.tickets_purchase_errors_unableToCreatePaymentIntent());
     });
   }
   try {
@@ -218,7 +218,7 @@ const purchaseCart = async (
         },
       });
       if (consumables.length !== userConsumables.length) {
-        throw new Error("Du hade flera betalningar igång samtidigt.");
+        throw new Error(m.tickets_purchase_errors_multipleActivePayments());
       }
       const results = await Promise.allSettled(
         userConsumables.map((consumable) =>
@@ -234,7 +234,7 @@ const purchaseCart = async (
         ),
       );
       if (results.some((result) => result.status === "rejected")) {
-        throw new Error("Det gick inte att spara transaktions-ID och pris");
+        throw new Error(m.tickets_purchase_errors_couldNotSaveIntentID());
       }
     });
   } catch (err) {
@@ -243,7 +243,7 @@ const purchaseCart = async (
   }
   return {
     clientSecret: intent.client_secret,
-    message: "Du kan betala nu.",
+    message: m.tickets_purchase_readyToPurchase(),
     type: "hidden",
   };
 };

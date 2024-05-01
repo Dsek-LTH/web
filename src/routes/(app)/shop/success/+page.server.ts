@@ -1,9 +1,10 @@
 import { ensurePaymentIntentState } from "$lib/server/shop/payments/stripeMethods";
 import { redirect } from "sveltekit-flash-message/server";
+import * as m from "$paraglide/messages";
 import type { PageServerLoad } from "./$types";
 import { error } from "@sveltejs/kit";
 
-// url example: /shop/success?intentId&payment_intent=pi_3P8jPeCRGoJdzifb0XON4FJl&payment_intent_client_secret=pi_3P8jPeCRGoJdzifb0XON4FJl_secret_xxE98jdy5Yx5NthlInQigCV2x&redirect_status=succeeded
+// url example: /shop/success?intentId&payment_intent=pi_3P8jPeCRGoJdzifb0XON4FJl&payment_intent_client_secret=pi_...x&redirect_status=succeeded
 export const load: PageServerLoad = async (request) => {
   const { url } = request;
   // query params
@@ -17,7 +18,7 @@ export const load: PageServerLoad = async (request) => {
     redirect(
       "/shop/inventory",
       {
-        message: "Köp genomfört!",
+        message: m.cart_payment_success(),
         type: "success",
       },
       request,
@@ -26,19 +27,19 @@ export const load: PageServerLoad = async (request) => {
   switch (intent.status) {
     case "canceled":
       return {
-        message: "Betalningen avbröts",
+        message: m.cart_payment_canceled(),
       };
     case "processing":
       return {
-        message: "Betalningen behandlas",
+        message: m.cart_payment_processing(),
       };
     case "requires_action":
       return {
-        message: "Betalningen kräver en åtgärd av dig",
+        message: m.cart_payment_requiresAction(),
       };
     default:
       return {
-        message: "Betalning gick inte igenom, försök igen.",
+        message: m.cart_payment_failed(),
       };
   }
 };

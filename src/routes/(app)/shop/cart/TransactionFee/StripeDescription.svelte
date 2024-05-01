@@ -1,3 +1,7 @@
+<script lang="ts">
+  import * as m from "$paraglide/messages";
+</script>
+
 <div class="flex items-center gap-3">
   <div class="avatar">
     <div class="mask mask-squircle h-12 w-12">
@@ -9,6 +13,8 @@
   </div>
   <div>
     <div class="font-bold">Stripe</div>
-    <div class="text-sm opacity-50">Betalningsplattform</div>
+    <div class="text-sm opacity-50">
+      {m.cart_transactionFee_paymentPlatform()}
+    </div>
   </div>
 </div>
