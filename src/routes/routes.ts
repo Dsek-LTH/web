@@ -20,6 +20,12 @@ export const routes = [
     accessRequired: apiNames.EVENT.READ,
   },
   {
+    title: "Biljetter",
+    path: "/shop/tickets",
+    icon: "i-mdi-ticket",
+    accessRequired: apiNames.WEBSHOP.PURCHASE,
+  },
+  {
     title: "Dokument",
     path: null,
     icon: "i-mdi-text-box-multiple",
@@ -73,11 +79,6 @@ export const routes = [
         path: "/songbook",
         icon: "i-mdi-library-music",
         accessRequired: null,
-      },
-      {
-        title: "Biljetter",
-        path: "/shop/tickets",
-        icon: "i-mdi-ticket",
       },
     ],
   },

@@ -27,7 +27,6 @@ export const load: PageServerLoad = async ({ locals, depends }) => {
   const allTickets = await getTickets(prisma, identification);
   return {
     tickets: allTickets,
-    addToCartForm: await superValidate(addToCartSchema),
   };
 };
 

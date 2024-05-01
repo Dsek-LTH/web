@@ -98,7 +98,6 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
       event.cookies.set("externalCode", externalCode, {
         httpOnly: false, // Make the cookie accessible to client-side JavaScript
         path: "/", // Cookie is available on all pages
-        maxAge: 86400 * 7, // Set cookie expiry (7 days)
         secure: process.env["NODE_ENV"] === "production", // Only send cookie over HTTPS in production
       });
     }
