@@ -2,7 +2,7 @@ import { removeExpiredConsumables } from "$lib/server/shop/addToCart/reservation
 import { obtainStripeCustomer } from "$lib/server/shop/payments/customer";
 import {
   priceWithTransactionFee,
-  shouldPassOnTransactionFee,
+  passOnTransactionFee,
 } from "$lib/utils/payments/transactionFee";
 import { getFullName } from "$lib/utils/client/member";
 import {
@@ -159,7 +159,7 @@ const purchaseCart = async (
   // check if multiple different payment intents exists, remove all but one in that case
   const existingIntentIds = Object.keys(existingPaymentIntents);
   const options = {
-    amount: shouldPassOnTransactionFee ? priceWithTransactionFee(price) : price,
+    amount: passOnTransactionFee ? priceWithTransactionFee(price) : price,
     customer: customer?.id ?? undefined,
     metadata: {
       isAnonymousUser: !member ? "true" : "false", // metadata can only be string or number

@@ -13,7 +13,7 @@ import { z } from "zod";
 import type { PageServerLoad } from "./$types";
 import {
   priceWithTransactionFee,
-  shouldPassOnTransactionFee,
+  passOnTransactionFee,
   transactionFee,
 } from "$lib/utils/payments/transactionFee";
 
@@ -34,7 +34,7 @@ export const load: PageServerLoad = async ({ locals, depends }) => {
         },
   );
   const cartPrice = calculateCartPrice(inCart);
-  const totalPrice = shouldPassOnTransactionFee
+  const totalPrice = passOnTransactionFee
     ? priceWithTransactionFee(cartPrice)
     : cartPrice;
   return {
@@ -42,7 +42,7 @@ export const load: PageServerLoad = async ({ locals, depends }) => {
     reservations,
     purchaseForm: await superValidate(purchaseForm),
     totalPrice: totalPrice,
-    transactionFee: shouldPassOnTransactionFee ? transactionFee(totalPrice) : 0,
+    transactionFee: passOnTransactionFee ? transactionFee(totalPrice) : 0,
   };
 };
 

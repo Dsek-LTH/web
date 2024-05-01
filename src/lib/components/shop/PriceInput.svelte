@@ -3,7 +3,7 @@
   import type { TicketSchema } from "$lib/components/shop/types";
   import {
     cardTranscationFee,
-    shouldPassOnTransactionFee,
+    passOnTransactionFee,
     swishTransactionFee,
     transactionFee,
   } from "$lib/utils/payments/transactionFee";
@@ -37,7 +37,7 @@
       type="number"
     />
     <p class="text-sm text-base-content/60">
-      {#if shouldPassOnTransactionFee}
+      {#if passOnTransactionFee}
         Transaktionsavgift läggs på i kundvagn.
       {:else}
         ~{priceToText(price - transactionFee(price))} fås <br />
