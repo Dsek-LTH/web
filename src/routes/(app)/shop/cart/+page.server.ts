@@ -6,13 +6,16 @@ import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
 import { getCart } from "$lib/server/shop/getTickets";
 import purchaseCart, {
   calculateCartPrice,
-  priceWithTransactionFee,
-  transactionFee,
 } from "$lib/server/shop/payments/purchase";
 import { error, fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { PageServerLoad } from "./$types";
+import {
+  priceWithTransactionFee,
+  passOnTransactionFee,
+  transactionFee,
+} from "$lib/utils/payments/transactionFee";
 
 export const load: PageServerLoad = async ({ locals, depends }) => {
   const { user, prisma } = locals;
@@ -30,13 +33,16 @@ export const load: PageServerLoad = async ({ locals, depends }) => {
           externalCode: user.externalCode!,
         },
   );
-  const totalPrice = priceWithTransactionFee(calculateCartPrice(inCart));
+  const cartPrice = calculateCartPrice(inCart);
+  const totalPrice = passOnTransactionFee
+    ? priceWithTransactionFee(cartPrice)
+    : cartPrice;
   return {
     inCart,
     reservations,
     purchaseForm: await superValidate(purchaseForm),
     totalPrice: totalPrice,
-    transactionFee: transactionFee(totalPrice),
+    transactionFee: passOnTransactionFee ? transactionFee(totalPrice) : 0,
   };
 };
 
