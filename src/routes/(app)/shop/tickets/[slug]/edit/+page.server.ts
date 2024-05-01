@@ -8,7 +8,6 @@ import { message, superValidate } from "sveltekit-superforms/server";
 
 export const load = async ({ locals, params }) => {
   const { user } = locals;
-  authorize(apiNames.WEBSHOP.MANAGE, user);
   const ticket = await locals.prisma.ticket.findUnique({
     where: {
       id: params.slug,
@@ -20,6 +19,10 @@ export const load = async ({ locals, params }) => {
   });
   if (!ticket) {
     error(404, { message: "Biljetten kunde inte hittas" });
+  }
+  if (ticket.shoppable.authorId !== user.memberId) {
+    // author can always edit
+    authorize(apiNames.WEBSHOP.MANAGE, user);
   }
 
   return {

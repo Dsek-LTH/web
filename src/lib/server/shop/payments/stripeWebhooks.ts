@@ -53,6 +53,7 @@ export const onPaymentFailure = async (intent: Stripe.PaymentIntent) => {
     data: {
       stripeIntentId: null, // remove the intent id
       purchasedAt: null, // make sure the consumable is not marked as purchased
+      priceAtPurchase: null,
     },
   });
 

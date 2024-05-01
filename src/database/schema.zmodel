@@ -837,7 +837,7 @@ model Shoppable {
   descriptionEn String?
   type ShoppableType
 
-  authorId String @db.Uuid @deny("update", true) // never allow updating wh created the shoppable
+  authorId String @db.Uuid @deny("update", true) // never allow updating who created the shoppable
   author Member @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   price Int
@@ -971,6 +971,7 @@ model Consumable {
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   expiresAt DateTime? @map("expires_at") @db.Timestamptz(6)
   purchasedAt DateTime? @map("purchased_at") @db.Timestamptz(6)
+  priceAtPurchase Int? // Used to save the actual amount paid by the customer, in case the price of the shoppable changes. Used in refunds.
   stripeIntentId String? @map("stripe_intent_id")
 
   // customer or webshop:consume can always consume from unconsumed state. manager can "unconsume" from consumed state

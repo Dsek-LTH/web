@@ -109,6 +109,7 @@ export const addTicketToCart = async (
           ...idPart,
           shoppableId: ticket.shoppable.id,
           purchasedAt: now,
+          priceAtPurchase: 0,
         },
       });
       return { status: AddToCartStatus.AddedToInventory };

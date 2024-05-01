@@ -138,6 +138,7 @@ const purchaseCart = async (
       },
       data: {
         purchasedAt: new Date(),
+        priceAtPurchase: 0,
       },
     });
     return {
@@ -219,16 +220,22 @@ const purchaseCart = async (
       if (consumables.length !== userConsumables.length) {
         throw new Error("Du hade flera betalningar igång samtidigt.");
       }
-      await tx.consumable.updateMany({
-        where: {
-          id: {
-            in: userConsumables.map((c) => c.id),
-          },
-        },
-        data: {
-          stripeIntentId: intent.id,
-        },
-      });
+      const results = await Promise.allSettled(
+        userConsumables.map((consumable) =>
+          tx.consumable.update({
+            where: {
+              id: consumable.id,
+            },
+            data: {
+              stripeIntentId: intent.id,
+              priceAtPurchase: consumable.shoppable.price,
+            },
+          }),
+        ),
+      );
+      if (results.some((result) => result.status === "rejected")) {
+        throw new Error("Det gick inte att spara transaktions-ID och pris");
+      }
     });
   } catch (err) {
     await removePaymentIntent(intent.id);
