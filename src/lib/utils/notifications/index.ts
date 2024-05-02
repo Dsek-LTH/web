@@ -6,7 +6,6 @@ import {
   SUBSCRIPTION_SETTINGS_MAP,
 } from "$lib/utils/notifications/types";
 import {
-  PrismaClient,
   type Author,
   type Member,
   type SubscriptionSetting,
@@ -178,9 +177,13 @@ const sendPush = async (
   message: string,
   type: NotificationType,
   link: string,
-  receivingMembers: (Pick<Member, "id"> & {
-    subscriptionSettings: Array<Pick<SubscriptionSetting, "pushNotification">>;
-  })[],
+  receivingMembers: Array<
+    Pick<Member, "id"> & {
+      subscriptionSettings: Array<
+        Pick<SubscriptionSetting, "pushNotification">
+      >;
+    }
+  >,
 ) => {
   // Get user's expo tokens and use them to send push notifications
   const pushNotificationMembers = receivingMembers
