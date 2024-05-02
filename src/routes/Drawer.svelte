@@ -4,12 +4,13 @@
   import DarkLightToggle from "./DarkLightToggle.svelte";
   import DsekLogo from "./DsekLogo.svelte";
   import LanguageSwitcher from "./LanguageSwitcher.svelte";
-  import { routes } from "./routes";
+  import { getRoutes } from "./routes";
 
   let checked = false;
   function close() {
     checked = !checked;
   }
+  $: routes = getRoutes();
 </script>
 
 <input id="main-drawer" type="checkbox" class="drawer-toggle" bind:checked />
