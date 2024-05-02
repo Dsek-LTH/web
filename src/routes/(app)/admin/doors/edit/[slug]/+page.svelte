@@ -113,25 +113,28 @@
         </Labeled>
       </div>
       <label class="switch">
-        <input 
-          id="isBan"
-          name="isBan"
-          type="true"
-          bind:value={$form.isBan}
-          >
-        <span class="slider round"></span>
+        <label class="switch">
+          <input
+            id="isBan"
+            name="isBan"
+            type="checkbox"
+            bind:checked={$form.isBan}
+          />
+          <span class="slider round"></span>
+        </label>
+
+        <div class="flex-auto">
+          <button type="submit" class="btn btn-primary join-item">Add</button>
+        </div>
       </label>
-      <div class="flex-auto">
-        <button type="submit" class="btn btn-primary join-item">Add</button>
-      </div>
+      {#if Object.keys($errors).length > 0}
+        <div class="text-error">
+          <ul class="list-inside list-disc">
+            {#each Object.values($errors) as error}<li>{error}</li>{/each}
+          </ul>
+        </div>
+      {/if}
     </label>
-    {#if Object.keys($errors).length > 0}
-      <div class="text-error">
-        <ul class="list-inside list-disc">
-          {#each Object.values($errors) as error}<li>{error}</li>{/each}
-        </ul>
-      </div>
-    {/if}
   </form>
 </section>
 
