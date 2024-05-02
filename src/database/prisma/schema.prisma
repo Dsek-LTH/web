@@ -304,9 +304,10 @@ model CustomAuthor {
     @@map("custom_authors")
 }
 
-/// @@allow('create', has(auth().policies, 'core:access:door:update'))
-/// @@allow('read', true)
-/// @@allow('delete', has(auth().policies, 'core:access:api:delete'))
+/// @@allow('create', has(auth().policies, 'core:access:door:create'))
+/// @@allow('read', has(auth().policies, 'core:access:door:read'))
+/// @@allow('update', has(auth().policies, 'core:access:door:update'))
+/// @@allow('delete', has(auth().policies, 'core:access:door:delete'))
 model DoorAccessPolicy {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
     doorName String @map("door_name") @db.VarChar(255)
