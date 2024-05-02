@@ -30,63 +30,46 @@ export const actions: Actions = {
     const { prisma, user } = locals;
     const form = await superValidate(request, eventSchema);
     if (!form.valid) return fail(400, { form });
+    const {
+      recurringType,
+      separationCount,
+      tags,
+      isRecurring,
+      recurringEndDatetime,
+      ...eventData
+    } = form.data;
     const slug = slugify(form.data.title);
-    const recurringSlugCount = await prisma.recurringEvent.count({
+    let slugCount = await prisma.event.count({
       where: {
         slug: {
           startsWith: slug,
         },
       },
     });
-    let slugCount =
-      recurringSlugCount +
-      (await prisma.event.count({
-        where: {
-          slug: {
-            startsWith: slug,
-          },
-        },
-      }));
-    const tagIds = form.data.tags
+    const tagIds = tags
       .filter((tag) => !!tag)
       .map((tag) => ({
         id: tag.id,
       }));
 
-    /* eslint-disable-next-line @typescript-eslint/no-unused-vars --
-     * To avoid lint complaining about unused vars
-     **/
-    const { isRecurring, recurringEndDatetime, ...recurringEventData } =
-      form.data;
-
-    /* eslint-disable-next-line @typescript-eslint/no-unused-vars --
-     * To avoid lint complaining about unused vars
-     **/
-    const { recurringType, separationCount, tags, ...eventData } =
-      recurringEventData;
-
-    if (form.data.isRecurring) {
+    if (isRecurring) {
       let recurType: RecurringType;
-      const inputRecurringType = form.data.recurringType;
-      if (isRecurringType(inputRecurringType)) {
-        recurType = inputRecurringType;
+      if (isRecurringType(recurringType)) {
+        recurType = recurringType;
       } else {
         error(500);
       }
       const recurringEventParent = await prisma.recurringEvent.create({
         data: {
-          ...recurringEventData,
-          slug: slugWithCount(slug, slugCount),
+          startDatetime: eventData.startDatetime,
           recurringType: recurType,
-          endDatetime: form.data.recurringEndDatetime,
+          endDatetime: recurringEndDatetime,
           author: {
             connect: {
               studentId: user?.studentId,
             },
           },
-          tags: {
-            connect: tagIds,
-          },
+          separationCount: separationCount,
         },
       });
       slugCount += 1;
@@ -122,7 +105,6 @@ export const actions: Actions = {
         });
       });
 
-      //await prisma.event.createMany(events);
       redirect(
         `/events/${slugWithCount(slug, slugCount - 1)}`,
         {
