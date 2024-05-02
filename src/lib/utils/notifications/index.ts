@@ -1,10 +1,16 @@
+import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
 import sendPushNotifications from "$lib/utils/notifications/push";
 import {
   NotificationSettingType,
   NotificationType,
   SUBSCRIPTION_SETTINGS_MAP,
 } from "$lib/utils/notifications/types";
-import { PrismaClient, type Author } from "@prisma/client";
+import {
+  PrismaClient,
+  type Author,
+  type Member,
+  type SubscriptionSetting,
+} from "@prisma/client";
 import { error } from "@sveltejs/kit";
 
 const DUPLICATE_ALLOWED_TYPES = [
@@ -33,7 +39,7 @@ type SendNotificationProps = BaseSendNotificationProps &
   );
 
 // Need permissions to read expo tokens and send notifications without sharing expo tokens to the public
-const prisma = new PrismaClient();
+const prisma = authorizedPrismaClient;
 
 /**
  *
@@ -93,10 +99,10 @@ const sendNotification = async ({
             },
           },
       id: {
-        not:
-          process.env["NODE_ENV"] === "development"
-            ? undefined
-            : notificationAuthor?.memberId,
+        not: undefined,
+        // process.env["NODE_ENV"] === "development"
+        //   ? undefined
+        //   : notificationAuthor?.memberId,
         ...(memberIds !== undefined && memberIds.length > 0
           ? { in: memberIds }
           : {}),
@@ -125,6 +131,35 @@ const sendNotification = async ({
     }`,
   );
 
+  const result = await Promise.allSettled([
+    await sendWeb(
+      title,
+      message,
+      type,
+      link,
+      notificationAuthor,
+      receivingMembers,
+    ),
+    await sendPush(title, message, type, link, receivingMembers),
+  ]);
+
+  if (result[0].status == "rejected") {
+    throw error(500, "Failed to create notifications");
+  }
+
+  if (result[1].status == "rejected") {
+    throw error(500, "Failed to create push notifications");
+  }
+};
+
+const sendWeb = async (
+  title: string,
+  message: string,
+  type: NotificationType,
+  link: string,
+  notificationAuthor: Author | undefined,
+  receivingMembers: Array<Pick<Member, "id">>,
+) => {
   const databaseResult = await prisma.notification.createMany({
     data: receivingMembers.map(({ id: memberId }) => ({
       title,
@@ -135,12 +170,18 @@ const sendNotification = async ({
       fromAuthorId: notificationAuthor?.id,
     })),
   });
+  return databaseResult;
+};
 
-  // If no fields in database were affected, it failed
-  if (databaseResult.count < 1) {
-    throw error(500, `Failed to create notifications`);
-  }
-
+const sendPush = async (
+  title: string,
+  message: string,
+  type: NotificationType,
+  link: string,
+  receivingMembers: (Pick<Member, "id"> & {
+    subscriptionSettings: Array<Pick<SubscriptionSetting, "pushNotification">>;
+  })[],
+) => {
   // Get user's expo tokens and use them to send push notifications
   const pushNotificationMembers = receivingMembers
     .filter(
