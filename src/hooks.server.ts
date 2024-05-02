@@ -78,7 +78,7 @@ const authHandle = SvelteKitAuth({
   },
 });
 
-const prismaClient = new PrismaClient();
+const prismaClient = new PrismaClient({ log: ["info"] });
 const databaseHandle: Handle = async ({ event, resolve }) => {
   const lang = isAvailableLanguageTag(event.locals.paraglide?.lang)
     ? event.locals.paraglide?.lang
@@ -100,14 +100,18 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
       });
     }
     const policies = await getAccessPolicies(prisma);
-    event.locals.prisma = enhance(prisma, {
-      user: {
-        studentId: undefined,
-        memberId: undefined,
-        policies,
-        externalCode: externalCode, // For anonymous users
+    event.locals.prisma = enhance(
+      prisma,
+      {
+        user: {
+          studentId: undefined,
+          memberId: undefined,
+          policies,
+          externalCode: externalCode, // For anonymous users
+        },
       },
-    });
+      { logPrismaQuery: process.env["NODE_ENV"] === "production" }, // Log queries in production
+    );
     event.locals.user = {
       studentId: undefined,
       memberId: undefined,
@@ -143,7 +147,11 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
         session.user.group_list,
       ),
     };
-    event.locals.prisma = enhance(prisma, { user });
+    event.locals.prisma = enhance(
+      prisma,
+      { user },
+      { logPrismaQuery: process.env["NODE_ENV"] === "production" },
+    );
     event.locals.user = user;
     event.locals.member = member!;
   }
