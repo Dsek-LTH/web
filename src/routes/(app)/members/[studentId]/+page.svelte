@@ -1,9 +1,8 @@
 <script lang="ts">
   import { page } from "$app/stores";
 
-  import type { PageData } from "./$types";
   import MyProfilePage from "./MyProfilePage.svelte";
-  export let data: PageData;
+  export let data;
   $: isMe = data.user?.studentId === $page.params["studentId"];
 </script>
 

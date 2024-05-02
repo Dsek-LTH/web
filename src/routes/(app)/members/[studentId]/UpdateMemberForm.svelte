@@ -51,7 +51,7 @@
       <select
         id="classProgramme"
         name="classProgramme"
-        class="select select-bordered w-full"
+        class="select select-bordered"
         bind:value={$form.classProgramme}
         {...$constraints.classProgramme}
       >

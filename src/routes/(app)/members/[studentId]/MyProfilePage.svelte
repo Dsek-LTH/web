@@ -13,21 +13,27 @@
   import HeldPositions from "./HeldPositions.svelte";
   import ProfileHeader from "./ProfileHeader.svelte";
   import EditButton from "./EditButton.svelte";
+  import PingButton from "./PingButton.svelte";
+  import { isAuthorized } from "$lib/utils/authorization";
+  import apiNames from "$lib/utils/apiNames";
   export let data: PageData;
-  $: member = data.member;
+
+  $: member = data.viewedMember;
 
   $: publishedEvents = [...member.authoredEvents].reverse();
   let isEditing = false;
+
+  $: isMe = data.user?.studentId === $page.params["studentId"];
 </script>
 
 <svelte:head>
   <title>{getFullName(member)} | D-sektionen</title>
 </svelte:head>
 <article
-  class="grid grid-cols-1-2 gap-x-4 gap-y-2 md:grid-cols-5"
+  class="grid-cols-1-2 grid gap-x-4 gap-y-2 md:grid-cols-5"
   id="container"
 >
-  <div class="md:col-start-1 md:col-end-2">
+  <div class="aspect-square md:col-start-1 md:col-end-2">
     <MemberAvatar {member} class="w-full rounded-lg">
       <a
         href="{$page.params['studentId']}/profile-picture"
@@ -39,8 +45,22 @@
   </div>
   <!-- Name, StiL-ID, badge and actions -->
   <header class="md:col-start-2 md:col-end-4">
-    <ProfileHeader {member} canEdit bind:isEditing />
+    <ProfileHeader {member} email={data.email}>
+      <div slot="actions" class="flex gap-2">
+        <EditButton bind:isEditing />
+        {#if !isMe && isAuthorized(apiNames.MEMBER.PING, data.user)}
+          <PingButton ping={data.ping} />
+        {/if}
+      </div>
+    </ProfileHeader>
   </header>
+
+  <div class="col-span-3 flex gap-2 sm:hidden">
+    <EditButton bind:isEditing />
+    {#if !isMe && isAuthorized(apiNames.MEMBER.PING, data.user)}
+      <PingButton ping={data.ping} />
+    {/if}
+  </div>
 
   <!-- Bio -->
   <article class="col-span-2 md:col-start-1 md:col-end-4 md:row-start-2">
@@ -71,16 +91,19 @@
   <section
     class="col-span-2 md:col-start-4 md:col-end-6 md:row-start-1 md:row-end-13"
   >
-    <div class="hidden md:flex md:justify-end">
+    <div class="hidden gap-2 md:flex md:justify-end">
       <EditButton bind:isEditing />
+      {#if !isMe && isAuthorized(apiNames.MEMBER.PING, data.user)}
+        <PingButton ping={data.ping} />
+      {/if}
     </div>
     <div class="flex flex-col">
-      <HeldPositions mandates={data.member.mandates} />
+      <HeldPositions mandates={member.mandates} />
       {#if data.publishedArticles.length > 0}
         <PublishedArticles articles={data.publishedArticles} />
       {/if}
       {#if publishedEvents.length > 0}
-        <PublishedEvents events={data.member.authoredEvents} />
+        <PublishedEvents events={member.authoredEvents} />
       {/if}
     </div>
   </section>
