@@ -24,6 +24,7 @@
   let isEditing = false;
 
   $: isMe = data.user?.studentId === $page.params["studentId"];
+  $: canEdit = isMe || isAuthorized(apiNames.MEMBER.UPDATE, data.user);
 </script>
 
 <svelte:head>
@@ -47,7 +48,9 @@
   <header class="md:col-start-2 md:col-end-4">
     <ProfileHeader {member} email={data.email}>
       <div slot="actions" class="flex gap-2">
-        <EditButton bind:isEditing />
+        {#if canEdit}
+          <EditButton bind:isEditing />
+        {/if}
         {#if !isMe && isAuthorized(apiNames.MEMBER.PING, data.user)}
           <PingButton ping={data.ping} />
         {/if}
@@ -56,7 +59,9 @@
   </header>
 
   <div class="col-span-3 flex gap-2 sm:hidden">
-    <EditButton bind:isEditing />
+    {#if canEdit}
+      <EditButton bind:isEditing />
+    {/if}
     {#if !isMe && isAuthorized(apiNames.MEMBER.PING, data.user)}
       <PingButton ping={data.ping} />
     {/if}
@@ -68,16 +73,18 @@
       <UpdateMemberForm bind:isEditing data={data.form} />
     {:else if member.bio}
       <MarkdownBody body={member.bio}>
-        <div class="float-right">
-          <a
-            href="{$page.params['studentId']}/edit-bio"
-            class="btn btn-outline btn-sm"
-          >
-            Redigera bio
-          </a>
-        </div>
+        {#if canEdit}
+          <div class="float-right">
+            <a
+              href="{$page.params['studentId']}/edit-bio"
+              class="btn btn-outline btn-sm"
+            >
+              Redigera bio
+            </a>
+          </div>
+        {/if}
       </MarkdownBody>
-    {:else}
+    {:else if canEdit}
       <a
         href="{$page.params['studentId']}/edit-bio"
         class="btn btn-outline btn-sm"
@@ -92,7 +99,9 @@
     class="col-span-2 md:col-start-4 md:col-end-6 md:row-start-1 md:row-end-13"
   >
     <div class="hidden gap-2 md:flex md:justify-end">
-      <EditButton bind:isEditing />
+      {#if canEdit}
+        <EditButton bind:isEditing />
+      {/if}
       {#if !isMe && isAuthorized(apiNames.MEMBER.PING, data.user)}
         <PingButton ping={data.ping} />
       {/if}

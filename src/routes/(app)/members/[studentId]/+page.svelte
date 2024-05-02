@@ -1,13 +1,6 @@
 <script lang="ts">
-  import { page } from "$app/stores";
-
-  import MyProfilePage from "./MyProfilePage.svelte";
+  import ProfilePage from "./ProfilePage.svelte";
   export let data;
-  $: isMe = data.user?.studentId === $page.params["studentId"];
 </script>
 
-{#if isMe}
-  <MyProfilePage {data} />
-{:else}
-  <MyProfilePage {data} />
-{/if}
+<ProfilePage {data} />
