@@ -56,7 +56,7 @@
             <td>{policy.startDatetime?.toLocaleString("sv") ?? "N/A"}</td>
             <td>{policy.endDatetime?.toLocaleString("sv") ?? "N/A"}</td>
             {#if policy.isBan}
-              <td>{policy.isBan} </td>
+              <td>{"Banned"} </td>
             {:else}
               <td>{""} </td>
             {/if}
@@ -120,8 +120,14 @@
           />
         </Labeled>
       </div>
-      <label class="switch">
-        <label class="switch">
+      <div
+        class="form-control w-full items-center rounded transition-colors lg:max-w-[200px]"
+        class:bg-error={$form.isBan}
+      >
+        <Labeled
+          id="banText"
+          label={type === "role" ? "Ban Role access" : "Ban member access"}
+        >
           <input
             id="isBan"
             name="isBan"
@@ -130,8 +136,9 @@
             bind:checked={$form.isBan}
           />
           <span class="slider round"></span>
-        </label>
-
+        </Labeled>
+      </div>
+      <label class="switch">
         <div class="flex-auto">
           <button type="submit" class="btn btn-primary join-item">Add</button>
         </div>
