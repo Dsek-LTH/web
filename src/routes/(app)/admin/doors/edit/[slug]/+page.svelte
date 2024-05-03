@@ -28,7 +28,9 @@
       </thead>
 
       <tbody>
-        {#each data.doorAccessPolicies as policy}<tr>
+        {#each data.doorAccessPolicies as policy}<tr
+            class:bg-error={policy.isBan}
+          >
             {#if policy.role}
               <td class="flex items-center gap-3"
                 ><span class="i-mdi-account-group h-6 w-6"
@@ -53,6 +55,12 @@
             {/if}
             <td>{policy.startDatetime?.toLocaleString("sv") ?? "N/A"}</td>
             <td>{policy.endDatetime?.toLocaleString("sv") ?? "N/A"}</td>
+            {#if policy.isBan}
+              <td>{policy.isBan} </td>
+            {:else}
+              <td>{""} </td>
+            {/if}
+
             <td class="text-right">
               <button
                 on:click={() => {
@@ -118,6 +126,7 @@
             id="isBan"
             name="isBan"
             type="checkbox"
+            class="toggle"
             bind:checked={$form.isBan}
           />
           <span class="slider round"></span>
