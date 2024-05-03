@@ -1,6 +1,7 @@
 import DOMPurify from "isomorphic-dompurify";
 import type { PageServerLoad } from "./$types";
-import { error, redirect } from "@sveltejs/kit";
+import { error } from "@sveltejs/kit";
+import { redirect } from "$lib/utils/redirect";
 import { BASIC_ARTICLE_FILTER } from "$lib/utils/articles";
 import { fileHandler } from "$lib/files";
 import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
