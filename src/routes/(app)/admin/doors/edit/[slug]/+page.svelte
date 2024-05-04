@@ -147,13 +147,14 @@
         </div>
       </label>
     </label>
-    {#if $form.isBan}
-      <textarea
-        class="textarea textarea-bordered"
-        placeholder="Reason for ban"
-        id="banReason"
-      ></textarea>
-    {/if}
+    <textarea
+      class="textarea textarea-bordered"
+      placeholder={$form.isBan
+        ? "Reason for ban (optional)"
+        : "Additional notes (optional)"}
+      class:textarea-warning={$form.isBan}
+      id="banReason"
+    ></textarea>
     {#if Object.keys($errors).length > 0}
       <div class="text-error">
         <ul class="list-inside list-disc">
