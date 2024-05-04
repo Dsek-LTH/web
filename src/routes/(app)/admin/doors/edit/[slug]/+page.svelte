@@ -30,6 +30,7 @@
       <tbody>
         {#each data.doorAccessPolicies as policy}<tr
             class:bg-error={policy.isBan}
+            class:text-black={policy.isBan}
           >
             {#if policy.role}
               <td class="flex items-center gap-3"
@@ -123,10 +124,13 @@
       <div
         class="form-control w-full items-center rounded pb-4 transition-colors lg:max-w-[200px]"
         class:bg-error={$form.isBan}
-        class:text-black={$form.isBan}
       >
-        <label class="p-2" id="banText" for="isBan"
-          >{type === "role" ? "Ban role access" : "Ban member access"}</label
+        <label
+          class="p-2"
+          id="banText"
+          for="isBan"
+          class:text-black={$form.isBan}
+          >{$form.isBan ? "Banning Access" : "Ban Access?"}</label
         >
         <input
           id="isBan"
@@ -135,7 +139,6 @@
           class="toggle"
           bind:checked={$form.isBan}
         />
-
         <span class="slider round"></span>
       </div>
       <label class="switch">
@@ -143,14 +146,21 @@
           <button type="submit" class="btn btn-primary join-item">Add</button>
         </div>
       </label>
-      {#if Object.keys($errors).length > 0}
-        <div class="text-error">
-          <ul class="list-inside list-disc">
-            {#each Object.values($errors) as error}<li>{error}</li>{/each}
-          </ul>
-        </div>
-      {/if}
     </label>
+    {#if $form.isBan}
+      <textarea
+        class="textarea textarea-bordered"
+        placeholder="Reason for ban"
+        id="banReason"
+      ></textarea>
+    {/if}
+    {#if Object.keys($errors).length > 0}
+      <div class="text-error">
+        <ul class="list-inside list-disc">
+          {#each Object.values($errors) as error}<li>{error}</li>{/each}
+        </ul>
+      </div>
+    {/if}
   </form>
 </section>
 
