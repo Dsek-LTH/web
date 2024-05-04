@@ -121,22 +121,22 @@
         </Labeled>
       </div>
       <div
-        class="form-control w-full items-center rounded transition-colors lg:max-w-[200px]"
+        class="form-control w-full items-center rounded pb-4 transition-colors lg:max-w-[200px]"
         class:bg-error={$form.isBan}
+        class:text-black={$form.isBan}
       >
-        <Labeled
-          id="banText"
-          label={type === "role" ? "Ban Role access" : "Ban member access"}
+        <label class="p-2" id="banText" for="isBan"
+          >{type === "role" ? "Ban role access" : "Ban member access"}</label
         >
-          <input
-            id="isBan"
-            name="isBan"
-            type="checkbox"
-            class="toggle"
-            bind:checked={$form.isBan}
-          />
-          <span class="slider round"></span>
-        </Labeled>
+        <input
+          id="isBan"
+          name="isBan"
+          type="checkbox"
+          class="toggle"
+          bind:checked={$form.isBan}
+        />
+
+        <span class="slider round"></span>
       </div>
       <label class="switch">
         <div class="flex-auto">
