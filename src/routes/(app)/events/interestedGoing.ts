@@ -45,7 +45,7 @@ export const interestedAction =
 
     if (member) {
       if (isGoing) {
-        await sendNotification(prisma, {
+        await sendNotification({
           title: `${event.title}`,
           message: `${getFullName(member)} kommer på ditt event.`,
           type: NotificationType.EVENT_GOING,
@@ -54,7 +54,7 @@ export const interestedAction =
           fromMemberId: member.id,
         });
       } else if (isInterested) {
-        await sendNotification(prisma, {
+        await sendNotification({
           title: `${event.title}`,
           message: `${getFullName(member)} är intresserad av ditt event.`,
           type: NotificationType.EVENT_INTERESTED,

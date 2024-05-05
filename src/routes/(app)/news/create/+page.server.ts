@@ -121,7 +121,7 @@ export const actions: Actions = {
 
     // fetch the created author,
 
-    await sendNotification(prisma, {
+    await sendNotification({
       title: header,
       message: body,
       type: NotificationType.NEW_ARTICLE,
