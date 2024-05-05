@@ -23,6 +23,7 @@ import { getAccessPolicies } from "./hooks.server.helpers";
 
 const authHandle = SvelteKitAuth({
   secret: AUTH_SECRET,
+  trustHost: true,
   providers: [
     Keycloak({
       clientId: KEYCLOAK_CLIENT_ID,
@@ -97,7 +98,6 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
       event.cookies.set("externalCode", externalCode, {
         httpOnly: false, // Make the cookie accessible to client-side JavaScript
         path: "/", // Cookie is available on all pages
-        maxAge: 86400 * 7, // Set cookie expiry (7 days)
         secure: process.env["NODE_ENV"] === "production", // Only send cookie over HTTPS in production
       });
     }
@@ -117,23 +117,23 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
       externalCode: externalCode,
     };
   } else {
-    const member = await prisma.member.findUnique({
+    const memberQuery = await prisma.member.findUnique({
       where: { studentId: session.user.student_id },
     });
-
-    if (
-      event.url.pathname != "/onboarding" &&
-      (!member || !member.classProgramme || !member.classYear)
-    ) {
-      if (!member) {
-        await prisma.member.create({
+    const member = memberQuery
+      ? memberQuery
+      : await prisma.member.create({
           data: {
             studentId: session.user.student_id,
             firstName: session.user.name?.split(" ")[0],
           },
         });
-      }
-      redirect(302, "/onboarding");
+
+    if (
+      event.url.pathname != "/onboarding" &&
+      (!member.classProgramme || !member.classYear)
+    ) {
+      redirect(302, i18n.resolveRoute("/onboarding"));
     }
 
     const user = {

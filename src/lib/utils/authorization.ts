@@ -7,7 +7,7 @@ import type { AuthUser } from "@zenstackhq/runtime";
  * @returns Whether the user is authorized.
  */
 export const isAuthorized = (apiName: string, user?: AuthUser): boolean => {
-  if (dev && user) return true;
+  if (dev && !!user?.studentId) return true;
   if (user?.policies.includes(apiName)) return true;
   return false;
 };

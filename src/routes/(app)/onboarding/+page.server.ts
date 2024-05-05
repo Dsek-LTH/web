@@ -2,7 +2,7 @@ import { memberSchema } from "$lib/zod/schemas";
 import { superValidate } from "sveltekit-superforms/server";
 import type { Actions, PageServerLoad } from "./$types";
 import { error, fail } from "@sveltejs/kit";
-import { redirect } from "sveltekit-flash-message/server";
+import { redirect } from "$lib/utils/redirect";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma } = locals;

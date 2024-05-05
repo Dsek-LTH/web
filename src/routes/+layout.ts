@@ -3,7 +3,9 @@
 // Enables you to view performance metrics by page name and URL for more granular analysis
 // Shows you a score for your app's performance on each recorded metric, which you can use to track improvements or regressions
 // https://vercel.com/docs/speed-insights
-
+import { env } from "$env/dynamic/public";
 import { injectSpeedInsights } from "@vercel/speed-insights/sveltekit";
 
-injectSpeedInsights();
+if (env["PUBLIC_VERCEL_ENV"]) {
+  injectSpeedInsights();
+}

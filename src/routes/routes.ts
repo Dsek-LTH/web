@@ -1,43 +1,50 @@
 import apiNames from "$lib/utils/apiNames";
+import * as m from "$paraglide/messages";
 
 export const routes = [
   {
-    title: "Hem",
+    title: m.home(),
     path: "/",
     icon: "i-mdi-home",
     accessRequired: null,
   },
   {
-    title: "Nyheter",
+    title: m.news(),
     path: "/news",
     icon: "i-mdi-newspaper",
     accessRequired: apiNames.NEWS.READ,
   },
   {
-    title: "Evenemang",
+    title: m.events(),
     path: "/events",
     icon: "i-mdi-calendar",
     accessRequired: apiNames.EVENT.READ,
   },
   {
-    title: "Dokument",
+    title: m.tickets(),
+    path: "/shop/tickets",
+    icon: "i-mdi-ticket",
+    accessRequired: apiNames.WEBSHOP.PURCHASE,
+  },
+  {
+    title: m.documents(),
     path: null,
     icon: "i-mdi-text-box-multiple",
     children: [
       {
-        title: "Styrdokument",
+        title: m.documents_governingDocuments(),
         path: "/documents/governing",
         icon: "i-mdi-gavel",
         accessRequired: null,
       },
       {
-        title: "Möteshandlingar",
+        title: m.documents_meetingDocuments(),
         path: "/documents",
         icon: "i-mdi-text-box-multiple",
         accessRequired: null,
       },
       {
-        title: "Kravprofiler",
+        title: m.documents_requirementProfiles(),
         path: "/documents/requirements",
         icon: "i-mdi-vote",
         accessRequired: null,
@@ -45,76 +52,66 @@ export const routes = [
     ],
   },
   {
-    title: "Sektionen",
+    title: m.theGuild(),
     path: null,
     icon: "i-mdi-account-group",
     isDsekIcon: true,
     children: [
       {
-        title: "Styrelsen",
+        title: m.theBoard(),
         path: "/board",
         icon: "i-mdi-account-tie",
         accessRequired: null,
       },
       {
-        title: "Utskott",
+        title: m.committees(),
         path: "/committees",
         icon: "i-mdi-account-group",
         accessRequired: null,
       },
       {
-        title: "Bokningar",
+        title: m.bookings(),
         path: "/booking",
         icon: "i-mdi-calendar-cursor",
         accessRequired: apiNames.BOOKINGS.READ,
       },
       {
-        title: "Sjungbok",
+        title: m.songBook(),
         path: "/songbook",
         icon: "i-mdi-library-music",
         accessRequired: null,
       },
-      {
-        title: "Biljetter",
-        path: "/shop/tickets",
-        icon: "i-mdi-ticket",
-      },
-      {
-        title: "Webshop",
-        path: "/webshop",
-        icon: "i-mdi-store",
-      },
     ],
   },
   {
-    title: "Admin",
+    title: m.admin(),
     path: null,
     icon: "i-mdi-security",
-    accessRequired: apiNames.ACCESS_POLICY.READ,
+    accessRequired: apiNames.ADMIN.READ,
     children: [
       {
-        title: "Access",
+        title: m.access(),
         path: "/admin/access",
         icon: "i-mdi-key",
         accessRequired: apiNames.ACCESS_POLICY.READ,
       },
       {
-        title: "Dörrar",
+        title: m.doors(),
         path: "/admin/doors",
         icon: "i-mdi-door-open",
         accessRequired: apiNames.DOOR.READ,
       },
       {
-        title: "Email alias",
+        title: m.emailAliases(),
         path: "/admin/email-alias",
         icon: "i-mdi-email",
         accessRequired: apiNames.EMAIL_ALIAS.READ,
       },
       {
-        title: "Alerts",
+        title: m.alerts(),
         path: "/admin/alerts",
         icon: "i-mdi-alert-circle",
-        accessRequired: apiNames.DOOR.READ, //temporary, make right api accsess
+        accessRequired: apiNames.ALERT,
       },
     ],
   },

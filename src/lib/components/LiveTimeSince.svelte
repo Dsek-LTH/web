@@ -4,10 +4,10 @@
   it's been since something has been posted, such as notifications. 
   If it has been long enough time, it will show the date instead. 
   This will also periodically update the time for the client every second.
-  
 -->
+
+<!--This part of the code runs globally for all components of this kind.-->
 <script lang="ts" context="module">
-  // This is part of the code is ran globally for all components of this kind.
   type Callback = (time: number) => void;
 
   const synchronizedIntervals = {

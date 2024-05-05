@@ -7,13 +7,14 @@ export type TransactionClient = Parameters<
 export type ShopIdentification =
   | {
       memberId: string;
-      externalCode?: undefined;
+      externalCode?: never;
     }
   | {
-      memberId?: undefined;
+      memberId?: never;
       externalCode: string;
     };
 
+export type DBShopIdentification = ReturnType<typeof dbIdentification>;
 export const dbIdentification = ({
   memberId,
   externalCode,

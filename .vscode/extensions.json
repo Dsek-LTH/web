@@ -5,6 +5,7 @@
     "esbenp.prettier-vscode",
     "Prisma.prisma",
     "bradlc.vscode-tailwindcss",
-    "inlang.vs-code-extension"
+    "inlang.vs-code-extension",
+    "vitest.explorer"
   ]
 }

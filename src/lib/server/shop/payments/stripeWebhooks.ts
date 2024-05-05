@@ -1,7 +1,6 @@
 import { resetConsumablesForIntent } from "$lib/server/shop/payments/stripeMethods";
-import { TIME_TO_BUY } from "$lib/server/shop/types";
-import authorizedPrismaClient from "../authorizedPrisma";
 import Stripe from "stripe";
+import authorizedPrismaClient from "../authorizedPrisma";
 
 export const onPaymentSuccess = async (intent: Stripe.PaymentIntent) => {
   const updated = await authorizedPrismaClient.consumable.updateMany({
@@ -52,8 +51,9 @@ export const onPaymentFailure = async (intent: Stripe.PaymentIntent) => {
       stripeIntentId: intent.id,
     },
     data: {
+      stripeIntentId: null, // remove the intent id
       purchasedAt: null, // make sure the consumable is not marked as purchased
-      expiresAt: new Date(Date.now() + TIME_TO_BUY), // give them more time if payment fails. Also re-enables expiration
+      priceAtPurchase: null,
     },
   });
 

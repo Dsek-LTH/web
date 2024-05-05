@@ -3,7 +3,7 @@
   import { Calendar } from "@fullcalendar/core";
   import daygridPlugin from "@fullcalendar/daygrid";
   import type { Event } from "@prisma/client";
-  import { goto } from "$app/navigation";
+  import { goto } from "$lib/utils/redirect";
   import "$lib/FullCalendar.css";
 
   export let events: Event[] = [];

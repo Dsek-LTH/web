@@ -1,6 +1,6 @@
 import apiNames from "$lib/utils/apiNames";
 import { fail } from "@sveltejs/kit";
-import { redirect } from "sveltekit-flash-message/server";
+import { redirect } from "$lib/utils/redirect";
 import { superValidate } from "sveltekit-superforms/client";
 import { createSongSchema } from "../schema";
 import type { PageServerLoad, Actions } from "./$types";

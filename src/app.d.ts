@@ -17,7 +17,7 @@ declare global {
       statusDescription?: string;
     }
     interface Locals {
-      user?: AuthUser;
+      user: AuthUser;
       member?: Member;
       prisma: PrismaClient;
     }

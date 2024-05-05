@@ -21,6 +21,13 @@ enum BookingRequestStatus {
     PENDING
 }
 
+enum recurringType {
+    DAILY
+    WEEKLY
+    MONTHLY
+    YEARLY
+}
+
 enum DocumentType {
     POLICY
     GUIDELINE
@@ -360,12 +367,29 @@ model EventComment {
 
 /// @@allow('create', has(auth().policies, 'event:create'))
 /// @@allow('read', has(auth().policies, 'event:read'))
-/// @@deny('read', removedAt != null)
+/// @@allow('update', has(auth().policies, 'event:update'))
+/// @@allow('delete', has(auth().policies, 'event:delete'))
+model RecurringEvent {
+    id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+    separationCount Int @map("separation_count")
+    recurringType recurringType @map("recurring_type")
+    authorId String @map("author_id") @db.Uuid()
+    startDatetime DateTime @map("start_datetime") @db.Timestamptz(6)
+    endDatetime DateTime @map("end_datetime") @db.Timestamptz(6)
+    events Event[]
+    author Member @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "events_author_id_foreign")
+}
+
+/// @@allow('create', has(auth().policies, 'event:create'))
+/// @@allow('read', has(auth().policies, 'event:read'))
+/// @@deny('read', removedAt != null && removedAt >= now())
 /// @@allow('update', has(auth().policies, 'event:update'))
 /// @@allow('delete', has(auth().policies, 'event:delete'))
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Events{
 model Event {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+    recurringParentId String? @db.Uuid() @map("recurring_parent_id")
+    isDetatched Boolean @default(false) @map("is_detatched")
     title String @db.VarChar(255)
     titleEn String? @map("title_en") @db.VarChar(255)
     description String
@@ -389,6 +413,7 @@ model Event {
     author Member @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "events_author_id_foreign")
     tags Tag[] @relation("event_tags")
     tickets Ticket[]
+    recurringEventParent RecurringEvent? @relation(fields: [recurringParentId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "recurring_event_parent")
 
     @@map("events")
 }
@@ -526,6 +551,7 @@ model Member {
     inventory Consumable[]
     shopReservations ConsumableReservation[]
     bookingRequests BookingRequest[]
+    recurringEvent RecurringEvent[]
 
     @@map("members")
 }
@@ -937,6 +963,7 @@ model Consumable {
     createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
     expiresAt DateTime? @map("expires_at") @db.Timestamptz(6)
     purchasedAt DateTime? @map("purchased_at") @db.Timestamptz(6)
+    priceAtPurchase Int?
     stripeIntentId String? @map("stripe_intent_id")
     /// @allow('update', has(auth().policies, 'webshop:consume') && consumedAt == null || has(auth().policies, 'webshop:manage'), true)
     consumedAt DateTime? @map("consumed_at") @db.Timestamptz(6)

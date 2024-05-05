@@ -13,6 +13,9 @@
       class="grid-flow-col place-self-center *:text-xl md:place-self-end"
       aria-label="Social media"
     >
+      <a class="btn btn-ghost" href="https://discord.com/invite/wxHQcvZ38p">
+        <span class="i-mdi-discord" />
+      </a>
       <a class="btn btn-ghost" href="https://instagram.com/dseklth">
         <span class="i-mdi-instagram" />
       </a>

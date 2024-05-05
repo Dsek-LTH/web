@@ -2,47 +2,37 @@
   import { now } from "$lib/stores/date";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
+  import FoodPreferenceModal from "$lib/components/FoodPreferenceModal.svelte";
   import TicketSection from "./TicketSection.svelte";
+  import * as m from "$paraglide/messages";
 
   export let data;
   $: activeTickets = data.tickets.filter(
     (ticket) =>
-      ticket.shoppable.availableFrom <= $now &&
-      (ticket.shoppable.availableTo === null ||
-        ticket.shoppable.availableTo >= $now),
+      ticket.availableFrom <= $now &&
+      (ticket.availableTo === null || ticket.availableTo >= $now),
   );
   $: upcomingTickets = data.tickets.filter(
-    (ticket) => ticket.shoppable.availableFrom > $now,
+    (ticket) => ticket.availableFrom > $now,
   );
   $: pastTickets = data.tickets.filter(
-    (ticket) =>
-      ticket.shoppable.availableTo && ticket.shoppable.availableTo < $now,
+    (ticket) => ticket.availableTo && ticket.availableTo < $now,
   );
 </script>
 
 <svelte:head>
-  <title>Biljetter | D-sektionen</title>
+  <title>{m.tickets()} | D-sektionen</title>
 </svelte:head>
+
+<FoodPreferenceModal />
 
 <article class="flex flex-col gap-4">
   {#if isAuthorized(apiNames.WEBSHOP.CREATE, data.user)}
     <a class="btn btn-secondary self-start" href="/shop/tickets/create"
-      >Skapa ny biljett</a
+      >{m.tickets_createNew()}</a
     >
   {/if}
-  <TicketSection
-    title="Biljetter som kan köpas nu"
-    tickets={activeTickets}
-    addToCartForm={data.addToCartForm}
-  />
-  <TicketSection
-    title="Kommande biljetter"
-    tickets={upcomingTickets}
-    addToCartForm={data.addToCartForm}
-  />
-  <TicketSection
-    title="Tidigare biljetter"
-    tickets={pastTickets}
-    addToCartForm={data.addToCartForm}
-  />
+  <TicketSection title={m.tickets_availableNow()} tickets={activeTickets} />
+  <TicketSection title={m.tickets_upcoming()} tickets={upcomingTickets} />
+  <TicketSection title={m.tickets_past()} tickets={pastTickets} />
 </article>

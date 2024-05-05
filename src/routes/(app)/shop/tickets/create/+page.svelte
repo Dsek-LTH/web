@@ -1,7 +1,5 @@
 <script lang="ts">
-  import CreateTicketForm from "./CreateTicketForm.svelte";
-  // Assuming you have a schema definition based on zod
-
+  import TicketForm from "$lib/components/shop/TicketForm.svelte";
   export let data;
 </script>
 
@@ -9,4 +7,4 @@
   <title>Skapa biljett | D-sektionen</title>
 </svelte:head>
 
-<CreateTicketForm form={data.form} />
+<TicketForm form={data.form} />

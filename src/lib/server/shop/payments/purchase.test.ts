@@ -1,9 +1,10 @@
 import { addTicketToCart } from "$lib/server/shop/addToCart/addToCart";
 import { removeExpiredConsumables } from "$lib/server/shop/addToCart/reservations";
-import purchaseCart, {
+import purchaseCart from "$lib/server/shop/payments/purchase";
+import {
   priceWithTransactionFee,
   transactionFee,
-} from "$lib/server/shop/payments/purchase";
+} from "$lib/utils/payments/transactionFee";
 import {
   onPaymentFailure,
   onPaymentSuccess,
@@ -20,7 +21,6 @@ import {
   it,
   vi,
 } from "vitest";
-import { getAccessPolicies } from "../../../../hooks.server.helpers";
 import {
   MOCK_ACTIVE_TICKET,
   MOCK_ACTIVE_TICKET_2,
@@ -35,6 +35,7 @@ import {
   dbIdentification,
   type ShopIdentification,
 } from "../types";
+import apiNames from "$lib/utils/apiNames";
 
 const mockFns = vi.hoisted(() => ({
   customers: {
@@ -172,7 +173,7 @@ const addPurchaseTestForUser = (
     expect(res.clientSecret).toBe("abc");
     expect(mockFns.paymentIntents.create).toHaveBeenCalledOnce();
     expect(mockFns.paymentIntents.create.mock.calls[0][0].amount).toBe(
-      priceWithTransactionFee(MOCK_ACTIVE_TICKET.shoppable.price),
+      MOCK_ACTIVE_TICKET.shoppable.price,
     );
 
     expect(mockFns.paymentIntents.create.mock.calls[0][1].idempotencyKey).toBe(
@@ -188,15 +189,15 @@ const addPurchaseTestForUser = (
     expect(consumable!.stripeIntentId).toBe("intent-id");
   });
 
-  it("removes old payment intent on multiple calls", async ({ tickets }) => {
+  it("updates old payment intent on multiple calls", async ({ tickets }) => {
     try {
       await purchaseCart(prismaWithAccess, identification, "idempotency-key");
     } catch (err) {
       expect.fail(`Failed to purchase cart ${err}`);
     }
-    mockFns.paymentIntents.create.mockResolvedValueOnce({
+    mockFns.paymentIntents.update.mockResolvedValueOnce({
       client_secret: "def",
-      id: "intent-id2",
+      id: "intent-id",
     });
     mockFns.paymentIntents.retrieve.mockResolvedValueOnce({
       status: "requires_payment_method",
@@ -209,27 +210,54 @@ const addPurchaseTestForUser = (
     );
     expect(res2).toBeDefined();
     expect(res2.clientSecret, res2.message).toBe("def");
-    expect(mockFns.paymentIntents.create).toHaveBeenCalledTimes(2);
-    expect(mockFns.paymentIntents.cancel).toHaveBeenCalledOnce();
-    expect(mockFns.paymentIntents.create.mock.calls[1][0].amount).toBe(
-      priceWithTransactionFee(MOCK_ACTIVE_TICKET.shoppable.price),
+    expect(mockFns.paymentIntents.create).toHaveBeenCalledOnce();
+    expect(mockFns.paymentIntents.update).toHaveBeenCalledOnce();
+    expect(mockFns.paymentIntents.retrieve).toHaveBeenCalledOnce();
+    expect(mockFns.paymentIntents.cancel).not.toHaveBeenCalled();
+    expect(mockFns.paymentIntents.update.mock.calls[0][0]).toBe("intent-id");
+    expect(mockFns.paymentIntents.update.mock.calls[0][1].amount).toBe(
+      MOCK_ACTIVE_TICKET.shoppable.price,
     );
-    expect(mockFns.paymentIntents.create.mock.calls[0][1].idempotencyKey).toBe(
-      "idempotency-key",
+
+    await addTicketToCart(
+      prismaWithAccess,
+      tickets.activeTicket2.id,
+      identification,
+    ).catch(() => expect.fail("Failed to add ticket to cart"));
+
+    vi.clearAllMocks();
+    mockFns.paymentIntents.update.mockResolvedValueOnce({
+      client_secret: "ghi",
+      id: "intent-id",
+    });
+    mockFns.paymentIntents.retrieve.mockResolvedValueOnce({
+      status: "requires_payment_method",
+      id: "intent-id",
+    });
+    await purchaseCart(prismaWithAccess, identification, "idempotency-key");
+
+    expect(mockFns.paymentIntents.create).not.toHaveBeenCalled();
+    expect(mockFns.paymentIntents.update).toHaveBeenCalledOnce();
+    expect(mockFns.paymentIntents.retrieve).toHaveBeenCalledOnce();
+    expect(mockFns.paymentIntents.cancel).not.toHaveBeenCalled();
+    expect(mockFns.paymentIntents.update.mock.calls[0][1].amount).toBe(
+      MOCK_ACTIVE_TICKET.shoppable.price + MOCK_ACTIVE_TICKET_2.shoppable.price,
     );
-    expect(mockFns.paymentIntents.create.mock.calls[1][1].idempotencyKey).toBe(
-      "idempotency-key",
-    );
+
     const consumables = await prisma.consumable.findMany({
       where: {
         ...dbIdentification(identification),
-        shoppableId: tickets.activeTicket.id,
+        OR: [
+          { shoppableId: tickets.activeTicket.id },
+          { shoppableId: tickets.activeTicket2.id },
+        ],
         purchasedAt: null,
       },
     });
     expect(consumables).toBeDefined();
-    expect(consumables.length).toBe(1);
-    expect(consumables[0]!.stripeIntentId).toBe("intent-id2");
+    expect(consumables.length).toBe(2);
+    expect(consumables[0]!.stripeIntentId).toBe("intent-id");
+    expect(consumables[1]!.stripeIntentId).toBe("intent-id");
   });
 
   it("creates a payment intent with multiple items", async ({ tickets }) => {
@@ -242,9 +270,7 @@ const addPurchaseTestForUser = (
     expect(mockFns.paymentIntents.create).toHaveBeenCalledOnce();
     const price =
       MOCK_ACTIVE_TICKET.shoppable.price + MOCK_ACTIVE_TICKET_2.shoppable.price;
-    expect(mockFns.paymentIntents.create.mock.calls[0][0].amount).toBe(
-      priceWithTransactionFee(price),
-    );
+    expect(mockFns.paymentIntents.create.mock.calls[0][0].amount).toBe(price);
 
     expect(mockFns.paymentIntents.create.mock.calls[0][1].idempotencyKey).toBe(
       "idempotency-key",
@@ -371,7 +397,6 @@ const addPurchaseTestForUser = (
       const consumables = await prisma.consumable.findMany({
         where: {
           ...dbIdentification(identification),
-          stripeIntentId: intent.id,
           shoppableId: ticketId,
         },
       });
@@ -466,7 +491,6 @@ const addPurchaseTestForUser = (
       const consumables = await prisma.consumable.findMany({
         where: {
           ...dbIdentification(identification),
-          stripeIntentId: intent.id,
           shoppableId: {
             in: [tickets.activeTicket.id, tickets.activeTicket2.id],
           },
@@ -497,7 +521,7 @@ const addPurchaseTestForUser = (
 
   describe("stripe customer creation", () => {
     if (identification.memberId) {
-      it("creates a stripe customer if no stripe id in db", async () => {
+      it("creates a stripe customer if no stripe is in db", async () => {
         await purchaseCart(prismaWithAccess, identification, "idempotency-key");
         expect(mockFns.customers.retrieve).not.toHaveBeenCalled();
         expect(mockFns.customers.create).toHaveBeenCalledOnce();
@@ -550,10 +574,7 @@ describe("Purchase as logged in user", async () => {
     user: {
       studentId: users.customerMember.studentId,
       memberId: users.customerMember.id,
-      policies: await getAccessPolicies(
-        prisma,
-        users.customerMember.studentId!,
-      ),
+      policies: [apiNames.EVENT.READ, apiNames.MEMBER.READ],
     },
   });
   addPurchaseTestForUser(prismaWithAccess, users.adminMember, {

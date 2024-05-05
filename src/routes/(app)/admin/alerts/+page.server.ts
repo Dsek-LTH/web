@@ -3,9 +3,12 @@ import type { PageServerLoad, Actions } from "./$types";
 import { z } from "zod";
 import { message, superValidate } from "sveltekit-superforms/server";
 import softDelete from "$lib/utils/softDelete";
+import { authorize } from "$lib/utils/authorization";
+import apiNames from "$lib/utils/apiNames";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma } = locals;
+  authorize(apiNames.ALERT, locals.user);
   const alert = prisma.alert.findMany({
     where: {
       removedAt: null,
@@ -34,6 +37,7 @@ export type deleteAlertSchema = typeof deleteAlertSchema;
 export const actions = {
   create: async ({ request, locals }) => {
     const { prisma } = locals;
+    authorize(apiNames.ALERT, locals.user);
     const form = await superValidate(request, addAlertSchema);
     if (!form.valid) return fail(400, { form });
     await prisma.alert.create({
@@ -50,6 +54,7 @@ export const actions = {
   },
   delete: async ({ request, locals }) => {
     const { prisma } = locals;
+    authorize(apiNames.ALERT, locals.user);
     const form = await superValidate(request, deleteAlertSchema);
     if (!form.valid) return fail(400, { form });
     softDelete(() =>

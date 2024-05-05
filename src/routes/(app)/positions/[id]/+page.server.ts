@@ -1,5 +1,5 @@
 import { error, fail } from "@sveltejs/kit";
-import { redirect } from "sveltekit-flash-message/server";
+import { redirect } from "$lib/utils/redirect";
 import { message, setError, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import keycloak from "$lib/server/keycloak";

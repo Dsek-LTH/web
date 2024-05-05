@@ -1,4 +1,5 @@
 import { PrismaClient, type Shoppable, type Ticket } from "@prisma/client";
+import * as m from "$paraglide/messages";
 import { ensureState, performLotteryIfNecessary } from "./reservations";
 import {
   GRACE_PERIOD_WINDOW,
@@ -71,15 +72,15 @@ export const addTicketToCart = async (
         },
       },
     });
-    if (!ticket) throw new Error("Kunde inte hitta biljett");
+    if (!ticket) throw new Error(m.tickets_errors_ticketNotFound());
 
     if (ticket.shoppable.availableTo && ticket.shoppable.availableTo < now)
-      throw new Error("Biljettförsäljning har stängt");
+      throw new Error(m.tickets_addToCart_errors_salePeriodEnded());
     if (ticket.shoppable.availableFrom > now)
-      throw new Error("Biljettförsäljning har inte börjat");
+      throw new Error(m.tickets_addToCart_errors_salePeriodNotStarted());
     if (ticket.shoppable._count.consumables >= ticket.stock)
       // purchased items
-      throw new Error("Biljetten är slutsåld");
+      throw new Error(m.tickets_addToCart_errors_ticketSoldOut());
 
     const idPart = dbIdentification(identification);
 
@@ -109,6 +110,7 @@ export const addTicketToCart = async (
           ...idPart,
           shoppableId: ticket.shoppable.id,
           purchasedAt: now,
+          priceAtPurchase: 0,
         },
       });
       return { status: AddToCartStatus.AddedToInventory };
@@ -139,9 +141,9 @@ const checkUserMaxAmount = async (
     },
   });
   if (ticket.maxAmountPerUser == 1 && currentlyInCart > 0)
-    throw new Error("Du har redan den här biljetten (i varukorgen)");
+    throw new Error(m.tickets_addToCart_errors_alreadyOwned());
   else if (currentlyInCart >= ticket.maxAmountPerUser)
-    throw new Error("Du har redan max antal biljetter (i varukorgen)");
+    throw new Error(m.tickets_addToCart_errors_alreadyOwnsMax());
 
   const currentlyReserved = await prisma.consumableReservation.count({
     where: {
@@ -150,9 +152,7 @@ const checkUserMaxAmount = async (
     },
   });
   if (currentlyReserved > 0)
-    throw new Error(
-      "Biljetten är redan reserverad, du får en notis när lottning är avklarad.",
-    );
+    throw new Error(m.tickets_addToCart_errors_alreadyReserved());
 };
 
 const addToQueue = async (
@@ -178,7 +178,7 @@ const addToQueue = async (
   });
   return {
     status: AddToCartStatus.PutInQueue,
-    queuePosition: currentPeopleInQueue.length + 1,
+    queuePosition: lastInQueueOrder + 2,
   };
 };
 
@@ -205,9 +205,7 @@ const addReservationInReserveWindow = async (
     },
   });
   if (existingReservation)
-    throw new Error(
-      "Biljetten är redan reserverad, du får en notis när lottning är avklarad.",
-    );
+    throw new Error(m.tickets_addToCart_errors_alreadyReserved());
   await prisma.consumableReservation.create({
     data: {
       ...id,

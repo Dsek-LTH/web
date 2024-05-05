@@ -1,7 +1,6 @@
 import { PrismaClient, type Member } from "@prisma/client";
 import { enhance } from "@zenstackhq/runtime";
 import { afterAll, describe, expect, it } from "vitest";
-import { getAccessPolicies } from "../../../hooks.server.helpers";
 import { getTickets } from "./getTickets";
 import {
   addMockTickets,
@@ -10,6 +9,7 @@ import {
   removeMockTickets,
   removeMockUsers,
 } from "./mock";
+import apiNames from "$lib/utils/apiNames";
 const prisma = new PrismaClient();
 const SUITE_PREFIX = "getTickets";
 
@@ -19,7 +19,9 @@ const getTicketsTest = async (
 ) => {
   it("should get all tickets", async () => {
     const tickets = await addMockTickets(prisma, adminMember);
-    const result = await getTickets(prismaWithAccess);
+    const result = await getTickets(prismaWithAccess, {
+      memberId: adminMember.id,
+    });
     const ticketIds = Object.values(tickets).map((t) => t.id);
     const filteredResult = result.filter((t) => ticketIds.includes(t.id));
     expect(filteredResult.length).toBe(6);
@@ -41,10 +43,7 @@ describe("Get tickets as logged in user", async () => {
     user: {
       studentId: users.customerMember.studentId,
       memberId: users.customerMember.id,
-      policies: await getAccessPolicies(
-        prisma,
-        users.customerMember.studentId!,
-      ),
+      policies: [apiNames.EVENT.READ],
     },
   });
   afterAll(async () => {
@@ -61,10 +60,7 @@ describe("Get tickets as anonymous user", async () => {
     user: {
       studentId: users.customerMember.studentId,
       memberId: users.customerMember.id,
-      policies: await getAccessPolicies(
-        prisma,
-        users.customerMember.studentId!,
-      ),
+      policies: [apiNames.EVENT.READ],
     },
   });
   afterAll(async () => {

@@ -14,7 +14,7 @@ export const getAccessPolicies = async (
 ) => {
   // If we're running in development mode and we're signed in,
   // give all available policies to the user.
-  if (dev) {
+  if (!!studentId && dev) {
     return getAllAccessPolicies(prisma);
   }
   return prisma.accessPolicy

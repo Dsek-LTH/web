@@ -1,17 +1,25 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
-  import { now } from "$lib/stores/date";
   import dayjs from "dayjs";
+  import BuyButton from "$lib/components/BuyButton.svelte";
+  import Price from "$lib/components/Price.svelte";
+  import { isAuthorized } from "$lib/utils/authorization";
+  import apiNames from "$lib/utils/apiNames";
+  import FoodPreferenceModal from "$lib/components/FoodPreferenceModal.svelte";
+  import * as m from "$paraglide/messages";
 
   export let data;
   $: ticket = data.ticket;
   $: event = ticket.event;
-  $: shoppable = ticket.shoppable;
 
-  $: isUpcoming = ticket.shoppable.availableFrom > $now;
-  $: isPast = shoppable.availableTo && shoppable.availableTo < $now;
-  $: isActive = !isUpcoming && !isPast;
+  let isSubmitting = false;
 </script>
+
+<svelte:head>
+  <title>{ticket.title} | D-sektionen</title>
+</svelte:head>
+
+<FoodPreferenceModal />
 
 <div class="mx-auto md:container md:mt-8 md:grid md:grid-cols-2">
   <img
@@ -22,7 +30,10 @@
   />
 
   <main class="m-4 flex flex-col gap-4">
-    <h1 class="text-xl font-bold">{shoppable.title}</h1>
+    <h1 class="text-xl font-bold">
+      {ticket.title}
+      <Price price={ticket.price} class="ml-4" />
+    </h1>
     <div
       class="flex flex-wrap items-center gap-2 text-sm text-base-content/60 *:flex *:items-center *:gap-1"
     >
@@ -54,25 +65,35 @@
       {/if}
     </div>
 
-    <p>{shoppable.description}</p>
+    {#if ticket.description}
+      <p>{ticket.description}</p>
+    {/if}
 
-    <form method="POST" action="/shop/tickets?/addToCart" use:enhance>
+    {#if ticket.authorId == data.member?.id || isAuthorized(apiNames.WEBSHOP.MANAGE, data.user)}
+      <div class="flex gap-2 [&>*]:flex-1">
+        <a href="{ticket.id}/manage" class="btn btn-primary"
+          >{m.tickets_ticketPage_showAdmin()}</a
+        >
+        <a href="{ticket.id}/edit" class="btn btn-secondary"
+          >{m.tickets_ticketPage_edit()}</a
+        >
+      </div>
+    {/if}
+
+    <form
+      class="mt-8"
+      method="POST"
+      action="/shop/tickets?/addToCart"
+      use:enhance={() => {
+        isSubmitting = true;
+        return ({ update }) => {
+          update();
+          isSubmitting = false;
+        };
+      }}
+    >
       <input type="hidden" name="ticketId" value={ticket.id} />
-      <button
-        type="submit"
-        class="btn btn-primary w-full"
-        class:btn-disabled={!isActive}
-      >
-        {#if isUpcoming}
-          Öppnar {dayjs(ticket.shoppable.availableFrom).fromNow()}
-        {:else if isPast}
-          Stängde {dayjs(ticket.shoppable.availableTo).fromNow()}
-        {:else if isActive}
-          Köp
-        {:else}
-          Stängd
-        {/if}
-      </button>
+      <BuyButton {ticket} {isSubmitting} />
     </form>
   </main>
 </div>

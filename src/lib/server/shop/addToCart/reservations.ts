@@ -4,6 +4,11 @@ import {
   TIME_TO_BUY,
   type TransactionClient,
 } from "../types";
+import {
+  removePaymentIntent,
+  ensurePaymentIntentState,
+} from "$lib/server/shop/payments/stripeMethods";
+import * as m from "$paraglide/messages";
 
 /**
  * Ensures the reservation state of the given shoppable. It will ensure the state at the timepoint "now".
@@ -28,6 +33,34 @@ export const removeExpiredConsumables = async (
   prisma: TransactionClient,
   now: Date,
 ) => {
+  const expiredWithIntent = await prisma.consumable.findMany({
+    where: {
+      expiresAt: {
+        not: null,
+        lte: now,
+      },
+      purchasedAt: null,
+      stripeIntentId: {
+        not: null,
+      },
+    },
+  });
+  if (expiredWithIntent.length > 0) {
+    const intentIds = new Set(expiredWithIntent.map((e) => e.stripeIntentId));
+    for (const intentId of intentIds) {
+      try {
+        const [, canTryAgain] = await ensurePaymentIntentState(intentId!);
+        if (canTryAgain) {
+          // payment not completed
+          await removePaymentIntent(intentId!);
+        } else {
+          // success, canceled, or unknown. Do nothing
+        }
+      } catch {
+        // do not expire it. Either processing, or something else failed
+      }
+    }
+  }
   const removed = await prisma.consumable.deleteMany({
     where: {
       expiresAt: {
@@ -35,6 +68,7 @@ export const removeExpiredConsumables = async (
         lte: now,
       },
       purchasedAt: null,
+      stripeIntentId: null,
     },
   });
   if (removed.count > 0) {
@@ -143,12 +177,60 @@ const updateQueueGivenStock = async (
   return { moved: toMove, spaceLeft: stock - inCartOrPurchased - toMove };
 };
 
+export const moveQueueForwardOneStep = async (
+  prisma: TransactionClient,
+  shoppableId: string,
+  fromOrder: number,
+) => {
+  return await prisma.consumableReservation.updateMany({
+    where: {
+      shoppableId,
+      order: {
+        not: null,
+        gt: fromOrder,
+      },
+    },
+    data: {
+      order: {
+        decrement: 1,
+      },
+    },
+  });
+};
+
+export const moveQueueToCart = async (
+  prisma: TransactionClient,
+  shoppableId: string,
+  amountToMove: number,
+  updateOrder?: boolean,
+) => {
+  const reservationsToMove = await prisma.consumableReservation.findMany({
+    where: {
+      shoppableId,
+      order: {
+        not: null,
+      },
+    },
+    orderBy: {
+      order: "asc",
+    },
+    take: amountToMove,
+  });
+  await moveReservationsToCart(
+    prisma,
+    shoppableId,
+    reservationsToMove,
+    updateOrder,
+  );
+};
+
 const moveReservationsToCart = async (
   prisma: TransactionClient,
   shoppableId: string,
   reservationsToMove: ConsumableReservation[],
   updateOrder = true,
 ) => {
+  if (reservationsToMove.length === 0) return;
   await prisma.consumable.createMany({
     data: reservationsToMove.map((r) => ({
       ...r,
@@ -229,7 +311,7 @@ export const performReservationLottery = async (
     },
   });
   if (ticket == null) {
-    throw new Error("Ticket not found");
+    throw new Error(m.tickets_errors_ticketNotFound());
   }
   const stock = ticket?.stock ?? 0;
   if (reservations.length <= stock) {

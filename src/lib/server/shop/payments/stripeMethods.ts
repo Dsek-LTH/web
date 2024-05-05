@@ -3,11 +3,11 @@ import {
   onPaymentProcessing,
   onPaymentSuccess,
 } from "$lib/server/shop/payments/stripeWebhooks";
+import * as m from "$paraglide/messages";
 import type { Consumable, Shoppable } from "@prisma/client";
 import Stripe from "stripe";
 import authorizedPrismaClient from "../authorizedPrisma";
 import stripe from "./stripe";
-import { TIME_TO_BUY } from "$lib/server/shop/types";
 
 type RequiredProps = "amount" | "metadata" | "customer";
 type Props = Pick<Stripe.PaymentIntentCreateParams, RequiredProps> &
@@ -34,6 +34,17 @@ export const createPaymentIntent = ({ idempotencyKey, ...params }: Props) => {
   );
 };
 
+export const updatePaymentIntent = (
+  id: string,
+  params: Omit<Stripe.PaymentIntentUpdateParams, "currency" | "description">,
+) => {
+  return stripe.paymentIntents.update(id, {
+    currency: "SEK",
+    description: "D-sek webshop purchase",
+    ...params,
+  });
+};
+
 export const creteConsumableMetadata = (
   consumables: Array<
     Consumable & {
@@ -56,8 +67,11 @@ export const creteConsumableMetadata = (
   };
 };
 
-export const getPaymentIntent = (intentId: string) => {
-  return stripe.paymentIntents.retrieve(intentId);
+export const getPaymentIntent = (
+  intentId: string,
+  params?: Stripe.PaymentIntentRetrieveParams,
+) => {
+  return stripe.paymentIntents.retrieve(intentId, params);
 };
 
 export const resetConsumablesForIntent = async (intentId: string) => {
@@ -68,8 +82,7 @@ export const resetConsumablesForIntent = async (intentId: string) => {
     },
     data: {
       stripeIntentId: null,
-      expiresAt: new Date(Date.now() + TIME_TO_BUY), // give them more time payment fails or in other ways has to be re-done. Also re-enables expiration
-      // There is a way to game the system, but expiration is really there for inactive users, and this is not an inactive user
+      priceAtPurchase: null,
     },
   });
 };
@@ -86,11 +99,11 @@ export const removePaymentIntent = async (intentId: string) => {
   await resetConsumablesForIntent(intentId);
 };
 
-export const updatePaymentIntent = async (
+export const ensurePaymentIntentState = async (
   intentId: string,
 ): Promise<[Stripe.Response<Stripe.PaymentIntent>, boolean]> => {
   const intent = await getPaymentIntent(intentId);
-  let canTryAgain = false;
+  let canRetryPayment = false;
   switch (intent.status) {
     case "succeeded":
       // payment was successful
@@ -98,24 +111,24 @@ export const updatePaymentIntent = async (
       break;
     case "requires_payment_method":
       // payment intent was started but never finished, or it failed.
-      canTryAgain = true;
+      canRetryPayment = true;
       break;
     case "requires_action":
       // user is required to confirm with another platform, like SMS or BankID.
-      canTryAgain = true;
+      canRetryPayment = true;
       break;
     case "requires_capture":
       // only valid if you use the stripe "authorization then capture" workflow, where payment method is authorized, and THEN payment is captured at a later time.
-      canTryAgain = true;
+      canRetryPayment = true;
       break;
     case "requires_confirmation":
       // a popup whether or not the user want's to confirm the payment has been showed to the user but not confirmed yet.
-      canTryAgain = true;
+      canRetryPayment = true;
       break;
     case "processing":
       // payment in progress, do not start a new transaction
       await onPaymentProcessing(intent);
-      throw new Error("Du har redan en pågående betalning.");
+      throw new Error(m.tickets_purchase_errors_existingPaymentIsOngoing());
     case "canceled":
       // payment was canceled
       await onPaymentCancellation(intent);
@@ -125,5 +138,29 @@ export const updatePaymentIntent = async (
       await removePaymentIntent(intent.id);
       break;
   }
-  return [intent, canTryAgain];
+  return [intent, canRetryPayment];
+};
+
+export const refundConsumable = async (
+  stripeIntentId: string,
+  amount: number,
+) => {
+  try {
+    const intent = await getPaymentIntent(stripeIntentId, {
+      expand: ["latest_charge"],
+    });
+    if (intent.status !== "succeeded") return; // refund can be seen as not necessary
+    // if already refunded, or disputed and lost
+    if ((intent.latest_charge as Stripe.Charge | null)?.refunded) return; // already refunded
+    const refund = await stripe.refunds.create({
+      amount: Math.min(intent.amount_received, amount),
+      payment_intent: stripeIntentId,
+    });
+    return refund;
+  } catch (e) {
+    if (e instanceof Error) {
+      throw new Error(`${m.tickets_errors_couldNotRefund()}: ${e}`);
+    }
+    throw new Error(m.tickets_errors_couldNotRefund());
+  }
 };

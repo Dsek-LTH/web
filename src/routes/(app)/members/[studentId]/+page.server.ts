@@ -7,13 +7,15 @@ import apiNames from "$lib/utils/apiNames";
 import { sendPing } from "./pings";
 import { getCurrentDoorPoliciesForMember } from "$lib/utils/member";
 import keycloak from "$lib/server/keycloak";
+import { z } from "zod";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
-  const { user, prisma } = locals;
+  const { prisma, user } = locals;
+  const { studentId } = params;
   const [memberResult, publishedArticlesResult] = await Promise.allSettled([
     prisma.member.findUnique({
       where: {
-        studentId: params.studentId,
+        studentId: studentId,
       },
       include: {
         mandates: {
@@ -43,7 +45,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
       where: {
         author: {
           member: {
-            studentId: params.studentId,
+            studentId: studentId,
           },
         },
         removedAt: null,
@@ -64,10 +66,11 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     throw error(404, "Member not found");
   }
   const member = memberResult.value;
-  const allMemberDoors = await getCurrentDoorPoliciesForMember(
-    prisma,
-    member.id,
-  );
+
+  const doorAccess =
+    member.id === user?.memberId
+      ? await getCurrentDoorPoliciesForMember(prisma, studentId)
+      : [];
 
   const email =
     member.studentId !== null
@@ -79,7 +82,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
       form: await superValidate(member, memberSchema),
       pingForm: await superValidate(emptySchema),
       viewedMember: member, // https://github.com/Dsek-LTH/web/issues/194
-      allMemberDoors,
+      doorAccess,
       publishedArticles: publishedArticlesResult.value ?? [],
       email,
       ping: user
@@ -104,18 +107,39 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   }
 };
 
-const updateSchema = memberSchema.pick({
-  firstName: true,
-  lastName: true,
-  nickname: true,
-  foodPreference: true,
-  classProgramme: true,
-  classYear: true,
-});
+const updateSchema = memberSchema
+  .pick({
+    firstName: true,
+    lastName: true,
+    nickname: true,
+    foodPreference: true,
+    classProgramme: true,
+    classYear: true,
+  })
+  .partial();
 
 export type UpdateSchema = typeof updateSchema;
 
 export const actions: Actions = {
+  updateFoodPreference: async ({ params, locals, request }) => {
+    const { prisma } = locals;
+    const form = await superValidate(
+      request,
+      z.object({ foodPreference: z.string() }),
+    );
+    if (!form.valid) return fail(400, { form });
+    const { studentId } = params;
+    await prisma.member.update({
+      where: { studentId },
+      data: {
+        foodPreference: form.data.foodPreference,
+      },
+    });
+    return message(form, {
+      message: "Medlem uppdaterad",
+      type: "success",
+    });
+  },
   update: async ({ params, locals, request }) => {
     const { prisma } = locals;
     const form = await superValidate(request, updateSchema);
@@ -136,7 +160,7 @@ export const actions: Actions = {
     const { user, prisma } = locals;
     const form = await superValidate(request, emptySchema);
     authorize(apiNames.MEMBER.PING, user);
-    if (!user) return fail(401, { form });
+    if (!user?.memberId) return fail(401, { form });
 
     const { studentId } = params;
     try {
