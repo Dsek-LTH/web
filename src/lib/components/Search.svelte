@@ -30,11 +30,15 @@
   {#if users.length > 0}
     <ul
       tabindex="0"
-      class="dropdown-content bg-base-100 flex w-full flex-col gap-2 rounded-2xl p-2"
+      class="dropdown-content flex w-full flex-col gap-2
+             rounded-b-xl bg-base-200 bg-opacity-60 p-2 shadow filter backdrop-blur transition-all"
     >
       {#each users as user}
         <li>
-          <a href="/members/ol1662le-s" class="btn flex w-full flex-col p-2">
+          <a
+            href={"/members/" + user.studentId}
+            class="btn btn-ghost btn-sm flex flex-row justify-between"
+          >
             <div>{user.firstName} {user.lastName}</div>
             <div class="text-primary">({user.studentId})</div>
           </a>

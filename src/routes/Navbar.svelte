@@ -12,7 +12,7 @@
   import UserMenu from "./UserMenu.svelte";
   import { routes } from "./routes";
   import type { UserShopItemCounts } from "$lib/server/shop/countUserShopItems";
-    import Search from "$lib/components/Search.svelte";
+  import Search from "$lib/components/Search.svelte";
   $: notifications = $page.data["notifications"] as Notification[] | null;
   $: deleteNotificationForm = $page.data[
     "deleteNotificationForm"
