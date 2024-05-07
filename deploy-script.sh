@@ -7,5 +7,6 @@ rm -r !(node_modules|build.zip)
 
 unzip build.zip -d .
 pnpm i --ignore-scripts --prod=false
+pnpm zenstack generate
 
 sudo systemctl restart dsek-web.service 
