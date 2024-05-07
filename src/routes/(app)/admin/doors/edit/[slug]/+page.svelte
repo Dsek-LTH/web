@@ -9,6 +9,7 @@
   let type: "role" | "studentId" = "role";
 
   let removeModal: HTMLDialogElement | undefined = undefined;
+  let informationModal: HTMLDialogElement | undefined = undefined;
   let selectedPolicy: (typeof data)["doorAccessPolicies"][number] | undefined =
     undefined;
   const { form, errors, constraints, enhance } = superForm(data.createForm);
@@ -56,12 +57,41 @@
             {/if}
             <td>{policy.startDatetime?.toLocaleString("sv") ?? "N/A"}</td>
             <td>{policy.endDatetime?.toLocaleString("sv") ?? "N/A"}</td>
-            {#if policy.isBan}
-              <td>{"Banned"} </td>
+            {#if policy.information}
+              <td class="policy-information">
+                <button
+                  on:click={() => {
+                    informationModal?.showModal();
+                    selectedPolicy = policy;
+                  }}
+                  class="btn-error"
+                  ><svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="32"
+                    height="32"
+                    viewBox="0 0 24 24"
+                    ><path
+                      fill="currentColor"
+                      d="M13 9h-2V7h2m0 10h-2v-6h2m-1-9A10 10 0 0 0 2 12a10 10 0 0 0 10 10a10 10 0 0 0 10-10A10 10 0 0 0 12 2"
+                    /></svg
+                  ></button
+                >
+                <dialog id="my_modal_1" class="modal">
+                  <div class="modal-box">
+                    <h3 class="text-lg font-bold">Information!</h3>
+                    <p class="py-4">{policy.information}</p>
+                    <div class="modal-action">
+                      <form method="dialog">
+                        <!-- if there is a button in form, it will close the modal -->
+                        <button class="btn">Close</button>
+                      </form>
+                    </div>
+                  </div>
+                </dialog>
+              </td>
             {:else}
-              <td>{""} </td>
+              <div></div>
             {/if}
-
             <td class="text-right">
               <button
                 on:click={() => {
@@ -126,7 +156,7 @@
         class:bg-error={$form.isBan}
       >
         <label
-          class="p-2"
+          class="p-2 align-middle"
           id="banText"
           for="isBan"
           class:text-black={$form.isBan}
@@ -141,20 +171,21 @@
         />
         <span class="slider round"></span>
       </div>
+      <div class="form-control w-full">
+        <input
+          id="information"
+          name="information"
+          type="text"
+          class="input join-item input-bordered"
+          bind:value={$form.information}
+        />
+      </div>
       <label class="switch">
         <div class="flex-auto">
           <button type="submit" class="btn btn-primary join-item">Add</button>
         </div>
       </label>
     </label>
-    <textarea
-      class="textarea textarea-bordered"
-      placeholder={$form.isBan
-        ? "Reason for ban (optional)"
-        : "Additional notes (optional)"}
-      class:textarea-warning={$form.isBan}
-      id="banReason"
-    ></textarea>
     {#if Object.keys($errors).length > 0}
       <div class="text-error">
         <ul class="list-inside list-disc">
@@ -187,6 +218,27 @@
         </button>
       </form>
     </div>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button class="cursor-auto"></button>
+  </form>
+</dialog>
+
+<dialog bind:this={informationModal} class="modal modal-bottom sm:modal-middle">
+  <div class="modal-box">
+    <h3 class="text-lg font-bold">
+      <b class="capitalize">{$page.params["slug"]}</b>
+    </h3>
+    <p class="py-4">
+      {selectedPolicy?.information}
+    </p>
+    <button
+      type="submit"
+      class="btn btn-error"
+      on:click={() => informationModal?.close()}
+    >
+      OK
+    </button>
   </div>
   <form method="dialog" class="modal-backdrop">
     <button class="cursor-auto"></button>
