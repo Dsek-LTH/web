@@ -1,4 +1,4 @@
-import { redirect } from "@sveltejs/kit";
+import { redirect } from "$lib/utils/redirect";
 import type { PageServerLoad } from "./$types";
 import { i18n } from "$lib/utils/i18n";
 

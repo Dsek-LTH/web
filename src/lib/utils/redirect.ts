@@ -1,6 +1,8 @@
-import { goto as rawGoto } from "$app/navigation";
 import { i18n } from "$lib/utils/i18n";
+/* eslint-disable no-restricted-imports -- This is the wrapper that should be used */
+import { goto as rawGoto } from "$app/navigation";
 import { redirect as rawRedirect } from "sveltekit-flash-message/server";
+/* eslint-enable no-restricted-imports -- Enable again, for eslint */
 
 export const goto: typeof rawGoto = (url, opts) => {
   if (typeof url === "string" && url.startsWith("/")) {
