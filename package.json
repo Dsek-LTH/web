@@ -84,6 +84,7 @@
     "@fullcalendar/daygrid": "^6.1.10",
     "@keycloak/keycloak-admin-client": "^23.0.4",
     "@prisma/client": "^5.12.1",
+    "@shlinkio/shlink-js-sdk": "^1.1.0",
     "@stripe/stripe-js": "^3.2.0",
     "@tiptap/core": "^2.1.13",
     "@tiptap/pm": "^2.1.13",

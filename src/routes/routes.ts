@@ -108,6 +108,12 @@ export const routes = [
         accessRequired: apiNames.EMAIL_ALIAS.READ,
       },
       {
+        title: m.linkShortener(),
+        path: "/admin/links",
+        icon: "i-mdi-link-variant",
+        accessRequired: apiNames.DOOR.READ, //temporary, make right api access here as well
+      },
+      {
         title: m.alerts(),
         path: "/admin/alerts",
         icon: "i-mdi-alert-circle",
