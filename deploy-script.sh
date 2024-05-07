@@ -6,6 +6,6 @@ shopt -s extglob
 rm -r !(node_modules|build.zip) 
 
 unzip build.zip -d .
-npm i --ignore-scripts
+pnpm i --ignore-scripts
 
 sudo systemctl restart dsek-web.service 
