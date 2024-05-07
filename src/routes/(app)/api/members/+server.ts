@@ -9,47 +9,57 @@ export const GET: RequestHandler = async ({ locals, url }) => {
     throw error(400, "you need to provide a search value");
   }
 
-  let [firstName, lastName]: [string | undefined, string | undefined] = [
-    undefined,
-    undefined,
-  ];
-  if (search.split(" ").length >= 2) {
-    [firstName, lastName] = search.split(" ");
-  }
-  const nickname = search.match(/"(.+)"/)?.[1];
-  const studentId = search.match(/(\w{2}\d{4}\w{2}-s)/)?.[1];
+  const split = search.split(/ +/);
+  const firstName = split[0];
+  const lastName = split[1];
+  const nickname = search.includes('"') ? search : undefined;
+  const studentId = /\w{2}\d{1}/.test(search) ? search : undefined;
 
   const members = await prisma.member.findMany({
     where: {
       OR: [
-        {
-          firstName:
-            firstName || (!studentId && !nickname)
-              ? {
-                  contains: firstName ?? search,
+        lastName
+          ? {
+              AND: {
+                firstName: {
+                  contains: firstName,
                   mode: "insensitive",
-                }
-              : undefined,
+                },
+                lastName: {
+                  contains: lastName,
+                  mode: "insensitive",
+                },
+              },
+            }
+          : {
+              OR: [
+                {
+                  firstName: {
+                    contains: firstName,
+                    mode: "insensitive",
+                  },
+                },
+                {
+                  lastName: {
+                    contains: search,
+                    mode: "insensitive",
+                  },
+                },
+              ],
+            },
+        {
+          nickname: {
+            contains: nickname,
+            mode: "insensitive",
+          },
         },
         {
-          lastName:
-            lastName || (!studentId && !nickname)
-              ? {
-                  contains: lastName ?? search,
-                  mode: "insensitive",
-                }
-              : undefined,
-        },
-        {
-          nickname: nickname
-            ? {
-                contains: nickname,
-                mode: "insensitive",
-              }
-            : undefined,
+          studentId: {
+            contains: studentId,
+            mode: "insensitive",
+          },
         },
       ],
-      studentId: studentId,
     },
     orderBy: [
       studentId

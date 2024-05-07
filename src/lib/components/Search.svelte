@@ -10,10 +10,12 @@
       "/api/members?" + new URLSearchParams({ search: value }),
     );
     users = await response.json();
+    console.log(users);
+    length = users.length;
   }
 </script>
 
-<div class="dropdown dropdown-hover mx-auto">
+<div class="dropdown dropdown-hover relative mx-auto">
   <label
     class="input input-bordered flex h-10 items-center gap-2 bg-transparent pl-2"
   >
@@ -33,7 +35,7 @@
       class="dropdown-content flex w-full flex-col gap-2
              rounded-b-xl bg-base-200 bg-opacity-60 p-2 shadow filter backdrop-blur transition-all"
     >
-      {#each users as user}
+      {#each users.slice(0, 10) as user}
         <li>
           <a
             href={"/members/" + user.studentId}
@@ -44,6 +46,9 @@
           </a>
         </li>
       {/each}
+      {#if users.length > 10}
+        <li class="text-center">...</li>
+      {/if}
     </ul>
   {/if}
 </div>
