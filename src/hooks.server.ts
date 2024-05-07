@@ -1,9 +1,4 @@
-import {
-  AUTH_SECRET,
-  KEYCLOAK_CLIENT_ID,
-  KEYCLOAK_CLIENT_ISSUER,
-  KEYCLOAK_CLIENT_SECRET,
-} from "$env/static/private";
+import { env } from "$env/dynamic/private";
 import keycloak from "$lib/server/keycloak";
 import { i18n } from "$lib/utils/i18n";
 import { isAvailableLanguageTag, sourceLanguageTag } from "$paraglide/runtime";
@@ -23,13 +18,13 @@ import translatedExtension from "./database/prisma/translationExtension";
 import { getAccessPolicies } from "./hooks.server.helpers";
 
 const authHandle = SvelteKitAuth({
-  secret: AUTH_SECRET,
+  secret: env.AUTH_SECRET,
   trustHost: true,
   providers: [
     Keycloak({
-      clientId: KEYCLOAK_CLIENT_ID,
-      clientSecret: KEYCLOAK_CLIENT_SECRET,
-      issuer: KEYCLOAK_CLIENT_ISSUER,
+      clientId: env.KEYCLOAK_CLIENT_ID,
+      clientSecret: env.KEYCLOAK_CLIENT_SECRET,
+      issuer: env.KEYCLOAK_CLIENT_ISSUER,
       profile: (profile: KeycloakProfile, tokens: TokenSet) => {
         return {
           access_token: tokens.access_token,
@@ -75,7 +70,9 @@ const authHandle = SvelteKitAuth({
       const params = new URLSearchParams();
       params.append("id_token_hint", idToken as string);
       await fetch(
-        `${KEYCLOAK_CLIENT_ISSUER}/protocol/openid-connect/logout?${params.toString()}`,
+        `${
+          env.KEYCLOAK_CLIENT_ISSUER
+        }/protocol/openid-connect/logout?${params.toString()}`,
       );
     },
   },
