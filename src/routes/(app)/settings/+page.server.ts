@@ -14,7 +14,7 @@ export const load: PageServerLoad = async ({ locals }) => {
       })
     : [];
   const subscribedTags = user
-    ? await prisma.member.findFirst({
+    ? await prisma.member.findUnique({
         where: {
           id: user.memberId,
         },

@@ -8,7 +8,7 @@
 
   export let data: PageData;
   $: subscriptionSettings = data.subscriptionSettings;
-  $: subscribedTags = data.subscribedTags as { subscribedTags: Tag[] }.subscribedTags;
+  $: subscribedTags = data.subscribedTags as { subscribedTags: Tag[] };
   $: tags = data.tags;
   // $: nonSubscribedTags = data.tags.filter(
   //   (tag) =>
@@ -42,7 +42,11 @@
     </div>
     <div class="m-2 flex w-full max-w-2xl flex-col items-center lg:p-0">
       <h2 class="mb-2 text-2xl font-bold">Nyhetsprenumerationer</h2>
-      <SubscriptionTags {tags} {subscribedTags} data={data.form} />
+      <SubscriptionTags
+        {tags}
+        subscribedTags={subscribedTags.subscribedTags}
+        data={data.form}
+      />
     </div>
     <button
       class="btn absolute bottom-0 mb-4 mt-4 w-full max-w-xl bg-primary"

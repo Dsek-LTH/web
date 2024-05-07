@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { TagSchema } from "$lib/zod/schemas";
+  import type { SettingsSchema, TagSchema } from "$lib/zod/schemas";
   import { type Tag } from "@prisma/client";
   import { superForm } from "sveltekit-superforms/client";
   import type { SuperValidated } from "sveltekit-superforms";
@@ -23,14 +23,11 @@
   //   );
   // };
 
-  // console.log(nonSubscribedTags);
-
-  export let data: SuperValidated<TagSchema>;
+  export let data: SuperValidated<SettingsSchema>;
 
   const { form } = superForm(data);
-
   let selected = tags.map(
-    (tag) => subscribedTags.find((subTag) => tag.id == subTag.id) != undefined,
+    (tag) => subscribedTags.find((subTag) => subTag.id == tag.id) != undefined,
   );
 </script>
 
@@ -44,8 +41,8 @@
         <input
           type="checkbox"
           class="peer sr-only"
+          bind:group={}
           bind:checked={selected[index]}
-          bind:group={$form}
           value={tag}
         />
         <span
