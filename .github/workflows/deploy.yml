@@ -22,7 +22,7 @@ jobs:
 
       - uses: montudor/action-zip@v1
         with:
-          args: zip -qq -r build.zip build src/database/prisma/schema.prisma src/database/schema.zmodel package.json patches src/routes/api/openapi.json/openapi.json
+          args: zip -qq -r build.zip build src/database/prisma/schema.prisma src/database/schema.zmodel package.json pnpm-lock.yaml patches src/routes/api/openapi.json/openapi.json
 
       - uses: softprops/action-gh-release@v2
         with:
