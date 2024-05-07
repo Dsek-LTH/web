@@ -74,3 +74,4 @@ export const settingsSchema = z.object({
   subscribedSettings: z.array(subscriptionSchema),
   tags: z.array(tagSchema),
 });
+export type SettingsSchema = typeof settingsSchema;
