@@ -46,23 +46,23 @@
       <div class="flex flex-col items-start gap-2">
         <a
           href={`/members/${user?.studentId}`}
-          class="btn btn-ghost w-48 justify-start text-base-content"
+          class="btn btn-ghost w-full justify-start text-base-content"
         >
           <span class="i-mdi-account-circle size-6 text-primary" />
           Profil
         </a>
-        <a href="/settings" class="btn btn-ghost w-48 justify-start">
+        <a href="/settings" class="btn btn-ghost w-full justify-start">
           <span class="i-mdi-cog size-6 text-primary" />
           Inställningar
         </a>
         {#if (shopItemCounts?.owned ?? 0) > 0}
-          <a href="/shop/inventory" class="btn btn-ghost w-48 justify-start">
+          <a href="/shop/inventory" class="btn btn-ghost w-full justify-start">
             <span class="i-mdi-treasure-chest size-6 text-primary" />
             Kista
           </a>
         {/if}
         {#if amountInCart > 0}
-          <a href="/shop/cart" class="btn btn-ghost w-48 justify-start">
+          <a href="/shop/cart" class="btn btn-ghost w-full justify-start">
             <span class="i-mdi-cart size-6 text-primary" />
             <span>Kundvagn</span>
             <span class="badge badge-primary badge-sm">{amountInCart}</span>
