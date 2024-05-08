@@ -2,10 +2,12 @@
   import { goto } from "$app/navigation";
   import PageHeader from "$lib/components/PageHeader.svelte";
   import Pagination from "$lib/components/Pagination.svelte";
-  import TagSelector from "$lib/components/TagSelector.svelte";
   import type { ShlinkShortUrlsOrder } from "@shlinkio/shlink-js-sdk/api-contract";
   import type { PageData } from "./$types";
   import { page } from "$app/stores";
+  import TagSelector from "$lib/components/TagSelector.svelte";
+  import type { Tag } from "@prisma/client";
+  import SearchBar from "$lib/components/SearchBar.svelte";
 
   export let data: PageData;
 
@@ -35,24 +37,37 @@
     { order: { field: "dateCreated" }, title: "Created date" },
     { order: { field: "visits" }, title: "Visits" },
   ];
+
+  const allTags = data.tags.map((t) => ({ id: t, name: t }));
+
+  let filteredTags: Tag[] = allTags.filter((tag) =>
+    $page.url.searchParams.getAll("tags").includes(tag.name),
+  );
+
+  let form: HTMLFormElement;
 </script>
 
 <PageHeader title="Link shortener" />
 
-<div>
-  <div class="my-4 rounded-lg p-4">
-    <div class="border-b border-neutral p-4">
-      Hello World! <br />
-      {#each data.tags as t}
-        {t}
-      {/each}
-    </div>
-  </div>
-</div>
+<form
+  method="get"
+  class="form-control flex-1 gap-2 md:flex-row md:items-end"
+  id="filter-form"
+  bind:this={form}
+>
+  <TagSelector
+    {allTags}
+    bind:selectedTags={filteredTags}
+    onChange={() => setTimeout(() => form.requestSubmit())}
+  />
+  <SearchBar />
+  {#each filteredTags as tag (tag.id)}
+    <input type="hidden" name="tags" value={tag.name} />
+  {/each}
+</form>
 
 <div class="overflow-x-auto">
-  <h1 class="my-4 text-2xl font-bold">Links</h1>
-  <table class="table mb-4">
+  <table class="table my-4">
     <thead>
       <tr class="cursor-pointer bg-base-200">
         {#each table_headers as th (th.title)}

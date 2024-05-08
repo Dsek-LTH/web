@@ -52,6 +52,8 @@ export const load: PageServerLoad = async ({ url }) => {
           | "nonBotVisits",
         dir: dir as "ASC" | "DESC",
       },
+      tags: url.searchParams.getAll("tags"),
+      searchTerm: url.searchParams.get("search") ?? undefined,
     });
   } catch (_e) {
     const e = _e as ProblemDetailsError;
