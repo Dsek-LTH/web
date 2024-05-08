@@ -5,19 +5,29 @@
   export let news: Array<Pick<Article, "header" | "body" | "slug">>;
 </script>
 
-<ol class="flex flex-col gap-4">
+<div
+  class="rounded-t-xl border-t-4 border-t-secondary bg-base-300 p-4 text-2xl font-bold"
+>
+  Nyheter
+</div>
+<div
+  class="grid grid-cols-1 flex-row divide-x-2 divide-y-2 divide-base-100 rounded-b-xl sm:grid-cols-2 lg:grid-cols-4 lg:[&>*:first-child]:rounded-bl-xl [&>*:last-child]:rounded-br-xl max-sm:[&>*:nth-child(2)]:rounded-b-xl max-sm:[&>*:nth-child(3)]:hidden max-sm:[&>*:nth-child(4)]:hidden sm:max-lg:[&>*:nth-last-child(2)]:rounded-bl-xl"
+>
   {#each news as article (article.slug)}
-    <li>
-      <article class="pop-out rounded-2xl bg-base-300 p-4">
-        <a href="/news/{article.slug}">
-          <h2 class="mb-2 text-xl font-bold text-primary">
+    <div class="bg-base-200">
+      <a
+        href="/news/{article.slug}"
+        class="pop-out flex h-full overflow-hidden p-4"
+      >
+        <article>
+          <h2 class="mb-2 truncate text-xl font-bold text-secondary">
             {article.header}
           </h2>
-          <p class="line-clamp-2 text-ellipsis leading-normal md:line-clamp-3">
-            {markdownToTxt(article.body)}
+          <p class="line-clamp-3 flex-none text-ellipsis leading-normal">
+            {markdownToTxt(article.body, { pedantic: true })}
           </p>
-        </a>
-      </article>
-    </li>
+        </article>
+      </a>
+    </div>
   {/each}
-</ol>
+</div>
