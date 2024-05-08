@@ -5,6 +5,7 @@ import { message, superValidate } from "sveltekit-superforms/server";
 import softDelete from "$lib/utils/softDelete";
 import { authorize } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
+import * as m from "$paraglide/messages";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma } = locals;
@@ -48,7 +49,7 @@ export const actions = {
       },
     });
     return message(form, {
-      message: "Global alert skapad",
+      message: m.admin_alerts_alertCreated(),
       type: "success",
     });
   },
@@ -66,7 +67,7 @@ export const actions = {
       }),
     );
     return message(form, {
-      message: "Global alert removed",
+      message: m.admin_alerts_alertRemoved(),
       type: "success",
     });
   },
