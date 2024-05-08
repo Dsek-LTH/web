@@ -19,6 +19,12 @@ dependencies:
   '@egoist/tailwindcss-icons':
     specifier: ^1.7.1
     version: 1.7.1(tailwindcss@3.4.0)
+  '@fontsource-variable/inter':
+    specifier: ^5.0.18
+    version: 5.0.18
+  '@fontsource/ibm-plex-mono':
+    specifier: ^5.0.13
+    version: 5.0.13
   '@fullcalendar/core':
     specifier: ^6.1.10
     version: 6.1.10
@@ -619,6 +625,14 @@ packages:
     resolution: {integrity: sha512-gMsVel9D7f2HLkBma9VbtzZRehRogVRfbr++f06nL2vnCGCNlzOD+/MUov/F4p8myyAHspEhVobgjpX64q5m6A==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dev: true
+
+  /@fontsource-variable/inter@5.0.18:
+    resolution: {integrity: sha512-rJzSrtJ3b7djiGFvRuTe6stDfbYJGhdQSfn2SI2WfXviee7Er0yKAHE5u7FU7OWVQQQ1x3+cxdmx9NdiAkcrcA==}
+    dev: false
+
+  /@fontsource/ibm-plex-mono@5.0.13:
+    resolution: {integrity: sha512-gtlMmvk//2AgDEZDFsoL5z9mgW3ZZg/9SC7pIfDwNKp5DtZpApgqd1Fua3HhPwYRIHrT76IQ1tMTzQKLEGtJGQ==}
+    dev: false
 
   /@fullcalendar/core@6.1.10:
     resolution: {integrity: sha512-oTXGJSAGpCf1oY+CKp5qYjMHkJCPBkJ3SHitl63n8Q6xKeiwQ4EF6Au451euUovREwJpLmD1AyZrCnWmtB9AVg==}
