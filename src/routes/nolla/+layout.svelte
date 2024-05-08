@@ -1,8 +1,8 @@
 <div
   data-theme="nollningPreReveal"
-  class="font-nolla-sans flex flex-1 flex-col"
+  class="flex flex-1 flex-col font-nolla-sans"
 >
-  <nav class="container mx-auto flex items-center justify-between py-10">
+  <nav class="container mx-auto flex h-36 items-center justify-between py-10">
     <div class="flex gap-24 text-2xl font-semibold">
       <a href="/nolla">Start</a>
       <a href="/nolla/nollning">Nollning?</a>
@@ -10,7 +10,7 @@
     </div>
 
     <button
-      class="flex items-center rounded-xl border border-b-4 border-r-4 border-black bg-primary p-4 text-2xl font-semibold transition-all hover:border-b-8 hover:border-r-8"
+      class="box-shadow-bottom translate flex items-center rounded-xl border-2 border-black bg-primary p-4 text-2xl font-semibold transition hover:translate-y-2 hover:shadow-none"
     >
       <a href="/">dsek.se</a>
       <span class="i-mdi-arrow-right" />

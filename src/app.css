@@ -19,6 +19,10 @@
   .pop-out {
     @apply transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:bg-base-200 hover:shadow-xl;
   }
+
+  .box-shadow-bottom {
+    box-shadow: 0px 4px black;
+  }
 }
 
 [data-theme="dark"] {
