@@ -1,7 +1,7 @@
 import apiNames from "$lib/utils/apiNames";
 import * as m from "$paraglide/messages";
 
-export const routes = [
+export const getRoutes = () => [
   {
     title: m.home(),
     path: "/",
