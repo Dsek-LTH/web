@@ -150,5 +150,21 @@
   "admin_alerts_remove": "Remove",
   "admin_alerts_removeAreYouSure": "Are you sure you want to remove this alert?",
   "admin_alerts_alertCreated": "Global alert created",
-  "admin_alerts_alertRemoved": "Global alert removed"
+  "admin_alerts_alertRemoved": "Global alert removed",
+
+  "admin_doors_door": "Door",
+  "admin_doors_role": "Role",
+  "admin_doors_member": "Member",
+  "admin_doors_roleMember": "Role/member",
+  "admin_doors_startDate": "Start date",
+  "admin_doors_endDate": "End date",
+  "admin_doors_remove": "Remove",
+  "admin_doors_add": "Add",
+  "admin_doors_edit": "Edit",
+  "admin_doors_revokeDoorAccess": "Revoke door access",
+  "admin_doors_grantDoorAccess": "Grant door access",
+  "admin_doors_startDateOptional": "Start date (optional)",
+  "admin_doors_endDateOptional": "End date (optional)",
+  "admin_doors_revokeAreYouSure": "Are you sure you want to revoke access to <b class=\"capitalize\">{door}</b> for <b>{target}</b>?",
+  "admin_doors_profileAvatar": "Profile avatar"
 }

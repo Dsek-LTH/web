@@ -151,5 +151,21 @@
   "admin_alerts_remove": "Ta bort",
   "admin_alerts_removeAreYouSure": "Är du säker på att du vill ta bort den här globala notisen?",
   "admin_alerts_alertCreated": "Global notis skapad",
-  "admin_alerts_alertRemoved": "Global notis borttagen"
+  "admin_alerts_alertRemoved": "Global notis borttagen",
+
+  "admin_doors_door": "Dörr",
+  "admin_doors_role": "Roll",
+  "admin_doors_member": "Medlem",
+  "admin_doors_roleMember": "Roll/medlem",
+  "admin_doors_startDate": "Startdatum",
+  "admin_doors_endDate": "Slutdatum",
+  "admin_doors_remove": "Ta bort",
+  "admin_doors_add": "Lägg till",
+  "admin_doors_edit": "Redigera",
+  "admin_doors_revokeDoorAccess": "Återkalla dörråtkomst",
+  "admin_doors_grantDoorAccess": "Ge dörråtkomst",
+  "admin_doors_startDateOptional": "Startdatum (frivilligt)",
+  "admin_doors_endDateOptional": "Slutdatum (frivilligt)",
+  "admin_doors_revokeAreYouSure": "Är du säker på att du vill återkalla åtkomst till <b class=\"capitalize\">{door}</b> för <b>{target}</b>?",
+  "admin_doors_profileAvatar": "Profilavatar"
 }
