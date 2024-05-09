@@ -24,8 +24,9 @@
           </td>
           {#if isAuthorized(apiNames.DOOR.UPDATE, $page.data.user)}
             <td class="text-right">
-              <a class="btn btn-xs px-8"
-                 href="doors/edit/{door.name}">{m.admin_doors_edit()}</a>
+              <a class="btn btn-xs px-8" href="doors/edit/{door.name}"
+                >{m.admin_doors_edit()}</a
+              >
             </td>
           {/if}
         </tr>
