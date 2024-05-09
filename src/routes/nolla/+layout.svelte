@@ -1,3 +1,7 @@
+<script lang="ts">
+  import "./styles.css";
+</script>
+
 <div
   data-theme="nollningPreReveal"
   class="flex flex-1 flex-col font-nolla-sans"
@@ -15,12 +19,16 @@
       </a>
     </div>
 
-    <button
-      class="box-shadow-bottom translate flex items-center rounded-xl border-2 border-black bg-primary p-4 text-2xl font-semibold transition hover:translate-y-2 hover:shadow-none"
+    <a
+      href="/"
+      class="box-shadow-black translate hover:box-shadow-black-lg flex items-center
+             rounded-xl border-2 border-black bg-primary p-4 text-2xl font-semibold
+             transition hover:-translate-x-1 hover:-translate-y-1 active:translate-x-1
+             active:translate-y-1 active:shadow-none"
     >
-      <a href="/">dsek.se</a>
+      dsek.se
       <span class="i-mdi-arrow-right" />
-    </button>
+    </a>
   </nav>
 
   <div class="container mx-auto flex-1">
