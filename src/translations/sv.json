@@ -135,6 +135,7 @@
   "admin_access_edit": "Redigera",
   "admin_access_addNewPolicy": "Lägg till nya polycier",
   "admin_access_newPolicy": "Ny policy",
+  "admin_access_policyCreated": "Ny policy skapad",
 
   "admin_alerts_messageSwedish": "Svenskt meddelande",
   "admin_alerts_messageEnglish": "Engelskt meddelande",

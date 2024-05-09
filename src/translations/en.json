@@ -134,6 +134,7 @@
   "admin_access_edit": "Edit",
   "admin_access_addNewPolicy": "Add new policies",
   "admin_access_newPolicy": "New policy",
+  "admin_access_policyCreated": "Access policy created",
 
   "admin_alerts_messageSwedish": "Swedish message",
   "admin_alerts_messageEnglish": "English message",
