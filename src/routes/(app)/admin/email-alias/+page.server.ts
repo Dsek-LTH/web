@@ -11,6 +11,7 @@ import { authorize } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
 import keycloak from "$lib/server/keycloak";
 import { mailAliasUpdateHandler } from "$lib/server/mail/alias/mailAliasUpdateHandler";
+import * as m from "$paraglide/messages";
 export const load: PageServerLoad = async (event) => {
   const { prisma } = event.locals;
   const [
@@ -74,14 +75,18 @@ export const actions: Actions = {
       domainAlias: domain,
     } = form.data;
     if (!getEmailDomains().includes(domain)) {
-      return setError(form, "domainAlias", "Ogiltig domän");
+      return setError(form, "domainAlias", m.admin_emailalias_invalidDomain());
     }
     const email = fuseEmail({
       localPart,
       domain,
     });
     if (email == null || !isValidEmail(email)) {
-      return setError(form, "localPartAlias", "Ogiltig e-postadress");
+      return setError(
+        form,
+        "localPartAlias",
+        m.admin_emailalias_invalidAddress(),
+      );
     }
     const position = await prisma.position.findUnique({
       where: {
@@ -89,7 +94,11 @@ export const actions: Actions = {
       },
     });
     if (position == null) {
-      return setError(form, "positionIdAlias", "Positionen finns inte");
+      return setError(
+        form,
+        "positionIdAlias",
+        m.admin_emailalias_nonexistentPosition(),
+      );
     }
     const existingEmailAlias = await prisma.emailAlias.findFirst({
       where: {
@@ -100,7 +109,11 @@ export const actions: Actions = {
       },
     });
     if (existingEmailAlias != null) {
-      return setError(form, "localPartAlias", "Aliaset finns redan");
+      return setError(
+        form,
+        "localPartAlias",
+        m.admin_emailalias_aliasAlreadyExists(),
+      );
     }
     await prisma.emailAlias.create({
       data: {
@@ -114,7 +127,7 @@ export const actions: Actions = {
     });
     mailAliasUpdateHandler.handleUpdate();
     return message(form, {
-      message: "E-postadressen skapad",
+      message: m.admin_emailalias_addressCreated(),
       type: "success",
     });
   },
@@ -137,7 +150,11 @@ export const actions: Actions = {
       domain,
     });
     if (email == null || !isValidEmail(email)) {
-      return setError(form, "localPartSender", "Ogiltig e-postadress");
+      return setError(
+        form,
+        "localPartSender",
+        m.admin_emailalias_invalidAddress(),
+      );
     }
     const existingEmailAlias = await prisma.emailAlias.findFirst({
       where: {
@@ -145,7 +162,11 @@ export const actions: Actions = {
       },
     });
     if (existingEmailAlias != null) {
-      return setError(form, "localPartSender", "Aliaset finns redan");
+      return setError(
+        form,
+        "localPartSender",
+        m.admin_emailalias_aliasAlreadyExists(),
+      );
     }
     const existingSpecialSender = await prisma.specialSender.findFirst({
       where: {
@@ -153,14 +174,18 @@ export const actions: Actions = {
       },
     });
     if (existingSpecialSender != null) {
-      return setError(form, "localPartSender", "Aliaset finns redan");
+      return setError(
+        form,
+        "localPartSender",
+        m.admin_emailalias_aliasAlreadyExists(),
+      );
     }
     const usernameInKeycloak = await keycloak.hasUsername(username);
     if (!usernameInKeycloak) {
       return setError(
         form,
         "usernameSender",
-        "Användaren finns inte i Keycloak",
+        m.admin_emailalias_userNotInKeycloak(),
       );
     }
     const keycloakId = await keycloak.getUserId(username);
@@ -168,7 +193,7 @@ export const actions: Actions = {
       return setError(
         form,
         "usernameSender",
-        "Användaren finns inte i Keycloak",
+        m.admin_emailalias_userNotInKeycloak(),
       );
     }
     await prisma.specialSender.create({
@@ -180,7 +205,7 @@ export const actions: Actions = {
     });
     mailAliasUpdateHandler.handleUpdate();
     return message(form, {
-      message: "E-postadressen skapad",
+      message: m.admin_emailalias_addressCreated(),
       type: "success",
     });
   },
@@ -203,7 +228,11 @@ export const actions: Actions = {
       domain,
     });
     if (email == null || !isValidEmail(email)) {
-      return setError(form, "localPartReceiver", "Ogiltig e-postadress");
+      return setError(
+        form,
+        "localPartReceiver",
+        m.admin_emailalias_invalidAddress(),
+      );
     }
     const existingEmailAlias = await prisma.emailAlias.findFirst({
       where: {
@@ -211,7 +240,11 @@ export const actions: Actions = {
       },
     });
     if (existingEmailAlias != null) {
-      return setError(form, "localPartReceiver", "Aliaset finns redan");
+      return setError(
+        form,
+        "localPartReceiver",
+        m.admin_emailalias_aliasAlreadyExists(),
+      );
     }
     const existingSpecialReceiver = await prisma.specialReceiver.findFirst({
       where: {
@@ -220,7 +253,11 @@ export const actions: Actions = {
       },
     });
     if (existingSpecialReceiver != null) {
-      return setError(form, "localPartReceiver", "Aliaset finns redan");
+      return setError(
+        form,
+        "localPartReceiver",
+        m.admin_emailalias_aliasAlreadyExists(),
+      );
     }
 
     await prisma.specialReceiver.create({
@@ -231,7 +268,7 @@ export const actions: Actions = {
     });
     mailAliasUpdateHandler.handleUpdate();
     return message(form, {
-      message: "E-postadressen skapad",
+      message: m.admin_emailalias_addressCreated(),
       type: "success",
     });
   },

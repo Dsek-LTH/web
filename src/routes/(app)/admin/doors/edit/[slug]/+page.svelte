@@ -113,7 +113,9 @@
           />
         </Labeled>
       </div>
-      <button type="submit" class="btn btn-primary join-item">{m.admin_doors_add()}</button>
+      <button type="submit" class="btn btn-primary join-item"
+        >{m.admin_doors_add()}</button
+      >
     </label>
     {#if Object.keys($errors).length > 0}
       <div class="text-error">
