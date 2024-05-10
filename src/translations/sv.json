@@ -211,5 +211,8 @@
   "admin_emailalias_specialSendersRemoved": "Särskilda avsändare borttagna",
   "admin_emailalias_studentIDOrUsername": "Student-ID eller användarnamn",
   "admin_emailalias_targetAddress": "Målmejladress",
-  "admin_emailalias_userNotInKeycloak": "Användaren finns inte i Keycloak"
+  "admin_emailalias_userNotInKeycloak": "Användaren finns inte i Keycloak",
+
+  "board_description": "Styrelsen ansvarar för den dagliga verksamheten på sektionen. Till styrelsen kan du alltid vända dig om du har frågor, funderingar eller åsikter om sektionen och dess verksamhet. Styrelsen sammanträder på styrelsemöten varje vecka som är öppna för alla medlemmar.",
+  "board_reachAt": "Styrelsen kan nås på <a class=\"text-primary\" href=\"mailto:styrelsen@dsek.se\"> styrelsen@dsek.se</a>"
 }

@@ -3,25 +3,19 @@
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import { getFullName } from "$lib/utils/client/member";
   import type { PageData } from "./$types";
+  import * as m from "$paraglide/messages";
   export let data: PageData;
 </script>
 
-<PageHeader title="Styrelsen" />
+<PageHeader title={m.theBoard()} />
 <!-- TODO: make this editable by board members with Markdown page -->
 <section class="mb-5 space-y-5">
   <p>
-    Styrelsen ansvarar för den dagliga verksamheten på sektionen. Till styrelsen
-    kan du alltid vända dig om du har frågor, funderingar eller åsikter om
-    sektionen och dess verksamhet. Styrelsen sammanträder på styrelsemöten varje
-    vecka som är öppna för alla medlemmar.
+    {m.board_description()}
   </p>
   <p>
-    Styrelsen kan nås på <a
-      class="text-primary"
-      href="mailto:styrelsen@dsek.se"
-    >
-      styrelsen@dsek.se
-    </a>
+    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+    {@html m.board_reachAt()}
   </p>
 </section>
 
