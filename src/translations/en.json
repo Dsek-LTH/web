@@ -211,5 +211,8 @@
   "admin_emailalias_specialSendersRemoved": "Special senders removed",
   "admin_emailalias_studentIDOrUsername": "Student ID or Username",
   "admin_emailalias_targetAddress": "Target email address",
-  "admin_emailalias_userNotInKeycloak": "The user does not exist in Keycloak"
+  "admin_emailalias_userNotInKeycloak": "The user does not exist in Keycloak",
+
+  "board_description": "The board is responsible for the day to day operations of the guild. You can always turn to the board if you have questions, thoughts or opinions about the guild and its operations. The board convenes every week at the board meetings, which are open for all guild members.",
+  "board_reachAt": "The board can be reached at <a class=\"text-primary\" href=\"mailto:styrelsen@dsek.se\"> styrelsen@dsek.se</a>"
 }
