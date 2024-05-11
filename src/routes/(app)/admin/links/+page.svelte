@@ -14,7 +14,7 @@
 
   $: query = new URLSearchParams($page.url.searchParams.toString());
 
-  const set_url_params = (order: ShlinkShortUrlsOrder) => {
+  const setUrlParams = (order: ShlinkShortUrlsOrder) => {
     if (
       query.get("orderBy") === order.field ||
       (!query.has("orderBy") && order.field === "dateCreated")
@@ -31,7 +31,7 @@
     goto(`?${query.toString()}`);
   };
 
-  const table_headers: [{ order: ShlinkShortUrlsOrder; title: string }] = [
+  const tableHeaders: [{ order: ShlinkShortUrlsOrder; title: string }] = [
     { order: { field: "shortCode" }, title: "Slug" },
     { order: { field: "longUrl" }, title: "Link" },
     { order: { field: null }, title: "Tags" },
@@ -45,12 +45,12 @@
     $page.url.searchParams.getAll("tags").includes(tag.name),
   );
 
-  let form: HTMLFormElement;
+  let searchForm: HTMLFormElement;
 
   let toggleAllCheckBox: HTMLInputElement;
   let checkboxes: boolean[] = [];
 
-  const reset_checkboxes = () => {
+  const resetCheckboxes = () => {
     checkboxes = [];
     if (toggleAllCheckBox) {
       toggleAllCheckBox.checked = false;
@@ -58,7 +58,7 @@
   };
 
   $: if (data.domains) {
-    reset_checkboxes();
+    resetCheckboxes();
   }
 
   let removeModal: HTMLDialogElement | undefined = undefined;
@@ -80,12 +80,12 @@
       method="get"
       class="form-control flex-1 gap-2 md:flex-row md:items-end"
       id="filter-form"
-      bind:this={form}
+      bind:this={searchForm}
     >
       <TagSelector
         {allTags}
         bind:selectedTags={filteredTags}
-        onChange={() => setTimeout(() => form.requestSubmit())}
+        onChange={() => setTimeout(() => searchForm.requestSubmit())}
       />
       <SearchBar />
       {#each filteredTags as tag (tag.id)}
@@ -143,10 +143,10 @@
                 ))}
             />
           </th>
-          {#each table_headers as th (th.title)}
+          {#each tableHeaders as th (th.title)}
             {#if th.order.field}
               <th
-                on:click={() => set_url_params({ field: th.order.field })}
+                on:click={() => setUrlParams({ field: th.order.field })}
                 class="cursor-pointer"
               >
                 {th.title}
