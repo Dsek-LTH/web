@@ -228,5 +228,26 @@
   "setting_create_mandate": "När du får en ny post",
   "setting_booking_request": "Bokningar",
   "setting_ping": "Pingar",
-  "setting_push": "Pushnotis"
+  "setting_push": "Pushnotis",
+
+  "committees_committees": "Utskott",
+  "committees_volunteers": "funktionärer",
+  "committees_boardMember": "Styrelsemedlem",
+  "committees_committeeImage": "Utskottsbild",
+  "committees_committeeImageExplanation": "Denna ska vara i SVG-format, utan bakgrundsfärg, utan whitespace och med vit text.",
+  "committees_save": "Spara",
+  "committees_description": "Beskrivning",
+  "committees_name": "Namn",
+  "committees_differentMandates": "olika mandat",
+  "committees_errors_invalidDate": "Ogiltigt datum",
+  "committees_errors_invalidYear": "Ogiltigt år",
+  "committees_errors_committeeNotFound": "Kunde inte hitta utskottet",
+  "committees_errors_fetchMembers": "Kunde inte hämta antalet unika funktionärer i utskottet",
+  "committees_errors_fetchNumberOfMandates": "Kunde inte hämta antalet olika mandat i utskottet",
+  "committees_errors_fetchMarkdown": "Kunde inte hämta markdown",
+  "committees_errors_imageMustBeSVG": "Bilden måste vara i SVG-format",
+  "committees_errors_uploadImage": "Kunde inte ladda upp bilden",
+  "committees_committeeUpdated": "Utskott uppdaterat",
+  "committees_edit": "Redigera",
+  "committees_stopEditing": "Sluta redigera"
 }

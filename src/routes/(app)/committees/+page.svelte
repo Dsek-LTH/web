@@ -1,6 +1,7 @@
 <script lang="ts">
   import CommitteeIcon from "$lib/components/CommitteeIcon.svelte";
   import PageHeader from "$lib/components/PageHeader.svelte";
+  import * as m from "$paraglide/messages";
 
   import type { PageData } from "./$types";
   export let data: PageData;
@@ -9,7 +10,7 @@
   );
 </script>
 
-<PageHeader title="Utskott" />
+<PageHeader title={m.committees_committees()} />
 <div
   class="grid grid-cols-1 items-stretch justify-items-stretch gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
 >
@@ -32,7 +33,8 @@
                 pos.mandates.map((mandate) => mandate.memberId),
               ),
             ),
-          ].length} funktionärer
+          ].length}
+          {m.committees_volunteers()}
         </h6>
         <p class="px-2">{committee.description ?? ""}</p>
       </div>

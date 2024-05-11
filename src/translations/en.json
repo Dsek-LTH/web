@@ -228,5 +228,26 @@
   "setting_create_mandate": "When you receive a new mandate",
   "setting_booking_request": "Bookings",
   "setting_ping": "Pings",
-  "setting_push": "Push notification"
+  "setting_push": "Push notification",
+
+  "committees_committees": "Committees",
+  "committees_volunteers": "volunteers",
+  "committees_boardMember": "Board Member",
+  "committees_committeeImage": "Committee image",
+  "committees_committeeImageExplanation": "This should be in the SVG format, without background color, without whitespace and with white text.",
+  "committees_save": "Save",
+  "committees_description": "Description",
+  "committees_name": "Name",
+  "committees_differentMandates": "different mandates",
+  "committees_errors_invalidDate": "Invalid date",
+  "committees_errors_invalidYear": "Invalid year",
+  "committees_errors_committeeNotFound": "Committee not found",
+  "committees_errors_fetchUniqueMembers": "Failed to fetch unique members in committee",
+  "committees_errors_fetchNumberOfMandates": "Failed to fetch number of mandates",
+  "committees_errors_fetchMarkdown": "Failed to fetch markdown",
+  "committees_errors_imageMustBeSVG": "The image has to be in SVG format",
+  "committees_errors_uploadImage": "Could not upload image",
+  "committees_committeeUpdated": "Committee updated",
+  "committees_edit": "Edit",
+  "committees_stopEditing": "Stop editing"
 }
