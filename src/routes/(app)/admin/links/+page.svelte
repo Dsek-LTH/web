@@ -8,6 +8,7 @@
   import TagSelector from "$lib/components/TagSelector.svelte";
   import type { Tag } from "@prisma/client";
   import SearchBar from "$lib/components/SearchBar.svelte";
+  import { enhance } from "$app/forms";
 
   export let data: PageData;
 
@@ -45,89 +46,175 @@
   );
 
   let form: HTMLFormElement;
+
+  let toggleAllCheckBox: HTMLInputElement;
+  let checkboxes: boolean[] = [];
+
+  const reset_checkboxes = () => {
+    checkboxes = [];
+    if (toggleAllCheckBox) {
+      toggleAllCheckBox.checked = false;
+    }
+  };
+
+  $: if (data.domains) {
+    reset_checkboxes();
+  }
+
+  let removeModal: HTMLDialogElement | undefined = undefined;
 </script>
 
 <PageHeader title="Link shortener" />
 
-<form
-  method="get"
-  class="form-control flex-1 gap-2 md:flex-row md:items-end"
-  id="filter-form"
-  bind:this={form}
->
-  <TagSelector
-    {allTags}
-    bind:selectedTags={filteredTags}
-    onChange={() => setTimeout(() => form.requestSubmit())}
-  />
-  <SearchBar />
-  {#each filteredTags as tag (tag.id)}
-    <input type="hidden" name="tags" value={tag.name} />
-  {/each}
+<form action="?/delete" method="post" use:enhance>
+  <div class="flex items-end gap-2">
+    <button
+      type="button"
+      class="btn btn-square btn-error place-self-end"
+      disabled={checkboxes.every((c) => !c)}
+      on:click={(_e) => removeModal?.showModal()}
+    >
+      <span class="i-mdi-trash-can"></span>
+    </button>
+    <form
+      method="get"
+      class="form-control flex-1 gap-2 md:flex-row md:items-end"
+      id="filter-form"
+      bind:this={form}
+    >
+      <TagSelector
+        {allTags}
+        bind:selectedTags={filteredTags}
+        onChange={() => setTimeout(() => form.requestSubmit())}
+      />
+      <SearchBar />
+      {#each filteredTags as tag (tag.id)}
+        <input type="hidden" name="tags" value={tag.name} />
+      {/each}
+    </form>
+  </div>
+
+  <dialog bind:this={removeModal} class="modal modal-bottom sm:modal-middle">
+    <div class="modal-box">
+      <h3 class="text-lg font-bold">Remove links</h3>
+      <p class="py-4">
+        Are you sure you want to remove {checkboxes.filter((c) => c).length} link(s)?
+      </p>
+      <p class="text-xs text-base-content/60">
+        {data.domains
+          .filter((_, i) => checkboxes.at(i))
+          .map(({ shortCode }) => shortCode)
+          .join(", ")}
+      </p>
+      <div class="modal-action">
+        <button
+          type="submit"
+          class="btn btn-error"
+          on:click={() => removeModal?.close()}
+        >
+          Remove
+        </button>
+      </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button class="cursor-auto" />
+    </form>
+  </dialog>
+
+  <div class="overflow-x-auto">
+    <table class="table my-4">
+      <thead>
+        <tr class="bg-base-200">
+          <th>
+            <input
+              type="checkbox"
+              class="checkbox"
+              bind:this={toggleAllCheckBox}
+              on:change={(e) =>
+                (checkboxes = [...Array(data.domains.length).keys()].map(
+                  (c) => {
+                    console.log(e);
+                    if (e.target.checked) {
+                      return true;
+                    } else {
+                      return false;
+                    }
+                  },
+                ))}
+            />
+          </th>
+          {#each table_headers as th (th.title)}
+            {#if th.order.field}
+              <th
+                on:click={() => set_url_params({ field: th.order.field })}
+                class="cursor-pointer"
+              >
+                {th.title}
+                {#if query.get("orderBy") === th.order.field || (!query.has("orderBy") && th.order.field === "dateCreated")}
+                  {#if query.get("dir") === "ASC"}
+                    <span class="i-mdi-triangle-down"></span>
+                  {:else}
+                    <span class="i-mdi-triangle"></span>
+                  {/if}
+                {/if}
+              </th>
+            {:else}
+              <th class="cursor-text">
+                {th.title}
+              </th>
+            {/if}
+          {/each}
+          <th />
+        </tr>
+      </thead>
+      <tbody>
+        {#each data.domains as d, i (d.shortCode)}
+          {@const date = new Date(d.dateCreated)}
+          <tr>
+            <td>
+              <input
+                type="checkbox"
+                class="checkbox"
+                name="deleting"
+                value={d.shortCode}
+                bind:checked={checkboxes[i]}
+              />
+            </td>
+            <td class="font-medium">
+              <a href={d.shortUrl}>
+                {d.shortCode}
+              </a>
+            </td>
+            <td>
+              <a href={d.longUrl}>
+                {d.longUrl}
+              </a>
+            </td>
+            <td>
+              {d.tags.join(", ")}
+            </td>
+            <td>
+              {date.getFullYear()}-{String(date.getMonth()).padStart(
+                2,
+                "0",
+              )}-{String(date.getDate()).padStart(2, "0")}
+            </td>
+            <td>
+              <div
+                class="tooltip"
+                data-tip={`nonBots: ${d.visitsSummary?.nonBots}, bots: ${d.visitsSummary?.bots}`}
+              >
+                {d.visitsSummary?.total}
+              </div>
+            </td>
+            <td class="text-right">
+              <a class="btn btn-xs px-8" href={`links/${d.shortCode}`}>Edit</a>
+            </td>
+          </tr>
+        {/each}
+      </tbody>
+    </table>
+  </div>
 </form>
 
-<div class="overflow-x-auto">
-  <table class="table my-4">
-    <thead>
-      <tr class="cursor-pointer bg-base-200">
-        {#each table_headers as th (th.title)}
-          {#if th.order.field}
-            <th on:click={() => set_url_params({ field: th.order.field })}>
-              {th.title}
-              {#if query.get("orderBy") === th.order.field || (!query.has("orderBy") && th.order.field === "dateCreated")}
-                {#if query.get("dir") === "ASC"}
-                  <span class="i-mdi-triangle-down"></span>
-                {:else}
-                  <span class="i-mdi-triangle"></span>
-                {/if}
-              {/if}
-            </th>
-          {:else}
-            <th class="cursor-text">
-              {th.title}
-            </th>
-          {/if}
-        {/each}
-        <th />
-      </tr>
-    </thead>
-    <tbody>
-      {#each data.domains as d (d.shortCode)}
-        {@const date = new Date(d.dateCreated)}
-        <tr>
-          <td class="font-medium">
-            <a href={d.shortUrl}>
-              {d.shortCode}
-            </a>
-          </td>
-          <td>
-            <a href={d.longUrl}>
-              {d.longUrl}
-            </a>
-          </td>
-          <td>
-            {d.tags.join(", ")}
-          </td>
-          <td>
-            {date.getFullYear()}-{String(date.getMonth()).padStart(
-              2,
-              "0",
-            )}-{String(date.getDate()).padStart(2, "0")}
-          </td>
-          <td>
-            <div
-              class="tooltip"
-              data-tip={`nonBots: ${d.visitsSummary?.nonBots}, bots: ${d.visitsSummary?.bots}`}
-            >
-              {d.visitsSummary?.total}
-            </div>
-          </td>
-          <td class="text-right">
-            <a class="btn btn-xs px-8" href={`links/${d.shortCode}`}>Edit</a>
-          </td>
-        </tr>
-      {/each}
-    </tbody>
-  </table>
-</div>
 <Pagination count={data.pagination.pagesCount} />

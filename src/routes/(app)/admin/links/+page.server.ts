@@ -3,7 +3,11 @@ import { ShlinkApiClient } from "@shlinkio/shlink-js-sdk";
 import { type ProblemDetailsError } from "@shlinkio/shlink-js-sdk/api-contract";
 import { env } from "$env/dynamic/private";
 import { NodeHttpClient } from "@shlinkio/shlink-js-sdk/node";
-import { error, type NumericRange } from "@sveltejs/kit";
+import { error, type Actions, type NumericRange } from "@sveltejs/kit";
+import { authorize } from "$lib/utils/authorization"
+import apiNames from "$lib/utils/apiNames"
+import { z } from "zod"
+import { message, superValidate } from "sveltekit-superforms/server"
 
 const VALID_ORDER = [
   "title",
@@ -16,7 +20,8 @@ const VALID_ORDER = [
 
 const VALID_DIR = ["ASC", "DESC"];
 
-export const load: PageServerLoad = async ({ url }) => {
+export const load: PageServerLoad = async ({ url, locals }) => {
+  authorize(apiNames.DOOR.READ, locals.user);
   const apiClient = new ShlinkApiClient(new NodeHttpClient(), {
     baseUrl: env.SHLINK_ENDPOINT,
     apiKey: env.SHLINK_API_KEY,
@@ -67,3 +72,22 @@ export const load: PageServerLoad = async ({ url }) => {
     tags: tags.data,
   };
 };
+
+const deleteLinksSchema = z.object({
+  deleting: z.string().array().min(1),
+});
+
+export const actions: Actions = {
+  delete: async ({ locals, request }) => {
+    authorize(apiNames.DOOR.DELETE, locals.user);
+    const form = await superValidate(request, deleteLinksSchema);
+    if (!form.valid) {
+      return message(form, {
+        message: "Request is not valid",
+        type: "error",
+      }, {status: 400});
+    }
+    console.log(`deleting`)
+    console.log(form)
+  }
+}
