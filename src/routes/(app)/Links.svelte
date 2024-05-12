@@ -2,8 +2,8 @@
   import * as m from "$paraglide/messages";
   const links = [
     {
-      title: m.landing_feedback(),
-      description: m.landing_contactWellbeing(),
+      title: m.home_feedback(),
+      description: m.home_contactWellbeing(),
       path: "https://bit.ly/kontaktatrivsel",
       icon: "i-mdi-speak",
     },

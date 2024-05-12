@@ -25,14 +25,15 @@
   "emailAliases": "Email alias",
   "alerts": "Alerts",
 
-  "landing_info": "<strong>The D-guild within TLTH</strong> is a non-profit organization for students and alumni of the programs <span class=\"text-primary\">Computer Science</span> and <span class=\"text-secondary\">Information and Communication Technology</span> . The guild has social arrangements, business contacts, study supervision, and everything else that helps students and alumni.",
-  "landing_forCompanies": "For companies",
-  "landing_splash": "Experience the <span class=\"text-primary\">fun</span> of University",
-  "landing_cafeOpenHours": "Café opening hours",
-  "landing_meetingNext": "Next meeting",
-  "landing_meetingPrev": "Previous meeting",
-  "landing_feedback": "Thoughts or opinions?",
-  "landing_contactWellbeing": "Contact the Wellbeing Committee",
+  "home_info": "<strong>The D-guild within TLTH</strong> is a non-profit organization for students and alumni of the programs <span class=\"text-primary\">Computer Science</span> and <span class=\"text-secondary\">Information and Communication Technology</span> . The guild has social arrangements, business contacts, study supervision, and everything else that helps students and alumni.",
+  "home_forCompanies": "For companies",
+  "home_splash": "Experience the <span class=\"text-primary\">fun</span> of University",
+  "home_cafeOpenHours": "Café opening hours",
+  "home_meetingNext": "Next meeting",
+  "home_meetingPrev": "Previous meeting",
+  "home_feedback": "Thoughts or opinions?",
+  "home_contactWellbeing": "Contact the Wellbeing Committee",
+
   "tickets_foodPreferenceModal_title": "You have not specified a food preference!",
   "tickets_foodPreferenceModal_preferenceInitialQuestion": "Do you have a food preference?",
 
