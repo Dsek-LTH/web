@@ -25,6 +25,11 @@
   "emailAliases": "Email alias",
   "alerts": "Alerts",
 
+  "footer_contact": "Contact",
+  "footer_sourceCode": "Source code",
+  "footer_contactAndSourceCode": "Contact and source code",
+  "footer_socialMedia": "Social media",
+
   "home_info": "<strong>The D-guild within TLTH</strong> is a non-profit organization for students and alumni of the programs <span class=\"text-primary\">Computer Science</span> and <span class=\"text-secondary\">Information and Communication Technology</span> . The guild has social arrangements, business contacts, study supervision, and everything else that helps students and alumni.",
   "home_forCompanies": "For companies",
   "home_splash": "Experience the <span class=\"text-primary\">fun</span> of University",
