@@ -287,7 +287,16 @@
   "notifications_errors_couldNotRemove": "Kunde inte ta bort notis",
   "notifications_errors_notLoggedIn": "Inte inloggad",
 
+  "navbar_logIn": "Logga in",
+
   "navbar_bell_markAllAsRead": "Markera alla som lästa",
   "navbar_bell_deleteAll": "Ta bort alla",
-  "navbar_bell_noNotifications": "Du har inga notiser!"
+  "navbar_bell_noNotifications": "Du har inga notiser!",
+
+  "navbar_userMenu_loggedInAs": "Inloggad som",
+  "navbar_userMenu_profile": "Profil",
+  "navbar_userMenu_settings": "Inställningar",
+  "navbar_userMenu_inventory": "Kista",
+  "navbar_userMenu_cart": "Kundvagn",
+  "navbar_userMenu_logOut": "Logga ut"
 }

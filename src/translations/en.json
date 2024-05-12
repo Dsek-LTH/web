@@ -288,7 +288,16 @@
   "notifications_errors_couldNotRemove": "Could not remove notification",
   "notifications_errors_notLoggedIn": "Not logged in",
 
+  "navbar_logIn": "Log in",
+
   "navbar_bell_markAllAsRead": "Mark all as read",
   "navbar_bell_deleteAll": "Delete all",
-  "navbar_bell_noNotifications": "You have no notifications!"
+  "navbar_bell_noNotifications": "You have no notifications!",
+
+  "navbar_userMenu_loggedInAs": "Logged in as",
+  "navbar_userMenu_profile": "Profile",
+  "navbar_userMenu_settings": "Settings",
+  "navbar_userMenu_inventory": "Inventory",
+  "navbar_userMenu_cart": "Cart",
+  "navbar_userMenu_logOut": "Log out"
 }

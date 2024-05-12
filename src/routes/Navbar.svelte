@@ -12,6 +12,7 @@
   import UserMenu from "./UserMenu.svelte";
   import { getRoutes } from "./routes";
   import type { UserShopItemCounts } from "$lib/server/shop/countUserShopItems";
+  import * as m from "$paraglide/messages";
   $: notifications = $page.data["notifications"] as Notification[] | null;
   $: deleteNotificationForm = $page.data[
     "deleteNotificationForm"
@@ -106,7 +107,7 @@
         />
       {:else}
         <button class="btn btn-ghost" on:click={() => signIn("keycloak")}>
-          Logga in
+          {m.navbar_logIn()}
         </button>
       {/if}
     </div>
