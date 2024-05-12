@@ -279,5 +279,11 @@
   "booking_startDateBeforeEndDate": "Startdatumet måste vara före slutdatumet",
   "booking_requestSent": "Bokningsförfrågan skickad!",
   "booking_goBack": "Tillbaka",
-  "booking_create": "Skapa"
+  "booking_create": "Skapa",
+
+  "notifications_notificationsRead": "Notiser lästa",
+  "notifications_notificationsRemoved": "Notiser borttagna",
+  "notifications_notificationRemoved": "Notis borttagen",
+  "notifications_errors_couldNotRemove": "Kunde inte ta bort notis",
+  "notifications_errors_notLoggedIn": "Inte inloggad"
 }

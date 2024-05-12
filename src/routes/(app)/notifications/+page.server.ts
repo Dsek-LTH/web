@@ -3,6 +3,7 @@ import { error, fail } from "@sveltejs/kit";
 import { redirect } from "$lib/utils/redirect";
 import { message, superValidate } from "sveltekit-superforms/server";
 import type { Actions } from "./$types";
+import * as m from "$paraglide/messages";
 
 export const load = async ({ request }) => {
   throw redirect(302, request.headers.get("referer") || "/");
@@ -13,7 +14,7 @@ export const actions: Actions = {
   readNotifications: async ({ locals, request }) => {
     const { user, prisma } = locals;
     if (!user.memberId) {
-      error(403, "Not logged in");
+      error(403, m.notifications_errors_notLoggedIn());
     }
     const form = await superValidate(request, notificationSchema);
     if (!form.valid) return fail(400, { form });
@@ -36,7 +37,7 @@ export const actions: Actions = {
     });
 
     return message(form, {
-      message: "Notiser lästa",
+      message: m.notifications_notificationsRead(),
       type: "hidden",
     });
   },
@@ -44,7 +45,7 @@ export const actions: Actions = {
   deleteNotification: async ({ locals, request }) => {
     const { user, prisma } = locals;
     if (!user.memberId) {
-      error(403, "Not logged in");
+      error(403, m.notifications_errors_notLoggedIn());
     }
     const form = await superValidate(request, notificationSchema);
     if (!form.valid) return fail(400, { form });
@@ -60,7 +61,7 @@ export const actions: Actions = {
         },
       });
       return message(form, {
-        message: "Notiser borttagna",
+        message: m.notifications_notificationsRemoved(),
         type: "hidden",
       });
     } else if (form.data.notificationId) {
@@ -70,10 +71,13 @@ export const actions: Actions = {
           id: form.data.notificationId,
         },
       });
-      return message(form, { message: "Notis borttagen", type: "success" });
+      return message(form, {
+        message: m.notifications_notificationRemoved(),
+        type: "success",
+      });
     }
     return message(form, {
-      message: "Kunde inte ta bort notis",
+      message: m.notifications_errors_couldNotRemove(),
       type: "error",
     });
   },

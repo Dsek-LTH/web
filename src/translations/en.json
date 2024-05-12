@@ -280,5 +280,11 @@
   "booking_startDateBeforeEndDate": "Start date must be before end date",
   "booking_requestSent": "Booking request sent!",
   "booking_goBack": "Go back",
-  "booking_create": "Create"
+  "booking_create": "Create",
+
+  "notifications_notificationsRead": "Notifications read",
+  "notifications_notificationsRemoved": "Notifications removed",
+  "notifications_notificationRemoved": "Notification removed",
+  "notifications_errors_couldNotRemove": "Could not remove notification",
+  "notifications_errors_notLoggedIn": "Not logged in"
 }
