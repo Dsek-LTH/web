@@ -6,6 +6,7 @@
   import { flip } from "svelte/animate";
   import type { SuperValidated } from "sveltekit-superforms";
   import { superForm } from "sveltekit-superforms/client";
+  import * as m from "$paraglide/messages";
 
   export let notifications: NotificationType[];
   export let deleteForm: SuperValidated<NotificationSchema>;
@@ -80,7 +81,8 @@
           <button
             class="btn btn-ghost no-animation z-10 w-full rounded-none border-0 border-t border-gray-700 *:text-2xl"
           >
-            Markera alla som lästa <span class="i-mdi-bell-check-outline" />
+            {m.navbar_bell_markAllAsRead()}
+            <span class="i-mdi-bell-check-outline" />
           </button>
         </form>
       {/if}
@@ -97,11 +99,11 @@
         <button
           class="btn btn-ghost no-animation z-10 w-full rounded-none border-0 border-t border-gray-700 *:text-2xl"
         >
-          Radera alla <span class="i-mdi-delete-outline" />
+          {m.navbar_bell_deleteAll()} <span class="i-mdi-delete-outline" />
         </button>
       </form>
     {:else}
-      <li class="p-4 after:bg-slate-100">Du har inga notiser!</li>
+      <li class="p-4 after:bg-slate-100">{m.navbar_bell_noNotifications()}</li>
     {/if}
   </ul>
 </div>
