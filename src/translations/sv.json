@@ -298,5 +298,19 @@
   "navbar_userMenu_settings": "Inställningar",
   "navbar_userMenu_inventory": "Kista",
   "navbar_userMenu_cart": "Kundvagn",
-  "navbar_userMenu_logOut": "Logga ut"
+  "navbar_userMenu_logOut": "Logga ut",
+
+  "onboarding": "Onboarding",
+  "onboarding_memberUpdated": "Medlem uppdaterad",
+  "onboarding_errors_memberNotFound": "Kunde inte hitta medlem",
+  "onboarding_errors_studentIDNotFound": "Kunde inte hitta student-ID",
+  "onboarding_firstName": "Förnamn",
+  "onboarding_lastName": "Efternamn",
+  "onboarding_foodPreference": "Matpreferens",
+  "onboarding_foodPreferencePlaceholder": "Vegitariskt, lactos, gluten, svamp...",
+  "onboarding_programme": "Program",
+  "onboarding_year": "År",
+  "onboarding_save": "Spara",
+  "onboarding_welcome": "Välkommen",
+  "onboarding_fillInInfoBelow": "Fyll i dina uppgifter nedan"
 }

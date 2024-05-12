@@ -299,5 +299,19 @@
   "navbar_userMenu_settings": "Settings",
   "navbar_userMenu_inventory": "Inventory",
   "navbar_userMenu_cart": "Cart",
-  "navbar_userMenu_logOut": "Log out"
+  "navbar_userMenu_logOut": "Log out",
+
+  "onboarding": "Onboarding",
+  "onboarding_memberUpdated": "Member updated",
+  "onboarding_errors_memberNotFound": "Member not found",
+  "onboarding_errors_studentIDNotFound": "Student ID not found",
+  "onboarding_firstName": "First name",
+  "onboarding_lastName": "Last name",
+  "onboarding_foodPreference": "Food preference",
+  "onboarding_foodPreferencePlaceholder": "Vegitarian, lactose, gluten, mushrooms...",
+  "onboarding_programme": "Programme",
+  "onboarding_year": "Year",
+  "onboarding_save": "Save",
+  "onboarding_welcome": "Welcome",
+  "onboarding_fillInInfoBelow": "Fill in your information below"
 }
