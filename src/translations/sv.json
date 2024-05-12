@@ -39,6 +39,17 @@
   "home_feedback": "Tankar eller åsikter?",
   "home_contactWellbeing": "Kontakta Trivselrådet",
 
+  "landing_theIntroduction": "Nollningen",
+  "landing_introductionDesc": "Mer info om nollningen",
+  "landing_getInvolved": "Engagera dig",
+  "landing_getInvolvedDesc": "Hur engagerar jag mig på D-sektionen?",
+  "landing_documents": "Dokument",
+  "landing_documentsDesc": "Kolla in de senaste styrdokumenten",
+  "landing_webshop": "Webshop",
+  "landing_webshopDesc": "Köp biljetter",
+  "landing_theBoard": "Styrelsen",
+  "landing_theBoardDesc": "Mer om styrelsen",
+
   "member_foodPreference": "Matpreferens",
 
   "tickets_foodPreferenceModal_title": "Du har inte angett någon matpreferens!",

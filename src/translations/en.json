@@ -39,6 +39,17 @@
   "home_feedback": "Thoughts or opinions?",
   "home_contactWellbeing": "Contact the Wellbeing Committee",
 
+  "landing_theIntroduction": "The introduction",
+  "landing_introductionDesc": "More info about the introduction",
+  "landing_getInvolved": "Get involved",
+  "landing_getInvolvedDesc": "How do I become active at the D-guild?",
+  "landing_documents": "Documents",
+  "landing_documentsDesc": "Check out the lates regulatory documents",
+  "landing_webshop": "Webshop",
+  "landing_webshopDesc": "Buy tickets",
+  "landing_theBoard": "The board",
+  "landing_theBoardDesc": "More about the board",
+
   "tickets_foodPreferenceModal_title": "You have not specified a food preference!",
   "tickets_foodPreferenceModal_preferenceInitialQuestion": "Do you have a food preference?",
 

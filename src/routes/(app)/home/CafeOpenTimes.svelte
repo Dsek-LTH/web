@@ -17,9 +17,9 @@
     <p>{m.home_cafeOpenHours()}</p>
     <h2 class="text-xl font-bold text-secondary lg:text-primary">
       {#if cafeOpen}
-	{cafeOpen.markdown}
+        {cafeOpen.markdown}
       {:else}
-	N/A
+        N/A
       {/if}
     </h2>
   </article>
