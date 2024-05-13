@@ -1,7 +1,6 @@
 <script lang="ts">
   import EventCreator from "./EventCreator.svelte";
 
-  // import Tiptap from "$lib/TipTap.svelte";
   import type { PageData } from "./$types";
   export let data: PageData;
 </script>

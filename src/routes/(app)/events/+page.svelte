@@ -23,17 +23,16 @@
 
 <section class="flex flex-col gap-2">
   <div class="flex items-center gap-2">
-    <a class="btn" href="/events/calendar"
-      ><span class="i-mdi-calendar"></span>
-      Kalender</a
-    >
+    <a class="btn" href="/events/calendar">
+      <span class="i-mdi-calendar" />Kalender
+    </a>
     {#if isAuthorized(apiNames.EVENT.CREATE, data.user)}
-      <a class="btn" href="/events/create"
-        ><span class="i-mdi-create"></span>Create</a
-      >
+      <a class="btn" href="/events/create">
+        <span class="i-mdi-create" />Create
+      </a>
     {/if}
     {#if isAuthorized(apiNames.TAGS.CREATE, data.user) || isAuthorized(apiNames.TAGS.UPDATE, data.user)}
-      <a class="btn" href="/news/tags"><span class="i-mdi-tag"></span>Tags</a>
+      <a class="btn" href="/news/tags"><span class="i-mdi-tag" />Tags</a>
     {/if}
   </div>
   <form
@@ -83,9 +82,9 @@
         on:change={() => filterButton.click()}
       />
     {/each}
-    <button type="submit" class="btn btn-primary" bind:this={filterButton}
-      >Filter</button
-    >
+    <button type="submit" class="btn btn-primary" bind:this={filterButton}>
+      Filter
+    </button>
   </form>
   {#each data.events as event (event.id)}
     <SmallEventCard {event} interestedGoingForm={data.interestedGoingForm} />
