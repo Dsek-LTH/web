@@ -1,4 +1,4 @@
-import { PUBLIC_STRIPE_KEY } from "$env/static/public";
+import { env } from "$env/dynamic/public";
 import { moveQueueToCart } from "$lib/server/shop/addToCart/reservations.js";
 import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma.js";
 import { refundConsumable } from "$lib/server/shop/payments/stripeMethods.js";
@@ -61,7 +61,7 @@ export const load = async ({ locals, params }) => {
   };
   delete mergedTicket.shoppable;
 
-  const isStripeTestEnvironment = PUBLIC_STRIPE_KEY.startsWith("pk_test");
+  const isStripeTestEnvironment = env.PUBLIC_STRIPE_KEY.startsWith("pk_test");
   const stripeIntentBaseUrl = isStripeTestEnvironment
     ? "https://dashboard.stripe.com/test/payments"
     : "https://dashboard.stripe.com/payments";
