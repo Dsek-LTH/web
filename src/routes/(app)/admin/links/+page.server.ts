@@ -4,10 +4,10 @@ import { type ProblemDetailsError } from "@shlinkio/shlink-js-sdk/api-contract";
 import { env } from "$env/dynamic/private";
 import { NodeHttpClient } from "@shlinkio/shlink-js-sdk/node";
 import { error, type Actions, type NumericRange } from "@sveltejs/kit";
-import { authorize } from "$lib/utils/authorization"
-import apiNames from "$lib/utils/apiNames"
-import { z } from "zod"
-import { message, superValidate } from "sveltekit-superforms/server"
+import { authorize } from "$lib/utils/authorization";
+import apiNames from "$lib/utils/apiNames";
+import { z } from "zod";
+import { message, superValidate } from "sveltekit-superforms/server";
 
 const VALID_ORDER = [
   "title",
@@ -20,12 +20,23 @@ const VALID_ORDER = [
 
 const VALID_DIR = ["ASC", "DESC"];
 
-export const load: PageServerLoad = async ({ url, locals }) => {
+const apiClient = new ShlinkApiClient(new NodeHttpClient(), {
+  baseUrl: env.SHLINK_ENDPOINT,
+  apiKey: env.SHLINK_API_KEY,
+});
+
+const createLinksSchema = z.object({
+  url: z.string().min(1).url(),
+  slug: z.string().min(1),
+  tags: z.string().array(),
+});
+
+const deleteLinksSchema = z.object({
+  deleting: z.string().array().min(1),
+});
+
+export const load: PageServerLoad = async ({ url, locals, request }) => {
   authorize(apiNames.DOOR.READ, locals.user);
-  const apiClient = new ShlinkApiClient(new NodeHttpClient(), {
-    baseUrl: env.SHLINK_ENDPOINT,
-    apiKey: env.SHLINK_API_KEY,
-  });
 
   const page = url.searchParams.get("page") ?? "1";
   if (page && Number.isNaN(Number.parseInt(page))) {
@@ -70,24 +81,49 @@ export const load: PageServerLoad = async ({ url, locals }) => {
     domains: domains.data,
     pagination: domains.pagination,
     tags: tags.data,
+    createLinksForm: await superValidate(request, createLinksSchema),
   };
 };
-
-const deleteLinksSchema = z.object({
-  deleting: z.string().array().min(1),
-});
-
 export const actions: Actions = {
+  create: async ({ locals, request }) => {
+    authorize(apiNames.DOOR.CREATE, locals.user);
+    const form = await superValidate(request, createLinksSchema);
+    if (!form.valid) {
+      return message(
+        form,
+        {
+          message: "Request is not valid",
+          type: "error",
+        },
+        { status: 400 },
+      );
+    }
+    // TODO: Error handling
+    const _response = await apiClient.createShortUrl({
+      longUrl: form.data.url,
+      customSlug: form.data.slug,
+      tags: form.data.tags,
+    });
+
+    return message(form, {
+      message: "Link successfully created",
+      type: "success",
+    });
+  },
   delete: async ({ locals, request }) => {
     authorize(apiNames.DOOR.DELETE, locals.user);
     const form = await superValidate(request, deleteLinksSchema);
     if (!form.valid) {
-      return message(form, {
-        message: "Request is not valid",
-        type: "error",
-      }, {status: 400});
+      return message(
+        form,
+        {
+          message: "Request is not valid",
+          type: "error",
+        },
+        { status: 400 },
+      );
     }
-    console.log(`deleting`)
-    console.log(form)
-  }
-}
+    console.log(`deleting`);
+    console.log(form);
+  },
+};

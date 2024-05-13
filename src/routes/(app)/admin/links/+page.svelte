@@ -9,8 +9,19 @@
   import type { Tag } from "@prisma/client";
   import SearchBar from "$lib/components/SearchBar.svelte";
   import { enhance } from "$app/forms";
+  import TagSelectCreate from "./TagSelectCreate.svelte";
+  import Input from "$lib/components/Input.svelte";
+  import Labeled from "$lib/components/Labeled.svelte";
+  import { superForm } from "sveltekit-superforms/client";
 
   export let data: PageData;
+
+  const {
+    form: createLinksForm,
+    errors: createLinksErrors,
+    constraints: createLinksConstraints,
+    enhance: createLinksEnhance,
+  } = superForm(data.createLinksForm, { invalidateAll: true, resetForm: true });
 
   $: query = new URLSearchParams($page.url.searchParams.toString());
 
@@ -31,6 +42,8 @@
     goto(`?${query.toString()}`);
   };
 
+  let createSelectedTags: Tag[] = [];
+
   const tableHeaders: [{ order: ShlinkShortUrlsOrder; title: string }] = [
     { order: { field: "shortCode" }, title: "Slug" },
     { order: { field: "longUrl" }, title: "Link" },
@@ -39,32 +52,60 @@
     { order: { field: "visits" }, title: "Visits" },
   ];
 
-  const allTags = data.tags.map((t) => ({ id: t, name: t }));
-
+  const allTags: Tag[] = data.tags.map((t) => ({ id: t, name: t }));
   let filteredTags: Tag[] = allTags.filter((tag) =>
     $page.url.searchParams.getAll("tags").includes(tag.name),
   );
-
   let searchForm: HTMLFormElement;
 
+  let removeModal: HTMLDialogElement | undefined = undefined;
   let toggleAllCheckBox: HTMLInputElement;
   let checkboxes: boolean[] = [];
-
   const resetCheckboxes = () => {
     checkboxes = [];
     if (toggleAllCheckBox) {
       toggleAllCheckBox.checked = false;
     }
   };
-
   $: if (data.domains) {
     resetCheckboxes();
   }
-
-  let removeModal: HTMLDialogElement | undefined = undefined;
 </script>
 
 <PageHeader title="Link shortener" />
+
+<div class="mb-10 mt-4 rounded-lg md:p-4 lg:mb-4 lg:p-8">
+  <h2 class="text-lg font-semibold">Add Shorted Link</h2>
+  <form
+    class="flex flex-col items-stretch gap-2 lg:flex-row lg:items-end"
+    action="?/create"
+    method="post"
+    use:createLinksEnhance
+  >
+    <Input
+      name="slug"
+      label="Custom slug"
+      required
+      bind:value={$createLinksForm.slug}
+      error={$createLinksErrors.slug}
+      {...$createLinksConstraints}
+    />
+    <Input
+      name="url"
+      label="URL"
+      placeholder="URL to be shortened"
+      required
+      bind:value={$createLinksForm.url}
+      error={$createLinksErrors.url}
+      {...$createLinksConstraints}
+    />
+    <TagSelectCreate {allTags} bind:selectedTags={createSelectedTags} />
+    {#each createSelectedTags as tag (tag.id)}
+      <input type="hidden" name="tags" value={tag.name} />
+    {/each}
+    <button class="btn btn-primary">Add</button>
+  </form>
+</div>
 
 <form action="?/delete" method="post" use:enhance>
   <div class="flex items-end gap-2">
@@ -132,14 +173,7 @@
               bind:this={toggleAllCheckBox}
               on:change={(e) =>
                 (checkboxes = [...Array(data.domains.length).keys()].map(
-                  (c) => {
-                    console.log(e);
-                    if (e.target.checked) {
-                      return true;
-                    } else {
-                      return false;
-                    }
-                  },
+                  (c) => e.target.checked,
                 ))}
             />
           </th>
@@ -181,9 +215,7 @@
               />
             </td>
             <td class="font-medium">
-              <a href={d.shortUrl}>
-                {d.shortCode}
-              </a>
+              {d.shortCode}
             </td>
             <td>
               <a href={d.longUrl}>
@@ -217,4 +249,5 @@
   </div>
 </form>
 
+<!-- TODO: Copy Shlink Admin UI's scroll effect? -->
 <Pagination count={data.pagination.pagesCount} />
