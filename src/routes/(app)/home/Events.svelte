@@ -1,6 +1,7 @@
 <script lang="ts">
   import { markdownToTxt } from "markdown-to-txt";
   import type { Event } from "@prisma/client";
+  import { languageTag } from "$paraglide/runtime";
   export let events: Array<
     Pick<Event, "slug" | "title" | "description" | "startDatetime">
   >;
@@ -24,7 +25,7 @@
           <div
             class="place-items-center rounded-l-lg bg-base-300 px-4 py-2 text-center text-2xl font-bold capitalize text-primary"
           >
-            {event.startDatetime.toLocaleString("sv-SE", {
+            {event.startDatetime.toLocaleString(languageTag(), {
               weekday: "long",
             })}
           </div>

@@ -14,7 +14,7 @@
   />
 
   <article>
-    <p>{m.landing_cafeOpenHours()}</p>
+    <p>{m.home_cafeOpenHours()}</p>
     <h2 class="text-xl font-bold text-secondary lg:text-primary">
       {#if cafeOpen}
         {cafeOpen.markdown}
