@@ -214,5 +214,19 @@
   "admin_emailalias_userNotInKeycloak": "The user does not exist in Keycloak",
 
   "board_description": "The board is responsible for the day to day operations of the guild. You can always turn to the board if you have questions, thoughts or opinions about the guild and its operations. The board convenes every week at the board meetings, which are open for all guild members.",
-  "board_reachAt": "The board can be reached at <a class=\"text-primary\" href=\"mailto:styrelsen@dsek.se\"> styrelsen@dsek.se</a>"
+  "board_reachAt": "The board can be reached at <a class=\"text-primary\" href=\"mailto:styrelsen@dsek.se\"> styrelsen@dsek.se</a>",
+
+  "setting_title": "Settings",
+  "setting_notification": "Notifications",
+  "setting_subscription": "News subscriptions",
+  "setting_apply": "Apply",
+  "setting_like": "Likes on your posts",
+  "setting_comment": "Comments and updates on your posts",
+  "setting_mention": "When you are mentioned",
+  "setting_new_article": "News subscriptions",
+  "setting_event_going": "Interactions with your event",
+  "setting_create_mandate": "When you receive a new mandate",
+  "setting_booking_request": "Bookings",
+  "setting_ping": "Pings",
+  "setting_push": "Push notification"
 }

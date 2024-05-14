@@ -138,7 +138,7 @@ Project Link: [https://github.com/Dsek-LTH/web](https://github.com/Dsek-LTH/web)
 [issues-shield]: https://img.shields.io/github/issues/Dsek-LTH/web.svg?style=for-the-badge
 [issues-url]: https://github.com/Dsek-LTH/web/issues
 [license-shield]: https://img.shields.io/github/license/Dsek-LTH/web.svg?style=for-the-badge
-[license-url]: https://github.com/Dsek-LTH/web/blob/master/LICENSE
+[license-url]: https://github.com/Dsek-LTH/web/blob/main/LICENSE
 [version-shield]: https://img.shields.io/github/v/release/Dsek-LTH/web?style=for-the-badge
 [product-screenshot]: images/screenshot.png
 

@@ -15,7 +15,9 @@
       if (search !== undefined) urlParams.set("search", search);
       else urlParams.delete("search");
       urlParams.delete("page");
-      await goto(`?${urlParams.toString()}`, { replaceState: true });
+      await goto(`${$page.url.pathname}?${urlParams.toString()}`, {
+        replaceState: true,
+      });
       await tick();
       setTimeout(() => {
         inputField.focus();

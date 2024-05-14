@@ -304,9 +304,10 @@ model CustomAuthor {
     @@map("custom_authors")
 }
 
-/// @@allow('create', has(auth().policies, 'core:access:door:update'))
-/// @@allow('read', true)
-/// @@allow('delete', has(auth().policies, 'core:access:api:delete'))
+/// @@allow('create', has(auth().policies, 'core:access:door:create'))
+/// @@allow('read', has(auth().policies, 'core:access:door:read'))
+/// @@allow('update', has(auth().policies, 'core:access:door:update'))
+/// @@allow('delete', has(auth().policies, 'core:access:door:delete'))
 model DoorAccessPolicy {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
     doorName String @map("door_name") @db.VarChar(255)
@@ -778,6 +779,7 @@ model SpecialSender {
 /// @@allow('create', auth().memberId == memberId)
 /// @@allow('read', auth().memberId == memberId)
 /// @@allow('update', auth().memberId == memberId && auth().memberId == future().memberId)
+/// @@allow('delete', auth().memberId == memberId)
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model SubscriptionSetting {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()

@@ -214,5 +214,19 @@
   "admin_emailalias_userNotInKeycloak": "Användaren finns inte i Keycloak",
 
   "board_description": "Styrelsen ansvarar för den dagliga verksamheten på sektionen. Till styrelsen kan du alltid vända dig om du har frågor, funderingar eller åsikter om sektionen och dess verksamhet. Styrelsen sammanträder på styrelsemöten varje vecka som är öppna för alla medlemmar.",
-  "board_reachAt": "Styrelsen kan nås på <a class=\"text-primary\" href=\"mailto:styrelsen@dsek.se\"> styrelsen@dsek.se</a>"
+  "board_reachAt": "Styrelsen kan nås på <a class=\"text-primary\" href=\"mailto:styrelsen@dsek.se\"> styrelsen@dsek.se</a>",
+
+  "setting_title": "Inställningar",
+  "setting_notification": "Notifikationer",
+  "setting_subscription": "Nyhetsprenumerationer",
+  "setting_apply": "Tillämpa",
+  "setting_like": "Gillarmarkeringar på dina inlägg",
+  "setting_comment": "Kommentarer och uppdateringar på dina inlägg",
+  "setting_mention": "När du blir nämnd",
+  "setting_new_article": "Nyhetsprenumerationer",
+  "setting_event_going": "Interaktioner på ditt event",
+  "setting_create_mandate": "När du får en ny post",
+  "setting_booking_request": "Bokningar",
+  "setting_ping": "Pingar",
+  "setting_push": "Pushnotis"
 }
