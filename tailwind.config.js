@@ -20,7 +20,7 @@ export default {
     themes: [
       {
         light: {
-          primary: "#F280A1",
+          primary: "#d93464",
           secondary: "#9966CC",
           accent: "#1dcdbc",
           neutral: "#2b3440",

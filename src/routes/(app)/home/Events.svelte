@@ -12,10 +12,10 @@
   Evenemang
 </div>
 <div
-  class="grid flex-row divide-x-2 divide-y-2 divide-base-100 sm:grid-cols-2 md:grid-cols-3 sm:[&>*:first-child]:rounded-bl-xl [&>*:last-child]:rounded-br-xl max-sm:[&>*:nth-child(2)]:rounded-b-xl sm:max-md:[&>*:nth-child(2)]:rounded-br-xl max-md:[&>*:nth-child(3)]:hidden"
+  class="grid flex-row divide-x-2 divide-base-100 sm:grid-cols-2 md:grid-cols-3 sm:[&>*:first-child]:rounded-bl-xl [&>*:last-child]:rounded-br-xl max-sm:[&>*:nth-child(2)]:rounded-b-xl sm:max-md:[&>*:nth-child(2)]:rounded-br-xl max-md:[&>*:nth-child(3)]:hidden"
 >
   {#each events as event}
-    <div class="bg-base-200">
+    <div class="mt-0.5 bg-base-200">
       <a
         href="/events/{event.slug}"
         class="pop-out flex h-full flex-col justify-start gap-x-4 p-4"
@@ -29,7 +29,7 @@
             })}
           </div>
           <div
-            class="flex flex-1 items-center justify-center rounded-r-lg bg-base-100 text-3xl font-semibold text-primary"
+            class="flex flex-1 items-center justify-center rounded-r-lg bg-base-300/50 text-3xl font-semibold text-primary"
           >
             {event.startDatetime.toLocaleDateString("sv-SE", {
               day: "2-digit",
