@@ -1,8 +1,12 @@
 import type { Actions, PageServerLoad } from "./$types";
 import { fail } from "@sveltejs/kit";
+import { authorize } from "$lib/utils/authorization";
+import apiNames from "$lib/utils/apiNames";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { user, prisma } = locals;
+  authorize(apiNames.MEMBER.UPDATE, user);
+
   const subscriptionSettings = user
     ? await prisma.subscriptionSetting.findMany({
         where: {

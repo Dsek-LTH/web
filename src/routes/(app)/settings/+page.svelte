@@ -53,9 +53,7 @@
         <div class="m-2 w-full">
           <!-- Web notification -->
           <label class="m-2 flex cursor-pointer flex-row justify-between">
-            <span
-              class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
-            >
+            <span class="ms-3 text-sm font-medium">
               {getNotificationText(notificationSettingType[0])}</span
             >
             <input
@@ -78,10 +76,7 @@
               ? "hidden"
               : "m-2 flex cursor-pointer flex-row justify-between"}
           >
-            <span
-              class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
-              >{m.setting_push()}</span
-            >
+            <span class="ms-3 text-sm font-medium">{m.setting_push()}</span>
             <input
               type="checkbox"
               value={notificationSettingType[0]}
