@@ -35,6 +35,7 @@
         <span class="i-mdi-menu h-8 w-8 text-primary" />
       </label>
     </div>
+    <div class="block flex-1 bg-red-500 xl:hidden" />
 
     <!-- Navbar content -->
     <div class="container hidden flex-1 xl:block">
