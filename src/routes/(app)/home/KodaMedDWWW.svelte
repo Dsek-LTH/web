@@ -35,7 +35,7 @@
   </div>
   <a
     href={commitData.url}
-    class="m-2 flex flex-col rounded-xl bg-base-300 p-3 hover:bg-base-100 sm:flex-row md:items-center"
+    class="m-2 flex flex-col rounded-xl bg-base-300 p-3 hover:bg-base-100 sm:flex-row sm:items-center"
   >
     <div class="flex flex-row items-center">
       <img

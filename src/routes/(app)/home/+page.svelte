@@ -27,7 +27,7 @@
     {/if}
   </div>
   <div
-    class="flex flex-col md:-order-2 md:col-span-2 lg:order-none lg:col-span-3 xl:col-span-4"
+    class="flex flex-col md:-order-2 md:col-span-3 lg:order-none lg:col-span-3 xl:col-span-4"
   >
     <Articles news={data.news} />
   </div>
@@ -37,7 +37,7 @@
   </div>
 
   <div
-    class="flex flex-col justify-evenly gap-4 py-4 sm:flex-row md:-order-1 md:flex-col lg:order-none lg:col-span-1 xl:col-span-2"
+    class="flex flex-col justify-evenly gap-4 sm:flex-row md:col-span-3 lg:col-span-1 lg:flex-col xl:col-span-2"
   >
     <WellbeingCTA />
     <CafeOpenTimes cafeOpen={data.cafeOpen} />

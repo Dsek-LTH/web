@@ -58,7 +58,7 @@ export const load: PageServerLoad = async ({ locals, fetch }) => {
       orderBy: {
         createdAt: "desc",
       },
-      take: 4,
+      take: 3,
     })
     .then((articles) =>
       articles.map((article) => ({
