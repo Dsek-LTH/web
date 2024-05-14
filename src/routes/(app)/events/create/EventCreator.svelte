@@ -99,6 +99,14 @@
           />
         </Labeled>
       </div>
+      <div class="flex items-center pt-4">
+        Larm aktivt under eventet
+        <input
+          type="checkbox"
+          class="checkbox mx-4"
+          bind:checked={$form.alarmActive}
+        />
+      </div>
       <div class="flex flex-row justify-between gap-4 [&>*]:flex-1">
         <label class="label cursor-pointer">
           <span class="label-text">Återkommande event</span>
