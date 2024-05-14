@@ -5,7 +5,7 @@ import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import { getFullName } from "$lib/utils/client/member";
 import nodemailer from "nodemailer";
-import { EMAIL_YRKA_PASS, EMAIL_YRKA_USER } from "$env/static/private";
+import { env } from "$env/dynamic/private";
 import { authorize } from "$lib/utils/authorization";
 
 const transporter = nodemailer.createTransport({
@@ -13,8 +13,8 @@ const transporter = nodemailer.createTransport({
   secure: true,
   port: 465,
   auth: {
-    user: EMAIL_YRKA_USER,
-    pass: EMAIL_YRKA_PASS,
+    user: env.EMAIL_YRKA_USER,
+    pass: env.EMAIL_YRKA_PASS,
   },
 });
 

@@ -17,7 +17,7 @@
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "test": "vitest run",
     "test:watch": "vitest watch",
-    "generate": "prisma generate",
+    "generate": "zenstack generate && prisma generate",
     "migrate": "zenstack generate && prisma migrate dev",
     "seed": "prisma db seed",
     "prisma-case-format": "prisma-case-format -f src/database/prisma/schema.prisma",

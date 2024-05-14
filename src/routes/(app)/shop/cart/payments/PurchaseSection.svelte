@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { PUBLIC_STRIPE_KEY } from "$env/static/public";
+  import { env } from "$env/dynamic/public";
   import Price from "$lib/components/Price.svelte";
   import * as m from "$paraglide/messages";
   import type StripeJS from "@stripe/stripe-js";
@@ -14,7 +14,7 @@
 
   let stripe: StripeJS.Stripe | null = null;
   onMount(async () => {
-    stripe = await loadStripe(PUBLIC_STRIPE_KEY);
+    stripe = await loadStripe(env.PUBLIC_STRIPE_KEY);
   });
 
   const idempotencyKey = crypto.randomUUID();

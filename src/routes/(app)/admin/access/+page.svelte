@@ -1,6 +1,7 @@
 <script lang="ts">
   import { superForm } from "sveltekit-superforms/client";
   import type { PageData } from "./$types";
+  import * as m from "$paraglide/messages";
   export let data: PageData;
   const { form, errors, constraints, enhance } = superForm(data.form, {
     resetForm: true,
@@ -16,7 +17,7 @@
     <!-- head -->
     <thead>
       <tr class="bg-base-200">
-        <th>Policy code</th>
+        <th>{m.admin_access_policyCode()}</th>
         <th />
       </tr>
     </thead>
@@ -25,7 +26,9 @@
         <tr>
           <td class="font-medium">{apiName}</td>
           <td class="text-right"
-            ><a class="btn btn-xs px-8" href="access/{apiName}">Edit</a></td
+            ><a class="btn btn-xs px-8" href="access/{apiName}"
+              >{m.admin_access_edit()}</a
+            ></td
           >
         </tr>
       {/each}
@@ -34,10 +37,12 @@
 </div>
 
 <section class="my-4 space-y-4">
-  <h2 class="text-xl font-bold">Add new policies</h2>
+  <h2 class="text-xl font-bold">{m.admin_access_addNewPolicy()}</h2>
   <form class="form-control gap-4" method="POST" action="?/create" use:enhance>
     <label class="join join-vertical md:join-horizontal">
-      <span class="label join-item bg-base-200 px-4">New policy</span>
+      <span class="label join-item bg-base-200 px-4"
+        >{m.admin_access_newPolicy()}</span
+      >
       <input
         type="text"
         name="apiName"
@@ -50,7 +55,9 @@
       {#if $errors.apiName}<span class="text-error">{$errors.apiName}</span
         >{/if}
 
-      <button type="submit" class="btn btn-primary join-item">Add</button>
+      <button type="submit" class="btn btn-primary join-item"
+        >{m.admin_access_add()}
+      </button>
     </label>
   </form>
 </section>

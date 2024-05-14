@@ -18,7 +18,7 @@
         class="aspect-video object-cover"
       />
       <div
-        class="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-75"
+        class="absolute inset-0 flex flex-col items-center justify-center bg-base-100 bg-opacity-75"
       >
         <h6 class="text-xl font-semibold">{event.title}</h6>
         <span class="-mt-1 text-sm opacity-80">

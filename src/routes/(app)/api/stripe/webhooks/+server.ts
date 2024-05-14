@@ -1,5 +1,5 @@
 // in src/routes/stripe/webhooks/+server.js
-import { SECRET_STRIPE_WEBHOOK_SIGNING } from "$env/static/private";
+import { env } from "$env/dynamic/private";
 import stripe from "$lib/server/shop/payments/stripe.js";
 import {
   onPaymentCancellation,
@@ -26,7 +26,7 @@ export async function POST({ request }) {
     event = stripe.webhooks.constructEvent(
       body,
       signature,
-      SECRET_STRIPE_WEBHOOK_SIGNING,
+      env.SECRET_STRIPE_WEBHOOK_SIGNING,
     );
   } catch (err) {
     // signature is invalid!
