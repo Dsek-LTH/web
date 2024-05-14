@@ -11,7 +11,7 @@
   Nyheter
 </div>
 <div
-  class="grid grid-cols-1 flex-row divide-x-2 divide-y-2 divide-base-100 rounded-b-xl sm:grid-cols-2 lg:grid-cols-4 lg:[&>*:first-child]:rounded-bl-xl [&>*:last-child]:rounded-br-xl max-sm:[&>*:nth-child(2)]:rounded-b-xl max-sm:[&>*:nth-child(3)]:hidden max-sm:[&>*:nth-child(4)]:hidden sm:max-lg:[&>*:nth-last-child(2)]:rounded-bl-xl"
+  class="grid grid-cols-1 flex-row divide-x-2 divide-y-2 divide-base-100 rounded-b-xl sm:grid-cols-2 md:grid-cols-3 sm:[&>*:first-child]:rounded-bl-xl [&>*:last-child]:rounded-br-xl max-sm:[&>*:nth-child(2)]:rounded-b-xl sm:max-md:[&>*:nth-child(2)]:rounded-br-xl max-md:[&>*:nth-child(3)]:hidden"
 >
   {#each news as article (article.slug)}
     <div class="bg-base-200">
@@ -20,7 +20,7 @@
         class="pop-out flex h-full overflow-hidden p-4"
       >
         <article>
-          <h2 class="mb-2 truncate text-xl font-bold text-secondary">
+          <h2 class="mb-2 text-ellipsis text-xl font-bold text-secondary">
             {article.header}
           </h2>
           <p class="line-clamp-3 flex-none text-ellipsis leading-normal">
