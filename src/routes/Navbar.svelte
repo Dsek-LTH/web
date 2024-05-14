@@ -12,6 +12,7 @@
   import UserMenu from "./UserMenu.svelte";
   import { getRoutes } from "./routes";
   import type { UserShopItemCounts } from "$lib/server/shop/countUserShopItems";
+  import Search from "$lib/components/Search.svelte";
   $: notifications = $page.data["notifications"] as Notification[] | null;
   $: deleteNotificationForm = $page.data[
     "deleteNotificationForm"
@@ -25,7 +26,7 @@
 >
   <div class="container navbar mx-auto">
     <!-- Open drawer icon -->
-    <div class="block flex-1 xl:hidden">
+    <div class="block xl:hidden">
       <label
         for="main-drawer"
         aria-label="open sidebar"
@@ -34,6 +35,7 @@
         <span class="i-mdi-menu h-8 w-8 text-primary" />
       </label>
     </div>
+    <div class="block flex-1 bg-red-500 xl:hidden" />
 
     <!-- Navbar content -->
     <div class="container hidden flex-1 xl:block">
@@ -84,7 +86,7 @@
         {/if}
       {/each}
     </div>
-
+    <Search />
     <div class="flex">
       <div class="hidden xl:flex">
         <!-- This will be shown in the drawer instead. -->
