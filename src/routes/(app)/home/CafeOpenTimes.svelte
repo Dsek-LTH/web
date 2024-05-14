@@ -9,11 +9,13 @@
   class="pop-out flex gap-6 rounded-2xl bg-base-300 p-6"
   href="/committees/cafe"
 >
-  <span class="i-mdi-coffee self-center text-2xl" />
+  <span
+    class="i-mdi-coffee self-center text-2xl text-secondary lg:text-primary"
+  />
 
   <article>
     <p>{m.landing_cafeOpenHours()}</p>
-    <h2 class="text-xl font-bold">
+    <h2 class="text-xl font-bold text-secondary lg:text-primary">
       {#if cafeOpen}
         {cafeOpen.markdown}
       {:else}
