@@ -1,7 +1,13 @@
 <script lang="ts">
   import dayjs from "dayjs";
-  export let commitCount;
-  export let commitData;
+  export let commitCount: string;
+  export let commitData: {
+    author: string;
+    message: string;
+    avatarUrl: string;
+    date: string;
+    url: string;
+  };
 </script>
 
 <div
