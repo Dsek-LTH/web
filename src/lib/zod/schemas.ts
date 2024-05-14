@@ -1,5 +1,5 @@
 import { programmes } from "$lib/utils/programmes";
-import { string, z } from "zod";
+import { z } from "zod";
 
 export const emptySchema = z.object({}); // for forms without a body
 export type EmptySchema = typeof emptySchema;

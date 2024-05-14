@@ -13,7 +13,7 @@
 </script>
 
 <div class="flex flex-col items-center xl:grid xl:grid-cols-2">
-  {#each tags as tag, index}
+  {#each tags as tag}
     <div class="m-1 flex">
       <label
         class="flex cursor-pointer items-center whitespace-nowrap rounded-full border pl-2"
