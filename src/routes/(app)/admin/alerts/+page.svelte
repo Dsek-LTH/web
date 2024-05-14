@@ -2,6 +2,7 @@
   import { enhance } from "$app/forms";
   import type { Alert } from "@prisma/client";
   import dayjs from "dayjs";
+  import * as m from "$paraglide/messages";
 
   export let data;
 
@@ -17,31 +18,31 @@
   <input
     type="text"
     name="message"
-    placeholder="Meddelande Svenska"
+    placeholder={m.admin_alerts_messageSwedish()}
     class="input input-bordered w-full max-w-lg"
   />
   <input
     type="text"
     name="messageEn"
-    placeholder="Meddelande Engelska"
+    placeholder={m.admin_alerts_messageEnglish()}
     class="input input-bordered w-full max-w-lg"
   />
   <select name="severity" class="select select-bordered w-full max-w-lg">
-    <option disabled selected>Severity</option>
-    <option value="info">Info</option>
-    <option value="success">Success</option>
-    <option value="warning">Warning</option>
-    <option value="error">Error</option>
+    <option disabled selected>{m.admin_alerts_severity()}</option>
+    <option value="info">{m.admin_alerts_severityInfo()}</option>
+    <option value="success">{m.admin_alerts_severitySuccess()}</option>
+    <option value="warning">{m.admin_alerts_severityWarning()}</option>
+    <option value="error">{m.admin_alerts_severityError()}</option>
   </select>
-  <button class="btn w-full max-w-lg">Skapa</button>
+  <button class="btn w-full max-w-lg">{m.admin_alerts_create()}</button>
 </form>
-<div class="divider">Aktiva alerts</div>
+<div class="divider">{m.admin_alerts_activeAlerts()}</div>
 <table class="table">
   <thead>
     <tr>
-      <th>Severity</th>
-      <th>Message</th>
-      <th>Skapad</th>
+      <th>{m.admin_alerts_severity()}</th>
+      <th>{m.admin_alerts_message()}</th>
+      <th>{m.admin_alerts_created()}</th>
       <th />
     </tr>
   </thead>
@@ -70,8 +71,8 @@
 
 <dialog bind:this={removeModal} class="modal modal-bottom sm:modal-middle">
   <div class="modal-box">
-    <h3 class="text-lg font-bold">Remove alert</h3>
-    <p class="py-4">Are you sure you want to remove this alert?</p>
+    <h3 class="text-lg font-bold">{m.admin_alerts_removeAlert()}</h3>
+    <p class="py-4">{m.admin_alerts_removeAreYouSure()}</p>
     <p class="text-xs text-base-content/60">{selectedAlert?.message}</p>
     <div class="modal-action">
       <form method="POST" action="?/delete" use:enhance>
@@ -81,7 +82,7 @@
           class="btn btn-error"
           on:click={() => removeModal?.close()}
         >
-          Remove
+          {m.admin_alerts_remove()}
         </button>
       </form>
     </div>

@@ -3,6 +3,7 @@
   import { superForm } from "sveltekit-superforms/client";
   import type { EmailAlias, Position } from "@prisma/client";
   import type { RemovePositionForm, SetCanSendForm } from "./schema";
+  import * as m from "$paraglide/messages";
 
   export let emailAlias: EmailAlias & { position: Position };
   export let canSendForm: SuperValidated<SetCanSendForm>;
@@ -30,7 +31,7 @@
       <input type="hidden" name="aliasId" value={emailAlias.id} />
       <input type="hidden" name="canSend" value={emailAlias.canSend} />
       <p class="font-mono">{emailAlias.positionId}</p>
-      <label for="canSend">Kan skicka?</label>
+      <label for="canSend">{m.admin_emailalias_canSend()}</label>
       {#if isEditing}
         <input
           type="checkbox"
@@ -66,7 +67,7 @@
     <input type="hidden" name="email" value={emailAlias.email} />
     {#if isEditing}
       <button class="btn btn-error btn-xs" type="submit">
-        Ta bort posten
+        {m.admin_emailalias_removePosition()}
       </button>
     {/if}
   </form>

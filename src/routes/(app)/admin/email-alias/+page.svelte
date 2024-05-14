@@ -6,6 +6,7 @@
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
   import { page } from "$app/stores";
+  import * as m from "$paraglide/messages";
 
   export let data;
 
@@ -64,13 +65,13 @@
   );
 </script>
 
-<PageHeader title="Mejlalias" />
+<PageHeader title={m.admin_emailalias_emailAliases()} />
 
 <div>
   {#if isAuthorized(apiNames.EMAIL_ALIAS.CREATE, $page.data.user)}
     <div class="my-4 rounded-lg p-4">
       <div class="border-b border-neutral p-4">
-        <h2 class="text-lg font-semibold">Lägg till mejlalias</h2>
+        <h2 class="text-lg font-semibold">{m.admin_emailalias_addAlias()}</h2>
         <form
           class="flex flex-row items-end gap-2"
           use:createEmailPositionEnhance
@@ -81,14 +82,14 @@
           <Input
             name="localPartAlias"
             id="localPartAlias"
-            label="Email"
+            label={m.admin_emailalias_emailAddress()}
             required
             bind:value={$createEmailPositionForm.localPartAlias}
             {...$createEmailPositionConstraints.localPartAlias}
             error={$createEmailPositionErrors.localPartAlias}
           />
           <Labeled
-            label="Domain"
+            label={m.admin_emailalias_domain()}
             error={$createEmailPositionErrors.domainAlias}
           >
             <select
@@ -104,7 +105,7 @@
               {/each}
             </select>
           </Labeled>
-          <Labeled label="Post">
+          <Labeled label={m.admin_emailalias_position()}>
             <select
               id="positionIdAlias"
               name="positionIdAlias"
@@ -118,12 +119,16 @@
               {/each}
             </select>
           </Labeled>
-          <button class="btn btn-primary" type="submit">Lägg till</button>
+          <button class="btn btn-primary" type="submit"
+            >{m.admin_emailalias_add()}</button
+          >
         </form>
       </div>
 
       <div class="border-b border-neutral p-4">
-        <h2 class="text-lg font-semibold">Add Special Sender</h2>
+        <h2 class="text-lg font-semibold">
+          {m.admin_emailalias_addSpecialSender()}
+        </h2>
         <form
           class="flex flex-row items-end gap-2"
           action="?/createEmailSpecialSender"
@@ -133,7 +138,7 @@
         >
           <Input
             name="localPartSender"
-            label="Email"
+            label={m.admin_emailalias_emailAddress()}
             id="localPartSender"
             required
             bind:value={$createEmailSpecialSenderForm.localPartSender}
@@ -141,7 +146,7 @@
             error={$createEmailSpecialSenderErrors.localPartSender}
           />
           <Labeled
-            label="Domain"
+            label={m.admin_emailalias_domain()}
             error={$createEmailSpecialSenderErrors.domainSender}
           >
             <select
@@ -159,7 +164,7 @@
           </Labeled>
           <Input
             name="usernameSender"
-            label="Student ID or Username"
+            label={m.admin_emailalias_studentIDOrUsername()}
             required
             id="usernameSender"
             bind:value={$createEmailSpecialSenderForm.usernameSender}
@@ -167,12 +172,16 @@
             error={$createEmailSpecialSenderErrors.usernameSender}
           />
 
-          <button class="btn btn-primary" type="submit">Lägg till</button>
+          <button class="btn btn-primary" type="submit"
+            >{m.admin_emailalias_add()}</button
+          >
         </form>
       </div>
 
       <div class="p-4">
-        <h2 class="text-lg font-semibold">Add Special Receiver</h2>
+        <h2 class="text-lg font-semibold">
+          {m.admin_emailalias_addSpecialReceiver()}
+        </h2>
         <form
           class="flex flex-row items-end gap-2"
           action="?/createEmailSpecialReceiver"
@@ -182,7 +191,7 @@
         >
           <Input
             name="localPartReceiver"
-            label="Email"
+            label={m.admin_emailalias_emailAddress()}
             required
             id="localPartReceiver"
             bind:value={$createEmailSpecialReceiverForm.localPartReceiver}
@@ -190,7 +199,7 @@
             error={$createEmailSpecialReceiverErrors.localPartReceiver}
           />
           <Labeled
-            label="Domain"
+            label={m.admin_emailalias_domain()}
             error={$createEmailSpecialReceiverErrors.domainReceiver}
           >
             <select
@@ -208,27 +217,29 @@
           </Labeled>
           <Input
             name="targetEmailReceiver"
-            label="Target Email"
+            label={m.admin_emailalias_targetAddress()}
             required
             id="targetEmailReceiver"
             bind:value={$createEmailSpecialReceiverForm.targetEmailReceiver}
             error={$createEmailSpecialReceiverErrors.targetEmailReceiver}
             {...$createEmailSpecialReceiverConstraints.targetEmailReceiver}
           />
-          <button class="btn btn-primary" type="submit">Lägg till</button>
+          <button class="btn btn-primary" type="submit"
+            >{m.admin_emailalias_add()}</button
+          >
         </form>
       </div>
     </div>
   {/if}
 
   <div class="overflow-x-auto">
-    <h1 class="my-4 text-2xl font-bold">Email-alias</h1>
+    <h1 class="my-4 text-2xl font-bold">{m.admin_emailalias_emailAliases()}</h1>
     <table class="table">
       <!-- head -->
       <thead>
         <tr class="bg-base-200">
-          <th>E-mail</th>
-          <th>Position-id</th>
+          <th>{m.admin_emailalias_emailAddress()}</th>
+          <th>{m.admin_emailalias_positionID()}</th>
           <th />
         </tr>
       </thead>
@@ -247,7 +258,7 @@
             {#if isAuthorized(apiNames.EMAIL_ALIAS.UPDATE, $page.data.user)}
               <td class="text-right">
                 <a class="btn btn-xs px-8" href="email-alias/{emailAlias[0]}"
-                  >Ändra</a
+                  >{m.admin_emailalias_edit()}</a
                 ></td
               >
             {/if}
@@ -258,13 +269,15 @@
   </div>
   <hr />
   <div class="overflow-x-auto">
-    <h1 class="my-4 text-2xl font-bold">Special senders</h1>
+    <h1 class="my-4 text-2xl font-bold">
+      {m.admin_emailalias_specialSenders()}
+    </h1>
     <table class="table">
       <!-- head -->
       <thead>
         <tr class="bg-base-200">
-          <th>E-mail</th>
-          <th>Student ID or Username</th>
+          <th>{m.admin_emailalias_emailAddress()}</th>
+          <th>{m.admin_emailalias_studentIDOrUsername()}</th>
           <th />
         </tr>
       </thead>
@@ -282,7 +295,8 @@
             </td>
             {#if isAuthorized(apiNames.EMAIL_ALIAS.UPDATE, $page.data.user)}
               <td class="text-right">
-                <a class="btn btn-xs px-8" href="email-alias/{email}">Ändra</a
+                <a class="btn btn-xs px-8" href="email-alias/{email}"
+                  >{m.admin_emailalias_edit()}</a
                 ></td
               >
             {/if}
@@ -293,13 +307,15 @@
   </div>
   <hr />
   <div class="overflow-x-auto">
-    <h1 class="my-4 text-2xl font-bold">Special receivers</h1>
+    <h1 class="my-4 text-2xl font-bold">
+      {m.admin_emailalias_specialReceivers()}
+    </h1>
     <table class="table">
       <!-- head -->
       <thead>
         <tr class="bg-base-200">
-          <th>E-mail</th>
-          <th>Target email</th>
+          <th>{m.admin_emailalias_emailAddress()}</th>
+          <th>{m.admin_emailalias_targetAddress()}</th>
           <th />
         </tr>
       </thead>
@@ -317,7 +333,8 @@
             </td>
             {#if isAuthorized(apiNames.EMAIL_ALIAS.UPDATE, $page.data.user)}
               <td class="text-right">
-                <a class="btn btn-xs px-8" href="email-alias/{email}">Ändra</a
+                <a class="btn btn-xs px-8" href="email-alias/{email}"
+                  >{m.admin_emailalias_edit()}</a
                 ></td
               >
             {/if}
