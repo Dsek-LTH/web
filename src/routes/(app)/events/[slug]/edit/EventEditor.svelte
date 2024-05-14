@@ -7,8 +7,9 @@
   import type { Tag } from "@prisma/client";
   import type { SuperValidated } from "sveltekit-superforms";
   import { superForm } from "sveltekit-superforms/client";
-  import Event from "./Event.svelte";
-  import type { EventSchema } from "./schema";
+  import { type EventSchema } from "../../schema";
+  import Event from "../../Event.svelte";
+  import { recurringTypes } from "$lib/utils/events";
 
   export let data: SuperValidated<EventSchema>;
   const { form, errors, constraints, enhance, submitting } = superForm(data, {
@@ -18,7 +19,7 @@
 </script>
 
 <main
-  class="container mx-auto flex flex-col gap-8 px-4 pt-8 lg:flex-row [&>*]:flex-1"
+  class="flex w-screen flex-col gap-8 px-4 pt-8 lg:flex-row lg:px-8 [&>*]:flex-1"
 >
   <section>
     <form method="POST" class="form-control gap-2" use:enhance>
@@ -37,28 +38,16 @@
         error={$errors.shortDescription}
         {...$constraints.shortDescription}
       />
-      <div class="flex flex-row justify-between gap-4 [&>*]:flex-1">
-        <Labeled label="Start" error={$errors.startDatetime}>
-          <DateInput
-            id="start"
-            name="startDatetime"
-            placeholder="Start"
-            bind:date={$form.startDatetime}
-            error={$errors.startDatetime}
-            {...$constraints.startDatetime}
-          />
-        </Labeled>
-        <Labeled label="End" error={$errors.endDatetime}>
-          <DateInput
-            id="end"
-            name="endDatetime"
-            placeholder="End"
-            bind:date={$form.endDatetime}
-            error={$errors.endDatetime}
-            {...$constraints.endDatetime}
-          />
-        </Labeled>
-      </div>
+      <Labeled label="Description" error={$errors.description}>
+        <textarea
+          id="description"
+          name="description"
+          class="textarea textarea-bordered min-h-[10rem]"
+          placeholder="Description"
+          bind:value={$form.description}
+          {...$constraints.description}
+        />
+      </Labeled>
       <div class="flex flex-row justify-between gap-4 [&>*]:flex-1">
         <Input
           label="Organizer"
@@ -84,16 +73,62 @@
           {...$constraints.link}
         />
       </div>
-      <Labeled label="Description" error={$errors.description}>
-        <textarea
-          id="description"
-          name="description"
-          class="textarea textarea-bordered min-h-[10rem]"
-          placeholder="Description"
-          bind:value={$form.description}
-          {...$constraints.description}
-        />
-      </Labeled>
+      <div class="flex flex-row justify-between gap-4 [&>*]:flex-1">
+        <Labeled label="Start" error={$errors.startDatetime}>
+          <DateInput
+            id="start"
+            name="startDatetime"
+            placeholder="Start"
+            bind:date={$form.startDatetime}
+            error={$errors.startDatetime}
+            {...$constraints.startDatetime}
+          />
+        </Labeled>
+        <Labeled label="End" error={$errors.endDatetime}>
+          <DateInput
+            id="end"
+            name="endDatetime"
+            placeholder="End"
+            bind:date={$form.endDatetime}
+            error={$errors.endDatetime}
+            {...$constraints.endDatetime}
+          />
+        </Labeled>
+      </div>
+      <div class="flex flex-row justify-between gap-4 [&>*]:flex-1">
+        <label class="label cursor-pointer">
+          <span class="label-text">Återkommande event</span>
+          <input
+            type="checkbox"
+            class="checkbox"
+            disabled={true}
+            bind:checked={$form.isRecurring}
+          />
+        </label>
+        <Labeled label="Hur ofta?" error={$errors.recurringType} fullWidth>
+          <select
+            id="recurringTypeSelect"
+            name="recurringType"
+            class="select select-bordered"
+            disabled={true}
+            bind:value={$form.recurringType}
+            {...$constraints.recurringType}
+          >
+            {#each recurringTypes as type}
+              <option value={type[0]}>{type[1]}</option>
+            {/each}
+          </select>
+        </Labeled>
+        <Labeled label="Sista datum" error={$errors.recurringEndDatetime}>
+          <input
+            type="date"
+            disabled={true}
+            class="input input-bordered"
+            bind:value={$form.recurringEndDatetime}
+            {...$constraints.recurringEndDatetime}
+          />
+        </Labeled>
+      </div>
       <Labeled
         label="Taggar"
         error={$errors.tags !== undefined ? "Ogiltiga taggar" : ""}
@@ -113,16 +148,6 @@
     <Event
       event={{
         ...$form,
-        titleEn: "",
-        descriptionEn: "",
-        shortDescriptionEn: "",
-        imageUrl: null,
-
-        id: "",
-        slug: "",
-        removedAt: null,
-        authorId: "",
-        numberOfUpdates: 0,
       }}
     >
       <div slot="tags" class="flex flex-row flex-wrap gap-2">

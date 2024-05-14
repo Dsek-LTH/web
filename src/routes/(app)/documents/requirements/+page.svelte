@@ -23,7 +23,7 @@
 
   /*
       The purpose of this function is to take the input from data.folders and make it into a recursive folder structure that works
-      well with the Folder component, which is also recursive. 
+      well with the Folder component, which is also recursive.
       For each of the items in data.folders, which is a path to a file. It recursively goes down the path, adding it to pathSoFar,
       pathSoFar is used because multiple files can share parts of their path.
   */
@@ -68,6 +68,15 @@
       });
     }
   }
+
+  $: canCreate = isAuthorized(
+    apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).CREATE,
+    data.user,
+  );
+  $: canDelete = isAuthorized(
+    apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).DELETE,
+    data.user,
+  );
 </script>
 
 <svelte:head>
@@ -83,15 +92,17 @@
     getPageNumber={(pageName) => currentYear - +pageName}
     fieldName="year"
   />
+</div>
 
-  <div class="flex flex-col gap-1">
-    {#if isAuthorized(apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).CREATE, data.user)}
+{#if canCreate || canDelete}
+  <div class="mb-4 flex flex-row gap-1">
+    {#if canCreate}
       <a
         class="btn btn-primary btn-sm"
         href="/documents/upload?type=requirement">Ladda upp fil</a
       >
     {/if}
-    {#if isAuthorized(apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).DELETE, data.user)}
+    {#if canDelete}
       <button
         class="btn btn-secondary btn-sm"
         on:click={() => {
@@ -102,8 +113,7 @@
       </button>
     {/if}
   </div>
-</div>
-
+{/if}
 <div class="flex flex-col rounded-lg bg-base-200 p-5">
   <Folder name="" {folders} deleteForm={data.deleteForm} {isEditing} />
 </div>

@@ -1,24 +1,19 @@
 import KcAdminClient from "@keycloak/keycloak-admin-client";
-import {
-  KEYCLOAK_ADMIN_USERNAME,
-  KEYCLOAK_ADMIN_PASSWORD,
-  KEYCLOAK_ENDPOINT,
-  KEYCLOAK_ENABLED,
-} from "$env/static/private";
+import { env } from "$env/dynamic/private";
 import type { PrismaClient } from "@prisma/client";
 import { error } from "@sveltejs/kit";
 
-const enabled = KEYCLOAK_ENABLED === "true";
+const enabled = env.KEYCLOAK_ENABLED === "true";
 
 async function connect(): Promise<KcAdminClient> {
   const kcAdminClient = new KcAdminClient({
-    baseUrl: KEYCLOAK_ENDPOINT || "",
+    baseUrl: env.KEYCLOAK_ENDPOINT || "",
     realmName: "master",
   });
 
   await kcAdminClient.auth({
-    username: KEYCLOAK_ADMIN_USERNAME || "",
-    password: KEYCLOAK_ADMIN_PASSWORD || "",
+    username: env.KEYCLOAK_ADMIN_USERNAME || "",
+    password: env.KEYCLOAK_ADMIN_PASSWORD || "",
     grantType: "password",
     clientId: "admin-cli",
   });

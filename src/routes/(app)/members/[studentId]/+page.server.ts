@@ -10,11 +10,12 @@ import keycloak from "$lib/server/keycloak";
 import { z } from "zod";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
-  const { user, prisma } = locals;
+  const { prisma, user } = locals;
+  const { studentId } = params;
   const [memberResult, publishedArticlesResult] = await Promise.allSettled([
     prisma.member.findUnique({
       where: {
-        studentId: params.studentId,
+        studentId: studentId,
       },
       include: {
         mandates: {
@@ -44,7 +45,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
       where: {
         author: {
           member: {
-            studentId: params.studentId,
+            studentId: studentId,
           },
         },
         removedAt: null,
@@ -65,10 +66,11 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     throw error(404, "Member not found");
   }
   const member = memberResult.value;
-  const allMemberDoors = await getCurrentDoorPoliciesForMember(
-    prisma,
-    member.id,
-  );
+
+  const doorAccess =
+    member.id === user?.memberId
+      ? await getCurrentDoorPoliciesForMember(prisma, studentId)
+      : [];
 
   const email =
     member.studentId !== null
@@ -80,7 +82,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
       form: await superValidate(member, memberSchema),
       pingForm: await superValidate(emptySchema),
       viewedMember: member, // https://github.com/Dsek-LTH/web/issues/194
-      allMemberDoors,
+      doorAccess,
       publishedArticles: publishedArticlesResult.value ?? [],
       email,
       ping: user

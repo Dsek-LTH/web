@@ -10,7 +10,7 @@
   import LanguageSwitcher from "./LanguageSwitcher.svelte";
   import NotificationBell from "./NotificationBell.svelte";
   import UserMenu from "./UserMenu.svelte";
-  import { routes } from "./routes";
+  import { getRoutes } from "./routes";
   import type { UserShopItemCounts } from "$lib/server/shop/countUserShopItems";
   import Search from "$lib/components/Search.svelte";
   $: notifications = $page.data["notifications"] as Notification[] | null;
@@ -18,6 +18,7 @@
     "deleteNotificationForm"
   ] as SuperValidated<NotificationSchema> | null;
   $: shopItemCounts = $page.data["shopItemCounts"] as UserShopItemCounts;
+  $: routes = getRoutes();
 </script>
 
 <div

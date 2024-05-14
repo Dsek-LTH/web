@@ -123,5 +123,15 @@
   "inventory_goToEvent": "Go to event",
   "inventory_showTicket": "Show ticket",
   "inventory_yourInventory": "Your inventory",
-  "inventory_usedUp": "Consumed"
+  "inventory_usedUp": "Consumed",
+  "admin_access_addNewPolicies": "Add new policies",
+  "admin_access_role": "Role",
+  "admin_access_member": "Member",
+  "admin_access_createdAt": "Created at",
+  "admin_access_studentID": "Student ID",
+  "admin_access_add": "Add",
+  "admin_access_policyCode": "Policy code",
+  "admin_access_edit": "Edit",
+  "admin_access_addNewPolicy": "Add new policies",
+  "admin_access_newPolicy": "New policy"
 }

@@ -12,12 +12,15 @@
 
   export let articleId: string;
   export let removeForm: SuperValidated<RemoveEventSchema>;
-  const { enhance } = superForm(removeForm, {
+  const { enhance, form } = superForm(removeForm, {
     id: articleId,
   });
 
   export let data: PageData;
   $: event = data.event;
+  let isModalOpen = false;
+  let submitString: "submit" | "button";
+  $: submitString = event.recurringParentId != undefined ? "button" : "submit";
 </script>
 
 <svelte:head>
@@ -39,11 +42,64 @@
       <form method="POST" action="?/removeEvent" use:enhance>
         <input type="hidden" name="eventId" value={event.id} />
         <button
-          type="submit"
+          type={submitString}
           class="btn btn-square btn-ghost btn-md"
           title="Radera"
+          on:click={() =>
+            (isModalOpen = event.recurringParentId !== null && true)}
         >
           <span class="i-mdi-delete text-xl" />
+        </button>
+        <button
+          class="modal hover:cursor-default"
+          type="button"
+          class:modal-open={isModalOpen}
+          on:click|self={() => (isModalOpen = false)}
+        >
+          <div class="modal-box">
+            <h3 class="text-lg font-bold">This is a recurring event</h3>
+            <div class="py-4">
+              <div class="form-control">
+                <label class="label cursor-pointer">
+                  <span class="label-text">
+                    Delete
+                    <span class="font-extrabold">this</span>
+                    event
+                  </span>
+                  <input
+                    type="radio"
+                    name="removeAll"
+                    class="radio"
+                    bind:group={$form.removeAll}
+                    value={false}
+                  />
+                </label>
+              </div>
+              <div class="form-control">
+                <label class="label cursor-pointer">
+                  <span class="label-text"
+                    >Delete <span class="font-extrabold">all</span> events</span
+                  >
+                  <input
+                    type="radio"
+                    name="removeAll"
+                    class="radio"
+                    bind:group={$form.removeAll}
+                    value={true}
+                  />
+                </label>
+              </div>
+            </div>
+            <div class="modal-action">
+              <button
+                class="btn btn-error"
+                type="submit"
+                on:click={() => (isModalOpen = false)}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
         </button>
       </form>
     {/if}
