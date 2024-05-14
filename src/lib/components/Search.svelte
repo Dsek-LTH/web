@@ -12,7 +12,6 @@
       "/api/members?" + new URLSearchParams({ search: value }),
     );
     users = await response.json();
-    length = users.length;
   }
 
   function showDialog() {
