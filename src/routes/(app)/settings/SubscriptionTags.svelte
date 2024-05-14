@@ -12,7 +12,7 @@
     .filter((t) => t != "");
 </script>
 
-<div class="flex flex-col items-center xl:grid xl:grid-cols-2">
+<div class="flex flex-col items-center sm:grid sm:grid-cols-2">
   {#each tags as tag}
     <div class="m-1 flex">
       <label
