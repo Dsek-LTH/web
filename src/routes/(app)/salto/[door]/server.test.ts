@@ -14,12 +14,12 @@ beforeEach(() => {
 
 test("door access list is not empty", async () => {
   const response = await GET(mockEvent);
-  const body = await response.json();
+  const body = await response.text();
   expect(body).not.toHaveLength(0);
 });
 
 test("door access list contains backup students", async () => {
   const response = await GET(mockEvent);
-  const body = await response.json();
-  expect(body).toEqual(expect.arrayContaining(BACKUP_LIST_OF_STUDENT_IDS));
+  const body = await response.text();
+  expect(body).toEqual(BACKUP_LIST_OF_STUDENT_IDS.join("\n"));
 });
