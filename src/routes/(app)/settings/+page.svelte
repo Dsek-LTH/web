@@ -1,11 +1,9 @@
 <script lang="ts">
   import type { PageData } from "./$types";
-  import {
-    NotificationSettingType,
-    NotificationSettingTypeDescription,
-  } from "$lib/utils/notifications/types";
+  import { NotificationSettingType } from "$lib/utils/notifications/types";
   import SubscriptionTags from "./SubscriptionTags.svelte";
   import type { Tag } from "@prisma/client";
+  import * as m from "$paraglide/messages";
 
   export let data: PageData;
   $: subscribedTags = data.subscribedTags as { subscribedTags: Tag[] };
@@ -14,23 +12,43 @@
   let subscriptionGroup = data.subscriptions;
   let pushGroup = data.pushSubscriptions;
 
-  const convertToKey = (text: string) => {
-    return text as keyof typeof NotificationSettingTypeDescription;
+  const notificationText = {
+    LIKE: m.setting_like,
+    COMMENT: m.setting_comment,
+    MENTION: m.setting_mention,
+    NEW_ARTICLE: m.setting_new_article,
+    EVENT_GOING: m.setting_event_going,
+    CREATE_MANDATE: m.setting_create_mandate,
+    BOOKING_REQUEST: m.setting_booking_request,
+    PING: m.setting_ping,
+  } as const;
+
+  type NotificationText =
+    | "LIKE"
+    | "COMMENT"
+    | "MENTION"
+    | "NEW_ARTICLE"
+    | "EVENT_GOING"
+    | "CREATE_MANDATE"
+    | "BOOKING_REQUEST"
+    | "PING";
+  const getNotificationText = (text: string) => {
+    return notificationText[<NotificationText>text](); // Type cast string to string literal
   };
 </script>
 
 <svelte:head>
-  <title>Inställningar | D-sektionen</title>
+  <title>{m.setting_title()} | D-sektionen</title>
 </svelte:head>
 
-<h1 class="mt-2 text-center text-3xl font-bold">Inställningar</h1>
+<h1 class="mt-2 text-center text-3xl font-bold">{m.setting_title()}</h1>
 <div class="relative">
   <form
     method="POST"
     class="mt-2 flex w-full flex-col items-center justify-start pb-24 lg:flex-row lg:items-start lg:justify-center"
   >
     <div class="m-2 flex w-full max-w-2xl flex-col items-center lg:p-0">
-      <h2 class="mb-2 text-2xl font-bold">Notifikationer</h2>
+      <h2 class="mb-2 text-2xl font-bold">{m.setting_notification()}</h2>
       {#each Object.entries(NotificationSettingType) as notificationSettingType}
         <div class="m-2 w-full">
           <!-- Web notification -->
@@ -38,9 +56,7 @@
             <span
               class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
             >
-              {NotificationSettingTypeDescription[
-                convertToKey(notificationSettingType[0])
-              ]}</span
+              {getNotificationText(notificationSettingType[0])}</span
             >
             <input
               type="checkbox"
@@ -64,7 +80,7 @@
           >
             <span
               class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
-              >Pushnotis</span
+              >{m.setting_push()}</span
             >
             <input
               type="checkbox"
@@ -81,12 +97,12 @@
       {/each}
     </div>
     <div class="m-2 flex w-full max-w-2xl flex-col items-center lg:p-0">
-      <h2 class="mb-2 text-2xl font-bold">Nyhetsprenumerationer</h2>
+      <h2 class="mb-2 text-2xl font-bold">{m.setting_subscription()}</h2>
       <SubscriptionTags {tags} subscribedTags={subscribedTags.subscribedTags} />
     </div>
     <button
       class="btn absolute bottom-0 mb-4 mt-4 w-full max-w-xl bg-primary"
-      type="submit">Tillämpa</button
+      type="submit">{m.setting_apply()}</button
     >
   </form>
 </div>

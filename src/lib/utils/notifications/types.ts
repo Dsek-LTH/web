@@ -23,17 +23,6 @@ export enum NotificationSettingType {
   PING = "PING",
 }
 
-export enum NotificationSettingTypeDescription {
-  LIKE = "Gillarmarkeringar på dina inlägg",
-  COMMENT = "Kommentarer och uppdateringar på dina inlägg",
-  MENTION = "När du blir nämnd",
-  NEW_ARTICLE = "Nyhetsprenumationer",
-  EVENT_GOING = "Interaktioner på ditt event",
-  CREATE_MANDATE = "När du får en ny post",
-  BOOKING_REQUEST = "Bokningar",
-  PING = "Pingar",
-}
-
 /**
  * Maps subscription settings to internal notification types.
  * A subscription setting controls said notification types.
