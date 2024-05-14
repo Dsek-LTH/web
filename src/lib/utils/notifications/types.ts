@@ -26,7 +26,7 @@ export enum NotificationSettingType {
 export enum NotificationSettingTypeDescription {
   LIKE = "Gillarmarkeringar på dina inlägg",
   COMMENT = "Kommentarer och uppdateringar på dina inlägg",
-  MENTION = "När du blir nämn",
+  MENTION = "När du blir nämnd",
   NEW_ARTICLE = "Nyhetsprenumationer",
   EVENT_GOING = "Interaktioner på ditt event",
   CREATE_MANDATE = "När du får en ny post",
