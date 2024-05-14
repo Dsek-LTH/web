@@ -151,16 +151,12 @@
         </Labeled>
       </div>
       <div
-        class="form-control w-full items-center rounded pb-4 transition-colors lg:max-w-[200px]"
+        class="flex w-full items-center justify-center py-2 transition-colors lg:max-w-[200px]"
         class:bg-error={$form.isBan}
       >
-        <label
-          class="p-2 align-middle"
-          id="banText"
-          for="isBan"
-          class:text-black={$form.isBan}
-          >{$form.isBan ? "Banning Access" : "Ban Access?"}</label
-        >
+        <p class="p-2" id="banText" class:text-black={$form.isBan}>
+          {$form.isBan ? "Banning Access" : "Ban Access?"}
+        </p>
         <input
           id="isBan"
           name="isBan"
