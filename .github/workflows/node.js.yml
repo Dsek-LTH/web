@@ -43,5 +43,8 @@ jobs:
       - run: pnpm i
       - run: pnpm prisma migrate deploy
       - run: pnpm run seed
-      - run: pnpm run ci-check
+      - run: pnpm run lint
+      - run: pnpm run format
+      - run: pnpm run test
+      - run: pnpm run check
       - run: pnpm run build
