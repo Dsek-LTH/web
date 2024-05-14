@@ -26,9 +26,7 @@
           bind:group={selectedTags}
           value={tag.id}
         />
-        <span
-          class="ms-3 pb-1 pt-1 text-sm font-medium text-gray-900 dark:text-gray-300"
-        >
+        <span class="ms-3 pb-1 pt-1 text-sm font-medium">
           {tag.name}
         </span>
         <div
