@@ -33,7 +33,7 @@
     | "BOOKING_REQUEST"
     | "PING";
   const getNotificationText = (text: string) => {
-    return notificationText[<NotificationText>text](); // Type cast string to string literal
+    return notificationText[text as NotificationText](); // Type cast string to string literal
   };
 </script>
 
