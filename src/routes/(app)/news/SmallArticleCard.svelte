@@ -15,7 +15,7 @@
   <div class="flex justify-between gap-4 bg-base-300 p-4">
     <div class="flex flex-wrap gap-2">
       {#each article.tags as tag}
-        <span class="badge text-xs text-neutral-400">{tag.name}</span>
+        <span class="badge text-xs text-neutral-600">{tag.name}</span>
       {/each}
     </div>
   </div>
