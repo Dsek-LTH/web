@@ -1,4 +1,3 @@
-import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 import sendNotification from "$lib/utils/notifications";
