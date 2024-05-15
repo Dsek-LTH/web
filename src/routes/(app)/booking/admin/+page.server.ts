@@ -9,7 +9,7 @@ export const load: PageServerLoad = async ({ locals }) => {
   const { prisma, user } = locals;
   authorize(apiNames.BOOKINGS.UPDATE, user);
 
-  const bookingRequests = await authorizedPrismaClient.bookingRequest.findMany({
+  const bookingRequests = await prisma.bookingRequest.findMany({
     where: {
       start: {
         gte: new Date(),
