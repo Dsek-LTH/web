@@ -98,10 +98,10 @@ const sendNotification = async ({
             },
           },
       id: {
-        not: undefined,
-        // process.env["NODE_ENV"] === "development"
-        //   ? undefined
-        //   : notificationAuthor?.memberId,
+        not:
+          process.env["NODE_ENV"] === "development"
+            ? undefined
+            : notificationAuthor?.memberId,
         ...(memberIds !== undefined && memberIds.length > 0
           ? { in: memberIds }
           : {}),
@@ -129,6 +129,10 @@ const sendNotification = async ({
         : ""
     }`,
   );
+
+  if (title.length > 255) title = title.substring(0, 254);
+  if (message.length > 255) message = message.substring(0, 254);
+  if (link.length > 255) link = link.substring(0, 254);
 
   const result = await Promise.allSettled([
     await sendWeb(
