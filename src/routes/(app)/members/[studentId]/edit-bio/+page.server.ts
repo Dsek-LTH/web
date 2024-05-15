@@ -3,11 +3,11 @@ import { memberSchema } from "$lib/zod/schemas";
 import { error, fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
 import type { Actions, PageServerLoad } from "./$types";
-import { authorize } from "$lib/utils/authorization";
+import { redirect } from "$lib/utils/redirect";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
-  authorize(apiNames.MEMBER.UPDATE, user);
+  if (!user || !user.memberId) throw redirect(302, "/home");
 
   const member = await prisma.member.findUnique({
     where: {

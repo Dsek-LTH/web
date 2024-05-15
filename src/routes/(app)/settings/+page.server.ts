@@ -1,11 +1,10 @@
 import type { Actions, PageServerLoad } from "./$types";
 import { fail } from "@sveltejs/kit";
-import { authorize } from "$lib/utils/authorization";
-import apiNames from "$lib/utils/apiNames";
+import { redirect } from "$lib/utils/redirect";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { user, prisma } = locals;
-  authorize(apiNames.MEMBER.UPDATE, user);
+  if (!user || !user.memberId) throw redirect(302, "/home");
 
   const subscriptionSettings = user
     ? await prisma.subscriptionSetting.findMany({
