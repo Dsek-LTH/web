@@ -109,15 +109,21 @@
           />
         </label>
       </div>
-      <div class="flex flex-row justify-between gap-4 [&>*]:flex-1">
+      <div class="flex items-center pt-4">
         <label class="label cursor-pointer">
           <span class="label-text">Återkommande event</span>
           <input
             type="checkbox"
-            class="checkbox"
+            class="checkbox mx-4"
             bind:checked={$form.isRecurring}
           />
         </label>
+      </div>
+      <div
+        class={$form.isRecurring
+          ? "flex flex-row justify-between gap-4 [&>*]:flex-1"
+          : "hidden"}
+      >
         <Labeled label="Hur ofta?" error={$errors.recurringType} fullWidth>
           <select
             id="classProgramme"
