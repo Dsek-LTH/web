@@ -11,7 +11,7 @@
 <div
   class="rounded-t-xl border-t-4 border-t-primary bg-base-300 p-4 text-2xl font-bold"
 >
-  {m.events()}
+  <a href="/events" class="hover:underline">{m.events()}</a>
 </div>
 <div
   class="grid flex-row divide-x-2 divide-base-100 sm:grid-cols-2 md:grid-cols-3 sm:[&>*:first-child]:rounded-bl-xl [&>*:last-child]:rounded-br-xl max-sm:[&>*:nth-child(2)]:rounded-b-xl sm:max-md:[&>*:nth-child(2)]:rounded-br-xl max-md:[&>*:nth-child(3)]:hidden"
@@ -24,14 +24,14 @@
       >
         <div class="flex flex-row">
           <div
-            class="place-items-center rounded-l-lg bg-base-300 px-4 py-2 text-center text-2xl font-bold capitalize text-primary"
+            class="place-items-center rounded-l-lg bg-base-300 px-4 py-2 text-center text-xl font-bold capitalize text-primary"
           >
             {event.startDatetime.toLocaleString(languageTag(), {
               weekday: "long",
             })}
           </div>
           <div
-            class="flex flex-1 items-center justify-center rounded-r-lg bg-base-300/50 text-3xl font-semibold text-primary"
+            class="flex flex-1 items-center justify-center rounded-r-lg bg-base-300/50 text-2xl font-semibold text-primary"
           >
             {event.startDatetime.toLocaleDateString("sv-SE", {
               day: "2-digit",
