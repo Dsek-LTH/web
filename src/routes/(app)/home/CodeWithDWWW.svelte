@@ -14,7 +14,9 @@
 <div
   class="rounded-t-xl border-t-4 bg-base-300 p-4 text-2xl font-bold max-lg:border-t-secondary lg:border-t-primary xl:border-t-secondary"
 >
-  {m.home_codeWithDWWW()}
+  <a href="https://github.com/Dsek-LTH/web" class="hover:underline"
+    >{m.home_codeWithDWWW()}</a
+  >
 </div>
 <div class="flex flex-col rounded-b-xl bg-base-200 p-4">
   {m.home_DWWWMessage()}
@@ -29,7 +31,8 @@
       href="https://github.com/Dsek-LTH/web/issues/new"
       ><span
         class="i-mdi-bug text-lg max-lg:text-secondary lg:text-primary xl:text-secondary"
-      /> {m.home_reportBug()}</a
+      />
+      {m.home_reportBug()}</a
     >
     <a
       class="btn btn-ghost btn-sm"
@@ -51,8 +54,8 @@
       />
       <span class="font-semibold">{commitData.author}</span>
     </div>
-    <span class="ml-2 text-sm">{commitData.message}</span>
-    <span class="ml-auto text-right text-sm font-light"
+    <span class="ml-2 line-clamp-2 text-sm">{commitData.message}</span>
+    <span class="ml-auto whitespace-nowrap pl-2 text-right text-sm font-light"
       >{dayjs(commitData.date).fromNow()}</span
     >
   </a>

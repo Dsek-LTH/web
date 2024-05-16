@@ -9,7 +9,7 @@
 <div
   class="rounded-t-xl border-t-4 border-t-secondary bg-base-300 p-4 text-2xl font-bold"
 >
-  {m.news()}
+  <a href="/news" class="hover:underline">{m.news()}</a>
 </div>
 <div
   class="grid grid-cols-1 flex-row divide-base-100 rounded-b-xl sm:grid-cols-2 sm:divide-x-2 md:grid-cols-3 sm:[&>*:first-child]:rounded-bl-xl [&>*:last-child]:rounded-br-xl max-sm:[&>*:nth-child(2)]:rounded-b-xl sm:max-md:[&>*:nth-child(2)]:rounded-br-xl max-md:[&>*:nth-child(3)]:hidden"
