@@ -3,7 +3,7 @@
   import Events from "./Events.svelte";
   import WellbeingCTA from "./WellbeingCTA.svelte";
   import CafeOpenTimes from "./CafeOpenTimes.svelte";
-  import KodaMedDWWW from "./KodaMedDWWW.svelte";
+  import KodaMedDWWW from "./CodeWithDWWW.svelte";
 
   import type { PageData } from "./$types";
   import Documents from "./Documents.svelte";
@@ -56,17 +56,4 @@
     <Documents files={data.files} />
   </div>
 </div>
-<!--
-<div class="container mx-auto grid grid-cols-1 gap-4 p-4 lg:grid-cols-3">
-  <Events events={data.events} />
-  <Articles news={data.news} />
-  <div class="flex flex-col gap-4">
-    <WellbeingCTA />
-    <CafeOpenTimes cafeOpen={data.cafeOpen} />
-    <Meetings
-      upcoming={data.meetings.upcoming}
-      previous={data.meetings.previous}
-    />
-    <Documents files={data.files} />
-  </div>
-</div>-->
+

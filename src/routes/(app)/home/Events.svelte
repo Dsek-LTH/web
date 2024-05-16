@@ -2,6 +2,7 @@
   import { markdownToTxt } from "markdown-to-txt";
   import type { Event } from "@prisma/client";
   import { languageTag } from "$paraglide/runtime";
+  import * as m from "$paraglide/messages";
   export let events: Array<
     Pick<Event, "slug" | "title" | "description" | "startDatetime">
   >;
@@ -10,7 +11,7 @@
 <div
   class="rounded-t-xl border-t-4 border-t-primary bg-base-300 p-4 text-2xl font-bold"
 >
-  Evenemang
+  {m.events()}
 </div>
 <div
   class="grid flex-row divide-base-100 sm:grid-cols-2 sm:divide-x-2 md:grid-cols-3 sm:[&>*:first-child]:rounded-bl-xl [&>*:last-child]:rounded-br-xl max-sm:[&>*:nth-child(2)]:rounded-b-xl sm:max-md:[&>*:nth-child(2)]:rounded-br-xl max-md:[&>*:nth-child(3)]:hidden"
