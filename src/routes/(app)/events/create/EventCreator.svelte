@@ -99,25 +99,27 @@
           />
         </Labeled>
       </div>
-      <div class="flex items-center pt-4">
-        <label class="label cursor-pointer">
-          <span class="label-text">Larm aktivt under eventet</span>
-          <input
-            type="checkbox"
-            class="checkbox mx-4"
-            bind:checked={$form.alarmActive}
-          />
-        </label>
-      </div>
-      <div class="flex items-center pt-4">
-        <label class="label cursor-pointer">
-          <span class="label-text">Återkommande event</span>
-          <input
-            type="checkbox"
-            class="checkbox mx-4"
-            bind:checked={$form.isRecurring}
-          />
-        </label>
+      <div class="flex flex-row">
+        <div class="flex items-center pt-4">
+          <label class="label cursor-pointer">
+            <span class="label-text">Larm aktivt under eventet</span>
+            <input
+              type="checkbox"
+              class="checkbox mx-4"
+              bind:checked={$form.alarmActive}
+            />
+          </label>
+        </div>
+        <div class="flex items-center pt-4">
+          <label class="label cursor-pointer">
+            <span class="label-text">Återkommande event</span>
+            <input
+              type="checkbox"
+              class="checkbox mx-4"
+              bind:checked={$form.isRecurring}
+            />
+          </label>
+        </div>
       </div>
       <div
         class={$form.isRecurring
