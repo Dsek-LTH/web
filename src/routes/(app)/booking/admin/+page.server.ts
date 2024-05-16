@@ -36,7 +36,7 @@ export const actions: Actions = {
           status: "ACCEPTED",
         },
       });
-      const event = await prisma.bookingRequest.findFirst({
+      const request = await prisma.bookingRequest.findFirst({
         where: {
           id,
         },
@@ -45,13 +45,13 @@ export const actions: Actions = {
           event: true,
         },
       });
-      if (event && event.bookerId != null && user && user.memberId) {
+      if (request && request.bookerId != null && user && user.memberId) {
         sendNotification({
           title: "Booking request accepted",
-          message: `Your booking request for ${event.event} has been accepted`,
+          message: `Your booking request for ${request.event} has been accepted`,
           type: NotificationType.BOOKING_REQUEST,
           link: "https://dsek.se/",
-          memberIds: [event.bookerId],
+          memberIds: [request.bookerId],
           fromMemberId: user.memberId,
         });
       }
@@ -69,7 +69,7 @@ export const actions: Actions = {
           status: "DENIED",
         },
       });
-      const event = await prisma.bookingRequest.findFirst({
+      const request = await prisma.bookingRequest.findFirst({
         where: {
           id,
         },
@@ -78,13 +78,13 @@ export const actions: Actions = {
           event: true,
         },
       });
-      if (event && event.bookerId != null && user && user.memberId) {
+      if (request && request.bookerId != null && user && user.memberId) {
         sendNotification({
           title: "Booking request denied",
-          message: `Your booking request for ${event.event} has been denied`,
+          message: `Your booking request for ${request.event} has been denied`,
           type: NotificationType.BOOKING_REQUEST,
           link: "https://dsek.se/",
-          memberIds: [event.bookerId],
+          memberIds: [request.bookerId],
           fromMemberId: user.memberId,
         });
       }
