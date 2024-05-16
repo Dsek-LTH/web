@@ -99,23 +99,33 @@
           />
         </Labeled>
       </div>
-      <div class="flex items-center pt-4">
-        Larm aktivt under eventet
-        <input
-          type="checkbox"
-          class="checkbox mx-4"
-          bind:checked={$form.alarmActive}
-        />
+      <div class="flex flex-row">
+        <div class="flex items-center pt-4">
+          <label class="label cursor-pointer">
+            <span class="label-text">Larm aktivt under eventet</span>
+            <input
+              type="checkbox"
+              class="checkbox mx-4"
+              bind:checked={$form.alarmActive}
+            />
+          </label>
+        </div>
+        <div class="flex items-center pt-4">
+          <label class="label cursor-pointer">
+            <span class="label-text">Återkommande event</span>
+            <input
+              type="checkbox"
+              class="checkbox mx-4"
+              bind:checked={$form.isRecurring}
+            />
+          </label>
+        </div>
       </div>
-      <div class="flex flex-row justify-between gap-4 [&>*]:flex-1">
-        <label class="label cursor-pointer">
-          <span class="label-text">Återkommande event</span>
-          <input
-            type="checkbox"
-            class="checkbox"
-            bind:checked={$form.isRecurring}
-          />
-        </label>
+      <div
+        class={$form.isRecurring
+          ? "flex flex-row justify-between gap-4 [&>*]:flex-1"
+          : "hidden"}
+      >
         <Labeled label="Hur ofta?" error={$errors.recurringType} fullWidth>
           <select
             id="classProgramme"
