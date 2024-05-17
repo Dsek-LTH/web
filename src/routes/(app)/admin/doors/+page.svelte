@@ -3,6 +3,7 @@
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
   import type { PageData } from "./$types";
+  import * as m from "$paraglide/messages";
   export let data: PageData;
 </script>
 
@@ -11,7 +12,7 @@
     <!-- head -->
     <thead>
       <tr class="bg-base-200">
-        <th>Door</th>
+        <th>{m.admin_doors_door()}</th>
         <th />
       </tr>
     </thead>
@@ -23,7 +24,9 @@
           </td>
           {#if isAuthorized(apiNames.DOOR.UPDATE, $page.data.user)}
             <td class="text-right">
-              <a class="btn btn-xs px-8" href="doors/edit/{door.name}">Edit</a>
+              <a class="btn btn-xs px-8" href="doors/edit/{door.name}"
+                >{m.admin_doors_edit()}</a
+              >
             </td>
           {/if}
         </tr>

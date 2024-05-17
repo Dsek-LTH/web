@@ -4,6 +4,7 @@
   import { getFullName } from "$lib/utils/client/member";
   import type { Mandate, Member, Position } from "@prisma/client";
   import { page } from "$app/stores";
+  import * as m from "$paraglide/messages";
 
   export let position: Position;
   export let mandates: Array<
@@ -22,7 +23,7 @@
     <h2 class="card-title">
       {#if position.boardMember}
         <a href="/board">
-          <div class="tooltip" data-tip="Styrelsemedlem">
+          <div class="tooltip" data-tip={m.committees_boardMember()}>
             <span class="i-mdi-account-tie" />
           </div>
         </a>

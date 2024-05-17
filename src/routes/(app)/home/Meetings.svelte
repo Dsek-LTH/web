@@ -9,7 +9,7 @@
   <span class="i-mdi-gavel self-center text-2xl" />
 
   <article class="flex-1">
-    <p>{m.landing_meetingNext()}</p>
+    <p>{m.home_meetingNext()}</p>
     <h2 class="text-xl font-bold">
       {#if upcoming}
         {upcoming.title}
@@ -21,7 +21,7 @@
 
   {#if previous}
     <article>
-      <p class="font-light">{m.landing_meetingPrev()}</p>
+      <p class="font-light">{m.home_meetingPrev()}</p>
       <h2 class="text-xl font-light">
         {previous.title}
       </h2>

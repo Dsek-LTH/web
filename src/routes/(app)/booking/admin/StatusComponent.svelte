@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Bookable, BookingRequest } from "@prisma/client";
   import dayjs from "dayjs";
+  import * as m from "$paraglide/messages";
 
   type T = BookingRequest & { bookables: Bookable[] };
   export let bookingRequest: T;
@@ -31,15 +32,15 @@
 <div class="flex flex-col gap-1">
   {#if bookingRequest.status === "ACCEPTED"}
     <div class="badge badge-success">
-      <span class="i-mdi-check-circle mr-1" /> Godkänd
+      <span class="i-mdi-check-circle mr-1" />{m.booking_accepted()}
     </div>
   {:else if bookingRequest.status === "DENIED"}
     <div class="badge badge-error">
-      <span class="i-mdi-denied mr-1" /> Nekad
+      <span class="i-mdi-denied mr-1" />{m.booking_denied()}
     </div>
   {:else if bookingRequest.status === "PENDING"}
     <div class="badge badge-info">
-      <span class="i-mdi-hourglass mr-1" /> Väntar
+      <span class="i-mdi-hourglass mr-1" />{m.booking_pending()}
     </div>
   {/if}
 
@@ -51,9 +52,12 @@
     >
       <div
         class="tooltip flex items-center"
-        data-tip={`Krock med "${conflict.event}" – ${conflictingBookables}`}
+        data-tip={m.booking_conflictWith({
+          event: `${conflict.event}`,
+          bookables: `${conflictingBookables}`,
+        })}
       >
-        <span class="i-mdi-info mr-1" /> Konflikt
+        <span class="i-mdi-info mr-1" />{m.booking_conflict()}
       </div>
     </div>
   {/if}

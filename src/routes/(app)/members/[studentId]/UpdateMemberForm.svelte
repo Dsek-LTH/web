@@ -51,7 +51,7 @@
       <select
         id="classProgramme"
         name="classProgramme"
-        class="select select-bordered w-full md:max-w-20"
+        class="select select-bordered w-full"
         bind:value={$form.classProgramme}
         {...$constraints.classProgramme}
       >
@@ -65,7 +65,7 @@
         type="number"
         name="classYear"
         id="classYear"
-        class="input input-bordered md:max-w-20"
+        class="input input-bordered"
         bind:value={$form.classYear}
         {...$constraints.classYear}
       />

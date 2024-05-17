@@ -4,6 +4,7 @@
   import { enhance } from "$app/forms";
   import { getFullName } from "$lib/utils/client/member";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
+  import * as m from "$paraglide/messages";
   export let data;
 </script>
 
@@ -16,12 +17,12 @@
   <table class="table">
     <thead>
       <tr class="bg-base-200">
-        <th>Bokning</th>
-        <th>Från</th>
-        <th>Till</th>
-        <th>Evenemang</th>
-        <th>Ansvarig</th>
-        <th>Status</th>
+        <th>{m.booking_booking()}</th>
+        <th>{m.booking_from()}</th>
+        <th>{m.booking_until()}</th>
+        <th>{m.booking_event()}</th>
+        <th>{m.booking_responsible()}</th>
+        <th>{m.booking_status()}</th>
         <th />
       </tr>
     </thead>
@@ -76,14 +77,14 @@
                 class="btn btn-xs px-8"
                 class:btn-disabled={bookingRequest.status === "ACCEPTED"}
               >
-                GODKÄNN
+                {m.booking_accept()}
               </button>
               <button
                 formaction="?/reject"
                 class="btn btn-xs px-8"
                 class:btn-disabled={bookingRequest.status === "DENIED"}
               >
-                NEKA
+                {m.booking_deny()}
               </button>
             </form>
           </td>

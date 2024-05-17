@@ -3,6 +3,7 @@
   import { superForm } from "sveltekit-superforms/client";
   import type { SpecialSender } from "@prisma/client";
   import type { RemoveSpecialSenderForm } from "./schema";
+  import * as m from "$paraglide/messages";
 
   export let specialSender: SpecialSender;
   export let isEditing: boolean;
@@ -25,7 +26,7 @@
     <input type="hidden" name="id" value={specialSender.id} />
     {#if isEditing}
       <button class="btn btn-error btn-xs" type="submit">
-        Ta bort special sender
+        {m.admin_emailalias_removeSpecialSender()}
       </button>
     {/if}
   </form>
