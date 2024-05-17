@@ -28,7 +28,7 @@ const apiClient = new ShlinkApiClient(new NodeHttpClient(), {
 const createLinksSchema = z.object({
   url: z.string().min(1).url(),
   slug: z.string().min(1),
-  tags: z.string().array(),
+  tags: z.string().array().min(1, "You need to select at least one tag"),
 });
 
 const deleteLinksSchema = z.object({
@@ -98,13 +98,25 @@ export const actions: Actions = {
         { status: 400 },
       );
     }
-    // TODO: Error handling
-    const _response = await apiClient.createShortUrl({
-      longUrl: form.data.url,
-      customSlug: form.data.slug,
-      tags: form.data.tags,
-    });
+    try {
+      await apiClient.createShortUrl({
+        longUrl: form.data.url,
+        customSlug: form.data.slug,
+        tags: form.data.tags,
+      });
+    } catch (_e) {
+      const e = _e as ProblemDetailsError;
+      return message(
+        form,
+        {
+          message: e.detail,
+          type: "error",
+        },
+        { status: e.status as NumericRange<400, 599> },
+      );
+    }
 
+    form.data.slug = "";
     return message(form, {
       message: "Link successfully created",
       type: "success",

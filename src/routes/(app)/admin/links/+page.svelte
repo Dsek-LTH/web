@@ -52,8 +52,8 @@
     { order: { field: "visits" }, title: "Visits" },
   ];
 
-  const allTags: Tag[] = data.tags.map((t) => ({ id: t, name: t }));
-  let filteredTags: Tag[] = allTags.filter((tag) =>
+  $: allTags = data.tags.map((t) => ({ id: t, name: t }) as Tag);
+  $: filteredTags = allTags.filter((tag) =>
     $page.url.searchParams.getAll("tags").includes(tag.name),
   );
   let searchForm: HTMLFormElement;
@@ -77,7 +77,7 @@
 <div class="mb-10 mt-4 rounded-lg md:p-4 lg:mb-4 lg:p-8">
   <h2 class="text-lg font-semibold">Add Shorted Link</h2>
   <form
-    class="flex flex-col items-stretch gap-2 lg:flex-row lg:items-end"
+    class="flex flex-col items-stretch gap-2 lg:flex-row lg:items-start"
     action="?/create"
     method="post"
     use:createLinksEnhance
@@ -99,11 +99,29 @@
       error={$createLinksErrors.url}
       {...$createLinksConstraints}
     />
-    <TagSelectCreate {allTags} bind:selectedTags={createSelectedTags} />
+    <div class="form-control relative">
+      <div class="label">
+        <span class="label-text"> Tags* </span>
+      </div>
+      <TagSelectCreate bind:allTags bind:selectedTags={createSelectedTags} />
+      {#if $createLinksErrors.tags?._errors}
+        <div class="label">
+          <span class="label-text-alt text-error">
+            {#if $createLinksErrors.tags?.length > 1}
+              {$createLinksErrors.tags[0]}
+            {:else}
+              {$createLinksErrors.tags?._errors?.join(", ")}
+            {/if}
+          </span>
+        </div>
+      {/if}
+    </div>
     {#each createSelectedTags as tag (tag.id)}
       <input type="hidden" name="tags" value={tag.name} />
     {/each}
-    <button class="btn btn-primary">Add</button>
+    <Labeled label="Add" disableLabel={true} invisibleText={true}>
+      <button class="btn btn-primary self-end">Add</button>
+    </Labeled>
   </form>
 </div>
 
