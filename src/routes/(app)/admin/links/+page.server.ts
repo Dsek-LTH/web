@@ -20,7 +20,7 @@ const VALID_ORDER = [
 
 const VALID_DIR = ["ASC", "DESC"];
 
-const apiClient = new ShlinkApiClient(new NodeHttpClient(), {
+const apiClient: ShlinkApiClient = new ShlinkApiClient(new NodeHttpClient(), {
   baseUrl: env.SHLINK_ENDPOINT,
   apiKey: env.SHLINK_API_KEY,
 });
@@ -116,7 +116,6 @@ export const actions: Actions = {
       );
     }
 
-    form.data.slug = "";
     return message(form, {
       message: "Link successfully created",
       type: "success",
@@ -135,7 +134,33 @@ export const actions: Actions = {
         { status: 400 },
       );
     }
-    console.log(`deleting`);
-    console.log(form);
+
+    try {
+      await Promise.all(
+        form.data.deleting.map((t) => apiClient.deleteShortUrl(t)),
+      );
+
+      // Delete tags without any links
+      await apiClient.deleteTags(
+        (await apiClient.tagsStats()).data
+          .filter((t) => t.shortUrlsCount === 0)
+          .map((t) => t.tag),
+      );
+    } catch (_e) {
+      const e = _e as ProblemDetailsError;
+      return message(
+        form,
+        {
+          message: e.detail,
+          type: "error",
+        },
+        { status: e.status as NumericRange<400, 599> },
+      );
+    }
+
+    return message(form, {
+      message: "Link(s) successfully removed",
+      type: "success",
+    });
   },
 };
