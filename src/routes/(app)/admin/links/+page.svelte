@@ -21,7 +21,27 @@
     errors: createLinksErrors,
     constraints: createLinksConstraints,
     enhance: createLinksEnhance,
-  } = superForm(data.createLinksForm, { invalidateAll: true, resetForm: true });
+    formId: createLinksFormId,
+  } = superForm(data.createLinksForm, {
+    resetForm: true,
+  });
+
+  const {
+    form: updateLinksForm,
+    errors: updateLinksErrors,
+    constraints: updateLinksConstraints,
+    enhance: updateLinksEnhance,
+    formId: updateLinksFormId,
+  } = superForm(data.updateLinksForm, {
+    onUpdate: ({ form }) => {
+      // Close modal on successful submit
+      console.log(form.valid);
+      if (form.valid) {
+        editModal?.close();
+      }
+    },
+    resetForm: true,
+  });
 
   $: query = new URLSearchParams($page.url.searchParams.toString());
 
@@ -70,6 +90,8 @@
   $: if (data.domains) {
     resetCheckboxes();
   }
+
+  let editModal: HTMLDialogElement | undefined = undefined;
 </script>
 
 <PageHeader title="Link shortener" />
@@ -80,6 +102,7 @@
     class="flex flex-col items-stretch gap-2 lg:flex-row lg:items-start"
     action="?/create"
     method="post"
+    id={$createLinksFormId}
     use:createLinksEnhance
   >
     <Input
@@ -124,6 +147,8 @@
     </Labeled>
   </form>
 </div>
+
+<h1 class="my-4 text-2xl font-bold">Links</h1>
 
 <form action="?/delete" method="post" use:enhance>
   <div class="flex items-end gap-2">
@@ -257,8 +282,22 @@
                 {d.visitsSummary?.total}
               </div>
             </td>
-            <td class="text-right">
-              <a class="btn btn-xs px-8" href={`links/${d.shortCode}`}>Edit</a>
+            <td>
+              <button
+                type="button"
+                class="btn btn-square btn-sm"
+                on:click={() => {
+                  $updateLinksForm.slug = d.shortCode;
+                  $updateLinksForm.url = d.longUrl;
+                  $updateLinksForm.tags = d.tags?.map((t) => ({
+                    id: t,
+                    name: t,
+                  }));
+                  editModal.showModal();
+                }}
+              >
+                <span class="i-mdi-wrench"></span>
+              </button>
             </td>
           </tr>
         {/each}
@@ -266,6 +305,54 @@
     </table>
   </div>
 </form>
+
+<dialog bind:this={editModal} class="modal modal-top sm:modal-middle">
+  <div class="modal-box !overflow-y-visible">
+    <form
+      action="?/update"
+      method="post"
+      id={$updateLinksFormId}
+      use:updateLinksEnhance
+    >
+      <h3 class="text-lg font-bold">Edit '{$updateLinksForm.slug}'</h3>
+      <input type="hidden" name="slug" bind:value={$updateLinksForm.slug} />
+      <Input
+        name="url"
+        label="URL"
+        required
+        bind:value={$updateLinksForm.url}
+        error={$updateLinksErrors.url}
+        {...$updateLinksConstraints.url}
+      />
+      <div class="form-control relative">
+        <div class="label">
+          <span class="label-text"> Tags* </span>
+        </div>
+        <TagSelectCreate {allTags} bind:selectedTags={$updateLinksForm.tags} />
+        {#if $updateLinksErrors.tags?._errors}
+          <div class="label">
+            <span class="label-text-alt text-error">
+              {#if $updateLinksErrors.tags?.length > 1}
+                {$updateLinksErrors.tags[0]}
+              {:else}
+                {$updateLinksErrors.tags?._errors?.join(", ")}
+              {/if}
+            </span>
+          </div>
+        {/if}
+      </div>
+      {#each $updateLinksForm.tags as tag (tag.id)}
+        <input type="hidden" name="tags" value={tag.name} />
+      {/each}
+      <div class="modal-action">
+        <button type="button" class="btn" on:click={() => editModal?.close()}>
+          Cancel
+        </button>
+        <button type="submit" class="btn btn-primary"> Edit </button>
+      </div>
+    </form>
+  </div>
+</dialog>
 
 <!-- TODO: Copy Shlink Admin UI's scroll effect? -->
 <Pagination count={data.pagination.pagesCount} />
