@@ -11,7 +11,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: pnpm/action-setup@v2
         with:
-          version: 8
+          version: 9
       - name: Use Node.js latest LTS
         uses: actions/setup-node@v3
         with:
@@ -22,8 +22,14 @@ jobs:
 
       - uses: montudor/action-zip@v1
         with:
-          args: zip -qq -r build.zip build
+          args: zip -qq -r build.zip build src/database/prisma/schema.prisma src/database/schema.zmodel src/database/prisma/migrations package.json pnpm-lock.yaml patches src/routes/api/openapi.json/openapi.json
 
       - uses: softprops/action-gh-release@v2
         with:
           files: build.zip
+
+      - shell: bash
+        env:
+          JENKINS_DEPLOY_TOKEN: ${{ secrets.JENKINS_DEPLOY_TRIGGER }}
+        run: |
+          curl -L "jenkins.dsek.se/buildByToken/build?job=Deploy_web&token=$JENKINS_DEPLOY_TOKEN"

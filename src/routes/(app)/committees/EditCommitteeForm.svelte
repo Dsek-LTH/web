@@ -7,6 +7,7 @@
   import type { UpdateSchema } from "./committee.server";
   import { isAuthorized } from "$lib/utils/authorization";
   import { page } from "$app/stores";
+  import * as m from "$paraglide/messages";
 
   let formData: SuperValidated<UpdateSchema>;
   export { formData as form };
@@ -23,11 +24,16 @@
     class="form-control"
     enctype="multipart/form-data"
   >
-    <Input label="Namn" name="name" value={$form.name} {...$constraints.name} />
+    <Input
+      label={m.committees_name()}
+      name="name"
+      value={$form.name}
+      {...$constraints.name}
+    />
     {#if $errors.name}
       <p class="text-error">{$errors.name}</p>
     {/if}
-    <Labeled label="Beskrivning">
+    <Labeled label={m.committees_description()}>
       <textarea
         name="description"
         id="description"
@@ -41,8 +47,8 @@
       <p class="text-error">{$errors.description}</p>
     {/if}
     <Labeled
-      label="Utskottsbild"
-      explanation="Detta ska vara svg format, utan bakgrundsfärg, utan onödigt whitespace och med vit text."
+      label={m.committees_committeeImage()}
+      explanation={m.committees_committeeImageExplanation()}
     >
       <input
         name="image"
@@ -56,6 +62,8 @@
     {#if $errors.image}
       <p class="text-error">{$errors.image}</p>
     {/if}
-    <button type="submit" class="btn btn-secondary my-4">Spara</button>
+    <button type="submit" class="btn btn-secondary my-4"
+      >{m.committees_save()}</button
+    >
   </form>
 {/if}

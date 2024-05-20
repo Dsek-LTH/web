@@ -48,6 +48,14 @@ export type MemberDoorPolicies = Array<{
   endDate: Date | null;
 }>;
 
+export type MemberDoorPolicies = Array<{
+  name: string;
+  verboseName: string | undefined;
+  roles: string[];
+  startDate: Date | null;
+  endDate: Date | null;
+}>;
+
 export const getCurrentDoorPoliciesForMember = async (
   prisma: PrismaClient,
   studentId: string,
@@ -90,7 +98,7 @@ export const getCurrentDoorPoliciesForMember = async (
               },
               {
                 startDatetime: {
-                  lte: new Date(date),
+                  lte: new Date(),
                 },
               },
             ],
@@ -103,7 +111,7 @@ export const getCurrentDoorPoliciesForMember = async (
               },
               {
                 endDatetime: {
-                  gte: new Date(date),
+                  gte: new Date(),
                 },
               },
             ],

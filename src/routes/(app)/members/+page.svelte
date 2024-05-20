@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
+  import { goto } from "$lib/utils/redirect";
   import ClassBadge from "$lib/components/ClassBadge.svelte";
   import Pagination from "$lib/components/Pagination.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";

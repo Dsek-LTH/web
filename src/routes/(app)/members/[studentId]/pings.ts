@@ -54,7 +54,7 @@ export const sendPing = async (
     throw error(500, `Failed to ping. Error: ${e}`);
   }
 
-  await sendNotification(prisma, {
+  await sendNotification({
     title: "PING!",
     message: `Du har blivit pingad av ${getFullName(sendingMember)}!`,
     type: NotificationType.PING,

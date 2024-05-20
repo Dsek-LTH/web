@@ -7,6 +7,7 @@ import apiNames from "$lib/utils/apiNames";
 import { sendPing } from "./pings";
 import { getCurrentDoorPoliciesForMember } from "$lib/utils/member";
 import keycloak from "$lib/server/keycloak";
+import { z } from "zod";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
@@ -106,18 +107,39 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   }
 };
 
-const updateSchema = memberSchema.pick({
-  firstName: true,
-  lastName: true,
-  nickname: true,
-  foodPreference: true,
-  classProgramme: true,
-  classYear: true,
-});
+const updateSchema = memberSchema
+  .pick({
+    firstName: true,
+    lastName: true,
+    nickname: true,
+    foodPreference: true,
+    classProgramme: true,
+    classYear: true,
+  })
+  .partial();
 
 export type UpdateSchema = typeof updateSchema;
 
 export const actions: Actions = {
+  updateFoodPreference: async ({ params, locals, request }) => {
+    const { prisma } = locals;
+    const form = await superValidate(
+      request,
+      z.object({ foodPreference: z.string() }),
+    );
+    if (!form.valid) return fail(400, { form });
+    const { studentId } = params;
+    await prisma.member.update({
+      where: { studentId },
+      data: {
+        foodPreference: form.data.foodPreference,
+      },
+    });
+    return message(form, {
+      message: "Medlem uppdaterad",
+      type: "success",
+    });
+  },
   update: async ({ params, locals, request }) => {
     const { prisma } = locals;
     const form = await superValidate(request, updateSchema);

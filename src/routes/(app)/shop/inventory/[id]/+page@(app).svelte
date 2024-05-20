@@ -1,5 +1,6 @@
 <script lang="ts">
   import { getFullName } from "$lib/utils/client/member";
+  import * as m from "$paraglide/messages";
   import dayjs from "dayjs";
   import QRCode from "./QRCode.svelte";
 
@@ -21,10 +22,12 @@
     <div>
       <h1 class="text-xl font-bold">{shoppable.title}</h1>
       <h2>
-        Ägs av {data.member ? getFullName(data.member) : "anonym användare"}
+        {m.inventory_ownedBy()}
+        {data.member ? getFullName(data.member) : m.inventory_anonymousUser()}
       </h2>
       <h3 class="text-sm">
-        Köptes {dayjs(consumable.purchasedAt).fromNow()}
+        {m.inventory_boughtAt()}
+        {dayjs(consumable.purchasedAt).fromNow()}
         <span class="block opacity-50 md:inline"
           >({dayjs(consumable.purchasedAt).format("YYYY-MM-DD HH:MM")})</span
         >

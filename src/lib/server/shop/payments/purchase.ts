@@ -1,5 +1,9 @@
 import { removeExpiredConsumables } from "$lib/server/shop/addToCart/reservations";
 import { obtainStripeCustomer } from "$lib/server/shop/payments/customer";
+import {
+  priceWithTransactionFee,
+  passOnTransactionFee,
+} from "$lib/utils/payments/transactionFee";
 import { getFullName } from "$lib/utils/client/member";
 import {
   ShoppableType,
@@ -7,16 +11,17 @@ import {
   type PrismaClient,
   type Shoppable,
 } from "@prisma/client";
+import type Stripe from "stripe";
+import * as m from "$paraglide/messages";
 import authorizedPrismaClient from "../authorizedPrisma";
 import { dbIdentification, type ShopIdentification } from "../types";
 import {
   createPaymentIntent,
   creteConsumableMetadata,
-  removePaymentIntent,
   ensurePaymentIntentState,
+  removePaymentIntent,
   updatePaymentIntent,
 } from "./stripeMethods";
-import type Stripe from "stripe";
 
 const clearOutConsumablesAfterSellingOut = async (
   soldOutShoppableIds: string[],
@@ -75,13 +80,13 @@ const purchaseCart = async (
     },
   });
   if (userConsumables.length === 0) {
-    throw new Error("Din kundvagn är tom.");
+    throw new Error(m.tickets_purchase_errors_cartEmpty());
   }
   // Step 2: Check if the consumables are still available (should not happen but you never know I guess)
   for (const consumable of userConsumables) {
     if (consumable.expiresAt && consumable.expiresAt < now) {
       await removeExpiredConsumables(prisma, new Date());
-      throw new Error("En eller flera produkter i din kundvagn har löpt ut.");
+      throw new Error(m.tickets_purchase_errors_expiredConsumable());
     }
     if (
       consumable.shoppable.type === ShoppableType.TICKET &&
@@ -93,7 +98,7 @@ const purchaseCart = async (
   }
   if (soldOutShoppableIds.length > 0) {
     await clearOutConsumablesAfterSellingOut(soldOutShoppableIds);
-    throw new Error("Biljetten blev slutsåld under köpet"); // with our reservation system, this shouldn't happen, but it's just a safety measure
+    throw new Error(m.tickets_purchase_errors_soldOutDuringPurchase()); // with our reservation system, this shouldn't happen, but it's just a safety measure
   }
 
   let didUpdateAlreadyPaidFor = false;
@@ -111,8 +116,7 @@ const purchaseCart = async (
   }
   if (didUpdateAlreadyPaidFor) {
     return {
-      message:
-        "En (eller flera) av produkterna i din kundvagn har redan betalats för, din kundvagn har uppdaterats och berörda produkter är köpta.",
+      message: m.tickets_purchase_alreadyPaidFor(),
       type: "success",
     };
   }
@@ -134,10 +138,11 @@ const purchaseCart = async (
       },
       data: {
         purchasedAt: new Date(),
+        priceAtPurchase: 0,
       },
     });
     return {
-      message: "Dina gratisprodukter i kundvagnen har blivit köpta.",
+      message: m.tickets_purchase_freeConsumablesPurchased(),
       type: "success",
     };
   }
@@ -154,6 +159,21 @@ const purchaseCart = async (
   let intent: Stripe.PaymentIntent;
   // check if multiple different payment intents exists, remove all but one in that case
   const existingIntentIds = Object.keys(existingPaymentIntents);
+  const options = {
+    amount: passOnTransactionFee ? priceWithTransactionFee(price) : price,
+    customer: customer?.id ?? undefined,
+    metadata: {
+      isAnonymousUser: !member ? "true" : "false", // metadata can only be string or number
+      customerStudentId: member ? member.studentId : null,
+      customerName: member
+        ? getFullName({
+            ...member,
+            nickname: null,
+          })
+        : null,
+      ...creteConsumableMetadata(userConsumables),
+    },
+  };
   if (existingIntentIds.length > 0) {
     const intentId = existingIntentIds[0]!;
     if (existingIntentIds.length > 1) {
@@ -164,40 +184,16 @@ const purchaseCart = async (
       );
     }
     intent = await updatePaymentIntent(intentId, {
-      amount: priceWithTransactionFee(price),
-      customer: customer?.id ?? undefined,
-      metadata: {
-        isAnonymousUser: !member ? "true" : "false", // metadata can only be string or number
-        customerStudentId: member ? member.studentId : null,
-        customerName: member
-          ? getFullName({
-              ...member,
-              nickname: null,
-            })
-          : null,
-        ...creteConsumableMetadata(userConsumables),
-      },
+      ...options,
     });
   } else {
     // Step 4: Create a new stripe payment intent
     intent = await createPaymentIntent({
-      amount: priceWithTransactionFee(price),
-      customer: customer?.id ?? undefined,
-      metadata: {
-        isAnonymousUser: !member ? "true" : "false", // metadata can only be string or number
-        customerStudentId: member ? member.studentId : null,
-        customerName: member
-          ? getFullName({
-              ...member,
-              nickname: null,
-            })
-          : null,
-        ...creteConsumableMetadata(userConsumables),
-      },
+      ...options,
       idempotencyKey: idempotencyKey, // makes sure if user presses button twice, only one payment intent is created
     }).catch((err) => {
       console.error(err);
-      throw new Error("Kunde inte skapa betalning. Försök igen.");
+      throw new Error(m.tickets_purchase_errors_unableToCreatePaymentIntent());
     });
   }
   try {
@@ -222,18 +218,24 @@ const purchaseCart = async (
         },
       });
       if (consumables.length !== userConsumables.length) {
-        throw new Error("Du hade flera betalningar igång samtidigt.");
+        throw new Error(m.tickets_purchase_errors_multipleActivePayments());
       }
-      await tx.consumable.updateMany({
-        where: {
-          id: {
-            in: userConsumables.map((c) => c.id),
-          },
-        },
-        data: {
-          stripeIntentId: intent.id,
-        },
-      });
+      const results = await Promise.allSettled(
+        userConsumables.map((consumable) =>
+          tx.consumable.update({
+            where: {
+              id: consumable.id,
+            },
+            data: {
+              stripeIntentId: intent.id,
+              priceAtPurchase: consumable.shoppable.price,
+            },
+          }),
+        ),
+      );
+      if (results.some((result) => result.status === "rejected")) {
+        throw new Error(m.tickets_purchase_errors_couldNotSaveIntentID());
+      }
     });
   } catch (err) {
     await removePaymentIntent(intent.id);
@@ -241,7 +243,7 @@ const purchaseCart = async (
   }
   return {
     clientSecret: intent.client_secret,
-    message: "Du kan betala nu.",
+    message: m.tickets_purchase_readyToPurchase(),
     type: "hidden",
   };
 };
@@ -266,30 +268,5 @@ export const calculateCartPrice = (consumables: ConsumableFieldsForPrice[]) =>
       }),
     0,
   );
-
-// SWISH: 1% + 3kr (most common, cap of 7 kr fee)
-// Cards: 1.5% + 1.8kr
-// Klarna: 2.99% + 4kr
-// It's illegal in the EU to charge a different amount depending on the user's choice of payment
-
-// Because swish is most common, we use its fee as the one we charge the user. If they choose another option, the fee will be more, but that's fine I think.
-const STRIPE_PERCENTAGE_FEE = 1 / 100; // 1%
-const STRIPE_FIXED_FEE = 300; // 3 SEK
-const STRIPE_PERCENTAGE_FEE_MODIFIER = 1 / (1 - STRIPE_PERCENTAGE_FEE); // 1/(1-0.015) i.e. 1.5%
-/**
- * Calculates the transaction fee for a given price.
- */
-export const transactionFee = (price: number) =>
-  price === 0
-    ? 0
-    : Math.floor(price * STRIPE_PERCENTAGE_FEE + STRIPE_FIXED_FEE);
-
-/**
- * Calculates the required price to charge the user for us to receive `price` after Stripe takes its cut.
- */
-export const priceWithTransactionFee = (price: number) =>
-  price === 0
-    ? 0
-    : Math.floor((price + STRIPE_FIXED_FEE) * STRIPE_PERCENTAGE_FEE_MODIFIER);
 
 export default purchaseCart;

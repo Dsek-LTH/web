@@ -1,6 +1,7 @@
 import { error } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 import { dbIdentification } from "$lib/server/shop/types";
+import * as m from "$paraglide/messages";
 import type { ConsumableWithMoreInfo } from "./types";
 import { ShoppableType } from "@prisma/client";
 
@@ -8,7 +9,7 @@ export const load: PageServerLoad = async ({ locals, depends }) => {
   const { prisma, user } = locals;
   const { memberId, externalCode } = user ?? {};
   if (!memberId && !externalCode) {
-    error(401, "Du måste logga in för att se din kista");
+    error(401, m.inventory_errors_unauthorized());
   }
   const userId = dbIdentification(
     memberId
@@ -41,7 +42,7 @@ export const load: PageServerLoad = async ({ locals, depends }) => {
   const consumablesWithMoreInfo: ConsumableWithMoreInfo[] = consumables.map(
     (consumable) => {
       if (consumable.shoppable.type !== ShoppableType.TICKET) {
-        throw new Error("Not implemented");
+        throw new Error(m.errors_notImplemented());
       }
       return {
         ...consumable,

@@ -37,7 +37,7 @@ export const likesAction =
       },
     });
     if (member && shouldLike) {
-      await sendNotification(prisma, {
+      await sendNotification({
         title: `${article.header}`,
         message: `${getFullName(member)} har gillat din nyhet`,
         type: NotificationType.LIKE,

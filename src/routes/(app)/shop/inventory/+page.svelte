@@ -1,5 +1,6 @@
 <script lang="ts">
   import { now } from "$lib/stores/date";
+  import * as m from "$paraglide/messages";
   import ConsumableSection from "./ConsumableSection.svelte";
 
   export let data;
@@ -13,8 +14,8 @@
 </script>
 
 <article class="flex flex-col gap-4">
-  <h1 class="text-2xl font-bold">Din kista</h1>
+  <h1 class="text-2xl font-bold">{m.inventory_yourInventory()}</h1>
 
-  <ConsumableSection title="Biljetter" consumables={unconsumed} />
-  <ConsumableSection title="Använda" consumables={consumed} />
+  <ConsumableSection title={m.tickets()} consumables={unconsumed} />
+  <ConsumableSection title={m.inventory_usedUp()} consumables={consumed} />
 </article>

@@ -1,11 +1,12 @@
 import DOMPurify from "isomorphic-dompurify";
 import type { PageServerLoad } from "./$types";
-import { error, redirect } from "@sveltejs/kit";
+import { error } from "@sveltejs/kit";
+import { redirect } from "$lib/utils/redirect";
 import { BASIC_ARTICLE_FILTER } from "$lib/utils/articles";
 import { fileHandler } from "$lib/files";
 import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async ({ locals, fetch }) => {
   const { prisma, user } = locals;
 
   if (!user?.memberId) {
@@ -19,7 +20,7 @@ export const load: PageServerLoad = async ({ locals }) => {
     ...(await fileHandler.getInBucket(
       user,
       PUBLIC_BUCKETS_DOCUMENTS,
-      year + "/",
+      "meeting/" + year + "/",
       true,
     )),
   ]);
@@ -28,7 +29,7 @@ export const load: PageServerLoad = async ({ locals }) => {
   const boardMeetings = Array.from(
     new Set(
       files
-        .map((obj) => obj.id.split("/")[1])
+        .map((obj) => obj.id.split("/")[2])
         .filter((str) => boardMeetingFileNameRegex.test(str!))
         .map((str) => parseInt(str!.substring(1)))
         .sort(),
@@ -41,7 +42,7 @@ export const load: PageServerLoad = async ({ locals }) => {
   function filterFilesByBoardMeeting(boardMeeting: number | undefined) {
     return boardMeeting === undefined
       ? []
-      : files.filter((obj) => obj.id.split("/")[1] === "S" + boardMeeting);
+      : files.filter((obj) => obj.id.split("/")[2] === "S" + boardMeeting);
   }
 
   const nextBoardMeetingFiles = filterFilesByBoardMeeting(nextBoardMeeting);
@@ -57,7 +58,7 @@ export const load: PageServerLoad = async ({ locals }) => {
       orderBy: {
         createdAt: "desc",
       },
-      take: 5,
+      take: 3,
     })
     .then((articles) =>
       articles.map((article) => ({
@@ -78,7 +79,7 @@ export const load: PageServerLoad = async ({ locals }) => {
       orderBy: {
         startDatetime: "asc",
       },
-      take: 5,
+      take: 3,
     })
     .then((events) =>
       events.map((event) => ({
@@ -137,6 +138,9 @@ export const load: PageServerLoad = async ({ locals }) => {
   if (cafeOpen.status === "rejected") {
     throw error(500, "Failed to fetch cafe open");
   }
+
+  const commit = await fetch("/api/home");
+  const commitData = await commit.json();
   return {
     files: { next: nextBoardMeetingFiles, last: lastBoardMeetingFiles },
     news: news.value,
@@ -146,5 +150,7 @@ export const load: PageServerLoad = async ({ locals }) => {
       previous: previousMeeting.value,
     },
     cafeOpen: cafeOpen.value,
+    commitCount: commitData.commitCount,
+    latestCommit: commitData.latestCommit,
   };
 };

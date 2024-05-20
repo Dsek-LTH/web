@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { PageData } from "./$types";
   import { superForm } from "sveltekit-superforms/client";
+  import * as m from "$paraglide/messages";
   export let data: PageData;
 
   const { form, errors, constraints, enhance } = superForm(data.form);
@@ -11,7 +12,7 @@
     class="input-bordered grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-x-4 rounded-xl border px-6 py-2"
     class:border-error={$errors.bookables?._errors ?? 0 > 0}
   >
-    <legend class="text-xl font-bold">Bokning</legend>
+    <legend class="text-xl font-bold">{m.booking_booking()}</legend>
     {#each data.bookables as bookable}
       <label class="label cursor-pointer">
         <span class="label-text">{bookable.name}</span>
@@ -27,7 +28,7 @@
   </fieldset>
 
   <label>
-    <span class="label-text ml-2 font-bold">Från</span>
+    <span class="label-text ml-2 font-bold">{m.booking_from()}</span>
     <input
       type="datetime-local"
       name="start"
@@ -39,7 +40,7 @@
   </label>
 
   <label>
-    <span class="label-text ml-2 font-bold">Till</span>
+    <span class="label-text ml-2 font-bold">{m.booking_until()}</span>
     <input
       type="datetime-local"
       name="end"
@@ -52,7 +53,7 @@
   </label>
 
   <label>
-    <span class="label-text ml-2 font-bold">Evenemang</span>
+    <span class="label-text ml-2 font-bold">{m.booking_event()}</span>
     <input
       type="text"
       name="name"
@@ -63,7 +64,7 @@
   </label>
 
   <div class="flex *:flex-1">
-    <a class="btn" href="/booking">Tillbaka</a>
-    <button class="btn btn-primary">Create</button>
+    <a class="btn" href="/booking">{m.booking_goBack()}</a>
+    <button class="btn btn-primary">{m.booking_create()}</button>
   </div>
 </form>

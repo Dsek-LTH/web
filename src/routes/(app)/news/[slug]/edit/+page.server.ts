@@ -2,7 +2,7 @@ import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 import { Prisma } from "@prisma/client";
 import { error, fail } from "@sveltejs/kit";
-import { redirect } from "sveltekit-flash-message/server";
+import { redirect } from "$lib/utils/redirect";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import { getArticleAuthorOptions } from "../../articles";

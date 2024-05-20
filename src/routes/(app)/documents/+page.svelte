@@ -37,6 +37,14 @@
       ? b.localeCompare(a, "sv")
       : a.localeCompare(b, "sv"),
   );
+  $: canCreate = isAuthorized(
+    apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).CREATE,
+    data.user,
+  );
+  $: canEdit = isAuthorized(
+    apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).DELETE,
+    data.user,
+  );
 </script>
 
 <svelte:head>
@@ -56,23 +64,26 @@
     <span class="text-lg">Filtrera efter dokumenttyp</span>
     <Tabs options={typeOptions} bind:currentTab={type} fieldName="type" />
   </div>
-  <div class="flex flex-col gap-1">
-    {#if isAuthorized(apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).CREATE, data.user)}
-      <a class="btn btn-primary btn-sm" href="/documents/upload"
-        >Ladda upp fil</a
-      >
-    {/if}
-    {#if isAuthorized(apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).DELETE, data.user)}
-      <button
-        class="btn btn-secondary btn-sm"
-        on:click={() => {
-          isEditing = !isEditing;
-        }}
-      >
-        {isEditing ? "Sluta redigera" : "Redigera"}
-      </button>
-    {/if}
-  </div>
+
+  {#if canCreate || canEdit}
+    <div class="mb-4 flex flex-row gap-1">
+      {#if canCreate}
+        <a class="btn btn-primary btn-sm" href="/documents/upload"
+          >Ladda upp fil</a
+        >
+      {/if}
+      {#if canEdit}
+        <button
+          class="btn btn-secondary btn-sm"
+          on:click={() => {
+            isEditing = !isEditing;
+          }}
+        >
+          {isEditing ? "Sluta redigera" : "Redigera"}
+        </button>
+      {/if}
+    </div>
+  {/if}
 </div>
 
 <div class="flex flex-col gap-4">

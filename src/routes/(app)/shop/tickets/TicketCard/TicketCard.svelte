@@ -1,13 +1,11 @@
 <script lang="ts">
+  import Price from "$lib/components/Price.svelte";
   import type { TicketWithMoreInfo } from "$lib/server/shop/getTickets";
-  import type { SuperValidated } from "sveltekit-superforms";
-  import type { AddToCartSchema } from "../+page.server";
+  import * as m from "$paraglide/messages";
   import TicketActions from "./TicketActions.svelte";
   import TicketEvent from "./TicketEvent.svelte";
-  import Price from "$lib/components/Price.svelte";
 
   export let ticket: TicketWithMoreInfo;
-  export let addToCartForm: SuperValidated<AddToCartSchema>;
 </script>
 
 <a
@@ -24,7 +22,7 @@
         <Price price={ticket.price} class="card-title" />
         {#if ticket.ticketsLeft < 10 && ticket.ticketsLeft > 0}
           <span class="text-right">
-            {ticket.ticketsLeft} kvar
+            {m.tickets_card_stockLeft(ticket.ticketsLeft)}
           </span>
         {/if}
       </div>
@@ -32,6 +30,6 @@
     {#if ticket.description}
       <span>{ticket.description}</span>
     {/if}
-    <TicketActions {ticket} {addToCartForm} />
+    <TicketActions {ticket} />
   </div>
 </a>

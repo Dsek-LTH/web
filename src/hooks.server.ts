@@ -1,9 +1,4 @@
-import {
-  AUTH_SECRET,
-  KEYCLOAK_CLIENT_ID,
-  KEYCLOAK_CLIENT_ISSUER,
-  KEYCLOAK_CLIENT_SECRET,
-} from "$env/static/private";
+import { env } from "$env/dynamic/private";
 import keycloak from "$lib/server/keycloak";
 import { i18n } from "$lib/utils/i18n";
 import { isAvailableLanguageTag, sourceLanguageTag } from "$paraglide/runtime";
@@ -11,7 +6,8 @@ import Keycloak, { type KeycloakProfile } from "@auth/core/providers/keycloak";
 import type { TokenSet } from "@auth/core/types";
 import { SvelteKitAuth } from "@auth/sveltekit";
 import { PrismaClient } from "@prisma/client";
-import { error, redirect, type Handle } from "@sveltejs/kit";
+import { error, type Handle } from "@sveltejs/kit";
+import { redirect } from "$lib/utils/redirect";
 import { sequence } from "@sveltejs/kit/hooks";
 import { enhance } from "@zenstackhq/runtime";
 import RPCApiHandler from "@zenstackhq/server/api/rpc";
@@ -22,13 +18,13 @@ import translatedExtension from "./database/prisma/translationExtension";
 import { getAccessPolicies } from "./hooks.server.helpers";
 
 const authHandle = SvelteKitAuth({
-  secret: AUTH_SECRET,
+  secret: env.AUTH_SECRET,
   trustHost: true,
   providers: [
     Keycloak({
-      clientId: KEYCLOAK_CLIENT_ID,
-      clientSecret: KEYCLOAK_CLIENT_SECRET,
-      issuer: KEYCLOAK_CLIENT_ISSUER,
+      clientId: env.KEYCLOAK_CLIENT_ID,
+      clientSecret: env.KEYCLOAK_CLIENT_SECRET,
+      issuer: env.KEYCLOAK_CLIENT_ISSUER,
       profile: (profile: KeycloakProfile, tokens: TokenSet) => {
         return {
           access_token: tokens.access_token,
@@ -74,13 +70,15 @@ const authHandle = SvelteKitAuth({
       const params = new URLSearchParams();
       params.append("id_token_hint", idToken as string);
       await fetch(
-        `${KEYCLOAK_CLIENT_ISSUER}/protocol/openid-connect/logout?${params.toString()}`,
+        `${
+          env.KEYCLOAK_CLIENT_ISSUER
+        }/protocol/openid-connect/logout?${params.toString()}`,
       );
     },
   },
 });
 
-const prismaClient = new PrismaClient();
+const prismaClient = new PrismaClient({ log: ["info"] });
 const databaseHandle: Handle = async ({ event, resolve }) => {
   const lang = isAvailableLanguageTag(event.locals.paraglide?.lang)
     ? event.locals.paraglide?.lang
@@ -98,19 +96,22 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
       event.cookies.set("externalCode", externalCode, {
         httpOnly: false, // Make the cookie accessible to client-side JavaScript
         path: "/", // Cookie is available on all pages
-        maxAge: 86400 * 7, // Set cookie expiry (7 days)
         secure: process.env["NODE_ENV"] === "production", // Only send cookie over HTTPS in production
       });
     }
     const policies = await getAccessPolicies(prisma);
-    event.locals.prisma = enhance(prisma, {
-      user: {
-        studentId: undefined,
-        memberId: undefined,
-        policies,
-        externalCode: externalCode, // For anonymous users
+    event.locals.prisma = enhance(
+      prisma,
+      {
+        user: {
+          studentId: undefined,
+          memberId: undefined,
+          policies,
+          externalCode: externalCode, // For anonymous users
+        },
       },
-    });
+      { logPrismaQuery: process.env["NODE_ENV"] === "production" }, // Log queries in production
+    );
     event.locals.user = {
       studentId: undefined,
       memberId: undefined,
@@ -118,23 +119,23 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
       externalCode: externalCode,
     };
   } else {
-    const member = await prisma.member.findUnique({
+    const memberQuery = await prisma.member.findUnique({
       where: { studentId: session.user.student_id },
     });
-
-    if (
-      event.url.pathname != "/onboarding" &&
-      (!member || !member.classProgramme || !member.classYear)
-    ) {
-      if (!member) {
-        await prisma.member.create({
+    const member = memberQuery
+      ? memberQuery
+      : await prisma.member.create({
           data: {
             studentId: session.user.student_id,
             firstName: session.user.name?.split(" ")[0],
           },
         });
-      }
-      redirect(302, "/onboarding");
+
+    if (
+      event.url.pathname != "/onboarding" &&
+      (!member.classProgramme || !member.classYear)
+    ) {
+      redirect(302, i18n.resolveRoute("/onboarding"));
     }
 
     const user = {
@@ -146,7 +147,11 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
         session.user.group_list,
       ),
     };
-    event.locals.prisma = enhance(prisma, { user });
+    event.locals.prisma = enhance(
+      prisma,
+      { user },
+      { logPrismaQuery: process.env["NODE_ENV"] === "production" },
+    );
     event.locals.user = user;
     event.locals.member = member!;
   }

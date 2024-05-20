@@ -3,6 +3,7 @@
   import Price from "$lib/components/Price.svelte";
   import ScrollingNumber from "$lib/components/Timer/ScrollingNumber.svelte";
   import type { CartReservation } from "$lib/server/shop/getTickets";
+  import * as m from "$paraglide/messages";
 
   export let item: CartReservation;
   $: shoppable = item.shoppable;
@@ -33,9 +34,10 @@
 
   <div class="text-2xl font-bold text-primary">
     {#if item.order !== null}
-      Köplats <ScrollingNumber number={item.order + 1} />
+      {m.cart_reservation_queuePosition()}
+      <ScrollingNumber number={item.order + 1} />
     {:else}
-      Inväntar lotteri
+      {m.cart_reservation_awaitingLottery()}
     {/if}
   </div>
   <form method="POST" action="?/removeReservation" use:enhance>

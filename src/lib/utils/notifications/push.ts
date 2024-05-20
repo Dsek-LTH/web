@@ -1,5 +1,5 @@
 import { error } from "@sveltejs/kit";
-import Expo, { type ExpoPushMessage } from "expo-server-sdk";
+import { Expo, type ExpoPushMessage } from "expo-server-sdk";
 import { dev } from "$app/environment";
 
 async function sendPushNotifications(

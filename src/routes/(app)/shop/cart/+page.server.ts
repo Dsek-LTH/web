@@ -6,9 +6,15 @@ import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
 import { getCart } from "$lib/server/shop/getTickets";
 import purchaseCart, {
   calculateCartPrice,
+} from "$lib/server/shop/payments/purchase";
+import apiNames from "$lib/utils/apiNames";
+import { authorize } from "$lib/utils/authorization";
+import {
+  passOnTransactionFee,
   priceWithTransactionFee,
   transactionFee,
-} from "$lib/server/shop/payments/purchase";
+} from "$lib/utils/payments/transactionFee";
+import * as m from "$paraglide/messages";
 import { error, fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
@@ -20,6 +26,7 @@ export const load: PageServerLoad = async ({ locals, depends }) => {
     throw error(401, "Du har ingen kundvagn.");
   }
   depends("cart");
+  authorize(apiNames.WEBSHOP.PURCHASE, user);
   const { inCart, reservations } = await getCart(
     prisma,
     user?.memberId
@@ -30,13 +37,16 @@ export const load: PageServerLoad = async ({ locals, depends }) => {
           externalCode: user.externalCode!,
         },
   );
-  const totalPrice = priceWithTransactionFee(calculateCartPrice(inCart));
+  const cartPrice = calculateCartPrice(inCart);
+  const totalPrice = passOnTransactionFee
+    ? priceWithTransactionFee(cartPrice)
+    : cartPrice;
   return {
     inCart,
     reservations,
     purchaseForm: await superValidate(purchaseForm),
     totalPrice: totalPrice,
-    transactionFee: transactionFee(totalPrice),
+    transactionFee: passOnTransactionFee ? transactionFee(totalPrice) : 0,
   };
 };
 
@@ -52,7 +62,7 @@ export const actions = {
     if (!form.valid) return fail(400, { form });
     if (!user?.memberId && !user?.externalCode) {
       return message(form, {
-        message: "Du har ingen kundvagn.",
+        message: m.cart_errors_noCart(),
         type: "error",
       });
     }
@@ -63,7 +73,7 @@ export const actions = {
     });
     if (!consumable) {
       return message(form, {
-        message: "Varan finns inte i din kundvagn.",
+        message: m.cart_errors_itemNotInCart(),
         type: "error",
       });
     }
@@ -77,7 +87,7 @@ export const actions = {
     });
 
     return message(form, {
-      message: "Varan har tagits bort.",
+      message: m.cart_itemHasBeenRemoved(),
       type: "success",
     });
   },
@@ -87,7 +97,7 @@ export const actions = {
     if (!form.valid) return fail(400, { form });
     if (!user?.memberId && !user?.externalCode) {
       return message(form, {
-        message: "Du har ingen kundvagn.",
+        message: m.cart_errors_noCart(),
         type: "error",
       });
     }
@@ -98,7 +108,7 @@ export const actions = {
     });
     if (!reservation) {
       return message(form, {
-        message: "Reservation finns inte i din kundvagn.",
+        message: m.cart_errors_reservationNotInCart(),
         type: "error",
       });
     }
@@ -117,16 +127,17 @@ export const actions = {
     });
 
     return message(form, {
-      message: "Reservationen har tagits bort.",
+      message: m.cart_reservationHasBeenRemoved(),
       type: "success",
     });
   },
   purchase: async ({ locals, request }) => {
     const { user, prisma } = locals;
+    authorize(apiNames.WEBSHOP.PURCHASE, user);
     const form = await superValidate(request, purchaseForm);
     if (!form.valid) return fail(400, { form });
     if (!user?.memberId && !user?.externalCode) {
-      throw error(401, "Du har ingen kundvagn.");
+      throw error(401, m.cart_errors_noCart());
     }
     try {
       const data = await purchaseCart(

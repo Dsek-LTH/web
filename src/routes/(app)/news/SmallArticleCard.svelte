@@ -4,8 +4,8 @@
   import type { Article } from "./articles";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import dayjs from "dayjs";
-  import { goto } from "$app/navigation";
-  import markdownToTxt from "markdown-to-txt";
+  import { goto } from "$lib/utils/redirect";
+  import { markdownToTxt } from "markdown-to-txt";
   export let article: Article;
 </script>
 
@@ -15,7 +15,7 @@
   <div class="flex justify-between gap-4 bg-base-300 p-4">
     <div class="flex flex-wrap gap-2">
       {#each article.tags as tag}
-        <span class="badge text-xs text-neutral-400">{tag.name}</span>
+        <span class="badge text-xs text-neutral-600">{tag.name}</span>
       {/each}
     </div>
   </div>

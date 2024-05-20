@@ -1,6 +1,6 @@
 import apiNames from "$lib/utils/apiNames";
 import { error, fail } from "@sveltejs/kit";
-import { redirect } from "sveltekit-flash-message/server";
+import { redirect } from "$lib/utils/redirect";
 import { superValidate } from "sveltekit-superforms/server";
 import { eventSchema } from "../../schema";
 import type { Actions, PageServerLoad } from "./$types";
@@ -20,19 +20,32 @@ export const load: PageServerLoad = async ({ locals, params }) => {
       : {
           slug: params.slug,
         },
-    include: {
-      author: true,
-      tags: true,
-    },
   });
   if (!event) {
     throw error(404, "Article not found");
   }
+  const isRecurring = event.recurringParentId !== null;
+  const recurringEvent = isRecurring
+    ? await prisma.recurringEvent.findUnique({
+        where: {
+          id: event.recurringParentId ?? "",
+        },
+      })
+    : null;
+  if (isRecurring && !recurringEvent) {
+    error(500, "Couldn't find recurring event parent");
+  }
+  const completeEvent = {
+    ...event,
+    isRecurring: isRecurring,
+    recurringType: recurringEvent?.recurringType,
+    recurringEndDateTime: recurringEvent?.endDatetime,
+    separationCount: recurringEvent?.separationCount,
+  };
   return {
     allTags,
-    author: event.author,
     event,
-    form: await superValidate(event, eventSchema),
+    form: await superValidate(completeEvent, eventSchema),
   };
 };
 
@@ -42,6 +55,17 @@ export const actions: Actions = {
     const { prisma } = locals;
     const form = await superValidate(request, eventSchema);
     if (!form.valid) return fail(400, { form });
+    /* eslint-disable-next-line @typescript-eslint/no-unused-vars --
+     * To avoid lint complaining about unused vars
+     **/
+    const { isRecurring, recurringEndDatetime, ...recurringEventData } =
+      form.data;
+
+    /* eslint-disable-next-line @typescript-eslint/no-unused-vars --
+     * To avoid lint complaining about unused vars
+     **/
+    const { recurringType, separationCount, tags, ...eventData } =
+      recurringEventData;
     const existingEvent = await prisma.event.findUnique({
       where: uuidValidate(params.slug)
         ? {
@@ -60,7 +84,7 @@ export const actions: Actions = {
         id: existingEvent.id,
       },
       data: {
-        ...form.data,
+        ...eventData,
         author: undefined,
         tags: {
           connect: form.data.tags

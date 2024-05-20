@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { CartItem as CartItemType } from "$lib/server/shop/getTickets";
+  import * as m from "$paraglide/messages";
   import type { SuperValidated } from "sveltekit-superforms";
   import type { PurchaseForm } from "./+page.server";
   import CartItem from "./CartItem/CartItem.svelte";
@@ -12,16 +13,16 @@
   export let purchaseForm: SuperValidated<PurchaseForm>;
 </script>
 
-<h1 class="text-2xl">Kundvagn</h1>
+<h1 class="text-2xl">{m.cart()}</h1>
 
 <table class="table mt-4">
   <thead class="hidden md:table-header-group">
     <tr class="border-none">
-      <th class="text-left">Event</th>
-      <th class="text-left">Biljett</th>
-      <th class="text-right">Pris</th>
-      <th class="text-center">Reserveration</th>
-      <th class="text-center">Ta bort</th>
+      <th class="text-left">{m.cart_event()}</th>
+      <th class="text-left">{m.cart_ticket()}</th>
+      <th class="text-right">{m.cart_price()}</th>
+      <th class="text-center">{m.cart_reservation()}</th>
+      <th class="text-center">{m.cart_remove()}</th>
     </tr>
   </thead>
 

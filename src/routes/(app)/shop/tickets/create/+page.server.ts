@@ -4,7 +4,7 @@ import { authorize } from "$lib/utils/authorization.js";
 import { ShoppableType } from "@prisma/client";
 import { fail } from "@sveltejs/kit";
 import dayjs from "dayjs";
-import { redirect } from "sveltekit-flash-message/server";
+import { redirect } from "$lib/utils/redirect";
 import { message, superValidate } from "sveltekit-superforms/server";
 
 export const load = async ({ locals }) => {

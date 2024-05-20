@@ -3,11 +3,13 @@
   import { Calendar } from "@fullcalendar/core";
   import daygridPlugin from "@fullcalendar/daygrid";
   import type { Bookable, BookingRequest } from "@prisma/client";
-  import { goto } from "$app/navigation";
+  import { goto } from "$lib/utils/redirect";
   import "$lib/FullCalendar.css";
   import { isAuthorized } from "$lib/utils/authorization";
   import { page } from "$app/stores";
   import apiNames from "$lib/utils/apiNames";
+  import * as m from "$paraglide/messages";
+  import { languageTag } from "$paraglide/runtime";
 
   export let bookingRequests: Array<
     BookingRequest & { bookables: Bookable[] }
@@ -27,7 +29,7 @@
         start: booking.start ?? new Date(),
         end: booking.end ?? new Date(),
       })),
-      locale: "sv",
+      locale: languageTag(),
       eventColor: "#f280a1",
       firstDay: 1,
       headerToolbar: {
@@ -37,29 +39,29 @@
       },
       customButtons: {
         addBooking: {
-          text: "Skapa bokning",
+          text: m.booking_createBooking(),
           click: () => {
             void goto("/booking/create");
           },
         },
         admin: {
-          text: "Hantera bokningar",
+          text: m.booking_manageBookings(),
           click: () => {
             void goto("/booking/admin");
           },
         },
         subscribe: {
-          text: "Subscribe",
+          text: m.booking_subscribe(),
           click: () => {
             void goto("/events/subscribe");
           },
         },
       },
       buttonText: {
-        today: "Idag",
-        month: "Månad",
-        week: "Vecka",
-        day: "Dag",
+        today: m.booking_today(),
+        month: m.booking_month(),
+        week: m.booking_week(),
+        day: m.booking_day(),
       },
     });
     calendar.render();

@@ -1,18 +1,26 @@
+<script lang="ts">
+  import * as m from "$paraglide/messages";
+</script>
+
 <footer class="bg-base-300">
   <div class="container footer mx-auto items-center gap-y-2 p-2">
     <nav
       class="grid-flow-col place-self-center md:place-self-start"
-      aria-label="Contact and source code"
+      aria-label={m.footer_contactAndSourceCode()}
     >
-      <a class="btn btn-ghost" href="/info/contact">Kontakt</a>
-      <a class="btn btn-ghost" href="https://github.com/Dsek-LTH/web">Källkod</a
+      <a class="btn btn-ghost" href="/info/contact">{m.footer_contact()}</a>
+      <a class="btn btn-ghost" href="https://github.com/Dsek-LTH/web"
+        >{m.footer_sourceCode()}</a
       >
     </nav>
 
     <nav
       class="grid-flow-col place-self-center *:text-xl md:place-self-end"
-      aria-label="Social media"
+      aria-label={m.footer_socialMedia()}
     >
+      <a class="btn btn-ghost" href="https://discord.com/invite/wxHQcvZ38p">
+        <span class="i-mdi-discord" />
+      </a>
       <a class="btn btn-ghost" href="https://instagram.com/dseklth">
         <span class="i-mdi-instagram" />
       </a>

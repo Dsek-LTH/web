@@ -54,6 +54,17 @@ const translatedModelFields: ModelFields = {
   tag: {
     name: "nameEn",
   },
+  shoppable: {
+    title: "titleEn",
+    description: "descriptionEn",
+  },
+  itemQuestion: {
+    title: "titleEn",
+    description: "descriptionEn",
+  },
+  itemQuestionOption: {
+    answer: "answerEn",
+  },
 };
 
 /**

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
+  import { goto } from "$lib/utils/redirect";
   import { page } from "$app/stores";
   import { tick } from "svelte";
 
@@ -15,7 +15,9 @@
       if (search !== undefined) urlParams.set("search", search);
       else urlParams.delete("search");
       urlParams.delete("page");
-      await goto(`?${urlParams.toString()}`, { replaceState: true });
+      await goto(`${$page.url.pathname}?${urlParams.toString()}`, {
+        replaceState: true,
+      });
       await tick();
       setTimeout(() => {
         inputField.focus();

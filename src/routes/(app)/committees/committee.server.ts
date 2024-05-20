@@ -5,6 +5,7 @@ import { z } from "zod";
 import { PUBLIC_BUCKETS_MATERIAL } from "$env/static/public";
 import { compareCommitteePositions } from "$lib/utils/committee-ordering/sort";
 import type { PrismaClient } from "@prisma/client";
+import * as m from "$paraglide/messages";
 
 const updateSchema = z.object({
   name: z.string().optional(),
@@ -34,7 +35,7 @@ export const committeeLoad = async (
     firstDayOfYear.getFullYear() !== year ||
     lastDayOfYear.getFullYear() !== year
   ) {
-    error(400, "Invalid year");
+    error(400, m.committees_errors_invalidYear());
   }
 
   const committee = await prisma.committee.findUnique({
@@ -82,7 +83,7 @@ export const committeeLoad = async (
     },
   });
   if (!committee) {
-    throw error(404, "Committee not found");
+    throw error(404, m.committees_errors_committeeNotFound());
   }
   const [uniqueMembersInCommittee, numberOfMandates, markdown] =
     await Promise.allSettled([
@@ -132,13 +133,13 @@ export const committeeLoad = async (
       }),
     ]);
   if (uniqueMembersInCommittee.status === "rejected") {
-    error(500, "Failed to fetch unique members in committee");
+    error(500, m.committees_errors_fetchUniqueMembers());
   }
   if (numberOfMandates.status === "rejected") {
-    error(500, "Failed to fetch number of mandates");
+    error(500, m.committees_errors_fetchNumberOfMandates());
   }
   if (markdown.status === "rejected") {
-    error(500, "Failed to fetch markdown");
+    error(500, m.committees_errors_fetchMarkdown());
   }
 
   const form = await superValidate(committee, updateSchema);
@@ -168,7 +169,7 @@ export const committeeActions = (
     let newImageUploaded = false;
     if (isFileSubmitted(image)) {
       if (image.type !== "image/svg+xml") {
-        return setError(form, "image", "Bilden måste vara i .svg format ");
+        return setError(form, "image", m.committees_errors_imageMustBeSVG());
       }
       const path = `committees/${shortName ?? params.shortName}.svg`;
       if (image) {
@@ -187,7 +188,7 @@ export const committeeActions = (
         } catch (e) {
           return message(
             form,
-            { message: "Kunde inte ladda upp bild", type: "error" },
+            { message: m.committees_errors_uploadImage(), type: "error" },
             { status: 500 },
           );
         }
@@ -219,7 +220,7 @@ export const committeeActions = (
       });
     }
     return message(form, {
-      message: "Utskott uppdaterat",
+      message: m.committees_committeeUpdated(),
       type: "success",
     });
   },

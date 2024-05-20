@@ -10,13 +10,15 @@
   import LanguageSwitcher from "./LanguageSwitcher.svelte";
   import NotificationBell from "./NotificationBell.svelte";
   import UserMenu from "./UserMenu.svelte";
-  import { routes } from "./routes";
+  import { getRoutes } from "./routes";
   import type { UserShopItemCounts } from "$lib/server/shop/countUserShopItems";
+  import * as m from "$paraglide/messages";
   $: notifications = $page.data["notifications"] as Notification[] | null;
   $: deleteNotificationForm = $page.data[
     "deleteNotificationForm"
   ] as SuperValidated<NotificationSchema> | null;
   $: shopItemCounts = $page.data["shopItemCounts"] as UserShopItemCounts;
+  $: routes = getRoutes();
 </script>
 
 <div
@@ -24,7 +26,7 @@
 >
   <div class="container navbar mx-auto">
     <!-- Open drawer icon -->
-    <div class="block flex-1 lg:hidden">
+    <div class="block flex-1 xl:hidden">
       <label
         for="main-drawer"
         aria-label="open sidebar"
@@ -35,7 +37,7 @@
     </div>
 
     <!-- Navbar content -->
-    <div class="container hidden flex-1 lg:block">
+    <div class="container hidden flex-1 xl:block">
       {#each routes as route (route.title)}
         {#if !route.accessRequired || isAuthorized(route.accessRequired, $page.data.user)}
           {#if route?.children?.length}
@@ -85,7 +87,7 @@
     </div>
 
     <div class="flex">
-      <div class="hidden lg:flex">
+      <div class="hidden xl:flex">
         <!-- This will be shown in the drawer instead. -->
         <DarkLightToggle />
         <LanguageSwitcher />
@@ -105,7 +107,7 @@
         />
       {:else}
         <button class="btn btn-ghost" on:click={() => signIn("keycloak")}>
-          Logga in
+          {m.navbar_logIn()}
         </button>
       {/if}
     </div>

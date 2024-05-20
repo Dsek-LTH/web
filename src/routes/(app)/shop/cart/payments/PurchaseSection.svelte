@@ -1,5 +1,7 @@
 <script lang="ts">
-  import { PUBLIC_STRIPE_KEY } from "$env/static/public";
+  import { env } from "$env/dynamic/public";
+  import Price from "$lib/components/Price.svelte";
+  import * as m from "$paraglide/messages";
   import type StripeJS from "@stripe/stripe-js";
   import { loadStripe } from "@stripe/stripe-js";
   import { onMount } from "svelte";
@@ -7,13 +9,12 @@
   import { superForm } from "sveltekit-superforms/client";
   import type { PurchaseForm } from "../+page.server";
   import SveltePaymentElement from "./SveltePaymentElement.svelte";
-  import Price from "$lib/components/Price.svelte";
 
   export let totalPrice: number;
 
   let stripe: StripeJS.Stripe | null = null;
   onMount(async () => {
-    stripe = await loadStripe(PUBLIC_STRIPE_KEY);
+    stripe = await loadStripe(env.PUBLIC_STRIPE_KEY);
   });
 
   const idempotencyKey = crypto.randomUUID();
@@ -39,9 +40,9 @@
         <input type="hidden" name="idempotencyKey" value={idempotencyKey} />
         <button type="submit" class="btn btn-primary" disabled={$submitting}>
           {#if $submitting}
-            Processar...
+            {m.cart_processing()}
           {:else}
-            {totalPrice === 0 ? "Skaffa" : "Betala"}
+            {totalPrice === 0 ? m.cart_get() : m.cart_pay()}
           {/if}
         </button>
       </form>

@@ -62,6 +62,23 @@ module.exports = {
         ],
       },
     ],
+    "no-restricted-imports": [
+      "error",
+      {
+        patterns: [
+          {
+            importNamePattern: "^(goto|redirect)",
+            group: [
+              "$app/navigation",
+              "sveltekit-flash-message/server",
+              "@sveltejs/kit",
+            ],
+            message:
+              "Use the goto and redirect wrappers from $lib/utils/redirect instead",
+          },
+        ],
+      },
+    ],
     "@typescript-eslint/consistent-type-definitions": "off", // Using either type or interface is fine.
     "@typescript-eslint/array-type": ["error", { default: "array-simple" }], // When defining arrays of complex types, use the `Array<type>` syntax.
   },

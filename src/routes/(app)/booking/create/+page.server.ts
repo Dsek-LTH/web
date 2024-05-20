@@ -1,8 +1,9 @@
 import { fail } from "@sveltejs/kit";
 import dayjs from "dayjs";
 import { superValidate } from "sveltekit-superforms/server";
-import { redirect } from "sveltekit-flash-message/server";
+import { redirect } from "$lib/utils/redirect";
 import { z } from "zod";
+import * as m from "$paraglide/messages";
 
 const schema = z
   .object({
@@ -12,7 +13,7 @@ const schema = z
     bookables: z.array(z.string()).min(1),
   })
   .refine((data) => dayjs(data.start).isBefore(dayjs(data.end)), {
-    message: "Start date must be before end date",
+    message: m.booking_startDateBeforeEndDate(),
     path: ["end"],
   });
 
@@ -51,7 +52,7 @@ export const actions = {
     throw redirect(
       `/booking`,
       {
-        message: "Bokningsförfrågan skickad!",
+        message: m.booking_requestSent(),
         type: "success",
       },
       event,
