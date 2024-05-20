@@ -38,7 +38,6 @@ export const getCustomAuthorOptions = async (
     },
   });
 };
-const date = "2022-10-11";
 
 export type MemberDoorPolicies = Array<{
   name: string;
@@ -74,10 +73,10 @@ export const getCurrentDoorPoliciesForMember = async (
               studentId,
             },
             startDate: {
-              lte: new Date(date),
+              lte: new Date(),
             },
             endDate: {
-              gte: new Date(date),
+              gte: new Date(),
             },
           },
         },
