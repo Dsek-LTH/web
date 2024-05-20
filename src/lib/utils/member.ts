@@ -47,14 +47,6 @@ export type MemberDoorPolicies = Array<{
   endDate: Date | null;
 }>;
 
-export type MemberDoorPolicies = Array<{
-  name: string;
-  verboseName: string | undefined;
-  roles: string[];
-  startDate: Date | null;
-  endDate: Date | null;
-}>;
-
 export const getCurrentDoorPoliciesForMember = async (
   prisma: PrismaClient,
   studentId: string,
