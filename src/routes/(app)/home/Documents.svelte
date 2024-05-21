@@ -9,8 +9,8 @@
 >
   <div>
     <h2 class="text-md flex items-center font-light">
-      <span class="text-xl font-bold"
-        >{files.next[0]?.id.split("/")[2] ?? ""}</span
+      <a href="/documents" class="text-xl font-bold hover:underline"
+        >{files.next[0]?.id.split("/")[2] ?? ""}</a
       >
       &nbsp;- {m.home_meetingNext()}
     </h2>
@@ -31,8 +31,8 @@
     <h2
       class="text-md flex items-center place-self-end pt-4 font-light md:pt-0"
     >
-      <span class="text-xl font-bold"
-        >{files.last[0]?.id.split("/")[2] ?? ""}</span
+      <a href="/documents" class="text-xl font-bold hover:underline"
+        >{files.last[0]?.id.split("/")[2] ?? ""}</a
       >
       &nbsp;- {m.home_meetingPrev()}
     </h2>
