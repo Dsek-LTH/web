@@ -146,11 +146,9 @@
       </div>
       <div
         class="flex w-full items-center justify-center py-2 transition-colors lg:max-w-[200px]"
-        class:bg-error={$form.isBan}
+        class:bg-red-400={$form.isBan}
       >
-        <p class="p-2" id="banText" class:text-black={$form.isBan}>
-          {$form.isBan ? "Ban" : "Ban?"}
-        </p>
+        <p class="p-1" id="banText" class:text-black={$form.isBan}>Ban</p>
         <input
           id="isBan"
           name="isBan"
