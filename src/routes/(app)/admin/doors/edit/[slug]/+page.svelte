@@ -17,20 +17,21 @@
 
 <main class="container mx-auto px-4">
   <h1 class="mb-4 text-2xl font-semibold capitalize">{$page.params["slug"]}</h1>
-  <div class="overflow-x-auto">
+  <div class="overflow-x-auto rounded-lg">
     <table class="table">
-      <thead>
-        <tr class="bg-base-200">
+      <thead class="bg-base-200">
+        <tr>
           <th>{m.admin_doors_roleMember()}</th>
           <th>{m.admin_doors_startDate()}</th>
           <th>{m.admin_doors_endDate()}</th>
-          <th />
+          <th></th>
+          <th></th>
         </tr>
       </thead>
 
       <tbody>
         {#each data.doorAccessPolicies as policy}<tr
-            class:bg-error={policy.isBan}
+            class:bg-red-400={policy.isBan}
             class:text-black={policy.isBan}
           >
             {#if policy.role}
@@ -64,7 +65,7 @@
                     informationModal?.showModal();
                     selectedPolicy = policy;
                   }}
-                  class="btn-error rounded fill-base-content"
+                  class="btn-error rounded-full fill-base-content"
                   ><svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="32"
@@ -150,15 +151,12 @@
           />
         </Labeled>
       </div>
-      <button type="submit" class="btn btn-primary join-item">
-        {m.admin_doors_add()}
-      </button>
       <div
         class="flex w-full items-center justify-center py-2 transition-colors lg:max-w-[200px]"
         class:bg-error={$form.isBan}
       >
         <p class="p-2" id="banText" class:text-black={$form.isBan}>
-          {$form.isBan ? "Banning Access" : "Ban Access?"}
+          {$form.isBan ? "Ban" : "Ban?"}
         </p>
         <input
           id="isBan"
@@ -179,9 +177,11 @@
           bind:value={$form.information}
         />
       </div>
-      <label class="switch">
+      <label class="switch join-item">
         <div class="flex-auto">
-          <button type="submit" class="btn btn-primary join-item">Add</button>
+          <button type="submit" class="btn btn-primary join-item"
+            >{m.admin_doors_add()}</button
+          >
         </div>
       </label>
     </label>
@@ -238,6 +238,7 @@
       >
       <h3 class="px-1 text-lg font-bold">
         <b class="capitalize">{$page.params["slug"]}</b>
+        <b>{selectedPolicy?.member || selectedPolicy?.role}</b>
       </h3>
     </div>
     <p class="py-4">
@@ -248,7 +249,7 @@
       class="btn btn-error"
       on:click={() => informationModal?.close()}
     >
-      OK
+      Close
     </button>
   </div>
   <form method="dialog" class="modal-backdrop">
