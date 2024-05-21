@@ -3,6 +3,7 @@ import { superValidate } from "sveltekit-superforms/server";
 import type { Actions, PageServerLoad } from "./$types";
 import { error, fail } from "@sveltejs/kit";
 import { redirect } from "$lib/utils/redirect";
+import * as m from "$paraglide/messages";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma } = locals;
@@ -17,7 +18,7 @@ export const load: PageServerLoad = async ({ locals }) => {
     redirect(302, "/");
   }
   if (!memberResult.value) {
-    throw error(404, "Member not found");
+    throw error(404, m.onboarding_errors_memberNotFound());
   }
   const member = memberResult.value;
   return {
@@ -51,11 +52,14 @@ export const actions: Actions = {
         },
       });
     } else {
-      throw error(500, "Could not find student-id");
+      throw error(500, m.onboarding_errors_studentIDNotFound());
     }
     return redirect(
       "/",
-      { type: "success", message: "Member updated" },
+      {
+        type: "success",
+        message: m.onboarding_memberUpdated(),
+      },
       cookies,
     );
   },

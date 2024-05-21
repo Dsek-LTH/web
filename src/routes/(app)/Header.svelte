@@ -12,14 +12,14 @@
     >
       <h1 class="mb-5 text-balance text-5xl font-bold text-base-content">
         <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-        {@html m.landing_splash()}
+        {@html m.home_splash()}
       </h1>
       <p class="mb-5 text-base-content">
         <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-        {@html m.landing_info()}
+        {@html m.home_info()}
       </p>
       <a class="btn btn-primary font-bold uppercase" href="/info/for-foretag">
-        {m.landing_forCompanies()}
+        {m.home_forCompanies()}
       </a>
     </div>
   </div>

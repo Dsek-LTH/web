@@ -7,32 +7,12 @@ export const GET: RequestHandler = async ({ locals, params }) => {
   const policies = await prisma.doorAccessPolicy.findMany({
     where: {
       AND: [
+        { doorName: params["door"] },
         {
-          doorName: params["door"],
+          OR: [{ startDatetime: { lte: now } }, { startDatetime: null }],
         },
         {
-          OR: [
-            {
-              startDatetime: {
-                lte: now,
-              },
-            },
-            {
-              startDatetime: null,
-            },
-          ],
-        },
-        {
-          OR: [
-            {
-              endDatetime: {
-                gte: now,
-              },
-            },
-            {
-              endDatetime: null,
-            },
-          ],
+          OR: [{ endDatetime: { gte: now } }, { endDatetime: null }],
         },
       ],
     },
@@ -87,13 +67,14 @@ export const GET: RequestHandler = async ({ locals, params }) => {
   )
     .map((mandate) => mandate.member.studentId)
     .filter((id): id is string => id !== null);
+
   return new Response(
-    JSON.stringify([
+    Array.from([
       ...new Set([
         ...BACKUP_LIST_OF_STUDENT_IDS,
         ...studentIds,
         ...studentsFromRoles,
       ]),
-    ]),
+    ]).join("\n"),
   );
 };

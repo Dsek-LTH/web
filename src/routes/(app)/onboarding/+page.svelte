@@ -7,6 +7,7 @@
   import { programmes } from "$lib/utils/programmes";
   import { onMount } from "svelte";
   import { goto } from "$lib/utils/redirect";
+  import * as m from "$paraglide/messages";
 
   export let data: PageData;
   const { form, errors, constraints, enhance } = superForm<UpdateSchema>(
@@ -27,7 +28,7 @@
 </script>
 
 <svelte:head>
-  <title>Onboarding | D-sektionen</title>
+  <title>{m.onboarding()} | D-sektionen</title>
 </svelte:head>
 
 <div
@@ -38,8 +39,8 @@
     <div
       class="mx-10 rounded-lg bg-base-200/35 p-10 backdrop-blur-xl md:mx-32 md:max-w-xl"
     >
-      <div class="text-5xl font-bold">Welcome</div>
-      <div class="text-lg">Fill in your information below</div>
+      <div class="text-5xl font-bold">{m.onboarding_welcome()}</div>
+      <div class="text-lg">{m.onboarding_fillInInfoBelow()}</div>
 
       <form
         id="edit-member"
@@ -51,7 +52,7 @@
         <div class="flex flex-wrap gap-2 [&>*]:min-w-32 [&>*]:flex-1">
           <Input
             name="firstName"
-            label="Förnamn"
+            label={m.onboarding_firstName()}
             required={true}
             bind:value={$form.firstName}
             {...$constraints.firstName}
@@ -59,7 +60,7 @@
           />
           <Input
             name="lastName"
-            label="Efternamn"
+            label={m.onboarding_lastName()}
             required={true}
             bind:value={$form.lastName}
             {...$constraints.lastName}
@@ -69,15 +70,18 @@
         <div class="flex flex-col">
           <Input
             name="pref"
-            label="Matpreferens"
-            placeholder="Ex. lactos, gluten, mushrooms"
+            label={m.onboarding_foodPreference()}
+            placeholder={m.onboarding_foodPreferencePlaceholder()}
             bind:value={$form.foodPreference}
             {...$constraints.foodPreference}
             error={$errors.foodPreference}
           />
         </div>
         <div class="flex flex-wrap gap-2 [&>*]:min-w-32 [&>*]:flex-1">
-          <Labeled label="Program" error={$errors.classProgramme}>
+          <Labeled
+            label={m.onboarding_programme()}
+            error={$errors.classProgramme}
+          >
             <select
               id="classProgramme"
               name="classProgramme"
@@ -91,7 +95,7 @@
               {/each}
             </select>
           </Labeled>
-          <Labeled label="Year" error={$errors.classYear}>
+          <Labeled label={m.onboarding_year()} error={$errors.classYear}>
             <input
               type="number"
               name="classYear"
@@ -110,7 +114,7 @@
             class="btn w-full bg-base-300 text-primary"
           >
             <span class="i-mdi-floppy-disc size-5 bg-primary"></span>
-            Spara
+            {m.onboarding_save()}
           </button>
         </div>
       </form>

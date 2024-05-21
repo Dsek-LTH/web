@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { FileData } from "$lib/files/fileHandler";
+  import * as m from "$paraglide/messages";
   export let files: { next: FileData[]; last: FileData[] };
 </script>
 
@@ -11,7 +12,7 @@
       <span class="text-xl font-bold"
         >{files.next[0]?.id.split("/")[2] ?? ""}</span
       >
-      &nbsp;- Nästa möte
+      &nbsp;- {m.home_meetingNext()}
     </h2>
     <ul class="menu p-0">
       {#each files.next.slice(0, 4) as file}
@@ -33,7 +34,7 @@
       <span class="text-xl font-bold"
         >{files.last[0]?.id.split("/")[2] ?? ""}</span
       >
-      &nbsp;- Senaste mötet
+      &nbsp;- {m.home_meetingPrev()}
     </h2>
     <ul class="menu p-0">
       {#each files.last.slice(0, 4) as file}

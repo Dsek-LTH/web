@@ -5,6 +5,7 @@
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
   import type { ComponentProps } from "svelte";
+  import * as m from "$paraglide/messages";
 
   export let editing: boolean;
   export let toggleEditing: () => void;
@@ -25,12 +26,14 @@
       <PageHeader title={committee.name} class="mb-0" />
       {#if isAuthorized(apiNames.COMMITTEE.UPDATE, $page.data.user) || isAuthorized(apiNames.POSITION.CREATE, $page.data.user)}
         <button class="btn btn-secondary btn-sm" on:click={toggleEditing}>
-          {editing ? "Sluta redigera" : "Redigera"}
+          {editing ? m.committees_stopEditing() : m.committees_edit()}
         </button>
       {/if}
     </div>
     <h2>
-      {uniqueMemberCount} funktionärer, {numberOfMandates} olika mandat
+      {uniqueMemberCount}
+      {m.committees_volunteers()}, {numberOfMandates}
+      {m.committees_differentMandates()}
     </h2>
   </div>
 </header>
