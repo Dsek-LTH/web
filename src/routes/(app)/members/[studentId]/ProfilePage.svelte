@@ -31,7 +31,7 @@
   <title>{getFullName(member)} | D-sektionen</title>
 </svelte:head>
 <article
-  class="grid-cols-1-2 grid gap-x-4 gap-y-2 md:grid-cols-5"
+  class="grid grid-cols-1-2 gap-x-4 gap-y-2 md:grid-cols-5"
   id="container"
 >
   <div class="aspect-square md:col-start-1 md:col-end-2">
