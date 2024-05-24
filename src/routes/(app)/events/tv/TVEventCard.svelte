@@ -28,9 +28,7 @@
         >
           {dayjsDate.format("MMMM")}
         </div>
-        <div
-          class="px-5 py-2 text-center text-4xl font-bold"
-        >
+        <div class="px-5 py-2 text-center text-4xl font-bold">
           {dayjsDate.format("DD")}
         </div>
       </div>
@@ -83,7 +81,7 @@
       {/if}
       <MarkdownBody
         body={event.description}
-        class="prose-xl text-ellipsis prose mb-8 mt-2 line-clamp-5 min-w-full prose-headings:text-sm"
+        class="prose prose-xl mb-8 mt-2 line-clamp-5 min-w-full text-ellipsis prose-headings:text-sm"
       />
     </div>
     <div class="my-3 flex flex-col items-start gap-0.5">

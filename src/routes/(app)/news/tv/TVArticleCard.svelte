@@ -1,10 +1,9 @@
 <script lang="ts">
-  import DOMPurify from "isomorphic-dompurify";
   import { getFullName } from "$lib/utils/client/member";
   import type { Article } from "../articles";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import dayjs from "dayjs";
-  import { markdownToTxt } from "markdown-to-txt";
+  import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   export let article: Article;
 </script>
 
@@ -24,11 +23,10 @@
       <h1 class="text-2xl font-bold group-hover:underline">
         {article.header}
       </h1>
-      <div
-        class="prose prose-xl mb-8 mt-2 line-clamp-5 min-w-full prose-headings:text-sm"
-      >
-        {markdownToTxt(DOMPurify.sanitize(article.body), { pedantic: true })}
-      </div>
+      <MarkdownBody
+        body={article.body}
+        class="prose prose-xl mb-8 mt-2 line-clamp-5 min-w-full text-ellipsis prose-headings:text-sm"
+      />
     </div>
 
     <div class="flex gap-4">
