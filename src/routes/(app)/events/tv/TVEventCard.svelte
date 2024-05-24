@@ -22,13 +22,15 @@
 
   <div class="flex flex-col p-8">
     <div class="flex flex-row items-center pb-4">
-      <div>
+      <div class="size-24 rounded-b-xl bg-base-300">
         <div
-          class="rounded-t-xl bg-primary text-center text-xl font-bold text-black"
+          class="rounded-t-xl bg-primary px-2 py-1 text-center font-bold text-black"
         >
           {dayjsDate.format("MMMM")}
         </div>
-        <div class="rounded-b-xl bg-base-300 px-5 py-2 text-4xl">
+        <div
+          class="px-5 py-2 text-center text-4xl font-bold"
+        >
           {dayjsDate.format("DD")}
         </div>
       </div>
@@ -81,7 +83,7 @@
       {/if}
       <MarkdownBody
         body={event.description}
-        class="prose-xl line-clamp-4 min-w-max text-ellipsis"
+        class="prose-xl text-ellipsis prose mb-8 mt-2 line-clamp-5 min-w-full prose-headings:text-sm"
       />
     </div>
     <div class="my-3 flex flex-col items-start gap-0.5">
