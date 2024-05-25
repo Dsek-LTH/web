@@ -59,14 +59,14 @@
             <td>{policy.startDatetime?.toLocaleString("sv") ?? "N/A"}</td>
             <td>{policy.endDatetime?.toLocaleString("sv") ?? "N/A"}</td>
             {#if policy.information}
-              <td class="policy-information">
+              <td class="policy-information flex items-center">
                 <button
                   on:click={() => {
                     informationModal?.showModal();
                     selectedPolicy = policy;
                   }}
-                  class="btn-error rounded-full fill-base-content"
-                  ><span class="i-mdi-information h-7 w-7 bg-base-content"
+                  class="btn-error h-6 rounded-full fill-base-content"
+                  ><span class="i-mdi-information h-6 w-6 bg-base-content"
                   ></span></button
                 >
                 <dialog id="my_modal_1" class="modal">
@@ -91,7 +91,8 @@
                   removeModal?.showModal();
                   selectedPolicy = policy;
                 }}
-                class="btn btn-xs px-8">{m.admin_doors_remove()}</button
+                class="btn btn-xs whitespace-nowrap px-8"
+                >{m.admin_doors_remove()}</button
               >
             </td>
           </tr>
@@ -168,9 +169,9 @@
           bind:value={$form.information}
         />
       </div>
-      <label class="switch join-item">
+      <label class="switch join-item w-full">
         <div class="flex-auto">
-          <button type="submit" class="btn btn-primary join-item"
+          <button type="submit" class="btn btn-primary join-item w-full"
             >{m.admin_doors_add()}</button
           >
         </div>
@@ -231,7 +232,7 @@
       class="btn btn-error"
       on:click={() => informationModal?.close()}
     >
-      Close
+      Stäng
     </button>
   </div>
   <form method="dialog" class="modal-backdrop">
