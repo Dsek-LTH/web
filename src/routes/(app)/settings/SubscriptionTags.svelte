@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { languageTag } from "$paraglide/runtime";
   import { type Tag } from "@prisma/client";
 
   export let subscribedTags: Tag[];
@@ -12,7 +13,11 @@
     .filter((t) => t != "");
 </script>
 
-<div class="flex flex-col items-center sm:grid sm:grid-cols-2">
+<div
+  class={languageTag() == "sv"
+    ? "flex flex-col items-center md:grid md:grid-cols-2"
+    : "flex flex-col items-center xl:grid xl:grid-cols-2"}
+>
   {#each tags as tag}
     <div class="m-1 flex">
       <label

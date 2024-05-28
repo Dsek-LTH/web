@@ -50,7 +50,7 @@
     <div class="m-2 flex w-full max-w-2xl flex-col items-center lg:p-0">
       <h2 class="mb-2 text-2xl font-bold">{m.setting_notification()}</h2>
       {#each Object.entries(NotificationSettingType) as notificationSettingType}
-        <div class="m-2 w-full">
+        <div class="m-2 w-full sm:pl-8 sm:pr-8 md:pl-4 md:pr-4">
           <!-- Web notification -->
           <label class="m-2 flex cursor-pointer flex-row justify-between">
             <span class="ms-3 text-sm font-medium">
@@ -96,7 +96,7 @@
       <SubscriptionTags {tags} subscribedTags={subscribedTags.subscribedTags} />
     </div>
     <button
-      class="btn absolute bottom-0 mb-4 mt-4 w-full max-w-xl bg-primary"
+      class="btn absolute bottom-0 mb-4 mt-4 w-full max-w-xl bg-primary text-white"
       type="submit">{m.setting_apply()}</button
     >
   </form>
