@@ -35,7 +35,6 @@
   } = superForm(data.updateLinksForm, {
     onUpdate: ({ form }) => {
       // Close modal on successful submit
-      console.log(form.valid);
       if (form.valid) {
         editModal?.close();
       }
@@ -108,6 +107,7 @@
     <Input
       name="slug"
       label="Custom slug"
+      placeholder="link.se/<slug>"
       required
       bind:value={$createLinksForm.slug}
       error={$createLinksErrors.slug}
@@ -126,7 +126,11 @@
       <div class="label">
         <span class="label-text"> Tags* </span>
       </div>
-      <TagSelectCreate bind:allTags bind:selectedTags={createSelectedTags} />
+      <TagSelectCreate
+        placeholder="<utskott><år>, ex. cafe24"
+        bind:allTags
+        bind:selectedTags={createSelectedTags}
+      />
       {#if $createLinksErrors.tags?._errors}
         <div class="label">
           <span class="label-text-alt text-error">

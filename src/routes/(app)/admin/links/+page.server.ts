@@ -9,7 +9,15 @@ import apiNames from "$lib/utils/apiNames";
 import { z } from "zod";
 import { message, superValidate } from "sveltekit-superforms/server";
 
-const VALID_ORDER = [
+type orderable =
+  | "dateCreated"
+  | "shortCode"
+  | "longUrl"
+  | "title"
+  | "visits"
+  | "nonBotVisits";
+
+const VALID_ORDER: orderable[] = [
   "title",
   "dateCreated",
   "shortCode",
@@ -61,13 +69,7 @@ export const load: PageServerLoad = async ({ url, locals }) => {
       itemsPerPage: 20,
       page: page,
       orderBy: {
-        field: orderByField as
-          | "dateCreated"
-          | "shortCode"
-          | "longUrl"
-          | "title"
-          | "visits"
-          | "nonBotVisits",
+        field: orderByField as orderable,
         dir: dir as "ASC" | "DESC",
       },
       tags: url.searchParams.getAll("tags"),
