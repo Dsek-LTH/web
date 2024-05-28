@@ -96,7 +96,7 @@
       <SubscriptionTags {tags} subscribedTags={subscribedTags.subscribedTags} />
     </div>
     <button
-      class="btn absolute bottom-0 mb-4 mt-4 w-full max-w-xl bg-primary"
+      class="btn absolute bottom-0 mb-4 mt-4 w-full max-w-xl bg-primary text-white"
       type="submit">{m.setting_apply()}</button
     >
   </form>
