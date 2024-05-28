@@ -17,7 +17,7 @@
   {#each committees as committee (committee.id)}
     <a
       href="/committees/{committee.shortName}"
-      class="group card bg-neutral-300 shadow-xl transition-all hover:bg-base-200/80"
+      class="group card bg-base-300 shadow-xl transition-all hover:bg-base-200/80"
     >
       <figure
         class="max-h-24 px-12 pt-4 transition-transform *:max-h-full group-hover:scale-90 md:max-h-48"
