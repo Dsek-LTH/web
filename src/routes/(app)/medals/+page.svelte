@@ -3,21 +3,31 @@
   import Pagination from "$lib/components/Pagination.svelte";
   import RecipientList from "./RecipientList.svelte";
 
+  import type { Semester } from "./semesters";
+  import {
+    dateToSemester,
+    toString,
+    parseSemester,
+    semesterFromYearAndTerm,
+  } from "./semesters";
+
   import type { PageData } from "./$types";
   export let data: PageData;
-  const thisYear = new Date().getFullYear();
+
+  const firstSemester: Semester = semesterFromYearAndTerm(1982, "HT");
+  const currentSemester = dateToSemester(new Date());
 </script>
 
 <PageHeader title="Medaljer" />
 
 <Pagination
-  count={thisYear - 1982}
-  getPageName={(i) => (thisYear - i).toString()}
-  getPageNumber={(page) => thisYear - parseInt(page)}
-  fieldName="year"
+  count={currentSemester - firstSemester}
+  getPageName={(i) => toString(currentSemester - i)}
+  getPageNumber={(page) => currentSemester - parseSemester(page)}
+  fieldName="semester"
   showFirst={true}
+  showLast={true}
   class="my-4"
-  keepScrollPosition={true}
 />
 
 <RecipientList recipients={data.recipients} />
