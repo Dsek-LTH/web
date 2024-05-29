@@ -190,11 +190,11 @@
 <dialog bind:this={removeModal} class="modal modal-bottom sm:modal-middle">
   <div class="modal-box">
     <h3 class="text-lg font-bold">{m.admin_doors_revokeDoorAccess()}</h3>
-    <p class="py-4">
+    <p class="whitespace-nowrap py-4">
       <!-- eslint-disable-next-line svelte/no-at-html-tags -->
       {@html m.admin_doors_revokeAreYouSure({
         door: `${$page.params["slug"]}`,
-        target: `${selectedPolicy?.role || selectedPolicy?.studentId}`,
+        target: `${selectedPolicy?.role || selectedPolicy?.member?.studentId}`,
       })}
     </p>
     <div class="modal-action">
@@ -220,8 +220,12 @@
     <div class="flex items-center">
       <span class="i-mdi-information h-6 w-6"></span>
       <h3 class="px-1 text-lg font-bold">
-        <b class="capitalize">{$page.params["slug"]}</b>
-        <b>{selectedPolicy?.member || selectedPolicy?.role}</b>
+        <b class="capitalize">{$page.params["slug"]} -</b>
+        {#if selectedPolicy?.role}<b>{selectedPolicy.role}</b>{:else}<b>
+            {selectedPolicy?.member?.firstName}
+            {selectedPolicy?.member?.lastName}
+            <i>({selectedPolicy?.studentId})</i></b
+          >{/if}
       </h3>
     </div>
     <p class="py-4">
