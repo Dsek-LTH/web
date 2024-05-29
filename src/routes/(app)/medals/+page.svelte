@@ -1,6 +1,8 @@
 <script lang="ts">
   import PageHeader from "$lib/components/PageHeader.svelte";
   import Pagination from "$lib/components/Pagination.svelte";
+  import { page } from "$app/stores";
+
   import RecipientList from "./RecipientList.svelte";
 
   import type { Semester } from "./semesters";
@@ -20,14 +22,22 @@
 
 <PageHeader title="Medaljer" />
 
-<Pagination
-  count={currentSemester - firstSemester}
-  getPageName={(i) => toString(currentSemester - i)}
-  getPageNumber={(page) => currentSemester - parseSemester(page)}
-  fieldName="semester"
-  showFirst={true}
-  showLast={true}
-  class="my-4"
-/>
+<div class="my-4 flex flex-row gap-2">
+  <Pagination
+    count={currentSemester - firstSemester}
+    getPageName={(i) => toString(currentSemester - i)}
+    getPageNumber={(page) => currentSemester - parseSemester(page)}
+    fieldName="semester"
+    showFirst={true}
+    showLast={true}
+    class="max-w-xl"
+  />
+  <a
+    class="btn btn-primary"
+    href={$page.url.pathname + "/download-csv?" + $page.url.searchParams}
+  >
+    <span class="i-mdi-file-delimited"></span>
+  </a>
+</div>
 
 <RecipientList recipients={data.recipients} />
