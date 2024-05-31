@@ -269,7 +269,7 @@ const gammalOchÄckligSemester = (
   if (
     !(
       volonteerSemesters.length >= 8 ||
-      (volonteerSemesters.length <= 6 && boardSemesters.length <= 2)
+      (volonteerSemesters.length >= 6 && boardSemesters.length >= 2)
     )
   )
     return undefined;
@@ -321,7 +321,7 @@ export const memberMedals = async (
     .filter((x): x is [string, Semester] => !!x[1]);
 
   const volonteerMedalSem = volonteerSems.toSorted()[1];
-  const gammalOchÄckligSem = gammalOchÄckligSemester(volonteerSems, boardSems);
+  const gammalOchÄckligSem = gammalOchÄckligSemester(boardSems, volonteerSems);
 
   const res: Array<[string, Semester]> = [];
 

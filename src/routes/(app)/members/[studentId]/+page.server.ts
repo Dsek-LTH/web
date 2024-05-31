@@ -8,6 +8,8 @@ import { sendPing } from "./pings";
 import { getCurrentDoorPoliciesForMember } from "$lib/utils/member";
 import keycloak from "$lib/server/keycloak";
 import { z } from "zod";
+import { dateToSemester } from "$lib/utils/semesters";
+import { memberMedals } from "$lib/utils/medals";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
@@ -85,6 +87,11 @@ export const load: PageServerLoad = async ({ locals, params }) => {
       doorAccess,
       publishedArticles: publishedArticlesResult.value ?? [],
       email,
+      medals: await memberMedals(
+        prisma,
+        member.id,
+        dateToSemester(new Date()) - 1,
+      ),
       ping: user
         ? await prisma.ping.findFirst({
             where: {

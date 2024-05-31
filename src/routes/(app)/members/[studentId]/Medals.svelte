@@ -1,0 +1,24 @@
+<script lang="ts">
+  import { type Semester, toString } from "$lib/utils/semesters";
+  export let medals: Array<[string, Semester]>;
+</script>
+
+<div class="my-2 text-xl font-bold">Medaljer</div>
+<ul class="flex flex-col gap-2">
+  {#each medals as medal}
+    <li
+      class="flex items-center justify-between gap-4 rounded-lg bg-base-200 p-3"
+    >
+      <div class="flex flex-col">
+        <span class="font-semibold">{medal[0]}</span>
+      </div>
+      <div
+        class="flex flex-1 flex-col items-stretch overflow-hidden text-right"
+      >
+        <div class="flex flex-col font-bold opacity-50">
+          efter {toString(medal[1])}
+        </div>
+      </div>
+    </li>
+  {/each}
+</ul>
