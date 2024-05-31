@@ -252,3 +252,82 @@ export const allMedalRecipients = async (
       semester,
     )),
   ].filter((x): x is [string, Member[]] => (x[1] ?? []).length > 0);
+
+// Medals for individuals
+
+const getSemesters = (mandates: Mandate[]): Semester[] => [
+  ...mandates.reduce((acc, curr) => {
+    coveredSemesters(curr.startDate, curr.endDate).forEach((x) => acc.add(x));
+    return acc;
+  }, new Set<Semester>()),
+];
+
+const gammalOchÄckligSemester = (
+  boardSemesters: Semester[],
+  volonteerSemesters: Semester[],
+): Semester | undefined => {
+  if (
+    !(
+      volonteerSemesters.length >= 8 ||
+      (volonteerSemesters.length <= 6 && boardSemesters.length <= 2)
+    )
+  )
+    return undefined;
+  const vs = volonteerSemesters.toSorted();
+  const bs = boardSemesters.toSorted();
+  const b = bs[1];
+  return b !== undefined ? vs[Math.min(7, Math.max(vs.indexOf(b), 5))] : vs[7];
+};
+
+export const memberMedals = async (
+  prisma: PrismaClient,
+  memberId: Member["id"],
+  after: Semester,
+): Promise<Array<[string, Semester]>> => {
+  const mandates = await prisma.mandate.findMany({
+    where: {
+      memberId: memberId,
+    },
+    include: {
+      position: {
+        select: {
+          boardMember: true,
+          committeeId: true,
+        },
+      },
+    },
+  });
+
+  const volonteerSems = getSemesters(mandates).filter((x) => x <= after);
+  const boardSems = getSemesters(
+    mandates.filter((x) => x.position.boardMember),
+  ).filter((x) => x <= after);
+
+  const committeeSems = (await committeesWithMedals(prisma))
+    .map((committee) => {
+      const id = committee.id;
+
+      const committeeMandates = mandates.filter(
+        (x) => x.position.committeeId === id,
+      );
+
+      return [
+        "Ustkottsmedalj — " + committee.name,
+        getSemesters(committeeMandates)
+          .filter((x) => x <= after)
+          .toSorted()[5],
+      ] as const;
+    })
+    .filter((x): x is [string, Semester] => !!x[1]);
+
+  const volonteerMedalSem = volonteerSems.toSorted()[1];
+  const gammalOchÄckligSem = gammalOchÄckligSemester(volonteerSems, boardSems);
+
+  const res: Array<[string, Semester]> = [];
+
+  if (volonteerMedalSem) res.push(["Funktionärsmedalj", volonteerMedalSem]);
+
+  if (gammalOchÄckligSem) res.push(["Gammal && Äcklig", gammalOchÄckligSem]);
+
+  return res.concat(committeeSems);
+};
