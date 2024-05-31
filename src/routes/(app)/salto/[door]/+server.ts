@@ -28,10 +28,6 @@ export const GET: RequestHandler = async ({ locals, params }) => {
     .map((policy) => policy.role)
     .filter((id): id is string => id !== null);
 
-  const studentIds = policies
-    .map((policy) => policy.studentId)
-    .filter((id): id is string => id !== null)
-    .filter((id) => !bannedStudentIds.includes(id));
   const positionIds = policies
     .map((policy) => policy.role)
     .filter((id): id is string => id !== null)
@@ -48,7 +44,36 @@ export const GET: RequestHandler = async ({ locals, params }) => {
     },
   });
 
+  const bannedPositions = await prisma.position.findMany({
+    where: {
+      OR: bannedPositionIds.map((p) => ({
+        id: {
+          startsWith: `${p}%`,
+        },
+      })),
+    },
+  });
+
   // Take positions such as "dsek" and "dsek.km" and return all students with these roles
+  const bannedStudentsFromRoles = (
+    await prisma.mandate.findMany({
+      where: {
+        positionId: {
+          in: bannedPositions.map((p) => p.id),
+        },
+      },
+      select: {
+        member: {
+          select: {
+            studentId: true,
+          },
+        },
+      },
+    })
+  )
+    .map((mandate) => mandate.member.studentId)
+    .filter((id): id is string => id !== null);
+
   const studentsFromRoles = (
     await prisma.mandate.findMany({
       where: {
@@ -66,7 +91,15 @@ export const GET: RequestHandler = async ({ locals, params }) => {
     })
   )
     .map((mandate) => mandate.member.studentId)
-    .filter((id): id is string => id !== null);
+    .filter((id): id is string => id !== null)
+    .filter((id) => !bannedStudentIds.includes(id))
+    .filter((id) => !bannedStudentsFromRoles.includes(id));
+
+  const studentIds = policies
+    .map((policy) => policy.studentId)
+    .filter((id): id is string => id !== null)
+    .filter((id) => !bannedStudentIds.includes(id))
+    .filter((id) => !studentsFromRoles.includes(id));
 
   return new Response(
     Array.from([

@@ -190,7 +190,7 @@
 <dialog bind:this={removeModal} class="modal modal-bottom sm:modal-middle">
   <div class="modal-box">
     <h3 class="text-lg font-bold">{m.admin_doors_revokeDoorAccess()}</h3>
-    <p class="whitespace-nowrap py-4">
+    <p class=" py-4">
       <!-- eslint-disable-next-line svelte/no-at-html-tags -->
       {@html m.admin_doors_revokeAreYouSure({
         door: `${$page.params["slug"]}`,
