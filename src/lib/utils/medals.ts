@@ -283,7 +283,7 @@ export const memberMedals = async (
   prisma: PrismaClient,
   memberId: Member["id"],
   after: Semester,
-): Promise<Array<[string, Semester]>> => {
+): Promise<Array<{ medal: string; after: Semester }>> => {
   const mandates = await prisma.mandate.findMany({
     where: {
       memberId: memberId,
@@ -311,23 +311,33 @@ export const memberMedals = async (
         (x) => x.position.committeeId === id,
       );
 
-      return [
-        "Ustkottsmedalj — " + committee.name,
-        getSemesters(committeeMandates)
+      return {
+        medal: "Utskottsmedalj — " + committee.name,
+        after: getSemesters(committeeMandates)
           .filter((x) => x <= after)
           .toSorted()[5],
-      ] as const;
+      };
     })
-    .filter((x): x is [string, Semester] => !!x[1]);
+    .filter(
+      (x): x is { medal: string; after: Semester } => x.after !== undefined,
+    );
 
   const volonteerMedalSem = volonteerSems.toSorted()[1];
   const gammalOchÄckligSem = gammalOchÄckligSemester(boardSems, volonteerSems);
 
-  const res: Array<[string, Semester]> = [];
+  const res: Array<{ medal: string; after: Semester }> = [];
 
-  if (volonteerMedalSem) res.push(["Funktionärsmedalj", volonteerMedalSem]);
+  if (volonteerMedalSem)
+    res.push({
+      medal: "Funktionärsmedalj",
+      after: volonteerMedalSem,
+    });
 
-  if (gammalOchÄckligSem) res.push(["Gammal && Äcklig", gammalOchÄckligSem]);
+  if (gammalOchÄckligSem)
+    res.push({
+      medal: "Gammal && Äcklig",
+      after: gammalOchÄckligSem,
+    });
 
   return res.concat(committeeSems);
 };

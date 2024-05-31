@@ -1,6 +1,6 @@
 <script lang="ts">
   import { type Semester, toString } from "$lib/utils/semesters";
-  export let medals: Array<[string, Semester]>;
+  export let medals: Array<{ medal: string; after: Semester }>;
 </script>
 
 <div class="my-2 text-xl font-bold">Medaljer</div>
@@ -10,13 +10,13 @@
       class="flex items-center justify-between gap-4 rounded-lg bg-base-200 p-3"
     >
       <div class="flex flex-col">
-        <span class="font-semibold">{medal[0]}</span>
+        <span class="font-semibold">{medal.medal}</span>
       </div>
       <div
         class="flex flex-1 flex-col items-stretch overflow-hidden text-right"
       >
         <div class="flex flex-col font-bold opacity-50">
-          efter {toString(medal[1])}
+          efter {toString(medal.after)}
         </div>
       </div>
     </li>
