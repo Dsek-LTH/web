@@ -5,13 +5,13 @@
 
   import RecipientList from "./RecipientList.svelte";
 
-  import type { Semester } from "./semesters";
   import {
+    type Semester,
     dateToSemester,
     toString,
     parseSemester,
     semesterFromYearAndTerm,
-  } from "./semesters";
+  } from "$lib/utils/semesters";
 
   import type { PageData } from "./$types";
   export let data: PageData;

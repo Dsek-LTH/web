@@ -4,8 +4,8 @@ import {
   toString,
   parseSemester,
   dateToSemester,
-} from "../semesters";
-import { allMedalRecipients } from "../medals";
+} from "$lib/utils/semesters";
+import { allMedalRecipients } from "$lib/utils/medals";
 
 export const GET = async ({ locals, url }) => {
   const { prisma } = locals;

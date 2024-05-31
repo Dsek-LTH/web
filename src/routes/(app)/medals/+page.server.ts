@@ -1,6 +1,10 @@
 import type { PageServerLoad } from "./$types";
-import { type Semester, dateToSemester, parseSemester } from "./semesters";
-import { allMedalRecipients } from "./medals";
+import {
+  type Semester,
+  dateToSemester,
+  parseSemester,
+} from "$lib/utils/semesters";
+import { allMedalRecipients } from "$lib/utils/medals";
 
 export const load: PageServerLoad = async ({ locals, url }) => {
   const { prisma } = locals;
