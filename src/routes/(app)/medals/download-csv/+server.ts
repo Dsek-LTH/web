@@ -5,7 +5,7 @@ import {
   parseSemester,
   dateToSemester,
 } from "$lib/utils/semesters";
-import { allMedalRecipients } from "$lib/utils/medals";
+import { medalRecipients } from "$lib/utils/medals";
 
 export const GET = async ({ locals, url }) => {
   const { prisma } = locals;
@@ -15,10 +15,10 @@ export const GET = async ({ locals, url }) => {
     dateToSemester(new Date());
 
   const recipientLines: string[] = (
-    await allMedalRecipients(prisma, semester)
+    await medalRecipients(prisma, semester)
   ).flatMap((x) =>
-    x[1].map((y) => {
-      const medal: string = x[0];
+    x.recipients.map((y) => {
+      const medal: string = x.medal;
       const member: Member = y;
       return [
         `${member.firstName} ${member.lastName}`.replace(",", ""), // Don't even trip

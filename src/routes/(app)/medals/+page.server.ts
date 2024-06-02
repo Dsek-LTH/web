@@ -4,7 +4,7 @@ import {
   dateToSemester,
   parseSemester,
 } from "$lib/utils/semesters";
-import { allMedalRecipients } from "$lib/utils/medals";
+import { medalRecipients } from "$lib/utils/medals";
 
 export const load: PageServerLoad = async ({ locals, url }) => {
   const { prisma } = locals;
@@ -13,7 +13,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     parseSemester(url.searchParams.get("semester") ?? "") ||
     dateToSemester(new Date());
 
-  const recipients = await allMedalRecipients(prisma, semester);
+  const recipients = await medalRecipients(prisma, semester);
 
   return {
     recipients,
