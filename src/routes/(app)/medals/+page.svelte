@@ -1,9 +1,8 @@
 <script lang="ts">
   import PageHeader from "$lib/components/PageHeader.svelte";
   import Pagination from "$lib/components/Pagination.svelte";
+  import MedalGrid from "./MedalGrid.svelte";
   import { page } from "$app/stores";
-
-  import RecipientList from "./RecipientList.svelte";
 
   import {
     type Semester,
@@ -17,7 +16,8 @@
   export let data: PageData;
 
   const firstSemester: Semester = semesterFromYearAndTerm(1982, "HT");
-  const currentSemester = dateToSemester(new Date());
+  $: currentSemester = dateToSemester(new Date());
+  $: recipients = data.recipients;
 </script>
 
 <PageHeader title="Medaljer" />
@@ -40,4 +40,4 @@
   </a>
 </div>
 
-<RecipientList recipients={data.recipients} />
+<MedalGrid groups={recipients} />

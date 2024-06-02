@@ -1,5 +1,5 @@
 <script lang="ts">
-  import ScrollIndicatedBox from "./ScrollIndicatedBox.svelte";
+  import ScrollIndicatedBox from "$lib/components/ScrollIndicatedBox.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import { getFullName } from "$lib/utils/client/member";
   import type { Mandate, Member, Position } from "@prisma/client";
