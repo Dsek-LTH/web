@@ -22,7 +22,7 @@
 
 <PageHeader title="Medaljer" />
 
-<div class="my-4 flex flex-row gap-2">
+<div class="my-4 flex flex-row flex-wrap gap-2">
   <Pagination
     count={currentSemester - firstSemester}
     getPageName={(i) => toString(currentSemester - i)}
@@ -30,13 +30,13 @@
     fieldName="semester"
     showFirst={true}
     showLast={true}
-    class="max-w-xl"
+    class="max-w"
   />
   <a
     class="btn btn-primary"
     href={$page.url.pathname + "/download-csv?" + $page.url.searchParams}
   >
-    <span class="i-mdi-file-delimited"></span>
+    <span class="i-mdi-file-delimited"></span>CSV
   </a>
 </div>
 
