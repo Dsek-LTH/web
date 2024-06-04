@@ -6,6 +6,14 @@ import {
   coveredSemesters,
 } from "./semesters";
 
+/**
+ * Counts what semesters different members had mandates on.
+ *
+ * @param mandates - The list of mandates to count.
+ * @param now - The latest semester to count.
+ * @returns A map from member ids to the set of semesters that the mandates in
+ * `mandates` belonging to them cover.
+ */
 const countMandateSemesters = (
   mandates: Mandate[],
   now: Semester,
@@ -21,6 +29,13 @@ const countMandateSemesters = (
     return acc;
   }, new Map<Member["id"], Set<Semester>>());
 
+/**
+ * Get what semesters are covered by a collection of mandates.
+ *
+ * @param mandates - The collection of mandates.
+ * @returns An array of the semesters covered by at least one of the mandates in
+ * `mandates`.
+ */
 const getSemesters = (mandates: Mandate[]): Semester[] => [
   ...mandates.reduce((acc, curr) => {
     coveredSemesters(curr.startDate, curr.endDate).forEach((x) => acc.add(x));
@@ -28,6 +43,14 @@ const getSemesters = (mandates: Mandate[]): Semester[] => [
   }, new Set<Semester>()),
 ];
 
+/**
+ * Fetch the corresponding Member objects to a collection of member IDs from
+ * prisma.
+ *
+ * @param prisma - The prisma client to query.
+ * @param ids - The array of ids to query for.
+ * @returns An array of the Member objects corresponding to `ids`.
+ */
 const getMembers = async (
   prisma: PrismaClient,
   ids: Array<Member["id"]>,
@@ -40,6 +63,12 @@ const getMembers = async (
     },
   });
 
+/**
+ * Fetch the committees that have a committee medal from prisma.
+ *
+ * @param prisma - The prisma client to query.
+ * @returns An array of the Committees that have committee medals.
+ */
 const committeesWithMedals = async (
   prisma: PrismaClient,
 ): Promise<Committee[]> =>
@@ -53,14 +82,45 @@ const committeesWithMedals = async (
     },
   });
 
+/**
+ * Calculate after which semester a volunteer should have been awarded their
+ * volunteer medal from the semesters they have volunteered.
+ *
+ * @param volunteerSemesters - The semesters that the volunteer has volunteered.
+ * @returns The semester after which the volunteer should have been awarded
+ * their volunteer medal, or `undefined` if they should not have been awarded
+ * one (yet).
+ */
 const volunteerMedalSemester = (
   volunteerSemesters: Semester[],
 ): Semester | undefined => volunteerSemesters.toSorted()[1];
 
+/**
+ * Calculate after which semester a volunteer should have been awarded a
+ * committee medal from the semesters they have volunteered for that committee.
+ *
+ * @param volunteerSemesters - The semesters that the volunteer has volunteered
+ * for a certain committee.
+ * @returns The semester after which the volunteer should have been awarded
+ * their committee medal for that committee, or `undefined` if they should not
+ * have been awarded one (yet).
+ */
 const committeeMedalSemester = (
   committeeSemesters: Semester[],
 ): Semester | undefined => committeeSemesters.toSorted()[5];
 
+/**
+ * Calculate after which semester a volunteer should have been awarded *Gammal
+ * && Äcklig* from the semesters they have volunteered and the semesters they
+ * have been on the board.
+ *
+ * @param boardSemesters - The semesters that the volunteer been on the board.
+ * @param volunteerSemesters - The semesters that the volunteer has volunteered
+ * for a certain committee.
+ * @returns The semester after which the volunteer should have been awarded
+ * Gammal && Äcklig, or `undefined` if they should not have been awarded it
+ * (yet).
+ */
 const gammalOchÄckligSemester = (
   boardSemesters: Semester[],
   volunteerSemesters: Semester[],
@@ -78,6 +138,19 @@ const gammalOchÄckligSemester = (
   return b !== undefined ? vs[Math.min(7, Math.max(vs.indexOf(b), 5))] : vs[7];
 };
 
+/**
+ * Calculate after which semesters a certain member deserved their different
+ * medals. Right now, the medals that are reported are:
+ * - volunteer medal
+ * - Gammal && Äcklig
+ * - committee medals (for the committees given by `committeesWithMedals`)
+ *
+ * @param prisma - The prisma client to query for mandates and committees.
+ * @param memberId - The ID of the member to check medals for.
+ * @param after - The last semester to check for.
+ * @returns An array of objects containing the name of the medal and the
+ * semester after which they should have been awarded the medal.
+ */
 export const memberMedals = async (
   prisma: PrismaClient,
   memberId: Member["id"],
@@ -141,6 +214,18 @@ export const memberMedals = async (
   return res.concat(committeeSems);
 };
 
+/**
+ * Calculate who should earn what medals after a particular semester.  Right
+ * now, the medals that are reported are:
+ * - volunteer medal
+ * - Gammal && Äcklig
+ * - committee medals (for the committees given by `committeesWithMedals`)
+ *
+ * @param prisma - The prisma client to query for mandates and committees.
+ * @param after - The last semester to check for.
+ * @returns An array of objects containing the name of the medal and the
+ * an array of members that should have recived that medal after `after`.
+ */
 export const medalRecipients = async (
   prisma: PrismaClient,
   after: Semester,
