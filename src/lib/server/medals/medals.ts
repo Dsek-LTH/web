@@ -4,7 +4,7 @@ import {
   startDate,
   endDate,
   coveredSemesters,
-} from "./semesters";
+} from "$lib/utils/semesters";
 
 /**
  * Counts what semesters different members had mandates on.

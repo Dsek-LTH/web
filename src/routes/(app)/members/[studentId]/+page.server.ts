@@ -9,7 +9,7 @@ import { getCurrentDoorPoliciesForMember } from "$lib/utils/member";
 import keycloak from "$lib/server/keycloak";
 import { z } from "zod";
 import { dateToSemester } from "$lib/utils/semesters";
-import { memberMedals } from "$lib/utils/medals";
+import { memberMedals } from "$lib/server/medals/medals";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;

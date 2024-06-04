@@ -4,7 +4,7 @@ import {
   dateToSemester,
   parseSemester,
 } from "$lib/utils/semesters";
-import { medalRecipients } from "$lib/utils/medals";
+import { medalRecipients } from "$lib/server/medals/medals";
 
 export const load: PageServerLoad = async ({ locals, url }) => {
   const { prisma } = locals;
