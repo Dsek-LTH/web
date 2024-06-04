@@ -1,4 +1,6 @@
 <script lang="ts">
+  import apiNames from "$lib/utils/apiNames";
+  import { isAuthorized } from "$lib/utils/authorization";
   import PageHeader from "$lib/components/PageHeader.svelte";
   import Pagination from "$lib/components/Pagination.svelte";
   import MedalGrid from "./MedalGrid.svelte";
@@ -22,7 +24,7 @@
 
 <PageHeader title="Medaljer" />
 
-<div class="my-4 flex flex-row flex-wrap gap-2">
+<div class="space-y-2">
   <Pagination
     count={currentSemester - firstSemester}
     getPageName={(i) => toString(currentSemester - i)}
@@ -32,12 +34,15 @@
     showLast={true}
     class="max-w"
   />
-  <a
-    class="btn btn-primary"
-    href={$page.url.pathname + "/download-csv?" + $page.url.searchParams}
-  >
-    <span class="i-mdi-file-delimited"></span>CSV
-  </a>
-</div>
 
-<MedalGrid groups={recipients} />
+  {#if isAuthorized(apiNames.MEDALS.MANAGE, data.user)}
+    <a
+      class="btn btn-primary"
+      href={$page.url.pathname + "/download-csv?" + $page.url.searchParams}
+    >
+      <span class="i-mdi-file-delimited"></span>CSV
+    </a>
+  {/if}
+
+  <MedalGrid groups={recipients} />
+</div>

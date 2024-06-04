@@ -8,6 +8,9 @@ const crud = <prefix extends string>(base: prefix) =>
 
 const apiNames = {
   ALERT: "alert",
+  MEDALS: {
+    MANAGE: "medals:manage",
+  },
   NEWS: {
     ...crud("news:article"),
     MANAGE: "news:article:manage",
