@@ -17,6 +17,7 @@
       <a href="/nolla/sektionen" class="hover:bg-[length:100%_2px]">
         Sektionen
       </a>
+      <a href="/nolla/todo" class="hover:bg-[length:100%_2px]"> Att göra </a>
     </div>
 
     <a
