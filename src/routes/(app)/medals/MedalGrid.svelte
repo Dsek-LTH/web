@@ -1,8 +1,6 @@
 <script lang="ts">
   import MedalCard from "./MedalCard.svelte";
   import type { Member } from "@prisma/client";
-  // import type { ComponentProps } from "svelte";
-  // type CardProps = ComponentProps<MedalCard>;
 
   export let groups: Array<{
     medal: string;
