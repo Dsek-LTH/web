@@ -5,6 +5,7 @@
   import Pagination from "$lib/components/Pagination.svelte";
   import MedalGrid from "./MedalGrid.svelte";
   import { page } from "$app/stores";
+  import * as m from "$paraglide/messages";
 
   import {
     type Semester,
@@ -22,7 +23,7 @@
   $: recipients = data.recipients;
 </script>
 
-<PageHeader title="Medaljer" />
+<PageHeader title={m.medals()} />
 
 <div class="space-y-2">
   <Pagination

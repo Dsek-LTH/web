@@ -82,7 +82,7 @@ export const getRoutes = () => [
         accessRequired: null,
       },
       {
-        title: "Medals",
+        title: m.medals(),
         path: "/medals",
         icon: "i-mdi-medal",
         accessRequired: null,

@@ -326,5 +326,10 @@
   "onboarding_year": "År",
   "onboarding_save": "Spara",
   "onboarding_welcome": "Välkommen",
-  "onboarding_fillInInfoBelow": "Fyll i dina uppgifter nedan"
+  "onboarding_fillInInfoBelow": "Fyll i dina uppgifter nedan",
+
+  "medals": "Medaljer",
+  "medals_committeeMedal": "Utskottsmedalj",
+  "medals_volunteerMedal": "Funktionärsmedalj",
+  "medals_gammalOchÄcklig": "Gammal && Äcklig"
 }

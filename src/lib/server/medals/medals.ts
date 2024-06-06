@@ -5,6 +5,8 @@ import {
   endDate,
   coveredSemesters,
 } from "$lib/utils/semesters";
+import { languageTag } from "$paraglide/runtime";
+import * as m from "$paraglide/messages";
 
 /**
  * Counts what semesters different members had mandates on.
@@ -139,6 +141,18 @@ const gammalOchÄckligSemester = (
 };
 
 /**
+ * Format the name of the committee medal for a certain committee. Takes
+ * paraglide language into account.
+ *
+ * @param committee - The committee.
+ * @returns a string with the name.
+ */
+const committeeMedalName = (committee: Committee): string =>
+  m.medals_committeeMedal() +
+  " — " +
+  (languageTag() === "sv" ? committee.name : committee.nameEn);
+
+/**
  * Calculate after which semesters a certain member deserved their different
  * medals. Right now, the medals that are reported are:
  * - volunteer medal
@@ -184,7 +198,7 @@ export const memberMedals = async (
       );
 
       return {
-        medal: "Utskottsmedalj — " + committee.name,
+        medal: committeeMedalName(committee),
         after: getSemesters(committeeMandates)
           .filter((x) => x <= after)
           .toSorted()[5],
@@ -201,13 +215,13 @@ export const memberMedals = async (
 
   if (volunteerMedalSem)
     res.push({
-      medal: "Funktionärsmedalj",
+      medal: m.medals_volunteerMedal(),
       after: volunteerMedalSem,
     });
 
   if (gammalOchÄckligSem)
     res.push({
-      medal: "Gammal && Äcklig",
+      medal: m.medals_gammalOchÄcklig(),
       after: gammalOchÄckligSem,
     });
 
@@ -276,7 +290,7 @@ export const medalRecipients = async (
 
   if (volunteerMedalRecipients.length > 0)
     res.push({
-      medal: "Funktionärsmedalj",
+      medal: m.medals_volunteerMedal(),
       recipients: await getMembers(prisma, volunteerMedalRecipients),
     });
 
@@ -290,7 +304,7 @@ export const medalRecipients = async (
 
   if (gammalOchÄckligRecipients.length > 0)
     res.push({
-      medal: "Gammal && Äcklig",
+      medal: m.medals_gammalOchÄcklig(),
       recipients: await getMembers(prisma, gammalOchÄckligRecipients),
     });
 
@@ -318,7 +332,7 @@ export const medalRecipients = async (
           ? []
           : [
               {
-                medal: "Utskottsmedalj — " + committee.name,
+                medal: committeeMedalName(committee),
                 recipients: await getMembers(prisma, recipients),
               },
             ];
