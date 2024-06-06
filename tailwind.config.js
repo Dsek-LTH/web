@@ -84,7 +84,7 @@ export default {
     require("@tailwindcss/typography"),
     require("daisyui"),
     iconsPlugin({
-      collections: getIconCollections(["mdi"]),
+      collections: getIconCollections(["mdi", "flag"]),
     }),
   ],
 };

@@ -326,5 +326,24 @@
   "onboarding_year": "År",
   "onboarding_save": "Spara",
   "onboarding_welcome": "Välkommen",
-  "onboarding_fillInInfoBelow": "Fyll i dina uppgifter nedan"
+  "onboarding_fillInInfoBelow": "Fyll i dina uppgifter nedan",
+
+  "nolla_nav_start": "Start",
+  "nolla_nav_nollning": "Nollning",
+  "nolla_nav_sektionen": "Sektionen",
+  "nolla_nav_todo": "Att göra",
+  "nolla_nav_wellbeing": "Må bra",
+  "nolla_nav_boende": "Boende",
+  "nolla_nav_nationer": "Nationer",
+  "nolla_nav_list": "Packlista",
+  "nolla_start_welcome": "Välkommen",
+  "nolla_start_to": "till",
+  "nolla_start_dguild": "D-sektionen",
+  "nolla_nollning_header": "Vad är en nollning?",
+  "nolla_nollning_what": "Vad är nollningen?",
+  "nolla_nollning_whatText": "Nollningens veckor är fyllda med en massa roliga och blandade\n        aktiviteter där vi hoppas att det finns någonting för alla. Nollningens\n        syfte är att ge möjlighet för nya studenter att lära känna andra\n        studenter, hitta en gemenskap och upptäcka vad Lunds studentliv har att\n        erbjuda.",
+  "nolla_nollning_firstDay": "Vad händer första dagen?",
+  "nolla_nollning_firstDayText": "Första dagen kommer du få din phaddergrupp och tillsammans kommer ni\n        upptäcka campus och introduceras till D-sektionen. Efter rundvandringen\n        bjuder phaddrarna på middag och trevligt häng.",
+  "nolla_nollning_group": "Phaddergruppen",
+  "nolla_nollning_groupText": "Du kommer delas in i en phaddergrupp med andra nya studenter på\n      D-sektionen. I gruppen har ni ett gäng phaddrar av blandade årskurser som\n      kommer hjälpa och stötta dig och kommer kunna svara på alla möjliga\n      sorters frågor. Phaddergruppen kommer vara en trygg punkt under hela\n      nollningen, men det kommer självklart finnas massa möjligheter att lära\n      känna fler nya studenter, både på D-sektionen och från andra sektioner."
 }

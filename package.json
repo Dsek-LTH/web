@@ -32,6 +32,7 @@
   },
   "devDependencies": {
     "@clack/prompts": "^0.7.0",
+    "@iconify-json/flag": "^1.1.53",
     "@iconify-json/mdi": "^1.1.63",
     "@inlang/paraglide-js": "1.1.0",
     "@inlang/paraglide-js-adapter-sveltekit": "^0.4.1",

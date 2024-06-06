@@ -126,6 +126,9 @@ devDependencies:
   '@clack/prompts':
     specifier: ^0.7.0
     version: 0.7.0
+  '@iconify-json/flag':
+    specifier: ^1.1.53
+    version: 1.1.53
   '@iconify-json/mdi':
     specifier: ^1.1.63
     version: 1.1.63
@@ -666,6 +669,12 @@ packages:
 
   /@humanwhocodes/object-schema@2.0.1:
     resolution: {integrity: sha512-dvuCeX5fC9dXgJn9t+X5atfmgQAzUOWqS1254Gh0m6i8wKd10ebXkfNKiRK+1GWi/yTvvLDHpoxLr0xxxeslWw==}
+    dev: true
+
+  /@iconify-json/flag@1.1.53:
+    resolution: {integrity: sha512-TdnS0AAmPnbwg3WdKavUQeyjUJZCp/0O6HsvdnBlpQ7DwcJD36ENvo0FE7BLdte/6haAKOKqnU6H+gvxCdrONQ==}
+    dependencies:
+      '@iconify/types': 2.0.0
     dev: true
 
   /@iconify-json/mdi@1.1.63:

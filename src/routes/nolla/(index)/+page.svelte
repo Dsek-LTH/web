@@ -1,12 +1,13 @@
 <script lang="ts">
   import DsekLogo from "../../DsekLogo.svelte";
   import DownArrow from "./DownArrow.svelte";
+  import * as m from "$paraglide/messages";
 
   const navItems = [
-    { text: "Må bra", link: "/nolla/wellbeing" },
-    { text: "Boende", link: "/nolla/boende" },
-    { text: "Nationer", link: "/nolla/nationer" },
-    { text: "Packlista", link: "/nolla/list" },
+    { text: m.nolla_nav_wellbeing(), link: "/nolla/wellbeing" },
+    { text: m.nolla_nav_boende(), link: "/nolla/boende" },
+    { text: m.nolla_nav_nationer(), link: "/nolla/nationer" },
+    { text: m.nolla_nav_list(), link: "/nolla/list" },
   ];
 </script>
 
@@ -15,9 +16,9 @@
 >
   <div class="flex justify-between">
     <h1 class="font-nolla-mono text-8xl leading-[1.1]">
-      <div>Välkommen</div>
-      <div>till</div>
-      <div class="font-bold">D-sektionen</div>
+      <div>{m.nolla_start_welcome()}</div>
+      <div>{m.nolla_start_to()}</div>
+      <div class="font-bold">{m.nolla_start_dguild()}</div>
     </h1>
 
     <DsekLogo class="size-80" variant="full" />
