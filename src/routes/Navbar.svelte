@@ -46,7 +46,7 @@
               <!-- svelte-ignore a11y-label-has-associated-control -->
               <label tabindex="0" class="btn btn-ghost">
                 {#if route.isDsekIcon}
-                  <DsekLogo className="size-6 text-primary" />
+                  <DsekLogo class="size-6 text-primary" />
                 {:else}
                   <span class={`${route.icon} size-6 text-primary`} />
                 {/if}
@@ -75,7 +75,7 @@
           {:else}
             <a class="btn btn-ghost" href={route.path}>
               {#if route.isDsekIcon}
-                <DsekLogo className="size-6 text-primary" />
+                <DsekLogo class="size-6 text-primary" />
               {:else}
                 <span class={`${route.icon} size-6 text-primary`} />
               {/if}

@@ -19,7 +19,7 @@
 
 <div class="grid grid-cols-1 gap-x-5 gap-y-10 md:grid-cols-3 xl:grid-cols-5">
   <div class="col-span-1 hidden flex-col place-items-center xl:flex">
-    <DsekLogo className="size-48 text-primary pl-4" />
+    <DsekLogo class="size-48 pl-4 text-primary" />
     {#if $page.data.member}
       <div class="pt-2 text-2xl font-bold">
         {getFullName($page.data.member)}
