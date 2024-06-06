@@ -1,0 +1,43 @@
+<script lang="ts">
+  import DsekLogo from "../../DsekLogo.svelte";
+  import DownArrow from "./DownArrow.svelte";
+
+  const navItems = [
+    { text: "Må bra", link: "/nolla/wellbeing" },
+    { text: "Boende", link: "/nolla/boende" },
+    { text: "Nationer", link: "/nolla/nationer" },
+    { text: "Packlista", link: "/nolla/list" },
+  ];
+</script>
+
+<header
+  class="flex h-[calc(100vh-var(--navbar-size))] flex-col justify-between py-24"
+>
+  <div class="flex justify-between">
+    <h1 class="font-nolla-mono text-8xl leading-[1.1]">
+      <div>Välkommen</div>
+      <div>till</div>
+      <div class="font-bold">D-sektionen</div>
+    </h1>
+
+    <DsekLogo class="size-80" variant="full" />
+  </div>
+
+  <a class="flex w-full animate-bounce justify-center" href="#links">
+    <DownArrow />
+  </a>
+</header>
+
+<article
+  id="links"
+  class="mb-32 flex h-72 w-full items-center justify-center gap-24 rounded-3xl bg-secondary"
+>
+  {#each navItems as navItem (navItem.link)}
+    <a
+      href={navItem.link}
+      class="rounded-xl border-2 border-black bg-primary p-5 text-xl font-semibold hover:bg-[#0D1B1E] hover:text-white"
+    >
+      {navItem.text}
+    </a>
+  {/each}
+</article>

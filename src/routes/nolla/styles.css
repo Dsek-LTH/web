@@ -11,3 +11,15 @@
     box-shadow: 8px 8px 0 0 black;
   }
 }
+
+:root {
+  --navbar-size: 144px; /* h-36 is 144px */
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+[data-theme="nollningPreReveal"] {
+  color-scheme: light;
+}

@@ -56,7 +56,7 @@ export default {
       },
       {
         nollningPreReveal: {
-          primary: "#ffc6eb",
+          primary: "#ffb4e5",
           secondary: "#e2c6ff",
           accent: "#1dcdbc",
           neutral: "#bbb6b6",

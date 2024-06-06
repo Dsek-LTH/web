@@ -6,7 +6,9 @@
   data-theme="nollningPreReveal"
   class="flex flex-1 flex-col font-nolla-sans"
 >
-  <nav class="container mx-auto flex h-36 items-center justify-between py-10">
+  <nav
+    class="container mx-auto flex h-[var(--navbar-size)] items-center justify-between py-10"
+  >
     <div
       class="flex gap-24 text-2xl font-semibold *:bg-gradient-to-r *:from-primary *:to-primary *:bg-[length:0_2px] *:bg-bottom *:bg-no-repeat *:transition-all"
     >
