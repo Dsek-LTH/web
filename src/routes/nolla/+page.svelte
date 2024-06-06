@@ -1,6 +1,6 @@
 <header class="flex justify-between">
-  <h1 class="font-nolla-mono text-8xl font-bold">
-    Välkommen till <span class="inline-block">D-sektionen</span>
+  <h1 class="font-nolla-mono text-8xl">
+    Välkommen till <span class="inline-block font-bold">D-sektionen</span>
   </h1>
 
   <!-- placeholder image -->
