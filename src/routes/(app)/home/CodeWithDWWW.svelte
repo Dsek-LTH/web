@@ -9,6 +9,8 @@
     date: string;
     url: string;
   };
+
+  const commitMessageHeader = commitData.message.split("\n")[0];
 </script>
 
 <div
@@ -54,7 +56,7 @@
       />
       <span class="font-semibold">{commitData.author}</span>
     </div>
-    <span class="ml-2 line-clamp-2 text-sm">{commitData.message}</span>
+    <span class="ml-2 line-clamp-2 text-sm">{commitMessageHeader}</span>
     <span class="ml-auto whitespace-nowrap pl-2 text-right text-sm font-light"
       >{dayjs(commitData.date).fromNow()}</span
     >
