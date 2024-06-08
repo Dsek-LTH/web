@@ -364,5 +364,7 @@
   "events_interestedGoing_areGoing": "{x} kommer",
   "events_interestedGoing_isGoing": "{x} kommer",
   "events_interestedGoing_two": "{name1} och {name2}",
-  "events_interestedGoing_threeOrMore": "{name1}, {name2} och {others} andra"
+  "events_interestedGoing_threeOrMore": "{name1}, {name2} och {others} andra",
+
+  "events_errors_invalidPage": "Ogiltig sida"
 }
