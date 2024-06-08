@@ -70,7 +70,9 @@
     </form>
   </dialog>
 {/if}
-<br />
+{#if going.length > 0 && interested.length > 0}
+  <br />
+{/if}
 {#if interested.length > 0}
   <button
     on:click|preventDefault={() => interestedModal.showModal()}

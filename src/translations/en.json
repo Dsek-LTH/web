@@ -366,4 +366,4 @@
   "events_interestedGoing_isGoing": "{x} is going",
   "events_interestedGoing_two": "{name1} and {name2}",
   "events_interestedGoing_threeOrMore": "{name1}, {name2} and {others} others"
-  }
+}
