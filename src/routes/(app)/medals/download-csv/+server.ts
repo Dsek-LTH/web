@@ -21,7 +21,7 @@ export const GET = async ({ locals, url }) => {
       const medal: string = x.medal;
       const member: Member = y;
       return [
-        `${member.firstName} ${member.lastName}`.replace(",", ""), // Don't even trip
+        `${member.firstName} ${member.lastName}`.replace(",", ""),
         member.studentId,
         medal,
       ].join(",");

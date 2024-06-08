@@ -17,7 +17,6 @@
         ({recipients.length} st)
       {/if}
     </h2>
-    <!-- <p class="flex-grow-0">{position.description ?? ""}</p> -->
     <ScrollIndicatedBox element={mandatesBox}>
       <div class="max-h-80 overflow-y-auto" bind:this={mandatesBox}>
         <ul class="menu menu-vertical p-0">

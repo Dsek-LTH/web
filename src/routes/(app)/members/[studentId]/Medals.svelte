@@ -1,5 +1,6 @@
 <script lang="ts">
   import { type Semester, toString } from "$lib/utils/semesters";
+  import * as m from "$paraglide/messages";
   export let medals: Array<{ medal: string; after: Semester }>;
 
   let sortedMedals = medals.toSorted((a, b) => a.after - b.after);
@@ -10,7 +11,7 @@
   };
 </script>
 
-<div class="my-2 text-xl font-bold">Medaljer</div>
+<div class="my-2 text-xl font-bold">{m.medals()}</div>
 <ul class="flex flex-col gap-2">
   {#each sortedMedals as medal}
     <a class="hover:underline" href={makeLink(medal.after)}>
@@ -24,7 +25,7 @@
           class="flex flex-1 flex-col items-stretch overflow-hidden text-right"
         >
           <div class=" flex flex-col font-bold opacity-50">
-            efter {toString(medal.after)}
+            {m.medals_since() + " " + toString(medal.after)}
           </div>
         </div>
       </li>
