@@ -345,6 +345,13 @@
   "events_filter": "Filtrera",
   "events_eventDeleted": "Evenemang raderat",
   "events_eventsDeleted": "Evenemang raderade",
+  "events_thisIsRecurring": "Detta är ett återkommande evenemang",
+  "events_delete": "Radera",
+  "events_deleteThisEvent": "Radera <span class=\"font-extrabold\">det här</span> evenemanget",
+  "events_deleteAllEvents": "Radera <span class=\"font-extrabold\">alla</span> evenemangen",
+  "events_edit": "Redigera",
+  "events_editEvent": "Redigera evenemang",
+  "events_eventUpdated": "Evenemang uppdaterat",
 
   "events_create_alarmActive": "Larm aktivt under evenemanget",
   "events_create_howOften": "Hur ofta?",
@@ -374,5 +381,6 @@
 
   "events_errors_invalidPage": "Ogiltig sida",
   "events_errors_eventNotFound": "Kunde inte hitta evenemanget",
-  "events_errors_endAfterStart": "Sluttiden måste vara efter starttiden"
+  "events_errors_endAfterStart": "Sluttiden måste vara efter starttiden",
+  "events_errors_recurringParentNotFound": "Kunde inte hitta förälder till återkommande evenemang"
 }
