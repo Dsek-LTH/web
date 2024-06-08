@@ -336,5 +336,6 @@
   "news_invalidTags": "Ogiltiga taggar",
   "news_publish": "Publicera",
   "news_publishing": "Publicerar...",
-  "news_preview": "Förhandsvisning"
+  "news_preview": "Förhandsvisning",
+  "news_published": "Publicerad {date}"
 }

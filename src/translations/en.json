@@ -337,5 +337,6 @@
   "news_invalidTags": "Invalid tags",
   "news_publish": "Submot",
   "news_publishing": "Submitting...",
-  "news_preview": "Preview"
+  "news_preview": "Preview",
+  "news_published": "Published {date}"
 }
