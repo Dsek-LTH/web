@@ -5,10 +5,8 @@
   const data = $page.data;
 </script>
 
-<div class="space-y-4 px-14">
-  <section class="flex flex-col gap-8">
-    {#each data["articles"] as article (article.id)}
-      <TvArticleCard {article} />
-    {/each}
-  </section>
-</div>
+<section class="flex flex-col gap-8 space-y-4 px-14">
+  {#each data["articles"] as article (article.id)}
+    <TvArticleCard {article} />
+  {/each}
+</section>
