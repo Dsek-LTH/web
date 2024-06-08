@@ -26,7 +26,7 @@ export const eventSchema = z
   .refine(
     (data) =>
       data.startDatetime < data.endDatetime &&
-      data.startDatetime < data.recurringEndDatetime,
+      (!data.isRecurring || data.startDatetime < data.recurringEndDatetime),
     {
       message: "End must be after start",
       path: ["endDatetime"],
