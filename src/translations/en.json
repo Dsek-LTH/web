@@ -329,6 +329,7 @@
   "onboarding_welcome": "Welcome",
   "onboarding_fillInInfoBelow": "Fill in your information below",
 
+  "events_create": "Create",
   "events_createEvent": "Create event",
   "events_title": "Title",
   "events_subtitle": "Subtitle",
@@ -340,6 +341,11 @@
   "events_endTime": "Ends",
   "events_recurringEvent": "Reccuring event",
   "events_tags": "Tags",
+  "events_coming": "Coming",
+  "events_past": "Past",
+  "events_filter": "Filter",
+  "events_eventDeleted": "Event deleted",
+  "events_eventsDeleted": "Events deleted",
 
   "events_create_alarmActive": "Alarm active during the event",
   "events_create_howOften": "How often?",
@@ -367,5 +373,7 @@
   "events_interestedGoing_two": "{name1} and {name2}",
   "events_interestedGoing_threeOrMore": "{name1}, {name2} and {others} others",
 
-  "events_errors_invalidPage": "Invalid page"
+  "events_errors_invalidPage": "Invalid page",
+  "events_errors_eventNotFound": "Event not found",
+  "events_errors_endAfterStart": "End must be after start"
 }

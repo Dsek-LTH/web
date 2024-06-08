@@ -328,6 +328,7 @@
   "onboarding_welcome": "Välkommen",
   "onboarding_fillInInfoBelow": "Fyll i dina uppgifter nedan",
 
+  "events_create": "Skapa",
   "events_createEvent": "Skapa evenemang",
   "events_title": "Titel",
   "events_subtitle": "Undertitel",
@@ -339,6 +340,11 @@
   "events_endTime": "Slutar",
   "events_recurringEvent": "Återkommande evenemang",
   "events_tags": "Taggar",
+  "events_coming": "Kommande",
+  "events_past": "Tidigare",
+  "events_filter": "Filtrera",
+  "events_eventDeleted": "Evenemang raderat",
+  "events_eventsDeleted": "Evenemang raderade",
 
   "events_create_alarmActive": "Larm aktivt under evenemanget",
   "events_create_howOften": "Hur ofta?",
@@ -366,5 +372,7 @@
   "events_interestedGoing_two": "{name1} och {name2}",
   "events_interestedGoing_threeOrMore": "{name1}, {name2} och {others} andra",
 
-  "events_errors_invalidPage": "Ogiltig sida"
+  "events_errors_invalidPage": "Ogiltig sida",
+  "events_errors_eventNotFound": "Kunde inte hitta evenemanget",
+  "events_errors_endAfterStart": "Sluttiden måste vara efter starttiden"
 }
