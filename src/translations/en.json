@@ -327,5 +327,15 @@
   "onboarding_year": "Year",
   "onboarding_save": "Save",
   "onboarding_welcome": "Welcome",
-  "onboarding_fillInInfoBelow": "Fill in your information below"
+  "onboarding_fillInInfoBelow": "Fill in your information below",
+
+  "news_header": "Header",
+  "news_description": "Description",
+  "news_author": "Author",
+  "news_invalidAuthor": "Invalid author",
+  "news_tags": "Tags",
+  "news_invalidTags": "Invalid tags",
+  "news_publish": "Submot",
+  "news_publishing": "Submitting...",
+  "news_preview": "Preview"
 }

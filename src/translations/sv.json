@@ -326,5 +326,15 @@
   "onboarding_year": "År",
   "onboarding_save": "Spara",
   "onboarding_welcome": "Välkommen",
-  "onboarding_fillInInfoBelow": "Fyll i dina uppgifter nedan"
+  "onboarding_fillInInfoBelow": "Fyll i dina uppgifter nedan",
+
+  "news_header": "Rubrik",
+  "news_description": "Beskrivning",
+  "news_author": "Författare",
+  "news_invalidAuthor": "Ogiltig författare",
+  "news_tags": "Taggar",
+  "news_invalidTags": "Ogiltiga taggar",
+  "news_publish": "Publicera",
+  "news_publishing": "Publicerar...",
+  "news_preview": "Förhandsvisning"
 }
