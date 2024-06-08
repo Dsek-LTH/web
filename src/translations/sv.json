@@ -354,5 +354,8 @@
   "events_calendar_month": "Månad",
   "events_calendar_week": "Vecka",
   "events_calendar_day": "Dag",
-  "events_calendar_list": "Lista"
+  "events_calendar_list": "Lista",
+
+  "events_interestedGoing_going": "Kommer",
+  "events_interestedGoing_interested": "Intresserad"
 }

@@ -355,5 +355,8 @@
   "events_calendar_month": "Month",
   "events_calendar_week": "Week",
   "events_calendar_day": "Day",
-  "events_calendar_list": "List"
+  "events_calendar_list": "List",
+
+  "events_interestedGoing_going": "Going",
+  "events_interestedGoing_interested": "Interested"
 }
