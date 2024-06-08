@@ -7,7 +7,6 @@
   import type { EventWithIncludes } from "./events";
   import type { SuperValidated } from "sveltekit-superforms";
   import { languageTag } from "$paraglide/runtime";
-  import DateSpan from "./DateSpan.svelte";
 
   export let event: EventWithIncludes;
   export let interestedGoingForm: SuperValidated<InterestedGoingSchema>;

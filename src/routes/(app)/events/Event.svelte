@@ -2,7 +2,6 @@
   import DateSpan from "./DateSpan.svelte";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import type { Event } from "@prisma/client";
-  import { languageTag } from "$paraglide/runtime";
   export let event: Pick<
     Event,
     | "title"
@@ -40,8 +39,6 @@
     class="mb-4 text-xl font-semibold !leading-snug"
   />
 {/if}
-<MarkdownBody
-  body={event.description}
-/>
+<MarkdownBody body={event.description} />
 
 <slot name="after" />
