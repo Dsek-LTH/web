@@ -337,5 +337,9 @@
   "news_publish": "Publicera",
   "news_publishing": "Publicerar...",
   "news_preview": "Förhandsvisning",
-  "news_published": "Publicerad {date}"
+  "news_published": "Publicerad {date}",
+  "news_createArticle": "Skapa nyhet",
+  "news_articleCreated": "Nyhet skapad",
+
+  "news_errors_memberNotFound": "Kunde inte hitta medlem"
 }

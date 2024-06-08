@@ -338,5 +338,9 @@
   "news_publish": "Submot",
   "news_publishing": "Submitting...",
   "news_preview": "Preview",
-  "news_published": "Published {date}"
+  "news_published": "Published {date}",
+  "news_createArticle": "Create news article",
+  "news_articleCreated": "News article created",
+
+  "news_errors_memberNotFound": "Member not found"
 }
