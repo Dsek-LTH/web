@@ -9,6 +9,7 @@
   let type: "role" | "studentId" = "role";
 
   let removeModal: HTMLDialogElement | undefined = undefined;
+  let informationModal: HTMLDialogElement | undefined = undefined;
   let selectedPolicy: (typeof data)["doorAccessPolicies"][number] | undefined =
     undefined;
   const { form, errors, constraints, enhance } = superForm(data.createForm);
@@ -16,20 +17,23 @@
 
 <main class="container mx-auto px-4">
   <h1 class="mb-4 text-2xl font-semibold capitalize">{$page.params["slug"]}</h1>
-
-  <div class="overflow-x-auto">
+  <div class="overflow-x-auto rounded-lg">
     <table class="table">
-      <thead>
-        <tr class="bg-base-200">
+      <thead class="bg-base-200">
+        <tr>
           <th>{m.admin_doors_roleMember()}</th>
           <th>{m.admin_doors_startDate()}</th>
           <th>{m.admin_doors_endDate()}</th>
-          <th />
+          <th></th>
+          <th></th>
         </tr>
       </thead>
 
       <tbody>
-        {#each data.doorAccessPolicies as policy}<tr>
+        {#each data.doorAccessPolicies as policy}<tr
+            class:bg-red-400={policy.isBan}
+            class:text-black={policy.isBan}
+          >
             {#if policy.role}
               <td class="flex items-center gap-3"
                 ><span class="i-mdi-account-group h-6 w-6"
@@ -54,13 +58,41 @@
             {/if}
             <td>{policy.startDatetime?.toLocaleString("sv") ?? "N/A"}</td>
             <td>{policy.endDatetime?.toLocaleString("sv") ?? "N/A"}</td>
+            {#if policy.information}
+              <td class="policy-information flex items-center">
+                <button
+                  on:click={() => {
+                    informationModal?.showModal();
+                    selectedPolicy = policy;
+                  }}
+                  class="btn-error h-6 rounded-full fill-base-content"
+                  ><span class="i-mdi-information h-6 w-6 bg-base-content"
+                  ></span></button
+                >
+                <dialog id="my_modal_1" class="modal">
+                  <div class="modal-box">
+                    <h3 class="text-lg font-bold">Information!</h3>
+                    <p class="py-4">{policy.information}</p>
+                    <div class="modal-action">
+                      <form method="dialog">
+                        <!-- if there is a button in form, it will close the modal -->
+                        <button class="btn">Close</button>
+                      </form>
+                    </div>
+                  </div>
+                </dialog>
+              </td>
+            {:else}
+              <div></div>
+            {/if}
             <td class="text-right">
               <button
                 on:click={() => {
                   removeModal?.showModal();
                   selectedPolicy = policy;
                 }}
-                class="btn btn-xs px-8">{m.admin_doors_remove()}</button
+                class="btn btn-xs whitespace-nowrap px-8"
+                >{m.admin_doors_remove()}</button
               >
             </td>
           </tr>
@@ -113,9 +145,37 @@
           />
         </Labeled>
       </div>
-      <button type="submit" class="btn btn-primary join-item"
-        >{m.admin_doors_add()}</button
+      <div
+        class="flex w-full items-center justify-center py-2 transition-colors lg:max-w-[200px]"
+        class:bg-red-400={$form.isBan}
       >
+        <p class="p-1" id="banText" class:text-black={$form.isBan}>Ban</p>
+        <input
+          id="isBan"
+          name="isBan"
+          type="checkbox"
+          class="toggle"
+          bind:checked={$form.isBan}
+        />
+        <span class="slider round"></span>
+      </div>
+      <div class="form-control w-full">
+        <input
+          id="information"
+          name="information"
+          type="text"
+          class="input join-item input-bordered"
+          placeholder="Additional information"
+          bind:value={$form.information}
+        />
+      </div>
+      <label class="switch join-item w-full">
+        <div class="flex-auto">
+          <button type="submit" class="btn btn-primary join-item w-full"
+            >{m.admin_doors_add()}</button
+          >
+        </div>
+      </label>
     </label>
     {#if Object.keys($errors).length > 0}
       <div class="text-error">
@@ -130,11 +190,11 @@
 <dialog bind:this={removeModal} class="modal modal-bottom sm:modal-middle">
   <div class="modal-box">
     <h3 class="text-lg font-bold">{m.admin_doors_revokeDoorAccess()}</h3>
-    <p class="py-4">
+    <p class=" py-4">
       <!-- eslint-disable-next-line svelte/no-at-html-tags -->
       {@html m.admin_doors_revokeAreYouSure({
         door: `${$page.params["slug"]}`,
-        target: `${selectedPolicy?.role || selectedPolicy?.studentId}`,
+        target: `${selectedPolicy?.role || selectedPolicy?.member?.studentId}`,
       })}
     </p>
     <div class="modal-action">
@@ -149,6 +209,35 @@
         </button>
       </form>
     </div>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button class="cursor-auto"></button>
+  </form>
+</dialog>
+
+<dialog bind:this={informationModal} class="modal modal-bottom sm:modal-middle">
+  <div class="modal-box">
+    <div class="flex items-center">
+      <span class="i-mdi-information h-6 w-6"></span>
+      <h3 class="px-1 text-lg font-bold">
+        <b class="capitalize">{$page.params["slug"]} -</b>
+        {#if selectedPolicy?.role}<b>{selectedPolicy.role}</b>{:else}<b>
+            {selectedPolicy?.member?.firstName}
+            {selectedPolicy?.member?.lastName}
+            <i>({selectedPolicy?.studentId})</i></b
+          >{/if}
+      </h3>
+    </div>
+    <p class="py-4">
+      <b class="normal-case">{selectedPolicy?.information}</b>
+    </p>
+    <button
+      type="submit"
+      class="btn btn-error"
+      on:click={() => informationModal?.close()}
+    >
+      Stäng
+    </button>
   </div>
   <form method="dialog" class="modal-backdrop">
     <button class="cursor-auto"></button>
