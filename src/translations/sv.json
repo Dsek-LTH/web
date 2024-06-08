@@ -326,5 +326,15 @@
   "onboarding_year": "År",
   "onboarding_save": "Spara",
   "onboarding_welcome": "Välkommen",
-  "onboarding_fillInInfoBelow": "Fyll i dina uppgifter nedan"
+  "onboarding_fillInInfoBelow": "Fyll i dina uppgifter nedan",
+
+  "events_createEvent": "Skapa evenemang",
+
+  "events_calendar": "Kalender",
+  "events_calendar_subscribe": "Prenumerera",
+  "events_calendar_today": "Idag",
+  "events_calendar_month": "Månad",
+  "events_calendar_week": "Vecka",
+  "events_calendar_day": "Dag",
+  "events_calendar_list": "Lista"
 }

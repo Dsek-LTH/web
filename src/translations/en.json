@@ -327,5 +327,15 @@
   "onboarding_year": "Year",
   "onboarding_save": "Save",
   "onboarding_welcome": "Welcome",
-  "onboarding_fillInInfoBelow": "Fill in your information below"
+  "onboarding_fillInInfoBelow": "Fill in your information below",
+
+  "events_createEvent": "Create event",
+
+  "events_calendar": "Calendar",
+  "events_calendar_subscribe": "Prenumerera",
+  "events_calendar_today": "Today",
+  "events_calendar_month": "Month",
+  "events_calendar_week": "Week",
+  "events_calendar_day": "Day",
+  "events_calendar_list": "List"
 }
