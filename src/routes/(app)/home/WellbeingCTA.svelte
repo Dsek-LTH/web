@@ -6,7 +6,7 @@
   class="pop-out flex gap-6 rounded-2xl bg-base-300 p-6"
   href="https://bit.ly/kontaktatrivsel"
   target="_blank"
-  rel="norefferer noopener"
+  rel="noreferrer noopener"
 >
   <span
     class="i-mdi-speak self-center text-2xl text-secondary lg:text-primary"
