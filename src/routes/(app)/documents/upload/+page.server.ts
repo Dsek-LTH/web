@@ -16,20 +16,9 @@ const prepareNameForFilesystem = (name: string, fileName: string) =>
   name.replace(/\s/g, "_").replace(/[^a-zA-Z0-9_]/g, "") + // replaces spaces with "_" and removes all special characters
   getExtensionOfFile(fileName);
 
-export const load: PageServerLoad = async ({ locals, url }) => {
-  const { user } = locals;
-  const year = url.searchParams.get("year") ?? CURRENT_YEAR;
-  const files = await fileHandler.getInBucket(
-    user,
-    PUBLIC_BUCKETS_DOCUMENTS,
-    `${year}/`,
-    false,
-  );
+export const load: PageServerLoad = async () => {
   const form = await superValidate(uploadSchema);
-  return {
-    files,
-    form,
-  };
+  return { form };
 };
 
 const uploadSchema = z.object({
@@ -58,7 +47,7 @@ export const actions: Actions = {
     }
 
     const formattedName = prepareNameForFilesystem(name, file.name);
-    const folderPath = `${type}/${year}/${folder}`;
+    const folderPath = `public/${type}/${year}/${folder}`;
     // await prisma.meeting.upsert({
     //   where: { url: folderPath },
     //   update: {},

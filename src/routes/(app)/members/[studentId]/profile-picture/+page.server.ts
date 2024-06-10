@@ -20,7 +20,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   const photos = await fileHandler.getInBucket(
     locals.user,
     PUBLIC_BUCKETS_MEMBERS,
-    `${params.studentId}/profile-picture`,
+    `public/${params.studentId}`,
     true,
   );
   return {

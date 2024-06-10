@@ -1,4 +1,7 @@
-import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
+import {
+  PUBLIC_BUCKETS_DOCUMENTS,
+  PUBLIC_BUCKETS_FILES,
+} from "$env/static/public";
 import { fileHandler } from "$lib/files";
 import type { FileData } from "$lib/files/fileHandler.js";
 import { error, fail } from "@sveltejs/kit";
@@ -22,25 +25,17 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   const year = url.searchParams.get("year") || new Date().getFullYear();
   const type: DocumentType =
     (url.searchParams.get("type") as DocumentType) || "board-meeting";
-  const files = await Promise.all([
-    ...(await fileHandler.getInBucket(
-      user,
-      PUBLIC_BUCKETS_DOCUMENTS,
-      year + "/" + (prefixByType[type] ?? ""),
-      true,
-    )),
-    ...(await fileHandler.getInBucket(
-      user,
-      PUBLIC_BUCKETS_DOCUMENTS,
-      "meeting/" + year + "/" + (prefixByType[type] ?? ""),
-      true,
-    )),
-  ]);
 
-  const SRDfiles = await fileHandler.getInBucket(
+  const files = await fileHandler.getInBucket(
     user,
     PUBLIC_BUCKETS_DOCUMENTS,
-    "srd/" + year,
+    "public/" + year + "/" + (prefixByType[type] ?? ""),
+    true,
+  );
+  const SRDfiles = await fileHandler.getInBucket(
+    user,
+    PUBLIC_BUCKETS_FILES,
+    "public/srd/" + year,
     true,
   );
 

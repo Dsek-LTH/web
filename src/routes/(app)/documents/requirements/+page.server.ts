@@ -1,4 +1,7 @@
-import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
+import {
+  PUBLIC_BUCKETS_DOCUMENTS,
+  PUBLIC_BUCKETS_FILES,
+} from "$env/static/public";
 import { fileHandler } from "$lib/files";
 import type { PageServerLoad, Actions } from "./$types";
 import { message, superValidate } from "sveltekit-superforms/server";
@@ -19,8 +22,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   const year = url.searchParams.get("year") || new Date().getFullYear();
   const files = await fileHandler.getInBucket(
     user,
-    PUBLIC_BUCKETS_DOCUMENTS,
-    "requirement/" + year,
+    PUBLIC_BUCKETS_FILES,
+    "public/kravprofiler/" + year,
     true,
   );
   const filesGroupedByFolder = files.reduce<Record<string, FileData[]>>(
