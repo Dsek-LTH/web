@@ -348,8 +348,13 @@
   "news_stoppedLikingArticle": "Slutade gilla artikel",
   "news_create": "Skapa",
   "news_articleDeleted": "Artikel raderad",
+  "news_editArticle": "Redigera nyhet",
+  "news_articleUpdated": "Nyhet uppdaterad",
+  "news_edit": "Redigera",
+  "news_delete": "Radera",
 
   "news_errors_memberNotFound": "Kunde inte hitta medlem",
+  "news_errors_authorMemberNotFound": "Kunde inte hitta författarmedlem",
   "news_errors_invalidPage": "Ogiltig sida",
   "news_errors_articleNotFound": "Kunde inte hitta artikel"
 }

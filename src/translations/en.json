@@ -349,8 +349,13 @@
   "news_stoppedLikingArticle": "Stopped liking article",
   "news_create": "Create",
   "news_articleDeleted": "Article deleted",
+  "news_editArticle": "Edit news article",
+  "news_articleUpdated": "News article updated",
+  "news_edit": "Edit",
+  "news_delete": "Delete",
 
   "news_errors_memberNotFound": "Member not found",
+  "news_errors_authorMemberNotFound": "Author member not found",
   "news_errors_invalidPage": "Invalid page",
   "news_errors_articleNotFound": "Article not found"
 }
