@@ -352,6 +352,7 @@
   "news_articleUpdated": "Nyhet uppdaterad",
   "news_edit": "Redigera",
   "news_delete": "Radera",
+  "news_editorDefaultContent": "<h1>Hej världen! 🌍️ </h1> \n <p>sätt din text här...</p>",
 
   "news_tags_tagCreated": "Tagg skapad",
   "news_tags_tagUpdated": "Tagg updaterad",

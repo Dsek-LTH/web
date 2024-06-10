@@ -353,6 +353,7 @@
   "news_articleUpdated": "News article updated",
   "news_edit": "Edit",
   "news_delete": "Delete",
+  "news_editorDefaultContent": "<h1>Hello World! 🌍️ </h1> \n <p>your text goes here...</p>",
 
   "news_tags_tagCreated": "Tag created",
   "news_tags_tagUpdated": "Tag updated",
