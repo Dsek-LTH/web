@@ -353,8 +353,22 @@
   "news_edit": "Redigera",
   "news_delete": "Radera",
 
+  "news_tags_tagCreated": "Tagg skapad",
+  "news_tags_tagUpdated": "Tagg updaterad",
+  "news_tags_newsTags": "Nyhetstaggar",
+  "news_tags_preview": "Förhandsvisning",
+  "news_tags_name": "Namn",
+  "news_tags_color": "Färg",
+  "news_tags_addNew": "Lägg till nya taggar",
+  "news_tags_newTag": "Ny tagg",
+  "news_tags_tagName": "Taggnamn",
+  "news_tags_create": "Skapa",
+  "news_tags_save": "Spara",
+  "news_tags_edit": "Redigera",
+
   "news_errors_memberNotFound": "Kunde inte hitta medlem",
   "news_errors_authorMemberNotFound": "Kunde inte hitta författarmedlem",
   "news_errors_invalidPage": "Ogiltig sida",
-  "news_errors_articleNotFound": "Kunde inte hitta artikel"
+  "news_errors_articleNotFound": "Kunde inte hitta artikel",
+  "news_errors_tagNotFound": "Tag not found"
 }

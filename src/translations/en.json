@@ -354,8 +354,22 @@
   "news_edit": "Edit",
   "news_delete": "Delete",
 
+  "news_tags_tagCreated": "Tag created",
+  "news_tags_tagUpdated": "Tag updated",
+  "news_tags_newsTags": "News tags",
+  "news_tags_preview": "Preview",
+  "news_tags_name": "Name",
+  "news_tags_color": "Color",
+  "news_tags_addNew": "Add new tags",
+  "news_tags_newTag": "New tag",
+  "news_tags_tagName": "Tag name",
+  "news_tags_create": "Create",
+  "news_tags_save": "Save",
+  "news_tags_edit": "Edit",
+
   "news_errors_memberNotFound": "Member not found",
   "news_errors_authorMemberNotFound": "Author member not found",
   "news_errors_invalidPage": "Invalid page",
-  "news_errors_articleNotFound": "Article not found"
+  "news_errors_articleNotFound": "Article not found",
+  "news_errors_tagNotFound": "Tag not found"
 }
