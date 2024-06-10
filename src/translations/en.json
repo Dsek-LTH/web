@@ -341,6 +341,12 @@
   "news_published": "Published {date}",
   "news_createArticle": "Create news article",
   "news_articleCreated": "News article created",
+  "news_logInToLike": "You have to log in to like",
+  "news_likesThis": "{x} like this",
+  "news_two": "{name1} and {name2}",
+  "news_threeOrMore": "{name1}, {name2} and {others} others",
+  "news_likedArticle": "Liked article",
+  "news_stoppedLikingArticle": "Stopped liking article",
 
   "news_errors_memberNotFound": "Member not found"
 }

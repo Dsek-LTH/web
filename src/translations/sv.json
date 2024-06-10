@@ -340,6 +340,12 @@
   "news_published": "Publicerad {date}",
   "news_createArticle": "Skapa nyhet",
   "news_articleCreated": "Nyhet skapad",
+  "news_logInToLike": "Du måste vara inloggad för att gilla",
+  "news_likesThis": "{x} gillar detta",
+  "news_two": "{name1} och {name2}",
+  "news_threeOrMore": "{name1}, {name2} och {others}",
+  "news_likedArticle": "Gillat artikel",
+  "news_stoppedLikingArticle": "Slutade gilla artikel",
 
   "news_errors_memberNotFound": "Kunde inte hitta medlem"
 }
