@@ -347,6 +347,10 @@
   "news_threeOrMore": "{name1}, {name2} and {others} others",
   "news_likedArticle": "Liked article",
   "news_stoppedLikingArticle": "Stopped liking article",
+  "news_create": "Create",
+  "news_articleDeleted": "Article deleted",
 
-  "news_errors_memberNotFound": "Member not found"
+  "news_errors_memberNotFound": "Member not found",
+  "news_errors_invalidPage": "Invalid page",
+  "news_errors_articleNotFound": "Article not found"
 }

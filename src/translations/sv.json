@@ -346,6 +346,10 @@
   "news_threeOrMore": "{name1}, {name2} och {others}",
   "news_likedArticle": "Gillat artikel",
   "news_stoppedLikingArticle": "Slutade gilla artikel",
+  "news_create": "Skapa",
+  "news_articleDeleted": "Artikel raderad",
 
-  "news_errors_memberNotFound": "Kunde inte hitta medlem"
+  "news_errors_memberNotFound": "Kunde inte hitta medlem",
+  "news_errors_invalidPage": "Ogiltig sida",
+  "news_errors_articleNotFound": "Kunde inte hitta artikel"
 }
