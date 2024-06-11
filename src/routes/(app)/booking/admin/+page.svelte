@@ -10,7 +10,7 @@
 
 <a class="btn mb-4" href="/booking">
   <span class="i-mdi-arrow-expand-left" />
-  Tillbaka
+  {m.booking_goBack()}
 </a>
 
 <div class="overflow-x-auto">
