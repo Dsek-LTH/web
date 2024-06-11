@@ -327,5 +327,9 @@
   "onboarding_year": "Year",
   "onboarding_save": "Save",
   "onboarding_welcome": "Welcome",
-  "onboarding_fillInInfoBelow": "Fill in your information below"
+  "onboarding_fillInInfoBelow": "Fill in your information below",
+
+  "documents_deleteFile": "Delete file",
+  "documents_deleteAreYouSure": "Are you sure you want to delete the file <strong>{fileName}</strong>?",
+  "documents_delete": "Delete",
 }

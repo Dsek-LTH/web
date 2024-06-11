@@ -326,5 +326,9 @@
   "onboarding_year": "År",
   "onboarding_save": "Spara",
   "onboarding_welcome": "Välkommen",
-  "onboarding_fillInInfoBelow": "Fyll i dina uppgifter nedan"
+  "onboarding_fillInInfoBelow": "Fyll i dina uppgifter nedan",
+
+  "documents_deleteFile": "Radera fil",
+  "documents_deleteAreYouSure": "Är du säker på att du vill radera filen <strong>{fileName}</strong>?",
+  "documents_delete": "Radera",
 }
