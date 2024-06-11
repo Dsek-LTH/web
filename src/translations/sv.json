@@ -334,6 +334,13 @@
   "documents_governing": "Styrdokument",
   "documents_edit": "Redigera",
   "documents_stopEditing": "Sluta redigera",
+  "documents_unknown": "Okänt",
+  "documents_fileDeleted": "Fil raderad",
+  "documents_filterByYear": "Filtrera på år",
+  "documents_filterByType": "Filtrera på dokumenttyp",
+  "documents_uploadFile": "Ladda upp fil",
+
+  "documents_errors_noFiles": "Hittade inga filer",
 
   "documents_governing_createNewDocument": "Skapa nytt styrdokunent",
   "documents_governing_editDocument": "Redigera styrdokunent",

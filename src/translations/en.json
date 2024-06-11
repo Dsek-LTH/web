@@ -335,6 +335,13 @@
   "documents_governing": "Governing documents",
   "documents_edit": "Edit",
   "documents_stopEditing": "Stop editing",
+  "documents_unknown": "Unknown",
+  "documents_fileDeleted": "File deleted",
+  "documents_filterByYear": "Filter by year",
+  "documents_filterByType": "Filter by document type",
+  "documents_uploadFile": "Upload file",
+
+  "documents_errors_noFiles": "No files found",
 
   "documents_governing_createNewDocument": "Create new governing document",
   "documents_governing_editDocument": "Edit governing document",
