@@ -333,6 +333,9 @@
   "members_noMembers": "No members found",
   "members_members": "{x} members",
   "members_oneMember": "1 member",
+  "members_bioUpdated": "Bio updated",
+  "members_preview": "Preview",
 
-  "members_errors_notLoggedIn": "Not logged in"
+  "members_errors_notLoggedIn": "Not logged in",
+  "members_errors_memberNotFound": "Member not found"
 }

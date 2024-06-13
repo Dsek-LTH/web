@@ -332,6 +332,9 @@
   "members_noMembers": "Inga medlemmar hittades",
   "members_members": "{x} medlemmar",
   "members_oneMember": "1 medlem",
+  "members_bioUpdated": "Bio updaterad",
+  "members_preview": "Förhandsvisning",
 
-  "members_errors_notLoggedIn": "Ej inloggad"
+  "members_errors_notLoggedIn": "Ej inloggad",
+  "members_errors_memberNotFound": "Kunde inte hitta medlem"
 }
