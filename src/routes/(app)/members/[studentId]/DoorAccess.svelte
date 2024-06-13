@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { MemberDoorPolicies } from "$lib/utils/member";
+  import { languageTag } from "$paraglide/runtime";
   export let doorAccess: MemberDoorPolicies;
 </script>
 
@@ -13,9 +14,9 @@
         <span class="font-semibold">{doorPolicy.verboseName}</span>
         {#if doorPolicy.startDate != null || doorPolicy.endDate != null}
           <span class="text-nowrap text-[0.5rem] font-semibold opacity-50">
-            {doorPolicy.startDate?.toLocaleDateString("sv-SE") ?? ""}
+            {doorPolicy.startDate?.toLocaleDateString(languageTag()) ?? ""}
             -
-            {doorPolicy.endDate?.toLocaleDateString("sv-SE") ?? ""}
+            {doorPolicy.endDate?.toLocaleDateString(languageTag()) ?? ""}
           </span>
         {/if}
       </div>
