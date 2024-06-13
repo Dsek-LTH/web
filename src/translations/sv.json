@@ -326,5 +326,12 @@
   "onboarding_year": "År",
   "onboarding_save": "Spara",
   "onboarding_welcome": "Välkommen",
-  "onboarding_fillInInfoBelow": "Fyll i dina uppgifter nedan"
+  "onboarding_fillInInfoBelow": "Fyll i dina uppgifter nedan",
+
+  "members_all": "Alla",
+  "members_noMembers": "Inga medlemmar hittades",
+  "members_members": "{x} medlemmar",
+  "members_oneMember": "1 medlem",
+
+  "members_errors_notLoggedIn": "Ej inloggad"
 }

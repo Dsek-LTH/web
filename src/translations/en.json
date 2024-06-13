@@ -327,5 +327,12 @@
   "onboarding_year": "Year",
   "onboarding_save": "Save",
   "onboarding_welcome": "Welcome",
-  "onboarding_fillInInfoBelow": "Fill in your information below"
+  "onboarding_fillInInfoBelow": "Fill in your information below",
+
+  "members_all": "All",
+  "members_noMembers": "No members found",
+  "members_members": "{x} members",
+  "members_oneMember": "1 member",
+
+  "members_errors_notLoggedIn": "Not logged in"
 }
