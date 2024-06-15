@@ -521,6 +521,8 @@ model Meeting {
 model Member {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
     studentId String? @unique(map: "members_student_id_unique") @map("student_id") @db.VarChar(255)
+    /// @deny('read', auth() == null)
+    email String? @unique() @db.VarChar(255)
     firstName String? @map("first_name") @db.VarChar(255)
     /// @deny('read', auth() == null)
     nickname String? @db.VarChar(255)
