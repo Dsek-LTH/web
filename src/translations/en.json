@@ -327,5 +327,14 @@
   "onboarding_year": "Year",
   "onboarding_save": "Save",
   "onboarding_welcome": "Welcome",
-  "onboarding_fillInInfoBelow": "Fill in your information below"
+  "onboarding_fillInInfoBelow": "Fill in your information below",
+
+  "songbook_songCreated": "Song crated",
+  "songbook_title": "Title",
+  "songbook_melody": "Melody",
+  "songbook_melodyExplanation": "Search for a melody or enter a new one",
+  "songbook_category": "Category",
+  "songbook_categoryExplanation": "Search for a category or enter a new one",
+  "songbook_lyrics": "Lyrics",
+  "songbook_create": "Create"
 }

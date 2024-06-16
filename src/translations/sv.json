@@ -326,5 +326,14 @@
   "onboarding_year": "År",
   "onboarding_save": "Spara",
   "onboarding_welcome": "Välkommen",
-  "onboarding_fillInInfoBelow": "Fyll i dina uppgifter nedan"
+  "onboarding_fillInInfoBelow": "Fyll i dina uppgifter nedan",
+
+  "songbook_songCreated": "Sång skapad",
+  "songbook_title": "Titel",
+  "songbook_melody": "Melodi",
+  "songbook_melodyExplanation": "Sök efter en melodi eller skriv in en ny",
+  "songbook_category": "Kategori",
+  "songbook_categoryExplanation": "Sök efter en kategori eller skriv in en ny",
+  "songbook_lyrics": "Text",
+  "songbook_create": "Skapa"
 }
