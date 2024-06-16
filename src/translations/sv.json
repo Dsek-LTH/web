@@ -320,6 +320,8 @@
   "onboarding_errors_studentIDNotFound": "Kunde inte hitta student-ID",
   "onboarding_firstName": "Förnamn",
   "onboarding_lastName": "Efternamn",
+  "onboarding_email": "E-post",
+  "onboarding_emailPlaceholder": "förnamn.efternamn.stilid@user.dsek.se",
   "onboarding_foodPreference": "Matpreferens",
   "onboarding_foodPreferencePlaceholder": "Vegetariskt, laktos, gluten, ägg, nötter, etc.",
   "onboarding_programme": "Program",
