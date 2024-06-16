@@ -8,6 +8,7 @@
   <a
     class="link flex items-center gap-2 text-left no-underline hover:underline"
     href={url}
+    target="_blank"
     on:click={(e) => {
       // don't open modal if we're on too small a screen
       if (window.innerWidth < 768) return;
