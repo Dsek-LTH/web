@@ -27,15 +27,14 @@ const authHandle = SvelteKitAuth({
       issuer: env.KEYCLOAK_CLIENT_ISSUER,
       profile: (profile: KeycloakProfile, tokens: TokenSet) => {
         return {
-          access_token: tokens.access_token,
           id_token: tokens.id_token,
           id: profile.sub,
-          name: profile.name,
+          given_name: profile.given_name,
+          family_name: profile.family_name,
           email: profile.email,
           student_id: profile.preferred_username,
-          // The keycloak client doesn't guarantee these fields
-          // to be present, but we assume they always are.
-          image: profile["image"],
+          // The keycloak client doesn't guarantee this field
+          // to be present, but we assume it always is.
           group_list: profile["group_list"] ?? [],
         };
       },
@@ -44,10 +43,11 @@ const authHandle = SvelteKitAuth({
   callbacks: {
     jwt({ token, user }) {
       if (user) {
-        token.student_id = user?.student_id;
-        token.group_list = user?.group_list ?? [];
-        token.access_token = user?.access_token;
-        token.id_token = user?.id_token;
+        token.student_id = user.student_id;
+        token.group_list = user.group_list ?? [];
+        token.id_token = user.id_token;
+        token.given_name = user.given_name;
+        token.family_name = user.family_name;
         token.email = user.email;
       }
       return token;
@@ -59,6 +59,8 @@ const authHandle = SvelteKitAuth({
         session.user.student_id = token.student_id;
         session.user.email = token.email;
         session.user.group_list = token.group_list;
+        session.user.given_name = token.given_name;
+        session.user.family_name = token.family_name;
       }
       return session;
     },
@@ -129,7 +131,8 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
       (await prisma.member.create({
         data: {
           studentId: session.user.student_id,
-          firstName: session.user.name?.split(" ")[0],
+          firstName: session.user.given_name,
+          lastName: session.user.family_name,
           email: session.user.email,
         },
       }));
