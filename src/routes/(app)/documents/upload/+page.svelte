@@ -3,6 +3,7 @@
   import { superForm } from "sveltekit-superforms/client";
   import DocumentTypeSelector from "./DocumentTypeSelector.svelte";
   import type { PageData } from "./$types";
+  import { typeToPath } from "./helpers";
   export let data: PageData;
   const { form, constraints, errors, enhance } = superForm(data.form, {
     onResult: (event) => {
@@ -24,6 +25,7 @@
       return f;
     });
   };
+  $: pathInfo = typeToPath[$form.type];
 </script>
 
 <svelte:head>
@@ -104,7 +106,10 @@
 
   {#if $form.type && $form.folder && $form.name}
     <pre
-      class="input input-bordered input-disabled">{$form.type}/{$form.year}/{$form.folder}/{$form.name}</pre>
+      class="input input-bordered input-disabled">{pathInfo.bucket}/{pathInfo.path(
+        $form.year,
+        $form.folder,
+      )}/{$form.name}</pre>
   {/if}
 
   <button type="submit" form="upload-file" class="btn btn-primary">
