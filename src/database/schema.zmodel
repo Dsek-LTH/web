@@ -545,6 +545,7 @@ model Member {
   @@allow('create', has(auth().policies, "core:member:create"))
   @@allow('create', auth().studentId == studentId)
   @@allow('read', has(auth().policies, "core:member:read"))
+  @@allow('read', auth().studentId == studentId)
   @@allow('update', auth().studentId == studentId)
   @@allow('update', has(auth().policies, "core:member:update"))
   @@allow('delete', has(auth().policies, "core:member:delete"))

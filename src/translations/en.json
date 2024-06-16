@@ -321,6 +321,8 @@
   "onboarding_errors_studentIDNotFound": "Student ID not found",
   "onboarding_firstName": "First name",
   "onboarding_lastName": "Last name",
+  "onboarding_email": "Email",
+  "onboarding_emailPlaceholder": "firstname.lastname.id@user.dsek.se",
   "onboarding_foodPreference": "Food preference",
   "onboarding_foodPreferencePlaceholder": "Vegetarian, lactose, gluten, eggs, nuts, etc.",
   "onboarding_programme": "Programme",

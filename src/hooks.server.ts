@@ -48,6 +48,7 @@ const authHandle = SvelteKitAuth({
         token.group_list = user?.group_list ?? [];
         token.access_token = user?.access_token;
         token.id_token = user?.id_token;
+        token.email = user.email;
       }
       return token;
     },
@@ -56,6 +57,7 @@ const authHandle = SvelteKitAuth({
       if ("token" in params && params.session?.user) {
         const { token } = params;
         session.user.student_id = token.student_id;
+        session.user.email = token.email;
         session.user.group_list = token.group_list;
       }
       return session;
@@ -119,21 +121,22 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
       externalCode: externalCode,
     };
   } else {
-    const memberQuery = await prisma.member.findUnique({
+    const existingMember = await prisma.member.findUnique({
       where: { studentId: session.user.student_id },
     });
-    const member = memberQuery
-      ? memberQuery
-      : await prisma.member.create({
-          data: {
-            studentId: session.user.student_id,
-            firstName: session.user.name?.split(" ")[0],
-          },
-        });
+    const member =
+      existingMember ||
+      (await prisma.member.create({
+        data: {
+          studentId: session.user.student_id,
+          firstName: session.user.name?.split(" ")[0],
+          email: session.user.email,
+        },
+      }));
 
     if (
       event.url.pathname != "/onboarding" &&
-      (!member.classProgramme || !member.classYear)
+      (!member.classProgramme || !member.classYear) // consider adding email here, but make sure to fix onboarding as well
     ) {
       redirect(302, i18n.resolveRoute("/onboarding"));
     }
