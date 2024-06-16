@@ -352,6 +352,12 @@
   "members_programme": "Program",
   "members_year": "År",
   "members_foodPreference": "Matpreferens",
+  "members_pictureChanged": "Bild ändrad",
+  "members_pictureUploaded": "Bild uppladdad",
+  "members_pictureRemoved": "Bild borttagen",
+  "members_uploadNew": "Ladda upp ny",
+  "members_profilePictureOption": "Profilbildsalternativ",
+  "members_selectedProfilePictureOption": "Valt profilbildsalternativ",
 
   "members_errors_notLoggedIn": "Ej inloggad",
   "members_errors_memberNotFound": "Kunde inte hitta medlem",
@@ -362,5 +368,7 @@
   "members_errors_receiverNotFound": "Kunde inte hitta mottagaren",
   "members_errors_couldntPing": "Kunde inte pinga. Fel: {e}",
   "members_errors_memberDoesntExist": "Medlemmen existerar inte",
-  "members_errors_failedToFindMember": "Mislyckades att hitta medlemmen. Fel: {e}"
+  "members_errors_failedToFindMember": "Mislyckades att hitta medlemmen. Fel: {e}",
+  "members_errors_invalidPicture": "Ogiltig bild",
+  "members_errors_couldntUploadFile": "Kunde inte ladda up bild"
 }

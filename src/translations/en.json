@@ -354,6 +354,12 @@
   "members_programme": "Programme",
   "members_year": "Year",
   "members_foodPreference": "Food preference",
+  "members_pictureChanged": "Picture changed",
+  "members_pictureUploaded": "Picture uploaded",
+  "members_pictureRemoved": "Picture removed",
+  "members_uploadNew": "Upload new",
+  "members_profilePictureOption": "Profile picture option",
+  "members_selectedProfilePictureOption": "Selected profile picture option",
 
   "members_errors_notLoggedIn": "Not logged in",
   "members_errors_memberNotFound": "Member not found",
@@ -364,5 +370,7 @@
   "members_errors_receiverNotFound": "Receiver not found",
   "members_errors_couldntPing": "Couldn't ping. Error: {e}",
   "members_errors_memberDoesntExist": "Member does not exist",
-  "members_errors_failedToFindMember": "Failed to find member. Error: {e}"
+  "members_errors_failedToFindMember": "Failed to find member. Error: {e}",
+  "members_errors_invalidPicture": "Invalid picture",
+  "members_errors_couldntUploadFile": "Couldn't upload file"
 }
