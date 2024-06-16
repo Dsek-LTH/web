@@ -3,6 +3,7 @@
   import type { SuperValidated } from "sveltekit-superforms";
   import type { UpdateMandateSchema } from "./+page.server";
   import { superForm } from "sveltekit-superforms/client";
+  import * as m from "$paraglide/messages";
   export let data: SuperValidated<UpdateMandateSchema>;
   export let mandateId: string;
   const { form, errors, constraints, enhance } = superForm(data);
@@ -15,7 +16,7 @@
   class="form-control my-2 flex-row items-end gap-2"
 >
   <input type="hidden" name="mandateId" value={mandateId} />
-  <Labeled label="Start">
+  <Labeled label={m.positions_startDate()}>
     <input
       name="startDate"
       id="startDate"
@@ -28,7 +29,7 @@
       <p class="text-error">{$errors.startDate}</p>
     {/if}
   </Labeled>
-  <Labeled label="End">
+  <Labeled label={m.positions_endDate()}>
     <input
       name="endDate"
       id="endDate"
@@ -41,5 +42,5 @@
       <p class="text-error">{$errors.endDate}</p>
     {/if}
   </Labeled>
-  <button type="submit" class="btn btn-secondary">Spara</button>
+  <button type="submit" class="btn btn-secondary">{m.positions_save()}</button>
 </form>

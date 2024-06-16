@@ -326,5 +326,28 @@
   "onboarding_year": "År",
   "onboarding_save": "Spara",
   "onboarding_welcome": "Välkommen",
-  "onboarding_fillInInfoBelow": "Fyll i dina uppgifter nedan"
+  "onboarding_fillInInfoBelow": "Fyll i dina uppgifter nedan",
+
+  "positions_startDate": "Startdatum",
+  "positions_endDate": "Slutdatum",
+  "positions_save": "Spara",
+  "positions_searchForMember": "Sök efter medlem",
+  "positions_positionUpdated": "Post uppdaterad",
+  "positions_newMandateGivenTo": "Nytt manadat givet till {name}",
+  "positions_mandateUpdated": "{names} mandat har uppdaterats",
+  "positions_mandateRemoved": "{names} mandat har tagits bort",
+  "positions_addMandate": "Lägg till mandat",
+  "positions_cancel": "Avbryt",
+  "positions_edit": "Redigera",
+  "positions_stopEditing": "Sluta redigera",
+  "positions_theFollowingAddresses": "Följande adresser leder också till posten:",
+  "positions_name": "Namn",
+  "positions_description": "Beskrivning",
+  "positions_emailAddress": "Mejladress",
+  "positions_emailNotice": "Det här ändrar inte mejlservern, utan säger bara vilken som är den primära mejladressen för den här posten.",
+  "positions_theMember": "Medlemmen",
+
+  "positions_errors_mandateNotFound": "Kunde inte hitta mandatet",
+  "positions_errors_positionNotFound": "Kunde inte hitta posten",
+  "positions_errors_memberNotFound": "Kunde inte hitta medlem"
 }

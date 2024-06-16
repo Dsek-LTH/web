@@ -327,5 +327,28 @@
   "onboarding_year": "Year",
   "onboarding_save": "Save",
   "onboarding_welcome": "Welcome",
-  "onboarding_fillInInfoBelow": "Fill in your information below"
+  "onboarding_fillInInfoBelow": "Fill in your information below",
+
+  "positions_startDate": "Start date",
+  "positions_endDate": "End date",
+  "positions_save": "Save",
+  "positions_searchForMember": "Search for member",
+  "positions_positionUpdated": "Position updated",
+  "positions_newMandateGivenTo": "New mandate given to {name}",
+  "positions_mandateUpdated": "{names} mandate has been updated",
+  "positions_mandateRemoved": "{names} mandate has been removed",
+  "positions_addMandate": "Add mandate",
+  "positions_cancel": "Cancel",
+  "positions_edit": "Edit",
+  "positions_stopEditing": "Stop editing",
+  "positions_theFollowingAddresses": "The following addresses also lead to this position",
+  "positions_name": "Name",
+  "positions_description": "Description",
+  "positions_emailAddress": "Email address",
+  "positions_emailNotice": "This does not affect the email server, it just denotes which one is the primary address for this position.",
+  "positions_theMember": "The member",
+
+  "positions_errors_mandateNotFound": "Mandate not found",
+  "positions_errors_positionNotFound": "Position not found",
+  "positions_errors_memberNotFound": "Member not found"
 }
