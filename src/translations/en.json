@@ -336,5 +336,9 @@
   "songbook_category": "Category",
   "songbook_categoryExplanation": "Search for a category or enter a new one",
   "songbook_lyrics": "Lyrics",
-  "songbook_create": "Create"
+  "songbook_create": "Create",
+  "songbook_disclaimer": "Observe that this is only an archive and not the official song book. The D-guild considers the archiving of songs important, but does not take a stance on the songs' character and does not comment on the content of particular songs.",
+  "songbook_createNewSong": "Create new song",
+  "songbook_hereYoullFind": "Here you'll find all the song that exist in the D-guild's digital song archive!",
+  "songbook_showDeleted": "Show only deleted songs"
 }
