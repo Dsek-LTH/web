@@ -13,7 +13,7 @@
   let isEditing = false;
 
   const currentYear = new Date().getFullYear();
-  let type = "board-meeting";
+  let type: DocumentType = "board-meeting";
   const typeOptions: Array<{ name: string; value: DocumentType }> = [
     {
       name: "Guild Meetings",
@@ -33,7 +33,7 @@
     },
   ];
   $: meetings = Object.keys(data.meetings).sort((a, b) =>
-    type === "board-meeting"
+    type === "board-meeting" || type === "SRD-meeting"
       ? b.localeCompare(a, "sv")
       : a.localeCompare(b, "sv"),
   );
