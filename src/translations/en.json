@@ -322,7 +322,7 @@
   "onboarding_firstName": "First name",
   "onboarding_lastName": "Last name",
   "onboarding_foodPreference": "Food preference",
-  "onboarding_foodPreferencePlaceholder": "Vegitarian, lactose, gluten, mushrooms...",
+  "onboarding_foodPreferencePlaceholder": "Vegetarian, lactose, gluten, eggs, nuts, etc.",
   "onboarding_programme": "Programme",
   "onboarding_year": "Year",
   "onboarding_save": "Save",
