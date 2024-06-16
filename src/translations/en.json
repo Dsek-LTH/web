@@ -343,5 +343,23 @@
   "songbook_showDeleted": "Show only deleted songs",
   "songbook_deleted": "Deleted",
   "songbook_deletedExplanation": "You have access for reading the song and restoring it",
-  "songbook_missingCategory": "Missing category"
+  "songbook_missingCategory": "Missing category",
+  "songbook_edit": "Edit",
+  "songbook_missingTitle": "Missing title",
+  "songbook_missingLyrics": "Missing lyrics",
+  "songbook_missingCategory": "Missing category",
+  "songbook_missingMelody": "Missing melody",
+  "songbook_songUpdated": "Song updated",
+  "songbook_songRemoved": "Song removed",
+  "songbook_songRestored": "Song restored",
+  "songbook_cancel": "Cancel",
+  "songbook_removeSong": "Remove song",
+  "songbook_restoreFromGarbageCan": "Restore from garbage can",
+  "songbook_areYouSure": "Are you sure you want to remove the song ",
+  "songbook_remove": "Remove",
+  "songbook_save": "Save",
+
+  "songbook_errors_songNotFound": "Song not found",
+  "songbook_errors_missingId": "Missing ID",
+  "songbook_errors_invalidID": "Invalid ID"
 }

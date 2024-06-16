@@ -342,5 +342,23 @@
   "songbook_showDeleted": "Visa endast borttagna sånger",
   "songbook_deleted": "Borttagen",
   "songbook_deletedExplanation": "Du har åtkomst till att se sången och återställa den",
-  "songbook_missingCategory": "Kategori saknas"
+  "songbook_missingCategory": "Kategori saknas",
+  "songbook_edit": "Redigera",
+  "songbook_missingTitle": "Titel saknas",
+  "songbook_missingLyrics": "Text saknas",
+  "songbook_missingCategory": "Kategori saknas",
+  "songbook_missingMelody": "Melodi saknas",
+  "songbook_songUpdated": "Sång uppdaterad",
+  "songbook_songRemoved": "Sång borttagen",
+  "songbook_songRestored": "Sång återställd",
+  "songbook_cancel": "Avbryt",
+  "songbook_removeSong": "Ta bort sång",
+  "songbook_restoreFromGarbageCan": "Återställ från papperskorgen",
+  "songbook_areYouSure": "Är du säker på att du vill ta bort sången ",
+  "songbook_remove": "Ta bort",
+  "songbook_save": "Spara",
+
+  "songbook_errors_songNotFound": "Kunde inte hitta sången",
+  "songbook_errors_missingID": "ID saknas",
+  "songbook_errors_invalidID": "Ogiltigt ID"
 }
