@@ -24,5 +24,11 @@
   "workbench.editor.labelFormat": "short", // show filename + route in tab
   "explorer.compactFolders": false, // present folders in explorer as a tree
   "git.inputValidation": true,
-  "git.inputValidationSubjectLength": 50
+  "git.inputValidationSubjectLength": 50,
+  "search.exclude": {
+    "**/.git": true,
+    "**/node_modules": true,
+    "**/.svelte-kit": true,
+    "**/pnpm-lock.yaml": true,
+  },
 }
