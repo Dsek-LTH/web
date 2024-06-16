@@ -174,9 +174,7 @@ const apiHandle = zenstack.SvelteKitHandler({
   },
 });
 
-schedule.scheduleJob("* */24 * * *", () =>
-  keycloak.updateMandate(prismaClient),
-);
+schedule.scheduleJob("* */24 * * *", () => keycloak.sync(prismaClient));
 
 export const handle = sequence(
   authHandle,
