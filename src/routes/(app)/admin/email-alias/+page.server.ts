@@ -10,7 +10,6 @@ import { fail, type Actions } from "@sveltejs/kit";
 import { authorize } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
 import keycloak from "$lib/server/keycloak";
-import { mailAliasUpdateHandler } from "$lib/server/mail/alias/mailAliasUpdateHandler";
 import * as m from "$paraglide/messages";
 export const load: PageServerLoad = async (event) => {
   const { prisma } = event.locals;
@@ -125,7 +124,6 @@ export const actions: Actions = {
         },
       },
     });
-    mailAliasUpdateHandler.handleUpdate();
     return message(form, {
       message: m.admin_emailalias_addressCreated(),
       type: "success",
@@ -203,7 +201,6 @@ export const actions: Actions = {
         keycloakId,
       },
     });
-    mailAliasUpdateHandler.handleUpdate();
     return message(form, {
       message: m.admin_emailalias_addressCreated(),
       type: "success",
@@ -266,7 +263,6 @@ export const actions: Actions = {
         targetEmail,
       },
     });
-    mailAliasUpdateHandler.handleUpdate();
     return message(form, {
       message: m.admin_emailalias_addressCreated(),
       type: "success",
