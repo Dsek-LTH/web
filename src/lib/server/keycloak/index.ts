@@ -144,6 +144,40 @@ async function updateMandate(prisma: PrismaClient) {
   });
 }
 
+async function updateEmails(prisma: PrismaClient) {
+  if (!enabled) return;
+
+  const studentIds = (
+    await prisma.member.findMany({
+      where: {
+        email: null,
+      },
+      select: {
+        studentId: true,
+      },
+    })
+  ).reduce((acc, curr) => {
+    if (curr.studentId) acc.add(curr.studentId);
+    return acc;
+  }, new Set<string>());
+
+  if (!studentIds) return;
+
+  console.log(`updating ${studentIds.size} emails`);
+  const userEmails = await getManyUserEmails(studentIds);
+
+  for (const [studentId, email] of userEmails) {
+    await prisma.member.update({
+      where: {
+        studentId,
+      },
+      data: {
+        email,
+      },
+    });
+  }
+}
+
 // To reduce the amount of requests to Keycloak,
 // we fetch all emails for all users in one request
 // and then filter out the ones we need
@@ -187,13 +221,27 @@ async function getEmail(username: string) {
   if (user.length === 1) return user[0]?.email;
 }
 
+/**
+ * This function exists to keep Keycloak's
+ * database in sync with the Prisma database.
+ * It should be run periodically.
+ *
+ * Note that this function is currently incomplete since:
+ * 1. It is not bi-directional: mandates are pushed and emails are pulled.
+ * 2. It doesn't sync everything: member names, `dsek.styr`, etc?
+ */
+async function sync(prisma: PrismaClient) {
+  updateMandate(prisma);
+  updateEmails(prisma);
+}
+
 export default {
   addMandate,
   deleteMandate,
-  updateMandate,
   getUserId,
   getManyUserEmails,
   hasUsername,
   hasEmail,
   getEmail,
+  sync,
 };
