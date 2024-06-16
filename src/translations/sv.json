@@ -207,7 +207,7 @@
   "admin_emailalias_edit": "Redigera",
   "admin_emailalias_emailAddress": "Mejladress",
   "admin_emailalias_emailAliases": "Mejlaliaser",
-  "admin_emailalias_invailidAddress": "Ogiltig mejladress",
+  "admin_emailalias_invalidAddress": "Ogiltig mejladress",
   "admin_emailalias_invalidDomain": "Ogiltig domän",
   "admin_emailalias_nonexistentPosition": "Posten finns inte",
   "admin_emailalias_position": "Post",
