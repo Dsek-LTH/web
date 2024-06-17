@@ -3,6 +3,7 @@
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import { getFullName } from "$lib/utils/client/member";
   import type { Member } from "@prisma/client";
+  import * as m from "$paraglide/messages";
   export let member: Member | undefined = undefined;
   let isSearching: boolean;
   let handleSearch: (search: string) => void;
@@ -27,7 +28,7 @@
       autocapitalize="off"
       type="text"
       class="input input-bordered w-full {member ? 'indent-10' : ''}"
-      placeholder="Sök efter medlem"
+      placeholder={m.positions_searchForMember()}
       tabIndex={0}
       value={member ? getFullName(member) : ""}
       on:input={(e) => {
