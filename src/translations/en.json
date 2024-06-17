@@ -329,5 +329,11 @@
   "onboarding_year": "Year",
   "onboarding_save": "Save",
   "onboarding_welcome": "Welcome",
-  "onboarding_fillInInfoBelow": "Fill in your information below"
+  "onboarding_fillInInfoBelow": "Fill in your information below",
+
+  "medals": "Medals",
+  "medals_since": "Since",
+  "medals_committeeMedal": "Committee medal",
+  "medals_volunteerMedal": "Volunteer medal",
+  "medals_gammalOchÄcklig": "Gammal && Äcklig"
 }

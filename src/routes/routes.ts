@@ -81,6 +81,12 @@ export const getRoutes = () => [
         icon: "i-mdi-library-music",
         accessRequired: null,
       },
+      {
+        title: m.medals(),
+        path: "/medals",
+        icon: "i-mdi-medal",
+        accessRequired: null,
+      },
     ],
   },
   {

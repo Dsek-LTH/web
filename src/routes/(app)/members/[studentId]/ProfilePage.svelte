@@ -16,6 +16,7 @@
   import PingButton from "./PingButton.svelte";
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
+  import Medals from "./Medals.svelte";
   export let data: PageData;
 
   $: member = data.viewedMember;
@@ -117,9 +118,17 @@
     </div>
   </section>
 
-  {#if data.doorAccess.length > 0}
+  {#if data.medals.length > 0}
     <section
       class="col-span-2 md:col-start-1 md:col-end-4 md:row-start-3 lg:col-end-3"
+    >
+      <Medals medals={data.medals} />
+    </section>
+  {/if}
+
+  {#if data.doorAccess.length > 0}
+    <section
+      class="col-span-2 md:col-start-1 md:col-end-4 md:row-start-4 lg:col-end-3"
     >
       <DoorAccess doorAccess={data.doorAccess} />
     </section>
