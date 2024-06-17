@@ -33,7 +33,7 @@
               <details>
                 <summary class="active:!bg-primary/10">
                   {#if route.isDsekIcon}
-                    <DsekLogo className="size-6 text-primary" />
+                    <DsekLogo class="size-6 text-primary" />
                   {:else}
                     <span class={`${route.icon} size-6 text-primary`} />
                   {/if}
@@ -65,7 +65,7 @@
                 class="active:!bg-primary/10"
               >
                 {#if route.isDsekIcon}
-                  <DsekLogo className="size-6 text-primary" />
+                  <DsekLogo class="size-6 text-primary" />
                 {:else}
                   <span class={`${route.icon} size-6 text-primary`} />
                 {/if}

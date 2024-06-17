@@ -1,0 +1,25 @@
+/* Here you will find styles that are specific to the /nolla pages. */
+
+@tailwind utilities;
+
+@layer utilities {
+  .box-shadow-black {
+    box-shadow: 4px 4px 0 0 black;
+  }
+
+  .box-shadow-black-lg {
+    box-shadow: 8px 8px 0 0 black;
+  }
+}
+
+:root {
+  --navbar-size: 144px; /* h-36 is 144px */
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+[data-theme="nollningPreReveal"] {
+  color-scheme: light;
+}
