@@ -2,15 +2,25 @@
   import { getFullName } from "$lib/utils/client/member";
   import type { Member } from "@prisma/client";
   import AuthorSignature from "$lib/components/AuthorSignature.svelte";
+  import * as m from "$paraglide/messages";
 
   let modal: HTMLDialogElement;
   export let likers: Member[];
   $: likersText =
-    likers.length > 2
-      ? `${getFullName(likers[0]!)}, ${getFullName(likers[1]!)} och ${
-          likers.length - 2
-        } andra`
-      : `${likers.map((m) => getFullName(m)).join(" och ")}`;
+    likers.length > 0
+      ? likers.length === 1
+        ? getFullName(likers[0]!)
+        : likers.length > 2
+          ? m.news_threeOrMore({
+              name1: getFullName(likers[0]!),
+              name2: getFullName(likers[1]!),
+              others: likers.length - 2,
+            })
+          : m.news_two({
+              name1: getFullName(likers[0]!),
+              name2: getFullName(likers[1]!),
+            })
+      : "";
 </script>
 
 {#if likers.length > 0}
@@ -18,7 +28,7 @@
     on:click|preventDefault={() => modal.showModal()}
     class="link text-sm opacity-40 hover:opacity-60"
   >
-    {likersText} gillar detta
+    {m.news_likesThis({ x: likersText })}
   </button>
   <dialog id="likers_modal" class="modal" bind:this={modal}>
     <ul class="modal-box m-1 flex flex-col">

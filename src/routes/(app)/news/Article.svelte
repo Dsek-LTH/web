@@ -1,6 +1,8 @@
 <script lang="ts">
   import type { Article } from "@prisma/client";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
+  import * as m from "$paraglide/messages";
+  import { languageTag } from "$paraglide/runtime";
 
   export let article: Article;
 </script>
@@ -23,7 +25,9 @@
 <section class="flex flex-row items-center justify-between">
   <slot name="tags" />
   <p class="my-4 text-sm text-gray-600">
-    Publicerad {article.publishedAt?.toLocaleDateString("sv")}
+    {m.news_published({
+      date: article.publishedAt?.toLocaleDateString(languageTag()) ?? "???",
+    })}
   </p>
 </section>
 

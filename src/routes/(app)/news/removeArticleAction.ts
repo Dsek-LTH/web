@@ -4,6 +4,7 @@ import { error, fail, type RequestEvent } from "@sveltejs/kit";
 import { redirect } from "$lib/utils/redirect";
 import { superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
+import * as m from "$paraglide/messages";
 
 export const removeArticleSchema = z.object({
   articleId: z.string(),
@@ -24,7 +25,7 @@ export const removeArticleAction =
       },
     });
 
-    if (!existingArticle) return error(404, "Article not found");
+    if (!existingArticle) return error(404, m.news_errors_articleNotFound());
 
     await prisma.article.update({
       where: {
@@ -38,7 +39,7 @@ export const removeArticleAction =
     throw redirect(
       "/news",
       {
-        message: "Artikel raderad",
+        message: m.news_articleDeleted(),
         type: "success",
       },
       event,

@@ -11,11 +11,12 @@
   import AuthorSignature from "$lib/components/AuthorSignature.svelte";
   import type { AuthorOption } from "./articles.js";
   import type { ArticleSchema } from "./schema";
+  import * as m from "$paraglide/messages";
 
   export let data: SuperValidated<ArticleSchema>;
   export let authorOptions: AuthorOption[];
   export let allTags: Tag[];
-  let submitting = false;
+  let publishing = false;
   const { form, errors, constraints, enhance } = superForm(data, {
     dataType: "json",
   });
@@ -38,17 +39,17 @@
       <slot name="form-start" />
       <Input
         name="header"
-        label="Header"
+        label={m.news_header()}
         bind:value={$form.header}
         {...$constraints.header}
         error={$errors.header}
       />
-      <Labeled label="Description" error={$errors.body}>
+      <Labeled label={m.news_description()} error={$errors.body}>
         <MarkdownEditor bind:value={$form.body} {...$constraints.body} />
       </Labeled>
       <Labeled
-        label="Författare"
-        error={$errors.author !== undefined ? "Ogitlig författare" : ""}
+        label={m.news_author()}
+        error={$errors.author !== undefined ? m.news_invalidAuthor() : ""}
       >
         <select
           id="author"
@@ -76,21 +77,21 @@
         </select>
       </Labeled>
       <Labeled
-        label="Taggar"
-        error={$errors.tags !== undefined ? "Ogitliga taggar" : ""}
+        label={m.news_tags()}
+        error={$errors.tags !== undefined ? m.news_invalidTags() : ""}
       >
         <TagSelector {allTags} bind:selectedTags={$form.tags} />
       </Labeled>
       <slot name="form-end" />
       <!-- <button type="submit" disabled style="display: none" aria-hidden="true" /> -->
-      <button type="submit" disabled={submitting} class="btn btn-primary mt-4">
-        {submitting ? "Submitting..." : "Submit"}
+      <button type="submit" disabled={publishing} class="btn btn-primary mt-4">
+        {publishing ? m.news_publishing() : m.news_publish()}
       </button>
     </form>
     <slot name="error" />
   </section>
   <section>
-    <span class="italic">Preview</span>
+    <span class="italic">{m.news_preview()}</span>
     <Article
       article={{
         id: "",

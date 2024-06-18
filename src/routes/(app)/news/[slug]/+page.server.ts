@@ -16,13 +16,14 @@ import {
   removeArticleAction,
   removeArticleSchema,
 } from "../removeArticleAction";
+import * as m from "$paraglide/messages";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
   const article = await getArticle(prisma, params.slug);
   if (article == undefined) {
     throw error(404, {
-      message: "Not found",
+      message: m.news_errors_articleNotFound(),
     });
   }
   const allTaggedMembers = await getAllTaggedMembers(prisma, article.comments);

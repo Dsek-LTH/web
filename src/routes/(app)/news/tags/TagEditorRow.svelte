@@ -5,6 +5,7 @@
   import { superForm } from "sveltekit-superforms/client";
   import type { SuperValidated } from "sveltekit-superforms";
   import { onMount } from "svelte";
+  import * as m from "$paraglide/messages";
 
   export let data: SuperValidated<UpdateSchema>;
   export let tag: Tag;
@@ -44,7 +45,7 @@
         class="btn btn-xs px-8"
         type="button"
         on:click={() => (isEditing = !isEditing)}
-        >Edit
+        >{m.news_tags_edit()}
       </button>
     </td>
   {:else}
@@ -78,7 +79,7 @@
           {#if $submitting}
             <span class="loading loading-xs mx-1"></span>
           {:else}
-            Save
+            {m.news_tags_save()}
           {/if}
         </button>
       </form>

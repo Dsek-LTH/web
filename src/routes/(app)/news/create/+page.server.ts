@@ -9,6 +9,7 @@ import { superValidate } from "sveltekit-superforms/client";
 import { getArticleAuthorOptions } from "../articles";
 import { articleSchema } from "../schema";
 import type { Actions, PageServerLoad } from "./$types";
+import * as m from "$paraglide/messages";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma, user } = locals;
@@ -35,7 +36,8 @@ export const load: PageServerLoad = async ({ locals }) => {
       },
     },
   });
-  if (!currentMemberWithMandates) throw error(500, "Member not found");
+  if (!currentMemberWithMandates)
+    throw error(500, m.news_errors_memberNotFound());
   const authorOptions = await getArticleAuthorOptions(
     prisma,
     currentMemberWithMandates,
@@ -132,7 +134,7 @@ export const actions: Actions = {
     throw redirect(
       `/news/${result.slug}`,
       {
-        message: "Nyhet skapad",
+        message: m.news_articleCreated(),
         type: "success",
       },
       event,

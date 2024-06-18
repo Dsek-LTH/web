@@ -1,12 +1,13 @@
 <script lang="ts">
   import ArticleEditor from "../ArticleEditor.svelte";
+  import * as m from "$paraglide/messages";
 
   import type { PageData } from "./$types";
   export let data: PageData;
 </script>
 
 <svelte:head>
-  <title>Skapa nyhet | D-sektionen</title>
+  <title>{m.news_createArticle()} | D-sektionen</title>
 </svelte:head>
 
 <ArticleEditor

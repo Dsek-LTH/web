@@ -7,6 +7,7 @@
   import type { Tag } from "@prisma/client";
   import { isAuthorized } from "$lib/utils/authorization";
   import SmallArticleCard from "./SmallArticleCard.svelte";
+  import * as m from "$paraglide/messages";
   export let data: PageData;
 
   import type { PageData } from "./$types";
@@ -18,7 +19,7 @@
 </script>
 
 <svelte:head>
-  <title>Nyheter | D-sektionen</title>
+  <title>{m.news()} | D-sektionen</title>
 </svelte:head>
 
 <div class="space-y-4">
@@ -39,10 +40,10 @@
         <input type="hidden" name="tags" value={tag.name} />
       {/each}
       {#if isAuthorized(apiNames.TAGS.CREATE, data.user) || isAuthorized(apiNames.TAGS.UPDATE, data.user)}
-        <a class="btn" href="/news/tags">Tags</a>
+        <a class="btn" href="/news/tags">{m.news_tags()}</a>
       {/if}
       {#if isAuthorized(apiNames.NEWS.CREATE, data.user)}
-        <a class="btn btn-primary" href="/news/create">+ Create</a>
+        <a class="btn btn-primary" href="/news/create">+ {m.news_create()}</a>
       {/if}
     </form>
   </section>
