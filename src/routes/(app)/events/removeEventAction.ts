@@ -4,6 +4,7 @@ import { error, fail, type RequestEvent } from "@sveltejs/kit";
 import { redirect } from "$lib/utils/redirect";
 import { superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
+import * as m from "$paraglide/messages";
 
 export const removeEventSchema = z.object({
   eventId: z.string(),
@@ -26,7 +27,7 @@ export const removeEventAction =
       },
     });
 
-    if (!existingEvent) return error(404, "Event not found");
+    if (!existingEvent) return error(404, m.events_errors_eventNotFound());
 
     if (form.data.removeAll) {
       await prisma.event.updateMany({
@@ -40,7 +41,7 @@ export const removeEventAction =
       throw redirect(
         "/events",
         {
-          message: "Event raderade",
+          message: m.events_eventsDeleted(),
           type: "success",
         },
         event,
@@ -57,7 +58,7 @@ export const removeEventAction =
       throw redirect(
         "/events",
         {
-          message: "Event raderat",
+          message: m.events_eventDeleted(),
           type: "success",
         },
         event,

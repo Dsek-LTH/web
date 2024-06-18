@@ -12,13 +12,14 @@ import type { Actions, PageServerLoad } from "./$types";
 import { isAuthorized } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
 import { removeEventAction, removeEventSchema } from "../removeEventAction";
+import * as m from "$paraglide/messages";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
   const event = await getEvent(prisma, params.slug);
   if (event == undefined) {
     throw error(404, {
-      message: "Not found",
+      message: m.events_errors_eventNotFound(),
     });
   }
   const allTaggedMembers = await getAllTaggedMembers(prisma, event.comments);

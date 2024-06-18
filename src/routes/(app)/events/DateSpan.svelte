@@ -1,5 +1,6 @@
 <script lang="ts">
   import { relativeDate } from "$lib/utils/client/datetime";
+  import { languageTag } from "$paraglide/runtime";
 
   export let start: Date;
   export let end: Date | undefined = undefined;
@@ -8,17 +9,17 @@
 <div class="text-primary">
   {#if end == undefined}
     <span class="font-semibold">{relativeDate(start)}</span> <br />
-    {start?.toLocaleTimeString(["sv"], {
+    {start?.toLocaleTimeString([languageTag()], {
       hour: "2-digit",
       minute: "2-digit",
     })}
   {:else if Math.abs(start.valueOf() - end.valueOf()) < 24 * 60 * 60 * 1000}
     <span class="font-semibold">{relativeDate(start)}</span> <br />
-    {start?.toLocaleTimeString(["sv"], {
+    {start?.toLocaleTimeString([languageTag()], {
       hour: "2-digit",
       minute: "2-digit",
     })} →
-    {end?.toLocaleTimeString(["sv"], {
+    {end?.toLocaleTimeString([languageTag()], {
       hour: "2-digit",
       minute: "2-digit",
     })}
@@ -26,7 +27,7 @@
     <div class="flex flex-row items-center gap-4">
       <div>
         <span class="font-semibold">{relativeDate(start)}</span> <br />
-        {start?.toLocaleTimeString(["sv"], {
+        {start?.toLocaleTimeString([languageTag()], {
           hour: "2-digit",
           minute: "2-digit",
         })}
@@ -34,7 +35,7 @@
       →
       <div>
         <span class="font-semibold">{relativeDate(end)}</span> <br />
-        {end?.toLocaleTimeString(["sv"], {
+        {end?.toLocaleTimeString([languageTag()], {
           hour: "2-digit",
           minute: "2-digit",
         })}

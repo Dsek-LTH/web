@@ -1,6 +1,7 @@
 import { recurringTypes } from "$lib/utils/events";
 import { tagSchema } from "$lib/zod/schemas";
 import { z } from "zod";
+import * as m from "$paraglide/messages";
 
 export const eventSchema = z
   .object({
@@ -28,7 +29,7 @@ export const eventSchema = z
       data.startDatetime < data.endDatetime &&
       (!data.isRecurring || data.startDatetime < data.recurringEndDatetime),
     {
-      message: "End must be after start",
+      message: m.events_errors_endAfterStart(),
       path: ["endDatetime"],
     },
   );

@@ -6,6 +6,7 @@
   import type { InterestedGoingSchema } from "./interestedGoing";
   import type { EventWithIncludes } from "./events";
   import type { SuperValidated } from "sveltekit-superforms";
+  import { languageTag } from "$paraglide/runtime";
 
   export let event: EventWithIncludes;
   export let interestedGoingForm: SuperValidated<InterestedGoingSchema>;
@@ -24,18 +25,20 @@
 
   <div class="flex flex-col p-8">
     <a href="/events/{event.slug}">
-      <h2 class="text-2xl font-bold">{event.title}</h2>
+      <h2 class="text-2xl font-bold">
+        {languageTag() === "en" && event.titleEn ? event.titleEn : event.title}
+      </h2>
     </a>
 
     <section class="text-primary">
       {#if Math.abs(event.startDatetime.valueOf() - event.endDatetime.valueOf()) < 24 * 60 * 60 * 1000}
         <span class="font-semibold">{relativeDate(event.startDatetime)}</span>
         <br />
-        {event.startDatetime?.toLocaleTimeString(["sv"], {
+        {event.startDatetime?.toLocaleTimeString([languageTag()], {
           hour: "2-digit",
           minute: "2-digit",
         })} →
-        {event.endDatetime?.toLocaleTimeString(["sv"], {
+        {event.endDatetime?.toLocaleTimeString([languageTag()], {
           hour: "2-digit",
           minute: "2-digit",
         })}
@@ -46,7 +49,7 @@
               >{relativeDate(event.startDatetime)}</span
             >
             <br />
-            {event.startDatetime?.toLocaleTimeString(["sv"], {
+            {event.startDatetime?.toLocaleTimeString([languageTag()], {
               hour: "2-digit",
               minute: "2-digit",
             })}
@@ -55,7 +58,7 @@
           <div>
             <span class="font-semibold">{relativeDate(event.endDatetime)}</span>
             <br />
-            {event.endDatetime?.toLocaleTimeString(["sv"], {
+            {event.endDatetime?.toLocaleTimeString([languageTag()], {
               hour: "2-digit",
               minute: "2-digit",
             })}

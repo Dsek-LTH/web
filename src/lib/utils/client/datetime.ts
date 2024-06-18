@@ -1,5 +1,7 @@
+import { languageTag } from "$paraglide/runtime";
+
 export const relativeDate = (date: Date) => {
-  const formatter = new Intl.RelativeTimeFormat("sv", {
+  const formatter = new Intl.RelativeTimeFormat(languageTag(), {
     numeric: "auto",
   });
   const diff = date.getTime() - Date.now();
@@ -12,13 +14,13 @@ export const relativeDate = (date: Date) => {
   if (Math.abs(hours) < 24) return formatter.format(hours, "hour");
   if (Math.abs(days) < 3) return formatter.format(days, "day");
   if (date.getFullYear() == new Date(Date.now()).getFullYear())
-    return date.toLocaleDateString("sv", {
+    return date.toLocaleDateString(languageTag(), {
       weekday: "long",
       day: "numeric",
       month: "long",
     });
 
-  return date.toLocaleDateString("sv", {
+  return date.toLocaleDateString(languageTag(), {
     weekday: "long",
     day: "numeric",
     month: "long",
