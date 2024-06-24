@@ -45,7 +45,12 @@ export const load = async ({ locals, params }) => {
     // author can always manage
     authorize(apiNames.WEBSHOP.MANAGE, user);
   }
-  const consumables = ticket.shoppable.consumables;
+  const purchasedConsumables = ticket.shoppable.consumables.filter(
+    (c) => c.purchasedAt !== null,
+  );
+  const consumablesInCart = ticket.shoppable.consumables.filter(
+    (c) => c.purchasedAt === null,
+  );
   const reservations = ticket.shoppable.reservations;
   const shoppable: Omit<Shoppable, "consumables" | "reservations"> & {
     consumables?: unknown;
@@ -67,9 +72,10 @@ export const load = async ({ locals, params }) => {
     : "https://dashboard.stripe.com/payments";
   return {
     ticket: mergedTicket as ManagedTicket,
-    consumables,
+    purchasedConsumables,
+    consumablesInCart,
     reservations,
-    stripeIntentBaseUrl,
+    stripeIntentBaseUrl, // referenced directly in ConsumableRow.svelte
   };
 };
 
