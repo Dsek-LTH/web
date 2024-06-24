@@ -202,6 +202,7 @@ const addReservationInReserveWindow = async (
   const existingReservation = await prisma.consumableReservation.findFirst({
     where: {
       ...id,
+      shoppableId,
     },
   });
   if (existingReservation)
