@@ -1,6 +1,6 @@
 <script lang="ts">
   import DoorAccess from "./DoorAccess.svelte";
-
+  import * as m from "$paraglide/messages";
   import { page } from "$app/stores";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
@@ -79,7 +79,7 @@
               href="{$page.params['studentId']}/edit-bio"
               class="btn btn-outline btn-sm"
             >
-              Redigera bio
+              {m.members_editBio()}
             </a>
           </div>
         {/if}
@@ -89,7 +89,7 @@
         href="{$page.params['studentId']}/edit-bio"
         class="btn btn-outline btn-sm"
       >
-        Lägg till bio
+        {m.members_addBio()}
       </a>
     {/if}
   </article>

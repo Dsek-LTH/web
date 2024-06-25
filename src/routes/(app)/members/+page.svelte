@@ -4,6 +4,7 @@
   import Pagination from "$lib/components/Pagination.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import { getFullName } from "$lib/utils/client/member";
+  import * as m from "$paraglide/messages";
 
   export let data;
   $: members = data.members;
@@ -47,7 +48,7 @@
   on:change={async (e) =>
     await goto(`/members/?programme=${e.currentTarget.value}&year=${year}`)}
 >
-  <option value="all">Alla</option>
+  <option value="all">{m.members_all()}</option>
   <option class="text-primary" value="D">D</option>
   <option class="text-secondary" value="C">C</option>
   <option value="VR/AR">VR/AR</option>
@@ -73,11 +74,11 @@
   {/if}
   <p>
     {#if members.length === 0}
-      Inga medlemmar hittades
+      {m.members_noMembers()}
     {:else if members.length > 1}
-      {members.length} medlemmar
+      {m.members_members({ x: members.length })}
     {:else}
-      1 medlem
+      {m.members_oneMember()}
     {/if}
   </p>
 </div>
