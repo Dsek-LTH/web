@@ -5,7 +5,8 @@
   import type { Song } from "@prisma/client";
   import DOMPurify from "isomorphic-dompurify";
   import { twMerge } from "tailwind-merge";
-
+  import * as m from "$paraglide/messages";
+  import { languageTag } from "$paraglide/runtime";
   export let song: Song;
   let clazz = "";
   export { clazz as class };
@@ -18,9 +19,9 @@
   )}
 >
   {#if isAuthorized(apiNames.SONG.DELETE, $page.data.user) && song.deletedAt != null}
-    <p class="text-xl font-bold text-red-500">Borttagen</p>
+    <p class="text-xl font-bold text-red-500">{m.songbook_deleted()}</p>
     <p class="text-sm text-red-300">
-      Du har åtkomst till att se sången och återställa den
+      {m.songbook_deletedExplanation()}
     </p>
   {/if}
 
@@ -31,8 +32,8 @@
     </h2>
 
     <p class="text-right text-xs text-gray-500">
-      {song.createdAt?.toLocaleDateString(["sv"]) ?? ""} <br />
-      {song.createdAt?.toLocaleTimeString(["sv"], {
+      {song.createdAt?.toLocaleDateString([languageTag()]) ?? ""} <br />
+      {song.createdAt?.toLocaleTimeString([languageTag()], {
         hour: "2-digit",
         minute: "2-digit",
       }) ?? ""}
@@ -43,11 +44,11 @@
     {#if song.category}
       {song.category}
     {:else}
-      <i>Kategori saknas</i>
+      <i>{m.songbook_missingCategory()}</i>
     {/if}
   </h3>
 
-  <p class="mb-4 italic">Mel: {song.melody}</p>
+  <p class="mb-4 italic">{m.songbook_melody()}: {song.melody}</p>
   <p class="whitespace-pre-line">
     <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized client-side -->
     {@html DOMPurify.sanitize(song.lyrics)}

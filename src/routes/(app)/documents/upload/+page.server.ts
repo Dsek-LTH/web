@@ -1,10 +1,10 @@
-import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
 import { fileHandler } from "$lib/files";
 import { fail } from "@sveltejs/kit";
 import { message, setError, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
+import { typeToPath } from "./helpers";
 
 const CURRENT_YEAR = new Date().getFullYear();
 
@@ -17,20 +17,9 @@ const prepareNameForFilesystem = (name: string, fileName: string) =>
   name.replace(/\s/g, "_").replace(/[^a-zA-Z0-9_]/g, "") + // replaces spaces with "_" and removes all special characters
   getExtensionOfFile(fileName);
 
-export const load: PageServerLoad = async ({ locals, url }) => {
-  const { user } = locals;
-  const year = url.searchParams.get("year") ?? CURRENT_YEAR;
-  const files = await fileHandler.getInBucket(
-    user,
-    PUBLIC_BUCKETS_DOCUMENTS,
-    `${year}/`,
-    false,
-  );
+export const load: PageServerLoad = async () => {
   const form = await superValidate(uploadSchema);
-  return {
-    files,
-    form,
-  };
+  return { form };
 };
 
 const uploadSchema = z.object({
@@ -59,19 +48,15 @@ export const actions: Actions = {
     }
 
     const formattedName = prepareNameForFilesystem(name, file.name);
-    const folderPath = `${type}/${year}/${folder}`;
+    const { path, bucket } = typeToPath[type];
     // await prisma.meeting.upsert({
     //   where: { url: folderPath },
     //   update: {},
     //   create: { title: meeting, date, url: folderPath },
     // });
 
-    const filePath = `${folderPath}/${formattedName}`;
-    const putUrl = await fileHandler.getPresignedPutUrl(
-      user,
-      PUBLIC_BUCKETS_DOCUMENTS,
-      filePath,
-    );
+    const filePath = `${path(year, folder)}/${formattedName}`;
+    const putUrl = await fileHandler.getPresignedPutUrl(user, bucket, filePath);
     const res = await fetch(putUrl, {
       method: "PUT",
       body: file,

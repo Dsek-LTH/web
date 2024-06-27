@@ -3,6 +3,7 @@ import { redirect } from "$lib/utils/redirect";
 import { updateSongSchema } from "../../schema";
 import { setError, superValidate } from "sveltekit-superforms/server";
 import type { Actions, PageServerLoad } from "./$types";
+import * as m from "$paraglide/messages";
 
 export const load: PageServerLoad = async () => {
   const form = await superValidate(updateSongSchema);
@@ -18,16 +19,16 @@ export const actions: Actions = {
     if (!form.valid) return fail(400, { form });
     const data = form.data;
     if (data.title == null) {
-      return setError(form, "title", "Titel saknas");
+      return setError(form, "title", m.songbook_missingTitle());
     }
     if (data.lyrics == null) {
-      return setError(form, "lyrics", "Text saknas");
+      return setError(form, "lyrics", m.songbook_missingLyrics());
     }
     if (data.category == null) {
-      return setError(form, "category", "Kategori saknas");
+      return setError(form, "category", m.songbook_missingCategory());
     }
     if (data.melody == null) {
-      return setError(form, "melody", "Melodi saknas");
+      return setError(form, "melody", m.songbook_missingMelody());
     }
     const updatedSong = await prisma.song.update({
       where: {
@@ -44,7 +45,7 @@ export const actions: Actions = {
     throw redirect(
       encodeURI(`/songbook/${updatedSong.slug}`),
       {
-        message: "Sång uppdaterad",
+        message: m.songbook_songUpdated(),
         type: "success",
       },
       event,
@@ -58,12 +59,12 @@ export const actions: Actions = {
     const id = data.get("id");
     if (id == null) {
       throw error(400, {
-        message: "Missing id",
+        message: m.songbook_errors_missingID(),
       });
     }
     if (typeof id !== "string") {
       throw error(400, {
-        message: "Invalid id",
+        message: m.songbook_errors_invalidID(),
       });
     }
     const song = await prisma.song.update({
@@ -77,7 +78,7 @@ export const actions: Actions = {
     return redirect(
       encodeURI(`/songbook/${song.slug}`),
       {
-        message: "Sång borttagen",
+        message: m.songbook_songRemoved(),
         type: "success",
       },
       event,
@@ -91,12 +92,12 @@ export const actions: Actions = {
     const id = data.get("id");
     if (id == null) {
       throw error(400, {
-        message: "Missing id",
+        message: m.songbook_errors_missingID(),
       });
     }
     if (typeof id !== "string") {
       throw error(400, {
-        message: "Invalid id",
+        message: m.songbook_errors_invalidID(),
       });
     }
     const song = await prisma.song.update({
@@ -110,7 +111,7 @@ export const actions: Actions = {
     return redirect(
       encodeURI(`/songbook/${song.slug}`),
       {
-        message: "Sång återställd",
+        message: m.songbook_songRestored(),
         type: "success",
       },
       event,

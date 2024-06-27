@@ -6,23 +6,9 @@ import {
   getEmailsForManyMembers,
   getAliasToPositions,
 } from "./utils";
-import { mailAliasUpdateHandler } from "$lib/server/mail/alias/mailAliasUpdateHandler";
 
 export const GET: RequestHandler = async ({ locals, setHeaders }) => {
-  setHeaders({
-    "Content-Type": "text/plain; charset=utf-8",
-  });
-  if (
-    mailAliasUpdateHandler.prevResponse !== null &&
-    Date.now() - mailAliasUpdateHandler.lastTimeSince <
-      mailAliasUpdateHandler.cacheDuration &&
-    !mailAliasUpdateHandler.hasReceivedUpdate
-  ) {
-    return new Response(mailAliasUpdateHandler.prevResponse);
-  }
-  mailAliasUpdateHandler.hasReceivedUpdate = false;
-
-  const prisma = locals.prisma;
+  const { prisma } = locals;
 
   // This is the main data structure that we will use to create the response
   // It stores all the positions for a given alias, and the user emails for those positions
@@ -140,8 +126,8 @@ export const GET: RequestHandler = async ({ locals, setHeaders }) => {
     text += "\n";
   }
 
-  // "Cache" the response
-  mailAliasUpdateHandler.prevResponse = text;
-  mailAliasUpdateHandler.lastTimeSince = Date.now();
+  setHeaders({
+    "Content-Type": "text/plain; charset=utf-8",
+  });
   return new Response(text);
 };
