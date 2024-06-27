@@ -9,6 +9,7 @@ import {
   getExistingMelodies,
 } from "../helpers";
 import type { LayoutServerLoad } from "./$types";
+import * as m from "$paraglide/messages";
 
 export const load: LayoutServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
@@ -22,7 +23,7 @@ export const load: LayoutServerLoad = async ({ locals, params }) => {
 
   if (song == null) {
     throw error(404, {
-      message: "Song not found",
+      message: m.songbook_errors_songNotFound(),
     });
   }
 
