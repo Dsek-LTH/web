@@ -141,7 +141,7 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
       event.url.pathname != "/onboarding" &&
       (!member.classProgramme || !member.classYear) // consider adding email here, but make sure to fix onboarding as well
     ) {
-      redirect(302, i18n.resolveRoute("/onboarding"));
+      redirect(302, "/onboarding");
     }
 
     const user = {
@@ -174,6 +174,26 @@ const apiHandle = zenstack.SvelteKitHandler({
   },
 });
 
+const appHandle: Handle = async ({ event, resolve }) => {
+  const userAgent = event.request.headers.get("user-agent");
+  if (userAgent?.startsWith("DSEK-APP") || env.MOCK_IS_APP === "true") {
+    event.locals.isApp = true;
+    const insets = JSON.parse(event.request.headers.get("app-insets") ?? "{}");
+    event.locals.appInfo = {
+      insets: {
+        top: insets?.top ? Number(insets.top) : 0,
+        bottom: insets?.bottom ? Number(insets.bottom) : 0,
+        left: insets?.left ? Number(insets.left) : 0,
+        right: insets?.right ? Number(insets.right) : 0,
+      },
+    };
+  } else {
+    event.locals.isApp = false;
+    event.locals.appInfo = undefined;
+  }
+  return resolve(event);
+};
+
 schedule.scheduleJob("* */24 * * *", () => keycloak.sync(prismaClient));
 
 export const handle = sequence(
@@ -181,4 +201,5 @@ export const handle = sequence(
   i18n.handle(),
   databaseHandle,
   apiHandle,
+  appHandle,
 );

@@ -20,6 +20,15 @@ declare global {
       user: AuthUser;
       member?: Member;
       prisma: PrismaClient;
+      isApp: boolean;
+      appInfo?: {
+        insets: {
+          top: number;
+          bottom: number;
+          left: number;
+          right: number;
+        };
+      };
     }
     interface PageData {
       user?: AuthUser;

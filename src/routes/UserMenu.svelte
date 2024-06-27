@@ -46,7 +46,7 @@
 
       <div class="flex flex-col items-start gap-2">
         <a
-          href={`/members/${user?.studentId}`}
+          href={`/members/me`}
           class="btn btn-ghost w-full justify-start text-base-content"
         >
           <span class="i-mdi-account-circle size-6 text-primary" />

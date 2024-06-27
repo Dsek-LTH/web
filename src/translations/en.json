@@ -460,5 +460,6 @@
   "members_errors_memberDoesntExist": "Member does not exist",
   "members_errors_failedToFindMember": "Failed to find member. Error: {e}",
   "members_errors_invalidPicture": "Invalid picture",
-  "members_errors_couldntUploadFile": "Couldn't upload file"
+  "members_errors_couldntUploadFile": "Couldn't upload file",
+  "members_errors_meNotFound": "You do not have a profile because you are not logged in. You silly goose."
 }

@@ -9,6 +9,8 @@
   import Toast from "../Toast.svelte";
   import dayjs from "dayjs";
   import "dayjs/locale/sv";
+  import AppHeader from "../AppHeader.svelte";
+  import AppBottomNav from "../AppBottomNav.svelte";
 
   $: (() => {
     const locale = languageTag();
@@ -23,10 +25,14 @@
   export let data;
 </script>
 
-<nav class="contents">
-  <Navbar />
-  <Drawer />
-</nav>
+{#if !data.isApp}
+  <nav class="contents">
+    <Navbar />
+    <Drawer />
+  </nav>
+{:else}
+  <AppHeader />
+{/if}
 
 {#each data.alerts as alert}
   <GlobalAlert
@@ -35,9 +41,24 @@
   />
 {/each}
 
-<main class="flex-1">
+<main class="flex-1" class:pb-16={data.isApp}>
   <slot />
 </main>
-
 <Toast />
-<Footer />
+{#if !data.isApp}
+  <Footer />
+{:else}
+  <AppBottomNav />
+
+  <style>
+    /* hide scrollbar everywhere. It's usually not present in apps*/
+
+    * {
+      scrollbar-width: none;
+    }
+
+    *::-webkit-scrollbar {
+      display: none; /* Safari and Chrome */
+    }
+  </style>
+{/if}

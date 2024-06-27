@@ -1,18 +1,18 @@
 <script lang="ts">
   import { page } from "$app/stores";
+  import type { UserShopItemCounts } from "$lib/server/shop/countUserShopItems";
   import { isAuthorized } from "$lib/utils/authorization";
   import type { NotificationSchema } from "$lib/zod/schemas";
+  import * as m from "$paraglide/messages";
   import { signIn } from "@auth/sveltekit/client";
   import type { Notification } from "@prisma/client";
   import type { SuperValidated } from "sveltekit-superforms";
   import DarkLightToggle from "./DarkLightToggle.svelte";
-  import DsekLogo from "./DsekLogo.svelte";
   import LanguageSwitcher from "./LanguageSwitcher.svelte";
+  import NavIcon from "./NavIcon.svelte";
   import NotificationBell from "./NotificationBell.svelte";
   import UserMenu from "./UserMenu.svelte";
   import { getRoutes } from "./routes";
-  import type { UserShopItemCounts } from "$lib/server/shop/countUserShopItems";
-  import * as m from "$paraglide/messages";
   $: notifications = $page.data["notifications"] as Notification[] | null;
   $: deleteNotificationForm = $page.data[
     "deleteNotificationForm"
@@ -45,11 +45,7 @@
               <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
               <!-- svelte-ignore a11y-label-has-associated-control -->
               <label tabindex="0" class="btn btn-ghost">
-                {#if route.isDsekIcon}
-                  <DsekLogo className="size-6 text-primary" />
-                {:else}
-                  <span class={`${route.icon} size-6 text-primary`} />
-                {/if}
+                <NavIcon icon={route.icon} />
                 {route.title}</label
               >
               <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
@@ -64,7 +60,7 @@
                         href={child.path}
                         class="btn-ghost active:!bg-primary/10"
                       >
-                        <span class={`${child.icon} size-6 text-primary`} />
+                        <NavIcon icon={child.icon} />
                         {child.title}</a
                       >
                     </li>
@@ -74,11 +70,7 @@
             </div>
           {:else}
             <a class="btn btn-ghost" href={route.path}>
-              {#if route.isDsekIcon}
-                <DsekLogo className="size-6 text-primary" />
-              {:else}
-                <span class={`${route.icon} size-6 text-primary`} />
-              {/if}
+              <NavIcon icon={route.icon} />
               {route.title}
             </a>
           {/if}

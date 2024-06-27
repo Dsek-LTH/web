@@ -113,13 +113,16 @@ export const load: PageServerLoad = async ({ locals, fetch }) => {
       name: `cafe:open:${new Date().getDay() - 1}`, // we assign monday to 0, not sunday
     },
   });
-  const [news, events, upcomingMeeting, previousMeeting, cafeOpen] =
+
+  const commitPromise = fetch("/api/home").then((res) => res.json());
+  const [news, events, upcomingMeeting, previousMeeting, cafeOpen, commitData] =
     await Promise.allSettled([
       newsPromise,
       eventsPromise,
       upcomingMeetingPromise,
       previousMeetingPromise,
       cafeOpenPromise,
+      commitPromise,
     ]);
   if (news.status === "rejected") {
     throw error(500, "Failed to fetch news");
@@ -136,9 +139,9 @@ export const load: PageServerLoad = async ({ locals, fetch }) => {
   if (cafeOpen.status === "rejected") {
     throw error(500, "Failed to fetch cafe open");
   }
-
-  const commit = await fetch("/api/home");
-  const commitData = await commit.json();
+  if (commitData.status === "rejected") {
+    throw error(500, "Failed to fetch commit data");
+  }
   return {
     files: { next: nextBoardMeetingFiles, last: lastBoardMeetingFiles },
     news: news.value,
@@ -148,7 +151,7 @@ export const load: PageServerLoad = async ({ locals, fetch }) => {
       previous: previousMeeting.value,
     },
     cafeOpen: cafeOpen.value,
-    commitCount: commitData.commitCount,
-    latestCommit: commitData.latestCommit,
+    commitCount: commitData.value.commitCount,
+    latestCommit: commitData.value.latestCommit,
   };
 };
