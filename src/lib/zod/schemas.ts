@@ -6,6 +6,7 @@ export type EmptySchema = typeof emptySchema;
 
 export const memberSchema = z.object({
   studentId: z.string().nullable(),
+  email: z.string().email().nullable(),
   firstName: z.string().nullable(),
   lastName: z.string().nullable(),
   nickname: z.string().nullable(),

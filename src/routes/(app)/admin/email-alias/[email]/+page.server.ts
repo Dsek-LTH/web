@@ -19,7 +19,6 @@ import {
 import { isValidEmail } from "../emailutils";
 import keycloak from "$lib/server/keycloak";
 import type { PrismaClient } from "@prisma/client";
-import { mailAliasUpdateHandler } from "$lib/server/mail/alias/mailAliasUpdateHandler";
 import * as m from "$paraglide/messages";
 
 export const load: PageServerLoad = async (event) => {
@@ -152,7 +151,6 @@ export const actions = {
         email,
       },
     });
-    mailAliasUpdateHandler.handleUpdate();
     if (await emailStillInUse(prisma, email)) {
       return message(form, {
         message: m.admin_emailalias_aliasRemoved(),
@@ -201,7 +199,6 @@ export const actions = {
         },
       },
     });
-    mailAliasUpdateHandler.handleUpdate();
     return message(form, {
       message: m.admin_emailalias_positionAdded(),
       type: "success",
@@ -218,7 +215,6 @@ export const actions = {
         id: aliasId,
       },
     });
-    mailAliasUpdateHandler.handleUpdate();
     return message(form, {
       message: m.admin_emailalias_positionRemoved(),
       type: "success",
@@ -254,7 +250,6 @@ export const actions = {
         email,
       },
     });
-    mailAliasUpdateHandler.handleUpdate();
     if (await emailStillInUse(prisma, email)) {
       return message(form, {
         message: m.admin_emailalias_specialReceiversRemoved(),
@@ -290,7 +285,6 @@ export const actions = {
         targetEmail: targetEmailReceiver,
       },
     });
-    mailAliasUpdateHandler.handleUpdate();
     return message(form, {
       message: m.admin_emailalias_specialReceiverAdded(),
       type: "success",
@@ -310,7 +304,6 @@ export const actions = {
         id,
       },
     });
-    mailAliasUpdateHandler.handleUpdate();
     return message(form, {
       message: m.admin_emailalias_specialReceiversRemoved(),
       type: "success",
@@ -327,7 +320,6 @@ export const actions = {
         email,
       },
     });
-    mailAliasUpdateHandler.handleUpdate();
     if (await emailStillInUse(prisma, email)) {
       return message(form, {
         message: m.admin_emailalias_specialSendersRemoved(),
@@ -375,7 +367,6 @@ export const actions = {
         keycloakId: keycloakId,
       },
     });
-    mailAliasUpdateHandler.handleUpdate();
     return message(form, {
       message: m.admin_emailalias_specialSenderAdded(),
       type: "success",
@@ -392,7 +383,6 @@ export const actions = {
         id,
       },
     });
-    mailAliasUpdateHandler.handleUpdate();
     return message(form, {
       message: m.admin_emailalias_specialSenderAdded(),
       type: "success",

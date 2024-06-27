@@ -15,9 +15,10 @@
     href={host ? getPdfApiUrl(url) : url}
     class="block py-2 hover:underline"
     class:w-full={full}
+    target="_blank"
     ><span
       class="i-mdi-file-document-outline align-text-top text-xl text-primary"
-    ></span>
+    />
     {fileName}
   </a>
 </div>

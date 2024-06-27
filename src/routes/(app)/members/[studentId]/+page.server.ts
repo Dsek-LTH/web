@@ -8,6 +8,7 @@ import { sendPing } from "./pings";
 import { getCurrentDoorPoliciesForMember } from "$lib/utils/member";
 import keycloak from "$lib/server/keycloak";
 import { z } from "zod";
+import * as m from "$paraglide/messages";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
@@ -57,13 +58,13 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     }),
   ]);
   if (memberResult.status === "rejected") {
-    throw error(500, "Could not fetch member");
+    throw error(500, m.members_errors_couldntFetchMember());
   }
   if (publishedArticlesResult.status === "rejected") {
-    throw error(500, "Could not fetch articles");
+    throw error(500, m.members_errors_couldntFetchArticles());
   }
   if (!memberResult.value) {
-    throw error(404, "Member not found");
+    throw error(404, m.members_errors_memberNotFound());
   }
   const member = memberResult.value;
 
@@ -103,7 +104,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
         : null,
     };
   } catch (e) {
-    throw error(500, "Could not fetch ping");
+    throw error(500, m.members_errors_couldntFetchPings());
   }
 };
 
@@ -136,7 +137,7 @@ export const actions: Actions = {
       },
     });
     return message(form, {
-      message: "Medlem uppdaterad",
+      message: m.members_memberUpdated(),
       type: "success",
     });
   },
@@ -152,7 +153,7 @@ export const actions: Actions = {
       },
     });
     return message(form, {
-      message: "Medlem uppdaterad",
+      message: m.members_memberUpdated(),
       type: "success",
     });
   },
@@ -191,7 +192,7 @@ export const actions: Actions = {
       });
     }
     return message(form, {
-      message: "Ping skickad",
+      message: m.members_pingSent(),
       type: "success",
     });
   },

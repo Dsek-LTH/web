@@ -50,7 +50,7 @@ export const actions: Actions = {
           title: "Booking request accepted",
           message: `Your booking request for ${request.event} has been accepted`,
           type: NotificationType.BOOKING_REQUEST,
-          link: "https://dsek.se/",
+          link: "/booking",
           memberIds: [request.bookerId],
           fromMemberId: user.memberId,
         });
@@ -83,7 +83,7 @@ export const actions: Actions = {
           title: "Booking request denied",
           message: `Your booking request for ${request.event} has been denied`,
           type: NotificationType.BOOKING_REQUEST,
-          link: "https://dsek.se/",
+          link: "/booking",
           memberIds: [request.bookerId],
           fromMemberId: user.memberId,
         });
