@@ -6,6 +6,7 @@
   import type { DocumentType } from "./+page.server";
   import Meeting from "./Meeting.svelte";
   import { isAuthorized } from "$lib/utils/authorization";
+  import * as m from "$paraglide/messages";
 
   import type { PageData } from "./$types";
   export let data: PageData;
@@ -48,12 +49,12 @@
 </script>
 
 <svelte:head>
-  <title>Dokument | D-sektionen</title>
+  <title>{m.documents()} | D-sektionen</title>
 </svelte:head>
 
 <div class="flex flex-row flex-wrap justify-between">
   <div class="mb-4 flex w-full flex-col items-start gap-2">
-    <span class="text-lg">Filtrera efter år</span>
+    <span class="text-lg">{m.documents_filterByYear()}</span>
     <Pagination
       class="max-w-prose"
       count={currentYear - 1981}
@@ -61,7 +62,7 @@
       getPageNumber={(pageName) => currentYear - +pageName}
       fieldName="year"
     />
-    <span class="text-lg">Filtrera efter dokumenttyp</span>
+    <span class="text-lg">{m.documents_filterByType()}</span>
     <Tabs options={typeOptions} bind:currentTab={type} fieldName="type" />
   </div>
 
@@ -69,7 +70,7 @@
     <div class="mb-4 flex flex-row gap-1">
       {#if canCreate}
         <a class="btn btn-primary btn-sm" href="/documents/upload"
-          >Ladda upp fil</a
+          >{m.documents_uploadFile()}</a
         >
       {/if}
       {#if canEdit}
@@ -79,7 +80,7 @@
             isEditing = !isEditing;
           }}
         >
-          {isEditing ? "Sluta redigera" : "Redigera"}
+          {isEditing ? m.documents_stopEditing() : m.documents_edit()}
         </button>
       {/if}
     </div>
