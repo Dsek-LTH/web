@@ -11,10 +11,12 @@
   $: currentRouteIndex = routesToShow.findIndex(
     (route) => route.path === currentRoute,
   );
+  $: bottomInsets = $page.data.appInfo?.insets?.bottom ?? 0;
 </script>
 
 <div
-  class="btm-nav bottom-8 left-2 right-2 w-[calc(100%-1rem)] rounded-lg bg-base-300 bg-opacity-60 filter backdrop-blur"
+  class="btm-nav left-2 right-2 w-[calc(100%-1rem)] rounded-lg bg-base-300 bg-opacity-60 filter backdrop-blur"
+  style="bottom: {bottomInsets + 16}px;"
 >
   <div
     class="absolute bottom-1 h-0.5 w-[15%] bg-primary transition-all ease-out"

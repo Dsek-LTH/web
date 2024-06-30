@@ -16,10 +16,12 @@
   $: routes = getRoutes();
   $: bottomNavRoutes = appBottomNavRoutes(routes).map((route) => route.path);
   $: canGoBack = !bottomNavRoutes.includes(i18n.route($page.url.pathname));
+  $: topInsets = $page.data.appInfo?.insets?.top ?? 0;
 </script>
 
 <div
   class="navbar sticky top-0 z-10 justify-between bg-base-300 bg-opacity-60 filter backdrop-blur transition-all"
+  style="padding-top: {topInsets + 8}px;"
 >
   <div class="w-16">
     <button
