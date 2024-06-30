@@ -16,6 +16,7 @@ import { randomBytes } from "crypto";
 import schedule from "node-schedule";
 import translatedExtension from "./database/prisma/translationExtension";
 import { getAccessPolicies } from "./hooks.server.helpers";
+import { themes } from "$lib/utils/themes";
 
 const authHandle = SvelteKitAuth({
   secret: env.AUTH_SECRET,
@@ -194,6 +195,20 @@ const appHandle: Handle = async ({ event, resolve }) => {
   return resolve(event);
 };
 
+const themeHandle: Handle = async ({ event, resolve }) => {
+  const theme = event.cookies.get("theme");
+
+  if (!theme || !themes.includes(theme)) {
+    return await resolve(event);
+  }
+
+  return await resolve(event, {
+    transformPageChunk: ({ html }) => {
+      return html.replace('data-theme=""', `data-theme="${theme}"`);
+    },
+  });
+};
+
 schedule.scheduleJob("* */24 * * *", () => keycloak.sync(prismaClient));
 
 export const handle = sequence(
@@ -202,4 +217,5 @@ export const handle = sequence(
   databaseHandle,
   apiHandle,
   appHandle,
+  themeHandle,
 );

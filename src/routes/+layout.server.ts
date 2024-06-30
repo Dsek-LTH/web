@@ -1,11 +1,13 @@
+import { themes } from "$lib/utils/themes";
 import { loadFlash } from "sveltekit-flash-message/server";
 /**
  * Load the form flash message.
  * Propagates the user and member to the page data.
  */
-export const load = loadFlash(async ({ locals }) => {
+export const load = loadFlash(async ({ locals, cookies }) => {
   const { user, member, isApp, appInfo } = locals;
-  return {
+
+  const layoutData = {
     user,
     member,
     /**
@@ -15,4 +17,14 @@ export const load = loadFlash(async ({ locals }) => {
     isApp,
     appInfo,
   };
+
+  // get theme from cookies and send to frontend to show correct icon in theme switch
+  const cookieTheme = cookies.get("theme");
+  if (cookieTheme && themes.includes(cookieTheme)) {
+    return {
+      ...layoutData,
+      theme: cookieTheme,
+    };
+  }
+  return layoutData;
 });
