@@ -416,7 +416,7 @@
   "songbook_errors_songNotFound": "Song not found",
   "songbook_errors_missingId": "Missing ID",
   "songbook_errors_invalidID": "Invalid ID",
-  
+
   "members_all": "All",
   "members_noMembers": "No members found",
   "members_members": "{x} members",

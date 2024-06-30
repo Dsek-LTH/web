@@ -380,7 +380,7 @@
   "documents_governing_forQuestions": "Om du har några frågor eller funderingar kring styrdokumenten kan du kontakta ",
   "documents_governing_pdfViewer": "PDF-visare",
 
-  "documents_governing_errors_notFound": "Kunde inte hitta styrdokunentet"
+  "documents_governing_errors_notFound": "Kunde inte hitta styrdokunentet",
 
   "songbook_songCreated": "Sång skapad",
   "songbook_title": "Titel",
@@ -400,7 +400,6 @@
   "songbook_edit": "Redigera",
   "songbook_missingTitle": "Titel saknas",
   "songbook_missingLyrics": "Text saknas",
-  "songbook_missingCategory": "Kategori saknas",
   "songbook_missingMelody": "Melodi saknas",
   "songbook_songUpdated": "Sång uppdaterad",
   "songbook_songRemoved": "Sång borttagen",
