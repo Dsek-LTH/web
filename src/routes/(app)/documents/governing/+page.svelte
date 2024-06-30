@@ -1,5 +1,5 @@
 <script lang="ts">
-  import PageHeader from "$lib/components/PageHeader.svelte";
+  import PageHeader from "$lib/components/nav/PageHeader.svelte";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
   import { getPdfApiUrl } from "$lib/utils/servePdf";

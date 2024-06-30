@@ -3,6 +3,7 @@
   import TagEditorRow from "./TagEditorRow.svelte";
 
   import type { PageData } from "./$types";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   export let data: PageData;
   const { form, errors, constraints, enhance, submitting } = superForm(
     data.createForm,
@@ -12,9 +13,7 @@
   );
 </script>
 
-<svelte:head>
-  <title>Nyhetstaggar | D-sektionen</title>
-</svelte:head>
+<SetPageTitle title="Nyhetstaggar" />
 
 <div class="overflow-x-auto">
   <table class="table">

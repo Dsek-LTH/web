@@ -1,4 +1,5 @@
 <script lang="ts">
+  import PageHeader from "$lib/components/nav/PageHeader.svelte";
   import { now } from "$lib/stores/date";
   import * as m from "$paraglide/messages";
   import ConsumableSection from "./ConsumableSection.svelte";
@@ -14,7 +15,7 @@
 </script>
 
 <article class="flex flex-col gap-4">
-  <h1 class="text-2xl font-bold">{m.inventory_yourInventory()}</h1>
+  <PageHeader title={m.inventory_yourInventory()} />
 
   <ConsumableSection title={m.tickets()} consumables={unconsumed} />
   <ConsumableSection title={m.inventory_usedUp()} consumables={consumed} />

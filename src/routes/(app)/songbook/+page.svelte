@@ -1,5 +1,5 @@
 <script lang="ts">
-  import PageHeader from "$lib/components/PageHeader.svelte";
+  import PageHeader from "$lib/components/nav/PageHeader.svelte";
   import Pagination from "$lib/components/Pagination.svelte";
   import SearchBar from "$lib/components/SearchBar.svelte";
   import apiNames from "$lib/utils/apiNames";

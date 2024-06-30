@@ -1,13 +1,12 @@
 <script lang="ts">
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import ConsumableRow from "./ConsumableRow.svelte";
 
   export let data;
   $: ticket = data.ticket;
 </script>
 
-<svelte:head>
-  <title>{ticket.title} | D-sektionen</title>
-</svelte:head>
+<SetPageTitle title={ticket.title} />
 
 <div class="flex justify-between">
   <h1 class="text-2xl">{ticket.title}</h1>

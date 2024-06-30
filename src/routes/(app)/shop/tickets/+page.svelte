@@ -1,10 +1,11 @@
 <script lang="ts">
+  import FoodPreferenceModal from "$lib/components/FoodPreferenceModal.svelte";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import { now } from "$lib/stores/date";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
-  import FoodPreferenceModal from "$lib/components/FoodPreferenceModal.svelte";
-  import TicketSection from "./TicketSection.svelte";
   import * as m from "$paraglide/messages";
+  import TicketSection from "./TicketSection.svelte";
 
   export let data;
   $: activeTickets = data.tickets.filter(
@@ -20,9 +21,7 @@
   );
 </script>
 
-<svelte:head>
-  <title>{m.tickets()} | D-sektionen</title>
-</svelte:head>
+<SetPageTitle title={m.tickets()} />
 
 <FoodPreferenceModal />
 

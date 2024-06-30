@@ -3,12 +3,15 @@
   import * as m from "$paraglide/messages";
   import dayjs from "dayjs";
   import QRCode from "./QRCode.svelte";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
 
   export let data;
   $: consumable = data.consumable;
   $: shoppable = consumable.shoppable;
   $: event = shoppable.event;
 </script>
+
+<SetPageTitle title={shoppable.title} />
 
 <div class="mx-auto md:container md:mt-8 md:grid md:grid-cols-2">
   <img

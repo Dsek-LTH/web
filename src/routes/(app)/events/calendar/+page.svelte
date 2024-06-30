@@ -2,12 +2,11 @@
   import Calendar from "./Calendar.svelte";
 
   import type { PageData } from "./$types";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   export let data: PageData;
 </script>
 
-<svelte:head>
-  <title>Kalender | D-sektionen</title>
-</svelte:head>
+<SetPageTitle title="Kalender" />
 
 <a class="btn" href="/events">
   <span class="i-mdi-format-list-bulleted" />

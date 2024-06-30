@@ -2,7 +2,7 @@
   import { goto } from "$lib/utils/redirect";
   import { page } from "$app/stores";
   import ClassBadge from "$lib/components/ClassBadge.svelte";
-  import PageHeader from "$lib/components/PageHeader.svelte";
+  import PageHeader from "$lib/components/nav/PageHeader.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
@@ -14,6 +14,7 @@
   import UpdatePositionForm from "./UpdatePositionForm.svelte";
 
   import type { PageData } from "./$types";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   export let data: PageData;
 
   $: groupedByYear = data.mandates.reduce<
@@ -37,9 +38,7 @@
   $: editedMandate = $page.url.searchParams.get("editMandate");
 </script>
 
-<svelte:head>
-  <title>{data.position.name} | D-sektionen</title>
-</svelte:head>
+<SetPageTitle title={data.position.name} />
 
 <div class="flex flex-wrap items-center justify-between gap-x-2">
   <PageHeader title={data.position.name} />

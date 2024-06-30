@@ -1,10 +1,10 @@
 <script lang="ts">
+  import Autocomplete from "$lib/components/Autocomplete.svelte";
   import Input from "$lib/components/Input.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
-  import { superForm } from "sveltekit-superforms/client";
-  import Autocomplete from "$lib/components/Autocomplete.svelte";
-  import PageHeader from "$lib/components/PageHeader.svelte";
+  import PageHeader from "$lib/components/nav/PageHeader.svelte";
   import * as m from "$paraglide/messages";
+  import { superForm } from "sveltekit-superforms/client";
 
   import type { PageData } from "./$types";
   export let data: PageData;

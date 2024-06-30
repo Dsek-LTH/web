@@ -10,12 +10,11 @@
   import DsekLogo from "../../DsekLogo.svelte";
   import { page } from "$app/stores";
   import { getFullName } from "$lib/utils/client/member";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   export let data: PageData;
 </script>
 
-<svelte:head>
-  <title>Homepage</title>
-</svelte:head>
+<SetPageTitle title="Homepage" />
 
 <div class="grid grid-cols-1 gap-x-5 gap-y-10 md:grid-cols-3 xl:grid-cols-5">
   <div class="col-span-1 hidden flex-col place-items-center xl:flex">
