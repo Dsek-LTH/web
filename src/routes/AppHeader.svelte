@@ -8,13 +8,14 @@
   import NotificationBell from "./NotificationBell.svelte";
   import { appBottomNavRoutes, getRoutes } from "./routes";
   import { pageTitle } from "$lib/stores/pageTitle";
+  import { i18n } from "$lib/utils/i18n";
   $: notifications = $page.data["notifications"] as Notification[] | null;
   $: deleteNotificationForm = $page.data[
     "deleteNotificationForm"
   ] as SuperValidated<NotificationSchema> | null;
   $: routes = getRoutes();
   $: bottomNavRoutes = appBottomNavRoutes(routes).map((route) => route.path);
-  $: canGoBack = !bottomNavRoutes.includes($page.url.pathname);
+  $: canGoBack = !bottomNavRoutes.includes(i18n.route($page.url.pathname));
 </script>
 
 <div
