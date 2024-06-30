@@ -1,10 +1,13 @@
 <script lang="ts">
+  import { twMerge } from "tailwind-merge";
   import DsekLogo from "./DsekLogo.svelte";
   export let icon: string;
+  let clazz = "";
+  export { clazz as class };
 </script>
 
 {#if icon === "dsek-icon"}
-  <DsekLogo className="size-6 text-primary" />
+  <DsekLogo className={twMerge("size-6 text-primary", clazz)} />
 {:else}
-  <span class={`${icon} size-6 text-primary`} />
+  <span class={twMerge(`${icon} size-6 text-primary`, clazz)} />
 {/if}
