@@ -2,15 +2,31 @@
   import Price from "$lib/components/Price.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import { getFullName } from "$lib/utils/client/member";
-  import type { Consumable, Member } from "@prisma/client";
+  import type {
+    Consumable,
+    ConsumableReservation,
+    Member,
+  } from "@prisma/client";
   import dayjs from "dayjs";
   import RowAction from "./RowAction.svelte";
+  import { page } from "$app/stores";
 
-  export let stripeIntentBaseUrl: string;
-  export let consumable: Consumable & {
-    member: Member | null;
-  };
-  $: member = consumable.member;
+  $: stripeIntentBaseUrl = $page.data["stripeIntentBaseUrl"]; // required to be return by the +page.server.ts where this is rendered.
+  // one of the following has to be specified
+  export let consumable:
+    | (Consumable & {
+        member: Member | null;
+      })
+    | null = null;
+  export let reservation:
+    | (ConsumableReservation & {
+        member: Member | null;
+      })
+    | null = null;
+  if (!consumable && !reservation)
+    throw new Error("Either consumable or reservation must be specified");
+  $: item = (consumable ?? reservation)!;
+  $: member = item.member;
 </script>
 
 <tr>
@@ -19,15 +35,15 @@
       <MemberAvatar
         class="h-8 w-8"
         {member}
-        identficationHash={consumable.externalCustomerCode}
+        identficationHash={item.externalCustomerCode}
       />
       <div>
         <div class="font-bold">
           {member ? getFullName(member) : "Icke inloggad"}
         </div>
-        {#if consumable.externalCustomerEmail}
+        {#if item.externalCustomerEmail}
           <div class="text-sm opacity-50">
-            {consumable.externalCustomerEmail}
+            {item.externalCustomerEmail}
           </div>
         {/if}
       </div>
@@ -37,42 +53,52 @@
     {member ? member.foodPreference ?? "" : ""}
   </td>
   <td>
-    {dayjs(consumable.purchasedAt).format("HH:MM:ss DD-MM-YYYY")}
+    {#if consumable?.purchasedAt}
+      {dayjs(consumable.purchasedAt).format("HH:MM:ss DD-MM-YYYY")}
+    {:else}
+      <span class="font-semibold text-gray-400">N/A</span>
+    {/if}
   </td>
   <td>
-    {#if consumable.consumedAt}
+    {#if consumable?.consumedAt}
       <span class="text-green-500">
         {dayjs(consumable.consumedAt).format("HH:MM:ss DD-MM-YYYY")}
       </span>
-    {:else}
+    {:else if consumable}
       <span class="">Ej konsumerad</span>
-    {/if}
-  </td>
-  <td>
-    {#if consumable.priceAtPurchase}
-      <Price price={consumable.priceAtPurchase} />
     {:else}
-      <span>Okänt</span>
+      <span class="font-semibold text-gray-400">N/A</span>
     {/if}
   </td>
   <td>
-    {#if consumable.stripeIntentId}
+    {#if consumable?.priceAtPurchase}
+      <Price price={consumable.priceAtPurchase} />
+    {:else if consumable?.purchasedAt !== null}
+      <span>Okänt</span>
+    {:else}
+      <span class="font-semibold text-gray-400">N/A</span>
+    {/if}
+  </td>
+  <td>
+    {#if consumable?.stripeIntentId}
       <a
         class="link text-primary"
         href="{stripeIntentBaseUrl}/{consumable.stripeIntentId}"
       >
         {consumable.stripeIntentId}
       </a>
+    {:else if consumable?.purchasedAt}
+      <span>Finns inte sparad</span>
     {:else}
-      <span>Betalade ej</span>
+      <span class="font-semibold text-gray-400">N/A</span>
     {/if}
   </td>
   <th>
-    {#if consumable.consumedAt === null}
+    {#if consumable?.consumedAt === null}
       <RowAction action="?/consume" consumableId={consumable.id}>
         <span class="i-mdi-flame-circle text-xl text-secondary" />
       </RowAction>
-    {:else}
+    {:else if consumable}
       <RowAction
         action="?/unconsume"
         consumableId={consumable.id}
@@ -80,15 +106,19 @@
       >
         <span class="i-mdi-redo-variant text-xl text-error" />
       </RowAction>
+    {:else}
+      <span class="font-semibold text-gray-400">N/A</span>
     {/if}
   </th>
   <th>
-    <RowAction
-      action="?/refund"
-      consumableId={consumable.id}
-      warningMessage="Är du säker på att du vill ge personen en återbetalning?"
-    >
-      <span class="i-mdi-cash-refund text-xl text-success" />
-    </RowAction>
+    {#if consumable}
+      <RowAction
+        action="?/refund"
+        consumableId={consumable.id}
+        warningMessage="Är du säker på att du vill ge personen en återbetalning?"
+      >
+        <span class="i-mdi-cash-refund text-xl text-success" />
+      </RowAction>
+    {/if}
   </th>
 </tr>
