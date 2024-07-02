@@ -33,5 +33,5 @@
   {#if transactionFee > 0}
     <TransactionFee fee={transactionFee} />
   {/if}
-  <PurchaseSection {purchaseForm} {totalPrice} />
+  <PurchaseSection {purchaseForm} {totalPrice} showPrice={inCart.length > 1} />
 </table>

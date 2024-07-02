@@ -5,6 +5,7 @@
   import type { Member } from "@prisma/client";
   import type { AuthUser } from "@zenstackhq/runtime";
   import * as m from "$paraglide/messages";
+  import LoadingButton from "$lib/components/LoadingButton.svelte";
 
   export let member: Member;
   export let user: AuthUser;
@@ -46,7 +47,7 @@
 
       <div class="flex flex-col items-start gap-2">
         <a
-          href={`/members/${user?.studentId}`}
+          href={`/members/me`}
           class="btn btn-ghost w-full justify-start text-base-content"
         >
           <span class="i-mdi-account-circle size-6 text-primary" />
@@ -56,12 +57,10 @@
           <span class="i-mdi-cog size-6 text-primary" />
           {m.navbar_userMenu_settings()}
         </a>
-        {#if (shopItemCounts?.owned ?? 0) > 0}
-          <a href="/shop/inventory" class="btn btn-ghost w-full justify-start">
-            <span class="i-mdi-treasure-chest size-6 text-primary" />
-            {m.navbar_userMenu_inventory()}
-          </a>
-        {/if}
+        <a href="/shop/inventory" class="btn btn-ghost w-full justify-start">
+          <span class="i-mdi-treasure-chest size-6 text-primary" />
+          {m.navbar_userMenu_inventory()}
+        </a>
         {#if amountInCart > 0}
           <a href="/shop/cart" class="btn btn-ghost w-full justify-start">
             <span class="i-mdi-cart size-6 text-primary" />
@@ -71,10 +70,13 @@
         {/if}
       </div>
       <span class="divider m-1" />
-      <button class="btn btn-ghost justify-start" on:click={() => signOut()}>
-        <span class="i-mdi-logout size-6 text-primary" />
-        {m.navbar_userMenu_logOut()}</button
+      <LoadingButton
+        class="btn btn-ghost justify-start"
+        onClick={() => signOut()}
       >
+        <span class="i-mdi-logout size-6 text-primary" />
+        {m.navbar_userMenu_logOut()}
+      </LoadingButton>
     </div>
   </div>
 </div>

@@ -114,7 +114,7 @@ export const getAllArticles = async (
       include,
     });
     const count = tx.article.count({ where });
-    return [await articles, await count];
+    return await Promise.all([articles, count]);
   });
   return [articles, Math.ceil(count / pageSize)];
 };

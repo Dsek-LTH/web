@@ -7,6 +7,7 @@
   import * as m from "$paraglide/messages";
 
   import type { PageData } from "./$types";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   export let data: PageData;
   $: member = data.member;
   $: photos = data.photos;
@@ -50,9 +51,7 @@
   };
 </script>
 
-<svelte:head>
-  <title>Bio - {getFullName(member)} | D-sektionen</title>
-</svelte:head>
+<SetPageTitle title="Bio - {getFullName(member)}" />
 <header class="flex gap-4">
   <MemberAvatar {member} class="w-32 rounded-lg" />
   <div class="flex flex-col">

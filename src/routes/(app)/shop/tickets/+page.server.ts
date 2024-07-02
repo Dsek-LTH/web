@@ -12,6 +12,7 @@ import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
+import { countUserShopItems } from "$lib/server/shop/countUserShopItems";
 
 export const load: PageServerLoad = async ({ locals, depends }) => {
   const { user, prisma } = locals;
@@ -26,6 +27,14 @@ export const load: PageServerLoad = async ({ locals, depends }) => {
         externalCode: externalCode!,
       };
   const allTickets = await getTickets(prisma, identification);
+  if (locals.isApp && memberId) {
+    const shopItemCounts = await countUserShopItems(prisma, user);
+    return {
+      shopItemCounts,
+      tickets: allTickets,
+    };
+  }
+
   return {
     tickets: allTickets,
   };

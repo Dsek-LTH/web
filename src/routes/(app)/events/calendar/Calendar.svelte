@@ -3,7 +3,7 @@
   import { Calendar } from "@fullcalendar/core";
   import daygridPlugin from "@fullcalendar/daygrid";
   import type { Event } from "@prisma/client";
-  import { goto } from "$lib/utils/redirect";
+  import { eventLink, goto } from "$lib/utils/redirect";
   import "$lib/FullCalendar.css";
 
   export let events: Event[] = [];
@@ -19,7 +19,7 @@
         title: event.title,
         start: event.startDatetime,
         end: event.endDatetime,
-        url: `/events/${event.slug}`,
+        url: eventLink(event),
       })),
       locale: "sv",
       eventColor: "#f280a1",

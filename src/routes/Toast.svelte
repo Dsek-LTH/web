@@ -13,14 +13,28 @@
   $: $flash && $flash.type !== "hidden"
     ? toast($flash.message, $flash.type)
     : null;
+
+  $: toastLocationClasses = (() => {
+    if (!$page.data.isApp) return "bottom-2 right-2";
+    return `toast-top toast-center w-full flex-col-reverse items-center`;
+  })();
 </script>
 
 {#if $toasts}
-  <div class="toast bottom-2 right-2 z-10">
+  <div
+    class="toast z-10 {toastLocationClasses}"
+    style={$page.data.isApp
+      ? `top: ${64 + ($page.data.appInfo?.insets.top ?? 0)}px;`
+      : ""}
+  >
     {#each $toasts as toast (toast.id)}
       <div
         role="alert"
         class="alert alert-{toast.type} select-all"
+        class:py-2={$page.data.isApp}
+        class:px-6={$page.data.isApp}
+        class:text-sm={$page.data.isApp}
+        class:w-auto={$page.data.isApp}
         out:fade={{ duration: 750 }}
       >
         <span class="max-w-full select-all overflow-hidden text-ellipsis">

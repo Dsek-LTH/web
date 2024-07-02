@@ -1,6 +1,6 @@
 <script lang="ts">
   import CommitteeIcon from "$lib/components/CommitteeIcon.svelte";
-  import PageHeader from "$lib/components/PageHeader.svelte";
+  import PageHeader from "$lib/components/nav/PageHeader.svelte";
   import * as m from "$paraglide/messages";
 
   import type { PageData } from "./$types";

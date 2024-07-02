@@ -4,8 +4,11 @@
   import { isAuthorized } from "$lib/utils/authorization";
   import type { PageData } from "./$types";
   import * as m from "$paraglide/messages";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   export let data: PageData;
 </script>
+
+<SetPageTitle title="Doors" />
 
 <div class="overflow-x-auto">
   <table class="table">

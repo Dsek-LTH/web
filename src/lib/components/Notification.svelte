@@ -2,6 +2,7 @@
   import { invalidate } from "$app/navigation";
   import { page } from "$app/stores";
   import LiveTimeSince from "$lib/components/LiveTimeSince.svelte";
+  import { i18n } from "$lib/utils/i18n";
   import type { NotificationSchema } from "$lib/zod/schemas";
   import type { Notification } from "@prisma/client";
   import type { SuperValidated } from "sveltekit-superforms";
@@ -23,7 +24,7 @@
 
   // Handle "reading" notification when visiting relevant link
   $: isUnread = notification.readAt === null;
-  $: isPathSame = $page.url.pathname === notification.link;
+  $: isPathSame = i18n.route($page.url.pathname) === notification.link;
   $: (() => {
     if (isUnread && isPathSame) {
       setTimeout(() => {

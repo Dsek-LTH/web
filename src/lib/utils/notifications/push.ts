@@ -1,12 +1,13 @@
+import { dev } from "$app/environment";
+import type { NotificationSettingType } from "$lib/utils/notifications/types";
 import { error } from "@sveltejs/kit";
 import { Expo, type ExpoPushMessage } from "expo-server-sdk";
-import { dev } from "$app/environment";
 
 async function sendPushNotifications(
   tokens: string[],
   title: string,
   body: string,
-  type: string,
+  type: NotificationSettingType,
   link: string,
 ) {
   if (dev) return;

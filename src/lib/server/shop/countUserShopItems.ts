@@ -14,9 +14,10 @@ export const countUserShopItems = async (
       ? { memberId: user.memberId }
       : { externalCode: user.externalCode! },
   );
-  const owned = await prisma.consumable.count({
+  const unconsumed = await prisma.consumable.count({
     where: {
       purchasedAt: { not: null },
+      consumedAt: null,
       ...identification,
     },
   });
@@ -34,7 +35,7 @@ export const countUserShopItems = async (
   });
 
   return {
-    owned,
+    unconsumed,
     inCart,
     reserved,
   };

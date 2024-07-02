@@ -8,6 +8,7 @@
   import { isAuthorized } from "$lib/utils/authorization";
   import * as m from "$paraglide/messages";
   import type { PageData } from "./$types";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   export let data: PageData;
 
   const {
@@ -20,8 +21,8 @@
   let removeModal: HTMLDialogElement | undefined = undefined;
 </script>
 
+<SetPageTitle title={data.song.title} />
 <svelte:head>
-  <title>{data.song.title} | D-sektionen</title>
   <meta name="description" content={data.song.lyrics} />
 </svelte:head>
 

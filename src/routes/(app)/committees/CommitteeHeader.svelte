@@ -1,7 +1,7 @@
 <script lang="ts">
   import { page } from "$app/stores";
   import CommitteeIcon from "$lib/components/CommitteeIcon.svelte";
-  import PageHeader from "$lib/components/PageHeader.svelte";
+  import PageHeader from "$lib/components/nav/PageHeader.svelte";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
   import type { ComponentProps } from "svelte";

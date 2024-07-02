@@ -21,7 +21,7 @@ export function toast(
       id: uuid(),
     },
   ]);
-  setTimeout(removeToast, 2000);
+  setTimeout(removeToast, type === "error" ? 4000 : 2000);
 }
 
 function removeToast() {

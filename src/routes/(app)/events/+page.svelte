@@ -9,6 +9,7 @@
   import type { Tag } from "@prisma/client";
 
   import type { PageData } from "./$types";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   export let data: PageData;
   let filteredTags: Tag[] = data.allTags.filter((tag) =>
     $page.url.searchParams.getAll("tags").includes(tag.name),
@@ -17,9 +18,7 @@
   $: isPast = $page.url.searchParams.get("past") == "on";
 </script>
 
-<svelte:head>
-  <title>Evenemang | D-sektionen</title>
-</svelte:head>
+<SetPageTitle title="Evenemang" />
 
 <section class="flex flex-col gap-2">
   <div class="flex items-center gap-2">

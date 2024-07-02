@@ -16,6 +16,7 @@
   import PingButton from "./PingButton.svelte";
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   export let data: PageData;
 
   $: member = data.viewedMember;
@@ -27,9 +28,7 @@
   $: canEdit = isMe || isAuthorized(apiNames.MEMBER.UPDATE, data.user);
 </script>
 
-<svelte:head>
-  <title>{getFullName(member)} | D-sektionen</title>
-</svelte:head>
+<SetPageTitle title={getFullName(member)} />
 <article
   class="grid grid-cols-1-2 gap-x-4 gap-y-2 md:grid-cols-5"
   id="container"

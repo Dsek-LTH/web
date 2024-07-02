@@ -5,6 +5,7 @@
   import type { PageData } from "./$types";
   import * as m from "$paraglide/messages";
   import { typeToPath } from "./helpers";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
 
   export let data: PageData;
   const { form, constraints, errors, enhance } = superForm(data.form, {
@@ -30,9 +31,7 @@
   $: pathInfo = typeToPath[$form.type];
 </script>
 
-<svelte:head>
-  <title>{m.documents_uploadDocument()} | D-sektionen</title>
-</svelte:head>
+<SetPageTitle title={m.documents_uploadDocument()} />
 
 <form
   id="upload-file"

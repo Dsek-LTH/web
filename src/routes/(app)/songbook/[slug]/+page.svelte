@@ -1,4 +1,5 @@
 <script lang="ts">
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
   import Disclaimer from "../Disclaimer.svelte";
@@ -9,8 +10,8 @@
   export let data: PageData;
 </script>
 
+<SetPageTitle title={data.song.title} />
 <svelte:head>
-  <title>{data.song.title} | D-sektionen</title>
   <meta name="description" content={data.song.lyrics} />
 </svelte:head>
 

@@ -1,12 +1,13 @@
 <script lang="ts">
-  import type { PageData } from "./$types";
-  import Folder from "./Folder.svelte";
-  import Pagination from "$lib/components/Pagination.svelte";
-  import { isAuthorized } from "$lib/utils/authorization";
-  import apiNames from "$lib/utils/apiNames";
   import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
-  import type { FolderType } from "./+page.server";
+  import Pagination from "$lib/components/Pagination.svelte";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
+  import apiNames from "$lib/utils/apiNames";
+  import { isAuthorized } from "$lib/utils/authorization";
   import * as m from "$paraglide/messages";
+  import type { PageData } from "./$types";
+  import type { FolderType } from "./+page.server";
+  import Folder from "./Folder.svelte";
 
   export let data: PageData;
 
@@ -80,9 +81,7 @@
   );
 </script>
 
-<svelte:head>
-  <title>{m.documents_requirementProfiles()} | D-sektionen</title>
-</svelte:head>
+<SetPageTitle title={m.documents_requirementProfiles()} />
 
 <div class="mb-4 flex w-full flex-col items-start gap-2">
   <span class="text-lg">{m.documents_filterByYear()}</span>

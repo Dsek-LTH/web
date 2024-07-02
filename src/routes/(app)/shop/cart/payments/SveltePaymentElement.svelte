@@ -3,7 +3,7 @@
   import Price from "$lib/components/Price.svelte";
   import { toast } from "$lib/stores/toast";
   import { getFullName } from "$lib/utils/client/member";
-  import { goto } from "$lib/utils/redirect";
+  import { APP_REDIRECT_URL, goto } from "$lib/utils/redirect";
   import * as m from "$paraglide/messages";
   import type StripeJS from "@stripe/stripe-js";
   import { Elements, PaymentElement } from "svelte-stripe";
@@ -11,6 +11,9 @@
   export let stripe: StripeJS.Stripe | null;
   export let clientSecret: string;
   export let price: number;
+  $: redirectUrl =
+    ($page.data.isApp ? $page.url.origin + "/" : APP_REDIRECT_URL) +
+    "shop/success";
 
   $: member = $page.data.member;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- The lib we use for display the elements uses an older version of stripe. It works but has the wrong type
@@ -28,7 +31,7 @@
       elements,
       redirect: "if_required",
       confirmParams: {
-        return_url: $page.url.origin + "/shop/success",
+        return_url: redirectUrl,
       },
     });
 

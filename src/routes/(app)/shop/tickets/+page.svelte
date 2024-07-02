@@ -1,10 +1,13 @@
 <script lang="ts">
+  import { page } from "$app/stores";
+  import FoodPreferenceModal from "$lib/components/FoodPreferenceModal.svelte";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import { now } from "$lib/stores/date";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
-  import FoodPreferenceModal from "$lib/components/FoodPreferenceModal.svelte";
-  import TicketSection from "./TicketSection.svelte";
   import * as m from "$paraglide/messages";
+  import NavIcon from "$lib/components/NavIcon.svelte";
+  import TicketSection from "./TicketSection.svelte";
 
   export let data;
   $: activeTickets = data.tickets.filter(
@@ -20,13 +23,35 @@
   );
 </script>
 
-<svelte:head>
-  <title>{m.tickets()} | D-sektionen</title>
-</svelte:head>
+<SetPageTitle title={m.tickets()} />
 
 <FoodPreferenceModal />
 
 <article class="flex flex-col gap-4">
+  {#if $page.data.isApp}
+    <div class="flex gap-4 [&>*]:flex-1">
+      <a class="btn" href="inventory">
+        <NavIcon icon="i-mdi-treasure-chest" />
+
+        {m.navbar_userMenu_inventory()}
+        <!-- checks both not undefined and not 0 (since it's falsy) -->
+        {#if data.shopItemCounts?.unconsumed}
+          <span class="badge badge-primary badge-sm">
+            {data.shopItemCounts.unconsumed}
+          </span>
+        {/if}
+      </a>
+      {#if data.shopItemCounts?.inCart}
+        <a class="btn" href="cart">
+          <NavIcon icon="i-mdi-cart" />
+          {m.navbar_userMenu_cart()}
+          <span class="badge badge-error badge-sm">
+            {data.shopItemCounts.inCart}
+          </span>
+        </a>
+      {/if}
+    </div>
+  {/if}
   {#if isAuthorized(apiNames.WEBSHOP.CREATE, data.user)}
     <a class="btn btn-secondary self-start" href="/shop/tickets/create"
       >{m.tickets_createNew()}</a

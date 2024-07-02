@@ -40,7 +40,7 @@ export const likesAction =
       await sendNotification({
         title: `${article.header}`,
         message: `${getFullName(member)} har gillat din nyhet`,
-        type: NotificationType.LIKE,
+        type: NotificationType.NEWS_LIKE,
         link: `/news/${article.slug}`,
         memberIds: [article.author.memberId],
         fromMemberId: member.id,
