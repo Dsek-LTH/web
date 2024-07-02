@@ -6,6 +6,12 @@
   export let data;
 </script>
 
+<svelte:head>
+  {#if data.isApp}
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0" />
+  {/if}
+</svelte:head>
+
 {#if !data.isApp}
   <a
     class="btn btn-circle btn-primary fixed bottom-4 right-4 z-20"
