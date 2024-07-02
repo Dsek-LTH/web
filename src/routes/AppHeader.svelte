@@ -9,6 +9,7 @@
   import { pageTitle } from "$lib/stores/pageTitle";
   import { i18n } from "$lib/utils/i18n";
   import NavIcon from "$lib/components/NavIcon.svelte";
+  import LoadingButton from "$lib/components/LoadingButton.svelte";
   $: notifications = $page.data["notifications"] as Notification[] | null;
   $: deleteNotificationForm = $page.data[
     "deleteNotificationForm"
@@ -41,9 +42,12 @@
         <NotificationBell {notifications} deleteForm={deleteNotificationForm} />
       {/if}
     {:else}
-      <button class="btn btn-ghost gap-0" on:click={() => signIn("keycloak")}>
+      <LoadingButton
+        class="btn btn-ghost gap-0"
+        onClick={() => signIn("keycloak")}
+      >
         <NavIcon class="text-inherit" icon="i-mdi-login" />
-      </button>
+      </LoadingButton>
     {/if}
   </div>
 </div>

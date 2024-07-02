@@ -13,6 +13,7 @@
   import NotificationBell from "./NotificationBell.svelte";
   import UserMenu from "./UserMenu.svelte";
   import { getRoutes } from "./routes";
+  import LoadingButton from "$lib/components/LoadingButton.svelte";
   $: notifications = $page.data["notifications"] as Notification[] | null;
   $: deleteNotificationForm = $page.data[
     "deleteNotificationForm"
@@ -98,9 +99,9 @@
           {shopItemCounts}
         />
       {:else}
-        <button class="btn btn-ghost" on:click={() => signIn("keycloak")}>
+        <LoadingButton class="btn btn-ghost" onClick={() => signIn("keycloak")}>
           {m.navbar_logIn()}
-        </button>
+        </LoadingButton>
       {/if}
     </div>
   </div>

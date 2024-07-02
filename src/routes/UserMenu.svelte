@@ -5,6 +5,7 @@
   import type { Member } from "@prisma/client";
   import type { AuthUser } from "@zenstackhq/runtime";
   import * as m from "$paraglide/messages";
+  import LoadingButton from "$lib/components/LoadingButton.svelte";
 
   export let member: Member;
   export let user: AuthUser;
@@ -69,10 +70,13 @@
         {/if}
       </div>
       <span class="divider m-1" />
-      <button class="btn btn-ghost justify-start" on:click={() => signOut()}>
-        <span class="i-mdi-logout size-6 text-primary" />
-        {m.navbar_userMenu_logOut()}</button
+      <LoadingButton
+        class="btn btn-ghost justify-start"
+        onClick={() => signOut()}
       >
+        <span class="i-mdi-logout size-6 text-primary" />
+        {m.navbar_userMenu_logOut()}
+      </LoadingButton>
     </div>
   </div>
 </div>

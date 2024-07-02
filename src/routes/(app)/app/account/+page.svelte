@@ -5,6 +5,7 @@
   import DarkLightToggle from "../../../DarkLightToggle.svelte";
   import LanguageSwitcher from "../../../LanguageSwitcher.svelte";
   import NavIcon from "$lib/components/NavIcon.svelte";
+  import LoadingButton from "$lib/components/LoadingButton.svelte";
 
   export let data;
 </script>
@@ -40,20 +41,20 @@
     <DarkLightToggle class="btn-outline" />
   </div>
   {#if data.user && data.member}
-    <button
+    <LoadingButton
       class="btn btn-outline btn-error mx-6 my-4 self-end"
-      on:click={() => signOut()}
+      onClick={() => signOut()}
     >
       <NavIcon icon="i-mdi-logout" class="text-inherit" />
       {m.navbar_userMenu_logOut()}
-    </button>
+    </LoadingButton>
   {:else}
-    <button
+    <LoadingButton
       class="btn btn-primary mx-6 my-4 self-stretch"
-      on:click={() => signIn("keycloak")}
+      onClick={() => signIn("keycloak")}
     >
       <NavIcon class="text-inherit" icon="i-mdi-login" />
       {m.navbar_logIn()}
-    </button>
+    </LoadingButton>
   {/if}
 </div>
