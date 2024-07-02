@@ -1,7 +1,7 @@
 import type { AuthUser } from "@zenstackhq/runtime";
 
+import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
 import { error } from "@sveltejs/kit";
-import type { PrismaClient } from "@prisma/client";
 
 // since this can be called quite often, on every page refresh basically, we want to do an in-memory cache to skip going to the DB
 type Token = string;
@@ -15,7 +15,6 @@ setInterval(() => {
 }, CACHE_CLEAR_INTERVAL);
 
 export const uploadNotificationToken = async (
-  prisma: PrismaClient,
   user: AuthUser,
   token: string,
 ) => {
@@ -24,17 +23,19 @@ export const uploadNotificationToken = async (
   }
   if (cache.get(token) == user.memberId) return;
   try {
-    const existing = await prisma.expoToken.findUnique({
+    console.log("uploading token", token);
+    const existing = await authorizedPrismaClient.expoToken.findUnique({
       where: {
         expoToken: token,
         memberId: user.memberId,
       },
     });
     if (existing) {
+      console.log("already exists");
       cache.set(token, user.memberId);
       return;
     }
-    await prisma.expoToken.upsert({
+    await authorizedPrismaClient.expoToken.upsert({
       update: {
         memberId: user.memberId,
       },
@@ -48,6 +49,7 @@ export const uploadNotificationToken = async (
     });
     cache.set(token, user.memberId);
   } catch (e) {
+    console.log(e);
     if (e instanceof Error) {
       throw error(500, `Couldn't save token: ${e.message}`);
     }

@@ -12,7 +12,6 @@ export const loadHomeData = async ({
   locals: App.Locals;
   fetch: Fetch;
 }) => {
-  console.time("loadHomeData");
   const { prisma, user } = locals;
 
   /* files - subject to change */
@@ -153,6 +152,7 @@ export const loadHomeData = async ({
   if (commitData.status === "rejected") {
     throw error(500, "Failed to fetch commit data");
   }
+
   return {
     files: { next: nextBoardMeetingFiles, last: lastBoardMeetingFiles },
     news: news.value,

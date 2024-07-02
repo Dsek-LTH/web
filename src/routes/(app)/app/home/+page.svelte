@@ -38,10 +38,12 @@
     <Documents files={data.files} />
   </section>
 
-  <section>
-    <CodeWithDwww
-      commitCount={data.commitCount}
-      commitData={data.latestCommit}
-    />
-  </section>
+  {#if data.commitCount && data.latestCommit}
+    <section>
+      <CodeWithDwww
+        commitCount={data.commitCount}
+        commitData={data.latestCommit}
+      />
+    </section>
+  {/if}
 </article>

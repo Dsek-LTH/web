@@ -16,7 +16,7 @@
 
 <div
   class="btm-nav left-2 right-2 w-[calc(100%-1rem)] overflow-hidden rounded-lg bg-base-300 bg-opacity-60 filter backdrop-blur"
-  style="bottom: {bottomInsets + 16}px;"
+  style="bottom: {bottomInsets || 16}px;"
 >
   <div
     class="absolute bottom-1 h-px w-[15%] bg-primary transition-all ease-out"
@@ -26,7 +26,7 @@
   {#each routesToShow as route (route.path)}
     {#if shopItemCounts?.inCart && route.specialBehaviour === "cart-badge"}
       <!-- shop icon -->
-      <a href={route.path} class="transition-all">
+      <a href={route.path}>
         <div class="indicator">
           <NavIcon icon={route.icon} />
           <span class="badge indicator-item badge-error">
@@ -36,7 +36,7 @@
         </div>
       </a>
     {:else}
-      <a href={route.path} class="transition-all">
+      <a href={route.path}>
         <NavIcon icon={route.icon} />
         <!-- <span class="btm-nav-label text-[0.5rem] uppercase">{route.title}</span> -->
       </a>

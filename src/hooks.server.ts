@@ -175,11 +175,13 @@ const apiHandle = zenstack.SvelteKitHandler({
   },
 });
 
+const APP_INSETS_REGEX = /APP-INSETS\s*\(([^)]*)\)/;
 const appHandle: Handle = async ({ event, resolve }) => {
   const userAgent = event.request.headers.get("user-agent");
   if (userAgent?.startsWith("DSEK-APP") || env.MOCK_IS_APP === "true") {
     event.locals.isApp = true;
-    const insets = JSON.parse(event.request.headers.get("app-insets") ?? "{}");
+    const insetsJson = APP_INSETS_REGEX.exec(userAgent ?? "")?.[1];
+    const insets = JSON.parse(insetsJson ?? "{}");
     event.locals.appInfo = {
       insets: {
         top: insets?.top ? Number(insets.top) : 0,

@@ -9,7 +9,7 @@
   import Footer from "../Footer.svelte";
   import Navbar from "../Navbar.svelte";
   import Toast from "../Toast.svelte";
-  import AppNotificationHandle from "./AppNotificationHandle.svelte";
+  import AppNotificationHandler from "./AppNotificationHandler.svelte";
 
   export let data;
   $: (() => {
@@ -24,7 +24,7 @@
     <Drawer />
   </nav>
 {:else}
-  <AppNotificationHandle />
+  <AppNotificationHandler />
   <AppHeader />
 {/if}
 
