@@ -3,8 +3,9 @@
   import type { Event } from "@prisma/client";
   import { languageTag } from "$paraglide/runtime";
   import * as m from "$paraglide/messages";
+  import { eventLink } from "$lib/utils/redirect";
   export let events: Array<
-    Pick<Event, "slug" | "title" | "description" | "startDatetime">
+    Pick<Event, "id" | "slug" | "title" | "description" | "startDatetime">
   >;
 </script>
 
@@ -19,7 +20,7 @@
   {#each events as event}
     <div class="mt-0.5 bg-base-200">
       <a
-        href="/events/{event.slug}"
+        href={eventLink(event)}
         class="pop-out flex h-full flex-col justify-start gap-x-4 p-4"
       >
         <div class="flex flex-row">

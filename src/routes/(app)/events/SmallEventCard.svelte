@@ -6,6 +6,7 @@
   import type { InterestedGoingSchema } from "./interestedGoing";
   import type { EventWithIncludes } from "./events";
   import type { SuperValidated } from "sveltekit-superforms";
+  import { eventLink } from "$lib/utils/redirect";
 
   export let event: EventWithIncludes;
   export let interestedGoingForm: SuperValidated<InterestedGoingSchema>;
@@ -23,7 +24,7 @@
   </div>
 
   <div class="flex flex-col p-8">
-    <a href="/events/{event.slug}">
+    <a href={eventLink(event)}>
       <h2 class="text-2xl font-bold">{event.title}</h2>
     </a>
 

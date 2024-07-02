@@ -4,6 +4,7 @@
   import dayjs from "dayjs";
   import QRCode from "./QRCode.svelte";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
+  import { eventLink } from "$lib/utils/redirect";
 
   export let data;
   $: consumable = data.consumable;
@@ -41,7 +42,7 @@
     >
       <p>
         <span class="i-mdi-calendar" />
-        <a href="/events/{event.slug}" class="link-hover">
+        <a href={eventLink(event)} class="link-hover">
           {event.title}
         </a>
       </p>
