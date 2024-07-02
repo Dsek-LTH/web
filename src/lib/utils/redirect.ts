@@ -38,3 +38,5 @@ export const redirect: typeof rawRedirect = ((...args) => {
 
 export const eventLink = (event: Pick<Event, "id" | "slug">) =>
   event.slug ? `/events/${event.slug}` : `/events/id/${event.id}`;
+
+export const APP_REDIRECT_URL = "dsek://";
