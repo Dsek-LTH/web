@@ -1,21 +1,21 @@
 <script lang="ts">
   import GlobalAlert from "$lib/components/GlobalAlert.svelte";
   import { languageTag } from "$paraglide/runtime";
+  import dayjs from "dayjs";
+  import "dayjs/locale/sv";
+  import AppBottomNav from "../AppBottomNav.svelte";
+  import AppHeader from "../AppHeader.svelte";
   import Drawer from "../Drawer.svelte";
   import Footer from "../Footer.svelte";
   import Navbar from "../Navbar.svelte";
   import Toast from "../Toast.svelte";
-  import dayjs from "dayjs";
-  import "dayjs/locale/sv";
-  import AppHeader from "../AppHeader.svelte";
-  import AppBottomNav from "../AppBottomNav.svelte";
+  import AppNotificationHandle from "./AppNotificationHandle.svelte";
 
+  export let data;
   $: (() => {
     const locale = languageTag();
     dayjs.locale(locale);
   })();
-
-  export let data;
 </script>
 
 {#if !data.isApp}
@@ -24,6 +24,7 @@
     <Drawer />
   </nav>
 {:else}
+  <AppNotificationHandle />
   <AppHeader />
 {/if}
 

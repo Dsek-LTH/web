@@ -44,6 +44,10 @@ declare global {
       type Message = Message;
     }
   }
+
+  interface Window {
+    notificationToken?: string;
+  }
 }
 
 export {};
