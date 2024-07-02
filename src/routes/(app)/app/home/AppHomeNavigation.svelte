@@ -43,7 +43,7 @@
       <li class="menu-title">{route.parent?.title}</li>
     {/if}
     <li>
-      <a href={route.path} class="btn justify-start">
+      <a href={route.path} class="pop-out btn justify-start">
         <NavIcon icon={route.icon} />
         <span>{route.title}</span>
       </a>

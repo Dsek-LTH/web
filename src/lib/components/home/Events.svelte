@@ -18,10 +18,10 @@
   class="grid flex-row divide-base-100 sm:grid-cols-2 sm:divide-x-2 md:grid-cols-3 sm:[&>*:first-child]:rounded-bl-xl [&>*:last-child]:rounded-br-xl max-sm:[&>*:nth-child(2)]:rounded-b-xl sm:max-md:[&>*:nth-child(2)]:rounded-br-xl max-md:[&>*:nth-child(3)]:hidden"
 >
   {#each events as event}
-    <div class="mt-0.5 bg-base-200">
+    <div class="pop-out mt-0.5 bg-base-200">
       <a
         href={eventLink(event)}
-        class="pop-out flex h-full flex-col justify-start gap-x-4 p-4"
+        class="flex h-full flex-col justify-start gap-x-4 p-4"
       >
         <div class="flex flex-row">
           <div
