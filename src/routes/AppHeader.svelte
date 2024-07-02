@@ -1,7 +1,6 @@
 <script lang="ts">
   import { page } from "$app/stores";
   import type { NotificationSchema } from "$lib/zod/schemas";
-  import * as m from "$paraglide/messages";
   import { signIn } from "@auth/sveltekit/client";
   import type { Notification } from "@prisma/client";
   import type { SuperValidated } from "sveltekit-superforms";
@@ -9,6 +8,7 @@
   import { appBottomNavRoutes, getRoutes } from "./routes";
   import { pageTitle } from "$lib/stores/pageTitle";
   import { i18n } from "$lib/utils/i18n";
+  import NavIcon from "$lib/components/NavIcon.svelte";
   $: notifications = $page.data["notifications"] as Notification[] | null;
   $: deleteNotificationForm = $page.data[
     "deleteNotificationForm"
@@ -41,8 +41,8 @@
         <NotificationBell {notifications} deleteForm={deleteNotificationForm} />
       {/if}
     {:else}
-      <button class="btn btn-ghost" on:click={() => signIn("keycloak")}>
-        {m.navbar_logIn()}
+      <button class="btn btn-ghost gap-0" on:click={() => signIn("keycloak")}>
+        <NavIcon class="text-inherit" icon="i-mdi-login" />
       </button>
     {/if}
   </div>

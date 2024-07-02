@@ -5,14 +5,15 @@ import * as m from "$paraglide/messages";
 // home-link: Show on the home page
 // none: Don't show anywhere
 type AppBehaviour = "bottom-nav" | "home-link" | "none";
+// Special behaviours. cart-badge shows a badge with the amount of items in cart, when shown in AppBottomNav.
 type RouteSpecialBehaviour = "cart-badge";
-type Route = {
+export type Route = {
   title: string;
   path: string | null;
   specialBehaviour?: RouteSpecialBehaviour;
   icon: string;
   accessRequired: string | null;
-  appBehaviour?: AppBehaviour;
+  appBehaviour: AppBehaviour;
   children?: Route[];
 };
 export const getRoutes = (): Route[] =>
@@ -125,24 +126,28 @@ export const getRoutes = (): Route[] =>
           path: "/admin/access",
           icon: "i-mdi-key",
           accessRequired: apiNames.ACCESS_POLICY.READ,
+          appBehaviour: "home-link",
         },
         {
           title: m.doors(),
           path: "/admin/doors",
           icon: "i-mdi-door-open",
           accessRequired: apiNames.DOOR.READ,
+          appBehaviour: "home-link",
         },
         {
           title: m.emailAliases(),
           path: "/admin/email-alias",
           icon: "i-mdi-email",
           accessRequired: apiNames.EMAIL_ALIAS.READ,
+          appBehaviour: "home-link",
         },
         {
           title: m.alerts(),
           path: "/admin/alerts",
           icon: "i-mdi-alert-circle",
           accessRequired: apiNames.ALERT,
+          appBehaviour: "home-link",
         },
       ],
     },
@@ -155,6 +160,7 @@ export const appBottomNavRoutes = (routes: Route[]): Route[] =>
       icon: "dsek-icon",
       path: "/app/home",
       accessRequired: null,
+      appBehaviour: "bottom-nav",
     } as Route,
   ]
     .concat(
@@ -172,5 +178,6 @@ export const appBottomNavRoutes = (routes: Route[]): Route[] =>
         icon: "i-mdi-account-circle",
         path: "/app/account",
         accessRequired: null,
+        appBehaviour: "bottom-nav",
       },
     ]);

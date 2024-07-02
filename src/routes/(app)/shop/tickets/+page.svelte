@@ -6,7 +6,7 @@
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
   import * as m from "$paraglide/messages";
-  import NavIcon from "../../../NavIcon.svelte";
+  import NavIcon from "$lib/components/NavIcon.svelte";
   import TicketSection from "./TicketSection.svelte";
 
   export let data;

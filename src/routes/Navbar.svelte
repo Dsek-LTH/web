@@ -9,7 +9,7 @@
   import type { SuperValidated } from "sveltekit-superforms";
   import DarkLightToggle from "./DarkLightToggle.svelte";
   import LanguageSwitcher from "./LanguageSwitcher.svelte";
-  import NavIcon from "./NavIcon.svelte";
+  import NavIcon from "$lib/components/NavIcon.svelte";
   import NotificationBell from "./NotificationBell.svelte";
   import UserMenu from "./UserMenu.svelte";
   import { getRoutes } from "./routes";

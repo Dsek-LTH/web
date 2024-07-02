@@ -3,7 +3,7 @@
   import { isAuthorized } from "$lib/utils/authorization";
   import DarkLightToggle from "./DarkLightToggle.svelte";
   import LanguageSwitcher from "./LanguageSwitcher.svelte";
-  import NavIcon from "./NavIcon.svelte";
+  import NavIcon from "$lib/components/NavIcon.svelte";
   import { getRoutes } from "./routes";
 
   let checked = false;

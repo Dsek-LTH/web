@@ -2,7 +2,7 @@
   import { page } from "$app/stores";
   import type { UserShopItemCounts } from "$lib/server/shop/countUserShopItems";
   import { i18n } from "$lib/utils/i18n";
-  import NavIcon from "./NavIcon.svelte";
+  import NavIcon from "$lib/components/NavIcon.svelte";
   import { appBottomNavRoutes, getRoutes } from "./routes";
   $: shopItemCounts = $page.data["shopItemCounts"] as UserShopItemCounts;
   $: routes = getRoutes();

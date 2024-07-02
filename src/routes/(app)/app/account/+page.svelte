@@ -4,14 +4,14 @@
   import { signIn, signOut } from "@auth/sveltekit/client";
   import DarkLightToggle from "../../../DarkLightToggle.svelte";
   import LanguageSwitcher from "../../../LanguageSwitcher.svelte";
-  import NavIcon from "../../../NavIcon.svelte";
+  import NavIcon from "$lib/components/NavIcon.svelte";
 
   export let data;
 </script>
 
 <SetPageTitle title={m.account()} />
 
-<div class="m-4 flex flex-1 flex-col gap-4 rounded-box bg-base-300 p-2">
+<div class="flex flex-1 flex-col gap-4 rounded-box bg-base-300 p-2">
   {#if data.user && data.member}
     <ul class="menu gap-4 [&>li>a]:py-2">
       <li>
@@ -52,7 +52,7 @@
       class="btn btn-primary mx-6 my-4 self-stretch"
       on:click={() => signIn("keycloak")}
     >
-      <NavIcon icon="i-mdi-login" />
+      <NavIcon class="text-inherit" icon="i-mdi-login" />
       {m.navbar_logIn()}
     </button>
   {/if}
