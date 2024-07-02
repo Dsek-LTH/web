@@ -138,6 +138,7 @@
 
   "inventory_errors_unauthorized": "You must log in to view your chest",
   "inventory_errors_consumableNotFound": "Could not find the product",
+  "inventory_empty": "Your inventory is empty, go buy something!",
   "inventory_ownedBy": "Owned by",
   "inventory_boughtAt": "Bought at",
   "inventory_anonymousUser": "anonymous user",

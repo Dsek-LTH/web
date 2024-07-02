@@ -60,7 +60,7 @@
   "tickets_foodPreferenceModal_preferenceInitialQuestion": "Har du någon matpreferens?",
   "tickets_foodPreferenceModal_preferenceQuestion": "Vad har du för matpreferens?",
   "tickets_foodPreferenceModal_iDontHaveAPreference": "Jag har ingen matpref",
-  "tickets_availableNow": "Tillgänliga biljetter",
+  "tickets_availableNow": "Tillgängliga biljetter",
   "tickets_upcoming": "Kommande biljetter",
   "tickets_past": "Tidigare biljetter",
   "tickets_createNew": "Skapa ny biljett",
@@ -137,6 +137,7 @@
 
   "inventory_errors_unauthorized": "Du måste logga in för att se din kista",
   "inventory_errors_consumableNotFound": "Hittade inte produkten",
+  "inventory_empty": "Din kista är tom, gå köp något!",
   "inventory_ownedBy": "Ägs av",
   "inventory_boughtAt": "Köptes",
   "inventory_anonymousUser": "anonym användare",

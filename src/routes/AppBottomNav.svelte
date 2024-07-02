@@ -15,18 +15,31 @@
 </script>
 
 <div
-  class="btm-nav left-2 right-2 w-[calc(100%-1rem)] rounded-lg bg-base-300 bg-opacity-60 filter backdrop-blur"
+  class="btm-nav left-2 right-2 w-[calc(100%-1rem)] overflow-hidden rounded-lg bg-base-300 bg-opacity-60 filter backdrop-blur"
   style="bottom: {bottomInsets + 16}px;"
 >
   <div
-    class="absolute bottom-1 h-0.5 w-[15%] bg-primary transition-all ease-out"
+    class="absolute bottom-1 h-px w-[15%] bg-primary transition-all ease-out"
     class:opacity-0={currentRouteIndex === -1}
-    style="left: {currentRouteIndex * (100 / routesToShow.length) + 2.5}%"
+    style="left: {currentRouteIndex * (100 / routesToShow.length) + 2.5}%;"
   />
   {#each routesToShow as route (route.path)}
-    <a href={route.path} class="transition-all">
-      <NavIcon icon={route.icon} />
-      <!-- <span class="btm-nav-label text-[0.5rem] uppercase">{route.title}</span> -->
-    </a>
+    {#if shopItemCounts?.inCart && route.specialBehaviour === "cart-badge"}
+      <!-- shop icon -->
+      <a href={route.path} class="transition-all">
+        <div class="indicator">
+          <NavIcon icon={route.icon} />
+          <span class="badge indicator-item badge-error">
+            {shopItemCounts.inCart}
+          </span>
+          <!-- <span class="btm-nav-label text-[0.5rem] uppercase">{route.title}</span> -->
+        </div>
+      </a>
+    {:else}
+      <a href={route.path} class="transition-all">
+        <NavIcon icon={route.icon} />
+        <!-- <span class="btm-nav-label text-[0.5rem] uppercase">{route.title}</span> -->
+      </a>
+    {/if}
   {/each}
 </div>

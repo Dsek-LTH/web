@@ -56,12 +56,10 @@
           <span class="i-mdi-cog size-6 text-primary" />
           {m.navbar_userMenu_settings()}
         </a>
-        {#if (shopItemCounts?.owned ?? 0) > 0}
-          <a href="/shop/inventory" class="btn btn-ghost w-full justify-start">
-            <span class="i-mdi-treasure-chest size-6 text-primary" />
-            {m.navbar_userMenu_inventory()}
-          </a>
-        {/if}
+        <a href="/shop/inventory" class="btn btn-ghost w-full justify-start">
+          <span class="i-mdi-treasure-chest size-6 text-primary" />
+          {m.navbar_userMenu_inventory()}
+        </a>
         {#if amountInCart > 0}
           <a href="/shop/cart" class="btn btn-ghost w-full justify-start">
             <span class="i-mdi-cart size-6 text-primary" />

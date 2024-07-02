@@ -17,6 +17,10 @@
 <article class="flex flex-col gap-4">
   <PageHeader title={m.inventory_yourInventory()} />
 
+  {#if consumed.length + unconsumed.length === 0}
+    <span class="text-lg font-semibold">{m.inventory_empty()}</span>
+  {/if}
+
   <ConsumableSection title={m.tickets()} consumables={unconsumed} />
   <ConsumableSection title={m.inventory_usedUp()} consumables={consumed} />
 </article>

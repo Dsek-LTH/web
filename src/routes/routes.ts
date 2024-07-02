@@ -5,10 +5,11 @@ import * as m from "$paraglide/messages";
 // home-link: Show on the home page
 // none: Don't show anywhere
 type AppBehaviour = "bottom-nav" | "home-link" | "none";
-
+type RouteSpecialBehaviour = "cart-badge";
 type Route = {
   title: string;
   path: string | null;
+  specialBehaviour?: RouteSpecialBehaviour;
   icon: string;
   accessRequired: string | null;
   appBehaviour?: AppBehaviour;
@@ -40,6 +41,7 @@ export const getRoutes = (): Route[] =>
     {
       title: m.tickets(),
       path: "/shop/tickets",
+      specialBehaviour: "cart-badge",
       icon: "i-mdi-ticket",
       accessRequired: apiNames.WEBSHOP.PURCHASE,
       appBehaviour: "bottom-nav",

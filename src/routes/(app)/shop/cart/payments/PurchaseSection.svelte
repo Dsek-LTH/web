@@ -11,6 +11,7 @@
   import SveltePaymentElement from "./SveltePaymentElement.svelte";
 
   export let totalPrice: number;
+  export let showPrice = true;
 
   let stripe: StripeJS.Stripe | null = null;
   onMount(async () => {
@@ -47,8 +48,10 @@
         </button>
       </form>
     </td>
-    <td colspan="2" class="text-right">
-      <Price price={totalPrice} />
-    </td>
+    {#if showPrice}
+      <td colspan="2" class="text-right">
+        <Price price={totalPrice} />
+      </td>
+    {/if}
   </tr>
 {/if}
