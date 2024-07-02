@@ -1,6 +1,6 @@
 <script lang="ts">
   import { page } from "$app/stores";
-    import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import TvArticleCard from "./TVArticleCard.svelte";
   import * as m from "$paraglide/messages";
 
