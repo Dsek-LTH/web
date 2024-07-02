@@ -10,7 +10,7 @@
   const toggleTheme = () => {
     const newTheme = isCurrentThemeLight ? "dark" : "light";
     const one_year = 60 * 60 * 24 * 365;
-    document.cookie = `theme=${newTheme}; max-age=${one_year}; path=/; SameSite=Strict;`;
+    document.cookie = `theme=${newTheme}; max-age=${one_year}; path=/; SameSite=Lax;`;
     document.documentElement.setAttribute("data-theme", newTheme);
     isCurrentThemeLight = newTheme === "light";
   };
