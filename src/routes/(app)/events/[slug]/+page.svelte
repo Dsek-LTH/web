@@ -5,7 +5,6 @@
   import InterestedGoingButtons from "../InterestedGoingButtons.svelte";
   import InterestedGoingList from "../InterestedGoingList.svelte";
   import * as m from "$paraglide/messages";
-  import { languageTag } from "$paraglide/runtime";
 
   import type { SuperValidated } from "sveltekit-superforms";
   import type { PageData } from "./$types";
@@ -26,9 +25,7 @@
 </script>
 
 <svelte:head>
-  <title
-    >{languageTag() === "en" && event.titleEn ? event.titleEn : event.title} | D-sektionen</title
-  >
+  <title>{event.title} | D-sektionen</title>
 </svelte:head>
 
 <Event {event}>

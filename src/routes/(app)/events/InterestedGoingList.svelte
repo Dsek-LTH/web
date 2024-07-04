@@ -1,53 +1,17 @@
 <script lang="ts">
-  import { getFullName } from "$lib/utils/client/member";
   import type { Member } from "@prisma/client";
   import AuthorSignature from "$lib/components/AuthorSignature.svelte";
   import * as m from "$paraglide/messages";
+  import { formatGoingList, formatInterestedList } from "./pluralization";
 
   let goingModal: HTMLDialogElement;
   let interestedModal: HTMLDialogElement;
   export let interested: Member[];
   export let going: Member[];
 
-  $: goingText =
-    going.length > 0
-      ? going.length === 1
-        ? m.events_interestedGoing_isGoing({ x: getFullName(going[0]!) })
-        : m.events_interestedGoing_areGoing({
-            x:
-              going.length > 2
-                ? m.events_interestedGoing_threeOrMore({
-                    name1: getFullName(going[0]!),
-                    name2: getFullName(going[1]!),
-                    others: going.length - 2,
-                  })
-                : m.events_interestedGoing_two({
-                    name1: getFullName(going[0]!),
-                    name2: getFullName(going[1]!),
-                  }),
-          })
-      : "";
+  $: goingText = formatGoingList(going);
 
-  $: interestedText =
-    interested.length > 0
-      ? interested.length === 1
-        ? m.events_interestedGoing_isInterested({
-            x: getFullName(interested[0]!),
-          })
-        : m.events_interestedGoing_areInterested({
-            x:
-              interested.length > 2
-                ? m.events_interestedGoing_threeOrMore({
-                    name1: getFullName(interested[0]!),
-                    name2: getFullName(interested[1]!),
-                    others: interested.length - 2,
-                  })
-                : m.events_interestedGoing_two({
-                    name1: getFullName(interested[0]!),
-                    name2: getFullName(interested[1]!),
-                  }),
-          })
-      : "";
+  $: interestedText = formatInterestedList(interested);
 </script>
 
 {#if going.length > 0}
