@@ -83,14 +83,15 @@ const deleteMandateSchema = z.object({
 });
 export type DeleteMandateSchema = typeof deleteMandateSchema;
 
-const genitiveCase = (base: string): string =>
-  languageTag() === "sv"
-    ? base.endsWith("s") || base.endsWith("x")
-      ? base
-      : base + "s"
-    : base.endsWith("s")
-      ? base + "'"
-      : base + "'s";
+const genitiveCase = (base: string): string => {
+  if (languageTag() === "sv") {
+    if (base.endsWith("s") || base.endsWith("x")) return base;
+    else return base + "s";
+  } else {
+    if (base.endsWith("s")) return base + "'";
+    else return base + "'s";
+  }
+};
 
 export const actions: Actions = {
   update: async ({ params, request, locals }) => {
