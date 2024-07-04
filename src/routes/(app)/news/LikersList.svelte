@@ -6,21 +6,28 @@
 
   let modal: HTMLDialogElement;
   export let likers: Member[];
-  $: likersText =
-    likers.length > 0
-      ? likers.length === 1
-        ? getFullName(likers[0]!)
-        : likers.length > 2
-          ? m.news_threeOrMore({
-              name1: getFullName(likers[0]!),
-              name2: getFullName(likers[1]!),
-              others: likers.length - 2,
-            })
-          : m.news_two({
-              name1: getFullName(likers[0]!),
-              name2: getFullName(likers[1]!),
-            })
-      : "";
+
+  const formatLikersList = (likers: Member[]): string => {
+    switch (likers.length) {
+      case 0:
+        return "";
+      case 1:
+        return getFullName(likers[0]!);
+      case 2:
+        return m.news_two({
+          name1: getFullName(likers[0]!),
+          name2: getFullName(likers[1]!),
+        });
+      default:
+        return m.news_threeOrMore({
+          name1: getFullName(likers[0]!),
+          name2: getFullName(likers[1]!),
+          others: likers.length - 2,
+        });
+    }
+  };
+
+  $: likersText = formatLikersList(likers);
 </script>
 
 {#if likers.length > 0}
