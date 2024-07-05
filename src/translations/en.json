@@ -521,7 +521,6 @@
   "songbook_showDeleted": "Show only deleted songs",
   "songbook_deleted": "Deleted",
   "songbook_deletedExplanation": "You have access for reading the song and restoring it",
-  "songbook_missingCategory": "Missing category",
   "songbook_edit": "Edit",
   "songbook_missingTitle": "Missing title",
   "songbook_missingLyrics": "Missing lyrics",
