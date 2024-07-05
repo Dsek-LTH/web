@@ -1,9 +1,10 @@
-import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
 import { fileHandler } from "$lib/files";
 import { fail } from "@sveltejs/kit";
 import { message, setError, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
+import * as m from "$paraglide/messages";
+import { typeToPath } from "./helpers";
 
 const CURRENT_YEAR = new Date().getFullYear();
 
@@ -43,23 +44,19 @@ export const actions: Actions = {
     const { folder, name, year, type } = form.data;
     const file = formData.get("file");
     if (!file || !(file instanceof File) || file.size <= 0) {
-      return setError(form, "file", "Felaktig fil");
+      return setError(form, "file", m.documents_errors_erroneousFile());
     }
 
     const formattedName = prepareNameForFilesystem(name, file.name);
-    const folderPath = `public/${type}/${year}/${folder}`;
+    const { path, bucket } = typeToPath[type];
     // await prisma.meeting.upsert({
     //   where: { url: folderPath },
     //   update: {},
     //   create: { title: meeting, date, url: folderPath },
     // });
 
-    const filePath = `${folderPath}/${formattedName}`;
-    const putUrl = await fileHandler.getPresignedPutUrl(
-      user,
-      PUBLIC_BUCKETS_DOCUMENTS,
-      filePath,
-    );
+    const filePath = `${path(year, folder)}/${formattedName}`;
+    const putUrl = await fileHandler.getPresignedPutUrl(user, bucket, filePath);
     const res = await fetch(putUrl, {
       method: "PUT",
       body: file,
@@ -68,13 +65,13 @@ export const actions: Actions = {
       return message(
         form,
         {
-          message: `Kunde inte ladda upp fil: ${res.statusText}`,
+          message: m.documents_errors_couldNotUploadFile({ x: res.statusText }),
           type: "error",
         },
         { status: 500 },
       );
     return message(form, {
-      message: "Fil uppladdad",
+      message: m.documents_fileUploaded(),
       type: "success",
     });
   },

@@ -3,6 +3,7 @@
   import { isAuthorized } from "$lib/utils/authorization";
   import Disclaimer from "../Disclaimer.svelte";
   import SongElement from "../SongElement.svelte";
+  import * as m from "$paraglide/messages";
 
   import type { PageData } from "./$types";
   export let data: PageData;
@@ -19,6 +20,8 @@
 
 {#if isAuthorized(apiNames.SONG.UPDATE, data.user)}
   <div class="my-4 flex justify-between">
-    <a class="btn" href={`/songbook/${data.song.slug}/edit`}>Redigera</a>
+    <a class="btn" href={`/songbook/${data.song.slug}/edit`}
+      >{m.songbook_edit()}</a
+    >
   </div>
 {/if}

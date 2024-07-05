@@ -4,6 +4,7 @@
   import { superForm } from "sveltekit-superforms/client";
   import ProfileImage from "./ProfileImage.svelte";
   import Cropper from "svelte-easy-crop";
+  import * as m from "$paraglide/messages";
 
   import type { PageData } from "./$types";
   export let data: PageData;
@@ -69,7 +70,7 @@
         isEditing = true;
       }}
     >
-      Ladda upp ny
+      {m.members_uploadNew()}
     </button>
   {:else}
     <form
@@ -125,7 +126,9 @@
       {#if $errors.image}
         <p class="text-error">{$errors.image}</p>
       {/if}
-      <button type="submit" class="btn btn-primary"> Spara </button>
+      <button type="submit" class="btn btn-primary">
+        {m.members_save()}
+      </button>
     </form>
   {/if}
   {#each photos as photo (photo.id)}
