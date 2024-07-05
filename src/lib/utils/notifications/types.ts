@@ -134,6 +134,6 @@ export const DEFAULT_SUBSCRIPTION_SETTINGS: Array<{
   },
   {
     type: NotificationSettingType.PURCHASES,
-    push_notification: false,
+    push_notification: true,
   },
 ];
