@@ -1,6 +1,7 @@
 <script lang="ts">
   import { page } from "$app/stores";
   import type { Ping } from "@prisma/client";
+  import * as m from "$paraglide/messages";
   export let ping: Pick<
     Ping,
     "count" | "fromMemberId" | "fromSentAt" | "toSentAt"
@@ -18,7 +19,9 @@
     Ping
     {#if ping}
       <div class="-mt-2 text-xs opacity-50">
-        {ping.count} ping{(ping.count ?? 0) > 1 ? "s" : ""}
+        {(ping.count ?? 0) === 1
+          ? m.members_onePing()
+          : m.members_pings({ x: ping.count ?? 0 })}
       </div>
     {/if}
   </button>

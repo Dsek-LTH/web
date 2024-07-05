@@ -8,6 +8,7 @@ import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { FileData } from "$lib/files/fileHandler";
 import { fail } from "@sveltejs/kit";
+import * as m from "$paraglide/messages";
 
 export type FolderType = {
   id: string;
@@ -30,7 +31,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     (acc, file) => {
       const fileParts = file.id.split("/");
       const folder = //get the folder structure starting 2 "steps" in, we don't want the requirements/[year] part of the filepath
-        fileParts.slice(2, fileParts.length - 1).join("/") ?? "unknown";
+        fileParts.slice(2, fileParts.length - 1).join("/") ??
+        m.documents_unknown();
       if (!acc[folder]) acc[folder] = [];
       acc[folder]?.push(file);
       return acc;
@@ -57,7 +59,7 @@ export const actions: Actions = {
     const { id } = form.data;
     await fileHandler.remove(user, PUBLIC_BUCKETS_DOCUMENTS, [id]);
     return message(form, {
-      message: "Fil borttagen",
+      message: m.documents_fileDeleted(),
       type: "success",
     });
   },

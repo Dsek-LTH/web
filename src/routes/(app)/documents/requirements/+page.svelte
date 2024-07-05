@@ -6,6 +6,7 @@
   import apiNames from "$lib/utils/apiNames";
   import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
   import type { FolderType } from "./+page.server";
+  import * as m from "$paraglide/messages";
 
   export let data: PageData;
 
@@ -80,11 +81,11 @@
 </script>
 
 <svelte:head>
-  <title>Kravprofiler | D-sektionen</title>
+  <title>{m.documents_requirementProfiles()} | D-sektionen</title>
 </svelte:head>
 
 <div class="mb-4 flex w-full flex-col items-start gap-2">
-  <span class="text-lg">Filtrera efter år</span>
+  <span class="text-lg">{m.documents_filterByYear()}</span>
   <Pagination
     class="max-w-prose"
     count={currentYear - 1981}
@@ -99,7 +100,7 @@
     {#if canCreate}
       <a
         class="btn btn-primary btn-sm"
-        href="/documents/upload?type=requirement">Ladda upp fil</a
+        href="/documents/upload?type=requirement">{m.documents_uploadFile()}</a
       >
     {/if}
     {#if canDelete}
@@ -109,7 +110,7 @@
           isEditing = !isEditing;
         }}
       >
-        {isEditing ? "Sluta redigera" : "Redigera"}
+        {isEditing ? m.documents_stopEditing() : m.documents_edit()}
       </button>
     {/if}
   </div>

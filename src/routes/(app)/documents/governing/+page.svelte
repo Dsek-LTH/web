@@ -6,6 +6,7 @@
   import DeleteFileForm from "../DeleteFileForm.svelte";
   import FileWithDownload from "../FileWithDownload.svelte";
   import type { PageData } from "./$types";
+  import * as m from "$paraglide/messages";
   export let data: PageData;
 
   let isEditing = false;
@@ -20,12 +21,12 @@
 <div
   class="flex w-full flex-row flex-wrap items-center justify-between gap-x-4"
 >
-  <PageHeader title="Styrdokument" />
+  <PageHeader title={m.documents_governing()} />
   <div>
     {#if isAuthorized(apiNames.GOVERNING_DOCUMENT.DELETE, data.user)}
       {#if isAuthorized(apiNames.GOVERNING_DOCUMENT.CREATE, data.user)}
         <a class="btn btn-primary btn-sm" href="/documents/governing/new">
-          + Skapa ny
+          + {m.documents_governing_createNew()}
         </a>
       {/if}
       <button
@@ -34,22 +35,17 @@
           isEditing = !isEditing;
         }}
       >
-        {isEditing ? "Sluta redigera" : "Redigera"}
+        {isEditing ? m.documents_stopEditing() : m.documents_edit()}
       </button>
     {/if}
   </div>
 </div>
 <div class="flex flex-col gap-5">
   <p>
-    Här finns alla styrdokument som gäller för D-sektionen. Styrdokumenten är
-    uppdelade i tre kategorier: Styrdokument, Reglemente och Policy.
-    Styrdokument är de dokument som styr hur sektionen ska fungera. Reglemente
-    är de dokument som styr hur sektionens organ ska fungera. Policy är de
-    dokument som styr hur sektionen ska förhålla sig till olika frågor.
+    {m.documents_governing_blurb()}
   </p>
   <p>
-    Om du har några frågor eller funderingar kring styrdokumenten kan du
-    kontakta
+    {m.documents_governing_forQuestions()}
     <a
       href="mailto:styrelsen@dsek.se"
       class="link link-primary no-underline hover:underline"
@@ -58,16 +54,22 @@
     </a>
   </p>
   <div class="flex items-center gap-5">
-    <FileWithDownload name="Stadgar" url="/stadgar" onClick={onPdfClick} />
     <FileWithDownload
-      name="Reglemente"
+      name={m.documents_governing_statutes()}
+      url="/stadgar"
+      onClick={onPdfClick}
+    />
+    <FileWithDownload
+      name={m.documents_governing_regulations()}
       url="/reglemente"
       onClick={onPdfClick}
     />
   </div>
   <div class="flex flex-col gap-4 md:flex-row">
     <div>
-      <h1 class="my-3 text-2xl font-bold">Policyer</h1>
+      <h1 class="my-3 text-2xl font-bold">
+        {m.documents_governing_policies()}
+      </h1>
       <div class="flex flex-col gap-2">
         {#each data.policies as policy}
           <div class="flex items-center gap-1">
@@ -96,7 +98,9 @@
       </div>
     </div>
     <div>
-      <h1 class="my-3 text-2xl font-bold">Riktlinjer</h1>
+      <h1 class="my-3 text-2xl font-bold">
+        {m.documents_governing_guidelines()}
+      </h1>
       <div class="flex flex-col gap-2">
         {#each data.guidelines as guideline}
           <div class="flex items-center gap-1">
@@ -137,7 +141,7 @@
     />
   </form>
   <iframe
-    title="PDF viewer"
+    title={m.documents_governing_pdfViewer()}
     src={selectedPdf}
     class="menu modal-box h-full max-h-[95vh] w-full max-w-[70vw]"
     on:error={() => dialog.close()}
