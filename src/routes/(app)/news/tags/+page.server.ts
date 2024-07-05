@@ -5,6 +5,7 @@ import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import { authorize } from "$lib/utils/authorization";
+import * as m from "$paraglide/messages";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma, user } = locals;
@@ -43,7 +44,7 @@ export const actions: Actions = {
       },
     });
     return message(form, {
-      message: "Tagg skapad",
+      message: m.news_tags_tagCreated(),
       type: "success",
     });
   },
@@ -66,7 +67,7 @@ export const actions: Actions = {
         return message(
           form,
           {
-            message: "Tagg hittades inte",
+            message: m.news_errors_tagNotFound(),
             type: "error",
           },
           { status: 400 },
@@ -75,7 +76,7 @@ export const actions: Actions = {
       throw error;
     }
     return message(form, {
-      message: "Tagg uppdaterad",
+      message: m.news_tags_tagUpdated(),
       type: "success",
     });
   },
