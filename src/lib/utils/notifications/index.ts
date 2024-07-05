@@ -16,6 +16,7 @@ const DUPLICATE_ALLOWED_TYPES = [
   NotificationType.CREATE_MANDATE,
   NotificationType.ARTICLE_REQUEST_UPDATE,
   NotificationType.BOOKING_REQUEST,
+  NotificationType.PAYMENT_STATUS,
 ];
 
 type BaseSendNotificationProps = {
@@ -25,15 +26,22 @@ type BaseSendNotificationProps = {
   link: string;
   memberIds?: string[];
 };
-type SendNotificationProps = BaseSendNotificationProps &
+export type SendNotificationProps = BaseSendNotificationProps &
   (
     | {
+        // Send as author (e.g. Jane Smith, Källarmästare)
         fromAuthor: Author;
-        fromMemberId?: undefined;
+        fromMemberId?: never;
       }
     | {
-        fromAuthor?: undefined;
+        // Send as member (e.g. Jane Smith)
+        fromAuthor?: never;
         fromMemberId: string;
+      }
+    | {
+        // Send as system (e.g. D-sek)
+        fromAuthor?: never;
+        fromMemberId?: never;
       }
   );
 
@@ -42,8 +50,8 @@ const prisma = authorizedPrismaClient;
 
 /**
  *
- * @param title
- * @param message
+ * @param title Title for the notification
+ * @param message Body of the message
  * @param type NotificationType
  * @param link used when notification is clicked
  * @param memberIds if no memberId is input then it will send to all users
@@ -59,6 +67,7 @@ const sendNotification = async ({
   fromAuthor,
   fromMemberId,
 }: SendNotificationProps) => {
+  if ((memberIds?.length ?? 0) == 0) return;
   // Find corresponding setting type, example "COMMENT" for "EVENT_COMMENT"
   const settingType: NotificationSettingType = (Object.entries(
     SUBSCRIPTION_SETTINGS_MAP,

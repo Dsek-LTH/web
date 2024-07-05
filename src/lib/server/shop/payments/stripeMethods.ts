@@ -52,14 +52,6 @@ export const creteConsumableMetadata = (
     }
   >,
 ): Stripe.MetadataParam => {
-  if (consumables.length == 0) {
-    const consumable = consumables[0]!;
-    return {
-      consumableId: consumable.id,
-      consumableName: consumable.shoppable.title,
-      consumableCount: 1,
-    };
-  }
   return {
     consumableIds: consumables.map((c) => c.id).join(", "),
     consumableNames: consumables.map((c) => c.shoppable.title).join(", "),

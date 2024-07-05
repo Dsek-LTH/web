@@ -1,5 +1,8 @@
 import { env } from "$env/dynamic/public";
-import { moveQueueToCart } from "$lib/server/shop/addToCart/reservations.js";
+import {
+  moveQueueToCart,
+  withHandledNotificationQueue,
+} from "$lib/server/shop/addToCart/reservations.js";
 import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma.js";
 import { refundConsumable } from "$lib/server/shop/payments/stripeMethods.js";
 import apiNames from "$lib/utils/apiNames.js";
@@ -180,11 +183,13 @@ export const actions = {
           id: consumable.id,
         },
       });
-      await moveQueueToCart(
-        authorizedPrismaClient,
-        consumable.shoppableId,
-        1,
-        true,
+      await withHandledNotificationQueue(
+        moveQueueToCart(
+          authorizedPrismaClient,
+          consumable.shoppableId,
+          1,
+          true,
+        ),
       );
 
       return message(form, {

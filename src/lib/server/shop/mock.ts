@@ -1,4 +1,5 @@
 import type { TransactionClient } from "$lib/server/shop/types";
+import { SUBSCRIPTION_SETTINGS_MAP } from "$lib/utils/notifications/types";
 import { ShoppableType, type Member, type PrismaClient } from "@prisma/client";
 
 export const MOCK_EVENT_1 = {
@@ -241,6 +242,13 @@ export const removeAllTestData = async (
   prisma: PrismaClient,
   suitePrefix: string,
 ) => {
+  await prisma.notification.deleteMany({
+    where: {
+      OR: SUBSCRIPTION_SETTINGS_MAP.PURCHASES.map((type) => ({
+        type,
+      })),
+    },
+  });
   await prisma.shoppable.deleteMany({
     where: {
       author: {
