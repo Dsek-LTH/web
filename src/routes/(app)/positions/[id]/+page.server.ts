@@ -85,11 +85,11 @@ export type DeleteMandateSchema = typeof deleteMandateSchema;
 
 const genitiveCase = (base: string): string => {
   if (languageTag() === "sv") {
-    if (base.endsWith("s") || base.endsWith("x")) return base;
-    else return base + "s";
+    if (base.endsWith("s") || base.endsWith("x")) return base; // Måns or Max => Måns and Max
+    else return base + "s"; // Adam => Adams
   } else {
-    if (base.endsWith("s")) return base + "'";
-    else return base + "'s";
+    if (base.endsWith("s")) return base + "'"; // Måns => Måns'
+    else return base + "'s"; // Adam => Adam's
   }
 };
 
