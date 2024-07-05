@@ -2,6 +2,7 @@ import { fail } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
+import * as m from "$paraglide/messages";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma } = locals;
@@ -35,7 +36,7 @@ export const actions: Actions = {
       },
     });
     return message(form, {
-      message: "Styrdokument raderat",
+      message: m.documents_governing_documentDeleted(),
       type: "success",
     });
   },

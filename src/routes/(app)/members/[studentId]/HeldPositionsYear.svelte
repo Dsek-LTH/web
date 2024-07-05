@@ -1,6 +1,7 @@
 <script lang="ts">
   import CommitteeIcon from "$lib/components/CommitteeIcon.svelte";
   import type { MandateWithPositionAndCommitte } from "./types";
+  import { languageTag } from "$paraglide/runtime";
 
   export let year: string;
   export let mandates: MandateWithPositionAndCommitte[];
@@ -15,8 +16,8 @@
           class="tooltip -mx-4 whitespace-pre"
           data-tip={mandate.position.committee?.name +
             `\n${mandate.startDate.toLocaleDateString(
-              "sv",
-            )} - ${mandate.endDate.toLocaleDateString("sv")}`}
+              languageTag(),
+            )} - ${mandate.endDate.toLocaleDateString(languageTag())}`}
         >
           <a href="/positions/{mandate.position.id}">
             <button

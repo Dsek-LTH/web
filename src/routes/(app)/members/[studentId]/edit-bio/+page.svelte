@@ -3,6 +3,7 @@
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import { getFullName } from "$lib/utils/client/member";
   import { superForm } from "sveltekit-superforms/client";
+  import * as m from "$paraglide/messages";
 
   import type { PageData } from "./$types";
   export let data: PageData;
@@ -30,7 +31,7 @@
     use:enhance
     class="form-control gap-2"
   >
-    <button type="submit" class="btn btn-secondary">Spara</button>
+    <button type="submit" class="btn btn-secondary">{m.members_save()}</button>
     {#if $errors.bio}
       <p class="text-error">{$errors.bio}</p>
     {/if}
@@ -44,7 +45,7 @@
     />
   </form>
   <div>
-    <h2 class="py-3 text-xl italic">Preview</h2>
+    <h2 class="py-3 text-xl italic">{m.members_preview()}</h2>
     <MarkdownBody body={$form.bio ?? ""} />
   </div>
 </div>

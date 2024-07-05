@@ -29,7 +29,9 @@
 
 <section class="rounded-lg bg-base-200 p-4 pt-2 shadow">
   <h2 class="mb-2 text-lg font-bold">{name}</h2>
-  <div class="flex flex-wrap gap-2">
+  <div
+    class="grid grid-flow-row grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3"
+  >
     {#each files as file (file.id)}
       <div class="flex gap-1">
         {#if file.thumbnailUrl}

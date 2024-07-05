@@ -1,10 +1,14 @@
-import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
+import {
+  PUBLIC_BUCKETS_DOCUMENTS,
+  PUBLIC_BUCKETS_FILES,
+} from "$env/static/public";
 import { fileHandler } from "$lib/files";
 import type { FileData } from "$lib/files/fileHandler.js";
 import { error, fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
+import * as m from "$paraglide/messages";
 
 export type DocumentType =
   | "board-meeting"
@@ -22,36 +26,29 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   const year = url.searchParams.get("year") || new Date().getFullYear();
   const type: DocumentType =
     (url.searchParams.get("type") as DocumentType) || "board-meeting";
-  const files = await Promise.all([
-    ...(await fileHandler.getInBucket(
-      user,
-      PUBLIC_BUCKETS_DOCUMENTS,
-      year + "/" + (prefixByType[type] ?? ""),
-      true,
-    )),
-    ...(await fileHandler.getInBucket(
-      user,
-      PUBLIC_BUCKETS_DOCUMENTS,
-      "meeting/" + year + "/" + (prefixByType[type] ?? ""),
-      true,
-    )),
-  ]);
 
-  const SRDfiles = await fileHandler.getInBucket(
+  const files = await fileHandler.getInBucket(
     user,
     PUBLIC_BUCKETS_DOCUMENTS,
-    "srd/" + year,
+    "public/" + year + "/" + (prefixByType[type] ?? ""),
+    true,
+  );
+  const SRDfiles = await fileHandler.getInBucket(
+    user,
+    PUBLIC_BUCKETS_FILES,
+    "public/srd/" + year,
     true,
   );
 
-  if (!files) throw error(404, "No files found");
+  if (!files) throw error(404, m.documents_errors_noFiles());
   let filteredFiles = files;
   const oldFormatSRDFiles: FileData[] = [];
   switch (type) {
     case "guild-meeting":
       filteredFiles = files.filter((file) => {
         const fileParts = file.id.split("/");
-        const meeting = fileParts[fileParts.length - 2] ?? "unknown";
+        const meeting =
+          fileParts[fileParts.length - 2] ?? m.documents_unknown();
         return meeting.startsWith("HTM") || meeting.startsWith("VTM");
       });
       break;
@@ -59,7 +56,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     case "SRD-meeting":
       SRDfiles.forEach((file) => {
         const fileParts = file.id.split("/");
-        const meeting = fileParts[fileParts.length - 2] ?? "unknown";
+        const meeting =
+          fileParts[fileParts.length - 2] ?? m.documents_unknown();
         if (meeting.startsWith("Möte")) {
           filteredFiles.push(file);
         } else {
@@ -71,7 +69,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     case "other":
       filteredFiles = files.filter((file) => {
         const fileParts = file.id.split("/");
-        const meeting = fileParts[fileParts.length - 2] ?? "unknown";
+        const meeting =
+          fileParts[fileParts.length - 2] ?? m.documents_unknown();
         return (
           !meeting.startsWith("HTM") &&
           !meeting.startsWith("VTM") &&
@@ -86,7 +85,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     Record<string, FileData[]>
   >((acc, file) => {
     const fileParts = file.id.split("/");
-    const fileName = fileParts[fileParts.length - 1] ?? "unknown";
+    const fileName = fileParts[fileParts.length - 1] ?? m.documents_unknown();
     const extensions = ["pdf", "html"];
     const fileExtension = extensions.find((ext) => fileName.endsWith(ext));
     const meeting = fileName.substring(
@@ -103,7 +102,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     Record<string, FileData[]>
   >((acc, file) => {
     const fileParts = file.id.split("/");
-    const meeting = fileParts[fileParts.length - 2] ?? "unknown";
+    const meeting = fileParts[fileParts.length - 2] ?? m.documents_unknown();
     if (!acc[meeting]) acc[meeting] = [];
     acc[meeting]!.push(file);
     return acc;
@@ -128,7 +127,7 @@ export const actions: Actions = {
     const { id } = form.data;
     await fileHandler.remove(user, PUBLIC_BUCKETS_DOCUMENTS, [id]);
     return message(form, {
-      message: "Fil borttagen",
+      message: m.documents_fileDeleted(),
       type: "success",
     });
   },

@@ -1,5 +1,4 @@
 import type { EmailAlias, Member, PrismaClient } from "@prisma/client";
-import keyKloackAdminClient from "$lib/server/keycloak";
 
 export async function getAliasToPositions(
   prisma: PrismaClient,
@@ -60,34 +59,29 @@ export async function getCurrentMembersForPosition(
     );
 }
 
-// Keycloak needs studentIds to fetch emails,
-// so we "convert" memberIds to studentIds
 export async function getEmailsForManyMembers(
   memberIds: string[],
   prisma: PrismaClient,
 ) {
-  const studentIds = new Set(
-    (
-      await prisma.member.findMany({
-        where: {
-          id: {
-            in: memberIds,
-          },
-          studentId: {
-            not: null,
-          },
+  return (
+    await prisma.member.findMany({
+      where: {
+        id: {
+          in: memberIds,
         },
-        select: {
-          studentId: true,
+        studentId: {
+          not: null,
         },
-      })
-    ).reduce<string[]>((acc, cur) => {
-      if (cur.studentId != null) {
-        acc.push(cur.studentId);
-      }
-      return acc;
-    }, []),
-  );
-  const usersToEmail = keyKloackAdminClient.getManyUserEmails(studentIds);
-  return usersToEmail;
+      },
+      select: {
+        studentId: true,
+        email: true,
+      },
+    })
+  ).reduce<Map<string, string>>((acc, cur) => {
+    if (cur.studentId != null && cur.email != null) {
+      acc.set(cur.studentId, cur.email);
+    }
+    return acc;
+  }, new Map<string, string>());
 }

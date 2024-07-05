@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as m from "$paraglide/messages";
   export let isEditing: boolean;
 </script>
 
@@ -8,5 +9,5 @@
     isEditing = !isEditing;
   }}
 >
-  {isEditing ? "Avbryt" : "Redigera"}
+  {isEditing ? m.members_cancel() : m.members_edit()}
 </button>

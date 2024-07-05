@@ -4,6 +4,15 @@ on:
   release:
     types: [published]
 
+env:
+  PUBLIC_MINIO_ENDPOINT: minio.api.dsek.se
+  PUBLIC_MINIO_PORT: 443
+  PUBLIC_MINIO_USE_SSL: true
+  PUBLIC_BUCKETS_DOCUMENTS: documents
+  PUBLIC_BUCKETS_FILES: files
+  PUBLIC_BUCKETS_MATERIAL: material
+  PUBLIC_BUCKETS_MEMBERS: members
+
 jobs:
   build:
     runs-on: ubuntu-latest
