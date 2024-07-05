@@ -473,6 +473,7 @@ model Keycloak {
 /// @@allow('read', has(auth().policies, 'core:mandate:read'))
 /// @@allow('update', has(auth().policies, 'core:mandate:update'))
 /// @@allow('delete', has(auth().policies, 'core:mandate:delete'))
+/// @@deny('read', positionId == 'dsek.noll.stab.mdlm' || positionId == 'dsek.noll.stab.oph')
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Mandates{
 model Mandate {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
@@ -650,6 +651,7 @@ model Ping {
 /// @@allow('update', has(auth().policies, 'core:position:update'))
 /// @@allow('delete', has(auth().policies, 'core:position:delete'))
 /// @@deny('read', active == false && !has(auth().policies, 'core:position:inactive:read'))
+/// @@deny('read', id == 'dsek.noll.stab.mdlm' || id == 'dsek.noll.stab.oph')
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Positions{
 model Position {
     id String @id() @db.VarChar(255)

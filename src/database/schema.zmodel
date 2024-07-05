@@ -478,6 +478,7 @@ model Mandate {
   @@allow("read", has(auth().policies, "core:mandate:read"))
   @@allow("update", has(auth().policies, "core:mandate:update"))
   @@allow("delete", has(auth().policies, "core:mandate:delete"))
+  @@deny("read", positionId == "dsek.noll.stab.mdlm" || positionId == "dsek.noll.stab.oph")
   @@map("mandates")
 }
 
@@ -656,6 +657,7 @@ model Position {
   @@allow("update", has(auth().policies, "core:position:update"))
   @@allow("delete", has(auth().policies, "core:position:delete"))
   @@deny("read", active == false && !has(auth().policies, "core:position:inactive:read"))
+  @@deny("read", id == "dsek.noll.stab.mdlm" || id == "dsek.noll.stab.oph")
   @@map("positions")
 }
 
