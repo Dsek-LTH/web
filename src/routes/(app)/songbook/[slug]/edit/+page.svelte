@@ -6,6 +6,7 @@
   import DOMPurify from "isomorphic-dompurify";
   import { superForm } from "sveltekit-superforms/client";
   import { isAuthorized } from "$lib/utils/authorization";
+  import * as m from "$paraglide/messages";
   import type { PageData } from "./$types";
   export let data: PageData;
 
@@ -33,15 +34,15 @@
   <input type="hidden" name="id" value={data.song.id} />
   <Input
     name="title"
-    label="Titel"
+    label={m.songbook_title()}
     bind:value={$form.title}
     {...$constraints.title}
     error={$errors.title}
   />
   <Labeled
-    label="Melodi"
+    label={m.songbook_melody()}
     error={$errors.melody}
-    explanation="Sök efter en melodi eller skriv in en ny"
+    explanation={m.songbook_melodyExplanation()}
   >
     <Autocomplete
       name="melody"
@@ -53,9 +54,9 @@
     />
   </Labeled>
   <Labeled
-    label="Kategori"
+    label={m.songbook_category()}
     error={$errors.category}
-    explanation="Sök efter en kategori eller skriv in en ny"
+    explanation={m.songbook_categoryExplanation()}
   >
     <Autocomplete
       name="category"
@@ -66,7 +67,7 @@
       searchValue={data.song.category ?? ""}
     />
   </Labeled>
-  <Labeled label="Text" error={$errors.lyrics}>
+  <Labeled label={m.songbook_lyrics()} error={$errors.lyrics}>
     <textarea
       id="lyrics"
       name="lyrics"
@@ -78,9 +79,9 @@
 
   <div class="flex justify-between">
     <div class="flex gap-2">
-      <button class="btn btn-primary" type="submit">Spara</button>
+      <button class="btn btn-primary" type="submit">{m.songbook_save()}</button>
       <a class="btn" type="button" href={`/songbook/${data.song.slug}`}>
-        Avbryt
+        {m.songbook_cancel()}
       </a>
     </div>
     {#if isAuthorized(apiNames.SONG.DELETE, data.user)}
@@ -90,13 +91,13 @@
           type="button"
           on:click={() => removeModal?.showModal()}
         >
-          Ta bort sång
+          {m.songbook_removeSong()}
         </button>
       {:else}
         <form method="POST" action="?/restore" class="form-control gap-2">
           <input type="hidden" name="id" value={data.song.id} />
           <button class="btn" type="submit" formaction="?/restore">
-            Återställ från papperskorgen
+            {m.songbook_restoreFromGarbageCan()}
           </button>
         </form>
       {/if}
@@ -106,9 +107,9 @@
 
 <dialog bind:this={removeModal} class="modal modal-bottom sm:modal-middle">
   <div class="modal-box">
-    <h3 class="text-lg font-bold">Ta bort sång</h3>
+    <h3 class="text-lg font-bold">{m.songbook_removeSong()}</h3>
     <p class="py-4">
-      Är du säker på att du vill ta bort sången
+      {m.songbook_areYouSure()}
       <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized client-side -->
       <b class="capitalize">{@html DOMPurify.sanitize(data.song.title)}</b>?
     </p>
@@ -121,10 +122,10 @@
             type="button"
             on:click={() => removeModal?.close()}
           >
-            Avbryt
+            {m.songbook_cancel()}
           </button>
           <button class="btn btn-error" type="submit" formaction="?/delete">
-            Ta bort
+            {m.songbook_remove()}
           </button>
         </div>
       </form>

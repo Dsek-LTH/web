@@ -16,14 +16,12 @@ export const load: PageServerLoad = async ({ locals, fetch }) => {
   /* files - subject to change */
 
   const year = new Date().getFullYear();
-  const files = await Promise.all([
-    ...(await fileHandler.getInBucket(
-      user,
-      PUBLIC_BUCKETS_DOCUMENTS,
-      "meeting/" + year + "/",
-      true,
-    )),
-  ]);
+  const files = await fileHandler.getInBucket(
+    user,
+    PUBLIC_BUCKETS_DOCUMENTS,
+    "public/" + year + "/",
+    true,
+  );
 
   const boardMeetingFileNameRegex = /^S\d+$/;
   const boardMeetings = Array.from(
@@ -32,7 +30,7 @@ export const load: PageServerLoad = async ({ locals, fetch }) => {
         .map((obj) => obj.id.split("/")[2])
         .filter((str) => boardMeetingFileNameRegex.test(str!))
         .map((str) => parseInt(str!.substring(1)))
-        .sort(),
+        .sort((a, b) => a - b),
     ),
   );
 

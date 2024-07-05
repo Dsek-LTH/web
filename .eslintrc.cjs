@@ -59,13 +59,6 @@ module.exports = {
               "2) Move the imported code to a shared location, e.g. a parent folder.\n" +
               "3) Verify that you're using the correct path alias, e.g. $lib.",
           },
-        ],
-      },
-    ],
-    "no-restricted-imports": [
-      "error",
-      {
-        patterns: [
           {
             importNamePattern: "^(goto|redirect)",
             group: [

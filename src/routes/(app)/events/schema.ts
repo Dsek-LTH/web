@@ -27,7 +27,7 @@ export const eventSchema = z
   .refine(
     (data) =>
       data.startDatetime < data.endDatetime &&
-      data.startDatetime < data.recurringEndDatetime,
+      (!data.isRecurring || data.startDatetime < data.recurringEndDatetime),
     {
       message: m.events_errors_endAfterStart(),
       path: ["endDatetime"],

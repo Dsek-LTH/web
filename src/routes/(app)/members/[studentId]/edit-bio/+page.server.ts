@@ -5,6 +5,7 @@ import { memberSchema } from "$lib/zod/schemas";
 import { error, fail } from "@sveltejs/kit";
 import { superValidate } from "sveltekit-superforms/server";
 import type { Actions, PageServerLoad } from "./$types";
+import * as m from "$paraglide/messages";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
@@ -16,7 +17,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     },
   });
   if (!member) {
-    throw error(404, "Member not found");
+    throw error(404, m.members_errors_memberNotFound());
   }
   return {
     member,
@@ -42,7 +43,7 @@ export const actions: Actions = {
     throw redirect(
       `/members/${studentId}`,
       {
-        message: "Bio updated",
+        message: m.members_bioUpdated(),
         type: "success",
       },
       event,

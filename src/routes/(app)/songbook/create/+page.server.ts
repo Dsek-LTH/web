@@ -7,6 +7,7 @@ import type { PageServerLoad, Actions } from "./$types";
 import { slugifySongTitle } from "./helpers";
 import { getExistingCategories, getExistingMelodies } from "../helpers";
 import { authorize } from "$lib/utils/authorization";
+import * as m from "$paraglide/messages";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma, user } = locals;
@@ -45,7 +46,7 @@ export const actions: Actions = {
     throw redirect(
       `/songbook/${result.slug}`,
       {
-        message: "Sång skapad",
+        message: m.songbook_songCreated(),
         type: "success",
       },
       event,

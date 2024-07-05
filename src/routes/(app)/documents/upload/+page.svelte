@@ -3,6 +3,9 @@
   import { superForm } from "sveltekit-superforms/client";
   import DocumentTypeSelector from "./DocumentTypeSelector.svelte";
   import type { PageData } from "./$types";
+  import * as m from "$paraglide/messages";
+  import { typeToPath } from "./helpers";
+
   export let data: PageData;
   const { form, constraints, errors, enhance } = superForm(data.form, {
     onResult: (event) => {
@@ -24,10 +27,11 @@
       return f;
     });
   };
+  $: pathInfo = typeToPath[$form.type];
 </script>
 
 <svelte:head>
-  <title>Ladda upp dokument | D-sektionen</title>
+  <title>{m.documents_uploadDocument()} | D-sektionen</title>
 </svelte:head>
 
 <form
@@ -38,13 +42,17 @@
   use:enhance
 >
   <div>
-    <p class="mb-5 text-lg font-medium">1. Välj dokumenttyp</p>
+    <p class="mb-5 text-lg font-medium">
+      1. {m.documents_chooseDocumentType()}
+    </p>
     <DocumentTypeSelector bind:type={$form.type} />
   </div>
 
   <Labeled error={$errors.folder}>
     <label class="mb-5 text-lg font-medium" for="folder">
-      2. Skriv {$form.type === "requirement" ? "postnamn" : "mötesnamn"}
+      2. {$form.type === "requirement"
+        ? m.documents_writePositionName()
+        : m.documents_writeMeetingName()}
     </label>
     <input
       id="folder"
@@ -61,7 +69,7 @@
 
   <Labeled error={$errors.file}>
     <label class="mb-5 text-lg font-medium" for="file">
-      3. Ladda upp fil
+      3. {m.documents_uploadFile()}
     </label>
     <input
       id="file"
@@ -77,7 +85,7 @@
 
   <Labeled error={$errors.name}>
     <label class="mb-5 text-lg font-medium" for="name">
-      4. Skriv namn på dokumentet
+      4. {m.documents_enterDocumentName()}
     </label>
     <input
       id="name"
@@ -91,7 +99,9 @@
   </Labeled>
 
   <Labeled error={$errors.year}>
-    <label class="mb-5 text-lg font-medium" for="year">5. Välj mötesår</label>
+    <label class="mb-5 text-lg font-medium" for="year"
+      >5. {m.documents_pickMeetingYear()}</label
+    >
     <input
       id="year"
       name="year"
@@ -104,10 +114,13 @@
 
   {#if $form.type && $form.folder && $form.name}
     <pre
-      class="input input-bordered input-disabled">{$form.type}/{$form.year}/{$form.folder}/{$form.name}</pre>
+      class="input input-bordered input-disabled">{pathInfo.bucket}/{pathInfo.path(
+        $form.year,
+        $form.folder,
+      )}/{$form.name}</pre>
   {/if}
 
   <button type="submit" form="upload-file" class="btn btn-primary">
-    Ladda upp
+    {m.documents_upload()}
   </button>
 </form>
