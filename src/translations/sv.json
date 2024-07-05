@@ -581,5 +581,5 @@
   "members_errors_memberDoesntExist": "Medlemmen existerar inte",
   "members_errors_failedToFindMember": "Mislyckades att hitta medlemmen. Fel: {e}",
   "members_errors_invalidPicture": "Ogiltig bild",
-  "members_errors_couldntUploadFile": "Kunde inte ladda up bild
+  "members_errors_couldntUploadFile": "Kunde inte ladda up bild"
 }
