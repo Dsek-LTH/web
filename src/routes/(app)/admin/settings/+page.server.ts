@@ -8,8 +8,9 @@ import { authorize } from "$lib/utils/authorization.js";
 import { fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/client";
 import { z } from "zod";
+import type { PageServerLoad } from "./$types.js";
 
-export const load = async ({ locals }) => {
+export const load: PageServerLoad = async ({ locals }) => {
   const { prisma, user } = locals;
   authorize(apiNames.ADMIN.SETTINGS.READ, user);
   const settings = await prisma.adminSetting.findMany();
@@ -29,7 +30,7 @@ export const load = async ({ locals }) => {
           }
         : undefined,
     updateForm: await superValidate(updateSchema),
-    updateNollningPeriodForm: await superValidate(updateNollningPeriodSchema),
+    updateNollningForm: await superValidate(updateNollningPeriodSchema),
   };
 };
 

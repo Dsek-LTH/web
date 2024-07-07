@@ -10,7 +10,7 @@ import { SvelteKitAuth } from "@auth/sveltekit";
 import { PrismaClient } from "@prisma/client";
 import { error, type Handle } from "@sveltejs/kit";
 import { sequence } from "@sveltejs/kit/hooks";
-import { enhance, type AuthUser } from "@zenstackhq/runtime";
+import { enhance } from "@zenstackhq/runtime";
 import RPCApiHandler from "@zenstackhq/server/api/rpc";
 import zenstack from "@zenstackhq/server/sveltekit";
 import { randomBytes } from "crypto";
@@ -146,7 +146,7 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
       redirect(302, "/onboarding");
     }
 
-    const user: AuthUser = {
+    const user = {
       studentId: session.user.student_id,
       memberId: member!.id,
       policies: await getAccessPolicies(

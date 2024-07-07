@@ -50,12 +50,6 @@
           value={editingSetting.key}
           readonly
         />
-        <Input
-          label="Value"
-          name="value"
-          value={editingSetting.value}
-          {...$updateConstraints.value}
-          error={$updateErrors.value}
         />
       {:else}
         <h3 class="text-lg font-semibold">Skapa ny</h3>
@@ -65,14 +59,14 @@
           {...$updateConstraints.key}
           error={$updateErrors.key}
         />
-        <Input
-          label="Value"
-          name="value"
-          value={editingSetting ? editingSetting.value : undefined}
-          {...$updateConstraints.value}
-          error={$updateErrors.value}
-        />
       {/if}
+      <Input
+        label="Value"
+        name="value"
+        value={editingSetting ? editingSetting.value : undefined}
+        {...$updateConstraints.value}
+        error={$updateErrors.value}
+      />
       <LoadingButton
         class="btn btn-primary mt-4"
         onClick="default"
