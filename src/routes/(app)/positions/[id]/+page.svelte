@@ -12,6 +12,8 @@
   import DeleteMandateForm from "./DeleteMandateForm.svelte";
   import UpdateMandateForm from "./UpdateMandateForm.svelte";
   import UpdatePositionForm from "./UpdatePositionForm.svelte";
+  import * as m from "$paraglide/messages";
+  import { languageTag } from "$paraglide/runtime";
 
   import type { PageData } from "./$types";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
@@ -31,7 +33,7 @@
     return acc;
   }, {});
   $: years = Object.keys(groupedByYear).sort((a, b) =>
-    b.localeCompare(a, "sv"),
+    b.localeCompare(a, languageTag()),
   );
   let isEditing = false;
   let isAdding = false;
@@ -50,7 +52,7 @@
           isAdding = !isAdding;
         }}
       >
-        {isAdding ? "Avbryt" : "Lägg till mandat"}
+        {isAdding ? m.positions_cancel() : m.positions_addMandate()}
       </button>
     {/if}
     {#if (!isAdding && isAuthorized(apiNames.MANDATE.UPDATE, data.user)) || isAuthorized(apiNames.MANDATE.DELETE, data.user) || isAuthorized(apiNames.POSITION.UPDATE, data.user)}
@@ -61,7 +63,7 @@
           await goto(`${data.position.id}`);
         }}
       >
-        {isEditing ? "Sluta redigera" : "Redigera"}
+        {isEditing ? m.positions_stopEditing() : m.positions_edit()}
       </button>
     {/if}
   </div>
@@ -80,7 +82,7 @@
 {/if}
 {#if data.position.emailAliases.length > 0}
   <h4 class="text-xs opacity-75">
-    Följande adresser skickas också till posten
+    {m.positions_theFollowingAddresses()}
   </h4>
   <div class="mb-2 flex gap-2 text-xs opacity-75">
     {#each data.position.emailAliases.filter((alias) => alias.email != data.position.email) as alias}
@@ -130,8 +132,8 @@
             : ''}"
           data-tip={getFullName(mandate.member) +
             `\n${mandate.startDate.toLocaleDateString(
-              "sv",
-            )} - ${mandate.endDate.toLocaleDateString("sv")}`}
+              languageTag(),
+            )} - ${mandate.endDate.toLocaleDateString(languageTag())}`}
         >
           <a
             href="/members/{mandate.member.studentId}"
@@ -155,7 +157,7 @@
                     await goto(`${data.position.id}?editMandate=${mandate.id}`);
                   }}
                 >
-                  EDIT
+                  {m.positions_edit()}
                 </button>
               {/if}
               {#if isAuthorized(apiNames.MANDATE.DELETE, data.user)}
@@ -169,8 +171,8 @@
           </a>
           {#if isEditing}
             <span class="text-xs">
-              {mandate.startDate.toLocaleDateString("sv")} - {mandate.endDate.toLocaleDateString(
-                "sv",
+              {mandate.startDate.toLocaleDateString(languageTag())} - {mandate.endDate.toLocaleDateString(
+                languageTag(),
               )}
             </span>
           {/if}

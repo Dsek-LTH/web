@@ -2,11 +2,12 @@ import { superValidate } from "sveltekit-superforms/server";
 import type { LayoutServerLoad } from "./$types";
 import { getAllEvents } from "./events";
 import { interestedGoingSchema } from "./interestedGoing";
+import * as m from "$paraglide/messages";
 
 const getAndValidatePage = (url: URL) => {
   const page = url.searchParams.get("page");
   if (page && Number.isNaN(Number.parseInt(page))) {
-    throw new Error("Invalid page");
+    throw new Error(m.events_errors_invalidPage());
   }
   return page ? Math.max(Number.parseInt(page) - 1, 0) : undefined;
 };

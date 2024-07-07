@@ -2,6 +2,7 @@
   import { onMount, onDestroy } from "svelte";
   import { Editor } from "@tiptap/core";
   import StarterKit from "@tiptap/starter-kit";
+  import * as m from "$paraglide/messages";
 
   let element: Element;
   let editor: Editor;
@@ -16,7 +17,7 @@
             "prose dark:prose-invert prose-sm prose-base mt-5 bg-slate-950 p-5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 border border-transparent transition-colors duration-150 ease-in-out h-64 h-full",
         },
       },
-      content: "<h1>Hello World! 🌍️ </h1> \n <p>your text goes here...</p>",
+      content: m.news_editorDefaultContent(),
       onTransaction: () => {
         // force re-render so `editor.isActive` works as expected
         editor = editor;

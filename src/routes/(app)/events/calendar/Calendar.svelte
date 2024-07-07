@@ -5,6 +5,8 @@
   import type { Event } from "@prisma/client";
   import { eventLink, goto } from "$lib/utils/redirect";
   import "$lib/FullCalendar.css";
+  import * as m from "$paraglide/messages";
+  import { languageTag } from "$paraglide/runtime";
 
   export let events: Event[] = [];
 
@@ -21,7 +23,7 @@
         end: event.endDatetime,
         url: eventLink(event),
       })),
-      locale: "sv",
+      locale: languageTag(),
       eventColor: "#f280a1",
       firstDay: 1,
       headerToolbar: {
@@ -31,23 +33,23 @@
       },
       customButtons: {
         addEvent: {
-          text: "Skapa evenemang",
+          text: m.events_createEvent(),
           click: () => {
             void goto("/events/create");
           },
         },
         subscribe: {
-          text: "Subscribe",
+          text: m.events_calendar_subscribe(),
           click: () => {
             void goto("/events/subscribe");
           },
         },
       },
       buttonText: {
-        today: "Idag",
-        month: "Månad",
-        week: "Vecka",
-        day: "Dag",
+        today: m.events_calendar_today(),
+        month: m.events_calendar_month(),
+        week: m.events_calendar_week(),
+        day: m.events_calendar_day(),
       },
     });
     calendar.render();

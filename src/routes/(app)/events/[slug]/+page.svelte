@@ -4,6 +4,7 @@
   import Event from "../Event.svelte";
   import InterestedGoingButtons from "../InterestedGoingButtons.svelte";
   import InterestedGoingList from "../InterestedGoingList.svelte";
+  import * as m from "$paraglide/messages";
 
   import type { SuperValidated } from "sveltekit-superforms";
   import type { PageData } from "./$types";
@@ -32,7 +33,7 @@
       <a
         href="/events/{event.slug}/edit"
         class="btn btn-square btn-ghost btn-md"
-        title="Redigera"
+        title={m.events_edit()}
       >
         <span class="i-mdi-edit text-xl" />
       </a>
@@ -56,14 +57,13 @@
           on:click|self={() => (isModalOpen = false)}
         >
           <div class="modal-box">
-            <h3 class="text-lg font-bold">This is a recurring event</h3>
+            <h3 class="text-lg font-bold">{m.events_thisIsRecurring()}</h3>
             <div class="py-4">
               <div class="form-control">
                 <label class="label cursor-pointer">
                   <span class="label-text">
-                    Delete
-                    <span class="font-extrabold">this</span>
-                    event
+                    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                    {@html m.events_deleteThisEvent()}
                   </span>
                   <input
                     type="radio"
@@ -76,9 +76,10 @@
               </div>
               <div class="form-control">
                 <label class="label cursor-pointer">
-                  <span class="label-text"
-                    >Delete <span class="font-extrabold">all</span> events</span
-                  >
+                  <span class="label-text">
+                    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                    {@html m.events_deleteAllEvents()}
+                  </span>
                   <input
                     type="radio"
                     name="removeAll"
@@ -95,7 +96,7 @@
                 type="submit"
                 on:click={() => (isModalOpen = false)}
               >
-                Delete
+                {m.events_delete()}
               </button>
             </div>
           </div>
