@@ -22,6 +22,7 @@ import {
   removeMockUsers,
 } from "../mock";
 import { performLotteryIfNecessary } from "./reservations";
+import { NotificationType } from "$lib/utils/notifications/types";
 const prisma = new PrismaClient();
 
 const SUITE_PREFIX = "addToCart";
@@ -404,7 +405,20 @@ const addTicketsTestForUser = (
       vi.setSystemTime(
         vi.getMockedSystemTime()!.valueOf() + GRACE_PERIOD_WINDOW,
       );
-      await performLotteryIfNecessary(prisma, new Date(), ticket.id);
+      const queuedNotifications = await performLotteryIfNecessary(
+        prisma,
+        new Date(),
+        ticket.id,
+      );
+      expect(queuedNotifications.length).toBe(2); // one for winners, one for losers
+      expect(queuedNotifications[0]?.type).toBe(
+        NotificationType.PURCHASE_TIME_TO_BUY,
+      );
+      expect(queuedNotifications[1]?.type).toBe(
+        NotificationType.PURCHASE_IN_QUEUE,
+      );
+      expect(queuedNotifications[0]!.memberIds!.length).toBeGreaterThan(0);
+      expect(queuedNotifications[1]!.memberIds!.length).toBeGreaterThan(0);
       await expectConsumableCount(ticket.id, ticket.stock);
       await expectReservationCount(ticket.id, 5);
       const result = await addTicketToCart(

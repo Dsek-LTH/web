@@ -36,6 +36,7 @@ import {
   type ShopIdentification,
 } from "../types";
 import apiNames from "$lib/utils/apiNames";
+import { NotificationType } from "$lib/utils/notifications/types";
 
 const mockFns = vi.hoisted(() => ({
   customers: {
@@ -424,7 +425,14 @@ const addPurchaseTestForUser = (
       });
       await purchaseCart(prismaWithAccess, identification, "idempotency-key");
       vi.setSystemTime(vi.getMockedSystemTime()!.valueOf() + 2000); // 2 seconds later
-      await removeExpiredConsumables(prisma, new Date()); // should NOT remove the consumable
+      const queuedNotifications = await removeExpiredConsumables(
+        prisma,
+        new Date(),
+      ).then((res) => res.queuedNotifications); // should NOT remove the consumable
+      expect(
+        queuedNotifications.length,
+        JSON.stringify(queuedNotifications),
+      ).toBe(0);
       await expectConsumableCount(
         1,
         "payment in progress should not be expired",
@@ -446,7 +454,11 @@ const addPurchaseTestForUser = (
       );
 
       vi.setSystemTime(vi.getMockedSystemTime()!.valueOf() + TIME_TO_BUY);
-      await removeExpiredConsumables(prisma, new Date()); // should NOT remove the consumable
+      const queuedNotifications = await removeExpiredConsumables(
+        prisma,
+        new Date(),
+      ).then((res) => res.queuedNotifications); // should NOT remove the consumable
+      expect(queuedNotifications.length).toBe(0);
       await expectConsumableCount(
         1,
         "consumable should not be expired after payment",
@@ -466,7 +478,19 @@ const addPurchaseTestForUser = (
 
       vi.setSystemTime(vi.getMockedSystemTime()!.valueOf() + TIME_TO_BUY); // 2 seconds later
 
-      await removeExpiredConsumables(prisma, new Date()); // should NOT remove the consumable
+      const queuedNotfications = await removeExpiredConsumables(
+        prisma,
+        new Date(),
+      ).then((res) => res.queuedNotifications); // SHOULD remove the consumable
+      expect(queuedNotfications.length).toBe(1);
+      expect(queuedNotfications[0]?.type).toBe(
+        NotificationType.PURCHASE_CONSUMABLE_EXPIRED,
+      );
+      if (identification.memberId) {
+        expect(queuedNotfications[0]!.memberIds!.length).toBe(1);
+      } else {
+        expect(queuedNotfications[0]!.memberIds!.length).toBe(0);
+      }
       await expectConsumableCount(
         0,
         "consumable should be expired after failed payment",

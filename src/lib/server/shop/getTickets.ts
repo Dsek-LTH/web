@@ -12,7 +12,10 @@ import {
   type Ticket,
 } from "@prisma/client";
 import dayjs from "dayjs";
-import { removeExpiredConsumables } from "./addToCart/reservations";
+import {
+  removeExpiredConsumables,
+  withHandledNotificationQueue,
+} from "./addToCart/reservations";
 import {
   GRACE_PERIOD_WINDOW,
   dbIdentification,
@@ -172,7 +175,11 @@ export const getCart = async (
   reservations: CartReservation[];
 }> => {
   const now = new Date();
-  await removeExpiredConsumables(authorizedPrismaClient, now);
+  await withHandledNotificationQueue(
+    removeExpiredConsumables(authorizedPrismaClient, now).then(
+      (res) => res.queuedNotifications,
+    ),
+  );
   const inCart = await prisma.consumable.findMany({
     where: {
       ...dbIdentification(id),

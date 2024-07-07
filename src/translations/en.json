@@ -123,7 +123,7 @@
   "cart_payment_success": "Purchase complete!",
   "cart_payment_canceled": "Payment cancelled",
   "cart_payment_processing": "Payment is being processed",
-  "cart_payment_requiresAction": "Payment requires action from you",
+  "cart_payment_requiresAction": "Awaiting verification. Usually BankID or Swish confirmation (it may take a few seconds). Reload the page after it is done.",
   "cart_payment_failed": "Payment did not go through, please try again.",
   "cart_paymentStatus_pageTitle": "Payment status",
   "cart_reservation_queuePosition": "Queue position",

@@ -13,6 +13,11 @@ export enum NotificationType {
   CREATE_MANDATE = "CREATE_MANDATE",
   BOOKING_REQUEST = "BOOKING_REQUEST",
   PING = "PING",
+  PAYMENT_STATUS = "PAYMENT_STATUS",
+  PURCHASE_TIME_TO_BUY = "PURCHASE_TIME_TO_BUY",
+  PURCHASE_IN_QUEUE = "PURCHASE_IN_QUEUE",
+  PURCHASE_CONSUMABLE_EXPIRED = "PURCHASE_CONSUMABLE_EXPIRED",
+  PURCHASE_SOLD_OUT = "PURCHASE_SOLD_OUT",
 }
 
 // These represent which settings users can turn on and off. The reason why we have fewer of these than NotificationTypes is that user's shouldn't be overwhelmed with too many settings.
@@ -29,6 +34,7 @@ export enum NotificationSettingType {
   CREATE_MANDATE = "CREATE_MANDATE",
   BOOKING_REQUEST = "BOOKING_REQUEST",
   PING = "PING",
+  PURCHASES = "PURCHASES",
 }
 
 /**
@@ -57,6 +63,12 @@ export const SUBSCRIPTION_SETTINGS_MAP: Record<
   CREATE_MANDATE: [NotificationType.CREATE_MANDATE],
   BOOKING_REQUEST: [NotificationType.BOOKING_REQUEST],
   PING: [NotificationType.PING],
+  PURCHASES: [
+    NotificationType.PURCHASE_TIME_TO_BUY,
+    NotificationType.PURCHASE_IN_QUEUE,
+    NotificationType.PURCHASE_CONSUMABLE_EXPIRED,
+    NotificationType.PAYMENT_STATUS,
+  ],
 };
 
 export const DEFAULT_SUBSCRIPTION_SETTINGS: Array<{
@@ -89,6 +101,10 @@ export const DEFAULT_SUBSCRIPTION_SETTINGS: Array<{
   },
   {
     type: NotificationSettingType.PING,
+    push_notification: false,
+  },
+  {
+    type: NotificationSettingType.PURCHASES,
     push_notification: false,
   },
 ];

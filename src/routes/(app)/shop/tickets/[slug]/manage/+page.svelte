@@ -1,9 +1,13 @@
 <script lang="ts">
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
-  import ConsumableRow from "./ConsumableRow.svelte";
+  import ConsumablesTable from "./ConsumablesTable.svelte";
 
   export let data;
   $: ticket = data.ticket;
+  /* Don't know how to show these yet or if we even want that
+  $: inCart = data.inCart;
+  $: reservations = data.reservations;
+  */
 </script>
 
 <SetPageTitle title={ticket.title} />
@@ -17,31 +21,36 @@
   <p class="text-lg">{ticket.description}</p>
 {/if}
 
-<a href="manage/download-csv" class="btn btn-primary btn-sm"
+<p>
+  {data.purchasedConsumables.length} köpta <br />
+  {#if data.consumablesInCart.length > 0}
+    {#if data.consumablesInCart.length > 1}
+      {data.consumablesInCart.length} i kundvagner<br />
+    {:else}
+      1 i kundvagn<br />
+    {/if}
+  {/if}
+  {#if data.reservations.length > 0}
+    {#if data.reservations.length > 1}
+      {data.reservations.length} reservationer<br />
+    {:else}
+      1 reservation<br />
+    {/if}
+  {/if}
+</p>
+<a href="manage/download-csv" class="btn btn-primary btn-sm mt-2"
   ><span class="i-mdi-download" /> Ladda ner CSV</a
 >
-<div class="overflow-x-auto">
-  <table class="table">
-    <!-- head -->
-    <thead>
-      <tr>
-        <th>Person</th>
-        <th>Preferens</th>
-        <th>Köptes</th>
-        <th>Konsumerades</th>
-        <th>Betalat</th>
-        <th>Stripeköp ID</th>
-        <th>Konsumera</th>
-        <th>Återbetala</th>
-      </tr>
-    </thead>
-    <tbody>
-      {#each data.consumables as consumable (consumable.id)}
-        <ConsumableRow
-          {consumable}
-          stripeIntentBaseUrl={data.stripeIntentBaseUrl}
-        />
-      {/each}
-    </tbody>
-  </table>
-</div>
+
+<ConsumablesTable
+  consumables={data.purchasedConsumables}
+  title="Köpta biljetter"
+/>
+
+{#if data.consumablesInCart.length > 0}
+  <ConsumablesTable consumables={data.consumablesInCart} title="I kundvagn" />
+{/if}
+
+{#if data.reservations.length > 0}
+  <ConsumablesTable consumables={data.reservations} title="Reservationer" />
+{/if}
