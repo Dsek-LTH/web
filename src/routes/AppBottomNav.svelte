@@ -14,7 +14,7 @@
   $: bottomInsets = $page.data.appInfo?.insets?.bottom ?? 0;
 </script>
 
-<div
+<nav
   class="btm-nav left-2 right-2 w-[calc(100%-1rem)] overflow-hidden rounded-lg bg-base-300 bg-opacity-60 filter backdrop-blur"
   style="bottom: {bottomInsets || 16}px;"
 >
@@ -42,4 +42,4 @@
       </a>
     {/if}
   {/each}
-</div>
+</nav>

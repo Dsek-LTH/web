@@ -20,8 +20,8 @@
   $: topInsets = $page.data.appInfo?.insets?.top ?? 0;
 </script>
 
-<div
-  class="navbar sticky top-0 z-10 justify-between bg-base-300 bg-opacity-60 filter backdrop-blur transition-all"
+<header
+  class="navbar sticky top-0 z-10 justify-between gap-2 overflow-hidden bg-base-300 bg-opacity-60 filter backdrop-blur transition-all"
   style="padding-top: {topInsets + 8}px;"
 >
   <div class="w-16">
@@ -34,7 +34,14 @@
     </button>
   </div>
 
-  <div class="text-xl font-bold">{$pageTitle}</div>
+  <!-- min-w-0 is required to get text-overflow: ellipsis; to work  -->
+  <div class="min-w-0 flex-1">
+    <h1
+      class="mx-auto overflow-hidden text-ellipsis whitespace-nowrap text-xl font-bold"
+    >
+      {$pageTitle}
+    </h1>
+  </div>
 
   <div class="w-16">
     {#if $page.data.user && $page.data.member}
@@ -50,4 +57,4 @@
       </LoadingButton>
     {/if}
   </div>
-</div>
+</header>
