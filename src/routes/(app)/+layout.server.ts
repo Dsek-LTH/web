@@ -1,3 +1,4 @@
+import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
 import { countUserShopItems } from "$lib/server/shop/countUserShopItems";
 import { CacheDependency } from "$lib/utils/caching/cache";
 import { globallyCached, userLevelCached } from "$lib/utils/caching/cached";
@@ -58,7 +59,7 @@ export const load = loadFlash(async ({ locals, depends, url }) => {
     prisma,
   );
   const alerts = await globallyCached(CacheDependency.ALERTS, () =>
-    prisma.alert.findMany({
+    authorizedPrismaClient.alert.findMany({
       where: {
         removedAt: null,
       },

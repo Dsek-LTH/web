@@ -3,6 +3,7 @@ import { fail } from "@sveltejs/kit";
 import { authorize } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
 
+// TODO: Cache
 export const load: PageServerLoad = async ({ locals }) => {
   const { user, prisma } = locals;
   authorize(apiNames.MEMBER.UPDATE, user);

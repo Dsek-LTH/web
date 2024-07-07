@@ -4,6 +4,7 @@ import * as m from "$paraglide/messages";
 
 const allowedProgrammes = ["D", "C", "VR/AR"];
 
+// TODO: Cache
 export const load: PageServerLoad = async (request) => {
   const { prisma, user } = request.locals;
   if (!user?.memberId) {

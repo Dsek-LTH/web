@@ -10,6 +10,7 @@ import keycloak from "$lib/server/keycloak";
 import { z } from "zod";
 import * as m from "$paraglide/messages";
 
+// TODO: Cache
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
   const { studentId } = params;

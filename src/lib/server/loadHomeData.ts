@@ -1,5 +1,6 @@
 import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
 import { fileHandler } from "$lib/files";
+import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
 import { BASIC_ARTICLE_FILTER } from "$lib/utils/articles";
 import { CacheDependency } from "$lib/utils/caching/cache";
 import { globallyCached, userLevelCached } from "$lib/utils/caching/cached";
@@ -147,12 +148,15 @@ const _loadHomeData = async (
   );
 
   // CAFE OPENING TIMES
-  const cafeOpenPromise = globallyCached(CacheDependency.CAFE_OPEN_TIMES, () =>
-    prisma.markdown.findFirst({
-      where: {
-        name: `cafe:open:${new Date().getDay() - 1}`, // we assign monday to 0, not sunday
-      },
-    }),
+  const cafeOpenPromise = globallyCached(
+    "cafeOpenTimesToday",
+    () =>
+      authorizedPrismaClient.markdown.findFirst({
+        where: {
+          name: `cafe:open:${new Date().getDay() - 1}`, // we assign monday to 0, not sunday
+        },
+      }),
+    [CacheDependency.CAFE_OPEN_TIMES],
   );
 
   // COMMIT DATA

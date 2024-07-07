@@ -14,6 +14,7 @@ import apiNames from "$lib/utils/apiNames";
 import { removeEventAction, removeEventSchema } from "../removeEventAction";
 import * as m from "$paraglide/messages";
 
+// TODO: Cache
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
   const event = await getEvent(prisma, params.slug);
