@@ -514,6 +514,7 @@ model Meeting {
 /// @@allow('create', has(auth().policies, 'core:member:create'))
 /// @@allow('create', auth().studentId == studentId)
 /// @@allow('read', has(auth().policies, 'core:member:read'))
+/// @@allow('read', auth().studentId == studentId)
 /// @@allow('update', auth().studentId == studentId)
 /// @@allow('update', has(auth().policies, 'core:member:update'))
 /// @@allow('delete', has(auth().policies, 'core:member:delete'))
@@ -521,6 +522,8 @@ model Meeting {
 model Member {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
     studentId String? @unique(map: "members_student_id_unique") @map("student_id") @db.VarChar(255)
+    /// @deny('read', auth() == null)
+    email String? @unique() @db.VarChar(255)
     firstName String? @map("first_name") @db.VarChar(255)
     /// @deny('read', auth() == null)
     nickname String? @db.VarChar(255)
@@ -779,6 +782,7 @@ model SpecialSender {
 /// @@allow('create', auth().memberId == memberId)
 /// @@allow('read', auth().memberId == memberId)
 /// @@allow('update', auth().memberId == memberId && auth().memberId == future().memberId)
+/// @@allow('delete', auth().memberId == memberId)
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model SubscriptionSetting {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()

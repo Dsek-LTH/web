@@ -18,7 +18,9 @@
   </figure>
 {/if} -->
 
-<h1 class="text-2xl font-bold">{event.title}</h1>
+<h1 class="text-2xl font-bold">
+  {event.title}
+</h1>
 
 <section class="flex flex-row justify-between">
   <DateSpan start={event.startDatetime} end={event.endDatetime} />

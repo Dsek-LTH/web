@@ -4,6 +4,7 @@ import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import { authorize } from "$lib/utils/authorization";
+import * as m from "$paraglide/messages";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma, user } = locals;
@@ -39,7 +40,7 @@ export const actions: Actions = {
       },
     });
     return message(form, {
-      message: "Access policy skapad",
+      message: m.admin_access_policyCreated(),
       type: "success",
     });
   },

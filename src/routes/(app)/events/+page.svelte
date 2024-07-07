@@ -7,8 +7,10 @@
   import { isAuthorized } from "$lib/utils/authorization";
   import SmallEventCard from "./SmallEventCard.svelte";
   import type { Tag } from "@prisma/client";
+  import * as m from "$paraglide/messages";
 
   import type { PageData } from "./$types";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   export let data: PageData;
   let filteredTags: Tag[] = data.allTags.filter((tag) =>
     $page.url.searchParams.getAll("tags").includes(tag.name),
@@ -17,22 +19,22 @@
   $: isPast = $page.url.searchParams.get("past") == "on";
 </script>
 
-<svelte:head>
-  <title>Evenemang | D-sektionen</title>
-</svelte:head>
+<SetPageTitle title={m.events()} />
 
 <section class="flex flex-col gap-2">
   <div class="flex items-center gap-2">
     <a class="btn" href="/events/calendar">
-      <span class="i-mdi-calendar" />Kalender
+      <span class="i-mdi-calendar" />{m.events_calendar()}
     </a>
     {#if isAuthorized(apiNames.EVENT.CREATE, data.user)}
       <a class="btn" href="/events/create">
-        <span class="i-mdi-create" />Create
+        <span class="i-mdi-create" />{m.events_create()}
       </a>
     {/if}
     {#if isAuthorized(apiNames.TAGS.CREATE, data.user) || isAuthorized(apiNames.TAGS.UPDATE, data.user)}
-      <a class="btn" href="/news/tags"><span class="i-mdi-tag" />Tags</a>
+      <a class="btn" href="/news/tags"
+        ><span class="i-mdi-tag" />{m.events_tags()}</a
+      >
     {/if}
   </div>
   <form
@@ -46,7 +48,7 @@
           ? 'pointer-events-none'
           : 'btn-outline'}"
       >
-        Kommande
+        {m.events_coming()}
         <input
           type="radio"
           name="past"
@@ -61,7 +63,7 @@
           ? 'pointer-events-none'
           : 'btn-outline'}"
       >
-        Tidigare
+        {m.events_past()}
         <input
           type="radio"
           name="past"
@@ -83,7 +85,7 @@
       />
     {/each}
     <button type="submit" class="btn btn-primary" bind:this={filterButton}>
-      Filter
+      {m.events_filter()}
     </button>
   </form>
   {#each data.events as event (event.id)}

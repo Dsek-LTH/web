@@ -13,6 +13,6 @@
   });
 </script>
 
-<span class={twMerge("font-semibold", clazz)}>
+<span class={twMerge("font-semibold text-success", clazz)}>
   {formatter.format(price / 100)}
 </span>

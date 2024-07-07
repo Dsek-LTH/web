@@ -4,6 +4,7 @@
   import type { InterestedGoingSchema } from "./interestedGoing";
   import { superForm } from "sveltekit-superforms/client";
   import type { Member } from "@prisma/client";
+  import * as m from "$paraglide/messages";
 
   export let eventId: string;
   export let interested: Member[];
@@ -46,7 +47,7 @@
       }}
     >
       <span class={isGoingIcon + " size-6"}></span>
-      Kommer
+      {m.events_interestedGoing_going()}
     </button>
     <button
       disabled={!authorized}
@@ -58,7 +59,7 @@
       }}
     >
       <span class={isInterestedIcon + " size-6"}></span>
-      Intresserad
+      {m.events_interestedGoing_interested()}
     </button>
   </form>
 </div>

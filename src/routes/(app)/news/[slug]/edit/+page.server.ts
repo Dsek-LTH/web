@@ -8,6 +8,7 @@ import { z } from "zod";
 import { getArticleAuthorOptions } from "../../articles";
 import { articleSchema } from "../../schema";
 import type { Actions, PageServerLoad } from "./$types";
+import * as m from "$paraglide/messages";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
@@ -50,10 +51,11 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     },
   });
   if (article?.author.id !== undefined) article.author.id = "";
-  if (!article) throw error(404, "Article not found");
+  if (!article) throw error(404, m.news_errors_articleNotFound());
 
   const authorMemberWithMandates = article.author.member;
-  if (!authorMemberWithMandates) throw error(500, "Author member not found");
+  if (!authorMemberWithMandates)
+    throw error(500, m.news_errors_authorMemberNotFound());
   const authorOptions = await getArticleAuthorOptions(
     prisma,
     authorMemberWithMandates,
@@ -134,7 +136,7 @@ export const actions: Actions = {
         return message(
           form,
           {
-            message: "Artikel kunde inte hittas",
+            message: m.news_errors_articleNotFound(),
             type: "error",
           },
           { status: 400 },
@@ -146,7 +148,7 @@ export const actions: Actions = {
     throw redirect(
       `/news/${event.params.slug}`,
       {
-        message: "Artikel uppdaterad",
+        message: m.news_articleUpdated(),
         type: "success",
       },
       event,

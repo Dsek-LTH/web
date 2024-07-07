@@ -1,15 +1,10 @@
 <script lang="ts">
   import CommitteeIcon from "$lib/components/CommitteeIcon.svelte";
-  import type { Committee, Mandate, Position } from "@prisma/client";
+  import type { MandateWithPositionAndCommitte } from "./types";
+  import { languageTag } from "$paraglide/runtime";
 
   export let year: string;
-  export let mandates: Array<
-    Mandate & {
-      position: Pick<Position, "id" | "name"> & {
-        committee: Pick<Committee, "name" | "imageUrl"> | null;
-      };
-    }
-  >;
+  export let mandates: MandateWithPositionAndCommitte[];
 </script>
 
 <section class="mb-4">
@@ -21,8 +16,8 @@
           class="tooltip -mx-4 whitespace-pre"
           data-tip={mandate.position.committee?.name +
             `\n${mandate.startDate.toLocaleDateString(
-              "sv",
-            )} - ${mandate.endDate.toLocaleDateString("sv")}`}
+              languageTag(),
+            )} - ${mandate.endDate.toLocaleDateString(languageTag())}`}
         >
           <a href="/positions/{mandate.position.id}">
             <button

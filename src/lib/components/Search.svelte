@@ -1,13 +1,16 @@
 <script lang="ts">
   import type { Member } from "@prisma/client";
+  import { fade } from "svelte/transition";
 
   let value = "";
-  let dialog: HTMLDialogElement;
-  let dialogShowing: boolean;
-
+  let show: boolean = false;
   let users: Member[] = [];
 
   async function getMembers() {
+    if (value === "") {
+      users = [];
+      return;
+    }
     const response = await fetch(
       "/api/members?" + new URLSearchParams({ search: value }),
     );
@@ -15,64 +18,88 @@
   }
 
   function showDialog() {
-    dialogShowing = true;
-    dialog.showModal();
+    show = true;
+    document.body.style.overflow = "hidden";
   }
 
   function hideDialog() {
     value = "";
     users = [];
-    dialogShowing = false;
-    dialog.close();
+    show = false;
+    document.body.style.overflow = "auto";
+  }
+
+  function handleKeydown(event: KeyboardEvent) {
+    if (event.ctrlKey && event.key === "k") {
+      event.preventDefault();
+      showDialog();
+    } else if (event.key === "Escape") {
+      hideDialog();
+    }
   }
 </script>
 
-<button class="btn btn-ghost" on:click={showDialog}>
+<svelte:document on:keydown={handleKeydown} />
+
+<noscript>
+  <style>
+    .js {
+      display: none;
+    }
+  </style>
+  <a href="/search" class="btn btn-ghost">
+    <span class="i-mdi-magnify size-6" />
+  </a>
+</noscript>
+
+<button class="js btn btn-ghost" on:click={showDialog}>
   <span class="i-mdi-magnify size-6" />
 </button>
 
-<dialog class="modal" bind:this={dialog} on:close={hideDialog}>
-  <div class="modal-box h-4/5 rounded-none bg-transparent shadow-none">
-    {#if dialogShowing}
-      <label
-        class="input input-bordered flex h-10 items-center gap-2 bg-base-200 bg-opacity-60 pl-2 shadow filter backdrop-blur"
-      >
-        <span class="i-mdi-magnify size-6" />
-        <input
-          type="text"
-          placeholder="Search"
-          class="bg-transparent"
-          bind:value
-          on:input={getMembers}
-        />
-      </label>
-      {#if users.length > 0}
-        <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-        <ul
-          tabindex="0"
-          class="dropdown-content mt-2 flex w-full flex-col
-           gap-2 rounded-md bg-base-200 bg-opacity-60 p-2 shadow filter backdrop-blur transition-all"
-        >
-          {#each users.slice(0, 10) as user}
-            <li>
-              <a
-                href={"/members/" + user.studentId}
-                class="btn btn-ghost btn-sm flex flex-row justify-between"
-                on:click={hideDialog}
-              >
-                <div>{user.firstName} {user.lastName}</div>
-                <div class="text-primary">({user.studentId})</div>
-              </a>
-            </li>
-          {/each}
-          {#if users.length > 10}
-            <li class="text-center">...</li>
-          {/if}
-        </ul>
-      {/if}
-    {/if}
+{#if show}
+  <div
+    class="absolute left-0 top-0 z-50 h-screen w-screen backdrop-blur"
+    transition:fade={{ duration: 100 }}
+  >
+    <div class="mx-auto mt-8 h-full w-full max-w-md">
+      <form class="rounded-2xl bg-base-100 p-2 shadow">
+        <div class="flex gap-2">
+          <label class="input flex w-full items-center gap-2">
+            <span class="i-mdi-magnify size-6" />
+            <!-- svelte-ignore a11y-autofocus -->
+            <input
+              type="text"
+              placeholder="Sök efter medlemmar"
+              class="bg-transparent"
+              autofocus
+              bind:value
+              on:input={getMembers}
+            />
+          </label>
+          <button class="btn btn-ghost" on:click={hideDialog}>
+            <kbd class="kbd">ESC</kbd>
+          </button>
+        </div>
+        {#if users.length > 0}
+          <ul class="mt-2 flex flex-col gap-1">
+            {#each users.slice(0, 10) as user}
+              <li>
+                <a
+                  href={"/members/" + user.studentId}
+                  class="btn flex justify-between"
+                  on:click={hideDialog}
+                >
+                  <div>{user.firstName} {user.lastName}</div>
+                  <div class="text-primary">({user.studentId})</div>
+                </a>
+              </li>
+            {/each}
+            {#if users.length > 10}
+              <li class="text-center">...</li>
+            {/if}
+          </ul>
+        {/if}
+      </form>
+    </div>
   </div>
-  <form method="dialog" class="modal-backdrop">
-    <button>close</button>
-  </form>
-</dialog>
+{/if}

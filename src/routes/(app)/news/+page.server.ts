@@ -3,11 +3,12 @@ import type { Actions, PageServerLoad } from "./$types";
 import { getAllArticles } from "./articles";
 import { likeSchema, likesAction } from "./likes";
 import { error } from "@sveltejs/kit";
+import * as m from "$paraglide/messages";
 
 const getAndValidatePage = (url: URL) => {
   const page = url.searchParams.get("page");
   if (page && Number.isNaN(Number.parseInt(page))) {
-    error(422, `Invalid page "${page}"`);
+    error(422, m.news_errors_invalidPage() + ` "${page}"`);
   }
   return page ? Math.max(Number.parseInt(page) - 1, 0) : undefined;
 };

@@ -4,7 +4,7 @@
 
 @layer base {
   .layout-container {
-    @apply container mx-auto px-4 py-8;
+    @apply container mx-auto px-4 py-8 xl:px-32;
   }
 
   .pop-out {

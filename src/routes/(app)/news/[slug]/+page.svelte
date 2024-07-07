@@ -9,6 +9,8 @@
   import { superForm } from "sveltekit-superforms/client";
   import type { SuperValidated } from "sveltekit-superforms";
   import type { RemoveArticleSchema } from "../removeArticleAction";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
+  import * as m from "$paraglide/messages";
 
   export let articleId: string;
   export let removeForm: SuperValidated<RemoveArticleSchema>;
@@ -21,9 +23,7 @@
   $: author = article.author;
 </script>
 
-<svelte:head>
-  <title>{article.header} | D-sektionen</title>
-</svelte:head>
+<SetPageTitle title={article.header} />
 
 <article>
   <Article {article}>
@@ -40,7 +40,7 @@
         <a
           href={`/news/${article.slug}/edit`}
           class="btn btn-square btn-ghost btn-md"
-          title="Redigera"
+          title={m.news_edit()}
         >
           <span class="i-mdi-edit text-xl" />
         </a>
@@ -51,7 +51,7 @@
           <button
             type="submit"
             class="btn btn-square btn-ghost btn-md"
-            title="Radera"
+            title={m.news_delete()}
           >
             <span class="i-mdi-delete text-xl" />
           </button>

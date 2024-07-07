@@ -1,12 +1,10 @@
 <script lang="ts">
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import Header from "./Header.svelte";
   import Links from "./Links.svelte";
 </script>
 
-<svelte:head>
-  <title>D-sektionen</title>
-</svelte:head>
+<SetPageTitle title="D-sektionen" />
 
 <Header />
 <Links />
-<!-- <div class="min-h-screen bg-[url('/pattern.png')]" /> -->

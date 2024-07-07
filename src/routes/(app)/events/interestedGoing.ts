@@ -1,6 +1,7 @@
 import { getFullName } from "$lib/utils/client/member";
 import sendNotification from "$lib/utils/notifications";
 import { NotificationType } from "$lib/utils/notifications/types";
+import { eventLink } from "$lib/utils/redirect";
 import { fail, type RequestEvent } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
@@ -33,6 +34,7 @@ export const interestedAction =
         },
       },
       select: {
+        id: true,
         slug: true,
         title: true,
         author: {
@@ -49,7 +51,7 @@ export const interestedAction =
           title: `${event.title}`,
           message: `${getFullName(member)} kommer på ditt event.`,
           type: NotificationType.EVENT_GOING,
-          link: `/events/${event.slug}`,
+          link: eventLink(event),
           memberIds: [event.author.id],
           fromMemberId: member.id,
         });
@@ -58,7 +60,7 @@ export const interestedAction =
           title: `${event.title}`,
           message: `${getFullName(member)} är intresserad av ditt event.`,
           type: NotificationType.EVENT_INTERESTED,
-          link: `/events/${event.slug}`,
+          link: eventLink(event),
           memberIds: [event.author.id],
           fromMemberId: member.id,
         });

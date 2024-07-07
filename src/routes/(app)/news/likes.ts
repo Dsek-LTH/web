@@ -4,6 +4,7 @@ import { NotificationType } from "$lib/utils/notifications/types";
 import { fail, type RequestEvent } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
+import * as m from "$paraglide/messages";
 
 export const likeSchema = z.object({
   articleId: z.string(),
@@ -40,14 +41,16 @@ export const likesAction =
       await sendNotification({
         title: `${article.header}`,
         message: `${getFullName(member)} har gillat din nyhet`,
-        type: NotificationType.LIKE,
+        type: NotificationType.NEWS_LIKE,
         link: `/news/${article.slug}`,
         memberIds: [article.author.memberId],
         fromMemberId: member.id,
       });
     }
     return message(form, {
-      message: `${shouldLike ? "Gillat" : "Slutat gilla"} artikel`,
+      message: shouldLike
+        ? m.news_likedArticle()
+        : m.news_stoppedLikingArticle(),
       type: "hidden",
     });
   };

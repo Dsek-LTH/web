@@ -2,8 +2,10 @@
   import { page } from "$app/stores";
   import Labeled from "$lib/components/Labeled.svelte";
   import { superForm } from "sveltekit-superforms/client";
+  import * as m from "$paraglide/messages";
 
   import type { PageData } from "./$types";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   export let data: PageData;
   let type: "role" | "studentId" = "role";
 
@@ -13,6 +15,8 @@
   const { form, errors, constraints, enhance } = superForm(data.createForm);
 </script>
 
+<SetPageTitle title={$page.params["slug"]} />
+
 <main class="container mx-auto px-4">
   <h1 class="mb-4 text-2xl font-semibold capitalize">{$page.params["slug"]}</h1>
 
@@ -20,9 +24,9 @@
     <table class="table">
       <thead>
         <tr class="bg-base-200">
-          <th>Role/Member</th>
-          <th>Start date</th>
-          <th>End date</th>
+          <th>{m.admin_doors_roleMember()}</th>
+          <th>{m.admin_doors_startDate()}</th>
+          <th>{m.admin_doors_endDate()}</th>
           <th />
         </tr>
       </thead>
@@ -59,7 +63,7 @@
                   removeModal?.showModal();
                   selectedPolicy = policy;
                 }}
-                class="btn btn-xs px-8">Remove</button
+                class="btn btn-xs px-8">{m.admin_doors_remove()}</button
               >
             </td>
           </tr>
@@ -70,15 +74,15 @@
 </main>
 
 <section class="container mx-auto mt-4 px-4">
-  <h2 class="mb-4 text-xl">Grant door access</h2>
+  <h2 class="mb-4 text-xl">{m.admin_doors_grantDoorAccess()}</h2>
   <form class="form-control gap-4" method="POST" action="?/create" use:enhance>
     <label class="join join-vertical lg:join-horizontal lg:items-end">
       <select
         class="join-item select select-bordered w-full lg:max-w-xs"
         bind:value={type}
       >
-        <option value="role">Role</option>
-        <option value="studentId">Member</option>
+        <option value="role">{m.admin_doors_role()}</option>
+        <option value="studentId">{m.admin_doors_member()}</option>
       </select>
       <input
         type="text"
@@ -89,7 +93,7 @@
         {...$constraints[type]}
       />
       <div class="form-control join-item w-full lg:max-w-[200px]">
-        <Labeled label="Start date (optional)">
+        <Labeled label={m.admin_doors_startDateOptional()}>
           <input
             id="startDatetime"
             name="startDatetime"
@@ -101,7 +105,7 @@
         </Labeled>
       </div>
       <div class="form-control join-item w-full lg:max-w-[200px]">
-        <Labeled label="End date (optional)">
+        <Labeled label={m.admin_doors_endDateOptional()}>
           <input
             id="endDatetime"
             name="endDatetime"
@@ -112,7 +116,9 @@
           />
         </Labeled>
       </div>
-      <button type="submit" class="btn btn-primary join-item">Add</button>
+      <button type="submit" class="btn btn-primary join-item"
+        >{m.admin_doors_add()}</button
+      >
     </label>
     {#if Object.keys($errors).length > 0}
       <div class="text-error">
@@ -126,12 +132,13 @@
 
 <dialog bind:this={removeModal} class="modal modal-bottom sm:modal-middle">
   <div class="modal-box">
-    <h3 class="text-lg font-bold">Revoke door access</h3>
+    <h3 class="text-lg font-bold">{m.admin_doors_revokeDoorAccess()}</h3>
     <p class="py-4">
-      Are you sure you want to revoke access to
-      <b class="capitalize">{$page.params["slug"]}</b>
-      for
-      <b>{selectedPolicy?.role || selectedPolicy?.studentId}</b>?
+      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+      {@html m.admin_doors_revokeAreYouSure({
+        door: `${$page.params["slug"]}`,
+        target: `${selectedPolicy?.role || selectedPolicy?.studentId}`,
+      })}
     </p>
     <div class="modal-action">
       <form method="POST" action="?/delete" use:enhance>
@@ -141,7 +148,7 @@
           class="btn btn-error"
           on:click={() => removeModal?.close()}
         >
-          Remove
+          {m.admin_doors_remove()}
         </button>
       </form>
     </div>

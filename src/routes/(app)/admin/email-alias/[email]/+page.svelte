@@ -1,11 +1,12 @@
 <script lang="ts">
   import { page } from "$app/stores";
-  import PageHeader from "$lib/components/PageHeader.svelte";
+  import PageHeader from "$lib/components/nav/PageHeader.svelte";
   import { superForm } from "sveltekit-superforms/client";
   import UpdateMailAliasForm from "./EmailAliasForm.svelte";
   import SpecialReceiverForm from "./SpecialReceiverForm.svelte";
   import SpecialSenderForm from "./SpecialSenderForm.svelte";
   import Input from "$lib/components/Input.svelte";
+  import * as m from "$paraglide/messages";
 
   export let data;
   const { email } = $page.params;
@@ -49,13 +50,13 @@
       isEditing = !isEditing;
     }}
   >
-    {isEditing ? "Avbryt" : "Redigera"}
+    {isEditing ? m.admin_emailalias_cancel() : m.admin_emailalias_edit()}
   </button>
 </div>
 
 <div class="my-8">
   <div class="flex flex-row justify-between">
-    <h1 class="text-2xl font-semibold">Aliaset går till följande poster:</h1>
+    <h1 class="text-2xl font-semibold">{m.admin_emailalias_aliasGoesTo()}</h1>
   </div>
 
   {#each emailAliases as emailAlias (emailAlias.id)}
@@ -72,7 +73,7 @@
   <div class="my-2 flex flex-row justify-between">
     <form action="?/addPosition" method="post" use:addPositionEnhance>
       <input type="hidden" name="email" value={email} />
-      <label for="positionId">Lägg till post:</label>
+      <label for="positionId">{m.admin_emailalias_addPosition()}</label>
       <select
         id="positionId"
         name="positionId"
@@ -85,7 +86,7 @@
           <option value={position.id}>{position.name}</option>
         {/each}
       </select>
-      <button class="btn" type="submit">Lägg till</button>
+      <button class="btn" type="submit">{m.admin_emailalias_add()}</button>
     </form>
 
     <form action="?/deleteEmailAlias" method="post" use:deleteEmailAliasEnhance>
@@ -93,7 +94,8 @@
       <button
         class="btn btn-error"
         type="submit"
-        disabled={emailAliases.length === 0}>Ta bort alla poster</button
+        disabled={emailAliases.length === 0}
+        >{m.admin_emailalias_removeAllPositions()}</button
       >
     </form>
   </div>
@@ -104,7 +106,7 @@
 <div>
   <div class="flex flex-row justify-between">
     <h1 class="text-2xl font-semibold">
-      Följande e-poster är special receivers:
+      {m.admin_emailalias_areSpecialReceivers()}
     </h1>
   </div>
 
@@ -126,12 +128,14 @@
         <input type="hidden" name="email" value={email} />
         <Input
           name="targetEmailReceiver"
-          label="E-post"
+          label={m.admin_emailalias_emailAddress()}
           bind:value={$addSpecialReceiverForm.targetEmailReceiver}
           required
           error={$addSpecialReceiverErrors.targetEmailReceiver}
         />
-        <button class="btn align-bottom" type="submit"> Lägg till </button>
+        <button class="btn align-bottom" type="submit"
+          >{m.admin_emailalias_add()}</button
+        >
       </form>
       <form
         action="?/deleteSpecialReceiver"
@@ -143,7 +147,7 @@
           class="btn btn-error"
           type="submit"
           disabled={data.specialReceivers.length === 0}
-          >Ta bort alla special receivers</button
+          >{m.admin_emailalias_removeAllSpecialReceivers()}</button
         >
       </form>
     </div>
@@ -155,7 +159,7 @@
 <div>
   <div class="flex flex-row justify-between">
     <h1 class="py-2 text-2xl font-semibold">
-      Följande personer är special senders:
+      {m.admin_emailalias_areSpecialSenders()}
     </h1>
   </div>
 
@@ -184,7 +188,7 @@
             error={$addSpecialSenderErrors.usernameSender}
           />
         </div>
-        <button class="btn" type="submit"> Lägg till </button>
+        <button class="btn" type="submit">{m.admin_access_add()}</button>
       </form>
 
       <form
@@ -197,7 +201,7 @@
           class="btn btn-error"
           type="submit"
           disabled={data.specialSenders.length === 0}
-          >Ta bort alla special senders</button
+          >{m.admin_emailalias_removeAllSpecialSenders()}</button
         >
       </form>
     </div>

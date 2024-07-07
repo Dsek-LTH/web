@@ -2,8 +2,8 @@
   import { page } from "$app/stores";
   import { isAuthorized } from "$lib/utils/authorization";
   import DarkLightToggle from "./DarkLightToggle.svelte";
-  import DsekLogo from "./DsekLogo.svelte";
   import LanguageSwitcher from "./LanguageSwitcher.svelte";
+  import NavIcon from "$lib/components/NavIcon.svelte";
   import { getRoutes } from "./routes";
 
   let checked = false;
@@ -32,11 +32,7 @@
             <li class="py-1">
               <details>
                 <summary class="active:!bg-primary/10">
-                  {#if route.isDsekIcon}
-                    <DsekLogo className="size-6 text-primary" />
-                  {:else}
-                    <span class={`${route.icon} size-6 text-primary`} />
-                  {/if}
+                  <NavIcon icon={route.icon} />
                   {route.title}
                 </summary>
                 <ul>
@@ -64,11 +60,7 @@
                 href={route.path}
                 class="active:!bg-primary/10"
               >
-                {#if route.isDsekIcon}
-                  <DsekLogo className="size-6 text-primary" />
-                {:else}
-                  <span class={`${route.icon} size-6 text-primary`} />
-                {/if}
+                <NavIcon icon={route.icon} />
                 {route.title}
               </a>
             </li>

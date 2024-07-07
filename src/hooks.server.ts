@@ -16,6 +16,7 @@ import { randomBytes } from "crypto";
 import schedule from "node-schedule";
 import translatedExtension from "./database/prisma/translationExtension";
 import { getAccessPolicies } from "./hooks.server.helpers";
+import { themes } from "$lib/utils/themes";
 
 const authHandle = SvelteKitAuth({
   secret: env.AUTH_SECRET,
@@ -27,15 +28,14 @@ const authHandle = SvelteKitAuth({
       issuer: env.KEYCLOAK_CLIENT_ISSUER,
       profile: (profile: KeycloakProfile, tokens: TokenSet) => {
         return {
-          access_token: tokens.access_token,
           id_token: tokens.id_token,
           id: profile.sub,
-          name: profile.name,
+          given_name: profile.given_name,
+          family_name: profile.family_name,
           email: profile.email,
           student_id: profile.preferred_username,
-          // The keycloak client doesn't guarantee these fields
-          // to be present, but we assume they always are.
-          image: profile["image"],
+          // The keycloak client doesn't guarantee this field
+          // to be present, but we assume it always is.
           group_list: profile["group_list"] ?? [],
         };
       },
@@ -44,10 +44,12 @@ const authHandle = SvelteKitAuth({
   callbacks: {
     jwt({ token, user }) {
       if (user) {
-        token.student_id = user?.student_id;
-        token.group_list = user?.group_list ?? [];
-        token.access_token = user?.access_token;
-        token.id_token = user?.id_token;
+        token.student_id = user.student_id;
+        token.group_list = user.group_list ?? [];
+        token.id_token = user.id_token;
+        token.given_name = user.given_name;
+        token.family_name = user.family_name;
+        token.email = user.email;
       }
       return token;
     },
@@ -56,7 +58,10 @@ const authHandle = SvelteKitAuth({
       if ("token" in params && params.session?.user) {
         const { token } = params;
         session.user.student_id = token.student_id;
+        session.user.email = token.email;
         session.user.group_list = token.group_list;
+        session.user.given_name = token.given_name;
+        session.user.family_name = token.family_name;
       }
       return session;
     },
@@ -119,23 +124,25 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
       externalCode: externalCode,
     };
   } else {
-    const memberQuery = await prisma.member.findUnique({
+    const existingMember = await prisma.member.findUnique({
       where: { studentId: session.user.student_id },
     });
-    const member = memberQuery
-      ? memberQuery
-      : await prisma.member.create({
-          data: {
-            studentId: session.user.student_id,
-            firstName: session.user.name?.split(" ")[0],
-          },
-        });
+    const member =
+      existingMember ||
+      (await prisma.member.create({
+        data: {
+          studentId: session.user.student_id,
+          firstName: session.user.given_name,
+          lastName: session.user.family_name,
+          email: session.user.email,
+        },
+      }));
 
     if (
       event.url.pathname != "/onboarding" &&
-      (!member.classProgramme || !member.classYear)
+      (!member.classProgramme || !member.classYear) // consider adding email here, but make sure to fix onboarding as well
     ) {
-      redirect(302, i18n.resolveRoute("/onboarding"));
+      redirect(302, "/onboarding");
     }
 
     const user = {
@@ -168,13 +175,49 @@ const apiHandle = zenstack.SvelteKitHandler({
   },
 });
 
-schedule.scheduleJob("* */24 * * *", () =>
-  keycloak.updateMandate(prismaClient),
-);
+const APP_INSETS_REGEX = /APP-INSETS\s*\(([^)]*)\)/;
+const appHandle: Handle = async ({ event, resolve }) => {
+  const userAgent = event.request.headers.get("user-agent");
+  if (userAgent?.startsWith("DSEK-APP") || env.MOCK_IS_APP === "true") {
+    event.locals.isApp = true;
+    const insetsJson = APP_INSETS_REGEX.exec(userAgent ?? "")?.[1];
+    const insets = JSON.parse(insetsJson ?? "{}");
+    event.locals.appInfo = {
+      insets: {
+        top: insets?.top ? Number(insets.top) : 0,
+        bottom: insets?.bottom ? Number(insets.bottom) : 0,
+        left: insets?.left ? Number(insets.left) : 0,
+        right: insets?.right ? Number(insets.right) : 0,
+      },
+    };
+  } else {
+    event.locals.isApp = false;
+    event.locals.appInfo = undefined;
+  }
+  return resolve(event);
+};
+
+const themeHandle: Handle = async ({ event, resolve }) => {
+  const theme = event.cookies.get("theme");
+
+  if (!theme || !themes.includes(theme)) {
+    return await resolve(event);
+  }
+
+  return await resolve(event, {
+    transformPageChunk: ({ html }) => {
+      return html.replace("%theme%", theme);
+    },
+  });
+};
+
+schedule.scheduleJob("* */24 * * *", () => keycloak.sync(prismaClient));
 
 export const handle = sequence(
   authHandle,
   i18n.handle(),
   databaseHandle,
   apiHandle,
+  appHandle,
+  themeHandle,
 );

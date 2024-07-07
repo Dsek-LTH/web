@@ -1,9 +1,10 @@
 <script lang="ts">
+  import Autocomplete from "$lib/components/Autocomplete.svelte";
   import Input from "$lib/components/Input.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
+  import PageHeader from "$lib/components/nav/PageHeader.svelte";
+  import * as m from "$paraglide/messages";
   import { superForm } from "sveltekit-superforms/client";
-  import Autocomplete from "$lib/components/Autocomplete.svelte";
-  import PageHeader from "$lib/components/PageHeader.svelte";
 
   import type { PageData } from "./$types";
   export let data: PageData;
@@ -11,7 +12,7 @@
   const { form, errors, constraints, enhance } = superForm(data.form);
 </script>
 
-<PageHeader title="Skapa ny sång" />
+<PageHeader title={m.songbook_createNewSong()} />
 
 <main>
   <section>
@@ -23,15 +24,15 @@
     >
       <Input
         name="title"
-        label="Titel"
+        label={m.songbook_title()}
         bind:value={$form.title}
         {...$constraints.title}
         error={$errors.title}
       />
       <Labeled
-        label="Melodi"
+        label={m.songbook_melody()}
         error={$errors.melody}
-        explanation="Sök efter en melodi eller skriv in en ny"
+        explanation={m.songbook_melodyExplanation()}
       >
         <Autocomplete
           name="melody"
@@ -42,9 +43,9 @@
         />
       </Labeled>
       <Labeled
-        label="Kategori"
+        label={m.songbook_category()}
         error={$errors.category}
-        explanation="Sök efter en kategori eller skriv in en ny"
+        explanation={m.songbook_categoryExplanation()}
       >
         <Autocomplete
           name="category"
@@ -63,7 +64,9 @@
           {...$constraints.lyrics}
         />
       </Labeled>
-      <button class="btn btn-primary mt-4" type="submit">Skapa</button>
+      <button class="btn btn-primary mt-4" type="submit"
+        >{m.songbook_create()}</button
+      >
     </form>
   </section>
 </main>

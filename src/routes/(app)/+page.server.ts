@@ -1,10 +1,11 @@
 import { redirect } from "$lib/utils/redirect";
 import type { PageServerLoad } from "./$types";
-import { i18n } from "$lib/utils/i18n";
-
 export const load: PageServerLoad = async ({ locals }) => {
-  const { user } = locals;
+  const { user, isApp } = locals;
+  if (isApp) {
+    redirect(302, "/app/home");
+  }
   if (user?.memberId) {
-    redirect(302, i18n.resolveRoute("/home"));
+    redirect(302, "/home");
   }
 };

@@ -3,6 +3,7 @@ import type { Actions, PageServerLoad } from "./$types";
 import { superValidate } from "sveltekit-superforms/server";
 import { redirect } from "$lib/utils/redirect";
 import { governingDocumentSchema } from "../../schemas";
+import * as m from "$paraglide/messages";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma } = locals;
@@ -13,7 +14,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   });
 
   if (!governingDocument) {
-    throw error(404, "Governing document not found");
+    throw error(404, m.documents_governing_errors_notFound());
   }
 
   return {
@@ -44,7 +45,7 @@ export const actions: Actions = {
     throw redirect(
       "/documents/governing",
       {
-        message: "Styrdokument uppdaterat",
+        message: m.documents_governing_documentUpdated(),
         type: "success",
       },
       event,

@@ -1,9 +1,11 @@
 import apiNames from "$lib/utils/apiNames";
+import { authorize } from "$lib/utils/authorization";
+import { redirect } from "$lib/utils/redirect";
 import { memberSchema } from "$lib/zod/schemas";
 import { error, fail } from "@sveltejs/kit";
-import { message, superValidate } from "sveltekit-superforms/server";
+import { superValidate } from "sveltekit-superforms/server";
 import type { Actions, PageServerLoad } from "./$types";
-import { authorize } from "$lib/utils/authorization";
+import * as m from "$paraglide/messages";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
@@ -15,7 +17,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     },
   });
   if (!member) {
-    throw error(404, "Member not found");
+    throw error(404, m.members_errors_memberNotFound());
   }
   return {
     member,
@@ -26,7 +28,8 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 const updateBioSchema = memberSchema.pick({ bio: true });
 
 export const actions: Actions = {
-  update: async ({ params, locals, request }) => {
+  update: async (event) => {
+    const { request, locals, params } = event;
     const { prisma } = locals;
     const form = await superValidate(request, updateBioSchema);
     if (!form) return fail(400, { form });
@@ -37,9 +40,13 @@ export const actions: Actions = {
         bio: form.data.bio,
       },
     });
-    return message(form, {
-      message: "Bio uppdaterad",
-      type: "success",
-    });
+    throw redirect(
+      `/members/${studentId}`,
+      {
+        message: m.members_bioUpdated(),
+        type: "success",
+      },
+      event,
+    );
   },
 };

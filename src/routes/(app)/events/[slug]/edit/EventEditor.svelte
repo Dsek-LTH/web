@@ -10,6 +10,7 @@
   import { type EventSchema } from "../../schema";
   import Event from "../../Event.svelte";
   import { recurringTypes } from "$lib/utils/events";
+  import * as m from "$paraglide/messages";
 
   export let data: SuperValidated<EventSchema>;
   const { form, errors, constraints, enhance, submitting } = superForm(data, {
@@ -25,14 +26,14 @@
     <form method="POST" class="form-control gap-2" use:enhance>
       <slot name="form-start" />
       <Input
-        label="Title"
+        label={m.events_title()}
         name="title"
         bind:value={$form.title}
         error={$errors.title}
         {...$constraints.title}
       />
       <Input
-        label="Subtitle"
+        label={m.events_subtitle()}
         name="shortDescription"
         bind:value={$form.shortDescription}
         error={$errors.shortDescription}
@@ -40,17 +41,17 @@
       />
       <Labeled label="Description" error={$errors.description}>
         <textarea
-          id="description"
+          id={m.events_subtitle()}
           name="description"
           class="textarea textarea-bordered min-h-[10rem]"
-          placeholder="Description"
+          placeholder={m.events_subtitle()}
           bind:value={$form.description}
           {...$constraints.description}
         />
       </Labeled>
       <div class="flex flex-row justify-between gap-4 [&>*]:flex-1">
         <Input
-          label="Organizer"
+          label={m.events_organizer()}
           required
           name="organizer"
           bind:value={$form.organizer}
@@ -58,7 +59,7 @@
           {...$constraints.organizer}
         />
         <Input
-          label="Location"
+          label={m.events_location()}
           required
           name="location"
           bind:value={$form.location}
@@ -66,7 +67,7 @@
           {...$constraints.location}
         />
         <Input
-          label="Link"
+          label={m.events_link()}
           name="link"
           bind:value={$form.link}
           error={$errors.link}
@@ -74,30 +75,38 @@
         />
       </div>
       <div class="flex flex-row justify-between gap-4 [&>*]:flex-1">
-        <Labeled label="Start" error={$errors.startDatetime}>
+        <Labeled label={m.events_startTime()} error={$errors.startDatetime}>
           <DateInput
             id="start"
             name="startDatetime"
-            placeholder="Start"
+            placeholder={m.events_startTime()}
             bind:date={$form.startDatetime}
             error={$errors.startDatetime}
             {...$constraints.startDatetime}
           />
         </Labeled>
-        <Labeled label="End" error={$errors.endDatetime}>
+        <Labeled label={m.events_endTime()} error={$errors.endDatetime}>
           <DateInput
             id="end"
             name="endDatetime"
-            placeholder="End"
+            placeholder={m.events_endTime()}
             bind:date={$form.endDatetime}
             error={$errors.endDatetime}
             {...$constraints.endDatetime}
           />
         </Labeled>
       </div>
+      <div class="flex items-center pt-4">
+        {m.events_create_alarmActive()}
+        <input
+          type="checkbox"
+          class="checkbox mx-4"
+          bind:checked={$form.alarmActive}
+        />
+      </div>
       <div class="flex flex-row justify-between gap-4 [&>*]:flex-1">
         <label class="label cursor-pointer">
-          <span class="label-text">Återkommande event</span>
+          <span class="label-text">{m.events_recurringEvent()}</span>
           <input
             type="checkbox"
             class="checkbox"
@@ -105,7 +114,11 @@
             bind:checked={$form.isRecurring}
           />
         </label>
-        <Labeled label="Hur ofta?" error={$errors.recurringType} fullWidth>
+        <Labeled
+          label={m.events_create_howOften()}
+          error={$errors.recurringType}
+          fullWidth
+        >
           <select
             id="recurringTypeSelect"
             name="recurringType"
@@ -119,7 +132,10 @@
             {/each}
           </select>
         </Labeled>
-        <Labeled label="Sista datum" error={$errors.recurringEndDatetime}>
+        <Labeled
+          label={m.events_create_howOften()}
+          error={$errors.recurringEndDatetime}
+        >
           <input
             type="date"
             disabled={true}
@@ -130,21 +146,20 @@
         </Labeled>
       </div>
       <Labeled
-        label="Taggar"
-        error={$errors.tags !== undefined ? "Ogiltiga taggar" : ""}
+        label={m.events_tags()}
+        error={$errors.tags !== undefined ? m.events_create_invalidTags() : ""}
       >
         <TagSelector {allTags} bind:selectedTags={$form.tags} />
       </Labeled>
       <slot name="form-end" />
-      <!-- <button type="submit" disabled style="display: none" aria-hidden="true" /> -->
       <button type="submit" disabled={$submitting} class="btn btn-primary mt-4">
-        {$submitting ? "Submitting..." : "Submit"}
+        {$submitting ? m.events_create_submitting() : m.events_create_submit()}
       </button>
     </form>
     <slot name="error" />
   </section>
   <section>
-    <span class="italic">Preview</span>
+    <span class="italic">{m.events_create_preview()}</span>
     <Event
       event={{
         ...$form,

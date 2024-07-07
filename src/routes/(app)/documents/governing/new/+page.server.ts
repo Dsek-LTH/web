@@ -3,6 +3,7 @@ import { redirect } from "$lib/utils/redirect";
 import { superValidate } from "sveltekit-superforms/server";
 import { governingDocumentSchema } from "../schemas";
 import type { Actions, PageServerLoad } from "./$types";
+import * as m from "$paraglide/messages";
 
 export const load: PageServerLoad = async () => ({
   form: await superValidate(governingDocumentSchema),
@@ -25,7 +26,7 @@ export const actions: Actions = {
     throw redirect(
       "/documents/governing",
       {
-        message: "Styrdokument skapat",
+        message: m.documents_governing_documentCreated(),
         type: "success",
       },
       event,

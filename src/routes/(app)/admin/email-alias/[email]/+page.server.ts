@@ -19,7 +19,7 @@ import {
 import { isValidEmail } from "../emailutils";
 import keycloak from "$lib/server/keycloak";
 import type { PrismaClient } from "@prisma/client";
-import { mailAliasUpdateHandler } from "$lib/server/mail/alias/mailAliasUpdateHandler";
+import * as m from "$paraglide/messages";
 
 export const load: PageServerLoad = async (event) => {
   const { user, prisma } = event.locals;
@@ -80,10 +80,10 @@ export const load: PageServerLoad = async (event) => {
     specialReceiverResult.status === "rejected" ||
     specialSenderResult.status === "rejected"
   ) {
-    throw error(404, { message: "E-postadressen kunde inte hittas" });
+    throw error(404, { message: m.admin_emailalias_addressNotFound() });
   }
   if (allPositionsResult.status === "rejected") {
-    throw error(500, { message: "Kunde inte hämta positioner" });
+    throw error(500, { message: m.admin_emailalias_couldNotFetchPositions() });
   }
 
   const [
@@ -118,7 +118,7 @@ export const load: PageServerLoad = async (event) => {
     specialReceiver.length === 0 &&
     specialSender.length === 0
   ) {
-    throw error(404, { message: "E-postadressen kunde inte hittas" });
+    throw error(404, { message: m.admin_emailalias_addressNotFound() });
   }
 
   return {
@@ -151,17 +151,16 @@ export const actions = {
         email,
       },
     });
-    mailAliasUpdateHandler.handleUpdate();
     if (await emailStillInUse(prisma, email)) {
       return message(form, {
-        message: "Aliaset borttaget",
+        message: m.admin_emailalias_aliasRemoved(),
         type: "success",
       });
     } else {
       throw redirect(
         "/admin/email-alias",
         {
-          message: "Aliaset borttaget",
+          message: m.admin_emailalias_aliasRemoved(),
           type: "success",
         },
         event,
@@ -175,7 +174,7 @@ export const actions = {
     if (!form.valid) return fail(400, { form });
     const { positionId, email } = form.data;
     if (!isValidEmail(email)) {
-      return setError(form, "email", "E-postadressen är inte giltig");
+      return setError(form, "email", m.admin_emailalias_invalidAddress());
     }
     const existingAlias = await prisma.emailAlias.findFirst({
       where: {
@@ -184,7 +183,11 @@ export const actions = {
       },
     });
     if (existingAlias) {
-      return setError(form, "positionId", "Positionen finns redan");
+      return setError(
+        form,
+        "positionId",
+        m.admin_emailalias_positionAlreadyExists(),
+      );
     }
     await prisma.emailAlias.create({
       data: {
@@ -196,9 +199,8 @@ export const actions = {
         },
       },
     });
-    mailAliasUpdateHandler.handleUpdate();
     return message(form, {
-      message: "Positionen tillagd",
+      message: m.admin_emailalias_positionAdded(),
       type: "success",
     });
   },
@@ -213,9 +215,8 @@ export const actions = {
         id: aliasId,
       },
     });
-    mailAliasUpdateHandler.handleUpdate();
     return message(form, {
-      message: "Positionen borttagen",
+      message: m.admin_emailalias_positionRemoved(),
       type: "success",
     });
   },
@@ -234,7 +235,7 @@ export const actions = {
       },
     });
     return message(form, {
-      message: "Postens rättigheter uppdaterade",
+      message: m.admin_emailalias_positionRightsUpdated(),
       type: "success",
     });
   },
@@ -249,17 +250,16 @@ export const actions = {
         email,
       },
     });
-    mailAliasUpdateHandler.handleUpdate();
     if (await emailStillInUse(prisma, email)) {
       return message(form, {
-        message: "Special receivers borttagna",
+        message: m.admin_emailalias_specialReceiversRemoved(),
         type: "success",
       });
     } else {
       throw redirect(
         "/admin/email-alias",
         {
-          message: "Special receivers borttagna",
+          message: m.admin_emailalias_specialReceiversRemoved(),
           type: "success",
         },
         event,
@@ -276,7 +276,7 @@ export const actions = {
       return setError(
         form,
         "targetEmailReceiver",
-        "E-postadressen är inte giltig",
+        m.admin_emailalias_invalidAddress(),
       );
     }
     await prisma.specialReceiver.create({
@@ -285,9 +285,8 @@ export const actions = {
         targetEmail: targetEmailReceiver,
       },
     });
-    mailAliasUpdateHandler.handleUpdate();
     return message(form, {
-      message: "Special receiver tillagd",
+      message: m.admin_emailalias_specialReceiverAdded(),
       type: "success",
     });
   },
@@ -305,9 +304,8 @@ export const actions = {
         id,
       },
     });
-    mailAliasUpdateHandler.handleUpdate();
     return message(form, {
-      message: "Special receiver borttagen",
+      message: m.admin_emailalias_specialReceiversRemoved(),
       type: "success",
     });
   },
@@ -322,17 +320,16 @@ export const actions = {
         email,
       },
     });
-    mailAliasUpdateHandler.handleUpdate();
     if (await emailStillInUse(prisma, email)) {
       return message(form, {
-        message: "Special senders borttagna",
+        message: m.admin_emailalias_specialSendersRemoved(),
         type: "success",
       });
     } else {
       throw redirect(
         "/admin/email-alias",
         {
-          message: "Special senders borttagna",
+          message: m.admin_emailalias_specialReceiversRemoved(),
           type: "success",
         },
         event,
@@ -346,13 +343,13 @@ export const actions = {
     if (!form.valid) return fail(400, { form });
     const { email, usernameSender } = form.data;
     if (!isValidEmail(email)) {
-      return setError(form, "email", "E-postadressen är inte giltig");
+      return setError(form, "email", m.admin_emailalias_invalidAddress());
     }
     if (!(await keycloak.hasUsername(usernameSender))) {
       return setError(
         form,
         "usernameSender",
-        "Användaren finns inte i Keycloak",
+        m.admin_emailalias_userNotInKeycloak(),
       );
     }
     const keycloakId = await keycloak.getUserId(usernameSender);
@@ -360,7 +357,7 @@ export const actions = {
       return setError(
         form,
         "usernameSender",
-        "Användaren finns inte i Keycloak",
+        m.admin_emailalias_userNotInKeycloak(),
       );
     }
     await prisma.specialSender.create({
@@ -370,9 +367,8 @@ export const actions = {
         keycloakId: keycloakId,
       },
     });
-    mailAliasUpdateHandler.handleUpdate();
     return message(form, {
-      message: "Special sender tillagd",
+      message: m.admin_emailalias_specialSenderAdded(),
       type: "success",
     });
   },
@@ -387,9 +383,8 @@ export const actions = {
         id,
       },
     });
-    mailAliasUpdateHandler.handleUpdate();
     return message(form, {
-      message: "Special sender borttagen",
+      message: m.admin_emailalias_specialSenderAdded(),
       type: "success",
     });
   },

@@ -14,21 +14,27 @@ export default {
   ],
   // 👆 this forces tailwind to include these classes, used for dynamically setting toast colors
   theme: {
-    extend: {},
+    extend: {
+      gridTemplateColumns: {
+        "1-2": "1fr 2fr",
+      },
+    },
   },
   daisyui: {
     themes: [
       {
         light: {
-          primary: "#F280A1",
+          primary: "#cc5e80",
           secondary: "#9966CC",
           accent: "#1dcdbc",
           neutral: "#2b3440",
-          "base-100": "#efefef",
-          info: "#3abff8",
-          success: "#36d399",
-          warning: "#fbbd23",
-          error: "#f87272",
+          "base-100": "#DDDDDD",
+          "base-200": "#e5e5e5",
+          "base-300": "#ededed",
+          info: "#0031a9",
+          success: "#006800",
+          warning: "#6f5500",
+          error: "#a60000",
         },
       },
       {

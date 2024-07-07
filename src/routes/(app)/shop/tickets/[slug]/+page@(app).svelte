@@ -7,6 +7,8 @@
   import apiNames from "$lib/utils/apiNames";
   import FoodPreferenceModal from "$lib/components/FoodPreferenceModal.svelte";
   import * as m from "$paraglide/messages";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
+  import { eventLink } from "$lib/utils/redirect.js";
 
   export let data;
   $: ticket = data.ticket;
@@ -15,9 +17,7 @@
   let isSubmitting = false;
 </script>
 
-<svelte:head>
-  <title>{ticket.title} | D-sektionen</title>
-</svelte:head>
+<SetPageTitle title={ticket.title} />
 
 <FoodPreferenceModal />
 
@@ -39,7 +39,7 @@
     >
       <p>
         <span class="i-mdi-calendar" />
-        <a href="/events/{event.slug}" class="link-hover">
+        <a href={eventLink(event)} class="link-hover">
           {event.title}
         </a>
       </p>
