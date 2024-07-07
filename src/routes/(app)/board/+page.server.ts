@@ -102,6 +102,7 @@ const loadBoardMembers = async (_: unknown, prisma: PrismaClient) => {
   mergedBoardPositions.sort((a, b) =>
     compareBoardPositions(a.position.id, b.position.id),
   );
+  return mergedBoardPositions;
 };
 
 export const load: PageServerLoad = async ({ locals }) => {
