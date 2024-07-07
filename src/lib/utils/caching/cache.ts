@@ -8,6 +8,14 @@ export type CacheStore = Map<string, CacheEntry<unknown>>;
 export type Cache = ReturnType<typeof createCache>;
 type EntryWithKey<T> = CacheEntry<T> & { key: string };
 
+export const TIME_IN_MS = {
+  ONE_MINUE: 60_000,
+  FIVE_MINUTES: 5 * 60_000,
+  THIRY_MINUTES: 30 * 60_000,
+  ONE_HOUR: 3600_000,
+  TWENTY_FOUR_HOURS: 86_400_000,
+  ONE_YEAR: 31_557_600_000, // roughly. = 365.25 days. To be used for "infinite caching"
+};
 const DEFAULT_CACHE_TIMEOUT = 1000 * 60 * 5; // 5 minutes
 
 export const createCache = (cache: CacheStore) => {
@@ -63,12 +71,27 @@ export const createCache = (cache: CacheStore) => {
       }
     }
   };
+
+  /**
+   * Remove all expired cache entries.
+   * @returns True if cache is empty after pruning
+   */
+  const pruneCache = () => {
+    const now = Date.now();
+    for (const [key, entry] of cache) {
+      if (entry.expiresAt < now) {
+        cache.delete(key);
+      }
+    }
+    return cache.size === 0;
+  };
   return {
     get: cache.get.bind(cache),
     isKeyValid: isCacheKeyValid,
     isEntryValid: isCacheEntryValid,
     update: updateCacheEntry,
     invalidate: invalidateCacheEntry,
+    prune: pruneCache,
   };
 };
 
@@ -82,4 +105,5 @@ export enum CacheDependency {
   ALERTS = "alerts",
   NOTIFICATIONS = "notifications",
   CONSUMABLES = "consumables", // includes reservations as well
+  MANDATES_AND_POSITIONS = "mandates_positions", // anything relevant to which mandates and/or positions that exist
 }

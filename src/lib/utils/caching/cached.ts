@@ -1,7 +1,8 @@
-import type { CacheEntry } from "$lib/utils/caching/cache";
+import { TIME_IN_MS, type CacheEntry } from "$lib/utils/caching/cache";
 import globalCache from "$lib/utils/caching/globalCache";
 import {
   invalidateUserCaches,
+  pruneUserCaches,
   userCache,
 } from "$lib/utils/caching/userSpecificCaches";
 import type { AuthUser } from "@zenstackhq/runtime";
@@ -77,3 +78,17 @@ export const invalidateDependency = (
   globalCache.invalidate(dependency, at);
   invalidateUserCaches(dependency, at);
 };
+
+/**
+ * "Prunes" all caches, ie removing all expired entries. Should be run somewhat regularly.
+ * The reason why we want to prune is because our cache system would cause a "memory leak", storing very old and obscure cache entries for no reason.
+ */
+export const pruneAllCaches = () => {
+  globalCache.prune();
+  pruneUserCaches();
+};
+
+// Prune every 30 minutes. Could definitely be changed.
+setInterval(() => {
+  pruneAllCaches();
+}, TIME_IN_MS.THIRY_MINUTES);

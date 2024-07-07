@@ -18,3 +18,9 @@ export const invalidateUserCaches = (
     userCache(key).invalidate(dependency, at);
   });
 };
+
+export const pruneUserCaches = () => {
+  for (const [key, cache] of Object.entries(userCacheStores)) {
+    if (cache.prune()) delete userCacheStores[key];
+  }
+};
