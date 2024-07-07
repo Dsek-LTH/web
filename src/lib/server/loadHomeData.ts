@@ -1,21 +1,15 @@
 import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
 import { fileHandler } from "$lib/files";
 import { BASIC_ARTICLE_FILTER } from "$lib/utils/articles";
+import { CacheDependency } from "$lib/utils/caching/cache";
+import { globallyCached, userLevelCached } from "$lib/utils/caching/cached";
+import type { PrismaClient } from "@prisma/client";
 import { error } from "@sveltejs/kit";
+import type { AuthUser } from "@zenstackhq/runtime";
 import DOMPurify from "isomorphic-dompurify";
 
-type Fetch = typeof fetch;
-export const loadHomeData = async ({
-  locals,
-  fetch,
-}: {
-  locals: App.Locals;
-  fetch: Fetch;
-}) => {
-  const { prisma, user } = locals;
-
+const getDocumentsData = async (user: AuthUser) => {
   /* files - subject to change */
-
   const year = new Date().getFullYear();
   const files = await fileHandler.getInBucket(
     user,
@@ -46,84 +40,128 @@ export const loadHomeData = async ({
 
   const nextBoardMeetingFiles = filterFilesByBoardMeeting(nextBoardMeeting);
   const lastBoardMeetingFiles = filterFilesByBoardMeeting(lastBoardMeeting);
+  return {
+    nextBoardMeetingFiles,
+    lastBoardMeetingFiles,
+  };
+};
 
-  /* files ends */
+const _loadHomeData = async (
+  user: AuthUser,
+  prisma: PrismaClient,
+  fetch: Fetch,
+) => {
+  const { nextBoardMeetingFiles, lastBoardMeetingFiles } =
+    await userLevelCached(user, "home/documents", getDocumentsData, [
+      CacheDependency.MEETINGS,
+    ]);
 
   // NEWS
-  const newsPromise = prisma.article
-    .findMany({
-      where: {
-        ...BASIC_ARTICLE_FILTER(),
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-      take: 3,
-    })
-    .then((articles) =>
-      articles.map((article) => ({
-        ...article,
-        body: DOMPurify.sanitize(article.body),
-        bodyEn: article.bodyEn
-          ? DOMPurify.sanitize(article.bodyEn)
-          : article.bodyEn,
-      })),
-    );
+  const newsPromise = userLevelCached(
+    user,
+    "home/news",
+    () =>
+      prisma.article
+        .findMany({
+          where: {
+            ...BASIC_ARTICLE_FILTER(),
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
+          take: 3,
+        })
+        .then((articles) =>
+          articles.map((article) => ({
+            ...article,
+            body: DOMPurify.sanitize(article.body),
+            bodyEn: article.bodyEn
+              ? DOMPurify.sanitize(article.bodyEn)
+              : article.bodyEn,
+          })),
+        ),
+    [CacheDependency.NEWS],
+  );
 
   // EVENTS
-  const eventsPromise = prisma.event
-    .findMany({
-      where: {
-        startDatetime: {
-          gt: new Date(),
-        },
-      },
-      orderBy: {
-        startDatetime: "asc",
-      },
-      take: 3,
-    })
-    .then((events) =>
-      events.map((event) => ({
-        ...event,
-        description: DOMPurify.sanitize(event.description),
-        descriptionEn: event.descriptionEn
-          ? DOMPurify.sanitize(event.descriptionEn)
-          : event.descriptionEn,
-      })),
-    );
+  const eventsPromise = userLevelCached(
+    user,
+    "home/events",
+    () =>
+      prisma.event
+        .findMany({
+          where: {
+            startDatetime: {
+              gt: new Date(),
+            },
+          },
+          orderBy: {
+            startDatetime: "asc",
+          },
+          take: 3,
+        })
+        .then((events) =>
+          events.map((event) => ({
+            ...event,
+            description: DOMPurify.sanitize(event.description),
+            descriptionEn: event.descriptionEn
+              ? DOMPurify.sanitize(event.descriptionEn)
+              : event.descriptionEn,
+          })),
+        ),
+    [CacheDependency.EVENTS],
+  );
 
   // MEETINGS
-  const upcomingMeetingPromise = prisma.meeting.findFirst({
-    where: {
-      date: {
-        gt: new Date(),
-      },
-    },
-    orderBy: {
-      date: "asc",
-    },
-  });
-  const previousMeetingPromise = prisma.meeting.findFirst({
-    where: {
-      date: {
-        lt: new Date(),
-      },
-    },
-    orderBy: {
-      date: "desc",
-    },
-  });
+  const upcomingMeetingPromise = userLevelCached(
+    user,
+    "home/upcomingMeetings",
+    () =>
+      prisma.meeting.findFirst({
+        where: {
+          date: {
+            gt: new Date(),
+          },
+        },
+        orderBy: {
+          date: "asc",
+        },
+      }),
+    [CacheDependency.MEETINGS],
+  );
+  const previousMeetingPromise = userLevelCached(
+    user,
+    "home/previousMeetings",
+    () =>
+      prisma.meeting.findFirst({
+        where: {
+          date: {
+            lt: new Date(),
+          },
+        },
+        orderBy: {
+          date: "desc",
+        },
+      }),
+    [CacheDependency.MEETINGS],
+  );
 
   // CAFE OPENING TIMES
-  const cafeOpenPromise = prisma.markdown.findFirst({
-    where: {
-      name: `cafe:open:${new Date().getDay() - 1}`, // we assign monday to 0, not sunday
-    },
-  });
+  const cafeOpenPromise = globallyCached(CacheDependency.CAFE_OPEN_TIMES, () =>
+    prisma.markdown.findFirst({
+      where: {
+        name: `cafe:open:${new Date().getDay() - 1}`, // we assign monday to 0, not sunday
+      },
+    }),
+  );
 
   // COMMIT DATA
-  const commitPromise = fetch("/api/home").then((res) => res.json());
+  const commitPromise = globallyCached("commitData", async () => {
+    const res = await fetch("/api/home");
+    if (!res.ok) throw new Error("Failed to fetch commit data");
+    const body = await res.json();
+    return body;
+  });
 
   const [news, events, upcomingMeeting, previousMeeting, cafeOpen, commitData] =
     await Promise.allSettled([
@@ -165,4 +203,25 @@ export const loadHomeData = async ({
     commitCount: commitData.value.commitCount,
     latestCommit: commitData.value.latestCommit,
   };
+};
+
+type Fetch = typeof fetch;
+export const loadHomeData = async ({
+  locals,
+  fetch,
+}: {
+  locals: App.Locals;
+  fetch: Fetch;
+}) => {
+  const { prisma, user } = locals;
+
+  return userLevelCached(
+    user,
+    "home",
+    _loadHomeData,
+    [CacheDependency.MEETINGS, CacheDependency.NEWS, CacheDependency.EVENTS],
+    undefined,
+    prisma,
+    fetch,
+  );
 };
