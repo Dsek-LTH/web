@@ -45,19 +45,27 @@ export const updateNollningPeriod = async (
   end: Date,
 ) => {
   const res = await prisma.$transaction(async (tx) => {
-    await tx.adminSetting.update({
+    await tx.adminSetting.upsert({
       where: {
         key: NOLLNING_START_KEY,
       },
-      data: {
+      update: {
+        value: start.toISOString(),
+      },
+      create: {
+        key: NOLLNING_START_KEY,
         value: start.toISOString(),
       },
     });
-    await tx.adminSetting.update({
+    await tx.adminSetting.upsert({
       where: {
         key: NOLLNING_END_KEY,
       },
-      data: {
+      update: {
+        value: end.toISOString(),
+      },
+      create: {
+        key: NOLLNING_END_KEY,
         value: end.toISOString(),
       },
     });
