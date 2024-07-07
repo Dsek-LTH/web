@@ -16,6 +16,7 @@ import { randomBytes } from "crypto";
 import schedule from "node-schedule";
 import translatedExtension from "./database/prisma/translationExtension";
 import { getAccessPolicies } from "./hooks.server.helpers";
+import { themes } from "$lib/utils/themes";
 
 const authHandle = SvelteKitAuth({
   secret: env.AUTH_SECRET,
@@ -141,7 +142,7 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
       event.url.pathname != "/onboarding" &&
       (!member.classProgramme || !member.classYear) // consider adding email here, but make sure to fix onboarding as well
     ) {
-      redirect(302, i18n.resolveRoute("/onboarding"));
+      redirect(302, "/onboarding");
     }
 
     const user = {
@@ -174,6 +175,42 @@ const apiHandle = zenstack.SvelteKitHandler({
   },
 });
 
+const APP_INSETS_REGEX = /APP-INSETS\s*\(([^)]*)\)/;
+const appHandle: Handle = async ({ event, resolve }) => {
+  const userAgent = event.request.headers.get("user-agent");
+  if (userAgent?.startsWith("DSEK-APP") || env.MOCK_IS_APP === "true") {
+    event.locals.isApp = true;
+    const insetsJson = APP_INSETS_REGEX.exec(userAgent ?? "")?.[1];
+    const insets = JSON.parse(insetsJson ?? "{}");
+    event.locals.appInfo = {
+      insets: {
+        top: insets?.top ? Number(insets.top) : 0,
+        bottom: insets?.bottom ? Number(insets.bottom) : 0,
+        left: insets?.left ? Number(insets.left) : 0,
+        right: insets?.right ? Number(insets.right) : 0,
+      },
+    };
+  } else {
+    event.locals.isApp = false;
+    event.locals.appInfo = undefined;
+  }
+  return resolve(event);
+};
+
+const themeHandle: Handle = async ({ event, resolve }) => {
+  const theme = event.cookies.get("theme");
+
+  if (!theme || !themes.includes(theme)) {
+    return await resolve(event);
+  }
+
+  return await resolve(event, {
+    transformPageChunk: ({ html }) => {
+      return html.replace("%theme%", theme);
+    },
+  });
+};
+
 schedule.scheduleJob("* */24 * * *", () => keycloak.sync(prismaClient));
 
 export const handle = sequence(
@@ -181,4 +218,6 @@ export const handle = sequence(
   i18n.handle(),
   databaseHandle,
   apiHandle,
+  appHandle,
+  themeHandle,
 );

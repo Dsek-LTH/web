@@ -6,6 +6,7 @@
   import type { InterestedGoingSchema } from "./interestedGoing";
   import type { EventWithIncludes } from "./events";
   import type { SuperValidated } from "sveltekit-superforms";
+  import { eventLink } from "$lib/utils/redirect";
   import { languageTag } from "$paraglide/runtime";
 
   export let event: EventWithIncludes;
@@ -24,10 +25,8 @@
   </div>
 
   <div class="flex flex-col p-8">
-    <a href="/events/{event.slug}">
-      <h2 class="text-2xl font-bold">
-        {languageTag() === "en" && event.titleEn ? event.titleEn : event.title}
-      </h2>
+    <a href={eventLink(event)}>
+      <h2 class="text-2xl font-bold">{event.title}</h2>
     </a>
 
     <section class="text-primary">

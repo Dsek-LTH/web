@@ -152,7 +152,7 @@ const sendNotification = async ({
       notificationAuthor,
       receivingMembers,
     ),
-    await sendPush(title, message, type, link, receivingMembers),
+    await sendPush(title, message, settingType, link, receivingMembers),
   ]);
 
   if (result[0].status == "rejected") {
@@ -188,7 +188,7 @@ const sendWeb = async (
 const sendPush = async (
   title: string,
   message: string,
-  type: NotificationType,
+  type: NotificationSettingType,
   link: string,
   receivingMembers: Array<
     Pick<Member, "id"> & {

@@ -9,6 +9,7 @@
   import { superForm } from "sveltekit-superforms/client";
   import type { SuperValidated } from "sveltekit-superforms";
   import type { RemoveArticleSchema } from "../removeArticleAction";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import * as m from "$paraglide/messages";
 
   export let articleId: string;
@@ -22,9 +23,7 @@
   $: author = article.author;
 </script>
 
-<svelte:head>
-  <title>{article.header} | D-sektionen</title>
-</svelte:head>
+<SetPageTitle title={article.header} />
 
 <article>
   <Article {article}>

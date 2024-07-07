@@ -19,6 +19,7 @@
   "committees": "Utskott",
   "bookings": "Bokningar",
   "songBook": "Sjungbok",
+  "account": "Konto",
   "admin": "Admin",
   "access": "Åtkomst",
   "doors": "Dörrar",
@@ -39,7 +40,7 @@
   "home_feedback": "Tankar eller åsikter?",
   "home_contactWellbeing": "Kontakta Trivselrådet",
   "home_codeWithDWWW": "Koda med DWWW!",
-  "home_DWWWMessage": "Har du hittat en bug, har en bra idé på en ny feature eller vill lära dig\n  webutveckling? Då har du hittat rätt ställe!",
+  "home_DWWWMessage": "Har du hittat en bug, har en bra idé på en ny feature eller vill lära dig\n  webbutveckling? Då har du hittat rätt ställe!",
   "home_reportBug": "Rapportera en bug",
 
   "landing_theIntroduction": "Nollningen",
@@ -59,7 +60,7 @@
   "tickets_foodPreferenceModal_preferenceInitialQuestion": "Har du någon matpreferens?",
   "tickets_foodPreferenceModal_preferenceQuestion": "Vad har du för matpreferens?",
   "tickets_foodPreferenceModal_iDontHaveAPreference": "Jag har ingen matpref",
-  "tickets_availableNow": "Tillgänliga biljetter",
+  "tickets_availableNow": "Tillgängliga biljetter",
   "tickets_upcoming": "Kommande biljetter",
   "tickets_past": "Tidigare biljetter",
   "tickets_createNew": "Skapa ny biljett",
@@ -136,6 +137,7 @@
 
   "inventory_errors_unauthorized": "Du måste logga in för att se din kista",
   "inventory_errors_consumableNotFound": "Hittade inte produkten",
+  "inventory_empty": "Din kista är tom, gå köp något!",
   "inventory_ownedBy": "Ägs av",
   "inventory_boughtAt": "Köptes",
   "inventory_anonymousUser": "anonym användare",
@@ -581,5 +583,6 @@
   "members_errors_memberDoesntExist": "Medlemmen existerar inte",
   "members_errors_failedToFindMember": "Mislyckades att hitta medlemmen. Fel: {e}",
   "members_errors_invalidPicture": "Ogiltig bild",
-  "members_errors_couldntUploadFile": "Kunde inte ladda up bild"
+  "members_errors_couldntUploadFile": "Kunde inte ladda up bild",
+  "members_errors_meNotFound": "Du har ingen profil eftersom du inte är inloggad. Duh."
 }

@@ -4,6 +4,7 @@
   import * as m from "$paraglide/messages";
 
   import type { PageData } from "./$types";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   export let data: PageData;
   const { form, errors, constraints, enhance, submitting } = superForm(
     data.createForm,
@@ -13,9 +14,7 @@
   );
 </script>
 
-<svelte:head>
-  <title>{m.news_tags_newsTags()} | D-sektionen</title>
-</svelte:head>
+<SetPageTitle title={m.news_tags_newsTags()} />
 
 <div class="overflow-x-auto">
   <table class="table">

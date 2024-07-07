@@ -1,5 +1,7 @@
+// These are to be used internally within the website to seperate different types of notifications.
+// You can add as many as you like, but make sure to map them to notification settings.
 export enum NotificationType {
-  LIKE = "LIKE",
+  NEWS_LIKE = "NEWS_LIKE",
   EVENT_LIKE = "EVENT_LIKE",
   COMMENT = "COMMENT",
   EVENT_COMMENT = "EVENT_COMMENT",
@@ -17,6 +19,12 @@ export enum NotificationType {
   PURCHASE_CONSUMABLE_EXPIRED = "PURCHASE_CONSUMABLE_EXPIRED",
   PURCHASE_SOLD_OUT = "PURCHASE_SOLD_OUT",
 }
+
+// These represent which settings users can turn on and off. The reason why we have fewer of these than NotificationTypes is that user's shouldn't be overwhelmed with too many settings.
+// We have a map to mape a NotificationSettingType to a list of NotificationTypes.
+// For example, "LIKE" represents all types of likes, but internally we might want to seperate between news and events.
+// These are also specified WITHIN THE APP, because on android these channels let both us and users specify notification-specific settings like if they should make a sound or not. Also letting the user disable different types of notifications directly in their OS settings.
+// Thus, if you add a new setting type here, you also HAVE TO add it to the app in its respective repo.
 export enum NotificationSettingType {
   LIKE = "LIKE",
   COMMENT = "COMMENT",
@@ -37,7 +45,7 @@ export const SUBSCRIPTION_SETTINGS_MAP: Record<
   NotificationSettingType,
   NotificationType[]
 > = {
-  LIKE: [NotificationType.LIKE, NotificationType.EVENT_LIKE],
+  LIKE: [NotificationType.NEWS_LIKE, NotificationType.EVENT_LIKE],
   COMMENT: [
     NotificationType.COMMENT,
     NotificationType.EVENT_COMMENT,

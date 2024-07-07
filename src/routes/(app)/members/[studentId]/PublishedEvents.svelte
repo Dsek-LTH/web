@@ -4,6 +4,7 @@
   import { languageTag } from "$paraglide/runtime";
 
   import type { Event } from "@prisma/client";
+  import { eventLink } from "$lib/utils/redirect";
   export let events: Event[];
 </script>
 
@@ -11,7 +12,7 @@
 <div class="flex flex-col gap-2">
   {#each events as event (event.id)}
     <ActivityButton
-      link="/events/{event.slug}"
+      link={eventLink(event)}
       title={event.title}
       rightAdornment={event.startDatetime?.toLocaleDateString(languageTag())}
     />

@@ -5,6 +5,7 @@
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import { getFullName } from "$lib/utils/client/member";
   import * as m from "$paraglide/messages";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
 
   export let data;
   $: members = data.members;
@@ -33,12 +34,7 @@
   }
 </script>
 
-<svelte:head>
-  <title>
-    {programme.toUpperCase()}
-    {year} | D-sektionen
-  </title>
-</svelte:head>
+<SetPageTitle title="{programme.toUpperCase()} {year}" />
 
 <select
   class="select my-2 border-current"

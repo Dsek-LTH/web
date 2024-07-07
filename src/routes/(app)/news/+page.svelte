@@ -11,6 +11,7 @@
   export let data: PageData;
 
   import type { PageData } from "./$types";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   let filteredTags: Tag[] = data.allTags.filter((tag) =>
     $page.url.searchParams.getAll("tags").includes(tag.name),
   );
@@ -18,9 +19,7 @@
   let form: HTMLFormElement;
 </script>
 
-<svelte:head>
-  <title>{m.news()} | D-sektionen</title>
-</svelte:head>
+<SetPageTitle title={m.news()} />
 
 <div class="space-y-4">
   <section class="flex flex-col gap-2">

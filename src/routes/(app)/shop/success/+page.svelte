@@ -1,4 +1,5 @@
 <script lang="ts">
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import { invalidate } from "$app/navigation";
   import * as m from "$paraglide/messages";
   import { onDestroy, onMount } from "svelte";
@@ -20,9 +21,7 @@
   }
 </script>
 
-<svelte:head>
-  <title>{m.cart_paymentStatus_pageTitle()} | D-sektionen</title>
-</svelte:head>
+<SetPageTitle title={m.cart_paymentStatus_pageTitle()} />
 
 <h1 class="text-2xl font-bold">{data.message}</h1>
 {#if interval}

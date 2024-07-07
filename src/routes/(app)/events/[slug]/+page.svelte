@@ -10,6 +10,7 @@
   import type { PageData } from "./$types";
   import { superForm } from "sveltekit-superforms/client";
   import type { RemoveEventSchema } from "../removeEventAction";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
 
   export let articleId: string;
   export let removeForm: SuperValidated<RemoveEventSchema>;
@@ -24,9 +25,7 @@
   $: submitString = event.recurringParentId != undefined ? "button" : "submit";
 </script>
 
-<svelte:head>
-  <title>{event.title} | D-sektionen</title>
-</svelte:head>
+<SetPageTitle title={event.title} />
 
 <Event {event}>
   <div slot="actions" class="flex flex-row">

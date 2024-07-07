@@ -1,4 +1,5 @@
 <script lang="ts">
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import ArticleEditor from "../ArticleEditor.svelte";
   import * as m from "$paraglide/messages";
 
@@ -6,9 +7,7 @@
   export let data: PageData;
 </script>
 
-<svelte:head>
-  <title>{m.news_createArticle()} | D-sektionen</title>
-</svelte:head>
+<SetPageTitle title={m.news_createArticle()} />
 
 <ArticleEditor
   data={data.form}

@@ -3,13 +3,12 @@
   import Cart from "./Cart.svelte";
   import Reservations from "./Reservations.svelte";
   import * as m from "$paraglide/messages";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
 
   export let data;
 </script>
 
-<svelte:head>
-  <title>{m.cart()} | D-sektionen</title>
-</svelte:head>
+<SetPageTitle title={m.cart()} />
 
 <FoodPreferenceModal />
 

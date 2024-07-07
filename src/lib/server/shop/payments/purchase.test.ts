@@ -92,7 +92,7 @@ const addPurchaseTestForUser = (
       prismaWithAccess,
       context.tickets.activeTicket.id,
       identification,
-    ).catch(() => expect.fail("Failed to add ticket to cart"));
+    ).catch((e) => expect.fail(`Failed to add ticket to cart: ${e}`));
 
     if (identification.memberId) {
       mockFns.customers.create.mockResolvedValue({

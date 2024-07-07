@@ -3,11 +3,10 @@
   import * as m from "$paraglide/messages";
 
   import type { PageData } from "./$types";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   export let data: PageData;
 </script>
 
-<svelte:head>
-  <title>{m.events_editEvent} | D-sektionen</title>
-</svelte:head>
+<SetPageTitle title={m.events_editEvent()} />
 
 <EventEditor data={data.form} allTags={data.allTags} />

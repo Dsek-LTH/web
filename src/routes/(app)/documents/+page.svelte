@@ -9,6 +9,7 @@
   import * as m from "$paraglide/messages";
 
   import type { PageData } from "./$types";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   export let data: PageData;
 
   let isEditing = false;
@@ -48,9 +49,7 @@
   );
 </script>
 
-<svelte:head>
-  <title>{m.documents()} | D-sektionen</title>
-</svelte:head>
+<SetPageTitle title={m.documents()} />
 
 <div class="flex flex-row flex-wrap justify-between">
   <div class="mb-4 flex w-full flex-col items-start gap-2">
