@@ -21,10 +21,13 @@ export const load = async ({ locals }) => {
   )?.value;
   return {
     settings,
-    nollning: {
-      start: nollningStartStr ? new Date(nollningStartStr) : undefined,
-      end: nollningEndStr ? new Date(nollningEndStr) : undefined,
-    },
+    nollning:
+      nollningStartStr && nollningEndStr
+        ? {
+            start: new Date(nollningStartStr),
+            end: new Date(nollningEndStr),
+          }
+        : undefined,
     updateForm: await superValidate(updateSchema),
     updateNollningPeriodForm: await superValidate(updateNollningPeriodSchema),
   };

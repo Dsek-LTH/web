@@ -6,6 +6,5 @@ declare module "@zenstackhq/runtime" {
     memberId?: string;
     policies: string[];
     externalCode?: string; // for non-authenticated users
-    isNollning?: boolean;
   }
 }

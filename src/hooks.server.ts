@@ -1,13 +1,14 @@
 import { env } from "$env/dynamic/private";
 import keycloak from "$lib/server/keycloak";
 import { i18n } from "$lib/utils/i18n";
+import { redirect } from "$lib/utils/redirect";
+import { themes } from "$lib/utils/themes";
 import { isAvailableLanguageTag, sourceLanguageTag } from "$paraglide/runtime";
 import Keycloak, { type KeycloakProfile } from "@auth/core/providers/keycloak";
 import type { TokenSet } from "@auth/core/types";
 import { SvelteKitAuth } from "@auth/sveltekit";
 import { PrismaClient } from "@prisma/client";
 import { error, type Handle } from "@sveltejs/kit";
-import { redirect } from "$lib/utils/redirect";
 import { sequence } from "@sveltejs/kit/hooks";
 import { enhance, type AuthUser } from "@zenstackhq/runtime";
 import RPCApiHandler from "@zenstackhq/server/api/rpc";
@@ -16,8 +17,6 @@ import { randomBytes } from "crypto";
 import schedule from "node-schedule";
 import translatedExtension from "./database/prisma/translationExtension";
 import { getAccessPolicies } from "./hooks.server.helpers";
-import { themes } from "$lib/utils/themes";
-import { isNollningPeriod } from "$lib/utils/adminSettings/nollning";
 
 const authHandle = SvelteKitAuth({
   secret: env.AUTH_SECRET,
@@ -93,7 +92,6 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
     translatedExtension(lang),
   ) as PrismaClient;
   const session = await event.locals.getSession();
-  const isNollning = await isNollningPeriod(prismaClient);
 
   if (!session?.user) {
     let externalCode = event.cookies.get("externalCode"); // Retrieve the externalCode from cookies
@@ -107,6 +105,7 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
       });
     }
     const policies = await getAccessPolicies(prisma);
+
     event.locals.prisma = enhance(
       prisma,
       {
@@ -115,7 +114,6 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
           memberId: undefined,
           policies,
           externalCode: externalCode, // For anonymous users
-          isNollning,
         },
       },
       { logPrismaQuery: process.env["NODE_ENV"] === "production" }, // Log queries in production
@@ -156,8 +154,8 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
         session.user.student_id,
         session.user.group_list,
       ),
-      isNollning,
     };
+
     event.locals.prisma = enhance(
       prisma,
       { user },

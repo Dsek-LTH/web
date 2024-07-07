@@ -7,10 +7,11 @@
   import PageHeader from "$lib/components/nav/PageHeader.svelte";
   import type { AdminSetting } from "@prisma/client";
   import { superForm } from "sveltekit-superforms/client";
+  import { isAuthorized } from "$lib/utils/authorization";
+  import apiNames from "$lib/utils/apiNames";
 
   export let data;
   let editingSetting: AdminSetting | null = null;
-  console.log(data);
   const {
     enhance: updateEnhance,
     submitting: updateSubmitting,
@@ -28,58 +29,61 @@
 <PageHeader title="Admininställningar" />
 
 <div class="flex flex-col gap-4">
-  <form
-    class="form-control gap-2 rounded-box bg-base-300 p-4"
-    method="POST"
-    use:updateEnhance
-    action="?/update"
-  >
-    {#if editingSetting !== null}
-      <div class="flex justify-between">
-        <h3 class="text-lg font-semibold">Redigerar</h3>
-        <button class="btn btn-ghost" on:click={() => (editingSetting = null)}
-          >Sluta redigera
-        </button>
-      </div>
-      <Input
-        class="input-disabled pointer-events-none"
-        label="Key"
-        name="key"
-        value={editingSetting.key}
-        readonly
-      />
-      <Input
-        label="Value"
-        name="value"
-        value={editingSetting.value}
-        {...$updateConstraints.value}
-        error={$updateErrors.value}
-      />
-    {:else}
-      <h3 class="text-lg font-semibold">Skapa ny</h3>
-      <Input
-        label="Key"
-        name="key"
-        {...$updateConstraints.key}
-        error={$updateErrors.key}
-      />
-      <Input
-        label="Value"
-        name="value"
-        value={editingSetting ? editingSetting.value : undefined}
-        {...$updateConstraints.value}
-        error={$updateErrors.value}
-      />
-    {/if}
-    <LoadingButton
-      class="btn btn-primary mt-4"
-      onClick="default"
-      isLoading={$updateSubmitting}
-      type="submit"
+  {#if (editingSetting === null && isAuthorized(apiNames.ADMIN.SETTINGS.CREATE, data.user)) || isAuthorized(apiNames.ADMIN.SETTINGS.UPDATE, data.user)}
+    <form
+      class="form-control gap-2 rounded-box bg-base-300 p-4"
+      method="POST"
+      use:updateEnhance
+      action="?/update"
     >
-      {editingSetting !== null ? "Uppdatera" : "Skapa"}
-    </LoadingButton>
-  </form>
+      {#if editingSetting !== null}
+        <div class="flex justify-between">
+          <h3 class="text-lg font-semibold">Redigerar</h3>
+          <button class="btn btn-ghost" on:click={() => (editingSetting = null)}
+            >Sluta redigera
+          </button>
+        </div>
+        <Input
+          class="input-disabled pointer-events-none"
+          label="Key"
+          name="key"
+          value={editingSetting.key}
+          readonly
+        />
+        <Input
+          label="Value"
+          name="value"
+          value={editingSetting.value}
+          {...$updateConstraints.value}
+          error={$updateErrors.value}
+        />
+      {:else}
+        <h3 class="text-lg font-semibold">Skapa ny</h3>
+        <Input
+          label="Key"
+          name="key"
+          {...$updateConstraints.key}
+          error={$updateErrors.key}
+        />
+        <Input
+          label="Value"
+          name="value"
+          value={editingSetting ? editingSetting.value : undefined}
+          {...$updateConstraints.value}
+          error={$updateErrors.value}
+        />
+      {/if}
+      <LoadingButton
+        class="btn btn-primary mt-4"
+        onClick="default"
+        isLoading={$updateSubmitting}
+        type="submit"
+      >
+        {editingSetting !== null ? "Uppdatera" : "Skapa"}
+      </LoadingButton>
+    </form>
+  {/if}
+
   <table class="table rounded-box bg-base-300">
     <thead>
       <tr>
@@ -95,6 +99,7 @@
         <td>{setting.value}</td>
         <td>
           <button
+            disabled={!isAuthorized(apiNames.ADMIN.SETTINGS.UPDATE, data.user)}
             class="btn btn-ghost"
             on:click={() => (editingSetting = setting)}
           >
@@ -108,6 +113,10 @@
               type="submit"
               class="btn btn-error"
               onClick="default"
+              disabled={!isAuthorized(
+                apiNames.ADMIN.SETTINGS.DELETE,
+                data.user,
+              )}
             >
               <span class="i-mdi-delete" />
             </LoadingButton>
@@ -117,44 +126,46 @@
     {/each}
   </table>
 
-  <form
-    method="POST"
-    action="?/updateNollning"
-    use:nollningEnhance
-    class="form-control justify-between gap-2 rounded-box bg-base-300 p-4 md:flex-row"
-  >
-    <Labeled
-      label="Nollning start"
-      class="md:flex-1"
-      error={$nollningErrors.start}
-      {...$nollningConstraints.start}
+  {#if data.nollning && isAuthorized(apiNames.ADMIN.SETTINGS.UPDATE, data.user)}
+    <form
+      method="POST"
+      action="?/updateNollning"
+      use:nollningEnhance
+      class="form-control justify-between gap-2 rounded-box bg-base-300 p-4 md:flex-row"
     >
-      <DateInput
-        name="start"
-        date={data.nollning.start ?? new Date()}
+      <Labeled
+        label="Nollning start"
+        class="md:flex-1"
+        error={$nollningErrors.start}
         {...$nollningConstraints.start}
-      />
-    </Labeled>
-    <Labeled
-      class="md:flex-1"
-      label="Nollning start"
-      error={$nollningErrors.end}
-      {...$nollningConstraints.end}
-    >
-      <DateInput
-        name="end"
-        date={data.nollning.end ?? new Date()}
-        {...$nollningConstraints.end}
+      >
+        <DateInput
+          name="start"
+          date={data.nollning.start}
+          {...$nollningConstraints.start}
+        />
+      </Labeled>
+      <Labeled
+        class="md:flex-1"
+        label="Nollning start"
         error={$nollningErrors.end}
-      />
-    </Labeled>
-    <LoadingButton
-      class="btn btn-primary mt-4 self-end"
-      onClick="default"
-      isLoading={$nollningSubmitting}
-      type="submit"
-    >
-      Spara
-    </LoadingButton>
-  </form>
+        {...$nollningConstraints.end}
+      >
+        <DateInput
+          name="end"
+          date={data.nollning.end}
+          {...$nollningConstraints.end}
+          error={$nollningErrors.end}
+        />
+      </Labeled>
+      <LoadingButton
+        class="btn btn-primary mt-4 self-end"
+        onClick="default"
+        isLoading={$nollningSubmitting}
+        type="submit"
+      >
+        Spara
+      </LoadingButton>
+    </form>
+  {/if}
 </div>

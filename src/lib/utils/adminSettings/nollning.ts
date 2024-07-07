@@ -27,7 +27,7 @@ export const isNollningPeriod = async (prisma: PrismaClient) => {
     },
   });
   const startStr = rows.find((row) => row.key === NOLLNING_START_KEY)?.value;
-  const endStr = rows.find((row) => row.key === NOLLNING_START_KEY)?.value;
+  const endStr = rows.find((row) => row.key === NOLLNING_END_KEY)?.value;
   if (!startStr || !endStr) return false;
   const start = new Date(startStr);
   const end = new Date(endStr);

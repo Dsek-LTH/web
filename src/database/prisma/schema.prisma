@@ -57,7 +57,7 @@ model AdminSetting {
     key String @id() @db.VarChar(255)
     value String? @db.VarChar(255)
     createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-    updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+    updatedAt DateTime @default(now()) @updatedAt() @map("updated_at") @db.Timestamptz(6)
 
     @@map("admin_settings")
 }
@@ -473,7 +473,7 @@ model Keycloak {
 /// @@allow('read', has(auth().policies, 'core:mandate:read'))
 /// @@allow('update', has(auth().policies, 'core:mandate:update'))
 /// @@allow('delete', has(auth().policies, 'core:mandate:delete'))
-/// @@deny('read', positionId == 'dsek.noll.stab.mdlm' || positionId == 'dsek.noll.stab.oph')
+/// @@deny('read', positionId == 'dsek.noll.stab.mdlm' || positionId == 'dsek.noll.stab.oph' && !has(auth().policies, 'member:see_staben'))
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Mandates{
 model Mandate {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
@@ -519,6 +519,7 @@ model Meeting {
 /// @@allow('update', auth().studentId == studentId)
 /// @@allow('update', has(auth().policies, 'core:member:update'))
 /// @@allow('delete', has(auth().policies, 'core:member:delete'))
+/// @@deny('read', mandates?[startDate < now() && now() < endDate && (positionId == 'dsek.noll.stab.mdlm' || positionId == 'dsek.noll.stab.oph')] && !has(auth().policies, 'member:see_staben') && auth().memberId != id)
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Members{
 model Member {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
@@ -651,7 +652,7 @@ model Ping {
 /// @@allow('update', has(auth().policies, 'core:position:update'))
 /// @@allow('delete', has(auth().policies, 'core:position:delete'))
 /// @@deny('read', active == false && !has(auth().policies, 'core:position:inactive:read'))
-/// @@deny('read', id == 'dsek.noll.stab.mdlm' || id == 'dsek.noll.stab.oph')
+/// @@deny('read', id == 'dsek.noll.stab.mdlm' || id == 'dsek.noll.stab.oph' && !has(auth().policies, 'member:see_staben'))
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Positions{
 model Position {
     id String @id() @db.VarChar(255)
