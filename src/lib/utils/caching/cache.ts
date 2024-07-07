@@ -72,9 +72,14 @@ export const createCache = (cache: CacheStore) => {
   };
 };
 
+// I REALLY recommend using this enum (and adding values as necessary) instead of writing manual strings
+// It gives a clear overview of what type of dependencies are used throughout the project when caching stuff
 export enum CacheDependency {
   NEWS = "news",
   EVENTS = "events",
   MEETINGS = "meetings",
   CAFE_OPEN_TIMES = "cafeOpenTimes",
+  ALERTS = "alerts",
+  NOTIFICATIONS = "notifications",
+  CONSUMABLES = "consumables", // includes reservations as well
 }

@@ -1,17 +1,45 @@
 import { countUserShopItems } from "$lib/server/shop/countUserShopItems";
+import { CacheDependency } from "$lib/utils/caching/cache";
+import { globallyCached, userLevelCached } from "$lib/utils/caching/cached";
+import { i18n } from "$lib/utils/i18n";
 import { emptySchema, notificationSchema } from "$lib/zod/schemas";
 import { loadFlash } from "sveltekit-flash-message/server";
 import { superValidate } from "sveltekit-superforms/server";
 
-export const load = loadFlash(async ({ locals, depends, request }) => {
+export const load = loadFlash(async ({ locals, depends, url }) => {
   const { user, prisma } = locals;
   depends("/notifications");
-  if (user?.memberId) {
+  const notifications = user?.memberId
+    ? await userLevelCached(
+        user,
+        CacheDependency.NOTIFICATIONS,
+        (user, prisma) =>
+          prisma.notification.findMany({
+            where: {
+              memberId: user.memberId,
+            },
+            orderBy: {
+              createdAt: "desc", // latest first
+            },
+          }),
+        undefined,
+        undefined,
+        prisma,
+      )
+    : null;
+
+  const unreadNotifications = notifications?.filter((n) => n.readAt === null);
+  if (
+    unreadNotifications &&
+    unreadNotifications.length > 0 &&
+    unreadNotifications.filter((n) => n.link === i18n.route(url.pathname))
+      .length > 0
+  ) {
     // mark any notifications pointing to this link as read. Works great for external linking (like notifications).
     await prisma.notification.updateMany({
       where: {
         memberId: user?.memberId,
-        link: new URL(request.url).pathname,
+        link: i18n.route(url.pathname),
         readAt: null,
       },
       data: {
@@ -19,23 +47,23 @@ export const load = loadFlash(async ({ locals, depends, request }) => {
       },
     });
   }
-  const notifications = user?.memberId
-    ? await prisma.notification.findMany({
-        where: {
-          memberId: user.memberId,
-        },
-        orderBy: {
-          createdAt: "desc", // latest first
-        },
-      })
-    : null;
+
   depends("cart");
-  const shopItemCounts = await countUserShopItems(prisma, user);
-  const alerts = await prisma.alert.findMany({
-    where: {
-      removedAt: null,
-    },
-  });
+  const shopItemCounts = await userLevelCached(
+    user,
+    "shopItems",
+    (user, prisma) => countUserShopItems(prisma, user),
+    [CacheDependency.CONSUMABLES],
+    undefined,
+    prisma,
+  );
+  const alerts = await globallyCached(CacheDependency.ALERTS, () =>
+    prisma.alert.findMany({
+      where: {
+        removedAt: null,
+      },
+    }),
+  );
   return {
     alerts,
     notifications: notifications,

@@ -6,6 +6,5 @@ export const load: PageServerLoad = async ({ locals, fetch }) => {
   if (!locals.user?.memberId) {
     redirect(302, "/");
   }
-  const res = await loadHomeData({ locals, fetch });
-  return res;
+  return await loadHomeData({ locals, fetch });
 };
