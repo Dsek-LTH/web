@@ -3,7 +3,7 @@
   import { fade } from "svelte/transition";
 
   let value = "";
-  let show: boolean = false;
+  let show = false;
   let users: Member[] = [];
 
   async function getMembers() {
