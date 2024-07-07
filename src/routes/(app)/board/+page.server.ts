@@ -1,9 +1,12 @@
 import { compareBoardPositions } from "$lib/utils/committee-ordering/sort";
+import type { PrismaClient } from "@prisma/client";
 
 import type { PageServerLoad } from "./$types";
+import { userLevelCached } from "$lib/utils/caching/cached";
+import { CacheDependency } from "$lib/utils/caching/cache";
 
-export const load: PageServerLoad = async ({ locals }) => {
-  const { prisma } = locals;
+// _: unknown for caching which sends user as first parameter
+const loadBoardMembers = async (_: unknown, prisma: PrismaClient) => {
   const boardPositions = await prisma.committee.findMany({
     where: {
       positions: {
@@ -99,7 +102,18 @@ export const load: PageServerLoad = async ({ locals }) => {
   mergedBoardPositions.sort((a, b) =>
     compareBoardPositions(a.position.id, b.position.id),
   );
+};
+
+export const load: PageServerLoad = async ({ locals }) => {
+  const { user, prisma } = locals;
   return {
-    boardPositions: mergedBoardPositions,
+    boardPositions: await userLevelCached(
+      user,
+      "boardMembers",
+      loadBoardMembers,
+      [CacheDependency.MANDATES_AND_POSITIONS],
+      undefined,
+      prisma,
+    ),
   };
 };
