@@ -10,7 +10,7 @@
 
 <SetPageTitle {title} />
 
-<!-- If it's an app, the page title is shown at the top, in the header -->
+<!-- If it's an app, the page title is shown at the top instead, in the header -->
 {#if !$page.data.isApp}
   <h1 class={twMerge("mb-4 text-2xl font-bold", clazz)}>
     {title}
