@@ -206,7 +206,7 @@ const themeHandle: Handle = async ({ event, resolve }) => {
 
   return await resolve(event, {
     transformPageChunk: ({ html }) => {
-      return html.replace('data-theme=""', `data-theme="${theme}"`);
+      return html.replace("%theme%", theme);
     },
   });
 };
