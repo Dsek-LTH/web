@@ -23,6 +23,7 @@ model User {
   memberId     String
   policies     String[]
   externalCode String? // for non-authenticated users, like purchasing tickets
+  isNollning Boolean? @default(false) // Only way to get the context
   @@ignore
 }
 
@@ -478,7 +479,7 @@ model Mandate {
   @@allow("read", has(auth().policies, "core:mandate:read"))
   @@allow("update", has(auth().policies, "core:mandate:update"))
   @@allow("delete", has(auth().policies, "core:mandate:delete"))
-  @@deny("read", positionId == "dsek.noll.stab.mdlm" || positionId == "dsek.noll.stab.oph")
+  @@deny("read", (positionId == "dsek.noll.stab.mdlm" || positionId == "dsek.noll.stab.oph") && auth().isNollning)
   @@map("mandates")
 }
 
@@ -657,7 +658,7 @@ model Position {
   @@allow("update", has(auth().policies, "core:position:update"))
   @@allow("delete", has(auth().policies, "core:position:delete"))
   @@deny("read", active == false && !has(auth().policies, "core:position:inactive:read"))
-  @@deny("read", id == "dsek.noll.stab.mdlm" || id == "dsek.noll.stab.oph")
+  @@deny("read", (id == "dsek.noll.stab.mdlm" || id == "dsek.noll.stab.oph") && auth().isNollning)
   @@map("positions")
 }
 

@@ -9,7 +9,7 @@ import { PrismaClient } from "@prisma/client";
 import { error, type Handle } from "@sveltejs/kit";
 import { redirect } from "$lib/utils/redirect";
 import { sequence } from "@sveltejs/kit/hooks";
-import { enhance } from "@zenstackhq/runtime";
+import { enhance, type AuthUser } from "@zenstackhq/runtime";
 import RPCApiHandler from "@zenstackhq/server/api/rpc";
 import zenstack from "@zenstackhq/server/sveltekit";
 import { randomBytes } from "crypto";
@@ -17,6 +17,7 @@ import schedule from "node-schedule";
 import translatedExtension from "./database/prisma/translationExtension";
 import { getAccessPolicies } from "./hooks.server.helpers";
 import { themes } from "$lib/utils/themes";
+import { isNollningPeriod } from "$lib/utils/adminSettings/nollning";
 
 const authHandle = SvelteKitAuth({
   secret: env.AUTH_SECRET,
@@ -92,6 +93,7 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
     translatedExtension(lang),
   ) as PrismaClient;
   const session = await event.locals.getSession();
+  const isNollning = await isNollningPeriod(prismaClient);
 
   if (!session?.user) {
     let externalCode = event.cookies.get("externalCode"); // Retrieve the externalCode from cookies
@@ -113,6 +115,7 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
           memberId: undefined,
           policies,
           externalCode: externalCode, // For anonymous users
+          isNollning,
         },
       },
       { logPrismaQuery: process.env["NODE_ENV"] === "production" }, // Log queries in production
@@ -145,7 +148,7 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
       redirect(302, "/onboarding");
     }
 
-    const user = {
+    const user: AuthUser = {
       studentId: session.user.student_id,
       memberId: member!.id,
       policies: await getAccessPolicies(
@@ -153,6 +156,7 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
         session.user.student_id,
         session.user.group_list,
       ),
+      isNollning,
     };
     event.locals.prisma = enhance(
       prisma,

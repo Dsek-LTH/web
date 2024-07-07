@@ -1,0 +1,72 @@
+import { type PrismaClient } from "@prisma/client";
+
+export const NOLLNING_START_KEY = "nollning_start";
+export const NOLLNING_END_KEY = "nollning_end";
+let cache: {
+  value: boolean;
+  lastFetched: Date;
+} | null = null;
+const CACHE_TIME = 3600 * 1000; // 1 hour
+export const isNollningPeriod = async (prisma: PrismaClient) => {
+  const now = new Date();
+  if (
+    cache !== null &&
+    cache.lastFetched.valueOf() + CACHE_TIME > now.valueOf()
+  )
+    return cache.value;
+  const rows = await prisma.adminSetting.findMany({
+    where: {
+      OR: [
+        {
+          key: NOLLNING_START_KEY,
+        },
+        {
+          key: NOLLNING_END_KEY,
+        },
+      ],
+    },
+  });
+  const startStr = rows.find((row) => row.key === NOLLNING_START_KEY)?.value;
+  const endStr = rows.find((row) => row.key === NOLLNING_START_KEY)?.value;
+  if (!startStr || !endStr) return false;
+  const start = new Date(startStr);
+  const end = new Date(endStr);
+  const isNollningPeriod = start < now && now < end;
+  cache = {
+    value: isNollningPeriod,
+    lastFetched: now,
+  };
+  return isNollningPeriod;
+};
+
+export const updateNollningPeriod = async (
+  prisma: PrismaClient,
+  start: Date,
+  end: Date,
+) => {
+  const res = await prisma.$transaction(async (tx) => {
+    await tx.adminSetting.update({
+      where: {
+        key: NOLLNING_START_KEY,
+      },
+      data: {
+        value: start.toISOString(),
+      },
+    });
+    await tx.adminSetting.update({
+      where: {
+        key: NOLLNING_END_KEY,
+      },
+      data: {
+        value: end.toISOString(),
+      },
+    });
+  });
+  const now = new Date();
+  const isNollningPeriod = start < now && now < end;
+  cache = {
+    value: isNollningPeriod,
+    lastFetched: now,
+  };
+  return res;
+};
