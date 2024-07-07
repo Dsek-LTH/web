@@ -1,6 +1,7 @@
 import {
   moveQueueForwardOneStep,
   moveQueueToCart,
+  sendQueuedNotifications,
 } from "$lib/server/shop/addToCart/reservations";
 import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
 import { getCart } from "$lib/server/shop/getTickets";
@@ -77,14 +78,17 @@ export const actions = {
         type: "error",
       });
     }
-    await authorizedPrismaClient.$transaction(async (tx) => {
-      await tx.consumable.delete({
-        where: {
-          id: consumable.id,
-        },
-      });
-      await moveQueueToCart(tx, consumable.shoppableId, 1);
-    });
+    const queuedNotifications = await authorizedPrismaClient.$transaction(
+      async (tx) => {
+        await tx.consumable.delete({
+          where: {
+            id: consumable.id,
+          },
+        });
+        return await moveQueueToCart(tx, consumable.shoppableId, 1);
+      },
+    );
+    sendQueuedNotifications(queuedNotifications);
 
     return message(form, {
       message: m.cart_itemHasBeenRemoved(),

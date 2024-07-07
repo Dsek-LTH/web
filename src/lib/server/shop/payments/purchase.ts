@@ -1,4 +1,7 @@
-import { removeExpiredConsumables } from "$lib/server/shop/addToCart/reservations";
+import {
+  removeExpiredConsumables,
+  withHandledNotificationQueue,
+} from "$lib/server/shop/addToCart/reservations";
 import { obtainStripeCustomer } from "$lib/server/shop/payments/customer";
 import {
   priceWithTransactionFee,
@@ -85,7 +88,11 @@ const purchaseCart = async (
   // Step 2: Check if the consumables are still available (should not happen but you never know I guess)
   for (const consumable of userConsumables) {
     if (consumable.expiresAt && consumable.expiresAt < now) {
-      await removeExpiredConsumables(prisma, new Date());
+      await withHandledNotificationQueue(
+        removeExpiredConsumables(prisma, new Date()).then(
+          (res) => res.queuedNotifications,
+        ),
+      );
       throw new Error(m.tickets_purchase_errors_expiredConsumable());
     }
     if (

@@ -121,7 +121,7 @@
   "cart_payment_success": "Köp genomfört!",
   "cart_payment_canceled": "Betalningen avbröts",
   "cart_payment_processing": "Betalningen behandlas",
-  "cart_payment_requiresAction": "Betalningen kräver en åtgärd av dig",
+  "cart_payment_requiresAction": "Inväntar verifiering. Vanligtvis typ BankID eller Swish konfirmering (det kan dröja några sekunder). Ladda om sidan efter det är gjort.",
   "cart_payment_failed": "Betalningen gick inte igenom, försök igen.",
   "cart_paymentStatus_pageTitle": "Betalningsstatus",
   "cart_reservation_queuePosition": "Köplats",
