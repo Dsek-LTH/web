@@ -2,7 +2,7 @@
   import type { Member } from "@prisma/client";
   import { twMerge } from "tailwind-merge";
 
-  export let member: Pick<Member, "picturePath" | "id"> | null = null;
+  export let member: Pick<Member, "picturePath"> | null = null;
   // export let uniqueCode: string | null = null; // unused for now, might use for creating better unique "backup images" later
   let clazz = "";
   export { clazz as class };
