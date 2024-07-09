@@ -2,13 +2,13 @@
   import { page } from "$app/stores";
   import Notification from "$lib/components/Notification.svelte";
   import type { NotificationSchema } from "$lib/zod/schemas";
-  import type { Notification as NotificationType } from "@prisma/client";
   import { flip } from "svelte/animate";
   import type { SuperValidated } from "sveltekit-superforms";
   import { superForm } from "sveltekit-superforms/client";
   import * as m from "$paraglide/messages";
+  import type { NotificationGroup } from "$lib/utils/notifications/group";
 
-  export let notifications: NotificationType[];
+  export let notifications: NotificationGroup[];
   export let deleteForm: SuperValidated<NotificationSchema>;
 
   // Get the number of unread notifications, which is then used to indicate the user

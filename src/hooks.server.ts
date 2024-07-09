@@ -139,7 +139,7 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
       }));
 
     if (
-      event.url.pathname != "/onboarding" &&
+      i18n.route(event.url.pathname) != "/onboarding" &&
       (!member.classProgramme || !member.classYear) // consider adding email here, but make sure to fix onboarding as well
     ) {
       redirect(302, "/onboarding");

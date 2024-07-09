@@ -3,13 +3,13 @@
   import { page } from "$app/stores";
   import LiveTimeSince from "$lib/components/LiveTimeSince.svelte";
   import { i18n } from "$lib/utils/i18n";
+  import type { NotificationGroup } from "$lib/utils/notifications/group";
   import type { NotificationSchema } from "$lib/zod/schemas";
-  import type { Notification } from "@prisma/client";
   import type { SuperValidated } from "sveltekit-superforms";
   import { superForm } from "sveltekit-superforms/client";
   type NotificationItem = Pick<
-    Notification,
-    "link" | "title" | "message" | "createdAt" | "id" | "readAt"
+    NotificationGroup,
+    "link" | "title" | "message" | "createdAt" | "id" | "readAt" | "authors"
   >;
 
   export let notification: NotificationItem;
@@ -19,7 +19,7 @@
   const readNotification = () => {
     // read notification
     readForm.requestSubmit();
-    invalidate("/notifications");
+    invalidate("/api/notifications/my");
   };
 
   // Handle "reading" notification when visiting relevant link
