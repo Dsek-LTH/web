@@ -5,6 +5,7 @@
   let value = "";
   let show = false;
   let users: Member[] = [];
+  const searchBackgroundId = "searchBackground";
 
   async function getMembers() {
     if (value === "") {
@@ -37,6 +38,10 @@
       hideDialog();
     }
   }
+
+  function clickOutside(event: MouseEvent) {
+    if ((event.target as HTMLElement).id === searchBackgroundId) hideDialog();
+  }
 </script>
 
 <svelte:document on:keydown={handleKeydown} />
@@ -57,11 +62,15 @@
 </button>
 
 {#if show}
+  <!-- svelte-ignore a11y-click-events-have-key-events -->
+  <!-- svelte-ignore a11y-no-static-element-interactions -->
   <div
     class="absolute left-0 top-0 z-50 h-screen w-screen backdrop-blur"
+    id={searchBackgroundId}
     transition:fade={{ duration: 100 }}
+    on:click={clickOutside}
   >
-    <div class="mx-auto mt-8 h-full w-full max-w-md">
+    <div class="mx-auto mb-auto mt-8 w-full max-w-md">
       <form class="rounded-2xl bg-base-100 p-2 shadow">
         <div class="flex gap-2">
           <label class="input flex w-full items-center gap-2">
