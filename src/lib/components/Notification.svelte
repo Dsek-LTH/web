@@ -9,7 +9,14 @@
   import { superForm } from "sveltekit-superforms/client";
   type NotificationItem = Pick<
     NotificationGroup,
-    "link" | "title" | "message" | "createdAt" | "id" | "readAt" | "authors"
+    | "link"
+    | "title"
+    | "message"
+    | "createdAt"
+    | "id"
+    | "individualIds"
+    | "readAt"
+    | "authors"
   >;
 
   export let notification: NotificationItem;
@@ -51,7 +58,13 @@
     class="hidden"
     aria-hidden="true"
   >
-    <input type="hidden" name="notificationId" value={notification.id} />
+    {#if notification.individualIds.length > 1}
+      {#each notification.individualIds as id}
+        <input type="hidden" name="notificationIds" value={id} />
+      {/each}
+    {:else}
+      <input type="hidden" name="notificationId" value={notification.id} />
+    {/if}
   </form>
   <a
     href={notification.link}
@@ -69,7 +82,13 @@
   </a>
   <!-- Deletes this notification -->
   <form method="POST" action="/notifications?/deleteNotification" use:enhance>
-    <input type="hidden" name="notificationId" value={notification.id} />
+    {#if notification.individualIds.length > 1}
+      {#each notification.individualIds as id}
+        <input type="hidden" name="notificationIds" value={id} />
+      {/each}
+    {:else}
+      <input type="hidden" name="notificationId" value={notification.id} />
+    {/if}
     <button
       class="btn btn-ghost pointer-events-auto absolute right-0 top-0 z-10 h-full w-auto rounded-none p-2 *:text-2xl"
     >

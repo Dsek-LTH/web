@@ -33,9 +33,16 @@ const getMyNotifications = (user: AuthUser, prisma: PrismaClient) => {
   });
 };
 
+export const getMyGroupedNotifications = async (
+  user: AuthUser,
+  prisma: PrismaClient,
+) => {
+  const myNotifications = await getMyNotifications(user, prisma);
+  return groupNotifications(myNotifications);
+};
+
 export const GET: RequestHandler = async ({ locals }) => {
   const { user, prisma } = locals;
-  const myNotifications = await getMyNotifications(user, prisma);
-  const groupedNotifications = groupNotifications(myNotifications);
+  const groupedNotifications = getMyGroupedNotifications(user, prisma);
   return new Response(JSON.stringify(groupedNotifications));
 };

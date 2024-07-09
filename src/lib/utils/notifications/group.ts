@@ -32,6 +32,7 @@ export type NotificationGroup = Omit<
   "fromAuthor" | "fromAuthorId"
 > & {
   authors: Array<Notification["fromAuthor"]>;
+  individualIds: Array<Notification["id"]>;
 };
 
 /**
@@ -124,7 +125,8 @@ const convertSingleToGroup = (
   notification: Notification,
 ): NotificationGroup => ({
   ...notification,
-  authors: [notification.fromAuthor],
+  authors: notification.fromAuthor ? [notification.fromAuthor] : [],
+  individualIds: [notification.id],
 });
 const convertToGroup = (notifications: Notification[]): NotificationGroup => {
   if (notifications.length === 0) throw new Error("Empty group");
@@ -141,7 +143,11 @@ const convertToGroup = (notifications: Notification[]): NotificationGroup => {
       : authors;
   return {
     ...notifications[0]!,
+    readAt: notifications.some((n) => n.readAt === null)
+      ? null
+      : notifications[0]!.readAt,
     authors: uniqueAuthors,
+    individualIds: notifications.map((n) => n.id),
   };
 };
 /**

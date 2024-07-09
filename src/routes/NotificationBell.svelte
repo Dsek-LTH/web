@@ -96,7 +96,9 @@
         data-sveltekit-keepfocus
       >
         {#each notifications as notification (notification.id)}
-          <input type="hidden" name="notificationIds" value={notification.id} />
+          {#each notification.individualIds as id}
+            <input type="hidden" name="notificationIds" value={id} />
+          {/each}
         {/each}
         <button
           class="btn btn-ghost no-animation z-10 w-full rounded-none border-0 border-t border-gray-700 *:text-2xl"
