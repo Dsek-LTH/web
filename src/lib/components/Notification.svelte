@@ -2,6 +2,7 @@
   import { invalidate } from "$app/navigation";
   import { page } from "$app/stores";
   import LiveTimeSince from "$lib/components/LiveTimeSince.svelte";
+  import AuthorAvatars from "$lib/components/socials/AuthorAvatars.svelte";
   import { i18n } from "$lib/utils/i18n";
   import type { NotificationGroup } from "$lib/utils/notifications/group";
   import type { NotificationSchema } from "$lib/zod/schemas";
@@ -47,6 +48,10 @@
   const { enhance: readEnhance } = superForm(deleteForm, {
     id: notification.id.toString() + "-read",
   });
+
+  $: authors = notification.authors.filter(Boolean) as Array<
+    NonNullable<NotificationItem["authors"][number]>
+  >;
 </script>
 
 <div class="relative m-0 rounded-none">
@@ -66,9 +71,12 @@
       <input type="hidden" name="notificationId" value={notification.id} />
     {/if}
   </form>
+  <div>
+    <AuthorAvatars {authors} />
+  </div>
   <a
     href={notification.link}
-    class="flex h-full w-80 max-w-80 flex-col justify-center {isUnread
+    class="flex h-full flex-col flex-nowrap justify-center {isUnread
       ? 'font-semibold'
       : 'opacity-80'}"
   >

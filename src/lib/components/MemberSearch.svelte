@@ -1,7 +1,7 @@
 <script lang="ts">
   import EntitySearch from "$lib/components/EntitySearch.svelte";
   import type { Member } from "@prisma/client";
-  import AuthorSignature from "./AuthorSignature.svelte";
+  import AuthorSignature from "./socials/AuthorSignature.svelte";
   let clazz = "";
   export { clazz as class };
   export let isSearching = false;

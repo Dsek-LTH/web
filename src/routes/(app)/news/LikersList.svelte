@@ -1,7 +1,7 @@
 <script lang="ts">
   import { getFullName } from "$lib/utils/client/member";
   import type { Member } from "@prisma/client";
-  import AuthorSignature from "$lib/components/AuthorSignature.svelte";
+  import AuthorSignature from "$lib/components/socials/AuthorSignature.svelte";
   import * as m from "$paraglide/messages";
 
   let modal: HTMLDialogElement;

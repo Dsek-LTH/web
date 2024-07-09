@@ -62,7 +62,7 @@
   <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
   <ul
     tabindex="0"
-    class="menu dropdown-content !fixed right-0 z-[1] max-h-[80svh] w-full flex-nowrap overflow-clip rounded-box bg-base-100 p-0 shadow sm:!absolute sm:w-96"
+    class="menu dropdown-content !fixed right-0 z-[1] max-h-[80svh] w-full flex-nowrap overflow-clip rounded-box bg-base-100 p-0 shadow sm:!absolute sm:w-[27rem]"
   >
     {#if notifications.length >= 1}
       <div class="overflow-y-auto">

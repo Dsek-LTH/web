@@ -1,4 +1,5 @@
 <script lang="ts">
+  import CustomAuthorImage from "$lib/components/socials/CustomAuthorImage.svelte";
   import MemberImage from "$lib/components/socials/MemberImage.svelte";
   import { getFullName } from "$lib/utils/client/member";
   import type { Author, CustomAuthor, Member, Position } from "@prisma/client";
@@ -7,8 +8,8 @@
     Member,
     "firstName" | "lastName" | "nickname" | "studentId" | "picturePath"
   >;
-  export let customAuthor: Pick<CustomAuthor, "name" | "imageUrl"> | undefined =
-    undefined;
+  export let customAuthor: Pick<CustomAuthor, "name" | "imageUrl"> | null =
+    null;
   export let position: Pick<Position, "id" | "name"> | undefined = undefined;
   export let type: Author["type"] = "Member";
   export let size: "sm" | "md" | "lg" | "xl" = "lg";
@@ -30,22 +31,8 @@
 <div class="flex flex-row items-center {sizeToGap[size]}">
   <div class="avatar">
     <div class="{sizeToWidth[size]} m-2 rounded-full">
-      {#if type == "Custom" && customAuthor != null}
-        <img
-          src={customAuthor.imageUrl ??
-            "https://gravatar.com/avatar?s=100&d=mp"}
-          alt={customAuthor.name}
-          on:error={(e) => {
-            const imgElement = e.currentTarget;
-            if (
-              imgElement &&
-              "src" in imgElement &&
-              imgElement.src !== "https://gravatar.com/avatar?s=100&d=mp"
-            ) {
-              imgElement.src = "https://gravatar.com/avatar?s=100&d=mp";
-            }
-          }}
-        />
+      {#if type == "Custom"}
+        <CustomAuthorImage {customAuthor} />
       {:else}
         <a
           href="/members/{member.studentId}"

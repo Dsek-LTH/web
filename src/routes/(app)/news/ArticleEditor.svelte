@@ -8,7 +8,7 @@
   import type { SuperValidated } from "sveltekit-superforms";
   import { superForm } from "sveltekit-superforms/client";
   import Article from "./Article.svelte";
-  import AuthorSignature from "$lib/components/AuthorSignature.svelte";
+  import AuthorSignature from "$lib/components/socials/AuthorSignature.svelte";
   import type { AuthorOption } from "./articles.js";
   import type { ArticleSchema } from "./schema";
   import * as m from "$paraglide/messages";
@@ -114,7 +114,7 @@
         slot="author"
         member={$form.author.member}
         position={$form.author.mandate?.position}
-        customAuthor={$form.author.customAuthor ?? undefined}
+        customAuthor={$form.author.customAuthor}
         type={$form.author.type}
       />
 

@@ -22,4 +22,5 @@ export const dbIdentification = ({
   memberId ? { memberId } : { externalCustomerCode: externalCode };
 
 export const GRACE_PERIOD_WINDOW = 60 * 1000; // 1 minute
-export const TIME_TO_BUY = 5 * 60 * 1000; // 5 minutes
+// export const TIME_TO_BUY = 5 * 60 * 1000; // 5 minutes
+export const TIME_TO_BUY = 10 * 1000; // 5 minutes
