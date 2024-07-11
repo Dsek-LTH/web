@@ -3,12 +3,13 @@
   import type { SuperValidated } from "sveltekit-superforms";
   import type { UpdatePositionSchema } from "./+page.server";
   import { superForm } from "sveltekit-superforms/client";
+  import * as m from "$paraglide/messages";
   export let data: SuperValidated<UpdatePositionSchema>;
   const { form, errors, constraints, enhance } = superForm(data);
 </script>
 
 <form action="?/update" method="POST" use:enhance class="form-control">
-  <Labeled label="Namn">
+  <Labeled label={m.positions_name()}>
     <input
       type="text"
       name="name"
@@ -21,7 +22,7 @@
       <p class="text-error">{$errors.name}</p>
     {/if}
   </Labeled>
-  <Labeled label="Beskrivning">
+  <Labeled label={m.positions_description()}>
     <textarea
       name="description"
       id="description"
@@ -35,8 +36,8 @@
     {/if}
   </Labeled>
   <Labeled
-    label="Email"
-    explanation="Det här ändrar inte mailservern, utan säger bara vilken som är den primära mailadressen för den här posten."
+    label={m.positions_emailAddress()}
+    explanation={m.positions_emailNotice()}
   >
     <input
       name="email"
@@ -50,5 +51,7 @@
       <p class="text-error">{$errors.email}</p>
     {/if}
   </Labeled>
-  <button type="submit" class="btn btn-secondary my-2">Spara</button>
+  <button type="submit" class="btn btn-secondary my-2"
+    >{m.positions_save()}</button
+  >
 </form>

@@ -12,6 +12,14 @@ declare global {
     message: string;
   };
   namespace App {
+    type AppInfo = {
+      insets: {
+        top: number;
+        bottom: number;
+        left: number;
+        right: number;
+      };
+    };
     interface Error {
       message: string;
       statusDescription?: string;
@@ -20,17 +28,25 @@ declare global {
       user: AuthUser;
       member?: Member;
       prisma: PrismaClient;
+      isApp: boolean;
+      appInfo?: AppInfo;
     }
     interface PageData {
       user?: AuthUser;
       member?: Member;
       flash?: Message;
+      isApp: boolean;
+      appInfo?: AppInfo;
     }
     // interface Platform {}
 
     namespace Superforms {
       type Message = Message;
     }
+  }
+
+  interface Window {
+    notificationToken?: string;
   }
 }
 

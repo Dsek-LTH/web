@@ -6,6 +6,7 @@ import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import { PUBLIC_BUCKETS_MEMBERS } from "$env/static/public";
 import { v4 as uuid } from "uuid";
+import * as m from "$paraglide/messages";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma } = locals;
@@ -15,12 +16,12 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     },
   });
   if (!member) {
-    throw error(404, "Member not found");
+    throw error(404, m.members_errors_memberNotFound());
   }
   const photos = await fileHandler.getInBucket(
     locals.user,
     PUBLIC_BUCKETS_MEMBERS,
-    `${params.studentId}/profile-picture`,
+    `public/${params.studentId}`,
     true,
   );
   return {
@@ -61,7 +62,7 @@ export const actions: Actions = {
       },
     });
     return message(form, {
-      message: "Bild ändrad",
+      message: m.members_pictureChanged(),
       type: "success",
     });
   },
@@ -72,7 +73,7 @@ export const actions: Actions = {
 
     const image = formData.get("image");
     if (!image || !(image instanceof File) || image.size <= 0)
-      return setError(form, "image", "Ogiltig bild");
+      return setError(form, "image", m.members_errors_invalidPicture());
     const fileName = uuid();
     try {
       const buffer = await sharp(await image.arrayBuffer())
@@ -105,7 +106,7 @@ export const actions: Actions = {
       if (!res.ok)
         return message(
           form,
-          { message: "Kunde inte ladda upp fil", type: "error" },
+          { message: m.members_errors_couldntUploadFile(), type: "error" },
           { status: 500 },
         );
     } catch (e) {
@@ -113,14 +114,14 @@ export const actions: Actions = {
       return message(
         form,
         {
-          message: "Kunde inte ladda upp fil",
+          message: m.members_errors_couldntUploadFile(),
           type: "error",
         },
         { status: 500 },
       );
     }
     return message(form, {
-      message: "Bild uppladdad",
+      message: m.members_pictureUploaded(),
       type: "success",
     });
   },
@@ -132,7 +133,7 @@ export const actions: Actions = {
       `${params.studentId}/profile-picture/${fileName}`,
     ]);
     return message(form, {
-      message: "Bild borttagen",
+      message: m.members_pictureRemoved(),
       type: "success",
     });
   },

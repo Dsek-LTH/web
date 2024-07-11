@@ -7,9 +7,11 @@
   import type { Tag } from "@prisma/client";
   import { isAuthorized } from "$lib/utils/authorization";
   import SmallArticleCard from "./SmallArticleCard.svelte";
+  import * as m from "$paraglide/messages";
   export let data: PageData;
 
   import type { PageData } from "./$types";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   let filteredTags: Tag[] = data.allTags.filter((tag) =>
     $page.url.searchParams.getAll("tags").includes(tag.name),
   );
@@ -17,9 +19,7 @@
   let form: HTMLFormElement;
 </script>
 
-<svelte:head>
-  <title>Nyheter | D-sektionen</title>
-</svelte:head>
+<SetPageTitle title={m.news()} />
 
 <div class="space-y-4">
   <section class="flex flex-col gap-2">
@@ -39,10 +39,10 @@
         <input type="hidden" name="tags" value={tag.name} />
       {/each}
       {#if isAuthorized(apiNames.TAGS.CREATE, data.user) || isAuthorized(apiNames.TAGS.UPDATE, data.user)}
-        <a class="btn" href="/news/tags">Tags</a>
+        <a class="btn" href="/news/tags">{m.news_tags()}</a>
       {/if}
       {#if isAuthorized(apiNames.NEWS.CREATE, data.user)}
-        <a class="btn btn-primary" href="/news/create">+ Create</a>
+        <a class="btn btn-primary" href="/news/create">+ {m.news_create()}</a>
       {/if}
     </form>
   </section>

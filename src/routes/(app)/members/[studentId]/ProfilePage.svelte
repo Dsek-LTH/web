@@ -1,6 +1,6 @@
 <script lang="ts">
   import DoorAccess from "./DoorAccess.svelte";
-
+  import * as m from "$paraglide/messages";
   import { page } from "$app/stores";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
@@ -16,6 +16,7 @@
   import PingButton from "./PingButton.svelte";
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   export let data: PageData;
 
   $: member = data.viewedMember;
@@ -27,9 +28,7 @@
   $: canEdit = isMe || isAuthorized(apiNames.MEMBER.UPDATE, data.user);
 </script>
 
-<svelte:head>
-  <title>{getFullName(member)} | D-sektionen</title>
-</svelte:head>
+<SetPageTitle title={getFullName(member)} />
 <article
   class="grid grid-cols-1-2 gap-x-4 gap-y-2 md:grid-cols-5"
   id="container"
@@ -79,7 +78,7 @@
               href="{$page.params['studentId']}/edit-bio"
               class="btn btn-outline btn-sm"
             >
-              Redigera bio
+              {m.members_editBio()}
             </a>
           </div>
         {/if}
@@ -89,7 +88,7 @@
         href="{$page.params['studentId']}/edit-bio"
         class="btn btn-outline btn-sm"
       >
-        Lägg till bio
+        {m.members_addBio()}
       </a>
     {/if}
   </article>

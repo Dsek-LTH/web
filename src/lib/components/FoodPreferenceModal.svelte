@@ -12,14 +12,9 @@
 
   onMount(() => {
     mounted = true;
-    if (shouldAskUserForFoodPreference) {
-      modal.showModal();
-    } else {
-      modal.close();
-    }
   });
 
-  $: if (mounted) {
+  $: if (mounted && modal) {
     if (shouldAskUserForFoodPreference) {
       modal.showModal();
     } else {

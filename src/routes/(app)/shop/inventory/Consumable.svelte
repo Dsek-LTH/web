@@ -2,6 +2,7 @@
   import dayjs from "dayjs";
   import * as m from "$paraglide/messages";
   import type { ConsumableWithMoreInfo } from "./types";
+  import { eventLink } from "$lib/utils/redirect";
 
   export let consumable: ConsumableWithMoreInfo;
   $: shoppable = consumable.shoppable;
@@ -9,7 +10,7 @@
 </script>
 
 <div class="card card-compact overflow-hidden bg-base-300 shadow-xl">
-  <a href="/events/{event.slug}" class="group">
+  <a href={eventLink(event)} class="group">
     <figure class="relative aspect-video">
       <img
         src={event.imageUrl ??

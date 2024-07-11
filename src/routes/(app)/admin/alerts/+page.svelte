@@ -3,12 +3,15 @@
   import type { Alert } from "@prisma/client";
   import dayjs from "dayjs";
   import * as m from "$paraglide/messages";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
 
   export let data;
 
   let removeModal: HTMLDialogElement | undefined = undefined;
   let selectedAlert: Alert | undefined = undefined;
 </script>
+
+<SetPageTitle title="Alerts" />
 
 <form
   method="POST"

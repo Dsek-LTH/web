@@ -1,11 +1,13 @@
 <script lang="ts">
-  import type { PageData } from "./$types";
-  import Folder from "./Folder.svelte";
-  import Pagination from "$lib/components/Pagination.svelte";
-  import { isAuthorized } from "$lib/utils/authorization";
-  import apiNames from "$lib/utils/apiNames";
   import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
+  import Pagination from "$lib/components/Pagination.svelte";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
+  import apiNames from "$lib/utils/apiNames";
+  import { isAuthorized } from "$lib/utils/authorization";
+  import * as m from "$paraglide/messages";
+  import type { PageData } from "./$types";
   import type { FolderType } from "./+page.server";
+  import Folder from "./Folder.svelte";
 
   export let data: PageData;
 
@@ -79,12 +81,10 @@
   );
 </script>
 
-<svelte:head>
-  <title>Kravprofiler | D-sektionen</title>
-</svelte:head>
+<SetPageTitle title={m.documents_requirementProfiles()} />
 
 <div class="mb-4 flex w-full flex-col items-start gap-2">
-  <span class="text-lg">Filtrera efter år</span>
+  <span class="text-lg">{m.documents_filterByYear()}</span>
   <Pagination
     class="max-w-prose"
     count={currentYear - 1981}
@@ -99,7 +99,7 @@
     {#if canCreate}
       <a
         class="btn btn-primary btn-sm"
-        href="/documents/upload?type=requirement">Ladda upp fil</a
+        href="/documents/upload?type=requirement">{m.documents_uploadFile()}</a
       >
     {/if}
     {#if canDelete}
@@ -109,7 +109,7 @@
           isEditing = !isEditing;
         }}
       >
-        {isEditing ? "Sluta redigera" : "Redigera"}
+        {isEditing ? m.documents_stopEditing() : m.documents_edit()}
       </button>
     {/if}
   </div>

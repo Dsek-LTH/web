@@ -28,6 +28,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 };
 
 const updateSchema = memberSchema.pick({
+  email: true,
   firstName: true,
   lastName: true,
   nickname: true,

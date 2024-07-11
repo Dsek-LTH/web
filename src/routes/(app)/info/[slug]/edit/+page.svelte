@@ -4,8 +4,11 @@
   export let data: PageData;
   import MarkdownEditor from "$lib/components/MarkdownEditor.svelte";
   import { superForm } from "sveltekit-superforms/client";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   const { form, errors, enhance } = superForm(data.form);
 </script>
+
+<SetPageTitle title={$page.params["slug"]} />
 
 <div class="p-2 text-neutral-content">
   {#if data.isCreating}

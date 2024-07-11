@@ -6,10 +6,11 @@ import { eventSchema } from "../../schema";
 import type { Actions, PageServerLoad } from "./$types";
 import { validate as uuidValidate } from "uuid";
 import { authorize } from "$lib/utils/authorization";
+import * as m from "$paraglide/messages";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
-  authorize(apiNames.NEWS.UPDATE, user);
+  authorize(apiNames.EVENT.UPDATE, user);
 
   const allTags = await prisma.tag.findMany();
   const event = await prisma.event.findUnique({
@@ -22,7 +23,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
         },
   });
   if (!event) {
-    throw error(404, "Article not found");
+    throw error(404, m.events_errors_eventNotFound());
   }
   const isRecurring = event.recurringParentId !== null;
   const recurringEvent = isRecurring
@@ -33,7 +34,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
       })
     : null;
   if (isRecurring && !recurringEvent) {
-    error(500, "Couldn't find recurring event parent");
+    error(500, m.events_errors_recurringParentNotFound());
   }
   const completeEvent = {
     ...event,
@@ -77,7 +78,7 @@ export const actions: Actions = {
       select: { id: true },
     });
     if (!existingEvent) {
-      throw error(404, "Event not found");
+      throw error(404, m.events_errors_eventNotFound());
     }
     await prisma.event.update({
       where: {
@@ -99,7 +100,7 @@ export const actions: Actions = {
     throw redirect(
       `/events/${params.slug}`,
       {
-        message: "Evenemang uppdaterat",
+        message: m.events_eventUpdated(),
         type: "success",
       },
       event,

@@ -1,6 +1,10 @@
 import { PrismaClient, type Shoppable, type Ticket } from "@prisma/client";
 import * as m from "$paraglide/messages";
-import { ensureState, performLotteryIfNecessary } from "./reservations";
+import {
+  ensureState,
+  performLotteryIfNecessary,
+  sendQueuedNotifications,
+} from "./reservations";
 import {
   GRACE_PERIOD_WINDOW,
   TIME_TO_BUY,
@@ -9,6 +13,7 @@ import {
   type TransactionClient,
 } from "../types";
 import authorizedPrismaClient from "../authorizedPrisma";
+import type { SendNotificationProps } from "$lib/utils/notifications";
 
 export enum AddToCartStatus {
   AddedToCart = "AddedToCart",
@@ -31,9 +36,12 @@ export const addTicketToCart = async (
   identification: ShopIdentification,
 ): Promise<AddToCartResult> => {
   const now = new Date(); // ensures checks between the two transactions
+  const queuedNotifications: SendNotificationProps[] = [];
   await authorizedPrismaClient.$transaction(async (prisma) => {
-    await ensureState(prisma, now, ticketId);
+    const result = await ensureState(prisma, now, ticketId);
+    queuedNotifications.push(...result.queuedNotifications);
   });
+  sendQueuedNotifications(queuedNotifications);
   return await prisma.$transaction(async (prisma) => {
     const ticket = await prisma.ticket.findUnique({
       where: {
@@ -184,9 +192,12 @@ const addToQueue = async (
 
 const afterGracePeriod = async (shoppableId: string) => {
   try {
-    await authorizedPrismaClient.$transaction(async (prisma) => {
-      await performLotteryIfNecessary(prisma, new Date(), shoppableId);
-    });
+    const queuedNotifications = await authorizedPrismaClient.$transaction(
+      async (prisma) => {
+        return await performLotteryIfNecessary(prisma, new Date(), shoppableId);
+      },
+    );
+    sendQueuedNotifications(queuedNotifications);
   } catch (err) {
     console.error("problem performing reservation lottery:", err);
   }
@@ -202,6 +213,7 @@ const addReservationInReserveWindow = async (
   const existingReservation = await prisma.consumableReservation.findFirst({
     where: {
       ...id,
+      shoppableId,
     },
   });
   if (existingReservation)

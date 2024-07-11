@@ -4,8 +4,10 @@
   import { superForm } from "sveltekit-superforms/client";
   import ProfileImage from "./ProfileImage.svelte";
   import Cropper from "svelte-easy-crop";
+  import * as m from "$paraglide/messages";
 
   import type { PageData } from "./$types";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   export let data: PageData;
   $: member = data.member;
   $: photos = data.photos;
@@ -49,9 +51,7 @@
   };
 </script>
 
-<svelte:head>
-  <title>Bio - {getFullName(member)} | D-sektionen</title>
-</svelte:head>
+<SetPageTitle title="Bio - {getFullName(member)}" />
 <header class="flex gap-4">
   <MemberAvatar {member} class="w-32 rounded-lg" />
   <div class="flex flex-col">
@@ -69,7 +69,7 @@
         isEditing = true;
       }}
     >
-      Ladda upp ny
+      {m.members_uploadNew()}
     </button>
   {:else}
     <form
@@ -125,7 +125,9 @@
       {#if $errors.image}
         <p class="text-error">{$errors.image}</p>
       {/if}
-      <button type="submit" class="btn btn-primary"> Spara </button>
+      <button type="submit" class="btn btn-primary">
+        {m.members_save()}
+      </button>
     </form>
   {/if}
   {#each photos as photo (photo.id)}

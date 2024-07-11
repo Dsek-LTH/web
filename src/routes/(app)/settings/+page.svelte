@@ -4,6 +4,7 @@
   import SubscriptionTags from "./SubscriptionTags.svelte";
   import type { Tag } from "@prisma/client";
   import * as m from "$paraglide/messages";
+  import PageHeader from "$lib/components/nav/PageHeader.svelte";
 
   export let data: PageData;
   $: subscribedTags = data.subscribedTags as { subscribedTags: Tag[] };
@@ -37,11 +38,7 @@
   };
 </script>
 
-<svelte:head>
-  <title>{m.setting_title()} | D-sektionen</title>
-</svelte:head>
-
-<h1 class="mt-2 text-center text-3xl font-bold">{m.setting_title()}</h1>
+<PageHeader class="" title={m.setting_title()} />
 <div class="relative">
   <form
     method="POST"

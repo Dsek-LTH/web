@@ -2,6 +2,7 @@
   import type { SuperValidated } from "sveltekit-superforms";
   import type { ChangeSchema, DeleteSchema } from "./+page.server";
   import { superForm } from "sveltekit-superforms/client";
+  import * as m from "$paraglide/messages";
 
   export let fileName: string;
   export let url: string;
@@ -37,7 +38,9 @@
         <figure class="relative w-48">
           <img
             src={url}
-            alt="Profile avatar option, {current ? 'currently selected' : ''}"
+            alt={current
+              ? m.members_selectedProfilePictureOption()
+              : m.members_profilePictureOption()}
           />
         </figure>
       </div>
