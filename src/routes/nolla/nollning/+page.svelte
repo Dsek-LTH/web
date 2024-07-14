@@ -2,7 +2,7 @@
   import * as m from "$paraglide/messages";
 
   const navItems = [
-    { text: m.nolla_nav_nationer(), link: "/nolla/nationer" },
+    { text: m.nolla_nav_nationer(), link: m.nolla_nation_link() },
     { text: m.nolla_nav_list(), link: "/nolla/list" },
   ];
 </script>

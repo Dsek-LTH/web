@@ -5,8 +5,8 @@
 
   const navItems = [
     { text: m.nolla_nav_wellbeing(), link: "/nolla/wellbeing" },
-    { text: m.nolla_nav_boende(), link: "/nolla/boende" },
-    { text: m.nolla_nav_nationer(), link: "/nolla/nationer" },
+    { text: m.nolla_nav_boende(), link: m.nolla_accomodation_link() },
+    { text: m.nolla_nav_nationer(), link: m.nolla_nation_link() },
     { text: m.nolla_nav_list(), link: "/nolla/packing" },
   ];
 </script>

@@ -5,7 +5,7 @@
 
 <header>
   <h1 class="mx-auto text-center font-nolla-mono text-8xl font-bold">
-    {m.nolla_start_dguild()}
+    {m.nolla_guild_header()}
   </h1>
   <h2
     class="mx-auto text-center text-[2.3rem] font-bold text-primary drop-shadow-sm"

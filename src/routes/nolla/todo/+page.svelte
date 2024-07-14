@@ -35,7 +35,8 @@
       <p>
         {m.nolla_todo_boendeText()}
       </p>
-      <a href="/nolla/boende" class="link">{m.nolla_todo_readMore()}</a>
+      <a href={m.nolla_accomodation_link()} class="link">{m.nolla_readMore()}</a
+      >
       <ul class="mt-8 flex gap-4">
         <li>
           <a href="https://www.afbostader.se/" class="link" target="_blank">
@@ -77,7 +78,7 @@
       <p>
         {m.nolla_todo_nationerText()}
       </p>
-      <a href="/nolla/nationer" class="link">{m.nolla_todo_readMore()}</a>
+      <a href={m.nolla_nation_link()} class="link">{m.nolla_readMore()}</a>
     </div>
 
     <img
@@ -101,7 +102,7 @@
       <p>
         {m.nolla_todo_listText()}
       </p>
-      <a href="/nolla/packing" class="link">{m.nolla_todo_readMore()}</a>
+      <a href="/nolla/packing" class="link">{m.nolla_readMore()}</a>
     </div>
   </section>
 </div>

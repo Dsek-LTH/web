@@ -28,7 +28,8 @@
     <li>
       <b>{m.nolla_packing_fancy_clothing()}</b>
       <p>
-        {m.nolla_packing_fancy_clothing_description()}
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+        {@html m.nolla_packing_fancy_clothing_description()}
       </p>
     </li>
     <li>
@@ -39,7 +40,7 @@
 
 <section id="kladkod" class="my-16">
   <ul
-    class="neo-brutal-box grid grid-cols-1 gap-2 bg-primary md:grid-cols-2 xl:grid-cols-4 [&>li>h6]:text-lg [&>li>h6]:font-semibold [&>li>img]:object-contain"
+    class="neo-brutal-box grid grid-cols-1 gap-2 bg-primary md:grid-cols-2 xl:grid-cols-4 [&>li>h6]:text-lg [&>li>h6]:font-semibold [&>li>img]:object-contain [&>li>p>i]:text-sm [&>li>p>i]:opacity-80"
   >
     <li>
       <img src="#" alt="Slasque-exempel" />
@@ -52,7 +53,8 @@
       <img src="#" alt="Bruten kavaj exempel" />
       <h6>{m.nolla_packing_mixed_suit()}</h6>
       <p>
-        {m.nolla_packing_mixed_suit_description()}
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+        {@html m.nolla_packing_mixed_suit_description()}
       </p>
     </li>
     <li>
