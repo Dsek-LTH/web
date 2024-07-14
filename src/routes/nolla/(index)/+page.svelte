@@ -6,7 +6,7 @@
   const navItems = [
     { text: m.nolla_nav_wellbeing(), link: "/nolla/wellbeing" },
     { text: m.nolla_nav_boende(), link: "/nolla/boende" },
-    { text: m.nolla_nav_nationer(), link: "https://www.studentlund.se/" },
+    { text: m.nolla_nav_nationer(), link: "/nolla/nationer" },
     { text: m.nolla_nav_list(), link: "/nolla/packing" },
   ];
 </script>

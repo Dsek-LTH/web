@@ -10,6 +10,6 @@ import type { PageServerLoad } from "./$types";
  * instead of the root +error page.
  */
 
-export const load: PageServerLoad = async () => {
-  error(404);
+export const load: PageServerLoad = async ({ url }) => {
+  error(404, `${url.pathname} not found`);
 };

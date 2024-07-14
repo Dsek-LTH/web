@@ -1,38 +1,38 @@
+<script lang="ts">
+  import * as m from "$paraglide/messages";
+</script>
+
 <header>
-  <h1 class="font-nolla-mono mx-auto text-center text-8xl font-bold">
-    Studenthälsa
+  <h1 class="text-left font-nolla-mono text-8xl font-bold">
+    {m.nolla_wellbeing_header()}
   </h1>
 </header>
 
-<article>
-  <p>
-    Om du någon gång mår dåligt eller känner dig illa behandlad under din tid
-    här på LTH och under nollningen så finns det flera ställen du kan vända dig
-    till.
+<article class="grid grid-cols-2 py-16">
+  <p class="col-start-1 mb-16">
+    {m.nolla_wellbeing_description()}
   </p>
 
-  <img src="#" alt="Trivselrådet" />
-  <p>
-    På sektionen har vi ett Trivselråd där det finns Likabehandlingsombud som
-    gärna lyssnar och hjälper dig. Du kan berätta om något du har varit med om,
-    hört eller sett under nollningen som inte känts bra, antingen för att få
-    hjälp i situationen eller bara lufta lite tankar. Likabehandlingsombuden har
-    tystnadsplikt och kommer inte sprida vidare informationen.
-  </p>
+  <img src="#" alt="Trivselrådet" class="col-start-2" />
 
-  <a href="https://bit.ly/kontaktatrivsel">Kontakta trivsel</a>
-
-  <p>
-    Det finns även hjälp att få utanför sektionen så som Studenthälsan vid Lunds
-    universitet, LTHs kuratorer och Studentprästerna. Din hälsa är viktig för
-    oss och vill erbjuda en så trygg miljö som möjligt, tveka därför aldrig att
-    höra av dig till den organisation du känner dig mest bekväm med. Du kan
-    alltid också höra av dig till ansvariga på ett event om det har hänt något.
+  <p class="col-start-1">
+    {m.nolla_wellbeing_trivsel_description()}
   </p>
 
   <a
+    class="neo-brutal-btn col-start-1 mb-16 w-min whitespace-nowrap"
+    href="https://bit.ly/kontaktatrivsel"
+    >{m.nolla_wellbeing_contact_trivsel()}</a
+  >
+
+  <p class="col-start-1">
+    {m.nolla_wellbeing_student_health()}
+  </p>
+
+  <a
+    class="neo-brutal-btn col-start-1 w-min whitespace-nowrap"
     href="https://www.student.lth.se/stoed-och-service/maa-bra-under-dina-studier/"
   >
-    Kontakta studenthälsan
+    {m.nolla_wellbeing_contact_student_health()}
   </a>
 </article>

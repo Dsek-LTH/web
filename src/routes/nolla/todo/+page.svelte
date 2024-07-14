@@ -1,5 +1,20 @@
 <script lang="ts">
   import * as m from "$paraglide/messages";
+  import { browser } from "$app/environment";
+  import { onMount } from "svelte";
+
+  let stored: Record<string, boolean> = {};
+
+  onMount(() => {
+    const storedTodo = localStorage.getItem("nolla-todo");
+    if (storedTodo) stored = JSON.parse(storedTodo);
+    else stored = {};
+  });
+
+  $: (() => {
+    if (browser && Object.keys(stored).length > 0)
+      localStorage.setItem("nolla-todo", JSON.stringify(stored));
+  })();
 </script>
 
 <div class="my-16 space-y-32">
@@ -62,9 +77,7 @@
       <p>
         {m.nolla_todo_nationerText()}
       </p>
-      <a href="https://www.studentlund.se/" class="link"
-        >{m.nolla_todo_readMore()}</a
-      >
+      <a href="/nolla/nationer" class="link">{m.nolla_todo_readMore()}</a>
     </div>
 
     <img

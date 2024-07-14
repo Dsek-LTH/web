@@ -2,83 +2,70 @@
   import * as m from "$paraglide/messages";
 </script>
 
-<header>
-  <h1 class="font-nolla-mono mx-auto text-center text-8xl font-bold">
-    Packlista
-  </h1>
+<header class="mx-auto max-w-prose">
+  <h1 class="font-nolla-mono text-8xl font-bold">{m.nolla_packing_header()}</h1>
 </header>
 
-<article>
+<article class="mx-auto my-16 max-w-prose">
   <p>
-    Lorem ipsum dolor sit, amet consectetur adipisicing elit. Iure, corrupti
-    repellat nam consequuntur sequi porro hic temporibus recusandae tenetur nemo
-    rem numquam? Nam itaque mollitia in, sit illum quos eum!
+    {m.nolla_packing_description()}
   </p>
-  <ul>
+  <ul
+    class="flex list-disc flex-col gap-4 [&>li>b]:inline-block [&>li>b]:font-semibold [&>li>p]:mt-0 [&>li>p]:text-sm [&>li>p]:italic"
+  >
     <li>
-      <input type="checkbox" name="robust-clothing" id="robust-clothing" />
-      <h6>Oömma skor och kläder</h6>
+      <b>{m.nolla_packing_robust_clothing()}</b>
       <p>
-        Det är viktigt att ha kläder som tål att bli smutsiga och skor som är
-        bekväma att gå i.
+        {m.nolla_packing_robust_clothing_description()}
       </p>
     </li>
     <li>
-      <input type="checkbox" name="theme-outfits" id="theme-outfits" />
-      <h6>Lite utklädnader</h6>
+      <b>{m.nolla_packing_theme_outfits()}</b>
       <p>
-        Många fester i studentlivet har ofta tema, och då kan det vara kul att
-        ha någon rolig outfit. Det går så klart att köpa här men om du har saker
-        hemma kan det vara värt att ta med!
+        {m.nolla_packing_theme_outfits_description()}
       </p>
     </li>
     <li>
-      <input type="checkbox" name="dark-suit" id="dark-suit" />
-      <h6>Kläder för klädkoden "Mörk kostym"</h6>
+      <b>{m.nolla_packing_fancy_clothing()}</b>
       <p>
-        Se <a href="/packning#kladkod">klädkoder</a> för vad som innefattas. Vi kommer
-        ha ett event med klädkoden "Mörk kostym" redan första veckan.
+        {m.nolla_packing_fancy_clothing_description()}
       </p>
     </li>
     <li>
-      <input
-        type="checkbox"
-        name="robust-clothing"
-        id="robust-clothing"
-        checked
-        on:click|preventDefault
-      />
-      <h6>Ett glatt humör</h6>
+      <b>{m.nolla_packing_happy_mood()}</b>
     </li>
   </ul>
-  <section>
-    <ul>
-      <li>
-        <img src="#" alt="Slasque-exempel" />
-        <p>
-          På med ouvven! Ibland är det dessutom ett tema för slasquen. Då får
-          man gärna addera temaenlig klädsel utöver ouvven.
-        </p>
-      </li>
-      <li>
-        <img src="#" alt="Bruten kavaj exempel" />
-        <p>
-          Finare vardagskläder. En kavaj kombinerat med något annat, eller bara
-          något som du känner dig snygg i.
-          <i>(Vi har väldigt sällan denna klädkoden)</i>
-        </p>
-      </li>
-      <li>
-        <img src="#" alt="Mörk kostym exempel" />
-        <p>
-          En mörk kostym eller en finare klänning. Det går bra med en vanlig blå
-          kostym, eller en kjol med en topp också.
-        </p>
-      </li>
-      <li>
-        <img src="#" alt="Högtidsdräktsexempel" />
-        <p>Långklänning eller frack, men en mörk kostym går också bra.</p>
-      </li>
-    </ul>
-  </section>
 </article>
+
+<section id="kladkod" class="my-16">
+  <ul
+    class="neo-brutal-box grid grid-cols-1 gap-2 bg-primary md:grid-cols-2 xl:grid-cols-4 [&>li>h6]:text-lg [&>li>h6]:font-semibold [&>li>img]:object-contain"
+  >
+    <li>
+      <img src="#" alt="Slasque-exempel" />
+      <h6>{m.nolla_packing_slasque()}</h6>
+      <p>
+        {m.nolla_packing_slasque_description()}
+      </p>
+    </li>
+    <li>
+      <img src="#" alt="Bruten kavaj exempel" />
+      <h6>{m.nolla_packing_mixed_suit()}</h6>
+      <p>
+        {m.nolla_packing_mixed_suit_description()}
+      </p>
+    </li>
+    <li>
+      <img src="#" alt="Mörk kostym exempel" />
+      <h6>{m.nolla_packing_dark_suit()}</h6>
+      <p>
+        {m.nolla_packing_dark_suit_description()}
+      </p>
+    </li>
+    <li>
+      <img src="#" alt="Högtidsdräktsexempel" />
+      <h6>{m.nolla_packing_frack()}</h6>
+      <p>{m.nolla_packing_frack_description()}</p>
+    </li>
+  </ul>
+</section>
