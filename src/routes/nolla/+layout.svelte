@@ -4,7 +4,7 @@
   import { i18n } from "$lib/utils/i18n";
   import { invalidateAll } from "$app/navigation";
   import * as m from "$paraglide/messages";
-  import "./styles.css";
+  import "./nolla.css";
 
   let checked = false;
 
@@ -20,7 +20,7 @@
   <input id="my-drawer-3" type="checkbox" class="drawer-toggle" bind:checked />
   <div class="drawer-content flex flex-col">
     <!-- Navbar -->
-    <div class="container navbar mx-auto w-full p-6 lg:py-12">
+    <nav class="container navbar mx-auto w-full p-6 lg:py-12">
       <div class="flex-none lg:hidden">
         <label
           for="my-drawer-3"
@@ -40,7 +40,7 @@
         {/each}
       </ul>
       <a
-        class="btn-pop-out ml-auto aspect-square bg-primary"
+        class="neo-brutal-btn aspect-square"
         href={i18n.route($page.url.pathname)}
         hreflang={languageTag() === "sv" ? "en" : "sv"}
         on:click={() => invalidateAll()}
@@ -49,16 +49,17 @@
           class={`i-flag-${languageTag() === "sv" ? "se" : "gb"}-4x3 h-8 w-8`}
         />
       </a>
-      <a href="/" class="btn-pop-out ml-4 mr-1 bg-primary">
+
+      <a href="/" class="neo-brutal-btn">
         dsek.se
         <span class="i-mdi-arrow-right ml-2 h-8 w-8" />
       </a>
-    </div>
-    <div class="container mx-auto">
+    </nav>
+    <main class="container mx-auto flex-1">
       <slot />
-    </div>
+    </main>
   </div>
-  <div class="drawer-side">
+  <nav class="drawer-side">
     <label
       for="my-drawer-3"
       aria-label="close sidebar"
@@ -73,5 +74,5 @@
         </li>
       {/each}
     </ul>
-  </div>
+  </nav>
 </div>

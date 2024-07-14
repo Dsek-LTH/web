@@ -7,7 +7,9 @@
     <h1 class="font-nolla-mono text-8xl font-bold">{m.nolla_todo_header()}</h1>
   </header>
 
-  <article class="grid grid-cols-2 overflow-hidden rounded-3xl bg-secondary">
+  <section
+    class="grid grid-cols-2 overflow-hidden rounded-box bg-secondary shadow-xl"
+  >
     <img
       src="https://www.afbostader.se/globalassets/bostadsomraden/pireus/pf_bsflb.jpg"
       alt=""
@@ -50,15 +52,19 @@
         </li>
       </ul>
     </div>
-  </article>
+  </section>
 
-  <article class="grid grid-cols-2 overflow-hidden rounded-3xl bg-primary">
+  <section
+    class="grid grid-cols-2 overflow-hidden rounded-box bg-primary shadow-xl"
+  >
     <div class="p-16">
       <h1 class="text-xl font-bold">{m.nolla_todo_nationer()}</h1>
       <p>
         {m.nolla_todo_nationerText()}
       </p>
-      <a href="/nolla/nationer" class="link">{m.nolla_todo_readMore()}</a>
+      <a href="https://www.studentlund.se/" class="link"
+        >{m.nolla_todo_readMore()}</a
+      >
     </div>
 
     <img
@@ -66,9 +72,11 @@
       alt=""
       class="h-full object-cover"
     />
-  </article>
+  </section>
 
-  <article class="grid grid-cols-2 overflow-hidden rounded-3xl bg-secondary">
+  <section
+    class="grid grid-cols-2 overflow-hidden rounded-box bg-secondary shadow-xl"
+  >
     <img
       src="https://media.cnn.com/api/v1/images/stellar/prod/underscored-how-to-pack-a-suitcase-lead-packing.jpg?q=h_1800,w_3200,x_0,y_0"
       alt=""
@@ -80,7 +88,7 @@
       <p>
         {m.nolla_todo_listText()}
       </p>
-      <a href="/nolla/list" class="link">{m.nolla_todo_readMore()}</a>
+      <a href="/nolla/packing" class="link">{m.nolla_todo_readMore()}</a>
     </div>
-  </article>
+  </section>
 </div>

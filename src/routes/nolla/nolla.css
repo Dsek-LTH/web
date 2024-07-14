@@ -1,0 +1,47 @@
+/* Here you will find styles that are specific to the /nolla pages. */
+
+@tailwind utilities;
+
+@layer utilities {
+  .box-shadow-black {
+    box-shadow: 0.25rem 0.25rem 0 0 black;
+  }
+
+  .box-shadow-black-lg {
+    box-shadow: 0.5rem 0.5rem 0 0 black;
+  }
+
+  .neo-brutal-btn {
+    @apply box-shadow-black hover:box-shadow-black-lg flex items-center rounded-xl border-2 border-black bg-primary p-4 font-semibold
+    transition hover:-translate-x-1 hover:-translate-y-1
+    active:translate-x-1 active:translate-y-1 active:shadow-none;
+  }
+
+  .neo-brutal-box {
+    @apply box-shadow-black-lg rounded-box px-10 py-16;
+  }
+
+  .nolla-link {
+  }
+}
+
+:root {
+  --navbar-size: 144px; /* h-36 is 144px */
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+p {
+  @apply max-w-prose leading-relaxed;
+}
+
+* ~ p,
+p ~ * {
+  @apply mt-4;
+}
+
+[data-theme="nollningPreReveal"] {
+  color-scheme: light;
+}
