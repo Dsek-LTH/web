@@ -17,9 +17,12 @@
   })();
 </script>
 
+<!-- eslint-disable svelte/no-at-html-tags -->
 <div class="my-16 space-y-32">
   <header class="flex justify-between">
-    <h1 class="font-nolla-mono text-8xl font-bold">{m.nolla_todo_header()}</h1>
+    <h1 class="font-nolla-mono text-8xl font-bold">
+      {@html m.nolla_todo_header()}
+    </h1>
   </header>
 
   <section
@@ -31,11 +34,12 @@
       class="h-full object-cover"
     />
     <div class="p-16">
-      <h1 class="text-xl font-bold">{m.nolla_todo_boende()}</h1>
+      <h1 class="text-xl font-bold">{@html m.nolla_todo_boende()}</h1>
       <p>
-        {m.nolla_todo_boendeText()}
+        {@html m.nolla_todo_boendeText()}
       </p>
-      <a href={m.nolla_accomodation_link()} class="link">{m.nolla_readMore()}</a
+      <a href={m.nolla_accomodation_link()} class="link"
+        >{@html m.nolla_readMore()}</a
       >
       <ul class="mt-8 flex gap-4">
         <li>
@@ -74,11 +78,12 @@
     class="grid grid-cols-2 overflow-hidden rounded-box bg-primary shadow-xl"
   >
     <div class="p-16">
-      <h1 class="text-xl font-bold">{m.nolla_todo_nationer()}</h1>
+      <h1 class="text-xl font-bold">{@html m.nolla_todo_nationer()}</h1>
       <p>
-        {m.nolla_todo_nationerText()}
+        {@html m.nolla_todo_nationerText()}
       </p>
-      <a href={m.nolla_nation_link()} class="link">{m.nolla_readMore()}</a>
+      <a href={m.nolla_nation_link()} class="link">{@html m.nolla_readMore()}</a
+      >
     </div>
 
     <img
@@ -98,11 +103,11 @@
     />
 
     <div class="p-16">
-      <h1 class="text-xl font-bold">{m.nolla_todo_list()}</h1>
+      <h1 class="text-xl font-bold">{@html m.nolla_todo_list()}</h1>
       <p>
-        {m.nolla_todo_listText()}
+        {@html m.nolla_todo_listText()}
       </p>
-      <a href="/nolla/packing" class="link">{m.nolla_readMore()}</a>
+      <a href="/nolla/packing" class="link">{@html m.nolla_readMore()}</a>
     </div>
   </section>
 </div>

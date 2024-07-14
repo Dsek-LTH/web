@@ -3,14 +3,15 @@
   import * as m from "$paraglide/messages";
 </script>
 
+<!-- eslint-disable svelte/no-at-html-tags -->
 <header>
   <h1 class="mx-auto text-center font-nolla-mono text-8xl font-bold">
-    {m.nolla_guild_header()}
+    {@html m.nolla_guild_header()}
   </h1>
   <h2
     class="mx-auto text-center text-[2.3rem] font-bold text-primary drop-shadow-sm"
   >
-    {m.nolla_guild_tagline()}
+    {@html m.nolla_guild_tagline()}
   </h2>
 </header>
 
@@ -18,10 +19,10 @@
   <div class="flex items-stretch">
     <section class="neo-brutal-box bg-secondary">
       <h3 class="font-nolla-mono text-2xl font-semibold">
-        {m.nolla_guild_title()}
+        {@html m.nolla_guild_title()}
       </h3>
       <p class="flex-1">
-        {m.nolla_guild_description()}
+        {@html m.nolla_guild_description()}
       </p>
       <a class="neo-brutal-btn w-min rounded-box" href="/home">dsek.se</a>
     </section>
@@ -38,55 +39,55 @@
     </div>
     <div class="col-span-2 rounded-t-box bg-primary px-10 pb-8 pt-16">
       <h3 class="font-nolla-mono text-2xl font-semibold">
-        {m.nolla_guild_the_board()}
+        {@html m.nolla_guild_the_board()}
       </h3>
       <p>
-        {m.nolla_guild_board_description()}
-        <a href="/committees" class="link">{m.nolla_readMore()}</a>
+        {@html m.nolla_guild_board_description()}
+        <a href="/committees" class="link">{@html m.nolla_readMore()}</a>
       </p>
     </div>
     <ul
       class="col-span-5 grid grid-cols-3 gap-2 rounded-box rounded-tr-none bg-primary px-10 pb-16 pt-8 [&>li>b]:block"
     >
       <li>
-        <b>{m.nolla_guild_board_president()}</b>
-        {m.nolla_guild_board_president_description()}
+        <b>{@html m.nolla_guild_board_president()}</b>
+        {@html m.nolla_guild_board_president_description()}
       </li>
       <li>
-        <b>{m.nolla_guild_board_vice_president()}</b>
-        {m.nolla_guild_board_vice_president_description()}
+        <b>{@html m.nolla_guild_board_vice_president()}</b>
+        {@html m.nolla_guild_board_vice_president_description()}
       </li>
       <li>
-        <b>{m.nolla_guild_board_treasurer()}</b>
-        {m.nolla_guild_board_treasurer_description()}
+        <b>{@html m.nolla_guild_board_treasurer()}</b>
+        {@html m.nolla_guild_board_treasurer_description()}
       </li>
       <li>
-        <b>{m.nolla_guild_board_study_president()}</b>
-        {m.nolla_guild_board_study_president_description()}
+        <b>{@html m.nolla_guild_board_study_president()}</b>
+        {@html m.nolla_guild_board_study_president_description()}
       </li>
       <li>
-        <b>{m.nolla_guild_board_information()}</b>
-        {m.nolla_guild_board_information_description()}
+        <b>{@html m.nolla_guild_board_information()}</b>
+        {@html m.nolla_guild_board_information_description()}
       </li>
       <li>
-        <b>{m.nolla_guild_board_cafe()}</b>
-        {m.nolla_guild_board_cafe_description()}.
+        <b>{@html m.nolla_guild_board_cafe()}</b>
+        {@html m.nolla_guild_board_cafe_description()}.
       </li>
       <li>
-        <b>{m.nolla_guild_board_sex()}</b>
-        {m.nolla_guild_board_sex_description()}
+        <b>{@html m.nolla_guild_board_sex()}</b>
+        {@html m.nolla_guild_board_sex_description()}
       </li>
       <li>
-        <b>{m.nolla_guild_board_kallarm()}</b>
-        {m.nolla_guild_board_kallarm_description()}
+        <b>{@html m.nolla_guild_board_kallarm()}</b>
+        {@html m.nolla_guild_board_kallarm_description()}
       </li>
       <li>
-        <b>{m.nolla_guild_board_corporate_relations()}</b>
-        {m.nolla_guild_board_corporate_relations_description()}
+        <b>{@html m.nolla_guild_board_corporate_relations()}</b>
+        {@html m.nolla_guild_board_corporate_relations_description()}
       </li>
       <li>
-        <b>{m.nolla_guild_board_activities()}</b>
-        {m.nolla_guild_board_activities_description()}
+        <b>{@html m.nolla_guild_board_activities()}</b>
+        {@html m.nolla_guild_board_activities_description()}
       </li>
     </ul>
   </section>
@@ -99,14 +100,14 @@
         class="h-auto max-h-16 w-auto max-w-full"
       />
       <p>
-        {m.nolla_guild_dchip_description()}
+        {@html m.nolla_guild_dchip_description()}
       </p>
 
       <a
         class="neo-brutal-btn w-min whitespace-nowrap rounded-box"
         href="https://dchip.dsek.se"
       >
-        {m.nolla_guild_dchip_link()}
+        {@html m.nolla_guild_dchip_link()}
       </a>
     </section>
     <figure class="flex-1">

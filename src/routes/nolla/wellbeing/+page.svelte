@@ -2,21 +2,22 @@
   import * as m from "$paraglide/messages";
 </script>
 
+<!-- eslint-disable svelte/no-at-html-tags -->
 <header>
   <h1 class="text-left font-nolla-mono text-8xl font-bold">
-    {m.nolla_wellbeing_header()}
+    {@html m.nolla_wellbeing_header()}
   </h1>
 </header>
 
 <article class="grid grid-cols-2 py-16">
   <p class="col-start-1 mb-16">
-    {m.nolla_wellbeing_description()}
+    {@html m.nolla_wellbeing_description()}
   </p>
 
   <img src="#" alt="Trivselrådet" class="col-start-2" />
 
   <p class="col-start-1">
-    {m.nolla_wellbeing_trivsel_description()}
+    {@html m.nolla_wellbeing_trivsel_description()}
   </p>
 
   <a
@@ -26,7 +27,7 @@
   >
 
   <p class="col-start-1">
-    {m.nolla_wellbeing_student_health()}
+    {@html m.nolla_wellbeing_student_health()}
   </p>
 
   <a

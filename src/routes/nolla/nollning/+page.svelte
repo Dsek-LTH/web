@@ -3,14 +3,16 @@
 
   const navItems = [
     { text: m.nolla_nav_nationer(), link: m.nolla_nation_link() },
-    { text: m.nolla_nav_list(), link: "/nolla/list" },
+    { text: m.nolla_nav_list(), link: "/nolla/packing" },
+    { text: m.nolla_wordlist_header(), link: "/nolla/wordlist" },
   ];
 </script>
 
+<!-- eslint-disable svelte/no-at-html-tags -->
 <div class="mx-auto max-w-6xl">
   <header class="my-16">
     <h1 class="relative w-min font-nolla-mono text-8xl font-bold md:left-1/2">
-      {m.nolla_nollning_header()}
+      {@html m.nolla_nollning_header()}
     </h1>
   </header>
 
@@ -19,9 +21,9 @@
       class="box-shadow-black-lg grid place-items-center self-start rounded-2xl bg-[#B1FFB4] px-10 py-16 text-lg md:max-w-[449px]"
     >
       <div>
-        <h1 class="font-bold">{m.nolla_nollning_what()}</h1>
+        <h1 class="font-bold">{@html m.nolla_nollning_what()}</h1>
         <p>
-          {m.nolla_nollning_whatText()}
+          {@html m.nolla_nollning_whatText()}
         </p>
       </div>
     </article>
@@ -30,9 +32,9 @@
       class="box-shadow-black-lg grid place-items-center self-start rounded-2xl bg-[#FFF38B] px-10 py-16 text-lg md:max-w-[407px] md:py-32"
     >
       <div>
-        <h1 class="font-bold">{m.nolla_nollning_firstDay()}</h1>
+        <h1 class="font-bold">{@html m.nolla_nollning_firstDay()}</h1>
         <p>
-          {m.nolla_nollning_firstDayText()}
+          {@html m.nolla_nollning_firstDayText()}
         </p>
       </div>
     </article>
@@ -42,9 +44,9 @@
     class="box-shadow-black-lg mb-8 grid place-items-center self-start rounded-2xl bg-[#ffc6eb] px-10 py-16 text-lg md:max-w-[712px]"
   >
     <div>
-      <h1 class="font-bold">{m.nolla_nollning_group()}</h1>
+      <h1 class="font-bold">{@html m.nolla_nollning_group()}</h1>
       <p>
-        {m.nolla_nollning_groupText()}
+        {@html m.nolla_nollning_groupText()}
       </p>
     </div>
   </article>
