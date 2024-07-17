@@ -5,63 +5,73 @@
   import { invalidateAll } from "$app/navigation";
   import * as m from "$paraglide/messages";
   import "./styles.css";
+
+  let checked = false;
+
+  const routes = [
+    { text: m.nolla_nav_start(), link: "/nolla" },
+    { text: m.nolla_nav_nollning(), link: "/nolla/nollning" },
+    { text: m.nolla_nav_sektionen(), link: "/nolla/sektionen" },
+    { text: m.nolla_nav_todo(), link: "/nolla/todo" },
+  ];
 </script>
 
-<div
-  data-theme="nollningPreReveal"
-  class="flex flex-1 flex-col font-nolla-sans"
->
-  <nav
-    class="container mx-auto flex h-[var(--navbar-size)] items-center justify-between py-10"
-  >
-    <div
-      class="flex gap-24 text-2xl font-semibold *:bg-gradient-to-r *:from-primary *:to-primary *:bg-[length:0_2px] *:bg-bottom *:bg-no-repeat *:transition-all"
-    >
-      <a href="/nolla" class="hover:bg-[length:100%_2px]">
-        {m.nolla_nav_start()}
-      </a>
-      <a href="/nolla/nollning" class="hover:bg-[length:100%_2px]">
-        {m.nolla_nav_nollning()}
-      </a>
-      <a href="/nolla/sektionen" class="hover:bg-[length:100%_2px]">
-        {m.nolla_nav_sektionen()}
-      </a>
-      <a href="/nolla/todo" class="hover:bg-[length:100%_2px]">
-        {m.nolla_nav_todo()}
-      </a>
-    </div>
-
-    <div class="flex items-center gap-4 text-2xl">
+<div class="drawer flex-1 font-nolla-sans" data-theme="nollningPreReveal">
+  <input id="my-drawer-3" type="checkbox" class="drawer-toggle" bind:checked />
+  <div class="drawer-content flex flex-col">
+    <!-- Navbar -->
+    <div class="container navbar mx-auto w-full p-6 lg:py-12">
+      <div class="flex-none lg:hidden">
+        <label
+          for="my-drawer-3"
+          aria-label="open sidebar"
+          class="btn btn-square btn-ghost"
+        >
+          <span class="i-mdi-menu h-8 w-8" />
+        </label>
+      </div>
+      <ul
+        class="hidden w-full gap-24 text-2xl font-semibold *:bg-gradient-to-r *:from-primary *:to-primary *:bg-[length:0_2px] *:bg-bottom *:bg-no-repeat *:transition-all lg:flex"
+      >
+        {#each routes as route}
+          <li class="hover:bg-[length:100%_2px]">
+            <a href={route.link}>{route.text}</a>
+          </li>
+        {/each}
+      </ul>
       <a
-        class="box-shadow-black translate hover:box-shadow-black-lg flex items-center
-        rounded-xl border-2 border-black bg-primary p-4 font-semibold
-        transition hover:-translate-x-1 hover:-translate-y-1 active:translate-x-1
-        active:translate-y-1 active:shadow-none"
+        class="btn-pop-out ml-auto aspect-square bg-primary"
         href={i18n.route($page.url.pathname)}
         hreflang={languageTag() === "sv" ? "en" : "sv"}
         on:click={() => invalidateAll()}
       >
-        {#if languageTag() === "sv"}
-          <span class="i-flag-gb-4x3" />
-        {:else}
-          <span class="i-flag-se-4x3" />
-        {/if}
+        <span
+          class={`i-flag-${languageTag() === "sv" ? "se" : "gb"}-4x3 h-8 w-8`}
+        />
       </a>
-
-      <a
-        href="/"
-        class="box-shadow-black translate hover:box-shadow-black-lg flex items-center
-             rounded-xl border-2 border-black bg-primary p-4 font-semibold
-             transition hover:-translate-x-1 hover:-translate-y-1 active:translate-x-1
-             active:translate-y-1 active:shadow-none"
-      >
+      <a href="/" class="btn-pop-out ml-4 mr-1 bg-primary">
         dsek.se
-        <span class="i-mdi-arrow-right" />
+        <span class="i-mdi-arrow-right ml-2 h-8 w-8" />
       </a>
     </div>
-  </nav>
-
-  <div class="container mx-auto flex-1">
-    <slot />
+    <div class="container mx-auto">
+      <slot />
+    </div>
+  </div>
+  <div class="drawer-side">
+    <label
+      for="my-drawer-3"
+      aria-label="close sidebar"
+      class="drawer-overlay"
+    />
+    <ul class="menu min-h-full w-80 bg-base-200 p-4 text-2xl font-semibold">
+      {#each routes as route}
+        <li>
+          <a on:click={() => (checked = false)} href={route.link}
+            >{route.text}</a
+          >
+        </li>
+      {/each}
+    </ul>
   </div>
 </div>

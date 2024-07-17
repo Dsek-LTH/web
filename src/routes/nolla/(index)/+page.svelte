@@ -1,5 +1,5 @@
 <script lang="ts">
-  import DsekLogo from "../../DsekLogo.svelte";
+  import DsekLogo from "$lib/components/DsekLogo.svelte";
   import DownArrow from "./DownArrow.svelte";
   import * as m from "$paraglide/messages";
 
@@ -21,7 +21,7 @@
       <div class="font-bold">{m.nolla_start_dguild()}</div>
     </h1>
 
-    <DsekLogo class="size-80" variant="full" />
+    <DsekLogo class="hidden size-80 lg:block" variant="full" />
   </div>
 
   <a class="flex w-full animate-bounce justify-center" href="#links">

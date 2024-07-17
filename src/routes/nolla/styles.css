@@ -1,5 +1,7 @@
 /* Here you will find styles that are specific to the /nolla pages. */
 
+@tailwind base;
+@tailwind components;
 @tailwind utilities;
 
 @layer utilities {
@@ -9,6 +11,13 @@
 
   .box-shadow-black-lg {
     box-shadow: 8px 8px 0 0 black;
+  }
+}
+
+@layer components {
+  .btn-pop-out {
+    @apply box-shadow-black hover:box-shadow-black-lg flex h-16 items-center justify-center rounded-xl  border-2 border-black p-4 text-2xl
+    font-bold transition hover:-translate-x-1 hover:-translate-y-1 active:translate-x-1 active:translate-y-1 active:shadow-none;
   }
 }
 
