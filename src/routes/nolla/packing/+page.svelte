@@ -45,28 +45,40 @@
     class="neo-brutal-box grid grid-cols-1 gap-2 bg-primary md:grid-cols-2 xl:grid-cols-4 [&>li>h6]:text-lg [&>li>h6]:font-semibold [&>li>img]:object-contain [&>li>p>i]:text-sm [&>li>p>i]:opacity-80"
   >
     <li>
-      <img src="#" alt="Slasque-exempel" />
+      <img
+        src="https://www.afbostader.se/globalassets/bostadsomraden/pireus/pf_bsflb.jpg"
+        alt="Slasque-exempel"
+      />
       <h6>{@html m.nolla_packing_slasque()}</h6>
       <p>
         {@html m.nolla_packing_slasque_description()}
       </p>
     </li>
     <li>
-      <img src="#" alt="Bruten kavaj exempel" />
+      <img
+        src="https://www.afbostader.se/globalassets/bostadsomraden/pireus/pf_bsflb.jpg"
+        alt="Bruten kavaj exempel"
+      />
       <h6>{@html m.nolla_packing_mixed_suit()}</h6>
       <p>
         {@html m.nolla_packing_mixed_suit_description()}
       </p>
     </li>
     <li>
-      <img src="#" alt="Mörk kostym exempel" />
+      <img
+        src="https://www.afbostader.se/globalassets/bostadsomraden/pireus/pf_bsflb.jpg"
+        alt="Mörk kostym exempel"
+      />
       <h6>{@html m.nolla_packing_dark_suit()}</h6>
       <p>
         {@html m.nolla_packing_dark_suit_description()}
       </p>
     </li>
     <li>
-      <img src="#" alt="Högtidsdräktsexempel" />
+      <img
+        src="https://www.afbostader.se/globalassets/bostadsomraden/pireus/pf_bsflb.jpg"
+        alt="Högtidsdräktsexempel"
+      />
       <h6>{@html m.nolla_packing_frack()}</h6>
       <p>{@html m.nolla_packing_frack_description()}</p>
     </li>

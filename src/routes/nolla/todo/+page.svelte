@@ -26,12 +26,12 @@
 
 <article class="space-y-16 md:space-y-32">
   <section
-    class="neo-brutal-box grid grid-cols-1 overflow-hidden bg-secondary !p-0 md:grid-cols-2"
+    class="neo-brutal-border box-shadow-black-lg grid grid-cols-1 overflow-hidden bg-secondary md:grid-cols-2"
   >
     <img
       src="https://www.afbostader.se/globalassets/bostadsomraden/pireus/pf_bsflb.jpg"
       alt=""
-      class="row-start-1 w-full object-cover md:h-full md:w-auto"
+      class="row-start-1 w-full border-r-4 border-black object-cover md:h-full md:w-auto"
     />
     <div class="p-8 md:p-16">
       <h1 class="text-xl font-bold">{@html m.nolla_todo_boende()}</h1>
@@ -75,9 +75,9 @@
   </section>
 
   <section
-    class="neo-brutal-box grid grid-cols-1 overflow-hidden bg-primary !p-0 md:grid-cols-2"
+    class="neo-brutal-border box-shadow-black-lg grid grid-cols-1 overflow-hidden bg-primary md:grid-cols-2"
   >
-    <div class="p-8 md:row-start-1 md:p-16">
+    <div class="border-r-4 border-black p-8 md:row-start-1 md:p-16">
       <h1 class="text-xl font-bold">{@html m.nolla_todo_nationer()}</h1>
       <p>
         {@html m.nolla_todo_nationerText()}
@@ -94,12 +94,12 @@
   </section>
 
   <section
-    class="neo-brutal-box grid grid-cols-1 overflow-hidden bg-secondary !p-0 md:grid-cols-2"
+    class="neo-brutal-border box-shadow-black-lg grid grid-cols-1 overflow-hidden bg-secondary md:grid-cols-2"
   >
     <img
       src="https://media.cnn.com/api/v1/images/stellar/prod/underscored-how-to-pack-a-suitcase-lead-packing.jpg?q=h_1800,w_3200,x_0,y_0"
       alt=""
-      class="row-start-1 w-full object-cover md:h-full md:w-auto"
+      class="row-start-1 w-full border-r-4 border-black object-cover md:h-full md:w-auto"
     />
 
     <div class="p-8 md:p-16">

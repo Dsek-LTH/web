@@ -1,6 +1,8 @@
 /* Here you will find styles that are specific to the /nolla pages. */
 
+@tailwind base;
 @tailwind utilities;
+@tailwind components;
 
 @layer utilities {
   .box-shadow-black {
@@ -11,22 +13,36 @@
     box-shadow: 0.5rem 0.5rem 0 0 black;
   }
 
+  .neo-brutal-border-sm {
+    @apply rounded-xl border-2 border-black;
+  }
+
+  .neo-brutal-border {
+    @apply rounded-2xl border-4 border-black;
+  }
+}
+
+@layer components {
+  .nolla-page-title {
+    @apply mb-8 font-nolla-mono text-5xl font-bold sm:mb-16 sm:text-6xl md:text-8xl;
+  }
+
   .neo-brutal-btn {
-    @apply box-shadow-black hover:box-shadow-black-lg flex items-center rounded-xl border-2 border-black bg-primary p-4 font-semibold
+    @apply box-shadow-black hover:box-shadow-black-lg neo-brutal-border-sm flex items-center bg-primary p-4 font-semibold
     transition hover:-translate-x-1 hover:-translate-y-1
     active:translate-x-1 active:translate-y-1 active:shadow-none;
   }
 
   .neo-brutal-btn-flat {
-    @apply flex items-center rounded-xl border-2 border-black bg-primary p-5 text-center text-xl font-semibold hover:bg-[#0D1B1E] hover:text-white;
+    @apply neo-brutal-border-sm flex items-center bg-primary p-5 text-center text-xl font-semibold hover:bg-[#0D1B1E] hover:text-white;
   }
 
   .neo-brutal-box {
-    @apply box-shadow-black-lg rounded-box px-8 py-12 sm:px-10 sm:py-16;
+    @apply neo-brutal-border box-shadow-black-lg px-8 py-12 sm:px-10 sm:py-16;
   }
 
-  .nolla-page-title {
-    @apply mb-8 font-nolla-mono text-5xl font-bold sm:mb-16 sm:text-6xl md:text-8xl;
+  .neo-brutal-image {
+    @apply neo-brutal-border box-shadow-black-lg;
   }
 }
 

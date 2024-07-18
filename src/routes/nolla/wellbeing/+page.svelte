@@ -14,7 +14,11 @@
     {@html m.nolla_wellbeing_description()}
   </p>
 
-  <img src="#" alt="Trivselrådet" class="md:col-start-2" />
+  <img
+    src="https://www.afbostader.se/globalassets/bostadsomraden/pireus/pf_bsflb.jpg"
+    alt="Trivselrådet"
+    class="md:col-start-2"
+  />
 
   <p class="col-start-1">
     {@html m.nolla_wellbeing_trivsel_description()}

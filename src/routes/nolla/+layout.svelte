@@ -39,7 +39,7 @@
           aria-label="open sidebar"
           class="btn btn-square btn-ghost"
         >
-          <span class="i-mdi-menu h-8 w-8" />
+          <span class="i-mdi-menu text-4xl" />
         </label>
       </div>
       <ul
@@ -51,7 +51,7 @@
           </li>
         {/each}
       </ul>
-      <div class="flex flex-1 justify-end gap-4">
+      <div class="flex flex-1 items-stretch justify-end gap-4">
         <a
           class="neo-brutal-btn aspect-square"
           href={i18n.route($page.url.pathname)}
@@ -82,10 +82,12 @@
       aria-label="close sidebar"
       class="drawer-overlay"
     />
-    <ul class="menu min-h-full w-80 bg-base-200 p-4 text-2xl font-semibold">
+    <ul
+      class="menu menu-lg min-h-full w-80 bg-base-200 p-4 text-2xl font-semibold"
+    >
       {#each drawerRoutes as route}
         <li>
-          <a on:click={() => (checked = false)} href={route.link}
+          <a on:click={() => (checked = false)} href={route.link} class=""
             >{route.text}</a
           >
         </li>

@@ -1,5 +1,7 @@
 <script lang="ts">
-  import DChipLogo from "./d-chip.webp";
+  import DChipLogo from "./d-chip_logo.webp";
+  import DChipImage from "./d-chip.webp";
+  import BoardImage from "./styr.webp";
   import * as m from "$paraglide/messages";
 </script>
 
@@ -17,7 +19,7 @@
 
 <article class="flex flex-col items-stretch gap-16 pt-8 sm:pt-16">
   <!-- About the guild -->
-  <div class="flex flex-col-reverse items-stretch gap-4 md:flex-row">
+  <div class="flex flex-col-reverse items-stretch gap-8 lg:flex-row">
     <section class="neo-brutal-box bg-secondary">
       <h3 class="font-nolla-mono text-2xl font-semibold">
         {@html m.nolla_guild_title()}
@@ -32,35 +34,35 @@
     <img
       src="https://www.afbostader.se/globalassets/bostadsomraden/pireus/pf_bsflb.jpg"
       alt="D-sektionen"
-      class="neo-brutal-image flex-grow object-cover md:w-0"
+      class="neo-brutal-image flex-grow object-cover lg:w-0"
     />
   </div>
 
   <!-- The board -->
   <section
-    class="box-shadow-black-lg grid flex-1 grid-cols-1 place-items-stretch rounded-2xl !p-0 md:grid-cols-2 md:grid-rows-2"
+    class="max-lg:neo-brutal-border box-shadow-black-lg grid flex-1 grid-cols-1 place-items-stretch overflow-hidden rounded-2xl lg:grid-cols-2 lg:grid-rows-[min-content_1fr]"
   >
     <!-- Image -->
-    <div class="relative row-start-2 bg-primary md:row-start-1">
-      <div class="h-full w-full rounded-br-2xl bg-base-100 pb-8 pr-8">
+    <div class="relative row-start-2 bg-primary lg:row-start-1">
+      <div class="h-full w-full rounded-br-2xl bg-base-100 lg:pb-8 lg:pr-8">
         <img
-          src="https://cdn.discordapp.com/attachments/1222270008701489348/1262081842996052098/IMG_6021.jpg?ex=66954ccf&is=6693fb4f&hm=2fac80ab8d317ef4f683813dcf96812d1a4117b2bdfc88206355e6fe075e70b3&"
+          src={BoardImage}
           alt="D-sektionens styrelse"
-          class="neo-brutal-image"
+          class="lg:neo-brutal-image"
         />
       </div>
       <div
-        class="absolute -bottom-1 -right-1 left-3 top-4 hidden rounded-br-2xl border-b-4 border-r-4 border-black md:block"
+        class="pointer-events-none absolute -bottom-1 -right-1 z-10 hidden h-20 w-20 rounded-br-[20px] border-b-4 border-r-4 border-black lg:block"
       />
     </div>
 
     <!-- Description -->
     <div
-      class="relative row-start-1 rounded-box bg-primary px-10 pb-8 pt-16 md:rounded-t-box"
+      class="relative row-start-1 border-black bg-primary px-10 pb-8 pt-16 lg:rounded-t-2xl lg:border-r-4"
     >
-      <!-- <div
-        class="neo-brutal-border absolute left-0 right-0 top-0 h-4 border-b-0"
-      /> -->
+      <div
+        class="neo-brutal-border pointer-events-none absolute -right-1 bottom-16 left-0 top-0 hidden !rounded-b-none !border-b-0 border-r-4 lg:block"
+      />
       <h3 class="font-nolla-mono text-2xl font-semibold">
         {@html m.nolla_guild_the_board()}
       </h3>
@@ -72,8 +74,12 @@
 
     <!-- Role descriptions -->
     <ul
-      class="col-start-1 row-start-3 grid grid-cols-1 gap-2 rounded-2xl rounded-tr-none border-4 border-t-0 border-black bg-primary px-10 pb-16 pt-8 sm:grid-cols-2 md:col-span-2 md:row-start-2 md:grid-cols-3 [&>li>b]:block"
+      class="relative col-start-1 row-start-3 grid grid-cols-1 gap-2 border-black bg-primary px-10 pb-16 pt-8 sm:grid-cols-2 lg:col-span-2 lg:row-start-2 lg:grid-cols-3 lg:rounded-2xl lg:rounded-tr-none lg:border-b-4 lg:border-r-4 [&>li>b]:block"
     >
+      <!-- For correct borders -->
+      <div
+        class="neo-brutal-border pointer-events-none absolute -bottom-1 left-0 right-[calc(50%+4rem)] top-0 hidden !rounded-r-none !border-r-0 lg:block"
+      />
       <li>
         <b>{@html m.nolla_guild_board_president()}</b>
         {@html m.nolla_guild_board_president_description()}
@@ -118,7 +124,7 @@
   </section>
 
   <!-- D-Chip -->
-  <div class="flex items-stretch">
+  <div class="flex flex-col-reverse items-stretch gap-8 lg:flex-row-reverse">
     <section class="neo-brutal-box bg-secondary">
       <img
         src={DChipLogo}
@@ -138,9 +144,9 @@
     </section>
     <figure class="flex-1">
       <img
-        src="https://www.afbostader.se/globalassets/bostadsomraden/pireus/pf_bsflb.jpg"
+        src={DChipImage}
         alt="D-chips styrelse"
-        class="h-auto max-h-full w-auto max-w-full"
+        class="neo-brutal-image h-full w-full object-cover"
       />
     </figure>
   </div>
