@@ -1,4 +1,5 @@
 <script lang="ts">
+  import wellbeingImage from "./trivsel.webp";
   import * as m from "$paraglide/messages";
 </script>
 
@@ -10,14 +11,14 @@
 </header>
 
 <article class="md:grid md:grid-cols-2">
-  <p class="col-start-1 mb-16">
+  <p class="col-start-1 row-start-1 mb-16">
     {@html m.nolla_wellbeing_description()}
   </p>
 
   <img
-    src="https://www.afbostader.se/globalassets/bostadsomraden/pireus/pf_bsflb.jpg"
+    src={wellbeingImage}
     alt="Trivselrådet"
-    class="md:col-start-2"
+    class="row-span-2 md:col-start-2"
   />
 
   <p class="col-start-1">
