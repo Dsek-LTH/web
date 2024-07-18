@@ -30,7 +30,7 @@ model AdminSetting {
   key       String   @id @db.VarChar(255)
   value     String?  @db.VarChar(255)
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   @@allow("create", has(auth().policies, "admin:settings:create"))
   @@allow("read", has(auth().policies, "admin:settings:read"))
@@ -885,7 +885,7 @@ model Shoppable {
 
 
   createdAt     DateTime                @default(now()) @map("created_at") @db.Timestamptz(6) @ignore()
-  updatedAt     DateTime                @default(now()) @map("updated_at") @db.Timestamptz(6) @updatedAt()
+  updatedAt     DateTime                @map("updated_at") @db.Timestamptz(6) @updatedAt()
   removedAt     DateTime?               @map("removed_at") @db.Timestamptz(6)
 
   ticket        Ticket?
