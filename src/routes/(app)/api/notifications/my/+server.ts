@@ -4,7 +4,7 @@ import type { AuthUser } from "@zenstackhq/runtime";
 import type { RequestHandler } from "./$types";
 
 /**
- * Get's all notifications for a user
+ * Gets all notifications for a user
  * @param user The user
  * @param prisma a prisma client with correct authorization for the user
  * @returns a list of notifications
