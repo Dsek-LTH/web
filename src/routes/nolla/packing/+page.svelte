@@ -1,4 +1,8 @@
 <script lang="ts">
+  import slasque from "./slasque.webp";
+  import mixed from "./mixed.webp";
+  import suit from "./suit.webp";
+  import frack from "./frack.webp";
   import * as m from "$paraglide/messages";
 </script>
 
@@ -42,11 +46,14 @@
 
 <section id="kladkod" class="my-16">
   <ul
-    class="neo-brutal-box grid grid-cols-1 gap-2 bg-primary md:grid-cols-2 xl:grid-cols-4 [&>li>h6]:text-lg [&>li>h6]:font-semibold [&>li>img]:object-contain [&>li>p>i]:text-sm [&>li>p>i]:opacity-80"
+    class="[&>li>img]:neo-brutal-border grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-4 [&>li>h6]:text-lg [&>li>h6]:font-semibold [&>li>img]:mb-2 [&>li>img]:!border-8 [&>li>img]:object-contain [&>li>p>i]:text-sm [&>li>p>i]:opacity-80 [&>li>p]:mt-2"
   >
     <li>
       <img
-        src="https://www.afbostader.se/globalassets/bostadsomraden/pireus/pf_bsflb.jpg"
+        class="!border-primary"
+        width={1512}
+        height={2016}
+        src={slasque}
         alt="Slasque-exempel"
       />
       <h6>{@html m.nolla_packing_slasque()}</h6>
@@ -56,7 +63,10 @@
     </li>
     <li>
       <img
-        src="https://www.afbostader.se/globalassets/bostadsomraden/pireus/pf_bsflb.jpg"
+        class="!border-secondary"
+        width={1512}
+        height={2016}
+        src={mixed}
         alt="Bruten kavaj exempel"
       />
       <h6>{@html m.nolla_packing_mixed_suit()}</h6>
@@ -66,7 +76,10 @@
     </li>
     <li>
       <img
-        src="https://www.afbostader.se/globalassets/bostadsomraden/pireus/pf_bsflb.jpg"
+        class="!border-primary"
+        width={1512}
+        height={2016}
+        src={suit}
         alt="Mörk kostym exempel"
       />
       <h6>{@html m.nolla_packing_dark_suit()}</h6>
@@ -76,7 +89,10 @@
     </li>
     <li>
       <img
-        src="https://www.afbostader.se/globalassets/bostadsomraden/pireus/pf_bsflb.jpg"
+        class="!border-secondary"
+        width={1512}
+        height={2016}
+        src={frack}
         alt="Högtidsdräktsexempel"
       />
       <h6>{@html m.nolla_packing_frack()}</h6>

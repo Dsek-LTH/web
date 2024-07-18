@@ -6,11 +6,17 @@
 
 @layer utilities {
   .box-shadow-black {
-    box-shadow: 0.25rem 0.25rem 0 0 black;
+    --tw-shadow: 0.25rem 0.25rem 0 0 black;
+    --tw-shadow-colored: 0.25rem 0.25rem 0 0 var(--tw-shadow-color);
+    box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
+      var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
   }
 
   .box-shadow-black-lg {
-    box-shadow: 0.5rem 0.5rem 0 0 black;
+    --tw-shadow: 0.5rem 0.5rem 0 0 black;
+    --tw-shadow-colored: 0.5rem 0.5rem 0 0 var(--tw-shadow-color);
+    box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
+      var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
   }
 
   .neo-brutal-border-sm {

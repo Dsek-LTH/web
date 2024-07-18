@@ -1,7 +1,8 @@
 <script lang="ts">
+  import GuildImage from "./guildOnHill.jpeg";
+  import BoardImage from "./styr.webp";
   import DChipLogo from "./d-chip_logo.webp";
   import DChipImage from "./d-chip.webp";
-  import BoardImage from "./styr.webp";
   import * as m from "$paraglide/messages";
 </script>
 
@@ -32,7 +33,7 @@
       >
     </section>
     <img
-      src="https://www.afbostader.se/globalassets/bostadsomraden/pireus/pf_bsflb.jpg"
+      src={GuildImage}
       alt="D-sektionen"
       class="neo-brutal-image flex-grow object-cover lg:w-0"
     />
