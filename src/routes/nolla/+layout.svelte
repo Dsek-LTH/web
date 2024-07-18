@@ -1,9 +1,10 @@
 <script lang="ts">
-  import { languageTag } from "$paraglide/runtime";
-  import { page } from "$app/stores";
-  import { i18n } from "$lib/utils/i18n";
   import { invalidateAll } from "$app/navigation";
+  import { page } from "$app/stores";
+  import DsekLogo from "$lib/components/DsekLogo.svelte";
+  import { i18n } from "$lib/utils/i18n";
   import * as m from "$paraglide/messages";
+  import { languageTag } from "$paraglide/runtime";
   import "./nolla.css";
 
   let checked = false;
@@ -14,6 +15,11 @@
     { text: m.nolla_nav_sektionen(), link: "/nolla/sektionen" },
     { text: m.nolla_nav_todo(), link: "/nolla/todo" },
   ];
+  $: drawerRoutes = [
+    ...routes,
+    { text: m.nolla_nav_wellbeing(), link: "/nolla/wellbeing" },
+    { text: m.nolla_wordlist_header(), link: "/nolla/wordlist" },
+  ];
 </script>
 
 <div class="drawer flex-1 font-nolla-sans" data-theme="nollningPreReveal">
@@ -22,6 +28,12 @@
     <!-- Navbar -->
     <nav class="container navbar mx-auto w-full p-6 lg:py-12">
       <div class="flex-none lg:hidden">
+        <a href="/nolla">
+          <DsekLogo
+            class="mx-4 hidden size-16 sm:block lg:hidden"
+            variant="full"
+          />
+        </a>
         <label
           for="my-drawer-3"
           aria-label="open sidebar"
@@ -39,26 +51,31 @@
           </li>
         {/each}
       </ul>
-      <a
-        class="neo-brutal-btn aspect-square"
-        href={i18n.route($page.url.pathname)}
-        hreflang={languageTag() === "sv" ? "en" : "sv"}
-        on:click={() => invalidateAll()}
-      >
-        <span
-          class={`i-flag-${languageTag() === "sv" ? "se" : "gb"}-4x3 h-8 w-8`}
-        />
-      </a>
+      <div class="flex flex-1 justify-end gap-4">
+        <a
+          class="neo-brutal-btn aspect-square"
+          href={i18n.route($page.url.pathname)}
+          hreflang={languageTag() === "sv" ? "en" : "sv"}
+          on:click={() => invalidateAll()}
+        >
+          <span
+            class:i-flag-gb-4x3={languageTag() !== "sv"}
+            class:i-flag-se-4x3={languageTag() === "sv"}
+            class="h-8 w-8"
+          />
+        </a>
 
-      <a href="/" class="neo-brutal-btn">
-        dsek.se
-        <span class="i-mdi-arrow-right ml-2 h-8 w-8" />
-      </a>
+        <a href="/" class="neo-brutal-btn">
+          dsek.se
+          <span class="i-mdi-arrow-right ml-2 h-8 w-8" />
+        </a>
+      </div>
     </nav>
     <main class="container mx-auto flex-1">
       <slot />
     </main>
   </div>
+  <!-- Drawer -->
   <nav class="drawer-side">
     <label
       for="my-drawer-3"
@@ -66,7 +83,7 @@
       class="drawer-overlay"
     />
     <ul class="menu min-h-full w-80 bg-base-200 p-4 text-2xl font-semibold">
-      {#each routes as route}
+      {#each drawerRoutes as route}
         <li>
           <a on:click={() => (checked = false)} href={route.link}
             >{route.text}</a

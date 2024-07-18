@@ -20,9 +20,6 @@
   .neo-brutal-box {
     @apply box-shadow-black-lg rounded-box px-10 py-16;
   }
-
-  .nolla-link {
-  }
 }
 
 :root {

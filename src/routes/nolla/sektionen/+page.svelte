@@ -16,7 +16,7 @@
 </header>
 
 <article class="flex flex-col items-stretch gap-16 py-16">
-  <div class="flex items-stretch">
+  <div class="flex items-stretch gap-4">
     <section class="neo-brutal-box bg-secondary">
       <h3 class="font-nolla-mono text-2xl font-semibold">
         {@html m.nolla_guild_title()}
@@ -24,20 +24,39 @@
       <p class="flex-1">
         {@html m.nolla_guild_description()}
       </p>
-      <a class="neo-brutal-btn w-min rounded-box" href="/home">dsek.se</a>
+      <a class="neo-brutal-btn w-min" href="/home"
+        >dsek.se <span class="i-mdi-arrow-right ml-2 h-8 w-8" /></a
+      >
     </section>
-    <img src="#" alt="D-sektionen" class="flex-1" />
+    <img
+      src="https://www.afbostader.se/globalassets/bostadsomraden/pireus/pf_bsflb.jpg"
+      alt="D-sektionen"
+      class="neo-brutal-image w-0 flex-grow object-cover"
+    />
   </div>
 
   <section
-    class="neo-brutal-box grid flex-1 grid-cols-5 grid-rows-2 place-items-stretch !p-0"
+    class="box-shadow-black-lg grid flex-1 grid-cols-2 grid-rows-2 place-items-stretch rounded-2xl !p-0"
   >
-    <div class="col-span-3 bg-primary">
-      <div class="h-full w-full rounded-br-box bg-base-100 p-4">
-        <img src="#" alt="D-sektionens styrelse" />
+    <div class="relative bg-primary">
+      <div class="h-full w-full rounded-br-2xl bg-base-100 pb-8 pr-8">
+        <img
+          src="https://cdn.discordapp.com/attachments/1222270008701489348/1262081842996052098/IMG_6021.jpg?ex=66954ccf&is=6693fb4f&hm=2fac80ab8d317ef4f683813dcf96812d1a4117b2bdfc88206355e6fe075e70b3&"
+          alt="D-sektionens styrelse"
+          class="neo-brutal-image"
+        />
       </div>
+      <div
+        class="absolute -bottom-1 -right-1 left-3 top-4 rounded-br-2xl border-b-4 border-r-4 border-black"
+      />
     </div>
-    <div class="col-span-2 rounded-t-box bg-primary px-10 pb-8 pt-16">
+    <div
+      style="border-start-width: 10px;"
+      class="relative rounded-t-box border-4 border-b-0 border-l-0 border-black bg-primary px-10 pb-8 pt-16"
+    >
+      <div
+        class="neo-brutal-border absolute left-0 right-0 top-0 h-4 border-b-0"
+      />
       <h3 class="font-nolla-mono text-2xl font-semibold">
         {@html m.nolla_guild_the_board()}
       </h3>
@@ -47,7 +66,7 @@
       </p>
     </div>
     <ul
-      class="col-span-5 grid grid-cols-3 gap-2 rounded-box rounded-tr-none bg-primary px-10 pb-16 pt-8 [&>li>b]:block"
+      class="col-span-2 col-start-1 row-start-2 grid grid-cols-3 gap-2 rounded-2xl rounded-tr-none border-4 border-t-0 border-black bg-primary px-10 pb-16 pt-8 [&>li>b]:block"
     >
       <li>
         <b>{@html m.nolla_guild_board_president()}</b>
@@ -104,7 +123,7 @@
       </p>
 
       <a
-        class="neo-brutal-btn w-min whitespace-nowrap rounded-box"
+        class="neo-brutal-btn w-min whitespace-nowrap"
         href="https://dchip.dsek.se"
       >
         {@html m.nolla_guild_dchip_link()}
@@ -112,7 +131,7 @@
     </section>
     <figure class="flex-1">
       <img
-        src="#"
+        src="https://www.afbostader.se/globalassets/bostadsomraden/pireus/pf_bsflb.jpg"
         alt="D-chips styrelse"
         class="h-auto max-h-full w-auto max-w-full"
       />
