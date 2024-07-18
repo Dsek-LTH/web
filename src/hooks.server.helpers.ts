@@ -19,7 +19,7 @@ export const getAccessPolicies = async (
   if (!!studentId && dev) {
     return getAllAccessPolicies(prisma);
   }
-  const isNollning = await isNollningPeriod(prisma);
+  const isNollning = await isNollningPeriod();
   return prisma.accessPolicy
     .findMany({
       where: {

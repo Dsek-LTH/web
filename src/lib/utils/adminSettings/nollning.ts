@@ -1,3 +1,4 @@
+import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
 import { type PrismaClient } from "@prisma/client";
 
 export const NOLLNING_START_KEY = "nollning_start";
@@ -7,14 +8,14 @@ let cache: {
   lastFetched: Date;
 } | null = null;
 const CACHE_TIME = 3600 * 1000; // 1 hour
-export const isNollningPeriod = async (prisma: PrismaClient) => {
+export const isNollningPeriod = async () => {
   const now = new Date();
   if (
     cache !== null &&
     cache.lastFetched.valueOf() + CACHE_TIME > now.valueOf()
   )
     return cache.value;
-  const rows = await prisma.adminSetting.findMany({
+  const rows = await authorizedPrismaClient.adminSetting.findMany({
     where: {
       OR: [
         {
@@ -44,31 +45,29 @@ export const updateNollningPeriod = async (
   start: Date,
   end: Date,
 ) => {
-  const res = await prisma.$transaction(async (tx) => {
-    await tx.adminSetting.upsert({
-      where: {
-        key: NOLLNING_START_KEY,
-      },
-      update: {
-        value: start.toISOString(),
-      },
-      create: {
-        key: NOLLNING_START_KEY,
-        value: start.toISOString(),
-      },
-    });
-    await tx.adminSetting.upsert({
-      where: {
-        key: NOLLNING_END_KEY,
-      },
-      update: {
-        value: end.toISOString(),
-      },
-      create: {
-        key: NOLLNING_END_KEY,
-        value: end.toISOString(),
-      },
-    });
+  await prisma.adminSetting.upsert({
+    where: {
+      key: NOLLNING_START_KEY,
+    },
+    update: {
+      value: start.toISOString(),
+    },
+    create: {
+      key: NOLLNING_START_KEY,
+      value: start.toISOString(),
+    },
+  });
+  await prisma.adminSetting.upsert({
+    where: {
+      key: NOLLNING_END_KEY,
+    },
+    update: {
+      value: end.toISOString(),
+    },
+    create: {
+      key: NOLLNING_END_KEY,
+      value: end.toISOString(),
+    },
   });
   const now = new Date();
   const isNollningPeriod = start < now && now < end;
@@ -76,5 +75,4 @@ export const updateNollningPeriod = async (
     value: isNollningPeriod,
     lastFetched: now,
   };
-  return res;
 };
