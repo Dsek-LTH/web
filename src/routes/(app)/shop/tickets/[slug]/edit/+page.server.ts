@@ -1,6 +1,6 @@
-import { ticketSchema } from "$lib/components/shop/types.js";
-import apiNames from "$lib/utils/apiNames.js";
-import { authorize } from "$lib/utils/authorization.js";
+import { ticketSchema } from "$lib/components/shop/types";
+import apiNames from "$lib/utils/apiNames";
+import { authorize } from "$lib/utils/authorization";
 import { ShoppableType } from "@prisma/client";
 import { error, fail } from "@sveltejs/kit";
 import { redirect } from "$lib/utils/redirect";

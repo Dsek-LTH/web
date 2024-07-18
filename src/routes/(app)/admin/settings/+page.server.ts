@@ -2,13 +2,13 @@ import {
   NOLLNING_END_KEY,
   NOLLNING_START_KEY,
   updateNollningPeriod,
-} from "$lib/utils/adminSettings/nollning.js";
-import apiNames from "$lib/utils/apiNames.js";
-import { authorize } from "$lib/utils/authorization.js";
+} from "$lib/utils/adminSettings/nollning";
+import apiNames from "$lib/utils/apiNames";
+import { authorize } from "$lib/utils/authorization";
 import { fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/client";
 import { z } from "zod";
-import type { PageServerLoad } from "./$types.js";
+import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma, user } = locals;

@@ -9,7 +9,7 @@
   import { superForm } from "sveltekit-superforms/client";
   import Article from "./Article.svelte";
   import AuthorSignature from "$lib/components/AuthorSignature.svelte";
-  import type { AuthorOption } from "./articles.js";
+  import type { AuthorOption } from "./articles";
   import type { ArticleSchema } from "./schema";
   import * as m from "$paraglide/messages";
 
