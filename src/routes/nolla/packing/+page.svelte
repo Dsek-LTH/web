@@ -14,7 +14,7 @@
 </header>
 
 <article class=" max-w-prose">
-  <p>
+  <p class="nolla-prose">
     {@html m.nolla_packing_description()}
   </p>
   <ul
@@ -22,19 +22,19 @@
   >
     <li>
       <b>{@html m.nolla_packing_robust_clothing()}</b>
-      <p>
+      <p class="nolla-prose">
         {@html m.nolla_packing_robust_clothing_description()}
       </p>
     </li>
     <li>
       <b>{@html m.nolla_packing_theme_outfits()}</b>
-      <p>
+      <p class="nolla-prose">
         {@html m.nolla_packing_theme_outfits_description()}
       </p>
     </li>
     <li>
       <b>{@html m.nolla_packing_fancy_clothing()}</b>
-      <p>
+      <p class="nolla-prose">
         {@html m.nolla_packing_fancy_clothing_description()}
       </p>
     </li>
@@ -57,7 +57,7 @@
         alt="Slasque-exempel"
       />
       <h6>{@html m.nolla_packing_slasque()}</h6>
-      <p>
+      <p class="nolla-prose">
         {@html m.nolla_packing_slasque_description()}
       </p>
     </li>
@@ -70,7 +70,7 @@
         alt="Bruten kavaj exempel"
       />
       <h6>{@html m.nolla_packing_mixed_suit()}</h6>
-      <p>
+      <p class="nolla-prose">
         {@html m.nolla_packing_mixed_suit_description()}
       </p>
     </li>
@@ -83,7 +83,7 @@
         alt="Mörk kostym exempel"
       />
       <h6>{@html m.nolla_packing_dark_suit()}</h6>
-      <p>
+      <p class="nolla-prose">
         {@html m.nolla_packing_dark_suit_description()}
       </p>
     </li>
@@ -96,7 +96,7 @@
         alt="Högtidsdräktsexempel"
       />
       <h6>{@html m.nolla_packing_frack()}</h6>
-      <p>{@html m.nolla_packing_frack_description()}</p>
+      <p class="nolla-prose">{@html m.nolla_packing_frack_description()}</p>
     </li>
   </ul>
 </section>

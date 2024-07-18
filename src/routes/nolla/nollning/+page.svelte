@@ -24,7 +24,7 @@
       class="neo-brutal-box grid place-items-center self-start bg-[#B1FFB4] text-lg md:max-w-[449px]"
     >
       <h1 class="font-bold">{@html m.nolla_nollning_what()}</h1>
-      <p>
+      <p class="nolla-prose">
         {@html m.nolla_nollning_whatText()}
       </p>
     </article>
@@ -33,7 +33,7 @@
       class="neo-brutal-box grid place-items-center self-start bg-[#FFF38B] text-lg md:max-w-[407px] md:py-32"
     >
       <h1 class="font-bold">{@html m.nolla_nollning_firstDay()}</h1>
-      <p>
+      <p class="nolla-prose">
         {@html m.nolla_nollning_firstDayText()}
       </p>
     </article>
@@ -56,7 +56,7 @@
     class="neo-brutal-box grid place-items-center self-start bg-[#ffc6eb] text-lg md:max-w-[712px]"
   >
     <h1 class="font-bold">{@html m.nolla_nollning_group()}</h1>
-    <p>
+    <p class="nolla-prose">
       {@html m.nolla_nollning_groupText()}
     </p>
   </article>

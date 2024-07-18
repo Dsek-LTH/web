@@ -1,9 +1,8 @@
 /* Here you will find styles that are specific to the /nolla pages. */
-
-@tailwind base;
-@tailwind utilities;
-@tailwind components;
-
+@import "../../app.css";
+/* We need to import app.css, because if we don't then we can't use layers */
+/* And if we add our own @tailwind utilities; etc then the CSS will stop functioning/act weird due to everything being declared twice, in the wrong order. */
+/* This is how tailwind recommends doing it if you have multiple files. */
 @layer utilities {
   .box-shadow-black {
     --tw-shadow: 0.25rem 0.25rem 0 0 black;
@@ -50,6 +49,15 @@
   .neo-brutal-image {
     @apply neo-brutal-border box-shadow-black-lg;
   }
+
+  .nolla-prose {
+    @apply max-w-prose leading-relaxed;
+  }
+
+  * ~ .nolla-prose,
+  .nolla-prose ~ * {
+    @apply mt-4;
+  }
 }
 
 :root {
@@ -58,15 +66,6 @@
 
 html {
   scroll-behavior: smooth;
-}
-
-p {
-  @apply max-w-prose leading-relaxed;
-}
-
-* ~ p,
-p ~ * {
-  @apply mt-4;
 }
 
 [data-theme="nollningPreReveal"] {

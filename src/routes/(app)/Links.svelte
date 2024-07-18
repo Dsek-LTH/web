@@ -10,7 +10,7 @@
     {
       title: m.landing_theIntroduction(),
       description: m.landing_introductionDesc(),
-      path: "/",
+      path: "/nolla",
       icon: "i-mdi-information-outline",
     },
     {

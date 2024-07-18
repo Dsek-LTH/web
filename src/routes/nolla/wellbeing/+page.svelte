@@ -11,7 +11,7 @@
 </header>
 
 <article class="md:grid md:grid-cols-2">
-  <p class="col-start-1 row-start-1 mb-16">
+  <p class="nolla-prose col-start-1 row-start-1 mb-16">
     {@html m.nolla_wellbeing_description()}
   </p>
 
@@ -21,7 +21,7 @@
     class="row-span-2 md:col-start-2"
   />
 
-  <p class="col-start-1">
+  <p class="nolla-prose col-start-1">
     {@html m.nolla_wellbeing_trivsel_description()}
   </p>
 
@@ -31,7 +31,7 @@
     >{m.nolla_wellbeing_contact_trivsel()}</a
   >
 
-  <p class="col-start-1">
+  <p class="nolla-prose col-start-1">
     {@html m.nolla_wellbeing_student_health()}
   </p>
 

@@ -25,7 +25,7 @@
       <h3 class="font-nolla-mono text-2xl font-semibold">
         {@html m.nolla_guild_title()}
       </h3>
-      <p class="flex-1">
+      <p class="nolla-prose flex-1">
         {@html m.nolla_guild_description()}
       </p>
       <a class="neo-brutal-btn-flat w-min" href="/home"
@@ -67,7 +67,7 @@
       <h3 class="font-nolla-mono text-2xl font-semibold">
         {@html m.nolla_guild_the_board()}
       </h3>
-      <p>
+      <p class="nolla-prose">
         {@html m.nolla_guild_board_description()}
         <a href="/committees" class="link">{@html m.nolla_readMore()}</a>
       </p>
@@ -132,7 +132,7 @@
         alt="D-chips styrelse"
         class="h-auto max-h-16 w-auto max-w-full"
       />
-      <p>
+      <p class="nolla-prose">
         {@html m.nolla_guild_dchip_description()}
       </p>
 

@@ -35,7 +35,7 @@
     />
     <div class="p-8 md:p-16">
       <h1 class="text-xl font-bold">{@html m.nolla_todo_boende()}</h1>
-      <p>
+      <p class="nolla-prose">
         {@html m.nolla_todo_boendeText()}
       </p>
       <a href={m.nolla_accomodation_link()} class="link"
@@ -79,7 +79,7 @@
   >
     <div class="border-r-4 border-black p-8 md:row-start-1 md:p-16">
       <h1 class="text-xl font-bold">{@html m.nolla_todo_nationer()}</h1>
-      <p>
+      <p class="nolla-prose">
         {@html m.nolla_todo_nationerText()}
       </p>
       <a href={m.nolla_nation_link()} class="link">{@html m.nolla_readMore()}</a
@@ -104,7 +104,7 @@
 
     <div class="p-8 md:p-16">
       <h1 class="text-xl font-bold">{@html m.nolla_todo_list()}</h1>
-      <p>
+      <p class="nolla-prose">
         {@html m.nolla_todo_listText()}
       </p>
       <a href="/nolla/packing" class="link">{@html m.nolla_readMore()}</a>
