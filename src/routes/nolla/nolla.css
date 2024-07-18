@@ -17,8 +17,16 @@
     active:translate-x-1 active:translate-y-1 active:shadow-none;
   }
 
+  .neo-brutal-btn-flat {
+    @apply flex items-center rounded-xl border-2 border-black bg-primary p-5 text-center text-xl font-semibold hover:bg-[#0D1B1E] hover:text-white;
+  }
+
   .neo-brutal-box {
-    @apply box-shadow-black-lg rounded-box px-10 py-16;
+    @apply box-shadow-black-lg rounded-box px-8 py-12 sm:px-10 sm:py-16;
+  }
+
+  .nolla-page-title {
+    @apply mb-8 font-nolla-mono text-5xl font-bold sm:mb-16 sm:text-6xl md:text-8xl;
   }
 }
 

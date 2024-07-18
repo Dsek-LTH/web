@@ -4,19 +4,20 @@
 </script>
 
 <!-- eslint-disable svelte/no-at-html-tags -->
-<header>
-  <h1 class="mx-auto text-center font-nolla-mono text-8xl font-bold">
+<header class="mx-auto w-min">
+  <h1 class="nolla-page-title mb-4 w-min whitespace-nowrap text-center">
     {@html m.nolla_guild_header()}
   </h1>
   <h2
-    class="mx-auto text-center text-[2.3rem] font-bold text-primary drop-shadow-sm"
+    class="text-center text-lg font-bold text-primary drop-shadow-sm sm:text-[2.3rem]"
   >
     {@html m.nolla_guild_tagline()}
   </h2>
 </header>
 
-<article class="flex flex-col items-stretch gap-16 py-16">
-  <div class="flex items-stretch gap-4">
+<article class="flex flex-col items-stretch gap-16 pt-8 sm:pt-16">
+  <!-- About the guild -->
+  <div class="flex flex-col-reverse items-stretch gap-4 md:flex-row">
     <section class="neo-brutal-box bg-secondary">
       <h3 class="font-nolla-mono text-2xl font-semibold">
         {@html m.nolla_guild_title()}
@@ -24,21 +25,23 @@
       <p class="flex-1">
         {@html m.nolla_guild_description()}
       </p>
-      <a class="neo-brutal-btn w-min" href="/home"
+      <a class="neo-brutal-btn-flat w-min" href="/home"
         >dsek.se <span class="i-mdi-arrow-right ml-2 h-8 w-8" /></a
       >
     </section>
     <img
       src="https://www.afbostader.se/globalassets/bostadsomraden/pireus/pf_bsflb.jpg"
       alt="D-sektionen"
-      class="neo-brutal-image w-0 flex-grow object-cover"
+      class="neo-brutal-image flex-grow object-cover md:w-0"
     />
   </div>
 
+  <!-- The board -->
   <section
-    class="box-shadow-black-lg grid flex-1 grid-cols-2 grid-rows-2 place-items-stretch rounded-2xl !p-0"
+    class="box-shadow-black-lg grid flex-1 grid-cols-1 place-items-stretch rounded-2xl !p-0 md:grid-cols-2 md:grid-rows-2"
   >
-    <div class="relative bg-primary">
+    <!-- Image -->
+    <div class="relative row-start-2 bg-primary md:row-start-1">
       <div class="h-full w-full rounded-br-2xl bg-base-100 pb-8 pr-8">
         <img
           src="https://cdn.discordapp.com/attachments/1222270008701489348/1262081842996052098/IMG_6021.jpg?ex=66954ccf&is=6693fb4f&hm=2fac80ab8d317ef4f683813dcf96812d1a4117b2bdfc88206355e6fe075e70b3&"
@@ -47,16 +50,17 @@
         />
       </div>
       <div
-        class="absolute -bottom-1 -right-1 left-3 top-4 rounded-br-2xl border-b-4 border-r-4 border-black"
+        class="absolute -bottom-1 -right-1 left-3 top-4 hidden rounded-br-2xl border-b-4 border-r-4 border-black md:block"
       />
     </div>
+
+    <!-- Description -->
     <div
-      style="border-start-width: 10px;"
-      class="relative rounded-t-box border-4 border-b-0 border-l-0 border-black bg-primary px-10 pb-8 pt-16"
+      class="relative row-start-1 rounded-box bg-primary px-10 pb-8 pt-16 md:rounded-t-box"
     >
-      <div
+      <!-- <div
         class="neo-brutal-border absolute left-0 right-0 top-0 h-4 border-b-0"
-      />
+      /> -->
       <h3 class="font-nolla-mono text-2xl font-semibold">
         {@html m.nolla_guild_the_board()}
       </h3>
@@ -65,8 +69,10 @@
         <a href="/committees" class="link">{@html m.nolla_readMore()}</a>
       </p>
     </div>
+
+    <!-- Role descriptions -->
     <ul
-      class="col-span-2 col-start-1 row-start-2 grid grid-cols-3 gap-2 rounded-2xl rounded-tr-none border-4 border-t-0 border-black bg-primary px-10 pb-16 pt-8 [&>li>b]:block"
+      class="col-start-1 row-start-3 grid grid-cols-1 gap-2 rounded-2xl rounded-tr-none border-4 border-t-0 border-black bg-primary px-10 pb-16 pt-8 sm:grid-cols-2 md:col-span-2 md:row-start-2 md:grid-cols-3 [&>li>b]:block"
     >
       <li>
         <b>{@html m.nolla_guild_board_president()}</b>
@@ -111,6 +117,7 @@
     </ul>
   </section>
 
+  <!-- D-Chip -->
   <div class="flex items-stretch">
     <section class="neo-brutal-box bg-secondary">
       <img
@@ -123,7 +130,7 @@
       </p>
 
       <a
-        class="neo-brutal-btn w-min whitespace-nowrap"
+        class="neo-brutal-btn-flat w-min whitespace-nowrap"
         href="https://dchip.dsek.se"
       >
         {@html m.nolla_guild_dchip_link()}

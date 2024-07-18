@@ -10,15 +10,15 @@
 
 <!-- eslint-disable svelte/no-at-html-tags -->
 <div class="mx-auto max-w-6xl">
-  <header class="my-16">
-    <h1 class="relative w-min font-nolla-mono text-8xl font-bold md:left-1/2">
+  <header class="flex w-full justify-end">
+    <h1 class="nolla-page-title relative w-min text-right">
       {@html m.nolla_nollning_header()}
     </h1>
   </header>
 
   <div class="mb-8 flex flex-col justify-between gap-8 md:flex-row">
     <article
-      class="box-shadow-black-lg grid place-items-center self-start rounded-2xl bg-[#B1FFB4] px-10 py-16 text-lg md:max-w-[449px]"
+      class="neo-brutal-box grid place-items-center self-start bg-[#B1FFB4] text-lg md:max-w-[449px]"
     >
       <div>
         <h1 class="font-bold">{@html m.nolla_nollning_what()}</h1>
@@ -29,7 +29,7 @@
     </article>
 
     <article
-      class="box-shadow-black-lg grid place-items-center self-start rounded-2xl bg-[#FFF38B] px-10 py-16 text-lg md:max-w-[407px] md:py-32"
+      class="neo-brutal-box grid place-items-center self-start bg-[#FFF38B] text-lg md:max-w-[407px] md:py-32"
     >
       <div>
         <h1 class="font-bold">{@html m.nolla_nollning_firstDay()}</h1>
@@ -41,7 +41,7 @@
   </div>
 
   <article
-    class="box-shadow-black-lg mb-8 grid place-items-center self-start rounded-2xl bg-[#ffc6eb] px-10 py-16 text-lg md:max-w-[712px]"
+    class="neo-brutal-box mb-8 grid place-items-center self-start bg-[#ffc6eb] text-lg md:max-w-[712px]"
   >
     <div>
       <h1 class="font-bold">{@html m.nolla_nollning_group()}</h1>
@@ -52,13 +52,10 @@
   </article>
 
   <article
-    class="flex h-72 w-full items-center justify-center gap-24 rounded-3xl bg-[#FF77C0] md:my-32"
+    class="neo-brutal-box flex flex-col items-stretch justify-center gap-8 bg-[#FF77C0] lg:h-72 lg:w-full lg:flex-row lg:items-center lg:gap-24"
   >
     {#each navItems as navItem (navItem.link)}
-      <a
-        href={navItem.link}
-        class="rounded-xl border-2 border-black bg-primary p-5 text-xl font-semibold hover:bg-[#0D1B1E] hover:text-white"
-      >
+      <a href={navItem.link} class="neo-brutal-btn-flat">
         {navItem.text}
       </a>
     {/each}

@@ -4,17 +4,17 @@
 
 <!-- eslint-disable svelte/no-at-html-tags -->
 <header>
-  <h1 class="text-left font-nolla-mono text-8xl font-bold">
+  <h1 class="nolla-page-title">
     {@html m.nolla_wellbeing_header()}
   </h1>
 </header>
 
-<article class="grid grid-cols-2 py-16">
+<article class="md:grid md:grid-cols-2">
   <p class="col-start-1 mb-16">
     {@html m.nolla_wellbeing_description()}
   </p>
 
-  <img src="#" alt="Trivselrådet" class="col-start-2" />
+  <img src="#" alt="Trivselrådet" class="md:col-start-2" />
 
   <p class="col-start-1">
     {@html m.nolla_wellbeing_trivsel_description()}

@@ -3,18 +3,18 @@
 </script>
 
 <!-- eslint-disable svelte/no-at-html-tags -->
-<header class="mx-auto max-w-prose">
-  <h1 class="font-nolla-mono text-8xl font-bold">
+<header class=" max-w-prose">
+  <h1 class="nolla-page-title">
     {@html m.nolla_packing_header()}
   </h1>
 </header>
 
-<article class="mx-auto my-16 max-w-prose">
+<article class=" max-w-prose">
   <p>
     {@html m.nolla_packing_description()}
   </p>
   <ul
-    class="flex list-disc flex-col gap-4 [&>li>b]:inline-block [&>li>b]:font-semibold [&>li>p]:mt-0 [&>li>p]:text-sm [&>li>p]:italic"
+    class="ml-4 flex list-outside list-disc flex-col gap-4 [&>li>b]:inline-block [&>li>b]:font-semibold [&>li>p]:mt-0 [&>li>p]:text-sm [&>li>p]:italic"
   >
     <li>
       <b>{@html m.nolla_packing_robust_clothing()}</b>

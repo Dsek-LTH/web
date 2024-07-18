@@ -18,11 +18,11 @@
 </script>
 
 <header>
-  <h1 class="font-nolla-mono text-8xl font-bold">
+  <h1 class="nolla-page-title">
     {m.nolla_wordlist_header()}
   </h1>
 </header>
-<article class="py-8">
+<article>
   <ul>
     {#each wordList as word}
       <li

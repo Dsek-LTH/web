@@ -71,7 +71,7 @@
         </a>
       </div>
     </nav>
-    <main class="container mx-auto flex-1">
+    <main class="container mx-auto flex-1 px-4 py-16 sm:px-8">
       <slot />
     </main>
   </div>
