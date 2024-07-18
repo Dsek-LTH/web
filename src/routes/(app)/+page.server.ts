@@ -6,6 +6,6 @@ export const load: PageServerLoad = async ({ locals }) => {
     redirect(302, "/app/home");
   }
   if (user?.memberId) {
-    // redirect(302, "/home");
+    redirect(302, "/home");
   }
 };
