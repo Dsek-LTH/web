@@ -5,8 +5,16 @@
 
   const navItems = [
     { text: m.nolla_nav_wellbeing(), link: "/nolla/wellbeing" },
-    { text: m.nolla_nav_boende(), link: m.nolla_accomodation_link() },
-    { text: m.nolla_nav_nationer(), link: m.nolla_nation_link() },
+    {
+      text: m.nolla_nav_boende(),
+      link: m.nolla_accomodation_link(),
+      target: "_blank",
+    },
+    {
+      text: m.nolla_nav_nationer(),
+      link: m.nolla_nation_link(),
+      target: "_blank",
+    },
     { text: m.nolla_nav_list(), link: "/nolla/packing" },
   ];
 </script>
@@ -39,7 +47,7 @@
   class="neo-brutal-box flex flex-col items-stretch justify-center gap-8 bg-secondary lg:h-72 lg:w-full lg:flex-row lg:items-center lg:gap-24"
 >
   {#each navItems as navItem (navItem.link)}
-    <a href={navItem.link} class="neo-brutal-btn-flat">
+    <a href={navItem.link} class="neo-brutal-btn-flat" target={navItem.target}>
       {navItem.text}
     </a>
   {/each}
