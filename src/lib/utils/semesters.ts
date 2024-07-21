@@ -1,6 +1,11 @@
+/**
+ * Semesters are encoded as numbers, given by
+ * `2 * year + 0` for the spring semester.
+ * `2 * year + 1` for the fall semester.
+ *
+ * This is useful for sorting by semesters.
+ */
 export type Semester = number;
-
-// Semesters are encoded as $YEAR * 2 and +1 if its the fall term
 
 export const semesterFromYearAndTerm = (year: number, term: "VT" | "HT") =>
   year * 2 + (term === "VT" ? 0 : 1);
