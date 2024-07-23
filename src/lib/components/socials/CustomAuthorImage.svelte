@@ -1,12 +1,13 @@
 <script lang="ts">
-  import type { Member } from "@prisma/client";
+  import type { CustomAuthor } from "@prisma/client";
 
-  export let member: Pick<Member, "picturePath">;
+  export let customAuthor: Pick<CustomAuthor, "imageUrl" | "name"> | null;
 </script>
 
 <img
-  src={member.picturePath || "https://gravatar.com/avatar?s=100&d=mp"}
-  on:error|preventDefault={(e) => {
+  src={customAuthor?.imageUrl ?? "https://gravatar.com/avatar?s=100&d=mp"}
+  alt={customAuthor?.name ?? "Unknown"}
+  on:error={(e) => {
     const imgElement = e.currentTarget;
     if (
       imgElement &&
@@ -16,5 +17,4 @@
       imgElement.src = "https://gravatar.com/avatar?s=100&d=mp";
     }
   }}
-  alt="Member avatar"
 />

@@ -32,11 +32,7 @@
 <tr>
   <td>
     <div class="flex items-center gap-3">
-      <MemberAvatar
-        class="h-8 w-8"
-        {member}
-        identficationHash={item.externalCustomerCode}
-      />
+      <MemberAvatar class="h-8 w-8" {member} />
       <div>
         <div class="font-bold">
           {member ? getFullName(member) : "Icke inloggad"}

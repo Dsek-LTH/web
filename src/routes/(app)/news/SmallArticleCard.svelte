@@ -1,5 +1,5 @@
 <script lang="ts">
-  import AuthorSignature from "$lib/components/AuthorSignature.svelte";
+  import AuthorSignature from "$lib/components/socials/AuthorSignature.svelte";
   import { goto } from "$lib/utils/redirect";
   import dayjs from "dayjs";
   import DOMPurify from "isomorphic-dompurify";

@@ -2,7 +2,7 @@
   import TagChip from "$lib/components/TagChip.svelte";
   import CommentSection from "$lib/components/socials/CommentSection.svelte";
   import Article from "../Article.svelte";
-  import AuthorSignature from "$lib/components/AuthorSignature.svelte";
+  import AuthorSignature from "$lib/components/socials/AuthorSignature.svelte";
   import LikeButton from "../LikeButton.svelte";
   import LikersList from "../LikersList.svelte";
   import type { PageData } from "./$types";
@@ -31,7 +31,7 @@
       slot="author"
       member={author.member}
       position={author.mandate?.position}
-      customAuthor={author.customAuthor ?? undefined}
+      customAuthor={author.customAuthor}
       type={article.author.type}
     />
 

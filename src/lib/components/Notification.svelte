@@ -2,14 +2,22 @@
   import { invalidate } from "$app/navigation";
   import { page } from "$app/stores";
   import LiveTimeSince from "$lib/components/LiveTimeSince.svelte";
+  import AuthorAvatars from "$lib/components/socials/AuthorAvatars.svelte";
   import { i18n } from "$lib/utils/i18n";
+  import type { NotificationGroup } from "$lib/utils/notifications/group";
   import type { NotificationSchema } from "$lib/zod/schemas";
-  import type { Notification } from "@prisma/client";
   import type { SuperValidated } from "sveltekit-superforms";
   import { superForm } from "sveltekit-superforms/client";
   type NotificationItem = Pick<
-    Notification,
-    "link" | "title" | "message" | "createdAt" | "id" | "readAt"
+    NotificationGroup,
+    | "link"
+    | "title"
+    | "message"
+    | "createdAt"
+    | "id"
+    | "individualIds"
+    | "readAt"
+    | "authors"
   >;
 
   export let notification: NotificationItem;
@@ -19,7 +27,7 @@
   const readNotification = () => {
     // read notification
     readForm.requestSubmit();
-    invalidate("/notifications");
+    invalidate("/api/notifications/my");
   };
 
   // Handle "reading" notification when visiting relevant link
@@ -40,6 +48,10 @@
   const { enhance: readEnhance } = superForm(deleteForm, {
     id: notification.id.toString() + "-read",
   });
+
+  $: authors = notification.authors.filter(Boolean) as Array<
+    NonNullable<NotificationItem["authors"][number]>
+  >;
 </script>
 
 <div class="relative m-0 rounded-none">
@@ -51,11 +63,20 @@
     class="hidden"
     aria-hidden="true"
   >
-    <input type="hidden" name="notificationId" value={notification.id} />
+    {#if notification.individualIds.length > 1}
+      {#each notification.individualIds as id}
+        <input type="hidden" name="notificationIds" value={id} />
+      {/each}
+    {:else}
+      <input type="hidden" name="notificationId" value={notification.id} />
+    {/if}
   </form>
+  <div>
+    <AuthorAvatars {authors} />
+  </div>
   <a
     href={notification.link}
-    class="flex h-full w-80 max-w-80 flex-col justify-center {isUnread
+    class="flex h-full flex-col flex-nowrap justify-center {isUnread
       ? 'font-semibold'
       : 'opacity-80'}"
   >
@@ -69,7 +90,13 @@
   </a>
   <!-- Deletes this notification -->
   <form method="POST" action="/notifications?/deleteNotification" use:enhance>
-    <input type="hidden" name="notificationId" value={notification.id} />
+    {#if notification.individualIds.length > 1}
+      {#each notification.individualIds as id}
+        <input type="hidden" name="notificationIds" value={id} />
+      {/each}
+    {:else}
+      <input type="hidden" name="notificationId" value={notification.id} />
+    {/if}
     <button
       class="btn btn-ghost pointer-events-auto absolute right-0 top-0 z-10 h-full w-auto rounded-none p-2 *:text-2xl"
     >

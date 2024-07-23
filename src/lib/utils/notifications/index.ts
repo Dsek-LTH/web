@@ -76,9 +76,11 @@ const sendNotification = async ({
   // Who sent the notification, as an Author
   const existingAuthor =
     fromAuthor ??
-    (await prisma.author.findFirst({
-      where: { memberId: fromMemberId, mandateId: null, customId: null },
-    }));
+    (fromMemberId
+      ? await prisma.author.findFirst({
+          where: { memberId: fromMemberId, mandateId: null, customId: null },
+        })
+      : undefined);
 
   // If member doesn't have author since before, create one
   const notificationAuthor =
