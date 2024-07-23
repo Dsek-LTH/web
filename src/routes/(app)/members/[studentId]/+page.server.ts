@@ -45,6 +45,9 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     prisma.article.findMany({
       where: {
         author: {
+          type: {
+            not: "Custom",
+          },
           member: {
             studentId: studentId,
           },

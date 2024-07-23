@@ -3,7 +3,7 @@ import {
   PUBLIC_BUCKETS_FILES,
 } from "$env/static/public";
 import { fileHandler } from "$lib/files";
-import type { FileData } from "$lib/files/fileHandler.js";
+import type { FileData } from "$lib/files/fileHandler";
 import { error, fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";

@@ -149,6 +149,13 @@ export const getRoutes = (): Route[] =>
           accessRequired: apiNames.ALERT,
           appBehaviour: "home-link",
         },
+        {
+          title: m.adminSettings(),
+          path: "/admin/settings",
+          icon: "i-mdi-wrench",
+          accessRequired: apiNames.ADMIN.SETTINGS.READ,
+          appBehaviour: "home-link",
+        },
       ],
     },
   ] as const;

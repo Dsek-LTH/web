@@ -1,11 +1,10 @@
 <script lang="ts">
-  import DOMPurify from "isomorphic-dompurify";
-  import { getFullName } from "$lib/utils/client/member";
-  import type { Article } from "./articles";
-  import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
-  import dayjs from "dayjs";
+  import AuthorSignature from "$lib/components/AuthorSignature.svelte";
   import { goto } from "$lib/utils/redirect";
+  import dayjs from "dayjs";
+  import DOMPurify from "isomorphic-dompurify";
   import { markdownToTxt } from "markdown-to-txt";
+  import type { Article } from "./articles";
   export let article: Article;
 </script>
 
@@ -20,7 +19,7 @@
     </div>
   </div>
 
-  <div class="flex flex-col overflow-hidden p-8">
+  <div class="flex flex-col items-stretch overflow-hidden p-8">
     <div class="flex-1">
       <button
         on:click={() => goto("news/" + article.slug)}
@@ -35,38 +34,22 @@
       </button>
     </div>
 
-    <div class="flex gap-4">
-      <a href={"members/" + article.author.member.studentId}>
-        <MemberAvatar
-          class="size-10 hover:opacity-60"
-          member={article.author.member}
-        />
-      </a>
-      <div class="flex w-full items-center justify-between gap-4">
-        <div>
-          <a href={"members/" + article.author.member.studentId}>
-            <h2 class="text-sm font-semibold text-primary hover:underline">
-              {getFullName(article.author.member)}
-            </h2>
-          </a>
-          {#if article.author.mandate}
-            <a href={"positions/" + article.author.mandate.position.id}>
-              <p class="my-1 text-xs font-light hover:underline">
-                {article.author.mandate.position.name}
-              </p>
-            </a>
-          {/if}
-        </div>
-        <p
-          class="my-1 self-end text-nowrap text-xs font-light text-neutral-600"
-        >
-          {#if dayjs(article.createdAt).diff(dayjs(), "week") < -1}
-            {dayjs(article.createdAt).format("YYYY-MM-DD")}
-          {:else}
-            {dayjs(article.createdAt).fromNow()}
-          {/if}
-        </p>
-      </div>
-    </div>
+    <AuthorSignature
+      member={article.author.member}
+      position={article.author.mandate?.position}
+      customAuthor={article.author.customAuthor ?? undefined}
+      type={article.author.type}
+    >
+      <p
+        class="my-1 self-end text-nowrap text-xs font-light text-neutral-600"
+        slot="end"
+      >
+        {#if dayjs(article.createdAt).diff(dayjs(), "week") < -1}
+          {dayjs(article.createdAt).format("YYYY-MM-DD")}
+        {:else}
+          {dayjs(article.createdAt).fromNow()}
+        {/if}
+      </p>
+    </AuthorSignature>
   </div>
 </article>

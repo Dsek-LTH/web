@@ -34,6 +34,7 @@ const apiNames = {
   },
   ADMIN: {
     READ: "core:access:admin:read",
+    SETTINGS: crud("admin:settings"),
   },
   ACCESS_POLICY: crud("core:access:policy"),
   EMAIL_ALIAS: crud("core:mail:alias"),
@@ -48,6 +49,7 @@ const apiNames = {
   },
   MEMBER: {
     ...crud("core:member"),
+    SEE_STABEN: "member:see_staben",
     PING: "core:member:ping",
   },
   GOVERNING_DOCUMENT: {
