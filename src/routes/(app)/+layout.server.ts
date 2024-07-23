@@ -1,8 +1,8 @@
 import { countUserShopItems } from "$lib/server/shop/countUserShopItems";
+import { getMyGroupedNotifications } from "$lib/utils/notifications/myNotifications";
 import { emptySchema, notificationSchema } from "$lib/zod/schemas";
 import { loadFlash } from "sveltekit-flash-message/server";
 import { superValidate } from "sveltekit-superforms/server";
-import { getMyGroupedNotifications } from "./api/notifications/my/+server";
 
 export const load = loadFlash(async ({ locals, depends, request }) => {
   const { user, prisma } = locals;
