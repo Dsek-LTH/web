@@ -3,29 +3,24 @@ import {
   NotificationType,
   SHOULD_MERGE_NOTIFICATIONS,
 } from "$lib/utils/notifications/types";
-import type {
-  Author,
-  CustomAuthor,
-  Notification as DBNotification,
-  Mandate,
-  Member,
-  Position,
-} from "@prisma/client";
+import { Prisma } from "@prisma/client";
 
 // A notification as it is returned from prisma query
-type Notification = DBNotification & {
-  fromAuthor:
-    | (Author & {
-        member: Member;
-        mandate:
-          | (Mandate & {
-              position: Position;
-            })
-          | null;
-        customAuthor: CustomAuthor | null;
-      })
-    | null;
-};
+type Notification = Prisma.NotificationGetPayload<{
+  include: {
+    fromAuthor: {
+      include: {
+        member: true;
+        mandate: {
+          include: {
+            position: true;
+          };
+        };
+        customAuthor: true;
+      };
+    };
+  };
+}>;
 // Grouped notifications, as to be shown in the frontend.
 export type NotificationGroup = Omit<
   Notification,
