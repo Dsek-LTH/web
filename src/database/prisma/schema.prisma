@@ -57,7 +57,7 @@ model AdminSetting {
     key String @id() @db.VarChar(255)
     value String? @db.VarChar(255)
     createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-    updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+    updatedAt DateTime @updatedAt() @map("updated_at") @db.Timestamptz(6)
 
     @@map("admin_settings")
 }
@@ -165,10 +165,12 @@ model Article {
 
 /// @@allow('create', has(auth().policies, 'news:article:create'))
 /// @@allow('read', has(auth().policies, 'news:article:read'))
+/// @@deny('read', type != 'Custom' && (startsWith(mandate.positionId, 'dsek.noll.stab.') || member.mandates?[startDate < now() && now() < endDate && startsWith(positionId, 'dsek.noll.stab.')]) && !has(auth().policies, 'member:see_staben') && auth().memberId != memberId)
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model Author {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+    /// @deny('read', member.mandates?[startDate < now() && now() < endDate && startsWith(positionId, 'dsek.noll.stab.')] && !has(auth().policies, 'member:see_staben') && auth().memberId != memberId)
     memberId String @map("member_id") @db.Uuid()
     mandateId String? @map("mandate_id") @db.Uuid()
     customId String? @map("custom_id") @db.Uuid()
@@ -473,6 +475,7 @@ model Keycloak {
 /// @@allow('read', has(auth().policies, 'core:mandate:read'))
 /// @@allow('update', has(auth().policies, 'core:mandate:update'))
 /// @@allow('delete', has(auth().policies, 'core:mandate:delete'))
+/// @@deny('read', positionId == 'dsek.noll.stab.mdlm' || positionId == 'dsek.noll.stab.oph' && !has(auth().policies, 'member:see_staben'))
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Mandates{
 model Mandate {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
@@ -650,6 +653,7 @@ model Ping {
 /// @@allow('update', has(auth().policies, 'core:position:update'))
 /// @@allow('delete', has(auth().policies, 'core:position:delete'))
 /// @@deny('read', active == false && !has(auth().policies, 'core:position:inactive:read'))
+/// @@deny('read', id == 'dsek.noll.stab.mdlm' || id == 'dsek.noll.stab.oph' && !has(auth().policies, 'member:see_staben'))
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Positions{
 model Position {
     id String @id() @db.VarChar(255)
@@ -871,7 +875,7 @@ model Shoppable {
     availableFrom DateTime @map("available_from") @db.Timestamptz(6) @default(now())
     availableTo DateTime? @map("available_to") @db.Timestamptz(6)
     createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6) @ignore()
-    updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6) @updatedAt()
+    updatedAt DateTime @map("updated_at") @db.Timestamptz(6) @updatedAt()
     removedAt DateTime? @map("removed_at") @db.Timestamptz(6)
     ticket Ticket?
     consumables Consumable[]

@@ -12,10 +12,10 @@ export const MOCK_EVENT_1 = {
   endDatetime: new Date(Date.now() + 1000 * 60 * 60 * 24 * 8),
   tags: [
     {
-      name: "tag1",
+      name: "MOCKED_tag1",
     },
     {
-      name: "tag2",
+      name: "MOCKED_tag2",
     },
   ],
 };
@@ -271,6 +271,13 @@ export const removeAllTestData = async (
     where: {
       studentId: {
         startsWith: "test" + suitePrefix,
+      },
+    },
+  });
+  await prisma.tag.deleteMany({
+    where: {
+      name: {
+        startsWith: "MOCKED_",
       },
     },
   });

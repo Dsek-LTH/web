@@ -1,5 +1,5 @@
-import apiNames from "$lib/utils/apiNames.js";
-import { authorize } from "$lib/utils/authorization.js";
+import apiNames from "$lib/utils/apiNames";
+import { authorize } from "$lib/utils/authorization";
 import type {
   Consumable,
   Event,

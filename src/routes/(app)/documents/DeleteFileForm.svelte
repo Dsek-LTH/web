@@ -1,8 +1,8 @@
 <script lang="ts">
   import type { SuperValidated } from "sveltekit-superforms";
   import { superForm } from "sveltekit-superforms/client";
-  import type { DeleteSchema } from "./+page.server.js";
   import * as m from "$paraglide/messages";
+  import type { DeleteSchema } from "./+page.server";
 
   export let data: SuperValidated<DeleteSchema>;
   export let fileId: string;

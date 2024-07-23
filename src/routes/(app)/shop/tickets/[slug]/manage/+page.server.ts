@@ -2,11 +2,11 @@ import { env } from "$env/dynamic/public";
 import {
   moveQueueToCart,
   withHandledNotificationQueue,
-} from "$lib/server/shop/addToCart/reservations.js";
-import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma.js";
-import { refundConsumable } from "$lib/server/shop/payments/stripeMethods.js";
-import apiNames from "$lib/utils/apiNames.js";
-import { authorize } from "$lib/utils/authorization.js";
+} from "$lib/server/shop/addToCart/reservations";
+import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
+import { refundConsumable } from "$lib/server/shop/payments/stripeMethods";
+import apiNames from "$lib/utils/apiNames";
+import { authorize } from "$lib/utils/authorization";
 import type { Event, Shoppable, Ticket } from "@prisma/client";
 import { error, fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
