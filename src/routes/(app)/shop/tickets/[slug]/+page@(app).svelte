@@ -8,7 +8,7 @@
   import FoodPreferenceModal from "$lib/components/FoodPreferenceModal.svelte";
   import * as m from "$paraglide/messages";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
-  import { eventLink } from "$lib/utils/redirect.js";
+  import { eventLink } from "$lib/utils/redirect";
 
   export let data;
   $: ticket = data.ticket;

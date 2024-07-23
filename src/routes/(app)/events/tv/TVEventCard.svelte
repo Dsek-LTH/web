@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { relativeDate } from "$lib/utils/client/datetime.js";
+  import { relativeDate } from "$lib/utils/client/datetime";
   import InterestedGoingList from "../InterestedGoingList.svelte";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import type { EventWithIncludes } from "../events";

@@ -30,7 +30,7 @@ model AdminSetting {
   key       String   @id @db.VarChar(255)
   value     String?  @db.VarChar(255)
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   @@allow("create", has(auth().policies, "admin:settings:create"))
   @@allow("read", has(auth().policies, "admin:settings:read"))
@@ -144,7 +144,7 @@ model Article {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model Author {
   id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  memberId      String         @map("member_id") @db.Uuid
+  memberId      String         @map("member_id") @db.Uuid @deny("read", member.mandates?[startDate < now() && now() < endDate && (startsWith(positionId, "dsek.noll.stab."))] && !has(auth().policies, "member:see_staben") && auth().memberId != memberId)
   mandateId     String?        @map("mandate_id") @db.Uuid
   customId      String?        @map("custom_id") @db.Uuid
   createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
@@ -161,6 +161,13 @@ model Author {
   @@allow("read", has(auth().policies, "news:article:read"))
   @@unique([memberId, mandateId, customId], map: "authors_member_id_mandate_id_custom_id_unique")
   @@map("authors")
+
+  // Hide author if the member behind it is currently stab, or if it was posted as a "stab" mandate, AND user does not "see staben"
+  // There is one exception: If the author is of type "Custom Author" then it is fine to show, as the person behind it is not shown
+  @@deny("read", type != "Custom" && (
+                  startsWith(mandate.positionId, "dsek.noll.stab.") 
+                  || member.mandates?[startDate < now() && now() < endDate && (startsWith(positionId, "dsek.noll.stab."))]
+                  ) && !has(auth().policies, "member:see_staben") && auth().memberId != memberId)
 }
 
 model BookableCategory {
@@ -478,6 +485,8 @@ model Mandate {
   @@allow("read", has(auth().policies, "core:mandate:read"))
   @@allow("update", has(auth().policies, "core:mandate:update"))
   @@allow("delete", has(auth().policies, "core:mandate:delete"))
+  // Hide all stab mandates during the nollning
+  @@deny("read", (positionId == "dsek.noll.stab.mdlm" || positionId == "dsek.noll.stab.oph") && !has(auth().policies, "member:see_staben"))
   @@map("mandates")
 }
 
@@ -656,6 +665,8 @@ model Position {
   @@allow("update", has(auth().policies, "core:position:update"))
   @@allow("delete", has(auth().policies, "core:position:delete"))
   @@deny("read", active == false && !has(auth().policies, "core:position:inactive:read"))
+  // Hide stab position during the nollning
+  @@deny("read", (id == "dsek.noll.stab.mdlm" || id == "dsek.noll.stab.oph") && !has(auth().policies, "member:see_staben"))
   @@map("positions")
 }
 
@@ -879,7 +890,7 @@ model Shoppable {
 
 
   createdAt     DateTime                @default(now()) @map("created_at") @db.Timestamptz(6) @ignore()
-  updatedAt     DateTime                @default(now()) @map("updated_at") @db.Timestamptz(6) @updatedAt()
+  updatedAt     DateTime                @map("updated_at") @db.Timestamptz(6) @updatedAt()
   removedAt     DateTime?               @map("removed_at") @db.Timestamptz(6)
 
   ticket        Ticket?
