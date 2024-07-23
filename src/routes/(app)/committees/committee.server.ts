@@ -6,6 +6,9 @@ import { PUBLIC_BUCKETS_MATERIAL } from "$env/static/public";
 import { compareCommitteePositions } from "$lib/utils/committee-ordering/sort";
 import type { PrismaClient } from "@prisma/client";
 import * as m from "$paraglide/messages";
+import { userLevelCached } from "$lib/utils/caching/cached";
+import type { AuthUser } from "@zenstackhq/runtime";
+import { CacheDependency, TIME_IN_MS } from "$lib/utils/caching/cache";
 
 const updateSchema = z.object({
   name: z.string().optional(),
@@ -23,74 +26,96 @@ export type UpdateSchema = typeof updateSchema;
  * @returns All data that the every committee load function needs
  */
 export const committeeLoad = async (
+  user: AuthUser,
   prisma: PrismaClient,
   shortName: string,
   year = new Date().getFullYear(),
 ) => {
-  const firstDayOfYear = new Date(`${year}-01-01`);
-  const lastDayOfYear = new Date(`${year}-12-31`);
-  if (
-    firstDayOfYear.toString() === "Invalid Date" ||
-    lastDayOfYear.toString() === "Invalid Date" ||
-    firstDayOfYear.getFullYear() !== year ||
-    lastDayOfYear.getFullYear() !== year
-  ) {
-    error(400, m.committees_errors_invalidYear());
-  }
+  return userLevelCached(
+    user,
+    `committee/${shortName}/year`,
+    async (_, prisma) => {
+      const firstDayOfYear = new Date(`${year}-01-01`);
+      const lastDayOfYear = new Date(`${year}-12-31`);
+      if (
+        firstDayOfYear.toString() === "Invalid Date" ||
+        lastDayOfYear.toString() === "Invalid Date" ||
+        firstDayOfYear.getFullYear() !== year ||
+        lastDayOfYear.getFullYear() !== year
+      ) {
+        error(400, m.committees_errors_invalidYear());
+      }
 
-  const committee = await prisma.committee.findUnique({
-    where: {
-      shortName,
-    },
-    include: {
-      positions: {
+      const committee = await prisma.committee.findUnique({
+        where: {
+          shortName,
+        },
         include: {
-          mandates: {
-            where: {
-              startDate: {
-                lte: lastDayOfYear,
-              },
-              endDate: {
-                gte: firstDayOfYear,
-              },
-            },
+          positions: {
             include: {
-              member: true,
-            },
-            orderBy: [
-              {
-                startDate: "desc",
+              mandates: {
+                where: {
+                  startDate: {
+                    lte: lastDayOfYear,
+                  },
+                  endDate: {
+                    gte: firstDayOfYear,
+                  },
+                },
+                include: {
+                  member: true,
+                },
+                orderBy: [
+                  {
+                    startDate: "desc",
+                  },
+                  {
+                    member: {
+                      firstName: "asc",
+                    },
+                  },
+                  {
+                    member: {
+                      lastName: "asc",
+                    },
+                  },
+                ],
               },
-              {
-                member: {
-                  firstName: "asc",
+              emailAliases: {
+                select: {
+                  email: true,
                 },
               },
-              {
-                member: {
-                  lastName: "asc",
-                },
-              },
-            ],
-          },
-          emailAliases: {
-            select: {
-              email: true,
             },
           },
         },
-      },
-    },
-  });
-  if (!committee) {
-    throw error(404, m.committees_errors_committeeNotFound());
-  }
-  const [uniqueMembersInCommittee, numberOfMandates, markdown] =
-    await Promise.allSettled([
-      prisma.member.count({
-        where: {
-          mandates: {
-            some: {
+      });
+      if (!committee) {
+        throw error(404, m.committees_errors_committeeNotFound());
+      }
+      const [uniqueMembersInCommittee, numberOfMandates, markdown] =
+        await Promise.allSettled([
+          prisma.member.count({
+            where: {
+              mandates: {
+                some: {
+                  startDate: {
+                    lte: lastDayOfYear,
+                  },
+                  endDate: {
+                    gte: firstDayOfYear,
+                  },
+                  position: {
+                    committee: {
+                      shortName,
+                    },
+                  },
+                },
+              },
+            },
+          }),
+          prisma.mandate.count({
+            where: {
               startDate: {
                 lte: lastDayOfYear,
               },
@@ -103,58 +128,46 @@ export const committeeLoad = async (
                 },
               },
             },
-          },
-        },
-      }),
-      prisma.mandate.count({
-        where: {
-          startDate: {
-            lte: lastDayOfYear,
-          },
-          endDate: {
-            gte: firstDayOfYear,
-          },
-          position: {
-            committee: {
+          }),
+          prisma.markdown.findUnique({
+            where: {
+              name: shortName,
+            },
+          }),
+          prisma.committee.findUnique({
+            where: {
               shortName,
             },
-          },
-        },
-      }),
-      prisma.markdown.findUnique({
-        where: {
-          name: shortName,
-        },
-      }),
-      prisma.committee.findUnique({
-        where: {
-          shortName,
-        },
-      }),
-    ]);
-  if (uniqueMembersInCommittee.status === "rejected") {
-    error(500, m.committees_errors_fetchUniqueMembers());
-  }
-  if (numberOfMandates.status === "rejected") {
-    error(500, m.committees_errors_fetchNumberOfMandates());
-  }
-  if (markdown.status === "rejected") {
-    error(500, m.committees_errors_fetchMarkdown());
-  }
+          }),
+        ]);
+      if (uniqueMembersInCommittee.status === "rejected") {
+        error(500, m.committees_errors_fetchUniqueMembers());
+      }
+      if (numberOfMandates.status === "rejected") {
+        error(500, m.committees_errors_fetchNumberOfMandates());
+      }
+      if (markdown.status === "rejected") {
+        error(500, m.committees_errors_fetchMarkdown());
+      }
 
-  const form = await superValidate(committee, updateSchema);
+      const form = await superValidate(committee, updateSchema);
 
-  return {
-    committee,
-    positions: committee.positions
-      // include active positions, or inactive positions with mandates
-      .filter((pos) => pos.mandates.length > 0 || pos.active)
-      .toSorted((a, b) => compareCommitteePositions(a.id, b.id, shortName)),
-    uniqueMemberCount: uniqueMembersInCommittee.value,
-    numberOfMandates: numberOfMandates.value,
-    markdown: markdown.value,
-    form,
-  };
+      return {
+        committee,
+        positions: committee.positions
+          // include active positions, or inactive positions with mandates
+          .filter((pos) => pos.mandates.length > 0 || pos.active)
+          .toSorted((a, b) => compareCommitteePositions(a.id, b.id, shortName)),
+        uniqueMemberCount: uniqueMembersInCommittee.value,
+        numberOfMandates: numberOfMandates.value,
+        markdown: markdown.value,
+        form,
+      };
+    },
+    [CacheDependency.MANDATES_AND_POSITIONS],
+    TIME_IN_MS.THIRY_MINUTES,
+    prisma,
+  );
 };
 
 export const committeeActions = (

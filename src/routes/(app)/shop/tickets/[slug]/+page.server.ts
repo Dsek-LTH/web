@@ -2,6 +2,7 @@ import { error } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 import { getTicket } from "$lib/server/shop/getTickets";
 import * as m from "$paraglide/messages";
+// TODO: Cache
 
 export const load: PageServerLoad = async ({ locals, params, depends }) => {
   const { prisma, user } = locals;

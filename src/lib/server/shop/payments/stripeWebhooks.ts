@@ -47,7 +47,6 @@ export const onPaymentSuccess = async (intent: Stripe.PaymentIntent) => {
         });
       }
       return relevantConsumables;
-      // TODO: Notify user of successful payment})
     },
   );
   try {

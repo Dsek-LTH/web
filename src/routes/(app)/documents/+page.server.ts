@@ -21,6 +21,7 @@ const prefixByType: Record<DocumentType, string> = {
   "SRD-meeting": "Möte ",
   other: "",
 };
+// TODO: Cache
 export const load: PageServerLoad = async ({ locals, url }) => {
   const { user } = locals;
   const year = url.searchParams.get("year") || new Date().getFullYear();

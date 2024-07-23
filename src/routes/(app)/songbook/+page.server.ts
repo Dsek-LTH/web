@@ -6,6 +6,7 @@ import { canAccessDeletedSongs, getExistingCategories } from "./helpers";
 
 const SONGS_PER_PAGE = 10;
 
+// TODO: Cache
 export const load: PageServerLoad = async ({ locals, url }) => {
   const { prisma, user } = locals;
   const page = url.searchParams.get("page");

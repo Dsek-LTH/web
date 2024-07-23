@@ -18,6 +18,7 @@ export type FolderType = {
   files: FolderType[];
 };
 
+// TODO: Cache
 export const load: PageServerLoad = async ({ locals, url }) => {
   const { user } = locals;
   const year = url.searchParams.get("year") || new Date().getFullYear();

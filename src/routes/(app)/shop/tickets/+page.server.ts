@@ -14,6 +14,7 @@ import type { PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
 import { countUserShopItems } from "$lib/server/shop/countUserShopItems";
 
+// TODO: Cache
 export const load: PageServerLoad = async ({ locals, depends }) => {
   const { user, prisma } = locals;
   const { memberId, externalCode } = user ?? {};

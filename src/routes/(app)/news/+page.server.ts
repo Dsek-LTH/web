@@ -13,6 +13,7 @@ const getAndValidatePage = (url: URL) => {
   return page ? Math.max(Number.parseInt(page) - 1, 0) : undefined;
 };
 
+// TODO: Cache
 export const load: PageServerLoad = async ({ locals, url }) => {
   const { prisma } = locals;
   const [[articles, pageCount], allTags] = await Promise.all([
