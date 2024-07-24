@@ -11,4 +11,3 @@ vite.config.ts.timestamp-*
 .zenstack_repl_history
 project.inlang/project_id
 src/routes/api/openapi.json/openapi.json
-*.sql
