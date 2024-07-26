@@ -1,25 +1,22 @@
 <script lang="ts">
   import Labeled from "$lib/components/Labeled.svelte";
-  import type { UnwrapEffects } from "sveltekit-superforms";
-  import type { SuperForm } from "sveltekit-superforms/client";
   import type { TicketSchema } from "$lib/components/shop/types";
+  import { formFieldProxy, type SuperForm } from "sveltekit-superforms/client";
 
-  type Form = SuperForm<UnwrapEffects<TicketSchema>>;
-  export let form: Form["form"];
-  export let constraints: Form["constraints"];
-  export let errors: Form["errors"];
+  export let superform: SuperForm<TicketSchema>;
+  const { value, errors, constraints } = formFieldProxy(
+    superform,
+    "maxAmountPerUser",
+  );
 </script>
 
-<Labeled
-  label="Max antal biljetter per person"
-  error={$errors.maxAmountPerUser}
->
+<Labeled label="Max antal biljetter per person" error={$errors}>
   <input
     id="maxAmountPerUser"
     name="maxAmountPerUser"
-    bind:value={$form.maxAmountPerUser}
+    bind:value={$value}
     class={"input input-bordered hover:border-base-content"}
-    {...$constraints.maxAmountPerUser}
+    {...$constraints}
     type="number"
   />
 </Labeled>

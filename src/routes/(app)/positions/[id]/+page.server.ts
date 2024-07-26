@@ -1,6 +1,12 @@
 import { error, fail } from "@sveltejs/kit";
 import { redirect } from "$lib/utils/redirect";
-import { message, setError, superValidate } from "sveltekit-superforms/server";
+import {
+  message,
+  setError,
+  superValidate,
+  type Infer,
+} from "sveltekit-superforms/server";
+import { zod } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import keycloak from "$lib/server/keycloak";
 import type { Actions, PageServerLoad } from "./$types";
@@ -44,12 +50,12 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
   const editedMandateID = url.searchParams.get("editMandate");
   const editedMandate = position.mandates.find((m) => m.id === editedMandateID);
   return {
-    updateForm: superValidate(position, updateSchema),
-    addMandateForm: superValidate(addManadateSchema),
+    updateForm: superValidate(position, zod(updateSchema)),
+    addMandateForm: superValidate(zod(addManadateSchema)),
     updateMandateForm: editedMandate
-      ? superValidate(editedMandate, updateMandateSchema)
-      : superValidate(updateMandateSchema),
-    deleteMandateForm: superValidate(deleteMandateSchema),
+      ? superValidate(editedMandate, zod(updateMandateSchema))
+      : superValidate(zod(updateMandateSchema)),
+    deleteMandateForm: superValidate(zod(deleteMandateSchema)),
     position,
     mandates: position.mandates,
   };
@@ -60,7 +66,7 @@ const updateSchema = z.object({
   description: z.string().nullable(),
   email: z.string().email().nullable(),
 });
-export type UpdatePositionSchema = typeof updateSchema;
+export type UpdatePositionSchema = Infer<typeof updateSchema>;
 
 const END_OF_YEAR = new Date(`${new Date().getFullYear()}-12-31T23:59:59`);
 
@@ -69,19 +75,19 @@ const addManadateSchema = z.object({
   startDate: z.coerce.date().default(new Date()),
   endDate: z.coerce.date().default(END_OF_YEAR),
 });
-export type AddMandateSchema = typeof addManadateSchema;
+export type AddMandateSchema = Infer<typeof addManadateSchema>;
 
 const updateMandateSchema = z.object({
   mandateId: z.string().uuid(),
   startDate: z.coerce.date().optional(),
   endDate: z.coerce.date().optional(),
 });
-export type UpdateMandateSchema = typeof updateMandateSchema;
+export type UpdateMandateSchema = Infer<typeof updateMandateSchema>;
 
 const deleteMandateSchema = z.object({
   mandateId: z.string().uuid(),
 });
-export type DeleteMandateSchema = typeof deleteMandateSchema;
+export type DeleteMandateSchema = Infer<typeof deleteMandateSchema>;
 
 const genitiveCase = (base: string): string => {
   if (languageTag() === "sv") {
@@ -97,7 +103,7 @@ const genitiveCase = (base: string): string => {
 export const actions: Actions = {
   update: async ({ params, request, locals }) => {
     const { prisma } = locals;
-    const form = await superValidate(request, updateSchema);
+    const form = await superValidate(request, zod(updateSchema));
     if (!form.valid) return fail(400, { form });
     await prisma.position.update({
       where: { id: params.id },
@@ -114,7 +120,7 @@ export const actions: Actions = {
   },
   addMandate: async ({ params, request, locals }) => {
     const { prisma } = locals;
-    const form = await superValidate(request, addManadateSchema);
+    const form = await superValidate(request, zod(addManadateSchema));
     if (!form.valid) return fail(400, { form });
     const member = await prisma.member.findUnique({
       where: { id: form.data.memberId },
@@ -140,7 +146,7 @@ export const actions: Actions = {
   updateMandate: async (event) => {
     const { params, request, locals } = event;
     const { prisma } = locals;
-    const form = await superValidate(request, updateMandateSchema);
+    const form = await superValidate(request, zod(updateMandateSchema));
     if (!form.valid) return fail(400, { form });
     const member = await prisma.member.findFirst({
       where: {
@@ -177,7 +183,7 @@ export const actions: Actions = {
   },
   deleteMandate: async ({ params, request, locals }) => {
     const { prisma } = locals;
-    const form = await superValidate(request, deleteMandateSchema);
+    const form = await superValidate(request, zod(deleteMandateSchema));
     if (!form.valid) return fail(400, { form });
     const member = await prisma.member.findFirst({
       where: {

@@ -1,4 +1,5 @@
 import { superValidate } from "sveltekit-superforms/server";
+import { zod } from "sveltekit-superforms/adapters";
 import type { LayoutServerLoad } from "./$types";
 import { getAllEvents } from "./events";
 import { interestedGoingSchema } from "./interestedGoing";
@@ -27,6 +28,6 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
     events,
     pageCount,
     allTags,
-    interestedGoingForm: await superValidate(interestedGoingSchema),
+    interestedGoingForm: await superValidate(zod(interestedGoingSchema)),
   };
 };

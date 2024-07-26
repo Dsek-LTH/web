@@ -6,7 +6,8 @@ import {
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 import { fail } from "@sveltejs/kit";
-import { message, superValidate } from "sveltekit-superforms/client";
+import { message, superValidate } from "sveltekit-superforms/server";
+import { zod } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import type { PageServerLoad } from "./$types";
 
@@ -29,8 +30,8 @@ export const load: PageServerLoad = async ({ locals }) => {
             end: new Date(nollningEndStr),
           }
         : undefined,
-    updateForm: await superValidate(updateSchema),
-    updateNollningForm: await superValidate(updateNollningPeriodSchema),
+    updateForm: await superValidate(zod(updateSchema)),
+    updateNollningForm: await superValidate(zod(updateNollningPeriodSchema)),
   };
 };
 
@@ -49,7 +50,7 @@ const updateNollningPeriodSchema = z.object({
 export const actions = {
   async update({ locals, request }) {
     const { prisma } = locals;
-    const form = await superValidate(request, updateSchema);
+    const form = await superValidate(request, zod(updateSchema));
     if (!form.valid) return fail(400, { form });
     await prisma.adminSetting.upsert({
       where: { key: form.data.key },
@@ -63,7 +64,7 @@ export const actions = {
   },
   async remove({ locals, request }) {
     const { prisma } = locals;
-    const form = await superValidate(request, removeSchema);
+    const form = await superValidate(request, zod(removeSchema));
     if (!form.valid) return fail(400, { form });
     await prisma.adminSetting.delete({ where: { key: form.data.key } });
     return message(form, {
@@ -73,7 +74,7 @@ export const actions = {
   },
   async updateNollning({ locals, request }) {
     const { prisma } = locals;
-    const form = await superValidate(request, updateNollningPeriodSchema);
+    const form = await superValidate(request, zod(updateNollningPeriodSchema));
     if (!form.valid) return fail(400, { form });
     await updateNollningPeriod(prisma, form.data.start, form.data.end);
     return message(form, {

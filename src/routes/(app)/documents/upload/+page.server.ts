@@ -1,9 +1,11 @@
 import { fileHandler } from "$lib/files";
+import * as m from "$paraglide/messages";
 import { fail } from "@sveltejs/kit";
+import type { Infer } from "sveltekit-superforms";
+import { zod } from "sveltekit-superforms/adapters";
 import { message, setError, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
-import * as m from "$paraglide/messages";
 import { typeToPath } from "./helpers";
 
 const CURRENT_YEAR = new Date().getFullYear();
@@ -18,7 +20,7 @@ const prepareNameForFilesystem = (name: string, fileName: string) =>
   getExtensionOfFile(fileName);
 
 export const load: PageServerLoad = async () => {
-  const form = await superValidate(uploadSchema);
+  const form = await superValidate(zod(uploadSchema));
   return { form };
 };
 
@@ -33,13 +35,13 @@ const uploadSchema = z.object({
     .default(CURRENT_YEAR),
   file: z.any(),
 });
-export type UploadSchema = typeof uploadSchema;
+export type UploadSchema = Infer<typeof uploadSchema>;
 
 export const actions: Actions = {
   default: async ({ request, locals }) => {
     const { user } = locals;
     const formData = await request.formData();
-    const form = await superValidate(formData, uploadSchema);
+    const form = await superValidate(formData, zod(uploadSchema));
     if (!form.valid) return fail(400, { form });
     const { folder, name, year, type } = form.data;
     const file = formData.get("file");

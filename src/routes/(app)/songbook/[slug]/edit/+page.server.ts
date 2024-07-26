@@ -2,11 +2,12 @@ import { error, fail } from "@sveltejs/kit";
 import { redirect } from "$lib/utils/redirect";
 import { updateSongSchema } from "../../schema";
 import { setError, superValidate } from "sveltekit-superforms/server";
+import { zod } from "sveltekit-superforms/adapters";
 import type { Actions, PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
 
 export const load: PageServerLoad = async () => {
-  const form = await superValidate(updateSongSchema);
+  const form = await superValidate(zod(updateSongSchema));
   return { form };
 };
 
@@ -15,7 +16,7 @@ export const actions: Actions = {
     const { request, locals } = event;
     const { prisma } = locals;
     const formData = await request.formData();
-    const form = await superValidate(formData, updateSongSchema);
+    const form = await superValidate(formData, zod(updateSongSchema));
     if (!form.valid) return fail(400, { form });
     const data = form.data;
     if (data.title == null) {

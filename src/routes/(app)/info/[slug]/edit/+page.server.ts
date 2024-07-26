@@ -1,6 +1,7 @@
 import apiNames from "$lib/utils/apiNames";
 import { fail } from "@sveltejs/kit";
 import { superValidate } from "sveltekit-superforms/server";
+import { zod } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import { redirect } from "$lib/utils/redirect";
@@ -22,7 +23,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   return {
     form: await superValidate(
       { markdown: markdownPage?.markdown ?? "" },
-      markdownSchema,
+      zod(markdownSchema),
     ),
     isCreating: markdownPage == undefined,
   };
@@ -36,7 +37,7 @@ export const actions: Actions = {
   create: async (event) => {
     const { request, locals, params } = event;
     const { prisma, user } = locals;
-    const form = await superValidate(request, markdownSchema);
+    const form = await superValidate(request, zod(markdownSchema));
     if (!form.valid) return fail(400, { form });
     const name = params.slug;
     // read the form data sent by the browser
@@ -64,7 +65,7 @@ export const actions: Actions = {
   update: async (event) => {
     const { request, locals, params } = event;
     const { prisma } = locals;
-    const form = await superValidate(request, markdownSchema);
+    const form = await superValidate(request, zod(markdownSchema));
     if (!form.valid) return fail(400, { form });
     const name = params.slug;
     // read the form data sent by the browser

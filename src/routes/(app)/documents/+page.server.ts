@@ -5,7 +5,12 @@ import {
 import { fileHandler } from "$lib/files";
 import type { FileData } from "$lib/files/fileHandler";
 import { error, fail } from "@sveltejs/kit";
-import { message, superValidate } from "sveltekit-superforms/server";
+import {
+  message,
+  superValidate,
+  type Infer,
+} from "sveltekit-superforms/server";
+import { zod } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
@@ -110,19 +115,19 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   return {
     files,
     meetings: filesGroupedByMeeting,
-    deleteForm: await superValidate(deleteSchema),
+    deleteForm: await superValidate(zod(deleteSchema)),
   };
 };
 
 const deleteSchema = z.object({
   id: z.string(),
 });
-export type DeleteSchema = typeof deleteSchema;
+export type DeleteSchema = Infer<typeof deleteSchema>;
 
 export const actions: Actions = {
   deleteFile: async ({ request, locals }) => {
     const { user } = locals;
-    const form = await superValidate(request, deleteSchema);
+    const form = await superValidate(request, zod(deleteSchema));
     if (!form.valid) return fail(400, { form });
     const { id } = form.data;
     await fileHandler.remove(user, PUBLIC_BUCKETS_DOCUMENTS, [id]);

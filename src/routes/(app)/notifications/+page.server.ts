@@ -2,6 +2,7 @@ import { notificationSchema } from "$lib/zod/schemas";
 import { error, fail } from "@sveltejs/kit";
 import { redirect } from "$lib/utils/redirect";
 import { message, superValidate } from "sveltekit-superforms/server";
+import { zod } from "sveltekit-superforms/adapters";
 import type { Actions } from "./$types";
 import * as m from "$paraglide/messages";
 
@@ -16,7 +17,7 @@ export const actions: Actions = {
     if (!user.memberId) {
       error(403, m.notifications_errors_notLoggedIn());
     }
-    const form = await superValidate(request, notificationSchema);
+    const form = await superValidate(request, zod(notificationSchema));
     if (!form.valid) return fail(400, { form });
     const idFilter =
       form.data.notificationId ??
@@ -47,7 +48,7 @@ export const actions: Actions = {
     if (!user.memberId) {
       error(403, m.notifications_errors_notLoggedIn());
     }
-    const form = await superValidate(request, notificationSchema);
+    const form = await superValidate(request, zod(notificationSchema));
     if (!form.valid) return fail(400, { form });
     // If multiple ids and not a single id have been provided, delete many, otherwise,
     // if a single has been provided, delete single, else return

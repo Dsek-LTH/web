@@ -10,6 +10,7 @@ import { authorize } from "$lib/utils/authorization";
 import type { Event, Shoppable, Ticket } from "@prisma/client";
 import { error, fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
+import { zod } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 
 export type ManagedTicket = Ticket &
@@ -87,7 +88,7 @@ export const actions = {
     const { prisma } = locals;
     const form = await superValidate(
       request,
-      z.object({ consumableId: z.string() }),
+      zod(z.object({ consumableId: z.string() })),
     );
     if (!form.valid) return fail(400, { form });
     try {
@@ -120,7 +121,7 @@ export const actions = {
     const { prisma } = locals;
     const form = await superValidate(
       request,
-      z.object({ consumableId: z.string() }),
+      zod(z.object({ consumableId: z.string() })),
     );
     if (!form.valid) return fail(400, { form });
     try {
@@ -153,7 +154,7 @@ export const actions = {
     const { prisma } = locals;
     const form = await superValidate(
       request,
-      z.object({ consumableId: z.string() }),
+      zod(z.object({ consumableId: z.string() })),
     );
     if (!form.valid) return fail(400, { form });
     try {

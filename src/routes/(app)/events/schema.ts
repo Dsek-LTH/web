@@ -2,6 +2,7 @@ import { recurringTypes } from "$lib/utils/events";
 import { tagSchema } from "$lib/zod/schemas";
 import { z } from "zod";
 import * as m from "$paraglide/messages";
+import type { Infer } from "sveltekit-superforms";
 
 export const eventSchema = z
   .object({
@@ -33,4 +34,4 @@ export const eventSchema = z
       path: ["endDatetime"],
     },
   );
-export type EventSchema = typeof eventSchema;
+export type EventSchema = Infer<typeof eventSchema>;

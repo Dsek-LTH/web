@@ -1,7 +1,13 @@
 import { fileHandler } from "$lib/files";
 import { error, fail } from "@sveltejs/kit";
 import sharp from "sharp";
-import { message, setError, superValidate } from "sveltekit-superforms/server";
+import {
+  message,
+  setError,
+  superValidate,
+  type Infer,
+} from "sveltekit-superforms/server";
+import { zod } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import { PUBLIC_BUCKETS_MEMBERS } from "$env/static/public";
@@ -27,16 +33,16 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   return {
     member,
     photos,
-    changeForm: await superValidate(changeSchema),
-    uploadForm: await superValidate(uploadSchema),
-    deleteForm: await superValidate(deleteSchema),
+    changeForm: await superValidate(zod(changeSchema)),
+    uploadForm: await superValidate(zod(uploadSchema)),
+    deleteForm: await superValidate(zod(deleteSchema)),
   };
 };
 
 const changeSchema = z.object({
   url: z.string().url(),
 });
-export type ChangeSchema = typeof changeSchema;
+export type ChangeSchema = Infer<typeof changeSchema>;
 const uploadSchema = z.object({
   image: z.any(),
   cropWidth: z.number().min(0).default(0),
@@ -47,12 +53,12 @@ const uploadSchema = z.object({
 const deleteSchema = z.object({
   fileName: z.string(),
 });
-export type DeleteSchema = typeof deleteSchema;
+export type DeleteSchema = Infer<typeof deleteSchema>;
 
 export const actions: Actions = {
   change: async ({ params, locals, request }) => {
     const { prisma } = locals;
-    const form = await superValidate(request, changeSchema);
+    const form = await superValidate(request, zod(changeSchema));
     if (!form.valid) return fail(400, { form });
     const studentId = params.studentId;
     await prisma.member.update({
@@ -68,7 +74,7 @@ export const actions: Actions = {
   },
   upload: async ({ params, locals, request }) => {
     const formData = await request.formData();
-    const form = await superValidate(formData, uploadSchema);
+    const form = await superValidate(formData, zod(uploadSchema));
     if (!form.valid) return fail(400, { form });
 
     const image = formData.get("image");
@@ -126,7 +132,7 @@ export const actions: Actions = {
     });
   },
   delete: async ({ params, locals, request }) => {
-    const form = await superValidate(request, deleteSchema);
+    const form = await superValidate(request, zod(deleteSchema));
     if (!form.valid) return fail(400, { form });
     const fileName = form.data.fileName;
     await fileHandler.remove(locals.user, PUBLIC_BUCKETS_MEMBERS, [

@@ -2,7 +2,8 @@ import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 import { error, fail, type RequestEvent } from "@sveltejs/kit";
 import { redirect } from "$lib/utils/redirect";
-import { superValidate } from "sveltekit-superforms/server";
+import { superValidate, type Infer } from "sveltekit-superforms/server";
+import { zod } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import * as m from "$paraglide/messages";
 
@@ -10,14 +11,14 @@ export const removeEventSchema = z.object({
   eventId: z.string(),
   removeAll: z.boolean().default(false),
 });
-export type RemoveEventSchema = typeof removeEventSchema;
+export type RemoveEventSchema = Infer<typeof removeEventSchema>;
 
 export const removeEventAction =
   () => async (event: RequestEvent<Record<string, string>, string>) => {
     const { request, locals } = event;
     const { prisma, user } = locals;
 
-    const form = await superValidate(request, removeEventSchema);
+    const form = await superValidate(request, zod(removeEventSchema));
     if (!form.valid) return fail(400, { form });
     authorize(apiNames.EVENT.DELETE, user);
 

@@ -1,7 +1,12 @@
 import { fail } from "@sveltejs/kit";
 import type { PageServerLoad, Actions } from "./$types";
 import { z } from "zod";
-import { message, superValidate } from "sveltekit-superforms/server";
+import {
+  message,
+  superValidate,
+  type Infer,
+} from "sveltekit-superforms/server";
+import { zod } from "sveltekit-superforms/adapters";
 import softDelete from "$lib/utils/softDelete";
 import { authorize } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
@@ -28,18 +33,18 @@ const addAlertSchema = z.object({
   message: z.string().min(1),
   messageEn: z.string().min(1),
 });
-export type addAlertSchema = typeof addAlertSchema;
+export type addAlertSchema = Infer<typeof addAlertSchema>;
 
 const deleteAlertSchema = z.object({
   id: z.string().uuid(),
 });
-export type deleteAlertSchema = typeof deleteAlertSchema;
+export type deleteAlertSchema = Infer<typeof deleteAlertSchema>;
 
 export const actions = {
   create: async ({ request, locals }) => {
     const { prisma } = locals;
     authorize(apiNames.ALERT, locals.user);
-    const form = await superValidate(request, addAlertSchema);
+    const form = await superValidate(request, zod(addAlertSchema));
     if (!form.valid) return fail(400, { form });
     await prisma.alert.create({
       data: {
@@ -56,7 +61,7 @@ export const actions = {
   delete: async ({ request, locals }) => {
     const { prisma } = locals;
     authorize(apiNames.ALERT, locals.user);
-    const form = await superValidate(request, deleteAlertSchema);
+    const form = await superValidate(request, zod(deleteAlertSchema));
     if (!form.valid) return fail(400, { form });
     softDelete(() =>
       prisma.alert.update({

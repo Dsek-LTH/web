@@ -3,12 +3,14 @@ import {
   PUBLIC_BUCKETS_FILES,
 } from "$env/static/public";
 import { fileHandler } from "$lib/files";
-import type { PageServerLoad, Actions } from "./$types";
+import type { FileData } from "$lib/files/fileHandler";
+import * as m from "$paraglide/messages";
+import { fail } from "@sveltejs/kit";
+import type { Infer } from "sveltekit-superforms";
+import { zod } from "sveltekit-superforms/adapters";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
-import type { FileData } from "$lib/files/fileHandler";
-import { fail } from "@sveltejs/kit";
-import * as m from "$paraglide/messages";
+import type { Actions, PageServerLoad } from "./$types";
 
 export type FolderType = {
   id: string;
@@ -42,19 +44,19 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   return {
     files,
     folders: filesGroupedByFolder,
-    deleteForm: await superValidate(deleteSchema),
+    deleteForm: await superValidate(zod(deleteSchema)),
   };
 };
 
 const deleteSchema = z.object({
   id: z.string(),
 });
-export type DeleteSchema = typeof deleteSchema;
+export type DeleteSchema = Infer<typeof deleteSchema>;
 
 export const actions: Actions = {
   deleteFile: async ({ request, locals }) => {
     const { user } = locals;
-    const form = await superValidate(request, deleteSchema);
+    const form = await superValidate(request, zod(deleteSchema));
     if (!form.valid) return fail(400, { form });
     const { id } = form.data;
     await fileHandler.remove(user, PUBLIC_BUCKETS_DOCUMENTS, [id]);

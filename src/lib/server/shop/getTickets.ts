@@ -5,6 +5,8 @@ import {
   type Consumable,
   type ConsumableReservation,
   type Event,
+  type ItemQuestion,
+  type ItemQuestionOption,
   type ItemQuestionResponse,
   type Prisma,
   type Shoppable,
@@ -163,6 +165,9 @@ type ItemMetadata = {
 };
 export type CartItem = Consumable &
   ItemMetadata & {
+    shoppable: {
+      questions: Array<ItemQuestion & { options: ItemQuestionOption[] }>;
+    };
     questionResponses: ItemQuestionResponse[];
   };
 export type CartReservation = ConsumableReservation &
@@ -196,6 +201,7 @@ export const getCart = async (
       questionResponses: true,
       shoppable: {
         include: {
+          questions: { where: { removedAt: null }, include: { options: true } },
           ticket: {
             include: { event: true },
           },

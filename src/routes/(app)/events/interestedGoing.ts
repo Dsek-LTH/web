@@ -3,6 +3,8 @@ import sendNotification from "$lib/utils/notifications";
 import { NotificationType } from "$lib/utils/notifications/types";
 import { eventLink } from "$lib/utils/redirect";
 import { fail, type RequestEvent } from "@sveltejs/kit";
+import type { Infer } from "sveltekit-superforms";
+import { zod } from "sveltekit-superforms/adapters";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 
@@ -10,13 +12,13 @@ export const interestedGoingSchema = z.object({
   eventId: z.string(),
 });
 
-export type InterestedGoingSchema = typeof interestedGoingSchema;
+export type InterestedGoingSchema = Infer<typeof interestedGoingSchema>;
 
 export const interestedAction =
   (isInterested: boolean, isGoing: boolean) =>
   async ({ request, locals }: RequestEvent<Record<string, string>, string>) => {
     const { prisma, user, member } = locals;
-    const form = await superValidate(request, interestedGoingSchema);
+    const form = await superValidate(request, zod(interestedGoingSchema));
     if (!form.valid) return fail(400, { form });
 
     const event = await prisma.event.update({

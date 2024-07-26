@@ -1,6 +1,11 @@
 import { emptySchema, memberSchema } from "$lib/zod/schemas";
 import { error, fail, isHttpError, type NumericRange } from "@sveltejs/kit";
-import { message, superValidate } from "sveltekit-superforms/server";
+import {
+  message,
+  superValidate,
+  type Infer,
+} from "sveltekit-superforms/server";
+import { zod } from "sveltekit-superforms/adapters";
 import type { Actions, PageServerLoad } from "./$types";
 import { authorize } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
@@ -83,8 +88,8 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
   try {
     return {
-      form: await superValidate(member, memberSchema),
-      pingForm: await superValidate(emptySchema),
+      form: await superValidate(member, zod(memberSchema)),
+      pingForm: await superValidate(zod(emptySchema)),
       viewedMember: member, // https://github.com/Dsek-LTH/web/issues/194
       doorAccess,
       publishedArticles: publishedArticlesResult.value ?? [],
@@ -122,14 +127,14 @@ const updateSchema = memberSchema
   })
   .partial();
 
-export type UpdateSchema = typeof updateSchema;
+export type UpdateSchema = Infer<typeof updateSchema>;
 
 export const actions: Actions = {
   updateFoodPreference: async ({ params, locals, request }) => {
     const { prisma } = locals;
     const form = await superValidate(
       request,
-      z.object({ foodPreference: z.string() }),
+      zod(z.object({ foodPreference: z.string() })),
     );
     if (!form.valid) return fail(400, { form });
     const { studentId } = params;
@@ -146,7 +151,7 @@ export const actions: Actions = {
   },
   update: async ({ params, locals, request }) => {
     const { prisma } = locals;
-    const form = await superValidate(request, updateSchema);
+    const form = await superValidate(request, zod(updateSchema));
     if (!form.valid) return fail(400, { form });
     const { studentId } = params;
     await prisma.member.update({
@@ -162,7 +167,7 @@ export const actions: Actions = {
   },
   ping: async ({ params, locals, request }) => {
     const { user, prisma } = locals;
-    const form = await superValidate(request, emptySchema);
+    const form = await superValidate(request, zod(emptySchema));
     authorize(apiNames.MEMBER.PING, user);
     if (!user?.memberId) return fail(401, { form });
 

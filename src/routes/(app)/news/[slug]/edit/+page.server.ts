@@ -4,6 +4,7 @@ import { Prisma } from "@prisma/client";
 import { error, fail } from "@sveltejs/kit";
 import { redirect } from "$lib/utils/redirect";
 import { message, superValidate } from "sveltekit-superforms/server";
+import { zod } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import { getArticleAuthorOptions } from "../../articles";
 import { articleSchema } from "../../schema";
@@ -64,7 +65,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   return {
     allTags,
     authorOptions,
-    form: await superValidate(article, updateSchema),
+    form: await superValidate(article, zod(updateSchema)),
   };
 };
 
@@ -76,7 +77,7 @@ export const actions: Actions = {
   default: async (event) => {
     const { request, locals } = event;
     const { prisma, user } = locals;
-    const form = await superValidate(request, updateSchema);
+    const form = await superValidate(request, zod(updateSchema));
     if (!form.valid) return fail(400, { form });
     const { slug, header, body, author, tags } = form.data;
     const existingAuthor = await prisma.author.findFirst({

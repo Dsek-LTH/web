@@ -1,6 +1,12 @@
 import { fileHandler } from "$lib/files";
 import { error, fail, type Actions } from "@sveltejs/kit";
-import { message, setError, superValidate } from "sveltekit-superforms/server";
+import {
+  message,
+  setError,
+  superValidate,
+  type Infer,
+} from "sveltekit-superforms/server";
+import { zod } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import { PUBLIC_BUCKETS_MATERIAL } from "$env/static/public";
 import { compareCommitteePositions } from "$lib/utils/committee-ordering/sort";
@@ -15,7 +21,7 @@ const updateSchema = z.object({
   markdownSlug: z.string().optional(),
 });
 
-export type UpdateSchema = typeof updateSchema;
+export type UpdateSchema = Infer<typeof updateSchema>;
 
 /**
  * @param shortName The committee's short name
@@ -142,7 +148,7 @@ export const committeeLoad = async (
     error(500, m.committees_errors_fetchMarkdown());
   }
 
-  const form = await superValidate(committee, updateSchema);
+  const form = await superValidate(committee, zod(updateSchema));
 
   return {
     committee,
@@ -163,7 +169,7 @@ export const committeeActions = (
   update: async ({ params, request, locals }) => {
     const { prisma, user } = locals;
     const formData = await request.formData();
-    const form = await superValidate(formData, updateSchema);
+    const form = await superValidate(formData, zod(updateSchema));
     if (!form.valid) return fail(400, { form });
     const image = formData.get("image");
     let newImageUploaded = false;

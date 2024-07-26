@@ -95,6 +95,7 @@
   "tickets_purchase_errors_unableToCreatePaymentIntent": "Could not create payment. Try again.",
   "tickets_purchase_errors_multipleActivePayments": "You had multiple active payments simultaneously.",
   "tickets_purchase_errors_couldNotSaveIntentID": "Failed to save transaction ID and price",
+  "tickets_purchase_errors_missingAnswers": "You have to answer all questions before purchasing",
   "tickets_purchase_readyToPurchase": "You can pay now.",
   "tickets_addToCart_errors_salePeriodEnded": "Ticket sales have closed",
   "tickets_addToCart_errors_salePeriodNotStarted": "Ticket sales have not started",

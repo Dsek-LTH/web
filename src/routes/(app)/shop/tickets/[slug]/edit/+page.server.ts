@@ -1,10 +1,11 @@
-import { ticketSchema } from "$lib/components/shop/types";
+import { ticketSchema, updateTicket } from "$lib/components/shop/types";
+import type { QuestionType } from "$lib/server/shop/questions.js";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
-import { ShoppableType } from "@prisma/client";
-import { error, fail } from "@sveltejs/kit";
 import { redirect } from "$lib/utils/redirect";
+import { error, fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
+import { zod } from "sveltekit-superforms/adapters";
 
 export const load = async ({ locals, params }) => {
   const { user } = locals;
@@ -13,7 +14,16 @@ export const load = async ({ locals, params }) => {
       id: params.slug,
     },
     include: {
-      shoppable: true,
+      shoppable: {
+        include: {
+          questions: {
+            where: { removedAt: null },
+            include: {
+              options: true,
+            },
+          },
+        },
+      },
       event: true,
     },
   });
@@ -38,8 +48,12 @@ export const load = async ({ locals, params }) => {
         eventId: ticket.eventId,
         stock: ticket.stock,
         maxAmountPerUser: ticket.maxAmountPerUser,
+        questions: ticket.shoppable.questions.map((q) => ({
+          ...q,
+          type: q.type as QuestionType,
+        })),
       },
-      ticketSchema,
+      zod(ticketSchema),
       { errors: false },
     ),
     event: ticket.event,
@@ -50,7 +64,7 @@ export const actions = {
   default: async (event) => {
     const { locals, request } = event;
     const { prisma, user, member } = locals;
-    const form = await superValidate(request, ticketSchema);
+    const form = await superValidate(request, zod(ticketSchema));
     if (!form.valid) return fail(400, { form });
     authorize(apiNames.WEBSHOP.CREATE, user);
     if (!member) {
@@ -60,35 +74,10 @@ export const actions = {
         type: "error,",
       });
     }
-    const data = form.data;
     const ticketId = event.params.slug;
+
     try {
-      await prisma.ticket.update({
-        where: {
-          id: ticketId,
-        },
-        data: {
-          shoppable: {
-            update: {
-              title: data.title,
-              titleEn: data.titleEn,
-              description: data.description,
-              descriptionEn: data.descriptionEn,
-              price: Math.round(data.price * 100),
-              availableFrom: data.availableFrom,
-              availableTo: data.availableTo,
-              type: ShoppableType.TICKET,
-            },
-          },
-          event: {
-            connect: {
-              id: data.eventId,
-            },
-          },
-          stock: data.stock,
-          maxAmountPerUser: data.maxAmountPerUser, // optional
-        },
-      });
+      await updateTicket(prisma, ticketId, form.data);
     } catch (err) {
       let errorMsg;
       if (err instanceof Error) errorMsg = err.message;

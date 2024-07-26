@@ -1,6 +1,7 @@
 import { error, fail } from "@sveltejs/kit";
 import { redirect } from "$lib/utils/redirect";
 import { superValidate } from "sveltekit-superforms/server";
+import { zod } from "sveltekit-superforms/adapters";
 import { eventSchema } from "../schema";
 import type { Actions, PageServerLoad } from "./$types";
 import { slugWithCount, slugify } from "$lib/utils/slugify";
@@ -19,7 +20,7 @@ export const load: PageServerLoad = async ({ locals }) => {
     allTags,
     form: await superValidate(
       { organizer: `${member.firstName} ${member.lastName}` },
-      eventSchema,
+      zod(eventSchema),
     ),
   };
 };
@@ -28,7 +29,7 @@ export const actions: Actions = {
   default: async (event) => {
     const { request, locals } = event;
     const { prisma, user } = locals;
-    const form = await superValidate(request, eventSchema);
+    const form = await superValidate(request, zod(eventSchema));
     if (!form.valid) return fail(400, { form });
     const {
       recurringType,

@@ -942,6 +942,7 @@ model ItemQuestion {
   descriptionEn    String?
   type             String                 @db.VarChar(255) // like "choice", "free-text" etc
   forExternalsOnly Boolean                @default(false) // if question should only be shown for people without an account
+  removedAt        DateTime? // Will be set when a question is removed which already has responses
   options          ItemQuestionOption[]
   responses        ItemQuestionResponse[]
 
@@ -1000,6 +1001,7 @@ model ItemQuestionResponse {
   @@deny("delete", false)
 
   @@map("item_question_response")
+  @@unique([questionId, consumableId], map: "item_question_response_question_id_consumable_id_unique")
 }
 
 model Consumable {

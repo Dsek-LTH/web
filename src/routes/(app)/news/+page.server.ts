@@ -1,4 +1,5 @@
 import { superValidate } from "sveltekit-superforms/server";
+import { zod } from "sveltekit-superforms/adapters";
 import type { Actions, PageServerLoad } from "./$types";
 import { getAllArticles } from "./articles";
 import { likeSchema, likesAction } from "./likes";
@@ -27,7 +28,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     articles,
     pageCount,
     allTags,
-    likeForm: await superValidate(likeSchema),
+    likeForm: await superValidate(zod(likeSchema)),
   };
 };
 

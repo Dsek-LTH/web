@@ -95,6 +95,7 @@
   "tickets_purchase_errors_unableToCreatePaymentIntent": "Kunde inte skapa betalning. Försök igen.",
   "tickets_purchase_errors_multipleActivePayments": "Du hade flera betalningar igång samtidigt.",
   "tickets_purchase_errors_couldNotSaveIntentID": "Det gick inte att spara transaktions-ID och pris",
+  "tickets_purchase_errors_missingAnswers": "Du måste svara på alla frågor innan du kan köpa",
   "tickets_purchase_readyToPurchase": "Du kan betala nu.",
   "tickets_addToCart_errors_salePeriodEnded": "Biljettförsäljning har stängt",
   "tickets_addToCart_errors_salePeriodNotStarted": "Biljettförsäljning har inte börjat",

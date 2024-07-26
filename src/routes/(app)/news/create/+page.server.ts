@@ -5,7 +5,8 @@ import { NotificationType } from "$lib/utils/notifications/types";
 import { slugWithCount, slugify } from "$lib/utils/slugify";
 import { error, fail } from "@sveltejs/kit";
 import { redirect } from "$lib/utils/redirect";
-import { superValidate } from "sveltekit-superforms/client";
+import { superValidate } from "sveltekit-superforms/server";
+import { zod } from "sveltekit-superforms/adapters";
 import { getArticleAuthorOptions } from "../articles";
 import { articleSchema } from "../schema";
 import type { Actions, PageServerLoad } from "./$types";
@@ -49,7 +50,7 @@ export const load: PageServerLoad = async ({ locals }) => {
       {
         author: authorOptions[0],
       },
-      articleSchema,
+      zod(articleSchema),
     ),
   };
 };
@@ -58,7 +59,7 @@ export const actions: Actions = {
   default: async (event) => {
     const { request, locals } = event;
     const { prisma, user } = locals;
-    const form = await superValidate(request, articleSchema);
+    const form = await superValidate(request, zod(articleSchema));
     if (!form.valid) return fail(400, { form });
     const { header, body, author, tags } = form.data;
     const existingAuthor = await prisma.author.findFirst({

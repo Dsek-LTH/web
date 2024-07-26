@@ -917,6 +917,7 @@ model ItemQuestion {
     descriptionEn String?
     type String @db.VarChar(255)
     forExternalsOnly Boolean @default(false)
+    removedAt DateTime?
     options ItemQuestionOption[]
     responses ItemQuestionResponse[]
 
@@ -953,6 +954,7 @@ model ItemQuestionResponse {
     extraPrice Int?
 
     @@map("item_question_response")
+    @@unique([questionId, consumableId], map: "item_question_response_question_id_consumable_id_unique")
 }
 
 /// @@allow('create', memberId == auth().memberId || auth().externalCode != null && externalCustomerCode == auth().externalCode)

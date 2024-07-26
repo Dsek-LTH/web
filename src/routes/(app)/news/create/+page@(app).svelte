@@ -3,8 +3,7 @@
   import ArticleEditor from "../ArticleEditor.svelte";
   import * as m from "$paraglide/messages";
 
-  import type { PageData } from "./$types";
-  export let data: PageData;
+  export let data;
 </script>
 
 <SetPageTitle title={m.news_createArticle()} />
