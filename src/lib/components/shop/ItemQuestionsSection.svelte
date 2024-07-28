@@ -1,6 +1,6 @@
 <script lang="ts">
   import ItemQuestion from "$lib/components/shop/ItemQuestion.svelte";
-  import type { TicketSchema } from "$lib/components/shop/types";
+  import { QuestionType, type TicketSchema } from "$lib/components/shop/types";
   import { arrayProxy, type SuperForm } from "sveltekit-superforms/client";
 
   export let superform: SuperForm<TicketSchema>;
@@ -11,6 +11,19 @@
 {#each $values as _, index}
   <ItemQuestion {superform} field="questions[{index}]" />
 {/each}
+<button
+  type="button"
+  on:click={() => {
+    $values = [...$values, {
+      type: QuestionType.Text,
+      title: '',
+      description: '',
+      forExternalsOnly: false,
+    }];
+  }}
+>
+  Add question
+</button>
 
 {#if $errors}
   {#each $errors as error}

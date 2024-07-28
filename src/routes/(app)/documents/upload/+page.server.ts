@@ -41,6 +41,9 @@ export const actions: Actions = {
         { status: 500 },
       );
     }
+    // Clear file and name
+    form.data.file = null as unknown as File; // will work, but not type correct
+    form.data.name = "";
     return message(form, {
       message: m.documents_fileUploaded(),
       type: "success",

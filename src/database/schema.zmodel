@@ -900,7 +900,7 @@ model Shoppable {
   questions     ItemQuestion[]
 
   // create: acces and mark self as author
-  @@allow("create", has(auth().policies, "webshop:create") && authorId == auth().memberId)
+  @@allow("create", hasSome(auth().policies, ["webshop:create", "webshop:manage"]) && authorId == auth().memberId)
   // update: author or manage access
   @@allow("update", auth().memberId == authorId || has(auth().policies, "webshop:manage"))
   @@allow("read", true)
@@ -947,7 +947,7 @@ model ItemQuestion {
   responses        ItemQuestionResponse[]
 
   // create: author of shoppable
-  @@allow("create", shoppable.authorId == auth().memberId)
+  @@allow("create", hasSome(auth().policies, ["webshop:create", "webshop:manage"]) || shoppable.authorId == auth().memberId)
   @@allow("read", true)
   // Unreadable if removed, unless author or manager
   @@deny("read", shoppable.removedAt != null && !(auth().memberId == shoppable.authorId || has(auth().policies, "webshop:manage")))
@@ -968,7 +968,7 @@ model ItemQuestionOption {
   extraPrice Int?
 
   // same access as ItemQuestion
-  @@allow("create", question.shoppable.authorId == auth().memberId)
+  @@allow("create", hasSome(auth().policies, ["webshop:create", "webshop:manage"]) || question.shoppable.authorId == auth().memberId)
   @@allow("read", true)
   @@deny("read", question.shoppable.removedAt != null && !(auth().memberId == question.shoppable.authorId || has(auth().policies, "webshop:manage")))
   @@allow("update", auth().memberId == question.shoppable.authorId || has(auth().policies, "webshop:manage"))

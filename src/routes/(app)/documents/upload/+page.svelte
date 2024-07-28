@@ -15,17 +15,14 @@
       if (event.result.type === "success") {
         // On successful upload, set files to undefined and clear the filename
         // year and meeting is still kept as to easily upload more files for the same meeting
-        form.update((f) => {
-          f.name = "";
-          f.file = undefined;
-          return f;
-        });
+        fileInput.value = "";
       }
     },
     resetForm: false,
     validators: zodClient(uploadSchema),
   });
   const file = fileProxy(form, "file");
+  let fileInput: HTMLInputElement;
 
   $: pathInfo = typeToPath[$form.type];
   $: fileErrors = $errors.file as string | string[] | undefined;
@@ -65,15 +62,13 @@
       {...$constraints.folder}
     />
   </Labeled>
-  {#if $file && "item" in $file && $file.item(0)}
-    {$file.item(0)?.name}
-  {/if}
 
   <Labeled error={fileErrors}>
     <label class="mb-5 text-lg font-medium" for="file">
       3. {m.documents_uploadFile()}
     </label>
     <input
+      bind:this={fileInput}
       id="file"
       type="file"
       name="file"

@@ -9,8 +9,10 @@ const getExtensionOfFile = (fileName: string) => {
   return fileName.slice(dotIndex + 1);
 };
 const prepareNameForFilesystem = (name: string, fileName: string) =>
-  name.replace(/\s/g, "_").replace(/[^a-zA-Z0-9_]/g, "") + // replaces spaces with "_" and removes all special characters
-  getExtensionOfFile(fileName);
+  // replaces spaces with "_" and removes all special characters
+  `${name
+    .replace(/\s/g, "_")
+    .replace(/[^a-zA-Z0-9_]/g, "")}.${getExtensionOfFile(fileName)}`;
 
 export const uploadFile = async (user: AuthUser, data: UploadSchema) => {
   const { folder, name, year, type, file } = data;

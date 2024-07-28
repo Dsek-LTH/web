@@ -1,5 +1,8 @@
-import { ticketSchema, updateTicket } from "$lib/components/shop/types";
-import type { QuestionType } from "$lib/server/shop/questions.js";
+import {
+  QuestionType,
+  ticketSchema,
+  updateTicket,
+} from "$lib/components/shop/types";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 import { redirect } from "$lib/utils/redirect";
@@ -34,6 +37,8 @@ export const load = async ({ locals, params }) => {
     // author can always edit
     authorize(apiNames.WEBSHOP.MANAGE, user);
   }
+
+  console.log(ticket.shoppable.questions);
 
   return {
     form: await superValidate(

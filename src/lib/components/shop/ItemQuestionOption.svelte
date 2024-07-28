@@ -11,6 +11,7 @@
     errors: priceErrors,
     constraints: priceConstraints,
   } = formFieldProxy(superform, `${field}.extraPrice`);
+  let extraCost = $priceValue !== null;
 
   export let onRemove: () => void;
 </script>
@@ -29,7 +30,7 @@
     placeholder="Response option..."
   />
   <Labeled label="Extrapris (SEK)" error={$priceErrors}>
-    {#if $priceValue}
+    {#if extraCost}
       <MonetaryInput
         name="extraPrice"
         bind:value={$priceValue}
@@ -40,6 +41,7 @@
         type="button"
         on:click={() => {
           $priceValue = null;
+          extraCost = true;
         }}>Ta bort extrakostnad</button
       >
     {:else}
@@ -48,6 +50,7 @@
         type="button"
         on:click={() => {
           $priceValue = 0;
+          extraCost = true;
         }}>Lägg till extrakostnad</button
       >
     {/if}

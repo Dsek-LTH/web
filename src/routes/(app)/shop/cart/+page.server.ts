@@ -8,11 +8,7 @@ import { getCart } from "$lib/server/shop/getTickets";
 import purchaseCart, {
   calculateCartPrice,
 } from "$lib/server/shop/payments/purchase";
-import {
-  QuestionType,
-  answerQuestion,
-  questionForm,
-} from "$lib/server/shop/questions";
+import { answerQuestion } from "$lib/server/shop/questions";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 import {
@@ -30,6 +26,7 @@ import {
 import { zod } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import type { PageServerLoad } from "./$types";
+import { questionForm, QuestionType } from "$lib/components/shop/types";
 
 export const load: PageServerLoad = async ({ locals, depends }) => {
   const { user, prisma } = locals;

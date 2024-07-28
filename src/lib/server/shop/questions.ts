@@ -5,18 +5,8 @@ import {
 import type { PrismaClient } from "@prisma/client";
 import { z } from "zod";
 import * as m from "$paraglide/messages";
+import { QuestionType, type questionForm } from "$lib/components/shop/types";
 
-export enum QuestionType {
-  MultipleChoice = "multiple-choice",
-  Text = "text",
-}
-
-export const questionForm = z.object({
-  consumableId: z.string(),
-  questionId: z.string(),
-  answer: z.string(),
-  optionId: z.string().nullable(),
-});
 type AnswerQuestionData = z.infer<typeof questionForm>;
 
 export const answerQuestion = async (

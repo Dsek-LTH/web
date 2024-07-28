@@ -3,8 +3,7 @@
   import FormInput from "$lib/components/forms/FormInput.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
   import ItemQuestionOption from "$lib/components/shop/ItemQuestionOption.svelte";
-  import type { TicketSchema } from "$lib/components/shop/types";
-  import { QuestionType } from "$lib/server/shop/questions";
+  import { QuestionType, type TicketSchema } from "$lib/components/shop/types";
   import type { Writable } from "svelte/store";
   import {
     arrayProxy,
@@ -30,6 +29,7 @@
 </script>
 
 <div>
+  <FormInput {superform} field="{field}.id" />
   <FormInput
     {superform}
     field="{field}.title"
@@ -70,6 +70,7 @@
         {/each}
       {/if}
       <button
+        type="button"
         class="btn btn-primary"
         on:click={() => {
           if ($options)

@@ -8,6 +8,7 @@
   import EventSearchInput from "./EventSearchInput.svelte";
   import MaxAmountPerUser from "./MaxAmountPerUser.svelte";
   import PriceInput from "./PriceInput.svelte";
+  import ItemQuestionsSection from "$lib/components/shop/ItemQuestionsSection.svelte";
   // Assuming you have a schema definition based on zod
 
   export let event: Event | undefined = undefined;
@@ -35,6 +36,7 @@
     type="number"
   />
   <MaxAmountPerUser {superform} />
+  <ItemQuestionsSection {superform} />
   <button type="submit" disabled={$submitting} class="btn btn-primary mt-4">
     {#if type === "edit"}
       {$submitting ? "Uppdaterar..." : "Uppdatera biljett"}

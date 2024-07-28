@@ -1,8 +1,19 @@
-import { QuestionType } from "$lib/server/shop/questions";
 import { ShoppableType, type PrismaClient } from "@prisma/client";
 import dayjs from "dayjs";
 import type { Infer } from "sveltekit-superforms";
 import { z } from "zod";
+
+export enum QuestionType {
+  MultipleChoice = "multiple-choice",
+  Text = "text",
+}
+
+export const questionForm = z.object({
+  consumableId: z.string(),
+  questionId: z.string(),
+  answer: z.string(),
+  optionId: z.string().nullable(),
+});
 
 /**
  * @param authorId member id
@@ -12,44 +23,48 @@ export const createTicket = async (
   authorId: string,
   data: z.infer<typeof ticketSchema>,
 ) => {
-  return await prisma.ticket.create({
-    data: {
-      shoppable: {
-        create: {
-          title: data.title,
-          titleEn: data.titleEn,
-          description: data.description,
-          descriptionEn: data.descriptionEn,
-          price: Math.round(data.price * 100),
-          availableFrom: data.availableFrom,
-          availableTo: data.availableTo,
-          type: ShoppableType.TICKET,
-          authorId: authorId,
-          questions: {
-            createMany: {
-              data: data.questions.map((q) => ({
-                ...q,
-                options:
-                  q.options === undefined
-                    ? undefined
-                    : {
-                        createMany: {
-                          data: q.options,
-                        },
-                      },
-              })),
-            },
+  return await prisma.$transaction(async (tx) => {
+    const ticket = await tx.ticket.create({
+      data: {
+        shoppable: {
+          create: {
+            title: data.title,
+            titleEn: data.titleEn,
+            description: data.description,
+            descriptionEn: data.descriptionEn,
+            price: Math.round(data.price * 100),
+            availableFrom: data.availableFrom,
+            availableTo: data.availableTo,
+            type: ShoppableType.TICKET,
+            authorId: authorId,
           },
         },
-      },
-      event: {
-        connect: {
-          id: data.eventId,
+        event: {
+          connect: {
+            id: data.eventId,
+          },
         },
+        stock: data.stock,
+        maxAmountPerUser: data.maxAmountPerUser, // optional
       },
-      stock: data.stock,
-      maxAmountPerUser: data.maxAmountPerUser, // optional
-    },
+    });
+    for (const question of data.questions) {
+      await tx.itemQuestion.create({
+        data: {
+          shoppableId: ticket.id,
+          ...question,
+          options:
+            question.options === undefined
+              ? undefined
+              : {
+                  createMany: {
+                    data: question.options,
+                  },
+                },
+        },
+      });
+    }
+    return ticket;
   });
 };
 
@@ -60,95 +75,106 @@ export const updateTicket = async (
 ) => {
   const updatedQuestions = data.questions.filter((q) => q.id !== undefined);
   const newQuestions = data.questions.filter((q) => q.id === undefined);
-
-  await prisma.ticket.update({
-    where: {
-      id: ticketId,
-    },
-    data: {
-      shoppable: {
-        update: {
-          title: data.title,
-          titleEn: data.titleEn,
-          description: data.description,
-          descriptionEn: data.descriptionEn,
-          price: Math.round(data.price * 100),
-          availableFrom: data.availableFrom,
-          availableTo: data.availableTo,
-          type: ShoppableType.TICKET,
-        },
-      },
-      event: {
-        connect: {
-          id: data.eventId,
-        },
-      },
-      stock: data.stock,
-      maxAmountPerUser: data.maxAmountPerUser, // optional
-    },
-  });
-  // Update questions
-  for (const question of updatedQuestions) {
-    await prisma.itemQuestion.update({
-      // have to do a loop
+  console.log(updatedQuestions, newQuestions);
+  await prisma.$transaction(async (tx) => {
+    await tx.ticket.update({
       where: {
-        id: question.id!,
+        id: ticketId,
       },
       data: {
-        ...question,
-        options:
-          question.options === undefined
-            ? undefined
-            : {
-                deleteMany: {},
-                createMany: {
-                  data: question.options,
-                },
-              },
+        shoppable: {
+          update: {
+            title: data.title,
+            titleEn: data.titleEn,
+            description: data.description,
+            descriptionEn: data.descriptionEn,
+            price: Math.round(data.price * 100),
+            availableFrom: data.availableFrom,
+            availableTo: data.availableTo,
+            type: ShoppableType.TICKET,
+          },
+        },
+        event: {
+          connect: {
+            id: data.eventId,
+          },
+        },
+        stock: data.stock,
+        maxAmountPerUser: data.maxAmountPerUser, // optional
       },
     });
-  }
-  // create new questions
-  if (newQuestions.length > 0) {
-    await prisma.itemQuestion.createMany({
-      data: newQuestions.map((q) => ({
-        ...q,
+    // remove questions that are not in the form
+    // remove unanswered questions (easy)
+    await tx.itemQuestion.deleteMany({
+      where: {
         shoppableId: ticketId,
-        options:
-          q.options === undefined
-            ? undefined
-            : {
-                createMany: {
-                  data: q.options,
-                },
-              },
-      })),
+        id: {
+          notIn: updatedQuestions.map((q) => q.id!),
+        },
+        responses: {
+          none: {}, // ensures no responses exist.
+        },
+      },
     });
-  }
-  // remove questions that are not in the form
-  // remove unanswered questions (easy)
-  await prisma.itemQuestion.deleteMany({
-    where: {
-      shoppableId: ticketId,
-      id: {
-        notIn: updatedQuestions.map((q) => q.id!),
+    // keep answered questions in DB but mark as removed
+    await tx.itemQuestion.updateMany({
+      where: {
+        shoppableId: ticketId,
+        id: {
+          notIn: updatedQuestions.map((q) => q.id!),
+        },
       },
-      responses: {
-        none: {}, // ensures no responses exist.
+      data: {
+        removedAt: null,
       },
-    },
-  });
-  // keep answered questions in DB but mark as removed
-  await prisma.itemQuestion.updateMany({
-    where: {
-      shoppableId: ticketId,
-      id: {
-        notIn: updatedQuestions.map((q) => q.id!),
-      },
-    },
-    data: {
-      removedAt: null,
-    },
+    });
+    // Update questions
+    for (const question of updatedQuestions) {
+      console.log(question, question.options);
+      await tx.itemQuestionOption.deleteMany({
+        where: {
+          questionId: question.id!,
+        },
+      });
+      await tx.itemQuestion.update({
+        // have to do a loop
+        where: {
+          id: question.id!,
+        },
+        data: {
+          ...question,
+          options:
+            question.options === undefined
+              ? undefined
+              : {
+                  createMany: {
+                    data: question.options,
+                  },
+                },
+        },
+      });
+    }
+    // create new questions
+    if (newQuestions.length > 0) {
+      for (const question of newQuestions) {
+        console.log(question, question.options);
+        // have to do a loop
+        await tx.itemQuestion.create({
+          data: {
+            ...question,
+            shoppableId: ticketId,
+            options:
+              question.options === undefined
+                ? undefined
+                : {
+                    createMany: {
+                      data: question.options,
+                    },
+                  },
+          },
+        });
+      }
+    }
   });
 };
 
