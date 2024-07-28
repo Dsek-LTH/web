@@ -15,6 +15,7 @@
     type FormPathLeaves,
     type SuperForm,
   } from "sveltekit-superforms";
+  import { twMerge } from "tailwind-merge";
 
   export let superform: SuperForm<T>;
   export let field: FormPathLeaves<T>;
@@ -23,6 +24,8 @@
     label?: string;
     value: O;
   }>;
+  let clazz: string | undefined = undefined;
+  export { clazz as class };
 
   const { value, errors, constraints } = formFieldProxy(
     superform,
@@ -31,7 +34,15 @@
 </script>
 
 <Labeled {label} error={$errors}>
-  <select name={field} bind:value={$value} {...$constraints}>
+  <select
+    class={twMerge(
+      "select select-bordered transition-all hover:border-base-content",
+      clazz,
+    )}
+    name={field}
+    bind:value={$value}
+    {...$constraints}
+  >
     {#each options as option}
       <option value={option.value}>{option.label ?? option.value}</option>
     {/each}
