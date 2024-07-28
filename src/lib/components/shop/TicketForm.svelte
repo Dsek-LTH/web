@@ -1,6 +1,6 @@
 <script lang="ts">
   import FormInput from "$lib/components/forms/FormInput.svelte";
-  import type { TicketSchema } from "$lib/components/shop/types";
+  import type { TicketSchema } from "$lib/utils/shop/types";
   import type { Event } from "@prisma/client";
   import type { SuperValidated } from "sveltekit-superforms";
   import { superForm } from "sveltekit-superforms/client";
@@ -9,6 +9,7 @@
   import MaxAmountPerUser from "./MaxAmountPerUser.svelte";
   import PriceInput from "./PriceInput.svelte";
   import ItemQuestionsSection from "$lib/components/shop/ItemQuestionsSection.svelte";
+  import FormNumberInput from "$lib/components/forms/FormNumberInput.svelte";
   // Assuming you have a schema definition based on zod
 
   export let event: Event | undefined = undefined;
@@ -29,11 +30,10 @@
   <FormInput {superform} field="descriptionEn" label="Engelsk beskrivning" />
   <PriceInput {superform} />
   <AvailableDates {superform} />
-  <FormInput
+  <FormNumberInput
     {superform}
     field="stock"
     label="Antal biljetter till salu"
-    type="number"
   />
   <MaxAmountPerUser {superform} />
   <ItemQuestionsSection {superform} />

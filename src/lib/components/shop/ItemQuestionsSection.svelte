@@ -1,6 +1,7 @@
 <script lang="ts">
   import ItemQuestion from "$lib/components/shop/ItemQuestion.svelte";
-  import { QuestionType, type TicketSchema } from "$lib/components/shop/types";
+  import { QuestionType } from "$lib/utils/shop/types";
+  import type { TicketSchema } from "$lib/utils/shop/types";
   import { arrayProxy, type SuperForm } from "sveltekit-superforms/client";
 
   export let superform: SuperForm<TicketSchema>;
@@ -14,12 +15,15 @@
 <button
   type="button"
   on:click={() => {
-    $values = [...$values, {
-      type: QuestionType.Text,
-      title: '',
-      description: '',
-      forExternalsOnly: false,
-    }];
+    $values = [
+      ...$values,
+      {
+        type: QuestionType.Text,
+        title: "",
+        description: "",
+        forExternalsOnly: false,
+      },
+    ];
   }}
 >
   Add question

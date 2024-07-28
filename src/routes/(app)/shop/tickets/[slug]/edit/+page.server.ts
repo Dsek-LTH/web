@@ -1,14 +1,11 @@
-import {
-  QuestionType,
-  ticketSchema,
-  updateTicket,
-} from "$lib/components/shop/types";
+import { QuestionType, ticketSchema } from "$lib/utils/shop/types";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 import { redirect } from "$lib/utils/redirect";
 import { error, fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { zod } from "sveltekit-superforms/adapters";
+import { updateTicket } from "$lib/server/shop/tickets/mutations";
 
 export const load = async ({ locals, params }) => {
   const { user } = locals;

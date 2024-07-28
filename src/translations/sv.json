@@ -64,7 +64,7 @@
   "tickets_addToCart_inQueue": "Du är i kö för biljetten, du är på plats {queuePosition}",
   "tickets_addToCart_unknownResult": "Okänd resultatstatus från addToCart.",
   "tickets_addToCart_addedToInventory": "Biljetten har köpts.",
-  "tickets_card_stockLeft": "kvar",
+  "tickets_card_stockLeft": "{stock} kvar",
   "tickets_buyButton_partOfLottery": "Du har en lott. Dragning om",
   "tickets_buyButton_inQueue": "Står i kö",
   "tickets_buyButton_inCart": "Ligger i kundvagn",

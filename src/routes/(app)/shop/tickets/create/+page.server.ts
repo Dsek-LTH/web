@@ -1,4 +1,3 @@
-import { createTicket, ticketSchema } from "$lib/components/shop/types";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 import { redirect } from "$lib/utils/redirect";
@@ -6,6 +5,8 @@ import { fail } from "@sveltejs/kit";
 import dayjs from "dayjs";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { zod } from "sveltekit-superforms/adapters";
+import { createTicket } from "$lib/server/shop/tickets/mutations";
+import { ticketSchema } from "$lib/utils/shop/types";
 
 export const load = async ({ locals }) => {
   const { user } = locals;

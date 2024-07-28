@@ -14,5 +14,7 @@
 </script>
 
 <span class={twMerge("font-semibold text-success", clazz)}>
+  <slot name="prefix" />
   {formatter.format(price / 100)}
+  <slot name="suffix" />
 </span>

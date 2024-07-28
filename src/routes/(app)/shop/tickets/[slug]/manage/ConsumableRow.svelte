@@ -1,21 +1,25 @@
 <script lang="ts">
-  import Price from "$lib/components/Price.svelte";
+  import { page } from "$app/stores";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import { getFullName } from "$lib/utils/client/member";
   import type {
     Consumable,
     ConsumableReservation,
+    ItemQuestion,
+    ItemQuestionResponse,
     Member,
   } from "@prisma/client";
   import dayjs from "dayjs";
   import RowAction from "./RowAction.svelte";
-  import { page } from "$app/stores";
+  import TruncatedTableCell from "./TruncatedTableCell.svelte";
+  import { formatPrice, priceFormatClasses } from "$lib/utils/client/price";
 
   $: stripeIntentBaseUrl = $page.data["stripeIntentBaseUrl"]; // required to be return by the +page.server.ts where this is rendered.
   // one of the following has to be specified
   export let consumable:
     | (Consumable & {
         member: Member | null;
+        questionResponses: ItemQuestionResponse[];
       })
     | null = null;
   export let reservation:
@@ -23,6 +27,9 @@
         member: Member | null;
       })
     | null = null;
+
+  export let questions: ItemQuestion[];
+
   if (!consumable && !reservation)
     throw new Error("Either consumable or reservation must be specified");
   $: item = (consumable ?? reservation)!;
@@ -45,50 +52,54 @@
       </div>
     </div>
   </td>
-  <td>
-    {member ? member.foodPreference ?? "" : ""}
-  </td>
-  <td>
-    {#if consumable?.purchasedAt}
-      {dayjs(consumable.purchasedAt).format("HH:MM:ss DD-MM-YYYY")}
+  <TruncatedTableCell value={member ? member.foodPreference ?? "" : ""} />
+  <TruncatedTableCell
+    value={consumable?.purchasedAt
+      ? dayjs(consumable.purchasedAt).format("HH:MM:ss DD-MM-YYYY")
+      : null}
+  />
+  <TruncatedTableCell
+    value={consumable?.consumedAt
+      ? dayjs(consumable.consumedAt).format("HH:MM:ss DD-MM-YYYY")
+      : consumable
+        ? "Ej konsumerad"
+        : null}
+    class={consumable?.consumedAt ? "text-success" : ""}
+  />
+  <TruncatedTableCell
+    value={consumable?.priceAtPurchase
+      ? formatPrice(consumable.priceAtPurchase)
+      : consumable?.purchasedAt !== null
+        ? "Okänt"
+        : null}
+    class={priceFormatClasses}
+  />
+  <TruncatedTableCell
+    link={consumable?.stripeIntentId
+      ? `${stripeIntentBaseUrl}/${consumable.stripeIntentId}`
+      : undefined}
+    value={consumable?.stripeIntentId
+      ? `${consumable.stripeIntentId}`
+      : consumable?.purchasedAt
+        ? "Finns inte sparad"
+        : null}
+  />
+  {#each questions as question}
+    {#if consumable}
+      {@const response = consumable.questionResponses.find(
+        (r) => r.questionId === question.id,
+      )}
+      <TruncatedTableCell
+        value={response
+          ? `${response.answer}${
+              response.extraPrice ? ` ${formatPrice(response.extraPrice)}` : ""
+            }`
+          : undefined}
+      />
     {:else}
-      <span class="font-semibold text-gray-400">N/A</span>
+      <TruncatedTableCell value={null} />
     {/if}
-  </td>
-  <td>
-    {#if consumable?.consumedAt}
-      <span class="text-green-500">
-        {dayjs(consumable.consumedAt).format("HH:MM:ss DD-MM-YYYY")}
-      </span>
-    {:else if consumable}
-      <span class="">Ej konsumerad</span>
-    {:else}
-      <span class="font-semibold text-gray-400">N/A</span>
-    {/if}
-  </td>
-  <td>
-    {#if consumable?.priceAtPurchase}
-      <Price price={consumable.priceAtPurchase} />
-    {:else if consumable?.purchasedAt !== null}
-      <span>Okänt</span>
-    {:else}
-      <span class="font-semibold text-gray-400">N/A</span>
-    {/if}
-  </td>
-  <td>
-    {#if consumable?.stripeIntentId}
-      <a
-        class="link text-primary"
-        href="{stripeIntentBaseUrl}/{consumable.stripeIntentId}"
-      >
-        {consumable.stripeIntentId}
-      </a>
-    {:else if consumable?.purchasedAt}
-      <span>Finns inte sparad</span>
-    {:else}
-      <span class="font-semibold text-gray-400">N/A</span>
-    {/if}
-  </td>
+  {/each}
   <th>
     {#if consumable?.consumedAt === null}
       <RowAction action="?/consume" consumableId={consumable.id}>

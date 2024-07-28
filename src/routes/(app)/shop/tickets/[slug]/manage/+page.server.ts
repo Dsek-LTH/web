@@ -7,7 +7,7 @@ import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
 import { refundConsumable } from "$lib/server/shop/payments/stripeMethods";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
-import type { Event, Shoppable, Ticket } from "@prisma/client";
+import type { Event, ItemQuestion, Shoppable, Ticket } from "@prisma/client";
 import { error, fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { zod } from "sveltekit-superforms/adapters";
@@ -15,6 +15,7 @@ import { z } from "zod";
 
 export type ManagedTicket = Ticket &
   Shoppable & {
+    questions: ItemQuestion[];
     event: Event;
   };
 
@@ -27,9 +28,11 @@ export const load = async ({ locals, params }) => {
     include: {
       shoppable: {
         include: {
+          questions: true, // including questions where removedAt is not null, because we want to show them as well
           consumables: {
             include: {
               member: true,
+              questionResponses: true,
             },
           },
           reservations: {
@@ -56,6 +59,7 @@ export const load = async ({ locals, params }) => {
     (c) => c.purchasedAt === null,
   );
   const reservations = ticket.shoppable.reservations;
+  // Typing just so we can remove consumables and reservations from shoppable
   const shoppable: Omit<Shoppable, "consumables" | "reservations"> & {
     consumables?: unknown;
     reservations?: unknown;

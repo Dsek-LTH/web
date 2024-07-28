@@ -10,7 +10,7 @@
   import type { SuperValidated } from "sveltekit-superforms";
   import { superForm } from "sveltekit-superforms/client";
   import Article from "./Article.svelte";
-  import type { AuthorOption } from "./articles.js";
+  import type { AuthorOption } from "./articles";
   import type { ArticleSchema } from "./schema";
 
   export let data: SuperValidated<ArticleSchema>;

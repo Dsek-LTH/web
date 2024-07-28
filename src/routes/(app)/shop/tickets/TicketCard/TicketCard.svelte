@@ -22,7 +22,7 @@
         <Price price={ticket.price} class="card-title" />
         {#if ticket.ticketsLeft < 10 && ticket.ticketsLeft > 0}
           <span class="text-right">
-            {m.tickets_card_stockLeft(ticket.ticketsLeft)}
+            {m.tickets_card_stockLeft({ stock: ticket.ticketsLeft })}
           </span>
         {/if}
       </div>

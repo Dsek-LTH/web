@@ -5,7 +5,7 @@ import {
 import type { PrismaClient } from "@prisma/client";
 import { z } from "zod";
 import * as m from "$paraglide/messages";
-import { QuestionType, type questionForm } from "$lib/components/shop/types";
+import { QuestionType, type questionForm } from "$lib/utils/shop/types";
 
 type AnswerQuestionData = z.infer<typeof questionForm>;
 
@@ -48,14 +48,16 @@ export const answerQuestion = async (
   if (!question) throw new Error("Question not found");
 
   let extraPrice: number;
+  console.log(data.questionId, question);
   switch (question.type) {
     case QuestionType.MultipleChoice: {
       const answerObj = question.options.find(
-        (option) => option.id === data.optionId,
+        (option) =>
+          option.answer === data.answer || option.answerEn === data.answer,
       );
 
-      // user tried to send optionId which doesn't exist
-      if (!answerObj) throw new Error("Invalid optionId");
+      // user tried to send option which doesn't exist
+      if (!answerObj) throw new Error("Invalid option");
 
       // user tried to send a different answer text than the correct one
       if (

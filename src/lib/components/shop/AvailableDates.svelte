@@ -1,7 +1,7 @@
 <script lang="ts">
   import DateInput from "$lib/components/DateInput.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
-  import type { TicketSchema } from "$lib/components/shop/types";
+  import type { TicketSchema } from "$lib/utils/shop/types";
   import { formFieldProxy, type SuperForm } from "sveltekit-superforms/client";
 
   export let superform: SuperForm<TicketSchema>;

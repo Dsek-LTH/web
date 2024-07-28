@@ -20,6 +20,8 @@
   export let superform: SuperForm<T>;
   export let field: FormPathLeaves<T>;
   export let label: string | null = null;
+  // as long as field is not nested, or data type is 'json', name does not need to be set
+  export let name: string | undefined = undefined;
   export let options: Array<{
     label?: string;
     value: O;
@@ -27,10 +29,12 @@
   let clazz: string | undefined = undefined;
   export { clazz as class };
 
-  const { value, errors, constraints } = formFieldProxy(
-    superform,
-    field,
-  ) satisfies FormFieldProxy<O[]>;
+  $: fieldProxy = formFieldProxy(superform, field) satisfies FormFieldProxy<
+    O[]
+  >;
+  $: value = fieldProxy.value;
+  $: errors = fieldProxy.errors;
+  $: constraints = fieldProxy.constraints;
 </script>
 
 <Labeled {label} error={$errors}>
@@ -39,7 +43,7 @@
       "select select-bordered transition-all hover:border-base-content",
       clazz,
     )}
-    name={field}
+    name={name ?? field}
     bind:value={$value}
     {...$constraints}
   >

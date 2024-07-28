@@ -1,9 +1,11 @@
 <script lang="ts">
   import FormCheckbox from "$lib/components/forms/FormCheckbox.svelte";
   import FormInput from "$lib/components/forms/FormInput.svelte";
+  import FormSelect from "$lib/components/forms/FormSelect.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
   import ItemQuestionOption from "$lib/components/shop/ItemQuestionOption.svelte";
-  import { QuestionType, type TicketSchema } from "$lib/components/shop/types";
+  import { QuestionType } from "$lib/utils/shop/types";
+  import type { TicketSchema } from "$lib/utils/shop/types";
   import type { Writable } from "svelte/store";
   import {
     arrayProxy,
@@ -29,7 +31,7 @@
 </script>
 
 <div>
-  <FormInput {superform} field="{field}.id" />
+  <FormInput {superform} field="{field}.id" type="hidden" />
   <FormInput
     {superform}
     field="{field}.title"
@@ -42,6 +44,21 @@
     {superform}
     field="{field}.descriptionEn"
     label="Förklaring (EN)"
+  />
+  <FormSelect
+    {superform}
+    field="{field}.type"
+    label="Typ"
+    options={[
+      {
+        value: QuestionType.MultipleChoice,
+        label: "Multiple choice",
+      },
+      {
+        value: QuestionType.Text,
+        label: "Free text",
+      },
+    ]}
   />
   <Labeled label="Typ" error={$typeErrors}>
     <select name="type" bind:value={$type} {...$typeConstraints}>

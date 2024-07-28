@@ -1,7 +1,7 @@
 <script lang="ts">
   import Labeled from "$lib/components/Labeled.svelte";
   import MonetaryInput from "$lib/components/shop/MonetaryInput.svelte";
-  import type { TicketSchema } from "$lib/components/shop/types";
+  import type { TicketSchema } from "$lib/utils/shop/types";
   import {
     cardTranscationFee,
     passOnTransactionFee,

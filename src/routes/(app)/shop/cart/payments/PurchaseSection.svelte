@@ -7,8 +7,8 @@
   import { onMount } from "svelte";
   import type { SuperValidated } from "sveltekit-superforms";
   import { superForm } from "sveltekit-superforms/client";
-  import type { PurchaseForm } from "../+page.server";
   import SveltePaymentElement from "./SveltePaymentElement.svelte";
+  import type { PurchaseForm } from "$lib/utils/shop/types";
 
   export let totalPrice: number;
   export let showPrice = true;
@@ -26,7 +26,7 @@
 
 {#if $message?.["clientSecret"] !== undefined}
   <tr>
-    <td colspan="3" class="w-full max-w-xl">
+    <td colspan="100" class="w-full max-w-xl">
       <SveltePaymentElement
         {stripe}
         clientSecret={$message["clientSecret"]}

@@ -4,38 +4,28 @@ import {
   sendQueuedNotifications,
 } from "$lib/server/shop/addToCart/reservations";
 import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
-import { getCart } from "$lib/server/shop/getTickets";
-import purchaseCart, {
-  calculateCartPrice,
-} from "$lib/server/shop/payments/purchase";
+import { cartLoadFunction } from "$lib/server/shop/cart/getCart.js";
+import { purchaseForm } from "$lib/server/shop/cart/types";
+import purchaseCart from "$lib/server/shop/payments/purchase";
 import { answerQuestion } from "$lib/server/shop/questions";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
-import {
-  passOnTransactionFee,
-  priceWithTransactionFee,
-  transactionFee,
-} from "$lib/utils/payments/transactionFee";
+import { questionForm } from "$lib/utils/shop/types";
 import * as m from "$paraglide/messages";
 import { error, fail } from "@sveltejs/kit";
-import {
-  message,
-  superValidate,
-  type Infer,
-} from "sveltekit-superforms/server";
 import { zod } from "sveltekit-superforms/adapters";
+import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
-import type { PageServerLoad } from "./$types";
-import { questionForm, QuestionType } from "$lib/components/shop/types";
 
-export const load: PageServerLoad = async ({ locals, depends }) => {
+export const load = async ({ locals, depends }) => {
   const { user, prisma } = locals;
   if (!user?.memberId && !user?.externalCode) {
     throw error(401, "Du har ingen kundvagn.");
   }
   depends("cart");
   authorize(apiNames.WEBSHOP.PURCHASE, user);
-  const { inCart, reservations } = await getCart(
+
+  return await cartLoadFunction(
     prisma,
     user?.memberId
       ? {
@@ -45,55 +35,7 @@ export const load: PageServerLoad = async ({ locals, depends }) => {
           externalCode: user.externalCode!,
         },
   );
-
-  const cartPrice = calculateCartPrice(inCart);
-  const totalPrice = passOnTransactionFee
-    ? priceWithTransactionFee(cartPrice)
-    : cartPrice;
-  return {
-    inCart: await Promise.all(
-      inCart.map(async (item) => {
-        const questions = item.shoppable.questions;
-        const answers = item.questionResponses;
-        return {
-          ...item,
-          questions: await Promise.all(
-            questions.map((question) => {
-              const answer = answers.find((a) => a.questionId === question.id);
-              return superValidate(
-                answer
-                  ? {
-                      consumableId: item.id,
-                      questionId: question.id,
-                      answer: answer.answer ?? "",
-                      optionId:
-                        question.type === QuestionType.MultipleChoice
-                          ? question.options.find(
-                              (option) =>
-                                option.answer === answer.answer ||
-                                option.answerEn === answer.answer,
-                            )?.id ?? null
-                          : null,
-                    }
-                  : undefined,
-                zod(questionForm),
-              );
-            }),
-          ),
-        };
-      }),
-    ),
-    reservations,
-    purchaseForm: await superValidate(zod(purchaseForm)),
-    totalPrice: totalPrice,
-    transactionFee: passOnTransactionFee ? transactionFee(totalPrice) : 0,
-  };
 };
-
-const purchaseForm = z.object({
-  idempotencyKey: z.string(),
-});
-export type PurchaseForm = Infer<typeof purchaseForm>;
 
 export const actions = {
   removeItem: async ({ locals, request }) => {

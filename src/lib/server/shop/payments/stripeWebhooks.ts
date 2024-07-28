@@ -55,7 +55,7 @@ export const onPaymentSuccess = async (intent: Stripe.PaymentIntent) => {
         purchasedConsumables.length === 1
           ? `${purchasedConsumables[0]?.shoppable.title} har köpts`
           : `${purchasedConsumables.length} produkter har köpts`,
-      message: `Ditt köp på ${intent.amount} ${
+      message: `Ditt köp på ${intent.amount / 100} ${
         intent.currency?.toUpperCase() ?? "SEK"
       } har gått igenom`,
       type: NotificationType.PAYMENT_STATUS,
@@ -147,7 +147,7 @@ export const onPaymentFailure = async (intent: Stripe.PaymentIntent) => {
   try {
     await sendNotification({
       title: "Ditt köp har misslyckats",
-      message: `Ditt köp på ${intent.amount} ${
+      message: `Ditt köp på ${intent.amount / 100} ${
         intent.currency?.toUpperCase() ?? "SEK"
       } har misslyckats. Anledning: ${intent.last_payment_error?.message}`,
       type: NotificationType.PAYMENT_STATUS,

@@ -15,19 +15,24 @@
 
   export let superform: SuperForm<T>;
   export let field: FormPathLeaves<T>;
+  // as long as field is not nested, or data type is 'json', name does not need to be set
+  export let name: string | undefined = undefined;
   export let label: string | null = null;
   let clazz: ClassNameValue = undefined;
   export { clazz as class };
 
-  const { value, errors, constraints } = formFieldProxy(
+  $: fieldProxy = formFieldProxy(
     superform,
     field,
   ) satisfies FormFieldProxy<boolean>;
+  $: value = fieldProxy.value;
+  $: errors = fieldProxy.errors;
+  $: constraints = fieldProxy.constraints;
 </script>
 
 <Labeled {label} error={$errors}>
   <input
-    name="forExternalsOnly"
+    name={name ?? field}
     type="checkbox"
     class={twMerge("checkbox", clazz)}
     bind:checked={$value}

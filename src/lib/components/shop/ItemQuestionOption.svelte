@@ -2,7 +2,7 @@
   import FormInput from "$lib/components/forms/FormInput.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
   import MonetaryInput from "$lib/components/shop/MonetaryInput.svelte";
-  import type { TicketSchema } from "$lib/components/shop/types";
+  import type { TicketSchema } from "$lib/utils/shop/types";
   import { formFieldProxy, type SuperForm } from "sveltekit-superforms/client";
   export let superform: SuperForm<TicketSchema>;
   export let field: `questions[${number}].options[${number}]`;
@@ -41,7 +41,7 @@
         type="button"
         on:click={() => {
           $priceValue = null;
-          extraCost = true;
+          extraCost = false;
         }}>Ta bort extrakostnad</button
       >
     {:else}

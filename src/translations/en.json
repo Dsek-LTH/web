@@ -64,7 +64,7 @@
   "tickets_addToCart_inQueue": "You are in queue for the ticket, your in position {queuePosition}.",
   "tickets_addToCart_unknownResult": "Unknown result status from addToCart.",
   "tickets_addToCart_addedToInventory": "Ticket has been purchased.",
-  "tickets_card_stockLeft": "left",
+  "tickets_card_stockLeft": "{stock} left",
   "tickets_buyButton_partOfLottery": "Your in the lottery. Drawing in",
   "tickets_buyButton_inQueue": "In queue",
   "tickets_buyButton_inCart": "In cart",

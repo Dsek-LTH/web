@@ -1,19 +1,5 @@
-import { ShoppableType, type PrismaClient } from "@prisma/client";
-import dayjs from "dayjs";
-import type { Infer } from "sveltekit-superforms";
-import { z } from "zod";
-
-export enum QuestionType {
-  MultipleChoice = "multiple-choice",
-  Text = "text",
-}
-
-export const questionForm = z.object({
-  consumableId: z.string(),
-  questionId: z.string(),
-  answer: z.string(),
-  optionId: z.string().nullable(),
-});
+import type { TicketSchema } from "$lib/utils/shop/types";
+import { PrismaClient, ShoppableType } from "@prisma/client";
 
 /**
  * @param authorId member id
@@ -21,7 +7,7 @@ export const questionForm = z.object({
 export const createTicket = async (
   prisma: PrismaClient,
   authorId: string,
-  data: z.infer<typeof ticketSchema>,
+  data: TicketSchema,
 ) => {
   return await prisma.$transaction(async (tx) => {
     const ticket = await tx.ticket.create({
@@ -53,12 +39,18 @@ export const createTicket = async (
         data: {
           shoppableId: ticket.id,
           ...question,
+          id: undefined,
           options:
             question.options === undefined
               ? undefined
               : {
                   createMany: {
-                    data: question.options,
+                    data: question.options.map((o) => ({
+                      ...o,
+                      extraPrice: o.extraPrice
+                        ? Math.round(o.extraPrice * 100)
+                        : o.extraPrice,
+                    })),
                   },
                 },
         },
@@ -71,10 +63,10 @@ export const createTicket = async (
 export const updateTicket = async (
   prisma: PrismaClient,
   ticketId: string,
-  data: z.infer<typeof ticketSchema>,
+  data: TicketSchema,
 ) => {
-  const updatedQuestions = data.questions.filter((q) => q.id !== undefined);
-  const newQuestions = data.questions.filter((q) => q.id === undefined);
+  const updatedQuestions = data.questions.filter((q) => !!q.id);
+  const newQuestions = data.questions.filter((q) => !!q.id);
   console.log(updatedQuestions, newQuestions);
   await prisma.$transaction(async (tx) => {
     await tx.ticket.update({
@@ -125,7 +117,7 @@ export const updateTicket = async (
         },
       },
       data: {
-        removedAt: null,
+        removedAt: new Date(),
       },
     });
     // Update questions
@@ -143,12 +135,18 @@ export const updateTicket = async (
         },
         data: {
           ...question,
+          id: undefined,
           options:
             question.options === undefined
               ? undefined
               : {
                   createMany: {
-                    data: question.options,
+                    data: question.options.map((o) => ({
+                      ...o,
+                      extraPrice: o.extraPrice
+                        ? Math.round(o.extraPrice * 100)
+                        : o.extraPrice,
+                    })),
                   },
                 },
         },
@@ -162,13 +160,19 @@ export const updateTicket = async (
         await tx.itemQuestion.create({
           data: {
             ...question,
+            id: undefined,
             shoppableId: ticketId,
             options:
               question.options === undefined
                 ? undefined
                 : {
                     createMany: {
-                      data: question.options,
+                      data: question.options.map((o) => ({
+                        ...o,
+                        extraPrice: o.extraPrice
+                          ? Math.round(o.extraPrice * 100)
+                          : o.extraPrice,
+                      })),
                     },
                   },
           },
@@ -177,68 +181,3 @@ export const updateTicket = async (
     }
   });
 };
-
-export const ticketSchema = z
-  .object({
-    title: z.string().min(1, "Title cannot be empty"),
-    titleEn: z.string().nullable().optional(),
-    description: z
-      .string()
-      .min(1, "Description cannot be empty")
-      .nullable()
-      .optional(),
-    descriptionEn: z.string().nullable().optional(),
-    // price is in SEK, with a maximum of two decimals
-    price: z.number().gte(0),
-    availableFrom: z.date(),
-    availableTo: z.date().nullable().optional(), // cannot be before availableFRom
-    eventId: z.string().uuid(),
-    stock: z.number().int("Stock must be an integer").gte(0),
-    maxAmountPerUser: z
-      .number()
-      .int("Max amount per user must be an integer")
-      .positive()
-      .optional(),
-    questions: z.array(
-      z
-        .object({
-          id: z.string().uuid().optional(),
-          title: z.string().min(1, "Title cannot be empty"),
-          titleEn: z.string().nullable().optional(),
-          description: z.string().default(""),
-          descriptionEn: z.string().nullable().optional(),
-          // type can be any of "multple-choice" or "text"
-          type: z.nativeEnum(QuestionType).default(QuestionType.Text),
-          forExternalsOnly: z.boolean().default(false),
-          options: z
-            .array(
-              z.object({
-                answer: z.string().min(1, "Answer cannot be empty"),
-                answerEn: z.string().nullable().optional(),
-                extraPrice: z.number().int().default(0).nullable(),
-              }),
-            )
-            .optional(),
-        })
-        .refine(
-          (arg) =>
-            arg.type !== QuestionType.MultipleChoice ||
-            arg.options !== undefined,
-          {
-            message: "Multiple choice questions must have options",
-            path: ["type"],
-          },
-        ),
-    ),
-  })
-  .refine(
-    (data) =>
-      !data.availableTo ||
-      dayjs(data.availableFrom).isBefore(dayjs(data.availableTo)),
-    {
-      message: "Available from must be before available to",
-      path: ["availableTo"],
-    },
-  );
-
-export type TicketSchema = Infer<typeof ticketSchema>;

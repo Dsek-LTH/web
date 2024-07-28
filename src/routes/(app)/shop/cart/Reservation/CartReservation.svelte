@@ -3,8 +3,8 @@
   import Price from "$lib/components/Price.svelte";
   import ScrollingNumber from "$lib/components/Timer/ScrollingNumber.svelte";
   import Timer from "$lib/components/Timer/Timer.svelte";
-  import type { CartReservation } from "$lib/server/shop/getTickets";
   import { now } from "$lib/stores/date";
+  import type { CartReservation } from "$lib/utils/shop/types";
   import * as m from "$paraglide/messages";
 
   export let item: CartReservation;
