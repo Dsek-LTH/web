@@ -252,6 +252,7 @@
   "committees_errors_committeeNotFound": "Kunde inte hitta utskottet",
   "committees_errors_fetchNumberOfMandates": "Kunde inte hämta antalet olika mandat i utskottet",
   "committees_errors_fetchMarkdown": "Kunde inte hämta markdown",
+  "committees_errors_fetchUniqueMembers": "Kunde inte hämta ut unika medlemmar i utskottet",
   "committees_errors_imageMustBeSVG": "Bilden måste vara i SVG-format",
   "committees_errors_uploadImage": "Kunde inte ladda upp bilden",
   "committees_committeeUpdated": "Utskott uppdaterat",

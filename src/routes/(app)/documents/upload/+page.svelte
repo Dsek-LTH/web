@@ -1,11 +1,13 @@
 <script lang="ts">
   import Labeled from "$lib/components/Labeled.svelte";
-  import { superForm } from "sveltekit-superforms/client";
+  import { fileProxy, superForm } from "sveltekit-superforms/client";
   import DocumentTypeSelector from "./DocumentTypeSelector.svelte";
   import type { PageData } from "./$types";
   import * as m from "$paraglide/messages";
   import { typeToPath } from "./helpers";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
+  import { zodClient } from "sveltekit-superforms/adapters";
+  import { uploadSchema } from "./types";
 
   export let data: PageData;
   const { form, constraints, errors, enhance } = superForm(data.form, {
@@ -13,22 +15,20 @@
       if (event.result.type === "success") {
         // On successful upload, set files to undefined and clear the filename
         // year and meeting is still kept as to easily upload more files for the same meeting
-        files = undefined;
         form.update((f) => {
           f.name = "";
+          f.file = undefined;
           return f;
         });
       }
     },
+    resetForm: false,
+    validators: zodClient(uploadSchema),
   });
-  let files: FileList | undefined = undefined;
-  const setNameInputToFileName = () => {
-    form.update((f) => {
-      f.name = files?.[0]?.name.replace(/_+/g, " ").replace(/\..+$/, "") ?? "";
-      return f;
-    });
-  };
+  const file = fileProxy(form, "file");
+
   $: pathInfo = typeToPath[$form.type];
+  $: fileErrors = $errors.file as string | string[] | undefined;
 </script>
 
 <SetPageTitle title={m.documents_uploadDocument()} />
@@ -65,8 +65,11 @@
       {...$constraints.folder}
     />
   </Labeled>
+  {#if $file && "item" in $file && $file.item(0)}
+    {$file.item(0)?.name}
+  {/if}
 
-  <Labeled error={$errors.file}>
+  <Labeled error={fileErrors}>
     <label class="mb-5 text-lg font-medium" for="file">
       3. {m.documents_uploadFile()}
     </label>
@@ -75,9 +78,16 @@
       type="file"
       name="file"
       class="file-input file-input-bordered"
-      required
-      bind:files
-      on:change={setNameInputToFileName}
+      bind:files={$file}
+      on:input={(e) => {
+        if (e.currentTarget.files) {
+          $form.name =
+            e.currentTarget.files
+              ?.item(0)
+              ?.name.replace(/_+/g, " ")
+              .replace(/\..+$/, "") ?? "";
+        }
+      }}
       {...$constraints.file}
     />
   </Labeled>

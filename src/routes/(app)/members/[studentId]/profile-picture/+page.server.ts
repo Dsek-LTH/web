@@ -1,18 +1,13 @@
+import { PUBLIC_BUCKETS_MEMBERS } from "$env/static/public";
 import { fileHandler } from "$lib/files";
+import * as m from "$paraglide/messages";
 import { error, fail } from "@sveltejs/kit";
 import sharp from "sharp";
-import {
-  message,
-  setError,
-  superValidate,
-  type Infer,
-} from "sveltekit-superforms/server";
 import { zod } from "sveltekit-superforms/adapters";
-import { z } from "zod";
-import type { Actions, PageServerLoad } from "./$types";
-import { PUBLIC_BUCKETS_MEMBERS } from "$env/static/public";
+import { message, superValidate, withFiles } from "sveltekit-superforms/server";
 import { v4 as uuid } from "uuid";
-import * as m from "$paraglide/messages";
+import type { Actions, PageServerLoad } from "./$types";
+import { changeSchema, deleteSchema, uploadSchema } from "./types";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma } = locals;
@@ -39,22 +34,6 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   };
 };
 
-const changeSchema = z.object({
-  url: z.string().url(),
-});
-export type ChangeSchema = Infer<typeof changeSchema>;
-const uploadSchema = z.object({
-  image: z.any(),
-  cropWidth: z.number().min(0).default(0),
-  cropHeight: z.number().min(0).default(0),
-  cropX: z.number().min(0).default(0),
-  cropY: z.number().min(0).default(0),
-});
-const deleteSchema = z.object({
-  fileName: z.string(),
-});
-export type DeleteSchema = Infer<typeof deleteSchema>;
-
 export const actions: Actions = {
   change: async ({ params, locals, request }) => {
     const { prisma } = locals;
@@ -74,12 +53,12 @@ export const actions: Actions = {
   },
   upload: async ({ params, locals, request }) => {
     const formData = await request.formData();
-    const form = await superValidate(formData, zod(uploadSchema));
-    if (!form.valid) return fail(400, { form });
+    const form = await superValidate(formData, zod(uploadSchema), {
+      allowFiles: true,
+    });
+    if (!form.valid) return fail(400, withFiles({ form }));
 
-    const image = formData.get("image");
-    if (!image || !(image instanceof File) || image.size <= 0)
-      return setError(form, "image", m.members_errors_invalidPicture());
+    const { image } = form.data;
     const fileName = uuid();
     try {
       const buffer = await sharp(await image.arrayBuffer())
@@ -116,7 +95,6 @@ export const actions: Actions = {
           { status: 500 },
         );
     } catch (e) {
-      console.log(e);
       return message(
         form,
         {

@@ -2,18 +2,22 @@
   import Input from "$lib/components/Input.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
   import apiNames from "$lib/utils/apiNames";
-  import { superForm } from "sveltekit-superforms/client";
+  import { fileProxy, superForm } from "sveltekit-superforms/client";
   import type { SuperValidated } from "sveltekit-superforms";
-  import type { UpdateSchema } from "./committee.server";
   import { isAuthorized } from "$lib/utils/authorization";
   import { page } from "$app/stores";
   import * as m from "$paraglide/messages";
+  import { zodClient } from "sveltekit-superforms/adapters";
+  import { updateSchema, type UpdateSchema } from "./types";
 
   let formData: SuperValidated<UpdateSchema>;
   export { formData as form };
   export let open = false;
 
-  const { form, errors, constraints, enhance } = superForm(formData);
+  const { form, errors, constraints, enhance } = superForm(formData, {
+    validators: zodClient(updateSchema),
+  });
+  const image = fileProxy(form, "image");
 </script>
 
 {#if open && isAuthorized(apiNames.COMMITTEE.UPDATE, $page.data.user)}
@@ -55,7 +59,8 @@
         id="image"
         class=" file-input file-input-bordered w-full max-w-xs"
         type="file"
-        accept=".svg"
+        accept="image/svg+xml"
+        bind:files={$image}
         {...$constraints.image}
       />
     </Labeled>
