@@ -5,7 +5,6 @@
   import type { NotificationSchema } from "$lib/zod/schemas";
   import * as m from "$paraglide/messages";
   import { signIn } from "@auth/sveltekit/client";
-  import type { Notification } from "@prisma/client";
   import type { SuperValidated } from "sveltekit-superforms";
   import DarkLightToggle from "./DarkLightToggle.svelte";
   import LanguageSwitcher from "./LanguageSwitcher.svelte";
@@ -15,7 +14,8 @@
   import { getRoutes } from "./routes";
   import Search from "$lib/components/Search.svelte";
   import LoadingButton from "$lib/components/LoadingButton.svelte";
-  $: notifications = $page.data["notifications"] as Notification[] | null;
+  import type { NotificationGroup } from "$lib/utils/notifications/group";
+  $: notifications = $page.data["notifications"] as NotificationGroup[] | null;
   $: deleteNotificationForm = $page.data[
     "deleteNotificationForm"
   ] as SuperValidated<NotificationSchema> | null;

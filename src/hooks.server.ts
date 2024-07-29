@@ -1,13 +1,14 @@
 import { env } from "$env/dynamic/private";
 import keycloak from "$lib/server/keycloak";
 import { i18n } from "$lib/utils/i18n";
+import { redirect } from "$lib/utils/redirect";
+import { themes } from "$lib/utils/themes";
 import { isAvailableLanguageTag, sourceLanguageTag } from "$paraglide/runtime";
 import Keycloak, { type KeycloakProfile } from "@auth/core/providers/keycloak";
 import type { TokenSet } from "@auth/core/types";
 import { SvelteKitAuth } from "@auth/sveltekit";
 import { PrismaClient } from "@prisma/client";
 import { error, type Handle } from "@sveltejs/kit";
-import { redirect } from "$lib/utils/redirect";
 import { sequence } from "@sveltejs/kit/hooks";
 import { enhance } from "@zenstackhq/runtime";
 import RPCApiHandler from "@zenstackhq/server/api/rpc";
@@ -16,7 +17,6 @@ import { randomBytes } from "crypto";
 import schedule from "node-schedule";
 import translatedExtension from "./database/prisma/translationExtension";
 import { getAccessPolicies } from "./hooks.server.helpers";
-import { themes } from "$lib/utils/themes";
 
 const authHandle = SvelteKitAuth({
   secret: env.AUTH_SECRET,
@@ -105,6 +105,7 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
       });
     }
     const policies = await getAccessPolicies(prisma);
+
     event.locals.prisma = enhance(
       prisma,
       {
@@ -139,7 +140,7 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
       }));
 
     if (
-      event.url.pathname != "/onboarding" &&
+      i18n.route(event.url.pathname) != "/onboarding" &&
       (!member.classProgramme || !member.classYear) // consider adding email here, but make sure to fix onboarding as well
     ) {
       redirect(302, "/onboarding");
@@ -154,6 +155,7 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
         session.user.group_list,
       ),
     };
+
     event.locals.prisma = enhance(
       prisma,
       { user },

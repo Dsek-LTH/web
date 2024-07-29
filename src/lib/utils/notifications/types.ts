@@ -38,6 +38,32 @@ export enum NotificationSettingType {
 }
 
 /**
+ * Defines whether or not a notification type should be "grouped"/"merged" when viewed on the site.
+ * For example, 5 NEWS_LIKE notifications can be merged into "John Smith, Jane Doe and 3 others have liked your article"
+ * Notifications of the same type will only be merged if they have the same link.
+ * When in doubt: "false". If you change to true, there might be code edits necessary in the "groupNotifications" method.
+ */
+export const SHOULD_MERGE_NOTIFICATIONS: Record<NotificationType, boolean> = {
+  [NotificationType.NEWS_LIKE]: true,
+  [NotificationType.EVENT_LIKE]: true,
+  [NotificationType.COMMENT]: false,
+  [NotificationType.EVENT_COMMENT]: false,
+  [NotificationType.ARTICLE_REQUEST_UPDATE]: false,
+  [NotificationType.MENTION]: true,
+  [NotificationType.NEW_ARTICLE]: false,
+  [NotificationType.EVENT_GOING]: true,
+  [NotificationType.EVENT_INTERESTED]: true,
+  [NotificationType.CREATE_MANDATE]: false,
+  [NotificationType.BOOKING_REQUEST]: false,
+  [NotificationType.PING]: true,
+  [NotificationType.PAYMENT_STATUS]: false,
+  [NotificationType.PURCHASE_TIME_TO_BUY]: false,
+  [NotificationType.PURCHASE_IN_QUEUE]: false,
+  [NotificationType.PURCHASE_CONSUMABLE_EXPIRED]: false,
+  [NotificationType.PURCHASE_SOLD_OUT]: false,
+};
+
+/**
  * Maps subscription settings to internal notification types.
  * A subscription setting controls said notification types.
  */
@@ -45,8 +71,11 @@ export const SUBSCRIPTION_SETTINGS_MAP: Record<
   NotificationSettingType,
   NotificationType[]
 > = {
-  LIKE: [NotificationType.NEWS_LIKE, NotificationType.EVENT_LIKE],
-  COMMENT: [
+  [NotificationSettingType.LIKE]: [
+    NotificationType.NEWS_LIKE,
+    NotificationType.EVENT_LIKE,
+  ],
+  [NotificationSettingType.COMMENT]: [
     NotificationType.COMMENT,
     NotificationType.EVENT_COMMENT,
     // I think using "COMMENT" for ARTICLE_REQUEST_UPDATE makes sense.
@@ -54,16 +83,16 @@ export const SUBSCRIPTION_SETTINGS_MAP: Record<
     // the same demographic want notifications for comments and approvements.
     NotificationType.ARTICLE_REQUEST_UPDATE,
   ],
-  MENTION: [NotificationType.MENTION],
-  NEW_ARTICLE: [NotificationType.NEW_ARTICLE],
-  EVENT_GOING: [
+  [NotificationSettingType.MENTION]: [NotificationType.MENTION],
+  [NotificationSettingType.NEW_ARTICLE]: [NotificationType.NEW_ARTICLE],
+  [NotificationSettingType.EVENT_GOING]: [
     NotificationType.EVENT_GOING,
     NotificationType.EVENT_INTERESTED,
   ],
-  CREATE_MANDATE: [NotificationType.CREATE_MANDATE],
-  BOOKING_REQUEST: [NotificationType.BOOKING_REQUEST],
-  PING: [NotificationType.PING],
-  PURCHASES: [
+  [NotificationSettingType.CREATE_MANDATE]: [NotificationType.CREATE_MANDATE],
+  [NotificationSettingType.BOOKING_REQUEST]: [NotificationType.BOOKING_REQUEST],
+  [NotificationSettingType.PING]: [NotificationType.PING],
+  [NotificationSettingType.PURCHASES]: [
     NotificationType.PURCHASE_TIME_TO_BUY,
     NotificationType.PURCHASE_IN_QUEUE,
     NotificationType.PURCHASE_CONSUMABLE_EXPIRED,

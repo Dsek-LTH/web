@@ -2,13 +2,13 @@
   import { page } from "$app/stores";
   import Notification from "$lib/components/Notification.svelte";
   import type { NotificationSchema } from "$lib/zod/schemas";
-  import type { Notification as NotificationType } from "@prisma/client";
   import { flip } from "svelte/animate";
   import type { SuperValidated } from "sveltekit-superforms";
   import { superForm } from "sveltekit-superforms/client";
   import * as m from "$paraglide/messages";
+  import type { NotificationGroup } from "$lib/utils/notifications/group";
 
-  export let notifications: NotificationType[];
+  export let notifications: NotificationGroup[];
   export let deleteForm: SuperValidated<NotificationSchema>;
 
   // Get the number of unread notifications, which is then used to indicate the user
@@ -62,7 +62,7 @@
   <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
   <ul
     tabindex="0"
-    class="menu dropdown-content !fixed right-0 z-[1] max-h-[80svh] w-full flex-nowrap overflow-clip rounded-box bg-base-100 p-0 shadow sm:!absolute sm:w-96"
+    class="menu dropdown-content !fixed right-0 z-[1] max-h-[80svh] w-full flex-nowrap overflow-clip rounded-box bg-base-100 p-0 shadow sm:!absolute sm:w-[27rem]"
   >
     {#if notifications.length >= 1}
       <div class="overflow-y-auto">
@@ -96,7 +96,9 @@
         data-sveltekit-keepfocus
       >
         {#each notifications as notification (notification.id)}
-          <input type="hidden" name="notificationIds" value={notification.id} />
+          {#each notification.individualIds as id}
+            <input type="hidden" name="notificationIds" value={id} />
+          {/each}
         {/each}
         <button
           class="btn btn-ghost no-animation z-10 w-full rounded-none border-0 border-t border-gray-700 *:text-2xl"

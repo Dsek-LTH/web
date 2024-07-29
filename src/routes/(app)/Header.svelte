@@ -21,7 +21,35 @@
       <a class="btn btn-primary font-bold uppercase" href="/info/for-foretag">
         {m.home_forCompanies()}
       </a>
+      <a
+        class="shiny-button btn btn-outline btn-primary ml-4 font-bold uppercase shadow-primary outline outline-primary/10 transition-all"
+        href="/nolla"
+      >
+        {m.home_nolla()}
+      </a>
     </div>
   </div>
 </div>
 <div class="-mt-20 h-20 bg-gradient-to-t from-base-100 to-transparent" />
+
+<style>
+  @keyframes pulseOutline {
+    from {
+      outline-offset: 0px;
+      outline-color: var(--fallback-p, oklch(var(--p)));
+    }
+    to {
+      outline-offset: 10px;
+      outline-color: var(--fallback-p, oklch(var(--p) / 0));
+    }
+  }
+
+  .shiny-button {
+    outline-style: double;
+    animation: pulseOutline 1s linear infinite;
+  }
+
+  .shiny-button:hover {
+    animation-direction: reverse;
+  }
+</style>

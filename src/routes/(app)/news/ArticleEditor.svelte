@@ -2,16 +2,16 @@
   import Input from "$lib/components/Input.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
   import MarkdownEditor from "$lib/components/MarkdownEditor.svelte";
+  import AuthorSignature from "$lib/components/socials/AuthorSignature.svelte";
   import TagChip from "$lib/components/TagChip.svelte";
   import TagSelector from "$lib/components/TagSelector.svelte";
+  import * as m from "$paraglide/messages";
   import type { Tag } from "@prisma/client";
   import type { SuperValidated } from "sveltekit-superforms";
   import { superForm } from "sveltekit-superforms/client";
   import Article from "./Article.svelte";
-  import AuthorSignature from "$lib/components/AuthorSignature.svelte";
   import type { AuthorOption } from "./articles.js";
   import type { ArticleSchema } from "./schema";
-  import * as m from "$paraglide/messages";
 
   export let data: SuperValidated<ArticleSchema>;
   export let authorOptions: AuthorOption[];
@@ -114,7 +114,7 @@
         slot="author"
         member={$form.author.member}
         position={$form.author.mandate?.position}
-        customAuthor={$form.author.customAuthor ?? undefined}
+        customAuthor={$form.author.customAuthor}
         type={$form.author.type}
       />
 

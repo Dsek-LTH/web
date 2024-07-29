@@ -1,16 +1,16 @@
 <script lang="ts">
   import { page } from "$app/stores";
+  import LoadingButton from "$lib/components/LoadingButton.svelte";
+  import NavIcon from "$lib/components/NavIcon.svelte";
+  import { pageTitle } from "$lib/stores/pageTitle";
+  import { i18n } from "$lib/utils/i18n";
+  import type { NotificationGroup } from "$lib/utils/notifications/group";
   import type { NotificationSchema } from "$lib/zod/schemas";
   import { signIn } from "@auth/sveltekit/client";
-  import type { Notification } from "@prisma/client";
   import type { SuperValidated } from "sveltekit-superforms";
   import NotificationBell from "./NotificationBell.svelte";
   import { appBottomNavRoutes, getRoutes } from "./routes";
-  import { pageTitle } from "$lib/stores/pageTitle";
-  import { i18n } from "$lib/utils/i18n";
-  import NavIcon from "$lib/components/NavIcon.svelte";
-  import LoadingButton from "$lib/components/LoadingButton.svelte";
-  $: notifications = $page.data["notifications"] as Notification[] | null;
+  $: notifications = $page.data["notifications"] as NotificationGroup[] | null;
   $: deleteNotificationForm = $page.data[
     "deleteNotificationForm"
   ] as SuperValidated<NotificationSchema> | null;

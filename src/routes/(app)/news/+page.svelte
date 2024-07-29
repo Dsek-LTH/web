@@ -22,7 +22,7 @@
 <SetPageTitle title={m.news()} />
 
 <div class="space-y-4">
-  <section class="flex flex-col gap-2">
+  <section>
     <form
       method="get"
       class="form-control flex-1 gap-2 md:flex-row md:items-end"
