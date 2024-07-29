@@ -58,13 +58,13 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
 <dialog
-  class="text-base-content h-full rounded-2xl bg-transparent max-w-md md:w-full"
+  class="h-full max-w-md rounded-2xl bg-transparent text-base-content md:w-full"
   style="display: revert;"
   bind:this={dialog}
   on:click={close}
 >
   <form
-    class="bg-base-100 rounded-2xl p-2 shadow"
+    class="rounded-2xl bg-base-100 p-2 shadow"
     on:click={(event) => event.stopPropagation()}
   >
     <div class="flex gap-2">
