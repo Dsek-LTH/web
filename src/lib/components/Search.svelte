@@ -1,11 +1,9 @@
 <script lang="ts">
   import type { Member } from "@prisma/client";
-  import { fade } from "svelte/transition";
 
   let value = "";
-  let show = false;
   let users: Member[] = [];
-  const searchBackgroundId = "searchBackground";
+  let dialog: HTMLDialogElement;
 
   async function getMembers() {
     if (value === "") {
@@ -18,29 +16,25 @@
     users = await response.json();
   }
 
-  function showDialog() {
-    show = true;
+  function show() {
+    dialog.showModal();
     document.body.style.overflow = "hidden";
   }
 
-  function hideDialog() {
+  function close() {
+    dialog.close();
+    document.body.style.overflow = "auto";
     value = "";
     users = [];
-    show = false;
-    document.body.style.overflow = "auto";
   }
 
   function handleKeydown(event: KeyboardEvent) {
     if (event.ctrlKey && event.key === "k") {
       event.preventDefault();
-      showDialog();
+      show();
     } else if (event.key === "Escape") {
-      hideDialog();
+      close();
     }
-  }
-
-  function clickOutside(event: MouseEvent) {
-    if ((event.target as HTMLElement).id === searchBackgroundId) hideDialog();
   }
 </script>
 
@@ -57,58 +51,64 @@
   </a>
 </noscript>
 
-<button class="js btn btn-ghost" on:click={showDialog}>
+<button class="js btn btn-ghost" on:click={show}>
   <span class="i-mdi-magnify size-6" />
 </button>
 
-{#if show}
-  <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <!-- svelte-ignore a11y-no-static-element-interactions -->
-  <div
-    class="absolute left-0 top-0 z-50 h-screen w-screen backdrop-blur"
-    id={searchBackgroundId}
-    transition:fade={{ duration: 100 }}
-    on:click={clickOutside}
+<!-- svelte-ignore a11y-click-events-have-key-events -->
+<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+<dialog
+  class="text-base-content h-full rounded-2xl bg-transparent max-w-md md:w-full"
+  style="display: revert;"
+  bind:this={dialog}
+  on:click={close}
+>
+  <form
+    class="bg-base-100 rounded-2xl p-2 shadow"
+    on:click={(event) => event.stopPropagation()}
   >
-    <div class="mx-auto mb-auto mt-8 w-full max-w-md">
-      <form class="rounded-2xl bg-base-100 p-2 shadow">
-        <div class="flex gap-2">
-          <label class="input flex w-full items-center gap-2">
-            <span class="i-mdi-magnify size-6" />
-            <!-- svelte-ignore a11y-autofocus -->
-            <input
-              type="text"
-              placeholder="Sök efter medlemmar"
-              class="bg-transparent"
-              autofocus
-              bind:value
-              on:input={getMembers}
-            />
-          </label>
-          <button class="btn btn-ghost" on:click={hideDialog}>
-            <kbd class="kbd">ESC</kbd>
-          </button>
-        </div>
-        {#if users.length > 0}
-          <ul class="mt-2 flex flex-col gap-1">
-            {#each users.slice(0, 10) as user}
-              <li>
-                <a
-                  href={"/members/" + user.studentId}
-                  class="btn flex justify-between"
-                  on:click={hideDialog}
-                >
-                  <div>{user.firstName} {user.lastName}</div>
-                  <div class="text-primary">({user.studentId})</div>
-                </a>
-              </li>
-            {/each}
-            {#if users.length > 10}
-              <li class="text-center">...</li>
-            {/if}
-          </ul>
-        {/if}
-      </form>
+    <div class="flex gap-2">
+      <label class="input flex w-full items-center gap-2">
+        <span class="i-mdi-magnify size-6" />
+        <!-- svelte-ignore a11y-autofocus -->
+        <input
+          type="text"
+          placeholder="Sök efter medlemmar"
+          class="bg-transparent"
+          autofocus
+          bind:value
+          on:input={getMembers}
+        />
+      </label>
+      <button class="btn btn-ghost hidden sm:inline-flex" on:click={close}>
+        <kbd class="kbd">ESC</kbd>
+      </button>
     </div>
-  </div>
-{/if}
+    {#if users.length > 0}
+      <ul class="mt-2 flex flex-col gap-1">
+        {#each users.slice(0, 10) as user}
+          <li>
+            <a
+              href={"/members/" + user.studentId}
+              class="btn flex justify-between"
+              on:click={close}
+            >
+              <div>{user.firstName} {user.lastName}</div>
+              <div class="text-primary">({user.studentId})</div>
+            </a>
+          </li>
+        {/each}
+        {#if users.length > 10}
+          <li class="text-center">...</li>
+        {/if}
+      </ul>
+    {/if}
+  </form>
+</dialog>
+
+<style>
+  dialog::backdrop {
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(3px);
+  }
+</style>
