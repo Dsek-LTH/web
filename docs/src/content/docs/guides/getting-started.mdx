@@ -1,0 +1,139 @@
+---
+title: Getting started
+description: A guide in my new Starlight docs site.
+---
+
+import { Aside, Code, Steps, LinkCard } from "@astrojs/starlight/components";
+
+Follow the steps below to get a local development enviornment up and running.
+
+## Prerequisites
+
+Before you get up and running, you need to install the following software.
+You need to install the following tools by following the instructions on their respective websites.
+
+<Aside type="tip" title="Using Windows?">
+   If you're running Windows, it's highly recommended to first install **WSL**. This sets up a Linux environment on your Windows machine and simplifies development.
+
+   <LinkCard
+   title="Install WSL"
+   href="https://learn.microsoft.com/en-us/windows/wsl/install"
+   target="_blank"
+   />
+</Aside>
+
+<Steps>
+
+1. Head over to the installation page for **Node.js**.
+
+   <LinkCard
+     title="Install Node.js"
+     description="Install Node.js LTS. Using nvm is recommended, but not required."
+     href="https://nodejs.org/en/download/"
+     target="_blank"
+   />
+
+   When the installation is complete, open a terminal and ensure everything works as expected. Your output may vary.
+
+   ```bash
+   > node -v
+   v20.16.0
+   ```
+
+2. Now, install the package manager **pnpm**.
+
+   <LinkCard
+     title="Install pnpm"
+     description="Installing pnpm using Corepack is strongly recommended."
+     href="https://pnpm.io/installation#using-corepack"
+     target="_blank"
+   />
+
+   When the installation is complete, open a terminal and ensure everything works as expected. Your output may vary.
+
+   ```bash
+   > pnpm -v
+   9.6.0
+   ```
+
+3. Finally, install **Docker Desktop**.
+
+   <LinkCard
+     title="Install Docker"
+     description="Docker Desktop is a graphical interface for Docker. Docker is not strictly required for development, but it simplifies setting up a development database."
+     href="https://docs.docker.com/get-docker/"
+     target="_blank"
+   />
+
+   When the installation is complete, open a terminal and ensure everything works as expected. Your output may vary.
+
+   ```bash
+   > docker -v
+   Docker version 20.10.17, build 100c701
+   ```
+
+</Steps>
+
+## Installation
+
+<Steps>
+
+1. Clone the repo into `dsek-web` and change into the directory.
+   ```bash
+   git clone https://github.com/Dsek-LTH/web.git dsek-web && cd dsek-web
+   ```
+2. Install all dependencies using `pnpm`.
+   ```bash
+   pnpm install
+   ```
+3. Setup your local development database. [Having problems?](#troubleshooting)
+
+   ```bash
+   sh ./dev/setup_db.sh
+   ```
+
+4. Start the development server.
+
+   ```bash
+   pnpm dev
+   ```
+
+5. Congratulations! You should now be able to visit your application on [http://localhost:5173](http://localhost:5173).
+   <LinkCard
+     title="Visit your application"
+     description="A development server is now running on your computer!"
+     href="http://localhost:5173"
+     target="_blank"
+   />
+
+</Steps>
+
+### Troubleshooting
+
+export const setupDbCode = await fetch(
+  "https://raw.githubusercontent.com/Dsek-LTH/web/main/dev/setup_db.sh",
+).then((response) => response.text());
+
+Issues commonly occur when setting up the local development database. Usually, this shows up either as errors when running `sh ./dev/setup_db.sh` or as simply not seeing any data when the development server starts. Here are some steps you can try to fix the problem:
+
+<Steps>
+
+1. Begin by deleting the local database. Open Docker Desktop and delete `dsek-db` (or use the command below).
+
+   ```bash title="Docker CLI (alternative)"
+   docker rm --force dsek-db
+   ```
+
+2. Option 1: If you noticed permission errors while running `sh ./dev/setup_db.sh`, try running the script using `sudo`.
+
+   ```bash
+   sudo sh ./dev/setup_db.sh
+   ```
+
+3. Option 2: You can always try to run the commands in the script manually. This makes it easier to troubleshoot what's going on. Open a terminal and run the commands one-by-one.
+
+   Note that some commands span multiple lines! Backslashes `\` are used to break a command into multiple lines.
+
+   <Code code={setupDbCode} lang="bash" title="setup_db.sh" />
+
+</Steps>
