@@ -39,8 +39,7 @@ export type NotificationGroup = Omit<
 function groupAuthorNames(group: NotificationGroup) {
   const authors = group.authors; // unique
   const authorCount = authors.length;
-  if (authorCount == 0)
-    throw new Error("`groupAuthorNames` expects at least one author");
+  if (authorCount == 0) return "Någon"; // Edge case, all notification authors are undefined
   const firstAuthor = authors[0];
   if (!firstAuthor) return `${authorCount} personer`; // Edge case, all notification authors are undefined
   const firstAuthorName = getAuthorName(firstAuthor);
