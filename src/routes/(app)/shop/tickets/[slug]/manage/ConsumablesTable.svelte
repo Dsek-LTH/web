@@ -14,7 +14,7 @@
   >;
 </script>
 
-<div class="my-8 overflow-x-auto bg-base-200 p-2 shadow-xl">
+<div class="my-8 overflow-x-auto rounded-box bg-base-200 p-2 shadow-xl">
   <table class="table">
     <thead>
       {#if title}
@@ -36,7 +36,7 @@
         {#each consumables as consumable (consumable.id)}
           <!-- The below is a TypeScript "hack" to verify the object type in a union. We check if the field "purchasedAt" exists since that only exists on a consumable. It exists even if is null. -->
           <ConsumableRow
-            consumable={"purchasedAt" in consumable ? consumable : null}
+            consumable={"purchasedAt" in consumable ? consumable ?? null : null}
             reservation={"purchasedAt" in consumable ? null : consumable}
           />
         {/each}

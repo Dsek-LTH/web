@@ -2,7 +2,9 @@
   import { enhance } from "$app/forms";
   import Price from "$lib/components/Price.svelte";
   import ScrollingNumber from "$lib/components/Timer/ScrollingNumber.svelte";
+  import Timer from "$lib/components/Timer/Timer.svelte";
   import type { CartReservation } from "$lib/server/shop/getTickets";
+  import { now } from "$lib/stores/date";
   import * as m from "$paraglide/messages";
 
   export let item: CartReservation;
@@ -38,6 +40,9 @@
       <ScrollingNumber number={item.order + 1} />
     {:else}
       {m.cart_reservation_awaitingLottery()}
+      <Timer
+        milliseconds={shoppable.gracePeriodEndsAt.valueOf() - $now.valueOf()}
+      />
     {/if}
   </div>
   <form method="POST" action="?/removeReservation" use:enhance>

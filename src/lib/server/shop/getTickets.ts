@@ -165,7 +165,12 @@ export type CartItem = Consumable &
   ItemMetadata & {
     questionResponses: ItemQuestionResponse[];
   };
-export type CartReservation = ConsumableReservation & ItemMetadata;
+export type CartReservation = ConsumableReservation &
+  ItemMetadata & {
+    shoppable: {
+      gracePeriodEndsAt: Date;
+    };
+  };
 
 export const getCart = async (
   prisma: PrismaClient,
@@ -233,6 +238,9 @@ export const getCart = async (
         ...c.shoppable.ticket!,
         ...c.shoppable,
         ticket: undefined,
+        gracePeriodEndsAt: new Date(
+          c.shoppable.availableFrom.valueOf() + GRACE_PERIOD_WINDOW,
+        ),
       },
     })),
   };

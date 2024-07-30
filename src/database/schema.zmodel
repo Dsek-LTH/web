@@ -789,6 +789,7 @@ model SubscriptionSetting {
   pushNotification Boolean @default(false) @map("push_notification")
   member           Member  @relation(fields: [memberId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "subscription_settings_member_id_foreign")
 
+  @@unique([memberId, type]) // a user should only be able to have one setting per type
   @@allow('create', auth().memberId == memberId)
   @@allow('read', auth().memberId == memberId)
   @@allow('update', auth().memberId == memberId && auth().memberId == future().memberId)
