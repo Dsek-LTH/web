@@ -3,7 +3,7 @@ import starlight from "@astrojs/starlight";
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://Dsek-LTH.github.io",
+  site: "https://dsek-lth.github.io",
   base: "web",
   integrations: [
     starlight({
