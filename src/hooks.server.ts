@@ -2,7 +2,7 @@ import { env } from "$env/dynamic/private";
 import keycloak from "$lib/server/keycloak";
 import { i18n } from "$lib/utils/i18n";
 import { redirect } from "$lib/utils/redirect";
-import { themes } from "$lib/utils/themes";
+import { themes, type Theme } from "$lib/utils/themes";
 import { isAvailableLanguageTag, sourceLanguageTag } from "$paraglide/runtime";
 import Keycloak, { type KeycloakProfile } from "@auth/core/providers/keycloak";
 import type { TokenSet } from "@auth/core/types";
@@ -202,7 +202,7 @@ const appHandle: Handle = async ({ event, resolve }) => {
 const themeHandle: Handle = async ({ event, resolve }) => {
   const theme = event.cookies.get("theme");
 
-  if (!theme || !themes.includes(theme)) {
+  if (!theme || !themes.includes(theme as Theme)) {
     return await resolve(event);
   }
 

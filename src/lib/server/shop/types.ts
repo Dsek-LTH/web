@@ -1,5 +1,4 @@
 import type { PrismaClient } from "@prisma/client";
-import { z } from "zod";
 
 export type TransactionClient = Parameters<
   Parameters<PrismaClient["$transaction"]>[0]
