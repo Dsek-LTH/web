@@ -35,12 +35,14 @@
 >
   <div class="aspect-square md:col-start-1 md:col-end-2">
     <MemberAvatar {member} class="w-full rounded-lg">
-      <a
-        href="{$page.params['studentId']}/profile-picture"
-        class="btn btn-square glass btn-secondary btn-sm absolute right-2 top-2"
-      >
-        <span class="i-mdi-edit" />
-      </a>
+      {#if canEdit}
+        <a
+          href="{$page.params['studentId']}/profile-picture"
+          class="btn btn-square glass btn-secondary btn-sm absolute right-2 top-2"
+        >
+          <span class="i-mdi-edit" />
+        </a>
+      {/if}
     </MemberAvatar>
   </div>
   <!-- Name, StiL-ID, badge and actions -->
