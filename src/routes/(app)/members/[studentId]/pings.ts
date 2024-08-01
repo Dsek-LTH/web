@@ -23,7 +23,6 @@ export const sendPing = async (
   prisma: PrismaClient,
   { link, fromMemberId, toMemberId }: SendPingProps,
 ) => {
-  console.log(link, fromMemberId, toMemberId);
   const sendingMember = await assertMemberExists(
     prisma,
     fromMemberId,
@@ -92,7 +91,7 @@ const assertMemberExists = async (
     if (foundMember == null || !foundMember) throw error(400, errorMsg);
     return foundMember;
   } catch (e) {
-    console.log(e);
+    console.error(e);
     throw error(
       500,
       m.members_errors_failedToFindMember({

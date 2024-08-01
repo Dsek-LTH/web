@@ -19,14 +19,7 @@
   const superform = superForm(createForm, {
     dataType: "json",
   });
-  const { enhance, submitting, form } = superform;
-
-  $: console.log(
-    $form.title,
-    $form.description,
-    $form.titleEn,
-    $form.descriptionEn,
-  );
+  const { enhance, submitting } = superform;
 </script>
 
 <form

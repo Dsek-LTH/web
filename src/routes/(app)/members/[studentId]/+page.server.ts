@@ -181,7 +181,6 @@ export const actions: Actions = {
       });
     } catch (e) {
       if (isHttpError(e)) {
-        console.log(e.body.message);
         return message(
           form,
           {
@@ -193,7 +192,6 @@ export const actions: Actions = {
           },
         );
       }
-      console.log(e);
       return message(form, {
         message: `${e}`,
         type: "error",

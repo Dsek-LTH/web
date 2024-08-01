@@ -132,7 +132,6 @@ export const updateTicket = async (
     });
     // Update questions
     for (const question of updatedQuestions) {
-      console.log(question, question.options);
       await tx.itemQuestionOption.deleteMany({
         where: {
           questionId: question.id!,
@@ -165,7 +164,6 @@ export const updateTicket = async (
     // create new questions
     if (newQuestions.length > 0) {
       for (const question of newQuestions) {
-        console.log(question, question.options);
         // have to do a loop
         await tx.itemQuestion.create({
           data: {

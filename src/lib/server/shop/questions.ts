@@ -48,7 +48,6 @@ export const answerQuestion = async (
   if (!question) throw new Error("Question not found");
 
   let extraPrice: number;
-  console.log(data.questionId, question);
   switch (question.type) {
     case QuestionType.MultipleChoice: {
       const answerObj = question.options.find(
