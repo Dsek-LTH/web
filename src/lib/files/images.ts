@@ -1,3 +1,4 @@
+import { dev } from "$app/environment";
 import {
   PUBLIC_MINIO_ENDPOINT,
   PUBLIC_MINIO_PORT,
@@ -14,7 +15,7 @@ const MINIO_BASE_URL = (() => {
 
 export const getImageUrl = (imageUrl: string) => {
   if (imageUrl.startsWith("minio/")) {
-    return `${MINIO_BASE_URL}dev-${imageUrl.substring(6)}`;
+    return `${MINIO_BASE_URL}${imageUrl.substring(6)}`;
   }
   return imageUrl;
 };

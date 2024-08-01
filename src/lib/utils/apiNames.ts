@@ -40,7 +40,7 @@ const apiNames = {
   EMAIL_ALIAS: crud("core:mail:alias"),
   FILES: {
     BUCKET: <bucketName extends string>(name: bucketName) =>
-      crud(`fileHandler:${name.startsWith("dev-") ? name.substring(4) : name}`), // remove "dev-" prefix
+      crud(`fileHandler:${name}`), // remove "dev-" prefix
   },
   MARKDOWNS: {
     ...crud("markdowns"),
