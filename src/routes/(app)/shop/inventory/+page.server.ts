@@ -29,6 +29,9 @@ export const load: PageServerLoad = async ({ locals, depends }) => {
         lte: new Date(),
       },
     },
+    orderBy: {
+      purchasedAt: "desc",
+    },
     include: {
       shoppable: {
         include: {

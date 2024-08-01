@@ -1,6 +1,7 @@
 // See https://kit.svelte.dev/docs/types#app
 
 import type { ToastNotification } from "$lib/stores/toast";
+import type { Theme } from "$lib/utils/themes";
 import type { Member, PrismaClient } from "@prisma/client";
 import type { AuthUser } from "@zenstackhq/runtime";
 
@@ -37,6 +38,7 @@ declare global {
       flash?: Message;
       isApp: boolean;
       appInfo?: AppInfo;
+      theme: Theme;
     }
     // interface Platform {}
 

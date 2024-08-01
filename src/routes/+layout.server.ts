@@ -1,4 +1,4 @@
-import { themes } from "$lib/utils/themes";
+import { themes, type Theme } from "$lib/utils/themes";
 import { loadFlash } from "sveltekit-flash-message/server";
 /**
  * Load the form flash message.
@@ -20,11 +20,13 @@ export const load = loadFlash(async ({ locals, cookies }) => {
 
   // get theme from cookies and send to frontend to show correct icon in theme switch
   const cookieTheme = cookies.get("theme");
-  if (cookieTheme && themes.includes(cookieTheme)) {
-    return {
-      ...layoutData,
-      theme: cookieTheme,
-    };
-  }
-  return layoutData;
+  const theme = (
+    cookieTheme && themes.includes(cookieTheme as Theme)
+      ? (cookieTheme as Theme)
+      : "dark"
+  ) as Theme;
+  return {
+    ...layoutData,
+    theme,
+  };
 });
