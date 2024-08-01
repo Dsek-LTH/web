@@ -160,24 +160,41 @@ export const committeeActions = (
     const { name, description, image, markdown, markdownSlug } = form.data;
     if (image !== undefined) {
       const path = `committees/${shortName ?? params.shortName}.svg`;
-      try {
-        const putUrl = await fileHandler.getPresignedPutUrl(
-          user,
-          PUBLIC_BUCKETS_MATERIAL,
-          path,
-          true,
-        );
-        await fetch(putUrl, {
-          method: "PUT",
-          body: image,
-        });
-        newImageUploaded = true;
-      } catch {
-        return message(
-          form,
-          { message: m.committees_errors_uploadImage(), type: "error" },
-          { status: 500 },
-        );
+      if (image) {
+        try {
+          const putUrl = await fileHandler.getPresignedPutUrl(
+            user,
+            PUBLIC_BUCKETS_MATERIAL,
+            path,
+            true,
+          );
+          const res = await fetch(putUrl, {
+            method: "PUT",
+            body: image,
+          });
+          newImageUploaded = true;
+
+          if (!res.ok)
+            return message(
+              form,
+              {
+                message: `${m.committees_errors_uploadImage()}: ${await res.text()}`,
+                type: "error",
+              },
+              { status: 500 },
+            );
+        } catch (e) {
+          console.error(e);
+          const errMsg = e instanceof Error ? e.message : String(e);
+          return message(
+            form,
+            {
+              message: `${m.committees_errors_uploadImage()}: ${errMsg}`,
+              type: "error",
+            },
+            { status: 500 },
+          );
+        }
       }
     }
     await prisma.committee.update({
@@ -186,7 +203,7 @@ export const committeeActions = (
         name,
         description,
         imageUrl: newImageUploaded
-          ? `minio/material/committees/${
+          ? `minio/${PUBLIC_BUCKETS_MATERIAL}/committees/${
               shortName ?? params.shortName
             }.svg?version=${new Date().getTime()}`
           : undefined,

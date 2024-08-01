@@ -1,4 +1,3 @@
-import { dev } from "$app/environment";
 import {
   PUBLIC_MINIO_ENDPOINT,
   PUBLIC_MINIO_PORT,
