@@ -18,15 +18,15 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   if (!member) {
     throw error(404, m.members_errors_memberNotFound());
   }
-  const photos = await fileHandler.getInBucket(
-    locals.user,
-    PUBLIC_BUCKETS_MEMBERS,
-    `public/${params.studentId}`,
-    true,
-  );
+  // const photos = await fileHandler.getInBucket(
+  //   locals.user,
+  //   PUBLIC_BUCKETS_MEMBERS,
+  //   `public/${params.studentId}`,
+  //   true,
+  // );
   return {
     member,
-    photos,
+    photos: [] as Awaited<ReturnType<typeof fileHandler.getInBucket>>,
     changeForm: await superValidate(changeSchema),
     uploadForm: await superValidate(uploadSchema),
     deleteForm: await superValidate(deleteSchema),
@@ -106,15 +106,19 @@ export const actions: Actions = {
       if (!res.ok)
         return message(
           form,
-          { message: m.members_errors_couldntUploadFile(), type: "error" },
+          {
+            message: `${m.members_errors_couldntUploadFile()}: ${await res.text()}`,
+            type: "error",
+          },
           { status: 500 },
         );
     } catch (e) {
       console.log(e);
+      const errMsg = e instanceof Error ? e.message : String(e);
       return message(
         form,
         {
-          message: m.members_errors_couldntUploadFile(),
+          message: `${m.members_errors_couldntUploadFile()}: ${errMsg}`,
           type: "error",
         },
         { status: 500 },
