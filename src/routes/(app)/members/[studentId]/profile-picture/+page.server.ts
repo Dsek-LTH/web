@@ -18,15 +18,15 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   if (!member) {
     throw error(404, m.members_errors_memberNotFound());
   }
-  // const photos = await fileHandler.getInBucket(
-  //   locals.user,
-  //   PUBLIC_BUCKETS_MEMBERS,
-  //   `public/${params.studentId}`,
-  //   true,
-  // );
+  const photos = await fileHandler.getInBucket(
+    locals.user,
+    PUBLIC_BUCKETS_MEMBERS,
+    `public/${params.studentId}/profile-picture`,
+    true,
+  );
   return {
     member,
-    photos: [] as Awaited<ReturnType<typeof fileHandler.getInBucket>>,
+    photos,
     changeForm: await superValidate(changeSchema),
     uploadForm: await superValidate(uploadSchema),
     deleteForm: await superValidate(deleteSchema),
@@ -97,7 +97,7 @@ export const actions: Actions = {
       const putUrl = await fileHandler.getPresignedPutUrl(
         locals.user,
         PUBLIC_BUCKETS_MEMBERS,
-        `${params.studentId}/profile-picture/${fileName}.webp`,
+        `public/${params.studentId}/profile-picture/${fileName}.webp`,
       );
       const res = await fetch(putUrl, {
         method: "PUT",
