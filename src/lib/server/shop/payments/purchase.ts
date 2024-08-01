@@ -258,7 +258,7 @@ const purchaseCart = async (
             },
             data: {
               stripeIntentId: intent.id,
-              priceAtPurchase: consumable.shoppable.price,
+              priceAtPurchase: calculateConsumablePrice(consumable),
             },
           }),
         ),

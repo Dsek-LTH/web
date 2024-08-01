@@ -37,7 +37,7 @@
   $: constraints = fieldProxy.constraints;
 </script>
 
-<Labeled {label} error={$errors}>
+<Labeled {label} error={$errors} required={$constraints?.required}>
   <select
     class={twMerge(
       "select select-bordered transition-all hover:border-base-content",

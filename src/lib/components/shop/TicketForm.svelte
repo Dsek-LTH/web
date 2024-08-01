@@ -19,23 +19,36 @@
   const superform = superForm(createForm, {
     dataType: "json",
   });
-  const { enhance, submitting } = superform;
+  const { enhance, submitting, form } = superform;
+
+  $: console.log(
+    $form.title,
+    $form.description,
+    $form.titleEn,
+    $form.descriptionEn,
+  );
 </script>
 
-<form method="POST" class="form-control max-w-xl gap-4" use:enhance>
-  <EventSearchInput {superform} {event} />
-  <FormInput {superform} field="title" label="Biljettnamn" />
-  <FormInput {superform} field="description" label="Biljettbeskrivning" />
-  <FormInput {superform} field="titleEn" label="Engelskt biljettnamn" />
-  <FormInput {superform} field="descriptionEn" label="Engelsk beskrivning" />
-  <PriceInput {superform} />
-  <AvailableDates {superform} />
-  <FormNumberInput
-    {superform}
-    field="stock"
-    label="Antal biljetter till salu"
-  />
-  <MaxAmountPerUser {superform} />
+<form
+  method="POST"
+  class="form-control grid max-w-xl grid-cols-1 gap-4 md:max-w-full md:grid-cols-2"
+  use:enhance
+>
+  <div>
+    <EventSearchInput {superform} {event} />
+    <FormInput {superform} field="title" label="Biljettnamn" />
+    <FormInput {superform} field="description" label="Biljettbeskrivning" />
+    <FormInput {superform} field="titleEn" label="Biljettnamn (EN)" />
+    <FormInput {superform} field="descriptionEn" label="Beskrivning (EN)" />
+    <PriceInput {superform} />
+    <AvailableDates {superform} />
+    <FormNumberInput
+      {superform}
+      field="stock"
+      label="Antal biljetter till salu"
+    />
+    <MaxAmountPerUser {superform} />
+  </div>
   <ItemQuestionsSection {superform} />
   <button type="submit" disabled={$submitting} class="btn btn-primary mt-4">
     {#if type === "edit"}

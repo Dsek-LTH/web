@@ -66,8 +66,8 @@ export const updateTicket = async (
   data: TicketSchema,
 ) => {
   const updatedQuestions = data.questions.filter((q) => !!q.id);
-  const newQuestions = data.questions.filter((q) => !!q.id);
-  console.log(updatedQuestions, newQuestions);
+  const newQuestions = data.questions.filter((q) => !q.id);
+
   await prisma.$transaction(async (tx) => {
     await tx.ticket.update({
       where: {
@@ -97,7 +97,7 @@ export const updateTicket = async (
     });
     // remove questions that are not in the form
     // remove unanswered questions (easy)
-    await tx.itemQuestion.deleteMany({
+    const removableQuestions = await tx.itemQuestion.findMany({
       where: {
         shoppableId: ticketId,
         id: {
@@ -105,6 +105,16 @@ export const updateTicket = async (
         },
         responses: {
           none: {}, // ensures no responses exist.
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+    await tx.itemQuestion.deleteMany({
+      where: {
+        id: {
+          in: removableQuestions.map((q) => q.id),
         },
       },
     });

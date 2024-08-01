@@ -30,7 +30,7 @@
   $: constraints = fieldProxy.constraints;
 </script>
 
-<Labeled {label} error={$errors}>
+<Labeled {label} error={$errors} {...$$restProps}>
   <input
     name={name ?? field}
     type="checkbox"

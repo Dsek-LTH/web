@@ -92,7 +92,9 @@
       <TruncatedTableCell
         value={response
           ? `${response.answer}${
-              response.extraPrice ? ` ${formatPrice(response.extraPrice)}` : ""
+              response.extraPrice
+                ? ` (${formatPrice(response.extraPrice)})`
+                : ""
             }`
           : undefined}
       />

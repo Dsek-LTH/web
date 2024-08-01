@@ -29,6 +29,11 @@ export const load: PageServerLoad = async ({ locals, depends, params }) => {
       },
     },
     include: {
+      questionResponses: {
+        include: {
+          question: true,
+        },
+      },
       shoppable: {
         include: {
           ticket: {

@@ -8,33 +8,43 @@
   const { values, errors } = arrayProxy(superform, "questions");
 </script>
 
-<!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -- We only need index -->
-{#each $values as _, index}
-  <ItemQuestion {superform} field="questions[{index}]" />
-{/each}
-<button
-  type="button"
-  on:click={() => {
-    $values = [
-      ...$values,
-      {
-        type: QuestionType.Text,
-        title: "",
-        description: "",
-        forExternalsOnly: false,
-      },
-    ];
-  }}
->
-  Add question
-</button>
-
-{#if $errors}
-  {#each $errors as error}
-    <div class="label">
-      <span class="label-text-alt text-error">
-        {error}
-      </span>
-    </div>
+<section class="space-y-2">
+  <h3 class="text-lg font-semibold">Frågor</h3>
+  <!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -- We only need index -->
+  {#each $values as _, index}
+    <ItemQuestion
+      {superform}
+      field="questions[{index}]"
+      onRemove={() => {
+        $values = $values.filter((_, i) => i !== index);
+      }}
+    />
   {/each}
-{/if}
+  <button
+    class="btn btn-outline btn-primary"
+    type="button"
+    on:click={() => {
+      $values = [
+        ...$values,
+        {
+          type: QuestionType.Text,
+          title: "",
+          description: "",
+          forExternalsOnly: false,
+        },
+      ];
+    }}
+  >
+    <span class="i-mdi-plus" /> Lägg till fråga
+  </button>
+
+  {#if $errors}
+    {#each $errors as error}
+      <div class="label">
+        <span class="label-text-alt text-error">
+          {error}
+        </span>
+      </div>
+    {/each}
+  {/if}
+</section>

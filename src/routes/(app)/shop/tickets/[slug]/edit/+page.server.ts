@@ -35,14 +35,12 @@ export const load = async ({ locals, params }) => {
     authorize(apiNames.WEBSHOP.MANAGE, user);
   }
 
-  console.log(ticket.shoppable.questions);
-
   return {
     form: await superValidate(
       {
         title: ticket.shoppable.title,
         titleEn: ticket.shoppable.titleEn,
-        description: ticket.shoppable.descriptionEn,
+        description: ticket.shoppable.description,
         descriptionEn: ticket.shoppable.descriptionEn,
         price: ticket.shoppable.price / 100,
         availableFrom: ticket.shoppable.availableFrom,
@@ -52,6 +50,10 @@ export const load = async ({ locals, params }) => {
         maxAmountPerUser: ticket.maxAmountPerUser,
         questions: ticket.shoppable.questions.map((q) => ({
           ...q,
+          options: q.options.map((o) => ({
+            ...o,
+            extraPrice: o.extraPrice ? o.extraPrice / 100 : o.extraPrice,
+          })),
           type: q.type as QuestionType,
         })),
       },

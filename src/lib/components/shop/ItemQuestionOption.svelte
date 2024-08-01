@@ -11,12 +11,12 @@
     errors: priceErrors,
     constraints: priceConstraints,
   } = formFieldProxy(superform, `${field}.extraPrice`);
-  let extraCost = $priceValue !== null;
+  let extraCost = !!$priceValue;
 
-  export let onRemove: () => void;
+  export let onRemove: (() => void) | undefined;
 </script>
 
-<div>
+<div class="relative rounded-lg border-[1px] p-2">
   <FormInput
     {superform}
     field="{field}.answer"
@@ -29,33 +29,41 @@
     label="Engelska"
     placeholder="Response option..."
   />
-  <Labeled label="Extrapris (SEK)" error={$priceErrors}>
-    {#if extraCost}
-      <MonetaryInput
-        name="extraPrice"
-        bind:value={$priceValue}
-        {...$priceConstraints}
-      />
+  {#if extraCost}
+    <div class="flex items-end justify-between">
+      <Labeled label="Extrapris (SEK)" error={$priceErrors}>
+        <MonetaryInput
+          class="w-full"
+          name="extraPrice"
+          bind:value={$priceValue}
+          {...$priceConstraints}
+        />
+      </Labeled>
       <button
-        class="btn"
+        class="btn btn-error tooltip"
+        data-tip={"Ta bort extrakostnad"}
         type="button"
         on:click={() => {
           $priceValue = null;
           extraCost = false;
-        }}>Ta bort extrakostnad</button
+        }}><span class="i-mdi-trash" /></button
       >
-    {:else}
-      <button
-        class="btn"
-        type="button"
-        on:click={() => {
-          $priceValue = 0;
-          extraCost = true;
-        }}>Lägg till extrakostnad</button
-      >
-    {/if}
-  </Labeled>
-  <button class="btn" on:click={onRemove} type="button"
-    >Ta bort alternativ</button
+    </div>
+  {:else}
+    <button
+      class="btn self-start"
+      type="button"
+      on:click={() => {
+        $priceValue = 100;
+        extraCost = true;
+      }}><span class="i-mdi-plus" /> Extrakostnad</button
+    >
+  {/if}
+  <button
+    class="btn btn-circle btn-error btn-sm absolute -right-4 -top-4 z-10 transition-all"
+    class:opacity-0={!onRemove}
+    on:click={onRemove}
+    type="button"
+    disabled={!onRemove}><span class="i-mdi-remove" /></button
   >
 </div>
