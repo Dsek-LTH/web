@@ -1,21 +1,14 @@
-import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
 import {
   PrismaClient,
-  ShoppableType,
   type Consumable,
   type ConsumableReservation,
   type Event,
-  type ItemQuestionResponse,
   type Prisma,
   type Shoppable,
   type Tag,
   type Ticket,
 } from "@prisma/client";
 import dayjs from "dayjs";
-import {
-  removeExpiredConsumables,
-  withHandledNotificationQueue,
-} from "./addToCart/reservations";
 import {
   GRACE_PERIOD_WINDOW,
   dbIdentification,
@@ -153,95 +146,4 @@ export const getTickets = async (
     },
   });
   return tickets.map(formatTicket);
-};
-
-type ItemMetadata = {
-  shoppable: Shoppable &
-    Ticket & {
-      event: Event;
-    };
-};
-export type CartItem = Consumable &
-  ItemMetadata & {
-    questionResponses: ItemQuestionResponse[];
-  };
-export type CartReservation = ConsumableReservation &
-  ItemMetadata & {
-    shoppable: {
-      gracePeriodEndsAt: Date;
-    };
-  };
-
-export const getCart = async (
-  prisma: PrismaClient,
-  id: ShopIdentification,
-): Promise<{
-  inCart: CartItem[];
-  reservations: CartReservation[];
-}> => {
-  const now = new Date();
-  await withHandledNotificationQueue(
-    removeExpiredConsumables(authorizedPrismaClient, now).then(
-      (res) => res.queuedNotifications,
-    ),
-  );
-  const inCart = await prisma.consumable.findMany({
-    where: {
-      ...dbIdentification(id),
-      OR: [{ expiresAt: { gt: now } }, { expiresAt: null }],
-      purchasedAt: null,
-      shoppable: { type: ShoppableType.TICKET },
-    },
-    include: {
-      questionResponses: true,
-      shoppable: {
-        include: {
-          ticket: {
-            include: { event: true },
-          },
-          _count: {
-            select: {
-              consumables: {
-                where: { purchasedAt: { not: null } },
-              },
-            },
-          },
-        },
-      },
-    },
-  });
-  const reservations = await prisma.consumableReservation.findMany({
-    where: {
-      ...dbIdentification(id),
-      shoppable: { type: ShoppableType.TICKET },
-    },
-    include: {
-      shoppable: {
-        include: {
-          ticket: { include: { event: true } },
-        },
-      },
-    },
-  });
-  return {
-    inCart: inCart.map((c) => ({
-      ...c,
-      shoppable: {
-        ...c.shoppable.ticket!,
-        ...c.shoppable,
-        ticket: undefined,
-      },
-    })),
-    reservations: reservations.map((c) => ({
-      ...c,
-      shoppable: {
-        ...c.shoppable.ticket!,
-        ...c.shoppable,
-        ticket: undefined,
-        gracePeriodEndsAt: new Date(
-          c.shoppable.availableFrom.valueOf() + GRACE_PERIOD_WINDOW,
-        ),
-      },
-    })),
-  };
 };

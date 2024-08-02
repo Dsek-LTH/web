@@ -7,6 +7,7 @@ import {
 } from "$lib/zod/comments";
 import { error } from "@sveltejs/kit";
 import { superValidate } from "sveltekit-superforms/server";
+import { zod } from "sveltekit-superforms/adapters";
 import { getEvent } from "../events";
 import type { Actions, PageServerLoad } from "./$types";
 import { isAuthorized } from "$lib/utils/authorization";
@@ -30,9 +31,9 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     allTaggedMembers,
     canEdit,
     canDelete,
-    commentForm: await superValidate(commentSchema),
-    removeCommentForm: await superValidate(removeCommentSchema),
-    removeEventForm: await superValidate(removeEventSchema),
+    commentForm: await superValidate(zod(commentSchema)),
+    removeCommentForm: await superValidate(zod(removeCommentSchema)),
+    removeEventForm: await superValidate(zod(removeEventSchema)),
   };
 };
 

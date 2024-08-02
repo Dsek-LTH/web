@@ -1,22 +1,12 @@
-import { fileHandler } from "$lib/files";
-import { error, fail, type Actions } from "@sveltejs/kit";
-import { message, setError, superValidate } from "sveltekit-superforms/server";
-import { z } from "zod";
 import { PUBLIC_BUCKETS_MATERIAL } from "$env/static/public";
+import { fileHandler } from "$lib/files";
 import { compareCommitteePositions } from "$lib/utils/committee-ordering/sort";
-import type { PrismaClient } from "@prisma/client";
 import * as m from "$paraglide/messages";
-
-const updateSchema = z.object({
-  name: z.string().optional(),
-  description: z.string().nullable(),
-  image: z.any().optional(),
-  markdown: z.string().optional(),
-  markdownSlug: z.string().optional(),
-});
-
-export type UpdateSchema = typeof updateSchema;
-
+import type { PrismaClient } from "@prisma/client";
+import { error, fail, type Actions } from "@sveltejs/kit";
+import { zod } from "sveltekit-superforms/adapters";
+import { message, superValidate, withFiles } from "sveltekit-superforms/server";
+import { updateSchema } from "./types";
 /**
  * @param shortName The committee's short name
  * @param year The year to load the committee for, defaults to current year
@@ -142,7 +132,7 @@ export const committeeLoad = async (
     error(500, m.committees_errors_fetchMarkdown());
   }
 
-  const form = await superValidate(committee, updateSchema);
+  const form = await superValidate(committee, zod(updateSchema));
 
   return {
     committee,
@@ -162,43 +152,39 @@ export const committeeActions = (
 ): Actions<{ shortName: string }> => ({
   update: async ({ params, request, locals }) => {
     const { prisma, user } = locals;
-    const formData = await request.formData();
-    const form = await superValidate(formData, updateSchema);
-    if (!form.valid) return fail(400, { form });
-    const image = formData.get("image");
+    const form = await superValidate(request, zod(updateSchema), {
+      allowFiles: true,
+    });
+    if (!form.valid) return fail(400, withFiles({ form }));
     let newImageUploaded = false;
-    if (isFileSubmitted(image)) {
-      if (image.type !== "image/svg+xml") {
-        return setError(form, "image", m.committees_errors_imageMustBeSVG());
-      }
+    const { name, description, image, markdown, markdownSlug } = form.data;
+    if (image !== undefined) {
       const path = `committees/${shortName ?? params.shortName}.svg`;
-      if (image) {
-        try {
-          const putUrl = await fileHandler.getPresignedPutUrl(
-            user,
-            PUBLIC_BUCKETS_MATERIAL,
-            path,
-            true,
-          );
-          await fetch(putUrl, {
-            method: "PUT",
-            body: image,
-          });
-          newImageUploaded = true;
-        } catch (e) {
-          return message(
-            form,
-            { message: m.committees_errors_uploadImage(), type: "error" },
-            { status: 500 },
-          );
-        }
+      try {
+        const putUrl = await fileHandler.getPresignedPutUrl(
+          user,
+          PUBLIC_BUCKETS_MATERIAL,
+          path,
+          true,
+        );
+        await fetch(putUrl, {
+          method: "PUT",
+          body: image,
+        });
+        newImageUploaded = true;
+      } catch (e) {
+        return message(
+          form,
+          { message: m.committees_errors_uploadImage(), type: "error" },
+          { status: 500 },
+        );
       }
     }
     await prisma.committee.update({
       where: { shortName: shortName ?? params.shortName },
       data: {
-        name: form.data.name,
-        description: form.data.description,
+        name,
+        description,
         imageUrl: newImageUploaded
           ? `minio/material/committees/${
               shortName ?? params.shortName
@@ -207,15 +193,13 @@ export const committeeActions = (
       },
     });
 
-    const markdownSlug = form.data.markdownSlug;
-    const markdown = form.data.markdown;
     if (markdownSlug && markdown) {
       await prisma.markdown.update({
         where: {
           name: markdownSlug,
         },
         data: {
-          markdown: form.data.markdown,
+          markdown,
         },
       });
     }
@@ -225,7 +209,3 @@ export const committeeActions = (
     });
   },
 });
-
-function isFileSubmitted(file: unknown): file is File {
-  return file instanceof File && file.size > 0;
-}

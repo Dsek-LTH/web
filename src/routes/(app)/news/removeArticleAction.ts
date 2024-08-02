@@ -2,20 +2,21 @@ import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 import { error, fail, type RequestEvent } from "@sveltejs/kit";
 import { redirect } from "$lib/utils/redirect";
-import { superValidate } from "sveltekit-superforms/server";
+import { superValidate, type Infer } from "sveltekit-superforms/server";
+import { zod } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import * as m from "$paraglide/messages";
 
 export const removeArticleSchema = z.object({
   articleId: z.string(),
 });
-export type RemoveArticleSchema = typeof removeArticleSchema;
+export type RemoveArticleSchema = Infer<typeof removeArticleSchema>;
 
 export const removeArticleAction =
   () => async (event: RequestEvent<Record<string, string>, string>) => {
     const { request, locals } = event;
     const { prisma, user } = locals;
-    const form = await superValidate(request, removeArticleSchema);
+    const form = await superValidate(request, zod(removeArticleSchema));
     if (!form.valid) return fail(400, { form });
     authorize(apiNames.NEWS.DELETE, user);
 

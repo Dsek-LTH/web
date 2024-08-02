@@ -1,6 +1,7 @@
 import { fail } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 import { message, superValidate } from "sveltekit-superforms/server";
+import { zod } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import * as m from "$paraglide/messages";
 
@@ -16,7 +17,7 @@ export const load: PageServerLoad = async ({ locals }) => {
   return {
     policies: governingDocuments.policies,
     guidelines: governingDocuments.guidelines,
-    deleteForm: await superValidate(deleteSchema),
+    deleteForm: await superValidate(zod(deleteSchema)),
   };
 };
 
@@ -27,7 +28,7 @@ const deleteSchema = z.object({
 export const actions: Actions = {
   deleteFile: async ({ request, locals }) => {
     const { prisma } = locals;
-    const form = await superValidate(request, deleteSchema);
+    const form = await superValidate(request, zod(deleteSchema));
     if (!form.valid) return fail(400, { form });
     const { id } = form.data;
     await prisma.document.delete({

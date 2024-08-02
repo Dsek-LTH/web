@@ -66,6 +66,11 @@ const purchaseCart = async (
       questionResponses: true,
       shoppable: {
         include: {
+          questions: {
+            where: {
+              removedAt: null,
+            },
+          },
           ticket: true,
           _count: {
             select: {
@@ -126,6 +131,24 @@ const purchaseCart = async (
       message: m.tickets_purchase_alreadyPaidFor(),
       type: "success",
     };
+  }
+
+  // Check if any consumables are missing an answer
+  if (
+    userConsumables.some(
+      (consumable) =>
+        consumable.questionResponses.length <
+          consumable.shoppable.questions.length ||
+        // check if there is an unanswered question
+        consumable.shoppable.questions.some(
+          (q) =>
+            // check if no response exists for this question
+            consumable.questionResponses.some((r) => r.questionId === q.id) ===
+            false,
+        ),
+    )
+  ) {
+    throw new Error(m.tickets_purchase_errors_missingAnswers());
   }
 
   // Step 3: Calculate price
@@ -235,7 +258,7 @@ const purchaseCart = async (
             },
             data: {
               stripeIntentId: intent.id,
-              priceAtPurchase: consumable.shoppable.price,
+              priceAtPurchase: calculateConsumablePrice(consumable),
             },
           }),
         ),

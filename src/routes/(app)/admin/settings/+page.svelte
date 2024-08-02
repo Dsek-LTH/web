@@ -69,7 +69,6 @@
       />
       <LoadingButton
         class="btn btn-primary mt-4"
-        onClick="default"
         isLoading={$updateSubmitting}
         type="submit"
       >
@@ -106,7 +105,6 @@
             <LoadingButton
               type="submit"
               class="btn btn-error"
-              onClick="default"
               disabled={!isAuthorized(
                 apiNames.ADMIN.SETTINGS.DELETE,
                 data.user,
@@ -154,7 +152,6 @@
       </Labeled>
       <LoadingButton
         class="btn btn-primary mt-4 self-end"
-        onClick="default"
         isLoading={$nollningSubmitting}
         type="submit"
       >

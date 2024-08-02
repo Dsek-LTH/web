@@ -1,24 +1,21 @@
 <script lang="ts">
   import TagChip from "$lib/components/TagChip.svelte";
   import CommentSection from "$lib/components/socials/CommentSection.svelte";
+  import * as m from "$paraglide/messages";
   import Event from "../Event.svelte";
   import InterestedGoingButtons from "../InterestedGoingButtons.svelte";
   import InterestedGoingList from "../InterestedGoingList.svelte";
-  import * as m from "$paraglide/messages";
 
-  import type { SuperValidated } from "sveltekit-superforms";
-  import type { PageData } from "./$types";
-  import { superForm } from "sveltekit-superforms/client";
-  import type { RemoveEventSchema } from "../removeEventAction";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
+  import { superForm } from "sveltekit-superforms/client";
+  import type { PageData } from "./$types";
 
   export let articleId: string;
-  export let removeForm: SuperValidated<RemoveEventSchema>;
-  const { enhance, form } = superForm(removeForm, {
-    id: articleId,
-  });
 
   export let data: PageData;
+  const { enhance, form } = superForm(data.removeEventForm, {
+    id: articleId,
+  });
   $: event = data.event;
   let isModalOpen = false;
   let submitString: "submit" | "button";

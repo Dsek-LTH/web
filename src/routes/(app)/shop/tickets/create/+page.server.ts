@@ -1,11 +1,12 @@
-import { ticketSchema } from "$lib/components/shop/types";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
-import { ShoppableType } from "@prisma/client";
+import { redirect } from "$lib/utils/redirect";
 import { fail } from "@sveltejs/kit";
 import dayjs from "dayjs";
-import { redirect } from "$lib/utils/redirect";
 import { message, superValidate } from "sveltekit-superforms/server";
+import { zod } from "sveltekit-superforms/adapters";
+import { createTicket } from "$lib/server/shop/tickets/mutations";
+import { ticketSchema } from "$lib/utils/shop/types";
 
 export const load = async ({ locals }) => {
   const { user } = locals;
@@ -24,7 +25,7 @@ export const load = async ({ locals }) => {
         stock: 0,
         price: 0,
       },
-      ticketSchema,
+      zod(ticketSchema),
       { errors: false },
     ),
   };
@@ -34,7 +35,7 @@ export const actions = {
   default: async (event) => {
     const { locals, request } = event;
     const { prisma, user, member } = locals;
-    const form = await superValidate(request, ticketSchema);
+    const form = await superValidate(request, zod(ticketSchema));
     if (!form.valid) return fail(400, { form });
     authorize(apiNames.WEBSHOP.CREATE, user);
     if (!member) {
@@ -44,33 +45,9 @@ export const actions = {
         type: "error,",
       });
     }
-    const data = form.data;
     let ticketId: string;
     try {
-      const ticket = await prisma.ticket.create({
-        data: {
-          shoppable: {
-            create: {
-              title: data.title,
-              titleEn: data.titleEn,
-              description: data.description,
-              descriptionEn: data.descriptionEn,
-              price: Math.round(data.price * 100),
-              availableFrom: data.availableFrom,
-              availableTo: data.availableTo,
-              type: ShoppableType.TICKET,
-              authorId: member.id,
-            },
-          },
-          event: {
-            connect: {
-              id: data.eventId,
-            },
-          },
-          stock: data.stock,
-          maxAmountPerUser: data.maxAmountPerUser, // optional
-        },
-      });
+      const ticket = await createTicket(prisma, member.id, form.data);
       ticketId = ticket.id;
     } catch (err) {
       let errorMsg;

@@ -3,6 +3,7 @@ import DOMPurify from "isomorphic-dompurify";
 import { fixSongText } from "../helpers";
 import { updateSongSchema } from "../schema";
 import { superValidate } from "sveltekit-superforms/server";
+import { zod } from "sveltekit-superforms/adapters";
 import {
   canAccessDeletedSongs,
   getExistingCategories,
@@ -40,7 +41,7 @@ export const load: LayoutServerLoad = async ({ locals, params }) => {
     ),
   ]);
 
-  const form = await superValidate(song, updateSongSchema);
+  const form = await superValidate(song, zod(updateSongSchema));
 
   return {
     song: {

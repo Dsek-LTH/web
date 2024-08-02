@@ -857,7 +857,7 @@ model LastKeycloakUpdate {
     @@map("last_keycloak_update")
 }
 
-/// @@allow('create', has(auth().policies, 'webshop:create') && authorId == auth().memberId)
+/// @@allow('create', hasSome(auth().policies, ['webshop:create', 'webshop:manage']) && authorId == auth().memberId)
 /// @@allow('update', auth().memberId == authorId || has(auth().policies, 'webshop:manage'))
 /// @@allow('read', true)
 /// @@deny('read', removedAt != null && !auth().memberId == authorId || has(auth().policies, 'webshop:manage'))
@@ -902,7 +902,7 @@ model Ticket {
     @@map("ticket")
 }
 
-/// @@allow('create', shoppable.authorId == auth().memberId)
+/// @@allow('create', hasSome(auth().policies, ['webshop:create', 'webshop:manage']) || shoppable.authorId == auth().memberId)
 /// @@allow('read', true)
 /// @@deny('read', shoppable.removedAt != null && !auth().memberId == shoppable.authorId || has(auth().policies, 'webshop:manage'))
 /// @@allow('update', auth().memberId == shoppable.authorId || has(auth().policies, 'webshop:manage'))
@@ -917,13 +917,14 @@ model ItemQuestion {
     descriptionEn String?
     type String @db.VarChar(255)
     forExternalsOnly Boolean @default(false)
+    removedAt DateTime?
     options ItemQuestionOption[]
     responses ItemQuestionResponse[]
 
     @@map("item_question")
 }
 
-/// @@allow('create', question.shoppable.authorId == auth().memberId)
+/// @@allow('create', hasSome(auth().policies, ['webshop:create', 'webshop:manage']) || question.shoppable.authorId == auth().memberId)
 /// @@allow('read', true)
 /// @@deny('read', question.shoppable.removedAt != null && !auth().memberId == question.shoppable.authorId || has(auth().policies, 'webshop:manage'))
 /// @@allow('update', auth().memberId == question.shoppable.authorId || has(auth().policies, 'webshop:manage'))
@@ -953,6 +954,7 @@ model ItemQuestionResponse {
     extraPrice Int?
 
     @@map("item_question_response")
+    @@unique([questionId, consumableId], map: "item_question_response_question_id_consumable_id_unique")
 }
 
 /// @@allow('create', memberId == auth().memberId || auth().externalCode != null && externalCustomerCode == auth().externalCode)

@@ -1,3 +1,4 @@
+import type { Infer } from "sveltekit-superforms";
 import { z } from "zod";
 
 export const governingDocumentSchema = z.object({
@@ -5,4 +6,4 @@ export const governingDocumentSchema = z.object({
   title: z.string(),
   type: z.enum(["POLICY", "GUIDELINE"]),
 });
-export type GoverningDocumentSchema = typeof governingDocumentSchema;
+export type GoverningDocumentSchema = Infer<typeof governingDocumentSchema>;

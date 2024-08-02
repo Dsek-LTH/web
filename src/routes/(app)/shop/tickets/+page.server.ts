@@ -8,7 +8,12 @@ import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 import { error, fail } from "@sveltejs/kit";
 import { redirect } from "$lib/utils/redirect";
-import { message, superValidate } from "sveltekit-superforms/server";
+import {
+  message,
+  superValidate,
+  type Infer,
+} from "sveltekit-superforms/server";
+import { zod } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import type { PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
@@ -43,14 +48,14 @@ export const load: PageServerLoad = async ({ locals, depends }) => {
 const addToCartSchema = z.object({
   ticketId: z.string().uuid(),
 });
-export type AddToCartSchema = typeof addToCartSchema;
+export type AddToCartSchema = Infer<typeof addToCartSchema>;
 
 export const actions = {
   addToCart: async (event) => {
     const { locals, request } = event;
     const { prisma, user } = locals;
     authorize(apiNames.WEBSHOP.PURCHASE, user);
-    const form = await superValidate(request, addToCartSchema);
+    const form = await superValidate(request, zod(addToCartSchema));
     if (!form.valid) return fail(400, { form });
     if (!user?.memberId && !user?.externalCode) {
       return fail(401, { form });

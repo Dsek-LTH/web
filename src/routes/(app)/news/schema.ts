@@ -1,4 +1,5 @@
 import { authorSchema, tagSchema } from "$lib/zod/schemas";
+import type { Infer } from "sveltekit-superforms";
 import { z } from "zod";
 
 export const articleSchema = z.object({
@@ -7,4 +8,4 @@ export const articleSchema = z.object({
   author: authorSchema,
   tags: z.array(tagSchema).default([]),
 });
-export type ArticleSchema = typeof articleSchema;
+export type ArticleSchema = Infer<typeof articleSchema>;

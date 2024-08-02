@@ -23,7 +23,6 @@ export const uploadNotificationToken = async (
   }
   if (cache.get(token) == user.memberId) return;
   try {
-    console.log("uploading token", token);
     const existing = await authorizedPrismaClient.expoToken.findUnique({
       where: {
         expoToken: token,
@@ -31,7 +30,6 @@ export const uploadNotificationToken = async (
       },
     });
     if (existing) {
-      console.log("already exists");
       cache.set(token, user.memberId);
       return;
     }
@@ -49,7 +47,7 @@ export const uploadNotificationToken = async (
     });
     cache.set(token, user.memberId);
   } catch (e) {
-    console.log(e);
+    console.error(e);
     if (e instanceof Error) {
       throw error(500, `Couldn't save token: ${e.message}`);
     }

@@ -3,6 +3,7 @@
   import dayjs from "dayjs";
 
   export let event: TicketWithMoreInfo["event"];
+  $: date = dayjs(event.startDatetime);
 </script>
 
 <figure class="relative aspect-video">
@@ -17,7 +18,11 @@
   >
     <h6 class="text-xl font-semibold">{event.title}</h6>
     <h6 class="-mt-1 text-sm opacity-80">
-      {dayjs(event.startDatetime).format("dddd Do MMM")}
+      {#if date.year() === new Date().getFullYear()}
+        {date.format("dddd Do MMM")}
+      {:else}
+        {date.format("dddd Do MMM, YYYY")}
+      {/if}
     </h6>
     <h6 class="">{event.shortDescription}</h6>
 

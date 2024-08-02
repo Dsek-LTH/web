@@ -4,31 +4,28 @@ import {
   sendQueuedNotifications,
 } from "$lib/server/shop/addToCart/reservations";
 import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
-import { getCart } from "$lib/server/shop/getTickets";
-import purchaseCart, {
-  calculateCartPrice,
-} from "$lib/server/shop/payments/purchase";
+import { cartLoadFunction } from "$lib/server/shop/cart/getCart.js";
+import { purchaseForm } from "$lib/server/shop/cart/types";
+import purchaseCart from "$lib/server/shop/payments/purchase";
+import { answerQuestion } from "$lib/server/shop/questions";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
-import {
-  passOnTransactionFee,
-  priceWithTransactionFee,
-  transactionFee,
-} from "$lib/utils/payments/transactionFee";
+import { questionForm } from "$lib/utils/shop/types";
 import * as m from "$paraglide/messages";
 import { error, fail } from "@sveltejs/kit";
+import { zod } from "sveltekit-superforms/adapters";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
-import type { PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async ({ locals, depends }) => {
+export const load = async ({ locals, depends }) => {
   const { user, prisma } = locals;
   if (!user?.memberId && !user?.externalCode) {
     throw error(401, "Du har ingen kundvagn.");
   }
   depends("cart");
   authorize(apiNames.WEBSHOP.PURCHASE, user);
-  const { inCart, reservations } = await getCart(
+
+  return await cartLoadFunction(
     prisma,
     user?.memberId
       ? {
@@ -38,28 +35,15 @@ export const load: PageServerLoad = async ({ locals, depends }) => {
           externalCode: user.externalCode!,
         },
   );
-  const cartPrice = calculateCartPrice(inCart);
-  const totalPrice = passOnTransactionFee
-    ? priceWithTransactionFee(cartPrice)
-    : cartPrice;
-  return {
-    inCart,
-    reservations,
-    purchaseForm: await superValidate(purchaseForm),
-    totalPrice: totalPrice,
-    transactionFee: passOnTransactionFee ? transactionFee(totalPrice) : 0,
-  };
 };
-
-const purchaseForm = z.object({
-  idempotencyKey: z.string(),
-});
-export type PurchaseForm = typeof purchaseForm;
 
 export const actions = {
   removeItem: async ({ locals, request }) => {
     const { user, prisma } = locals;
-    const form = await superValidate(request, z.object({ id: z.string() }));
+    const form = await superValidate(
+      request,
+      zod(z.object({ id: z.string() })),
+    );
     if (!form.valid) return fail(400, { form });
     if (!user?.memberId && !user?.externalCode) {
       return message(form, {
@@ -97,7 +81,10 @@ export const actions = {
   },
   removeReservation: async ({ locals, request }) => {
     const { user, prisma } = locals;
-    const form = await superValidate(request, z.object({ id: z.string() }));
+    const form = await superValidate(
+      request,
+      zod(z.object({ id: z.string() })),
+    );
     if (!form.valid) return fail(400, { form });
     if (!user?.memberId && !user?.externalCode) {
       return message(form, {
@@ -135,10 +122,44 @@ export const actions = {
       type: "success",
     });
   },
+  answerQuestion: async ({ locals, request }) => {
+    const { user, prisma } = locals;
+    const form = await superValidate(request, zod(questionForm));
+    if (!form.valid) return fail(400, { form });
+    if (!user?.memberId && !user?.externalCode) {
+      return message(form, {
+        message: m.cart_errors_noCart(),
+        type: "error",
+      });
+    }
+    const { memberId, externalCode } = user;
+
+    try {
+      await answerQuestion(
+        prisma,
+        memberId
+          ? { memberId }
+          : {
+              externalCode: externalCode!,
+            },
+        form.data,
+      );
+    } catch (e) {
+      return message(form, {
+        message: e instanceof Error ? e.message : `${e}`,
+        type: "error",
+      });
+    }
+
+    return message(form, {
+      message: "Svaret har sparats.",
+      type: "hidden",
+    });
+  },
   purchase: async ({ locals, request }) => {
     const { user, prisma } = locals;
     authorize(apiNames.WEBSHOP.PURCHASE, user);
-    const form = await superValidate(request, purchaseForm);
+    const form = await superValidate(request, zod(purchaseForm));
     if (!form.valid) return fail(400, { form });
     if (!user?.memberId && !user?.externalCode) {
       throw error(401, m.cart_errors_noCart());

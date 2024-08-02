@@ -2,6 +2,7 @@ import apiNames from "$lib/utils/apiNames";
 import { error, fail } from "@sveltejs/kit";
 import { redirect } from "$lib/utils/redirect";
 import { superValidate } from "sveltekit-superforms/server";
+import { zod } from "sveltekit-superforms/adapters";
 import { eventSchema } from "../../schema";
 import type { Actions, PageServerLoad } from "./$types";
 import { validate as uuidValidate } from "uuid";
@@ -46,7 +47,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   return {
     allTags,
     event,
-    form: await superValidate(completeEvent, eventSchema),
+    form: await superValidate(completeEvent, zod(eventSchema)),
   };
 };
 
@@ -54,7 +55,7 @@ export const actions: Actions = {
   default: async (event) => {
     const { request, locals, params } = event;
     const { prisma } = locals;
-    const form = await superValidate(request, eventSchema);
+    const form = await superValidate(request, zod(eventSchema));
     if (!form.valid) return fail(400, { form });
     /* eslint-disable-next-line @typescript-eslint/no-unused-vars --
      * To avoid lint complaining about unused vars

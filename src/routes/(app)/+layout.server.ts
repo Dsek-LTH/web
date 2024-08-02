@@ -3,6 +3,7 @@ import { getMyGroupedNotifications } from "$lib/utils/notifications/myNotificati
 import { emptySchema, notificationSchema } from "$lib/zod/schemas";
 import { loadFlash } from "sveltekit-flash-message/server";
 import { superValidate } from "sveltekit-superforms/server";
+import { zod } from "sveltekit-superforms/adapters";
 
 export const load = loadFlash(async ({ locals, depends, request }) => {
   const { user, prisma } = locals;
@@ -33,8 +34,8 @@ export const load = loadFlash(async ({ locals, depends, request }) => {
   return {
     alerts,
     notifications: notifications,
-    deleteNotificationForm: await superValidate(notificationSchema),
-    readNotificationForm: await superValidate(emptySchema),
+    deleteNotificationForm: await superValidate(zod(notificationSchema)),
+    readNotificationForm: await superValidate(zod(emptySchema)),
     shopItemCounts,
   };
 });

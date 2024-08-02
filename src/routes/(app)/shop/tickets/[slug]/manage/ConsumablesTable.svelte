@@ -2,13 +2,21 @@
   import type {
     Consumable,
     ConsumableReservation,
+    ItemQuestion,
+    ItemQuestionResponse,
     Member,
   } from "@prisma/client";
   import ConsumableRow from "./ConsumableRow.svelte";
 
   export let title: string | null = null;
+  export let questions: ItemQuestion[] = [];
   export let consumables: Array<
-    (Consumable | ConsumableReservation) & {
+    (
+      | (Consumable & {
+          questionResponses: ItemQuestionResponse[];
+        })
+      | ConsumableReservation
+    ) & {
       member: Member | null;
     }
   >;
@@ -18,7 +26,7 @@
   <table class="table">
     <thead>
       {#if title}
-        <tr><th colspan="8" class="text-center text-lg">{title}</th></tr>
+        <tr><th colspan="1000" class="text-center text-lg">{title}</th></tr>
       {/if}
       <tr>
         <th>Person</th>
@@ -27,6 +35,17 @@
         <th>Konsumerades</th>
         <th>Betalat</th>
         <th>Stripeköp ID</th>
+        {#each questions as question}
+          <th>
+            <div class="tooltip" data-tip={question.title}>
+              <span
+                class="inline-block max-w-32 overflow-hidden text-ellipsis whitespace-nowrap"
+              >
+                {question.title}
+              </span>
+            </div></th
+          >
+        {/each}
         <th>Konsumera</th>
         <th>Återbetala</th>
       </tr>
@@ -38,13 +57,17 @@
           <ConsumableRow
             consumable={"purchasedAt" in consumable ? consumable ?? null : null}
             reservation={"purchasedAt" in consumable ? null : consumable}
+            {questions}
           />
         {/each}
       {:else}
         <tr>
-          <td colspan="8" class="text-center">Inga biljetter</td>
+          <td colspan="1000" class="text-center">Inga biljetter</td>
         </tr>
       {/if}
     </tbody>
   </table>
 </div>
+
+<style>
+</style>

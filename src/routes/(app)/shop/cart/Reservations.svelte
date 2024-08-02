@@ -1,6 +1,6 @@
 <script lang="ts">
   import { invalidate } from "$app/navigation";
-  import type { CartReservation as CartReservationType } from "$lib/server/shop/getTickets";
+  import type { CartReservation as CartReservationType } from "$lib/utils/shop/types";
   import { now } from "$lib/stores/date";
   import * as m from "$paraglide/messages";
   import CartReservation from "./Reservation/CartReservation.svelte";

@@ -5,6 +5,7 @@
   import QRCode from "./QRCode.svelte";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import { eventLink } from "$lib/utils/redirect";
+  import Price from "$lib/components/Price.svelte";
 
   export let data;
   $: consumable = data.consumable;
@@ -70,6 +71,26 @@
 
     {#if shoppable.description}
       <p>{shoppable.description}</p>
+    {/if}
+
+    {#if consumable.questionResponses.length > 0}
+      <section
+        class="space-y-2 self-start rounded-box bg-base-200 p-4 shadow-lg"
+      >
+        <h3 class="text-lg font-semibold">Svar</h3>
+        <ul>
+          {#each consumable.questionResponses as response (response.id)}
+            <li>
+              <b>{response.question.title}</b>
+              <span
+                >{response.answer}
+                {#if response.extraPrice}(<Price price={response.extraPrice} />)
+                {/if}</span
+              >
+            </li>
+          {/each}
+        </ul>
+      </section>
     {/if}
 
     <QRCode data={shoppable.title} />
