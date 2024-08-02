@@ -1,5 +1,7 @@
 import { iconsPlugin, getIconCollections } from "@egoist/tailwindcss-icons";
 import { colors } from "./src/lib/utils/themes";
+import typographyPlugin from "@tailwindcss/typography";
+import daisyuiPlugin from "daisyui";
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -64,8 +66,8 @@ export default {
     logs: false,
   },
   plugins: [
-    require("@tailwindcss/typography"),
-    require("daisyui"),
+    typographyPlugin,
+    daisyuiPlugin,
     iconsPlugin({
       collections: getIconCollections(["mdi", "flag"]),
     }),
