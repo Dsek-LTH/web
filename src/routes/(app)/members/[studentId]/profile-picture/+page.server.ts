@@ -22,7 +22,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   const photos = await fileHandler.getInBucket(
     locals.user,
     PUBLIC_BUCKETS_MEMBERS,
-    `public/${params.studentId}`,
+    `public/${params.studentId}/profile-picture`,
     true,
   );
   return {
@@ -82,7 +82,7 @@ export const actions: Actions = {
       const putUrl = await fileHandler.getPresignedPutUrl(
         locals.user,
         PUBLIC_BUCKETS_MEMBERS,
-        `${params.studentId}/profile-picture/${fileName}.webp`,
+        `public/${params.studentId}/profile-picture/${fileName}.webp`,
       );
       const res = await fetch(putUrl, {
         method: "PUT",
@@ -91,14 +91,19 @@ export const actions: Actions = {
       if (!res.ok)
         return message(
           form,
-          { message: m.members_errors_couldntUploadFile(), type: "error" },
+          {
+            message: `${m.members_errors_couldntUploadFile()}: ${await res.text()}`,
+            type: "error",
+          },
           { status: 500 },
         );
     } catch (e) {
+      console.log(e);
+      const errMsg = e instanceof Error ? e.message : String(e);
       return message(
         form,
         {
-          message: m.members_errors_couldntUploadFile(),
+          message: `${m.members_errors_couldntUploadFile()}: ${errMsg}`,
           type: "error",
         },
         { status: 500 },
