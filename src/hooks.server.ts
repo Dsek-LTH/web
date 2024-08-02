@@ -16,6 +16,7 @@ import zenstack from "@zenstackhq/server/sveltekit";
 import { randomBytes } from "crypto";
 import schedule from "node-schedule";
 import translatedExtension from "./database/prisma/translationExtension";
+import loggingExtension from "./database/prisma/loggingExtension";
 import { getAccessPolicies } from "./hooks.server.helpers";
 
 const { handle: authHandle } = SvelteKitAuth({
@@ -83,15 +84,15 @@ const { handle: authHandle } = SvelteKitAuth({
   },
 });
 
-const prismaClient = new PrismaClient({ log: ["info"] });
+const prismaClient = new PrismaClient();
 const databaseHandle: Handle = async ({ event, resolve }) => {
   const lang = isAvailableLanguageTag(event.locals.paraglide?.lang)
     ? event.locals.paraglide?.lang
     : sourceLanguageTag;
-  const prisma = prismaClient.$extends(
-    translatedExtension(lang),
-  ) as PrismaClient;
   const session = await event.locals.getSession();
+  const prisma = prismaClient
+    .$extends(translatedExtension(lang))
+    .$extends(loggingExtension(session?.user.student_id)) as PrismaClient;
 
   if (!session?.user) {
     let externalCode = event.cookies.get("externalCode"); // Retrieve the externalCode from cookies
@@ -106,18 +107,14 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
     }
     const policies = await getAccessPolicies(prisma);
 
-    event.locals.prisma = enhance(
-      prisma,
-      {
-        user: {
-          studentId: undefined,
-          memberId: undefined,
-          policies,
-          externalCode: externalCode, // For anonymous users
-        },
+    event.locals.prisma = enhance(prisma, {
+      user: {
+        studentId: undefined,
+        memberId: undefined,
+        policies,
+        externalCode: externalCode, // For anonymous users
       },
-      { logPrismaQuery: process.env["NODE_ENV"] === "production" }, // Log queries in production
-    );
+    });
     event.locals.user = {
       studentId: undefined,
       memberId: undefined,
@@ -156,11 +153,7 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
       ),
     };
 
-    event.locals.prisma = enhance(
-      prisma,
-      { user },
-      { logPrismaQuery: process.env["NODE_ENV"] === "production" },
-    );
+    event.locals.prisma = enhance(prisma, { user });
     event.locals.user = user;
     event.locals.member = member!;
   }
