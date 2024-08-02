@@ -62,7 +62,7 @@
           type="text"
           name="name"
           bind:value={$form.name}
-          class="input input-bordered input-xs"
+          class="input input-xs input-bordered"
           {...$constraints.name}
         />
         {#if $errors.name}<span class="text-error">{$errors.name}</span>{/if}
@@ -70,7 +70,7 @@
           type="text"
           name="color"
           bind:value={$form.color}
-          class="input input-bordered input-xs"
+          class="input input-xs input-bordered"
           style="color: {$form.color || 'white'}"
           {...$constraints.color}
         />

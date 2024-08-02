@@ -33,9 +33,7 @@
   }
 
   .neo-brutal-btn {
-    @apply box-shadow-black hover:box-shadow-black-lg neo-brutal-border-sm flex items-center bg-primary p-4 font-semibold
-    transition hover:-translate-x-1 hover:-translate-y-1
-    active:translate-x-1 active:translate-y-1 active:shadow-none;
+    @apply box-shadow-black hover:box-shadow-black-lg neo-brutal-border-sm flex items-center bg-primary p-4 font-semibold transition hover:-translate-x-1 hover:-translate-y-1 active:translate-x-1 active:translate-y-1 active:shadow-none;
   }
 
   .neo-brutal-btn-flat {
