@@ -18,7 +18,7 @@ import schedule from "node-schedule";
 import translatedExtension from "./database/prisma/translationExtension";
 import { getAccessPolicies } from "./hooks.server.helpers";
 
-const authHandle = SvelteKitAuth({
+const { handle: authHandle } = SvelteKitAuth({
   secret: env.AUTH_SECRET,
   trustHost: true,
   providers: [
@@ -58,7 +58,7 @@ const authHandle = SvelteKitAuth({
       if ("token" in params && params.session?.user) {
         const { token } = params;
         session.user.student_id = token.student_id;
-        session.user.email = token.email;
+        session.user.email = token.email ?? "";
         session.user.group_list = token.group_list;
         session.user.given_name = token.given_name;
         session.user.family_name = token.family_name;
