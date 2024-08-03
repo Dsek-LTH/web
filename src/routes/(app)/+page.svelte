@@ -8,4 +8,3 @@
 
 <Header />
 <Links />
-<!-- <div class="min-h-screen bg-[url('/pattern.png')]" /> -->

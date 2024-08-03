@@ -12,6 +12,7 @@
   import NotificationBell from "./NotificationBell.svelte";
   import UserMenu from "./UserMenu.svelte";
   import { getRoutes } from "./routes";
+  import Search from "$lib/components/Search.svelte";
   import LoadingButton from "$lib/components/LoadingButton.svelte";
   import type { NotificationGroup } from "$lib/utils/notifications/group";
   $: notifications = $page.data["notifications"] as NotificationGroup[] | null;
@@ -27,7 +28,7 @@
 >
   <div class="container navbar mx-auto">
     <!-- Open drawer icon -->
-    <div class="block flex-1 xl:hidden">
+    <div class="block xl:hidden">
       <label
         for="main-drawer"
         aria-label="open sidebar"
@@ -36,6 +37,7 @@
         <span class="i-mdi-menu h-8 w-8 text-primary" />
       </label>
     </div>
+    <div class="block flex-1 bg-red-500 xl:hidden" />
 
     <!-- Navbar content -->
     <div class="container hidden flex-1 xl:block">
@@ -78,7 +80,7 @@
         {/if}
       {/each}
     </div>
-
+    <Search />
     <div class="flex">
       <div class="hidden xl:flex">
         <!-- This will be shown in the drawer instead. -->
