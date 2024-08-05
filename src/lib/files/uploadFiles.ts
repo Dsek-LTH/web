@@ -26,7 +26,7 @@ export const compressImage = async (
   image: File,
   options?: {
     resize?: ResizeOptions;
-    webp: WebpOptions;
+    webp?: WebpOptions;
   },
 ) =>
   await sharp(await image.arrayBuffer())

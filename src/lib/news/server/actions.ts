@@ -9,8 +9,25 @@ import * as m from "$paraglide/messages";
 import { Prisma } from "@prisma/client";
 import type { Action } from "@sveltejs/kit";
 import { fail } from "@sveltejs/kit";
+import type { AuthUser } from "@zenstackhq/runtime";
 import { zod } from "sveltekit-superforms/adapters";
 import { message, superValidate } from "sveltekit-superforms/server";
+
+const uploadImage = async (user: AuthUser, image: File, slug: string) => {
+  const imageUrl = await uploadFile(
+    user,
+    image,
+    `public/news/${slug}`,
+    PUBLIC_BUCKETS_FILES,
+    "header",
+    {
+      resize: {
+        width: 1024,
+      },
+    },
+  );
+  return imageUrl;
+};
 
 export const createArticle: Action = async (event) => {
   const { request, locals } = event;
@@ -43,16 +60,7 @@ export const createArticle: Action = async (event) => {
   });
   slug = slugWithCount(slug, slugCount);
 
-  if (image) {
-    const imageUrl = await uploadFile(
-      user,
-      image,
-      `public/news/${slug}`,
-      PUBLIC_BUCKETS_FILES,
-      "header",
-    );
-    rest.imageUrl = imageUrl;
-  }
+  if (image) rest.imageUrl = await uploadImage(user, image, slug);
 
   const result = await prisma.article.create({
     data: {
@@ -136,16 +144,7 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
     },
   });
 
-  if (image) {
-    const imageUrl = await uploadFile(
-      user,
-      image,
-      `public/news/${slug}`,
-      PUBLIC_BUCKETS_FILES,
-      "header",
-    );
-    rest.imageUrl = imageUrl;
-  }
+  if (image) rest.imageUrl = await uploadImage(user, image, slug);
 
   try {
     await prisma.article.update({
