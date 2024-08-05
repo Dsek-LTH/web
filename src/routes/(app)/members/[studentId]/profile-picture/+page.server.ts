@@ -9,6 +9,9 @@ import { v4 as uuid } from "uuid";
 import type { Actions, PageServerLoad } from "./$types";
 import { changeSchema, deleteSchema, uploadSchema } from "./types";
 
+const PROFILE_PICTURE_PREFIX = (studentId: string) =>
+  `public/${studentId}/profile-picture`;
+
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma } = locals;
   const member = await prisma.member.findUnique({
@@ -22,7 +25,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   const photos = await fileHandler.getInBucket(
     locals.user,
     PUBLIC_BUCKETS_MEMBERS,
-    `public/${params.studentId}/profile-picture`,
+    PROFILE_PICTURE_PREFIX(params.studentId),
     true,
   );
   return {
@@ -82,7 +85,7 @@ export const actions: Actions = {
       const putUrl = await fileHandler.getPresignedPutUrl(
         locals.user,
         PUBLIC_BUCKETS_MEMBERS,
-        `public/${params.studentId}/profile-picture/${fileName}.webp`,
+        `${PROFILE_PICTURE_PREFIX(params.studentId)}/${fileName}.webp`,
       );
       const res = await fetch(putUrl, {
         method: "PUT",
@@ -119,7 +122,7 @@ export const actions: Actions = {
     if (!form.valid) return fail(400, { form });
     const fileName = form.data.fileName;
     await fileHandler.remove(locals.user, PUBLIC_BUCKETS_MEMBERS, [
-      `${params.studentId}/profile-picture/${fileName}`,
+      `${PROFILE_PICTURE_PREFIX(params.studentId)}/${fileName}`,
     ]);
     return message(form, {
       message: m.members_pictureRemoved(),
