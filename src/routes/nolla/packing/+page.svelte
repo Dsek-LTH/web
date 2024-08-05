@@ -68,7 +68,7 @@
       <div>
         <b>{@html m.nolla_packing_money()}</b>
         <p class="nolla-prose">
-          {m.nolla_packing_money_description()}
+          {@html m.nolla_packing_money_description()}
         </p>
       </div>
     </li>
