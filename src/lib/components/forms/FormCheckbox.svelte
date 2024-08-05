@@ -27,7 +27,6 @@
   ) satisfies FormFieldProxy<boolean>;
   $: value = fieldProxy.value;
   $: errors = fieldProxy.errors;
-  $: constraints = fieldProxy.constraints;
 </script>
 
 <Labeled {label} error={$errors} {...$$restProps}>
@@ -36,7 +35,6 @@
     type="checkbox"
     class={twMerge("checkbox ml-2", clazz)}
     bind:checked={$value}
-    {...$constraints}
     {...$$restProps}
   />
 </Labeled>

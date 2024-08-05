@@ -16,11 +16,15 @@ export const getExtensionOfFile = (fileName: string) => {
   if (dotIndex < 0) return "";
   return fileName.slice(dotIndex + 1);
 };
-export const prepareNameForFilesystem = (name: string, fileName: string) =>
+export const prepareNameForFilesystem = (
+  name: string,
+  fileName: string,
+  extension: string | undefined = undefined,
+) =>
   // replaces spaces with "_" and removes all special characters
-  `${name
-    .replace(/\s/g, "_")
-    .replace(/[^a-zA-Z0-9_]/g, "")}.${getExtensionOfFile(fileName)}`;
+  `${name.replace(/\s/g, "_").replace(/[^a-zA-Z0-9_]/g, "")}.${
+    extension ?? getExtensionOfFile(fileName)
+  }`;
 
 export const compressImage = async (
   image: File,
@@ -49,7 +53,7 @@ export const uploadFile = async (
   name?: string,
   compressionOptions?: Parameters<typeof compressImage>[1] | false, // false means no compression, undefined is default compression (for images only of course)
 ) => {
-  const formattedName = prepareNameForFilesystem(
+  let formattedName = prepareNameForFilesystem(
     name ?? getNameOfFile(file.name),
     file.name,
   );
@@ -65,6 +69,11 @@ export const uploadFile = async (
   if (isFileImage(file) && compressionOptions !== false) {
     try {
       dataToUpload = await compressImage(file, compressionOptions);
+      formattedName = prepareNameForFilesystem(
+        name ?? getNameOfFile(file.name),
+        file.name,
+        "webp",
+      );
     } catch (e) {
       const errMsg = e instanceof Error ? e.message : String(e);
       throw new Error(`Could not compress image: ${errMsg}`);

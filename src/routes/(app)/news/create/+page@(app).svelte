@@ -4,7 +4,7 @@
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import { superForm } from "$lib/utils/client/superForms";
   import * as m from "$paraglide/messages";
-  import type { SuperValidated } from "sveltekit-superforms";
+  import type { SuperForm, SuperValidated } from "sveltekit-superforms";
   import ArticleEditor from "../ArticleEditor.svelte";
   import type { ArticleSchema } from "$lib/news/schema";
 
@@ -14,11 +14,13 @@
     dataType: "json",
   });
   $: form = data.form as unknown as SuperValidated<ArticleSchema>;
+  $: superformCorrectType = superform as unknown as SuperForm<ArticleSchema>;
 </script>
 
 <SetPageTitle title={m.news_createArticle()} />
 
 <ArticleEditor
+  superform={superformCorrectType}
   data={form}
   allTags={data.allTags}
   authorOptions={data.authorOptions}

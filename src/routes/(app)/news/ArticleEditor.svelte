@@ -13,7 +13,7 @@
   export let data: SuperValidated<ArticleSchema>;
   export let authorOptions: AuthorOption[];
   export let allTags: Tag[];
-  const superform = superForm(data, {
+  export let superform = superForm(data, {
     dataType: "json",
   });
   let articleImage: string | undefined = undefined;
@@ -28,7 +28,7 @@
       <slot slot="form-end" name="form-end" />
     </ArticleForm>
   </section>
-  <section>
+  <section class="-mt-4">
     <span class="italic">{m.news_preview()}</span>
     <Article
       article={{
@@ -44,7 +44,7 @@
         updatedAt: new Date(),
         removedAt: null,
         status: "draft",
-        imageUrl: articleImage ?? null,
+        imageUrl: articleImage ?? $form.imageUrl ?? null,
       }}
     >
       <AuthorSignature

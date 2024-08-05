@@ -1,17 +1,17 @@
 import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
 import { uploadFile } from "$lib/files/uploadFiles";
 import { createSchema, updateSchema } from "$lib/news/schema";
+import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
 import sendNotification from "$lib/utils/notifications";
 import { NotificationType } from "$lib/utils/notifications/types";
 import { redirect } from "$lib/utils/redirect";
 import { slugWithCount, slugify } from "$lib/utils/slugify";
 import * as m from "$paraglide/messages";
-import { Prisma } from "@prisma/client";
+import { Prisma, type Article, type Author, type Tag } from "@prisma/client";
 import type { Action } from "@sveltejs/kit";
-import { fail } from "@sveltejs/kit";
 import type { AuthUser } from "@zenstackhq/runtime";
 import { zod } from "sveltekit-superforms/adapters";
-import { message, superValidate } from "sveltekit-superforms/server";
+import { message, superValidate, fail } from "sveltekit-superforms";
 
 const uploadImage = async (user: AuthUser, image: File, slug: string) => {
   const imageUrl = await uploadFile(
@@ -22,14 +22,46 @@ const uploadImage = async (user: AuthUser, image: File, slug: string) => {
     "header",
     {
       resize: {
-        width: 1024,
+        width: 1920,
       },
     },
   );
   return imageUrl;
 };
 
+const sendNewArticleNotification = async (
+  article: Article & { tags: Array<Pick<Tag, "id">>; author: Author },
+  notificationText: string | undefined,
+) => {
+  console.log("notifications: getting members");
+  const subscribedMembers = await authorizedPrismaClient.member.findMany({
+    where: {
+      subscribedTags: {
+        some: {
+          id: {
+            in: article.tags.map(({ id }) => id),
+          },
+        },
+      },
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  console.log("notifications: sending");
+  await sendNotification({
+    title: article.header,
+    message: notificationText ? notificationText : article.body.slice(0, 260),
+    type: NotificationType.NEW_ARTICLE,
+    link: `/news/${article.slug}`,
+    fromAuthor: article.author,
+    memberIds: subscribedMembers.map(({ id }) => id),
+  });
+};
+
 export const createArticle: Action = async (event) => {
+  console.log("create article");
   const { request, locals } = event;
   const { prisma, user } = locals;
   const form = await superValidate(request, zod(createSchema), {
@@ -53,14 +85,17 @@ export const createArticle: Action = async (event) => {
     },
   });
   let slug = slugify(header);
-  const slugCount = await prisma.article.count({
+  // authorized so we actually count all
+  const slugCount = await authorizedPrismaClient.article.count({
     where: {
       slug: { startsWith: slug },
     },
   });
   slug = slugWithCount(slug, slugCount);
+  console.log("before image");
 
   if (image) rest.imageUrl = await uploadImage(user, image, slug);
+  console.log("creating");
 
   const result = await prisma.article.create({
     data: {
@@ -94,7 +129,6 @@ export const createArticle: Action = async (event) => {
             }
           : undefined,
       },
-      // imageUrl: (image as string | undefined) || null,
       tags: {
         connect: tags
           .filter((tag) => !!tag)
@@ -110,14 +144,16 @@ export const createArticle: Action = async (event) => {
   });
 
   // fetch the created author,
-  if (shouldSendNotification)
-    await sendNotification({
-      title: header,
-      message: notificationText ? notificationText : rest.body,
-      type: NotificationType.NEW_ARTICLE,
-      link: `/news/${result.slug}`,
-      fromAuthor: result.author,
-    });
+  if (shouldSendNotification) {
+    console.log("send notifications");
+    await sendNewArticleNotification(
+      {
+        ...result,
+        tags,
+      },
+      notificationText,
+    );
+  }
 
   throw redirect(
     `/news/${result.slug}`,

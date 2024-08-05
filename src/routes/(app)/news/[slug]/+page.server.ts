@@ -1,24 +1,20 @@
+import { getArticle } from "$lib/news/getArticles";
+import apiNames from "$lib/utils/apiNames";
+import { authorize, isAuthorized } from "$lib/utils/authorization";
 import { getAllTaggedMembers } from "$lib/utils/commentTagging";
+import { redirect } from "$lib/utils/redirect";
 import {
   commentAction,
   commentSchema,
   removeCommentAction,
   removeCommentSchema,
 } from "$lib/zod/comments";
-import { error, fail } from "@sveltejs/kit";
-import { superValidate } from "sveltekit-superforms/server";
+import * as m from "$paraglide/messages";
+import { error } from "@sveltejs/kit";
 import { zod } from "sveltekit-superforms/adapters";
-import { getArticle } from "$lib/news/getArticles";
+import { superValidate } from "sveltekit-superforms/server";
 import { likeSchema, likesAction } from "../likes";
 import type { Actions, PageServerLoad } from "./$types";
-import { authorize, isAuthorized } from "$lib/utils/authorization";
-import apiNames from "$lib/utils/apiNames";
-import {
-  removeArticleAction,
-  removeArticleSchema,
-} from "../removeArticleAction";
-import * as m from "$paraglide/messages";
-import { redirect } from "$lib/utils/redirect";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
@@ -49,7 +45,8 @@ export const actions: Actions = {
   dislike: likesAction(false),
   comment: commentAction("NEWS"),
   removeComment: removeCommentAction("NEWS"),
-  removeArticle: async ({ request, locals, params }) => {
+  removeArticle: async (event) => {
+    const { locals, params } = event;
     const { prisma, user } = locals;
     authorize(apiNames.NEWS.DELETE, user);
 

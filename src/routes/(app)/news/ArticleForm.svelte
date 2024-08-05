@@ -56,7 +56,7 @@
 
 <form
   method="POST"
-  class="form-control gap-2"
+  class="form-control mb-8 gap-2"
   use:enhance
   enctype="multipart/form-data"
 >
@@ -122,6 +122,7 @@
 
   <slot name="form-end" />
   <FormSubmitButton {superform} class="btn btn-primary mt-4">
-    {m.news_publish()}
+    <span class="i-mdi-compass-outline" />
+    {$form.slug ? m.save() : m.news_publish()}
   </FormSubmitButton>
 </form>

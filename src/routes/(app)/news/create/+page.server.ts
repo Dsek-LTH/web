@@ -49,6 +49,9 @@ export const load: PageServerLoad = async ({ locals }) => {
         author: authorOptions[0],
       },
       zod(createSchema),
+      {
+        errors: false,
+      },
     ),
   };
 };

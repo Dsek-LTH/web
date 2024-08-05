@@ -34,8 +34,8 @@ export const createSchema = articleSchema
     slug: true,
   })
   .extend({
-    notificationText: z.string().optional(),
-    sendNotification: z.boolean().default(true),
+    notificationText: z.string().optional().nullable(),
+    sendNotification: z.boolean(),
   });
 
 export const updateSchema = articleSchema;
