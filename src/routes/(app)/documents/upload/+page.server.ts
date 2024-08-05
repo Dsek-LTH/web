@@ -3,8 +3,8 @@ import { fail } from "@sveltejs/kit";
 import { zod } from "sveltekit-superforms/adapters";
 import { message, superValidate, withFiles } from "sveltekit-superforms/server";
 import type { Actions, PageServerLoad } from "./$types";
-import { uploadFile } from "./uploadFiles";
 import { uploadSchema } from "./types";
+import { uploadDocumentsFile } from "./uploadFiles";
 
 export const load: PageServerLoad = async () => {
   const form = await superValidate(zod(uploadSchema));
@@ -19,7 +19,7 @@ export const actions: Actions = {
     });
     if (!form.valid) return fail(400, withFiles({ form }));
     try {
-      const res = await uploadFile(user, form.data);
+      const res = await uploadDocumentsFile(user, form.data);
       if (!res.ok)
         return message(
           form,

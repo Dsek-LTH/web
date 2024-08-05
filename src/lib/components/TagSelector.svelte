@@ -6,8 +6,9 @@
   export let onChange: () => void = () => {
     searchValue = "";
   };
+  export let name: string | undefined = undefined;
 
-  const actualOnChange: () => void = () => {
+  const internalOnChange: () => void = () => {
     onChange();
     searchValue = "";
     autocompleteEl?.focus();
@@ -17,7 +18,8 @@
   export let allTags: Tag[] = [];
 
   /** All selected tags */
-  export let selectedTags: Tag[] = [];
+  export let selectedTags: Array<Pick<Tag, "id"> & Partial<Omit<Tag, "id">>> =
+    [];
 
   let searchValue = "";
   $: filteredTags = allTags.filter(
@@ -42,20 +44,22 @@
     <div class="flex flex-1 flex-wrap gap-1">
       {#if selectedTags.length > 0}
         {#each selectedTags as tag}
+          {@const originalTag = allTags.find((t) => t.id === tag.id)}
           <button
             type="button"
             on:click={() => {
               selectedTags = selectedTags.filter((o) => o !== tag);
-              actualOnChange();
+              internalOnChange();
             }}
           >
-            <TagChip {tag} class="after:ml-2 after:content-['x']" />
+            <TagChip tag={originalTag} class="after:ml-2 after:content-['x']" />
           </button>
         {/each}
       {/if}
 
       <input
-        id="autocomplete"
+        {name}
+        id={name ?? "autocomplete"}
         autocomplete="off"
         autocapitalize="off"
         type="text"
@@ -73,7 +77,7 @@
         class="btn btn-xs"
         on:click={() => {
           selectedTags = [];
-          actualOnChange();
+          internalOnChange();
         }}>Clear</button
       >
     {/if}
@@ -96,11 +100,11 @@
             : ''}"
           on:click={() => {
             if (selectedTags.includes(tag)) {
-              selectedTags = selectedTags.filter((o) => o !== tag);
+              selectedTags = selectedTags.filter((o) => o.id !== tag.id);
             } else {
               selectedTags = [...selectedTags, tag];
             }
-            actualOnChange();
+            internalOnChange();
           }}
         >
           <TagChip {tag} />

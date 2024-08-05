@@ -2,7 +2,7 @@
   import { page } from "$app/stores";
   import type { Member } from "@prisma/client";
   import type { SuperValidated } from "sveltekit-superforms";
-  import { superForm } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
   import type { LikeSchema } from "./likes";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";

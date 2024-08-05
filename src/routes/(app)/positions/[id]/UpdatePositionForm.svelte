@@ -2,7 +2,7 @@
   import Labeled from "$lib/components/Labeled.svelte";
   import type { SuperValidated } from "sveltekit-superforms";
   import type { UpdatePositionSchema } from "./+page.server";
-  import { superForm } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
   import * as m from "$paraglide/messages";
   export let data: SuperValidated<UpdatePositionSchema>;
   const { form, errors, constraints, enhance } = superForm(data);

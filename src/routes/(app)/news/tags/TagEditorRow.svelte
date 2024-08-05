@@ -2,7 +2,7 @@
   import TagChip from "$lib/components/TagChip.svelte";
   import type { Tag } from "@prisma/client";
   import type { UpdateSchema } from "./proxy+page.server";
-  import { superForm } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
   import type { SuperValidated } from "sveltekit-superforms";
   import { onMount } from "svelte";
   import * as m from "$paraglide/messages";

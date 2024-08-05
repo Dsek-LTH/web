@@ -7,7 +7,7 @@
   import InterestedGoingList from "../InterestedGoingList.svelte";
 
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
-  import { superForm } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
   import type { PageData } from "./$types";
 
   export let articleId: string;

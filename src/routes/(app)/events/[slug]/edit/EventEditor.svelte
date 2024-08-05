@@ -6,7 +6,7 @@
   import TagSelector from "$lib/components/TagSelector.svelte";
   import type { Tag } from "@prisma/client";
   import type { SuperValidated } from "sveltekit-superforms";
-  import { superForm } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
   import { type EventSchema } from "../../schema";
   import Event from "../../Event.svelte";
   import { recurringTypes } from "$lib/utils/events";

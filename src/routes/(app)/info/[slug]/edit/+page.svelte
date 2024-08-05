@@ -3,7 +3,7 @@
   import type { PageData } from "./$types";
   export let data: PageData;
   import MarkdownEditor from "$lib/components/MarkdownEditor.svelte";
-  import { superForm } from "sveltekit-superforms";
+  import { superForm } from "$lib/utils/client/superForms";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   const { form, errors, enhance } = superForm(data.form);
 </script>

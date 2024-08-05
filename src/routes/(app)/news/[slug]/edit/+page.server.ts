@@ -1,15 +1,13 @@
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
-import { Prisma } from "@prisma/client";
-import { error, fail } from "@sveltejs/kit";
-import { redirect } from "$lib/utils/redirect";
-import { message, superValidate } from "sveltekit-superforms/server";
-import { zod } from "sveltekit-superforms/adapters";
-import { z } from "zod";
-import { getArticleAuthorOptions } from "../../articles";
-import { articleSchema } from "../../schema";
-import type { Actions, PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
+import { error } from "@sveltejs/kit";
+import { zod } from "sveltekit-superforms/adapters";
+import { superValidate } from "sveltekit-superforms/server";
+import { getArticleAuthorOptions } from "$lib/news/getArticles";
+import type { Actions, PageServerLoad } from "./$types";
+import { updateArticle } from "$lib/news/server/actions";
+import { updateSchema } from "$lib/news/schema";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
@@ -69,90 +67,6 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   };
 };
 
-const updateSchema = articleSchema.extend({
-  slug: z.string(),
-});
-
 export const actions: Actions = {
-  default: async (event) => {
-    const { request, locals } = event;
-    const { prisma, user } = locals;
-    const form = await superValidate(request, zod(updateSchema));
-    if (!form.valid) return fail(400, { form });
-    const { slug, header, body, author, tags } = form.data;
-    const existingAuthor = await prisma.author.findFirst({
-      where: {
-        member: { id: author.memberId },
-        mandateId: author.mandateId,
-        customId: author.customId,
-      },
-    });
-    try {
-      await prisma.article.update({
-        where: {
-          slug: slug,
-        },
-        data: {
-          header: header,
-          body: body,
-          author: {
-            connect: existingAuthor
-              ? {
-                  id: existingAuthor.id,
-                }
-              : undefined,
-            create: existingAuthor
-              ? {
-                  member: {
-                    connect: { studentId: user?.studentId },
-                  },
-                  mandate: author.mandateId
-                    ? {
-                        connect: {
-                          member: { studentId: user?.studentId },
-                          id: author.mandateId,
-                        },
-                      }
-                    : undefined,
-                  customAuthor: author.customId
-                    ? {
-                        connect: { id: author.customId },
-                      }
-                    : undefined,
-                }
-              : undefined,
-          },
-          tags: {
-            set: tags
-              .filter((tag) => !!tag)
-              .map((tag) => ({
-                id: tag.id,
-              })),
-          },
-          updatedAt: new Date(),
-        },
-      });
-    } catch (e) {
-      if (e instanceof Prisma.PrismaClientKnownRequestError) {
-        return message(
-          form,
-          {
-            message: m.news_errors_articleNotFound(),
-            type: "error",
-          },
-          { status: 400 },
-        );
-      }
-      throw e;
-    }
-
-    throw redirect(
-      `/news/${event.params.slug}`,
-      {
-        message: m.news_articleUpdated(),
-        type: "success",
-      },
-      event,
-    );
-  },
+  default: updateArticle,
 };

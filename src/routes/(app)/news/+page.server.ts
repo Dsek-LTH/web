@@ -1,7 +1,7 @@
 import { superValidate } from "sveltekit-superforms/server";
 import { zod } from "sveltekit-superforms/adapters";
 import type { Actions, PageServerLoad } from "./$types";
-import { getAllArticles } from "./articles";
+import { getAllArticles } from "$lib/news/getArticles";
 import { likeSchema, likesAction } from "./likes";
 import { error } from "@sveltejs/kit";
 import * as m from "$paraglide/messages";

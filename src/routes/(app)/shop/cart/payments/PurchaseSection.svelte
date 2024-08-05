@@ -6,7 +6,7 @@
   import { loadStripe } from "@stripe/stripe-js";
   import { onMount } from "svelte";
   import type { SuperValidated } from "sveltekit-superforms";
-  import { superForm } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
   import SveltePaymentElement from "./SveltePaymentElement.svelte";
   import type { PurchaseForm } from "$lib/utils/shop/types";
 

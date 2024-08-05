@@ -3,7 +3,7 @@
   import { Editor } from "@tiptap/core";
   import StarterKit from "@tiptap/starter-kit";
   import { Markdown } from "tiptap-markdown";
-  export let value = "";
+  export let value: string | null = "";
 
   let element: Element | undefined = undefined;
   let editor: Editor | undefined = undefined;
@@ -12,7 +12,7 @@
     editor = new Editor({
       element: element,
       extensions: [StarterKit, Markdown],
-      content: value,
+      content: value ?? "",
       onTransaction: () => {
         editor = editor;
       },

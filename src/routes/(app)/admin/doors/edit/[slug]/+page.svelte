@@ -1,7 +1,7 @@
 <script lang="ts">
   import { page } from "$app/stores";
   import Labeled from "$lib/components/Labeled.svelte";
-  import { superForm } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
   import * as m from "$paraglide/messages";
 
   import type { PageData } from "./$types";

@@ -9,8 +9,7 @@ import type {
   Shoppable,
   Ticket,
 } from "@prisma/client";
-import type { Infer } from "sveltekit-superforms/adapters";
-import type { SuperValidated } from "sveltekit-superforms/server";
+import type { Infer, SuperValidated } from "sveltekit-superforms";
 import z from "zod";
 
 export const purchaseForm = z.object({
