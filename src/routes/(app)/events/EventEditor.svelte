@@ -144,7 +144,7 @@
         ...$form,
         imageUrl: $form.image
           ? URL.createObjectURL($form.image)
-          : $form.imageUrl ?? null,
+          : ($form.imageUrl ?? null),
       }}
     >
       <div slot="tags" class="flex flex-row flex-wrap gap-2">
