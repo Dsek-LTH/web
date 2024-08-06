@@ -15,10 +15,26 @@ export const insertCommitteeLogos = async (prisma: PrismaClient) => {
       prisma.committee.updateMany({
         where: {
           shortName,
-          imageUrl: null,
+          OR: [
+            {
+              darkImageUrl: null,
+            },
+            {
+              lightImageUrl: null,
+            },
+            {
+              monoImageUrl: null,
+            },
+            {
+              symbolUrl: null,
+            },
+          ],
         },
         data: {
-          imageUrl: `minio/material/committees/${shortName}.svg`,
+          darkImageUrl: `https://raw.githubusercontent.com/Dsek-LTH/grafik/main/committee_logos/${shortName}/SVG/full/dark.svg`,
+          lightImageUrl: `https://raw.githubusercontent.com/Dsek-LTH/grafik/main/committee_logos/${shortName}/SVG/full/light.svg`,
+          monoImageUrl: `https://raw.githubusercontent.com/Dsek-LTH/grafik/main/committee_logos/${shortName}/SVG/full/bw.svg`,
+          symbolUrl: `https://raw.githubusercontent.com/Dsek-LTH/grafik/main/committee_logos/${shortName}/SVG/symbol/dark.svg`,
         },
       }),
     ),

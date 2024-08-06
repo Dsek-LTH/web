@@ -28,12 +28,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
           include: {
             position: {
               include: {
-                committee: {
-                  select: {
-                    name: true,
-                    imageUrl: true,
-                  },
-                },
+                committee: true,
               },
             },
           },
