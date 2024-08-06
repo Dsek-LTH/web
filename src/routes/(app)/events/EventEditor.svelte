@@ -16,6 +16,7 @@
   import Event from "./Event.svelte";
   import LangTabs from "$lib/components/layout/LangTabs.svelte";
   import FormFileInput from "$lib/components/forms/FormFileInput.svelte";
+  import FormMarkdown from "$lib/components/forms/FormMarkdown.svelte";
 
   export let creating = false;
   export let data: SuperValidated<EventSchema>;
@@ -41,12 +42,11 @@
             label={m.events_subtitle()}
             field="shortDescription"
           />
-          <FormInput
+          <FormMarkdown
             {superform}
             label={m.events_description()}
             field="description"
             class="min-h-[10rem]"
-            textarea
             placeholder={m.events_description()}
           /></svelte:fragment
         >
@@ -57,12 +57,11 @@
             label={m.events_subtitle()}
             field="shortDescriptionEn"
           />
-          <FormInput
+          <FormMarkdown
             {superform}
             label={m.events_description()}
             field="descriptionEn"
             class="min-h-[10rem]"
-            textarea
             placeholder={m.events_description()}
           />
         </svelte:fragment>

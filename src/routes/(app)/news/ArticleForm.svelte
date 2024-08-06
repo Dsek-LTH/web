@@ -1,10 +1,10 @@
 <script lang="ts">
   import FormFileInput from "$lib/components/forms/FormFileInput.svelte";
   import FormInput from "$lib/components/forms/FormInput.svelte";
+  import FormMarkdown from "$lib/components/forms/FormMarkdown.svelte";
   import FormSubmitButton from "$lib/components/forms/FormSubmitButton.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
   import LangTabs from "$lib/components/layout/LangTabs.svelte";
-  import MarkdownEditor from "$lib/components/MarkdownEditor.svelte";
   import TagSelector from "$lib/components/TagSelector.svelte";
   import type { AuthorOption } from "$lib/news/getArticles";
   import type { ArticleSchema } from "$lib/news/schema";
@@ -17,7 +17,7 @@
   export let superform: SuperForm<ArticleSchema>;
   export let articleImage: string | undefined = undefined;
 
-  const { form, enhance, errors, constraints } = superform;
+  const { form, enhance, errors } = superform;
 
   const sameAuthorOption = (
     a: Pick<AuthorOption, "memberId" | "mandateId" | "customId" | "type">,
@@ -63,15 +63,11 @@
   <LangTabs>
     <svelte:fragment slot="sv">
       <FormInput {superform} field="header" label={m.news_header()} />
-      <Labeled label={m.news_description()} error={$errors.body}>
-        <MarkdownEditor bind:value={$form.body} {...$constraints.body} />
-      </Labeled>
+      <FormMarkdown {superform} field="body" label={m.news_description()} />
     </svelte:fragment>
     <svelte:fragment slot="en">
       <FormInput {superform} field="headerEn" label={m.news_header()} />
-      <Labeled label={m.news_description()} error={$errors.body}>
-        <MarkdownEditor bind:value={$form.bodyEn} {...$constraints.body} />
-      </Labeled>
+      <FormMarkdown {superform} field="bodyEn" label={m.news_description()} />
     </svelte:fragment>
   </LangTabs>
 
