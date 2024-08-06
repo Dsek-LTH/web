@@ -668,8 +668,9 @@ model Position {
   @@allow("update", has(auth().policies, "core:position:update"))
   @@allow("delete", has(auth().policies, "core:position:delete"))
   @@deny("read", active == false && !has(auth().policies, "core:position:inactive:read"))
-  // Hide stab position during the nollning
-  @@deny("read", (id == "dsek.noll.stab.mdlm" || id == "dsek.noll.stab.oph") && !has(auth().policies, "member:see_staben"))
+  // Leaving this here so future developers know. We choose to NOT hide the position "staben" to make things less confusing for new students.@@allow
+  // All mandates will still be hidden. "Øverphøs" is also not shown to be part of the board.
+  // @@deny("read", (id == "dsek.noll.stab.mdlm" || id == "dsek.noll.stab.oph") && !has(auth().policies, "member:see_staben"))
   @@map("positions")
 }
 
