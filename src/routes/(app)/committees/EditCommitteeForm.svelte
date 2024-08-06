@@ -1,6 +1,5 @@
 <script lang="ts">
   import { page } from "$app/stores";
-  import FormFileInput from "$lib/components/forms/FormFileInput.svelte";
   import FormInput from "$lib/components/forms/FormInput.svelte";
   import FormSubmitButton from "$lib/components/forms/FormSubmitButton.svelte";
   import apiNames from "$lib/utils/apiNames";
