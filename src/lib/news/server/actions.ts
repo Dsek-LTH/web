@@ -31,7 +31,7 @@ const uploadImage = async (user: AuthUser, image: File, slug: string) => {
 
 const sendNewArticleNotification = async (
   article: Article & { tags: Array<Pick<Tag, "id">>; author: Author },
-  notificationText: string | undefined,
+  notificationText: string | null | undefined,
 ) => {
   console.log("notifications: getting members");
   const subscribedMembers = await authorizedPrismaClient.member.findMany({

@@ -37,15 +37,21 @@
   $: constraints = fieldProxy.constraints;
 </script>
 
-<Labeled {label} error={$errors} required={$constraints?.required}>
+<Labeled
+  {label}
+  error={$errors}
+  required={$constraints?.required}
+  {...$$restProps}
+>
   <select
     class={twMerge(
-      "select select-bordered transition-all hover:border-base-content",
+      "select select-bordered transition-all hover:enabled:border-base-content",
       clazz,
     )}
     name={name ?? field}
     bind:value={$value}
     {...$constraints}
+    {...$$restProps}
   >
     {#each options as option}
       <option value={option.value}>{option.label ?? option.value}</option>

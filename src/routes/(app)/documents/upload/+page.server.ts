@@ -19,18 +19,7 @@ export const actions: Actions = {
     });
     if (!form.valid) return fail(400, withFiles({ form }));
     try {
-      const res = await uploadDocumentsFile(user, form.data);
-      if (!res.ok)
-        return message(
-          form,
-          {
-            message: m.documents_errors_couldNotUploadFile({
-              x: res.statusText,
-            }),
-            type: "error",
-          },
-          { status: 500 },
-        );
+      await uploadDocumentsFile(user, form.data);
     } catch (e) {
       return message(
         form,

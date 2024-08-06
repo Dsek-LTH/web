@@ -1,4 +1,4 @@
-import { isFileImage } from "$lib/files/uploadFiles";
+import { isFileImage } from "$lib/files/utils";
 import { authorSchema, tagSchema } from "$lib/zod/schemas";
 import type { Infer } from "sveltekit-superforms";
 import { z } from "zod";

@@ -122,7 +122,6 @@
 
   <slot name="form-end" />
   <FormSubmitButton {superform} class="btn btn-primary mt-4">
-    <span class="i-mdi-compass-outline" />
     {$form.slug ? m.save() : m.news_publish()}
   </FormSubmitButton>
 </form>

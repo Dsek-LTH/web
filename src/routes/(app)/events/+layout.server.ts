@@ -1,8 +1,8 @@
 import { superValidate } from "sveltekit-superforms/server";
 import { zod } from "sveltekit-superforms/adapters";
 import type { LayoutServerLoad } from "./$types";
-import { getAllEvents } from "./events";
-import { interestedGoingSchema } from "./interestedGoing";
+import { getAllEvents } from "$lib/events/getEvents";
+import { interestedGoingSchema } from "$lib/events/schema";
 import * as m from "$paraglide/messages";
 
 const getAndValidatePage = (url: URL) => {

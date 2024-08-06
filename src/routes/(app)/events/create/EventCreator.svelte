@@ -2,13 +2,13 @@
   import DateInput from "$lib/components/DateInput.svelte";
   import Input from "$lib/components/Input.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
-  import TagChip from "$lib/components/TagChip.svelte";
+  // import TagChip from "$lib/components/TagChip.svelte";
   import TagSelector from "$lib/components/TagSelector.svelte";
   import type { Tag } from "@prisma/client";
   import type { SuperValidated } from "sveltekit-superforms";
   import { dateProxy, superForm } from "sveltekit-superforms/client";
   import Event from "../Event.svelte";
-  import { type EventSchema } from "../schema";
+  import { type EventSchema } from "$lib/events/schema";
   import { recurringTypes } from "$lib/utils/events";
   import * as m from "$paraglide/messages";
 
@@ -178,11 +178,11 @@
         ...$form,
       }}
     >
-      <div slot="tags" class="flex flex-row flex-wrap gap-2">
+      <!-- <div slot="tags" class="flex flex-row flex-wrap gap-2">
         {#each $form.tags as tag}
           <TagChip {tag} />
         {/each}
-      </div>
+      </div> -->
     </Event>
   </section>
 </main>
