@@ -1,4 +1,4 @@
-import { isNollningPeriod } from "$lib/utils/adminSettings/nollning.js";
+import { isNollningPeriod } from "$lib/utils/adminSettings/nollning";
 
 export const load = async () => {
   return {

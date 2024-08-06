@@ -4,7 +4,7 @@ import {
   sendQueuedNotifications,
 } from "$lib/server/shop/addToCart/reservations";
 import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
-import { cartLoadFunction } from "$lib/server/shop/cart/getCart.js";
+import { cartLoadFunction } from "$lib/server/shop/cart/getCart";
 import { purchaseForm } from "$lib/server/shop/cart/types";
 import purchaseCart from "$lib/server/shop/payments/purchase";
 import { answerQuestion } from "$lib/server/shop/questions";
