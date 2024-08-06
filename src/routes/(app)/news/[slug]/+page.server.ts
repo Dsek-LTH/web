@@ -1,23 +1,20 @@
+import { getArticle } from "$lib/news/getArticles";
+import apiNames from "$lib/utils/apiNames";
+import { authorize, isAuthorized } from "$lib/utils/authorization";
 import { getAllTaggedMembers } from "$lib/utils/commentTagging";
+import { redirect } from "$lib/utils/redirect";
 import {
   commentAction,
   commentSchema,
   removeCommentAction,
   removeCommentSchema,
 } from "$lib/zod/comments";
+import * as m from "$paraglide/messages";
 import { error } from "@sveltejs/kit";
-import { superValidate } from "sveltekit-superforms/server";
 import { zod } from "sveltekit-superforms/adapters";
-import { getArticle } from "../articles";
+import { superValidate } from "sveltekit-superforms/server";
 import { likeSchema, likesAction } from "../likes";
 import type { Actions, PageServerLoad } from "./$types";
-import { isAuthorized } from "$lib/utils/authorization";
-import apiNames from "$lib/utils/apiNames";
-import {
-  removeArticleAction,
-  removeArticleSchema,
-} from "../removeArticleAction";
-import * as m from "$paraglide/messages";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
@@ -40,7 +37,6 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     likeForm: await superValidate(zod(likeSchema)),
     commentForm: await superValidate(zod(commentSchema)),
     removeCommentForm: await superValidate(zod(removeCommentSchema)),
-    removeArticleForm: await superValidate(zod(removeArticleSchema)),
   };
 };
 
@@ -49,5 +45,35 @@ export const actions: Actions = {
   dislike: likesAction(false),
   comment: commentAction("NEWS"),
   removeComment: removeCommentAction("NEWS"),
-  removeArticle: removeArticleAction(),
+  removeArticle: async (event) => {
+    const { locals, params } = event;
+    const { prisma, user } = locals;
+    authorize(apiNames.NEWS.DELETE, user);
+
+    const existingArticle = prisma.article.findUnique({
+      where: {
+        slug: params.slug,
+      },
+    });
+
+    if (!existingArticle) return error(404, m.news_errors_articleNotFound());
+
+    await prisma.article.update({
+      where: {
+        slug: params.slug,
+      },
+      data: {
+        removedAt: new Date(),
+      },
+    });
+
+    throw redirect(
+      "/news",
+      {
+        message: m.news_articleDeleted(),
+        type: "success",
+      },
+      event,
+    );
+  },
 };

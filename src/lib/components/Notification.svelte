@@ -7,7 +7,7 @@
   import type { NotificationGroup } from "$lib/utils/notifications/group";
   import type { NotificationSchema } from "$lib/zod/schemas";
   import type { SuperValidated } from "sveltekit-superforms";
-  import { superForm } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
   type NotificationItem = Pick<
     NotificationGroup,
     | "link"

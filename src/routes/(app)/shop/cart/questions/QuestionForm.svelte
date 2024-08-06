@@ -3,7 +3,7 @@
   import FormSubmitButton from "$lib/components/forms/FormSubmitButton.svelte";
   import Price from "$lib/components/Price.svelte";
   import { QuestionType, type CartItem } from "$lib/utils/shop/types";
-  import { superForm } from "sveltekit-superforms";
+  import { superForm } from "$lib/utils/client/superForms";
 
   type Question = CartItem["shoppable"]["questions"][number];
   export let question: Question;

@@ -141,9 +141,8 @@ const sendNotification = async ({
     }`,
   );
 
-  if (title.length > 255) title = title.substring(0, 254);
-  if (message.length > 255) message = message.substring(0, 254);
-  if (link.length > 255) link = link.substring(0, 254);
+  if (title.length > 255) title = title.substring(0, 251) + "...";
+  if (message.length > 255) message = message.substring(0, 251) + "...";
 
   const result = await Promise.allSettled([
     await sendWeb(

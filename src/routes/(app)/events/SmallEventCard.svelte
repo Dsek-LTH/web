@@ -3,8 +3,8 @@
   import InterestedGoingButtons from "./InterestedGoingButtons.svelte";
   import InterestedGoingList from "./InterestedGoingList.svelte";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
-  import type { InterestedGoingSchema } from "./interestedGoing";
-  import type { EventWithIncludes } from "./events";
+  import type { InterestedGoingSchema } from "$lib/events/schema";
+  import type { EventWithIncludes } from "$lib/events/getEvents";
   import type { SuperValidated } from "sveltekit-superforms";
   import { eventLink } from "$lib/utils/redirect";
   import { languageTag } from "$paraglide/runtime";

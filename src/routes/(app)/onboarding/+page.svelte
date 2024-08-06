@@ -1,6 +1,6 @@
 <script lang="ts">
   import Input from "$lib/components/Input.svelte";
-  import { superForm } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
   import type { UpdateSchema } from "./+page.server";
   import type { PageData } from "./$types";
   import Labeled from "$lib/components/Labeled.svelte";

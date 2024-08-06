@@ -1,5 +1,5 @@
 <script lang="ts">
-  import EventEditor from "./EventEditor.svelte";
+  import EventEditor from "../../EventEditor.svelte";
   import * as m from "$paraglide/messages";
 
   import type { PageData } from "./$types";

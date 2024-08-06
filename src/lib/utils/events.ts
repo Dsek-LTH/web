@@ -1,27 +1,29 @@
-export const recurringTypes = new Map([
-  ["DAILY", "Dagsvis"],
-  ["WEEKLY", "Veckovis"],
-  ["MONTHLY", "Månadsvis"],
-  ["YEARLY", "Årsvis"],
-]);
-const recurringTypesList = [...recurringTypes.keys()] as const;
-export type RecurringType = "DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY";
-export function isRecurringType(str: string): str is RecurringType {
+import { recurringType } from "@prisma/client";
+
+// }
+export const recurringTypes: Record<recurringType, string> = {
+  [recurringType.DAILY]: "Dagsvis",
+  [recurringType.WEEKLY]: "Veckovis",
+  [recurringType.MONTHLY]: "Månadsvis",
+  [recurringType.YEARLY]: "Årsvis",
+};
+export const recurringTypesList = Object.keys(recurringTypes);
+export function isRecurringType(str: string): str is recurringType {
   return !!recurringTypesList.find((recurringType) => str === recurringType);
 }
 
-export function getIncrementType(recurringType: RecurringType) {
-  switch (recurringType) {
-    case "DAILY":
+export function getIncrementType(type: recurringType) {
+  switch (type) {
+    case recurringType.DAILY:
       return "day";
 
-    case "WEEKLY":
+    case recurringType.WEEKLY:
       return "week";
 
-    case "MONTHLY":
+    case recurringType.MONTHLY:
       return "month";
 
-    case "YEARLY":
+    case recurringType.YEARLY:
       return "year";
   }
 }

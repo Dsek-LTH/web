@@ -2,7 +2,10 @@
   import type { Member } from "@prisma/client";
   import AuthorSignature from "$lib/components/socials/AuthorSignature.svelte";
   import * as m from "$paraglide/messages";
-  import { formatGoingList, formatInterestedList } from "./pluralization";
+  import {
+    formatGoingList,
+    formatInterestedList,
+  } from "$lib/events/pluralization";
 
   let goingModal: HTMLDialogElement;
   let interestedModal: HTMLDialogElement;

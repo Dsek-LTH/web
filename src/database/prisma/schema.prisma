@@ -133,7 +133,7 @@ model ArticleRequest {
 
 /// @@allow('create', has(auth().policies, 'news:article:create'))
 /// @@allow('read', has(auth().policies, 'news:article:read'))
-/// @@deny('read', removedAt != null)
+/// @@deny('read', removedAt != null && !has(auth().policies, 'news:article:delete'))
 /// @@allow('update', has(auth().policies, 'news:article:update'))
 /// @@allow('update', auth().memberId == author.memberId)
 /// @@allow('delete', has(auth().policies, 'news:article:delete'))
@@ -151,6 +151,7 @@ model Article {
     publishedAt DateTime? @map("published_datetime") @db.Timestamptz(6)
     updatedAt DateTime? @map("latest_edit_datetime") @db.Timestamptz(6)
     slug String @unique(map: "articles_slug_unique") @db.VarChar(255)
+    /// @allow('update', has(auth().policies, 'news:article:delete'))
     removedAt DateTime? @map("removed_at") @db.Timestamptz(6)
     status String? @default("approved")
     createdAt DateTime @default(now()) @map("created_datetime") @db.Timestamptz(6)
@@ -475,7 +476,7 @@ model Keycloak {
 /// @@allow('read', has(auth().policies, 'core:mandate:read'))
 /// @@allow('update', has(auth().policies, 'core:mandate:update'))
 /// @@allow('delete', has(auth().policies, 'core:mandate:delete'))
-/// @@deny('read', positionId == 'dsek.noll.stab.mdlm' || positionId == 'dsek.noll.stab.oph' && !has(auth().policies, 'member:see_staben'))
+/// @@deny('read', positionId == 'dsek.noll.stab.mdlm' || positionId == 'dsek.noll.stab.oph' && !has(auth().policies, 'member:see_staben') && auth().memberId != memberId)
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Mandates{
 model Mandate {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()

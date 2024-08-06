@@ -3,7 +3,7 @@
   import type { TicketSchema } from "$lib/utils/shop/types";
   import type { Event } from "@prisma/client";
   import type { SuperValidated } from "sveltekit-superforms";
-  import { superForm } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
   import AvailableDates from "./AvailableDates.svelte";
   import EventSearchInput from "./EventSearchInput.svelte";
   import MaxAmountPerUser from "./MaxAmountPerUser.svelte";

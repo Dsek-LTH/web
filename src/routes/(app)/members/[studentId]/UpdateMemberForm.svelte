@@ -4,7 +4,7 @@
   import type { SuperValidated } from "sveltekit-superforms";
   import type { UpdateSchema } from "./+page.server";
   import { programmes } from "$lib/utils/programmes";
-  import { superForm } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
   import * as m from "$paraglide/messages";
   export let isEditing;
   export let data: SuperValidated<UpdateSchema>;

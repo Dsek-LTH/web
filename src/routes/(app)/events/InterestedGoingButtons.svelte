@@ -1,8 +1,8 @@
 <script lang="ts">
   import { page } from "$app/stores";
   import type { SuperValidated } from "sveltekit-superforms";
-  import type { InterestedGoingSchema } from "./interestedGoing";
-  import { superForm } from "sveltekit-superforms/client";
+  import type { InterestedGoingSchema } from "$lib/events/schema";
+  import { superForm } from "$lib/utils/client/superForms";
   import type { Member } from "@prisma/client";
   import * as m from "$paraglide/messages";
 

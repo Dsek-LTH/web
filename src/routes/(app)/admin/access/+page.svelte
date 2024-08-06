@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { superForm } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
   import type { PageData } from "./$types";
   import * as m from "$paraglide/messages";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";

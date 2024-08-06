@@ -6,7 +6,7 @@
   import LoadingButton from "$lib/components/LoadingButton.svelte";
   import PageHeader from "$lib/components/nav/PageHeader.svelte";
   import type { AdminSetting } from "@prisma/client";
-  import { superForm } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
 

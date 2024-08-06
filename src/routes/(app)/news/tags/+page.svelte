@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { superForm } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
   import TagEditorRow from "./TagEditorRow.svelte";
   import * as m from "$paraglide/messages";
 

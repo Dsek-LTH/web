@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getFullName } from "$lib/utils/client/member";
-  import type { Article } from "../articles";
+  import type { Article } from "$lib/news/getArticles";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import dayjs from "dayjs";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";

@@ -4,7 +4,7 @@
   import dayjs from "dayjs";
   import DOMPurify from "isomorphic-dompurify";
   import { markdownToTxt } from "markdown-to-txt";
-  import type { Article } from "./articles";
+  import type { Article } from "$lib/news/getArticles";
   export let article: Article;
 </script>
 
