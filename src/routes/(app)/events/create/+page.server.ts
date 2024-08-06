@@ -1,17 +1,9 @@
-import { error, fail } from "@sveltejs/kit";
-import { redirect } from "$lib/utils/redirect";
-import { superValidate } from "sveltekit-superforms/server";
-import { zod } from "sveltekit-superforms/adapters";
 import { eventSchema } from "$lib/events/schema";
-import type { Actions, PageServerLoad } from "./$types";
-import { slugWithCount, slugify } from "$lib/utils/slugify";
-import dayjs from "dayjs";
-import {
-  getIncrementType,
-  isRecurringType,
-  type RecurringType,
-} from "$lib/utils/events";
 import { createEvent } from "$lib/events/server/actions";
+import { error } from "@sveltejs/kit";
+import { zod } from "sveltekit-superforms/adapters";
+import { superValidate } from "sveltekit-superforms/server";
+import type { Actions, PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma, member } = locals;
