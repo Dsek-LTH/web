@@ -33,7 +33,7 @@
 
 <div
   class="min-h-screen bg-cover bg-center"
-  style="background-image: url('./hero-image.jpg'); "
+  style="background-image: url('./hero-image.webp'); "
 >
   <div class="min-h-screen bg-cover py-16 md:bg-transparent">
     <div
