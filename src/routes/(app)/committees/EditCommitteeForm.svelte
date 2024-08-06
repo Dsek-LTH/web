@@ -51,7 +51,7 @@
     <FormInput
       {superform}
       field="monoImageUrl"
-      label={m.committees_committeeImage_mobo()}
+      label={m.committees_committeeImage_mono()}
       explanation="Large image which will be used when a single color is preferred"
     />
     <FormInput

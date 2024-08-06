@@ -5,6 +5,9 @@ export type MandateWithPositionAndCommitte = Pick<
   "id" | "startDate" | "endDate"
 > & {
   position: Pick<Position, "id" | "name"> & {
-    committee: Pick<Committee, "name" | "imageUrl"> | null;
+    committee: Pick<
+      Committee,
+      "name" | "lightImageUrl" | "darkImageUrl" | "monoImageUrl" | "symbolUrl"
+    > | null;
   };
 };

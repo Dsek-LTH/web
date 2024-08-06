@@ -12,7 +12,8 @@ const MINIO_BASE_URL = (() => {
   }://${PUBLIC_MINIO_ENDPOINT}:${PUBLIC_MINIO_PORT}/`;
 })();
 
-export const getImageUrl = (imageUrl: string) => {
+export const getImageUrl = (imageUrl: string | null | undefined) => {
+  if (!imageUrl) return imageUrl;
   if (imageUrl.startsWith("minio/")) {
     return `${MINIO_BASE_URL}${imageUrl.substring(6)}`;
   }
