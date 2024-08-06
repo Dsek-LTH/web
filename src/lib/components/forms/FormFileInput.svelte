@@ -39,7 +39,12 @@
   $: constraints = fieldProxy.constraints;
 </script>
 
-<Labeled {label} error={$errors} required={$constraints?.required}>
+<Labeled
+  {label}
+  error={$errors}
+  required={$constraints?.required}
+  {...$$restProps}
+>
   <input
     on:change={onChange}
     {name}
@@ -48,5 +53,6 @@
     bind:files={$file}
     class={twMerge("file-input file-input-bordered w-full max-w-xs", clazz)}
     {...$constraints}
+    {...$$restProps}
   />
 </Labeled>

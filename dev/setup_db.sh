@@ -25,7 +25,7 @@ docker exec --interactive --tty dsek-db \
             --command="SET session_replication_role = 'replica';"
 
 # Restore old database from dump
-curl -L "https://minio.api.sandbox.dsek.se/dev-files/dev/dwww_web.dmp" | \
+curl -L "https://minio.api.sandbox.dsek.se/files/dev/dwww_web.dmp" | \
     docker exec --interactive dsek-db \
            pg_restore --username=postgres \
                       --dbname=dsek \
