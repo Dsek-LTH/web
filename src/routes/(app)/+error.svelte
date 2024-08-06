@@ -48,7 +48,7 @@
 <main class="gap flex flex-1 flex-col items-center gap-2 pt-20">
   <h1 class="text-6xl font-bold">{$page.status}</h1>
   <h3>
-    {$page.error?.statusDescription ?? $page.status in codeToMessage
+    {($page.error?.statusDescription ?? $page.status in codeToMessage)
       ? codeToMessage[$page.status]
       : ""}
   </h3>

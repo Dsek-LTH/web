@@ -1,4 +1,4 @@
-import { ShoppableType } from "@prisma/client";
+import type { ShoppableType } from "@prisma/client";
 import type { Consumable, Event, Shoppable, Ticket } from "@prisma/client";
 
 export type TicketShoppable = Omit<Shoppable, "type"> & {

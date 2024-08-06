@@ -95,7 +95,8 @@ const genitiveCase = (base: string): string => {
       return base; // Måns or Max => Måns and Max
     else return base + "s"; // Adam => Adams
   } else {
-    if (base.endsWith("s")) return base + "'"; // Måns => Måns'
+    if (base.endsWith("s"))
+      return base + "'"; // Måns => Måns'
     else return base + "'s"; // Adam => Adam's
   }
 };

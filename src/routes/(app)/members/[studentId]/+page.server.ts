@@ -111,7 +111,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
           })
         : null,
     };
-  } catch (e) {
+  } catch {
     throw error(500, m.members_errors_couldntFetchPings());
   }
 };

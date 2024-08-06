@@ -173,13 +173,13 @@ const addPurchaseTestForUser = (
     expect(res).toBeDefined();
     expect(res.clientSecret).toBe("abc");
     expect(mockFns.paymentIntents.create).toHaveBeenCalledOnce();
-    expect(mockFns.paymentIntents.create.mock.calls[0][0].amount).toBe(
+    expect(mockFns.paymentIntents.create.mock.calls[0]?.[0].amount).toBe(
       MOCK_ACTIVE_TICKET.shoppable.price,
     );
 
-    expect(mockFns.paymentIntents.create.mock.calls[0][1].idempotencyKey).toBe(
-      "idempotency-key",
-    );
+    expect(
+      mockFns.paymentIntents.create.mock.calls[0]?.[1].idempotencyKey,
+    ).toBe("idempotency-key");
     const consumable = await prisma.consumable.findFirst({
       where: {
         ...dbIdentification(identification),
@@ -215,8 +215,8 @@ const addPurchaseTestForUser = (
     expect(mockFns.paymentIntents.update).toHaveBeenCalledOnce();
     expect(mockFns.paymentIntents.retrieve).toHaveBeenCalledOnce();
     expect(mockFns.paymentIntents.cancel).not.toHaveBeenCalled();
-    expect(mockFns.paymentIntents.update.mock.calls[0][0]).toBe("intent-id");
-    expect(mockFns.paymentIntents.update.mock.calls[0][1].amount).toBe(
+    expect(mockFns.paymentIntents.update.mock.calls[0]?.[0]).toBe("intent-id");
+    expect(mockFns.paymentIntents.update.mock.calls[0]?.[1].amount).toBe(
       MOCK_ACTIVE_TICKET.shoppable.price,
     );
 
@@ -241,7 +241,7 @@ const addPurchaseTestForUser = (
     expect(mockFns.paymentIntents.update).toHaveBeenCalledOnce();
     expect(mockFns.paymentIntents.retrieve).toHaveBeenCalledOnce();
     expect(mockFns.paymentIntents.cancel).not.toHaveBeenCalled();
-    expect(mockFns.paymentIntents.update.mock.calls[0][1].amount).toBe(
+    expect(mockFns.paymentIntents.update.mock.calls[0]?.[1].amount).toBe(
       MOCK_ACTIVE_TICKET.shoppable.price + MOCK_ACTIVE_TICKET_2.shoppable.price,
     );
 
@@ -271,11 +271,11 @@ const addPurchaseTestForUser = (
     expect(mockFns.paymentIntents.create).toHaveBeenCalledOnce();
     const price =
       MOCK_ACTIVE_TICKET.shoppable.price + MOCK_ACTIVE_TICKET_2.shoppable.price;
-    expect(mockFns.paymentIntents.create.mock.calls[0][0].amount).toBe(price);
+    expect(mockFns.paymentIntents.create.mock.calls[0]?.[0].amount).toBe(price);
 
-    expect(mockFns.paymentIntents.create.mock.calls[0][1].idempotencyKey).toBe(
-      "idempotency-key",
-    );
+    expect(
+      mockFns.paymentIntents.create.mock.calls[0]?.[1].idempotencyKey,
+    ).toBe("idempotency-key");
     const consumables = await prisma.consumable.findMany({
       where: {
         ...dbIdentification(identification),

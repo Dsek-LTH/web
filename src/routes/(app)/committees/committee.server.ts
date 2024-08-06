@@ -172,7 +172,7 @@ export const committeeActions = (
           body: image,
         });
         newImageUploaded = true;
-      } catch (e) {
+      } catch {
         return message(
           form,
           { message: m.committees_errors_uploadImage(), type: "error" },

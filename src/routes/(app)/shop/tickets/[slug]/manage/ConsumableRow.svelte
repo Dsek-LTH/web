@@ -52,7 +52,7 @@
       </div>
     </div>
   </td>
-  <TruncatedTableCell value={member ? member.foodPreference ?? "" : ""} />
+  <TruncatedTableCell value={member ? (member.foodPreference ?? "") : ""} />
   <TruncatedTableCell
     value={consumable?.purchasedAt
       ? dayjs(consumable.purchasedAt).format("HH:MM:ss DD-MM-YYYY")

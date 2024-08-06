@@ -91,14 +91,14 @@ const generateCSV = (
       : "Anonym användare";
     const email = member
       ? "Finns inte"
-      : consumable.externalCustomerEmail?.replace(",", " ") ?? "Finns inte";
+      : (consumable.externalCustomerEmail?.replace(",", " ") ?? "Finns inte");
     const paidAmount = consumable.priceAtPurchase
       ? priceFormatter
           .format(consumable.priceAtPurchase / 100)
           .replace(",", ".")
       : "Okänt";
     const foodPreference = member
-      ? member?.foodPreference?.replace(",", " ") ?? ""
+      ? (member?.foodPreference?.replace(",", " ") ?? "")
       : "Anonym användare";
     let row = `${name},${email},${foodPreference},${paidAmount},${dayjs(
       consumable.purchasedAt,
