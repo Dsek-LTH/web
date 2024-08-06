@@ -4,7 +4,7 @@
 
 <div
   class="hero -mt-16 min-h-screen lg:justify-start"
-  style="background-image: url(./hero-image.jpg);"
+  style="background-image: url(./hero-image.webp);"
 >
   <div class="hero-content text-neutral-content">
     <div
