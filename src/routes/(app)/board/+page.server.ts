@@ -1,9 +1,11 @@
+import apiNames from "$lib/utils/apiNames";
+import { isAuthorized } from "$lib/utils/authorization";
 import { compareBoardPositions } from "$lib/utils/committee-ordering/sort";
 
 import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ locals }) => {
-  const { prisma } = locals;
+  const { prisma, user } = locals;
   const boardPositions = await prisma.committee.findMany({
     where: {
       positions: {
@@ -99,6 +101,13 @@ export const load: PageServerLoad = async ({ locals }) => {
   mergedBoardPositions.sort((a, b) =>
     compareBoardPositions(a.position.id, b.position.id),
   );
+  if (!isAuthorized(apiNames.MEMBER.SEE_STABEN, user)) {
+    return {
+      boardPositions: mergedBoardPositions.filter(
+        (bp) => !bp.position.id.startsWith("dsek.noll"),
+      ),
+    };
+  }
   return {
     boardPositions: mergedBoardPositions,
   };
