@@ -19,6 +19,10 @@
         ?
       </span>
     </li>
+    <li>
+      Prisma log level:
+      <pre class="inline">{data.prismaLogLevel}</pre>
+    </li>
     <li>Is nollning: {data.isNollning}</li>
     <li>
       Is app: {data.isApp}

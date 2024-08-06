@@ -26,7 +26,6 @@ function isWrite(operation: string) {
 }
 
 const logLevel = getPrismaLogLevel();
-console.log(`Prisma log level: "${logLevel}"`);
 
 export default (studentId?: string) =>
   Prisma.defineExtension({
