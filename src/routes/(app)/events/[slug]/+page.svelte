@@ -10,14 +10,10 @@
   import { superForm } from "$lib/utils/client/superForms";
   import type { PageData } from "./$types";
 
-  export let articleId: string;
-
   export let data: PageData;
-  const { enhance, form } = superForm(data.removeEventForm, {
-    id: articleId,
-  });
+  const { enhance, form } = superForm(data.removeEventForm);
   $: event = data.event;
-  let isModalOpen = false;
+  let modal: HTMLDialogElement;
   let submitString: "submit" | "button";
   $: submitString = event.recurringParentId != undefined ? "button" : "submit";
 </script>
@@ -37,22 +33,19 @@
     {/if}
     {#if data.canDelete}
       <form method="POST" action="?/removeEvent" use:enhance>
-        <input type="hidden" name="eventId" value={event.id} />
         <button
           type={submitString}
           class="btn btn-square btn-ghost btn-md"
           title="Radera"
-          on:click={() =>
-            (isModalOpen = event.recurringParentId !== null && true)}
+          on:click={() => {
+            if (event.recurringParentId !== null) {
+              modal.showModal();
+            }
+          }}
         >
           <span class="i-mdi-delete text-xl" />
         </button>
-        <button
-          class="modal hover:cursor-default"
-          type="button"
-          class:modal-open={isModalOpen}
-          on:click|self={() => (isModalOpen = false)}
-        >
+        <dialog class="modal" bind:this={modal}>
           <div class="modal-box">
             <h3 class="text-lg font-bold">{m.events_thisIsRecurring()}</h3>
             <div class="py-4">
@@ -91,13 +84,18 @@
               <button
                 class="btn btn-error"
                 type="submit"
-                on:click={() => (isModalOpen = false)}
+                on:click={() => {
+                  modal.close();
+                }}
               >
                 {m.events_delete()}
               </button>
             </div>
           </div>
-        </button>
+          <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+          </form>
+        </dialog>
       </form>
     {/if}
   </div>

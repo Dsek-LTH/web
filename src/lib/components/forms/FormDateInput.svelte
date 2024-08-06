@@ -27,7 +27,7 @@
   $: errors = fieldProxy.errors;
   $: constraints = fieldProxy.constraints;
   $: date = dateProxy(superform, field, {
-    format: onlyDate ? "date" : "datetime",
+    format: onlyDate ? "date" : "datetime-local",
   });
   export let onlyDate = false;
 </script>

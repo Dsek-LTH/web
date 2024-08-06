@@ -43,5 +43,5 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 export const actions: Actions = {
   comment: commentAction("EVENT"),
   removeComment: removeCommentAction("EVENT"),
-  removeEvent: removeEventAction(),
+  removeEvent: removeEventAction,
 };
