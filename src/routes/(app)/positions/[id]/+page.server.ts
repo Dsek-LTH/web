@@ -20,6 +20,7 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
       id: params.id,
     },
     include: {
+      committee: true,
       mandates: {
         include: {
           member: true,

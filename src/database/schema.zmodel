@@ -254,7 +254,10 @@ model Committee {
   nameEn        String?    @map("name_en") @db.VarChar(255)
   shortName     String?    @unique @map("short_name") @db.VarChar(255)
   positions     Position[]
-  imageUrl      String?    @map("image_url") @db.Text
+  darkImageUrl  String?    @map("dark_image_url") @db.Text
+  lightImageUrl String?    @map("light_image_url") @db.Text
+  monoImageUrl  String?    @map("mono_image_url") @db.Text
+  symbolUrl     String?    @map("symbol_url") @db.Text
   description   String?    @db.VarChar(255)
   descriptionEn String?    @map("description_en") @db.VarChar(255)
 
