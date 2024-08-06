@@ -1,5 +1,3 @@
-import { PUBLIC_BUCKETS_MATERIAL } from "$env/static/public";
-import { fileHandler } from "$lib/files";
 import { compareCommitteePositions } from "$lib/utils/committee-ordering/sort";
 import * as m from "$paraglide/messages";
 import type { PrismaClient } from "@prisma/client";
@@ -151,62 +149,18 @@ export const committeeActions = (
   shortName?: string,
 ): Actions<{ shortName: string }> => ({
   update: async ({ params, request, locals }) => {
-    const { prisma, user } = locals;
+    const { prisma } = locals;
     const form = await superValidate(request, zod(updateSchema), {
       allowFiles: true,
     });
     if (!form.valid) return fail(400, withFiles({ form }));
-    let newImageUploaded = false;
-    const { name, description, image, markdown, markdownSlug } = form.data;
-    if (image !== undefined) {
-      const path = `committees/${shortName ?? params.shortName}.svg`;
-      if (image) {
-        try {
-          const putUrl = await fileHandler.getPresignedPutUrl(
-            user,
-            PUBLIC_BUCKETS_MATERIAL,
-            path,
-            true,
-          );
-          const res = await fetch(putUrl, {
-            method: "PUT",
-            body: image,
-          });
-          newImageUploaded = true;
 
-          if (!res.ok)
-            return message(
-              form,
-              {
-                message: `${m.committees_errors_uploadImage()}: ${await res.text()}`,
-                type: "error",
-              },
-              { status: 500 },
-            );
-        } catch (e) {
-          console.error(e);
-          const errMsg = e instanceof Error ? e.message : String(e);
-          return message(
-            form,
-            {
-              message: `${m.committees_errors_uploadImage()}: ${errMsg}`,
-              type: "error",
-            },
-            { status: 500 },
-          );
-        }
-      }
-    }
+    const { markdown, markdownSlug, ...rest } = form.data;
+
     await prisma.committee.update({
       where: { shortName: shortName ?? params.shortName },
       data: {
-        name,
-        description,
-        imageUrl: newImageUploaded
-          ? `minio/${PUBLIC_BUCKETS_MATERIAL}/committees/${
-              shortName ?? params.shortName
-            }.svg?version=${new Date().getTime()}`
-          : undefined,
+        ...rest,
       },
     });
 
