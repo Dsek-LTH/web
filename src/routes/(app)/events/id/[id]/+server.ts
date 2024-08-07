@@ -2,11 +2,12 @@ import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
 import { eventLink, redirect } from "$lib/utils/redirect";
 import { slugWithCount, slugify } from "$lib/utils/slugify";
 import { error } from "@sveltejs/kit";
-import type { PageServerLoad } from "./$types";
-// import * as m from "$paraglide/messages";
 
-// This page serves as a backup in case an event doesn't have a slug. You can direct someone to this page instead and it will create a slug, and then redirect to the correct slug address
-export const load: PageServerLoad = async ({ locals, params }) => {
+/**
+ * This endpoint is a backup in case an event doesn't have a slug.
+ * It will create a slug and then redirect to /events/<slug>.
+ */
+export const GET = async ({ locals, params }) => {
   const id = params.id;
   const { prisma } = locals;
   const event = await prisma.event.findUnique({
@@ -38,5 +39,5 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     });
     eventSlug = newSlug;
   }
-  throw redirect(308, eventLink({ id: event.id, slug: eventSlug as string })); // 308 is permanent redirect
+  throw redirect(308, eventLink({ id: event.id, slug: eventSlug })); // 308 is permanent redirect
 };
