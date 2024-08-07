@@ -411,6 +411,8 @@
   "events_create_preview": "Förhandsvisning",
   "events_calendar": "Kalender",
   "events_calendar_subscribe": "Prenumerera",
+  "events_calendar_subscribe_details": "Detta är en iCal-prenumeration som du kan lägga till i din kalender-app.",
+  "events_calendar_subscribe_copyToClipboard": "Länken till iCal-prenumerationen har kopierats till urklipp.",
   "events_calendar_today": "Idag",
   "events_calendar_month": "Månad",
   "events_calendar_week": "Vecka",
