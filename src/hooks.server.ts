@@ -1,5 +1,6 @@
 import { env } from "$env/dynamic/private";
 import keycloak from "$lib/server/keycloak";
+import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
 import { i18n } from "$lib/utils/i18n";
 import { redirect } from "$lib/utils/redirect";
 import { themes, type Theme } from "$lib/utils/themes";
@@ -15,8 +16,8 @@ import RPCApiHandler from "@zenstackhq/server/api/rpc";
 import zenstack from "@zenstackhq/server/sveltekit";
 import { randomBytes } from "crypto";
 import schedule from "node-schedule";
-import translatedExtension from "./database/prisma/translationExtension";
 import loggingExtension from "./database/prisma/loggingExtension";
+import translatedExtension from "./database/prisma/translationExtension";
 import { getAccessPolicies } from "./hooks.server.helpers";
 
 const { handle: authHandle } = SvelteKitAuth({
@@ -206,7 +207,9 @@ const themeHandle: Handle = async ({ event, resolve }) => {
   });
 };
 
-schedule.scheduleJob("* */24 * * *", () => keycloak.sync(prismaClient));
+schedule.scheduleJob("* */24 * * *", () =>
+  keycloak.sync(authorizedPrismaClient),
+);
 
 export const handle = sequence(
   authHandle,
