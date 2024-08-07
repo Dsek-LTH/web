@@ -100,6 +100,7 @@
     "embla-carousel-autoplay": "^8.1.8",
     "embla-carousel-svelte": "^8.1.8",
     "expo-server-sdk": "^3.10.0",
+    "ics": "^3.7.6",
     "isomorphic-dompurify": "^2.14.0",
     "markdown-to-txt": "^2.0.1",
     "marked": "^11.2.0",
