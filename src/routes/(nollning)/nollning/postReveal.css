@@ -9,7 +9,8 @@
 @layer components {
   .post-reveal {
     scroll-behavior: smooth;
-    font-family: Legend;
+    @apply font-nolla-post-reveal;
+    font-display: auto;
   }
   .post-reveal {
     @apply font-nolla-post-reveal text-sm leading-snug md:text-base;
