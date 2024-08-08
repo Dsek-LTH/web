@@ -15,6 +15,7 @@ export type Route = {
   accessRequired: string | null;
   appBehaviour: AppBehaviour;
   children?: Route[];
+  isCurrentRoute?: (currentPathname: string) => boolean;
 };
 export const getRoutes = (): Route[] =>
   [

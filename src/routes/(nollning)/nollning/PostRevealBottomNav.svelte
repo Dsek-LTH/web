@@ -11,11 +11,9 @@
 
 <nav class="btm-nav relative inset-0" style="bottom: {bottomInsets || 0}px;">
   {#each routesToShow as route (route.path)}
-    {@const isCurrent =
-      route.path &&
-      (route.path === "/"
-        ? currentRoute === "/"
-        : currentRoute.startsWith(route.path))}
+    {@const isCurrent = route.isCurrentRoute
+      ? route.isCurrentRoute(currentRoute)
+      : route.path === currentRoute}
     <a
       href={`${prefix}${route.path}`}
       class:text-base-content={isCurrent}
