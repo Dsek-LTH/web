@@ -8,6 +8,10 @@
 
 @layer components {
   .post-reveal {
+    scroll-behavior: smooth;
+    font-family: Legend;
+  }
+  .post-reveal {
     @apply font-nolla-post-reveal text-sm leading-snug md:text-base;
   }
   .post-reveal .page-title {
@@ -36,11 +40,6 @@
   .post-reveal .nolla-prose {
     @apply prose-sm my-4 leading-snug;
   }
-}
-
-html {
-  scroll-behavior: smooth;
-  font-family: Legend;
 }
 
 [data-theme="nollningPostReveal"] {
