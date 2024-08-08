@@ -9,19 +9,20 @@
   import { signIn } from "@auth/sveltekit/client";
   import type { SuperValidated } from "sveltekit-superforms";
   import NotificationBell from "./NotificationBell.svelte";
-  import { appBottomNavRoutes, getRoutes } from "./routes";
+  import { appBottomNavRoutes, getPostRevealRoute, getRoutes } from "./routes";
   $: notifications = $page.data["notifications"] as NotificationGroup[] | null;
   $: deleteNotificationForm = $page.data[
     "deleteNotificationForm"
   ] as SuperValidated<NotificationSchema> | null;
   $: routes = getRoutes();
   $: bottomNavRoutes = appBottomNavRoutes(routes).map((route) => route.path);
-  $: canGoBack = !bottomNavRoutes.includes(i18n.route($page.url.pathname));
+  $: currentRoute = getPostRevealRoute(i18n.route($page.url.pathname));
+  $: canGoBack = !bottomNavRoutes.includes(currentRoute);
   $: topInsets = $page.data.appInfo?.insets?.top ?? 0;
 </script>
 
 <header
-  class="navbar sticky top-0 z-10 justify-between gap-2 overflow-hidden bg-base-300 bg-opacity-60 filter backdrop-blur transition-all"
+  class="navbar top-0 z-10 justify-between gap-2 overflow-hidden bg-opacity-60 shadow-[0_4px_4px_#191B2740] filter backdrop-blur transition-all"
   style="padding-top: {topInsets + 8}px;"
 >
   <div class="w-16">
@@ -37,7 +38,7 @@
   <!-- min-w-0 is required to get text-overflow: ellipsis; to work  -->
   <div class="min-w-0 flex-1">
     <h1
-      class="mx-auto overflow-hidden text-ellipsis whitespace-nowrap text-xl font-bold"
+      class="page-title mx-auto overflow-hidden text-ellipsis whitespace-nowrap text-xl font-bold"
     >
       {$pageTitle}
     </h1>
@@ -46,7 +47,7 @@
   <div class="w-16">
     {#if $page.data.user && $page.data.member}
       {#if notifications !== null && notifications !== undefined && deleteNotificationForm !== null}
-        <NotificationBell {notifications} deleteForm={deleteNotificationForm} />
+        <NotificationBell />
       {/if}
     {:else}
       <LoadingButton
