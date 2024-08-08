@@ -9,6 +9,8 @@
   import { zodClient } from "sveltekit-superforms/adapters";
   import { superForm } from "sveltekit-superforms/client";
   import { updateSchema, type UpdateSchema } from "./types";
+  import FormMarkdown from "$lib/components/forms/FormMarkdown.svelte";
+  import LangTabs from "$lib/components/layout/LangTabs.svelte";
 
   let formData: SuperValidated<UpdateSchema>;
   export { formData as form };
@@ -16,8 +18,9 @@
 
   const superform = superForm(formData, {
     validators: zodClient(updateSchema),
+    resetForm: false,
   });
-  const { enhance } = superform;
+  const { form, enhance } = superform;
 </script>
 
 {#if open && isAuthorized(apiNames.COMMITTEE.UPDATE, $page.data.user)}
@@ -59,6 +62,25 @@
       label={m.committees_committeeImage_symbol()}
       explanation="Small image which will be used as a symbol"
     />
+    {#if $form.markdownSlug}
+      <input type="hidden" name="markdownSlug" value={$form.markdownSlug} />
+      <LangTabs>
+        <FormMarkdown
+          {superform}
+          label="Markdown"
+          field="markdown"
+          rows={3}
+          slot="sv"
+        />
+        <FormMarkdown
+          {superform}
+          label="Markdown"
+          field="markdownEn"
+          rows={3}
+          slot="en"
+        />
+      </LangTabs>
+    {/if}
     <FormSubmitButton {superform} class="btn btn-secondary my-4"
       >{m.committees_save()}</FormSubmitButton
     >
