@@ -24,12 +24,7 @@ export default {
       fontFamily: {
         "nolla-sans": ["Inter", "ui-sans-serif", "sans-serif"],
         "nolla-mono": ['"IBM Plex Mono"', "ui-monospace", "monospace"],
-        "nolla-post-reveal": [
-          "Lexend",
-          "monospace",
-          "ui-sans-serif",
-          "sans-serif",
-        ],
+        "nolla-post-reveal": ["Lexend", "ui-sans-serif", "sans-serif"],
       },
     },
   },
