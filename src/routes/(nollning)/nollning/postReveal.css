@@ -8,7 +8,7 @@
 
 @layer components {
   .post-reveal {
-    @apply font-nolla-post-reveal text-sm md:text-base;
+    @apply font-nolla-post-reveal text-sm leading-snug md:text-base;
   }
   .post-reveal .page-title {
     /* figma: page title */
@@ -33,12 +33,9 @@
     @apply hover:text-base-100;
   }
 
-  .post-reveal .form-error {
-    /* figma */
+  .post-reveal .nolla-prose {
+    @apply prose-sm my-4 leading-snug;
   }
-}
-
-:root {
 }
 
 html {
