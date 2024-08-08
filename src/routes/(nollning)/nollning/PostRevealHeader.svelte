@@ -15,9 +15,13 @@
     "deleteNotificationForm"
   ] as SuperValidated<NotificationSchema> | null;
   $: routes = getRoutes();
-  $: bottomNavRoutes = appBottomNavRoutes(routes).map((route) => route.path);
+  $: bottomNavRoutes = appBottomNavRoutes(routes);
   $: currentRoute = getPostRevealRoute(i18n.route($page.url.pathname));
-  $: canGoBack = !bottomNavRoutes.includes(currentRoute);
+  $: canGoBack = !bottomNavRoutes.some((route) =>
+    route.isCurrentRoute
+      ? route.isCurrentRoute(currentRoute)
+      : route.path === currentRoute,
+  );
   $: topInsets = $page.data.appInfo?.insets?.top ?? 0;
 </script>
 

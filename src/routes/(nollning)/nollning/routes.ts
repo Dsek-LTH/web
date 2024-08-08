@@ -1,5 +1,4 @@
 import apiNames from "$lib/utils/apiNames";
-import * as m from "$paraglide/messages";
 import type { Route } from "../../routes";
 export const POST_REVEAL_PREFIX = "/nollning";
 export const getPostRevealRoute = (pathname: string) => {
@@ -41,6 +40,9 @@ export const getRoutes = (): Route[] =>
       icon: "i-mdi-compass-outline",
       accessRequired: null,
       appBehaviour: "bottom-nav",
+      isCurrentRoute: (currentPathname: string) => {
+        return currentPathname.startsWith("/wikia");
+      },
     },
   ] as const;
 
