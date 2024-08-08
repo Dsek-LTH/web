@@ -61,10 +61,11 @@
         <PostRevealHeader />
       {/if}
 
-      <main
-        class="max-h-[calc(100dvh-128px)] flex-1 overflow-y-auto px-10 py-6"
-      >
-        <slot />
+      <main class="relative flex-1 overflow-y-auto">
+        <!-- so absolute positioning is outside padding -->
+        <div class="px-10 py-6">
+          <slot />
+        </div>
       </main>
       <Toast />
       {#if !data.isApp}
