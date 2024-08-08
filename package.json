@@ -84,6 +84,7 @@
     "@egoist/tailwindcss-icons": "^1.8.1",
     "@fontsource-variable/inter": "^5.0.20",
     "@fontsource/ibm-plex-mono": "^5.0.13",
+    "@fontsource/lexend": "^5.0.20",
     "@fullcalendar/core": "^6.1.15",
     "@fullcalendar/daygrid": "^6.1.15",
     "@keycloak/keycloak-admin-client": "^23.0.7",
