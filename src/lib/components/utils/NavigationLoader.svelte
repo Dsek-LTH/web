@@ -7,7 +7,7 @@
   $: {
     if ($navigating) {
       timeout = setTimeout(() => {
-        isLoadDelayed = true;
+        isLoadDelayed = $navigating !== null;
       }, threshhold);
     } else {
       if (timeout) clearTimeout(timeout);

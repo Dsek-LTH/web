@@ -24,7 +24,7 @@
   })();
 </script>
 
-{#if $toasts}
+{#if $toasts.length > 0}
   <div
     class="toast z-10 {toastLocationClasses}"
     style={$page.data.isApp
