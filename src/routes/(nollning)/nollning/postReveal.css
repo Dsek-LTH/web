@@ -20,7 +20,7 @@
     @apply text-xl font-medium tracking-wider;
   }
 
-  .post-reveal .list-item {
+  .post-reveal .nolla-list-item {
     @apply text-base;
   }
 
