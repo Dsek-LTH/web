@@ -4,16 +4,10 @@
   import NavIcon from "$lib/components/NavIcon.svelte";
   import { pageTitle } from "$lib/stores/pageTitle";
   import { i18n } from "$lib/utils/i18n";
-  import type { NotificationGroup } from "$lib/utils/notifications/group";
-  import type { NotificationSchema } from "$lib/zod/schemas";
   import { signIn } from "@auth/sveltekit/client";
-  import type { SuperValidated } from "sveltekit-superforms";
-  import NotificationBell from "./NotificationBell.svelte";
+  import PostRevealAccountMenu from "./PostRevealAccountMenu.svelte";
+  import PostRevealNotificationBell from "./PostRevealNotificationBell.svelte";
   import { appBottomNavRoutes, getPostRevealRoute, getRoutes } from "./routes";
-  $: notifications = $page.data["notifications"] as NotificationGroup[] | null;
-  $: deleteNotificationForm = $page.data[
-    "deleteNotificationForm"
-  ] as SuperValidated<NotificationSchema> | null;
   $: routes = getRoutes();
   $: bottomNavRoutes = appBottomNavRoutes(routes);
   $: currentRoute = getPostRevealRoute(i18n.route($page.url.pathname));
@@ -29,7 +23,7 @@
   class="navbar top-0 z-10 justify-between gap-2 overflow-hidden bg-opacity-60 shadow-[0_4px_4px_#191B2740] filter backdrop-blur transition-all"
   style="padding-top: {topInsets + 8}px;"
 >
-  <div class="w-16">
+  <div class="w-[5.5rem]">
     <button
       on:click={canGoBack ? () => window.history.back() : undefined}
       class:opacity-0={!canGoBack}
@@ -48,11 +42,10 @@
     </h1>
   </div>
 
-  <div class="w-16">
+  <div class="flex w-[5.5rem] justify-end gap-2">
     {#if $page.data.user && $page.data.member}
-      {#if notifications !== null && notifications !== undefined && deleteNotificationForm !== null}
-        <NotificationBell />
-      {/if}
+      <PostRevealNotificationBell />
+      <PostRevealAccountMenu />
     {:else}
       <LoadingButton
         class="btn btn-ghost gap-0"
