@@ -1,6 +1,7 @@
 import type { DoorAccessPolicy, PrismaClient } from "@prisma/client";
 import type { RequestHandler } from "./$types";
 import { BACKUP_LIST_OF_STUDENT_IDS } from "./constants";
+import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
 
 /**
  * Every door policy applies to either a studentId or a positionId.
@@ -60,10 +61,9 @@ async function fetchStudentsWithPositions(
   return studentIds.filter((id): id is string => id !== null);
 }
 
-export const GET: RequestHandler = async ({ locals, params }) => {
-  const { prisma } = locals;
+export const GET: RequestHandler = async ({ params }) => {
   const now = new Date().toISOString();
-  const policies = await prisma.doorAccessPolicy.findMany({
+  const policies = await authorizedPrismaClient.doorAccessPolicy.findMany({
     where: {
       AND: [
         { doorName: params["door"] },
@@ -78,10 +78,13 @@ export const GET: RequestHandler = async ({ locals, params }) => {
   });
 
   const { studentIds, positionIds } = parseDoorPolicies(policies);
-  const positions = await fetchMatchingPositions(positionIds, prisma);
+  const positions = await fetchMatchingPositions(
+    positionIds,
+    authorizedPrismaClient,
+  );
   const studentsFromPositions = await fetchStudentsWithPositions(
     positions.map((p) => p.id),
-    prisma,
+    authorizedPrismaClient,
   );
 
   return new Response(
