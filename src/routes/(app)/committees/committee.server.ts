@@ -5,6 +5,7 @@ import { error, fail, type Actions } from "@sveltejs/kit";
 import { zod } from "sveltekit-superforms/adapters";
 import { message, superValidate, withFiles } from "sveltekit-superforms/server";
 import { updateSchema } from "./types";
+import { updateMarkdown } from "$lib/news/markdown/mutations.server";
 /**
  * @param shortName The committee's short name
  * @param year The year to load the committee for, defaults to current year
@@ -130,7 +131,15 @@ export const committeeLoad = async (
     error(500, m.committees_errors_fetchMarkdown());
   }
 
-  const form = await superValidate(committee, zod(updateSchema));
+  const form = await superValidate(
+    {
+      ...committee,
+      markdownSlug: markdown.value?.name,
+      markdown: markdown.value?.markdown,
+      markdownEn: markdown.value?.markdownEn,
+    },
+    zod(updateSchema),
+  );
 
   return {
     committee,
@@ -149,13 +158,13 @@ export const committeeActions = (
   shortName?: string,
 ): Actions<{ shortName: string }> => ({
   update: async ({ params, request, locals }) => {
-    const { prisma } = locals;
+    const { user, prisma } = locals;
     const form = await superValidate(request, zod(updateSchema), {
       allowFiles: true,
     });
     if (!form.valid) return fail(400, withFiles({ form }));
 
-    const { markdown, markdownSlug, ...rest } = form.data;
+    const { markdown, markdownEn, markdownSlug, ...rest } = form.data;
 
     await prisma.committee.update({
       where: { shortName: shortName ?? params.shortName },
@@ -165,13 +174,10 @@ export const committeeActions = (
     });
 
     if (markdownSlug && markdown) {
-      await prisma.markdown.update({
-        where: {
-          name: markdownSlug,
-        },
-        data: {
-          markdown,
-        },
+      await updateMarkdown(user, prisma, {
+        name: markdownSlug,
+        markdown,
+        markdownEn: markdownEn ?? null,
       });
     }
     return message(form, {

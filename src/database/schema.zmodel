@@ -500,6 +500,9 @@ model Markdown {
   markdownEn String? @map("markdown_en")
 
   @@allow("read", true)
+  @@allow("create", has(auth().policies, "markdown:create"))
+  @@allow("update", has(auth().policies, "markdown:update"))
+  @@allow("delete", has(auth().policies, "markdown:delete"))
   @@map("markdowns")
 }
 
