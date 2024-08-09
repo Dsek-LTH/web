@@ -1,4 +1,5 @@
 <script lang="ts">
+  import PageHeader from "$lib/components/nav/PageHeader.svelte";
   import Event from "./Event.svelte";
   import PostRevealSlot from "./PostRevealSlot.svelte";
 
@@ -10,10 +11,12 @@
     .map((_, i) => i);
 </script>
 
+<PageHeader title="Event" />
+
 <div class="mb-4 flex items-start justify-between">
-  <a href="events/subscribe" class="btn btn-ghost -mx-4"
-    >Hämta kalender <span class="i-mdi-arrow-down" /></a
-  >
+  <a href="events/subscribe" class="btn btn-ghost -mx-4">
+    Hämta kalender <span class="i-mdi-arrow-down" />
+  </a>
   <PostRevealSlot title="vecka {data.week}" bind:checked={weekCollapseOpen}>
     <ul class="flex flex-col">
       {#each weeks as i}

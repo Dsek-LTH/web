@@ -13,7 +13,7 @@
     font-display: auto;
   }
   .post-reveal {
-    @apply font-nolla-post-reveal text-sm leading-snug md:text-base;
+    @apply font-nolla-post-reveal text-sm leading-tight md:text-base;
   }
   .post-reveal .page-title {
     /* figma: page title */
@@ -39,7 +39,7 @@
   }
 
   .post-reveal .nolla-prose {
-    @apply prose-sm my-4 leading-snug;
+    @apply my-4;
   }
 }
 
