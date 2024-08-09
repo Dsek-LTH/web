@@ -28,7 +28,7 @@
   let readForm: HTMLFormElement;
   const readNotification = () => {
     // read notification
-    readForm.requestSubmit();
+    readForm?.requestSubmit();
     invalidate("/api/notifications/my");
   };
 

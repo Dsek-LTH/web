@@ -55,6 +55,7 @@
     </ul>
   {:else}
     <FormInput {superform} field="answer" />
+    <br />
   {/if}
   <FormSubmitButton
     {superform}
