@@ -169,9 +169,8 @@ export const actions: Actions = {
 
     const { studentId } = params;
     try {
-      const url = new URL(request.url);
       await sendPing(prisma, {
-        link: url.pathname, // TODO:
+        link: `/members/${user.studentId}`, // link back to user who pinged
         fromMemberId: { memberId: user.memberId! },
         toMemberId: { studentId },
       });
