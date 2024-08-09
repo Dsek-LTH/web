@@ -13,7 +13,7 @@
   let subscriptionGroup = data.subscriptions;
   let pushGroup = data.pushSubscriptions;
 
-  const notificationText = {
+  const notificationText: Record<NotificationSettingType, () => string> = {
     LIKE: m.setting_like,
     COMMENT: m.setting_comment,
     MENTION: m.setting_mention,
@@ -22,19 +22,11 @@
     CREATE_MANDATE: m.setting_create_mandate,
     BOOKING_REQUEST: m.setting_booking_request,
     PING: m.setting_ping,
+    PURCHASES: m.setting_purchases,
   } as const;
 
-  type NotificationText =
-    | "LIKE"
-    | "COMMENT"
-    | "MENTION"
-    | "NEW_ARTICLE"
-    | "EVENT_GOING"
-    | "CREATE_MANDATE"
-    | "BOOKING_REQUEST"
-    | "PING";
-  const getNotificationText = (text: string) => {
-    return notificationText[text as NotificationText](); // Type cast string to string literal
+  const getNotificationText = (text: NotificationSettingType) => {
+    return notificationText[text](); // Type cast string to string literal
   };
 </script>
 
@@ -51,7 +43,7 @@
           <!-- Web notification -->
           <label class="m-2 flex cursor-pointer flex-row justify-between">
             <span class="ms-3 text-sm font-medium">
-              {getNotificationText(notificationSettingType[0])}</span
+              {getNotificationText(notificationSettingType[1])}</span
             >
             <input
               type="checkbox"
