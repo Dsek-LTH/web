@@ -22,7 +22,10 @@
   ];
 </script>
 
-<div class="drawer flex-1 font-nolla-sans" data-theme="nollningPreReveal">
+<div
+  class="nolla-pre-reveal drawer flex-1 font-nolla-sans"
+  data-theme="nollningPreReveal"
+>
   <input id="my-drawer-3" type="checkbox" class="drawer-toggle" bind:checked />
   <div class="drawer-content flex flex-col">
     <!-- Navbar -->

@@ -1,6 +1,5 @@
+import { NOLLNING_TAG_PREFIX } from "$lib/components/postReveal/types.js";
 import { error } from "@sveltejs/kit";
-
-const NOLLNING_TAG_PREFIX = "[NOLLNING]";
 
 const weekStarts = [
   "2024-08-26",

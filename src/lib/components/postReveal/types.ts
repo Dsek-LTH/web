@@ -1,0 +1,1 @@
+export const NOLLNING_TAG_PREFIX = "[NOLLNING]";

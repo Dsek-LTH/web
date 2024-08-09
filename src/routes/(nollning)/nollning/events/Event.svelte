@@ -20,7 +20,7 @@
   </div>
   <div class="collapse-content flex flex-col">
     <p>
-      <MarkdownBody body={event.description} />
+      <MarkdownBody body={event.description} class="leading-tight" />
     </p>
     <button class="btn-primary-dark btn mt-6 self-center"
       >Reservera biljett</button
