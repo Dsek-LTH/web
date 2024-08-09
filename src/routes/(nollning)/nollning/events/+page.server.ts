@@ -1,4 +1,4 @@
-import { NOLLNING_TAG_PREFIX } from "$lib/components/postReveal/types.js";
+import { BASIC_EVENT_FILTER } from "$lib/events/events.js";
 import { error } from "@sveltejs/kit";
 
 const weekStarts = [
@@ -11,6 +11,7 @@ const weekStarts = [
 ];
 
 export const load = async ({ locals, url }) => {
+  await new Promise((resolve) => setTimeout(resolve, 600));
   const { prisma } = locals;
   const week = Number.parseInt(url.searchParams.get("week") ?? "0");
   // check if week is a number, and between 0 and weekStarts.length
@@ -21,13 +22,7 @@ export const load = async ({ locals, url }) => {
   const weekEnd = new Date(weekStart.valueOf() + 7 * 24 * 60 * 60 * 1000);
   const events = await prisma.event.findMany({
     where: {
-      tags: {
-        some: {
-          name: {
-            startsWith: NOLLNING_TAG_PREFIX,
-          },
-        },
-      },
+      ...BASIC_EVENT_FILTER(true),
       startDatetime: {
         gte: weekStart,
       },

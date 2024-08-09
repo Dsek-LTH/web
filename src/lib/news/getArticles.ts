@@ -1,4 +1,4 @@
-import { BASIC_ARTICLE_FILTER } from "$lib/utils/articles";
+import { BASIC_ARTICLE_FILTER } from "$lib/news/articles";
 import { getCustomAuthorOptions } from "$lib/utils/member";
 
 import type {
@@ -46,9 +46,10 @@ export const getAllArticles = async (
   const pageNumber = filters.page ?? 0;
   const pageSize = filters.pageSize ?? 10;
 
+  const baseFilter = BASIC_ARTICLE_FILTER();
   const where: Prisma.ArticleWhereInput = {
-    ...BASIC_ARTICLE_FILTER(),
     // search:
+    ...baseFilter,
     ...(filters.search && filters.search.length > 0
       ? {
           OR: [
@@ -83,6 +84,7 @@ export const getAllArticles = async (
     ...(filters.tags && filters.tags.length > 0
       ? {
           tags: {
+            ...baseFilter.tags,
             some: {
               OR: [
                 {
@@ -97,6 +99,7 @@ export const getAllArticles = async (
                     mode: "insensitive",
                   },
                 },
+                ...(baseFilter.tags?.some ? [baseFilter.tags.some] : []),
               ],
             },
           },
