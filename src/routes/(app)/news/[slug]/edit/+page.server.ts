@@ -14,7 +14,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
   authorize(apiNames.NEWS.UPDATE, user);
 
-  const allTags = await getAllTags(prisma);
+  const allTags = await getAllTags(prisma, true);
   const article = await prisma.article.findUnique({
     where: {
       slug: params.slug,

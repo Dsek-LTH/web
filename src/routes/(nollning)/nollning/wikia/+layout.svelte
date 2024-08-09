@@ -3,7 +3,7 @@
   import { page } from "$app/stores";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import { i18n } from "$lib/utils/i18n";
-  import { POST_REVEAL_PREFIX } from "../routes";
+  import { POST_REVEAL_PREFIX } from "$lib/components/postReveal/types";
 
   const links = [
     {

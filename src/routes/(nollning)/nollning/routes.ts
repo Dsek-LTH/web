@@ -1,6 +1,6 @@
+import { POST_REVEAL_PREFIX } from "$lib/components/postReveal/types";
 import apiNames from "$lib/utils/apiNames";
 import type { Route } from "../../routes";
-export const POST_REVEAL_PREFIX = "/nollning";
 export const getPostRevealRoute = (pathname: string) => {
   if (pathname.startsWith(POST_REVEAL_PREFIX)) {
     if (pathname === POST_REVEAL_PREFIX) {
