@@ -9,6 +9,9 @@ export const load = async ({ locals }) => {
         gte: new Date("2024-01-01"),
       },
     },
+    orderBy: {
+      publishedAt: "desc",
+    },
     include: {
       author: {
         include: {
