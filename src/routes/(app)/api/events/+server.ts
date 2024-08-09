@@ -1,5 +1,6 @@
 import { error } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
+import { BASIC_EVENT_FILTER } from "$lib/events/events";
 
 export const GET: RequestHandler = async ({ locals, url }) => {
   const { prisma } = locals;
@@ -16,28 +17,33 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 
   const events = await prisma.event.findMany({
     where: {
-      OR: [
+      AND: [
+        BASIC_EVENT_FILTER(true),
         {
-          title: {
-            contains: search,
-            mode: "insensitive",
-          },
-        },
-        {
-          titleEn: {
-            contains: search,
-            mode: "insensitive",
-          },
-        },
-        {
-          title: {
-            search: searchString,
-          },
-        },
-        {
-          titleEn: {
-            search: searchString,
-          },
+          OR: [
+            {
+              title: {
+                contains: search,
+                mode: "insensitive",
+              },
+            },
+            {
+              titleEn: {
+                contains: search,
+                mode: "insensitive",
+              },
+            },
+            {
+              title: {
+                search: searchString,
+              },
+            },
+            {
+              titleEn: {
+                search: searchString,
+              },
+            },
+          ],
         },
       ],
     },

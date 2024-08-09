@@ -2,6 +2,7 @@ import type { Actions, PageServerLoad } from "./$types";
 import { fail } from "@sveltejs/kit";
 import { authorize } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
+import { getAllTags } from "$lib/news/tags";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { user, prisma } = locals;
@@ -32,7 +33,7 @@ export const load: PageServerLoad = async ({ locals }) => {
       })
     : [];
   return {
-    tags: await prisma.tag.findMany(),
+    tags: await getAllTags(prisma),
     subscribedTags,
     subscriptions,
     pushSubscriptions,

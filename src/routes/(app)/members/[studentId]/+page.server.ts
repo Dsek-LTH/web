@@ -1,19 +1,20 @@
+import keycloak from "$lib/server/keycloak";
+import apiNames from "$lib/utils/apiNames";
+import { BASIC_ARTICLE_FILTER } from "$lib/news/articles";
+import { authorize } from "$lib/utils/authorization";
+import { getCurrentDoorPoliciesForMember } from "$lib/utils/member";
 import { emptySchema, memberSchema } from "$lib/zod/schemas";
+import * as m from "$paraglide/messages";
 import { error, fail, isHttpError, type NumericRange } from "@sveltejs/kit";
+import { zod } from "sveltekit-superforms/adapters";
 import {
   message,
   superValidate,
   type Infer,
 } from "sveltekit-superforms/server";
-import { zod } from "sveltekit-superforms/adapters";
-import type { Actions, PageServerLoad } from "./$types";
-import { authorize } from "$lib/utils/authorization";
-import apiNames from "$lib/utils/apiNames";
-import { sendPing } from "./pings";
-import { getCurrentDoorPoliciesForMember } from "$lib/utils/member";
-import keycloak from "$lib/server/keycloak";
 import { z } from "zod";
-import * as m from "$paraglide/messages";
+import type { Actions, PageServerLoad } from "./$types";
+import { sendPing } from "./pings";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
@@ -44,6 +45,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     }),
     prisma.article.findMany({
       where: {
+        ...BASIC_ARTICLE_FILTER(),
         author: {
           type: {
             not: "Custom",
@@ -52,7 +54,6 @@ export const load: PageServerLoad = async ({ locals, params }) => {
             studentId: studentId,
           },
         },
-        removedAt: null,
       },
       orderBy: {
         publishedAt: "desc",
@@ -168,9 +169,8 @@ export const actions: Actions = {
 
     const { studentId } = params;
     try {
-      const url = new URL(request.url);
       await sendPing(prisma, {
-        link: url.pathname,
+        link: `/members/${user.studentId}`, // link back to user who pinged
         fromMemberId: { memberId: user.memberId! },
         toMemberId: { studentId },
       });

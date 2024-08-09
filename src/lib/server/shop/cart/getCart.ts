@@ -119,6 +119,9 @@ export const cartLoadFunction = async (
                     answer: answer?.answer,
                   },
                   zod(questionForm),
+                  {
+                    errors: false,
+                  },
                 ),
               };
             }),

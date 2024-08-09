@@ -1,6 +1,7 @@
 import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
+import { BASIC_EVENT_FILTER } from "$lib/events/events";
 import { fileHandler } from "$lib/files";
-import { BASIC_ARTICLE_FILTER } from "$lib/utils/articles";
+import { BASIC_ARTICLE_FILTER } from "$lib/news/articles";
 import { error } from "@sveltejs/kit";
 import DOMPurify from "isomorphic-dompurify";
 
@@ -74,6 +75,7 @@ export const loadHomeData = async ({
   const eventsPromise = prisma.event
     .findMany({
       where: {
+        ...BASIC_EVENT_FILTER(),
         startDatetime: {
           gt: new Date(),
         },

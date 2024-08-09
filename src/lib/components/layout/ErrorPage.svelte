@@ -11,6 +11,6 @@
       : ""}
   </h3>
   {#if $page.error?.message}
-    <h2 class="mt-4 text-xl">{$page.error.message}</h2>
+    <h2 class="mt-4 text-center text-xl">{$page.error.message}</h2>
   {/if}
 </main>

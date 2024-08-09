@@ -1,3 +1,7 @@
+import {
+  NOLLNING_TAG_PREFIX,
+  POST_REVEAL_PREFIX,
+} from "$lib/components/postReveal/types";
 import { getArticle } from "$lib/news/getArticles";
 import apiNames from "$lib/utils/apiNames";
 import { authorize, isAuthorized } from "$lib/utils/authorization";
@@ -23,6 +27,9 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     throw error(404, {
       message: m.news_errors_articleNotFound(),
     });
+  }
+  if (article.tags.some((t) => t.name.startsWith(NOLLNING_TAG_PREFIX))) {
+    throw redirect(308, `${POST_REVEAL_PREFIX}/messages`);
   }
   const allTaggedMembers = await getAllTaggedMembers(prisma, article.comments);
   const canEdit =
