@@ -1,5 +1,8 @@
 <script lang="ts">
+  import { page } from "$app/stores";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
+  import apiNames from "$lib/utils/apiNames";
+  import { isAuthorized } from "$lib/utils/authorization";
   import type { Event } from "@prisma/client";
   import dayjs from "dayjs";
 
@@ -25,5 +28,10 @@
     <button class="btn-primary-dark btn mt-6 self-center"
       >Reservera biljett</button
     >
+    {#if isAuthorized(apiNames.EVENT.UPDATE, $page.data.user)}
+      <a href="/events/{event.slug}" class="btn btn-secondary self-start">
+        <span class="i-mdi-edit" />
+      </a>
+    {/if}
   </div>
 </div>

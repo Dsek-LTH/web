@@ -8,12 +8,13 @@ import { getArticleAuthorOptions } from "$lib/news/getArticles";
 import type { Actions, PageServerLoad } from "./$types";
 import { updateArticle } from "$lib/news/server/actions";
 import { updateSchema } from "$lib/news/schema";
+import { getAllTags } from "$lib/news/tags";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
   authorize(apiNames.NEWS.UPDATE, user);
 
-  const allTags = await prisma.tag.findMany();
+  const allTags = await getAllTags(prisma);
   const article = await prisma.article.findUnique({
     where: {
       slug: params.slug,

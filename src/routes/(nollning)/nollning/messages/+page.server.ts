@@ -1,18 +1,12 @@
-import { NOLLNING_TAG_PREFIX } from "$lib/components/postReveal/types.js";
+import { BASIC_ARTICLE_FILTER } from "$lib/news/articles.js";
 
 export const load = async ({ locals }) => {
   const { prisma } = locals;
   const articles = await prisma.article.findMany({
     where: {
+      ...BASIC_ARTICLE_FILTER(true),
       publishedAt: {
         gte: new Date("2024-01-01"),
-      },
-      tags: {
-        some: {
-          name: {
-            startsWith: NOLLNING_TAG_PREFIX,
-          },
-        },
       },
     },
     include: {

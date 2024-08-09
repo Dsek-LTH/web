@@ -1,9 +1,10 @@
-import { superValidate } from "sveltekit-superforms/server";
-import { zod } from "sveltekit-superforms/adapters";
-import type { LayoutServerLoad } from "./$types";
 import { getAllEvents } from "$lib/events/getEvents";
 import { interestedGoingSchema } from "$lib/events/schema";
 import * as m from "$paraglide/messages";
+import { zod } from "sveltekit-superforms/adapters";
+import { superValidate } from "sveltekit-superforms/server";
+import type { LayoutServerLoad } from "./$types";
+import { getAllTags } from "$lib/news/tags";
 
 const getAndValidatePage = (url: URL) => {
   const page = url.searchParams.get("page");
@@ -22,7 +23,7 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
       page: getAndValidatePage(url),
       pastEvents: url.searchParams.get("past") === "on",
     }),
-    prisma.tag.findMany({ orderBy: { name: "asc" } }),
+    getAllTags(prisma),
   ]);
   return {
     events,

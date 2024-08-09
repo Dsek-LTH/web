@@ -1,3 +1,4 @@
+import { BASIC_EVENT_FILTER } from "$lib/events/events";
 import type { Prisma, PrismaClient } from "@prisma/client";
 
 type EventFilters = {
@@ -27,7 +28,9 @@ export const getAllEvents = async (
   const pageNumber = filters.page ?? 0;
   const pageSize = filters.pageSize ?? 10;
 
+  const base = BASIC_EVENT_FILTER();
   const where: Prisma.EventWhereInput = {
+    ...base,
     endDatetime: filters.pastEvents
       ? {
           lte: new Date(),
@@ -35,7 +38,6 @@ export const getAllEvents = async (
       : {
           gte: new Date(),
         },
-    OR: [{ removedAt: { gt: new Date() } }, { removedAt: null }],
     // search:
     ...(filters.search && filters.search.length > 0
       ? {
@@ -83,6 +85,7 @@ export const getAllEvents = async (
     ...(filters.tags && filters.tags.length > 0
       ? {
           tags: {
+            ...base.tags,
             some: {
               OR: [
                 {
@@ -97,6 +100,7 @@ export const getAllEvents = async (
                     mode: "insensitive",
                   },
                 },
+                ...(base.tags?.some ? [base.tags.some] : []),
               ],
             },
           },
