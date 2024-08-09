@@ -48,6 +48,7 @@
     "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
+    "@whiterussianstudio/tailwind-easing": "^1.0.0",
     "@zenstackhq/openapi": "^1.12.5",
     "autoprefixer": "^10.4.19",
     "concurrently": "^8.2.2",

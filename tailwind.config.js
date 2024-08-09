@@ -2,6 +2,7 @@ import { iconsPlugin, getIconCollections } from "@egoist/tailwindcss-icons";
 import { colors } from "./src/lib/utils/themes";
 import typographyPlugin from "@tailwindcss/typography";
 import daisyuiPlugin from "daisyui";
+import tailwindEasing from "@whiterussianstudio/tailwind-easing";
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -98,5 +99,6 @@ export default {
     iconsPlugin({
       collections: getIconCollections(["mdi", "flag"]),
     }),
+    tailwindEasing,
   ],
 };

@@ -182,6 +182,9 @@ importers:
       '@typescript-eslint/parser':
         specifier: ^8.0.0
         version: 8.0.1(eslint@8.57.0)(typescript@5.5.4)
+      '@whiterussianstudio/tailwind-easing':
+        specifier: ^1.0.0
+        version: 1.0.0
       '@zenstackhq/openapi':
         specifier: ^1.12.5
         version: 1.12.5
@@ -1668,6 +1671,9 @@ packages:
 
   '@vitest/utils@2.0.5':
     resolution: {integrity: sha512-d8HKbqIcya+GR67mkZbrzhS5kKhtp8dQLcmRZLGTscGVg7yImT82cIrhtn2L8+VujWcy6KZweApgNmPsTAO/UQ==}
+
+  '@whiterussianstudio/tailwind-easing@1.0.0':
+    resolution: {integrity: sha512-j7UISIoHyz0iOGctKUNeQLT7mdBAAAJikj7M18F4MQOikIt9bx3rjxoppisZMQAQ7hUz4RHwDDHc9//4/UfTKA==}
 
   '@zenstackhq/language@1.12.5':
     resolution: {integrity: sha512-xbJFMwEotUykWS6tFScisoe75OGQmbfsn8Y4YxalKOsnQIViwD+5Z6iTfzaajyx/sf5+qQGJ6+aJLOMBo1upkg==}
@@ -6517,6 +6523,8 @@ snapshots:
       estree-walker: 3.0.3
       loupe: 3.1.1
       tinyrainbow: 1.2.0
+
+  '@whiterussianstudio/tailwind-easing@1.0.0': {}
 
   '@zenstackhq/language@1.12.5':
     dependencies:
