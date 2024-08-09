@@ -11,7 +11,6 @@ const weekStarts = [
 ];
 
 export const load = async ({ locals, url }) => {
-  await new Promise((resolve) => setTimeout(resolve, 600));
   const { prisma } = locals;
   const week = Number.parseInt(url.searchParams.get("week") ?? "0");
   // check if week is a number, and between 0 and weekStarts.length
