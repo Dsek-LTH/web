@@ -8,6 +8,7 @@
   import PostRevealAccountMenu from "./PostRevealAccountMenu.svelte";
   import PostRevealNotificationBell from "./PostRevealNotificationBell.svelte";
   import { appBottomNavRoutes, getPostRevealRoute, getRoutes } from "./routes";
+  import AccountDrawer from "./AccountDrawer.svelte";
   $: routes = getRoutes();
   $: bottomNavRoutes = appBottomNavRoutes(routes);
   $: currentRoute = getPostRevealRoute(i18n.route($page.url.pathname));
@@ -56,3 +57,4 @@
     {/if}
   </div>
 </header>
+<AccountDrawer />

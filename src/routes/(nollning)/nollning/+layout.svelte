@@ -7,8 +7,6 @@
   import dayjs from "dayjs";
   import "dayjs/locale/sv";
   import Toast from "../../Toast.svelte";
-  // import Footer from "../Footer.svelte";
-  // import Navbar from "../Navbar.svelte";
   import "@fontsource/lexend";
   import lexend400 from "@fontsource/lexend/files/lexend-latin-400-normal.woff2?url";
   import lexend500 from "@fontsource/lexend/files/lexend-latin-500-normal.woff2?url";
