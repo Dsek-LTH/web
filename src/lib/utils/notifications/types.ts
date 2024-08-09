@@ -136,4 +136,27 @@ export const DEFAULT_SUBSCRIPTION_SETTINGS: Array<{
     type: NotificationSettingType.PURCHASES,
     push_notification: true,
   },
+  // PURCHASES, NEW_ARTICLE ([NOLLNING] tagg), MENTION, kanse PING (icke-push)
+];
+
+export const NOLLA_DEFAULT_SUBSCRIPTION_SETTINGS: Array<{
+  type: NotificationSettingType;
+  push_notification: boolean;
+}> = [
+  {
+    type: NotificationSettingType.MENTION,
+    push_notification: false,
+  },
+  {
+    type: NotificationSettingType.NEW_ARTICLE,
+    push_notification: true,
+  },
+  {
+    type: NotificationSettingType.PING,
+    push_notification: false,
+  },
+  {
+    type: NotificationSettingType.PURCHASES,
+    push_notification: true,
+  },
 ];

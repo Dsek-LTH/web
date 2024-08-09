@@ -19,6 +19,7 @@ import schedule from "node-schedule";
 import loggingExtension from "./database/prisma/loggingExtension";
 import translatedExtension from "./database/prisma/translationExtension";
 import { getAccessPolicies } from "./hooks.server.helpers";
+import { createMember } from "$lib/utils/member";
 
 const { handle: authHandle } = SvelteKitAuth({
   secret: env.AUTH_SECRET,
@@ -128,13 +129,11 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
     });
     const member =
       existingMember ||
-      (await prisma.member.create({
-        data: {
-          studentId: session.user.student_id,
-          firstName: session.user.given_name,
-          lastName: session.user.family_name,
-          email: session.user.email,
-        },
+      (await createMember(prisma, {
+        studentId: session.user.student_id,
+        firstName: session.user.given_name,
+        lastName: session.user.family_name,
+        email: session.user.email,
       }));
 
     if (
