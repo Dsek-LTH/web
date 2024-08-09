@@ -6,7 +6,7 @@
 </script>
 
 <div
-  class="collapse collapse-arrow rounded-btn border-2 border-base-200 bg-base-200 bg-transparent"
+  class="collapse collapse-arrow rounded-btn border-2 border-base-200 bg-base-200 bg-transparent transition-all has-[input:checked]:border-base-content"
 >
   <input type="radio" name="nolla-faq-accordion" checked={_default} />
   <div class="collapse-title flex justify-between">
