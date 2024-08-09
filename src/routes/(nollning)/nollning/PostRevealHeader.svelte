@@ -2,13 +2,14 @@
   import { page } from "$app/stores";
   import LoadingButton from "$lib/components/LoadingButton.svelte";
   import NavIcon from "$lib/components/NavIcon.svelte";
+  import NotificationModal from "$lib/components/NotificationModal.svelte";
   import { pageTitle } from "$lib/stores/pageTitle";
   import { i18n } from "$lib/utils/i18n";
   import { signIn } from "@auth/sveltekit/client";
-  import PostRevealAccountMenu from "./PostRevealAccountMenu.svelte";
-  import PostRevealNotificationBell from "./PostRevealNotificationBell.svelte";
-  import { appBottomNavRoutes, getPostRevealRoute, getRoutes } from "./routes";
+  import NotificationBell from "../../NotificationBell.svelte";
   import AccountDrawer from "./AccountDrawer.svelte";
+  import PostRevealAccountMenu from "./PostRevealAccountMenu.svelte";
+  import { appBottomNavRoutes, getPostRevealRoute, getRoutes } from "./routes";
   $: routes = getRoutes();
   $: bottomNavRoutes = appBottomNavRoutes(routes);
   $: currentRoute = getPostRevealRoute(i18n.route($page.url.pathname));
@@ -18,10 +19,13 @@
       : route.path === currentRoute,
   );
   $: topInsets = $page.data.appInfo?.insets?.top ?? 0;
+
+  let notificationModal: HTMLDialogElement;
 </script>
 
+<NotificationModal bind:modal={notificationModal} />
 <header
-  class="navbar top-0 z-10 justify-between gap-2 overflow-hidden bg-opacity-60 shadow-[0_4px_4px_#191B2740] filter backdrop-blur transition-all"
+  class="navbar justify-between gap-2 shadow-[0_4px_4px_#191B2740]"
   style="padding-top: {topInsets + 8}px;"
 >
   <div class="w-[5.5rem]">
@@ -45,7 +49,22 @@
 
   <div class="flex w-[5.5rem] justify-end gap-2">
     {#if $page.data.user && $page.data.member}
-      <PostRevealNotificationBell />
+      <NotificationBell
+        notifications={$page.data["notifications"]}
+        form={$page.data["mutateNotificationForm"]}
+        externalModal={notificationModal}
+        useModalInstead
+        buttonClass="btn btn-circle bg-base-200 relative aspect-square size-10 !p-0"
+      >
+        <div let:unreadCount class="indicator">
+          {#if unreadCount > 0}
+            <span
+              class="translate badge indicator-item badge-primary badge-xs translate-x-0 translate-y-0"
+            ></span>
+          {/if}
+          <span class="i-mdi-bell-outline size-7" />
+        </div>
+      </NotificationBell>
       <PostRevealAccountMenu />
     {:else}
       <LoadingButton

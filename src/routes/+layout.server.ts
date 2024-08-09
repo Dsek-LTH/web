@@ -1,11 +1,25 @@
+import { i18n } from "$lib/utils/i18n";
 import { themes, type Theme } from "$lib/utils/themes";
 import { loadFlash } from "sveltekit-flash-message/server";
 /**
  * Load the form flash message.
  * Propagates the user and member to the page data.
  */
-export const load = loadFlash(async ({ locals, cookies }) => {
-  const { user, member, isApp, appInfo } = locals;
+export const load = loadFlash(async ({ locals, cookies, url }) => {
+  const { user, member, isApp, appInfo, prisma } = locals;
+  if (user?.memberId) {
+    // mark any notifications pointing to this link as read. Works great for external linking (like notifications).
+    await prisma.notification.updateMany({
+      where: {
+        memberId: user?.memberId,
+        link: i18n.route(url.pathname),
+        readAt: null,
+      },
+      data: {
+        readAt: new Date(),
+      },
+    });
+  }
 
   const layoutData = {
     user,
