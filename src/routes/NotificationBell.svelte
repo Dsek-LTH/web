@@ -71,11 +71,9 @@
     </slot>
   </button>
 
-  {#if externalModal}
-    <NotificationModal bind:modal={externalModal} />
-  {:else if useModalInstead}
+  {#if !externalModal && useModalInstead}
     <NotificationModal bind:modal={internalModal} />
-  {:else}
+  {:else if !externalModal}
     <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
     <ul
       tabindex="0"
