@@ -9,7 +9,7 @@
   import Footer from "../Footer.svelte";
   import Navbar from "../Navbar.svelte";
   import Toast from "../Toast.svelte";
-  import AppNotificationHandler from "./AppNotificationHandler.svelte";
+  import AppNotificationHandler from "$lib/components/utils/AppNotificationHandler.svelte";
 
   export let data;
   $: (() => {

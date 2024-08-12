@@ -9,6 +9,8 @@ import {
   GRACE_PERIOD_WINDOW,
   type ShopIdentification,
 } from "$lib/server/shop/types";
+import apiNames from "$lib/utils/apiNames";
+import { authorize } from "$lib/utils/authorization";
 import {
   passOnTransactionFee,
   priceWithTransactionFee,
@@ -16,6 +18,7 @@ import {
 } from "$lib/utils/payments/transactionFee";
 import { questionForm } from "$lib/utils/shop/types";
 import { PrismaClient, ShoppableType } from "@prisma/client";
+import { error, type ServerLoadEvent } from "@sveltejs/kit";
 import { zod } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
 import { purchaseForm } from "./types";
@@ -89,7 +92,7 @@ export const getCart = async (prisma: PrismaClient, id: ShopIdentification) => {
   };
 };
 
-export const cartLoadFunction = async (
+export const getCartWithExtras = async (
   prisma: PrismaClient,
   identification: ShopIdentification,
 ) => {
@@ -119,6 +122,9 @@ export const cartLoadFunction = async (
                     answer: answer?.answer,
                   },
                   zod(questionForm),
+                  {
+                    errors: false,
+                  },
                 ),
               };
             }),
@@ -136,9 +142,33 @@ export const cartLoadFunction = async (
   };
 };
 
+export const cartLoadFunction = async ({
+  locals,
+  depends,
+}: ServerLoadEvent) => {
+  const { user, prisma } = locals;
+  if (!user?.memberId && !user?.externalCode) {
+    throw error(401, "Du har ingen kundvagn.");
+  }
+  depends("cart");
+  authorize(apiNames.WEBSHOP.PURCHASE, user);
+
+  return await getCartWithExtras(
+    prisma,
+    user?.memberId
+      ? {
+          memberId: user.memberId,
+        }
+      : {
+          externalCode: user.externalCode!,
+        },
+  );
+};
+export type CartLoadData = Awaited<ReturnType<typeof cartLoadFunction>>;
+
 export type CartItem = Awaited<
-  ReturnType<typeof cartLoadFunction>
+  ReturnType<typeof getCartWithExtras>
 >["inCart"][number];
 export type CartReservation = Awaited<
-  ReturnType<typeof cartLoadFunction>
+  ReturnType<typeof getCartWithExtras>
 >["reservations"][number];

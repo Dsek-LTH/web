@@ -8,12 +8,13 @@ import { error } from "@sveltejs/kit";
 import { zod } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
 import type { Actions, PageServerLoad } from "./$types";
+import { getAllTags } from "$lib/news/tags";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma, user } = locals;
   authorize(apiNames.NEWS.CREATE, user);
 
-  const allTags = await prisma.tag.findMany();
+  const allTags = await getAllTags(prisma, true);
   const currentMemberWithMandates = await prisma.member.findUnique({
     where: {
       studentId: user?.studentId,

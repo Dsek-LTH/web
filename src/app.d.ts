@@ -31,6 +31,7 @@ declare global {
       prisma: PrismaClient;
       isApp: boolean;
       appInfo?: AppInfo;
+      theme: Theme;
     }
     interface PageData {
       user?: AuthUser;

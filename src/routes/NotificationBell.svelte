@@ -7,16 +7,22 @@
   import { superForm } from "$lib/utils/client/superForms";
   import * as m from "$paraglide/messages";
   import type { NotificationGroup } from "$lib/utils/notifications/group";
+  import NotificationModal from "$lib/components/NotificationModal.svelte";
+  import { twMerge } from "tailwind-merge";
 
   export let notifications: NotificationGroup[];
-  export let deleteForm: SuperValidated<NotificationSchema>;
+  export let form: SuperValidated<NotificationSchema>;
+  export let useModalInstead = false;
+  export let externalModal: HTMLDialogElement | undefined = undefined;
+  export let buttonClass: string | undefined = undefined;
+  let internalModal: HTMLDialogElement;
 
   // Get the number of unread notifications, which is then used to indicate the user
   $: unreadCount = notifications.filter((data) => data.readAt == null).length;
 
   // this is a somewhat ugly way to keep focus on the bell button after a notification is removed
   // if this is not here, whenever an action is taken (such as removing a notification), the form will cause the elements to lose focus and the menu will close
-  let bellButton: HTMLDivElement;
+  let bellButton: HTMLButtonElement;
   const onDeleted = () => {
     bellButton.focus();
   };
@@ -30,84 +36,96 @@
     }
   })();
 
-  const { enhance } = superForm(deleteForm, {
+  const { enhance: deleteEnhance } = superForm(form, {
     onUpdate: onDeleted,
     id: "deleteNotification",
   });
-  const { enhance: readEnhance } = superForm(deleteForm, {
+  const { enhance: readEnhance } = superForm(form, {
     id: "readNotifications",
   });
 </script>
 
 <div class="dropdown">
   <!-- When user clicks on the bell icon, it will update all notifications as read -->
-  <div
+  <button
     bind:this={bellButton}
+    type="button"
+    on:click={externalModal || useModalInstead
+      ? () => (externalModal ?? internalModal).showModal()
+      : undefined}
     tabindex="0"
-    class="btn btn-ghost *:text-xl"
-    role="button"
+    class={twMerge("btn btn-ghost *:text-xl", buttonClass)}
     data-dropdown-toggle="dropdown"
   >
-    {#if unreadCount <= 0}
-      <span class="i-mdi-bell-outline" />
-    {/if}
-    {#if unreadCount > 0}
-      <span class="i-mdi-bell-ring-outline animate-bounce" />
-      <span
-        class="absolute right-0 top-0 flex h-6 w-6 items-center justify-center rounded-box bg-red-600 text-center !text-sm"
-        >{unreadCount}</span
-      >
-    {/if}
-  </div>
-  <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-  <ul
-    tabindex="0"
-    class="menu dropdown-content !fixed right-0 z-[1] max-h-[80svh] w-full flex-nowrap overflow-clip rounded-box bg-base-100 p-0 shadow sm:!absolute sm:w-[27rem]"
-  >
-    {#if notifications.length >= 1}
-      <div class="overflow-y-auto">
-        {#each notifications as notification (notification.id)}
-          <li animate:flip={{ duration: 200 }}>
-            <Notification {notification} {deleteForm} />
-          </li>
-        {/each}
-      </div>
-      <!-- Read all notifications (notifications are read on visit otherwise) -->
-      {#if notifications?.filter((n) => n.readAt === null)?.length > 0}
+    <slot {unreadCount}>
+      {#if unreadCount <= 0}
+        <span class="i-mdi-bell-outline" />
+      {/if}
+      {#if unreadCount > 0}
+        <span class="i-mdi-bell-ring-outline animate-bounce" />
+        <span
+          class="absolute right-0 top-0 flex h-6 w-6 items-center justify-center rounded-box bg-red-600 text-center !text-sm"
+          >{unreadCount}</span
+        >
+      {/if}
+    </slot>
+  </button>
+
+  {#if !externalModal && useModalInstead}
+    <NotificationModal bind:modal={internalModal} />
+  {:else if !externalModal}
+    <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+    <ul
+      tabindex="0"
+      class="menu dropdown-content !fixed right-0 z-[1] max-h-[80svh] w-full flex-nowrap overflow-clip rounded-box bg-base-100 p-0 shadow sm:!absolute sm:w-[27rem]"
+    >
+      {#if notifications.length >= 1}
+        <div class="overflow-y-auto">
+          {#each notifications as notification (notification.id)}
+            <li animate:flip={{ duration: 200 }}>
+              <Notification {notification} {form} />
+            </li>
+          {/each}
+        </div>
+        <!-- Read all notifications (notifications are read on visit otherwise) -->
+        {#if notifications?.filter((n) => n.readAt === null)?.length > 0}
+          <form
+            method="POST"
+            action="/notifications?/readNotifications"
+            use:readEnhance
+            data-sveltekit-keepfocus
+          >
+            <button
+              class="btn btn-ghost no-animation z-10 w-full rounded-none border-0 border-t border-gray-700 *:text-2xl"
+            >
+              {m.navbar_bell_markAllAsRead()}
+              <span class="i-mdi-bell-check-outline" />
+            </button>
+          </form>
+        {/if}
+        <!-- Deletes all notifications -->
         <form
           method="POST"
-          action="/notifications?/readNotifications"
-          use:readEnhance
+          action="/notifications?/deleteNotification"
+          use:deleteEnhance
           data-sveltekit-keepfocus
         >
+          {#each notifications as notification (notification.id)}
+            {#each notification.individualIds as id}
+              <input type="hidden" name="notificationIds" value={id} />
+            {/each}
+          {/each}
           <button
             class="btn btn-ghost no-animation z-10 w-full rounded-none border-0 border-t border-gray-700 *:text-2xl"
           >
-            {m.navbar_bell_markAllAsRead()}
-            <span class="i-mdi-bell-check-outline" />
+            {m.navbar_bell_deleteAll()} <span class="i-mdi-delete-outline" />
           </button>
         </form>
+      {:else}
+        <li class="p-4 after:bg-slate-100">
+          {m.navbar_bell_noNotifications()}
+        </li>
       {/if}
-      <!-- Deletes all notifications -->
-      <form
-        method="POST"
-        action="/notifications?/deleteNotification"
-        use:enhance
-        data-sveltekit-keepfocus
-      >
-        {#each notifications as notification (notification.id)}
-          {#each notification.individualIds as id}
-            <input type="hidden" name="notificationIds" value={id} />
-          {/each}
-        {/each}
-        <button
-          class="btn btn-ghost no-animation z-10 w-full rounded-none border-0 border-t border-gray-700 *:text-2xl"
-        >
-          {m.navbar_bell_deleteAll()} <span class="i-mdi-delete-outline" />
-        </button>
-      </form>
-    {:else}
-      <li class="p-4 after:bg-slate-100">{m.navbar_bell_noNotifications()}</li>
-    {/if}
-  </ul>
+    </ul>
+  {/if}
 </div>

@@ -2,6 +2,7 @@ import { env } from "$env/dynamic/private";
 import keycloak from "$lib/server/keycloak";
 import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
 import { i18n } from "$lib/utils/i18n";
+import { createMember } from "$lib/utils/member";
 import { redirect } from "$lib/utils/redirect";
 import { themes, type Theme } from "$lib/utils/themes";
 import { isAvailableLanguageTag, sourceLanguageTag } from "$paraglide/runtime";
@@ -128,13 +129,11 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
     });
     const member =
       existingMember ||
-      (await prisma.member.create({
-        data: {
-          studentId: session.user.student_id,
-          firstName: session.user.given_name,
-          lastName: session.user.family_name,
-          email: session.user.email,
-        },
+      (await createMember(prisma, {
+        studentId: session.user.student_id,
+        firstName: session.user.given_name,
+        lastName: session.user.family_name,
+        email: session.user.email,
       }));
 
     if (
@@ -197,8 +196,11 @@ const themeHandle: Handle = async ({ event, resolve }) => {
   const theme = event.cookies.get("theme");
 
   if (!theme || !themes.includes(theme as Theme)) {
+    event.locals.theme = "dark";
     return await resolve(event);
   }
+  // get theme from cookies and send to frontend to show correct icon in theme switch
+  event.locals.theme = theme as Theme;
 
   return await resolve(event, {
     transformPageChunk: ({ html }) => {

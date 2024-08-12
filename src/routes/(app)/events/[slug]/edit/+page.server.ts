@@ -7,12 +7,13 @@ import { error } from "@sveltejs/kit";
 import { zod } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
 import type { Actions, PageServerLoad } from "./$types";
+import { getAllTags } from "$lib/news/tags";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
   authorize(apiNames.EVENT.UPDATE, user);
 
-  const allTags = await prisma.tag.findMany();
+  const allTags = await getAllTags(prisma, true);
   const event = await prisma.event.findUnique({
     where: {
       slug: params.slug,

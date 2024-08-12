@@ -15,6 +15,7 @@ import {
   type DBShopIdentification,
   type ShopIdentification,
 } from "./types";
+import { BASIC_EVENT_FILTER } from "$lib/events/events";
 
 export type TicketWithMoreInfo = Ticket &
   Shoppable & {
@@ -30,7 +31,7 @@ export type TicketWithMoreInfo = Ticket &
     hasQueue: boolean;
   };
 
-const ticketIncludedFields = (id: DBShopIdentification) => ({
+export const ticketIncludedFields = (id: DBShopIdentification) => ({
   shoppable: {
     include: {
       // Get the user's consumables and reservations for this ticket
@@ -64,7 +65,7 @@ const ticketIncludedFields = (id: DBShopIdentification) => ({
 type TicketInclude = ReturnType<typeof ticketIncludedFields>;
 type TicketFromPrisma = Prisma.TicketGetPayload<{ include: TicketInclude }>;
 
-const formatTicket = (ticket: TicketFromPrisma): TicketWithMoreInfo => {
+export const formatTicket = (ticket: TicketFromPrisma): TicketWithMoreInfo => {
   const base: TicketWithMoreInfo &
     Partial<
       Pick<
@@ -146,4 +147,49 @@ export const getTickets = async (
     },
   });
   return tickets.map(formatTicket);
+};
+
+/**
+ * Retrieves tickets from the database based on the provided shop identification.
+ * @param prisma - The Prisma client instance.
+ * @param identification - Either the user's ID or the user's session ID.
+ * @returns A promise that resolves to an array of tickets.
+ */
+export const getEventsWithTickets = async (
+  prisma: PrismaClient,
+  identification: ShopIdentification,
+  filters: Prisma.EventWhereInput = {},
+) => {
+  const dbId = dbIdentification(identification);
+
+  const events = await prisma.event.findMany({
+    where: {
+      ...BASIC_EVENT_FILTER(true),
+      ...filters,
+    },
+    orderBy: {
+      startDatetime: "asc",
+    },
+    include: {
+      tickets: {
+        include: {
+          ...ticketIncludedFields(dbId),
+          event: false,
+        },
+      },
+      tags: true,
+    },
+  });
+
+  return events.map((event) => ({
+    ...event,
+    tickets: event.tickets.map((ticket) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars -- We want to "drop" tickets from event data nested into the ticket
+      const { tickets: _, ...eventData } = event;
+      return formatTicket({
+        ...ticket,
+        event: eventData,
+      });
+    }),
+  }));
 };
