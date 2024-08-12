@@ -24,8 +24,8 @@ export const onPaymentSuccess = async (intent: Stripe.PaymentIntent) => {
           (consumable) => consumable.purchasedAt !== null,
         )
       ) {
-        throw new Error(
-          "All consumables for this intent was already marked as purchased",
+        console.warn(
+          "Tried to mark consumables as purchased, but they were already marked as purchased",
         );
       } else {
         if (

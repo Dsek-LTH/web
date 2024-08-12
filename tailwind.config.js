@@ -66,18 +66,7 @@ export default {
       },
       {
         nollningPostReveal: {
-          primary: "#FF79C6",
-          secondary: "#BD93F9",
-          neutral: "#6272A4",
-          accent: "#1dcdbc", // unused in figma
-          "base-100": "#282A36",
-          "base-200": "#44475A",
-          "base-content": "#F8F8F2",
-          // unused in figma below
-          info: "#3abff8",
-          success: "#36d399",
-          warning: "#fbbd23",
-          error: "#FF88DC",
+          ...colors.nollningPostReveal,
 
           "--rounded-box": "1rem", // border radius rounded-box utility class, used in card and other large boxes
           "--rounded-btn": "0.25rem", // border radius rounded-btn utility class, used in buttons and similar element

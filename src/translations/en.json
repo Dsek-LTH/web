@@ -108,7 +108,7 @@
   "cart_event": "Event",
   "cart_ticket": "Ticket",
   "cart_price": "Price",
-  "cart_reservation": "Reservation",
+  "cart_reservation": "Reserved for",
   "cart_remove": "Remove",
   "cart_transactionFee": "Transaction fee",
   "cart_processing": "Processing...",

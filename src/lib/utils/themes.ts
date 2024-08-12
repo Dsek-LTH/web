@@ -1,4 +1,4 @@
-export const themes = ["dark", "light"] as const;
+export const themes = ["dark", "light", "nollningPostReveal"] as const;
 export type Theme = (typeof themes)[number];
 export const colors = {
   light: {
@@ -24,5 +24,19 @@ export const colors = {
     success: "#36d399",
     warning: "#fbbd23",
     error: "#f87272",
+  },
+  nollningPostReveal: {
+    primary: "#FF79C6",
+    secondary: "#BD93F9",
+    neutral: "#6272A4",
+    accent: "#1dcdbc", // unused in figma
+    "base-100": "#282A36",
+    "base-200": "#44475A",
+    "base-content": "#F8F8F2",
+    // unused in figma below
+    info: "#3abff8",
+    success: "#36d399",
+    warning: "#fbbd23",
+    error: "#FF88DC",
   },
 } as const;

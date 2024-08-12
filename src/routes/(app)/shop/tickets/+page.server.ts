@@ -3,24 +3,25 @@ import {
   addTicketToCart,
   type AddToCartResult,
 } from "$lib/server/shop/addToCart/addToCart";
+import { countUserShopItems } from "$lib/server/shop/countUserShopItems";
 import { getTickets } from "$lib/server/shop/getTickets";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
-import { error, fail } from "@sveltejs/kit";
 import { redirect } from "$lib/utils/redirect";
+import * as m from "$paraglide/messages";
+import { error, fail } from "@sveltejs/kit";
+import { zod } from "sveltekit-superforms/adapters";
 import {
   message,
   superValidate,
   type Infer,
 } from "sveltekit-superforms/server";
-import { zod } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import type { PageServerLoad } from "./$types";
-import * as m from "$paraglide/messages";
-import { countUserShopItems } from "$lib/server/shop/countUserShopItems";
 
 export const load: PageServerLoad = async ({ locals, depends }) => {
   const { user, prisma } = locals;
+
   const { memberId, externalCode } = user ?? {};
   if (!memberId && !externalCode) error(401);
   depends("tickets");

@@ -2,6 +2,7 @@
   import Modal from "$lib/components/Modal.svelte";
   import Price from "$lib/components/Price.svelte";
   import type { CartItem } from "$lib/utils/shop/types";
+  import CartItemExpiresAt from "../CartItem/CartItemExpiresAt.svelte";
   import QuestionForm from "./QuestionForm.svelte";
   type Question = CartItem["shoppable"]["questions"][number];
   export let allQuestions: Question[];
@@ -16,7 +17,11 @@
   $: currentQuestion = questionInNeedOfAnswer ?? selectedQuestion;
 </script>
 
-<Modal show={!!currentQuestion || !!inspectedItem}>
+<Modal
+  show={!!currentQuestion || !!inspectedItem}
+  backdrop={!!inspectedItem && !currentQuestion}
+  {onClose}
+>
   {#if !!currentQuestion}
     <QuestionForm
       question={currentQuestion}
@@ -24,13 +29,18 @@
     />
   {:else if !!inspectedItem}
     <div class="mb-4 flex justify-between">
-      <h1 class="text-2xl font-bold">Dina svar</h1>
+      <h1 class="text-2xl font-bold">
+        Dina svar
+        <span class="font-normal"
+          ><CartItemExpiresAt expiresAt={inspectedItem.expiresAt} /></span
+        >
+      </h1>
       <button
         type="button"
-        class="btn btn-square btn-ghost btn-sm"
+        class="btn btn-circle btn-ghost btn-lg"
         on:click={onClose}
       >
-        <span class="i-mdi-close size-6" />
+        <span class="i-mdi-close" />
       </button>
     </div>
     <ul class="divide-y-[1px] divide-base-content/20">
@@ -59,6 +69,6 @@
     </ul>
   {/if}
   <p class="mt-4 text-sm opacity-50">
-    Du behöver inte stressa.<br /> Din kundvagn är reserverad.
+    Du behöver inte stressa.<br /> Din biljett är reserverad.
   </p>
 </Modal>

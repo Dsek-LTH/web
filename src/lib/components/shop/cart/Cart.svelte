@@ -4,9 +4,9 @@
   import type { SuperValidated } from "sveltekit-superforms";
   import CartItem from "./CartItem/CartItem.svelte";
   import TransactionFee from "./TransactionFee/TransactionFee.svelte";
-  import PurchaseSection from "./payments/PurchaseSection.svelte";
+  import PurchaseSection from "./Payments/PurchaseSection.svelte";
   import type { PurchaseForm } from "$lib/utils/shop/types";
-  import CartQuestionsModal from "./questions/CartQuestionsModal.svelte";
+  import CartQuestionsModal from "./Questions/CartQuestionsModal.svelte";
 
   export let inCart: CartItemType[];
   export let transactionFee: number;

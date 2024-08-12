@@ -6,7 +6,6 @@
   import { now } from "$lib/stores/date";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
-  import { goto } from "$lib/utils/redirect";
   import * as m from "$paraglide/messages";
   import dayjs from "dayjs";
   /* If form that button is part of is currently submitting */
@@ -24,6 +23,8 @@
     | "userReservations"
     | "price"
   >;
+  $: cartPath = $page.data["paths"]?.["cart"] ?? "/shop/cart";
+
   /* If ticket is available time-wise (not upcoming, not past)*/
   $: isUpcoming = ticket.availableFrom > $now;
   $: isCurrentlyAvailable =
@@ -70,13 +71,9 @@
           {:else}
             <span>{m.tickets_buyButton_inCart()}</span>
           {/if}
-          <button
-            type="button"
-            on:click|preventDefault={() => goto("/shop/cart")}
-            class="btn btn-primary"
-          >
+          <a type="button" href={cartPath} class="btn btn-primary">
             {m.tickets_buyButton_goToCart()}
-          </button>
+          </a>
         </div>
       {/if}
     {:else}

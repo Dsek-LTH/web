@@ -8,6 +8,7 @@
   import type { NotificationSchema } from "$lib/zod/schemas";
   import type { SuperValidated } from "sveltekit-superforms";
   import { superForm } from "$lib/utils/client/superForms";
+  import { browser } from "$app/environment";
   type NotificationItem = Pick<
     NotificationGroup,
     | "link"
@@ -29,7 +30,7 @@
   const readNotification = () => {
     // read notification
     readForm?.requestSubmit();
-    invalidate("/api/notifications/my");
+    if (browser) invalidate("/api/notifications/my");
   };
 
   // Handle "reading" notification when visiting relevant link

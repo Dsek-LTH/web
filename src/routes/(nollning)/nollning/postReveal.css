@@ -44,5 +44,8 @@
 }
 
 [data-theme="nollningPostReveal"] {
+  scroll-behavior: smooth;
+  @apply font-nolla-post-reveal;
+  font-display: auto;
   color-scheme: dark;
 }

@@ -11,9 +11,11 @@
   export let stripe: StripeJS.Stripe | null;
   export let clientSecret: string;
   export let price: number;
+  $: redirectPath =
+    $page.data["paths"]?.["purchaseRedirect"] ?? "/shop/success";
   $: redirectUrl =
-    ($page.data.isApp ? $page.url.origin + "/" : APP_REDIRECT_URL) +
-    "shop/success";
+    ($page.data.isApp ? APP_REDIRECT_URL : $page.url.origin + "/") +
+    redirectPath.slice(1);
 
   $: member = $page.data.member;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- The lib we use for display the elements uses an older version of stripe. It works but has the wrong type
@@ -42,7 +44,7 @@
     } else {
       switch (paymentIntent.status) {
         case "succeeded":
-          goto(`/shop/success?payment_intent=${paymentIntent.id}`);
+          goto(`${redirectPath}?payment_intent=${paymentIntent.id}`);
           break;
         case "processing":
           isProcessing = true;
@@ -75,7 +77,7 @@
       <PaymentElement
         options={{
           layout: "tabs",
-          paymentMethodOrder: ["swish", "klarna", "paypal", "card"],
+          paymentMethodOrder: ["swish", "paypal", "card", "klarna"],
           defaultValues: member
             ? {
                 billingDetails: {

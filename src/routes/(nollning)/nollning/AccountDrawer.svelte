@@ -1,5 +1,6 @@
 <script lang="ts">
   import { page } from "$app/stores";
+  import { POST_REVEAL_PREFIX } from "$lib/components/postReveal/types";
   import { getFullName } from "$lib/utils/client/member";
 
   let checked = false;
@@ -49,10 +50,13 @@
           <a href="/settings">Inställningar</a>
         </li>
         <li>
-          <a href="/shop/inventory">Mina biljetter</a>
+          <a href="{POST_REVEAL_PREFIX}/shop/inventory">Mina biljetter</a>
         </li>
       </ul>
-      <a href="/" class="btn-primary-dark btn mt-8 self-center">
+      <a
+        href="{POST_REVEAL_PREFIX}/go-back-to-dsek"
+        class="btn-primary-dark btn mt-8 self-center"
+      >
         till dsek <span class="i-mdi-arrow-right" />
       </a>
     </aside>
