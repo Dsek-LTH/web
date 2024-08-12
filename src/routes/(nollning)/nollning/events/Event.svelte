@@ -31,6 +31,7 @@
       <MarkdownBody body={event.description} class="leading-tight" />
     </p>
     {#if isAuthorized(apiNames.WEBSHOP.PURCHASE, $page.data.user)}
+      <!-- TODO: Show more info about each ticket, now it's just a button -->
       {#each event.tickets as ticket (ticket.id)}
         <form
           method="POST"

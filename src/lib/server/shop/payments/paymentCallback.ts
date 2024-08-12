@@ -1,7 +1,7 @@
 import { ensurePaymentIntentState } from "$lib/server/shop/payments/stripeMethods";
 import { redirect } from "$lib/utils/redirect";
 import * as m from "$paraglide/messages";
-import { error, ServerLoadEvent } from "@sveltejs/kit";
+import { error, type ServerLoadEvent } from "@sveltejs/kit";
 
 // url example: ?intentId&payment_intent=pi_3P8jPeCRGoJdzifb0XON4FJl&payment_intent_client_secret=pi_...&redirect_status=succeeded
 const stripeCallbackLoad =

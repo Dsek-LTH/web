@@ -1,6 +1,6 @@
 <script lang="ts">
+  import type { ConsumableWithMoreInfo } from "$lib/server/shop/inventory/types";
   import Consumable from "./Consumable.svelte";
-  import type { ConsumableWithMoreInfo } from "./types";
 
   export let title: string;
   export let consumables: ConsumableWithMoreInfo[];

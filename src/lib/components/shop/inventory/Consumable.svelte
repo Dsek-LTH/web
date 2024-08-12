@@ -1,8 +1,8 @@
 <script lang="ts">
   import dayjs from "dayjs";
   import * as m from "$paraglide/messages";
-  import type { ConsumableWithMoreInfo } from "./types";
   import { eventLink } from "$lib/utils/redirect";
+  import type { ConsumableWithMoreInfo } from "$lib/server/shop/inventory/types";
 
   export let consumable: ConsumableWithMoreInfo;
   $: shoppable = consumable.shoppable;

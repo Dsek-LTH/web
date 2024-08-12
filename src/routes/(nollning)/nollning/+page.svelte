@@ -36,6 +36,7 @@
       consectetur. Morbi aliquam rhoncus tellus ac tempus. Suspendisse blandit
       augue nec massa semper semper nec vitae erat.
     </p>
-    <a href="#" class="btn-primary-dark btn self-center">Läs Nollekontraktet</a>
+    <!-- TODO: Link -->
+    <a href="/" class="btn-primary-dark btn self-center">Läs Nollekontraktet</a>
   </section>
 </article>
