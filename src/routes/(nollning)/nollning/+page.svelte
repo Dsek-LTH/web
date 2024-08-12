@@ -1,6 +1,7 @@
 <script>
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import PostRevealImage from "$lib/components/postReveal/PostRevealImage.svelte";
+  import { POST_REVEAL_PREFIX } from "$lib/components/postReveal/types";
 </script>
 
 <SetPageTitle title="Nollning" />
@@ -19,7 +20,10 @@
       consectetur. Morbi aliquam rhoncus tellus ac tempus. Suspendisse blandit
       augue nec massa semper semper nec vitae erat.
     </p>
-    <a href="wikia" class="btn-primary-dark btn self-center">Läs om Staben</a>
+    <a
+      href="{POST_REVEAL_PREFIX}/wikia/staben"
+      class="btn-primary-dark btn self-center">Läs om Staben</a
+    >
   </section>
   <section class="flex flex-col">
     <h3 class="page-title mb-4 text-secondary">Nollningspolicy</h3>
@@ -32,8 +36,6 @@
       consectetur. Morbi aliquam rhoncus tellus ac tempus. Suspendisse blandit
       augue nec massa semper semper nec vitae erat.
     </p>
-    <a href="wikia" class="btn-primary-dark btn self-center"
-      >Läs Nollekontraktet</a
-    >
+    <a href="#" class="btn-primary-dark btn self-center">Läs Nollekontraktet</a>
   </section>
 </article>
