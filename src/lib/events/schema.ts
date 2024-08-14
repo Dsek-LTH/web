@@ -3,7 +3,7 @@ import { z } from "zod";
 import * as m from "$paraglide/messages";
 import type { Infer } from "sveltekit-superforms";
 import { isFileImage } from "$lib/files/utils";
-import { recurringType } from "@prisma/client";
+import { recurringTypesList, recurringTypeValues } from "$lib/utils/events"; // we cannot use the enum from @prisma/client due to vite not supporting enums in client code
 
 export const eventSchema = z
   .object({
@@ -43,7 +43,10 @@ export const eventSchema = z
 
     alarmActive: z.boolean().nullable().default(null),
     isRecurring: z.boolean().default(false),
-    recurringType: z.nativeEnum(recurringType).default(recurringType.WEEKLY),
+    // see comment above and in utils/events.ts why we do it like this
+    recurringType: z
+      .enum([recurringTypesList[0]!, ...recurringTypesList.slice(1)]) // type is [string, ...string[]]
+      .default(recurringTypeValues.WEEKLY),
     separationCount: z.number().default(0),
     recurringEndDatetime: z
       .date()
