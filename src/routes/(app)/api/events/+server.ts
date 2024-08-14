@@ -18,7 +18,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
   const events = await prisma.event.findMany({
     where: {
       AND: [
-        BASIC_EVENT_FILTER(true),
+        BASIC_EVENT_FILTER(null),
         {
           OR: [
             {
