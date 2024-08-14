@@ -2,7 +2,7 @@
   import Price from "$lib/components/Price.svelte";
   import type { CartItem } from "$lib/utils/shop/types";
   import CartItemEvent from "./CartItemEvent.svelte";
-  import CartItemExpiresAt from "./CartItemExpiresAt.svelte";
+  import CartItemExpiresAt from "../ExpiresAtTimer.svelte";
   import CartItemRemoveButton from "./CartItemRemoveButton.svelte";
 
   export let item: CartItem;

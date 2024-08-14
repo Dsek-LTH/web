@@ -2,7 +2,7 @@
   import Modal from "$lib/components/Modal.svelte";
   import Price from "$lib/components/Price.svelte";
   import type { CartItem } from "$lib/utils/shop/types";
-  import CartItemExpiresAt from "../CartItem/CartItemExpiresAt.svelte";
+  import CartItemExpiresAt from "../ExpiresAtTimer.svelte";
   import QuestionForm from "./QuestionForm.svelte";
   type Question = CartItem["shoppable"]["questions"][number];
   export let allQuestions: Question[];
