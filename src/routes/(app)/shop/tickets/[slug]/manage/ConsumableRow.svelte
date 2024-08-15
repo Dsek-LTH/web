@@ -2,31 +2,17 @@
   import { page } from "$app/stores";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import { getFullName } from "$lib/utils/client/member";
-  import type {
-    Consumable,
-    ConsumableReservation,
-    ItemQuestion,
-    ItemQuestionResponse,
-    Member,
-  } from "@prisma/client";
+  import { formatPrice, priceFormatClasses } from "$lib/utils/client/price";
+  import type { ItemQuestion } from "@prisma/client";
   import dayjs from "dayjs";
   import RowAction from "./RowAction.svelte";
   import TruncatedTableCell from "./TruncatedTableCell.svelte";
-  import { formatPrice, priceFormatClasses } from "$lib/utils/client/price";
+  import type { ConsumableRowData, ReservationData } from "./types";
 
   $: stripeIntentBaseUrl = $page.data["stripeIntentBaseUrl"]; // required to be return by the +page.server.ts where this is rendered.
   // one of the following has to be specified
-  export let consumable:
-    | (Consumable & {
-        member: Member | null;
-        questionResponses: ItemQuestionResponse[];
-      })
-    | null = null;
-  export let reservation:
-    | (ConsumableReservation & {
-        member: Member | null;
-      })
-    | null = null;
+  export let consumable: ConsumableRowData | null = null;
+  export let reservation: ReservationData | null = null;
 
   export let questions: ItemQuestion[];
 
@@ -58,6 +44,10 @@
       ? dayjs(consumable.purchasedAt).format("HH:MM:ss DD-MM-YYYY")
       : null}
   />
+  {#if consumable !== null}
+    {@const phadderGroup = consumable.member?.phadderGroup}
+    <TruncatedTableCell value={phadderGroup?.name ? phadderGroup.name : ""} />
+  {/if}
   <TruncatedTableCell
     value={consumable?.consumedAt
       ? dayjs(consumable.consumedAt).format("HH:MM:ss DD-MM-YYYY")

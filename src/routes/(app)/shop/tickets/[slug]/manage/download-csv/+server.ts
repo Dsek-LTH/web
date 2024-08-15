@@ -1,51 +1,15 @@
-import apiNames from "$lib/utils/apiNames";
-import { authorize } from "$lib/utils/authorization";
-import type {
-  Consumable,
-  Event,
-  ItemQuestion,
-  ItemQuestionResponse,
-  Member,
-  Shoppable,
-  Ticket,
-} from "@prisma/client";
-import { error } from "@sveltejs/kit";
+import type { Event, ItemQuestion, Shoppable, Ticket } from "@prisma/client";
 import dayjs from "dayjs";
+import { loadTicketData } from "../loadTicketData.js";
+import type { ConsumableRowData } from "../types.js";
 
 export const GET = async ({ locals, params }) => {
   const { user, prisma } = locals;
-  const ticket = await prisma.ticket.findUnique({
-    where: {
-      id: params.slug,
-    },
-    include: {
-      shoppable: {
-        include: {
-          questions: true,
-          consumables: {
-            include: {
-              questionResponses: true,
-              member: true,
-            },
-          },
-          reservations: {
-            include: {
-              member: true,
-            },
-          },
-        },
-      },
-      event: true,
-    },
-  });
-  if (!ticket) {
-    error(404, "Ticket not found");
-  }
-  if (ticket.shoppable.authorId !== user.memberId) {
-    // author can always manage
-    authorize(apiNames.WEBSHOP.MANAGE, user);
-  }
-  const consumables = ticket.shoppable.consumables;
+  const { ticket, consumables } = await loadTicketData(
+    prisma,
+    user,
+    params.slug,
+  );
   const csv = generateCSV(ticket, consumables);
   // return csv as file
   const res = new Response(csv, {
@@ -64,16 +28,11 @@ const generateCSV = (
     };
     event: Event;
   },
-  consumables: Array<
-    Consumable & {
-      member: Member | null;
-      questionResponses: ItemQuestionResponse[];
-    }
-  >,
+  consumables: ConsumableRowData[],
 ): string => {
   let output = "";
   let headers =
-    "Namn,Email,Matpreferens,Betalad mängd,Köpdatum,Payment Intent id";
+    "Namn,Email,Matpreferens,Phaddergrupp,Betalad mängd,Köpdatum,Payment Intent id";
   for (const question of ticket.shoppable.questions) {
     headers += `,${question.title.replace(",", " ")}`;
   }
@@ -100,7 +59,10 @@ const generateCSV = (
     const foodPreference = member
       ? (member?.foodPreference?.replace(",", " ") ?? "")
       : "Anonym användare";
-    let row = `${name},${email},${foodPreference},${paidAmount},${dayjs(
+    const phadderGroup = member
+      ? (member?.phadderGroup?.name.replace(",", " ") ?? "")
+      : "Anonym användare";
+    let row = `${name},${email},${foodPreference},${phadderGroup},${paidAmount},${dayjs(
       consumable.purchasedAt,
     ).format("YYYY-MM-DD HH:mm:ss")},${
       consumable.stripeIntentId?.replace(",", " ") ?? "N/A"

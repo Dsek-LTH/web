@@ -1,25 +1,11 @@
 <script lang="ts">
-  import type {
-    Consumable,
-    ConsumableReservation,
-    ItemQuestion,
-    ItemQuestionResponse,
-    Member,
-  } from "@prisma/client";
+  import type { ItemQuestion } from "@prisma/client";
   import ConsumableRow from "./ConsumableRow.svelte";
+  import type { ConsumableRowData, ReservationData } from "./types";
 
   export let title: string | null = null;
   export let questions: ItemQuestion[] = [];
-  export let consumables: Array<
-    (
-      | (Consumable & {
-          questionResponses: ItemQuestionResponse[];
-        })
-      | ConsumableReservation
-    ) & {
-      member: Member | null;
-    }
-  >;
+  export let consumables: Array<ConsumableRowData | ReservationData>;
 </script>
 
 <div class="my-8 overflow-x-auto rounded-box bg-base-200 p-2 shadow-xl">
@@ -32,6 +18,7 @@
         <th>Person</th>
         <th>Preferens</th>
         <th>Köptes</th>
+        <th>Phaddergrupp</th>
         <th>Konsumerades</th>
         <th>Betalat</th>
         <th>Stripeköp ID</th>
