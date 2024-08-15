@@ -5,8 +5,17 @@
   import Cart from "./Cart.svelte";
   import Reservations from "./Reservations.svelte";
   import type { CartLoadData } from "$lib/server/shop/cart/getCart";
+  import { now } from "$lib/stores/date";
+  import { invalidate } from "$app/navigation";
 
   export let data: CartLoadData;
+  let lastUpdate = Date.now();
+
+  $: if ($now.valueOf() - lastUpdate > 1000 * 5) {
+    // refresh every 5 seconds
+    lastUpdate = Date.now();
+    invalidate("cart");
+  }
 </script>
 
 <SetPageTitle title={m.cart()} />
