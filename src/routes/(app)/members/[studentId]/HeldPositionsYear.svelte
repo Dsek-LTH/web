@@ -28,11 +28,33 @@
                 <CommitteeSymbol committee={mandate.position.committee} />
               </figure>
             {/if}
-            <span
-              class="flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium"
-            >
-              {mandate.position.name}
-            </span>
+            <div class="flex flex-1 gap-4">
+              <span
+                class="gap-4 overflow-x-hidden text-ellipsis whitespace-nowrap text-left font-medium"
+              >
+                {mandate.position.name}
+              </span>
+              {#if mandate.phadderIn}
+                {@const group = mandate.phadderIn}
+                <a
+                  href="/committees/nollu?year={new Date(
+                    mandate.startDate,
+                  ).getFullYear()}"
+                  class="-my-[1em] flex items-center gap-1 text-base-content"
+                >
+                  <span class="text-2xl">(</span>
+                  {#if group.imageUrl}
+                    <img
+                      src={group.imageUrl}
+                      class=" max-h-[2em] max-w-[2em] rounded-sm"
+                      alt="Group logo"
+                    />
+                  {/if}
+                  {group.name}
+                  <span class="text-2xl">)</span>
+                </a>
+              {/if}
+            </div>
           </a>
         </div>
       {/if}
