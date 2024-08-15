@@ -73,7 +73,6 @@
             class="btn btn-sm"
             on:click={async () => {
               isEditing = !isEditing;
-              await goto(`${data.position.id}`);
             }}
           >
             {isEditing ? m.positions_stopEditing() : m.positions_edit()}
@@ -165,28 +164,28 @@
             >
               {getFullName(mandate.member)}
             </span>
-
-            <!-- Remove and edit buttons -->
-            {#if isEditing}
-              {#if isAuthorized(apiNames.MANDATE.UPDATE, data.user)}
-                <button
-                  class="btn btn-secondary btn-sm pointer-events-auto"
-                  on:click|preventDefault={async () => {
-                    await goto(`${data.position.id}?editMandate=${mandate.id}`);
-                  }}
-                >
-                  {m.positions_edit()}
-                </button>
-              {/if}
-              {#if isAuthorized(apiNames.MANDATE.DELETE, data.user)}
-                {#await data.deleteMandateForm then form}
-                  <DeleteMandateForm mandateId={mandate.id} data={form} />
-                {/await}
-              {/if}
-            {:else}
-              <ClassBadge member={mandate.member} />
-            {/if}
           </a>
+
+          <!-- Remove and edit buttons -->
+          {#if isEditing}
+            {#if isAuthorized(apiNames.MANDATE.UPDATE, data.user)}
+              <button
+                class="btn btn-secondary btn-sm pointer-events-auto"
+                on:click|preventDefault={async () => {
+                  await goto(`${data.position.id}?editMandate=${mandate.id}`);
+                }}
+              >
+                {m.positions_edit()}
+              </button>
+            {/if}
+            {#if isAuthorized(apiNames.MANDATE.DELETE, data.user)}
+              {#await data.deleteMandateForm then form}
+                <DeleteMandateForm mandateId={mandate.id} data={form} />
+              {/await}
+            {/if}
+          {:else}
+            <ClassBadge member={mandate.member} />
+          {/if}
           {#if isEditing}
             <span class="text-xs">
               {mandate.startDate.toLocaleDateString(languageTag())} - {mandate.endDate.toLocaleDateString(
