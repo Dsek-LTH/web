@@ -16,12 +16,14 @@
     </h2>
     <ul class="menu p-0">
       {#each files.next.slice(0, 4) as file}
-        <li>
+        <li class="inline-block max-w-full">
           <a href={file.thumbnailUrl}>
             <span
               class="i-mdi-document size-6 max-lg:text-primary lg:text-secondary"
             />
-            {file.name}
+            <span class="overflow-x-hidden text-ellipsis whitespace-nowrap">
+              {file.name}
+            </span>
           </a>
         </li>
       {/each}
@@ -38,12 +40,14 @@
     </h2>
     <ul class="menu p-0">
       {#each files.last.slice(0, 4) as file}
-        <li>
-          <a href={file.thumbnailUrl}>
+        <li class="inline-block max-w-full">
+          <a href={file.thumbnailUrl} class="text-ellipsis">
             <span
               class="i-mdi-document size-6 max-lg:text-primary lg:text-secondary"
             />
-            {file.name}
+            <span class="overflow-x-hidden text-ellipsis whitespace-nowrap">
+              {file.name}
+            </span>
           </a>
         </li>
       {/each}
