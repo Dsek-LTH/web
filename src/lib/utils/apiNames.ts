@@ -74,6 +74,10 @@ const apiNames = {
     CONSUME: "webshop:consume",
     MANAGE: "webshop:manage",
   },
+  NOLLNING: {
+    MANAGE_PHADDER_GROUPS: "nollning:phaddrar:groups:manage",
+    MANAGE_PHADDERS: "nollning:phaddrar:manage",
+  },
 } as const;
 
 export default apiNames;

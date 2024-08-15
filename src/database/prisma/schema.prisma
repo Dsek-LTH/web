@@ -491,6 +491,8 @@ model Mandate {
     authors Author[]
     member Member @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "mandates_member_id_foreign")
     position Position @relation(fields: [positionId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "mandates_position_id_foreign")
+    phadderInId String? @db.Uuid()
+    phadderIn PhadderGroup? @relation(fields: [phadderInId], references: [id], onDelete: SetNull, onUpdate: NoAction)
 
     @@map("mandates")
 }
@@ -545,6 +547,8 @@ model Member {
     visible Boolean @default(true)
     foodPreference String? @map("food_preference") @db.VarChar(255)
     stripeCustomerId String? @map("stripe_customer_id")
+    nollningGroupId String? @map("nollning_group_id") @db.Uuid()
+    nollaIn PhadderGroup? @relation(fields: [nollningGroupId], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "members_nollning_group_id_foreign")
     pingsFromMe Ping[] @relation("pings_from_memberTomembers")
     pingsToMe Ping[] @relation("pings_to_memberTomembers")
     likedArticles Article[] @relation("article_likes")
@@ -653,6 +657,18 @@ model Ping {
 
     @@unique([fromMemberId, toMemberId], map: "pings_from_member_to_member_unique")
     @@map("pings")
+}
+
+model PhadderGroup {
+    id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+    name String @db.VarChar(255)
+    description String? @db.Text()
+    year Int
+    imageUrl String? @map("image_url") @db.Text()
+    nollor Member[]
+    phaddrar Mandate[]
+
+    @@map("phadder_groups")
 }
 
 /// @@allow('create', has(auth().policies, 'core:position:create'))
