@@ -108,7 +108,7 @@
       {/if}
     </div>
     <div class="flex flex-col">
-      <HeldPositions mandates={member.mandates} />
+      <HeldPositions mandates={member.mandates} nollaIn={member.nollaIn} />
       {#if data.publishedArticles.length > 0}
         <PublishedArticles articles={data.publishedArticles} />
       {/if}
