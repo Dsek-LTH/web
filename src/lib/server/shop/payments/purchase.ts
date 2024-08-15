@@ -25,27 +25,66 @@ import {
   removePaymentIntent,
   updatePaymentIntent,
 } from "./stripeMethods";
+import { NotificationType } from "$lib/utils/notifications/types";
 
 const clearOutConsumablesAfterSellingOut = async (
   soldOutShoppableIds: string[],
 ) => {
-  await authorizedPrismaClient.$transaction(async (tx) => {
-    await tx.consumable.deleteMany({
-      where: {
-        shoppableId: {
-          in: soldOutShoppableIds,
+  await withHandledNotificationQueue(
+    authorizedPrismaClient.$transaction(async (tx) => {
+      const soldOutConsumables = await tx.consumable.findMany({
+        where: {
+          shoppableId: {
+            in: soldOutShoppableIds,
+          },
+          purchasedAt: null,
         },
-        purchasedAt: null,
-      },
-    });
-    await tx.consumableReservation.deleteMany({
-      where: {
-        shoppableId: {
-          in: soldOutShoppableIds,
+        include: {
+          shoppable: true,
         },
-      },
-    });
-  });
+      });
+      await tx.consumable.deleteMany({
+        where: {
+          id: {
+            in: soldOutConsumables.map((c) => c.id),
+          },
+        },
+      });
+
+      const soldOutReservations = await tx.consumableReservation.findMany({
+        where: {
+          shoppableId: {
+            in: soldOutShoppableIds,
+          },
+        },
+        include: {
+          shoppable: true,
+        },
+      });
+      await tx.consumableReservation.deleteMany({
+        where: {
+          id: {
+            in: soldOutReservations.map((r) => r.id),
+          },
+        },
+      });
+      const memberIds = soldOutConsumables
+        .map((con) => con.memberId)
+        .concat(soldOutReservations.map((res) => res.memberId))
+        .filter(Boolean) as string[];
+      return [
+        {
+          title: "😢 Slutsålt:(",
+          message: `${
+            soldOutReservations[0]?.shoppable?.title ?? "Biljett"
+          } har blivit slutsåld`,
+          memberIds,
+          type: NotificationType.PURCHASE_SOLD_OUT,
+          link: "/shop/cart",
+        },
+      ];
+    }),
+  );
 };
 
 const purchaseCart = async (

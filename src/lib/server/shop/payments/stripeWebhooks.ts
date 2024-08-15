@@ -27,6 +27,7 @@ export const onPaymentSuccess = async (intent: Stripe.PaymentIntent) => {
         console.warn(
           "Tried to mark consumables as purchased, but they were already marked as purchased",
         );
+        return [];
       } else {
         if (
           relevantConsumables.some(
@@ -40,15 +41,21 @@ export const onPaymentSuccess = async (intent: Stripe.PaymentIntent) => {
         await tx.consumable.updateMany({
           where: {
             stripeIntentId: intent.id,
+            purchasedAt: null,
           },
           data: {
             purchasedAt: new Date(),
           },
         });
       }
-      return relevantConsumables;
+      return relevantConsumables.filter(
+        (consumable) => consumable.purchasedAt !== null,
+      );
     },
   );
+  if (purchasedConsumables.length === 0) {
+    return; // no need to send notifications if nothing was purchased
+  }
   try {
     await sendNotification({
       title:
