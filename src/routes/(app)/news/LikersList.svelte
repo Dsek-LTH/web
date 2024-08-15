@@ -1,10 +1,9 @@
 <script lang="ts">
+  import MembersList from "$lib/components/socials/MembersList.svelte";
   import { getFullName } from "$lib/utils/client/member";
-  import type { Member } from "@prisma/client";
-  import AuthorSignature from "$lib/components/socials/AuthorSignature.svelte";
   import * as m from "$paraglide/messages";
+  import type { Member } from "@prisma/client";
 
-  let modal: HTMLDialogElement;
   export let likers: Member[];
 
   const formatLikersList = (likers: Member[]): string => {
@@ -30,23 +29,6 @@
   $: likersText = formatLikersList(likers);
 </script>
 
-{#if likers.length > 0}
-  <button
-    on:click|preventDefault={() => modal.showModal()}
-    class="link text-sm opacity-40 hover:opacity-60"
-  >
-    {m.news_likesThis({ x: likersText })}
-  </button>
-  <dialog id="likers_modal" class="modal" bind:this={modal}>
-    <ul class="modal-box m-1 flex flex-col">
-      {#each likers as liker (liker.id)}
-        <li>
-          <AuthorSignature type="member" member={liker} />
-        </li>
-      {/each}
-    </ul>
-    <form method="dialog" class="modal-backdrop">
-      <button>close</button>
-    </form>
-  </dialog>
-{/if}
+<MembersList members={likers} class="link text-sm opacity-40 hover:opacity-60">
+  {likersText}
+</MembersList>

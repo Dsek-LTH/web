@@ -1,7 +1,7 @@
 <script lang="ts">
   import PageHeader from "$lib/components/nav/PageHeader.svelte";
   import PhadderGroupForm from "./PhadderGroupForm.svelte";
-  import Group from "./Group.svelte";
+  import EditableGroup from "./EditableGroup.svelte";
 
   export let data;
   $: groupsByYear = data.groups.reduce(
@@ -45,11 +45,11 @@
   {#each years as year}
     {@const groups = groupsByYear[year] ?? []}
     {#if groups.length > 0}
-      <section class="rounded-box bg-base-200 p-4">
+      <section class="rounded-box bg-base-200 p-4" id={year.toString()}>
         <h3 class="mb-4 text-xl font-medium">{year}</h3>
         <ul class="grid gap-2 md:grid-cols-2">
           {#each groups as group (group.id)}
-            <Group {group} />
+            <EditableGroup {group} />
           {/each}
         </ul>
       </section>

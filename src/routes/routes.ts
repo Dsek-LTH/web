@@ -157,13 +157,6 @@ export const getRoutes = (): Route[] =>
           accessRequired: apiNames.ADMIN.SETTINGS.READ,
           appBehaviour: "home-link",
         },
-        {
-          title: m.phadderGroups(),
-          path: "/admin/nollning/groups",
-          icon: "i-mdi-user-group",
-          accessRequired: apiNames.NOLLNING.MANAGE_PHADDER_GROUPS,
-          appBehaviour: "home-link",
-        },
       ],
     },
   ] as const;
