@@ -5,13 +5,18 @@
   import type { Member } from "@prisma/client";
   import * as m from "$paraglide/messages";
   export let member: Member | undefined = undefined;
+  let clazz: string | undefined = undefined;
+  export { clazz as class };
   let isSearching: boolean;
   let handleSearch: (search: string) => void;
+  export let endpoint: string | undefined = undefined;
 </script>
 
 <MemberSearch
   bind:handleSearch
   bind:isSearching
+  {endpoint}
+  class={clazz}
   onSelect={(selectedMember) => {
     member = selectedMember;
   }}

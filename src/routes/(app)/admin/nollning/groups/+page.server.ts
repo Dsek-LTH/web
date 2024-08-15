@@ -1,4 +1,7 @@
-import { phadderGroupSchema } from "$lib/nollning/groups/types.js";
+import {
+  phadderGroupSchema,
+  phadderMandateFilter,
+} from "$lib/nollning/groups/types.js";
 import apiNames from "$lib/utils/apiNames.js";
 import { authorize } from "$lib/utils/authorization.js";
 import type { PrismaClient } from "@prisma/client";
@@ -14,25 +17,16 @@ const getPhadderMandates = async (
   prisma.mandate.findMany({
     where: {
       memberId,
-      OR: [
-        {
-          positionId: "dsek.noll.phadder",
-        },
-        {
-          positionId: "dsek.noll.uppdrag",
-        },
-      ],
-      startDate: {
-        lt: new Date(`${year}-10-01`), // 1st of october is kind of end of nollning each year
-      },
-      endDate: {
-        gt: new Date(`${year}-08-01`), // 1st of august is a bit before the nollning but I would say that works
-      },
+      ...phadderMandateFilter(year),
     },
-    orderBy: {
-      positionId: "asc", // regular phadder comes before uppdrag
-      startDate: "asc",
-    },
+    orderBy: [
+      {
+        positionId: "asc", // regular phadder comes before uppdrag
+      },
+      {
+        startDate: "asc",
+      },
+    ],
   });
 
 export const load = async ({ locals }) => {
@@ -48,6 +42,9 @@ export const load = async ({ locals }) => {
         },
       },
     },
+    orderBy: {
+      createdAt: "asc",
+    },
   });
 
   return {
@@ -57,6 +54,7 @@ export const load = async ({ locals }) => {
         form: await superValidate(group, zod(phadderGroupSchema)),
       })),
     ),
+    form: await superValidate(zod(createPhadderGroupSchema)),
   };
 };
 
@@ -90,12 +88,13 @@ export const actions = {
     const form = await superValidate(request, zod(updatePhadderGroupSchema));
     if (!form.valid) return fail(400, { form });
     const { prisma } = locals;
-    await prisma.phadderGroup.update({
+    const res = await prisma.phadderGroup.update({
       where: {
         id: form.data.id,
       },
       data: form.data,
     });
+    console.log(res);
     return message(form, {
       message: "Phaddergruppen uppdaterad",
       type: "success",

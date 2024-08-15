@@ -3,7 +3,8 @@
   import { getFullName } from "$lib/utils/client/member";
   import * as m from "$paraglide/messages";
   import Cropper from "svelte-easy-crop";
-  import { fileProxy, superForm } from "sveltekit-superforms/client";
+  import { fileProxy } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
   import ProfileImage from "./ProfileImage.svelte";
   import { uploadSchema } from "./types";
 

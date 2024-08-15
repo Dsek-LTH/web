@@ -491,7 +491,7 @@ model Mandate {
     authors Author[]
     member Member @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "mandates_member_id_foreign")
     position Position @relation(fields: [positionId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "mandates_position_id_foreign")
-    /// @allow('update', auth().memberId == memberId)
+    /// @allow('update', auth().memberId == memberId || has(auth().policies, 'nollning:phaddrar:groups:manage'))
     phadderInId String? @db.Uuid()
     phadderIn PhadderGroup? @relation(fields: [phadderInId], references: [id], onDelete: SetNull, onUpdate: NoAction)
 

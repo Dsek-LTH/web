@@ -485,7 +485,7 @@ model Mandate {
   position    Position      @relation(fields: [positionId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "mandates_position_id_foreign")
   
   // Used on phadder mandates to connect to the phadder group
-  phadderInId String?       @db.Uuid @allow("update", auth().memberId == memberId)
+  phadderInId String?       @db.Uuid @allow("update", auth().memberId == memberId || has(auth().policies, "nollning:phaddrar:groups:manage"))
   phadderIn   PhadderGroup? @relation(fields: [phadderInId], references: [id], onDelete: SetNull, onUpdate: NoAction)
 
   @@allow("create", has(auth().policies, "core:mandate:create"))

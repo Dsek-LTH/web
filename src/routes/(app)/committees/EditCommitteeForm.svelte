@@ -7,7 +7,7 @@
   import * as m from "$paraglide/messages";
   import type { SuperValidated } from "sveltekit-superforms";
   import { zodClient } from "sveltekit-superforms/adapters";
-  import { superForm } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
   import { updateSchema, type UpdateSchema } from "./types";
   import FormMarkdown from "$lib/components/forms/FormMarkdown.svelte";
   import LangTabs from "$lib/components/layout/LangTabs.svelte";

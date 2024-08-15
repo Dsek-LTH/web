@@ -1,6 +1,7 @@
 <script lang="ts">
   import Labeled from "$lib/components/Labeled.svelte";
-  import { fileProxy, superForm } from "sveltekit-superforms/client";
+  import { fileProxy } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
   import DocumentTypeSelector from "./DocumentTypeSelector.svelte";
   import type { PageData } from "./$types";
   import * as m from "$paraglide/messages";
@@ -24,7 +25,7 @@
   const file = fileProxy(form, "file");
   let fileInput: HTMLInputElement;
 
-  $: pathInfo = typeToPath[$form.type];
+  $: pathInfo = typeToPath[$form.type!];
   $: fileErrors = $errors.file as string | string[] | undefined;
 </script>
 

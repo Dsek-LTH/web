@@ -76,7 +76,6 @@ const apiNames = {
   },
   NOLLNING: {
     MANAGE_PHADDER_GROUPS: "nollning:phaddrar:groups:manage",
-    MANAGE_PHADDERS: "nollning:phaddrar:manage",
   },
 } as const;
 
