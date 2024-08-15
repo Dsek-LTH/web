@@ -49,7 +49,7 @@ export const onPaymentSuccess = async (intent: Stripe.PaymentIntent) => {
         });
       }
       return relevantConsumables.filter(
-        (consumable) => consumable.purchasedAt !== null,
+        (consumable) => consumable.purchasedAt === null, // filter on items which were not already bought
       );
     },
   );
