@@ -77,7 +77,6 @@
       <PaymentElement
         options={{
           layout: "tabs",
-          paymentMethodOrder: ["swish", "paypal", "card", "klarna"],
           defaultValues: member
             ? {
                 billingDetails: {
