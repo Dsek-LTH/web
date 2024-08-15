@@ -664,6 +664,7 @@ model PhadderGroup {
   description String?   @db.Text
   year        Int
   imageUrl    String?   @map("image_url") @db.Text
+  createdAt   DateTime  @default(now())
 
   nollor      Member[]
   phaddrar    Mandate[]
