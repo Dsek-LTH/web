@@ -88,7 +88,7 @@ const cartActions: Actions = {
           id: reservation.id,
         },
       });
-      if (reservation.order)
+      if (reservation.order !== null)
         await moveQueueForwardOneStep(
           tx,
           reservation.shoppableId,
