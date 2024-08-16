@@ -18,6 +18,9 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     where: {
       slug: params.slug,
     },
+    include: {
+      tags: true,
+    },
   });
   if (!event) {
     throw error(404, m.events_errors_eventNotFound());
