@@ -38,13 +38,16 @@
     });
 
     isProcessing = false;
-    // payment failed, notify user
     if (error) {
+      // payment failed, notify user
       if (error?.message) paymentError = error.message;
     } else {
+      console.log(paymentIntent.status, paymentIntent);
       switch (paymentIntent.status) {
         case "succeeded":
-          goto(`${redirectPath}?payment_intent=${paymentIntent.id}`);
+          goto(`${redirectPath}?payment_intent=${paymentIntent.id}`, {
+            invalidateAll: true,
+          });
           break;
         case "processing":
           isProcessing = true;
