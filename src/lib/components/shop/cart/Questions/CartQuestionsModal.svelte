@@ -2,9 +2,11 @@
   import Modal from "$lib/components/Modal.svelte";
   import Price from "$lib/components/Price.svelte";
   import type { CartItem } from "$lib/utils/shop/types";
-  import CartItemExpiresAt from "../ExpiresAtTimer.svelte";
+  import ExpiresAtTimer from "../ExpiresAtTimer.svelte";
   import QuestionForm from "./QuestionForm.svelte";
-  type Question = CartItem["shoppable"]["questions"][number];
+  type Question = CartItem["shoppable"]["questions"][number] & {
+    expiresAt: Date | null;
+  };
   export let allQuestions: Question[];
   // export let responses: CartItem["questionResponses"];
   export let inspectedItem: CartItem | null = null;
@@ -15,6 +17,9 @@
     (question) => question.form?.valid === false,
   );
   $: currentQuestion = questionInNeedOfAnswer ?? selectedQuestion;
+  export let open: boolean = !!currentQuestion || !!inspectedItem;
+  $: if (!!currentQuestion || !!inspectedItem) open = true;
+  else open = false;
 </script>
 
 <Modal
@@ -32,7 +37,7 @@
       <h1 class="text-2xl font-bold">
         Dina svar
         <span class="font-normal"
-          ><CartItemExpiresAt expiresAt={inspectedItem.expiresAt} /></span
+          ><ExpiresAtTimer expiresAt={inspectedItem.expiresAt} /></span
         >
       </h1>
       <button
@@ -60,7 +65,11 @@
           </span>
           <button
             class="btn btn-square btn-sm ml-2 inline-block"
-            on:click={() => (selectedQuestion = question)}
+            on:click={() =>
+              (selectedQuestion = {
+                ...question,
+                expiresAt: inspectedItem.expiresAt,
+              })}
           >
             <span class="i-mdi-edit" />
           </button>

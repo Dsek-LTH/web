@@ -14,6 +14,7 @@
   const superform = superForm(data.purchaseForm);
   const { message } = superform;
   $: isPurchasing = $message?.["clientSecret"] !== undefined;
+  let questionModalOpen: boolean;
 
   $: if (!isPurchasing && $now.valueOf() - lastUpdate > 1000 * 10) {
     // refresh every 10 seconds, mainly used for reservations queue.
@@ -36,6 +37,7 @@
         transactionFee={data.transactionFee}
         totalPrice={data.totalPrice}
         {superform}
+        bind:questionModalOpen
       />
     {/if}
 
