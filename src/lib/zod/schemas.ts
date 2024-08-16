@@ -64,7 +64,7 @@ export const tagSchema = z.object({
 });
 export const notificationSchema = z.object({
   notificationId: z.number().nullable(),
-  notificationIds: z.number().array().nullable(),
+  notificationIds: z.number().array(),
 });
 export type NotificationSchema = Infer<typeof notificationSchema>;
 

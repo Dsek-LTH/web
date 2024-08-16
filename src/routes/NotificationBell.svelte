@@ -1,13 +1,13 @@
 <script lang="ts">
   import { page } from "$app/stores";
   import Notification from "$lib/components/Notification.svelte";
+  import NotificationModal from "$lib/components/NotificationModal.svelte";
+  import { superForm } from "$lib/utils/client/superForms";
+  import type { NotificationGroup } from "$lib/utils/notifications/group";
   import type { NotificationSchema } from "$lib/zod/schemas";
+  import * as m from "$paraglide/messages";
   import { flip } from "svelte/animate";
   import type { SuperValidated } from "sveltekit-superforms";
-  import { superForm } from "$lib/utils/client/superForms";
-  import * as m from "$paraglide/messages";
-  import type { NotificationGroup } from "$lib/utils/notifications/group";
-  import NotificationModal from "$lib/components/NotificationModal.svelte";
   import { twMerge } from "tailwind-merge";
 
   export let notifications: NotificationGroup[];
@@ -40,6 +40,7 @@
     onUpdate: onDeleted,
     id: "deleteNotification",
   });
+
   const { enhance: readEnhance } = superForm(form, {
     id: "readNotifications",
   });
@@ -104,23 +105,25 @@
           </form>
         {/if}
         <!-- Deletes all notifications -->
-        <form
-          method="POST"
-          action="/notifications?/deleteNotification"
-          use:deleteEnhance
-          data-sveltekit-keepfocus
-        >
-          {#each notifications as notification (notification.id)}
-            {#each notification.individualIds as id}
-              <input type="hidden" name="notificationIds" value={id} />
-            {/each}
-          {/each}
-          <button
-            class="btn btn-ghost no-animation z-10 w-full rounded-none border-0 border-t border-gray-700 *:text-2xl"
+        {#if notifications?.flatMap((n) => n.individualIds).length > 0}
+          <form
+            method="POST"
+            action="/notifications?/deleteNotification"
+            use:deleteEnhance
+            data-sveltekit-keepfocus
           >
-            {m.navbar_bell_deleteAll()} <span class="i-mdi-delete-outline" />
-          </button>
-        </form>
+            {#each notifications as notification (notification.id)}
+              {#each notification.individualIds as id}
+                <input type="hidden" name="notificationIds" value={id} />
+              {/each}
+            {/each}
+            <button
+              class="btn btn-ghost no-animation z-10 w-full rounded-none border-0 border-t border-gray-700 *:text-2xl"
+            >
+              {m.navbar_bell_deleteAll()} <span class="i-mdi-delete-outline" />
+            </button>
+          </form>
+        {/if}
       {:else}
         <li class="p-4 after:bg-slate-100">
           {m.navbar_bell_noNotifications()}
