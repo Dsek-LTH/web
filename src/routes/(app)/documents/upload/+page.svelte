@@ -1,6 +1,6 @@
 <script lang="ts">
   import Labeled from "$lib/components/Labeled.svelte";
-  import { fileProxy } from "sveltekit-superforms/client";
+  import { type SuperForm, fileProxy } from "sveltekit-superforms/client";
   import { superForm } from "$lib/utils/client/superForms";
   import DocumentTypeSelector from "./DocumentTypeSelector.svelte";
   import type { PageData } from "./$types";
@@ -8,7 +8,7 @@
   import { typeToPath } from "./helpers";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import { zodClient } from "sveltekit-superforms/adapters";
-  import { uploadSchema } from "./types";
+  import { uploadSchema, type UploadSchema } from "./types";
 
   export let data: PageData;
   const { form, constraints, errors, enhance } = superForm(data.form, {
@@ -21,11 +21,11 @@
     },
     resetForm: false,
     validators: zodClient(uploadSchema),
-  });
+  }) as SuperForm<UploadSchema>;
   const file = fileProxy(form, "file");
   let fileInput: HTMLInputElement;
 
-  $: pathInfo = typeToPath[$form.type!];
+  $: pathInfo = typeToPath[$form.type];
   $: fileErrors = $errors.file as string | string[] | undefined;
 </script>
 
