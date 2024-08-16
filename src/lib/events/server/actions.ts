@@ -1,17 +1,20 @@
+import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
 import { eventSchema } from "$lib/events/schema";
-import { getIncrementType, isRecurringType } from "$lib/utils/events";
+import { uploadFile } from "$lib/files/uploadFiles";
+import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
+import {
+  getIncrementType,
+  isRecurringType,
+  type RecurringType,
+} from "$lib/utils/events";
 import { redirect } from "$lib/utils/redirect";
 import { slugify, slugWithCount } from "$lib/utils/slugify";
+import * as m from "$paraglide/messages";
 import { error, type Action } from "@sveltejs/kit";
+import type { AuthUser } from "@zenstackhq/runtime";
 import dayjs from "dayjs";
 import { fail, superValidate } from "sveltekit-superforms";
 import { zod } from "sveltekit-superforms/adapters";
-import * as m from "$paraglide/messages";
-import { uploadFile } from "$lib/files/uploadFiles";
-import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
-import type { AuthUser } from "@zenstackhq/runtime";
-import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
-import type { recurringType } from "@prisma/client";
 
 const uploadImage = async (user: AuthUser, image: File, slug: string) => {
   const imageUrl = await uploadFile(
@@ -62,11 +65,11 @@ export const createEvent: Action = async (event) => {
     }));
 
   if (isRecurring) {
-    let recurType: recurringType;
+    let recurType: RecurringType;
     if (isRecurringType(recurringType)) {
       recurType = recurringType;
     } else {
-      error(500);
+      throw error(500);
     }
     const recurringEventParent = await prisma.recurringEvent.create({
       data: {

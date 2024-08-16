@@ -1,3 +1,4 @@
+import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
 import {
   ensurePaymentIntentState,
   removePaymentIntent,
@@ -104,17 +105,10 @@ export const removeExpiredConsumables = async (
       stripeIntentId: null,
     },
   });
-  if (toBeRemoved.length == 0) {
-    const { modifiedTickets, queuedNotifications } =
-      await updateAllNecessaryQueues(prisma);
-    return {
-      modifiedTickets,
-      queuedNotifications,
-    };
-  }
-  // Notify users of expired consumables
-  const queuedNotifications: SendNotificationProps[] = [
-    {
+  let queuedNotifications: SendNotificationProps[] = [];
+  if (toBeRemoved.length > 0) {
+    // Notify users of expired consumables
+    queuedNotifications.push({
       title: "Produkt i kundvagnen har löpt ut",
       message: `Den reserverade tiden du hade för att skaffa produkten har löpt ut, om det finns lager kvar kan du försöka skaffa den igen här.`,
       link: "/shop/tickets",
@@ -122,24 +116,61 @@ export const removeExpiredConsumables = async (
         .map((item) => item.memberId)
         .filter(Boolean) as string[],
       type: NotificationType.PURCHASE_CONSUMABLE_EXPIRED,
-    },
-  ];
-  await prisma.consumable.deleteMany({
-    where: {
-      expiresAt: {
-        not: null,
-        lte: now,
+    });
+    await prisma.consumable.deleteMany({
+      where: {
+        expiresAt: {
+          not: null,
+          lte: now,
+        },
+        purchasedAt: null,
+        stripeIntentId: null,
       },
-      purchasedAt: null,
-      stripeIntentId: null,
-    },
-  });
-  return { modifiedTickets: undefined, queuedNotifications };
+    });
+  }
+  const { modifiedTickets, queuedNotifications: newQueuedNotifications } =
+    await updateAllNecessaryQueues(prisma);
+  queuedNotifications = queuedNotifications.concat(newQueuedNotifications);
+  return {
+    modifiedTickets,
+    queuedNotifications,
+  };
+};
+
+let pruneTimeout: ReturnType<typeof setTimeout> | null = null;
+// Queues a timeout to call removeExpiredConsumables when next consumable expires
+export const queueNextExpiredConsumablesPruning = async () => {
+  if (pruneTimeout) return;
+  const nextConsumableToExpire =
+    await authorizedPrismaClient.consumable.findFirst({
+      where: {
+        expiresAt: {
+          not: null,
+          gt: new Date(),
+        },
+      },
+      orderBy: {
+        expiresAt: "asc",
+      },
+    });
+  if (nextConsumableToExpire == null || !nextConsumableToExpire.expiresAt)
+    return;
+  pruneTimeout = setTimeout(async () => {
+    const now = new Date();
+    await withHandledNotificationQueue(
+      removeExpiredConsumables(authorizedPrismaClient, now).then(
+        (r) => r.queuedNotifications,
+      ),
+    );
+    if (pruneTimeout) clearTimeout(pruneTimeout);
+    /// queue next time removeExpiredConsumables should be called
+    await queueNextExpiredConsumablesPruning();
+  }, nextConsumableToExpire.expiresAt.valueOf() - Date.now());
 };
 
 /**
  * Loops through all tickets with an active queue (reservations). If there is space left, moves people from the queue to the cart.
- * IMPORTANT! This method returns some notifications it wants the caller to send afterwards, remember to do this. This can be turned off with one of the properties
+ * IMPORTANT! This method returns some notifications it wants the caller to send afterwards, remember to do this.
  */
 const updateAllNecessaryQueues = async (
   prisma: TransactionClient,

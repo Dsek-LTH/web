@@ -93,10 +93,11 @@ export const SUBSCRIPTION_SETTINGS_MAP: Record<
   [NotificationSettingType.BOOKING_REQUEST]: [NotificationType.BOOKING_REQUEST],
   [NotificationSettingType.PING]: [NotificationType.PING],
   [NotificationSettingType.PURCHASES]: [
+    NotificationType.PAYMENT_STATUS,
     NotificationType.PURCHASE_TIME_TO_BUY,
     NotificationType.PURCHASE_IN_QUEUE,
     NotificationType.PURCHASE_CONSUMABLE_EXPIRED,
-    NotificationType.PAYMENT_STATUS,
+    NotificationType.PURCHASE_SOLD_OUT,
   ],
 };
 

@@ -14,6 +14,7 @@
   export { clazz as class };
   export let seconds: number | undefined = undefined;
   export let milliseconds: number | undefined = undefined;
+  export let allowNegative = false;
 
   $: if (seconds === undefined && milliseconds === undefined) {
     throw new Error("Either `seconds` or `milliseconds` must be provided.");
@@ -29,11 +30,11 @@
 
 <span
   class={twMerge(
-    "inline-flex h-[1em] items-center overflow-hidden leading-[1em]",
+    "inline-flex h-[1em] items-center overflow-hidden font-mono leading-[1em]",
     clazz ?? "",
   )}
 >
-  {#if inSeconds < 0}
+  {#if allowNegative && inSeconds < 0}
     -
   {/if}
   <ScrollingDigit i={minutesLargeNumber} />

@@ -3,22 +3,25 @@ import type { Prisma } from "@prisma/client";
 
 // function so "new Date()" is not called at import time
 export const BASIC_EVENT_FILTER = (
-  showNollningEventsInstead = false,
+  showNollningEventsInstead: boolean | null = false,
 ): Prisma.EventWhereInput => ({
-  tags: showNollningEventsInstead
-    ? {
-        some: {
-          name: {
-            startsWith: NOLLNING_TAG_PREFIX,
-          },
-        },
-      }
-    : {
-        none: {
-          name: {
-            startsWith: NOLLNING_TAG_PREFIX,
-          },
-        },
-      },
+  tags:
+    showNollningEventsInstead !== null
+      ? showNollningEventsInstead
+        ? {
+            some: {
+              name: {
+                startsWith: NOLLNING_TAG_PREFIX,
+              },
+            },
+          }
+        : {
+            none: {
+              name: {
+                startsWith: NOLLNING_TAG_PREFIX,
+              },
+            },
+          }
+      : undefined,
   OR: [{ removedAt: { gt: new Date() } }, { removedAt: null }],
 });

@@ -1,17 +1,19 @@
 <script lang="ts">
-  import type { CartItem as CartItemType } from "$lib/utils/shop/types";
+  import type {
+    CartItem as CartItemType,
+    PurchaseForm,
+  } from "$lib/utils/shop/types";
   import * as m from "$paraglide/messages";
-  import type { SuperValidated } from "sveltekit-superforms";
+  import type { SuperForm } from "sveltekit-superforms";
   import CartItem from "./CartItem/CartItem.svelte";
-  import TransactionFee from "./TransactionFee/TransactionFee.svelte";
   import PurchaseSection from "./Payments/PurchaseSection.svelte";
-  import type { PurchaseForm } from "$lib/utils/shop/types";
   import CartQuestionsModal from "./Questions/CartQuestionsModal.svelte";
+  import TransactionFee from "./TransactionFee/TransactionFee.svelte";
 
   export let inCart: CartItemType[];
   export let transactionFee: number;
   export let totalPrice: number;
-  export let purchaseForm: SuperValidated<PurchaseForm>;
+  export let superform: SuperForm<PurchaseForm>;
 
   $: questionsArePresent = inCart.some(
     (item) => item.shoppable.questions.length > 0,
@@ -49,7 +51,7 @@
   {#if transactionFee > 0}
     <TransactionFee fee={transactionFee} />
   {/if}
-  <PurchaseSection {purchaseForm} {totalPrice} showPrice={inCart.length > 1} />
+  <PurchaseSection {superform} {totalPrice} showPrice={inCart.length > 1} />
 </table>
 
 <CartQuestionsModal

@@ -1,14 +1,13 @@
 <script lang="ts">
   import { env } from "$env/dynamic/public";
   import Price from "$lib/components/Price.svelte";
+  import type { PurchaseForm } from "$lib/utils/shop/types";
   import * as m from "$paraglide/messages";
   import type StripeJS from "@stripe/stripe-js";
   import { loadStripe } from "@stripe/stripe-js";
   import { onMount } from "svelte";
-  import type { SuperValidated } from "sveltekit-superforms";
-  import { superForm } from "$lib/utils/client/superForms";
+  import type { SuperForm } from "sveltekit-superforms";
   import SveltePaymentElement from "./SveltePaymentElement.svelte";
-  import type { PurchaseForm } from "$lib/utils/shop/types";
 
   export let totalPrice: number;
   export let showPrice = true;
@@ -20,11 +19,13 @@
 
   const idempotencyKey = crypto.randomUUID();
 
-  export let purchaseForm: SuperValidated<PurchaseForm>;
-  const { enhance, message, submitting } = superForm(purchaseForm);
+  export let superform: SuperForm<PurchaseForm>;
+  const { enhance, message, submitting } = superform;
+
+  $: isPurchasing = $message?.["clientSecret"] !== undefined;
 </script>
 
-{#if $message?.["clientSecret"] !== undefined}
+{#if isPurchasing}
   <tr>
     <td colspan="100" class="w-full max-w-xl">
       <SveltePaymentElement
