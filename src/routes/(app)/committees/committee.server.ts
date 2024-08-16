@@ -6,6 +6,13 @@ import { zod } from "sveltekit-superforms/adapters";
 import { message, superValidate, withFiles } from "sveltekit-superforms/server";
 import { updateSchema } from "./types";
 import { updateMarkdown } from "$lib/news/markdown/mutations.server";
+
+export const getYear = (url: URL) => {
+  const yearQuery = url.searchParams.get("year");
+  const parsedYear = parseInt(yearQuery ?? "");
+  const year = isNaN(parsedYear) ? new Date().getFullYear() : parsedYear;
+  return year;
+};
 /**
  * @param shortName The committee's short name
  * @param year The year to load the committee for, defaults to current year
@@ -14,8 +21,10 @@ import { updateMarkdown } from "$lib/news/markdown/mutations.server";
 export const committeeLoad = async (
   prisma: PrismaClient,
   shortName: string,
-  year = new Date().getFullYear(),
+  url: URL,
 ) => {
+  const year = getYear(url);
+
   const firstDayOfYear = new Date(`${year}-01-01`);
   const lastDayOfYear = new Date(`${year}-12-31`);
   if (
@@ -151,6 +160,7 @@ export const committeeLoad = async (
     numberOfMandates: numberOfMandates.value,
     markdown: markdown.value,
     form,
+    year,
   };
 };
 
@@ -186,3 +196,5 @@ export const committeeActions = (
     });
   },
 });
+
+export type CommitteeLoadData = Awaited<ReturnType<typeof committeeLoad>>;

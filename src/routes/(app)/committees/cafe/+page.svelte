@@ -1,12 +1,8 @@
 <script lang="ts">
-  import MarkdownBody from "$lib/components/MarkdownBody.svelte";
-  import PositionGrid from "../PositionGrid.svelte";
-  import EditCommitteeForm from "../EditCommitteeForm.svelte";
-  import CommitteeHeader from "../CommitteeHeader.svelte";
   import { enhance } from "$app/forms";
 
+  import CommitteePage from "../CommitteePage.svelte";
   import type { PageData } from "./$types";
-  import Pagination from "$lib/components/Pagination.svelte";
   export let data: PageData;
   let isEditing = false;
 
@@ -20,27 +16,12 @@
       weekday: "long",
     });
   };
-
-  const thisYear = new Date().getFullYear();
 </script>
 
-<CommitteeHeader
-  committee={data.committee}
-  uniqueMemberCount={data.uniqueMemberCount}
-  numberOfMandates={data.numberOfMandates}
-  editing={isEditing}
-  toggleEditing={() => (isEditing = !isEditing)}
-/>
-
-<EditCommitteeForm form={data.form} open={isEditing} />
-
-<div class="mb-4 flex flex-wrap items-start justify-between gap-4">
-  {#if data.markdown?.markdown}
-    <MarkdownBody body={data.markdown.markdown} />
-  {/if}
-
+<CommitteePage {data}>
   <div
-    class="card flex-1 border border-primary bg-base-100 p-6 shadow-xl lg:max-w-96"
+    slot="before"
+    class="card float-right ml-4 w-full border border-primary bg-base-100 p-6 shadow-xl lg:max-w-80"
   >
     <h2 class="mb-2 p-2 font-bold lg:text-xl">
       Öppettider
@@ -94,16 +75,4 @@
       {/each}
     </ol>
   </div>
-</div>
-
-<Pagination
-  count={thisYear - 1982 + 1}
-  getPageName={(i) => (thisYear - i).toString()}
-  getPageNumber={(page) => thisYear - parseInt(page)}
-  fieldName="year"
-  showFirst={true}
-  class="my-4"
-  keepScrollPosition={true}
-/>
-
-<PositionGrid positions={data.positions} />
+</CommitteePage>

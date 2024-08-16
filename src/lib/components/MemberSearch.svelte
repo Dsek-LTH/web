@@ -7,12 +7,13 @@
   export let isSearching = false;
   export let onSelect: ((member: Member) => void) | undefined;
   export let handleSearch: (searchValue: string) => void;
+  export let endpoint = "/api/members";
 
   const getOption = (option: unknown) => option as Member;
 </script>
 
 <EntitySearch
-  endpoint="/api/members"
+  {endpoint}
   class={clazz}
   bind:isSearching
   bind:onSelect

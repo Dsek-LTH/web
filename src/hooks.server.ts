@@ -193,11 +193,10 @@ const appHandle: Handle = async ({ event, resolve }) => {
 };
 
 const themeHandle: Handle = async ({ event, resolve }) => {
-  const theme = event.cookies.get("theme");
+  let theme = event.cookies.get("theme");
 
   if (!theme || !themes.includes(theme as Theme)) {
-    event.locals.theme = "dark";
-    return await resolve(event);
+    theme = "dark";
   }
   // get theme from cookies and send to frontend to show correct icon in theme switch
   event.locals.theme = theme as Theme;

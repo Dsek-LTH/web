@@ -25,8 +25,10 @@ export const load: PageServerLoad = async ({ locals, params }) => {
         studentId: studentId,
       },
       include: {
+        nollaIn: true,
         mandates: {
           include: {
+            phadderIn: true,
             position: {
               include: {
                 committee: true,
