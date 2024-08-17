@@ -103,61 +103,61 @@ export const SUBSCRIPTION_SETTINGS_MAP: Record<
 
 export const DEFAULT_SUBSCRIPTION_SETTINGS: Array<{
   type: NotificationSettingType;
-  push_notification: boolean;
+  pushNotification: boolean;
 }> = [
   {
     type: NotificationSettingType.LIKE,
-    push_notification: false,
+    pushNotification: false,
   },
   {
     type: NotificationSettingType.COMMENT,
-    push_notification: true,
+    pushNotification: true,
   },
   {
     type: NotificationSettingType.MENTION,
-    push_notification: true,
+    pushNotification: true,
   },
   {
     type: NotificationSettingType.NEW_ARTICLE,
-    push_notification: true,
+    pushNotification: true,
   },
   {
     type: NotificationSettingType.CREATE_MANDATE,
-    push_notification: true,
+    pushNotification: true,
   },
   {
     type: NotificationSettingType.BOOKING_REQUEST,
-    push_notification: true,
+    pushNotification: true,
   },
   {
     type: NotificationSettingType.PING,
-    push_notification: false,
+    pushNotification: false,
   },
   {
     type: NotificationSettingType.PURCHASES,
-    push_notification: true,
+    pushNotification: true,
   },
   // PURCHASES, NEW_ARTICLE ([NOLLNING] tagg), MENTION, kanse PING (icke-push)
 ];
 
 export const NOLLA_DEFAULT_SUBSCRIPTION_SETTINGS: Array<{
   type: NotificationSettingType;
-  push_notification: boolean;
+  pushNotification: boolean;
 }> = [
   {
     type: NotificationSettingType.MENTION,
-    push_notification: false,
+    pushNotification: false,
   },
   {
     type: NotificationSettingType.NEW_ARTICLE,
-    push_notification: true,
+    pushNotification: true,
   },
   {
     type: NotificationSettingType.PING,
-    push_notification: false,
+    pushNotification: false,
   },
   {
     type: NotificationSettingType.PURCHASES,
-    push_notification: true,
+    pushNotification: true,
   },
 ];
