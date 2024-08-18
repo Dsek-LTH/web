@@ -7,14 +7,14 @@
       slogan: "STUDENTLIVETS BÄSTA STUNDER",
       description:
         "Vi anordnar roliga evenemang som sittningar, eftersläpp och pubar. Ungefär varannan vecka är det pub i iDét och då och då är det sittningar/eftersläpp. Håll utkik i sektionskalendern för att se när nästa event är!",
-      image: "party-1.jpg",
+      images: ["party-1.jpg", "party-2.jpg", "party-3.jpg"],
     },
     {
       title: "AKTIVITET",
       slogan: "ÄVENTYRET BÖRJAR HÄR",
       description:
         "Sektionen anordnar även fotbollsträningar, brädspels-kvällar, badminton, LAN-partyn och resor till andra universitet. Här finns något för de flesta och är det något sektionen inte gör som du tycker behövs göras finns det ofta utrymme för att driva igenom dina idéer!",
-      image: "activity-1.jpg",
+      images: ["activity-1.jpg", "activity-2.jpg", "activity-3.jpg"],
     },
   ] as const;
 
@@ -134,11 +134,17 @@
 <main class="flex flex-col gap-28">
   {#each SECTIONS as section, i}
     <section class="flex flex-col gap-14">
-      <img
-        src={getFileUrl(`minio/photos/public/assets/${section.image}`)}
-        class="h-80 w-full object-cover"
-        alt="party"
-      />
+      <div class="carousel h-80 w-full">
+        {#each section.images as image, i}
+          <div id="slide{i}" class="carousel-item relative w-full">
+            <img
+              src={getFileUrl(`minio/photos/public/assets/${image}`)}
+              class="h-full w-full object-cover"
+              alt="party"
+            />
+          </div>
+        {/each}
+      </div>
 
       <div class="mx-10 flex flex-col gap-7">
         <h2 class="font-bold">{section.title}</h2>
