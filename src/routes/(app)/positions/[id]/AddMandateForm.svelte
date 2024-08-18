@@ -1,6 +1,6 @@
 <script lang="ts">
   import Labeled from "$lib/components/Labeled.svelte";
-  import MemberSearchInput from "./MemberSearchInput.svelte";
+  import MemberSearchInput from "$lib/components/MemberSearchInput.svelte";
   import type { SuperValidated } from "sveltekit-superforms";
   import type { AddMandateSchema } from "./+page.server";
   import { superForm } from "$lib/utils/client/superForms";
