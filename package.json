@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "prepare": "husky install && svelte-kit sync && zenstack generate && prisma generate && snaplet-seed sync && pnpm paraglide",
+    "prepare": "husky install && svelte-kit sync && zenstack generate && prisma generate && pnpm paraglide",
     "setup-dev": "vite-node dev/setup.ts",
     "ci-check": "concurrently 'pnpm:lint' 'pnpm:format' 'pnpm:test' 'pnpm:check' --prefix-colors 'auto' --group",
     "dev": "vite dev",
@@ -18,7 +18,7 @@
     "test": "vitest run",
     "test:watch": "vitest watch",
     "generate": "zenstack generate && prisma generate",
-    "migrate": "zenstack generate && prisma migrate dev",
+    "migrate": "zenstack generate && prisma migrate dev && snaplet-seed sync",
     "seed": "prisma db seed",
     "prisma-case-format": "prisma-case-format -f src/database/prisma/schema.prisma",
     "paraglide": "paraglide-js compile --project ./project.inlang --outdir ./src/translations/paraglide"
