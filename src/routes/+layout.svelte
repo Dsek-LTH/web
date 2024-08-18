@@ -1,10 +1,18 @@
 <script lang="ts">
   import { i18n } from "$lib/utils/i18n";
   import { ParaglideJS } from "@inlang/paraglide-js-adapter-sveltekit";
-  import "@stripe/stripe-js";
-  /* Recommended for fraud detection */
   import "../app.css";
+  import { languageTag } from "$paraglide/runtime";
+  import dayjs from "dayjs";
+  /* Recommended for fraud detection */
+  import "@stripe/stripe-js";
+
   export let data;
+
+  $: (() => {
+    const locale = languageTag();
+    dayjs.locale(locale);
+  })();
 </script>
 
 <svelte:head>
