@@ -4,8 +4,8 @@
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import type { CartLoadData } from "$lib/server/shop/cart/getCart";
   import { now } from "$lib/stores/date";
+  import { superForm } from "$lib/utils/client/superForms";
   import * as m from "$paraglide/messages";
-  import { superForm } from "sveltekit-superforms";
   import Cart from "./Cart.svelte";
   import Reservations from "./Reservations.svelte";
 
