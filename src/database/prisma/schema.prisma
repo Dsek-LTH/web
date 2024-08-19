@@ -133,7 +133,7 @@ model ArticleRequest {
 
 /// @@allow('create', has(auth().policies, 'news:article:create'))
 /// @@allow('read', has(auth().policies, 'news:article:read'))
-/// @@deny('read', removedAt != null && !has(auth().policies, 'news:article:delete'))
+/// @@deny('read', removedAt != null && removedAt <= now() && !has(auth().policies, 'news:article:delete'))
 /// @@allow('update', has(auth().policies, 'news:article:update'))
 /// @@allow('update', auth().memberId == author.memberId)
 /// @@allow('delete', has(auth().policies, 'news:article:delete'))
@@ -389,7 +389,7 @@ model RecurringEvent {
 
 /// @@allow('create', has(auth().policies, 'event:create'))
 /// @@allow('read', has(auth().policies, 'event:read'))
-/// @@deny('read', removedAt != null && removedAt >= now())
+/// @@deny('read', removedAt != null && removedAt <= now() && !has(auth().policies, 'event:delete'))
 /// @@allow('update', has(auth().policies, 'event:update'))
 /// @@allow('delete', has(auth().policies, 'event:delete'))
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Events{

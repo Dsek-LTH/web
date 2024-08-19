@@ -132,7 +132,7 @@ model Article {
 
   @@allow("create", has(auth().policies, "news:article:create"))
   @@allow("read", has(auth().policies, "news:article:read"))
-  @@deny("read", removedAt != null && !has(auth().policies, "news:article:delete"))
+  @@deny("read", removedAt != null && removedAt <= now() && !has(auth().policies, "news:article:delete"))
   @@allow("update", has(auth().policies, "news:article:update"))
   @@allow("update", auth().memberId == author.memberId)
   @@allow("delete", has(auth().policies, "news:article:delete"))
@@ -404,7 +404,7 @@ model Event {
   numberOfUpdates      Int?            @default(0) @map("number_of_updates")
   slug                 String?         @unique(map: "events_slug_unique") @db.VarChar(255)
   alarmActive          Boolean?        @default(false) @map("alarm_active")
-  removedAt            DateTime?       @map("removed_at") @db.Timestamptz(6)
+  removedAt            DateTime?       @map("removed_at") @db.Timestamptz(6) @allow("update", has(auth().policies, "event:delete"))
   comments             EventComment[]
   going                Member[]        @relation("event_going")
   interested           Member[]        @relation("event_interested")
@@ -416,7 +416,7 @@ model Event {
 
   @@allow("create", has(auth().policies, "event:create"))
   @@allow("read", has(auth().policies, "event:read"))
-  @@deny("read", removedAt != null && removedAt >= now())
+  @@deny("read", removedAt != null && removedAt <= now() && !has(auth().policies, "event:delete"))
   @@allow("update", has(auth().policies, "event:update"))
   @@allow("delete", has(auth().policies, "event:delete"))
   @@map("events")

@@ -26,7 +26,15 @@
 
   <div class="flex flex-col p-8">
     <a href={eventLink(event)}>
-      <h2 class="text-2xl font-bold">{event.title}</h2>
+      <h2 class="text-2xl font-bold">
+        {event.title}
+        {#if event.removedAt !== null}
+          <span
+            class="badge badge-error badge-sm relative -top-1 !text-xs font-semibold"
+            >Raderat</span
+          >
+        {/if}
+      </h2>
     </a>
 
     <section class="text-primary">

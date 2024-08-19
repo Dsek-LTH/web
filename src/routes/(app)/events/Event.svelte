@@ -11,6 +11,7 @@
     | "shortDescription"
     | "description"
     | "imageUrl"
+    | "removedAt"
   >;
 </script>
 
@@ -22,6 +23,12 @@
 
 <h1 class="text-2xl font-bold">
   {event.title}
+  {#if event.removedAt !== null}
+    <span
+      class="badge badge-error badge-sm relative -top-1 !text-xs font-semibold"
+      >Raderat</span
+    >
+  {/if}
 </h1>
 
 <section class="flex flex-row justify-between">

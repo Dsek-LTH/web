@@ -40,7 +40,7 @@
   />
 {/each}
 
-<main class="flex-1" class:pb-16={data.isApp}>
+<main class="w-full flex-1 overflow-x-auto" class:pb-16={data.isApp}>
   <slot />
 </main>
 <Toast />
