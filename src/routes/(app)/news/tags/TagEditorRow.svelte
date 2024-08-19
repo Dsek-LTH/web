@@ -20,6 +20,7 @@
   onMount(() => {
     form.update((f) => {
       f.name = tag.name;
+      f.nameEn = tag.nameEn;
       f.color = tag.color ?? undefined;
       return f;
     });
@@ -39,6 +40,7 @@
   >
   {#if !isEditing}
     <td>{tag.name}</td>
+    <td>{tag.nameEn ?? ""}</td>
     <td style="color: {tag.color}">{tag.color}</td>
     <td class="text-right">
       <button
@@ -66,6 +68,15 @@
           {...$constraints.name}
         />
         {#if $errors.name}<span class="text-error">{$errors.name}</span>{/if}
+        <input
+          type="text"
+          name="nameEn"
+          bind:value={$form.nameEn}
+          class="input input-xs input-bordered"
+          {...$constraints.nameEn}
+        />
+        {#if $errors.nameEn}<span class="text-error">{$errors.nameEn}</span
+          >{/if}
         <input
           type="text"
           name="color"
