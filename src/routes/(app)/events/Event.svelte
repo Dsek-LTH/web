@@ -2,7 +2,7 @@
   import DateSpan from "./DateSpan.svelte";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import type { Event } from "@prisma/client";
-  import { getImageUrl } from "$lib/files/images";
+  import { getFileUrl } from "$lib/files/images";
   export let event: Pick<
     Event,
     | "title"
@@ -17,7 +17,7 @@
 
 {#if event.imageUrl}
   <figure>
-    <img class="mx-auto" src={getImageUrl(event.imageUrl)} alt={event.title} />
+    <img class="mx-auto" src={getFileUrl(event.imageUrl)} alt={event.title} />
   </figure>
 {/if}
 

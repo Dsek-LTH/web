@@ -3,7 +3,7 @@
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import * as m from "$paraglide/messages";
   import { languageTag } from "$paraglide/runtime";
-  import { getImageUrl } from "$lib/files/images";
+  import { getFileUrl } from "$lib/files/images";
 
   export let article: Article;
 </script>
@@ -12,7 +12,7 @@
   <figure>
     <img
       class="mx-auto"
-      src={getImageUrl(article.imageUrl)}
+      src={getFileUrl(article.imageUrl)}
       alt={article.imageUrl}
     />
   </figure>

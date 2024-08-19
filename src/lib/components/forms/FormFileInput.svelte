@@ -49,9 +49,8 @@
     on:change={onChange}
     {name}
     type="file"
-    accept="image/*"
     bind:files={$file}
-    class={twMerge("file-input file-input-bordered w-full max-w-xs", clazz)}
+    class={twMerge("file-input file-input-bordered w-full", clazz)}
     {...$constraints}
     {...$$restProps}
   />

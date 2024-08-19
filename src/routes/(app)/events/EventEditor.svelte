@@ -91,7 +91,7 @@
         />
       </div>
 
-      <FormFileInput {superform} field="image" label="Bild" />
+      <FormFileInput {superform} field="image" label="Bild" accept="image/*" />
 
       <FormCheckbox
         {superform}
