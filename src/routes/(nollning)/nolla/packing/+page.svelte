@@ -1,8 +1,8 @@
 <script lang="ts">
-  import slasque from "./slasque.webp";
-  import mixed from "./mixed.webp";
-  import suit from "./suit.webp";
-  import frack from "./frack.webp";
+  import slasque from "$lib/nollning/slasque.webp";
+  import mixed from "$lib/nollning/mixed.webp";
+  import suit from "$lib/nollning/suit.webp";
+  import frack from "$lib/nollning/frack.webp";
   import * as m from "$paraglide/messages";
 </script>
 

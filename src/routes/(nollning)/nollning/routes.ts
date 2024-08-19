@@ -15,7 +15,7 @@ export const getRoutes = (): Route[] =>
     {
       title: "Start",
       path: "/",
-      icon: "i-mdi-home-outline",
+      icon: "i-mdi-cloud",
       accessRequired: null,
       appBehaviour: "bottom-nav",
     },

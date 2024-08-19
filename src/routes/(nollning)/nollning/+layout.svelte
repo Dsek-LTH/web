@@ -50,10 +50,13 @@
   {#if mounted}
     <div in:fade={{ duration: 1000 }} class="flex h-full flex-col">
       {#if !data.isApp}
-        <nav class="contents">
-          <!-- <Navbar /> -->
-          <!-- <Drawer /> -->
-        </nav>
+        <!-- <nav class="contents"> -->
+        <!-- <Navbar /> -->
+        <!-- <Drawer /> -->
+        <!-- </nav> -->
+
+        <!-- TMP -->
+        <PostRevealHeader />
       {:else}
         <AppNotificationHandler />
         <PostRevealHeader />
@@ -68,6 +71,9 @@
       <Toast />
       {#if !data.isApp}
         <!-- <Footer /> -->
+
+        <!-- TMP -->
+        <PostRevealBottomNav />
       {:else}
         <PostRevealBottomNav />
 

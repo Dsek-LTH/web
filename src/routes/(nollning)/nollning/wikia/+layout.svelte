@@ -7,20 +7,28 @@
 
   const links = [
     {
-      label: "Staben",
-      link: "staben",
+      label: "Karta",
+      link: "map",
     },
     {
-      label: "Pepparna",
-      link: "peppers",
+      label: "Sektionen",
+      link: "sektionen",
     },
     {
       label: "Studenthälsan",
       link: "student-health",
     },
     {
-      label: "Sektionen",
-      link: "sektionen",
+      label: "Sektionsvisor",
+      link: "guild-songs",
+    },
+    {
+      label: "Ordlista",
+      link: "wordlist",
+    },
+    {
+      label: "Klädkoder",
+      link: "dress-codes",
     },
     {
       label: "FAQ",
@@ -42,9 +50,13 @@
       el.scrollIntoView({
         block: "end",
         inline: "nearest",
+        behavior: "smooth",
       });
       scroller.scrollBy({
-        left: el.offsetLeft - scroller.offsetWidth / 2 + el.offsetWidth / 2,
+        left:
+          el.offsetLeft > scroller.scrollLeft
+            ? el.offsetWidth
+            : -el.offsetWidth, // if true, element is to the right
         behavior: "smooth",
       });
     }
@@ -54,14 +66,14 @@
 <SetPageTitle title="Wikia" />
 
 <div
-  class="sticky -top-1 -mx-10 flex gap-2 overflow-x-auto bg-base-100 px-4 py-2 pt-3"
+  class="scrollbar-hide sticky -top-1 -mx-6 flex gap-2 overflow-x-auto bg-base-100 px-6 py-2 pt-3"
   bind:this={scroller}
 >
   {#each links as link, i (link.link)}
     {@const isCurrent = link === currentLink}
     <a
       bind:this={elements[i]}
-      id={isCurrent ? "active" : undefined}
+      id={link.link}
       href={link.link}
       class="btn btn-primary"
       class:btn-primary={isCurrent}
