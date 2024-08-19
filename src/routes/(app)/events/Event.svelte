@@ -11,8 +11,8 @@
     | "shortDescription"
     | "description"
     | "imageUrl"
-    | "removedAt"
-  >;
+  > &
+    Partial<Pick<Event, "removedAt">>;
 </script>
 
 {#if event.imageUrl}
