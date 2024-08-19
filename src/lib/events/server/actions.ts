@@ -190,11 +190,7 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
       ...eventData,
       author: undefined,
       tags: {
-        connect: form.data.tags
-          .filter((tag) => !!tag)
-          .map((tag) => ({
-            id: tag.id,
-          })),
+        set: tags.map(({ id }) => ({ id })),
       },
     },
   });

@@ -25,7 +25,7 @@
         <span class="-mt-1 text-sm opacity-80">
           {dayjs(event.startDatetime).format("dddd Do MMM")}
         </span>
-        <span>{event.shortDescription}</span>
+        <span class="mx-4 text-center">{event.shortDescription}</span>
         <span
           class="font-semibold text-primary underline underline-offset-8 transition-all group-hover:underline-offset-2 group-hover:opacity-80"
         >

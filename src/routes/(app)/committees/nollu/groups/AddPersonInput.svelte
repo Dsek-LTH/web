@@ -1,7 +1,7 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
-  import MemberSearchInput from "$lib/components/MemberSearchInput.svelte";
   import type { Member } from "@prisma/client";
+  import MemberSearchInput from "$lib/components/forms/MemberSearchInput.svelte";
 
   export let phadder = false;
   export let groupId: string;

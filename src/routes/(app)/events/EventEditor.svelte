@@ -26,15 +26,16 @@
   const { form, errors, enhance } = superform;
   export let allTags: Tag[];
   $: console.log(Object.keys(recurringTypes));
+  let activeTab: "sv" | "en";
 </script>
 
 <main
   class="flex w-screen flex-col gap-8 px-4 pt-8 lg:flex-row lg:px-8 [&>*]:flex-1"
 >
   <section>
-    <form method="POST" class="form-control gap-2" use:enhance>
+    <form method="POST" class="form-control items-start gap-2" use:enhance>
       <slot name="form-start" />
-      <LangTabs>
+      <LangTabs bind:activeTab class="self-stretch">
         <svelte:fragment slot="sv">
           <FormInput {superform} label={m.events_title()} field="title" />
           <FormInput
@@ -66,12 +67,16 @@
           />
         </svelte:fragment>
       </LangTabs>
-      <div class="flex flex-row justify-between gap-4 [&>*]:flex-1">
+      <div
+        class="flex flex-row justify-between gap-4 self-stretch [&>*]:flex-1"
+      >
         <FormInput {superform} label={m.events_organizer()} field="organizer" />
         <FormInput {superform} label={m.events_location()} field="location" />
         <FormInput {superform} label={m.events_link()} field="link" />
       </div>
-      <div class="flex flex-row justify-between gap-4 [&>*]:flex-1">
+      <div
+        class="flex flex-row justify-between gap-4 self-stretch [&>*]:flex-1"
+      >
         <FormDateInput
           {superform}
           label={m.events_startTime()}
@@ -142,6 +147,16 @@
     <Event
       event={{
         ...$form,
+        title:
+          activeTab === "en" && $form.titleEn ? $form.titleEn : $form.title,
+        shortDescription:
+          activeTab === "en" && $form.shortDescriptionEn
+            ? $form.shortDescriptionEn
+            : $form.shortDescription,
+        description:
+          activeTab === "en" && $form.descriptionEn
+            ? $form.descriptionEn
+            : $form.description,
         imageUrl: $form.image
           ? URL.createObjectURL($form.image)
           : ($form.imageUrl ?? null),

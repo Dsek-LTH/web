@@ -1,7 +1,9 @@
 <script lang="ts">
+  import type { MouseEventHandler } from "svelte/elements";
   import { twMerge } from "tailwind-merge";
 
-  export let onClick: (() => Promise<unknown> | void) | undefined = undefined;
+  export let onClick: MouseEventHandler<HTMLButtonElement> | undefined =
+    undefined;
   export let isLoading = false;
   export let disabled = false;
   // ms to wait before showing the loading spinner
@@ -10,24 +12,22 @@
   export let delay = 500;
   let clazz: string | undefined = undefined;
   export { clazz as class };
-
-  $: onclick = onClick
-    ? async () => {
-        const timeout = setTimeout(() => {
-          isLoading = true;
-        }, delay);
-        await onClick?.(); // svelte doesn't recoginize that this is non-nullable
-        clearTimeout(timeout);
-        isLoading = false;
-      }
-    : undefined;
 </script>
 
 <button
   {...$$props}
   class={twMerge("relative", clazz)}
   disabled={disabled || isLoading}
-  on:click={onclick}
+  on:click={onClick
+    ? async (e) => {
+        const timeout = setTimeout(() => {
+          isLoading = true;
+        }, delay);
+        await onClick?.(e); // svelte doesn't recoginize that this is non-nullable
+        clearTimeout(timeout);
+        isLoading = false;
+      }
+    : undefined}
 >
   <slot />
   <div

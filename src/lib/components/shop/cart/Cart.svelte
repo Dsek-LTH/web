@@ -19,6 +19,7 @@
     (item) => item.shoppable.questions.length > 0,
   );
   let currentlyInspectedItem: number | null = null;
+  export let questionModalOpen: boolean;
 </script>
 
 <h1 class="text-2xl">{m.cart()}</h1>
@@ -55,11 +56,17 @@
 </table>
 
 <CartQuestionsModal
-  allQuestions={inCart.flatMap((item) => item.shoppable.questions)}
+  allQuestions={inCart.flatMap((item) =>
+    item.shoppable.questions.map((q) => ({
+      ...q,
+      expiresAt: item.expiresAt,
+    })),
+  )}
   inspectedItem={currentlyInspectedItem !== null
     ? inCart[currentlyInspectedItem]
     : null}
   onClose={() => {
     currentlyInspectedItem = null;
   }}
+  bind:open={questionModalOpen}
 />

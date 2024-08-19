@@ -4,8 +4,11 @@
   import Price from "$lib/components/Price.svelte";
   import { QuestionType, type CartItem } from "$lib/utils/shop/types";
   import { superForm } from "$lib/utils/client/superForms";
+  import ExpiresAtTimer from "$lib/components/shop/cart/ExpiresAtTimer.svelte";
 
-  type Question = CartItem["shoppable"]["questions"][number];
+  type Question = CartItem["shoppable"]["questions"][number] & {
+    expiresAt: Date | null;
+  };
   export let question: Question;
   export let onSuccess: (() => void) | undefined = undefined;
 
@@ -25,7 +28,12 @@
 </script>
 
 <form use:enhance method="POST" action="?/answerQuestion">
-  <h1 class="text-xl font-bold">{question.title}</h1>
+  <h1 class="text-2xl font-bold">
+    {question.title}
+    <span class="font-normal"
+      ><ExpiresAtTimer expiresAt={question.expiresAt} /></span
+    >
+  </h1>
   <p class="my-4">{question.description}</p>
   <FormInput type="hidden" {superform} field="questionId" />
   <FormInput type="hidden" {superform} field="consumableId" />

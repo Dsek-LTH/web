@@ -52,7 +52,7 @@ export const actions: Actions = {
     if (!form.valid) return fail(400, { form });
     // If multiple ids and not a single id have been provided, delete many, otherwise,
     // if a single has been provided, delete single, else return
-    if (form.data.notificationIds && form.data.notificationIds.length > 0) {
+    if (form.data.notificationIds.length > 0) {
       await prisma.notification.deleteMany({
         where: {
           memberId: user!.memberId,
