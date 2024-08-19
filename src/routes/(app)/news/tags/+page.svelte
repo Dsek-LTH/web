@@ -1,8 +1,10 @@
 <script lang="ts">
-  import { superForm } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
   import TagEditorRow from "./TagEditorRow.svelte";
+  import * as m from "$paraglide/messages";
 
   import type { PageData } from "./$types";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   export let data: PageData;
   const { form, errors, constraints, enhance, submitting } = superForm(
     data.createForm,
@@ -12,18 +14,16 @@
   );
 </script>
 
-<svelte:head>
-  <title>Nyhetstaggar | D-sektionen</title>
-</svelte:head>
+<SetPageTitle title={m.news_tags_newsTags()} />
 
 <div class="overflow-x-auto">
   <table class="table">
     <!-- head -->
     <thead>
       <tr class="bg-base-200">
-        <th>Preview</th>
-        <th>Name</th>
-        <th>Color</th>
+        <th>{m.news_tags_preview()}</th>
+        <th>{m.news_tags_name()}</th>
+        <th>{m.news_tags_color()}</th>
         <th />
       </tr>
     </thead>
@@ -36,14 +36,16 @@
 </div>
 
 <section class="flex flex-col gap-4 py-4">
-  <h2 class="text-xl font-bold">Add new tags</h2>
+  <h2 class="text-xl font-bold">{m.news_tags_addNew()}</h2>
   <form class="form-control gap-4" method="POST" action="?/create" use:enhance>
     <label class="join">
-      <span class="label join-item bg-base-200 px-4">New tag</span>
+      <span class="label join-item bg-base-200 px-4"
+        >{m.news_tags_newTag()}</span
+      >
       <input
         type="text"
         name="name"
-        placeholder="Tag name"
+        placeholder={m.news_tags_tagName()}
         class="input join-item input-bordered input-primary w-80"
         bind:value={$form.name}
         {...$constraints.name}
@@ -53,7 +55,7 @@
         class="btn btn-primary join-item"
         disabled={$submitting}
       >
-        Skapa</button
+        {m.news_tags_create()}</button
       >
     </label>
     {#if $errors.name}

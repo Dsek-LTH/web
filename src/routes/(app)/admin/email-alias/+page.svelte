@@ -1,8 +1,8 @@
 <script lang="ts">
   import Input from "$lib/components/Input.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
-  import PageHeader from "$lib/components/PageHeader.svelte";
-  import { superForm } from "sveltekit-superforms/client";
+  import PageHeader from "$lib/components/nav/PageHeader.svelte";
+  import { superForm } from "$lib/utils/client/superForms";
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
   import { page } from "$app/stores";

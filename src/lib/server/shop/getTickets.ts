@@ -1,24 +1,21 @@
-import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
 import {
   PrismaClient,
-  ShoppableType,
   type Consumable,
   type ConsumableReservation,
   type Event,
-  type ItemQuestionResponse,
   type Prisma,
   type Shoppable,
   type Tag,
   type Ticket,
 } from "@prisma/client";
 import dayjs from "dayjs";
-import { removeExpiredConsumables } from "./addToCart/reservations";
 import {
   GRACE_PERIOD_WINDOW,
   dbIdentification,
   type DBShopIdentification,
   type ShopIdentification,
 } from "./types";
+import { BASIC_EVENT_FILTER } from "$lib/events/events";
 
 export type TicketWithMoreInfo = Ticket &
   Shoppable & {
@@ -34,7 +31,7 @@ export type TicketWithMoreInfo = Ticket &
     hasQueue: boolean;
   };
 
-const ticketIncludedFields = (id: DBShopIdentification) => ({
+export const ticketIncludedFields = (id: DBShopIdentification) => ({
   shoppable: {
     include: {
       // Get the user's consumables and reservations for this ticket
@@ -68,7 +65,7 @@ const ticketIncludedFields = (id: DBShopIdentification) => ({
 type TicketInclude = ReturnType<typeof ticketIncludedFields>;
 type TicketFromPrisma = Prisma.TicketGetPayload<{ include: TicketInclude }>;
 
-const formatTicket = (ticket: TicketFromPrisma): TicketWithMoreInfo => {
+export const formatTicket = (ticket: TicketFromPrisma): TicketWithMoreInfo => {
   const base: TicketWithMoreInfo &
     Partial<
       Pick<
@@ -152,81 +149,47 @@ export const getTickets = async (
   return tickets.map(formatTicket);
 };
 
-type ItemMetadata = {
-  shoppable: Shoppable &
-    Ticket & {
-      event: Event;
-    };
-};
-export type CartItem = Consumable &
-  ItemMetadata & {
-    questionResponses: ItemQuestionResponse[];
-  };
-export type CartReservation = ConsumableReservation & ItemMetadata;
-
-export const getCart = async (
+/**
+ * Retrieves tickets from the database based on the provided shop identification.
+ * @param prisma - The Prisma client instance.
+ * @param identification - Either the user's ID or the user's session ID.
+ * @returns A promise that resolves to an array of tickets.
+ */
+export const getEventsWithTickets = async (
   prisma: PrismaClient,
-  id: ShopIdentification,
-): Promise<{
-  inCart: CartItem[];
-  reservations: CartReservation[];
-}> => {
-  const now = new Date();
-  await removeExpiredConsumables(authorizedPrismaClient, now);
-  const inCart = await prisma.consumable.findMany({
+  identification: ShopIdentification,
+  filters: Prisma.EventWhereInput = {},
+) => {
+  const dbId = dbIdentification(identification);
+
+  const events = await prisma.event.findMany({
     where: {
-      ...dbIdentification(id),
-      OR: [{ expiresAt: { gt: now } }, { expiresAt: null }],
-      purchasedAt: null,
-      shoppable: { type: ShoppableType.TICKET },
+      ...BASIC_EVENT_FILTER(true),
+      ...filters,
+    },
+    orderBy: {
+      startDatetime: "asc",
     },
     include: {
-      questionResponses: true,
-      shoppable: {
+      tickets: {
         include: {
-          ticket: {
-            include: { event: true },
-          },
-          _count: {
-            select: {
-              consumables: {
-                where: { purchasedAt: { not: null } },
-              },
-            },
-          },
+          ...ticketIncludedFields(dbId),
+          event: false,
         },
       },
+      tags: true,
     },
   });
-  const reservations = await prisma.consumableReservation.findMany({
-    where: {
-      ...dbIdentification(id),
-      shoppable: { type: ShoppableType.TICKET },
-    },
-    include: {
-      shoppable: {
-        include: {
-          ticket: { include: { event: true } },
-        },
-      },
-    },
-  });
-  return {
-    inCart: inCart.map((c) => ({
-      ...c,
-      shoppable: {
-        ...c.shoppable.ticket!,
-        ...c.shoppable,
-        ticket: undefined,
-      },
-    })),
-    reservations: reservations.map((c) => ({
-      ...c,
-      shoppable: {
-        ...c.shoppable.ticket!,
-        ...c.shoppable,
-        ticket: undefined,
-      },
-    })),
-  };
+
+  return events.map((event) => ({
+    ...event,
+    tickets: event.tickets.map((ticket) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars -- We want to "drop" tickets from event data nested into the ticket
+      const { tickets: _, ...eventData } = event;
+      return formatTicket({
+        ...ticket,
+        event: eventData,
+      });
+    }),
+  }));
 };

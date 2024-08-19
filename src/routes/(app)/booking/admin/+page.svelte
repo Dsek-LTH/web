@@ -5,12 +5,15 @@
   import { getFullName } from "$lib/utils/client/member";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import * as m from "$paraglide/messages";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   export let data;
 </script>
 
+<SetPageTitle title={m.bookings()} />
+
 <a class="btn mb-4" href="/booking">
   <span class="i-mdi-arrow-expand-left" />
-  Tillbaka
+  {m.booking_goBack()}
 </a>
 
 <div class="overflow-x-auto">

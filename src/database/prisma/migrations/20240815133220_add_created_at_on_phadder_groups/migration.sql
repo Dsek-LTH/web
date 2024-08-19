@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "phadder_groups" ADD COLUMN     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;

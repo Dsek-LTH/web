@@ -2,9 +2,10 @@
   import TagChip from "$lib/components/TagChip.svelte";
   import type { Tag } from "@prisma/client";
   import type { UpdateSchema } from "./proxy+page.server";
-  import { superForm } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
   import type { SuperValidated } from "sveltekit-superforms";
   import { onMount } from "svelte";
+  import * as m from "$paraglide/messages";
 
   export let data: SuperValidated<UpdateSchema>;
   export let tag: Tag;
@@ -44,7 +45,7 @@
         class="btn btn-xs px-8"
         type="button"
         on:click={() => (isEditing = !isEditing)}
-        >Edit
+        >{m.news_tags_edit()}
       </button>
     </td>
   {:else}
@@ -61,7 +62,7 @@
           type="text"
           name="name"
           bind:value={$form.name}
-          class="input input-bordered input-xs"
+          class="input input-xs input-bordered"
           {...$constraints.name}
         />
         {#if $errors.name}<span class="text-error">{$errors.name}</span>{/if}
@@ -69,7 +70,7 @@
           type="text"
           name="color"
           bind:value={$form.color}
-          class="input input-bordered input-xs"
+          class="input input-xs input-bordered"
           style="color: {$form.color || 'white'}"
           {...$constraints.color}
         />
@@ -78,7 +79,7 @@
           {#if $submitting}
             <span class="loading loading-xs mx-1"></span>
           {:else}
-            Save
+            {m.news_tags_save()}
           {/if}
         </button>
       </form>

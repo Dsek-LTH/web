@@ -1,12 +1,15 @@
+import { getAllEvents } from "$lib/events/getEvents";
+import { interestedGoingSchema } from "$lib/events/schema";
+import * as m from "$paraglide/messages";
+import { zod } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
 import type { LayoutServerLoad } from "./$types";
-import { getAllEvents } from "./events";
-import { interestedGoingSchema } from "./interestedGoing";
+import { getAllTags } from "$lib/news/tags";
 
 const getAndValidatePage = (url: URL) => {
   const page = url.searchParams.get("page");
   if (page && Number.isNaN(Number.parseInt(page))) {
-    throw new Error("Invalid page");
+    throw new Error(m.events_errors_invalidPage());
   }
   return page ? Math.max(Number.parseInt(page) - 1, 0) : undefined;
 };
@@ -20,12 +23,12 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
       page: getAndValidatePage(url),
       pastEvents: url.searchParams.get("past") === "on",
     }),
-    prisma.tag.findMany({ orderBy: { name: "asc" } }),
+    getAllTags(prisma),
   ]);
   return {
     events,
     pageCount,
     allTags,
-    interestedGoingForm: await superValidate(interestedGoingSchema),
+    interestedGoingForm: await superValidate(zod(interestedGoingSchema)),
   };
 };

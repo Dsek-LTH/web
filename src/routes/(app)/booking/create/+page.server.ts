@@ -1,6 +1,7 @@
 import { fail } from "@sveltejs/kit";
 import dayjs from "dayjs";
 import { superValidate } from "sveltekit-superforms/server";
+import { zod } from "sveltekit-superforms/adapters";
 import { redirect } from "$lib/utils/redirect";
 import { z } from "zod";
 import * as m from "$paraglide/messages";
@@ -20,7 +21,7 @@ const schema = z
 export const load = async ({ locals }) => {
   const { prisma } = locals;
   const bookables = await prisma.bookable.findMany();
-  const form = await superValidate(schema);
+  const form = await superValidate(zod(schema));
 
   return { bookables, form };
 };
@@ -30,7 +31,7 @@ export const actions = {
     const { request, locals } = event;
     const { prisma, user } = locals;
 
-    const form = await superValidate(request, schema);
+    const form = await superValidate(request, zod(schema));
     if (!form.valid) return fail(400, { form });
     const { start, end, name, bookables } = form.data;
 

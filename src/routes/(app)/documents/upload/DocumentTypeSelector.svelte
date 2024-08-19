@@ -1,5 +1,6 @@
 <script lang="ts">
   import { page } from "$app/stores";
+  import * as m from "$paraglide/messages";
 
   export let type: string;
 
@@ -23,8 +24,8 @@
       <div class="flex gap-4">
         <span class="i-mdi-document self-center text-2xl" />
         <div>
-          <p class="text-lg font-semibold">Möteshandling</p>
-          <p class="text-gray-400">Sektionsmöten, styrelsemöten</p>
+          <p class="text-lg font-semibold">{m.documents_meetingDocument()}</p>
+          <p class="text-gray-400">{m.documents_meetingDocumentBlurb()}</p>
         </div>
       </div>
     </label>
@@ -46,8 +47,8 @@
       <div class="flex gap-4">
         <span class="i-mdi-account-student self-center text-2xl" />
         <div>
-          <p class="text-lg font-semibold">Studierådet</p>
-          <p class="text-gray-400">Möteshandlingar för SRD</p>
+          <p class="text-lg font-semibold">{m.documents_theStudyCouncil()}</p>
+          <p class="text-gray-400">{m.documents_theStudyCouncilBlurb()}</p>
         </div>
       </div>
     </label>
@@ -69,16 +70,12 @@
       <div class="flex gap-4">
         <span class="i-mdi-format-list-bulleted-type self-center text-2xl" />
         <div>
-          <p class="text-lg font-semibold">Kravprofiler</p>
-          <p class="text-gray-400">Kravprofiler för poster</p>
+          <p class="text-lg font-semibold">
+            {m.documents_requirementProfiles()}
+          </p>
+          <p class="text-gray-400">{m.documents_requirementProfilesBlurb()}</p>
         </div>
       </div>
     </label>
   </li>
 </ul>
-
-<!-- <style>
-  .xyz {
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  }
-</style> -->

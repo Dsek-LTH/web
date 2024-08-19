@@ -1,29 +1,35 @@
+import {
+  NOLLNING_TAG_PREFIX,
+  POST_REVEAL_PREFIX,
+} from "$lib/components/postReveal/types";
+import { getArticle } from "$lib/news/getArticles";
+import apiNames from "$lib/utils/apiNames";
+import { authorize, isAuthorized } from "$lib/utils/authorization";
 import { getAllTaggedMembers } from "$lib/utils/commentTagging";
+import { redirect } from "$lib/utils/redirect";
 import {
   commentAction,
   commentSchema,
   removeCommentAction,
   removeCommentSchema,
 } from "$lib/zod/comments";
+import * as m from "$paraglide/messages";
 import { error } from "@sveltejs/kit";
+import { zod } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
-import { getArticle } from "../articles";
 import { likeSchema, likesAction } from "../likes";
 import type { Actions, PageServerLoad } from "./$types";
-import { isAuthorized } from "$lib/utils/authorization";
-import apiNames from "$lib/utils/apiNames";
-import {
-  removeArticleAction,
-  removeArticleSchema,
-} from "../removeArticleAction";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
   const article = await getArticle(prisma, params.slug);
   if (article == undefined) {
     throw error(404, {
-      message: "Not found",
+      message: m.news_errors_articleNotFound(),
     });
+  }
+  if (article.tags.some((t) => t.name.startsWith(NOLLNING_TAG_PREFIX))) {
+    throw redirect(308, `${POST_REVEAL_PREFIX}/messages`);
   }
   const allTaggedMembers = await getAllTaggedMembers(prisma, article.comments);
   const canEdit =
@@ -35,10 +41,9 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     allTaggedMembers,
     canEdit,
     canDelete,
-    likeForm: await superValidate(likeSchema),
-    commentForm: await superValidate(commentSchema),
-    removeCommentForm: await superValidate(removeCommentSchema),
-    removeArticleForm: await superValidate(removeArticleSchema),
+    likeForm: await superValidate(zod(likeSchema)),
+    commentForm: await superValidate(zod(commentSchema)),
+    removeCommentForm: await superValidate(zod(removeCommentSchema)),
   };
 };
 
@@ -47,5 +52,35 @@ export const actions: Actions = {
   dislike: likesAction(false),
   comment: commentAction("NEWS"),
   removeComment: removeCommentAction("NEWS"),
-  removeArticle: removeArticleAction(),
+  removeArticle: async (event) => {
+    const { locals, params } = event;
+    const { prisma, user } = locals;
+    authorize(apiNames.NEWS.DELETE, user);
+
+    const existingArticle = prisma.article.findUnique({
+      where: {
+        slug: params.slug,
+      },
+    });
+
+    if (!existingArticle) return error(404, m.news_errors_articleNotFound());
+
+    await prisma.article.update({
+      where: {
+        slug: params.slug,
+      },
+      data: {
+        removedAt: new Date(),
+      },
+    });
+
+    throw redirect(
+      "/news",
+      {
+        message: m.news_articleDeleted(),
+        type: "success",
+      },
+      event,
+    );
+  },
 };

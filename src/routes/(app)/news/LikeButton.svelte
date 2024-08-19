@@ -2,10 +2,11 @@
   import { page } from "$app/stores";
   import type { Member } from "@prisma/client";
   import type { SuperValidated } from "sveltekit-superforms";
-  import { superForm } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
   import type { LikeSchema } from "./likes";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
+  import * as m from "$paraglide/messages";
 
   export let likers: Member[];
   $: authorized = isAuthorized(apiNames.NEWS.LIKE, $page.data.user);
@@ -28,7 +29,7 @@
   <div
     class:tooltip={!authorized}
     class="m-4 hover:opacity-50 hover:transition-opacity"
-    data-tip="Du måste vara inloggad för att gilla"
+    data-tip={m.news_logInToLike()}
   >
     <button disabled={!authorized} type="submit">
       <label class="swap">

@@ -36,6 +36,7 @@ import {
   type ShopIdentification,
 } from "../types";
 import apiNames from "$lib/utils/apiNames";
+import { NotificationType } from "$lib/utils/notifications/types";
 
 const mockFns = vi.hoisted(() => ({
   customers: {
@@ -91,7 +92,7 @@ const addPurchaseTestForUser = (
       prismaWithAccess,
       context.tickets.activeTicket.id,
       identification,
-    ).catch(() => expect.fail("Failed to add ticket to cart"));
+    ).catch((e) => expect.fail(`Failed to add ticket to cart: ${e}`));
 
     if (identification.memberId) {
       mockFns.customers.create.mockResolvedValue({
@@ -172,13 +173,13 @@ const addPurchaseTestForUser = (
     expect(res).toBeDefined();
     expect(res.clientSecret).toBe("abc");
     expect(mockFns.paymentIntents.create).toHaveBeenCalledOnce();
-    expect(mockFns.paymentIntents.create.mock.calls[0][0].amount).toBe(
+    expect(mockFns.paymentIntents.create.mock.calls[0]?.[0].amount).toBe(
       MOCK_ACTIVE_TICKET.shoppable.price,
     );
 
-    expect(mockFns.paymentIntents.create.mock.calls[0][1].idempotencyKey).toBe(
-      "idempotency-key",
-    );
+    expect(
+      mockFns.paymentIntents.create.mock.calls[0]?.[1].idempotencyKey,
+    ).toBe("idempotency-key");
     const consumable = await prisma.consumable.findFirst({
       where: {
         ...dbIdentification(identification),
@@ -214,8 +215,8 @@ const addPurchaseTestForUser = (
     expect(mockFns.paymentIntents.update).toHaveBeenCalledOnce();
     expect(mockFns.paymentIntents.retrieve).toHaveBeenCalledOnce();
     expect(mockFns.paymentIntents.cancel).not.toHaveBeenCalled();
-    expect(mockFns.paymentIntents.update.mock.calls[0][0]).toBe("intent-id");
-    expect(mockFns.paymentIntents.update.mock.calls[0][1].amount).toBe(
+    expect(mockFns.paymentIntents.update.mock.calls[0]?.[0]).toBe("intent-id");
+    expect(mockFns.paymentIntents.update.mock.calls[0]?.[1].amount).toBe(
       MOCK_ACTIVE_TICKET.shoppable.price,
     );
 
@@ -240,7 +241,7 @@ const addPurchaseTestForUser = (
     expect(mockFns.paymentIntents.update).toHaveBeenCalledOnce();
     expect(mockFns.paymentIntents.retrieve).toHaveBeenCalledOnce();
     expect(mockFns.paymentIntents.cancel).not.toHaveBeenCalled();
-    expect(mockFns.paymentIntents.update.mock.calls[0][1].amount).toBe(
+    expect(mockFns.paymentIntents.update.mock.calls[0]?.[1].amount).toBe(
       MOCK_ACTIVE_TICKET.shoppable.price + MOCK_ACTIVE_TICKET_2.shoppable.price,
     );
 
@@ -270,11 +271,11 @@ const addPurchaseTestForUser = (
     expect(mockFns.paymentIntents.create).toHaveBeenCalledOnce();
     const price =
       MOCK_ACTIVE_TICKET.shoppable.price + MOCK_ACTIVE_TICKET_2.shoppable.price;
-    expect(mockFns.paymentIntents.create.mock.calls[0][0].amount).toBe(price);
+    expect(mockFns.paymentIntents.create.mock.calls[0]?.[0].amount).toBe(price);
 
-    expect(mockFns.paymentIntents.create.mock.calls[0][1].idempotencyKey).toBe(
-      "idempotency-key",
-    );
+    expect(
+      mockFns.paymentIntents.create.mock.calls[0]?.[1].idempotencyKey,
+    ).toBe("idempotency-key");
     const consumables = await prisma.consumable.findMany({
       where: {
         ...dbIdentification(identification),
@@ -424,7 +425,14 @@ const addPurchaseTestForUser = (
       });
       await purchaseCart(prismaWithAccess, identification, "idempotency-key");
       vi.setSystemTime(vi.getMockedSystemTime()!.valueOf() + 2000); // 2 seconds later
-      await removeExpiredConsumables(prisma, new Date()); // should NOT remove the consumable
+      const queuedNotifications = await removeExpiredConsumables(
+        prisma,
+        new Date(),
+      ).then((res) => res.queuedNotifications); // should NOT remove the consumable
+      expect(
+        queuedNotifications.length,
+        JSON.stringify(queuedNotifications),
+      ).toBe(0);
       await expectConsumableCount(
         1,
         "payment in progress should not be expired",
@@ -446,7 +454,11 @@ const addPurchaseTestForUser = (
       );
 
       vi.setSystemTime(vi.getMockedSystemTime()!.valueOf() + TIME_TO_BUY);
-      await removeExpiredConsumables(prisma, new Date()); // should NOT remove the consumable
+      const queuedNotifications = await removeExpiredConsumables(
+        prisma,
+        new Date(),
+      ).then((res) => res.queuedNotifications); // should NOT remove the consumable
+      expect(queuedNotifications.length).toBe(0);
       await expectConsumableCount(
         1,
         "consumable should not be expired after payment",
@@ -466,7 +478,19 @@ const addPurchaseTestForUser = (
 
       vi.setSystemTime(vi.getMockedSystemTime()!.valueOf() + TIME_TO_BUY); // 2 seconds later
 
-      await removeExpiredConsumables(prisma, new Date()); // should NOT remove the consumable
+      const queuedNotfications = await removeExpiredConsumables(
+        prisma,
+        new Date(),
+      ).then((res) => res.queuedNotifications); // SHOULD remove the consumable
+      expect(queuedNotfications.length).toBe(1);
+      expect(queuedNotfications[0]?.type).toBe(
+        NotificationType.PURCHASE_CONSUMABLE_EXPIRED,
+      );
+      if (identification.memberId) {
+        expect(queuedNotfications[0]!.memberIds!.length).toBe(1);
+      } else {
+        expect(queuedNotfications[0]!.memberIds!.length).toBe(0);
+      }
       await expectConsumableCount(
         0,
         "consumable should be expired after failed payment",

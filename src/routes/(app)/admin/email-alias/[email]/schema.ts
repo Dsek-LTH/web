@@ -1,3 +1,4 @@
+import type { Infer } from "sveltekit-superforms";
 import { z } from "zod";
 
 export const addPositionSchema = z.object({
@@ -9,7 +10,7 @@ export const removePositionSchema = z.object({
   aliasId: z.string(),
 });
 
-export type RemovePositionForm = typeof removePositionSchema;
+export type RemovePositionForm = Infer<typeof removePositionSchema>;
 
 export const deleteEmailAliasSchema = z.object({
   email: z.string(),
@@ -20,7 +21,7 @@ export const setCanSendSchema = z.object({
   canSend: z.boolean(),
 });
 
-export type SetCanSendForm = typeof setCanSendSchema;
+export type SetCanSendForm = Infer<typeof setCanSendSchema>;
 
 export const addSpecialReceiverSchema = z.object({
   email: z.string(),
@@ -32,7 +33,9 @@ export const removeSpecialReceiverSchema = z.object({
   targetEmailReceiver: z.string().email(),
 });
 
-export type RemoveSpecialReceiverForm = typeof removeSpecialReceiverSchema;
+export type RemoveSpecialReceiverForm = Infer<
+  typeof removeSpecialReceiverSchema
+>;
 
 export const deleteSpecialReceiverSchema = z.object({
   email: z.string(),
@@ -47,7 +50,7 @@ export const removeSpecialSenderSchema = z.object({
   id: z.string(),
 });
 
-export type RemoveSpecialSenderForm = typeof removeSpecialSenderSchema;
+export type RemoveSpecialSenderForm = Infer<typeof removeSpecialSenderSchema>;
 
 export const deleteSpecialSenderSchema = z.object({
   email: z.string(),

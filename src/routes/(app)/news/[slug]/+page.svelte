@@ -1,29 +1,24 @@
 <script lang="ts">
+  import { enhance } from "$app/forms";
+  import LoadingButton from "$lib/components/LoadingButton.svelte";
   import TagChip from "$lib/components/TagChip.svelte";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
+  import AuthorSignature from "$lib/components/socials/AuthorSignature.svelte";
   import CommentSection from "$lib/components/socials/CommentSection.svelte";
+  import * as m from "$paraglide/messages";
   import Article from "../Article.svelte";
-  import AuthorSignature from "$lib/components/AuthorSignature.svelte";
   import LikeButton from "../LikeButton.svelte";
   import LikersList from "../LikersList.svelte";
   import type { PageData } from "./$types";
-  import { superForm } from "sveltekit-superforms/client";
-  import type { SuperValidated } from "sveltekit-superforms";
-  import type { RemoveArticleSchema } from "../removeArticleAction";
-
-  export let articleId: string;
-  export let removeForm: SuperValidated<RemoveArticleSchema>;
-  const { enhance } = superForm(removeForm, {
-    id: articleId,
-  });
 
   export let data: PageData;
+
   $: article = data.article;
   $: author = article.author;
+  let isRemoving = false;
 </script>
 
-<svelte:head>
-  <title>{article.header} | D-sektionen</title>
-</svelte:head>
+<SetPageTitle title={article.header} />
 
 <article>
   <Article {article}>
@@ -31,7 +26,7 @@
       slot="author"
       member={author.member}
       position={author.mandate?.position}
-      customAuthor={author.customAuthor ?? undefined}
+      customAuthor={author.customAuthor}
       type={article.author.type}
     />
 
@@ -40,21 +35,31 @@
         <a
           href={`/news/${article.slug}/edit`}
           class="btn btn-square btn-ghost btn-md"
-          title="Redigera"
+          title={m.news_edit()}
         >
           <span class="i-mdi-edit text-xl" />
         </a>
       {/if}
       {#if data.canDelete}
-        <form method="POST" action="?/removeArticle" use:enhance>
-          <input type="hidden" name="articleId" value={article.id} />
-          <button
+        <form
+          method="POST"
+          action="?/removeArticle"
+          use:enhance={() => {
+            isRemoving = true;
+            return ({ update }) => {
+              update();
+              isRemoving = false;
+            };
+          }}
+        >
+          <LoadingButton
+            isLoading={isRemoving}
             type="submit"
             class="btn btn-square btn-ghost btn-md"
-            title="Radera"
+            title={m.news_delete()}
           >
             <span class="i-mdi-delete text-xl" />
-          </button>
+          </LoadingButton>
         </form>
       {/if}
     </div>

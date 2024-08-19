@@ -4,6 +4,7 @@
   import SubscriptionTags from "./SubscriptionTags.svelte";
   import type { Tag } from "@prisma/client";
   import * as m from "$paraglide/messages";
+  import PageHeader from "$lib/components/nav/PageHeader.svelte";
 
   export let data: PageData;
   $: subscribedTags = data.subscribedTags as { subscribedTags: Tag[] };
@@ -12,7 +13,7 @@
   let subscriptionGroup = data.subscriptions;
   let pushGroup = data.pushSubscriptions;
 
-  const notificationText = {
+  const notificationText: Record<NotificationSettingType, () => string> = {
     LIKE: m.setting_like,
     COMMENT: m.setting_comment,
     MENTION: m.setting_mention,
@@ -21,27 +22,15 @@
     CREATE_MANDATE: m.setting_create_mandate,
     BOOKING_REQUEST: m.setting_booking_request,
     PING: m.setting_ping,
+    PURCHASES: m.setting_purchases,
   } as const;
 
-  type NotificationText =
-    | "LIKE"
-    | "COMMENT"
-    | "MENTION"
-    | "NEW_ARTICLE"
-    | "EVENT_GOING"
-    | "CREATE_MANDATE"
-    | "BOOKING_REQUEST"
-    | "PING";
-  const getNotificationText = (text: string) => {
-    return notificationText[text as NotificationText](); // Type cast string to string literal
+  const getNotificationText = (text: NotificationSettingType) => {
+    return notificationText[text](); // Type cast string to string literal
   };
 </script>
 
-<svelte:head>
-  <title>{m.setting_title()} | D-sektionen</title>
-</svelte:head>
-
-<h1 class="mt-2 text-center text-3xl font-bold">{m.setting_title()}</h1>
+<PageHeader class="" title={m.setting_title()} />
 <div class="relative">
   <form
     method="POST"
@@ -54,7 +43,7 @@
           <!-- Web notification -->
           <label class="m-2 flex cursor-pointer flex-row justify-between">
             <span class="ms-3 text-sm font-medium">
-              {getNotificationText(notificationSettingType[0])}</span
+              {getNotificationText(notificationSettingType[1])}</span
             >
             <input
               type="checkbox"
@@ -64,7 +53,7 @@
               class="peer sr-only"
             />
             <div
-              class="peer relative h-6 w-11 rounded-full bg-gray-300 after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-gray-400 rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-blue-800"
+              class="peer relative h-6 w-11 rounded-full bg-gray-300 after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-gray-400 dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-blue-800 rtl:peer-checked:after:-translate-x-full"
             ></div>
           </label>
 
@@ -85,7 +74,7 @@
               class="peer sr-only"
             />
             <div
-              class="peer relative h-6 w-11 rounded-full bg-gray-300 after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-gray-400 rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-gray-800"
+              class="peer relative h-6 w-11 rounded-full bg-gray-300 after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-gray-400 dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-gray-800 rtl:peer-checked:after:-translate-x-full"
             ></div>
           </label>
         </div>

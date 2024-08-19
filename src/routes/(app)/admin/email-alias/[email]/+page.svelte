@@ -1,7 +1,7 @@
 <script lang="ts">
   import { page } from "$app/stores";
-  import PageHeader from "$lib/components/PageHeader.svelte";
-  import { superForm } from "sveltekit-superforms/client";
+  import PageHeader from "$lib/components/nav/PageHeader.svelte";
+  import { superForm } from "$lib/utils/client/superForms";
   import UpdateMailAliasForm from "./EmailAliasForm.svelte";
   import SpecialReceiverForm from "./SpecialReceiverForm.svelte";
   import SpecialSenderForm from "./SpecialSenderForm.svelte";

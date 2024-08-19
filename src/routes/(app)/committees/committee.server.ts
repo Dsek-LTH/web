@@ -1,22 +1,18 @@
-import { fileHandler } from "$lib/files";
-import { error, fail, type Actions } from "@sveltejs/kit";
-import { message, setError, superValidate } from "sveltekit-superforms/server";
-import { z } from "zod";
-import { PUBLIC_BUCKETS_MATERIAL } from "$env/static/public";
 import { compareCommitteePositions } from "$lib/utils/committee-ordering/sort";
-import type { PrismaClient } from "@prisma/client";
 import * as m from "$paraglide/messages";
+import type { PrismaClient } from "@prisma/client";
+import { error, fail, type Actions } from "@sveltejs/kit";
+import { zod } from "sveltekit-superforms/adapters";
+import { message, superValidate, withFiles } from "sveltekit-superforms/server";
+import { updateSchema } from "./types";
+import { updateMarkdown } from "$lib/news/markdown/mutations.server";
 
-const updateSchema = z.object({
-  name: z.string().optional(),
-  description: z.string().nullable(),
-  image: z.any().optional(),
-  markdown: z.string().optional(),
-  markdownSlug: z.string().optional(),
-});
-
-export type UpdateSchema = typeof updateSchema;
-
+export const getYear = (url: URL) => {
+  const yearQuery = url.searchParams.get("year");
+  const parsedYear = parseInt(yearQuery ?? "");
+  const year = isNaN(parsedYear) ? new Date().getFullYear() : parsedYear;
+  return year;
+};
 /**
  * @param shortName The committee's short name
  * @param year The year to load the committee for, defaults to current year
@@ -25,8 +21,10 @@ export type UpdateSchema = typeof updateSchema;
 export const committeeLoad = async (
   prisma: PrismaClient,
   shortName: string,
-  year = new Date().getFullYear(),
+  url: URL,
 ) => {
+  const year = getYear(url);
+
   const firstDayOfYear = new Date(`${year}-01-01`);
   const lastDayOfYear = new Date(`${year}-12-31`);
   if (
@@ -142,7 +140,15 @@ export const committeeLoad = async (
     error(500, m.committees_errors_fetchMarkdown());
   }
 
-  const form = await superValidate(committee, updateSchema);
+  const form = await superValidate(
+    {
+      ...committee,
+      markdownSlug: markdown.value?.name,
+      markdown: markdown.value?.markdown,
+      markdownEn: markdown.value?.markdownEn,
+    },
+    zod(updateSchema),
+  );
 
   return {
     committee,
@@ -154,6 +160,7 @@ export const committeeLoad = async (
     numberOfMandates: numberOfMandates.value,
     markdown: markdown.value,
     form,
+    year,
   };
 };
 
@@ -161,62 +168,26 @@ export const committeeActions = (
   shortName?: string,
 ): Actions<{ shortName: string }> => ({
   update: async ({ params, request, locals }) => {
-    const { prisma, user } = locals;
-    const formData = await request.formData();
-    const form = await superValidate(formData, updateSchema);
-    if (!form.valid) return fail(400, { form });
-    const image = formData.get("image");
-    let newImageUploaded = false;
-    if (isFileSubmitted(image)) {
-      if (image.type !== "image/svg+xml") {
-        return setError(form, "image", m.committees_errors_imageMustBeSVG());
-      }
-      const path = `committees/${shortName ?? params.shortName}.svg`;
-      if (image) {
-        try {
-          const putUrl = await fileHandler.getPresignedPutUrl(
-            user,
-            PUBLIC_BUCKETS_MATERIAL,
-            path,
-            true,
-          );
-          await fetch(putUrl, {
-            method: "PUT",
-            body: image,
-          });
-          newImageUploaded = true;
-        } catch (e) {
-          return message(
-            form,
-            { message: m.committees_errors_uploadImage(), type: "error" },
-            { status: 500 },
-          );
-        }
-      }
-    }
+    const { user, prisma } = locals;
+    const form = await superValidate(request, zod(updateSchema), {
+      allowFiles: true,
+    });
+    if (!form.valid) return fail(400, withFiles({ form }));
+
+    const { markdown, markdownEn, markdownSlug, ...rest } = form.data;
+
     await prisma.committee.update({
       where: { shortName: shortName ?? params.shortName },
       data: {
-        name: form.data.name,
-        description: form.data.description,
-        imageUrl: newImageUploaded
-          ? `minio/material/committees/${
-              shortName ?? params.shortName
-            }.svg?version=${new Date().getTime()}`
-          : undefined,
+        ...rest,
       },
     });
 
-    const markdownSlug = form.data.markdownSlug;
-    const markdown = form.data.markdown;
     if (markdownSlug && markdown) {
-      await prisma.markdown.update({
-        where: {
-          name: markdownSlug,
-        },
-        data: {
-          markdown: form.data.markdown,
-        },
+      await updateMarkdown(user, prisma, {
+        name: markdownSlug,
+        markdown,
+        markdownEn: markdownEn ?? null,
       });
     }
     return message(form, {
@@ -226,6 +197,4 @@ export const committeeActions = (
   },
 });
 
-function isFileSubmitted(file: unknown): file is File {
-  return file instanceof File && file.size > 0;
-}
+export type CommitteeLoadData = Awaited<ReturnType<typeof committeeLoad>>;

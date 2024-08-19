@@ -1,10 +1,11 @@
 <script lang="ts">
   import Labeled from "$lib/components/Labeled.svelte";
-  import MemberSearchInput from "./MemberSearchInput.svelte";
+  import MemberSearchInput from "$lib/components/forms/MemberSearchInput.svelte";
   import type { SuperValidated } from "sveltekit-superforms";
   import type { AddMandateSchema } from "./+page.server";
-  import { superForm } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
   import type { Member } from "@prisma/client";
+  import * as m from "$paraglide/messages";
 
   export let data: SuperValidated<AddMandateSchema>;
   export let onClose: () => void;
@@ -29,7 +30,7 @@
       <p class="text-error">{$errors.memberId}</p>
     {/if}
   </div>
-  <Labeled label="Start">
+  <Labeled label={m.positions_startDate()}>
     <input
       name="startDate"
       id="startDate"
@@ -42,7 +43,7 @@
   {#if $errors.startDate}
     <p class="text-error">{$errors.startDate}</p>
   {/if}
-  <Labeled label="End">
+  <Labeled label={m.positions_endDate()}>
     <input
       name="endDate"
       id="endDate"
@@ -55,5 +56,5 @@
   {#if $errors.endDate}
     <p class="text-error">{$errors.endDate}</p>
   {/if}
-  <button type="submit" class="btn btn-secondary">Spara</button>
+  <button type="submit" class="btn btn-secondary">{m.positions_save()}</button>
 </form>

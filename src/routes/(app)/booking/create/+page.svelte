@@ -1,11 +1,14 @@
 <script lang="ts">
   import type { PageData } from "./$types";
-  import { superForm } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
   import * as m from "$paraglide/messages";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   export let data: PageData;
 
   const { form, errors, constraints, enhance } = superForm(data.form);
 </script>
+
+<SetPageTitle title={m.booking_createBooking()} />
 
 <form method="POST" use:enhance class="form-control mx-auto max-w-5xl gap-4">
   <fieldset

@@ -1,11 +1,12 @@
 <script lang="ts">
-  import PageHeader from "$lib/components/PageHeader.svelte";
+  import PageHeader from "$lib/components/nav/PageHeader.svelte";
   import Pagination from "$lib/components/Pagination.svelte";
   import SearchBar from "$lib/components/SearchBar.svelte";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
   import Disclaimer from "./Disclaimer.svelte";
   import SongElement from "./SongElement.svelte";
+  import * as m from "$paraglide/messages";
 
   function isCatSelected(catId: string): boolean {
     return data.categories.includes(catId);
@@ -17,18 +18,18 @@
 </script>
 
 <div class="flex flex-row">
-  <PageHeader title="Sjungbok" />
+  <PageHeader title={m.songBook()} />
   {#if isAuthorized(apiNames.SONG.CREATE, data.user)}
     <div class="ml-auto">
       <a href="/songbook/create">
-        <button class="btn">Skapa ny sång</button>
+        <button class="btn">{m.songbook_createNewSong()}</button>
       </a>
     </div>
   {/if}
 </div>
 
 <p class="text-xl font-bold">
-  Här hittar du alla sånger som finns i D-sektionens digitala sångarkiv!
+  {m.songbook_hereYoullFind()}
 </p>
 <Disclaimer />
 
@@ -44,7 +45,7 @@
         on:change={() => form.requestSubmit()}
       />
       <label class="label" for="show-deleted">
-        Visa endast borttagna sånger
+        {m.songbook_showDeleted()}
       </label>
     </div>
   {/if}

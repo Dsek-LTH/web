@@ -1,19 +1,20 @@
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
-import { Prisma } from "@prisma/client";
-import { error, fail } from "@sveltejs/kit";
-import { redirect } from "$lib/utils/redirect";
-import { message, superValidate } from "sveltekit-superforms/server";
-import { z } from "zod";
-import { getArticleAuthorOptions } from "../../articles";
-import { articleSchema } from "../../schema";
+import * as m from "$paraglide/messages";
+import { error } from "@sveltejs/kit";
+import { zod } from "sveltekit-superforms/adapters";
+import { superValidate } from "sveltekit-superforms/server";
+import { getArticleAuthorOptions } from "$lib/news/getArticles";
 import type { Actions, PageServerLoad } from "./$types";
+import { updateArticle } from "$lib/news/server/actions";
+import { updateSchema } from "$lib/news/schema";
+import { getAllTags } from "$lib/news/tags";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
   authorize(apiNames.NEWS.UPDATE, user);
 
-  const allTags = await prisma.tag.findMany();
+  const allTags = await getAllTags(prisma, true);
   const article = await prisma.article.findUnique({
     where: {
       slug: params.slug,
@@ -50,10 +51,11 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     },
   });
   if (article?.author.id !== undefined) article.author.id = "";
-  if (!article) throw error(404, "Article not found");
+  if (!article) throw error(404, m.news_errors_articleNotFound());
 
   const authorMemberWithMandates = article.author.member;
-  if (!authorMemberWithMandates) throw error(500, "Author member not found");
+  if (!authorMemberWithMandates)
+    throw error(500, m.news_errors_authorMemberNotFound());
   const authorOptions = await getArticleAuthorOptions(
     prisma,
     authorMemberWithMandates,
@@ -62,94 +64,10 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   return {
     allTags,
     authorOptions,
-    form: await superValidate(article, updateSchema),
+    form: await superValidate(article, zod(updateSchema)),
   };
 };
 
-const updateSchema = articleSchema.extend({
-  slug: z.string(),
-});
-
 export const actions: Actions = {
-  default: async (event) => {
-    const { request, locals } = event;
-    const { prisma, user } = locals;
-    const form = await superValidate(request, updateSchema);
-    if (!form.valid) return fail(400, { form });
-    const { slug, header, body, author, tags } = form.data;
-    const existingAuthor = await prisma.author.findFirst({
-      where: {
-        member: { id: author.memberId },
-        mandateId: author.mandateId,
-        customId: author.customId,
-      },
-    });
-    try {
-      await prisma.article.update({
-        where: {
-          slug: slug,
-        },
-        data: {
-          header: header,
-          body: body,
-          author: {
-            connect: existingAuthor
-              ? {
-                  id: existingAuthor.id,
-                }
-              : undefined,
-            create: existingAuthor
-              ? {
-                  member: {
-                    connect: { studentId: user?.studentId },
-                  },
-                  mandate: author.mandateId
-                    ? {
-                        connect: {
-                          member: { studentId: user?.studentId },
-                          id: author.mandateId,
-                        },
-                      }
-                    : undefined,
-                  customAuthor: author.customId
-                    ? {
-                        connect: { id: author.customId },
-                      }
-                    : undefined,
-                }
-              : undefined,
-          },
-          tags: {
-            set: tags
-              .filter((tag) => !!tag)
-              .map((tag) => ({
-                id: tag.id,
-              })),
-          },
-          updatedAt: new Date(),
-        },
-      });
-    } catch (e) {
-      if (e instanceof Prisma.PrismaClientKnownRequestError) {
-        return message(
-          form,
-          {
-            message: "Artikel kunde inte hittas",
-            type: "error",
-          },
-          { status: 400 },
-        );
-      }
-      throw e;
-    }
-
-    throw redirect(
-      `/news/${event.params.slug}`,
-      {
-        message: "Artikel uppdaterad",
-        type: "success",
-      },
-      event,
-    );
-  },
+  default: updateArticle,
 };

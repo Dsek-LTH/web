@@ -1,11 +1,13 @@
 <script lang="ts">
-  import { relativeDate } from "$lib/utils/client/datetime.js";
+  import { relativeDate } from "$lib/utils/client/datetime";
   import InterestedGoingButtons from "./InterestedGoingButtons.svelte";
   import InterestedGoingList from "./InterestedGoingList.svelte";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
-  import type { InterestedGoingSchema } from "./interestedGoing";
-  import type { EventWithIncludes } from "./events";
+  import type { InterestedGoingSchema } from "$lib/events/schema";
+  import type { EventWithIncludes } from "$lib/events/getEvents";
   import type { SuperValidated } from "sveltekit-superforms";
+  import { eventLink } from "$lib/utils/redirect";
+  import { languageTag } from "$paraglide/runtime";
 
   export let event: EventWithIncludes;
   export let interestedGoingForm: SuperValidated<InterestedGoingSchema>;
@@ -23,7 +25,7 @@
   </div>
 
   <div class="flex flex-col p-8">
-    <a href="/events/{event.slug}">
+    <a href={eventLink(event)}>
       <h2 class="text-2xl font-bold">{event.title}</h2>
     </a>
 
@@ -31,11 +33,11 @@
       {#if Math.abs(event.startDatetime.valueOf() - event.endDatetime.valueOf()) < 24 * 60 * 60 * 1000}
         <span class="font-semibold">{relativeDate(event.startDatetime)}</span>
         <br />
-        {event.startDatetime?.toLocaleTimeString(["sv"], {
+        {event.startDatetime?.toLocaleTimeString([languageTag()], {
           hour: "2-digit",
           minute: "2-digit",
         })} →
-        {event.endDatetime?.toLocaleTimeString(["sv"], {
+        {event.endDatetime?.toLocaleTimeString([languageTag()], {
           hour: "2-digit",
           minute: "2-digit",
         })}
@@ -46,7 +48,7 @@
               >{relativeDate(event.startDatetime)}</span
             >
             <br />
-            {event.startDatetime?.toLocaleTimeString(["sv"], {
+            {event.startDatetime?.toLocaleTimeString([languageTag()], {
               hour: "2-digit",
               minute: "2-digit",
             })}
@@ -55,7 +57,7 @@
           <div>
             <span class="font-semibold">{relativeDate(event.endDatetime)}</span>
             <br />
-            {event.endDatetime?.toLocaleTimeString(["sv"], {
+            {event.endDatetime?.toLocaleTimeString([languageTag()], {
               hour: "2-digit",
               minute: "2-digit",
             })}

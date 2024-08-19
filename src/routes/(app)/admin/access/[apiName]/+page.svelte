@@ -3,9 +3,10 @@
 
   import { page } from "$app/stores";
   import * as m from "$paraglide/messages";
-  import { superForm } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
 
   import type { PageData } from "./$types";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   export let data: PageData;
   const {
     form: createForm,
@@ -23,9 +24,7 @@
   });
 </script>
 
-<svelte:head>
-  <title>{$page.params["apiName"]} | D-sektionen</title>
-</svelte:head>
+<SetPageTitle title={$page.params["apiName"]} />
 
 <h1 class="mb-4 text-2xl font-semibold">{$page.params["apiName"]}</h1>
 <div class="overflow-x-auto">

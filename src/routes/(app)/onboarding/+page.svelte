@@ -1,6 +1,6 @@
 <script lang="ts">
   import Input from "$lib/components/Input.svelte";
-  import { superForm } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
   import type { UpdateSchema } from "./+page.server";
   import type { PageData } from "./$types";
   import Labeled from "$lib/components/Labeled.svelte";
@@ -8,6 +8,7 @@
   import { onMount } from "svelte";
   import { goto } from "$lib/utils/redirect";
   import * as m from "$paraglide/messages";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
 
   export let data: PageData;
   const { form, errors, constraints, enhance } = superForm<UpdateSchema>(
@@ -19,6 +20,7 @@
       data.member &&
       data.member.firstName &&
       data.member.lastName &&
+      data.member.email &&
       data.member.classProgramme &&
       data.member.classYear
     ) {
@@ -27,13 +29,11 @@
   });
 </script>
 
-<svelte:head>
-  <title>{m.onboarding()} | D-sektionen</title>
-</svelte:head>
+<SetPageTitle title={m.onboarding()} />
 
 <div
   class="min-h-screen bg-cover bg-center"
-  style="background-image: url('./hero-image.jpg'); "
+  style="background-image: url('./hero-image.webp'); "
 >
   <div class="min-h-screen bg-cover py-16 md:bg-transparent">
     <div
@@ -65,6 +65,16 @@
             bind:value={$form.lastName}
             {...$constraints.lastName}
             error={$errors.lastName}
+          />
+        </div>
+        <div class="flex flex-col">
+          <Input
+            name="email"
+            label={m.onboarding_email()}
+            placeholder={m.onboarding_emailPlaceholder()}
+            bind:value={$form.email}
+            class="input-disabled"
+            readonly
           />
         </div>
         <div class="flex flex-col">

@@ -1,28 +1,29 @@
+import { eventSchema } from "$lib/events/schema";
+import { updateEvent } from "$lib/events/server/actions";
 import apiNames from "$lib/utils/apiNames";
-import { error, fail } from "@sveltejs/kit";
-import { redirect } from "$lib/utils/redirect";
-import { superValidate } from "sveltekit-superforms/server";
-import { eventSchema } from "../../schema";
-import type { Actions, PageServerLoad } from "./$types";
-import { validate as uuidValidate } from "uuid";
 import { authorize } from "$lib/utils/authorization";
+import * as m from "$paraglide/messages";
+import { error } from "@sveltejs/kit";
+import { zod } from "sveltekit-superforms/adapters";
+import { superValidate } from "sveltekit-superforms/server";
+import type { Actions, PageServerLoad } from "./$types";
+import { getAllTags } from "$lib/news/tags";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
-  authorize(apiNames.NEWS.UPDATE, user);
+  authorize(apiNames.EVENT.UPDATE, user);
 
-  const allTags = await prisma.tag.findMany();
+  const allTags = await getAllTags(prisma, true);
   const event = await prisma.event.findUnique({
-    where: uuidValidate(params.slug)
-      ? {
-          id: params.slug,
-        }
-      : {
-          slug: params.slug,
-        },
+    where: {
+      slug: params.slug,
+    },
+    include: {
+      tags: true,
+    },
   });
   if (!event) {
-    throw error(404, "Article not found");
+    throw error(404, m.events_errors_eventNotFound());
   }
   const isRecurring = event.recurringParentId !== null;
   const recurringEvent = isRecurring
@@ -33,7 +34,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
       })
     : null;
   if (isRecurring && !recurringEvent) {
-    error(500, "Couldn't find recurring event parent");
+    error(500, m.events_errors_recurringParentNotFound());
   }
   const completeEvent = {
     ...event,
@@ -45,64 +46,10 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   return {
     allTags,
     event,
-    form: await superValidate(completeEvent, eventSchema),
+    form: await superValidate(completeEvent, zod(eventSchema)),
   };
 };
 
 export const actions: Actions = {
-  default: async (event) => {
-    const { request, locals, params } = event;
-    const { prisma } = locals;
-    const form = await superValidate(request, eventSchema);
-    if (!form.valid) return fail(400, { form });
-    /* eslint-disable-next-line @typescript-eslint/no-unused-vars --
-     * To avoid lint complaining about unused vars
-     **/
-    const { isRecurring, recurringEndDatetime, ...recurringEventData } =
-      form.data;
-
-    /* eslint-disable-next-line @typescript-eslint/no-unused-vars --
-     * To avoid lint complaining about unused vars
-     **/
-    const { recurringType, separationCount, tags, ...eventData } =
-      recurringEventData;
-    const existingEvent = await prisma.event.findUnique({
-      where: uuidValidate(params.slug)
-        ? {
-            id: params.slug,
-          }
-        : {
-            slug: params.slug,
-          },
-      select: { id: true },
-    });
-    if (!existingEvent) {
-      throw error(404, "Event not found");
-    }
-    await prisma.event.update({
-      where: {
-        id: existingEvent.id,
-      },
-      data: {
-        ...eventData,
-        author: undefined,
-        tags: {
-          connect: form.data.tags
-            .filter((tag) => !!tag)
-            .map((tag) => ({
-              id: tag.id,
-            })),
-        },
-      },
-    });
-
-    throw redirect(
-      `/events/${params.slug}`,
-      {
-        message: "Evenemang uppdaterat",
-        type: "success",
-      },
-      event,
-    );
-  },
+  default: updateEvent,
 };

@@ -1,4 +1,5 @@
 import { message, setError, superValidate } from "sveltekit-superforms/server";
+import { zod } from "sveltekit-superforms/adapters";
 import type { PageServerLoad } from "./$types";
 import {
   createEmailPositionSchema,
@@ -10,7 +11,6 @@ import { fail, type Actions } from "@sveltejs/kit";
 import { authorize } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
 import keycloak from "$lib/server/keycloak";
-import { mailAliasUpdateHandler } from "$lib/server/mail/alias/mailAliasUpdateHandler";
 import * as m from "$paraglide/messages";
 export const load: PageServerLoad = async (event) => {
   const { prisma } = event.locals;
@@ -19,9 +19,9 @@ export const load: PageServerLoad = async (event) => {
     createEmailSpecialSenderForm,
     createEmailSpecialReceiverForm,
   ] = await Promise.all([
-    await superValidate(event.request, createEmailPositionSchema),
-    await superValidate(event.request, createEmailSpecialSenderSchema),
-    await superValidate(event.request, createEmailSpecialReceiverSchema),
+    await superValidate(event.request, zod(createEmailPositionSchema)),
+    await superValidate(event.request, zod(createEmailSpecialSenderSchema)),
+    await superValidate(event.request, zod(createEmailSpecialReceiverSchema)),
   ]);
   const [emailAliases, positions, specialReceivers, specialSenders] =
     await Promise.all([
@@ -67,7 +67,10 @@ export const actions: Actions = {
   createEmailPosition: async (event) => {
     const { user, prisma } = event.locals;
     authorize(apiNames.EMAIL_ALIAS.CREATE, user);
-    const form = await superValidate(event.request, createEmailPositionSchema);
+    const form = await superValidate(
+      event.request,
+      zod(createEmailPositionSchema),
+    );
     if (!form.valid) return fail(400, { form });
     const {
       localPartAlias: localPart,
@@ -125,7 +128,6 @@ export const actions: Actions = {
         },
       },
     });
-    mailAliasUpdateHandler.handleUpdate();
     return message(form, {
       message: m.admin_emailalias_addressCreated(),
       type: "success",
@@ -137,7 +139,7 @@ export const actions: Actions = {
     authorize(apiNames.EMAIL_ALIAS.CREATE, user);
     const form = await superValidate(
       event.request,
-      createEmailSpecialSenderSchema,
+      zod(createEmailSpecialSenderSchema),
     );
     if (!form.valid) return fail(400, { form });
     const {
@@ -203,7 +205,6 @@ export const actions: Actions = {
         keycloakId,
       },
     });
-    mailAliasUpdateHandler.handleUpdate();
     return message(form, {
       message: m.admin_emailalias_addressCreated(),
       type: "success",
@@ -215,7 +216,7 @@ export const actions: Actions = {
     authorize(apiNames.EMAIL_ALIAS.CREATE, user);
     const form = await superValidate(
       event.request,
-      createEmailSpecialReceiverSchema,
+      zod(createEmailSpecialReceiverSchema),
     );
     if (!form.valid) return fail(400, { form });
     const {
@@ -266,7 +267,6 @@ export const actions: Actions = {
         targetEmail,
       },
     });
-    mailAliasUpdateHandler.handleUpdate();
     return message(form, {
       message: m.admin_emailalias_addressCreated(),
       type: "success",

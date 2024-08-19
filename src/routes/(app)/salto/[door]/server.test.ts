@@ -21,5 +21,5 @@ test("door access list is not empty", async () => {
 test("door access list contains backup students", async () => {
   const response = await GET(mockEvent);
   const body = await response.text();
-  expect(body).toEqual(BACKUP_LIST_OF_STUDENT_IDS.join("\n"));
+  expect(body).toContain(BACKUP_LIST_OF_STUDENT_IDS.join("\n"));
 });

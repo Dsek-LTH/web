@@ -2,6 +2,7 @@ import { getFullName } from "$lib/utils/client/member";
 import sendNotification from "$lib/utils/notifications";
 import { NotificationType } from "$lib/utils/notifications/types";
 import type { Ping, PrismaClient } from "@prisma/client";
+import * as m from "$paraglide/messages";
 import { error } from "@sveltejs/kit";
 type MemberIdentification =
   | {
@@ -22,16 +23,15 @@ export const sendPing = async (
   prisma: PrismaClient,
   { link, fromMemberId, toMemberId }: SendPingProps,
 ) => {
-  console.log(link, fromMemberId, toMemberId);
   const sendingMember = await assertMemberExists(
     prisma,
     fromMemberId,
-    "Couldn't find sending member",
+    m.members_errors_senderNotFound(),
   );
   const receivingMember = await assertMemberExists(
     prisma,
     toMemberId,
-    "Couldn't find recieving member",
+    m.members_errors_receiverNotFound(),
   );
 
   try {
@@ -51,12 +51,17 @@ export const sendPing = async (
       );
     }
   } catch (e) {
-    throw error(500, `Failed to ping. Error: ${e}`);
+    throw error(
+      500,
+      m.members_errors_couldntPing({
+        e: e instanceof Error ? e.message : "???",
+      }),
+    );
   }
 
   await sendNotification({
     title: "PING!",
-    message: `Du har blivit pingad av ${getFullName(sendingMember)}!`,
+    message: `${getFullName(sendingMember)} har pingat dig!`,
     type: NotificationType.PING,
     link: link,
     memberIds: [receivingMember.id],
@@ -67,7 +72,7 @@ export const sendPing = async (
 const assertMemberExists = async (
   prisma: PrismaClient,
   member: MemberIdentification,
-  errorMsg = "Member does not exist",
+  errorMsg = m.members_errors_memberDoesntExist(),
 ) => {
   try {
     const foundMember = await prisma.member.findFirst({
@@ -86,8 +91,13 @@ const assertMemberExists = async (
     if (foundMember == null || !foundMember) throw error(400, errorMsg);
     return foundMember;
   } catch (e) {
-    console.log(e);
-    throw error(500, `Failed to find member. Error: ${e}`);
+    console.error(e);
+    throw error(
+      500,
+      m.members_errors_failedToFindMember({
+        e: e instanceof Error ? e.message : "???",
+      }),
+    );
   }
 };
 
