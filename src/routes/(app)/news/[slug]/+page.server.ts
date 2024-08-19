@@ -29,7 +29,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     });
   }
   if (article.tags.some((t) => t.name.startsWith(NOLLNING_TAG_PREFIX))) {
-    throw redirect(308, `${POST_REVEAL_PREFIX}/messages`);
+    throw redirect(302, `${POST_REVEAL_PREFIX}/messages`);
   }
   const allTaggedMembers = await getAllTaggedMembers(prisma, article.comments);
   const canEdit =
