@@ -3,6 +3,8 @@ import * as m from "$paraglide/messages";
 import { ShoppableType } from "@prisma/client";
 import { error, type ServerLoadEvent } from "@sveltejs/kit";
 import type { ConsumableWithMoreInfo } from "./types";
+import { authorize } from "$lib/utils/authorization";
+import apiNames from "$lib/utils/apiNames";
 
 export const inventoryLoadFunction = async ({
   locals,
@@ -15,6 +17,7 @@ export const inventoryLoadFunction = async ({
     error(401, m.inventory_errors_unauthorized());
   }
   depends("consumables");
+
   const userId = dbIdentification(
     memberId
       ? {
@@ -45,6 +48,10 @@ export const inventoryLoadFunction = async ({
       },
     },
   });
+  if (!memberId && consumables) {
+    throw error(403, m.inventory_errors_unauthorized());
+  }
+  authorize(apiNames.WEBSHOP.PURCHASE);
   const consumablesWithMoreInfo: ConsumableWithMoreInfo[] = consumables.map(
     (consumable) => {
       if (consumable.shoppable.type !== ShoppableType.TICKET) {

@@ -4,6 +4,7 @@
   "yes": "Yes",
   "save": "Save",
   "errors_notImplemented": "Not implemented yet",
+  "errors_missingPermissions": "You do not have permission, have you logged in? Required policy:",
   "home": "Home",
   "news": "News",
   "events": "Events",

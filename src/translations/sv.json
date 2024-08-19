@@ -4,6 +4,7 @@
   "yes": "Ja",
   "save": "Spara",
   "errors_notImplemented": "Inte implementerat än",
+  "errors_missingPermissions": "Du har inte access, har du loggat in? Policy som krävs:",
   "home": "Hem",
   "news": "Nyheter",
   "events": "Evenemang",
