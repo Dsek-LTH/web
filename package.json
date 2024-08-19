@@ -18,24 +18,30 @@
     "test": "vitest run",
     "test:watch": "vitest watch",
     "generate": "zenstack generate && prisma generate",
-    "migrate": "zenstack generate && prisma migrate dev",
+    "migrate": "zenstack generate && prisma migrate dev && snaplet-seed sync",
     "seed": "prisma db seed",
     "prisma-case-format": "prisma-case-format -f src/database/prisma/schema.prisma",
     "paraglide": "paraglide-js compile --project ./project.inlang --outdir ./src/translations/paraglide"
+  },
+  "zenstack": {
+    "schema": "src/database/schema.zmodel"
   },
   "prisma": {
     "schema": "src/database/prisma/schema.prisma",
     "seed": "vite-node src/database/seed/main.ts"
   },
-  "zenstack": {
-    "schema": "src/database/schema.zmodel"
+  "@snaplet/seed": {
+    "config": "src/database/seed/seed.config.ts"
   },
   "devDependencies": {
     "@clack/prompts": "^0.7.0",
+    "@faker-js/faker": "^8.4.1",
     "@iconify-json/flag": "^1.1.53",
     "@iconify-json/mdi": "^1.1.67",
     "@inlang/paraglide-js": "1.1.0",
     "@inlang/paraglide-js-adapter-sveltekit": "^0.4.1",
+    "@snaplet/copycat": "^5.0.0",
+    "@snaplet/seed": "0.98.0",
     "@sveltejs/adapter-node": "^5.2.0",
     "@sveltejs/adapter-vercel": "^5.4.1",
     "@sveltejs/kit": "^2.5.20",

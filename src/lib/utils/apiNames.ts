@@ -36,7 +36,7 @@ const apiNames = {
     READ: "core:access:admin:read",
     SETTINGS: crud("admin:settings"),
   },
-  ACCESS_POLICY: crud("core:access:policy"),
+  ACCESS_POLICY: crud("core:access:api"),
   EMAIL_ALIAS: crud("core:mail:alias"),
   FILES: {
     BUCKET: <bucketName extends string>(name: bucketName) =>

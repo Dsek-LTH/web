@@ -13,29 +13,8 @@ until docker exec dsek-db pg_isready
 do
     sleep 0.5;
 done
-echo "Database is ready! Loading data..."
-sleep 0.5; # Sometimes the database is not ready yet even though pg_isready returns true
-
-# Set `session_replication_role` to `'replica'`, this will temporarily disable
-# all foreign key checks. If you used the parameters for your postgresql docker
-# container above the following command should work.
-docker exec --interactive --tty dsek-db \
-       psql --username postgres \
-            --dbname=dsek \
-            --command="SET session_replication_role = 'replica';"
-
-# Restore old database from dump
-curl -L "https://minio.api.sandbox.dsek.se/files/dev/dwww_web.dmp" | \
-    docker exec --interactive dsek-db \
-           pg_restore --username=postgres \
-                      --dbname=dsek \
-                      --verbose
-
-# Re-enable foreign key checks
-docker exec --interactive --tty dsek-db \
-       psql --username postgres \
-            --dbname=dsek \
-            --command="SET session_replication_role = 'origin';"
+# Sometimes the database is not ready yet even though pg_isready returns true
+sleep 0.5;
 
 # Setup migrations for prisma and seed database
 pnpm migrate

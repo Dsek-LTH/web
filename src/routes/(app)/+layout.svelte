@@ -1,7 +1,6 @@
 <script lang="ts">
   import GlobalAlert from "$lib/components/GlobalAlert.svelte";
   import { languageTag } from "$paraglide/runtime";
-  import dayjs from "dayjs";
   import "dayjs/locale/sv";
   import AppBottomNav from "../AppBottomNav.svelte";
   import AppHeader from "../AppHeader.svelte";
@@ -12,10 +11,6 @@
   import AppNotificationHandler from "$lib/components/utils/AppNotificationHandler.svelte";
 
   export let data;
-  $: (() => {
-    const locale = languageTag();
-    dayjs.locale(locale);
-  })();
 </script>
 
 {#if !data.isApp}
