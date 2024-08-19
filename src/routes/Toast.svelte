@@ -10,12 +10,16 @@
     $page.form?.form?.message &&
     $page.form.form.message.type !== "hidden"
   ) {
-    toast($page.form.form.message.message, $page.form.form.message.type);
+    toast(
+      $page.form.form.message.message,
+      $page.form.form.message.type,
+      $page.form.form.message.id,
+    );
   }
 
   // Message from form on redirect
   $: if ($flash && $flash.type !== "hidden") {
-    toast($flash.message, $flash.type);
+    toast($flash.message, $flash.type, $flash.id);
   }
 
   $: toastLocationClasses = (() => {

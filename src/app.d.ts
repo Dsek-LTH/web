@@ -11,6 +11,7 @@ declare global {
   type Message = {
     type: MessageType;
     message: string;
+    id?: string;
   };
   namespace App {
     type AppInfo = {
