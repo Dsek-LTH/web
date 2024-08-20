@@ -19,6 +19,8 @@
   /** All selected tags */
   export let selectedTags: Tag[] = [];
 
+  export let placeholder = "Taggar";
+
   let searchValue = "";
   $: filteredTags = allTags.filter(
     (tag) =>
@@ -65,7 +67,7 @@
         autocomplete="off"
         autocapitalize="off"
         type="text"
-        placeholder="Taggar"
+        {placeholder}
         class="bg-transparent"
         bind:value={searchValue}
         bind:this={autocompleteEl}
