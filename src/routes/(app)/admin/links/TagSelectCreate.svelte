@@ -22,7 +22,7 @@
   let searchValue = "";
   $: filteredTags = allTags.filter(
     (tag) =>
-      tag.name.toLowerCase().includes(searchValue.toLowerCase()) &&
+      tag.name?.toLowerCase().includes(searchValue.toLowerCase()) &&
       !selectedTags.map((tag) => tag.id).includes(tag.id),
   );
 

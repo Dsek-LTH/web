@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { goto, invalidate } from "$app/navigation";
+  import { goto } from "$app/navigation";
   import PageHeader from "$lib/components/nav/PageHeader.svelte";
   import Pagination from "$lib/components/Pagination.svelte";
   import type { ShlinkShortUrlsOrder } from "@shlinkio/shlink-js-sdk/api-contract";
@@ -79,7 +79,7 @@
     $page.url.searchParams.getAll("tags").includes(tag.name),
   );
 
-  let removeModal: HTMLDialogElement | undefined = undefined;
+  let removeModal: HTMLDialogElement;
   let toggleAllCheckBox: HTMLInputElement;
   let checkboxes: boolean[] = [];
   const resetCheckboxes = () => {
@@ -92,7 +92,7 @@
     resetCheckboxes();
   }
 
-  let editModal: HTMLDialogElement | undefined = undefined;
+  let editModal: HTMLDialogElement;
 </script>
 
 <PageHeader title="Link shortener" />
@@ -131,7 +131,7 @@
       {#if $createLinksErrors.tags?._errors}
         <div class="label">
           <span class="label-text-alt text-error">
-            {#if $createLinksErrors.tags?.length > 1}
+            {#if $createLinksErrors.tags?.length ?? 0 > 1}
               {$createLinksErrors.tags[0]}
             {:else}
               {$createLinksErrors.tags?._errors?.join(", ")}
@@ -157,7 +157,7 @@
       type="button"
       class="btn btn-square btn-error place-self-end"
       disabled={checkboxes.every((c) => !c)}
-      on:click={(_e) => removeModal?.showModal()}
+      on:click={(_) => removeModal?.showModal()}
     >
       <span class="i-mdi-trash-can"></span>
     </button>
@@ -214,7 +214,7 @@
               bind:this={toggleAllCheckBox}
               on:change={(e) =>
                 (checkboxes = [...Array(data.domains.length).keys()].map(
-                  (c) => e.target.checked,
+                  (_) => e.target.checked,
                 ))}
             />
           </th>
