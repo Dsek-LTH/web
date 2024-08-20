@@ -8,10 +8,15 @@ import * as m from "$paraglide/messages";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma } = locals;
-  const [memberResult] = await Promise.allSettled([
+  const [memberResult, phadderGroupsResult] = await Promise.allSettled([
     prisma.member.findUnique({
       where: {
         studentId: locals.user?.studentId,
+      },
+    }),
+    prisma.phadderGroup.findMany({
+      orderBy: {
+        createdAt: "asc",
       },
     }),
   ]);
@@ -21,10 +26,17 @@ export const load: PageServerLoad = async ({ locals }) => {
   if (!memberResult.value) {
     throw error(404, m.onboarding_errors_memberNotFound());
   }
+  if (phadderGroupsResult.status === "rejected")
+    throw error(
+      500,
+      phadderGroupsResult.reason ?? "Couldn't fetch phadder groups",
+    );
   const member = memberResult.value;
+  const phadderGroups = phadderGroupsResult.value;
   return {
     form: await superValidate(member, zod(memberSchema)),
     member,
+    phadderGroups,
   };
 };
 
@@ -36,6 +48,7 @@ const updateSchema = memberSchema.pick({
   foodPreference: true,
   classProgramme: true,
   classYear: true,
+  nollningGroupId: true,
 });
 
 export type UpdateSchema = Infer<typeof updateSchema>;

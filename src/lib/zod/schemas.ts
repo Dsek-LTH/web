@@ -29,6 +29,7 @@ export const memberSchema = z.object({
       message: "Ogiltigt program",
     }),
   foodPreference: z.string().nullable().default(null),
+  nollningGroupId: z.string().uuid().nullable(),
 });
 export const positionSchema = z.object({
   id: z.string(),
