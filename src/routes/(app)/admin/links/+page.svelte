@@ -12,7 +12,7 @@
   import TagSelectCreate from "./TagSelectCreate.svelte";
   import Input from "$lib/components/Input.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
-  import { superForm } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
 
   export let data: PageData;
 
@@ -161,7 +161,7 @@
       type="button"
       class="btn btn-square btn-error place-self-end"
       disabled={checkboxes.every((c) => !c)}
-      on:click={(_) => removeModal?.showModal()}
+      on:click={() => removeModal?.showModal()}
     >
       <span class="i-mdi-trash-can"></span>
     </button>
@@ -218,7 +218,7 @@
               bind:this={toggleAllCheckBox}
               on:change={(e) =>
                 (checkboxes = [...Array(data.domains.length).keys()].map(
-                  (_) => e.target.checked,
+                  () => e.target.checked,
                 ))}
             />
           </th>
