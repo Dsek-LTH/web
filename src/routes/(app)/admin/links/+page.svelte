@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
-  import PageHeader from "$lib/components/PageHeader.svelte";
+  import { goto, invalidate } from "$app/navigation";
+  import PageHeader from "$lib/components/nav/PageHeader.svelte";
   import Pagination from "$lib/components/Pagination.svelte";
   import type { ShlinkShortUrlsOrder } from "@shlinkio/shlink-js-sdk/api-contract";
   import type { PageData } from "./$types";
@@ -72,11 +72,12 @@
     { order: { field: "visits" }, title: "Visits" },
   ];
 
+  let allTags = data.tags.map((t) => ({ id: t, name: t }) as Tag);
   $: allTags = data.tags.map((t) => ({ id: t, name: t }) as Tag);
-  $: filteredTags = allTags.filter((tag) =>
+
+  let filteredTags = allTags.filter((tag) =>
     $page.url.searchParams.getAll("tags").includes(tag.name),
   );
-  let searchForm: HTMLFormElement;
 
   let removeModal: HTMLDialogElement | undefined = undefined;
   let toggleAllCheckBox: HTMLInputElement;
@@ -160,22 +161,19 @@
     >
       <span class="i-mdi-trash-can"></span>
     </button>
-    <form
-      method="get"
-      class="form-control flex-1 gap-2 md:flex-row md:items-end"
-      id="filter-form"
-      bind:this={searchForm}
-    >
+
+    <section class="form-control flex-1 gap-2 md:flex-row md:items-end">
       <TagSelector
         {allTags}
         bind:selectedTags={filteredTags}
-        onChange={() => setTimeout(() => searchForm.requestSubmit())}
+        onChange={() => {
+          query.delete("tags");
+          filteredTags.forEach((t) => query.append("tags", t.name));
+          goto(`?${query.toString()}`);
+        }}
       />
       <SearchBar />
-      {#each filteredTags as tag (tag.id)}
-        <input type="hidden" name="tags" value={tag.name} />
-      {/each}
-    </form>
+    </section>
   </div>
 
   <dialog bind:this={removeModal} class="modal modal-bottom sm:modal-middle">

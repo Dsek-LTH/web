@@ -8,6 +8,7 @@ import { authorize } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
 import { z } from "zod";
 import { message, superValidate } from "sveltekit-superforms/server";
+import { zod } from "sveltekit-superforms/adapters";
 
 const VALID_ORDER = [
   "title",
@@ -75,7 +76,7 @@ export const load: PageServerLoad = async ({ url, locals }) => {
     });
   } catch (_e) {
     const e = _e as ProblemDetailsError;
-    error(e.status as NumericRange<400, 599>, e.title);
+    error(e.status as NumericRange<400, 599>, "Shlink error: " + e.title);
   }
   const tags = await apiClient.listTags();
 
@@ -83,14 +84,18 @@ export const load: PageServerLoad = async ({ url, locals }) => {
     domains: domains.data,
     pagination: domains.pagination,
     tags: tags.data,
-    createLinksForm: await superValidate(createLinksSchema, { id: "create" }),
-    updateLinksForm: await superValidate(updateLinksSchema, { id: "update" }),
+    createLinksForm: await superValidate(zod(createLinksSchema), {
+      id: "create",
+    }),
+    updateLinksForm: await superValidate(zod(updateLinksSchema), {
+      id: "update",
+    }),
   };
 };
 export const actions: Actions = {
   create: async ({ locals, request }) => {
     authorize(apiNames.DOOR.CREATE, locals.user);
-    const createForm = await superValidate(request, createLinksSchema);
+    const createForm = await superValidate(request, zod(createLinksSchema));
     if (!createForm.valid) {
       return fail(400, { createForm });
     }
@@ -119,7 +124,7 @@ export const actions: Actions = {
   },
   update: async ({ locals, request }) => {
     authorize(apiNames.DOOR.UPDATE, locals.user);
-    const updateForm = await superValidate(request, updateLinksSchema);
+    const updateForm = await superValidate(request, zod(updateLinksSchema));
     if (!updateForm.valid) {
       return fail(400, { updateForm });
     }
@@ -147,7 +152,7 @@ export const actions: Actions = {
   },
   delete: async ({ locals, request }) => {
     authorize(apiNames.DOOR.DELETE, locals.user);
-    const deleteForm = await superValidate(request, deleteLinksSchema);
+    const deleteForm = await superValidate(request, zod(deleteLinksSchema));
     if (!deleteForm.valid) {
       return fail(400, { deleteForm });
     }
