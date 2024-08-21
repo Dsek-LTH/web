@@ -212,6 +212,7 @@ model BookingRequest {
   @@allow("read", has(auth().policies, "booking_request:read"))
   @@allow("update", has(auth().policies, "booking_request:update"))
   @@allow("delete", has(auth().policies, "booking_request:delete"))
+  @@allow("delete", auth().memberId == bookerId)
   @@map("booking_requests")
 }
 

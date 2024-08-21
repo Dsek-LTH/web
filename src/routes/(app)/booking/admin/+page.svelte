@@ -6,15 +6,25 @@
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import * as m from "$paraglide/messages";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
+  import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
   export let data;
+
+  let deleteModal: HTMLDialogElement;
+  let selectedBooking: (typeof data.bookingRequests)[number] | undefined =
+    undefined;
 </script>
 
 <SetPageTitle title={m.bookings()} />
 
-<a class="btn mb-4" href="/booking">
-  <span class="i-mdi-arrow-expand-left" />
-  {m.booking_goBack()}
-</a>
+<div class="mb-8 flex gap-4">
+  <a class="btn" href="/booking">
+    <span class="i-mdi-arrow-expand-left" />
+    {m.booking_goBack()}
+  </a>
+  <a class="btn" href="/booking/create">
+    {m.booking_createBooking()}
+  </a>
+</div>
 
 <div class="overflow-x-auto">
   <table class="table">
@@ -51,7 +61,7 @@
                 <a
                   href="/members/{bookingRequest.booker.studentId}"
                   class="link-hover link"
-                  >{getFullName(bookingRequest.booker)}
+                  >{getFullName(bookingRequest.booker, { hideNickname: true })}
                 </a>
               {/if}
             </div>
@@ -66,7 +76,7 @@
             <form
               method="POST"
               use:enhance
-              class="form-control gap-2"
+              class="flex gap-2"
               id={`form-${bookingRequest.id}`}
             >
               <input
@@ -77,17 +87,40 @@
               />
               <button
                 formaction="?/accept"
-                class="btn btn-xs px-8"
+                class="btn btn-outline btn-xs"
                 class:btn-disabled={bookingRequest.status === "ACCEPTED"}
+                aria-label={m.booking_accept()}
               >
-                {m.booking_accept()}
+                <span class="i-mdi-check" />
               </button>
               <button
                 formaction="?/reject"
-                class="btn btn-xs px-8"
+                class="btn btn-outline btn-xs"
                 class:btn-disabled={bookingRequest.status === "DENIED"}
+                aria-label={m.booking_deny()}
               >
-                {m.booking_deny()}
+                <span class="i-mdi-close" />
+              </button>
+
+              <hr class="mx-2" />
+
+              <!-- <a
+                href="/booking/{bookingRequest.id}/edit"
+                class="btn btn-outline btn-xs"
+                aria-label={m.booking_edit()}
+              >
+                <span class="i-mdi-edit" />
+              </a> -->
+              <button
+                class="btn btn-outline btn-xs"
+                type="button"
+                aria-label={m.booking_delete()}
+                on:click={() => {
+                  deleteModal?.showModal();
+                  selectedBooking = bookingRequest;
+                }}
+              >
+                <span class="i-mdi-delete" />
               </button>
             </form>
           </td>
@@ -96,3 +129,24 @@
     </tbody>
   </table>
 </div>
+
+<ConfirmDialog
+  bind:modal={deleteModal}
+  title={m.booking_deleteTitle()}
+  confirmText={m.booking_delete()}
+  confirmClass="btn-error"
+  formTarget="/booking?/delete"
+  formData={{ id: selectedBooking?.id ?? "" }}
+>
+  <p slot="description">
+    {#if selectedBooking}
+      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+      {@html m.booking_deleteAreYouSure({
+        name: selectedBooking?.booker?.firstName ?? "",
+        bookables: selectedBooking?.bookables
+          .map(({ name }) => name)
+          .join(", "),
+      })}
+    {/if}
+  </p>
+</ConfirmDialog>

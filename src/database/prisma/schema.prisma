@@ -218,6 +218,7 @@ model Bookable {
 /// @@allow('read', has(auth().policies, 'booking_request:read'))
 /// @@allow('update', has(auth().policies, 'booking_request:update'))
 /// @@allow('delete', has(auth().policies, 'booking_request:delete'))
+/// @@allow('delete', auth().memberId == bookerId)
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model BookingRequest {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
