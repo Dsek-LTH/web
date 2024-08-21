@@ -1,6 +1,28 @@
 <script lang="ts">
   import { getFileUrl } from "$lib/files/images";
 
+  let carouselEls: HTMLDivElement[] = [];
+
+  function carouselLeft(i: number): void {
+    const carouselEl = carouselEls[i];
+    if (!carouselEl) return;
+    const x =
+      carouselEl.scrollLeft === 0
+        ? carouselEl.clientWidth * carouselEl.childElementCount // loop
+        : carouselEl.scrollLeft - carouselEl.clientWidth; // step left
+    carouselEl.scroll(x, 0);
+  }
+
+  function carouselRight(i: number): void {
+    const carouselEl = carouselEls[i];
+    if (!carouselEl) return;
+    const x =
+      carouselEl.scrollLeft === carouselEl.scrollWidth - carouselEl.clientWidth
+        ? 0 // loop
+        : carouselEl.scrollLeft + carouselEl.clientWidth; // step right
+    carouselEl.scroll(x, 0);
+  }
+
   const SECTIONS = [
     {
       title: "FEST",
@@ -134,7 +156,7 @@
 <main class="flex flex-col gap-28">
   {#each SECTIONS as section, i}
     <section class="flex flex-col gap-14">
-      <div class="carousel h-80 w-full">
+      <div class="carousel h-80 w-full" bind:this={carouselEls[i]}>
         {#each section.images as image, i}
           <div id="slide{i}" class="carousel-item relative w-full">
             <img
@@ -152,13 +174,14 @@
         <p class="max-w-prose text-sm">{section.description}</p>
 
         <div class="flex gap-6">
-          <button class="size-9 bg-[#24292A]">
+          <button class="size-9 bg-[#24292A]" on:click={() => carouselLeft(i)}>
             <span class="i-mdi-arrow-left" />
           </button>
           <button
             class="size-9"
             class:bg-primary={i % 2 === 0}
             class:bg-secondary={i % 2 !== 0}
+            on:click={() => carouselRight(i)}
           >
             <span class="i-mdi-arrow-right" />
           </button>
