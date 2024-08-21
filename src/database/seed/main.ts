@@ -35,7 +35,11 @@ const main = async () => {
   await seed.doorAccessPolicy((x) => x(50));
 
   await seed.bookable(BOOKABLES);
-  await seed.bookingRequest((x) => x(25));
+  await seed.bookingRequest((x) =>
+    x(25, {
+      _booking_requests_bookables: (x) => x({ min: 1, max: 5 }),
+    }),
+  );
 
   await seed.committee(
     COMMITTEES.map((committee) => ({
