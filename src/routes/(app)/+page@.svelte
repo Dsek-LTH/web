@@ -23,6 +23,11 @@
     carouselEl.scroll(x, 0);
   }
 
+  let drawerOpen = false;
+  function closeDrawer() {
+    drawerOpen = !drawerOpen;
+  }
+
   const SECTIONS = [
     {
       title: "FEST",
@@ -109,140 +114,177 @@
   ] as const;
 </script>
 
-<nav class="z-10">
-  <a href="/">
-    <svg
-      width="32"
-      height="44"
-      viewBox="0 0 32 44"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M23.3708 7.4382V5.82022H26.7865C27.1461 6.17977 27.5056 6.7191 27.8652 7.25843L23.3708 7.4382ZM29.4831 6.17977C27.5056 2.58427 23.5506 0.786516 17.7978 0.786516C16.1798 0.786516 14.9213 0.966292 13.6629 1.14607V0.426966H12.9438L0.359551 6.17977V9.23596C1.25843 9.23596 1.97753 9.59551 2.51685 10.1348C3.05618 10.6742 3.41573 11.3933 3.41573 12.2921V37.2809V36.9213C3.41573 37.8202 3.05618 38.5393 2.51685 39.0787C1.97753 39.618 1.25843 39.9775 0.359551 39.9775H0V43.573H17.7978C23.5506 43.573 27.5056 41.7753 29.4831 38.1798C31.1011 35.3034 32 29.9101 32 22.1798C32 14.4494 31.1011 9.05618 29.4831 6.17977ZM23.5506 11.0337V9.5955H28.9438C29.1236 10.3146 29.3034 10.8539 29.3034 11.0337H23.5506ZM23.5506 14.4494V13.0112H29.8427C29.8427 13.3708 30.0225 13.9101 30.0225 14.6292L23.5506 14.4494ZM23.5506 18.0449V16.6067H30.2022V18.2247H23.5506V18.0449ZM23.5506 21.6404V20.0225H30.382V21.6404H23.5506ZM30.2022 25.236H23.5506V23.618H30.2022V25.236ZM6.11236 6.17977H4.49438L7.01124 4.92135C6.65169 5.2809 6.47191 5.82022 6.11236 6.17977ZM30.2022 28.8315H23.5506V27.2135H30.2022V28.8315ZM21.2135 41.236C20.8539 41.5955 20.3146 41.9551 19.7753 41.9551H18.3371V40.1573H16.7191C15.8202 40.1573 15.1011 39.7978 14.5618 39.2584C14.0225 38.7191 13.6629 38 13.6629 37.1011V4.20225C13.8427 3.12359 14.5618 2.58427 15.6404 2.58427H19.7753C20.3146 2.58427 20.8539 2.76404 21.2135 3.12359C21.573 3.48315 21.7528 4.02247 21.7528 4.5618V39.7978C21.9326 40.3371 21.7528 40.8764 21.2135 41.236ZM4.67416 9.5955C4.31461 9.05618 3.95506 8.69663 3.41573 8.1573H5.21348C4.85393 8.8764 4.85393 9.23595 4.67416 9.5955ZM29.6629 32.427H23.5506V30.809H30.0225C29.8427 31.5281 29.6629 32.0674 29.6629 32.427ZM28.764 36.0225H23.5506V34.4045H29.3034L28.764 36.0225ZM26.2472 39.4382H23.3708C23.3708 39.0787 23.3708 38.5393 23.5506 37.8202H27.8652L26.2472 39.4382ZM5.21348 38.7191C5.39326 38.1798 5.57303 37.8202 5.57303 37.2809C5.93258 38 6.11236 38.5393 6.29214 38.7191H5.21348ZM1.97753 41.9551V41.7753C2.33708 41.5955 2.8764 41.4157 3.59551 40.8764H8.08989C8.62921 41.236 9.16854 41.7753 9.52809 41.9551H1.97753Z"
-        fill="white"
-      />
-    </svg>
-  </a>
+<div class="drawer drawer-end">
+  <input
+    id="landing-drawer"
+    type="checkbox"
+    class="drawer-toggle"
+    bind:checked={drawerOpen}
+  />
 
-  <span class="i-mdi-menu size-8" />
-</nav>
-
-<header
-  style:--url="url({getFileUrl("minio/photos/public/assets/hero.jpg")})"
-  style:background-size="cover"
->
-  <div class="absolute top-1/3 px-10">
-    <h1 class="mb-4 text-5xl font-bold">D-SEKTIONEN</h1>
-    <p class="max-w-prose">
-      D-sektionen inom TLTH är en ideell organisation för studenter och alumner
-      vid programmen Datateknik och InfoCom. Sektionen har sociala arrangemang,
-      näringslivskontakter, studiebevakning, och allt annat som hjälper
-      studenter och alumner.
-    </p>
-
-    <div class="flex flex-col items-start">
-      <a
-        href="/committees"
-        class="mb-10 mt-20 inline-block bg-primary px-5 py-3 font-bold text-white"
-      >
-        ENGAGERA DIG
+  <div class="drawer-content">
+    <nav class="z-10">
+      <a href="/">
+        <svg
+          width="32"
+          height="44"
+          viewBox="0 0 32 44"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M23.3708 7.4382V5.82022H26.7865C27.1461 6.17977 27.5056 6.7191 27.8652 7.25843L23.3708 7.4382ZM29.4831 6.17977C27.5056 2.58427 23.5506 0.786516 17.7978 0.786516C16.1798 0.786516 14.9213 0.966292 13.6629 1.14607V0.426966H12.9438L0.359551 6.17977V9.23596C1.25843 9.23596 1.97753 9.59551 2.51685 10.1348C3.05618 10.6742 3.41573 11.3933 3.41573 12.2921V37.2809V36.9213C3.41573 37.8202 3.05618 38.5393 2.51685 39.0787C1.97753 39.618 1.25843 39.9775 0.359551 39.9775H0V43.573H17.7978C23.5506 43.573 27.5056 41.7753 29.4831 38.1798C31.1011 35.3034 32 29.9101 32 22.1798C32 14.4494 31.1011 9.05618 29.4831 6.17977ZM23.5506 11.0337V9.5955H28.9438C29.1236 10.3146 29.3034 10.8539 29.3034 11.0337H23.5506ZM23.5506 14.4494V13.0112H29.8427C29.8427 13.3708 30.0225 13.9101 30.0225 14.6292L23.5506 14.4494ZM23.5506 18.0449V16.6067H30.2022V18.2247H23.5506V18.0449ZM23.5506 21.6404V20.0225H30.382V21.6404H23.5506ZM30.2022 25.236H23.5506V23.618H30.2022V25.236ZM6.11236 6.17977H4.49438L7.01124 4.92135C6.65169 5.2809 6.47191 5.82022 6.11236 6.17977ZM30.2022 28.8315H23.5506V27.2135H30.2022V28.8315ZM21.2135 41.236C20.8539 41.5955 20.3146 41.9551 19.7753 41.9551H18.3371V40.1573H16.7191C15.8202 40.1573 15.1011 39.7978 14.5618 39.2584C14.0225 38.7191 13.6629 38 13.6629 37.1011V4.20225C13.8427 3.12359 14.5618 2.58427 15.6404 2.58427H19.7753C20.3146 2.58427 20.8539 2.76404 21.2135 3.12359C21.573 3.48315 21.7528 4.02247 21.7528 4.5618V39.7978C21.9326 40.3371 21.7528 40.8764 21.2135 41.236ZM4.67416 9.5955C4.31461 9.05618 3.95506 8.69663 3.41573 8.1573H5.21348C4.85393 8.8764 4.85393 9.23595 4.67416 9.5955ZM29.6629 32.427H23.5506V30.809H30.0225C29.8427 31.5281 29.6629 32.0674 29.6629 32.427ZM28.764 36.0225H23.5506V34.4045H29.3034L28.764 36.0225ZM26.2472 39.4382H23.3708C23.3708 39.0787 23.3708 38.5393 23.5506 37.8202H27.8652L26.2472 39.4382ZM5.21348 38.7191C5.39326 38.1798 5.57303 37.8202 5.57303 37.2809C5.93258 38 6.11236 38.5393 6.29214 38.7191H5.21348ZM1.97753 41.9551V41.7753C2.33708 41.5955 2.8764 41.4157 3.59551 40.8764H8.08989C8.62921 41.236 9.16854 41.7753 9.52809 41.9551H1.97753Z"
+            fill="white"
+          />
+        </svg>
       </a>
-      <a href="/info/for-foretag" class="font-medium">För företag</a>
-    </div>
-  </div>
-</header>
 
-<main class="flex flex-col gap-28">
-  {#each SECTIONS as section, i}
-    <section class="flex flex-col gap-14">
-      <div class="carousel h-80 w-full" bind:this={carouselEls[i]}>
-        {#each section.images as image, i}
-          <div id="slide{i}" class="carousel-item relative w-full">
-            <img
-              src={getFileUrl(`minio/photos/public/assets/${image}`)}
-              class="h-full w-full object-cover"
-              alt="party"
-            />
-          </div>
-        {/each}
-      </div>
+      <label for="landing-drawer" aria-label="open sidebar">
+        <span class="i-mdi-menu size-8 align-middle" />
+      </label>
+    </nav>
 
-      <div class="mx-10 flex flex-col gap-7">
-        <h2 class="font-bold">{section.title}</h2>
-        <h1 class="text-4xl font-bold">{section.slogan}</h1>
-        <p class="max-w-prose text-sm">{section.description}</p>
+    <header
+      style:--url="url({getFileUrl("minio/photos/public/assets/hero.jpg")})"
+      style:background-size="cover"
+    >
+      <div class="absolute top-1/3 px-10">
+        <h1 class="mb-4 text-5xl font-bold">D-SEKTIONEN</h1>
+        <p class="max-w-prose">
+          D-sektionen inom TLTH är en ideell organisation för studenter och
+          alumner vid programmen Datateknik och InfoCom. Sektionen har sociala
+          arrangemang, näringslivskontakter, studiebevakning, och allt annat som
+          hjälper studenter och alumner.
+        </p>
 
-        <div class="flex gap-6">
-          <button class="size-9 bg-[#24292A]" on:click={() => carouselLeft(i)}>
-            <span class="i-mdi-arrow-left" />
-          </button>
-          <button
-            class="size-9"
-            class:bg-primary={i % 2 === 0}
-            class:bg-secondary={i % 2 !== 0}
-            on:click={() => carouselRight(i)}
+        <div class="flex flex-col items-start">
+          <a
+            href="/committees"
+            class="mb-10 mt-20 inline-block bg-primary px-5 py-3 font-bold text-white"
           >
-            <span class="i-mdi-arrow-right" />
-          </button>
+            ENGAGERA DIG
+          </a>
+          <a href="/info/for-foretag" class="font-medium">För företag</a>
         </div>
       </div>
-    </section>
-  {/each}
+    </header>
 
-  <section class="mx-10 flex flex-col gap-14">
-    {#each ARTICLES as article}
-      <article
-        style:--url="url({getFileUrl(
-          `minio/photos/public/assets/${article.image}`,
-        )})"
-        style:background-size={article.imageSize}
-        style:background-position={article.imagePosition}
-        style:background-repeat="no-repeat"
-      >
-        <h1 class="text-xl font-bold">{article.title}</h1>
-        <p class="max-w-prose text-sm font-medium text-[#BFBFBF]">
-          {article.description}
-        </p>
-      </article>
-    {/each}
-  </section>
+    <main class="flex flex-col gap-28">
+      {#each SECTIONS as section, i}
+        <section class="flex flex-col gap-14">
+          <div class="carousel h-80 w-full" bind:this={carouselEls[i]}>
+            {#each section.images as image, i}
+              <div id="slide{i}" class="carousel-item relative w-full">
+                <img
+                  src={getFileUrl(`minio/photos/public/assets/${image}`)}
+                  class="h-full w-full object-cover"
+                  alt="party"
+                />
+              </div>
+            {/each}
+          </div>
 
-  <footer class="mb-28 flex flex-col items-center gap-20">
-    <a href="/">
-      <svg
-        width="32"
-        height="44"
-        viewBox="0 0 32 44"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M23.3708 7.4382V5.82022H26.7865C27.1461 6.17977 27.5056 6.7191 27.8652 7.25843L23.3708 7.4382ZM29.4831 6.17977C27.5056 2.58427 23.5506 0.786516 17.7978 0.786516C16.1798 0.786516 14.9213 0.966292 13.6629 1.14607V0.426966H12.9438L0.359551 6.17977V9.23596C1.25843 9.23596 1.97753 9.59551 2.51685 10.1348C3.05618 10.6742 3.41573 11.3933 3.41573 12.2921V37.2809V36.9213C3.41573 37.8202 3.05618 38.5393 2.51685 39.0787C1.97753 39.618 1.25843 39.9775 0.359551 39.9775H0V43.573H17.7978C23.5506 43.573 27.5056 41.7753 29.4831 38.1798C31.1011 35.3034 32 29.9101 32 22.1798C32 14.4494 31.1011 9.05618 29.4831 6.17977ZM23.5506 11.0337V9.5955H28.9438C29.1236 10.3146 29.3034 10.8539 29.3034 11.0337H23.5506ZM23.5506 14.4494V13.0112H29.8427C29.8427 13.3708 30.0225 13.9101 30.0225 14.6292L23.5506 14.4494ZM23.5506 18.0449V16.6067H30.2022V18.2247H23.5506V18.0449ZM23.5506 21.6404V20.0225H30.382V21.6404H23.5506ZM30.2022 25.236H23.5506V23.618H30.2022V25.236ZM6.11236 6.17977H4.49438L7.01124 4.92135C6.65169 5.2809 6.47191 5.82022 6.11236 6.17977ZM30.2022 28.8315H23.5506V27.2135H30.2022V28.8315ZM21.2135 41.236C20.8539 41.5955 20.3146 41.9551 19.7753 41.9551H18.3371V40.1573H16.7191C15.8202 40.1573 15.1011 39.7978 14.5618 39.2584C14.0225 38.7191 13.6629 38 13.6629 37.1011V4.20225C13.8427 3.12359 14.5618 2.58427 15.6404 2.58427H19.7753C20.3146 2.58427 20.8539 2.76404 21.2135 3.12359C21.573 3.48315 21.7528 4.02247 21.7528 4.5618V39.7978C21.9326 40.3371 21.7528 40.8764 21.2135 41.236ZM4.67416 9.5955C4.31461 9.05618 3.95506 8.69663 3.41573 8.1573H5.21348C4.85393 8.8764 4.85393 9.23595 4.67416 9.5955ZM29.6629 32.427H23.5506V30.809H30.0225C29.8427 31.5281 29.6629 32.0674 29.6629 32.427ZM28.764 36.0225H23.5506V34.4045H29.3034L28.764 36.0225ZM26.2472 39.4382H23.3708C23.3708 39.0787 23.3708 38.5393 23.5506 37.8202H27.8652L26.2472 39.4382ZM5.21348 38.7191C5.39326 38.1798 5.57303 37.8202 5.57303 37.2809C5.93258 38 6.11236 38.5393 6.29214 38.7191H5.21348ZM1.97753 41.9551V41.7753C2.33708 41.5955 2.8764 41.4157 3.59551 40.8764H8.08989C8.62921 41.236 9.16854 41.7753 9.52809 41.9551H1.97753Z"
-          fill="white"
-        />
-      </svg>
-    </a>
+          <div class="mx-10 flex flex-col gap-7">
+            <h2 class="font-bold">{section.title}</h2>
+            <h1 class="text-4xl font-bold">{section.slogan}</h1>
+            <p class="max-w-prose text-sm">{section.description}</p>
 
-    <ul class="flex flex-col gap-12 text-center text-xl font-medium">
+            <div class="flex gap-6">
+              <button
+                class="size-9 bg-[#24292A]"
+                on:click={() => carouselLeft(i)}
+              >
+                <span class="i-mdi-arrow-left" />
+              </button>
+              <button
+                class="size-9"
+                class:bg-primary={i % 2 === 0}
+                class:bg-secondary={i % 2 !== 0}
+                on:click={() => carouselRight(i)}
+              >
+                <span class="i-mdi-arrow-right" />
+              </button>
+            </div>
+          </div>
+        </section>
+      {/each}
+
+      <section class="mx-10 flex flex-col gap-14">
+        {#each ARTICLES as article}
+          <article
+            style:--url="url({getFileUrl(
+              `minio/photos/public/assets/${article.image}`,
+            )})"
+            style:background-size={article.imageSize}
+            style:background-position={article.imagePosition}
+            style:background-repeat="no-repeat"
+          >
+            <h1 class="text-xl font-bold">{article.title}</h1>
+            <p class="max-w-prose text-sm font-medium text-[#BFBFBF]">
+              {article.description}
+            </p>
+          </article>
+        {/each}
+      </section>
+
+      <footer class="mb-28 flex flex-col items-center gap-20">
+        <a href="/">
+          <svg
+            width="32"
+            height="44"
+            viewBox="0 0 32 44"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M23.3708 7.4382V5.82022H26.7865C27.1461 6.17977 27.5056 6.7191 27.8652 7.25843L23.3708 7.4382ZM29.4831 6.17977C27.5056 2.58427 23.5506 0.786516 17.7978 0.786516C16.1798 0.786516 14.9213 0.966292 13.6629 1.14607V0.426966H12.9438L0.359551 6.17977V9.23596C1.25843 9.23596 1.97753 9.59551 2.51685 10.1348C3.05618 10.6742 3.41573 11.3933 3.41573 12.2921V37.2809V36.9213C3.41573 37.8202 3.05618 38.5393 2.51685 39.0787C1.97753 39.618 1.25843 39.9775 0.359551 39.9775H0V43.573H17.7978C23.5506 43.573 27.5056 41.7753 29.4831 38.1798C31.1011 35.3034 32 29.9101 32 22.1798C32 14.4494 31.1011 9.05618 29.4831 6.17977ZM23.5506 11.0337V9.5955H28.9438C29.1236 10.3146 29.3034 10.8539 29.3034 11.0337H23.5506ZM23.5506 14.4494V13.0112H29.8427C29.8427 13.3708 30.0225 13.9101 30.0225 14.6292L23.5506 14.4494ZM23.5506 18.0449V16.6067H30.2022V18.2247H23.5506V18.0449ZM23.5506 21.6404V20.0225H30.382V21.6404H23.5506ZM30.2022 25.236H23.5506V23.618H30.2022V25.236ZM6.11236 6.17977H4.49438L7.01124 4.92135C6.65169 5.2809 6.47191 5.82022 6.11236 6.17977ZM30.2022 28.8315H23.5506V27.2135H30.2022V28.8315ZM21.2135 41.236C20.8539 41.5955 20.3146 41.9551 19.7753 41.9551H18.3371V40.1573H16.7191C15.8202 40.1573 15.1011 39.7978 14.5618 39.2584C14.0225 38.7191 13.6629 38 13.6629 37.1011V4.20225C13.8427 3.12359 14.5618 2.58427 15.6404 2.58427H19.7753C20.3146 2.58427 20.8539 2.76404 21.2135 3.12359C21.573 3.48315 21.7528 4.02247 21.7528 4.5618V39.7978C21.9326 40.3371 21.7528 40.8764 21.2135 41.236ZM4.67416 9.5955C4.31461 9.05618 3.95506 8.69663 3.41573 8.1573H5.21348C4.85393 8.8764 4.85393 9.23595 4.67416 9.5955ZM29.6629 32.427H23.5506V30.809H30.0225C29.8427 31.5281 29.6629 32.0674 29.6629 32.427ZM28.764 36.0225H23.5506V34.4045H29.3034L28.764 36.0225ZM26.2472 39.4382H23.3708C23.3708 39.0787 23.3708 38.5393 23.5506 37.8202H27.8652L26.2472 39.4382ZM5.21348 38.7191C5.39326 38.1798 5.57303 37.8202 5.57303 37.2809C5.93258 38 6.11236 38.5393 6.29214 38.7191H5.21348ZM1.97753 41.9551V41.7753C2.33708 41.5955 2.8764 41.4157 3.59551 40.8764H8.08989C8.62921 41.236 9.16854 41.7753 9.52809 41.9551H1.97753Z"
+              fill="white"
+            />
+          </svg>
+        </a>
+
+        <ul class="flex flex-col gap-12 text-center text-xl font-medium">
+          {#each LINKS as link}
+            <li>
+              <a href={link.href} class="uppercase">{link.title}</a>
+            </li>
+          {/each}
+        </ul>
+
+        <ul class="grid grid-cols-3 grid-rows-2 gap-12">
+          {#each SOCIALS as social}
+            <li>
+              <a href={social.href} target="_blank">
+                <span class="{social.icon} size-8" />
+              </a>
+            </li>
+          {/each}
+        </ul>
+      </footer>
+    </main>
+  </div>
+
+  <div class="drawer-side z-10">
+    <label
+      for="landing-drawer"
+      aria-label="close sidebar"
+      class="drawer-overlay"
+    />
+    <ul class="menu min-h-full min-w-60 bg-black p-4 text-base font-medium">
       {#each LINKS as link}
         <li>
-          <a href={link.href} class="uppercase">{link.title}</a>
-        </li>
-      {/each}
-    </ul>
-
-    <ul class="grid grid-cols-3 grid-rows-2 gap-12">
-      {#each SOCIALS as social}
-        <li>
-          <a href={social.href} target="_blank">
-            <span class="{social.icon} size-8" />
+          <a
+            href={link.href}
+            class="uppercase active:!bg-primary/10"
+            on:click={closeDrawer}
+          >
+            {link.title}
           </a>
         </li>
       {/each}
     </ul>
-  </footer>
-</main>
+  </div>
+</div>
 
 <style>
   /*
@@ -311,7 +353,8 @@
       var(--url);
   }
 
-  footer {
+  footer,
+  .menu {
     font-family: "Roboto Condensed", "Roboto", sans-serif;
     color: #b3b3b3;
   }
