@@ -3,13 +3,18 @@ import * as m from "$paraglide/messages";
 import { isAuthorized } from "$lib/utils/authorization";
 import { redirect } from "$lib/utils/redirect";
 import { error } from "@sveltejs/kit";
+import dayjs from "dayjs";
 
 export const load = async (event) => {
   const { prisma, user } = event.locals;
   const bookingRequests = await prisma.bookingRequest.findMany({
     where: {
       bookerId: user.memberId,
+      end: {
+        gte: dayjs().subtract(1, "day").toDate(),
+      },
     },
+    orderBy: [{ start: "asc" }, { end: "asc" }, { status: "asc" }],
     include: {
       bookables: true,
     },
