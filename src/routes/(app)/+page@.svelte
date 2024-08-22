@@ -1,5 +1,6 @@
 <script lang="ts">
   import { getFileUrl } from "$lib/files/images";
+  import { signIn } from "@auth/sveltekit/client";
 
   let carouselEls: HTMLDivElement[] = [];
 
@@ -139,7 +140,24 @@
         </svg>
       </a>
 
-      <label for="landing-drawer" aria-label="open sidebar">
+      <ul class="hidden justify-between gap-12 text-lg font-medium lg:flex">
+        {#each LINKS as link, i}
+          <li>
+            <a href={link.href} class="uppercase" class:text-white={i === 0}
+              >{link.title}</a
+            >
+          </li>
+        {/each}
+      </ul>
+
+      <button
+        class="hidden bg-[#433C3F]/60 px-8 py-4 text-white lg:block"
+        on:click={() => signIn("keycloak")}
+      >
+        LOGGA IN
+      </button>
+
+      <label for="landing-drawer" aria-label="open sidebar" class="lg:hidden">
         <span class="i-mdi-menu size-8 align-middle" />
       </label>
     </nav>
@@ -148,56 +166,67 @@
       style:--url="url({getFileUrl("minio/photos/public/assets/hero.jpg")})"
       style:background-size="cover"
     >
-      <div class="absolute top-1/3 px-10">
-        <h1 class="mb-4 text-5xl font-bold">D-SEKTIONEN</h1>
-        <p class="max-w-prose">
+      <div class="absolute top-1/3 px-10 lg:px-44">
+        <h1 class="mb-4 text-5xl font-bold lg:text-[165px]">D-SEKTIONEN</h1>
+        <p class="mb-20 max-w-prose lg:text-xl">
           D-sektionen inom TLTH är en ideell organisation för studenter och
           alumner vid programmen Datateknik och InfoCom. Sektionen har sociala
           arrangemang, näringslivskontakter, studiebevakning, och allt annat som
           hjälper studenter och alumner.
         </p>
 
-        <div class="flex flex-col items-start">
+        <div
+          class="flex flex-col items-start gap-10 lg:flex-row lg:items-center"
+        >
           <a
-            href="/committees"
-            class="mb-10 mt-20 inline-block bg-primary px-5 py-3 font-bold text-white"
+            href="/nolla"
+            class="inline-block bg-primary px-5 py-3 font-bold text-white lg:px-6 lg:py-4 lg:text-xl"
           >
-            ENGAGERA DIG
+            NOLLNINGEN
           </a>
-          <a href="/info/for-foretag" class="font-medium">För företag</a>
+          <a href="/info/for-foretag" class="font-medium lg:text-xl">
+            För företag
+          </a>
         </div>
       </div>
     </header>
 
     <main class="flex flex-col gap-28">
       {#each SECTIONS as section, i}
-        <section class="flex flex-col gap-14">
-          <div class="carousel h-80 w-full" bind:this={carouselEls[i]}>
+        <section
+          class="flex flex-col gap-14 lg:flex-row"
+          class:lg:flex-row-reverse={i === 1}
+        >
+          <div
+            class="carousel h-80 w-full lg:h-[500px] lg:w-[55%]"
+            bind:this={carouselEls[i]}
+          >
             {#each section.images as image, i}
               <div id="slide{i}" class="carousel-item relative w-full">
                 <img
                   src={getFileUrl(`minio/photos/public/assets/${image}`)}
                   class="h-full w-full object-cover"
                   alt="party"
+                  loading="lazy"
                 />
               </div>
             {/each}
           </div>
 
-          <div class="mx-10 flex flex-col gap-7">
-            <h2 class="font-bold">{section.title}</h2>
-            <h1 class="text-4xl font-bold">{section.slogan}</h1>
-            <p class="max-w-prose text-sm">{section.description}</p>
+          <div class="mx-10 flex flex-col gap-7 lg:mx-28">
+            <h2 class="font-bold lg:text-3xl">{section.title}</h2>
+            <h1 class="text-4xl font-bold lg:text-6xl">{section.slogan}</h1>
+            <p class="max-w-prose text-sm lg:text-xl">{section.description}</p>
 
-            <div class="flex gap-6">
+            <div class="flex gap-6 lg:mt-auto lg:pb-10">
               <button
-                class="size-9 bg-[#24292A]"
+                class="size-9 bg-[#24292A] lg:size-12"
                 on:click={() => carouselLeft(i)}
               >
                 <span class="i-mdi-arrow-left" />
               </button>
               <button
-                class="size-9"
+                class="size-9 lg:size-12"
                 class:bg-primary={i % 2 === 0}
                 class:bg-secondary={i % 2 !== 0}
                 on:click={() => carouselRight(i)}
@@ -209,22 +238,27 @@
         </section>
       {/each}
 
-      <section class="mx-10 flex flex-col gap-14">
-        {#each ARTICLES as article}
-          <article
-            style:--url="url({getFileUrl(
-              `minio/photos/public/assets/${article.image}`,
-            )})"
-            style:background-size={article.imageSize}
-            style:background-position={article.imagePosition}
-            style:background-repeat="no-repeat"
-          >
-            <h1 class="text-xl font-bold">{article.title}</h1>
-            <p class="max-w-prose text-sm font-medium text-[#BFBFBF]">
-              {article.description}
-            </p>
-          </article>
-        {/each}
+      <section class="mx-10">
+        <h2 class="mb-8 text-center font-bold lg:text-3xl">GEMENSKAP</h2>
+        <div class="flex flex-col gap-14 lg:flex-row lg:justify-center">
+          {#each ARTICLES as article}
+            <article
+              style:--url="url({getFileUrl(
+                `minio/photos/public/assets/${article.image}`,
+              )})"
+              style:background-size={article.imageSize}
+              style:background-position={article.imagePosition}
+              style:background-repeat="no-repeat"
+            >
+              <h1 class="text-xl font-bold lg:text-4xl">{article.title}</h1>
+              <p
+                class="max-w-prose text-sm font-medium text-[#BFBFBF] lg:max-w-[300px] lg:text-base"
+              >
+                {article.description}
+              </p>
+            </article>
+          {/each}
+        </div>
       </section>
 
       <footer class="mb-28 flex flex-col items-center gap-20">
@@ -243,7 +277,9 @@
           </svg>
         </a>
 
-        <ul class="flex flex-col gap-12 text-center text-xl font-medium">
+        <ul
+          class="flex flex-col gap-12 text-center text-xl font-medium lg:flex-row"
+        >
           {#each LINKS as link}
             <li>
               <a href={link.href} class="uppercase">{link.title}</a>
@@ -251,7 +287,7 @@
           {/each}
         </ul>
 
-        <ul class="grid grid-cols-3 grid-rows-2 gap-12">
+        <ul class="grid grid-cols-3 grid-rows-2 gap-12 lg:flex">
           {#each SOCIALS as social}
             <li>
               <a href={social.href} target="_blank">
@@ -264,13 +300,16 @@
     </main>
   </div>
 
+  <!-- DRAWER -->
   <div class="drawer-side z-10">
     <label
       for="landing-drawer"
       aria-label="close sidebar"
       class="drawer-overlay"
     />
-    <ul class="menu min-h-full min-w-60 bg-black p-4 text-base font-medium">
+    <ul
+      class="menu min-h-full min-w-60 bg-black p-4 text-base font-medium *:mr-4"
+    >
       {#each LINKS as link}
         <li>
           <a
@@ -282,6 +321,14 @@
           </a>
         </li>
       {/each}
+      <li>
+        <button
+          class=" bg-[#433C3F]/60 text-white"
+          on:click={() => signIn("keycloak")}
+        >
+          LOGGA IN
+        </button>
+      </li>
     </ul>
   </div>
 </div>
@@ -299,6 +346,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 0px 40px;
+    font-family: "Roboto Condensed", "Roboto", sans-serif;
 
     position: fixed;
     width: 100%;
@@ -357,5 +405,26 @@
   .menu {
     font-family: "Roboto Condensed", "Roboto", sans-serif;
     color: #b3b3b3;
+  }
+
+  @media (min-width: 1024px) {
+    nav {
+      /* Auto layout */
+      padding: 8px 120px;
+
+      position: fixed;
+      width: 100%;
+      height: 120px;
+      left: 0px;
+      top: 0px;
+
+      background: rgba(29, 26, 27, 0.6);
+      backdrop-filter: blur(4px);
+      /* Note: backdrop-filter has minimal browser support */
+    }
+
+    article {
+      height: 500px;
+    }
   }
 </style>
