@@ -22,6 +22,21 @@
 @tailwind utilities;
 
 @layer base {
+  @font-face {
+    font-family: "Texas Tango";
+    src: local("Texas Tango"), local("Texas-Tango"), local("texas tango"),
+      local("texas-tango"), url("/fonts/TexasTango.otf");
+    font-weight: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Legendary Runes";
+    src: local("Legenday Runes"), local("Legendary-Runes"),
+      local("legendary runes"), local("legendary-runes"),
+      url("/fonts/LegendaryRunes.otf");
+    font-weight: normal;
+    font-display: swap;
+  }
   .layout-container {
     @apply container mx-auto px-4 py-8 xl:px-32;
   }
