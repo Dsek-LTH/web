@@ -29,8 +29,7 @@
           {article.header}
         </h1>
         <div class="prose mb-8 mt-2 line-clamp-3 prose-headings:text-sm">
-          <!-- {@html article.body} -->
-          {markdownToTxt(DOMPurify.sanitize(article.body))}
+          {markdownToTxt(DOMPurify.sanitize(article.body), { pedantic: true })}
         </div>
       </button>
     </div>
