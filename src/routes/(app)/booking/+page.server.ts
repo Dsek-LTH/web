@@ -11,7 +11,7 @@ export const load = async (event) => {
     where: {
       bookerId: user.memberId,
       end: {
-        gte: dayjs().subtract(1, "day").toDate(),
+        gte: dayjs().subtract(1, "week").toDate(),
       },
     },
     orderBy: [{ start: "asc" }, { end: "asc" }, { status: "asc" }],
