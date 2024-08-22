@@ -1,6 +1,11 @@
 <script lang="ts">
   import { getFileUrl } from "$lib/files/images";
   import { signIn } from "@auth/sveltekit/client";
+  import * as m from "$paraglide/messages";
+  import { i18n } from "$lib/utils/i18n";
+  import { page } from "$app/stores";
+  import { languageTag } from "$paraglide/runtime";
+  import { invalidateAll } from "$app/navigation";
 
   let carouselEls: HTMLDivElement[] = [];
 
@@ -31,42 +36,37 @@
 
   const SECTIONS = [
     {
-      title: "FEST",
-      slogan: "STUDENTLIVETS BÄSTA STUNDER",
-      description:
-        "Vi anordnar roliga evenemang som sittningar, eftersläpp och pubar. Ungefär varannan vecka är det pub i iDét och då och då är det sittningar/eftersläpp. Håll utkik i sektionskalendern för att se när nästa event är!",
+      title: m.landing_party_title(),
+      slogan: m.landing_party_slogan(),
+      description: m.landing_party_description(),
       images: ["party-1.jpg", "party-2.jpg", "party-3.jpg"],
     },
     {
-      title: "AKTIVITET",
-      slogan: "ÄVENTYRET BÖRJAR HÄR",
-      description:
-        "Sektionen anordnar även fotbollsträningar, brädspels-kvällar, badminton, LAN-partyn och resor till andra universitet. Här finns något för de flesta och är det något sektionen inte gör som du tycker behövs göras finns det ofta utrymme för att driva igenom dina idéer!",
+      title: m.landing_activity_title(),
+      slogan: m.landing_activity_slogan(),
+      description: m.landing_activity_description(),
       images: ["activity-1.jpg", "activity-2.jpg", "activity-3.jpg"],
     },
   ] as const;
 
   const ARTICLES = [
     {
-      title: "SEKTIONEN",
-      description:
-        "Sektionen består av 14 olika utskott, varav de flesta leds av en styrelsemedlem. Sektionsmötet som hålls några gånger per år är sektionens högsta beslutande organ. Du kan engagera dig i sektionen genom att bli funktionär i någor av alla våra utskott.",
+      title: m.landing_guild_title(),
+      description: m.landing_guild_description(),
       image: "guild.jpg",
       imagePosition: "50% 80%",
       imageSize: "125%",
     },
     {
-      title: "STUDIER",
-      description:
-        "Vi leder och organiserar studiebevakningsarbetet på sektionen samt anordnar pluggkvällar. Detta betyder att vi samlar studenternas röster och för deras talan till skolan för att utbildningen ska behålla god kvalitet. Vi står även upp för studenters rättigheter när de kränks.",
+      title: m.landing_study_title(),
+      description: m.landing_study_description(),
       image: "studies.jpg",
       imagePosition: "50% 0%",
       imageSize: "150%",
     },
     {
-      title: "D-CHIP",
-      description:
-        "D-Chip är en ideell, studentdriven förening som studenterna på Datateknik och InfoCom på LTH hör till. Alla kvinnliga och icke-binära studenter på de två programmen kan vara med i D-Chip. Vi finns för att främja er trivsel på sektionen samt att verka för mer kvinnligt och icke-binärt engagemang.",
+      title: m.landing_dchip_title(),
+      description: m.landing_dchip_description(),
       image: "dchip.jpg",
       imagePosition: "50% 180%",
       imageSize: "250%",
@@ -74,11 +74,11 @@
   ] as const;
 
   const LINKS = [
-    { title: "Hem", href: "/" },
-    { title: "Nyheter", href: "/news" },
-    { title: "Evenemang", href: "/events" },
-    { title: "Sektionen", href: "/committees" },
-    { title: "Kontakt", href: "/info/contact" },
+    { title: m.home(), href: "/" },
+    { title: m.news(), href: "/news" },
+    { title: m.events(), href: "/events" },
+    { title: m.theGuild(), href: "/committees" },
+    { title: m.footer_contact(), href: "/info/contact" },
   ] as const;
 
   const SOCIALS = [
@@ -150,12 +150,23 @@
         {/each}
       </ul>
 
-      <button
-        class="hidden bg-[#433C3F]/60 px-8 py-4 text-white lg:block"
-        on:click={() => signIn("keycloak")}
-      >
-        LOGGA IN
-      </button>
+      <div class="hidden items-center gap-4 lg:flex">
+        <a
+          href={i18n.route($page.url.pathname)}
+          hreflang={languageTag() === "sv" ? "en" : "sv"}
+          on:click={() => invalidateAll()}
+        >
+          <slot>
+            {languageTag() === "sv" ? "EN" : "SV"}
+          </slot>
+        </a>
+        <button
+          class="bg-[#433C3F]/60 px-8 py-4 uppercase text-white"
+          on:click={() => signIn("keycloak")}
+        >
+          {m.navbar_logIn()}
+        </button>
+      </div>
 
       <label for="landing-drawer" aria-label="open sidebar" class="lg:hidden">
         <span class="i-mdi-menu size-8 align-middle" />
@@ -167,12 +178,11 @@
       style:background-size="cover"
     >
       <div class="absolute top-1/3 px-10 lg:px-44">
-        <h1 class="mb-4 text-5xl font-bold lg:text-[165px]">D-SEKTIONEN</h1>
+        <h1 class="mb-4 text-5xl font-bold uppercase lg:text-[165px]">
+          {m.dsektionen()}
+        </h1>
         <p class="mb-20 max-w-prose lg:text-xl">
-          D-sektionen inom TLTH är en ideell organisation för studenter och
-          alumner vid programmen Datateknik och InfoCom. Sektionen har sociala
-          arrangemang, näringslivskontakter, studiebevakning, och allt annat som
-          hjälper studenter och alumner.
+          {m.landing_intro()}
         </p>
 
         <div
@@ -182,10 +192,10 @@
             href="/nolla"
             class="inline-block bg-primary px-5 py-3 font-bold text-white lg:px-6 lg:py-4 lg:text-xl"
           >
-            NOLLNINGEN
+            {m.landing_theIntroduction()}
           </a>
           <a href="/info/for-foretag" class="font-medium lg:text-xl">
-            För företag
+            {m.home_forCompanies()}
           </a>
         </div>
       </div>
@@ -214,8 +224,10 @@
           </div>
 
           <div class="mx-10 flex flex-col gap-7 lg:mx-28">
-            <h2 class="font-bold lg:text-3xl">{section.title}</h2>
-            <h1 class="text-4xl font-bold lg:text-6xl">{section.slogan}</h1>
+            <h2 class="font-bold uppercase lg:text-3xl">{section.title}</h2>
+            <h1 class="text-balance text-4xl font-bold uppercase lg:text-6xl">
+              {section.slogan}
+            </h1>
             <p class="max-w-prose text-sm lg:text-xl">{section.description}</p>
 
             <div class="flex gap-6 lg:mt-auto lg:pb-10">
@@ -239,7 +251,9 @@
       {/each}
 
       <section class="mx-10">
-        <h2 class="mb-8 text-center font-bold lg:text-3xl">GEMENSKAP</h2>
+        <h2 class="mb-8 text-center font-bold uppercase lg:text-3xl">
+          {m.landing_community_title()}
+        </h2>
         <div class="flex flex-col gap-14 lg:flex-row lg:justify-center">
           {#each ARTICLES as article}
             <article
@@ -250,7 +264,9 @@
               style:background-position={article.imagePosition}
               style:background-repeat="no-repeat"
             >
-              <h1 class="text-xl font-bold lg:text-4xl">{article.title}</h1>
+              <h1 class="text-xl font-bold uppercase lg:text-4xl">
+                {article.title}
+              </h1>
               <p
                 class="max-w-prose text-sm font-medium text-[#BFBFBF] lg:max-w-[300px] lg:text-base"
               >
