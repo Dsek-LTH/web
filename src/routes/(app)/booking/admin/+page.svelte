@@ -104,13 +104,13 @@
 
               <hr class="mx-2" />
 
-              <!-- <a
+              <a
                 href="/booking/{bookingRequest.id}/edit"
                 class="btn btn-outline btn-xs"
                 aria-label={m.booking_edit()}
               >
                 <span class="i-mdi-edit" />
-              </a> -->
+              </a>
               <button
                 class="btn btn-outline btn-xs"
                 type="button"

@@ -60,12 +60,12 @@
           </td>
           <td>
             <div class="form-control gap-2">
-              <!-- <a
+              <a
                 href="/booking/{bookingRequest.id}/edit"
                 class="btn btn-xs px-8"
               >
                 {m.booking_edit()}
-              </a> -->
+              </a>
               <button
                 class="btn btn-xs px-8"
                 on:click={() => {

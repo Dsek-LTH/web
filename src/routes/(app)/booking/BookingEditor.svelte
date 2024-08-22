@@ -11,6 +11,7 @@
   };
 
   const { form, errors, enhance, constraints } = superForm(data.form);
+  export let mode: "create" | "edit" = "create";
 </script>
 
 <form method="POST" use:enhance class="form-control mx-auto max-w-5xl gap-4">
@@ -71,6 +72,11 @@
 
   <div class="flex *:flex-1">
     <a class="btn" href="/booking">{m.booking_goBack()}</a>
-    <button class="btn btn-primary">{m.booking_create()}</button>
+    {#if mode === "edit"}
+      <!-- <input type="hidden" name="tainted" value={isTainted()} /> -->
+      <button class="btn btn-primary">{m.save()}</button>
+    {:else if mode === "create"}
+      <button class="btn btn-primary">{m.booking_create()}</button>
+    {/if}
   </div>
 </form>
