@@ -1,9 +1,9 @@
 import {
   phadderGroupSchema,
   phadderMandateFilter,
-} from "$lib/nollning/groups/types.js";
-import apiNames from "$lib/utils/apiNames.js";
-import { authorize } from "$lib/utils/authorization.js";
+} from "$lib/nollning/groups/types";
+import apiNames from "$lib/utils/apiNames";
+import { authorize } from "$lib/utils/authorization";
 import type { PrismaClient } from "@prisma/client";
 import { fail, message, setError, superValidate } from "sveltekit-superforms";
 import { zod } from "sveltekit-superforms/adapters";

@@ -1,5 +1,5 @@
-import { BASIC_EVENT_FILTER } from "$lib/events/events.js";
-import { generateICS } from "$lib/server/ics/calendar.js";
+import { BASIC_EVENT_FILTER } from "$lib/events/events";
+import { generateICS } from "$lib/server/ics/calendar";
 import dayjs from "dayjs";
 
 export const GET = async ({ locals, setHeaders }) => {

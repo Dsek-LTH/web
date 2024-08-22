@@ -7,7 +7,7 @@
   import { toast } from "$lib/stores/toast";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
-  import { superForm } from "$lib/utils/client/superForms.js";
+  import { superForm } from "$lib/utils/client/superForms";
   import * as m from "$paraglide/messages";
 
   export let data;

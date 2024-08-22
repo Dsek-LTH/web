@@ -2,8 +2,8 @@
 
 import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
 import { fileHandler } from "$lib/files";
-import { getFileUrl } from "$lib/files/images.js";
-import { uploadFile } from "$lib/files/uploadFiles.js";
+import { getFileUrl } from "$lib/files/images";
+import { uploadFile } from "$lib/files/uploadFiles";
 import * as m from "$paraglide/messages";
 import { fail, message, superValidate, withFiles } from "sveltekit-superforms";
 import { zod } from "sveltekit-superforms/adapters";
