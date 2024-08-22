@@ -1,7 +1,12 @@
 import apiNames from "$lib/utils/apiNames";
 import { Prisma } from "@prisma/client";
 import { fail } from "@sveltejs/kit";
-import { message, superValidate } from "sveltekit-superforms/server";
+import {
+  message,
+  superValidate,
+  type Infer,
+} from "sveltekit-superforms/server";
+import { zod } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import { authorize } from "$lib/utils/authorization";
@@ -12,8 +17,8 @@ export const load: PageServerLoad = async ({ locals }) => {
   authorize(apiNames.TAGS.READ, user);
 
   const tags = await prisma.tag.findMany({ orderBy: { name: "asc" } });
-  const createForm = await superValidate(createSchema);
-  const updateForm = await superValidate(updateSchema);
+  const createForm = await superValidate(zod(createSchema));
+  const updateForm = await superValidate(zod(updateSchema));
   return {
     tags,
     createForm,
@@ -24,19 +29,20 @@ export const load: PageServerLoad = async ({ locals }) => {
 const createSchema = z.object({
   name: z.string().default(""),
 });
-export type CreateSchema = typeof createSchema;
+export type CreateSchema = Infer<typeof createSchema>;
 
 const updateSchema = z.object({
   id: z.string().uuid(),
   name: z.string().optional(),
+  nameEn: z.string().nullable().optional(),
   color: z.string().optional(),
 });
-export type UpdateSchema = typeof updateSchema;
+export type UpdateSchema = Infer<typeof updateSchema>;
 
 export const actions: Actions = {
   create: async ({ request, locals }) => {
     const { prisma } = locals;
-    const form = await superValidate(request, createSchema);
+    const form = await superValidate(request, zod(createSchema));
     if (!form.valid) return fail(400, { form });
     await prisma.tag.create({
       data: {
@@ -50,17 +56,15 @@ export const actions: Actions = {
   },
   update: async ({ request, locals }) => {
     const { prisma } = locals;
-    const form = await superValidate(request, updateSchema);
+    const form = await superValidate(request, zod(updateSchema));
     if (!form.valid) return fail(400, { form });
+    const { id, ...data } = form.data;
     try {
       await prisma.tag.update({
         where: {
-          id: form.data.id,
+          id,
         },
-        data: {
-          name: form.data.name,
-          color: form.data.color,
-        },
+        data,
       });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {

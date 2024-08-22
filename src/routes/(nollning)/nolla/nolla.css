@@ -1,0 +1,71 @@
+/* Here you will find styles that are specific to the /nolla pages. */
+@import "../../../app.css";
+/* We need to import app.css, because if we don't then we can't use layers */
+/* And if we add our own @tailwind utilities; etc then the CSS will stop functioning/act weird due to everything being declared twice, in the wrong order. */
+/* This is how tailwind recommends doing it if you have multiple files. */
+@layer utilities {
+  .box-shadow-black {
+    --tw-shadow: 0.25rem 0.25rem 0 0 black;
+    --tw-shadow-colored: 0.25rem 0.25rem 0 0 var(--tw-shadow-color);
+    box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
+      var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  }
+
+  .box-shadow-black-lg {
+    --tw-shadow: 0.5rem 0.5rem 0 0 black;
+    --tw-shadow-colored: 0.5rem 0.5rem 0 0 var(--tw-shadow-color);
+    box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
+      var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  }
+
+  .neo-brutal-border-sm {
+    @apply rounded-xl border-2 border-black;
+  }
+
+  .neo-brutal-border {
+    @apply rounded-2xl border-4 border-black;
+  }
+}
+
+@layer components {
+  .nolla-pre-reveal .nolla-page-title {
+    @apply mb-8 font-nolla-mono text-5xl font-bold sm:mb-16 sm:text-6xl md:text-8xl;
+  }
+
+  .nolla-pre-reveal .neo-brutal-btn {
+    @apply box-shadow-black hover:box-shadow-black-lg neo-brutal-border-sm flex items-center bg-primary p-4 font-semibold transition hover:-translate-x-1 hover:-translate-y-1 active:translate-x-1 active:translate-y-1 active:shadow-none;
+  }
+
+  .nolla-pre-reveal .neo-brutal-btn-flat {
+    @apply neo-brutal-border-sm flex items-center bg-primary p-5 text-center text-xl font-semibold hover:bg-[#0D1B1E] hover:text-white;
+  }
+
+  .nolla-pre-reveal .neo-brutal-box {
+    @apply neo-brutal-border box-shadow-black-lg px-8 py-12 sm:px-10 sm:py-16;
+  }
+
+  .nolla-pre-reveal .neo-brutal-image {
+    @apply neo-brutal-border box-shadow-black-lg;
+  }
+
+  .nolla-pre-reveal .nolla-prose {
+    @apply max-w-prose leading-relaxed;
+  }
+
+  .nolla-pre-reveal * ~ .nolla-prose,
+  .nolla-pre-reveal .nolla-prose ~ * {
+    @apply mt-4;
+  }
+}
+
+:root {
+  --navbar-size: 144px; /* h-36 is 144px */
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+[data-theme="nollningPreReveal"] {
+  color-scheme: light;
+}

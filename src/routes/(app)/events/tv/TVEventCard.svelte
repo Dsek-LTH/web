@@ -2,7 +2,7 @@
   import { relativeDate } from "$lib/utils/client/datetime";
   import InterestedGoingList from "../InterestedGoingList.svelte";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
-  import type { EventWithIncludes } from "../events";
+  import type { EventWithIncludes } from "$lib/events/getEvents";
   import dayjs from "dayjs";
 
   export let event: EventWithIncludes;

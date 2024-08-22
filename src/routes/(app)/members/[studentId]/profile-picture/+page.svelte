@@ -1,13 +1,16 @@
 <script lang="ts">
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import { getFullName } from "$lib/utils/client/member";
-  import { superForm } from "sveltekit-superforms/client";
-  import ProfileImage from "./ProfileImage.svelte";
-  import Cropper from "svelte-easy-crop";
   import * as m from "$paraglide/messages";
+  import Cropper from "svelte-easy-crop";
+  import { fileProxy } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
+  import ProfileImage from "./ProfileImage.svelte";
+  import { uploadSchema } from "./types";
 
-  import type { PageData } from "./$types";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
+  import { zodClient } from "sveltekit-superforms/adapters";
+  import type { PageData } from "./$types";
   export let data: PageData;
   $: member = data.member;
   $: photos = data.photos;
@@ -22,7 +25,9 @@
         isEditing = false;
       }
     },
+    validators: zodClient(uploadSchema),
   });
+  const file = fileProxy(form, "image");
 
   let avatar: string | undefined = undefined;
   const onFileSelected = (
@@ -120,6 +125,7 @@
         type="file"
         accept="image/*"
         name="image"
+        bind:files={$file}
         class="file-input file-input-bordered w-full max-w-xs"
       />
       {#if $errors.image}

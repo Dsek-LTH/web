@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { SuperValidated } from "sveltekit-superforms";
-  import { superForm } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
   import type { DeleteMandateSchema } from "./+page.server";
 
   export let mandateId: string;

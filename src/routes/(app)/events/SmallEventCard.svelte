@@ -3,8 +3,8 @@
   import InterestedGoingButtons from "./InterestedGoingButtons.svelte";
   import InterestedGoingList from "./InterestedGoingList.svelte";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
-  import type { InterestedGoingSchema } from "./interestedGoing";
-  import type { EventWithIncludes } from "./events";
+  import type { InterestedGoingSchema } from "$lib/events/schema";
+  import type { EventWithIncludes } from "$lib/events/getEvents";
   import type { SuperValidated } from "sveltekit-superforms";
   import { eventLink } from "$lib/utils/redirect";
   import { languageTag } from "$paraglide/runtime";
@@ -26,7 +26,15 @@
 
   <div class="flex flex-col p-8">
     <a href={eventLink(event)}>
-      <h2 class="text-2xl font-bold">{event.title}</h2>
+      <h2 class="text-2xl font-bold">
+        {event.title}
+        {#if event.removedAt}
+          <span
+            class="badge badge-error badge-sm relative -top-1 !text-xs font-semibold"
+            >Raderat</span
+          >
+        {/if}
+      </h2>
     </a>
 
     <section class="text-primary">

@@ -1,20 +1,18 @@
 <script lang="ts">
+  import FormSelect from "$lib/components/forms/FormSelect.svelte";
   import Input from "$lib/components/Input.svelte";
-  import { superForm } from "sveltekit-superforms/client";
-  import type { UpdateSchema } from "./+page.server";
-  import type { PageData } from "./$types";
   import Labeled from "$lib/components/Labeled.svelte";
-  import { programmes } from "$lib/utils/programmes";
-  import { onMount } from "svelte";
-  import { goto } from "$lib/utils/redirect";
-  import * as m from "$paraglide/messages";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
+  import { superForm } from "$lib/utils/client/superForms";
+  import { programmes } from "$lib/utils/programmes";
+  import * as m from "$paraglide/messages";
+  import { onMount } from "svelte";
+  import type { PageData } from "./$types";
+  import type { UpdateSchema } from "./+page.server";
 
   export let data: PageData;
-  const { form, errors, constraints, enhance } = superForm<UpdateSchema>(
-    data.form,
-    {},
-  );
+  const superform = superForm<UpdateSchema>(data.form, {});
+  const { form, errors, constraints, enhance } = superform;
   onMount(() => {
     if (
       data.member &&
@@ -24,7 +22,7 @@
       data.member.classProgramme &&
       data.member.classYear
     ) {
-      goto("/");
+      // goto("/");
     }
   });
 </script>
@@ -33,7 +31,7 @@
 
 <div
   class="min-h-screen bg-cover bg-center"
-  style="background-image: url('./hero-image.jpg'); "
+  style="background-image: url('./hero-image.webp'); "
 >
   <div class="min-h-screen bg-cover py-16 md:bg-transparent">
     <div
@@ -113,9 +111,32 @@
               class="input input-bordered"
               required={true}
               bind:value={$form.classYear}
+              on:change={() => {
+                $form.nollningGroupId = null;
+              }}
               {...$constraints.classYear}
             />
           </Labeled>
+          <FormSelect
+            {superform}
+            label={m.onboarding_phadderGroup()}
+            field="nollningGroupId"
+            options={[
+              {
+                value: null,
+                label: "-",
+              },
+              ...data.phadderGroups
+                .filter(
+                  (group) =>
+                    group.year === ($form.classYear ?? new Date().getFullYear),
+                )
+                .map((group) => ({
+                  value: group.id,
+                  label: group.name,
+                })),
+            ]}
+          />
         </div>
         <div class="flex w-1/2 gap-2 pt-6">
           <button

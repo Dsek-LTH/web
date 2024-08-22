@@ -31,7 +31,11 @@ export const getAccessPolicies = async (
     })
     .then((policies) => policies.map((p) => p.apiName))
     .then((policies) => {
-      // So how the stab hide functionality works is that when outside of the nollning everyone has the access policy "SEE_STABEN", but during nollning only those who get it due to their roles can see staben
+      /**
+       * Stab hide functionality: when outside of the nollning everyone has the
+       * access policy "SEE_STABEN", but during nollning only those who get it
+       * due to their roles can see staben.
+       */
       if (!isNollning && !policies.includes(apiNames.MEMBER.SEE_STABEN)) {
         policies.push(apiNames.MEMBER.SEE_STABEN);
       }

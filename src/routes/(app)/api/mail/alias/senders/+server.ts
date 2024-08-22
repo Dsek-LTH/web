@@ -1,6 +1,7 @@
 import type { PrismaClient } from "@prisma/client";
 import type { RequestHandler } from "./$types";
 import { getCurrentMembersForPosition } from "../utils";
+import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
 
 /**
  * Returns a text response where each line contains an email alias
@@ -16,10 +17,12 @@ import { getCurrentMembersForPosition } from "../utils";
  *    styrelsen@dsek.se em5261ha-s, al4070an-s, le6853ha-s
  *    ```
  */
-export const GET: RequestHandler = async ({ locals, setHeaders }) => {
-  const { prisma } = locals;
-  const emailAddresses = await getAllEmailAddresses(prisma);
-  const emailToSenders = await getAllAliasSenders(prisma, emailAddresses);
+export const GET: RequestHandler = async ({ setHeaders }) => {
+  const emailAddresses = await getAllEmailAddresses(authorizedPrismaClient);
+  const emailToSenders = await getAllAliasSenders(
+    authorizedPrismaClient,
+    emailAddresses,
+  );
 
   const output: string[] = [];
   for (const [emailAddress, senders] of Object.entries(emailToSenders)) {

@@ -6,18 +6,18 @@ import {
   getEmailsForManyMembers,
   getAliasToPositions,
 } from "./utils";
+import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
 
-export const GET: RequestHandler = async ({ locals, setHeaders }) => {
-  const { prisma } = locals;
-
+export const GET: RequestHandler = async ({ setHeaders }) => {
   // This is the main data structure that we will use to create the response
   // It stores all the positions for a given alias, and the user emails for those positions
   // All code below is to fill this data structure
   const aliasToPosToUserEmails = new Map<string, Map<string, string[]>>();
 
   // Fetch all positions which have an alias (could be multiple aliases for a position)
-  const posToAlias: Map<string, EmailAlias[]> =
-    await getAliasToPositions(prisma);
+  const posToAlias: Map<string, EmailAlias[]> = await getAliasToPositions(
+    authorizedPrismaClient,
+  );
 
   const positionIds = new Set<string>(
     Array.from(posToAlias.values()).flatMap((alist) =>
@@ -32,7 +32,10 @@ export const GET: RequestHandler = async ({ locals, setHeaders }) => {
   >();
   for (const posId of positionIds) {
     // Fetch which members currently have a mandate for the position
-    const members = await getCurrentMembersForPosition(posId, prisma);
+    const members = await getCurrentMembersForPosition(
+      posId,
+      authorizedPrismaClient,
+    );
     positionIdsToMembers.set(posId, new Set(members));
   }
 
@@ -48,7 +51,7 @@ export const GET: RequestHandler = async ({ locals, setHeaders }) => {
   // Fetches all the emails for the members from Keycloak
   const userToEmail = await getEmailsForManyMembers(
     allMembersWithPos.map((m) => m.memberId),
-    prisma,
+    authorizedPrismaClient,
   );
 
   for (const [alias, positions] of posToAlias) {
@@ -77,7 +80,7 @@ export const GET: RequestHandler = async ({ locals, setHeaders }) => {
 
   // Special receivers are stored in Prisma
   const specialReceivers = (
-    await prisma.specialReceiver.findMany({
+    await authorizedPrismaClient.specialReceiver.findMany({
       orderBy: {
         email: "asc",
       },

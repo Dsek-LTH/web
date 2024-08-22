@@ -10,14 +10,17 @@
   import type { SuperValidated } from "sveltekit-superforms";
   import NotificationBell from "./NotificationBell.svelte";
   import { appBottomNavRoutes, getRoutes } from "./routes";
+  import NotificationModal from "$lib/components/NotificationModal.svelte";
   $: notifications = $page.data["notifications"] as NotificationGroup[] | null;
-  $: deleteNotificationForm = $page.data[
-    "deleteNotificationForm"
+  $: mutateNotificationForm = $page.data[
+    "mutateNotificationForm"
   ] as SuperValidated<NotificationSchema> | null;
   $: routes = getRoutes();
   $: bottomNavRoutes = appBottomNavRoutes(routes).map((route) => route.path);
   $: canGoBack = !bottomNavRoutes.includes(i18n.route($page.url.pathname));
   $: topInsets = $page.data.appInfo?.insets?.top ?? 0;
+
+  let notificationModal: HTMLDialogElement;
 </script>
 
 <header
@@ -45,8 +48,13 @@
 
   <div class="w-16">
     {#if $page.data.user && $page.data.member}
-      {#if notifications !== null && notifications !== undefined && deleteNotificationForm !== null}
-        <NotificationBell {notifications} deleteForm={deleteNotificationForm} />
+      {#if notifications !== null && notifications !== undefined && mutateNotificationForm !== null}
+        <NotificationBell
+          {notifications}
+          form={mutateNotificationForm}
+          useModalInstead
+          externalModal={notificationModal}
+        />
       {/if}
     {:else}
       <LoadingButton
@@ -58,3 +66,6 @@
     {/if}
   </div>
 </header>
+{#if notifications !== null && notifications !== undefined && mutateNotificationForm !== null}
+  <NotificationModal bind:modal={notificationModal} />
+{/if}

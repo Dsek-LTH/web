@@ -4,7 +4,7 @@
   import Labeled from "$lib/components/Labeled.svelte";
   import apiNames from "$lib/utils/apiNames";
   import DOMPurify from "isomorphic-dompurify";
-  import { superForm } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
   import { isAuthorized } from "$lib/utils/authorization";
   import * as m from "$paraglide/messages";
   import type { PageData } from "./$types";

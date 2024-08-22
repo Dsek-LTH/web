@@ -1,0 +1,55 @@
+/* Here you will find styles that are specific to the /nolla pages. */
+@import "../../../app.css";
+/* We need to import app.css, because if we don't then we can't use layers */
+/* And if we add our own @tailwind utilities; etc then the CSS will stop functioning/act weird due to everything being declared twice, in the wrong order. */
+/* This is how tailwind recommends doing it if you have multiple files. */
+@layer utilities {
+}
+
+@layer components {
+  .post-reveal {
+    scroll-behavior: smooth;
+    @apply font-nolla-post-reveal;
+    font-display: auto;
+  }
+  .post-reveal * {
+    scroll-behavior: smooth;
+  }
+
+  .post-reveal {
+    @apply font-nolla-post-reveal text-sm leading-tight md:text-base;
+  }
+  .post-reveal .page-title {
+    /* figma: page title */
+    @apply text-xl font-medium tracking-wider;
+  }
+
+  .post-reveal .nolla-list-item {
+    @apply text-base;
+  }
+
+  .post-reveal .btn {
+    /* text button */
+    @apply h-auto min-h-0 px-4 py-2 font-medium text-base-content;
+  }
+
+  .post-reveal .btn.btn-primary-dark {
+    /* primary bg, dark text */
+    @apply btn-primary text-base-100;
+  }
+  .post-reveal .btn-outline {
+    /* transparent bg, text otherwise */
+    @apply hover:text-base-100;
+  }
+
+  .post-reveal .nolla-prose {
+    @apply my-4;
+  }
+}
+
+[data-theme="nollningPostReveal"] {
+  scroll-behavior: smooth;
+  @apply font-nolla-post-reveal;
+  font-display: auto;
+  color-scheme: dark;
+}

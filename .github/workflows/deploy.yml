@@ -10,7 +10,6 @@ env:
   PUBLIC_MINIO_USE_SSL: true
   PUBLIC_BUCKETS_DOCUMENTS: documents
   PUBLIC_BUCKETS_FILES: files
-  PUBLIC_BUCKETS_MATERIAL: material
   PUBLIC_BUCKETS_MEMBERS: members
 
 jobs:
@@ -18,6 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          # fetch-tags: true # This should be enough, see https://github.com/actions/checkout/issues/1471
+          fetch-depth: 0
       - uses: pnpm/action-setup@v2
         with:
           version: 9

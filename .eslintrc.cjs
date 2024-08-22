@@ -69,6 +69,12 @@ module.exports = {
             message:
               "Use the goto and redirect wrappers from $lib/utils/redirect instead",
           },
+          {
+            importNamePattern: "^(superForm)",
+            group: ["sveltekit-superforms", "sveltekit-superforms/client"],
+            message:
+              "Use the superForm from $lib/utils/client/superForms instead",
+          },
         ],
       },
     ],

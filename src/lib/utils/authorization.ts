@@ -1,6 +1,7 @@
 import { dev } from "$app/environment";
 import { error } from "@sveltejs/kit";
 import type { AuthUser } from "@zenstackhq/runtime";
+import * as m from "$paraglide/messages";
 
 /**
  * Check if the user is authorized to perform an action.
@@ -20,10 +21,7 @@ export const authorize = (apiName: string | string[], user?: AuthUser) => {
   const apiNames = Array.isArray(apiName) ? apiName : [apiName];
   for (const name of apiNames) {
     if (!isAuthorized(name, user)) {
-      throw error(
-        403,
-        `You do not have permission, have you logged in? Required policy: ${name}`,
-      );
+      throw error(403, `${m.errors_missingPermissions()} ${name}`);
     }
   }
 };

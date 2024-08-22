@@ -6,13 +6,21 @@
 
   const flash = getFlash(page);
   // Message from form (not redirect)
-  $: $page.form?.form?.message && $page.form.form.message.type !== "hidden"
-    ? toast($page.form.form.message.message, $page.form.form.message.type)
-    : null;
+  $: if (
+    $page.form?.form?.message &&
+    $page.form.form.message.type !== "hidden"
+  ) {
+    toast(
+      $page.form.form.message.message,
+      $page.form.form.message.type,
+      $page.form.form.message.id,
+    );
+  }
+
   // Message from form on redirect
-  $: $flash && $flash.type !== "hidden"
-    ? toast($flash.message, $flash.type)
-    : null;
+  $: if ($flash && $flash.type !== "hidden") {
+    toast($flash.message, $flash.type, $flash.id);
+  }
 
   $: toastLocationClasses = (() => {
     if (!$page.data.isApp) return "bottom-2 right-2";
@@ -20,7 +28,7 @@
   })();
 </script>
 
-{#if $toasts}
+{#if $toasts.length > 0}
   <div
     class="toast z-10 {toastLocationClasses}"
     style={$page.data.isApp

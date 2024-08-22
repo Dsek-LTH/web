@@ -4,17 +4,21 @@
   import type { SuperValidated } from "sveltekit-superforms";
   import type { UpdateSchema } from "./+page.server";
   import { programmes } from "$lib/utils/programmes";
-  import { superForm } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
   import * as m from "$paraglide/messages";
+  import FormSelect from "$lib/components/forms/FormSelect.svelte";
+  import type { PhadderGroup } from "@prisma/client";
   export let isEditing;
+  export let phadderGroups: PhadderGroup[];
   export let data: SuperValidated<UpdateSchema>;
-  const { form, errors, constraints, enhance } = superForm<UpdateSchema>(data, {
+  const superform = superForm<UpdateSchema>(data, {
     onResult: (event) => {
       if (event.result.type === "success") {
         isEditing = false;
       }
     },
   });
+  const { form, errors, constraints, enhance } = superform;
 </script>
 
 <form
@@ -47,6 +51,13 @@
       error={$errors.lastName}
     />
   </div>
+  <Input
+    name="foodPreference"
+    label={m.members_foodPreference()}
+    bind:value={$form.foodPreference}
+    error={$errors.foodPreference}
+    {...$constraints.foodPreference}
+  />
   <div class="flex w-full flex-wrap gap-2 [&>*:nth-child(3)]:flex-1">
     <Labeled
       label={m.members_programme()}
@@ -75,12 +86,25 @@
         {...$constraints.classYear}
       />
     </Labeled>
-    <Input
-      name="foodPreference"
-      label={m.members_foodPreference()}
-      bind:value={$form.foodPreference}
-      error={$errors.foodPreference}
-      {...$constraints.foodPreference}
+    <FormSelect
+      {superform}
+      label={m.onboarding_phadderGroup()}
+      field="nollningGroupId"
+      options={[
+        {
+          value: null,
+          label: "-",
+        },
+        ...phadderGroups
+          .filter(
+            (group) =>
+              group.year === ($form.classYear ?? new Date().getFullYear),
+          )
+          .map((group) => ({
+            value: group.id,
+            label: group.name,
+          })),
+      ]}
     />
   </div>
   <button type="submit" class="btn btn-secondary mt-4"

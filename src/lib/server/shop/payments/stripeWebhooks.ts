@@ -24,9 +24,10 @@ export const onPaymentSuccess = async (intent: Stripe.PaymentIntent) => {
           (consumable) => consumable.purchasedAt !== null,
         )
       ) {
-        throw new Error(
-          "All consumables for this intent was already marked as purchased",
+        console.warn(
+          "Tried to mark consumables as purchased, but they were already marked as purchased",
         );
+        return [];
       } else {
         if (
           relevantConsumables.some(
@@ -40,23 +41,28 @@ export const onPaymentSuccess = async (intent: Stripe.PaymentIntent) => {
         await tx.consumable.updateMany({
           where: {
             stripeIntentId: intent.id,
+            purchasedAt: null,
           },
           data: {
             purchasedAt: new Date(),
           },
         });
       }
-      return relevantConsumables;
-      // TODO: Notify user of successful payment})
+      return relevantConsumables.filter(
+        (consumable) => consumable.purchasedAt === null, // filter on items which were not already bought
+      );
     },
   );
+  if (purchasedConsumables.length === 0) {
+    return; // no need to send notifications if nothing was purchased
+  }
   try {
     await sendNotification({
       title:
         purchasedConsumables.length === 1
           ? `${purchasedConsumables[0]?.shoppable.title} har köpts`
           : `${purchasedConsumables.length} produkter har köpts`,
-      message: `Ditt köp på ${intent.amount} ${
+      message: `Ditt köp på ${intent.amount / 100} ${
         intent.currency?.toUpperCase() ?? "SEK"
       } har gått igenom`,
       type: NotificationType.PAYMENT_STATUS,
@@ -148,7 +154,7 @@ export const onPaymentFailure = async (intent: Stripe.PaymentIntent) => {
   try {
     await sendNotification({
       title: "Ditt köp har misslyckats",
-      message: `Ditt köp på ${intent.amount} ${
+      message: `Ditt köp på ${intent.amount / 100} ${
         intent.currency?.toUpperCase() ?? "SEK"
       } har misslyckats. Anledning: ${intent.last_payment_error?.message}`,
       type: NotificationType.PAYMENT_STATUS,

@@ -7,6 +7,9 @@
   import "$lib/FullCalendar.css";
   import * as m from "$paraglide/messages";
   import { languageTag } from "$paraglide/runtime";
+  import { toast } from "$lib/stores/toast";
+  import { page } from "$app/stores";
+  import { i18n } from "$lib/utils/i18n";
 
   export let events: Event[] = [];
 
@@ -27,7 +30,7 @@
       eventColor: "#f280a1",
       firstDay: 1,
       headerToolbar: {
-        left: "prev,next,addEvent",
+        left: "prev,next,addEvent,subscribe",
         center: "title",
         right: "dayGridDay,dayGridWeek,dayGridMonth",
       },
@@ -41,8 +44,13 @@
         subscribe: {
           text: m.events_calendar_subscribe(),
           click: () => {
-            void goto("/events/subscribe");
+            navigator.clipboard.writeText(
+              $page.url.origin +
+                i18n.resolveRoute("/events/subscribe", languageTag()),
+            );
+            toast(m.events_calendar_subscribe_copyToClipboard(), "success");
           },
+          hint: m.events_calendar_subscribe_details(),
         },
       },
       buttonText: {
@@ -61,4 +69,4 @@
 <div
   class="min-w-0 flex-col break-words rounded-2xl border-0 bg-clip-border p-4 shadow-xl"
   bind:this={calendarEl}
-></div>
+/>

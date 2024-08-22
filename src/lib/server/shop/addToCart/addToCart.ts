@@ -3,6 +3,7 @@ import * as m from "$paraglide/messages";
 import {
   ensureState,
   performLotteryIfNecessary,
+  queueNextExpiredConsumablesPruning,
   sendQueuedNotifications,
 } from "./reservations";
 import {
@@ -42,7 +43,7 @@ export const addTicketToCart = async (
     queuedNotifications.push(...result.queuedNotifications);
   });
   sendQueuedNotifications(queuedNotifications);
-  return await prisma.$transaction(async (prisma) => {
+  const res: AddToCartResult = await prisma.$transaction(async (prisma) => {
     const ticket = await prisma.ticket.findUnique({
       where: {
         id: ticketId,
@@ -133,6 +134,8 @@ export const addTicketToCart = async (
     });
     return { status: AddToCartStatus.AddedToCart };
   });
+  await queueNextExpiredConsumablesPruning();
+  return res;
 };
 
 export default addTicketToCart;

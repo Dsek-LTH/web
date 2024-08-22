@@ -1,3 +1,4 @@
+import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
 import apiNames from "$lib/utils/apiNames";
 import * as m from "$paraglide/messages";
 
@@ -15,6 +16,7 @@ export type Route = {
   accessRequired: string | null;
   appBehaviour: AppBehaviour;
   children?: Route[];
+  isCurrentRoute?: (currentPathname: string) => boolean;
 };
 export const getRoutes = (): Route[] =>
   [
@@ -154,6 +156,13 @@ export const getRoutes = (): Route[] =>
           path: "/admin/settings",
           icon: "i-mdi-wrench",
           accessRequired: apiNames.ADMIN.SETTINGS.READ,
+          appBehaviour: "home-link",
+        },
+        {
+          title: m.files(),
+          path: "/admin/minio",
+          icon: "i-mdi-files",
+          accessRequired: apiNames.FILES.BUCKET(PUBLIC_BUCKETS_FILES).CREATE,
           appBehaviour: "home-link",
         },
       ],

@@ -4,7 +4,7 @@
   import Labeled from "$lib/components/Labeled.svelte";
   import PageHeader from "$lib/components/nav/PageHeader.svelte";
   import * as m from "$paraglide/messages";
-  import { superForm } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
 
   import type { PageData } from "./$types";
   export let data: PageData;

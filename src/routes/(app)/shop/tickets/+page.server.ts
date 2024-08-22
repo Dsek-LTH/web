@@ -3,19 +3,25 @@ import {
   addTicketToCart,
   type AddToCartResult,
 } from "$lib/server/shop/addToCart/addToCart";
+import { countUserShopItems } from "$lib/server/shop/countUserShopItems";
 import { getTickets } from "$lib/server/shop/getTickets";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
-import { error, fail } from "@sveltejs/kit";
 import { redirect } from "$lib/utils/redirect";
-import { message, superValidate } from "sveltekit-superforms/server";
+import * as m from "$paraglide/messages";
+import { error, fail } from "@sveltejs/kit";
+import { zod } from "sveltekit-superforms/adapters";
+import {
+  message,
+  superValidate,
+  type Infer,
+} from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { PageServerLoad } from "./$types";
-import * as m from "$paraglide/messages";
-import { countUserShopItems } from "$lib/server/shop/countUserShopItems";
 
 export const load: PageServerLoad = async ({ locals, depends }) => {
   const { user, prisma } = locals;
+
   const { memberId, externalCode } = user ?? {};
   if (!memberId && !externalCode) error(401);
   depends("tickets");
@@ -43,14 +49,14 @@ export const load: PageServerLoad = async ({ locals, depends }) => {
 const addToCartSchema = z.object({
   ticketId: z.string().uuid(),
 });
-export type AddToCartSchema = typeof addToCartSchema;
+export type AddToCartSchema = Infer<typeof addToCartSchema>;
 
 export const actions = {
   addToCart: async (event) => {
     const { locals, request } = event;
     const { prisma, user } = locals;
     authorize(apiNames.WEBSHOP.PURCHASE, user);
-    const form = await superValidate(request, addToCartSchema);
+    const form = await superValidate(request, zod(addToCartSchema));
     if (!form.valid) return fail(400, { form });
     if (!user?.memberId && !user?.externalCode) {
       return fail(401, { form });

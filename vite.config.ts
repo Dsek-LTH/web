@@ -14,4 +14,7 @@ export default defineConfig({
       dependencies: ["@zenstackhq/server/**"],
     }),
   ],
+  define: {
+    SUPERFORMS_LEGACY: true, // due to breaking changes in superforms v2
+  },
 });

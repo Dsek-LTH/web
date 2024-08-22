@@ -4,7 +4,7 @@
   import dayjs from "dayjs";
   import DOMPurify from "isomorphic-dompurify";
   import { markdownToTxt } from "markdown-to-txt";
-  import type { Article } from "./articles";
+  import type { Article } from "$lib/news/getArticles";
   export let article: Article;
 </script>
 
@@ -29,6 +29,7 @@
           {article.header}
         </h1>
         <div class="prose mb-8 mt-2 line-clamp-3 prose-headings:text-sm">
+          <!-- {@html article.body} -->
           {markdownToTxt(DOMPurify.sanitize(article.body))}
         </div>
       </button>

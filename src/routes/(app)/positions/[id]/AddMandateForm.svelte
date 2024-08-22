@@ -1,9 +1,9 @@
 <script lang="ts">
   import Labeled from "$lib/components/Labeled.svelte";
-  import MemberSearchInput from "./MemberSearchInput.svelte";
+  import MemberSearchInput from "$lib/components/forms/MemberSearchInput.svelte";
   import type { SuperValidated } from "sveltekit-superforms";
   import type { AddMandateSchema } from "./+page.server";
-  import { superForm } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
   import type { Member } from "@prisma/client";
   import * as m from "$paraglide/messages";
 

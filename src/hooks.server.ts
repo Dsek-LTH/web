@@ -1,8 +1,10 @@
 import { env } from "$env/dynamic/private";
 import keycloak from "$lib/server/keycloak";
+import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
 import { i18n } from "$lib/utils/i18n";
+import { createMember } from "$lib/utils/member";
 import { redirect } from "$lib/utils/redirect";
-import { themes } from "$lib/utils/themes";
+import { themes, type Theme } from "$lib/utils/themes";
 import { isAvailableLanguageTag, sourceLanguageTag } from "$paraglide/runtime";
 import Keycloak, { type KeycloakProfile } from "@auth/core/providers/keycloak";
 import type { TokenSet } from "@auth/core/types";
@@ -15,10 +17,11 @@ import RPCApiHandler from "@zenstackhq/server/api/rpc";
 import zenstack from "@zenstackhq/server/sveltekit";
 import { randomBytes } from "crypto";
 import schedule from "node-schedule";
+import loggingExtension from "./database/prisma/loggingExtension";
 import translatedExtension from "./database/prisma/translationExtension";
 import { getAccessPolicies } from "./hooks.server.helpers";
 
-const authHandle = SvelteKitAuth({
+const { handle: authHandle } = SvelteKitAuth({
   secret: env.AUTH_SECRET,
   trustHost: true,
   providers: [
@@ -58,7 +61,7 @@ const authHandle = SvelteKitAuth({
       if ("token" in params && params.session?.user) {
         const { token } = params;
         session.user.student_id = token.student_id;
-        session.user.email = token.email;
+        session.user.email = token.email ?? "";
         session.user.group_list = token.group_list;
         session.user.given_name = token.given_name;
         session.user.family_name = token.family_name;
@@ -83,15 +86,15 @@ const authHandle = SvelteKitAuth({
   },
 });
 
-const prismaClient = new PrismaClient({ log: ["info"] });
+const prismaClient = new PrismaClient();
 const databaseHandle: Handle = async ({ event, resolve }) => {
   const lang = isAvailableLanguageTag(event.locals.paraglide?.lang)
     ? event.locals.paraglide?.lang
     : sourceLanguageTag;
-  const prisma = prismaClient.$extends(
-    translatedExtension(lang),
-  ) as PrismaClient;
   const session = await event.locals.getSession();
+  const prisma = prismaClient
+    .$extends(translatedExtension(lang))
+    .$extends(loggingExtension(session?.user.student_id)) as PrismaClient;
 
   if (!session?.user) {
     let externalCode = event.cookies.get("externalCode"); // Retrieve the externalCode from cookies
@@ -106,18 +109,14 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
     }
     const policies = await getAccessPolicies(prisma);
 
-    event.locals.prisma = enhance(
-      prisma,
-      {
-        user: {
-          studentId: undefined,
-          memberId: undefined,
-          policies,
-          externalCode: externalCode, // For anonymous users
-        },
+    event.locals.prisma = enhance(prisma, {
+      user: {
+        studentId: undefined,
+        memberId: undefined,
+        policies,
+        externalCode: externalCode, // For anonymous users
       },
-      { logPrismaQuery: process.env["NODE_ENV"] === "production" }, // Log queries in production
-    );
+    });
     event.locals.user = {
       studentId: undefined,
       memberId: undefined,
@@ -130,13 +129,11 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
     });
     const member =
       existingMember ||
-      (await prisma.member.create({
-        data: {
-          studentId: session.user.student_id,
-          firstName: session.user.given_name,
-          lastName: session.user.family_name,
-          email: session.user.email,
-        },
+      (await createMember(prisma, {
+        studentId: session.user.student_id,
+        firstName: session.user.given_name,
+        lastName: session.user.family_name,
+        email: session.user.email,
       }));
 
     if (
@@ -156,11 +153,7 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
       ),
     };
 
-    event.locals.prisma = enhance(
-      prisma,
-      { user },
-      { logPrismaQuery: process.env["NODE_ENV"] === "production" },
-    );
+    event.locals.prisma = enhance(prisma, { user });
     event.locals.user = user;
     event.locals.member = member!;
   }
@@ -200,11 +193,13 @@ const appHandle: Handle = async ({ event, resolve }) => {
 };
 
 const themeHandle: Handle = async ({ event, resolve }) => {
-  const theme = event.cookies.get("theme");
+  let theme = event.cookies.get("theme");
 
-  if (!theme || !themes.includes(theme)) {
-    return await resolve(event);
+  if (!theme || !themes.includes(theme as Theme)) {
+    theme = "dark";
   }
+  // get theme from cookies and send to frontend to show correct icon in theme switch
+  event.locals.theme = theme as Theme;
 
   return await resolve(event, {
     transformPageChunk: ({ html }) => {
@@ -213,7 +208,9 @@ const themeHandle: Handle = async ({ event, resolve }) => {
   });
 };
 
-schedule.scheduleJob("* */24 * * *", () => keycloak.sync(prismaClient));
+schedule.scheduleJob("* */24 * * *", () =>
+  keycloak.sync(authorizedPrismaClient),
+);
 
 export const handle = sequence(
   authHandle,

@@ -16,8 +16,8 @@
   import LoadingButton from "$lib/components/LoadingButton.svelte";
   import type { NotificationGroup } from "$lib/utils/notifications/group";
   $: notifications = $page.data["notifications"] as NotificationGroup[] | null;
-  $: deleteNotificationForm = $page.data[
-    "deleteNotificationForm"
+  $: mutateNotificationForm = $page.data[
+    "mutateNotificationForm"
   ] as SuperValidated<NotificationSchema> | null;
   $: shopItemCounts = $page.data["shopItemCounts"] as UserShopItemCounts;
   $: routes = getRoutes();
@@ -89,11 +89,8 @@
       </div>
 
       {#if $page.data.user && $page.data.member}
-        {#if notifications !== null && notifications !== undefined && deleteNotificationForm !== null}
-          <NotificationBell
-            {notifications}
-            deleteForm={deleteNotificationForm}
-          />
+        {#if notifications !== null && notifications !== undefined && mutateNotificationForm !== null}
+          <NotificationBell {notifications} form={mutateNotificationForm} />
         {/if}
         <UserMenu
           user={$page.data.user}

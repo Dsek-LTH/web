@@ -9,6 +9,7 @@ node_modules
 /.vscode
 src/translations/paraglide
 src/routes/api/openapi.json/openapi.json
+src/database/seed/.snaplet
 # Ignore files for PNPM, NPM and YARN
 pnpm-lock.yaml
 package-lock.json

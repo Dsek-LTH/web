@@ -21,6 +21,25 @@
   <p class="text-lg">{ticket.description}</p>
 {/if}
 
+{#if ticket.questions.length > 0}
+  <div class="rounded-box bg-base-200 p-4">
+    <h3 class="text-lg font-semibold">Frågor</h3>
+    <ul class="ml-4 list-decimal">
+      {#each ticket.questions as question}
+        <li class="mt-4">
+          <h2 class="text-lg font-medium">
+            {question.title}
+            {#if question.removedAt !== null}<span class="opacity-50"
+                >(borttagen)</span
+              >{/if}
+          </h2>
+          <p>{question.description}</p>
+        </li>
+      {/each}
+    </ul>
+  </div>
+{/if}
+
 <p>
   {data.purchasedConsumables.length} köpta <br />
   {#if data.consumablesInCart.length > 0}
@@ -43,6 +62,7 @@
 >
 
 <ConsumablesTable
+  questions={ticket.questions}
   consumables={data.purchasedConsumables}
   title="Köpta biljetter"
 />

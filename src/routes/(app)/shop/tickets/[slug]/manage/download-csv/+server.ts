@@ -1,47 +1,15 @@
-import apiNames from "$lib/utils/apiNames";
-import { authorize } from "$lib/utils/authorization";
-import type {
-  Consumable,
-  Event,
-  Member,
-  Shoppable,
-  Ticket,
-} from "@prisma/client";
-import { error } from "@sveltejs/kit";
+import type { Event, ItemQuestion, Shoppable, Ticket } from "@prisma/client";
 import dayjs from "dayjs";
+import { loadTicketData } from "../loadTicketData";
+import type { ConsumableRowData } from "../types";
 
 export const GET = async ({ locals, params }) => {
   const { user, prisma } = locals;
-  const ticket = await prisma.ticket.findUnique({
-    where: {
-      id: params.slug,
-    },
-    include: {
-      shoppable: {
-        include: {
-          consumables: {
-            include: {
-              member: true,
-            },
-          },
-          reservations: {
-            include: {
-              member: true,
-            },
-          },
-        },
-      },
-      event: true,
-    },
-  });
-  if (!ticket) {
-    error(404, "Ticket not found");
-  }
-  if (ticket.shoppable.authorId !== user.memberId) {
-    // author can always manage
-    authorize(apiNames.WEBSHOP.MANAGE, user);
-  }
-  const consumables = ticket.shoppable.consumables;
+  const { ticket, consumables } = await loadTicketData(
+    prisma,
+    user,
+    params.slug,
+  );
   const csv = generateCSV(ticket, consumables);
   // return csv as file
   const res = new Response(csv, {
@@ -55,14 +23,19 @@ export const GET = async ({ locals, params }) => {
 
 const generateCSV = (
   ticket: Ticket & {
-    shoppable: Shoppable;
+    shoppable: Shoppable & {
+      questions: ItemQuestion[];
+    };
     event: Event;
   },
-  consumables: Array<Consumable & { member: Member | null }>,
+  consumables: ConsumableRowData[],
 ): string => {
   let output = "";
-  const headers =
-    "Namn,Email,Matpreferens,Betalad mängd,Köpdatum,Payment Intent id";
+  let headers =
+    "Namn,Email,Matpreferens,Phaddergrupp,Betalad mängd,Köpdatum,Payment Intent id";
+  for (const question of ticket.shoppable.questions) {
+    headers += `,${question.title.replace(",", " ")}`;
+  }
   output += headers + "\n";
   const priceFormatter = new Intl.NumberFormat("sv-SE", {
     minimumFractionDigits: 0,
@@ -73,22 +46,34 @@ const generateCSV = (
   for (const consumable of consumables) {
     const member = consumable.member;
     const name = member
-      ? `${member.firstName} ${member.lastName}`
+      ? `${member.firstName} ${member.lastName}`.replace(",", " ")
       : "Anonym användare";
     const email = member
       ? "Finns inte"
-      : consumable.externalCustomerEmail ?? "Finns inte";
+      : (consumable.externalCustomerEmail?.replace(",", " ") ?? "Finns inte");
     const paidAmount = consumable.priceAtPurchase
       ? priceFormatter
           .format(consumable.priceAtPurchase / 100)
           .replace(",", ".")
       : "Okänt";
     const foodPreference = member
-      ? member?.foodPreference ?? ""
+      ? (member?.foodPreference?.replace(",", " ") ?? "")
       : "Anonym användare";
-    const row = `${name},${email},${foodPreference},${paidAmount},${dayjs(
+    const phadderGroup = member
+      ? (member?.phadderGroup?.name.replace(",", " ") ?? "")
+      : "Anonym användare";
+    let row = `${name},${email},${foodPreference},${phadderGroup},${paidAmount},${dayjs(
       consumable.purchasedAt,
-    ).format("YYYY-MM-DD HH:mm:ss")},${consumable.stripeIntentId ?? "N/A"}`;
+    ).format("YYYY-MM-DD HH:mm:ss")},${
+      consumable.stripeIntentId?.replace(",", " ") ?? "N/A"
+    }`;
+    for (const question of ticket.shoppable.questions) {
+      const response = consumable.questionResponses.find(
+        (r) => r.questionId === question.id,
+      );
+      if (!response) row += `,`;
+      else row += `,${response.answer.replace(",", " ")}`;
+    }
     output += row + "\n";
   }
   return output;

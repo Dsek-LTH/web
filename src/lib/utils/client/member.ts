@@ -6,8 +6,11 @@ import type {
   Position,
 } from "@prisma/client";
 export type MemberNames = Pick<Member, "firstName" | "nickname" | "lastName">;
-export const getFullName = (member: MemberNames) => {
-  if (member.nickname) {
+type Options = {
+  hideNickname?: boolean;
+};
+export const getFullName = (member: MemberNames, options: Options = {}) => {
+  if (member.nickname && !options.hideNickname) {
     if (member.firstName && member.lastName)
       return `${member.firstName} "${member.nickname}" ${member.lastName}`;
     return `"${member.nickname}"`;

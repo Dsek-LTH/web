@@ -5,56 +5,33 @@ import {
 } from "$lib/server/shop/addToCart/reservations";
 import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
 import { refundConsumable } from "$lib/server/shop/payments/stripeMethods";
-import apiNames from "$lib/utils/apiNames";
-import { authorize } from "$lib/utils/authorization";
-import type { Event, Shoppable, Ticket } from "@prisma/client";
-import { error, fail } from "@sveltejs/kit";
+import type { Event, ItemQuestion, Shoppable, Ticket } from "@prisma/client";
+import { fail } from "@sveltejs/kit";
+import { zod } from "sveltekit-superforms/adapters";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
+import { loadTicketData } from "./loadTicketData";
 
 export type ManagedTicket = Ticket &
   Shoppable & {
+    questions: ItemQuestion[];
     event: Event;
   };
 
 export const load = async ({ locals, params }) => {
   const { user, prisma } = locals;
-  const ticket = await prisma.ticket.findUnique({
-    where: {
-      id: params.slug,
-    },
-    include: {
-      shoppable: {
-        include: {
-          consumables: {
-            include: {
-              member: true,
-            },
-          },
-          reservations: {
-            include: {
-              member: true,
-            },
-          },
-        },
-      },
-      event: true,
-    },
-  });
-  if (!ticket) {
-    error(404, "Ticket not found");
-  }
-  if (ticket.shoppable.authorId !== user.memberId) {
-    // author can always manage
-    authorize(apiNames.WEBSHOP.MANAGE, user);
-  }
-  const purchasedConsumables = ticket.shoppable.consumables.filter(
+
+  const { ticket, consumables } = await loadTicketData(
+    prisma,
+    user,
+    params.slug,
+  );
+  const purchasedConsumables = consumables.filter(
     (c) => c.purchasedAt !== null,
   );
-  const consumablesInCart = ticket.shoppable.consumables.filter(
-    (c) => c.purchasedAt === null,
-  );
+  const consumablesInCart = consumables.filter((c) => c.purchasedAt === null);
   const reservations = ticket.shoppable.reservations;
+  // Typing just so we can remove consumables and reservations from shoppable
   const shoppable: Omit<Shoppable, "consumables" | "reservations"> & {
     consumables?: unknown;
     reservations?: unknown;
@@ -87,7 +64,7 @@ export const actions = {
     const { prisma } = locals;
     const form = await superValidate(
       request,
-      z.object({ consumableId: z.string() }),
+      zod(z.object({ consumableId: z.string() })),
     );
     if (!form.valid) return fail(400, { form });
     try {
@@ -120,7 +97,7 @@ export const actions = {
     const { prisma } = locals;
     const form = await superValidate(
       request,
-      z.object({ consumableId: z.string() }),
+      zod(z.object({ consumableId: z.string() })),
     );
     if (!form.valid) return fail(400, { form });
     try {
@@ -153,7 +130,7 @@ export const actions = {
     const { prisma } = locals;
     const form = await superValidate(
       request,
-      z.object({ consumableId: z.string() }),
+      zod(z.object({ consumableId: z.string() })),
     );
     if (!form.valid) return fail(400, { form });
     try {

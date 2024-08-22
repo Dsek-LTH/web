@@ -7,12 +7,17 @@ import {
 } from "$lib/zod/comments";
 import { error } from "@sveltejs/kit";
 import { superValidate } from "sveltekit-superforms/server";
-import { getEvent } from "../events";
+import { zod } from "sveltekit-superforms/adapters";
+import { getEvent } from "$lib/events/getEvents";
 import type { Actions, PageServerLoad } from "./$types";
 import { isAuthorized } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
-import { removeEventAction, removeEventSchema } from "../removeEventAction";
+import {
+  removeEventAction,
+  removeEventSchema,
+} from "$lib/events/server/removeEventAction";
 import * as m from "$paraglide/messages";
+import { interestedGoingSchema } from "$lib/events/schema";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
@@ -30,14 +35,15 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     allTaggedMembers,
     canEdit,
     canDelete,
-    commentForm: await superValidate(commentSchema),
-    removeCommentForm: await superValidate(removeCommentSchema),
-    removeEventForm: await superValidate(removeEventSchema),
+    commentForm: await superValidate(zod(commentSchema)),
+    removeCommentForm: await superValidate(zod(removeCommentSchema)),
+    removeEventForm: await superValidate(zod(removeEventSchema)),
+    interestedGoingForm: await superValidate(zod(interestedGoingSchema)),
   };
 };
 
 export const actions: Actions = {
   comment: commentAction("EVENT"),
   removeComment: removeCommentAction("EVENT"),
-  removeEvent: removeEventAction(),
+  removeEvent: removeEventAction,
 };

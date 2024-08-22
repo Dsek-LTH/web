@@ -62,6 +62,7 @@
   style="display: revert;"
   bind:this={dialog}
   on:click={close}
+  tabindex="-1"
 >
   <form
     class="rounded-2xl bg-base-100 p-2 shadow"

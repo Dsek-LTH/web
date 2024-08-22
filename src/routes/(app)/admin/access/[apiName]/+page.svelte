@@ -3,7 +3,7 @@
 
   import { page } from "$app/stores";
   import * as m from "$paraglide/messages";
-  import { superForm } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
 
   import type { PageData } from "./$types";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";

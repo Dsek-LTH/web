@@ -1,7 +1,7 @@
 <script lang="ts">
   import Input from "$lib/components/Input.svelte";
   import type { SuperValidated } from "sveltekit-superforms";
-  import { superForm } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
   import type { GoverningDocumentSchema } from "./schemas";
   import * as m from "$paraglide/messages";
 

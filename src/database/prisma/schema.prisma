@@ -133,7 +133,7 @@ model ArticleRequest {
 
 /// @@allow('create', has(auth().policies, 'news:article:create'))
 /// @@allow('read', has(auth().policies, 'news:article:read'))
-/// @@deny('read', removedAt != null)
+/// @@deny('read', removedAt != null && removedAt <= now() && !has(auth().policies, 'news:article:delete'))
 /// @@allow('update', has(auth().policies, 'news:article:update'))
 /// @@allow('update', auth().memberId == author.memberId)
 /// @@allow('delete', has(auth().policies, 'news:article:delete'))
@@ -151,6 +151,7 @@ model Article {
     publishedAt DateTime? @map("published_datetime") @db.Timestamptz(6)
     updatedAt DateTime? @map("latest_edit_datetime") @db.Timestamptz(6)
     slug String @unique(map: "articles_slug_unique") @db.VarChar(255)
+    /// @allow('update', has(auth().policies, 'news:article:delete'))
     removedAt DateTime? @map("removed_at") @db.Timestamptz(6)
     status String? @default("approved")
     createdAt DateTime @default(now()) @map("created_datetime") @db.Timestamptz(6)
@@ -217,6 +218,7 @@ model Bookable {
 /// @@allow('read', has(auth().policies, 'booking_request:read'))
 /// @@allow('update', has(auth().policies, 'booking_request:update'))
 /// @@allow('delete', has(auth().policies, 'booking_request:delete'))
+/// @@allow('delete', auth().memberId == bookerId)
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model BookingRequest {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
@@ -269,7 +271,10 @@ model Committee {
     nameEn String? @map("name_en") @db.VarChar(255)
     shortName String? @unique() @map("short_name") @db.VarChar(255)
     positions Position[]
-    imageUrl String? @map("image_url") @db.Text()
+    darkImageUrl String? @map("dark_image_url") @db.Text()
+    lightImageUrl String? @map("light_image_url") @db.Text()
+    monoImageUrl String? @map("mono_image_url") @db.Text()
+    symbolUrl String? @map("symbol_url") @db.Text()
     description String? @db.VarChar(255)
     descriptionEn String? @map("description_en") @db.VarChar(255)
 
@@ -385,7 +390,7 @@ model RecurringEvent {
 
 /// @@allow('create', has(auth().policies, 'event:create'))
 /// @@allow('read', has(auth().policies, 'event:read'))
-/// @@deny('read', removedAt != null && removedAt >= now())
+/// @@deny('read', removedAt != null && removedAt <= now() && !has(auth().policies, 'event:delete'))
 /// @@allow('update', has(auth().policies, 'event:update'))
 /// @@allow('delete', has(auth().policies, 'event:delete'))
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Events{
@@ -409,6 +414,7 @@ model Event {
     numberOfUpdates Int? @default(0) @map("number_of_updates")
     slug String? @unique(map: "events_slug_unique") @db.VarChar(255)
     alarmActive Boolean? @default(false) @map("alarm_active")
+    /// @allow('update', has(auth().policies, 'event:delete'))
     removedAt DateTime? @map("removed_at") @db.Timestamptz(6)
     comments EventComment[]
     going Member[] @relation("event_going")
@@ -475,7 +481,7 @@ model Keycloak {
 /// @@allow('read', has(auth().policies, 'core:mandate:read'))
 /// @@allow('update', has(auth().policies, 'core:mandate:update'))
 /// @@allow('delete', has(auth().policies, 'core:mandate:delete'))
-/// @@deny('read', positionId == 'dsek.noll.stab.mdlm' || positionId == 'dsek.noll.stab.oph' && !has(auth().policies, 'member:see_staben'))
+/// @@deny('read', positionId == 'dsek.noll.stab.mdlm' || positionId == 'dsek.noll.stab.oph' && !has(auth().policies, 'member:see_staben') && auth().memberId != memberId)
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Mandates{
 model Mandate {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
@@ -487,11 +493,17 @@ model Mandate {
     authors Author[]
     member Member @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "mandates_member_id_foreign")
     position Position @relation(fields: [positionId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "mandates_position_id_foreign")
+    /// @allow('update', auth().memberId == memberId || has(auth().policies, 'nollning:phaddrar:groups:manage'))
+    phadderInId String? @db.Uuid()
+    phadderIn PhadderGroup? @relation(fields: [phadderInId], references: [id], onDelete: SetNull, onUpdate: NoAction)
 
     @@map("mandates")
 }
 
 /// @@allow('read', true)
+/// @@allow('create', has(auth().policies, 'markdown:create'))
+/// @@allow('update', has(auth().policies, 'markdown:update'))
+/// @@allow('delete', has(auth().policies, 'markdown:delete'))
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Markdowns{
 model Markdown {
     name String @id() @db.VarChar(255)
@@ -538,6 +550,8 @@ model Member {
     visible Boolean @default(true)
     foodPreference String? @map("food_preference") @db.VarChar(255)
     stripeCustomerId String? @map("stripe_customer_id")
+    nollningGroupId String? @map("nollning_group_id") @db.Uuid()
+    nollaIn PhadderGroup? @relation(fields: [nollningGroupId], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "members_nollning_group_id_foreign")
     pingsFromMe Ping[] @relation("pings_from_memberTomembers")
     pingsToMe Ping[] @relation("pings_to_memberTomembers")
     likedArticles Article[] @relation("article_likes")
@@ -648,12 +662,28 @@ model Ping {
     @@map("pings")
 }
 
+/// @@allow('read', true)
+/// @@allow('create', has(auth().policies, 'nollning:phaddrar:groups:manage'))
+/// @@allow('update', has(auth().policies, 'nollning:phaddrar:groups:manage'))
+/// @@allow('delete', has(auth().policies, 'nollning:phaddrar:groups:manage'))
+model PhadderGroup {
+    id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+    name String @db.VarChar(255)
+    description String? @db.Text()
+    year Int
+    imageUrl String? @map("image_url") @db.Text()
+    createdAt DateTime @default(now())
+    nollor Member[]
+    phaddrar Mandate[]
+
+    @@map("phadder_groups")
+}
+
 /// @@allow('create', has(auth().policies, 'core:position:create'))
 /// @@allow('read', has(auth().policies, 'core:position:read'))
 /// @@allow('update', has(auth().policies, 'core:position:update'))
 /// @@allow('delete', has(auth().policies, 'core:position:delete'))
 /// @@deny('read', active == false && !has(auth().policies, 'core:position:inactive:read'))
-/// @@deny('read', id == 'dsek.noll.stab.mdlm' || id == 'dsek.noll.stab.oph' && !has(auth().policies, 'member:see_staben'))
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Positions{
 model Position {
     id String @id() @db.VarChar(255)
@@ -795,6 +825,7 @@ model SubscriptionSetting {
     pushNotification Boolean @default(false) @map("push_notification")
     member Member @relation(fields: [memberId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "subscription_settings_member_id_foreign")
 
+    @@unique([memberId, type])
     @@map("subscription_settings")
 }
 
@@ -856,7 +887,7 @@ model LastKeycloakUpdate {
     @@map("last_keycloak_update")
 }
 
-/// @@allow('create', has(auth().policies, 'webshop:create') && authorId == auth().memberId)
+/// @@allow('create', hasSome(auth().policies, ['webshop:create', 'webshop:manage']) && authorId == auth().memberId)
 /// @@allow('update', auth().memberId == authorId || has(auth().policies, 'webshop:manage'))
 /// @@allow('read', true)
 /// @@deny('read', removedAt != null && !auth().memberId == authorId || has(auth().policies, 'webshop:manage'))
@@ -901,7 +932,7 @@ model Ticket {
     @@map("ticket")
 }
 
-/// @@allow('create', shoppable.authorId == auth().memberId)
+/// @@allow('create', hasSome(auth().policies, ['webshop:create', 'webshop:manage']) || shoppable.authorId == auth().memberId)
 /// @@allow('read', true)
 /// @@deny('read', shoppable.removedAt != null && !auth().memberId == shoppable.authorId || has(auth().policies, 'webshop:manage'))
 /// @@allow('update', auth().memberId == shoppable.authorId || has(auth().policies, 'webshop:manage'))
@@ -916,13 +947,14 @@ model ItemQuestion {
     descriptionEn String?
     type String @db.VarChar(255)
     forExternalsOnly Boolean @default(false)
+    removedAt DateTime?
     options ItemQuestionOption[]
     responses ItemQuestionResponse[]
 
     @@map("item_question")
 }
 
-/// @@allow('create', question.shoppable.authorId == auth().memberId)
+/// @@allow('create', hasSome(auth().policies, ['webshop:create', 'webshop:manage']) || question.shoppable.authorId == auth().memberId)
 /// @@allow('read', true)
 /// @@deny('read', question.shoppable.removedAt != null && !auth().memberId == question.shoppable.authorId || has(auth().policies, 'webshop:manage'))
 /// @@allow('update', auth().memberId == question.shoppable.authorId || has(auth().policies, 'webshop:manage'))
@@ -952,6 +984,7 @@ model ItemQuestionResponse {
     extraPrice Int?
 
     @@map("item_question_response")
+    @@unique([questionId, consumableId], map: "item_question_response_question_id_consumable_id_unique")
 }
 
 /// @@allow('create', memberId == auth().memberId || auth().externalCode != null && externalCustomerCode == auth().externalCode)

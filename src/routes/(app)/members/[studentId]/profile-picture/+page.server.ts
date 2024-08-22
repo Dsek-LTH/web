@@ -1,12 +1,16 @@
+import { PUBLIC_BUCKETS_MEMBERS } from "$env/static/public";
 import { fileHandler } from "$lib/files";
+import * as m from "$paraglide/messages";
 import { error, fail } from "@sveltejs/kit";
 import sharp from "sharp";
-import { message, setError, superValidate } from "sveltekit-superforms/server";
-import { z } from "zod";
-import type { Actions, PageServerLoad } from "./$types";
-import { PUBLIC_BUCKETS_MEMBERS } from "$env/static/public";
+import { zod } from "sveltekit-superforms/adapters";
+import { message, superValidate, withFiles } from "sveltekit-superforms/server";
 import { v4 as uuid } from "uuid";
-import * as m from "$paraglide/messages";
+import type { Actions, PageServerLoad } from "./$types";
+import { changeSchema, deleteSchema, uploadSchema } from "./types";
+
+const PROFILE_PICTURE_PREFIX = (studentId: string) =>
+  `public/${studentId}/profile-picture`;
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma } = locals;
@@ -21,38 +25,22 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   const photos = await fileHandler.getInBucket(
     locals.user,
     PUBLIC_BUCKETS_MEMBERS,
-    `public/${params.studentId}`,
+    PROFILE_PICTURE_PREFIX(params.studentId),
     true,
   );
   return {
     member,
     photos,
-    changeForm: await superValidate(changeSchema),
-    uploadForm: await superValidate(uploadSchema),
-    deleteForm: await superValidate(deleteSchema),
+    changeForm: await superValidate(zod(changeSchema)),
+    uploadForm: await superValidate(zod(uploadSchema)),
+    deleteForm: await superValidate(zod(deleteSchema)),
   };
 };
-
-const changeSchema = z.object({
-  url: z.string().url(),
-});
-export type ChangeSchema = typeof changeSchema;
-const uploadSchema = z.object({
-  image: z.any(),
-  cropWidth: z.number().min(0).default(0),
-  cropHeight: z.number().min(0).default(0),
-  cropX: z.number().min(0).default(0),
-  cropY: z.number().min(0).default(0),
-});
-const deleteSchema = z.object({
-  fileName: z.string(),
-});
-export type DeleteSchema = typeof deleteSchema;
 
 export const actions: Actions = {
   change: async ({ params, locals, request }) => {
     const { prisma } = locals;
-    const form = await superValidate(request, changeSchema);
+    const form = await superValidate(request, zod(changeSchema));
     if (!form.valid) return fail(400, { form });
     const studentId = params.studentId;
     await prisma.member.update({
@@ -68,12 +56,12 @@ export const actions: Actions = {
   },
   upload: async ({ params, locals, request }) => {
     const formData = await request.formData();
-    const form = await superValidate(formData, uploadSchema);
-    if (!form.valid) return fail(400, { form });
+    const form = await superValidate(formData, zod(uploadSchema), {
+      allowFiles: true,
+    });
+    if (!form.valid) return fail(400, withFiles({ form }));
 
-    const image = formData.get("image");
-    if (!image || !(image instanceof File) || image.size <= 0)
-      return setError(form, "image", m.members_errors_invalidPicture());
+    const { image } = form.data;
     const fileName = uuid();
     try {
       const buffer = await sharp(await image.arrayBuffer())
@@ -97,7 +85,7 @@ export const actions: Actions = {
       const putUrl = await fileHandler.getPresignedPutUrl(
         locals.user,
         PUBLIC_BUCKETS_MEMBERS,
-        `${params.studentId}/profile-picture/${fileName}.webp`,
+        `${PROFILE_PICTURE_PREFIX(params.studentId)}/${fileName}.webp`,
       );
       const res = await fetch(putUrl, {
         method: "PUT",
@@ -106,15 +94,19 @@ export const actions: Actions = {
       if (!res.ok)
         return message(
           form,
-          { message: m.members_errors_couldntUploadFile(), type: "error" },
+          {
+            message: `${m.members_errors_couldntUploadFile()}: ${await res.text()}`,
+            type: "error",
+          },
           { status: 500 },
         );
     } catch (e) {
       console.log(e);
+      const errMsg = e instanceof Error ? e.message : String(e);
       return message(
         form,
         {
-          message: m.members_errors_couldntUploadFile(),
+          message: `${m.members_errors_couldntUploadFile()}: ${errMsg}`,
           type: "error",
         },
         { status: 500 },
@@ -126,11 +118,11 @@ export const actions: Actions = {
     });
   },
   delete: async ({ params, locals, request }) => {
-    const form = await superValidate(request, deleteSchema);
+    const form = await superValidate(request, zod(deleteSchema));
     if (!form.valid) return fail(400, { form });
     const fileName = form.data.fileName;
     await fileHandler.remove(locals.user, PUBLIC_BUCKETS_MEMBERS, [
-      `${params.studentId}/profile-picture/${fileName}`,
+      `${PROFILE_PICTURE_PREFIX(params.studentId)}/${fileName}`,
     ]);
     return message(form, {
       message: m.members_pictureRemoved(),

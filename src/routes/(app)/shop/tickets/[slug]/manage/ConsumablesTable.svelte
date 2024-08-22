@@ -1,32 +1,38 @@
 <script lang="ts">
-  import type {
-    Consumable,
-    ConsumableReservation,
-    Member,
-  } from "@prisma/client";
+  import type { ItemQuestion } from "@prisma/client";
   import ConsumableRow from "./ConsumableRow.svelte";
+  import type { ConsumableRowData, ReservationData } from "./types";
 
   export let title: string | null = null;
-  export let consumables: Array<
-    (Consumable | ConsumableReservation) & {
-      member: Member | null;
-    }
-  >;
+  export let questions: ItemQuestion[] = [];
+  export let consumables: Array<ConsumableRowData | ReservationData>;
 </script>
 
-<div class="my-8 overflow-x-auto bg-base-200 p-2 shadow-xl">
+<div class="my-8 overflow-x-auto rounded-box bg-base-200 p-2 shadow-xl">
   <table class="table">
     <thead>
       {#if title}
-        <tr><th colspan="8" class="text-center text-lg">{title}</th></tr>
+        <tr><th colspan="1000" class="text-center text-lg">{title}</th></tr>
       {/if}
       <tr>
         <th>Person</th>
         <th>Preferens</th>
         <th>Köptes</th>
+        <th>Phaddergrupp</th>
         <th>Konsumerades</th>
         <th>Betalat</th>
         <th>Stripeköp ID</th>
+        {#each questions as question}
+          <th>
+            <div class="tooltip" data-tip={question.title}>
+              <span
+                class="inline-block max-w-32 overflow-hidden text-ellipsis whitespace-nowrap"
+              >
+                {question.title}
+              </span>
+            </div></th
+          >
+        {/each}
         <th>Konsumera</th>
         <th>Återbetala</th>
       </tr>
@@ -36,15 +42,21 @@
         {#each consumables as consumable (consumable.id)}
           <!-- The below is a TypeScript "hack" to verify the object type in a union. We check if the field "purchasedAt" exists since that only exists on a consumable. It exists even if is null. -->
           <ConsumableRow
-            consumable={"purchasedAt" in consumable ? consumable : null}
+            consumable={"purchasedAt" in consumable
+              ? (consumable ?? null)
+              : null}
             reservation={"purchasedAt" in consumable ? null : consumable}
+            {questions}
           />
         {/each}
       {:else}
         <tr>
-          <td colspan="8" class="text-center">Inga biljetter</td>
+          <td colspan="1000" class="text-center">Inga biljetter</td>
         </tr>
       {/if}
     </tbody>
   </table>
 </div>
+
+<style>
+</style>

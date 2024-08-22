@@ -35,12 +35,14 @@
 >
   <div class="aspect-square md:col-start-1 md:col-end-2">
     <MemberAvatar {member} class="w-full rounded-lg">
-      <a
-        href="{$page.params['studentId']}/profile-picture"
-        class="btn btn-square glass btn-secondary btn-sm absolute right-2 top-2"
-      >
-        <span class="i-mdi-edit" />
-      </a>
+      {#if canEdit}
+        <a
+          href="{$page.params['studentId']}/profile-picture"
+          class="btn btn-square glass btn-secondary btn-sm absolute right-2 top-2"
+        >
+          <span class="i-mdi-edit" />
+        </a>
+      {/if}
     </MemberAvatar>
   </div>
   <!-- Name, StiL-ID, badge and actions -->
@@ -69,7 +71,11 @@
   <!-- Bio -->
   <article class="col-span-2 md:col-start-1 md:col-end-4 md:row-start-2">
     {#if isEditing}
-      <UpdateMemberForm bind:isEditing data={data.form} />
+      <UpdateMemberForm
+        bind:isEditing
+        data={data.form}
+        phadderGroups={data.phadderGroups}
+      />
     {:else if member.bio}
       <MarkdownBody body={member.bio}>
         {#if canEdit}
@@ -106,7 +112,7 @@
       {/if}
     </div>
     <div class="flex flex-col">
-      <HeldPositions mandates={member.mandates} />
+      <HeldPositions mandates={member.mandates} nollaIn={member.nollaIn} />
       {#if data.publishedArticles.length > 0}
         <PublishedArticles articles={data.publishedArticles} />
       {/if}
