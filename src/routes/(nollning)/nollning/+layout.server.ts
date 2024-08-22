@@ -1,4 +1,6 @@
 import { POST_REVEAL_PREFIX } from "$lib/components/postReveal/types.js";
+import apiNames from "$lib/utils/apiNames";
+import { isAuthorized } from "$lib/utils/authorization";
 import { getNollaGroupedNotifications } from "$lib/utils/notifications/nollaNotifications";
 import type { Theme } from "$lib/utils/themes";
 import { notificationSchema } from "$lib/zod/schemas.js";
@@ -10,7 +12,9 @@ const REVEAL_LAUNCH_DATE = new Date("2024-08-28T16:00:00"); // NEEDS TO BE UPDAT
 export const load = async ({ locals }) => {
   const { prisma, user } = locals;
 
-  const revealTheme = REVEAL_LAUNCH_DATE <= new Date();
+  const revealTheme =
+    REVEAL_LAUNCH_DATE <= new Date() ||
+    isAuthorized(apiNames.MEMBER.SEE_STABEN, user);
   const notifications = await getNollaGroupedNotifications(user, prisma);
 
   return {
