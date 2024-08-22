@@ -2,11 +2,11 @@ import {
   addTicketToCart,
   AddToCartStatus,
   type AddToCartResult,
-} from "$lib/server/shop/addToCart/addToCart.js";
-import { getEventsWithTickets } from "$lib/server/shop/getTickets.js";
-import apiNames from "$lib/utils/apiNames.js";
-import { authorize } from "$lib/utils/authorization.js";
-import { redirect } from "$lib/utils/redirect.js";
+} from "$lib/server/shop/addToCart/addToCart";
+import { getEventsWithTickets } from "$lib/server/shop/getTickets";
+import apiNames from "$lib/utils/apiNames";
+import { authorize } from "$lib/utils/authorization";
+import { redirect } from "$lib/utils/redirect";
 import * as m from "$paraglide/messages";
 import { error } from "@sveltejs/kit";
 import { fail, message, superValidate, type Infer } from "sveltekit-superforms";

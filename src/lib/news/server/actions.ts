@@ -61,7 +61,6 @@ const sendNewArticleNotification = async (
 };
 
 export const createArticle: Action = async (event) => {
-  console.log("create article");
   const { request, locals } = event;
   const { prisma, user } = locals;
   const form = await superValidate(request, zod(createSchema), {
@@ -92,10 +91,8 @@ export const createArticle: Action = async (event) => {
     },
   });
   slug = slugWithCount(slug, slugCount);
-  console.log("before image");
 
   if (image) rest.imageUrl = await uploadImage(user, image, slug);
-  console.log("creating");
 
   const result = await prisma.article.create({
     data: {

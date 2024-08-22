@@ -1,19 +1,16 @@
-import { NOLLNING_TAG_PREFIX } from "$lib/components/postReveal/types.js";
-import { generateICS } from "$lib/server/ics/calendar.js";
+import { REVEAL_LAUNCH_DATE } from "$lib/components/postReveal/types";
+import { BASIC_EVENT_FILTER } from "$lib/events/events";
+import { generateICS } from "$lib/server/ics/calendar";
 import dayjs from "dayjs";
 
 export const GET = async ({ locals, setHeaders }) => {
   const { prisma } = locals;
 
+  const revealTheme = REVEAL_LAUNCH_DATE <= new Date();
+
   const events = await prisma.event.findMany({
     where: {
-      tags: {
-        some: {
-          name: {
-            startsWith: NOLLNING_TAG_PREFIX,
-          },
-        },
-      },
+      ...BASIC_EVENT_FILTER(revealTheme),
       startDatetime: {
         gte: dayjs().subtract(1, "month").toDate(),
       },

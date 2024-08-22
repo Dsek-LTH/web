@@ -1,13 +1,14 @@
-import { POST_REVEAL_PREFIX } from "$lib/components/postReveal/types.js";
+import {
+  POST_REVEAL_PREFIX,
+  REVEAL_LAUNCH_DATE,
+} from "$lib/components/postReveal/types";
 import apiNames from "$lib/utils/apiNames";
 import { isAuthorized } from "$lib/utils/authorization";
 import { getNollaGroupedNotifications } from "$lib/utils/notifications/nollaNotifications";
 import type { Theme } from "$lib/utils/themes";
-import { notificationSchema } from "$lib/zod/schemas.js";
+import { notificationSchema } from "$lib/zod/schemas";
 import { superValidate } from "sveltekit-superforms";
 import { zod } from "sveltekit-superforms/adapters";
-
-const REVEAL_LAUNCH_DATE = new Date("2024-08-28T16:00:00"); // NEEDS TO BE UPDATED EVERY YEAR
 
 export const load = async ({ locals }) => {
   const { prisma, user } = locals;
