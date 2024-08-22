@@ -13,7 +13,7 @@ export const getPostRevealRoute = (pathname: string) => {
 export const getRoutes = (): Route[] =>
   [
     {
-      title: "Start",
+      title: "Nollning",
       path: "/",
       icon: "nollning-logo",
       accessRequired: null,

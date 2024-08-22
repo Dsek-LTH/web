@@ -26,6 +26,8 @@ export default {
         "nolla-sans": ["Inter", "ui-sans-serif", "sans-serif"],
         "nolla-mono": ['"IBM Plex Mono"', "ui-monospace", "monospace"],
         "nolla-post-reveal": ["Lexend", "ui-sans-serif", "sans-serif"],
+        "nolla-stab": ["monospace"],
+        "nolla-pepp": ["sans-serif"],
       },
     },
   },

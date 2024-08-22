@@ -65,9 +65,12 @@
         <PostRevealHeader />
       {/if}
 
-      <main class="relative flex-1 overflow-y-auto">
+      <main
+        class="scrollbar-hide *:scrollbar-hide relative flex-1 overflow-y-auto"
+        class:scrollbar-hide={data.isApp}
+      >
         <!-- so absolute positioning is outside padding -->
-        <div class="px-6 py-6">
+        <div class="scrollbar-hide px-6 py-6">
           <slot />
         </div>
       </main>

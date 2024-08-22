@@ -356,7 +356,7 @@
   "news_invalidAuthor": "Invalid author",
   "news_tags": "Tags",
   "news_invalidTags": "Invalid tags",
-  "news_publish": "Submot",
+  "news_publish": "Submit",
   "news_publishing": "Submitting...",
   "news_preview": "Preview",
   "news_published": "Published {date}",
