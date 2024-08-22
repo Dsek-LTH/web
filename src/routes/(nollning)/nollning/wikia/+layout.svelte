@@ -54,7 +54,7 @@
       });
       scroller.scrollBy({
         left:
-          el.offsetLeft > scroller.scrollLeft
+          el.offsetLeft > scroller.scrollLeft + scroller.offsetWidth / 2
             ? el.offsetWidth
             : -el.offsetWidth, // if true, element is to the right
         behavior: "smooth",

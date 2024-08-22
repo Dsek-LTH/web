@@ -51,7 +51,7 @@
         {m.inventory_boughtAt()}
         {dayjs(consumable.purchasedAt).fromNow()}
       </div>
-      <a href="/shop/inventory/{consumable.id}" class="btn btn-primary"
+      <a href="inventory/{consumable.id}" class="btn btn-primary"
         >{m.inventory_showTicket()}</a
       >
     </div>

@@ -46,7 +46,10 @@
   />
 </svelte:head>
 
-<div class="post-reveal h-dvh" data-theme="nollningPostReveal">
+<div
+  class="post-reveal h-dvh"
+  data-theme={data.revealTheme ? "nollningPostReveal" : "nollningPreReveal"}
+>
   {#if mounted}
     <div in:fade={{ duration: 1000 }} class="flex h-full flex-col">
       {#if !data.isApp}

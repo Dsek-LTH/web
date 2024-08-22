@@ -28,7 +28,7 @@
     <a href={eventLink(event)}>
       <h2 class="text-2xl font-bold">
         {event.title}
-        {#if event.removedAt !== null}
+        {#if event.removedAt}
           <span
             class="badge badge-error badge-sm relative -top-1 !text-xs font-semibold"
             >Raderat</span

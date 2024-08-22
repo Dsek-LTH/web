@@ -39,8 +39,9 @@ const getCurrentWeek = () => {
   return 0;
 };
 
-export const load = async ({ locals, url, depends }) => {
+export const load = async ({ locals, url, depends, parent }) => {
   const { prisma } = locals;
+  const { revealTheme } = await parent();
   if (!locals.user.memberId && !locals.user.externalCode) {
     return error(401);
   }
@@ -62,14 +63,19 @@ export const load = async ({ locals, url, depends }) => {
         externalCode: locals.user.externalCode!,
       };
   depends("tickets");
-  const events = await getEventsWithTickets(prisma, identification, {
-    startDatetime: {
-      gte: weekStart,
+  const events = await getEventsWithTickets(
+    prisma,
+    identification,
+    {
+      startDatetime: {
+        gte: weekStart,
+      },
+      endDatetime: {
+        lte: weekEnd,
+      },
     },
-    endDatetime: {
-      lte: weekEnd,
-    },
-  });
+    revealTheme,
+  );
 
   return {
     week,
@@ -117,7 +123,7 @@ export const actions = {
     }
     if (result.status === AddToCartStatus.AddedToInventory) {
       throw redirect(
-        "events/inventory",
+        "shop/inventory",
         {
           message: m.tickets_addToCart_addedToInventory(),
           type: "success",

@@ -44,19 +44,22 @@
       {/if}
       <ul class="menu -mr-6 mt-4 items-end *:text-right">
         <li>
-          <a href="/members/me">Profil</a>
+          <a on:click={() => (checked = false)} href="/members/me">Profil</a>
         </li>
         <li>
-          <a href="/settings">Inställningar</a>
+          <a
+            on:click={() => (checked = false)}
+            href="{POST_REVEAL_PREFIX}/settings">Inställningar</a
+          >
         </li>
         <li>
-          <a href="{POST_REVEAL_PREFIX}/shop/inventory">Mina biljetter</a>
+          <a
+            on:click={() => (checked = false)}
+            href="{POST_REVEAL_PREFIX}/shop/inventory">Mina biljetter</a
+          >
         </li>
       </ul>
-      <a
-        href="{POST_REVEAL_PREFIX}/go-back-to-dsek"
-        class="btn-primary-dark btn mt-8 self-center"
-      >
+      <a href="/" class="btn-primary-dark btn mt-8 self-center">
         till dsek <span class="i-mdi-arrow-right" />
       </a>
     </aside>
