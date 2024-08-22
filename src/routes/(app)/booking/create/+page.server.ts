@@ -4,13 +4,26 @@ import { zod } from "sveltekit-superforms/adapters";
 import { redirect } from "$lib/utils/redirect";
 import * as m from "$paraglide/messages";
 import { bookingSchema } from "../schema";
+import dayjs from "dayjs";
 
 export const load = async ({ locals }) => {
   const { prisma } = locals;
   const bookables = await prisma.bookable.findMany();
+  const bookingRequests = await prisma.bookingRequest.findMany({
+    where: {
+      end: {
+        gte: dayjs().subtract(1, "week").toDate(),
+      },
+    },
+    orderBy: [{ start: "asc" }, { end: "asc" }, { status: "asc" }],
+    include: {
+      bookables: true,
+      booker: true,
+    },
+  });
   const form = await superValidate(zod(bookingSchema));
 
-  return { bookables, form };
+  return { bookables, bookingRequests, form };
 };
 
 export const actions = {
