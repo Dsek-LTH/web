@@ -11,35 +11,20 @@ import softDelete from "$lib/utils/softDelete";
 import { authorize } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
 import * as m from "$paraglide/messages";
-import type { Alert } from "@prisma/client";
-
-const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
-const alertsCache: { alerts: Alert[]; lastUpdated: number | null } = {
-  alerts: [],
-  lastUpdated: null,
-};
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma } = locals;
   authorize(apiNames.ALERT, locals.user);
-
-  if (
-    alertsCache.lastUpdated &&
-    Date.now() - alertsCache.lastUpdated > CACHE_TTL
-  ) {
-    alertsCache.alerts = await prisma.alert.findMany({
-      where: {
-        removedAt: null,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
-    alertsCache.lastUpdated = Date.now();
-  }
-
+  const alert = prisma.alert.findMany({
+    where: {
+      removedAt: null,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
   return {
-    alert: alertsCache.alerts,
+    alert: await alert,
   };
 };
 
