@@ -158,9 +158,7 @@
           hreflang={languageTag() === "sv" ? "en" : "sv"}
           on:click={() => invalidateAll()}
         >
-          <slot>
-            {languageTag() === "sv" ? "EN" : "SV"}
-          </slot>
+          {languageTag() === "sv" ? "EN" : "SV"}
         </a>
         <button
           class="bg-[#433C3F]/60 px-8 py-4 uppercase text-white"
@@ -349,11 +347,31 @@
       {/each}
       <li>
         <button
-          class=" bg-[#433C3F]/60 text-white"
+          class=" bg-[#433C3F]/60 uppercase text-white"
           on:click={() => signIn("keycloak")}
         >
-          LOGGA IN
+          {m.navbar_logIn()}
         </button>
+      </li>
+      <li class="flex flex-row self-center pt-4">
+        <a
+          href={i18n.route($page.url.pathname)}
+          hreflang="sv"
+          class="h-full rounded-full"
+          class:badge={languageTag() === "sv"}
+          on:click={() => invalidateAll()}
+        >
+          SV
+        </a>
+        <a
+          href={i18n.route($page.url.pathname)}
+          hreflang="en"
+          class="h-full rounded-full"
+          class:badge={languageTag() === "en"}
+          on:click={() => invalidateAll()}
+        >
+          EN
+        </a>
       </li>
     </ul>
   </div>
