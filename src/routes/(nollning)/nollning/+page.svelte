@@ -25,7 +25,7 @@
           class="h-full w-full object-cover"
         />
         <span
-          class="absolute inset-x-4 bottom-32 text-center font-nolla-stab text-5xl leading-relaxed md:text-8xl"
+          class="absolute inset-x-4 bottom-32 text-center font-nolla-stab text-5xl leading-[32px] md:text-8xl"
         >
           En Nollning<br />i Stormens Öga
         </span>
@@ -84,7 +84,7 @@
     >
       <!-- <img {src} {alt} class="h-full w-full object-cover" /> -->
     </figure>
-    <h3 class="page-title font-nolla-stab text-primary">Stab Stabsson</h3>
+    <h3 class="page-title font-nolla-pepp text-primary">asdasdasd</h3>
     <p class="nolla-prose text-center">
       Lorem ipsum dolor sit amet, consectetur adipiscing elit. In interdum
       venenatis faucibus. Praesent dictum iaculis iaculis. Aliquam nulla magna,

@@ -33,7 +33,7 @@
     font-family: "Legendary Runes";
     src: local("Legenday Runes"), local("Legendary-Runes"),
       local("legendary runes"), local("legendary-runes"),
-      url("/fonts/LegendaryRunes.otf");
+      url("/fonts/LegendaryRunes.ttf");
     font-weight: normal;
     font-display: swap;
   }
