@@ -1,11 +1,11 @@
 <script lang="ts">
+  import LoadingButton from "$lib/components/LoadingButton.svelte";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
+  import NavIcon from "$lib/components/NavIcon.svelte";
   import * as m from "$paraglide/messages";
   import { signIn, signOut } from "@auth/sveltekit/client";
   import DarkLightToggle from "../../../DarkLightToggle.svelte";
   import LanguageSwitcher from "../../../LanguageSwitcher.svelte";
-  import NavIcon from "$lib/components/NavIcon.svelte";
-  import LoadingButton from "$lib/components/LoadingButton.svelte";
 
   export let data;
 </script>
@@ -31,6 +31,12 @@
         <a href="/shop/inventory">
           <NavIcon class="text-inherit" icon="i-mdi-treasure-chest" />
           {m.navbar_userMenu_inventory()}
+        </a>
+      </li>
+      <li>
+        <a href="/nollning">
+          <NavIcon class="text-inherit" icon="i-mdi-cloud" />
+          {m.landing_theIntroduction()}
         </a>
       </li>
     </ul>
