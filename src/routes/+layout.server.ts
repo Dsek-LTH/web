@@ -23,12 +23,15 @@ export const load = loadFlash(async ({ locals, url }) => {
   return {
     user,
     member,
+    theme,
     /**
-     * isApp is true when the page is rendered within the native app. This differs from using breakpoint modifiers as the site should look and function differently when it is open in a mobile browser and when it is open in the app.
-     * appInfo contains information about the running app, for example the insets for the safe area.
+     * isApp is true when the page is rendered within the native app. This
+     * differs from using breakpoint modifiers as the site should look and
+     * function differently when it is open in a mobile browser and when
+     * it is open in the app.
      */
     isApp,
+    /** appInfo contains information about the running app, for example the insets for the safe area. */
     appInfo,
-    theme,
   };
 });
