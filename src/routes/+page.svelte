@@ -13,7 +13,7 @@
     const carouselEl = carouselEls[i];
     if (!carouselEl) return;
     const x =
-      carouselEl.scrollLeft === 0
+      carouselEl.scrollLeft <= 1 // should be == 0, but we'll account for floating point errors
         ? carouselEl.clientWidth * carouselEl.childElementCount // loop
         : carouselEl.scrollLeft - carouselEl.clientWidth; // step left
     carouselEl.scroll(x, 0);
@@ -23,7 +23,8 @@
     const carouselEl = carouselEls[i];
     if (!carouselEl) return;
     const x =
-      carouselEl.scrollLeft === carouselEl.scrollWidth - carouselEl.clientWidth
+      carouselEl.scrollLeft + 1 >=
+      carouselEl.scrollWidth - carouselEl.clientWidth
         ? 0 // loop
         : carouselEl.scrollLeft + carouselEl.clientWidth; // step right
     carouselEl.scroll(x, 0);
