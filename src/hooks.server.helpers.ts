@@ -27,18 +27,17 @@ export const getAccessPolicies = async (
     return getAllAccessPolicies(prisma);
   }
   const isNollning = await isNollningPeriod();
+  const roles = getDerivedRoles(groupList, !!studentId);
 
   if (
+    roles.length === 1 &&
     accessPoliciesCache.lastUpdated &&
     Date.now() - accessPoliciesCache.lastUpdated > CACHE_TTL
   ) {
     accessPoliciesCache.policies = await prisma.accessPolicy
       .findMany({
         where: {
-          OR: [
-            { role: { in: getDerivedRoles(groupList, !!studentId) } },
-            { studentId },
-          ],
+          OR: [{ role: { in: roles } }, { studentId }],
         },
       })
       .then((policies) => policies.map((p) => p.apiName))
