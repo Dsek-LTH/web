@@ -169,6 +169,7 @@ const purchaseCart = async (
     return {
       message: m.tickets_purchase_alreadyPaidFor(),
       type: "success",
+      redirect: "inventory",
     };
   }
 
@@ -213,6 +214,7 @@ const purchaseCart = async (
     return {
       message: m.tickets_purchase_freeConsumablesPurchased(),
       type: "success",
+      redirect: "inventory",
     };
   }
 

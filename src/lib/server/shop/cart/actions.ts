@@ -9,6 +9,7 @@ import purchaseCart from "$lib/server/shop/payments/purchase";
 import { answerQuestion } from "$lib/server/shop/questions";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
+import { redirect } from "$lib/utils/redirect";
 import { questionForm } from "$lib/utils/shop/types";
 import * as m from "$paraglide/messages";
 import { error, fail, type Actions } from "@sveltejs/kit";
@@ -135,7 +136,8 @@ const cartActions: Actions = {
       type: "hidden",
     });
   },
-  purchase: async ({ locals, request }) => {
+  purchase: async (event) => {
+    const { locals, request } = event;
     const { user, prisma } = locals;
     authorize(apiNames.WEBSHOP.PURCHASE, user);
     const form = await superValidate(request, zod(purchaseForm));
@@ -143,8 +145,10 @@ const cartActions: Actions = {
     if (!user?.memberId && !user?.externalCode) {
       throw error(401, m.cart_errors_noCart());
     }
+    let redirectUrl: string | undefined = undefined;
+    let data: Omit<Awaited<ReturnType<typeof purchaseCart>>, "redirect">;
     try {
-      const data = await purchaseCart(
+      const { redirect, ...rest } = await purchaseCart(
         prisma,
         user.memberId
           ? {
@@ -155,7 +159,8 @@ const cartActions: Actions = {
             },
         form.data.idempotencyKey,
       );
-      return message(form, data);
+      redirectUrl = redirect;
+      data = rest;
     } catch (err) {
       return message(
         form,
@@ -170,6 +175,11 @@ const cartActions: Actions = {
         },
       );
     }
+
+    if (redirectUrl) {
+      throw redirect(redirectUrl, data as Message, event);
+    }
+    return message(form, data);
   },
 };
 
