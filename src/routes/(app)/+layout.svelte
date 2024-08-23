@@ -25,7 +25,7 @@
 
 {#if !data.isApp}
   <a
-    class="btn btn-circle btn-primary fixed bottom-4 right-4 z-20"
+    class="btn btn-circle btn-primary fixed bottom-4 left-4 z-20"
     href="https://forms.gle/skDsfLGyQHuCYGcR7"
     target="_blank"
   >
