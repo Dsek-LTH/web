@@ -123,9 +123,8 @@
     class="drawer-toggle"
     bind:checked={drawerOpen}
   />
-
   <div class="drawer-content">
-    <nav class="z-10">
+    <nav class="z-10 px-10 lg:px-20 xl:px-32">
       <a href="/">
         <svg
           width="32"
@@ -141,7 +140,9 @@
         </svg>
       </a>
 
-      <ul class="hidden justify-between gap-12 text-lg font-medium lg:flex">
+      <ul
+        class="hidden justify-between text-lg font-medium lg:flex lg:gap-8 xl:gap-12"
+      >
         {#each LINKS as link, i}
           <li>
             <a href={link.href} class="uppercase" class:text-white={i === 0}
@@ -178,8 +179,10 @@
       style:--url="url({getFileUrl("minio/photos/public/assets/hero.jpg")})"
       style:background-size="cover"
     >
-      <div class="absolute top-1/3 px-10 lg:px-44">
-        <h1 class="mb-4 text-5xl font-bold uppercase lg:text-[165px]">
+      <div class="absolute top-1/3 px-10 lg:pl-44">
+        <h1
+          class="mb-4 text-5xl font-bold uppercase lg:text-9xl xl:text-[165px]"
+        >
           {m.dsektionen()}
         </h1>
         <p class="mb-20 max-w-prose lg:text-xl">
@@ -209,7 +212,7 @@
           class:lg:flex-row-reverse={i === 1}
         >
           <div
-            class="carousel h-80 w-full lg:h-[500px] lg:w-[55%]"
+            class="carousel h-80 w-full lg:h-[500px] xl:max-w-[60%]"
             bind:this={carouselEls[i]}
           >
             {#each section.images as image, i}
@@ -224,12 +227,18 @@
             {/each}
           </div>
 
-          <div class="mx-10 flex flex-col gap-7 lg:mx-28">
-            <h2 class="font-bold uppercase lg:text-3xl">{section.title}</h2>
-            <h1 class="text-balance text-4xl font-bold uppercase lg:text-6xl">
+          <div class="mx-10 flex flex-col gap-7 lg:mx-16 xl:mx-28">
+            <h2 class="font-bold uppercase lg:text-2xl xl:text-3xl">
+              {section.title}
+            </h2>
+            <h1
+              class="text-balance text-4xl font-bold uppercase lg:text-5xl xl:text-6xl"
+            >
               {section.slogan}
             </h1>
-            <p class="max-w-prose text-sm lg:text-xl">{section.description}</p>
+            <p class="max-w-prose text-sm lg:text-lg xl:text-xl">
+              {section.description}
+            </p>
 
             <div class="flex gap-6 lg:mt-auto lg:pb-10">
               <button
@@ -362,7 +371,6 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    padding: 0px 40px;
     font-family: "Roboto Condensed", "Roboto", sans-serif;
 
     position: fixed;
@@ -427,8 +435,6 @@
   @media (min-width: 1024px) {
     nav {
       /* Auto layout */
-      padding: 8px 120px;
-
       position: fixed;
       width: 100%;
       height: 120px;
