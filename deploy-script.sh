@@ -10,4 +10,4 @@ pnpm i --ignore-scripts --prod=false
 pnpm generate
 pnpm prisma migrate deploy
 
-pm2 reload web
+pm2 reload ecosystem.config.cjs
