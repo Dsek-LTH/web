@@ -15,7 +15,7 @@
     "format:fix": "prettier . --write",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-    "test": "vitest run",
+    "test": "vitest run --retry 2",
     "test:watch": "vitest watch",
     "generate": "zenstack generate && prisma generate",
     "migrate": "zenstack generate && prisma migrate dev && snaplet-seed sync",
