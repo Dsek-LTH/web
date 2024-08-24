@@ -1,4 +1,5 @@
 <script lang="ts">
+  // eslint-disable-next-line no-restricted-imports -- project specific does not work, and goto is only used to update URLSearchParams
   import { goto } from "$app/navigation";
   import PageHeader from "$lib/components/nav/PageHeader.svelte";
   import Pagination from "$lib/components/Pagination.svelte";
@@ -57,16 +58,16 @@
     } else {
       query.delete("dir");
     }
-    query.set("orderBy", order.field);
+    query.set("orderBy", order.field!);
     goto(`?${query.toString()}`);
   };
 
   let createSelectedTags: Tag[] = [];
 
-  const tableHeaders: [{ order: ShlinkShortUrlsOrder; title: string }] = [
+  const tableHeaders: Array<{ order?: ShlinkShortUrlsOrder; title: string }> = [
     { order: { field: "shortCode" }, title: "Slug" },
     { order: { field: "longUrl" }, title: "Link" },
-    { order: { field: null }, title: "Tags" },
+    { title: "Tags" },
     { order: { field: "dateCreated" }, title: "Created date" },
     { order: { field: "visits" }, title: "Visits" },
   ];
@@ -92,6 +93,7 @@
   }
 
   let editModal: HTMLDialogElement;
+  let editModalTags: Tag[] = [];
 </script>
 
 <PageHeader title="Link shortener" />
@@ -135,7 +137,7 @@
       {#if $createLinksErrors.tags?._errors}
         <div class="label">
           <span class="label-text-alt text-error">
-            {#if $createLinksErrors.tags?.length ?? 0 > 1}
+            {#if $createLinksErrors.tags._errors.length > 1}
               {$createLinksErrors.tags[0]}
             {:else}
               {$createLinksErrors.tags?._errors?.join(", ")}
@@ -147,7 +149,7 @@
     {#each createSelectedTags as tag (tag.id)}
       <input type="hidden" name="tags" value={tag.name} />
     {/each}
-    <Labeled label="Add" disableLabel={true} invisibleText={true}>
+    <Labeled label="Add" invisibleText={true}>
       <button class="btn btn-primary self-end">Add</button>
     </Labeled>
   </form>
@@ -218,14 +220,14 @@
               bind:this={toggleAllCheckBox}
               on:change={(e) =>
                 (checkboxes = [...Array(data.domains.length).keys()].map(
-                  () => e.target.checked,
+                  () => e.currentTarget.checked,
                 ))}
             />
           </th>
           {#each tableHeaders as th (th.title)}
-            {#if th.order.field}
+            {#if th.order?.field}
               <th
-                on:click={() => setUrlParams({ field: th.order.field })}
+                on:click={() => setUrlParams({ field: th.order?.field })}
                 class="cursor-pointer"
               >
                 {th.title}
@@ -291,9 +293,12 @@
                 on:click={() => {
                   $updateLinksForm.slug = d.shortCode;
                   $updateLinksForm.url = d.longUrl;
-                  $updateLinksForm.tags = d.tags?.map((t) => ({
+                  editModalTags = d.tags?.map((t) => ({
                     id: t,
                     name: t,
+                    color: null,
+                    isDefault: null,
+                    nameEn: null,
                   }));
                   editModal.showModal();
                 }}
@@ -330,11 +335,11 @@
         <div class="label">
           <span class="label-text"> Tags* </span>
         </div>
-        <TagSelectCreate {allTags} bind:selectedTags={$updateLinksForm.tags} />
-        {#if $updateLinksErrors.tags?._errors}
+        <TagSelectCreate {allTags} bind:selectedTags={editModalTags} />
+        {#if $updateLinksErrors.tags && $updateLinksErrors.tags._errors}
           <div class="label">
             <span class="label-text-alt text-error">
-              {#if $updateLinksErrors.tags?.length > 1}
+              {#if $updateLinksErrors.tags._errors.length > 1}
                 {$updateLinksErrors.tags[0]}
               {:else}
                 {$updateLinksErrors.tags?._errors?.join(", ")}
@@ -343,7 +348,7 @@
           </div>
         {/if}
       </div>
-      {#each $updateLinksForm.tags as tag (tag.id)}
+      {#each editModalTags as tag (tag.id)}
         <input type="hidden" name="tags" value={tag.name} />
       {/each}
       <div class="modal-action">

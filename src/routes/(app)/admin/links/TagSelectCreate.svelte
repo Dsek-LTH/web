@@ -94,7 +94,13 @@
     id="tags-panel"
   >
     {#if ableCreateNewTag}
-      {@const tag = { id: searchValue, name: searchValue }}
+      {@const tag = {
+        id: searchValue,
+        name: searchValue,
+        color: null,
+        isDefault: null,
+        nameEn: null,
+      }}
       <li>
         <button
           type="button"
