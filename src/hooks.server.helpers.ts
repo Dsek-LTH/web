@@ -10,6 +10,10 @@ const fetchAccessPolicies = async (
   studentId?: string,
 ) => {
   const isNollning = await isNollningPeriod();
+  const member = await prisma.member.findUnique({
+    select: { classYear: true },
+    where: { studentId: studentId },
+  });
   return prisma.accessPolicy
     .findMany({
       where: {
@@ -25,6 +29,9 @@ const fetchAccessPolicies = async (
        */
       if (!isNollning && !policies.includes(apiNames.MEMBER.SEE_STABEN)) {
         policies.push(apiNames.MEMBER.SEE_STABEN);
+      }
+      if (isNollning && member?.classYear === new Date().getFullYear()) {
+        policies.push("nolla");
       }
       return policies;
     });
