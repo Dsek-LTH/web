@@ -11,6 +11,9 @@ const alertsCache: { alerts: Alert[]; lastUpdated: number | null } = {
   alerts: [],
   lastUpdated: null,
 };
+const hasCacheExpired = (cache: typeof alertsCache) =>
+  !cache.lastUpdated || // no cache
+  Date.now() - cache.lastUpdated > CACHE_TTL;
 
 export const load = loadFlash(async ({ locals, depends }) => {
   const { user, prisma } = locals;
@@ -22,10 +25,7 @@ export const load = loadFlash(async ({ locals, depends }) => {
   depends("cart");
   const shopItemCounts = await countUserShopItems(prisma, user);
 
-  if (
-    alertsCache.lastUpdated &&
-    Date.now() - alertsCache.lastUpdated > CACHE_TTL
-  ) {
+  if (hasCacheExpired(alertsCache)) {
     alertsCache.alerts = await prisma.alert.findMany({
       where: {
         removedAt: null,

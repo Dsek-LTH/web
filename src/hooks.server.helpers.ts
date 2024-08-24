@@ -36,6 +36,9 @@ const accessPoliciesCache: { policies: string[]; lastUpdated: number | null } =
     policies: [],
     lastUpdated: null,
   };
+const hasCacheExpired = (cache: typeof accessPoliciesCache) =>
+  !cache.lastUpdated || // no cache
+  Date.now() - cache.lastUpdated > CACHE_TTL;
 
 /**
  * @param prisma
@@ -56,10 +59,7 @@ export const getAccessPolicies = async (
 
   // only has *, i.e logged out user
   if (roles.length === 1) {
-    if (
-      accessPoliciesCache.lastUpdated &&
-      Date.now() - accessPoliciesCache.lastUpdated > CACHE_TTL
-    ) {
+    if (hasCacheExpired(accessPoliciesCache)) {
       accessPoliciesCache.policies = await fetchAccessPolicies(
         prisma,
         roles,
