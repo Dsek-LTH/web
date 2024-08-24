@@ -35,21 +35,25 @@
 
         {m.navbar_userMenu_inventory()}
         <!-- checks both not undefined and not 0 (since it's falsy) -->
-        {#if data.shopItemCounts?.unconsumed}
-          <span class="badge badge-primary badge-sm">
-            {data.shopItemCounts.unconsumed}
-          </span>
-        {/if}
+        {#await data.shopItemCounts?.unconsumed then unconsumed}
+          {#if unconsumed}
+            <span class="badge badge-primary badge-sm">
+              {unconsumed}
+            </span>
+          {/if}
+        {/await}
       </a>
-      {#if data.shopItemCounts?.inCart}
-        <a class="btn" href="cart">
-          <NavIcon icon="i-mdi-cart" />
-          {m.navbar_userMenu_cart()}
-          <span class="badge badge-error badge-sm">
-            {data.shopItemCounts.inCart}
-          </span>
-        </a>
-      {/if}
+      {#await data.shopItemCounts?.inCart then inCart}
+        {#if inCart}
+          <a class="btn" href="cart">
+            <NavIcon icon="i-mdi-cart" />
+            {m.navbar_userMenu_cart()}
+            <span class="badge badge-error badge-sm">
+              {inCart}
+            </span>
+          </a>
+        {/if}
+      {/await}
     </div>
   {/if}
   {#if isAuthorized(apiNames.WEBSHOP.CREATE, data.user)}

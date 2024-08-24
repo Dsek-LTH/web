@@ -23,7 +23,7 @@ export const load = loadFlash(async ({ locals, depends }) => {
     ? await getMyGroupedNotifications(user, prisma)
     : null;
   depends("cart");
-  const shopItemCounts = await countUserShopItems(prisma, user);
+  const shopItemCounts = countUserShopItems(prisma, user);
 
   if (hasCacheExpired(alertsCache)) {
     alertsCache.alerts = await prisma.alert.findMany({

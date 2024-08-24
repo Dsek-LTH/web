@@ -24,22 +24,29 @@
     style="left: {currentRouteIndex * (100 / routesToShow.length) + 2.5}%;"
   />
   {#each routesToShow as route (route.path)}
-    {#if shopItemCounts?.inCart && route.specialBehaviour === "cart-badge"}
-      <!-- shop icon -->
-      <a href={route.path}>
-        <div class="indicator">
-          <NavIcon icon={route.icon} />
-          <span class="badge indicator-item badge-error">
-            {shopItemCounts.inCart}
-          </span>
-          <!-- <span class="btm-nav-label text-[0.5rem] uppercase">{route.title}</span> -->
-        </div>
-      </a>
-    {:else}
+    {#await shopItemCounts?.inCart}
       <a href={route.path}>
         <NavIcon icon={route.icon} />
         <!-- <span class="btm-nav-label text-[0.5rem] uppercase">{route.title}</span> -->
       </a>
-    {/if}
+    {:then inCart}
+      {#if inCart && route.specialBehaviour === "cart-badge"}
+        <!-- shop icon -->
+        <a href={route.path}>
+          <div class="indicator">
+            <NavIcon icon={route.icon} />
+            <span class="badge indicator-item badge-error">
+              {inCart}
+            </span>
+            <!-- <span class="btm-nav-label text-[0.5rem] uppercase">{route.title}</span> -->
+          </div>
+        </a>
+      {:else}
+        <a href={route.path}>
+          <NavIcon icon={route.icon} />
+          <!-- <span class="btm-nav-label text-[0.5rem] uppercase">{route.title}</span> -->
+        </a>
+      {/if}
+    {/await}
   {/each}
 </nav>
