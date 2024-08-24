@@ -8,12 +8,9 @@ const fetchAccessPolicies = async (
   prisma: PrismaClient,
   roles: string[],
   studentId?: string,
+  classYear?: number,
 ) => {
   const isNollning = await isNollningPeriod();
-  const member = await prisma.member.findUnique({
-    select: { classYear: true },
-    where: { studentId: studentId },
-  });
   return prisma.accessPolicy
     .findMany({
       where: {
@@ -30,7 +27,7 @@ const fetchAccessPolicies = async (
       if (!isNollning && !policies.includes(apiNames.MEMBER.SEE_STABEN)) {
         policies.push(apiNames.MEMBER.SEE_STABEN);
       }
-      if (isNollning && member?.classYear === new Date().getFullYear()) {
+      if (isNollning && classYear === new Date().getFullYear()) {
         policies.push("nolla");
       }
       return policies;
@@ -53,6 +50,7 @@ export const getAccessPolicies = async (
   prisma: PrismaClient,
   studentId?: string,
   groupList?: string[],
+  classYear?: number,
 ) => {
   // If we're running in development mode and we're signed in,
   // give all available policies to the user.
@@ -71,13 +69,14 @@ export const getAccessPolicies = async (
         prisma,
         roles,
         studentId,
+        classYear,
       );
       accessPoliciesCache.lastUpdated = Date.now();
     }
     return accessPoliciesCache.policies;
   }
 
-  return await fetchAccessPolicies(prisma, roles, studentId);
+  return await fetchAccessPolicies(prisma, roles, studentId, classYear);
 };
 
 /** Should only be used in development mode. */
