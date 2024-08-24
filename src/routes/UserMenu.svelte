@@ -21,7 +21,9 @@
   <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
   <!-- svelte-ignore a11y-label-has-associated-control -->
   <label tabindex="0" class="btn btn-ghost">
-    {#await amountInCart then amountInCart}
+    {#await amountInCart}
+      <span class="i-mdi-account-circle text-2xl" />
+    {:then amountInCart}
       {#if amountInCart > 0}
         <div class="indicator">
           <span

@@ -20,7 +20,7 @@ export const load = loadFlash(async ({ locals, depends }) => {
 
   depends("/api/notifications/my");
   const notifications = user?.memberId
-    ? await getMyGroupedNotifications(user, prisma)
+    ? getMyGroupedNotifications(user, prisma)
     : null;
   depends("cart");
   const shopItemCounts = countUserShopItems(prisma, user);
@@ -36,9 +36,10 @@ export const load = loadFlash(async ({ locals, depends }) => {
 
   return {
     alerts: alertsCache.alerts,
-    notifications: notifications,
+    notifications,
     mutateNotificationForm: await superValidate(zod(notificationSchema)),
     readNotificationForm: await superValidate(zod(emptySchema)),
     shopItemCounts,
   };
 });
+export type GlobalAppLoadData = Awaited<ReturnType<typeof load>>;

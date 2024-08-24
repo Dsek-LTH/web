@@ -1,16 +1,14 @@
 <script lang="ts">
   import { page } from "$app/stores";
   import Notification from "$lib/components/Notification.svelte";
-  import type { NotificationGroup } from "$lib/utils/notifications/group";
-  import type { NotificationSchema } from "$lib/zod/schemas";
   import * as m from "$paraglide/messages";
-  import type { SuperValidated } from "sveltekit-superforms";
+  // eslint-disable-next-line no-restricted-imports -- It's a top level layout so I would say this is fine
+  import type { GlobalAppLoadData } from "../../routes/(app)/+layout.server";
 
   export let modal: HTMLDialogElement;
-  $: notifications = $page.data["notifications"] as NotificationGroup[] | null;
-  $: mutateNotificationForm = $page.data[
-    "mutateNotificationForm"
-  ] as SuperValidated<NotificationSchema> | null;
+  $: pageData = $page.data as typeof $page.data & GlobalAppLoadData;
+  $: notifications = pageData["notifications"];
+  $: mutateNotificationForm = pageData["mutateNotificationForm"];
   export let allowDelete = false;
 </script>
 
@@ -24,18 +22,26 @@
       >
     </form>
     {#if notifications !== null}
-      <ul class="menu -mx-6 flex-nowrap overflow-y-auto">
-        {#each notifications as notification (notification.id)}
-          <li>
-            <Notification
-              onClick={() => modal.close()}
-              {allowDelete}
-              {notification}
-              form={mutateNotificationForm ?? undefined}
-            />
-          </li>
-        {/each}
-      </ul>
+      {#await notifications}
+        <span class="loading loading-lg" />
+      {:then notifications}
+        {#if notifications.length > 0}
+          <ul class="menu -mx-6 flex-nowrap overflow-y-auto">
+            {#each notifications as notification (notification.id)}
+              <li>
+                <Notification
+                  onClick={() => modal.close()}
+                  {allowDelete}
+                  {notification}
+                  form={mutateNotificationForm ?? undefined}
+                />
+              </li>
+            {/each}
+          </ul>
+        {:else}
+          <li class="p-4">{m.navbar_bell_noNotifications()}</li>
+        {/if}
+      {/await}
     {:else}
       <li class="p-4">{m.navbar_bell_noNotifications()}</li>
     {/if}
