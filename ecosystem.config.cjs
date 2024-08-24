@@ -10,6 +10,7 @@ module.exports = {
       interpreter_args: "--env-file ./.env",
       instances: "max",
       exec_mode: "cluster",
+      instances: 4,
     },
   ],
 };
