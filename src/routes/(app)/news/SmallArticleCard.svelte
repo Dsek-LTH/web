@@ -1,10 +1,9 @@
 <script lang="ts">
   import AuthorSignature from "$lib/components/socials/AuthorSignature.svelte";
+  import type { Article } from "$lib/news/getArticles";
   import { goto } from "$lib/utils/redirect";
   import dayjs from "dayjs";
-  import DOMPurify from "isomorphic-dompurify";
   import { markdownToTxt } from "markdown-to-txt";
-  import type { Article } from "$lib/news/getArticles";
   export let article: Article;
 </script>
 
@@ -29,7 +28,7 @@
           {article.header}
         </h1>
         <div class="prose mb-8 mt-2 line-clamp-3 prose-headings:text-sm">
-          {markdownToTxt(DOMPurify.sanitize(article.body), { pedantic: true })}
+          {markdownToTxt(article.body, { pedantic: true })}
         </div>
       </button>
     </div>
