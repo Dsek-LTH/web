@@ -33,7 +33,13 @@ jobs:
 
       - uses: montudor/action-zip@v1
         with:
-          args: zip -qq -r build.zip build src/database/prisma/schema.prisma src/database/schema.zmodel src/database/prisma/migrations package.json pnpm-lock.yaml patches src/routes/api/openapi.json/openapi.json ecosystem.config.cjs
+          args: zip -qq -r build.zip build src/database/prisma/schema.prisma \
+            src/database/schema.zmodel \
+            src/database/prisma/migrations \
+            src/routes/api/openapi.json/openapi.json \
+            prod/ecosystem.config.cjs \
+            prod/server.js \
+            package.json pnpm-lock.yaml patches
 
       - uses: softprops/action-gh-release@v2
         with:
