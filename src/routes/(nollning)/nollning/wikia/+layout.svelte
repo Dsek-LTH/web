@@ -5,16 +5,11 @@
   import { i18n } from "$lib/utils/i18n";
   import { POST_REVEAL_PREFIX } from "$lib/components/postReveal/types";
 
-  export let data;
   const links = [
-    ...(data.revealTheme
-      ? [
-          {
-            label: "Karta",
-            link: "map",
-          },
-        ]
-      : []),
+    {
+      label: "Karta",
+      link: "map",
+    },
     {
       label: "Sektionen",
       link: "sektionen",
@@ -23,14 +18,10 @@
       label: "Studenthälsan",
       link: "student-health",
     },
-    ...(data.revealTheme
-      ? [
-          {
-            label: "Sektionsvisor",
-            link: "guild-songs",
-          },
-        ]
-      : []),
+    {
+      label: "Sektionsvisor",
+      link: "guild-songs",
+    },
     {
       label: "Ordlista",
       link: "wordlist",

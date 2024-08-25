@@ -1,6 +1,11 @@
 <script lang="ts">
+  import { browser } from "$app/environment";
+  import { invalidateAll } from "$app/navigation";
   import { page } from "$app/stores";
   import PageHeader from "$lib/components/nav/PageHeader.svelte";
+  import ScrollingNumber from "$lib/components/Timer/ScrollingNumber.svelte";
+  import Timer from "$lib/components/Timer/Timer.svelte";
+  import { now } from "$lib/stores/date";
   import { toast } from "$lib/stores/toast";
   import * as m from "$paraglide/messages";
   import Event from "./Event.svelte";
@@ -13,6 +18,38 @@
     .fill(0)
     .map((_, i) => i);
   $: eventsSubscribeUrl = `${$page.url.origin}${$page.url.pathname}/subscribe`;
+
+  $: userTickets = events
+    .flatMap((events) => events.tickets)
+    .filter((ticket) => ticket.isInUsersCart);
+  $: itemsToPay = userTickets.flatMap((ticket) => ticket.userItemsInCart);
+  function firstTimer(timers: Array<Date | null>) {
+    return timers.reduce(
+      (acc, next) =>
+        acc == undefined || (next && next < acc) ? (next ?? undefined) : acc,
+      undefined as Date | undefined,
+    );
+  }
+
+  $: inQueue = userTickets
+    .filter(
+      (ticket) => ticket.gracePeriodEndsAt.valueOf() + 1000 < $now.valueOf(),
+    )
+    .flatMap((ticket) => ticket.userReservations);
+  $: inLottery = userTickets.filter(
+    (ticket) =>
+      /* Some extra padding */
+      ticket.gracePeriodEndsAt.valueOf() + 1000 >= $now.valueOf(),
+  );
+
+  $: if (
+    (browser && inLottery.some((ticket) => ticket.gracePeriodEndsAt >= $now)) ||
+    inQueue.some((t) => t.order === null)
+  ) {
+    setTimeout(() => {
+      invalidateAll();
+    }, 500);
+  }
 </script>
 
 <div class="mx-auto max-w-4xl">
@@ -69,4 +106,68 @@
       <span class="mt-8 text-center text-4xl">🤫</span>
     {/if}
   </div>
+</div>
+
+<div class="sticky inset-x-0 bottom-0 mt-8 flex flex-col">
+  {#if itemsToPay.length > 0}
+    {@const firstToExpire = firstTimer(
+      itemsToPay.map((item) => item.expiresAt),
+    )}
+    <div class="self-end">
+      {#if firstToExpire}
+        <Timer
+          class="text-error"
+          milliseconds={firstToExpire.valueOf() - $now.valueOf()}
+        />
+      {/if}
+    </div>
+    <div class="flex rounded-btn bg-neutral p-2">
+      <span class="flex-1">
+        Du har fått en biljett 🎉<br />Gå vidare för att betala.
+      </span>
+      <a href="shop/cart" class="btn btn-error"
+        >Betala <span class="i-mdi-arrow-right" /></a
+      >
+    </div>
+  {:else if inQueue.length > 0}
+    {@const position =
+      (inQueue.reduce(
+        (acc, next) =>
+          acc < 0 || (next.order !== null && next.order < acc)
+            ? (next.order ?? acc)
+            : acc,
+        -100,
+      ) ?? -100) + 1}
+    <div class="flex rounded-btn bg-neutral p-2">
+      <span class="flex-1">
+        {#if position >= 0}
+          <span>
+            {m.cart_reservation_queuePosition()}
+            <ScrollingNumber number={position} />
+          </span>
+        {:else}
+          {m.tickets_buyButton_inQueue()}
+        {/if}
+      </span>
+      <a href="shop/cart" class="btn btn-primary"
+        >Visa<span class="i-mdi-arrow-right" /></a
+      >
+    </div>
+  {:else if inLottery.length > 0}
+    {@const firstLottery = firstTimer(
+      inLottery.map((ticket) => ticket.gracePeriodEndsAt),
+    )}
+    <div class="flex items-center rounded-btn bg-neutral p-2">
+      <span class="flex-1 text-lg">
+        {m.cart_reservation_awaitingLottery()}
+      </span>
+
+      {#if firstLottery}
+        <Timer
+          class="text-lg"
+          milliseconds={firstLottery.valueOf() - $now.valueOf()}
+        />
+      {/if}
+    </div>
+  {/if}
 </div>

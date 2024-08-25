@@ -37,6 +37,6 @@ export const colors = {
     info: "#3abff8",
     success: "#36d399",
     warning: "#fbbd23",
-    error: "#FF88DC",
+    error: "#FF5555",
   },
 } as const;

@@ -4,8 +4,11 @@
   export let body = ""; /* TODO: Add bodies */
   export let imageUrl = ""; /* TODO: Add image urls */
   export let index: number;
-  $: max = stab ? 6 : 11;
-  $: prefix = `${stab ? "stab" : "pepp"}slide`;
+  export let max = stab ? 6 : 11;
+  export let prefix = `${stab ? "stab" : "pepp"}slide`;
+  export let font = stab
+    ? "font-nolla-stab text-3xl tracking-widest"
+    : "font-nolla-pepp tracking-wider text-xl";
   $: newLines = name.split("\n").length - 1;
 </script>
 
@@ -36,15 +39,15 @@
         <a href="#{prefix}{index + 1}" class="p-6 px-4">❯</a>
       {/if}
     </div>
-    <img src={imageUrl} alt={name} class="h-full w-full object-cover" />
+    <img
+      src={imageUrl}
+      alt={name}
+      class="h-full w-full rounded-full object-cover"
+    />
   </figure>
   <h3
-    class="page-title mb-4 text-center text-primary"
+    class="mb-4 text-center font-medium text-primary {font}"
     style="margin-top: -{newLines * 1.2}em"
-    class:font-nolla-stab={stab}
-    class:!text-3xl={stab}
-    class:!tracking-widest={stab}
-    class:font-nolla-pepp={!stab}
   >
     <!-- eslint-disable-next-line svelte/no-at-html-tags -->
     {@html name.replace("\n", "<br />")}
@@ -52,4 +55,5 @@
   <p class="nolla-prose text-center">
     {body}
   </p>
+  <slot />
 </div>
