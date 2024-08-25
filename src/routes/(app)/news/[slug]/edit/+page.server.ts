@@ -12,7 +12,6 @@ import { getAllTags } from "$lib/news/tags";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
-  authorize(apiNames.NEWS.UPDATE, user);
 
   const allTags = await getAllTags(prisma, true);
   const article = await prisma.article.findUnique({
@@ -36,6 +35,8 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   });
   if (article?.author.id !== undefined) article.author.id = "";
   if (!article) throw error(404, m.news_errors_articleNotFound());
+  if (article.author.memberId !== user.memberId)
+    authorize(apiNames.NEWS.UPDATE, user);
   const at = article.createdAt;
   const memberWithMandtes = await prisma.member.findUnique({
     where: {
