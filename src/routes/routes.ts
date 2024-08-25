@@ -7,7 +7,7 @@ import * as m from "$paraglide/messages";
 // none: Don't show anywhere
 type AppBehaviour = "bottom-nav" | "home-link" | "none";
 // Special behaviours. cart-badge shows a badge with the amount of items in cart, when shown in AppBottomNav.
-type RouteSpecialBehaviour = "cart-badge" | "nollning";
+type RouteSpecialBehaviour = "cart-badge";
 export type Route = {
   title: string;
   path: string | null;
@@ -33,7 +33,6 @@ export const getRoutes = (): Route[] =>
       icon: "i-mdi-party-popper",
       accessRequired: null,
       appBehaviour: "none",
-      specialBehaviour: "nollning",
     },
     {
       title: m.news(),
