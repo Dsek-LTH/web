@@ -254,6 +254,7 @@ const addReservationInReserveWindow = async (
   if (gracePeriodTimeouts[shoppableId] === undefined) {
     gracePeriodTimeouts[shoppableId] = setTimeout(() => {
       afterGracePeriod(shoppableId);
+      delete gracePeriodTimeouts[shoppableId]; // in case the release date is moved after already happening
     }, timeUntilGracePeriod);
   }
   return { status: AddToCartStatus.Reserved };

@@ -77,7 +77,7 @@ export const formatTicket = (ticket: TicketFromPrisma): TicketWithMoreInfo => {
     > = {
     ...ticket.shoppable,
     ...ticket,
-    userItemsInCart: ticket.shoppable.consumables,
+    userItemsInCart: ticket.shoppable.consumables.filter((c) => !c.purchasedAt),
     userReservations: ticket.shoppable.reservations,
     gracePeriodEndsAt: new Date(
       ticket.shoppable.availableFrom.valueOf() + GRACE_PERIOD_WINDOW,

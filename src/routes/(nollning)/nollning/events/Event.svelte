@@ -30,27 +30,42 @@
     <p>
       <MarkdownBody body={event.description} class="leading-tight" />
     </p>
-    {#if isAuthorized(apiNames.WEBSHOP.PURCHASE, $page.data.user)}
-      <!-- TODO: Show more info about each ticket, now it's just a button -->
-      {#each event.tickets as ticket (ticket.id)}
-        <form
-          method="POST"
-          action="?/addToCart"
-          use:enhance={() => {
-            // isSubmitting = true;
-            return ({ update }) => {
-              update();
-              // isSubmitting = false;
-            };
-          }}
-        >
-          <input type="hidden" name="ticketId" value={ticket.id} />
-          <BuyButton isSubmitting={false} {ticket} />
-        </form>
-      {/each}
-    {/if}
+    <div class="mt-4 flex flex-col flex-wrap gap-4">
+      {#if isAuthorized(apiNames.WEBSHOP.PURCHASE, $page.data.user)}
+        <!-- TODO: Show more info about each ticket, now it's just a button -->
+        {#each event.tickets as ticket, index (ticket.id)}
+          <form
+            method="POST"
+            action="?/addToCart"
+            class="tooltip -m-2 -mx-4 flex flex-nowrap items-center justify-between gap-1 p-2 px-4"
+            class:bg-base-200={index % 2 === 0}
+            data-tip={ticket.description ?? ""}
+            use:enhance={() => {
+              // isSubmitting = true;
+              return ({ update }) => {
+                update();
+                // isSubmitting = false;
+              };
+            }}
+          >
+            <div class="relative text-left">
+              <span class="mr-2">
+                {ticket.title}
+              </span>
+              {#if ticket.description}
+                <div
+                  class="i-mdi-question-mark-circle absolute top-1/2 -translate-y-1/2 text-lg"
+                />
+              {/if}
+            </div>
+            <input type="hidden" name="ticketId" value={ticket.id} />
+            <BuyButton class="text-right" isSubmitting={false} {ticket} />
+          </form>
+        {/each}
+      {/if}
+    </div>
     {#if isAuthorized(apiNames.EVENT.UPDATE, $page.data.user)}
-      <a href="/events/{event.slug}" class="btn btn-secondary self-start">
+      <a href="/events/{event.slug}" class="btn btn-secondary mt-8 self-start">
         <span class="i-mdi-edit" />
       </a>
     {/if}
