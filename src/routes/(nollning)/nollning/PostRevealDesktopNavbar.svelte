@@ -7,12 +7,18 @@
 
   const prefix = "/nollning";
   let notificationModal: HTMLDialogElement;
+  let checkbox: HTMLInputElement;
 </script>
 
 <NotificationModal bind:modal={notificationModal} />
 
 <div class="drawer">
-  <input id="my-drawer-3" type="checkbox" class="drawer-toggle" />
+  <input
+    bind:this={checkbox}
+    id="my-drawer-3"
+    type="checkbox"
+    class="drawer-toggle"
+  />
   <div class="drawer-content flex flex-col">
     <!-- Navbar -->
     <div class="navbar shadow-[0_4px_4px_#191B2740]">
@@ -57,6 +63,7 @@
       {#each routes as route}
         <li>
           <a
+            on:click={() => (checkbox.checked = false)}
             class="btn btn-ghost justify-start text-xl font-bold"
             href={`${prefix}${route.path}`}
           >

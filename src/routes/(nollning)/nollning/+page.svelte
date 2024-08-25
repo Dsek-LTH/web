@@ -26,7 +26,7 @@
           class="h-full w-full object-cover"
         />
         <span
-          class="absolute inset-x-4 bottom-32 text-center font-nolla-stab text-5xl leading-snug md:text-8xl"
+          class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform text-center font-nolla-stab text-5xl leading-snug md:text-8xl"
         >
           En Nollning<br />i Stormens Öga
         </span>
