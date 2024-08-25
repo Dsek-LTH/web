@@ -215,7 +215,6 @@
       {/if}
     </section>
 
-    <!-- TODO: Phaddergrupper -->
     <section class="mt-16 flex flex-col items-center" id="peppers">
       <div
         class="w-full scroll-smooth max-md:carousel md:grid md:grid-cols-2 md:gap-4 lg:w-[calc(100%+8rem)] lg:grid-cols-3"

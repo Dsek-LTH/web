@@ -1,8 +1,8 @@
 <script lang="ts">
   export let stab = false;
   export let name: string;
-  export let body = ""; /* TODO: Add bodies */
-  export let imageUrl = ""; /* TODO: Add image urls */
+  export let body = "";
+  export let imageUrl = "";
   export let index: number;
   export let max = stab ? 6 : 11;
   export let prefix = `${stab ? "stab" : "pepp"}slide`;

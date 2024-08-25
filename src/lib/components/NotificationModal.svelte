@@ -1,4 +1,3 @@
-<!-- TODO: Overflow and add delete buttons -->
 <script lang="ts">
   import { page } from "$app/stores";
   import Notification from "$lib/components/Notification.svelte";
