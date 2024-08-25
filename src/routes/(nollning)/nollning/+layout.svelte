@@ -13,6 +13,7 @@
   import { onMount } from "svelte";
   import PostRevealBottomNav from "./PostRevealBottomNav.svelte";
   import PostRevealHeader from "./PostRevealHeader.svelte";
+  import PostRevealDesktopHeader from "./PostRevealDesktopHeader.svelte";
   import "./postReveal.css";
 
   export let data;
@@ -58,8 +59,7 @@
         <!-- <Drawer /> -->
         <!-- </nav> -->
 
-        <!-- TMP -->
-        <PostRevealHeader />
+        <PostRevealDesktopHeader />
       {:else}
         <AppNotificationHandler />
         <PostRevealHeader />
@@ -77,9 +77,6 @@
       <Toast />
       {#if !data.isApp}
         <!-- <Footer /> -->
-
-        <!-- TMP -->
-        <PostRevealBottomNav />
       {:else}
         <PostRevealBottomNav />
 
