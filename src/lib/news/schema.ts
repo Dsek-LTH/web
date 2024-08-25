@@ -34,7 +34,7 @@ export const createSchema = articleSchema
     slug: true,
   })
   .extend({
-    notificationText: z.string().optional().nullable(),
+    notificationText: z.string().max(255).optional().nullable(),
     sendNotification: z.boolean(),
   });
 

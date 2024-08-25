@@ -139,7 +139,7 @@ Schalalalalalalalala schalalalalalalala
 Schalalalalalalalalala schalalalalala
     </pre>
   </li>
-  <li class="bg-[#6ecddd]" style="background-image: url('{w}')">
+  <li class="bg-[#6ecddd] !bg-opacity-20" style="background-image: url('{w}')">
     <h1>W - Turkosa samban</h1>
     <pre>
 <i>Mel: Samba de Janeiro</i>

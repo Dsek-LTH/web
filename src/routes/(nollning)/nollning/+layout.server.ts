@@ -11,12 +11,24 @@ import { superValidate } from "sveltekit-superforms";
 import { zod } from "sveltekit-superforms/adapters";
 
 export const load = async ({ locals }) => {
-  const { prisma, user } = locals;
+  const { prisma, user, member } = locals;
 
   const revealTheme =
     REVEAL_LAUNCH_DATE <= new Date() ||
     isAuthorized(apiNames.MEMBER.SEE_STABEN, user);
   const notifications = getNollaGroupedNotifications(user, prisma);
+  const phadderGroup =
+    member?.classYear == new Date().getFullYear() &&
+    member.nollningGroupId !== null
+      ? prisma.phadderGroup.findUnique({
+          where: {
+            id: member.nollningGroupId!,
+          },
+          select: {
+            name: true,
+          },
+        })
+      : null;
 
   return {
     revealTheme,
@@ -26,6 +38,7 @@ export const load = async ({ locals }) => {
       cart: `${POST_REVEAL_PREFIX}/shop/cart`,
       purchaseRedirect: `${POST_REVEAL_PREFIX}/shop/success`,
     },
+    phadderGroup,
     theme: (revealTheme ? "nollningPostReveal" : "light") as Theme,
   };
 };

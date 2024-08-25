@@ -1,6 +1,7 @@
 <script>
   import { page } from "$app/stores";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
+  import MembersList from "$lib/components/socials/MembersList.svelte";
   import PersonCarouselItem from "./PersonCarouselItem.svelte";
   export let data;
   $: topInsets = ($page.data.appInfo?.insets?.top ?? 0) + 8;
@@ -116,4 +117,30 @@
   </section>
 
   <!-- TODO: Phaddergrupper -->
+  <section class="flex flex-col items-center" id="peppers">
+    <div class="carousel w-full scroll-smooth">
+      {#each data.phadderGroups as group, index}
+        <PersonCarouselItem
+          name={group.name}
+          body={group.description ?? ""}
+          imageUrl={group.imageUrl ?? ""}
+          {index}
+          max={data.phadderGroups.length}
+          prefix="groupslide"
+          font="text-2xl font-medium"
+        >
+          <div class="mt-2 flex justify-center gap-2">
+            <MembersList class="btn btn-outline btn-sm" members={group.nollor}
+              >Nollor</MembersList
+            >
+            <MembersList
+              class="btn btn-outline btn-sm"
+              members={group.phaddrar.map((p) => p.member)}
+              >Phaddrar</MembersList
+            >
+          </div></PersonCarouselItem
+        >
+      {/each}
+    </div>
+  </section>
 </article>

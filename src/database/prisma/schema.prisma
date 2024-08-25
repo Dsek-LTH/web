@@ -568,6 +568,7 @@ model Member {
     subscriptionSettings SubscriptionSetting[]
     memberSpecificPolicies AccessPolicy[]
     doorAccessPolicies DoorAccessPolicy[]
+    shoppableAccessPolicies ShoppableAccessPolicy[]
     authoredShoppables Shoppable[]
     inventory Consumable[]
     shopReservations ConsumableReservation[]
@@ -912,6 +913,7 @@ model Shoppable {
     consumables Consumable[]
     reservations ConsumableReservation[]
     questions ItemQuestion[]
+    accessPolicies ShoppableAccessPolicy[]
 
     @@map("shoppable")
 }
@@ -1029,4 +1031,20 @@ model ConsumableReservation {
     order Int?
 
     @@map("consumable_reservation")
+}
+
+/// @@allow('create', hasSome(auth().policies, ['webshop:create', 'webshop:manage']) || auth().memberId == shoppable.authorId)
+/// @@allow('update', auth().memberId == shoppable.authorId || has(auth().policies, 'webshop:manage'))
+/// @@allow('read', true)
+/// @@allow('delete', auth().memberId == shoppable.authorId || has(auth().policies, 'webshop:manage'))
+model ShoppableAccessPolicy {
+    id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+    shoppableId String @db.Uuid()
+    shoppable Shoppable @relation(fields: [shoppableId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+    role String?
+    studentId String? @map("student_id")
+    member Member? @relation(fields: [studentId], references: [studentId], onDelete: NoAction, onUpdate: NoAction, map: "access_policies_member_id_foreign")
+    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+    @@map("shoppable_access_policies")
 }

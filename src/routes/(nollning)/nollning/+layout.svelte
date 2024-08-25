@@ -97,6 +97,7 @@
       {/if}
 
       <NavigationLoader>
+        <!-- TODO: After revealing theme, use logo instead -->
         <img
           class="size-40 animate-spin"
           alt="Loading spinner"
