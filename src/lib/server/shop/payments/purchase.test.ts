@@ -10,7 +10,7 @@ import {
   onPaymentSuccess,
 } from "$lib/server/shop/payments/stripeWebhooks";
 import { PrismaClient, type Member } from "@prisma/client";
-import { enhance } from "@zenstackhq/runtime";
+import { enhance, type AuthUser } from "@zenstackhq/runtime";
 import type Stripe from "stripe";
 import {
   afterAll,
@@ -84,6 +84,7 @@ const SUITE_PREFIX = "purchase";
 const addPurchaseTestForUser = (
   prismaWithAccess: PrismaClient,
   adminMember: Member,
+  user: AuthUser,
   identification: ShopIdentification,
 ) => {
   beforeEach(async (context) => {
@@ -91,10 +92,10 @@ const addPurchaseTestForUser = (
     await addTicketToCart(
       prismaWithAccess,
       context.tickets.activeTicket.id,
-      identification,
+      user,
     ).catch((e) => expect.fail(`Failed to add ticket to cart: ${e}`));
 
-    if (identification.memberId) {
+    if (user.memberId) {
       mockFns.customers.create.mockResolvedValue({
         id: "customer-id",
       });
@@ -119,10 +120,10 @@ const addPurchaseTestForUser = (
       expect.fail("Failed to remove tickets"),
     );
     vi.clearAllMocks();
-    if (identification.memberId) {
+    if (user.memberId) {
       await prisma.member.update({
         where: {
-          id: identification.memberId,
+          id: user.memberId,
         },
         data: {
           stripeCustomerId: null,
@@ -223,7 +224,7 @@ const addPurchaseTestForUser = (
     await addTicketToCart(
       prismaWithAccess,
       tickets.activeTicket2.id,
-      identification,
+      user,
     ).catch(() => expect.fail("Failed to add ticket to cart"));
 
     vi.clearAllMocks();
@@ -262,11 +263,7 @@ const addPurchaseTestForUser = (
   });
 
   it("creates a payment intent with multiple items", async ({ tickets }) => {
-    await addTicketToCart(
-      prismaWithAccess,
-      tickets.activeTicket2.id,
-      identification,
-    );
+    await addTicketToCart(prismaWithAccess, tickets.activeTicket2.id, user);
     await purchaseCart(prismaWithAccess, identification, "idempotency-key");
     expect(mockFns.paymentIntents.create).toHaveBeenCalledOnce();
     const price =
@@ -486,7 +483,7 @@ const addPurchaseTestForUser = (
       expect(queuedNotfications[0]?.type).toBe(
         NotificationType.PURCHASE_CONSUMABLE_EXPIRED,
       );
-      if (identification.memberId) {
+      if (user.memberId) {
         expect(queuedNotfications[0]!.memberIds!.length).toBe(1);
       } else {
         expect(queuedNotfications[0]!.memberIds!.length).toBe(0);
@@ -544,7 +541,7 @@ const addPurchaseTestForUser = (
   });
 
   describe("stripe customer creation", () => {
-    if (identification.memberId) {
+    if (user.memberId) {
       it("creates a stripe customer if no stripe is in db", async () => {
         await purchaseCart(prismaWithAccess, identification, "idempotency-key");
         expect(mockFns.customers.retrieve).not.toHaveBeenCalled();
@@ -554,7 +551,7 @@ const addPurchaseTestForUser = (
       it("creates a stripe customer if not found in stripe", async () => {
         await prisma.member.update({
           where: {
-            id: identification.memberId,
+            id: user.memberId,
           },
           data: {
             stripeCustomerId: "customer-id",
@@ -571,7 +568,7 @@ const addPurchaseTestForUser = (
       it("does not create a stripe customer if found in stripe", async () => {
         await prisma.member.update({
           where: {
-            id: identification.memberId,
+            id: user.memberId,
           },
           data: {
             stripeCustomerId: "customer-id",
@@ -601,9 +598,19 @@ describe("Purchase as logged in user", async () => {
       policies: [apiNames.EVENT.READ, apiNames.MEMBER.READ],
     },
   });
-  addPurchaseTestForUser(prismaWithAccess, users.adminMember, {
-    memberId: users.customerMember.id,
-  });
+  addPurchaseTestForUser(
+    prismaWithAccess,
+    users.adminMember,
+    {
+      memberId: users.customerMember.id,
+      studentId: users.customerMember.studentId!,
+      roles: [],
+      policies: ["*", "_"],
+    },
+    {
+      memberId: users.customerMember.id,
+    },
+  );
 
   afterAll(async () => {
     await removeMockUsers(
@@ -620,12 +627,24 @@ describe("Purchase as anonymous user", async () => {
       studentId: undefined,
       memberId: undefined,
       policies: [],
+      roles: [],
       externalCode: SUITE_PREFIX + "external-code",
     },
   });
-  addPurchaseTestForUser(prismaWithAccess, users.adminMember, {
-    externalCode: SUITE_PREFIX + "external-code",
-  });
+  addPurchaseTestForUser(
+    prismaWithAccess,
+    users.adminMember,
+    {
+      studentId: undefined,
+      memberId: undefined,
+      policies: [],
+      roles: [],
+      externalCode: SUITE_PREFIX + "external-code",
+    },
+    {
+      externalCode: SUITE_PREFIX + "external-code",
+    },
+  );
   afterAll(async () => {
     await removeMockUsers(
       prisma,

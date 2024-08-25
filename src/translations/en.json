@@ -120,6 +120,7 @@
   "tickets_addToCart_errors_salePeriodEnded": "Ticket sales have closed",
   "tickets_addToCart_errors_salePeriodNotStarted": "Ticket sales have not started",
   "tickets_addToCart_errors_ticketSoldOut": "Ticket is sold out",
+  "tickets_addToCart_errors_notAllowed": "You are not allowed to buy this ticket",
   "tickets_addToCart_errors_alreadyOwnsMax": "You already have the maximum number of this ticket (in the shopping cart)",
   "tickets_addToCart_errors_alreadyOwned": "You already have this ticket (in the shoppingcart)",
   "tickets_addToCart_errors_alreadyReserved": "Ticket is already reserved, you will receive anotificiation when the draw is complete.",

@@ -23,6 +23,7 @@ model User {
   memberId     String
   policies     String[]
   externalCode String? // for non-authenticated users, like purchasing tickets
+  roles        String[]
   @@ignore
 }
 
@@ -938,7 +939,13 @@ model Shoppable {
   @@allow("create", hasSome(auth().policies, ["webshop:create", "webshop:manage"]) && authorId == auth().memberId)
   // update: author or manage access
   @@allow("update", auth().memberId == authorId || has(auth().policies, "webshop:manage"))
+
+  // I would like to do something like this but it is not possible because has(list: Any[], literal: Any) requires a literal
+  // @@allow("read", isEmpty(accessPolicies) || 
+  //   accessPolicies?[exists(role != null && has(auth().roles, role)) || 
+  //                   (studentId != null && auth().studentId == studentId)])
   @@allow("read", true)
+
   // cannot read if removed, unless author or manager
   @@deny("read", removedAt != null && !(auth().memberId == authorId || has(auth().policies, "webshop:manage")))
   // only managers can delete (should very rarely be done)

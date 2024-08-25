@@ -1,3 +1,4 @@
+import { BASIC_EVENT_FILTER } from "$lib/events/events";
 import {
   PrismaClient,
   type Consumable,
@@ -8,14 +9,14 @@ import {
   type Tag,
   type Ticket,
 } from "@prisma/client";
+import { error } from "@sveltejs/kit";
+import type { AuthUser } from "@zenstackhq/runtime";
 import dayjs from "dayjs";
 import {
   GRACE_PERIOD_WINDOW,
   dbIdentification,
   type DBShopIdentification,
-  type ShopIdentification,
 } from "./types";
-import { BASIC_EVENT_FILTER } from "$lib/events/events";
 
 export type TicketWithMoreInfo = Ticket &
   Shoppable & {
@@ -101,14 +102,46 @@ export const formatTicket = (ticket: TicketFromPrisma): TicketWithMoreInfo => {
   return base;
 };
 
+const shoppableAccessPolicyFilter = (
+  userRoles: string[],
+  studentId?: string,
+) => ({
+  OR: [
+    {
+      accessPolicies: { none: {} }, // no access policies exist
+    },
+    {
+      accessPolicies: {
+        some: studentId
+          ? {
+              OR: [{ role: { in: userRoles } }, { studentId }],
+            }
+          : { role: { in: userRoles } },
+      },
+    },
+  ],
+});
+
 export const getTicket = async (
   prisma: PrismaClient,
   id: string,
-  userId: ShopIdentification,
+  user: AuthUser,
 ): Promise<TicketWithMoreInfo | null> => {
-  const dbId = dbIdentification(userId);
+  const { memberId, externalCode } = user ?? {};
+  if (!memberId && !externalCode) throw error(401);
+  const identification = memberId
+    ? {
+        memberId: memberId,
+      }
+    : {
+        externalCode: externalCode!,
+      };
+  const dbId = dbIdentification(identification);
   const ticket = await prisma.ticket.findFirst({
-    where: { id },
+    where: {
+      id,
+      shoppable: { ...shoppableAccessPolicyFilter(user.roles, user.studentId) },
+    },
     include: ticketIncludedFields(dbId),
   });
   if (!ticket) {
@@ -125,25 +158,41 @@ export const getTicket = async (
  */
 export const getTickets = async (
   prisma: PrismaClient,
-  identification: ShopIdentification,
+  user: AuthUser,
+  getAll = false,
 ): Promise<TicketWithMoreInfo[]> => {
+  const { memberId, externalCode } = user ?? {};
+  if (!memberId && !externalCode) throw error(401);
+  const identification = memberId
+    ? {
+        memberId: memberId,
+      }
+    : {
+        externalCode: externalCode!,
+      };
   const dbId = dbIdentification(identification);
   const tenDaysAgo = dayjs().subtract(10, "days").toDate();
   const tickets = await prisma.ticket.findMany({
-    where: {
-      shoppable: {
-        AND: [
-          { OR: [{ removedAt: null }, { removedAt: { lt: new Date() } }] },
-          {
-            // show items which were available in the last 10 days
-            OR: [{ availableTo: null }, { availableTo: { gt: tenDaysAgo } }],
+    where: getAll
+      ? undefined
+      : {
+          shoppable: {
+            AND: [
+              { OR: [{ removedAt: null }, { removedAt: { lt: new Date() } }] },
+              {
+                // show items which were available in the last 10 days
+                OR: [
+                  { availableTo: null },
+                  { availableTo: { gt: tenDaysAgo } },
+                ],
+              },
+            ],
+            ...shoppableAccessPolicyFilter(user.roles, user.studentId),
           },
-        ],
-      },
-    },
+        },
     include: ticketIncludedFields(dbId),
     orderBy: {
-      shoppable: { availableFrom: "asc" },
+      shoppable: { availableFrom: getAll ? "desc" : "asc" },
     },
   });
   return tickets.map(formatTicket);
@@ -157,10 +206,19 @@ export const getTickets = async (
  */
 export const getEventsWithTickets = async (
   prisma: PrismaClient,
-  identification: ShopIdentification,
+  user: AuthUser,
   filters: Prisma.EventWhereInput = {},
   nollningMode: boolean | null = false,
 ) => {
+  const { memberId, externalCode } = user ?? {};
+  if (!memberId && !externalCode) throw error(401);
+  const identification = memberId
+    ? {
+        memberId: memberId,
+      }
+    : {
+        externalCode: externalCode!,
+      };
   const dbId = dbIdentification(identification);
 
   const events = await prisma.event.findMany({
@@ -173,6 +231,11 @@ export const getEventsWithTickets = async (
     },
     include: {
       tickets: {
+        where: {
+          shoppable: {
+            ...shoppableAccessPolicyFilter(user.roles, user.studentId),
+          },
+        },
         include: {
           ...ticketIncludedFields(dbId),
           event: false,

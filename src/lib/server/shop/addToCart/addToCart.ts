@@ -1,20 +1,21 @@
-import { PrismaClient, type Shoppable, type Ticket } from "@prisma/client";
+import type { SendNotificationProps } from "$lib/utils/notifications";
 import * as m from "$paraglide/messages";
+import { PrismaClient, type Shoppable, type Ticket } from "@prisma/client";
+import type { AuthUser } from "@zenstackhq/runtime";
+import authorizedPrismaClient from "../authorizedPrisma";
+import {
+  GRACE_PERIOD_WINDOW,
+  TIME_TO_BUY,
+  dbIdentification,
+  type TransactionClient,
+} from "../types";
 import {
   ensureState,
   performLotteryIfNecessary,
   queueNextExpiredConsumablesPruning,
   sendQueuedNotifications,
 } from "./reservations";
-import {
-  GRACE_PERIOD_WINDOW,
-  TIME_TO_BUY,
-  dbIdentification,
-  type ShopIdentification,
-  type TransactionClient,
-} from "../types";
-import authorizedPrismaClient from "../authorizedPrisma";
-import type { SendNotificationProps } from "$lib/utils/notifications";
+import { error } from "console";
 
 export enum AddToCartStatus {
   AddedToCart = "AddedToCart",
@@ -34,17 +35,31 @@ export type AddToCartResult =
 export const addTicketToCart = async (
   prisma: PrismaClient,
   ticketId: string,
-  identification: ShopIdentification,
+  user: AuthUser,
 ): Promise<AddToCartResult> => {
   const now = new Date(); // ensures checks between the two transactions
   const queuedNotifications: SendNotificationProps[] = [];
+
+  if (!user.memberId && !user.externalCode) {
+    throw error(401);
+  }
+  const idPart = dbIdentification(
+    user.memberId
+      ? {
+          memberId: user.memberId,
+        }
+      : {
+          externalCode: user.externalCode!,
+        },
+  );
+
   await authorizedPrismaClient.$transaction(async (prisma) => {
     const result = await ensureState(prisma, now, ticketId);
     queuedNotifications.push(...result.queuedNotifications);
   });
   sendQueuedNotifications(queuedNotifications);
-  const res: AddToCartResult = await prisma.$transaction(async (prisma) => {
-    const ticket = await prisma.ticket.findUnique({
+  const res: AddToCartResult = await prisma.$transaction(async (tx) => {
+    const ticket = await tx.ticket.findUnique({
       where: {
         id: ticketId,
         shoppable: {
@@ -64,6 +79,7 @@ export const addTicketToCart = async (
       include: {
         shoppable: {
           include: {
+            accessPolicies: true,
             consumables: true,
             _count: {
               select: {
@@ -82,7 +98,16 @@ export const addTicketToCart = async (
       },
     });
     if (!ticket) throw new Error(m.tickets_errors_ticketNotFound());
-
+    if (
+      ticket.shoppable.accessPolicies &&
+      !ticket.shoppable.accessPolicies.some(
+        (p) =>
+          (p.role && user.roles.includes(p.role)) ||
+          (p.studentId && p.studentId === user.studentId),
+      )
+    ) {
+      throw new Error(m.tickets_addToCart_errors_notAllowed());
+    }
     if (ticket.shoppable.availableTo && ticket.shoppable.availableTo < now)
       throw new Error(m.tickets_addToCart_errors_salePeriodEnded());
     if (ticket.shoppable.availableFrom > now)
@@ -91,16 +116,14 @@ export const addTicketToCart = async (
       // purchased items
       throw new Error(m.tickets_addToCart_errors_ticketSoldOut());
 
-    const idPart = dbIdentification(identification);
-
-    await checkUserMaxAmount(prisma, idPart, ticket);
+    await checkUserMaxAmount(tx, idPart, ticket);
 
     if (
       now.valueOf() - ticket.shoppable.availableFrom.valueOf() <
       GRACE_PERIOD_WINDOW
     ) {
       return await addReservationInReserveWindow(
-        prisma,
+        tx,
         idPart,
         ticket.shoppable.id,
         ticket.shoppable.availableFrom.valueOf() +
@@ -110,11 +133,11 @@ export const addTicketToCart = async (
     }
 
     if (ticket.shoppable.consumables.length >= ticket.stock) {
-      return addToQueue(prisma, idPart, ticket);
+      return addToQueue(tx, idPart, ticket);
     }
 
     if (ticket.shoppable.price === 0) {
-      await prisma.consumable.create({
+      await tx.consumable.create({
         data: {
           ...idPart,
           shoppableId: ticket.shoppable.id,
@@ -125,7 +148,7 @@ export const addTicketToCart = async (
       return { status: AddToCartStatus.AddedToInventory };
     }
 
-    await prisma.consumable.create({
+    await tx.consumable.create({
       data: {
         ...idPart,
         shoppableId: ticket.shoppable.id,

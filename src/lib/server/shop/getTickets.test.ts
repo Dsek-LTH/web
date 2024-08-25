@@ -10,6 +10,7 @@ import {
   removeMockUsers,
 } from "./mock";
 import apiNames from "$lib/utils/apiNames";
+import { getDerivedRoles } from "$lib/utils/authorization";
 const prisma = new PrismaClient();
 const SUITE_PREFIX = "getTickets";
 
@@ -21,6 +22,9 @@ const getTicketsTest = async (
     const tickets = await addMockTickets(prisma, adminMember);
     const result = await getTickets(prismaWithAccess, {
       memberId: adminMember.id,
+      studentId: adminMember.studentId!,
+      roles: getDerivedRoles(undefined, true),
+      policies: [],
     });
     const ticketIds = Object.values(tickets).map((t) => t.id);
     const filteredResult = result.filter((t) => ticketIds.includes(t.id));
