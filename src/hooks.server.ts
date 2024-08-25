@@ -150,6 +150,7 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
         prisma,
         session.user.student_id,
         session.user.group_list,
+        member.classYear ?? undefined,
       ),
     };
 
