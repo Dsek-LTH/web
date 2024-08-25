@@ -68,7 +68,9 @@
       </section>
 
       <section class="!my-32 !mb-48 flex flex-col items-center" id="staben">
-        <div class="carousel w-full scroll-smooth">
+        <div
+          class="w-full scroll-smooth max-md:carousel md:grid md:grid-cols-2 md:gap-4 lg:w-[calc(100%+8rem)] lg:grid-cols-3"
+        >
           <PersonCarouselItem
             stab
             name={`Øverphøs\nArux Tonitribus`}
@@ -84,7 +86,9 @@
     {/if}
 
     <section class="!my-32 !mb-48 flex flex-col items-center" id="peppers">
-      <div class="carousel w-full scroll-smooth">
+      <div
+        class="w-full scroll-smooth max-md:carousel md:grid md:grid-cols-2 md:gap-4 lg:w-[calc(100%+8rem)] lg:grid-cols-3"
+      >
         <PersonCarouselItem name="Alexander" index={0} />
         <PersonCarouselItem name="Thyra" index={1} />
         <PersonCarouselItem name="Axel" index={2} />
@@ -125,8 +129,10 @@
     </section>
 
     <!-- TODO: Phaddergrupper -->
-    <section class="flex flex-col items-center" id="peppers">
-      <div class="carousel w-full scroll-smooth">
+    <section class="mt-16 flex flex-col items-center" id="peppers">
+      <div
+        class="w-full scroll-smooth max-md:carousel md:grid md:grid-cols-2 md:gap-4 lg:w-[calc(100%+8rem)] lg:grid-cols-3"
+      >
         {#each data.phadderGroups as group, index}
           <PersonCarouselItem
             name={group.name}
