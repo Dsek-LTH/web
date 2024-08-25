@@ -10,6 +10,7 @@
   import PriceInput from "./PriceInput.svelte";
   import ItemQuestionsSection from "$lib/components/shop/ItemQuestionsSection.svelte";
   import FormNumberInput from "$lib/components/forms/FormNumberInput.svelte";
+  import TicketAccessPolicies from "$lib/components/shop/TicketAccessPolicies.svelte";
   // Assuming you have a schema definition based on zod
 
   export let event: Event | undefined = undefined;
@@ -19,7 +20,8 @@
   const superform = superForm(createForm, {
     dataType: "json",
   });
-  const { enhance, submitting } = superform;
+  const { enhance, submitting, allErrors } = superform;
+  $: console.log($allErrors);
 </script>
 
 <form
@@ -41,6 +43,7 @@
       label="Antal biljetter till salu"
     />
     <MaxAmountPerUser {superform} />
+    <TicketAccessPolicies {superform} />
   </div>
   <ItemQuestionsSection {superform} />
   <button type="submit" disabled={$submitting} class="btn btn-primary mt-4">
