@@ -10,7 +10,7 @@
   <PageHeader title="Meddelanden" />
 </div>
 
-<div class="flex flex-col gap-4 md:max-w-xl md:mx-auto">
+<div class="flex flex-col gap-4 md:mx-auto md:max-w-xl">
   {#each messages as message}
     <Message {message} />
   {/each}

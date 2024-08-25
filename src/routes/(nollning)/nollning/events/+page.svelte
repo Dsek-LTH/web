@@ -15,8 +15,8 @@
   $: eventsSubscribeUrl = `${$page.url.origin}${$page.url.pathname}/subscribe`;
 </script>
 
-<div class="max-w-4xl mx-auto">
-  <PageHeader title="Event" />  
+<div class="mx-auto max-w-4xl">
+  <PageHeader title="Event" />
 
   <div class="mb-4 flex items-start justify-between">
     <details
@@ -33,7 +33,7 @@
         <span class="i-mdi-calendar-sync" />
       </summary>
       <div
-        class="dropdown-content rounded-box bg-base-300 z-20 -ml-8 w-[calc(100dvw-1rem)] md:max-w-2xl p-4 shadow"
+        class="dropdown-content z-20 -ml-8 w-[calc(100dvw-1rem)] rounded-box bg-base-300 p-4 shadow md:max-w-2xl"
       >
         <p>
           {m.events_calendar_subscribe_details()}
