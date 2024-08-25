@@ -47,8 +47,15 @@ export const searchForMembers = async (
               }
             : undefined,
         },
+        {
+          studentId: studentId
+            ? {
+                search: studentId,
+                mode: "insensitive",
+              }
+            : undefined,
+        },
       ],
-      studentId: studentId,
       ...filter,
     },
     orderBy: [

@@ -3,7 +3,8 @@ import { BASIC_EVENT_FILTER } from "$lib/events/events";
 import { fileHandler } from "$lib/files";
 import { BASIC_ARTICLE_FILTER } from "$lib/news/articles";
 import { error } from "@sveltejs/kit";
-import DOMPurify from "isomorphic-dompurify";
+// eslint-disable-next-line no-restricted-imports -- problem with lib and api, feels unecessary to create a bunch of helper files just to structure this one thing
+import type { GetCommitDataResponse } from "../../routes/(app)/api/home/+server";
 
 type Fetch = typeof fetch;
 export const loadHomeData = async ({
@@ -51,49 +52,29 @@ export const loadHomeData = async ({
   /* files ends */
 
   // NEWS
-  const newsPromise = prisma.article
-    .findMany({
-      where: {
-        ...BASIC_ARTICLE_FILTER(),
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-      take: 3,
-    })
-    .then((articles) =>
-      articles.map((article) => ({
-        ...article,
-        body: DOMPurify.sanitize(article.body),
-        bodyEn: article.bodyEn
-          ? DOMPurify.sanitize(article.bodyEn)
-          : article.bodyEn,
-      })),
-    );
+  const newsPromise = prisma.article.findMany({
+    where: {
+      ...BASIC_ARTICLE_FILTER(),
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: 3,
+  });
 
   // EVENTS
-  const eventsPromise = prisma.event
-    .findMany({
-      where: {
-        ...BASIC_EVENT_FILTER(),
-        startDatetime: {
-          gt: new Date(),
-        },
+  const eventsPromise = prisma.event.findMany({
+    where: {
+      ...BASIC_EVENT_FILTER(),
+      startDatetime: {
+        gt: new Date(),
       },
-      orderBy: {
-        startDatetime: "asc",
-      },
-      take: 3,
-    })
-    .then((events) =>
-      events.map((event) => ({
-        ...event,
-        description: DOMPurify.sanitize(event.description),
-        descriptionEn: event.descriptionEn
-          ? DOMPurify.sanitize(event.descriptionEn)
-          : event.descriptionEn,
-      })),
-    );
+    },
+    orderBy: {
+      startDatetime: "asc",
+    },
+    take: 3,
+  });
 
   // MEETINGS
   const upcomingMeetingPromise = prisma.meeting.findFirst({
@@ -125,7 +106,9 @@ export const loadHomeData = async ({
   });
 
   // COMMIT DATA
-  const commitPromise = fetch("/api/home").then((res) => res.json());
+  const commitPromise = fetch("/api/home").then((res) =>
+    res.json(),
+  ) as Promise<GetCommitDataResponse>;
 
   const [news, events, upcomingMeeting, previousMeeting, cafeOpen, commitData] =
     await Promise.allSettled([

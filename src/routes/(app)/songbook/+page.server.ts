@@ -1,7 +1,5 @@
-import { fixSongText } from "./helpers";
-import type { PageServerLoad } from "./$types";
 import type { Prisma } from "@prisma/client";
-import DOMPurify from "isomorphic-dompurify";
+import type { PageServerLoad } from "./$types";
 import { canAccessDeletedSongs, getExistingCategories } from "./helpers";
 
 const SONGS_PER_PAGE = 10;
@@ -113,11 +111,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   }
 
   return {
-    songs: songs.map((song) => ({
-      ...song,
-      title: DOMPurify.sanitize(fixSongText(song.title)),
-      lyrics: DOMPurify.sanitize(fixSongText(song.lyrics)),
-    })),
+    songs: songs,
     pageCount: Math.max(Math.ceil(pageCount / SONGS_PER_PAGE), 1),
     categories,
     categoryMap,

@@ -9,6 +9,7 @@ import { slugifySongTitle } from "./helpers";
 import { getExistingCategories, getExistingMelodies } from "../helpers";
 import { authorize } from "$lib/utils/authorization";
 import * as m from "$paraglide/messages";
+import DOMPurify from "isomorphic-dompurify";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma, user } = locals;
@@ -35,11 +36,11 @@ export const actions: Actions = {
     const now = new Date();
     const result = await prisma.song.create({
       data: {
-        title: title,
+        title: DOMPurify.sanitize(title),
         slug: await slugifySongTitle(prisma, title),
         melody: melody,
         category: category,
-        lyrics: lyrics,
+        lyrics: DOMPurify.sanitize(lyrics),
         createdAt: now,
         updatedAt: now,
       },

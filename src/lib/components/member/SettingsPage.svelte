@@ -30,18 +30,20 @@
   };
 </script>
 
-<PageHeader class="" title={m.setting_title()} />
+<PageHeader title={m.setting_title()} />
 <div class="relative">
   <form
     method="POST"
-    class="mt-2 flex w-full flex-col items-center justify-start pb-24 lg:flex-row lg:items-start lg:justify-center"
+    class="mt-2 flex w-full flex-col items-center justify-start gap-8 pb-24 lg:flex-row lg:items-start lg:justify-center"
   >
-    <div class="m-2 flex w-full max-w-2xl flex-col items-center lg:p-0">
-      <h2 class="mb-2 text-2xl font-bold">{m.setting_notification()}</h2>
+    <div class="flex w-full max-w-2xl flex-col items-center space-y-4 lg:p-0">
+      <h2 class="mb-2 self-start text-2xl font-bold">
+        {m.setting_notification()}
+      </h2>
       {#each Object.entries(NotificationSettingType) as notificationSettingType}
-        <div class="m-2 w-full">
+        <div class="w-full space-y-2">
           <!-- Web notification -->
-          <label class="m-2 flex cursor-pointer flex-row justify-between">
+          <label class="flex cursor-pointer flex-row justify-between">
             <span class="ms-3 text-sm font-medium">
               {getNotificationText(notificationSettingType[1])}</span
             >
@@ -63,7 +65,7 @@
               (a) => a == notificationSettingType[0],
             )
               ? "hidden"
-              : "m-2 flex cursor-pointer flex-row justify-between"}
+              : "flex cursor-pointer flex-row justify-between"}
           >
             <span class="ms-3 text-sm font-medium">{m.setting_push()}</span>
             <input
@@ -80,8 +82,10 @@
         </div>
       {/each}
     </div>
-    <div class="m-2 flex w-full max-w-2xl flex-col items-center lg:p-0">
-      <h2 class="mb-2 text-2xl font-bold">{m.setting_subscription()}</h2>
+    <div class="flex w-full max-w-2xl flex-col items-center lg:p-0">
+      <h2 class="mb-2 self-start text-2xl font-bold">
+        {m.setting_subscription()}
+      </h2>
       <SubscriptionTags {tags} subscribedTags={subscribedTags.subscribedTags} />
     </div>
     <button

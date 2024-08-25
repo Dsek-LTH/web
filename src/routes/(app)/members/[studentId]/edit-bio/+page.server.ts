@@ -6,6 +6,7 @@ import { error, fail } from "@sveltejs/kit";
 import { superValidate } from "sveltekit-superforms/server";
 import { zod } from "sveltekit-superforms/adapters";
 import type { Actions, PageServerLoad } from "./$types";
+import DOMPurify from "isomorphic-dompurify";
 import * as m from "$paraglide/messages";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
@@ -38,7 +39,7 @@ export const actions: Actions = {
     await prisma.member.update({
       where: { studentId },
       data: {
-        bio: form.data.bio,
+        bio: form.data.bio ? DOMPurify.sanitize(form.data.bio) : form.data.bio,
       },
     });
     throw redirect(

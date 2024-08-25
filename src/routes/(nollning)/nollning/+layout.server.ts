@@ -16,7 +16,7 @@ export const load = async ({ locals }) => {
   const revealTheme =
     REVEAL_LAUNCH_DATE <= new Date() ||
     isAuthorized(apiNames.MEMBER.SEE_STABEN, user);
-  const notifications = await getNollaGroupedNotifications(user, prisma);
+  const notifications = getNollaGroupedNotifications(user, prisma);
 
   return {
     revealTheme,
@@ -29,3 +29,5 @@ export const load = async ({ locals }) => {
     theme: (revealTheme ? "nollningPostReveal" : "light") as Theme,
   };
 };
+
+export type PostRevealLayoutData = Awaited<ReturnType<typeof load>>;

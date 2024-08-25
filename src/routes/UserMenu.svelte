@@ -11,26 +11,31 @@
   export let user: AuthUser;
   export let shopItemCounts: UserShopItemCounts;
 
-  $: amountInCart =
-    (shopItemCounts?.inCart ?? 0) + (shopItemCounts?.reserved ?? 0);
-  $: userIndicatorAmount = amountInCart > 0 ? amountInCart : undefined;
+  $: amountInCart = Promise.all([
+    shopItemCounts?.inCart,
+    shopItemCounts?.reserved,
+  ]).then(([inCart, reserved]) => (inCart ?? 0) + (reserved ?? 0));
 </script>
 
 <div class="dropdown dropdown-end dropdown-hover">
   <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
   <!-- svelte-ignore a11y-label-has-associated-control -->
   <label tabindex="0" class="btn btn-ghost">
-    {#if userIndicatorAmount !== undefined}
-      <div class="indicator">
-        <span
-          class="badge indicator-item badge-primary badge-sm indicator-start indicator-top"
-          >{amountInCart}</span
-        >
-        <span class="i-mdi-account-circle text-2xl" />
-      </div>
-    {:else}
+    {#await amountInCart}
       <span class="i-mdi-account-circle text-2xl" />
-    {/if}
+    {:then amountInCart}
+      {#if amountInCart > 0}
+        <div class="indicator">
+          <span
+            class="badge indicator-item badge-primary badge-sm indicator-start indicator-top"
+            >{amountInCart}
+          </span>
+          <span class="i-mdi-account-circle text-2xl" />
+        </div>
+      {:else}
+        <span class="i-mdi-account-circle text-2xl" />
+      {/if}
+    {/await}
   </label>
   <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
   <div
@@ -61,13 +66,15 @@
           <span class="i-mdi-treasure-chest size-6 text-primary" />
           {m.navbar_userMenu_inventory()}
         </a>
-        {#if amountInCart > 0}
-          <a href="/shop/cart" class="btn btn-ghost w-full justify-start">
-            <span class="i-mdi-cart size-6 text-primary" />
-            <span>{m.navbar_userMenu_cart()}</span>
-            <span class="badge badge-primary badge-sm">{amountInCart}</span>
-          </a>
-        {/if}
+        {#await amountInCart then amountInCart}
+          {#if amountInCart > 0}
+            <a href="/shop/cart" class="btn btn-ghost w-full justify-start">
+              <span class="i-mdi-cart size-6 text-primary" />
+              <span>{m.navbar_userMenu_cart()}</span>
+              <span class="badge badge-primary badge-sm">{amountInCart}</span>
+            </a>
+          {/if}
+        {/await}
       </div>
       <span class="divider m-1" />
       <LoadingButton

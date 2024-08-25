@@ -6,10 +6,17 @@
   import type { CartReservation } from "$lib/utils/shop/types";
   import { now } from "$lib/stores/date";
   import * as m from "$paraglide/messages";
+  import { invalidateAll } from "$app/navigation";
 
   export let item: CartReservation;
   $: shoppable = item.shoppable;
   $: event = shoppable.event;
+
+  $: lotteryAt = item.order !== null ? null : shoppable.gracePeriodEndsAt;
+
+  $: if (lotteryAt && $now > lotteryAt) {
+    invalidateAll();
+  }
 </script>
 
 <li class="flex flex-wrap items-center gap-x-4">

@@ -1,19 +1,21 @@
 import { getAllTags } from "$lib/news/tags";
-import apiNames from "$lib/utils/apiNames";
-import { authorize } from "$lib/utils/authorization";
-import { fail, type RequestEvent, type ServerLoadEvent } from "@sveltejs/kit";
+import {
+  error,
+  fail,
+  type RequestEvent,
+  type ServerLoadEvent,
+} from "@sveltejs/kit";
 
 export const settingsLoad = async ({ locals }: ServerLoadEvent) => {
   const { user, prisma } = locals;
-  authorize(apiNames.MEMBER.UPDATE, user);
+  if (!user.memberId)
+    throw error(401, "Du måste logga in för att ändra inställningar");
 
-  const subscriptionSettings = user
-    ? await prisma.subscriptionSetting.findMany({
-        where: {
-          memberId: user.memberId,
-        },
-      })
-    : [];
+  const subscriptionSettings = await prisma.subscriptionSetting.findMany({
+    where: {
+      memberId: user.memberId,
+    },
+  });
 
   const subscriptions = subscriptionSettings.map((sub) => sub.type);
   const pushSubscriptions = subscriptionSettings
@@ -21,16 +23,14 @@ export const settingsLoad = async ({ locals }: ServerLoadEvent) => {
       if (sub.pushNotification) return sub.type;
     })
     .filter((t) => t);
-  const subscribedTags = user
-    ? await prisma.member.findFirst({
-        where: {
-          id: user.memberId,
-        },
-        select: {
-          subscribedTags: {},
-        },
-      })
-    : [];
+  const subscribedTags = await prisma.member.findFirst({
+    where: {
+      id: user.memberId,
+    },
+    select: {
+      subscribedTags: {},
+    },
+  });
   return {
     tags: await getAllTags(prisma),
     subscribedTags,
