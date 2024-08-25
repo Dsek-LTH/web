@@ -1,3 +1,4 @@
+import type { TransactionClient } from "$lib/server/shop/types";
 import type { TicketSchema } from "$lib/utils/shop/types";
 import { PrismaClient, ShoppableType } from "@prisma/client";
 
@@ -23,6 +24,14 @@ export const createTicket = async (
             availableTo: data.availableTo,
             type: ShoppableType.TICKET,
             authorId: authorId,
+            accessPolicies:
+              (data.accessPolicies?.length ?? 0) > 0
+                ? {
+                    createMany: {
+                      data: data.accessPolicies!,
+                    },
+                  }
+                : undefined,
           },
         },
         event: {
@@ -67,7 +76,9 @@ export const updateTicket = async (
 ) => {
   const updatedQuestions = data.questions.filter((q) => !!q.id);
   const newQuestions = data.questions.filter((q) => !q.id);
-
+  const updatedPolicies = data.accessPolicies?.filter((p) => !!p.id);
+  const newPolicies = data.accessPolicies?.filter((p) => !p.id);
+  console.log(updatedPolicies);
   await prisma.$transaction(async (tx) => {
     await tx.ticket.update({
       where: {
@@ -84,6 +95,21 @@ export const updateTicket = async (
             availableFrom: data.availableFrom,
             availableTo: data.availableTo,
             type: ShoppableType.TICKET,
+            accessPolicies:
+              updatedPolicies && updatedPolicies.length > 0
+                ? {
+                    updateMany: updatedPolicies.map((p) => ({
+                      data: {
+                        ...p,
+                      },
+                      where: {
+                        id: p.id!,
+                      },
+                    })),
+                  }
+                : {
+                    deleteMany: {},
+                  },
           },
         },
         event: {
@@ -95,56 +121,99 @@ export const updateTicket = async (
         maxAmountPerUser: data.maxAmountPerUser, // optional
       },
     });
-    // remove questions that are not in the form
-    // remove unanswered questions (easy)
-    const removableQuestions = await tx.itemQuestion.findMany({
-      where: {
-        shoppableId: ticketId,
-        id: {
-          notIn: updatedQuestions.map((q) => q.id!),
-        },
-        responses: {
-          none: {}, // ensures no responses exist.
-        },
+    if (newPolicies && newPolicies.length > 0) {
+      await tx.shoppableAccessPolicy.createMany({
+        data: newPolicies.map((p) => ({
+          ...p,
+          shoppableId: ticketId,
+        })),
+      });
+    }
+    await updateQuestions(tx, ticketId, updatedQuestions, newQuestions);
+  });
+};
+
+const updateQuestions = async (
+  tx: TransactionClient,
+  ticketId: string,
+  updatedQuestions: TicketSchema["questions"],
+  newQuestions: TicketSchema["questions"],
+) => {
+  // remove questions that are not in the form
+  // remove unanswered questions (easy)
+  const removableQuestions = await tx.itemQuestion.findMany({
+    where: {
+      shoppableId: ticketId,
+      id: {
+        notIn: updatedQuestions.map((q) => q.id!),
       },
-      select: {
-        id: true,
+      responses: {
+        none: {}, // ensures no responses exist.
+      },
+    },
+    select: {
+      id: true,
+    },
+  });
+  await tx.itemQuestion.deleteMany({
+    where: {
+      id: {
+        in: removableQuestions.map((q) => q.id),
+      },
+    },
+  });
+  // keep answered questions in DB but mark as removed
+  await tx.itemQuestion.updateMany({
+    where: {
+      shoppableId: ticketId,
+      id: {
+        notIn: updatedQuestions.map((q) => q.id!),
+      },
+    },
+    data: {
+      removedAt: new Date(),
+    },
+  });
+  // Update questions
+  for (const question of updatedQuestions) {
+    await tx.itemQuestionOption.deleteMany({
+      where: {
+        questionId: question.id!,
       },
     });
-    await tx.itemQuestion.deleteMany({
+    await tx.itemQuestion.update({
+      // have to do a loop
       where: {
-        id: {
-          in: removableQuestions.map((q) => q.id),
-        },
-      },
-    });
-    // keep answered questions in DB but mark as removed
-    await tx.itemQuestion.updateMany({
-      where: {
-        shoppableId: ticketId,
-        id: {
-          notIn: updatedQuestions.map((q) => q.id!),
-        },
+        id: question.id!,
       },
       data: {
-        removedAt: new Date(),
+        ...question,
+        id: undefined,
+        options:
+          question.options === undefined
+            ? undefined
+            : {
+                createMany: {
+                  data: question.options.map((o) => ({
+                    ...o,
+                    extraPrice: o.extraPrice
+                      ? Math.round(o.extraPrice * 100)
+                      : o.extraPrice,
+                  })),
+                },
+              },
       },
     });
-    // Update questions
-    for (const question of updatedQuestions) {
-      await tx.itemQuestionOption.deleteMany({
-        where: {
-          questionId: question.id!,
-        },
-      });
-      await tx.itemQuestion.update({
-        // have to do a loop
-        where: {
-          id: question.id!,
-        },
+  }
+  // create new questions
+  if (newQuestions.length > 0) {
+    for (const question of newQuestions) {
+      // have to do a loop
+      await tx.itemQuestion.create({
         data: {
           ...question,
           id: undefined,
+          shoppableId: ticketId,
           options:
             question.options === undefined
               ? undefined
@@ -161,31 +230,5 @@ export const updateTicket = async (
         },
       });
     }
-    // create new questions
-    if (newQuestions.length > 0) {
-      for (const question of newQuestions) {
-        // have to do a loop
-        await tx.itemQuestion.create({
-          data: {
-            ...question,
-            id: undefined,
-            shoppableId: ticketId,
-            options:
-              question.options === undefined
-                ? undefined
-                : {
-                    createMany: {
-                      data: question.options.map((o) => ({
-                        ...o,
-                        extraPrice: o.extraPrice
-                          ? Math.round(o.extraPrice * 100)
-                          : o.extraPrice,
-                      })),
-                    },
-                  },
-          },
-        });
-      }
-    }
-  });
+  }
 };

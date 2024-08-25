@@ -29,17 +29,7 @@ export const ticketPageActions = (prefix = "/shop/"): Actions => ({
     }
     let result: AddToCartResult;
     try {
-      result = await addTicketToCart(
-        prisma,
-        form.data.ticketId,
-        user.memberId
-          ? {
-              memberId: user.memberId,
-            }
-          : {
-              externalCode: user.externalCode!, // guaranteed by guard above
-            },
-      );
+      result = await addTicketToCart(prisma, form.data.ticketId, user);
     } catch (err) {
       let errorMsg;
       if (err instanceof Error) errorMsg = err.message;

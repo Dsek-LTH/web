@@ -20,6 +20,7 @@ import schedule from "node-schedule";
 import loggingExtension from "./database/prisma/loggingExtension";
 import translatedExtension from "./database/prisma/translationExtension";
 import { getAccessPolicies } from "./hooks.server.helpers";
+import { getDerivedRoles } from "$lib/utils/authorization";
 
 const { handle: authHandle } = SvelteKitAuth({
   secret: env.AUTH_SECRET,
@@ -107,22 +108,19 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
         secure: process.env["NODE_ENV"] === "production", // Only send cookie over HTTPS in production
       });
     }
-    const policies = await getAccessPolicies(prisma);
-
-    event.locals.prisma = enhance(prisma, {
-      user: {
-        studentId: undefined,
-        memberId: undefined,
-        policies,
-        externalCode: externalCode, // For anonymous users
-      },
-    });
-    event.locals.user = {
+    const roles = getDerivedRoles(undefined, false);
+    const policies = await getAccessPolicies(prisma, roles);
+    const user = {
       studentId: undefined,
       memberId: undefined,
       policies,
-      externalCode: externalCode,
+      externalCode: externalCode, // For anonymous users
+      roles,
     };
+    event.locals.prisma = enhance(prisma, {
+      user,
+    });
+    event.locals.user = user;
   } else {
     const existingMember = await prisma.member.findUnique({
       where: { studentId: session.user.student_id },
@@ -143,15 +141,16 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
       redirect(302, "/onboarding");
     }
 
+    const roles = getDerivedRoles(
+      session.user.group_list,
+      !!session.user.student_id,
+      member.classYear ?? undefined,
+    );
     const user = {
       studentId: session.user.student_id,
       memberId: member!.id,
-      policies: await getAccessPolicies(
-        prisma,
-        session.user.student_id,
-        session.user.group_list,
-        member.classYear ?? undefined,
-      ),
+      policies: await getAccessPolicies(prisma, roles, session.user.student_id),
+      roles,
     };
 
     event.locals.prisma = enhance(prisma, { user });
