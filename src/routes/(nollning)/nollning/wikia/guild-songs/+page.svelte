@@ -1,7 +1,7 @@
 <script lang="ts">
   import f from "./f.webp";
   import e from "./e.webp";
-  import m from "./m.webp";
+  import maskin from "./m.webp";
   import v from "./v.webp";
   import a from "./a.webp";
   import k from "./k.webp";
@@ -81,7 +81,7 @@ OH AH ÅH E-SEK
 OH AH ÅH E-SEK
     </pre>
   </li>
-  <li class="bg-[#b8070a]" style="background-image: url('{m}')">
+  <li class="bg-[#b8070a]" style="background-image: url('{maskin}')">
     <h1>M - Vår färg är rød</h1>
     <pre>
 <i>Mel: When the Saints Go Marching In</i>

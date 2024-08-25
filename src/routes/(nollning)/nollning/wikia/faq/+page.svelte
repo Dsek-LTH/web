@@ -1,6 +1,8 @@
 <script lang="ts">
   import { languageTag } from "$paraglide/runtime";
   import FAQuestion from "./FAQuestion.svelte";
+
+  // TODO: Translate
   const questionsSV = [
     {
       title: "Hur funkar biljetter?",

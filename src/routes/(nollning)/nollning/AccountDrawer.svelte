@@ -4,6 +4,7 @@
   import { getFullName } from "$lib/utils/client/member";
   import type { PhadderGroup } from "@prisma/client";
   import LanguageSwitcher from "../../LanguageSwitcher.svelte";
+  import * as m from "$paraglide/messages";
 
   let checked = false;
   $: member = $page.data.member;
@@ -58,7 +59,8 @@
       <ul class="menu -mx-4 mt-4 items-start gap-2">
         <li>
           <a on:click={() => (checked = false)} href="/members/me">
-            <span class="i-mdi-account text-2xl" /> Profil
+            <span class="i-mdi-account text-2xl" />
+            {m.navbar_userMenu_profile()}
           </a>
         </li>
         <li>
@@ -66,7 +68,8 @@
             on:click={() => (checked = false)}
             href="{POST_REVEAL_PREFIX}/settings"
           >
-            <span class="i-mdi-settings-outline text-2xl" /> Inställningar</a
+            <span class="i-mdi-settings-outline text-2xl" />
+            {m.navbar_userMenu_settings()}</a
           >
         </li>
         <li>
@@ -74,7 +77,8 @@
             on:click={() => (checked = false)}
             href="{POST_REVEAL_PREFIX}/shop/inventory"
           >
-            <span class="i-mdi-treasure-chest-outline text-2xl" /> Mina biljetter</a
+            <span class="i-mdi-treasure-chest-outline text-2xl" />
+            {m.navbar_userMenu_inventory()}</a
           >
         </li>
       </ul>

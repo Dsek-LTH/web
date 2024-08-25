@@ -1,32 +1,34 @@
+<script lang="ts">
+  import * as m from "$paraglide/messages";
+</script>
+
 <!-- limit width and center -->
 <div class="mx-auto flex max-w-screen-md flex-col gap-2">
   <section>
-    <h3 class="page-title text-secondary">Trivselrådet</h3>
+    <h3 class="page-title text-secondary">
+      {m.nollning_wikia_studentHealth_wellBeing_header()}
+    </h3>
     <p class="nolla-prose">
-      På sektionen har vi ett Trivselråd där det finns Likabehandlingsombud som
-      gärna lyssnar på och hjälper dig. Du kan berätta om något du har varit med
-      om, hört eller sett under nollningen som inte känts bra, antingen för att
-      få hjälp i situationen eller bara lufta lite tankar.
-      Likabehandlingsombuden har tystnadsplikt och kommer inte sprida vidare
-      informationen.
+      {m.nollning_wikia_studentHealth_wellBeing_body()}
     </p>
     <a
       class="btn-primary-dark btn"
       href="https://docs.google.com/forms/d/e/1FAIpQLSdJxFJ6_G-1s69jKFLnmtZamioNOtZuIYnBxwdbcLLd3ZhkWA/viewform"
-      target="_blank">Kontakta trivselrådet</a
+      target="_blank">{m.nollning_wikia_studentHealth_wellBeing_contact()}</a
     >
   </section>
   <div class="divider" />
   <section>
-    <h3 class="page-title">LTH Kuratorer</h3>
+    <h3 class="page-title">
+      {m.nollning_wikia_studentHealth_kurator_header()}
+    </h3>
     <p class="nolla-prose">
-      Om du hamnar i en situation där du är i behov av stød och råd så tveka
-      inte att ta kontakt med kuratorerna. Det behöver inte vara
-      studierelaterat. De har tystnadsplikt och besöken är kostnadsfria.
+      {m.nollning_wikia_studentHealth_kurator_body()}
     </p>
     <p class="nolla-prose leading-relaxed">
-      <strong>Kontor:</strong> Våning 5, E-huset<br /><br />
-      <strong class="">Datateknik</strong> <br />
+      <strong>{m.nollning_wikia_office()}:</strong>
+      {m.nollning_wikia_floor()} 5, E-huset<br /><br />
+      <strong class="">{m.computer_science()}</strong> <br />
       <strong>Mail: </strong>
       <a class="link" href="mailto:emma.hammarlund@lth.lu.se" target="_blank">
         emma.hammarlund@lth.lu.se
@@ -36,7 +38,7 @@
         046-222 72 47
       </a><br /><br />
 
-      <strong class="">Informations- och kommunikationsteknik</strong>
+      <strong class="">{m.infocom()}</strong>
       <br />
       <strong>Mail: </strong>
       <a class="link" href="mailto:ulla.bergman@lth.lu.se" target="_blank">
@@ -49,12 +51,11 @@
   </section>
   <div class="divider" />
   <section>
-    <h3 class="page-title">Studenthälsan</h3>
+    <h3 class="page-title">
+      {m.nollning_wikia_studentHealth_studentHealth_header()}
+    </h3>
     <p class="nolla-prose">
-      Välkommen till Studenthälsan! Till oss kan du vända dig om du till exempel
-      känner dig stressad, nedstämd eller har talängslan. Du kan också få stöd
-      kring dina alkoholvanor, om du har ångest eller något annat som rör ditt
-      psykiska mående kopplat till din studiesituation. <br /><br />
+      {m.nollning_wikia_studentHealth_studentHealth_body()} <br /><br />
       <strong>Tel: </strong>
       <a class="link" href="tel:+46462224377" target="_blank">
         046-222 43 77</a
@@ -63,17 +64,16 @@
     <a
       class="btn-primary-dark btn"
       href="https://www.lu.se/studera/livet-som-student/service-och-stod/studenthalsan/kontakt-med-studenthalsan"
-      target="_blank">Hemsida</a
+      target="_blank">{m.website()}</a
     >
   </section>
   <div class="divider" />
   <section>
-    <h3 class="page-title">Unga Vuxna</h3>
+    <h3 class="page-title">
+      {m.nollning_wikia_studentHealth_youngAdults_title()}
+    </h3>
     <p class="nolla-prose">
-      Unga Vuxna är en resurs før dig mellan 16-29 år. De erbjuder både
-      samtalsstød och kurser inom olika områden som stress och mindfullness.
-      Unga Vuxna är en resurs från Lunds kommun, och har ingenting med
-      Universitetet eller LTH att gøra. <br /><br />
+      {m.nollning_wikia_studentHealth_youngAdults_body()} <br /><br />
       <strong>Tel: </strong>
       <a class="link" href="tel:+46463598093" target="_blank">
         046-359 80 93</a
@@ -82,16 +82,14 @@
     <a
       class="btn-primary-dark btn"
       href="https://www.lund.se/omsorg--hjalp/familj-barn-och-ungdom/unga-vuxna/"
-      target="_blank">Hemsida</a
+      target="_blank">{m.website()}</a
     >
   </section>
   <div class="divider" />
   <section>
-    <h3 class="page-title">Studentprästerna</h3>
+    <h3 class="page-title">{m.nollning_wikia_studentHealth_priests_title()}</h3>
     <p class="nolla-prose">
-      Studentprästerna specialiserar sig på krishantering och livskriser. De har
-      även absolut tystnadsplikt. Studentprästerna välkommnar alla, oavsett tro
-      eller livsåskådning.<br /><br />
+      {m.nollning_wikia_studentHealth_priests_body()}<br /><br />
       <strong>Mail: </strong>
       <a
         class="link"

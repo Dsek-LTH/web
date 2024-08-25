@@ -4,30 +4,31 @@
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import { i18n } from "$lib/utils/i18n";
   import { POST_REVEAL_PREFIX } from "$lib/components/postReveal/types";
+  import * as m from "$paraglide/messages";
 
   const links = [
     {
-      label: "Karta",
+      label: m.nollning_wikia_map(),
       link: "map",
     },
     {
-      label: "Sektionen",
+      label: m.theGuild(),
       link: "sektionen",
     },
     {
-      label: "Studenthälsan",
+      label: m.nollning_wikia_student_health(),
       link: "student-health",
     },
     {
-      label: "Sektionsvisor",
+      label: m.nollning_wikia_guildSongs(),
       link: "guild-songs",
     },
     {
-      label: "Ordlista",
+      label: m.nolla_wordlist_header(),
       link: "wordlist",
     },
     {
-      label: "Klädkoder",
+      label: m.nollning_wikia_dressCodes(),
       link: "dress-codes",
     },
     {
@@ -38,7 +39,6 @@
   $: path = i18n
     .route($page.url.pathname)
     .replace(`${POST_REVEAL_PREFIX}/wikia/`, "");
-  $: console.log(path);
   $: currentLink = links.find((link) => link.link === path) ?? links[0];
   $: currentLinkIndex = currentLink ? links.indexOf(currentLink) : undefined;
   let elements: HTMLAnchorElement[] = [];

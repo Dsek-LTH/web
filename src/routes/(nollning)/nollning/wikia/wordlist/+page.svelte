@@ -4,6 +4,7 @@
   import { availableLanguageTags, languageTag } from "$paraglide/runtime";
   type Lang = (typeof availableLanguageTags)[number];
 
+  // TODO: Translate
   const wordBank: Array<{ sv: string } & Partial<Record<Lang, string>>> = [
     { sv: "AFB - Förser studenterna med studentbostäder." },
     { sv: "AF-borgen - Plats för bal och spex." },
@@ -92,22 +93,25 @@
     },
     { sv: "Øverpeppare - Pepparnas mamma och pappa." },
   ];
-  const wordList = wordBank.map((item) => {
-    const word = item[languageTag()] ?? item.sv;
-    const [definition, ...rest] = word.split(" - ");
-    const description = rest.join(" - "); // in case it contains multiple " - "
+  const wordList = wordBank
+    .map((item) => {
+      const word = item[languageTag()];
+      if (!word) return null;
+      const [definition, ...rest] = word.split(" - ");
+      const description = rest.join(" - "); // in case it contains multiple " - "
 
-    return {
-      definition,
-      description: description
-        ?.replace("<a href", '<a class="link" href')
-        ?.replace(
-          /([sS]e{1,2}) ([a-zA-ZÅÄÖåäö]+)/, // matches "Se xxx", "se xxx", "See xxx" and "see xxx"
-          (_, before, word) =>
-            `${before} <a class="link" href="#${word.toLowerCase()}">${word}</a>`,
-        ),
-    };
-  });
+      return {
+        definition,
+        description: description
+          ?.replace("<a href", '<a class="link" href')
+          ?.replace(
+            /([sS]e{1,2}) ([a-zA-ZÅÄÖåäö]+)/, // matches "Se xxx", "se xxx", "See xxx" and "see xxx"
+            (_, before, word) =>
+              `${before} <a class="link" href="#${word.toLowerCase()}">${word}</a>`,
+          ),
+      };
+    })
+    .filter((row) => row !== null);
 </script>
 
 <article class="mx-auto max-w-screen-md">

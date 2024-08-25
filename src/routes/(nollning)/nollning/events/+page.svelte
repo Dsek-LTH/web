@@ -23,12 +23,16 @@
     .flatMap((events) => events.tickets)
     .filter((ticket) => ticket.isInUsersCart);
   $: itemsToPay = userTickets.flatMap((ticket) => ticket.userItemsInCart);
-  function firstTimer(timers: Array<Date | null>) {
-    return timers.reduce(
-      (acc, next) =>
-        acc == undefined || (next && next < acc) ? (next ?? undefined) : acc,
-      undefined as Date | undefined,
-    );
+  function firstTimer(timers: Array<Date | null>): [Date | null, number] {
+    let first = timers[0];
+    let index = 0;
+    for (let [i, timer] of timers.entries()) {
+      if (!first || (timer && timer < first)) {
+        first = timer;
+        index = i;
+      }
+    }
+    return [first ?? null, index];
   }
 
   $: inQueue = userTickets
@@ -53,7 +57,7 @@
 </script>
 
 <div class="mx-auto max-w-4xl">
-  <PageHeader title="Event" />
+  <PageHeader title={m.events()} />
 
   <div class="mb-4 flex items-start justify-between">
     <details
@@ -66,7 +70,7 @@
       }}
     >
       <summary class="btn btn-ghost -mx-4"
-        >Prenumerera
+        >{m.events_calendar_subscribe()}
         <span class="i-mdi-calendar-sync" />
       </summary>
       <div
@@ -82,7 +86,10 @@
         </p>
       </div>
     </details>
-    <PostRevealSelect title="vecka {data.week}" bind:checked={weekCollapseOpen}>
+    <PostRevealSelect
+      title="{m.events_calendar_week().toLowerCase()} {data.week}"
+      bind:checked={weekCollapseOpen}
+    >
       <ul class="flex flex-col">
         {#each weeks as i}
           {@const isCurrent = i === data.week}
@@ -90,7 +97,8 @@
             <a
               class="font-medium"
               href="?week={i}"
-              on:click={() => (weekCollapseOpen = false)}>vecka {i}</a
+              on:click={() => (weekCollapseOpen = false)}
+              >{m.events_calendar_week().toLowerCase()} {i}</a
             >
           </li>
         {/each}
@@ -110,9 +118,13 @@
 
 <div class="sticky inset-x-0 bottom-0 mt-8 flex flex-col">
   {#if itemsToPay.length > 0}
-    {@const firstToExpire = firstTimer(
+    {@const [firstToExpire, index] = firstTimer(
       itemsToPay.map((item) => item.expiresAt),
     )}
+    {@const isFree =
+      (userTickets.find((ticket) =>
+        ticket.userItemsInCart.some((i) => i.id == itemsToPay[index]?.id),
+      )?.price ?? 1) <= 0}
     <div class="self-end">
       {#if firstToExpire}
         <Timer
@@ -123,10 +135,13 @@
     </div>
     <div class="flex rounded-btn bg-neutral p-2">
       <span class="flex-1">
-        Du har fått en biljett 🎉<br />Gå vidare för att betala.
+        {m.tickets_feedback_lotteryWin()}<br />{isFree
+          ? m.tickets_feedback_proceed()
+          : m.tickets_feedback_proceedToPay()}
       </span>
       <a href="shop/cart" class="btn btn-error"
-        >Betala <span class="i-mdi-arrow-right" /></a
+        >{isFree ? m.cart_get() : m.cart_pay()}
+        <span class="i-mdi-arrow-right" /></a
       >
     </div>
   {:else if inQueue.length > 0}
@@ -150,11 +165,11 @@
         {/if}
       </span>
       <a href="shop/cart" class="btn btn-primary"
-        >Visa<span class="i-mdi-arrow-right" /></a
+        >{m.view()} <span class="i-mdi-arrow-right" /></a
       >
     </div>
   {:else if inLottery.length > 0}
-    {@const firstLottery = firstTimer(
+    {@const [firstLottery] = firstTimer(
       inLottery.map((ticket) => ticket.gracePeriodEndsAt),
     )}
     <div class="flex items-center rounded-btn bg-neutral p-2">

@@ -9,6 +9,7 @@
   import { POST_REVEAL_PREFIX } from "$lib/components/postReveal/types";
   import LanguageSwitcher from "../../LanguageSwitcher.svelte";
   import type { PhadderGroup } from "@prisma/client";
+  import * as m from "$paraglide/messages";
 
   $: pageData = $page.data as typeof $page.data & PostRevealLayoutData;
   $: member = $page.data.member;
@@ -68,7 +69,7 @@
               </span>
               {#await nollaInGroup then group}
                 {#if group}
-                  <span class="text-neutral">{group?.name}</span>
+                  <span class="text-neutral">{group.name}</span>
                 {/if}
               {/await}
             </div>
@@ -77,17 +78,20 @@
         <div class="divider m-0"></div>
         <li>
           <a href="/members/me"
-            ><span class="i-mdi-account text-2xl" /> Profil</a
+            ><span class="i-mdi-account text-2xl" />
+            {m.navbar_userMenu_profile()}</a
           >
         </li>
         <li>
           <a href="{POST_REVEAL_PREFIX}/settings"
-            ><span class="i-mdi-settings-outline text-2xl" /> Inställningar</a
+            ><span class="i-mdi-settings-outline text-2xl" />
+            {m.navbar_userMenu_settings()}</a
           >
         </li>
         <li>
           <a href="{POST_REVEAL_PREFIX}/shop/inventory"
-            ><span class="i-mdi-treasure-chest-outline text-2xl" /> Mina biljetter</a
+            ><span class="i-mdi-treasure-chest-outline text-2xl" />
+            {m.navbar_userMenu_inventory()}</a
           >
         </li>
         <li>
