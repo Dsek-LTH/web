@@ -53,7 +53,7 @@ export const appBottomNavRoutes = (routes: Route[]): Route[] =>
 
 export const getIcon = (icon: string, revealTheme: boolean) => {
   if (icon === "nollning-logo") {
-    if (revealTheme) return "i-mdi-cloud";
+    if (revealTheme) return "i-mdi-cloud-outline";
     else return "i-mdi-home";
   }
   return icon;

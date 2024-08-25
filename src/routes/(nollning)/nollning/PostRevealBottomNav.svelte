@@ -30,7 +30,7 @@
       class="h-12"
     >
       <span class="{icon} size-8" />
-      <span class="text-xs">{route.title}</span>
+      <!-- <span class="text-xs">{route.title}</span> -->
     </a>
   {/each}
 </nav>
