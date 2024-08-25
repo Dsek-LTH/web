@@ -3,6 +3,7 @@
   import { page } from "$app/stores";
   import BuyButton from "$lib/components/BuyButton.svelte";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
+  import Price from "$lib/components/Price.svelte";
   import type { TicketWithMoreInfo } from "$lib/server/shop/getTickets";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
@@ -48,6 +49,7 @@
               };
             }}
           >
+            <input type="hidden" name="ticketId" value={ticket.id} />
             <div class="relative text-left">
               <span class="mr-2">
                 {ticket.title}
@@ -58,8 +60,10 @@
                 />
               {/if}
             </div>
-            <input type="hidden" name="ticketId" value={ticket.id} />
-            <BuyButton class="text-right" isSubmitting={false} {ticket} />
+            <div class="flex items-center gap-2">
+              <Price price={ticket.price} />
+              <BuyButton class="text-right" isSubmitting={false} {ticket} />
+            </div>
           </form>
         {/each}
       {/if}
