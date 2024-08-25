@@ -20,6 +20,7 @@
 
 <section>
   <h3 class="page-title">Styrelsen</h3>
+  <!-- TODO: Add image of the board -->
   <figure class="aspect-[5/3] w-2/3 rounded-box bg-neutral"></figure>
   <p class="nolla-prose">
     Sektionen leds av ett härligt gäng ledamöter som alla ansvarar för varsitt
@@ -62,11 +63,11 @@
       <strong>Aktivitetsansvarig</strong> håller i allt mellan sport och spel.
     </li>
   </ul>
-  <!-- <a href="/board" class="btn-primary-dark btn">läs mer!</a> -->
 </section>
 
 <section>
   <h3 class="page-title">D-Chip</h3>
+  <!-- TODO: Add image of D-chip -->
   <figure class="aspect-[5/3] w-2/3 rounded-box bg-neutral"></figure>
   <p class="nolla-prose">
     D-Chip är en ideell, studentdriven förening vid D-sektionen. Alla kvinnliga

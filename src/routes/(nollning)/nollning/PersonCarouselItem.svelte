@@ -1,7 +1,8 @@
 <script lang="ts">
   export let stab = false;
   export let name: string;
-  export let imageUrl: string = "";
+  export let body = ""; /* TODO: Add bodies */
+  export let imageUrl = ""; /* TODO: Add image urls */
   export let index: number;
   $: max = stab ? 6 : 11;
   $: prefix = `${stab ? "stab" : "pepp"}slide`;
@@ -13,6 +14,7 @@
   class="carousel-item relative w-full flex-col items-center"
 >
   <div class="mb-4 flex gap-1">
+    <!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
     {#each new Array(max).fill(0) as _, i}
       <div
         class="size-2 rounded-full"
@@ -48,10 +50,6 @@
     {@html name.replace("\n", "<br />")}
   </h3>
   <p class="nolla-prose text-center">
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit. In interdum
-    venenatis faucibus. Praesent dictum iaculis iaculis. Aliquam nulla magna,
-    venenatis sit amet mauris sed, pharetra consectetur urna. Class aptent
-    taciti sociosqu ad litora torquent per conubia nostra, per inceptos
-    himenaeos. Phasellus non congue leo.
+    {body}
   </p>
 </div>

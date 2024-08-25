@@ -95,7 +95,7 @@
     <p class="nolla-prose">
       Alla som deltar i Nollningen ska följa denna nollepolicy:
     </p>
-    <ul>
+    <ul class="list-disc leading-relaxed">
       <li>Att delta i Nollningen är frivilligt.</li>
       <li>Aktiviteterna/verksamheten får inte störa allmänheten.</li>
       <li>Deltagare ska respektera eventansvarigas direktiv och varandra.</li>

@@ -75,7 +75,7 @@
 <SetPageTitle title="Wikia" />
 
 <div
-  class="scrollbar-hide sticky -top-1 -mx-6 flex gap-2 overflow-x-auto bg-base-100 px-6 py-2 pt-3"
+  class="scrollbar-hide sticky -top-1 z-10 -mx-6 flex gap-2 overflow-x-auto bg-base-100 px-6 py-2 pt-3"
   bind:this={scroller}
 >
   {#each links as link, i (link.link)}
@@ -93,6 +93,6 @@
   {/each}
 </div>
 
-<div class="space-y-12 py-6">
+<div class="relative z-0 space-y-12 py-6">
   <slot />
 </div>
