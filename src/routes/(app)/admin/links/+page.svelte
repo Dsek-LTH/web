@@ -14,6 +14,7 @@
   import Input from "$lib/components/Input.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
   import { superForm } from "$lib/utils/client/superForms";
+  import * as m from "$paraglide/messages";
 
   export let data: PageData;
 
@@ -65,11 +66,14 @@
   let createSelectedTags: Tag[] = [];
 
   const tableHeaders: Array<{ order?: ShlinkShortUrlsOrder; title: string }> = [
-    { order: { field: "shortCode" }, title: "Slug" },
-    { order: { field: "longUrl" }, title: "Link" },
-    { title: "Tags" },
-    { order: { field: "dateCreated" }, title: "Created date" },
-    { order: { field: "visits" }, title: "Visits" },
+    { order: { field: "shortCode" }, title: m.admin_links_table_header_slug() },
+    { order: { field: "longUrl" }, title: m.admin_links_table_header_url() },
+    { title: m.admin_links_table_header_tags() },
+    {
+      order: { field: "dateCreated" },
+      title: m.admin_links_table_header_created(),
+    },
+    { order: { field: "visits" }, title: m.admin_links_table_header_visits() },
   ];
 
   let allTags = data.tags.map((t) => ({ id: t, name: t }) as Tag);
@@ -96,10 +100,10 @@
   let editModalTags: Tag[] = [];
 </script>
 
-<PageHeader title="Link shortener" />
+<PageHeader title={m.linkShortener()} />
 
 <div class="mb-10 mt-4 rounded-lg md:p-4 lg:mb-4 lg:p-8">
-  <h2 class="text-lg font-semibold">Add Shorted Link</h2>
+  <h2 class="text-lg font-semibold">{m.admin_links_add_title()}</h2>
   <form
     class="flex flex-col items-stretch gap-2 lg:flex-row lg:items-start"
     action="?/create"
@@ -109,8 +113,8 @@
   >
     <Input
       name="slug"
-      label="Custom slug"
-      placeholder="link.se/<slug>"
+      label={m.admin_links_add_label_slug()}
+      placeholder={m.admin_links_add_placeholder_slug()}
       required
       bind:value={$createLinksForm.slug}
       error={$createLinksErrors.slug}
@@ -118,8 +122,8 @@
     />
     <Input
       name="url"
-      label="URL"
-      placeholder="URL to be shortened"
+      label={m.admin_links_add_label_URL()}
+      placeholder={m.admin_links_add_placeholder_URL()}
       required
       bind:value={$createLinksForm.url}
       error={$createLinksErrors.url}
@@ -127,10 +131,10 @@
     />
     <div class="form-control relative">
       <div class="label">
-        <span class="label-text"> Tags* </span>
+        <span class="label-text"> {m.admin_links_add_label_tags()}* </span>
       </div>
       <TagSelectCreate
-        placeholder="<utskott><år>, ex. cafe24"
+        placeholder={m.admin_links_add_placeholder_tags()}
         bind:allTags
         bind:selectedTags={createSelectedTags}
       />
@@ -150,12 +154,14 @@
       <input type="hidden" name="tags" value={tag.name} />
     {/each}
     <Labeled label="Add" invisibleText={true}>
-      <button class="btn btn-primary self-end">Add</button>
+      <button class="btn btn-primary self-end"
+        >{m.admin_links_add_submit()}</button
+      >
     </Labeled>
   </form>
 </div>
 
-<h1 class="my-4 text-2xl font-bold">Links</h1>
+<PageHeader title={m.admin_links_table_title()} />
 
 <form action="?/delete" method="post" use:enhance>
   <div class="flex items-end gap-2">
@@ -184,9 +190,11 @@
 
   <dialog bind:this={removeModal} class="modal modal-bottom sm:modal-middle">
     <div class="modal-box">
-      <h3 class="text-lg font-bold">Remove links</h3>
+      <h3 class="text-lg font-bold">{m.admin_links_remove_title()}</h3>
       <p class="py-4">
-        Are you sure you want to remove {checkboxes.filter((c) => c).length} link(s)?
+        {m.admin_links_remove_confirmation_test_1()}
+        {checkboxes.filter((c) => c).length}
+        {m.admin_links_remove_confirmation_test_2()}
       </p>
       <p class="text-xs text-base-content/60">
         {data.domains
@@ -200,7 +208,7 @@
           class="btn btn-error"
           on:click={() => removeModal?.close()}
         >
-          Remove
+          {m.admin_links_remove_submit()}
         </button>
       </div>
     </div>
@@ -303,7 +311,7 @@
                   editModal.showModal();
                 }}
               >
-                <span class="i-mdi-wrench"></span>
+                <span class="i-mdi-pencil"></span>
               </button>
             </td>
           </tr>
@@ -321,7 +329,9 @@
       id={$updateLinksFormId}
       use:updateLinksEnhance
     >
-      <h3 class="text-lg font-bold">Edit '{$updateLinksForm.slug}'</h3>
+      <h3 class="text-lg font-bold">
+        {m.admin_links_edit_title()} '{$updateLinksForm.slug}'
+      </h3>
       <input type="hidden" name="slug" bind:value={$updateLinksForm.slug} />
       <Input
         name="url"
@@ -353,9 +363,11 @@
       {/each}
       <div class="modal-action">
         <button type="button" class="btn" on:click={() => editModal?.close()}>
-          Cancel
+          {m.admin_links_edit_cancel()}
         </button>
-        <button type="submit" class="btn btn-primary"> Edit </button>
+        <button type="submit" class="btn btn-primary">
+          {m.admin_links_edit_submit()}
+        </button>
       </div>
     </form>
   </div>
