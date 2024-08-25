@@ -110,7 +110,7 @@
   });
 </script>
 
-<article>
+<article class="mx-auto max-w-screen-md">
   <ul>
     {#each wordList as word}
       <li

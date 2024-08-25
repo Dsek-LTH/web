@@ -13,6 +13,7 @@
   import { onMount } from "svelte";
   import PostRevealBottomNav from "./PostRevealBottomNav.svelte";
   import PostRevealHeader from "./PostRevealHeader.svelte";
+  import PostRevealDesktopNavbar from "./PostRevealDesktopNavbar.svelte";
   import "./postReveal.css";
 
   export let data;
@@ -53,33 +54,27 @@
   {#if mounted}
     <div in:fade={{ duration: 1000 }} class="flex h-full flex-col">
       {#if !data.isApp}
-        <!-- <nav class="contents"> -->
-        <!-- <Navbar /> -->
-        <!-- <Drawer /> -->
-        <!-- </nav> -->
-
-        <!-- TMP -->
-        <PostRevealHeader />
+        <PostRevealDesktopNavbar>
+          <slot />
+        </PostRevealDesktopNavbar>
       {:else}
         <AppNotificationHandler />
         <PostRevealHeader />
+
+        <main
+          class="scrollbar-hide *:scrollbar-hide relative flex-1 overflow-y-auto"
+          class:scrollbar-hide={data.isApp}
+        >
+          <!-- so absolute positioning is outside padding -->
+          <div class="scrollbar-hide px-6 py-6">
+            <slot />
+          </div>
+        </main>
       {/if}
 
-      <main
-        class="scrollbar-hide *:scrollbar-hide relative flex-1 overflow-y-auto"
-        class:scrollbar-hide={data.isApp}
-      >
-        <!-- so absolute positioning is outside padding -->
-        <div class="scrollbar-hide px-6 py-6">
-          <slot />
-        </div>
-      </main>
       <Toast />
       {#if !data.isApp}
         <!-- <Footer /> -->
-
-        <!-- TMP -->
-        <PostRevealBottomNav />
       {:else}
         <PostRevealBottomNav />
 

@@ -2,6 +2,7 @@
   import { page } from "$app/stores";
   import Notification from "$lib/components/Notification.svelte";
   import NotificationModal from "$lib/components/NotificationModal.svelte";
+  import PostRevealNotification from "$lib/components/postReveal/PostRevealNotification.svelte";
   import { superForm } from "$lib/utils/client/superForms";
   import type { NotificationGroup } from "$lib/utils/notifications/group";
   import type { NotificationSchema } from "$lib/zod/schemas";
@@ -15,6 +16,7 @@
   export let useModalInstead = false;
   export let externalModal: HTMLDialogElement | undefined = undefined;
   export let buttonClass: string | undefined = undefined;
+  export let postReveal = false;
   let internalModal: HTMLDialogElement;
 
   // Get the number of unread notifications, which is then used to indicate the user
@@ -79,7 +81,7 @@
   </button>
 
   {#if !externalModal && useModalInstead}
-    <NotificationModal bind:modal={internalModal} />
+    <NotificationModal {postReveal} bind:modal={internalModal} />
   {:else if !externalModal}
     <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
     <ul
@@ -93,7 +95,11 @@
           <div class="overflow-y-auto">
             {#each notifications as notification (notification.id)}
               <li animate:flip={{ duration: 200 }}>
-                <Notification {notification} {form} />
+                {#if postReveal}
+                  <PostRevealNotification {notification} {form} />
+                {:else}
+                  <Notification {notification} {form} />
+                {/if}
               </li>
             {/each}
           </div>

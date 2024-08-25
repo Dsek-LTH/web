@@ -11,7 +11,7 @@
   import i from "./i.webp";
 </script>
 
-<ul class="guild-song-list">
+<ul class="guild-song-list mx-auto max-w-screen-md">
   <li>
     <h1>N0llevisan</h1>
     <pre>
@@ -178,6 +178,6 @@ När i-tåget köttar på (köttar på, köttar på)
     @apply space-y-0;
   }
   .guild-song-list > li {
-    @apply relative -mx-6 bg-opacity-40 bg-[length:30%] bg-center bg-no-repeat px-6 py-8 bg-blend-overlay;
+    @apply relative -mx-6 bg-opacity-40 bg-[length:30%] bg-center bg-no-repeat px-6 py-8 bg-blend-overlay md:bg-[length:auto_50%];
   }
 </style>

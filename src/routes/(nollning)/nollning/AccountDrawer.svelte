@@ -12,6 +12,8 @@
   >;
 </script>
 
+<!-- PostRevealDesktopLeftNavbar also has some duplicated stuff so remember to change both -->
+
 <div class="drawer-end">
   <input
     id="nolla-account-drawer"
@@ -79,7 +81,7 @@
       <a href="/" class="btn-primary-dark btn mt-8 self-stretch">
         D-sek <span class="i-mdi-arrow-right" />
       </a>
-      <LanguageSwitcher class="btn mt-8 bg-base-200" />
+      <LanguageSwitcher class=" mt-8 bg-base-200" />
     </aside>
   </div>
 </div>

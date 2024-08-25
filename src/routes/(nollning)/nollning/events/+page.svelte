@@ -52,58 +52,60 @@
   }
 </script>
 
-<PageHeader title="Event" />
+<div class="mx-auto max-w-4xl">
+  <PageHeader title="Event" />
 
-<div class="mb-4 flex items-start justify-between">
-  <details
-    class="dropdown"
-    on:toggle={(event) => {
-      if (event.target instanceof HTMLDetailsElement && event.target.open) {
-        navigator.clipboard.writeText(eventsSubscribeUrl);
-        toast(m.events_calendar_subscribe_copyToClipboard(), "success");
-      }
-    }}
-  >
-    <summary class="btn btn-ghost -mx-4"
-      >Prenumerera
-      <span class="i-mdi-calendar-sync" />
-    </summary>
-    <div
-      class="dropdown-content z-20 -ml-8 w-[calc(100dvw-1rem)] rounded-box bg-base-300 p-4 shadow"
+  <div class="mb-4 flex items-start justify-between">
+    <details
+      class="dropdown"
+      on:toggle={(event) => {
+        if (event.target instanceof HTMLDetailsElement && event.target.open) {
+          navigator.clipboard.writeText(eventsSubscribeUrl);
+          toast(m.events_calendar_subscribe_copyToClipboard(), "success");
+        }
+      }}
     >
-      <p>
-        {m.events_calendar_subscribe_details()}
-      </p>
-      <p
-        class="my-2 w-full select-all overflow-x-auto rounded border p-2 font-mono text-sm"
+      <summary class="btn btn-ghost -mx-4"
+        >Prenumerera
+        <span class="i-mdi-calendar-sync" />
+      </summary>
+      <div
+        class="dropdown-content z-20 -ml-8 w-[calc(100dvw-1rem)] rounded-box bg-base-300 p-4 shadow md:max-w-2xl"
       >
-        {eventsSubscribeUrl}
-      </p>
-    </div>
-  </details>
-  <PostRevealSelect title="vecka {data.week}" bind:checked={weekCollapseOpen}>
-    <ul class="flex flex-col">
-      {#each weeks as i}
-        {@const isCurrent = i === data.week}
-        <li class:bg-primary={isCurrent} class="px-2 py-1 last:pb-2">
-          <a
-            class="font-medium"
-            href="?week={i}"
-            on:click={() => (weekCollapseOpen = false)}>vecka {i}</a
-          >
-        </li>
+        <p>
+          {m.events_calendar_subscribe_details()}
+        </p>
+        <p
+          class="my-2 w-full select-all overflow-x-auto rounded border p-2 font-mono text-sm"
+        >
+          {eventsSubscribeUrl}
+        </p>
+      </div>
+    </details>
+    <PostRevealSelect title="vecka {data.week}" bind:checked={weekCollapseOpen}>
+      <ul class="flex flex-col">
+        {#each weeks as i}
+          {@const isCurrent = i === data.week}
+          <li class:bg-primary={isCurrent} class="px-2 py-1 last:pb-2">
+            <a
+              class="font-medium"
+              href="?week={i}"
+              on:click={() => (weekCollapseOpen = false)}>vecka {i}</a
+            >
+          </li>
+        {/each}
+      </ul>
+    </PostRevealSelect>
+  </div>
+  <div class="flex flex-col gap-4">
+    {#if events.length > 0}
+      {#each events as event (event.id)}
+        <Event {event} />
       {/each}
-    </ul>
-  </PostRevealSelect>
-</div>
-<div class="flex flex-col gap-4">
-  {#if events.length > 0}
-    {#each events as event (event.id)}
-      <Event {event} />
-    {/each}
-  {:else}
-    <span class="mt-8 text-center text-4xl">🤫</span>
-  {/if}
+    {:else}
+      <span class="mt-8 text-center text-4xl">🤫</span>
+    {/if}
+  </div>
 </div>
 
 <div class="sticky inset-x-0 bottom-0 mt-8 flex flex-col">

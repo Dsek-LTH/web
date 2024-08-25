@@ -31,9 +31,12 @@
   $: questions = languageTag() === "en" ? questionsEN : questionsSV;
 </script>
 
-<!-- default none opened -->
-<section class="space-y-4">
-  {#each questions as question}
-    <FAQuestion title={question.title} body={question.desc} />
-  {/each}
-</section>
+<!-- limit width and center -->
+<div class="mx-auto max-w-screen-md">
+  <!-- default none opened -->
+  <section class="space-y-4">
+    {#each questions as question}
+      <FAQuestion title={question.title} body={question.desc} />
+    {/each}
+  </section>
+</div>
