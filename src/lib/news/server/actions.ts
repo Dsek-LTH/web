@@ -13,6 +13,7 @@ import type { AuthUser } from "@zenstackhq/runtime";
 import { zod } from "sveltekit-superforms/adapters";
 import { message, superValidate, fail } from "sveltekit-superforms";
 import DOMPurify from "isomorphic-dompurify";
+import markdownToTxt from "markdown-to-txt";
 
 const uploadImage = async (user: AuthUser, image: File, slug: string) => {
   const imageUrl = await uploadFile(
@@ -53,7 +54,9 @@ const sendNewArticleNotification = async (
   console.log("notifications: sending");
   await sendNotification({
     title: article.header,
-    message: notificationText ? notificationText : article.body.slice(0, 260),
+    message: notificationText
+      ? notificationText
+      : markdownToTxt(article.body).slice(0, 254),
     type: NotificationType.NEW_ARTICLE,
     link: `/news/${article.slug}`,
     fromAuthor: article.author,

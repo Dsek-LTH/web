@@ -57,13 +57,13 @@
     class={twMerge("btn btn-ghost *:text-xl", buttonClass)}
     data-dropdown-toggle="dropdown"
   >
-    {#await notifications}
-      <span class="i-mdi-bell-outline" />
-    {:then notifications}
-      {@const unreadCount = notifications.filter(
-        (data) => data.readAt == null,
-      ).length}
-      <slot {unreadCount}>
+    <slot>
+      {#await notifications}
+        <span class="i-mdi-bell-outline" />
+      {:then notifications}
+        {@const unreadCount = notifications.filter(
+          (data) => data.readAt == null,
+        ).length}
         {#if unreadCount <= 0}
           <span class="i-mdi-bell-outline" />
         {/if}
@@ -74,8 +74,8 @@
             >{unreadCount}</span
           >
         {/if}
-      </slot>
-    {/await}
+      {/await}
+    </slot>
   </button>
 
   {#if !externalModal && useModalInstead}
