@@ -20,7 +20,6 @@ import schedule from "node-schedule";
 import loggingExtension from "./database/prisma/loggingExtension";
 import translatedExtension from "./database/prisma/translationExtension";
 import { getAccessPolicies } from "./hooks.server.helpers";
-import { date } from "zod";
 
 const { handle: authHandle } = SvelteKitAuth({
   secret: env.AUTH_SECRET,
