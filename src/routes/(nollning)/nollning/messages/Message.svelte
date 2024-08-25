@@ -38,7 +38,7 @@
       {dayjs(new Date(message.publishedAt)).format("DD MMM HH:mm")}
     {/if} -->
   </div>
-  <div class="rounded-box rounded-tl-none border-2 border-base-200 p-4">
+  <div class="rounded-box rounded-tl-none md:rounded-tl-2xl border-2 border-base-200 p-4">
     <h2 class="text-base text-primary">{message.header}</h2>
     <h5 class="mb-2 font-medium text-neutral">{authorName}</h5>
     <p>

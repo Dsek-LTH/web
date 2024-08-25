@@ -14,7 +14,7 @@
   {#if data.revealTheme}
     <div
       class="-mx-6 -my-6"
-      style={`height: calc(100dvh - ${headerAndFooterHeight}px)`}
+      style={`height: calc(100dvh - ${data.isApp ? headerAndFooterHeight : 0}px)`}
     >
       <figure
         class="relative h-full w-full overflow-hidden border-none bg-neutral"

@@ -6,9 +6,11 @@
   $: messages = data.messages;
 </script>
 
-<PageHeader title="Meddelanden" />
+<div class="md:text-center">
+  <PageHeader title="Meddelanden" />
+</div>
 
-<div class="flex flex-col gap-4">
+<div class="flex flex-col gap-4 md:max-w-xl md:mx-auto">
   {#each messages as message}
     <Message {message} />
   {/each}
