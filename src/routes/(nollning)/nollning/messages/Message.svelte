@@ -29,7 +29,7 @@
 </script>
 
 <article>
-  <div class="mb-1 font-medium uppercase text-base-200">
+  <div class="mb-1 font-medium uppercase text-base-300">
     <!-- less than a week ago -->
     {dayjs(new Date(message.publishedAt ?? message.createdAt)).fromNow()}
     <!-- {#if dayjs(new Date()).diff(new Date(message.publishedAt), "day") < 7}
@@ -38,9 +38,7 @@
       {dayjs(new Date(message.publishedAt)).format("DD MMM HH:mm")}
     {/if} -->
   </div>
-  <div
-    class="rounded-box rounded-tl-none border-2 border-base-200 p-4 md:rounded-tl-2xl"
-  >
+  <div class="rounded-btn bg-base-200 p-4">
     <h2 class="text-base text-primary">{message.header}</h2>
     <h5 class="mb-2 font-medium text-neutral">{authorName}</h5>
     <p>

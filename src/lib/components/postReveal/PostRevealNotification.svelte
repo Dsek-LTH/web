@@ -9,6 +9,21 @@
   import type { SuperValidated } from "sveltekit-superforms";
   import { superForm } from "$lib/utils/client/superForms";
   import { browser } from "$app/environment";
+  import {
+    OVERRIDEN_POST_REVEAL_ROUTES,
+    POST_REVEAL_PREFIX,
+  } from "$lib/components/postReveal/types";
+
+  const overrideLink = (link: string) => {
+    const routeIndex = OVERRIDEN_POST_REVEAL_ROUTES.findIndex((route) =>
+      link.startsWith(route.from),
+    );
+    if (routeIndex === -1) return link;
+    return (
+      OVERRIDEN_POST_REVEAL_ROUTES[routeIndex]!.to ??
+      `${POST_REVEAL_PREFIX}${OVERRIDEN_POST_REVEAL_ROUTES[routeIndex]?.from}`
+    );
+  };
   type NotificationItem = Pick<
     NotificationGroup,
     | "link"
@@ -26,6 +41,8 @@
   export let allowDelete = true;
   export let onClick: (() => void) | undefined = undefined;
 
+  $: link = overrideLink(notification.link);
+
   let readForm: HTMLFormElement;
   const readNotification = () => {
     // read notification
@@ -35,7 +52,7 @@
 
   // Handle "reading" notification when visiting relevant link
   $: isUnread = notification.readAt === null;
-  $: isPathSame = i18n.route($page.url.pathname) === notification.link;
+  $: isPathSame = i18n.route($page.url.pathname) === link;
   $: (() => {
     if (isUnread && isPathSame) {
       setTimeout(() => {
@@ -64,7 +81,10 @@
   >;
 </script>
 
-<div class="relative flex w-full items-stretch rounded-none p-2">
+<div
+  class="relative flex w-full items-stretch rounded-none p-2"
+  class:bg-base-200={isUnread}
+>
   {#if superformRead && enhanceRead}
     <form
       bind:this={readForm}
@@ -84,22 +104,16 @@
     </form>
   {/if}
 
-  <a
-    href={notification.link}
-    on:click={onClick}
-    class="flex flex-1 items-center gap-4"
-  >
+  <a href={link} on:click={onClick} class="flex flex-1 items-center gap-4">
     <div>
       <AuthorAvatars {authors} />
     </div>
-    <div
-      class="flex h-full flex-col flex-nowrap justify-center {isUnread
-        ? 'font-medium'
-        : 'opacity-80'}"
-    >
+    <div class="flex h-full flex-col flex-nowrap justify-center">
       <span class="mt-1 line-clamp-1 text-base">{notification.title}</span>
-      <span class="mb-1 line-clamp-2 text-xs">{notification.message}</span>
-      <span class="line-clamp-1 text-xs text-gray-500">
+      <span class="mb-1 line-clamp-2 text-xs text-neutral"
+        >{notification.message}</span
+      >
+      <span class="line-clamp-1 text-xs text-base-300">
         <LiveTimeSince timeStamp={notification.createdAt.getTime()} />
       </span>
     </div>

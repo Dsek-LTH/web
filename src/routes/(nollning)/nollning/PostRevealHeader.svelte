@@ -23,10 +23,12 @@
   $: pageData = $page.data as typeof $page.data & PostRevealLayoutData;
   $: topInsets = $page.data.appInfo?.insets?.top ?? 0;
 
+  $: notifications = pageData["notifications"];
+
   let notificationModal: HTMLDialogElement;
 </script>
 
-<NotificationModal bind:modal={notificationModal} />
+<NotificationModal bind:modal={notificationModal} postReveal />
 <header
   class="navbar justify-between gap-2 shadow-[0_4px_4px_#191B2740]"
   style="padding-top: {topInsets + 8}px;"
@@ -54,20 +56,27 @@
     {#if $page.data.user && $page.data.member}
       {#if pageData["notifications"] !== null}
         <NotificationBell
-          notifications={pageData["notifications"]}
+          {notifications}
           form={pageData["mutateNotificationForm"]}
           externalModal={notificationModal}
           useModalInstead
           buttonClass="btn btn-circle bg-base-200 relative aspect-square size-10 !p-0"
         >
-          <div let:unreadCount class="indicator">
-            {#if unreadCount > 0}
-              <span
-                class="translate badge indicator-item badge-primary badge-xs translate-x-0 translate-y-0"
-              ></span>
-            {/if}
+          {#await notifications}
             <span class="i-mdi-bell-outline size-7" />
-          </div>
+          {:then notifications}
+            {@const unreadCount = notifications.filter(
+              (data) => data.readAt == null,
+            ).length}
+            <div class="indicator">
+              {#if unreadCount > 0}
+                <span
+                  class="translate badge indicator-item badge-primary badge-xs translate-x-0 translate-y-0"
+                ></span>
+              {/if}
+              <span class="i-mdi-bell-outline size-7" />
+            </div>
+          {/await}
         </NotificationBell>
       {/if}
       <PostRevealAccountMenu />

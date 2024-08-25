@@ -35,7 +35,7 @@
       </li>
       <li>
         <a href="/nollning">
-          <NavIcon class="text-inherit" icon="i-mdi-cloud" />
+          <NavIcon class="text-inherit" icon="i-mdi-cloud-outline" />
           {m.landing_theIntroduction()}
         </a>
       </li>
