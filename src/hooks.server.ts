@@ -161,9 +161,15 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
 
   if (
     i18n.route(event.url.pathname) == "/nollning" &&
-    Date.now() < Date.parse("2024-09-04T23:00:00")
+    Date.now() < Date.parse("2024-09-06T23:00:00")
   ) {
     redirect(302, "/nolla");
+  }
+  if (
+    i18n.route(event.url.pathname) == "/nolla" &&
+    Date.now() > Date.parse("2024-09-06T23:00:00")
+  ) {
+    redirect(302, "/nollning");
   }
 
   return resolve(event);
