@@ -3,6 +3,7 @@
   // The format is like this: Definition - description\nDefinition - description
   import { availableLanguageTags, languageTag } from "$paraglide/runtime";
   type Lang = (typeof availableLanguageTags)[number];
+
   const wordBank: Array<{ sv: string } & Partial<Record<Lang, string>>> = [
     { sv: "AFB - Förser studenterna med studentbostäder." },
     { sv: "AF-borgen - Plats för bal och spex." },
@@ -89,7 +90,7 @@
     {
       sv: "ön Øn - Ön i mitten av sjön Sjøn. Oftast obebodd, utom under Regattan, då den är så överbefolkad att den nästan sjunker. ",
     },
-    { sv: "Øverpeppare - Pepparnas ledare." },
+    { sv: "Øverpeppare - Pepparnas mamma och pappa." },
   ];
   const wordList = wordBank.map((item) => {
     const word = item[languageTag()] ?? item.sv;

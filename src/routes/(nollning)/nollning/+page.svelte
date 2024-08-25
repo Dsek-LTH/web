@@ -93,19 +93,27 @@
   <section class="flex flex-col">
     <h3 class="page-title mb-4 text-secondary">Nollningspolicy</h3>
     <p class="nolla-prose">
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit. In interdum
-      venenatis faucibus. Praesent dictum iaculis iaculis. Aliquam nulla magna,
-      venenatis sit amet mauris sed, pharetra consectetur urna. Class aptent
-      taciti sociosqu ad litora torquent per conubia nostra, per inceptos
-      himenaeos. Phasellus non congue leo. Duis malesuada commodo arcu eu
-      consectetur. Morbi aliquam rhoncus tellus ac tempus. Suspendisse blandit
-      augue nec massa semper semper nec vitae erat.
+      Alla som deltar i Nollningen ska följa denna nollepolicy:
     </p>
+    <ul>
+      <li>Att delta i Nollningen är frivilligt.</li>
+      <li>Aktiviteterna/verksamheten får inte störa allmänheten.</li>
+      <li>Deltagare ska respektera eventansvarigas direktiv och varandra.</li>
+      <li>
+        Inga handlingar som kan leda till att någon känner sig utnyttjad eller
+        obekväm ska utföras.
+      </li>
+    </ul>
     {#if data.revealTheme}
+      <p class="nolla-prose">
+        Läs mer om dina rättigheter under nollningen som ny student
+      </p>
       <!-- TODO: Link -->
       <a href="/" class="btn-primary-dark btn self-center"
         >Läs Nollekontraktet</a
       >
     {/if}
   </section>
+
+  <!-- TODO: Phaddergrupper -->
 </article>
