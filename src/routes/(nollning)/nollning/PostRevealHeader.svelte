@@ -54,7 +54,7 @@
 
   <div class="flex w-[5.5rem] justify-end gap-2">
     {#if $page.data.user && $page.data.member}
-      {#if pageData["notifications"] !== null}
+      {#if notifications !== null}
         <NotificationBell
           {notifications}
           form={pageData["mutateNotificationForm"]}

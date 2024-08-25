@@ -7,32 +7,43 @@
   import type { PostRevealLayoutData } from "./+layout.server";
   import { getFullName } from "$lib/utils/client/member";
   import { POST_REVEAL_PREFIX } from "$lib/components/postReveal/types";
+  import LanguageSwitcher from "../../LanguageSwitcher.svelte";
+  import type { PhadderGroup } from "@prisma/client";
 
   $: pageData = $page.data as typeof $page.data & PostRevealLayoutData;
   $: member = $page.data.member;
+  $: nollaInGroup = $page.data["phadderGroup"] as Promise<
+    Pick<PhadderGroup, "name"> | undefined
+  >;
 
-  let notificationModal: HTMLDialogElement;
+  $: notifications = pageData["notifications"];
 </script>
 
 <!-- notification and account -->
 <div class="absolute right-0 flex gap-2">
   {#if $page.data.user && $page.data.member}
-    {#if pageData["notifications"] !== null}
+    {#if notifications !== null}
       <NotificationBell
-        notifications={pageData["notifications"]}
+        postReveal
+        {notifications}
         form={pageData["mutateNotificationForm"]}
-        externalModal={notificationModal}
-        useModalInstead
         buttonClass="btn btn-circle bg-base-200 relative aspect-square size-10 !p-0"
       >
-        <div let:unreadCount class="indicator">
-          {#if unreadCount > 0}
-            <span
-              class="translate badge indicator-item badge-primary badge-xs translate-x-0 translate-y-0"
-            ></span>
-          {/if}
+        {#await notifications}
           <span class="i-mdi-bell-outline size-7" />
-        </div>
+        {:then notifications}
+          {@const unreadCount = notifications.filter(
+            (data) => data.readAt == null,
+          ).length}
+          <div class="indicator">
+            {#if unreadCount > 0}
+              <span
+                class="translate badge indicator-item badge-primary badge-xs translate-x-0 translate-y-0"
+              ></span>
+            {/if}
+            <span class="i-mdi-bell-outline size-7" />
+          </div>
+        {/await}
       </NotificationBell>
     {/if}
     <div class="dropdown dropdown-end dropdown-hover">
@@ -49,29 +60,43 @@
         tabindex="0"
         class="menu dropdown-content z-[1] w-52 rounded-box bg-base-200 p-2 shadow"
       >
-        <li>
-          <span>
-            {member &&
-              getFullName({
-                ...member,
-                nickname: null,
-              })}
-          </span>
-        </li>
+        {#if member}
+          <li class="pointer-events-none">
+            <div class="flex !flex-col items-start gap-0">
+              <span class="line-clamp-1 text-left font-medium">
+                {getFullName(member)}
+              </span>
+              {#await nollaInGroup then group}
+                {#if group}
+                  <span class="text-neutral">{group?.name}</span>
+                {/if}
+              {/await}
+            </div>
+          </li>
+        {/if}
         <div class="divider m-0"></div>
         <li>
-          <a href="/members/me">Profil</a>
+          <a href="/members/me"
+            ><span class="i-mdi-account text-2xl" /> Profil</a
+          >
         </li>
         <li>
-          <a href="{POST_REVEAL_PREFIX}/settings">Inställningar</a>
+          <a href="{POST_REVEAL_PREFIX}/settings"
+            ><span class="i-mdi-settings-outline text-2xl" /> Inställningar</a
+          >
         </li>
         <li>
-          <a href="{POST_REVEAL_PREFIX}/shop/inventory">Mina biljetter</a>
+          <a href="{POST_REVEAL_PREFIX}/shop/inventory"
+            ><span class="i-mdi-treasure-chest-outline text-2xl" /> Mina biljetter</a
+          >
         </li>
         <li>
           <a href="/">
-            Till dsek.se <span class="i-mdi-arrow-right" />
+            D-sek <span class="i-mdi-arrow-right" />
           </a>
+        </li>
+        <li>
+          <LanguageSwitcher />
         </li>
       </ul>
     </div>
