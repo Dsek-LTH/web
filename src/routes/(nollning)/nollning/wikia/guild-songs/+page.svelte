@@ -5,7 +5,6 @@
   import v from "./v.webp";
   import a from "./a.webp";
   import k from "./k.webp";
-  import d from "./d.webp";
   import ing from "./ing.webp";
   import w from "./w.webp";
   import i from "./i.webp";
@@ -23,7 +22,7 @@ Nolla, nolla, nolla, nolla, nolla (x3)
 Nolla, nolla, nolla FÄLADEN!
     </pre>
   </li>
-  <li class="bg-primary" style="background-image: url('{d}')">
+  <li class="bg-primary" style="background-image: url('/d.webp')">
     <h1>D</h1>
     <ul class="list-disc">
       <li>

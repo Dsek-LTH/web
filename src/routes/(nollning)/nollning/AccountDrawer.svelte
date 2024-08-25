@@ -78,7 +78,7 @@
           >
         </li>
       </ul>
-      <a href="/" class="btn-primary-dark btn mt-8 self-stretch">
+      <a href="/home" class="btn-primary-dark btn mt-8 self-stretch">
         D-sek <span class="i-mdi-arrow-right" />
       </a>
       <LanguageSwitcher class=" mt-8 bg-base-200" />

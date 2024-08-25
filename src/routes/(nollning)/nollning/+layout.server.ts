@@ -1,4 +1,5 @@
 import {
+  APP_PREFERRED_PAGE_COOKIE,
   POST_REVEAL_PREFIX,
   REVEAL_LAUNCH_DATE,
 } from "$lib/components/postReveal/types";
@@ -10,7 +11,7 @@ import { notificationSchema } from "$lib/zod/schemas";
 import { superValidate } from "sveltekit-superforms";
 import { zod } from "sveltekit-superforms/adapters";
 
-export const load = async ({ locals }) => {
+export const load = async ({ locals, cookies }) => {
   const { prisma, user, member } = locals;
 
   const revealTheme =
@@ -29,6 +30,11 @@ export const load = async ({ locals }) => {
           },
         })
       : null;
+
+  if (locals.isApp)
+    cookies.set(APP_PREFERRED_PAGE_COOKIE, "nollning", {
+      path: "/",
+    });
 
   return {
     revealTheme,
