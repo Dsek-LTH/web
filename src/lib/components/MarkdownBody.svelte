@@ -1,5 +1,4 @@
 <script lang="ts">
-  import DOMPurify from "isomorphic-dompurify";
   import { marked } from "marked";
   import { twMerge } from "tailwind-merge";
 
@@ -16,5 +15,5 @@
 >
   <slot />
   <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized client-side -->
-  {@html marked(DOMPurify.sanitize(body))}
+  {@html marked(body)}
 </section>

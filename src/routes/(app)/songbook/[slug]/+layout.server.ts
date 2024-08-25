@@ -1,16 +1,15 @@
+import * as m from "$paraglide/messages";
 import { error } from "@sveltejs/kit";
-import DOMPurify from "isomorphic-dompurify";
-import { fixSongText } from "../helpers";
-import { updateSongSchema } from "../schema";
-import { superValidate } from "sveltekit-superforms/server";
 import { zod } from "sveltekit-superforms/adapters";
+import { superValidate } from "sveltekit-superforms/server";
 import {
   canAccessDeletedSongs,
+  fixSongText,
   getExistingCategories,
   getExistingMelodies,
 } from "../helpers";
+import { updateSongSchema } from "../schema";
 import type { LayoutServerLoad } from "./$types";
-import * as m from "$paraglide/messages";
 
 export const load: LayoutServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
@@ -46,8 +45,8 @@ export const load: LayoutServerLoad = async ({ locals, params }) => {
   return {
     song: {
       ...song,
-      title: DOMPurify.sanitize(fixSongText(song.title)),
-      lyrics: DOMPurify.sanitize(fixSongText(song.lyrics)),
+      title: fixSongText(song.title),
+      lyrics: fixSongText(song.lyrics),
     },
     updateForm: form,
     existingCategories,

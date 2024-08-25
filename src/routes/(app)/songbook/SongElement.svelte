@@ -2,11 +2,10 @@
   import { page } from "$app/stores";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
-  import type { Song } from "@prisma/client";
-  import DOMPurify from "isomorphic-dompurify";
-  import { twMerge } from "tailwind-merge";
   import * as m from "$paraglide/messages";
   import { languageTag } from "$paraglide/runtime";
+  import type { Song } from "@prisma/client";
+  import { twMerge } from "tailwind-merge";
   export let song: Song;
   let clazz = "";
   export { clazz as class };
@@ -28,7 +27,7 @@
   <div class="flex justify-between">
     <h2 class="my-3 text-2xl font-bold">
       <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized client-side -->
-      {@html DOMPurify.sanitize(song.title)}
+      {@html song.title}
     </h2>
 
     <p class="text-right text-xs text-gray-500">
@@ -51,6 +50,6 @@
   <p class="mb-4 italic">{m.songbook_melody()}: {song.melody}</p>
   <p class="whitespace-pre-line">
     <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized client-side -->
-    {@html DOMPurify.sanitize(song.lyrics)}
+    {@html song.lyrics}
   </p>
 </article>

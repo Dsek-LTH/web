@@ -3,6 +3,7 @@ import apiNames from "$lib/utils/apiNames";
 import { isAuthorized } from "$lib/utils/authorization";
 import type { PrismaClient } from "@prisma/client";
 import type { AuthUser } from "@zenstackhq/runtime";
+import DOMPurify from "isomorphic-dompurify";
 
 export const updateMarkdown = async (
   user: AuthUser,
@@ -25,8 +26,10 @@ export const updateMarkdown = async (
       name: markdown.name,
     },
     data: {
-      markdown: markdown.markdown,
-      markdownEn: markdown.markdownEn,
+      markdown: DOMPurify.sanitize(markdown.markdown),
+      markdownEn: markdown.markdownEn
+        ? DOMPurify.sanitize(markdown.markdownEn)
+        : markdown.markdownEn,
     },
   });
 };

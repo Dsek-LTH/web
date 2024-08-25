@@ -19,7 +19,7 @@ export const load: PageServerLoad = async ({ locals, depends }) => {
       };
   const allTickets = await getTickets(prisma, identification);
   if (locals.isApp && memberId) {
-    const shopItemCounts = await countUserShopItems(prisma, user);
+    const shopItemCounts = countUserShopItems(prisma, user);
     return {
       shopItemCounts,
       tickets: allTickets,

@@ -2,19 +2,17 @@
   import { page } from "$app/stores";
   import LoadingButton from "$lib/components/LoadingButton.svelte";
   import NavIcon from "$lib/components/NavIcon.svelte";
+  import NotificationModal from "$lib/components/NotificationModal.svelte";
   import { pageTitle } from "$lib/stores/pageTitle";
   import { i18n } from "$lib/utils/i18n";
-  import type { NotificationGroup } from "$lib/utils/notifications/group";
-  import type { NotificationSchema } from "$lib/zod/schemas";
   import { signIn } from "@auth/sveltekit/client";
-  import type { SuperValidated } from "sveltekit-superforms";
+  import type { GlobalAppLoadData } from "./(app)/+layout.server";
   import NotificationBell from "./NotificationBell.svelte";
   import { appBottomNavRoutes, getRoutes } from "./routes";
-  import NotificationModal from "$lib/components/NotificationModal.svelte";
-  $: notifications = $page.data["notifications"] as NotificationGroup[] | null;
-  $: mutateNotificationForm = $page.data[
-    "mutateNotificationForm"
-  ] as SuperValidated<NotificationSchema> | null;
+
+  $: pageData = $page.data as typeof $page.data & GlobalAppLoadData;
+  $: notifications = pageData["notifications"];
+  $: mutateNotificationForm = pageData["mutateNotificationForm"];
   $: routes = getRoutes();
   $: bottomNavRoutes = appBottomNavRoutes(routes).map((route) => route.path);
   $: canGoBack = !bottomNavRoutes.includes(i18n.route($page.url.pathname));

@@ -10,6 +10,8 @@
   import AccountDrawer from "./AccountDrawer.svelte";
   import PostRevealAccountMenu from "./PostRevealAccountMenu.svelte";
   import { appBottomNavRoutes, getPostRevealRoute, getRoutes } from "./routes";
+  import type { PostRevealLayoutData } from "./+layout.server";
+
   $: routes = getRoutes();
   $: bottomNavRoutes = appBottomNavRoutes(routes);
   $: currentRoute = getPostRevealRoute(i18n.route($page.url.pathname));
@@ -18,6 +20,7 @@
       ? route.isCurrentRoute(currentRoute)
       : route.path === currentRoute,
   );
+  $: pageData = $page.data as typeof $page.data & PostRevealLayoutData;
   $: topInsets = $page.data.appInfo?.insets?.top ?? 0;
 
   let notificationModal: HTMLDialogElement;
@@ -49,22 +52,24 @@
 
   <div class="flex w-[5.5rem] justify-end gap-2">
     {#if $page.data.user && $page.data.member}
-      <NotificationBell
-        notifications={$page.data["notifications"]}
-        form={$page.data["mutateNotificationForm"]}
-        externalModal={notificationModal}
-        useModalInstead
-        buttonClass="btn btn-circle bg-base-200 relative aspect-square size-10 !p-0"
-      >
-        <div let:unreadCount class="indicator">
-          {#if unreadCount > 0}
-            <span
-              class="translate badge indicator-item badge-primary badge-xs translate-x-0 translate-y-0"
-            ></span>
-          {/if}
-          <span class="i-mdi-bell-outline size-7" />
-        </div>
-      </NotificationBell>
+      {#if pageData["notifications"] !== null}
+        <NotificationBell
+          notifications={pageData["notifications"]}
+          form={pageData["mutateNotificationForm"]}
+          externalModal={notificationModal}
+          useModalInstead
+          buttonClass="btn btn-circle bg-base-200 relative aspect-square size-10 !p-0"
+        >
+          <div let:unreadCount class="indicator">
+            {#if unreadCount > 0}
+              <span
+                class="translate badge indicator-item badge-primary badge-xs translate-x-0 translate-y-0"
+              ></span>
+            {/if}
+            <span class="i-mdi-bell-outline size-7" />
+          </div>
+        </NotificationBell>
+      {/if}
       <PostRevealAccountMenu />
     {:else}
       <LoadingButton

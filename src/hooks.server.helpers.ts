@@ -8,6 +8,7 @@ const fetchAccessPolicies = async (
   prisma: PrismaClient,
   roles: string[],
   studentId?: string,
+  classYear?: number,
 ) => {
   const isNollning = await isNollningPeriod();
   return prisma.accessPolicy
@@ -26,6 +27,9 @@ const fetchAccessPolicies = async (
       if (!isNollning && !policies.includes(apiNames.MEMBER.SEE_STABEN)) {
         policies.push(apiNames.MEMBER.SEE_STABEN);
       }
+      if (isNollning && classYear === new Date().getFullYear()) {
+        policies.push("nolla");
+      }
       return policies;
     });
 };
@@ -36,6 +40,9 @@ const accessPoliciesCache: { policies: string[]; lastUpdated: number | null } =
     policies: [],
     lastUpdated: null,
   };
+const hasCacheExpired = (cache: typeof accessPoliciesCache) =>
+  !cache.lastUpdated || // no cache
+  Date.now() - cache.lastUpdated > CACHE_TTL;
 
 /**
  * @param prisma
@@ -46,6 +53,7 @@ export const getAccessPolicies = async (
   prisma: PrismaClient,
   studentId?: string,
   groupList?: string[],
+  classYear?: number,
 ) => {
   // If we're running in development mode and we're signed in,
   // give all available policies to the user.
@@ -56,21 +64,19 @@ export const getAccessPolicies = async (
 
   // only has *, i.e logged out user
   if (roles.length === 1) {
-    if (
-      accessPoliciesCache.lastUpdated &&
-      Date.now() - accessPoliciesCache.lastUpdated > CACHE_TTL
-    ) {
+    if (hasCacheExpired(accessPoliciesCache)) {
       accessPoliciesCache.policies = await fetchAccessPolicies(
         prisma,
         roles,
         studentId,
+        classYear,
       );
       accessPoliciesCache.lastUpdated = Date.now();
     }
     return accessPoliciesCache.policies;
   }
 
-  return await fetchAccessPolicies(prisma, roles, studentId);
+  return await fetchAccessPolicies(prisma, roles, studentId, classYear);
 };
 
 /** Should only be used in development mode. */

@@ -2,13 +2,12 @@
   import Autocomplete from "$lib/components/Autocomplete.svelte";
   import Input from "$lib/components/Input.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import apiNames from "$lib/utils/apiNames";
-  import DOMPurify from "isomorphic-dompurify";
-  import { superForm } from "$lib/utils/client/superForms";
   import { isAuthorized } from "$lib/utils/authorization";
+  import { superForm } from "$lib/utils/client/superForms";
   import * as m from "$paraglide/messages";
   import type { PageData } from "./$types";
-  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   export let data: PageData;
 
   const {
@@ -112,7 +111,7 @@
     <p class="py-4">
       {m.songbook_areYouSure()}
       <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized client-side -->
-      <b class="capitalize">{@html DOMPurify.sanitize(data.song.title)}</b>?
+      <b class="capitalize">{@html data.song.title}</b>?
     </p>
     <div class="modal-action">
       <form method="POST" action="?/delete" class="form-control gap-2">

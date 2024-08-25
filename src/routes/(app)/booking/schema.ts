@@ -5,8 +5,12 @@ import * as m from "$paraglide/messages";
 export const bookingSchema = z
   .object({
     name: z.string().min(1),
-    start: z.string().default(() => dayjs().format("YYYY-MM-DDTHH:MM")),
-    end: z.string().default(() => dayjs().format("YYYY-MM-DDTHH:MM")),
+    start: z
+      .string()
+      .default(() => dayjs().startOf("hour").format("YYYY-MM-DDTHH:mm")),
+    end: z
+      .string()
+      .default(() => dayjs().endOf("hour").format("YYYY-MM-DDTHH:mm")),
     bookables: z.array(z.string()).min(1),
   })
   .refine((data) => dayjs(data.start).isBefore(dayjs(data.end)), {
