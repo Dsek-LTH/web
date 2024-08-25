@@ -50,10 +50,11 @@
     style="margin-top: -{newLines * 1.2}em"
   >
     <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-    {@html name.replace("\n", "<br />")}
+    {@html name.replaceAll("\n", "<br />")}
   </h3>
   <p class="nolla-prose text-center">
-    {body}
+    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+    {@html body.replaceAll("\n", "<br />")}
   </p>
   <slot />
 </div>
