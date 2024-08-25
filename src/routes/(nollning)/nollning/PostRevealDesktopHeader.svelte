@@ -6,12 +6,15 @@
   import { signIn } from "@auth/sveltekit/client";
   import NotificationBell from "../../NotificationBell.svelte";
   import AccountDrawer from "./AccountDrawer.svelte";
-  import PostRevealAccountMenu from "./PostRevealAccountMenu.svelte";
   import { getRoutes } from "./routes";
   import type { PostRevealLayoutData } from "./+layout.server";
+  import { getFullName } from "$lib/utils/client/member";
+  import { POST_REVEAL_PREFIX } from "$lib/components/postReveal/types";
+  import PostRevealAccountMenu from "./PostRevealAccountMenu.svelte";
 
   $: routes = getRoutes();
   $: pageData = $page.data as typeof $page.data & PostRevealLayoutData;
+  $: member = $page.data.member;
 
   const prefix = "/nollning";
   let notificationModal: HTMLDialogElement;
@@ -50,7 +53,46 @@
             </div>
           </NotificationBell>
         {/if}
-        <PostRevealAccountMenu />
+        <div class="dropdown dropdown-end dropdown-hover">
+          <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+          <!-- svelte-ignore a11y-label-has-associated-control -->
+          <label
+            tabindex="0"
+            class="btn btn-circle aspect-square size-10 bg-base-200 !p-0"
+          >
+            <span class="i-mdi-account-outline size-8" />
+          </label>
+          <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+          <ul
+            tabindex="0"
+            class="menu dropdown-content z-[1] w-52 rounded-box bg-base-200 p-2 shadow"
+          >
+            <li>
+              <span>
+                {member &&
+                  getFullName({
+                    ...member,
+                    nickname: null,
+                  })}
+              </span>
+            </li>
+            <div class="divider m-0"></div>
+            <li>
+              <a href="/members/me">Profil</a>
+            </li>
+            <li>
+              <a href="{POST_REVEAL_PREFIX}/settings">Inställningar</a>
+            </li>
+            <li>
+              <a href="{POST_REVEAL_PREFIX}/shop/inventory">Mina biljetter</a>
+            </li>
+            <li>
+              <a href="/">
+                Till dsek.se <span class="i-mdi-arrow-right" />
+              </a>
+            </li>
+          </ul>
+        </div>
       {:else}
         <LoadingButton
           class="btn btn-ghost gap-0"
@@ -62,4 +104,3 @@
     </div>
   </div>
 </header>
-<AccountDrawer />
