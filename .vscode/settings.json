@@ -31,4 +31,5 @@
     "**/.svelte-kit": true,
     "**/pnpm-lock.yaml": true,
   },
+  "typescript.preferences.importModuleSpecifierEnding": "minimal" // until next TS release https://github.com/microsoft/TypeScript/pull/59564
 }

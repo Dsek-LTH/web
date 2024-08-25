@@ -1,10 +1,10 @@
-import { Client } from "minio";
 import { env } from "$env/dynamic/private";
 import {
   PUBLIC_MINIO_ENDPOINT,
   PUBLIC_MINIO_PORT,
   PUBLIC_MINIO_USE_SSL,
 } from "$env/static/public";
+import { Client } from "minio";
 
 export const MINIO_BASE_URL = (() => {
   if (PUBLIC_MINIO_PORT === "443") return `https://${PUBLIC_MINIO_ENDPOINT}/`;

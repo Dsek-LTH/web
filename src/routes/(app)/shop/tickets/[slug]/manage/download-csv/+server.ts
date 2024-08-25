@@ -1,7 +1,7 @@
 import type { Event, ItemQuestion, Shoppable, Ticket } from "@prisma/client";
 import dayjs from "dayjs";
-import { loadTicketData } from "../loadTicketData.js";
-import type { ConsumableRowData } from "../types.js";
+import { loadTicketData } from "../loadTicketData";
+import type { ConsumableRowData } from "../types";
 
 export const GET = async ({ locals, params }) => {
   const { user, prisma } = locals;

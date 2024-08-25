@@ -1,5 +1,6 @@
 import { BASIC_EVENT_FILTER } from "$lib/events/events";
 import type { Prisma, PrismaClient } from "@prisma/client";
+import * as m from "$paraglide/messages";
 
 type EventFilters = {
   tags?: string[];
@@ -24,88 +25,91 @@ const include = {
 export const getAllEvents = async (
   prisma: PrismaClient,
   filters: EventFilters = { page: 0, pageSize: 10 },
+  baseFilter = true,
 ): Promise<[EventWithIncludes[], number]> => {
   const pageNumber = filters.page ?? 0;
   const pageSize = filters.pageSize ?? 10;
 
   const base = BASIC_EVENT_FILTER();
   const where: Prisma.EventWhereInput = {
-    ...base,
-    endDatetime: filters.pastEvents
-      ? {
-          lte: new Date(),
-        }
-      : {
-          gte: new Date(),
-        },
-    // search:
-    ...(filters.search && filters.search.length > 0
-      ? {
-          OR: [
-            {
-              title: {
-                contains: filters.search,
-                mode: "insensitive",
-              },
+    AND: [
+      baseFilter ? base : {},
+      {
+        endDatetime: filters.pastEvents
+          ? {
+              lte: new Date(),
+            }
+          : {
+              gte: new Date(),
             },
-            {
-              titleEn: {
-                contains: filters.search,
-                mode: "insensitive",
-              },
-            },
-            {
-              shortDescription: {
-                contains: filters.search,
-                mode: "insensitive",
-              },
-            },
-            {
-              shortDescriptionEn: {
-                contains: filters.search,
-                mode: "insensitive",
-              },
-            },
-            {
-              description: {
-                contains: filters.search,
-                mode: "insensitive",
-              },
-            },
-            {
-              descriptionEn: {
-                contains: filters.search,
-                mode: "insensitive",
-              },
-            },
-          ],
-        }
-      : {}),
-    // tags
-    ...(filters.tags && filters.tags.length > 0
-      ? {
-          tags: {
-            ...base.tags,
-            some: {
+        // search:
+        ...(filters.search && filters.search.length > 0
+          ? {
               OR: [
                 {
-                  name: {
-                    in: filters.tags,
+                  title: {
+                    contains: filters.search,
                     mode: "insensitive",
                   },
                 },
                 {
-                  nameEn: {
-                    in: filters.tags,
+                  titleEn: {
+                    contains: filters.search,
                     mode: "insensitive",
                   },
                 },
-                ...(base.tags?.some ? [base.tags.some] : []),
+                {
+                  shortDescription: {
+                    contains: filters.search,
+                    mode: "insensitive",
+                  },
+                },
+                {
+                  shortDescriptionEn: {
+                    contains: filters.search,
+                    mode: "insensitive",
+                  },
+                },
+                {
+                  description: {
+                    contains: filters.search,
+                    mode: "insensitive",
+                  },
+                },
+                {
+                  descriptionEn: {
+                    contains: filters.search,
+                    mode: "insensitive",
+                  },
+                },
               ],
-            },
-          },
-        }
-      : {}),
+            }
+          : {}),
+        // tags
+        ...(filters.tags && filters.tags.length > 0
+          ? {
+              tags: {
+                some: {
+                  OR: [
+                    {
+                      name: {
+                        in: filters.tags,
+                        mode: "insensitive",
+                      },
+                    },
+                    {
+                      nameEn: {
+                        in: filters.tags,
+                        mode: "insensitive",
+                      },
+                    },
+                  ],
+                },
+              },
+            }
+          : {}),
+      },
+    ],
   };
   const [events, count] = await prisma.$transaction(async (tx) => {
     const events = tx.event.findMany({
@@ -127,7 +131,6 @@ export const getEvent = async (prisma: PrismaClient, slug: string) => {
   const response = await prisma.event.findUnique({
     where: {
       slug,
-      OR: [{ removedAt: { gt: new Date() } }, { removedAt: null }],
     },
     include,
   });
@@ -137,3 +140,11 @@ export const getEvent = async (prisma: PrismaClient, slug: string) => {
 export type EventWithIncludes = NonNullable<
   Awaited<ReturnType<typeof getEvent>>
 >;
+
+export const getAndValidatePage = (url: URL) => {
+  const page = url.searchParams.get("page");
+  if (page && Number.isNaN(Number.parseInt(page))) {
+    throw new Error(m.events_errors_invalidPage());
+  }
+  return page ? Math.max(Number.parseInt(page) - 1, 0) : undefined;
+};

@@ -114,6 +114,7 @@
     field="image"
     label="Bild"
     onChange={onFileSelected}
+    accept="image/*"
   />
 
   <slot name="form-end" />

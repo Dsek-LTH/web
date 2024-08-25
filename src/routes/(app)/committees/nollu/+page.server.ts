@@ -16,6 +16,9 @@ export const load: PageServerLoad = async ({ locals, url }) => {
         },
       },
     },
+    orderBy: {
+      createdAt: "asc",
+    },
   });
   return committeeLoad(prisma, "nollu", url).then(async (data) => ({
     ...data,

@@ -25,7 +25,7 @@
 
 {#if !data.isApp}
   <a
-    class="btn btn-circle btn-primary fixed bottom-4 right-4 z-20"
+    class="btn btn-circle btn-primary fixed bottom-4 left-4 z-20"
     href="https://forms.gle/skDsfLGyQHuCYGcR7"
     target="_blank"
   >
@@ -40,7 +40,7 @@
   />
 {/each}
 
-<main class="flex-1" class:pb-16={data.isApp}>
+<main class="w-full flex-1 overflow-x-auto" class:pb-16={data.isApp}>
   <slot />
 </main>
 <Toast />

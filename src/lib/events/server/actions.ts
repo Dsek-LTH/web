@@ -13,6 +13,7 @@ import * as m from "$paraglide/messages";
 import { error, type Action } from "@sveltejs/kit";
 import type { AuthUser } from "@zenstackhq/runtime";
 import dayjs from "dayjs";
+import DOMPurify from "isomorphic-dompurify";
 import { fail, superValidate } from "sveltekit-superforms";
 import { zod } from "sveltekit-superforms/adapters";
 
@@ -63,6 +64,11 @@ export const createEvent: Action = async (event) => {
     .map((tag) => ({
       id: tag.id,
     }));
+  // sanitize
+  eventData.description = DOMPurify.sanitize(eventData.description);
+  eventData.descriptionEn = eventData.descriptionEn
+    ? DOMPurify.sanitize(eventData.descriptionEn)
+    : eventData.descriptionEn;
 
   if (isRecurring) {
     let recurType: RecurringType;
@@ -170,6 +176,11 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
    **/
   const { recurringType, separationCount, tags, image, ...eventData } =
     recurringEventData;
+
+  eventData.description = DOMPurify.sanitize(eventData.description);
+  eventData.descriptionEn = eventData.descriptionEn
+    ? DOMPurify.sanitize(eventData.descriptionEn)
+    : eventData.descriptionEn;
   const existingEvent = await prisma.event.findUnique({
     where: {
       slug: slug,

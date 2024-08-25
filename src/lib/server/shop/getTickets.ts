@@ -159,12 +159,13 @@ export const getEventsWithTickets = async (
   prisma: PrismaClient,
   identification: ShopIdentification,
   filters: Prisma.EventWhereInput = {},
+  nollningMode: boolean | null = false,
 ) => {
   const dbId = dbIdentification(identification);
 
   const events = await prisma.event.findMany({
     where: {
-      ...BASIC_EVENT_FILTER(true),
+      ...BASIC_EVENT_FILTER(nollningMode),
       ...filters,
     },
     orderBy: {

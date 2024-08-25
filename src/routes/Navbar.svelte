@@ -1,24 +1,21 @@
 <script lang="ts">
   import { page } from "$app/stores";
-  import type { UserShopItemCounts } from "$lib/server/shop/countUserShopItems";
+  import LoadingButton from "$lib/components/LoadingButton.svelte";
+  import NavIcon from "$lib/components/NavIcon.svelte";
+  import Search from "$lib/components/Search.svelte";
   import { isAuthorized } from "$lib/utils/authorization";
-  import type { NotificationSchema } from "$lib/zod/schemas";
   import * as m from "$paraglide/messages";
   import { signIn } from "@auth/sveltekit/client";
-  import type { SuperValidated } from "sveltekit-superforms";
+  import type { GlobalAppLoadData } from "./(app)/+layout.server";
   import DarkLightToggle from "./DarkLightToggle.svelte";
   import LanguageSwitcher from "./LanguageSwitcher.svelte";
-  import NavIcon from "$lib/components/NavIcon.svelte";
   import NotificationBell from "./NotificationBell.svelte";
   import UserMenu from "./UserMenu.svelte";
   import { getRoutes } from "./routes";
-  import LoadingButton from "$lib/components/LoadingButton.svelte";
-  import type { NotificationGroup } from "$lib/utils/notifications/group";
-  $: notifications = $page.data["notifications"] as NotificationGroup[] | null;
-  $: mutateNotificationForm = $page.data[
-    "mutateNotificationForm"
-  ] as SuperValidated<NotificationSchema> | null;
-  $: shopItemCounts = $page.data["shopItemCounts"] as UserShopItemCounts;
+  $: pageData = $page.data as typeof $page.data & GlobalAppLoadData;
+  $: notifications = pageData["notifications"];
+  $: mutateNotificationForm = pageData["mutateNotificationForm"];
+  $: shopItemCounts = pageData["shopItemCounts"];
   $: routes = getRoutes();
 </script>
 
@@ -27,7 +24,7 @@
 >
   <div class="container navbar mx-auto">
     <!-- Open drawer icon -->
-    <div class="block flex-1 xl:hidden">
+    <div class="block xl:hidden">
       <label
         for="main-drawer"
         aria-label="open sidebar"
@@ -36,6 +33,7 @@
         <span class="i-mdi-menu h-8 w-8 text-primary" />
       </label>
     </div>
+    <div class="block flex-1 bg-red-500 xl:hidden" />
 
     <!-- Navbar content -->
     <div class="container hidden flex-1 xl:block">
@@ -78,7 +76,7 @@
         {/if}
       {/each}
     </div>
-
+    <Search />
     <div class="flex">
       <div class="hidden xl:flex">
         <!-- This will be shown in the drawer instead. -->
@@ -86,10 +84,10 @@
         <LanguageSwitcher />
       </div>
 
+      {#if notifications !== null}
+        <NotificationBell {notifications} form={mutateNotificationForm} />
+      {/if}
       {#if $page.data.user && $page.data.member}
-        {#if notifications !== null && notifications !== undefined && mutateNotificationForm !== null}
-          <NotificationBell {notifications} form={mutateNotificationForm} />
-        {/if}
         <UserMenu
           user={$page.data.user}
           member={$page.data.member}

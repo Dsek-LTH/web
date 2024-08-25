@@ -1,10 +1,11 @@
-import { error, fail } from "@sveltejs/kit";
 import { redirect } from "$lib/utils/redirect";
-import { updateSongSchema } from "../../schema";
-import { setError, superValidate } from "sveltekit-superforms/server";
-import { zod } from "sveltekit-superforms/adapters";
-import type { Actions, PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
+import { error, fail } from "@sveltejs/kit";
+import DOMPurify from "isomorphic-dompurify";
+import { zod } from "sveltekit-superforms/adapters";
+import { setError, superValidate } from "sveltekit-superforms/server";
+import { updateSongSchema } from "../../schema";
+import type { Actions, PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async () => {
   const form = await superValidate(zod(updateSongSchema));
@@ -36,8 +37,8 @@ export const actions: Actions = {
         id: data.id,
       },
       data: {
-        title: data.title.trim(),
-        lyrics: data.lyrics.trim(),
+        title: DOMPurify.sanitize(data.title.trim()),
+        lyrics: DOMPurify.sanitize(data.lyrics.trim()),
         melody: data.melody.trim(),
         category: data.category.trim(),
         updatedAt: new Date(),

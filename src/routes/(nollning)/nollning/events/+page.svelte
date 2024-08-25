@@ -60,7 +60,11 @@
   </PostRevealSelect>
 </div>
 <div class="flex flex-col gap-4">
-  {#each events as event (event.id)}
-    <Event {event} />
-  {/each}
+  {#if events.length > 0}
+    {#each events as event (event.id)}
+      <Event {event} />
+    {/each}
+  {:else}
+    <span class="mt-8 text-center text-4xl">🤫</span>
+  {/if}
 </div>

@@ -1,4 +1,4 @@
-import { BASIC_ARTICLE_FILTER } from "$lib/news/articles.js";
+import { BASIC_ARTICLE_FILTER } from "$lib/news/articles";
 
 export const load = async ({ locals }) => {
   const { prisma } = locals;

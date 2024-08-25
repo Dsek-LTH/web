@@ -2,7 +2,7 @@
   import DateSpan from "./DateSpan.svelte";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import type { Event } from "@prisma/client";
-  import { getImageUrl } from "$lib/files/images";
+  import { getFileUrl } from "$lib/files/images";
   export let event: Pick<
     Event,
     | "title"
@@ -11,17 +11,24 @@
     | "shortDescription"
     | "description"
     | "imageUrl"
-  >;
+  > &
+    Partial<Pick<Event, "removedAt">>;
 </script>
 
 {#if event.imageUrl}
   <figure>
-    <img class="mx-auto" src={getImageUrl(event.imageUrl)} alt={event.title} />
+    <img class="mx-auto" src={getFileUrl(event.imageUrl)} alt={event.title} />
   </figure>
 {/if}
 
 <h1 class="text-2xl font-bold">
   {event.title}
+  {#if event.removedAt}
+    <span
+      class="badge badge-error badge-sm relative -top-1 !text-xs font-semibold"
+      >Raderat</span
+    >
+  {/if}
 </h1>
 
 <section class="flex flex-row justify-between">

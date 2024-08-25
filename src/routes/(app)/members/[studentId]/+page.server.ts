@@ -19,59 +19,64 @@ import { sendPing } from "./pings";
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
   const { studentId } = params;
-  const [memberResult, publishedArticlesResult] = await Promise.allSettled([
-    prisma.member.findUnique({
-      where: {
-        studentId: studentId,
-      },
-      include: {
-        nollaIn: true,
-        mandates: {
-          include: {
-            phadderIn: true,
-            position: {
-              include: {
-                committee: true,
+  const [memberResult, publishedArticlesResult, phadderGroupsResult] =
+    await Promise.allSettled([
+      prisma.member.findUnique({
+        where: {
+          studentId: studentId,
+        },
+        include: {
+          nollaIn: true,
+          mandates: {
+            include: {
+              phadderIn: true,
+              position: {
+                include: {
+                  committee: true,
+                },
               },
             },
           },
-        },
-        authoredEvents: {
-          orderBy: {
-            startDatetime: "desc",
+          authoredEvents: {
+            orderBy: {
+              startDatetime: "desc",
+            },
+            take: 5,
           },
-          take: 5,
+          doorAccessPolicies: {},
         },
-        doorAccessPolicies: {},
-      },
-    }),
-    prisma.article.findMany({
-      where: {
-        ...BASIC_ARTICLE_FILTER(),
-        author: {
-          type: {
-            not: "Custom",
-          },
-          member: {
-            studentId: studentId,
+      }),
+      prisma.article.findMany({
+        where: {
+          ...BASIC_ARTICLE_FILTER(),
+          author: {
+            type: {
+              not: "Custom",
+            },
+            member: {
+              studentId: studentId,
+            },
           },
         },
-      },
-      orderBy: {
-        publishedAt: "desc",
-      },
-      take: 5,
-    }),
-  ]);
-  if (memberResult.status === "rejected") {
+        orderBy: {
+          publishedAt: "desc",
+        },
+        take: 5,
+      }),
+      prisma.phadderGroup.findMany({
+        orderBy: {
+          year: "asc",
+        },
+      }),
+    ]);
+  if (memberResult.status === "rejected")
     throw error(500, m.members_errors_couldntFetchMember());
-  }
-  if (publishedArticlesResult.status === "rejected") {
+  if (publishedArticlesResult.status === "rejected")
     throw error(500, m.members_errors_couldntFetchArticles());
-  }
-  if (!memberResult.value) {
-    throw error(404, m.members_errors_memberNotFound());
-  }
+  if (!memberResult.value) throw error(404, m.members_errors_memberNotFound());
+  if (phadderGroupsResult.status === "rejected")
+    throw error(505, phadderGroupsResult.reason);
+
   const member = memberResult.value;
 
   const doorAccess =
@@ -92,6 +97,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
       doorAccess,
       publishedArticles: publishedArticlesResult.value ?? [],
       email,
+      phadderGroups: phadderGroupsResult.value,
       ping: user
         ? await prisma.ping.findFirst({
             where: {
@@ -122,6 +128,7 @@ const updateSchema = memberSchema
     foodPreference: true,
     classProgramme: true,
     classYear: true,
+    nollningGroupId: true,
   })
   .partial();
 

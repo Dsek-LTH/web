@@ -71,7 +71,11 @@
   <!-- Bio -->
   <article class="col-span-2 md:col-start-1 md:col-end-4 md:row-start-2">
     {#if isEditing}
-      <UpdateMemberForm bind:isEditing data={data.form} />
+      <UpdateMemberForm
+        bind:isEditing
+        data={data.form}
+        phadderGroups={data.phadderGroups}
+      />
     {:else if member.bio}
       <MarkdownBody body={member.bio}>
         {#if canEdit}

@@ -23,6 +23,7 @@
       <tr class="bg-base-200">
         <th>{m.news_tags_preview()}</th>
         <th>{m.news_tags_name()}</th>
+        <th>{m.news_tags_name()} (EN)</th>
         <th>{m.news_tags_color()}</th>
         <th />
       </tr>

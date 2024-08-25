@@ -42,7 +42,7 @@
       // payment failed, notify user
       if (error?.message) paymentError = error.message;
     } else {
-      console.log(paymentIntent.status, paymentIntent);
+      console.log(paymentIntent.status, paymentIntent, redirectPath);
       switch (paymentIntent.status) {
         case "succeeded":
           goto(`${redirectPath}?payment_intent=${paymentIntent.id}`, {
@@ -71,7 +71,7 @@
     stripe={untypedStripe}
     {clientSecret}
     bind:elements
-    theme="night"
+    theme={$page.data.theme === "light" ? "stripe" : "night"}
     variables={{
       colorPrimary: "#f280a1",
     }}

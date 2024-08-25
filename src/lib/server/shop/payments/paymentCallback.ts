@@ -23,6 +23,7 @@ const stripeCallbackLoad =
         {
           message: m.cart_payment_success(),
           type: "success",
+          id: `success-${payment_intent}`,
         },
         request,
       );

@@ -7,6 +7,7 @@ import {
 import { zod } from "sveltekit-superforms/adapters";
 
 import { z } from "zod";
+import DOMPurify from "isomorphic-dompurify";
 
 export const commentSchema = z.object({
   content: z.string().min(1),
@@ -38,7 +39,7 @@ export const commentAction =
                 studentId: user?.studentId,
               },
             },
-            content: form.data.content,
+            content: DOMPurify.sanitize(form.data.content),
             published: new Date(),
           },
         },

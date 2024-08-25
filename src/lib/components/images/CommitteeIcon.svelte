@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getImageUrl } from "$lib/files/images";
+  import { getFileUrl } from "$lib/files/images";
   import type { Committee } from "@prisma/client";
   import type { EventHandler } from "svelte/elements";
 
@@ -38,20 +38,20 @@
 
 {#if useMono}
   <img
-    src={getImageUrl(committee.monoImageUrl) ?? FALLBACK.mono}
+    src={getFileUrl(committee.monoImageUrl) ?? FALLBACK.mono}
     alt="{committee.name} icon"
     on:error={onError(FALLBACK.mono)}
   />
 {:else}
   <!-- dark/light support -->
   <img
-    src={getImageUrl(committee.darkImageUrl) ?? FALLBACK.color}
+    src={getFileUrl(committee.darkImageUrl) ?? FALLBACK.color}
     alt="{committee.name} icon"
     class="hidden dark:block"
     on:error={onError(FALLBACK.color)}
   />
   <img
-    src={getImageUrl(committee.lightImageUrl) ?? FALLBACK.color}
+    src={getFileUrl(committee.lightImageUrl) ?? FALLBACK.color}
     alt="{committee.name} icon"
     class="block dark:hidden"
     on:error={onError(FALLBACK.color)}

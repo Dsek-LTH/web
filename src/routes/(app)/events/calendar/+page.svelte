@@ -2,9 +2,8 @@
   import Calendar from "./Calendar.svelte";
   import * as m from "$paraglide/messages";
 
-  import type { PageData } from "./$types";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
-  export let data: PageData;
+  export let data;
 </script>
 
 <SetPageTitle title={m.events_calendar()} />

@@ -1,4 +1,4 @@
-import cartActions from "$lib/server/shop/cart/actions.js";
+import cartActions from "$lib/server/shop/cart/actions";
 import { cartLoadFunction } from "$lib/server/shop/cart/getCart";
 
 export const load = cartLoadFunction;

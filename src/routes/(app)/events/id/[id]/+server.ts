@@ -39,5 +39,5 @@ export const GET = async ({ locals, params }) => {
     });
     eventSlug = newSlug;
   }
-  throw redirect(308, eventLink({ id: event.id, slug: eventSlug })); // 308 is permanent redirect
+  throw redirect(302, eventLink({ id: event.id, slug: eventSlug })); // 308 is permanent redirect
 };

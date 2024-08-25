@@ -22,23 +22,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     include: {
       author: {
         include: {
-          member: {
-            include: {
-              mandates: {
-                where: {
-                  startDate: {
-                    lte: new Date(),
-                  },
-                  endDate: {
-                    gte: new Date(),
-                  },
-                },
-                include: {
-                  position: true,
-                },
-              },
-            },
-          },
+          member: true,
           mandate: {
             include: {
               position: true,
@@ -52,13 +36,33 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   });
   if (article?.author.id !== undefined) article.author.id = "";
   if (!article) throw error(404, m.news_errors_articleNotFound());
+  const at = article.createdAt;
+  const memberWithMandtes = await prisma.member.findUnique({
+    where: {
+      id: article?.author.memberId,
+    },
+    include: {
+      mandates: {
+        where: {
+          startDate: {
+            lte: at,
+          },
+          endDate: {
+            gte: at,
+          },
+        },
+        include: {
+          position: true,
+        },
+      },
+    },
+  });
 
-  const authorMemberWithMandates = article.author.member;
-  if (!authorMemberWithMandates)
+  if (!memberWithMandtes)
     throw error(500, m.news_errors_authorMemberNotFound());
   const authorOptions = await getArticleAuthorOptions(
     prisma,
-    authorMemberWithMandates,
+    memberWithMandtes,
   );
 
   return {

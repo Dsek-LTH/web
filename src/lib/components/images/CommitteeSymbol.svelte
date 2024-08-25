@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getImageUrl } from "$lib/files/images";
+  import { getFileUrl } from "$lib/files/images";
   import type { Committee } from "@prisma/client";
 
   export let committee: Pick<Committee, "symbolUrl" | "name">;
@@ -21,12 +21,12 @@
     class="relative aspect-square"
   >
     <img
-      src={getImageUrl(dark)}
+      src={getFileUrl(dark)}
       alt="{committee.name} symbol"
       class="absolute inset-0 hidden h-full w-full object-contain dark:block"
     />
     <img
-      src={getImageUrl(light)}
+      src={getFileUrl(light)}
       alt="{committee.name} symbol"
       class="absolute inset-0 h-full w-full object-contain dark:hidden"
     />
@@ -39,7 +39,7 @@
     class="aspect-square"
   >
     <img
-      src={getImageUrl(committee.symbolUrl)}
+      src={getFileUrl(committee.symbolUrl)}
       alt="{committee.name} symbol"
       class="h-full w-full object-contain"
     />

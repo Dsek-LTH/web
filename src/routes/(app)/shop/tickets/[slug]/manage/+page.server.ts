@@ -10,7 +10,7 @@ import { fail } from "@sveltejs/kit";
 import { zod } from "sveltekit-superforms/adapters";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
-import { loadTicketData } from "./loadTicketData.js";
+import { loadTicketData } from "./loadTicketData";
 
 export type ManagedTicket = Ticket &
   Shoppable & {

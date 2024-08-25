@@ -86,7 +86,7 @@ const { handle: authHandle } = SvelteKitAuth({
   },
 });
 
-const prismaClient = new PrismaClient();
+const prismaClient = authorizedPrismaClient;
 const databaseHandle: Handle = async ({ event, resolve }) => {
   const lang = isAvailableLanguageTag(event.locals.paraglide?.lang)
     ? event.locals.paraglide?.lang
@@ -150,6 +150,7 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
         prisma,
         session.user.student_id,
         session.user.group_list,
+        member.classYear ?? undefined,
       ),
     };
 

@@ -1,4 +1,4 @@
-import { phadderMandateFilter } from "$lib/nollning/groups/types.js";
+import { phadderMandateFilter } from "$lib/nollning/groups/types";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 import type { PrismaClient } from "@prisma/client";

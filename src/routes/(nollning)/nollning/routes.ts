@@ -13,9 +13,9 @@ export const getPostRevealRoute = (pathname: string) => {
 export const getRoutes = (): Route[] =>
   [
     {
-      title: "Start",
+      title: "Nollning",
       path: "/",
-      icon: "i-mdi-home-outline",
+      icon: "nollning-logo",
       accessRequired: null,
       appBehaviour: "bottom-nav",
     },
@@ -50,3 +50,11 @@ export const appBottomNavRoutes = (routes: Route[]): Route[] =>
   routes.filter((route) => {
     return route.appBehaviour === "bottom-nav";
   });
+
+export const getIcon = (icon: string, revealTheme: boolean) => {
+  if (icon === "nollning-logo") {
+    if (revealTheme) return "i-mdi-cloud";
+    else return "i-mdi-home";
+  }
+  return icon;
+};

@@ -24,9 +24,9 @@
   <div>
     <h1 class="text-center font-medium">{group.name}</h1>
     {#if group.description}
-      <p class="text-center"><MarkdownBody body={group.description} /></p>
+      <MarkdownBody class="text-center" body={group.description} />
     {/if}
-    <div class="mt-2">
+    <div class="mt-2 flex justify-center gap-2">
       <MembersList class="btn btn-outline btn-sm" members={group.nollor}
         >Nollor</MembersList
       >

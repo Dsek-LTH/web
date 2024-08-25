@@ -26,6 +26,9 @@ const apiNames = {
   BOOKINGS: {
     ...crud("booking_request"),
   },
+  BOOKABLES: {
+    ...crud("booking_request:bookable"),
+  },
   MANDATE: crud("core:mandate"),
   COMMITTEE: crud("core:committee"),
   POSITION: {

@@ -34,6 +34,7 @@ export type CreateSchema = Infer<typeof createSchema>;
 const updateSchema = z.object({
   id: z.string().uuid(),
   name: z.string().optional(),
+  nameEn: z.string().nullable().optional(),
   color: z.string().optional(),
 });
 export type UpdateSchema = Infer<typeof updateSchema>;
@@ -57,15 +58,13 @@ export const actions: Actions = {
     const { prisma } = locals;
     const form = await superValidate(request, zod(updateSchema));
     if (!form.valid) return fail(400, { form });
+    const { id, ...data } = form.data;
     try {
       await prisma.tag.update({
         where: {
-          id: form.data.id,
+          id,
         },
-        data: {
-          name: form.data.name,
-          color: form.data.color,
-        },
+        data,
       });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {

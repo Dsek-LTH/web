@@ -46,28 +46,40 @@
   />
 </svelte:head>
 
-<div class="post-reveal h-dvh" data-theme="nollningPostReveal">
+<div
+  class="post-reveal h-dvh"
+  data-theme={data.revealTheme ? "nollningPostReveal" : "nollningPreReveal"}
+>
   {#if mounted}
     <div in:fade={{ duration: 1000 }} class="flex h-full flex-col">
       {#if !data.isApp}
-        <nav class="contents">
-          <!-- <Navbar /> -->
-          <!-- <Drawer /> -->
-        </nav>
+        <!-- <nav class="contents"> -->
+        <!-- <Navbar /> -->
+        <!-- <Drawer /> -->
+        <!-- </nav> -->
+
+        <!-- TMP -->
+        <PostRevealHeader />
       {:else}
         <AppNotificationHandler />
         <PostRevealHeader />
       {/if}
 
-      <main class="relative flex-1 overflow-y-auto">
+      <main
+        class="scrollbar-hide *:scrollbar-hide relative flex-1 overflow-y-auto"
+        class:scrollbar-hide={data.isApp}
+      >
         <!-- so absolute positioning is outside padding -->
-        <div class="px-6 py-6">
+        <div class="scrollbar-hide px-6 py-6">
           <slot />
         </div>
       </main>
       <Toast />
       {#if !data.isApp}
         <!-- <Footer /> -->
+
+        <!-- TMP -->
+        <PostRevealBottomNav />
       {:else}
         <PostRevealBottomNav />
 

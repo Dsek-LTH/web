@@ -1,10 +1,11 @@
 import {
   phadderGroupSchema,
   phadderMandateFilter,
-} from "$lib/nollning/groups/types.js";
-import apiNames from "$lib/utils/apiNames.js";
-import { authorize } from "$lib/utils/authorization.js";
+} from "$lib/nollning/groups/types";
+import apiNames from "$lib/utils/apiNames";
+import { authorize } from "$lib/utils/authorization";
 import type { PrismaClient } from "@prisma/client";
+import DOMPurify from "isomorphic-dompurify";
 import { fail, message, setError, superValidate } from "sveltekit-superforms";
 import { zod } from "sveltekit-superforms/adapters";
 import { z } from "zod";
@@ -76,6 +77,9 @@ export const actions = {
     const form = await superValidate(request, zod(createPhadderGroupSchema));
     if (!form.valid) return fail(400, { form });
     const { prisma } = locals;
+    form.data.description = form.data.description
+      ? DOMPurify.sanitize(form.data.description)
+      : form.data.description;
     await prisma.phadderGroup.create({
       data: form.data,
     });
@@ -88,6 +92,9 @@ export const actions = {
     const form = await superValidate(request, zod(updatePhadderGroupSchema));
     if (!form.valid) return fail(400, { form });
     const { prisma } = locals;
+    form.data.description = form.data.description
+      ? DOMPurify.sanitize(form.data.description)
+      : form.data.description;
     const res = await prisma.phadderGroup.update({
       where: {
         id: form.data.id,

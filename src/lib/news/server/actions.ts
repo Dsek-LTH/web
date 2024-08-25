@@ -12,6 +12,7 @@ import type { Action } from "@sveltejs/kit";
 import type { AuthUser } from "@zenstackhq/runtime";
 import { zod } from "sveltekit-superforms/adapters";
 import { message, superValidate, fail } from "sveltekit-superforms";
+import DOMPurify from "isomorphic-dompurify";
 
 const uploadImage = async (user: AuthUser, image: File, slug: string) => {
   const imageUrl = await uploadFile(
@@ -61,7 +62,6 @@ const sendNewArticleNotification = async (
 };
 
 export const createArticle: Action = async (event) => {
-  console.log("create article");
   const { request, locals } = event;
   const { prisma, user } = locals;
   const form = await superValidate(request, zod(createSchema), {
@@ -75,6 +75,8 @@ export const createArticle: Action = async (event) => {
     sendNotification: shouldSendNotification,
     notificationText,
     image,
+    body,
+    bodyEn,
     ...rest
   } = form.data;
   const existingAuthor = await prisma.author.findFirst({
@@ -92,15 +94,15 @@ export const createArticle: Action = async (event) => {
     },
   });
   slug = slugWithCount(slug, slugCount);
-  console.log("before image");
 
   if (image) rest.imageUrl = await uploadImage(user, image, slug);
-  console.log("creating");
 
   const result = await prisma.article.create({
     data: {
       slug,
       header: header,
+      body: DOMPurify.sanitize(body),
+      bodyEn: bodyEn ? DOMPurify.sanitize(bodyEn) : bodyEn,
       ...rest,
       author: {
         connect: existingAuthor
@@ -171,7 +173,7 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
     allowFiles: true,
   });
   if (!form.valid) return fail(400, { form });
-  const { slug, author, tags, image, ...rest } = form.data;
+  const { slug, author, tags, image, body, bodyEn, ...rest } = form.data;
   const existingAuthor = await prisma.author.findFirst({
     where: {
       member: { id: author.memberId },
@@ -188,6 +190,8 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
         slug: slug,
       },
       data: {
+        body: DOMPurify.sanitize(body),
+        bodyEn: bodyEn ? DOMPurify.sanitize(bodyEn) : bodyEn,
         ...rest,
         author: {
           connect: existingAuthor

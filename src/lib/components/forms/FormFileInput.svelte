@@ -19,6 +19,7 @@
   export let label: string | null = null;
   // as long as field is not nested, or data type is 'json', name does not need to be set
   export let name: string | undefined = undefined;
+  export let accept: string | undefined = undefined;
   let clazz: string | undefined = undefined;
   export { clazz as class };
 
@@ -49,9 +50,9 @@
     on:change={onChange}
     {name}
     type="file"
-    accept="image/*"
     bind:files={$file}
-    class={twMerge("file-input file-input-bordered w-full max-w-xs", clazz)}
+    class={twMerge("file-input file-input-bordered w-full", clazz)}
+    {accept}
     {...$constraints}
     {...$$restProps}
   />
