@@ -5,12 +5,10 @@
   import NotificationModal from "$lib/components/NotificationModal.svelte";
   import { signIn } from "@auth/sveltekit/client";
   import NotificationBell from "../../NotificationBell.svelte";
-  import AccountDrawer from "./AccountDrawer.svelte";
   import { getRoutes } from "./routes";
   import type { PostRevealLayoutData } from "./+layout.server";
   import { getFullName } from "$lib/utils/client/member";
   import { POST_REVEAL_PREFIX } from "$lib/components/postReveal/types";
-  import PostRevealAccountMenu from "./PostRevealAccountMenu.svelte";
 
   $: routes = getRoutes();
   $: pageData = $page.data as typeof $page.data & PostRevealLayoutData;
