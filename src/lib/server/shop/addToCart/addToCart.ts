@@ -99,7 +99,7 @@ export const addTicketToCart = async (
     });
     if (!ticket) throw new Error(m.tickets_errors_ticketNotFound());
     if (
-      ticket.shoppable.accessPolicies &&
+      ticket.shoppable.accessPolicies.length > 0 &&
       !ticket.shoppable.accessPolicies.some(
         (p) =>
           (p.role && user.roles.includes(p.role)) ||
