@@ -11,7 +11,7 @@
   import i from "./i.webp";
 </script>
 
-<ul class="guild-song-list">
+<ul class="guild-song-list mx-auto max-w-screen-md">
   <li>
     <h1>N0llevisan</h1>
     <pre>

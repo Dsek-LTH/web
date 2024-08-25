@@ -84,6 +84,6 @@
   {/each}
 </div>
 
-<div class="relative z-0 space-y-12 py-6">
+<div class="relative z-0 mx-auto max-w-screen-xl space-y-12 py-6">
   <slot />
 </div>
