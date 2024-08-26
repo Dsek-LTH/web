@@ -140,9 +140,7 @@
       {:else}
         <input type="hidden" name="notificationId" value={notification.id} />
       {/if}
-      <button
-        class="btn btn-ghost pointer-events-auto z-10 -mr-2 rounded-none !px-2 *:text-2xl"
-      >
+      <button class="btn btn-ghost -mr-2 rounded-none !px-2 *:text-2xl">
         <span class="i-mdi-delete-outline mx-0 opacity-50"></span>
       </button>
     </form>
