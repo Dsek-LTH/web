@@ -20,7 +20,7 @@ export const memberSchema = z.object({
     .min(1962)
     .max(new Date().getFullYear())
     .nullable()
-    .default(null),
+    .default(new Date().getFullYear()),
   classProgramme: z
     .string()
     .nullable()
