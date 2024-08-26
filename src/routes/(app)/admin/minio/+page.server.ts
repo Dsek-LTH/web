@@ -2,7 +2,7 @@
 
 import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
 import { fileHandler } from "$lib/files";
-import { getFileUrl } from "$lib/files/images";
+import { getFileUrl } from "$lib/files/client";
 import { uploadFile } from "$lib/files/uploadFiles";
 import * as m from "$paraglide/messages";
 import { fail, message, superValidate, withFiles } from "sveltekit-superforms";

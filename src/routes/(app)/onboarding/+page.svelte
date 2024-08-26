@@ -10,7 +10,7 @@
   import type { PageData } from "./$types";
   import type { UpdateSchema } from "./+page.server";
   import { goto } from "$lib/utils/redirect";
-  import { getFileUrl } from "$lib/files/images";
+  import { getFileUrl } from "$lib/files/client";
   import LanguageSwitcher from "../../LanguageSwitcher.svelte";
 
   export let data: PageData;
