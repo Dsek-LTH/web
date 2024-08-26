@@ -1,5 +1,6 @@
 import { fileExists, isDir } from "$lib/files/helpers";
-import minio, { CopyConditions, MINIO_BASE_URL } from "$lib/files/minio";
+import { MINIO_BASE_URL } from "$lib/files/client";
+import minio, { CopyConditions } from "$lib/files/minio";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 import { error } from "@sveltejs/kit";

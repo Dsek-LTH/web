@@ -9,6 +9,7 @@
   import * as m from "$paraglide/messages";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import { eventLink } from "$lib/utils/redirect";
+  import { getFileUrl } from "$lib/files/client.js";
 
   export let data;
   $: ticket = data.ticket;
@@ -23,7 +24,7 @@
 
 <div class="mx-auto md:container md:mt-8 md:grid md:grid-cols-2">
   <img
-    src={event.imageUrl ??
+    src={getFileUrl(event.imageUrl) ??
       "https://minio.api.dsek.se/news/public/8c97c4c6-d4f4-44f5-9658-cff70110ad85.webp"}
     alt="{event.title} cover photo"
     class="aspect-video object-cover md:rounded-xl"

@@ -7,6 +7,7 @@ import {
   isFileImage,
   prepareNameForFilesystem,
 } from "$lib/files/utils";
+import { MINIO_BASE_URL } from "$lib/files/client";
 
 export const compressImage = async (
   image: File,
@@ -77,7 +78,7 @@ export const uploadFile = async (
       throw new Error(
         `${m.members_errors_couldntUploadFile()}: ${await res.text()}`,
       );
-    return `minio/${bucket}/${filePath}`;
+    return `${MINIO_BASE_URL}/${bucket}/${filePath}`;
   } catch (e) {
     console.error(e);
     const errMsg = e instanceof Error ? e.message : String(e);

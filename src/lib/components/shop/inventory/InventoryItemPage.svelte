@@ -8,6 +8,7 @@
   import Price from "$lib/components/Price.svelte";
   import type { InventoryItemLoadData } from "$lib/server/shop/inventory/getInventory";
   import type { page } from "$app/stores";
+  import { getFileUrl } from "$lib/files/client";
 
   export let data: InventoryItemLoadData & typeof $page.data;
   $: consumable = data.consumable;
@@ -19,7 +20,7 @@
 
 <div class="mx-auto md:container md:mt-8 md:grid md:grid-cols-2">
   <img
-    src={event.imageUrl ??
+    src={getFileUrl(event.imageUrl) ??
       "https://minio.api.dsek.se/news/public/8c97c4c6-d4f4-44f5-9658-cff70110ad85.webp"}
     alt="{event.title} cover photo"
     class="aspect-video object-cover md:rounded-xl"

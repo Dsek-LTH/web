@@ -3,7 +3,7 @@
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import * as m from "$paraglide/messages";
   import { languageTag } from "$paraglide/runtime";
-  import { getFileUrl } from "$lib/files/images";
+  import { getFileUrl } from "$lib/files/client";
 
   export let article: Article;
 </script>

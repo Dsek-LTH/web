@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getFileUrl } from "$lib/files/images";
+  import { getFileUrl } from "$lib/files/client";
   import { signIn } from "@auth/sveltekit/client";
   import * as m from "$paraglide/messages";
   import { i18n } from "$lib/utils/i18n";

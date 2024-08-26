@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getFileUrl } from "$lib/files/client";
   import type { Event } from "@prisma/client";
   import dayjs from "dayjs";
 
@@ -9,7 +10,7 @@
   <div class="avatar">
     <div class="mask mask-squircle h-12 w-12">
       <img
-        src={event.imageUrl ??
+        src={getFileUrl(event.imageUrl) ??
           "https://minio.api.dsek.se/news/public/8c97c4c6-d4f4-44f5-9658-cff70110ad85.webp"}
         alt="{event.title} event photo"
       />

@@ -1,5 +1,5 @@
 <script>
-  import { getFileUrl } from "$lib/files/images";
+  import { getFileUrl } from "$lib/files/client";
 </script>
 
 <img

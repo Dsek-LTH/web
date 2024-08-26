@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getFileUrl } from "$lib/files/images";
+  import { getFileUrl } from "$lib/files/client";
   import type { Committee } from "@prisma/client";
 
   export let committee: Pick<Committee, "symbolUrl" | "name">;

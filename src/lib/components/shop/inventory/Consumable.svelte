@@ -3,6 +3,7 @@
   import * as m from "$paraglide/messages";
   import { eventLink } from "$lib/utils/redirect";
   import type { ConsumableWithMoreInfo } from "$lib/server/shop/inventory/types";
+  import { getFileUrl } from "$lib/files/client";
 
   export let consumable: ConsumableWithMoreInfo;
   $: shoppable = consumable.shoppable;
@@ -13,7 +14,7 @@
   <a href={eventLink(event)} class="group">
     <figure class="relative aspect-video">
       <img
-        src={event.imageUrl ??
+        src={getFileUrl(event.imageUrl) ??
           "https://minio.api.dsek.se/news/public/8c97c4c6-d4f4-44f5-9658-cff70110ad85.webp"}
         alt="{event.title} cover photo"
         class="aspect-video object-cover"

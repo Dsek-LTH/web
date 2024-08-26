@@ -2,7 +2,7 @@
   import DateSpan from "./DateSpan.svelte";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import type { Event } from "@prisma/client";
-  import { getFileUrl } from "$lib/files/images";
+  import { getFileUrl } from "$lib/files/client";
   export let event: Pick<
     Event,
     | "title"
