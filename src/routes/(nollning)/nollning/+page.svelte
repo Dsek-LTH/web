@@ -26,9 +26,9 @@
     {
       name: "Sasha",
       imageUrl: alexander,
-      body: `Howdy howdy!!\n\nAlexander heter jag aka Sasha aka Mami! Jag är Øverpeppare i år tillsammans med Thyra. Jag har varit med om 24 snurrar runt solen och är från Lund!! Jag börjar nu mitt tredje år på InfoCom.\n\nMitt tips till er är - njut av resan och släpp loss på saloonen!! Ingen cowboy lever bara för plugget. Se till att också ha roligt!!\n\nHasta la vista!`,
+      body: `Howdy howdy!! Alexander heter jag aka Sasha aka Mami! Jag är Øverpeppare i år tillsammans med Thyra. Jag har varit med om 24 snurrar runt solen och är från Lund!! Jag börjar nu mitt tredje år på InfoCom.\n\nMitt tips till er är - njut av resan och släpp loss på saloonen!! Ingen cowboy lever bara för plugget. Se till att också ha roligt!! Hasta la vista!`,
       bodyEn:
-        "Howdy howdy!!\n\nMy name is Alexander aka Sasha aka Mami! I'm a Head Pepper this year together with Thyra. I've been around the sun 24 times and I'm from Lund!! I'm now starting my third year in InfoCom.\n\nMy tip for you is - enjoy the journey and let loose at the saloon!! No cowboy lives just for studying. Make sure to have fun too!!\n\nHasta la vista!",
+        "Howdy howdy!! My name is Alexander aka Sasha aka Mami! I'm a Head Pepper this year together with Thyra. I've been around the sun 24 times and I'm from Lund!! I'm now starting my third year in InfoCom.\n\nMy tip for you is - enjoy the journey and let loose at the saloon!! No cowboy lives just for studying. Make sure to have fun too!! Hasta la vista!",
     },
     {
       name: "Thyra",
@@ -47,37 +47,37 @@
     {
       name: "Klara",
       imageUrl: klara,
-      body: `Hej!\n\nKlara här, 24 år, men det är så många andra snygga Klaror här på sektionen så Högen/Högis går också bra. Är från en liten ö i Stockholm (Södermalm) men pluggar nu trean på InfoCom.\n\nFör att stå stadigt i stövlarna är mitt tips att alla här är lika sugna på att lära känna nya människor -  så våga ta första steget och fyll din flock med andra cowboys!`,
+      body: `Hej! Klara här, 24 år, men det är så många andra snygga Klaror här på sektionen så Högen/Högis går också bra. Är från en liten ö i Stockholm (Södermalm) men pluggar nu trean på InfoCom.\n\nFör att stå stadigt i stövlarna är mitt tips att alla här är lika sugna på att lära känna nya människor -  så våga ta första steget och fyll din flock med andra cowboys!`,
       bodyEn:
-        "Hi!\n\nKlara here, 24 years old, but since there are so many other good-looking Klaras in the guild, you can also call me Högen/Högis. I'm from a small island in Stockholm (Södermalm) but now I'm in my third year in InfoCom.\n\nTo stay steady in your boots, my tip is that everyone here is just as eager to meet new people - so don't be afraid to take the first step and fill your group with other cowboys!",
+        "Hi! Klara here, 24 years old, but since there are so many other good-looking Klaras in the guild, you can also call me Högen/Högis. I'm from a small island in Stockholm (Södermalm) but now I'm in my third year in InfoCom.\n\nTo stay steady in your boots, my tip is that everyone here is just as eager to meet new people - so don't be afraid to take the first step and fill your group with other cowboys!",
     },
     {
       name: "Casper",
       imageUrl: casper,
-      body: `Hallojsan framtida vänner! Casper va namnet, 21 år gammal från härliga Stockholm, Nacka o ska börja andra året på data här i Lund😵 Jag rekommenderar starkt att hitta en stabil plats o slå läger när man ska plugga. Det finns många vilda cowboys här på campus så konkurrensen är tuff. Om du inte vet vart du kan sitta så kan du alltid fråga mig! 📚🤠`,
+      body: `Hallojsan framtida vänner! Casper va namnet, 21 år gammal från härliga Stockholm, Nacka o ska börja andra året på data här i Lund Jag rekommenderar starkt att hitta en stabil plats o slå läger när man ska plugga. Det finns många vilda cowboys här på campus så konkurrensen är tuff. Om du inte vet vart du kan sitta så kan du alltid fråga mig!`,
       bodyEn:
-        "Hey there future friends! The name's Casper, 21 years old from the lovely Stockholm, Nacka, and about to start my second year in computer science here in Lund😵 I highly recommend finding a stable spot to set up camp when you're studying. There are a lot of wild cowboys here on campus so competition is tough. If you don't know where to sit, you can always ask me! 📚🤠",
+        "Hey there future friends! The name's Casper, 21 years old from the lovely Stockholm, Nacka, and about to start my second year in computer science here in Lund I highly recommend finding a stable spot to set up camp when you're studying. There are a lot of wild cowboys here on campus so competition is tough. If you don't know where to sit, you can always ask me!",
     },
     {
       name: "Wilma",
       imageUrl: wilma,
-      body: `Tja!\n\nWilma heter jag, är en 20 årig andraårsstudent på data och kommer (tyyyyyp) från Stockholm!!\n\nHär i vilda västern kan det vara svårt för en nybliven cowboy att hitta rätt. Mitt bästa tips är därför att fråga alla rutinerade studenter om allt möjligt: vilka böcker som inte behövs, vilken nation som de gillar mest, eller vart man hittar Lunds bästa falafel. Ha så kul, kram!!`,
+      body: `Tja! Wilma heter jag, är en 20 årig andraårsstudent på data och kommer (tyyyyyp) från Stockholm!!\n\nHär i vilda västern kan det vara svårt för en nybliven cowboy att hitta rätt. Mitt bästa tips är därför att fråga alla rutinerade studenter om allt möjligt: vilka böcker som inte behövs, vilken nation som de gillar mest, eller vart man hittar Lunds bästa falafel. Ha så kul, kram!!`,
       bodyEn:
-        "Hey!\n\nMy name is Wilma, I'm a 20-year-old second-year computer science student and I'm (tyyyyyp) from Stockholm!!\n\nHere in the wild west, it can be hard for a new cowboy to find their way. My best tip is to ask all the experienced students about anything: which books you don't need, which nation they like the most, or where to find the best falafel in Lund. Have fun, hugs!!",
+        "Hey! My name is Wilma, I'm a 20-year-old second-year computer science student and I'm (tyyyyyp) from Stockholm!!\n\nHere in the wild west, it can be hard for a new cowboy to find their way. My best tip is to ask all the experienced students about anything: which books you don't need, which nation they like the most, or where to find the best falafel in Lund. Have fun, hugs!!",
     },
     {
       name: "Emil",
       imageUrl: emil,
-      body: `Howdy!\n\nEmil heter jag, kallas även Nubben, är 27 år gammal och kommer från Borås. Går nu mitt sjätte år på InfoCom! För att just du ska ha en fantastisk nollning i västern så är mitt främsta tips att våga bjuda på er själva lite extra under nollningen! Det är så man hittar sina framtida studiecowboys och något man kommer ha kvar för livet <3`,
+      body: `Howdy! Emil heter jag, kallas även Nubben, är 27 år gammal och kommer från Borås. Går nu mitt sjätte år på InfoCom! För att just du ska ha en fantastisk nollning i västern så är mitt främsta tips att våga bjuda på er själva lite extra under nollningen! Det är så man hittar sina framtida studiecowboys och något man kommer ha kvar för livet <3`,
       bodyEn:
-        "Howdy!\n\nMy name is Emil, also known as Nubben, I'm 27 years old and from Borås. I'm now in my sixth year in InfoCom! For you to have an amazing nollning in the west, my top tip is to dare to put yourself out there a little extra during nollningen! That's how you find your future study cowboys, and it's something you'll have for life <3",
+        "Howdy! My name is Emil, also known as Nubben, I'm 27 years old and from Borås. I'm now in my sixth year in InfoCom! For you to have an amazing nollning in the west, my top tip is to dare to put yourself out there a little extra during nollningen! That's how you find your future study cowboys, and it's something you'll have for life <3",
     },
     {
       name: "Linn",
       imageUrl: linn,
-      body: `Heej där!\n\nLinn heter jag, är 21 bast från Täby och nu glider jag in i andra året på InfoCom!!\n\nNär man ridit genom ett blåsigt vilda västern, är det skönt att ha laddat upp med färdiglagade matlador. Kanske testa cowboysopp`,
+      body: `Heej där! Linn heter jag, är 21 bast från Täby och nu glider jag in i andra året på InfoCom!!\n\nNär man ridit genom ett blåsigt vilda västern, är det skönt att ha laddat upp med färdiglagade matlador. Kanske testa cowboysopp`,
       bodyEn:
-        "Hey there!\n\nMy name is Linn, I'm 21 years old from Täby and now I'm sliding into my second year in InfoCom!!\n\nWhen you've ridden through a windy wild west, it's nice to have stocked up on pre-prepared meals. Maybe try cowboy stew?",
+        "Hey there! My name is Linn, I'm 21 years old from Täby and now I'm sliding into my second year in InfoCom!!\n\nWhen you've ridden through a windy wild west, it's nice to have stocked up on pre-prepared meals. Maybe try cowboy stew?",
     },
     {
       name: "Gustaf",
@@ -89,14 +89,14 @@
     {
       name: "Lola",
       imageUrl: lola,
-      body: `Hej hej!\n\nLola heter jag (Aurora är mitt goverment name men vi skiter i det). Jag är en hela 21 år gammal, är från Malmö och går mitt fjärde år på data( klarar du första året så har du redan mer HP än mig).  \n\nMitt bästa tips för att bli en stabil cowboy är att försök att undvika sista minuten tenta-plugget, tänk på hur många fler saloons man kan gå på medan alla andra omtenta pluggar!`,
+      body: `Hej hej! Lola heter jag (Aurora är mitt goverment name men vi skiter i det). Jag är en hela 21 år gammal, är från Malmö och går mitt fjärde år på data( klarar du första året så har du redan mer HP än mig).  \n\nMitt bästa tips för att bli en stabil cowboy är att försök att undvika sista minuten tenta-plugget, tänk på hur många fler saloons man kan gå på medan alla andra omtenta pluggar!`,
       bodyEn:
-        "Hey hey!\n\nMy name is Lola (Aurora is my government name but let's not worry about that). I'm a whole 21 years old, from Malmö, and I'm in my fourth year in computer science (if you survive the first year, you've already earned more credits than I have).\n\nMy best tip for becoming a stable cowboy is to try to avoid last-minute exam cramming, think about how many more saloons you can visit while everyone else is cramming for retakes!",
+        "Hey hey! My name is Lola (Aurora is my government name but let's not worry about that). I'm a whole 21 years old, from Malmö, and I'm in my fourth year in computer science (if you survive the first year, you've already earned more credits than I have).\n\nMy best tip for becoming a stable cowboy is to try to avoid last-minute exam cramming, think about how many more saloons you can visit while everyone else is cramming for retakes!",
     },
     {
       name: "Jacobi",
       imageUrl: jacob,
-      body: `Hallå ja!\nJacob heter jag, men kalla mig gärna för Jacobi. Jag är 23 år och går tredje året på InfoCom.\nEtt tips för att lätt kunna Gallopera genom nollningen är att ha en fungerande cykel. Då går det mycket snabbare att komma fram till eventen, men även att komma hem för att få så mycket välbehövlig vila som möjligt.`,
+      body: `Hallå ja! Jacob heter jag, men kalla mig gärna för Jacobi. Jag är 23 år och går tredje året på InfoCom.\nEtt tips för att lätt kunna Gallopera genom nollningen är att ha en fungerande cykel. Då går det mycket snabbare att komma fram till eventen, men även att komma hem för att få så mycket välbehövlig vila som möjligt.`,
       bodyEn:
         "Hello there! My name is Jacob, but feel free to call me Jacobi. I'm 23 years old and in my third year in InfoCom.\nA tip for easily galloping through nollningen is to have a functioning bike. That way, you'll get to events much faster and can get home quickly for some much-needed rest.",
     },
@@ -175,6 +175,7 @@
       id="peppers"
       class:!mt-32={data.revealTheme}
     >
+      <h1 class="mb-16 font-nolla-pepp text-4xl text-primary">Los Peppos</h1>
       <div
         class="w-full scroll-smooth max-md:carousel md:grid md:grid-cols-2 md:gap-4 lg:w-[calc(100%+8rem)] lg:grid-cols-3"
       >
@@ -216,6 +217,7 @@
     </section>
 
     <section class="mt-16 flex flex-col items-center" id="peppers">
+      <h1 class="mb-16 text-3xl font-medium">{m.phadderGroups()}</h1>
       <div
         class="w-full scroll-smooth max-md:carousel md:grid md:grid-cols-2 md:gap-4 lg:w-[calc(100%+8rem)] lg:grid-cols-3"
       >

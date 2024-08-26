@@ -9,7 +9,7 @@
   import * as m from "$paraglide/messages";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import { eventLink } from "$lib/utils/redirect";
-  import { getFileUrl } from "$lib/files/client.js";
+  import { getFileUrl } from "$lib/files/client";
 
   export let data;
   $: ticket = data.ticket;

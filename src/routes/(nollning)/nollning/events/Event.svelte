@@ -4,11 +4,15 @@
   import type { TicketWithMoreInfo } from "$lib/server/shop/getTickets";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
-  import type { Event } from "@prisma/client";
+  import type { Event, Tag } from "@prisma/client";
   import dayjs from "dayjs";
   // import EventTicket from "./EventTicket.svelte";
+  import TagChip from "$lib/components/TagChip.svelte";
+  import { NOLLNING_TAG_PREFIX } from "$lib/components/postReveal/types";
 
   export let event: Event & {
+    tags: Tag[];
+  } & {
     tickets: TicketWithMoreInfo[];
   };
 </script>
@@ -20,10 +24,19 @@
   <div class="collapse-title flex flex-col">
     <!-- Format date as Weekday HH:mm such as Monday 17.15 -->
     <span class="text-sm font-medium capitalize text-primary"
-      >{dayjs(event.startDatetime).format("dddd HH:mm")}</span
+      >{dayjs(event.startDatetime).format("dddd HH:mm")} - {dayjs(
+        event.endDatetime,
+      ).format("HH:mm")}</span
     >
     <span class="text-base">{event.title}</span>
     <span class="text-sm font-medium text-neutral">{event.location}</span>
+    <div class="mt-4 flex gap-2">
+      {#each event.tags as tag}
+        {#if !tag.name.startsWith(NOLLNING_TAG_PREFIX)}
+          <TagChip {tag} />
+        {/if}
+      {/each}
+    </div>
   </div>
   <div class="collapse-content flex flex-col">
     <p>

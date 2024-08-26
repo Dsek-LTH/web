@@ -14,7 +14,7 @@
 
 <div
   id="{prefix}{index}"
-  class="relative w-full flex-col items-center max-md:carousel-item md:flex"
+  class="relative w-full scroll-mt-20 flex-col items-center max-md:carousel-item md:flex"
 >
   <div class="mb-4 flex gap-1 md:hidden">
     <!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
