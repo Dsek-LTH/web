@@ -45,6 +45,7 @@ model User {
     memberId String
     policies String[]
     externalCode String?
+    roles String[]
 
     @@ignore()
 }
