@@ -8,12 +8,14 @@
   import ing from "./ing.webp";
   import w from "./w.webp";
   import i from "./i.webp";
+  import { page } from "$app/stores";
 </script>
 
 <ul class="guild-song-list mx-auto max-w-screen-md">
-  <li>
-    <h1>N0llevisan</h1>
-    <pre>
+  {#if $page.data["revealTheme"]}
+    <li>
+      <h1>N0llevisan</h1>
+      <pre>
 Jag är en nolla som ingenting vet,
 ingenting kan, men har ändå roligt!
 Tänker det gör jag nog ingenting alls,
@@ -21,7 +23,8 @@ hoppas jag en dag kan bli något stort
 Nolla, nolla, nolla, nolla, nolla (x3)
 Nolla, nolla, nolla FÄLADEN!
     </pre>
-  </li>
+    </li>
+  {/if}
   <li class="bg-primary" style="background-image: url('/d.webp')">
     <h1>D</h1>
     <ul class="list-disc">

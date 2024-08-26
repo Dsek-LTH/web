@@ -7,6 +7,7 @@
   import * as m from "$paraglide/messages";
 
   let checked = false;
+  $: topInsets = $page.data.appInfo?.insets?.top ?? 0;
   $: member = $page.data.member;
   $: nollaInGroup = $page.data["phadderGroup"] as Promise<
     Pick<PhadderGroup, "name"> | undefined
@@ -31,7 +32,8 @@
 
     <!-- Drawer content -->
     <aside
-      class="flex min-h-full max-w-72 flex-col items-stretch rounded-box rounded-r-none bg-base-100 px-4 py-6 md:max-w-80"
+      class="flex min-h-full max-w-72 flex-col items-stretch rounded-box rounded-r-none bg-base-100 px-4 pb-6 md:max-w-80"
+      style={`padding-top: calc(1.5rem + ${topInsets}px)`}
     >
       {#if member}
         <div class="flex items-start justify-start gap-2">

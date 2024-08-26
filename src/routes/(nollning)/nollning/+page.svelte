@@ -205,15 +205,13 @@
           {m.nollning_landing_policy_lines_4()}
         </li>
       </ul>
-      {#if data.revealTheme}
-        <p class="nolla-prose">
-          {m.nollning_landing_policy_readMore()}
-        </p>
-        <!-- TODO: Link -->
-        <a href="/" class="btn-primary-dark btn self-center"
-          >{m.nollning_landing_policy_read()}</a
-        >
-      {/if}
+      <p class="nolla-prose">
+        {m.nollning_landing_policy_readMore()}
+      </p>
+      <!-- TODO: Link -->
+      <a href="/" class="btn-primary-dark btn self-center"
+        >{m.nollning_landing_policy_read()}</a
+      >
     </section>
 
     <section class="mt-16 flex flex-col items-center" id="peppers">
