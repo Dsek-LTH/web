@@ -21,7 +21,7 @@
 </script>
 
 <!-- notification and account -->
-<div class="absolute right-0 flex gap-2">
+<div class="absolute right-0 z-30 flex gap-2">
   {#if $page.data.user && $page.data.member}
     {#if notifications !== null}
       <NotificationBell
