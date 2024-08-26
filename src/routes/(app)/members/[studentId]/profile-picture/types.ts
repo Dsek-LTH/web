@@ -11,7 +11,11 @@ export const uploadSchema = z.object({
     .instanceof(File, { message: m.members_errors_invalidPicture() })
     .refine((f) => f.size > 0, {
       message: m.members_errors_invalidPicture(),
-    }),
+    })
+    .refine(
+      (f) => f.size < 8_000_000,
+      m.members_errors_tooLargePicture({ size: "8MB" }),
+    ),
   cropWidth: z.number().min(0).default(0),
   cropHeight: z.number().min(0).default(0),
   cropX: z.number().min(0).default(0),
