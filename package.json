@@ -8,7 +8,7 @@
     "ci-check": "concurrently 'pnpm:lint' 'pnpm:format' 'pnpm:test' 'pnpm:check' --prefix-colors 'auto' --group",
     "dev": "vite dev",
     "build": "vite build",
-    "preview": "PORT=7777 ORIGIN=http://localhost:7777 NODE_ENV=production node --env-file=.env ./prod/server.js",
+    "preview": "pm2 start prod/ecosystem.config.cjs --no-daemon",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier . --check",
