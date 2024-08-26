@@ -9,6 +9,8 @@
   let isSubmitting = false;
 </script>
 
+<!-- TODO: Show more info about each ticket, now it's just a button -->
+
 <form
   method="POST"
   action="?/addToCart"

@@ -1,11 +1,11 @@
 <script lang="ts">
-  import { browser } from "$app/environment";
-  import { invalidateAll } from "$app/navigation";
+  // import { browser } from "$app/environment";
+  // import { invalidateAll } from "$app/navigation";
   import { page } from "$app/stores";
   import PageHeader from "$lib/components/nav/PageHeader.svelte";
-  import ScrollingNumber from "$lib/components/Timer/ScrollingNumber.svelte";
-  import Timer from "$lib/components/Timer/Timer.svelte";
-  import { now } from "$lib/stores/date";
+  // import ScrollingNumber from "$lib/components/Timer/ScrollingNumber.svelte";
+  // import Timer from "$lib/components/Timer/Timer.svelte";
+  // import { now } from "$lib/stores/date";
   import { toast } from "$lib/stores/toast";
   import * as m from "$paraglide/messages";
   import Event from "./Event.svelte";
@@ -19,41 +19,41 @@
     .map((_, i) => i);
   $: eventsSubscribeUrl = `${$page.url.origin}${$page.url.pathname}/subscribe`;
 
-  $: userTickets = events
-    .flatMap((events) => events.tickets)
-    .filter((ticket) => ticket.isInUsersCart);
-  $: itemsToPay = userTickets.flatMap((ticket) => ticket.userItemsInCart);
-  function firstTimer(timers: Array<Date | null>): [Date | null, number] {
-    let first = timers[0];
-    let index = 0;
-    for (let [i, timer] of timers.entries()) {
-      if (!first || (timer && timer < first)) {
-        first = timer;
-        index = i;
-      }
-    }
-    return [first ?? null, index];
-  }
+  // $: userTickets = events
+  //   .flatMap((events) => events.tickets)
+  //   .filter((ticket) => ticket.isInUsersCart);
+  // $: itemsToPay = userTickets.flatMap((ticket) => ticket.userItemsInCart);
+  // function firstTimer(timers: Array<Date | null>): [Date | null, number] {
+  //   let first = timers[0];
+  //   let index = 0;
+  //   for (let [i, timer] of timers.entries()) {
+  //     if (!first || (timer && timer < first)) {
+  //       first = timer;
+  //       index = i;
+  //     }
+  //   }
+  //   return [first ?? null, index];
+  // }
 
-  $: inQueue = userTickets
-    .filter(
-      (ticket) => ticket.gracePeriodEndsAt.valueOf() + 1000 < $now.valueOf(),
-    )
-    .flatMap((ticket) => ticket.userReservations);
-  $: inLottery = userTickets.filter(
-    (ticket) =>
-      /* Some extra padding */
-      ticket.gracePeriodEndsAt.valueOf() + 1000 >= $now.valueOf(),
-  );
+  // $: inQueue = userTickets
+  //   .filter(
+  //     (ticket) => ticket.gracePeriodEndsAt.valueOf() + 1000 < $now.valueOf(),
+  //   )
+  //   .flatMap((ticket) => ticket.userReservations);
+  // $: inLottery = userTickets.filter(
+  //   (ticket) =>
+  //     /* Some extra padding */
+  //     ticket.gracePeriodEndsAt.valueOf() + 1000 >= $now.valueOf(),
+  // );
 
-  $: if (
-    (browser && inLottery.some((ticket) => ticket.gracePeriodEndsAt >= $now)) ||
-    inQueue.some((t) => t.order === null)
-  ) {
-    setTimeout(() => {
-      invalidateAll();
-    }, 500);
-  }
+  // $: if (
+  //   (browser && inLottery.some((ticket) => ticket.gracePeriodEndsAt >= $now)) ||
+  //   inQueue.some((t) => t.order === null)
+  // ) {
+  //   setTimeout(() => {
+  //     invalidateAll();
+  //   }, 500);
+  // }
 </script>
 
 <div class="mx-auto max-w-4xl">
@@ -116,7 +116,7 @@
   </div>
 </div>
 
-<div class="sticky inset-x-0 bottom-0 mt-8 flex flex-col">
+<!-- <div class="sticky inset-x-0 bottom-0 mt-8 flex flex-col">
   {#if itemsToPay.length > 0}
     {@const [firstToExpire, index] = firstTimer(
       itemsToPay.map((item) => item.expiresAt),
@@ -185,4 +185,4 @@
       {/if}
     </div>
   {/if}
-</div>
+</div> -->
