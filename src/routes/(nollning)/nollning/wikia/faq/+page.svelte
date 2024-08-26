@@ -8,6 +8,10 @@
     //   desc: "Vid biljettsläppet så ställer man sig i ett lotteri under första minuten av släppet. När minuten är slut får du notis om du tilldelades möjlighet att köpa biljett eller inte. Du har då fem minuter på dig att köpa den reserverade biljetten. Om du inte har köpt biljett inom fem minuter så går biljetten vidare till nästa i kön.",
     // },
     {
+      title: "Hur funkar biljetter?",
+      desc: "Biljetter köps på ORBI, se till att du är medlem i D-sektionen Nollor 2024. Ditt efternamn ska vara din phaddergrupp.",
+    },
+    {
       title: "Måste jag vara med på allt under nollningen?",
       desc: "Nej, du är med på precis så mycket du vill! Nollningen ska vara kul. Är det något evenemang du inte känner är din grej eller känner du dig helt enkelt för trött för att gå är det helt fine att skippa.",
     },
@@ -33,6 +37,10 @@
     //   title: "How do tickets work?",
     //   desc: "When tickets are released, you enter a lottery during the first minute of the release. Once the minute is over, you'll be notified if you were given the opportunity to buy a ticket or not. You then have five minutes to purchase the reserved ticket. If you don't buy the ticket within five minutes, it will be passed on to the next person in line.",
     // },
+    {
+      title: "How do tickets work?",
+      desc: "Tickets are bought on ORBI, make sure you have a membership in D-sektionen Nollor 2024. Your last name should be your phadder group.",
+    },
     {
       title: "Do I have to participate in everything during nollningen?",
       desc: "No, you can participate as much or as little as you want! Nollningen is meant to be fun. If there's an event that doesn't feel like your thing, or if you're simply too tired to go, it's completely fine to skip it.",
