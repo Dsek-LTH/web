@@ -50,6 +50,8 @@
       alt={name}
       class="h-full w-full object-cover"
       class:rounded-full={rounded}
+      class:object-cover={rounded}
+      class:object-contain={!rounded}
       class:rounded-btn={!rounded}
     />
   </figure>

@@ -106,7 +106,7 @@
 
 <SetPageTitle title="Nollning" />
 
-<article class="space-y-16">
+<article class="-mx-6 space-y-16 overflow-hidden px-6">
   {#if data.revealTheme}
     <div
       class="-mx-6 -my-6"

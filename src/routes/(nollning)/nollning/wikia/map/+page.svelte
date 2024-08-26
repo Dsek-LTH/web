@@ -18,27 +18,51 @@
   />
   <div
     class="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3 [&_h3]:text-center"
-    class:invert={!revealTheme}
   >
     <div>
       <h3>{m.nollning_wikia_map_cellar()}</h3>
-      <img class="w-full max-w-sm" alt="Map of campus" src={cellar} />
+      <img
+        class:invert={!revealTheme}
+        class="w-full max-w-sm"
+        alt="Map of campus"
+        src={cellar}
+      />
     </div>
     <div>
       <h3>{m.nollning_wikia_floor()} 1</h3>
-      <img class="w-full max-w-sm" alt="Map of campus" src={floor1} />
+      <img
+        class:invert={!revealTheme}
+        class="w-full max-w-sm"
+        alt="Map of campus"
+        src={floor1}
+      />
     </div>
     <div>
       <h3>{m.nollning_wikia_floor()} 2</h3>
-      <img class="w-full max-w-sm" alt="Map of campus" src={floor2} />
+      <img
+        class:invert={!revealTheme}
+        class="w-full max-w-sm"
+        alt="Map of campus"
+        src={floor2}
+      />
     </div>
     <div>
       <h3>{m.nollning_wikia_floor()} 3</h3>
-      <img class="w-full max-w-sm" alt="Map of campus" src={floor3} />
+      <img
+        class:invert={!revealTheme}
+        class="w-full max-w-sm"
+        alt="Map of campus"
+        src={floor3}
+      />
     </div>
     <div>
       <h3>{m.nollning_wikia_floor()} 4</h3>
-      <img class="w-full max-w-sm" alt="Map of campus" src={floor4} />
+      <img
+        class:invert={!revealTheme}
+        class="w-full max-w-sm"
+        alt="Map of campus"
+        src={floor4}
+      />
     </div>
   </div>
 </div>
