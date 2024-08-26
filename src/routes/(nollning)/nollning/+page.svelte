@@ -206,7 +206,7 @@
       <p class="nolla-prose">
         {m.nollning_landing_policy_subtitle()}
       </p>
-      <ul class="list-disc leading-relaxed">
+      <ul class="list-inside list-disc leading-relaxed">
         <li>{m.nollning_landing_policy_lines_1()}</li>
         <li>{m.nollning_landing_policy_lines_2()}</li>
         <li>{m.nollning_landing_policy_lines_3()}</li>
