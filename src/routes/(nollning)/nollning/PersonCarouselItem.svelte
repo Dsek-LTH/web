@@ -8,7 +8,7 @@
   export let prefix = `${stab ? "stab" : "pepp"}slide`;
   export let font = stab
     ? "font-nolla-stab text-3xl tracking-widest"
-    : "font-nolla-pepp tracking-wider text-xl";
+    : "font-nolla-pepp tracking-wider text-4xl";
 
   export let rounded = true;
   $: newLines = name.split("\n").length - 1;
@@ -56,13 +56,15 @@
     />
   </figure>
   <h3
-    class="mb-4 text-center font-medium text-primary {font} rounded-btn bg-base-100 p-2"
+    class="mb-4 text-center font-medium {font} rounded-btn bg-base-100 p-2"
     style="margin-top: -{newLines * 1.2}em"
   >
     <!-- eslint-disable-next-line svelte/no-at-html-tags -->
     {@html name.replaceAll("\n", "<br />")}
   </h3>
-  <p class="nolla-prose rounded-btn bg-base-100 p-2 text-center">
+  <p
+    class="nolla-prose max-w-prose rounded-btn bg-base-100 p-2 text-center max-md:mx-6"
+  >
     <!-- eslint-disable-next-line svelte/no-at-html-tags -->
     {@html body.replaceAll("\n", "<br />")}
   </p>

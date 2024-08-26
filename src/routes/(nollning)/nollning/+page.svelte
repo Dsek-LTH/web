@@ -106,7 +106,7 @@
 
 <SetPageTitle title="Nollning" />
 
-<article class="-mx-6 space-y-16 overflow-hidden px-6">
+<article class="-m-6 space-y-16 overflow-hidden p-6">
   {#if data.revealTheme}
     <div
       class="-mx-6 -my-6"
@@ -122,7 +122,7 @@
           class="h-full w-full object-cover"
         />
         <span
-          class="absolute left-1/2 top-1/2 w-max max-w-screen-md -translate-x-1/2 -translate-y-1/2 transform px-4 text-center font-nolla-stab text-5xl leading-snug md:text-8xl"
+          class="absolute left-1/2 top-1/2 w-max max-w-full -translate-x-1/2 -translate-y-1/2 transform px-4 text-center font-nolla-stab text-5xl leading-snug md:max-w-screen-md md:text-8xl"
         >
           <!-- eslint-disable-next-line svelte/no-at-html-tags -->
           {@html m.nollning_title()}
@@ -159,7 +159,7 @@
         >
           <PersonCarouselItem
             stab
-            name={`Øverphøs\nArux Tonitribus`}
+            name={`Øverphøs\nArux ToniTribus`}
             index={0}
           />
           <PersonCarouselItem stab name="ImRe Daemon" index={1} />
@@ -172,7 +172,7 @@
     {/if}
 
     <section
-      class="relative !mb-32 flex flex-col items-center"
+      class="relative !mb-32 flex flex-col items-center max-md:-mx-6"
       id="peppers"
       class:!mt-16={data.revealTheme}
     >
@@ -181,7 +181,7 @@
         style={`background-image: url('${cowprint}')`}
       />
       <h1
-        class="z-10 mb-16 rounded-btn bg-base-100 p-2 font-nolla-pepp text-4xl text-primary"
+        class="z-10 mb-16 rounded-btn bg-base-100 p-2 text-center font-nolla-pepp text-5xl md:text-8xl"
       >
         Los Peppos
       </h1>
