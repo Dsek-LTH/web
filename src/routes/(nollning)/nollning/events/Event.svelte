@@ -9,6 +9,7 @@
   // import EventTicket from "./EventTicket.svelte";
   import TagChip from "$lib/components/TagChip.svelte";
   import { NOLLNING_TAG_PREFIX } from "$lib/components/postReveal/types";
+  import * as m from "$paraglide/messages";
 
   export let event: Event & {
     tags: Tag[];
@@ -49,6 +50,11 @@
         {/each}
       {/if}
     </div> -->
+    {#if event.link}
+      <a href={event.link} class="btn btn-primary self-center">
+        {m.view()}
+      </a>
+    {/if}
     {#if isAuthorized(apiNames.EVENT.UPDATE, $page.data.user)}
       <a href="/events/{event.slug}" class="btn btn-secondary mt-8 self-start">
         <span class="i-mdi-edit" />
