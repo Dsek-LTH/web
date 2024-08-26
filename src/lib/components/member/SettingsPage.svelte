@@ -36,51 +36,53 @@
     method="POST"
     class="mt-2 flex w-full flex-col items-center justify-start gap-8 pb-24 lg:flex-row lg:items-start lg:justify-center"
   >
-    <div class="flex w-full max-w-2xl flex-col items-center space-y-4 lg:p-0">
+    <div class="flex w-full max-w-2xl flex-col items-center lg:p-0">
       <h2 class="mb-2 self-start text-2xl font-bold">
         {m.setting_notification()}
       </h2>
-      {#each Object.entries(NotificationSettingType) as notificationSettingType}
-        <div class="w-full space-y-2">
-          <!-- Web notification -->
-          <label class="flex cursor-pointer flex-row justify-between">
-            <span class="ms-3 text-sm font-medium">
-              {getNotificationText(notificationSettingType[1])}</span
-            >
-            <input
-              type="checkbox"
-              value={notificationSettingType[0]}
-              name="subscription"
-              bind:group={subscriptionGroup}
-              class="peer sr-only"
-            />
-            <div
-              class="peer relative h-6 w-11 rounded-full bg-gray-300 after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-gray-400 dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-blue-800 rtl:peer-checked:after:-translate-x-full"
-            ></div>
-          </label>
+      <ul class="divide-y-2 [&>*]:py-4">
+        {#each Object.entries(NotificationSettingType) as notificationSettingType}
+          <li class="w-full space-y-2 first:pt-0 last:pb-0">
+            <!-- Web notification -->
+            <label class="flex cursor-pointer flex-row justify-between">
+              <span class="flex-1 text-sm font-medium">
+                {getNotificationText(notificationSettingType[1])}</span
+              >
+              <input
+                type="checkbox"
+                value={notificationSettingType[0]}
+                name="subscription"
+                bind:group={subscriptionGroup}
+                class="peer sr-only"
+              />
+              <div
+                class="peer relative h-6 w-11 rounded-full bg-gray-300 after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-gray-400 dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-blue-800 rtl:peer-checked:after:-translate-x-full"
+              ></div>
+            </label>
 
-          <!-- Push notification -->
-          <label
-            class={!subscriptionGroup.find(
-              (a) => a == notificationSettingType[0],
-            )
-              ? "hidden"
-              : "flex cursor-pointer flex-row justify-between"}
-          >
-            <span class="ms-3 text-sm font-medium">{m.setting_push()}</span>
-            <input
-              type="checkbox"
-              value={notificationSettingType[0]}
-              name="push"
-              bind:group={pushGroup}
-              class="peer sr-only"
-            />
-            <div
-              class="peer relative h-6 w-11 rounded-full bg-gray-300 after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-gray-400 dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-gray-800 rtl:peer-checked:after:-translate-x-full"
-            ></div>
-          </label>
-        </div>
-      {/each}
+            <!-- Push notification -->
+            <label
+              class={!subscriptionGroup.find(
+                (a) => a == notificationSettingType[0],
+              )
+                ? "hidden"
+                : "flex cursor-pointer flex-row justify-between"}
+            >
+              <span class="ms-3 text-sm">{m.setting_push()}</span>
+              <input
+                type="checkbox"
+                value={notificationSettingType[0]}
+                name="push"
+                bind:group={pushGroup}
+                class="peer sr-only"
+              />
+              <div
+                class="peer relative h-6 w-11 rounded-full bg-gray-300 after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-gray-400 dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-gray-800 rtl:peer-checked:after:-translate-x-full"
+              ></div>
+            </label>
+          </li>
+        {/each}
+      </ul>
     </div>
     <div class="flex w-full max-w-2xl flex-col items-center lg:p-0">
       <h2 class="mb-2 self-start text-2xl font-bold">
