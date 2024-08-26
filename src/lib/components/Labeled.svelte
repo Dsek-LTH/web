@@ -38,7 +38,7 @@
     </div>
   {/if}
   <slot {label} />
-  {#if error}
+  {#if error !== undefined}
     <div class="label">
       <span class="form-error label-text-alt text-error">
         {#if typeof error === "string"}{error}{:else}{error.join(", ")}{/if}

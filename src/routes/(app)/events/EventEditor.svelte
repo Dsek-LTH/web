@@ -25,7 +25,7 @@
   });
   const { form, errors, enhance } = superform;
   export let allTags: Tag[];
-  $: console.log(Object.keys(recurringTypes));
+  $: if ($errors) console.log($errors);
   let activeTab: "sv" | "en";
 </script>
 
@@ -33,7 +33,12 @@
   class="flex w-screen flex-col gap-8 px-4 pt-8 lg:flex-row lg:px-8 [&>*]:flex-1"
 >
   <section>
-    <form method="POST" class="form-control items-start gap-2" use:enhance>
+    <form
+      method="POST"
+      class="form-control items-start gap-2"
+      use:enhance
+      enctype="multipart/form-data"
+    >
       <slot name="form-start" />
       <LangTabs bind:activeTab class="self-stretch">
         <svelte:fragment slot="sv">
@@ -92,6 +97,12 @@
       </div>
 
       <FormFileInput {superform} field="image" label="Bild" accept="image/*" />
+      <FormInput
+        {superform}
+        field="imageUrl"
+        label="Bild (url)"
+        accept="image/*"
+      />
 
       <FormCheckbox
         {superform}
