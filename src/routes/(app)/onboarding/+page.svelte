@@ -9,6 +9,9 @@
   import { onMount } from "svelte";
   import type { PageData } from "./$types";
   import type { UpdateSchema } from "./+page.server";
+  import { goto } from "$lib/utils/redirect";
+  import { getFileUrl } from "$lib/files/images";
+  import LanguageSwitcher from "../../LanguageSwitcher.svelte";
 
   export let data: PageData;
   const superform = superForm<UpdateSchema>(data.form, {});
@@ -22,7 +25,7 @@
       data.member.classProgramme &&
       data.member.classYear
     ) {
-      // goto("/");
+      goto("/");
     }
   });
 </script>
@@ -30,12 +33,12 @@
 <SetPageTitle title={m.onboarding()} />
 
 <div
-  class="min-h-screen bg-cover bg-center"
-  style="background-image: url('./hero-image.webp'); "
+  class="hero-image min-h-screen bg-cover bg-center"
+  style:--url="url({getFileUrl("minio/photos/public/assets/hero.jpg")})"
 >
   <div class="min-h-screen bg-cover py-16 md:bg-transparent">
     <div
-      class="mx-10 rounded-lg bg-base-200/35 p-10 backdrop-blur-xl md:mx-32 md:max-w-xl"
+      class="mx-2 rounded-xl bg-base-200/35 p-4 backdrop-blur-xl md:mx-32 md:max-w-xl md:p-10"
     >
       <div class="text-5xl font-bold">{m.onboarding_welcome()}</div>
       <div class="text-lg">{m.onboarding_fillInInfoBelow()}</div>
@@ -147,8 +150,16 @@
             <span class="i-mdi-floppy-disc size-5 bg-primary"></span>
             {m.onboarding_save()}
           </button>
+
+          <LanguageSwitcher />
         </div>
       </form>
     </div>
   </div>
 </div>
+
+<style>
+  .hero-image {
+    background-image: var(--url);
+  }
+</style>
