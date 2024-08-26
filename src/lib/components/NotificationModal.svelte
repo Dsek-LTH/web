@@ -16,7 +16,7 @@
 
 <dialog id="notificationModal" class="modal" bind:this={modal}>
   <div
-    class="modal-box flex h-[calc(100dvh-8rem)] w-[calc(100dvw-2rem)] flex-col flex-nowrap"
+    class="modal-box relative flex h-[calc(100dvh-8rem)] w-[calc(100dvw-2rem)] flex-col flex-nowrap"
   >
     <ul class="-mx-6 flex-nowrap overflow-y-auto">
       {#if notifications !== null}

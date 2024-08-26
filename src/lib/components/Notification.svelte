@@ -87,18 +87,20 @@
   <a
     href={notification.link}
     on:click={onClick}
-    class="flex flex-1 items-center gap-4"
+    class="flex max-w-full flex-1 items-center gap-4 overflow-hidden"
   >
     <div>
       <AuthorAvatars {authors} />
     </div>
     <div
-      class="flex h-full flex-col flex-nowrap justify-center {isUnread
+      class="flex h-full flex-1 flex-col flex-nowrap items-stretch justify-center {isUnread
         ? 'font-medium'
         : 'opacity-80'}"
     >
       <span class="mt-1 line-clamp-1 text-base">{notification.title}</span>
-      <span class="mb-1 line-clamp-2 text-xs">{notification.message}</span>
+      <span class="mb-1 line-clamp-2 text-ellipsis break-words text-xs"
+        >{notification.message}</span
+      >
       <span class="line-clamp-1 text-xs text-gray-500">
         <LiveTimeSince timeStamp={notification.createdAt.getTime()} />
       </span>
@@ -119,9 +121,7 @@
       {:else}
         <input type="hidden" name="notificationId" value={notification.id} />
       {/if}
-      <button
-        class="btn btn-ghost pointer-events-auto z-10 -mr-2 rounded-none !px-2 *:text-2xl"
-      >
+      <button class="btn btn-ghost -mr-2 rounded-none !px-2 *:text-2xl">
         <span class="i-mdi-delete-outline mx-0 opacity-50"></span>
       </button>
     </form>
