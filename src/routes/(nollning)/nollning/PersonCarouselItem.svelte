@@ -16,7 +16,7 @@
 
 <div
   id="{prefix}{index}"
-  class="relative w-full scroll-mt-20 flex-col items-center max-md:carousel-item md:flex"
+  class="relative w-full scroll-my-20 flex-col items-center max-md:carousel-item md:flex"
 >
   <div class="mb-4 flex gap-1 md:hidden">
     <!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
@@ -29,7 +29,7 @@
     {/each}
   </div>
   <figure
-    class="relative mb-16 size-60 border-none"
+    class="relative mb-16 aspect-square w-[calc(100%-6rem)] border-none"
     class:rounded-full={rounded}
     class:rounded-btn={!rounded}
   >
@@ -48,7 +48,7 @@
     <img
       src={imageUrl}
       alt={name}
-      class="h-full w-full object-cover"
+      class="aspect-square h-full w-full object-cover"
       class:rounded-full={rounded}
       class:object-cover={rounded}
       class:object-contain={!rounded}

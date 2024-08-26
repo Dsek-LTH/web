@@ -53,7 +53,7 @@
       <PostRevealHeader />
 
       <main
-        class="scrollbar-hide *:scrollbar-hide relative flex-1 overflow-y-auto"
+        class="scrollbar-hide *:scrollbar-hide relative flex-1 scroll-mt-10 overflow-y-auto"
         class:scrollbar-hide={data.isApp}
       >
         <!-- so absolute positioning is outside padding -->

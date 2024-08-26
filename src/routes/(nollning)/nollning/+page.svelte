@@ -155,7 +155,7 @@
 
       <section class="!my-16 !mb-32 flex flex-col items-center" id="staben">
         <div
-          class="w-full scroll-smooth max-md:carousel md:grid md:grid-cols-2 md:gap-4 lg:w-[calc(100%+8rem)] lg:grid-cols-3"
+          class="-mt-20 w-full scroll-smooth pt-20 max-md:carousel md:grid md:grid-cols-2 md:gap-4 lg:w-[calc(100%+8rem)] lg:grid-cols-3"
         >
           <PersonCarouselItem
             stab
@@ -186,7 +186,7 @@
         Los Peppos
       </h1>
       <div
-        class="w-full scroll-smooth max-md:carousel md:grid md:grid-cols-2 md:gap-4 lg:w-[calc(100%+8rem)] lg:grid-cols-3"
+        class="-mt-20 w-full scroll-m-20 pt-20 max-md:carousel max-md:!flex md:grid md:grid-cols-2 md:gap-4 lg:w-[calc(100%+8rem)] lg:grid-cols-3"
       >
         {#each peppers as pepper, index (pepper.name)}
           <PersonCarouselItem
@@ -226,7 +226,7 @@
     <section class="mt-16 flex flex-col items-center" id="peppers">
       <h1 class="mb-16 text-3xl font-medium">{m.phadderGroups()}</h1>
       <div
-        class="w-full scroll-smooth max-md:carousel md:grid md:grid-cols-2 md:gap-4 lg:w-[calc(100%+8rem)] lg:grid-cols-3"
+        class="-mt-20 w-full scroll-smooth pt-20 max-md:carousel md:grid md:grid-cols-2 md:gap-4 lg:w-[calc(100%+8rem)] lg:grid-cols-3"
       >
         {#each data.phadderGroups as group, index}
           <PersonCarouselItem

@@ -21,7 +21,9 @@
   />
   <div class="drawer-content flex flex-col">
     <!-- Navbar -->
-    <div class="navbar shadow-[0_4px_4px_#191B2740]">
+    <div
+      class="navbar sticky top-0 z-20 bg-base-100 shadow-[0_4px_4px_#191B2740]"
+    >
       <label
         for="my-drawer-3"
         aria-label="open sidebar"
