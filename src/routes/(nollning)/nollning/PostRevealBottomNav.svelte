@@ -14,7 +14,10 @@
   $: bottomInsets = $page.data.appInfo?.insets?.bottom ?? 0;
 </script>
 
-<nav class="btm-nav relative inset-0" style="bottom: {bottomInsets || 0}px;">
+<nav
+  class="btm-nav relative inset-0"
+  style="padding-bottom: {bottomInsets || 0}px; height: {bottomInsets + 64}px;"
+>
   {#each routesToShow as route (route.path)}
     {@const isCurrent = route.isCurrentRoute
       ? route.isCurrentRoute(currentRoute)
@@ -27,7 +30,7 @@
       class="h-12"
     >
       <span class="{icon} size-8" />
-      <span class="text-xs">{route.title}</span>
+      <!-- <span class="text-xs">{route.title}</span> -->
     </a>
   {/each}
 </nav>

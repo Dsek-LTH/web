@@ -1,17 +1,16 @@
 <script lang="ts">
   import f from "./f.webp";
   import e from "./e.webp";
-  import m from "./m.webp";
+  import maskin from "./m.webp";
   import v from "./v.webp";
   import a from "./a.webp";
   import k from "./k.webp";
-  import d from "./d.webp";
   import ing from "./ing.webp";
   import w from "./w.webp";
   import i from "./i.webp";
 </script>
 
-<ul class="guild-song-list">
+<ul class="guild-song-list mx-auto max-w-screen-md">
   <li>
     <h1>N0llevisan</h1>
     <pre>
@@ -23,7 +22,7 @@ Nolla, nolla, nolla, nolla, nolla (x3)
 Nolla, nolla, nolla FÄLADEN!
     </pre>
   </li>
-  <li class="bg-primary" style="background-image: url('{d}')">
+  <li class="bg-primary" style="background-image: url('/d.webp')">
     <h1>D</h1>
     <ul class="list-disc">
       <li>
@@ -82,7 +81,7 @@ OH AH ÅH E-SEK
 OH AH ÅH E-SEK
     </pre>
   </li>
-  <li class="bg-[#b8070a]" style="background-image: url('{m}')">
+  <li class="bg-[#b8070a]" style="background-image: url('{maskin}')">
     <h1>M - Vår färg är rød</h1>
     <pre>
 <i>Mel: When the Saints Go Marching In</i>
@@ -178,6 +177,6 @@ När i-tåget köttar på (köttar på, köttar på)
     @apply space-y-0;
   }
   .guild-song-list > li {
-    @apply relative -mx-6 bg-opacity-40 bg-[length:30%] bg-center bg-no-repeat px-6 py-8 bg-blend-overlay;
+    @apply relative -mx-6 bg-opacity-40 bg-[length:30%] bg-center bg-no-repeat px-6 py-8 bg-blend-overlay md:bg-[length:auto_50%];
   }
 </style>

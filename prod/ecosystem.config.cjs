@@ -2,7 +2,8 @@ module.exports = {
   apps: [
     {
       name: "web",
-      script: "./server.js",
+      cwd: "./",
+      script: "./prod/server.js",
       env: {
         NODE_ENV: "production",
         PORT: 7777,

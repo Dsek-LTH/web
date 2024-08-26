@@ -17,6 +17,9 @@ import { POST_REVEAL_PREFIX } from "$lib/components/postReveal/types";
 const getNollaNotifications = (user: AuthUser, prisma: PrismaClient) => {
   return prisma.notification.findMany({
     where: {
+      createdAt: {
+        gt: new Date("2024-06-26T00:00:00"),
+      },
       memberId: user.memberId,
       OR: [
         {

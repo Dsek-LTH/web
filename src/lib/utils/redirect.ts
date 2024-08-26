@@ -16,23 +16,42 @@ export const goto: typeof rawGoto = (url, opts) => {
 };
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- rawRedirect has difficult typings */
+
 export const redirect: typeof rawRedirect = ((...args) => {
-  const [location, message, event] = args;
-  if (typeof location === "string" && location.startsWith("/")) {
-    return rawRedirect(
-      i18n.resolveRoute(location) as any,
-      message as Message | undefined,
-      event as any,
-    );
-  } else if (location instanceof URL) {
-    return rawRedirect(
-      i18n.resolveRoute(location.pathname) as any,
-      message as Message | undefined,
-      event as any,
-    );
+  if (typeof args[0] === "number") {
+    const [status, location, message, event] = args;
+    if (typeof location === "string" && location.startsWith("/")) {
+      return rawRedirect(
+        status,
+        i18n.resolveRoute(location) as any,
+        message as Message | undefined,
+        event as any,
+      );
+    } else if (location instanceof URL) {
+      return rawRedirect(
+        status,
+        i18n.resolveRoute(location.pathname) as any,
+        message as Message | undefined,
+        event as any,
+      );
+    }
   } else {
-    return rawRedirect(...(args as Parameters<typeof rawRedirect>));
+    const [location, message, event] = args;
+    if (typeof location === "string" && location.startsWith("/")) {
+      return rawRedirect(
+        i18n.resolveRoute(location) as any,
+        message as Message | undefined,
+        event as any,
+      );
+    } else if (location instanceof URL) {
+      return rawRedirect(
+        i18n.resolveRoute(location.pathname) as any,
+        message as Message | undefined,
+        event as any,
+      );
+    }
   }
+  return rawRedirect(...(args as Parameters<typeof rawRedirect>));
 }) as typeof rawRedirect;
 /* eslint-enable @typescript-eslint/no-explicit-any -- Enable again, for eslint*/
 
