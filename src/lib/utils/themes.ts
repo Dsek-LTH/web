@@ -28,15 +28,16 @@ export const colors = {
   nollningPostReveal: {
     primary: "#FF79C6",
     secondary: "#BD93F9",
-    neutral: "#6272A4",
+    neutral: "#6272A4", // "comment"
     accent: "#1dcdbc", // unused in figma
-    "base-100": "#282A36",
-    "base-200": "#44475A",
-    "base-content": "#F8F8F2",
+    "base-100": "#1A1C23", // "new background"
+    "base-200": "#282A36", // "backround"
+    "base-300": "#44475A", // "current line"
+    "base-content": "#F8F8F2", // "foreground"
     // unused in figma below
     info: "#3abff8",
     success: "#36d399",
     warning: "#fbbd23",
-    error: "#FF88DC",
+    error: "#FF5555",
   },
 } as const;

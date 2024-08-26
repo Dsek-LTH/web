@@ -31,9 +31,6 @@ const getCurrentWeek = () => {
 export const load = async ({ locals, url, depends, parent }) => {
   const { prisma } = locals;
   const { revealTheme } = await parent();
-  if (!locals.user.memberId && !locals.user.externalCode) {
-    return error(401);
-  }
 
   const week = Number.parseInt(
     url.searchParams.get("week") ?? getCurrentWeek().toString(),
@@ -44,17 +41,10 @@ export const load = async ({ locals, url, depends, parent }) => {
   }
   const { weekStart, weekEnd } = getWeekInterval(week);
 
-  const identification = locals.user.memberId
-    ? {
-        memberId: locals.user.memberId,
-      }
-    : {
-        externalCode: locals.user.externalCode!,
-      };
   depends("tickets");
   const events = await getEventsWithTickets(
     prisma,
-    identification,
+    locals.user,
     {
       startDatetime: {
         gte: weekStart,

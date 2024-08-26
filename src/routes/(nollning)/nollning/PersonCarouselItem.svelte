@@ -1,18 +1,23 @@
 <script lang="ts">
   export let stab = false;
   export let name: string;
-  export let imageUrl: string = "";
+  export let body = "";
+  export let imageUrl = "";
   export let index: number;
-  $: max = stab ? 6 : 11;
-  $: prefix = `${stab ? "stab" : "pepp"}slide`;
+  export let max = stab ? 6 : 11;
+  export let prefix = `${stab ? "stab" : "pepp"}slide`;
+  export let font = stab
+    ? "font-nolla-stab text-3xl tracking-widest"
+    : "font-nolla-pepp tracking-wider text-xl";
   $: newLines = name.split("\n").length - 1;
 </script>
 
 <div
   id="{prefix}{index}"
-  class="carousel-item relative w-full flex-col items-center"
+  class="relative w-full flex-col items-center max-md:carousel-item md:flex"
 >
-  <div class="mb-4 flex gap-1">
+  <div class="mb-4 flex gap-1 md:hidden">
+    <!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
     {#each new Array(max).fill(0) as _, i}
       <div
         class="size-2 rounded-full"
@@ -23,7 +28,7 @@
   </div>
   <figure class="relative mb-16 size-60 rounded-full border-none bg-neutral">
     <div
-      class="absolute -inset-x-12 top-1/2 flex -translate-y-1/2 transform justify-between"
+      class="absolute -inset-x-12 top-1/2 flex -translate-y-1/2 transform justify-between md:hidden"
     >
       {#if index > 0}
         <a href="#{prefix}{index - 1}" class=" p-6 px-4">❮</a>
@@ -34,24 +39,22 @@
         <a href="#{prefix}{index + 1}" class="p-6 px-4">❯</a>
       {/if}
     </div>
-    <img src={imageUrl} alt={name} class="h-full w-full object-cover" />
+    <img
+      src={imageUrl}
+      alt={name}
+      class="h-full w-full rounded-full object-cover"
+    />
   </figure>
   <h3
-    class="page-title mb-4 text-center text-primary"
+    class="mb-4 text-center font-medium text-primary {font}"
     style="margin-top: -{newLines * 1.2}em"
-    class:font-nolla-stab={stab}
-    class:!text-3xl={stab}
-    class:!tracking-widest={stab}
-    class:font-nolla-pepp={!stab}
   >
     <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-    {@html name.replace("\n", "<br />")}
+    {@html name.replaceAll("\n", "<br />")}
   </h3>
   <p class="nolla-prose text-center">
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit. In interdum
-    venenatis faucibus. Praesent dictum iaculis iaculis. Aliquam nulla magna,
-    venenatis sit amet mauris sed, pharetra consectetur urna. Class aptent
-    taciti sociosqu ad litora torquent per conubia nostra, per inceptos
-    himenaeos. Phasellus non congue leo.
+    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+    {@html body.replaceAll("\n", "<br />")}
   </p>
+  <slot />
 </div>

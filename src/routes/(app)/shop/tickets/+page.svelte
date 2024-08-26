@@ -56,11 +56,16 @@
       {/await}
     </div>
   {/if}
-  {#if isAuthorized(apiNames.WEBSHOP.CREATE, data.user)}
-    <a class="btn btn-secondary self-start" href="/shop/tickets/create"
-      >{m.tickets_createNew()}</a
-    >
-  {/if}
+  <div class="flex gap-4">
+    {#if isAuthorized(apiNames.WEBSHOP.CREATE, data.user)}
+      <a class="btn btn-secondary self-start" href="/shop/tickets/create"
+        >{m.tickets_createNew()}</a
+      >
+    {/if}
+    {#if isAuthorized(apiNames.WEBSHOP.MANAGE, data.user)}
+      <a class="btn self-start" href="/shop/tickets/manage">Alla biljetter</a>
+    {/if}
+  </div>
   <TicketSection title={m.tickets_availableNow()} tickets={activeTickets} />
   <TicketSection title={m.tickets_upcoming()} tickets={upcomingTickets} />
   <TicketSection title={m.tickets_past()} tickets={pastTickets} />

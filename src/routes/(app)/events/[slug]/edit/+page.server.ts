@@ -11,7 +11,6 @@ import { getAllTags } from "$lib/news/tags";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
-  authorize(apiNames.EVENT.UPDATE, user);
 
   const allTags = await getAllTags(prisma, true);
   const event = await prisma.event.findUnique({
@@ -25,6 +24,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   if (!event) {
     throw error(404, m.events_errors_eventNotFound());
   }
+  if (event.authorId !== user.memberId) authorize(apiNames.EVENT.UPDATE, user);
   const isRecurring = event.recurringParentId !== null;
   const recurringEvent = isRecurring
     ? await prisma.recurringEvent.findUnique({

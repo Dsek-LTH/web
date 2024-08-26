@@ -23,6 +23,7 @@ model User {
   memberId     String
   policies     String[]
   externalCode String? // for non-authenticated users, like purchasing tickets
+  roles        String[]
   @@ignore
 }
 
@@ -526,44 +527,45 @@ model Meeting {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Members{
 model Member {
-  id                     String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  studentId              String?                 @unique(map: "members_student_id_unique") @map("student_id") @db.VarChar(255)
-  email                  String?                 @unique @db.VarChar(255) @deny("read", auth() == null)
-  firstName              String?                 @map("first_name") @db.VarChar(255)
-  nickname               String?                 @db.VarChar(255) @deny("read", auth() == null)
-  lastName               String?                 @map("last_name") @db.VarChar(255)
-  bio                    String?                 @db.Text
-  picturePath            String?                 @map("picture_path") @db.Text
-  classProgramme         String?                 @map("class_programme") @db.VarChar(255)
-  classYear              Int?                    @map("class_year")
-  visible                Boolean                 @default(true)
-  foodPreference         String?                 @map("food_preference") @db.VarChar(255)
-  stripeCustomerId       String?                 @map("stripe_customer_id")
+  id                      String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  studentId               String?                 @unique(map: "members_student_id_unique") @map("student_id") @db.VarChar(255)
+  email                   String?                 @unique @db.VarChar(255) @deny("read", auth() == null)
+  firstName               String?                 @map("first_name") @db.VarChar(255)
+  nickname                String?                 @db.VarChar(255) @deny("read", auth() == null)
+  lastName                String?                 @map("last_name") @db.VarChar(255)
+  bio                     String?                 @db.Text
+  picturePath             String?                 @map("picture_path") @db.Text
+  classProgramme          String?                 @map("class_programme") @db.VarChar(255)
+  classYear               Int?                    @map("class_year")
+  visible                 Boolean                 @default(true)
+  foodPreference          String?                 @map("food_preference") @db.VarChar(255)
+  stripeCustomerId        String?                 @map("stripe_customer_id")
 
-  nollningGroupId        String?                 @map("nollning_group_id") @db.Uuid
-  nollaIn                PhadderGroup?           @relation(fields: [nollningGroupId], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "members_nollning_group_id_foreign")
+  nollningGroupId         String?                 @map("nollning_group_id") @db.Uuid
+  nollaIn                 PhadderGroup?           @relation(fields: [nollningGroupId], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "members_nollning_group_id_foreign")
 
-  pingsFromMe            Ping[]                  @relation("pings_from_memberTomembers")
-  pingsToMe              Ping[]                  @relation("pings_to_memberTomembers")
-  likedArticles          Article[]               @relation("article_likes")
-  articleComments        ArticleComment[]
-  articleRequests        ArticleRequest[]
-  authors                Author[]
-  eventComments          EventComment[]
-  eventsGoingTos         Event[]                 @relation("event_going")
-  eventsInterestedIns    Event[]                 @relation("event_interested")
-  subscribedTags         Tag[]                   @relation("member_tag_subscriptions")
-  authoredEvents         Event[]
-  mandates               Mandate[]
-  notifications          Notification[]
-  subscriptionSettings   SubscriptionSetting[]
-  memberSpecificPolicies AccessPolicy[]
-  doorAccessPolicies     DoorAccessPolicy[]
-  authoredShoppables     Shoppable[]
-  inventory              Consumable[]
-  shopReservations       ConsumableReservation[]
-  bookingRequests        BookingRequest[]
-  recurringEvent         RecurringEvent[]
+  pingsFromMe             Ping[]                  @relation("pings_from_memberTomembers")
+  pingsToMe               Ping[]                  @relation("pings_to_memberTomembers")
+  likedArticles           Article[]               @relation("article_likes")
+  articleComments         ArticleComment[]
+  articleRequests         ArticleRequest[]
+  authors                 Author[]
+  eventComments           EventComment[]
+  eventsGoingTos          Event[]                 @relation("event_going")
+  eventsInterestedIns     Event[]                 @relation("event_interested")
+  subscribedTags          Tag[]                   @relation("member_tag_subscriptions")
+  authoredEvents          Event[]
+  mandates                Mandate[]
+  notifications           Notification[]
+  subscriptionSettings    SubscriptionSetting[]
+  memberSpecificPolicies  AccessPolicy[]
+  doorAccessPolicies      DoorAccessPolicy[]
+  shoppableAccessPolicies ShoppableAccessPolicy[]
+  authoredShoppables      Shoppable[]
+  inventory               Consumable[]
+  shopReservations        ConsumableReservation[]
+  bookingRequests         BookingRequest[]
+  recurringEvent          RecurringEvent[]
 
   @@allow('create', has(auth().policies, "core:member:create"))
   @@allow('create', auth().studentId == studentId)
@@ -908,35 +910,42 @@ enum ShoppableType {
 
 // Base entity to be inherited by actual purchasables
 model Shoppable {
-  id            String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  title         String
-  titleEn       String?
-  description   String?
-  descriptionEn String?
-  type          ShoppableType
+  id             String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title          String
+  titleEn        String?
+  description    String?
+  descriptionEn  String?
+  type           ShoppableType
 
-  authorId      String                  @db.Uuid @deny("update", true) // never allow updating who created the shoppable
-  author        Member                  @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  authorId       String                  @db.Uuid @deny("update", true) // never allow updating who created the shoppable
+  author         Member                  @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  price         Int
-  availableFrom DateTime                @map("available_from") @db.Timestamptz(6) @default(now())
-  availableTo   DateTime?               @map("available_to") @db.Timestamptz(6)
+  price          Int
+  availableFrom  DateTime                @map("available_from") @db.Timestamptz(6) @default(now())
+  availableTo    DateTime?               @map("available_to") @db.Timestamptz(6)
 
 
-  createdAt     DateTime                @default(now()) @map("created_at") @db.Timestamptz(6) @ignore()
-  updatedAt     DateTime                @map("updated_at") @db.Timestamptz(6) @updatedAt()
-  removedAt     DateTime?               @map("removed_at") @db.Timestamptz(6)
+  createdAt      DateTime                @default(now()) @map("created_at") @db.Timestamptz(6) @ignore()
+  updatedAt      DateTime                @map("updated_at") @db.Timestamptz(6) @updatedAt()
+  removedAt      DateTime?               @map("removed_at") @db.Timestamptz(6)
 
-  ticket        Ticket?
-  consumables   Consumable[]
-  reservations  ConsumableReservation[]
-  questions     ItemQuestion[]
+  ticket         Ticket?
+  consumables    Consumable[]
+  reservations   ConsumableReservation[]
+  questions      ItemQuestion[]
+  accessPolicies ShoppableAccessPolicy[]
 
-  // create: acces and mark self as author
+  // create: access and mark self as author
   @@allow("create", hasSome(auth().policies, ["webshop:create", "webshop:manage"]) && authorId == auth().memberId)
   // update: author or manage access
   @@allow("update", auth().memberId == authorId || has(auth().policies, "webshop:manage"))
+
+  // I would like to do something like this but it is not possible because has(list: Any[], literal: Any) requires a literal
+  // @@allow("read", isEmpty(accessPolicies) || 
+  //   accessPolicies?[exists(role != null && has(auth().roles, role)) || 
+  //                   (studentId != null && auth().studentId == studentId)])
   @@allow("read", true)
+
   // cannot read if removed, unless author or manager
   @@deny("read", removedAt != null && !(auth().memberId == authorId || has(auth().policies, "webshop:manage")))
   // only managers can delete (should very rarely be done)
@@ -1097,4 +1106,23 @@ model ConsumableReservation {
   // customer can delete
   @@allow("delete", (memberId == auth().memberId || auth().externalCode != null && externalCustomerCode == auth().externalCode))
   @@map("consumable_reservation")
+}
+
+model ShoppableAccessPolicy {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  shoppableId String    @db.Uuid
+  shoppable   Shoppable @relation(fields: [shoppableId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  role        String?
+  studentId   String?   @map("student_id")
+  member      Member?   @relation(fields: [studentId], references: [studentId], onDelete: NoAction, onUpdate: NoAction, map: "access_policies_member_id_foreign")
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  // create: access and mark self as author
+  @@allow("create", hasSome(auth().policies, ["webshop:create", "webshop:manage"]) || auth().memberId == shoppable.authorId)
+  // update: author or manage access
+  @@allow("update", auth().memberId == shoppable.authorId || has(auth().policies, "webshop:manage"))
+  @@allow("read", true)
+  // only managers can delete (should very rarely be done)
+  @@allow("delete", auth().memberId == shoppable.authorId || has(auth().policies, "webshop:manage"))
+  @@map("shoppable_access_policies")
 }

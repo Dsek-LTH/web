@@ -2,10 +2,18 @@
   import { page } from "$app/stores";
   import { POST_REVEAL_PREFIX } from "$lib/components/postReveal/types";
   import { getFullName } from "$lib/utils/client/member";
+  import type { PhadderGroup } from "@prisma/client";
+  import LanguageSwitcher from "../../LanguageSwitcher.svelte";
+  import * as m from "$paraglide/messages";
 
   let checked = false;
   $: member = $page.data.member;
+  $: nollaInGroup = $page.data["phadderGroup"] as Promise<
+    Pick<PhadderGroup, "name"> | undefined
+  >;
 </script>
+
+<!-- PostRevealDesktopLeftNavbar also has some duplicated stuff so remember to change both -->
 
 <div class="drawer-end">
   <input
@@ -23,16 +31,10 @@
 
     <!-- Drawer content -->
     <aside
-      class="flex min-h-full max-w-72 flex-col items-end rounded-box rounded-r-none bg-base-100 px-4 py-6 pl-8 md:max-w-80"
+      class="flex min-h-full max-w-72 flex-col items-stretch rounded-box rounded-r-none bg-base-100 px-4 py-6 md:max-w-80"
     >
       {#if member}
-        <div class="flex items-start justify-end gap-2">
-          <span class="max-w-32 text-right font-medium"
-            >{getFullName({
-              ...member,
-              nickname: null,
-            })}</span
-          >
+        <div class="flex items-start justify-start gap-2">
           <label
             for="nolla-account-drawer"
             aria-label="open account sidebar"
@@ -40,28 +42,50 @@
           >
             <span class="i-mdi-account-outline size-8" />
           </label>
+          <div>
+            <span class="line-clamp-1 text-left font-medium"
+              >{getFullName({
+                ...member,
+              })}</span
+            >
+            {#await nollaInGroup then group}
+              {#if group}
+                <span class="text-neutral">{group?.name}</span>
+              {/if}
+            {/await}
+          </div>
         </div>
       {/if}
-      <ul class="menu -mr-6 mt-4 items-end *:text-right">
+      <ul class="menu -mx-4 mt-4 items-start gap-2">
         <li>
-          <a on:click={() => (checked = false)} href="/members/me">Profil</a>
+          <a on:click={() => (checked = false)} href="/members/me">
+            <span class="i-mdi-account text-2xl" />
+            {m.navbar_userMenu_profile()}
+          </a>
         </li>
         <li>
           <a
             on:click={() => (checked = false)}
-            href="{POST_REVEAL_PREFIX}/settings">Inställningar</a
+            href="{POST_REVEAL_PREFIX}/settings"
+          >
+            <span class="i-mdi-settings-outline text-2xl" />
+            {m.navbar_userMenu_settings()}</a
           >
         </li>
         <li>
           <a
             on:click={() => (checked = false)}
-            href="{POST_REVEAL_PREFIX}/shop/inventory">Mina biljetter</a
+            href="{POST_REVEAL_PREFIX}/shop/inventory"
+          >
+            <span class="i-mdi-treasure-chest-outline text-2xl" />
+            {m.navbar_userMenu_inventory()}</a
           >
         </li>
       </ul>
-      <a href="/" class="btn-primary-dark btn mt-8 self-center">
-        till dsek <span class="i-mdi-arrow-right" />
+      <a href="/home" class="btn-primary-dark btn mt-8 self-stretch">
+        D-sek <span class="i-mdi-arrow-right" />
       </a>
+      <LanguageSwitcher class=" mt-8 bg-base-200" />
     </aside>
   </div>
 </div>

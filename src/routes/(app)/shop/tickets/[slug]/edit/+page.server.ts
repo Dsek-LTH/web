@@ -22,6 +22,7 @@ export const load = async ({ locals, params }) => {
               options: true,
             },
           },
+          accessPolicies: true,
         },
       },
       event: true,
@@ -56,6 +57,7 @@ export const load = async ({ locals, params }) => {
           })),
           type: q.type as QuestionType,
         })),
+        accessPolicies: ticket.shoppable.accessPolicies,
       },
       zod(ticketSchema),
       { errors: false },
@@ -86,7 +88,7 @@ export const actions = {
       let errorMsg;
       if (err instanceof Error) errorMsg = err.message;
       else errorMsg = String(err);
-      console.log("Error creating ticket", errorMsg);
+      console.log("Error updating ticket", errorMsg);
       return message(form, {
         message: "Kunde inte skapa biljett: " + errorMsg,
         type: "error,",

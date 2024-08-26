@@ -7,10 +7,9 @@ import { error } from "@sveltejs/kit";
  * This endpoint is a backup in case an event doesn't have a slug.
  * It will create a slug and then redirect to /events/<slug>.
  */
-export const GET = async ({ locals, params }) => {
+export const GET = async ({ params }) => {
   const id = params.id;
-  const { prisma } = locals;
-  const event = await prisma.event.findUnique({
+  const event = await authorizedPrismaClient.event.findUnique({
     where: {
       id,
     },
@@ -29,7 +28,7 @@ export const GET = async ({ locals, params }) => {
       },
     });
     const newSlug = slugWithCount(slug, slugCount);
-    await prisma.event.update({
+    await authorizedPrismaClient.event.update({
       where: {
         id,
       },

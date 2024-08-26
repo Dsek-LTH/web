@@ -10,6 +10,7 @@
   import { isAuthorized } from "$lib/utils/authorization";
   import * as m from "$paraglide/messages";
   import dayjs from "dayjs";
+  import { twMerge } from "tailwind-merge";
   /* If form that button is part of is currently submitting */
   export let isSubmitting: boolean;
   export let ticket: Pick<
@@ -26,6 +27,9 @@
     | "price"
   >;
   $: cartPath = $page.data["paths"]?.["cart"] ?? "/shop/cart";
+
+  let clazz: string | undefined = undefined;
+  export { clazz as class };
 
   /* If ticket is available time-wise (not upcoming, not past)*/
   $: isUpcoming = ticket.availableFrom > $now;
@@ -60,7 +64,7 @@
   {#if isCurrentlyAvailable}
     {#if ticket.isInUsersCart}
       {#if isInGracePeriod}
-        <span class="text-xl">
+        <span class={twMerge("text-xl", clazz)}>
           {m.tickets_buyButton_partOfLottery()}
           <Timer
             milliseconds={ticket.gracePeriodEndsAt.valueOf() - $now.valueOf()}
@@ -70,10 +74,10 @@
         <a type="button" href={cartPath} class="btn btn-primary">
           {#if ticket.userReservations.length > 0}
             {@const position = (ticket.userReservations[0]?.order ?? -100) + 1}
-            {#if position}
+            {#if position >= 0}
               <span>
                 {m.cart_reservation_queuePosition()}
-                <ScrollingNumber number={4} />
+                <ScrollingNumber number={position} />
               </span>
             {:else}
               {m.tickets_buyButton_inQueue()}
@@ -112,14 +116,14 @@
   {:else if isUpcoming}
     {#if ticket.availableFrom.valueOf() - $now.valueOf() < 1000 * 60 * 5}
       <!-- Less than 5 minutes -->
-      <span class="text-2xl"
+      <span class={clazz}
         >{m.tickets_buyButton_releasesIn()}
         <Timer
           milliseconds={ticket.availableFrom.valueOf() - $now.valueOf()}
         /></span
       >
     {:else}
-      <span>
+      <span class={clazz}>
         {m.tickets_buyButton_opensIn()}
         {dayjs(ticket.availableFrom).fromNow()}
       </span>

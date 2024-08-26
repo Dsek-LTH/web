@@ -1,47 +1,80 @@
-<section>
-  <h3 class="page-title text-secondary">D-sektionen</h3>
-  <p class="nolla-prose">
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit. In interdum
-    venenatis faucibus. Praesent dictum iaculis iaculis. Aliquam nulla magna,
-    venenatis sit amet mauris sed, pharetra consectetur urna. Class aptent
-    taciti sociosqu ad litora torquent per conubia nostra, per inceptos
-    himenaeos. Phasellus non congue leo. Duis malesuada commodo arcu eu
-    consectetur. Morbi aliquam rhoncus tellus ac tempus. Suspendisse blandit
-    augue nec massa semper semper nec vitae erat.
-  </p>
-  <a class="btn-primary-dark btn" href="/"
-    >dsek.se <span class="i-mdi-arrow-right" /></a
-  >
-</section>
+<script lang="ts">
+  import * as m from "$paraglide/messages";
+</script>
 
-<section>
-  <h3 class="page-title">Styrelsen</h3>
-  <figure class="aspect-[5/3] w-2/3 rounded-box bg-neutral"></figure>
-  <p class="nolla-prose">
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit. In interdum
-    venenatis faucibus. Praesent dictum iaculis iaculis. Aliquam nulla magna,
-    venenatis sit amet mauris sed, pharetra consectetur urna. Class aptent
-    taciti sociosqu ad litora torquent per conubia nostra, per inceptos
-    himenaeos. Phasellus non congue leo. Duis malesuada commodo arcu eu
-    consectetur. Morbi aliquam rhoncus tellus ac tempus. Suspendisse blandit
-    augue nec massa semper semper nec vitae erat.
-  </p>
-  <a href="/board" class="btn-primary-dark btn">läs mer!</a>
-</section>
-
-<section>
-  <h3 class="page-title">D-Chip</h3>
-  <figure class="aspect-[5/3] w-2/3 rounded-box bg-neutral"></figure>
-  <p class="nolla-prose">
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit. In interdum
-    venenatis faucibus. Praesent dictum iaculis iaculis. Aliquam nulla magna,
-    venenatis sit amet mauris sed, pharetra consectetur urna. Class aptent
-    taciti sociosqu ad litora torquent per conubia nostra, per inceptos
-    himenaeos. Phasellus non congue leo. Duis malesuada commodo arcu eu
-    consectetur. Morbi aliquam rhoncus tellus ac tempus. Suspendisse blandit
-    augue nec massa semper semper nec vitae erat.
-  </p>
-  <a href="https://dchip.dsek.se" target="_blank" class="btn-primary-dark btn"
-    >till hemsida <span class="i-mdi-arrow-right" /></a
-  >
-</section>
+<!-- limit width and center -->
+<div class="mx-auto max-w-screen-md">
+  <section>
+    <h3 class="page-title text-secondary">{m.nolla_guild_header()}</h3>
+    <p class="nolla-prose">
+      {m.nollning_wikia_guild_body()}
+    </p>
+    <a class="btn-primary-dark btn" href="/"
+      >dsek.se <span class="i-mdi-arrow-right" /></a
+    >
+  </section>
+  <br /><br />
+  <section>
+    <h3 class="page-title">{m.theBoard()}</h3>
+    <!-- TODO: Add image of the board -->
+    <figure class="aspect-[5/3] w-2/3 rounded-box bg-neutral"></figure>
+    <p class="nolla-prose">
+      {m.nollning_wikia_board_body()}
+      <a href="/board" class="link">{m.nolla_readMore()}!</a>
+    </p>
+    <ul class="list-disc space-y-2 leading-normal">
+      <li>
+        <strong>{m.nolla_guild_board_president()}</strong>
+        {m.nolla_guild_board_president_description()}
+      </li>
+      <li>
+        <strong>{m.nolla_guild_board_vice_president()}</strong>
+        {m.nolla_guild_board_vice_president_description()}
+      </li>
+      <li>
+        <strong>{m.nolla_guild_board_treasurer()}</strong>
+        {m.nolla_guild_board_treasurer_description()}
+      </li>
+      <li>
+        <strong>{m.nolla_guild_board_study_president()}</strong>
+        {m.nolla_guild_board_study_president_description()}
+      </li>
+      <li>
+        <strong>{m.nolla_guild_board_information()}</strong>
+        {m.nolla_guild_board_information_description()}
+      </li>
+      <li>
+        <strong>{m.nolla_guild_board_cafe()}</strong>
+        {m.nolla_guild_board_cafe_description()}.
+      </li>
+      <li>
+        <strong>{m.nolla_guild_board_sex()}</strong>
+        {m.nolla_guild_board_sex_description()}
+      </li>
+      <li>
+        <strong>{m.nolla_guild_board_kallarm()}</strong>
+        {m.nolla_guild_board_kallarm_description()}
+      </li>
+      <li>
+        <strong>{m.nolla_guild_board_corporate_relations()}</strong>
+        {m.nolla_guild_board_corporate_relations_description()}
+      </li>
+      <li>
+        <strong>{m.nolla_guild_board_activities()}</strong>
+        {m.nolla_guild_board_activities_description()}
+      </li>
+    </ul>
+  </section>
+  <br /><br />
+  <section>
+    <h3 class="page-title">{m.landing_dchip_title()}</h3>
+    <!-- TODO: Add image of D-chip -->
+    <figure class="aspect-[5/3] w-2/3 rounded-box bg-neutral"></figure>
+    <p class="nolla-prose">
+      {m.landing_dchip_description()}
+    </p>
+    <a href="https://dchip.dsek.se" target="_blank" class="btn-primary-dark btn"
+      >{m.website()} <span class="i-mdi-arrow-right" /></a
+    >
+  </section>
+</div>

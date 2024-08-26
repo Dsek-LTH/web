@@ -1,6 +1,7 @@
 import { POST_REVEAL_PREFIX } from "$lib/components/postReveal/types";
 import apiNames from "$lib/utils/apiNames";
 import type { Route } from "../../routes";
+import * as m from "$paraglide/messages";
 export const getPostRevealRoute = (pathname: string) => {
   if (pathname.startsWith(POST_REVEAL_PREFIX)) {
     if (pathname === POST_REVEAL_PREFIX) {
@@ -20,21 +21,21 @@ export const getRoutes = (): Route[] =>
       appBehaviour: "bottom-nav",
     },
     {
-      title: "Event",
+      title: m.events(),
       path: "/events",
       icon: "i-mdi-calendar-outline",
       accessRequired: apiNames.EVENT.READ,
       appBehaviour: "bottom-nav",
     },
     {
-      title: "Meddelanden",
+      title: m.messages(),
       path: "/messages",
       icon: "i-mdi-message-outline",
       accessRequired: apiNames.NEWS.READ,
       appBehaviour: "bottom-nav",
     },
     {
-      title: "Wikia",
+      title: m.nollning_wikia(),
       path: "/wikia",
       specialBehaviour: "cart-badge",
       icon: "i-mdi-compass-outline",
@@ -53,7 +54,7 @@ export const appBottomNavRoutes = (routes: Route[]): Route[] =>
 
 export const getIcon = (icon: string, revealTheme: boolean) => {
   if (icon === "nollning-logo") {
-    if (revealTheme) return "i-mdi-cloud";
+    if (revealTheme) return "i-mdi-cloud-outline";
     else return "i-mdi-home";
   }
   return icon;

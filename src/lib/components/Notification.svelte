@@ -64,7 +64,7 @@
   >;
 </script>
 
-<div class="relative m-0 rounded-none">
+<div class="relative flex w-full items-stretch rounded-none p-2">
   {#if superformRead && enhanceRead}
     <form
       bind:this={readForm}
@@ -83,27 +83,31 @@
       {/if}
     </form>
   {/if}
-  <div>
-    <AuthorAvatars {authors} />
-  </div>
+
   <a
     href={notification.link}
-    class="flex h-full flex-col flex-nowrap justify-center {isUnread
-      ? 'font-semibold'
-      : 'opacity-80'}"
     on:click={onClick}
+    class="flex flex-1 items-center gap-4"
   >
-    <span class="mt-1 w-11/12 truncate text-lg">{notification.title}</span>
-    <span class="mb-1 w-11/12 truncate text-wrap text-xs"
-      >{notification.message}</span
+    <div>
+      <AuthorAvatars {authors} />
+    </div>
+    <div
+      class="flex h-full flex-col flex-nowrap justify-center {isUnread
+        ? 'font-medium'
+        : 'opacity-80'}"
     >
-    <span class="w-11/12 truncate text-wrap text-xs text-gray-500">
-      <LiveTimeSince timeStamp={notification.createdAt.getTime()} />
-    </span>
+      <span class="mt-1 line-clamp-1 text-base">{notification.title}</span>
+      <span class="mb-1 line-clamp-2 text-xs">{notification.message}</span>
+      <span class="line-clamp-1 text-xs text-gray-500">
+        <LiveTimeSince timeStamp={notification.createdAt.getTime()} />
+      </span>
+    </div>
   </a>
   {#if superformDelete && enhanceDelete}
     <!-- Deletes this notification -->
     <form
+      class="flex items-stretch"
       method="POST"
       action="/notifications?/deleteNotification"
       use:enhanceDelete
@@ -116,9 +120,9 @@
         <input type="hidden" name="notificationId" value={notification.id} />
       {/if}
       <button
-        class="btn btn-ghost pointer-events-auto absolute right-0 top-0 z-10 h-full w-auto rounded-none p-2 *:text-2xl"
+        class="btn btn-ghost pointer-events-auto z-10 -mr-2 rounded-none !px-2 *:text-2xl"
       >
-        <span class="i-mdi-delete-outline"></span>
+        <span class="i-mdi-delete-outline mx-0 opacity-50"></span>
       </button>
     </form>
   {/if}

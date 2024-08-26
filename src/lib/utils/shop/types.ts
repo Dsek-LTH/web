@@ -66,6 +66,15 @@ export const ticketSchema = z
           },
         ),
     ),
+    accessPolicies: z
+      .array(
+        z.object({
+          id: z.string().optional(),
+          role: z.string().nullable(),
+          studentId: z.string().nullable(),
+        }),
+      )
+      .optional(),
   })
   .refine(
     (data) =>

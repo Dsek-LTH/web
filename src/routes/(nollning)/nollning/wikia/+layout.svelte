@@ -4,39 +4,31 @@
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import { i18n } from "$lib/utils/i18n";
   import { POST_REVEAL_PREFIX } from "$lib/components/postReveal/types";
+  import * as m from "$paraglide/messages";
 
-  export let data;
   const links = [
-    ...(data.revealTheme
-      ? [
-          {
-            label: "Karta",
-            link: "map",
-          },
-        ]
-      : []),
     {
-      label: "Sektionen",
+      label: m.nollning_wikia_map(),
+      link: "map",
+    },
+    {
+      label: m.theGuild(),
       link: "sektionen",
     },
     {
-      label: "Studenthälsan",
+      label: m.nollning_wikia_student_health(),
       link: "student-health",
     },
-    ...(data.revealTheme
-      ? [
-          {
-            label: "Sektionsvisor",
-            link: "guild-songs",
-          },
-        ]
-      : []),
     {
-      label: "Ordlista",
+      label: m.nollning_wikia_guildSongs(),
+      link: "guild-songs",
+    },
+    {
+      label: m.nolla_wordlist_header(),
       link: "wordlist",
     },
     {
-      label: "Klädkoder",
+      label: m.nollning_wikia_dressCodes(),
       link: "dress-codes",
     },
     {
@@ -47,7 +39,6 @@
   $: path = i18n
     .route($page.url.pathname)
     .replace(`${POST_REVEAL_PREFIX}/wikia/`, "");
-  $: console.log(path);
   $: currentLink = links.find((link) => link.link === path) ?? links[0];
   $: currentLinkIndex = currentLink ? links.indexOf(currentLink) : undefined;
   let elements: HTMLAnchorElement[] = [];
@@ -75,7 +66,7 @@
 <SetPageTitle title="Wikia" />
 
 <div
-  class="scrollbar-hide sticky -top-1 -mx-6 flex gap-2 overflow-x-auto bg-base-100 px-6 py-2 pt-3"
+  class="scrollbar-hide sticky -top-1 z-10 -mx-6 flex gap-2 overflow-x-auto bg-base-100 px-6 py-2 pt-3 md:justify-center"
   bind:this={scroller}
 >
   {#each links as link, i (link.link)}
@@ -93,6 +84,6 @@
   {/each}
 </div>
 
-<div class="space-y-12 py-6">
+<div class="relative z-0 mx-auto max-w-screen-xl space-y-12 py-6">
   <slot />
 </div>

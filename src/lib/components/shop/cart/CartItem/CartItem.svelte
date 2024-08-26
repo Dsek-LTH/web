@@ -1,8 +1,8 @@
 <script lang="ts">
   import Price from "$lib/components/Price.svelte";
+  import ExpiresAtTimer from "$lib/components/shop/cart/ExpiresAtTimer.svelte";
   import type { CartItem } from "$lib/utils/shop/types";
   import CartItemEvent from "./CartItemEvent.svelte";
-  import CartItemExpiresAt from "../ExpiresAtTimer.svelte";
   import CartItemRemoveButton from "./CartItemRemoveButton.svelte";
 
   export let item: CartItem;
@@ -47,7 +47,7 @@
     </td>
   {/if}
   <td class="text-center">
-    <CartItemExpiresAt {expiresAt} />
+    <ExpiresAtTimer {expiresAt} />
   </td>
   <td class="text-center">
     <CartItemRemoveButton itemId={item.id} />
@@ -65,7 +65,7 @@
 <tr class="border-none md:hidden">
   <td class="font-medium">{shoppable.title} </td>
   <td>
-    <CartItemExpiresAt {expiresAt} />
+    <ExpiresAtTimer {expiresAt} />
   </td>
   <td class="text-right">
     <Price price={totalPrice} />
