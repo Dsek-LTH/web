@@ -9,6 +9,7 @@ import { notificationSchema } from "$lib/zod/schemas";
 import { superValidate } from "sveltekit-superforms";
 import { zod } from "sveltekit-superforms/adapters";
 
+const afterNollning = new Date("2024-10-06");
 export const load = async ({ locals, cookies }) => {
   const { prisma, user, member } = locals;
 
@@ -30,6 +31,7 @@ export const load = async ({ locals, cookies }) => {
   if (locals.isApp)
     cookies.set(APP_PREFERRED_PAGE_COOKIE, "nollning", {
       path: "/",
+      expires: afterNollning,
     });
 
   return {
