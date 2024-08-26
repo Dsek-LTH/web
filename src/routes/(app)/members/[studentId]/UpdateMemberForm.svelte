@@ -8,6 +8,9 @@
   import * as m from "$paraglide/messages";
   import FormSelect from "$lib/components/forms/FormSelect.svelte";
   import type { PhadderGroup } from "@prisma/client";
+  import { isAuthorized } from "$lib/utils/authorization";
+  import apiNames from "$lib/utils/apiNames";
+  import { page } from "$app/stores";
   export let isEditing;
   export let phadderGroups: PhadderGroup[];
   export let data: SuperValidated<UpdateSchema>;
@@ -58,7 +61,10 @@
     error={$errors.foodPreference}
     {...$constraints.foodPreference}
   />
-  <div class="flex w-full flex-wrap gap-2 [&>*:nth-child(3)]:flex-1">
+  <div
+    class="flex w-full flex-wrap gap-2 [&>*:nth-child(3)]:flex-1"
+    class:hidden={!isAuthorized(apiNames.MEMBER.UPDATE, $page.data.user)}
+  >
     <Labeled
       label={m.members_programme()}
       error={$errors.classProgramme}
