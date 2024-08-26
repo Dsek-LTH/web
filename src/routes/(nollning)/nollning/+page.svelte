@@ -15,6 +15,7 @@
   import lola from "./(photos)/lola.webp";
   import thyra from "./(photos)/thyra.webp";
   import wilma from "./(photos)/wilma.webp";
+  import cowprint from "./(photos)/cowprint.webp";
   import { languageTag } from "$paraglide/runtime";
 
   export let data;
@@ -152,7 +153,7 @@
         </p>
       </section>
 
-      <section class="!my-32 !mb-48 flex flex-col items-center" id="staben">
+      <section class="!my-16 !mb-32 flex flex-col items-center" id="staben">
         <div
           class="w-full scroll-smooth max-md:carousel md:grid md:grid-cols-2 md:gap-4 lg:w-[calc(100%+8rem)] lg:grid-cols-3"
         >
@@ -171,11 +172,19 @@
     {/if}
 
     <section
-      class="!mb-48 flex flex-col items-center"
+      class="relative !mb-32 flex flex-col items-center"
       id="peppers"
-      class:!mt-32={data.revealTheme}
+      class:!mt-16={data.revealTheme}
     >
-      <h1 class="mb-16 font-nolla-pepp text-4xl text-primary">Los Peppos</h1>
+      <div
+        class="absolute -inset-x-[50dvw] -inset-y-10 -z-0 max-md:bg-[length:70%] md:bg-[length:30%]"
+        style={`background-image: url('${cowprint}')`}
+      />
+      <h1
+        class="z-10 mb-16 rounded-btn bg-base-100 p-2 font-nolla-pepp text-4xl text-primary"
+      >
+        Los Peppos
+      </h1>
       <div
         class="w-full scroll-smooth max-md:carousel md:grid md:grid-cols-2 md:gap-4 lg:w-[calc(100%+8rem)] lg:grid-cols-3"
       >
@@ -228,6 +237,7 @@
             max={data.phadderGroups.length}
             prefix="groupslide"
             font="text-2xl font-medium"
+            rounded={false}
           >
             <div class="mt-2 flex justify-center gap-2">
               <MembersList class="btn btn-outline btn-sm" members={group.nollor}

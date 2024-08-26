@@ -9,6 +9,8 @@
   export let font = stab
     ? "font-nolla-stab text-3xl tracking-widest"
     : "font-nolla-pepp tracking-wider text-xl";
+
+  export let rounded = true;
   $: newLines = name.split("\n").length - 1;
 </script>
 
@@ -26,7 +28,11 @@
       />
     {/each}
   </div>
-  <figure class="relative mb-16 size-60 rounded-full border-none bg-neutral">
+  <figure
+    class="relative mb-16 size-60 border-none"
+    class:rounded-full={rounded}
+    class:rounded-btn={!rounded}
+  >
     <div
       class="absolute -inset-x-12 top-1/2 flex -translate-y-1/2 transform justify-between md:hidden"
     >
@@ -42,17 +48,19 @@
     <img
       src={imageUrl}
       alt={name}
-      class="h-full w-full rounded-full object-cover"
+      class="h-full w-full object-cover"
+      class:rounded-full={rounded}
+      class:rounded-btn={!rounded}
     />
   </figure>
   <h3
-    class="mb-4 text-center font-medium text-primary {font}"
+    class="mb-4 text-center font-medium text-primary {font} rounded-btn bg-base-100 p-2"
     style="margin-top: -{newLines * 1.2}em"
   >
     <!-- eslint-disable-next-line svelte/no-at-html-tags -->
     {@html name.replaceAll("\n", "<br />")}
   </h3>
-  <p class="nolla-prose text-center">
+  <p class="nolla-prose rounded-btn bg-base-100 p-2 text-center">
     <!-- eslint-disable-next-line svelte/no-at-html-tags -->
     {@html body.replaceAll("\n", "<br />")}
   </p>
