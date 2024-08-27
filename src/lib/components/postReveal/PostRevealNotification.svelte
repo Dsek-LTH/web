@@ -52,7 +52,12 @@
 
   // Handle "reading" notification when visiting relevant link
   $: isUnread = notification.readAt === null;
-  $: isPathSame = i18n.route($page.url.pathname) === link;
+  $: isPathSame =
+    i18n.route($page.url.pathname) === link ||
+    (link.startsWith("/news/") &&
+      i18n
+        .route($page.url.pathname)
+        .startsWith(`${POST_REVEAL_PREFIX}/messages`));
   $: (() => {
     if (isUnread && isPathSame) {
       setTimeout(() => {
