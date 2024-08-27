@@ -118,7 +118,7 @@ Ja A-sek är bäst! :||
     <h1>K - KK</h1>
     <pre>
 Vilka har den starka rösten
-Vilka har de sörsta brösten
+Vilka har de största brösten
 Vilka ger er alltid trösten
 När ert lag förlorar
 KK
