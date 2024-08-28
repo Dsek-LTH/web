@@ -41,37 +41,43 @@
       name: "Øverphøs\nArux ToniTribus",
       imageUrl: arux,
       body: `Det var inte länge sedan Arux själv upplevde kaosets och elektricitetens förödande krafter. Då lyckades han inte kontrollera den, men denna gång hade han Staben vid sin sida. Som øverphøs leder han staben för att beskydda nollorna och med dem vid sin sida var det bara en tidsfråga innan stormen skulle vara under kontroll och nollningen skulle räddas.`,
-      bodyEn: ``,
+      bodyEn:
+        "It wasn't long ago that Arux himself experienced the devastating forces of chaos and electricity. Back then, he couldn't control it, but this time he had the Staff by his side. As the øverphøs, he leads the staff to protect the nollor, and with them by his side, it was only a matter of time before the storm would be under control and the nollning would be saved.",
     },
     {
       name: "ImRe Daemon",
       imageUrl: imre,
-      body: ``,
-      bodyEn: ``,
+      body: `I stormiga tider är det ImRe som ser till att Staben alltid är skyddade mot regnets hårda slag. ImRes text är korrupt och kan inte visas...`,
+      bodyEn:
+        "In stormy times, it is ImRe who ensures that the Staff is always protected from the harsh blows of the rain. ImRe's text is corrupted and cannot be displayed...",
     },
     {
       name: "Volto RefacTor",
       imageUrl: volto,
-      body: ``,
-      bodyEn: ``,
+      body: `Volto är mästaren bakom kulisserna när det gäller att organisera event och se till att n0llorna har de förutsättningar som krävs för att lyckas med sina uppdrag, oavsett hur stormigt det blir. Genom att göra detta kan lugnet i stormens öga fortsätta och nollningens aktiviteter förhindras ej av turbulens och väder. Därför är Volto viktig för att se till att stormen som spänt väntar aldrig passerar nollningens gränser.`,
+      bodyEn:
+        "Volto is the master behind the scenes when it comes to organizing events and ensuring that the n0llor have the necessary conditions to succeed in their missions, no matter how stormy it gets. By doing this, the calm in the eye of the storm can continue, and the nollning's activities are not hindered by turbulence and weather. Therefore, Volto is essential to ensure that the storm, which eagerly awaits, never crosses the nollning's boundaries.",
     },
     {
       name: "Lostrego MutatI/O",
       imageUrl: lostrego,
-      body: ``,
-      bodyEn: ``,
+      body: `Som en sann nattens väktare arbetar Lostrego bäst när andra sover. När mörkret faller tar han sig an stormens kaos, lugnar vindarna och ser till att n0llorna kommer hem tryggt. Med honom i Staben dröjer sig inga orosmoln kvar när klockan passerat tolv.`,
+      bodyEn:
+        "As a true guardian of the night, Lostrego works best when others are asleep. When darkness falls, he takes on the chaos of the storm, calms the winds, and ensures that the n0llor return home safely. With him in the Staff, no storm clouds linger once the clock strikes midnight.",
     },
     {
       name: "Macro Tempestas",
       imageUrl: macro,
       body: `För länge sedan, när storken — bärandes på lilla Macro i sin näbb — flög genom ett tungt och mörkt åskmoln , slog blixtarna till och ur molnets djup slets Macro från storkens grepp. Därför blev Macro som han blev. Macro är Stabens beskyddare av det digitala; när koden verkar få eget liv är det Macro som i blixtens hastighet löser buggar. Han vakar även över våra phaddrar, ständigt uppkopplad och alltid redo att rycka in. Med Macro på sin sida kan Staben vara säker på att alla tekniska stormar snabbt blåser över.`,
-      bodyEn: ``,
+      bodyEn:
+        "Long ago, when the stork—carrying little Macro in its beak—flew through a heavy and dark thundercloud, the lightning struck, and from the depths of the cloud, Macro was torn from the stork's grip. That's why Macro became who he is. Macro is the protector of the digital realm; when the code seems to take on a life of its own, it is Macro who solves bugs at lightning speed. He also watches over our phaddrar, constantly connected and always ready to step in. With Macro on their side, the Staff can be sure that all technical storms quickly blow over.",
     },
     {
       name: "Celsta VentUX",
       imageUrl: celesta,
       body: `Celesta trädde fram ur stormen, och såg till att ingen viktig information försvann i dess virvlar. Med sin noggranna och uppmärksamma natur låter hon aldrig något undgå henne, även när tårarna faller som regn. Hon hanterar känslostormar, både sina egna och andras med en obeveklig styrka. Ingen storm, varken av regn eller tårar, är för stor för henne att bemästra.`,
-      bodyEn: ``,
+      bodyEn:
+        "Celesta emerged from the storm, ensuring that no important information was lost in its whirlwinds. With her meticulous and attentive nature, she never lets anything escape her, even when tears fall like rain. She handles emotional storms, both her own and others', with unwavering strength. No storm, whether of rain or tears, is too great for her to master.",
     },
   ];
 
