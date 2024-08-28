@@ -47,9 +47,8 @@
     {
       name: "ImRe Daemon",
       imageUrl: imre,
-      body: `I stormiga tider är det ImRe som ser till att Staben alltid är skyddade mot regnets hårda slag. ImRes text är korrupt och kan inte visas...`,
-      bodyEn:
-        "In stormy times, it is ImRe who ensures that the Staff is always protected from the harsh blows of the rain. ImRe's text is corrupted and cannot be displayed...",
+      body: `ImRes text är korrupt och kan inte visas...`,
+      bodyEn: "ImRe's text is corrupted and cannot be displayed...",
     },
     {
       name: "Volto RefacTor",
