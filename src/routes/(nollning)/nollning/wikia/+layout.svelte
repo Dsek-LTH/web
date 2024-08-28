@@ -35,6 +35,10 @@
       label: "FAQ",
       link: "faq",
     },
+    {
+      label: m.nollning_wikia_literature(),
+      link: "literature",
+    },
   ];
   $: path = i18n
     .route($page.url.pathname)

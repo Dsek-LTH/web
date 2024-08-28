@@ -1,5 +1,7 @@
 <script lang="ts">
   import * as m from "$paraglide/messages";
+  import board from "./board.webp";
+  import dchip from "./d-chip.webp";
 </script>
 
 <!-- limit width and center -->
@@ -17,7 +19,11 @@
   <section>
     <h3 class="page-title">{m.theBoard()}</h3>
     <!-- TODO: Add image of the board -->
-    <figure class="aspect-[5/3] w-2/3 rounded-box bg-neutral"></figure>
+    <img
+      src={board}
+      alt="D-sek board"
+      class="max-h-96 max-w-full rounded-box"
+    />
     <p class="nolla-prose">
       {m.nollning_wikia_board_body()}
       <a href="/board" class="link">{m.nolla_readMore()}!</a>
@@ -68,8 +74,11 @@
   <br /><br />
   <section>
     <h3 class="page-title">{m.landing_dchip_title()}</h3>
-    <!-- TODO: Add image of D-chip -->
-    <figure class="aspect-[5/3] w-2/3 rounded-box bg-neutral"></figure>
+    <img
+      src={dchip}
+      alt="D-chip board"
+      class="max-h-96 max-w-full rounded-box"
+    />
     <p class="nolla-prose">
       {m.landing_dchip_description()}
     </p>
