@@ -10,7 +10,7 @@
   import arux from "./(photos)/staben24_Arux.webp";
   import celesta from "./(photos)/staben24_Celesta.webp";
   import macro from "./(photos)/staben24_Macro.webp";
-  import imre from "./(photos)/staben24_Imre.webp";
+  import imre from "./(photos)/staben24_ImRe.webp";
   import volto from "./(photos)/staben24_Volto.webp";
   import lostrego from "./(photos)/staben24_Lostrego.webp";
   import groupProfile from "./(photos)/staben24_9x16.webp";
