@@ -723,5 +723,6 @@
   "nollning_wikia_board_body": "The guild is led by a wonderful group of board members, each responsible for their own area. The guild consists of 14 different committees, most of which are led by a board member.",
   "nollning_wikia_map_cellar": "The cellar",
   "nollning_wikia_literature": "Student literature",
-  "nollning_wikia_literature_body": "Facebook groupo where a lot of second-hand course literature is being sold by older students, it's a private group but everyone is allowed to join, just ask a phadder to approve you."
+  "nollning_wikia_literature_body": "Facebook groupo where a lot of second-hand course literature is being sold by older students, it's a private group but everyone is allowed to join, just ask a phadder to approve you.",
+  "members_errors_tooLargePicture": "Profile picture too big, max size is {size}."
 }

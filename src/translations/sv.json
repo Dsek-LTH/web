@@ -719,5 +719,6 @@
   "nollning_wikia_board_body": "Sektionen leds av ett härligt gäng ledamöter som alla ansvarar för varsitt\n      område. Sektionen består av 14 olika utskott, varav de flesta leds av en\n      styrelsemedlem.",
   "nollning_wikia_map_cellar": "Källaren",
   "nollning_wikia_literature": "Studentlitteratur",
-  "nollning_wikia_literature_body": "Facebookgrupp där mycket kurslitteratur säljs av äldre studenter, det är\n      en privat grupp men alla får gå med, be en phadder godkänna dig."
+  "nollning_wikia_literature_body": "Facebookgrupp där mycket kurslitteratur säljs av äldre studenter, det är\n      en privat grupp men alla får gå med, be en phadder godkänna dig.",
+  "members_errors_tooLargePicture": "Profilbild är för stor, den får max vara {size}."
 }
