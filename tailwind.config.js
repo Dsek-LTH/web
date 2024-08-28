@@ -29,6 +29,16 @@ export default {
         "nolla-stab": ["Legendary Runes", "ui-serif", "serif"],
         "nolla-pepp": ["Texas Tango", "ui-sans-serif", "sans-serif"],
       },
+      animation: {
+        "reverse-spin": "reverse-spin 1s linear infinite",
+      },
+      keyframes: {
+        "reverse-spin": {
+          from: {
+            transform: "rotate(360deg)",
+          },
+        },
+      },
     },
   },
   daisyui: {

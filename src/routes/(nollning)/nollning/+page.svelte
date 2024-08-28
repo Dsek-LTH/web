@@ -4,6 +4,19 @@
   import MembersList from "$lib/components/socials/MembersList.svelte";
   import PersonCarouselItem from "./PersonCarouselItem.svelte";
   import * as m from "$paraglide/messages";
+  import swirl from "./(photos)/swirl.svg";
+  import eye from "./(photos)/eye.svg";
+
+  import arux from "./(photos)/staben24_Arux.webp";
+  import celesta from "./(photos)/staben24_Celesta.webp";
+  import macro from "./(photos)/staben24_Macro.webp";
+  import imre from "./(photos)/staben24_Imre.webp";
+  import volto from "./(photos)/staben24_Volto.webp";
+  import lostrego from "./(photos)/staben24_Lostrego.webp";
+  import groupProfile from "./(photos)/staben24_9x16.webp";
+  import groupLandscape from "./(photos)/staben24_16x9.webp";
+  import stormBg from "./(photos)/storm_bg.webp";
+
   import alexander from "./(photos)/alexander.webp";
   import axel from "./(photos)/axel.webp";
   import casper from "./(photos)/casper.webp";
@@ -22,6 +35,45 @@
   $: topInsets = ($page.data.appInfo?.insets?.top ?? 0) + 8;
   $: bottomInsets = $page.data.appInfo?.insets?.bottom ?? 0;
   $: headerAndFooterHeight = 128 + topInsets + bottomInsets;
+
+  const stab = [
+    {
+      name: "Øverphøs\nArux ToniTribus",
+      imageUrl: arux,
+      body: `Det var inte länge sedan Arux själv upplevde kaosets och elektricitetens förödande krafter. Då lyckades han inte kontrollera den, men denna gång hade han Staben vid sin sida. Som øverphøs leder han staben för att beskydda nollorna och med dem vid sin sida var det bara en tidsfråga innan stormen skulle vara under kontroll och nollningen skulle räddas.`,
+      bodyEn: ``,
+    },
+    {
+      name: "ImRe Daemon",
+      imageUrl: imre,
+      body: ``,
+      bodyEn: ``,
+    },
+    {
+      name: "Volto RefacTor",
+      imageUrl: volto,
+      body: ``,
+      bodyEn: ``,
+    },
+    {
+      name: "Lostrego MutatI/O",
+      imageUrl: lostrego,
+      body: ``,
+      bodyEn: ``,
+    },
+    {
+      name: "Macro Tempestas",
+      imageUrl: macro,
+      body: `För länge sedan, när storken — bärandes på lilla Macro i sin näbb — flög genom ett tungt och mörkt åskmoln , slog blixtarna till och ur molnets djup slets Macro från storkens grepp. Därför blev Macro som han blev. Macro är Stabens beskyddare av det digitala; när koden verkar få eget liv är det Macro som i blixtens hastighet löser buggar. Han vakar även över våra phaddrar, ständigt uppkopplad och alltid redo att rycka in. Med Macro på sin sida kan Staben vara säker på att alla tekniska stormar snabbt blåser över.`,
+      bodyEn: ``,
+    },
+    {
+      name: "Celsta VentUX",
+      imageUrl: celesta,
+      body: `Celesta trädde fram ur stormen, och såg till att ingen viktig information försvann i dess virvlar. Med sin noggranna och uppmärksamma natur låter hon aldrig något undgå henne, även när tårarna faller som regn. Hon hanterar känslostormar, både sina egna och andras med en obeveklig styrka. Ingen storm, varken av regn eller tårar, är för stor för henne att bemästra.`,
+      bodyEn: ``,
+    },
+  ];
 
   const peppers = [
     {
@@ -110,19 +162,28 @@
   {#if data.revealTheme}
     <div
       class="-mx-6 -my-6"
-      style={`height: calc(100dvh - ${data.isApp ? headerAndFooterHeight : 0}px)`}
+      style={`height: calc(100dvh - ${data.isApp ? headerAndFooterHeight + "px" : "4rem"}); `}
     >
       <figure
         class="relative h-full w-full overflow-hidden border-none bg-neutral"
       >
-        <!-- todo: change image (also have two vers for landscape/profile) -->
-        <img
-          src="https://www.dsek.se/hero-image.webp"
-          alt="Hero"
-          class="h-full w-full object-cover"
+        <div
+          class="h-full w-full bg-cover bg-fixed bg-center object-cover md:hidden"
+          style="background-image: url('{groupProfile}'); box-shadow: inset 0 -100px 100px -100px #303B70;"
         />
+        <div
+          class="hidden h-full w-full bg-cover bg-fixed bg-center object-cover md:block"
+          style="background-image: url('{groupLandscape}'); box-shadow: inset 0 -100px 100px -100px #303B70;"
+        />
+
         <span
-          class="absolute left-1/2 top-1/2 w-max max-w-full -translate-x-1/2 -translate-y-1/2 transform px-4 text-center font-nolla-stab text-5xl leading-snug md:max-w-screen-md md:text-8xl"
+          class="absolute inset-x-4 bottom-10 hidden max-w-full transform text-center font-nolla-stab text-7xl leading-snug md:block lg:text-8xl"
+        >
+          <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+          {@html m.nollning_title().replace("<br/>", " ")}
+        </span>
+        <span
+          class="absolute inset-x-4 bottom-10 max-w-full transform text-center font-nolla-stab text-6xl leading-snug md:hidden md:text-8xl"
         >
           <!-- eslint-disable-next-line svelte/no-at-html-tags -->
           {@html m.nollning_title()}
@@ -132,20 +193,55 @@
   {/if}
   <!-- limit width and center -->
   <div class="mx-auto max-w-screen-md">
+    <section class="flex flex-col">
+      <h3 class="page-title !text-3xl text-secondary">
+        {m.nollning_landing_hello_title()}
+      </h3>
+      <p class="nolla-prose">
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+        {@html m.nollning_landing_hello_body()}
+      </p>
+    </section>
+
+    <section class="mb-24 mt-8 flex flex-col">
+      <h3 class="page-title mb-4 !text-3xl text-secondary">
+        {m.nollning_landing_policy_header()}
+      </h3>
+      <p class="nolla-prose">
+        {m.nollning_landing_policy_subtitle()}
+      </p>
+      <ul class="list-inside list-disc leading-relaxed">
+        <li>{m.nollning_landing_policy_lines_1()}</li>
+        <li>{m.nollning_landing_policy_lines_2()}</li>
+        <li>{m.nollning_landing_policy_lines_3()}</li>
+        <li>
+          {m.nollning_landing_policy_lines_4()}
+        </li>
+      </ul>
+      <p class="nolla-prose">
+        {m.nollning_landing_policy_readMore()}
+      </p>
+      <a
+        href={`https://minio.api.dsek.se/files/public/miscellaneous/rights-${languageTag()}.pdf`}
+        class="btn-primary-dark btn self-start"
+        >{m.nollning_landing_policy_read()}</a
+      >
+    </section>
     {#if data.revealTheme}
-      <section class="flex flex-col">
-        <h3 class="page-title text-secondary">
-          {m.nollning_landing_hello_title()}
-        </h3>
-        <p class="nolla-prose">
-          {m.nollning_landing_hello_body()}
-        </p>
-        <a href="#staben" class="btn-primary-dark btn self-center"
-          >{m.nollning_landing_view_staben()}</a
-        >
-      </section>
+      <div class="relative mx-auto mb-0 mt-12 size-60 md:size-80">
+        <img
+          src={swirl}
+          class="absolute inset-0 animate-[reverse-spin_30s_linear_infinite]"
+          alt="Nollning logo spinning"
+        />
+        <img
+          src={eye}
+          class="absolute inset-0"
+          alt="Nollning logo non-spinning"
+        />
+      </div>
       <section>
-        <h3 class="page-title font-nolla-stab !text-2xl text-secondary">
+        <h3 class="page-title font-nolla-stab !text-4xl text-secondary">
           {m.nollning_landing_lore_title()}
         </h3>
         <p class="nolla-prose">
@@ -153,35 +249,46 @@
         </p>
       </section>
 
-      <section class="!my-16 !mb-32 flex flex-col items-center" id="staben">
+      <section
+        class="relative !my-16 !mb-20 flex min-h-dvh flex-col items-center"
+        id="staben"
+      >
+        <div
+          class="absolute -inset-x-[50dvw] -inset-y-10 -z-0 bg-cover bg-fixed bg-center bg-no-repeat opacity-15"
+          style={`background-image: url('${stormBg}')`}
+        />
+        <h1
+          class="z-10 mb-4 rounded-btn p-2 text-center font-nolla-stab text-8xl tracking-wider md:text-9xl"
+        >
+          Staben
+        </h1>
         <div
           class="-mt-20 w-full scroll-smooth pt-20 max-md:carousel md:grid md:grid-cols-2 md:gap-4 lg:w-[calc(100%+8rem)] lg:grid-cols-3"
         >
-          <PersonCarouselItem
-            stab
-            name={`Øverphøs\nArux ToniTribus`}
-            index={0}
-          />
-          <PersonCarouselItem stab name="ImRe Daemon" index={1} />
-          <PersonCarouselItem stab name="Volto RefacTor" index={2} />
-          <PersonCarouselItem stab name="Lostrego MutatI/O" index={3} />
-          <PersonCarouselItem stab name="Macro Tempestas" index={4} />
-          <PersonCarouselItem stab name="Celesta VentUX" index={5} />
+          {#each stab as stab, index}
+            <PersonCarouselItem
+              stab
+              name={stab.name}
+              {index}
+              imageUrl={stab.imageUrl}
+              body={languageTag() === "en" ? stab.bodyEn : stab.body}
+            />
+          {/each}
         </div>
       </section>
     {/if}
 
     <section
-      class="relative !mb-32 flex flex-col items-center max-md:-mx-6"
+      class="relative !mb-32 flex min-h-dvh flex-col items-center max-md:-mx-6"
       id="peppers"
       class:!mt-16={data.revealTheme}
     >
       <div
-        class="absolute -inset-x-[50dvw] -inset-y-10 -z-0 max-md:bg-[length:70%] md:bg-[length:30%]"
+        class="absolute -inset-x-[50dvw] -inset-y-10 -z-0 bg-fixed opacity-15 max-md:bg-[length:32rem] md:bg-[length:48rem]"
         style={`background-image: url('${cowprint}')`}
       />
       <h1
-        class="z-10 mb-16 rounded-btn bg-base-100 p-2 text-center font-nolla-pepp text-5xl md:text-8xl"
+        class="z-10 mb-4 rounded-btn p-2 text-center font-nolla-pepp text-5xl md:text-8xl"
       >
         Los Peppos
       </h1>
@@ -199,31 +306,7 @@
       </div>
     </section>
 
-    <section class="flex flex-col">
-      <h3 class="page-title mb-4 text-secondary">
-        {m.nollning_landing_policy_header()}
-      </h3>
-      <p class="nolla-prose">
-        {m.nollning_landing_policy_subtitle()}
-      </p>
-      <ul class="list-inside list-disc leading-relaxed">
-        <li>{m.nollning_landing_policy_lines_1()}</li>
-        <li>{m.nollning_landing_policy_lines_2()}</li>
-        <li>{m.nollning_landing_policy_lines_3()}</li>
-        <li>
-          {m.nollning_landing_policy_lines_4()}
-        </li>
-      </ul>
-      <p class="nolla-prose">
-        {m.nollning_landing_policy_readMore()}
-      </p>
-      <!-- TODO: Link -->
-      <a href="/" class="btn-primary-dark btn self-center"
-        >{m.nollning_landing_policy_read()}</a
-      >
-    </section>
-
-    <section class="mt-16 flex flex-col items-center" id="peppers">
+    <section class="mt-16 flex flex-col items-center">
       <h1 class="mb-16 text-3xl font-medium">{m.phadderGroups()}</h1>
       <div
         class="-mt-20 w-full scroll-smooth pt-20 max-md:carousel md:grid md:grid-cols-2 md:gap-4 lg:w-[calc(100%+8rem)] lg:grid-cols-3"

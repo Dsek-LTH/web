@@ -1,5 +1,8 @@
 <script lang="ts">
   import NavigationLoader from "$lib/components/utils/NavigationLoader.svelte";
+  import eye from "./(photos)/eye.svg";
+  import swirl from "./(photos)/swirl.svg";
+  import favicon from "./(photos)/favicon.png";
 
   import AppNotificationHandler from "$lib/components/utils/AppNotificationHandler.svelte";
   import { languageTag } from "$paraglide/runtime";
@@ -37,6 +40,9 @@
     href={lexend500}
     crossorigin="anonymous"
   />
+  {#if data.revealTheme}
+    <link rel="icon" href={favicon} />
+  {/if}
 </svelte:head>
 
 <div
@@ -83,11 +89,25 @@
     {/if}
   </div>
   <NavigationLoader>
-    <!-- TODO: After revealing theme, use logo instead -->
-    <img
-      class="size-40 animate-spin"
-      alt="Loading spinner"
-      src="https://raw.githubusercontent.com/Dsek-LTH/grafik/main/committee_logos/nollu/SVG/full/dark.svg"
-    />
+    {#if data.revealTheme}
+      <div class="relative size-60 md:size-80">
+        <img
+          src={swirl}
+          class="absolute inset-0 animate-[reverse-spin_2s_linear_infinite]"
+          alt="Nollning logo spinning"
+        />
+        <img
+          src={eye}
+          class="absolute inset-0"
+          alt="Nollning logo non-spinning"
+        />
+      </div>
+    {:else}
+      <img
+        class="size-40 animate-spin md:size-80"
+        alt="Loading spinner"
+        src="https://raw.githubusercontent.com/Dsek-LTH/grafik/main/committee_logos/nollu/SVG/full/dark.svg"
+      />
+    {/if}
   </NavigationLoader>
 </div>

@@ -578,7 +578,6 @@
   "members_errors_memberDoesntExist": "Medlemmen existerar inte",
   "members_errors_failedToFindMember": "Mislyckades att hitta medlemmen. Fel: {e}",
   "members_errors_invalidPicture": "Ogiltig bild",
-  "members_errors_tooLargePicture": "Bilden får inte vara större än {size}",
   "members_errors_couldntUploadFile": "Kunde inte ladda up bild",
   "members_errors_meNotFound": "Du har ingen profil eftersom du inte är inloggad. Duh.",
   "nolla_nav_start": "Start",
@@ -681,7 +680,7 @@
   "nollning_landing_policy_lines_3": "Deltagare ska respektera eventansvarigas direktiv och varandra.",
   "nollning_landing_policy_lines_4": "Inga handlingar som kan leda till att någon känner sig utnyttjad eller\n          obekväm ska utföras.",
   "nollning_landing_policy_readMore": "Läs mer om dina rättigheter under nollningen som ny student",
-  "nollning_landing_policy_read": "Rättigheter",
+  "nollning_landing_policy_read": "Läs Nollekontraktet",
   "nollor": "Nollor",
   "phaddrar": "Phaddrar",
   "nollning_title": "En Nollning<br />i Stormens Öga",
@@ -718,5 +717,6 @@
   "nollning_wikia_studentHealth_priests_title": "Studentprästerna",
   "nollning_wikia_guild_body": "Sektionen är där studierna och studentlivet möts. På LTH finns det elva\n      sektioner och vilken sektion du är med i beror på vad du pluggar. Vi som\n      pluggar datateknik eller informations- och kommunikationsteknik tillhör\n      D-sektionen. Sektionen håller på med allt från studiebevakning till att\n      hålla i nollningen. Sektionen anordnar även fester, pluggkvällar,\n      LAN-partyn, brädspelskvällar, badminton, löpning, volleyboll, resor till\n      andra universitet, en arbetsmarknadsmässa, meckar med servrar, driver ett\n      café, har ett fotbollslag, en tidning, utvecklar vår egen hemsida och en\n      app. Sektionen har något för de flesta och är det något sektionen inte gör\n      som du tycker behövs göras finns det ofta utrymme för att driva igenom\n      dina idéer!",
   "nollning_wikia_board_body": "Sektionen leds av ett härligt gäng ledamöter som alla ansvarar för varsitt\n      område. Sektionen består av 14 olika utskott, varav de flesta leds av en\n      styrelsemedlem.",
-  "nollning_wikia_map_cellar": "Källaren"
+  "nollning_wikia_map_cellar": "Källaren",
+  "nollning_wikia_literature": "Studentlitteratur"
 }

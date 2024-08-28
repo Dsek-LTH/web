@@ -1,7 +1,8 @@
 <script lang="ts">
   export let stab = false;
   export let name: string;
-  export let body = "";
+  export let body =
+    "Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatum commodi harum quo velit excepturi atque, iure nihil ducimus pariatur, eaque quod ullam voluptas, libero dolorum corporis quam non quibusdam voluptatibus.";
   export let imageUrl = "";
   export let index: number;
   export let max = stab ? 6 : 11;
@@ -29,7 +30,7 @@
     {/each}
   </div>
   <figure
-    class="relative mb-16 aspect-square w-[calc(100%-6rem)] border-none"
+    class="relative mb-8 aspect-square w-[calc(100%-6rem)] border-none md:w-64"
     class:rounded-full={rounded}
     class:rounded-btn={!rounded}
   >
@@ -56,15 +57,13 @@
     />
   </figure>
   <h3
-    class="mb-4 text-center font-medium {font} rounded-btn bg-base-100 p-2"
+    class="mb-4 text-center font-medium {font} rounded-btn p-2"
     style="margin-top: -{newLines * 1.2}em"
   >
     <!-- eslint-disable-next-line svelte/no-at-html-tags -->
     {@html name.replaceAll("\n", "<br />")}
   </h3>
-  <p
-    class="nolla-prose max-w-prose rounded-btn bg-base-100 p-2 text-center max-md:mx-6"
-  >
+  <p class="nolla-prose max-w-prose rounded-btn p-2 text-center max-md:mx-6">
     <!-- eslint-disable-next-line svelte/no-at-html-tags -->
     {@html body.replaceAll("\n", "<br />")}
   </p>

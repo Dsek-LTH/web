@@ -18,7 +18,7 @@
 
 <div
   class:opacity-0={!isLoadDelayed}
-  class="pointer-events-none absolute inset-0 grid place-items-center transition-opacity duration-500"
+  class="pointer-events-none fixed inset-0 grid place-items-center transition-opacity duration-500"
 >
   <slot />
 </div>
