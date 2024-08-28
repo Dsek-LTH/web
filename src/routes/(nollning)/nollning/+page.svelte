@@ -259,7 +259,7 @@
         id="staben"
       >
         <div
-          class="absolute -inset-x-[50dvw] -inset-y-10 -z-0 bg-cover bg-fixed bg-center bg-no-repeat opacity-15"
+          class="absolute -inset-x-[50dvw] -inset-y-10 z-0 bg-cover bg-fixed bg-center bg-no-repeat opacity-15"
           style={`background-image: url('${stormBg}')`}
         />
         <h1
@@ -268,7 +268,7 @@
           Staben
         </h1>
         <div
-          class="-mt-20 w-full scroll-smooth pt-20 max-md:carousel md:grid md:grid-cols-2 md:gap-4 lg:w-[calc(100%+8rem)] lg:grid-cols-3"
+          class="z-0 -mt-20 w-full scroll-smooth bg-transparent pt-20 max-md:carousel md:grid md:grid-cols-2 md:gap-4 lg:w-[calc(100%+8rem)] lg:grid-cols-3"
         >
           {#each stab as stab, index}
             <PersonCarouselItem

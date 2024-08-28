@@ -4,6 +4,10 @@
   import { colors } from "$lib/utils/themes";
   import { onMount } from "svelte";
   import { fade } from "svelte/transition";
+  // eslint-disable-next-line no-restricted-imports -- eh what the hell why not
+  import eye from "../(nollning)/nollning/(photos)/eye.svg";
+  // eslint-disable-next-line no-restricted-imports -- eh what the hell why not
+  import swirl from "../(nollning)/nollning/(photos)/swirl.svg";
 
   export let data;
   onMount(() => {
@@ -25,11 +29,20 @@
 >
   {#if data.redirect === "/nollning" && revealTheme}
     <!-- TODO: Replace with nollnings logo -->
-    <img
-      src="/d-white.webp"
-      alt="D-sek logo"
-      class="absolute left-1/2 top-1/2 max-h-[50%] max-w-[50%] -translate-x-1/2 -translate-y-1/2"
-    />
+    <div
+      class="absolute left-1/2 top-1/2 size-60 max-h-[50%] max-w-[50%] -translate-x-1/2 -translate-y-1/2 md:size-80"
+    >
+      <img
+        src={swirl}
+        class="absolute inset-0 animate-[reverse-spin_2s_linear_infinite]"
+        alt="Nollning logo spinning"
+      />
+      <img
+        src={eye}
+        class="absolute inset-0"
+        alt="Nollning logo non-spinning"
+      />
+    </div>
   {:else}
     <img
       src="/d-white.webp"
