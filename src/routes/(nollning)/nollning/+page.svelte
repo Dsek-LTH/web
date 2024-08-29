@@ -173,11 +173,11 @@
         class="relative h-full w-full overflow-hidden border-none bg-neutral"
       >
         <div
-          class="h-full w-full bg-cover bg-center bg-no-repeat md:hidden md:bg-fixed"
+          class="h-full w-full bg-cover bg-center bg-no-repeat max-md:bg-scroll md:hidden md:bg-fixed"
           style="background-image: url('{groupProfile}'); box-shadow: inset 0 -100px 100px -100px #303B70;"
         />
         <div
-          class="hidden h-full w-full bg-cover bg-center bg-no-repeat md:block md:bg-fixed"
+          class="hidden h-full w-full bg-cover bg-center bg-no-repeat max-md:bg-scroll md:block md:bg-fixed"
           style="background-image: url('{groupLandscape}'); box-shadow: inset 0 -100px 100px -100px #303B70;"
         />
 
@@ -252,6 +252,15 @@
         <p class="nolla-prose">
           {m.nollning_landing_lore_body()}
         </p>
+        <iframe
+          class="aspect-video w-full"
+          src="https://www.youtube.com/embed/cHuM8WgDBuA?si=cCNMW7Hktij8qJCb"
+          title="Reveal film"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allowfullscreen
+        ></iframe>
       </section>
 
       <section
@@ -259,7 +268,7 @@
         id="staben"
       >
         <div
-          class="absolute -inset-x-[50dvw] -inset-y-10 z-0 bg-cover bg-center bg-no-repeat opacity-15 md:bg-fixed"
+          class="absolute -inset-x-[50dvw] -inset-y-10 z-0 bg-cover bg-center bg-no-repeat opacity-15 max-md:bg-scroll md:bg-fixed"
           style={`background-image: url('${stormBg}')`}
         />
         <h1
@@ -289,7 +298,7 @@
       class:!mt-16={data.revealTheme}
     >
       <div
-        class="absolute -inset-x-[50dvw] -inset-y-10 -z-0 opacity-15 max-md:bg-[length:32rem] md:bg-[length:48rem] md:bg-fixed"
+        class="absolute -inset-x-[50dvw] -inset-y-10 -z-0 opacity-15 max-md:bg-[length:32rem] max-md:bg-scroll md:bg-[length:48rem] md:bg-fixed"
         style={`background-image: url('${cowprint}')`}
       />
       <h1
@@ -310,6 +319,15 @@
         {/each}
       </div>
     </section>
+    <iframe
+      class="aspect-video w-full"
+      src="https://www.youtube.com/embed/U3-q1nLFA0s?si=6dgYTVXLG9ZXjuFQ"
+      title="Nolledans film"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen
+    ></iframe>
 
     <section class="mt-16 flex flex-col items-center">
       <h1 class="mb-16 text-3xl font-medium">{m.phadderGroups()}</h1>

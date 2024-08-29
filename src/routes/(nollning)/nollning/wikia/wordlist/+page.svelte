@@ -56,8 +56,8 @@
     },
     { sv: "Gasque - Finare sittning.", en: "Gasque - A more formal sitting." },
     {
-      sv: "Gyckel - Kort scenframträdande. Görs alltid två stycken innan man får lämna scen.",
-      en: "Gyckel - A short stage performance. Always done twice before leaving the stage.",
+      sv: "Gyckle - Kort scenframträdande. Görs alltid två stycken innan man får lämna scen.",
+      en: "Gyckle - A short stage performance. Always done twice before leaving the stage.",
     },
     {
       sv: "Högtidsdräkt - Se <a href='/nolla/packing#kladkod'>klädkoder</a>.",
