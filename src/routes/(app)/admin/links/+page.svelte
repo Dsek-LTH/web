@@ -111,15 +111,28 @@
     id={$createLinksFormId}
     use:createLinksEnhance
   >
-    <Input
-      name="slug"
-      label={m.admin_links_add_label_slug()}
-      placeholder={m.admin_links_add_placeholder_slug()}
-      required
-      bind:value={$createLinksForm.slug}
-      error={$createLinksErrors.slug}
-      {...$createLinksConstraints}
-    />
+    <div class="form-control">
+      <div class="label">
+        <span class="label-text">
+          {m.admin_links_add_label_slug()}
+          <span class="font-bold">*</span>
+        </span>
+      </div>
+      <label
+        class="input input-bordered flex items-center gap-2 hover:border-base-content"
+      >
+        <p class="opacity-60">link.dsek.se/</p>
+        <input
+          id="slug"
+          name="slug"
+          class=""
+          bind:value={$createLinksForm.slug}
+          placeholder={m.admin_links_add_placeholder_slug()}
+          required
+          {...$createLinksConstraints}
+        />
+      </label>
+    </div>
     <Input
       name="url"
       label={m.admin_links_add_label_URL()}
@@ -153,7 +166,7 @@
     {#each createSelectedTags as tag (tag.id)}
       <input type="hidden" name="tags" value={tag.name} />
     {/each}
-    <Labeled label="Add" invisibleText={true}>
+    <Labeled label="Add" invisibleText>
       <button class="btn btn-primary self-end"
         >{m.admin_links_add_submit()}</button
       >
@@ -192,9 +205,9 @@
     <div class="modal-box">
       <h3 class="text-lg font-bold">{m.admin_links_remove_title()}</h3>
       <p class="py-4">
-        {m.admin_links_remove_confirmation_test_1()}
-        {checkboxes.filter((c) => c).length}
-        {m.admin_links_remove_confirmation_test_2()}
+        {m.admin_links_remove_confirmation({
+          amount: checkboxes.filter((c) => c).length,
+        })}
       </p>
       <p class="text-xs text-base-content/60">
         {data.domains

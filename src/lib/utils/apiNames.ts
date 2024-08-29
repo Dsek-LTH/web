@@ -38,6 +38,7 @@ const apiNames = {
   ADMIN: {
     READ: "core:access:admin:read",
     SETTINGS: crud("admin:settings"),
+    SHLINK: crud("admin:shlink"),
   },
   ACCESS_POLICY: crud("core:access:api"),
   EMAIL_ALIAS: crud("core:mail:alias"),

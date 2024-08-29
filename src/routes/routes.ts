@@ -155,7 +155,7 @@ export const getRoutes = (): Route[] =>
           title: m.linkShortener(),
           path: "/admin/links",
           icon: "i-mdi-link-variant",
-          accessRequired: apiNames.DOOR.READ, //temporary, make right api access here as well
+          accessRequired: apiNames.ADMIN.SHLINK.READ,
           appBehaviour: "home-link",
         },
         {

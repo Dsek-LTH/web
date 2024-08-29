@@ -10,26 +10,18 @@ import { z } from "zod";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { zod } from "sveltekit-superforms/adapters";
 
-type orderable =
-  | "dateCreated"
-  | "shortCode"
-  | "longUrl"
-  | "title"
-  | "visits"
-  | "nonBotVisits";
-
-const VALID_ORDER: orderable[] = [
+const VALID_ORDER = [
   "title",
   "dateCreated",
   "shortCode",
   "longUrl",
   "visits",
   "nonBotVisits",
-];
+] as const;
 
-const VALID_DIR = ["ASC", "DESC"];
+const VALID_DIR = ["ASC", "DESC"] as const;
 
-const apiClient: ShlinkApiClient = new ShlinkApiClient(new NodeHttpClient(), {
+const apiClient = new ShlinkApiClient(new NodeHttpClient(), {
   baseUrl: env.SHLINK_ENDPOINT,
   apiKey: env.SHLINK_API_KEY,
 });
@@ -40,6 +32,24 @@ const createLinksSchema = z.object({
   tags: z.string().array().min(1, "You need to select at least one tag"),
 });
 
+const paramsSchema = z.object({
+  page: z.coerce.number().default(1),
+  orderBy: z.enum(VALID_ORDER).default("dateCreated"),
+  dir: z.enum(VALID_DIR).default("DESC"),
+  tags: z.string().array().default([]),
+  search: z.string().optional(),
+});
+
+const getParams = (url: URL) => {
+  const { data: params, error: paramError } = paramsSchema.safeParse(
+    Object.fromEntries(url.searchParams.entries()),
+  );
+  if (paramError) {
+    throw error(422, paramError.errors.map((e) => e.message).join(". "));
+  }
+  return params;
+};
+
 const updateLinksSchema = createLinksSchema;
 
 const deleteLinksSchema = z.object({
@@ -47,34 +57,20 @@ const deleteLinksSchema = z.object({
 });
 
 export const load: PageServerLoad = async ({ url, locals }) => {
-  authorize(apiNames.DOOR.READ, locals.user);
+  authorize(apiNames.ADMIN.SHLINK.READ, locals.user);
 
-  const page = url.searchParams.get("page") ?? "1";
-  if (page && Number.isNaN(Number.parseInt(page))) {
-    error(422, `Invalid page "${page}"`);
-  }
-
-  const orderByField = url.searchParams.get("orderBy") ?? "dateCreated";
-  if (!VALID_ORDER.some((v) => v === orderByField)) {
-    error(422, "orderBy value not valid");
-  }
-
-  const dir = url.searchParams.get("dir") ?? "DESC";
-  if (!VALID_DIR.some((v) => v === dir)) {
-    error(422, "dir value not valid");
-  }
-
+  const params = getParams(url);
   let domains;
   try {
     domains = await apiClient.listShortUrls({
       itemsPerPage: 20,
-      page: page,
+      page: params.page.toString(),
       orderBy: {
-        field: orderByField as orderable,
-        dir: dir as "ASC" | "DESC",
+        field: params.orderBy,
+        dir: params.dir,
       },
-      tags: url.searchParams.getAll("tags"),
-      searchTerm: url.searchParams.get("search") ?? undefined,
+      tags: params.tags,
+      searchTerm: params.search,
     });
   } catch (_e) {
     const e = _e as ProblemDetailsError;
@@ -96,7 +92,7 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 };
 export const actions: Actions = {
   create: async ({ locals, request }) => {
-    authorize(apiNames.DOOR.CREATE, locals.user);
+    authorize(apiNames.ADMIN.SHLINK.CREATE, locals.user);
     const createForm = await superValidate(request, zod(createLinksSchema));
     if (!createForm.valid) {
       return fail(400, { createForm });
@@ -125,7 +121,7 @@ export const actions: Actions = {
     });
   },
   update: async ({ locals, request }) => {
-    authorize(apiNames.DOOR.UPDATE, locals.user);
+    authorize(apiNames.ADMIN.SHLINK.UPDATE, locals.user);
     const updateForm = await superValidate(request, zod(updateLinksSchema));
     if (!updateForm.valid) {
       return fail(400, { updateForm });
@@ -153,7 +149,7 @@ export const actions: Actions = {
     });
   },
   delete: async ({ locals, request }) => {
-    authorize(apiNames.DOOR.DELETE, locals.user);
+    authorize(apiNames.ADMIN.SHLINK.DELETE, locals.user);
     const deleteForm = await superValidate(request, zod(deleteLinksSchema));
     if (!deleteForm.valid) {
       return fail(400, { deleteForm });
