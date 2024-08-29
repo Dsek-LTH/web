@@ -1,8 +1,7 @@
 <script lang="ts">
   export let stab = false;
   export let name: string;
-  export let body =
-    "Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatum commodi harum quo velit excepturi atque, iure nihil ducimus pariatur, eaque quod ullam voluptas, libero dolorum corporis quam non quibusdam voluptatibus.";
+  export let body = "";
   export let imageUrl = "";
   export let index: number;
   export let max = stab ? 6 : 11;

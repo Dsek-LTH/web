@@ -50,7 +50,7 @@
       </div>
     </div>
     <!-- Page content here -->
-    <main class="*:scrollbar-hide relative flex-1 overflow-y-auto bg-base-100">
+    <main class="*:scrollbar-hide relative flex-1 bg-base-100">
       <!-- so absolute positioning is outside padding -->
       <div class="scrollbar-hide px-6 py-6">
         <slot />

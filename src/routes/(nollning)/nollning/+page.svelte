@@ -173,11 +173,11 @@
         class="relative h-full w-full overflow-hidden border-none bg-neutral"
       >
         <div
-          class="h-full w-full bg-cover bg-fixed bg-center object-cover md:hidden"
+          class="h-full w-full bg-cover bg-center bg-no-repeat md:hidden md:bg-fixed"
           style="background-image: url('{groupProfile}'); box-shadow: inset 0 -100px 100px -100px #303B70;"
         />
         <div
-          class="hidden h-full w-full bg-cover bg-fixed bg-center object-cover md:block"
+          class="hidden h-full w-full bg-cover bg-center bg-no-repeat md:block md:bg-fixed"
           style="background-image: url('{groupLandscape}'); box-shadow: inset 0 -100px 100px -100px #303B70;"
         />
 
@@ -185,13 +185,13 @@
           class="absolute inset-x-4 bottom-10 hidden max-w-full transform text-center font-nolla-stab text-7xl leading-snug md:block lg:text-8xl"
         >
           <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-          {@html m.nollning_title().replace("<br/>", " ")}
+          {@html m.nollning_title().replace("\n", " ")}
         </span>
         <span
           class="absolute inset-x-4 bottom-10 max-w-full transform text-center font-nolla-stab text-6xl leading-snug md:hidden md:text-8xl"
         >
           <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-          {@html m.nollning_title()}
+          {@html m.nollning_title().replace("\n", "<br />")}
         </span>
       </figure>
     </div>
@@ -259,7 +259,7 @@
         id="staben"
       >
         <div
-          class="absolute -inset-x-[50dvw] -inset-y-10 z-0 bg-cover bg-fixed bg-center bg-no-repeat opacity-15"
+          class="absolute -inset-x-[50dvw] -inset-y-10 z-0 bg-cover bg-center bg-no-repeat opacity-15 md:bg-fixed"
           style={`background-image: url('${stormBg}')`}
         />
         <h1
@@ -289,7 +289,7 @@
       class:!mt-16={data.revealTheme}
     >
       <div
-        class="absolute -inset-x-[50dvw] -inset-y-10 -z-0 bg-fixed opacity-15 max-md:bg-[length:32rem] md:bg-[length:48rem]"
+        class="absolute -inset-x-[50dvw] -inset-y-10 -z-0 opacity-15 max-md:bg-[length:32rem] md:bg-[length:48rem] md:bg-fixed"
         style={`background-image: url('${cowprint}')`}
       />
       <h1
