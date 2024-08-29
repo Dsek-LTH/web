@@ -159,6 +159,13 @@ export const getRoutes = (): Route[] =>
           appBehaviour: "home-link",
         },
         {
+          title: m.linkShortener(),
+          path: "/admin/links",
+          icon: "i-mdi-link-variant",
+          accessRequired: apiNames.ADMIN.SHLINK.READ,
+          appBehaviour: "home-link",
+        },
+        {
           title: m.adminSettings(),
           path: "/admin/settings",
           icon: "i-mdi-wrench",
