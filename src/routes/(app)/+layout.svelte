@@ -23,16 +23,6 @@
   <AppHeader />
 {/if}
 
-{#if !data.isApp}
-  <a
-    class="btn btn-circle btn-primary fixed bottom-4 left-4 z-20"
-    href="https://forms.gle/skDsfLGyQHuCYGcR7"
-    target="_blank"
-  >
-    <span class="i-mdi-feedback" />
-  </a>
-{/if}
-
 {#each data.alerts as alert}
   <GlobalAlert
     message={languageTag() === "sv" ? alert.message : alert.messageEn}
