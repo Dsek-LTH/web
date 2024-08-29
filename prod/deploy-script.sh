@@ -1,5 +1,5 @@
 #! /bin/bash
-cd /server/dsek-web
+cd /var/www
 
 # Remove everything but the node_modules folder, .env is also excluded by default
 shopt -s extglob
