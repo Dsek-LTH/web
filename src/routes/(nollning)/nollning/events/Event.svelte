@@ -51,8 +51,8 @@
       {/if}
     </div> -->
     {#if event.link}
-      <a href={event.link} class="btn btn-primary self-center">
-        {m.view()}
+      <a href={event.link} class="btn btn-primary mt-4 self-start">
+        {m.nollning_events_ticketCTA()}
       </a>
     {/if}
     {#if isAuthorized(apiNames.EVENT.UPDATE, $page.data.user)}

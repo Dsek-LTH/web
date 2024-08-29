@@ -2,7 +2,7 @@
   // import { browser } from "$app/environment";
   // import { invalidateAll } from "$app/navigation";
   import { page } from "$app/stores";
-  import PageHeader from "$lib/components/nav/PageHeader.svelte";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   // import ScrollingNumber from "$lib/components/Timer/ScrollingNumber.svelte";
   // import Timer from "$lib/components/Timer/Timer.svelte";
   // import { now } from "$lib/stores/date";
@@ -57,7 +57,7 @@
 </script>
 
 <div class="mx-auto max-w-4xl">
-  <PageHeader title={m.events()} />
+  <SetPageTitle title={m.events()} />
 
   <div class="mb-4 flex items-start justify-between">
     <details
@@ -69,7 +69,7 @@
         }
       }}
     >
-      <summary class="btn btn-ghost -mx-4"
+      <summary class="btn btn-lg !h-10"
         >{m.events_calendar_subscribe()}
         <span class="i-mdi-calendar-sync" />
       </summary>
