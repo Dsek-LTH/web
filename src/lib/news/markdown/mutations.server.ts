@@ -11,7 +11,7 @@ export const updateMarkdown = async (
   markdown: {
     name: string;
     markdown: string;
-    markdownEn: string | null;
+    markdownEn: string | null | undefined;
   },
 ) => {
   // we cannot do page-specific access in zenstack so we have to do it like this

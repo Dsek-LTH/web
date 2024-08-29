@@ -8,7 +8,7 @@
   import type { CommitteeLoadData } from "./committee.server";
   import type { page } from "$app/stores";
   export let data: CommitteeLoadData & typeof $page.data;
-  let isEditing = false;
+  export let isEditing = false;
   const thisYear = new Date().getFullYear();
 </script>
 

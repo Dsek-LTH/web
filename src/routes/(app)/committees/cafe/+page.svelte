@@ -18,7 +18,7 @@
   };
 </script>
 
-<CommitteePage {data}>
+<CommitteePage {data} bind:isEditing>
   <div
     slot="before"
     class="card float-right ml-4 w-full border border-primary bg-base-100 p-6 shadow-xl lg:max-w-80"
@@ -44,7 +44,7 @@
           {#if isEditing}
             <form
               class="flex gap-4"
-              action="?/update"
+              action="?/updateHours"
               method="POST"
               use:enhance
             >
