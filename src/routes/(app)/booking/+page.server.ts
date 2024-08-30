@@ -1,12 +1,9 @@
-import apiNames from "$lib/utils/apiNames";
-import * as m from "$paraglide/messages";
-import { isAuthorized } from "$lib/utils/authorization";
-import { redirect } from "$lib/utils/redirect";
 import { error } from "@sveltejs/kit";
 import dayjs from "dayjs";
 
 export const load = async (event) => {
   const { prisma, user } = event.locals;
+  const bookables = await prisma.bookable.findMany();
   const bookingRequests = await prisma.bookingRequest.findMany({
     where: {
       bookerId: user.memberId,
@@ -20,29 +17,7 @@ export const load = async (event) => {
     },
   });
 
-  if (bookingRequests.length === 0) {
-    const isAdmin = isAuthorized(apiNames.BOOKINGS.UPDATE, user);
-    if (isAdmin) {
-      return redirect(
-        "/booking/admin",
-        {
-          message: m.booking_noBookings(),
-          type: "info",
-        },
-        event,
-      );
-    }
-    redirect(
-      "/booking/create",
-      {
-        message: m.booking_noBookings(),
-        type: "info",
-      },
-      event,
-    );
-  }
-
-  return { bookingRequests };
+  return { bookingRequests, bookables };
 };
 
 export const actions = {

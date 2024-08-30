@@ -7,6 +7,7 @@
   import StatusComponent from "./admin/StatusComponent.svelte";
   import dayjs from "dayjs";
   import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
+  import BookingCalendar from "./BookingCalendar.svelte";
 
   export let data;
   let deleteModal: HTMLDialogElement;
@@ -28,60 +29,64 @@
   {/if}
 </div>
 
-<div class="overflow-x-auto">
-  <table class="table">
-    <thead>
-      <tr class="bg-base-200">
-        <th>{m.booking_booking()}</th>
-        <th>{m.booking_from()}</th>
-        <th>{m.booking_until()}</th>
-        <th>{m.booking_event()}</th>
-        <th>{m.booking_status()}</th>
-        <th />
-      </tr>
-    </thead>
-
-    <tbody>
-      {#each data.bookingRequests as bookingRequest (bookingRequest.id)}
-        <tr>
-          <td>
-            {#each bookingRequest.bookables.map((a) => a.name) as bookable}
-              <p class="min-w-max">{bookable}</p>
-            {/each}
-          </td>
-          <td>{dayjs(bookingRequest.start).format("YYYY-MM-DD HH:MM")}</td>
-          <td>{dayjs(bookingRequest.end).format("YYYY-MM-DD HH:MM")}</td>
-          <td>{bookingRequest.event}</td>
-          <td>
-            <StatusComponent
-              bind:bookingRequest
-              bind:bookingRequests={data.bookingRequests}
-            />
-          </td>
-          <td>
-            <div class="form-control gap-2">
-              <a
-                href="/booking/{bookingRequest.id}/edit"
-                class="btn btn-xs px-8"
-              >
-                {m.booking_edit()}
-              </a>
-              <button
-                class="btn btn-xs px-8"
-                on:click={() => {
-                  deleteModal?.showModal();
-                  selectedBooking = bookingRequest;
-                }}
-              >
-                {m.booking_delete()}
-              </button>
-            </div>
-          </td>
+{#if data.bookingRequests.length === 0}
+  <BookingCalendar {...data} />
+{:else}
+  <div class="overflow-x-auto">
+    <table class="table">
+      <thead>
+        <tr class="bg-base-200">
+          <th>{m.booking_booking()}</th>
+          <th>{m.booking_from()}</th>
+          <th>{m.booking_until()}</th>
+          <th>{m.booking_event()}</th>
+          <th>{m.booking_status()}</th>
+          <th />
         </tr>
-      {/each}
-    </tbody>
-  </table>
-</div>
+      </thead>
+
+      <tbody>
+        {#each data.bookingRequests as bookingRequest (bookingRequest.id)}
+          <tr>
+            <td>
+              {#each bookingRequest.bookables.map((a) => a.name) as bookable}
+                <p class="min-w-max">{bookable}</p>
+              {/each}
+            </td>
+            <td>{dayjs(bookingRequest.start).format("YYYY-MM-DD HH:MM")}</td>
+            <td>{dayjs(bookingRequest.end).format("YYYY-MM-DD HH:MM")}</td>
+            <td>{bookingRequest.event}</td>
+            <td>
+              <StatusComponent
+                bind:bookingRequest
+                bind:bookingRequests={data.bookingRequests}
+              />
+            </td>
+            <td>
+              <div class="form-control gap-2">
+                <a
+                  href="/booking/{bookingRequest.id}/edit"
+                  class="btn btn-xs px-8"
+                >
+                  {m.booking_edit()}
+                </a>
+                <button
+                  class="btn btn-xs px-8"
+                  on:click={() => {
+                    deleteModal?.showModal();
+                    selectedBooking = bookingRequest;
+                  }}
+                >
+                  {m.booking_delete()}
+                </button>
+              </div>
+            </td>
+          </tr>
+        {/each}
+      </tbody>
+    </table>
+  </div>
+{/if}
 
 <ConfirmDialog
   bind:modal={deleteModal}
