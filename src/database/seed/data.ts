@@ -238,4 +238,13 @@ export const models: SeedClientOptions["models"] = {
       markdownEn: () => faker.lorem.paragraphs({ min: 3, max: 6 }),
     },
   },
+  song: {
+    data: {
+      title: () => faker.music.songName(),
+      melody: () => faker.lorem.sentence(),
+      lyrics: () => faker.lorem.paragraphs({ min: 3, max: 6 }),
+      category: () => faker.music.genre(),
+      deletedAt: null,
+    },
+  },
 };

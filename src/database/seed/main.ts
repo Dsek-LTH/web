@@ -64,6 +64,8 @@ const main = async () => {
     })),
   ]);
 
+  await seed.song((x) => x(50));
+
   process.exit();
 };
 
