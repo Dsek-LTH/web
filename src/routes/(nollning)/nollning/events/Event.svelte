@@ -30,7 +30,9 @@
       ).format("HH:mm")}</span
     >
     <span class="text-base">{event.title}</span>
-    <span class="text-sm font-medium text-neutral">{event.location}</span>
+    {#if event.location}
+      <span class="text-sm font-medium text-neutral">{event.location}</span>
+    {/if}
     <div class="mt-4 flex gap-2">
       {#each event.tags as tag}
         {#if !tag.name.startsWith(NOLLNING_TAG_PREFIX)}
@@ -40,6 +42,11 @@
     </div>
   </div>
   <div class="collapse-content flex flex-col">
+    {#if event.shortDescription}
+      <span class="text-xl font-medium text-neutral"
+        >{event.shortDescription}</span
+      >
+    {/if}
     <p>
       <MarkdownBody body={event.description} class="leading-tight" />
     </p>
