@@ -13,7 +13,7 @@ import type { AuthUser } from "@zenstackhq/runtime";
 import { zod } from "sveltekit-superforms/adapters";
 import { message, superValidate, fail } from "sveltekit-superforms";
 import DOMPurify from "isomorphic-dompurify";
-import markdownToTxt from "markdown-to-txt";
+import { markdownToTxt } from "markdown-to-txt";
 
 const uploadImage = async (user: AuthUser, image: File, slug: string) => {
   const imageUrl = await uploadFile(
