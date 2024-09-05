@@ -57,8 +57,8 @@
 <form
   method="POST"
   class="form-control mb-8 gap-2"
-  use:enhance
   enctype="multipart/form-data"
+  use:enhance
 >
   <LangTabs>
     <svelte:fragment slot="sv">
