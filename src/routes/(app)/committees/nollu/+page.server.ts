@@ -26,4 +26,4 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   }));
 };
 
-export const actions = committeeActions("cafe");
+export const actions = committeeActions("nollu");
