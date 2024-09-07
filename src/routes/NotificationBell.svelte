@@ -111,6 +111,13 @@
               use:readEnhance
               data-sveltekit-keepfocus
             >
+              {#each notifications as notification (notification.id)}
+                {#if notification.readAt === null}
+                  {#each notification.individualIds as id}
+                    <input type="hidden" name="notificationIds" value={id} />
+                  {/each}
+                {/if}
+              {/each}
               <button
                 class="btn btn-ghost no-animation z-10 w-full rounded-none border-0 border-t border-gray-700 *:text-2xl"
               >
