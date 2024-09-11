@@ -2,6 +2,7 @@ import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 import sendNotification from "$lib/utils/notifications";
 import { NotificationType } from "$lib/utils/notifications/types";
+import dayjs from "dayjs";
 import type { Actions, PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ locals }) => {
@@ -11,7 +12,7 @@ export const load: PageServerLoad = async ({ locals }) => {
   const bookingRequests = await prisma.bookingRequest.findMany({
     where: {
       start: {
-        gte: new Date(),
+        gte: dayjs().subtract(1, "week").toDate(),
       },
     },
     orderBy: [{ start: "asc" }, { end: "asc" }, { status: "asc" }],
