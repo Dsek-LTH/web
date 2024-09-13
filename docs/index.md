@@ -3,9 +3,13 @@
 layout: home
 
 hero:
-  name: "D-sektionen"
-  text: "Documentation for DWWW web repo"
-  tagline: My great project tagline
+  name: "DWWW"
+  text: "Documentation"
+  tagline: Documentation for DWWW's projects
+  image:
+    dark: /assets/dwww-logo-dark.svg
+    light: /assets/dwww-logo-light.svg
+    alt: DWWW Logo
   actions:
     - theme: brand
       text: Markdown Examples
@@ -15,11 +19,13 @@ hero:
       link: /api-examples
 
 features:
-  - title: Feature A
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature B
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature C
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+  - icon: 🌐
+    title: web
+    details: The D-guild's primary web page
+  - icon: 📱
+    title: dsek-app
+    details: App for the D-guild
+  - icon: 🚧
+    title: infrastructure
+    details: Documentation for the D-guild's infrastructure
 ---
-
