@@ -85,10 +85,12 @@ export const load: PageServerLoad = async ({ locals, params }) => {
       : [];
 
   const email =
-    (user.studentId === studentId ||
-      isAuthorized(apiNames.MEMBER.SEE_EMAIL, user)) &&
-    member.studentId !== null
-      ? await keycloak.getEmail(member.studentId)
+    user.studentId === studentId ||
+    isAuthorized(apiNames.MEMBER.SEE_EMAIL, user)
+      ? (member.email ??
+        (member.studentId !== null
+          ? await keycloak.getEmail(member.studentId)
+          : undefined))
       : undefined;
 
   try {

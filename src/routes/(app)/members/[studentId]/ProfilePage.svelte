@@ -46,7 +46,7 @@
     </MemberAvatar>
   </div>
   <!-- Name, StiL-ID, badge and actions -->
-  <header class="md:col-start-2 md:col-end-4">
+  <header class="overflow-x-auto md:col-start-2 md:col-end-4">
     <ProfileHeader {member} email={data.email}>
       <div slot="actions" class="flex gap-2">
         {#if canEdit}
