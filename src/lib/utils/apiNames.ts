@@ -54,6 +54,7 @@ const apiNames = {
   MEMBER: {
     ...crud("core:member"),
     SEE_STABEN: "member:see_staben",
+    SEE_EMAIL: "member:see_email",
     PING: "core:member:ping",
   },
   GOVERNING_DOCUMENT: {

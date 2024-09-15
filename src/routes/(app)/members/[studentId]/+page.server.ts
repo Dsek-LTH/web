@@ -1,7 +1,7 @@
 import keycloak from "$lib/server/keycloak";
 import apiNames from "$lib/utils/apiNames";
 import { BASIC_ARTICLE_FILTER } from "$lib/news/articles";
-import { authorize } from "$lib/utils/authorization";
+import { authorize, isAuthorized } from "$lib/utils/authorization";
 import { getCurrentDoorPoliciesForMember } from "$lib/utils/member";
 import { emptySchema, memberSchema } from "$lib/zod/schemas";
 import * as m from "$paraglide/messages";
@@ -85,6 +85,8 @@ export const load: PageServerLoad = async ({ locals, params }) => {
       : [];
 
   const email =
+    (user.studentId === studentId ||
+      isAuthorized(apiNames.MEMBER.SEE_EMAIL, user)) &&
     member.studentId !== null
       ? await keycloak.getEmail(member.studentId)
       : undefined;
