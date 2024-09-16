@@ -47,8 +47,9 @@
     {
       name: "ImRe Daemon",
       imageUrl: imre,
-      body: `ImRes text är korrupt och kan inte visas...`,
-      bodyEn: "ImRe's text is corrupted and cannot be displayed...",
+      body: `I stormiga tider är det ImRe som ser till att Staben alltid är skyddade mot regnets hårda slag. Hon tämjer blixtens energi och använder den för att skapa nya objekt som bärs av såväl n0lla som Stab. Precis som hennes namn indikerar så agerar ImRe ofta i bakgrunden och ser till att inget och ingen glöms. ImRes förmåga att hantera komplexa krafter och problem gör henne till en viktigt del av Staben.`,
+      bodyEn:
+        "In stormy times, it is ImRe who ensures that the Stab are always protected from the harsh blows of the rain. She tames the energy of lightning and uses it to create new objects worn by both n0lla and the Stab. As her name suggests, ImRe often works in the background, making sure that nothing and no one is forgotten. ImRe's ability to handle complex forces and problems makes her an important part of the Stab.",
     },
     {
       name: "Volto RefacTor",
