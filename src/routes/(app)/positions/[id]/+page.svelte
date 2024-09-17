@@ -172,7 +172,9 @@
               <button
                 class="btn btn-secondary btn-sm pointer-events-auto"
                 on:click|preventDefault={async () => {
-                  await goto(`positions/${data.position.id}?editMandate=${mandate.id}`);
+                  await goto(
+                    `positions/${data.position.id}?editMandate=${mandate.id}`,
+                  );
                 }}
               >
                 {m.positions_edit()}
