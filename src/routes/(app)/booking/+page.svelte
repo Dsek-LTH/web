@@ -53,8 +53,8 @@
                 <p class="min-w-max">{bookable}</p>
               {/each}
             </td>
-            <td>{dayjs(bookingRequest.start).format("YYYY-MM-DD HH:MM")}</td>
-            <td>{dayjs(bookingRequest.end).format("YYYY-MM-DD HH:MM")}</td>
+            <td>{dayjs(bookingRequest.start).format("YYYY-MM-DD HH:mm")}</td>
+            <td>{dayjs(bookingRequest.end).format("YYYY-MM-DD HH:mm")}</td>
             <td>{bookingRequest.event}</td>
             <td>
               <StatusComponent
