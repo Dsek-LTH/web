@@ -7,7 +7,7 @@ export const load = async (event) => {
   const bookingRequests = await prisma.bookingRequest.findMany({
     where: {
       bookerId: user.memberId,
-      end: {
+      start: {
         gte: dayjs().subtract(1, "week").toDate(),
       },
     },
