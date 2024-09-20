@@ -7,8 +7,8 @@ hero:
   text: "Documentation"
   tagline: Documentation for DWWW's projects
   image:
-    dark: /assets/dwww-logo-dark.svg
-    light: /assets/dwww-logo-light.svg
+    dark: /dwww-logo-dark.svg
+    light: /dwww-logo-light.svg
     alt: DWWW Logo
   actions:
     - theme: brand
