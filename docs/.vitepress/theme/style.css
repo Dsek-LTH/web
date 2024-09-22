@@ -86,9 +86,10 @@
   );
 
   --vp-home-hero-image-background-image: linear-gradient(
-    -45deg,
-    #eb2f64aa 50%,
-    #9966ccaa 50%
+    -55deg,
+    #eb2f64aa 25%,
+    #9966ccaa 50%,
+    #eb2f64aa 75%
   );
   --vp-home-hero-image-filter: blur(44px);
 }
