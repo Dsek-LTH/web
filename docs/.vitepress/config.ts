@@ -23,6 +23,10 @@ export default defineConfig({
 
     sidebar: [
       {
+        text: "Guides",
+        items: [{ text: "Getting started", link: "/getting-started" }],
+      },
+      {
         text: "Examples",
         items: [
           { text: "Markdown Examples", link: "/markdown-examples" },

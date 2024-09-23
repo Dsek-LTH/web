@@ -12,8 +12,8 @@ hero:
     alt: DWWW Logo
   actions:
     - theme: brand
-      text: Markdown Examples
-      link: /markdown-examples
+      text: Getting started
+      link: /getting-started
     - theme: alt
       text: API Examples
       link: /api-examples
