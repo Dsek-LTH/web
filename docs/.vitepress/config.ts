@@ -7,6 +7,7 @@ export default defineConfig({
 
   base: "/web/",
   lastUpdated: true,
+  ignoreDeadLinks: "localhostLinks",
 
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
