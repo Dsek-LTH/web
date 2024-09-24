@@ -9,6 +9,10 @@ export default defineConfig({
   lastUpdated: true,
   ignoreDeadLinks: "localhostLinks",
 
+  markdown: {
+    image: { lazyLoading: true },
+  },
+
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     logo: {
@@ -26,6 +30,10 @@ export default defineConfig({
       {
         text: "Guides",
         items: [{ text: "Getting started", link: "/guides/getting-started" }],
+      },
+      {
+        text: "Tutorials",
+        items: [{ text: "Svelte", link: "/tutorials/svelte" }],
       },
       {
         text: "Examples",
