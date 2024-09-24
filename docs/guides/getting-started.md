@@ -16,8 +16,9 @@ If you're running Windows, it's highly recommended to [first install **WSL**](ht
 When you have WSL installed, you can open a WSL terminal and follow the instructions below as if you were using a Linux distribution.
 :::
 
-1. Head over to the [installation page for **Node.js**](https://nodejs.org/en/download/). Install Node.js LTS. Using nvm is recommended, but not required.
+1. Install [Node.JS](https://nodejs.org/en/download/).
 
+   Click on the link above and install Node.js _LTS_. Using _nvm_ is recommended.
    When the installation is complete, open a terminal and verify that Node.js is installed by running the following command:
 
    ```bash
@@ -30,8 +31,9 @@ When you have WSL installed, you can open a WSL terminal and follow the instruct
    v20.17.0
    ```
 
-2. Now, [install the package manager **pnpm**](https://pnpm.io/installation#using-corepack). Installing pnpm using Corepack is strongly recommended.
+2. Install [pnpm](https://pnpm.io/installation#using-corepack).
 
+   Now, install the package manager pnpm. Installing pnpm using Corepack is _strongly recommended_.
    When the installation is complete, open a terminal and ensure pnpm works as expected by running the following command:
 
    ```bash
@@ -44,9 +46,9 @@ When you have WSL installed, you can open a WSL terminal and follow the instruct
    9.7.1
    ```
 
-3. Finally, [install **Docker Desktop**](https://docs.docker.com/get-docker/). Docker Desktop is a graphical interface for Docker. Docker is not strictly required for development, but it simplifies setting up a development database.
+3. Install [Docker Desktop](https://docs.docker.com/get-docker/).
 
-   When the installation is complete, open a terminal and verify that Docker is installed by running the following command:
+   Finally, install Docker by installing the graphical Docker interface Docker Desktop. This is not strictly required for development, but it simplifies setting up a development database. When the installation is complete, open a terminal and verify that Docker is installed by running the following command:
 
    ```bash
    docker -v
@@ -92,14 +94,16 @@ Issues commonly occur when setting up the local development database. Usually, t
    docker rm --force dsek-db
    ```
 
-2. Option 1: If you noticed permission errors while running `sh ./dev/setup_db.sh`, try running the script using `sudo`.
+2. If you noticed permission errors while running `sh ./dev/setup_db.sh`, try running the script using `sudo`.
 
    ```bash
    sudo sh ./dev/setup_db.sh
    ```
 
-3. Option 2: You can always try to run the commands in the script manually. This makes it easier to troubleshoot what's going on. Open a terminal and run the commands one-by-one.
+3. Finally, you can always try to run the commands in the `./dev/setup_db.sh` script manually. This makes it easier to troubleshoot what's going on. Open a terminal and run the commands below one-by-one.
 
-   Note that some commands span multiple lines! Backslashes `\` are used to break a command into multiple lines.
+   ::: info
+   Some commands span multiple lines! Backslashes `\` are used to break a command into multiple lines. These commands must be copied in their entirety instead of line-by-line.
+   :::
 
    <<< @/../dev/setup_db.sh
