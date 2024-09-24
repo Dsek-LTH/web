@@ -13,7 +13,7 @@ hero:
   actions:
     - theme: brand
       text: Getting started
-      link: /getting-started
+      link: /guides/getting-started
     - theme: alt
       text: API Examples
       link: /api-examples
