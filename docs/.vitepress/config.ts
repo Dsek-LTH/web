@@ -36,8 +36,8 @@ export default defineConfig({
         items: [{ text: "Svelte", link: "/tutorials/svelte" }],
       },
       {
-        text: "Examples",
         items: [
+          { text: "About", link: "/about" },
           { text: "Markdown Examples", link: "/markdown-examples" },
           { text: "Runtime API Examples", link: "/api-examples" },
         ],

@@ -15,8 +15,8 @@ hero:
       text: Getting started
       link: /guides/getting-started
     - theme: alt
-      text: API Examples
-      link: /api-examples
+      text: About
+      link: /about
 
 features:
   - icon: 🌐
