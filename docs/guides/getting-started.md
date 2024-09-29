@@ -4,7 +4,7 @@ outline: deep
 
 # Getting started
 
-Follow the steps below to get a local development enviornment up and running.
+Follow the steps below to get a local development environment up and running.
 
 ## Prerequisites
 
