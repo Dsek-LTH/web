@@ -39,6 +39,7 @@ export default defineConfig({
           { text: "JavaScript", link: "/tutorials/js" },
           { text: "TypeScript", link: "/tutorials/ts" },
           { text: "Svelte", link: "/tutorials/svelte" },
+          { text: "SvelteKit", link: "/tutorials/sveltekit" },
           { text: "Tailwind", link: "/tutorials/tailwind" },
           { text: "SQL", link: "/tutorials/sql" },
           { text: "Prisma", link: "/tutorials/prisma" },
@@ -47,11 +48,25 @@ export default defineConfig({
         ],
       },
       {
+        text: "Explanation",
         items: [
-          { text: "About", link: "/about" },
-          { text: "Markdown Examples", link: "/markdown-examples" },
-          { text: "Runtime API Examples", link: "/api-examples" },
+          {
+            text: "Tech stack",
+            link: "/explanation/tech-stack",
+          },
         ],
+      },
+      {
+        text: "Reference",
+        items: [
+          {
+            text: "Environment variables",
+            link: "/reference/environment-variables",
+          },
+        ],
+      },
+      {
+        items: [{ text: "About", link: "/about" }],
       },
     ],
 
