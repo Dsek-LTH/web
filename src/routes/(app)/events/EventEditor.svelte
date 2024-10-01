@@ -150,7 +150,7 @@
         <TagSelector name="tags" {allTags} bind:selectedTags={$form.tags} />
       </div>
       <slot name="form-end" />
-      {#if recurringParentId !== null}
+      {#if recurringParentId !== null && !creating}
         <button
           type="button"
           class="btn btn-primary my-4"
