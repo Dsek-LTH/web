@@ -7,6 +7,7 @@ import {
   isRecurringType,
   type RecurringType,
 } from "$lib/utils/events";
+import { z } from "zod";
 import { redirect } from "$lib/utils/redirect";
 import { slugify, slugWithCount } from "$lib/utils/slugify";
 import * as m from "$paraglide/messages";
@@ -163,7 +164,10 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
   const { request, locals, params } = event;
   const { user, prisma } = locals;
   const slug = params.slug;
-  const form = await superValidate(request, zod(eventSchema));
+  const form = await superValidate(
+    request,
+    zod(eventSchema.and(z.object({ editType: z.string() }))),
+  );
   if (!form.valid) return fail(400, { form });
   /* eslint-disable-next-line @typescript-eslint/no-unused-vars --
    * To avoid lint complaining about unused vars
@@ -174,8 +178,14 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
   /* eslint-disable-next-line @typescript-eslint/no-unused-vars --
    * To avoid lint complaining about unused vars
    **/
-  const { recurringType, separationCount, tags, image, ...eventData } =
-    recurringEventData;
+  const {
+    recurringType,
+    separationCount,
+    tags,
+    image,
+    editType,
+    ...eventData
+  } = recurringEventData;
 
   eventData.description = DOMPurify.sanitize(eventData.description);
   eventData.descriptionEn = eventData.descriptionEn
@@ -185,7 +195,7 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
     where: {
       slug: slug,
     },
-    select: { id: true },
+    select: { id: true, recurringParentId: true, startDatetime: true },
   });
   if (!existingEvent) {
     throw error(404, m.events_errors_eventNotFound());
@@ -193,18 +203,39 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
 
   if (image) eventData.imageUrl = await uploadImage(user, image, slug);
 
-  await prisma.event.update({
-    where: {
-      id: existingEvent.id,
-    },
-    data: {
-      ...eventData,
-      author: undefined,
-      tags: {
-        set: tags.map(({ id }) => ({ id })),
+  if (!isRecurring || editType === "THIS") {
+    await prisma.event.update({
+      where: {
+        id: existingEvent.id,
       },
-    },
-  });
+      data: {
+        ...eventData,
+        author: undefined,
+        tags: {
+          set: tags.map(({ id }) => ({ id })),
+        },
+      },
+    });
+  } else if (editType === "FUTURE") {
+    await prisma.event.updateMany({
+      where: {
+        recurringParentId: existingEvent.recurringParentId,
+        startDatetime: { gte: existingEvent.startDatetime },
+      },
+      data: {
+        ...eventData,
+      },
+    });
+  } else if (editType === "ALL") {
+    await prisma.event.updateMany({
+      where: {
+        recurringParentId: existingEvent.recurringParentId,
+      },
+      data: {
+        ...eventData,
+      },
+    });
+  }
 
   throw redirect(
     `/events/${slug}`,

@@ -8,6 +8,7 @@ import { zod } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
 import type { Actions, PageServerLoad } from "./$types";
 import { getAllTags } from "$lib/news/tags";
+import { z } from "zod";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
@@ -40,13 +41,18 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     ...event,
     isRecurring: isRecurring,
     recurringType: recurringEvent?.recurringType,
-    recurringEndDateTime: recurringEvent?.endDatetime,
+    recurringEndDatetime: recurringEvent?.endDatetime,
     separationCount: recurringEvent?.separationCount,
+    editType: "ALL",
   };
   return {
     allTags,
     event,
-    form: await superValidate(completeEvent, zod(eventSchema)),
+    recurringParentId: event?.recurringParentId,
+    form: await superValidate(
+      completeEvent,
+      zod(eventSchema.and(z.object({ editType: z.string() }))),
+    ),
   };
 };
 
