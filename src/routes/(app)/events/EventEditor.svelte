@@ -29,7 +29,6 @@
   $: if ($errors) console.log($errors);
   let activeTab: "sv" | "en";
   let modal: HTMLDialogElement;
-  console.log(data)
 </script>
 
 <main
@@ -159,7 +158,7 @@
             modal.showModal();
           }}
         >
-          Spara
+          {m.save()}
         </button>
       {:else}
         <FormSubmitButton {superform} class="btn btn-primary my-4">
@@ -174,14 +173,14 @@
               <label class="label cursor-pointer">
                 <span class="label-text">
                   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                  Redigera alla
+                  {@html m.events_onlyEditThis()}
                 </span>
                 <input
                   type="radio"
-                  name="removeAll"
+                  name="editType"
                   class="radio"
                   bind:group={$form.editType}
-                  value={"ALL"}
+                  value={"THIS"}
                 />
               </label>
             </div>
@@ -189,11 +188,11 @@
               <label class="label cursor-pointer">
                 <span class="label-text">
                   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                  Redigera detta och kommande
+                  {@html m.events_editThisAndFuture()}
                 </span>
                 <input
                   type="radio"
-                  name="removeAll"
+                  name="editType"
                   class="radio"
                   bind:group={$form.editType}
                   value={"FUTURE"}
@@ -204,14 +203,14 @@
               <label class="label cursor-pointer">
                 <span class="label-text">
                   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                  Redigera endast detta
+                  {@html m.events_editAll()}
                 </span>
                 <input
                   type="radio"
-                  name="removeAll"
+                  name="editType"
                   class="radio"
                   bind:group={$form.editType}
-                  value={"THIS"}
+                  value={"ALL"}
                 />
               </label>
             </div>
