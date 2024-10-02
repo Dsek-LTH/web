@@ -6,9 +6,10 @@ import { error, fail, type Action } from "@sveltejs/kit";
 import { zod } from "sveltekit-superforms/adapters";
 import { superValidate, type Infer } from "sveltekit-superforms/server";
 import { z } from "zod";
+import { actionType } from "../schema";
 
 export const removeEventSchema = z.object({
-  removeType: z.string().default("THIS"),
+  removeType: actionType,
 });
 export type RemoveEventSchema = Infer<typeof removeEventSchema>;
 

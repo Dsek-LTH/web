@@ -20,7 +20,7 @@
 
   export let recurringParentId: string | null;
   export let creating = false;
-  export let data: SuperValidated<EventSchema & { editType: string }>;
+  export let data: SuperValidated<EventSchema & { editType: "THIS" | "FUTURE" | "ALL" }>;
   const superform = superForm(data, {
     dataType: "json",
   });

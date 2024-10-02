@@ -1,4 +1,4 @@
-import { eventSchema } from "$lib/events/schema";
+import { actionType, eventSchema } from "$lib/events/schema";
 import { updateEvent } from "$lib/events/server/actions";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
@@ -43,7 +43,6 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     recurringType: recurringEvent?.recurringType,
     recurringEndDatetime: recurringEvent?.endDatetime,
     separationCount: recurringEvent?.separationCount,
-    editType: "ALL",
   };
   return {
     allTags,
@@ -51,10 +50,11 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     recurringParentId: event?.recurringParentId,
     form: await superValidate(
       completeEvent,
-      zod(eventSchema.and(z.object({ editType: z.string() }))),
+      zod(eventSchema.and(z.object({ editType: actionType }))),
     ),
   };
 };
+
 
 export const actions: Actions = {
   default: updateEvent,

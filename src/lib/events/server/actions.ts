@@ -1,5 +1,5 @@
 import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
-import { eventSchema } from "$lib/events/schema";
+import { actionType, eventSchema } from "$lib/events/schema";
 import { uploadFile } from "$lib/files/uploadFiles";
 import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
 import {
@@ -166,7 +166,7 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
   const slug = params.slug;
   const form = await superValidate(
     request,
-    zod(eventSchema.and(z.object({ editType: z.string() }))),
+    zod(eventSchema.and(z.object({ editType: actionType }))),
   );
   if (!form.valid) return fail(400, { form });
   /* eslint-disable-next-line @typescript-eslint/no-unused-vars --
