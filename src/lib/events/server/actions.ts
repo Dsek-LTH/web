@@ -175,11 +175,14 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
   const { isRecurring, recurringEndDatetime, ...recurringEventData } =
     form.data;
 
-  /* eslint-disable-next-line @typescript-eslint/no-unused-vars --
-   * To avoid lint complaining about unused vars
-   **/
   const {
+    /* eslint-disable-next-line @typescript-eslint/no-unused-vars --
+     * To avoid lint complaining about unused vars
+     **/
     recurringType,
+    /* eslint-disable-next-line @typescript-eslint/no-unused-vars --
+     * To avoid lint complaining about unused vars
+     **/
     separationCount,
     tags,
     image,
@@ -224,6 +227,7 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
       },
       data: {
         ...eventData,
+        authorId: undefined,
       },
     });
   } else if (editType === "ALL") {
@@ -233,6 +237,7 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
       },
       data: {
         ...eventData,
+        authorId: undefined,
       },
     });
   }

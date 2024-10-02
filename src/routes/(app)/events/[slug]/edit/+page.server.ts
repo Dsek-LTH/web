@@ -55,7 +55,6 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   };
 };
 
-
 export const actions: Actions = {
   default: updateEvent,
 };
