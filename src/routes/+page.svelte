@@ -179,24 +179,25 @@
     >
       <div class="absolute top-1/3 px-10 lg:pl-44">
         <h1
-          class="mb-4 text-5xl font-bold uppercase lg:text-9xl xl:text-[165px]"
+          class="mb-4 text-5xl font-bold uppercase lg:text-9xl xl:text-[125px]"
         >
           {m.dsektionen()}
         </h1>
-        <p class="mb-20 max-w-prose lg:text-xl">
+        <p class="mb-10 max-w-prose lg:mb-9 lg:text-xl">
           {m.landing_intro()}
         </p>
 
-        <div
-          class="flex flex-col items-start gap-10 lg:flex-row lg:items-center"
-        >
+        <div class="flex flex-row items-start gap-10 lg:items-center">
           <a
             href="/nolla"
-            class="inline-block bg-primary px-5 py-3 font-bold text-white lg:px-6 lg:py-4 lg:text-xl"
+            class="inline-block bg-primary px-5 py-3 font-bold text-white lg:text-xl"
           >
             {m.landing_theIntroduction()}
           </a>
-          <a href="/info/for-foretag" class="font-medium lg:text-xl">
+          <a
+            href="/info/for-foretag"
+            class="py-3 font-medium md:self-center lg:text-xl"
+          >
             {m.home_forCompanies()}
           </a>
         </div>
