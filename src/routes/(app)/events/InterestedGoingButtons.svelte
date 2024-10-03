@@ -30,36 +30,42 @@
     : "i-mdi-star-outline";
 </script>
 
-<div class="bg-yell my-3 flex flex-row gap-2">
-  <form
-    method="POST"
-    action="/events?/{isInterested ? 'interested' : isGoing ? 'going' : 'none'}"
-    use:enhance
-  >
-    <input type="hidden" value={eventId} name="eventId" {...$constraints} />
-    <button
-      disabled={!authorized}
-      type="submit"
-      class="btn btn-ghost"
-      on:click={() => {
-        isGoing = !isGoing;
-        isInterested = false;
-      }}
+{#if $page.data.member}
+  <div class="bg-yell my-3 flex flex-row gap-2">
+    <form
+      method="POST"
+      action="/events?/{isInterested
+        ? 'interested'
+        : isGoing
+          ? 'going'
+          : 'none'}"
+      use:enhance
     >
-      <span class={isGoingIcon + " size-6"}></span>
-      {m.events_interestedGoing_going()}
-    </button>
-    <button
-      disabled={!authorized}
-      type="submit"
-      class="btn btn-ghost"
-      on:click={() => {
-        isInterested = !isInterested;
-        isGoing = false;
-      }}
-    >
-      <span class={isInterestedIcon + " size-6"}></span>
-      {m.events_interestedGoing_interested()}
-    </button>
-  </form>
-</div>
+      <input type="hidden" value={eventId} name="eventId" {...$constraints} />
+      <button
+        disabled={!authorized}
+        type="submit"
+        class="btn btn-ghost"
+        on:click={() => {
+          isGoing = !isGoing;
+          isInterested = false;
+        }}
+      >
+        <span class={isGoingIcon + " size-6"}></span>
+        {m.events_interestedGoing_going()}
+      </button>
+      <button
+        disabled={!authorized}
+        type="submit"
+        class="btn btn-ghost"
+        on:click={() => {
+          isInterested = !isInterested;
+          isGoing = false;
+        }}
+      >
+        <span class={isInterestedIcon + " size-6"}></span>
+        {m.events_interestedGoing_interested()}
+      </button>
+    </form>
+  </div>
+{/if}
