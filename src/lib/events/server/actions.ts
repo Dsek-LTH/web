@@ -198,7 +198,12 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
     where: {
       slug: slug,
     },
-    select: { id: true, recurringParentId: true, startDatetime: true },
+    select: {
+      id: true,
+      recurringParentId: true,
+      startDatetime: true,
+      endDatetime: true,
+    },
   });
   if (!existingEvent) {
     throw error(404, m.events_errors_eventNotFound());
@@ -219,27 +224,47 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
         },
       },
     });
-  } else if (editType === "FUTURE") {
-    await prisma.event.updateMany({
+  } else if (editType === "FUTURE" || editType === "ALL") {
+    const eventsToBeUpdated = await prisma.event.findMany({
       where: {
         recurringParentId: existingEvent.recurringParentId,
-        startDatetime: { gte: existingEvent.startDatetime },
-      },
-      data: {
-        ...eventData,
-        authorId: undefined,
-      },
-    });
-  } else if (editType === "ALL") {
-    await prisma.event.updateMany({
-      where: {
-        recurringParentId: existingEvent.recurringParentId,
-      },
-      data: {
-        ...eventData,
-        authorId: undefined,
+        startDatetime:
+          editType === "FUTURE"
+            ? { gte: existingEvent.startDatetime }
+            : undefined,
       },
     });
+
+    const startTimeDiff = dayjs(eventData.startDatetime).diff(
+      dayjs(existingEvent.startDatetime),
+    );
+    const endTimeDiff = dayjs(eventData.endDatetime).diff(
+      dayjs(existingEvent.endDatetime),
+    );
+
+    await Promise.all(
+      eventsToBeUpdated.map((e) => {
+        const { startDatetime, endDatetime, id, ...oldData } = e;
+        const newData = {
+          ...oldData,
+          ...eventData,
+          startDatetime: dayjs(startDatetime).add(startTimeDiff, "ms").format(),
+          endDatetime: dayjs(endDatetime).add(endTimeDiff, "ms").format(),
+          author: undefined,
+          tags: {
+            set: tags.map(({ id }) => ({ id })),
+          },
+        };
+        return prisma.event.update({
+          where: {
+            id: id,
+          },
+          data: {
+            ...newData,
+          },
+        });
+      }),
+    );
   }
 
   throw redirect(
