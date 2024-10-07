@@ -172,6 +172,7 @@
   "admin_access_addNewPolicy": "Lägg till nya polycier",
   "admin_access_newPolicy": "Ny policy",
   "admin_access_policyCreated": "Ny policy skapad",
+  "admin_alerts_info": "Det kan ta upp till 10 minuter innan meddelanden visas för användare.",
   "admin_alerts_messageSwedish": "Svenskt meddelande",
   "admin_alerts_messageEnglish": "Engelskt meddelande",
   "admin_alerts_severity": "Allvarlighet",
