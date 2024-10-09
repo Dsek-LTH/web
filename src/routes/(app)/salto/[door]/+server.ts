@@ -87,7 +87,6 @@ export const GET: RequestHandler = async ({ params }) => {
     authorizedPrismaClient,
   );
 
-
   //using old logic. Banned users should not be able to gain access.
   //const banPolicies = policies.filter((policy) => policy.isBan);
 
