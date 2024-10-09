@@ -33,8 +33,9 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   }
   const allTaggedMembers = await getAllTaggedMembers(prisma, article.comments);
   const canEdit =
-    isAuthorized(apiNames.NEWS.MANAGE, user) &&
-    isAuthorized(apiNames.NEWS.UPDATE, user);
+    (isAuthorized(apiNames.NEWS.MANAGE, user) &&
+      isAuthorized(apiNames.NEWS.UPDATE, user)) ||
+    article.author.memberId === user.memberId;
   const canDelete = isAuthorized(apiNames.NEWS.DELETE, user);
   return {
     article,
