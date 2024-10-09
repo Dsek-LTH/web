@@ -86,9 +86,12 @@ export const GET: RequestHandler = async ({ params }) => {
     positions.map((p) => p.id),
     authorizedPrismaClient,
   );
-  const banPolicies = policies.filter((policy) => policy.isBan);
 
-  const bannedStudentIds = banPolicies
+
+  //using old logic. Banned users should not be able to gain access.
+  //const banPolicies = policies.filter((policy) => policy.isBan);
+
+  /* const bannedStudentIds = banPolicies
     .map((policy) => policy.studentId)
     .filter((id): id is string => id !== null);
 
@@ -167,7 +170,7 @@ export const GET: RequestHandler = async ({ params }) => {
     .map((policy) => policy.studentId)
     .filter((id): id is string => id !== null)
     .filter((id) => !bannedStudentIds.includes(id))
-    .filter((id) => !studentsFromRoles.includes(id));
+    .filter((id) => !studentsFromRoles.includes(id)); */
 
   return new Response(
     Array.from([
