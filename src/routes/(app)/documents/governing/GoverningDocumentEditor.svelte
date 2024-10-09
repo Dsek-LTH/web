@@ -1,8 +1,9 @@
 <script lang="ts">
   import Input from "$lib/components/Input.svelte";
   import type { SuperValidated } from "sveltekit-superforms";
-  import { superForm } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
   import type { GoverningDocumentSchema } from "./schemas";
+  import * as m from "$paraglide/messages";
 
   export let isCreating: boolean;
   export let documentId: string | undefined;
@@ -18,11 +19,13 @@
   class="flex flex-col gap-3"
 >
   <h1 class="text-2xl font-bold">
-    {isCreating ? "Skapa nytt" : "Redigera"} styrdokument
+    {isCreating
+      ? m.documents_governing_createNewDocument()
+      : m.documents_governing_editDocument()}
   </h1>
   <Input
     name="title"
-    label="Titel"
+    label={m.documents_governing_title()}
     required
     bind:value={$form.title}
     error={$errors.title}
@@ -42,12 +45,14 @@
         name="url"
         class="input input-bordered w-full"
         type="text"
-        placeholder="Pathname"
+        placeholder={m.documents_governing_filePath()}
         bind:value={$form.url}
         {...$constraints.url}
       />
       <p class="text-xs">
-        example: reglemente/releases/download/latest/reglemente.pdf
+        {m.documents_governing_example({
+          x: "reglemente/releases/download/latest/reglemente.pdf",
+        })}
       </p>
     </div>
   </div>
@@ -61,13 +66,15 @@
     bind:value={$form.type}
     {...$constraints.type}
   >
-    <option value="POLICY">Policy</option>
-    <option value="GUIDELINE">Riktlinje</option>
+    <option value="POLICY">{m.documents_governing_policy()}</option>
+    <option value="GUIDELINE">{m.documents_governing_guideline()}</option>
   </select>
   {#if $errors.type}
     <p class="text-error">{$errors.type}</p>
   {/if}
   <button type="submit" class="btn btn-primary btn-sm mt-4">
-    {isCreating ? "Skapa" : "Uppdatera"}
+    {isCreating
+      ? m.documents_governing_create()
+      : m.documents_governing_update()}
   </button>
 </form>

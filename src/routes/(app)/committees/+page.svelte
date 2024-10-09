@@ -1,6 +1,6 @@
 <script lang="ts">
-  import CommitteeIcon from "$lib/components/CommitteeIcon.svelte";
-  import PageHeader from "$lib/components/PageHeader.svelte";
+  import CommitteeIcon from "$lib/components/images/CommitteeIcon.svelte";
+  import PageHeader from "$lib/components/nav/PageHeader.svelte";
   import * as m from "$paraglide/messages";
 
   import type { PageData } from "./$types";
@@ -20,9 +20,9 @@
       class="group card bg-base-300 shadow-xl transition-all hover:bg-base-200/80"
     >
       <figure
-        class="max-h-24 px-12 pt-4 transition-transform *:max-h-full group-hover:scale-90 md:max-h-48"
+        class="mx-auto mt-4 h-32 w-32 transition-transform *:max-h-full group-hover:scale-90 md:mt-8 md:h-40 md:w-40"
       >
-        <CommitteeIcon imageUrl={committee.imageUrl} />
+        <CommitteeIcon {committee} />
       </figure>
       <div class="card-body px-0 text-center">
         <h2 class="card-title mx-auto">{committee.name}</h2>

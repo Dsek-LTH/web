@@ -16,5 +16,5 @@
       imgElement.src = "https://gravatar.com/avatar?s=100&d=mp";
     }
   }}
-  alt=""
+  alt="Member avatar"
 />

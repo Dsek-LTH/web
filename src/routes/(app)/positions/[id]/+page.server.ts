@@ -1,9 +1,17 @@
 import { error, fail } from "@sveltejs/kit";
 import { redirect } from "$lib/utils/redirect";
-import { message, setError, superValidate } from "sveltekit-superforms/server";
+import {
+  message,
+  setError,
+  superValidate,
+  type Infer,
+} from "sveltekit-superforms/server";
+import { zod } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import keycloak from "$lib/server/keycloak";
 import type { Actions, PageServerLoad } from "./$types";
+import * as m from "$paraglide/messages";
+import { languageTag } from "$paraglide/runtime";
 
 export const load: PageServerLoad = async ({ locals, params, url }) => {
   const { prisma } = locals;
@@ -12,6 +20,7 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
       id: params.id,
     },
     include: {
+      committee: true,
       mandates: {
         include: {
           member: true,
@@ -37,17 +46,17 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
     },
   });
   if (!position) {
-    throw error(404, "Position not found");
+    throw error(404, m.positions_errors_positionNotFound());
   }
   const editedMandateID = url.searchParams.get("editMandate");
   const editedMandate = position.mandates.find((m) => m.id === editedMandateID);
   return {
-    updateForm: superValidate(position, updateSchema),
-    addMandateForm: superValidate(addManadateSchema),
+    updateForm: superValidate(position, zod(updateSchema)),
+    addMandateForm: superValidate(zod(addManadateSchema)),
     updateMandateForm: editedMandate
-      ? superValidate(editedMandate, updateMandateSchema)
-      : superValidate(updateMandateSchema),
-    deleteMandateForm: superValidate(deleteMandateSchema),
+      ? superValidate(editedMandate, zod(updateMandateSchema))
+      : superValidate(zod(updateMandateSchema)),
+    deleteMandateForm: superValidate(zod(deleteMandateSchema)),
     position,
     mandates: position.mandates,
   };
@@ -58,7 +67,7 @@ const updateSchema = z.object({
   description: z.string().nullable(),
   email: z.string().email().nullable(),
 });
-export type UpdatePositionSchema = typeof updateSchema;
+export type UpdatePositionSchema = Infer<typeof updateSchema>;
 
 const END_OF_YEAR = new Date(`${new Date().getFullYear()}-12-31T23:59:59`);
 
@@ -67,24 +76,36 @@ const addManadateSchema = z.object({
   startDate: z.coerce.date().default(new Date()),
   endDate: z.coerce.date().default(END_OF_YEAR),
 });
-export type AddMandateSchema = typeof addManadateSchema;
+export type AddMandateSchema = Infer<typeof addManadateSchema>;
 
 const updateMandateSchema = z.object({
   mandateId: z.string().uuid(),
   startDate: z.coerce.date().optional(),
   endDate: z.coerce.date().optional(),
 });
-export type UpdateMandateSchema = typeof updateMandateSchema;
+export type UpdateMandateSchema = Infer<typeof updateMandateSchema>;
 
 const deleteMandateSchema = z.object({
   mandateId: z.string().uuid(),
 });
-export type DeleteMandateSchema = typeof deleteMandateSchema;
+export type DeleteMandateSchema = Infer<typeof deleteMandateSchema>;
+
+const genitiveCase = (base: string): string => {
+  if (languageTag() === "sv") {
+    if (base.endsWith("s") || base.endsWith("x"))
+      return base; // Måns or Max => Måns and Max
+    else return base + "s"; // Adam => Adams
+  } else {
+    if (base.endsWith("s"))
+      return base + "'"; // Måns => Måns'
+    else return base + "'s"; // Adam => Adam's
+  }
+};
 
 export const actions: Actions = {
   update: async ({ params, request, locals }) => {
     const { prisma } = locals;
-    const form = await superValidate(request, updateSchema);
+    const form = await superValidate(request, zod(updateSchema));
     if (!form.valid) return fail(400, { form });
     await prisma.position.update({
       where: { id: params.id },
@@ -95,18 +116,19 @@ export const actions: Actions = {
       },
     });
     return message(form, {
-      message: "Position uppdaterad",
+      message: m.positions_positionUpdated(),
       type: "success",
     });
   },
   addMandate: async ({ params, request, locals }) => {
     const { prisma } = locals;
-    const form = await superValidate(request, addManadateSchema);
+    const form = await superValidate(request, zod(addManadateSchema));
     if (!form.valid) return fail(400, { form });
     const member = await prisma.member.findUnique({
       where: { id: form.data.memberId },
     });
-    if (!member) return setError(form, "memberId", "Medlemmen finns inte");
+    if (!member)
+      return setError(form, "memberId", m.positions_errors_memberNotFound());
     await prisma.mandate.create({
       data: {
         positionId: params.id,
@@ -117,14 +139,16 @@ export const actions: Actions = {
     });
     keycloak.addMandate(member.studentId!, params.id);
     return message(form, {
-      message: `Nytt mandat gett till ${member.firstName}`,
+      message: m.positions_newMandateGivenTo({
+        name: member.firstName ?? m.positions_theMember(),
+      }),
       type: "success",
     });
   },
   updateMandate: async (event) => {
     const { params, request, locals } = event;
     const { prisma } = locals;
-    const form = await superValidate(request, updateMandateSchema);
+    const form = await superValidate(request, zod(updateMandateSchema));
     if (!form.valid) return fail(400, { form });
     const member = await prisma.member.findFirst({
       where: {
@@ -138,7 +162,7 @@ export const actions: Actions = {
     if (!member)
       return message(
         form,
-        { message: "Mandatet hittades inte", type: "error" },
+        { message: m.positions_errors_mandateNotFound(), type: "error" },
         { status: 400 },
       );
     await prisma.mandate.update({
@@ -151,9 +175,9 @@ export const actions: Actions = {
     throw redirect(
       `/positions/${params.id}`,
       {
-        message: `${member.firstName}${
-          member.firstName?.endsWith("s") ? "" : "s"
-        } mandat har uppdateras`,
+        message: m.positions_mandateUpdated({
+          names: genitiveCase(member.firstName ?? m.positions_theMember()),
+        }),
         type: "success",
       },
       event,
@@ -161,7 +185,7 @@ export const actions: Actions = {
   },
   deleteMandate: async ({ params, request, locals }) => {
     const { prisma } = locals;
-    const form = await superValidate(request, deleteMandateSchema);
+    const form = await superValidate(request, zod(deleteMandateSchema));
     if (!form.valid) return fail(400, { form });
     const member = await prisma.member.findFirst({
       where: {
@@ -175,7 +199,7 @@ export const actions: Actions = {
     if (!member)
       return message(
         form,
-        { message: "Mandatet hittades inte", type: "error" },
+        { message: m.positions_errors_mandateNotFound(), type: "error" },
         { status: 400 },
       );
     await prisma.mandate.delete({
@@ -183,9 +207,9 @@ export const actions: Actions = {
     });
     keycloak.deleteMandate(member.studentId!, params.id);
     return message(form, {
-      message: `${member.firstName}${
-        member.firstName?.endsWith("s") ? "" : "s"
-      } mandat har tagits bort`,
+      message: m.positions_mandateRemoved({
+        names: genitiveCase(member.firstName ?? m.positions_theMember()),
+      }),
       type: "success",
     });
   },

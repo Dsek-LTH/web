@@ -1,4 +1,5 @@
 import type { TransactionClient } from "$lib/server/shop/types";
+import { SUBSCRIPTION_SETTINGS_MAP } from "$lib/utils/notifications/types";
 import { ShoppableType, type Member, type PrismaClient } from "@prisma/client";
 
 export const MOCK_EVENT_1 = {
@@ -11,10 +12,10 @@ export const MOCK_EVENT_1 = {
   endDatetime: new Date(Date.now() + 1000 * 60 * 60 * 24 * 8),
   tags: [
     {
-      name: "tag1",
+      name: "MOCKED_tag1",
     },
     {
-      name: "tag2",
+      name: "MOCKED_tag2",
     },
   ],
 };
@@ -94,7 +95,7 @@ export const addMockUser = async (
 ) => {
   return await prisma.member.create({
     data: {
-      studentId: "test" + suitePrefix + crypto.randomUUID(),
+      studentId: "MOCKED_" + suitePrefix + crypto.randomUUID(),
     },
   });
 };
@@ -119,9 +120,13 @@ export const addMockTickets = async (
     const event1 = await prisma.event.create({
       data: {
         ...MOCK_EVENT_1,
+        title: "MOCKED_" + MOCK_EVENT_1.title,
         authorId: adminMember.id,
         tags: {
-          create: MOCK_EVENT_1.tags,
+          create: MOCK_EVENT_1.tags.map((tag) => ({
+            ...tag,
+            name: "MOCKED_" + tag.name,
+          })),
         },
       },
       include: {
@@ -143,6 +148,7 @@ export const addMockTickets = async (
           shoppable: {
             create: {
               ...ticket.shoppable,
+              title: "MOCKED_" + ticket.shoppable.title,
               authorId: adminMember.id,
             },
           },
@@ -194,6 +200,20 @@ export const removeMockTickets = async (
         },
       },
     }); // remove all reservations
+    const mockedEvents = await tx.event.findMany({
+      where: {
+        tickets: {
+          some: {
+            id: {
+              in: ticketIds,
+            },
+          },
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
     await tx.shoppable.deleteMany({
       where: {
         id: {
@@ -203,12 +223,8 @@ export const removeMockTickets = async (
     });
     await tx.event.deleteMany({
       where: {
-        tickets: {
-          some: {
-            id: {
-              in: ticketIds,
-            },
-          },
+        id: {
+          in: mockedEvents.map((e) => e.id),
         },
       },
     });
@@ -241,11 +257,18 @@ export const removeAllTestData = async (
   prisma: PrismaClient,
   suitePrefix: string,
 ) => {
+  await prisma.notification.deleteMany({
+    where: {
+      OR: SUBSCRIPTION_SETTINGS_MAP.PURCHASES.map((type) => ({
+        type,
+      })),
+    },
+  });
   await prisma.shoppable.deleteMany({
     where: {
       author: {
         studentId: {
-          startsWith: "test" + suitePrefix,
+          startsWith: "MOCKED_" + suitePrefix,
         },
       },
     },
@@ -254,7 +277,7 @@ export const removeAllTestData = async (
     where: {
       author: {
         studentId: {
-          startsWith: "test" + suitePrefix,
+          startsWith: "MOCKED_" + suitePrefix,
         },
       },
     },
@@ -262,7 +285,14 @@ export const removeAllTestData = async (
   await prisma.member.deleteMany({
     where: {
       studentId: {
-        startsWith: "test" + suitePrefix,
+        startsWith: "MOCKED_" + suitePrefix,
+      },
+    },
+  });
+  await prisma.tag.deleteMany({
+    where: {
+      name: {
+        startsWith: "MOCKED_",
       },
     },
   });

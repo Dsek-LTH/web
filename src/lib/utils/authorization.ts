@@ -1,6 +1,7 @@
 import { dev } from "$app/environment";
 import { error } from "@sveltejs/kit";
 import type { AuthUser } from "@zenstackhq/runtime";
+import * as m from "$paraglide/messages";
 
 /**
  * Check if the user is authorized to perform an action.
@@ -20,10 +21,7 @@ export const authorize = (apiName: string | string[], user?: AuthUser) => {
   const apiNames = Array.isArray(apiName) ? apiName : [apiName];
   for (const name of apiNames) {
     if (!isAuthorized(name, user)) {
-      throw error(
-        403,
-        `You do not have permission, have you logged in? Required policy: ${name}`,
-      );
+      throw error(403, `${m.errors_missingPermissions()} ${name}`);
     }
   }
 };
@@ -34,7 +32,11 @@ export const authorize = (apiName: string | string[], user?: AuthUser) => {
  * @param signedIn Whether the user is signed in. If `groupList` contains groups, the user is assumed to be signed in.
  * @returns e.g. `["*", "_", "dsek", "dsek.infu", "dsek.infu.mdlm", "dsek.ordf"]`
  */
-export const getDerivedRoles = (groupList?: string[], signedIn = false) => {
+export const getDerivedRoles = (
+  groupList?: string[],
+  signedIn = false,
+  classYear: number | undefined = undefined,
+) => {
   const splitGroups = new Set<string>();
   groupList?.forEach((group) =>
     group
@@ -43,5 +45,7 @@ export const getDerivedRoles = (groupList?: string[], signedIn = false) => {
   );
   splitGroups.add("*"); // all users
   if (groupList?.length || signedIn) splitGroups.add("_"); // logged in users
+  if (classYear && classYear === new Date().getFullYear())
+    splitGroups.add("nolla");
   return [...splitGroups];
 };

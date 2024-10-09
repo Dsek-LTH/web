@@ -2,11 +2,9 @@ import { dbIdentification } from "$lib/server/shop/types";
 import type { PrismaClient } from "@prisma/client";
 import type { AuthUser } from "@zenstackhq/runtime";
 
-export type UserShopItemCounts = Awaited<ReturnType<typeof countUserShopItems>>;
-export const countUserShopItems = async (
-  prisma: PrismaClient,
-  user: AuthUser,
-) => {
+export type UserShopItemCounts = ReturnType<typeof countUserShopItems>;
+
+export const countUserShopItems = (prisma: PrismaClient, user: AuthUser) => {
   if (!user) return;
   if (!user.memberId && !user.externalCode) return;
   const identification = dbIdentification(
@@ -14,27 +12,28 @@ export const countUserShopItems = async (
       ? { memberId: user.memberId }
       : { externalCode: user.externalCode! },
   );
-  const owned = await prisma.consumable.count({
+  const unconsumed = prisma.consumable.count({
     where: {
       purchasedAt: { not: null },
+      consumedAt: null,
       ...identification,
     },
   });
-  const inCart = await prisma.consumable.count({
+  const inCart = prisma.consumable.count({
     where: {
       purchasedAt: null,
       OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
       ...identification,
     },
   });
-  const reserved = await prisma.consumableReservation.count({
+  const reserved = prisma.consumableReservation.count({
     where: {
       ...identification,
     },
   });
 
   return {
-    owned,
+    unconsumed,
     inCart,
     reserved,
   };

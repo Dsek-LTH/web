@@ -1,23 +1,21 @@
-import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
+import { BASIC_EVENT_FILTER } from "$lib/events/events";
 import {
   PrismaClient,
-  ShoppableType,
   type Consumable,
   type ConsumableReservation,
   type Event,
-  type ItemQuestionResponse,
   type Prisma,
   type Shoppable,
   type Tag,
   type Ticket,
 } from "@prisma/client";
+import { error } from "@sveltejs/kit";
+import type { AuthUser } from "@zenstackhq/runtime";
 import dayjs from "dayjs";
-import { removeExpiredConsumables } from "./addToCart/reservations";
 import {
   GRACE_PERIOD_WINDOW,
   dbIdentification,
   type DBShopIdentification,
-  type ShopIdentification,
 } from "./types";
 
 export type TicketWithMoreInfo = Ticket &
@@ -34,7 +32,7 @@ export type TicketWithMoreInfo = Ticket &
     hasQueue: boolean;
   };
 
-const ticketIncludedFields = (id: DBShopIdentification) => ({
+export const ticketIncludedFields = (id: DBShopIdentification) => ({
   shoppable: {
     include: {
       // Get the user's consumables and reservations for this ticket
@@ -68,7 +66,7 @@ const ticketIncludedFields = (id: DBShopIdentification) => ({
 type TicketInclude = ReturnType<typeof ticketIncludedFields>;
 type TicketFromPrisma = Prisma.TicketGetPayload<{ include: TicketInclude }>;
 
-const formatTicket = (ticket: TicketFromPrisma): TicketWithMoreInfo => {
+export const formatTicket = (ticket: TicketFromPrisma): TicketWithMoreInfo => {
   const base: TicketWithMoreInfo &
     Partial<
       Pick<
@@ -79,7 +77,7 @@ const formatTicket = (ticket: TicketFromPrisma): TicketWithMoreInfo => {
     > = {
     ...ticket.shoppable,
     ...ticket,
-    userItemsInCart: ticket.shoppable.consumables,
+    userItemsInCart: ticket.shoppable.consumables.filter((c) => !c.purchasedAt),
     userReservations: ticket.shoppable.reservations,
     gracePeriodEndsAt: new Date(
       ticket.shoppable.availableFrom.valueOf() + GRACE_PERIOD_WINDOW,
@@ -104,14 +102,46 @@ const formatTicket = (ticket: TicketFromPrisma): TicketWithMoreInfo => {
   return base;
 };
 
+const shoppableAccessPolicyFilter = (
+  userRoles: string[],
+  studentId?: string,
+) => ({
+  OR: [
+    {
+      accessPolicies: { none: {} }, // no access policies exist
+    },
+    {
+      accessPolicies: {
+        some: studentId
+          ? {
+              OR: [{ role: { in: userRoles } }, { studentId }],
+            }
+          : { role: { in: userRoles } },
+      },
+    },
+  ],
+});
+
 export const getTicket = async (
   prisma: PrismaClient,
   id: string,
-  userId: ShopIdentification,
+  user: AuthUser,
 ): Promise<TicketWithMoreInfo | null> => {
-  const dbId = dbIdentification(userId);
+  const { memberId, externalCode } = user ?? {};
+  if (!memberId && !externalCode) throw error(401);
+  const identification = memberId
+    ? {
+        memberId: memberId,
+      }
+    : {
+        externalCode: externalCode!,
+      };
+  const dbId = dbIdentification(identification);
   const ticket = await prisma.ticket.findFirst({
-    where: { id },
+    where: {
+      id,
+      shoppable: { ...shoppableAccessPolicyFilter(user.roles, user.studentId) },
+    },
     include: ticketIncludedFields(dbId),
   });
   if (!ticket) {
@@ -128,105 +158,102 @@ export const getTicket = async (
  */
 export const getTickets = async (
   prisma: PrismaClient,
-  identification: ShopIdentification,
+  user: AuthUser,
+  getAll = false,
 ): Promise<TicketWithMoreInfo[]> => {
+  const { memberId, externalCode } = user ?? {};
+  if (!memberId && !externalCode) throw error(401);
+  const identification = memberId
+    ? {
+        memberId: memberId,
+      }
+    : {
+        externalCode: externalCode!,
+      };
   const dbId = dbIdentification(identification);
   const tenDaysAgo = dayjs().subtract(10, "days").toDate();
   const tickets = await prisma.ticket.findMany({
-    where: {
-      shoppable: {
-        AND: [
-          { OR: [{ removedAt: null }, { removedAt: { lt: new Date() } }] },
-          {
-            // show items which were available in the last 10 days
-            OR: [{ availableTo: null }, { availableTo: { gt: tenDaysAgo } }],
+    where: getAll
+      ? undefined
+      : {
+          shoppable: {
+            AND: [
+              { OR: [{ removedAt: null }, { removedAt: { lt: new Date() } }] },
+              {
+                // show items which were available in the last 10 days
+                OR: [
+                  { availableTo: null },
+                  { availableTo: { gt: tenDaysAgo } },
+                ],
+              },
+            ],
+            ...shoppableAccessPolicyFilter(user.roles, user.studentId),
           },
-        ],
-      },
-    },
+        },
     include: ticketIncludedFields(dbId),
     orderBy: {
-      shoppable: { availableFrom: "asc" },
+      shoppable: { availableFrom: getAll ? "desc" : "asc" },
     },
   });
   return tickets.map(formatTicket);
 };
 
-type ItemMetadata = {
-  shoppable: Shoppable &
-    Ticket & {
-      event: Event;
-    };
-};
-export type CartItem = Consumable &
-  ItemMetadata & {
-    questionResponses: ItemQuestionResponse[];
-  };
-export type CartReservation = ConsumableReservation & ItemMetadata;
-
-export const getCart = async (
+/**
+ * Retrieves tickets from the database based on the provided shop identification.
+ * @param prisma - The Prisma client instance.
+ * @param identification - Either the user's ID or the user's session ID.
+ * @returns A promise that resolves to an array of tickets.
+ */
+export const getEventsWithTickets = async (
   prisma: PrismaClient,
-  id: ShopIdentification,
-): Promise<{
-  inCart: CartItem[];
-  reservations: CartReservation[];
-}> => {
-  const now = new Date();
-  await removeExpiredConsumables(authorizedPrismaClient, now);
-  const inCart = await prisma.consumable.findMany({
+  user: AuthUser,
+  filters: Prisma.EventWhereInput = {},
+  nollningMode: boolean | null = false,
+) => {
+  const { memberId, externalCode } = user ?? {};
+  if (!memberId && !externalCode) throw error(401);
+  const identification = memberId
+    ? {
+        memberId: memberId,
+      }
+    : {
+        externalCode: externalCode!,
+      };
+  const dbId = dbIdentification(identification);
+
+  const events = await prisma.event.findMany({
     where: {
-      ...dbIdentification(id),
-      OR: [{ expiresAt: { gt: now } }, { expiresAt: null }],
-      purchasedAt: null,
-      shoppable: { type: ShoppableType.TICKET },
+      ...BASIC_EVENT_FILTER(nollningMode),
+      ...filters,
+    },
+    orderBy: {
+      startDatetime: "asc",
     },
     include: {
-      questionResponses: true,
-      shoppable: {
-        include: {
-          ticket: {
-            include: { event: true },
-          },
-          _count: {
-            select: {
-              consumables: {
-                where: { purchasedAt: { not: null } },
-              },
-            },
+      tickets: {
+        where: {
+          shoppable: {
+            ...shoppableAccessPolicyFilter(user.roles, user.studentId),
           },
         },
-      },
-    },
-  });
-  const reservations = await prisma.consumableReservation.findMany({
-    where: {
-      ...dbIdentification(id),
-      shoppable: { type: ShoppableType.TICKET },
-    },
-    include: {
-      shoppable: {
         include: {
-          ticket: { include: { event: true } },
+          ...ticketIncludedFields(dbId),
+          event: false,
         },
       },
+      tags: true,
     },
   });
-  return {
-    inCart: inCart.map((c) => ({
-      ...c,
-      shoppable: {
-        ...c.shoppable.ticket!,
-        ...c.shoppable,
-        ticket: undefined,
-      },
-    })),
-    reservations: reservations.map((c) => ({
-      ...c,
-      shoppable: {
-        ...c.shoppable.ticket!,
-        ...c.shoppable,
-        ticket: undefined,
-      },
-    })),
-  };
+
+  return events.map((event) => ({
+    ...event,
+    tickets: event.tickets.map((ticket) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars -- We want to "drop" tickets from event data nested into the ticket
+      const { tickets: _, ...eventData } = event;
+      return formatTicket({
+        ...ticket,
+        event: eventData,
+      });
+    }),
+  }));
 };

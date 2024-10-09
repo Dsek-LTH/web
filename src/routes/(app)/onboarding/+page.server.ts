@@ -1,5 +1,6 @@
 import { memberSchema } from "$lib/zod/schemas";
-import { superValidate } from "sveltekit-superforms/server";
+import { superValidate, type Infer } from "sveltekit-superforms/server";
+import { zod } from "sveltekit-superforms/adapters";
 import type { Actions, PageServerLoad } from "./$types";
 import { error, fail } from "@sveltejs/kit";
 import { redirect } from "$lib/utils/redirect";
@@ -7,10 +8,15 @@ import * as m from "$paraglide/messages";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma } = locals;
-  const [memberResult] = await Promise.allSettled([
+  const [memberResult, phadderGroupsResult] = await Promise.allSettled([
     prisma.member.findUnique({
       where: {
         studentId: locals.user?.studentId,
+      },
+    }),
+    prisma.phadderGroup.findMany({
+      orderBy: {
+        createdAt: "asc",
       },
     }),
   ]);
@@ -20,28 +26,37 @@ export const load: PageServerLoad = async ({ locals }) => {
   if (!memberResult.value) {
     throw error(404, m.onboarding_errors_memberNotFound());
   }
+  if (phadderGroupsResult.status === "rejected")
+    throw error(
+      500,
+      phadderGroupsResult.reason ?? "Couldn't fetch phadder groups",
+    );
   const member = memberResult.value;
+  const phadderGroups = phadderGroupsResult.value;
   return {
-    form: await superValidate(member, memberSchema),
+    form: await superValidate(member, zod(memberSchema)),
     member,
+    phadderGroups,
   };
 };
 
 const updateSchema = memberSchema.pick({
+  email: true,
   firstName: true,
   lastName: true,
   nickname: true,
   foodPreference: true,
   classProgramme: true,
   classYear: true,
+  nollningGroupId: true,
 });
 
-export type UpdateSchema = typeof updateSchema;
+export type UpdateSchema = Infer<typeof updateSchema>;
 
 export const actions: Actions = {
   update: async ({ locals, request, cookies }) => {
     const { prisma } = locals;
-    const form = await superValidate(request, updateSchema);
+    const form = await superValidate(request, zod(updateSchema));
     if (!form.valid) return fail(400, { form });
     const studentId = locals.user?.studentId;
     if (studentId) {

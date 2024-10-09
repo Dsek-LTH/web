@@ -1,13 +1,14 @@
+import * as m from "$paraglide/messages";
 import { error } from "@sveltejs/kit";
-import DOMPurify from "isomorphic-dompurify";
-import { fixSongText } from "../helpers";
-import { updateSongSchema } from "../schema";
+import { zod } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
 import {
   canAccessDeletedSongs,
+  fixSongText,
   getExistingCategories,
   getExistingMelodies,
 } from "../helpers";
+import { updateSongSchema } from "../schema";
 import type { LayoutServerLoad } from "./$types";
 
 export const load: LayoutServerLoad = async ({ locals, params }) => {
@@ -22,7 +23,7 @@ export const load: LayoutServerLoad = async ({ locals, params }) => {
 
   if (song == null) {
     throw error(404, {
-      message: "Song not found",
+      message: m.songbook_errors_songNotFound(),
     });
   }
 
@@ -39,13 +40,13 @@ export const load: LayoutServerLoad = async ({ locals, params }) => {
     ),
   ]);
 
-  const form = await superValidate(song, updateSongSchema);
+  const form = await superValidate(song, zod(updateSongSchema));
 
   return {
     song: {
       ...song,
-      title: DOMPurify.sanitize(fixSongText(song.title)),
-      lyrics: DOMPurify.sanitize(fixSongText(song.lyrics)),
+      title: fixSongText(song.title),
+      lyrics: fixSongText(song.lyrics),
     },
     updateForm: form,
     existingCategories,

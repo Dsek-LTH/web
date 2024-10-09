@@ -16,6 +16,12 @@ const DUPLICATE_ALLOWED_TYPES = [
   NotificationType.CREATE_MANDATE,
   NotificationType.ARTICLE_REQUEST_UPDATE,
   NotificationType.BOOKING_REQUEST,
+  NotificationType.PAYMENT_STATUS,
+  NotificationType.PURCHASE_TIME_TO_BUY,
+  NotificationType.PURCHASE_SOLD_OUT,
+  NotificationType.PURCHASE_IN_QUEUE,
+  NotificationType.PURCHASE_CONSUMABLE_EXPIRED,
+  NotificationType.PAYMENT_STATUS,
 ];
 
 type BaseSendNotificationProps = {
@@ -25,15 +31,22 @@ type BaseSendNotificationProps = {
   link: string;
   memberIds?: string[];
 };
-type SendNotificationProps = BaseSendNotificationProps &
+export type SendNotificationProps = BaseSendNotificationProps &
   (
     | {
+        // Send as author (e.g. Jane Smith, Källarmästare)
         fromAuthor: Author;
-        fromMemberId?: undefined;
+        fromMemberId?: never;
       }
     | {
-        fromAuthor?: undefined;
+        // Send as member (e.g. Jane Smith)
+        fromAuthor?: never;
         fromMemberId: string;
+      }
+    | {
+        // Send as system (e.g. D-sek)
+        fromAuthor?: never;
+        fromMemberId?: never;
       }
   );
 
@@ -42,8 +55,8 @@ const prisma = authorizedPrismaClient;
 
 /**
  *
- * @param title
- * @param message
+ * @param title Title for the notification
+ * @param message Body of the message
  * @param type NotificationType
  * @param link used when notification is clicked
  * @param memberIds if no memberId is input then it will send to all users
@@ -59,6 +72,7 @@ const sendNotification = async ({
   fromAuthor,
   fromMemberId,
 }: SendNotificationProps) => {
+  if ((memberIds?.length ?? 0) == 0) return;
   // Find corresponding setting type, example "COMMENT" for "EVENT_COMMENT"
   const settingType: NotificationSettingType = (Object.entries(
     SUBSCRIPTION_SETTINGS_MAP,
@@ -67,9 +81,11 @@ const sendNotification = async ({
   // Who sent the notification, as an Author
   const existingAuthor =
     fromAuthor ??
-    (await prisma.author.findFirst({
-      where: { memberId: fromMemberId, mandateId: null, customId: null },
-    }));
+    (fromMemberId
+      ? await prisma.author.findFirst({
+          where: { memberId: fromMemberId, mandateId: null, customId: null },
+        })
+      : undefined);
 
   // If member doesn't have author since before, create one
   const notificationAuthor =
@@ -130,9 +146,8 @@ const sendNotification = async ({
     }`,
   );
 
-  if (title.length > 255) title = title.substring(0, 254);
-  if (message.length > 255) message = message.substring(0, 254);
-  if (link.length > 255) link = link.substring(0, 254);
+  if (title.length > 255) title = title.substring(0, 251) + "...";
+  if (message.length > 255) message = message.substring(0, 251) + "...";
 
   const result = await Promise.allSettled([
     await sendWeb(
@@ -143,7 +158,7 @@ const sendNotification = async ({
       notificationAuthor,
       receivingMembers,
     ),
-    await sendPush(title, message, type, link, receivingMembers),
+    await sendPush(title, message, settingType, link, receivingMembers),
   ]);
 
   if (result[0].status == "rejected") {
@@ -179,7 +194,7 @@ const sendWeb = async (
 const sendPush = async (
   title: string,
   message: string,
-  type: NotificationType,
+  type: NotificationSettingType,
   link: string,
   receivingMembers: Array<
     Pick<Member, "id"> & {

@@ -2,6 +2,7 @@
   import { goto } from "$lib/utils/redirect";
   import { page } from "$app/stores";
   import { tick } from "svelte";
+  import { i18n } from "$lib/utils/i18n";
 
   let isLoading = false;
 
@@ -15,7 +16,7 @@
       if (search !== undefined) urlParams.set("search", search);
       else urlParams.delete("search");
       urlParams.delete("page");
-      await goto(`${$page.url.pathname}?${urlParams.toString()}`, {
+      await goto(`${i18n.route($page.url.pathname)}?${urlParams.toString()}`, {
         replaceState: true,
       });
       await tick();

@@ -5,31 +5,37 @@
   import type { Member } from "@prisma/client";
   import type { AuthUser } from "@zenstackhq/runtime";
   import * as m from "$paraglide/messages";
+  import LoadingButton from "$lib/components/LoadingButton.svelte";
 
   export let member: Member;
   export let user: AuthUser;
   export let shopItemCounts: UserShopItemCounts;
 
-  $: amountInCart =
-    (shopItemCounts?.inCart ?? 0) + (shopItemCounts?.reserved ?? 0);
-  $: userIndicatorAmount = amountInCart > 0 ? amountInCart : undefined;
+  $: amountInCart = Promise.all([
+    shopItemCounts?.inCart,
+    shopItemCounts?.reserved,
+  ]).then(([inCart, reserved]) => (inCart ?? 0) + (reserved ?? 0));
 </script>
 
 <div class="dropdown dropdown-end dropdown-hover">
   <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
   <!-- svelte-ignore a11y-label-has-associated-control -->
   <label tabindex="0" class="btn btn-ghost">
-    {#if userIndicatorAmount !== undefined}
-      <div class="indicator">
-        <span
-          class="badge indicator-item badge-primary badge-sm indicator-start indicator-top"
-          >{amountInCart}</span
-        >
-        <span class="i-mdi-account-circle text-2xl" />
-      </div>
-    {:else}
+    {#await amountInCart}
       <span class="i-mdi-account-circle text-2xl" />
-    {/if}
+    {:then amountInCart}
+      {#if amountInCart > 0}
+        <div class="indicator">
+          <span
+            class="badge indicator-item badge-primary badge-sm indicator-start indicator-top"
+            >{amountInCart}
+          </span>
+          <span class="i-mdi-account-circle text-2xl" />
+        </div>
+      {:else}
+        <span class="i-mdi-account-circle text-2xl" />
+      {/if}
+    {/await}
   </label>
   <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
   <div
@@ -46,7 +52,7 @@
 
       <div class="flex flex-col items-start gap-2">
         <a
-          href={`/members/${user?.studentId}`}
+          href={`/members/me`}
           class="btn btn-ghost w-full justify-start text-base-content"
         >
           <span class="i-mdi-account-circle size-6 text-primary" />
@@ -56,25 +62,28 @@
           <span class="i-mdi-cog size-6 text-primary" />
           {m.navbar_userMenu_settings()}
         </a>
-        {#if (shopItemCounts?.owned ?? 0) > 0}
-          <a href="/shop/inventory" class="btn btn-ghost w-full justify-start">
-            <span class="i-mdi-treasure-chest size-6 text-primary" />
-            {m.navbar_userMenu_inventory()}
-          </a>
-        {/if}
-        {#if amountInCart > 0}
-          <a href="/shop/cart" class="btn btn-ghost w-full justify-start">
-            <span class="i-mdi-cart size-6 text-primary" />
-            <span>{m.navbar_userMenu_cart()}</span>
-            <span class="badge badge-primary badge-sm">{amountInCart}</span>
-          </a>
-        {/if}
+        <a href="/shop/inventory" class="btn btn-ghost w-full justify-start">
+          <span class="i-mdi-treasure-chest size-6 text-primary" />
+          {m.navbar_userMenu_inventory()}
+        </a>
+        {#await amountInCart then amountInCart}
+          {#if amountInCart > 0}
+            <a href="/shop/cart" class="btn btn-ghost w-full justify-start">
+              <span class="i-mdi-cart size-6 text-primary" />
+              <span>{m.navbar_userMenu_cart()}</span>
+              <span class="badge badge-primary badge-sm">{amountInCart}</span>
+            </a>
+          {/if}
+        {/await}
       </div>
       <span class="divider m-1" />
-      <button class="btn btn-ghost justify-start" on:click={() => signOut()}>
-        <span class="i-mdi-logout size-6 text-primary" />
-        {m.navbar_userMenu_logOut()}</button
+      <LoadingButton
+        class="btn btn-ghost justify-start"
+        onClick={() => signOut()}
       >
+        <span class="i-mdi-logout size-6 text-primary" />
+        {m.navbar_userMenu_logOut()}
+      </LoadingButton>
     </div>
   </div>
 </div>

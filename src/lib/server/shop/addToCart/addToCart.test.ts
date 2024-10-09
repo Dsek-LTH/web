@@ -8,10 +8,12 @@ import {
   it,
   vi,
 } from "vitest";
-import { GRACE_PERIOD_WINDOW, type ShopIdentification } from "../types";
+import { GRACE_PERIOD_WINDOW } from "../types";
 import { AddToCartStatus, addTicketToCart } from "./addToCart";
 
-import { enhance } from "@zenstackhq/runtime";
+import { getDerivedRoles } from "$lib/utils/authorization";
+import { NotificationType } from "$lib/utils/notifications/types";
+import { enhance, type AuthUser } from "@zenstackhq/runtime";
 import { getAccessPolicies } from "../../../../hooks.server.helpers";
 import {
   addMockTickets,
@@ -50,7 +52,7 @@ const expectReservationCount = async (shoppableId: string, count: number) =>
 const addTicketsTestForUser = (
   prismaWithAccess: PrismaClient,
   adminMember: Member,
-  identification: ShopIdentification,
+  user: AuthUser,
 ) => {
   beforeEach(async (context) => {
     context.tickets = await addMockTickets(prisma, adminMember);
@@ -63,7 +65,7 @@ const addTicketsTestForUser = (
   describe("post-grace, no queue", () => {
     it("adds a valid ticket request", async ({ tickets }) => {
       const ticket = tickets.activeTicket;
-      await addTicketToCart(prismaWithAccess, ticket.id, identification);
+      await addTicketToCart(prismaWithAccess, ticket.id, user);
       const consumables = await prisma.consumable.findMany({
         where: {
           shoppableId: ticket.id,
@@ -71,9 +73,9 @@ const addTicketsTestForUser = (
       });
       expect(consumables.length).toBe(1);
       expect(consumables[0]).toBeDefined();
-      expect(consumables[0]!.memberId).toBe(identification.memberId ?? null);
+      expect(consumables[0]!.memberId).toBe(user.memberId ?? null);
       expect(consumables[0]!.externalCustomerCode).toBe(
-        identification.externalCode ?? null,
+        user.externalCode ?? null,
       );
       expect(consumables[0]!.shoppableId).toBe(ticket.id);
       expect(consumables[0]!.purchasedAt).toBeNull();
@@ -82,9 +84,9 @@ const addTicketsTestForUser = (
     });
     it("doesn't add a ticket twice to cart", async ({ tickets }) => {
       const ticket = tickets.activeTicket;
-      await addTicketToCart(prismaWithAccess, ticket.id, identification);
+      await addTicketToCart(prismaWithAccess, ticket.id, user);
       await expect(
-        addTicketToCart(prismaWithAccess, ticket.id, identification),
+        addTicketToCart(prismaWithAccess, ticket.id, user),
         "Second call should fail",
       ).rejects.toThrow();
       await expectConsumableCount(ticket.id, 1);
@@ -93,7 +95,7 @@ const addTicketsTestForUser = (
     it("doesn't add an upcoming ticket to cart", async ({ tickets }) => {
       const ticket = tickets.upcomingTicket;
       await expect(
-        addTicketToCart(prismaWithAccess, ticket.id, identification),
+        addTicketToCart(prismaWithAccess, ticket.id, user),
       ).rejects.toThrow();
       await expectConsumableCount(ticket.id, 0);
       await expectReservationCount(ticket.id, 0);
@@ -101,7 +103,7 @@ const addTicketsTestForUser = (
     it("doesn't add a past ticket to cart", async ({ tickets }) => {
       const ticket = tickets.pastTicket;
       await expect(
-        addTicketToCart(prismaWithAccess, ticket.id, identification),
+        addTicketToCart(prismaWithAccess, ticket.id, user),
       ).rejects.toThrow();
       await expectConsumableCount(ticket.id, 0);
       await expectReservationCount(ticket.id, 0);
@@ -109,11 +111,7 @@ const addTicketsTestForUser = (
     it("purchases free item immidiately", async ({ tickets }) => {
       const ticket = tickets.freeActiveTicket;
       const before = new Date();
-      const result = await addTicketToCart(
-        prismaWithAccess,
-        ticket.id,
-        identification,
-      );
+      const result = await addTicketToCart(prismaWithAccess, ticket.id, user);
       expect(result.status).toBe(AddToCartStatus.AddedToInventory);
       const consumables = await prisma.consumable.findMany({
         where: {
@@ -122,9 +120,9 @@ const addTicketsTestForUser = (
       });
       expect(consumables.length).toBe(1);
       expect(consumables[0]).toBeDefined();
-      expect(consumables[0]!.memberId).toBe(identification.memberId ?? null);
+      expect(consumables[0]!.memberId).toBe(user.memberId ?? null);
       expect(consumables[0]!.externalCustomerCode).toBe(
-        identification.externalCode ?? null,
+        user.externalCode ?? null,
       );
       expect(consumables[0]!.purchasedAt?.valueOf()).toBeGreaterThanOrEqual(
         before.valueOf(),
@@ -135,7 +133,7 @@ const addTicketsTestForUser = (
   describe("during grace period", () => {
     it("reserves a ticket", async ({ tickets }) => {
       const ticket = tickets.activeEarlyTicket;
-      await addTicketToCart(prismaWithAccess, ticket.id, identification);
+      await addTicketToCart(prismaWithAccess, ticket.id, user);
       const consumables = await prisma.consumable.findMany({
         where: {
           shoppableId: ticket.id,
@@ -149,18 +147,18 @@ const addTicketsTestForUser = (
       });
       expect(reservations.length).toBe(1);
       expect(reservations[0]).toBeDefined();
-      expect(reservations[0]!.memberId).toBe(identification.memberId ?? null);
+      expect(reservations[0]!.memberId).toBe(user.memberId ?? null);
       expect(reservations[0]!.externalCustomerCode).toBe(
-        identification.externalCode ?? null,
+        user.externalCode ?? null,
       );
       expect(reservations[0]!.shoppableId).toBe(ticket.id);
       expect(reservations[0]?.order).toBeNull();
     });
     it("doesn't reserve twice", async ({ tickets }) => {
       const ticket = tickets.activeEarlyTicket;
-      await addTicketToCart(prismaWithAccess, ticket.id, identification);
+      await addTicketToCart(prismaWithAccess, ticket.id, user);
       await expect(
-        addTicketToCart(prismaWithAccess, ticket.id, identification),
+        addTicketToCart(prismaWithAccess, ticket.id, user),
       ).rejects.toThrow();
       await expectReservationCount(ticket.id, 1);
     });
@@ -197,7 +195,7 @@ const addTicketsTestForUser = (
           })
         ).length,
       ).toBe(10);
-      await addTicketToCart(prismaWithAccess, ticket.id, identification);
+      await addTicketToCart(prismaWithAccess, ticket.id, user);
       expect(
         (
           await prisma.consumable.findMany({
@@ -213,9 +211,9 @@ const addTicketsTestForUser = (
         },
       });
       expect(reservations.length).toBe(1);
-      expect(reservations[0]?.memberId).toBe(identification.memberId ?? null);
+      expect(reservations[0]?.memberId).toBe(user.memberId ?? null);
       expect(reservations[0]?.externalCustomerCode).toBe(
-        identification.externalCode ?? null,
+        user.externalCode ?? null,
       );
       expect(reservations[0]?.shoppableId).toBe(ticket.id);
       expect(reservations[0]?.order).toBe(0);
@@ -234,7 +232,7 @@ const addTicketsTestForUser = (
       });
       await expectConsumableCount(ticket.id, 10);
       await expect(
-        addTicketToCart(prismaWithAccess, ticket.id, identification),
+        addTicketToCart(prismaWithAccess, ticket.id, user),
       ).rejects.toThrow();
       await expectConsumableCount(ticket.id, 10);
       await expectReservationCount(ticket.id, 0);
@@ -250,7 +248,7 @@ const addTicketsTestForUser = (
           expiresAt: new Date(Date.now() - 1000),
         },
       });
-      await addTicketToCart(prismaWithAccess, ticket.id, identification);
+      await addTicketToCart(prismaWithAccess, ticket.id, user);
       const consumables = await prisma.consumable.findMany({
         where: {
           shoppableId: ticket.id,
@@ -308,7 +306,7 @@ const addTicketsTestForUser = (
           })
         ).length,
       ).toBe(10);
-      await addTicketToCart(prismaWithAccess, ticket.id, identification);
+      await addTicketToCart(prismaWithAccess, ticket.id, user);
       expect(
         (
           await prisma.consumable.findMany({
@@ -326,9 +324,9 @@ const addTicketsTestForUser = (
       expect(reservations.length).toBe(2);
       expect(reservations[0]?.memberId).toBe(adminMember.id);
       expect(reservations[0]?.order).toBe(0);
-      expect(reservations[1]?.memberId).toBe(identification.memberId ?? null);
+      expect(reservations[1]?.memberId).toBe(user.memberId ?? null);
       expect(reservations[1]?.externalCustomerCode).toBe(
-        identification.externalCode ?? null,
+        user.externalCode ?? null,
       );
       expect(reservations[1]?.shoppableId).toBe(ticket.id);
       expect(reservations[1]?.order).toBe(1);
@@ -346,18 +344,14 @@ const addTicketsTestForUser = (
     });
     it("performs lottery after grace period", async ({ tickets }) => {
       const ticket = tickets.activeEarlyTicket;
-      const first = await addTicketToCart(
-        prismaWithAccess,
-        ticket.id,
-        identification,
-      );
+      const first = await addTicketToCart(prismaWithAccess, ticket.id, user);
       expect(first.status).toBe(AddToCartStatus.Reserved);
       vi.advanceTimersByTime(GRACE_PERIOD_WINDOW / 2);
       vi.setSystemTime(
         vi.getMockedSystemTime()!.valueOf() + GRACE_PERIOD_WINDOW / 2,
       );
       await expect(
-        addTicketToCart(prismaWithAccess, ticket.id, identification),
+        addTicketToCart(prismaWithAccess, ticket.id, user),
       ).rejects.toThrow();
       await expectConsumableCount(ticket.id, 0);
       await expectReservationCount(ticket.id, 1);
@@ -396,6 +390,9 @@ const addTicketsTestForUser = (
         const newMember = await addMockUser(prisma, SUITE_PREFIX);
         await addTicketToCart(prisma, ticket.id, {
           memberId: newMember.id,
+          studentId: newMember.studentId!,
+          roles: [],
+          policies: ["*", "_"],
         });
       }
       await expectConsumableCount(ticket.id, 0);
@@ -404,14 +401,23 @@ const addTicketsTestForUser = (
       vi.setSystemTime(
         vi.getMockedSystemTime()!.valueOf() + GRACE_PERIOD_WINDOW,
       );
-      await performLotteryIfNecessary(prisma, new Date(), ticket.id);
+      const queuedNotifications = await performLotteryIfNecessary(
+        prisma,
+        new Date(),
+        ticket.id,
+      );
+      expect(queuedNotifications.length).toBe(2); // one for winners, one for losers
+      expect(queuedNotifications[0]?.type).toBe(
+        NotificationType.PURCHASE_TIME_TO_BUY,
+      );
+      expect(queuedNotifications[1]?.type).toBe(
+        NotificationType.PURCHASE_IN_QUEUE,
+      );
+      expect(queuedNotifications[0]!.memberIds!.length).toBeGreaterThan(0);
+      expect(queuedNotifications[1]!.memberIds!.length).toBeGreaterThan(0);
       await expectConsumableCount(ticket.id, ticket.stock);
       await expectReservationCount(ticket.id, 5);
-      const result = await addTicketToCart(
-        prismaWithAccess,
-        ticket.id,
-        identification,
-      );
+      const result = await addTicketToCart(prismaWithAccess, ticket.id, user);
       expect(result.status).toBe(AddToCartStatus.PutInQueue);
       if (result.status === AddToCartStatus.PutInQueue)
         // if statement for typescript
@@ -431,9 +437,9 @@ const addTicketsTestForUser = (
       });
       expect(reservations.length).toBe(6);
       expect(reservations[5]?.order).toBe(5);
-      expect(reservations[5]?.memberId).toBe(identification.memberId ?? null);
+      expect(reservations[5]?.memberId).toBe(user.memberId ?? null);
       expect(reservations[5]?.externalCustomerCode).toBe(
-        identification.externalCode ?? null,
+        user.externalCode ?? null,
       );
     });
   });
@@ -448,18 +454,23 @@ describe("Add to cart as logged in user", async () => {
     );
   });
 
+  const roles = getDerivedRoles(undefined, !!users.customerMember.studentId);
   const prismaWithAccess = enhance(prisma, {
     user: {
       studentId: users.customerMember.studentId,
       memberId: users.customerMember.id,
       policies: await getAccessPolicies(
         prisma,
+        roles,
         users.customerMember.studentId!,
       ),
     },
   });
   addTicketsTestForUser(prismaWithAccess, users.adminMember, {
     memberId: users.customerMember.id,
+    studentId: users.customerMember.studentId!,
+    policies: [],
+    roles: [],
   });
 });
 describe("Add to cart as anonymous user", async () => {
@@ -481,6 +492,8 @@ describe("Add to cart as anonymous user", async () => {
   });
   addTicketsTestForUser(prismaWithAccess, users.adminMember, {
     externalCode: SUITE_PREFIX + "external-code",
+    policies: [],
+    roles: [],
   });
 });
 

@@ -1,14 +1,16 @@
 <script lang="ts">
   import { invalidate } from "$app/navigation";
   import { page } from "$app/stores";
+  import LoadingButton from "$lib/components/LoadingButton.svelte";
+  import ScrollingNumber from "$lib/components/Timer/ScrollingNumber.svelte";
   import Timer from "$lib/components/Timer/Timer.svelte";
   import type { TicketWithMoreInfo } from "$lib/server/shop/getTickets";
   import { now } from "$lib/stores/date";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
-  import { goto } from "$lib/utils/redirect";
   import * as m from "$paraglide/messages";
   import dayjs from "dayjs";
+  import { twMerge } from "tailwind-merge";
   /* If form that button is part of is currently submitting */
   export let isSubmitting: boolean;
   export let ticket: Pick<
@@ -24,6 +26,11 @@
     | "userReservations"
     | "price"
   >;
+  $: cartPath = $page.data["paths"]?.["cart"] ?? "/shop/cart";
+
+  let clazz: string | undefined = undefined;
+  export { clazz as class };
+
   /* If ticket is available time-wise (not upcoming, not past)*/
   $: isUpcoming = ticket.availableFrom > $now;
   $: isCurrentlyAvailable =
@@ -57,71 +64,66 @@
   {#if isCurrentlyAvailable}
     {#if ticket.isInUsersCart}
       {#if isInGracePeriod}
-        <span class="text-xl">
+        <span class={twMerge("text-xl", clazz)}>
           {m.tickets_buyButton_partOfLottery()}
           <Timer
             milliseconds={ticket.gracePeriodEndsAt.valueOf() - $now.valueOf()}
           />
         </span>
       {:else}
-        <div class="flex flex-col items-center gap-2">
+        <a type="button" href={cartPath} class="btn btn-primary">
           {#if ticket.userReservations.length > 0}
-            <span>{m.tickets_buyButton_inQueue()}</span>
+            {@const position = (ticket.userReservations[0]?.order ?? -100) + 1}
+            {#if position >= 0}
+              <span>
+                {m.cart_reservation_queuePosition()}
+                <ScrollingNumber number={position} />
+              </span>
+            {:else}
+              {m.tickets_buyButton_inQueue()}
+            {/if}
           {:else}
-            <span>{m.tickets_buyButton_inCart()}</span>
+            {m.tickets_buyButton_inCart()}
           {/if}
-          <button
-            type="button"
-            on:click|preventDefault={() => goto("/shop/cart")}
-            class="btn btn-primary"
-          >
-            {m.tickets_buyButton_goToCart()}
-          </button>
-        </div>
+        </a>
       {/if}
     {:else}
-      <button
+      <LoadingButton
         type="submit"
         disabled={isSubmitting ||
           ticket.userAlreadyHasMax ||
           ticket.ticketsLeft <= 0}
         class="btn btn-primary"
-        on:click|stopPropagation
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
       >
         {#if ticket.ticketsLeft <= 0}
           {m.tickets_buyButton_soldOut()}
         {:else if ticket.userAlreadyHasMax}
           {m.tickets_buyButton_alreadyOwned()}
         {:else if ticket.hasQueue}
-          {isSubmitting
-            ? m.tickets_buyButton_enteringQueue()
-            : m.tickets_buyButton_enterQueue()}
+          {m.tickets_buyButton_enterQueue()}
         {:else if isInGracePeriod}
-          {isSubmitting
-            ? m.tickets_buyButton_gettingLotteryEntry()
-            : m.tickets_buyButton_getLotteryEntry()}
+          {m.tickets_buyButton_getLotteryEntry()}
         {:else if ticket.price === 0}
-          {isSubmitting
-            ? m.tickets_buyButton_getting()
-            : m.tickets_buyButton_get()}
+          {m.tickets_buyButton_get()}
         {:else}
-          {isSubmitting
-            ? m.tickets_buyButton_processing()
-            : m.tickets_buyButton_purchase()}
+          {m.tickets_buyButton_purchase()}
         {/if}
-      </button>
+      </LoadingButton>
     {/if}
   {:else if isUpcoming}
     {#if ticket.availableFrom.valueOf() - $now.valueOf() < 1000 * 60 * 5}
       <!-- Less than 5 minutes -->
-      <span class="text-2xl"
+      <span class={clazz}
         >{m.tickets_buyButton_releasesIn()}
         <Timer
           milliseconds={ticket.availableFrom.valueOf() - $now.valueOf()}
         /></span
       >
     {:else}
-      <span>
+      <span class={clazz}>
         {m.tickets_buyButton_opensIn()}
         {dayjs(ticket.availableFrom).fromNow()}
       </span>

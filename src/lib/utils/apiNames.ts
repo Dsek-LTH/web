@@ -24,7 +24,10 @@ const apiNames = {
     COMMENT_DELETE: "event:comment:delete",
   },
   BOOKINGS: {
-    ...crud("bookings"),
+    ...crud("booking_request"),
+  },
+  BOOKABLES: {
+    ...crud("booking_request:bookable"),
   },
   MANDATE: crud("core:mandate"),
   COMMITTEE: crud("core:committee"),
@@ -34,12 +37,14 @@ const apiNames = {
   },
   ADMIN: {
     READ: "core:access:admin:read",
+    SETTINGS: crud("admin:settings"),
+    SHLINK: crud("admin:shlink"),
   },
-  ACCESS_POLICY: crud("core:access:policy"),
+  ACCESS_POLICY: crud("core:access:api"),
   EMAIL_ALIAS: crud("core:mail:alias"),
   FILES: {
     BUCKET: <bucketName extends string>(name: bucketName) =>
-      crud(`fileHandler:${name.startsWith("dev-") ? name.substring(4) : name}`), // remove "dev-" prefix
+      crud(`fileHandler:${name}`), // remove "dev-" prefix
   },
   MARKDOWNS: {
     ...crud("markdowns"),
@@ -48,6 +53,8 @@ const apiNames = {
   },
   MEMBER: {
     ...crud("core:member"),
+    SEE_STABEN: "member:see_staben",
+    SEE_EMAIL: "member:see_email",
     PING: "core:member:ping",
   },
   GOVERNING_DOCUMENT: {
@@ -71,6 +78,9 @@ const apiNames = {
     READ_PURCHASES: "webshop:read_purchases",
     CONSUME: "webshop:consume",
     MANAGE: "webshop:manage",
+  },
+  NOLLNING: {
+    MANAGE_PHADDER_GROUPS: "nollning:phaddrar:groups:manage",
   },
 } as const;
 

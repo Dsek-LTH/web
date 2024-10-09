@@ -13,7 +13,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/Dsek-LTH/web">
-    <img src="https://www.dsek.se/favicon/D-favicon-196.png" alt="Logo" width="80" height="80">
+    <img src="https://raw.githubusercontent.com/Dsek-LTH/grafik/main/guild/d_sektionen/symbol/d.svg" alt="Logo" width="200" height="200">
   </a>
 
 <h3 align="center">Web</h3>
