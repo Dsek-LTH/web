@@ -57,10 +57,25 @@
                   </span>
                   <input
                     type="radio"
-                    name="removeAll"
+                    name="removeType"
                     class="radio"
-                    bind:group={$form.removeAll}
-                    value={false}
+                    bind:group={$form.removeType}
+                    value={"THIS"}
+                  />
+                </label>
+              </div>
+              <div class="form-control">
+                <label class="label cursor-pointer">
+                  <span class="label-text">
+                    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                    {@html m.events_deleteThisAndFutureEvents()}
+                  </span>
+                  <input
+                    type="radio"
+                    name="removeType"
+                    class="radio"
+                    bind:group={$form.removeType}
+                    value={"FUTURE"}
                   />
                 </label>
               </div>
@@ -72,10 +87,10 @@
                   </span>
                   <input
                     type="radio"
-                    name="removeAll"
+                    name="removeType"
                     class="radio"
-                    bind:group={$form.removeAll}
-                    value={true}
+                    bind:group={$form.removeType}
+                    value={"ALL"}
                   />
                 </label>
               </div>

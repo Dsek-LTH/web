@@ -18,8 +18,11 @@
   import FormFileInput from "$lib/components/forms/FormFileInput.svelte";
   import FormMarkdown from "$lib/components/forms/FormMarkdown.svelte";
 
+  export let recurringParentId: string | null;
   export let creating = false;
-  export let data: SuperValidated<EventSchema>;
+  export let data: SuperValidated<
+    EventSchema & { editType: "THIS" | "FUTURE" | "ALL" | undefined }
+  >;
   const superform = superForm(data, {
     dataType: "json",
   });
@@ -27,6 +30,7 @@
   export let allTags: Tag[];
   $: if ($errors) console.log($errors);
   let activeTab: "sv" | "en";
+  let modal: HTMLDialogElement;
 </script>
 
 <main
@@ -147,9 +151,80 @@
         <TagSelector name="tags" {allTags} bind:selectedTags={$form.tags} />
       </div>
       <slot name="form-end" />
-      <FormSubmitButton {superform} class="btn btn-primary mt-4">
-        {creating ? m.save() : m.news_publish()}
-      </FormSubmitButton>
+      {#if recurringParentId !== null && !creating}
+        <button
+          type="button"
+          class="btn btn-primary my-4"
+          title="Radera"
+          on:click={() => {
+            modal.showModal();
+          }}
+        >
+          {m.save()}
+        </button>
+      {:else}
+        <FormSubmitButton {superform} class="btn btn-primary my-4">
+          {creating ? m.news_publish() : m.save()}
+        </FormSubmitButton>
+      {/if}
+      <dialog class="modal" bind:this={modal}>
+        <div class="modal-box">
+          <h3 class="text-lg font-bold">{m.events_thisIsRecurring()}</h3>
+          <div class="py-4">
+            <div class="form-control">
+              <label class="label cursor-pointer">
+                <span class="label-text">
+                  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                  {@html m.events_onlyEditThis()}
+                </span>
+                <input
+                  type="radio"
+                  name="editType"
+                  class="radio"
+                  bind:group={$form.editType}
+                  value={"THIS"}
+                />
+              </label>
+            </div>
+            <div class="form-control">
+              <label class="label cursor-pointer">
+                <span class="label-text">
+                  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                  {@html m.events_editThisAndFuture()}
+                </span>
+                <input
+                  type="radio"
+                  name="editType"
+                  class="radio"
+                  bind:group={$form.editType}
+                  value={"FUTURE"}
+                />
+              </label>
+            </div>
+            <div class="form-control">
+              <label class="label cursor-pointer">
+                <span class="label-text">
+                  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                  {@html m.events_editAll()}
+                </span>
+                <input
+                  type="radio"
+                  name="editType"
+                  class="radio"
+                  bind:group={$form.editType}
+                  value={"ALL"}
+                />
+              </label>
+            </div>
+          </div>
+          <FormSubmitButton {superform} class="btn btn-primary my-4">
+            {creating ? m.news_publish() : m.save()}
+          </FormSubmitButton>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+          <button>close</button>
+        </form>
+      </dialog>
     </form>
     <slot name="error" />
   </section>
