@@ -61,12 +61,12 @@
 
 <form method="POST" use:enhance class="form-control mx-auto max-w-5xl gap-4">
   <fieldset
-    class="input-bordered grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-x-4 rounded-xl border px-6 py-2"
+    class="input-bordered grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-x-4 gap-y-2 rounded-xl border px-6 py-2"
     class:border-error={$errors.bookables?._errors ?? 0 > 0}
   >
     <legend class="text-xl font-bold">{m.booking_booking()}</legend>
     {#each data.bookables as bookable}
-      <label class="label cursor-pointer">
+      <label class="label input-bordered cursor-pointer rounded-lg border px-4">
         <span class="label-text">{bookable.name}</span>
         <input
           type="checkbox"
