@@ -6,6 +6,7 @@
   import type { AuthUser } from "@zenstackhq/runtime";
   import * as m from "$paraglide/messages";
   import LoadingButton from "$lib/components/LoadingButton.svelte";
+  import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
 
   export let member: Member;
   export let user: AuthUser;
@@ -22,7 +23,7 @@
   <!-- svelte-ignore a11y-label-has-associated-control -->
   <label tabindex="0" class="btn btn-ghost">
     {#await amountInCart}
-      <span class="i-mdi-account-circle text-2xl" />
+      <MemberAvatar {member} />
     {:then amountInCart}
       {#if amountInCart > 0}
         <div class="indicator">
@@ -30,10 +31,10 @@
             class="badge indicator-item badge-primary badge-sm indicator-start indicator-top"
             >{amountInCart}
           </span>
-          <span class="i-mdi-account-circle text-2xl" />
+          <MemberAvatar {member} />
         </div>
       {:else}
-        <span class="i-mdi-account-circle text-2xl" />
+        <MemberAvatar {member} />
       {/if}
     {/await}
   </label>
