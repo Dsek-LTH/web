@@ -41,18 +41,12 @@ const paramsSchema = z.object({
 });
 
 const getParams = (url: URL) => {
-  let modifiedParams: { [k: string]: string | string[] } = {}
-  url.searchParams.forEach((value, key) => {
-    if (key === "tags") {
-      if (modifiedParams[key] && Array.isArray(modifiedParams[key])) {
-        modifiedParams[key].push(value)
-      } else {
-        modifiedParams[key] = [value]
-      }
-    } else {
-      modifiedParams[key] = value
-    }
-  });
+  const modifiedParams = Object.fromEntries(
+    Array.from(url.searchParams.entries()).map(([key, value]) => [
+      key,
+      key === "tags" ? url.searchParams.getAll(key) : value
+    ])
+  )
 
   const { data: params, error: paramError } = paramsSchema.safeParse(
     modifiedParams
