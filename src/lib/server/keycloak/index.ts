@@ -64,6 +64,29 @@ async function getGroupId(client: KcAdminClient, positionId: string) {
   return group?.id;
 }
 
+async function updateProfile(
+  username: string,
+  firstName: string,
+  lastName: string,
+) {
+  if (!enabled) return;
+
+  try {
+    const client = await connect();
+    const id = await _getUserId(client, username);
+    await client.users.update(
+      { id: id! },
+      {
+        firstName: firstName,
+        lastName: lastName,
+      },
+    );
+    console.log(`updated profile`);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 async function addMandate(username: string, positionId: string) {
   if (!enabled) return;
 
@@ -131,7 +154,7 @@ async function updateMandate(prisma: PrismaClient) {
     },
   });
 
-  console.log(`updating ${result.length} users`);
+  console.log(`updating ${result.length} users groups`);
 
   result.forEach(async ({ positionId, member: { studentId } }) => {
     await deleteMandate(studentId!, positionId);
@@ -236,6 +259,7 @@ async function sync(prisma: PrismaClient) {
 }
 
 export default {
+  updateProfile,
   addMandate,
   deleteMandate,
   getUserId,
