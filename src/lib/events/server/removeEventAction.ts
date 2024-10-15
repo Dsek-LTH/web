@@ -6,9 +6,10 @@ import { error, fail, type Action } from "@sveltejs/kit";
 import { zod } from "sveltekit-superforms/adapters";
 import { superValidate, type Infer } from "sveltekit-superforms/server";
 import { z } from "zod";
+import { actionType } from "../schema";
 
 export const removeEventSchema = z.object({
-  removeAll: z.boolean().default(false),
+  removeType: actionType,
 });
 export type RemoveEventSchema = Infer<typeof removeEventSchema>;
 
@@ -28,7 +29,7 @@ export const removeEventAction: Action<{ slug: string }> = async (event) => {
 
   if (!existingEvent) return error(404, m.events_errors_eventNotFound());
 
-  if (form.data.removeAll) {
+  if (form.data.removeType === "ALL") {
     await prisma.event.updateMany({
       where: {
         recurringParentId: existingEvent.recurringParentId,
@@ -45,6 +46,18 @@ export const removeEventAction: Action<{ slug: string }> = async (event) => {
       },
       event,
     );
+  } else if (form.data.removeType === "FUTURE") {
+    await prisma.event.updateMany({
+      where: {
+        recurringParentId: existingEvent.recurringParentId,
+        startDatetime: {
+          gte: existingEvent.startDatetime,
+        },
+      },
+      data: {
+        removedAt: new Date(),
+      },
+    });
   } else {
     await prisma.event.update({
       where: {
