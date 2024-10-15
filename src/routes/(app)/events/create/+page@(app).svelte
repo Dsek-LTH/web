@@ -9,4 +9,9 @@
 
 <SetPageTitle title={m.events_createEvent()} />
 
-<EventEditor data={data.form} allTags={data.allTags} creating />
+<EventEditor
+  data={data.form}
+  allTags={data.allTags}
+  recurringParentId={null}
+  creating
+/>

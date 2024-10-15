@@ -1,5 +1,5 @@
 import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
-import { eventSchema } from "$lib/events/schema";
+import { actionType, eventSchema } from "$lib/events/schema";
 import { uploadFile } from "$lib/files/uploadFiles";
 import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
 import {
@@ -7,6 +7,7 @@ import {
   isRecurringType,
   type RecurringType,
 } from "$lib/utils/events";
+import { z } from "zod";
 import { redirect } from "$lib/utils/redirect";
 import { slugify, slugWithCount } from "$lib/utils/slugify";
 import * as m from "$paraglide/messages";
@@ -163,7 +164,10 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
   const { request, locals, params } = event;
   const { user, prisma } = locals;
   const slug = params.slug;
-  const form = await superValidate(request, zod(eventSchema));
+  const form = await superValidate(
+    request,
+    zod(eventSchema.and(z.object({ editType: actionType }))),
+  );
   if (!form.valid) return fail(400, { form });
   /* eslint-disable-next-line @typescript-eslint/no-unused-vars --
    * To avoid lint complaining about unused vars
@@ -171,11 +175,20 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
   const { isRecurring, recurringEndDatetime, ...recurringEventData } =
     form.data;
 
-  /* eslint-disable-next-line @typescript-eslint/no-unused-vars --
-   * To avoid lint complaining about unused vars
-   **/
-  const { recurringType, separationCount, tags, image, ...eventData } =
-    recurringEventData;
+  const {
+    /* eslint-disable-next-line @typescript-eslint/no-unused-vars --
+     * To avoid lint complaining about unused vars
+     **/
+    recurringType,
+    /* eslint-disable-next-line @typescript-eslint/no-unused-vars --
+     * To avoid lint complaining about unused vars
+     **/
+    separationCount,
+    tags,
+    image,
+    editType,
+    ...eventData
+  } = recurringEventData;
 
   eventData.description = DOMPurify.sanitize(eventData.description);
   eventData.descriptionEn = eventData.descriptionEn
@@ -185,7 +198,12 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
     where: {
       slug: slug,
     },
-    select: { id: true },
+    select: {
+      id: true,
+      recurringParentId: true,
+      startDatetime: true,
+      endDatetime: true,
+    },
   });
   if (!existingEvent) {
     throw error(404, m.events_errors_eventNotFound());
@@ -193,18 +211,61 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
 
   if (image) eventData.imageUrl = await uploadImage(user, image, slug);
 
-  await prisma.event.update({
-    where: {
-      id: existingEvent.id,
-    },
-    data: {
-      ...eventData,
-      author: undefined,
-      tags: {
-        set: tags.map(({ id }) => ({ id })),
+  if (!isRecurring || editType === "THIS") {
+    await prisma.event.update({
+      where: {
+        id: existingEvent.id,
       },
-    },
-  });
+      data: {
+        ...eventData,
+        author: undefined,
+        tags: {
+          set: tags.map(({ id }) => ({ id })),
+        },
+      },
+    });
+  } else if (editType === "FUTURE" || editType === "ALL") {
+    const eventsToBeUpdated = await prisma.event.findMany({
+      where: {
+        recurringParentId: existingEvent.recurringParentId,
+        startDatetime:
+          editType === "FUTURE"
+            ? { gte: existingEvent.startDatetime }
+            : undefined,
+      },
+    });
+
+    const startTimeDiff = dayjs(eventData.startDatetime).diff(
+      dayjs(existingEvent.startDatetime),
+    );
+    const endTimeDiff = dayjs(eventData.endDatetime).diff(
+      dayjs(existingEvent.endDatetime),
+    );
+
+    await Promise.all(
+      eventsToBeUpdated.map((e) => {
+        const { startDatetime, endDatetime, id, ...oldData } = e;
+        const newData = {
+          ...oldData,
+          ...eventData,
+          startDatetime: dayjs(startDatetime).add(startTimeDiff, "ms").format(),
+          endDatetime: dayjs(endDatetime).add(endTimeDiff, "ms").format(),
+          author: undefined,
+          tags: {
+            set: tags.map(({ id }) => ({ id })),
+          },
+        };
+        return prisma.event.update({
+          where: {
+            id: id,
+          },
+          data: {
+            ...newData,
+          },
+        });
+      }),
+    );
+  }
 
   throw redirect(
     `/events/${slug}`,
