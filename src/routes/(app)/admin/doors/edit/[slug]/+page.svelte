@@ -168,7 +168,7 @@
           name="information"
           type="text"
           class="input join-item input-bordered"
-          placeholder="Additional information"
+          placeholder={m.admin_doors_info()}
           bind:value={$form.information}
         />
       </div>

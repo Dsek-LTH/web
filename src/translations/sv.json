@@ -198,6 +198,7 @@
   "admin_doors_remove": "Ta bort",
   "admin_doors_add": "Lägg till",
   "admin_doors_edit": "Redigera",
+  "admin_doors_info": "Extra information",
   "admin_doors_revokeDoorAccess": "Återkalla dörråtkomst",
   "admin_doors_grantDoorAccess": "Ge dörråtkomst",
   "admin_doors_startDateOptional": "Startdatum (frivilligt)",
