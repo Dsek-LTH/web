@@ -18,8 +18,8 @@
 <SetPageTitle title={m.bookings()} />
 
 <div class="mb-8 flex gap-4">
-  <a class="btn" href="/booking/create">
-    {m.booking_createBooking()}
+  <a class="btn btn-primary" href="/booking/create">
+    + {m.booking_createBooking()}
   </a>
 
   {#if isAuthorized(apiNames.BOOKINGS.UPDATE, $page.data.user)}
