@@ -204,7 +204,13 @@ export const models: SeedClientOptions["models"] = {
   },
   position: {
     data: {
-      id: getRandomPositionId,
+      id: ({ store }) => {
+        let position = getRandomPositionId();
+        while (store.position.find((p) => p.id === position)) {
+          position = getRandomPositionId();
+        }
+        return position;
+      },
       name: () => faker.person.jobTitle(),
       nameEn: () => faker.person.jobTitle(),
       description: () => faker.lorem.paragraph(),
