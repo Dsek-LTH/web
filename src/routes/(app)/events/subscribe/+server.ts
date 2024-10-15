@@ -11,9 +11,6 @@ export const GET = async ({ locals, setHeaders }) => {
       startDatetime: {
         gte: dayjs().subtract(1, "month").toDate(),
       },
-      endDatetime: {
-        lte: dayjs().add(3, "months").toDate(),
-      },
     },
   });
 

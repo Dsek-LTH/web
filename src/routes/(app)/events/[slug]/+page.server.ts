@@ -28,7 +28,9 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     });
   }
   const allTaggedMembers = await getAllTaggedMembers(prisma, event.comments);
-  const canEdit = isAuthorized(apiNames.EVENT.UPDATE, user);
+  const canEdit =
+    isAuthorized(apiNames.EVENT.UPDATE, user) ||
+    event.authorId === user.memberId;
   const canDelete = isAuthorized(apiNames.EVENT.DELETE, user);
   return {
     event,

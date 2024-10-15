@@ -18,19 +18,19 @@
   let type: DocumentType = "board-meeting";
   const typeOptions: Array<{ name: string; value: DocumentType }> = [
     {
-      name: "Guild Meetings",
+      name: m.documents_guildMeetings(),
       value: "guild-meeting",
     },
     {
-      name: "Board Meetings",
+      name: m.documents_boardMeetings(),
       value: "board-meeting",
     },
     {
-      name: "SRD Meetings",
+      name: m.documents_srdMeetings(),
       value: "SRD-meeting",
     },
     {
-      name: "Other",
+      name: m.documents_other(),
       value: "other",
     },
   ];

@@ -18,6 +18,7 @@
   class="flex w-full flex-col items-center gap-2"
   action="?/create"
 >
+  <p>{m.admin_alerts_info()}</p>
   <input
     type="text"
     name="message"
