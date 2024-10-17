@@ -24,10 +24,10 @@ export const load = async ({ locals, params }) => {
   const initialData = {
     name: bookingRequest.event ?? undefined,
     start: bookingRequest.start
-      ? dayjs(bookingRequest.start).format("YYYY-MM-DDTHH:MM")
+      ? dayjs(bookingRequest.start).format("YYYY-MM-DDTHH:mm")
       : undefined,
     end: bookingRequest.end
-      ? dayjs(bookingRequest.end).format("YYYY-MM-DDTHH:MM")
+      ? dayjs(bookingRequest.end).format("YYYY-MM-DDTHH:mm")
       : undefined,
     bookables: bookingRequest.bookables?.map((bookable) => bookable.id),
   };
