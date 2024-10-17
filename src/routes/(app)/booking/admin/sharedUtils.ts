@@ -1,8 +1,13 @@
 import sendNotification from "$lib/utils/notifications";
 import { NotificationType } from "$lib/utils/notifications/types";
-import type { RequestEvent } from "@sveltejs/kit";
+import { error, type RequestEvent } from "@sveltejs/kit";
 import type { Actions } from "./$types";
 import dayjs from "dayjs";
+import type { Bookable, BookingRequest, PrismaClient } from "@prisma/client";
+import { superValidate } from "sveltekit-superforms/server";
+import { zod } from "sveltekit-superforms/adapters";
+import { bookingSchema } from "../schema";
+import * as m from "$paraglide/messages";
 
 export const actions: Actions = {
   accept: async (event: RequestEvent) => {
@@ -13,8 +18,8 @@ export const actions: Actions = {
   },
 };
 
-export async function getAllBookingRequestsWeekly(prisma) {
-  return await prisma.bookingRequest.findMany({
+export async function getAllBookingRequestsWeekly(prisma: PrismaClient) {
+  return prisma.bookingRequest.findMany({
     where: {
       start: {
         gte: dayjs().subtract(1, "week").toDate(),
@@ -26,6 +31,38 @@ export async function getAllBookingRequestsWeekly(prisma) {
       booker: true,
     },
   });
+}
+
+export async function getBookingRequestOrThrow(
+  prisma: PrismaClient,
+  id: string,
+) {
+  const bookingRequest = await prisma.bookingRequest.findUnique({
+    where: { id },
+    include: { bookables: true },
+  });
+
+  if (!bookingRequest) {
+    throw error(404, m.booking_errors_notFound());
+  }
+
+  return bookingRequest;
+}
+
+export async function getSuperValidatedForm(
+  bookingRequest: BookingRequest & { bookables: Bookable[] },
+) {
+  const initialData = {
+    name: bookingRequest.event ?? undefined,
+    start: bookingRequest.start
+      ? dayjs(bookingRequest.start).format("YYYY-MM-DDTHH:mm")
+      : undefined,
+    end: bookingRequest.end
+      ? dayjs(bookingRequest.end).format("YYYY-MM-DDTHH:mm")
+      : undefined,
+    bookables: bookingRequest.bookables?.map((bookable) => bookable.id),
+  };
+  return await superValidate(initialData, zod(bookingSchema));
 }
 
 async function performAction(event: RequestEvent, accepted: boolean) {

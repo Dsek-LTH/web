@@ -5,33 +5,17 @@ import { redirect } from "$lib/utils/redirect";
 import * as m from "$paraglide/messages";
 import { isAuthorized } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
-import { error } from "@sveltejs/kit";
-import dayjs from "dayjs";
+import {
+  getBookingRequestOrThrow,
+  getSuperValidatedForm,
+} from "../../admin/sharedUtils";
 
 export const load = async ({ locals, params }) => {
   const { prisma } = locals;
   const bookables = await prisma.bookable.findMany();
 
-  const bookingRequest = await prisma.bookingRequest.findUnique({
-    where: { id: params.id },
-    include: { bookables: true },
-  });
-
-  if (!bookingRequest) {
-    throw error(404, m.booking_errors_notFound());
-  }
-
-  const initialData = {
-    name: bookingRequest.event ?? undefined,
-    start: bookingRequest.start
-      ? dayjs(bookingRequest.start).format("YYYY-MM-DDTHH:mm")
-      : undefined,
-    end: bookingRequest.end
-      ? dayjs(bookingRequest.end).format("YYYY-MM-DDTHH:mm")
-      : undefined,
-    bookables: bookingRequest.bookables?.map((bookable) => bookable.id),
-  };
-  const form = await superValidate(initialData, zod(bookingSchema));
+  const bookingRequest = await getBookingRequestOrThrow(prisma, params.id);
+  const form = await getSuperValidatedForm(bookingRequest);
 
   return { bookables, form, booking: bookingRequest };
 };
