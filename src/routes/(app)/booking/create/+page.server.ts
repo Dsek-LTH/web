@@ -96,7 +96,9 @@ export const actions = {
       },
     });
 
-    await sendNotificationToKM(createdRequest, prisma);
+    await sendNotificationToKM(createdRequest, prisma).catch((e) => {
+      console.log("Failed sending notifications to KM: ", e);
+    });
 
     throw redirect(
       `/booking`,
