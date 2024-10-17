@@ -37,16 +37,14 @@ export async function getBookingRequestOrThrow(
   prisma: PrismaClient,
   id: string,
 ) {
-  const bookingRequest = await prisma.bookingRequest.findUnique({
-    where: { id },
-    include: { bookables: true },
-  });
-
-  if (!bookingRequest) {
-    throw error(404, m.booking_errors_notFound());
-  }
-
-  return bookingRequest;
+  return prisma.bookingRequest
+    .findUniqueOrThrow({
+      where: { id },
+      include: { bookables: true },
+    })
+    .catch((e) => {
+      throw error(404, m.booking_errors_notFound());
+    });
 }
 
 export async function getSuperValidatedForm(
