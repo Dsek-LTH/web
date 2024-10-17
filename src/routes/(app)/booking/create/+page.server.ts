@@ -33,12 +33,8 @@ export const load = async ({ locals }) => {
   return { bookables, bookingRequests, form };
 };
 
-type BookingRequestWithBookables = BookingRequest & {
-  bookables: Bookable[];
-};
-
 const sendNotificationToKM = async (
-  bookingRequest: BookingRequestWithBookables,
+  bookingRequest: BookingRequest & { bookables: Bookable[] },
   prisma: PrismaClient,
 ) => {
   console.log("notifications: finding kallarmastare");
