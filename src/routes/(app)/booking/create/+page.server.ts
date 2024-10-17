@@ -66,7 +66,7 @@ const sendNotificationToKM = async (
     title: `New booking request: ${bookingRequest.event}`,
     message: `${booker.firstName} ${booker.lastName} wants to book '${bookablesString}' from ${dayjs(bookingRequest.start).format("DD/MM HH:mm")} until ${dayjs(bookingRequest.end).format("DD/MM HH:mm")}.`,
     type: NotificationType.BOOKING_REQUEST,
-    link: "/booking/admin",
+    link: `/booking/admin/${bookingRequest.id}`,
     memberIds: [kallarMastare.id],
   });
   console.log("notifications: notification sent");
