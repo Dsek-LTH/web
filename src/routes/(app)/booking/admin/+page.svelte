@@ -41,7 +41,7 @@
     </thead>
 
     <tbody>
-      {#each data.bookingRequests as bookingRequest, index (bookingRequest.id)}
+      {#each data.bookingRequests as bookingRequest (bookingRequest.id)}
         <tr>
           <td>
             {#each bookingRequest.bookables.map((a) => a.name) as bookable}
