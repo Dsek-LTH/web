@@ -42,7 +42,7 @@ export async function getBookingRequestOrThrow(
       where: { id },
       include: { bookables: true },
     })
-    .catch((e) => {
+    .catch(() => {
       throw error(404, m.booking_errors_notFound());
     });
 }
