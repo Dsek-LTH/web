@@ -5,7 +5,7 @@ import {
   getAllBookingRequestsWeekly,
   getBookingRequestOrThrow,
   getSuperValidatedForm,
-} from "../sharedUtils";
+} from "../../sharedUtils";
 
 export const load = async ({ locals, params }) => {
   const { prisma, user } = locals;

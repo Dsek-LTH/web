@@ -6,7 +6,7 @@ import dayjs from "dayjs";
 import type { Bookable, BookingRequest, PrismaClient } from "@prisma/client";
 import { superValidate } from "sveltekit-superforms/server";
 import { zod } from "sveltekit-superforms/adapters";
-import { bookingSchema } from "../schema";
+import { bookingSchema } from "./schema";
 import * as m from "$paraglide/messages";
 
 export const actions: Actions = {

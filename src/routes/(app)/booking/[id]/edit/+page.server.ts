@@ -8,7 +8,7 @@ import apiNames from "$lib/utils/apiNames";
 import {
   getBookingRequestOrThrow,
   getSuperValidatedForm,
-} from "../../admin/sharedUtils";
+} from "../../sharedUtils";
 
 export const load = async ({ locals, params }) => {
   const { prisma } = locals;
