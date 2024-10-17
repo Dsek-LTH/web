@@ -8,7 +8,7 @@ import dayjs from "dayjs";
 import {
   type Bookable,
   type BookingRequest,
-  PrismaClient,
+  type PrismaClient,
 } from "@prisma/client";
 import sendNotification from "$lib/utils/notifications";
 import { NotificationType } from "$lib/utils/notifications/types";
