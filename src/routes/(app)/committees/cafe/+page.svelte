@@ -40,13 +40,15 @@
           class:bg-primary={isToday}
           class:font-bold={isToday}
         >
-          <p class="flex-1 capitalize">{weekday}</p>
+          <p class="flex-1 self-center capitalize">{weekday}</p>
           {#if isEditing}
             <form
               class="flex gap-4"
               action="?/updateHours"
               method="POST"
-              use:enhance
+              use:enhance={() => {
+                return ({ update }) => update({ reset: false });
+              }}
             >
               <input
                 hidden
@@ -58,7 +60,7 @@
                 type="text"
                 class="input input-bordered font-normal"
                 name="markdown"
-                placeholder={openingHour.markdown}
+                value={openingHour.markdown}
                 size="8"
               />
               <button

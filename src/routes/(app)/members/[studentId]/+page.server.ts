@@ -169,6 +169,11 @@ export const actions: Actions = {
         ...form.data,
       },
     });
+    keycloak.updateProfile(
+      studentId,
+      form.data.firstName ?? "",
+      form.data.lastName ?? "",
+    );
     return message(form, {
       message: m.members_memberUpdated(),
       type: "success",
