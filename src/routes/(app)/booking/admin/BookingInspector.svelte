@@ -4,7 +4,7 @@
   import * as m from "$paraglide/messages";
   import type { Bookable, BookingRequest } from "@prisma/client";
   import { superForm } from "$lib/utils/client/superForms";
-  import dayjs from "dayjs";
+  import StatusComponent from "./StatusComponent.svelte";
 
   type BookingRequestWithBookables = BookingRequest & { bookables: Bookable[] };
   export let data: {
@@ -15,31 +15,7 @@
   };
 
   $: bookingRequest = data.booking;
-  $: otherBookings = data.allBookingRequests.filter(
-    (booking) =>
-      booking.id !== bookingRequest.id && booking.status !== "DENIED",
-  );
-  $: conflict = otherBookings.find(
-    (otherBooking) =>
-      dayjs(otherBooking.start).isBefore(bookingRequest.end) &&
-      dayjs(otherBooking.end).isAfter(bookingRequest.start) &&
-      otherBooking.bookables.some((otherBookable) =>
-        bookingRequest.bookables
-          .map((bookable) => bookable.id)
-          .includes(otherBookable.id),
-      ),
-  );
-  $: conflictingBookables = conflict?.bookables
-    .filter((booking) =>
-      bookingRequest.bookables
-        .map((bookable) => bookable.id)
-        .includes(booking.id),
-    )
-    .map((bookable) => bookable.name)
-    .join(", ");
-  $: conflictError =
-    bookingRequest.status !== "DENIED" && conflict?.status === "ACCEPTED";
-  $: conflictWarning = conflict && !conflictError;
+
   const { form, errors, enhance } = superForm(data.form);
 </script>
 
@@ -51,39 +27,11 @@
         {m.booking_goBack()}
       </a>
     </div>
-    <div class="flex flex-row gap-1">
-      {#if bookingRequest.status === "ACCEPTED"}
-        <div class="badge badge-success">
-          <span class="i-mdi-check-circle mr-1" />{m.booking_accepted()}
-        </div>
-      {:else if bookingRequest.status === "DENIED"}
-        <div class="badge badge-error">
-          <span class="i-mdi-denied mr-1" />{m.booking_denied()}
-        </div>
-      {:else if bookingRequest.status === "PENDING"}
-        <div class="badge badge-info">
-          <span class="i-mdi-hourglass mr-1" />{m.booking_pending()}
-        </div>
-      {/if}
-
-      {#if conflict}
-        <div
-          class="badge"
-          class:badge-error={conflictError}
-          class:badge-secondary={conflictWarning}
-        >
-          <div
-            class="tooltip flex items-center"
-            data-tip={m.booking_conflictWith({
-              event: `${conflict.event}`,
-              bookables: `${conflictingBookables}`,
-            })}
-          >
-            <span class="i-mdi-info mr-1" />{m.booking_conflict()}
-          </div>
-        </div>
-      {/if}
-    </div>
+    <StatusComponent
+      bind:bookingRequest
+      bind:bookingRequests={data.allBookingRequests}
+      mode="inspect"
+    />
   </div>
   <fieldset
     class="input-bordered grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-x-4 rounded-xl border px-6 py-2"
