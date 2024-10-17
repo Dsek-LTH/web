@@ -58,13 +58,13 @@ const sendNotificationToKM = async (
   });
 
   const bookablesString = bookingRequest.bookables
-    .map((bookable) => bookable.name)
-    .join(", "); // Should be nameEn, perhaps?
+    .map((bookable) => bookable.name) // Should be nameEn, perhaps?
+    .join(", ");
 
   console.log("notifications: sending notification to km");
   await sendNotification({
-    title: `Booking request: ${bookingRequest.event}`,
-    message: `${booker.firstName} ${booker.lastName} wants to book '${bookablesString}' from ${dayjs(bookingRequest.start).format("DD/MM HH:mm")} to ${dayjs(bookingRequest.end).format("DD/MM HH:mm")}.`,
+    title: `New booking request: ${bookingRequest.event}`,
+    message: `${booker.firstName} ${booker.lastName} wants to book '${bookablesString}' from ${dayjs(bookingRequest.start).format("DD/MM HH:mm")} until ${dayjs(bookingRequest.end).format("DD/MM HH:mm")}.`,
     type: NotificationType.BOOKING_REQUEST,
     link: "/booking/admin",
     memberIds: [kallarMastare.id],
