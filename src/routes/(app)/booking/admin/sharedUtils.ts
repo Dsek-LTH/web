@@ -2,6 +2,8 @@ import sendNotification from "$lib/utils/notifications";
 import { NotificationType } from "$lib/utils/notifications/types";
 import type { RequestEvent } from "@sveltejs/kit";
 import type { Actions } from "./$types";
+import dayjs from "dayjs";
+import { PrismaClient } from "@prisma/client";
 
 export const actions: Actions = {
   accept: async (event: RequestEvent) => {
@@ -11,6 +13,21 @@ export const actions: Actions = {
     await performAction(event, false)
   },
 };
+
+export async function getAllBookingRequestsWeekly(prisma: PrismaClient) {
+  return await prisma.bookingRequest.findMany({
+    where: {
+      start: {
+        gte: dayjs().subtract(1, "week").toDate(),
+      },
+    },
+    orderBy: [{ start: "asc" }, { end: "asc" }, { status: "asc" }],
+    include: {
+      bookables: true,
+      booker: true,
+    },
+  });
+}
 
 async function performAction(event: RequestEvent, accepted: boolean) {
   const { request, locals } = event;

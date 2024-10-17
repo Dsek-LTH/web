@@ -6,7 +6,7 @@ import { zod } from "sveltekit-superforms/adapters";
 import { bookingSchema } from "../../schema";
 import { authorize } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
-import { actions } from "../sharedActions";
+import { actions, getAllBookingRequestsWeekly } from "../sharedUtils";
 
 export const load = async ({ locals, params }) => {
   const { prisma, user } = locals;
@@ -16,19 +16,6 @@ export const load = async ({ locals, params }) => {
   const allBookingRequests = await prisma.bookingRequest.findMany({
     include: {
       bookables: true,
-    },
-  });
-
-  const allBookingRequestsWeekly = await prisma.bookingRequest.findMany({
-    where: {
-      end: {
-        gte: dayjs().subtract(1, "week").toDate(),
-      },
-    },
-    orderBy: [{ start: "asc" }, { end: "asc" }, { status: "asc" }],
-    include: {
-      bookables: true,
-      booker: true,
     },
   });
 
@@ -62,7 +49,7 @@ export const load = async ({ locals, params }) => {
     form,
     booking: bookingRequest,
     allBookingRequests,
-    bookingRequests: allBookingRequestsWeekly,
+    bookingRequests: await getAllBookingRequestsWeekly(prisma),
   };
 };
 
