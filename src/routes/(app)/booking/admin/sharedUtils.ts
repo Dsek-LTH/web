@@ -6,10 +6,10 @@ import dayjs from "dayjs";
 
 export const actions: Actions = {
   accept: async (event: RequestEvent) => {
-    await performAction(event, true)
+    await performAction(event, true);
   },
   reject: async (event: RequestEvent) => {
-    await performAction(event, false)
+    await performAction(event, false);
   },
 };
 
@@ -33,7 +33,7 @@ async function performAction(event: RequestEvent, accepted: boolean) {
   const { prisma, user } = locals;
   const formData = await request.formData();
   const id = formData.get("id");
-  const status = accepted ? "ACCEPTED" : "DENIED"
+  const status = accepted ? "ACCEPTED" : "DENIED";
 
   if (id && typeof id === "string") {
     await prisma.bookingRequest.update({

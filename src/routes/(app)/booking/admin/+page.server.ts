@@ -7,7 +7,7 @@ export const load: PageServerLoad = async ({ locals }) => {
   const { prisma, user } = locals;
   authorize(apiNames.BOOKINGS.UPDATE, user);
 
-  const bookingRequests = await getAllBookingRequestsWeekly(prisma)
+  const bookingRequests = await getAllBookingRequestsWeekly(prisma);
 
   return { bookingRequests };
 };

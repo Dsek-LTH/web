@@ -41,7 +41,7 @@
     </thead>
 
     <tbody>
-      {#each data.bookingRequests as bookingRequest (bookingRequest.id)}
+      {#each data.bookingRequests as bookingRequest, index (bookingRequest.id)}
         <tr>
           <td>
             {#each bookingRequest.bookables.map((a) => a.name) as bookable}
@@ -50,7 +50,14 @@
           </td>
           <td>{dayjs(bookingRequest.start).format("YYYY-MM-DD HH:MM")}</td>
           <td>{dayjs(bookingRequest.end).format("YYYY-MM-DD HH:MM")}</td>
-          <td>{bookingRequest.event}</td>
+          <td>
+            <a
+              href="/booking/admin/{bookingRequest.id}"
+              class="link-hover link"
+            >
+              {bookingRequest.event}
+            </a>
+          </td>
           <td>
             <div class="flex items-center gap-2">
               {#if bookingRequest.booker}
