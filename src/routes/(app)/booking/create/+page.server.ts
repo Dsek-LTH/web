@@ -37,7 +37,6 @@ const sendNotificationToKM = async (
   bookingRequest: BookingRequest & { bookables: Bookable[] },
   prisma: PrismaClient,
 ) => {
-  console.log("notifications: finding kallarmastare");
   const kallarMastare = await prisma.member.findFirstOrThrow({
     where: {
       mandates: {
@@ -61,7 +60,6 @@ const sendNotificationToKM = async (
     .map((bookable) => bookable.name) // Should be nameEn, perhaps?
     .join(", ");
 
-  console.log("notifications: sending notification to km");
   await sendNotification({
     title: `New booking request: ${bookingRequest.event}`,
     message: `${booker.firstName} ${booker.lastName} wants to book '${bookablesString}' from ${dayjs(bookingRequest.start).format("DD/MM HH:mm")} until ${dayjs(bookingRequest.end).format("DD/MM HH:mm")}.`,
@@ -69,7 +67,6 @@ const sendNotificationToKM = async (
     link: `/booking/admin/${bookingRequest.id}`,
     memberIds: [kallarMastare.id],
   });
-  console.log("notifications: notification sent");
 };
 
 export const actions = {
