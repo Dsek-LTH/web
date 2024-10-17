@@ -170,24 +170,23 @@ async function updateMandate(prisma: PrismaClient) {
 async function updateEmails(prisma: PrismaClient) {
   if (!enabled) return;
 
-  const studentIds = (
+  const currentUserEmail = (
     await prisma.member.findMany({
-      where: {
-        email: null,
-      },
       select: {
         studentId: true,
+        email: true,
       },
+      distinct: ["studentId"],
     })
   ).reduce((acc, curr) => {
-    if (curr.studentId) acc.add(curr.studentId);
+    if (curr.studentId) acc.set(curr.studentId, curr.email);
     return acc;
-  }, new Set<string>());
+  }, new Map<string, string | null>());
 
-  if (!studentIds) return;
+  if (currentUserEmail.size === 0) return;
 
-  console.log(`updating ${studentIds.size} emails`);
-  const userEmails = await getManyUserEmails(studentIds);
+  const userEmails = await getManyUserEmails(currentUserEmail);
+  console.log(`updating ${userEmails.size} emails`);
 
   for (const [studentId, email] of userEmails) {
     await prisma.member.update({
@@ -205,7 +204,7 @@ async function updateEmails(prisma: PrismaClient) {
 // we fetch all emails for all users in one request
 // and then filter out the ones we need
 async function getManyUserEmails(
-  usernames: Set<string>,
+  currentUserEmail: Map<string, string | null>,
 ): Promise<Map<string, string>> {
   if (!enabled) return new Map();
   const client = await connect();
@@ -213,9 +212,10 @@ async function getManyUserEmails(
 
   (await client.users.find({ username: "" })).forEach((user) => {
     if (
-      user.email !== undefined &&
-      user.username !== undefined &&
-      usernames.has(user.username)
+      user.email !== undefined && // if keycloak has an email for the user
+      user.username !== undefined && // if keycloak has a username for the user
+      currentUserEmail.has(user.username) && // if we have the user in our database
+      currentUserEmail.get(user.username) !== user.email // if the email has changed
     ) {
       userEmails.set(user.username, user.email);
     }
