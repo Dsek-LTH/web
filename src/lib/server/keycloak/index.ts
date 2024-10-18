@@ -219,7 +219,14 @@ async function getManyUserEmails(
   const client = await connect();
   const userEmails = new Map<string, string>();
 
-  (await client.users.find({ username: "" })).forEach((user) => {
+  // Fetch all users from Keycloak
+  // We can only fetch a limited amount of users at a time
+  const users = [];
+  do {
+    users.push(...(await client.users.find({ max: 500, first: users.length })));
+  } while (users.length % 500 === 0);
+
+  users.forEach((user) => {
     const { username, email } = user;
     if (!username || !email) return;
 
