@@ -154,7 +154,9 @@ async function updateMandate(prisma: PrismaClient) {
     },
   });
 
-  console.log(`updating ${result.length} users groups`);
+  console.log(
+    `[${new Date().toISOString()}] updating ${result.length} users groups`,
+  );
 
   result.forEach(async ({ positionId, member: { studentId } }) => {
     await deleteMandate(studentId!, positionId);
@@ -183,10 +185,17 @@ async function updateEmails(prisma: PrismaClient) {
     return acc;
   }, new Map<string, string | null>());
 
-  if (currentUserEmail.size === 0) return;
+  if (currentUserEmail.size === 0) {
+    console.log(
+      `[${new Date().toISOString()}] email sync aborted, no users in database`,
+    );
+    return;
+  }
 
   const userEmails = await getManyUserEmails(currentUserEmail);
-  console.log(`updating ${userEmails.size} emails`);
+  console.log(
+    `[${new Date().toISOString()}] updating ${userEmails.size} emails`,
+  );
 
   for (const [studentId, email] of userEmails) {
     await prisma.member.update({
@@ -210,14 +219,22 @@ async function getManyUserEmails(
   const client = await connect();
   const userEmails = new Map<string, string>();
 
-  (await client.users.find({ username: "" })).forEach((user) => {
+  // Fetch all users from Keycloak
+  // We can only fetch a limited amount of users at a time
+  const users = [];
+  do {
+    users.push(...(await client.users.find({ max: 500, first: users.length })));
+  } while (users.length % 500 === 0);
+
+  users.forEach((user) => {
+    const { username, email } = user;
+    if (!username || !email) return;
+
     if (
-      user.email !== undefined && // if keycloak has an email for the user
-      user.username !== undefined && // if keycloak has a username for the user
-      currentUserEmail.has(user.username) && // if we have the user in our database
-      currentUserEmail.get(user.username) !== user.email // if the email has changed
+      currentUserEmail.has(username) && // if the user exists in our database
+      currentUserEmail.get(username) !== user.email // if the email has changed
     ) {
-      userEmails.set(user.username, user.email);
+      userEmails.set(username, email);
     }
   });
   return userEmails;
