@@ -1,10 +1,21 @@
 <script lang="ts">
   import { version } from "$app/environment";
+  import { isAuthorized } from "$lib/utils/authorization";
 
   export let data;
   $: user = data.user;
   $: policies = user.policies.toSorted();
 </script>
+
+{#if isAuthorized("core:admin")}
+  <section class="mb-4">
+    <h1 class="mb-2 text-lg font-semibold">Actions</h1>
+    <form action="?/keycloakSync" method="POST" class="flex items-center gap-4">
+      <button type="submit" class="btn">Sync with Keycloak</button>
+      <p>This will push mandates and pull email addresses.</p>
+    </form>
+  </section>
+{/if}
 
 <section>
   <h1 class="text-lg font-semibold">Metadata</h1>

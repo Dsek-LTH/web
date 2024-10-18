@@ -186,7 +186,7 @@ async function updateEmails(prisma: PrismaClient) {
   if (currentUserEmail.size === 0) return;
 
   const userEmails = await getManyUserEmails(currentUserEmail);
-  console.log(`updating ${userEmails.size} emails`);
+  console.log(`[${new Date().toISOString()}] updating ${userEmails.size}`);
 
   for (const [studentId, email] of userEmails) {
     await prisma.member.update({
@@ -211,13 +211,14 @@ async function getManyUserEmails(
   const userEmails = new Map<string, string>();
 
   (await client.users.find({ username: "" })).forEach((user) => {
+    const { username, email } = user;
+    if (!username || !email) return;
+
     if (
-      user.email !== undefined && // if keycloak has an email for the user
-      user.username !== undefined && // if keycloak has a username for the user
-      currentUserEmail.has(user.username) && // if we have the user in our database
-      currentUserEmail.get(user.username) !== user.email // if the email has changed
+      currentUserEmail.has(username) && // if the user exists in our database
+      currentUserEmail.get(username) !== user.email // if the email has changed
     ) {
-      userEmails.set(user.username, user.email);
+      userEmails.set(username, email);
     }
   });
   return userEmails;
