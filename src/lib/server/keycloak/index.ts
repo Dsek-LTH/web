@@ -154,7 +154,9 @@ async function updateMandate(prisma: PrismaClient) {
     },
   });
 
-  console.log(`updating ${result.length} users groups`);
+  console.log(
+    `[${new Date().toISOString()}] updating ${result.length} users groups`,
+  );
 
   result.forEach(async ({ positionId, member: { studentId } }) => {
     await deleteMandate(studentId!, positionId);
@@ -183,10 +185,17 @@ async function updateEmails(prisma: PrismaClient) {
     return acc;
   }, new Map<string, string | null>());
 
-  if (currentUserEmail.size === 0) return;
+  if (currentUserEmail.size === 0) {
+    console.log(
+      `[${new Date().toISOString()}] email sync aborted, no users in database`,
+    );
+    return;
+  }
 
   const userEmails = await getManyUserEmails(currentUserEmail);
-  console.log(`[${new Date().toISOString()}] updating ${userEmails.size}`);
+  console.log(
+    `[${new Date().toISOString()}] updating ${userEmails.size} emails`,
+  );
 
   for (const [studentId, email] of userEmails) {
     await prisma.member.update({
