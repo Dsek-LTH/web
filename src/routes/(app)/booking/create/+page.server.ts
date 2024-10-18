@@ -41,7 +41,7 @@ const sendNotificationToKM = async (
     where: {
       mandates: {
         some: {
-          positionId: "dsek.km.mastare", // Placeholder, don't know the actual id yet...
+          positionId: "dsek.km.mastare", // TODO: Change to actual id...
           endDate: {
             gte: new Date(),
           },
@@ -57,7 +57,7 @@ const sendNotificationToKM = async (
   });
 
   const bookablesString = bookingRequest.bookables
-    .map((bookable) => bookable.name) // Should be nameEn, perhaps?
+    .map((bookable) => bookable.name) // TODO: Change to nameEn (dev db has faked values)
     .join(", ");
 
   await sendNotification({
