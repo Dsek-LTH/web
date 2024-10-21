@@ -34,13 +34,12 @@
     />
   </div>
   <fieldset
-    class="input-bordered grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-x-4 rounded-xl border px-6 py-2"
+    class="input-bordered grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] rounded-xl border px-6 py-2"
     class:border-error={$errors.bookables?._errors ?? 0 > 0}
   >
     <legend class="text-xl font-bold">{m.booking_booking()}</legend>
     {#each data.bookables as bookable}
-      <label class="label cursor-pointer">
-        <span class="label-text">{bookable.name}</span>
+      <label class="label cursor-pointer justify-start gap-4 rounded-lg">
         <input
           type="checkbox"
           class="checkbox"
@@ -49,6 +48,7 @@
           bind:group={$form.bookables}
           disabled
         />
+        <span class="label-text">{bookable.name}</span>
       </label>
     {/each}
   </fieldset>
