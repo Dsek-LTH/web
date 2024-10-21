@@ -6,7 +6,7 @@
   type T = BookingRequest & { bookables: Bookable[] };
   export let bookingRequest: T;
   export let bookingRequests: T[];
-  export let mode: "list" | "inspect" = "list";
+  export let mode: "list" | "review" = "list";
   $: otherBookingRequests = bookingRequests.filter(
     (br) => br.id !== bookingRequest.id && br.status !== "DENIED",
   );
@@ -33,7 +33,7 @@
 <div
   class="flex gap-1"
   class:flex-col={mode === "list"}
-  class:flex-row={mode === "inspect"}
+  class:flex-row={mode === "review"}
 >
   {#if bookingRequest.status === "ACCEPTED"}
     <div class="badge badge-success">

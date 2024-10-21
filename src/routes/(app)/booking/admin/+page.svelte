@@ -1,6 +1,6 @@
 <script lang="ts">
   import dayjs from "dayjs";
-  import StatusComponent from "./StatusComponent.svelte";
+  import StatusComponent from "../StatusComponent.svelte";
   import { enhance } from "$app/forms";
   import { getFullName } from "$lib/utils/client/member";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
