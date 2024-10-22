@@ -30,8 +30,8 @@
   "access": "Åtkomst",
   "doors": "Dörrar",
   "emailAliases": "Mejlaliaser",
-  "alerts": "Globala meddelanden",
   "linkShortener": "Länkförkortare",
+  "alerts": "Globala meddelanden",
   "adminSettings": "Admininställningar",
   "files": "Filer",
   "phadderGroups": "Phaddergrupper",
@@ -751,5 +751,6 @@
   "nollning_wikia_literature": "Studentlitteratur",
   "nollning_wikia_literature_body": "Facebookgrupp där mycket kurslitteratur säljs av äldre studenter, det är en privat grupp men alla får gå med, be en phadder godkänna dig.",
   "members_errors_tooLargePicture": "Profilbild är för stor, den får max vara {size}.",
-  "nollning_events_ticketCTA": "Biljett/Anmälan"
+  "nollning_events_ticketCTA": "Biljett/Anmälan",
+  "booking_reviewBooking": "Granska bokning"
 }
