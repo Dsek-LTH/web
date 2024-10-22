@@ -11,6 +11,7 @@
   import { page } from "$app/stores";
   import { getFullName } from "$lib/utils/client/member";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
+  import * as m from "$paraglide/messages";
   export let data: PageData;
 </script>
 
@@ -27,7 +28,7 @@
       {#if data.hasActiveMandate}
         <a href="/info/benefits"
           ><span class="badge badge-primary mt-2 hover:underline">
-            <span class="i-mdi-coffee m-1"></span>Funktionär
+            <span class="i-mdi-coffee m-1"></span>{m.home_volunteer()}
           </span>
         </a>
       {/if}
