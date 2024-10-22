@@ -198,14 +198,19 @@ async function updateEmails(prisma: PrismaClient) {
   );
 
   for (const [studentId, email] of userEmails) {
-    await prisma.member.update({
-      where: {
-        studentId,
-      },
-      data: {
-        email,
-      },
-    });
+    try {
+      await prisma.member.update({
+        where: {
+          studentId,
+        },
+        data: {
+          email,
+        },
+      });
+    } catch (error) {
+      console.log("Failed to update email for", studentId, email);
+      console.log(error);
+    }
   }
 }
 
