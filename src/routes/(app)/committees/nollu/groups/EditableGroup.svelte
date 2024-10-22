@@ -110,7 +110,7 @@
           </ul>
         </div>
       </ScrollIndicatedBox>
-      <AddPersonInput groupId={group.id} phadder />
+      <AddPersonInput groupId={group.id} phadder year={group.year} />
     </div>
   {/if}
 </div>

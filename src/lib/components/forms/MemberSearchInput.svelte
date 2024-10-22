@@ -10,6 +10,7 @@
   let isSearching: boolean;
   let handleSearch: (search: string) => void;
   export let endpoint: string | undefined = undefined;
+  export let year: number | undefined = undefined;
 </script>
 
 <MemberSearch
@@ -20,6 +21,7 @@
   onSelect={(selectedMember) => {
     member = selectedMember;
   }}
+  {year}
 >
   <div class="relative flex h-full flex-col gap-2">
     {#if member}
