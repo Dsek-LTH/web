@@ -138,6 +138,14 @@ export const loadHomeData = async ({
     throw error(500, "Failed to fetch commit data");
   }
 
+  const memberMandate = await prisma.mandate.findMany({
+    where: {
+      startDate: { lte: new Date() },
+      endDate: { gte: new Date() },
+      memberId: locals.user?.memberId,
+    },
+  });
+
   return {
     files: { next: nextBoardMeetingFiles, last: lastBoardMeetingFiles },
     news: news.value,
@@ -149,5 +157,6 @@ export const loadHomeData = async ({
     cafeOpen: cafeOpen.value,
     commitCount: commitData.value.commitCount,
     latestCommit: commitData.value.latestCommit,
+    hasActiveMandate: memberMandate.length > 0,
   };
 };
