@@ -19,6 +19,7 @@
     isSearching = true;
     timeout = setTimeout(getEntities(searchValue), 300);
   };
+  export let year: number | undefined = undefined;
 
   let timeout: ReturnType<typeof setTimeout> | undefined = undefined;
 
@@ -31,6 +32,9 @@
 
     const url = new URL($page.url.origin + endpoint);
     url.searchParams.append("search", searchValue);
+    if (year) {
+      url.searchParams.append("year", year.toString());
+    }
     const data = await fetch(url, {
       method: "GET",
     })
