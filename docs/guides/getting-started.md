@@ -1,8 +1,4 @@
----
-outline: deep
----
-
-# Getting started
+# How to get started
 
 Follow the steps below to get a local development environment up and running.
 
@@ -13,7 +9,7 @@ Before you can start developing, you need to install the following tools:
 ::: details Are you using Windows?
 If you're running Windows, it's highly recommended to [first install **WSL**](https://learn.microsoft.com/en-us/windows/wsl/install). This sets up a Linux environment on your Windows machine and simplifies development.
 
-When you have WSL installed, you can open a WSL terminal and follow the instructions below as if you were using a Linux distribution.
+When you have WSL installed, you can open a WSL terminal and follow the instructions below as if you were using Linux normally.
 :::
 
 1. Install [Node.JS](https://nodejs.org/en/download/).

@@ -29,7 +29,10 @@ export default defineConfig({
     sidebar: [
       {
         text: "Guides",
-        items: [{ text: "Getting started", link: "/guides/getting-started" }],
+        items: [
+          { text: "Getting started", link: "/guides/getting-started" },
+          { text: "Load testing", link: "/guides/load-testing" },
+        ],
       },
       {
         text: "Tutorials",
