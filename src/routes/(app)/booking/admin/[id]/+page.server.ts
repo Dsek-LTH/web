@@ -1,5 +1,6 @@
 import { authorize } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
+import dayjs from "dayjs";
 import {
   actions,
   getAllBookingRequestsWeekly,
@@ -13,6 +14,12 @@ export const load = async ({ locals, params }) => {
   const bookables = await prisma.bookable.findMany();
 
   const allBookingRequests = await prisma.bookingRequest.findMany({
+    where: {
+      start: {
+        gte: dayjs().subtract(1, "week").toDate(),
+      },
+    },
+    orderBy: [{ start: "asc" }, { end: "asc" }, { status: "asc" }],
     include: {
       bookables: true,
     },
