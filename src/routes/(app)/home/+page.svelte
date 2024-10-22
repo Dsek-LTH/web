@@ -12,6 +12,7 @@
   import { getFullName } from "$lib/utils/client/member";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   export let data: PageData;
+  let hasMandate = true;
 </script>
 
 <SetPageTitle title="D-sektionen" />
@@ -23,6 +24,14 @@
       <div class="pt-2 text-2xl font-bold">
         {getFullName($page.data.member)}
       </div>
+
+      {#if data.hasActiveMandate}
+        <a href="/info/benefits"
+          ><span class="badge badge-primary mt-2 hover:underline">
+            <span class="i-mdi-coffee m-1"></span>Funktionär
+          </span>
+        </a>
+      {/if}
     {/if}
   </section>
   <section
