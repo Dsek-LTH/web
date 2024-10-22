@@ -12,7 +12,6 @@
   import { getFullName } from "$lib/utils/client/member";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   export let data: PageData;
-  let hasMandate = true;
 </script>
 
 <SetPageTitle title="D-sektionen" />
