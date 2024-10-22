@@ -21,7 +21,7 @@
   onSelect={(selectedMember) => {
     member = selectedMember;
   }}
-  year= {year}
+  {year}
 >
   <div class="relative flex h-full flex-col gap-2">
     {#if member}

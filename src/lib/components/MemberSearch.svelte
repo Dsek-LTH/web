@@ -20,7 +20,7 @@
   bind:onSelect
   bind:handleSearch
   {...$$restProps}
-  year = {year}
+  {year}
 >
   <slot />
   <div slot="entity" let:option>
