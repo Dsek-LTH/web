@@ -18,7 +18,8 @@ export const loadHomeData = async ({
 
   /* files - subject to change */
 
-  const year = new Date().getFullYear();
+  const now = new Date();
+  const year = now.getFullYear();
   const files = await fileHandler.getInBucket(
     user,
     PUBLIC_BUCKETS_DOCUMENTS,
@@ -67,7 +68,7 @@ export const loadHomeData = async ({
     where: {
       ...BASIC_EVENT_FILTER(),
       startDatetime: {
-        gt: new Date(),
+        gt: now,
       },
     },
     orderBy: {
@@ -80,7 +81,7 @@ export const loadHomeData = async ({
   const upcomingMeetingPromise = prisma.meeting.findFirst({
     where: {
       date: {
-        gt: new Date(),
+        gt: now,
       },
     },
     orderBy: {
@@ -90,7 +91,7 @@ export const loadHomeData = async ({
   const previousMeetingPromise = prisma.meeting.findFirst({
     where: {
       date: {
-        lt: new Date(),
+        lt: now,
       },
     },
     orderBy: {
@@ -101,7 +102,7 @@ export const loadHomeData = async ({
   // CAFE OPENING TIMES
   const cafeOpenPromise = prisma.markdown.findFirst({
     where: {
-      name: `cafe:open:${new Date().getDay() - 1}`, // we assign monday to 0, not sunday
+      name: `cafe:open:${now.getDay() - 1}`, // we assign monday to 0, not sunday
     },
   });
 
@@ -110,15 +111,36 @@ export const loadHomeData = async ({
     res.json(),
   ) as Promise<GetCommitDataResponse>;
 
-  const [news, events, upcomingMeeting, previousMeeting, cafeOpen, commitData] =
-    await Promise.allSettled([
-      newsPromise,
-      eventsPromise,
-      upcomingMeetingPromise,
-      previousMeetingPromise,
-      cafeOpenPromise,
-      commitPromise,
-    ]);
+  // ACTIVE MANDATE?
+  const hasActiveMandatePromise =
+    prisma.mandate.findFirst({
+      where: {
+        startDate: { lte: now },
+        endDate: { gte: now },
+        memberId: locals.user?.memberId,
+      },
+      select: {
+        id: true,
+      },
+    }) !== null;
+
+  const [
+    news,
+    events,
+    upcomingMeeting,
+    previousMeeting,
+    cafeOpen,
+    commitData,
+    hasActiveMandate,
+  ] = await Promise.allSettled([
+    newsPromise,
+    eventsPromise,
+    upcomingMeetingPromise,
+    previousMeetingPromise,
+    cafeOpenPromise,
+    commitPromise,
+    hasActiveMandatePromise,
+  ]);
   if (news.status === "rejected") {
     throw error(500, "Failed to fetch news");
   }
@@ -137,14 +159,9 @@ export const loadHomeData = async ({
   if (commitData.status === "rejected") {
     throw error(500, "Failed to fetch commit data");
   }
-
-  const memberMandate = await prisma.mandate.findMany({
-    where: {
-      startDate: { lte: new Date() },
-      endDate: { gte: new Date() },
-      memberId: locals.user?.memberId,
-    },
-  });
+  if (hasActiveMandate.status === "rejected") {
+    throw error(500, "Failed to fetch mandate data");
+  }
 
   return {
     files: { next: nextBoardMeetingFiles, last: lastBoardMeetingFiles },
@@ -157,6 +174,6 @@ export const loadHomeData = async ({
     cafeOpen: cafeOpen.value,
     commitCount: commitData.value.commitCount,
     latestCommit: commitData.value.latestCommit,
-    hasActiveMandate: memberMandate.length > 0,
+    hasActiveMandate: hasActiveMandate.value,
   };
 };
