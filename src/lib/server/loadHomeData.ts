@@ -112,8 +112,8 @@ export const loadHomeData = async ({
   ) as Promise<GetCommitDataResponse>;
 
   // ACTIVE MANDATE?
-  const hasActiveMandatePromise =
-    prisma.mandate.findFirst({
+  const hasActiveMandatePromise = prisma.mandate
+    .findFirst({
       where: {
         startDate: { lte: now },
         endDate: { gte: now },
@@ -122,7 +122,8 @@ export const loadHomeData = async ({
       select: {
         id: true,
       },
-    }) !== null;
+    })
+    .then((res) => res !== null);
 
   const [
     news,
