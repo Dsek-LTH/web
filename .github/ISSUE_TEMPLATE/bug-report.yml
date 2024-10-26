@@ -1,0 +1,28 @@
+name: Bug report
+description: Create a report to help us fix problems
+labels:
+  - bug
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: >-
+        Describe the problem. What is happening? What did you expect to happen
+        instead? Screenshots and videos are welcome.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: If we want to experience this bug for ourselves, what should we do?
+      placeholder: >-
+        Step 1. Go to dsek.se/booking.
+        Step 2. ...
+        Step 3. ...
+  - type: textarea
+    id: other
+    attributes:
+      label: Further information
+      description: Anything else we should know?
