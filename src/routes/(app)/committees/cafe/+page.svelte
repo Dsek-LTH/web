@@ -1,5 +1,7 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
+  import * as m from "$paraglide/messages";
+  import { languageTag } from "$paraglide/runtime";
 
   import CommitteePage from "../CommitteePage.svelte";
   import type { PageData } from "./$types";
@@ -12,7 +14,7 @@
     while (date.getDay() - 1 !== weekday) {
       date.setDate(date.getDate() + 1);
     }
-    return date.toLocaleString("sv-SE", {
+    return date.toLocaleString(languageTag(), {
       weekday: "long",
     });
   };
@@ -24,9 +26,9 @@
     class="card float-right ml-4 w-full border border-primary bg-base-100 p-6 shadow-xl lg:max-w-80"
   >
     <h2 class="mb-2 p-2 font-bold lg:text-xl">
-      Öppettider
+      {m.committees_cafe_openinghours()}
       <span class="block text-sm font-light text-base-content text-opacity-40"
-        >Caféet</span
+        >{m.committees_cafe_thecafe()}</span
       >
     </h2>
     <ol>
