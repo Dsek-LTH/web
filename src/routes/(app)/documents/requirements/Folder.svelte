@@ -14,7 +14,17 @@
   export let folders: FolderType[];
   export let isEditing = false;
   export let deleteForm: SuperValidated<DeleteSchema>;
-  $: folders.sort((a, b) => (a.isFolder && !b.isFolder ? 0 : 1));
+
+  function foldersFirstAlphabetically(a: FolderType, b: FolderType) {
+    if (a.isFolder && !b.isFolder) {
+      return -1;
+    }
+    if (b.isFolder && !a.isFolder) {
+      return 1;
+    }
+    return a.name.localeCompare(b.name, "sv");
+  }
+  $: folders.sort(foldersFirstAlphabetically);
 
   $: foldericon = expanded
     ? "i-mdi-folder-open-outline"
