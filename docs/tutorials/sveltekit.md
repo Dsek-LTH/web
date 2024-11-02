@@ -1,6 +1,10 @@
 # SvelteKit
 
-SvelteKit helps you build web apps while following modern best practices and providing solutions to common development challenges. It offers everything from basic functionalities — like a router that updates your UI when a link is clicked — to more advanced capabilities. Learn SvelteKit at [learn.svelte.dev](https://learn.svelte.dev/tutorial/introducing-sveltekit).
+SvelteKit is an application framework for Svelte that provides routing, server-side rendering, data fetching, and more.
+
+::: tip Tutorial
+Learn SvelteKit at [svelte.dev/tutorial/kit](https://svelte.dev/tutorial/kit).
+:::
 
 ### SvelteKit example
 
@@ -11,12 +15,12 @@ SvelteKit helps you build web apps while following modern best practices and pro
   export let data;
 </script>
 
-<p>{data}</p>
+<p>{data.message}</p>
 ```
 
 ```ts [src/routes/+page.server.ts]
 export const load = async () => {
-  return { data: "Hello, world!" };
+  return { message: "Hello, world!" };
 };
 ```
 

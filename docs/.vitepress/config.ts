@@ -39,15 +39,12 @@ export default defineConfig({
         items: [
           { text: "HTML", link: "/tutorials/html" },
           { text: "CSS", link: "/tutorials/css" },
-          { text: "JavaScript", link: "/tutorials/js" },
-          { text: "TypeScript", link: "/tutorials/ts" },
+          { text: "JavaScript", link: "/tutorials/javascript" },
+          { text: "TypeScript", link: "/tutorials/typescript" },
           { text: "Svelte", link: "/tutorials/svelte" },
           { text: "SvelteKit", link: "/tutorials/sveltekit" },
-          { text: "Tailwind", link: "/tutorials/tailwind" },
-          { text: "SQL", link: "/tutorials/sql" },
           { text: "Prisma", link: "/tutorials/prisma" },
           { text: "ZenStack", link: "/tutorials/zenstack" },
-          { text: "React Native", link: "/tutorials/react-native" },
         ],
       },
       {
