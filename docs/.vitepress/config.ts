@@ -62,8 +62,16 @@ export default defineConfig({
           text: "Explanation",
           items: [
             {
+              text: "Design",
+              link: "/explanation/design",
+            },
+            {
               text: "Tech stack",
               link: "/explanation/tech-stack",
+            },
+            {
+              text: "Goals",
+              link: "/explanation/goals",
             },
           ],
         },
