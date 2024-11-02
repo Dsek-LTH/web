@@ -96,4 +96,4 @@ node load-test.js
 
 - You may prefer to use other tools like `ab`, `wrk`, or `k6`. `autocannon` is chosen here because it is easy to use, but note that it may have [performance limitations](https://github.com/mcollina/autocannon#limitations).
 - You can adjust the number of users and duration as needed. Note that [browsers may open multiple connections to the server](https://stackoverflow.com/a/985704), so the number of connections may not be the same as the number of users.
-- Be careful when running load tests on production servers. They can cause high CPU usage and slow down the server for other users. Additionally, we are sending a large number of requests to the server, which can be considered a [DoS attack](https://en.wikipedia.org/wiki/Denial-of-service_attack) on the network.
+- Be careful when running load tests on production servers. They can cause high CPU usage and slow down the server for other users. Additionally, sending a large number of requests to the server can be considered a [DoS attack](https://en.wikipedia.org/wiki/Denial-of-service_attack) on the network.
