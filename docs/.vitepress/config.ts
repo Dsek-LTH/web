@@ -65,6 +65,10 @@ export default defineConfig({
           text: "Explanation",
           items: [
             {
+              text: "Code style",
+              link: "/explanation/code-style",
+            },
+            {
               text: "Design",
               link: "/explanation/design",
             },

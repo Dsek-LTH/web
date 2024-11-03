@@ -2,7 +2,7 @@
 outline: deep
 ---
 
-# About design
+# About our design
 
 ### Mobile first
 
