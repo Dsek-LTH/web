@@ -79,8 +79,8 @@ export default defineConfig({
           text: "Reference",
           items: [
             {
-              text: "Environment variables",
-              link: "/reference/environment-variables",
+              text: "External systems",
+              link: "/reference/external-systems",
             },
           ],
         },
