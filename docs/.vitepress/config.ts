@@ -42,6 +42,8 @@ export default defineConfig({
           text: "Guides",
           items: [
             { text: "Getting started", link: "/guides/getting-started" },
+            { text: "Setting up VS Code", link: "/guides/vscode" },
+            { text: "Next steps", link: "/guides/next-steps" },
             { text: "Load testing", link: "/guides/load-testing" },
           ],
         },
@@ -56,6 +58,7 @@ export default defineConfig({
             { text: "SvelteKit", link: "/tutorials/sveltekit" },
             { text: "Prisma", link: "/tutorials/prisma" },
             { text: "ZenStack", link: "/tutorials/zenstack" },
+            { text: "Git", link: "/tutorials/git" },
           ],
         },
         {
