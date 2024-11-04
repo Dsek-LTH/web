@@ -1,3 +1,6 @@
+import initializeTracing from "./tracing";
+export const tracer = initializeTracing("sveltekit");
+
 import { env } from "$env/dynamic/private";
 import keycloak from "$lib/server/keycloak";
 import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
@@ -21,6 +24,20 @@ import loggingExtension from "./database/prisma/loggingExtension";
 import translatedExtension from "./database/prisma/translationExtension";
 import { getAccessPolicies } from "./hooks.server.helpers";
 import { getDerivedRoles } from "$lib/utils/authorization";
+
+const perfHandle: Handle = async ({ event, resolve }) => {
+  const response = await tracer.startActiveSpan(
+    `${event.request.method} ${new URL(event.request.url).pathname}`,
+    async (requestSpan) => {
+      requestSpan.setAttribute("http.method", event.request.method);
+      const res = await resolve(event);
+      requestSpan.setAttribute("http.status", res.status);
+      requestSpan.end();
+      return res;
+    },
+  );
+  return response;
+};
 
 const { handle: authHandle } = SvelteKitAuth({
   secret: env.AUTH_SECRET,
@@ -89,74 +106,82 @@ const { handle: authHandle } = SvelteKitAuth({
 
 const prismaClient = authorizedPrismaClient;
 const databaseHandle: Handle = async ({ event, resolve }) => {
-  const lang = isAvailableLanguageTag(event.locals.paraglide?.lang)
-    ? event.locals.paraglide?.lang
-    : sourceLanguageTag;
-  const session = await event.locals.getSession();
-  const prisma = prismaClient
-    .$extends(translatedExtension(lang))
-    .$extends(loggingExtension(session?.user.student_id)) as PrismaClient;
+  await tracer.startActiveSpan("databaseHandle", async (span) => {
+    const lang = isAvailableLanguageTag(event.locals.paraglide?.lang)
+      ? event.locals.paraglide?.lang
+      : sourceLanguageTag;
+    const session = await event.locals.getSession();
+    const prisma = prismaClient
+      .$extends(translatedExtension(lang))
+      .$extends(loggingExtension(session?.user.student_id)) as PrismaClient;
 
-  if (!session?.user) {
-    let externalCode = event.cookies.get("externalCode"); // Retrieve the externalCode from cookies
-    if (!externalCode) {
-      // Generate a new externalCode if it doesn't exist
-      externalCode = randomBytes(16).toString("hex");
-      event.cookies.set("externalCode", externalCode, {
-        httpOnly: false, // Make the cookie accessible to client-side JavaScript
-        path: "/", // Cookie is available on all pages
-        secure: process.env["NODE_ENV"] === "production", // Only send cookie over HTTPS in production
+    if (!session?.user) {
+      let externalCode = event.cookies.get("externalCode"); // Retrieve the externalCode from cookies
+      if (!externalCode) {
+        // Generate a new externalCode if it doesn't exist
+        externalCode = randomBytes(16).toString("hex");
+        event.cookies.set("externalCode", externalCode, {
+          httpOnly: false, // Make the cookie accessible to client-side JavaScript
+          path: "/", // Cookie is available on all pages
+          secure: process.env["NODE_ENV"] === "production", // Only send cookie over HTTPS in production
+        });
+      }
+      const roles = getDerivedRoles(undefined, false);
+      const policies = await getAccessPolicies(prisma, roles);
+      const user = {
+        studentId: undefined,
+        memberId: undefined,
+        policies,
+        externalCode: externalCode, // For anonymous users
+        roles,
+      };
+      event.locals.prisma = enhance(prisma, {
+        user,
       });
-    }
-    const roles = getDerivedRoles(undefined, false);
-    const policies = await getAccessPolicies(prisma, roles);
-    const user = {
-      studentId: undefined,
-      memberId: undefined,
-      policies,
-      externalCode: externalCode, // For anonymous users
-      roles,
-    };
-    event.locals.prisma = enhance(prisma, {
-      user,
-    });
-    event.locals.user = user;
-  } else {
-    const existingMember = await prisma.member.findUnique({
-      where: { studentId: session.user.student_id },
-    });
-    const member =
-      existingMember ||
-      (await createMember(prisma, {
+      event.locals.user = user;
+    } else {
+      const existingMember = await prisma.member.findUnique({
+        where: { studentId: session.user.student_id },
+      });
+      const member =
+        existingMember ||
+        (await createMember(prisma, {
+          studentId: session.user.student_id,
+          firstName: session.user.given_name,
+          lastName: session.user.family_name,
+          email: session.user.email,
+        }));
+
+      if (
+        i18n.route(event.url.pathname) != "/onboarding" &&
+        (!member.classProgramme || !member.classYear) // consider adding email here, but make sure to fix onboarding as well
+      ) {
+        redirect(302, "/onboarding");
+      }
+
+      const roles = getDerivedRoles(
+        session.user.group_list,
+        !!session.user.student_id,
+        member.classYear ?? undefined,
+      );
+      const user = {
         studentId: session.user.student_id,
-        firstName: session.user.given_name,
-        lastName: session.user.family_name,
-        email: session.user.email,
-      }));
+        memberId: member!.id,
+        policies: await getAccessPolicies(
+          prisma,
+          roles,
+          session.user.student_id,
+        ),
+        roles,
+      };
 
-    if (
-      i18n.route(event.url.pathname) != "/onboarding" &&
-      (!member.classProgramme || !member.classYear) // consider adding email here, but make sure to fix onboarding as well
-    ) {
-      redirect(302, "/onboarding");
+      event.locals.prisma = enhance(prisma, { user });
+      event.locals.user = user;
+      event.locals.member = member!;
     }
 
-    const roles = getDerivedRoles(
-      session.user.group_list,
-      !!session.user.student_id,
-      member.classYear ?? undefined,
-    );
-    const user = {
-      studentId: session.user.student_id,
-      memberId: member!.id,
-      policies: await getAccessPolicies(prisma, roles, session.user.student_id),
-      roles,
-    };
-
-    event.locals.prisma = enhance(prisma, { user });
-    event.locals.user = user;
-    event.locals.member = member!;
-  }
+    span.end();
+  });
 
   return resolve(event);
 };
@@ -212,6 +237,7 @@ const themeHandle: Handle = async ({ event, resolve }) => {
 schedule.scheduleJob("0 0 * * *", () => keycloak.sync(authorizedPrismaClient));
 
 export const handle = sequence(
+  perfHandle,
   authHandle,
   i18n.handle(),
   databaseHandle,

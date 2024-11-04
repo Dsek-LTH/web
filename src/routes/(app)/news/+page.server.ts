@@ -6,6 +6,7 @@ import { zod } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
 import type { Actions, PageServerLoad } from "./$types";
 import { likeSchema, likesAction } from "./likes";
+import { tracer } from "../../../hooks.server";
 
 const getAndValidatePage = (url: URL) => {
   const page = url.searchParams.get("page");
@@ -16,15 +17,22 @@ const getAndValidatePage = (url: URL) => {
 };
 
 export const load: PageServerLoad = async ({ locals, url }) => {
-  const { prisma } = locals;
-  const [[articles, pageCount], allTags] = await Promise.all([
-    getAllArticles(prisma, {
-      tags: url.searchParams.getAll("tags"),
-      search: url.searchParams.get("search") ?? undefined,
-      page: getAndValidatePage(url),
-    }),
-    getAllTags(prisma),
-  ]);
+  const { articles, pageCount, allTags } = await tracer.startActiveSpan(
+    "news_page_load",
+    async (span) => {
+      const { prisma } = locals;
+      const [[articles, pageCount], allTags] = await Promise.all([
+        getAllArticles(prisma, {
+          tags: url.searchParams.getAll("tags"),
+          search: url.searchParams.get("search") ?? undefined,
+          page: getAndValidatePage(url),
+        }),
+        getAllTags(prisma),
+      ]);
+      span.end();
+      return { articles, pageCount, allTags };
+    },
+  );
   return {
     articles,
     pageCount,
