@@ -1,12 +1,10 @@
 <script lang="ts">
-  import MarkdownBody from "$lib/components/MarkdownBody.svelte";
-  import PositionGrid from "../PositionGrid.svelte";
-  import EditCommitteeForm from "../EditCommitteeForm.svelte";
-  import CommitteeHeader from "../CommitteeHeader.svelte";
   import { enhance } from "$app/forms";
+  import * as m from "$paraglide/messages";
+  import { languageTag } from "$paraglide/runtime";
 
+  import CommitteePage from "../CommitteePage.svelte";
   import type { PageData } from "./$types";
-  import Pagination from "$lib/components/Pagination.svelte";
   export let data: PageData;
   let isEditing = false;
 
@@ -16,36 +14,21 @@
     while (date.getDay() - 1 !== weekday) {
       date.setDate(date.getDate() + 1);
     }
-    return date.toLocaleString("sv-SE", {
+    return date.toLocaleString(languageTag(), {
       weekday: "long",
     });
   };
-
-  const thisYear = new Date().getFullYear();
 </script>
 
-<CommitteeHeader
-  committee={data.committee}
-  uniqueMemberCount={data.uniqueMemberCount}
-  numberOfMandates={data.numberOfMandates}
-  editing={isEditing}
-  toggleEditing={() => (isEditing = !isEditing)}
-/>
-
-<EditCommitteeForm form={data.form} open={isEditing} />
-
-<div class="mb-4 flex flex-wrap items-start justify-between gap-4">
-  {#if data.markdown?.markdown}
-    <MarkdownBody body={data.markdown.markdown} />
-  {/if}
-
+<CommitteePage {data} bind:isEditing>
   <div
-    class="card flex-1 border border-primary bg-base-100 p-6 shadow-xl lg:max-w-96"
+    slot="before"
+    class="card float-right ml-4 w-full border border-primary bg-base-100 p-6 shadow-xl lg:max-w-80"
   >
     <h2 class="mb-2 p-2 font-bold lg:text-xl">
-      Öppettider
+      {m.committees_cafe_openinghours()}
       <span class="block text-sm font-light text-base-content text-opacity-40"
-        >Caféet</span
+        >{m.committees_cafe_thecafe()}</span
       >
     </h2>
     <ol>
@@ -59,13 +42,15 @@
           class:bg-primary={isToday}
           class:font-bold={isToday}
         >
-          <p class="flex-1 capitalize">{weekday}</p>
+          <p class="flex-1 self-center capitalize">{weekday}</p>
           {#if isEditing}
             <form
               class="flex gap-4"
-              action="?/update"
+              action="?/updateHours"
               method="POST"
-              use:enhance
+              use:enhance={() => {
+                return ({ update }) => update({ reset: false });
+              }}
             >
               <input
                 hidden
@@ -77,7 +62,7 @@
                 type="text"
                 class="input input-bordered font-normal"
                 name="markdown"
-                placeholder={openingHour.markdown}
+                value={openingHour.markdown}
                 size="8"
               />
               <button
@@ -94,16 +79,4 @@
       {/each}
     </ol>
   </div>
-</div>
-
-<Pagination
-  count={thisYear - 1982 + 1}
-  getPageName={(i) => (thisYear - i).toString()}
-  getPageNumber={(page) => thisYear - parseInt(page)}
-  fieldName="year"
-  showFirst={true}
-  class="my-4"
-  keepScrollPosition={true}
-/>
-
-<PositionGrid positions={data.positions} />
+</CommitteePage>

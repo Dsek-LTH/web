@@ -59,13 +59,6 @@ module.exports = {
               "2) Move the imported code to a shared location, e.g. a parent folder.\n" +
               "3) Verify that you're using the correct path alias, e.g. $lib.",
           },
-        ],
-      },
-    ],
-    "no-restricted-imports": [
-      "error",
-      {
-        patterns: [
           {
             importNamePattern: "^(goto|redirect)",
             group: [
@@ -75,6 +68,12 @@ module.exports = {
             ],
             message:
               "Use the goto and redirect wrappers from $lib/utils/redirect instead",
+          },
+          {
+            importNamePattern: "^(superForm)",
+            group: ["sveltekit-superforms", "sveltekit-superforms/client"],
+            message:
+              "Use the superForm from $lib/utils/client/superForms instead",
           },
         ],
       },

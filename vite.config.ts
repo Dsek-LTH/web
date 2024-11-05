@@ -1,7 +1,7 @@
 import { paraglide } from "@inlang/paraglide-js-adapter-sveltekit/vite";
 import { sveltekit } from "@sveltejs/kit/vite";
 import { cjsInterop } from "vite-plugin-cjs-interop";
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   plugins: [
@@ -14,4 +14,10 @@ export default defineConfig({
       dependencies: ["@zenstackhq/server/**"],
     }),
   ],
+  define: {
+    SUPERFORMS_LEGACY: true, // due to breaking changes in superforms v2
+  },
+  test: {
+    include: ["src/**/*.test.{js,ts}"],
+  },
 });

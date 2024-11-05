@@ -1,3 +1,4 @@
+import type { Infer } from "sveltekit-superforms";
 import { z } from "zod";
 
 export const createSongSchema = z.object({
@@ -7,7 +8,7 @@ export const createSongSchema = z.object({
   category: z.string().default(""),
 });
 
-export type CreateSongSchema = typeof createSongSchema;
+export type CreateSongSchema = Infer<typeof createSongSchema>;
 
 export const updateSongSchema = z.object({
   id: z.string(),
@@ -17,4 +18,4 @@ export const updateSongSchema = z.object({
   category: z.string().optional().nullable(),
 });
 
-export type UpdateSongSchema = typeof updateSongSchema;
+export type UpdateSongSchema = Infer<typeof updateSongSchema>;

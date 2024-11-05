@@ -10,7 +10,7 @@ import {
   onPaymentSuccess,
 } from "$lib/server/shop/payments/stripeWebhooks";
 import { PrismaClient, type Member } from "@prisma/client";
-import { enhance } from "@zenstackhq/runtime";
+import { enhance, type AuthUser } from "@zenstackhq/runtime";
 import type Stripe from "stripe";
 import {
   afterAll,
@@ -36,6 +36,7 @@ import {
   type ShopIdentification,
 } from "../types";
 import apiNames from "$lib/utils/apiNames";
+import { NotificationType } from "$lib/utils/notifications/types";
 
 const mockFns = vi.hoisted(() => ({
   customers: {
@@ -83,6 +84,7 @@ const SUITE_PREFIX = "purchase";
 const addPurchaseTestForUser = (
   prismaWithAccess: PrismaClient,
   adminMember: Member,
+  user: AuthUser,
   identification: ShopIdentification,
 ) => {
   beforeEach(async (context) => {
@@ -90,10 +92,10 @@ const addPurchaseTestForUser = (
     await addTicketToCart(
       prismaWithAccess,
       context.tickets.activeTicket.id,
-      identification,
-    ).catch(() => expect.fail("Failed to add ticket to cart"));
+      user,
+    ).catch((e) => expect.fail(`Failed to add ticket to cart: ${e}`));
 
-    if (identification.memberId) {
+    if (user.memberId) {
       mockFns.customers.create.mockResolvedValue({
         id: "customer-id",
       });
@@ -118,10 +120,10 @@ const addPurchaseTestForUser = (
       expect.fail("Failed to remove tickets"),
     );
     vi.clearAllMocks();
-    if (identification.memberId) {
+    if (user.memberId) {
       await prisma.member.update({
         where: {
-          id: identification.memberId,
+          id: user.memberId,
         },
         data: {
           stripeCustomerId: null,
@@ -172,13 +174,13 @@ const addPurchaseTestForUser = (
     expect(res).toBeDefined();
     expect(res.clientSecret).toBe("abc");
     expect(mockFns.paymentIntents.create).toHaveBeenCalledOnce();
-    expect(mockFns.paymentIntents.create.mock.calls[0][0].amount).toBe(
+    expect(mockFns.paymentIntents.create.mock.calls[0]?.[0].amount).toBe(
       MOCK_ACTIVE_TICKET.shoppable.price,
     );
 
-    expect(mockFns.paymentIntents.create.mock.calls[0][1].idempotencyKey).toBe(
-      "idempotency-key",
-    );
+    expect(
+      mockFns.paymentIntents.create.mock.calls[0]?.[1].idempotencyKey,
+    ).toBe("idempotency-key");
     const consumable = await prisma.consumable.findFirst({
       where: {
         ...dbIdentification(identification),
@@ -214,15 +216,15 @@ const addPurchaseTestForUser = (
     expect(mockFns.paymentIntents.update).toHaveBeenCalledOnce();
     expect(mockFns.paymentIntents.retrieve).toHaveBeenCalledOnce();
     expect(mockFns.paymentIntents.cancel).not.toHaveBeenCalled();
-    expect(mockFns.paymentIntents.update.mock.calls[0][0]).toBe("intent-id");
-    expect(mockFns.paymentIntents.update.mock.calls[0][1].amount).toBe(
+    expect(mockFns.paymentIntents.update.mock.calls[0]?.[0]).toBe("intent-id");
+    expect(mockFns.paymentIntents.update.mock.calls[0]?.[1].amount).toBe(
       MOCK_ACTIVE_TICKET.shoppable.price,
     );
 
     await addTicketToCart(
       prismaWithAccess,
       tickets.activeTicket2.id,
-      identification,
+      user,
     ).catch(() => expect.fail("Failed to add ticket to cart"));
 
     vi.clearAllMocks();
@@ -240,7 +242,7 @@ const addPurchaseTestForUser = (
     expect(mockFns.paymentIntents.update).toHaveBeenCalledOnce();
     expect(mockFns.paymentIntents.retrieve).toHaveBeenCalledOnce();
     expect(mockFns.paymentIntents.cancel).not.toHaveBeenCalled();
-    expect(mockFns.paymentIntents.update.mock.calls[0][1].amount).toBe(
+    expect(mockFns.paymentIntents.update.mock.calls[0]?.[1].amount).toBe(
       MOCK_ACTIVE_TICKET.shoppable.price + MOCK_ACTIVE_TICKET_2.shoppable.price,
     );
 
@@ -261,20 +263,16 @@ const addPurchaseTestForUser = (
   });
 
   it("creates a payment intent with multiple items", async ({ tickets }) => {
-    await addTicketToCart(
-      prismaWithAccess,
-      tickets.activeTicket2.id,
-      identification,
-    );
+    await addTicketToCart(prismaWithAccess, tickets.activeTicket2.id, user);
     await purchaseCart(prismaWithAccess, identification, "idempotency-key");
     expect(mockFns.paymentIntents.create).toHaveBeenCalledOnce();
     const price =
       MOCK_ACTIVE_TICKET.shoppable.price + MOCK_ACTIVE_TICKET_2.shoppable.price;
-    expect(mockFns.paymentIntents.create.mock.calls[0][0].amount).toBe(price);
+    expect(mockFns.paymentIntents.create.mock.calls[0]?.[0].amount).toBe(price);
 
-    expect(mockFns.paymentIntents.create.mock.calls[0][1].idempotencyKey).toBe(
-      "idempotency-key",
-    );
+    expect(
+      mockFns.paymentIntents.create.mock.calls[0]?.[1].idempotencyKey,
+    ).toBe("idempotency-key");
     const consumables = await prisma.consumable.findMany({
       where: {
         ...dbIdentification(identification),
@@ -424,7 +422,14 @@ const addPurchaseTestForUser = (
       });
       await purchaseCart(prismaWithAccess, identification, "idempotency-key");
       vi.setSystemTime(vi.getMockedSystemTime()!.valueOf() + 2000); // 2 seconds later
-      await removeExpiredConsumables(prisma, new Date()); // should NOT remove the consumable
+      const queuedNotifications = await removeExpiredConsumables(
+        prisma,
+        new Date(),
+      ).then((res) => res.queuedNotifications); // should NOT remove the consumable
+      expect(
+        queuedNotifications.length,
+        JSON.stringify(queuedNotifications),
+      ).toBe(0);
       await expectConsumableCount(
         1,
         "payment in progress should not be expired",
@@ -446,7 +451,11 @@ const addPurchaseTestForUser = (
       );
 
       vi.setSystemTime(vi.getMockedSystemTime()!.valueOf() + TIME_TO_BUY);
-      await removeExpiredConsumables(prisma, new Date()); // should NOT remove the consumable
+      const queuedNotifications = await removeExpiredConsumables(
+        prisma,
+        new Date(),
+      ).then((res) => res.queuedNotifications); // should NOT remove the consumable
+      expect(queuedNotifications.length).toBe(0);
       await expectConsumableCount(
         1,
         "consumable should not be expired after payment",
@@ -466,7 +475,19 @@ const addPurchaseTestForUser = (
 
       vi.setSystemTime(vi.getMockedSystemTime()!.valueOf() + TIME_TO_BUY); // 2 seconds later
 
-      await removeExpiredConsumables(prisma, new Date()); // should NOT remove the consumable
+      const queuedNotfications = await removeExpiredConsumables(
+        prisma,
+        new Date(),
+      ).then((res) => res.queuedNotifications); // SHOULD remove the consumable
+      expect(queuedNotfications.length).toBe(1);
+      expect(queuedNotfications[0]?.type).toBe(
+        NotificationType.PURCHASE_CONSUMABLE_EXPIRED,
+      );
+      if (user.memberId) {
+        expect(queuedNotfications[0]!.memberIds!.length).toBe(1);
+      } else {
+        expect(queuedNotfications[0]!.memberIds!.length).toBe(0);
+      }
       await expectConsumableCount(
         0,
         "consumable should be expired after failed payment",
@@ -520,7 +541,7 @@ const addPurchaseTestForUser = (
   });
 
   describe("stripe customer creation", () => {
-    if (identification.memberId) {
+    if (user.memberId) {
       it("creates a stripe customer if no stripe is in db", async () => {
         await purchaseCart(prismaWithAccess, identification, "idempotency-key");
         expect(mockFns.customers.retrieve).not.toHaveBeenCalled();
@@ -530,7 +551,7 @@ const addPurchaseTestForUser = (
       it("creates a stripe customer if not found in stripe", async () => {
         await prisma.member.update({
           where: {
-            id: identification.memberId,
+            id: user.memberId,
           },
           data: {
             stripeCustomerId: "customer-id",
@@ -547,7 +568,7 @@ const addPurchaseTestForUser = (
       it("does not create a stripe customer if found in stripe", async () => {
         await prisma.member.update({
           where: {
-            id: identification.memberId,
+            id: user.memberId,
           },
           data: {
             stripeCustomerId: "customer-id",
@@ -577,9 +598,19 @@ describe("Purchase as logged in user", async () => {
       policies: [apiNames.EVENT.READ, apiNames.MEMBER.READ],
     },
   });
-  addPurchaseTestForUser(prismaWithAccess, users.adminMember, {
-    memberId: users.customerMember.id,
-  });
+  addPurchaseTestForUser(
+    prismaWithAccess,
+    users.adminMember,
+    {
+      memberId: users.customerMember.id,
+      studentId: users.customerMember.studentId!,
+      roles: [],
+      policies: ["*", "_"],
+    },
+    {
+      memberId: users.customerMember.id,
+    },
+  );
 
   afterAll(async () => {
     await removeMockUsers(
@@ -596,12 +627,24 @@ describe("Purchase as anonymous user", async () => {
       studentId: undefined,
       memberId: undefined,
       policies: [],
+      roles: [],
       externalCode: SUITE_PREFIX + "external-code",
     },
   });
-  addPurchaseTestForUser(prismaWithAccess, users.adminMember, {
-    externalCode: SUITE_PREFIX + "external-code",
-  });
+  addPurchaseTestForUser(
+    prismaWithAccess,
+    users.adminMember,
+    {
+      studentId: undefined,
+      memberId: undefined,
+      policies: [],
+      roles: [],
+      externalCode: SUITE_PREFIX + "external-code",
+    },
+    {
+      externalCode: SUITE_PREFIX + "external-code",
+    },
+  );
   afterAll(async () => {
     await removeMockUsers(
       prisma,

@@ -1,10 +1,10 @@
+import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
 import type { RequestHandler } from "./$types";
 
-export const GET: RequestHandler = async ({ locals }) => {
-  const { prisma } = locals;
+export const GET: RequestHandler = async () => {
   const currentDate = new Date().toISOString();
 
-  const alarmActiveEvent = await prisma.event.findFirst({
+  const alarmActiveEvent = await authorizedPrismaClient.event.findFirst({
     where: {
       alarmActive: true,
       startDatetime: {

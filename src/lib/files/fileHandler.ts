@@ -1,5 +1,6 @@
 import { fileExists, isDir } from "$lib/files/helpers";
-import minio, { CopyConditions, MINIO_BASE_URL } from "$lib/files/minio";
+import { MINIO_BASE_URL } from "$lib/files/client";
+import minio, { CopyConditions } from "$lib/files/minio";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 import { error } from "@sveltejs/kit";
@@ -22,10 +23,10 @@ const getFilesInFolder = (
 ) => {
   return new Promise<FileData[]>((resolve, reject) => {
     const stream = minio.listObjectsV2(bucket, prefix, recursive);
-    const chonkyFiles: FileData[] = [];
+    const files: FileData[] = [];
     stream.on("data", (obj) => {
       if (obj.name) {
-        chonkyFiles.push({
+        files.push({
           id: obj.name,
           name: path.basename(obj.name),
           modDate: obj.lastModified,
@@ -34,7 +35,7 @@ const getFilesInFolder = (
         });
       }
       if (obj.prefix) {
-        chonkyFiles.push({
+        files.push({
           id: obj.prefix,
           name: path.basename(obj.prefix),
           isDir: true,
@@ -43,7 +44,7 @@ const getFilesInFolder = (
     });
     stream.on("error", reject);
     stream.on("end", () => {
-      resolve(chonkyFiles);
+      resolve(files);
     });
   });
 };
@@ -58,11 +59,13 @@ const getFilesInBucket = async (
   }
   authorize(apiNames.FILES.BUCKET(bucket).READ, user);
   const basePath = "";
-  const files = await getFilesInFolder(
-    bucket,
-    prefix !== "/" ? basePath + prefix : basePath,
-    recursive,
-  );
+  const files = (
+    await getFilesInFolder(
+      bucket,
+      prefix !== "/" ? basePath + prefix : basePath,
+      recursive,
+    )
+  ).filter((file) => file.name !== "_folder-preserver");
   return files;
 };
 

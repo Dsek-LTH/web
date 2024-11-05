@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { SuperValidated } from "sveltekit-superforms";
-  import { superForm } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
   import type { SpecialSender } from "@prisma/client";
   import type { RemoveSpecialSenderForm } from "./schema";
   import * as m from "$paraglide/messages";

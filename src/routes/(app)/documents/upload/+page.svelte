@@ -1,34 +1,35 @@
 <script lang="ts">
   import Labeled from "$lib/components/Labeled.svelte";
-  import { superForm } from "sveltekit-superforms/client";
+  import { type SuperForm, fileProxy } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
   import DocumentTypeSelector from "./DocumentTypeSelector.svelte";
   import type { PageData } from "./$types";
+  import * as m from "$paraglide/messages";
+  import { typeToPath } from "./helpers";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
+  import { zodClient } from "sveltekit-superforms/adapters";
+  import { uploadSchema, type UploadSchema } from "./types";
+
   export let data: PageData;
   const { form, constraints, errors, enhance } = superForm(data.form, {
     onResult: (event) => {
       if (event.result.type === "success") {
         // On successful upload, set files to undefined and clear the filename
         // year and meeting is still kept as to easily upload more files for the same meeting
-        files = undefined;
-        form.update((f) => {
-          f.name = "";
-          return f;
-        });
+        fileInput.value = "";
       }
     },
-  });
-  let files: FileList | undefined = undefined;
-  const setNameInputToFileName = () => {
-    form.update((f) => {
-      f.name = files?.[0]?.name.replace(/_+/g, " ").replace(/\..+$/, "") ?? "";
-      return f;
-    });
-  };
+    resetForm: false,
+    validators: zodClient(uploadSchema),
+  }) as SuperForm<UploadSchema>;
+  const file = fileProxy(form, "file");
+  let fileInput: HTMLInputElement;
+
+  $: pathInfo = typeToPath[$form.type];
+  $: fileErrors = $errors.file as string | string[] | undefined;
 </script>
 
-<svelte:head>
-  <title>Ladda upp dokument | D-sektionen</title>
-</svelte:head>
+<SetPageTitle title={m.documents_uploadDocument()} />
 
 <form
   id="upload-file"
@@ -38,13 +39,17 @@
   use:enhance
 >
   <div>
-    <p class="mb-5 text-lg font-medium">1. Välj dokumenttyp</p>
+    <p class="mb-5 text-lg font-medium">
+      1. {m.documents_chooseDocumentType()}
+    </p>
     <DocumentTypeSelector bind:type={$form.type} />
   </div>
 
   <Labeled error={$errors.folder}>
     <label class="mb-5 text-lg font-medium" for="folder">
-      2. Skriv {$form.type === "requirement" ? "postnamn" : "mötesnamn"}
+      2. {$form.type === "requirement"
+        ? m.documents_writePositionName()
+        : m.documents_writeMeetingName()}
     </label>
     <input
       id="folder"
@@ -59,25 +64,33 @@
     />
   </Labeled>
 
-  <Labeled error={$errors.file}>
+  <Labeled error={fileErrors}>
     <label class="mb-5 text-lg font-medium" for="file">
-      3. Ladda upp fil
+      3. {m.documents_uploadFile()}
     </label>
     <input
+      bind:this={fileInput}
       id="file"
       type="file"
       name="file"
       class="file-input file-input-bordered"
-      required
-      bind:files
-      on:change={setNameInputToFileName}
+      bind:files={$file}
+      on:input={(e) => {
+        if (e.currentTarget.files) {
+          $form.name =
+            e.currentTarget.files
+              ?.item(0)
+              ?.name.replace(/_+/g, " ")
+              .replace(/\..+$/, "") ?? "";
+        }
+      }}
       {...$constraints.file}
     />
   </Labeled>
 
   <Labeled error={$errors.name}>
     <label class="mb-5 text-lg font-medium" for="name">
-      4. Skriv namn på dokumentet
+      4. {m.documents_enterDocumentName()}
     </label>
     <input
       id="name"
@@ -91,7 +104,9 @@
   </Labeled>
 
   <Labeled error={$errors.year}>
-    <label class="mb-5 text-lg font-medium" for="year">5. Välj mötesår</label>
+    <label class="mb-5 text-lg font-medium" for="year"
+      >5. {m.documents_pickMeetingYear()}</label
+    >
     <input
       id="year"
       name="year"
@@ -104,10 +119,13 @@
 
   {#if $form.type && $form.folder && $form.name}
     <pre
-      class="input input-bordered input-disabled">{$form.type}/{$form.year}/{$form.folder}/{$form.name}</pre>
+      class="input input-bordered input-disabled">{pathInfo.bucket}/{pathInfo.path(
+        $form.year,
+        $form.folder,
+      )}/{$form.name}</pre>
   {/if}
 
   <button type="submit" form="upload-file" class="btn btn-primary">
-    Ladda upp
+    {m.documents_upload()}
   </button>
 </form>

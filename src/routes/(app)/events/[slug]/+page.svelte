@@ -1,31 +1,24 @@
 <script lang="ts">
   import TagChip from "$lib/components/TagChip.svelte";
   import CommentSection from "$lib/components/socials/CommentSection.svelte";
+  import * as m from "$paraglide/messages";
   import Event from "../Event.svelte";
   import InterestedGoingButtons from "../InterestedGoingButtons.svelte";
   import InterestedGoingList from "../InterestedGoingList.svelte";
 
-  import type { SuperValidated } from "sveltekit-superforms";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
+  import { superForm } from "$lib/utils/client/superForms";
   import type { PageData } from "./$types";
-  import { superForm } from "sveltekit-superforms/client";
-  import type { RemoveEventSchema } from "../removeEventAction";
-
-  export let articleId: string;
-  export let removeForm: SuperValidated<RemoveEventSchema>;
-  const { enhance, form } = superForm(removeForm, {
-    id: articleId,
-  });
 
   export let data: PageData;
+  const { enhance, form } = superForm(data.removeEventForm);
   $: event = data.event;
-  let isModalOpen = false;
+  let modal: HTMLDialogElement;
   let submitString: "submit" | "button";
   $: submitString = event.recurringParentId != undefined ? "button" : "submit";
 </script>
 
-<svelte:head>
-  <title>{event.title} | D-sektionen</title>
-</svelte:head>
+<SetPageTitle title={event.title} />
 
 <Event {event}>
   <div slot="actions" class="flex flex-row">
@@ -33,59 +26,71 @@
       <a
         href="/events/{event.slug}/edit"
         class="btn btn-square btn-ghost btn-md"
-        title="Redigera"
+        title={m.events_edit()}
       >
         <span class="i-mdi-edit text-xl" />
       </a>
     {/if}
     {#if data.canDelete}
       <form method="POST" action="?/removeEvent" use:enhance>
-        <input type="hidden" name="eventId" value={event.id} />
         <button
           type={submitString}
           class="btn btn-square btn-ghost btn-md"
           title="Radera"
-          on:click={() =>
-            (isModalOpen = event.recurringParentId !== null && true)}
+          on:click={() => {
+            if (event.recurringParentId !== null) {
+              modal.showModal();
+            }
+          }}
         >
           <span class="i-mdi-delete text-xl" />
         </button>
-        <button
-          class="modal hover:cursor-default"
-          type="button"
-          class:modal-open={isModalOpen}
-          on:click|self={() => (isModalOpen = false)}
-        >
+        <dialog class="modal" bind:this={modal}>
           <div class="modal-box">
-            <h3 class="text-lg font-bold">This is a recurring event</h3>
+            <h3 class="text-lg font-bold">{m.events_thisIsRecurring()}</h3>
             <div class="py-4">
               <div class="form-control">
                 <label class="label cursor-pointer">
                   <span class="label-text">
-                    Delete
-                    <span class="font-extrabold">this</span>
-                    event
+                    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                    {@html m.events_deleteThisEvent()}
                   </span>
                   <input
                     type="radio"
-                    name="removeAll"
+                    name="removeType"
                     class="radio"
-                    bind:group={$form.removeAll}
-                    value={false}
+                    bind:group={$form.removeType}
+                    value={"THIS"}
                   />
                 </label>
               </div>
               <div class="form-control">
                 <label class="label cursor-pointer">
-                  <span class="label-text"
-                    >Delete <span class="font-extrabold">all</span> events</span
-                  >
+                  <span class="label-text">
+                    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                    {@html m.events_deleteThisAndFutureEvents()}
+                  </span>
                   <input
                     type="radio"
-                    name="removeAll"
+                    name="removeType"
                     class="radio"
-                    bind:group={$form.removeAll}
-                    value={true}
+                    bind:group={$form.removeType}
+                    value={"FUTURE"}
+                  />
+                </label>
+              </div>
+              <div class="form-control">
+                <label class="label cursor-pointer">
+                  <span class="label-text">
+                    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                    {@html m.events_deleteAllEvents()}
+                  </span>
+                  <input
+                    type="radio"
+                    name="removeType"
+                    class="radio"
+                    bind:group={$form.removeType}
+                    value={"ALL"}
                   />
                 </label>
               </div>
@@ -94,13 +99,18 @@
               <button
                 class="btn btn-error"
                 type="submit"
-                on:click={() => (isModalOpen = false)}
+                on:click={() => {
+                  modal.close();
+                }}
               >
-                Delete
+                {m.events_delete()}
               </button>
             </div>
           </div>
-        </button>
+          <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+          </form>
+        </dialog>
       </form>
     {/if}
   </div>

@@ -7,7 +7,7 @@ export const fileExists = async (
   try {
     await minio.statObject(bucket, fileName);
     return true;
-  } catch (error) {
+  } catch {
     return false;
   }
 };

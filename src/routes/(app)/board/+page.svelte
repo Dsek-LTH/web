@@ -1,5 +1,5 @@
 <script lang="ts">
-  import PageHeader from "$lib/components/PageHeader.svelte";
+  import PageHeader from "$lib/components/nav/PageHeader.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import { getFullName } from "$lib/utils/client/member";
   import type { PageData } from "./$types";
@@ -42,7 +42,7 @@
               {boardMember.position.name}
             </a>
             <a
-              class="flex items-center justify-center gap-1 text-sm text-base-content/50 hover:underline"
+              class="flex items-center justify-center gap-1 text-sm text-base-content/90 hover:underline"
               href="mailto:{boardMember.position.email}"
             >
               <span class="i-mdi-email" />
@@ -67,7 +67,7 @@
                 {boardMember.position.name}
               </a>
               <a
-                class="flex items-center justify-center gap-1 text-sm text-base-content/50 hover:underline"
+                class="flex items-center justify-center gap-1 text-sm text-base-content/70 hover:underline"
                 href="mailto:{boardMember.position.email}"
               >
                 <span class="i-mdi-email" />

@@ -2,6 +2,7 @@ import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 import type { PageServerLoad } from "./$types";
 import { message, setError, superValidate } from "sveltekit-superforms/server";
+import { zod } from "sveltekit-superforms/adapters";
 import { error, fail } from "@sveltejs/kit";
 import { redirect } from "$lib/utils/redirect";
 import {
@@ -19,7 +20,6 @@ import {
 import { isValidEmail } from "../emailutils";
 import keycloak from "$lib/server/keycloak";
 import type { PrismaClient } from "@prisma/client";
-import { mailAliasUpdateHandler } from "$lib/server/mail/alias/mailAliasUpdateHandler";
 import * as m from "$paraglide/messages";
 
 export const load: PageServerLoad = async (event) => {
@@ -99,16 +99,16 @@ export const load: PageServerLoad = async (event) => {
     removeSpecialSenderForm,
     deleteSpecialSenderForm,
   ] = await Promise.all([
-    superValidate(addPositionSchema),
-    superValidate(removePositionSchema),
-    superValidate(setCanSendSchema),
-    superValidate(deleteEmailAliasSchema),
-    superValidate(addSpecialReceiverSchema),
-    superValidate(removeSpecialReceiverSchema),
-    superValidate(deleteSpecialReceiverSchema),
-    superValidate(addSpecialSenderSchema),
-    superValidate(removeSpecialSenderSchema),
-    superValidate(deleteSpecialSenderSchema),
+    superValidate(zod(addPositionSchema)),
+    superValidate(zod(removePositionSchema)),
+    superValidate(zod(setCanSendSchema)),
+    superValidate(zod(deleteEmailAliasSchema)),
+    superValidate(zod(addSpecialReceiverSchema)),
+    superValidate(zod(removeSpecialReceiverSchema)),
+    superValidate(zod(deleteSpecialReceiverSchema)),
+    superValidate(zod(addSpecialSenderSchema)),
+    superValidate(zod(removeSpecialSenderSchema)),
+    superValidate(zod(deleteSpecialSenderSchema)),
   ]);
 
   const emailAliases = emailAliasResult.value;
@@ -144,7 +144,10 @@ export const actions = {
   deleteEmailAlias: async (event) => {
     const { user, prisma } = event.locals;
     authorize(apiNames.EMAIL_ALIAS.DELETE, user);
-    const form = await superValidate(event.request, deleteEmailAliasSchema);
+    const form = await superValidate(
+      event.request,
+      zod(deleteEmailAliasSchema),
+    );
     if (!form.valid) return fail(400, { form });
     const { email } = form.data;
     await prisma.emailAlias.deleteMany({
@@ -152,7 +155,6 @@ export const actions = {
         email,
       },
     });
-    mailAliasUpdateHandler.handleUpdate();
     if (await emailStillInUse(prisma, email)) {
       return message(form, {
         message: m.admin_emailalias_aliasRemoved(),
@@ -172,7 +174,7 @@ export const actions = {
   addPosition: async (event) => {
     const { user, prisma } = event.locals;
     authorize([apiNames.EMAIL_ALIAS.CREATE, apiNames.EMAIL_ALIAS.UPDATE], user);
-    const form = await superValidate(event.request, addPositionSchema);
+    const form = await superValidate(event.request, zod(addPositionSchema));
     if (!form.valid) return fail(400, { form });
     const { positionId, email } = form.data;
     if (!isValidEmail(email)) {
@@ -201,7 +203,6 @@ export const actions = {
         },
       },
     });
-    mailAliasUpdateHandler.handleUpdate();
     return message(form, {
       message: m.admin_emailalias_positionAdded(),
       type: "success",
@@ -210,7 +211,7 @@ export const actions = {
   removePosition: async (event) => {
     const { user, prisma } = event.locals;
     authorize(apiNames.EMAIL_ALIAS.UPDATE, user);
-    const form = await superValidate(event.request, removePositionSchema);
+    const form = await superValidate(event.request, zod(removePositionSchema));
     if (!form.valid) return fail(400, { form });
     const { aliasId } = form.data;
     await prisma.emailAlias.delete({
@@ -218,7 +219,6 @@ export const actions = {
         id: aliasId,
       },
     });
-    mailAliasUpdateHandler.handleUpdate();
     return message(form, {
       message: m.admin_emailalias_positionRemoved(),
       type: "success",
@@ -227,7 +227,7 @@ export const actions = {
   setCanSend: async (event) => {
     const { user, prisma } = event.locals;
     authorize(apiNames.EMAIL_ALIAS.UPDATE, user);
-    const form = await superValidate(event.request, setCanSendSchema);
+    const form = await superValidate(event.request, zod(setCanSendSchema));
     if (!form.valid) return fail(400, { form });
     const { aliasId, canSend } = form.data;
     await prisma.emailAlias.update({
@@ -246,7 +246,10 @@ export const actions = {
   deleteSpecialReceiver: async (event) => {
     const { user, prisma } = event.locals;
     authorize(apiNames.EMAIL_ALIAS.DELETE, user);
-    const form = await superValidate(event.request, deleteEmailAliasSchema);
+    const form = await superValidate(
+      event.request,
+      zod(deleteEmailAliasSchema),
+    );
     if (!form.valid) return fail(400, { form });
     const { email } = form.data;
     await prisma.specialReceiver.deleteMany({
@@ -254,7 +257,6 @@ export const actions = {
         email,
       },
     });
-    mailAliasUpdateHandler.handleUpdate();
     if (await emailStillInUse(prisma, email)) {
       return message(form, {
         message: m.admin_emailalias_specialReceiversRemoved(),
@@ -274,7 +276,10 @@ export const actions = {
   addSpecialReceiver: async (event) => {
     const { user, prisma } = event.locals;
     authorize(apiNames.EMAIL_ALIAS.CREATE, user);
-    const form = await superValidate(event.request, addSpecialReceiverSchema);
+    const form = await superValidate(
+      event.request,
+      zod(addSpecialReceiverSchema),
+    );
     if (!form.valid) return fail(400, { form });
     const { email, targetEmailReceiver } = form.data;
     if (!isValidEmail(targetEmailReceiver)) {
@@ -290,7 +295,6 @@ export const actions = {
         targetEmail: targetEmailReceiver,
       },
     });
-    mailAliasUpdateHandler.handleUpdate();
     return message(form, {
       message: m.admin_emailalias_specialReceiverAdded(),
       type: "success",
@@ -301,7 +305,7 @@ export const actions = {
     authorize(apiNames.EMAIL_ALIAS.DELETE, user);
     const form = await superValidate(
       event.request,
-      removeSpecialReceiverSchema,
+      zod(removeSpecialReceiverSchema),
     );
     if (!form.valid) return fail(400, { form });
     const { id } = form.data;
@@ -310,7 +314,6 @@ export const actions = {
         id,
       },
     });
-    mailAliasUpdateHandler.handleUpdate();
     return message(form, {
       message: m.admin_emailalias_specialReceiversRemoved(),
       type: "success",
@@ -319,7 +322,10 @@ export const actions = {
   deleteSpecialSender: async (event) => {
     const { user, prisma } = event.locals;
     authorize(apiNames.EMAIL_ALIAS.DELETE, user);
-    const form = await superValidate(event.request, deleteEmailAliasSchema);
+    const form = await superValidate(
+      event.request,
+      zod(deleteEmailAliasSchema),
+    );
     if (!form.valid) return fail(400, { form });
     const { email } = form.data;
     await prisma.specialSender.deleteMany({
@@ -327,7 +333,6 @@ export const actions = {
         email,
       },
     });
-    mailAliasUpdateHandler.handleUpdate();
     if (await emailStillInUse(prisma, email)) {
       return message(form, {
         message: m.admin_emailalias_specialSendersRemoved(),
@@ -347,7 +352,10 @@ export const actions = {
   addSpecialSender: async (event) => {
     const { user, prisma } = event.locals;
     authorize(apiNames.EMAIL_ALIAS.CREATE, user);
-    const form = await superValidate(event.request, addSpecialSenderSchema);
+    const form = await superValidate(
+      event.request,
+      zod(addSpecialSenderSchema),
+    );
     if (!form.valid) return fail(400, { form });
     const { email, usernameSender } = form.data;
     if (!isValidEmail(email)) {
@@ -375,7 +383,6 @@ export const actions = {
         keycloakId: keycloakId,
       },
     });
-    mailAliasUpdateHandler.handleUpdate();
     return message(form, {
       message: m.admin_emailalias_specialSenderAdded(),
       type: "success",
@@ -384,7 +391,10 @@ export const actions = {
   removeSpecialSender: async (event) => {
     const { user, prisma } = event.locals;
     authorize(apiNames.EMAIL_ALIAS.DELETE, user);
-    const form = await superValidate(event.request, removeSpecialSenderSchema);
+    const form = await superValidate(
+      event.request,
+      zod(removeSpecialSenderSchema),
+    );
     if (!form.valid) return fail(400, { form });
     const { id } = form.data;
     await prisma.specialSender.delete({
@@ -392,7 +402,6 @@ export const actions = {
         id,
       },
     });
-    mailAliasUpdateHandler.handleUpdate();
     return message(form, {
       message: m.admin_emailalias_specialSenderAdded(),
       type: "success",

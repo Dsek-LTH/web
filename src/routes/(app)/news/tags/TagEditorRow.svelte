@@ -2,9 +2,10 @@
   import TagChip from "$lib/components/TagChip.svelte";
   import type { Tag } from "@prisma/client";
   import type { UpdateSchema } from "./proxy+page.server";
-  import { superForm } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
   import type { SuperValidated } from "sveltekit-superforms";
   import { onMount } from "svelte";
+  import * as m from "$paraglide/messages";
 
   export let data: SuperValidated<UpdateSchema>;
   export let tag: Tag;
@@ -19,6 +20,7 @@
   onMount(() => {
     form.update((f) => {
       f.name = tag.name;
+      f.nameEn = tag.nameEn;
       f.color = tag.color ?? undefined;
       return f;
     });
@@ -38,13 +40,14 @@
   >
   {#if !isEditing}
     <td>{tag.name}</td>
+    <td>{tag.nameEn ?? ""}</td>
     <td style="color: {tag.color}">{tag.color}</td>
     <td class="text-right">
       <button
         class="btn btn-xs px-8"
         type="button"
         on:click={() => (isEditing = !isEditing)}
-        >Edit
+        >{m.news_tags_edit()}
       </button>
     </td>
   {:else}
@@ -61,15 +64,24 @@
           type="text"
           name="name"
           bind:value={$form.name}
-          class="input input-bordered input-xs"
+          class="input input-xs input-bordered"
           {...$constraints.name}
         />
         {#if $errors.name}<span class="text-error">{$errors.name}</span>{/if}
         <input
           type="text"
+          name="nameEn"
+          bind:value={$form.nameEn}
+          class="input input-xs input-bordered"
+          {...$constraints.nameEn}
+        />
+        {#if $errors.nameEn}<span class="text-error">{$errors.nameEn}</span
+          >{/if}
+        <input
+          type="text"
           name="color"
           bind:value={$form.color}
-          class="input input-bordered input-xs"
+          class="input input-xs input-bordered"
           style="color: {$form.color || 'white'}"
           {...$constraints.color}
         />
@@ -78,7 +90,7 @@
           {#if $submitting}
             <span class="loading loading-xs mx-1"></span>
           {:else}
-            Save
+            {m.news_tags_save()}
           {/if}
         </button>
       </form>
