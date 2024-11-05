@@ -5,6 +5,7 @@
   import { invalidateAll } from "$app/navigation";
   import { twMerge } from "tailwind-merge";
 
+  let originalLang = languageTag();
   let clazz = "";
   export { clazz as class };
 </script>
@@ -13,7 +14,11 @@
   class={twMerge("btn btn-ghost", clazz)}
   href={i18n.route($page.url.pathname)}
   hreflang={languageTag() === "sv" ? "en" : "sv"}
-  on:click={() => invalidateAll()}
+  on:click={() => {
+    if (originalLang != languageTag()) {
+      invalidateAll();
+    }
+  }}
 >
   <slot>
     {languageTag() === "sv" ? "EN" : "SV"}
