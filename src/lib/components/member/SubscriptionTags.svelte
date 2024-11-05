@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { languageTag } from "$paraglide/runtime";
   import { type Tag } from "@prisma/client";
 
   export let subscribedTags: Tag[];

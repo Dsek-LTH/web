@@ -1,5 +1,4 @@
 import { getAllTags } from "$lib/news/tags";
-import { Prisma } from "@prisma/client";
 import {
   error,
   fail,
