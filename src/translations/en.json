@@ -758,5 +758,10 @@
   "nollning_events_ticketCTA": "Ticket/Register",
   "home_volunteer": "Volunteer",
   "committees_cafe_openinghours": "Opening hours",
-  "committees_cafe_thecafe": "The Cafe"
+  "committees_cafe_thecafe": "The Cafe",
+  "error_create_issue": "Create an issue",
+  "error_should_not_happen": "If you think this shouldn't happen please",
+  "error_or": "or",
+  "error_contact": "Contact DWWW",
+  "back": "Back"
 }
