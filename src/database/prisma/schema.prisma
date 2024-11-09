@@ -325,7 +325,7 @@ model DoorAccessPolicy {
     startDatetime DateTime? @map("start_datetime") @db.Timestamptz(6)
     endDatetime DateTime? @map("end_datetime") @db.Timestamptz(6)
     information String? @map("information") @db.VarChar(255)
-    isBan Boolean @map("is_banned") @default(false)
+    isBan Boolean @map("is_ban") @default(false)
     door Door @relation(fields: [doorName], references: [name], onDelete: NoAction, onUpdate: NoAction, map: "door_access_policies_door_name_foreign")
 
     @@map("door_access_policies")

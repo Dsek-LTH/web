@@ -208,6 +208,7 @@
   "admin_doors_startDateOptional": "Startdatum (frivilligt)",
   "admin_doors_endDateOptional": "Slutdatum (frivilligt)",
   "admin_doors_revokeAreYouSure": "Är du säker på att du vill återkalla åtkomst till <b class=\"capitalize\">{door}</b> för <b>{target}</b>?",
+  "admin_doors_revokeBanAreYouSure": "Är du säker på att du vill ta bort spärren till <b class=\"capitalize\">{door}</b> för <b>{target}</b>?",
   "admin_doors_profileAvatar": "Profilavatar",
   "admin_emailalias_add": "Lägg till",
   "admin_emailalias_addAlias": "Lägg till mejlalias",

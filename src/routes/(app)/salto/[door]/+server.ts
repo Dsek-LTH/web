@@ -97,8 +97,7 @@ export const GET: RequestHandler = async ({ params }) => {
     });
 
     const { studentIds, positionIds } = parseDoorPolicies(policies);
-    const { studentIdsBanned, positionIdsBanned } =
-      parseDoorBanPolicies(policies);
+    const { studentIdsBanned } = parseDoorBanPolicies(policies);
 
     const positions = await fetchMatchingPositions(
       positionIds,
@@ -110,27 +109,14 @@ export const GET: RequestHandler = async ({ params }) => {
       authorizedPrismaClient,
     );
 
-    const positionsBanned = await fetchMatchingPositions(
-      positionIdsBanned,
-      authorizedPrismaClient,
+    // Fpr no we are only interested in the studentIds that are banned,
+    // but we might want to use the positionIdsBanned in the future.
+    const bannedStudents = new Set(studentIdsBanned);
+
+    /** students with current access to the door who are not banned */
+    const allowedStudents = [...studentIds, ...studentsFromPositions].filter(
+      (studentId) => !bannedStudents.has(studentId),
     );
-
-    const StudentsFromPositionsBanned = await fetchStudentsWithPositions(
-      positionsBanned.map((p) => p.id),
-      authorizedPrismaClient,
-    );
-
-    const bannedStudents = new Set([
-      ...studentIdsBanned,
-      ...StudentsFromPositionsBanned,
-    ]);
-
-    /**
-     * students with current access to the door who are not banned
-     */
-    const allowedStudents = Array.from([
-      ...new Set([...studentIds, ...studentsFromPositions]),
-    ]).filter((studentId) => !bannedStudents.has(studentId));
 
     return new Response(
       Array.from([

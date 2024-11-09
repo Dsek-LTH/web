@@ -14,6 +14,12 @@
   let selectedPolicy: (typeof data)["doorAccessPolicies"][number] | undefined =
     undefined;
   const { form, errors, constraints, enhance } = superForm(data.createForm);
+  const {
+    form: banForm,
+    errors: banErrors,
+    constraints: banConstraints,
+    enhance: banEnhance,
+  } = superForm(data.createForm);
 </script>
 
 <SetPageTitle title={$page.params["slug"]} />
@@ -35,7 +41,7 @@
       <tbody>
         {#each data.doorAccessPolicies as policy}<tr
             class:bg-red-400={policy.isBan}
-            class:text-black={policy.isBan}
+            class:bg-opacity-60={policy.isBan}
           >
             {#if policy.role}
               <td class="flex items-center gap-3"
@@ -69,9 +75,8 @@
                     selectedPolicy = policy;
                   }}
                   class="btn-error h-6 rounded-full fill-base-content"
-                  ><span class="i-mdi-information h-6 w-6 bg-base-content"
-                  ></span></button
-                >
+                  ><span class="i-mdi-information h-6 w-6 bg-base-content" />
+                </button>
                 <dialog id="my_modal_1" class="modal">
                   <div class="modal-box">
                     <h3 class="text-lg font-bold">Information!</h3>
@@ -95,8 +100,8 @@
                   selectedPolicy = policy;
                 }}
                 class="btn btn-xs whitespace-nowrap px-8"
-                >{m.admin_doors_remove()}</button
-              >
+                >{m.admin_doors_remove()}
+              </button>
             </td>
           </tr>
         {/each}
@@ -148,20 +153,6 @@
           />
         </Labeled>
       </div>
-      <div
-        class="flex w-full items-center justify-center py-2 transition-colors lg:max-w-[200px]"
-        class:bg-red-400={$form.isBan}
-      >
-        <p class="p-1" id="banText" class:text-black={$form.isBan}>Ban</p>
-        <input
-          id="isBan"
-          name="isBan"
-          type="checkbox"
-          class="toggle"
-          bind:checked={$form.isBan}
-        />
-        <span class="slider round"></span>
-      </div>
       <div class="form-control w-full">
         <input
           id="information"
@@ -190,15 +181,89 @@
   </form>
 </section>
 
+<section class="container mx-auto mt-4 px-4">
+  <h2 class="mb-4 text-xl">Spärra åtkomst</h2>
+  <form class="form-control gap-4" method="POST" action="?/ban" use:banEnhance>
+    <label class="join join-vertical lg:join-horizontal lg:items-end">
+      <input
+        type="text"
+        name="studentId"
+        placeholder="ab1234bc-s"
+        class="input join-item input-bordered w-full lg:max-w-xs"
+        bind:value={$banForm.studentId}
+        {...$banConstraints.studentId}
+      />
+      <div class="form-control join-item w-full lg:max-w-[200px]">
+        <Labeled label={m.admin_doors_startDateOptional()}>
+          <input
+            id="startDatetime"
+            name="startDatetime"
+            type="datetime-local"
+            class="input join-item input-bordered"
+            bind:value={$banForm.startDatetime}
+            {...$banConstraints.startDatetime}
+          />
+        </Labeled>
+      </div>
+      <div class="form-control join-item w-full lg:max-w-[200px]">
+        <Labeled label={m.admin_doors_endDateOptional()}>
+          <input
+            id="endDatetime"
+            name="endDatetime"
+            type="datetime-local"
+            class="input join-item input-bordered"
+            bind:value={$banForm.endDatetime}
+            {...$banConstraints.endDatetime}
+          />
+        </Labeled>
+      </div>
+
+      <div class="form-control w-full">
+        <input
+          id="information"
+          name="information"
+          type="text"
+          class="input join-item input-bordered"
+          placeholder={m.admin_doors_info()}
+          bind:value={$banForm.information}
+          {...$banConstraints.information}
+        />
+      </div>
+      <label class="switch join-item w-full">
+        <div class="flex-auto">
+          <button type="submit" class="btn btn-error join-item w-full">
+            Spärra
+          </button>
+        </div>
+      </label>
+    </label>
+    {#if Object.keys($banErrors).length > 0}
+      <div class="text-error">
+        <ul class="list-inside list-disc">
+          {#each Object.values($banErrors) as error}<li>{error}</li>{/each}
+        </ul>
+      </div>
+    {/if}
+  </form>
+</section>
+
 <dialog bind:this={removeModal} class="modal modal-bottom sm:modal-middle">
   <div class="modal-box">
     <h3 class="text-lg font-bold">{m.admin_doors_revokeDoorAccess()}</h3>
     <p class=" py-4">
-      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-      {@html m.admin_doors_revokeAreYouSure({
-        door: `${$page.params["slug"]}`,
-        target: `${selectedPolicy?.role || selectedPolicy?.member?.studentId}`,
-      })}
+      {#if selectedPolicy?.isBan}
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+        {@html m.admin_doors_revokeBanAreYouSure({
+          door: `${$page.params["slug"]}`,
+          target: `${selectedPolicy?.role || selectedPolicy?.member?.studentId}`,
+        })}
+      {:else}
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+        {@html m.admin_doors_revokeAreYouSure({
+          door: `${$page.params["slug"]}`,
+          target: `${selectedPolicy?.role || selectedPolicy?.member?.studentId}`,
+        })}
+      {/if}
     </p>
     <div class="modal-action">
       <form method="POST" action="?/delete" use:enhance>
@@ -221,24 +286,20 @@
 <dialog bind:this={informationModal} class="modal modal-bottom sm:modal-middle">
   <div class="modal-box">
     <div class="flex items-center">
-      <span class="i-mdi-information h-6 w-6"></span>
+      <span class="i-mdi-information size-6" />
       <h3 class="px-1 text-lg font-bold">
         <b class="capitalize">{$page.params["slug"]} -</b>
         {#if selectedPolicy?.role}<b>{selectedPolicy.role}</b>{:else}<b>
             {selectedPolicy?.member?.firstName}
             {selectedPolicy?.member?.lastName}
-            <i>({selectedPolicy?.studentId})</i></b
-          >{/if}
+            <i>({selectedPolicy?.studentId})</i>
+          </b>{/if}
       </h3>
     </div>
     <p class="py-4">
-      <b class="normal-case">{selectedPolicy?.information}</b>
+      {selectedPolicy?.information}
     </p>
-    <button
-      type="submit"
-      class="btn btn-error"
-      on:click={() => informationModal?.close()}
-    >
+    <button class="btn" on:click={() => informationModal?.close()}>
       Stäng
     </button>
   </div>

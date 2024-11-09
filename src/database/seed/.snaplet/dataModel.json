@@ -3584,9 +3584,9 @@
           "maxLength": null
         },
         {
-          "id": "public.door_access_policies.is_banned",
-          "name": "is_banned",
-          "columnName": "is_banned",
+          "id": "public.door_access_policies.is_ban",
+          "name": "is_ban",
+          "columnName": "is_ban",
           "type": "bool",
           "isRequired": true,
           "kind": "scalar",
