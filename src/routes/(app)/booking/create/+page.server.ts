@@ -5,6 +5,13 @@ import { redirect } from "$lib/utils/redirect";
 import * as m from "$paraglide/messages";
 import { bookingSchema } from "../schema";
 import dayjs from "dayjs";
+import {
+  type Bookable,
+  type BookingRequest,
+  type PrismaClient,
+} from "@prisma/client";
+import sendNotification from "$lib/utils/notifications";
+import { NotificationType } from "$lib/utils/notifications/types";
 
 export const load = async ({ locals }) => {
   const { prisma } = locals;
@@ -26,6 +33,41 @@ export const load = async ({ locals }) => {
   return { bookables, bookingRequests, form };
 };
 
+const sendNotificationToKM = async (
+  bookingRequest: BookingRequest & { bookables: Bookable[] },
+  prisma: PrismaClient,
+) => {
+  const kallarMastare = await prisma.member.findFirstOrThrow({
+    where: {
+      mandates: {
+        some: {
+          positionId: "dsek.km.mastare",
+          startDate: { lte: new Date() },
+          endDate: { gte: new Date() },
+        },
+      },
+    },
+  });
+
+  const booker = (await prisma.member.findUnique({
+    where: {
+      id: bookingRequest.bookerId ?? undefined,
+    },
+  })) ?? { firstName: "Unknown", lastName: "" };
+
+  const bookablesString = bookingRequest.bookables
+    .map((bookable) => bookable.nameEn)
+    .join(", ");
+
+  await sendNotification({
+    title: `New booking request: ${bookingRequest.event}`,
+    message: `${booker.firstName} ${booker.lastName} wants to book '${bookablesString}' from ${dayjs(bookingRequest.start).format("DD/MM HH:mm")} until ${dayjs(bookingRequest.end).format("DD/MM HH:mm")}.`,
+    type: NotificationType.BOOKING_REQUEST,
+    link: `/booking/admin/${bookingRequest.id}`,
+    memberIds: [kallarMastare.id],
+  });
+};
+
 export const actions = {
   default: async (event) => {
     const { request, locals } = event;
@@ -35,7 +77,7 @@ export const actions = {
     if (!form.valid) return fail(400, { form });
     const { start, end, name, bookables } = form.data;
 
-    await prisma.bookingRequest.create({
+    const createdRequest = await prisma.bookingRequest.create({
       data: {
         bookerId: user?.memberId,
         start: new Date(start),
@@ -48,6 +90,11 @@ export const actions = {
         },
         status: "PENDING",
       },
+      include: { bookables: true },
+    });
+
+    await sendNotificationToKM(createdRequest, prisma).catch((e) => {
+      console.log("Failed sending notifications to KM: ", e);
     });
 
     throw redirect(
