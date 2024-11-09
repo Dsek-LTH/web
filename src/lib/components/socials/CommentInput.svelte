@@ -5,7 +5,7 @@
   import type { CommentSchema } from "$lib/zod/comments";
   import type { ArticleComment, EventComment, Member } from "@prisma/client";
   import type { SuperValidated } from "sveltekit-superforms";
-  import { superForm } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
 
   export let author: Member;
   export let commentForm: SuperValidated<CommentSchema>;

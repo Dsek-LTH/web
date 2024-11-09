@@ -1,16 +1,23 @@
 import { fail, type RequestEvent } from "@sveltejs/kit";
-import { message, superValidate } from "sveltekit-superforms/server";
+import {
+  message,
+  superValidate,
+  type Infer,
+} from "sveltekit-superforms/server";
+import { zod } from "sveltekit-superforms/adapters";
+
 import { z } from "zod";
+import DOMPurify from "isomorphic-dompurify";
 
 export const commentSchema = z.object({
   content: z.string().min(1),
 });
-export type CommentSchema = typeof commentSchema;
+export type CommentSchema = Infer<typeof commentSchema>;
 
 export const removeCommentSchema = z.object({
   commentId: z.string(),
 });
-export type RemoveCommentSchema = typeof removeCommentSchema;
+export type RemoveCommentSchema = Infer<typeof removeCommentSchema>;
 
 export const commentAction =
   (entityType: "NEWS" | "EVENT") =>
@@ -20,7 +27,7 @@ export const commentAction =
     params,
   }: RequestEvent<Record<string, string>, string>) => {
     const { prisma, user } = locals;
-    const form = await superValidate(request, commentSchema);
+    const form = await superValidate(request, zod(commentSchema));
     if (!form.valid) return fail(400, { form });
     const args = {
       where: { slug: params["slug"] },
@@ -32,7 +39,7 @@ export const commentAction =
                 studentId: user?.studentId,
               },
             },
-            content: form.data.content,
+            content: DOMPurify.sanitize(form.data.content),
             published: new Date(),
           },
         },
@@ -72,7 +79,7 @@ export const removeCommentAction =
     params,
   }: RequestEvent<Record<string, string>, string>) => {
     const { prisma } = locals;
-    const form = await superValidate(request, removeCommentSchema);
+    const form = await superValidate(request, zod(removeCommentSchema));
     if (!form.valid) return fail(400, { form });
     const args = {
       where: { slug: params["slug"] },

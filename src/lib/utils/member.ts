@@ -1,6 +1,12 @@
+import {
+  DEFAULT_SUBSCRIPTION_SETTINGS,
+  NOLLA_DEFAULT_SUBSCRIPTION_SETTINGS,
+} from "$lib/utils/notifications/types";
 import type { PrismaClient } from "@prisma/client";
 import { error } from "@sveltejs/kit";
 import { getDerivedRoles } from "./authorization";
+import { isNollningPeriod } from "$lib/utils/adminSettings/nollning";
+import { NOLLNING_TAG_PREFIX } from "$lib/components/postReveal/types";
 
 export const getCustomAuthorOptions = async (
   prisma: PrismaClient,
@@ -81,38 +87,23 @@ export const getCurrentDoorPoliciesForMember = async (
     .findMany({
       where: {
         AND: [
+          { isBan: false },
           {
             // is active, or indefinite
             OR: [
-              {
-                startDatetime: null,
-              },
-              {
-                startDatetime: {
-                  lte: new Date(),
-                },
-              },
+              { startDatetime: null },
+              { startDatetime: { lte: new Date() } },
             ],
           },
           {
             // is active, or indefinite
-            OR: [
-              {
-                endDatetime: null,
-              },
-              {
-                endDatetime: {
-                  gte: new Date(),
-                },
-              },
-            ],
+            OR: [{ endDatetime: null }, { endDatetime: { gte: new Date() } }],
           },
           {
             OR: [
+              { studentId /* is for this user */ },
               {
-                studentId, // is for this user
-              },
-              {
+                // or is for a role this user has
                 role: {
                   in: getDerivedRoles(
                     memberPositionIds.map((pos) => pos.id),
@@ -184,4 +175,58 @@ export const getCurrentDoorPoliciesForMember = async (
   memberDoorPolicies.sort((a, b) => a.name.localeCompare(b.name));
 
   return memberDoorPolicies;
+};
+
+/**
+ * Create a member with default settings for notifications and tag subscriptions
+ */
+export const createMember = async (
+  prisma: PrismaClient,
+  data: {
+    studentId: string;
+    firstName: string;
+    lastName: string;
+    email: string | null | undefined;
+  },
+) => {
+  if (await isNollningPeriod()) {
+    const defaultTag = await prisma.tag.findFirst({
+      where: {
+        name: {
+          startsWith: NOLLNING_TAG_PREFIX,
+        },
+      },
+    });
+    return await prisma.member.create({
+      data: {
+        ...data,
+        subscriptionSettings: {
+          createMany: {
+            data: NOLLA_DEFAULT_SUBSCRIPTION_SETTINGS,
+          },
+        },
+        subscribedTags: {
+          connect: defaultTag ? { id: defaultTag.id } : undefined,
+        },
+      },
+    });
+  }
+  const defaultTags = await prisma.tag.findMany({
+    where: {
+      isDefault: true,
+    },
+  });
+  return await prisma.member.create({
+    data: {
+      ...data,
+      subscriptionSettings: {
+        createMany: {
+          data: DEFAULT_SUBSCRIPTION_SETTINGS,
+        },
+      },
+      subscribedTags: {
+        connect: defaultTags.map((tag) => ({ id: tag.id })),
+      },
+    },
+  });
 };

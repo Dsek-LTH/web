@@ -1,10 +1,15 @@
 <script lang="ts">
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import { getFullName } from "$lib/utils/client/member";
-  import { superForm } from "sveltekit-superforms/client";
-  import ProfileImage from "./ProfileImage.svelte";
+  import * as m from "$paraglide/messages";
   import Cropper from "svelte-easy-crop";
+  import { fileProxy } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
+  import ProfileImage from "./ProfileImage.svelte";
+  import { uploadSchema } from "./types";
 
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
+  import { zodClient } from "sveltekit-superforms/adapters";
   import type { PageData } from "./$types";
   export let data: PageData;
   $: member = data.member;
@@ -20,7 +25,9 @@
         isEditing = false;
       }
     },
+    validators: zodClient(uploadSchema),
   });
+  const file = fileProxy(form, "image");
 
   let avatar: string | undefined = undefined;
   const onFileSelected = (
@@ -49,9 +56,7 @@
   };
 </script>
 
-<svelte:head>
-  <title>Bio - {getFullName(member)} | D-sektionen</title>
-</svelte:head>
+<SetPageTitle title="Bio - {getFullName(member)}" />
 <header class="flex gap-4">
   <MemberAvatar {member} class="w-32 rounded-lg" />
   <div class="flex flex-col">
@@ -69,7 +74,7 @@
         isEditing = true;
       }}
     >
-      Ladda upp ny
+      {m.members_uploadNew()}
     </button>
   {:else}
     <form
@@ -120,12 +125,15 @@
         type="file"
         accept="image/*"
         name="image"
+        bind:files={$file}
         class="file-input file-input-bordered w-full max-w-xs"
       />
       {#if $errors.image}
         <p class="text-error">{$errors.image}</p>
       {/if}
-      <button type="submit" class="btn btn-primary"> Spara </button>
+      <button type="submit" class="btn btn-primary">
+        {m.members_save()}
+      </button>
     </form>
   {/if}
   {#each photos as photo (photo.id)}

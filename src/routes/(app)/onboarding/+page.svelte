@@ -1,24 +1,27 @@
 <script lang="ts">
+  import FormSelect from "$lib/components/forms/FormSelect.svelte";
   import Input from "$lib/components/Input.svelte";
-  import { superForm } from "sveltekit-superforms/client";
-  import type { UpdateSchema } from "./+page.server";
-  import type { PageData } from "./$types";
   import Labeled from "$lib/components/Labeled.svelte";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
+  import { superForm } from "$lib/utils/client/superForms";
   import { programmes } from "$lib/utils/programmes";
-  import { onMount } from "svelte";
-  import { goto } from "$lib/utils/redirect";
   import * as m from "$paraglide/messages";
+  import { onMount } from "svelte";
+  import type { PageData } from "./$types";
+  import type { UpdateSchema } from "./+page.server";
+  import { goto } from "$lib/utils/redirect";
+  import { getFileUrl } from "$lib/files/client";
+  import LanguageSwitcher from "../../LanguageSwitcher.svelte";
 
   export let data: PageData;
-  const { form, errors, constraints, enhance } = superForm<UpdateSchema>(
-    data.form,
-    {},
-  );
+  const superform = superForm<UpdateSchema>(data.form, {});
+  const { form, errors, constraints, enhance } = superform;
   onMount(() => {
     if (
       data.member &&
       data.member.firstName &&
       data.member.lastName &&
+      data.member.email &&
       data.member.classProgramme &&
       data.member.classYear
     ) {
@@ -27,17 +30,15 @@
   });
 </script>
 
-<svelte:head>
-  <title>{m.onboarding()} | D-sektionen</title>
-</svelte:head>
+<SetPageTitle title={m.onboarding()} />
 
 <div
-  class="min-h-screen bg-cover bg-center"
-  style="background-image: url('./hero-image.jpg'); "
+  class="hero-image min-h-screen bg-cover bg-center"
+  style:--url="url({getFileUrl("minio/photos/public/assets/hero.jpg")})"
 >
   <div class="min-h-screen bg-cover py-16 md:bg-transparent">
     <div
-      class="mx-10 rounded-lg bg-base-200/35 p-10 backdrop-blur-xl md:mx-32 md:max-w-xl"
+      class="mx-2 rounded-xl bg-base-200/35 p-4 backdrop-blur-xl md:mx-32 md:max-w-xl md:p-10"
     >
       <div class="text-5xl font-bold">{m.onboarding_welcome()}</div>
       <div class="text-lg">{m.onboarding_fillInInfoBelow()}</div>
@@ -65,6 +66,16 @@
             bind:value={$form.lastName}
             {...$constraints.lastName}
             error={$errors.lastName}
+          />
+        </div>
+        <div class="flex flex-col">
+          <Input
+            name="email"
+            label={m.onboarding_email()}
+            placeholder={m.onboarding_emailPlaceholder()}
+            bind:value={$form.email}
+            class="input-disabled"
+            readonly
           />
         </div>
         <div class="flex flex-col">
@@ -103,9 +114,32 @@
               class="input input-bordered"
               required={true}
               bind:value={$form.classYear}
+              on:change={() => {
+                $form.nollningGroupId = null;
+              }}
               {...$constraints.classYear}
             />
           </Labeled>
+          <FormSelect
+            {superform}
+            label={m.onboarding_phadderGroup()}
+            field="nollningGroupId"
+            options={[
+              {
+                value: null,
+                label: "-",
+              },
+              ...data.phadderGroups
+                .filter(
+                  (group) =>
+                    group.year === ($form.classYear ?? new Date().getFullYear),
+                )
+                .map((group) => ({
+                  value: group.id,
+                  label: group.name,
+                })),
+            ]}
+          />
         </div>
         <div class="flex w-1/2 gap-2 pt-6">
           <button
@@ -116,8 +150,16 @@
             <span class="i-mdi-floppy-disc size-5 bg-primary"></span>
             {m.onboarding_save()}
           </button>
+
+          <LanguageSwitcher />
         </div>
       </form>
     </div>
   </div>
 </div>
+
+<style>
+  .hero-image {
+    background-image: var(--url);
+  }
+</style>

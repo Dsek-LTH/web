@@ -4,11 +4,22 @@ on:
   release:
     types: [published]
 
+env:
+  PUBLIC_MINIO_ENDPOINT: minio.api.dsek.se
+  PUBLIC_MINIO_PORT: 443
+  PUBLIC_MINIO_USE_SSL: true
+  PUBLIC_BUCKETS_DOCUMENTS: documents
+  PUBLIC_BUCKETS_FILES: files
+  PUBLIC_BUCKETS_MEMBERS: members
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          # fetch-tags: true # This should be enough, see https://github.com/actions/checkout/issues/1471
+          fetch-depth: 0
       - uses: pnpm/action-setup@v2
         with:
           version: 9
@@ -22,7 +33,13 @@ jobs:
 
       - uses: montudor/action-zip@v1
         with:
-          args: zip -qq -r build.zip build src/database/prisma/schema.prisma src/database/schema.zmodel src/database/prisma/migrations package.json pnpm-lock.yaml patches src/routes/api/openapi.json/openapi.json
+          args: zip -qq -r build.zip build src/database/prisma/schema.prisma \
+            src/database/schema.zmodel \
+            src/database/prisma/migrations \
+            src/routes/api/openapi.json/openapi.json \
+            prod/ecosystem.config.cjs \
+            prod/server.js \
+            package.json pnpm-lock.yaml patches
 
       - uses: softprops/action-gh-release@v2
         with:

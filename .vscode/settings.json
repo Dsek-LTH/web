@@ -25,5 +25,11 @@
   "explorer.compactFolders": false, // present folders in explorer as a tree
   "git.inputValidation": true,
   "git.inputValidationSubjectLength": 50,
-  "i18next.i18nPaths": "./src/translations",
+  "search.exclude": {
+    "**/.git": true,
+    "**/node_modules": true,
+    "**/.svelte-kit": true,
+    "**/pnpm-lock.yaml": true,
+  },
+  "typescript.preferences.importModuleSpecifierEnding": "minimal" // until next TS release https://github.com/microsoft/TypeScript/pull/59564
 }

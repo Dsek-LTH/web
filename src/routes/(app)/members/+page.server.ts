@@ -1,12 +1,13 @@
 import { error } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
+import * as m from "$paraglide/messages";
 
 const allowedProgrammes = ["D", "C", "VR/AR"];
 
 export const load: PageServerLoad = async (request) => {
   const { prisma, user } = request.locals;
   if (!user?.memberId) {
-    error(401, "Not logged in");
+    error(401, m.members_errors_notLoggedIn());
   }
   let classProgramme = request.url.searchParams.get("programme");
   if (!classProgramme || !allowedProgrammes.includes(classProgramme)) {

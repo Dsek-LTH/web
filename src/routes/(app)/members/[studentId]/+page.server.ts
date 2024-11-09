@@ -1,72 +1,85 @@
-import { emptySchema, memberSchema } from "$lib/zod/schemas";
-import { error, fail, isHttpError, type NumericRange } from "@sveltejs/kit";
-import { message, superValidate } from "sveltekit-superforms/server";
-import type { Actions, PageServerLoad } from "./$types";
-import { authorize } from "$lib/utils/authorization";
-import apiNames from "$lib/utils/apiNames";
-import { sendPing } from "./pings";
-import { getCurrentDoorPoliciesForMember } from "$lib/utils/member";
 import keycloak from "$lib/server/keycloak";
+import apiNames from "$lib/utils/apiNames";
+import { BASIC_ARTICLE_FILTER } from "$lib/news/articles";
+import { authorize, isAuthorized } from "$lib/utils/authorization";
+import { getCurrentDoorPoliciesForMember } from "$lib/utils/member";
+import { emptySchema, memberSchema } from "$lib/zod/schemas";
+import * as m from "$paraglide/messages";
+import { error, fail, isHttpError, type NumericRange } from "@sveltejs/kit";
+import { zod } from "sveltekit-superforms/adapters";
+import {
+  message,
+  superValidate,
+  type Infer,
+} from "sveltekit-superforms/server";
 import { z } from "zod";
+import type { Actions, PageServerLoad } from "./$types";
+import { sendPing } from "./pings";
+import keycloak from "$lib/server/keycloak";
 import { dateToSemester } from "$lib/utils/semesters";
 import { memberMedals } from "$lib/server/medals/medals";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
   const { studentId } = params;
-  const [memberResult, publishedArticlesResult] = await Promise.allSettled([
-    prisma.member.findUnique({
-      where: {
-        studentId: studentId,
-      },
-      include: {
-        mandates: {
-          include: {
-            position: {
-              include: {
-                committee: {
-                  select: {
-                    name: true,
-                    imageUrl: true,
-                  },
+  const [memberResult, publishedArticlesResult, phadderGroupsResult] =
+    await Promise.allSettled([
+      prisma.member.findUnique({
+        where: {
+          studentId: studentId,
+        },
+        include: {
+          nollaIn: true,
+          mandates: {
+            include: {
+              phadderIn: true,
+              position: {
+                include: {
+                  committee: true,
                 },
               },
             },
           },
-        },
-        authoredEvents: {
-          orderBy: {
-            startDatetime: "desc",
+          authoredEvents: {
+            orderBy: {
+              startDatetime: "desc",
+            },
+            take: 5,
           },
-          take: 5,
+          doorAccessPolicies: {},
         },
-        doorAccessPolicies: {},
-      },
-    }),
-    prisma.article.findMany({
-      where: {
-        author: {
-          member: {
-            studentId: studentId,
+      }),
+      prisma.article.findMany({
+        where: {
+          ...BASIC_ARTICLE_FILTER(),
+          author: {
+            type: {
+              not: "Custom",
+            },
+            member: {
+              studentId: studentId,
+            },
           },
         },
-        removedAt: null,
-      },
-      orderBy: {
-        publishedAt: "desc",
-      },
-      take: 5,
-    }),
-  ]);
-  if (memberResult.status === "rejected") {
-    throw error(500, "Could not fetch member");
-  }
-  if (publishedArticlesResult.status === "rejected") {
-    throw error(500, "Could not fetch articles");
-  }
-  if (!memberResult.value) {
-    throw error(404, "Member not found");
-  }
+        orderBy: {
+          publishedAt: "desc",
+        },
+        take: 5,
+      }),
+      prisma.phadderGroup.findMany({
+        orderBy: {
+          year: "asc",
+        },
+      }),
+    ]);
+  if (memberResult.status === "rejected")
+    throw error(500, m.members_errors_couldntFetchMember());
+  if (publishedArticlesResult.status === "rejected")
+    throw error(500, m.members_errors_couldntFetchArticles());
+  if (!memberResult.value) throw error(404, m.members_errors_memberNotFound());
+  if (phadderGroupsResult.status === "rejected")
+    throw error(505, phadderGroupsResult.reason);
+
   const member = memberResult.value;
 
   const doorAccess =
@@ -75,14 +88,18 @@ export const load: PageServerLoad = async ({ locals, params }) => {
       : [];
 
   const email =
-    member.studentId !== null
-      ? await keycloak.getEmail(member.studentId)
+    user.studentId === studentId ||
+    isAuthorized(apiNames.MEMBER.SEE_EMAIL, user)
+      ? (member.email ??
+        (member.studentId !== null
+          ? await keycloak.getEmail(member.studentId)
+          : undefined))
       : undefined;
 
   try {
     return {
-      form: await superValidate(member, memberSchema),
-      pingForm: await superValidate(emptySchema),
+      form: await superValidate(member, zod(memberSchema)),
+      pingForm: await superValidate(zod(emptySchema)),
       viewedMember: member, // https://github.com/Dsek-LTH/web/issues/194
       doorAccess,
       publishedArticles: publishedArticlesResult.value ?? [],
@@ -92,6 +109,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
         member.id,
         dateToSemester(new Date()) - 1,
       ),
+      phadderGroups: phadderGroupsResult.value,
       ping: user
         ? await prisma.ping.findFirst({
             where: {
@@ -109,8 +127,8 @@ export const load: PageServerLoad = async ({ locals, params }) => {
           })
         : null,
     };
-  } catch (e) {
-    throw error(500, "Could not fetch ping");
+  } catch {
+    throw error(500, m.members_errors_couldntFetchPings());
   }
 };
 
@@ -122,17 +140,18 @@ const updateSchema = memberSchema
     foodPreference: true,
     classProgramme: true,
     classYear: true,
+    nollningGroupId: true,
   })
   .partial();
 
-export type UpdateSchema = typeof updateSchema;
+export type UpdateSchema = Infer<typeof updateSchema>;
 
 export const actions: Actions = {
   updateFoodPreference: async ({ params, locals, request }) => {
     const { prisma } = locals;
     const form = await superValidate(
       request,
-      z.object({ foodPreference: z.string() }),
+      zod(z.object({ foodPreference: z.string() })),
     );
     if (!form.valid) return fail(400, { form });
     const { studentId } = params;
@@ -143,13 +162,13 @@ export const actions: Actions = {
       },
     });
     return message(form, {
-      message: "Medlem uppdaterad",
+      message: m.members_memberUpdated(),
       type: "success",
     });
   },
   update: async ({ params, locals, request }) => {
     const { prisma } = locals;
-    const form = await superValidate(request, updateSchema);
+    const form = await superValidate(request, zod(updateSchema));
     if (!form.valid) return fail(400, { form });
     const { studentId } = params;
     await prisma.member.update({
@@ -158,28 +177,31 @@ export const actions: Actions = {
         ...form.data,
       },
     });
+    keycloak.updateProfile(
+      studentId,
+      form.data.firstName ?? "",
+      form.data.lastName ?? "",
+    );
     return message(form, {
-      message: "Medlem uppdaterad",
+      message: m.members_memberUpdated(),
       type: "success",
     });
   },
   ping: async ({ params, locals, request }) => {
     const { user, prisma } = locals;
-    const form = await superValidate(request, emptySchema);
+    const form = await superValidate(request, zod(emptySchema));
     authorize(apiNames.MEMBER.PING, user);
     if (!user?.memberId) return fail(401, { form });
 
     const { studentId } = params;
     try {
-      const url = new URL(request.url);
       await sendPing(prisma, {
-        link: url.pathname,
+        link: `/members/${user.studentId}`, // link back to user who pinged
         fromMemberId: { memberId: user.memberId! },
         toMemberId: { studentId },
       });
     } catch (e) {
       if (isHttpError(e)) {
-        console.log(e.body.message);
         return message(
           form,
           {
@@ -191,14 +213,13 @@ export const actions: Actions = {
           },
         );
       }
-      console.log(e);
       return message(form, {
         message: `${e}`,
         type: "error",
       });
     }
     return message(form, {
-      message: "Ping skickad",
+      message: m.members_pingSent(),
       type: "success",
     });
   },

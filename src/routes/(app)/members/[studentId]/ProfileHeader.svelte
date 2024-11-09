@@ -13,12 +13,14 @@
     <div
       class="order-2 flex flex-row items-center gap-2 text-nowrap lg:order-3"
     >
-      {member.studentId}
-      {#if email}
-        {email}
-      {/if}
+      <div>{member.studentId}</div>
       <ClassBadge {member} size="sm" />
     </div>
+    {#if email}
+      <div class="order-4 select-all break-all">
+        {email}
+      </div>
+    {/if}
   </div>
   <div class="hidden sm:block md:hidden">
     <slot name="actions" />

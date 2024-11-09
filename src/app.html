@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="%paraglide.lang%">
+<html lang="%paraglide.lang%" data-theme="%theme%">
   <head>
     <title>D-sektionen</title>
     <meta charset="utf-8" />
@@ -12,13 +12,6 @@
       name="description"
       content="D-sektionen inom TLTH är en ideell organisation för studenter och alumner vid programmen Datateknik och InfoCom."
     />
-    <script>
-      localStorage.theme === "dark" ||
-      (!("theme" in localStorage) &&
-        window.matchMedia("(prefers-color-schema: dark)").matches)
-        ? document.documentElement.setAttribute("data-theme", "dark")
-        : document.documentElement.setAttribute("data-theme", "light");
-    </script>
     %sveltekit.head%
   </head>
   <body class="flex min-h-screen flex-col" data-sveltekit-preload-data="hover">

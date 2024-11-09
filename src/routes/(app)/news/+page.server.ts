@@ -1,13 +1,16 @@
+import { getAllArticles } from "$lib/news/getArticles";
+import { getAllTags } from "$lib/news/tags";
+import * as m from "$paraglide/messages";
+import { error } from "@sveltejs/kit";
+import { zod } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
 import type { Actions, PageServerLoad } from "./$types";
-import { getAllArticles } from "./articles";
 import { likeSchema, likesAction } from "./likes";
-import { error } from "@sveltejs/kit";
 
 const getAndValidatePage = (url: URL) => {
   const page = url.searchParams.get("page");
   if (page && Number.isNaN(Number.parseInt(page))) {
-    error(422, `Invalid page "${page}"`);
+    error(422, m.news_errors_invalidPage() + ` "${page}"`);
   }
   return page ? Math.max(Number.parseInt(page) - 1, 0) : undefined;
 };
@@ -20,13 +23,13 @@ export const load: PageServerLoad = async ({ locals, url }) => {
       search: url.searchParams.get("search") ?? undefined,
       page: getAndValidatePage(url),
     }),
-    prisma.tag.findMany({ orderBy: { name: "asc" } }),
+    getAllTags(prisma),
   ]);
   return {
     articles,
     pageCount,
     allTags,
-    likeForm: await superValidate(likeSchema),
+    likeForm: await superValidate(zod(likeSchema)),
   };
 };
 

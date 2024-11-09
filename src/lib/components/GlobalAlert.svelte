@@ -1,5 +1,6 @@
 <script lang="ts">
-  //databasen tre columner, id: int, comment: string, commentEn: string, severity: string
+  import { marked } from "marked";
+  import DOMPurify from "isomorphic-dompurify";
 
   export let message: string;
   export let severity: string;
@@ -20,5 +21,8 @@
 
 <div role="alert" class={`alert alert-${severity} rounded-none`}>
   <span class={`${icon} text-xl`} />
-  <span class="font-bold">{message}</span>
+  <span class="font-bold prose-a:link">
+    <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized client-side -->
+    {@html marked(DOMPurify.sanitize(message))}
+  </span>
 </div>

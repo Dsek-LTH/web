@@ -1,34 +1,76 @@
-import { PrismaClient } from "@prisma/client";
-import { insertCommitteeLogos } from "./committee";
-import { insertAccessPolicies } from "./accessPolicies";
-import { insertProducts } from "./products";
-import { insertMeetings } from "./meetings";
-import { insertMarkdowns } from "./markdowns";
-
-const prisma = new PrismaClient();
-
 /**
- * Calls all seed functions.
- *
- * Should be idempotent, meaning that it can be called multiple times,
- * without changing the result, or at the very least without crashing.
+ * Use any TypeScript runner to run this script, for example: `pnpx tsx seed.ts`
+ * Learn more about the Seed Client by following our guide: https://docs.snaplet.dev/seed/getting-started
  */
-async function main() {
-  await Promise.all([
-    insertCommitteeLogos(prisma),
-    insertAccessPolicies(prisma),
-    insertProducts(prisma),
-    insertMeetings(prisma),
-    insertMarkdowns(prisma),
-  ]);
-}
+import { createSeedClient } from "@snaplet/seed";
+import {
+  ACCESS_POLICIES,
+  BOOKABLES,
+  COMMITTEES,
+  DOORS,
+  GUIDELINES,
+  MARKDOWNS,
+  models,
+  POLICYS,
+} from "./data";
 
-await main()
-  .then(async () => {
-    await prisma.$disconnect();
-  })
-  .catch(async (e) => {
-    console.error(e);
-    await prisma.$disconnect();
-    process.exit(1);
+const main = async () => {
+  const seed = await createSeedClient({
+    connect: true,
+    models,
   });
+
+  await seed.$resetDatabase();
+
+  await seed.tag((x) => x(10));
+
+  if (process.env["USER"]) {
+    await seed.member([{ studentId: process.env["USER"] }]);
+  }
+  await seed.member((x) => x(100));
+  await seed.article((x) => x(100));
+  await seed.articleComment((x) => x(10));
+  await seed.event((x) => x(50));
+
+  await seed.accessPolicy(ACCESS_POLICIES);
+
+  await seed.door(DOORS);
+  await seed.doorAccessPolicy((x) => x(50));
+
+  await seed.bookable(BOOKABLES);
+  await seed.bookingRequest((x) =>
+    x(25, {
+      _booking_requests_bookables: (x) => x({ min: 1, max: 5 }),
+    }),
+  );
+
+  await seed.committee(
+    COMMITTEES.map((committee) => ({
+      ...committee,
+      positions: (x) => x(10, { mandates: (x) => x({ min: 1, max: 5 }) }),
+    })),
+  );
+
+  await seed.document([
+    ...POLICYS.map((policy) => ({ title: policy, type: "POLICY" }) as const),
+    ...GUIDELINES.map(
+      (guideline) => ({ title: guideline, type: "GUIDELINE" }) as const,
+    ),
+  ]);
+  await seed.markdown((x) => [
+    ...MARKDOWNS,
+    ...x(5, (ctx) => ({
+      name: `cafe:open:${ctx.index}`,
+      markdown: "11:30 - 13:00",
+      markdownEn: "11:30 - 13:00",
+    })),
+  ]);
+
+  await seed.song((x) => x(50));
+
+  await seed.subscriptionSetting((x) => x(100));
+
+  process.exit();
+};
+
+main();

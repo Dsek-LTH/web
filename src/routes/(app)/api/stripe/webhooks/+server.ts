@@ -1,12 +1,12 @@
 // in src/routes/stripe/webhooks/+server.js
 import { env } from "$env/dynamic/private";
-import stripe from "$lib/server/shop/payments/stripe.js";
+import stripe from "$lib/server/shop/payments/stripe";
 import {
   onPaymentCancellation,
   onPaymentFailure,
   onPaymentProcessing,
   onPaymentSuccess,
-} from "$lib/server/shop/payments/stripeWebhooks.js";
+} from "$lib/server/shop/payments/stripeWebhooks";
 import { error, isHttpError, json } from "@sveltejs/kit";
 import type Stripe from "stripe";
 

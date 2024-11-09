@@ -1,5 +1,6 @@
 <script lang="ts">
-  import CommitteeIcon from "$lib/components/CommitteeIcon.svelte";
+  import CommitteeSymbol from "$lib/components/images/CommitteeSymbol.svelte";
+  import { languageTag } from "$paraglide/runtime";
   import type { MandateWithPositionAndCommitte } from "./types";
 
   export let year: string;
@@ -15,26 +16,45 @@
           class="tooltip -mx-4 whitespace-pre"
           data-tip={mandate.position.committee?.name +
             `\n${mandate.startDate.toLocaleDateString(
-              "sv",
-            )} - ${mandate.endDate.toLocaleDateString("sv")}`}
+              languageTag(),
+            )} - ${mandate.endDate.toLocaleDateString(languageTag())}`}
         >
-          <a href="/positions/{mandate.position.id}">
-            <button
-              class="btn btn-ghost w-full justify-start gap-2 normal-case text-primary"
-            >
-              {#if mandate.position.committee}
-                <figure class="h-8 w-8 overflow-hidden">
-                  <CommitteeIcon
-                    imageUrl={mandate.position.committee.imageUrl}
-                  />
-                </figure>
-              {/if}
+          <a
+            href="/positions/{mandate.position.id}"
+            class="btn btn-ghost w-full justify-start gap-2 normal-case text-primary"
+          >
+            {#if mandate.position.committee}
+              <figure class="h-8 w-8 overflow-hidden">
+                <CommitteeSymbol committee={mandate.position.committee} />
+              </figure>
+            {/if}
+            <div class="flex flex-1 gap-4">
               <span
-                class="flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium"
+                class="gap-4 overflow-x-hidden text-ellipsis whitespace-nowrap text-left font-medium"
               >
                 {mandate.position.name}
               </span>
-            </button>
+              {#if mandate.phadderIn}
+                {@const group = mandate.phadderIn}
+                <a
+                  href="/committees/nollu?year={new Date(
+                    mandate.startDate,
+                  ).getFullYear()}"
+                  class="-my-[1em] flex items-center gap-1 text-base-content"
+                >
+                  <span class="text-2xl">(</span>
+                  {#if group.imageUrl}
+                    <img
+                      src={group.imageUrl}
+                      class=" max-h-[2em] max-w-[2em] rounded-sm"
+                      alt="Group logo"
+                    />
+                  {/if}
+                  {group.name}
+                  <span class="text-2xl">)</span>
+                </a>
+              {/if}
+            </div>
           </a>
         </div>
       {/if}

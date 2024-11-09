@@ -45,5 +45,9 @@ export async function GET() {
     }
   }
 
-  return json({ commitCount: commitCount, latestCommit });
+  return json({ commitCount, latestCommit });
 }
+export type GetCommitDataResponse = {
+  commitCount: string;
+  latestCommit: typeof latestCommit;
+};

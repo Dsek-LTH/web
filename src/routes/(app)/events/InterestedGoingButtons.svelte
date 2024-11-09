@@ -1,9 +1,10 @@
 <script lang="ts">
   import { page } from "$app/stores";
   import type { SuperValidated } from "sveltekit-superforms";
-  import type { InterestedGoingSchema } from "./interestedGoing";
-  import { superForm } from "sveltekit-superforms/client";
+  import type { InterestedGoingSchema } from "$lib/events/schema";
+  import { superForm } from "$lib/utils/client/superForms";
   import type { Member } from "@prisma/client";
+  import * as m from "$paraglide/messages";
 
   export let eventId: string;
   export let interested: Member[];
@@ -29,36 +30,42 @@
     : "i-mdi-star-outline";
 </script>
 
-<div class="bg-yell my-3 flex flex-row gap-2">
-  <form
-    method="POST"
-    action="/events?/{isInterested ? 'interested' : isGoing ? 'going' : 'none'}"
-    use:enhance
-  >
-    <input type="hidden" value={eventId} name="eventId" {...$constraints} />
-    <button
-      disabled={!authorized}
-      type="submit"
-      class="btn btn-ghost"
-      on:click={() => {
-        isGoing = !isGoing;
-        isInterested = false;
-      }}
+{#if $page.data.member}
+  <div class="bg-yell my-3 flex flex-row gap-2">
+    <form
+      method="POST"
+      action="/events?/{isInterested
+        ? 'interested'
+        : isGoing
+          ? 'going'
+          : 'none'}"
+      use:enhance
     >
-      <span class={isGoingIcon + " size-6"}></span>
-      Kommer
-    </button>
-    <button
-      disabled={!authorized}
-      type="submit"
-      class="btn btn-ghost"
-      on:click={() => {
-        isInterested = !isInterested;
-        isGoing = false;
-      }}
-    >
-      <span class={isInterestedIcon + " size-6"}></span>
-      Intresserad
-    </button>
-  </form>
-</div>
+      <input type="hidden" value={eventId} name="eventId" {...$constraints} />
+      <button
+        disabled={!authorized}
+        type="submit"
+        class="btn btn-ghost"
+        on:click={() => {
+          isGoing = !isGoing;
+          isInterested = false;
+        }}
+      >
+        <span class={isGoingIcon + " size-6"}></span>
+        {m.events_interestedGoing_going()}
+      </button>
+      <button
+        disabled={!authorized}
+        type="submit"
+        class="btn btn-ghost"
+        on:click={() => {
+          isInterested = !isInterested;
+          isGoing = false;
+        }}
+      >
+        <span class={isInterestedIcon + " size-6"}></span>
+        {m.events_interestedGoing_interested()}
+      </button>
+    </form>
+  </div>
+{/if}

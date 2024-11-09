@@ -14,31 +14,33 @@
   export { clazz as class };
   export let seconds: number | undefined = undefined;
   export let milliseconds: number | undefined = undefined;
+  export let allowNegative = false;
 
   $: if (seconds === undefined && milliseconds === undefined) {
     throw new Error("Either `seconds` or `milliseconds` must be provided.");
   }
 
   $: inSeconds = seconds ?? Math.ceil(milliseconds! / 1000);
-  $: absSeconds = Math.abs(inSeconds);
-  $: minutesLargeNumber = Math.floor(absSeconds / 600);
-  $: minutesSmallNumber = Math.floor(absSeconds / 60) % 10;
-  $: secondsLargeNumber = Math.floor((absSeconds % 60) / 10);
-  $: secondsSmallNumber = absSeconds % 10;
+  $: absSeconds = inSeconds < 0 && !allowNegative ? 0 : Math.abs(inSeconds);
 </script>
 
+<!-- <span class={twMerge("countdown font-mono", clazz)}>
+  <span style="--value:{Math.floor(absSeconds / 60)};"></span>
+  :
+  <span style="--value:{Math.floor(absSeconds % 60)};"></span>
+</span> -->
 <span
   class={twMerge(
-    "inline-flex h-[1em] items-center overflow-hidden leading-[1em]",
+    "inline-flex h-[1em] items-center overflow-hidden font-mono leading-[1em]",
     clazz ?? "",
   )}
 >
-  {#if inSeconds < 0}
+  {#if allowNegative && inSeconds < 0}
     -
   {/if}
-  <ScrollingDigit i={minutesLargeNumber} />
-  <ScrollingDigit i={minutesSmallNumber} />
+  <ScrollingDigit i={Math.floor(absSeconds / 600)} />
+  <ScrollingDigit i={Math.floor(absSeconds / 60) % 10} />
   <span class="relative">:</span>
-  <ScrollingDigit i={secondsLargeNumber} />
-  <ScrollingDigit i={secondsSmallNumber} />
+  <ScrollingDigit i={Math.floor((absSeconds % 60) / 10)} />
+  <ScrollingDigit i={absSeconds % 10} />
 </span>

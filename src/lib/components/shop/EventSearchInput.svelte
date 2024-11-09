@@ -1,26 +1,23 @@
 <script lang="ts">
   import EventSearch from "$lib/components/EventSearch.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
+  import type { TicketSchema } from "$lib/utils/shop/types";
   import type { Event } from "@prisma/client";
   import dayjs from "dayjs";
-  import type { UnwrapEffects } from "sveltekit-superforms";
-  import type { SuperForm } from "sveltekit-superforms/client";
-  import type { TicketSchema } from "$lib/components/shop/types";
+  import { formFieldProxy, type SuperForm } from "sveltekit-superforms/client";
   export let event: Event | undefined = undefined;
   let isSearching: boolean;
   let handleSearch: (search: string) => void;
 
-  type Form = SuperForm<UnwrapEffects<TicketSchema>>;
-  export let form: Form["form"];
-  export let constraints: Form["constraints"];
-  export let errors: Form["errors"];
+  export let superform: SuperForm<TicketSchema>;
+  const { value, errors, constraints } = formFieldProxy(superform, "eventId");
 
   const updateForm = (event: Event | undefined) => {
     if (!event) {
-      $form.eventId = "";
+      $value = "";
       return;
     }
-    $form.eventId = event.id;
+    $value = event.id;
   };
   $: updateForm(event);
 
@@ -34,13 +31,8 @@
     event = selected;
   }}
 >
-  <Labeled error={$errors.eventId} label="Event">
-    <input
-      type="hidden"
-      name="eventId"
-      value={$form.eventId}
-      {...$constraints.eventId}
-    />
+  <Labeled error={$errors} label="Event">
+    <input type="hidden" name="eventId" value={$value} {...$constraints} />
     <div
       class="input input-bordered flex items-center gap-2 {isSelected
         ? 'input-primary'

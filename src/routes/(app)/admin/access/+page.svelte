@@ -1,16 +1,15 @@
 <script lang="ts">
-  import { superForm } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
   import type { PageData } from "./$types";
   import * as m from "$paraglide/messages";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   export let data: PageData;
   const { form, errors, constraints, enhance } = superForm(data.form, {
     resetForm: true,
   });
 </script>
 
-<svelte:head>
-  <title>Access policies | D-sektionen</title>
-</svelte:head>
+<SetPageTitle title="Access policies" />
 
 <div class="overflow-x-auto">
   <table class="table">

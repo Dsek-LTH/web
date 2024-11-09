@@ -1,6 +1,6 @@
 <script lang="ts">
   import DoorAccess from "./DoorAccess.svelte";
-
+  import * as m from "$paraglide/messages";
   import { page } from "$app/stores";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
@@ -17,6 +17,8 @@
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
   import Medals from "./Medals.svelte";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
+
   export let data: PageData;
 
   $: member = data.viewedMember;
@@ -28,25 +30,25 @@
   $: canEdit = isMe || isAuthorized(apiNames.MEMBER.UPDATE, data.user);
 </script>
 
-<svelte:head>
-  <title>{getFullName(member)} | D-sektionen</title>
-</svelte:head>
+<SetPageTitle title={getFullName(member)} />
 <article
   class="grid grid-cols-1-2 gap-x-4 gap-y-2 md:grid-cols-5"
   id="container"
 >
   <div class="aspect-square md:col-start-1 md:col-end-2">
     <MemberAvatar {member} class="w-full rounded-lg">
-      <a
-        href="{$page.params['studentId']}/profile-picture"
-        class="btn btn-square glass btn-secondary btn-sm absolute right-2 top-2"
-      >
-        <span class="i-mdi-edit" />
-      </a>
+      {#if canEdit}
+        <a
+          href="{$page.params['studentId']}/profile-picture"
+          class="btn btn-square glass btn-secondary btn-sm absolute right-2 top-2"
+        >
+          <span class="i-mdi-edit" />
+        </a>
+      {/if}
     </MemberAvatar>
   </div>
   <!-- Name, StiL-ID, badge and actions -->
-  <header class="md:col-start-2 md:col-end-4">
+  <header class="overflow-x-auto md:col-start-2 md:col-end-4">
     <ProfileHeader {member} email={data.email}>
       <div slot="actions" class="flex gap-2">
         {#if canEdit}
@@ -71,7 +73,11 @@
   <!-- Bio -->
   <article class="col-span-2 md:col-start-1 md:col-end-4 md:row-start-2">
     {#if isEditing}
-      <UpdateMemberForm bind:isEditing data={data.form} />
+      <UpdateMemberForm
+        bind:isEditing
+        data={data.form}
+        phadderGroups={data.phadderGroups}
+      />
     {:else if member.bio}
       <MarkdownBody body={member.bio}>
         {#if canEdit}
@@ -80,7 +86,7 @@
               href="{$page.params['studentId']}/edit-bio"
               class="btn btn-outline btn-sm"
             >
-              Redigera bio
+              {m.members_editBio()}
             </a>
           </div>
         {/if}
@@ -90,7 +96,7 @@
         href="{$page.params['studentId']}/edit-bio"
         class="btn btn-outline btn-sm"
       >
-        Lägg till bio
+        {m.members_addBio()}
       </a>
     {/if}
   </article>
@@ -108,7 +114,7 @@
       {/if}
     </div>
     <div class="flex flex-col">
-      <HeldPositions mandates={member.mandates} />
+      <HeldPositions mandates={member.mandates} nollaIn={member.nollaIn} />
       {#if data.publishedArticles.length > 0}
         <PublishedArticles articles={data.publishedArticles} />
       {/if}

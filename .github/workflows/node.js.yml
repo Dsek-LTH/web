@@ -32,9 +32,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          # fetch-tags: true # This should be enough, see https://github.com/actions/checkout/issues/1471
+          fetch-depth: 0
       - uses: pnpm/action-setup@v2
         with:
-          version: 8
+          version: 9
       - name: Use Node.js latest LTS
         uses: actions/setup-node@v3
         with:
@@ -42,6 +45,7 @@ jobs:
           cache: "pnpm"
       - run: pnpm i
       - run: pnpm prisma migrate deploy
+      - run: pnpm snaplet-seed sync
       - run: pnpm run seed
       - run: pnpm run lint
       - run: pnpm run format

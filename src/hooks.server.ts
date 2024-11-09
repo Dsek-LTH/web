@@ -1,23 +1,28 @@
 import { env } from "$env/dynamic/private";
 import keycloak from "$lib/server/keycloak";
+import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
 import { i18n } from "$lib/utils/i18n";
+import { createMember } from "$lib/utils/member";
+import { redirect } from "$lib/utils/redirect";
+import { themes, type Theme } from "$lib/utils/themes";
 import { isAvailableLanguageTag, sourceLanguageTag } from "$paraglide/runtime";
 import Keycloak, { type KeycloakProfile } from "@auth/core/providers/keycloak";
 import type { TokenSet } from "@auth/core/types";
 import { SvelteKitAuth } from "@auth/sveltekit";
 import { PrismaClient } from "@prisma/client";
 import { error, type Handle } from "@sveltejs/kit";
-import { redirect } from "$lib/utils/redirect";
 import { sequence } from "@sveltejs/kit/hooks";
 import { enhance } from "@zenstackhq/runtime";
 import RPCApiHandler from "@zenstackhq/server/api/rpc";
 import zenstack from "@zenstackhq/server/sveltekit";
 import { randomBytes } from "crypto";
 import schedule from "node-schedule";
+import loggingExtension from "./database/prisma/loggingExtension";
 import translatedExtension from "./database/prisma/translationExtension";
 import { getAccessPolicies } from "./hooks.server.helpers";
+import { getDerivedRoles } from "$lib/utils/authorization";
 
-const authHandle = SvelteKitAuth({
+const { handle: authHandle } = SvelteKitAuth({
   secret: env.AUTH_SECRET,
   trustHost: true,
   providers: [
@@ -27,15 +32,14 @@ const authHandle = SvelteKitAuth({
       issuer: env.KEYCLOAK_CLIENT_ISSUER,
       profile: (profile: KeycloakProfile, tokens: TokenSet) => {
         return {
-          access_token: tokens.access_token,
           id_token: tokens.id_token,
           id: profile.sub,
-          name: profile.name,
+          given_name: profile.given_name,
+          family_name: profile.family_name,
           email: profile.email,
           student_id: profile.preferred_username,
-          // The keycloak client doesn't guarantee these fields
-          // to be present, but we assume they always are.
-          image: profile["image"],
+          // The keycloak client doesn't guarantee this field
+          // to be present, but we assume it always is.
           group_list: profile["group_list"] ?? [],
         };
       },
@@ -44,10 +48,12 @@ const authHandle = SvelteKitAuth({
   callbacks: {
     jwt({ token, user }) {
       if (user) {
-        token.student_id = user?.student_id;
-        token.group_list = user?.group_list ?? [];
-        token.access_token = user?.access_token;
-        token.id_token = user?.id_token;
+        token.student_id = user.student_id;
+        token.group_list = user.group_list ?? [];
+        token.id_token = user.id_token;
+        token.given_name = user.given_name;
+        token.family_name = user.family_name;
+        token.email = user.email;
       }
       return token;
     },
@@ -56,7 +62,10 @@ const authHandle = SvelteKitAuth({
       if ("token" in params && params.session?.user) {
         const { token } = params;
         session.user.student_id = token.student_id;
+        session.user.email = token.email ?? "";
         session.user.group_list = token.group_list;
+        session.user.given_name = token.given_name;
+        session.user.family_name = token.family_name;
       }
       return session;
     },
@@ -78,15 +87,15 @@ const authHandle = SvelteKitAuth({
   },
 });
 
-const prismaClient = new PrismaClient({ log: ["info"] });
+const prismaClient = authorizedPrismaClient;
 const databaseHandle: Handle = async ({ event, resolve }) => {
   const lang = isAvailableLanguageTag(event.locals.paraglide?.lang)
     ? event.locals.paraglide?.lang
     : sourceLanguageTag;
-  const prisma = prismaClient.$extends(
-    translatedExtension(lang),
-  ) as PrismaClient;
   const session = await event.locals.getSession();
+  const prisma = prismaClient
+    .$extends(translatedExtension(lang))
+    .$extends(loggingExtension(session?.user.student_id)) as PrismaClient;
 
   if (!session?.user) {
     let externalCode = event.cookies.get("externalCode"); // Retrieve the externalCode from cookies
@@ -99,59 +108,52 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
         secure: process.env["NODE_ENV"] === "production", // Only send cookie over HTTPS in production
       });
     }
-    const policies = await getAccessPolicies(prisma);
-    event.locals.prisma = enhance(
-      prisma,
-      {
-        user: {
-          studentId: undefined,
-          memberId: undefined,
-          policies,
-          externalCode: externalCode, // For anonymous users
-        },
-      },
-      { logPrismaQuery: process.env["NODE_ENV"] === "production" }, // Log queries in production
-    );
-    event.locals.user = {
+    const roles = getDerivedRoles(undefined, false);
+    const policies = await getAccessPolicies(prisma, roles);
+    const user = {
       studentId: undefined,
       memberId: undefined,
       policies,
-      externalCode: externalCode,
+      externalCode: externalCode, // For anonymous users
+      roles,
     };
+    event.locals.prisma = enhance(prisma, {
+      user,
+    });
+    event.locals.user = user;
   } else {
-    const memberQuery = await prisma.member.findUnique({
+    const existingMember = await prisma.member.findUnique({
       where: { studentId: session.user.student_id },
     });
-    const member = memberQuery
-      ? memberQuery
-      : await prisma.member.create({
-          data: {
-            studentId: session.user.student_id,
-            firstName: session.user.name?.split(" ")[0],
-          },
-        });
+    const member =
+      existingMember ||
+      (await createMember(prisma, {
+        studentId: session.user.student_id,
+        firstName: session.user.given_name,
+        lastName: session.user.family_name,
+        email: session.user.email,
+      }));
 
     if (
-      event.url.pathname != "/onboarding" &&
-      (!member.classProgramme || !member.classYear)
+      i18n.route(event.url.pathname) != "/onboarding" &&
+      (!member.classProgramme || !member.classYear) // consider adding email here, but make sure to fix onboarding as well
     ) {
-      redirect(302, i18n.resolveRoute("/onboarding"));
+      redirect(302, "/onboarding");
     }
 
+    const roles = getDerivedRoles(
+      session.user.group_list,
+      !!session.user.student_id,
+      member.classYear ?? undefined,
+    );
     const user = {
       studentId: session.user.student_id,
       memberId: member!.id,
-      policies: await getAccessPolicies(
-        prisma,
-        session.user.student_id,
-        session.user.group_list,
-      ),
+      policies: await getAccessPolicies(prisma, roles, session.user.student_id),
+      roles,
     };
-    event.locals.prisma = enhance(
-      prisma,
-      { user },
-      { logPrismaQuery: process.env["NODE_ENV"] === "production" },
-    );
+
+    event.locals.prisma = enhance(prisma, { user });
     event.locals.user = user;
     event.locals.member = member!;
   }
@@ -168,13 +170,52 @@ const apiHandle = zenstack.SvelteKitHandler({
   },
 });
 
-schedule.scheduleJob("* */24 * * *", () =>
-  keycloak.updateMandate(prismaClient),
-);
+const APP_INSETS_REGEX = /APP-INSETS\s*\(([^)]*)\)/;
+const appHandle: Handle = async ({ event, resolve }) => {
+  const userAgent = event.request.headers.get("user-agent");
+  if (userAgent?.startsWith("DSEK-APP") || env.MOCK_IS_APP === "true") {
+    event.locals.isApp = true;
+    const insetsJson = APP_INSETS_REGEX.exec(userAgent ?? "")?.[1];
+    const insets = JSON.parse(insetsJson ?? "{}");
+    event.locals.appInfo = {
+      insets: {
+        top: insets?.top ? Number(insets.top) : 0,
+        bottom: insets?.bottom ? Number(insets.bottom) : 0,
+        left: insets?.left ? Number(insets.left) : 0,
+        right: insets?.right ? Number(insets.right) : 0,
+      },
+    };
+  } else {
+    event.locals.isApp = false;
+    event.locals.appInfo = undefined;
+  }
+  return resolve(event);
+};
+
+const themeHandle: Handle = async ({ event, resolve }) => {
+  let theme = event.cookies.get("theme");
+
+  if (!theme || !themes.includes(theme as Theme)) {
+    theme = "dark";
+  }
+  // get theme from cookies and send to frontend to show correct icon in theme switch
+  event.locals.theme = theme as Theme;
+
+  return await resolve(event, {
+    transformPageChunk: ({ html }) => {
+      return html.replace("%theme%", theme);
+    },
+  });
+};
+
+// run a keycloak sync every day at midnight
+schedule.scheduleJob("0 0 * * *", () => keycloak.sync(authorizedPrismaClient));
 
 export const handle = sequence(
   authHandle,
   i18n.handle(),
   databaseHandle,
   apiHandle,
+  appHandle,
+  themeHandle,
 );

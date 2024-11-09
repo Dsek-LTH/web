@@ -6,6 +6,7 @@
     "Prisma.prisma",
     "bradlc.vscode-tailwindcss",
     "inlang.vs-code-extension",
-    "vitest.explorer"
+    "vitest.explorer",
+    "ms-playwright.playwright"
   ]
 }
