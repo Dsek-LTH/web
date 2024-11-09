@@ -7,7 +7,10 @@ import * as m from "$paraglide/messages";
  * Check if the user is authorized to perform an action.
  * @returns Whether the user is authorized.
  */
-export const isAuthorized = (apiName: string, user?: AuthUser): boolean => {
+export const isAuthorized = (
+  apiName: string,
+  user: AuthUser | undefined,
+): boolean => {
   if (dev && !!user?.studentId) return true;
   if (user?.policies.includes(apiName)) return true;
   return false;
@@ -17,7 +20,10 @@ export const isAuthorized = (apiName: string, user?: AuthUser): boolean => {
  * Authorize a user to perform an action or a list of actions.
  * @throws {HttpError} If the user is not authorized.
  */
-export const authorize = (apiName: string | string[], user?: AuthUser) => {
+export const authorize = (
+  apiName: string | string[],
+  user: AuthUser | undefined,
+) => {
   const apiNames = Array.isArray(apiName) ? apiName : [apiName];
   for (const name of apiNames) {
     if (!isAuthorized(name, user)) {

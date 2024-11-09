@@ -1,6 +1,10 @@
 # TypeScript
 
-TypeScript is a superset of JavaScript that adds static types to the language. This allows for better tooling, such as code completion, refactoring, and type checking. Learn TypeScript at [Codecademy](https://www.codecademy.com/learn/learn-typescript).
+TypeScript is a superset of JavaScript that adds static types to the language.
+
+::: tip Tutorial
+Learn TypeScript at [Codecademy](https://www.codecademy.com/learn/learn-typescript).
+:::
 
 ### TypeScript example
 

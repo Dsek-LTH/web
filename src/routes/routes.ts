@@ -27,13 +27,13 @@ export const getRoutes = (): Route[] =>
       accessRequired: null,
       appBehaviour: "none",
     },
-    {
-      title: m.nolla_nav_nollning(),
-      path: "/nolla",
-      icon: "i-mdi-party-popper",
-      accessRequired: null,
-      appBehaviour: "none",
-    },
+    // {
+    //   title: m.nolla_nav_nollning(),
+    //   path: "/nolla",
+    //   icon: "i-mdi-party-popper",
+    //   accessRequired: null,
+    //   appBehaviour: "none",
+    // },
     {
       title: m.news(),
       path: "/news",

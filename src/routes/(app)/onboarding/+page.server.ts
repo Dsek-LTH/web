@@ -5,6 +5,7 @@ import type { Actions, PageServerLoad } from "./$types";
 import { error, fail } from "@sveltejs/kit";
 import { redirect } from "$lib/utils/redirect";
 import * as m from "$paraglide/messages";
+import keycloak from "$lib/server/keycloak";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma } = locals;
@@ -69,6 +70,11 @@ export const actions: Actions = {
     } else {
       throw error(500, m.onboarding_errors_studentIDNotFound());
     }
+    keycloak.updateProfile(
+      studentId,
+      form.data.firstName ?? "",
+      form.data.lastName ?? "",
+    );
     return redirect(
       "/",
       {

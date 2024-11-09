@@ -208,9 +208,8 @@ const themeHandle: Handle = async ({ event, resolve }) => {
   });
 };
 
-schedule.scheduleJob("* */24 * * *", () =>
-  keycloak.sync(authorizedPrismaClient),
-);
+// run a keycloak sync every day at midnight
+schedule.scheduleJob("0 0 * * *", () => keycloak.sync(authorizedPrismaClient));
 
 export const handle = sequence(
   authHandle,

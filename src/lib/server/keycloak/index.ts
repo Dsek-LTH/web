@@ -64,6 +64,29 @@ async function getGroupId(client: KcAdminClient, positionId: string) {
   return group?.id;
 }
 
+async function updateProfile(
+  username: string,
+  firstName: string,
+  lastName: string,
+) {
+  if (!enabled) return;
+
+  try {
+    const client = await connect();
+    const id = await _getUserId(client, username);
+    await client.users.update(
+      { id: id! },
+      {
+        firstName: firstName,
+        lastName: lastName,
+      },
+    );
+    console.log(`updated profile`);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 async function addMandate(username: string, positionId: string) {
   if (!enabled) return;
 
@@ -131,7 +154,9 @@ async function updateMandate(prisma: PrismaClient) {
     },
   });
 
-  console.log(`updating ${result.length} users`);
+  console.log(
+    `[${new Date().toISOString()}] updating ${result.length} users groups`,
+  );
 
   result.forEach(async ({ positionId, member: { studentId } }) => {
     await deleteMandate(studentId!, positionId);
@@ -147,34 +172,45 @@ async function updateMandate(prisma: PrismaClient) {
 async function updateEmails(prisma: PrismaClient) {
   if (!enabled) return;
 
-  const studentIds = (
+  const currentUserEmail = (
     await prisma.member.findMany({
-      where: {
-        email: null,
-      },
       select: {
         studentId: true,
+        email: true,
       },
+      distinct: ["studentId"],
     })
   ).reduce((acc, curr) => {
-    if (curr.studentId) acc.add(curr.studentId);
+    if (curr.studentId) acc.set(curr.studentId, curr.email);
     return acc;
-  }, new Set<string>());
+  }, new Map<string, string | null>());
 
-  if (!studentIds) return;
+  if (currentUserEmail.size === 0) {
+    console.log(
+      `[${new Date().toISOString()}] email sync aborted, no users in database`,
+    );
+    return;
+  }
 
-  console.log(`updating ${studentIds.size} emails`);
-  const userEmails = await getManyUserEmails(studentIds);
+  const userEmails = await getManyUserEmails(currentUserEmail);
+  console.log(
+    `[${new Date().toISOString()}] updating ${userEmails.size} emails`,
+  );
 
   for (const [studentId, email] of userEmails) {
-    await prisma.member.update({
-      where: {
-        studentId,
-      },
-      data: {
-        email,
-      },
-    });
+    try {
+      await prisma.member.update({
+        where: {
+          studentId,
+        },
+        data: {
+          email,
+        },
+      });
+    } catch (error) {
+      console.log("Failed to update email for", studentId, email);
+      console.log(error);
+    }
   }
 }
 
@@ -182,19 +218,28 @@ async function updateEmails(prisma: PrismaClient) {
 // we fetch all emails for all users in one request
 // and then filter out the ones we need
 async function getManyUserEmails(
-  usernames: Set<string>,
+  currentUserEmail: Map<string, string | null>,
 ): Promise<Map<string, string>> {
   if (!enabled) return new Map();
   const client = await connect();
   const userEmails = new Map<string, string>();
 
-  (await client.users.find({ username: "" })).forEach((user) => {
+  // Fetch all users from Keycloak
+  // We can only fetch a limited amount of users at a time
+  const users = [];
+  do {
+    users.push(...(await client.users.find({ max: 500, first: users.length })));
+  } while (users.length % 500 === 0);
+
+  users.forEach((user) => {
+    const { username, email } = user;
+    if (!username || !email) return;
+
     if (
-      user.email !== undefined &&
-      user.username !== undefined &&
-      usernames.has(user.username)
+      currentUserEmail.has(username) && // if the user exists in our database
+      currentUserEmail.get(username) !== user.email // if the email has changed
     ) {
-      userEmails.set(user.username, user.email);
+      userEmails.set(username, email);
     }
   });
   return userEmails;
@@ -236,6 +281,7 @@ async function sync(prisma: PrismaClient) {
 }
 
 export default {
+  updateProfile,
   addMandate,
   deleteMandate,
   getUserId,

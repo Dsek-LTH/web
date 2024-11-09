@@ -3,6 +3,7 @@
   import type { Member } from "@prisma/client";
   import MemberSearchInput from "$lib/components/forms/MemberSearchInput.svelte";
 
+  export let year: number | undefined = undefined;
   export let phadder = false;
   export let groupId: string;
   let member: Member | undefined = undefined;
@@ -26,6 +27,7 @@
     bind:member
     class="flex-1"
     endpoint={phadder ? "/api/members/phadders" : undefined}
+    {year}
   />
   <button type="submit" disabled={!member} class="btn btn-primary">+</button>
   <input type="hidden" name="groupId" value={groupId} />

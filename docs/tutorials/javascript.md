@@ -1,6 +1,10 @@
 # JavaScript
 
-JavaScript is a programming language that is used to make web pages interactive. It is a general purpose, high-level, dynamically typed, interpreted programming language. Learn JavaScript at [Codecademy](https://www.codecademy.com/learn/introduction-to-javascript).
+JavaScript is a programming language that is used to make web pages interactive.
+
+::: tip Tutorial
+Learn JavaScript at [Codecademy](https://www.codecademy.com/learn/introduction-to-javascript).
+:::
 
 ### JavaScript example
 

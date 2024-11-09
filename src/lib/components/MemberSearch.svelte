@@ -8,6 +8,7 @@
   export let onSelect: ((member: Member) => void) | undefined;
   export let handleSearch: (searchValue: string) => void;
   export let endpoint = "/api/members";
+  export let year: number | undefined = undefined;
 
   const getOption = (option: unknown) => option as Member;
 </script>
@@ -19,6 +20,7 @@
   bind:onSelect
   bind:handleSearch
   {...$$restProps}
+  {year}
 >
   <slot />
   <div slot="entity" let:option>

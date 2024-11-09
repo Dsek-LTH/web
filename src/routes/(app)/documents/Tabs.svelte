@@ -22,7 +22,10 @@
   };
 </script>
 
-<div role="tablist" class="tabs-boxed tabs items-stretch">
+<div
+  role="tablist"
+  class="tabs-boxed flex w-full flex-col items-stretch sm:w-auto sm:flex-row"
+>
   {#each options as tabOption (tabOption.value)}
     <a
       href={generateLink(tabOption.value)}

@@ -11,7 +11,9 @@ import * as m from "$paraglide/messages";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
-  authorize(apiNames.MEMBER.UPDATE, user);
+  if (user?.studentId !== params.studentId) {
+    authorize(apiNames.MEMBER.UPDATE, user);
+  }
 
   const member = await prisma.member.findUnique({
     where: {

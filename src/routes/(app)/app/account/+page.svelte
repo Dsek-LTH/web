@@ -33,12 +33,12 @@
           {m.navbar_userMenu_inventory()}
         </a>
       </li>
-      <li>
+      <!-- <li>
         <a href="/nollning">
           <NavIcon class="text-inherit" icon="i-mdi-cloud-outline" />
           {m.landing_theIntroduction()}
         </a>
-      </li>
+      </li> -->
     </ul>
   {/if}
 
