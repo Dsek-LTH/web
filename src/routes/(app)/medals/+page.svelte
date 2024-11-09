@@ -1,7 +1,7 @@
 <script lang="ts">
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
-  import PageHeader from "$lib/components/PageHeader.svelte";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import Pagination from "$lib/components/Pagination.svelte";
   import MedalGrid from "./MedalGrid.svelte";
   import { page } from "$app/stores";
@@ -23,7 +23,7 @@
   $: recipients = data.recipients;
 </script>
 
-<PageHeader title={m.medals()} />
+<SetPageTitle title={m.medals()} />
 
 <div class="space-y-2">
   <Pagination

@@ -15,7 +15,6 @@ import {
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import { sendPing } from "./pings";
-import keycloak from "$lib/server/keycloak";
 import { dateToSemester } from "$lib/utils/semesters";
 import { memberMedals } from "$lib/server/medals/medals";
 
