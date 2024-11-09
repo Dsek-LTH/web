@@ -2,6 +2,7 @@ import { fakerSV as faker } from "@faker-js/faker";
 import { type SeedClientOptions } from "@snaplet/seed";
 import dayjs from "dayjs";
 import apiNames from "$lib/utils/apiNames";
+import * as positionEnums from "$lib/utils/committee-ordering/enums";
 
 const getObjectValues = (obj: unknown): string[] => {
   if (obj && typeof obj === "object") {
@@ -130,6 +131,14 @@ export const ACCESS_POLICIES = [
   studentId: null,
 }));
 
+const getRandomPositionId = () => {
+  const positions = Object.entries(positionEnums).flatMap(([, positionEnum]) =>
+    Object.values(positionEnum).filter((val) => typeof val === "string"),
+  );
+  const position = faker.helpers.arrayElement(positions);
+  return position;
+};
+
 export const models: SeedClientOptions["models"] = {
   member: {
     data: {
@@ -210,6 +219,13 @@ export const models: SeedClientOptions["models"] = {
   },
   position: {
     data: {
+      id: ({ store }) => {
+        let position = getRandomPositionId();
+        while (store.position.find((p) => p.id === position)) {
+          position = getRandomPositionId();
+        }
+        return position;
+      },
       name: () => faker.person.jobTitle(),
       nameEn: () => faker.person.jobTitle(),
       description: () => faker.lorem.paragraph(),
