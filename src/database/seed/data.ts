@@ -3,6 +3,7 @@ import { type SeedClientOptions } from "@snaplet/seed";
 import dayjs from "dayjs";
 import apiNames from "$lib/utils/apiNames";
 import * as positionEnums from "$lib/utils/committee-ordering/enums";
+import { NotificationType } from "$lib/utils/notifications/types";
 
 const getObjectValues = (obj: unknown): string[] => {
   if (obj && typeof obj === "object") {
@@ -276,6 +277,18 @@ export const models: SeedClientOptions["models"] = {
       lyrics: () => faker.lorem.paragraphs({ min: 3, max: 6 }),
       category: () => faker.music.genre(),
       deletedAt: null,
+    },
+  },
+  subscriptionSetting: {
+    data: {
+      type: () => faker.helpers.arrayElement(Object.keys(NotificationType)),
+    },
+  },
+  tag: {
+    data: {
+      name: () => faker.lorem.word(),
+      nameEn: () => faker.lorem.word(),
+      color: () => faker.internet.color(),
     },
   },
 };

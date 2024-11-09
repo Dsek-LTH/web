@@ -30,22 +30,22 @@
   };
 </script>
 
-<PageHeader title={m.setting_title()} />
+<PageHeader title={m.setting_title()} class="text-center" />
 <div class="relative">
   <form
     method="POST"
     class="mt-2 flex w-full flex-col items-center justify-start gap-8 pb-24 lg:flex-row lg:items-start lg:justify-center"
   >
     <div class="flex w-full max-w-2xl flex-col items-center lg:p-0">
-      <h2 class="mb-2 self-start text-2xl font-bold">
+      <h2 class="mb-2 self-center text-2xl font-bold">
         {m.setting_notification()}
       </h2>
-      <ul class="divide-y-2 [&>*]:py-4">
+      <ul class="w-full divide-y-2 [&>*]:py-4">
         {#each Object.entries(NotificationSettingType) as notificationSettingType}
           <li class="w-full space-y-2 first:pt-0 last:pb-0">
             <!-- Web notification -->
             <label class="flex cursor-pointer flex-row justify-between">
-              <span class="flex-1 text-sm font-medium">
+              <span class="flex-1 text-wrap text-sm font-medium">
                 {getNotificationText(notificationSettingType[1])}</span
               >
               <input
@@ -85,13 +85,13 @@
       </ul>
     </div>
     <div class="flex w-full max-w-2xl flex-col items-center lg:p-0">
-      <h2 class="mb-2 self-start text-2xl font-bold">
+      <h2 class="mb-2 self-center text-2xl font-bold">
         {m.setting_subscription()}
       </h2>
       <SubscriptionTags {tags} subscribedTags={subscribedTags.subscribedTags} />
     </div>
     <button
-      class="btn absolute bottom-0 mb-4 mt-4 w-full max-w-xl bg-primary"
+      class="btn btn-primary absolute bottom-0 mb-4 mt-4 w-full max-w-xl bg-primary"
       type="submit">{m.setting_apply()}</button
     >
   </form>

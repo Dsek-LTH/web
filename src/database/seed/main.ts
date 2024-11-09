@@ -22,6 +22,8 @@ const main = async () => {
 
   await seed.$resetDatabase();
 
+  await seed.tag((x) => x(10));
+
   if (process.env["USER"]) {
     await seed.member([{ studentId: process.env["USER"] }]);
   }
@@ -65,6 +67,8 @@ const main = async () => {
   ]);
 
   await seed.song((x) => x(50));
+
+  await seed.subscriptionSetting((x) => x(100));
 
   process.exit();
 };
