@@ -5,10 +5,7 @@ import { redirect } from "$lib/utils/redirect";
 import * as m from "$paraglide/messages";
 import { isAuthorized } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
-import {
-  getBookingRequestOrThrow,
-  getSuperValidatedForm,
-} from "../../sharedUtils";
+import { getBookingRequestOrThrow, getSuperValidatedForm } from "../../utils";
 
 export const load = async ({ locals, params }) => {
   const { prisma } = locals;

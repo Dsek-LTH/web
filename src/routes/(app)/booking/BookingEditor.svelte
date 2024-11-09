@@ -78,7 +78,7 @@
         <StatusComponent
           bind:bookingRequest
           bind:bookingRequests={data.allBookingRequests}
-          mode="review"
+          class="flex-row"
         />
       {/if}
     </div>

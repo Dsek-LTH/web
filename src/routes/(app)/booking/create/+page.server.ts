@@ -42,19 +42,18 @@ const sendNotificationToKM = async (
       mandates: {
         some: {
           positionId: "dsek.km.mastare",
-          endDate: {
-            gte: new Date(),
-          },
+          startDate: { lte: new Date() },
+          endDate: { gte: new Date() },
         },
       },
     },
   });
 
-  const booker = await prisma.member.findUniqueOrThrow({
+  const booker = (await prisma.member.findUnique({
     where: {
       id: bookingRequest.bookerId ?? undefined,
     },
-  });
+  })) ?? { firstName: "Unknown", lastName: "" };
 
   const bookablesString = bookingRequest.bookables
     .map((bookable) => bookable.nameEn)
@@ -91,9 +90,7 @@ export const actions = {
         },
         status: "PENDING",
       },
-      include: {
-        bookables: true,
-      },
+      include: { bookables: true },
     });
 
     await sendNotificationToKM(createdRequest, prisma).catch((e) => {

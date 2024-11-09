@@ -3,10 +3,10 @@ import apiNames from "$lib/utils/apiNames";
 import dayjs from "dayjs";
 import {
   actions,
-  getAllBookingRequestsWeekly,
+  getUpcomingBookingRequests,
   getBookingRequestOrThrow,
   getSuperValidatedForm,
-} from "../../sharedUtils";
+} from "../../utils";
 
 export const load = async ({ locals, params }) => {
   const { prisma, user } = locals;
@@ -33,7 +33,7 @@ export const load = async ({ locals, params }) => {
     form,
     booking: bookingRequest,
     allBookingRequests,
-    bookingRequests: await getAllBookingRequestsWeekly(prisma),
+    bookingRequests: await getUpcomingBookingRequests(prisma),
   };
 };
 

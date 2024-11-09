@@ -60,6 +60,7 @@
               <StatusComponent
                 bind:bookingRequest
                 bind:bookingRequests={data.bookingRequests}
+                class="flex-col"
               />
             </td>
             <td>

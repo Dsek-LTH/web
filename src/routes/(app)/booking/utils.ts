@@ -18,7 +18,7 @@ export const actions: Actions = {
   },
 };
 
-export async function getAllBookingRequestsWeekly(prisma: PrismaClient) {
+export async function getUpcomingBookingRequests(prisma: PrismaClient) {
   return prisma.bookingRequest.findMany({
     where: {
       start: {
