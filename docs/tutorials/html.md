@@ -1,6 +1,10 @@
 # HTML
 
-HTML is the most basic building block of the Web. It defines the meaning and structure of web content. Learn HTML at [Codecademy](https://www.codecademy.com/learn/learn-html).
+HTML defines the meaning and structure of web content.
+
+::: tip Tutorial
+Learn HTML at [Codecademy](https://www.codecademy.com/learn/learn-html).
+:::
 
 ### HTML example
 

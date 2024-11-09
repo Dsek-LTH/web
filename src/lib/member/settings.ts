@@ -52,25 +52,33 @@ export const settingsActions = {
 
     // Try-catch if for some reason form data isn't correct
     try {
-      await prisma.subscriptionSetting.deleteMany({
-        where: {
-          memberId: user.memberId,
-        },
+      await prisma.$transaction(async (tx) => {
+        await tx.subscriptionSetting.deleteMany({
+          where: {
+            memberId: user.memberId,
+          },
+        });
+        const res = await tx.subscriptionSetting.createMany({
+          data: subscription.map((sub) => {
+            return {
+              memberId: user.memberId as string,
+              type: sub.toString(),
+              pushNotification: push.find(
+                (tag) => sub.toString() == tag.toString(),
+              )
+                ? true
+                : false,
+            };
+          }),
+        });
+        if (res.count != push.length) {
+          // If nbr created isn't the same as number of subscribed tags, something went wrong, do rollback
+          throw new Error(
+            `${res.count} created but supposed to be ${push.length}`,
+          );
+        }
       });
-      await prisma.subscriptionSetting.createMany({
-        data: subscription.map((sub) => {
-          return {
-            memberId: user.memberId as string,
-            type: sub.toString(),
-            pushNotification: push.find(
-              (tag) => sub.toString() == tag.toString(),
-            )
-              ? true
-              : false,
-          };
-        }),
-      });
-      await prisma.member.update({
+      prisma.member.update({
         where: {
           id: user.memberId as string,
         },
@@ -84,7 +92,8 @@ export const settingsActions = {
           },
         },
       });
-    } catch {
+    } catch (error) {
+      console.log(error);
       return fail(400, { form });
     }
   },

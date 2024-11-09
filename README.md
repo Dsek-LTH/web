@@ -29,9 +29,9 @@
     <br />
     <a href="https://dsek-lth.github.io/web/">Documentation</a>
     <br />
-    <a href="https://github.com/Dsek-LTH/web/issues/new/choose">Report Bug</a>
+    <a href="https://github.com/Dsek-LTH/web/issues/new?labels=bug&template=bug-report.yml">Report Bug</a>
     ·
-    <a href="https://github.com/Dsek-LTH/web/issues/new/choose">Request Feature</a>
+    <a href="https://github.com/Dsek-LTH/web/issues/new?labels=enhancement&template=feature-request.yml">Request Feature</a>
   </p>
 </div>
 
@@ -62,9 +62,9 @@ The best way to get started is to visit the [Getting started](https://dsek-lth.g
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## Development
+## Documentation
 
-The documentation contains a lot of useful information for developers. You can find it [here](https://dsek-lth.github.io/web/). Note especially that VS Code is used and there are a few extensions **you should install** before starting development. These should be suggested by VS Code when you open the project for the first time, otherwise they can be found in `.vscode/extensions.json`.
+Everything you need to know about the project can be found in the [documentation](https://dsek-lth.github.io/web/).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

@@ -87,38 +87,23 @@ export const getCurrentDoorPoliciesForMember = async (
     .findMany({
       where: {
         AND: [
+          { isBan: false },
           {
             // is active, or indefinite
             OR: [
-              {
-                startDatetime: null,
-              },
-              {
-                startDatetime: {
-                  lte: new Date(),
-                },
-              },
+              { startDatetime: null },
+              { startDatetime: { lte: new Date() } },
             ],
           },
           {
             // is active, or indefinite
-            OR: [
-              {
-                endDatetime: null,
-              },
-              {
-                endDatetime: {
-                  gte: new Date(),
-                },
-              },
-            ],
+            OR: [{ endDatetime: null }, { endDatetime: { gte: new Date() } }],
           },
           {
             OR: [
+              { studentId /* is for this user */ },
               {
-                studentId, // is for this user
-              },
-              {
+                // or is for a role this user has
                 role: {
                   in: getDerivedRoles(
                     memberPositionIds.map((pos) => pos.id),

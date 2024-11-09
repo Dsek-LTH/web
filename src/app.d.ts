@@ -1,10 +1,9 @@
-// See https://kit.svelte.dev/docs/types#app
-
 import type { ToastNotification } from "$lib/stores/toast";
 import type { Theme } from "$lib/utils/themes";
 import type { Member, PrismaClient } from "@prisma/client";
 import type { AuthUser } from "@zenstackhq/runtime";
 
+// See https://kit.svelte.dev/docs/types#app
 // for information about these interfaces
 declare global {
   type MessageType = ToastNotification["type"] | "hidden";

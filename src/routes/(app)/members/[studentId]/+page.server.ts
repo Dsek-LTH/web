@@ -15,6 +15,8 @@ import {
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import { sendPing } from "./pings";
+import { dateToSemester } from "$lib/utils/semesters";
+import { memberMedals } from "$lib/server/medals/medals";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
@@ -101,6 +103,11 @@ export const load: PageServerLoad = async ({ locals, params }) => {
       doorAccess,
       publishedArticles: publishedArticlesResult.value ?? [],
       email,
+      medals: await memberMedals(
+        prisma,
+        member.id,
+        dateToSemester(new Date()) - 1,
+      ),
       phadderGroups: phadderGroupsResult.value,
       ping: user
         ? await prisma.ping.findFirst({

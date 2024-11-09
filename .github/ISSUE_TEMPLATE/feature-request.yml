@@ -1,0 +1,23 @@
+name: Feature Request
+description: Suggest an idea for this project
+labels:
+  - enhancement
+body:
+  - type: textarea
+    attributes:
+      label: Description
+      description: >-
+        A clear and concise description. Make sure to include any relevant
+        background. Why is this enhancement needed and who would it benefit?
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Describe the solution you'd like
+      description: If you have a solution in mind, please describe it.
+  - type: textarea
+    attributes:
+      label: Describe alternatives you've considered
+      description: >-
+        Have you considered any alternative solutions or workarounds? How is
+        this need currently being addressed?
