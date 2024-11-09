@@ -4,12 +4,16 @@
   import { i18n } from "$lib/utils/i18n";
   import { invalidateAll } from "$app/navigation";
   import { twMerge } from "tailwind-merge";
+  import { browser } from "$app/environment";
 
   let clazz = "";
   export { clazz as class };
-  onSetLanguageTag(() => {
-    invalidateAll();
-  });
+
+  if (browser) {
+    onSetLanguageTag(() => {
+      invalidateAll();
+    });
+  }
 </script>
 
 <a
