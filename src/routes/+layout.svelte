@@ -6,6 +6,8 @@
   import dayjs from "dayjs";
   /* Recommended for fraud detection */
   import "@stripe/stripe-js";
+  import { onMount } from "svelte";
+  import { setDefaultFlags } from "$lib/utils/featureFlag";
 
   export let data;
 
@@ -13,6 +15,10 @@
     const locale = languageTag();
     dayjs.locale(locale);
   })();
+
+  onMount(() => {
+    setDefaultFlags();
+  });
 </script>
 
 <svelte:head>
