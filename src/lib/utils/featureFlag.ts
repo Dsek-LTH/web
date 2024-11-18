@@ -11,10 +11,6 @@ export const isFeatureFlagEnabled = (flag: string) => {
   return true;
 };
 
-export const setDefaultFlags = () => {
-  featureFlags.forEach((f) => localStorage.setItem(f, "false"));
-};
-
 export const setFeatureFlag = (flag: string, value: boolean) => {
   if (!featureFlags.includes(flag)) {
     return false;
