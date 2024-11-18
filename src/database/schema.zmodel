@@ -891,6 +891,9 @@ enum DocumentType {
   GUIDELINE
   MEETING
   OTHER
+  PLAN_OF_OPERATIONS
+  FRAMEWORK_BUDGET
+  STRATEGIC_GOALS
 
   @@map("document_type")
 }

@@ -9100,6 +9100,9 @@
       "schemaName": "public",
       "values": [
         {
+          "name": "FRAMEWORK_BUDGET"
+        },
+        {
           "name": "GUIDELINE"
         },
         {
@@ -9109,7 +9112,13 @@
           "name": "OTHER"
         },
         {
+          "name": "PLAN_OF_OPERATIONS"
+        },
+        {
           "name": "POLICY"
+        },
+        {
+          "name": "STRATEGIC_GOALS"
         }
       ]
     },
