@@ -121,6 +121,13 @@ export const getRoutes = (): Route[] =>
           accessRequired: null,
           appBehaviour: "home-link",
         },
+        {
+          title: m.volunteers(),
+          path: "/info/benefits",
+          icon: "i-mdi-account",
+          accessRequired: null,
+          appBehaviour: "home-link",
+        },
       ],
     },
     {
