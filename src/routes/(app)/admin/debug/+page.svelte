@@ -12,10 +12,12 @@
   export let data;
   $: user = data.user;
   $: policies = user.policies.toSorted();
-  const flags = new Map<string, boolean>();
+  $: flags = new Map<string, boolean>();
   onMount(() => {
+    const flagMap = new Map<string, boolean>();
     featureFlags.forEach((f) => {
-      flags.set(f, isFeatureFlagEnabled(f));
+      flagMap.set(f, isFeatureFlagEnabled(f));
+      flags = flagMap;
     });
   });
 </script>
