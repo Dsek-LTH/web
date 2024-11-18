@@ -8,7 +8,13 @@
   export let article: Article;
 </script>
 
-{#if article.imageUrl}
+{#if article.videoUrl}
+  <figure>
+    <video autoplay muted controls src={getFileUrl(article.videoUrl)}>
+      <track kind="captions" />
+    </video>
+  </figure>
+{:else if article.imageUrl}
   <figure>
     <img
       class="mx-auto"

@@ -16,6 +16,7 @@
   export let allTags: Tag[];
   export let superform: SuperForm<ArticleSchema>;
   export let articleImage: string | undefined = undefined;
+  export let articleVideo: string | undefined = undefined;
 
   const { form, enhance, errors } = superform;
 
@@ -49,6 +50,31 @@
         );
       } else {
         articleImage = result;
+      }
+    };
+  };
+
+  const onVideoFileSelected = (
+    event: Event & {
+      currentTarget: EventTarget & HTMLInputElement;
+    },
+  ) => {
+    let video = event.currentTarget.files?.[0];
+    if (!video) return;
+    let reader = new FileReader();
+    reader.readAsDataURL(video);
+    reader.onload = (e) => {
+      let result = e.target?.result ?? undefined;
+      // If array buffer, convert to base64
+      if (result instanceof ArrayBuffer) {
+        articleVideo = btoa(
+          new Uint8Array(result).reduce(
+            (data, byte) => data + String.fromCharCode(byte),
+            "",
+          ),
+        );
+      } else {
+        articleVideo = result;
       }
     };
   };
@@ -115,6 +141,14 @@
     label="Bild"
     onChange={onFileSelected}
     accept="image/*"
+  />
+
+  <FormFileInput
+    {superform}
+    field="video"
+    label="Video"
+    onChange={onVideoFileSelected}
+    accept="video/*"
   />
 
   <slot name="form-end" />

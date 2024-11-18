@@ -1,4 +1,4 @@
-import { isFileImage } from "$lib/files/utils";
+import { isFileImage, isFileVideo } from "$lib/files/utils";
 import { authorSchema, tagSchema } from "$lib/zod/schemas";
 import type { Infer } from "sveltekit-superforms";
 import { z } from "zod";
@@ -25,6 +25,13 @@ export const articleSchema = z.object({
     .optional()
     .refine((file) => !file || isFileImage(file), {
       message: "Måste vara en bild",
+    }),
+  video: z
+    .instanceof(File, { message: "Please upload a file" })
+    .nullable()
+    .optional()
+    .refine((file) => !file || isFileVideo(file), {
+      message: "Måste vara en video",
     }),
 });
 export type ArticleSchema = Infer<typeof articleSchema>;

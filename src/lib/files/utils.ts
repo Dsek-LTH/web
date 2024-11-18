@@ -1,4 +1,5 @@
 export const isFileImage = (file: File) => file.type.split("/")[0] === "image";
+export const isFileVideo = (file: File) => file.type.split("/")[0] === "video";
 
 export const getNameOfFile = (fileName: string) => {
   const dotIndex = fileName.lastIndexOf(".");
