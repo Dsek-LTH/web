@@ -24,7 +24,8 @@
 {/if}
 
 <div class="flex items-baseline">
-  <h1 class="text-2xl font-bold {event.isCancelled ? 'line-through' : ''}">
+  <h1 class="text-2xl font-bold" class:line-through={event.isCancelled}>
+``
     {event.title}
     {#if event.removedAt}
       <span
