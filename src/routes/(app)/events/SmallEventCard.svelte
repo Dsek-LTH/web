@@ -8,6 +8,7 @@
   import type { SuperValidated } from "sveltekit-superforms";
   import { eventLink } from "$lib/utils/redirect";
   import { languageTag } from "$paraglide/runtime";
+  import * as m from "$paraglide/messages";
 
   export let event: EventWithIncludes;
   export let interestedGoingForm: SuperValidated<InterestedGoingSchema>;
@@ -26,18 +27,28 @@
 
   <div class="flex flex-col p-8">
     <a href={eventLink(event)}>
-      <h2 class="text-2xl font-bold">
-        {event.title}
-        {#if event.removedAt}
+      <div class="flex items-end">
+        <h2
+          class="text-2xl font-bold {event.isCancelled ? 'line-through' : ''}"
+        >
+          {event.title}
+          {#if event.removedAt}
+            <span
+              class="badge badge-error badge-sm relative -top-1 !text-xs font-semibold"
+              >Raderat</span
+            >
+          {/if}
+        </h2>
+        {#if event.isCancelled}
           <span
-            class="badge badge-error badge-sm relative -top-1 !text-xs font-semibold"
-            >Raderat</span
+            class="badge badge-error badge-md relative -top-1 ml-2 font-semibold"
+            >{m.events_cancelled()}</span
           >
         {/if}
-      </h2>
+      </div>
     </a>
 
-    <section class="text-primary">
+    <section class="text-primary {event.isCancelled ? 'line-through' : ''}">
       {#if Math.abs(event.startDatetime.valueOf() - event.endDatetime.valueOf()) < 24 * 60 * 60 * 1000}
         <span class="font-semibold">{relativeDate(event.startDatetime)}</span>
         <br />

@@ -31,6 +31,8 @@
   $: if ($errors) console.log($errors);
   let activeTab: "sv" | "en";
   let modal: HTMLDialogElement;
+
+  $: willCancelEvent = $form.isCancelled;
 </script>
 
 <main
@@ -111,13 +113,13 @@
       <FormCheckbox
         {superform}
         field="alarmActive"
-        label="{m.events_create_alarmActive()}}"
+        label={m.events_create_alarmActive()}
       />
       <FormCheckbox
         {superform}
         field="isRecurring"
         disabled={!creating}
-        label="{m.events_recurringEvent()}}"
+        label={m.events_recurringEvent()}
       />
       {#if $form.isRecurring}
         <div class="flex flex-row justify-between gap-4 [&>*]:flex-1">
@@ -141,6 +143,12 @@
           />
         </div>
       {/if}
+      <FormCheckbox
+        {superform}
+        field="isCancelled"
+        label={m.events_cancelEvent()}
+        class=""
+      />
 
       <div class="flex w-full flex-col items-stretch">
         <Labeled
@@ -163,9 +171,17 @@
           {m.save()}
         </button>
       {:else}
-        <FormSubmitButton {superform} class="btn btn-primary my-4">
-          {creating ? m.news_publish() : m.save()}
-        </FormSubmitButton>
+        <div class="my-4 flex items-center">
+          <FormSubmitButton {superform} class="btn btn-primary h-full">
+            {creating ? m.news_publish() : m.save()}
+          </FormSubmitButton>
+          {#if willCancelEvent}
+            <div role="alert" class="alert alert-warning ml-4">
+              <span class="i-mdi-alert-outline size-6" />
+              <span>{m.events_cancellingAlert()}</span>
+            </div>
+          {/if}
+        </div>
       {/if}
       <dialog class="modal" bind:this={modal}>
         <div class="modal-box">

@@ -3,6 +3,7 @@
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import type { Event } from "@prisma/client";
   import { getFileUrl } from "$lib/files/client";
+  import * as m from "$paraglide/messages";
   export let event: Pick<
     Event,
     | "title"
@@ -11,6 +12,7 @@
     | "shortDescription"
     | "description"
     | "imageUrl"
+    | "isCancelled"
   > &
     Partial<Pick<Event, "removedAt">>;
 </script>
@@ -21,17 +23,28 @@
   </figure>
 {/if}
 
-<h1 class="text-2xl font-bold">
-  {event.title}
-  {#if event.removedAt}
-    <span
-      class="badge badge-error badge-sm relative -top-1 !text-xs font-semibold"
-      >Raderat</span
+<div class="flex items-baseline">
+  <h1 class="text-2xl font-bold {event.isCancelled ? 'line-through' : ''}">
+    {event.title}
+    {#if event.removedAt}
+      <span
+        class="badge badge-error badge-sm relative -top-1 !text-xs font-semibold"
+        >Raderat</span
+      >
+    {/if}
+  </h1>
+  {#if event.isCancelled}
+    <span class="badge badge-error badge-lg relative -top-1 ml-2 font-semibold"
+      >{m.events_cancelled()}</span
     >
   {/if}
-</h1>
+</div>
 
-<section class="flex flex-row justify-between">
+<section
+  class="flex flex-row justify-between {event.isCancelled
+    ? 'line-through'
+    : ''}"
+>
   <DateSpan start={event.startDatetime} end={event.endDatetime} />
   <slot name="actions" />
 </section>
