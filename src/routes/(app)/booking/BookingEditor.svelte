@@ -22,8 +22,8 @@
   let start = $form.start;
   let end = $form.end;
 
-  const councilRoomId = "99854837-fdb9-4dba-85fc-86a5c514253c";
-  $: showCouncilRooomWarning = $form.bookables.includes(councilRoomId);
+  const boardRoomId = "99854837-fdb9-4dba-85fc-86a5c514253c";
+  $: showBoardRooomWarning = $form.bookables.includes(boardRoomId);
 
   // Ensure that the start date is always before the end date
   function handleStartChange() {
@@ -106,10 +106,10 @@
     {/each}
   </fieldset>
 
-  {#if showCouncilRooomWarning}
+  {#if showBoardRooomWarning}
     <div role="alert" class="alert alert-warning">
       <span class="i-mdi-alert-outline size-6" />
-      <span>{m.booking_councilRoomWarning()}</span>
+      <span>{m.booking_boardRoomWarning()}</span>
     </div>
   {/if}
 
