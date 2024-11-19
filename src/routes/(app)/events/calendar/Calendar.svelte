@@ -68,9 +68,11 @@
             start: event.startDatetime,
             end: event.endDatetime,
             url: eventLink(event),
+            color: event.isCancelled ? "rgb(250, 43, 43)" : "#f280a1",
+            className: event.isCancelled ? "!line-through" : "",
           })),
           locale: languageTag(),
-          eventColor: "#f280a1",
+
           firstDay: 1,
           headerToolbar: {
             left: "prev,next,addEvent,subscribe",
