@@ -100,16 +100,10 @@ export const GET: RequestHandler = async ({ params }) => {
     const { studentIdsBanned } = parseDoorBanPolicies(policies);
 
     const studentsFromWildcard = positionIds.includes("*")
-      ? await authorizedPrismaClient.member
+      ? authorizedPrismaClient.member
           .findMany({
-            where: {
-              classYear: {
-                gte: new Date().getFullYear() - 10,
-              },
-            },
-            select: {
-              studentId: true,
-            },
+            where: { classYear: { gte: new Date().getFullYear() - 10 } },
+            select: { studentId: true },
           })
           .then((members) =>
             members
@@ -136,7 +130,7 @@ export const GET: RequestHandler = async ({ params }) => {
     const allowedStudents = [
       ...studentIds,
       ...studentsFromPositions,
-      ...studentsFromWildcard,
+      ...(await studentsFromWildcard),
     ].filter((studentId) => !bannedStudents.has(studentId));
 
     return new Response(
