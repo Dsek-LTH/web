@@ -31,8 +31,6 @@
   $: if ($errors) console.log($errors);
   let activeTab: "sv" | "en";
   let modal: HTMLDialogElement;
-
-  $: willCancelEvent = $form.isCancelled;
 </script>
 
 <main
@@ -174,7 +172,7 @@
           <FormSubmitButton {superform} class="btn btn-primary h-full">
             {creating ? m.news_publish() : m.save()}
           </FormSubmitButton>
-          {#if willCancelEvent}
+          {#if $form.isCancelled}
             <div role="alert" class="alert alert-warning ml-4">
               <span class="i-mdi-alert-outline size-6" />
               <span>{m.events_cancellingAlert()}</span>
