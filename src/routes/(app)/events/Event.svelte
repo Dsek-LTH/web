@@ -24,7 +24,7 @@
 {/if}
 
 <div class="flex items-baseline">
-  <h1 class="text-2xl font-bold {event.isCancelled ? 'line-through' : ''}">
+  <h1 class="text-2xl font-bold" class:line-through={event.isCancelled}>
     {event.title}
     {#if event.removedAt}
       <span
@@ -41,9 +41,8 @@
 </div>
 
 <section
-  class="flex flex-row justify-between {event.isCancelled
-    ? 'line-through'
-    : ''}"
+  class="flex flex-row justify-between"
+  class:line-through={event.isCancelled}
 >
   <DateSpan start={event.startDatetime} end={event.endDatetime} />
   <slot name="actions" />

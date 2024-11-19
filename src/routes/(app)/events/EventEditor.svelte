@@ -147,7 +147,6 @@
         {superform}
         field="isCancelled"
         label={m.events_cancelEvent()}
-        class=""
       />
 
       <div class="flex w-full flex-col items-stretch">

@@ -28,9 +28,7 @@
   <div class="flex flex-col p-8">
     <a href={eventLink(event)}>
       <div class="flex items-end">
-        <h2
-          class="text-2xl font-bold {event.isCancelled ? 'line-through' : ''}"
-        >
+        <h2 class="text-2xl font-bold" class:line-through={event.isCancelled}>
           {event.title}
           {#if event.removedAt}
             <span
@@ -48,7 +46,7 @@
       </div>
     </a>
 
-    <section class="text-primary {event.isCancelled ? 'line-through' : ''}">
+    <section class="text-primary" class:line-through={event.isCancelled}>
       {#if Math.abs(event.startDatetime.valueOf() - event.endDatetime.valueOf()) < 24 * 60 * 60 * 1000}
         <span class="font-semibold">{relativeDate(event.startDatetime)}</span>
         <br />
