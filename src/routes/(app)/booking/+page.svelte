@@ -4,7 +4,7 @@
   import { isAuthorized } from "$lib/utils/authorization";
   import { page } from "$app/stores";
   import apiNames from "$lib/utils/apiNames";
-  import StatusComponent from "./admin/StatusComponent.svelte";
+  import StatusComponent from "./StatusComponent.svelte";
   import dayjs from "dayjs";
   import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
   import BookingCalendar from "./BookingCalendar.svelte";
@@ -60,6 +60,7 @@
               <StatusComponent
                 bind:bookingRequest
                 bind:bookingRequests={data.bookingRequests}
+                class="flex-col"
               />
             </td>
             <td>

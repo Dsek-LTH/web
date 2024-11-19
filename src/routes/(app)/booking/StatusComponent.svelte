@@ -2,10 +2,14 @@
   import type { Bookable, BookingRequest } from "@prisma/client";
   import dayjs from "dayjs";
   import * as m from "$paraglide/messages";
+  import { twMerge } from "tailwind-merge";
 
   type T = BookingRequest & { bookables: Bookable[] };
   export let bookingRequest: T;
   export let bookingRequests: T[];
+  let clazz: string | undefined = undefined;
+  export { clazz as class };
+
   $: otherBookingRequests = bookingRequests.filter(
     (br) => br.id !== bookingRequest.id && br.status !== "DENIED",
   );
@@ -29,7 +33,7 @@
   $: conflictWarning = conflict && !conflictError;
 </script>
 
-<div class="flex flex-col gap-1">
+<div class={twMerge("flex gap-1", clazz)}>
   {#if bookingRequest.status === "ACCEPTED"}
     <div class="badge badge-success">
       <span class="i-mdi-check-circle mr-1" />{m.booking_accepted()}

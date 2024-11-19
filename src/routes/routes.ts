@@ -121,6 +121,13 @@ export const getRoutes = (): Route[] =>
           accessRequired: null,
           appBehaviour: "home-link",
         },
+        {
+          title: m.medals(),
+          path: "/medals",
+          icon: "i-mdi-medal",
+          accessRequired: null,
+          appBehaviour: "home-link",
+        },
       ],
     },
     {

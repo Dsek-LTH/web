@@ -3584,6 +3584,34 @@
           "maxLength": null
         },
         {
+          "id": "public.door_access_policies.is_ban",
+          "name": "is_ban",
+          "columnName": "is_ban",
+          "type": "bool",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": true,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.door_access_policies.information",
+          "name": "information",
+          "columnName": "information",
+          "type": "varchar",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": 255
+        },
+        {
           "name": "doors",
           "type": "doors",
           "isRequired": true,

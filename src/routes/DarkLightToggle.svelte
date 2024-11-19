@@ -16,17 +16,14 @@
   };
 </script>
 
-<label class={twMerge("btn btn-ghost swap swap-rotate *:text-2xl", clazz)}>
-  <!-- this hidden checkbox controls the state -->
-  <input
-    type="checkbox"
-    bind:checked={isCurrentThemeLight}
-    on:click={toggleTheme}
-  />
-
+<button
+  class={twMerge("btn btn-ghost swap swap-rotate *:text-2xl", clazz)}
+  class:swap-active={isCurrentThemeLight}
+  on:click={toggleTheme}
+>
   <!-- moon icon -->
   <span class="swap-on i-mdi-weather-night" />
 
   <!-- sun icon -->
   <span class="swap-off i-mdi-weather-sunny" />
-</label>
+</button>
