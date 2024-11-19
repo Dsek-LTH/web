@@ -12,10 +12,10 @@ e.g. `?page=1`, `?page=2`, etc. The page number is stored in the URL query.
   import { twMerge } from "tailwind-merge";
 
   let {
-    class: clazz,
+    class: clazz = "",
     count,
-    getPageName = (n: number): string => (n + 1).toString(),
-    getPageNumber = (n: string): number => +n - 1,
+    getPageName = (n) => (n + 1).toString(),
+    getPageNumber = (n) => n - 1,
     fieldName = "page",
     showPrev = true,
     showNext = true,

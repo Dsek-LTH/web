@@ -42,6 +42,7 @@
       class="form-control items-start gap-2"
       use:enhance
       enctype="multipart/form-data"
+      id="editForm"
     >
       <slot name="form-start" />
       <LangTabs bind:activeTab class="self-stretch">
@@ -167,64 +168,6 @@
           {creating ? m.news_publish() : m.save()}
         </FormSubmitButton>
       {/if}
-      <dialog class="modal" bind:this={modal}>
-        <div class="modal-box">
-          <h3 class="text-lg font-bold">{m.events_thisIsRecurring()}</h3>
-          <div class="py-4">
-            <div class="form-control">
-              <label class="label cursor-pointer">
-                <span class="label-text">
-                  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                  {@html m.events_onlyEditThis()}
-                </span>
-                <input
-                  type="radio"
-                  name="editType"
-                  class="radio"
-                  bind:group={$form.editType}
-                  value={"THIS"}
-                />
-              </label>
-            </div>
-            <div class="form-control">
-              <label class="label cursor-pointer">
-                <span class="label-text">
-                  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                  {@html m.events_editThisAndFuture()}
-                </span>
-                <input
-                  type="radio"
-                  name="editType"
-                  class="radio"
-                  bind:group={$form.editType}
-                  value={"FUTURE"}
-                />
-              </label>
-            </div>
-            <div class="form-control">
-              <label class="label cursor-pointer">
-                <span class="label-text">
-                  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                  {@html m.events_editAll()}
-                </span>
-                <input
-                  type="radio"
-                  name="editType"
-                  class="radio"
-                  bind:group={$form.editType}
-                  value={"ALL"}
-                />
-              </label>
-            </div>
-          </div>
-          <FormSubmitButton {superform} class="btn btn-primary my-4">
-            {creating ? m.news_publish() : m.save()}
-          </FormSubmitButton>
-        </div>
-        <form method="dialog" class="modal-backdrop">
-          <button>close</button>
-        </form>
-      </dialog>
     </form>
     <slot name="error" />
   </section>
@@ -257,3 +200,62 @@
     </Event>
   </section>
 </main>
+
+<dialog class="modal" bind:this={modal}>
+  <div class="modal-box">
+    <h3 class="text-lg font-bold">{m.events_thisIsRecurring()}</h3>
+    <div class="py-4">
+      <div class="form-control">
+        <label class="label cursor-pointer">
+          <span class="label-text">
+            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+            {@html m.events_onlyEditThis()}
+          </span>
+          <input
+            type="radio"
+            name="editType"
+            class="radio"
+            bind:group={$form.editType}
+            value={"THIS"}
+          />
+        </label>
+      </div>
+      <div class="form-control">
+        <label class="label cursor-pointer">
+          <span class="label-text">
+            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+            {@html m.events_editThisAndFuture()}
+          </span>
+          <input
+            type="radio"
+            name="editType"
+            class="radio"
+            bind:group={$form.editType}
+            value={"FUTURE"}
+          />
+        </label>
+      </div>
+      <div class="form-control">
+        <label class="label cursor-pointer">
+          <span class="label-text">
+            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+            {@html m.events_editAll()}
+          </span>
+          <input
+            type="radio"
+            name="editType"
+            class="radio"
+            bind:group={$form.editType}
+            value={"ALL"}
+          />
+        </label>
+      </div>
+    </div>
+    <FormSubmitButton form="editForm" {superform} class="btn btn-primary my-4">
+      {creating ? m.news_publish() : m.save()}
+    </FormSubmitButton>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button>close</button>
+  </form>
+</dialog>
