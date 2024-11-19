@@ -84,7 +84,7 @@
           {flag}
           <input
             type="checkbox"
-            class="toggle"
+            class="toggle toggle-primary"
             checked={flags.get(flag)}
             on:change={() => {
               setFeatureFlag(flag, isFeatureFlagEnabled(flag) ? false : true);
