@@ -10,11 +10,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   let year = url.searchParams.get("year") || new Date().getFullYear();
   year = typeof year === "string" ? parseInt(year) : year;
   const governingDocuments = await prisma.document
-    .findMany({
-      where: {
-        deletedAt: null,
-      },
-    })
+    .findMany()
     .then((documents) => {
       const filterDocuments = (type: string, filterByDate: boolean) =>
         documents.filter(
