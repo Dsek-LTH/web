@@ -22,6 +22,9 @@
   let start = $form.start;
   let end = $form.end;
 
+  const boardRoomId = "99854837-fdb9-4dba-85fc-86a5c514253c";
+  $: showBoardRooomWarning = $form.bookables.includes(boardRoomId);
+
   // Ensure that the start date is always before the end date
   function handleStartChange() {
     if (start && end) {
@@ -102,6 +105,13 @@
       </label>
     {/each}
   </fieldset>
+
+  {#if showBoardRooomWarning}
+    <div role="alert" class="alert alert-warning">
+      <span class="i-mdi-alert-outline size-6" />
+      <span>{m.booking_boardRoomWarning()}</span>
+    </div>
+  {/if}
 
   <label>
     <span class="label-text ml-2 font-bold">{m.booking_from()}</span>
