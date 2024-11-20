@@ -4228,6 +4228,20 @@
           "maxLength": null
         },
         {
+          "id": "public.events.is_cancelled",
+          "name": "is_cancelled",
+          "columnName": "is_cancelled",
+          "type": "bool",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": true,
+          "isId": false,
+          "maxLength": null
+        },
+        {
           "name": "RecurringEvent",
           "type": "RecurringEvent",
           "isRequired": false,
