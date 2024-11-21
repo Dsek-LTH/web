@@ -1,7 +1,9 @@
+import { browser } from "$app/environment";
+
 export const featureFlags: string[] = [];
 
 export const isFeatureFlagEnabled = (flag: string) => {
-  if (!featureFlags.includes(flag)) {
+  if (!featureFlags.includes(flag) || !browser) {
     return false;
   }
   const value = localStorage.getItem(flag);

@@ -7,10 +7,8 @@ When working on larger features we want to avoid long lived branches with a lot 
 2. Go to the relevant component/page and add
 
 ```typescript
-let isEnabled = false;
-onMount(() => {
-  isEnabled = isFeatureFlagEnabled("newFeature");
-});
+import { isFeatureFlagEnabled } from "$lib/utils/featureFlag";
+let isEnabled = isFeatureFlagEnabled("newFeature");
 ```
 
 3. Go to `/admin/debug` to toggle the feature flag
