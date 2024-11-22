@@ -42,6 +42,7 @@ export const eventSchema = z
       .default([]),
 
     alarmActive: z.boolean().nullable().default(null),
+    isCancelled: z.boolean().nullable().default(null),
     isRecurring: z.boolean().default(false),
     // see comment above and in utils/events.ts why we do it like this
     recurringType: z

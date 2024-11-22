@@ -21,7 +21,7 @@
   <section class="col-span-1 hidden flex-col place-items-center xl:flex">
     <DsekLogo class="size-48 pl-4 text-primary" />
     {#if $page.data.member}
-      <div class="pt-2 text-2xl font-bold">
+      <div class="pt-2 text-center text-2xl font-bold">
         {getFullName($page.data.member)}
       </div>
 

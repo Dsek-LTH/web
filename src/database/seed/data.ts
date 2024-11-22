@@ -44,6 +44,7 @@ export const BOOKABLES = [
   { name: "Sektionsbilen" },
   { name: "Lila Soundboks" },
   { name: "Råsa Soundboks" },
+  { name: "Styrelserummet", id: "99854837-fdb9-4dba-85fc-86a5c514253c" },
 ];
 
 export const COMMITTEES = [

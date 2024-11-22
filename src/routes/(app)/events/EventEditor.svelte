@@ -112,13 +112,13 @@
       <FormCheckbox
         {superform}
         field="alarmActive"
-        label="{m.events_create_alarmActive()}}"
+        label={m.events_create_alarmActive()}
       />
       <FormCheckbox
         {superform}
         field="isRecurring"
         disabled={!creating}
-        label="{m.events_recurringEvent()}}"
+        label={m.events_recurringEvent()}
       />
       {#if $form.isRecurring}
         <div class="flex flex-row justify-between gap-4 [&>*]:flex-1">
@@ -142,6 +142,11 @@
           />
         </div>
       {/if}
+      <FormCheckbox
+        {superform}
+        field="isCancelled"
+        label={m.events_cancelEvent()}
+      />
 
       <div class="flex w-full flex-col items-stretch">
         <Labeled
@@ -164,9 +169,17 @@
           {m.save()}
         </button>
       {:else}
-        <FormSubmitButton {superform} class="btn btn-primary my-4">
-          {creating ? m.news_publish() : m.save()}
-        </FormSubmitButton>
+        <div class="my-4 flex items-center">
+          <FormSubmitButton {superform} class="btn btn-primary h-full">
+            {creating ? m.news_publish() : m.save()}
+          </FormSubmitButton>
+          {#if $form.isCancelled}
+            <div role="alert" class="alert alert-warning ml-4">
+              <span class="i-mdi-alert-outline size-6" />
+              <span>{m.events_cancellingAlert()}</span>
+            </div>
+          {/if}
+        </div>
       {/if}
     </form>
     <slot name="error" />
