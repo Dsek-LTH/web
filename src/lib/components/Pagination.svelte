@@ -15,7 +15,7 @@ e.g. `?page=1`, `?page=2`, etc. The page number is stored in the URL query.
     class: clazz = "",
     count,
     getPageName = (n) => (n + 1).toString(),
-    getPageNumber = (n) => n - 1,
+    getPageNumber = (n) => Number.parseInt(n) - 1,
     fieldName = "page",
     showPrev = true,
     showNext = true,
@@ -23,35 +23,35 @@ e.g. `?page=1`, `?page=2`, etc. The page number is stored in the URL query.
     showLast = false,
     keepScrollPosition = false,
   }: {
-    class: string;
+    class?: string;
     /** The number of pages. */
     count: number;
     /**
      * Given a page number, return the name of the page.
      * By default pages are named 1, 2, 3, ...
      */
-    getPageName: (n: number) => string;
+    getPageName?: (n: number) => string;
     /**
      * Given a page name, return the number of the page.
      * If `getPageName` is provided, this must also be provided
      * and it must be the inverse of `getPageName`.
      */
-    getPageNumber: (n: string) => number;
+    getPageNumber?: (n: string) => number;
     /**
      * The URL query string key to use for the page number, e.g `?page=1`.
      * Defaults to `"page"`.
      */
-    fieldName: string;
+    fieldName?: string;
     /** Whether to show the previous page button. */
-    showPrev: boolean;
+    showPrev?: boolean;
     /** Whether to show the next page button. */
-    showNext: boolean;
+    showNext?: boolean;
     /** Whether to show the first page button. */
-    showFirst: boolean;
+    showFirst?: boolean;
     /** Whether to show the last page button. */
-    showLast: boolean;
+    showLast?: boolean;
     /** Whether to keep the scroll position after a page button has been clicked */
-    keepScrollPosition: boolean;
+    keepScrollPosition?: boolean;
   } = $props();
 
   const currentPage = $derived(
