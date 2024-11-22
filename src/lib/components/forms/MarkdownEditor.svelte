@@ -26,5 +26,5 @@
     {placeholder}
     {required}
     {...$$restProps}
-  />
+  ></textarea>
 </Labeled>

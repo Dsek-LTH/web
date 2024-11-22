@@ -95,13 +95,13 @@
 <slot name="legend">
   <div class="mt-8">
     <div class="badge badge-success">
-      <span class="i-mdi-check-circle mr-1" />{m.booking_accepted()}
+      <span class="i-mdi-check-circle mr-1"></span>{m.booking_accepted()}
     </div>
     <div class="badge badge-error">
-      <span class="i-mdi-denied mr-1" />{m.booking_denied()}
+      <span class="i-mdi-denied mr-1"></span>{m.booking_denied()}
     </div>
     <div class="badge badge-info">
-      <span class="i-mdi-hourglass mr-1" />{m.booking_pending()}
+      <span class="i-mdi-hourglass mr-1"></span>{m.booking_pending()}
     </div>
   </div>
 </slot>

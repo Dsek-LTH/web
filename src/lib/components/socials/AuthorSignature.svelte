@@ -82,7 +82,7 @@
           </a>
         </h3>
       {:else}
-        <div />
+        <div></div>
         <!-- for positioning the slot correctly -->
       {/if}
       <slot name="end" />

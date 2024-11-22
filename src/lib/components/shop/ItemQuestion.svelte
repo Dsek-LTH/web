@@ -12,44 +12,53 @@
     formFieldProxy,
     type SuperForm,
   } from "sveltekit-superforms/client";
-  export let superform: SuperForm<TicketSchema>;
-  export let field: `questions[${number}]`;
-  export let onRemove: () => void;
 
-  const { value: type } = formFieldProxy(superform, `${field}.type`);
+  let {
+    superForm,
+    field,
+    onRemove,
+  }: {
+    superForm: SuperForm;
+    field: `questions[${number}]`;
+    onRemove: () => void;
+  } = $props();
+
+  const { value: type } = formFieldProxy(superForm, `${field}.type`);
 
   const { values: options, errors: optionsErrors } = arrayProxy(
-    superform,
+    superForm,
     `${field}.options`,
   ) as {
     values: Writable<TicketSchema["questions"][number]["options"]>;
     errors: Writable<string[] | undefined>;
   };
 
-  $: if ($type !== QuestionType.MultipleChoice) {
-    if ($options) $options = [];
-  }
-  $: questionIndex = Number(field.match(/\d+/)![0]);
+  $effect(() => {
+    if ($type !== QuestionType.MultipleChoice) {
+      if ($options) $options = [];
+    }
+  });
+  let questionIndex = $derived(Number(field.match(/\d+/)![0]));
 </script>
 
 <div class="rounded-box bg-base-300 p-4">
   <h3 class="text-lg font-semibold">Fråga {questionIndex + 1}</h3>
-  <FormInput {superform} field="{field}.id" type="hidden" />
+  <FormInput {superForm} field="{field}.id" type="hidden" />
   <FormInput
-    {superform}
+    {superForm}
     field="{field}.title"
     label="Fråga"
     placeholder="Önskar du...?"
   />
-  <FormInput {superform} field="{field}.description" label="Förklaring" />
-  <FormInput {superform} field="{field}.titleEn" label="Fråga (EN)" />
+  <FormInput {superForm} field="{field}.description" label="Förklaring" />
+  <FormInput {superForm} field="{field}.titleEn" label="Fråga (EN)" />
   <FormInput
-    {superform}
+    {superForm}
     field="{field}.descriptionEn"
     label="Förklaring (EN)"
   />
   <FormSelect
-    {superform}
+    {superForm}
     field="{field}.type"
     label="Typ"
     options={[
@@ -64,7 +73,7 @@
     ]}
   />
   <FormCheckbox
-    {superform}
+    {superForm}
     field="{field}.forExternalsOnly"
     label="Enbart för icke-inloggade?"
     explanation="Om du vill att frågan endast ska visas för icke-inloggade köpare."
@@ -76,7 +85,7 @@
         <!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -- We only need the index -->
         {#each $options as _, index}
           <ItemQuestionOption
-            {superform}
+            {superForm}
             field="{field}.options[{index}]"
             onRemove={$options.length === 1
               ? undefined
@@ -88,19 +97,20 @@
         {/each}
       {/if}
       <div class="flex items-center justify-center">
+        <!-- svelte-ignore a11y_consider_explicit_label -->
         <button
           type="button"
           class="btn btn-primary btn-lg m-8"
-          on:click={() => {
+          onclick={() => {
             if ($options)
               $options = [...$options, { answer: "", extraPrice: null }];
             else $options = [{ answer: "", extraPrice: null }];
           }}
         >
-          <span class="i-mdi-plus-bold text-xl" /></button
+          <span class="i-mdi-plus-bold text-xl"></span></button
         >
       </div>
     </div>
   {/if}
-  <button class="btn btn-error mt-2" on:click={onRemove}>Ta bort fråga</button>
+  <button class="btn btn-error mt-2" onclick={onRemove}>Ta bort fråga</button>
 </div>

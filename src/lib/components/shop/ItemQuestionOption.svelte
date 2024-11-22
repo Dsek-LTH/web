@@ -39,6 +39,7 @@
           {...$priceConstraints}
         />
       </Labeled>
+      <!-- svelte-ignore a11y_consider_explicit_label -->
       <button
         class="btn btn-error tooltip"
         data-tip={"Ta bort extrakostnad"}
@@ -46,7 +47,7 @@
         on:click={() => {
           $priceValue = null;
           extraCost = false;
-        }}><span class="i-mdi-trash" /></button
+        }}><span class="i-mdi-trash"></span></button
       >
     </div>
   {:else}
@@ -56,14 +57,15 @@
       on:click={() => {
         $priceValue = 100;
         extraCost = true;
-      }}><span class="i-mdi-plus" /> Extrakostnad</button
+      }}><span class="i-mdi-plus"></span> Extrakostnad</button
     >
   {/if}
+  <!-- svelte-ignore a11y_consider_explicit_label -->
   <button
     class="btn btn-circle btn-error btn-sm absolute -right-4 -top-4 z-10 transition-all"
     class:opacity-0={!onRemove}
     on:click={onRemove}
     type="button"
-    disabled={!onRemove}><span class="i-mdi-remove" /></button
+    disabled={!onRemove}><span class="i-mdi-remove"></span></button
   >
 </div>

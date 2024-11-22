@@ -116,6 +116,7 @@
   ] as const;
 </script>
 
+<!-- svelte-ignore a11y_consider_explicit_label -->
 <div class="drawer drawer-end">
   <input
     id="landing-drawer"
@@ -169,12 +170,12 @@
       </div>
 
       <label for="landing-drawer" aria-label="open sidebar" class="lg:hidden">
-        <span class="i-mdi-menu size-8 align-middle" />
+        <span class="i-mdi-menu size-8 align-middle"></span>
       </label>
     </nav>
 
     <header
-      style:--url="url({getFileUrl("minio/photos/public/assets/hero.jpg")})"
+      style:--url="url({getFileUrl('minio/photos/public/assets/hero.jpg')})"
       style:background-size="cover"
     >
       <div class="absolute top-1/3 px-10 lg:pl-44">
@@ -244,7 +245,7 @@
                 class="size-9 bg-[#24292A] lg:size-12"
                 on:click={() => carouselLeft(i)}
               >
-                <span class="i-mdi-arrow-left" />
+                <span class="i-mdi-arrow-left"></span>
               </button>
               <button
                 class="size-9 lg:size-12"
@@ -252,7 +253,7 @@
                 class:bg-secondary={i % 2 !== 0}
                 on:click={() => carouselRight(i)}
               >
-                <span class="i-mdi-arrow-right" />
+                <span class="i-mdi-arrow-right"></span>
               </button>
             </div>
           </div>
@@ -316,7 +317,7 @@
           {#each SOCIALS as social}
             <li>
               <a href={social.href} target="_blank">
-                <span class="{social.icon} size-8" />
+                <span class="{social.icon} size-8"></span>
               </a>
             </li>
           {/each}
@@ -331,50 +332,51 @@
       for="landing-drawer"
       aria-label="close sidebar"
       class="drawer-overlay"
-    />
-    <ul
-      class="menu min-h-full min-w-60 bg-black p-4 text-base font-medium *:mr-4"
     >
-      {#each LINKS as link}
+      <ul
+        class="menu min-h-full min-w-60 bg-black p-4 text-base font-medium *:mr-4"
+      >
+        {#each LINKS as link}
+          <li>
+            <a
+              href={link.href}
+              class="uppercase active:!bg-primary/10"
+              on:click={closeDrawer}
+            >
+              {link.title}
+            </a>
+          </li>
+        {/each}
         <li>
-          <a
-            href={link.href}
-            class="uppercase active:!bg-primary/10"
-            on:click={closeDrawer}
+          <button
+            class=" bg-[#433C3F]/60 uppercase text-white"
+            on:click={() => signIn("keycloak")}
           >
-            {link.title}
+            {m.navbar_logIn()}
+          </button>
+        </li>
+        <li class="flex flex-row self-center pt-4">
+          <a
+            href={i18n.route($page.url.pathname)}
+            hreflang="sv"
+            class="h-full rounded-full"
+            class:badge={languageTag() === "sv"}
+            on:click={() => invalidateAll()}
+          >
+            SV
+          </a>
+          <a
+            href={i18n.route($page.url.pathname)}
+            hreflang="en"
+            class="h-full rounded-full"
+            class:badge={languageTag() === "en"}
+            on:click={() => invalidateAll()}
+          >
+            EN
           </a>
         </li>
-      {/each}
-      <li>
-        <button
-          class=" bg-[#433C3F]/60 uppercase text-white"
-          on:click={() => signIn("keycloak")}
-        >
-          {m.navbar_logIn()}
-        </button>
-      </li>
-      <li class="flex flex-row self-center pt-4">
-        <a
-          href={i18n.route($page.url.pathname)}
-          hreflang="sv"
-          class="h-full rounded-full"
-          class:badge={languageTag() === "sv"}
-          on:click={() => invalidateAll()}
-        >
-          SV
-        </a>
-        <a
-          href={i18n.route($page.url.pathname)}
-          hreflang="en"
-          class="h-full rounded-full"
-          class:badge={languageTag() === "en"}
-          on:click={() => invalidateAll()}
-        >
-          EN
-        </a>
-      </li>
-    </ul>
+      </ul>
+    </label>
   </div>
 </div>
 

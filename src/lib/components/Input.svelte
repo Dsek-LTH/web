@@ -28,7 +28,7 @@
       {placeholder}
       {required}
       {...$$restProps}
-    />
+    ></textarea>
   {:else}
     <input
       id={name}

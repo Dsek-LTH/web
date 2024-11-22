@@ -175,7 +175,7 @@
           </FormSubmitButton>
           {#if $form.isCancelled}
             <div role="alert" class="alert alert-warning ml-4">
-              <span class="i-mdi-alert-outline size-6" />
+              <span class="i-mdi-alert-outline size-6"></span>
               <span>{m.events_cancellingAlert()}</span>
             </div>
           {/if}

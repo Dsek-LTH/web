@@ -13,7 +13,7 @@
   <!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -- We only need index -->
   {#each $values as _, index}
     <ItemQuestion
-      {superform}
+      superForm={superform}
       field="questions[{index}]"
       onRemove={() => {
         $values = $values.filter((_, i) => i !== index);
@@ -35,7 +35,7 @@
       ];
     }}
   >
-    <span class="i-mdi-plus" /> Lägg till fråga
+    <span class="i-mdi-plus"></span> Lägg till fråga
   </button>
 
   {#if $errors}

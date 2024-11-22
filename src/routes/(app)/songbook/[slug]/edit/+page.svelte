@@ -74,7 +74,7 @@
       class="textarea textarea-bordered h-80"
       bind:value={$form.lyrics}
       {...$constraints.lyrics}
-    />
+    ></textarea>
   </Labeled>
 
   <div class="flex justify-between">
@@ -132,6 +132,7 @@
     </div>
   </div>
   <form method="dialog" class="modal-backdrop">
+    <!-- svelte-ignore a11y_consider_explicit_label -->
     <button class="cursor-auto"></button>
   </form>
 </dialog>
