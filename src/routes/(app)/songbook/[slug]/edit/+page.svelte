@@ -94,15 +94,21 @@
           {m.songbook_removeSong()}
         </button>
       {:else}
-        <form method="POST" action="?/restore" class="form-control gap-2">
-          <input type="hidden" name="id" value={data.song.id} />
-          <button class="btn" type="submit" formaction="?/restore">
-            {m.songbook_restoreFromGarbageCan()}
-          </button>
-        </form>
+        <button class="btn" type="submit" form="restoreSong">
+          {m.songbook_restoreFromGarbageCan()}
+        </button>
       {/if}
     {/if}
   </div>
+</form>
+
+<form
+  method="POST"
+  action="?/restore"
+  id="restoreSong"
+  class="form-control gap-2"
+>
+  <input type="hidden" name="id" value={data.song.id} />
 </form>
 
 <dialog bind:this={removeModal} class="modal modal-bottom sm:modal-middle">
