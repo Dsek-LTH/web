@@ -332,51 +332,50 @@
       for="landing-drawer"
       aria-label="close sidebar"
       class="drawer-overlay"
+    ></label>
+    <ul
+      class="menu min-h-full min-w-60 bg-black p-4 text-base font-medium *:mr-4"
     >
-      <ul
-        class="menu min-h-full min-w-60 bg-black p-4 text-base font-medium *:mr-4"
-      >
-        {#each LINKS as link}
-          <li>
-            <a
-              href={link.href}
-              class="uppercase active:!bg-primary/10"
-              on:click={closeDrawer}
-            >
-              {link.title}
-            </a>
-          </li>
-        {/each}
+      {#each LINKS as link}
         <li>
-          <button
-            class=" bg-[#433C3F]/60 uppercase text-white"
-            on:click={() => signIn("keycloak")}
-          >
-            {m.navbar_logIn()}
-          </button>
-        </li>
-        <li class="flex flex-row self-center pt-4">
           <a
-            href={i18n.route($page.url.pathname)}
-            hreflang="sv"
-            class="h-full rounded-full"
-            class:badge={languageTag() === "sv"}
-            on:click={() => invalidateAll()}
+            href={link.href}
+            class="uppercase active:!bg-primary/10"
+            on:click={closeDrawer}
           >
-            SV
-          </a>
-          <a
-            href={i18n.route($page.url.pathname)}
-            hreflang="en"
-            class="h-full rounded-full"
-            class:badge={languageTag() === "en"}
-            on:click={() => invalidateAll()}
-          >
-            EN
+            {link.title}
           </a>
         </li>
-      </ul>
-    </label>
+      {/each}
+      <li>
+        <button
+          class=" bg-[#433C3F]/60 uppercase text-white"
+          on:click={() => signIn("keycloak")}
+        >
+          {m.navbar_logIn()}
+        </button>
+      </li>
+      <li class="flex flex-row self-center pt-4">
+        <a
+          href={i18n.route($page.url.pathname)}
+          hreflang="sv"
+          class="h-full rounded-full"
+          class:badge={languageTag() === "sv"}
+          on:click={() => invalidateAll()}
+        >
+          SV
+        </a>
+        <a
+          href={i18n.route($page.url.pathname)}
+          hreflang="en"
+          class="h-full rounded-full"
+          class:badge={languageTag() === "en"}
+          on:click={() => invalidateAll()}
+        >
+          EN
+        </a>
+      </li>
+    </ul>
   </div>
 </div>
 
