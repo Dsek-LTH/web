@@ -19,7 +19,14 @@ const getMyNotifications = (user: AuthUser, prisma: PrismaClient) => {
     include: {
       fromAuthor: {
         include: {
-          member: true,
+          member: {
+            select: {
+              firstName: true,
+              nickname: true,
+              lastName: true,
+              picturePath: true
+            }
+          },
           mandate: {
             include: {
               position: true,

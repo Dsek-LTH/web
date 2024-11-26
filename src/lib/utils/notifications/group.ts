@@ -1,16 +1,23 @@
-import { getAuthorName } from "$lib/utils/client/member";
+import { getFullName } from "$lib/utils/client/member";
 import {
   NotificationType,
   SHOULD_MERGE_NOTIFICATIONS,
 } from "$lib/utils/notifications/types";
-import { Prisma } from "@prisma/client";
+import { Prisma, type Author, type CustomAuthor, type Mandate, type Position } from "@prisma/client";
 
 // A notification as it is returned from prisma query
 type Notification = Prisma.NotificationGetPayload<{
   include: {
     fromAuthor: {
       include: {
-        member: true;
+        member: {
+          select: {
+            firstName: true;
+            nickname: true;
+            lastName: true;
+            picturePath: true;
+          };
+        };
         mandate: {
           include: {
             position: true;
@@ -197,4 +204,35 @@ export const groupNotifications = (
   );
   // Since we loop over an object, the initial ordering is lost and we have to sort again
   return sortNotificationGroups(groupList);
+};
+
+const getAuthorName = (
+  author: Author & {
+    member: {
+      firstName: string | null;
+      nickname: string | null;
+      lastName: string | null;
+    };
+    mandate:
+      | (Mandate & {
+          position: Position;
+        })
+      | null;
+    customAuthor: CustomAuthor | null;
+  },
+) => {
+  if (author.type === "Custom") {
+    if (!author.customAuthor)
+      throw new Error("CustomAuthor missing in author object of type 'Custom'");
+    return author.customAuthor.name;
+  }
+  if (author.type === "Mandate") {
+    if (!author.mandate?.position)
+      throw new Error(
+        "Mandate and/or Position missing in author object of type 'Mandate'",
+      );
+    return `${author.mandate!.position.name} ${getFullName(author.member)}`;
+  }
+  if (author.type === "Member") return getFullName(author.member);
+  throw new Error(`Unknown author type: ${author.type}`);
 };
