@@ -5,17 +5,34 @@ import { zod } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import * as m from "$paraglide/messages";
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async ({ locals, url }) => {
   const { prisma } = locals;
+  let year = url.searchParams.get("year") || new Date().getFullYear();
+  year = typeof year === "string" ? parseInt(year) : year;
   const governingDocuments = await prisma.document
-    .findMany({ where: { deletedAt: null } })
-    .then((documents) => ({
-      policies: documents.filter((document) => document.type === "POLICY"),
-      guidelines: documents.filter((document) => document.type === "GUIDELINE"),
-    }));
+    .findMany()
+    .then((documents) => {
+      const filterDocuments = (type: string, filterByDate: boolean) =>
+        documents.filter(
+          (document) =>
+            document.type === type &&
+            (filterByDate ? document.createdAt.getFullYear() == year : true),
+        );
+
+      return {
+        policies: filterDocuments("POLICY", false),
+        guidelines: filterDocuments("GUIDELINE", false),
+        plansOfOperations: filterDocuments("PLAN_OF_OPERATIONS", true),
+        frameworkBudgets: filterDocuments("FRAMEWORK_BUDGET", true),
+        strategicGoals: filterDocuments("STRATEGIC_GOALS", true),
+      };
+    });
 
   return {
     policies: governingDocuments.policies,
+    plansOfOperations: governingDocuments.plansOfOperations,
+    frameworkBudgets: governingDocuments.frameworkBudgets,
+    strategicGoals: governingDocuments.strategicGoals,
     guidelines: governingDocuments.guidelines,
     deleteForm: await superValidate(zod(deleteSchema)),
   };
