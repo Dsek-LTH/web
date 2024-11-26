@@ -41,13 +41,15 @@
   <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
   <div
     tabindex="0"
-    class="card dropdown-content card-compact z-[1] w-max bg-base-200 p-2 text-center text-base-content shadow"
+    class="card dropdown-content card-compact z-[1] min-w-[200px] max-w-[min(800px,calc(100vw-20px))] bg-base-200 p-2 text-center text-base-content shadow"
   >
     <div class="card-body">
       <p class="text-center font-semibold">{m.navbar_userMenu_loggedInAs()}</p>
-      <h3 class="text-xl font-bold">
-        {getFullName(member)}
-      </h3>
+      <div class="min-w-0">
+        <h3 class="truncate text-xl font-bold" title={getFullName(member)}>
+          {getFullName(member)}
+        </h3>
+      </div>
       <p class="text-sm">({user?.studentId})</p>
       <span class="divider m-1" />
 
