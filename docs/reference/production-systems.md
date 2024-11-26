@@ -1,4 +1,5 @@
 # Production systems
+
 This page is mostly intended for DWWW-members, since they have access to the following systems.
 
 ## Deploy pipeline
@@ -13,6 +14,7 @@ When [making a release](/guides/releasing), a github action builds and zips the 
 ## Production server
 
 ### SSH to the server
+
 `ssh -J <stilid>@hyacinth.blossom.dsek.se <stilid>@web-beta`
 
 or, for a shorter command you can add something like
@@ -28,6 +30,7 @@ Host *.blossom
         User <stilid>
         IdentityFile /path/to/identityfile
 ```
+
 and use `ssh web-beta.blossom`
 
 ### Logs
