@@ -11,8 +11,8 @@ type Options = {
 };
 export const getFullName = (member: MemberNames, options: Options = {}) => {
   const truncatedNickname =
-    member.nickname && member.nickname.length > 20
-      ? member.nickname.substring(0, 17) + "..."
+    member.nickname && member.nickname.length > 60
+      ? member.nickname.substring(0, 57) + "..."
       : member.nickname;
 
   if (truncatedNickname && !options.hideNickname) {
