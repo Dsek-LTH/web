@@ -45,6 +45,7 @@ export default defineConfig({
             { text: "Setting up VS Code", link: "/guides/vscode" },
             { text: "Next steps", link: "/guides/next-steps" },
             { text: "Load testing", link: "/guides/load-testing" },
+            { text: "Using feature flags", link: "/guides/featureflags" },
           ],
         },
         {

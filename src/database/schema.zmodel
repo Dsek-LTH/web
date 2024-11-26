@@ -409,6 +409,7 @@ model Event {
   numberOfUpdates      Int?            @default(0) @map("number_of_updates")
   slug                 String?         @unique(map: "events_slug_unique") @db.VarChar(255)
   alarmActive          Boolean?        @default(false) @map("alarm_active")
+  isCancelled          Boolean?        @default(false) @map("is_cancelled")
   removedAt            DateTime?       @map("removed_at") @db.Timestamptz(6) @allow("update", has(auth().policies, "event:delete"))
   comments             EventComment[]
   going                Member[]        @relation("event_going")
@@ -892,6 +893,9 @@ enum DocumentType {
   GUIDELINE
   MEETING
   OTHER
+  PLAN_OF_OPERATIONS
+  FRAMEWORK_BUDGET
+  STRATEGIC_GOALS
 
   @@map("document_type")
 }

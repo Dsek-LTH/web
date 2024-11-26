@@ -4242,6 +4242,20 @@
           "maxLength": null
         },
         {
+          "id": "public.events.is_cancelled",
+          "name": "is_cancelled",
+          "columnName": "is_cancelled",
+          "type": "bool",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": true,
+          "isId": false,
+          "maxLength": null
+        },
+        {
           "name": "RecurringEvent",
           "type": "RecurringEvent",
           "isRequired": false,
@@ -9114,6 +9128,9 @@
       "schemaName": "public",
       "values": [
         {
+          "name": "FRAMEWORK_BUDGET"
+        },
+        {
           "name": "GUIDELINE"
         },
         {
@@ -9123,7 +9140,13 @@
           "name": "OTHER"
         },
         {
+          "name": "PLAN_OF_OPERATIONS"
+        },
+        {
           "name": "POLICY"
+        },
+        {
+          "name": "STRATEGIC_GOALS"
         }
       ]
     },
