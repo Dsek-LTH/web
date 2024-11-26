@@ -3,7 +3,13 @@ import {
   NotificationType,
   SHOULD_MERGE_NOTIFICATIONS,
 } from "$lib/utils/notifications/types";
-import { Prisma, type Author, type CustomAuthor, type Mandate, type Position } from "@prisma/client";
+import {
+  Prisma,
+  type Author,
+  type CustomAuthor,
+  type Mandate,
+  type Position,
+} from "@prisma/client";
 
 // A notification as it is returned from prisma query
 type Notification = Prisma.NotificationGetPayload<{

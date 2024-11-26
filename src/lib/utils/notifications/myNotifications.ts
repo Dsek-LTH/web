@@ -24,8 +24,8 @@ const getMyNotifications = (user: AuthUser, prisma: PrismaClient) => {
               firstName: true,
               nickname: true,
               lastName: true,
-              picturePath: true
-            }
+              picturePath: true,
+            },
           },
           mandate: {
             include: {
