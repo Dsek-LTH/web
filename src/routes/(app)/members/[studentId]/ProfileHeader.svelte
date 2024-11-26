@@ -9,19 +9,33 @@
 
 <div class="flex flex-col justify-between gap-4">
   <div class="flex flex-col gap-1">
-    <h1 class="text-3xl font-bold">{getFullName(member)}</h1>
+    <div class="max-w-full">
+      <h1
+        class="line-clamp-3 overflow-hidden break-words text-2xl font-bold sm:text-3xl"
+        title={getFullName(member)}
+      >
+        {getFullName(member)}
+      </h1>
+    </div>
+
     <div
       class="order-2 flex flex-row items-center gap-2 text-nowrap lg:order-3"
     >
-      <div>{member.studentId}</div>
+      <div class="min-w-0 truncate text-sm opacity-80 sm:text-base">
+        {member.studentId}
+      </div>
       <ClassBadge {member} size="sm" />
     </div>
+
     {#if email}
-      <div class="order-4 select-all break-all">
+      <div
+        class="order-4 select-all overflow-hidden break-all text-sm opacity-80 sm:text-base"
+      >
         {email}
       </div>
     {/if}
   </div>
+
   <div class="hidden sm:block md:hidden">
     <slot name="actions" />
   </div>
