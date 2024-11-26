@@ -21,6 +21,7 @@ import loggingExtension from "./database/prisma/loggingExtension";
 import translatedExtension from "./database/prisma/translationExtension";
 import { getAccessPolicies } from "./hooks.server.helpers";
 import { getDerivedRoles } from "$lib/utils/authorization";
+import { meilisearch } from "./routes/(app)/api/search/meilisearch";
 
 const { handle: authHandle } = SvelteKitAuth({
   secret: env.AUTH_SECRET,
@@ -161,6 +162,12 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
   return resolve(event);
 };
 
+const meilisearchHandle: Handle = async ({ event, resolve }) => {
+  // add meilisearch client to locals
+  event.locals.meilisearch = meilisearch;
+  return resolve(event);
+};
+
 const apiHandle = zenstack.SvelteKitHandler({
   prefix: "/api/model",
   getPrisma: (event) => event.locals.prisma,
@@ -215,6 +222,7 @@ export const handle = sequence(
   authHandle,
   i18n.handle(),
   databaseHandle,
+  meilisearchHandle,
   apiHandle,
   appHandle,
   themeHandle,
