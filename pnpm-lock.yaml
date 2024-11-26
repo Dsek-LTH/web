@@ -5,9 +5,6 @@ settings:
   excludeLinksFromLockfile: false
 
 patchedDependencies:
-  devalue@4.3.2:
-    hash: w3c53zqppldf4e5bpuki36vrzi
-    path: patches/devalue@4.3.2.patch
   devalue@5.1.1:
     hash: aqxsng5a3jvcz2mjclsnimpp5i
     path: patches/devalue@5.1.1.patch
@@ -7371,7 +7368,7 @@ snapshots:
       '@inlang/paraglide-js-adapter-vite': 1.2.40
       '@sveltejs/kit': 2.8.4(@sveltejs/vite-plugin-svelte@5.0.1(svelte@5.2.8)(vite@6.0.0(@types/node@22.10.0)(jiti@1.21.6)(yaml@2.5.0)))(svelte@5.2.8)(vite@6.0.0(@types/node@22.10.0)(jiti@1.21.6)(yaml@2.5.0))
       dedent: 1.5.1
-      devalue: 4.3.2(patch_hash=w3c53zqppldf4e5bpuki36vrzi)
+      devalue: 4.3.2
       magic-string: 0.30.11
       svelte: 5.2.8
     transitivePeerDependencies:
@@ -9791,7 +9788,7 @@ snapshots:
 
   detect-libc@2.0.3: {}
 
-  devalue@4.3.2(patch_hash=w3c53zqppldf4e5bpuki36vrzi): {}
+  devalue@4.3.2: {}
 
   devalue@5.1.1(patch_hash=aqxsng5a3jvcz2mjclsnimpp5i): {}
 
