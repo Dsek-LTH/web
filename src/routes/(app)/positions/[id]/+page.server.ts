@@ -137,7 +137,7 @@ export const actions: Actions = {
         endDate: form.data.endDate,
       },
     });
-    keycloak.addMandate(member.studentId!, params.id);
+    keycloak.addMandate(prisma, member.studentId!, params.id);
     return message(form, {
       message: m.positions_newMandateGivenTo({
         name: member.firstName ?? m.positions_theMember(),
@@ -205,7 +205,7 @@ export const actions: Actions = {
     await prisma.mandate.delete({
       where: { id: form.data.mandateId, positionId: params.id },
     });
-    keycloak.deleteMandate(member.studentId!, params.id);
+    keycloak.deleteMandate(prisma, member.studentId!, params.id);
     return message(form, {
       message: m.positions_mandateRemoved({
         names: genitiveCase(member.firstName ?? m.positions_theMember()),
