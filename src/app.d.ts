@@ -2,6 +2,7 @@ import type { ToastNotification } from "$lib/stores/toast";
 import type { Theme } from "$lib/utils/themes";
 import type { Member, PrismaClient } from "@prisma/client";
 import type { AuthUser } from "@zenstackhq/runtime";
+import type MeiliSearch from "meilisearch";
 
 // See https://kit.svelte.dev/docs/types#app
 // for information about these interfaces
@@ -32,6 +33,7 @@ declare global {
       isApp: boolean;
       appInfo?: AppInfo;
       theme: Theme;
+      meilisearch: MeiliSearch;
     }
     interface PageData {
       user?: AuthUser;
