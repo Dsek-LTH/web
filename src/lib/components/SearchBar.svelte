@@ -18,13 +18,14 @@
       urlParams.delete("page");
       await goto(`${i18n.route($page.url.pathname)}?${urlParams.toString()}`, {
         replaceState: true,
+        keepFocus: true,
+        noScroll: true,
       });
       await tick();
       setTimeout(() => {
-        inputField.focus();
         isLoading = false;
-      }, 0);
-    }, 1000);
+      }, 500);
+    });
   };
 </script>
 
