@@ -4,7 +4,7 @@ import { BACKUP_LIST_OF_STUDENT_IDS } from "./constants";
 import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
 
 /**
- * The arrays contains students and positions respectively.
+ * The arrays contain students and positions respectively.
  * Every door policy applies to either a studentId or a positionId.
  * This function splits the policies into two respective arrays.
  */
@@ -19,7 +19,7 @@ function parseDoorPolicies(policies: DoorAccessPolicy[]) {
 }
 
 /**
- * The arrays contains students and positions respectively with banned access to a door.
+ * The arrays contain students and positions respectively with banned access to a door.
  * Every door policy applies to either a studentId or a positionId.
  * This function splits the policies into two respective arrays.
  */
@@ -99,6 +99,19 @@ export const GET: RequestHandler = async ({ params }) => {
     const { studentIds, positionIds } = parseDoorPolicies(policies);
     const { studentIdsBanned } = parseDoorBanPolicies(policies);
 
+    const studentsFromWildcard = positionIds.includes("*")
+      ? authorizedPrismaClient.member
+          .findMany({
+            where: { classYear: { gte: new Date().getFullYear() - 10 } },
+            select: { studentId: true },
+          })
+          .then((members) =>
+            members
+              .map((member) => member.studentId)
+              .filter((id): id is string => id !== null),
+          )
+      : [];
+
     const positions = await fetchMatchingPositions(
       positionIds,
       authorizedPrismaClient,
@@ -114,9 +127,11 @@ export const GET: RequestHandler = async ({ params }) => {
     const bannedStudents = new Set(studentIdsBanned);
 
     /** students with current access to the door who are not banned */
-    const allowedStudents = [...studentIds, ...studentsFromPositions].filter(
-      (studentId) => !bannedStudents.has(studentId),
-    );
+    const allowedStudents = [
+      ...studentIds,
+      ...studentsFromPositions,
+      ...(await studentsFromWildcard),
+    ].filter((studentId) => !bannedStudents.has(studentId));
 
     return new Response(
       Array.from([

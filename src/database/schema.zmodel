@@ -464,6 +464,7 @@ model Document {
 
   @@allow("create", has(auth().policies, "governing_document:write"))
   @@allow("read", has(auth().policies, "governing_document:read"))
+  @@allow("delete", has(auth().policies, "governing_document:write"))
   @@deny("read", deletedAt != null)
   @@allow("update", has(auth().policies, "governing_document:write"))
   @@map("documents")
@@ -892,6 +893,9 @@ enum DocumentType {
   GUIDELINE
   MEETING
   OTHER
+  PLAN_OF_OPERATIONS
+  FRAMEWORK_BUDGET
+  STRATEGIC_GOALS
 
   @@map("document_type")
 }
