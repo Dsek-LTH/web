@@ -37,22 +37,25 @@
   ) => {
     let image = event.currentTarget.files?.[0];
     if (!image) return;
-    let reader = new FileReader();
-    reader.readAsDataURL(image);
-    reader.onload = (e) => {
-      let result = e.target?.result ?? undefined;
-      // If array buffer, convert to base64
-      if (result instanceof ArrayBuffer) {
-        avatar = btoa(
-          new Uint8Array(result).reduce(
-            (data, byte) => data + String.fromCharCode(byte),
-            "",
-          ),
-        );
-      } else {
-        avatar = result;
-      }
-    };
+    createImageBitmap(image).then((imageBitmap) => {
+      let resized = resizeImage(imageBitmap);
+      avatar = resized;
+    });
+  };
+
+  const resizeImage = (img: ImageBitmap) => {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+
+    const targetWidth = 400;
+    // Ensure we keep the images aspect ratio.
+    const targetHeight = (img.height / img.width) * targetWidth;
+
+    canvas.width = targetWidth;
+    canvas.height = targetHeight;
+
+    ctx?.drawImage(img, 0, 0, targetWidth, targetHeight);
+    return canvas.toDataURL();
   };
 </script>
 
