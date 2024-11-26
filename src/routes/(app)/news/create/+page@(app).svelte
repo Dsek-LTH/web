@@ -32,6 +32,10 @@
       label="Notistext"
       explanation="Texten som visas i notisen, om tom kommer det vara början av nyhetstexten"
     />
-    <FormCheckbox {superform} field="sendNotification" label="Skicka notis?" />
+    <FormCheckbox
+      superform={superformCorrectType}
+      field="sendNotification"
+      label="Skicka notis?"
+    />
   </div>
 </ArticleEditor>

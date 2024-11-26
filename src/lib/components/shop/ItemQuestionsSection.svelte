@@ -13,7 +13,7 @@
   <!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -- We only need index -->
   {#each $values as _, index}
     <ItemQuestion
-      superForm={superform}
+      {superform}
       field="questions[{index}]"
       onRemove={() => {
         $values = $values.filter((_, i) => i !== index);

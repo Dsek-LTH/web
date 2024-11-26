@@ -14,19 +14,19 @@
   } from "sveltekit-superforms/client";
 
   let {
-    superForm,
+    superform,
     field,
     onRemove,
   }: {
-    superForm: SuperForm;
+    superform: SuperForm<TicketSchema>;
     field: `questions[${number}]`;
     onRemove: () => void;
   } = $props();
 
-  const { value: type } = formFieldProxy(superForm, `${field}.type`);
+  const { value: type } = formFieldProxy(superform, `${field}.type`);
 
   const { values: options, errors: optionsErrors } = arrayProxy(
-    superForm,
+    superform,
     `${field}.options`,
   ) as {
     values: Writable<TicketSchema["questions"][number]["options"]>;
@@ -43,22 +43,22 @@
 
 <div class="rounded-box bg-base-300 p-4">
   <h3 class="text-lg font-semibold">Fråga {questionIndex + 1}</h3>
-  <FormInput {superForm} field="{field}.id" type="hidden" />
+  <FormInput {superform} field="{field}.id" type="hidden" />
   <FormInput
-    {superForm}
+    {superform}
     field="{field}.title"
     label="Fråga"
     placeholder="Önskar du...?"
   />
-  <FormInput {superForm} field="{field}.description" label="Förklaring" />
-  <FormInput {superForm} field="{field}.titleEn" label="Fråga (EN)" />
+  <FormInput {superform} field="{field}.description" label="Förklaring" />
+  <FormInput {superform} field="{field}.titleEn" label="Fråga (EN)" />
   <FormInput
-    {superForm}
+    {superform}
     field="{field}.descriptionEn"
     label="Förklaring (EN)"
   />
   <FormSelect
-    {superForm}
+    {superform}
     field="{field}.type"
     label="Typ"
     options={[
@@ -73,7 +73,7 @@
     ]}
   />
   <FormCheckbox
-    {superForm}
+    {superform}
     field="{field}.forExternalsOnly"
     label="Enbart för icke-inloggade?"
     explanation="Om du vill att frågan endast ska visas för icke-inloggade köpare."
@@ -85,7 +85,7 @@
         <!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -- We only need the index -->
         {#each $options as _, index}
           <ItemQuestionOption
-            {superForm}
+            {superform}
             field="{field}.options[{index}]"
             onRemove={$options.length === 1
               ? undefined
