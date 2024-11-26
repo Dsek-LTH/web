@@ -23,25 +23,37 @@
     <h2 class="card-title">
       {#if position.boardMember}
         <!-- svelte-ignore a11y_consider_explicit_label -->
-        <a href="/board">
+        <a href="/board" class="shrink-0">
           <div class="tooltip" data-tip={m.committees_boardMember()}>
             <span class="i-mdi-account-tie"></span>
           </div>
         </a>
       {/if}
-      <a class="link-hover link link-primary" href="/positions/{position.id}">
-        {position.name}
-      </a>
-      {#if mandates.length > 1}
-        ({mandates.length} st)
-      {/if}
+      <div class="grid min-w-0 grid-cols-[1fr_auto] items-center gap-1">
+        <a
+          class="link-hover link link-primary truncate"
+          href="/positions/{position.id}"
+          title={position.name}
+        >
+          {position.name}
+        </a>
+        {#if mandates.length > 1}
+          <span class="shrink-0">({mandates.length} st)</span>
+        {/if}
+      </div>
     </h2>
     {#if position.email}
-      <section class="-mt-2">
-        <a class="link-hover link link-primary" href="mailto:{position.email}">
-          {position.email}
-        </a>
-      </section>
+      <div class="-mt-2 grid">
+        <div class="min-w-0">
+          <a
+            class="link-hover link link-primary block truncate text-sm sm:text-base"
+            href="mailto:{position.email}"
+            title={position.email}
+          >
+            {position.email}
+          </a>
+        </div>
+      </div>
     {/if}
     <p class="flex-grow-0">{position.description ?? ""}</p>
     <ScrollIndicatedBox element={mandatesBox}>
@@ -50,10 +62,15 @@
           {#each mandates as mandate (mandate.id)}
             <li>
               <a href="/members/{mandate.member.studentId}">
-                <div class="flex flex-row items-center gap-2">
+                <div
+                  class="grid w-full grid-cols-[auto_1fr] items-center gap-2"
+                >
                   <MemberAvatar member={mandate.member} />
-                  <div>
-                    <h3 class="font-medium">
+                  <div class="min-w-0">
+                    <h3
+                      class="truncate font-medium"
+                      title={getFullName(mandate.member)}
+                    >
                       {getFullName(mandate.member)}
                     </h3>
                     <h4 class="text-xs">

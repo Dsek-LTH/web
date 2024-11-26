@@ -461,6 +461,7 @@ model ExpoToken {
 
 /// @@allow('create', has(auth().policies, 'governing_document:write'))
 /// @@allow('read', has(auth().policies, 'governing_document:read'))
+/// @@allow('delete', has(auth().policies, 'governing_document:write'))
 /// @@deny('read', deletedAt != null)
 /// @@allow('update', has(auth().policies, 'governing_document:write'))
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
