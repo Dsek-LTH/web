@@ -164,6 +164,7 @@
               />
             {/if}
             {#if isAuthorized(apiNames.GOVERNING_DOCUMENT.UPDATE, data.user) && isEditing}
+              <!-- svelte-ignore a11y_consider_explicit_label -->
               <a
                 class="pointer-events-auto"
                 href={`/documents/governing/${planOfOperations.id}/edit`}
@@ -188,6 +189,7 @@
               />
             {/if}
             {#if isAuthorized(apiNames.GOVERNING_DOCUMENT.UPDATE, data.user) && isEditing}
+              <!-- svelte-ignore a11y_consider_explicit_label -->
               <a
                 class="pointer-events-auto"
                 href={`/documents/governing/${frameworkBudget.id}/edit`}
@@ -212,6 +214,7 @@
               />
             {/if}
             {#if isAuthorized(apiNames.GOVERNING_DOCUMENT.UPDATE, data.user) && isEditing}
+              <!-- svelte-ignore a11y_consider_explicit_label -->
               <a
                 class="pointer-events-auto"
                 href={`/documents/governing/${strategicGoal.id}/edit`}
