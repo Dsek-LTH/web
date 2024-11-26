@@ -11,7 +11,7 @@
   <div class="flex flex-col gap-1">
     <div class="max-w-full">
       <h1
-        class="line-clamp-3 overflow-hidden break-words text-2xl font-bold sm:text-3xl"
+        class="line-clamp-3 break-words text-2xl font-bold sm:text-3xl"
         title={getFullName(member)}
       >
         {getFullName(member)}
