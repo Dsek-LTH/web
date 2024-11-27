@@ -595,7 +595,7 @@
   "members_publishedEvents": "Publicerade evenemang",
   "members_firstName": "Förnamn",
   "members_nickname": "Smeknamn",
-  "members_nickname_explanation": "Max 20 tecken, resten kommer trunkeras",
+  "members_nickname_explanation": "Max 60 tecken, resten kommer trunkeras",
   "members_lastName": "Efternamn",
   "members_programme": "Program",
   "members_year": "År",
