@@ -62,7 +62,7 @@ export const SHOULD_MERGE_NOTIFICATIONS: Record<NotificationType, boolean> = {
   [NotificationType.PURCHASE_IN_QUEUE]: false,
   [NotificationType.PURCHASE_CONSUMABLE_EXPIRED]: false,
   [NotificationType.PURCHASE_SOLD_OUT]: false,
-  [NotificationType.EXPENSES]: true,
+  [NotificationType.EXPENSES]: false,
 };
 
 export const NOTIFICATION_SETTINGS_ALWAYS_ON = "DEFAULT"; // Notifications all users will receive, can't be toggled

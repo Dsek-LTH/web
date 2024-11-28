@@ -594,7 +594,8 @@ model Member {
   recurringEvent          RecurringEvent[]
   tokens                  ExpoToken[]
   expenses                Expense[]
-  expensesToSign          ExpenseItem[]
+  expensesToSign          ExpenseItem[]           @relation("expense_item_signer")
+  signedExpenses          ExpenseItem[]           @relation("expense_item_signed_by")
 
   @@allow('create', has(auth().policies, "core:member:create"))
   @@allow('create', auth().studentId == studentId)
@@ -1168,22 +1169,21 @@ model Expense {
   memberId                String        @db.Uuid
   member                  Member        @relation(fields: [memberId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "expense_member_id_foreign")
   items                   ExpenseItem[]
+  removedAt               DateTime?
 
 
   @@allow("create", has(auth().policies, "expenses:create"))
-  @@allow("read", has(auth().policies, "expenses:read") && (
+  @@allow("read", (
     memberId == auth().memberId // my expenses
     || items?[signerMemberId == auth().memberId] // expenses I should sign
     || has(auth().policies, "expenses:bookkeeping") // I can do bookkeeping
   ))
   @@allow("update", hasBeenSentToBookeeping == false && (
-    has(auth().policies, "expenses:update") 
-    || (memberId == auth().memberId)
+    (memberId == auth().memberId)
+    || items?[signerMemberId == auth().memberId] 
+    || has(auth().policies, "expenses:bookkeeping") 
   ))
-  @@allow("delete" , hasBeenSentToBookeeping == false && (
-    has(auth().policies, "expenses:delete")
-    || (memberId == auth().memberId)
-  ))
+  @@allow("delete" , false)
 }
 
 model ExpenseItem {
@@ -1197,22 +1197,30 @@ model ExpenseItem {
   comment            String?
   receiptUrl         String?
   signerMemberId     String    @db.Uuid
-  signer             Member    @relation(fields: [signerMemberId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "expense_item_signer_id_foreign")
-  isCertified        Boolean   @default(false) @deny("update", !has(auth().policies, "expenses:certification"))
+  signer             Member    @relation(name: "expense_item_signer", fields: [signerMemberId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "expense_item_signer_id_foreign")
 
-  @@allow("create", has(auth().policies, "expenses:create"))
+  signedByMemberId   String?   @db.Uuid @deny("update", auth().memberId != signerMemberId && !has(auth().policies, "expenses:certification"))
+  signedBy           Member?   @relation(name: "expense_item_signed_by", fields: [signedByMemberId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "expense_item_signed_by_member_id_foreign")
+  signedAt           DateTime?
+
+  @@allow("create", has(auth().policies, "expenses:create") /* && signerMemberId != expense.memberId (TODO: Uncomment this when we upgrade to zenstack v2) */ && signedByMemberId == null && signedAt == null)
   // copy auth from Expense
-  @@allow("read", has(auth().policies, "expenses:read") && (
+  @@allow("read", (
     expense.memberId == auth().memberId 
     || expense.items?[signerMemberId == auth().memberId]
     || has(auth().policies, "expenses:bookkeeping")
   ))
   @@allow("update", expense.hasBeenSentToBookeeping == false && (
-    has(auth().policies, "expenses:update")
-    || (expense.memberId == auth().memberId)
+    (expense.memberId == auth().memberId)
+    || expense.items?[signerMemberId == auth().memberId]
+    || has(auth().policies, "expenses:bookkeeping")
+  ) && (
+    (future().signedByMemberId == null && future().signedAt == null)  // signedByMemberId and signedAt should both be null or not null
+    || (
+      future().signedByMemberId == auth().memberId  // can only set yourself to the one who signed
+  /* && future().signedByMemberId != expense.memberId (TODO: Uncomment this when we upgrade to zenstack v2) */ // can never sign your own expense
+      && future().signedAt != null
+    )
   ))
-  @@allow("delete", expense.hasBeenSentToBookeeping == false && (
-    has(auth().policies, "expenses:delete")
-    || (expense.memberId == auth().memberId)
-  ))
+  @@allow("delete", false)
 }

@@ -79,7 +79,7 @@ const CACHED_SIGNERS: Record<string, Member["id"] | undefined> = {};
 let CACHE_UPDATED_AT = 0;
 
 const TREASURER = "dsek.skattm.mastare";
-const PRESIDENT = "dsek.skattm.funk";
+const PRESIDENT = "dsek.ordf";
 
 const updateSignersCache = async () => {
   const allSigners = new Set([
@@ -94,6 +94,8 @@ const updateSignersCache = async () => {
       },
       startDate: {
         lte: new Date(),
+      },
+      endDate: {
         gte: new Date(),
       },
     },
@@ -137,7 +139,6 @@ const resolveSignerLogic = (
   // user is TREASURER, or treasurer is vacant
   signer = getSigner(PRESIDENT);
   if (signer !== userMemberId && signer !== undefined) return signer;
-
   // user is PRESIDENT AND TREASURER (OR: President is vacant, user is treasurer, OR: treasurer is vacant and user is president)
   throw new Error(
     `Signer logic could not be resolved for cost center ${costCenterName}. Treasurer: ${getSigner(TREASURER)}, President: ${getSigner(PRESIDENT)}, User: ${userMemberId}`,
@@ -242,10 +243,10 @@ export const actions = {
     const signerMemberIds = new Set(items.map((item) => item.signerMemberId));
     try {
       await sendNotification({
-        title: "Skriv under utlägg",
+        title: "Nytt utlägg",
         message: `${getFullName(member, {
           hideNickname: true,
-        })} har skapat ett utlägg som du behöver signera.`,
+        })} har skickat in ett nytt utlägg: ${expense.description}`,
         link: `/expenses`,
         type: NotificationType.EXPENSES,
         memberIds: [...signerMemberIds],

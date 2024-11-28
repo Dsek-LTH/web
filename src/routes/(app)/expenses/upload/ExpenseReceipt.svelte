@@ -79,7 +79,7 @@
       onRemove={$values.length === 1
         ? undefined
         : () => {
-            $values = [...$values.slice(0, index), ...$values.slice(index + 1)];
+            $values = [...$values.slice(0, i), ...$values.slice(i + 1)];
           }}
     />
   {/each}
@@ -87,7 +87,14 @@
     type="button"
     class="btn mt-4"
     on:click={() => {
-      $values = [...$values, createBasicReceiptRow()];
+      $values = [
+        ...$values,
+        createBasicReceiptRow(
+          $values.length > 0
+            ? $values[$values.length - 1]?.costCenter
+            : undefined,
+        ),
+      ];
     }}
   >
     + lägg till rad

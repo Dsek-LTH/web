@@ -90,6 +90,20 @@
           "maxLength": null
         },
         {
+          "id": "public.Expense.removedAt",
+          "name": "removedAt",
+          "columnName": "removedAt",
+          "type": "timestamp",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
           "name": "members",
           "type": "members",
           "isRequired": true,
@@ -250,16 +264,30 @@
           "maxLength": null
         },
         {
-          "id": "public.ExpenseItem.isCertified",
-          "name": "isCertified",
-          "columnName": "isCertified",
-          "type": "bool",
-          "isRequired": true,
+          "id": "public.ExpenseItem.signedAt",
+          "name": "signedAt",
+          "columnName": "signedAt",
+          "type": "timestamp",
+          "isRequired": false,
           "kind": "scalar",
           "isList": false,
           "isGenerated": false,
           "sequence": false,
-          "hasDefaultValue": true,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.ExpenseItem.signedByMemberId",
+          "name": "signedByMemberId",
+          "columnName": "signedByMemberId",
+          "type": "uuid",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
           "isId": false,
           "maxLength": null
         },
@@ -300,11 +328,29 @@
           "hasDefaultValue": false
         },
         {
-          "name": "members",
+          "name": "members_ExpenseItem_signedByMemberIdTomembers",
+          "type": "members",
+          "isRequired": false,
+          "kind": "object",
+          "relationName": "ExpenseItem_signedByMemberIdTomembers",
+          "relationFromFields": [
+            "signedByMemberId"
+          ],
+          "relationToFields": [
+            "id"
+          ],
+          "isList": false,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        },
+        {
+          "name": "members_ExpenseItem_signerMemberIdTomembers",
           "type": "members",
           "isRequired": true,
           "kind": "object",
-          "relationName": "ExpenseItemTomembers",
+          "relationName": "ExpenseItem_signerMemberIdTomembers",
           "relationFromFields": [
             "signerMemberId"
           ],
@@ -6069,11 +6115,25 @@
           "hasDefaultValue": false
         },
         {
-          "name": "ExpenseItem",
+          "name": "ExpenseItem_ExpenseItem_signedByMemberIdTomembers",
           "type": "ExpenseItem",
           "isRequired": false,
           "kind": "object",
-          "relationName": "ExpenseItemTomembers",
+          "relationName": "ExpenseItem_signedByMemberIdTomembers",
+          "relationFromFields": [],
+          "relationToFields": [],
+          "isList": true,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        },
+        {
+          "name": "ExpenseItem_ExpenseItem_signerMemberIdTomembers",
+          "type": "ExpenseItem",
+          "isRequired": false,
+          "kind": "object",
+          "relationName": "ExpenseItem_signerMemberIdTomembers",
           "relationFromFields": [],
           "relationToFields": [],
           "isList": true,

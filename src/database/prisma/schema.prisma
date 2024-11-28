@@ -606,9 +606,9 @@ model Member {
     shopReservations        ConsumableReservation[]
     bookingRequests         BookingRequest[]
     recurringEvent          RecurringEvent[]
-    tokens                  ExpoToken[]
     expenses                Expense[]
-    expensesToSign          ExpenseItem[]
+    expensesToSign          ExpenseItem[]           @relation("expense_item_signer")
+    signedExpenses          ExpenseItem[]           @relation("expense_item_signed_by")
 
     @@map("members")
 }
@@ -1085,9 +1085,9 @@ model ShoppableAccessPolicy {
 }
 
 /// @@allow('create', has(auth().policies, 'expenses:create'))
-/// @@allow('read', has(auth().policies, 'expenses:read'))
-/// @@allow('update', has(auth().policies, 'expenses:update') && hasBeenSentToBookeeping == false)
-/// @@allow('delete', has(auth().policies, 'expenses:delete') && hasBeenSentToBookeeping == false)
+/// @@allow('read', memberId == auth().memberId || items?[signerMemberId == auth().memberId] || has(auth().policies, 'expenses:bookkeeping'))
+/// @@allow('update', hasBeenSentToBookeeping == false && (memberId == auth().memberId || items?[signerMemberId == auth().memberId] || has(auth().policies, 'expenses:bookkeeping')))
+/// @@allow('delete', false)
 model Expense {
     id                      String        @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
     date                    DateTime      @default(now()) @map("date") @db.Timestamptz(6)
@@ -1098,12 +1098,13 @@ model Expense {
     memberId                String        @db.Uuid()
     member                  Member        @relation(fields: [memberId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "expense_member_id_foreign")
     items                   ExpenseItem[]
+    removedAt               DateTime?
 }
 
-/// @@allow('create', has(auth().policies, 'expenses:create'))
-/// @@allow('read', has(auth().policies, 'expenses:read'))
-/// @@allow('update', has(auth().policies, 'expenses:update') && expense.hasBeenSentToBookeeping == false)
-/// @@allow('delete', has(auth().policies, 'expenses:delete') && expense.hasBeenSentToBookeeping == false)
+/// @@allow('create', has(auth().policies, 'expenses:create') && signedByMemberId == null && signedAt == null)
+/// @@allow('read', expense.memberId == auth().memberId || expense.items?[signerMemberId == auth().memberId] || has(auth().policies, 'expenses:bookkeeping'))
+/// @@allow('update', expense.hasBeenSentToBookeeping == false && (expense.memberId == auth().memberId || expense.items?[signerMemberId == auth().memberId] || has(auth().policies, 'expenses:bookkeeping')) && (future().signedByMemberId == null && future().signedAt == null || (future().signedByMemberId == auth().memberId && future().signedAt != null)))
+/// @@allow('delete', false)
 model ExpenseItem {
     id                 String    @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
     expenseId          String    @map("expense_id") @db.Uuid()
@@ -1115,7 +1116,9 @@ model ExpenseItem {
     comment            String?
     receiptUrl         String?
     signerMemberId     String    @db.Uuid()
-    signer             Member    @relation(fields: [signerMemberId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "expense_item_signer_id_foreign")
-    /// @deny('update', !has(auth().policies, 'expenses:certification'))
-    isCertified        Boolean   @default(false)
+    signer             Member    @relation(name: "expense_item_signer", fields: [signerMemberId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "expense_item_signer_id_foreign")
+    /// @deny('update', auth().memberId != signerMemberId && !has(auth().policies, 'expenses:certification'))
+    signedByMemberId   String?   @db.Uuid()
+    signedBy           Member?   @relation(name: "expense_item_signed_by", fields: [signedByMemberId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "expense_item_signed_by_member_id_foreign")
+    signedAt           DateTime?
 }
