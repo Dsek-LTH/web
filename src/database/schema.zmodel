@@ -269,17 +269,18 @@ model CartItem {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Committees{
 model Committee {
-  id            String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name          String     @db.VarChar(255)
-  nameEn        String?    @map("name_en") @db.VarChar(255)
-  shortName     String?    @unique @map("short_name") @db.VarChar(255)
+  id            String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name          String        @db.VarChar(255)
+  nameEn        String?       @map("name_en") @db.VarChar(255)
+  shortName     String?       @unique @map("short_name") @db.VarChar(255)
   positions     Position[]
-  darkImageUrl  String?    @map("dark_image_url") @db.Text
-  lightImageUrl String?    @map("light_image_url") @db.Text
-  monoImageUrl  String?    @map("mono_image_url") @db.Text
-  symbolUrl     String?    @map("symbol_url") @db.Text
-  description   String?    @db.VarChar(255)
-  descriptionEn String?    @map("description_en") @db.VarChar(255)
+  darkImageUrl  String?       @map("dark_image_url") @db.Text
+  lightImageUrl String?       @map("light_image_url") @db.Text
+  monoImageUrl  String?       @map("mono_image_url") @db.Text
+  symbolUrl     String?       @map("symbol_url") @db.Text
+  description   String?       @db.VarChar(255)
+  descriptionEn String?       @map("description_en") @db.VarChar(255)
+  expenseItems  ExpenseItem[] // all expenses for this committee
 
   @@allow("create", has(auth().policies, "core:committee:create"))
   @@allow("read", has(auth().policies, "core:committee:read"))
@@ -592,6 +593,8 @@ model Member {
   bookingRequests         BookingRequest[]
   recurringEvent          RecurringEvent[]
   tokens                  ExpoToken[]
+  expenses                Expense[]
+  expensesToSign          ExpenseItem[]
 
   @@allow('create', has(auth().policies, "core:member:create"))
   @@allow('create', auth().studentId == studentId)
@@ -1154,4 +1157,62 @@ model ShoppableAccessPolicy {
   // only managers can delete (should very rarely be done)
   @@allow("delete", auth().memberId == shoppable.authorId || has(auth().policies, "webshop:manage"))
   @@map("shoppable_access_policies")
+}
+
+model Expense {
+  id                      String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  date                    DateTime      @default(now()) @map("date") @db.Timestamptz(6)
+  description             String
+  isGuildCard             Boolean
+  hasBeenSentToBookeeping Boolean       @default(false) @deny("update", !has(auth().policies, "expenses:bookkeeping"))
+  memberId                String        @db.Uuid
+  member                  Member        @relation(fields: [memberId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "expense_member_id_foreign")
+  items                   ExpenseItem[]
+
+
+  @@allow("create", has(auth().policies, "expenses:create"))
+  @@allow("read", has(auth().policies, "expenses:read") && (
+    memberId == auth().memberId // my expenses
+    || items?[signerMemberId == auth().memberId] // expenses I should sign
+    || has(auth().policies, "expenses:bookkeeping") // I can do bookkeeping
+  ))
+  @@allow("update", hasBeenSentToBookeeping == false && (
+    has(auth().policies, "expenses:update") 
+    || (memberId == auth().memberId)
+  ))
+  @@allow("delete" , hasBeenSentToBookeeping == false && (
+    has(auth().policies, "expenses:delete")
+    || (memberId == auth().memberId)
+  ))
+}
+
+model ExpenseItem {
+  id                 String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  expenseId          String    @map("expense_id") @db.Uuid
+  expense            Expense   @relation(fields: [expenseId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "expense_item_expense_id_foreign")
+  committeeShortName String
+  commitee           Committee @relation(fields: [committeeShortName], references: [shortName])
+  amount             Int     // in SEK, "öre"
+  costCenter         String // SEX01, for example
+  comment            String?
+  receiptUrl         String?
+  signerMemberId     String    @db.Uuid
+  signer             Member    @relation(fields: [signerMemberId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "expense_item_signer_id_foreign")
+  isCertified        Boolean   @default(false) @deny("update", !has(auth().policies, "expenses:certification"))
+
+  @@allow("create", has(auth().policies, "expenses:create"))
+  // copy auth from Expense
+  @@allow("read", has(auth().policies, "expenses:read") && (
+    expense.memberId == auth().memberId 
+    || expense.items?[signerMemberId == auth().memberId]
+    || has(auth().policies, "expenses:bookkeeping")
+  ))
+  @@allow("update", expense.hasBeenSentToBookeeping == false && (
+    has(auth().policies, "expenses:update")
+    || (expense.memberId == auth().memberId)
+  ))
+  @@allow("delete", expense.hasBeenSentToBookeeping == false && (
+    has(auth().policies, "expenses:delete")
+    || (expense.memberId == auth().memberId)
+  ))
 }

@@ -85,6 +85,11 @@ const apiNames = {
   NOLLNING: {
     MANAGE_PHADDER_GROUPS: "nollning:phaddrar:groups:manage",
   },
+  EXPENSES: {
+    ...crud("expenses"),
+    CERTIFICATION: "expenses:certification",
+    BOOKKEEPING: "expenses:bookkeeping",
+  }
 } as const;
 
 export default apiNames;
