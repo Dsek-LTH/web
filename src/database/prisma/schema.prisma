@@ -281,6 +281,7 @@ model Committee {
     symbolUrl String? @map("symbol_url") @db.Text()
     description String? @db.VarChar(255)
     descriptionEn String? @map("description_en") @db.VarChar(255)
+    expenseItems ExpenseItem[]
 
     @@map("committees")
 }
@@ -582,6 +583,8 @@ model Member {
     shopReservations ConsumableReservation[]
     bookingRequests BookingRequest[]
     recurringEvent RecurringEvent[]
+    expenses Expense[]
+    expensesToSign ExpenseItem[]
 
     @@map("members")
 }
@@ -1055,4 +1058,40 @@ model ShoppableAccessPolicy {
     createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
     @@map("shoppable_access_policies")
+}
+
+/// @@allow('create', has(auth().policies, 'expenses:create'))
+/// @@allow('read', has(auth().policies, 'expenses:read'))
+/// @@allow('update', has(auth().policies, 'expenses:update') && hasBeenSentToBookeeping == false)
+/// @@allow('delete', has(auth().policies, 'expenses:delete') && hasBeenSentToBookeeping == false)
+model Expense {
+    id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+    date DateTime @default(now()) @map("date") @db.Timestamptz(6)
+    description String
+    isGuildCard Boolean
+    /// @deny('update', !has(auth().policies, 'expenses:bookkeeping'))
+    hasBeenSentToBookeeping Boolean @default(false)
+    memberId String @db.Uuid()
+    member Member @relation(fields: [memberId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "expense_member_id_foreign")
+    items ExpenseItem[]
+}
+
+/// @@allow('create', has(auth().policies, 'expenses:create'))
+/// @@allow('read', has(auth().policies, 'expenses:read'))
+/// @@allow('update', has(auth().policies, 'expenses:update') && expense.hasBeenSentToBookeeping == false)
+/// @@allow('delete', has(auth().policies, 'expenses:delete') && expense.hasBeenSentToBookeeping == false)
+model ExpenseItem {
+    id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+    expenseId String @map("expense_id") @db.Uuid()
+    expense Expense @relation(fields: [expenseId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "expense_item_expense_id_foreign")
+    committeeShortName String
+    commitee Committee @relation(fields: [committeeShortName], references: [shortName])
+    amount Int
+    costCenter String
+    comment String?
+    receiptUrl String?
+    signerMemberId String @db.Uuid()
+    signer Member @relation(fields: [signerMemberId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "expense_item_signer_id_foreign")
+    /// @deny('update', !has(auth().policies, 'expenses:certification'))
+    isCertified Boolean @default(false)
 }

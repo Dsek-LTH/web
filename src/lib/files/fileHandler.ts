@@ -90,6 +90,36 @@ const getPresignedPutUrl = async (
   return url;
 };
 
+// Returns deleted files data
+const removeFileGivenPath = async (
+  user: AuthUser | undefined,
+  bucket: string,
+  filePath: string,
+): Promise<FileData[]> => {
+  const filesInFolder = await getFilesInFolder(bucket, filePath, true);
+  if (filesInFolder.length > 1) {
+    await minio.removeObjects(
+      bucket,
+      filesInFolder.map((file) => file.id),
+    );
+    return filesInFolder.map((file) => ({
+      id: file.id,
+      name: path.basename(file.id),
+    }));
+  } else if (filesInFolder.length === 1) {
+    const file = filesInFolder[0]!;
+    await minio.removeObject(bucket, file.id);
+    return [
+      {
+        id: file.id,
+        name: path.basename(file.id),
+      },
+    ];
+  } else {
+    // file not found
+    return [];
+  }
+};
 /**
  * As the name implies this removes an object from the storage without checking any valid access, make sure to check access before calling this function
  */
@@ -100,30 +130,22 @@ export const removeFilesWithoutAccessCheck = async (
 ) => {
   const deleted: FileData[] = [];
 
-  await Promise.all(
-    fileNames.map(async (fileName) => {
-      if (isDir(fileName)) {
-        const filesInFolder = await getFilesInBucket(user, bucket, fileName);
-        if (filesInFolder) {
-          await removeFilesWithoutAccessCheck(
-            user,
-            bucket,
-            filesInFolder.map((file) => file.id),
-          );
-        }
-        deleted.push({
-          id: fileName,
-          name: path.basename(fileName),
-        });
-      } else {
-        await minio.removeObject(bucket, fileName);
-        deleted.push({
-          id: fileName,
-          name: path.basename(fileName),
-        });
-      }
-    }),
-  );
+  try {
+    await Promise.all(
+      fileNames.map(async (fileName) => {
+        const deltedForFilePath = await removeFileGivenPath(
+          user,
+          bucket,
+          fileName,
+        );
+        deleted.push(...deltedForFilePath);
+      }),
+    );
+  } catch (e) {
+    if (e instanceof Error)
+      throw new Error(`Could not remove file, ${e.message}`);
+    throw e;
+  }
   return deleted;
 };
 
