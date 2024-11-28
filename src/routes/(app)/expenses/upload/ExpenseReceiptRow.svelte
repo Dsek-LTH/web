@@ -4,7 +4,7 @@
   import FormSelect from "$lib/components/forms/FormSelect.svelte";
   import { type SuperForm } from "sveltekit-superforms";
   import { COST_CENTERS } from "../config";
-  import type { ExpenseSchema } from "./types";
+  import type { ExpenseSchema } from "../types";
 
   export let superform: SuperForm<ExpenseSchema>;
   export let receiptIndex: number;

@@ -1,4 +1,4 @@
-import { error, type Actions } from "@sveltejs/kit";
+import { type Actions } from "@sveltejs/kit";
 import { expensesInclusion } from "../getExpenses";
 
 const extractNumberParam = (url: URL, param: string, defaultValue: number) => {
@@ -10,10 +10,9 @@ const extractNumberParam = (url: URL, param: string, defaultValue: number) => {
 };
 
 export const load = async ({ locals, url }) => {
-  const { prisma, member } = locals;
+  const { prisma } = locals;
   const page = extractNumberParam(url, "page", 0);
   const pageSize = extractNumberParam(url, "pageSize", 10);
-  if (!member) throw error(401, "You must be logged in to handle expenses");
 
   const allExpenses = await prisma.expense.findMany({
     orderBy: {

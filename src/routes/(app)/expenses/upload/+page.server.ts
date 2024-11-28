@@ -2,18 +2,23 @@ import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
 import { removeFilesWithoutAccessCheck } from "$lib/files/fileHandler";
 import { uploadFile } from "$lib/files/uploadFiles";
 import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
+import { getFullName } from "$lib/utils/client/member";
 import sendNotification from "$lib/utils/notifications";
 import { NotificationType } from "$lib/utils/notifications/types";
 import { redirect } from "$lib/utils/redirect";
-import type { Member, Prisma } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import type { AuthUser } from "@zenstackhq/runtime";
 import { fail } from "sveltekit-superforms";
 import { zod } from "sveltekit-superforms/adapters";
 import { message, superValidate } from "sveltekit-superforms/server";
-import { COST_CENTERS, getCostCenter } from "../config";
-import createBasicReceipt from "./baseItem";
-import { expenseSchema } from "./types";
-import { getFullName } from "$lib/utils/client/member";
+import createBasicReceipt from "../baseItem";
+import { getCostCenter } from "../config";
+import {
+  getSigner,
+  resolveSignerLogic,
+  updateSignersCacheIfNecessary,
+} from "../signers";
+import { expenseSchema } from "../types";
 
 export const load = async () => {
   return {
@@ -74,77 +79,6 @@ const removeReceiptImages = (user: AuthUser, date: Date, id: string) =>
     expensePhotoUrl(date, id),
   ]);
 
-const CACHE_TTL = 1000 * 60 * 60 * 24; // 1 week
-const CACHED_SIGNERS: Record<string, Member["id"] | undefined> = {};
-let CACHE_UPDATED_AT = 0;
-
-const TREASURER = "dsek.skattm.mastare";
-const PRESIDENT = "dsek.ordf";
-
-const updateSignersCache = async () => {
-  const allSigners = new Set([
-    ...COST_CENTERS.map((center) => center.signer),
-    TREASURER,
-    PRESIDENT,
-  ]);
-  const signers = await authorizedPrismaClient.mandate.findMany({
-    where: {
-      positionId: {
-        in: [...allSigners],
-      },
-      startDate: {
-        lte: new Date(),
-      },
-      endDate: {
-        gte: new Date(),
-      },
-    },
-    select: {
-      positionId: true,
-      memberId: true,
-    },
-  });
-  CACHE_UPDATED_AT = Date.now();
-  signers.forEach((signer) => {
-    CACHED_SIGNERS[signer.positionId] = signer.memberId;
-  });
-  return signers;
-};
-
-/**
- * Assumes cache is updated, gets the member id for a signer positionId
- */
-const getSigner = (signer: string) => {
-  if (signer in CACHED_SIGNERS) {
-    return CACHED_SIGNERS[signer]!;
-  }
-  return undefined; // might be a vacant position
-};
-
-/**
- * In our policy we have a logic which desides how to handle edge cases where the signer is vacant, or the signer is also the user creating the expense.
- * This method resolves said logic (or throws if impossible, which would be really rare).
- */
-const resolveSignerLogic = (
-  signer: string | undefined,
-  userMemberId: string,
-  costCenterName: string,
-) => {
-  if (signer !== userMemberId && signer !== undefined) return signer;
-
-  // user is signer, or signer is vacant
-  signer = getSigner(TREASURER);
-  if (signer !== userMemberId && signer !== undefined) return signer;
-
-  // user is TREASURER, or treasurer is vacant
-  signer = getSigner(PRESIDENT);
-  if (signer !== userMemberId && signer !== undefined) return signer;
-  // user is PRESIDENT AND TREASURER (OR: President is vacant, user is treasurer, OR: treasurer is vacant and user is president)
-  throw new Error(
-    `Signer logic could not be resolved for cost center ${costCenterName}. Treasurer: ${getSigner(TREASURER)}, President: ${getSigner(PRESIDENT)}, User: ${userMemberId}`,
-  );
-};
-
 export const actions = {
   default: async (event) => {
     const { locals, request } = event;
@@ -160,9 +94,7 @@ export const actions = {
         memberId: member?.id,
       },
     });
-    if (CACHE_UPDATED_AT < Date.now() - CACHE_TTL) {
-      await updateSignersCache();
-    }
+    await updateSignersCacheIfNecessary();
     const itemPromiseResults = await Promise.allSettled(
       form.data.receipts.map(
         async (receipt): Promise<Prisma.ExpenseItemCreateManyInput[]> => {

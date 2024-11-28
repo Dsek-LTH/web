@@ -6,8 +6,8 @@
     type SuperForm,
   } from "sveltekit-superforms";
   import ExpenseReceiptRow from "./ExpenseReceiptRow.svelte";
-  import type { ExpenseSchema, ReceiptRowSchema } from "./types";
-  import { createBasicReceiptRow } from "./baseItem";
+  import type { ExpenseSchema, ReceiptRowSchema } from "../types";
+  import { createBasicReceiptRow } from "../baseItem";
 
   export let superform: SuperForm<ExpenseSchema>;
   export let index: number;
