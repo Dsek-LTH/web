@@ -599,7 +599,7 @@
   "members_publishedEvents": "Published events",
   "members_firstName": "First name",
   "members_nickname": "Nickname",
-  "members_nickname_explanation": "Max 20 characters, the rest is truncated",
+  "members_nickname_explanation": "Max 60 characters, the rest is truncated",
   "members_lastName": "Last name",
   "members_programme": "Programme",
   "members_year": "Year",
