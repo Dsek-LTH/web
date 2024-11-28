@@ -86,10 +86,10 @@ const apiNames = {
     MANAGE_PHADDER_GROUPS: "nollning:phaddrar:groups:manage",
   },
   EXPENSES: {
-    ...crud("expenses"),
-    CERTIFICATION: "expenses:certification",
-    BOOKKEEPING: "expenses:bookkeeping",
-  }
+    CREATE: "expenses:create", // who can create expenses, probably all volunteers or logged in
+    CERTIFICATION: "expenses:certification", // who can ALWAYS certify/sign expenses. As of writing this is treasurer and president.
+    BOOKKEEPING: "expenses:bookkeeping", // who can manage expenses for bookkeeping
+  },
 } as const;
 
 export default apiNames;
