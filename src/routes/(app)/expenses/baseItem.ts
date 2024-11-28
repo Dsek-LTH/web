@@ -1,4 +1,4 @@
-import { COST_CENTERS } from "../config";
+import { COST_CENTERS } from "./config";
 import type { ReceiptRowSchema, ReceiptSchema } from "./types";
 export const createBasicReceiptRow = (
   costCenter: string = COST_CENTERS[0]!.name,

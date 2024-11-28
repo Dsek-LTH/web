@@ -6,7 +6,7 @@
   import { superForm } from "$lib/utils/client/superForms";
   import { zodClient } from "sveltekit-superforms/adapters";
   import ExpenseItemForm from "./ExpenseReceiptsForm.svelte";
-  import { expenseSchema } from "./types";
+  import { expenseSchema } from "../types";
 
   export let data;
   const superform = superForm(data.form, {

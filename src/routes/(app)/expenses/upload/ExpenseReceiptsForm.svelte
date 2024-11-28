@@ -5,8 +5,8 @@
     type SuperForm,
   } from "sveltekit-superforms";
   import ExpenseReceipt from "./ExpenseReceipt.svelte";
-  import type { ReceiptSchema, ExpenseSchema } from "./types";
-  import createBasicReceipt from "./baseItem";
+  import type { ReceiptSchema, ExpenseSchema } from "../types";
+  import createBasicReceipt from "../baseItem";
 
   export let superform: SuperForm<ExpenseSchema>;
   const { values, errors } = arrayProxy(
