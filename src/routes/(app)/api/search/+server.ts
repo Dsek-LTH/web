@@ -1,6 +1,7 @@
 import type { RequestHandler } from "@sveltejs/kit";
+import { meilisearch } from "./meilisearch";
 
-export const GET: RequestHandler = async ({ url, locals }) => {
+export const GET: RequestHandler = async ({ url }) => {
   const query = url.searchParams.get("query");
   if (!query) {
     return new Response("Missing query", { status: 400 });
@@ -27,7 +28,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
     }
   }
 
-  const search = await locals.meilisearch.multiSearch({
+  const search = await meilisearch.multiSearch({
     queries: indexes.map((index) => ({ indexUid: index, q: query, limit: 5 })),
   });
 
