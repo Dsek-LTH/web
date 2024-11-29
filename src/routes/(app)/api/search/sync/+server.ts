@@ -1,7 +1,15 @@
 import { meilisearch } from "../meilisearch";
 import type { RequestHandler } from "./$types";
 import { v4 as uuid } from "uuid";
-
+/**
+ * Dumps relevant data from the database to Meilisearch.
+ * Meilisearch basically has its own database, so we need to
+ * keep it in sync with our own. This is done by doing a GET
+ * request to this endpoint. It will then fetch all relevant
+ * data from the database and dump it into Meilisearch.
+ * It will deny access if the request is not from localhost,
+ * to prevent public access to this endpoint.
+ */
 export const GET: RequestHandler = async ({ locals, getClientAddress }) => {
   // Deny access if not localhost
   const ip = getClientAddress();

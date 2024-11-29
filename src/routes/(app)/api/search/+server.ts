@@ -1,6 +1,14 @@
 import type { RequestHandler } from "@sveltejs/kit";
 import { meilisearch } from "./meilisearch";
 
+/**
+ * This endpoint is used to search multiple indexes at once.
+ * It takes a query and a list of indexes to search in.
+ * It will return the results from each index.
+ * Example usage:
+ * GET /api/search?query=oddput clementin&indexes=["members", "articles"]
+ * This will search for "oddput clementin" in the "members" and "articles" indexes.
+ */
 export const GET: RequestHandler = async ({ url }) => {
   const query = url.searchParams.get("query");
   if (!query) {
