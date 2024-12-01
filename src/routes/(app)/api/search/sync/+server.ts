@@ -10,12 +10,28 @@ import { v4 as uuid } from "uuid";
  * It will deny access if the request is not from localhost,
  * to prevent public access to this endpoint.
  */
+let meiliInitialized = false;
 export const GET: RequestHandler = async ({ locals, getClientAddress }) => {
   // Deny access if not localhost
   const ip = getClientAddress();
   if (!(ip === "localhost" || ip === "::1" || ip === "127.0.0.1")) {
     return new Response("Unauthorized", { status: 401 });
   }
+
+  if (!meiliInitialized) {
+    await Promise.all([
+      meilisearch.createIndex("positions"),
+      meilisearch.createIndex("members"),
+      meilisearch.createIndex("songs"),
+      meilisearch.createIndex("articles"),
+      meilisearch.createIndex("events"),
+    ]);
+    meiliInitialized = true;
+    // sleep for a bit to let Meilisearch finish creating the indexes
+    // otherwise, we can get a 500 error (but we can try again)
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  }
+
   const prisma = locals.prisma;
 
   /**

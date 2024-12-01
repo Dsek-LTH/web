@@ -10,11 +10,3 @@ export const meilisearch = new Meilisearch({
     },
   },
 });
-
-await Promise.all([
-  meilisearch.createIndex("positions"),
-  meilisearch.createIndex("members"),
-  meilisearch.createIndex("songs"),
-  meilisearch.createIndex("articles"),
-  meilisearch.createIndex("events"),
-]);
