@@ -1,6 +1,14 @@
-import { meilisearch } from "../meilisearch";
+import { meilisearch } from "$lib/search/meilisearch";
+import type {
+  SearchMember,
+  SearchArticle,
+  SearchEvent,
+  SearchPosition,
+  SearchSong,
+} from "$lib/search/searchTypes";
 import type { RequestHandler } from "./$types";
 import { v4 as uuid } from "uuid";
+
 /**
  * Dumps relevant data from the database to Meilisearch.
  * Meilisearch basically has its own database, so we need to
@@ -41,7 +49,13 @@ export const GET: RequestHandler = async ({ locals, getClientAddress }) => {
    * Perhaps generating UUIDs isn't needed in a future version of
    * Meilisearch.
    */
-  const [members, songs, articles, events, positions] = await Promise.all([
+  const [members, songs, articles, events, positions]: [
+    SearchMember[],
+    SearchSong[],
+    SearchArticle[],
+    SearchEvent[],
+    SearchPosition[],
+  ] = await Promise.all([
     prisma.member
       .findMany({
         select: {
@@ -49,6 +63,8 @@ export const GET: RequestHandler = async ({ locals, getClientAddress }) => {
           firstName: true,
           lastName: true,
           nickname: true,
+          picturePath: true,
+          classYear: true,
         },
       })
       .then((members) =>
@@ -65,6 +81,7 @@ export const GET: RequestHandler = async ({ locals, getClientAddress }) => {
           category: true,
           lyrics: true,
           melody: true,
+          slug: true,
         },
         where: {
           deletedAt: null,
@@ -83,6 +100,7 @@ export const GET: RequestHandler = async ({ locals, getClientAddress }) => {
           bodyEn: true,
           header: true,
           headerEn: true,
+          slug: true,
         },
         where: {
           AND: [
@@ -110,6 +128,7 @@ export const GET: RequestHandler = async ({ locals, getClientAddress }) => {
           titleEn: true,
           description: true,
           descriptionEn: true,
+          slug: true,
         },
         where: {
           AND: [
@@ -128,6 +147,8 @@ export const GET: RequestHandler = async ({ locals, getClientAddress }) => {
     prisma.position
       .findMany({
         select: {
+          id: true,
+          committeeId: true,
           committee: true,
           description: true,
           descriptionEn: true,
@@ -138,6 +159,8 @@ export const GET: RequestHandler = async ({ locals, getClientAddress }) => {
       .then((positions) =>
         positions.map((position) => ({
           ...position,
+          dsekId: position.id,
+          committeeName: position.committee?.name ?? "",
           id: uuid(),
         })),
       ),
@@ -160,7 +183,13 @@ export const GET: RequestHandler = async ({ locals, getClientAddress }) => {
     positionsIndex.deleteAllDocuments(),
   ]);
 
-  await Promise.all([
+  const [
+    addMembersTask,
+    addSongsTask,
+    addArticlesTask,
+    addEventsTask,
+    positionsTask,
+  ] = await Promise.all([
     membersIndex.addDocuments(members, {
       primaryKey: "id",
     }),
@@ -176,6 +205,56 @@ export const GET: RequestHandler = async ({ locals, getClientAddress }) => {
     positionsIndex.addDocuments(positions, {
       primaryKey: "id",
     }),
+  ]);
+
+  // Wait for all add tasks to finish
+  await meilisearch.waitForTasks(
+    [
+      addMembersTask.taskUid,
+      addSongsTask.taskUid,
+      addArticlesTask.taskUid,
+      addEventsTask.taskUid,
+      positionsTask.taskUid,
+    ],
+    {
+      timeOutMs: 10000,
+    },
+  );
+
+  await Promise.all([
+    membersIndex.updateSearchableAttributes([
+      "firstName",
+      "lastName",
+      "name",
+      "studentId",
+      "nickname",
+    ]),
+    songsIndex.updateSearchableAttributes([
+      "title",
+      "category",
+      "lyrics",
+      "melody",
+    ]),
+    articlesIndex.updateSearchableAttributes([
+      "header",
+      "body",
+      "headerEn",
+      "bodyEn",
+    ]),
+    eventsIndex.updateSearchableAttributes([
+      "title",
+      "description",
+      "titleEn",
+      "descriptionEn",
+    ]),
+    positionsIndex.updateSearchableAttributes([
+      "name",
+      "nameEn",
+      "committeeName",
+      "description",
+      "descriptionEn",
+      "dsekId",
+    ]),
   ]);
 
   return new Response(

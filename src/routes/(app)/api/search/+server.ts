@@ -1,5 +1,7 @@
 import type { RequestHandler } from "@sveltejs/kit";
-import { meilisearch } from "./meilisearch";
+import { meilisearch } from "$lib/search/meilisearch";
+import { getFederatedWeight } from "$lib/search/searchHelpers";
+import type { Hits } from "meilisearch";
 
 /**
  * This endpoint is used to search multiple indexes at once.
@@ -35,12 +37,34 @@ export const GET: RequestHandler = async ({ url }) => {
       );
     }
   }
+  let limit = Number.parseInt(url.searchParams.get("limit") ?? "20");
+  if (limit === -1) {
+    limit = 20;
+  }
 
-  const search = await meilisearch.multiSearch({
-    queries: indexes.map((index) => ({ indexUid: index, q: query, limit: 5 })),
+  const response = await meilisearch.multiSearch({
+    queries: indexes.map((index) => ({
+      indexUid: index,
+      q: query,
+      federationOptions: {
+        weight: getFederatedWeight(index),
+      },
+      showRankingScoreDetails: true,
+    })),
+    federation: {},
   });
 
-  return new Response(JSON.stringify(search), {
+  const array: Hits = [];
+  let i = 0;
+  while (array.length < limit && i < response.hits.length) {
+    const hit = response.hits[i];
+    if (hit != null) {
+      array.push(hit);
+    }
+    i++;
+  }
+
+  return new Response(JSON.stringify(array), {
     headers: {
       "Content-Type": "application/json",
     },
