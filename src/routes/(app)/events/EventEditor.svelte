@@ -264,7 +264,7 @@
         </label>
       </div>
     </div>
-    <FormSubmitButton form="editForm" {superform} class="btn btn-primary my-4">
+    <FormSubmitButton {superform} class="btn btn-primary my-4">
       {creating ? m.news_publish() : m.save()}
     </FormSubmitButton>
   </div>

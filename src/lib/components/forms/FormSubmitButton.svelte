@@ -10,14 +10,12 @@
   export let superform: SuperForm<T>;
   let clazz: string | undefined = undefined;
   export { clazz as class };
-  export let form: string | undefined = undefined;
   const { delayed } = superform;
 </script>
 
 <LoadingButton
   class={clazz}
   type="submit"
-  {form}
   isLoading={$delayed}
   {...$$restProps}
 >
