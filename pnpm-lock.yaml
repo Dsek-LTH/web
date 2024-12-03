@@ -263,6 +263,9 @@ importers:
       svelte-check:
         specifier: ^3.8.5
         version: 3.8.5(postcss-load-config@4.0.1(postcss@8.4.41))(postcss@8.4.41)(svelte@4.2.18)
+      svelte-youtube-embed:
+        specifier: ^0.3.3
+        version: 0.3.3(svelte@4.2.18)
       sveltekit-flash-message:
         specifier: ^2.4.4
         version: 2.4.4(@sveltejs/kit@2.5.20(@sveltejs/vite-plugin-svelte@3.1.1(svelte@4.2.18)(vite@5.3.5(@types/node@22.1.0)))(svelte@4.2.18)(vite@5.3.5(@types/node@22.1.0)))(svelte@4.2.18)
@@ -5493,6 +5496,11 @@ packages:
     peerDependencies:
       '@stripe/stripe-js': ^3
       svelte: ^3 || ^4
+
+  svelte-youtube-embed@0.3.3:
+    resolution: {integrity: sha512-g4+53JauVB+Jwz486lVqW8PUTnoP1SinECWhmQSCaKuh6zrYiAOFRpzMG6vW1TaQfSigiLWyUactFWipo4lsfQ==}
+    peerDependencies:
+      svelte: ^4.0.0
 
   svelte@4.2.18:
     resolution: {integrity: sha512-d0FdzYIiAePqRJEb90WlJDkjUEx42xhivxN8muUBmfZnP+tzUgz12DJ2hRJi8sIHCME7jeK1PTMgKPSfTd8JrA==}
@@ -12018,6 +12026,10 @@ snapshots:
   svelte-stripe@1.2.0(@stripe/stripe-js@3.5.0)(svelte@4.2.18):
     dependencies:
       '@stripe/stripe-js': 3.5.0
+      svelte: 4.2.18
+
+  svelte-youtube-embed@0.3.3(svelte@4.2.18):
+    dependencies:
       svelte: 4.2.18
 
   svelte@4.2.18:

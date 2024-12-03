@@ -18,6 +18,7 @@ export const articleSchema = z.object({
     )
     .default([]),
   imageUrl: z.string().optional().nullable(),
+  youtubeUrl: z.string().optional().nullable(),
   // only for uploading files
   image: z
     .instanceof(File, { message: "Please upload a file" })

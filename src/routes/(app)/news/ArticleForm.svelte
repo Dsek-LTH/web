@@ -16,6 +16,7 @@
   export let allTags: Tag[];
   export let superform: SuperForm<ArticleSchema>;
   export let articleImage: string | undefined = undefined;
+  export let articleVideo: string | undefined = undefined;
 
   const { form, enhance, errors } = superform;
 
@@ -51,6 +52,16 @@
         articleImage = result;
       }
     };
+  };
+
+  const onVideoSelected = (
+    event: Event & {
+      currentTarget: EventTarget & HTMLInputElement;
+    },
+  ) => {
+    let videoUrl = event.currentTarget.value;
+    if (!videoUrl) return;
+    articleVideo = videoUrl;
   };
 </script>
 
@@ -115,6 +126,14 @@
     label="Bild"
     onChange={onFileSelected}
     accept="image/*"
+  />
+
+  <FormInput
+    {superform}
+    field="youtubeUrl"
+    label="Youtube video URL"
+    onChange={onVideoSelected}
+    accept="video/*"
   />
 
   <slot name="form-end" />
