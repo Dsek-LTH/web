@@ -1,6 +1,6 @@
 <script lang="ts">
   // @ts-nocheck 
-  // We need this to suppress an error on the the Calendar on line 93
+  // We need this to suppress an error on the the Calendar component
   // TODO: update @event-calendar/core when they start supporting svelte 5
   import { twMerge } from "tailwind-merge";
   import Calendar from "@event-calendar/core";
