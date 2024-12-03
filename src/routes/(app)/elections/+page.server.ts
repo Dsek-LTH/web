@@ -1,10 +1,7 @@
-import apiNames from "$lib/utils/apiNames";
-import { isAuthorized } from "$lib/utils/authorization";
-
 import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ locals }) => {
-  const { prisma, user } = locals;
+  const { prisma } = locals;
   const openElections = await prisma.election.findMany({
     where: {
       expiresAt: {

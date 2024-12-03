@@ -1,7 +1,5 @@
 <script lang="ts">
   import PageHeader from "$lib/components/nav/PageHeader.svelte";
-  import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
-  import { getFullName } from "$lib/utils/client/member";
   import type { PageData } from "./$types";
   import * as m from "$paraglide/messages";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
