@@ -55,7 +55,10 @@
         <slot />
       </PostRevealDesktopNavbar>
     {:else}
-      <AppNotificationHandler />
+      <AppNotificationHandler
+        notificationsCountPromise={data.notifications?.then((n) => n.length) ??
+          0}
+      />
       <PostRevealHeader />
 
       <main

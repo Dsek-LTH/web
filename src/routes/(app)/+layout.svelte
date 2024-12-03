@@ -19,7 +19,9 @@
     <Drawer />
   </nav>
 {:else}
-  <AppNotificationHandler />
+  <AppNotificationHandler
+    notificationsCountPromise={data.notifications?.then((n) => n.length) ?? 0}
+  />
   <AppHeader />
 {/if}
 
