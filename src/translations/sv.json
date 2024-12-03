@@ -777,5 +777,14 @@
   "openElections": "Öppna val",
   "elections_description": "Här finns ansökningslänkar till de poster som just nu har ett öppet val. Postbeskrivningar och kravprofiler finns i Sök-formuläret.",
   "elections_close": "Valet stänger",
-  "elections_apply": "Ansök"
+  "elections_apply": "Ansök",
+  "search_search": "Sök",
+  "search_members": "Medlemmar",
+  "search_articles": "Nyheter",
+  "search_positions": "Poster",
+  "search_committees": "Utskott",
+  "search_events": "Event",
+  "search_songs": "Sånger",
+  "search_noResults": "Inga resultat",
+  "search_advancedSearch": "Avancerad sökning"
 }

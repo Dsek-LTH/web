@@ -781,5 +781,14 @@
   "openElections": "Open elections",
   "elections_description": "Here are the application forms for all posts that are currently open for applications. The kravprofil and the post description are location on the application form page.",
   "elections_close": "The elections closes at",
-  "elections_apply": "Apply"
+  "elections_apply": "Apply",
+  "search_search": "Search",
+  "search_members": "Members",
+  "search_articles": "News",
+  "search_positions": "Positions",
+  "search_committees": "Committees",
+  "search_events": "Events",
+  "search_songs": "Songs",
+  "search_noResults": "No results found",
+  "search_advancedSearch": "Advanced search"
 }
