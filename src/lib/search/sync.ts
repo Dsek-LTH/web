@@ -1,5 +1,4 @@
 import { meilisearch } from "$lib/search/meilisearch";
-import type { RequestHandler } from "./$types";
 import { v4 as uuid } from "uuid";
 import {
   articleSearchableAttributesArray,
@@ -13,6 +12,7 @@ import {
   type SearchablePositionAttributes,
   type SearchableSongAttributes,
 } from "$lib/search/searchTypes";
+import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
 
 /**
  * Dumps relevant data from the database to Meilisearch.
@@ -24,15 +24,10 @@ import {
  * to prevent public access to this endpoint.
  */
 let meiliInitialized = false;
-export const GET: RequestHandler = async ({ locals, getClientAddress }) => {
-  // Deny access if not localhost
-  const ip = getClientAddress();
-  if (!(ip === "localhost" || ip === "::1" || ip === "127.0.0.1")) {
-    return new Response("Unauthorized", { status: 401 });
-  }
-
+const sync = async () => {
   if (!meiliInitialized) {
     await Promise.all([
+      // createIndex is idempotent - calling it multiple times is fine
       meilisearch.createIndex("positions"),
       meilisearch.createIndex("members"),
       meilisearch.createIndex("songs"),
@@ -44,8 +39,6 @@ export const GET: RequestHandler = async ({ locals, getClientAddress }) => {
     // otherwise, we can get a 500 error (but we can try again)
     await new Promise((resolve) => setTimeout(resolve, 1000));
   }
-
-  const prisma = locals.prisma;
 
   /**
    * For some odd reason, Meiliseach doesn't like the ID fields
@@ -61,7 +54,7 @@ export const GET: RequestHandler = async ({ locals, getClientAddress }) => {
     SearchableEventAttributes[],
     SearchablePositionAttributes[],
   ] = await Promise.all([
-    prisma.member
+    authorizedPrismaClient.member
       .findMany({
         select: {
           studentId: true,
@@ -79,7 +72,7 @@ export const GET: RequestHandler = async ({ locals, getClientAddress }) => {
           id: uuid(),
         })),
       ),
-    prisma.song
+    authorizedPrismaClient.song
       .findMany({
         select: {
           title: true,
@@ -98,7 +91,7 @@ export const GET: RequestHandler = async ({ locals, getClientAddress }) => {
           id: uuid(),
         })),
       ),
-    prisma.article
+    authorizedPrismaClient.article
       .findMany({
         select: {
           body: true,
@@ -126,7 +119,7 @@ export const GET: RequestHandler = async ({ locals, getClientAddress }) => {
           id: uuid(),
         })),
       ),
-    prisma.event
+    authorizedPrismaClient.event
       .findMany({
         select: {
           title: true,
@@ -149,7 +142,7 @@ export const GET: RequestHandler = async ({ locals, getClientAddress }) => {
           id: uuid(),
         })),
       ),
-    prisma.position
+    authorizedPrismaClient.position
       .findMany({
         select: {
           id: true,
@@ -249,12 +242,6 @@ export const GET: RequestHandler = async ({ locals, getClientAddress }) => {
     { timeOutMs: 10000 },
   );
 
-  return new Response(
-    JSON.stringify({ members, songs, articles, events, positions }),
-    {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    },
-  );
+  return { members, songs, articles, events, positions };
 };
+export default sync;
