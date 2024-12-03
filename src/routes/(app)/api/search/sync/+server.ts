@@ -1,13 +1,18 @@
 import { meilisearch } from "$lib/search/meilisearch";
-import type {
-  SearchMember,
-  SearchArticle,
-  SearchEvent,
-  SearchPosition,
-  SearchSong,
-} from "$lib/search/searchTypes";
 import type { RequestHandler } from "./$types";
 import { v4 as uuid } from "uuid";
+import {
+  articleSearchableAttributesArray,
+  eventSearchableAttributesArray,
+  memberSearchableAttributesArray,
+  positionSearchableAttributesArray,
+  songSearchableAttributesArray,
+  type SearchableArticleAttributes,
+  type SearchableEventAttributes,
+  type SearchableMemberAttributes,
+  type SearchablePositionAttributes,
+  type SearchableSongAttributes,
+} from "$lib/search/searchTypes";
 
 /**
  * Dumps relevant data from the database to Meilisearch.
@@ -50,11 +55,11 @@ export const GET: RequestHandler = async ({ locals, getClientAddress }) => {
    * Meilisearch.
    */
   const [members, songs, articles, events, positions]: [
-    SearchMember[],
-    SearchSong[],
-    SearchArticle[],
-    SearchEvent[],
-    SearchPosition[],
+    SearchableMemberAttributes[],
+    SearchableSongAttributes[],
+    SearchableArticleAttributes[],
+    SearchableEventAttributes[],
+    SearchablePositionAttributes[],
   ] = await Promise.all([
     prisma.member
       .findMany({
@@ -70,7 +75,7 @@ export const GET: RequestHandler = async ({ locals, getClientAddress }) => {
       .then((members) =>
         members.map((member) => ({
           ...member,
-          name: `${member.firstName} ${member.lastName}`,
+          fullName: `${member.firstName} ${member.lastName}`,
           id: uuid(),
         })),
       ),
@@ -161,6 +166,7 @@ export const GET: RequestHandler = async ({ locals, getClientAddress }) => {
           ...position,
           dsekId: position.id,
           committeeName: position.committee?.name ?? "",
+          committeeNameEn: position.committee?.nameEn ?? "",
           id: uuid(),
         })),
       ),
@@ -175,87 +181,73 @@ export const GET: RequestHandler = async ({ locals, getClientAddress }) => {
       meilisearch.getIndex("positions"),
     ]);
 
-  await Promise.all([
-    membersIndex.deleteAllDocuments(),
-    songsIndex.deleteAllDocuments(),
-    articlesIndex.deleteAllDocuments(),
-    eventsIndex.deleteAllDocuments(),
-    positionsIndex.deleteAllDocuments(),
-  ]);
-
-  const [
-    addMembersTask,
-    addSongsTask,
-    addArticlesTask,
-    addEventsTask,
-    positionsTask,
-  ] = await Promise.all([
-    membersIndex.addDocuments(members, {
-      primaryKey: "id",
-    }),
-    songsIndex.addDocuments(songs, {
-      primaryKey: "id",
-    }),
-    articlesIndex.addDocuments(articles, {
-      primaryKey: "id",
-    }),
-    eventsIndex.addDocuments(events, {
-      primaryKey: "id",
-    }),
-    positionsIndex.addDocuments(positions, {
-      primaryKey: "id",
-    }),
-  ]);
-
-  // Wait for all add tasks to finish
   await meilisearch.waitForTasks(
-    [
-      addMembersTask.taskUid,
-      addSongsTask.taskUid,
-      addArticlesTask.taskUid,
-      addEventsTask.taskUid,
-      positionsTask.taskUid,
-    ],
-    {
-      timeOutMs: 10000,
-    },
+    await Promise.all(
+      [
+        membersIndex.deleteAllDocuments(),
+        songsIndex.deleteAllDocuments(),
+        articlesIndex.deleteAllDocuments(),
+        eventsIndex.deleteAllDocuments(),
+        positionsIndex.deleteAllDocuments(),
+      ].map((task) => task.then((task) => task.taskUid)),
+    ),
+    { timeOutMs: 10000 },
   );
 
-  await Promise.all([
-    membersIndex.updateSearchableAttributes([
-      "firstName",
-      "lastName",
-      "name",
-      "studentId",
-      "nickname",
-    ]),
-    songsIndex.updateSearchableAttributes([
-      "title",
-      "category",
-      "lyrics",
-      "melody",
-    ]),
-    articlesIndex.updateSearchableAttributes([
-      "header",
-      "body",
-      "headerEn",
-      "bodyEn",
-    ]),
-    eventsIndex.updateSearchableAttributes([
-      "title",
-      "description",
-      "titleEn",
-      "descriptionEn",
-    ]),
-    positionsIndex.updateSearchableAttributes([
-      "name",
-      "nameEn",
-      "committeeName",
-      "description",
-      "descriptionEn",
-      "dsekId",
-    ]),
-  ]);
+  await meilisearch.waitForTasks(
+    await Promise.all(
+      [
+        membersIndex.addDocuments(members, {
+          primaryKey: "id",
+        }),
+        songsIndex.addDocuments(songs, {
+          primaryKey: "id",
+        }),
+        articlesIndex.addDocuments(articles, {
+          primaryKey: "id",
+        }),
+        eventsIndex.addDocuments(events, {
+          primaryKey: "id",
+        }),
+        positionsIndex.addDocuments(positions, {
+          primaryKey: "id",
+        }),
+      ].map((task) => task.then((task) => task.taskUid)),
+    ),
+    { timeOutMs: 10000 },
+  );
+
+  await meilisearch.waitForTasks(
+    await Promise.all(
+      [
+        membersIndex.resetSearchableAttributes(),
+        songsIndex.resetSearchableAttributes(),
+        articlesIndex.resetSearchableAttributes(),
+        eventsIndex.resetSearchableAttributes(),
+        positionsIndex.resetSearchableAttributes(),
+      ].map((task) => task.then((task) => task.taskUid)),
+    ),
+    { timeOutMs: 10000 },
+  );
+
+  await meilisearch.waitForTasks(
+    await Promise.all(
+      [
+        membersIndex.updateSearchableAttributes(
+          memberSearchableAttributesArray,
+        ),
+        songsIndex.updateSearchableAttributes(songSearchableAttributesArray),
+        articlesIndex.updateSearchableAttributes(
+          articleSearchableAttributesArray,
+        ),
+        eventsIndex.updateSearchableAttributes(eventSearchableAttributesArray),
+        positionsIndex.updateSearchableAttributes(
+          positionSearchableAttributesArray,
+        ),
+      ].map((task) => task.then((task) => task.taskUid)),
+    ),
+    { timeOutMs: 10000 },
+  );
 
   return new Response(
     JSON.stringify({ members, songs, articles, events, positions }),

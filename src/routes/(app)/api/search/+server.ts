@@ -1,6 +1,9 @@
 import type { RequestHandler } from "@sveltejs/kit";
 import { meilisearch } from "$lib/search/meilisearch";
-import { getFederatedWeight } from "$lib/search/searchHelpers";
+import {
+  getFederatedWeight,
+  getSearchableAttributes,
+} from "$lib/search/searchHelpers";
 import type { Hits } from "meilisearch";
 
 /**
@@ -41,11 +44,16 @@ export const GET: RequestHandler = async ({ url }) => {
   if (limit === -1) {
     limit = 20;
   }
+  let language: "sv" | "en" = "sv";
+  if (url.searchParams.get("language") === "en") {
+    language = "en";
+  }
 
   const response = await meilisearch.multiSearch({
     queries: indexes.map((index) => ({
       indexUid: index,
       q: query,
+      attributesToSearchOn: getSearchableAttributes(index, language),
       federationOptions: {
         weight: getFederatedWeight(index),
       },
