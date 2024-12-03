@@ -100,8 +100,7 @@ export const createArticle: Action = async (event) => {
   slug = slugWithCount(slug, slugCount);
 
   if (image) rest.imageUrl = await uploadImage(user, image, slug);
-  for (let i = 0; i < images.length; i++) { // slow maybe do parallel awaits
-      const file = images[i];
+  for (let file of images) { // slow maybe do parallel awaits
       if (file === undefined) continue
       const imageUrl = await uploadImage(user, file, slug);
       rest.imageUrls.push(imageUrl);
