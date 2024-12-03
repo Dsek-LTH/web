@@ -445,6 +445,7 @@ model EventsTag {
 model ExpoToken {
   id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   memberId  String? @map("member_id") @db.Uuid
+  member    Member? @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "expo_tokens_member_id_foreign")
   expoToken String  @unique(map: "expo_tokens_expo_token_unique") @map("expo_token") @db.VarChar(255)
 
   @@allow('create', auth().memberId == memberId)
@@ -570,6 +571,7 @@ model Member {
   shopReservations        ConsumableReservation[]
   bookingRequests         BookingRequest[]
   recurringEvent          RecurringEvent[]
+  tokens                  ExpoToken[]
 
   @@allow('create', has(auth().policies, "core:member:create"))
   @@allow('create', auth().studentId == studentId)
