@@ -197,7 +197,7 @@
           </a>
           <a
             href="/info/for-foretag"
-            class="py-3 font-medium md:self-center lg:text-xl"
+            class="py-3 font-medium text-[#bfbfbf] md:self-center lg:text-xl"
           >
             {m.home_forCompanies()}
           </a>
@@ -401,6 +401,7 @@
 
     background: rgba(29, 26, 27, 0.6);
     backdrop-filter: blur(4px);
+    color: #bfbfbf;
   }
 
   header {
