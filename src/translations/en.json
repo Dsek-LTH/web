@@ -777,5 +777,8 @@
   "events_cancelEvent": "Cancel event",
   "events_cancelled": "Cancelled",
   "events_cancellingAlert": "You are cancelling the event.",
-  "booking_boardRoomWarning": "Please note that during weekdays between 11:30-13:30, the Board always has access to the Board Room (RåsenbaD) for Board work. This means that all board members may enter and/or work in the boardroom even if the room is booked. It may be beneficial to book another time or place for conversations that may be sensitive."
+  "booking_boardRoomWarning": "Please note that during weekdays between 11:30-13:30, the Board always has access to the Board Room (RåsenbaD) for Board work. This means that all board members may enter and/or work in the boardroom even if the room is booked. It may be beneficial to book another time or place for conversations that may be sensitive.",
+  "openElections": "Open elections",
+  "elections_description": "Here are the application forms for all posts that are currently open for applications. The kravprofil and the post description are location on the application form page.",
+  "elections_close": "The elections closes at"
 }
