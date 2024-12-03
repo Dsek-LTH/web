@@ -78,6 +78,7 @@ export const createArticle: Action = async (event) => {
     sendNotification: shouldSendNotification,
     notificationText,
     image,
+    images,
     body,
     bodyEn,
     ...rest
@@ -99,6 +100,12 @@ export const createArticle: Action = async (event) => {
   slug = slugWithCount(slug, slugCount);
 
   if (image) rest.imageUrl = await uploadImage(user, image, slug);
+  for (let i = 0; i < images.length; i++) { // slow maybe do parallel awaits
+      const file = images[i];
+      if (file === undefined) continue
+      const imageUrl = await uploadImage(user, file, slug);
+      rest.imageUrls.push(imageUrl);
+  }
 
   const result = await prisma.article.create({
     data: {

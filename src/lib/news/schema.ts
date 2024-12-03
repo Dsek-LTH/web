@@ -17,7 +17,8 @@ export const articleSchema = z.object({
       }),
     )
     .default([]),
-  imageUrl: z.string().optional().nullable(),
+  imageUrl: z.string().optional().nullable(), // so this is empty always and then gets filed later when processing the request
+  imageUrls: z.string().array().default([]),
   // only for uploading files
   image: z
     .instanceof(File, { message: "Please upload a file" })
@@ -26,6 +27,11 @@ export const articleSchema = z.object({
     .refine((file) => !file || isFileImage(file), {
       message: "Måste vara en bild",
     }),
+  images: z
+    .instanceof(File, { message: 'Please upload a file' })
+    .refine((file) => !file || isFileImage(file), 'Måste vara en bild')
+    .array()
+    .default([])
 });
 export type ArticleSchema = Infer<typeof articleSchema>;
 

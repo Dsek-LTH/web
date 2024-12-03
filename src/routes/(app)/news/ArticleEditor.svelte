@@ -45,6 +45,7 @@
         removedAt: null,
         status: "draft",
         imageUrl: articleImage ?? $form.imageUrl ?? null,
+        imageUrls: [],
       }}
     >
       <AuthorSignature
