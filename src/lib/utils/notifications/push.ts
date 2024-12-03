@@ -20,8 +20,11 @@ async function sendPushNotifications(
       to: token,
       title,
       body,
-      channelId: type,
+      channelId: "default",
       data: { link },
+      sound: "default",
+      priority: "high",
+      // badge: 0, // TODO: Set this for each token, given the user's unread notifications
     }));
   if (messages.length === 0) {
     return;
