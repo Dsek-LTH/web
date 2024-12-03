@@ -1,4 +1,4 @@
-import { MINIO_ROOT_PASSWORD, MINIO_ROOT_USER } from "$env/static/private";
+import { env } from "$env/dynamic/private";
 import {
   PUBLIC_MINIO_ENDPOINT,
   PUBLIC_MINIO_PORT,
@@ -14,8 +14,8 @@ const minio = new Client({
       ? 443
       : 80,
   useSSL: PUBLIC_MINIO_USE_SSL === "true",
-  accessKey: MINIO_ROOT_USER || "",
-  secretKey: MINIO_ROOT_PASSWORD || "",
+  accessKey: env.MINIO_ROOT_USER || "",
+  secretKey: env.MINIO_ROOT_PASSWORD || "",
 });
 
 export { CopyConditions } from "minio";
