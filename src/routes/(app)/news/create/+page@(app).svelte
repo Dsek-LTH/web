@@ -33,7 +33,7 @@
       explanation="Texten som visas i notisen, om tom kommer det vara början av nyhetstexten"
     />
     <FormCheckbox
-      superform={superformCorrectType}
+      {superform}
       field="sendNotification"
       label="Skicka notis?"
     />

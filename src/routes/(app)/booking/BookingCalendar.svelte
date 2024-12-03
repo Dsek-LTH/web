@@ -1,4 +1,7 @@
 <script lang="ts">
+  // @ts-nocheck 
+  // We need this to suppress an error on the the Calendar on line 93
+  // TODO: update @event-calendar/core when they start supporting svelte 5
   import { twMerge } from "tailwind-merge";
   import Calendar from "@event-calendar/core";
   import TimeGrid from "@event-calendar/resource-timeline";
