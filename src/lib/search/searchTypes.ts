@@ -7,6 +7,20 @@ import type {
   Committee,
 } from "@prisma/client";
 
+/**
+ * Utility type that creates a new object type based on a union of keys (Keys).
+ *
+ * For each key in Keys:
+ *   - If the key exists in T, its value type is preserved from T.
+ *   - If the key does not exist in T, its value type is set to `string`.
+ *
+ * This is useful for creating a new type that includes specific keys (from Keys),
+ * ensuring compatibility with an existing type (T), while accounting for missing keys.
+ */
+type FilterKeys<T extends Record<string, unknown>, Keys extends string> = {
+  [Key in Keys]: Key extends keyof T ? T[Key] : string;
+};
+
 export const availableSearchIndexes = [
   "members",
   "events",
@@ -14,86 +28,69 @@ export const availableSearchIndexes = [
   "positions",
   "songs",
 ] as const;
-
 export type SearchableIndex = (typeof availableSearchIndexes)[number];
 
-export interface SearchableMemberAttributes
-  extends Pick<Member, "firstName" | "lastName" | "nickname" | "studentId"> {
-  fullName: string;
-  id: string;
-}
-const memberSearchableAttributes: Required<SearchableMemberAttributes> = {
-  firstName: "",
-  lastName: "",
-  nickname: "",
-  studentId: "",
-  fullName: "",
-  id: "",
-};
-export const memberSearchableAttributesArray = Object.keys(
-  memberSearchableAttributes,
-) as Array<keyof SearchableMemberAttributes>;
+export const memberSearchableAttributes = [
+  "id",
+  "firstName",
+  "lastName",
+  "nickname",
+  "studentId",
+  "fullName",
+] as const satisfies Array<keyof Member | "fullName">;
+export type SearchableMemberAttributes = FilterKeys<
+  Member,
+  (typeof memberSearchableAttributes)[number]
+>;
 
+export const eventSearchableAttributes = [
+  "title",
+  "titleEn",
+  "description",
+  "descriptionEn",
+] as const satisfies Array<keyof Event>;
 export type SearchableEventAttributes = Pick<
   Event,
-  "title" | "titleEn" | "description" | "descriptionEn"
+  (typeof eventSearchableAttributes)[number]
 >;
-const eventSearchableAttributes: Required<SearchableEventAttributes> = {
-  title: "",
-  titleEn: "",
-  description: "",
-  descriptionEn: "",
-};
-export const eventSearchableAttributesArray = Object.keys(
-  eventSearchableAttributes,
-) as Array<keyof SearchableEventAttributes>;
 
+export const articleSearchableAttributes = [
+  "header",
+  "headerEn",
+  "body",
+  "bodyEn",
+] as const satisfies Array<keyof Article>;
 export type SearchableArticleAttributes = Pick<
   Article,
-  "header" | "headerEn" | "body" | "bodyEn"
+  (typeof articleSearchableAttributes)[number]
 >;
-const articleSearchableAttributes: Required<SearchableArticleAttributes> = {
-  header: "",
-  headerEn: "",
-  body: "",
-  bodyEn: "",
-};
-export const articleSearchableAttributesArray = Object.keys(
-  articleSearchableAttributes,
-) as Array<keyof SearchableArticleAttributes>;
 
-export interface SearchablePositionAttributes
-  extends Pick<Position, "name" | "nameEn" | "description" | "descriptionEn"> {
-  dsekId: string;
-  committeeName: string;
-  committeeNameEn: string;
-}
-const positionSearchableAttributes: Required<SearchablePositionAttributes> = {
-  name: "",
-  nameEn: "",
-  description: "",
-  descriptionEn: "",
-  committeeName: "",
-  committeeNameEn: "",
-  dsekId: "",
-};
-export const positionSearchableAttributesArray = Object.keys(
-  positionSearchableAttributes,
-) as Array<keyof SearchablePositionAttributes>;
+export const positionSearchableAttributes = [
+  "name",
+  "nameEn",
+  "description",
+  "descriptionEn",
+  "dsekId",
+  "committeeName",
+  "committeeNameEn",
+] as const satisfies Array<
+  keyof Position | "dsekId" | "committeeName" | "committeeNameEn"
+>;
+export type SearchablePositionAttributes = FilterKeys<
+  Position,
+  (typeof positionSearchableAttributes)[number]
+>;
 
+export const songSearchableAttributes = [
+  "title",
+  "lyrics",
+  "melody",
+  "category",
+] as const satisfies Array<keyof Song>;
 export type SearchableSongAttributes = Pick<
   Song,
-  "title" | "lyrics" | "melody" | "category"
+  (typeof songSearchableAttributes)[number]
 >;
-const songSearchableAttributes: Required<SearchableSongAttributes> = {
-  title: "",
-  lyrics: "",
-  melody: "",
-  category: "",
-};
-export const songSearchableAttributesArray = Object.keys(
-  songSearchableAttributes,
-) as Array<keyof SearchableSongAttributes>;
 
 export type SongSearchReturnAttributes = SearchableSongAttributes &
   Pick<Song, "slug">;

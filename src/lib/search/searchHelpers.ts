@@ -1,3 +1,4 @@
+import type { AvailableLanguageTag } from "$paraglide/runtime";
 import {
   availableSearchIndexes,
   type SearchableArticleAttributes,
@@ -30,7 +31,7 @@ export function getFederatedWeight(index: SearchableIndex): number {
 
 export function getSearchableAttributes(
   index: SearchableIndex,
-  language: "sv" | "en",
+  language: AvailableLanguageTag,
 ) {
   switch (index) {
     case "members": {

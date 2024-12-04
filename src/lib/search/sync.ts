@@ -1,11 +1,11 @@
 import { meilisearch } from "$lib/search/meilisearch";
 import { v4 as uuid } from "uuid";
 import {
-  articleSearchableAttributesArray,
-  eventSearchableAttributesArray,
-  memberSearchableAttributesArray,
-  positionSearchableAttributesArray,
-  songSearchableAttributesArray,
+  articleSearchableAttributes,
+  eventSearchableAttributes,
+  memberSearchableAttributes,
+  positionSearchableAttributes,
+  songSearchableAttributes,
   type SearchableArticleAttributes,
   type SearchableEventAttributes,
   type SearchableMemberAttributes,
@@ -226,17 +226,11 @@ const sync = async () => {
   await meilisearch.waitForTasks(
     await Promise.all(
       [
-        membersIndex.updateSearchableAttributes(
-          memberSearchableAttributesArray,
-        ),
-        songsIndex.updateSearchableAttributes(songSearchableAttributesArray),
-        articlesIndex.updateSearchableAttributes(
-          articleSearchableAttributesArray,
-        ),
-        eventsIndex.updateSearchableAttributes(eventSearchableAttributesArray),
-        positionsIndex.updateSearchableAttributes(
-          positionSearchableAttributesArray,
-        ),
+        membersIndex.updateSearchableAttributes(memberSearchableAttributes),
+        songsIndex.updateSearchableAttributes(songSearchableAttributes),
+        articlesIndex.updateSearchableAttributes(articleSearchableAttributes),
+        eventsIndex.updateSearchableAttributes(eventSearchableAttributes),
+        positionsIndex.updateSearchableAttributes(positionSearchableAttributes),
       ].map((task) => task.then((task) => task.taskUid)),
     ),
     { timeOutMs: 10000 },

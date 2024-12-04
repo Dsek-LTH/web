@@ -14,7 +14,7 @@ import type { Hits } from "meilisearch";
  * GET /api/search?query=oddput clementin&indexes=["members", "articles"]
  * This will search for "oddput clementin" in the "members" and "articles" indexes.
  */
-export const GET: RequestHandler = async ({ url }) => {
+export const GET: RequestHandler = async ({ url, locals }) => {
   const query = url.searchParams.get("query");
   if (!query) {
     return new Response("Missing query", { status: 400 });
@@ -44,19 +44,14 @@ export const GET: RequestHandler = async ({ url }) => {
   if (limit === -1) {
     limit = 20;
   }
-  let language: "sv" | "en" = "sv";
-  if (url.searchParams.get("language") === "en") {
-    language = "en";
-  }
+  const language = locals.language;
 
   const response = await meilisearch.multiSearch({
     queries: indexes.map((index) => ({
       indexUid: index,
       q: query,
       attributesToSearchOn: getSearchableAttributes(index, language),
-      federationOptions: {
-        weight: getFederatedWeight(index),
-      },
+      federationOptions: { weight: getFederatedWeight(index) },
       showRankingScoreDetails: true,
     })),
     federation: {},

@@ -93,6 +93,7 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
   const lang = isAvailableLanguageTag(event.locals.paraglide?.lang)
     ? event.locals.paraglide?.lang
     : sourceLanguageTag;
+  event.locals.language = lang;
   const session = await event.locals.getSession();
   const prisma = prismaClient
     .$extends(translatedExtension(lang))
