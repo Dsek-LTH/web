@@ -12,6 +12,13 @@ import {
 export type SearchIndex =
   (typeof availableSearchIndexes)[keyof typeof availableSearchIndexes];
 
+/**
+ * Get the federated weight for a given index
+ * This is used to give a higher weight to certain indexes
+ * when searching. For example, we want members to be more
+ * important than events. This is done by giving members
+ * a higher weight.
+ */
 export function getFederatedWeight(index: SearchableIndex): number {
   switch (index) {
     case "members":
@@ -29,6 +36,11 @@ export function getFederatedWeight(index: SearchableIndex): number {
   }
 }
 
+/**
+ * Get the searchable attributes for a given index and language
+ * If for whatever reason the language is not supported, or our
+ * systems fail to provide a language, swedish will be used as default.
+ */
 export function getSearchableAttributes(
   index: SearchableIndex,
   language: AvailableLanguageTag,
@@ -46,28 +58,33 @@ export function getSearchableAttributes(
       return res;
     }
     case "events": {
-      let res: Array<keyof SearchableEventAttributes>;
-      if (language === "sv") {
-        res = ["title", "description"];
-      } else {
+      // default is swedish
+      let res: Array<keyof SearchableEventAttributes> = [
+        "title",
+        "description",
+      ];
+      if (language === "en") {
         res = ["titleEn", "descriptionEn"];
       }
       return res;
     }
     case "articles": {
-      let res: Array<keyof SearchableArticleAttributes>;
-      if (language === "sv") {
-        res = ["header", "body"];
-      } else {
+      // default is swedish
+      let res: Array<keyof SearchableArticleAttributes> = ["header", "body"];
+      if (language === "en") {
         res = ["headerEn", "bodyEn"];
       }
       return res;
     }
     case "positions": {
-      let res: Array<keyof SearchablePositionAttributes>;
-      if (language === "sv") {
-        res = ["name", "description", "committeeName", "dsekId"];
-      } else {
+      // default is swedish
+      let res: Array<keyof SearchablePositionAttributes> = [
+        "name",
+        "description",
+        "committeeName",
+        "dsekId",
+      ];
+      if (language === "en") {
         res = ["nameEn", "descriptionEn", "committeeNameEn", "dsekId"];
       }
       return res;
