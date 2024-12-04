@@ -1,5 +1,4 @@
 import { dev } from "$app/environment";
-import type { NotificationSettingType } from "$lib/utils/notifications/types";
 import { error } from "@sveltejs/kit";
 import { Expo, type ExpoPushMessage } from "expo-server-sdk";
 
@@ -7,7 +6,6 @@ async function sendPushNotifications(
   tokens: string[],
   title: string,
   body: string,
-  type: NotificationSettingType,
   link: string,
 ) {
   if (dev) return;
@@ -20,7 +18,7 @@ async function sendPushNotifications(
       to: token,
       title,
       body,
-      channelId: type,
+      // channelId: type, // We skip using this for now, I think it's overkill
       data: { link },
     }));
   if (messages.length === 0) {

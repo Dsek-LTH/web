@@ -26,10 +26,10 @@
   ) satisfies FormFieldProxy<Date>;
   $: errors = fieldProxy.errors;
   $: constraints = fieldProxy.constraints;
+  export let onlyDate = false;
   $: date = dateProxy(superform, field, {
     format: onlyDate ? "date" : "datetime-local",
   });
-  export let onlyDate = false;
 </script>
 
 <Labeled {label} error={$errors}>
@@ -38,8 +38,8 @@
       {id}
       {name}
       type="date"
-      aria-invalid={$errors ? "true" : undefined}
       bind:value={$date}
+      aria-invalid={$errors ? "true" : undefined}
       {...$constraints}
       min={$constraints?.min?.toString().slice(0, 10)}
       max={$constraints?.max?.toString().slice(0, 10)}
@@ -51,8 +51,8 @@
       {id}
       {name}
       type="datetime-local"
-      aria-invalid={$errors ? "true" : undefined}
       bind:value={$date}
+      aria-invalid={$errors ? "true" : undefined}
       {...$constraints}
       min={$constraints?.min?.toString().slice(0, 10)}
       max={$constraints?.max?.toString().slice(0, 10)}

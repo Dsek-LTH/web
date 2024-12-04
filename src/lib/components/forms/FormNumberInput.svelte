@@ -18,6 +18,8 @@
   // as long as field is not nested, or data type is 'json', name does not need to be set
   export let name: string | undefined = undefined;
   export let label: string | null = null;
+  let clazz: string | undefined = undefined;
+  export { clazz as class };
 
   $: fieldProxy = formFieldProxy(
     superform,
@@ -32,6 +34,7 @@
   name={name ?? field}
   type="number"
   {label}
+  class={clazz}
   bind:value={$value}
   error={$errors}
   {...$constraints}
