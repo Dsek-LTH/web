@@ -17,27 +17,27 @@ import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
 /**
  * Dumps relevant data from the database to Meilisearch.
  * Meilisearch basically has its own database, so we need to
- * keep it in sync with our own. This is done by doing a GET
- * request to this endpoint. It will then fetch all relevant
- * data from the database and dump it into Meilisearch.
- * It will deny access if the request is not from localhost,
- * to prevent public access to this endpoint.
+ * keep it in sync with our own. This is done by calling this
+ * function. It will then fetch all relevant data from the
+ * database and dump it into Meilisearch.
  */
 let meiliInitialized = false;
 const sync = async () => {
   if (!meiliInitialized) {
-    await Promise.all([
-      // createIndex is idempotent - calling it multiple times is fine
-      meilisearch.createIndex("positions"),
-      meilisearch.createIndex("members"),
-      meilisearch.createIndex("songs"),
-      meilisearch.createIndex("articles"),
-      meilisearch.createIndex("events"),
-    ]);
+    await meilisearch.waitForTasks(
+      await Promise.all(
+        [
+          // createIndex is idempotent - calling it multiple times is fine
+          meilisearch.createIndex("positions"),
+          meilisearch.createIndex("members"),
+          meilisearch.createIndex("songs"),
+          meilisearch.createIndex("articles"),
+          meilisearch.createIndex("events"),
+        ].map((task) => task.then((task) => task.taskUid)),
+      ),
+      { timeOutMs: 10000 },
+    );
     meiliInitialized = true;
-    // sleep for a bit to let Meilisearch finish creating the indexes
-    // otherwise, we can get a 500 error (but we can try again)
-    await new Promise((resolve) => setTimeout(resolve, 1000));
   }
 
   /**
@@ -157,6 +157,7 @@ const sync = async () => {
       .then((positions) =>
         positions.map((position) => ({
           ...position,
+          // ID is reserved in Meilisearch, so we use dsekId instead
           dsekId: position.id,
           committeeName: position.committee?.name ?? "",
           committeeNameEn: position.committee?.nameEn ?? "",
