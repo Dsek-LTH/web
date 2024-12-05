@@ -35,7 +35,10 @@ export const load: PageServerLoad = async ({ locals }) => {
   const member = memberResult.value;
   const phadderGroups = phadderGroupsResult.value;
   return {
-    form: await superValidate(member, zod(memberSchema)),
+    form: await superValidate(
+      { ...member, classProgramme: member.classProgramme ?? "D" },
+      zod(memberSchema),
+    ),
     member,
     phadderGroups,
   };
