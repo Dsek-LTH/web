@@ -186,6 +186,16 @@ export const models: SeedClientOptions["models"] = {
       published: () => faker.date.past(),
     },
   },
+  election: {
+    data: {
+      createdAt: () => faker.date.recent({ days: 14 }),
+      expiresAt: () => faker.date.soon({ days: 14 }),
+      markdown: () => "- " + faker.lorem.sentences({ min: 3, max: 7 }, "\n- "),
+      markdownEn: () =>
+        "- " + faker.lorem.sentences({ min: 3, max: 7 }, "\n- "),
+      link: () => faker.internet.url(),
+    },
+  },
   event: {
     data: {
       title: () => faker.lorem.sentence(),
@@ -217,6 +227,7 @@ export const models: SeedClientOptions["models"] = {
   committee: {
     data: {
       description: null,
+      nameEn: null,
     },
   },
   position: {
