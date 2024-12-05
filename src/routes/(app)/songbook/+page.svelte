@@ -7,13 +7,13 @@
   import Disclaimer from "./Disclaimer.svelte";
   import SongElement from "./SongElement.svelte";
   import * as m from "$paraglide/messages";
-  import type { PageData } from "./$types";
 
   function isCatSelected(catId: string): boolean {
     return data.categories.includes(catId);
   }
 
-  let { data }: { data: PageData } = $props();
+  import type { PageData } from "./$types";
+  export let data: PageData;
   let form: HTMLFormElement;
 </script>
 
@@ -42,7 +42,7 @@
         name="show-deleted"
         value="true"
         checked={data.params.includes("show-deleted")}
-        onchange={() => form.requestSubmit()}
+        on:change={() => form.requestSubmit()}
       />
       <label class="label" for="show-deleted">
         {m.songbook_showDeleted()}
@@ -63,7 +63,7 @@
           name="category"
           value={catId}
           checked={isCatSelected(catId)}
-          onchange={() => form.requestSubmit()}
+          on:change={() => form.requestSubmit()}
         />
       </label>
     {/each}

@@ -69,15 +69,13 @@
             <td>{policy.endDatetime?.toLocaleString("sv") ?? "N/A"}</td>
             {#if policy.information}
               <td class="policy-information flex items-center">
-                <!-- svelte-ignore a11y_consider_explicit_label -->
                 <button
                   on:click={() => {
                     informationModal?.showModal();
                     selectedPolicy = policy;
                   }}
                   class="btn-error h-6 rounded-full fill-base-content"
-                  ><span class="i-mdi-information h-6 w-6 bg-base-content"
-                  ></span>
+                  ><span class="i-mdi-information h-6 w-6 bg-base-content" />
                 </button>
                 <dialog id="my_modal_1" class="modal">
                   <div class="modal-box">
@@ -92,6 +90,8 @@
                   </div>
                 </dialog>
               </td>
+            {:else}
+              <div></div>
             {/if}
             <td class="text-right">
               <button
@@ -279,7 +279,6 @@
     </div>
   </div>
   <form method="dialog" class="modal-backdrop">
-    <!-- svelte-ignore a11y_consider_explicit_label -->
     <button class="cursor-auto"></button>
   </form>
 </dialog>
@@ -287,7 +286,7 @@
 <dialog bind:this={informationModal} class="modal modal-bottom sm:modal-middle">
   <div class="modal-box">
     <div class="flex items-center">
-      <span class="i-mdi-information size-6"></span>
+      <span class="i-mdi-information size-6" />
       <h3 class="px-1 text-lg font-bold">
         <b class="capitalize">{$page.params["slug"]} -</b>
         {#if selectedPolicy?.role}<b>{selectedPolicy.role}</b>{:else}<b>
@@ -305,7 +304,6 @@
     </button>
   </div>
   <form method="dialog" class="modal-backdrop">
-    <!-- svelte-ignore a11y_consider_explicit_label -->
     <button class="cursor-auto"></button>
   </form>
 </dialog>

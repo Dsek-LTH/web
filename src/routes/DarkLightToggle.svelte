@@ -22,8 +22,8 @@
   on:click={toggleTheme}
 >
   <!-- moon icon -->
-  <span class="swap-on i-mdi-weather-night"></span>
+  <span class="swap-on i-mdi-weather-night" />
 
   <!-- sun icon -->
-  <span class="swap-off i-mdi-weather-sunny"></span>
+  <span class="swap-off i-mdi-weather-sunny" />
 </button>

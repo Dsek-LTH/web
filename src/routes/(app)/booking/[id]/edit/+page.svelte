@@ -16,7 +16,7 @@
 
 {#if !(isAdmin || isPending)}
   <div role="alert" class="alert alert-warning mx-auto mb-8 max-w-5xl">
-    <span class="i-mdi-warning"></span>
+    <span class="i-mdi-warning" />
     <span>{m.booking_editBookingWarning()}</span>
   </div>
 {/if}

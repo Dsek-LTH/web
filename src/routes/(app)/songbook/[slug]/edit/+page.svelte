@@ -74,7 +74,7 @@
       class="textarea textarea-bordered h-80"
       bind:value={$form.lyrics}
       {...$constraints.lyrics}
-    ></textarea>
+    />
   </Labeled>
 
   <div class="flex justify-between">
@@ -94,21 +94,15 @@
           {m.songbook_removeSong()}
         </button>
       {:else}
-        <button class="btn" type="submit" form="restoreSong">
-          {m.songbook_restoreFromGarbageCan()}
-        </button>
+        <form method="POST" action="?/restore" class="form-control gap-2">
+          <input type="hidden" name="id" value={data.song.id} />
+          <button class="btn" type="submit" formaction="?/restore">
+            {m.songbook_restoreFromGarbageCan()}
+          </button>
+        </form>
       {/if}
     {/if}
   </div>
-</form>
-
-<form
-  method="POST"
-  action="?/restore"
-  id="restoreSong"
-  class="form-control gap-2"
->
-  <input type="hidden" name="id" value={data.song.id} />
 </form>
 
 <dialog bind:this={removeModal} class="modal modal-bottom sm:modal-middle">
@@ -138,7 +132,6 @@
     </div>
   </div>
   <form method="dialog" class="modal-backdrop">
-    <!-- svelte-ignore a11y_consider_explicit_label -->
     <button class="cursor-auto"></button>
   </form>
 </dialog>

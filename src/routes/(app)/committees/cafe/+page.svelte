@@ -65,12 +65,11 @@
                 value={openingHour.markdown}
                 size="8"
               />
-              <!-- svelte-ignore a11y_consider_explicit_label -->
               <button
                 class="btn btn-outline btn-primary btn-sm h-auto"
                 type="submit"
               >
-                <span class="i-mdi-content-save text-base"></span>
+                <span class="i-mdi-content-save text-base" />
               </button>
             </form>
           {:else}

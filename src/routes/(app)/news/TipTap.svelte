@@ -53,4 +53,4 @@
   </button>
 {/if}
 
-<div bind:this={element}></div>
+<div bind:this={element} />

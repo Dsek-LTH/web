@@ -105,8 +105,7 @@
           </a>
         </div>
       {:else}
-        <div></div>
-        <!-- for positioning the slot correctly -->
+        <div />
       {/if}
       <div class="shrink-0">
         <slot name="end" />

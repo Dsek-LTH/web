@@ -8,20 +8,18 @@
   import eye from "../(nollning)/nollning/(photos)/eye.svg";
   // eslint-disable-next-line no-restricted-imports -- eh what the hell why not
   import swirl from "../(nollning)/nollning/(photos)/swirl.svg";
-  import type { PageData } from "./$types";
 
-  let { data }: { data: PageData } = $props();
+  export let data;
   onMount(() => {
     goto(data.redirect, {
       replaceState: true,
     });
   });
   const revealTheme = REVEAL_LAUNCH_DATE <= new Date();
-  let background = $derived(
+  $: background =
     data.redirect === "/nollning" && revealTheme
       ? colors.nollningPostReveal["base-100"]
-      : "#f280a1",
-  );
+      : "#f280a1";
 </script>
 
 <div

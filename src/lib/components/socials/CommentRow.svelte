@@ -46,7 +46,6 @@
   $: fixedContent = replaceTag(comment.content ?? "");
 </script>
 
-<!-- svelte-ignore a11y_consider_explicit_label -->
 <section
   aria-label="Comment by {getFullName(author)}"
   class="relative mb-4"
@@ -73,7 +72,7 @@
     <div class="flex gap-1">
       {#if isAuthorized(apiNames[type].COMMENT, $page.data.user)}
         <button class="btn btn-square btn-ghost btn-md" on:click={onReply}>
-          <span class="i-mdi-reply text-xl"></span>
+          <span class="i-mdi-reply text-xl" />
         </button>
       {/if}
       {#if isAuthorized(apiNames[type].COMMENT_DELETE, $page.data.user)}
@@ -88,7 +87,7 @@
             <p class="text-error">{$errors.commentId}</p>
           {/if}
           <button type="submit" class="btn btn-square btn-ghost btn-md">
-            <span class="i-mdi-delete text-xl"></span>
+            <span class="i-mdi-delete text-xl" />
           </button>
         </form>
       {/if}

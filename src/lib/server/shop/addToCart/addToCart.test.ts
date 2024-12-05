@@ -457,14 +457,13 @@ describe("Add to cart as logged in user", async () => {
   const roles = getDerivedRoles(undefined, !!users.customerMember.studentId);
   const prismaWithAccess = enhance(prisma, {
     user: {
-      studentId: users.customerMember.studentId ?? undefined,
+      studentId: users.customerMember.studentId,
       memberId: users.customerMember.id,
       policies: await getAccessPolicies(
         prisma,
         roles,
         users.customerMember.studentId!,
       ),
-      roles: [],
     },
   });
   addTicketsTestForUser(prismaWithAccess, users.adminMember, {
@@ -489,7 +488,6 @@ describe("Add to cart as anonymous user", async () => {
       memberId: undefined,
       policies: [],
       externalCode: SUITE_PREFIX + "external-code",
-      roles: [],
     },
   });
   addTicketsTestForUser(prismaWithAccess, users.adminMember, {

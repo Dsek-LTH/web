@@ -11,59 +11,47 @@ e.g. `?page=1`, `?page=2`, etc. The page number is stored in the URL query.
   import { page } from "$app/stores";
   import { twMerge } from "tailwind-merge";
 
-  let {
-    class: clazz = "",
-    count,
-    getPageName = (n) => (n + 1).toString(),
-    getPageNumber = (n) => Number.parseInt(n) - 1,
-    fieldName = "page",
-    showPrev = true,
-    showNext = true,
-    showFirst = false,
-    showLast = false,
-    keepScrollPosition = false,
-  }: {
-    class?: string;
-    /** The number of pages. */
-    count: number;
-    /**
-     * Given a page number, return the name of the page.
-     * By default pages are named 1, 2, 3, ...
-     */
-    getPageName?: (n: number) => string;
-    /**
-     * Given a page name, return the number of the page.
-     * If `getPageName` is provided, this must also be provided
-     * and it must be the inverse of `getPageName`.
-     */
-    getPageNumber?: (n: string) => number;
-    /**
-     * The URL query string key to use for the page number, e.g `?page=1`.
-     * Defaults to `"page"`.
-     */
-    fieldName?: string;
-    /** Whether to show the previous page button. */
-    showPrev?: boolean;
-    /** Whether to show the next page button. */
-    showNext?: boolean;
-    /** Whether to show the first page button. */
-    showFirst?: boolean;
-    /** Whether to show the last page button. */
-    showLast?: boolean;
-    /** Whether to keep the scroll position after a page button has been clicked */
-    keepScrollPosition?: boolean;
-  } = $props();
+  let clazz = "";
+  export { clazz as class };
+  /** The number of pages. */
+  export let count: number;
+  /**
+   * Given a page number, return the name of the page.
+   * By default pages are named 1, 2, 3, ...
+   */
+  export let getPageName = (n: number): string => (n + 1).toString();
+  /**
+   * Given a page name, return the number of the page.
+   * If `getPageName` is provided, this must also be provided
+   * and it must be the inverse of `getPageName`.
+   */
+  export let getPageNumber = (n: string): number => +n - 1;
+  /**
+   * The URL query string key to use for the page number, e.g `?page=1`.
+   * Defaults to `"page"`.
+   */
+  export let fieldName = "page";
+  /** Whether to show the previous page button. */
+  export let showPrev = true;
+  /** Whether to show the next page button. */
+  export let showNext = true;
+  /** Whether to show the first page button. */
+  export let showFirst = false;
+  /** Whether to show the last page button. */
+  export let showLast = false;
+  /** Whether to keep the scroll position after a page button has been clicked */
+  export let keepScrollPosition = false;
 
-  const currentPage = $derived(
-    $page.url.searchParams.get(fieldName) ?? getPageName(0).toString(),
-  );
+  $: currentPage =
+    $page.url.searchParams.get(fieldName) ?? getPageName(0).toString();
 
-  const getPageLink = $derived((p: number | string) => {
+  $: getPageLink = (page: number | string) => {
+    // eslint-disable-next-line svelte/valid-compile -- I think this is a bug, see https://github.com/sveltejs/svelte/issues/5162
     const searchParams = new URLSearchParams($page.url.searchParams);
-    if (typeof p === "number") p = getPageName(p);
-    searchParams.set(fieldName, p);
+    if (typeof page === "number") page = getPageName(page);
+    searchParams.set(fieldName, page);
     return `?${searchParams.toString()}`;
-  });
+  };
 
   let carousel: HTMLElement;
   let pageButtons: HTMLElement[] = [];
@@ -82,7 +70,6 @@ e.g. `?page=1`, `?page=2`, etc. The page number is stored in the URL query.
   afterNavigate(scrollToActive);
 </script>
 
-<!-- svelte-ignore a11y_consider_explicit_label -->
 <div class={twMerge("join w-full", clazz)} role="listbox" tabindex="0">
   {#if showFirst}
     <a
@@ -91,8 +78,8 @@ e.g. `?page=1`, `?page=2`, etc. The page number is stored in the URL query.
       href={getPageLink(0)}
       data-sveltekit-noscroll={keepScrollPosition}
     >
-      <span class="i-mdi-page-first"></span></a
-    >
+      <span class="i-mdi-page-first" />
+    </a>
   {/if}
 
   {#if showPrev}
@@ -102,7 +89,7 @@ e.g. `?page=1`, `?page=2`, etc. The page number is stored in the URL query.
       href={getPageLink(getPageNumber(currentPage) - 1)}
       data-sveltekit-noscroll={keepScrollPosition}
     >
-      <span class="i-mdi-chevron-left"></span>
+      <span class="i-mdi-chevron-left" />
     </a>
   {/if}
 
@@ -128,7 +115,7 @@ e.g. `?page=1`, `?page=2`, etc. The page number is stored in the URL query.
       href={getPageLink(getPageNumber(currentPage) + 1)}
       data-sveltekit-noscroll={keepScrollPosition}
     >
-      <span class="i-mdi-chevron-right"></span>
+      <span class="i-mdi-chevron-right" />
     </a>
   {/if}
 
@@ -139,7 +126,7 @@ e.g. `?page=1`, `?page=2`, etc. The page number is stored in the URL query.
       href={getPageLink(count - 1)}
       data-sveltekit-noscroll={keepScrollPosition}
     >
-      <span class="i-mdi-page-last"></span>
+      <span class="i-mdi-page-last" />
     </a>
   {/if}
 </div>

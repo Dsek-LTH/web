@@ -15,14 +15,13 @@
 
 <input id="main-drawer" type="checkbox" class="drawer-toggle" bind:checked />
 <div class="drawer-side z-20">
-  <label for="main-drawer" aria-label="close sidebar" class="drawer-overlay"
-  ></label>
+  <label for="main-drawer" aria-label="close sidebar" class="drawer-overlay" />
 
   <ul class="menu min-h-full min-w-60 bg-base-200 p-0 font-semibold">
     <div class="flex gap-2 p-2 pb-0">
       <DarkLightToggle class="flex-1 bg-base-300 *:size-6" />
       <LanguageSwitcher class="flex-1 bg-base-300">
-        <span class="i-mdi-translate size-6"></span>
+        <span class="i-mdi-translate size-6" />
       </LanguageSwitcher>
     </div>
 
@@ -45,8 +44,7 @@
                           href={child.path}
                           class="active:!bg-primary/10"
                         >
-                          <span class={`${child.icon} size-6 text-primary`}
-                          ></span>
+                          <span class={`${child.icon} size-6 text-primary`} />
                           {child.title}
                         </a>
                       </li>

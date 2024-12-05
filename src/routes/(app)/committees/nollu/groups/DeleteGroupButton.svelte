@@ -29,6 +29,6 @@
     class="btn btn-square btn-error btn-sm"
     {isLoading}
   >
-    <span class="i-mdi-trash"></span>
+    <span class="i-mdi-trash" />
   </LoadingButton>
 </form>

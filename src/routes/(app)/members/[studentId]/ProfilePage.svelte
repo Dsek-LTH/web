@@ -38,12 +38,11 @@
   <div class="aspect-square md:col-start-1 md:col-end-2">
     <MemberAvatar {member} class="w-full rounded-lg">
       {#if canEdit}
-        <!-- svelte-ignore a11y_consider_explicit_label -->
         <a
           href="{$page.params['studentId']}/profile-picture"
           class="btn btn-square glass btn-secondary btn-sm absolute right-2 top-2"
         >
-          <span class="i-mdi-edit"></span>
+          <span class="i-mdi-edit" />
         </a>
       {/if}
     </MemberAvatar>

@@ -12,12 +12,11 @@
     <div class="flex justify-between">
       <h3 class="text-xl font-medium">Phaddergrupper</h3>
       {#if isAuthorized(apiNames.NOLLNING.MANAGE_PHADDER_GROUPS, data.user)}
-        <!-- svelte-ignore a11y_consider_explicit_label -->
         <a
           href="/committees/nollu/groups#{data.year}"
           class="btn btn-secondary btn-sm"
         >
-          <span class="i-mdi-edit"></span>
+          <span class="i-mdi-edit" />
         </a>
       {/if}
     </div>

@@ -96,8 +96,7 @@
     </div>
   </div>
 
-  <!-- svelte-ignore a11y_consider_explicit_label -->
   <form method="dialog" class="modal-backdrop">
-    <button class="cursor-auto"></button>
+    <button class="cursor-auto" />
   </form>
 </dialog>

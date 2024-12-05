@@ -9,8 +9,9 @@
   class="pop-out flex gap-6 rounded-2xl bg-base-300 p-6"
   href="/committees/cafe"
 >
-  <span class="i-mdi-coffee self-center text-2xl text-secondary lg:text-primary"
-  ></span>
+  <span
+    class="i-mdi-coffee self-center text-2xl text-secondary lg:text-primary"
+  />
 
   <article>
     <p>{m.home_cafeOpenHours()}</p>

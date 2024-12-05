@@ -46,15 +46,13 @@
       display: none;
     }
   </style>
-  <!-- svelte-ignore a11y_consider_explicit_label -->
   <a href="/search" class="btn btn-ghost">
-    <span class="i-mdi-magnify size-6"></span>
+    <span class="i-mdi-magnify size-6" />
   </a>
 </noscript>
 
-<!-- svelte-ignore a11y_consider_explicit_label -->
 <button class="js btn btn-ghost" on:click={show}>
-  <span class="i-mdi-magnify size-6"></span>
+  <span class="i-mdi-magnify size-6" />
 </button>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -72,7 +70,7 @@
   >
     <div class="flex gap-2">
       <label class="input flex w-full items-center gap-2">
-        <span class="i-mdi-magnify size-6"></span>
+        <span class="i-mdi-magnify size-6" />
         <!-- svelte-ignore a11y-autofocus -->
         <input
           type="text"

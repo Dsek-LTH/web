@@ -32,13 +32,12 @@
 
     <div slot="actions" class="flex flex-row">
       {#if data.canEdit}
-        <!-- svelte-ignore a11y_consider_explicit_label -->
         <a
           href={`/news/${article.slug}/edit`}
           class="btn btn-square btn-ghost btn-md"
           title={m.news_edit()}
         >
-          <span class="i-mdi-edit text-xl"></span>
+          <span class="i-mdi-edit text-xl" />
         </a>
       {/if}
       {#if data.canDelete}
@@ -59,7 +58,7 @@
             class="btn btn-square btn-ghost btn-md"
             title={m.news_delete()}
           >
-            <span class="i-mdi-delete text-xl"></span>
+            <span class="i-mdi-delete text-xl" />
           </LoadingButton>
         </form>
       {/if}

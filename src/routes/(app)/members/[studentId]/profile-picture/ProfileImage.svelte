@@ -52,11 +52,10 @@
     {#if $deleteErrors.fileName}
       <p class="text-error">{$deleteErrors.fileName}</p>
     {/if}
-    <!-- svelte-ignore a11y_consider_explicit_label -->
     <button
       class="btn btn-square btn-secondary btn-sm absolute bottom-1 right-1"
     >
-      <span class="i-mdi-delete"></span>
+      <span class="i-mdi-delete" />
     </button>
   </form>
 </div>

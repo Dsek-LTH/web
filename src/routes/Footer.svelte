@@ -14,34 +14,33 @@
       >
     </nav>
 
-    <!-- svelte-ignore a11y_consider_explicit_label -->
     <nav
       class="grid-flow-col place-self-center *:text-xl md:place-self-end"
       aria-label={m.footer_socialMedia()}
     >
       <a class="btn btn-ghost" href="https://discord.com/invite/wxHQcvZ38p">
-        <span class="i-mdi-discord"></span>
+        <span class="i-mdi-discord" />
       </a>
       <a class="btn btn-ghost" href="https://instagram.com/dseklth">
-        <span class="i-mdi-instagram"></span>
+        <span class="i-mdi-instagram" />
       </a>
       <a class="btn btn-ghost" href="https://facebook.com/Dsektionen">
-        <span class="i-mdi-facebook"></span>
+        <span class="i-mdi-facebook" />
       </a>
       <a
         class="btn btn-ghost"
         href="https://youtube.com/channel/UCqBtN7xlh4_VvywKaRiGfkw"
       >
-        <span class="i-mdi-youtube"></span>
+        <span class="i-mdi-youtube" />
       </a>
       <a class="btn btn-ghost" href="https://github.com/Dsek-LTH">
-        <span class="i-mdi-github"></span>
+        <span class="i-mdi-github" />
       </a>
       <a
         class="btn btn-ghost"
         href="https://linkedin.com/company/datatekniksektionen-vid-tlth"
       >
-        <span class="i-mdi-linkedin"></span>
+        <span class="i-mdi-linkedin" />
       </a>
     </nav>
   </div>

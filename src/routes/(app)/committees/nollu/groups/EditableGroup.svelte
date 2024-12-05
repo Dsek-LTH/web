@@ -33,7 +33,7 @@
         class="btn self-end"
         on:click={() => (editing = false)}
       >
-        Avbryt <span class="i-mdi-close"></span>
+        Avbryt <span class="i-mdi-close" />
       </button>
     </PhadderGroupForm>
   {:else}
@@ -47,13 +47,12 @@
     <div class="flex justify-between">
       <h5>{group.name}</h5>
       <div class="flex gap-2">
-        <!-- svelte-ignore a11y_consider_explicit_label -->
         <button
           type="button"
           class="btn btn-square btn-secondary btn-sm"
           on:click={() => (editing = true)}
         >
-          <span class="i-mdi-edit"></span>
+          <span class="i-mdi-edit" />
         </button>
         <DeleteGroupButton groupId={group.id} />
       </div>

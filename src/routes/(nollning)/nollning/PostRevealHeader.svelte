@@ -34,13 +34,12 @@
   style="padding-top: {topInsets + 8}px;"
 >
   <div class="w-[5.5rem]">
-    <!-- svelte-ignore a11y_consider_explicit_label -->
     <button
       on:click={canGoBack ? () => window.history.back() : undefined}
       class:opacity-0={!canGoBack}
       class="-m-4 p-4"
     >
-      <span class="i-mdi-chevron-left relative top-0.5 size-8"></span>
+      <span class="i-mdi-chevron-left relative top-0.5 size-8" />
     </button>
   </div>
 
@@ -64,7 +63,7 @@
           buttonClass="btn btn-circle bg-base-200 relative aspect-square size-10 !p-0"
         >
           {#await notifications}
-            <span class="i-mdi-bell-outline size-7"></span>
+            <span class="i-mdi-bell-outline size-7" />
           {:then notifications}
             {@const unreadCount = notifications.filter(
               (data) => data.readAt == null,
@@ -75,7 +74,7 @@
                   class="translate badge indicator-item badge-primary badge-xs translate-x-0 translate-y-0"
                 ></span>
               {/if}
-              <span class="i-mdi-bell-outline size-7"></span>
+              <span class="i-mdi-bell-outline size-7" />
             </div>
           {/await}
         </NotificationBell>

@@ -47,7 +47,7 @@
       <th>{m.admin_alerts_severity()}</th>
       <th>{m.admin_alerts_message()}</th>
       <th>{m.admin_alerts_created()}</th>
-      <th></th>
+      <th />
     </tr>
   </thead>
 
@@ -58,7 +58,6 @@
         <td>{alert.message}</td>
         <td>{dayjs(alert.createdAt).format("YYYY-MM-DD HH:mm:ss")}</td>
         <td>
-          <!-- svelte-ignore a11y_consider_explicit_label -->
           <button
             class="btn btn-square"
             on:click={() => {
@@ -66,7 +65,7 @@
               removeModal?.showModal();
             }}
           >
-            <span class="i-mdi-delete text-xl"></span>
+            <span class="i-mdi-delete text-xl" />
           </button>
         </td>
       </tr>
@@ -93,7 +92,6 @@
     </div>
   </div>
   <form method="dialog" class="modal-backdrop">
-    <!-- svelte-ignore a11y_consider_explicit_label -->
-    <button class="cursor-auto"></button>
+    <button class="cursor-auto" />
   </form>
 </dialog>
