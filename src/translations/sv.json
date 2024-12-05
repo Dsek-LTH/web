@@ -776,5 +776,6 @@
   "booking_boardRoomWarning": "Tänk på att under vardagar mellan 11:30-13:30 har styrelsen alltid tillgång till styrelserummet (RåsenbaD) för styrelsearbete. Detta betyder alltså att alla styrelsemedlemmar får gå in och/eller arbeta i styrelserummet även om rummet är bokat. Det kan vara fördelaktigt att boka en annan tid eller plats för samtal som kan vara känsliga.",
   "openElections": "Öppna val",
   "elections_description": "Här finns ansökningslänkar till de poster som just nu har ett öppet val. Postbeskrivningar och kravprofiler finns i Sök-formuläret.",
-  "elections_close": "Valet stänger"
+  "elections_close": "Valet stänger",
+  "elections_apply": "Ansök"
 }
