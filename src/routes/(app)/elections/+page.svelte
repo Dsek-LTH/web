@@ -35,10 +35,13 @@
           {election.expiresAt.toLocaleDateString(languageTag())}
         </p>
         <div class="card-actions self-center">
-          <a href={election.link}>
-            <button class=" btn btn-primary w-full px-9">
-              {m.elections_apply()}
-            </button>
+          <a
+            href={election.link}
+            target="_blank"
+            rel="noreferrer"
+            class="btn btn-primary w-full px-9"
+          >
+            {m.elections_apply()}
           </a>
         </div>
       </div>
