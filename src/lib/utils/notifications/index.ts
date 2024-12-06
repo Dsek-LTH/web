@@ -215,17 +215,36 @@ const sendPush = async (
         ),
     )
     .map((member) => member.id); // Return an array of strings with their memberIds
-  const expoTokens = await prisma.expoToken.findMany({
+  const tokensAndUnreadNotificationCount = await prisma.expoToken.findMany({
     where: {
       memberId: {
         in: pushNotificationMembers,
       },
     },
+    select: {
+      expoToken: true,
+      member: {
+        select: {
+          _count: {
+            select: {
+              notifications: {
+                where: {
+                  readAt: null,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
   });
 
-  if (expoTokens != undefined) {
+  if (tokensAndUnreadNotificationCount.length > 0) {
     sendPushNotifications(
-      expoTokens.map((token) => token.expoToken),
+      tokensAndUnreadNotificationCount.map((token) => ({
+        token: token.expoToken,
+        badge: token.member?._count.notifications,
+      })),
       title,
       message,
       type,

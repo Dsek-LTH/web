@@ -4623,6 +4623,24 @@
           "hasDefaultValue": false,
           "isId": false,
           "maxLength": 255
+        },
+        {
+          "name": "members",
+          "type": "members",
+          "isRequired": false,
+          "kind": "object",
+          "relationName": "expo_tokensTomembers",
+          "relationFromFields": [
+            "member_id"
+          ],
+          "relationToFields": [
+            "id"
+          ],
+          "isList": false,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
         }
       ],
       "uniqueConstraints": [
@@ -5896,6 +5914,20 @@
           "isRequired": false,
           "kind": "object",
           "relationName": "eventsTomembers",
+          "relationFromFields": [],
+          "relationToFields": [],
+          "isList": true,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        },
+        {
+          "name": "expo_tokens",
+          "type": "expo_tokens",
+          "isRequired": false,
+          "kind": "object",
+          "relationName": "expo_tokensTomembers",
           "relationFromFields": [],
           "relationToFields": [],
           "isList": true,

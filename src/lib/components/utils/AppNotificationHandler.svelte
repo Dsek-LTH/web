@@ -3,6 +3,32 @@
   import { toast } from "$lib/stores/toast";
   import { onDestroy, onMount } from "svelte";
 
+  export let notificationsCountPromise: Promise<number> | number;
+  let notificationCount: number | undefined = undefined;
+
+  const sendNotificationCountToApp = async (count: number | undefined) => {
+    if (count === undefined) return;
+    // this event is listened to by the app, to update the badge count
+    window.unreadNotificationCount = count; // set value, in case this is run before injected javascript by app
+    window.dispatchEvent(
+      // send event, in case app is ready and has event handler
+      new CustomEvent("unreadNotificationCount", {
+        detail: { count },
+      }),
+    );
+  };
+
+  // we have this method to have a layer between the promise and number, such that if the promise changes, and then resolves to the same number, only one event will be sent to the app
+  const updateLocalNotificationCount = async (
+    countPromise: Promise<number> | number,
+  ) => {
+    const count = await countPromise;
+    notificationCount = count;
+  };
+
+  $: (() => updateLocalNotificationCount(notificationsCountPromise))();
+  $: (() => sendNotificationCountToApp(notificationCount))();
+
   // handle notification token from app
   const uploadToken = async (notificationToken: string) => {
     try {

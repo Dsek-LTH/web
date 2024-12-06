@@ -52,6 +52,7 @@ declare global {
 
   interface Window {
     notificationToken?: string;
+    unreadNotificationCount?: number;
   }
 }
 
