@@ -99,8 +99,9 @@ export type ArticleSearchReturnAttributes = SearchableArticleAttributes &
 export type EventSearchReturnAttributes = SearchableEventAttributes &
   Pick<Event, "slug">;
 export type MemberSearchReturnAttributes = SearchableMemberAttributes & {
-  picturePath: string;
-  classYear: number;
+  picturePath: Member["picturePath"];
+  classYear: Member["classYear"];
+  classProgramme: Member["classProgramme"];
 };
 export type PositionSearchReturnAttributes = SearchablePositionAttributes &
   Pick<Position, "committeeId"> & {
