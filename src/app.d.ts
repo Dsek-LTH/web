@@ -1,5 +1,6 @@
 import type { ToastNotification } from "$lib/stores/toast";
 import type { Theme } from "$lib/utils/themes";
+import type { AvailableLanguageTag } from "$paraglide/runtime";
 import type { Member, PrismaClient } from "@prisma/client";
 import type { AuthUser } from "@zenstackhq/runtime";
 
@@ -32,6 +33,7 @@ declare global {
       isApp: boolean;
       appInfo?: AppInfo;
       theme: Theme;
+      language: AvailableLanguageTag;
     }
     interface PageData {
       user?: AuthUser;

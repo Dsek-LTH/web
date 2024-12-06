@@ -13,6 +13,19 @@ services:
       - "5432:5432"
     volumes:
       - db:/var/lib/postgresql/data
+
+  meilisearch:
+    container_name: dsek-meilisearch
+    image: getmeili/meilisearch:latest
+    restart: always
+    environment:
+      - MEILI_MASTER_KEY=masterKey
+      - MEILI_NO_ANALYTICS=true
+    ports:
+      - "7700:7700"
+    volumes:
+      - ./data.ms:/data.ms
+
 volumes:
   db:
     driver: local
