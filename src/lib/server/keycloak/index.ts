@@ -44,16 +44,18 @@ async function getUserId(username: string) {
 }
 
 // turns dsek.sexm.kok.mastare into ['dsek', 'dsek.sexm', 'dsek.sexm.kok', 'dsek.sexm.kok.mastare']
+// also adds board member positions to dsek.styr group (https://github.com/Dsek-LTH/web/issues/195)
 function getRoleNames(id: string): string[] {
+  // Checks if the position is a board member from the database
   const parts = id.split(".");
   return [...Array(parts.length).keys()].map((i) =>
     parts.slice(0, i + 1).join("."),
   );
 }
 
-async function getGroupId(client: KcAdminClient, positionId: string) {
+async function getGroupId(keycloak: KcAdminClient, positionId: string) {
   const roleNames = getRoleNames(positionId);
-  const groups = await client.groups.find();
+  const groups = await keycloak.groups.find();
   let group = groups.find((g) => g.name === roleNames[0]);
   roleNames.slice(1).forEach((name) => {
     group = group?.subGroups?.find((g) => g.name === name);
@@ -87,33 +89,86 @@ async function updateProfile(
   }
 }
 
-async function addMandate(username: string, positionId: string) {
+async function isBoardPosition(prisma: PrismaClient, positionId: string) {
+  const position = await prisma.position.findFirst({
+    where: {
+      id: positionId,
+    },
+  });
+  return position?.boardMember ?? false;
+}
+
+async function hasAnyBoardPosition(prisma: PrismaClient, studentId: string) {
+  const boardPosition = await prisma.mandate.findFirst({
+    where: {
+      member: {
+        studentId,
+      },
+      endDate: { gt: new Date() },
+      position: {
+        boardMember: true,
+      },
+    },
+  });
+  return boardPosition !== null;
+}
+
+async function addMandate(
+  prisma: PrismaClient,
+  username: string,
+  positionId: string,
+) {
   if (!enabled) return;
 
   try {
-    const client = await connect();
-    const id = await _getUserId(client, username);
-    const groupId = await getGroupId(client, positionId);
-    await client.users.addToGroup({
+    const keycloak = await connect();
+    const id = await _getUserId(keycloak, username);
+    const groupId = await getGroupId(keycloak, positionId);
+    await keycloak.users.addToGroup({
       id: id!,
       groupId: groupId!,
     });
+
+    // Special case for board members
+    if (await isBoardPosition(prisma, positionId)) {
+      const boardGroupId = await getGroupId(keycloak, "dsek.styr");
+      await keycloak.users.addToGroup({
+        id: id!,
+        groupId: boardGroupId!,
+      });
+    }
   } catch (error) {
     console.log(error);
   }
 }
 
-async function deleteMandate(username: string, positionId: string) {
+async function deleteMandate(
+  prisma: PrismaClient,
+  username: string,
+  positionId: string,
+) {
   if (!enabled) return;
 
   try {
-    const client = await connect();
-    const id = await _getUserId(client, username);
-    const groupId = await getGroupId(client, positionId);
-    await client.users.delFromGroup({
+    const keycloak = await connect();
+    const id = await _getUserId(keycloak, username);
+    const groupId = await getGroupId(keycloak, positionId);
+    await keycloak.users.delFromGroup({
       id: id!,
       groupId: groupId!,
     });
+
+    // Special case for board members
+    if (
+      (await isBoardPosition(prisma, positionId)) &&
+      !(await hasAnyBoardPosition(prisma, username))
+    ) {
+      const boardGroupId = await getGroupId(keycloak, "dsek.styr");
+      await keycloak.users.delFromGroup({
+        id: id!,
+        groupId: boardGroupId!,
+      });
+    }
   } catch (error) {
     console.log(error);
   }
@@ -159,7 +214,7 @@ async function updateMandate(prisma: PrismaClient) {
   );
 
   result.forEach(async ({ positionId, member: { studentId } }) => {
-    await deleteMandate(studentId!, positionId);
+    await deleteMandate(prisma, studentId!, positionId);
   });
 
   await prisma.lastKeycloakUpdate.create({
