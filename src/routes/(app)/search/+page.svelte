@@ -15,7 +15,7 @@
   let currentIndex = -1;
   let isSearching = false;
 
-  $: noResults = form?.results.length === 0;
+  $: noResults = form?.results?.length === 0;
 
   $: includeMembers = true;
   $: includePositions = true;

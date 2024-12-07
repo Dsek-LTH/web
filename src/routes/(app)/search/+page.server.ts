@@ -1,6 +1,9 @@
 import type { Hits } from "meilisearch";
 import type { Actions } from "./$types";
-import type { SearchDataWithType } from "$lib/search/searchTypes";
+import {
+  availableSearchIndexes,
+  type SearchDataWithType,
+} from "$lib/search/searchTypes";
 
 export const actions = {
   default: async (event) => {
@@ -9,17 +12,10 @@ export const actions = {
     const query = data.get("input");
     if (typeof query !== "string") return;
 
-    const includeMembers = data.get("members") === "on";
-    const includeEvents = data.get("events") === "on";
-    const includeArticles = data.get("articles") === "on";
-    const includePositions = data.get("positions") === "on";
-    const includeSongs = data.get("songs") === "on";
-    const indexes = [];
-    if (includeMembers) indexes.push("members");
-    if (includeEvents) indexes.push("events");
-    if (includeArticles) indexes.push("articles");
-    if (includePositions) indexes.push("positions");
-    if (includeSongs) indexes.push("songs");
+    // Check which indexes were selected to search in
+    const indexes = availableSearchIndexes.filter(
+      (index) => data.get(index) === "on",
+    );
 
     const language = data.get("language") === "en" ? "en" : "sv";
 
@@ -29,8 +25,12 @@ export const actions = {
     url.searchParams.set("language", language);
     const response = await event.fetch(url);
     if (!response.ok) {
-      // silently fail
-      return;
+      const error = new Response(await response.text(), {
+        status: response.status,
+      });
+      error.headers.set("Content-Type", "text/html");
+      console.log("Error from search API: ", error);
+      return error;
     }
     const json: Hits = await response.json();
     return {
