@@ -10,6 +10,7 @@
   <a
     href={"/members/" + member.studentId}
     class="border border-transparent focus:border-primary"
+    id=".search-result"
   >
     <MemberAvatar class="h-8 w-8" {member} />
     <h4>{getFullName(member)}</h4>

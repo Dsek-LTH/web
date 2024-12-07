@@ -8,6 +8,7 @@
   <a
     href={"/events/" + event.slug}
     class="border border-transparent focus:border-primary"
+    id=".search-result"
   >
     <div class="avatar aspect-square w-8 overflow-hidden rounded-full">
       <span class="i-mdi-calendar text-2xl"></span>

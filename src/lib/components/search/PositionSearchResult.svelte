@@ -10,6 +10,7 @@
   <a
     href={"/positions/" + position.dsekId}
     class="border border-transparent focus:border-primary"
+    id=".search-result"
   >
     {#if position.committee !== null}
       <div class="avatar aspect-square w-8 overflow-hidden rounded-full">

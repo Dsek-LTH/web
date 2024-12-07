@@ -54,8 +54,6 @@
     dialog.close();
     isOpen = false;
     document.body.style.overflow = "auto";
-    // input = "";
-    // results = [];
   }
 
   function handleKeydown(event: KeyboardEvent) {
@@ -64,8 +62,8 @@
     // (the actual search is executed by input on:input)
     if (
       (isOpen && currentIndex !== -1 && event.key.length === 1) ||
-      event.key === "Backspace" ||
-      event.key === "Delete"
+      ((event.key === "Backspace" || event.key === "Delete") &&
+        input.length > 0)
     ) {
       isSearching = true;
       inputElement.focus();
@@ -131,7 +129,9 @@
 
   function captureListItems() {
     // Query all anchor elements inside the form
-    listItems = Array.from(formElement?.querySelectorAll("a"));
+    listItems = Array.from(formElement?.querySelectorAll("a")).filter(
+      (a) => a.id === ".search-result" || a.id === ".search-advanced",
+    );
   }
 
   function isSearchResultData(data: unknown): data is {
@@ -155,13 +155,13 @@
       display: none;
     }
   </style>
-  <a href="/search" class="btn btn-ghost">
-    <span class="i-mdi-magnify size-6" />
+  <a href="/search" class="btn btn-ghost" aria-label="Search">
+    <span class="i-mdi-magnify size-6"></span>
   </a>
 </noscript>
 
-<button class="js btn btn-ghost" on:click={show}>
-  <span class="i-mdi-magnify size-6" />
+<button class="js btn btn-ghost" on:click={show} aria-label="Open search">
+  <span class="i-mdi-magnify size-6"></span>
 </button>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -183,11 +183,8 @@
           reset: false,
         });
         if (result.type === "success" && isSearchResultData(result.data)) {
-          const data = result.data;
-          if (isSearchResultData(data)) {
-            results = data.results;
-            isSearching = false;
-          }
+          results = result.data.results;
+          isSearching = false;
         }
       };
     }}
@@ -196,7 +193,7 @@
   >
     <div class="flex gap-2">
       <label class="input flex w-full items-center gap-2">
-        <span class="i-mdi-magnify size-6" />
+        <span class="i-mdi-magnify size-6"></span>
         <!-- svelte-ignore a11y-autofocus -->
         <input
           autofocus
@@ -252,6 +249,7 @@
         <a
           class="border border-transparent text-primary focus:border-primary"
           href="/search"
+          id=".search-advanced"
         >
           {m.search_advancedSearch()}
         </a>
