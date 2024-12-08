@@ -3,6 +3,7 @@ import {
   availableSearchIndexes,
   type SearchDataWithType,
 } from "$lib/search/searchTypes";
+import { i18n } from "$lib/utils/i18n";
 
 export const actions = {
   default: async (event) => {
@@ -21,10 +22,9 @@ export const actions = {
       (index) => data.get(index) === "on",
     );
 
-    const url = new URL(
-      `/${event.locals.language}/api/search`,
-      event.request.url,
-    );
+    // Check which language to search in and get the correct route
+    const apiRoute = i18n.resolveRoute("/api/search", event.locals.language);
+    const url = new URL(apiRoute, event.request.url);
     url.searchParams.set("query", query);
     url.searchParams.set("indexes", JSON.stringify(indexes));
     const response = await event.fetch(url);
