@@ -1,6 +1,5 @@
 <script lang="ts">
   import type { ArticleSearchReturnAttributes } from "$lib/search/searchTypes";
-  import { languageTag } from "$paraglide/runtime";
   export let article: ArticleSearchReturnAttributes;
 </script>
 
@@ -15,18 +14,10 @@
     </div>
     <div>
       <h4 class="text-balance">
-        {#if languageTag() === "en"}
-          {article.headerEn}
-        {:else}
-          {article.header}
-        {/if}
+        {article.header}
       </h4>
       <p class="line-clamp-1 text-gray-500">
-        {#if languageTag() === "en"}
-          {article.bodyEn}
-        {:else}
-          {article.body}
-        {/if}
+        {article.body}
       </p>
     </div>
   </a>

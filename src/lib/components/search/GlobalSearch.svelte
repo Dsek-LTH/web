@@ -7,7 +7,6 @@
   import ArticleSearchResult from "$lib/components/search/ArticleSearchResult.svelte";
   import EventSearchResult from "$lib/components/search/EventSearchResult.svelte";
   import SongSearchResult from "$lib/components/search/SongSearchResult.svelte";
-  import { languageTag } from "$paraglide/runtime";
 
   let dialog: HTMLDialogElement;
 
@@ -214,7 +213,6 @@
         <input type="hidden" name="songs" value="on" />
         <input type="hidden" name="articles" value="on" />
         <input type="hidden" name="events" value="on" />
-        <input type="hidden" name="language" value={languageTag()} />
       </label>
       <button
         class="btn btn-ghost hidden sm:inline-flex"

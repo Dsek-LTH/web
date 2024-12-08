@@ -1,4 +1,3 @@
-import type { Hits } from "meilisearch";
 import type { Actions } from "./$types";
 import {
   availableSearchIndexes,
@@ -17,12 +16,12 @@ export const actions = {
       (index) => data.get(index) === "on",
     );
 
-    const language = data.get("language") === "en" ? "en" : "sv";
-
-    const url = new URL("/api/search", event.request.url);
+    const url = new URL(
+      `/${event.locals.language}/api/search`,
+      event.request.url,
+    );
     url.searchParams.set("query", query);
     url.searchParams.set("indexes", JSON.stringify(indexes));
-    url.searchParams.set("language", language);
     const response = await event.fetch(url);
     if (!response.ok) {
       const error = new Response(await response.text(), {
@@ -32,14 +31,9 @@ export const actions = {
       console.log("Error from search API: ", error);
       return error;
     }
-    const json: Hits = await response.json();
+    const json: SearchDataWithType[] = await response.json();
     return {
-      results: json.map((hit) => {
-        return {
-          data: hit,
-          type: hit._federation?.indexUid,
-        } as SearchDataWithType;
-      }),
+      results: json,
     };
   },
 } satisfies Actions;

@@ -1,6 +1,5 @@
 <script lang="ts">
   import type { EventSearchReturnAttributes } from "$lib/search/searchTypes";
-  import { languageTag } from "$paraglide/runtime";
   export let event: EventSearchReturnAttributes;
 </script>
 
@@ -15,18 +14,10 @@
     </div>
     <div>
       <h4>
-        {#if languageTag() === "en"}
-          {event.titleEn}
-        {:else}
-          {event.title}
-        {/if}
+        {event.title}
       </h4>
       <p class="line-clamp-1 text-gray-500">
-        {#if languageTag() === "en"}
-          {event.descriptionEn}
-        {:else}
-          {event.description}
-        {/if}
+        {event.description}
       </p>
     </div>
   </a>

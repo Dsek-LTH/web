@@ -21,6 +21,20 @@ type FilterKeys<T extends Record<string, unknown>, Keys extends string> = {
   [Key in Keys]: Key extends keyof T ? T[Key] : string;
 };
 
+/**
+ * Utility type that filters out keys from T that end with Suffix.
+ * Useful for excluding specific keys from an existing type.
+ * Used to exclude language specific fields from search attributes.
+ */
+type ObjectKeysNotEndingWith<T, Suffix extends string> = Pick<
+  T,
+  {
+    [K in keyof T]: K extends `${string}${Suffix}` ? never : K;
+  }[keyof T]
+>;
+
+type OnlySwedishAttributes<T> = ObjectKeysNotEndingWith<T, "En">;
+
 export const availableSearchIndexes = [
   "members",
   "events",
@@ -92,21 +106,28 @@ export type SearchableSongAttributes = Pick<
   (typeof songSearchableAttributes)[number]
 >;
 
-export type SongSearchReturnAttributes = SearchableSongAttributes &
-  Pick<Song, "slug">;
-export type ArticleSearchReturnAttributes = SearchableArticleAttributes &
-  Pick<Article, "slug">;
-export type EventSearchReturnAttributes = SearchableEventAttributes &
-  Pick<Event, "slug">;
-export type MemberSearchReturnAttributes = SearchableMemberAttributes & {
-  picturePath: Member["picturePath"];
-  classYear: Member["classYear"];
-  classProgramme: Member["classProgramme"];
-};
-export type PositionSearchReturnAttributes = SearchablePositionAttributes &
-  Pick<Position, "committeeId"> & {
-    committee: Committee | null;
-  };
+export type SongSearchReturnAttributes = OnlySwedishAttributes<
+  SearchableSongAttributes & Pick<Song, "slug">
+>;
+export type ArticleSearchReturnAttributes = OnlySwedishAttributes<
+  SearchableArticleAttributes & Pick<Article, "slug">
+>;
+export type EventSearchReturnAttributes = OnlySwedishAttributes<
+  SearchableEventAttributes & Pick<Event, "slug">
+>;
+export type MemberSearchReturnAttributes = OnlySwedishAttributes<
+  SearchableMemberAttributes & {
+    picturePath: Member["picturePath"];
+    classYear: Member["classYear"];
+    classProgramme: Member["classProgramme"];
+  }
+>;
+export type PositionSearchReturnAttributes = OnlySwedishAttributes<
+  SearchablePositionAttributes &
+    Pick<Position, "committeeId"> & {
+      committee: Committee | null;
+    }
+>;
 
 export type SearchDataWithType =
   | {
