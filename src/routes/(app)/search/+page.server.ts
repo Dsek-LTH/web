@@ -4,6 +4,7 @@ import {
   type SearchDataWithType,
 } from "$lib/search/searchTypes";
 import { i18n } from "$lib/utils/i18n";
+import { fail } from "@sveltejs/kit";
 
 export const actions = {
   default: async (event) => {
@@ -13,7 +14,7 @@ export const actions = {
     if (typeof query !== "string") return;
     if (query.trim().length === 0) {
       return {
-        results: [],
+        results: [] satisfies SearchDataWithType[],
       };
     }
 
@@ -29,12 +30,17 @@ export const actions = {
     url.searchParams.set("indexes", JSON.stringify(indexes));
     const response = await event.fetch(url);
     if (!response.ok) {
-      const error = new Response(await response.text(), {
-        status: response.status,
+      const responseText = await response.text();
+      console.log(
+        "Error in search request",
+        response.status,
+        response.statusText,
+        responseText,
+      );
+      return fail(response.status, {
+        statusDescription: response.statusText,
+        message: responseText,
       });
-      error.headers.set("Content-Type", "text/html");
-      console.log("Error from search API: ", error);
-      return error;
     }
     const json: SearchDataWithType[] = await response.json();
     return {

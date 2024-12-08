@@ -52,7 +52,10 @@
 
   function reset() {
     isSearching = false;
-    if (form) form.results = [];
+    if (form) {
+      form.results = [];
+      form.message = undefined;
+    }
   }
 
   function onKeyDown(event: KeyboardEvent) {
@@ -223,6 +226,11 @@
           {m.search_noResults()} :(
         </p>
       </li>
+    </div>
+  {/if}
+  {#if form?.message}
+    <div class="alert alert-error mt-4">
+      Error: {JSON.stringify(form)}
     </div>
   {/if}
 </form>

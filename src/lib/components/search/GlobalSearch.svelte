@@ -7,13 +7,13 @@
   import ArticleSearchResult from "$lib/components/search/ArticleSearchResult.svelte";
   import EventSearchResult from "$lib/components/search/EventSearchResult.svelte";
   import SongSearchResult from "$lib/components/search/SongSearchResult.svelte";
-
   let dialog: HTMLDialogElement;
 
   let inputElement: HTMLInputElement;
   let formElement: HTMLFormElement;
   let listItems: HTMLAnchorElement[] = [];
   let results: SearchDataWithType[] = [];
+  let error: Record<string, unknown> | undefined = undefined;
 
   let timeout: ReturnType<typeof setTimeout> | null = null;
   let input = "";
@@ -41,6 +41,7 @@
   function reset() {
     isSearching = false;
     results = [];
+    error = undefined;
   }
 
   function show() {
@@ -181,9 +182,15 @@
         await update({
           reset: false,
         });
+        isSearching = false;
         if (result.type === "success" && isSearchResultData(result.data)) {
+          error = undefined;
           results = result.data.results;
-          isSearching = false;
+        } else if (result.type === "failure") {
+          results = [];
+          error = result.data;
+        } else {
+          console.log("Unknown return from search", result);
         }
       };
     }}
@@ -253,6 +260,11 @@
         </a>
       </li>
     </div>
+    {#if error !== undefined}
+      <div class="alert alert-error p-4">
+        Error: {JSON.stringify(error)}
+      </div>
+    {/if}
   </form>
 </dialog>
 
