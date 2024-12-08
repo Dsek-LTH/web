@@ -6,11 +6,11 @@ import {
   memberSearchableAttributes,
   positionSearchableAttributes,
   songSearchableAttributes,
-  type SearchableArticleAttributes,
-  type SearchableEventAttributes,
-  type SearchableMemberAttributes,
-  type SearchablePositionAttributes,
-  type SearchableSongAttributes,
+  type ArticleSearchReturnAttributes,
+  type EventSearchReturnAttributes,
+  type MemberSearchReturnAttributes,
+  type PositionSearchReturnAttributes,
+  type SongSearchReturnAttributes,
 } from "$lib/search/searchTypes";
 import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
 
@@ -48,11 +48,11 @@ const sync = async () => {
    * Meilisearch.
    */
   const [members, songs, articles, events, positions]: [
-    SearchableMemberAttributes[],
-    SearchableSongAttributes[],
-    SearchableArticleAttributes[],
-    SearchableEventAttributes[],
-    SearchablePositionAttributes[],
+    MemberSearchReturnAttributes[],
+    SongSearchReturnAttributes[],
+    ArticleSearchReturnAttributes[],
+    EventSearchReturnAttributes[],
+    PositionSearchReturnAttributes[],
   ] = await Promise.all([
     authorizedPrismaClient.member
       .findMany({
@@ -63,6 +63,7 @@ const sync = async () => {
           nickname: true,
           picturePath: true,
           classYear: true,
+          classProgramme: true,
         },
       })
       .then((members) =>

@@ -22,13 +22,13 @@ export type SearchIndex =
 export function getFederatedWeight(index: SearchableIndex): number {
   switch (index) {
     case "members":
-      return 5;
+      return 3;
     case "events":
       return 1;
     case "articles":
       return 1;
     case "positions":
-      return 5;
+      return 3;
     case "songs":
       return 1;
     default:
