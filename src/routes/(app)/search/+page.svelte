@@ -61,8 +61,8 @@
     // (the actual search is executed by input on:input)
     if (
       (currentIndex !== -1 && event.key.length === 1) ||
-      event.key === "Backspace" ||
-      event.key === "Delete"
+      ((event.key === "Backspace" || event.key === "Delete") &&
+        input.length > 0)
     ) {
       isSearching = true;
       inputElement.focus();
@@ -108,7 +108,9 @@
 
   function captureListItems() {
     // Query all anchor elements inside the form
-    listItems = Array.from(formElement?.querySelectorAll("a"));
+    listItems = Array.from(formElement?.querySelectorAll("a")).filter(
+      (a) => a.id === ".search-result",
+    );
   }
 </script>
 

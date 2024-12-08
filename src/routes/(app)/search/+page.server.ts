@@ -10,6 +10,11 @@ export const actions = {
 
     const query = data.get("input");
     if (typeof query !== "string") return;
+    if (query.trim().length === 0) {
+      return {
+        results: [],
+      };
+    }
 
     // Check which indexes were selected to search in
     const indexes = availableSearchIndexes.filter(
