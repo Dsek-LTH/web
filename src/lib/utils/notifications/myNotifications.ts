@@ -60,7 +60,6 @@ export const getMyGroupedNotifications = async (
   user: AuthUser,
   prisma: PrismaClient,
 ) => {
-  await new Promise((resolve) => setTimeout(resolve, 2000)); // wait for notifications to be sent
   const myNotifications = await getMyNotifications(user, prisma);
   return groupNotifications(myNotifications);
 };
