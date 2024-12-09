@@ -21,7 +21,7 @@ import loggingExtension from "./database/prisma/loggingExtension";
 import translatedExtension from "./database/prisma/translationExtension";
 import { getAccessPolicies } from "./hooks.server.helpers";
 import { getDerivedRoles } from "$lib/utils/authorization";
-import meilisearchSync from "$lib/search/sync";
+// import meilisearchSync from "$lib/search/sync";
 
 const { handle: authHandle } = SvelteKitAuth({
   secret: env.AUTH_SECRET,
@@ -212,7 +212,7 @@ const themeHandle: Handle = async ({ event, resolve }) => {
 
 // run a keycloak sync every day at midnight
 schedule.scheduleJob("0 0 * * *", () => keycloak.sync(authorizedPrismaClient));
-schedule.scheduleJob("0 0 * * *", meilisearchSync);
+// schedule.scheduleJob("0 0 * * *", meilisearchSync);
 
 export const handle = sequence(
   authHandle,
