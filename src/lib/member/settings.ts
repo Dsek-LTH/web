@@ -63,18 +63,16 @@ export const settingsActions = {
             return {
               memberId: user.memberId as string,
               type: sub.toString(),
-              pushNotification: push.find(
-                (tag) => sub.toString() == tag.toString(),
-              )
-                ? true
-                : false,
+              pushNotification: push.some(
+                (tag) => sub.toString() === tag.toString(),
+              ),
             };
           }),
         });
-        if (res.count != push.length) {
+        if (res.count !== subscription.length) {
           // If nbr created isn't the same as number of subscribed tags, something went wrong, do rollback
           throw new Error(
-            `${res.count} created but supposed to be ${push.length}`,
+            `${res.count} created but supposed to be ${subscription.length}`,
           );
         }
       });

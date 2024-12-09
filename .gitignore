@@ -17,3 +17,4 @@ docs/.vitepress/cache
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+data.ms

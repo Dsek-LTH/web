@@ -21,3 +21,7 @@ Shlink is used to create short links. We provide an interface for members to cre
 ### MinIO
 
 MinIO is used to store files like profile pictures and meeting documents.
+
+### Meilisearch
+
+Meilisearch is used to provide a good search experience. It can index data from our database and provide rich search capabilities.

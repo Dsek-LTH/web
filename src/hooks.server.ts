@@ -21,6 +21,7 @@ import loggingExtension from "./database/prisma/loggingExtension";
 import translatedExtension from "./database/prisma/translationExtension";
 import { getAccessPolicies } from "./hooks.server.helpers";
 import { getDerivedRoles } from "$lib/utils/authorization";
+import meilisearchSync from "$lib/search/sync";
 
 const { handle: authHandle } = SvelteKitAuth({
   secret: env.AUTH_SECRET,
@@ -92,6 +93,7 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
   const lang = isAvailableLanguageTag(event.locals.paraglide?.lang)
     ? event.locals.paraglide?.lang
     : sourceLanguageTag;
+  event.locals.language = lang;
   const session = await event.locals.getSession();
   const prisma = prismaClient
     .$extends(translatedExtension(lang))
@@ -210,6 +212,7 @@ const themeHandle: Handle = async ({ event, resolve }) => {
 
 // run a keycloak sync every day at midnight
 schedule.scheduleJob("0 0 * * *", () => keycloak.sync(authorizedPrismaClient));
+schedule.scheduleJob("0 0 * * *", meilisearchSync);
 
 export const handle = sequence(
   authHandle,

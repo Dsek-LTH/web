@@ -70,6 +70,8 @@ const main = async () => {
 
   await seed.subscriptionSetting((x) => x(100));
 
+  await seed.election((x) => x(5));
+
   process.exit();
 };
 

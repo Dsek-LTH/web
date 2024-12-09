@@ -8,8 +8,9 @@ Learn ZenStack at [ZenStack](https://zenstack.dev/docs/the-complete-guide/).
 
 ### ZenStack example
 
-```prisma
-// schema.zmodel
+::: code-group
+
+```prisma [schema.zmodel]
 model User {
   id    Int     @id @default(autoincrement())
   name  String
@@ -26,7 +27,7 @@ model User {
 }
 ```
 
-```typescript
+```typescript [index.ts]
 export const prismaClient = new PrismaClient();
 const prisma = enhance(prismaClient, user);
 await prisma.user.create({
@@ -41,3 +42,5 @@ await prisma.user.delete({
   where: { name: "Alice" },
 });
 ```
+
+:::
