@@ -44,7 +44,7 @@ const sync = async () => {
   await waitForTasks(() =>
     indexWithData.map((obj) => {
       const index: Index = obj.index;
-      return index.addDocuments(obj.documents);
+      return index.addDocuments(obj.documents, { primaryKey: "id" });
     }),
   );
 
