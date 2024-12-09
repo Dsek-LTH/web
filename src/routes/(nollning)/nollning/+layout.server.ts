@@ -14,7 +14,7 @@ export const load = async ({ locals, cookies }) => {
   const { prisma, user, member } = locals;
 
   const revealTheme = REVEAL_LAUNCH_DATE <= new Date();
-  const notifications = getNollaGroupedNotifications(user, prisma);
+  const notificationsPromise = getNollaGroupedNotifications(user, prisma);
   const phadderGroup =
     member?.classYear == new Date().getFullYear() &&
     member.nollningGroupId !== null
@@ -36,7 +36,7 @@ export const load = async ({ locals, cookies }) => {
 
   return {
     revealTheme,
-    notifications,
+    notificationsPromise,
     mutateNotificationForm: await superValidate(zod(notificationSchema)),
     paths: {
       cart: `${POST_REVEAL_PREFIX}/shop/cart`,

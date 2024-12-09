@@ -5,13 +5,14 @@
   import NotificationModal from "$lib/components/NotificationModal.svelte";
   import { pageTitle } from "$lib/stores/pageTitle";
   import { i18n } from "$lib/utils/i18n";
+  import type { NotificationGroup } from "$lib/utils/notifications/group";
   import { signIn } from "@auth/sveltekit/client";
   import type { GlobalAppLoadData } from "./(app)/+layout.server";
   import NotificationBell from "./NotificationBell.svelte";
   import { appBottomNavRoutes, getRoutes } from "./routes";
 
   $: pageData = $page.data as typeof $page.data & GlobalAppLoadData;
-  $: notifications = pageData["notifications"];
+  $: notificationsPromise = pageData["notificationsPromise"];
   $: mutateNotificationForm = pageData["mutateNotificationForm"];
   $: routes = getRoutes();
   $: bottomNavRoutes = appBottomNavRoutes(routes).map((route) => route.path);
@@ -19,6 +20,7 @@
   $: topInsets = $page.data.appInfo?.insets?.top ?? 0;
 
   let notificationModal: HTMLDialogElement;
+  let notifications: NotificationGroup[] | undefined = undefined;
 </script>
 
 <header
@@ -46,9 +48,10 @@
 
   <div class="w-16">
     {#if $page.data.user && $page.data.member}
-      {#if notifications !== null && notifications !== undefined && mutateNotificationForm !== null}
+      {#if notificationsPromise !== null && notificationsPromise !== undefined && mutateNotificationForm !== null}
         <NotificationBell
-          {notifications}
+          {notificationsPromise}
+          bind:notifications
           form={mutateNotificationForm}
           useModalInstead
           externalModal={notificationModal}
@@ -64,6 +67,6 @@
     {/if}
   </div>
 </header>
-{#if notifications !== null && notifications !== undefined && mutateNotificationForm !== null}
-  <NotificationModal bind:modal={notificationModal} />
+{#if notificationsPromise !== null && mutateNotificationForm !== null}
+  <NotificationModal bind:modal={notificationModal} bind:notifications />
 {/if}
