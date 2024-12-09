@@ -56,7 +56,7 @@
         <slot />
       </PostRevealDesktopNavbar>
     {:else}
-      {#await data.notifications then notifications}
+      {#await data.notificationsPromise then notifications}
         <AppUnreadNotificationHandler
           notificationCount={notifications?.length}
         />

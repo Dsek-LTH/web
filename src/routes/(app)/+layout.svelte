@@ -20,7 +20,7 @@
     <Drawer />
   </nav>
 {:else}
-  {#await data.notifications then notifications}
+  {#await data.notificationsPromise then notifications}
     <AppUnreadNotificationHandler
       notificationCount={notifications?.filter((n) => !n.readAt).length}
     />
