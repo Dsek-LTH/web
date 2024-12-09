@@ -8,7 +8,8 @@
   import Footer from "../Footer.svelte";
   import Navbar from "../Navbar.svelte";
   import Toast from "../Toast.svelte";
-  import AppNotificationHandler from "$lib/components/utils/AppNotificationHandler.svelte";
+  import AppUnreadNotificationHandler from "$lib/components/utils/AppUnreadNotificationHandler.svelte";
+  import AppNotificationTokenHandler from "$lib/components/utils/AppNotificationTokenHandler.svelte";
 
   export let data;
 </script>
@@ -19,7 +20,12 @@
     <Drawer />
   </nav>
 {:else}
-  <AppNotificationHandler />
+  {#await data.notificationsPromise then notifications}
+    <AppUnreadNotificationHandler
+      notificationCount={notifications?.filter((n) => !n.readAt).length}
+    />
+  {/await}
+  <AppNotificationTokenHandler />
   <AppHeader />
 {/if}
 

@@ -3,8 +3,12 @@ import type { NotificationSettingType } from "$lib/utils/notifications/types";
 import { error } from "@sveltejs/kit";
 import { Expo, type ExpoPushMessage } from "expo-server-sdk";
 
+type TokenAndBadgeCount = {
+  token: string;
+  unreadNotifications?: number;
+};
 async function sendPushNotifications(
-  tokens: string[],
+  tokens: TokenAndBadgeCount[],
   title: string,
   body: string,
   type: NotificationSettingType,
@@ -15,13 +19,16 @@ async function sendPushNotifications(
   const expo = new Expo();
 
   const messages: ExpoPushMessage[] = tokens
-    .filter((token) => Expo.isExpoPushToken(token))
-    .map((token) => ({
+    .filter(({ token }) => Expo.isExpoPushToken(token))
+    .map(({ token, unreadNotifications }) => ({
       to: token,
       title,
       body,
-      channelId: type,
+      channelId: "default",
       data: { link },
+      sound: "default",
+      priority: "high",
+      badge: unreadNotifications ?? 0,
     }));
   if (messages.length === 0) {
     return;
