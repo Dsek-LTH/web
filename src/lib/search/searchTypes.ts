@@ -41,6 +41,7 @@ export const availableSearchIndexes = [
   "articles",
   "positions",
   "songs",
+  "committees",
 ] as const;
 export type SearchableIndex = (typeof availableSearchIndexes)[number];
 
@@ -106,6 +107,17 @@ export type SearchableSongAttributes = Pick<
   (typeof songSearchableAttributes)[number]
 >;
 
+export const committeeSearchableAttributes = [
+  "name",
+  "nameEn",
+  "description",
+  "descriptionEn",
+] as const satisfies Array<keyof Committee>;
+export type SearchableCommitteeAttributes = Pick<
+  Committee,
+  (typeof committeeSearchableAttributes)[number]
+>;
+
 export type SongSearchReturnAttributes = OnlySwedishAttributes<
   SearchableSongAttributes & Pick<Song, "slug">
 >;
@@ -128,6 +140,21 @@ export type PositionSearchReturnAttributes = OnlySwedishAttributes<
       committee: Committee | null;
     }
 >;
+export type CommitteeSearchReturnAttributes = OnlySwedishAttributes<
+  SearchableCommitteeAttributes &
+    Pick<
+      Committee,
+      "shortName" | "darkImageUrl" | "lightImageUrl" | "monoImageUrl"
+    >
+>;
+
+export type AnySearchReturnAttributes =
+  | SongSearchReturnAttributes
+  | ArticleSearchReturnAttributes
+  | EventSearchReturnAttributes
+  | MemberSearchReturnAttributes
+  | PositionSearchReturnAttributes
+  | CommitteeSearchReturnAttributes;
 
 export type SearchDataWithType =
   | {
@@ -149,4 +176,8 @@ export type SearchDataWithType =
   | {
       type: "positions";
       data: PositionSearchReturnAttributes;
+    }
+  | {
+      type: "committees";
+      data: CommitteeSearchReturnAttributes;
     };

@@ -2,11 +2,9 @@
   import { enhance } from "$app/forms";
   import * as m from "$paraglide/messages";
   import type { ActionData } from "./$types";
-  import ArticleSearchResult from "$lib/components/search/ArticleSearchResult.svelte";
-  import EventSearchResult from "$lib/components/search/EventSearchResult.svelte";
-  import MemberSearchResult from "$lib/components/search/MemberSearchResult.svelte";
-  import PositionSearchResult from "$lib/components/search/PositionSearchResult.svelte";
-  import SongSearchResult from "$lib/components/search/SongSearchResult.svelte";
+  import SearchResultList from "$lib/components/search/SearchResultList.svelte";
+  import { availableSearchIndexes } from "$lib/search/searchTypes";
+  import { mapIndexToMessage } from "$lib/search/searchHelpers";
 
   export let form: ActionData;
   let formElement: HTMLFormElement;
@@ -17,20 +15,16 @@
 
   $: noResults = form?.results?.length === 0;
 
-  $: includeMembers = true;
-  $: includePositions = true;
-  $: includeArticles = true;
-  $: includeEvents = true;
-  $: includeSongs = true;
+  $: toSearchOn = availableSearchIndexes.map((index) => {
+    return {
+      index,
+      include: true,
+    };
+  });
 
   // Call handleSearch whenever checkboxes change
   // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- This syntax is valid and it's a good use case here
-  $: includeMembers &&
-    includePositions &&
-    includeArticles &&
-    includeEvents &&
-    includeSongs &&
-    handleSearch();
+  $: toSearchOn && handleSearch();
 
   let timeout: ReturnType<typeof setTimeout> | null = null;
   let input = "";
@@ -151,73 +145,23 @@
     {/if}
   </label>
   <div class="mb-2 flex flex-wrap gap-4 p-2">
-    <div class="flex items-center gap-2">
-      <input
-        type="checkbox"
-        class="checkbox checkbox-sm"
-        id="members"
-        name="members"
-        bind:checked={includeMembers}
-      />
-      <label for="members">{m.search_members()}</label>
-    </div>
-    <div class="flex items-center gap-2">
-      <input
-        type="checkbox"
-        class="checkbox checkbox-sm"
-        id="positions"
-        name="positions"
-        bind:checked={includePositions}
-      />
-      <label for="positions">{m.search_positions()}</label>
-    </div>
-    <div class="flex items-center gap-2">
-      <input
-        type="checkbox"
-        class="checkbox checkbox-sm"
-        id="articles"
-        name="articles"
-        bind:checked={includeArticles}
-      />
-      <label for="articles">{m.search_articles()}</label>
-    </div>
-    <div class="flex items-center gap-2">
-      <input
-        type="checkbox"
-        class="checkbox checkbox-sm"
-        id="events"
-        name="events"
-        bind:checked={includeEvents}
-      />
-      <label for="events">{m.search_events()}</label>
-    </div>
-    <div class="flex items-center gap-2">
-      <input
-        type="checkbox"
-        class="checkbox checkbox-sm"
-        id="songs"
-        name="songs"
-        bind:checked={includeSongs}
-      />
-      <label for="songs">{m.search_songs()}</label>
-    </div>
+    {#each toSearchOn as index}
+      <div class="flex items-center gap-2">
+        <input
+          type="checkbox"
+          class="checkbox checkbox-sm"
+          id={index.index}
+          name={index.index}
+          bind:checked={index.include}
+        />
+        <label for={index.index}>{mapIndexToMessage(index.index)}</label>
+      </div>
+    {/each}
   </div>
   <button class="btn sr-only mb-2 w-full">{m.search_search()}</button>
   {#if form?.results?.length}
     <div class="menu rounded-box bg-base-200">
-      {#each form?.results as searchValue}
-        {#if searchValue.type === "members"}
-          <MemberSearchResult member={searchValue.data} />
-        {:else if searchValue.type === "positions"}
-          <PositionSearchResult position={searchValue.data} />
-        {:else if searchValue.type === "articles"}
-          <ArticleSearchResult article={searchValue.data} />
-        {:else if searchValue.type === "events"}
-          <EventSearchResult event={searchValue.data} />
-        {:else if searchValue.type === "songs"}
-          <SongSearchResult song={searchValue.data} />
-        {/if}
-      {/each}
+      <SearchResultList results={form?.results} />
     </div>
   {:else if !isSearching && input.length > 0 && noResults}
     <div class="menu rounded-box bg-base-200">

@@ -1,12 +1,11 @@
 <script lang="ts">
-  import { type SearchDataWithType } from "$lib/search/searchTypes";
+  import {
+    availableSearchIndexes,
+    type SearchDataWithType,
+  } from "$lib/search/searchTypes";
   import * as m from "$paraglide/messages";
   import { enhance } from "$app/forms";
-  import MemberSearchResult from "$lib/components/search/MemberSearchResult.svelte";
-  import PositionSearchResult from "$lib/components/search/PositionSearchResult.svelte";
-  import ArticleSearchResult from "$lib/components/search/ArticleSearchResult.svelte";
-  import EventSearchResult from "$lib/components/search/EventSearchResult.svelte";
-  import SongSearchResult from "$lib/components/search/SongSearchResult.svelte";
+  import SearchResultList from "./SearchResultList.svelte";
   let dialog: HTMLDialogElement;
 
   let inputElement: HTMLInputElement;
@@ -215,11 +214,9 @@
         {#if isSearching}
           <span class="loading loading-sm"></span>
         {/if}
-        <input type="hidden" name="members" value="on" />
-        <input type="hidden" name="positions" value="on" />
-        <input type="hidden" name="songs" value="on" />
-        <input type="hidden" name="articles" value="on" />
-        <input type="hidden" name="events" value="on" />
+        {#each availableSearchIndexes as index}
+          <input type="hidden" name={index} value="on" />
+        {/each}
       </label>
       <button
         class="btn btn-ghost hidden sm:inline-flex"
@@ -230,21 +227,7 @@
       </button>
     </div>
     <div class="menu rounded-box bg-base-200">
-      {#if results.length > 0}
-        {#each results as searchValue}
-          {#if searchValue.type === "members"}
-            <MemberSearchResult member={searchValue.data} />
-          {:else if searchValue.type === "positions"}
-            <PositionSearchResult position={searchValue.data} />
-          {:else if searchValue.type === "articles"}
-            <ArticleSearchResult article={searchValue.data} />
-          {:else if searchValue.type === "events"}
-            <EventSearchResult event={searchValue.data} />
-          {:else if searchValue.type === "songs"}
-            <SongSearchResult song={searchValue.data} />
-          {/if}
-        {/each}
-      {/if}
+      <SearchResultList {results} />
       <li>
         {#if !isSearching && input.length > 0 && noResults}
           <p class="menu-title p-4">
