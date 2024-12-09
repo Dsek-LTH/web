@@ -127,7 +127,7 @@ const sendNotification = async ({
       id: true,
       subscriptionSettings: {
         where: {
-          type,
+          type: settingType,
         },
         select: {
           pushNotification: true,
@@ -149,7 +149,7 @@ const sendNotification = async ({
   if (title.length > 255) title = title.substring(0, 251) + "...";
   if (message.length > 255) message = message.substring(0, 251) + "...";
 
-  const result = await Promise.allSettled([
+  try {
     await sendWeb(
       title,
       message,
@@ -157,15 +157,16 @@ const sendNotification = async ({
       link,
       notificationAuthor,
       receivingMembers,
-    ),
-    await sendPush(title, message, settingType, link, receivingMembers),
-  ]);
-
-  if (result[0].status == "rejected") {
+    );
+  } catch (e) {
+    console.warn("Failed to create web notifications", e);
     throw error(500, "Failed to create notifications");
   }
 
-  if (result[1].status == "rejected") {
+  try {
+    await sendPush(title, message, settingType, link, receivingMembers);
+  } catch (e) {
+    console.warn("Failed to create push notifications", e);
     throw error(500, "Failed to create push notifications");
   }
 };
@@ -178,7 +179,7 @@ const sendWeb = async (
   notificationAuthor: Author | undefined,
   receivingMembers: Array<Pick<Member, "id">>,
 ) => {
-  const databaseResult = await prisma.notification.createMany({
+  return prisma.notification.createMany({
     data: receivingMembers.map(({ id: memberId }) => ({
       title,
       message,
@@ -188,7 +189,6 @@ const sendWeb = async (
       fromAuthorId: notificationAuthor?.id,
     })),
   });
-  return databaseResult;
 };
 
 const sendPush = async (
@@ -215,6 +215,7 @@ const sendPush = async (
         ),
     )
     .map((member) => member.id); // Return an array of strings with their memberIds
+
   const tokensAndUnreadNotificationCount = await prisma.expoToken.findMany({
     where: {
       memberId: {
@@ -243,7 +244,7 @@ const sendPush = async (
     sendPushNotifications(
       tokensAndUnreadNotificationCount.map((token) => ({
         token: token.expoToken,
-        badge: token.member?._count.notifications,
+        unreadNotifications: token.member?._count.notifications,
       })),
       title,
       message,
