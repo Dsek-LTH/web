@@ -13,7 +13,7 @@
   import { getFileUrl } from "$lib/files/client";
   import LanguageSwitcher from "../../LanguageSwitcher.svelte";
 
-  export let data: PageData;
+  let { data }: { data: PageData } = $props();
   const superform = superForm<UpdateSchema>(data.form, {});
   const { form, errors, constraints, enhance } = superform;
   onMount(() => {
@@ -114,7 +114,7 @@
               class="input input-bordered"
               required={true}
               bind:value={$form.classYear}
-              on:change={() => {
+              onchange={() => {
                 $form.nollningGroupId = null;
               }}
               {...$constraints.classYear}

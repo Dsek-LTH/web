@@ -1,18 +1,34 @@
 <script lang="ts">
   import Labeled from "$lib/components/Labeled.svelte";
+  import type {
+    HTMLInputAttributes,
+    HTMLTextareaAttributes,
+  } from "svelte/elements";
   import { twMerge } from "tailwind-merge";
 
-  export let name: string;
-  export let label: string | null = null;
-  export let placeholder: string | null = label;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- any is needed for generic use
-  export let value: any | null = null;
-  export let required = false;
-  export let error: string | string[] | undefined = undefined;
-  export let explanation: string | null = null;
-  export let textarea = false;
-  let clazz = "";
-  export { clazz as class };
+  let {
+    class: clazz = "",
+    name,
+    label = null,
+    placeholder = label,
+    value = $bindable(null),
+    required = false,
+    error = undefined,
+    explanation = null,
+    textarea = false,
+    ...restProps
+  }: {
+    name: string;
+    label: string | null;
+    placeholder: string | null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- any is needed for generic use
+    value: any | null;
+    required: boolean;
+    error: string | string[] | undefined;
+    explanation: string | null;
+    textarea: boolean;
+    class: string;
+  } & (HTMLInputAttributes | HTMLTextareaAttributes) = $props();
 </script>
 
 <Labeled {label} {error} {explanation} {required}>
@@ -27,7 +43,7 @@
       bind:value
       {placeholder}
       {required}
-      {...$$restProps}
+      {...restProps as HTMLTextareaAttributes}
     ></textarea>
   {:else}
     <input
@@ -38,7 +54,7 @@
       type="text"
       {placeholder}
       {required}
-      {...$$restProps}
+      {...restProps as HTMLInputAttributes}
     />
   {/if}
 </Labeled>

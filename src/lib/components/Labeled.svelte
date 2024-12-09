@@ -11,9 +11,11 @@
 </script>
 
 <script lang="ts">
+  import type { Snippet } from "svelte";
   import { twMerge, type ClassNameValue } from "tailwind-merge";
 
   let {
+    children = undefined,
     class: clazz = "",
     label = null,
     explanation = null,
@@ -23,6 +25,7 @@
     required = false,
     for: _for = undefined,
   }: {
+    children: Snippet<[]> | undefined;
     for?: string | undefined;
   } & LabeledAttributes = $props();
 </script>
@@ -52,7 +55,7 @@
       </span>
     </div>
   {/if}
-  <slot {label} />
+  {@render children?.()}
   {#if error !== undefined}
     <div class="label">
       <span
