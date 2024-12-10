@@ -89,8 +89,8 @@ export const getRoutes = (): Route[] =>
           path: "https://gerda.dsek.se",
           icon: "i-mdi-typewriter",
           accessRequired: null,
-          appBehaviour: "home-link"
-        }
+          appBehaviour: "home-link",
+        },
       ],
     },
     {
