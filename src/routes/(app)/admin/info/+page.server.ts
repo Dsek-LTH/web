@@ -17,6 +17,7 @@ export const actions: Actions = {
     const form = await superValidate(request, zod(infoPageSchema));
     if (!form.valid) return fail(400, { form });
     const { name, markdown, markdownEn } = form.data;
+    console.log(name, markdown, markdownEn);
     await prisma.markdown.create({
       data: {
         name,
@@ -25,9 +26,9 @@ export const actions: Actions = {
       },
     });
     throw redirect(
-      `"/info/${name}"`,
+      `/info/${name}`,
       {
-        message: m.documents_governing_documentCreated(),
+        message: `${m.admin_info_infoPageCreated()}`,
         type: "success",
       },
       event,

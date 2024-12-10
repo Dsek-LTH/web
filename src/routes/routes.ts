@@ -193,6 +193,13 @@ export const getRoutes = (): Route[] =>
           accessRequired: apiNames.FILES.BUCKET(PUBLIC_BUCKETS_FILES).CREATE,
           appBehaviour: "home-link",
         },
+        {
+          title: m.info(),
+          path: "/admin/info",
+          icon: "i-mdi-text-box-edit",
+          accessRequired: apiNames.MARKDOWN.CREATE,
+          appBehaviour: "home-link",
+        },
       ],
     },
   ] as const;

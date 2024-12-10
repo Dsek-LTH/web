@@ -780,5 +780,7 @@
   "elections_apply": "Ansök",
   "admin_info_name": "Namn",
   "admin_info_create": "Skapa",
-  "admin_info_createNewInfoPage": "Skapa en ny info sida"
+  "admin_info_createNewInfoPage": "Skapa en ny info sida",
+  "admin_info_infoPageCreated": "Info sida skapad",
+  "info": "Info"
 }
