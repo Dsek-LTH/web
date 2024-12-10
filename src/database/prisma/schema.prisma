@@ -1086,8 +1086,9 @@ model ShoppableAccessPolicy {
 /// @@allow('update', hasBeenSentToBookeeping == false && (memberId == auth().memberId || items?[signerMemberId == auth().memberId] || has(auth().policies, 'expenses:bookkeeping')))
 /// @@allow('delete', false)
 model Expense {
-    id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+    id Int @id() @default(autoincrement())
     date DateTime @default(now()) @map("date") @db.Timestamptz(6)
+    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
     description String
     isGuildCard Boolean
     /// @deny('update', !has(auth().policies, 'expenses:bookkeeping'))
@@ -1104,7 +1105,7 @@ model Expense {
 /// @@allow('delete', false)
 model ExpenseItem {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-    expenseId String @map("expense_id") @db.Uuid()
+    expenseId Int @map("expense_id")
     expense Expense @relation(fields: [expenseId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "expense_item_expense_id_foreign")
     committeeShortName String
     commitee Committee @relation(fields: [committeeShortName], references: [shortName])

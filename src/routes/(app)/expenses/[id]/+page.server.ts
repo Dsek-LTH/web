@@ -12,12 +12,16 @@ import {
   updateSignersCacheIfNecessary,
 } from "../signers";
 import { updateExpenseSchema } from "../types";
+import { z } from "zod";
 
 export const load = async ({ locals, params }) => {
   const { prisma } = locals;
+  if (Number.isNaN(Number(params.id))) {
+    throw error(404, "Expense id should be a number");
+  }
   const expense = await prisma.expense.findUnique({
     where: {
-      id: params.id,
+      id: Number(params.id),
     },
     include: expensesInclusion,
   });
@@ -41,17 +45,23 @@ export const load = async ({ locals, params }) => {
   };
 };
 
+const approveReceiptSchema = z.object({
+  itemId: z.string(),
+});
+
 export const actions = {
   update: async ({ params, request, locals }) => {
     const { prisma } = locals;
     const form = await superValidate(request, zod(updateExpenseSchema));
+    if (Number.isNaN(Number(params.id)))
+      throw error(404, "Expense id should be a number");
 
     if (!form.valid) return fail(400, { form });
 
     const { items, ...expenseData } = form.data;
 
     const expense = await prisma.expense.update({
-      where: { id: params.id },
+      where: { id: Number(params.id) },
       data: {
         date: expenseData.date,
         description: expenseData.description,
@@ -64,7 +74,7 @@ export const actions = {
 
     await prisma.expenseItem.deleteMany({
       where: {
-        expenseId: params.id,
+        expenseId: Number(params.id),
         id: {
           notIn: existingItems.map((item) => item.itemId!),
         },
@@ -98,7 +108,7 @@ export const actions = {
         newItems.map((item) =>
           prisma.expenseItem.create({
             data: {
-              expenseId: params.id,
+              expenseId: Number(params.id),
               costCenter: item.costCenter,
               committeeShortName: getCostCenter(item.costCenter).committee,
               amount: item.amount,
@@ -127,9 +137,11 @@ export const actions = {
   delete: async (event) => {
     const { locals, params } = event;
     const { prisma } = locals;
+    if (Number.isNaN(Number(params.id)))
+      throw error(404, "Expense id should be a number");
     await prisma.expense.update({
       where: {
-        id: params.id,
+        id: Number(params.id),
       },
       data: {
         removedAt: new Date(),
@@ -144,18 +156,48 @@ export const actions = {
       event,
     );
   },
-  approve: async (event) => {
+  approveReceipt: async (event) => {
+    const { locals, params, request } = event;
+    const { prisma, user } = locals;
+    if (!user?.memberId)
+      throw error(401, "Du måste vara inloggad för att godkänna utlägg");
+    if (Number.isNaN(Number(params.id)))
+      throw error(404, "Expense id should be a number");
+    const form = await superValidate(request, zod(approveReceiptSchema));
+    if (!form.valid) return fail(400, { form });
+    const canAlwaysSign = isAuthorized(apiNames.EXPENSES.CERTIFICATION, user);
+    await prisma.expenseItem.update({
+      where: {
+        id: form.data.itemId,
+        expenseId: Number(params.id),
+        signedByMemberId: null,
+        signedAt: null,
+        signerMemberId: canAlwaysSign ? undefined : user.memberId, // only sign items which are assigned to the user, or all if user is allowed to sign all (i.e. is the treasurer or president)
+      },
+      data: {
+        signedByMemberId: user.memberId,
+        signedAt: new Date(),
+      },
+    });
+    return message(form, {
+      message: "Kvitto godkänd",
+      type: "success",
+    });
+  },
+  approveAll: async (event) => {
     const { locals, params } = event;
     const { prisma, user } = locals;
     if (!user?.memberId)
       throw error(401, "Du måste vara inloggad för att godkänna utlägg");
-    const canSignAll = isAuthorized(apiNames.EXPENSES.CERTIFICATION, user);
+    if (Number.isNaN(Number(params.id)))
+      throw error(404, "Expense id should be a number");
+    const canAlwaysSign = isAuthorized(apiNames.EXPENSES.CERTIFICATION, user);
     const result = await prisma.expenseItem.updateMany({
       where: {
-        expenseId: params.id,
+        expenseId: Number(params.id),
         signedByMemberId: null,
         signedAt: null,
-        signerMemberId: canSignAll ? undefined : user.memberId, // only sign items which are assigned to the user, or all if user is allowed to sign all (i.e. is the treasurer or president)
+        signerMemberId: canAlwaysSign ? undefined : user.memberId, // only sign items which are assigned to the user, or all if user is allowed to sign all (i.e. is the treasurer or president)
       },
       data: {
         signedByMemberId: user.memberId,

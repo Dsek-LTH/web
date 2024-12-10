@@ -231,7 +231,7 @@ export const handleError: HandleServerError = ({ error }) => {
       message: message,
     };
   } else if (error instanceof PrismaClientValidationError) {
-    console.error("prisma validation error", error.message);
+    console.error("prisma validation error", error.message, error.name);
     return {
       message: "Database validation error, see logs for more info",
     };

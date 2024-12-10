@@ -1,6 +1,4 @@
-import type { Prisma } from "@prisma/client";
-
-export const expensesInclusion: Prisma.ExpenseInclude = {
+export const expensesInclusion = {
   member: {
     select: {
       firstName: true,
