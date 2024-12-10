@@ -10,6 +10,7 @@ export const expensesInclusion = {
     include: {
       signer: {
         select: {
+          id: true,
           firstName: true,
           lastName: true,
           picturePath: true,

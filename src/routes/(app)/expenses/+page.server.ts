@@ -38,3 +38,4 @@ export const load = async ({ locals }) => {
 };
 
 export const actions: Actions = {};
+export type ExpandedExpense = Awaited<ReturnType<typeof load>>["myExpenses"][0];

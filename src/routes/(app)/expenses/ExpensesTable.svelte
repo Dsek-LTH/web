@@ -1,24 +1,16 @@
 <script lang="ts">
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import { getFullName } from "$lib/utils/client/member";
-  import type { Expense, ExpenseItem, Member } from "@prisma/client";
   import dayjs from "dayjs";
+  import type { ExpandedExpense } from "./+page.server";
+  import ExpenseDetailView from "./ExpenseDetailView.svelte";
 
-  type ExtendedExpense = Expense & {
-    items: Array<
-      ExpenseItem & {
-        signer: Member;
-        signedBy: Member | undefined;
-      }
-    >;
-    member: Member;
-  };
-  export let expenses: ExtendedExpense[];
-  export let selectedExpense: ExtendedExpense | undefined;
+  export let expenses: ExpandedExpense[];
+  export let selectedExpense: ExpandedExpense | undefined;
 
   export let hide: Partial<Record<"from" | "signer" | "signed", boolean>> = {};
 
-  function uniqueSigners(expense: ExtendedExpense): Member[] {
+  function uniqueSigners(expense: ExpandedExpense) {
     // get unique signers based on signer.id
     const signerMap = expense.items.reduce((map, item) => {
       const member = item.signer;
@@ -26,7 +18,7 @@
         map.set(member.id, member);
       }
       return map;
-    }, new Map<string, Member>());
+    }, new Map<string, ExpandedExpense["items"][number]["signer"]>());
 
     return Array.from(signerMap.values());
   }
@@ -132,7 +124,7 @@
               .toLocaleString()} kr
           </td>
           <td>
-            <a href="expenses/{expense.id}" class="btn btn-xs" target="_blank">
+            <a href="/expenses/{expense.id}" class="btn btn-xs" target="_blank">
               <!-- open -->
               <span class="i-mdi-open-in-new" />
             </a>
@@ -142,3 +134,8 @@
     </tbody>
   </table>
 </div>
+{#if selectedExpense}
+  <div class="my-8 rounded-md bg-base-300 p-4">
+    <ExpenseDetailView expense={selectedExpense} />
+  </div>
+{/if}

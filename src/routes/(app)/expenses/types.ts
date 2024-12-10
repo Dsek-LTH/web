@@ -41,6 +41,7 @@ export const updateExpenseSchema = expenseSchema
       ),
     }),
   );
+export type UpdateExpenseSchema = Infer<typeof updateExpenseSchema>;
 
 export type ExpenseSchema = Infer<typeof expenseSchema>;
 export type ReceiptSchema = ExpenseSchema["receipts"][number];
