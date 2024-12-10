@@ -130,7 +130,7 @@ export const getRoutes = (): Route[] =>
         },
         {
           title: m.volunteers(),
-          path: "/info/benefits",
+          path: "/volunteers",
           icon: "i-mdi-account",
           accessRequired: null,
           appBehaviour: "home-link",
