@@ -24,5 +24,8 @@ export const expensesInclusion = {
         },
       },
     },
+    orderBy: {
+      id: "asc",
+    },
   },
 };

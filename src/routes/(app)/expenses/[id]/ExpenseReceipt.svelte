@@ -14,15 +14,13 @@
   import { COST_CENTERS } from "../config";
   import type { UpdateExpenseSchema } from "../types";
 
-  export let prefix: string = "";
+  export let prefix = "";
   export let item: ExpandedExpense["items"][number];
   export let index: number;
   export let superform: SuperForm<UpdateExpenseSchema> | undefined = undefined;
 
   $: user = $page.data.user;
   $: canAlwaysSign = isAuthorized(apiNames.EXPENSES.CERTIFICATION, user);
-  $: form = superform?.form;
-  $: formItem = $form ? $form.items[index]! : item;
 
   let isEditing = false;
 </script>
@@ -46,7 +44,7 @@
     {#if isEditing && superform}
       <FormNumberInput {superform} field="items[{index}].amount" />
     {:else}
-      <Price price={formItem.amount * 100} />
+      <Price price={item.amount * 100} />
     {/if}
     <!-- it's in cents -->
   </div>
@@ -63,16 +61,16 @@
         }))}
       />
     {:else}
-      {formItem.costCenter}
+      {item.costCenter}
     {/if}
   </div>
-  {#if (formItem.comment || isEditing) && superform}
+  {#if (item.comment || isEditing) && superform}
     <div>
       <div class="font-bold opacity-60">Kommentar</div>
       {#if isEditing}
         <FormInput {superform} field="items[{index}].comment" />
       {:else}
-        {formItem.comment}
+        {item.comment}
       {/if}
     </div>
   {/if}
@@ -98,7 +96,16 @@
     </div>
   {/if}
   {#if isEditing}
-    <button type="submit" class="btn btn-primary">Spara</button>
+    <button
+      type="submit"
+      class="btn btn-primary"
+      on:click={() => {
+        // need timeout because otherwise it doesn't submit the form (for some reason???);
+        setTimeout(() => {
+          isEditing = false;
+        });
+      }}>Spara</button
+    >
   {:else if !item.signedAt && (item.signerMemberId === user?.memberId || canAlwaysSign)}
     <form method="POST" action="{prefix}?/approveReceipt" use:enhance>
       <input type="hidden" name="itemId" value={item.id} />
@@ -108,9 +115,12 @@
   {#if superform}
     <div class="absolute right-2 top-2">
       <button
+        type="button"
         class="btn btn-square btn-sm"
         class:btn-error={isEditing}
-        on:click={() => (isEditing = !isEditing)}
+        on:click={() => {
+          isEditing = !isEditing;
+        }}
       >
         {#if isEditing}
           <span class="i-mdi-close" />

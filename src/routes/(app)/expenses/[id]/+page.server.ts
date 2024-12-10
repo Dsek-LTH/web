@@ -13,6 +13,7 @@ import {
 } from "../signers";
 import { updateExpenseSchema } from "../types";
 import { z } from "zod";
+import { Prisma } from "@prisma/client";
 
 export const load = async ({ locals, params }) => {
   const { prisma } = locals;
@@ -72,14 +73,24 @@ export const actions = {
     const newItems = items.filter((item) => !item.itemId);
     const existingItems = items.filter((item) => !!item.itemId);
 
-    await prisma.expenseItem.deleteMany({
-      where: {
-        expenseId: Number(params.id),
-        id: {
-          notIn: existingItems.map((item) => item.itemId!),
+    try {
+      await prisma.expenseItem.deleteMany({
+        where: {
+          expenseId: Number(params.id),
+          id: {
+            notIn: existingItems.map((item) => item.itemId!),
+          },
         },
-      },
-    });
+      });
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError) {
+        if (e.code === "P2004") {
+          // can't delete due to access
+        }
+      } else {
+        throw e;
+      }
+    }
 
     // Update the related expense items
     if (existingItems.length > 0) {

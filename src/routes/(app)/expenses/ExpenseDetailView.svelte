@@ -7,9 +7,9 @@
   import { getFullName } from "$lib/utils/client/member";
   import dayjs from "dayjs";
   import type { SuperForm } from "sveltekit-superforms";
+  import type { ExpandedExpense } from "./+page.server";
   import ExpenseReceipt from "./[id]/ExpenseReceipt.svelte";
   import type { UpdateExpenseSchema } from "./types";
-  import type { ExpandedExpense } from "./+page.server";
 
   $: user = $page.data.user;
   export let expense: ExpandedExpense;
@@ -19,6 +19,7 @@
       isAuthorized(apiNames.EXPENSES.CERTIFICATION, user));
 
   export let superform: SuperForm<UpdateExpenseSchema> | undefined = undefined;
+  $: updateEnhance = superform?.enhance;
 </script>
 
 <!-- Header with meta info (guild card, who sent it, and when) -->
@@ -58,14 +59,28 @@
     <button class="btn btn-primary"> Godkänn allt </button>
   </form>
 {/if}
-
-<ul class="flex flex-wrap gap-2">
-  {#each expense.items as item, index}
-    <ExpenseReceipt
-      prefix="/expenses/{expense.id}"
-      {item}
-      {superform}
-      {index}
-    />
-  {/each}
-</ul>
+{#if updateEnhance}
+  <form use:updateEnhance method="POST" action="/expenses/{expense.id}?/update">
+    <ul class="flex flex-wrap gap-2">
+      {#each expense.items as item, index}
+        <ExpenseReceipt
+          prefix="/expenses/{expense.id}"
+          {item}
+          {superform}
+          {index}
+        />
+      {/each}
+    </ul>
+  </form>
+{:else}
+  <ul class="flex flex-wrap gap-2">
+    {#each expense.items as item, index}
+      <ExpenseReceipt
+        prefix="/expenses/{expense.id}"
+        {item}
+        {superform}
+        {index}
+      />
+    {/each}
+  </ul>
+{/if}
