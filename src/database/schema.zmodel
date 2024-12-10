@@ -142,6 +142,24 @@ model Article {
   @@map("articles")
 }
 
+model Election {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  committeeId String    @map("committee_id") @db.Uuid
+  markdown    String
+  markdownEn  String?   @map("markdown_en")
+  link        String    @map("link")
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  expiresAt   DateTime  @map("expires_at") @db.Timestamptz(6)
+  committee   Committee @relation(fields: [committeeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "elections_committee_id_foreign")
+
+
+  @@allow("read", true)
+  @@allow("create", has(auth().policies, "election:create"))
+  @@allow("update", has(auth().policies, "election:update"))
+  @@allow("delete", has(auth().policies, "election:delete"))
+  @@map("elections")
+}
+
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model Author {
@@ -269,6 +287,8 @@ model Committee {
   @@allow("update", has(auth().policies, "core:committee:update"))
   @@allow("delete", has(auth().policies, "core:committee:delete"))
   @@map("committees")
+
+  election      Election[]
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -446,6 +466,7 @@ model EventsTag {
 model ExpoToken {
   id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   memberId  String? @map("member_id") @db.Uuid
+  member    Member? @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "expo_tokens_member_id_foreign")
   expoToken String  @unique(map: "expo_tokens_expo_token_unique") @map("expo_token") @db.VarChar(255)
 
   @@allow('create', auth().memberId == memberId)
@@ -571,6 +592,7 @@ model Member {
   shopReservations        ConsumableReservation[]
   bookingRequests         BookingRequest[]
   recurringEvent          RecurringEvent[]
+  tokens                  ExpoToken[]
 
   @@allow('create', has(auth().policies, "core:member:create"))
   @@allow('create', auth().studentId == studentId)

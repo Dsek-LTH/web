@@ -169,6 +169,23 @@ model Article {
     @@map("articles")
 }
 
+/// @@allow('read', true)
+/// @@allow('create', has(auth().policies, 'election:create'))
+/// @@allow('update', has(auth().policies, 'election:update'))
+/// @@allow('delete', has(auth().policies, 'election:delete'))
+model Election {
+    id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+    committeeId String @map("committee_id") @db.Uuid()
+    markdown String
+    markdownEn String? @map("markdown_en")
+    link String @map("link")
+    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    expiresAt DateTime @map("expires_at") @db.Timestamptz(6)
+    committee Committee @relation(fields: [committeeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "elections_committee_id_foreign")
+
+    @@map("elections")
+}
+
 /// @@allow('create', has(auth().policies, 'news:article:create'))
 /// @@allow('read', has(auth().policies, 'news:article:read'))
 /// @@deny('read', type != 'Custom' && (startsWith(mandate.positionId, 'dsek.noll.stab.') || member.mandates?[startDate < now() && now() < endDate && startsWith(positionId, 'dsek.noll.stab.')]) && !has(auth().policies, 'member:see_staben') && auth().memberId != memberId)
@@ -282,6 +299,7 @@ model Committee {
     symbolUrl String? @map("symbol_url") @db.Text()
     description String? @db.VarChar(255)
     descriptionEn String? @map("description_en") @db.VarChar(255)
+    election Election[]
 
     @@map("committees")
 }
@@ -455,6 +473,7 @@ model EventsTag {
 model ExpoToken {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
     memberId String? @map("member_id") @db.Uuid()
+    member Member? @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "expo_tokens_member_id_foreign")
     expoToken String @unique(map: "expo_tokens_expo_token_unique") @map("expo_token") @db.VarChar(255)
 
     @@map("expo_tokens")
@@ -583,6 +602,7 @@ model Member {
     shopReservations ConsumableReservation[]
     bookingRequests BookingRequest[]
     recurringEvent RecurringEvent[]
+    tokens ExpoToken[]
 
     @@map("members")
 }

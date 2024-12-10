@@ -108,6 +108,13 @@ export const getRoutes = (): Route[] =>
           appBehaviour: "home-link",
         },
         {
+          title: m.openElections(),
+          path: "/elections",
+          icon: "i-mdi-dolphin",
+          accessRequired: null,
+          appBehaviour: "home-link",
+        },
+        {
           title: m.bookings(),
           path: "/booking",
           icon: "i-mdi-calendar-cursor",
