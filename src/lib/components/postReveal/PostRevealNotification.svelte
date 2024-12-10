@@ -38,6 +38,12 @@
   export let allowDelete = true;
   export let onClick: (() => void) | undefined = undefined;
   export let onRead: (() => void) | undefined = undefined;
+  export let disableButton = (
+    e: MouseEvent & { currentTarget: EventTarget & HTMLButtonElement },
+  ) => {
+    const button = e.currentTarget;
+    button.disabled = true;
+  };
 
   $: link = overrideLink(notification.link);
 
@@ -127,7 +133,10 @@
       {:else}
         <input type="hidden" name="notificationId" value={notification.id} />
       {/if}
-      <button class="btn btn-ghost -mr-2 rounded-none !px-2 *:text-2xl">
+      <button
+        class="btn btn-ghost -mr-2 rounded-none !px-2 *:text-2xl"
+        on:click={(e) => disableButton(e)}
+      >
         <span class="i-mdi-delete-outline mx-0 opacity-50"></span>
       </button>
     </form>
