@@ -4,11 +4,14 @@
   import * as m from "$paraglide/messages";
   import { languageTag } from "$paraglide/runtime";
   import { getFileUrl } from "$lib/files/client";
+  import Youtube from "svelte-youtube-embed";
 
   export let article: Article;
 </script>
 
-{#if article.imageUrl}
+{#if article.youtubeUrl}
+  <Youtube id={article.youtubeUrl.split("=")[1]} />
+{:else if article.imageUrl}
   <figure>
     <img
       class="mx-auto"
