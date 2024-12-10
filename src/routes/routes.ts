@@ -84,6 +84,13 @@ export const getRoutes = (): Route[] =>
           accessRequired: null,
           appBehaviour: "home-link",
         },
+        {
+          title: "Gerda",
+          path: "https://gerda.dsek.se",
+          icon: "i-mdi-typewriter",
+          accessRequired: null,
+          appBehaviour: "home-link"
+        }
       ],
     },
     {
