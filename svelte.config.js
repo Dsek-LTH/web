@@ -19,7 +19,7 @@ const config = {
       $paraglide: "./src/translations/paraglide", // same as outdir for paraglide in vite.config.ts
     },
     version: {
-      name: execSync("git describe --tags").toString().trim(),
+      name: "default",
     },
   },
 };
