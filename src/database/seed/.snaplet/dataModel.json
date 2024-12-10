@@ -3121,11 +3121,11 @@
           "maxLength": null
         },
         {
-          "name": "elections",
-          "type": "elections",
+          "name": "ExpenseItem",
+          "type": "ExpenseItem",
           "isRequired": false,
           "kind": "object",
-          "relationName": "electionsTocommittees",
+          "relationName": "ExpenseItemTocommittees",
           "relationFromFields": [],
           "relationToFields": [],
           "isList": true,
@@ -3135,11 +3135,11 @@
           "hasDefaultValue": false
         },
         {
-          "name": "ExpenseItem",
-          "type": "ExpenseItem",
+          "name": "elections",
+          "type": "elections",
           "isRequired": false,
           "kind": "object",
-          "relationName": "ExpenseItemTocommittees",
+          "relationName": "electionsTocommittees",
           "relationFromFields": [],
           "relationToFields": [],
           "isList": true,
