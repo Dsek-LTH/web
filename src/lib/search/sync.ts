@@ -2,17 +2,22 @@ import { meilisearch } from "$lib/search/meilisearch";
 import { v4 as uuid } from "uuid";
 import {
   articleSearchableAttributes,
+  availableSearchIndexes,
+  committeeSearchableAttributes,
   eventSearchableAttributes,
   memberSearchableAttributes,
   positionSearchableAttributes,
   songSearchableAttributes,
-  type SearchableArticleAttributes,
-  type SearchableEventAttributes,
-  type SearchableMemberAttributes,
-  type SearchablePositionAttributes,
-  type SearchableSongAttributes,
+  type ArticleSearchReturnAttributes,
+  type CommitteeSearchReturnAttributes,
+  type EventSearchReturnAttributes,
+  type MemberSearchReturnAttributes,
+  type PositionSearchReturnAttributes,
+  type SongSearchReturnAttributes,
 } from "$lib/search/searchTypes";
 import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
+import type { EnqueuedTask, Index } from "meilisearch";
+import type { PrismaClient } from "@prisma/client";
 
 /**
  * Dumps relevant data from the database to Meilisearch.
@@ -24,22 +29,129 @@ import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
 let meiliInitialized = false;
 const sync = async () => {
   if (!meiliInitialized) {
-    await meilisearch.waitForTasks(
-      await Promise.all(
-        [
-          // createIndex is idempotent - calling it multiple times is fine
-          meilisearch.createIndex("positions"),
-          meilisearch.createIndex("members"),
-          meilisearch.createIndex("songs"),
-          meilisearch.createIndex("articles"),
-          meilisearch.createIndex("events"),
-        ].map((task) => task.then((task) => task.taskUid)),
-      ),
-      { timeOutMs: 10000 },
+    await waitForTasks(() =>
+      availableSearchIndexes.map((index) => meilisearch.createIndex(index)),
     );
     meiliInitialized = true;
   }
 
+  const { allIndexes, indexWithData } = await getRelevantSearchData();
+
+  await waitForTasks(() =>
+    allIndexes.map((index) => index.deleteAllDocuments()),
+  );
+
+  await waitForTasks(() =>
+    indexWithData.map((obj) => {
+      const index: Index = obj.index;
+      return index.addDocuments(obj.documents, { primaryKey: "id" });
+    }),
+  );
+
+  await waitForTasks(() =>
+    allIndexes.map((index) => index.resetSearchableAttributes()),
+  );
+
+  await waitForTasks(() =>
+    indexWithData.map((pair) =>
+      pair.index.updateSearchableAttributes(pair.searchAbleAttributes),
+    ),
+  );
+
+  return JSON.stringify(indexWithData);
+};
+
+export default sync;
+
+// HELPER FUNCTIONS
+async function waitForTasks(
+  fn: () => Array<Promise<EnqueuedTask>>,
+  timeOutMs = 10000,
+) {
+  const tasks = await Promise.all(fn());
+  const taskUids = tasks.map((task) => task.taskUid);
+  return meilisearch.waitForTasks(taskUids, { timeOutMs });
+}
+
+async function getIndexes(): Promise<{
+  membersIndex: Index<MemberSearchReturnAttributes>;
+  songsIndex: Index<SongSearchReturnAttributes>;
+  articlesIndex: Index<ArticleSearchReturnAttributes>;
+  eventsIndex: Index<EventSearchReturnAttributes>;
+  positionsIndex: Index<PositionSearchReturnAttributes>;
+  committeesIndex: Index<CommitteeSearchReturnAttributes>;
+}> {
+  const membersIndex = await meilisearch.getIndex("members");
+  const songsIndex = await meilisearch.getIndex("songs");
+  const articlesIndex = await meilisearch.getIndex("articles");
+  const eventsIndex = await meilisearch.getIndex("events");
+  const positionsIndex = await meilisearch.getIndex("positions");
+  const committeesIndex = await meilisearch.getIndex("committees");
+  return {
+    membersIndex,
+    songsIndex,
+    articlesIndex,
+    eventsIndex,
+    positionsIndex,
+    committeesIndex,
+  };
+}
+
+async function getRelevantSearchData() {
+  const { members, songs, articles, events, positions, committees } =
+    await getDataFromPrisma(authorizedPrismaClient);
+  const {
+    membersIndex,
+    songsIndex,
+    articlesIndex,
+    eventsIndex,
+    positionsIndex,
+    committeesIndex,
+  } = await getIndexes();
+  const allIndexes = [
+    membersIndex,
+    songsIndex,
+    articlesIndex,
+    eventsIndex,
+    positionsIndex,
+    committeesIndex,
+  ];
+  const indexWithData = [
+    {
+      index: membersIndex,
+      documents: members,
+      searchAbleAttributes: memberSearchableAttributes,
+    },
+    {
+      index: songsIndex,
+      documents: songs,
+      searchAbleAttributes: songSearchableAttributes,
+    },
+    {
+      index: articlesIndex,
+      documents: articles,
+      searchAbleAttributes: articleSearchableAttributes,
+    },
+    {
+      index: eventsIndex,
+      documents: events,
+      searchAbleAttributes: eventSearchableAttributes,
+    },
+    {
+      index: positionsIndex,
+      documents: positions,
+      searchAbleAttributes: positionSearchableAttributes,
+    },
+    {
+      index: committeesIndex,
+      documents: committees,
+      searchAbleAttributes: committeeSearchableAttributes,
+    },
+  ] as const;
+  return { allIndexes, indexWithData };
+}
+
+async function getDataFromPrisma(prisma: PrismaClient) {
   /**
    * For some odd reason, Meiliseach doesn't like the ID fields
    * we use in our database, so we generate new ones here.
@@ -47,14 +159,15 @@ const sync = async () => {
    * Perhaps generating UUIDs isn't needed in a future version of
    * Meilisearch.
    */
-  const [members, songs, articles, events, positions]: [
-    SearchableMemberAttributes[],
-    SearchableSongAttributes[],
-    SearchableArticleAttributes[],
-    SearchableEventAttributes[],
-    SearchablePositionAttributes[],
+  const [members, songs, articles, events, positions, committees]: [
+    MemberSearchReturnAttributes[],
+    SongSearchReturnAttributes[],
+    ArticleSearchReturnAttributes[],
+    EventSearchReturnAttributes[],
+    PositionSearchReturnAttributes[],
+    CommitteeSearchReturnAttributes[],
   ] = await Promise.all([
-    authorizedPrismaClient.member
+    prisma.member
       .findMany({
         select: {
           studentId: true,
@@ -63,6 +176,7 @@ const sync = async () => {
           nickname: true,
           picturePath: true,
           classYear: true,
+          classProgramme: true,
         },
       })
       .then((members) =>
@@ -72,7 +186,7 @@ const sync = async () => {
           id: uuid(),
         })),
       ),
-    authorizedPrismaClient.song
+    prisma.song
       .findMany({
         select: {
           title: true,
@@ -91,7 +205,7 @@ const sync = async () => {
           id: uuid(),
         })),
       ),
-    authorizedPrismaClient.article
+    prisma.article
       .findMany({
         select: {
           body: true,
@@ -119,7 +233,7 @@ const sync = async () => {
           id: uuid(),
         })),
       ),
-    authorizedPrismaClient.event
+    prisma.event
       .findMany({
         select: {
           title: true,
@@ -142,7 +256,7 @@ const sync = async () => {
           id: uuid(),
         })),
       ),
-    authorizedPrismaClient.position
+    prisma.position
       .findMany({
         select: {
           id: true,
@@ -164,79 +278,25 @@ const sync = async () => {
           id: uuid(),
         })),
       ),
+    prisma.committee
+      .findMany({
+        select: {
+          shortName: true,
+          name: true,
+          nameEn: true,
+          description: true,
+          descriptionEn: true,
+          darkImageUrl: true,
+          lightImageUrl: true,
+          monoImageUrl: true,
+        },
+      })
+      .then((committees) =>
+        committees.map((committee) => ({
+          ...committee,
+          id: uuid(),
+        })),
+      ),
   ]);
-
-  const [membersIndex, songsIndex, articlesIndex, eventsIndex, positionsIndex] =
-    await Promise.all([
-      meilisearch.getIndex("members"),
-      meilisearch.getIndex("songs"),
-      meilisearch.getIndex("articles"),
-      meilisearch.getIndex("events"),
-      meilisearch.getIndex("positions"),
-    ]);
-
-  await meilisearch.waitForTasks(
-    await Promise.all(
-      [
-        membersIndex.deleteAllDocuments(),
-        songsIndex.deleteAllDocuments(),
-        articlesIndex.deleteAllDocuments(),
-        eventsIndex.deleteAllDocuments(),
-        positionsIndex.deleteAllDocuments(),
-      ].map((task) => task.then((task) => task.taskUid)),
-    ),
-    { timeOutMs: 10000 },
-  );
-
-  await meilisearch.waitForTasks(
-    await Promise.all(
-      [
-        membersIndex.addDocuments(members, {
-          primaryKey: "id",
-        }),
-        songsIndex.addDocuments(songs, {
-          primaryKey: "id",
-        }),
-        articlesIndex.addDocuments(articles, {
-          primaryKey: "id",
-        }),
-        eventsIndex.addDocuments(events, {
-          primaryKey: "id",
-        }),
-        positionsIndex.addDocuments(positions, {
-          primaryKey: "id",
-        }),
-      ].map((task) => task.then((task) => task.taskUid)),
-    ),
-    { timeOutMs: 10000 },
-  );
-
-  await meilisearch.waitForTasks(
-    await Promise.all(
-      [
-        membersIndex.resetSearchableAttributes(),
-        songsIndex.resetSearchableAttributes(),
-        articlesIndex.resetSearchableAttributes(),
-        eventsIndex.resetSearchableAttributes(),
-        positionsIndex.resetSearchableAttributes(),
-      ].map((task) => task.then((task) => task.taskUid)),
-    ),
-    { timeOutMs: 10000 },
-  );
-
-  await meilisearch.waitForTasks(
-    await Promise.all(
-      [
-        membersIndex.updateSearchableAttributes(memberSearchableAttributes),
-        songsIndex.updateSearchableAttributes(songSearchableAttributes),
-        articlesIndex.updateSearchableAttributes(articleSearchableAttributes),
-        eventsIndex.updateSearchableAttributes(eventSearchableAttributes),
-        positionsIndex.updateSearchableAttributes(positionSearchableAttributes),
-      ].map((task) => task.then((task) => task.taskUid)),
-    ),
-    { timeOutMs: 10000 },
-  );
-
-  return { members, songs, articles, events, positions };
-};
-export default sync;
+  return { members, songs, articles, events, positions, committees };
+}
