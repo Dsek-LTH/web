@@ -1,5 +1,6 @@
 import type { Author, CustomAuthor, Member, Position } from "@prisma/client";
-export type MemberNames = Pick<Member, "firstName" | "nickname" | "lastName">;
+export type MemberNames = Pick<Member, "firstName" | "lastName"> &
+  Partial<Pick<Member, "nickname">>;
 type Options = {
   hideNickname?: boolean;
 };

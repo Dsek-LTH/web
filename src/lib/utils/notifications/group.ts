@@ -116,7 +116,7 @@ const getGroupTexts = (group: NotificationGroup): NotificationTexts => {
       };
     default:
       throw new Error(
-        `Tried to group notification type which has no group handleer "${type}"`,
+        `Tried to group notification type which has no group handler "${type}"`,
       );
   }
 };
