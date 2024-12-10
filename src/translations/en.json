@@ -781,5 +781,8 @@
   "openElections": "Open elections",
   "elections_description": "Here are the application forms for all committees that currently have positions open for application. The requirement profiles and post descriptions are located in the application forms.",
   "elections_close": "The elections close at",
-  "elections_apply": "Apply"
+  "elections_apply": "Apply",
+  "admin_info_name": "Name",
+  "admin_info_create": "Create",
+  "admin_info_createNewInfoPage": "Create new info page"
 }

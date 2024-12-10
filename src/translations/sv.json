@@ -777,5 +777,8 @@
   "openElections": "Öppna val",
   "elections_description": "Här finns ansökningslänkar till de utskott som just nu har öppna val. Postbeskrivningar och kravprofiler finns i ansökningsformuläret.",
   "elections_close": "Valet stänger",
-  "elections_apply": "Ansök"
+  "elections_apply": "Ansök",
+  "admin_info_name": "Namn",
+  "admin_info_create": "Skapa",
+  "admin_info_createNewInfoPage": "Skapa en ny info sida"
 }
