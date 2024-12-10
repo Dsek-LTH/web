@@ -17,12 +17,10 @@
     acc[year]!.push(mandate);
     return acc;
   }, {});
-  $: years = (
-    nollaIn &&
-    !Object.keys(mandatesGroupedByYear).includes(nollaIn.year.toString())
-      ? [nollaIn.year.toString(), ...Object.keys(mandatesGroupedByYear)]
-      : Object.keys(mandatesGroupedByYear)
-  ).sort((a, b) => b.localeCompare(a, languageTag()));
+  $: years = [
+    nollaIn == null ? "" : nollaIn.year.toString(),
+    ...Object.keys(mandatesGroupedByYear),
+  ].sort((a, b) => b.localeCompare(a, languageTag()));
 </script>
 
 <div class="flex-1 md:flex-grow-0">
@@ -33,7 +31,12 @@
       <HeldPositionsYear {mandates} {year} />
     {/if}
     {#if nollaIn?.year.toString() === year}
-      <div class="-mx-4 -mt-4 mb-4">
+      <h1 class="text-xl font-semibold">
+        {nollaIn?.year.toString()}
+      </h1>
+      <div
+        class="tooltip -mx-4 flex flex-col items-stretch gap-0 whitespace-pre"
+      >
         <a
           href="/committees/nollu?year={nollaIn.year}"
           class="btn btn-ghost w-full justify-start gap-2 font-medium normal-case text-primary"
