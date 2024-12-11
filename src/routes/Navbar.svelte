@@ -13,7 +13,7 @@
   import { getRoutes } from "./routes";
   import GlobalSearch from "$lib/components/search/GlobalSearch.svelte";
   $: pageData = $page.data as typeof $page.data & GlobalAppLoadData;
-  $: notifications = pageData["notifications"];
+  $: notificationsPromise = pageData["notificationsPromise"];
   $: mutateNotificationForm = pageData["mutateNotificationForm"];
   $: shopItemCounts = pageData["shopItemCounts"];
   $: routes = getRoutes();
@@ -84,8 +84,11 @@
         <LanguageSwitcher />
       </div>
 
-      {#if notifications !== null}
-        <NotificationBell {notifications} form={mutateNotificationForm} />
+      {#if notificationsPromise !== null}
+        <NotificationBell
+          {notificationsPromise}
+          form={mutateNotificationForm}
+        />
       {/if}
       {#if $page.data.user && $page.data.member}
         <UserMenu

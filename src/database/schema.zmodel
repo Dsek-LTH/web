@@ -269,17 +269,18 @@ model CartItem {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Committees{
 model Committee {
-  id            String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name          String     @db.VarChar(255)
-  nameEn        String?    @map("name_en") @db.VarChar(255)
-  shortName     String?    @unique @map("short_name") @db.VarChar(255)
+  id            String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name          String        @db.VarChar(255)
+  nameEn        String?       @map("name_en") @db.VarChar(255)
+  shortName     String?       @unique @map("short_name") @db.VarChar(255)
   positions     Position[]
-  darkImageUrl  String?    @map("dark_image_url") @db.Text
-  lightImageUrl String?    @map("light_image_url") @db.Text
-  monoImageUrl  String?    @map("mono_image_url") @db.Text
-  symbolUrl     String?    @map("symbol_url") @db.Text
-  description   String?    @db.VarChar(255)
-  descriptionEn String?    @map("description_en") @db.VarChar(255)
+  darkImageUrl  String?       @map("dark_image_url") @db.Text
+  lightImageUrl String?       @map("light_image_url") @db.Text
+  monoImageUrl  String?       @map("mono_image_url") @db.Text
+  symbolUrl     String?       @map("symbol_url") @db.Text
+  description   String?       @db.VarChar(255)
+  descriptionEn String?       @map("description_en") @db.VarChar(255)
+  expenseItems  ExpenseItem[] // all expenses for this committee
 
   @@allow("create", has(auth().policies, "core:committee:create"))
   @@allow("read", has(auth().policies, "core:committee:read"))
@@ -465,6 +466,7 @@ model EventsTag {
 model ExpoToken {
   id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   memberId  String? @map("member_id") @db.Uuid
+  member    Member? @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "expo_tokens_member_id_foreign")
   expoToken String  @unique(map: "expo_tokens_expo_token_unique") @map("expo_token") @db.VarChar(255)
 
   @@allow('create', auth().memberId == memberId)
@@ -590,6 +592,10 @@ model Member {
   shopReservations        ConsumableReservation[]
   bookingRequests         BookingRequest[]
   recurringEvent          RecurringEvent[]
+  tokens                  ExpoToken[]
+  expenses                Expense[]
+  expensesToSign          ExpenseItem[]           @relation("expense_item_signer")
+  signedExpenses          ExpenseItem[]           @relation("expense_item_signed_by")
 
   @@allow('create', has(auth().policies, "core:member:create"))
   @@allow('create', auth().studentId == studentId)
@@ -1152,4 +1158,74 @@ model ShoppableAccessPolicy {
   // only managers can delete (should very rarely be done)
   @@allow("delete", auth().memberId == shoppable.authorId || has(auth().policies, "webshop:manage"))
   @@map("shoppable_access_policies")
+}
+
+model Expense {
+  id                      Int           @id @default(autoincrement())
+  date                    DateTime      @default(now()) @map("date") @db.Timestamptz(6)
+  createdAt               DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  description             String
+  isGuildCard             Boolean
+  hasBeenSentToBookeeping Boolean       @default(false) @deny("update", !has(auth().policies, "expenses:bookkeeping"))
+  memberId                String        @db.Uuid
+  member                  Member        @relation(fields: [memberId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "expense_member_id_foreign")
+  items                   ExpenseItem[]
+  removedAt               DateTime?
+
+
+  @@allow("create", has(auth().policies, "expenses:create"))
+  @@allow("read", (
+    memberId == auth().memberId // my expenses
+    || items?[signerMemberId == auth().memberId] // expenses I should sign
+    || has(auth().policies, "expenses:bookkeeping") // I can do bookkeeping
+  ))
+  @@allow("update", hasBeenSentToBookeeping == false && (
+    (memberId == auth().memberId)
+    || items?[signerMemberId == auth().memberId] 
+    || has(auth().policies, "expenses:bookkeeping") 
+  ))
+  @@allow("delete" , false)
+
+  @@map("expenses")
+}
+
+model ExpenseItem {
+  id                 String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  expenseId          Int       @map("expense_id")
+  expense            Expense   @relation(fields: [expenseId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "expense_item_expense_id_foreign")
+  committeeShortName String
+  commitee           Committee @relation(fields: [committeeShortName], references: [shortName])
+  amount             Int     // in SEK, "öre"
+  costCenter         String // SEX01, for example
+  comment            String?
+  receiptUrl         String?
+  signerMemberId     String    @db.Uuid
+  signer             Member    @relation(name: "expense_item_signer", fields: [signerMemberId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "expense_item_signer_id_foreign")
+
+  signedByMemberId   String?   @db.Uuid @deny("update", auth().memberId != signerMemberId && !has(auth().policies, "expenses:certification"))
+  signedBy           Member?   @relation(name: "expense_item_signed_by", fields: [signedByMemberId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "expense_item_signed_by_member_id_foreign")
+  signedAt           DateTime?
+
+  @@allow("create", has(auth().policies, "expenses:create") /* && signerMemberId != expense.memberId (TODO: Uncomment this when we upgrade to zenstack v2) */ && signedByMemberId == null && signedAt == null)
+  // copy auth from Expense
+  @@allow("read", (
+    expense.memberId == auth().memberId 
+    || expense.items?[signerMemberId == auth().memberId]
+    || has(auth().policies, "expenses:bookkeeping")
+  ))
+  @@allow("update", expense.hasBeenSentToBookeeping == false && (
+    (expense.memberId == auth().memberId)
+    || expense.items?[signerMemberId == auth().memberId]
+    || has(auth().policies, "expenses:bookkeeping")
+  ) && (
+    (future().signedByMemberId == null && future().signedAt == null)  // signedByMemberId and signedAt should both be null or not null
+    || (
+      future().signedByMemberId == auth().memberId  // can only set yourself to the one who signed
+  /* && future().signedByMemberId != expense.memberId (TODO: Uncomment this when we upgrade to zenstack v2) */ // can never sign your own expense
+      && future().signedAt != null
+    )
+  ))
+  @@allow("delete", false)
+
+  @@map("expense_items")
 }
