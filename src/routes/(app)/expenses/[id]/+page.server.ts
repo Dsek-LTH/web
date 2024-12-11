@@ -109,6 +109,9 @@ export const actions = {
       );
       for (const promiseResult of updateItemsPromises)
         if (promiseResult.status === "rejected") {
+          // if user does not have access to update expenseItems, it will fail the update method
+          // this can also happen for any of the other common database errors which can occur
+          // we catch and throw like this to handle issues with Promise.all(...)
           console.error(`Failed to update expense item`, promiseResult.reason);
           throw promiseResult.reason;
         }
@@ -135,6 +138,7 @@ export const actions = {
       );
       for (const promiseResult of newItemsPromises)
         if (promiseResult.status === "rejected") {
+          // see comment above
           console.error(`Failed to create expense item`, promiseResult.reason);
           throw promiseResult.reason;
         }
