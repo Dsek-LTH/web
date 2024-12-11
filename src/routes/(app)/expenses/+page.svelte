@@ -1,6 +1,7 @@
 <script lang="ts">
-  import * as m from "$paraglide/messages";
   import PageHeader from "$lib/components/nav/PageHeader.svelte";
+  import * as m from "$paraglide/messages";
+  import ExpenseDetailView from "./ExpenseDetailView.svelte";
   import ExpensesTable from "./ExpensesTable.svelte";
 
   export let data;
@@ -8,6 +9,24 @@
   $: expensesToSign = data.expensesToSign;
 
   let selectedExpense: (typeof myExpenses)[number] | undefined = undefined;
+
+  // This is required when updating through the preview. The data is updated but "selectedExpense" is not.
+  // I tried an index but since we got two separate lists that didn't work
+  const isSelectedExpenseInList = (
+    selected: typeof selectedExpense,
+    list: Array<typeof myExpenses>,
+  ) => list.includes(selected);
+
+  $: if (
+    !!selectedExpense &&
+    !isSelectedExpenseInList(selectedExpense, myExpenses) &&
+    !isSelectedExpenseInList(selectedExpense, expensesToSign)
+  ) {
+    selectedExpense =
+      myExpenses.find((e) => e.id === selectedExpense.id) ??
+      expensesToSign.find((e) => e.id === selectedExpense.id) ??
+      undefined;
+  }
 </script>
 
 <PageHeader title={m.expenses()} />
@@ -52,4 +71,10 @@
       />
     </section>
   {/if}
+{/if}
+
+{#if selectedExpense}
+  <div class="my-8 rounded-md bg-base-300 p-4">
+    <ExpenseDetailView expense={selectedExpense} />
+  </div>
 {/if}

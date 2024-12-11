@@ -4,6 +4,8 @@
   import FormInput from "$lib/components/forms/FormInput.svelte";
   import FormNumberInput from "$lib/components/forms/FormNumberInput.svelte";
   import FormSelect from "$lib/components/forms/FormSelect.svelte";
+  import FormSubmitButton from "$lib/components/forms/FormSubmitButton.svelte";
+  import Modal from "$lib/components/Modal.svelte";
   import Price from "$lib/components/Price.svelte";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
@@ -14,8 +16,6 @@
   import type { ExpandedExpense } from "../+page.server";
   import { COST_CENTERS } from "../config";
   import type { UpdateItemSchema } from "../types";
-  import Modal from "$lib/components/Modal.svelte";
-  import FormSubmitButton from "$lib/components/forms/FormSubmitButton.svelte";
 
   export let prefix = "";
   export let item: ExpandedExpense["items"][number];
@@ -134,13 +134,20 @@
       <FormSubmitButton {superform} class="btn btn-primary"
         >Spara</FormSubmitButton
       >
-    {:else if !item.signedAt && (item.signerMemberId === user?.memberId || canAlwaysSign)}
-      <form method="POST" action="{prefix}?/approveReceipt" use:enhance>
-        <input type="hidden" name="itemId" value={item.id} />
-        <button class="btn btn-primary">Godkänn</button>
-      </form>
+    {:else if item.signerMemberId === user?.memberId || canAlwaysSign || item.signedByMemberId === user?.memberId}
+      {#if !item.signedAt}
+        <form method="POST" action="{prefix}?/approveReceipt" use:enhance>
+          <input type="hidden" name="itemId" value={item.id} />
+          <button class="btn btn-primary">Godkänn</button>
+        </form>
+      {:else}
+        <form method="POST" action="{prefix}?/disapproveReceipt" use:enhance>
+          <input type="hidden" name="itemId" value={item.id} />
+          <button class="btn btn-error">Av-godkänn</button>
+        </form>
+      {/if}
     {/if}
-    {#if superform}
+    {#if superform && !item.signedAt}
       <div class="absolute right-2 top-2">
         <button
           type="button"

@@ -133,6 +133,51 @@ export const actions = {
       event,
     );
   },
+  disapproveReceipt: async (event) => {
+    const { locals, request } = event;
+    const { prisma, user } = locals;
+    if (!user?.memberId)
+      throw fail(401, {
+        fail,
+        message: "Du måste vara inloggad för att av-godkänna utlägg",
+      });
+    const form = await superValidate(request, zod(approveReceiptSchema));
+    if (!form.valid) return fail(400, { form });
+    const canAlwaysSign = isAuthorized(apiNames.EXPENSES.CERTIFICATION, user);
+    try {
+      await prisma.expenseItem.update({
+        where: {
+          id: form.data.itemId,
+          OR: canAlwaysSign
+            ? undefined
+            : [
+                {
+                  signedByMemberId: user.memberId,
+                },
+                {
+                  signerMemberId: user.memberId,
+                },
+              ],
+          signedAt: {
+            not: null,
+          },
+        },
+        data: {
+          signedByMemberId: null,
+          signedAt: null,
+        },
+      });
+    } catch {
+      return message(form, {
+        message: "Kunde inte av-godkänna kvitto",
+        type: "error",
+      });
+    }
+    return message(form, {
+      message: "Kvitto av-godkänt",
+      type: "success",
+    });
+  },
   approveReceipt: async (event) => {
     const { locals, params, request } = event;
     const { prisma, user } = locals;
@@ -143,19 +188,26 @@ export const actions = {
     const form = await superValidate(request, zod(approveReceiptSchema));
     if (!form.valid) return fail(400, { form });
     const canAlwaysSign = isAuthorized(apiNames.EXPENSES.CERTIFICATION, user);
-    await prisma.expenseItem.update({
-      where: {
-        id: form.data.itemId,
-        expenseId: Number(params.id),
-        signedByMemberId: null,
-        signedAt: null,
-        signerMemberId: canAlwaysSign ? undefined : user.memberId, // only sign items which are assigned to the user, or all if user is allowed to sign all (i.e. is the treasurer or president)
-      },
-      data: {
-        signedByMemberId: user.memberId,
-        signedAt: new Date(),
-      },
-    });
+    try {
+      await prisma.expenseItem.update({
+        where: {
+          id: form.data.itemId,
+          expenseId: Number(params.id),
+          signedByMemberId: null,
+          signedAt: null,
+          signerMemberId: canAlwaysSign ? undefined : user.memberId, // only sign items which are assigned to the user, or all if user is allowed to sign all (i.e. is the treasurer or president)
+        },
+        data: {
+          signedByMemberId: user.memberId,
+          signedAt: new Date(),
+        },
+      });
+    } catch {
+      return message(form, {
+        message: "Kunde inte godkänna kvitto",
+        type: "error",
+      });
+    }
     return message(form, {
       message: "Kvitto godkänd",
       type: "success",

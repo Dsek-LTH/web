@@ -3,7 +3,6 @@
   import { getFullName } from "$lib/utils/client/member";
   import dayjs from "dayjs";
   import type { ExpandedExpense } from "./+page.server";
-  import ExpenseDetailView from "./ExpenseDetailView.svelte";
 
   export let expenses: ExpandedExpense[];
   export let selectedExpense: ExpandedExpense | undefined;
@@ -134,8 +133,3 @@
     </tbody>
   </table>
 </div>
-{#if selectedExpense}
-  <div class="my-8 rounded-md bg-base-300 p-4">
-    <ExpenseDetailView expense={selectedExpense} />
-  </div>
-{/if}
