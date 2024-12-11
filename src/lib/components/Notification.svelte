@@ -7,6 +7,7 @@
   import AuthorAvatars from "$lib/components/socials/AuthorAvatars.svelte";
   import { i18n } from "$lib/utils/i18n";
   import type { NotificationGroup } from "$lib/utils/notifications/group";
+
   type NotificationItem = Pick<
     NotificationGroup,
     | "link"
