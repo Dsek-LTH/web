@@ -1185,6 +1185,8 @@ model Expense {
     || has(auth().policies, "expenses:bookkeeping") 
   ))
   @@allow("delete" , false)
+
+  @@map("expenses")
 }
 
 model ExpenseItem {
@@ -1224,4 +1226,6 @@ model ExpenseItem {
     )
   ))
   @@allow("delete", false)
+
+  @@map("expense_items")
 }
