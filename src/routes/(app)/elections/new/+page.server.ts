@@ -1,4 +1,4 @@
-import { error, fail } from "@sveltejs/kit";
+import { fail } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 import { superValidate } from "sveltekit-superforms/server";
 import { zod } from "sveltekit-superforms/adapters";
@@ -7,7 +7,7 @@ import { electionSchema } from "../schemas";
 import * as m from "$paraglide/messages";
 import dayjs from "dayjs";
 
-export const load: PageServerLoad = async ({ locals, params }) => {
+export const load: PageServerLoad = async ({ locals }) => {
   const { prisma } = locals;
 
   const committees = await prisma.committee.findMany({

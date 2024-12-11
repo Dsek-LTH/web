@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { page } from "$app/stores";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import ElectionEditor from "../ElectionEditor.svelte";
 

@@ -4,15 +4,12 @@
   import { superForm } from "$lib/utils/client/superForms";
   import type { ElectionSchema } from "./schemas";
   import * as m from "$paraglide/messages";
-  import type { PageData } from "./$types";
-  import type { Committee } from "@prisma/client";
-  import SuperDebug from "sveltekit-superforms";
   import { onMount } from "svelte";
 
   export let isCreating: boolean;
   export let data: {
     form: SuperValidated<ElectionSchema>;
-    committees: { id: string; name: string; nameEn: string | null }[];
+    committees: Array<{ id: string; name: string; nameEn: string | null }>;
     election: {
       markdown: string;
       markdownEn: string | null;
