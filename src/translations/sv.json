@@ -782,5 +782,14 @@
   "expense": "Utlägg",
   "expenseCreated": "Utlägg skapat",
   "uploadExpense": "Skapa utlägg",
-  "allExpenses": "Alla utlägg"
+  "allExpenses": "Alla utlägg",
+  "search_search": "Sök",
+  "search_members": "Medlemmar",
+  "search_articles": "Nyheter",
+  "search_positions": "Poster",
+  "search_committees": "Utskott",
+  "search_events": "Event",
+  "search_songs": "Sånger",
+  "search_noResults": "Inga resultat",
+  "search_advancedSearch": "Avancerad sökning"
 }

@@ -4,7 +4,7 @@ import {
   getFederatedWeight,
   getSearchableAttributes,
 } from "$lib/search/searchHelpers";
-import type { Hits } from "meilisearch";
+import type { SearchDataWithType } from "$lib/search/searchTypes";
 
 /**
  * This endpoint is used to search multiple indexes at once.
@@ -46,28 +46,41 @@ export const GET: RequestHandler = async ({ url, locals }) => {
   }
   const language = locals.language;
 
-  const response = await meilisearch.multiSearch({
-    queries: indexes.map((index) => ({
-      indexUid: index,
-      q: query,
-      attributesToSearchOn: getSearchableAttributes(index, language),
-      federationOptions: { weight: getFederatedWeight(index) },
-      showRankingScoreDetails: true,
-    })),
-    federation: {},
-  });
+  const response: SearchDataWithType[] = await meilisearch
+    .multiSearch({
+      queries: indexes.map((index) => ({
+        indexUid: index,
+        q: query,
+        attributesToSearchOn: getSearchableAttributes(index, language),
+        federationOptions: { weight: getFederatedWeight(index) },
+        showRankingScoreDetails: true,
+      })),
+      federation: {
+        limit,
+      },
+    })
+    .then((response) => {
+      return response.hits.map((hit) => {
+        // Transform the data to hide that some
+        // fields are language specific
+        if (language === "en") {
+          const hitCopy = { ...hit };
+          const hitKeys = Object.keys(hit);
+          for (const key of hitKeys) {
+            if (key.endsWith("En")) {
+              hitCopy[key.slice(0, -2)] = hit[key];
+            }
+          }
+          hit = hitCopy;
+        }
+        return {
+          data: hit,
+          type: hit._federation?.indexUid,
+        } as SearchDataWithType;
+      });
+    });
 
-  const array: Hits = [];
-  let i = 0;
-  while (array.length < limit && i < response.hits.length) {
-    const hit = response.hits[i];
-    if (hit != null) {
-      array.push(hit);
-    }
-    i++;
-  }
-
-  return new Response(JSON.stringify(array), {
+  return new Response(JSON.stringify(response), {
     headers: {
       "Content-Type": "application/json",
     },

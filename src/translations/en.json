@@ -786,5 +786,14 @@
   "expense": "Expense",
   "expenseCreated": "Expense created",
   "uploadExpense": "Create expense",
-  "allExpenses": "All expenses"
+  "allExpenses": "All expenses",
+  "search_search": "Search",
+  "search_members": "Members",
+  "search_articles": "News",
+  "search_positions": "Positions",
+  "search_committees": "Committees",
+  "search_events": "Events",
+  "search_songs": "Songs",
+  "search_noResults": "No results found",
+  "search_advancedSearch": "Advanced search"
 }
