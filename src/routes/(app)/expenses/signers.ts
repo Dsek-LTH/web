@@ -53,6 +53,7 @@ export const getSigner = (signer: string) => {
 /**
  * In our policy we have a logic which desides how to handle edge cases where the signer is vacant, or the signer is also the user creating the expense.
  * This method resolves said logic (or throws if impossible, which would be really rare).
+ * Policy: https://www.dsek.se/api/pdf/styrdokument/releases/download/latest/policy_for_ekonomi.pdf
  */
 export const resolveSignerLogic = (
   signer: string | undefined,
