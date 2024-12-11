@@ -1,6 +1,6 @@
 import { browser } from "$app/environment";
 
-export const featureFlags: string[] = [];
+export const featureFlags: string[] = ["expenses"];
 
 export const isFeatureFlagEnabled = (flag: string) => {
   if (!featureFlags.includes(flag) || !browser) {
