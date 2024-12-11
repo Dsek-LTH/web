@@ -182,3 +182,8 @@ export enum Valb {
   "dsek.val.ordf",
   "dsek.val.rep",
 }
+
+export enum Tackm {
+  "dsek.tackm.mastare",
+  "dsek.tackm.mdlm",
+}

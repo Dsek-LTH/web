@@ -62,6 +62,8 @@ export const COMMITTEES = [
   { name: "Medaljelelekommittén", shortName: "medalj" },
   { name: "Trivselrådet", shortName: "trivsel" },
   { name: "Valberedningen", shortName: "valb" },
+  { name: "Tackmästeriet", shortName: "tackm" },
+  { name: "Övriga förtroendevalda", shortName: "other" },
 ].map((c) => ({ ...c, ...getImageUrls(c.shortName) }));
 
 export const POLICYS = [
@@ -105,7 +107,6 @@ export const MARKDOWNS = [
     "privacy-policy",
     "access",
     "for-companies",
-    "other",
     "benefits",
     "sektionspub",
     "htm1",

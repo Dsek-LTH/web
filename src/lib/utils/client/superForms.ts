@@ -8,7 +8,13 @@ export function superForm<T extends Record<string, unknown>, M = Message>(
 ): ReturnType<typeof SKSuperForms<T, M>> {
   return SKSuperForms<T, M>(params[0], {
     onError: (response) => {
-      toast(response.result.error.message, "error");
+      if (response.result.status === 401) {
+        toast("Du måste vara inloggad för att göra detta", "error");
+      } else if (response.result.status === 403) {
+        toast("Du har inte acccess för att göra detta", "error");
+      } else {
+        toast(response.result.error.message, "error");
+      }
     },
     ...params[1],
   });

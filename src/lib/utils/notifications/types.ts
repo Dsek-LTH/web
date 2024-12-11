@@ -18,6 +18,7 @@ export enum NotificationType {
   PURCHASE_IN_QUEUE = "PURCHASE_IN_QUEUE",
   PURCHASE_CONSUMABLE_EXPIRED = "PURCHASE_CONSUMABLE_EXPIRED",
   PURCHASE_SOLD_OUT = "PURCHASE_SOLD_OUT",
+  EXPENSES = "EXPENSES",
 }
 
 // These represent which settings users can turn on and off. The reason why we have fewer of these than NotificationTypes is that user's shouldn't be overwhelmed with too many settings.
@@ -61,16 +62,20 @@ export const SHOULD_MERGE_NOTIFICATIONS: Record<NotificationType, boolean> = {
   [NotificationType.PURCHASE_IN_QUEUE]: false,
   [NotificationType.PURCHASE_CONSUMABLE_EXPIRED]: false,
   [NotificationType.PURCHASE_SOLD_OUT]: false,
+  [NotificationType.EXPENSES]: false,
 };
 
+export const NOTIFICATION_SETTINGS_ALWAYS_ON = "DEFAULT"; // Notifications all users will receive, can't be toggled
 /**
  * Maps subscription settings to internal notification types.
  * A subscription setting controls said notification types.
  */
 export const SUBSCRIPTION_SETTINGS_MAP: Record<
-  NotificationSettingType,
+  NotificationSettingType | typeof NOTIFICATION_SETTINGS_ALWAYS_ON,
   NotificationType[]
 > = {
+  // On for everyone
+  [NOTIFICATION_SETTINGS_ALWAYS_ON]: [NotificationType.EXPENSES],
   [NotificationSettingType.LIKE]: [
     NotificationType.NEWS_LIKE,
     NotificationType.EVENT_LIKE,

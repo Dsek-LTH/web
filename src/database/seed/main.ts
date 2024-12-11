@@ -47,7 +47,7 @@ const main = async () => {
   await seed.committee(
     COMMITTEES.map((committee) => ({
       ...committee,
-      positions: (x) => x(10, { mandates: (x) => x({ min: 1, max: 5 }) }),
+      positions: (x) => x(8, { mandates: (x) => x({ min: 1, max: 5 }) }),
     })),
   );
 

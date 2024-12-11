@@ -2,12 +2,14 @@ import type { AvailableLanguageTag } from "$paraglide/runtime";
 import {
   availableSearchIndexes,
   type SearchableArticleAttributes,
+  type SearchableCommitteeAttributes,
   type SearchableEventAttributes,
   type SearchableIndex,
   type SearchableMemberAttributes,
   type SearchablePositionAttributes,
   type SearchableSongAttributes,
 } from "./searchTypes";
+import * as m from "$paraglide/messages";
 
 export type SearchIndex =
   (typeof availableSearchIndexes)[keyof typeof availableSearchIndexes];
@@ -22,17 +24,19 @@ export type SearchIndex =
 export function getFederatedWeight(index: SearchableIndex): number {
   switch (index) {
     case "members":
-      return 5;
+      return 3;
     case "events":
       return 1;
     case "articles":
       return 1;
     case "positions":
-      return 5;
+      return 3;
     case "songs":
       return 1;
+    case "committees":
+      return 3;
     default:
-      return 1;
+      return 0;
   }
 }
 
@@ -99,5 +103,37 @@ export function getSearchableAttributes(
       ];
       return res;
     }
+    case "committees": {
+      // default is swedish
+      let res: Array<keyof SearchableCommitteeAttributes> = [
+        "name",
+        "description",
+      ];
+      if (language === "en") {
+        res = ["nameEn", "descriptionEn"];
+      }
+      return res;
+    }
+    default:
+      return [];
+  }
+}
+
+export function mapIndexToMessage(index: SearchableIndex) {
+  switch (index) {
+    case "members":
+      return m.search_members();
+    case "positions":
+      return m.search_positions();
+    case "articles":
+      return m.search_articles();
+    case "events":
+      return m.search_events();
+    case "songs":
+      return m.search_songs();
+    case "committees":
+      return m.search_committees();
+    default:
+      return "";
   }
 }
