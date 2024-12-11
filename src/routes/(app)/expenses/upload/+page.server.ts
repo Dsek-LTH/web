@@ -49,13 +49,13 @@ const months = [
   "November",
   "December",
 ];
-const expensePhotoUrl = (date: Date, id: string) =>
+const expensePhotoUrl = (date: Date, id: number) =>
   `public/expenses/${date.getFullYear()}/${months[date.getMonth()]}/${id}`;
 const uploadReceipt = async (
   user: AuthUser,
   image: File,
   date: Date,
-  id: string,
+  id: number,
 ) => {
   const imageUrl = await uploadFile(
     user,
@@ -74,7 +74,7 @@ const uploadReceipt = async (
   return imageUrl;
 };
 
-const removeReceiptImages = (user: AuthUser, date: Date, id: string) =>
+const removeReceiptImages = (user: AuthUser, date: Date, id: number) =>
   removeFilesWithoutAccessCheck(user, PUBLIC_BUCKETS_FILES, [
     expensePhotoUrl(date, id),
   ]);

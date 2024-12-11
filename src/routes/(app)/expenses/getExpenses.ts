@@ -1,3 +1,5 @@
+import { Prisma } from "@prisma/client";
+
 export const expensesInclusion = {
   member: {
     select: {
@@ -25,7 +27,7 @@ export const expensesInclusion = {
       },
     },
     orderBy: {
-      id: "asc",
+      id: Prisma.SortOrder.desc,
     },
   },
 };

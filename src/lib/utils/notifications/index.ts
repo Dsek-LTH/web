@@ -173,7 +173,7 @@ const sendNotification = async ({
   }
 
   try {
-    await sendPush(title, message, settingType, link, receivingMembers);
+    await sendPush(title, message, link, receivingMembers);
   } catch (e) {
     console.warn("Failed to create push notifications", e);
     throw error(500, "Failed to create push notifications");
