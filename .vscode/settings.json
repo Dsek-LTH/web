@@ -32,5 +32,4 @@
     "**/pnpm-lock.yaml": true,
   },
   "typescript.preferences.importModuleSpecifierEnding": "minimal",
-  "i18next.i18nPaths": "/Users/ludvigsvedberg/Programming/dsek/web/src/translations" // until next TS release https://github.com/microsoft/TypeScript/pull/59564
 }
