@@ -33,7 +33,14 @@
       <HeldPositionsYear {mandates} {year} />
     {/if}
     {#if nollaIn?.year.toString() === year}
-      <div class="-mx-4 -mt-4 mb-4">
+      {#if !Object.keys(mandatesGroupedByYear).includes(nollaIn?.year.toString())}
+        <h1 class="mt-4 text-xl font-semibold">
+          {nollaIn?.year.toString()}
+        </h1>
+      {/if}
+      <div
+        class="tooltip -mx-4 flex flex-col items-stretch gap-0 whitespace-pre"
+      >
         <a
           href="/committees/nollu?year={nollaIn.year}"
           class="btn btn-ghost w-full justify-start gap-2 font-medium normal-case text-primary"
