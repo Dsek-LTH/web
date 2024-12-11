@@ -777,5 +777,16 @@
   "openElections": "Öppna val",
   "elections_description": "Här finns ansökningslänkar till de utskott som just nu har öppna val. Postbeskrivningar och kravprofiler finns i ansökningsformuläret.",
   "elections_close": "Valet stänger",
-  "elections_apply": "Ansök"
+  "elections_apply": "Ansök",
+  "elections_notFound": "Valet hittades inte",
+  "elections_updated": "Val uppdaterat",
+  "elections_created": "Val skapat",
+  "elections_create": "Skapa val",
+  "elections_edit": "Redigera val",
+  "elections_content_sv": "Innehåll",
+  "elections_content_en": "Innehåll (EN)",
+  "elections_link": "Länk",
+  "elections_expiryDate": "Sista ansökningsdag (inklusiv)",
+  "elections_committee": "Utskott",
+  "elections_save": "Spara"
 }

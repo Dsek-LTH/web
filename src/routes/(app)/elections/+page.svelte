@@ -4,11 +4,18 @@
   import * as m from "$paraglide/messages";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import { languageTag } from "$paraglide/runtime";
+  import { isAuthorized } from "$lib/utils/authorization";
+  import apiNames from "$lib/utils/apiNames";
   export let data: PageData;
 </script>
 
-<PageHeader title={m.openElections()} />
-<!-- TODO: make this editable by board members with Markdown page -->
+<div class="flex flex-row">
+  <PageHeader title={m.openElections()} />
+  {#if isAuthorized(apiNames.ELECTION.CREATE, data.user)}
+    <a href={"/elections/new"} class="btn btn-primary ml-auto">+ Nytt val</a>
+  {/if}
+</div>
+
 <section class="mb-5 space-y-5">
   <p>
     {m.elections_description()}
@@ -19,6 +26,12 @@
   {#each data.openElections as election}
     <div class="card bg-base-200 shadow-xl">
       <div class="card-body">
+        {#if isAuthorized(apiNames.ELECTION.UPDATE, data.user)}
+          <a
+            href={"/elections/" + election.id + "/edit"}
+            class="btn btn-secondary btn-sm ml-auto">Redigera</a
+          >
+        {/if}
         <img
           class="w-5/12 self-center text-center"
           src={election.committee.darkImageUrl}

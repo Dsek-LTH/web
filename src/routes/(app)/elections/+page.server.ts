@@ -1,9 +1,7 @@
 import type { PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma } = locals;
-  let date = new Date();
-  date.setDate(date.getDate() - 1);
   const openElections = await prisma.election.findMany({
     orderBy: [
       {
@@ -12,7 +10,7 @@ export const load: PageServerLoad = async ({ locals }) => {
     ],
     where: {
       expiresAt: {
-        gte: date,
+        gte: new Date(),
       },
     },
     select: {
@@ -21,10 +19,25 @@ export const load: PageServerLoad = async ({ locals }) => {
       link: true,
       expiresAt: true,
       committee: true,
+      id: true,
+    },
+  });
+
+  const committees = await prisma.committee.findMany({
+    orderBy: [
+      {
+        name: "asc",
+      },
+    ],
+    select: {
+      id: true,
+      name: true,
+      nameEn: true,
     },
   });
 
   return {
     openElections,
+    committees,
   };
 };
