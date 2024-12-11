@@ -777,5 +777,10 @@
   "openElections": "Öppna val",
   "elections_description": "Här finns ansökningslänkar till de utskott som just nu har öppna val. Postbeskrivningar och kravprofiler finns i ansökningsformuläret.",
   "elections_close": "Valet stänger",
-  "elections_apply": "Ansök"
+  "elections_apply": "Ansök",
+  "expenses": "Utlägg",
+  "expense": "Utlägg",
+  "expenseCreated": "Utlägg skapat",
+  "uploadExpense": "Skapa utlägg",
+  "allExpenses": "Alla utlägg"
 }

@@ -19,6 +19,7 @@ import {
   updateSignersCacheIfNecessary,
 } from "../signers";
 import { expenseSchema } from "../types";
+import * as m from "$paraglide/messages";
 
 export const load = async () => {
   return {
@@ -191,7 +192,7 @@ export const actions = {
     throw redirect(
       `/expenses`,
       {
-        message: "Utlägg skapat",
+        message: m.expenseCreated(),
         type: "success",
       },
       event,

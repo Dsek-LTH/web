@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as m from "$paraglide/messages";
   import PageHeader from "$lib/components/nav/PageHeader.svelte";
   import { superForm } from "$lib/utils/client/superForms";
   import ExpenseDetailView from "../ExpenseDetailView.svelte";
@@ -10,6 +11,6 @@
   });
 </script>
 
-<PageHeader title="Utlägg #{expense.id}" />
+<PageHeader title="{m.expense()} #{expense.id}" />
 
 <ExpenseDetailView {expense} {superform} />
