@@ -2,10 +2,8 @@ import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
 import { removeFilesWithoutAccessCheck } from "$lib/files/fileHandler";
 import { uploadFile } from "$lib/files/uploadFiles";
 import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
-import { getFullName } from "$lib/utils/client/member";
-import sendNotification from "$lib/utils/notifications";
-import { NotificationType } from "$lib/utils/notifications/types";
 import { redirect } from "$lib/utils/redirect";
+import * as m from "$paraglide/messages";
 import type { Prisma } from "@prisma/client";
 import type { AuthUser } from "@zenstackhq/runtime";
 import { fail } from "sveltekit-superforms";
@@ -19,7 +17,7 @@ import {
   updateSignersCacheIfNecessary,
 } from "../signers";
 import { expenseSchema } from "../types";
-import * as m from "$paraglide/messages";
+import { sendNotificationToSigner } from "../helper";
 
 export const load = async () => {
   return {
@@ -174,20 +172,8 @@ export const actions = {
     }
 
     const signerMemberIds = new Set(items.map((item) => item.signerMemberId));
-    try {
-      await sendNotification({
-        title: "Nytt utlägg",
-        message: `${getFullName(member, {
-          hideNickname: true,
-        })} har skickat in ett nytt utlägg: ${expense.description}`,
-        link: `/expenses`,
-        type: NotificationType.EXPENSES,
-        memberIds: [...signerMemberIds],
-        fromMemberId: member.id, // send notification from the creator of the expense
-      });
-    } catch (e) {
-      console.error(`Could not send notification when creating expense`, e);
-    }
+
+    await sendNotificationToSigner(member, expense, [...signerMemberIds]);
 
     throw redirect(
       `/expenses`,
