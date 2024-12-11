@@ -133,7 +133,6 @@
     field="youtubeUrl"
     label="Youtube video URL"
     onChange={onVideoSelected}
-    accept="video/*"
   />
 
   <slot name="form-end" />
