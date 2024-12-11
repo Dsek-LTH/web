@@ -8,8 +8,7 @@
 <li>
   <a
     href={"/committees/" + committee.shortName}
-    class="border border-transparent focus:border-primary"
-    id=".search-result"
+    class="search-result border border-transparent focus:border-primary"
   >
     <div class="avatar aspect-square w-8 overflow-hidden rounded-full">
       <figure class="relative w-full">

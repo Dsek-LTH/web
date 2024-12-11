@@ -9,8 +9,7 @@
 <li>
   <a
     href={"/members/" + member.studentId}
-    class="border border-transparent focus:border-primary"
-    id=".search-result"
+    class="search-result border border-transparent focus:border-primary"
   >
     <MemberAvatar class="h-8 w-8" {member} />
     <h4>{getFullName(member)}</h4>

@@ -104,10 +104,10 @@
   }
 
   function captureListItems() {
-    // Query all anchor elements inside the form
-    listItems = Array.from(formElement?.querySelectorAll("a")).filter(
-      (a) => a.id === ".search-result",
-    );
+    // Capture all the search results
+    listItems = Array.from(
+      formElement?.getElementsByClassName("search-result"),
+    ) as HTMLAnchorElement[];
   }
 </script>
 
@@ -174,7 +174,7 @@
   {/if}
   {#if form?.message}
     <div class="alert alert-error mt-4">
-      Error: {JSON.stringify(form)}
+      Error: {JSON.stringify(form.message)}
     </div>
   {/if}
 </form>

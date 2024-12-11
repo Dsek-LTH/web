@@ -6,8 +6,7 @@
 <li>
   <a
     href={"/news/" + article.slug}
-    class="border border-transparent focus:border-primary"
-    id=".search-result"
+    class="search-result border border-transparent focus:border-primary"
   >
     <div class="avatar aspect-square w-8 overflow-hidden rounded-full">
       <span class="i-mdi-newspaper text-2xl"></span>

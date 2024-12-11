@@ -8,8 +8,7 @@
 <li>
   <a
     href={"/positions/" + position.dsekId}
-    class="border border-transparent focus:border-primary"
-    id=".search-result"
+    class="search-result border border-transparent focus:border-primary"
   >
     {#if position.committee !== null}
       <div class="avatar aspect-square w-8 overflow-hidden rounded-full">

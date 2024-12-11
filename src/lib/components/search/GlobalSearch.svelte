@@ -13,6 +13,7 @@
   let listItems: HTMLAnchorElement[] = [];
   let results: SearchDataWithType[] = [];
   let error: Record<string, unknown> | undefined = undefined;
+  let advancedSearchElement: HTMLAnchorElement;
 
   let timeout: ReturnType<typeof setTimeout> | null = null;
   let input = "";
@@ -127,10 +128,12 @@
   }
 
   function captureListItems() {
-    // Query all anchor elements inside the form
-    listItems = Array.from(formElement?.querySelectorAll("a")).filter(
-      (a) => a.id === ".search-result" || a.id === ".search-advanced",
-    );
+    // Capture all the search results, and the advanced search link
+    listItems = (
+      Array.from(
+        formElement?.getElementsByClassName("search-result"),
+      ) as HTMLAnchorElement[]
+    ).concat(advancedSearchElement);
   }
 
   function isSearchResultData(data: unknown): data is {
@@ -237,7 +240,7 @@
         <a
           class="border border-transparent text-primary focus:border-primary"
           href="/search"
-          id=".search-advanced"
+          bind:this={advancedSearchElement}
         >
           {m.search_advancedSearch()}
         </a>
