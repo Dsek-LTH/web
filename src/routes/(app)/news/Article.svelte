@@ -4,13 +4,19 @@
   import * as m from "$paraglide/messages";
   import { languageTag } from "$paraglide/runtime";
   import { getFileUrl } from "$lib/files/client";
-  import Youtube from "svelte-youtube-embed";
 
   export let article: Article;
 </script>
 
 {#if article.youtubeUrl}
-  <Youtube id={article.youtubeUrl.split("=")[1]} />
+  <figure>
+    <iframe
+      class="mx-auto aspect-video size-full"
+      src={`https://www.youtube.com/embed/${article.youtubeUrl.split("=")[1]}`}
+      title="Video"
+    >
+    </iframe>
+  </figure>
 {:else if article.imageUrl}
   <figure>
     <img
