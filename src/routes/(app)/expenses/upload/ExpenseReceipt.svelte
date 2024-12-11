@@ -5,9 +5,9 @@
     type ArrayProxy,
     type SuperForm,
   } from "sveltekit-superforms";
-  import ExpenseReceiptRow from "./ExpenseReceiptRow.svelte";
-  import type { ExpenseSchema, ReceiptRowSchema } from "../types";
   import { createBasicReceiptRow } from "../baseItem";
+  import type { ExpenseSchema, ReceiptRowSchema } from "../types";
+  import ExpenseReceiptRow from "./ExpenseReceiptRow.svelte";
 
   export let superform: SuperForm<ExpenseSchema>;
   export let index: number;
@@ -87,14 +87,18 @@
     type="button"
     class="btn mt-4"
     on:click={() => {
-      $values = [
-        ...$values,
-        createBasicReceiptRow(
-          $values.length > 0
-            ? $values[$values.length - 1]?.costCenter
-            : undefined,
-        ),
-      ];
+      if ($values === undefined) {
+        $values = [createBasicReceiptRow()];
+      } else {
+        $values = [
+          ...$values,
+          createBasicReceiptRow(
+            $values.length > 0
+              ? $values[$values.length - 1]?.costCenter
+              : undefined,
+          ),
+        ];
+      }
     }}
   >
     + lägg till rad

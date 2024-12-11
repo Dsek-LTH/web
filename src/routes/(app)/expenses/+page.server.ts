@@ -1,5 +1,6 @@
 import { error, type Actions } from "@sveltejs/kit";
 import { expensesInclusion } from "./getExpenses";
+import { redirect } from "$lib/utils/redirect";
 
 export const load = async ({ locals }) => {
   const { prisma, member } = locals;
@@ -31,6 +32,10 @@ export const load = async ({ locals }) => {
     e.items.some((i) => i.signerMemberId === member.id),
   );
   const myExpenses = allExpenses.filter((e) => e.memberId === member.id);
+
+  if (expensesToSign.length === 0 && myExpenses.length === 0) {
+    throw redirect(302, "/expenses/upload");
+  }
   return {
     myExpenses,
     expensesToSign,

@@ -18,8 +18,11 @@ import {
 } from "../signers";
 import { expenseSchema } from "../types";
 import { sendNotificationToSigner } from "../helper";
+import { authorize } from "$lib/utils/authorization";
+import apiNames from "$lib/utils/apiNames";
 
-export const load = async () => {
+export const load = async ({ locals: { user } }) => {
+  authorize(apiNames.EXPENSES.CREATE, user);
   return {
     form: await superValidate(
       {

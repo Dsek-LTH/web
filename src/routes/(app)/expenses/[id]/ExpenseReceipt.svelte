@@ -14,6 +14,8 @@
   import type { ExpandedExpense } from "../+page.server";
   import { COST_CENTERS } from "../config";
   import type { UpdateItemSchema } from "../types";
+  import Modal from "$lib/components/Modal.svelte";
+  import FormSubmitButton from "$lib/components/forms/FormSubmitButton.svelte";
 
   export let prefix = "";
   export let item: ExpandedExpense["items"][number];
@@ -22,10 +24,20 @@
     ? superForm(
         {
           ...form,
-          data: item,
+          data: {
+            id: item.id,
+            costCenter: item.costCenter,
+            amount: item.amount,
+            comment: item.comment,
+          },
         },
         {
           id: item.id,
+          onResult: (event) => {
+            if (event.result.type === "success") {
+              isEditing = false;
+            }
+          },
         },
       )
     : undefined;
@@ -35,17 +47,25 @@
 
   let isEditing = false;
   $: updateEnhance = superform?.enhance ?? enhance;
+
+  let showImage = false;
 </script>
 
 <li
   class="relative flex min-w-60 flex-col gap-4 rounded-md border border-base-content p-4"
 >
   <form method="POST" action="{prefix}?/updateReceipt" use:updateEnhance>
+    <input type="hidden" name="id" value={item.id} />
     {#if item.receiptUrl}
       {@const isPdf = item.receiptUrl.endsWith(".pdf")}
       <div>
         <div class="font-bold opacity-60">Kvitto</div>
-        <a href={item.receiptUrl} target="_blank" class="link">
+        <a
+          href={item.receiptUrl}
+          target="_blank"
+          class="link"
+          on:click|preventDefault={() => (showImage = true)}
+        >
           {#if isPdf}
             PDF <span class="i-mdi-file-pdf" />
           {:else}
@@ -110,16 +130,9 @@
           : getFullName(item.signer)}
       </div>
     {/if}
-    {#if isEditing}
-      <button
-        type="submit"
-        class="btn btn-primary"
-        on:click={() => {
-          // need timeout because otherwise it doesn't submit the form (for some reason???);
-          setTimeout(() => {
-            isEditing = false;
-          });
-        }}>Spara</button
+    {#if isEditing && superform}
+      <FormSubmitButton {superform} class="btn btn-primary"
+        >Spara</FormSubmitButton
       >
     {:else if !item.signedAt && (item.signerMemberId === user?.memberId || canAlwaysSign)}
       <form method="POST" action="{prefix}?/approveReceipt" use:enhance>
@@ -146,4 +159,10 @@
       </div>
     {/if}
   </form>
+  <Modal show={showImage} backdrop onClose={() => (showImage = false)}>
+    <img src={item.receiptUrl} alt="Kvitto" class="h-full w-full" />
+    <a href={item.receiptUrl} target="_blank" class="btn btn-primary mt-4"
+      >Ladda ner</a
+    >
+  </Modal>
 </li>
