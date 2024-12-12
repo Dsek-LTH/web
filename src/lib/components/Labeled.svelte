@@ -6,7 +6,7 @@
     error?: string | string[] | undefined;
     fullWidth?: boolean;
     invisibleText?: boolean;
-    required?: boolean;
+    required?: boolean | undefined | null;
   }
 </script>
 
@@ -25,8 +25,9 @@
     required = false,
     for: _for = undefined,
   }: {
-    children: Snippet<[]> | undefined;
-    for?: string | undefined;
+    children?: Snippet<[]>;
+    class?: string;
+    for?: string;
   } & LabeledAttributes = $props();
 </script>
 

@@ -123,7 +123,6 @@
       {#if $form.isRecurring}
         <div class="flex flex-row justify-between gap-4 [&>*]:flex-1">
           <FormSelect
-            fullWidth
             options={Object.entries(recurringTypes).map((type) => ({
               label: type[1],
               value: type[0],

@@ -16,6 +16,7 @@
     type SuperForm,
   } from "sveltekit-superforms";
   import { twMerge } from "tailwind-merge";
+  import { type HTMLSelectAttributes } from "svelte/elements";
 
   let {
     superform,
@@ -29,14 +30,14 @@
   }: {
     superform: SuperForm<T>;
     field: FormPathLeaves<T>;
-    label: string | null;
-    name: string | undefined;
+    label?: string | null;
+    name?: string;
     options: Array<{
       label?: string;
       value: O;
     }>;
-    class: string | undefined;
-  } = $props();
+    class?: string;
+  } & HTMLSelectAttributes = $props();
 
   let fieldProxy = $derived(
     formFieldProxy(superform, field) satisfies FormFieldProxy<O[]>,

@@ -6,6 +6,11 @@
   } from "svelte/elements";
   import { twMerge } from "tailwind-merge";
 
+  type HTMLInput = {
+    textarea?: false | null;
+  } & HTMLInputAttributes;
+  type HTMLTextarea = { textarea: true } & HTMLTextareaAttributes;
+
   let {
     class: clazz = "",
     name,
@@ -15,24 +20,24 @@
     required = false,
     error = undefined,
     explanation = null,
-    textarea = false,
-    ...restProps
+    ...props
   }: {
     name: string;
-    label: string | null;
-    placeholder: string | null;
+    label?: string | null;
+    placeholder?: string | null;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- any is needed for generic use
-    value: any | null;
-    required: boolean;
-    error: string | string[] | undefined;
-    explanation: string | null;
-    textarea: boolean;
-    class: string;
-  } & (HTMLInputAttributes | HTMLTextareaAttributes) = $props();
+    value?: any | null;
+    required?: boolean;
+    error?: string | string[];
+    explanation?: string | null;
+    class?: string;
+  } & (HTMLInput | HTMLTextarea) = $props();
 </script>
 
 <Labeled {label} {error} {explanation} {required}>
-  {#if textarea}
+  {#if props.textarea}
+    <!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
+    {@const { textarea, ...restProps } = props}
     <textarea
       id={name}
       {name}
@@ -40,21 +45,21 @@
         "textarea textarea-bordered hover:border-base-content",
         clazz,
       )}
-      bind:value
       {placeholder}
       {required}
-      {...restProps as HTMLTextareaAttributes}
+      {...restProps}
     ></textarea>
   {:else}
+    <!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
+    {@const { textarea, ...restProps } = props}
     <input
       id={name}
       {name}
       class={twMerge("input input-bordered hover:border-base-content", clazz)}
-      bind:value
       type="text"
       {placeholder}
       {required}
-      {...restProps as HTMLInputAttributes}
+      {...restProps}
     />
   {/if}
 </Labeled>
