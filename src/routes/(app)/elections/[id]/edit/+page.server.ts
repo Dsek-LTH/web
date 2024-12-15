@@ -9,7 +9,7 @@ import dayjs from "dayjs";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma } = locals;
-  const election = await prisma.election.findFirst({
+  const electionPromise = prisma.election.findFirst({
     where: { id: params.id },
   });
 
@@ -22,6 +22,8 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     },
   });
 
+  const election = await electionPromise;
+
   if (!election) {
     throw error(404, m.elections_notFound());
   }
@@ -29,7 +31,13 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   return {
     election,
     committees,
-    form: await superValidate(zod(electionSchema)),
+    form: await superValidate(
+      {
+        ...election,
+        expiresAt: dayjs(election.expiresAt).format("YYYY-MM-DD"),
+      },
+      zod(electionSchema),
+    ),
   };
 };
 

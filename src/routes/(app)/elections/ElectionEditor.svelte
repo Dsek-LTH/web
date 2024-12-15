@@ -4,7 +4,6 @@
   import { superForm } from "$lib/utils/client/superForms";
   import type { ElectionSchema } from "./schemas";
   import * as m from "$paraglide/messages";
-  import { onMount } from "svelte";
 
   export let isCreating: boolean;
   export let data: {
@@ -19,17 +18,6 @@
     };
   };
   const { form, errors, constraints, enhance } = superForm(data.form);
-  onMount(() => {
-    form.update((f) => {
-      f.markdown = data.election.markdown;
-      f.markdownEn = data.election.markdownEn;
-      f.link = data.election.link;
-      f.expiresAt =
-        new Date(data.election.expiresAt).toISOString().split("T")[0] || "";
-      f.committeeId = data.election.committeeId;
-      return f;
-    });
-  });
 </script>
 
 <form
