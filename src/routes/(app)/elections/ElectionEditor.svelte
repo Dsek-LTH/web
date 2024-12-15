@@ -4,18 +4,16 @@
   import { superForm } from "$lib/utils/client/superForms";
   import type { ElectionSchema } from "./schemas";
   import * as m from "$paraglide/messages";
+  import type { Election } from "@prisma/client";
 
   export let isCreating: boolean;
   export let data: {
     form: SuperValidated<ElectionSchema>;
     committees: Array<{ id: string; name: string; nameEn: string | null }>;
-    election: {
-      markdown: string;
-      markdownEn: string | null;
-      link: string;
-      expiresAt: Date;
-      committeeId: string;
-    };
+    election: Pick<
+      Election,
+      "markdown" | "markdownEn" | "link" | "expiresAt" | "committeeId"
+    >;
   };
   const { form, errors, constraints, enhance } = superForm(data.form);
 </script>
@@ -33,7 +31,6 @@
   <Input
     name="markdown"
     label={m.elections_content_sv()}
-    required
     textarea
     bind:value={$form.markdown}
     error={$errors.markdown}
@@ -42,7 +39,6 @@
   <Input
     name="markdownEn"
     label={m.elections_content_en()}
-    required
     textarea
     bind:value={$form.markdownEn}
     error={$errors.markdownEn}
@@ -51,7 +47,6 @@
   <Input
     name="link"
     label={m.elections_link()}
-    required
     bind:value={$form.link}
     error={$errors.link}
     {...$constraints.link}
