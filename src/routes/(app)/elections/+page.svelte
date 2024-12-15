@@ -6,6 +6,7 @@
   import { languageTag } from "$paraglide/runtime";
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
+  import CommitteeIcon from "$lib/components/images/CommitteeIcon.svelte";
   export let data: PageData;
 </script>
 
@@ -33,11 +34,9 @@
             >Redigera
           </a>
         {/if}
-        <img
-          class="w-5/12 self-center text-center"
-          src={election.committee.darkImageUrl}
-          alt="Committee logo"
-        />
+        <div class="w-5/12 self-center text-center">
+          <CommitteeIcon committee={election.committee} />
+        </div>
 
         <h2 class="card-title self-center text-2xl font-bold">
           {election.committee.name}
