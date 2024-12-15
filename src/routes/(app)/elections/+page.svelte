@@ -12,7 +12,7 @@
 <div class="flex flex-row">
   <PageHeader title={m.openElections()} />
   {#if isAuthorized(apiNames.ELECTION.CREATE, data.user)}
-    <a href={"/elections/new"} class="btn btn-primary ml-auto">+ Nytt val</a>
+    <a href="/elections/create" class="btn btn-primary ml-auto">+ Nytt val</a>
   {/if}
 </div>
 
