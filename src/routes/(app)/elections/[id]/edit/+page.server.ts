@@ -10,17 +10,11 @@ import dayjs from "dayjs";
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma } = locals;
   const election = await prisma.election.findFirst({
-    where: {
-      id: params.id,
-    },
+    where: { id: params.id },
   });
 
   const committees = await prisma.committee.findMany({
-    orderBy: [
-      {
-        shortName: "asc",
-      },
-    ],
+    orderBy: [{ shortName: "asc" }],
     select: {
       id: true,
       name: true,

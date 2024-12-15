@@ -43,7 +43,7 @@
     {isCreating ? m.elections_create() : m.elections_edit()}
   </h1>
   <Input
-    name={"markdown"}
+    name="markdown"
     label={m.elections_content_sv()}
     required
     textarea
@@ -52,7 +52,7 @@
     {...$constraints.markdown}
   />
   <Input
-    name={"markdownEn"}
+    name="markdownEn"
     label={m.elections_content_en()}
     required
     textarea

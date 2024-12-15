@@ -786,7 +786,7 @@
   "elections_content_sv": "Innehåll",
   "elections_content_en": "Innehåll (EN)",
   "elections_link": "Länk",
-  "elections_expiryDate": "Sista ansökningsdag (inklusiv)",
+  "elections_expiryDate": "Sista ansökningsdag (23:59)",
   "elections_committee": "Utskott",
   "elections_save": "Spara",
   "expenses": "Utlägg",

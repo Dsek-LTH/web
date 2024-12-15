@@ -11,11 +11,7 @@ export const load: PageServerLoad = async ({ locals }) => {
   const { prisma } = locals;
 
   const committees = await prisma.committee.findMany({
-    orderBy: [
-      {
-        shortName: "asc",
-      },
-    ],
+    orderBy: [{ shortName: "asc" }],
     select: {
       id: true,
       name: true,

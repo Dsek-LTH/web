@@ -790,7 +790,7 @@
   "elections_content_sv": "Content (SV)",
   "elections_content_en": "Content (EN)",
   "elections_link": "Link",
-  "elections_expiryDate": "Last application date (inclusive)",
+  "elections_expiryDate": "Last application date (23:59)",
   "elections_committee": "Committee",
   "elections_save": "Save",
   "expenses": "Expenses",
