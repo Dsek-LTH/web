@@ -13,7 +13,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     where: { id: params.id },
   });
 
-  const committees = await prisma.committee.findMany({
+  const committeesPromise = prisma.committee.findMany({
     orderBy: [{ shortName: "asc" }],
     select: {
       id: true,
@@ -30,7 +30,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
   return {
     election,
-    committees,
+    committees: await committeesPromise,
     form: await superValidate(
       {
         ...election,
@@ -50,9 +50,7 @@ export const actions: Actions = {
     const id = params.id;
     const { markdown, markdownEn, link, expiresAt, committeeId } = form.data;
     await prisma.election.update({
-      where: {
-        id,
-      },
+      where: { id },
       data: {
         markdown,
         markdownEn,
