@@ -29,8 +29,9 @@
         {#if isAuthorized(apiNames.ELECTION.UPDATE, data.user)}
           <a
             href={"/elections/" + election.id + "/edit"}
-            class="btn btn-secondary btn-sm ml-auto">Redigera</a
-          >
+            class="btn btn-outline btn-sm ml-auto"
+            >Redigera
+          </a>
         {/if}
         <img
           class="w-5/12 self-center text-center"
