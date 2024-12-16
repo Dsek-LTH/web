@@ -6,10 +6,10 @@
   import { isAuthorized } from "$lib/utils/authorization";
   import { getFullName } from "$lib/utils/client/member";
   import dayjs from "dayjs";
-  import type { SuperForm } from "sveltekit-superforms";
+  import type { SuperForm, SuperValidated } from "sveltekit-superforms";
   import type { ExpandedExpense } from "./+page.server";
   import ExpenseReceipt from "./[id]/ExpenseReceipt.svelte";
-  import type { UpdateExpenseSchema } from "./types";
+  import type { UpdateExpenseSchema, UpdateItemSchema } from "./types";
 
   $: user = $page.data.user;
   export let expense: ExpandedExpense;
@@ -19,11 +19,12 @@
       isAuthorized(apiNames.EXPENSES.CERTIFICATION, user));
 
   export let superform: SuperForm<UpdateExpenseSchema> | undefined = undefined;
+  export let itemForm: SuperValidated<UpdateItemSchema> | undefined = undefined;
   $: updateEnhance = superform?.enhance;
 </script>
 
 <!-- Header with meta info (guild card, who sent it, and when) -->
-<section class="inline-block rounded-md border px-4 py-2">
+<section class="inline-block rounded-md border border-base-content px-4 py-2">
   <div class="flex justify-between gap-4">
     <div class="font-medium text-primary">
       {expense.isGuildCard ? "Sektionskort" : "Privat utlägg"}
@@ -62,25 +63,19 @@
 {#if updateEnhance}
   <form use:updateEnhance method="POST" action="/expenses/{expense.id}?/update">
     <ul class="flex flex-wrap gap-2">
-      {#each expense.items as item, index}
+      {#each expense.items as item}
         <ExpenseReceipt
           prefix="/expenses/{expense.id}"
           {item}
-          {superform}
-          {index}
+          form={itemForm}
         />
       {/each}
     </ul>
   </form>
 {:else}
   <ul class="flex flex-wrap gap-2">
-    {#each expense.items as item, index}
-      <ExpenseReceipt
-        prefix="/expenses/{expense.id}"
-        {item}
-        {superform}
-        {index}
-      />
+    {#each expense.items as item}
+      <ExpenseReceipt prefix="/expenses/{expense.id}" {item} form={itemForm} />
     {/each}
   </ul>
 {/if}

@@ -9,10 +9,9 @@
   import createBasicReceipt from "../baseItem";
 
   export let superform: SuperForm<ExpenseSchema>;
-  const { values, errors } = arrayProxy(
-    superform,
-    "receipts",
-  ) as ArrayProxy<ReceiptSchema>;
+  const proxy = arrayProxy(superform, "receipts") as ArrayProxy<ReceiptSchema>;
+  $: values = proxy.values;
+  $: errors = proxy.errors;
 </script>
 
 <section>
