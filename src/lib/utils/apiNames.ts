@@ -66,6 +66,9 @@ const apiNames = {
     UPDATE: "governing_document:write",
     DELETE: "governing_document:write",
   },
+  ELECTION: {
+    ...crud("election"),
+  },
   DOOR: {
     ...crud("core:access:door"),
   },
