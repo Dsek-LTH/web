@@ -1,6 +1,6 @@
-import { error, type Actions } from "@sveltejs/kit";
-import { expensesInclusion } from "./getExpenses";
 import { redirect } from "$lib/utils/redirect";
+import { error } from "@sveltejs/kit";
+import { expensesInclusion } from "./getExpenses";
 
 export const load = async ({ locals }) => {
   const { prisma, member } = locals;
@@ -42,5 +42,6 @@ export const load = async ({ locals }) => {
   };
 };
 
-export const actions: Actions = {};
-export type ExpandedExpense = Awaited<ReturnType<typeof load>>["myExpenses"][0];
+export type ExpandedExpense = Awaited<
+  ReturnType<typeof load>
+>["myExpenses"][number];

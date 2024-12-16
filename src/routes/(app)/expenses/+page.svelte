@@ -3,28 +3,25 @@
   import * as m from "$paraglide/messages";
   import ExpenseDetailView from "./ExpenseDetailView.svelte";
   import ExpensesTable from "./ExpensesTable.svelte";
+  import type { ExpandedExpense } from "./+page.server";
 
   export let data;
-  $: myExpenses = data.myExpenses;
-  $: expensesToSign = data.expensesToSign;
+  // This cast seems uncessary, but they are "any" otherwise. I might be blind, but I can't figure out why they are inferred "any"
+  $: myExpenses = data.myExpenses as ExpandedExpense[];
+  $: expensesToSign = data.expensesToSign as ExpandedExpense[];
 
-  let selectedExpense: (typeof myExpenses)[number] | undefined = undefined;
+  let selectedExpense: ExpandedExpense | undefined = undefined;
 
   // This is required when updating through the preview. The data is updated but "selectedExpense" is not.
   // I tried an index but since we got two separate lists that didn't work
-  const isSelectedExpenseInList = (
-    selected: typeof selectedExpense,
-    list: Array<typeof myExpenses>,
-  ) => list.includes(selected);
-
   $: if (
     !!selectedExpense &&
-    !isSelectedExpenseInList(selectedExpense, myExpenses) &&
-    !isSelectedExpenseInList(selectedExpense, expensesToSign)
+    !myExpenses.includes(selectedExpense) &&
+    !expensesToSign.includes(selectedExpense)
   ) {
     selectedExpense =
-      myExpenses.find((e) => e.id === selectedExpense.id) ??
-      expensesToSign.find((e) => e.id === selectedExpense.id) ??
+      myExpenses.find((e) => e.id === selectedExpense!.id) ??
+      expensesToSign.find((e) => e.id === selectedExpense!.id) ??
       undefined;
   }
 </script>
