@@ -7,6 +7,7 @@
   import { zodClient } from "sveltekit-superforms/adapters";
   import ExpenseItemForm from "./ExpenseReceiptsForm.svelte";
   import { expenseSchema } from "../types";
+  import FormSubmitButton from "$lib/components/forms/FormSubmitButton.svelte";
 
   export let data;
   const superform = superForm(data.form, {
@@ -41,5 +42,5 @@
     placeholder="Mat till pub..."
   />
   <ExpenseItemForm {superform} />
-  <button type="submit" class="btn btn-primary">Skapa</button>
+  <FormSubmitButton {superform} class="btn btn-primary">Skapa</FormSubmitButton>
 </form>
