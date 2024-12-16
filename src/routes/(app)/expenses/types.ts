@@ -4,9 +4,13 @@ import { z } from "zod";
 import { isValidCostCenter } from "./config";
 
 const itemSchema = z.object({
-  costCenter: z.string().refine(isValidCostCenter, {
-    message: "Ogiltigt kostnadscenter",
-  }),
+  costCenter: z
+    .string({
+      message: "Välj kostnadsställe",
+    })
+    .refine(isValidCostCenter, {
+      message: "Ogiltigt kostnadscenter",
+    }),
   amount: z.number(),
   comment: z.string().nullable(),
 });
