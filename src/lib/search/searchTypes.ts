@@ -46,12 +46,11 @@ export const availableSearchIndexes = [
 export type SearchableIndex = (typeof availableSearchIndexes)[number];
 
 export const memberSearchableAttributes = [
-  "id",
+  "fullName",
   "firstName",
   "lastName",
   "nickname",
   "studentId",
-  "fullName",
 ] as const satisfies Array<keyof Member | "fullName">;
 export type SearchableMemberAttributes = FilterKeys<
   Member,

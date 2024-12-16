@@ -53,11 +53,11 @@ export function getSearchableAttributes(
     case "members": {
       // no language specific fields
       const res: Array<keyof SearchableMemberAttributes> = [
+        "fullName",
         "firstName",
         "lastName",
         "nickname",
         "studentId",
-        "fullName",
       ];
       return res;
     }
