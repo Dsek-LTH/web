@@ -228,6 +228,13 @@ export const COST_CENTERS = [
     committee: "other",
   },
   {
+    name: "ALKO",
+    description: "Alkoholinköp",
+    example: "Alkohol till försäljning, ej till tack",
+    signer: "dsek.sex.mastare",
+    committee: "sexm",
+  },
+  {
     name: "SEX01",
     description: "Funktionärer",
     example: "Mötesmat, arbetskläder, tack",
