@@ -55,12 +55,25 @@ export const actions = {
     await updateSignersCacheIfNecessary();
     const before = await prisma.expenseItem.findUnique({
       where: { id: data.id },
+      include: {
+        expense: {
+          include: {
+            member: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
+        },
+      },
     });
     if (!before) throw error(404, "Utlägget hittades inte");
     const costCenter = getCostCenter(data.costCenter ?? before?.costCenter);
     const signer = resolveSignerLogic(
       getSigner(costCenter.signer),
-      member.id,
+      before.expense.memberId,
       costCenter.name,
     );
     const expenseItem = await prisma.expenseItem.update({
@@ -79,7 +92,11 @@ export const actions = {
       },
     });
     if (signer !== before.signerMemberId) {
-      await sendNotificationToSigner(member, expenseItem.expense, [signer]);
+      await sendNotificationToSigner(
+        before.expense.member,
+        expenseItem.expense,
+        [signer],
+      );
     }
 
     return message(form, {
