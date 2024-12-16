@@ -28,36 +28,48 @@ import type { PrismaClient } from "@prisma/client";
  */
 let meiliInitialized = false;
 const sync = async () => {
+  const currentTime = Date.now();
+  console.log("Meilisearch: Syncing data");
   if (!meiliInitialized) {
-    await waitForTasks(() =>
-      availableSearchIndexes.map((index) => meilisearch.createIndex(index)),
+    console.log("Meilisearch: Initializing");
+    await waitForTasks(
+      () =>
+        availableSearchIndexes.map((index) => meilisearch.createIndex(index)),
+      "Creating indexes",
     );
     meiliInitialized = true;
   }
 
   const { allIndexes, indexWithData } = await getRelevantSearchData();
 
-  await waitForTasks(() =>
-    allIndexes.map((index) => index.deleteAllDocuments()),
+  await waitForTasks(
+    () => allIndexes.map((index) => index.deleteAllDocuments()),
+    "Deleting all data",
   );
 
-  await waitForTasks(() =>
-    indexWithData.map((obj) => {
-      const index: Index = obj.index;
-      return index.addDocuments(obj.documents, { primaryKey: "id" });
-    }),
+  for (const i of indexWithData) {
+    const index: Index = i.index;
+    const documents = i.documents;
+    await waitForTasks(
+      () => [index.addDocuments(documents, { primaryKey: "id" })],
+      `Adding data to ${index.uid}`,
+    );
+  }
+
+  await waitForTasks(
+    () => allIndexes.map((index) => index.resetSearchableAttributes()),
+    "Resetting searchable attributes",
   );
 
-  await waitForTasks(() =>
-    allIndexes.map((index) => index.resetSearchableAttributes()),
+  await waitForTasks(
+    () =>
+      indexWithData.map((pair) =>
+        pair.index.updateSearchableAttributes(pair.searchAbleAttributes),
+      ),
+    "Updating searchable attributes",
   );
 
-  await waitForTasks(() =>
-    indexWithData.map((pair) =>
-      pair.index.updateSearchableAttributes(pair.searchAbleAttributes),
-    ),
-  );
-
+  console.log(`Meilisearch: Data synced. Took ${Date.now() - currentTime} ms`);
   return JSON.stringify(indexWithData);
 };
 
@@ -66,11 +78,18 @@ export default sync;
 // HELPER FUNCTIONS
 async function waitForTasks(
   fn: () => Array<Promise<EnqueuedTask>>,
-  timeOutMs = 10000,
+  taskName: string,
+  timeOutMs = 60 * 1000,
 ) {
-  const tasks = await Promise.all(fn());
-  const taskUids = tasks.map((task) => task.taskUid);
-  return meilisearch.waitForTasks(taskUids, { timeOutMs });
+  const currentTime = Date.now();
+  console.log(`Meilisearch: Waiting for "${taskName}" to finish`);
+  const enqueded = await Promise.all(fn());
+  const taskUids = enqueded.map((task) => task.taskUid);
+  const tasks = await meilisearch.waitForTasks(taskUids, { timeOutMs });
+  console.log(
+    `Meilisearch: "${taskName}" finished in ${Date.now() - currentTime} ms`,
+  );
+  return tasks;
 }
 
 async function getIndexes(): Promise<{
