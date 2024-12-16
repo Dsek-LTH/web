@@ -85,7 +85,9 @@ export const actions = {
   default: async (event) => {
     const { locals, request } = event;
     const { prisma, user, member } = locals;
-    const form = await superValidate(request, zod(expenseSchema));
+    const form = await superValidate(request, zod(expenseSchema), {
+      allowFiles: true,
+    });
     if (!form.valid) return fail(400, { form });
     if (!member) throw fail(401, { form });
     const expense = await prisma.expense.create({
@@ -176,7 +178,12 @@ export const actions = {
 
     const signerMemberIds = new Set(items.map((item) => item.signerMemberId));
 
-    await sendNotificationToSigner(member, expense, [...signerMemberIds]);
+    try {
+      await sendNotificationToSigner(member, expense, [...signerMemberIds]);
+    } catch (e) {
+      // we don't want it to fail for the user
+      console.warn("Failed to send notificaiton to expenses signers", e);
+    }
 
     throw redirect(
       `/expenses`,

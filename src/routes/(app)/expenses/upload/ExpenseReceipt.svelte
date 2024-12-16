@@ -13,10 +13,12 @@
   export let index: number;
   export let onRemove: () => void;
 
-  const { values, errors } = arrayProxy(
+  $: proxy = arrayProxy(
     superform,
     `receipts[${index}].rows`,
   ) as ArrayProxy<ReceiptRowSchema>;
+  $: values = proxy.values;
+  $: errors = proxy.errors;
 
   let receiptPhotos: string[] | undefined = undefined;
   const onFileSelected = async (
