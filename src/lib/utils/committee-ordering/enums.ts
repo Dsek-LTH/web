@@ -187,3 +187,12 @@ export enum Tackm {
   "dsek.tackm.mastare",
   "dsek.tackm.mdlm",
 }
+
+export enum Cpu {
+  "dsek.cpu.mastare",
+  "dsek.cpu.vice_mastare",
+  "dsek.cpu.dwwwansv",
+  "dsek.cpu.root",
+  "dsek.cpu.utvecklare",
+  "dsek.cpu.funk",
+}
