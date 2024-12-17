@@ -23,11 +23,17 @@ export const actions = {
       (index) => data.get(index) === "on",
     );
 
+    // Check how many total results to return
+    const limit: number = Number.parseInt(
+      data.get("limit")?.toString() ?? "20",
+    );
+
     // Check which language to search in and get the correct route
     const apiRoute = i18n.resolveRoute("/api/search", event.locals.language);
     const url = new URL(apiRoute, event.request.url);
     url.searchParams.set("query", query);
     url.searchParams.set("indexes", JSON.stringify(indexes));
+    url.searchParams.set("limit", limit.toString());
     const response = await event.fetch(url);
     if (!response.ok) {
       const responseText = await response.text();
