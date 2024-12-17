@@ -1166,6 +1166,7 @@ model Meeting extends MeetingBase {
   agendaId     String?             @map("agenda_id") @db.Uuid @unique
   minutes      MeetingAttachment?  @relation("meeting_minutes", fields: [minutesId], references: [id])
   minutesId    String?             @map("minutes_id") @db.Uuid @unique
+  date         DateTime            @db.Date
 
   @@allow("create", has(auth().policies, "fileHandler:documents:create"))
   @@allow("read", has(auth().policies, "fileHandler:documents:read"))

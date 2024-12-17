@@ -15,8 +15,7 @@
 DROP INDEX "meetings_url_key";
 
 -- AlterTable
-ALTER TABLE "meetings" DROP COLUMN "date",
-DROP COLUMN "url",
+ALTER TABLE "meetings" DROP COLUMN "url",
 ADD COLUMN     "agenda_id" UUID,
 ADD COLUMN     "created_at" TIMESTAMPTZ(6) DEFAULT CURRENT_TIMESTAMP,
 ADD COLUMN     "description" VARCHAR(255),
