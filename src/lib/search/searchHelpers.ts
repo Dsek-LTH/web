@@ -24,17 +24,17 @@ export type SearchIndex =
 export function getFederatedWeight(index: SearchableIndex): number {
   switch (index) {
     case "members":
-      return 3;
+      return 1.5;
     case "events":
       return 1;
     case "articles":
       return 1;
     case "positions":
-      return 3;
+      return 1.5;
     case "songs":
       return 1;
     case "committees":
-      return 3;
+      return 2;
     default:
       return 0;
   }
@@ -53,11 +53,11 @@ export function getSearchableAttributes(
     case "members": {
       // no language specific fields
       const res: Array<keyof SearchableMemberAttributes> = [
+        "fullName",
         "firstName",
         "lastName",
         "nickname",
         "studentId",
-        "fullName",
       ];
       return res;
     }
