@@ -70,7 +70,7 @@ const sync = async () => {
   );
 
   for (const i of indexWithData) {
-    if (i.sortableAttributes.length > 0) {
+    if (i.sortableAttributes?.length) {
       await waitForTasks(
         () => [i.index.resetSortableAttributes()],
         `Resetting sortable attributes for ${i.index.uid}`,
@@ -80,7 +80,7 @@ const sync = async () => {
         `Updating sortable attributes for ${i.index.uid}`,
       );
     }
-    if (i.rankingRules.length > 0) {
+    if (i.rankingRules?.length) {
       await waitForTasks(
         () => [i.index.resetRankingRules()],
         `Resetting ranking rules for ${i.index.uid}`,
@@ -88,6 +88,16 @@ const sync = async () => {
       await waitForTasks(
         () => [i.index.updateRankingRules(i.rankingRules)],
         `Updating ranking rules for ${i.index.uid}`,
+      );
+    }
+    if (i.typoTolerance !== undefined) {
+      await waitForTasks(
+        () => [i.index.resetTypoTolerance()],
+        `Resetting typo tolerance for ${i.index.uid}`,
+      );
+      await waitForTasks(
+        () => [i.index.updateTypoTolerance(i.typoTolerance)],
+        `Updating typo tolerance for ${i.index.uid}`,
       );
     }
   }
@@ -176,41 +186,46 @@ async function getRelevantSearchData() {
         "classYear:desc", // Give a higher weight to newer members
       ]),
       sortableAttributes: ["classYear"],
+      typoTolerance: {
+        disableOnAttributes: ["studentId"], // Student ID should not have typos
+        minWordSizeForTypos: {
+          // Default is 5 for one, and 9 for two
+          // A query like "Maja" should still match "Maya", and "Erik" should match "Eric"
+          oneTypo: 4,
+          twoTypos: 6,
+        },
+      },
     },
     {
       index: songsIndex,
       documents: songs,
       searchableAttributes: songSearchableAttributes,
-      rankingRules: [],
-      sortableAttributes: [],
     },
     {
       index: articlesIndex,
       documents: articles,
       searchableAttributes: articleSearchableAttributes,
-      rankingRules: [],
-      sortableAttributes: [],
     },
     {
       index: eventsIndex,
       documents: events,
       searchableAttributes: eventSearchableAttributes,
-      rankingRules: [],
-      sortableAttributes: [],
     },
     {
       index: positionsIndex,
       documents: positions,
       searchableAttributes: positionSearchableAttributes,
-      rankingRules: [],
-      sortableAttributes: [],
+      typoTolerance: {
+        disableOnAttributes: ["dsekId"], // Dsek ID should not have typos
+      },
     },
     {
       index: committeesIndex,
       documents: committees,
       searchableAttributes: committeeSearchableAttributes,
-      rankingRules: [],
-      sortableAttributes: [],
+      typoTolerance: {
+        disableOnAttributes: ["shortName"], // Short name should not have typos
+      },
     },
   ];
   return { allIndexes, indexWithData };
