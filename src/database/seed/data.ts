@@ -63,6 +63,7 @@ export const COMMITTEES = [
   { name: "Trivselrådet", shortName: "trivsel" },
   { name: "Valberedningen", shortName: "valb" },
   { name: "Tackmästeriet", shortName: "tackm" },
+  { name: "Centralprocessutskottet", shortName: "cpu" },
   { name: "Övriga förtroendevalda", shortName: "other" },
 ].map((c) => ({ ...c, ...getImageUrls(c.shortName) }));
 

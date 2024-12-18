@@ -3,6 +3,7 @@ import {
   Aktu,
   BoardOrder,
   Cafe,
+  Cpu,
   Dchip,
   Fram,
   Infu,
@@ -68,4 +69,5 @@ const committeeEnums = {
   trivsel: Trivsel,
   valb: Valb,
   tackm: Tackm,
+  cpu: Cpu,
 } as const;
