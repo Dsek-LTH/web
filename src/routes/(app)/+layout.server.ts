@@ -1,3 +1,4 @@
+import { env } from "$env/dynamic/public";
 import { countUserShopItems } from "$lib/server/shop/countUserShopItems";
 import { getMyGroupedNotifications } from "$lib/utils/notifications/myNotifications";
 import { emptySchema, notificationSchema } from "$lib/zod/schemas";
@@ -43,3 +44,5 @@ export const load = loadFlash(async ({ locals, depends }) => {
   };
 });
 export type GlobalAppLoadData = Awaited<ReturnType<typeof load>>;
+
+export const ssr = env.PUBLIC_DISABLE_SSR_GLOBALLY === "true" ? false : true;
