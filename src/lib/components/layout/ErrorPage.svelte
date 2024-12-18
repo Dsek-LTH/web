@@ -28,7 +28,7 @@
     <div class="pb-2">{m.error_should_not_happen()}</div>
     <div class="flex flex-row items-center gap-3">
       <a
-        href="https://github.com/Dsek-LTH/web/issues/new"
+        href="https://github.com/Dsek-LTH/web/issues/new/choose"
         class="btn btn-ghost text-lg"
       >
         {m.error_create_issue()} <span class="i-mdi-bug" />
