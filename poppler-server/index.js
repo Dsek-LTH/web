@@ -42,10 +42,6 @@ From: ${req.ip}
   }
 
   try {
-    // Use node-poppler to convert PDF to text
-    // console.log(
-    //   `Converting PDF to text: ${file.originalname} from user ${req.ip}`,
-    // );
     console.log(
       `Converting PDF to text:
 Name: ${file.originalname}
