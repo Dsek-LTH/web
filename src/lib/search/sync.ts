@@ -63,11 +63,44 @@ const sync = async () => {
 
   await waitForTasks(
     () =>
-      indexWithData.map((pair) =>
-        pair.index.updateSearchableAttributes(pair.searchAbleAttributes),
+      indexWithData.map((i) =>
+        i.index.updateSearchableAttributes(i.searchableAttributes),
       ),
     "Updating searchable attributes",
   );
+
+  for (const i of indexWithData) {
+    if (i.sortableAttributes?.length) {
+      await waitForTasks(
+        () => [i.index.resetSortableAttributes()],
+        `Resetting sortable attributes for ${i.index.uid}`,
+      );
+      await waitForTasks(
+        () => [i.index.updateSortableAttributes(i.sortableAttributes)],
+        `Updating sortable attributes for ${i.index.uid}`,
+      );
+    }
+    if (i.rankingRules?.length) {
+      await waitForTasks(
+        () => [i.index.resetRankingRules()],
+        `Resetting ranking rules for ${i.index.uid}`,
+      );
+      await waitForTasks(
+        () => [i.index.updateRankingRules(i.rankingRules)],
+        `Updating ranking rules for ${i.index.uid}`,
+      );
+    }
+    if (i.typoTolerance !== undefined) {
+      await waitForTasks(
+        () => [i.index.resetTypoTolerance()],
+        `Resetting typo tolerance for ${i.index.uid}`,
+      );
+      await waitForTasks(
+        () => [i.index.updateTypoTolerance(i.typoTolerance)],
+        `Updating typo tolerance for ${i.index.uid}`,
+      );
+    }
+  }
 
   console.log(`Meilisearch: Data synced. Took ${Date.now() - currentTime} ms`);
   return JSON.stringify(indexWithData);
@@ -135,38 +168,66 @@ async function getRelevantSearchData() {
     positionsIndex,
     committeesIndex,
   ];
+  // These are the default ranking rules for Meilisearch
+  // They are built in, but can be overridden
+  const defaultRankingRules = [
+    "words",
+    "typo",
+    "proximity",
+    "attribute",
+    "exactness",
+  ];
   const indexWithData = [
     {
       index: membersIndex,
       documents: members,
-      searchAbleAttributes: memberSearchableAttributes,
+      searchableAttributes: memberSearchableAttributes,
+      rankingRules: defaultRankingRules.concat([
+        "classYear:desc", // Give a higher weight to newer members
+      ]),
+      sortableAttributes: ["classYear"],
+      typoTolerance: {
+        disableOnAttributes: ["studentId"], // Student ID should not have typos
+        minWordSizeForTypos: {
+          // Default is 5 for one, and 9 for two
+          // A query like "Maja" should still match "Maya", and "Erik" should match "Eric"
+          oneTypo: 4,
+          twoTypos: 6,
+        },
+      },
     },
     {
       index: songsIndex,
       documents: songs,
-      searchAbleAttributes: songSearchableAttributes,
+      searchableAttributes: songSearchableAttributes,
     },
     {
       index: articlesIndex,
       documents: articles,
-      searchAbleAttributes: articleSearchableAttributes,
+      searchableAttributes: articleSearchableAttributes,
     },
     {
       index: eventsIndex,
       documents: events,
-      searchAbleAttributes: eventSearchableAttributes,
+      searchableAttributes: eventSearchableAttributes,
     },
     {
       index: positionsIndex,
       documents: positions,
-      searchAbleAttributes: positionSearchableAttributes,
+      searchableAttributes: positionSearchableAttributes,
+      typoTolerance: {
+        disableOnAttributes: ["dsekId"], // Dsek ID should not have typos
+      },
     },
     {
       index: committeesIndex,
       documents: committees,
-      searchAbleAttributes: committeeSearchableAttributes,
+      searchableAttributes: committeeSearchableAttributes,
+      typoTolerance: {
+        disableOnAttributes: ["shortName"], // Short name should not have typos
+      },
     },
-  ] as const;
+  ];
   return { allIndexes, indexWithData };
 }
 

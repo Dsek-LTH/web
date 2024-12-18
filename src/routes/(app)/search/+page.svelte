@@ -157,6 +157,9 @@
         <label for={index.index}>{mapIndexToMessage(index.index)}</label>
       </div>
     {/each}
+    <!-- This field limits the number of results per query -->
+    <!-- 20 is the default value in Meilisearch -->
+    <input type="hidden" name="limit" value="20" />
   </div>
   <button class="btn sr-only mb-2 w-full">{m.search_search()}</button>
   {#if form?.results?.length}
