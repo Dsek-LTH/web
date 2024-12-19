@@ -1,9 +1,6 @@
-import vercelAdapter from "@sveltejs/adapter-vercel";
 import nodeAdapter from "@sveltejs/adapter-node";
 import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
-import { execSync } from "child_process";
 
-const adapter = process.env.VERCEL_ENV ? vercelAdapter : nodeAdapter;
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -13,7 +10,7 @@ const config = {
 
   kit: {
     // See https://kit.svelte.dev/docs/adapters for more information about adapters.
-    adapter: adapter(),
+    adapter: nodeAdapter(),
 
     alias: {
       $paraglide: "./src/translations/paraglide", // same as outdir for paraglide in vite.config.ts
