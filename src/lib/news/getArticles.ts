@@ -10,6 +10,7 @@ import type {
   Prisma,
   PrismaClient,
 } from "@prisma/client";
+import { error } from "@sveltejs/kit";
 
 type ArticleFilters = {
   tags?: string[];
@@ -106,8 +107,8 @@ export const getAllArticles = async (
         }
       : {}),
   };
-  const [articles, count] = await prisma.$transaction(async (tx) => {
-    const articles = tx.article.findMany({
+  const [articlesResult, countResult] = await Promise.allSettled([
+    prisma.article.findMany({
       where,
       orderBy: {
         publishedAt: "desc",
@@ -115,10 +116,17 @@ export const getAllArticles = async (
       skip: pageNumber * pageSize,
       take: pageSize,
       include,
-    });
-    const count = tx.article.count({ where });
-    return await Promise.all([articles, count]);
-  });
+    }),
+    prisma.article.count({ where }),
+  ]);
+  if (articlesResult.status === "rejected") {
+    throw error(500, articlesResult.reason);
+  }
+  if (countResult.status === "rejected") {
+    throw error(500, countResult.reason);
+  }
+  const articles = articlesResult.value;
+  const count = countResult.value;
   return [articles, Math.ceil(count / pageSize)];
 };
 
