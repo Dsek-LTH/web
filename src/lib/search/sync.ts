@@ -1,5 +1,4 @@
 import { meilisearch } from "$lib/search/meilisearch";
-import { v4 as uuid } from "uuid";
 import {
   availableSearchIndexes,
   meilisearchConstants,
@@ -13,6 +12,7 @@ import {
 } from "$lib/search/searchTypes";
 import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
 import type { EnqueuedTask, Index } from "meilisearch";
+import { prismaIdToMeiliId } from "./searchHelpers";
 
 // To try to lower the memory usage, we only fetch 1000 items at a time.
 // The sync doesn't need to be super fast, so this is fine.
@@ -54,11 +54,11 @@ const sync = async () => {
 export default sync;
 
 /**
- * For some odd reason, Meiliseach doesn't like the ID fields
- * we use in our database, so we generate new ones here.
- * They are just used internally in Meilisearch, so it's fine.
- * Perhaps generating UUIDs isn't needed in a future version of
- * Meilisearch.
+ * Meilisearch has constraints on the id field:
+ * it can only contain alphanumeric characters (a-z, A-Z, 0-9), hyphens (-), and underscores (_).
+ * So we need to convert the prisma id to a meilisearch id.
+ * As of now, the Positions table has a prisma id that is not compatible with meilisearch.
+ * (it contains dots)
  */
 
 async function syncMembers() {
@@ -70,6 +70,7 @@ async function syncMembers() {
       await authorizedPrismaClient.member
         .findMany({
           select: {
+            id: true,
             studentId: true,
             firstName: true,
             lastName: true,
@@ -88,7 +89,7 @@ async function syncMembers() {
           members.map((member) => ({
             ...member,
             fullName: `${member.firstName} ${member.lastName}`,
-            id: uuid(),
+            id: prismaIdToMeiliId(member.id),
           })),
         );
     await addDataToIndex(membersIndex, meilisearchConstants.member, members);
@@ -104,6 +105,7 @@ async function syncSongs() {
     const songs: SongDataInMeilisearch[] = await authorizedPrismaClient.song
       .findMany({
         select: {
+          id: true,
           title: true,
           category: true,
           lyrics: true,
@@ -122,7 +124,7 @@ async function syncSongs() {
       .then((songs) =>
         songs.map((song) => ({
           ...song,
-          id: uuid(),
+          id: prismaIdToMeiliId(song.id),
         })),
       );
     await addDataToIndex(songsIndex, meilisearchConstants.song, songs);
@@ -139,6 +141,7 @@ async function syncArticles() {
       await authorizedPrismaClient.article
         .findMany({
           select: {
+            id: true,
             body: true,
             bodyEn: true,
             header: true,
@@ -167,7 +170,7 @@ async function syncArticles() {
         .then((articles) =>
           articles.map((article) => ({
             ...article,
-            id: uuid(),
+            id: prismaIdToMeiliId(article.id),
           })),
         );
     await addDataToIndex(articlesIndex, meilisearchConstants.article, articles);
@@ -183,6 +186,7 @@ async function syncEvents() {
     const events: EventDataInMeilisearch[] = await authorizedPrismaClient.event
       .findMany({
         select: {
+          id: true,
           title: true,
           titleEn: true,
           description: true,
@@ -206,7 +210,7 @@ async function syncEvents() {
       .then((events) =>
         events.map((event) => ({
           ...event,
-          id: uuid(),
+          id: prismaIdToMeiliId(event.id),
         })),
       );
     await addDataToIndex(eventsIndex, meilisearchConstants.event, events);
@@ -244,7 +248,7 @@ async function syncPositions() {
             dsekId: position.id,
             committeeName: position.committee?.name ?? "",
             committeeNameEn: position.committee?.nameEn ?? "",
-            id: uuid(),
+            id: prismaIdToMeiliId(position.id),
           })),
         );
     await addDataToIndex(
@@ -265,6 +269,7 @@ async function syncCommittees() {
       await authorizedPrismaClient.committee
         .findMany({
           select: {
+            id: true,
             shortName: true,
             name: true,
             nameEn: true,
@@ -283,7 +288,7 @@ async function syncCommittees() {
         .then((committees) =>
           committees.map((committee) => ({
             ...committee,
-            id: uuid(),
+            id: prismaIdToMeiliId(committee.id),
           })),
         );
     await addDataToIndex(
