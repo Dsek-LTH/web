@@ -19,6 +19,7 @@
   const superform = superForm(formData, {
     validators: zodClient(updateSchema),
     resetForm: false,
+    id: "generic",
   });
   const { form, enhance } = superform;
 </script>

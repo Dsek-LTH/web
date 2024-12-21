@@ -141,6 +141,24 @@ model Article {
   @@map("articles")
 }
 
+model Election {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  committeeId String    @map("committee_id") @db.Uuid
+  markdown    String
+  markdownEn  String?   @map("markdown_en")
+  link        String    @map("link")
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  expiresAt   DateTime  @map("expires_at") @db.Timestamptz(6)
+  committee   Committee @relation(fields: [committeeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "elections_committee_id_foreign")
+
+
+  @@allow("read", true)
+  @@allow("create", has(auth().policies, "election:create"))
+  @@allow("update", has(auth().policies, "election:update"))
+  @@allow("delete", has(auth().policies, "election:delete"))
+  @@map("elections")
+}
+
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model Author {
@@ -251,23 +269,26 @@ model CartItem {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Committees{
 model Committee {
-  id            String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name          String     @db.VarChar(255)
-  nameEn        String?    @map("name_en") @db.VarChar(255)
-  shortName     String?    @unique @map("short_name") @db.VarChar(255)
+  id            String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name          String        @db.VarChar(255)
+  nameEn        String?       @map("name_en") @db.VarChar(255)
+  shortName     String?       @unique @map("short_name") @db.VarChar(255)
   positions     Position[]
-  darkImageUrl  String?    @map("dark_image_url") @db.Text
-  lightImageUrl String?    @map("light_image_url") @db.Text
-  monoImageUrl  String?    @map("mono_image_url") @db.Text
-  symbolUrl     String?    @map("symbol_url") @db.Text
-  description   String?    @db.VarChar(255)
-  descriptionEn String?    @map("description_en") @db.VarChar(255)
+  darkImageUrl  String?       @map("dark_image_url") @db.Text
+  lightImageUrl String?       @map("light_image_url") @db.Text
+  monoImageUrl  String?       @map("mono_image_url") @db.Text
+  symbolUrl     String?       @map("symbol_url") @db.Text
+  description   String?       @db.VarChar(255)
+  descriptionEn String?       @map("description_en") @db.VarChar(255)
+  expenseItems  ExpenseItem[] // all expenses for this committee
 
   @@allow("create", has(auth().policies, "core:committee:create"))
   @@allow("read", has(auth().policies, "core:committee:read"))
   @@allow("update", has(auth().policies, "core:committee:update"))
   @@allow("delete", has(auth().policies, "core:committee:delete"))
   @@map("committees")
+
+  election      Election[]
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -308,6 +329,8 @@ model DoorAccessPolicy {
   member        Member?   @relation(fields: [studentId], references: [studentId], onDelete: NoAction, onUpdate: NoAction, map: "door_access_policies_member_id_foreign")
   startDatetime DateTime? @map("start_datetime") @db.Timestamptz(6)
   endDatetime   DateTime? @map("end_datetime") @db.Timestamptz(6)
+  information   String?   @map("information") @db.VarChar(255)
+  isBan         Boolean   @map("is_ban") @default(false)
   door          Door      @relation(fields: [doorName], references: [name], onDelete: NoAction, onUpdate: NoAction, map: "door_access_policies_door_name_foreign")
 
   @@allow("create", has(auth().policies, "core:access:door:create"))
@@ -406,6 +429,7 @@ model Event {
   numberOfUpdates      Int?            @default(0) @map("number_of_updates")
   slug                 String?         @unique(map: "events_slug_unique") @db.VarChar(255)
   alarmActive          Boolean?        @default(false) @map("alarm_active")
+  isCancelled          Boolean?        @default(false) @map("is_cancelled")
   removedAt            DateTime?       @map("removed_at") @db.Timestamptz(6) @allow("update", has(auth().policies, "event:delete"))
   comments             EventComment[]
   going                Member[]        @relation("event_going")
@@ -442,6 +466,7 @@ model EventsTag {
 model ExpoToken {
   id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   memberId  String? @map("member_id") @db.Uuid
+  member    Member? @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "expo_tokens_member_id_foreign")
   expoToken String  @unique(map: "expo_tokens_expo_token_unique") @map("expo_token") @db.VarChar(255)
 
   @@allow('create', auth().memberId == memberId)
@@ -461,6 +486,7 @@ model Document {
 
   @@allow("create", has(auth().policies, "governing_document:write"))
   @@allow("read", has(auth().policies, "governing_document:read"))
+  @@allow("delete", has(auth().policies, "governing_document:write"))
   @@deny("read", deletedAt != null)
   @@allow("update", has(auth().policies, "governing_document:write"))
   @@map("documents")
@@ -566,6 +592,10 @@ model Member {
   shopReservations        ConsumableReservation[]
   bookingRequests         BookingRequest[]
   recurringEvent          RecurringEvent[]
+  tokens                  ExpoToken[]
+  expenses                Expense[]
+  expensesToSign          ExpenseItem[]           @relation("expense_item_signer")
+  signedExpenses          ExpenseItem[]           @relation("expense_item_signed_by")
 
   @@allow('create', has(auth().policies, "core:member:create"))
   @@allow('create', auth().studentId == studentId)
@@ -889,6 +919,9 @@ enum DocumentType {
   GUIDELINE
   MEETING
   OTHER
+  PLAN_OF_OPERATIONS
+  FRAMEWORK_BUDGET
+  STRATEGIC_GOALS
 
   @@map("document_type")
 }
@@ -1125,4 +1158,74 @@ model ShoppableAccessPolicy {
   // only managers can delete (should very rarely be done)
   @@allow("delete", auth().memberId == shoppable.authorId || has(auth().policies, "webshop:manage"))
   @@map("shoppable_access_policies")
+}
+
+model Expense {
+  id                      Int           @id @default(autoincrement())
+  date                    DateTime      @default(now()) @map("date") @db.Timestamptz(6)
+  createdAt               DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  description             String
+  isGuildCard             Boolean
+  hasBeenSentToBookeeping Boolean       @default(false) @deny("update", !has(auth().policies, "expenses:bookkeeping"))
+  memberId                String        @db.Uuid
+  member                  Member        @relation(fields: [memberId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "expense_member_id_foreign")
+  items                   ExpenseItem[]
+  removedAt               DateTime?
+
+
+  @@allow("create", has(auth().policies, "expenses:create"))
+  @@allow("read", (
+    memberId == auth().memberId // my expenses
+    || items?[signerMemberId == auth().memberId] // expenses I should sign
+    || has(auth().policies, "expenses:bookkeeping") // I can do bookkeeping
+  ))
+  @@allow("update", hasBeenSentToBookeeping == false && (
+    (memberId == auth().memberId)
+    || items?[signerMemberId == auth().memberId] 
+    || has(auth().policies, "expenses:bookkeeping") 
+  ))
+  @@allow("delete" , false)
+
+  @@map("expenses")
+}
+
+model ExpenseItem {
+  id                 String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  expenseId          Int       @map("expense_id")
+  expense            Expense   @relation(fields: [expenseId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "expense_item_expense_id_foreign")
+  committeeShortName String
+  commitee           Committee @relation(fields: [committeeShortName], references: [shortName])
+  amount             Int     // in SEK, "öre"
+  costCenter         String // SEX01, for example
+  comment            String?
+  receiptUrl         String?
+  signerMemberId     String    @db.Uuid
+  signer             Member    @relation(name: "expense_item_signer", fields: [signerMemberId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "expense_item_signer_id_foreign")
+
+  signedByMemberId   String?   @db.Uuid @deny("update", auth().memberId != signerMemberId && !has(auth().policies, "expenses:certification"))
+  signedBy           Member?   @relation(name: "expense_item_signed_by", fields: [signedByMemberId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "expense_item_signed_by_member_id_foreign")
+  signedAt           DateTime?
+
+  @@allow("create", has(auth().policies, "expenses:create") /* && signerMemberId != expense.memberId (TODO: Uncomment this when we upgrade to zenstack v2) */ && signedByMemberId == null && signedAt == null)
+  // copy auth from Expense
+  @@allow("read", (
+    expense.memberId == auth().memberId 
+    || expense.items?[signerMemberId == auth().memberId]
+    || has(auth().policies, "expenses:bookkeeping")
+  ))
+  @@allow("update", expense.hasBeenSentToBookeeping == false && (
+    (expense.memberId == auth().memberId)
+    || expense.items?[signerMemberId == auth().memberId]
+    || has(auth().policies, "expenses:bookkeeping")
+  ) && (
+    (future().signedByMemberId == null && future().signedAt == null)  // signedByMemberId and signedAt should both be null or not null
+    || (
+      future().signedByMemberId == auth().memberId  // can only set yourself to the one who signed
+  /* && future().signedByMemberId != expense.memberId (TODO: Uncomment this when we upgrade to zenstack v2) */ // can never sign your own expense
+      && future().signedAt != null
+    )
+  ))
+  @@allow("delete", false)
+
+  @@map("expense_items")
 }

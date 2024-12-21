@@ -1,6 +1,6 @@
 <script lang="ts">
   import dayjs from "dayjs";
-  import StatusComponent from "./StatusComponent.svelte";
+  import StatusComponent from "../StatusComponent.svelte";
   import { enhance } from "$app/forms";
   import { getFullName } from "$lib/utils/client/member";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
@@ -48,9 +48,16 @@
               <p class="min-w-max">{bookable}</p>
             {/each}
           </td>
-          <td>{dayjs(bookingRequest.start).format("YYYY-MM-DD HH:MM")}</td>
-          <td>{dayjs(bookingRequest.end).format("YYYY-MM-DD HH:MM")}</td>
-          <td>{bookingRequest.event}</td>
+          <td>{dayjs(bookingRequest.start).format("YYYY-MM-DD HH:mm")}</td>
+          <td>{dayjs(bookingRequest.end).format("YYYY-MM-DD HH:mm")}</td>
+          <td>
+            <a
+              href="/booking/admin/{bookingRequest.id}"
+              class="link-hover link"
+            >
+              {bookingRequest.event}
+            </a>
+          </td>
           <td>
             <div class="flex items-center gap-2">
               {#if bookingRequest.booker}
@@ -70,6 +77,7 @@
             <StatusComponent
               bind:bookingRequest
               bind:bookingRequests={data.bookingRequests}
+              class="flex-col"
             />
           </td>
           <td>

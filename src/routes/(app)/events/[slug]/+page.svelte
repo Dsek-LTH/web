@@ -132,7 +132,7 @@
 
   <div slot="after">
     <InterestedGoingList going={event.going} interested={event.interested} />
-    <div class="flex flex-col gap-2">
+    <div class="mt-4 flex flex-col gap-2">
       <CommentSection
         type="EVENT"
         comments={event.comments}

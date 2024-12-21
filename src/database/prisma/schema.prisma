@@ -33,6 +33,9 @@ enum DocumentType {
     GUIDELINE
     MEETING
     OTHER
+    PLAN_OF_OPERATIONS
+    FRAMEWORK_BUDGET
+    STRATEGIC_GOALS
     @@map("document_type")
 }
 
@@ -165,6 +168,23 @@ model Article {
     @@map("articles")
 }
 
+/// @@allow('read', true)
+/// @@allow('create', has(auth().policies, 'election:create'))
+/// @@allow('update', has(auth().policies, 'election:update'))
+/// @@allow('delete', has(auth().policies, 'election:delete'))
+model Election {
+    id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+    committeeId String @map("committee_id") @db.Uuid()
+    markdown String
+    markdownEn String? @map("markdown_en")
+    link String @map("link")
+    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    expiresAt DateTime @map("expires_at") @db.Timestamptz(6)
+    committee Committee @relation(fields: [committeeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "elections_committee_id_foreign")
+
+    @@map("elections")
+}
+
 /// @@allow('create', has(auth().policies, 'news:article:create'))
 /// @@allow('read', has(auth().policies, 'news:article:read'))
 /// @@deny('read', type != 'Custom' && (startsWith(mandate.positionId, 'dsek.noll.stab.') || member.mandates?[startDate < now() && now() < endDate && startsWith(positionId, 'dsek.noll.stab.')]) && !has(auth().policies, 'member:see_staben') && auth().memberId != memberId)
@@ -278,6 +298,8 @@ model Committee {
     symbolUrl String? @map("symbol_url") @db.Text()
     description String? @db.VarChar(255)
     descriptionEn String? @map("description_en") @db.VarChar(255)
+    expenseItems ExpenseItem[]
+    election Election[]
 
     @@map("committees")
 }
@@ -324,6 +346,8 @@ model DoorAccessPolicy {
     member Member? @relation(fields: [studentId], references: [studentId], onDelete: NoAction, onUpdate: NoAction, map: "door_access_policies_member_id_foreign")
     startDatetime DateTime? @map("start_datetime") @db.Timestamptz(6)
     endDatetime DateTime? @map("end_datetime") @db.Timestamptz(6)
+    information String? @map("information") @db.VarChar(255)
+    isBan Boolean @map("is_ban") @default(false)
     door Door @relation(fields: [doorName], references: [name], onDelete: NoAction, onUpdate: NoAction, map: "door_access_policies_door_name_foreign")
 
     @@map("door_access_policies")
@@ -415,6 +439,7 @@ model Event {
     numberOfUpdates Int? @default(0) @map("number_of_updates")
     slug String? @unique(map: "events_slug_unique") @db.VarChar(255)
     alarmActive Boolean? @default(false) @map("alarm_active")
+    isCancelled Boolean? @default(false) @map("is_cancelled")
     /// @allow('update', has(auth().policies, 'event:delete'))
     removedAt DateTime? @map("removed_at") @db.Timestamptz(6)
     comments EventComment[]
@@ -448,6 +473,7 @@ model EventsTag {
 model ExpoToken {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
     memberId String? @map("member_id") @db.Uuid()
+    member Member? @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "expo_tokens_member_id_foreign")
     expoToken String @unique(map: "expo_tokens_expo_token_unique") @map("expo_token") @db.VarChar(255)
 
     @@map("expo_tokens")
@@ -455,6 +481,7 @@ model ExpoToken {
 
 /// @@allow('create', has(auth().policies, 'governing_document:write'))
 /// @@allow('read', has(auth().policies, 'governing_document:read'))
+/// @@allow('delete', has(auth().policies, 'governing_document:write'))
 /// @@deny('read', deletedAt != null)
 /// @@allow('update', has(auth().policies, 'governing_document:write'))
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -575,6 +602,10 @@ model Member {
     shopReservations ConsumableReservation[]
     bookingRequests BookingRequest[]
     recurringEvent RecurringEvent[]
+    tokens ExpoToken[]
+    expenses Expense[]
+    expensesToSign ExpenseItem[] @relation("expense_item_signer")
+    signedExpenses ExpenseItem[] @relation("expense_item_signed_by")
 
     @@map("members")
 }
@@ -1048,4 +1079,48 @@ model ShoppableAccessPolicy {
     createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
     @@map("shoppable_access_policies")
+}
+
+/// @@allow('create', has(auth().policies, 'expenses:create'))
+/// @@allow('read', memberId == auth().memberId || items?[signerMemberId == auth().memberId] || has(auth().policies, 'expenses:bookkeeping'))
+/// @@allow('update', hasBeenSentToBookeeping == false && (memberId == auth().memberId || items?[signerMemberId == auth().memberId] || has(auth().policies, 'expenses:bookkeeping')))
+/// @@allow('delete', false)
+model Expense {
+    id Int @id() @default(autoincrement())
+    date DateTime @default(now()) @map("date") @db.Timestamptz(6)
+    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    description String
+    isGuildCard Boolean
+    /// @deny('update', !has(auth().policies, 'expenses:bookkeeping'))
+    hasBeenSentToBookeeping Boolean @default(false)
+    memberId String @db.Uuid()
+    member Member @relation(fields: [memberId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "expense_member_id_foreign")
+    items ExpenseItem[]
+    removedAt DateTime?
+
+    @@map("expenses")
+}
+
+/// @@allow('create', has(auth().policies, 'expenses:create') && signedByMemberId == null && signedAt == null)
+/// @@allow('read', expense.memberId == auth().memberId || expense.items?[signerMemberId == auth().memberId] || has(auth().policies, 'expenses:bookkeeping'))
+/// @@allow('update', expense.hasBeenSentToBookeeping == false && (expense.memberId == auth().memberId || expense.items?[signerMemberId == auth().memberId] || has(auth().policies, 'expenses:bookkeeping')) && (future().signedByMemberId == null && future().signedAt == null || (future().signedByMemberId == auth().memberId && future().signedAt != null)))
+/// @@allow('delete', false)
+model ExpenseItem {
+    id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+    expenseId Int @map("expense_id")
+    expense Expense @relation(fields: [expenseId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "expense_item_expense_id_foreign")
+    committeeShortName String
+    commitee Committee @relation(fields: [committeeShortName], references: [shortName])
+    amount Int
+    costCenter String
+    comment String?
+    receiptUrl String?
+    signerMemberId String @db.Uuid()
+    signer Member @relation(name: "expense_item_signer", fields: [signerMemberId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "expense_item_signer_id_foreign")
+    /// @deny('update', auth().memberId != signerMemberId && !has(auth().policies, 'expenses:certification'))
+    signedByMemberId String? @db.Uuid()
+    signedBy Member? @relation(name: "expense_item_signed_by", fields: [signedByMemberId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "expense_item_signed_by_member_id_foreign")
+    signedAt DateTime?
+
+    @@map("expense_items")
 }

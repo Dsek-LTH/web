@@ -3,31 +3,36 @@ import {
   NotificationType,
   SHOULD_MERGE_NOTIFICATIONS,
 } from "$lib/utils/notifications/types";
-import { Prisma } from "@prisma/client";
+import type {
+  Notification as Notification,
+  Author,
+  CustomAuthor,
+  Member,
+  Position,
+} from "@prisma/client";
 
 // A notification as it is returned from prisma query
-type Notification = Prisma.NotificationGetPayload<{
-  include: {
-    fromAuthor: {
-      include: {
-        member: true;
+export type ExpandedNotification = Notification & {
+  fromAuthor:
+    | (Pick<Author, "id" | "type"> & {
+        member: Pick<
+          Member,
+          "firstName" | "nickname" | "lastName" | "picturePath"
+        >;
         mandate: {
-          include: {
-            position: true;
-          };
-        };
-        customAuthor: true;
-      };
-    };
-  };
-}>;
+          position: Pick<Position, "name">;
+        } | null;
+        customAuthor: Pick<CustomAuthor, "name" | "imageUrl"> | null;
+      })
+    | null;
+};
 // Grouped notifications, as to be shown in the frontend.
 export type NotificationGroup = Omit<
-  Notification,
+  ExpandedNotification,
   "fromAuthor" | "fromAuthorId"
 > & {
-  authors: Array<Notification["fromAuthor"]>;
-  individualIds: Array<Notification["id"]>;
+  authors: Array<ExpandedNotification["fromAuthor"]>;
+  individualIds: Array<ExpandedNotification["id"]>;
 };
 
 /**
@@ -65,7 +70,7 @@ function groupAuthorNames(group: NotificationGroup) {
   return `${firstAuthorName}, ${secondAuthorName} och ${thirdAuthorName}`;
 }
 
-type NotificationTexts = Pick<Notification, "title" | "message">;
+type NotificationTexts = Pick<ExpandedNotification, "title" | "message">;
 const getGroupTexts = (group: NotificationGroup): NotificationTexts => {
   const type = group.type;
   switch (type) {
@@ -111,23 +116,25 @@ const getGroupTexts = (group: NotificationGroup): NotificationTexts => {
       };
     default:
       throw new Error(
-        `Tried to group notification type which has no group handleer "${type}"`,
+        `Tried to group notification type which has no group handler "${type}"`,
       );
   }
 };
 const convertSingleToGroup = (
-  notification: Notification,
+  notification: ExpandedNotification,
 ): NotificationGroup => ({
   ...notification,
   authors: notification.fromAuthor ? [notification.fromAuthor] : [],
   individualIds: [notification.id],
 });
-const convertToGroup = (notifications: Notification[]): NotificationGroup => {
+const convertToGroup = (
+  notifications: ExpandedNotification[],
+): NotificationGroup => {
   if (notifications.length === 0) throw new Error("Empty group");
   // fromAuthor and fromAuthorId are not removed, doesn't really matter as they are omitted in the type
   const authors = notifications
     .map((n) => n.fromAuthor)
-    .filter(Boolean) as Array<NonNullable<Notification["fromAuthor"]>>;
+    .filter(Boolean) as Array<NonNullable<ExpandedNotification["fromAuthor"]>>;
   const uniqueAuthors =
     authors.length > 1
       ? authors.filter(
@@ -149,7 +156,7 @@ const convertToGroup = (notifications: Notification[]): NotificationGroup => {
  * It will be multiple groups if notifications should not be merged.
  */
 const mergeNotifications = (
-  notifications: Notification[],
+  notifications: ExpandedNotification[],
   // Returns a list because some notifications can't merge "perfectly" (i.e. into a single notification)
 ): NotificationGroup | NotificationGroup[] => {
   if (notifications.length === 1)
@@ -180,10 +187,10 @@ const sortNotificationGroups = (groups: NotificationGroup[]) => {
  * For example, 5 like notifications on the same article will become "John Smith, Jane Doe and 3 others liked your article"
  */
 export const groupNotifications = (
-  notifications: Notification[],
+  notifications: ExpandedNotification[],
 ): NotificationGroup[] => {
   // group all notifications which have the same type and link.
-  const groups: Record<string, Notification[]> = {};
+  const groups: Record<string, ExpandedNotification[]> = {};
   for (const notification of notifications) {
     const key = `${notification.type};${notification.link}`; // group by type and link
     if (groups[key] === undefined) {

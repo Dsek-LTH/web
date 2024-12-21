@@ -4,6 +4,7 @@ import { BACKUP_LIST_OF_STUDENT_IDS } from "./constants";
 import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
 
 /**
+ * The arrays contain students and positions respectively.
  * Every door policy applies to either a studentId or a positionId.
  * This function splits the policies into two respective arrays.
  */
@@ -15,6 +16,23 @@ function parseDoorPolicies(policies: DoorAccessPolicy[]) {
     .map((policy) => policy.role)
     .filter((id): id is string => id !== null);
   return { studentIds, positionIds };
+}
+
+/**
+ * The arrays contain students and positions respectively with banned access to a door.
+ * Every door policy applies to either a studentId or a positionId.
+ * This function splits the policies into two respective arrays.
+ */
+function parseDoorBanPolicies(policies: DoorAccessPolicy[]) {
+  const studentIdsBanned = policies
+    .filter((policy) => policy.isBan)
+    .map((policy) => policy.studentId)
+    .filter((id): id is string => id !== null);
+  const positionIdsBanned = policies
+    .filter((policy) => policy.isBan)
+    .map((policy) => policy.role)
+    .filter((id): id is string => id !== null);
+  return { studentIdsBanned, positionIdsBanned };
 }
 
 /**
@@ -62,38 +80,65 @@ async function fetchStudentsWithPositions(
 }
 
 export const GET: RequestHandler = async ({ params }) => {
-  const now = new Date().toISOString();
-  const policies = await authorizedPrismaClient.doorAccessPolicy.findMany({
-    where: {
-      AND: [
-        { doorName: params["door"] },
-        {
-          OR: [{ startDatetime: { lte: now } }, { startDatetime: null }],
-        },
-        {
-          OR: [{ endDatetime: { gte: now } }, { endDatetime: null }],
-        },
-      ],
-    },
-  });
+  try {
+    const now = new Date().toISOString();
+    const policies = await authorizedPrismaClient.doorAccessPolicy.findMany({
+      where: {
+        AND: [
+          { doorName: params["door"] },
+          {
+            OR: [{ startDatetime: { lte: now } }, { startDatetime: null }],
+          },
+          {
+            OR: [{ endDatetime: { gte: now } }, { endDatetime: null }],
+          },
+        ],
+      },
+    });
 
-  const { studentIds, positionIds } = parseDoorPolicies(policies);
-  const positions = await fetchMatchingPositions(
-    positionIds,
-    authorizedPrismaClient,
-  );
-  const studentsFromPositions = await fetchStudentsWithPositions(
-    positions.map((p) => p.id),
-    authorizedPrismaClient,
-  );
+    const { studentIds, positionIds } = parseDoorPolicies(policies);
+    const { studentIdsBanned } = parseDoorBanPolicies(policies);
 
-  return new Response(
-    Array.from([
-      ...new Set([
-        ...BACKUP_LIST_OF_STUDENT_IDS,
-        ...studentIds,
-        ...studentsFromPositions,
-      ]),
-    ]).join("\n"),
-  );
+    const studentsFromWildcard = positionIds.includes("*")
+      ? authorizedPrismaClient.member
+          .findMany({
+            where: { classYear: { gte: new Date().getFullYear() - 10 } },
+            select: { studentId: true },
+          })
+          .then((members) =>
+            members
+              .map((member) => member.studentId)
+              .filter((id): id is string => id !== null),
+          )
+      : [];
+
+    const positions = await fetchMatchingPositions(
+      positionIds,
+      authorizedPrismaClient,
+    );
+
+    const studentsFromPositions = await fetchStudentsWithPositions(
+      positions.map((p) => p.id),
+      authorizedPrismaClient,
+    );
+
+    // Fpr no we are only interested in the studentIds that are banned,
+    // but we might want to use the positionIdsBanned in the future.
+    const bannedStudents = new Set(studentIdsBanned);
+
+    /** students with current access to the door who are not banned */
+    const allowedStudents = [
+      ...studentIds,
+      ...studentsFromPositions,
+      ...(await studentsFromWildcard),
+    ].filter((studentId) => !bannedStudents.has(studentId));
+
+    return new Response(
+      Array.from([
+        ...new Set([...allowedStudents, ...BACKUP_LIST_OF_STUDENT_IDS]),
+      ]).join("\n"),
+    );
+  } catch {
+    return new Response(BACKUP_LIST_OF_STUDENT_IDS.join("\n"));
+  }
 };

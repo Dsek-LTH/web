@@ -3,7 +3,7 @@ node_modules
 /build
 /.svelte-kit
 /package
-.env.local
+*.local
 !.env.example
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
@@ -17,3 +17,4 @@ docs/.vitepress/cache
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+data.ms

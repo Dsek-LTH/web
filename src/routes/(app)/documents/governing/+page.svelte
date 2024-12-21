@@ -7,7 +7,14 @@
   import FileWithDownload from "../FileWithDownload.svelte";
   import type { PageData } from "./$types";
   import * as m from "$paraglide/messages";
+  import Pagination from "$lib/components/Pagination.svelte";
   export let data: PageData;
+
+  $: plansOfOperations = data.plansOfOperations;
+  $: strategicGoals = data.strategicGoals;
+  $: frameworkBudgets = data.frameworkBudgets;
+
+  const currentYear = new Date().getFullYear();
 
   let isEditing = false;
   let selectedPdf: string | null = null;
@@ -120,6 +127,92 @@
               <a
                 class="pointer-events-auto"
                 href={`/documents/governing/${guideline.id}/edit`}
+                ><span class="i-mdi-pencil align-middle text-xl text-secondary"
+                ></span>
+              </a>
+            {/if}
+          </div>
+        {/each}
+      </div>
+    </div>
+    <div>
+      <h1 class="my-3 text-2xl font-bold">
+        {m.documents_governing_yearSpecificDocuments()}
+      </h1>
+      <div class="flex flex-col gap-2">
+        <Pagination
+          class="max-w-md"
+          count={currentYear - 1981}
+          getPageName={(pageNumber) => (currentYear - pageNumber).toString()}
+          getPageNumber={(pageName) => currentYear - +pageName}
+          fieldName="year"
+        />
+        {#each plansOfOperations as planOfOperations}
+          <div class="flex items-center gap-1">
+            <FileWithDownload
+              name={planOfOperations.title}
+              url={getPdfApiUrl(planOfOperations.url)}
+              onClick={onPdfClick}
+            />
+            {#if isAuthorized(apiNames.GOVERNING_DOCUMENT.DELETE, data.user) && isEditing}
+              <DeleteFileForm
+                fileId={planOfOperations.id}
+                fileName={planOfOperations.title}
+                data={data.deleteForm}
+              />
+            {/if}
+            {#if isAuthorized(apiNames.GOVERNING_DOCUMENT.UPDATE, data.user) && isEditing}
+              <a
+                class="pointer-events-auto"
+                href={`/documents/governing/${planOfOperations.id}/edit`}
+                ><span class="i-mdi-pencil align-middle text-xl text-secondary"
+                ></span>
+              </a>
+            {/if}
+          </div>
+        {/each}
+        {#each frameworkBudgets as frameworkBudget}
+          <div class="flex items-center gap-1">
+            <FileWithDownload
+              name={frameworkBudget.title}
+              url={getPdfApiUrl(frameworkBudget.url)}
+              onClick={onPdfClick}
+            />
+            {#if isAuthorized(apiNames.GOVERNING_DOCUMENT.DELETE, data.user) && isEditing}
+              <DeleteFileForm
+                fileId={frameworkBudget.id}
+                fileName={frameworkBudget.title}
+                data={data.deleteForm}
+              />
+            {/if}
+            {#if isAuthorized(apiNames.GOVERNING_DOCUMENT.UPDATE, data.user) && isEditing}
+              <a
+                class="pointer-events-auto"
+                href={`/documents/governing/${frameworkBudget.id}/edit`}
+                ><span class="i-mdi-pencil align-middle text-xl text-secondary"
+                ></span>
+              </a>
+            {/if}
+          </div>
+        {/each}
+        {#each strategicGoals as strategicGoal}
+          <div class="flex items-center gap-1">
+            <FileWithDownload
+              name={strategicGoal.title}
+              url={getPdfApiUrl(strategicGoal.url)}
+              onClick={onPdfClick}
+            />
+            {#if isAuthorized(apiNames.GOVERNING_DOCUMENT.DELETE, data.user) && isEditing}
+              <DeleteFileForm
+                fileId={strategicGoal.id}
+                fileName={strategicGoal.title}
+                data={data.deleteForm}
+              />
+            {/if}
+            {#if isAuthorized(apiNames.GOVERNING_DOCUMENT.UPDATE, data.user) && isEditing}
+              <a
+                class="pointer-events-auto"
+                href={`/documents/governing/${strategicGoal.id}/edit`}
                 ><span class="i-mdi-pencil align-middle text-xl text-secondary"
                 ></span>
               </a>

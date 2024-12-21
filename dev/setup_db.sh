@@ -1,12 +1,5 @@
 #!/bin/bash
-docker run \
-       --name dsek-db \
-       --publish 5432:5432 \
-       --env POSTGRES_USER=postgres \
-       --env POSTGRES_PASSWORD=postgres \
-       --env POSTGRES_DB=dsek \
-       --detach \
-       postgres:14-alpine
+docker compose up -d
 
 echo "\nWaiting for database to start..."
 until docker exec dsek-db pg_isready

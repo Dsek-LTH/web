@@ -29,6 +29,19 @@ services:
       - 14268:14268
       - 14269:14269
       - 9411:9411
+
+  meilisearch:
+    container_name: dsek-meilisearch
+    image: getmeili/meilisearch:latest
+    restart: always
+    environment:
+      - MEILI_MASTER_KEY=masterKey
+      - MEILI_NO_ANALYTICS=true
+    ports:
+      - "7700:7700"
+    volumes:
+      - ./data.ms:/data.ms
+
 volumes:
   db:
     driver: local

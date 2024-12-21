@@ -2,6 +2,8 @@ import { fakerSV as faker } from "@faker-js/faker";
 import { type SeedClientOptions } from "@snaplet/seed";
 import dayjs from "dayjs";
 import apiNames from "$lib/utils/apiNames";
+import * as positionEnums from "$lib/utils/committee-ordering/enums";
+import { NotificationType } from "$lib/utils/notifications/types";
 
 const getObjectValues = (obj: unknown): string[] => {
   if (obj && typeof obj === "object") {
@@ -42,6 +44,7 @@ export const BOOKABLES = [
   { name: "Sektionsbilen" },
   { name: "Lila Soundboks" },
   { name: "Råsa Soundboks" },
+  { name: "Styrelserummet", id: "99854837-fdb9-4dba-85fc-86a5c514253c" },
 ];
 
 export const COMMITTEES = [
@@ -59,6 +62,8 @@ export const COMMITTEES = [
   { name: "Medaljelelekommittén", shortName: "medalj" },
   { name: "Trivselrådet", shortName: "trivsel" },
   { name: "Valberedningen", shortName: "valb" },
+  { name: "Tackmästeriet", shortName: "tackm" },
+  { name: "Övriga förtroendevalda", shortName: "other" },
 ].map((c) => ({ ...c, ...getImageUrls(c.shortName) }));
 
 export const POLICYS = [
@@ -102,7 +107,6 @@ export const MARKDOWNS = [
     "privacy-policy",
     "access",
     "for-companies",
-    "other",
     "benefits",
     "sektionspub",
     "htm1",
@@ -129,6 +133,14 @@ export const ACCESS_POLICIES = [
   role: "*",
   studentId: null,
 }));
+
+const getRandomPositionId = () => {
+  const positions = Object.entries(positionEnums).flatMap(([, positionEnum]) =>
+    Object.values(positionEnum).filter((val) => typeof val === "string"),
+  );
+  const position = faker.helpers.arrayElement(positions);
+  return position;
+};
 
 export const models: SeedClientOptions["models"] = {
   member: {
@@ -175,6 +187,16 @@ export const models: SeedClientOptions["models"] = {
       published: () => faker.date.past(),
     },
   },
+  election: {
+    data: {
+      createdAt: () => faker.date.recent({ days: 14 }),
+      expiresAt: () => faker.date.soon({ days: 14 }),
+      markdown: () => "- " + faker.lorem.sentences({ min: 3, max: 7 }, "\n- "),
+      markdownEn: () =>
+        "- " + faker.lorem.sentences({ min: 3, max: 7 }, "\n- "),
+      link: () => faker.internet.url(),
+    },
+  },
   event: {
     data: {
       title: () => faker.lorem.sentence(),
@@ -206,10 +228,18 @@ export const models: SeedClientOptions["models"] = {
   committee: {
     data: {
       description: null,
+      nameEn: null,
     },
   },
   position: {
     data: {
+      id: ({ store }) => {
+        let position = getRandomPositionId();
+        while (store.position.find((p) => p.id === position)) {
+          position = getRandomPositionId();
+        }
+        return position;
+      },
       name: () => faker.person.jobTitle(),
       nameEn: () => faker.person.jobTitle(),
       description: () => faker.lorem.paragraph(),
@@ -260,6 +290,18 @@ export const models: SeedClientOptions["models"] = {
       lyrics: () => faker.lorem.paragraphs({ min: 3, max: 6 }),
       category: () => faker.music.genre(),
       deletedAt: null,
+    },
+  },
+  subscriptionSetting: {
+    data: {
+      type: () => faker.helpers.arrayElement(Object.keys(NotificationType)),
+    },
+  },
+  tag: {
+    data: {
+      name: () => faker.lorem.word(),
+      nameEn: () => faker.lorem.word(),
+      color: () => faker.internet.color(),
     },
   },
 };

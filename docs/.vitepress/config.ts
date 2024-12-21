@@ -45,6 +45,8 @@ export default defineConfig({
             { text: "Setting up VS Code", link: "/guides/vscode" },
             { text: "Next steps", link: "/guides/next-steps" },
             { text: "Load testing", link: "/guides/load-testing" },
+            { text: "Using feature flags", link: "/guides/featureflags" },
+            { text: "Making a release", link: "/guides/releasing" },
           ],
         },
         {
@@ -85,6 +87,10 @@ export default defineConfig({
         {
           text: "Reference",
           items: [
+            {
+              text: "Production systems",
+              link: "/reference/production-systems",
+            },
             {
               text: "External systems",
               link: "/reference/external-systems",

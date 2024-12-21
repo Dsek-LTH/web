@@ -41,6 +41,7 @@
     />
     <Input
       name="nickname"
+      explanation={m.members_nickname_explanation()}
       label={m.members_nickname()}
       bind:value={$form.nickname}
       {...$constraints.nickname}

@@ -51,14 +51,16 @@
   class="relative mb-4"
   id="comment-section"
 >
-  <header class="flex items-start gap-2">
-    <a href="/members/{author.studentId}" class="">
+  <div class="grid grid-cols-[auto_1fr_auto] items-start gap-2">
+    <a href="/members/{author.studentId}">
       <MemberAvatar member={author} class="w-8 rounded-lg" />
     </a>
-    <div class="flex-1 text-xs leading-snug">
+
+    <div class="min-w-0 text-xs">
       <a
         href="/members/{author.studentId}"
-        class="link link-primary block no-underline"
+        class="link link-primary block truncate no-underline"
+        title={getFullName(author)}
       >
         {getFullName(author)}
       </a>
@@ -66,29 +68,31 @@
         >{relativeDate(comment.published)}</span
       >
     </div>
-  </header>
-  <MarkdownBody body={fixedContent}></MarkdownBody>
-  <div class="absolute -top-4 right-0 flex">
-    {#if isAuthorized(apiNames[type].COMMENT, $page.data.user)}
-      <button class="btn btn-square btn-ghost btn-md" on:click={onReply}>
-        <span class="i-mdi-reply text-xl" />
-      </button>
-    {/if}
-    {#if isAuthorized(apiNames[type].COMMENT_DELETE, $page.data.user)}
-      <form method="POST" action="?/removeComment" use:enhance>
-        <input
-          type="hidden"
-          name="commentId"
-          value={comment.id}
-          {...$constraints.commentId}
-        />
-        {#if $errors.commentId}
-          <p class="text-error">{$errors.commentId}</p>
-        {/if}
-        <button type="submit" class="btn btn-square btn-ghost btn-md">
-          <span class="i-mdi-delete text-xl" />
+
+    <div class="flex gap-1">
+      {#if isAuthorized(apiNames[type].COMMENT, $page.data.user)}
+        <button class="btn btn-square btn-ghost btn-md" on:click={onReply}>
+          <span class="i-mdi-reply text-xl" />
         </button>
-      </form>
-    {/if}
+      {/if}
+      {#if isAuthorized(apiNames[type].COMMENT_DELETE, $page.data.user) || comment.memberId === $page.data.user?.memberId}
+        <form method="POST" action="?/removeComment" use:enhance>
+          <input
+            type="hidden"
+            name="commentId"
+            value={comment.id}
+            {...$constraints.commentId}
+          />
+          {#if $errors.commentId}
+            <p class="text-error">{$errors.commentId}</p>
+          {/if}
+          <button type="submit" class="btn btn-square btn-ghost btn-md">
+            <span class="i-mdi-delete text-xl" />
+          </button>
+        </form>
+      {/if}
+    </div>
   </div>
+
+  <MarkdownBody body={fixedContent}></MarkdownBody>
 </section>
