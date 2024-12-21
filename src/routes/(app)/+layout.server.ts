@@ -18,7 +18,7 @@ const hasCacheExpired = (cache: typeof alertsCache) =>
   Date.now() - cache.lastUpdated > CACHE_TTL;
 
 export const load = loadFlash(async ({ locals, depends }) => {
-  const { notifications, shopItemCounts } = await tracer.startActiveSpan(
+  const { notificationsPromise, shopItemCounts } = await tracer.startActiveSpan(
     "layout.server.ts",
     async (span) => {
       const { user, prisma } = locals;
@@ -40,7 +40,7 @@ export const load = loadFlash(async ({ locals, depends }) => {
       }
       span.end();
 
-      return { notifications, shopItemCounts };
+      return { notificationsPromise, shopItemCounts };
     },
   );
 
