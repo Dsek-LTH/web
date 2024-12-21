@@ -1,12 +1,10 @@
-import { COST_CENTERS } from "./config";
 import type { ReceiptRowSchema, ReceiptSchema } from "./types";
-export const createBasicReceiptRow = (
-  costCenter: string = COST_CENTERS[0]!.name,
-): ReceiptRowSchema => ({
-  costCenter,
-  amount: 0,
-  comment: null,
-});
+export const createBasicReceiptRow = (costCenter: string | null = null) =>
+  ({
+    costCenter,
+    amount: 0,
+    comment: null,
+  }) as ReceiptRowSchema;
 const createBasicReceipt = (): ReceiptSchema => ({
   image: null as unknown as File,
   rows: [createBasicReceiptRow()],
