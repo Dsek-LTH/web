@@ -1,14 +1,15 @@
 import { type Position, type Committee, type Mandate } from "@prisma/client";
 import type { PageServerLoad } from "./$types";
+import database from "$lib/server/database";
 
-export const load: PageServerLoad = async ({ locals }) => {
-  const { knex } = locals;
-  const committees = (await knex("committees")
+export const load: PageServerLoad = async () => {
+  const committees = (await database
     // Select all committee columns
     .select("committees.*")
+    .from("committees")
     // Select positions as an aggregated JSON array
     .select(
-      knex.raw(`
+      database.raw(`
         json_agg(
           json_build_object(
             'id', positions.id,

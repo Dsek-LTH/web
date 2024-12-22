@@ -2,7 +2,7 @@ import { env } from "$env/dynamic/private";
 import Knex from "knex";
 import humps from "humps";
 
-const knex = Knex({
+const database = Knex({
   client: "pg",
   postProcessResponse: (result) => {
     // When the result is an array, map each row and convert keys
@@ -24,4 +24,4 @@ const knex = Knex({
   },
 });
 
-export default knex;
+export default database;

@@ -21,7 +21,6 @@ import loggingExtension from "./database/prisma/loggingExtension";
 import translatedExtension from "./database/prisma/translationExtension";
 import { getAccessPolicies } from "./hooks.server.helpers";
 import { getDerivedRoles } from "$lib/utils/authorization";
-import knex from "$lib/server/knex";
 // import meilisearchSync from "$lib/search/sync";
 
 const { handle: authHandle } = SvelteKitAuth({
@@ -123,7 +122,6 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
     event.locals.prisma = enhance(prisma, {
       user,
     });
-    event.locals.knex = knex;
     event.locals.user = user;
   } else {
     const existingMember = await prisma.member.findUnique({

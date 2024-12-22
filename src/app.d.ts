@@ -2,7 +2,6 @@ import type { ToastNotification } from "$lib/stores/toast";
 import type { Theme } from "$lib/utils/themes";
 import type { AvailableLanguageTag } from "$paraglide/runtime";
 import type { Member, PrismaClient } from "@prisma/client";
-import type { Knex } from "knex";
 import type { AuthUser } from "@zenstackhq/runtime";
 
 // See https://kit.svelte.dev/docs/types#app
@@ -31,7 +30,6 @@ declare global {
       user: AuthUser;
       member?: Member;
       prisma: PrismaClient;
-      knex: Knex;
       isApp: boolean;
       appInfo?: AppInfo;
       theme: Theme;
