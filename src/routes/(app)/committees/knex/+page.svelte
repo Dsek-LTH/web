@@ -5,7 +5,6 @@
 
   import type { PageData } from "./$types";
   export let data: PageData;
-  console.log(data.committees);
   $: committees = [...data.committees].sort((a, b) =>
     a.name.localeCompare(b.name, "sv"),
   );
