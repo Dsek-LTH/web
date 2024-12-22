@@ -17,11 +17,7 @@ const knex = Knex({
     return result;
   },
   connection: {
-    host: env["POSTGRES_HOST"],
-    user: env["POSTGRES_USER"],
-    port: 5432,
-    password: env["POSTGRES_PASSWORD"],
-    database: env["POSTGRES_DATABASE"],
+    connectionString: env.POSTGRES_URL,
     ssl: {
       rejectUnauthorized: false,
     },
