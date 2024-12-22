@@ -9,7 +9,7 @@
     "dev": "vite dev",
     "build": "vite build",
     "preview": "vite preview",
-    "start": "node -r dotenv/config build/index.js",
+    "start": "node build/index.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier . --check",
