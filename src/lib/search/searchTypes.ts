@@ -180,3 +180,23 @@ export type SearchDataWithType =
       type: "committees";
       data: CommitteeSearchReturnAttributes;
     };
+
+export const attributesUsedAsLink: {
+  members: keyof MemberSearchReturnAttributes;
+  events: keyof EventSearchReturnAttributes;
+  articles: keyof ArticleSearchReturnAttributes;
+  songs: keyof SongSearchReturnAttributes;
+  positions: keyof PositionSearchReturnAttributes;
+  committees: keyof CommitteeSearchReturnAttributes;
+} = {
+  members: "studentId",
+  events: "slug",
+  articles: "slug",
+  songs: "slug",
+  positions: "dsekId",
+  committees: "shortName",
+};
+
+export const listOfattributesUsedAsLink: string[] = Object.values(
+  attributesUsedAsLink,
+) satisfies string[];

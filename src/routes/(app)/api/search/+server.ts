@@ -4,7 +4,10 @@ import {
   getFederatedWeight,
   getSearchableAttributes,
 } from "$lib/search/searchHelpers";
-import type { SearchDataWithType } from "$lib/search/searchTypes";
+import {
+  listOfattributesUsedAsLink,
+  type SearchDataWithType,
+} from "$lib/search/searchTypes";
 
 /**
  * This endpoint is used to search multiple indexes at once.
@@ -73,6 +76,19 @@ export const GET: RequestHandler = async ({ url, locals }) => {
           }
           hit = hitCopy;
         }
+
+        // Reduce the amount of data sent to the client
+        // all string values are truncated to 60 characters
+        for (const key of Object.keys(hit)) {
+          if (
+            // We must not truncate attributes that are used as links
+            !listOfattributesUsedAsLink.includes(key) &&
+            typeof hit[key] === "string"
+          ) {
+            hit[key] = hit[key].slice(0, 60);
+          }
+        }
+
         return {
           data: hit,
           type: hit._federation?.indexUid,
