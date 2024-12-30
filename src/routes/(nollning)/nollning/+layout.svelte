@@ -1,10 +1,11 @@
 <script lang="ts">
   import NavigationLoader from "$lib/components/utils/NavigationLoader.svelte";
   import eye from "./(photos)/eye.svg";
-  import swirl from "./(photos)/swirl.svg";
   import favicon from "./(photos)/favicon.png";
+  import swirl from "./(photos)/swirl.svg";
 
-  import AppNotificationHandler from "$lib/components/utils/AppNotificationHandler.svelte";
+  import AppNotificationTokenHandler from "$lib/components/utils/AppNotificationTokenHandler.svelte";
+  import AppUnreadNotificationHandler from "$lib/components/utils/AppUnreadNotificationHandler.svelte";
   import { languageTag } from "$paraglide/runtime";
   import "@fontsource/lexend";
   import lexend400 from "@fontsource/lexend/files/lexend-latin-400-normal.woff2?url";
@@ -13,8 +14,8 @@
   import "dayjs/locale/sv";
   import Toast from "../../Toast.svelte";
   import PostRevealBottomNav from "./PostRevealBottomNav.svelte";
-  import PostRevealHeader from "./PostRevealHeader.svelte";
   import PostRevealDesktopNavbar from "./PostRevealDesktopNavbar.svelte";
+  import PostRevealHeader from "./PostRevealHeader.svelte";
   import "./postReveal.css";
 
   export let data;
@@ -55,7 +56,12 @@
         <slot />
       </PostRevealDesktopNavbar>
     {:else}
-      <AppNotificationHandler />
+      {#await data.notificationsPromise then notifications}
+        <AppUnreadNotificationHandler
+          notificationCount={notifications?.length}
+        />
+      {/await}
+      <AppNotificationTokenHandler />
       <PostRevealHeader />
 
       <main

@@ -2,7 +2,6 @@
   import { page } from "$app/stores";
   import LoadingButton from "$lib/components/LoadingButton.svelte";
   import NavIcon from "$lib/components/NavIcon.svelte";
-  import Search from "$lib/components/Search.svelte";
   import { isAuthorized } from "$lib/utils/authorization";
   import * as m from "$paraglide/messages";
   import { signIn } from "@auth/sveltekit/client";
@@ -12,8 +11,9 @@
   import NotificationBell from "./NotificationBell.svelte";
   import UserMenu from "./UserMenu.svelte";
   import { getRoutes } from "./routes";
+  import GlobalSearch from "$lib/components/search/GlobalSearch.svelte";
   $: pageData = $page.data as typeof $page.data & GlobalAppLoadData;
-  $: notifications = pageData["notifications"];
+  $: notificationsPromise = pageData["notificationsPromise"];
   $: mutateNotificationForm = pageData["mutateNotificationForm"];
   $: shopItemCounts = pageData["shopItemCounts"];
   $: routes = getRoutes();
@@ -76,7 +76,7 @@
         {/if}
       {/each}
     </div>
-    <Search />
+    <GlobalSearch />
     <div class="flex">
       <div class="hidden xl:flex">
         <!-- This will be shown in the drawer instead. -->
@@ -84,8 +84,11 @@
         <LanguageSwitcher />
       </div>
 
-      {#if notifications !== null}
-        <NotificationBell {notifications} form={mutateNotificationForm} />
+      {#if notificationsPromise !== null}
+        <NotificationBell
+          {notificationsPromise}
+          form={mutateNotificationForm}
+        />
       {/if}
       {#if $page.data.user && $page.data.member}
         <UserMenu

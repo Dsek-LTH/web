@@ -1,7 +1,8 @@
 import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
 import apiNames from "$lib/utils/apiNames";
+import { isFeatureFlagEnabled } from "$lib/utils/featureFlag";
 import * as m from "$paraglide/messages";
-
+const isExpensesEnabled = isFeatureFlagEnabled("expenses");
 // bottom-nav: Show in the bottom navigation bar
 // home-link: Show on the home page
 // none: Don't show anywhere
@@ -84,6 +85,13 @@ export const getRoutes = (): Route[] =>
           accessRequired: null,
           appBehaviour: "home-link",
         },
+        {
+          title: "Gerda",
+          path: "https://gerda.dsek.se",
+          icon: "i-mdi-typewriter",
+          accessRequired: null,
+          appBehaviour: "home-link",
+        },
       ],
     },
     {
@@ -108,12 +116,30 @@ export const getRoutes = (): Route[] =>
           appBehaviour: "home-link",
         },
         {
+          title: m.openElections(),
+          path: "/elections",
+          icon: "i-mdi-dolphin",
+          accessRequired: null,
+          appBehaviour: "home-link",
+        },
+        {
           title: m.bookings(),
           path: "/booking",
           icon: "i-mdi-calendar-cursor",
           accessRequired: apiNames.BOOKINGS.READ,
           appBehaviour: "home-link",
         },
+        ...(isExpensesEnabled
+          ? ([
+              {
+                title: m.expenses(),
+                path: "/expenses",
+                icon: "i-mdi-cash-multiple",
+                accessRequired: apiNames.EXPENSES.CREATE,
+                appBehaviour: "home-link",
+              },
+            ] as const)
+          : []),
         {
           title: m.songBook(),
           path: "/songbook",

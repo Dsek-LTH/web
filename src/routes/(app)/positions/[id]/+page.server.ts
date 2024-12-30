@@ -107,14 +107,28 @@ export const actions: Actions = {
     const { prisma } = locals;
     const form = await superValidate(request, zod(updateSchema));
     if (!form.valid) return fail(400, { form });
-    await prisma.position.update({
-      where: { id: params.id },
-      data: {
-        name: form.data.name,
-        description: form.data.description,
-        email: form.data.email,
-      },
-    });
+    switch (languageTag()) {
+      case "sv":
+        await prisma.position.update({
+          where: { id: params.id },
+          data: {
+            name: form.data.name,
+            description: form.data.description,
+            email: form.data.email,
+          },
+        });
+        break;
+      case "en":
+        await prisma.position.update({
+          where: { id: params.id },
+          data: {
+            nameEn: form.data.name,
+            descriptionEn: form.data.description,
+            email: form.data.email,
+          },
+        });
+        break;
+    }
     return message(form, {
       message: m.positions_positionUpdated(),
       type: "success",

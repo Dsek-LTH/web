@@ -7,7 +7,7 @@
   export let mandates: MandateWithPositionAndCommitte[];
 </script>
 
-<section class="mb-4">
+<section class="mt-4">
   <h1 class="text-xl font-semibold">{year}</h1>
   <div class="flex flex-col items-stretch gap-0">
     {#each mandates as mandate (mandate.id)}

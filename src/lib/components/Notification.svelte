@@ -1,14 +1,13 @@
 <script lang="ts">
+  import { browser } from "$app/environment";
+  import { enhance } from "$app/forms";
   import { invalidate } from "$app/navigation";
   import { page } from "$app/stores";
   import LiveTimeSince from "$lib/components/LiveTimeSince.svelte";
   import AuthorAvatars from "$lib/components/socials/AuthorAvatars.svelte";
   import { i18n } from "$lib/utils/i18n";
   import type { NotificationGroup } from "$lib/utils/notifications/group";
-  import type { NotificationSchema } from "$lib/zod/schemas";
-  import type { SuperValidated } from "sveltekit-superforms";
-  import { superForm } from "$lib/utils/client/superForms";
-  import { browser } from "$app/environment";
+
   type NotificationItem = Pick<
     NotificationGroup,
     | "link"
@@ -22,14 +21,16 @@
   >;
 
   export let notification: NotificationItem;
-  export let form: SuperValidated<NotificationSchema> | undefined = undefined;
   export let allowDelete = true;
   export let onClick: (() => void) | undefined = undefined;
+  export let onRead: (() => void) | undefined = undefined;
 
   let readForm: HTMLFormElement;
   const readNotification = () => {
+    console.log("reading notification");
     // read notification
     readForm?.requestSubmit();
+    onRead?.();
     if (browser) invalidate("/api/notifications/my");
   };
 
@@ -44,45 +45,28 @@
     }
   })();
 
-  // can be used for reading as well, same types
-  $: superformDelete =
-    form && allowDelete
-      ? superForm(form, {
-          id: notification.id.toString() + "-delete",
-        })
-      : undefined;
-  $: enhanceDelete = superformDelete?.enhance;
-  $: superformRead = form
-    ? superForm(form, {
-        id: notification.id.toString() + "-read",
-      })
-    : undefined;
-  $: enhanceRead = superformRead?.enhance;
-
   $: authors = notification.authors.filter(Boolean) as Array<
     NonNullable<NotificationItem["authors"][number]>
   >;
 </script>
 
 <div class="relative flex w-full items-stretch rounded-none p-2">
-  {#if superformRead && enhanceRead}
-    <form
-      bind:this={readForm}
-      method="POST"
-      action="/notifications?/readNotifications"
-      use:enhanceRead
-      class="hidden"
-      aria-hidden="true"
-    >
-      {#if notification.individualIds.length > 1}
-        {#each notification.individualIds as id}
-          <input type="hidden" name="notificationIds" value={id} />
-        {/each}
-      {:else}
-        <input type="hidden" name="notificationId" value={notification.id} />
-      {/if}
-    </form>
-  {/if}
+  <form
+    bind:this={readForm}
+    method="POST"
+    action="/notifications?/readNotifications"
+    use:enhance
+    class="hidden"
+    aria-hidden="true"
+  >
+    {#if notification.individualIds.length > 1}
+      {#each notification.individualIds as id}
+        <input type="hidden" name="notificationIds" value={id} />
+      {/each}
+    {:else}
+      <input type="hidden" name="notificationId" value={notification.id} />
+    {/if}
+  </form>
 
   <a
     href={notification.link}
@@ -106,13 +90,13 @@
       </span>
     </div>
   </a>
-  {#if superformDelete && enhanceDelete}
+  {#if allowDelete}
     <!-- Deletes this notification -->
     <form
       class="flex items-stretch"
       method="POST"
       action="/notifications?/deleteNotification"
-      use:enhanceDelete
+      use:enhance
     >
       {#if notification.individualIds.length > 1}
         {#each notification.individualIds as id}

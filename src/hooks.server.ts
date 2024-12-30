@@ -10,7 +10,7 @@ import Keycloak, { type KeycloakProfile } from "@auth/core/providers/keycloak";
 import type { TokenSet } from "@auth/core/types";
 import { SvelteKitAuth } from "@auth/sveltekit";
 import { PrismaClient } from "@prisma/client";
-import { error, type Handle } from "@sveltejs/kit";
+import { error, type Handle, type HandleServerError } from "@sveltejs/kit";
 import { sequence } from "@sveltejs/kit/hooks";
 import { enhance } from "@zenstackhq/runtime";
 import RPCApiHandler from "@zenstackhq/server/api/rpc";
@@ -21,6 +21,16 @@ import loggingExtension from "./database/prisma/loggingExtension";
 import translatedExtension from "./database/prisma/translationExtension";
 import { getAccessPolicies } from "./hooks.server.helpers";
 import { getDerivedRoles } from "$lib/utils/authorization";
+import meilisearchSync from "$lib/search/sync";
+import {
+  PrismaClientKnownRequestError,
+  PrismaClientValidationError,
+} from "@prisma/client/runtime/library";
+import { verifyCostCenterData } from "./routes/(app)/expenses/verification";
+import { dev } from "$app/environment";
+
+// TODO: This function should perhaps only be called during dev? Build? I'm not sure
+if (dev) verifyCostCenterData();
 
 const { handle: authHandle } = SvelteKitAuth({
   secret: env.AUTH_SECRET,
@@ -92,6 +102,7 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
   const lang = isAvailableLanguageTag(event.locals.paraglide?.lang)
     ? event.locals.paraglide?.lang
     : sourceLanguageTag;
+  event.locals.language = lang;
   const session = await event.locals.getSession();
   const prisma = prismaClient
     .$extends(translatedExtension(lang))
@@ -210,6 +221,25 @@ const themeHandle: Handle = async ({ event, resolve }) => {
 
 // run a keycloak sync every day at midnight
 schedule.scheduleJob("0 0 * * *", () => keycloak.sync(authorizedPrismaClient));
+schedule.scheduleJob("0 0 * * *", meilisearchSync);
+
+export const handleError: HandleServerError = ({ error }) => {
+  if (error instanceof PrismaClientKnownRequestError) {
+    const { message, name, code } = error;
+    console.log("prisma known request error", { message, name, code });
+    return {
+      message: message,
+    };
+  } else if (error instanceof PrismaClientValidationError) {
+    console.error("prisma validation error", error.message, error.name);
+    return {
+      message: "Database validation error, see logs for more info",
+    };
+  }
+  return {
+    message: error instanceof Error ? error.message : `${error}`,
+  };
+};
 
 export const handle = sequence(
   authHandle,

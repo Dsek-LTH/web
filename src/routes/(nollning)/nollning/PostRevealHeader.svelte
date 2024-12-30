@@ -11,6 +11,7 @@
   import PostRevealAccountMenu from "./PostRevealAccountMenu.svelte";
   import { appBottomNavRoutes, getPostRevealRoute, getRoutes } from "./routes";
   import type { PostRevealLayoutData } from "./+layout.server";
+  import type { NotificationGroup } from "$lib/utils/notifications/group";
 
   $: routes = getRoutes();
   $: bottomNavRoutes = appBottomNavRoutes(routes);
@@ -23,12 +24,17 @@
   $: pageData = $page.data as typeof $page.data & PostRevealLayoutData;
   $: topInsets = $page.data.appInfo?.insets?.top ?? 0;
 
-  $: notifications = pageData["notifications"];
+  $: notificationsPromise = pageData["notificationsPromise"];
 
   let notificationModal: HTMLDialogElement;
+  let notifications: NotificationGroup[] | undefined = undefined;
 </script>
 
-<NotificationModal bind:modal={notificationModal} postReveal />
+<NotificationModal
+  bind:modal={notificationModal}
+  postReveal
+  bind:notifications
+/>
 <header
   class="navbar justify-between gap-2 shadow-[0_4px_4px_#191B2740]"
   style="padding-top: {topInsets + 8}px;"
@@ -54,29 +60,24 @@
 
   <div class="flex w-[5.5rem] justify-end gap-2">
     {#if $page.data.user && $page.data.member}
-      {#if notifications !== null}
+      {#if notificationsPromise !== null}
         <NotificationBell
-          {notifications}
+          {notificationsPromise}
+          bind:notifications
           form={pageData["mutateNotificationForm"]}
           externalModal={notificationModal}
           useModalInstead
           buttonClass="btn btn-circle bg-base-200 relative aspect-square size-10 !p-0"
         >
-          {#await notifications}
+          <span class="i-mdi-bell-outline size-7" slot="loading" />
+          <div class="indicator" let:unreadCount>
+            {#if unreadCount > 0}
+              <span
+                class="translate badge indicator-item badge-primary badge-xs translate-x-0 translate-y-0"
+              ></span>
+            {/if}
             <span class="i-mdi-bell-outline size-7" />
-          {:then notifications}
-            {@const unreadCount = notifications.filter(
-              (data) => data.readAt == null,
-            ).length}
-            <div class="indicator">
-              {#if unreadCount > 0}
-                <span
-                  class="translate badge indicator-item badge-primary badge-xs translate-x-0 translate-y-0"
-                ></span>
-              {/if}
-              <span class="i-mdi-bell-outline size-7" />
-            </div>
-          {/await}
+          </div>
         </NotificationBell>
       {/if}
       <PostRevealAccountMenu />
