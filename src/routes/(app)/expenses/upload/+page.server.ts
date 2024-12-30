@@ -2,10 +2,8 @@ import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
 import { removeFilesWithoutAccessCheck } from "$lib/files/fileHandler";
 import { uploadFile } from "$lib/files/uploadFiles";
 import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
-import { getFullName } from "$lib/utils/client/member";
-import sendNotification from "$lib/utils/notifications";
-import { NotificationType } from "$lib/utils/notifications/types";
 import { redirect } from "$lib/utils/redirect";
+import * as m from "$paraglide/messages";
 import type { Prisma } from "@prisma/client";
 import type { AuthUser } from "@zenstackhq/runtime";
 import { fail } from "sveltekit-superforms";
@@ -19,9 +17,12 @@ import {
   updateSignersCacheIfNecessary,
 } from "../signers";
 import { expenseSchema } from "../types";
-import * as m from "$paraglide/messages";
+import { sendNotificationToSigner } from "../helper";
+import { authorize } from "$lib/utils/authorization";
+import apiNames from "$lib/utils/apiNames";
 
-export const load = async () => {
+export const load = async ({ locals: { user } }) => {
+  authorize(apiNames.EXPENSES.CREATE, user);
   return {
     form: await superValidate(
       {
@@ -84,7 +85,9 @@ export const actions = {
   default: async (event) => {
     const { locals, request } = event;
     const { prisma, user, member } = locals;
-    const form = await superValidate(request, zod(expenseSchema));
+    const form = await superValidate(request, zod(expenseSchema), {
+      allowFiles: true,
+    });
     if (!form.valid) return fail(400, { form });
     if (!member) throw fail(401, { form });
     const expense = await prisma.expense.create({
@@ -174,19 +177,12 @@ export const actions = {
     }
 
     const signerMemberIds = new Set(items.map((item) => item.signerMemberId));
+
     try {
-      await sendNotification({
-        title: "Nytt utlägg",
-        message: `${getFullName(member, {
-          hideNickname: true,
-        })} har skickat in ett nytt utlägg: ${expense.description}`,
-        link: `/expenses`,
-        type: NotificationType.EXPENSES,
-        memberIds: [...signerMemberIds],
-        fromMemberId: member.id, // send notification from the creator of the expense
-      });
+      await sendNotificationToSigner(member, expense, [...signerMemberIds]);
     } catch (e) {
-      console.error(`Could not send notification when creating expense`, e);
+      // we don't want it to fail for the user
+      console.warn("Failed to send notificaiton to expenses signers", e);
     }
 
     throw redirect(

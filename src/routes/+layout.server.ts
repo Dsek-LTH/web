@@ -1,10 +1,13 @@
+import { setLanguageTag } from "$paraglide/runtime";
 import { loadFlash } from "sveltekit-flash-message/server";
 /**
  * Load the form flash message.
  * Propagates the user and member to the page data.
  */
 export const load = loadFlash(async ({ locals }) => {
-  const { user, member, isApp, appInfo, theme } = locals;
+  const { user, member, isApp, appInfo, theme, language } = locals;
+
+  setLanguageTag(language);
 
   // SUSPECTED SLOW CODE
   // if (user?.memberId) {

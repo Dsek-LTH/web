@@ -1,13 +1,29 @@
 <script lang="ts">
-  import * as m from "$paraglide/messages";
   import PageHeader from "$lib/components/nav/PageHeader.svelte";
+  import * as m from "$paraglide/messages";
+  import ExpenseDetailView from "./ExpenseDetailView.svelte";
   import ExpensesTable from "./ExpensesTable.svelte";
+  import type { ExpandedExpense } from "./+page.server";
 
   export let data;
-  $: myExpenses = data.myExpenses;
-  $: expensesToSign = data.expensesToSign;
+  // This cast seems uncessary, but they are "any" otherwise. I might be blind, but I can't figure out why they are inferred "any"
+  $: myExpenses = data.myExpenses as ExpandedExpense[];
+  $: expensesToSign = data.expensesToSign as ExpandedExpense[];
 
-  let selectedExpense: (typeof myExpenses)[number] | undefined = undefined;
+  let selectedExpense: ExpandedExpense | undefined = undefined;
+
+  // This is required when updating through the preview. The data is updated but "selectedExpense" is not.
+  // I tried an index but since we got two separate lists that didn't work
+  $: if (
+    !!selectedExpense &&
+    !myExpenses.includes(selectedExpense) &&
+    !expensesToSign.includes(selectedExpense)
+  ) {
+    selectedExpense =
+      myExpenses.find((e) => e.id === selectedExpense!.id) ??
+      expensesToSign.find((e) => e.id === selectedExpense!.id) ??
+      undefined;
+  }
 </script>
 
 <PageHeader title={m.expenses()} />
@@ -52,4 +68,10 @@
       />
     </section>
   {/if}
+{/if}
+
+{#if selectedExpense}
+  <div class="my-8 rounded-md bg-base-300 p-4">
+    <ExpenseDetailView expense={selectedExpense} />
+  </div>
 {/if}

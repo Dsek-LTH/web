@@ -2,6 +2,9 @@ import KcAdminClient from "@keycloak/keycloak-admin-client";
 import { env } from "$env/dynamic/private";
 import type { PrismaClient } from "@prisma/client";
 import { error } from "@sveltejs/kit";
+import { promiseAllInBatches } from "$lib/utils/batch";
+
+const KEYCLOAK_BOARD_GROUP = "dsek.styr";
 
 const enabled = env.KEYCLOAK_ENABLED === "true";
 
@@ -51,9 +54,9 @@ function getRoleNames(id: string): string[] {
   );
 }
 
-async function getGroupId(client: KcAdminClient, positionId: string) {
+async function getGroupId(keycloak: KcAdminClient, positionId: string) {
   const roleNames = getRoleNames(positionId);
-  const groups = await client.groups.find();
+  const groups = await keycloak.groups.find();
   let group = groups.find((g) => g.name === roleNames[0]);
   roleNames.slice(1).forEach((name) => {
     group = group?.subGroups?.find((g) => g.name === name);
@@ -87,33 +90,76 @@ async function updateProfile(
   }
 }
 
-async function addMandate(username: string, positionId: string) {
+// Checks if the position is a board member from the database
+async function isBoardPosition(prisma: PrismaClient, positionId: string) {
+  const position = await prisma.position.findFirst({
+    where: { id: positionId },
+  });
+  return position?.boardMember ?? false;
+}
+
+async function hasAnyBoardPosition(prisma: PrismaClient, studentId: string) {
+  const boardPosition = await prisma.mandate.findFirst({
+    where: {
+      member: { studentId },
+      endDate: { gt: new Date() },
+      position: { boardMember: true },
+    },
+  });
+  return boardPosition !== null;
+}
+
+async function addMandate(
+  prisma: PrismaClient,
+  username: string,
+  positionId: string,
+) {
   if (!enabled) return;
 
   try {
-    const client = await connect();
-    const id = await _getUserId(client, username);
-    const groupId = await getGroupId(client, positionId);
-    await client.users.addToGroup({
-      id: id!,
-      groupId: groupId!,
-    });
+    const keycloak = await connect();
+    const [id, groupId] = await Promise.all([
+      _getUserId(keycloak, username),
+      getGroupId(keycloak, positionId),
+    ]);
+    await keycloak.users.addToGroup({ id: id!, groupId: groupId! });
+
+    // Special case for board members
+    if (await isBoardPosition(prisma, positionId)) {
+      const boardGroupId = await getGroupId(keycloak, KEYCLOAK_BOARD_GROUP);
+      await keycloak.users.addToGroup({ id: id!, groupId: boardGroupId! });
+    }
   } catch (error) {
     console.log(error);
   }
 }
 
-async function deleteMandate(username: string, positionId: string) {
+async function deleteMandate(
+  prisma: PrismaClient,
+  username: string,
+  positionId: string,
+) {
   if (!enabled) return;
 
   try {
-    const client = await connect();
-    const id = await _getUserId(client, username);
-    const groupId = await getGroupId(client, positionId);
-    await client.users.delFromGroup({
-      id: id!,
-      groupId: groupId!,
-    });
+    const keycloak = await connect();
+    const [id, groupId] = await Promise.all([
+      _getUserId(keycloak, username),
+      getGroupId(keycloak, positionId),
+    ]);
+    await keycloak.users.delFromGroup({ id: id!, groupId: groupId! });
+
+    // Special case for board members
+    if (
+      (await isBoardPosition(prisma, positionId)) && // if the position is a board member
+      !(await hasAnyBoardPosition(prisma, username)) // if the user has no other board positions
+    ) {
+      const boardGroupId = await getGroupId(keycloak, KEYCLOAK_BOARD_GROUP);
+      await keycloak.users.delFromGroup({
+        id: id!,
+        groupId: boardGroupId!,
+      });
+    }
   } catch (error) {
     console.log(error);
   }
@@ -138,29 +184,21 @@ async function updateMandate(prisma: PrismaClient) {
   const last = lastKeycloakUpdateResult[0]?.time ?? "1982-12-31T00:00:00.000Z";
 
   const result = await prisma.mandate.findMany({
-    where: {
-      endDate: {
-        lte: now,
-        gte: last,
-      },
-    },
-    select: {
-      positionId: true,
-      member: {
-        select: {
-          studentId: true,
-        },
-      },
-    },
+    where: { endDate: { lte: now, gte: last } },
+    select: { positionId: true, member: { select: { studentId: true } } },
   });
 
   console.log(
     `[${new Date().toISOString()}] updating ${result.length} users groups`,
   );
 
-  result.forEach(async ({ positionId, member: { studentId } }) => {
-    await deleteMandate(studentId!, positionId);
-  });
+  promiseAllInBatches(
+    result,
+    async ({ positionId, member: { studentId } }) => {
+      deleteMandate(prisma, studentId!, positionId);
+    },
+    10,
+  );
 
   await prisma.lastKeycloakUpdate.create({
     data: {

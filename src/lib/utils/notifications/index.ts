@@ -148,7 +148,7 @@ const sendNotification = async ({
     return;
   }
   console.log(
-    `Sending ${type} notification to ${receivingMembers.length} members${
+    `Sending ${type} notification to ${receivingMembers.length === 1 ? `member ${receivingMembers[0]?.id}` : `${receivingMembers.length} members`} ${
       notificationAuthor
         ? `, sent from author:${notificationAuthor.id} [${notificationAuthor.type}, member: ${notificationAuthor.memberId}]`
         : ""

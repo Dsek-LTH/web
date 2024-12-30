@@ -13,7 +13,7 @@ const itemSchema = z.object({
 const receiptSchema = z.object({
   image: z
     .instanceof(File, { message: "Please upload a file" })
-    .refine((file) => !file || isFileImage(file) || isFilePDF(file), {
+    .refine((file) => isFileImage(file) || isFilePDF(file), {
       message: "Måste vara en bild eller PDF",
     }),
   rows: z.array(itemSchema).nonempty(),
@@ -25,24 +25,18 @@ export const expenseSchema = z.object({
   isGuildCard: z.boolean(),
   receipts: z.array(receiptSchema).nonempty(),
 });
-
-export const updateExpenseSchema = expenseSchema
-  .omit({
-    receipts: true,
-  })
-  .merge(
-    z.object({
-      items: z.array(
-        itemSchema.merge(
-          z.object({
-            itemId: z.string().uuid().nullable(),
-          }),
-        ),
-      ),
-    }),
-  );
-export type UpdateExpenseSchema = Infer<typeof updateExpenseSchema>;
-
 export type ExpenseSchema = Infer<typeof expenseSchema>;
 export type ReceiptSchema = ExpenseSchema["receipts"][number];
 export type ReceiptRowSchema = ReceiptSchema["rows"][number];
+
+export const updateExpenseSchema = expenseSchema.omit({
+  receipts: true,
+});
+export type UpdateExpenseSchema = Infer<typeof updateExpenseSchema>;
+
+export const updateItemSchema = itemSchema.merge(
+  z.object({
+    id: z.string().uuid(),
+  }),
+);
+export type UpdateItemSchema = Infer<typeof updateItemSchema>;

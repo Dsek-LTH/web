@@ -6,11 +6,9 @@
 
   export let data;
   $: expense = data.expense;
-  const superform = superForm(data.updateForm, {
-    dataType: "json",
-  });
+  const superform = superForm(data.updateForm);
 </script>
 
 <PageHeader title="{m.expense()} #{expense.id}" />
 
-<ExpenseDetailView {expense} {superform} />
+<ExpenseDetailView {expense} {superform} itemForm={data.updateItemForm} />
