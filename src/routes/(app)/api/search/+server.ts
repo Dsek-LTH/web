@@ -78,10 +78,10 @@ export const GET: RequestHandler = async ({ url, locals }) => {
         }
 
         // Reduce the amount of data sent to the client
-        // all string values are capped at 60 characters
+        // all string values are truncated to 60 characters
         for (const key of Object.keys(hit)) {
           if (
-            // We musn't cap the attributes that are used as links
+            // We must not truncate attributes that are used as links
             !listOfattributesUsedAsLink.includes(key) &&
             typeof hit[key] === "string"
           ) {
