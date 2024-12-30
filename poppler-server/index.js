@@ -1,11 +1,10 @@
-import { Poppler } from "node-poppler";
 import express from "express";
 import multer from "multer";
+import { pdfToText } from "./poppler.js";
 
-const PORT = 8800;
+const PORT = process.env.PORT || 8800;
 
 const app = express();
-const poppler = new Poppler();
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -38,7 +37,7 @@ Size: ${file.size} bytes
 From: ${req.ip}
 `,
     );
-    return res.status(400).json({ error: "Invalid PDF file." });
+    return res.status(415).json({ error: "Invalid PDF file." });
   }
 
   try {
@@ -48,7 +47,7 @@ Name: ${file.originalname}
 Size: ${file.size} bytes
 From: ${req.ip}`,
     );
-    const txt = await poppler.pdfToText(file.buffer);
+    const txt = await pdfToText(file.buffer);
     console.log(`Successfully converted PDF to text: ${file.originalname}\n`);
     res.send(txt);
   } catch (error) {
@@ -58,7 +57,6 @@ From: ${req.ip}`,
 
 // Global error handler
 app.use((err, _req, res) => {
-  console.error(err); // Log the error for debugging
   res.status(500).json({ error: err.message });
 });
 

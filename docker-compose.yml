@@ -32,6 +32,8 @@ services:
       dockerfile: Dockerfile
     container_name: dsek-poppler
     restart: always
+    environment:
+      - PORT=8800
     ports:
       - "8800:8800"
 
