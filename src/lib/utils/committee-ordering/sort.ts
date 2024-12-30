@@ -14,6 +14,7 @@ import {
   Sexm,
   Skattm,
   Srd,
+  Tackm,
   Trivsel,
   Valb,
 } from "./enums";
@@ -66,4 +67,5 @@ const committeeEnums = {
   medalj: Medalj,
   trivsel: Trivsel,
   valb: Valb,
+  tackm: Tackm,
 } as const;

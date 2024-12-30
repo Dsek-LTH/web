@@ -17,6 +17,7 @@
     dataType: "json",
   });
   let articleImage: string | undefined = undefined;
+  let articleVideo: string | undefined = undefined;
   const { form } = superform;
 </script>
 
@@ -24,7 +25,13 @@
   class="container mx-auto flex flex-col gap-8 px-4 pt-8 lg:flex-row [&>*]:flex-1"
 >
   <section>
-    <ArticleForm {superform} {allTags} {authorOptions} bind:articleImage>
+    <ArticleForm
+      {superform}
+      {allTags}
+      {authorOptions}
+      bind:articleImage
+      bind:articleVideo
+    >
       <slot slot="form-end" name="form-end" />
     </ArticleForm>
   </section>
@@ -45,6 +52,7 @@
         removedAt: null,
         status: "draft",
         imageUrl: articleImage ?? $form.imageUrl ?? null,
+        youtubeUrl: articleVideo ?? $form.youtubeUrl ?? null,
       }}
     >
       <AuthorSignature

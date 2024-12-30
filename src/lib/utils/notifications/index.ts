@@ -1,6 +1,7 @@
 import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
 import sendPushNotifications from "$lib/utils/notifications/push";
 import {
+  NOTIFICATION_SETTINGS_ALWAYS_ON,
   NotificationSettingType,
   NotificationType,
   SUBSCRIPTION_SETTINGS_MAP,
@@ -22,6 +23,7 @@ const DUPLICATE_ALLOWED_TYPES = [
   NotificationType.PURCHASE_IN_QUEUE,
   NotificationType.PURCHASE_CONSUMABLE_EXPIRED,
   NotificationType.PAYMENT_STATUS,
+  NotificationType.EXPENSES,
 ];
 
 type BaseSendNotificationProps = {
@@ -74,10 +76,14 @@ const sendNotification = async ({
 }: SendNotificationProps) => {
   if ((memberIds?.length ?? 0) == 0) return;
   // Find corresponding setting type, example "COMMENT" for "EVENT_COMMENT"
-  const settingType: NotificationSettingType = (Object.entries(
-    SUBSCRIPTION_SETTINGS_MAP,
-  ).find(([, internalTypes]) => internalTypes.includes(type))?.[0] ??
-    type) as NotificationSettingType;
+  const settingType = Object.entries(SUBSCRIPTION_SETTINGS_MAP).find(
+    ([, internalTypes]) => internalTypes.includes(type),
+  )?.[0] as
+    | NotificationSettingType
+    | typeof NOTIFICATION_SETTINGS_ALWAYS_ON
+    | undefined;
+  if (!settingType) throw new Error(`Unknown notification type: ${type}`);
+
   // Who sent the notification, as an Author
   const existingAuthor =
     fromAuthor ??
@@ -99,11 +105,14 @@ const sendNotification = async ({
   const shouldReceiveDuplicates = DUPLICATE_ALLOWED_TYPES.includes(type); // if the notification type allows for duplicates
   const receivingMembers = await prisma.member.findMany({
     where: {
-      subscriptionSettings: {
-        some: {
-          type: settingType,
-        },
-      },
+      subscriptionSettings:
+        settingType == NOTIFICATION_SETTINGS_ALWAYS_ON
+          ? undefined
+          : {
+              some: {
+                type: settingType,
+              },
+            },
       notifications: shouldReceiveDuplicates
         ? undefined
         : {
@@ -139,7 +148,7 @@ const sendNotification = async ({
     return;
   }
   console.log(
-    `Sending ${type} notification to ${receivingMembers.length} members${
+    `Sending ${type} notification to ${receivingMembers.length === 1 ? `member ${receivingMembers[0]?.id}` : `${receivingMembers.length} members`} ${
       notificationAuthor
         ? `, sent from author:${notificationAuthor.id} [${notificationAuthor.type}, member: ${notificationAuthor.memberId}]`
         : ""
@@ -164,7 +173,7 @@ const sendNotification = async ({
   }
 
   try {
-    await sendPush(title, message, settingType, link, receivingMembers);
+    await sendPush(title, message, link, receivingMembers);
   } catch (e) {
     console.warn("Failed to create push notifications", e);
     throw error(500, "Failed to create push notifications");
@@ -194,7 +203,6 @@ const sendWeb = async (
 const sendPush = async (
   title: string,
   message: string,
-  type: NotificationSettingType,
   link: string,
   receivingMembers: Array<
     Pick<Member, "id"> & {
@@ -248,7 +256,6 @@ const sendPush = async (
       })),
       title,
       message,
-      type,
       link,
     );
   }

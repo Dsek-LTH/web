@@ -26,6 +26,17 @@ services:
     volumes:
       - ./data.ms:/data.ms
 
+  poppler-server:
+    build:
+      context: ./poppler-server
+      dockerfile: Dockerfile
+    container_name: dsek-poppler
+    restart: always
+    environment:
+      - PORT=8800
+    ports:
+      - "8800:8800"
+
 volumes:
   db:
     driver: local

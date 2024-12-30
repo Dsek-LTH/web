@@ -69,6 +69,9 @@ const apiNames = {
     UPDATE: "governing_document:write",
     DELETE: "governing_document:write",
   },
+  ELECTION: {
+    ...crud("election"),
+  },
   DOOR: {
     ...crud("core:access:door"),
   },
@@ -87,6 +90,11 @@ const apiNames = {
   },
   NOLLNING: {
     MANAGE_PHADDER_GROUPS: "nollning:phaddrar:groups:manage",
+  },
+  EXPENSES: {
+    CREATE: "expenses:create", // who can create expenses, probably all volunteers or logged in
+    CERTIFICATION: "expenses:certification", // who can ALWAYS certify/sign expenses. As of writing this is treasurer and president.
+    BOOKKEEPING: "expenses:bookkeeping", // who can manage expenses for bookkeeping
   },
 } as const;
 
