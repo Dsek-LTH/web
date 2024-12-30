@@ -11,10 +11,7 @@
   export let index: number;
   export let onRemove: (() => void) | undefined;
   const options = [
-    {
-      label: "Välj kostnadsställe",
-      value: null,
-    },
+    { label: "Välj kostnadsställe", value: null },
     ...COST_CENTERS.map((center) => ({
       label: `${center.name} - ${center.description} (${center.example})`,
       value: center.name,

@@ -58,13 +58,7 @@ export const actions = {
       include: {
         expense: {
           include: {
-            member: {
-              select: {
-                id: true,
-                firstName: true,
-                lastName: true,
-              },
-            },
+            member: { select: { id: true, firstName: true, lastName: true } },
           },
         },
       },

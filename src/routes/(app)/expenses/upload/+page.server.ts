@@ -65,13 +65,7 @@ const uploadReceipt = async (
     expensePhotoUrl(date, id),
     PUBLIC_BUCKETS_FILES,
     undefined,
-    {
-      resize: {
-        width: 1920,
-        height: 1920,
-        fit: "outside",
-      },
-    },
+    { resize: { width: 1920, height: 1920, fit: "outside" } },
   );
   return imageUrl;
 };
