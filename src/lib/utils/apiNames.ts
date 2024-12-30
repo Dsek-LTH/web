@@ -54,6 +54,9 @@ const apiNames = {
     PAGE: <markdownDocumentName extends string>(name: markdownDocumentName) =>
       crud(`markdowns:${name}`),
   },
+  MARKDOWN: {
+    ...crud("markdown"),
+  },
   MEMBER: {
     ...crud("core:member"),
     SEE_STABEN: "member:see_staben",

@@ -802,5 +802,10 @@
   "search_events": "Event",
   "search_songs": "Sånger",
   "search_noResults": "Inga resultat",
-  "search_advancedSearch": "Avancerad sökning"
+  "search_advancedSearch": "Avancerad sökning",
+  "admin_info_name": "Namn",
+  "admin_info_create": "Skapa",
+  "admin_info_createNewInfoPage": "Skapa en ny informationssida",
+  "admin_info_infoPageCreated": "Informationssida skapad",
+  "info": "Info"
 }

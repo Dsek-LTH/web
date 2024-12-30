@@ -806,5 +806,10 @@
   "search_events": "Events",
   "search_songs": "Songs",
   "search_noResults": "No results found",
-  "search_advancedSearch": "Advanced search"
+  "search_advancedSearch": "Advanced search",
+  "admin_info_name": "Name",
+  "admin_info_create": "Create",
+  "admin_info_createNewInfoPage": "Create new information page",
+  "admin_info_infoPageCreated": "Information page created",
+  "info": "Info"
 }
