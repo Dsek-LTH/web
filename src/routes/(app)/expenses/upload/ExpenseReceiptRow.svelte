@@ -10,6 +10,13 @@
   export let receiptIndex: number;
   export let index: number;
   export let onRemove: (() => void) | undefined;
+  const options = [
+    { label: "Välj kostnadsställe", value: null },
+    ...COST_CENTERS.map((center) => ({
+      label: `${center.name} - ${center.description} (${center.example})`,
+      value: center.name,
+    })),
+  ];
 </script>
 
 <div class="-mx-4 border-b border-base-100 px-4 py-2">
@@ -17,10 +24,7 @@
     {superform}
     field={`receipts[${receiptIndex}].rows[${index}].costCenter`}
     label="Kostnadscenter"
-    options={COST_CENTERS.map((center) => ({
-      label: `${center.name} - ${center.description} (${center.example})`,
-      value: center.name,
-    }))}
+    {options}
   />
   <FormNumberInput
     {superform}

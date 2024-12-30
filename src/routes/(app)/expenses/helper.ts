@@ -4,7 +4,7 @@ import { NotificationType } from "$lib/utils/notifications/types";
 import type { Expense, Member } from "@prisma/client";
 
 export const sendNotificationToSigner = async (
-  member: Member,
+  member: Pick<Member, "id" | "firstName" | "lastName">,
   expense: Pick<Expense, "description">,
   memberIds: string[],
 ) => {
