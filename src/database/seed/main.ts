@@ -13,23 +13,10 @@ import {
   models,
   POLICYS,
 } from "./data";
-import { exec } from "child_process";
-import util from "util";
+import { checkForPostgresTunnel } from "./helpers";
 
 const main = async () => {
-  try {
-    const ipSockets = await util.promisify(exec)(
-      "lsof -i | grep -E 'ssh.*:postgresq?l? \\(LISTEN\\)'",
-    );
-    if (ipSockets.stdout.split("\n").length === 3) {
-      console.log(
-        "\x1b[41mPostgres ssh tunnel detected, might be production database. Cancelled seeding\x1b[0m",
-      );
-      process.exit(1);
-    }
-  } catch {
-    // ignore error, this is here because exec fails with exit code 1 if nothing is returned
-  }
+  await checkForPostgresTunnel();
 
   const seed = await createSeedClient({
     connect: true,
