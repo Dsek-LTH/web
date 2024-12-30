@@ -5,6 +5,7 @@ import { zod } from "sveltekit-superforms/adapters";
 import { infoPageSchema } from "./schemas";
 import type { Actions, PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
+import { slugify } from "$lib/utils/slugify";
 
 export const load: PageServerLoad = async () => ({
   form: await superValidate(zod(infoPageSchema)),
@@ -17,10 +18,9 @@ export const actions: Actions = {
     const form = await superValidate(request, zod(infoPageSchema));
     if (!form.valid) return fail(400, { form });
     const { name, markdown, markdownEn } = form.data;
-    console.log(name, markdown, markdownEn);
     await prisma.markdown.create({
       data: {
-        name,
+        name: slugify(name),
         markdown,
         markdownEn,
       },
