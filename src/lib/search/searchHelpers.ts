@@ -11,8 +11,6 @@ import {
 } from "./searchTypes";
 import * as m from "$paraglide/messages";
 
-import crypto from "crypto";
-
 export type SearchIndex =
   (typeof availableSearchIndexes)[keyof typeof availableSearchIndexes];
 
@@ -141,7 +139,6 @@ export function mapIndexToMessage(index: SearchableIndex) {
 }
 
 /**
- * WARNING: This is non-reversible.
  * Meilisearch has constraints on the id field:
  * it can only contain alphanumeric characters (a-z, A-Z, 0-9), hyphens (-), and underscores (_).
  * So we need to convert the prisma id to a meilisearch id.
@@ -149,9 +146,5 @@ export function mapIndexToMessage(index: SearchableIndex) {
  * It contains dots (.) and possibly swedish characters (åäö).
  */
 export function prismaIdToMeiliId(id: string) {
-  const hashed = crypto.createHash("md5").update(id).digest("hex");
-  if (!hashed.match(/^[a-zA-Z0-9_-]+$/)) {
-    console.log(`Meilisearch: Id ${id} from Prisma is not compatible`);
-  }
-  return hashed;
+  return btoa(id).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
 }
