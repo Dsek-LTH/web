@@ -151,6 +151,7 @@ model Article {
     body String
     bodyEn String? @map("body_en")
     imageUrl String? @map("image_url") @db.Text()
+    youtubeUrl String? @map("youtube_url") @db.Text()
     authorId String @map("author_id") @db.Uuid()
     publishedAt DateTime? @map("published_datetime") @db.Timestamptz(6)
     updatedAt DateTime? @map("latest_edit_datetime") @db.Timestamptz(6)

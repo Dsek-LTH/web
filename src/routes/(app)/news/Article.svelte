@@ -8,7 +8,16 @@
   export let article: Article;
 </script>
 
-{#if article.imageUrl}
+{#if article.youtubeUrl}
+  <figure>
+    <iframe
+      class="mx-auto aspect-video size-full"
+      src={`https://www.youtube.com/embed/${article.youtubeUrl.split("=")[1]}`}
+      title="Video"
+    >
+    </iframe>
+  </figure>
+{:else if article.imageUrl}
   <figure>
     <img
       class="mx-auto"
