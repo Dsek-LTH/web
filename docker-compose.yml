@@ -3,7 +3,7 @@ version: "3.8"
 services:
   db:
     container_name: dsek-db
-    image: postgres:14.1-alpine
+    image: postgres:16-alpine
     restart: always
     environment:
       - POSTGRES_USER=postgres
@@ -24,7 +24,7 @@ services:
     ports:
       - "7700:7700"
     volumes:
-      - ./data.ms:/data.ms
+      - meilisearch:/data.ms
 
   poppler-server:
     build:
@@ -39,4 +39,4 @@ services:
 
 volumes:
   db:
-    driver: local
+  meilisearch:
