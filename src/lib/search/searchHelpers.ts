@@ -137,3 +137,14 @@ export function mapIndexToMessage(index: SearchableIndex) {
       return "";
   }
 }
+
+/**
+ * Meilisearch has constraints on the id field:
+ * it can only contain alphanumeric characters (a-z, A-Z, 0-9), hyphens (-), and underscores (_).
+ * So we need to convert the prisma id to a meilisearch id.
+ * As of now, the Positions table has a prisma id that is not compatible with meilisearch.
+ * It contains dots (.) and possibly swedish characters (åäö).
+ */
+export function prismaIdToMeiliId(id: string) {
+  return btoa(id).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+}
