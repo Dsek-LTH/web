@@ -306,75 +306,21 @@ const defaultRankingRules = [
   "exactness",
 ] as const satisfies DefaultRankingRules[];
 
-interface MemberConstantsMeilisearch {
-  searchableAttributes: Array<keyof SearchableMemberAttributes>;
-  rankingRules: Array<
-    DefaultRankingRules | `${keyof MemberDataInMeilisearch}:${"asc" | "desc"}`
-  >;
-  sortableAttributes?: Array<keyof MemberDataInMeilisearch>;
-  typoTolerance?: {
-    disableOnAttributes: Array<keyof SearchableMemberAttributes>;
-    minWordSizeForTypos: {
-      oneTypo: number;
-      twoTypos: number;
-    };
-  };
-}
-
-interface ArticleConstantsMeilisearch {
-  searchableAttributes: Array<keyof SearchableArticleAttributes>;
-  rankingRules: Array<
-    DefaultRankingRules | `${keyof ArticleDataInMeilisearch}:${"asc" | "desc"}`
-  >;
-  sortableAttributes?: Array<keyof ArticleDataInMeilisearch>;
-  typoTolerance?: {
-    disableOnAttributes: Array<keyof SearchableArticleAttributes>;
-    minWordSizeForTypos: {
-      oneTypo: number;
-      twoTypos: number;
-    };
-  };
-}
-
-interface EventConstantsMeilisearch {
-  searchableAttributes: Array<keyof SearchableEventAttributes>;
-  rankingRules: Array<
-    DefaultRankingRules | `${keyof EventDataInMeilisearch}:${"asc" | "desc"}`
-  >;
-  sortableAttributes?: Array<keyof EventDataInMeilisearch>;
-  typoTolerance?: {
-    disableOnAttributes: Array<keyof SearchableEventAttributes>;
-    minWordSizeForTypos: {
-      oneTypo: number;
-      twoTypos: number;
-    };
-  };
-}
-
-interface PositionConstantsMeilisearch {
-  searchableAttributes: Array<keyof SearchablePositionAttributes>;
-  rankingRules: Array<
-    DefaultRankingRules | `${keyof PositionDataInMeilisearch}:${"asc" | "desc"}`
-  >;
-  sortableAttributes?: Array<keyof PositionDataInMeilisearch>;
-  typoTolerance?: {
-    disableOnAttributes: Array<keyof SearchablePositionAttributes>;
-    minWordSizeForTypos: {
-      oneTypo: number;
-      twoTypos: number;
-    };
-  };
-}
-
-interface CommitteeConstantsMeilisearch {
-  searchableAttributes: Array<keyof SearchableCommitteeAttributes>;
+/**
+ * Constants for Meilisearch indexes. These are used when tweaking the search
+ * or when getting e.g. the searchable attributes for a specific index.
+ * This interface is used to ensure that the constants are correctly typed.
+ * This may need to be updated if the Meilisearch package changes its namings/APIs.
+ */
+interface IndexConstantsMeilisearch<Searchable, DataInMeilisearch> {
+  searchableAttributes: Array<keyof Searchable>;
   rankingRules: Array<
     | DefaultRankingRules
-    | `${keyof CommitteeDataInMeilisearch}:${"asc" | "desc"}`
+    | `${Extract<keyof DataInMeilisearch, string>}:${"asc" | "desc"}`
   >;
-  sortableAttributes?: Array<keyof CommitteeDataInMeilisearch>;
+  sortableAttributes?: Array<keyof DataInMeilisearch>;
   typoTolerance?: {
-    disableOnAttributes: Array<keyof SearchableCommitteeAttributes>;
+    disableOnAttributes: Array<keyof Searchable>;
     minWordSizeForTypos: {
       oneTypo: number;
       twoTypos: number;
@@ -382,20 +328,33 @@ interface CommitteeConstantsMeilisearch {
   };
 }
 
-interface SongConstantsMeilisearch {
-  searchableAttributes: Array<keyof SearchableSongAttributes>;
-  rankingRules: Array<
-    DefaultRankingRules | `${keyof SongDataInMeilisearch}:${"asc" | "desc"}`
-  >;
-  sortableAttributes?: Array<keyof SongDataInMeilisearch>;
-  typoTolerance?: {
-    disableOnAttributes: Array<keyof SearchableSongAttributes>;
-    minWordSizeForTypos: {
-      oneTypo: number;
-      twoTypos: number;
-    };
-  };
-}
+type MemberConstantsMeilisearch = Prettify<
+  IndexConstantsMeilisearch<SearchableMemberAttributes, MemberDataInMeilisearch>
+>;
+type ArticleConstantsMeilisearch = Prettify<
+  IndexConstantsMeilisearch<
+    SearchableArticleAttributes,
+    ArticleDataInMeilisearch
+  >
+>;
+type EventConstantsMeilisearch = Prettify<
+  IndexConstantsMeilisearch<SearchableEventAttributes, EventDataInMeilisearch>
+>;
+type PositionConstantsMeilisearch = Prettify<
+  IndexConstantsMeilisearch<
+    SearchablePositionAttributes,
+    PositionDataInMeilisearch
+  >
+>;
+type CommitteeConstantsMeilisearch = Prettify<
+  IndexConstantsMeilisearch<
+    SearchableCommitteeAttributes,
+    CommitteeDataInMeilisearch
+  >
+>;
+type SongConstantsMeilisearch = Prettify<
+  IndexConstantsMeilisearch<SearchableSongAttributes, SongDataInMeilisearch>
+>;
 
 const memberMeilisearchConstants: MemberConstantsMeilisearch = {
   searchableAttributes: memberSearchableAttributes,
