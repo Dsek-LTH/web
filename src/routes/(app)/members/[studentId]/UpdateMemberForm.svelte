@@ -63,7 +63,7 @@
     {...$constraints.foodPreference}
   />
   <div
-    class="flex w-full flex-wrap gap-2 [&>*:nth-child(3)]:flex-1"
+    class="flex w-full flex-wrap gap-2 *:flex-1"
     class:hidden={!isAuthorized(apiNames.MEMBER.UPDATE, $page.data.user)}
   >
     <Labeled
@@ -114,7 +114,10 @@
       ]}
     />
   </div>
-  <button type="submit" class="btn btn-secondary mt-4"
-    >{m.members_save()}</button
-  >
+  <div class="mt-4 flex flex-wrap gap-2 *:flex-1">
+    <a href="{$page.params['studentId']}/edit-bio" class="btn">
+      {m.members_editBio()}
+    </a>
+    <button type="submit" class="btn btn-primary">{m.members_save()}</button>
+  </div>
 </form>
