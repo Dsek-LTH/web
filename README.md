@@ -70,6 +70,8 @@ Everything you need to know about the project can be found in the [documentation
 
 ## Contributing
 
+![Alt](https://repobeats.axiom.co/api/embed/916fb19a36522679037520fd8c4c688d047162fb.svg "Repobeats analytics image")
+
 Any contributions you make are **greatly appreciated**. If you have a suggestion, please fork the repo and create a pull request. You can also simply open an issue using the links at the top.
 
 1. Fork the Project
