@@ -552,4 +552,8 @@ export type MeilisearchConstants =
   | {
       constants: GoverningDocumentConstantsMeilisearch;
       data: GoverningDocumentDataInMeilisearch;
+    }
+  | {
+      constants: MeetingDocumentConstantsMeilisearch;
+      data: MeetingDocumentDataInMeilisearch;
     };

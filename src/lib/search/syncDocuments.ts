@@ -1,4 +1,5 @@
 import { env } from "$env/dynamic/private";
+import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
 import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
 import servePdf from "$lib/utils/servePdf";
 import { error, type NumericRange } from "@sveltejs/kit";
@@ -6,10 +7,14 @@ import { meilisearch } from "./meilisearch";
 import {
   meilisearchConstants,
   type GoverningDocumentDataInMeilisearch,
+  type MeetingDocumentDataInMeilisearch,
   type SearchableIndex,
 } from "./searchTypes";
 import { addDataToIndex, resetIndex, setRulesForIndex } from "./syncHelpers";
 import { prismaIdToMeiliId } from "./searchHelpers";
+import { fileHandler } from "$lib/files";
+import type { AuthUser } from "@zenstackhq/runtime";
+import apiNames from "$lib/utils/apiNames";
 
 /**
  * Syncs all governing documents
@@ -57,6 +62,47 @@ export const syncGoverningDocuments = async () => {
     documentsIndex,
     meilisearchConstants.governingDocument,
   );
+};
+
+/**
+ *
+ */
+export const syncMeetingDocuments = async () => {
+  // This is a hack to get the files from the public bucket
+  // since the fileHandler checks for the user's policies
+  // and we don't have a user here
+  const fileUser: AuthUser = {
+    roles: [""],
+    policies: [apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).READ],
+  };
+
+  const files = await fileHandler.getInBucket(
+    fileUser,
+    PUBLIC_BUCKETS_DOCUMENTS,
+    "",
+    true,
+  );
+  const indexName: SearchableIndex = "meetingDocuments";
+  const documentsIndex = await meilisearch.getIndex(indexName);
+  await resetIndex(documentsIndex, meilisearchConstants.meetingDocument);
+
+  const pdfs: MeetingDocumentDataInMeilisearch[] = [];
+  for (const file of files) {
+    if (file.thumbnailUrl) {
+      const content = await getFileContent(file.thumbnailUrl);
+      if (content) {
+        pdfs.push({
+          id: prismaIdToMeiliId(file.id),
+          title: file.name,
+          content,
+          url: file.thumbnailUrl,
+        });
+      }
+    }
+  }
+
+  await addDataToIndex(documentsIndex, pdfs);
+  await setRulesForIndex(documentsIndex, meilisearchConstants.meetingDocument);
 };
 
 const getFileContent = async (url: string) => {
