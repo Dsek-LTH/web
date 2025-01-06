@@ -7,7 +7,7 @@
  *  3. which attributes are returned.
  *
  * Of course, all attributes that can be searched for, or are returned,
- * must be stored in Meilisearch. However, it is not as simble as doing
+ * must be stored in Meilisearch. However, it is not as simple as doing
  * a union of 2 and 3 to get 1, since some attributes (e.g `event.startDatetime`)
  * are used purely for sorting and ranking purposes internally by Meilisearch.
  *
@@ -24,6 +24,7 @@ import type {
   Song,
   Position,
   Committee,
+  Document,
 } from "@prisma/client";
 
 /**
@@ -68,6 +69,8 @@ export const availableSearchIndexes = [
   "positions",
   "songs",
   "committees",
+  "governingDocuments",
+  "meetingDocuments",
 ] as const;
 export type SearchableIndex = (typeof availableSearchIndexes)[number];
 
@@ -257,13 +260,64 @@ export type SongSearchReturnAttributes = OnlySwedishAttributes<
   SearchableSongAttributes & Pick<SongDataInMeilisearch, "slug">
 >;
 
+// --------------------------------------------------
+// GOVERNING DOCUMENT
+// --------------------------------------------------
+
+// The order of the attributes in the array is important for ranking
+// The lower the index, the higher the weight
+export const governingDocumentSearchableAttributes = [
+  "title",
+  "content",
+] as const satisfies Array<keyof GoverningDocumentDataInMeilisearch>;
+export type SearchableGoverningDocumentAttributes = Pick<
+  GoverningDocumentDataInMeilisearch,
+  (typeof governingDocumentSearchableAttributes)[number]
+>;
+export type GoverningDocumentDataInMeilisearch = Prettify<
+  Pick<Document, "id" | "title" | "url" | "type"> & {
+    content: string;
+  }
+>;
+export type GoverningDocumentSearchReturnAttributes = OnlySwedishAttributes<
+  SearchableGoverningDocumentAttributes &
+    Pick<GoverningDocumentDataInMeilisearch, "url">
+>;
+
+// --------------------------------------------------
+// MEETING DOCUMENT
+// --------------------------------------------------
+
+// The order of the attributes in the array is important for ranking
+// The lower the index, the higher the weight
+export const meetingDocumentSearchableAttributes = [
+  "title",
+  "content",
+] as const satisfies Array<keyof MeetingDocumentDataInMeilisearch>;
+export type SearchableMeetingDocumentAttributes = Pick<
+  MeetingDocumentDataInMeilisearch,
+  (typeof meetingDocumentSearchableAttributes)[number]
+>;
+export type MeetingDocumentDataInMeilisearch = Prettify<{
+  id: string;
+  title?: string;
+  url: string;
+  content: string;
+}>;
+export type MeetingDocumentSearchReturnAttributes = OnlySwedishAttributes<
+  SearchableMeetingDocumentAttributes &
+    Pick<MeetingDocumentDataInMeilisearch, "url">
+>;
+
 export type AnySearchReturnAttributes =
   | SongSearchReturnAttributes
   | ArticleSearchReturnAttributes
   | EventSearchReturnAttributes
   | MemberSearchReturnAttributes
   | PositionSearchReturnAttributes
-  | CommitteeSearchReturnAttributes;
+  | CommitteeSearchReturnAttributes
+  | GoverningDocumentSearchReturnAttributes
+  | MeetingDocumentSearchReturnAttributes;
 
 export type SearchDataWithType =
   | {
@@ -289,6 +343,14 @@ export type SearchDataWithType =
   | {
       type: "committees";
       data: CommitteeSearchReturnAttributes;
+    }
+  | {
+      type: "governingDocuments";
+      data: GoverningDocumentSearchReturnAttributes;
+    }
+  | {
+      type: "meetingDocuments";
+      data: MeetingDocumentSearchReturnAttributes;
     };
 
 export const attributesUsedAsLink: {
@@ -298,6 +360,8 @@ export const attributesUsedAsLink: {
   songs: keyof SongSearchReturnAttributes;
   positions: keyof PositionSearchReturnAttributes;
   committees: keyof CommitteeSearchReturnAttributes;
+  governingDocuments: keyof GoverningDocumentSearchReturnAttributes;
+  meetingDocuments: keyof MeetingDocumentSearchReturnAttributes;
 } = {
   members: "studentId",
   events: "slug",
@@ -305,11 +369,13 @@ export const attributesUsedAsLink: {
   songs: "slug",
   positions: "dsekId",
   committees: "shortName",
+  governingDocuments: "url",
+  meetingDocuments: "url",
 };
 
-export const listOfattributesUsedAsLink: string[] = Object.values(
+export const listOfAttributesUsedAsLink: string[] = Object.values(
   attributesUsedAsLink,
-) satisfies string[];
+) as string[];
 
 type DefaultRankingRules =
   | "words"
@@ -374,6 +440,18 @@ type CommitteeConstantsMeilisearch = Prettify<
 type SongConstantsMeilisearch = Prettify<
   IndexConstantsMeilisearch<SearchableSongAttributes, SongDataInMeilisearch>
 >;
+type GoverningDocumentConstantsMeilisearch = Prettify<
+  IndexConstantsMeilisearch<
+    SearchableGoverningDocumentAttributes,
+    GoverningDocumentDataInMeilisearch
+  >
+>;
+type MeetingDocumentConstantsMeilisearch = Prettify<
+  IndexConstantsMeilisearch<
+    SearchableMeetingDocumentAttributes,
+    MeetingDocumentDataInMeilisearch
+  >
+>;
 
 const memberMeilisearchConstants: MemberConstantsMeilisearch = {
   searchableAttributes: memberSearchableAttributes,
@@ -423,6 +501,18 @@ const songMeilisearchConstants: SongConstantsMeilisearch = {
   rankingRules: defaultRankingRules,
 };
 
+const governingDocumentMeilisearchConstants: GoverningDocumentConstantsMeilisearch =
+  {
+    searchableAttributes: governingDocumentSearchableAttributes,
+    rankingRules: defaultRankingRules,
+  };
+
+const meetingDocumentMeilisearchConstants: MeetingDocumentConstantsMeilisearch =
+  {
+    searchableAttributes: meetingDocumentSearchableAttributes,
+    rankingRules: defaultRankingRules,
+  };
+
 export const meilisearchConstants = {
   member: memberMeilisearchConstants,
   article: articleMeilisearchConstants,
@@ -430,6 +520,8 @@ export const meilisearchConstants = {
   position: positionMeilisearchConstants,
   committee: committeeMeilisearchConstants,
   song: songMeilisearchConstants,
+  governingDocument: governingDocumentMeilisearchConstants,
+  meetingDocument: meetingDocumentMeilisearchConstants,
 };
 
 export type MeilisearchConstants =
@@ -456,4 +548,8 @@ export type MeilisearchConstants =
   | {
       constants: SongConstantsMeilisearch;
       data: SongDataInMeilisearch;
+    }
+  | {
+      constants: GoverningDocumentConstantsMeilisearch;
+      data: GoverningDocumentDataInMeilisearch;
     };
