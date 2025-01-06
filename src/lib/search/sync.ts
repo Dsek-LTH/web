@@ -53,14 +53,6 @@ const sync = async () => {
 
 export default sync;
 
-/**
- * Meilisearch has constraints on the id field:
- * it can only contain alphanumeric characters (a-z, A-Z, 0-9), hyphens (-), and underscores (_).
- * So we need to convert the prisma id to a meilisearch id.
- * As of now, the Positions table has a prisma id that is not compatible with meilisearch.
- * (it contains dots)
- */
-
 async function syncMembers() {
   const numMembers = await authorizedPrismaClient.member.count();
   const membersIndex = await meilisearch.getIndex("members");

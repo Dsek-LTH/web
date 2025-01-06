@@ -1,3 +1,22 @@
+/**
+ * This file contains a lot of types and constants.
+ *
+ * Essentially, for every index in Meilisearch there is a type for:
+ *  1. which attributes are stored in Meilisearch for that index,
+ *  2. which attributes a user can search for,
+ *  3. which attributes are returned.
+ *
+ * Of course, all attributes that can be searched for, or are returned,
+ * must be stored in Meilisearch. However, it is not as simble as doing
+ * a union of 2 and 3 to get 1, since some attributes (e.g `event.startDatetime`)
+ * are used purely for sorting and ranking purposes internally by Meilisearch.
+ *
+ * Additionally, there are objects like `memberMeilisearchConstants` which
+ * wraps things related to an index in a single object. Here we can specify
+ * custom ranking and sorting rules for Meili, such as giving newer members
+ * a higher ranking, and tweak which typo tolerance is allowed.
+ */
+
 import type {
   Article,
   Member,
