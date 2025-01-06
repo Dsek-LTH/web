@@ -4,7 +4,9 @@ import {
   type SearchableArticleAttributes,
   type SearchableCommitteeAttributes,
   type SearchableEventAttributes,
+  type SearchableGoverningDocumentAttributes,
   type SearchableIndex,
+  type SearchableMeetingDocumentAttributes,
   type SearchableMemberAttributes,
   type SearchablePositionAttributes,
   type SearchableSongAttributes,
@@ -35,6 +37,10 @@ export function getFederatedWeight(index: SearchableIndex): number {
       return 1;
     case "committees":
       return 2;
+    case "governingDocuments":
+      return 1;
+    case "meetingDocuments":
+      return 1;
     default:
       return 0;
   }
@@ -114,6 +120,22 @@ export function getSearchableAttributes(
       }
       return res;
     }
+    case "governingDocuments": {
+      // no language specific fields
+      const res: Array<keyof SearchableGoverningDocumentAttributes> = [
+        "title",
+        "content",
+      ];
+      return res;
+    }
+    case "meetingDocuments": {
+      // no language specific fields
+      const res: Array<keyof SearchableMeetingDocumentAttributes> = [
+        "title",
+        "content",
+      ];
+      return res;
+    }
     default:
       return [];
   }
@@ -133,6 +155,10 @@ export function mapIndexToMessage(index: SearchableIndex) {
       return m.search_songs();
     case "committees":
       return m.search_committees();
+    case "governingDocuments":
+      return m.search_governing_documents();
+    case "meetingDocuments":
+      return m.search_meeting_documents();
     default:
       return "";
   }

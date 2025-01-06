@@ -17,6 +17,7 @@ import {
   waitForTask,
 } from "$lib/search/syncHelpers";
 import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
+import { syncGoverningDocuments } from "$lib/search/syncDocuments";
 
 // To try to lower the memory usage, we only fetch 1000 items at a time.
 // The sync doesn't need to be super fast, so this is fine.
@@ -50,6 +51,7 @@ const sync = async () => {
   await syncEvents();
   await syncPositions();
   await syncCommittees();
+  await syncGoverningDocuments();
 
   console.log(`Meilisearch: Data synced. Took ${Date.now() - currentTime} ms`);
   return "Data synced";
