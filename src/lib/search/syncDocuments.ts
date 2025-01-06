@@ -128,10 +128,8 @@ const getFileContent = async (url: string) => {
     if (
       !pdfResponse.headers.get("content-type")?.startsWith("application/pdf")
     ) {
-      throw error(
-        pdfResponse.status as NumericRange<400, 599>,
-        `Not a PDF: ${url}`,
-      );
+      // 415 Unsupported Media Type
+      throw error(415, `Not a PDF: ${url}`);
     }
 
     const buffer = await pdfResponse.arrayBuffer();
