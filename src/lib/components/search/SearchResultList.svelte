@@ -25,8 +25,12 @@
   {:else if searchValue.type === "committees"}
     <CommitteeSearchResult committee={searchValue.data} />
   {:else if searchValue.type === "governingDocuments"}
-    <DocumentSearchResult document={{ ...searchValue.data, type: "gov" }} />
+    <DocumentSearchResult
+      document={{ ...searchValue.data, type: searchValue.type }}
+    />
   {:else if searchValue.type === "meetingDocuments"}
-    <DocumentSearchResult document={{ ...searchValue.data, type: "meeting" }} />
+    <DocumentSearchResult
+      document={{ ...searchValue.data, type: searchValue.type }}
+    />
   {/if}
 {/each}

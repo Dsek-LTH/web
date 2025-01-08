@@ -5,8 +5,8 @@
   } from "$lib/search/searchTypes";
 
   export let document:
-    | (GoverningDocumentSearchReturnAttributes & { type: "gov" })
-    | (MeetingDocumentSearchReturnAttributes & { type: "meeting" });
+    | (GoverningDocumentSearchReturnAttributes & { type: "governingDocuments" })
+    | (MeetingDocumentSearchReturnAttributes & { type: "meetingDocuments" });
 
   const getUrl = (url: string) => {
     if (url.startsWith("http")) {
@@ -26,7 +26,7 @@
     class="search-result border border-transparent focus:border-primary"
   >
     <div class="avatar aspect-square w-8 overflow-hidden rounded-full">
-      {#if document.type === "gov"}
+      {#if document.type === "governingDocuments"}
         <span class="i-mdi-gavel text-2xl"></span>
       {:else}
         <span class="i-mdi-text-box-multiple-outline text-2xl"></span>
