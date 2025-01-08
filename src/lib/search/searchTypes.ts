@@ -353,29 +353,33 @@ export type SearchDataWithType =
       data: MeetingDocumentSearchReturnAttributes;
     };
 
+/**
+ * The server slices strings before sending them to the client
+ * to reduce traffic. Some attributes cannot be sliced however,
+ * since they are used to link to the entry, or e.g. as a image
+ */
 export const attributesUsedAsLink: {
-  members: keyof MemberSearchReturnAttributes;
-  events: keyof EventSearchReturnAttributes;
-  articles: keyof ArticleSearchReturnAttributes;
-  songs: keyof SongSearchReturnAttributes;
-  positions: keyof PositionSearchReturnAttributes;
-  committees: keyof CommitteeSearchReturnAttributes;
-  governingDocuments: keyof GoverningDocumentSearchReturnAttributes;
-  meetingDocuments: keyof MeetingDocumentSearchReturnAttributes;
+  members: Array<keyof MemberSearchReturnAttributes>;
+  events: Array<keyof EventSearchReturnAttributes>;
+  articles: Array<keyof ArticleSearchReturnAttributes>;
+  songs: Array<keyof SongSearchReturnAttributes>;
+  positions: Array<keyof PositionSearchReturnAttributes>;
+  committees: Array<keyof CommitteeSearchReturnAttributes>;
+  governingDocuments: Array<keyof GoverningDocumentSearchReturnAttributes>;
+  meetingDocuments: Array<keyof MeetingDocumentSearchReturnAttributes>;
 } = {
-  members: "studentId",
-  events: "slug",
-  articles: "slug",
-  songs: "slug",
-  positions: "dsekId",
-  committees: "shortName",
-  governingDocuments: "url",
-  meetingDocuments: "url",
+  members: ["studentId", "picturePath"],
+  events: ["slug"],
+  articles: ["slug"],
+  songs: ["slug"],
+  positions: ["dsekId"],
+  committees: ["shortName", "darkImageUrl", "lightImageUrl", "monoImageUrl"],
+  governingDocuments: ["url"],
+  meetingDocuments: ["url"],
 };
 
-export const listOfAttributesUsedAsLink: string[] = Object.values(
-  attributesUsedAsLink,
-) as string[];
+export const listOfattributesUsedAsLink: string[] =
+  Object.values(attributesUsedAsLink).flat();
 
 type DefaultRankingRules =
   | "words"
