@@ -15,6 +15,7 @@ import { prismaIdToMeiliId } from "./searchHelpers";
 import { fileHandler } from "$lib/files";
 import type { AuthUser } from "@zenstackhq/runtime";
 import apiNames from "$lib/utils/apiNames";
+import { promiseAllInBatches } from "$lib/utils/batch";
 
 /**
  * Syncs all governing documents
@@ -27,37 +28,39 @@ export const syncGoverningDocuments = async () => {
   await resetIndex(documentsIndex, meilisearchConstants.governingDocument);
 
   // In Prisma, we store our governing documents, which has a URL to the actual document.
-  const governingDocuments: GoverningDocumentDataInMeilisearch[] =
-    await authorizedPrismaClient.document
-      .findMany({
-        select: {
-          id: true,
-          title: true,
-          type: true,
-          url: true,
-        },
-        where: {
-          deletedAt: null,
-        },
-      })
-      .then(async (documents) => {
-        const result = [];
-        for (const document of documents) {
-          // Fetch the content of the document
-          const content = await getFileContent(document.url);
-          // If the fetch was successful, add the document to the result
-          if (content) {
-            result.push({
-              ...document,
-              content,
-              id: prismaIdToMeiliId(document.id),
-            });
-          }
-        }
-        return result;
-      });
+  const governingDocuments = await authorizedPrismaClient.document.findMany({
+    select: {
+      id: true,
+      title: true,
+      type: true,
+      url: true,
+    },
+    where: {
+      deletedAt: null,
+    },
+  });
 
-  await addDataToIndex(documentsIndex, governingDocuments);
+  const governingDocumentsWithText: GoverningDocumentDataInMeilisearch[] =
+    await promiseAllInBatches(
+      governingDocuments,
+      async (document) => {
+        // Fetch the content of the document
+        const content = await getFileContent(document.url);
+        // If the fetch was successful, add the document to the result
+        if (content) {
+          return {
+            ...document,
+            content,
+            id: prismaIdToMeiliId(document.id),
+          };
+        }
+      },
+      5,
+    ).then((documents) =>
+      documents.filter((document) => document !== undefined),
+    );
+
+  await addDataToIndex(documentsIndex, governingDocumentsWithText);
   await setRulesForIndex(
     documentsIndex,
     meilisearchConstants.governingDocument,
@@ -65,7 +68,8 @@ export const syncGoverningDocuments = async () => {
 };
 
 /**
- *
+ * Syncs all meeting documents
+ * Meeting documents are stored in the public bucket on MinIO
  */
 export const syncMeetingDocuments = async () => {
   // This is a hack to get the files from the public bucket
@@ -86,27 +90,34 @@ export const syncMeetingDocuments = async () => {
   const documentsIndex = await meilisearch.getIndex(indexName);
   await resetIndex(documentsIndex, meilisearchConstants.meetingDocument);
 
-  const pdfs: MeetingDocumentDataInMeilisearch[] = [];
-  for (const file of files) {
-    if (file.thumbnailUrl) {
-      const content = await getFileContent(file.thumbnailUrl);
-      if (content) {
-        pdfs.push({
-          id: prismaIdToMeiliId(file.id),
-          title: file.name,
-          content,
-          url: file.thumbnailUrl,
-        });
-      }
-    }
-  }
+  const meetingDocumentsWithText: MeetingDocumentDataInMeilisearch[] =
+    await promiseAllInBatches(
+      files,
+      async (file) => {
+        if (file.thumbnailUrl) {
+          const content = await getFileContent(file.thumbnailUrl);
+          if (content) {
+            return {
+              id: prismaIdToMeiliId(file.id),
+              title: file.name,
+              content,
+              url: file.thumbnailUrl,
+            };
+          }
+        }
+      },
+      5,
+    ).then((documents) =>
+      documents.filter((document) => document !== undefined),
+    );
 
-  await addDataToIndex(documentsIndex, pdfs);
+  await addDataToIndex(documentsIndex, meetingDocumentsWithText);
   await setRulesForIndex(documentsIndex, meilisearchConstants.meetingDocument);
 };
 
 const getFileContent = async (url: string) => {
   try {
+    console.log(`Poppler: Fetching PDF from ${url}`);
     let pdfResponse;
     // If the URL starts with "styrdokument", "policys", "reglemente", "stadgar"
     // or "riktlinjer", we should fetch the document from the GitHub repository
@@ -115,7 +126,6 @@ const getFileContent = async (url: string) => {
     } else {
       pdfResponse = await fetch(url);
     }
-
     // Check that the response is OK
     if (!pdfResponse.ok) {
       throw error(
@@ -131,10 +141,17 @@ const getFileContent = async (url: string) => {
       // 415 Unsupported Media Type
       throw error(415, `Not a PDF: ${url}`);
     }
+    console.log(
+      `Poppler: Received PDF from ${url}. Sending it to Poppler to extract text`,
+    );
 
     const buffer = await pdfResponse.arrayBuffer();
     // Send the PDF to the Poppler server to extract the text
+    const now = new Date();
     const popplerResponse = await pdfToText(buffer);
+    console.log(
+      `Poppler: Received content from ${url} from Poppler server. Took ${new Date().getTime() - now.getTime()} ms`,
+    );
     // Filter the content to remove unnecessary characters
     return filterContent(popplerResponse);
   } catch (error) {
