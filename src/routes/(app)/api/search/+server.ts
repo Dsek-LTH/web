@@ -5,7 +5,7 @@ import {
   getSearchableAttributes,
 } from "$lib/search/searchHelpers";
 import {
-  listOfattributesUsedAsLink,
+  listOfAttributesUsedAsLink,
   type SearchDataWithType,
 } from "$lib/search/searchTypes";
 
@@ -82,7 +82,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
         for (const key of Object.keys(hit)) {
           if (
             // We must not truncate attributes that are used as links
-            !listOfattributesUsedAsLink.includes(key) &&
+            !listOfAttributesUsedAsLink.includes(key) &&
             typeof hit[key] === "string"
           ) {
             hit[key] = hit[key].slice(0, 60);

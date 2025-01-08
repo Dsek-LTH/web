@@ -1,18 +1,26 @@
 import { meilisearch } from "$lib/search/meilisearch";
+import { prismaIdToMeiliId } from "$lib/search/searchHelpers";
 import {
   availableSearchIndexes,
   meilisearchConstants,
   type ArticleDataInMeilisearch,
   type CommitteeDataInMeilisearch,
   type EventDataInMeilisearch,
-  type MeilisearchConstants,
   type MemberDataInMeilisearch,
   type PositionDataInMeilisearch,
   type SongDataInMeilisearch,
 } from "$lib/search/searchTypes";
+import {
+  addDataToIndex,
+  resetIndex,
+  setRulesForIndex,
+  waitForTask,
+} from "$lib/search/syncHelpers";
 import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
-import type { EnqueuedTask, Index } from "meilisearch";
-import { prismaIdToMeiliId } from "./searchHelpers";
+import {
+  syncGoverningDocuments,
+  syncMeetingDocuments,
+} from "$lib/search/syncDocuments";
 
 // To try to lower the memory usage, we only fetch 1000 items at a time.
 // The sync doesn't need to be super fast, so this is fine.
@@ -46,6 +54,8 @@ const sync = async () => {
   await syncEvents();
   await syncPositions();
   await syncCommittees();
+  await syncGoverningDocuments();
+  await syncMeetingDocuments();
 
   console.log(`Meilisearch: Data synced. Took ${Date.now() - currentTime} ms`);
   return "Data synced";
@@ -84,7 +94,7 @@ async function syncMembers() {
             id: prismaIdToMeiliId(member.id),
           })),
         );
-    await addDataToIndex(membersIndex, meilisearchConstants.member, members);
+    await addDataToIndex(membersIndex, members);
   }
   await setRulesForIndex(membersIndex, meilisearchConstants.member);
 }
@@ -119,7 +129,7 @@ async function syncSongs() {
           id: prismaIdToMeiliId(song.id),
         })),
       );
-    await addDataToIndex(songsIndex, meilisearchConstants.song, songs);
+    await addDataToIndex(songsIndex, songs);
   }
   await setRulesForIndex(songsIndex, meilisearchConstants.song);
 }
@@ -165,7 +175,7 @@ async function syncArticles() {
             id: prismaIdToMeiliId(article.id),
           })),
         );
-    await addDataToIndex(articlesIndex, meilisearchConstants.article, articles);
+    await addDataToIndex(articlesIndex, articles);
   }
   await setRulesForIndex(articlesIndex, meilisearchConstants.article);
 }
@@ -205,7 +215,7 @@ async function syncEvents() {
           id: prismaIdToMeiliId(event.id),
         })),
       );
-    await addDataToIndex(eventsIndex, meilisearchConstants.event, events);
+    await addDataToIndex(eventsIndex, events);
   }
   await setRulesForIndex(eventsIndex, meilisearchConstants.event);
 }
@@ -243,11 +253,7 @@ async function syncPositions() {
             id: prismaIdToMeiliId(position.id),
           })),
         );
-    await addDataToIndex(
-      positionsIndex,
-      meilisearchConstants.position,
-      positions,
-    );
+    await addDataToIndex(positionsIndex, positions);
   }
   await setRulesForIndex(positionsIndex, meilisearchConstants.position);
 }
@@ -283,109 +289,7 @@ async function syncCommittees() {
             id: prismaIdToMeiliId(committee.id),
           })),
         );
-    await addDataToIndex(
-      committeesIndex,
-      meilisearchConstants.committee,
-      committees,
-    );
+    await addDataToIndex(committeesIndex, committees);
   }
   await setRulesForIndex(committeesIndex, meilisearchConstants.committee);
-}
-
-// HELPER FUNCTIONS
-async function resetIndex(
-  index: Index,
-  constants: MeilisearchConstants["constants"],
-) {
-  await waitForTask(
-    () => index.deleteAllDocuments(),
-    `Deleting all documents in ${index.uid}`,
-  );
-  await waitForTask(
-    () => index.resetSearchableAttributes(),
-    `Resetting searchable attributes in ${index.uid}`,
-  );
-  await waitForTask(
-    () => index.resetRankingRules(),
-    `Resetting ranking rules in ${index.uid}`,
-  );
-  const sortableAttributes = constants.sortableAttributes;
-  if (sortableAttributes?.length) {
-    await waitForTask(
-      () => index.resetSortableAttributes(),
-      `Resetting sortable attributes in ${index.uid}`,
-    );
-  }
-  const typoTolerance = constants.typoTolerance;
-  if (typoTolerance !== undefined) {
-    await waitForTask(
-      () => index.resetTypoTolerance(),
-      `Resetting typo tolerance in ${index.uid}`,
-    );
-  }
-}
-
-async function addDataToIndex(
-  index: Index,
-  constants: MeilisearchConstants["constants"],
-  documents: Array<MeilisearchConstants["data"]>,
-) {
-  await waitForTask(
-    () => index.addDocuments(documents, { primaryKey: "id" }),
-    `Adding documents to ${index.uid}`,
-  );
-}
-
-async function setRulesForIndex(
-  index: Index,
-  constants: MeilisearchConstants["constants"],
-) {
-  await waitForTask(
-    () => index.updateSearchableAttributes(constants.searchableAttributes),
-    `Updating searchable attributes in ${index.uid}`,
-  );
-  await waitForTask(
-    () => index.updateRankingRules(constants.rankingRules),
-    `Updating ranking rules in ${index.uid}`,
-  );
-  const sortableAttributes = constants.sortableAttributes;
-  if (sortableAttributes?.length) {
-    await waitForTask(
-      () => index.updateSortableAttributes(sortableAttributes),
-      `Updating sortable attributes in ${index.uid}`,
-    );
-  }
-  const typoTolerance = constants.typoTolerance;
-  if (typoTolerance !== undefined) {
-    await waitForTask(
-      () => index.updateTypoTolerance(typoTolerance),
-      `Updating typo tolerance in ${index.uid}`,
-    );
-  }
-}
-
-async function waitForTask(
-  fn: () => Promise<EnqueuedTask>,
-  taskName: string,
-  timeOutMs = 60 * 1000,
-) {
-  const currentTime = Date.now();
-  console.log(`Meilisearch: Waiting for "${taskName}" to finish`);
-  const enqueded = await fn();
-  const taskUid = enqueded.taskUid;
-  return await meilisearch
-    .waitForTask(taskUid, { timeOutMs })
-    .then((task) => {
-      console.log(
-        `Meilisearch: "${taskName}" finished in ${Date.now() - currentTime} ms`,
-      );
-      return task;
-    })
-    .catch((e) => {
-      console.log(
-        `Meilisearch: "${taskName}" failed after ${Date.now() - currentTime} ms`,
-        e,
-      );
-      return e as Error;
-    });
 }

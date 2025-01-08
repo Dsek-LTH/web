@@ -2,7 +2,7 @@ import { expect, test } from "vitest";
 import {
   attributesUsedAsLink,
   availableSearchIndexes,
-  listOfattributesUsedAsLink,
+  listOfAttributesUsedAsLink,
 } from "./searchTypes";
 
 /**
@@ -23,7 +23,7 @@ test("all indexes has attribute that doesn't get sliced", () => {
     expect(Array.isArray(indexAttributes)).toBe(true);
     expect(indexAttributes.length > 0).toBe(true);
   }
-  expect(listOfattributesUsedAsLink.length).toBeGreaterThanOrEqual(
+  expect(listOfAttributesUsedAsLink.length).toBeGreaterThanOrEqual(
     availableSearchIndexes.length,
   );
 });

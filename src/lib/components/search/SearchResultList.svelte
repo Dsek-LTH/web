@@ -4,8 +4,9 @@
   import ArticleSearchResult from "$lib/components/search/ArticleSearchResult.svelte";
   import EventSearchResult from "$lib/components/search/EventSearchResult.svelte";
   import SongSearchResult from "$lib/components/search/SongSearchResult.svelte";
-  import CommitteeSearchResult from "./CommitteeSearchResult.svelte";
+  import CommitteeSearchResult from "$lib/components/search/CommitteeSearchResult.svelte";
   import type { SearchDataWithType } from "$lib/search/searchTypes";
+  import DocumentSearchResult from "$lib/components/search/DocumentSearchResult.svelte";
 
   export let results: SearchDataWithType[] = [];
 </script>
@@ -23,5 +24,7 @@
     <SongSearchResult song={searchValue.data} />
   {:else if searchValue.type === "committees"}
     <CommitteeSearchResult committee={searchValue.data} />
+  {:else if searchValue.type === "governingDocuments" || searchValue.type == "meetingDocuments"}
+    <DocumentSearchResult document={searchValue} />
   {/if}
 {/each}
