@@ -358,16 +358,7 @@ export type SearchDataWithType =
  * to reduce traffic. Some attributes cannot be sliced however,
  * since they are used to link to the entry, or e.g. as a image
  */
-export const attributesUsedAsLink: {
-  members: Array<keyof MemberSearchReturnAttributes>;
-  events: Array<keyof EventSearchReturnAttributes>;
-  articles: Array<keyof ArticleSearchReturnAttributes>;
-  songs: Array<keyof SongSearchReturnAttributes>;
-  positions: Array<keyof PositionSearchReturnAttributes>;
-  committees: Array<keyof CommitteeSearchReturnAttributes>;
-  governingDocuments: Array<keyof GoverningDocumentSearchReturnAttributes>;
-  meetingDocuments: Array<keyof MeetingDocumentSearchReturnAttributes>;
-} = {
+export const attributesUsedAsLink = {
   members: ["studentId", "picturePath"],
   events: ["slug"],
   articles: ["slug"],
@@ -376,9 +367,18 @@ export const attributesUsedAsLink: {
   committees: ["shortName", "darkImageUrl", "lightImageUrl", "monoImageUrl"],
   governingDocuments: ["url"],
   meetingDocuments: ["url"],
+} as const satisfies {
+  members: Array<keyof MemberSearchReturnAttributes>;
+  events: Array<keyof EventSearchReturnAttributes>;
+  articles: Array<keyof ArticleSearchReturnAttributes>;
+  songs: Array<keyof SongSearchReturnAttributes>;
+  positions: Array<keyof PositionSearchReturnAttributes>;
+  committees: Array<keyof CommitteeSearchReturnAttributes>;
+  governingDocuments: Array<keyof GoverningDocumentSearchReturnAttributes>;
+  meetingDocuments: Array<keyof MeetingDocumentSearchReturnAttributes>;
 };
 
-export const listOfattributesUsedAsLink: string[] =
+export const listOfAttributesUsedAsLink: string[] =
   Object.values(attributesUsedAsLink).flat();
 
 type DefaultRankingRules =

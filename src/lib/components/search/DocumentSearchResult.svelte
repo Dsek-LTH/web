@@ -1,12 +1,11 @@
 <script lang="ts">
-  import type {
-    GoverningDocumentSearchReturnAttributes,
-    MeetingDocumentSearchReturnAttributes,
-  } from "$lib/search/searchTypes";
+  import type { SearchDataWithType } from "$lib/search/searchTypes";
 
-  export let document:
-    | (GoverningDocumentSearchReturnAttributes & { type: "governingDocuments" })
-    | (MeetingDocumentSearchReturnAttributes & { type: "meetingDocuments" });
+  export let document: Extract<
+    SearchDataWithType,
+    { type: "governingDocuments" | "meetingDocuments" }
+  >;
+  $: data = document.data;
 
   const getUrl = (url: string) => {
     if (url.startsWith("http")) {
@@ -22,7 +21,7 @@
 
 <li>
   <a
-    href={getUrl(document.url)}
+    href={getUrl(data.url)}
     class="search-result border border-transparent focus:border-primary"
   >
     <div class="avatar aspect-square w-8 overflow-hidden rounded-full">
@@ -34,10 +33,10 @@
     </div>
     <div>
       <h4>
-        {document.title ? document.title : document.content.slice(0, 20)}
+        {data.title ? data.title : data.content.slice(0, 20)}
       </h4>
       <p class="line-clamp-1 text-gray-500">
-        {document.content}
+        {data.content}
       </p>
     </div>
   </a>
