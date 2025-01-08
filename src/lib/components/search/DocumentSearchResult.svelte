@@ -4,10 +4,9 @@
     MeetingDocumentSearchReturnAttributes,
   } from "$lib/search/searchTypes";
 
-  export let document: (
-    | GoverningDocumentSearchReturnAttributes
-    | MeetingDocumentSearchReturnAttributes
-  ) & { type: "gov" | "meeting" };
+  export let document:
+    | (GoverningDocumentSearchReturnAttributes & { type: "gov" })
+    | (MeetingDocumentSearchReturnAttributes & { type: "meeting" });
 
   const getUrl = (url: string) => {
     if (url.startsWith("http")) {
