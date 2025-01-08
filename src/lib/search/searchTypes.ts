@@ -291,25 +291,29 @@ export type SearchDataWithType =
       data: CommitteeSearchReturnAttributes;
     };
 
+/**
+ * The server slices strings before sending them to the client
+ * to reduce traffic. Some attributes cannot be sliced however,
+ * since they are used to link to the entry, or e.g. as a image
+ */
 export const attributesUsedAsLink: {
-  members: keyof MemberSearchReturnAttributes;
-  events: keyof EventSearchReturnAttributes;
-  articles: keyof ArticleSearchReturnAttributes;
-  songs: keyof SongSearchReturnAttributes;
-  positions: keyof PositionSearchReturnAttributes;
-  committees: keyof CommitteeSearchReturnAttributes;
+  members: Array<keyof MemberSearchReturnAttributes>;
+  events: Array<keyof EventSearchReturnAttributes>;
+  articles: Array<keyof ArticleSearchReturnAttributes>;
+  songs: Array<keyof SongSearchReturnAttributes>;
+  positions: Array<keyof PositionSearchReturnAttributes>;
+  committees: Array<keyof CommitteeSearchReturnAttributes>;
 } = {
-  members: "studentId",
-  events: "slug",
-  articles: "slug",
-  songs: "slug",
-  positions: "dsekId",
-  committees: "shortName",
+  members: ["studentId", "picturePath"],
+  events: ["slug"],
+  articles: ["slug"],
+  songs: ["slug"],
+  positions: ["dsekId"],
+  committees: ["shortName", "darkImageUrl", "lightImageUrl", "monoImageUrl"],
 };
 
-export const listOfattributesUsedAsLink: string[] = Object.values(
-  attributesUsedAsLink,
-) satisfies string[];
+export const listOfattributesUsedAsLink: string[] =
+  Object.values(attributesUsedAsLink).flat();
 
 type DefaultRankingRules =
   | "words"
