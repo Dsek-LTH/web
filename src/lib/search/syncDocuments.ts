@@ -108,9 +108,9 @@ export const syncMeetingDocuments = async () => {
 const getFileContent = async (url: string) => {
   try {
     let pdfResponse;
-    // If the URL starts with "styrdokument", "policys", "reglemente" or "stadgar",
-    // we should fetch the document from the GitHub repository
-    if (url.match(/^(styrdokument|policys|reglemente|stadgar)/)) {
+    // If the URL starts with "styrdokument", "policys", "reglemente", "stadgar"
+    // or "riktlinjer", we should fetch the document from the GitHub repository
+    if (url.match(/^(styrdokument|policys|reglemente|stadgar|riktlinjer)/)) {
       pdfResponse = await servePdf(url);
     } else {
       pdfResponse = await fetch(url);
