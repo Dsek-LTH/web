@@ -3,7 +3,7 @@
   import Events from "$lib/components/home/Events.svelte";
   import WellbeingCTA from "$lib/components/home/WellbeingCTA.svelte";
   import CafeOpenTimes from "$lib/components/home/CafeOpenTimes.svelte";
-  import KodaMedDWWW from "$lib/components/home/CodeWithDWWW.svelte";
+  import CodeWithDWWW from "$lib/components/home/CodeWithDWWW.svelte";
   import Documents from "$lib/components/home/Documents.svelte";
 
   import type { PageData } from "./$types";
@@ -54,7 +54,7 @@
   <section
     class="order-last md:col-span-3 lg:col-span-3 xl:order-none xl:col-span-2"
   >
-    <KodaMedDWWW
+    <CodeWithDWWW
       commitCount={data.commitCount}
       commitData={data.latestCommit}
     />
