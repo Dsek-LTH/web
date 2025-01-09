@@ -15,7 +15,7 @@
   export let data: PageData;
 </script>
 
-<SetPageTitle title="D-sektionen" />
+<SetPageTitle />
 
 <div class="grid grid-cols-1 gap-x-5 gap-y-10 md:grid-cols-3 xl:grid-cols-5">
   <section class="col-span-1 hidden flex-col place-items-center xl:flex">

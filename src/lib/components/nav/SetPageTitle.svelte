@@ -2,7 +2,11 @@
   import { pageTitle } from "$lib/stores/pageTitle";
   // import { onDestroy } from "svelte";
 
-  export let title: string | undefined;
+  /**
+   * The title of the page as shown in the browser tab.
+   * Undefined will set the title to "D-sektionen".
+   */
+  export let title: string | undefined = undefined;
   // let pageTitleBefore = $pageTitle;
   // onDestroy(() => {
   //   $pageTitle = pageTitleBefore;
