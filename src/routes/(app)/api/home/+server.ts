@@ -16,16 +16,35 @@ export async function GET() {
   const now = dayjs();
   if (!lastFetch || lastFetch.add(cacheDuration, "s").isBefore(now)) {
     lastFetch = now;
-    const commit = await fetch(
-      "https://api.github.com/repos/dsek-lth/web/commits?per_page=1",
-    );
-    const regex = /\d*(?=>; rel="last")/;
-    const regexRes = regex.exec(commit.headers.get("link") ?? "");
-    commitCount = regexRes ? regexRes[0] : "0";
+    try {
+      const commit = await fetch(
+        "https://api.github.com/repos/dsek-lth/web/commits?per_page=1",
+      );
 
-    const commitData = (await commit.json())[0];
-    if (!commitData) {
-      // Because github will rate-limit while developing since cache reloads
+      if (!commit.ok) {
+        throw new Error(
+          `Failed to fetch commit data: ${commit.status} ${commit.statusText}`,
+        );
+      }
+
+      const regex = /\d*(?=>; rel="last")/;
+      const regexRes = regex.exec(commit.headers.get("link") ?? "");
+      commitCount = regexRes ? regexRes[0] : "0";
+
+      const commitData = (await commit.json())[0];
+      if (!commitData) {
+        throw new Error("No commit data found");
+      }
+
+      latestCommit = {
+        author: commitData.author.login,
+        message: commitData.commit.message,
+        avatarUrl: commitData.author.avatar_url,
+        url: commitData.html_url,
+        date: commitData.commit.committer.date,
+      };
+    } catch (error) {
+      console.log("Error fetching commit data:", error);
       commitCount = "not found";
       latestCommit = {
         author: "Not Found",
@@ -34,19 +53,12 @@ export async function GET() {
         url: "",
         date: now.toISOString(),
       };
-    } else {
-      latestCommit = {
-        author: commitData.author.login,
-        message: commitData.commit.message,
-        avatarUrl: commitData.author.avatar_url,
-        url: commitData.html_url,
-        date: commitData.commit.committer.date,
-      };
     }
   }
 
   return json({ commitCount, latestCommit });
 }
+
 export type GetCommitDataResponse = {
   commitCount: string;
   latestCommit: typeof latestCommit;
