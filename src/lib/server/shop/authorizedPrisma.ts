@@ -3,6 +3,6 @@ import { PrismaClient } from "@prisma/client";
 /**
  * Prisma client without zenstack access policies, allowing for unrestricted access to the database.
  */
-const authorizedPrismaClient = new PrismaClient();
+const authorizedPrismaClient = new PrismaClient({ log: ["info", "error", "warn"] });
 
 export default authorizedPrismaClient;

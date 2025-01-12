@@ -2,6 +2,7 @@ import { dev } from "$app/environment";
 import { isNollningPeriod } from "$lib/utils/adminSettings/nollning";
 import apiNames from "$lib/utils/apiNames";
 import type { PrismaClient } from "@prisma/client";
+import { createCache } from "cache-manager";
 
 const fetchAccessPolicies = async (
   prisma: PrismaClient,
@@ -39,6 +40,8 @@ const hasCacheExpired = (cache: typeof accessPoliciesCache) =>
   !cache.lastUpdated || // no cache
   Date.now() - cache.lastUpdated > CACHE_TTL;
 
+const cache = createCache();
+
 /**
  * @param prisma
  * @param ctx session.user
@@ -57,15 +60,12 @@ export const getAccessPolicies = async (
 
   // only has *, i.e logged out user
   if (roles.length === 1) {
-    if (hasCacheExpired(accessPoliciesCache)) {
-      accessPoliciesCache.policies = await fetchAccessPolicies(
-        prisma,
-        roles,
-        undefined,
-      );
-      accessPoliciesCache.lastUpdated = Date.now();
+    let ap = await cache.get("ap");
+    if (ap === null) {
+      ap = await fetchAccessPolicies(prisma, roles, undefined);
+      cache.set("ap", ap, CACHE_TTL);
     }
-    return accessPoliciesCache.policies;
+    return ap;
   }
 
   return await fetchAccessPolicies(prisma, roles, studentId);

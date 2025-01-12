@@ -7,45 +7,40 @@ import { loadFlash } from "sveltekit-flash-message/server";
 import { zod } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
 import { tracer } from "../../hooks.server";
+import { createCache } from "cache-manager";
 
-const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
-const alertsCache: { alerts: Alert[]; lastUpdated: number | null } = {
-  alerts: [],
-  lastUpdated: null,
-};
-const hasCacheExpired = (cache: typeof alertsCache) =>
-  !cache.lastUpdated || // no cache
-  Date.now() - cache.lastUpdated > CACHE_TTL;
+const cache = createCache();
 
 export const load = loadFlash(async ({ locals, depends }) => {
-  const { notificationsPromise, shopItemCounts } = await tracer.startActiveSpan(
+  const { notificationsPromise, shopItemCounts, alerts } = await tracer.startActiveSpan(
     "layout.server.ts",
     async (span) => {
       const { user, prisma } = locals;
 
       depends("/api/notifications/my");
       const notificationsPromise = user?.memberId
-        ? getMyGroupedNotifications(user, prisma)
+        ? await getMyGroupedNotifications(user, prisma)
         : null;
       depends("cart");
       const shopItemCounts = countUserShopItems(prisma, user);
 
-      if (hasCacheExpired(alertsCache)) {
-        alertsCache.alerts = await prisma.alert.findMany({
+      let alerts = await cache.get("alerts");
+      if (alerts === null) {
+        alerts = await prisma.alert.findMany({
           where: {
             removedAt: null,
           },
         });
-        alertsCache.lastUpdated = Date.now();
+        cache.set("alerts", alerts), 10 * 60 * 1000;
       }
       span.end();
 
-      return { notificationsPromise, shopItemCounts };
+      return { notificationsPromise, shopItemCounts, alerts };
     },
   );
 
   return {
-    alerts: alertsCache.alerts,
+    alerts,
     notificationsPromise,
     mutateNotificationForm: await superValidate(zod(notificationSchema)),
     readNotificationForm: await superValidate(zod(emptySchema)),

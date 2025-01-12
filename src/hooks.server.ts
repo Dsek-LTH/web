@@ -24,6 +24,7 @@ import loggingExtension from "./database/prisma/loggingExtension";
 import translatedExtension from "./database/prisma/translationExtension";
 import { getAccessPolicies } from "./hooks.server.helpers";
 import { getDerivedRoles } from "$lib/utils/authorization";
+import { createCache } from "cache-manager";
 
 const perfHandle: Handle = async ({ event, resolve }) => {
   const response = await tracer.startActiveSpan(
@@ -114,6 +115,7 @@ const { handle: authHandle } = SvelteKitAuth({
   },
 });
 
+const cache = createCache();
 const prismaClient = authorizedPrismaClient;
 const databaseHandle: Handle = async ({ event, resolve }) => {
   await tracer.startActiveSpan("databaseHandle", async (span) => {
@@ -121,10 +123,63 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
       ? event.locals.paraglide?.lang
       : sourceLanguageTag;
     event.locals.language = lang;
-  const session = await event.locals.getSession();
+    const session = await event.locals.getSession();
     const prisma = prismaClient
       .$extends(translatedExtension(lang))
-      .$extends(loggingExtension(session?.user.student_id)) as PrismaClient;
+      .$extends(loggingExtension(session?.user.student_id))
+      .$extends({
+        query: {
+          article: {
+            async findMany({ args, query }) {
+              const { publishedAt, OR, ...rest } = args.where;
+              const key = JSON.stringify(rest);
+              const cacheres = await cache.get(key);
+              if (cacheres) {
+                //console.log("cache hit articles");
+                return cacheres;
+              } else {
+                console.log("cache miss articles");
+                return query(args).then((res) => {
+                  cache.set(key, res, 60000);
+                  return res;
+                });
+              }
+            },
+            async count({ args, query }) {
+              const key = "count";
+              const cacheres = await cache.get(key);
+              if (cacheres) {
+                //console.log("cache hit", key);
+                return cacheres;
+              } else {
+                console.log("cache miss", JSON.stringify(key));
+                return query(args).then((res) => {
+                  cache.set(key, res, 60000);
+                  return res;
+                });
+              }
+            },
+          },
+        },
+      })
+      .$extends({
+        query: {
+          async $allOperations({ args, query }) {
+            const key = JSON.stringify(args);
+            const cacheres = await cache.get(key);
+            if (cacheres) {
+              //console.log("cache hit", key);
+              return cacheres;
+            } else {
+              //console.log("cache miss", key);
+              return query(args).then((res) => {
+                cache.set(key, res, 60000);
+                return res;
+              });
+            }
+          },
+        },
+      }) as PrismaClient;
 
     if (!session?.user) {
       let externalCode = event.cookies.get("externalCode"); // Retrieve the externalCode from cookies

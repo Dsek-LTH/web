@@ -21,7 +21,7 @@ export default function initializeTracing(serviceName: string): Tracer {
   provider.addSpanProcessor(new SimpleSpanProcessor(jaegerExporter));
 
   registerInstrumentations({
-    instrumentations: [new PrismaInstrumentation()],
+    instrumentations: [new PrismaInstrumentation({ middleware: true })],
     tracerProvider: provider,
   });
 
