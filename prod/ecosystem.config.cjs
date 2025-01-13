@@ -11,7 +11,7 @@ module.exports = {
       interpreter_args: "--env-file ./.env",
       exec_mode: "cluster",
       instances: 4,
-      max_memory_restart: "200M",
+      max_memory_restart: "500M",
     },
   ],
 };
