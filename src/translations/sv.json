@@ -20,6 +20,7 @@
   "documents_boardMeetings": "Styrelsemöten",
   "documents_srdMeetings": "SRD-möten",
   "documents_other": "Övrigt",
+  "documents_errors_invalidType": "Ogiltig dokumenttyp",
   "theGuild": "Sektionen",
   "theBoard": "Styrelsen",
   "committees": "Utskott",

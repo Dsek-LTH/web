@@ -19,6 +19,7 @@
   "documents_guildMeetings": "Guild Meetings",
   "documents_boardMeetings": "Board Meetings",
   "documents_srdMeetings": "SRD Meetings",
+  "documents_errors_invalidType": "Invalid document type",
   "documents_other": "Other",
   "theGuild": "The Guild",
   "theBoard": "The Board",
