@@ -773,6 +773,7 @@
   "error_should_not_happen": "If you think this shouldn't happen please",
   "error_or": "or",
   "error_contact": "Contact DWWW",
+  "error_invalid_year": "Invalid year",
   "back": "Back",
   "events_cancelEvent": "Cancel event",
   "events_cancelled": "Cancelled",
