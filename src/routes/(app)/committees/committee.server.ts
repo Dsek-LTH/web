@@ -6,16 +6,13 @@ import { zod } from "sveltekit-superforms/adapters";
 import { message, superValidate, withFiles } from "sveltekit-superforms/server";
 import { updateSchema } from "./types";
 import { updateMarkdown } from "$lib/news/markdown/mutations.server";
+import { getYearOrThrowSvelteError } from "$lib/utils/url.server";
 
-export const getYear = (url: URL) => {
-  const yearQuery = url.searchParams.get("year");
-  const parsedYear = parseInt(yearQuery ?? "");
-  const year = isNaN(parsedYear) ? new Date().getFullYear() : parsedYear;
-  return year;
-};
 /**
+ * Load all data that every committee load function needs
+ * @param prisma The Prisma client
  * @param shortName The committee's short name
- * @param year The year to load the committee for, defaults to current year
+ * @param url The URL object
  * @returns All data that the every committee load function needs
  */
 export const committeeLoad = async (
@@ -23,7 +20,12 @@ export const committeeLoad = async (
   shortName: string,
   url: URL,
 ) => {
-  const year = getYear(url);
+  // Allow to see committees from 1982 to the NEXT year
+  const year = getYearOrThrowSvelteError(
+    url,
+    1982,
+    new Date().getFullYear() + 1,
+  );
 
   const firstDayOfYear = new Date(`${year}-01-01`);
   const lastDayOfYear = new Date(`${year}-12-31`);
