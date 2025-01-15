@@ -1,9 +1,10 @@
 import { BASIC_EVENT_FILTER } from "$lib/events/events";
+import type { Prisma } from "@prisma/client";
 import dayjs from "dayjs";
 
 export type ViewParam = "day" | "week" | "month";
 export type RangeDateParam = string;
-const include = {
+const include: Prisma.EventInclude = {
   author: true,
   comments: {
     include: {
