@@ -775,6 +775,7 @@
   "error_or": "or",
   "error_contact": "Contact DWWW",
   "error_invalid_year": "Invalid year",
+  "error_invalid_page": "Invalid page",
   "back": "Back",
   "events_cancelEvent": "Cancel event",
   "events_cancelled": "Cancelled",

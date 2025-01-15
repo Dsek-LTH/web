@@ -771,6 +771,7 @@
   "error_or": "eller",
   "error_contact": "Kontakta DWWW",
   "error_invalid_year": "Ogiltigt år",
+  "error_invalid_page": "Ogiltig sida",
   "back": "Tillbaka",
   "events_cancelEvent": "Ställ in event",
   "events_cancelled": "Inställt",

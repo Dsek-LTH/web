@@ -20,12 +20,11 @@ export const committeeLoad = async (
   shortName: string,
   url: URL,
 ) => {
+  const currentYear = new Date().getFullYear();
   // Allow to see committees from 1982 to the NEXT year
-  const year = getYearOrThrowSvelteError(
-    url,
-    1982,
-    new Date().getFullYear() + 1,
-  );
+  const year = getYearOrThrowSvelteError(url, {
+    upperBound: currentYear + 1,
+  });
 
   const firstDayOfYear = new Date(`${year}-01-01`);
   const lastDayOfYear = new Date(`${year}-12-31`);
