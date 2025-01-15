@@ -776,6 +776,7 @@
   "error_contact": "Contact DWWW",
   "error_invalid_year": "Invalid year",
   "error_invalid_page": "Invalid page",
+  "error_invalid_semester": "Invalid semester",
   "back": "Back",
   "events_cancelEvent": "Cancel event",
   "events_cancelled": "Cancelled",
