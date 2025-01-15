@@ -1,14 +1,10 @@
 import { type Actions } from "@sveltejs/kit";
 import { expensesInclusion } from "../getExpenses";
 import type { Prisma } from "@prisma/client";
-
-const extractNumberParam = (url: URL, param: string, defaultValue: number) => {
-  const value = url.searchParams.get(param);
-  if (value == null) return defaultValue;
-  const parsed = parseInt(value);
-  if (isNaN(parsed)) return defaultValue;
-  return parsed;
-};
+import {
+  getIntegerParamOrThrowSvelteError,
+  getPageOrThrowSvelteError,
+} from "$lib/utils/url.server";
 
 const allowedFilters = ["all", "signed", "not-signed", "in-book"] as const;
 type Filter = (typeof allowedFilters)[number];
@@ -50,8 +46,16 @@ const whereGivenFilter = (filter: Filter): Prisma.ExpenseWhereInput => {
 
 export const load = async ({ locals, url }) => {
   const { prisma } = locals;
-  const page = extractNumberParam(url, "page", 0);
-  const pageSize = extractNumberParam(url, "pageSize", 10);
+  const page = getPageOrThrowSvelteError(url, {
+    fallbackValue: 0,
+    lowerBound: 0,
+  });
+  const pageSize = getIntegerParamOrThrowSvelteError(url, "pageSize", {
+    fallbackValue: 10,
+    lowerBound: 1,
+    upperBound: Number.MAX_SAFE_INTEGER,
+    errorMessage: "Invalid page size",
+  });
   const filter = extractFilter(url);
 
   const allExpenses = await prisma.expense.findMany({

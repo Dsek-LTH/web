@@ -1,6 +1,5 @@
 import { BASIC_EVENT_FILTER } from "$lib/events/events";
 import type { Prisma, PrismaClient } from "@prisma/client";
-import * as m from "$paraglide/messages";
 
 type EventFilters = {
   tags?: string[];
@@ -140,11 +139,3 @@ export const getEvent = async (prisma: PrismaClient, slug: string) => {
 export type EventWithIncludes = NonNullable<
   Awaited<ReturnType<typeof getEvent>>
 >;
-
-export const getAndValidatePage = (url: URL) => {
-  const page = url.searchParams.get("page");
-  if (page && Number.isNaN(Number.parseInt(page))) {
-    throw new Error(m.events_errors_invalidPage());
-  }
-  return page ? Math.max(Number.parseInt(page) - 1, 0) : undefined;
-};

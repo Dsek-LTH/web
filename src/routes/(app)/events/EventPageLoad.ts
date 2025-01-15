@@ -1,6 +1,7 @@
-import { getAllEvents, getAndValidatePage } from "$lib/events/getEvents";
+import { getAllEvents } from "$lib/events/getEvents";
 import { interestedGoingSchema } from "$lib/events/schema";
 import { getAllTags } from "$lib/news/tags";
+import { getPageOrThrowSvelteError } from "$lib/utils/url.server";
 import type { ServerLoadEvent } from "@sveltejs/kit";
 import { zod } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
@@ -15,7 +16,7 @@ const eventPageLoad =
         {
           tags: url.searchParams.getAll("tags"),
           search: url.searchParams.get("search") ?? undefined,
-          page: getAndValidatePage(url),
+          page: getPageOrThrowSvelteError(url),
           pastEvents: url.searchParams.get("past") === "on",
         },
         !adminMode,

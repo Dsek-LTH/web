@@ -1,12 +1,13 @@
 import type { Prisma } from "@prisma/client";
 import type { PageServerLoad } from "./$types";
 import { canAccessDeletedSongs, getExistingCategories } from "./helpers";
+import { getPageOrThrowSvelteError } from "$lib/utils/url.server";
 
 const SONGS_PER_PAGE = 10;
 
 export const load: PageServerLoad = async ({ locals, url }) => {
   const { prisma, user } = locals;
-  const page = url.searchParams.get("page");
+  const page = getPageOrThrowSvelteError(url);
   const search = url.searchParams.get("search");
   const categories = url.searchParams.getAll("category");
   const accessPolicies = user?.policies ?? [];
@@ -75,9 +76,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   const [songs, pageCount, existingCategories] = await Promise.all([
     prisma.song.findMany({
       take: SONGS_PER_PAGE,
-      skip: page
-        ? Math.max((Number.parseInt(page) - 1) * SONGS_PER_PAGE, 0)
-        : 0,
+      skip: Math.max((page - 1) * SONGS_PER_PAGE, 0), // If page is 1, we don't skip anything, otherwise we skip (page - 1) * SONGS_PER_PAGE
       orderBy: { title: "asc" },
       where,
     }),
