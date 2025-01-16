@@ -54,6 +54,26 @@ export const getPageOrThrowSvelteError = (
 };
 
 /**
+ * Get `pageSize` from the URL search params or throw a Svelte error if `pageSize` is invalid
+ * If `pageSize` is not set, the default is 10.
+ * @param url The URL object
+ * @param options The options for the function. Default is `{ fallbackValue: 10, lowerBound: 1, upperBound: 100, errorMessage: m.error_invalid_page_size() }`
+ * @returns `pageSize`, or the {@link fallbackValue} if `pageSize` is not set
+ * @throws Svelte error if `pageSize` is invalid
+ */
+export const getPageSizeOrThrowSvelteError = (
+  url: URL,
+  options?: Partial<Options>,
+) => {
+  return getIntegerParamOrThrowSvelteError(url, "pageSize", {
+    fallbackValue: options?.fallbackValue ?? 10,
+    lowerBound: options?.lowerBound ?? 1,
+    upperBound: options?.upperBound ?? 100,
+    errorMessage: options?.errorMessage ?? m.error_invalid_page_size(),
+  });
+};
+
+/**
  * Get an integer parameter from the URL object or throw a Svelte error if the parameter is invalid.
  * If the parameter is not set, the default is the fallback value.
  * @param url The URL object
