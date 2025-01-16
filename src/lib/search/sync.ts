@@ -16,7 +16,7 @@ import {
   setRulesForIndex,
   waitForTask,
 } from "$lib/search/syncHelpers";
-import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import {
   syncGoverningDocuments,
   syncMeetingDocuments,

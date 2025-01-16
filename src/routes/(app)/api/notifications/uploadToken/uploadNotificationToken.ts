@@ -1,6 +1,6 @@
 import type { AuthUser } from "@zenstackhq/runtime";
 
-import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import { error } from "@sveltejs/kit";
 
 // since this can be called quite often, on every page refresh basically, we want to do an in-memory cache to skip going to the DB

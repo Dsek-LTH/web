@@ -1,4 +1,4 @@
-import authorizedPrismaClient from "../authorizedPrisma";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import stripe from "./stripe";
 import { getFullName } from "$lib/utils/client/member";
 import type { Member } from "@prisma/client";

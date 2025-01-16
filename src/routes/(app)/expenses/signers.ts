@@ -1,4 +1,4 @@
-import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import type { Member } from "@prisma/client";
 import { COST_CENTERS } from "./config";
 
