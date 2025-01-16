@@ -112,7 +112,7 @@ export const getAllArticles = async (
       orderBy: {
         publishedAt: "desc",
       },
-      skip: pageNumber * pageSize,
+      skip: Math.max(pageNumber - 1, 0) * pageSize,
       take: pageSize,
       include,
     });
