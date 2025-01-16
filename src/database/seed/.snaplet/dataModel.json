@@ -4913,20 +4913,6 @@
           "maxLength": null
         },
         {
-          "id": "public.expenses.hasBeenSentToBookeeping",
-          "name": "hasBeenSentToBookeeping",
-          "columnName": "hasBeenSentToBookeeping",
-          "type": "bool",
-          "isRequired": true,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": true,
-          "isId": false,
-          "maxLength": null
-        },
-        {
           "id": "public.expenses.memberId",
           "name": "memberId",
           "columnName": "memberId",
@@ -4951,6 +4937,20 @@
           "isGenerated": false,
           "sequence": false,
           "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.expenses.hasBeenSentToBookkeeping",
+          "name": "hasBeenSentToBookkeeping",
+          "columnName": "hasBeenSentToBookkeeping",
+          "type": "bool",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": true,
           "isId": false,
           "maxLength": null
         },

@@ -25,7 +25,7 @@ const whereGivenFilter = (filter: Filter): Prisma.ExpenseWhereInput => {
       return {};
     case "signed":
       return {
-        hasBeenSentToBookeeping: false,
+        hasBeenSentToBookkeeping: false,
         items: {
           // If it has no items (for some reason), it will count as signed
           none: {
@@ -43,7 +43,7 @@ const whereGivenFilter = (filter: Filter): Prisma.ExpenseWhereInput => {
       };
     case "in-book":
       return {
-        hasBeenSentToBookeeping: true,
+        hasBeenSentToBookkeeping: true,
       };
   }
 };
