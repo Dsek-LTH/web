@@ -8,7 +8,9 @@ import authorizedPrismaClient from "$lib/server/authorizedPrisma";
  * Every door policy applies to either a studentId or a positionId.
  * This function splits the policies into two respective arrays.
  */
-function parseDoorPolicies(policies: DoorAccessPolicy[]) {
+function parseDoorPolicies(
+  policies: Array<Pick<DoorAccessPolicy, "studentId" | "role">>,
+) {
   const studentIds = policies
     .map((policy) => policy.studentId)
     .filter((id): id is string => id !== null);
@@ -23,7 +25,9 @@ function parseDoorPolicies(policies: DoorAccessPolicy[]) {
  * Every door policy applies to either a studentId or a positionId.
  * This function splits the policies into two respective arrays.
  */
-function parseDoorBanPolicies(policies: DoorAccessPolicy[]) {
+function parseDoorBanPolicies(
+  policies: Array<Pick<DoorAccessPolicy, "studentId" | "role" | "isBan">>,
+) {
   const studentIdsBanned = policies
     .filter((policy) => policy.isBan)
     .map((policy) => policy.studentId)
@@ -84,6 +88,11 @@ export const GET: RequestHandler = async ({ params }) => {
   try {
     const now = new Date().toISOString();
     const policies = await authorizedPrismaClient.doorAccessPolicy.findMany({
+      select: {
+        studentId: true,
+        role: true,
+        isBan: true,
+      },
       where: {
         AND: [
           { doorName: params["door"] },
@@ -112,7 +121,6 @@ export const GET: RequestHandler = async ({ params }) => {
               .filter((id): id is string => id !== null),
           )
       : [];
-
 
     const positions = await fetchMatchingPositions(
       positionIds,
