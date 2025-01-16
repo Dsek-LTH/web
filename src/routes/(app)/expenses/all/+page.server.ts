@@ -50,8 +50,8 @@ export const load = async ({ locals, url }) => {
   const pageSize = getPageSizeOrThrowSvelteError(url);
   const pageCount = Math.ceil(allExpensesCount / pageSize);
   const page = getPageOrThrowSvelteError(url, {
-    fallbackValue: 0,
-    lowerBound: 0,
+    fallbackValue: 1,
+    lowerBound: 1,
     upperBound: pageCount,
   });
   const filter = extractFilter(url);
@@ -63,7 +63,7 @@ export const load = async ({ locals, url }) => {
     },
     include: expensesInclusion,
     take: pageSize,
-    skip: page * pageSize,
+    skip: Math.max(page - 1, 0) * pageSize,
   });
   return {
     allExpenses,
