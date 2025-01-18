@@ -13,6 +13,7 @@
     | "description"
     | "imageUrl"
     | "isCancelled"
+    | "location"
   > &
     Partial<Pick<Event, "removedAt">>;
 </script>
@@ -47,6 +48,14 @@
   <DateSpan start={event.startDatetime} end={event.endDatetime} />
   <slot name="actions" />
 </section>
+{#if event.location}
+  <section class="my-2">
+    <div class="flex items-center gap-2 text-primary">
+      <span class="i-mdi-map-marker" style="font-size: 18px"></span>
+      <p class="text-base leading-none">{event.location}</p>
+    </div>
+  </section>
+{/if}
 
 <slot name="buttons" />
 
