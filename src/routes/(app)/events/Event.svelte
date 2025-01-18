@@ -51,7 +51,7 @@
 {#if event.location}
   <section class="my-2">
     <div class="flex items-center gap-2 text-primary">
-      <span class="i-mdi-map-marker" style="font-size: 18px"></span>
+      <span class="i-mdi-map-marker text-lg"></span>
       <p class="text-base leading-none">{event.location}</p>
     </div>
   </section>
