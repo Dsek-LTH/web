@@ -260,6 +260,7 @@
           ? URL.createObjectURL($form.image)
           : ($form.imageUrl ?? null),
         location: $form.location, // Pass location to Event component
+        link: $form.link,
       }}
     >
       <div slot="tags" class="flex flex-row flex-wrap gap-2">
