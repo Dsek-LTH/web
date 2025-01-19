@@ -2,22 +2,23 @@
   import Articles from "$lib/components/home/Articles.svelte";
   import Events from "$lib/components/home/Events.svelte";
   import WellbeingCTA from "$lib/components/home/WellbeingCTA.svelte";
+  import SRDCta from "$lib/components/home/SRDCTA.svelte";
   import CafeOpenTimes from "$lib/components/home/CafeOpenTimes.svelte";
   import CodeWithDWWW from "$lib/components/home/CodeWithDWWW.svelte";
   import Documents from "$lib/components/home/Documents.svelte";
-
   import type { PageData } from "./$types";
   import DsekLogo from "$lib/components/DsekLogo.svelte";
   import { page } from "$app/stores";
   import { getFullName } from "$lib/utils/client/member";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import * as m from "$paraglide/messages";
+  import Srdcta from "$lib/components/home/SRDCTA.svelte";
   export let data: PageData;
 </script>
 
 <SetPageTitle />
 
-<div class="grid grid-cols-1 gap-x-5 gap-y-10 md:grid-cols-3 xl:grid-cols-5">
+<div class="grid grid-cols-1 gap-x-5 gap-y-10 md:grid-cols-3 xl:grid-cols-6">
   <section class="col-span-1 hidden flex-col place-items-center xl:flex">
     <DsekLogo class="size-48 pl-4 text-primary" />
     {#if $page.data.member}
@@ -35,12 +36,12 @@
     {/if}
   </section>
   <section
-    class="flex flex-col md:-order-2 md:col-span-3 lg:order-none lg:col-span-3 xl:col-span-4"
+    class="flex flex-col md:-order-2 md:col-span-3 lg:order-none lg:col-span-3 xl:col-span-5"
   >
     <Articles news={data.news} />
   </section>
 
-  <section class="md:col-span-3 lg:col-span-2 xl:col-span-3">
+  <section class="md:col-span-3 lg:col-span-2 xl:col-span-4">
     <Events events={data.events} />
   </section>
 
@@ -48,11 +49,12 @@
     class="flex flex-col justify-evenly gap-4 sm:flex-row md:col-span-3 lg:col-span-1 lg:flex-col xl:col-span-2"
   >
     <WellbeingCTA />
+    <SRDCta />
     <CafeOpenTimes cafeOpen={data.cafeOpen} />
   </section>
 
   <section
-    class="order-last md:col-span-3 lg:col-span-3 xl:order-none xl:col-span-2"
+    class="order-last md:col-span-3 lg:col-span-3 xl:order-none xl:col-span-3"
   >
     <CodeWithDWWW
       commitCount={data.commitCount}
