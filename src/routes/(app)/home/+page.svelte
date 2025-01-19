@@ -12,7 +12,6 @@
   import { getFullName } from "$lib/utils/client/member";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import * as m from "$paraglide/messages";
-  import Srdcta from "$lib/components/home/SRDCTA.svelte";
   export let data: PageData;
 </script>
 
