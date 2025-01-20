@@ -61,7 +61,7 @@
       bind:value={$form.markdownEn}
       error={$errors.markdownEn}
       class="h-full"
-      placeholder="- Post title 1&#13;- Post title 2&#13;- Post title 3"
+      placeholder="- Position 1&#13;- Position 2&#13;- Position 3"
       {...$constraints.markdownEn}
     />
   </div>
