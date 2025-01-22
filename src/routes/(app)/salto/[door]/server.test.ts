@@ -1,12 +1,22 @@
-import { beforeEach, expect, test } from "vitest";
+import { beforeAll, beforeEach, expect, test, vi } from "vitest";
 import { type MockProxy, mockDeep } from "vitest-mock-extended";
 import { GET } from "./+server";
 import { BACKUP_LIST_OF_STUDENT_IDS } from "./constants";
-import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
+import mockedPrisma from "$lib/server/__mocks__/authorizedPrisma";
+import type { DoorAccessPolicy } from "@prisma/client";
 
 type RequestEvent = Parameters<typeof GET>[0];
 let mockEvent: MockProxy<RequestEvent>;
+
+beforeAll(() => {
+  vi.mock("lib/server/authorizedPrisma");
+  return () => {
+    vi.restoreAllMocks();
+  };
+});
+
 beforeEach(() => {
+  vi.restoreAllMocks();
   mockEvent = mockDeep<RequestEvent>({
     fallbackMockImplementation: () => [],
   });
@@ -25,30 +35,30 @@ test("door access list contains backup students", async () => {
   expect(body).toContain(BACKUP_LIST_OF_STUDENT_IDS.join("\n"));
 });
 
-test("door access list does not contain banned students", async () => {
-  // TO-DO: improve this test, since it fails if there
-  // are no members in the database, which is not great.
-  const randomMember = await authorizedPrismaClient.member.findFirst({
-    select: { studentId: true },
-  });
-  if (!randomMember) {
-    throw new Error("No members found");
-  }
+const mockedDoorAccessPolicy = [
+  {
+    role: "dsek",
+    studentId: "notBanned",
+    isBan: false,
+  },
+  {
+    role: "dsek",
+    studentId: "isBanned",
+    isBan: true,
+  },
+];
 
-  const policy = await authorizedPrismaClient.doorAccessPolicy.create({
-    data: {
-      doorName: "idet",
-      isBan: true,
-      studentId: randomMember.studentId,
-    },
-  });
+test("door access list does not contain banned students", async () => {
+  mockedPrisma.doorAccessPolicy.findMany.mockResolvedValue(
+    mockedDoorAccessPolicy as DoorAccessPolicy[],
+  );
+  mockedPrisma.position.findMany.mockResolvedValue([]);
+  mockedPrisma.mandate.findMany.mockResolvedValue([]);
+
   const response = await GET(mockEvent);
   const body = await response.text();
   const studentIds = body.split("\n");
 
-  expect(studentIds).not.toContain(randomMember.studentId);
-
-  await authorizedPrismaClient.doorAccessPolicy.delete({
-    where: { id: policy.id },
-  });
+  expect(studentIds).not.toContain("banned");
+  expect(studentIds).toContain("notBanned");
 });
