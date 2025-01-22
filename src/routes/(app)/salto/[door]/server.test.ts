@@ -1,4 +1,4 @@
-import { beforeEach, expect, test, vi } from "vitest";
+import { beforeAll, beforeEach, expect, test, vi } from "vitest";
 import { type MockProxy, mockDeep } from "vitest-mock-extended";
 import { GET } from "./+server";
 import { BACKUP_LIST_OF_STUDENT_IDS } from "./constants";
@@ -8,7 +8,12 @@ import type { DoorAccessPolicy } from "@prisma/client";
 type RequestEvent = Parameters<typeof GET>[0];
 let mockEvent: MockProxy<RequestEvent>;
 
-vi.mock("lib/server/authorizedPrisma");
+beforeAll(() => {
+  vi.mock("lib/server/authorizedPrisma");
+  return () => {
+    vi.restoreAllMocks();
+  };
+});
 
 beforeEach(() => {
   vi.restoreAllMocks();
