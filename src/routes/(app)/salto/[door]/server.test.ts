@@ -11,7 +11,7 @@ let mockEvent: MockProxy<RequestEvent>;
 beforeAll(() => {
   vi.mock("lib/server/authorizedPrisma");
   return () => {
-    vi.restoreAllMocks();
+    vi.doUnmock("lib/server/authorizedPrisma");
   };
 });
 
