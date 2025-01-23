@@ -80,6 +80,7 @@
     { title: m.events(), href: "/events" },
     { title: m.theGuild(), href: "/committees" },
     { title: m.footer_contact(), href: "/info/contact" },
+    { title: m.privacy_policy(), href: "/privacy" },
   ] as const;
 
   const SOCIALS = [

@@ -12,6 +12,7 @@
       <a class="btn btn-ghost" href="https://github.com/Dsek-LTH/web"
         >{m.footer_sourceCode()}</a
       >
+      <a class="btn btn-ghost" href="/privacy">{m.privacy_policy()}</a>
     </nav>
 
     <nav
