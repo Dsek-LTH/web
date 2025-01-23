@@ -814,5 +814,6 @@
   "admin_info_create": "Create",
   "admin_info_createNewInfoPage": "Create new information page",
   "admin_info_infoPageCreated": "Information page created",
-  "info": "Info"
+  "info": "Info",
+  "privacy_policy": "Privacy Policy"
 }
