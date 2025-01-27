@@ -810,5 +810,6 @@
   "admin_info_create": "Skapa",
   "admin_info_createNewInfoPage": "Skapa en ny informationssida",
   "admin_info_infoPageCreated": "Informationssida skapad",
-  "info": "Info"
+  "info": "Info",
+  "privacy_policy": "Integritetspolicy"
 }
