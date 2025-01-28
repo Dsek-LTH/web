@@ -8,9 +8,7 @@
   import {
     filesProxy,
     formFieldProxy,
-    arrayProxy,
     type FormFieldProxy,
-    type FormPathLeaves,
     type SuperForm,
   } from "sveltekit-superforms";
   import { twMerge } from "tailwind-merge";
