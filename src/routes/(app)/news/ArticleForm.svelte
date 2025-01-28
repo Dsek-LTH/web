@@ -1,5 +1,4 @@
 <script lang="ts">
-  import FormFileInput from "$lib/components/forms/FormFileInput.svelte";
   import FormFilesInput from "$lib/components/forms/FormFilesInput.svelte";
   import FormInput from "$lib/components/forms/FormInput.svelte";
   import FormMarkdown from "$lib/components/forms/FormMarkdown.svelte";
