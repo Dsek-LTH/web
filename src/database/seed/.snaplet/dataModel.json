@@ -1684,6 +1684,20 @@
           "maxLength": null
         },
         {
+          "id": "public.articles.image_urls",
+          "name": "image_urls",
+          "columnName": "image_urls",
+          "type": "text[]",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
           "id": "public.articles.youtube_url",
           "name": "youtube_url",
           "columnName": "youtube_url",

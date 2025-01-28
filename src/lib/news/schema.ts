@@ -24,7 +24,7 @@ export const articleSchema = z.object({
   images: z
     .instanceof(File, { message: "Please upload a file." })
     .refine((file) => !file || isFileImage(file), {
-      message: "Max 100 kB upload size.",
+      message: "Måste vara en bild",
     })
     .array()
     .default([]),

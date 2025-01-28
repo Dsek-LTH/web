@@ -112,6 +112,12 @@ export const createArticle: Action = async (event) => {
   rest.imageUrls = imageUrls; // make imageUrls not optional
 
   if (image) rest.imageUrl = await uploadImage(user, image, slug);
+  for (const file of images) {
+    // slow maybe do parallel awaits
+    if (file === undefined) continue;
+    const imageUrl = await uploadImage(user, file, slug);
+    rest.imageUrls.push(imageUrl);
+  }
 
   const result = await prisma.article.create({
     data: {
