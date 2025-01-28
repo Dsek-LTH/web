@@ -15,13 +15,13 @@ import { message, superValidate, fail } from "sveltekit-superforms";
 import DOMPurify from "isomorphic-dompurify";
 import { markdownToTxt } from "markdown-to-txt";
 
-const uploadImage = async (user: AuthUser, image: File, slug: string) => {
+const uploadImage = async (user: AuthUser, image: File, slug: string, fileName: string = "header") => {
   const imageUrl = await uploadFile(
     user,
     image,
     `public/news/${slug}`,
     PUBLIC_BUCKETS_FILES,
-    "header",
+    fileName,
     {
       resize: {
         width: 1920,
@@ -77,6 +77,7 @@ export const createArticle: Action = async (event) => {
     header,
     sendNotification: shouldSendNotification,
     notificationText,
+    images,
     image,
     body,
     bodyEn,
@@ -97,6 +98,13 @@ export const createArticle: Action = async (event) => {
     },
   });
   slug = slugWithCount(slug, slugCount);
+
+  const imageUrls = [];
+  for (const [i, image] of Array.from(images).entries()) {
+    const imageUrl = await uploadImage(user, image, slug, i.toString());
+    imageUrls.push(imageUrl);
+  }
+  rest.imageUrls = imageUrls; // make imageUrls not optional
 
   if (image) rest.imageUrl = await uploadImage(user, image, slug);
 

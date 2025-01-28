@@ -1,4 +1,5 @@
 <script lang="ts">
+  import FormFilesInput from "$lib/components/forms/FormFilesInput.svelte";
   import FormFileInput from "$lib/components/forms/FormFileInput.svelte";
   import FormInput from "$lib/components/forms/FormInput.svelte";
   import FormMarkdown from "$lib/components/forms/FormMarkdown.svelte";
@@ -15,7 +16,7 @@
   export let authorOptions: AuthorOption[];
   export let allTags: Tag[];
   export let superform: SuperForm<ArticleSchema>;
-  export let articleImage: string | undefined = undefined;
+  export let articleImages: string[] = [];
   export let articleVideo: string | undefined = undefined;
 
   const { form, enhance, errors } = superform;
@@ -34,24 +35,18 @@
       currentTarget: EventTarget & HTMLInputElement;
     },
   ) => {
-    let image = event.currentTarget.files?.[0];
-    if (!image) return;
-    let reader = new FileReader();
-    reader.readAsDataURL(image);
-    reader.onload = (e) => {
-      let result = e.target?.result ?? undefined;
-      // If array buffer, convert to base64
-      if (result instanceof ArrayBuffer) {
-        articleImage = btoa(
-          new Uint8Array(result).reduce(
-            (data, byte) => data + String.fromCharCode(byte),
-            "",
-          ),
-        );
-      } else {
-        articleImage = result;
-      }
-    };
+    const images = event.currentTarget.files;
+    Array.from(images ?? []).forEach((image) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result;
+        if (typeof result === "string") {
+          //articleImages.push(result);
+          articleImages = [ ...articleImages, result]
+        }
+      };
+      reader.readAsDataURL(image);
+    });
   };
 
   const onVideoSelected = (
@@ -120,10 +115,10 @@
     <TagSelector name="tags" {allTags} bind:selectedTags={$form.tags} />
   </div>
 
-  <FormFileInput
+  <FormFilesInput
     {superform}
-    field="image"
-    label="Bild"
+    field="images"
+    label="Bilder"
     onChange={onFileSelected}
     accept="image/*"
   />

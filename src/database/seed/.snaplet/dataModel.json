@@ -1698,6 +1698,20 @@
           "maxLength": null
         },
         {
+          "id": "public.articles.image_urls",
+          "name": "image_urls",
+          "columnName": "image_urls",
+          "type": "text[]",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
           "name": "authors",
           "type": "authors",
           "isRequired": true,
@@ -4913,6 +4927,20 @@
           "maxLength": null
         },
         {
+          "id": "public.expenses.hasBeenSentToBookkeeping",
+          "name": "hasBeenSentToBookkeeping",
+          "columnName": "hasBeenSentToBookkeeping",
+          "type": "bool",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": true,
+          "isId": false,
+          "maxLength": null
+        },
+        {
           "id": "public.expenses.memberId",
           "name": "memberId",
           "columnName": "memberId",
@@ -4937,20 +4965,6 @@
           "isGenerated": false,
           "sequence": false,
           "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": null
-        },
-        {
-          "id": "public.expenses.hasBeenSentToBookkeeping",
-          "name": "hasBeenSentToBookkeeping",
-          "columnName": "hasBeenSentToBookkeeping",
-          "type": "bool",
-          "isRequired": true,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": true,
           "isId": false,
           "maxLength": null
         },
