@@ -22,8 +22,10 @@ export const articleSchema = z.object({
   youtubeUrl: z.string().optional().nullable(),
   // https://github.com/colinhacks/zod/pull/3118
   images: z
-    .instanceof(File, { message: 'Please upload a file.' })
-    .refine((file) => !file || isFileImage(file), { message: 'Max 100 kB upload size.' })
+    .instanceof(File, { message: "Please upload a file." })
+    .refine((file) => !file || isFileImage(file), {
+      message: "Max 100 kB upload size.",
+    })
     .array()
     .default([]),
   image: z

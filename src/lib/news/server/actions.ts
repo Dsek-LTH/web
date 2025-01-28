@@ -15,7 +15,12 @@ import { message, superValidate, fail } from "sveltekit-superforms";
 import DOMPurify from "isomorphic-dompurify";
 import { markdownToTxt } from "markdown-to-txt";
 
-const uploadImage = async (user: AuthUser, image: File, slug: string, fileName = "header") => {
+const uploadImage = async (
+  user: AuthUser,
+  image: File,
+  slug: string,
+  fileName = "header",
+) => {
   const imageUrl = await uploadFile(
     user,
     image,

@@ -31,10 +31,9 @@
       ) => void)
     | undefined = undefined;
 
-  $: fieldProxy = formFieldProxy(
-    superform,
-    field,
-  ) satisfies FormFieldProxy<File[]>;
+  $: fieldProxy = formFieldProxy(superform, field) satisfies FormFieldProxy<
+    File[]
+  >;
   $: files = filesProxy(superform, field);
   $: errors = fieldProxy.errors;
   $: constraints = fieldProxy.constraints;

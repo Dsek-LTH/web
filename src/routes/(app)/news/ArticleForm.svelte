@@ -41,7 +41,7 @@
         const result = reader.result;
         if (typeof result === "string") {
           //articleImages.push(result);
-          articleImages = [ ...articleImages, result]
+          articleImages = [...articleImages, result];
         }
       };
       reader.readAsDataURL(image);
