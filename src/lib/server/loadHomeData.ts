@@ -44,7 +44,11 @@ export const loadHomeData = async ({
   function filterFilesByBoardMeeting(boardMeeting: number | undefined) {
     return boardMeeting === undefined
       ? []
-      : files.filter((obj) => obj.id.split("/")[2] === "S" + boardMeeting);
+      : files.filter(
+          (obj) =>
+            obj.id.split("/")[2] ===
+            "S" + (boardMeeting < 10 ? "0" : "") + boardMeeting,
+        );
   }
 
   const nextBoardMeetingFiles = filterFilesByBoardMeeting(nextBoardMeeting);

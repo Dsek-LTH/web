@@ -3,7 +3,7 @@ import {
   moveQueueToCart,
   withHandledNotificationQueue,
 } from "$lib/server/shop/addToCart/reservations";
-import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import { refundConsumable } from "$lib/server/shop/payments/stripeMethods";
 import type { Event, ItemQuestion, Shoppable, Ticket } from "@prisma/client";
 import { fail } from "@sveltejs/kit";

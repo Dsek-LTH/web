@@ -46,7 +46,6 @@ jobs:
       - run: pnpm i
       - run: pnpm prisma migrate deploy
       - run: pnpm snaplet-seed sync
-      - run: pnpm run seed
       - run: pnpm run lint
       - run: pnpm run format
       - run: pnpm run test

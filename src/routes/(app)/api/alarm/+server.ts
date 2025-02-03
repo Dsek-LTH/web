@@ -1,4 +1,4 @@
-import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import type { RequestHandler } from "./$types";
 
 export const GET: RequestHandler = async () => {

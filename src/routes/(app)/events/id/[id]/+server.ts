@@ -1,4 +1,4 @@
-import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import { eventLink, redirect } from "$lib/utils/redirect";
 import { slugWithCount, slugify } from "$lib/utils/slugify";
 import { error } from "@sveltejs/kit";

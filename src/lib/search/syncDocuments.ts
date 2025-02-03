@@ -1,6 +1,6 @@
 import { env } from "$env/dynamic/private";
 import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
-import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import servePdf from "$lib/utils/servePdf";
 import { error, type NumericRange } from "@sveltejs/kit";
 import { meilisearch } from "./meilisearch";

@@ -1,4 +1,4 @@
-import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import sendPushNotifications from "$lib/utils/notifications/push";
 import {
   NOTIFICATION_SETTINGS_ALWAYS_ON,

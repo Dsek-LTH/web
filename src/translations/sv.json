@@ -791,6 +791,7 @@
   "elections_expiryDate": "Sista ansökningsdag (23:59)",
   "elections_committee": "Utskott",
   "elections_save": "Spara",
+  "elections_link_placeholder": "https://forms.google.com/... eller https://dsek.se/news/...",
   "expenses": "Utlägg",
   "expense": "Utlägg",
   "expenseCreated": "Utlägg skapat",
@@ -812,5 +813,6 @@
   "admin_info_create": "Skapa",
   "admin_info_createNewInfoPage": "Skapa en ny informationssida",
   "admin_info_infoPageCreated": "Informationssida skapad",
-  "info": "Info"
+  "info": "Info",
+  "privacy_policy": "Integritetspolicy"
 }

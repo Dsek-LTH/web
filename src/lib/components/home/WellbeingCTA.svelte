@@ -4,7 +4,8 @@
 
 <a
   class="pop-out flex gap-6 rounded-2xl bg-base-300 px-6 py-3"
-  href="https://bit.ly/kontaktatrivsel"
+  href="https://bit.ly/trivselkontakt"
+
   target="_blank"
   rel="noreferrer noopener"
 >

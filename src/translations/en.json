@@ -795,6 +795,7 @@
   "elections_expiryDate": "Last application date (23:59)",
   "elections_committee": "Committee",
   "elections_save": "Save",
+  "elections_link_placeholder": "https://forms.google.com/... or https://dsek.se/news/...",
   "expenses": "Expenses",
   "expense": "Expense",
   "expenseCreated": "Expense created",
@@ -816,5 +817,6 @@
   "admin_info_create": "Create",
   "admin_info_createNewInfoPage": "Create new information page",
   "admin_info_infoPageCreated": "Information page created",
-  "info": "Info"
+  "info": "Info",
+  "privacy_policy": "Privacy Policy"
 }
