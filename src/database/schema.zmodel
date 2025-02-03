@@ -1230,3 +1230,17 @@ model ExpenseItem {
 
   @@map("expense_items")
 }
+
+model Readme {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title       String
+  url         String
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime  @map("updated_at") @db.Timestamptz(6)
+  year        Int
+  number      Int
+  publishedAt DateTime? @map("published_at") @db.Timestamptz(6)
+
+  @@map("readme")
+  @@allow("read", true)
+}
