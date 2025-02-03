@@ -66,7 +66,7 @@
     <Documents files={data.files} />
   </section>
 
-  <section class="md:col-span-3 xl:col-span-5">
+  <section class="md:col-span-3 xl:col-span-6">
     {#if data.readme}
       <Readme readme={data.readme} />
     {/if}
