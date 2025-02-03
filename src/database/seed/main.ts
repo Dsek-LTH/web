@@ -72,6 +72,8 @@ const main = async () => {
 
   await seed.election((x) => x(5));
 
+  await seed.readme((x) => x(5));
+
   process.exit();
 };
 

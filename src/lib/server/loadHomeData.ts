@@ -125,6 +125,8 @@ export const loadHomeData = async ({
     })
     .then((res) => res !== null);
 
+  const readmePromise = prisma.readme.findFirst();
+
   const [
     news,
     events,
@@ -133,6 +135,7 @@ export const loadHomeData = async ({
     cafeOpen,
     commitData,
     hasActiveMandate,
+    readme,
   ] = await Promise.allSettled([
     newsPromise,
     eventsPromise,
@@ -141,6 +144,7 @@ export const loadHomeData = async ({
     cafeOpenPromise,
     commitPromise,
     hasActiveMandatePromise,
+    readmePromise,
   ]);
   if (news.status === "rejected") {
     throw error(500, "Failed to fetch news");
@@ -163,6 +167,9 @@ export const loadHomeData = async ({
   if (hasActiveMandate.status === "rejected") {
     throw error(500, "Failed to fetch mandate data");
   }
+  if (readme.status === "rejected") {
+    throw error(500, "Failed to fetch readme");
+  }
 
   return {
     files: { next: nextBoardMeetingFiles, last: lastBoardMeetingFiles },
@@ -176,5 +183,6 @@ export const loadHomeData = async ({
     commitCount: commitData.value.commitCount,
     latestCommit: commitData.value.latestCommit,
     hasActiveMandate: hasActiveMandate.value,
+    readme: readme.value,
   };
 };
