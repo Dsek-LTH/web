@@ -305,4 +305,11 @@ export const models: SeedClientOptions["models"] = {
       color: () => faker.internet.color(),
     },
   },
+  readme: {
+    data: {
+      title: `README #${faker.number.int({ min: 1, max: 5 })}`,
+      url: "https://publuu.com/flip-book/782891/1741481/page/1?embed",
+      publishedAt: () => faker.date.past(),
+    },
+  },
 };
