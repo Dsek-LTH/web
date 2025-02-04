@@ -15,18 +15,14 @@ import { message, superValidate, fail } from "sveltekit-superforms";
 import DOMPurify from "isomorphic-dompurify";
 import { markdownToTxt } from "markdown-to-txt";
 
-const uploadImage = async (
-  user: AuthUser,
-  image: File,
-  slug: string,
-  fileName = "header",
-) => {
+const uploadImage = async (user: AuthUser, image: File, slug: string) => {
+  const randomName = (Math.random() + 1).toString(36).substring(2);
   const imageUrl = await uploadFile(
     user,
     image,
     `public/news/${slug}`,
     PUBLIC_BUCKETS_FILES,
-    fileName,
+    randomName,
     {
       resize: {
         width: 1920,
@@ -83,11 +79,11 @@ export const createArticle: Action = async (event) => {
     sendNotification: shouldSendNotification,
     notificationText,
     images,
-    image,
     body,
     bodyEn,
     ...rest
   } = form.data;
+  delete rest.image;
   const existingAuthor = await prisma.author.findFirst({
     where: {
       member: { studentId: user?.studentId },
@@ -103,21 +99,12 @@ export const createArticle: Action = async (event) => {
     },
   });
   slug = slugWithCount(slug, slugCount);
-
-  const imageUrls = [];
-  for (const [i, image] of Array.from(images).entries()) {
-    const imageUrl = await uploadImage(user, image, slug, i.toString());
-    imageUrls.push(imageUrl);
-  }
-  rest.imageUrls = imageUrls; // make imageUrls not optional
-
-  if (image) rest.imageUrl = await uploadImage(user, image, slug);
-  for (const file of images) {
-    // slow maybe do parallel awaits
-    if (file === undefined) continue;
-    const imageUrl = await uploadImage(user, file, slug);
-    rest.imageUrls.push(imageUrl);
-  }
+  const tasks: Array<Promise<string>> = [];
+  Array.from(images).forEach((image) => {
+    tasks.push(uploadImage(user, image, slug));
+  });
+  await Promise.resolve();
+  rest.imageUrls = await Promise.all(tasks);
 
   const result = await prisma.article.create({
     data: {
@@ -129,28 +116,28 @@ export const createArticle: Action = async (event) => {
       author: {
         connect: existingAuthor
           ? {
-              id: existingAuthor.id,
-            }
+            id: existingAuthor.id,
+          }
           : undefined,
         create: !existingAuthor
           ? {
-              member: {
-                connect: { studentId: user?.studentId },
-              },
-              mandate: author.mandateId
-                ? {
-                    connect: {
-                      member: { studentId: user?.studentId },
-                      id: author.mandateId,
-                    },
-                  }
-                : undefined,
-              customAuthor: author.customId
-                ? {
-                    connect: { id: author.customId },
-                  }
-                : undefined,
-            }
+            member: {
+              connect: { studentId: user?.studentId },
+            },
+            mandate: author.mandateId
+              ? {
+                connect: {
+                  member: { studentId: user?.studentId },
+                  id: author.mandateId,
+                },
+              }
+              : undefined,
+            customAuthor: author.customId
+              ? {
+                connect: { id: author.customId },
+              }
+              : undefined,
+          }
           : undefined,
       },
       tags: {
@@ -195,7 +182,8 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
     allowFiles: true,
   });
   if (!form.valid) return fail(400, { form });
-  const { slug, author, tags, image, body, bodyEn, ...rest } = form.data;
+  const { slug, author, tags, images, body, bodyEn, ...rest } = form.data;
+  delete rest.image;
   const existingAuthor = await prisma.author.findFirst({
     where: {
       member: { id: author.memberId },
@@ -204,7 +192,17 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
     },
   });
 
-  if (image) rest.imageUrl = await uploadImage(user, image, slug);
+  const tasks: Array<Promise<string>> = [];
+  Array.from(images).forEach((image) => {
+    tasks.push(uploadImage(user, image, slug));
+  });
+
+  await Promise.resolve();
+  const newImages = await Promise.all(tasks);
+  rest.imageUrls =
+    rest.imageUrls === undefined
+      ? newImages
+      : [...rest.imageUrls, ...newImages];
 
   try {
     await prisma.article.update({
@@ -218,28 +216,28 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
         author: {
           connect: existingAuthor
             ? {
-                id: existingAuthor.id,
-              }
+              id: existingAuthor.id,
+            }
             : undefined,
           create: existingAuthor
             ? {
-                member: {
-                  connect: { studentId: user?.studentId },
-                },
-                mandate: author.mandateId
-                  ? {
-                      connect: {
-                        member: { studentId: user?.studentId },
-                        id: author.mandateId,
-                      },
-                    }
-                  : undefined,
-                customAuthor: author.customId
-                  ? {
-                      connect: { id: author.customId },
-                    }
-                  : undefined,
-              }
+              member: {
+                connect: { studentId: user?.studentId },
+              },
+              mandate: author.mandateId
+                ? {
+                  connect: {
+                    member: { studentId: user?.studentId },
+                    id: author.mandateId,
+                  },
+                }
+                : undefined,
+              customAuthor: author.customId
+                ? {
+                  connect: { id: author.customId },
+                }
+                : undefined,
+            }
             : undefined,
         },
         tags: {

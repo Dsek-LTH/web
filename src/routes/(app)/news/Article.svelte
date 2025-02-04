@@ -18,7 +18,11 @@
     </iframe>
   </figure>
 {:else}
-  <Carousel images={article.imageUrls} />
+  <Carousel
+    images={article.imageUrl === null
+      ? article.imageUrls
+      : [...article.imageUrls, article.imageUrl]}
+  />
 {/if}
 
 <h1 class="mb-8 text-2xl font-bold">{article.header}</h1>

@@ -51,7 +51,7 @@
         updatedAt: new Date(),
         removedAt: null,
         status: "draft",
-        imageUrls: articleImages ?? $form.imageUrls,
+        imageUrls: $form.imageUrls ?? articleImages,
         imageUrl: $form.imageUrl ?? null,
         youtubeUrl: articleVideo ?? $form.youtubeUrl ?? null,
       }}
