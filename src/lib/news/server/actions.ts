@@ -116,28 +116,28 @@ export const createArticle: Action = async (event) => {
       author: {
         connect: existingAuthor
           ? {
-            id: existingAuthor.id,
-          }
+              id: existingAuthor.id,
+            }
           : undefined,
         create: !existingAuthor
           ? {
-            member: {
-              connect: { studentId: user?.studentId },
-            },
-            mandate: author.mandateId
-              ? {
-                connect: {
-                  member: { studentId: user?.studentId },
-                  id: author.mandateId,
-                },
-              }
-              : undefined,
-            customAuthor: author.customId
-              ? {
-                connect: { id: author.customId },
-              }
-              : undefined,
-          }
+              member: {
+                connect: { studentId: user?.studentId },
+              },
+              mandate: author.mandateId
+                ? {
+                    connect: {
+                      member: { studentId: user?.studentId },
+                      id: author.mandateId,
+                    },
+                  }
+                : undefined,
+              customAuthor: author.customId
+                ? {
+                    connect: { id: author.customId },
+                  }
+                : undefined,
+            }
           : undefined,
       },
       tags: {
@@ -216,28 +216,28 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
         author: {
           connect: existingAuthor
             ? {
-              id: existingAuthor.id,
-            }
+                id: existingAuthor.id,
+              }
             : undefined,
           create: existingAuthor
             ? {
-              member: {
-                connect: { studentId: user?.studentId },
-              },
-              mandate: author.mandateId
-                ? {
-                  connect: {
-                    member: { studentId: user?.studentId },
-                    id: author.mandateId,
-                  },
-                }
-                : undefined,
-              customAuthor: author.customId
-                ? {
-                  connect: { id: author.customId },
-                }
-                : undefined,
-            }
+                member: {
+                  connect: { studentId: user?.studentId },
+                },
+                mandate: author.mandateId
+                  ? {
+                      connect: {
+                        member: { studentId: user?.studentId },
+                        id: author.mandateId,
+                      },
+                    }
+                  : undefined,
+                customAuthor: author.customId
+                  ? {
+                      connect: { id: author.customId },
+                    }
+                  : undefined,
+              }
             : undefined,
         },
         tags: {
