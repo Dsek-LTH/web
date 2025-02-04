@@ -4,7 +4,7 @@
   import { goto } from "$lib/utils/redirect";
   import dayjs from "dayjs";
   import { markdownToTxt } from "markdown-to-txt";
-  import ImageLayout from "./ImageLayout.svelte";
+  import ArticleImages from "./ArticleImages.svelte";
   export let article: Article;
 </script>
 
@@ -21,7 +21,7 @@
 
   {#if article.imageUrls.length > 0}
     <button on:click={() => goto("news/" + article.slug)} class="h-80 w-full">
-      <ImageLayout images={article.imageUrls} alt={article.header} />
+      <ArticleImages images={article.imageUrls} header={article.header} />
     </button>
   {:else}
     <div class="flex flex-col items-stretch overflow-hidden p-8">

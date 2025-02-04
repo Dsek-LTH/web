@@ -1,29 +1,24 @@
 <script lang="ts">
   import { getFileUrl } from "$lib/files/client";
-
   export let images: string[] = [];
-
   let carouselRef: HTMLDivElement;
+  let index = 1;
 
-  function carouselLeft(): void {
-    const carouselEl = carouselRef;
-    if (!carouselEl) return;
-    const x =
-      carouselEl.scrollLeft <= 1 // should be == 0, but we'll account for floating point errors
-        ? carouselEl.clientWidth * carouselEl.childElementCount // loop
-        : carouselEl.scrollLeft - carouselEl.clientWidth; // step left
-    carouselEl.scroll(x, 0);
+  function onKeyDown(event: KeyboardEvent) {
+    if (event.key === "ArrowRight") {
+      scroll(true);
+    } else if (event.key === "ArrowLeft") {
+      scroll(false);
+    }
   }
 
-  function carouselRight(): void {
-    const carouselEl = carouselRef;
-    if (!carouselEl) return;
-    const x =
-      carouselEl.scrollLeft + 1 >=
-      carouselEl.scrollWidth - carouselEl.clientWidth
-        ? 0 // loop
-        : carouselEl.scrollLeft + carouselEl.clientWidth; // step right
-    carouselEl.scroll(x, 0);
+  function scroll(right: boolean): void {
+    const sign = right ? 1 : -1;
+    index = Math.max(Math.min(index + sign, images.length), 1);
+    carouselRef.scroll(
+      carouselRef.scrollLeft + carouselRef.clientWidth * sign,
+      0,
+    );
   }
 </script>
 
@@ -31,20 +26,33 @@
   <div class="relative">
     <div class="carousel" bind:this={carouselRef}>
       {#each images as image, i}
-        <div id="slide{i}" class="carousel-item relative w-full">
+        <div
+          id="slide{i}"
+          class="carousel-item relative flex w-full justify-center"
+        >
           <figure>
-            <img src={getFileUrl(image)} alt={i.toString()} loading="lazy" />
+            <img
+              src={getFileUrl(image)}
+              alt={i.toString()}
+              loading="lazy"
+              class="h-[80dvh] object-contain"
+            />
           </figure>
         </div>
       {/each}
     </div>
-    <div class="absolute bottom-5 w-full text-center">
-      <button class="btn btn-circle" on:click={carouselLeft}>
-        <span class="i-mdi-arrow-left" />
-      </button>
-      <button class="btn btn-circle" on:click={carouselRight}>
-        <span class="i-mdi-arrow-right" />
-      </button>
-    </div>
+    {#if images.length > 1}
+      <div class="absolute bottom-5 w-full text-center">
+        <button class="btn btn-circle" on:click={() => scroll(false)}>
+          <span class="i-mdi-arrow-left" />
+        </button>
+        <span>{index} / {images.length}</span>
+        <button class="btn btn-circle" on:click={() => scroll(true)}>
+          <span class="i-mdi-arrow-right" />
+        </button>
+      </div>
+    {/if}
   </div>
 {/if}
+
+<svelte:window on:keydown={onKeyDown} />
