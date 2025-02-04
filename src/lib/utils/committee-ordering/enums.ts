@@ -40,6 +40,7 @@ export enum Infu {
   "dsek.infu.arkivarie",
   "dsek.infu.redaktor",
   "dsek.infu.journalist",
+  "dsek.infu.influencer",
   "dsek.infu.shopaholic",
   "dsek.infu.markv",
   "dsek.infu.skald",
