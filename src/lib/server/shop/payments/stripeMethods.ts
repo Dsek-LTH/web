@@ -6,7 +6,7 @@ import {
 import * as m from "$paraglide/messages";
 import type { Consumable, Shoppable } from "@prisma/client";
 import Stripe from "stripe";
-import authorizedPrismaClient from "../authorizedPrisma";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import stripe from "./stripe";
 
 type RequiredProps = "amount" | "metadata" | "customer";

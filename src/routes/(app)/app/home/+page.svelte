@@ -3,6 +3,7 @@
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import Events from "$lib/components/home/Events.svelte";
   import WellbeingCta from "$lib/components/home/WellbeingCTA.svelte";
+  import SRDCta from "$lib/components/home/SRDCTA.svelte";
   import CafeOpenTimes from "$lib/components/home/CafeOpenTimes.svelte";
   import Documents from "$lib/components/home/Documents.svelte";
   import CodeWithDwww from "$lib/components/home/CodeWithDWWW.svelte";
@@ -32,6 +33,9 @@
 
   <section>
     <WellbeingCta />
+  </section>
+  <section>
+    <SRDCta />
   </section>
 
   <section>

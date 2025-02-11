@@ -47,7 +47,9 @@
   "home_meetingNext": "Next meeting",
   "home_meetingPrev": "Previous meeting",
   "home_feedback": "Thoughts or opinions?",
+  "home_feedbackSRD": "Opinions on your education?",
   "home_contactWellbeing": "Contact the Wellbeing Committee",
+  "home_contactSRD": "Contact the Student Council",
   "home_codeWithDWWW": "Code with DWWW!",
   "home_DWWWMessage": "Have you found a bug, do you have a great idea for a new feature or do you want to learn web development? Then you have found the right place!",
   "home_reportBug": "Report a bug",
@@ -793,6 +795,7 @@
   "elections_expiryDate": "Last application date (23:59)",
   "elections_committee": "Committee",
   "elections_save": "Save",
+  "elections_link_placeholder": "https://forms.google.com/... or https://dsek.se/news/...",
   "expenses": "Expenses",
   "expense": "Expense",
   "expenseCreated": "Expense created",
@@ -814,5 +817,6 @@
   "admin_info_create": "Create",
   "admin_info_createNewInfoPage": "Create new information page",
   "admin_info_infoPageCreated": "Information page created",
-  "info": "Info"
+  "info": "Info",
+  "privacy_policy": "Privacy Policy"
 }

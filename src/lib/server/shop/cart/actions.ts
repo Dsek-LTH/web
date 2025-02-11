@@ -3,7 +3,7 @@ import {
   moveQueueToCart,
   sendQueuedNotifications,
 } from "$lib/server/shop/addToCart/reservations";
-import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import { purchaseForm } from "$lib/server/shop/cart/types";
 import purchaseCart from "$lib/server/shop/payments/purchase";
 import { answerQuestion } from "$lib/server/shop/questions";

@@ -4,18 +4,18 @@
 
 <a
   class="pop-out flex gap-6 rounded-2xl bg-base-300 px-6 py-3"
-  href="https://bit.ly/trivselkontakt"
+  href="https://link.dsek.se/srd"
   target="_blank"
   rel="noreferrer noopener"
 >
   <span
-    class="i-mdi-speak self-center text-2xl text-secondary lg:text-primary"
+    class="i-mdi-pencil self-center text-2xl text-secondary lg:text-primary"
   />
 
   <article>
-    <p>{m.home_feedback()}</p>
+    <p>{m.home_feedbackSRD()}</p>
     <h2 class="text-xl font-bold text-secondary lg:text-primary">
-      {m.home_contactWellbeing()}
+      {m.home_contactSRD()}
     </h2>
   </article>
 </a>

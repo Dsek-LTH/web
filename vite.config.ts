@@ -20,4 +20,9 @@ export default defineConfig({
   test: {
     include: ["src/**/*.test.{js,ts}"],
   },
+  resolve: {
+    alias: {
+      lib: "/src/lib",
+    },
+  },
 });

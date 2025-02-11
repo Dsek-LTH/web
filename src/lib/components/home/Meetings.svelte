@@ -5,7 +5,10 @@
   export let previous: Pick<Meeting, "title"> | null;
 </script>
 
-<a class="pop-out flex gap-6 rounded-2xl bg-base-300 p-6" href="/documents">
+<a
+  class="pop-out flex gap-6 rounded-2xl bg-base-300 px-5 py-3"
+  href="/documents"
+>
   <span class="i-mdi-gavel self-center text-2xl" />
 
   <article class="flex-1">
