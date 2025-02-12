@@ -106,8 +106,9 @@ export const getAllArticles = async (
         }
       : {}),
   };
-  const [articles, count] = await prisma.$transaction(async (tx) => {
-    const articles = tx.article.findMany({
+  // Don't run as transaction, a little read only data race is fine
+  const [articles, count] = await Promise.all([
+    prisma.article.findMany({
       where,
       orderBy: {
         publishedAt: "desc",
@@ -115,10 +116,9 @@ export const getAllArticles = async (
       skip: Math.max(pageNumber - 1, 0) * pageSize,
       take: pageSize,
       include,
-    });
-    const count = tx.article.count({ where });
-    return await Promise.all([articles, count]);
-  });
+    }),
+    prisma.article.count({ where }),
+  ]);
   return [articles, Math.ceil(count / pageSize)];
 };
 

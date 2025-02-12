@@ -110,8 +110,9 @@ export const getAllEvents = async (
       },
     ],
   };
-  const [events, count] = await prisma.$transaction(async (tx) => {
-    const events = tx.event.findMany({
+  // Don't run as transaction, a little read only data race is fine
+  const [events, count] = await Promise.all([
+    prisma.event.findMany({
       where,
       orderBy: {
         startDatetime: filters.pastEvents ? "desc" : "asc",
@@ -119,10 +120,9 @@ export const getAllEvents = async (
       skip: Math.max(pageNumber - 1, 0) * pageSize,
       take: pageSize,
       include,
-    });
-    const count = tx.event.count({ where });
-    return [await events, await count];
-  });
+    }),
+    prisma.event.count({ where }),
+  ]);
   return [events, Math.ceil(count / pageSize)];
 };
 
