@@ -6,7 +6,7 @@ import {
   getEmailsForManyMembers,
   getAliasToPositions,
 } from "./utils";
-import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 
 export const GET: RequestHandler = async ({ setHeaders }) => {
   // This is the main data structure that we will use to create the response

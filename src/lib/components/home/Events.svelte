@@ -21,7 +21,7 @@
     <div class="pop-out mt-0.5 bg-base-200">
       <a
         href={eventLink(event)}
-        class="flex h-full flex-col justify-start gap-x-4 p-4"
+        class="flex h-full flex-col justify-start gap-x-5 p-4"
       >
         <div class="flex flex-row">
           <div

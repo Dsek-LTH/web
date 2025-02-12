@@ -1,6 +1,6 @@
 import { env } from "$env/dynamic/private";
 import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
-import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import servePdf from "$lib/utils/servePdf";
 import { error, type NumericRange } from "@sveltejs/kit";
 import { meilisearch } from "./meilisearch";
@@ -23,6 +23,14 @@ import { promiseAllInBatches } from "$lib/utils/batch";
  * So we fetch them from there
  */
 export const syncGoverningDocuments = async () => {
+  // If Poppler is not up (for some reason), we can't continue, just return
+  if (!(await checkPopplerHealth())) {
+    console.log(
+      "Meilisearch: Poppler is not healthy, skipping sync of governing documents",
+    );
+    return;
+  }
+
   const indexName: SearchableIndex = "governingDocuments";
   const documentsIndex = await meilisearch.getIndex(indexName);
   await resetIndex(documentsIndex, meilisearchConstants.governingDocument);
@@ -72,6 +80,13 @@ export const syncGoverningDocuments = async () => {
  * Meeting documents are stored in the public bucket on MinIO
  */
 export const syncMeetingDocuments = async () => {
+  // If Poppler is not up (for some reason), we can't continue, just return
+  if (!(await checkPopplerHealth())) {
+    console.log(
+      "Meilisearch: Poppler is not healthy, skipping sync of meeting documents",
+    );
+    return;
+  }
   // This is a hack to get the files from the public bucket
   // since the fileHandler checks for the user's policies
   // and we don't have a user here
@@ -220,4 +235,31 @@ const filterContent = (content: string) => {
   // Do this twice to make sure we don't have more than two empty lines
   content = content.replace(/\n{2,}/g, "\n");
   return content;
+};
+
+const checkPopplerHealth = async () => {
+  if (!env.POPPLER_SERVER_URL) {
+    console.log(
+      "Poppler: No server URL provided. Check the environment variables",
+    );
+    return false;
+  }
+  try {
+    const response = await fetch(env.POPPLER_SERVER_URL + "/health", {
+      method: "GET",
+      signal: AbortSignal.timeout(5000), // Timeout after 5 seconds
+    });
+    if (!response.ok) {
+      console.log(
+        `Poppler: Server is not healthy: ${response.status} ${response.statusText}`,
+      );
+      return false;
+    } else {
+      console.log("Poppler: Server is healthy");
+      return true;
+    }
+  } catch (error) {
+    console.log(`Poppler: Server is not healthy: ${error}`);
+    return false;
+  }
 };

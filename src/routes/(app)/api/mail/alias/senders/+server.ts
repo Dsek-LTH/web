@@ -1,7 +1,7 @@
 import type { PrismaClient } from "@prisma/client";
 import type { RequestHandler } from "./$types";
 import { getCurrentMembersForPosition } from "../utils";
-import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 
 /**
  * Returns a text response where each line contains an email alias

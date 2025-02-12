@@ -1,4 +1,4 @@
-import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import { type PrismaClient } from "@prisma/client";
 
 export const NOLLNING_START_KEY = "nollning_start";

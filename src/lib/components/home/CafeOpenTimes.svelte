@@ -6,7 +6,7 @@
 </script>
 
 <a
-  class="pop-out flex gap-6 rounded-2xl bg-base-300 p-6"
+  class="pop-out flex gap-6 rounded-2xl bg-base-300 px-6 py-3"
   href="/committees/cafe"
 >
   <span

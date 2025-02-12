@@ -2,7 +2,7 @@ import type { SendNotificationProps } from "$lib/utils/notifications";
 import * as m from "$paraglide/messages";
 import { PrismaClient, type Shoppable, type Ticket } from "@prisma/client";
 import type { AuthUser } from "@zenstackhq/runtime";
-import authorizedPrismaClient from "../authorizedPrisma";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import {
   GRACE_PERIOD_WINDOW,
   TIME_TO_BUY,

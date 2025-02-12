@@ -55,6 +55,16 @@ From: ${req.ip}`,
   }
 });
 
+// Health check endpoint
+app.get("/health", async (_req, res) => {
+  // Disable caching
+  res
+    .status(200)
+    .set("Cache-Control", "no-store, max-age=0")
+    .set("Pragma", "no-cache")
+    .send("Server is running.");
+});
+
 // Global error handler
 app.use((err, _req, res) => {
   res.status(500).json({ error: err.message });

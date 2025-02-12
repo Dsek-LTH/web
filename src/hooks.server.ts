@@ -1,6 +1,6 @@
 import { env } from "$env/dynamic/private";
 import keycloak from "$lib/server/keycloak";
-import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import { i18n } from "$lib/utils/i18n";
 import { createMember } from "$lib/utils/member";
 import { redirect } from "$lib/utils/redirect";

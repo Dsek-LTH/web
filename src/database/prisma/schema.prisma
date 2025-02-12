@@ -518,7 +518,7 @@ model Mandate {
     positionId String @map("position_id") @db.VarChar(255)
     startDate DateTime @map("start_date") @db.Date()
     endDate DateTime @map("end_date") @db.Date()
-    inKeycloak Boolean @default(false) @map("in_keycloak")
+    lastSynced DateTime @default(dbgenerated("TIMESTAMP '1970-01-01 00:00:00'")) @map("last_synced")
     authors Author[]
     member Member @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "mandates_member_id_foreign")
     position Position @relation(fields: [positionId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "mandates_position_id_foreign")
@@ -914,13 +914,6 @@ model UserInventoryItem {
     @@map("user_inventory_item")
 }
 
-model LastKeycloakUpdate {
-    id Int @id() @default(autoincrement())
-    time DateTime
-
-    @@map("last_keycloak_update")
-}
-
 /// @@allow('create', hasSome(auth().policies, ['webshop:create', 'webshop:manage']) && authorId == auth().memberId)
 /// @@allow('update', auth().memberId == authorId || has(auth().policies, 'webshop:manage'))
 /// @@allow('read', true)
@@ -1084,7 +1077,7 @@ model ShoppableAccessPolicy {
 
 /// @@allow('create', has(auth().policies, 'expenses:create'))
 /// @@allow('read', memberId == auth().memberId || items?[signerMemberId == auth().memberId] || has(auth().policies, 'expenses:bookkeeping'))
-/// @@allow('update', hasBeenSentToBookeeping == false && (memberId == auth().memberId || items?[signerMemberId == auth().memberId] || has(auth().policies, 'expenses:bookkeeping')))
+/// @@allow('update', hasBeenSentToBookkeeping == false && (memberId == auth().memberId || items?[signerMemberId == auth().memberId] || has(auth().policies, 'expenses:bookkeeping')))
 /// @@allow('delete', false)
 model Expense {
     id Int @id() @default(autoincrement())
@@ -1093,7 +1086,7 @@ model Expense {
     description String
     isGuildCard Boolean
     /// @deny('update', !has(auth().policies, 'expenses:bookkeeping'))
-    hasBeenSentToBookeeping Boolean @default(false)
+    hasBeenSentToBookkeeping Boolean @default(false)
     memberId String @db.Uuid()
     member Member @relation(fields: [memberId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "expense_member_id_foreign")
     items ExpenseItem[]
@@ -1104,7 +1097,7 @@ model Expense {
 
 /// @@allow('create', has(auth().policies, 'expenses:create') && signedByMemberId == null && signedAt == null)
 /// @@allow('read', expense.memberId == auth().memberId || expense.items?[signerMemberId == auth().memberId] || has(auth().policies, 'expenses:bookkeeping'))
-/// @@allow('update', expense.hasBeenSentToBookeeping == false && (expense.memberId == auth().memberId || expense.items?[signerMemberId == auth().memberId] || has(auth().policies, 'expenses:bookkeeping')) && (future().signedByMemberId == null && future().signedAt == null || (future().signedByMemberId == auth().memberId && future().signedAt != null)))
+/// @@allow('update', expense.hasBeenSentToBookkeeping == false && (expense.memberId == auth().memberId || expense.items?[signerMemberId == auth().memberId] || has(auth().policies, 'expenses:bookkeeping')) && (future().signedByMemberId == null && future().signedAt == null || (future().signedByMemberId == auth().memberId && future().signedAt != null)))
 /// @@allow('delete', false)
 model ExpenseItem {
     id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
@@ -1124,4 +1117,18 @@ model ExpenseItem {
     signedAt DateTime?
 
     @@map("expense_items")
+}
+
+/// @@allow('read', true)
+model Readme {
+    id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+    title String
+    url String
+    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt DateTime @map("updated_at") @db.Timestamptz(6)
+    year Int
+    number Int
+    publishedAt DateTime? @map("published_at") @db.Timestamptz(6)
+
+    @@map("readme")
 }
