@@ -1,6 +1,5 @@
 import { BASIC_EVENT_FILTER } from "$lib/events/events";
 import type { Prisma, PrismaClient } from "@prisma/client";
-import * as m from "$paraglide/messages";
 
 type EventFilters = {
   tags?: string[];
@@ -111,19 +110,19 @@ export const getAllEvents = async (
       },
     ],
   };
-  const [events, count] = await prisma.$transaction(async (tx) => {
-    const events = tx.event.findMany({
+  // Don't run as transaction, a little read only data race is fine
+  const [events, count] = await Promise.all([
+    prisma.event.findMany({
       where,
       orderBy: {
         startDatetime: filters.pastEvents ? "desc" : "asc",
       },
-      skip: pageNumber * pageSize,
+      skip: Math.max(pageNumber - 1, 0) * pageSize,
       take: pageSize,
       include,
-    });
-    const count = tx.event.count({ where });
-    return [await events, await count];
-  });
+    }),
+    prisma.event.count({ where }),
+  ]);
   return [events, Math.ceil(count / pageSize)];
 };
 
@@ -140,11 +139,3 @@ export const getEvent = async (prisma: PrismaClient, slug: string) => {
 export type EventWithIncludes = NonNullable<
   Awaited<ReturnType<typeof getEvent>>
 >;
-
-export const getAndValidatePage = (url: URL) => {
-  const page = url.searchParams.get("page");
-  if (page && Number.isNaN(Number.parseInt(page))) {
-    throw new Error(m.events_errors_invalidPage());
-  }
-  return page ? Math.max(Number.parseInt(page) - 1, 0) : undefined;
-};

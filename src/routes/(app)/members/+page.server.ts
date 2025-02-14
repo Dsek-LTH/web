@@ -1,6 +1,7 @@
 import { error } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
+import { getYearOrThrowSvelteError } from "$lib/utils/url.server";
 
 const allowedProgrammes = ["D", "C", "VR/AR"];
 
@@ -13,10 +14,7 @@ export const load: PageServerLoad = async (request) => {
   if (!classProgramme || !allowedProgrammes.includes(classProgramme)) {
     classProgramme = "all";
   }
-  let classYear = parseInt(request.url.searchParams.get("year") ?? "");
-  if (isNaN(classYear)) {
-    classYear = new Date().getFullYear();
-  }
+  const classYear = getYearOrThrowSvelteError(request.url);
   const members = await prisma.member.findMany({
     where: {
       classYear,

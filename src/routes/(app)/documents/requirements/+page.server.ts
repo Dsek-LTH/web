@@ -11,6 +11,7 @@ import { zod } from "sveltekit-superforms/adapters";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
+import { getYearOrThrowSvelteError } from "$lib/utils/url.server";
 
 export type FolderType = {
   id: string;
@@ -22,7 +23,7 @@ export type FolderType = {
 
 export const load: PageServerLoad = async ({ locals, url }) => {
   const { user } = locals;
-  const year = url.searchParams.get("year") || new Date().getFullYear();
+  const year = getYearOrThrowSvelteError(url);
   const files = await fileHandler.getInBucket(
     user,
     PUBLIC_BUCKETS_FILES,
