@@ -1,87 +1,146 @@
-import type { EmailAlias, Member, PrismaClient } from "@prisma/client";
+import authorizedPrisma from "$lib/server/authorizedPrisma";
 
-export async function getAliasToPositions(
-  prisma: PrismaClient,
-): Promise<Map<string, EmailAlias[]>> {
-  return (
-    await prisma.emailAlias.findMany({
-      include: {
-        position: true,
-      },
-      orderBy: {
-        email: "asc",
-      },
-    })
-  ).reduce<Map<string, EmailAlias[]>>((acc, cur) => {
-    if (!acc.has(cur.email)) {
-      acc.set(cur.email, []);
-    }
-    acc.get(cur.email)?.push(cur);
-    return acc;
-  }, new Map<string, EmailAlias[]>());
-}
+type Alias = {
+  alias: string;
+  users: string[];
+};
 
-export async function getCurrentMembersForPosition(
-  positionId: string,
-  prisma: PrismaClient,
-): Promise<Array<{ studentId: Member["studentId"]; memberId: Member["id"] }>> {
+/**
+ * Fetches email aliases (e.g akta@dsek.se) and their
+ * corresponding users from the database.
+ */
+export async function fetchAliasReceivers(): Promise<Alias[]> {
   const now = new Date();
-  return prisma.mandate
+  return await authorizedPrisma.emailAlias
     .findMany({
-      where: {
-        positionId: positionId,
-        startDate: {
-          lte: now,
-        },
-        endDate: {
-          gte: now,
-        },
-      },
       select: {
-        memberId: true,
-        member: {
+        email: true,
+        position: {
           select: {
-            studentId: true,
+            mandates: {
+              where: { startDate: { lte: now }, endDate: { gte: now } },
+              select: {
+                member: {
+                  select: { email: true },
+                },
+              },
+            },
           },
         },
       },
+      orderBy: { email: "asc" },
     })
-    .then((mandates) =>
-      mandates.reduce<
-        Array<{ studentId: Member["studentId"]; memberId: Member["id"] }>
-      >((acc, cur) => {
-        acc.push({
-          studentId: cur.member.studentId,
-          memberId: cur.memberId,
-        });
-        return acc;
-      }, []),
+    .then((result) =>
+      result.map((alias) => ({
+        alias: alias.email,
+        users: alias.position.mandates
+          .map(({ member }) => member.email)
+          .filter((email) => email !== null),
+      })),
+    );
+}
+/**
+ * Fetches email aliases (e.g akta@dsek.se) and their
+ * corresponding users from the database.
+ */
+export async function fetchAliasSenders(): Promise<Alias[]> {
+  const now = new Date();
+  return await authorizedPrisma.emailAlias
+    .findMany({
+      where: { canSend: { equals: true } },
+      select: {
+        email: true,
+        position: {
+          select: {
+            mandates: {
+              where: { startDate: { lte: now }, endDate: { gte: now } },
+              select: {
+                member: {
+                  select: { studentId: true },
+                },
+              },
+            },
+          },
+        },
+      },
+      orderBy: { email: "asc" },
+    })
+    .then((result) =>
+      result.map((alias) => ({
+        alias: alias.email,
+        users: alias.position.mandates
+          .map(({ member }) => member.studentId)
+          .filter((studentId) => studentId !== null),
+      })),
     );
 }
 
-export async function getEmailsForManyMembers(
-  memberIds: string[],
-  prisma: PrismaClient,
-) {
-  return (
-    await prisma.member.findMany({
-      where: {
-        id: {
-          in: memberIds,
-        },
-        studentId: {
-          not: null,
-        },
-      },
-      select: {
-        studentId: true,
-        email: true,
-      },
-    })
-  ).reduce<Map<string, string>>((acc, cur) => {
-    if (cur.studentId != null && cur.email != null) {
-      acc.set(cur.studentId, cur.email);
-    }
-    return acc;
-  }, new Map<string, string>());
+/**
+ * Fetches special receivers which are email aliases
+ * connected to a member rather than a position.
+ */
+export async function fetchSpecialReceivers(): Promise<Alias[]> {
+  const result = await authorizedPrisma.specialReceiver.findMany({
+    select: { email: true, targetEmail: true },
+    orderBy: { email: "asc" },
+  });
+
+  const grouped = Object.groupBy(result, ({ email }) => email);
+  return Object.entries(grouped).map(([alias, receivers]) => ({
+    alias,
+    // groupBy should not return a key with undefined value
+    users: receivers!.map((r) => r.targetEmail),
+  }));
+}
+
+/**
+ * Fetches special senders which are email aliases
+ * connected to a member rather than a position.
+ */
+export async function fetchSpecialSenders(): Promise<Alias[]> {
+  const result = await authorizedPrisma.specialSender.findMany({
+    select: { email: true, studentId: true },
+    orderBy: { email: "asc" },
+  });
+
+  const grouped = Object.groupBy(result, ({ email }) => email);
+  return Object.entries(grouped).map(([alias, senders]) => ({
+    alias,
+    users: senders!.map((r) => r.studentId),
+  }));
+}
+
+/**
+ * All aliases MUST have a receiver, otherwise things break in our mailserver.
+ */
+export function addFallbackEmail(aliases: Alias[]) {
+  return aliases.map((alias) => ({
+    alias: alias.alias,
+    users: alias.users.length > 0 ? alias.users : ["root@dsek.se"],
+  }));
+}
+
+/**
+ * All aliases should have a sender, otherwise there's no point in including it.
+ */
+export function removeEmptySenders(aliases: Alias[]) {
+  return aliases.filter((alias) => alias.users.length > 0);
+}
+
+/**
+ * Merges an array of Alias objects by combining users of the same alias.
+ */
+export function mergeAliases(aliases: Alias[]): Alias[] {
+  const grouped = Object.groupBy(aliases, (item) => item.alias);
+
+  return Object.entries(grouped).map(([alias, aliasObjects]) => ({
+    alias,
+    users: aliasObjects!.flatMap((obj) => obj.users),
+  }));
+}
+
+export function stringifyAliases(aliases: Alias[]) {
+  return aliases
+    .map(({ alias, users }) => `${alias} ${users.join(", ")}`)
+    .join("\n");
 }
