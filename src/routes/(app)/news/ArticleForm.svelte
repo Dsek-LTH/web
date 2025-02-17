@@ -35,6 +35,7 @@
     },
   ) => {
     const images = event.currentTarget.files;
+    articleImages = [];
     Array.from(images ?? []).forEach((image) => {
       const reader = new FileReader();
       reader.onload = () => {
