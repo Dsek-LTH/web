@@ -14,8 +14,6 @@
   $: consumable = data.consumable;
   $: shoppable = consumable.shoppable;
   $: event = shoppable.event;
-
-  $: consumeURL = $page.url + "/consume";
 </script>
 
 <SetPageTitle title={shoppable.title} />
@@ -98,6 +96,6 @@
       </section>
     {/if}
 
-    <QRCode data={consumeURL} />
+    <QRCode data={consumable.id} />
   </main>
 </div>
