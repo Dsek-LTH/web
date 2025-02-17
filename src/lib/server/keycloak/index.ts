@@ -221,7 +221,7 @@ async function updateMandate(prisma: PrismaClient) {
     async ({ positionId, member: { studentId }, id }) => {
       deleteMandate(prisma, studentId!, positionId, id);
     },
-    10,
+    2,
   );
 
   promiseAllInBatches(
@@ -229,7 +229,7 @@ async function updateMandate(prisma: PrismaClient) {
     async ({ positionId, member: { studentId }, id }) => {
       addMandate(prisma, studentId!, positionId, id);
     },
-    10,
+    2,
   );
 }
 
