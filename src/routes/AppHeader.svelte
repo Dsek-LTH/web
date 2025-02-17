@@ -3,13 +3,14 @@
   import LoadingButton from "$lib/components/LoadingButton.svelte";
   import NavIcon from "$lib/components/NavIcon.svelte";
   import NotificationModal from "$lib/components/NotificationModal.svelte";
-  import { pageTitle } from "$lib/stores/pageTitle";
   import { i18n } from "$lib/utils/i18n";
   import type { NotificationGroup } from "$lib/utils/notifications/group";
   import { signIn } from "@auth/sveltekit/client";
   import type { GlobalAppLoadData } from "./(app)/+layout.server";
   import NotificationBell from "./NotificationBell.svelte";
   import { appBottomNavRoutes, getRoutes } from "./routes";
+  import { getContext } from "svelte";
+  import type { Writable } from "svelte/store";
 
   $: pageData = $page.data as typeof $page.data & GlobalAppLoadData;
   $: notificationsPromise = pageData["notificationsPromise"];
@@ -21,6 +22,8 @@
 
   let notificationModal: HTMLDialogElement;
   let notifications: NotificationGroup[] | undefined = undefined;
+
+  let pageTitle = getContext<Writable<string>>("pageTitle");
 </script>
 
 <header
