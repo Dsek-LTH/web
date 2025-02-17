@@ -61,7 +61,7 @@ export const load = async ({ locals, params }) => {
 };
 
 export const actions = {
-  consume: async ({ locals, request, params }) => {
+  consume: async ({ locals, request }) => {
     const { prisma } = locals;
     const form = await superValidate(
       request,
