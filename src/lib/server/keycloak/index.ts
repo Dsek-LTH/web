@@ -113,6 +113,7 @@ async function addMandate(
   prisma: PrismaClient,
   username: string,
   positionId: string,
+  mandateId: string,
 ) {
   if (!enabled) return;
 
@@ -129,6 +130,12 @@ async function addMandate(
       const boardGroupId = await getGroupId(keycloak, KEYCLOAK_BOARD_GROUP);
       await keycloak.users.addToGroup({ id: id!, groupId: boardGroupId! });
     }
+    await prisma.mandate.update({
+      where: { id: mandateId },
+      data: {
+        lastSynced: new Date(),
+      },
+    });
   } catch (error) {
     console.log(error);
   }
@@ -138,6 +145,7 @@ async function deleteMandate(
   prisma: PrismaClient,
   username: string,
   positionId: string,
+  mandateId: string,
 ) {
   if (!enabled) return;
 
@@ -160,6 +168,12 @@ async function deleteMandate(
         groupId: boardGroupId!,
       });
     }
+    await prisma.mandate.update({
+      where: { id: mandateId },
+      data: {
+        lastSynced: new Date(),
+      },
+    });
   } catch (error) {
     console.log(error);
   }
@@ -170,41 +184,53 @@ async function updateMandate(prisma: PrismaClient) {
 
   const now = new Date().toISOString();
 
-  const lastKeycloakUpdateResult = await prisma.lastKeycloakUpdate.findMany({
-    take: 1,
-    orderBy: [
-      {
-        id: "desc",
+  const [mandatesToBeDeleted, mandatesToBeAdded] = await Promise.all([
+    prisma.mandate.findMany({
+      where: {
+        AND: [
+          { endDate: { gt: prisma.mandate.fields.lastSynced } },
+          { endDate: { lt: now } },
+        ],
       },
-    ],
-    select: {
-      time: true,
-    },
-  });
-  const last = lastKeycloakUpdateResult[0]?.time ?? "1982-12-31T00:00:00.000Z";
-
-  const result = await prisma.mandate.findMany({
-    where: { endDate: { lte: now, gte: last } },
-    select: { positionId: true, member: { select: { studentId: true } } },
-  });
-
+      select: {
+        id: true,
+        positionId: true,
+        member: { select: { studentId: true } },
+      },
+    }),
+    prisma.mandate.findMany({
+      where: {
+        AND: [
+          { startDate: { gt: prisma.mandate.fields.lastSynced } },
+          { startDate: { lt: now } },
+        ],
+      },
+      select: {
+        id: true,
+        positionId: true,
+        member: { select: { studentId: true } },
+      },
+    }),
+  ]);
   console.log(
-    `[${new Date().toISOString()}] updating ${result.length} users groups`,
+    `[${new Date().toISOString()}] adding ${mandatesToBeAdded.length} users to groups, deleting ${mandatesToBeDeleted.length} users from groups`,
   );
 
   promiseAllInBatches(
-    result,
-    async ({ positionId, member: { studentId } }) => {
-      deleteMandate(prisma, studentId!, positionId);
+    mandatesToBeDeleted,
+    async ({ positionId, member: { studentId }, id }) => {
+      deleteMandate(prisma, studentId!, positionId, id);
     },
     10,
   );
 
-  await prisma.lastKeycloakUpdate.create({
-    data: {
-      time: now,
+  promiseAllInBatches(
+    mandatesToBeAdded,
+    async ({ positionId, member: { studentId }, id }) => {
+      addMandate(prisma, studentId!, positionId, id);
     },
-  });
+    10,
+  );
 }
 
 async function updateEmails(prisma: PrismaClient) {

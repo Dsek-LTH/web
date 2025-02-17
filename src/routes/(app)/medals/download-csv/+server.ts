@@ -1,18 +1,12 @@
 import type { Member } from "@prisma/client";
-import {
-  type Semester,
-  toString,
-  parseSemester,
-  dateToSemester,
-} from "$lib/utils/semesters";
+import { type Semester, toString } from "$lib/utils/semesters";
 import { medalRecipients } from "$lib/server/medals/medals";
+import { getSemesterOrThrowSvelteError } from "$lib/utils/url.server";
 
 export const GET = async ({ locals, url }) => {
   const { prisma } = locals;
 
-  const semester: Semester =
-    parseSemester(url.searchParams.get("semester") ?? "") ||
-    dateToSemester(new Date());
+  const semester: Semester = getSemesterOrThrowSvelteError(url);
 
   const recipientLines: string[] = (
     await medalRecipients(prisma, semester)

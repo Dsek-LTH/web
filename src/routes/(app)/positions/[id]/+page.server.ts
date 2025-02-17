@@ -143,7 +143,7 @@ export const actions: Actions = {
     });
     if (!member)
       return setError(form, "memberId", m.positions_errors_memberNotFound());
-    await prisma.mandate.create({
+    const createdMandate = await prisma.mandate.create({
       data: {
         positionId: params.id,
         memberId: form.data.memberId,
@@ -151,7 +151,12 @@ export const actions: Actions = {
         endDate: form.data.endDate,
       },
     });
-    keycloak.addMandate(prisma, member.studentId!, params.id);
+    keycloak.addMandate(
+      prisma,
+      member.studentId!,
+      params.id,
+      createdMandate.id,
+    );
     return message(form, {
       message: m.positions_newMandateGivenTo({
         name: member.firstName ?? m.positions_theMember(),
@@ -219,7 +224,12 @@ export const actions: Actions = {
     await prisma.mandate.delete({
       where: { id: form.data.mandateId, positionId: params.id },
     });
-    keycloak.deleteMandate(prisma, member.studentId!, params.id);
+    keycloak.deleteMandate(
+      prisma,
+      member.studentId!,
+      params.id,
+      form.data.mandateId,
+    );
     return message(form, {
       message: m.positions_mandateRemoved({
         names: genitiveCase(member.firstName ?? m.positions_theMember()),
