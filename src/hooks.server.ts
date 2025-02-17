@@ -5,7 +5,11 @@ import { i18n } from "$lib/utils/i18n";
 import { createMember } from "$lib/utils/member";
 import { redirect } from "$lib/utils/redirect";
 import { themes, type Theme } from "$lib/utils/themes";
-import { isAvailableLanguageTag, sourceLanguageTag } from "$paraglide/runtime";
+import {
+  isAvailableLanguageTag,
+  setLanguageTag,
+  sourceLanguageTag,
+} from "$paraglide/runtime";
 import Keycloak, { type KeycloakProfile } from "@auth/core/providers/keycloak";
 import type { TokenSet } from "@auth/core/types";
 import { SvelteKitAuth } from "@auth/sveltekit";
@@ -103,6 +107,7 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
     ? event.locals.paraglide?.lang
     : sourceLanguageTag;
   event.locals.language = lang;
+  setLanguageTag(lang);
   const session = await event.locals.getSession();
   const prisma = prismaClient
     .$extends(translatedExtension(lang))
@@ -212,7 +217,7 @@ const themeHandle: Handle = async ({ event, resolve }) => {
   // get theme from cookies and send to frontend to show correct icon in theme switch
   event.locals.theme = theme as Theme;
 
-  return await resolve(event, {
+  return resolve(event, {
     transformPageChunk: ({ html }) => {
       return html.replace("%theme%", theme);
     },
