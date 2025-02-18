@@ -170,6 +170,16 @@ model Article {
 }
 
 /// @@allow('read', true)
+/// @@allow('create', has(auth().policies, 'dbay:create'))
+model Dbay {
+    id String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+    header String @db.VarChar(255)
+    body String
+    price Int
+    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+}
+
+/// @@allow('read', true)
 /// @@allow('create', has(auth().policies, 'election:create'))
 /// @@allow('update', has(auth().policies, 'election:update'))
 /// @@allow('delete', has(auth().policies, 'election:delete'))
