@@ -223,6 +223,7 @@ async function updateMandate(prisma: PrismaClient) {
         AND: [
           { startDate: { gt: prisma.mandate.fields.lastSynced } },
           { startDate: { lt: now } },
+          { endDate: { gt: now } },
         ],
       },
       select: {
