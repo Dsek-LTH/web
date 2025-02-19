@@ -28,9 +28,17 @@ async function connect(): Promise<KcAdminClient> {
 
 async function _getUserId(client: KcAdminClient, username: string) {
   const response = await client.users.find({ username });
-  if (response.length === 0) error(404, `${username} not found in Keycloak`);
-  if (!response[0] || response.length !== 1)
-    error(400, `${username} returned ${response.length} users in Keycloak`);
+  if (response.length === 0) {
+    error(404, {
+      message: `${username} not found in Keycloak`,
+      statusDescription: "markupdated",
+    });
+  }
+  if (!response[0] || response.length !== 1) {
+    error(400, {
+      message: `${username} returned ${response.length} users in Keycloak`,
+    });
+  }
 
   return response[0].id;
 }
@@ -62,7 +70,10 @@ async function getGroupId(keycloak: KcAdminClient, positionId: string) {
     group = group?.subGroups?.find((g) => g.name === name);
   });
   if (!group) {
-    throw new Error(`Failed to find group for position ${positionId}`);
+    throw error(404, {
+      message: `Failed to find group for position ${positionId}`,
+      statusDescription: "markupdated",
+    });
   }
   return group?.id;
 }
@@ -174,7 +185,16 @@ async function deleteMandate(
         lastSynced: new Date(),
       },
     });
-  } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Error has to be any or unknown
+  } catch (error: any) {
+    if (error.body?.statusDescription === "markupdated") {
+      await prisma.mandate.update({
+        where: { id: mandateId },
+        data: {
+          lastSynced: new Date(),
+        },
+      });
+    }
     console.log(error);
   }
 }
@@ -216,20 +236,20 @@ async function updateMandate(prisma: PrismaClient) {
     `[${new Date().toISOString()}] adding ${mandatesToBeAdded.length} users to groups, deleting ${mandatesToBeDeleted.length} users from groups`,
   );
 
-  promiseAllInBatches(
+  await promiseAllInBatches(
     mandatesToBeDeleted,
     async ({ positionId, member: { studentId }, id }) => {
       deleteMandate(prisma, studentId!, positionId, id);
     },
-    2,
+    1,
   );
 
-  promiseAllInBatches(
+  await promiseAllInBatches(
     mandatesToBeAdded,
     async ({ positionId, member: { studentId }, id }) => {
       addMandate(prisma, studentId!, positionId, id);
     },
-    2,
+    1,
   );
 }
 
