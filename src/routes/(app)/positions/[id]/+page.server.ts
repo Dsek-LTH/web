@@ -151,7 +151,7 @@ export const actions: Actions = {
         endDate: form.data.endDate,
       },
     });
-    keycloak.addMandate(
+    keycloak.fetchGroupsAddMandate(
       prisma,
       member.studentId!,
       params.id,
@@ -224,7 +224,7 @@ export const actions: Actions = {
     await prisma.mandate.delete({
       where: { id: form.data.mandateId, positionId: params.id },
     });
-    keycloak.deleteMandate(
+    keycloak.fetchGroupsDeleteMandate(
       prisma,
       member.studentId!,
       params.id,

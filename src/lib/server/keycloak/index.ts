@@ -3,6 +3,7 @@ import { env } from "$env/dynamic/private";
 import type { PrismaClient } from "@prisma/client";
 import { error } from "@sveltejs/kit";
 import { promiseAllInBatches } from "$lib/utils/batch";
+import type GroupRepresentation from "@keycloak/keycloak-admin-client/lib/defs/groupRepresentation";
 
 const KEYCLOAK_BOARD_GROUP = "dsek.styr";
 
@@ -31,7 +32,7 @@ async function _getUserId(client: KcAdminClient, username: string) {
   if (response.length === 0) {
     error(404, {
       message: `${username} not found in Keycloak`,
-      statusDescription: "markupdated",
+      statusDescription: "shouldmarksynced",
     });
   }
   if (!response[0] || response.length !== 1) {
@@ -54,25 +55,13 @@ async function getUserId(username: string) {
   }
 }
 
-// turns dsek.sexm.kok.mastare into ['dsek', 'dsek.sexm', 'dsek.sexm.kok', 'dsek.sexm.kok.mastare']
-function getRoleNames(id: string): string[] {
-  const parts = id.split(".");
-  return [...Array(parts.length).keys()].map((i) =>
-    parts.slice(0, i + 1).join("."),
-  );
-}
+async function getGroupId(positionId: string, groups: GroupRepresentation[]) {
+  const group = groups.find((g) => g.name === positionId);
 
-async function getGroupId(keycloak: KcAdminClient, positionId: string) {
-  const roleNames = getRoleNames(positionId);
-  const groups = await keycloak.groups.find();
-  let group = groups.find((g) => g.name === roleNames[0]);
-  roleNames.slice(1).forEach((name) => {
-    group = group?.subGroups?.find((g) => g.name === name);
-  });
   if (!group) {
     throw error(404, {
       message: `Failed to find group for position ${positionId}`,
-      statusDescription: "markupdated",
+      statusDescription: "shouldmarksynced",
     });
   }
   return group?.id;
@@ -120,25 +109,48 @@ async function hasAnyBoardPosition(prisma: PrismaClient, studentId: string) {
   return boardPosition !== null;
 }
 
-async function addMandate(
+async function fetchGroupsAddMandate(
   prisma: PrismaClient,
   username: string,
   positionId: string,
   mandateId: string,
 ) {
   if (!enabled) return;
+  try {
+    const keycloak = await connect();
+    await addMandate(
+      prisma,
+      username,
+      positionId,
+      mandateId,
+      await keycloak.groups.find(),
+    );
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+async function addMandate(
+  prisma: PrismaClient,
+  username: string,
+  positionId: string,
+  mandateId: string,
+  groups: GroupRepresentation[],
+) {
+  if (!enabled) return;
 
   try {
     const keycloak = await connect();
+
     const [id, groupId] = await Promise.all([
       _getUserId(keycloak, username),
-      getGroupId(keycloak, positionId),
+      getGroupId(positionId, groups),
     ]);
     await keycloak.users.addToGroup({ id: id!, groupId: groupId! });
 
     // Special case for board members
     if (await isBoardPosition(prisma, positionId)) {
-      const boardGroupId = await getGroupId(keycloak, KEYCLOAK_BOARD_GROUP);
+      const boardGroupId = await getGroupId(KEYCLOAK_BOARD_GROUP, groups);
       await keycloak.users.addToGroup({ id: id!, groupId: boardGroupId! });
     }
     await prisma.mandate.update({
@@ -147,6 +159,31 @@ async function addMandate(
         lastSynced: new Date(),
       },
     });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Error has to be any or unknown
+  } catch (error: any) {
+    console.log("addmandate sync error: ", error);
+    if (error.body?.statusDescription !== "shouldmarksynced") {
+      throw error;
+    }
+  }
+}
+
+async function fetchGroupsDeleteMandate(
+  prisma: PrismaClient,
+  username: string,
+  positionId: string,
+  mandateId: string,
+) {
+  if (!enabled) return;
+  try {
+    const keycloak = await connect();
+    await deleteMandate(
+      prisma,
+      username,
+      positionId,
+      mandateId,
+      await keycloak.groups.find(),
+    );
   } catch (error) {
     console.log(error);
   }
@@ -157,6 +194,7 @@ async function deleteMandate(
   username: string,
   positionId: string,
   mandateId: string,
+  groups: GroupRepresentation[],
 ) {
   if (!enabled) return;
 
@@ -164,7 +202,7 @@ async function deleteMandate(
     const keycloak = await connect();
     const [id, groupId] = await Promise.all([
       _getUserId(keycloak, username),
-      getGroupId(keycloak, positionId),
+      getGroupId(positionId, groups),
     ]);
     await keycloak.users.delFromGroup({ id: id!, groupId: groupId! });
 
@@ -173,7 +211,7 @@ async function deleteMandate(
       (await isBoardPosition(prisma, positionId)) && // if the position is a board member
       !(await hasAnyBoardPosition(prisma, username)) // if the user has no other board positions
     ) {
-      const boardGroupId = await getGroupId(keycloak, KEYCLOAK_BOARD_GROUP);
+      const boardGroupId = await getGroupId(KEYCLOAK_BOARD_GROUP, groups);
       await keycloak.users.delFromGroup({
         id: id!,
         groupId: boardGroupId!,
@@ -187,15 +225,17 @@ async function deleteMandate(
     });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Error has to be any or unknown
   } catch (error: any) {
-    if (error.body?.statusDescription === "markupdated") {
+    console.log("deletemandate sync error: ", error);
+    if (error.body?.statusDescription === "shouldmarksynced") {
       await prisma.mandate.update({
         where: { id: mandateId },
         data: {
           lastSynced: new Date(),
         },
       });
+    } else {
+      throw error;
     }
-    console.log(error);
   }
 }
 
@@ -237,21 +277,27 @@ async function updateMandate(prisma: PrismaClient) {
     `[${new Date().toISOString()}] adding ${mandatesToBeAdded.length} users to groups, deleting ${mandatesToBeDeleted.length} users from groups`,
   );
 
-  await promiseAllInBatches(
-    mandatesToBeDeleted,
-    async ({ positionId, member: { studentId }, id }) => {
-      deleteMandate(prisma, studentId!, positionId, id);
-    },
-    1,
-  );
+  try {
+    const keycloak = await connect();
+    const groups = await keycloak.groups.find();
 
-  await promiseAllInBatches(
-    mandatesToBeAdded,
-    async ({ positionId, member: { studentId }, id }) => {
-      addMandate(prisma, studentId!, positionId, id);
-    },
-    1,
-  );
+    await promiseAllInBatches(
+      mandatesToBeDeleted,
+      async ({ positionId, member: { studentId }, id }) => {
+        await deleteMandate(prisma, studentId!, positionId, id, groups);
+      },
+      10,
+    );
+    await promiseAllInBatches(
+      mandatesToBeAdded,
+      async ({ positionId, member: { studentId }, id }) => {
+        await addMandate(prisma, studentId!, positionId, id, groups);
+      },
+      10,
+    );
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 async function updateEmails(prisma: PrismaClient) {
@@ -367,7 +413,9 @@ async function sync(prisma: PrismaClient) {
 
 export default {
   updateProfile,
+  fetchGroupsAddMandate,
   addMandate,
+  fetchGroupsDeleteMandate,
   deleteMandate,
   getUserId,
   getManyUserEmails,
