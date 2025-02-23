@@ -46,22 +46,28 @@ jobs:
           files: build.zip
 
       - name: Copy build to server
-        uses: appleboy/scp-action@v0.1.7
+        uses: Wandalen/wretry.action@master
         with:
-          host: web-beta
-          proxy_host: hyacinth.blossom.dsek.se
-          username: web-ci
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          proxy_key: ${{ secrets.DEPLOY_SSH_KEY }}
-          source: "build.zip"
-          target: /var/www
+          action: appleboy/scp-action@v0.1.7v
+          attempt_limit: 15
+          with: |
+            host: web-beta
+            proxy_host: hyacinth.blossom.dsek.se
+            username: web-ci
+            key: ${{ secrets.DEPLOY_SSH_KEY }}
+            proxy_key: ${{ secrets.DEPLOY_SSH_KEY }}
+            source: "build.zip"
+            target: /var/www
 
       - name: Deploy website on server
-        uses: appleboy/ssh-action@v1.2.1
+        uses: Wandalen/wretry.action@master
         with:
-          host: web-beta
-          proxy_host: hyacinth.blossom.dsek.se
-          username: web-ci
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          proxy_key: ${{ secrets.DEPLOY_SSH_KEY }}
-          script_path: ./prod/deploy-script.sh
+          action: appleboy/ssh-action@v1.2.1
+          attempt_limit: 15
+          with: |
+            host: web-beta
+            proxy_host: hyacinth.blossom.dsek.se
+            username: web-ci
+            key: ${{ secrets.DEPLOY_SSH_KEY }}
+            proxy_key: ${{ secrets.DEPLOY_SSH_KEY }}
+            script_path: ./prod/deploy-script.sh
