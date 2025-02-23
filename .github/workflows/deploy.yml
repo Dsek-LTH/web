@@ -45,8 +45,23 @@ jobs:
         with:
           files: build.zip
 
-      - shell: bash
-        env:
-          JENKINS_DEPLOY_TOKEN: ${{ secrets.JENKINS_DEPLOY_TRIGGER }}
-        run: |
-          curl -L "jenkins.dsek.se/buildByToken/build?job=Deploy_web&token=$JENKINS_DEPLOY_TOKEN"
+      - name: Copy build to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: web-beta
+          proxy_host: hyacinth.blossom.dsek.se
+          username: web-ci
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          proxy_key: ${{ secrets.DEPLOY_SSH_KEY }}
+          source: "build.zip"
+          target: /var/www
+
+      - name: Deploy website on server
+        uses: appleboy/ssh-action@v1.2.1
+        with:
+          host: web-beta
+          proxy_host: hyacinth.blossom.dsek.se
+          username: web-ci
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          proxy_key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script_path: ./prod/deploy-script.sh
