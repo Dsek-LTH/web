@@ -45,29 +45,11 @@ jobs:
         with:
           files: build.zip
 
-      - name: Copy build to server
-        uses: Wandalen/wretry.action@master
-        with:
-          action: appleboy/scp-action@v0.1.7v
-          attempt_limit: 15
-          with: |
-            host: web-beta
-            proxy_host: hyacinth.blossom.dsek.se
-            username: web-ci
-            key: ${{ secrets.DEPLOY_SSH_KEY }}
-            proxy_key: ${{ secrets.DEPLOY_SSH_KEY }}
-            source: "build.zip"
-            target: /var/www
-
-      - name: Deploy website on server
-        uses: Wandalen/wretry.action@master
-        with:
-          action: appleboy/ssh-action@v1.2.1
-          attempt_limit: 15
-          with: |
-            host: web-beta
-            proxy_host: hyacinth.blossom.dsek.se
-            username: web-ci
-            key: ${{ secrets.DEPLOY_SSH_KEY }}
-            proxy_key: ${{ secrets.DEPLOY_SSH_KEY }}
-            script_path: ./prod/deploy-script.sh
+      - name: Copy files to server and deploy
+        shell: bash
+        env:
+          KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          echo "$DEPLOY_SSH_KEY" > ./key
+          if ! scp -i ./key -oProxyJump=web-ci@hyacinth.blossom.dsek.se build.zip web-ci@web-beta:/var/www "$1"; then $0 "$1"; fi
+          if ! ssh -i ./key -J web-ci@hyacinth.blossom.dsek.se web-ci@web-beta < ./prod/deploy-script.sh "$1"; then $0 "$1"; fi
