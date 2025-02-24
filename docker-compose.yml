@@ -14,6 +14,19 @@ services:
     volumes:
       - db:/var/lib/postgresql/data
 
+  cms_db:
+    container_name: cms-db
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=cms
+    ports:
+      - "5431:5432"
+    volumes:
+      - cmsdb:/var/lib/postgresql/data
+
   meilisearch:
     container_name: dsek-meilisearch
     image: getmeili/meilisearch:latest
@@ -37,6 +50,27 @@ services:
     ports:
       - "8800:8800"
 
+  directus:
+    image: directus/directus:11.3.5
+    ports:
+      - 8055:8055
+    volumes:
+      - ./directus/database:/directus/database
+      - ./directus/uploads:/directus/uploads
+      - ./directus/extensions:/directus/extensions
+    environment:
+      SECRET: "replace-with-secure-random-value"
+      ADMIN_EMAIL: "admin@example.com"
+      ADMIN_PASSWORD: "d1r3ctu5"
+      DB_CLIENT: ${DB_CLIENT}
+      DB_CONNECTION_STRING: ${DB_CONNECTION_STRING}
+      WEBSOCKETS_ENABLED: "true"
+      CORS_ENABLED: "true"
+      CORS_ORIGIN: "http://localhost:5173"
+      CORS_CREDENTIALS: "true"
+      CONTENT_SECURITY_POLICY_DIRECTIVES__FRAME_SRC: "http://localhost:5173"
+
 volumes:
   db:
   meilisearch:
+  cmsdb:

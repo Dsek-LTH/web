@@ -186,7 +186,7 @@
           class="absolute inset-x-4 bottom-10 hidden max-w-full transform text-center font-nolla-stab text-7xl leading-snug md:block lg:text-8xl"
         >
           <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-          {@html m.nollning_title().replace("\n", " ")}
+          {data.thing?.["title"] ?? ""}
         </span>
         <span
           class="absolute inset-x-4 bottom-10 max-w-full transform text-center font-nolla-stab text-6xl leading-snug md:hidden md:text-8xl"

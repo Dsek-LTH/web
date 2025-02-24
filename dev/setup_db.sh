@@ -12,3 +12,6 @@ sleep 0.5;
 # Setup migrations for prisma and seed database
 pnpm migrate
 pnpm seed
+
+pnpm dlx directus bootstrap
+pnpm dlx directus schema apply --yes ./directus/schema.yaml
