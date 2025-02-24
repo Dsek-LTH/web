@@ -145,7 +145,7 @@ model Article {
 model Election {
   id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   committeeId String    @map("committee_id") @db.Uuid
-  markdownSv  String    @map("mardown_sv")
+  markdownSv  String    @map("markdown_sv")
   markdownEn  String?   @map("markdown_en")
   link        String    @map("link")
   createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
@@ -529,7 +529,7 @@ model Mandate {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Markdowns{
 model Markdown {
   name       String  @id @db.VarChar(255)
-  markdownSv String  @map("mardown_sv")
+  markdownSv String  @map("markdown_sv")
   markdownEn String? @map("markdown_en")
 
   @@allow("read", true)
