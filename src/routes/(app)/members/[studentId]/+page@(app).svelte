@@ -61,7 +61,7 @@
   </svg>
 </figure>
 
-<MemberAvatar {member} class="relative -top-20 mx-auto block size-40 shadow-lg">
+<MemberAvatar {member} class="relative -top-20 mx-auto flex size-40 shadow-lg">
   {#if canEdit}
     <a
       href="{studentId}/profile-picture"
