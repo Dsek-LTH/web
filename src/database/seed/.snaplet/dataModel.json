@@ -1019,6 +1019,20 @@
           "maxLength": 255
         },
         {
+          "id": "public.alerts.message_sv",
+          "name": "message_sv",
+          "columnName": "message_sv",
+          "type": "varchar",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": 255
+        },
+        {
           "id": "public.alerts.message_en",
           "name": "message_en",
           "columnName": "message_en",
@@ -1059,20 +1073,6 @@
           "hasDefaultValue": false,
           "isId": false,
           "maxLength": null
-        },
-        {
-          "id": "public.alerts.message_sv",
-          "name": "message_sv",
-          "columnName": "message_sv",
-          "type": "varchar",
-          "isRequired": true,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": 255
         }
       ],
       "uniqueConstraints": [
@@ -1415,9 +1415,9 @@
           "maxLength": null
         },
         {
-          "id": "public.article_requests.notification_body_en",
-          "name": "notification_body_en",
-          "columnName": "notification_body_en",
+          "id": "public.article_requests.notification_body_sv",
+          "name": "notification_body_sv",
+          "columnName": "notification_body_sv",
           "type": "varchar",
           "isRequired": false,
           "kind": "scalar",
@@ -1429,9 +1429,9 @@
           "maxLength": 255
         },
         {
-          "id": "public.article_requests.notification_body_sv",
-          "name": "notification_body_sv",
-          "columnName": "notification_body_sv",
+          "id": "public.article_requests.notification_body_en",
+          "name": "notification_body_en",
+          "columnName": "notification_body_en",
           "type": "varchar",
           "isRequired": false,
           "kind": "scalar",
@@ -1516,6 +1516,20 @@
           "maxLength": null
         },
         {
+          "id": "public.articles.header_sv",
+          "name": "header_sv",
+          "columnName": "header_sv",
+          "type": "varchar",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": 255
+        },
+        {
           "id": "public.articles.header_en",
           "name": "header_en",
           "columnName": "header_en",
@@ -1528,6 +1542,20 @@
           "hasDefaultValue": false,
           "isId": false,
           "maxLength": 255
+        },
+        {
+          "id": "public.articles.body_sv",
+          "name": "body_sv",
+          "columnName": "body_sv",
+          "type": "text",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
         },
         {
           "id": "public.articles.body_en",
@@ -1668,34 +1696,6 @@
           "hasDefaultValue": false,
           "isId": false,
           "maxLength": null
-        },
-        {
-          "id": "public.articles.body_sv",
-          "name": "body_sv",
-          "columnName": "body_sv",
-          "type": "text",
-          "isRequired": true,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": null
-        },
-        {
-          "id": "public.articles.header_sv",
-          "name": "header_sv",
-          "columnName": "header_sv",
-          "type": "varchar",
-          "isRequired": true,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": 255
         },
         {
           "name": "authors",
@@ -2014,11 +2014,11 @@
           "maxLength": null
         },
         {
-          "id": "public.bookable_categories.name_en",
-          "name": "name_en",
-          "columnName": "name_en",
+          "id": "public.bookable_categories.name_sv",
+          "name": "name_sv",
+          "columnName": "name_sv",
           "type": "varchar",
-          "isRequired": false,
+          "isRequired": true,
           "kind": "scalar",
           "isList": false,
           "isGenerated": false,
@@ -2028,11 +2028,11 @@
           "maxLength": 255
         },
         {
-          "id": "public.bookable_categories.name_sv",
-          "name": "name_sv",
-          "columnName": "name_sv",
+          "id": "public.bookable_categories.name_en",
+          "name": "name_en",
+          "columnName": "name_en",
           "type": "varchar",
-          "isRequired": true,
+          "isRequired": false,
           "kind": "scalar",
           "isList": false,
           "isGenerated": false,
@@ -2086,6 +2086,20 @@
           "maxLength": null
         },
         {
+          "id": "public.bookables.name_sv",
+          "name": "name_sv",
+          "columnName": "name_sv",
+          "type": "varchar",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": 255
+        },
+        {
           "id": "public.bookables.name_en",
           "name": "name_en",
           "columnName": "name_en",
@@ -2133,20 +2147,6 @@
           "columnName": "door",
           "type": "varchar",
           "isRequired": false,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": 255
-        },
-        {
-          "id": "public.bookables.name_sv",
-          "name": "name_sv",
-          "columnName": "name_sv",
-          "type": "varchar",
-          "isRequired": true,
           "kind": "scalar",
           "isList": false,
           "isGenerated": false,
@@ -2635,6 +2635,20 @@
           "maxLength": null
         },
         {
+          "id": "public.committees.name_sv",
+          "name": "name_sv",
+          "columnName": "name_sv",
+          "type": "varchar",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": 255
+        },
+        {
           "id": "public.committees.name_en",
           "name": "name_en",
           "columnName": "name_en",
@@ -2652,6 +2666,20 @@
           "id": "public.committees.short_name",
           "name": "short_name",
           "columnName": "short_name",
+          "type": "varchar",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": 255
+        },
+        {
+          "id": "public.committees.description_sv",
+          "name": "description_sv",
+          "columnName": "description_sv",
           "type": "varchar",
           "isRequired": false,
           "kind": "scalar",
@@ -2731,34 +2759,6 @@
           "hasDefaultValue": false,
           "isId": false,
           "maxLength": null
-        },
-        {
-          "id": "public.committees.description_sv",
-          "name": "description_sv",
-          "columnName": "description_sv",
-          "type": "varchar",
-          "isRequired": false,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": 255
-        },
-        {
-          "id": "public.committees.name_sv",
-          "name": "name_sv",
-          "columnName": "name_sv",
-          "type": "varchar",
-          "isRequired": true,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": 255
         },
         {
           "name": "elections",
@@ -3314,6 +3314,20 @@
           "maxLength": null
         },
         {
+          "id": "public.custom_authors.name_sv",
+          "name": "name_sv",
+          "columnName": "name_sv",
+          "type": "varchar",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": 255
+        },
+        {
           "id": "public.custom_authors.name_en",
           "name": "name_en",
           "columnName": "name_en",
@@ -3368,20 +3382,6 @@
           "hasDefaultValue": true,
           "isId": false,
           "maxLength": null
-        },
-        {
-          "id": "public.custom_authors.name_sv",
-          "name": "name_sv",
-          "columnName": "name_sv",
-          "type": "varchar",
-          "isRequired": true,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": 255
         },
         {
           "name": "authors",
@@ -3806,6 +3806,20 @@
           "maxLength": null
         },
         {
+          "id": "public.elections.markdown_sv",
+          "name": "markdown_sv",
+          "columnName": "markdown_sv",
+          "type": "text",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
           "id": "public.elections.markdown_en",
           "name": "markdown_en",
           "columnName": "markdown_en",
@@ -3852,20 +3866,6 @@
           "name": "expires_at",
           "columnName": "expires_at",
           "type": "timestamptz",
-          "isRequired": true,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": null
-        },
-        {
-          "id": "public.elections.mardown_sv",
-          "name": "mardown_sv",
-          "columnName": "mardown_sv",
-          "type": "text",
           "isRequired": true,
           "kind": "scalar",
           "isList": false,
@@ -4136,6 +4136,20 @@
           "maxLength": null
         },
         {
+          "id": "public.events.title_sv",
+          "name": "title_sv",
+          "columnName": "title_sv",
+          "type": "varchar",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": 255
+        },
+        {
           "id": "public.events.title_en",
           "name": "title_en",
           "columnName": "title_en",
@@ -4148,6 +4162,20 @@
           "hasDefaultValue": false,
           "isId": false,
           "maxLength": 255
+        },
+        {
+          "id": "public.events.description_sv",
+          "name": "description_sv",
+          "columnName": "description_sv",
+          "type": "text",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
         },
         {
           "id": "public.events.description_en",
@@ -4218,6 +4246,20 @@
           "hasDefaultValue": false,
           "isId": false,
           "maxLength": null
+        },
+        {
+          "id": "public.events.short_description_sv",
+          "name": "short_description_sv",
+          "columnName": "short_description_sv",
+          "type": "varchar",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": 255
         },
         {
           "id": "public.events.short_description_en",
@@ -4372,48 +4414,6 @@
           "hasDefaultValue": true,
           "isId": false,
           "maxLength": null
-        },
-        {
-          "id": "public.events.description_sv",
-          "name": "description_sv",
-          "columnName": "description_sv",
-          "type": "text",
-          "isRequired": true,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": null
-        },
-        {
-          "id": "public.events.short_description_sv",
-          "name": "short_description_sv",
-          "columnName": "short_description_sv",
-          "type": "varchar",
-          "isRequired": false,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": 255
-        },
-        {
-          "id": "public.events.title_sv",
-          "name": "title_sv",
-          "columnName": "title_sv",
-          "type": "varchar",
-          "isRequired": true,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": 255
         },
         {
           "name": "RecurringEvent",
@@ -5114,6 +5114,62 @@
           "maxLength": null
         },
         {
+          "id": "public.item_question.title_sv",
+          "name": "title_sv",
+          "columnName": "title_sv",
+          "type": "text",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.item_question.title_en",
+          "name": "title_en",
+          "columnName": "title_en",
+          "type": "text",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.item_question.description_sv",
+          "name": "description_sv",
+          "columnName": "description_sv",
+          "type": "text",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.item_question.description_en",
+          "name": "description_en",
+          "columnName": "description_en",
+          "type": "text",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
           "id": "public.item_question.type",
           "name": "type",
           "columnName": "type",
@@ -5147,62 +5203,6 @@
           "columnName": "removedAt",
           "type": "timestamp",
           "isRequired": false,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": null
-        },
-        {
-          "id": "public.item_question.description_en",
-          "name": "description_en",
-          "columnName": "description_en",
-          "type": "text",
-          "isRequired": false,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": null
-        },
-        {
-          "id": "public.item_question.description_sv",
-          "name": "description_sv",
-          "columnName": "description_sv",
-          "type": "text",
-          "isRequired": true,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": null
-        },
-        {
-          "id": "public.item_question.title_en",
-          "name": "title_en",
-          "columnName": "title_en",
-          "type": "text",
-          "isRequired": false,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": null
-        },
-        {
-          "id": "public.item_question.title_sv",
-          "name": "title_sv",
-          "columnName": "title_sv",
-          "type": "text",
-          "isRequired": true,
           "kind": "scalar",
           "isList": false,
           "isGenerated": false,
@@ -5302,11 +5302,11 @@
           "maxLength": null
         },
         {
-          "id": "public.item_question_option.extraPrice",
-          "name": "extraPrice",
-          "columnName": "extraPrice",
-          "type": "int4",
-          "isRequired": false,
+          "id": "public.item_question_option.answer_sv",
+          "name": "answer_sv",
+          "columnName": "answer_sv",
+          "type": "text",
+          "isRequired": true,
           "kind": "scalar",
           "isList": false,
           "isGenerated": false,
@@ -5330,11 +5330,11 @@
           "maxLength": null
         },
         {
-          "id": "public.item_question_option.answer_sv",
-          "name": "answer_sv",
-          "columnName": "answer_sv",
-          "type": "text",
-          "isRequired": true,
+          "id": "public.item_question_option.extraPrice",
+          "name": "extraPrice",
+          "columnName": "extraPrice",
+          "type": "int4",
+          "isRequired": false,
           "kind": "scalar",
           "isList": false,
           "isGenerated": false,
@@ -5748,11 +5748,11 @@
           "maxLength": 255
         },
         {
-          "id": "public.markdowns.markdown_en",
-          "name": "markdown_en",
-          "columnName": "markdown_en",
+          "id": "public.markdowns.markdown_sv",
+          "name": "markdown_sv",
+          "columnName": "markdown_sv",
           "type": "text",
-          "isRequired": false,
+          "isRequired": true,
           "kind": "scalar",
           "isList": false,
           "isGenerated": false,
@@ -5762,11 +5762,11 @@
           "maxLength": null
         },
         {
-          "id": "public.markdowns.mardown_sv",
-          "name": "mardown_sv",
-          "columnName": "mardown_sv",
+          "id": "public.markdowns.markdown_en",
+          "name": "markdown_en",
+          "columnName": "markdown_en",
           "type": "text",
-          "isRequired": true,
+          "isRequired": false,
           "kind": "scalar",
           "isList": false,
           "isGenerated": false,
@@ -7434,6 +7434,20 @@
           "maxLength": 255
         },
         {
+          "id": "public.positions.name_sv",
+          "name": "name_sv",
+          "columnName": "name_sv",
+          "type": "varchar",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": 255
+        },
+        {
           "id": "public.positions.name_en",
           "name": "name_en",
           "columnName": "name_en",
@@ -7504,20 +7518,6 @@
           "maxLength": null
         },
         {
-          "id": "public.positions.description_en",
-          "name": "description_en",
-          "columnName": "description_en",
-          "type": "text",
-          "isRequired": false,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": null
-        },
-        {
           "id": "public.positions.description_sv",
           "name": "description_sv",
           "columnName": "description_sv",
@@ -7532,18 +7532,18 @@
           "maxLength": null
         },
         {
-          "id": "public.positions.name_sv",
-          "name": "name_sv",
-          "columnName": "name_sv",
-          "type": "varchar",
-          "isRequired": true,
+          "id": "public.positions.description_en",
+          "name": "description_en",
+          "columnName": "description_en",
+          "type": "text",
+          "isRequired": false,
           "kind": "scalar",
           "isList": false,
           "isGenerated": false,
           "sequence": false,
           "hasDefaultValue": false,
           "isId": false,
-          "maxLength": 255
+          "maxLength": null
         },
         {
           "name": "committees",
@@ -8428,6 +8428,62 @@
           "maxLength": null
         },
         {
+          "id": "public.shoppable.title_sv",
+          "name": "title_sv",
+          "columnName": "title_sv",
+          "type": "text",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.shoppable.title_en",
+          "name": "title_en",
+          "columnName": "title_en",
+          "type": "text",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.shoppable.description_sv",
+          "name": "description_sv",
+          "columnName": "description_sv",
+          "type": "text",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.shoppable.description_en",
+          "name": "description_en",
+          "columnName": "description_en",
+          "type": "text",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
           "id": "public.shoppable.type",
           "name": "type",
           "columnName": "type",
@@ -8531,62 +8587,6 @@
           "columnName": "removed_at",
           "type": "timestamptz",
           "isRequired": false,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": null
-        },
-        {
-          "id": "public.shoppable.description_en",
-          "name": "description_en",
-          "columnName": "description_en",
-          "type": "text",
-          "isRequired": false,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": null
-        },
-        {
-          "id": "public.shoppable.description_sv",
-          "name": "description_sv",
-          "columnName": "description_sv",
-          "type": "text",
-          "isRequired": false,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": null
-        },
-        {
-          "id": "public.shoppable.title_en",
-          "name": "title_en",
-          "columnName": "title_en",
-          "type": "text",
-          "isRequired": false,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": null
-        },
-        {
-          "id": "public.shoppable.title_sv",
-          "name": "title_sv",
-          "columnName": "title_sv",
-          "type": "text",
-          "isRequired": true,
           "kind": "scalar",
           "isList": false,
           "isGenerated": false,
@@ -9213,6 +9213,20 @@
           "maxLength": null
         },
         {
+          "id": "public.tags.name_sv",
+          "name": "name_sv",
+          "columnName": "name_sv",
+          "type": "varchar",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": 255
+        },
+        {
           "id": "public.tags.name_en",
           "name": "name_en",
           "columnName": "name_en",
@@ -9253,20 +9267,6 @@
           "hasDefaultValue": true,
           "isId": false,
           "maxLength": null
-        },
-        {
-          "id": "public.tags.name_sv",
-          "name": "name_sv",
-          "columnName": "name_sv",
-          "type": "varchar",
-          "isRequired": true,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": 255
         },
         {
           "name": "_article_tags",
