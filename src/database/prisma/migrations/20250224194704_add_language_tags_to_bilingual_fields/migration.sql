@@ -36,7 +36,7 @@ ALTER TABLE "positions" RENAME COLUMN "description" TO "description_sv";
 ALTER TABLE "positions" RENAME COLUMN "name" TO "name_sv";
 
 ALTER TABLE "shoppable" RENAME COLUMN "description" TO "description_sv";
-ALTER TABLE "shoppable" RENAME COLUMN "descriptionEn" TO "title_en";
+ALTER TABLE "shoppable" RENAME COLUMN "descriptionEn" TO "description_en";
 ALTER TABLE "shoppable" RENAME COLUMN "title" TO "title_sv";
 ALTER TABLE "shoppable" RENAME COLUMN "titleEn" TO "title_en";
 
