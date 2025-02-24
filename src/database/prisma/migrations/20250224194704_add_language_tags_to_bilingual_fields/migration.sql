@@ -1,3 +1,5 @@
+-- RAWDOGGED SQL baby 🤘😎
+
 ALTER TABLE "alerts" RENAME COLUMN "message" TO "message_sv";
 
 ALTER TABLE "article_requests" RENAME COLUMN "notification_body" TO "notification_body_sv";
