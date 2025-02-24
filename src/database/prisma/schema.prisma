@@ -69,6 +69,12 @@ model Alert {
   messageEn String    @map("message_en") @db.VarChar(255)
   createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
   removedAt DateTime? @map("removed_at") @db.Timestamptz(6)
+  id        String    @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  severity  String    @db.VarChar(255)
+  messageSv String    @map("message_sv") @db.VarChar(255)
+  messageEn String    @map("message_en") @db.VarChar(255)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  removedAt DateTime? @map("removed_at") @db.Timestamptz(6)
 
   @@map("alerts")
 }
@@ -110,6 +116,17 @@ model ArticleRequest {
   notificationBodyEn     String?   @map("notification_body_en") @db.VarChar(255)
   article                Article?  @relation(fields: [articleId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "article_requests_article_id_foreign")
   handledBy              Member?   @relation(fields: [handledById], references: [id], onUpdate: NoAction, map: "article_requests_handled_by_foreign")
+  id                     String    @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  articleId              String?   @unique(map: "article_requests_article_id_unique") @map("article_id") @db.Uuid()
+  approvedDatetime       DateTime? @map("approved_datetime") @db.Timestamptz(6)
+  rejectedDatetime       DateTime? @map("rejected_datetime") @db.Timestamptz(6)
+  rejectionReason        String?   @map("rejection_reason")
+  handledById            String?   @map("handled_by") @db.Uuid()
+  shouldSendNotification Boolean?  @default(false) @map("should_send_notification")
+  notificationBodySv     String?   @map("notification_body_sv") @db.VarChar(255)
+  notificationBodyEn     String?   @map("notification_body_en") @db.VarChar(255)
+  article                Article?  @relation(fields: [articleId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "article_requests_article_id_foreign")
+  handledBy              Member?   @relation(fields: [handledById], references: [id], onUpdate: NoAction, map: "article_requests_handled_by_foreign")
 
   @@map("article_requests")
 }
@@ -137,6 +154,26 @@ model Article {
   tags        Tag[]            @relation("article_tags")
   author      Author           @relation(fields: [authorId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "articles_author_id_foreign")
   likers      Member[]         @relation("article_likes")
+  id          String           @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  headerSv    String           @map("header_sv") @db.VarChar(255)
+  headerEn    String?          @map("header_en") @db.VarChar(255)
+  bodySv      String           @map("body_sv")
+  bodyEn      String?          @map("body_en")
+  imageUrl    String?          @map("image_url") @db.Text()
+  youtubeUrl  String?          @map("youtube_url") @db.Text()
+  authorId    String           @map("author_id") @db.Uuid()
+  publishedAt DateTime?        @map("published_datetime") @db.Timestamptz(6)
+  updatedAt   DateTime?        @map("latest_edit_datetime") @db.Timestamptz(6)
+  slug        String           @unique(map: "articles_slug_unique") @db.VarChar(255)
+  /// @allow('update', has(auth().policies, 'news:article:delete'))
+  removedAt   DateTime?        @map("removed_at") @db.Timestamptz(6)
+  status      String?          @default("approved")
+  createdAt   DateTime         @default(now()) @map("created_datetime") @db.Timestamptz(6)
+  comments    ArticleComment[]
+  request     ArticleRequest?
+  tags        Tag[]            @relation("article_tags")
+  author      Author           @relation(fields: [authorId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "articles_author_id_foreign")
+  likers      Member[]         @relation("article_likes")
 
   @@map("articles")
 }
@@ -145,6 +182,14 @@ model Election {
   id          String    @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
   committeeId String    @map("committee_id") @db.Uuid()
   markdown    String
+  markdownEn  String?   @map("markdown_en")
+  link        String    @map("link")
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  expiresAt   DateTime  @map("expires_at") @db.Timestamptz(6)
+  committee   Committee @relation(fields: [committeeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "elections_committee_id_foreign")
+  id          String    @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  committeeId String    @map("committee_id") @db.Uuid()
+  markdownSv  String    @map("mardown_sv")
   markdownEn  String?   @map("markdown_en")
   link        String    @map("link")
   createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
@@ -179,6 +224,10 @@ model BookableCategory {
   name      String     @db.VarChar(255)
   nameEn    String?    @map("name_en") @db.VarChar(255)
   bookables Bookable[]
+  id        String     @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  nameSv    String     @map("name_sv") @db.VarChar(255)
+  nameEn    String?    @map("name_en") @db.VarChar(255)
+  bookables Bookable[]
 
   @@map("bookable_categories")
 }
@@ -187,6 +236,14 @@ model BookableCategory {
 model Bookable {
   id         String            @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
   name       String            @db.VarChar(255)
+  nameEn     String?           @map("name_en") @db.VarChar(255)
+  isDisabled Boolean           @default(false)
+  categoryId String?           @map("category_id") @db.Uuid()
+  door       String?           @db.VarChar(255)
+  category   BookableCategory? @relation(fields: [categoryId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "bookables_category_id_foreign")
+  bookings   BookingRequest[]  @relation("booking_requests_bookables")
+  id         String            @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  nameSv     String            @map("name_sv") @db.VarChar(255)
   nameEn     String?           @map("name_en") @db.VarChar(255)
   isDisabled Boolean           @default(false)
   categoryId String?           @map("category_id") @db.Uuid()
@@ -253,6 +310,19 @@ model Committee {
   descriptionEn String?       @map("description_en") @db.VarChar(255)
   expenseItems  ExpenseItem[]
   election      Election[]
+  id            String        @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  nameSv        String        @map("name_sv") @db.VarChar(255)
+  nameEn        String?       @map("name_en") @db.VarChar(255)
+  shortName     String?       @unique() @map("short_name") @db.VarChar(255)
+  positions     Position[]
+  darkImageUrl  String?       @map("dark_image_url") @db.Text()
+  lightImageUrl String?       @map("light_image_url") @db.Text()
+  monoImageUrl  String?       @map("mono_image_url") @db.Text()
+  symbolUrl     String?       @map("symbol_url") @db.Text()
+  descriptionSv String?       @map("description_sv") @db.VarChar(255)
+  descriptionEn String?       @map("description_en") @db.VarChar(255)
+  expenseItems  ExpenseItem[]
+  election      Election[]
 
   @@map("committees")
 }
@@ -273,6 +343,14 @@ model CustomAuthorRole {
 model CustomAuthor {
   id        String             @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
   name      String             @db.VarChar(255)
+  nameEn    String?            @map("name_en") @db.VarChar(255)
+  imageUrl  String?            @map("image_url") @db.Text()
+  createdAt DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime           @default(now()) @map("updated_at") @db.Timestamptz(6)
+  authors   Author[]
+  roles     CustomAuthorRole[]
+  id        String             @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  nameSv    String             @map("name_sv") @db.VarChar(255)
   nameEn    String?            @map("name_en") @db.VarChar(255)
   imageUrl  String?            @map("image_url") @db.Text()
   createdAt DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
@@ -373,6 +451,35 @@ model Event {
   tags                 Tag[]           @relation("event_tags")
   tickets              Ticket[]
   recurringEventParent RecurringEvent? @relation(fields: [recurringParentId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "recurring_event_parent")
+  id                   String          @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  recurringParentId    String?         @map("recurring_parent_id") @db.Uuid()
+  isDetatched          Boolean         @default(false) @map("is_detatched")
+  titleSv              String          @map("title_sv") @db.VarChar(255)
+  titleEn              String?         @map("title_en") @db.VarChar(255)
+  descriptionSv        String          @map("description_sv")
+  descriptionEn        String?         @map("description_en")
+  imageUrl             String?         @db.Text()
+  link                 String?         @db.VarChar(255)
+  location             String?         @db.VarChar(255)
+  organizer            String          @db.VarChar(255)
+  authorId             String          @map("author_id") @db.Uuid()
+  shortDescriptionSv   String?         @map("short_description_sv") @db.VarChar(255)
+  shortDescriptionEn   String?         @map("short_description_en") @db.VarChar(255)
+  startDatetime        DateTime        @map("start_datetime") @db.Timestamptz(6)
+  endDatetime          DateTime        @map("end_datetime") @db.Timestamptz(6)
+  numberOfUpdates      Int?            @default(0) @map("number_of_updates")
+  slug                 String?         @unique(map: "events_slug_unique") @db.VarChar(255)
+  alarmActive          Boolean?        @default(false) @map("alarm_active")
+  isCancelled          Boolean?        @default(false) @map("is_cancelled")
+  /// @allow('update', has(auth().policies, 'event:delete'))
+  removedAt            DateTime?       @map("removed_at") @db.Timestamptz(6)
+  comments             EventComment[]
+  going                Member[]        @relation("event_going")
+  interested           Member[]        @relation("event_interested")
+  author               Member          @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "events_author_id_foreign")
+  tags                 Tag[]           @relation("event_tags")
+  tickets              Ticket[]
+  recurringEventParent RecurringEvent? @relation(fields: [recurringParentId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "recurring_event_parent")
 
   @@map("events")
 }
@@ -439,6 +546,9 @@ model Mandate {
 model Markdown {
   name       String  @id() @db.VarChar(255)
   markdown   String
+  markdownEn String? @map("markdown_en")
+  name       String  @id() @db.VarChar(255)
+  markdownSv String  @map("mardown_sv")
   markdownEn String? @map("markdown_en")
 
   @@map("markdowns")
@@ -604,6 +714,18 @@ model Position {
   committee     Committee?   @relation(fields: [committeeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "positions_committee_id_foreign")
   emailAliases  EmailAlias[]
   mandates      Mandate[]
+  id            String       @id() @db.VarChar(255)
+  nameSv        String       @map("name_sv") @db.VarChar(255)
+  nameEn        String?      @map("name_en") @db.VarChar(255)
+  committeeId   String?      @map("committee_id") @db.Uuid()
+  email         String?      @db.VarChar(255)
+  active        Boolean      @default(true)
+  boardMember   Boolean      @default(false) @map("board_member")
+  descriptionSv String?      @map("description_sv")
+  descriptionEn String?      @map("description_en")
+  committee     Committee?   @relation(fields: [committeeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "positions_committee_id_foreign")
+  emailAliases  EmailAlias[]
+  mandates      Mandate[]
 
   @@map("positions")
 }
@@ -727,6 +849,14 @@ model Tag {
   events            Event[]   @relation("event_tags")
   subscribedMembers Member[]  @relation("member_tag_subscriptions")
   articles          Article[] @relation("article_tags")
+  id                String    @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  nameSv            String    @map("name_sv") @db.VarChar(255)
+  nameEn            String?   @map("name_en") @db.VarChar(255)
+  color             String?   @db.VarChar(255)
+  isDefault         Boolean?  @default(false) @map("is_default")
+  events            Event[]   @relation("event_tags")
+  subscribedMembers Member[]  @relation("member_tag_subscriptions")
+  articles          Article[] @relation("article_tags")
 
   @@map("tags")
 }
@@ -784,6 +914,26 @@ model Shoppable {
   reservations   ConsumableReservation[]
   questions      ItemQuestion[]
   accessPolicies ShoppableAccessPolicy[]
+  id             String                  @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  titleSv        String                  @map("title_sv")
+  titleEn        String?                 @map("title_en")
+  descriptionSv  String?                 @map("description_sv")
+  descriptionEn  String?                 @map("description_en")
+  type           ShoppableType
+  /// @deny('update', true)
+  authorId       String                  @db.Uuid()
+  author         Member                  @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  price          Int
+  availableFrom  DateTime                @default(now()) @map("available_from") @db.Timestamptz(6)
+  availableTo    DateTime?               @map("available_to") @db.Timestamptz(6)
+  createdAt      DateTime                @default(now()) @map("created_at") @ignore() @db.Timestamptz(6)
+  updatedAt      DateTime                @updatedAt() @map("updated_at") @db.Timestamptz(6)
+  removedAt      DateTime?               @map("removed_at") @db.Timestamptz(6)
+  ticket         Ticket?
+  consumables    Consumable[]
+  reservations   ConsumableReservation[]
+  questions      ItemQuestion[]
+  accessPolicies ShoppableAccessPolicy[]
 
   @@map("shoppable")
 }
@@ -812,6 +962,18 @@ model ItemQuestion {
   removedAt        DateTime?
   options          ItemQuestionOption[]
   responses        ItemQuestionResponse[]
+  id               String                 @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  shoppableId      String                 @db.Uuid()
+  shoppable        Shoppable              @relation(fields: [shoppableId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  titleSv          String                 @map("title_sv")
+  titleEn          String?                @map("title_en")
+  descriptionSv    String                 @map("description_sv")
+  descriptionEn    String?                @map("description_en")
+  type             String                 @db.VarChar(255)
+  forExternalsOnly Boolean                @default(false)
+  removedAt        DateTime?
+  options          ItemQuestionOption[]
+  responses        ItemQuestionResponse[]
 
   @@map("item_question")
 }
@@ -822,6 +984,12 @@ model ItemQuestionOption {
   question   ItemQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   answer     String
   answerEn   String?
+  extraPrice Int?
+  id         String       @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  questionId String       @db.Uuid()
+  question   ItemQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  answerSv   String       @map("answer_sv")
+  answerEn   String?      @map("answer_en")
   extraPrice Int?
 
   @@map("item_question_option")
