@@ -48,9 +48,9 @@ jobs:
       - name: Copy build to server
         uses: appleboy/scp-action@master
         with:
-          host: web-beta
+          host: "web-beta"
           proxy_host: bifrost.blossom.dsek.se
-          username: web-ci
+          username: ${{ secrets.DEPLOY_SSH_USERNAME }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           proxy_key: ${{ secrets.DEPLOY_SSH_KEY }}
           source: "build.zip"
@@ -59,9 +59,9 @@ jobs:
       - name: Deploy website on server
         uses: appleboy/ssh-action@master
         with:
-          host: web-beta
+          host: "web-beta"
           proxy_host: bifrost.blossom.dsek.se
-          username: web-ci
+          username: ${{ secrets.DEPLOY_SSH_USERNAME }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           proxy_key: ${{ secrets.DEPLOY_SSH_KEY }}
           script_path: ./prod/deploy-script.sh
