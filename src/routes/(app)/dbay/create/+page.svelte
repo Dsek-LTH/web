@@ -1,29 +1,23 @@
 <script lang="ts">
+  import FormInput from "$lib/components/forms/FormInput.svelte";
+  import { superForm } from "$lib/utils/client/superForms";
+  import FormSubmitButton from "$lib/components/forms/FormSubmitButton.svelte";
+  import FormNumberInput from "$lib/components/forms/FormNumberInput.svelte";
+
+  export let data;
+
+  const superform = superForm(data.form);
+  const { enhance } = superform;
 </script>
 
 <form
   method="POST"
-  class="flex w-full flex-col items-center gap-2"
-  action="?/create"
+  class="layout-container mx-auto flex flex-col gap-2"
+  enctype="multipart/form-data"
+  use:enhance
 >
-  <p>Dbay Post</p>
-  <input
-    type="text"
-    name="header"
-    placeholder="Header"
-    class="input input-bordered w-full max-w-lg"
-  />
-  <input
-    type="text"
-    name="body"
-    placeholder="Body"
-    class="input input-bordered w-full max-w-lg"
-  />
-  <input
-    type="number"
-    name="price"
-    placeholder="Price"
-    class="input input-bordered w-full max-w-lg"
-  />
-  <button class="btn w-full max-w-lg">Submit</button>
+  <FormInput {superform} field="header" label="Header" />
+  <FormInput {superform} field="body" label="Body" />
+  <FormNumberInput {superform} field="price" label="Price" />
+  <FormSubmitButton {superform} class="btn">Create Listing</FormSubmitButton>
 </form>

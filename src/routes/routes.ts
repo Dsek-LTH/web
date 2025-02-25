@@ -154,6 +154,13 @@ export const getRoutes = (): Route[] =>
           accessRequired: null,
           appBehaviour: "home-link",
         },
+        {
+          title: "Dbay",
+          path: "/dbay",
+          icon: "i-mdi-package-variant-closed",
+          accessRequired: null,
+          appBehaviour: "home-link",
+        },
       ],
     },
     {
