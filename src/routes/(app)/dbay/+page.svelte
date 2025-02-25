@@ -11,7 +11,7 @@
     const value = (event.target as HTMLSelectElement).value;
     const params = new URLSearchParams(window.location.search);
     params.set("order", value);
-    await goto(`?${params.toString()}`, { replaceState: true });
+    await goto(`/dbay?${params.toString()}`, { replaceState: true });
   }
 </script>
 
