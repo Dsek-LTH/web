@@ -8,13 +8,14 @@ import { z } from "zod";
 import { getCostCenter } from "../config";
 import { expensesInclusion } from "../getExpenses";
 import { sendNotificationToSigner } from "../helper";
-import { gatherExpenseDataForPdf } from "$lib/expenses/sendToBookkeeping";
+import { sendExpenseToBookkeeping } from "$lib/expenses/sendToBookkeeping";
 import {
   getSigner,
   resolveSignerLogic,
   updateSignersCacheIfNecessary,
 } from "../signers";
 import { updateExpenseSchema, updateItemSchema } from "../types";
+import { setFlash } from "sveltekit-flash-message/server";
 
 export const load = async ({ locals, params }) => {
   const { prisma } = locals;
@@ -280,20 +281,8 @@ export const actions = {
     }
 
     try {
-      // Gather data and verify all items are signed
-      const expenseData = await gatherExpenseDataForPdf(
-        prisma,
-        Number(params.id),
-      );
+      await sendExpenseToBookkeeping(prisma, Number(params.id));
 
-      // Mark as sent to bookkeeping
-      await prisma.expense.update({
-        where: { id: Number(params.id) },
-        data: { hasBeenSentToBookkeeping: true },
-      });
-
-      // TODO: Generate PDF with pdf-lib
-      // For now, just redirect back with success message
       return redirect(
         "/expenses/all",
         {
@@ -303,13 +292,16 @@ export const actions = {
         event,
       );
     } catch (e) {
-      return message(
-        { id: params.id }, // dummy form data
+      setFlash(
         {
           message: e instanceof Error ? e.message : "Ett fel uppstod",
           type: "error",
         },
+        event,
       );
+      return fail(400, {
+        message: e instanceof Error ? e.message : "Ett fel uppstod",
+      });
     }
   },
 };
