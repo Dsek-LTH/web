@@ -1,10 +1,14 @@
-import type { Member, Expense, ExpenseItem } from "@prisma/client";
-import type { PrismaClient } from "@prisma/client";
-import { generateExpensePdf } from "./generatePdf";
-import { sendEmail } from "$lib/email/emailService";
 import { env } from "$env/dynamic/private";
+import type {
+  Expense,
+  ExpenseItem,
+  Member,
+  PrismaClient,
+} from "@prisma/client";
 import dayjs from "dayjs";
-import { getFullName } from "$lib/utils/client/member";
+import fs from "fs";
+import path from "path";
+import { generateExpensePdf } from "./generatePdf";
 
 const { BOOKKEEPING_EMAIL } = env;
 
@@ -21,7 +25,7 @@ export type ExpandedExpenseForPdf = Expense & {
 /**
  * Gathers all necessary data for creating a PDF of an expense.
  * This includes the expense itself, its items, and all related members.
- * Also verifies that all items are signed.
+ * Also verifies that all items are signed and have receipts.
  */
 export async function gatherExpenseDataForPdf(
   prisma: PrismaClient,
@@ -50,6 +54,14 @@ export async function gatherExpenseDataForPdf(
     throw new Error("All items must be signed before sending to bookkeeping");
   }
 
+  // Verify all items have receipt URLs
+  const itemsWithoutReceipts = expense.items.filter((item) => !item.receiptUrl);
+  if (itemsWithoutReceipts.length > 0) {
+    throw new Error(
+      "All items must have receipts before sending to bookkeeping",
+    );
+  }
+
   return expense;
 }
 
@@ -72,30 +84,38 @@ export async function sendExpenseToBookkeeping(
 
   const totalAmount = expense.items.reduce((sum, item) => sum + item.amount, 0);
 
-  await sendEmail({
-    to: BOOKKEEPING_EMAIL,
-    subject: `Expense Report #${expense.id} - ${getFullName(expense.member)}`,
-    text: `
-Expense Report #${expense.id}
-Member: ${getFullName(expense.member)}
-Date: ${dayjs(expense.date).format("YYYY-MM-DD")}
-Description: ${expense.description}
-Total Amount: ${(totalAmount / 100).toFixed(2)} SEK
-Type: ${expense.isGuildCard ? "Guild Card" : "Private Expense"}
+  const pdfDir = path.join(process.cwd(), "data", "expense-pdfs");
+  fs.mkdirSync(pdfDir, { recursive: true });
+  const pdfFilename = `expense_${expense.id}_${dayjs(expense.date).format("YYYY-MM-DD")}.pdf`;
+  const pdfPath = path.join(pdfDir, pdfFilename);
 
-Please find the detailed expense report attached.
-    `,
-    attachments: [
-      {
-        filename: `expense_${expense.id}_${dayjs(expense.date).format("YYYY-MM-DD")}.pdf`,
-        content: pdfBytes,
-      },
-    ],
-  });
+  // Write the PDF to disk
+  fs.writeFileSync(pdfPath, pdfBytes);
 
-  // Mark as sent to bookkeeping
-  await prisma.expense.update({
-    where: { id: expenseId },
-    data: { hasBeenSentToBookkeeping: true },
-  });
+  //   await sendEmail({
+  //     to: BOOKKEEPING_EMAIL,
+  //     subject: `Expense Report #${expense.id} - ${getFullName(expense.member)}`,
+  //     text: `
+  // Expense Report #${expense.id}
+  // Member: ${getFullName(expense.member)}
+  // Date: ${dayjs(expense.date).format("YYYY-MM-DD")}
+  // Description: ${expense.description}
+  // Total Amount: ${(totalAmount / 100).toFixed(2)} SEK
+  // Type: ${expense.isGuildCard ? "Guild Card" : "Private Expense"}
+
+  // Please find the detailed expense report attached.
+  //     `,
+  //     attachments: [
+  //       {
+  //         filename: `expense_${expense.id}_${dayjs(expense.date).format("YYYY-MM-DD")}.pdf`,
+  //         content: pdfBytes,
+  //       },
+  //     ],
+  //   });
+
+  //   // Mark as sent to bookkeeping
+  //   await prisma.expense.update({
+  //     where: { id: expenseId },
+  //     data: { hasBeenSentToBookkeeping: true },
+  //   });
 }
