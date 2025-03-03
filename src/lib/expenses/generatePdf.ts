@@ -62,6 +62,7 @@ async function drawExpenseInfo(
   const { height } = page.getSize();
   const startY = height - 100;
   const rightCol = 300;
+  const maxWidth = rightCol - MARGIN - 10; // Maximum width for left column text
 
   // Left column
   page.drawText("Expense Details", {
@@ -71,23 +72,26 @@ async function drawExpenseInfo(
     font: fonts.bold,
   });
 
-  const leftDetails = [
+  let currentY = startY;
+
+  // Handle regular fields
+  const regularDetails = [
     `ID: ${expense.id}`,
     `Date: ${dayjs(expense.date).format("YYYY-MM-DD")}`,
-    `Description: ${expense.description}`,
     `Type: ${expense.isGuildCard ? "Guild Card" : "Private Expense"}`,
   ];
 
-  leftDetails.forEach((text, i) => {
+  regularDetails.forEach((text) => {
+    currentY -= 25;
     page.drawText(text, {
       x: MARGIN,
-      y: startY - 25 * (i + 1),
+      y: currentY,
       size: 12,
       font: fonts.regular,
     });
   });
 
-  // Right column
+  // Right column - keep at fixed position
   page.drawText("Member Information", {
     x: rightCol,
     y: startY,
@@ -102,7 +106,72 @@ async function drawExpenseInfo(
     font: fonts.regular,
   });
 
-  return startY - 130; // Return Y position for table start
+  page.drawText(`StiL-ID: ${expense.member.studentId}`, {
+    x: rightCol,
+    y: startY - 50,
+    size: 12,
+    font: fonts.regular,
+  });
+
+  // Handle description with wrapping
+  currentY -= 25;
+  const descriptionLabel = "Description: ";
+  page.drawText(descriptionLabel, {
+    x: MARGIN,
+    y: currentY,
+    size: 12,
+    font: fonts.regular,
+  });
+
+  const descriptionX =
+    MARGIN + fonts.regular.widthOfTextAtSize(descriptionLabel, 12);
+  const wrappedDescription = wrapText(
+    expense.description,
+    fonts.regular,
+    12,
+    maxWidth - (descriptionX - MARGIN),
+  );
+
+  wrappedDescription.forEach((line, i) => {
+    if (i > 0) currentY -= 20; // Less spacing between wrapped lines
+    page.drawText(line, {
+      x: descriptionX,
+      y: currentY,
+      size: 12,
+      font: fonts.regular,
+    });
+  });
+
+  return currentY - 50; // Return Y position for table start based only on description end
+}
+
+function wrapText(
+  text: string,
+  font: PDFFont,
+  fontSize: number,
+  maxWidth: number,
+): string[] {
+  const words = text.split(" ");
+  const lines: string[] = [];
+  let currentLine = "";
+
+  words.forEach((word) => {
+    const testLine = currentLine ? `${currentLine} ${word}` : word;
+    const width = font.widthOfTextAtSize(testLine, fontSize);
+
+    if (width <= maxWidth) {
+      currentLine = testLine;
+    } else {
+      lines.push(currentLine);
+      currentLine = word;
+    }
+  });
+
+  if (currentLine) {
+    lines.push(currentLine);
+  }
+
+  return lines;
 }
 
 async function drawItemsTable(
@@ -243,7 +312,7 @@ export async function generateExpensePdf(
   const { page: lastPage, endY } = await drawItemsTable(
     page,
     expense.items,
-    tableStartY,
+    tableStartY - 20,
     fonts,
   );
 
