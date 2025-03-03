@@ -1,10 +1,19 @@
 import { getFullName } from "$lib/utils/client/member";
 import dayjs from "dayjs";
-import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import { PDFDocument, PDFFont, PDFPage, StandardFonts, rgb } from "pdf-lib";
 import sharp from "sharp";
 import type { ExpandedExpenseForPdf } from "./sendToBookkeeping";
 
-const A4_SIZE: [number, number] = [595.276, 841.89]; // A4 size in points
+const A4_SIZE: [number, number] = [595.276, 841.89];
+const MARGIN = 50;
+const TABLE_HEADERS = [
+  "Cost Center",
+  "Amount",
+  "Comment",
+  "Signed By",
+  "Date Signed",
+];
+const TABLE_COL_WIDTHS = [100, 80, 150, 100, 100];
 
 /**
  * Fetches a file from a URL and returns it as a Uint8Array
@@ -35,6 +44,185 @@ function isImageUrl(url: string): boolean {
   );
 }
 
+async function drawHeader(page: PDFPage, fonts: { bold: PDFFont }) {
+  const { height } = page.getSize();
+  page.drawText("D-sektionen Expense Report", {
+    x: MARGIN,
+    y: height - MARGIN,
+    size: 24,
+    font: fonts.bold,
+  });
+}
+
+async function drawExpenseInfo(
+  page: PDFPage,
+  expense: ExpandedExpenseForPdf,
+  fonts: { regular: PDFFont; bold: PDFFont },
+) {
+  const { height } = page.getSize();
+  const startY = height - 100;
+  const rightCol = 300;
+
+  // Left column
+  page.drawText("Expense Details", {
+    x: MARGIN,
+    y: startY,
+    size: 14,
+    font: fonts.bold,
+  });
+
+  const leftDetails = [
+    `ID: ${expense.id}`,
+    `Date: ${dayjs(expense.date).format("YYYY-MM-DD")}`,
+    `Description: ${expense.description}`,
+    `Type: ${expense.isGuildCard ? "Guild Card" : "Private Expense"}`,
+  ];
+
+  leftDetails.forEach((text, i) => {
+    page.drawText(text, {
+      x: MARGIN,
+      y: startY - 25 * (i + 1),
+      size: 12,
+      font: fonts.regular,
+    });
+  });
+
+  // Right column
+  page.drawText("Member Information", {
+    x: rightCol,
+    y: startY,
+    size: 14,
+    font: fonts.bold,
+  });
+
+  page.drawText(`Name: ${getFullName(expense.member)}`, {
+    x: rightCol,
+    y: startY - 25,
+    size: 12,
+    font: fonts.regular,
+  });
+
+  return startY - 130; // Return Y position for table start
+}
+
+async function drawItemsTable(
+  page: PDFPage,
+  items: ExpandedExpenseForPdf["items"],
+  startY: number,
+  fonts: { regular: PDFFont; bold: PDFFont },
+): Promise<{ page: PDFPage; endY: number }> {
+  const { height } = page.getSize();
+  let currentY = startY;
+  let currentPage = page;
+
+  // Draw table header
+  currentPage.drawText("Expense Items", {
+    x: MARGIN,
+    y: currentY + 20,
+    size: 14,
+    font: fonts.bold,
+  });
+
+  let currentX = MARGIN;
+  TABLE_HEADERS.forEach((header, i) => {
+    currentPage.drawText(header, {
+      x: currentX,
+      y: currentY,
+      size: 12,
+      font: fonts.bold,
+    });
+    currentX += TABLE_COL_WIDTHS[i]!;
+  });
+
+  currentY -= 20;
+
+  // Draw items
+  for (const [i, item] of items.entries()) {
+    if (currentY < 50) {
+      currentPage = currentPage.doc.addPage(A4_SIZE);
+      currentY = height - MARGIN;
+    }
+
+    currentX = MARGIN;
+
+    // Draw each column
+    const columns = [
+      `${i + 1}: ${item.costCenter}`,
+      `${(item.amount / 100).toFixed(2)} SEK`,
+      item.comment || "-",
+      item.signedBy ? getFullName(item.signedBy) : "-",
+      item.signedAt ? dayjs(item.signedAt).format("YYYY-MM-DD") : "-",
+    ];
+
+    columns.forEach((text, i) => {
+      currentPage.drawText(text, {
+        x: currentX,
+        y: currentY,
+        size: 10,
+        font: fonts.regular,
+        maxWidth: TABLE_COL_WIDTHS[i],
+      });
+      currentX += TABLE_COL_WIDTHS[i]!;
+    });
+
+    currentY -= 20;
+  }
+
+  return { page: currentPage, endY: currentY };
+}
+
+async function embedReceipt(
+  doc: PDFDocument,
+  receiptUrl: string,
+): Promise<void> {
+  const fileBytes = await fetchFileAsBytes(receiptUrl);
+
+  if (isPdfUrl(receiptUrl)) {
+    const existingPdf = await PDFDocument.load(fileBytes);
+    const copiedPages = await doc.copyPages(
+      existingPdf,
+      existingPdf.getPageIndices(),
+    );
+    copiedPages.forEach((page) => doc.addPage(page));
+    return;
+  }
+
+  if (!isImageUrl(receiptUrl)) {
+    throw new Error("Unsupported receipt file type");
+  }
+
+  const page = doc.addPage(A4_SIZE);
+  const { width, height } = page.getSize();
+
+  // Convert image to JPEG if needed and embed
+  const image = await doc.embedJpg(fileBytes).catch(() =>
+    sharp(fileBytes)
+      .rotate()
+      .jpeg()
+      .toBuffer()
+      .then((buffer) => doc.embedJpg(new Uint8Array(buffer))),
+  );
+
+  // Calculate dimensions to fit the image on the page
+  const pageWidth = width - MARGIN * 2;
+  const pageHeight = height - 150;
+  const imageRatio = image.width / image.height;
+
+  let finalWidth = pageWidth;
+  let finalHeight = pageWidth / imageRatio;
+
+  if (finalHeight > pageHeight) {
+    finalHeight = pageHeight;
+    finalWidth = pageHeight * imageRatio;
+  }
+
+  // Center the image
+  const x = (width - finalWidth) / 2;
+  const y = (height - finalHeight - 100) / 2;
+
+  page.drawImage(image, { x, y, width: finalWidth, height: finalHeight });
+}
+
 /**
  * Generates a PDF document for an expense
  */
@@ -42,293 +230,53 @@ export async function generateExpensePdf(
   expense: ExpandedExpenseForPdf,
 ): Promise<Uint8Array> {
   const pdfDoc = await PDFDocument.create();
-  // const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
-  const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
-  const helveticaBoldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  const fonts = {
+    regular: await pdfDoc.embedFont(StandardFonts.Helvetica),
+    bold: await pdfDoc.embedFont(StandardFonts.HelveticaBold),
+  };
 
-  let page = pdfDoc.addPage(A4_SIZE); // A4 size
-  const { /*  width,  */ height } = page.getSize();
+  const page = pdfDoc.addPage(A4_SIZE);
 
-  // Header
-  page.drawText("D-sektionen Expense Report", {
-    x: 50,
-    y: height - 50,
-    size: 24,
-    font: helveticaBoldFont,
-  });
-
-  // Expense Info
-  const startY = height - 100;
-  const leftCol = 50;
-  const rightCol = 300;
-
-  // Left column
-  page.drawText("Expense Details", {
-    x: leftCol,
-    y: startY,
-    size: 14,
-    font: helveticaBoldFont,
-  });
-
-  page.drawText(`ID: ${expense.id}`, {
-    x: leftCol,
-    y: startY - 25,
-    size: 12,
-    font: helveticaFont,
-  });
-
-  page.drawText(`Date: ${dayjs(expense.date).format("YYYY-MM-DD")}`, {
-    x: leftCol,
-    y: startY - 45,
-    size: 12,
-    font: helveticaFont,
-  });
-
-  page.drawText(`Description: ${expense.description}`, {
-    x: leftCol,
-    y: startY - 65,
-    size: 12,
-    font: helveticaFont,
-  });
-
-  page.drawText(
-    `Type: ${expense.isGuildCard ? "Guild Card" : "Private Expense"}`,
-    {
-      x: leftCol,
-      y: startY - 85,
-      size: 12,
-      font: helveticaFont,
-    },
+  // Draw the main expense document
+  await drawHeader(page, { bold: fonts.bold });
+  const tableStartY = await drawExpenseInfo(page, expense, fonts);
+  const { page: lastPage, endY } = await drawItemsTable(
+    page,
+    expense.items,
+    tableStartY,
+    fonts,
   );
 
-  // Right column
-  page.drawText("Member Information", {
-    x: rightCol,
-    y: startY,
-    size: 14,
-    font: helveticaBoldFont,
-  });
-
-  page.drawText(`Name: ${getFullName(expense.member)}`, {
-    x: rightCol,
-    y: startY - 25,
-    size: 12,
-    font: helveticaFont,
-  });
-
-  // Items table
-  const tableY = startY - 130;
-  const tableHeaders = [
-    "Cost Center",
-    "Amount",
-    "Comment",
-    "Signed By",
-    "Date Signed",
-  ];
-  const colWidths = [100, 80, 150, 100, 100];
-  if (colWidths.length !== tableHeaders.length || colWidths.length < 4) {
-    // we manually check index 3 later
-    throw new Error(
-      "Table headers and column widths must have the same length",
-    );
-  }
-  let currentY = tableY;
-
-  // Draw table header
-  page.drawText("Expense Items", {
-    x: leftCol,
-    y: currentY + 20,
-    size: 14,
-    font: helveticaBoldFont,
-  });
-
-  let currentX = leftCol;
-  tableHeaders.forEach((header, i) => {
-    page.drawText(header, {
-      x: currentX,
-      y: currentY,
-      size: 12,
-      font: helveticaBoldFont,
-    });
-    currentX += colWidths[i]!;
-  });
-
-  // Draw items
-  currentY -= 20;
-  for (const [i, item] of expense.items.entries()) {
-    if (currentY < 50) {
-      // Add new page if we're running out of space
-      currentY = height - 50;
-      page = pdfDoc.addPage(A4_SIZE);
-    }
-
-    currentX = leftCol;
-    // Cost Center
-    page.drawText(`${i + 1}: ${item.costCenter}`, {
-      x: currentX,
-      y: currentY,
-      size: 10,
-      font: helveticaFont,
-      maxWidth: colWidths[0]!,
-    });
-    currentX += colWidths[0]!;
-
-    // Amount (convert from öre to SEK)
-    page.drawText(`${(item.amount / 100).toFixed(2)} SEK`, {
-      x: currentX,
-      y: currentY,
-      size: 10,
-      font: helveticaFont,
-      maxWidth: colWidths[1]!,
-    });
-    currentX += colWidths[1]!;
-
-    // Comment
-    const commentText =
-      item.comment ||
-      "Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua";
-    const commentHeight =
-      Math.ceil(commentText.length / (colWidths[2]! / 7)) * 10; // Estimate height based on text length
-    page.drawText(commentText, {
-      x: currentX,
-      y: currentY,
-      size: 10,
-      font: helveticaFont,
-      maxWidth: colWidths[2]!,
-      lineHeight: 10,
-    });
-    currentX += colWidths[2]!;
-
-    // Signed By
-    const signerName = item.signedBy ? getFullName(item.signedBy) : "-";
-    const signerHeight = Math.ceil(signerName.length / 15) * 10; // Estimate height based on name length
-    page.drawText(signerName, {
-      x: currentX,
-      y: currentY,
-      size: 10,
-      font: helveticaFont,
-      maxWidth: colWidths[3]!,
-    });
-    currentX += colWidths[3]!;
-
-    // Date Signed
-    page.drawText(
-      item.signedAt ? dayjs(item.signedAt).format("YYYY-MM-DD") : "-",
-      {
-        x: currentX,
-        y: currentY,
-        size: 10,
-        font: helveticaFont,
-      },
-    );
-
-    // Adjust currentY based on the tallest text in this row
-    const maxTextHeight = Math.max(20, commentHeight, signerHeight);
-    if (maxTextHeight > 20) {
-      currentY -= maxTextHeight - 20; // Add extra space if text wrapped
-    }
-
-    currentY -= 20;
-  }
-
-  // Total amount
+  // Draw total amount
   const totalAmount = expense.items.reduce((sum, item) => sum + item.amount, 0);
-  page.drawText(`Total Amount: ${(totalAmount / 100).toFixed(2)} SEK`, {
-    x: leftCol,
-    y: currentY - 20,
+  lastPage.drawText(`Total Amount: ${(totalAmount / 100).toFixed(2)} SEK`, {
+    x: MARGIN,
+    y: endY - 20,
     size: 14,
-    font: helveticaBoldFont,
+    font: fonts.bold,
   });
 
-  // Add attachments
+  // Add receipts
   for (const item of expense.items) {
     if (!item.receiptUrl) continue;
     try {
-      const fileBytes = await fetchFileAsBytes(item.receiptUrl);
-
-      // If the URL suggests this is a PDF file
-      if (isPdfUrl(item.receiptUrl)) {
-        try {
-          const existingPdf = await PDFDocument.load(fileBytes);
-          const copiedPages = await pdfDoc.copyPages(
-            existingPdf,
-            existingPdf.getPageIndices(),
-          );
-          copiedPages.forEach((page) => pdfDoc.addPage(page));
-        } catch (error) {
-          // page.drawText("Error: Could not embed PDF receipt", {
-          //   x: 50,
-          //   y: height - 100,
-          //   size: 12,
-          //   font: helveticaFont,
-          //   color: rgb(1, 0, 0),
-          // });
-          const errorMsg = error instanceof Error ? error.message : "-";
-          throw new Error(`Error: Could not embed PDF receipt (${errorMsg})`);
-        }
-      }
-      // If the URL suggests this is an image file
-      else if (isImageUrl(item.receiptUrl)) {
-        page = pdfDoc.addPage(A4_SIZE); // A4 size
-        // Try both JPEG and PNG formats
-        // try {
-        const image = await pdfDoc
-          .embedJpg(fileBytes)
-          // .catch((e) => pdfDoc.embedPng(fileBytes))
-          .catch(() =>
-            sharp(fileBytes)
-              // this is required to keep the image upright
-              .rotate()
-              .jpeg()
-              .toBuffer()
-              .then((buffer) => pdfDoc.embedJpg(new Uint8Array(buffer)))
-              .catch(() => {
-                throw new Error(
-                  `Image was not correct format (${fileBytes.length} bytes, JPEG or PNG supported)`,
-                );
-              }),
-          );
-
-        // Calculate dimensions to fit the image on the page while maintaining aspect ratio
-        const pageWidth = page.getWidth() - 100; // Leave 50px margin on each side
-        const pageHeight = page.getHeight() - 150; // Leave margin for the header
-        const imageRatio = image.width / image.height;
-        let width = pageWidth;
-        let height = pageWidth / imageRatio;
-
-        if (height > pageHeight) {
-          height = pageHeight;
-          width = pageHeight * imageRatio;
-        }
-
-        // Center the image on the page
-        const x = (page.getWidth() - width) / 2;
-        const y = (page.getHeight() - height - 100) / 2; // Adjust for header
-
-        page.drawImage(image, {
-          x,
-          y,
-          width,
-          height,
-        });
-      } else {
-        throw new Error("Unsupported receipt file type");
-      }
+      await embedReceipt(pdfDoc, item.receiptUrl);
     } catch (error) {
+      const errorPage = pdfDoc.addPage(A4_SIZE);
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
-      page.drawText(errorMessage, {
-        x: 50,
-        y: height - 100,
+      errorPage.drawText(errorMessage, {
+        x: MARGIN,
+        y: errorPage.getHeight() - 100,
         size: 12,
-        font: helveticaFont,
+        font: fonts.regular,
         color: rgb(1, 0, 0),
       });
-      page.drawText(`Receipt link: ${item.receiptUrl}`, {
-        x: 50,
-        y: height - 120,
+      errorPage.drawText(`Receipt link: ${item.receiptUrl}`, {
+        x: MARGIN,
+        y: errorPage.getHeight() - 120,
         size: 12,
-        font: helveticaFont,
+        font: fonts.regular,
       });
     }
   }
