@@ -8,6 +8,7 @@ import { z } from "zod";
 import { getCostCenter } from "../config";
 import { expensesInclusion } from "../getExpenses";
 import { sendNotificationToSigner } from "../helper";
+import { gatherExpenseDataForPdf } from "$lib/expenses/sendToBookkeeping";
 import {
   getSigner,
   resolveSignerLogic,
@@ -255,5 +256,60 @@ export const actions = {
       },
       event,
     );
+  },
+  sendToBookkeeping: async (event) => {
+    const { locals, params } = event;
+    const { prisma, user } = locals;
+
+    if (!user?.memberId) {
+      throw error(
+        401,
+        "Du måste vara inloggad för att skicka utlägg till bokföring",
+      );
+    }
+
+    if (!isAuthorized(apiNames.EXPENSES.BOOKKEEPING, user)) {
+      throw error(
+        403,
+        "Du har inte behörighet att skicka utlägg till bokföring",
+      );
+    }
+
+    if (params.id.length === 0 || Number.isNaN(Number(params.id))) {
+      throw error(404, "Expense id should be a number");
+    }
+
+    try {
+      // Gather data and verify all items are signed
+      const expenseData = await gatherExpenseDataForPdf(
+        prisma,
+        Number(params.id),
+      );
+
+      // Mark as sent to bookkeeping
+      await prisma.expense.update({
+        where: { id: Number(params.id) },
+        data: { hasBeenSentToBookkeeping: true },
+      });
+
+      // TODO: Generate PDF with pdf-lib
+      // For now, just redirect back with success message
+      return redirect(
+        "/expenses/all",
+        {
+          message: "Utlägg skickat till bokföring",
+          type: "success",
+        },
+        event,
+      );
+    } catch (e) {
+      return message(
+        { id: params.id }, // dummy form data
+        {
+          message: e instanceof Error ? e.message : "Ett fel uppstod",
+          type: "error",
+        },
+      );
+    }
   },
 };
