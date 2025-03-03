@@ -1,4 +1,5 @@
-export const load = async ({ locals }) => {
+
+export const load = async ({ locals, fetch }) => {
   const { prisma } = locals;
   const phadderGroups = await prisma.phadderGroup.findMany({
     where: {
@@ -16,7 +17,16 @@ export const load = async ({ locals }) => {
       createdAt: "asc",
     },
   });
+  let data;
+  try {
+    const req = await fetch("http://localhost:3000/api/globals/landing?draft=true");
+    data = await req.json();
+  } catch (e) {
+    console.log(e);
+  }
+  console.log(data);
   return {
     phadderGroups,
+    data,
   };
 };

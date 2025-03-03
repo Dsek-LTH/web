@@ -21,6 +21,11 @@ const config = {
     version: {
       name: execSync("git describe --tags").toString().trim(),
     },
+    csp: {
+      directives: {
+        "frame-ancestors": ["self localhost:* https://dsek.se"],
+      },
+    },
   },
 };
 

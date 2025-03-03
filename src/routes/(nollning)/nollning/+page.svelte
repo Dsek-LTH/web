@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { page } from "$app/stores";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import MembersList from "$lib/components/socials/MembersList.svelte";
@@ -30,11 +30,37 @@
   import wilma from "./(photos)/wilma.webp";
   import cowprint from "./(photos)/cowprint.webp";
   import { languageTag } from "$paraglide/runtime";
+  import { isDocumentEvent, ready, subscribe } from "@payloadcms/live-preview";
+  import { invalidateAll } from "$app/navigation";
+  import { onMount } from "svelte";
 
   export let data;
   $: topInsets = ($page.data.appInfo?.insets?.top ?? 0) + 8;
   $: bottomInsets = $page.data.appInfo?.insets?.bottom ?? 0;
   $: headerAndFooterHeight = 128 + topInsets + bottomInsets;
+
+  let hasSentReadyMessage = false;
+  const onMessage = async (event: MessageEvent) => {
+    if (isDocumentEvent(event, "http://localhost:3000")) {
+      await invalidateAll();
+    }
+  };
+  $: () => {
+    if (typeof window !== "undefined") {
+      window.addEventListener("message", onMessage);
+    }
+    if (!hasSentReadyMessage) {
+      hasSentReadyMessage = true;
+
+      console.log("hi");
+      ready({
+        serverURL: "http://localhost:3000",
+      });
+    }
+    return () => {
+      window.removeEventListener("message", onMessage);
+    };
+  }
 
   const stab = [
     {
@@ -186,7 +212,7 @@
           class="absolute inset-x-4 bottom-10 hidden max-w-full transform text-center font-nolla-stab text-7xl leading-snug md:block lg:text-8xl"
         >
           <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-          {@html m.nollning_title().replace("\n", " ")}
+          {data.data.title}
         </span>
         <span
           class="absolute inset-x-4 bottom-10 max-w-full transform text-center font-nolla-stab text-6xl leading-snug md:hidden md:text-8xl"
