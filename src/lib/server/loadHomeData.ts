@@ -129,7 +129,11 @@ export const loadHomeData = async ({
     })
     .then((res) => res !== null);
 
-  const readmePromise = prisma.readme.findFirst();
+  const readmePromise = prisma.readme.findFirst({
+    orderBy: {
+      publishedAt: "desc",
+    },
+  });
 
   const [
     news,
