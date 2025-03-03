@@ -79,7 +79,7 @@
       {#if isEditing && superform}
         <FormNumberInput {superform} field="amount" />
       {:else}
-        <Price price={item.amount * 100} />
+        <Price price={item.amount} />
       {/if}
       <!-- it's in cents -->
     </div>

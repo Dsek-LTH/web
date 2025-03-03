@@ -299,9 +299,7 @@ export const actions = {
         },
         event,
       );
-      return fail(400, {
-        message: e instanceof Error ? e.message : "Ett fel uppstod",
-      });
+      return fail(400);
     }
   },
 };
