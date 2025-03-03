@@ -6,11 +6,17 @@ const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = env;
 const transporter = nodemailer.createTransport({
   host: SMTP_HOST,
   port: Number(SMTP_PORT),
-  secure: true,
+  secure: false, // TLS requires secureConnection to be false
   auth: {
     user: SMTP_USER,
     pass: SMTP_PASS,
   },
+  tls: {
+    rejectUnauthorized: true,
+    minVersion: "TLSv1.2",
+  },
+  debug: true, // Enable debug logs
+  logger: true, // Log to console
 });
 
 export interface EmailAttachment {
@@ -31,7 +37,7 @@ export interface EmailOptions {
  */
 export async function sendEmail(options: EmailOptions): Promise<void> {
   await transporter.sendMail({
-    from: SMTP_USER,
+    from: `"DSEK" <${SMTP_USER}>`,
     to: options.to,
     subject: options.subject,
     text: options.text,

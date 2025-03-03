@@ -9,6 +9,8 @@ import dayjs from "dayjs";
 import fs from "fs";
 import path from "path";
 import { generateExpensePdf } from "./generatePdf";
+import { sendEmail } from "$lib/email/emailService";
+import { getFullName } from "$lib/utils/client/member";
 
 const { BOOKKEEPING_EMAIL } = env;
 
@@ -92,30 +94,32 @@ export async function sendExpenseToBookkeeping(
   // Write the PDF to disk
   fs.writeFileSync(pdfPath, pdfBytes);
 
-  //   await sendEmail({
-  //     to: BOOKKEEPING_EMAIL,
-  //     subject: `Expense Report #${expense.id} - ${getFullName(expense.member)}`,
-  //     text: `
-  // Expense Report #${expense.id}
-  // Member: ${getFullName(expense.member)}
-  // Date: ${dayjs(expense.date).format("YYYY-MM-DD")}
-  // Description: ${expense.description}
-  // Total Amount: ${(totalAmount / 100).toFixed(2)} SEK
-  // Type: ${expense.isGuildCard ? "Guild Card" : "Private Expense"}
+  console.log("Sending email");
+  const res = await sendEmail({
+    to: BOOKKEEPING_EMAIL,
+    subject: `Expense Report #${expense.id} - ${getFullName(expense.member)}`,
+    text: `
+  Expense Report #${expense.id}
+  Member: ${getFullName(expense.member)}
+  Date: ${dayjs(expense.date).format("YYYY-MM-DD")}
+  Description: ${expense.description}
+  Total Amount: ${(totalAmount / 100).toFixed(2)} SEK
+  Type: ${expense.isGuildCard ? "Guild Card" : "Private Expense"}
 
-  // Please find the detailed expense report attached.
-  //     `,
-  //     attachments: [
-  //       {
-  //         filename: `expense_${expense.id}_${dayjs(expense.date).format("YYYY-MM-DD")}.pdf`,
-  //         content: pdfBytes,
-  //       },
-  //     ],
-  //   });
+  Please find the detailed expense report attached.
+      `,
+    attachments: [
+      {
+        filename: `expense_${expense.id}_${dayjs(expense.date).format("YYYY-MM-DD")}.pdf`,
+        content: pdfBytes,
+      },
+    ],
+  });
+  console.log("Email sent", res);
 
-  //   // Mark as sent to bookkeeping
-  //   await prisma.expense.update({
-  //     where: { id: expenseId },
-  //     data: { hasBeenSentToBookkeeping: true },
-  //   });
+  // Mark as sent to bookkeeping
+  await prisma.expense.update({
+    where: { id: expenseId },
+    data: { hasBeenSentToBookkeeping: true },
+  });
 }
