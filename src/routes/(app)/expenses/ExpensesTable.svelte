@@ -119,7 +119,7 @@
           </td>
           <td>
             {expense.items
-              .reduce((acc, item) => acc + item.amount, 0)
+              .reduce((acc, item) => acc + item.amount / 100, 0)
               .toLocaleString()} kr
           </td>
           <td>
