@@ -19,5 +19,9 @@
   <FormInput {superform} field="header" label="Header" />
   <FormInput {superform} field="body" label="Body" />
   <FormNumberInput {superform} field="price" label="Price" />
-  <FormSubmitButton {superform} class="btn">Create Listing</FormSubmitButton>
+  <FormInput {superform} field="email" label="Email" />
+  <FormInput {superform} field="phone" label="Phone number" />
+  <FormSubmitButton {superform} class="btn mt-2"
+    >Create Listing</FormSubmitButton
+  >
 </form>

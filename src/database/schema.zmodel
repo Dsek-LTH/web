@@ -147,6 +147,9 @@ model Dbay {
   header      String    @db.VarChar(255)
   body        String
   price       Int
+  email       String?   @db.VarChar(255)
+  phone       String?   @db.VarChar(255)
+  slug        String    @unique(map: "dbay_slug_unique") @db.VarChar(255)
   createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)        
 
   @@allow("read", true)

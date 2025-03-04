@@ -74,6 +74,48 @@
           "hasDefaultValue": true,
           "isId": false,
           "maxLength": null
+        },
+        {
+          "id": "public.Dbay.email",
+          "name": "email",
+          "columnName": "email",
+          "type": "varchar",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": 255
+        },
+        {
+          "id": "public.Dbay.phone",
+          "name": "phone",
+          "columnName": "phone",
+          "type": "varchar",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": 255
+        },
+        {
+          "id": "public.Dbay.slug",
+          "name": "slug",
+          "columnName": "slug",
+          "type": "varchar",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": 255
         }
       ],
       "uniqueConstraints": [
@@ -81,6 +123,13 @@
           "name": "Dbay_pkey",
           "fields": [
             "id"
+          ],
+          "nullNotDistinct": false
+        },
+        {
+          "name": "dbay_slug_unique",
+          "fields": [
+            "slug"
           ],
           "nullNotDistinct": false
         }
