@@ -1,4 +1,7 @@
+import { dev } from "$app/environment";
 import { env } from "$env/dynamic/private";
+import { sendEmail } from "$lib/email/emailService";
+import { getFullName } from "$lib/utils/client/member";
 import type {
   Expense,
   ExpenseItem,
@@ -9,8 +12,6 @@ import dayjs from "dayjs";
 import fs from "fs";
 import path from "path";
 import { generateExpensePdf } from "./generatePdf";
-import { sendEmail } from "$lib/email/emailService";
-import { getFullName } from "$lib/utils/client/member";
 
 const { BOOKKEEPING_EMAIL } = env;
 
@@ -97,8 +98,7 @@ export async function sendExpenseToBookkeeping(
 
   const totalAmount = expense.items.reduce((sum, item) => sum + item.amount, 0);
 
-  // Write the PDF to disk
-  if (env.NODE_ENV === "development") writePDFToFile(expense, pdfBytes);
+  if (dev) writePDFToFile(expense, pdfBytes);
 
   await sendEmail({
     from: "automatic-expensing@dsek.se",
