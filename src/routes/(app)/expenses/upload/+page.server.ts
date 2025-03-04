@@ -113,7 +113,7 @@ export const actions = {
             return {
               expenseId: expense.id,
               costCenter: row.costCenter,
-              amount: row.amount,
+              amount: Math.floor(row.amount * 100), // convert to "öre"
               receiptUrl: uploadedReceipt,
               comment: row.comment,
               committeeShortName: costCenter.committee,

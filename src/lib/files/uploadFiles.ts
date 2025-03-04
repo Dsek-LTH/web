@@ -46,8 +46,6 @@ export const uploadFile = async (
   //   create: { title: meeting, date, url: folderPath },
   // });
 
-  const filePath = `${prefix}/${formattedName}`;
-
   let dataToUpload: File | Buffer = file;
   if (isFileImage(file) && compressionOptions !== false) {
     try {
@@ -62,6 +60,8 @@ export const uploadFile = async (
       throw new Error(`Could not compress image: ${errMsg}`);
     }
   }
+
+  const filePath = `${prefix}/${formattedName}`;
 
   try {
     const putUrl = await fileHandler.getPresignedPutUrl(

@@ -48,7 +48,7 @@ export const load = async ({ locals, url }) => {
   const { prisma } = locals;
   const allExpensesCount = await prisma.expense.count();
   const pageSize = getPageSizeOrThrowSvelteError(url);
-  const pageCount = Math.ceil(allExpensesCount / pageSize);
+  const pageCount = Math.max(Math.ceil(allExpensesCount / pageSize), 1);
   const page = getPageOrThrowSvelteError(url, {
     fallbackValue: 1,
     lowerBound: 1,
