@@ -349,6 +349,7 @@
   "notifications_errors_couldNotRemove": "Kunde inte ta bort notis",
   "notifications_errors_notLoggedIn": "Inte inloggad",
   "navbar_logIn": "Logga in",
+  "navbar_register": "Registrera",
   "navbar_bell_markAllAsRead": "Markera alla som lästa",
   "navbar_bell_deleteAll": "Ta bort alla",
   "navbar_bell_noNotifications": "Du har inga notiser!",

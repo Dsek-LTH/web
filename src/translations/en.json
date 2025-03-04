@@ -351,6 +351,7 @@
   "notifications_errors_couldNotRemove": "Could not remove notification",
   "notifications_errors_notLoggedIn": "Not logged in",
   "navbar_logIn": "Sign in",
+  "navbar_register": "Register",
   "navbar_bell_markAllAsRead": "Mark all as read",
   "navbar_bell_deleteAll": "Delete all",
   "navbar_bell_noNotifications": "You have no notifications!",
