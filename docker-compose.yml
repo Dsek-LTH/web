@@ -51,24 +51,16 @@ services:
       - "8800:8800"
 
   directus:
+    env_file: "./cms/.env"
     image: directus/directus:11.3.5
     ports:
       - 8055:8055
     volumes:
-      - ./directus/database:/directus/database
-      - ./directus/uploads:/directus/uploads
-      - ./directus/extensions:/directus/extensions
+      # - ./cms/database:/directus/database # Uncomment if needed
+      - ./cms/uploads:/directus/uploads
+      # - ./directus/extensions:/directus/extensions # Uncomment if needed
     environment:
-      SECRET: "replace-with-secure-random-value"
-      ADMIN_EMAIL: "admin@example.com"
-      ADMIN_PASSWORD: "d1r3ctu5"
-      DB_CLIENT: ${DB_CLIENT}
-      DB_CONNECTION_STRING: ${DB_CONNECTION_STRING}
-      WEBSOCKETS_ENABLED: "true"
-      CORS_ENABLED: "true"
-      CORS_ORIGIN: "http://localhost:5173"
-      CORS_CREDENTIALS: "true"
-      CONTENT_SECURITY_POLICY_DIRECTIVES__FRAME_SRC: "http://localhost:5173"
+      DB_CONNECTION_STRING: "postgresql://postgres:postgres@cms_db:5432/cms"
 
 volumes:
   db:

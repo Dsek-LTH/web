@@ -13,5 +13,5 @@ sleep 0.5;
 pnpm migrate
 pnpm seed
 
-pnpm dlx directus bootstrap
-pnpm dlx directus schema apply --yes ./directus/schema.yaml
+CONFIG_PATH="./cms/.env" pnpm dlx directus bootstrap
+CONFIG_PATH="./cms/.env" pnpm dlx directus schema apply --yes ./cms/snapshot.yaml
