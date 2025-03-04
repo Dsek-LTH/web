@@ -83,6 +83,7 @@
           prefix="/expenses/{expense.id}"
           {item}
           form={itemForm}
+          sentToBookkeeping={expense.hasBeenSentToBookkeeping}
         />
       {/each}
     </ul>
@@ -90,7 +91,12 @@
 {:else}
   <ul class="flex flex-wrap gap-2">
     {#each expense.items as item}
-      <ExpenseReceipt prefix="/expenses/{expense.id}" {item} form={itemForm} />
+      <ExpenseReceipt
+        prefix="/expenses/{expense.id}"
+        {item}
+        form={itemForm}
+        sentToBookkeeping={expense.hasBeenSentToBookkeeping}
+      />
     {/each}
   </ul>
 {/if}

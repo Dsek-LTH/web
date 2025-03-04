@@ -67,6 +67,17 @@ export async function gatherExpenseDataForPdf(
   return expense;
 }
 
+function writePDFToFile(expense: Expense, pdfBytes: Uint8Array) {
+  // for testing
+  const pdfDir = path.join(process.cwd(), "data", "expense-pdfs");
+  fs.mkdirSync(pdfDir, { recursive: true });
+  const pdfFilename = `expense_${expense.id}_${dayjs(expense.date).format("YYYY-MM-DD")}.pdf`;
+  const pdfPath = path.join(pdfDir, pdfFilename);
+
+  // Write the PDF to disk
+  fs.writeFileSync(pdfPath, pdfBytes);
+}
+
 /**
  * Sends an expense to bookkeeping by:
  * 1. Generating a PDF
@@ -86,16 +97,11 @@ export async function sendExpenseToBookkeeping(
 
   const totalAmount = expense.items.reduce((sum, item) => sum + item.amount, 0);
 
-  const pdfDir = path.join(process.cwd(), "data", "expense-pdfs");
-  fs.mkdirSync(pdfDir, { recursive: true });
-  const pdfFilename = `expense_${expense.id}_${dayjs(expense.date).format("YYYY-MM-DD")}.pdf`;
-  const pdfPath = path.join(pdfDir, pdfFilename);
-
   // Write the PDF to disk
-  fs.writeFileSync(pdfPath, pdfBytes);
+  if (env.NODE_ENV === "development") writePDFToFile(expense, pdfBytes);
 
-  console.log("Sending email");
-  const res = await sendEmail({
+  await sendEmail({
+    from: "automatic-expensing@dsek.se",
     to: BOOKKEEPING_EMAIL,
     subject: `Expense Report #${expense.id} - ${getFullName(expense.member)}`,
     text: `
@@ -115,7 +121,6 @@ export async function sendExpenseToBookkeeping(
       },
     ],
   });
-  console.log("Email sent", res);
 
   // Mark as sent to bookkeeping
   await prisma.expense.update({

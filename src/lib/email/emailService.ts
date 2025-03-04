@@ -5,6 +5,7 @@ const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = env;
 
 const transporter = nodemailer.createTransport({
   host: SMTP_HOST,
+  // port: Number(465),
   port: Number(SMTP_PORT),
   secure: false, // TLS requires secureConnection to be false
   auth: {
@@ -15,8 +16,6 @@ const transporter = nodemailer.createTransport({
     rejectUnauthorized: true,
     minVersion: "TLSv1.2",
   },
-  debug: true, // Enable debug logs
-  logger: true, // Log to console
 });
 
 export interface EmailAttachment {
@@ -25,6 +24,7 @@ export interface EmailAttachment {
 }
 
 export interface EmailOptions {
+  from?: string;
   to: string;
   subject: string;
   text: string;
@@ -35,9 +35,9 @@ export interface EmailOptions {
 /**
  * Sends an email using the configured SMTP server
  */
-export async function sendEmail(options: EmailOptions): Promise<void> {
-  await transporter.sendMail({
-    from: `"DSEK" <${SMTP_USER}>`,
+export async function sendEmail(options: EmailOptions) {
+  return transporter.sendMail({
+    from: options.from ?? `${SMTP_USER}@user.dsek.se`,
     to: options.to,
     subject: options.subject,
     text: options.text,

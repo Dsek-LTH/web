@@ -18,6 +18,7 @@
   import type { UpdateItemSchema } from "../types";
 
   export let prefix = "";
+  export let sentToBookkeeping = false;
   export let item: ExpandedExpense["items"][number];
   export let form: SuperValidated<UpdateItemSchema> | undefined = undefined;
   $: superform = form
@@ -140,7 +141,7 @@
           <input type="hidden" name="itemId" value={item.id} />
           <button class="btn btn-primary">Godkänn</button>
         </form>
-      {:else}
+      {:else if !sentToBookkeeping}
         <form method="POST" action="{prefix}?/disapproveReceipt" use:enhance>
           <input type="hidden" name="itemId" value={item.id} />
           <button class="btn btn-error">Av-godkänn</button>
