@@ -1,11 +1,13 @@
 <script lang="ts">
   import { i18n } from "$lib/utils/i18n";
-  import { ParaglideJS } from "@inlang/paraglide-js-adapter-sveltekit";
-  import "../app.css";
   import { languageTag } from "$paraglide/runtime";
+  import { ParaglideJS } from "@inlang/paraglide-js-adapter-sveltekit";
   import dayjs from "dayjs";
+  import "../app.css";
   /* Recommended for fraud detection */
   import "@stripe/stripe-js";
+  import { setContext } from "svelte";
+  import { writable } from "svelte/store";
 
   export let data;
 
@@ -13,6 +15,8 @@
     const locale = languageTag();
     dayjs.locale(locale);
   })();
+  let pageTitle = writable("D-sektionen");
+  setContext("pageTitle", pageTitle);
 </script>
 
 <svelte:head>

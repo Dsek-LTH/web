@@ -4,11 +4,11 @@ import { message, superValidate } from "sveltekit-superforms/server";
 import { zod } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import * as m from "$paraglide/messages";
+import { getYearOrThrowSvelteError } from "$lib/utils/url.server";
 
 export const load: PageServerLoad = async ({ locals, url }) => {
   const { prisma } = locals;
-  let year = url.searchParams.get("year") || new Date().getFullYear();
-  year = typeof year === "string" ? parseInt(year) : year;
+  const year = getYearOrThrowSvelteError(url);
   const governingDocuments = await prisma.document
     .findMany()
     .then((documents) => {
