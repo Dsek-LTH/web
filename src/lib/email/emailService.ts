@@ -12,10 +12,6 @@ const transporter = nodemailer.createTransport({
     user: SMTP_USER,
     pass: SMTP_PASS,
   },
-  tls: {
-    rejectUnauthorized: true,
-    minVersion: "TLSv1.2",
-  },
 });
 
 export interface EmailAttachment {

@@ -1,10 +1,16 @@
 import { getFullName } from "$lib/utils/client/member";
 import dayjs from "dayjs";
-import { PDFDocument, PDFFont, PDFPage, StandardFonts, rgb } from "pdf-lib";
+import {
+  PDFDocument,
+  PDFFont,
+  PDFPage,
+  PageSizes,
+  StandardFonts,
+  rgb,
+} from "pdf-lib";
 import sharp from "sharp";
 import type { ExpandedExpenseForPdf } from "./sendToBookkeeping";
 
-const A4_SIZE: [number, number] = [595.276, 841.89];
 const MARGIN = 50;
 const TABLE_HEADERS = [
   "Cost Center",
@@ -208,7 +214,7 @@ async function drawItemsTable(
   // Draw items
   for (const [i, item] of items.entries()) {
     if (currentY < 50) {
-      currentPage = currentPage.doc.addPage(A4_SIZE);
+      currentPage = currentPage.doc.addPage(PageSizes.A4);
       currentY = height - MARGIN;
     }
 
@@ -260,7 +266,7 @@ async function embedReceipt(
     throw new Error("Unsupported receipt file type");
   }
 
-  const page = doc.addPage(A4_SIZE);
+  const page = doc.addPage(PageSizes.A4);
   const { width, height } = page.getSize();
 
   // Convert image to JPEG if needed and embed
@@ -304,7 +310,7 @@ export async function generateExpensePdf(
     bold: await pdfDoc.embedFont(StandardFonts.HelveticaBold),
   };
 
-  const page = pdfDoc.addPage(A4_SIZE);
+  const page = pdfDoc.addPage(PageSizes.A4);
 
   // Draw the main expense document
   await drawHeader(page, { bold: fonts.bold });
@@ -331,7 +337,7 @@ export async function generateExpensePdf(
     try {
       await embedReceipt(pdfDoc, item.receiptUrl);
     } catch (error) {
-      const errorPage = pdfDoc.addPage(A4_SIZE);
+      const errorPage = pdfDoc.addPage(PageSizes.A4);
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
       errorPage.drawText(errorMessage, {
