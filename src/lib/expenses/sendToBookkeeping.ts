@@ -13,7 +13,7 @@ import fs from "fs";
 import path from "path";
 import { generateExpensePdf } from "./generatePdf";
 
-const { BOOKKEEPING_EMAIL } = env;
+const { BOOKKEEPING_EMAIL_TO_ADDRESS, BOOKKEEPING_EMAIL_FROM_ADDRESS } = env;
 
 export type ExpandedExpenseForPdf = Expense & {
   member: Member;
@@ -89,8 +89,13 @@ export async function sendExpenseToBookkeeping(
   prisma: PrismaClient,
   expenseId: number,
 ): Promise<void> {
-  if (BOOKKEEPING_EMAIL === undefined) {
-    throw new Error("BOOKKEEPING_EMAIL is not set in the environment");
+  if (
+    BOOKKEEPING_EMAIL_TO_ADDRESS === undefined ||
+    BOOKKEEPING_EMAIL_FROM_ADDRESS === undefined
+  ) {
+    throw new Error(
+      "BOOKKEEPING_EMAIL_TO_ADDRESS or BOOKKEEPING_EMAIL_FROM_ADDRESS is not set in the environment",
+    );
   }
   const expense = await gatherExpenseDataForPdf(prisma, expenseId);
 
@@ -101,8 +106,8 @@ export async function sendExpenseToBookkeeping(
   if (dev) writePDFToFile(expense, pdfBytes);
 
   await sendEmail({
-    from: "automatic-expensing@dsek.se",
-    to: BOOKKEEPING_EMAIL,
+    from: BOOKKEEPING_EMAIL_FROM_ADDRESS,
+    to: BOOKKEEPING_EMAIL_TO_ADDRESS,
     subject: `Expense Report #${expense.id} - ${getFullName(expense.member)}`,
     text: `
   Expense Report #${expense.id}
