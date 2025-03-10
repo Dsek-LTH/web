@@ -14,6 +14,25 @@ services:
     volumes:
       - db:/var/lib/postgresql/data
 
+  cms_db:
+    container_name: cms-db
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=cms
+    ports:
+      - "5431:5432"
+    volumes:
+      - cmsdb:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d cms"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
   meilisearch:
     container_name: dsek-meilisearch
     image: getmeili/meilisearch:latest
@@ -37,6 +56,23 @@ services:
     ports:
       - "8800:8800"
 
+  directus:
+    env_file:
+      - path: "./cms/.env"
+    image: directus/directus:11.3.5
+    depends_on:
+      cms_db:
+        condition: service_healthy
+        restart: true
+    ports:
+      - 8055:8055
+    volumes:
+      - ./cms/uploads:/directus/uploads
+      - ./cms/extensions:/directus/extensions
+    environment:
+      DB_CONNECTION_STRING: "postgresql://postgres:postgres@cms_db:5432/cms"
+
 volumes:
   db:
   meilisearch:
+  cmsdb:

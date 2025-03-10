@@ -1,4 +1,14 @@
-export const load = async ({ locals }) => {
+import {
+  getNollningCollectionData,
+  getNollningPageData,
+} from "$lib/server/directus";
+
+export const load = async ({ locals, fetch, url }) => {
+  const preview = url.searchParams.get("secret") === "secret";
+  const version = preview
+    ? (url.searchParams.get("version") ?? "main")
+    : "main";
+
   const { prisma } = locals;
   const phadderGroups = await prisma.phadderGroup.findMany({
     where: {
@@ -16,7 +26,30 @@ export const load = async ({ locals }) => {
       createdAt: "asc",
     },
   });
+  const content = await getNollningPageData(
+    fetch,
+    "landing",
+    locals.language,
+    version,
+  );
+  const stab = await getNollningCollectionData(
+    fetch,
+    "stab",
+    locals.language,
+    version,
+  );
+
+  const pepp = await getNollningCollectionData(
+    fetch,
+    "pepp",
+    locals.language,
+    version,
+  );
+
   return {
     phadderGroups,
+    content,
+    stab,
+    pepp,
   };
 };

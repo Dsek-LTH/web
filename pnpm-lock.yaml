@@ -22,6 +22,9 @@ importers:
       '@auth/sveltekit':
         specifier: ^1.4.2
         version: 1.4.2(@sveltejs/kit@2.5.20(@sveltejs/vite-plugin-svelte@3.1.1(svelte@4.2.18)(vite@5.3.5(@types/node@22.1.0)))(svelte@4.2.18)(vite@5.3.5(@types/node@22.1.0)))(nodemailer@6.9.14)(svelte@4.2.18)
+      '@directus/sdk':
+        specifier: ^19.0.1
+        version: 19.0.1
       '@egoist/tailwindcss-icons':
         specifier: ^1.8.1
         version: 1.8.1(tailwindcss@3.4.7)
@@ -485,6 +488,10 @@ packages:
     resolution: {integrity: sha512-0MhX9/B4iL6Re04jPrttDm+BsP8y6mS7byuv0BvXgdXhbV5PdlsHt55dvNsuBCPZ7xq1oTAOOuotR9NFbQyMSA==}
     bundledDependencies:
       - is-unicode-supported
+
+  '@directus/sdk@19.0.1':
+    resolution: {integrity: sha512-6KwWedA/vxrMN2aRm5L52TEgB+42vkz0Ae8kwOitHuBPT4VWtUNOXenzaHnZyXyNrEgh/VBLJ36f3UEe3b/Wfw==}
+    engines: {node: '>=22'}
 
   '@docsearch/css@3.6.1':
     resolution: {integrity: sha512-VtVb5DS+0hRIprU2CO6ZQjK2Zg4QU5HrDM1+ix6rT0umsYvFvatMAnf97NHZlVWDaaLlx7GRfR/7FikANiM2Fg==}
@@ -6468,6 +6475,8 @@ snapshots:
       '@clack/core': 0.3.3
       picocolors: 1.0.0
       sisteransi: 1.0.5
+
+  '@directus/sdk@19.0.1': {}
 
   '@docsearch/css@3.6.1': {}
 
