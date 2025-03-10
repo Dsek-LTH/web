@@ -34,3 +34,6 @@ NEW_ROLE=`curl -s -X GET http://localhost:8055/roles -H "Authorization: Bearer $
 curl -X POST http://localhost:8055/roles -H "Content-Type: application/json" -H "Authorization: Bearer $ACCESS_TOKEN" -d "$NEW_ROLE"
 # Set admin users static token to the one from the env file
 curl -X PATCH http://localhost:8055/users/me -H "Content-Type: application/json" -H "Authorization: Bearer $ACCESS_TOKEN" -d '{"token": "'"$DIRECTUS_TOKEN"'"}'
+
+# Set permissions on uploads folder so Directus can access it
+docker compose exec -u root directus chown -R node:node /directus/extensions /directus/uploads
