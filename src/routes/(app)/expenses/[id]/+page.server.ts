@@ -8,12 +8,14 @@ import { z } from "zod";
 import { getCostCenter } from "../config";
 import { expensesInclusion } from "../getExpenses";
 import { sendNotificationToSigner } from "../helper";
+import { sendExpenseToBookkeeping } from "$lib/expenses/sendToBookkeeping";
 import {
   getSigner,
   resolveSignerLogic,
   updateSignersCacheIfNecessary,
 } from "../signers";
 import { updateExpenseSchema, updateItemSchema } from "../types";
+import { setFlash } from "sveltekit-flash-message/server";
 
 export const load = async ({ locals, params }) => {
   const { prisma } = locals;
@@ -255,5 +257,49 @@ export const actions = {
       },
       event,
     );
+  },
+  sendToBookkeeping: async (event) => {
+    const { locals, params } = event;
+    const { prisma, user } = locals;
+
+    if (!user?.memberId) {
+      throw error(
+        401,
+        "Du måste vara inloggad för att skicka utlägg till bokföring",
+      );
+    }
+
+    if (!isAuthorized(apiNames.EXPENSES.BOOKKEEPING, user)) {
+      throw error(
+        403,
+        "Du har inte behörighet att skicka utlägg till bokföring",
+      );
+    }
+
+    if (params.id.length === 0 || Number.isNaN(Number(params.id))) {
+      throw error(404, "Expense id should be a number");
+    }
+
+    try {
+      await sendExpenseToBookkeeping(prisma, Number(params.id));
+
+      return redirect(
+        "/expenses/all",
+        {
+          message: "Utlägg skickat till bokföring",
+          type: "success",
+        },
+        event,
+      );
+    } catch (e) {
+      setFlash(
+        {
+          message: e instanceof Error ? e.message : "Ett fel uppstod",
+          type: "error",
+        },
+        event,
+      );
+      return fail(400);
+    }
   },
 };

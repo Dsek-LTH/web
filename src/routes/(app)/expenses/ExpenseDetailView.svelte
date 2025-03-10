@@ -60,6 +60,21 @@
     <button class="btn btn-primary"> Godkänn allt </button>
   </form>
 {/if}
+
+{#if isAuthorized(apiNames.EXPENSES.BOOKKEEPING, user) && !expense.hasBeenSentToBookkeeping && expense.items.every((item) => item.signedAt)}
+  <form
+    class="mb-4"
+    method="POST"
+    action="/expenses/{expense.id}?/sendToBookkeeping"
+    use:enhance
+  >
+    <button class="btn btn-secondary">
+      <span class="i-mdi-file-document-outline" />
+      Skicka till bokföring
+    </button>
+  </form>
+{/if}
+
 {#if updateEnhance}
   <form use:updateEnhance method="POST" action="/expenses/{expense.id}?/update">
     <ul class="flex flex-wrap gap-2">
@@ -68,6 +83,7 @@
           prefix="/expenses/{expense.id}"
           {item}
           form={itemForm}
+          sentToBookkeeping={expense.hasBeenSentToBookkeeping}
         />
       {/each}
     </ul>
@@ -75,7 +91,12 @@
 {:else}
   <ul class="flex flex-wrap gap-2">
     {#each expense.items as item}
-      <ExpenseReceipt prefix="/expenses/{expense.id}" {item} form={itemForm} />
+      <ExpenseReceipt
+        prefix="/expenses/{expense.id}"
+        {item}
+        form={itemForm}
+        sentToBookkeeping={expense.hasBeenSentToBookkeeping}
+      />
     {/each}
   </ul>
 {/if}
