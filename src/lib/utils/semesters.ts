@@ -43,6 +43,31 @@ export const coveredSemesters = (
 export const toString = (semester: Semester): string =>
   semesterTerm(semester) + " " + semesterYear(semester);
 
-export const parseSemester = (string: string): Semester =>
-  (string.slice(0, 2) === "HT" ? 1 : 0) +
-  (parseInt(string.slice(3, 7)) ?? 2024) * 2;
+/**
+ * Parse a semester from a string.
+ * @param string The string to parse
+ * @param errorFunction The function to call if the string is invalid
+ * @returns The parsed semester
+ * @throws If the string is invalid
+ */
+export const parseSemesterFromString = (
+  string: string,
+  errorFunction: (() => Error) | (() => never),
+): Semester => {
+  const match = string.match(/^(VT|HT) (\d{4})$/);
+  if (match === null) {
+    throw errorFunction();
+  }
+  const [, term, year] = match;
+  if (term !== "VT" && term !== "HT") {
+    throw errorFunction();
+  }
+  if (year === undefined) {
+    throw errorFunction();
+  }
+  const yearInt = parseInt(year);
+  if (isNaN(yearInt)) {
+    throw errorFunction();
+  }
+  return semesterFromYearAndTerm(yearInt, term);
+};

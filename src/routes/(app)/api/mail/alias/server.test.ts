@@ -24,6 +24,7 @@ beforeAll(async () => {
           name: TEST_ID,
           mandates: {
             create: {
+              id: TEST_ID,
               startDate: new Date(),
               endDate: dayjs().add(1, "hour").toDate(),
               member: {
@@ -82,6 +83,14 @@ test("email alias list contains alias", async () => {
   const response = await GET(mockEvent);
   const body = await response.text();
   expect(body).toContain(TEST_EMAIL_ALIAS);
+});
+
+test("email alias list adds root@dsek.se to empty alias", async () => {
+  const mandate = await prisma.mandate.delete({ where: { id: TEST_ID } });
+  const response = await GET(mockEvent);
+  await prisma.mandate.create({ data: mandate });
+  const body = await response.text();
+  expect(body).toContain("root@dsek.se");
 });
 
 test("email alias list contains alias receiver", async () => {

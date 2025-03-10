@@ -3,7 +3,6 @@
   import LoadingButton from "$lib/components/LoadingButton.svelte";
   import NavIcon from "$lib/components/NavIcon.svelte";
   import NotificationModal from "$lib/components/NotificationModal.svelte";
-  import { pageTitle } from "$lib/stores/pageTitle";
   import { i18n } from "$lib/utils/i18n";
   import { signIn } from "@auth/sveltekit/client";
   import NotificationBell from "../../NotificationBell.svelte";
@@ -12,6 +11,8 @@
   import { appBottomNavRoutes, getPostRevealRoute, getRoutes } from "./routes";
   import type { PostRevealLayoutData } from "./+layout.server";
   import type { NotificationGroup } from "$lib/utils/notifications/group";
+  import { getContext } from "svelte";
+  import type { Writable } from "svelte/store";
 
   $: routes = getRoutes();
   $: bottomNavRoutes = appBottomNavRoutes(routes);
@@ -28,6 +29,8 @@
 
   let notificationModal: HTMLDialogElement;
   let notifications: NotificationGroup[] | undefined = undefined;
+
+  let pageTitle = getContext<Writable<string>>("pageTitle");
 </script>
 
 <NotificationModal

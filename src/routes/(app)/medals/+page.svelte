@@ -11,11 +11,12 @@
     type Semester,
     dateToSemester,
     toString,
-    parseSemester,
     semesterFromYearAndTerm,
+    parseSemesterFromString,
   } from "$lib/utils/semesters";
 
   import type { PageData } from "./$types";
+  import { error } from "@sveltejs/kit";
   export let data: PageData;
 
   const firstSemester: Semester = semesterFromYearAndTerm(1982, "HT");
@@ -29,7 +30,11 @@
   <Pagination
     count={currentSemester - firstSemester}
     getPageName={(i) => toString(currentSemester - i)}
-    getPageNumber={(page) => currentSemester - parseSemester(page)}
+    getPageNumber={(page) =>
+      currentSemester -
+      parseSemesterFromString(page, () => {
+        throw error(400, "Invalid semester");
+      })}
     fieldName="semester"
     showFirst={true}
     showLast={true}

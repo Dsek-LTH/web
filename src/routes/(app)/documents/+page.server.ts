@@ -14,12 +14,16 @@ import { zod } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
+import { getYearOrThrowSvelteError } from "$lib/utils/url.server";
 
-export type DocumentType =
-  | "board-meeting"
-  | "guild-meeting"
-  | "SRD-meeting"
-  | "other";
+const validDocumentTypes = [
+  "board-meeting",
+  "guild-meeting",
+  "SRD-meeting",
+  "other",
+] as const;
+export type DocumentType = (typeof validDocumentTypes)[number];
+
 const prefixByType: Record<DocumentType, string> = {
   "board-meeting": "S",
   "guild-meeting": "",
@@ -28,9 +32,12 @@ const prefixByType: Record<DocumentType, string> = {
 };
 export const load: PageServerLoad = async ({ locals, url }) => {
   const { user } = locals;
-  const year = url.searchParams.get("year") || new Date().getFullYear();
-  const type: DocumentType =
-    (url.searchParams.get("type") as DocumentType) || "board-meeting";
+  const year = getYearOrThrowSvelteError(url);
+
+  const type = url.searchParams.get("type") || "board-meeting";
+  if (!isValidDocumentType(type)) {
+    throw error(400, m.documents_errors_invalidType());
+  }
 
   const files = await fileHandler.getInBucket(
     user,
@@ -80,7 +87,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
           !meeting.startsWith("HTM") &&
           !meeting.startsWith("VTM") &&
           !meeting.startsWith("S") &&
-          meeting != year
+          meeting != year.toString()
         );
       });
       break;
@@ -137,3 +144,6 @@ export const actions: Actions = {
     });
   },
 };
+
+const isValidDocumentType = (type: string): type is DocumentType =>
+  (validDocumentTypes as unknown as string[]).includes(type);
