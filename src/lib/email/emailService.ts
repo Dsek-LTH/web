@@ -5,7 +5,6 @@ const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = env;
 
 const transporter = nodemailer.createTransport({
   host: SMTP_HOST,
-  // port: Number(465),
   port: Number(SMTP_PORT),
   secure: false, // TLS requires secureConnection to be false
   auth: {
