@@ -13,7 +13,11 @@ import fs from "fs";
 import path from "path";
 import { generateExpensePdf } from "./generatePdf";
 
-const { BOOKKEEPING_EMAIL_TO_ADDRESS, BOOKKEEPING_EMAIL_FROM_ADDRESS } = env;
+const {
+  BOOKKEEPING_EMAIL_TO_ADDRESS,
+  BOOKKEEPING_EMAIL_FROM_ADDRESS,
+  BOOKKEEPING_CC_TO_ADDRESS,
+} = env;
 
 export type ExpandedExpenseForPdf = Expense & {
   member: Member;
@@ -108,6 +112,7 @@ export async function sendExpenseToBookkeeping(
   await sendEmail({
     from: BOOKKEEPING_EMAIL_FROM_ADDRESS,
     to: BOOKKEEPING_EMAIL_TO_ADDRESS,
+    cc: BOOKKEEPING_CC_TO_ADDRESS?.split(","),
     subject: `Expense Report #${expense.id} - ${getFullName(expense.member)}`,
     text: `
   Expense Report #${expense.id}
