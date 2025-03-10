@@ -18,7 +18,7 @@ export const getDirectusInstance = (fetch: any) => {
 };
 
 export const getNollningPageData = async (
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- TThere is no available type for sveltekits fetch
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- There is no available type for sveltekits fetch
   fetch: any,
   collection: string,
   language: AvailableLanguageTag,

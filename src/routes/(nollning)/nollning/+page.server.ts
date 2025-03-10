@@ -1,4 +1,7 @@
-import { getNollningCollectionData, getNollningPageData } from "$lib/server/directus";
+import {
+  getNollningCollectionData,
+  getNollningPageData,
+} from "$lib/server/directus";
 
 export const load = async ({ locals, fetch, url }) => {
   const preview = url.searchParams.get("secret") === "secret";
@@ -35,19 +38,18 @@ export const load = async ({ locals, fetch, url }) => {
     locals.language,
     version,
   );
-  console.log(stab)
 
-  //const pepp = await getNollningCollectionData(
-  //  fetch,
-  //  "pepp",
-  //  locals.language,
-  //  version,
-  //);
+  const pepp = await getNollningCollectionData(
+    fetch,
+    "pepp",
+    locals.language,
+    version,
+  );
 
   return {
     phadderGroups,
     content,
     stab,
-    pepp
+    pepp,
   };
 };

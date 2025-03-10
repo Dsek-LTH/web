@@ -57,10 +57,10 @@ services:
       - "8800:8800"
 
   directus:
-    env_file: 
+    env_file:
       - path: "./cms/.env"
     image: directus/directus:11.3.5
-    depends_on: 
+    depends_on:
       cms_db:
         condition: service_healthy
         restart: true
