@@ -1,17 +1,11 @@
-import getDirectusInstance from "$lib/server/directus";
-import {
-  readItem,
-  readItems,
-  readTranslation,
-  readTranslations,
-} from "@directus/sdk";
-import { error } from "@sveltejs/kit";
+import { getNollningCollectionData, getNollningPageData } from "$lib/server/directus";
 
 export const load = async ({ locals, fetch, url }) => {
   const preview = url.searchParams.get("secret") === "secret";
-  const id = parseInt(url.searchParams.get("id") ?? "1");
+  const version = preview
+    ? (url.searchParams.get("version") ?? "main")
+    : "main";
 
-  const directus = await getDirectusInstance(fetch);
   const { prisma } = locals;
   const phadderGroups = await prisma.phadderGroup.findMany({
     where: {
@@ -29,32 +23,31 @@ export const load = async ({ locals, fetch, url }) => {
       createdAt: "asc",
     },
   });
-  console.log(await directus.request(readTranslations()));
+  const content = await getNollningPageData(
+    fetch,
+    "landing",
+    locals.language,
+    version,
+  );
+  const stab = await getNollningCollectionData(
+    fetch,
+    "stab",
+    locals.language,
+    version,
+  );
+  console.log(stab)
 
-  let res;
-  try {
-    res = (
-      await directus.request(
-        readItem("landing", preview ? id : 1, {
-          deep: {
-            translations: {
-              _filter: {
-                languages_code: {
-                  _eq: locals.language,
-                },
-              },
-            },
-          },
-          fields: ["translations.*"],
-        })
-      )
-    )["translations"][0];
-    console.log(res);
-  } catch (e) {
-    console.log(e);
-  }
+  //const pepp = await getNollningCollectionData(
+  //  fetch,
+  //  "pepp",
+  //  locals.language,
+  //  version,
+  //);
+
   return {
     phadderGroups,
-    content: res,
+    content,
+    stab,
+    pepp
   };
 };

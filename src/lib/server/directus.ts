@@ -1,54 +1,77 @@
-import {
-  authentication,
-  createDirectus,
-  login,
-  refresh,
-  rest,
-  staticToken,
-  updateMe,
-  withToken,
-} from "@directus/sdk";
-import {
-  readItems,
-  readItem,
-  updateItem,
-  updateUser,
-  createItem,
-  deleteItem,
-} from "@directus/sdk";
-import { env } from "$env/dynamic/private";
+import { createDirectus, readItems, rest, staticToken } from "@directus/sdk";
+import { readItem } from "@directus/sdk";
+import { env as publicEnv } from "$env/dynamic/public";
+import { env as privateEnv } from "$env/dynamic/private";
+import type { AvailableLanguageTag } from "$paraglide/runtime";
 
-async function getDirectusInstance(fetch: any) {
+export const getDirectusInstance = (fetch: any) => {
   const options = fetch ? { globals: { fetch } } : {};
-  const temp = createDirectus(env["DIRECTUS_PUBLIC_API_URL"] ?? "", options)
-    .with(authentication("json"))
-    .with(rest());
-  try {
-    const user = await temp.login("admin@example.com", "password");
-
-    //const thing = await directus.request(refresh("json", user.refresh_token!));
-    //const client = createDirectus(
-    //  env["DIRECTUS_PUBLIC_API_URL"] ?? "",
-    //  options,
-    //).with(rest());
-    //const res = await directus.request(
-    //  withToken(thing.access_token!, readItems("Landing")),
-    //);
-    temp.request(
-      withToken(user.access_token!, updateMe({ token: env.DIRECTUS_TOKEN })),
-    );
-    //console.log(res);
-  } catch (e) {
-    console.log(e);
-  }
   const directus = createDirectus(
-    env["DIRECTUS_PUBLIC_API_URL"] ?? "",
+    publicEnv.PUBLIC_DIRECTUS_API_URL ?? "",
     options,
   )
-    .with(staticToken(env.DIRECTUS_TOKEN))
+    .with(staticToken(privateEnv.DIRECTUS_TOKEN))
     .with(rest());
 
   return directus;
-}
+};
 
-export default getDirectusInstance;
+export const getNollningPageData = async (
+  fetch: any,
+  collection: string,
+  language: AvailableLanguageTag,
+  version: string,
+) => {
+  let res;
+  try {
+    res = await getDirectusInstance(fetch).request(
+      readItem(collection, 1, {
+        deep: {
+          translations: {
+            _filter: {
+              languages_code: {
+                _eq: language,
+              },
+            },
+          },
+        },
+        fields: ["translations.*", "*"],
+        version: version,
+      }),
+    );
+    res = { ...res, ...res["translations"][0] };
+  } catch (e) {
+    console.log(e);
+  }
+  return res;
+};
+
+export const getNollningCollectionData = async (
+  fetch: any,
+  collection: string,
+  language: AvailableLanguageTag,
+  version: string,
+) => {
+  let res;
+  try {
+    res = await getDirectusInstance(fetch).request(
+      readItems(collection, {
+        deep: {
+          translations: {
+            _filter: {
+              languages_code: {
+                _eq: language,
+              },
+            },
+          },
+        },
+        fields: ["translations.*", "*"],
+        version: version,
+      }),
+    );
+    res = res.map((r) => ({ ...r, ...r["translations"][0] }));
+  } catch (e) {
+    console.log(e);
+  }
+  return res ?? [];
+};

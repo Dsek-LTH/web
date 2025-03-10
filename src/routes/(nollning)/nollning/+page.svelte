@@ -30,6 +30,7 @@
   import wilma from "./(photos)/wilma.webp";
   import cowprint from "./(photos)/cowprint.webp";
   import { languageTag } from "$paraglide/runtime";
+  import { env } from "$env/dynamic/public";
 
   export let data;
   $: topInsets = ($page.data.appInfo?.insets?.top ?? 0) + 8;
@@ -185,9 +186,7 @@
         <span
           class="absolute inset-x-4 bottom-10 hidden max-w-full transform text-center font-nolla-stab text-7xl leading-snug md:block lg:text-8xl"
         >
-          <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-          {data.content["title"] ??
-            m.nollning_title().replace("\n", " ")}
+          {data.content["title"] ?? "title"}
         </span>
       </figure>
     </div>
@@ -196,61 +195,58 @@
   <div class="mx-auto max-w-screen-md">
     <section class="flex flex-col">
       <h3 class="page-title !text-3xl text-secondary">
-        {m.nollning_landing_hello_title()}
+        {data.content["hello_title"] ?? "hello_title"}
       </h3>
       <p class="nolla-prose">
         <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-        {@html m.nollning_landing_hello_body()}
+        {@html data.content["hello_body"] ?? "hello_body"}
       </p>
     </section>
 
     <section class="mb-24 mt-8 flex flex-col">
       <h3 class="page-title mb-4 !text-3xl text-secondary">
-        {m.nollning_landing_policy_header()}
+        {data.content["policy_header"] ?? "policy_header"}
       </h3>
       <p class="nolla-prose">
-        {m.nollning_landing_policy_subtitle()}
+        {data.content["policy_subtitle"] ?? "policy_subtitle"}
       </p>
       <ul class="list-inside list-disc leading-relaxed">
-        <li>{m.nollning_landing_policy_lines_1()}</li>
-        <li>{m.nollning_landing_policy_lines_2()}</li>
-        <li>{m.nollning_landing_policy_lines_3()}</li>
-        <li>
-          {m.nollning_landing_policy_lines_4()}
-        </li>
+        {#each data.content["policy_lines"] as line}
+          <li>{line.line}</li>
+        {/each}
       </ul>
       <p class="nolla-prose">
-        {m.nollning_landing_policy_readMore()}
+        {data.content["policy_readmore"] ?? "policy_readmore"}
       </p>
       <a
         href={`https://minio.api.dsek.se/files/public/miscellaneous/rights-${languageTag()}.pdf`}
         class="btn-primary-dark btn self-start"
-        >{m.nollning_landing_policy_read()}</a
+        >{data.content["policy_read"] ?? "policy_read"}</a
       >
     </section>
     {#if data.revealTheme}
       <div class="relative mx-auto mb-0 mt-12 size-60 md:size-80">
         <img
-          src={swirl}
+          src={`${env.PUBLIC_DIRECTUS_API_URL}/assets/${data.content["swirl"]}`}
           class="absolute inset-0 animate-[reverse-spin_30s_linear_infinite]"
           alt="Nollning logo spinning"
         />
         <img
-          src={eye}
+          src={`${env.PUBLIC_DIRECTUS_API_URL}/assets/${data.content["eye"]}`}
           class="absolute inset-0"
           alt="Nollning logo non-spinning"
         />
       </div>
       <section>
         <h3 class="page-title font-nolla-stab !text-4xl text-secondary">
-          {m.nollning_landing_lore_title()}
+          {data.content["lore_header"] ?? "lore_header"}
         </h3>
         <p class="nolla-prose">
-          {m.nollning_landing_lore_body()}
+          {@html data.content["lore_body"] ?? "lore_body"}
         </p>
         <iframe
           class="aspect-video w-full"
-          src="https://www.youtube.com/embed/cHuM8WgDBuA?si=cCNMW7Hktij8qJCb"
+          src={data.content["reveal_url"]}
           title="Reveal film"
           frameborder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -265,7 +261,7 @@
       >
         <div
           class="absolute -inset-x-[50dvw] -inset-y-10 z-0 bg-cover bg-center bg-no-repeat opacity-15 max-md:bg-scroll md:bg-fixed"
-          style={`background-image: url('${stormBg}')`}
+          style={`background-image: url('${env.PUBLIC_DIRECTUS_API_URL}/assets/${data.content["stab_bg"]}')`}
         />
         <h1
           class="z-10 mb-4 rounded-btn p-2 text-center font-nolla-stab text-8xl tracking-wider md:text-9xl"
@@ -275,13 +271,13 @@
         <div
           class="z-0 -mt-20 w-full scroll-smooth bg-transparent pt-20 max-md:carousel md:grid md:grid-cols-2 md:gap-4 lg:w-[calc(100%+8rem)] lg:grid-cols-3"
         >
-          {#each stab as stab, index}
+          {#each data.stab as stab, index}
             <PersonCarouselItem
               stab
               name={stab.name}
               {index}
-              imageUrl={stab.imageUrl}
-              body={languageTag() === "en" ? stab.bodyEn : stab.body}
+              imageUrl={stab.image}
+              body={stab.body}
             />
           {/each}
         </div>
@@ -295,29 +291,29 @@
     >
       <div
         class="absolute -inset-x-[50dvw] -inset-y-10 -z-0 opacity-15 max-md:bg-[length:32rem] max-md:bg-scroll md:bg-[length:48rem] md:bg-fixed"
-        style={`background-image: url('${cowprint}')`}
+        style={`background-image: url('${env.PUBLIC_DIRECTUS_API_URL}/assets/${data.content["stab_bg"] ?? cowprint}')`}
       />
       <h1
         class="z-10 mb-4 rounded-btn p-2 text-center font-nolla-pepp text-5xl md:text-8xl"
       >
-        Los Peppos
+        {data.content["pepp_header"] ?? "pepp_header"}
       </h1>
       <div
         class="-mt-20 w-full scroll-m-20 pt-20 max-md:carousel max-md:!flex md:grid md:grid-cols-2 md:gap-4 lg:w-[calc(100%+8rem)] lg:grid-cols-3"
       >
-        {#each peppers as pepper, index (pepper.name)}
+        {#each data.pepp as pepper, index (pepper.name)}
           <PersonCarouselItem
             name={pepper.name}
             {index}
-            imageUrl={pepper.imageUrl}
-            body={languageTag() === "en" ? pepper.bodyEn : pepper.body}
+            imageUrl={pepper.image}
+            body={pepper.body}
           />
         {/each}
       </div>
     </section>
     <iframe
       class="aspect-video w-full"
-      src="https://www.youtube.com/embed/_deOj_g85ds?si=NykuDAlVUHnBeokz"
+      src={data.content["dance_url"]}
       title="Nolledans film"
       frameborder="0"
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
