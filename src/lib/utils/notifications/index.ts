@@ -1,6 +1,7 @@
-import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import sendPushNotifications from "$lib/utils/notifications/push";
 import {
+  NOTIFICATION_SETTINGS_ALWAYS_ON,
   NotificationSettingType,
   NotificationType,
   SUBSCRIPTION_SETTINGS_MAP,
@@ -22,6 +23,7 @@ const DUPLICATE_ALLOWED_TYPES = [
   NotificationType.PURCHASE_IN_QUEUE,
   NotificationType.PURCHASE_CONSUMABLE_EXPIRED,
   NotificationType.PAYMENT_STATUS,
+  NotificationType.EXPENSES,
 ];
 
 type BaseSendNotificationProps = {
@@ -74,10 +76,14 @@ const sendNotification = async ({
 }: SendNotificationProps) => {
   if ((memberIds?.length ?? 0) == 0) return;
   // Find corresponding setting type, example "COMMENT" for "EVENT_COMMENT"
-  const settingType: NotificationSettingType = (Object.entries(
-    SUBSCRIPTION_SETTINGS_MAP,
-  ).find(([, internalTypes]) => internalTypes.includes(type))?.[0] ??
-    type) as NotificationSettingType;
+  const settingType = Object.entries(SUBSCRIPTION_SETTINGS_MAP).find(
+    ([, internalTypes]) => internalTypes.includes(type),
+  )?.[0] as
+    | NotificationSettingType
+    | typeof NOTIFICATION_SETTINGS_ALWAYS_ON
+    | undefined;
+  if (!settingType) throw new Error(`Unknown notification type: ${type}`);
+
   // Who sent the notification, as an Author
   const existingAuthor =
     fromAuthor ??
@@ -99,11 +105,14 @@ const sendNotification = async ({
   const shouldReceiveDuplicates = DUPLICATE_ALLOWED_TYPES.includes(type); // if the notification type allows for duplicates
   const receivingMembers = await prisma.member.findMany({
     where: {
-      subscriptionSettings: {
-        some: {
-          type: settingType,
-        },
-      },
+      subscriptionSettings:
+        settingType == NOTIFICATION_SETTINGS_ALWAYS_ON
+          ? undefined
+          : {
+              some: {
+                type: settingType,
+              },
+            },
       notifications: shouldReceiveDuplicates
         ? undefined
         : {
@@ -127,7 +136,7 @@ const sendNotification = async ({
       id: true,
       subscriptionSettings: {
         where: {
-          type,
+          type: settingType,
         },
         select: {
           pushNotification: true,
@@ -139,7 +148,7 @@ const sendNotification = async ({
     return;
   }
   console.log(
-    `Sending ${type} notification to ${receivingMembers.length} members${
+    `Sending ${type} notification to ${receivingMembers.length === 1 ? `member ${receivingMembers[0]?.id}` : `${receivingMembers.length} members`} ${
       notificationAuthor
         ? `, sent from author:${notificationAuthor.id} [${notificationAuthor.type}, member: ${notificationAuthor.memberId}]`
         : ""
@@ -149,7 +158,7 @@ const sendNotification = async ({
   if (title.length > 255) title = title.substring(0, 251) + "...";
   if (message.length > 255) message = message.substring(0, 251) + "...";
 
-  const result = await Promise.allSettled([
+  try {
     await sendWeb(
       title,
       message,
@@ -157,15 +166,16 @@ const sendNotification = async ({
       link,
       notificationAuthor,
       receivingMembers,
-    ),
-    await sendPush(title, message, settingType, link, receivingMembers),
-  ]);
-
-  if (result[0].status == "rejected") {
+    );
+  } catch (e) {
+    console.warn("Failed to create web notifications", e);
     throw error(500, "Failed to create notifications");
   }
 
-  if (result[1].status == "rejected") {
+  try {
+    await sendPush(title, message, link, receivingMembers);
+  } catch (e) {
+    console.warn("Failed to create push notifications", e);
     throw error(500, "Failed to create push notifications");
   }
 };
@@ -178,7 +188,7 @@ const sendWeb = async (
   notificationAuthor: Author | undefined,
   receivingMembers: Array<Pick<Member, "id">>,
 ) => {
-  const databaseResult = await prisma.notification.createMany({
+  return prisma.notification.createMany({
     data: receivingMembers.map(({ id: memberId }) => ({
       title,
       message,
@@ -188,13 +198,11 @@ const sendWeb = async (
       fromAuthorId: notificationAuthor?.id,
     })),
   });
-  return databaseResult;
 };
 
 const sendPush = async (
   title: string,
   message: string,
-  type: NotificationSettingType,
   link: string,
   receivingMembers: Array<
     Pick<Member, "id"> & {
@@ -215,20 +223,39 @@ const sendPush = async (
         ),
     )
     .map((member) => member.id); // Return an array of strings with their memberIds
-  const expoTokens = await prisma.expoToken.findMany({
+
+  const tokensAndUnreadNotificationCount = await prisma.expoToken.findMany({
     where: {
       memberId: {
         in: pushNotificationMembers,
       },
     },
+    select: {
+      expoToken: true,
+      member: {
+        select: {
+          _count: {
+            select: {
+              notifications: {
+                where: {
+                  readAt: null,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
   });
 
-  if (expoTokens != undefined) {
+  if (tokensAndUnreadNotificationCount.length > 0) {
     sendPushNotifications(
-      expoTokens.map((token) => token.expoToken),
+      tokensAndUnreadNotificationCount.map((token) => ({
+        token: token.expoToken,
+        unreadNotifications: token.member?._count.notifications,
+      })),
       title,
       message,
-      type,
       link,
     );
   }

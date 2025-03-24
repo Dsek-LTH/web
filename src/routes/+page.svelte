@@ -80,6 +80,7 @@
     { title: m.events(), href: "/events" },
     { title: m.theGuild(), href: "/committees" },
     { title: m.footer_contact(), href: "/info/contact" },
+    { title: m.privacy_policy(), href: "/privacy-policy" },
   ] as const;
 
   const SOCIALS = [
@@ -166,6 +167,12 @@
           on:click={() => signIn("keycloak")}
         >
           {m.navbar_logIn()}
+        </button>
+        <button
+          class="bg-[#433C3F]/60 px-8 py-4 uppercase text-white"
+          on:click={() => (window.location.href = "https://regnew.dsek.se")}
+        >
+          {m.navbar_register()}
         </button>
       </div>
 

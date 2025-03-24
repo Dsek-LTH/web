@@ -2,7 +2,7 @@ import {
   removeExpiredConsumables,
   withHandledNotificationQueue,
 } from "$lib/server/shop/addToCart/reservations";
-import authorizedPrismaClient from "$lib/server/shop/authorizedPrisma";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import { calculateCartPrice } from "$lib/server/shop/payments/purchase";
 import {
   dbIdentification,

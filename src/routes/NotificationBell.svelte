@@ -1,22 +1,26 @@
 <script lang="ts">
   import { page } from "$app/stores";
-  import Notification from "$lib/components/Notification.svelte";
   import NotificationModal from "$lib/components/NotificationModal.svelte";
-  import PostRevealNotification from "$lib/components/postReveal/PostRevealNotification.svelte";
-  import { superForm } from "$lib/utils/client/superForms";
   import type { NotificationGroup } from "$lib/utils/notifications/group";
   import type { NotificationSchema } from "$lib/zod/schemas";
-  import * as m from "$paraglide/messages";
-  import { flip } from "svelte/animate";
   import type { SuperValidated } from "sveltekit-superforms";
   import { twMerge } from "tailwind-merge";
+  import NotificationBellContent from "./NotificationBellContent.svelte";
 
-  export let notifications: Promise<NotificationGroup[]>;
+  export let notificationsPromise: Promise<NotificationGroup[]>;
   export let form: SuperValidated<NotificationSchema>;
   export let useModalInstead = false;
   export let externalModal: HTMLDialogElement | undefined = undefined;
   export let buttonClass: string | undefined = undefined;
   export let postReveal = false;
+
+  export let notifications: NotificationGroup[] | undefined = undefined;
+  $: (() => {
+    notificationsPromise.then((loadedNotifications) => {
+      notifications = loadedNotifications;
+    });
+  })();
+
   let internalModal: HTMLDialogElement;
 
   // Get the number of unread notifications, which is then used to indicate the user
@@ -36,15 +40,23 @@
       });
     }
   })();
-
-  const { enhance: deleteEnhance } = superForm(form, {
-    onUpdate: onDeleted,
-    id: "deleteNotification",
-  });
-
-  const { enhance: readEnhance } = superForm(form, {
-    id: "readNotifications",
-  });
+  export let onRead = (id: number | "all") => {
+    if (id === "all") {
+      notifications = notifications?.map((notification) => ({
+        ...notification,
+        readAt: new Date(),
+      }));
+    } else {
+      notifications = notifications?.map((notification) =>
+        notification.id === id
+          ? {
+              ...notification,
+              readAt: new Date(),
+            }
+          : notification,
+      );
+    }
+  };
 </script>
 
 <div class="dropdown">
@@ -59,13 +71,11 @@
     class={twMerge("btn btn-ghost *:text-xl", buttonClass)}
     data-dropdown-toggle="dropdown"
   >
-    <slot>
-      {#await notifications}
-        <span class="i-mdi-bell-outline"></span>
-      {:then notifications}
-        {@const unreadCount = notifications.filter(
-          (data) => data.readAt == null,
-        ).length}
+    {#if notifications !== undefined}
+      {@const unreadCount = notifications.filter(
+        (data) => data.readAt == null,
+      ).length}
+      <slot {unreadCount}>
         {#if unreadCount <= 0}
           <span class="i-mdi-bell-outline"></span>
         {/if}
@@ -76,83 +86,42 @@
             >{unreadCount}</span
           >
         {/if}
+      </slot>
+    {:else}
+      {#await notificationsPromise}
+        <slot name="loading">
+          <span class="i-mdi-bell-outline mx-auto" />
+        </slot>
       {/await}
-    </slot>
+    {/if}
   </button>
 
   {#if !externalModal && useModalInstead}
-    <NotificationModal {postReveal} bind:modal={internalModal} />
+    <NotificationModal
+      {postReveal}
+      bind:modal={internalModal}
+      {onRead}
+      bind:notifications
+    />
   {:else if !externalModal}
     <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
     <ul
       tabindex="0"
       class="menu dropdown-content !fixed right-0 z-[1] max-h-[80svh] w-full flex-nowrap overflow-clip rounded-box bg-base-100 p-0 shadow sm:!absolute sm:w-[27rem]"
     >
-      {#await notifications}
-        <span class="loading loading-lg"></span>
-      {:then notifications}
-        {#if notifications.length > 0}
-          <div class="overflow-y-auto">
-            {#each notifications as notification (notification.id)}
-              <li animate:flip={{ duration: 200 }}>
-                {#if postReveal}
-                  <PostRevealNotification {notification} {form} />
-                {:else}
-                  <Notification {notification} {form} />
-                {/if}
-              </li>
-            {/each}
-          </div>
-          <!-- Read all notifications (notifications are read on visit otherwise) -->
-          {#if notifications?.filter((n) => n.readAt === null)?.length > 0}
-            <form
-              method="POST"
-              action="/notifications?/readNotifications"
-              use:readEnhance
-              data-sveltekit-keepfocus
-            >
-              {#each notifications as notification (notification.id)}
-                {#if notification.readAt === null}
-                  {#each notification.individualIds as id}
-                    <input type="hidden" name="notificationIds" value={id} />
-                  {/each}
-                {/if}
-              {/each}
-              <button
-                class="btn btn-ghost no-animation z-10 w-full rounded-none border-0 border-t border-gray-700 *:text-2xl"
-              >
-                {m.navbar_bell_markAllAsRead()}
-                <span class="i-mdi-bell-check-outline"></span>
-              </button>
-            </form>
-          {/if}
-          <!-- Deletes all notifications -->
-          {#if notifications?.flatMap((n) => n.individualIds).length > 0}
-            <form
-              method="POST"
-              action="/notifications?/deleteNotification"
-              use:deleteEnhance
-              data-sveltekit-keepfocus
-            >
-              {#each notifications as notification (notification.id)}
-                {#each notification.individualIds as id}
-                  <input type="hidden" name="notificationIds" value={id} />
-                {/each}
-              {/each}
-              <button
-                class="btn btn-ghost no-animation z-10 w-full rounded-none border-0 border-t border-gray-700 *:text-2xl"
-              >
-                {m.navbar_bell_deleteAll()}
-                <span class="i-mdi-delete-outline"></span>
-              </button>
-            </form>
-          {/if}
-        {:else}
-          <li class="p-4">
-            {m.navbar_bell_noNotifications()}
-          </li>
-        {/if}
-      {/await}
+      {#if notifications !== undefined}
+        <NotificationBellContent
+          {notifications}
+          {postReveal}
+          {onDeleted}
+          {form}
+          {onRead}
+        />
+      {:else}
+        {#await notificationsPromise}
+          <span class="loading loading-lg" />
+        {/await}
+      {/if}
     </ul>
   {/if}
 </div>

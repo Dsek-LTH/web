@@ -2,14 +2,9 @@
   import CustomAuthorImage from "$lib/components/socials/CustomAuthorImage.svelte";
   import DsekAvatar from "$lib/components/socials/DsekAvatar.svelte";
   import MemberImage from "$lib/components/socials/MemberImage.svelte";
-  import type { Author, CustomAuthor, Member } from "@prisma/client";
+  import type { ExpandedNotification } from "$lib/utils/notifications/group";
 
-  export let authors: Array<
-    Author & {
-      member: Member;
-      customAuthor: CustomAuthor | null;
-    }
-  >;
+  export let authors: Array<NonNullable<ExpandedNotification["fromAuthor"]>>;
 </script>
 
 {#if authors.length <= 1}

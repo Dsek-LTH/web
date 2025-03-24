@@ -17,34 +17,28 @@
     Pick<PhadderGroup, "name"> | undefined
   >;
 
-  $: notifications = pageData["notifications"];
+  $: notificationsPromise = pageData["notificationsPromise"];
 </script>
 
 <!-- notification and account -->
 <div class="absolute right-0 z-30 flex gap-2">
   {#if $page.data.user && $page.data.member}
-    {#if notifications !== null}
+    {#if notificationsPromise !== null}
       <NotificationBell
         postReveal
-        {notifications}
+        {notificationsPromise}
         form={pageData["mutateNotificationForm"]}
         buttonClass="btn btn-circle bg-base-200 relative aspect-square size-10 !p-0"
       >
-        {#await notifications}
+        <span class="i-mdi-bell-outline size-7" slot="loading"></span>
+        <div class="indicator" let:unreadCount>
+          {#if unreadCount > 0}
+            <span
+              class="translate badge indicator-item badge-primary badge-xs translate-x-0 translate-y-0"
+            ></span>
+          {/if}
           <span class="i-mdi-bell-outline size-7"></span>
-        {:then notifications}
-          {@const unreadCount = notifications.filter(
-            (data) => data.readAt == null,
-          ).length}
-          <div class="indicator">
-            {#if unreadCount > 0}
-              <span
-                class="translate badge indicator-item badge-primary badge-xs translate-x-0 translate-y-0"
-              ></span>
-            {/if}
-            <span class="i-mdi-bell-outline size-7"></span>
-          </div>
-        {/await}
+        </div>
       </NotificationBell>
     {/if}
     <div class="dropdown dropdown-end dropdown-hover">

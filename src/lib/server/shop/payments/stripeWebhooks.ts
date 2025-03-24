@@ -1,6 +1,6 @@
 import { resetConsumablesForIntent } from "$lib/server/shop/payments/stripeMethods";
 import Stripe from "stripe";
-import authorizedPrismaClient from "../authorizedPrisma";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import sendNotification from "$lib/utils/notifications";
 import { NotificationType } from "$lib/utils/notifications/types";
 import type { Prisma } from "@prisma/client";

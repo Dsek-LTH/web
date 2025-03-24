@@ -30,7 +30,7 @@
     >
     <a
       class="btn btn-ghost btn-sm"
-      href="https://github.com/Dsek-LTH/web/issues/new"
+      href="https://github.com/Dsek-LTH/web/issues/new/choose"
       ><span
         class="i-mdi-bug text-lg max-lg:text-secondary lg:text-primary xl:text-secondary"
       ></span>

@@ -3,7 +3,7 @@ version: "3.8"
 services:
   db:
     container_name: dsek-db
-    image: postgres:14.1-alpine
+    image: postgres:16-alpine
     restart: always
     environment:
       - POSTGRES_USER=postgres
@@ -13,6 +13,30 @@ services:
       - "5432:5432"
     volumes:
       - db:/var/lib/postgresql/data
+
+  meilisearch:
+    container_name: dsek-meilisearch
+    image: getmeili/meilisearch:latest
+    restart: always
+    environment:
+      - MEILI_MASTER_KEY=masterKey
+      - MEILI_NO_ANALYTICS=true
+    ports:
+      - "7700:7700"
+    volumes:
+      - meilisearch:/data.ms
+
+  poppler-server:
+    build:
+      context: ./poppler-server
+      dockerfile: Dockerfile
+    container_name: dsek-poppler
+    restart: always
+    environment:
+      - PORT=8800
+    ports:
+      - "8800:8800"
+
 volumes:
   db:
-    driver: local
+  meilisearch:

@@ -3,6 +3,7 @@ import {
   Aktu,
   BoardOrder,
   Cafe,
+  Cpu,
   Dchip,
   Fram,
   Infu,
@@ -14,6 +15,7 @@ import {
   Sexm,
   Skattm,
   Srd,
+  Tackm,
   Trivsel,
   Valb,
 } from "./enums";
@@ -66,4 +68,6 @@ const committeeEnums = {
   medalj: Medalj,
   trivsel: Trivsel,
   valb: Valb,
+  tackm: Tackm,
+  cpu: Cpu,
 } as const;

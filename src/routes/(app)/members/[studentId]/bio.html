@@ -1,0 +1,24 @@
+<html>
+  <head>
+    <base target="_parent" />
+    %STYLESHEETS%
+  </head>
+  <body>
+    <p>%BIO%</p>
+  </body>
+
+  <style type="text/css">
+    %CSS%
+  </style>
+  <style type="text/css">
+    html {
+      color-scheme: %THEME% !important;
+      overflow: hidden !important;
+    }
+  </style>
+  <script>
+    addEventListener("load", function () {
+      window.parent.postMessage({ height: document.body.scrollHeight }, "*");
+    });
+  </script>
+</html>

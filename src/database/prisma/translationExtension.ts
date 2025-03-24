@@ -39,6 +39,9 @@ const translatedModelFields: ModelFields = {
   customAuthor: {
     name: "nameEn",
   },
+  election: {
+    markdown: "markdownEn",
+  },
   event: {
     title: "titleEn",
     description: "descriptionEn",

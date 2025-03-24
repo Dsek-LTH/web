@@ -6,15 +6,14 @@
   import { signIn, signOut } from "@auth/sveltekit/client";
   import DarkLightToggle from "../../../DarkLightToggle.svelte";
   import LanguageSwitcher from "../../../LanguageSwitcher.svelte";
-
   export let data;
 </script>
 
 <SetPageTitle title={m.account()} />
 
 <div class="flex flex-1 flex-col gap-4 rounded-box bg-base-300 p-2">
-  {#if data.user && data.member}
-    <ul class="menu gap-4 [&>li>a]:py-2">
+  <ul class="menu gap-4 [&>li>a]:py-2">
+    {#if data.user && data.member}
       <li>
         <a href="/members/me">
           <NavIcon class="text-inherit" icon="i-mdi-account-circle" />
@@ -33,14 +32,20 @@
           {m.navbar_userMenu_inventory()}
         </a>
       </li>
-      <!-- <li>
+    {/if}
+    <li>
+      <a class="pl-4" href="/privacy-policy">
+        <NavIcon class="text-inherit" icon="i-mdi-account-lock" />
+        {m.privacy_policy()}
+      </a>
+    </li>
+    <!-- <li>
         <a href="/nollning">
           <NavIcon class="text-inherit" icon="i-mdi-cloud-outline" />
           {m.landing_theIntroduction()}
         </a>
       </li> -->
-    </ul>
-  {/if}
+  </ul>
 
   <div class="mx-6 my-2 flex justify-between gap-8 [&>*]:flex-1">
     <LanguageSwitcher class="btn-outline" />

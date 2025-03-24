@@ -16,7 +16,7 @@ import {
 } from "@prisma/client";
 import type Stripe from "stripe";
 import * as m from "$paraglide/messages";
-import authorizedPrismaClient from "../authorizedPrisma";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import { dbIdentification, type ShopIdentification } from "../types";
 import {
   createPaymentIntent,

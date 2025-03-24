@@ -13,8 +13,11 @@ import {
   models,
   POLICYS,
 } from "./data";
+import { checkForPostgresTunnel } from "./helpers";
 
 const main = async () => {
+  await checkForPostgresTunnel();
+
   const seed = await createSeedClient({
     connect: true,
     models,
@@ -47,7 +50,7 @@ const main = async () => {
   await seed.committee(
     COMMITTEES.map((committee) => ({
       ...committee,
-      positions: (x) => x(10, { mandates: (x) => x({ min: 1, max: 5 }) }),
+      positions: (x) => x(8, { mandates: (x) => x({ min: 1, max: 5 }) }),
     })),
   );
 
@@ -69,6 +72,10 @@ const main = async () => {
   await seed.song((x) => x(50));
 
   await seed.subscriptionSetting((x) => x(100));
+
+  await seed.election((x) => x(5));
+
+  await seed.readme((x) => x(5));
 
   process.exit();
 };

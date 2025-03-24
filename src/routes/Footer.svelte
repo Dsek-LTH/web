@@ -12,6 +12,7 @@
       <a class="btn btn-ghost" href="https://github.com/Dsek-LTH/web"
         >{m.footer_sourceCode()}</a
       >
+      <a class="btn btn-ghost" href="/privacy-policy">{m.privacy_policy()}</a>
     </nav>
 
     <!-- svelte-ignore a11y_consider_explicit_label -->

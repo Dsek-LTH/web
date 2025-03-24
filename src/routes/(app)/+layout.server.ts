@@ -1,3 +1,4 @@
+import { env } from "$env/dynamic/public";
 import { countUserShopItems } from "$lib/server/shop/countUserShopItems";
 import { getMyGroupedNotifications } from "$lib/utils/notifications/myNotifications";
 import { emptySchema, notificationSchema } from "$lib/zod/schemas";
@@ -19,7 +20,7 @@ export const load = loadFlash(async ({ locals, depends }) => {
   const { user, prisma } = locals;
 
   depends("/api/notifications/my");
-  const notifications = user?.memberId
+  const notificationsPromise = user?.memberId
     ? getMyGroupedNotifications(user, prisma)
     : null;
   depends("cart");
@@ -36,10 +37,12 @@ export const load = loadFlash(async ({ locals, depends }) => {
 
   return {
     alerts: alertsCache.alerts,
-    notifications,
+    notificationsPromise,
     mutateNotificationForm: await superValidate(zod(notificationSchema)),
     readNotificationForm: await superValidate(zod(emptySchema)),
     shopItemCounts,
   };
 });
 export type GlobalAppLoadData = Awaited<ReturnType<typeof load>>;
+
+export const ssr = env.PUBLIC_DISABLE_SSR_GLOBALLY === "true" ? false : true;

@@ -1,11 +1,6 @@
-import type {
-  Author,
-  CustomAuthor,
-  Mandate,
-  Member,
-  Position,
-} from "@prisma/client";
-export type MemberNames = Pick<Member, "firstName" | "nickname" | "lastName">;
+import type { Author, CustomAuthor, Member, Position } from "@prisma/client";
+export type MemberNames = Pick<Member, "firstName" | "lastName"> &
+  Partial<Pick<Member, "nickname">>;
 type Options = {
   hideNickname?: boolean;
 };
@@ -26,14 +21,12 @@ export const getFullName = (member: MemberNames, options: Options = {}) => {
 };
 
 export const getAuthorName = (
-  author: Author & {
-    member: Member;
-    mandate:
-      | (Mandate & {
-          position: Position;
-        })
-      | null;
-    customAuthor: CustomAuthor | null;
+  author: Pick<Author, "type"> & {
+    member: Pick<Member, "firstName" | "nickname" | "lastName" | "picturePath">;
+    mandate: {
+      position: Pick<Position, "name">;
+    } | null;
+    customAuthor: Pick<CustomAuthor, "name"> | null;
   },
 ) => {
   if (author.type === "Custom") {

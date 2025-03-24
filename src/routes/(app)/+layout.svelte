@@ -1,5 +1,7 @@
 <script lang="ts">
   import GlobalAlert from "$lib/components/GlobalAlert.svelte";
+  import AppNotificationTokenHandler from "$lib/components/utils/AppNotificationTokenHandler.svelte";
+  import AppUnreadNotificationHandler from "$lib/components/utils/AppUnreadNotificationHandler.svelte";
   import { languageTag } from "$paraglide/runtime";
   import "dayjs/locale/sv";
   import AppBottomNav from "../AppBottomNav.svelte";
@@ -8,7 +10,6 @@
   import Footer from "../Footer.svelte";
   import Navbar from "../Navbar.svelte";
   import Toast from "../Toast.svelte";
-  import AppNotificationHandler from "$lib/components/utils/AppNotificationHandler.svelte";
 
   export let data;
 </script>
@@ -19,7 +20,12 @@
     <Drawer />
   </nav>
 {:else}
-  <AppNotificationHandler />
+  {#await data.notificationsPromise then notifications}
+    <AppUnreadNotificationHandler
+      notificationCount={notifications?.filter((n) => !n.readAt).length}
+    />
+  {/await}
+  <AppNotificationTokenHandler />
   <AppHeader />
 {/if}
 

@@ -9,7 +9,7 @@
 
 <section
   class={twMerge(
-    "prose-a prose prose-a:link prose-a:link-primary prose-a:no-underline",
+    "prose prose-a:link prose-a:link-primary prose-a:no-underline",
     clazz,
   )}
 >

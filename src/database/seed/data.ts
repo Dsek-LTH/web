@@ -62,6 +62,9 @@ export const COMMITTEES = [
   { name: "Medaljelelekommittén", shortName: "medalj" },
   { name: "Trivselrådet", shortName: "trivsel" },
   { name: "Valberedningen", shortName: "valb" },
+  { name: "Tackmästeriet", shortName: "tackm" },
+  { name: "Centralprocessutskottet", shortName: "cpu" },
+  { name: "Övriga förtroendevalda", shortName: "other" },
 ].map((c) => ({ ...c, ...getImageUrls(c.shortName) }));
 
 export const POLICYS = [
@@ -105,7 +108,6 @@ export const MARKDOWNS = [
     "privacy-policy",
     "access",
     "for-companies",
-    "other",
     "benefits",
     "sektionspub",
     "htm1",
@@ -186,6 +188,16 @@ export const models: SeedClientOptions["models"] = {
       published: () => faker.date.past(),
     },
   },
+  election: {
+    data: {
+      createdAt: () => faker.date.recent({ days: 14 }),
+      expiresAt: () => faker.date.soon({ days: 14 }),
+      markdown: () => "- " + faker.lorem.sentences({ min: 3, max: 7 }, "\n- "),
+      markdownEn: () =>
+        "- " + faker.lorem.sentences({ min: 3, max: 7 }, "\n- "),
+      link: () => faker.internet.url(),
+    },
+  },
   event: {
     data: {
       title: () => faker.lorem.sentence(),
@@ -217,6 +229,7 @@ export const models: SeedClientOptions["models"] = {
   committee: {
     data: {
       description: null,
+      nameEn: null,
     },
   },
   position: {
@@ -290,6 +303,15 @@ export const models: SeedClientOptions["models"] = {
       name: () => faker.lorem.word(),
       nameEn: () => faker.lorem.word(),
       color: () => faker.internet.color(),
+    },
+  },
+  readme: {
+    data: {
+      title: `README #${faker.number.int({ min: 1, max: 5 })}`,
+      url: "https://publuu.com/flip-book/782891/1741481/page/1?embed",
+      publishedAt: () => faker.date.past(),
+      year: () => faker.date.recent().getFullYear(),
+      number: () => faker.number.int({ min: 1, max: 5 }),
     },
   },
 };

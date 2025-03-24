@@ -17,6 +17,7 @@ export enum Other {
   "dsek.vice_ordf",
   "dsek.revisor",
   "dsek.talman",
+  "dsek.tlthvalnrep",
   "dsek.juble.gen",
   "dsek.juble.mastare",
 }
@@ -38,6 +39,11 @@ export enum Infu {
   "dsek.infu.artist",
   "dsek.infu.arkivarie",
   "dsek.infu.redaktor",
+  "dsek.infu.journalist",
+  "dsek.infu.influencer",
+  "dsek.infu.shopaholic",
+  "dsek.infu.markv",
+  "dsek.infu.skald",
   "old.dsek.infu.readmeredaktos",
   "old.dsek.infu.ddu",
   "old.dsek.infu.wdredaktör",
@@ -163,7 +169,9 @@ export enum Dchip {
   "dchip.infoansv",
   "dchip.nara",
   "dchip.event",
+  "dchip.styrelse",
   "dchip.valb",
+  "dchip.funk",
 }
 export enum Medalj {
   "dsek.overmarskalk",
@@ -181,4 +189,18 @@ export enum Trivsel {
 export enum Valb {
   "dsek.val.ordf",
   "dsek.val.rep",
+}
+
+export enum Tackm {
+  "dsek.tackm.mastare",
+  "dsek.tackm.mdlm",
+}
+
+export enum Cpu {
+  "dsek.cpu.mastare",
+  "dsek.cpu.vice_mastare",
+  "dsek.cpu.dwwwansv",
+  "dsek.cpu.root",
+  "dsek.cpu.utvecklare",
+  "dsek.cpu.funk",
 }

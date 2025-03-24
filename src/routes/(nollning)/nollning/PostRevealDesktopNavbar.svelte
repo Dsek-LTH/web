@@ -1,16 +1,12 @@
 <script lang="ts">
-  import NotificationModal from "$lib/components/NotificationModal.svelte";
-  import { getRoutes } from "./routes";
   import PostRevealDesktopLeftNavbar from "./PostRevealDesktopLeftNavbar.svelte";
+  import { getRoutes } from "./routes";
 
   $: routes = getRoutes();
 
   const prefix = "/nollning";
-  let notificationModal: HTMLDialogElement;
   let checkbox: HTMLInputElement;
 </script>
-
-<NotificationModal bind:modal={notificationModal} />
 
 <div class="drawer">
   <input

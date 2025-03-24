@@ -76,7 +76,7 @@
           <span class="i-mdi-reply text-xl"></span>
         </button>
       {/if}
-      {#if isAuthorized(apiNames[type].COMMENT_DELETE, $page.data.user)}
+      {#if isAuthorized(apiNames[type].COMMENT_DELETE, $page.data.user) || comment.memberId === $page.data.user?.memberId}
         <form method="POST" action="?/removeComment" use:enhance>
           <input
             type="hidden"
