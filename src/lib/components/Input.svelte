@@ -47,6 +47,7 @@
       )}
       {placeholder}
       {required}
+      bind:value
       {...restProps}
     ></textarea>
   {:else}
@@ -59,6 +60,7 @@
       type="text"
       {placeholder}
       {required}
+      bind:value
       {...restProps}
     />
   {/if}
