@@ -59,10 +59,18 @@ export const COST_CENTERS = [
   },
   {
     name: "CAFE04",
-    description: "Överiga evenemang",
+    description: "Övriga evenemang",
     example: "Arrangemangskostnader",
     signer: "dsek.cafe.mastare",
     committee: "cafe",
+  },
+  {
+    name: "CPU01",
+    description: "Allmänt",
+    example:
+      "Mötesfika/Jobbarmat, Arrangemangskostnader, Arbetskläder och skyddsmaterial, Tack",
+    signer: "dsek.cpu.mastare",
+    committee: "cpu",
   },
   {
     name: "FRA01",
