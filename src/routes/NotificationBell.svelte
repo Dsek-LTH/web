@@ -90,7 +90,7 @@
     {:else}
       {#await notificationsPromise}
         <slot name="loading">
-          <span class="i-mdi-bell-outline mx-auto" />
+          <span class="i-mdi-bell-outline mx-auto"></span>
         </slot>
       {/await}
     {/if}
@@ -119,7 +119,7 @@
         />
       {:else}
         {#await notificationsPromise}
-          <span class="loading loading-lg" />
+          <span class="loading loading-lg"></span>
         {/await}
       {/if}
     </ul>

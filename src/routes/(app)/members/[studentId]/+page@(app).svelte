@@ -64,10 +64,11 @@
 <MemberAvatar {member} class="relative -top-20 mx-auto flex size-40 shadow-lg">
   {#if canEdit}
     <a
+      aria-label="edit"
       href="{studentId}/profile-picture"
       class="btn btn-square glass btn-primary btn-sm absolute left-1/2 top-2 origin-center !-translate-x-1/2"
     >
-      <span class="i-mdi-edit" />
+      <span class="i-mdi-edit"></span>
     </a>
   {/if}
 </MemberAvatar>

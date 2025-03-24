@@ -30,12 +30,12 @@
 
 <div class="flex gap-4">
   <a href="expenses/upload" class="btn btn-outline btn-primary">
-    <span class="i-mdi-file-document-outline" />
+    <span class="i-mdi-file-document-outline"></span>
     {m.uploadExpense()}
   </a>
 
   <a href="expenses/all" class="btn btn-ghost">
-    <span class="i-mdi-file-document-multiple-outline" />
+    <span class="i-mdi-file-document-multiple-outline"></span>
     {m.allExpenses()}
   </a>
 </div>

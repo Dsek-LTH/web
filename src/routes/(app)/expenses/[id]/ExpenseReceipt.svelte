@@ -55,6 +55,23 @@
 <li
   class="relative flex min-w-60 flex-col gap-4 rounded-md border border-base-content p-4"
 >
+  <form
+    id="approveForm"
+    method="POST"
+    action="{prefix}?/approveReceipt"
+    use:enhance
+  >
+    <input type="hidden" name="itemId" value={item.id} />
+  </form>
+  <form
+    id="disapproveForm"
+    method="POST"
+    action="{prefix}?/disapproveReceipt"
+    use:enhance
+  >
+    <input type="hidden" name="itemId" value={item.id} />
+  </form>
+
   <form method="POST" action="{prefix}?/updateReceipt" use:updateEnhance>
     <input type="hidden" name="id" value={item.id} />
     {#if item.receiptUrl}
@@ -68,7 +85,7 @@
           on:click|preventDefault={() => (showImage = true)}
         >
           {#if isPdf}
-            PDF <span class="i-mdi-file-pdf" />
+            PDF <span class="i-mdi-file-pdf"></span>
           {:else}
             <img src={item.receiptUrl} alt="Kvitto" class="max-h-52 max-w-52" />
           {/if}
@@ -137,15 +154,9 @@
       >
     {:else if item.signerMemberId === user?.memberId || canAlwaysSign || item.signedByMemberId === user?.memberId}
       {#if !item.signedAt}
-        <form method="POST" action="{prefix}?/approveReceipt" use:enhance>
-          <input type="hidden" name="itemId" value={item.id} />
-          <button class="btn btn-primary">Godkänn</button>
-        </form>
+        <button form="approveForm" class="btn btn-primary">Godkänn</button>
       {:else if !sentToBookkeeping}
-        <form method="POST" action="{prefix}?/disapproveReceipt" use:enhance>
-          <input type="hidden" name="itemId" value={item.id} />
-          <button class="btn btn-error">Av-godkänn</button>
-        </form>
+        <button form="disapproveForm" class="btn btn-error">Av-godkänn</button>
       {/if}
     {/if}
     {#if superform && !item.signedAt}
@@ -159,9 +170,9 @@
           }}
         >
           {#if isEditing}
-            <span class="i-mdi-close" />
+            <span class="i-mdi-close"></span>
           {:else}
-            <span class="i-mdi-pencil" />
+            <span class="i-mdi-pencil"></span>
           {/if}
         </button>
       </div>

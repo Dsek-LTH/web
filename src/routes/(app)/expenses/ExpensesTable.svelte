@@ -93,15 +93,15 @@
             <td>
               {#if expense.items.every((item) => item.signedAt !== null)}
                 <span class="badge badge-success badge-sm">
-                  <span class="i-mdi-close-check" />
+                  <span class="i-mdi-close-check"></span>
                 </span>
               {:else if expense.items.some((item) => item.signedAt !== null)}
                 <span class="badge badge-warning badge-sm">
-                  <span class="i-mdi-dots-horizontal text-lg" />
+                  <span class="i-mdi-dots-horizontal text-lg"></span>
                 </span>
               {:else}
                 <span class="badge badge-error badge-sm">
-                  <span class="i-mdi-close-bold" />
+                  <span class="i-mdi-close-bold"></span>
                 </span>
               {/if}
             </td>
@@ -109,11 +109,11 @@
           <td>
             {#if !expense.isGuildCard}
               <span class="badge badge-success badge-sm">
-                <span class="i-mdi-check-bold" />
+                <span class="i-mdi-check-bold"></span>
               </span>
             {:else}
               <span class="badge badge-error badge-sm">
-                <span class="i-mdi-close-bold" />
+                <span class="i-mdi-close-bold"></span>
               </span>
             {/if}
           </td>
@@ -125,7 +125,7 @@
           <td>
             <a href="/expenses/{expense.id}" class="btn btn-xs" target="_blank">
               <!-- open -->
-              <span class="i-mdi-open-in-new" />
+              <span class="i-mdi-open-in-new"></span>
             </a>
           </td>
         </tr>
