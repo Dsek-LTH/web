@@ -38,23 +38,18 @@
     let image = event.currentTarget.files?.[0];
     if (!image) return;
     createImageBitmap(image).then((imageBitmap) => {
-      let resized = resizeImage(imageBitmap);
-      avatar = resized;
+      avatar = imageBitmapToDataURL(imageBitmap);
     });
   };
 
-  const resizeImage = (img: ImageBitmap) => {
+  const imageBitmapToDataURL = (img: ImageBitmap) => {
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
 
-    const targetWidth = 400;
-    // Ensure we keep the images aspect ratio.
-    const targetHeight = (img.height / img.width) * targetWidth;
+    canvas.width = img.width;
+    canvas.height = img.height;
 
-    canvas.width = targetWidth;
-    canvas.height = targetHeight;
-
-    ctx?.drawImage(img, 0, 0, targetWidth, targetHeight);
+    ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
     return canvas.toDataURL();
   };
 </script>
