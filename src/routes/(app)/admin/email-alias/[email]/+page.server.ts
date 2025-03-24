@@ -17,7 +17,7 @@ import {
   removeSpecialSenderSchema,
   setCanSendSchema,
 } from "./schema";
-import { isValidEmail } from "../emailutils";
+import { isValidEmail, isValidGuildEmail } from "../emailutils";
 import keycloak from "$lib/server/keycloak";
 import type { PrismaClient } from "@prisma/client";
 import * as m from "$paraglide/messages";
@@ -177,7 +177,7 @@ export const actions = {
     const form = await superValidate(event.request, zod(addPositionSchema));
     if (!form.valid) return fail(400, { form });
     const { positionId, email } = form.data;
-    if (!isValidEmail(email)) {
+    if (!isValidGuildEmail(email)) {
       return setError(form, "email", m.admin_emailalias_invalidAddress());
     }
     const existingAlias = await prisma.emailAlias.findFirst({
@@ -358,7 +358,7 @@ export const actions = {
     );
     if (!form.valid) return fail(400, { form });
     const { email, usernameSender } = form.data;
-    if (!isValidEmail(email)) {
+    if (!isValidGuildEmail(email)) {
       return setError(form, "email", m.admin_emailalias_invalidAddress());
     }
     if (!(await keycloak.hasUsername(usernameSender))) {

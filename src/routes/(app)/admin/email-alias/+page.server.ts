@@ -6,7 +6,7 @@ import {
   createEmailSpecialSenderSchema,
   createEmailSpecialReceiverSchema,
 } from "./schema";
-import { fuseEmail, getEmailDomains, isValidEmail } from "./emailutils";
+import { fuseEmail, getEmailDomains, isValidGuildEmail } from "./emailutils";
 import { fail, type Actions } from "@sveltejs/kit";
 import { authorize } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
@@ -84,7 +84,7 @@ export const actions: Actions = {
       localPart,
       domain,
     });
-    if (email == null || !isValidEmail(email)) {
+    if (email == null || !isValidGuildEmail(email)) {
       return setError(
         form,
         "localPartAlias",
@@ -151,7 +151,7 @@ export const actions: Actions = {
       localPart,
       domain,
     });
-    if (email == null || !isValidEmail(email)) {
+    if (email == null || !isValidGuildEmail(email)) {
       return setError(
         form,
         "localPartSender",
@@ -228,7 +228,7 @@ export const actions: Actions = {
       localPart,
       domain,
     });
-    if (email == null || !isValidEmail(email)) {
+    if (email == null || !isValidGuildEmail(email)) {
       return setError(
         form,
         "localPartReceiver",
