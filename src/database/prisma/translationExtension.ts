@@ -9,83 +9,96 @@ type Models = Uncapitalize<keyof Prisma.TypeMap["model"]>;
 type Fields<Model extends Models> =
   keyof Prisma.TypeMap["model"][Capitalize<Model>]["fields"];
 
-/** A map of models -> fields -> translated field. */
-type ModelFields = {
-  [Model in Models]?: {
-    [Field in Fields<Model>]?: Exclude<Fields<Model>, Field>;
-  };
-};
+type PayloadToModel<T> = T extends OperationPayload
+  ? Types.Result.DefaultSelection<T>
+  : T extends OperationPayload[]
+    ? Types.Result.DefaultSelection<T[number]>[]
+    : never;
 
+export type WithRelation<T extends keyof Prisma.TypeMap["model"]> =
+  PayloadToModel<Prisma.TypeMap["model"][T]["payload"]>;
 
-
-type PayloadToModel<T> =
-  T extends OperationPayload ? Types.Result.DefaultSelection<T> :
-    T extends OperationPayload[] ? Types.Result.DefaultSelection<T[number]>[] :
-      never;
-
-export type WithRelation<
-  T extends keyof Prisma.TypeMap["model"],
-  // R extends keyof Prisma.TypeMap["model"][T]["payload"]["objects"]
-> =
-  PayloadToModel<Prisma.TypeMap["model"][T]["payload"]>
-  // {
-  //   [K in R]: PayloadToModel<Prisma.TypeMap["model"][T]["payload"]["objects"][K]>
-  // };
-
-//type ModelName = "Alert";
-//type FieldName = "messageSv";
-
-type FieldType<ModelName extends keyof Prisma.TypeMap["model"], FieldName extends keyof WithRelation<ModelName>> = WithRelation<ModelName>[FieldName];
-// const e: FieldType = {}
-type f = FieldType<"Article", "bodyEn">
-const fe: f[] = []
+type FieldType<
+  ModelName extends keyof Prisma.TypeMap["model"],
+  FieldName extends keyof WithRelation<ModelName>,
+> = WithRelation<ModelName>[FieldName];
 
 type MostPrecise<T, U> = T extends U ? T : U;
 
-type h = Prisma.AlertGetPayload<{ select: { [K in keyof Required<Prisma.AlertSelect>]: true } }>
-const j: h[] = []
-j
-
 type RemoveSuffix<
   Key extends string,
-  Suffix extends string
-> = Key extends `${infer Prefix}${Suffix}` ? Prefix : never
+  Suffix extends string,
+> = Key extends `${infer Prefix}${Suffix}` ? Prefix : never;
 
-// type NewModelFields = {
-//   [Model in Models]?: {
-//     [Field in RemoveSuffix<Extract<Fields<Model>, `${string}Sv`>, 'Sv'>]: {sv: Extract<Fields<Model>, `${Field}Sv`>; en: Extract<Fields<Model>, `${Field}En`>};
-//   }
-// }
-export type NewModelFields = {
+type FieldTypeLang<
+  Model extends Models,
+  Field extends RemoveSuffix<Extract<Fields<Model>, `${string}Sv`>, "Sv">,
+  Lang extends "Sv" | "En",
+> = FieldType<
+  Capitalize<Model>,
+  `${Field}${Lang}` extends keyof WithRelation<Capitalize<Model>>
+    ? `${Field}${Lang}`
+    : never
+>;
+
+/** All models with their translated fields in the format the prisma extension expects.
+ * @example
+ * Model = "alert"
+ * -> Fields<Model> = ["messageSv", "messageEn", ...]
+ * -> Field = "message"
+ * -> {
+ *   needs = { messageSv: true, messageEn: true }
+ *   compute = (data) => lang === "en" ? data.messageEn : data.messageSv
+ * }
+ */
+export type ModelFields = {
   [Model in Models]: {
-    // [Field in RemoveSuffix<Extract<Fields<Model>, `${string}Sv`>, 'Sv'>]: {needs: Record<`${Field}Sv` | `${Field}En`, true>, compute(data: Record<string, string | null>): string | null};
-    [Field in RemoveSuffix<Extract<Fields<Model>, `${string}Sv`>, 'Sv'>]: {needs: Record<`${Field}Sv` | `${Field}En`, true>, compute(data: Record<string, FieldType<Capitalize<Model>, `${Field}Sv` extends keyof WithRelation<Capitalize<Model>> ? `${Field}Sv` : never> | FieldType<Capitalize<Model>, `${Field}En` extends keyof WithRelation<Capitalize<Model>> ? `${Field}En` : never>>): MostPrecise<FieldType<Capitalize<Model>, `${Field}Sv` extends keyof WithRelation<Capitalize<Model>> ? `${Field}Sv` : never>, FieldType<Capitalize<Model>, `${Field}En` extends keyof WithRelation<Capitalize<Model>> ? `${Field}En` : never>>};
-  }
-}
+    [Field in RemoveSuffix<Extract<Fields<Model>, `${string}Sv`>, "Sv">]: {
+      needs: Record<`${Field}Sv` | `${Field}En`, true>;
+      compute(
+        data: Record<
+          string,
+          FieldTypeLang<Model, Field, "Sv"> | FieldTypeLang<Model, Field, "En">
+        >,
+      ): MostPrecise<
+        FieldTypeLang<Model, Field, "Sv">,
+        FieldTypeLang<Model, Field, "En">
+      >;
+    };
+  };
+};
+
+type TranslatedModelField = {
+  [key: string]: {
+    needs: { [key: string]: boolean };
+    compute(data: Record<string, string | null>): string | null;
+  };
+};
 
 const models = Prisma.dmmf.datamodel.models;
-const newTranslatedModelFields: {[key: string]: {[key: string]: {needs: {[key: string]: boolean}, compute(data: Record<string, string | null>): string | null}}} = {};
+const translatedModelFields: { [key: string]: TranslatedModelField } = {};
 
-export const test4 = (lang: AvailableLanguageTag): NewModelFields => {
-  console.log('extension:', lang)
-  models.forEach(model => {
+export const modelFields = (lang: AvailableLanguageTag): ModelFields => {
+  models.forEach((model) => {
     const modelName = model.name.charAt(0).toLowerCase() + model.name.slice(1);
-    const fieldsWithTranslations: {[key: string]: {needs: {[key: string]: boolean}, compute(data: Record<string, string | null>): string | null}} = {};
+    const fieldsWithTranslations: TranslatedModelField = {};
     let hasTranslations = false;
 
-    model.fields.forEach(field => {
-      if (field.name.endsWith('Sv')) {
+    model.fields.forEach((field) => {
+      if (field.name.endsWith("Sv")) {
         const baseFieldName = field.name.slice(0, -2);
-        const enFieldName = baseFieldName + 'En';
-        if (model.fields.some(f => f.name === enFieldName)) {
+        const enFieldName = baseFieldName + "En";
+        if (model.fields.some((f) => f.name === enFieldName)) {
           fieldsWithTranslations[baseFieldName] = {
             needs: {
               [field.name]: true,
               [enFieldName]: true,
             },
             compute(data) {
-              return lang === 'en' && data[enFieldName] ? data[enFieldName] : data[field.name] ?? null;
-            }
+              return lang === "en" && data[enFieldName]
+                ? data[enFieldName]
+                : (data[field.name] ?? null);
+            },
           };
           hasTranslations = true;
         }
@@ -93,16 +106,17 @@ export const test4 = (lang: AvailableLanguageTag): NewModelFields => {
     });
 
     if (hasTranslations) {
-      newTranslatedModelFields[modelName] = fieldsWithTranslations;
+      translatedModelFields[modelName] = fieldsWithTranslations;
     }
   });
 
-  return newTranslatedModelFields as NewModelFields;
-}
+  return translatedModelFields as ModelFields;
+};
 
 /**
  * This Prisma extension redirects all read operations to the translated fields.
  * For example, if the language is English then reading from the
- * `alert.message` field will read from the `alert.messageEn` instead.
+ * `alert.message` field will read from `alert.messageEn`.
  */
-export default (lang: AvailableLanguageTag) => Prisma.defineExtension({ name: "translations", result: test4(lang) });
+export default (lang: AvailableLanguageTag) =>
+  Prisma.defineExtension({ name: "translations", result: modelFields(lang) });

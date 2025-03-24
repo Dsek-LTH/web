@@ -56,7 +56,7 @@ export const getCommitData = async () => {
   }
 
   return { commitCount, latestCommit };
-}
+};
 
 export type GetCommitDataResponse = {
   commitCount: string;
