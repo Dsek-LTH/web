@@ -4,7 +4,7 @@ import { fileHandler } from "$lib/files";
 import { BASIC_ARTICLE_FILTER } from "$lib/news/articles";
 import { error } from "@sveltejs/kit";
 // eslint-disable-next-line no-restricted-imports -- problem with lib and api, feels unecessary to create a bunch of helper files just to structure this one thing
-import type { GetCommitDataResponse } from "../../routes/(app)/api/home/+server";
+import { getCommitData, type GetCommitDataResponse } from "./getCommitData";
 
 type Fetch = typeof fetch;
 export const loadHomeData = async ({
@@ -111,9 +111,7 @@ export const loadHomeData = async ({
   });
 
   // COMMIT DATA
-  const commitPromise = fetch("/api/home").then((res) =>
-    res.json(),
-  ) as Promise<GetCommitDataResponse>;
+  const commitPromise = getCommitData();
 
   // ACTIVE MANDATE?
   const hasActiveMandatePromise = prisma.mandate

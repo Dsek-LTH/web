@@ -13,7 +13,6 @@ import {
 import Keycloak, { type KeycloakProfile } from "@auth/core/providers/keycloak";
 import type { TokenSet } from "@auth/core/types";
 import { SvelteKitAuth } from "@auth/sveltekit";
-import { PrismaClient } from "@prisma/client";
 import { error, type Handle, type HandleServerError } from "@sveltejs/kit";
 import { sequence } from "@sveltejs/kit/hooks";
 import { enhance } from "@zenstackhq/runtime";
@@ -21,8 +20,6 @@ import RPCApiHandler from "@zenstackhq/server/api/rpc";
 import zenstack from "@zenstackhq/server/sveltekit";
 import { randomBytes } from "crypto";
 import schedule from "node-schedule";
-import loggingExtension from "./database/prisma/loggingExtension";
-import translatedExtension from "./database/prisma/translationExtension";
 import { getAccessPolicies } from "./hooks.server.helpers";
 import { getDerivedRoles } from "$lib/utils/authorization";
 import meilisearchSync from "$lib/search/sync";
@@ -32,6 +29,7 @@ import {
 } from "@prisma/client/runtime/library";
 import { verifyCostCenterData } from "./routes/(app)/expenses/verification";
 import { dev } from "$app/environment";
+import { extendedPrisma } from "$lib/server/extendedPrisma";
 
 // TODO: This function should perhaps only be called during dev? Build? I'm not sure
 if (dev) verifyCostCenterData();
@@ -101,7 +99,6 @@ const { handle: authHandle } = SvelteKitAuth({
   },
 });
 
-const prismaClient = authorizedPrismaClient;
 const databaseHandle: Handle = async ({ event, resolve }) => {
   const lang = isAvailableLanguageTag(event.locals.paraglide?.lang)
     ? event.locals.paraglide?.lang
@@ -109,9 +106,7 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
   event.locals.language = lang;
   setLanguageTag(lang);
   const session = await event.locals.getSession();
-  const prisma = prismaClient
-    .$extends(translatedExtension(lang))
-    .$extends(loggingExtension(session?.user.student_id)) as PrismaClient;
+  const prisma = extendedPrisma(lang, session?.user.student_id);
 
   if (!session?.user) {
     let externalCode = event.cookies.get("externalCode"); // Retrieve the externalCode from cookies
