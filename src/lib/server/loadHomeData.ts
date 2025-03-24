@@ -4,7 +4,7 @@ import { fileHandler } from "$lib/files";
 import { BASIC_ARTICLE_FILTER } from "$lib/news/articles";
 import { error } from "@sveltejs/kit";
 // eslint-disable-next-line no-restricted-imports -- problem with lib and api, feels unecessary to create a bunch of helper files just to structure this one thing
-import type { GetCommitDataResponse } from "../../routes/(app)/api/home/+server";
+import { getCommitData, type GetCommitDataResponse } from "./getCommitData";
 import * as m from "$paraglide/messages";
 
 type Fetch = typeof fetch;

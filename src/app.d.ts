@@ -3,6 +3,7 @@ import type { Theme } from "$lib/utils/themes";
 import type { AvailableLanguageTag } from "$paraglide/runtime";
 import type { Member, PrismaClient } from "@prisma/client";
 import type { AuthUser } from "@zenstackhq/runtime";
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 
 // See https://kit.svelte.dev/docs/types#app
 // for information about these interfaces
@@ -29,7 +30,7 @@ declare global {
     interface Locals {
       user: AuthUser;
       member?: Member;
-      prisma: PrismaClient;
+      prisma: ExtendedPrisma;
       isApp: boolean;
       appInfo?: AppInfo;
       theme: Theme;
