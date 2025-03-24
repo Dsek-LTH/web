@@ -15,7 +15,7 @@ type PayloadToModel<T> = T extends OperationPayload
     ? Types.Result.DefaultSelection<T[number]>[]
     : never;
 
-export type WithRelation<T extends keyof Prisma.TypeMap["model"]> =
+type WithRelation<T extends keyof Prisma.TypeMap["model"]> =
   PayloadToModel<Prisma.TypeMap["model"][T]["payload"]>;
 
 type FieldType<
@@ -51,7 +51,7 @@ type FieldTypeLang<
  *   compute = (data) => lang === "en" ? data.messageEn : data.messageSv
  * }
  */
-export type ModelFields = {
+type ModelFields = {
   [Model in Models]: {
     [Field in RemoveSuffix<Extract<Fields<Model>, `${string}Sv`>, "Sv">]: {
       needs: Record<`${Field}Sv` | `${Field}En`, true>;
@@ -68,6 +68,16 @@ export type ModelFields = {
   };
 };
 
+type ComputedModelFields<Model extends Models> = {
+  [Field in RemoveSuffix<
+    Extract<Fields<Model>, `${string}Sv`>,
+    "Sv"
+  >]: MostPrecise<
+    FieldTypeLang<Model, Field, "Sv">,
+    FieldTypeLang<Model, Field, "En">
+  >;
+};
+
 type TranslatedModelField = {
   [key: string]: {
     needs: { [key: string]: boolean };
@@ -78,7 +88,7 @@ type TranslatedModelField = {
 const models = Prisma.dmmf.datamodel.models;
 const translatedModelFields: { [key: string]: TranslatedModelField } = {};
 
-export const modelFields = (lang: AvailableLanguageTag): ModelFields => {
+const modelFields = (lang: AvailableLanguageTag): ModelFields => {
   models.forEach((model) => {
     const modelName = model.name.charAt(0).toLowerCase() + model.name.slice(1);
     const fieldsWithTranslations: TranslatedModelField = {};
@@ -112,6 +122,14 @@ export const modelFields = (lang: AvailableLanguageTag): ModelFields => {
 
   return translatedModelFields as ModelFields;
 };
+
+/** Use this instead of the regular types from `@prisma/client`.
+ * `ExtendedPrismaModel<"Article">` will have every field on the `Article`
+ * model and the computed fields from the translation extension.
+ */
+export type ExtendedPrismaModel<Model extends keyof Prisma.TypeMap["model"]> = {
+  [Field in keyof WithRelation<Model>]: FieldType<Model, Field>;
+} & ComputedModelFields<Uncapitalize<Model>>;
 
 /**
  * This Prisma extension redirects all read operations to the translated fields.
