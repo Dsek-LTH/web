@@ -25,11 +25,17 @@ export const fuseEmail = (email: Email): string => {
   return `${localPart}@${domain}`;
 };
 
-const emailRegex =
+const emailRegex = /^[.\w-]+@([\w-]+\.)+[\w-]{2,4}$/;
+
+const emailGuildRegex =
   /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(dsek.se|nolla.nu|yrka.nu|teknikfokus.se|juble.se|geekend.se|user.dsek.se)$/;
 
 export const isValidEmail = (email: string): boolean => {
   return emailRegex.test(email);
+};
+
+export const isValidGuildEmail = (email: string): boolean => {
+  return emailGuildRegex.test(email);
 };
 
 const OWNED_DOMAINS = [

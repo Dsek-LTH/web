@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { fuseEmail, isValidEmail, splitEmail } from "./emailutils";
+import { fuseEmail, isValidGuildEmail, splitEmail } from "./emailutils";
 
 describe("splitEmail", () => {
   test("returns null for invalid email", () => {
@@ -130,82 +130,82 @@ describe("fuseEmail", () => {
   });
 });
 
-describe("isValidEmail", () => {
+describe("isValidGuildEmail", () => {
   test("returns false for invalid email", () => {
     const email = "test";
-    const result = isValidEmail(email);
+    const result = isValidGuildEmail(email);
     expect(result).toBe(false);
   });
 
   test("returns false for email without @", () => {
     const email = "test";
-    const result = isValidEmail(email);
+    const result = isValidGuildEmail(email);
     expect(result).toBe(false);
   });
 
   test("returns false for email with multiple @", () => {
     const email = "test@test@test.se";
-    const result = isValidEmail(email);
+    const result = isValidGuildEmail(email);
     expect(result).toBe(false);
   });
 
   test("returns false for email with invalid domain", () => {
     const email = "xxxx@xxxxxxx";
-    const result = isValidEmail(email);
+    const result = isValidGuildEmail(email);
     expect(result).toBe(false);
   });
 
   test("returns false for email with invalid local part", () => {
     let email = "@dsek.se";
-    let result = isValidEmail(email);
+    let result = isValidGuildEmail(email);
     expect(result).toBe(false);
 
     email = "abc@";
-    result = isValidEmail(email);
+    result = isValidGuildEmail(email);
     expect(result).toBe(false);
 
     email = "@";
-    result = isValidEmail(email);
+    result = isValidGuildEmail(email);
     expect(result).toBe(false);
 
     email = "abc@abc@dsek.se";
-    result = isValidEmail(email);
+    result = isValidGuildEmail(email);
     expect(result).toBe(false);
 
     email = '"abc"@dsek.se';
-    result = isValidEmail(email);
+    result = isValidGuildEmail(email);
     expect(result).toBe(false);
   });
 
   test("returns true for valid email", () => {
     let email = "abc@dsek.se";
-    let result = isValidEmail(email);
+    let result = isValidGuildEmail(email);
     expect(result).toBe(true);
 
     email = "abc@nolla.nu";
-    result = isValidEmail(email);
+    result = isValidGuildEmail(email);
     expect(result).toBe(true);
 
     email = "abc@yrka.nu";
-    result = isValidEmail(email);
+    result = isValidGuildEmail(email);
     expect(result).toBe(true);
 
     email = "abc@teknikfokus.se";
-    result = isValidEmail(email);
+    result = isValidGuildEmail(email);
     expect(result).toBe(true);
 
     email = "abc@juble.se";
-    result = isValidEmail(email);
+    result = isValidGuildEmail(email);
     expect(result).toBe(true);
 
     email = "abc@geekend.se";
-    result = isValidEmail(email);
+    result = isValidGuildEmail(email);
     expect(result).toBe(true);
   });
 
   test("returns false for empty email", () => {
     const email = "";
-    const result = isValidEmail(email);
+    const result = isValidGuildEmail(email);
     expect(result).toBe(false);
   });
 });

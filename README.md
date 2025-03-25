@@ -27,7 +27,7 @@
     <a href="https://www.dsek.se/"><strong>dsek.se</strong></a>
     <br />
     <br />
-    <a href="https://dsek-lth.github.io/web/">Documentation</a>
+    <a href="https://cpu.dsek.se/home">Documentation</a>
     <br />
     <a href="https://github.com/Dsek-LTH/web/issues/new?labels=bug&template=bug-report.yml">Report Bug</a>
     ·
@@ -58,13 +58,13 @@ This project is the main web page for the D-guild within TLTH, a non-profit orga
 
 ## Getting started
 
-The best way to get started is to visit the [Getting started](https://dsek-lth.github.io/web/guides/getting-started.html) guide in the documentation.
+The best way to get started is to visit the [Getting started](https://cpu.dsek.se/doc/getting-started-VImh85Ngwa) guide in the documentation.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Documentation
 
-Everything you need to know about the project can be found in the [documentation](https://dsek-lth.github.io/web/).
+Everything you need to know about the project can be found in the [documentation](https://cpu.dsek.se/home).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
