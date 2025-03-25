@@ -1,0 +1,49 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - containerize
+  #release:
+  #  types: [published]
+
+env:
+  PUBLIC_MINIO_ENDPOINT: minio.api.dsek.se
+  PUBLIC_MINIO_PORT: 443
+  PUBLIC_MINIO_USE_SSL: true
+  PUBLIC_BUCKETS_DOCUMENTS: documents
+  PUBLIC_BUCKETS_FILES: files
+  PUBLIC_BUCKETS_MEMBERS: members
+  VERSION: ${{ github.ref_name }}
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.IMAGEREPO_USERNAME }}
+          password: ${{ secrets.IMAGEREPO_PASSWORD }}
+          registry: registry.dsek.se
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      -
+        name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          build-args: |
+            "PUBLIC_MINIO_ENDPOINT=minio.api.dsek.se"
+            "PUBLIC_MINIO_PORT=443"
+            "PUBLIC_MINIO_USE_SSL=true"
+            "PUBLIC_BUCKETS_DOCUMENTS=documents"
+            "PUBLIC_BUCKETS_FILES=files"
+            "PUBLIC_BUCKETS_MEMBERS=members"
+            "VERSION=${{ github.ref_name }}"
+          push: true
+          tags: registry.dsek.se/test/website:${{ github.ref_name }},registry.dsek.se/test/website:latest
