@@ -13,6 +13,10 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --ignore-scripts 
 RUN pnpm generate
 
 FROM prod-deps AS build
+ARG PUBLIC_MINIO_ENDPOINT
+ENV PUBLIC_MINIO_ENDPOINT ${PUBLIC_MINIO_ENDPOINT}
+ARG VERSION
+ENV VERSION ${VERSION}
 COPY . .
 RUN pnpm run build
 
