@@ -76,7 +76,7 @@ export const settingsActions = {
           );
         }
       });
-      prisma.member.update({
+      await prisma.member.update({
         where: {
           id: user.memberId as string,
         },
