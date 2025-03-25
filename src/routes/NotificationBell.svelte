@@ -77,10 +77,10 @@
       ).length}
       <slot {unreadCount}>
         {#if unreadCount <= 0}
-          <span class="i-mdi-bell-outline" />
+          <span class="i-mdi-bell-outline"></span>
         {/if}
         {#if unreadCount > 0}
-          <span class="i-mdi-bell-ring-outline animate-bounce" />
+          <span class="i-mdi-bell-ring-outline animate-bounce"></span>
           <span
             class="absolute right-0 top-0 flex h-6 w-6 items-center justify-center rounded-box bg-red-600 text-center !text-sm"
             >{unreadCount}</span
@@ -90,7 +90,7 @@
     {:else}
       {#await notificationsPromise}
         <slot name="loading">
-          <span class="i-mdi-bell-outline mx-auto" />
+          <span class="i-mdi-bell-outline mx-auto"></span>
         </slot>
       {/await}
     {/if}
@@ -119,7 +119,7 @@
         />
       {:else}
         {#await notificationsPromise}
-          <span class="loading loading-lg" />
+          <span class="loading loading-lg"></span>
         {/await}
       {/if}
     </ul>

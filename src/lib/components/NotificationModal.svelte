@@ -61,7 +61,7 @@
         {/if}
       </ul>
     {:else}
-      <span class="loading loading-lg mx-auto self-center" />
+      <span class="loading loading-lg mx-auto self-center"></span>
     {/if}
     <form method="dialog">
       <button

@@ -21,7 +21,7 @@
 <PageHeader title="All expenses" />
 
 <a href="./" class="btn btn-ghost">
-  <span class="i-mdi-file-document-multiple-outline" />
+  <span class="i-mdi-file-document-multiple-outline"></span>
   My expenses
 </a>
 

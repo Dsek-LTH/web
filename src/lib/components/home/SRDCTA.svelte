@@ -8,9 +8,8 @@
   target="_blank"
   rel="noreferrer noopener"
 >
-  <span
-    class="i-mdi-pencil self-center text-2xl text-secondary lg:text-primary"
-  />
+  <span class="i-mdi-pencil self-center text-2xl text-secondary lg:text-primary"
+  ></span>
 
   <article>
     <p>{m.home_feedbackSRD()}</p>
