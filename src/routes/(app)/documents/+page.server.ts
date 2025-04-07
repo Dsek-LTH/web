@@ -39,20 +39,24 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     throw error(400, m.documents_errors_invalidType());
   }
 
-  const files = await fileHandler.getInBucket(
-    user,
-    PUBLIC_BUCKETS_DOCUMENTS,
-    "public/" + year + "/" + (prefixByType[type] ?? ""),
-    true,
-  );
-  const SRDfiles = await fileHandler.getInBucket(
-    user,
-    PUBLIC_BUCKETS_FILES,
-    "public/srd/" + year,
-    true,
-  );
+  const files: FileData[] = await fileHandler
+    .getInBucket(
+      user,
+      PUBLIC_BUCKETS_DOCUMENTS,
+      "public/" + year + "/" + (prefixByType[type] ?? ""),
+      true,
+    )
+    .catch((err) => {
+      console.error("Error fetching files", err);
+      return [];
+    });
+  const SRDfiles = await fileHandler
+    .getInBucket(user, PUBLIC_BUCKETS_FILES, "public/srd/" + year, true)
+    .catch((err) => {
+      console.error("Error fetching files", err);
+      return [];
+    });
 
-  if (!files) throw error(404, m.documents_errors_noFiles());
   let filteredFiles = files;
   const oldFormatSRDFiles: FileData[] = [];
   switch (type) {
