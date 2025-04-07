@@ -1,5 +1,7 @@
 <script lang="ts">
   import FormFileInput from "$lib/components/forms/FormFileInput.svelte";
+  import * as m from "$paraglide/messages";
+
   import {
     arrayProxy,
     type ArrayProxy,
@@ -59,7 +61,7 @@
 <div class="relative rounded-box bg-base-300 p-4">
   <FormFileInput
     {superform}
-    label="Kvitto"
+    label={m.receipt()}
     field={`receipts[${index}].image`}
     onChange={(e) => onFileSelected(e)}
     accept="image/*,application/pdf"
@@ -103,7 +105,7 @@
       }
     }}
   >
-    + lägg till rad
+    + {m.add_row()}
   </button>
   <button type="button" class="absolute right-4 top-4" on:click={onRemove}>
     X

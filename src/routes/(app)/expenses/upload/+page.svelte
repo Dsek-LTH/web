@@ -8,6 +8,7 @@
   import ExpenseItemForm from "./ExpenseReceiptsForm.svelte";
   import { expenseSchema } from "../types";
   import FormSubmitButton from "$lib/components/forms/FormSubmitButton.svelte";
+  import * as m from "$paraglide/messages";
 
   export let data;
   const superform = superForm(data.form, {
@@ -17,7 +18,7 @@
   const { enhance } = superform;
 </script>
 
-<PageHeader title="Ladda upp kvitto" />
+<PageHeader title={m.upload_reciept()} />
 <form
   method="POST"
   class="form-control space-y-4"
@@ -25,12 +26,12 @@
   enctype="multipart/form-data"
 >
   <div class="flex gap-4">
-    <FormDateInput {superform} label="Datum på kvitto" field="date" onlyDate />
+    <FormDateInput {superform} label={m.receipt_date()} field="date" onlyDate />
 
     <!-- todo, change to switch -->
     <FormCheckbox
       {superform}
-      label="Är sektionskort?"
+      label={m.is_guildCard()}
       field="isGuildCard"
       class="checkbox-lg"
     />
@@ -38,9 +39,11 @@
   <FormInput
     {superform}
     field="description"
-    label="Beskrivning"
-    placeholder="Mat till pub..."
+    label={m.expense_description()}
+    placeholder={m.pub_example()}
   />
   <ExpenseItemForm {superform} />
-  <FormSubmitButton {superform} class="btn btn-primary">Skapa</FormSubmitButton>
+  <FormSubmitButton {superform} class="btn btn-primary"
+    >{m.create_expense()}</FormSubmitButton
+  >
 </form>
