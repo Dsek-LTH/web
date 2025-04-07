@@ -22,12 +22,17 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   if (!member) {
     throw error(404, m.members_errors_memberNotFound());
   }
-  const photos = await fileHandler.getInBucket(
-    locals.user,
-    PUBLIC_BUCKETS_MEMBERS,
-    PROFILE_PICTURE_PREFIX(params.studentId),
-    true,
-  );
+  const photos = await fileHandler
+    .getInBucket(
+      locals.user,
+      PUBLIC_BUCKETS_MEMBERS,
+      PROFILE_PICTURE_PREFIX(params.studentId),
+      true,
+    )
+    .catch((err) => {
+      console.error("Error fetching files", err);
+      return [];
+    });
   return {
     member,
     photos,

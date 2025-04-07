@@ -24,12 +24,17 @@ export type FolderType = {
 export const load: PageServerLoad = async ({ locals, url }) => {
   const { user } = locals;
   const year = getYearOrThrowSvelteError(url);
-  const files = await fileHandler.getInBucket(
-    user,
-    PUBLIC_BUCKETS_FILES,
-    "public/kravprofiler/" + year,
-    true,
-  );
+  const files = await fileHandler
+    .getInBucket(
+      user,
+      PUBLIC_BUCKETS_FILES,
+      "public/kravprofiler/" + year,
+      true,
+    )
+    .catch((err) => {
+      console.error("Error fetching files", err);
+      return [];
+    });
   const filesGroupedByFolder = files.reduce<Record<string, FileData[]>>(
     (acc, file) => {
       const fileParts = file.id.split("/");

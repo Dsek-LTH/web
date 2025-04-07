@@ -16,12 +16,12 @@ export const load = async ({ locals }) => {
   const { user } = locals;
 
   // access is checked in the fileHandler
-  const files = await fileHandler.getInBucket(
-    user,
-    PUBLIC_BUCKETS_FILES,
-    MISCELLANEOUS_FILES_PREFIX,
-    true,
-  );
+  const files = await fileHandler
+    .getInBucket(user, PUBLIC_BUCKETS_FILES, MISCELLANEOUS_FILES_PREFIX, true)
+    .catch((err) => {
+      console.error("Error fetching files", err);
+      return [];
+    });
   return {
     files,
     uploadForm: await superValidate(zod(uploadSchema)),
