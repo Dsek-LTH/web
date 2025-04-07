@@ -8,6 +8,7 @@
   import { signIn } from "@auth/sveltekit/client";
   import type { GlobalAppLoadData } from "./(app)/+layout.server";
   import NotificationBell from "./NotificationBell.svelte";
+  import GlobalSearch from "$lib/components/search/GlobalSearch.svelte";
   import { appBottomNavRoutes, getRoutes } from "./routes";
   import { getContext } from "svelte";
   import type { Writable } from "svelte/store";
@@ -48,8 +49,10 @@
       {$pageTitle}
     </h1>
   </div>
-
-  <div class="w-16">
+  <div class="w-12">
+    <GlobalSearch />
+  </div>
+  <div class="w-12">
     {#if $page.data.user && $page.data.member}
       {#if notificationsPromise !== null && notificationsPromise !== undefined && mutateNotificationForm !== null}
         <NotificationBell

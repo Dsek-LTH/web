@@ -34,7 +34,7 @@
       >
         <span class="i-mdi-youtube" />
       </a>
-      <a class="btn btn-ghost" href="https://github.com/Dsek-LTH">
+      /<a class="btn btn-ghost" href="https://github.com/Dsek-LTH/web">
         <span class="i-mdi-github" />
       </a>
       <a

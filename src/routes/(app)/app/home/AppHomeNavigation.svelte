@@ -2,6 +2,8 @@
   import { page } from "$app/stores";
   import { isAuthorized } from "$lib/utils/authorization";
   import NavIcon from "$lib/components/NavIcon.svelte";
+  import GlobalSearch from "$lib/components/search/GlobalSearch.svelte";
+
   import { getRoutes, type Route } from "../../../routes";
 
   $: routes = getRoutes();
@@ -34,6 +36,8 @@
         isAuthorized(route.accessRequired, $page.data.user),
     ) as Array<Route & { parent?: Route }>;
 </script>
+
+<GlobalSearch />
 
 <ul class="menu gap-2 rounded-box border-t-4 border-t-primary bg-base-300 p-4">
   {#each routesToShow as route, index (route.path)}
