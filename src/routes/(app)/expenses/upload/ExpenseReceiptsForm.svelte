@@ -7,6 +7,7 @@
   import ExpenseReceipt from "./ExpenseReceipt.svelte";
   import type { ReceiptSchema, ExpenseSchema } from "../types";
   import createBasicReceipt from "../baseItem";
+  import * as m from "$paraglide/messages";
 
   export let superform: SuperForm<ExpenseSchema>;
   const proxy = arrayProxy(superform, "receipts") as ArrayProxy<ReceiptSchema>;
@@ -38,7 +39,7 @@
       }
     }}
   >
-    + lägg till kvitto
+    + {m.add_receipt()}
   </button>
 
   {#if $errors}

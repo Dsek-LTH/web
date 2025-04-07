@@ -5,6 +5,7 @@
   import { type SuperForm } from "sveltekit-superforms";
   import { COST_CENTERS } from "../config";
   import type { ExpenseSchema } from "../types";
+  import * as m from "$paraglide/messages";
 
   export let superform: SuperForm<ExpenseSchema>;
   export let receiptIndex: number;
@@ -23,18 +24,18 @@
   <FormSelect
     {superform}
     field={`receipts[${receiptIndex}].rows[${index}].costCenter`}
-    label="Kostnadscenter"
+    label={m.expense_type()}
     {options}
   />
   <FormNumberInput
     {superform}
-    label="Belopp"
+    label={m.expense_amount()}
     step="0.01"
     field={`receipts[${receiptIndex}].rows[${index}].amount`}
   />
   <FormInput
     {superform}
-    label="Kommentar"
+    label={m.receipt_comment()}
     field={`receipts[${receiptIndex}].rows[${index}].comment`}
   />
   {#if onRemove}

@@ -824,5 +824,17 @@
   "admin_info_createNewInfoPage": "Create new information page",
   "admin_info_infoPageCreated": "Information page created",
   "info": "Info",
-  "privacy_policy": "Privacy Policy"
+  "privacy_policy": "Privacy Policy",
+  "upload_reciept": "Upload receipt",
+  "receipt_date": "Receipt date",
+  "is_guildCard": "Guildcard used?",
+  "expense_description": "Description",
+  "receipt": "Receipt",
+  "expense_type": "Type of expense",
+  "expense_amount": "Amount",
+  "receipt_comment": "Comment",
+  "create_expense": "Create",
+  "pub_example": "Food to pub",
+  "add_receipt": "Add receipt",
+  "add_row": "Add row"
 }
