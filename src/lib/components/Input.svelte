@@ -1,22 +1,43 @@
 <script lang="ts">
   import Labeled from "$lib/components/Labeled.svelte";
+  import type {
+    HTMLInputAttributes,
+    HTMLTextareaAttributes,
+  } from "svelte/elements";
   import { twMerge } from "tailwind-merge";
 
-  export let name: string;
-  export let label: string | null = null;
-  export let placeholder: string | null = label;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- any is needed for generic use
-  export let value: any | null = null;
-  export let required: boolean | null = null;
-  export let error: string | string[] | undefined = undefined;
-  export let explanation: string | null = null;
-  export let textarea = false;
-  let clazz = "";
-  export { clazz as class };
+  type HTMLInput = {
+    textarea?: false | null;
+  } & HTMLInputAttributes;
+  type HTMLTextarea = { textarea: true } & HTMLTextareaAttributes;
+
+  let {
+    class: clazz = "",
+    name,
+    label = null,
+    placeholder = label,
+    value = $bindable(null),
+    required = false,
+    error = undefined,
+    explanation = null,
+    ...props
+  }: {
+    name: string;
+    label?: string | null;
+    placeholder?: string | null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- any is needed for generic use
+    value?: any | null;
+    required?: boolean;
+    error?: string | string[];
+    explanation?: string | null;
+    class?: string;
+  } & (HTMLInput | HTMLTextarea) = $props();
 </script>
 
 <Labeled {label} {error} {explanation} {required}>
-  {#if textarea}
+  {#if props.textarea}
+    <!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
+    {@const { textarea, ...restProps } = props}
     <textarea
       id={name}
       {name}
@@ -24,21 +45,23 @@
         "textarea textarea-bordered hover:border-base-content",
         clazz,
       )}
-      bind:value
       {placeholder}
       {required}
-      {...$$restProps}
-    />
+      bind:value
+      {...restProps}
+    ></textarea>
   {:else}
+    <!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
+    {@const { textarea, ...restProps } = props}
     <input
       id={name}
       {name}
       class={twMerge("input input-bordered hover:border-base-content", clazz)}
-      bind:value
       type="text"
       {placeholder}
       {required}
-      {...$$restProps}
+      bind:value
+      {...restProps}
     />
   {/if}
 </Labeled>
