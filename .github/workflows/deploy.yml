@@ -1,69 +1,33 @@
-name: Release build
+name: ci
 
 on:
   release:
     types: [published]
 
-env:
-  PUBLIC_MINIO_ENDPOINT: minio.api.dsek.se
-  PUBLIC_MINIO_PORT: 443
-  PUBLIC_MINIO_USE_SSL: true
-  PUBLIC_BUCKETS_DOCUMENTS: documents
-  PUBLIC_BUCKETS_FILES: files
-  PUBLIC_BUCKETS_MEMBERS: members
-
 jobs:
-  build:
+  docker:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Login to image registry
+        uses: docker/login-action@v3
         with:
-          # fetch-tags: true # This should be enough, see https://github.com/actions/checkout/issues/1471
-          fetch-depth: 0
-      - uses: pnpm/action-setup@v2
+          username: ${{ secrets.IMAGEREPO_USERNAME }}
+          password: ${{ secrets.IMAGEREPO_PASSWORD }}
+          registry: registry.dsek.se
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build and push
+        uses: docker/build-push-action@v6
         with:
-          version: 9
-      - name: Use Node.js latest LTS
-        uses: actions/setup-node@v3
-        with:
-          node-version: lts/*
-          cache: "pnpm"
-      - run: pnpm i
-      - run: pnpm run build
-
-      - uses: montudor/action-zip@v1
-        with:
-          args: zip -qq -r build.zip build src/database/prisma/schema.prisma \
-            src/database/schema.zmodel \
-            src/database/prisma/migrations \
-            src/routes/api/openapi.json/openapi.json \
-            prod/ecosystem.config.cjs \
-            prod/server.js \
-            package.json pnpm-lock.yaml patches
-
-      - uses: softprops/action-gh-release@v2
-        with:
-          files: build.zip
-
-      - name: Copy build to server
-        uses: appleboy/scp-action@master
-        with:
-          host: web-beta
-          proxy_host: bifrost.blossom.dsek.se
-          username: web-ci
-          proxy_username: web-ci
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          proxy_key: ${{ secrets.DEPLOY_SSH_KEY }}
-          source: "build.zip"
-          target: /var/www
-
-      - name: Deploy website on server
-        uses: appleboy/ssh-action@master
-        with:
-          host: web-beta
-          proxy_host: bifrost.blossom.dsek.se
-          username: web-ci
-          proxy_username: web-ci
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          proxy_key: ${{ secrets.DEPLOY_SSH_KEY }}
-          script_path: ./prod/deploy-script.sh
+          build-args: |
+            "PUBLIC_MINIO_ENDPOINT=minio.api.dsek.se"
+            "PUBLIC_MINIO_PORT=443"
+            "PUBLIC_MINIO_USE_SSL=true"
+            "PUBLIC_BUCKETS_DOCUMENTS=documents"
+            "PUBLIC_BUCKETS_FILES=files"
+            "PUBLIC_BUCKETS_MEMBERS=members"
+            "VERSION=${{ github.ref_name }}"
+          push: true
+          tags: registry.dsek.se/web/website:${{ github.ref_name }},registry.dsek.se/web/website:latest
