@@ -52,7 +52,7 @@
         <p>MinIO is healthy.</p>
       {:else}
         <div class="alert alert-error">
-          <span class="i-mdi-alert-circle" />
+          <span class="i-mdi-alert-circle"></span>
           {"MinIO is not healthy, service is probably down."}
         </div>
       {/if}
