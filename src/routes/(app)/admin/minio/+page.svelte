@@ -18,6 +18,13 @@
   $: console.log(data.files);
 </script>
 
+{#if data.files.length === 0}
+  <div class="alert alert-error">
+    <span class="i-mdi-alert-circle" />
+    {"No files found. MinIO might be down."}
+  </div>
+{/if}
+
 {#if $form.fileUrl}
   <span class="text-lg">
     Filurl: <span class="font-medium">{$form.fileUrl}</span>

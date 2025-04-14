@@ -47,6 +47,15 @@
     {/if}
 
     <section>
+      <h1 class="text-lg font-semibold">MinIO</h1>
+      {#if data.minIOHealthy}
+        <p>MinIO is healthy.</p>
+      {:else}
+        <div class="alert alert-error">
+          <span class="i-mdi-alert-circle" />
+          {"MinIO is not healthy, service is probably down."}
+        </div>
+      {/if}
       <h1 class="text-lg font-semibold">Metadata</h1>
       <ul class="ml-4 list-disc">
         <li>

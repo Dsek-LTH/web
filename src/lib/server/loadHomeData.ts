@@ -20,12 +20,12 @@ export const loadHomeData = async ({
 
   const now = new Date();
   const year = now.getFullYear();
-  const files = await fileHandler.getInBucket(
-    user,
-    PUBLIC_BUCKETS_DOCUMENTS,
-    "public/" + year + "/",
-    true,
-  );
+  const files = await fileHandler
+    .getInBucket(user, PUBLIC_BUCKETS_DOCUMENTS, "public/" + year + "/", true)
+    .catch((err) => {
+      console.error("Error fetching files", err);
+      return [];
+    });
 
   const boardMeetingFileNameRegex = /^S\d+$/;
   const boardMeetings = Array.from(

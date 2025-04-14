@@ -95,12 +95,12 @@ export const syncMeetingDocuments = async () => {
     policies: [apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).READ],
   };
 
-  const files = await fileHandler.getInBucket(
-    fileUser,
-    PUBLIC_BUCKETS_DOCUMENTS,
-    "",
-    true,
-  );
+  const files = await fileHandler
+    .getInBucket(fileUser, PUBLIC_BUCKETS_DOCUMENTS, "", true)
+    .catch((err) => {
+      console.error("Error fetching files", err);
+      return [];
+    });
   const indexName: SearchableIndex = "meetingDocuments";
   const documentsIndex = await meilisearch.getIndex(indexName);
   await resetIndex(documentsIndex, meilisearchConstants.meetingDocument);

@@ -69,9 +69,9 @@
     <a
       aria-label="edit"
       href="{studentId}/profile-picture"
-      class="btn btn-square glass btn-primary btn-sm absolute left-1/2 top-2 origin-center !-translate-x-1/2"
+      class="btn btn-circle glass btn-primary btn-sm absolute bottom-2 right-0 origin-center !-translate-x-1/2"
     >
-      <span class="i-mdi-edit"></span>
+      <span class="i-mdi-edit absolute bottom-[0.6rem] right-[0.6rem]" />
     </a>
   {/if}
 </MemberAvatar>

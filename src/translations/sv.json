@@ -51,7 +51,7 @@
   "home_feedbackSRD": "Åsikter om utbildningen?",
   "home_contactWellbeing": "Kontakta Trivselrådet",
   "home_contactSRD": "Kontakta Studierådet",
-  "home_codeWithDWWW": "Koda med DWWW!",
+  "home_codeWithDWWW": "Koda med CPU!",
   "home_DWWWMessage": "Har du hittat en bug, har en bra idé på en ny feature eller vill lära dig\n  webbutveckling? Då har du hittat rätt ställe!",
   "home_reportBug": "Rapportera en bug",
   "landing_theIntroduction": "Nollningen",
@@ -820,5 +820,17 @@
   "admin_info_createNewInfoPage": "Skapa en ny informationssida",
   "admin_info_infoPageCreated": "Informationssida skapad",
   "info": "Info",
-  "privacy_policy": "Integritetspolicy"
+  "privacy_policy": "Integritetspolicy",
+  "upload_reciept": "Ladda upp kvitto",
+  "receipt_date": "Datum på kvitto",
+  "is_guildCard": "Är sektionskort?",
+  "expense_description": "Beskrivning*",
+  "receipt": "Kvitto",
+  "expense_type": "Kostnadcenter",
+  "expense_amount": "Belopp",
+  "receipt_comment": "Kommentar",
+  "create_expense": "Skapa",
+  "pub_example": "Mat till pub",
+  "add_receipt": "Lägg till kvitto",
+  "add_row": "Lägg till rad"
 }

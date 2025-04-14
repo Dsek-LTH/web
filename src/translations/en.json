@@ -51,7 +51,7 @@
   "home_feedbackSRD": "Opinions on your education?",
   "home_contactWellbeing": "Contact the Wellbeing Committee",
   "home_contactSRD": "Contact the Student Council",
-  "home_codeWithDWWW": "Code with DWWW!",
+  "home_codeWithDWWW": "Code with CPU!",
   "home_DWWWMessage": "Have you found a bug, do you have a great idea for a new feature or do you want to learn web development? Then you have found the right place!",
   "home_reportBug": "Report a bug",
   "landing_theIntroduction": "The introduction",
@@ -824,5 +824,17 @@
   "admin_info_createNewInfoPage": "Create new information page",
   "admin_info_infoPageCreated": "Information page created",
   "info": "Info",
-  "privacy_policy": "Privacy Policy"
+  "privacy_policy": "Privacy Policy",
+  "upload_reciept": "Upload receipt",
+  "receipt_date": "Receipt date",
+  "is_guildCard": "Guildcard used?",
+  "expense_description": "Description",
+  "receipt": "Receipt",
+  "expense_type": "Type of expense",
+  "expense_amount": "Amount",
+  "receipt_comment": "Comment",
+  "create_expense": "Create",
+  "pub_example": "Food to pub",
+  "add_receipt": "Add receipt",
+  "add_row": "Add row"
 }
