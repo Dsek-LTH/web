@@ -12,21 +12,24 @@
   import UpdateMemberForm from "./UpdateMemberForm.svelte";
   import { languageTag } from "$paraglide/runtime";
   import PingButton from "./PingButton.svelte";
+  import type { PageProps } from "./$types";
 
-  export let data;
+  let { data }: PageProps = $props();
 
-  $: studentId = $page.params["studentId"];
-  $: member = data.viewedMember;
+  const studentId = $derived($page.params["studentId"]);
+  const member = $derived(data.viewedMember);
 
-  let isEditing = false;
-  $: isMe = data.user?.studentId === studentId;
-  $: canEdit = isMe || isAuthorized(apiNames.MEMBER.UPDATE, data.user);
+  let isEditing = $state(false);
+  const isMe = $derived(data.user?.studentId === studentId);
+  const canEdit = $derived(
+    isMe || isAuthorized(apiNames.MEMBER.UPDATE, data.user),
+  );
 
-  $: medals = data.medals;
+  const medals = $derived(data.medals);
   const getMedalLink = (semester: Semester) =>
     `/medals?semester=${toString(semester)}`;
 
-  $: mandatesByYear = (() => {
+  const mandatesByYear = $derived.by(() => {
     const res = Object.groupBy(member.mandates, ({ startDate, endDate }) => {
       // If the mandate spans only one year, show that year, e.g. "2020"
       if (startDate.getFullYear() === endDate.getFullYear()) {
@@ -41,9 +44,9 @@
     }
 
     return res;
-  })();
+  });
 
-  $: doorAccess = data.doorAccess;
+  const doorAccess = $derived(data.doorAccess);
 </script>
 
 <SetPageTitle title={member ? getFullName(member) : "Medlem"} />
@@ -64,10 +67,11 @@
 <MemberAvatar {member} class="relative -top-20 mx-auto flex size-40 shadow-lg">
   {#if canEdit}
     <a
+      aria-label="edit"
       href="{studentId}/profile-picture"
       class="btn btn-circle glass btn-primary btn-sm absolute bottom-2 right-0 origin-center !-translate-x-1/2"
     >
-      <span class="i-mdi-edit absolute bottom-[0.6rem] right-[0.6rem]" />
+      <span class="i-mdi-edit absolute bottom-[0.6rem] right-[0.6rem]"></span>
     </a>
   {/if}
 </MemberAvatar>
@@ -99,7 +103,7 @@
     {#if canEdit}
       <button
         class="btn my-4 h-auto min-h-0 w-full py-2"
-        on:click={() => {
+        onclick={() => {
           isEditing = !isEditing;
         }}
       >

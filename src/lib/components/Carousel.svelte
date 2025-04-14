@@ -43,12 +43,20 @@
     </div>
     {#if images.length > 1}
       <div class="absolute bottom-5 w-full text-center">
-        <button class="btn btn-circle" on:click={() => scroll(false)}>
-          <span class="i-mdi-arrow-left" />
+        <button
+          aria-label="left"
+          class="btn btn-circle"
+          on:click={() => scroll(false)}
+        >
+          <span class="i-mdi-arrow-left"></span>
         </button>
         <span>{index} / {images.length}</span>
-        <button class="btn btn-circle" on:click={() => scroll(true)}>
-          <span class="i-mdi-arrow-right" />
+        <button
+          aria-label="right"
+          class="btn btn-circle"
+          on:click={() => scroll(true)}
+        >
+          <span class="i-mdi-arrow-right"></span>
         </button>
       </div>
     {/if}

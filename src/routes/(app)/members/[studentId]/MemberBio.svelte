@@ -69,4 +69,4 @@
   style="height: 0;"
   {srcdoc}
   bind:this={iframeEl}
-/>
+></iframe>

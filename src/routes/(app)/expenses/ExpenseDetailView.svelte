@@ -69,25 +69,23 @@
     use:enhance
   >
     <button class="btn btn-secondary">
-      <span class="i-mdi-file-document-outline" />
+      <span class="i-mdi-file-document-outline"></span>
       Skicka till bokföring
     </button>
   </form>
 {/if}
 
 {#if updateEnhance}
-  <form use:updateEnhance method="POST" action="/expenses/{expense.id}?/update">
-    <ul class="flex flex-wrap gap-2">
-      {#each expense.items as item}
-        <ExpenseReceipt
-          prefix="/expenses/{expense.id}"
-          {item}
-          form={itemForm}
-          sentToBookkeeping={expense.hasBeenSentToBookkeeping}
-        />
-      {/each}
-    </ul>
-  </form>
+  <ul class="flex flex-wrap gap-2">
+    {#each expense.items as item}
+      <ExpenseReceipt
+        prefix="/expenses/{expense.id}"
+        {item}
+        form={itemForm}
+        sentToBookkeeping={expense.hasBeenSentToBookkeeping}
+      />
+    {/each}
+  </ul>
 {:else}
   <ul class="flex flex-wrap gap-2">
     {#each expense.items as item}

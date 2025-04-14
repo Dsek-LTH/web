@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   type T = Record<string, unknown>;
   type O = unknown;
 </script>
@@ -16,32 +16,42 @@
     type SuperForm,
   } from "sveltekit-superforms";
   import { twMerge } from "tailwind-merge";
+  import { type HTMLSelectAttributes } from "svelte/elements";
 
-  export let superform: SuperForm<T>;
-  export let field: FormPathLeaves<T>;
-  export let label: string | null = null;
-  // as long as field is not nested, or data type is 'json', name does not need to be set
-  export let name: string | undefined = undefined;
-  export let options: Array<{
-    label?: string;
-    value: O;
-  }>;
-  let clazz: string | undefined = undefined;
-  export { clazz as class };
+  let {
+    superform,
+    field,
+    label = null,
+    // as long as field is not nested, or data type is 'json', name does not need to be set
+    name = undefined,
+    options,
+    class: clazz = undefined,
+    ...restProps
+  }: {
+    superform: SuperForm<T>;
+    field: FormPathLeaves<T>;
+    label?: string | null;
+    name?: string;
+    options: Array<{
+      label?: string;
+      value: O;
+    }>;
+    class?: string;
+  } & HTMLSelectAttributes = $props();
 
-  $: fieldProxy = formFieldProxy(superform, field) satisfies FormFieldProxy<
-    O[]
-  >;
-  $: value = fieldProxy.value;
-  $: errors = fieldProxy.errors;
-  $: constraints = fieldProxy.constraints;
+  let fieldProxy = $derived(
+    formFieldProxy(superform, field) satisfies FormFieldProxy<O[]>,
+  );
+  let value = $derived(fieldProxy.value);
+  let errors = $derived(fieldProxy.errors);
+  let constraints = $derived(fieldProxy.constraints);
 </script>
 
 <Labeled
   {label}
   error={$errors}
   required={$constraints?.required}
-  {...$$restProps}
+  {...restProps}
 >
   <select
     class={twMerge(
@@ -51,7 +61,7 @@
     name={name ?? field}
     bind:value={$value}
     {...$constraints}
-    {...$$restProps}
+    {...restProps}
   >
     {#each options as option}
       <option value={option.value}>{option.label ?? option.value}</option>

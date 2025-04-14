@@ -20,7 +20,7 @@
 
 {#if data.files.length === 0}
   <div class="alert alert-error">
-    <span class="i-mdi-alert-circle" />
+    <span class="i-mdi-alert-circle"></span>
     {"No files found. MinIO might be down."}
   </div>
 {/if}
@@ -85,6 +85,7 @@
         }}
       >
         <input type="hidden" value={file.id} name="id" />
+        <!-- svelte-ignore a11y_consider_explicit_label -->
         <button
           class="btn btn-error join-item"
           disabled={!isAuthorized(
@@ -92,7 +93,7 @@
             data.user,
           )}
         >
-          <span class="i-mdi-delete" />
+          <span class="i-mdi-delete"></span>
         </button>
       </form>
     </li>

@@ -58,7 +58,7 @@
         class="btn btn-ghost no-animation z-10 w-full rounded-none border-0 border-t border-gray-700 *:text-2xl"
       >
         {m.navbar_bell_markAllAsRead()}
-        <span class="i-mdi-bell-check-outline" />
+        <span class="i-mdi-bell-check-outline"></span>
       </button>
     </form>
   {/if}
@@ -79,7 +79,7 @@
         class="btn btn-ghost no-animation z-10 w-full rounded-none border-0 border-t border-gray-700 *:text-2xl"
       >
         {m.navbar_bell_deleteAll()}
-        <span class="i-mdi-delete-outline" />
+        <span class="i-mdi-delete-outline"></span>
       </button>
     </form>
   {/if}
