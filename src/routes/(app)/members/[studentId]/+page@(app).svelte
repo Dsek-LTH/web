@@ -71,7 +71,7 @@
       href="{studentId}/profile-picture"
       class="btn btn-circle glass btn-primary btn-sm absolute bottom-2 right-0 origin-center !-translate-x-1/2"
     >
-      <span class="i-mdi-edit absolute bottom-[0.6rem] right-[0.6rem]" />
+      <span class="i-mdi-edit absolute bottom-[0.6rem] right-[0.6rem]"></span>
     </a>
   {/if}
 </MemberAvatar>
