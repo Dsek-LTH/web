@@ -20,7 +20,7 @@
 
 {#if data.files.length === 0}
   <div class="alert alert-error">
-    <span class="i-mdi-alert-circle" />
+    <span class="i-mdi-alert-circle"></span>
     {"No files found. MinIO might be down."}
   </div>
 {/if}
