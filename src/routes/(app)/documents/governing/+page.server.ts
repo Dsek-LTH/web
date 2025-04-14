@@ -10,7 +10,11 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   const { prisma } = locals;
   const year = getYearOrThrowSvelteError(url);
   const governingDocuments = await prisma.document
-    .findMany()
+    .findMany({
+      orderBy: {
+        title: "asc",
+      },
+    })
     .then((documents) => {
       const filterDocuments = (type: string, filterByDate: boolean) =>
         documents.filter(
