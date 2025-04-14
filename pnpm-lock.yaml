@@ -36,11 +36,11 @@ importers:
         specifier: ^5.1.1
         version: 5.1.1
       '@fullcalendar/core':
-        specifier: ^6.1.15
-        version: 6.1.15
+        specifier: ^6.1.17
+        version: 6.1.17
       '@fullcalendar/daygrid':
-        specifier: ^6.1.15
-        version: 6.1.15(@fullcalendar/core@6.1.15)
+        specifier: ^6.1.17
+        version: 6.1.17(@fullcalendar/core@6.1.17)
       '@keycloak/keycloak-admin-client':
         specifier: ^26.0.7
         version: 26.0.7
@@ -863,13 +863,13 @@ packages:
   '@fontsource/lexend@5.1.1':
     resolution: {integrity: sha512-92A96vmx5xk1NgNphB62w5PKhW53Ruo74ki3UsUrV1q7/tbhJ73k2podhCNmldUlpUeO6rrCUWpRM20WloiNXA==}
 
-  '@fullcalendar/core@6.1.15':
-    resolution: {integrity: sha512-BuX7o6ALpLb84cMw1FCB9/cSgF4JbVO894cjJZ6kP74jzbUZNjtwffwRdA+Id8rrLjT30d/7TrkW90k4zbXB5Q==}
+  '@fullcalendar/core@6.1.17':
+    resolution: {integrity: sha512-0W7lnIrv18ruJ5zeWBeNZXO8qCWlzxDdp9COFEsZnyNjiEhUVnrW/dPbjRKYpL0edGG0/Lhs0ghp1z/5ekt8ZA==}
 
-  '@fullcalendar/daygrid@6.1.15':
-    resolution: {integrity: sha512-j8tL0HhfiVsdtOCLfzK2J0RtSkiad3BYYemwQKq512cx6btz6ZZ2RNc/hVnIxluuWFyvx5sXZwoeTJsFSFTEFA==}
+  '@fullcalendar/daygrid@6.1.17':
+    resolution: {integrity: sha512-K7m+pd7oVJ9fW4h7CLDdDGJbc9szJ1xDU1DZ2ag+7oOo1aCNLv44CehzkkknM6r8EYlOOhgaelxQpKAI4glj7A==}
     peerDependencies:
-      '@fullcalendar/core': ~6.1.15
+      '@fullcalendar/core': ~6.1.17
 
   '@gcornut/valibot-json-schema@0.31.0':
     resolution: {integrity: sha512-3xGptCurm23e7nuPQkdrE5rEs1FeTPHhAUsBuwwqG4/YeZLwJOoYZv+fmsppUEfo5y9lzUwNQrNqLS/q7HMc7g==}
@@ -6772,13 +6772,13 @@ snapshots:
 
   '@fontsource/lexend@5.1.1': {}
 
-  '@fullcalendar/core@6.1.15':
+  '@fullcalendar/core@6.1.17':
     dependencies:
       preact: 10.12.1
 
-  '@fullcalendar/daygrid@6.1.15(@fullcalendar/core@6.1.15)':
+  '@fullcalendar/daygrid@6.1.17(@fullcalendar/core@6.1.17)':
     dependencies:
-      '@fullcalendar/core': 6.1.15
+      '@fullcalendar/core': 6.1.17
 
   '@gcornut/valibot-json-schema@0.31.0':
     dependencies:
