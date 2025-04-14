@@ -5,12 +5,16 @@ import { zod } from "sveltekit-superforms/adapters";
 import { redirect } from "$lib/utils/redirect";
 import { governingDocumentSchema } from "../../schemas";
 import * as m from "$paraglide/messages";
+import { DocumentType } from "@prisma/client";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma } = locals;
   const governingDocument = await prisma.document.findFirst({
     where: {
       id: params.id,
+      type: {
+        in: [DocumentType.POLICY, DocumentType.GUIDELINE],
+      },
     },
   });
 
@@ -20,7 +24,16 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
   return {
     governingDocument,
-    form: await superValidate(zod(governingDocumentSchema)),
+    form: await superValidate(
+      {
+        url: governingDocument.url,
+        title: governingDocument.title,
+        type: governingDocument.type as
+          | typeof DocumentType.POLICY
+          | typeof DocumentType.GUIDELINE,
+      },
+      zod(governingDocumentSchema),
+    ),
   };
 };
 
