@@ -100,6 +100,10 @@ app.get("/health", async (_req, res) => {
     .send("Server is running.");
 });
 
+app.use((err, _req, res) => {
+  res.status(500).json({ error: err.message });
+});
+
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

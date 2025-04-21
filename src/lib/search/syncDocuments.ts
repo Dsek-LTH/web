@@ -98,7 +98,7 @@ export const syncMeetingDocuments = async () => {
   const files = await fileHandler
     .getInBucket(fileUser, PUBLIC_BUCKETS_DOCUMENTS, "", true)
     .catch((err) => {
-      console.error("Meilisearch: Error fetching files", err);
+      console.error("Error fetching files", err);
       return [];
     });
   const indexName: SearchableIndex = "meetingDocuments";
@@ -110,20 +110,14 @@ export const syncMeetingDocuments = async () => {
       files,
       async (file) => {
         if (file.thumbnailUrl) {
-          try {
-            const content = await getFileContent(file.thumbnailUrl);
-            if (content) {
-              return {
-                id: prismaIdToMeiliId(file.id),
-                title: file.name,
-                content,
-                url: file.thumbnailUrl,
-              };
-            }
-          } catch (error) {
-            console.error(
-              `Meilisearch: Error fetching content from ${file.thumbnailUrl}: ${error}`,
-            );
+          const content = await getFileContent(file.thumbnailUrl);
+          if (content) {
+            return {
+              id: prismaIdToMeiliId(file.id),
+              title: file.name,
+              content,
+              url: file.thumbnailUrl,
+            };
           }
         }
       },
@@ -249,10 +243,6 @@ const checkPopplerHealth = async () => {
       "Poppler: No server URL provided. Check the environment variables",
     );
     return false;
-  } else {
-    console.log(
-      `Poppler: Checking health of server at ${env.POPPLER_SERVER_URL}`,
-    );
   }
   try {
     const response = await fetch(env.POPPLER_SERVER_URL + "/health", {
