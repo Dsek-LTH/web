@@ -1,4 +1,4 @@
-name: ci
+name: Deployment
 
 on:
   release:
@@ -14,8 +14,6 @@ jobs:
           username: ${{ secrets.IMAGEREPO_USERNAME }}
           password: ${{ secrets.IMAGEREPO_PASSWORD }}
           registry: registry.dsek.se
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -26,7 +24,7 @@ jobs:
           push: true
           tags: registry.dsek.se/web/poppler:${{ github.ref_name }},registry.dsek.se/web/poppler:latest
 
-      - name: Build and push
+      - name: Build and push website
         uses: docker/build-push-action@v6
         with:
           build-args: |
