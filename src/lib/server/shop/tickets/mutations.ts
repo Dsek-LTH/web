@@ -1,4 +1,5 @@
 import type { TransactionClient } from "$lib/server/shop/types";
+import { convertPriceToCents } from "$lib/utils/convertPrice";
 import type { TicketSchema } from "$lib/utils/shop/types";
 import { PrismaClient, ShoppableType } from "@prisma/client";
 
@@ -19,7 +20,7 @@ export const createTicket = async (
             titleEn: data.titleEn,
             description: data.description,
             descriptionEn: data.descriptionEn,
-            price: Math.round(data.price * 100),
+            price: convertPriceToCents(data.price),
             availableFrom: data.availableFrom,
             availableTo: data.availableTo,
             type: ShoppableType.TICKET,
@@ -57,7 +58,7 @@ export const createTicket = async (
                     data: question.options.map((o) => ({
                       ...o,
                       extraPrice: o.extraPrice
-                        ? Math.round(o.extraPrice * 100)
+                        ? convertPriceToCents(o.extraPrice)
                         : o.extraPrice,
                     })),
                   },
@@ -91,7 +92,7 @@ export const updateTicket = async (
             titleEn: data.titleEn,
             description: data.description,
             descriptionEn: data.descriptionEn,
-            price: Math.round(data.price * 100),
+            price: convertPriceToCents(data.price),
             availableFrom: data.availableFrom,
             availableTo: data.availableTo,
             type: ShoppableType.TICKET,
@@ -197,7 +198,7 @@ const updateQuestions = async (
                   data: question.options.map((o) => ({
                     ...o,
                     extraPrice: o.extraPrice
-                      ? Math.round(o.extraPrice * 100)
+                      ? convertPriceToCents(o.extraPrice)
                       : o.extraPrice,
                   })),
                 },
@@ -222,7 +223,7 @@ const updateQuestions = async (
                     data: question.options.map((o) => ({
                       ...o,
                       extraPrice: o.extraPrice
-                        ? Math.round(o.extraPrice * 100)
+                        ? convertPriceToCents(o.extraPrice)
                         : o.extraPrice,
                     })),
                   },
