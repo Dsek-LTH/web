@@ -20,6 +20,7 @@ import { expenseSchema } from "../types";
 import { sendNotificationToSigner } from "../helper";
 import { authorize } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
+import { convertPriceToCents } from "$lib/utils/convertPrice";
 
 export const load = async ({ locals: { user } }) => {
   authorize(apiNames.EXPENSES.CREATE, user);
@@ -113,7 +114,7 @@ export const actions = {
             return {
               expenseId: expense.id,
               costCenter: row.costCenter,
-              amount: Math.floor(row.amount * 100), // convert to "öre"
+              amount: convertPriceToCents(row.amount),
               receiptUrl: uploadedReceipt,
               comment: row.comment,
               committeeShortName: costCenter.committee,
