@@ -13,16 +13,20 @@
   import { getContext } from "svelte";
   import type { Writable } from "svelte/store";
 
-  $: pageData = $page.data as typeof $page.data & GlobalAppLoadData;
-  $: notificationsPromise = pageData["notificationsPromise"];
-  $: mutateNotificationForm = pageData["mutateNotificationForm"];
-  $: routes = getRoutes();
-  $: bottomNavRoutes = appBottomNavRoutes(routes).map((route) => route.path);
-  $: canGoBack = !bottomNavRoutes.includes(i18n.route($page.url.pathname));
-  $: topInsets = $page.data.appInfo?.insets?.top ?? 0;
+  let pageData = $derived($page.data as typeof $page.data & GlobalAppLoadData);
+  let notificationsPromise = $derived(pageData["notificationsPromise"]);
+  let mutateNotificationForm = $derived(pageData["mutateNotificationForm"]);
+  let routes = $derived(getRoutes());
+  let bottomNavRoutes = $derived(
+    appBottomNavRoutes(routes).map((route) => route.path),
+  );
+  let canGoBack = $derived(
+    !bottomNavRoutes.includes(i18n.route($page.url.pathname)),
+  );
+  let topInsets = $derived($page.data.appInfo?.insets?.top ?? 0);
 
-  let notificationModal: HTMLDialogElement;
-  let notifications: NotificationGroup[] | undefined = undefined;
+  let notificationModal: HTMLDialogElement = $state();
+  let notifications: NotificationGroup[] | undefined = $state(undefined);
 
   let pageTitle = getContext<Writable<string>>("pageTitle");
 </script>
@@ -34,7 +38,7 @@
   <div class="w-16">
     <!-- svelte-ignore a11y_consider_explicit_label -->
     <button
-      on:click={canGoBack ? () => window.history.back() : undefined}
+      onclick={canGoBack ? () => window.history.back() : undefined}
       class:opacity-0={!canGoBack}
       class="-m-4 p-4"
     >

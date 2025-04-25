@@ -4,7 +4,11 @@
   import * as m from "$paraglide/messages";
   import type { Member } from "@prisma/client";
 
-  export let likers: Member[];
+  interface Props {
+    likers: Member[];
+  }
+
+  let { likers }: Props = $props();
 
   const formatLikersList = (likers: Member[]): string => {
     switch (likers.length) {
@@ -26,7 +30,7 @@
     }
   };
 
-  $: likersText = formatLikersList(likers);
+  let likersText = $derived(formatLikersList(likers));
 </script>
 
 <MembersList members={likers} class="link text-sm opacity-40 hover:opacity-60">

@@ -7,7 +7,11 @@
   import apiNames from "$lib/utils/apiNames";
   import { page } from "$app/stores";
 
-  export let data: PageData;
+  interface Props {
+    data: PageData;
+  }
+
+  let { data }: Props = $props();
   const isPending = data.booking.status === "PENDING";
   const isAdmin = isAuthorized(apiNames.BOOKINGS.UPDATE, $page.data.user);
 </script>

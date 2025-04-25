@@ -11,13 +11,17 @@
   import type { PhadderGroup } from "@prisma/client";
   import * as m from "$paraglide/messages";
 
-  $: pageData = $page.data as typeof $page.data & PostRevealLayoutData;
-  $: member = $page.data.member;
-  $: nollaInGroup = $page.data["phadderGroup"] as Promise<
-    Pick<PhadderGroup, "name"> | undefined
-  >;
+  let pageData = $derived(
+    $page.data as typeof $page.data & PostRevealLayoutData,
+  );
+  let member = $derived($page.data.member);
+  let nollaInGroup = $derived(
+    $page.data["phadderGroup"] as Promise<
+      Pick<PhadderGroup, "name"> | undefined
+    >,
+  );
 
-  $: notificationsPromise = pageData["notificationsPromise"];
+  let notificationsPromise = $derived(pageData["notificationsPromise"]);
 </script>
 
 <!-- notification and account -->
@@ -30,27 +34,31 @@
         form={pageData["mutateNotificationForm"]}
         buttonClass="btn btn-circle bg-base-200 relative aspect-square size-10 !p-0"
       >
-        <span class="i-mdi-bell-outline size-7" slot="loading"></span>
-        <div class="indicator" let:unreadCount>
-          {#if unreadCount > 0}
-            <span
-              class="translate badge indicator-item badge-primary badge-xs translate-x-0 translate-y-0"
-            ></span>
-          {/if}
+        {#snippet loading()}
           <span class="i-mdi-bell-outline size-7"></span>
-        </div>
+        {/snippet}
+        {#snippet children({ unreadCount })}
+          <div class="indicator">
+            {#if unreadCount > 0}
+              <span
+                class="translate badge indicator-item badge-primary badge-xs translate-x-0 translate-y-0"
+              ></span>
+            {/if}
+            <span class="i-mdi-bell-outline size-7"></span>
+          </div>
+        {/snippet}
       </NotificationBell>
     {/if}
     <div class="dropdown dropdown-end dropdown-hover">
-      <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-      <!-- svelte-ignore a11y-label-has-associated-control -->
+      <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+      <!-- svelte-ignore a11y_label_has_associated_control -->
       <label
         tabindex="0"
         class="btn btn-circle aspect-square size-10 bg-base-200 !p-0"
       >
         <span class="i-mdi-account-outline size-8"></span>
       </label>
-      <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+      <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
       <ul
         tabindex="0"
         class="menu dropdown-content z-[1] w-52 rounded-box bg-base-200 p-2 shadow"

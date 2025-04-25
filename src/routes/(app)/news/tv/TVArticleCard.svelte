@@ -4,7 +4,11 @@
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import dayjs from "dayjs";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
-  export let article: Article;
+  interface Props {
+    article: Article;
+  }
+
+  let { article }: Props = $props();
 </script>
 
 <article

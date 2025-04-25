@@ -5,7 +5,11 @@
   import dayjs from "dayjs";
   import { markdownToTxt } from "markdown-to-txt";
   import ArticleImages from "./ArticleImages.svelte";
-  export let article: Article;
+  interface Props {
+    article: Article;
+  }
+
+  let { article }: Props = $props();
 </script>
 
 <article
@@ -20,14 +24,14 @@
   </div>
 
   {#if article.imageUrls.length > 0}
-    <button on:click={() => goto("news/" + article.slug)} class="h-80 w-full">
+    <button onclick={() => goto("news/" + article.slug)} class="h-80 w-full">
       <ArticleImages images={article.imageUrls} header={article.header} />
     </button>
   {:else}
     <div class="flex flex-col items-stretch overflow-hidden p-8">
       <div class="flex-1">
         <button
-          on:click={() => goto("news/" + article.slug)}
+          onclick={() => goto("news/" + article.slug)}
           class="group text-start"
         >
           <h1 class="text-2xl font-bold group-hover:underline">
@@ -45,16 +49,17 @@
         customAuthor={article.author.customAuthor ?? undefined}
         type={article.author.type}
       >
-        <p
-          class="my-1 self-end text-nowrap text-xs font-light text-neutral-600"
-          slot="end"
-        >
-          {#if dayjs(article.createdAt).diff(dayjs(), "week") < -1}
-            {dayjs(article.createdAt).format("YYYY-MM-DD")}
-          {:else}
-            {dayjs(article.createdAt).fromNow()}
-          {/if}
-        </p>
+        {#snippet end()}
+          <p
+            class="my-1 self-end text-nowrap text-xs font-light text-neutral-600"
+          >
+            {#if dayjs(article.createdAt).diff(dayjs(), "week") < -1}
+              {dayjs(article.createdAt).format("YYYY-MM-DD")}
+            {:else}
+              {dayjs(article.createdAt).fromNow()}
+            {/if}
+          </p>
+        {/snippet}
       </AuthorSignature>
     </div>
   {/if}

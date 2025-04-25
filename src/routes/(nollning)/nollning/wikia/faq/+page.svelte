@@ -62,7 +62,7 @@
       desc: "Not much! While it's of course preferable to pass the exam on the first try, it's common for students to fail an exam, and there are several periods throughout the year when you can retake exams (retake periods). One during Easter and one in August before the school year starts. A retake exam is just like a regular exam, and you can still get any grade.",
     },
   ];
-  $: questions = languageTag() === "en" ? questionsEN : questionsSV;
+  let questions = $derived(languageTag() === "en" ? questionsEN : questionsSV);
 </script>
 
 <!-- limit width and center -->

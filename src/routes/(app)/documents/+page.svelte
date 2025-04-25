@@ -10,12 +10,16 @@
 
   import type { PageData } from "./$types";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
-  export let data: PageData;
+  interface Props {
+    data: PageData;
+  }
 
-  let isEditing = false;
+  let { data }: Props = $props();
+
+  let isEditing = $state(false);
 
   const currentYear = new Date().getFullYear();
-  let type: DocumentType = "board-meeting";
+  let type: DocumentType = $state("board-meeting");
   const typeOptions: Array<{ name: string; value: DocumentType }> = [
     {
       name: m.documents_guildMeetings(),
@@ -34,18 +38,24 @@
       value: "other",
     },
   ];
-  $: meetings = Object.keys(data.meetings).sort((a, b) =>
-    type === "board-meeting" || type === "SRD-meeting"
-      ? b.localeCompare(a, "sv")
-      : a.localeCompare(b, "sv"),
+  let meetings = $derived(
+    Object.keys(data.meetings).sort((a, b) =>
+      type === "board-meeting" || type === "SRD-meeting"
+        ? b.localeCompare(a, "sv")
+        : a.localeCompare(b, "sv"),
+    ),
   );
-  $: canCreate = isAuthorized(
-    apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).CREATE,
-    data.user,
+  let canCreate = $derived(
+    isAuthorized(
+      apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).CREATE,
+      data.user,
+    ),
   );
-  $: canEdit = isAuthorized(
-    apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).DELETE,
-    data.user,
+  let canEdit = $derived(
+    isAuthorized(
+      apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).DELETE,
+      data.user,
+    ),
   );
 </script>
 
@@ -75,7 +85,7 @@
       {#if canEdit}
         <button
           class="btn btn-secondary btn-sm"
-          on:click={() => {
+          onclick={() => {
             isEditing = !isEditing;
           }}
         >

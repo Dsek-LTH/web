@@ -4,8 +4,12 @@
   import type { UpdateMandateSchema } from "./+page.server";
   import { superForm } from "$lib/utils/client/superForms";
   import * as m from "$paraglide/messages";
-  export let data: SuperValidated<UpdateMandateSchema>;
-  export let mandateId: string;
+  interface Props {
+    data: SuperValidated<UpdateMandateSchema>;
+    mandateId: string;
+  }
+
+  let { data, mandateId }: Props = $props();
   const { form, errors, constraints, enhance } = superForm(data);
 </script>
 

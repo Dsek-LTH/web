@@ -12,15 +12,26 @@
   import type { SuperValidated } from "sveltekit-superforms";
   import { superForm } from "$lib/utils/client/superForms";
 
-  export let type: "NEWS" | "EVENT";
-  export let comment: ArticleComment | EventComment;
-  export let author: Member;
-  /**
-   * A list of all members that have been tagged in the comment. Can be more than JUST this comment's tagged members.
-   */
-  export let taggedMembers: Member[];
-  export let onReply: () => void;
-  export let removeCommentForm: SuperValidated<RemoveCommentSchema>;
+  interface Props {
+    type: "NEWS" | "EVENT";
+    comment: ArticleComment | EventComment;
+    author: Member;
+    /**
+     * A list of all members that have been tagged in the comment. Can be more than JUST this comment's tagged members.
+     */
+    taggedMembers: Member[];
+    onReply: () => void;
+    removeCommentForm: SuperValidated<RemoveCommentSchema>;
+  }
+
+  let {
+    type,
+    comment,
+    author,
+    taggedMembers,
+    onReply,
+    removeCommentForm,
+  }: Props = $props();
   const { errors, constraints, enhance } = superForm(removeCommentForm, {
     id: comment.id,
   });
@@ -43,7 +54,7 @@
       return `[${replacement}](/members/${studentId})`;
     });
   }
-  $: fixedContent = replaceTag(comment.content ?? "");
+  let fixedContent = $derived(replaceTag(comment.content ?? ""));
 </script>
 
 <!-- svelte-ignore a11y_consider_explicit_label -->
@@ -72,7 +83,7 @@
 
     <div class="flex gap-1">
       {#if isAuthorized(apiNames[type].COMMENT, $page.data.user)}
-        <button class="btn btn-square btn-ghost btn-md" on:click={onReply}>
+        <button class="btn btn-square btn-ghost btn-md" onclick={onReply}>
           <span class="i-mdi-reply text-xl"></span>
         </button>
       {/if}

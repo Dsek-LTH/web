@@ -5,9 +5,13 @@
   import type { GoverningDocumentSchema } from "./schemas";
   import * as m from "$paraglide/messages";
 
-  export let isCreating: boolean;
-  export let documentId: string | undefined;
-  export let data: SuperValidated<GoverningDocumentSchema>;
+  interface Props {
+    isCreating: boolean;
+    documentId: string | undefined;
+    data: SuperValidated<GoverningDocumentSchema>;
+  }
+
+  let { isCreating, documentId, data }: Props = $props();
   const { form, errors, constraints, enhance } = superForm(data);
 </script>
 

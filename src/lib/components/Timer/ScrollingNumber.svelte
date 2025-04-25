@@ -1,3 +1,4 @@
+<!-- @migration-task Error while migrating Svelte code: Cannot overwrite a zero-length range – use appendLeft or prependRight instead -->
 <!--
   @component
   This component shows a number scrolling (up or down) whenever `i` changes

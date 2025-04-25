@@ -5,11 +5,6 @@
   // eslint-disable-next-line no-undef -- It is defined by svelte
   type EntityType = T;
 
-  let clazz = "";
-  export { clazz as class };
-  export let endpoint: string;
-  export let isSearching = false;
-  export let onSelect: ((member: EntityType) => void) | undefined = undefined;
   export const handleSearch = (searchValue: string) => {
     if (timeout) clearTimeout(timeout);
     if (searchValue.length < 3) {
@@ -19,11 +14,29 @@
     isSearching = true;
     timeout = setTimeout(getEntities(searchValue), 300);
   };
-  export let year: number | undefined = undefined;
+  interface Props {
+    class?: string;
+    endpoint: string;
+    isSearching?: boolean;
+    onSelect?: ((member: EntityType) => void) | undefined;
+    year?: number | undefined;
+    children?: import("svelte").Snippet;
+    entity?: import("svelte").Snippet<[any]>;
+  }
+
+  let {
+    class: clazz = "",
+    endpoint,
+    isSearching = $bindable(false),
+    onSelect = undefined,
+    year = undefined,
+    children,
+    entity,
+  }: Props = $props();
 
   let timeout: ReturnType<typeof setTimeout> | undefined = undefined;
 
-  let searchResults: EntityType[] | null = null;
+  let searchResults: EntityType[] | null = $state(null);
   const getEntities = (searchValue: string) => async () => {
     if (!searchValue) {
       reset();
@@ -65,7 +78,7 @@
 </script>
 
 <div class={twMerge("dropdown overflow-visible", clazz)}>
-  <slot />
+  {@render children?.()}
   <ul
     class="menu-compact menu dropdown-content join join-vertical z-10 flex max-h-80 min-w-[20rem] flex-col flex-nowrap overflow-visible overflow-y-auto rounded-md bg-base-100 p-0 shadow shadow-black"
   >
@@ -75,12 +88,12 @@
           <button
             type="button"
             class="join-item w-full border-b border-b-base-content/10"
-            on:click={() => {
+            onclick={() => {
               onSelect?.(option);
               reset();
             }}
           >
-            <slot name="entity" {option} />
+            {@render entity?.({ option })}
           </button>
         </li>
       {/each}

@@ -9,11 +9,15 @@
   import type { DeleteSchema } from "./+page.server";
   import { isAuthorized } from "$lib/utils/authorization";
 
-  export let deleteForm: SuperValidated<DeleteSchema>;
-  export let name: string;
-  export let files: FileData[];
-  export let isEditing = false;
-  // I do not use this because lexical ordering (default from minio) is preferred in my opinion
+  interface Props {
+    deleteForm: SuperValidated<DeleteSchema>;
+    name: string;
+    files: FileData[];
+    isEditing?: boolean; // I do not use this because lexical ordering (default from minio) is preferred in my opinion
+  }
+
+  let { deleteForm, name, files, isEditing = false }: Props = $props();
+
   // $: filesSortedByDate = [...files].sort((a, b) => {
   //   if (a.modDate && b.modDate) {
   //     return b.modDate.getTime() - a.modDate.getTime();

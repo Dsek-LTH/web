@@ -1,6 +1,10 @@
 <script lang="ts">
   import type { Readme } from "@prisma/client";
-  export let readme: Readme;
+  interface Props {
+    readme: Readme;
+  }
+
+  let { readme }: Props = $props();
 </script>
 
 <iframe

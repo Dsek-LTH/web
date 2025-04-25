@@ -9,8 +9,12 @@
   type Question = CartItem["shoppable"]["questions"][number] & {
     expiresAt: Date | null;
   };
-  export let question: Question;
-  export let onSuccess: (() => void) | undefined = undefined;
+  interface Props {
+    question: Question;
+    onSuccess?: (() => void) | undefined;
+  }
+
+  let { question, onSuccess = undefined }: Props = $props();
 
   const getSuperForm = (form: Question["form"]) =>
     superForm(form, {
@@ -22,9 +26,9 @@
       resetForm: true,
       invalidateAll: "force",
     });
-  $: superform = getSuperForm(question.form);
-  $: enhance = superform.enhance;
-  $: form = superform.form;
+  let superform = $derived(getSuperForm(question.form));
+  let enhance = $derived(superform.enhance);
+  let form = $derived(superform.form);
 </script>
 
 <form use:enhance method="POST" action="?/answerQuestion">
@@ -52,9 +56,11 @@
             />{option.answer}
             {#if anyHasExtraPrice}
               <Price class="text-sm" price={option.extraPrice ?? 0}>
-                <span slot="prefix">
-                  {#if !!option.extraPrice}+{/if}
-                </span>
+                {#snippet prefix()}
+                  <span>
+                    {#if !!option.extraPrice}+{/if}
+                  </span>
+                {/snippet}
               </Price>
             {/if}
           </label>

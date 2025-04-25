@@ -5,7 +5,11 @@
   import type { EventWithIncludes } from "$lib/events/getEvents";
   import dayjs from "dayjs";
 
-  export let event: EventWithIncludes;
+  interface Props {
+    event: EventWithIncludes;
+  }
+
+  let { event }: Props = $props();
   const dayjsDate = dayjs(event.startDatetime);
 </script>
 

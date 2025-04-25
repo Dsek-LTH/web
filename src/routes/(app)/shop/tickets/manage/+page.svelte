@@ -3,8 +3,8 @@
   import * as m from "$paraglide/messages";
   import dayjs from "dayjs";
 
-  export let data;
-  $: tickets = data.tickets;
+  let { data } = $props();
+  let tickets = $derived(data.tickets);
 </script>
 
 <PageHeader title={m.tickets()} />

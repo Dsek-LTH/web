@@ -5,7 +5,11 @@
   import TicketActions from "./TicketActions.svelte";
   import TicketEvent from "./TicketEvent.svelte";
 
-  export let ticket: TicketWithMoreInfo;
+  interface Props {
+    ticket: TicketWithMoreInfo;
+  }
+
+  let { ticket }: Props = $props();
 </script>
 
 <a

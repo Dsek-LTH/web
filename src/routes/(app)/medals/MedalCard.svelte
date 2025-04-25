@@ -4,9 +4,13 @@
   import { getFullName } from "$lib/utils/client/member";
   import type { Member } from "@prisma/client";
 
-  export let medal: string;
-  export let recipients: Member[];
-  let mandatesBox: HTMLDivElement; // Function to check whether the element is overflowing
+  interface Props {
+    medal: string;
+    recipients: Member[];
+  }
+
+  let { medal, recipients }: Props = $props();
+  let mandatesBox: HTMLDivElement = $state(); // Function to check whether the element is overflowing
 </script>
 
 <article class="card bg-base-200 shadow-xl transition-all">

@@ -11,7 +11,7 @@
   import Navbar from "../Navbar.svelte";
   import Toast from "../Toast.svelte";
 
-  export let data;
+  let { data, children } = $props();
 </script>
 
 {#if !data.isApp}
@@ -37,7 +37,7 @@
 {/each}
 
 <main class="w-full flex-1 overflow-x-auto" class:pb-16={data.isApp}>
-  <slot />
+  {@render children?.()}
 </main>
 <Toast />
 {#if !data.isApp}

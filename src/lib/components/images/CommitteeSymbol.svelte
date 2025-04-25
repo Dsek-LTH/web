@@ -2,15 +2,23 @@
   import { getFileUrl } from "$lib/files/client";
   import type { Committee } from "@prisma/client";
 
-  export let committee: Pick<Committee, "symbolUrl" | "name">;
-  $: dark = committee.symbolUrl?.endsWith("light.svg")
-    ? committee.symbolUrl.slice(0, -9) + "dark.svg"
-    : committee.symbolUrl;
-  $: light = committee.symbolUrl?.endsWith("dark.svg")
-    ? committee.symbolUrl.slice(0, -8) + "light.svg"
-    : committee.symbolUrl;
+  interface Props {
+    committee: Pick<Committee, "symbolUrl" | "name">;
+  }
 
-  $: differentDarkLight = dark !== light;
+  let { committee }: Props = $props();
+  let dark = $derived(
+    committee.symbolUrl?.endsWith("light.svg")
+      ? committee.symbolUrl.slice(0, -9) + "dark.svg"
+      : committee.symbolUrl,
+  );
+  let light = $derived(
+    committee.symbolUrl?.endsWith("dark.svg")
+      ? committee.symbolUrl.slice(0, -8) + "light.svg"
+      : committee.symbolUrl,
+  );
+
+  let differentDarkLight = $derived(dark !== light);
 </script>
 
 {#if differentDarkLight}

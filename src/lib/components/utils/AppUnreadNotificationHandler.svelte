@@ -1,5 +1,11 @@
 <script lang="ts">
-  export let notificationCount: number | undefined = undefined;
+  import { run } from "svelte/legacy";
+
+  interface Props {
+    notificationCount?: number | undefined;
+  }
+
+  let { notificationCount = undefined }: Props = $props();
 
   const sendNotificationCountToApp = async (count: number | undefined) => {
     if (count === undefined) return;
@@ -13,5 +19,7 @@
     );
   };
 
-  $: (() => sendNotificationCountToApp(notificationCount))();
+  run(() => {
+    (() => sendNotificationCountToApp(notificationCount))();
+  });
 </script>

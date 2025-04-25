@@ -6,11 +6,11 @@
   import NavIcon from "$lib/components/NavIcon.svelte";
   import { getRoutes } from "./routes";
 
-  let checked = false;
+  let checked = $state(false);
   function close() {
     checked = !checked;
   }
-  $: routes = getRoutes();
+  let routes = $derived(getRoutes());
 </script>
 
 <input id="main-drawer" type="checkbox" class="drawer-toggle" bind:checked />
@@ -41,7 +41,7 @@
                     {#if !child.accessRequired || isAuthorized(child.accessRequired, $page.data.user)}
                       <li class="py-1">
                         <a
-                          on:click={close}
+                          onclick={close}
                           href={child.path}
                           class="active:!bg-primary/10"
                         >
@@ -58,7 +58,7 @@
           {:else}
             <li class="py-1">
               <a
-                on:click={close}
+                onclick={close}
                 href={route.path}
                 class="active:!bg-primary/10"
               >

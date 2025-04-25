@@ -1,13 +1,17 @@
 <script lang="ts">
+  import { preventDefault } from "svelte/legacy";
+
   import type { Member } from "@prisma/client";
   import { twMerge } from "tailwind-merge";
 
-  export let member: Pick<Member, "picturePath"> | null = null;
   // export let uniqueCode: string | null = null; // unused for now, might use for creating better unique "backup images" later
-  let clazz = "";
-  export { clazz as class };
+  interface Props {
+    member?: Pick<Member, "picturePath"> | null;
+    class?: string;
+    children?: import("svelte").Snippet;
+  }
 
-  $: backupUrl = "https://gravatar.com/avatar?s=100&d=mp";
+  let { member = null, class: clazz = "", children }: Props = $props();
 </script>
 
 <div
@@ -19,14 +23,14 @@
   <figure class="relative w-full">
     <img
       src={member?.picturePath || backupUrl}
-      on:error|preventDefault={(e) => {
+      onerror={preventDefault((e) => {
         const imgElement = e.currentTarget;
         if (imgElement && "src" in imgElement && imgElement.src !== backupUrl) {
           imgElement.src = backupUrl;
         }
-      }}
+      })}
       alt=""
     />
-    <slot />
+    {@render children?.()}
   </figure>
 </div>

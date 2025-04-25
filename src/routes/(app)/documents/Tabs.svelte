@@ -1,25 +1,37 @@
 <script lang="ts">
+  import { run } from "svelte/legacy";
+
   import { page } from "$app/stores";
 
   type TabOption = {
     name: string;
     value: string;
   };
-  export let options: TabOption[] = [];
-  export let fieldName = "type";
-  export let currentTab = options[0]?.value;
-  $: (() => {
-    const searchParamValue = $page.url.searchParams.get(fieldName);
-    if (searchParamValue) {
-      currentTab = searchParamValue;
-    }
-  })();
+  interface Props {
+    options?: TabOption[];
+    fieldName?: string;
+    currentTab?: any;
+  }
 
-  $: generateLink = (value: string) => {
+  let {
+    options = [],
+    fieldName = "type",
+    currentTab = $bindable(options[0]?.value),
+  }: Props = $props();
+  run(() => {
+    (() => {
+      const searchParamValue = $page.url.searchParams.get(fieldName);
+      if (searchParamValue) {
+        currentTab = searchParamValue;
+      }
+    })();
+  });
+
+  let generateLink = $derived((value: string) => {
     const searchParams = new URLSearchParams($page.url.searchParams);
     searchParams.set(fieldName, value.toString());
     return `?${searchParams.toString()}`;
-  };
+  });
 </script>
 
 <div

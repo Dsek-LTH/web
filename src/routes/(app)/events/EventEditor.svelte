@@ -1,3 +1,4 @@
+<!-- @migration-task Error while migrating Svelte code: This migration would change the name of a slot making the component unusable -->
 <script lang="ts">
   import FormCheckbox from "$lib/components/forms/FormCheckbox.svelte";
   import FormDateInput from "$lib/components/forms/FormDateInput.svelte";

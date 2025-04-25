@@ -7,7 +7,11 @@
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
   import CommitteeIcon from "$lib/components/images/CommitteeIcon.svelte";
-  export let data: PageData;
+  interface Props {
+    data: PageData;
+  }
+
+  let { data }: Props = $props();
 </script>
 
 <div class="flex flex-row">

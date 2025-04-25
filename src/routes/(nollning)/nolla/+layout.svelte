@@ -6,8 +6,13 @@
   import * as m from "$paraglide/messages";
   import { languageTag } from "$paraglide/runtime";
   import "./nolla.css";
+  interface Props {
+    children?: import("svelte").Snippet;
+  }
 
-  let checked = false;
+  let { children }: Props = $props();
+
+  let checked = $state(false);
 
   const routes = [
     { text: m.nolla_nav_start(), link: "/nolla" },
@@ -15,11 +20,11 @@
     { text: m.nolla_nav_sektionen(), link: "/nolla/sektionen" },
     { text: m.nolla_nav_todo(), link: "/nolla/todo" },
   ];
-  $: drawerRoutes = [
+  let drawerRoutes = $derived([
     ...routes,
     { text: m.nolla_nav_wellbeing(), link: "/nolla/wellbeing" },
     { text: m.nolla_wordlist_header(), link: "/nolla/wordlist" },
-  ];
+  ]);
 </script>
 
 <div
@@ -60,7 +65,7 @@
           class="neo-brutal-btn aspect-square"
           href={i18n.route($page.url.pathname)}
           hreflang={languageTag() === "sv" ? "en" : "sv"}
-          on:click={() => invalidateAll()}
+          onclick={() => invalidateAll()}
         >
           <span
             class:i-flag-gb-4x3={languageTag() !== "sv"}
@@ -76,7 +81,7 @@
       </div>
     </nav>
     <main class="container mx-auto flex-1 px-4 py-16 sm:px-8">
-      <slot />
+      {@render children?.()}
     </main>
   </div>
   <!-- Drawer -->
@@ -88,7 +93,7 @@
     >
       {#each drawerRoutes as route}
         <li>
-          <a on:click={() => (checked = false)} href={route.link} class=""
+          <a onclick={() => (checked = false)} href={route.link} class=""
             >{route.text}</a
           >
         </li>

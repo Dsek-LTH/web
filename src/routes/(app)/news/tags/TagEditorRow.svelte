@@ -7,8 +7,12 @@
   import { onMount } from "svelte";
   import * as m from "$paraglide/messages";
 
-  export let data: SuperValidated<UpdateSchema>;
-  export let tag: Tag;
+  interface Props {
+    data: SuperValidated<UpdateSchema>;
+    tag: Tag;
+  }
+
+  let { data, tag }: Props = $props();
   const { form, errors, constraints, enhance, submitting } = superForm(data, {
     id: tag.id,
     onResult: (event) => {
@@ -25,7 +29,7 @@
       return f;
     });
   });
-  let isEditing = false;
+  let isEditing = $state(false);
 </script>
 
 <tr>
@@ -46,7 +50,7 @@
       <button
         class="btn btn-xs px-8"
         type="button"
-        on:click={() => (isEditing = !isEditing)}
+        onclick={() => (isEditing = !isEditing)}
         >{m.news_tags_edit()}
       </button>
     </td>

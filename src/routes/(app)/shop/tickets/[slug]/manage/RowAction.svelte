@@ -2,22 +2,32 @@
   import { enhance } from "$app/forms";
   import type { SubmitFunction } from "@sveltejs/kit";
 
-  export let action: string;
-  export let warningMessage: string | null = null;
-  export let consumableId: string;
+  interface Props {
+    action: string;
+    warningMessage?: string | null;
+    consumableId: string;
+    children?: import("svelte").Snippet;
+  }
 
-  let isLoading = false;
+  let {
+    action,
+    warningMessage = null,
+    consumableId,
+    children,
+  }: Props = $props();
 
-  $: enhanceMethod = ({
-    cancel,
-  }: Parameters<SubmitFunction>[0]): ReturnType<SubmitFunction> => {
-    if (warningMessage !== null && !confirm(warningMessage)) cancel();
-    else isLoading = true;
-    return ({ update }) => {
-      isLoading = false;
-      update();
-    };
-  };
+  let isLoading = $state(false);
+
+  let enhanceMethod = $derived(
+    ({ cancel }: Parameters<SubmitFunction>[0]): ReturnType<SubmitFunction> => {
+      if (warningMessage !== null && !confirm(warningMessage)) cancel();
+      else isLoading = true;
+      return ({ update }) => {
+        isLoading = false;
+        update();
+      };
+    },
+  );
 </script>
 
 <form method="POST" {action} use:enhance={enhanceMethod}>
@@ -26,7 +36,7 @@
     {#if isLoading}
       <span class="loading loading-spinner loading-sm"></span>
     {:else}
-      <slot />
+      {@render children?.()}
     {/if}
   </button>
 </form>

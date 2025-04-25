@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { preventDefault } from "svelte/legacy";
+
   import { page } from "$app/stores";
   import Price from "$lib/components/Price.svelte";
   import { toast } from "$lib/stores/toast";
@@ -8,21 +10,27 @@
   import type StripeJS from "@stripe/stripe-js";
   import { Elements, PaymentElement } from "svelte-stripe";
 
-  export let stripe: StripeJS.Stripe | null;
-  export let clientSecret: string;
-  export let price: number;
-  $: redirectPath =
-    $page.data["paths"]?.["purchaseRedirect"] ?? "/shop/success";
-  $: redirectUrl =
+  interface Props {
+    stripe: StripeJS.Stripe | null;
+    clientSecret: string;
+    price: number;
+  }
+
+  let { stripe, clientSecret, price }: Props = $props();
+  let redirectPath = $derived(
+    $page.data["paths"]?.["purchaseRedirect"] ?? "/shop/success",
+  );
+  let redirectUrl = $derived(
     ($page.data.isApp ? APP_REDIRECT_URL : $page.url.origin + "/") +
-    redirectPath.slice(1);
+      redirectPath.slice(1),
+  );
 
-  $: member = $page.data.member;
+  let member = $derived($page.data.member);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- The lib we use for display the elements uses an older version of stripe. It works but has the wrong type
-  let elements: any;
+  let elements: any = $state();
 
-  let isProcessing = false;
-  let paymentError: string | null = null;
+  let isProcessing = $state(false);
+  let paymentError: string | null = $state(null);
   const handleSubmit = async () => {
     // avoid processing duplicates
     if (isProcessing || !stripe || !elements) return;
@@ -63,7 +71,7 @@
     }
   };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- The lib we use for display the elements uses an older version of stripe. It works but has the wrong type
-  $: untypedStripe = stripe as any;
+  let untypedStripe = $derived(stripe as any);
 </script>
 
 {#if stripe}
@@ -76,7 +84,7 @@
       colorPrimary: "#f280a1",
     }}
   >
-    <form on:submit|preventDefault={handleSubmit}>
+    <form onsubmit={preventDefault(handleSubmit)}>
       <PaymentElement
         options={{
           layout: "tabs",

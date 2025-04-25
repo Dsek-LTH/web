@@ -4,9 +4,13 @@
   import * as m from "$paraglide/messages";
 
   import type { PageData } from "./$types";
-  export let data: PageData;
-  $: committees = [...data.committees].sort((a, b) =>
-    a.name.localeCompare(b.name, "sv"),
+  interface Props {
+    data: PageData;
+  }
+
+  let { data }: Props = $props();
+  let committees = $derived(
+    [...data.committees].sort((a, b) => a.name.localeCompare(b.name, "sv")),
   );
 </script>
 

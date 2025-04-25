@@ -5,9 +5,13 @@
   import type { ConsumableWithMoreInfo } from "$lib/server/shop/inventory/types";
   import { getFileUrl } from "$lib/files/client";
 
-  export let consumable: ConsumableWithMoreInfo;
-  $: shoppable = consumable.shoppable;
-  $: event = shoppable.event;
+  interface Props {
+    consumable: ConsumableWithMoreInfo;
+  }
+
+  let { consumable }: Props = $props();
+  let shoppable = $derived(consumable.shoppable);
+  let event = $derived(shoppable.event);
 </script>
 
 <div class="card card-compact overflow-hidden bg-base-300 shadow-xl">

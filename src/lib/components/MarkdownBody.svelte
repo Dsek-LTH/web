@@ -2,9 +2,13 @@
   import { marked } from "marked";
   import { twMerge } from "tailwind-merge";
 
-  let clazz = "";
-  export { clazz as class };
-  export let body: string;
+  interface Props {
+    class?: string;
+    body: string;
+    children?: import("svelte").Snippet;
+  }
+
+  let { class: clazz = "", body, children }: Props = $props();
 </script>
 
 <section
@@ -13,7 +17,7 @@
     clazz,
   )}
 >
-  <slot />
+  {@render children?.()}
   <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized client-side -->
   {@html marked(body)}
 </section>

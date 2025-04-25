@@ -3,7 +3,12 @@
   import type { Event } from "@prisma/client";
   import dayjs from "dayjs";
 
-  export let event: Event;
+  interface Props {
+    event: Event;
+    children?: import("svelte").Snippet;
+  }
+
+  let { event, children }: Props = $props();
 </script>
 
 <div class="flex items-center gap-3">
@@ -21,6 +26,6 @@
     <div class="text-sm opacity-50">
       {dayjs(event.startDatetime).format("DD/MM")}
     </div>
-    <slot />
+    {@render children?.()}
   </div>
 </div>

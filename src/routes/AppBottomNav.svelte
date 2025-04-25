@@ -4,14 +4,16 @@
   import { i18n } from "$lib/utils/i18n";
   import NavIcon from "$lib/components/NavIcon.svelte";
   import { appBottomNavRoutes, getRoutes } from "./routes";
-  $: shopItemCounts = $page.data["shopItemCounts"] as UserShopItemCounts;
-  $: routes = getRoutes();
-  $: routesToShow = appBottomNavRoutes(routes);
-  $: currentRoute = i18n.route($page.url.pathname);
-  $: currentRouteIndex = routesToShow.findIndex(
-    (route) => route.path === currentRoute,
+  let shopItemCounts = $derived(
+    $page.data["shopItemCounts"] as UserShopItemCounts,
   );
-  $: bottomInsets = $page.data.appInfo?.insets?.bottom ?? 0;
+  let routes = $derived(getRoutes());
+  let routesToShow = $derived(appBottomNavRoutes(routes));
+  let currentRoute = $derived(i18n.route($page.url.pathname));
+  let currentRouteIndex = $derived(
+    routesToShow.findIndex((route) => route.path === currentRoute),
+  );
+  let bottomInsets = $derived($page.data.appInfo?.insets?.bottom ?? 0);
 </script>
 
 <nav

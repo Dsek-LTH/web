@@ -7,7 +7,11 @@
     type SuperForm,
   } from "sveltekit-superforms/client";
 
-  export let superform: SuperForm<TicketSchema>;
+  interface Props {
+    superform: SuperForm<TicketSchema>;
+  }
+
+  let { superform }: Props = $props();
   const { values, errors } = arrayProxy(
     superform,
     "accessPolicies",
@@ -31,7 +35,7 @@
   <button
     type="button"
     class="btn btn-primary"
-    on:click={() => {
+    onclick={() => {
       if ($values === undefined) {
         $values = [{ role: null, studentId: null }];
       } else {

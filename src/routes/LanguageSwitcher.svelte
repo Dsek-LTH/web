@@ -1,13 +1,17 @@
 <script lang="ts">
   import { languageTag, onSetLanguageTag } from "$paraglide/runtime";
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import { i18n } from "$lib/utils/i18n";
   import { invalidateAll } from "$app/navigation";
   import { twMerge } from "tailwind-merge";
   import { browser } from "$app/environment";
 
-  let clazz = "";
-  export { clazz as class };
+  interface Props {
+    class?: string;
+    children?: import("svelte").Snippet;
+  }
+
+  let { class: clazz = "", children }: Props = $props();
 
   if (browser) {
     onSetLanguageTag(() => {
@@ -18,10 +22,10 @@
 
 <a
   class={twMerge("btn btn-ghost", clazz)}
-  href={i18n.route($page.url.pathname)}
+  href={i18n.route(page.url.pathname)}
   hreflang={languageTag() === "sv" ? "en" : "sv"}
 >
-  <slot>
+  {#if children}{@render children()}{:else}
     {languageTag() === "sv" ? "EN" : "SV"}
-  </slot>
+  {/if}
 </a>

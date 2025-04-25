@@ -4,7 +4,11 @@
   import { getFullName } from "$lib/utils/client/member";
   import type { PageData } from "./$types";
   import * as m from "$paraglide/messages";
-  export let data: PageData;
+  interface Props {
+    data: PageData;
+  }
+
+  let { data }: Props = $props();
 </script>
 
 <PageHeader title={m.theBoard()} />

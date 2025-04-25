@@ -8,10 +8,10 @@
   import Input from "$lib/components/Input.svelte";
   import * as m from "$paraglide/messages";
 
-  export let data;
+  let { data } = $props();
   const { email } = $page.params;
-  $: emailAliases = data.emailAlias;
-  $: allPositions = data.allPositions;
+  let emailAliases = $derived(data.emailAlias);
+  let allPositions = $derived(data.allPositions);
 
   const {
     form: addPositionForm,
@@ -39,14 +39,14 @@
     data.deleteSpecialSenderForm,
   );
 
-  let isEditing = false;
+  let isEditing = $state(false);
 </script>
 
 <div class="flex flex-row justify-between">
   <PageHeader title={email} />
   <button
     class="btn"
-    on:click={() => {
+    onclick={() => {
       isEditing = !isEditing;
     }}
   >

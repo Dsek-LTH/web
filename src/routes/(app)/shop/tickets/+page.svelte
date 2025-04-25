@@ -9,17 +9,21 @@
   import NavIcon from "$lib/components/NavIcon.svelte";
   import TicketSection from "./TicketSection.svelte";
 
-  export let data;
-  $: activeTickets = data.tickets.filter(
-    (ticket) =>
-      ticket.availableFrom <= $now &&
-      (ticket.availableTo === null || ticket.availableTo >= $now),
+  let { data } = $props();
+  let activeTickets = $derived(
+    data.tickets.filter(
+      (ticket) =>
+        ticket.availableFrom <= $now &&
+        (ticket.availableTo === null || ticket.availableTo >= $now),
+    ),
   );
-  $: upcomingTickets = data.tickets.filter(
-    (ticket) => ticket.availableFrom > $now,
+  let upcomingTickets = $derived(
+    data.tickets.filter((ticket) => ticket.availableFrom > $now),
   );
-  $: pastTickets = data.tickets.filter(
-    (ticket) => ticket.availableTo && ticket.availableTo < $now,
+  let pastTickets = $derived(
+    data.tickets.filter(
+      (ticket) => ticket.availableTo && ticket.availableTo < $now,
+    ),
   );
 </script>
 

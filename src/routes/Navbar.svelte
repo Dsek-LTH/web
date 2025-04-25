@@ -12,11 +12,11 @@
   import UserMenu from "./UserMenu.svelte";
   import { getRoutes } from "./routes";
   import GlobalSearch from "$lib/components/search/GlobalSearch.svelte";
-  $: pageData = $page.data as typeof $page.data & GlobalAppLoadData;
-  $: notificationsPromise = pageData["notificationsPromise"];
-  $: mutateNotificationForm = pageData["mutateNotificationForm"];
-  $: shopItemCounts = pageData["shopItemCounts"];
-  $: routes = getRoutes();
+  let pageData = $derived($page.data as typeof $page.data & GlobalAppLoadData);
+  let notificationsPromise = $derived(pageData["notificationsPromise"]);
+  let mutateNotificationForm = $derived(pageData["mutateNotificationForm"]);
+  let shopItemCounts = $derived(pageData["shopItemCounts"]);
+  let routes = $derived(getRoutes());
 </script>
 
 <div
@@ -41,12 +41,12 @@
         {#if !route.accessRequired || isAuthorized(route.accessRequired, $page.data.user)}
           {#if route?.children?.length}
             <div class="dropdown dropdown-hover">
-              <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+              <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
               <label tabindex="0" class="btn btn-ghost">
                 <NavIcon icon={route.icon} />
                 {route.title}</label
               >
-              <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+              <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
               <ul
                 tabindex="0"
                 class="menu dropdown-content z-[1] w-52 rounded-box bg-base-200 p-2 shadow"

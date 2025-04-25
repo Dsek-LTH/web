@@ -8,7 +8,7 @@
   import { page } from "$app/stores";
   import * as m from "$paraglide/messages";
 
-  export let data;
+  let { data } = $props();
 
   const {
     form: createEmailPositionForm,
@@ -31,37 +31,43 @@
     enhance: createEmailSpecialReceiverEnhance,
   } = superForm(data.createEmailSpecialReceiverForm);
 
-  $: groupedEmailAliases = Array.from(
-    data.emailAliases.reduce((acc, emailAlias) => {
-      if (!acc.has(emailAlias.email)) {
-        acc.set(emailAlias.email, []);
-      }
-      acc.get(emailAlias.email)?.push(emailAlias.positionId);
-      return acc;
-    }, new Map<string, string[]>()),
+  let groupedEmailAliases = $derived(
+    Array.from(
+      data.emailAliases.reduce((acc, emailAlias) => {
+        if (!acc.has(emailAlias.email)) {
+          acc.set(emailAlias.email, []);
+        }
+        acc.get(emailAlias.email)?.push(emailAlias.positionId);
+        return acc;
+      }, new Map<string, string[]>()),
+    ),
   );
-  $: groupedSpecialReceivers = Array.from(
-    data.specialReceivers.reduce((acc, emailSpecialReceiver) => {
-      if (!acc.has(emailSpecialReceiver.email)) {
-        acc.set(emailSpecialReceiver.email, []);
-      }
-      acc
-        .get(emailSpecialReceiver.email)
-        ?.push(emailSpecialReceiver.targetEmail);
-      return acc;
-    }, new Map<string, string[]>()),
+  let groupedSpecialReceivers = $derived(
+    Array.from(
+      data.specialReceivers.reduce((acc, emailSpecialReceiver) => {
+        if (!acc.has(emailSpecialReceiver.email)) {
+          acc.set(emailSpecialReceiver.email, []);
+        }
+        acc
+          .get(emailSpecialReceiver.email)
+          ?.push(emailSpecialReceiver.targetEmail);
+        return acc;
+      }, new Map<string, string[]>()),
+    ),
   );
-  $: groupedSpecialSenders = Array.from(
-    data.specialSenders.reduce((acc, emailSpecialSender) => {
-      if (!acc.has(emailSpecialSender.email)) {
-        acc.set(emailSpecialSender.email, []);
-      }
-      acc.get(emailSpecialSender.email)?.push({
-        studentId: emailSpecialSender.studentId,
-        keycloakId: emailSpecialSender.keycloakId,
-      });
-      return acc;
-    }, new Map<string, Array<{ studentId: string; keycloakId: string | null }>>()),
+  let groupedSpecialSenders = $derived(
+    Array.from(
+      data.specialSenders.reduce((acc, emailSpecialSender) => {
+        if (!acc.has(emailSpecialSender.email)) {
+          acc.set(emailSpecialSender.email, []);
+        }
+        acc.get(emailSpecialSender.email)?.push({
+          studentId: emailSpecialSender.studentId,
+          keycloakId: emailSpecialSender.keycloakId,
+        });
+        return acc;
+      }, new Map<string, Array<{ studentId: string; keycloakId: string | null }>>()),
+    ),
   );
 </script>
 

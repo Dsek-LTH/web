@@ -3,7 +3,11 @@
   import * as m from "$paraglide/messages";
   import CartReservation from "./Reservation/CartReservation.svelte";
 
-  export let reservations: CartReservationType[];
+  interface Props {
+    reservations: CartReservationType[];
+  }
+
+  let { reservations }: Props = $props();
 </script>
 
 <h1 class="mb-4 text-2xl">{m.cart_reservations()}</h1>

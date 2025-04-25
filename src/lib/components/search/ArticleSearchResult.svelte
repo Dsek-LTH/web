@@ -1,6 +1,10 @@
 <script lang="ts">
   import type { ArticleSearchReturnAttributes } from "$lib/search/searchTypes";
-  export let article: ArticleSearchReturnAttributes;
+  interface Props {
+    article: ArticleSearchReturnAttributes;
+  }
+
+  let { article }: Props = $props();
 </script>
 
 <li>

@@ -2,7 +2,11 @@
   import { page } from "$app/stores";
   import * as m from "$paraglide/messages";
 
-  export let type: string;
+  interface Props {
+    type: string;
+  }
+
+  let { type = $bindable() }: Props = $props();
 
   type = $page.url.searchParams.get("type") ?? "meeting";
 </script>

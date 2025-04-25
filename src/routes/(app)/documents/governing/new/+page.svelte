@@ -3,7 +3,11 @@
   import GoverningDocumentEditor from "../GoverningDocumentEditor.svelte";
   import type { PageData } from "./$types";
   import * as m from "$paraglide/messages";
-  export let data: PageData;
+  interface Props {
+    data: PageData;
+  }
+
+  let { data }: Props = $props();
 </script>
 
 <SetPageTitle title={m.documents_governingDocuments()} />

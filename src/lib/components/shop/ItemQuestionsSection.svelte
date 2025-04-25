@@ -4,7 +4,11 @@
   import type { TicketSchema } from "$lib/utils/shop/types";
   import { arrayProxy, type SuperForm } from "sveltekit-superforms/client";
 
-  export let superform: SuperForm<TicketSchema>;
+  interface Props {
+    superform: SuperForm<TicketSchema>;
+  }
+
+  let { superform }: Props = $props();
   const { values, errors } = arrayProxy(superform, "questions");
 </script>
 
@@ -23,7 +27,7 @@
   <button
     class="btn btn-outline btn-primary"
     type="button"
-    on:click={() => {
+    onclick={() => {
       $values = [
         ...$values,
         {

@@ -9,7 +9,7 @@
   import CodeWithDwww from "$lib/components/home/CodeWithDWWW.svelte";
   import AppHomeNavigation from "./AppHomeNavigation.svelte";
 
-  export let data;
+  let { data } = $props();
 </script>
 
 <SetPageTitle title="D-sektionen" />

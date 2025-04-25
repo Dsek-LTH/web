@@ -4,7 +4,7 @@
   import LangTabs from "$lib/components/layout/LangTabs.svelte";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import { superForm } from "$lib/utils/client/superForms";
-  export let data;
+  let { data } = $props();
 
   const superform = superForm(data.form);
   const { form, errors, enhance } = superform;
@@ -26,8 +26,12 @@
     use:enhance
   >
     <LangTabs>
-      <FormMarkdown {superform} field="markdown" slot="sv" rows={10} />
-      <FormMarkdown {superform} field="markdownEn" slot="en" rows={10} />
+      {#snippet sv()}
+        <FormMarkdown {superform} field="markdown" rows={10} />
+      {/snippet}
+      {#snippet en()}
+        <FormMarkdown {superform} field="markdownEn" rows={10} />
+      {/snippet}
     </LangTabs>
     <input type="hidden" name="name" value={$page.params["slug"]} />
     <input type="hidden" name="markdown" bind:value={$form.markdown} />

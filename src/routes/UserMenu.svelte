@@ -8,18 +8,23 @@
   import LoadingButton from "$lib/components/LoadingButton.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
 
-  export let member: Member;
-  export let user: AuthUser;
-  export let shopItemCounts: UserShopItemCounts;
+  interface Props {
+    member: Member;
+    user: AuthUser;
+    shopItemCounts: UserShopItemCounts;
+  }
 
-  $: amountInCart = Promise.all([
-    shopItemCounts?.inCart,
-    shopItemCounts?.reserved,
-  ]).then(([inCart, reserved]) => (inCart ?? 0) + (reserved ?? 0));
+  let { member, user, shopItemCounts }: Props = $props();
+
+  let amountInCart = $derived(
+    Promise.all([shopItemCounts?.inCart, shopItemCounts?.reserved]).then(
+      ([inCart, reserved]) => (inCart ?? 0) + (reserved ?? 0),
+    ),
+  );
 </script>
 
 <div class="dropdown dropdown-end dropdown-hover">
-  <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+  <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
   <label tabindex="0" class="btn btn-ghost">
     {#await amountInCart}
       <MemberAvatar {member} />
@@ -37,7 +42,7 @@
       {/if}
     {/await}
   </label>
-  <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+  <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
   <div
     tabindex="0"
     class="card dropdown-content card-compact z-[1] min-w-[200px] max-w-[min(800px,calc(100vw-20px))] bg-base-200 p-2 text-center text-base-content shadow"

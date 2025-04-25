@@ -5,24 +5,33 @@
   out of view and the new number scrolling into view.  
 -->
 <script lang="ts">
-  /** The number to display. */
-  export let i = 0;
+  import { run } from "svelte/legacy";
 
-  let lastI: number | undefined = undefined;
-  let currentI: number = i;
+  interface Props {
+    /** The number to display. */
+    i?: number;
+  }
+
+  let { i = 0 }: Props = $props();
+
+  let lastI: number | undefined = $state(undefined);
+  let currentI: number = $state(i);
 
   const updateI = (newI: number) => {
     lastI = currentI;
     currentI = newI;
   };
 
-  $: updateI(i);
+  run(() => {
+    updateI(i);
+  });
 
-  $: allNumbers = Array.from({ length: 12 }, (_, i) => i - 1);
-  $: isBigJump =
+  let allNumbers = $derived(Array.from({ length: 12 }, (_, i) => i - 1));
+  let isBigJump = $derived(
     lastI !== undefined &&
-    ((lastI === 0 && currentI > 1) || (lastI > 1 && currentI === 0));
-  $: direction = isBigJump ? (currentI > 1 ? 1 : -1) : 0;
+      ((lastI === 0 && currentI > 1) || (lastI > 1 && currentI === 0)),
+  );
+  let direction = $derived(isBigJump ? (currentI > 1 ? 1 : -1) : 0);
 </script>
 
 <div class="relative h-[1em] text-center transition-all">

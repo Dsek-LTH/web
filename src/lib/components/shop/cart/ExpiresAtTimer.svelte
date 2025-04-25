@@ -1,16 +1,23 @@
 <script lang="ts">
+  import { run } from "svelte/legacy";
+
   import { invalidateAll } from "$app/navigation";
   import Timer from "$lib/components/Timer/Timer.svelte";
   import { now } from "$lib/stores/date";
   import { twMerge } from "tailwind-merge";
 
-  let clazz: string | undefined = undefined;
-  export { clazz as class };
-  export let expiresAt: Date | null = null;
-
-  $: if (expiresAt && $now > expiresAt) {
-    invalidateAll();
+  interface Props {
+    class?: string | undefined;
+    expiresAt?: Date | null;
   }
+
+  let { class: clazz = undefined, expiresAt = null }: Props = $props();
+
+  run(() => {
+    if (expiresAt && $now > expiresAt) {
+      invalidateAll();
+    }
+  });
 </script>
 
 {#if expiresAt}

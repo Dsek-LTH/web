@@ -8,13 +8,15 @@
   import ArticleEditor from "../ArticleEditor.svelte";
   import type { ArticleSchema } from "$lib/news/schema";
 
-  export let data;
+  let { data } = $props();
 
   const superform = superForm(data.form, {
     dataType: "json",
   });
-  $: form = data.form as unknown as SuperValidated<ArticleSchema>;
-  $: superformCorrectType = superform as unknown as SuperForm<ArticleSchema>;
+  let form = $derived(data.form as unknown as SuperValidated<ArticleSchema>);
+  let superformCorrectType = $derived(
+    superform as unknown as SuperForm<ArticleSchema>,
+  );
 </script>
 
 <SetPageTitle title={m.news_createArticle()} />
@@ -25,6 +27,7 @@
   allTags={data.allTags}
   authorOptions={data.authorOptions}
 >
+  <!-- @migration-task: migrate this slot by hand, `form-end` is an invalid identifier -->
   <div slot="form-end">
     <FormInput
       {superform}

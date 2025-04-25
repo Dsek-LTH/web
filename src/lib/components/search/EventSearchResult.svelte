@@ -1,6 +1,10 @@
 <script lang="ts">
   import type { EventSearchReturnAttributes } from "$lib/search/searchTypes";
-  export let event: EventSearchReturnAttributes;
+  interface Props {
+    event: EventSearchReturnAttributes;
+  }
+
+  let { event }: Props = $props();
 </script>
 
 <li>

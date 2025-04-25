@@ -1,13 +1,17 @@
 <script lang="ts">
   import type { CustomAuthor } from "@prisma/client";
 
-  export let customAuthor: Pick<CustomAuthor, "imageUrl" | "name"> | null;
+  interface Props {
+    customAuthor: Pick<CustomAuthor, "imageUrl" | "name"> | null;
+  }
+
+  let { customAuthor }: Props = $props();
 </script>
 
 <img
   src={customAuthor?.imageUrl ?? "https://gravatar.com/avatar?s=100&d=mp"}
   alt={customAuthor?.name ?? "Unknown"}
-  on:error={(e) => {
+  onerror={(e) => {
     const imgElement = e.currentTarget;
     if (
       imgElement &&

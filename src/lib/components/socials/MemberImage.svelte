@@ -1,12 +1,18 @@
 <script lang="ts">
+  import { preventDefault } from "svelte/legacy";
+
   import type { Member } from "@prisma/client";
 
-  export let member: Pick<Member, "picturePath">;
+  interface Props {
+    member: Pick<Member, "picturePath">;
+  }
+
+  let { member }: Props = $props();
 </script>
 
 <img
   src={member.picturePath || "https://gravatar.com/avatar?s=100&d=mp"}
-  on:error|preventDefault={(e) => {
+  onerror={preventDefault((e) => {
     const imgElement = e.currentTarget;
     if (
       imgElement &&
@@ -15,6 +21,6 @@
     ) {
       imgElement.src = "https://gravatar.com/avatar?s=100&d=mp";
     }
-  }}
+  })}
   alt="Member avatar"
 />

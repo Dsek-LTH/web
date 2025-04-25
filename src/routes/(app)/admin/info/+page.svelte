@@ -5,7 +5,7 @@
   import { superForm } from "$lib/utils/client/superForms";
   import { slugify } from "$lib/utils/slugify";
   import * as m from "$paraglide/messages";
-  export let data;
+  let { data } = $props();
 
   const superform = superForm(data.form);
   const { form, errors, constraints, enhance } = superform;
@@ -29,8 +29,12 @@
     />
 
     <LangTabs>
-      <FormMarkdown {superform} field="markdown" slot="sv" rows={10} />
-      <FormMarkdown {superform} field="markdownEn" slot="en" rows={10} />
+      {#snippet sv()}
+        <FormMarkdown {superform} field="markdown" rows={10} />
+      {/snippet}
+      {#snippet en()}
+        <FormMarkdown {superform} field="markdownEn" rows={10} />
+      {/snippet}
     </LangTabs>
     <input type="hidden" name="markdown" bind:value={$form.markdown} />
     {#if $errors.markdown}

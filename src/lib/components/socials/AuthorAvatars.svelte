@@ -4,7 +4,11 @@
   import MemberImage from "$lib/components/socials/MemberImage.svelte";
   import type { ExpandedNotification } from "$lib/utils/notifications/group";
 
-  export let authors: Array<NonNullable<ExpandedNotification["fromAuthor"]>>;
+  interface Props {
+    authors: Array<NonNullable<ExpandedNotification["fromAuthor"]>>;
+  }
+
+  let { authors }: Props = $props();
 </script>
 
 {#if authors.length <= 1}

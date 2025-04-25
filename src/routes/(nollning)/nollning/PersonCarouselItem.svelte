@@ -1,17 +1,32 @@
 <script lang="ts">
-  export let stab = false;
-  export let name: string;
-  export let body = "";
-  export let imageUrl = "";
-  export let index: number;
-  export let max = stab ? 6 : 11;
-  export let prefix = `${stab ? "stab" : "pepp"}slide`;
-  export let font = stab
-    ? "font-nolla-stab text-3xl tracking-widest"
-    : "font-nolla-pepp tracking-wider text-4xl";
+  interface Props {
+    stab?: boolean;
+    name: string;
+    body?: string;
+    imageUrl?: string;
+    index: number;
+    max?: any;
+    prefix?: any;
+    font?: any;
+    rounded?: boolean;
+    children?: import("svelte").Snippet;
+  }
 
-  export let rounded = true;
-  $: newLines = name.split("\n").length - 1;
+  let {
+    stab = false,
+    name,
+    body = "",
+    imageUrl = "",
+    index,
+    max = stab ? 6 : 11,
+    prefix = `${stab ? "stab" : "pepp"}slide`,
+    font = stab
+      ? "font-nolla-stab text-3xl tracking-widest"
+      : "font-nolla-pepp tracking-wider text-4xl",
+    rounded = true,
+    children,
+  }: Props = $props();
+  let newLines = $derived(name.split("\n").length - 1);
 </script>
 
 <div
@@ -66,5 +81,5 @@
     <!-- eslint-disable-next-line svelte/no-at-html-tags -->
     {@html body.replaceAll("\n", "<br />")}
   </p>
-  <slot />
+  {@render children?.()}
 </div>

@@ -7,7 +7,7 @@
 -->
 
 <!--This part of the code runs globally for all components of this kind.-->
-<script lang="ts" context="module">
+<script lang="ts" module>
   type Callback = (time: number) => void;
 
   const synchronizedIntervals = {
@@ -48,9 +48,13 @@
   import { onMount } from "svelte";
   import dayjs from "dayjs";
 
-  export let timeStamp: number;
+  interface Props {
+    timeStamp: number;
+  }
 
-  let now = Date.now();
+  let { timeStamp }: Props = $props();
+
+  let now = $state(Date.now());
   // When component is mounted, add this to be periodically updated
   onMount(() => {
     const remove = synchronizedIntervals.add((time) => {
@@ -61,10 +65,11 @@
     };
   });
   // Returns date format if it's been a week or more.
-  $: time =
+  let time = $derived(
     dayjs(timeStamp).diff(dayjs(), "week") < -1
       ? dayjs(timeStamp).format("YYYY-MM-DD")
-      : dayjs(timeStamp).from(now);
+      : dayjs(timeStamp).from(now),
+  );
 </script>
 
 {time}

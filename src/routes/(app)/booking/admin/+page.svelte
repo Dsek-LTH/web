@@ -7,11 +7,11 @@
   import * as m from "$paraglide/messages";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
-  export let data;
+  let { data = $bindable() } = $props();
 
-  let deleteModal: HTMLDialogElement;
+  let deleteModal: HTMLDialogElement = $state();
   let selectedBooking: (typeof data.bookingRequests)[number] | undefined =
-    undefined;
+    $state(undefined);
 </script>
 
 <SetPageTitle title={m.bookings()} />
@@ -123,7 +123,7 @@
                 class="btn btn-outline btn-xs"
                 type="button"
                 aria-label={m.booking_delete()}
-                on:click={() => {
+                onclick={() => {
                   deleteModal?.showModal();
                   selectedBooking = bookingRequest;
                 }}
@@ -146,15 +146,17 @@
   formTarget="/booking?/delete"
   formData={{ id: selectedBooking?.id ?? "" }}
 >
-  <p slot="description">
-    {#if selectedBooking}
-      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-      {@html m.booking_deleteAreYouSure({
-        name: selectedBooking?.booker?.firstName ?? "",
-        bookables: selectedBooking?.bookables
-          .map(({ name }) => name)
-          .join(", "),
-      })}
-    {/if}
-  </p>
+  {#snippet description()}
+    <p>
+      {#if selectedBooking}
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+        {@html m.booking_deleteAreYouSure({
+          name: selectedBooking?.booker?.firstName ?? "",
+          bookables: selectedBooking?.bookables
+            .map(({ name }) => name)
+            .join(", "),
+        })}
+      {/if}
+    </p>
+  {/snippet}
 </ConfirmDialog>

@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { page } from "$app/stores";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import MembersList from "$lib/components/socials/MembersList.svelte";
@@ -31,10 +31,10 @@
   import cowprint from "./(photos)/cowprint.webp";
   import { languageTag } from "$paraglide/runtime";
 
-  export let data;
-  $: topInsets = ($page.data.appInfo?.insets?.top ?? 0) + 8;
-  $: bottomInsets = $page.data.appInfo?.insets?.bottom ?? 0;
-  $: headerAndFooterHeight = 128 + topInsets + bottomInsets;
+  let { data } = $props();
+  let topInsets = $derived(($page.data.appInfo?.insets?.top ?? 0) + 8);
+  let bottomInsets = $derived($page.data.appInfo?.insets?.bottom ?? 0);
+  let headerAndFooterHeight = $derived(128 + topInsets + bottomInsets);
 
   const stab = [
     {

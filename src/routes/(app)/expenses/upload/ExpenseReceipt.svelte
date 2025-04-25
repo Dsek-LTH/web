@@ -11,18 +11,24 @@
   import type { ExpenseSchema, ReceiptRowSchema } from "../types";
   import ExpenseReceiptRow from "./ExpenseReceiptRow.svelte";
 
-  export let superform: SuperForm<ExpenseSchema>;
-  export let index: number;
-  export let onRemove: () => void;
+  interface Props {
+    superform: SuperForm<ExpenseSchema>;
+    index: number;
+    onRemove: () => void;
+  }
 
-  $: proxy = arrayProxy(
-    superform,
-    `receipts[${index}].rows`,
-  ) as ArrayProxy<ReceiptRowSchema>;
-  $: values = proxy.values;
-  $: errors = proxy.errors;
+  let { superform, index, onRemove }: Props = $props();
 
-  let receiptPhotos: string[] | undefined = undefined;
+  let proxy = $derived(
+    arrayProxy(
+      superform,
+      `receipts[${index}].rows`,
+    ) as ArrayProxy<ReceiptRowSchema>,
+  );
+  let values = $derived(proxy.values);
+  let errors = $derived(proxy.errors);
+
+  let receiptPhotos: string[] | undefined = $state(undefined);
   const onFileSelected = async (
     event: Event & {
       currentTarget: EventTarget & HTMLInputElement;
@@ -90,7 +96,7 @@
   <button
     type="button"
     class="btn mt-4"
-    on:click={() => {
+    onclick={() => {
       if ($values === undefined) {
         $values = [createBasicReceiptRow()];
       } else {
@@ -107,7 +113,7 @@
   >
     + {m.add_row()}
   </button>
-  <button type="button" class="absolute right-4 top-4" on:click={onRemove}>
+  <button type="button" class="absolute right-4 top-4" onclick={onRemove}>
     X
   </button>
 

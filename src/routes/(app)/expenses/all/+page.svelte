@@ -5,17 +5,19 @@
   import ExpenseDetailView from "../ExpenseDetailView.svelte";
   import ExpensesTable from "../ExpensesTable.svelte";
 
-  export let data;
+  let { data } = $props();
   let selectedExpense: (typeof data.allExpenses)[number] | undefined =
-    undefined;
+    $state(undefined);
 
-  let filter = ($page.url.searchParams.get("expense-filter") ?? "all") as
-    | "all"
-    | "signed"
-    | "not-signed"
-    | "in-book";
+  let filter = $state(
+    ($page.url.searchParams.get("expense-filter") ?? "all") as
+      | "all"
+      | "signed"
+      | "not-signed"
+      | "in-book",
+  );
 
-  let filterForm: HTMLFormElement;
+  let filterForm: HTMLFormElement = $state();
 </script>
 
 <PageHeader title="All expenses" />
@@ -38,7 +40,7 @@
       name="expense-filter"
       value="all"
       bind:group={filter}
-      on:change={() => filterForm.requestSubmit()}
+      onchange={() => filterForm.requestSubmit()}
     />
   </label>
   <label class="btn btn-primary join-item">
@@ -48,7 +50,7 @@
       name="expense-filter"
       value="not-signed"
       bind:group={filter}
-      on:change={() => filterForm.requestSubmit()}
+      onchange={() => filterForm.requestSubmit()}
     />
   </label>
   <label class="btn btn-primary join-item">
@@ -58,7 +60,7 @@
       name="expense-filter"
       value="signed"
       bind:group={filter}
-      on:change={() => filterForm.requestSubmit()}
+      onchange={() => filterForm.requestSubmit()}
     />
   </label>
   <label class="btn btn-primary join-item">
@@ -68,7 +70,7 @@
       name="expense-filter"
       value="in-book"
       bind:group={filter}
-      on:change={() => filterForm.requestSubmit()}
+      onchange={() => filterForm.requestSubmit()}
     />
   </label>
 </form>

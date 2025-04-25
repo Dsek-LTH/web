@@ -5,7 +5,11 @@
   import BookingEditor from "../../BookingEditor.svelte";
   import * as m from "$paraglide/messages";
 
-  export let data: PageData;
+  interface Props {
+    data: PageData;
+  }
+
+  let { data }: Props = $props();
 </script>
 
 <SetPageTitle title={m.booking_reviewBooking()} />

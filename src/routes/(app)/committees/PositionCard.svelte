@@ -6,16 +6,21 @@
   import { page } from "$app/stores";
   import * as m from "$paraglide/messages";
 
-  export let position: Position;
-  export let mandates: Array<
-    Mandate & {
-      member: Member;
-    }
-  >;
-  let mandatesBox: HTMLDivElement; // Function to check whether the element is overflowing
-  $: year =
+  interface Props {
+    position: Position;
+    mandates: Array<
+      Mandate & {
+        member: Member;
+      }
+    >;
+  }
+
+  let { position, mandates }: Props = $props();
+  let mandatesBox: HTMLDivElement = $state(); // Function to check whether the element is overflowing
+  let year = $derived(
     parseInt($page.url.searchParams.get("year") ?? "") ||
-    new Date().getFullYear();
+      new Date().getFullYear(),
+  );
 </script>
 
 <article class="card bg-base-200 shadow-xl transition-all">

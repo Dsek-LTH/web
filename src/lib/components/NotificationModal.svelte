@@ -4,30 +4,40 @@
   import type { NotificationGroup } from "$lib/utils/notifications/group";
   import * as m from "$paraglide/messages";
 
-  export let modal: HTMLDialogElement;
-  export let notifications: NotificationGroup[] | undefined = undefined;
-  export let allowDelete = true;
-  export let postReveal = false;
-  export let onRead = (id: number | "all") => {
-    console.log("onRead");
-    if (id === "all") {
-      notifications = notifications?.map((notification) => ({
-        ...notification,
-        readAt: new Date(),
-      }));
-    } else {
-      notifications = notifications?.map((notification) =>
-        notification.id === id
-          ? {
-              ...notification,
-              readAt: new Date(),
-            }
-          : notification,
-      );
-    }
-    notifications = notifications;
-    console.log(notifications?.filter((n) => !n.readAt).length);
-  };
+  interface Props {
+    modal: HTMLDialogElement;
+    notifications?: NotificationGroup[] | undefined;
+    allowDelete?: boolean;
+    postReveal?: boolean;
+    onRead?: any;
+  }
+
+  let {
+    modal = $bindable(),
+    notifications = $bindable(undefined),
+    allowDelete = true,
+    postReveal = false,
+    onRead = (id: number | "all") => {
+      console.log("onRead");
+      if (id === "all") {
+        notifications = notifications?.map((notification) => ({
+          ...notification,
+          readAt: new Date(),
+        }));
+      } else {
+        notifications = notifications?.map((notification) =>
+          notification.id === id
+            ? {
+                ...notification,
+                readAt: new Date(),
+              }
+            : notification,
+        );
+      }
+      notifications = notifications;
+      console.log(notifications?.filter((n) => !n.readAt).length);
+    },
+  }: Props = $props();
 </script>
 
 <dialog id="notificationModal" class="modal" bind:this={modal}>

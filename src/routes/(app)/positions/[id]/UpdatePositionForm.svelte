@@ -4,7 +4,11 @@
   import type { UpdatePositionSchema } from "./+page.server";
   import { superForm } from "$lib/utils/client/superForms";
   import * as m from "$paraglide/messages";
-  export let data: SuperValidated<UpdatePositionSchema>;
+  interface Props {
+    data: SuperValidated<UpdatePositionSchema>;
+  }
+
+  let { data }: Props = $props();
   const { form, errors, constraints, enhance } = superForm(data);
 </script>
 

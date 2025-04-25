@@ -5,32 +5,46 @@
   import { twMerge } from "tailwind-merge";
 
   type T = BookingRequest & { bookables: Bookable[] };
-  export let bookingRequest: T;
-  export let bookingRequests: T[];
-  let clazz: string | undefined = undefined;
-  export { clazz as class };
+  interface Props {
+    bookingRequest: T;
+    bookingRequests: T[];
+    class?: string | undefined;
+  }
 
-  $: otherBookingRequests = bookingRequests.filter(
-    (br) => br.id !== bookingRequest.id && br.status !== "DENIED",
+  let {
+    bookingRequest,
+    bookingRequests,
+    class: clazz = undefined,
+  }: Props = $props();
+
+  let otherBookingRequests = $derived(
+    bookingRequests.filter(
+      (br) => br.id !== bookingRequest.id && br.status !== "DENIED",
+    ),
   );
 
-  $: start = dayjs(bookingRequest.start);
-  $: end = dayjs(bookingRequest.end);
-  $: conflict = otherBookingRequests.find(
-    (br) =>
-      dayjs(br.start).isBefore(end) &&
-      dayjs(br.end).isAfter(start) &&
-      br.bookables.some((ba) =>
-        bookingRequest.bookables.map((ba2) => ba2.id).includes(ba.id),
-      ),
+  let start = $derived(dayjs(bookingRequest.start));
+  let end = $derived(dayjs(bookingRequest.end));
+  let conflict = $derived(
+    otherBookingRequests.find(
+      (br) =>
+        dayjs(br.start).isBefore(end) &&
+        dayjs(br.end).isAfter(start) &&
+        br.bookables.some((ba) =>
+          bookingRequest.bookables.map((ba2) => ba2.id).includes(ba.id),
+        ),
+    ),
   );
-  $: conflictingBookables = conflict?.bookables
-    .filter((b) => bookingRequest.bookables.map((ba) => ba.id).includes(b.id))
-    .map((b) => b.name)
-    .join(", ");
-  $: conflictError =
-    bookingRequest.status !== "DENIED" && conflict?.status === "ACCEPTED";
-  $: conflictWarning = conflict && !conflictError;
+  let conflictingBookables = $derived(
+    conflict?.bookables
+      .filter((b) => bookingRequest.bookables.map((ba) => ba.id).includes(b.id))
+      .map((b) => b.name)
+      .join(", "),
+  );
+  let conflictError = $derived(
+    bookingRequest.status !== "DENIED" && conflict?.status === "ACCEPTED",
+  );
+  let conflictWarning = $derived(conflict && !conflictError);
 </script>
 
 <div class={twMerge("flex gap-1", clazz)}>

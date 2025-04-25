@@ -1,6 +1,11 @@
 <script lang="ts">
-  export let title: string;
-  export let checked: boolean;
+  interface Props {
+    title: string;
+    checked: boolean;
+    children?: import("svelte").Snippet;
+  }
+
+  let { title, checked = $bindable(), children }: Props = $props();
 </script>
 
 <div
@@ -17,6 +22,6 @@
     </span>
   </div>
   <div class="collapse-content px-0 peer-checked:!pb-0">
-    <slot />
+    {@render children?.()}
   </div>
 </div>

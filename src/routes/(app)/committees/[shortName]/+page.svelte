@@ -1,7 +1,7 @@
 <script lang="ts">
   import CommitteePage from "../CommitteePage.svelte";
 
-  export let data;
+  let { data } = $props();
 </script>
 
 <CommitteePage {data} />

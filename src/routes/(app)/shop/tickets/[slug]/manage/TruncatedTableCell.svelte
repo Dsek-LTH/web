@@ -2,13 +2,26 @@
   import { twMerge } from "tailwind-merge";
 
   // null represents N/A (not applicable), like purchased at on a non-purchased consumable
-  // undefined represents not set, will be represented as "-"
-  export let value: string | number | Date | undefined | null;
-  // will make the cell link somewhere
-  export let link: string | undefined = undefined;
-  let clazz: string | undefined = undefined;
-  export { clazz as class };
-  $: valueToShow = value === undefined ? "-" : value === null ? "N/A" : value;
+
+  interface Props {
+    // undefined represents not set, will be represented as "-"
+    value: string | number | Date | undefined | null;
+    // will make the cell link somewhere
+    link?: string | undefined;
+    class?: string | undefined;
+    [key: string]: any;
+  }
+
+  let {
+    value,
+    link = undefined,
+    class: clazz = undefined,
+    ...rest
+  }: Props = $props();
+
+  let valueToShow = $derived(
+    value === undefined ? "-" : value === null ? "N/A" : value,
+  );
 </script>
 
 <td>
@@ -18,7 +31,7 @@
         "tooltip max-w-32 overflow-x-hidden text-ellipsis whitespace-nowrap",
         clazz,
       )}
-      {...$$restProps}
+      {...rest}
     >
       {#if link}
         <a class="link text-primary" href={link}>{valueToShow}</a>

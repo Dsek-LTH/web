@@ -1,9 +1,19 @@
 <script lang="ts">
   import { twMerge } from "tailwind-merge";
 
-  export let activeTab: "sv" | "en" = "sv";
-  let clazz: string | undefined = undefined;
-  export { clazz as class };
+  interface Props {
+    activeTab?: "sv" | "en";
+    class?: string | undefined;
+    sv?: import("svelte").Snippet;
+    en?: import("svelte").Snippet;
+  }
+
+  let {
+    activeTab = $bindable("sv"),
+    class: clazz = undefined,
+    sv,
+    en,
+  }: Props = $props();
 </script>
 
 <div
@@ -24,7 +34,7 @@
     bind:group={activeTab}
   />
   <div role="tabpanel" class="tab-content">
-    <slot name="sv" />
+    {@render sv?.()}
   </div>
   <input
     type="radio"
@@ -36,6 +46,6 @@
     bind:group={activeTab}
   />
   <div role="tabpanel" class="tab-content">
-    <slot name="en" />
+    {@render en?.()}
   </div>
 </div>

@@ -11,11 +11,15 @@
   import { NOLLNING_TAG_PREFIX } from "$lib/components/postReveal/types";
   import * as m from "$paraglide/messages";
 
-  export let event: Event & {
-    tags: Tag[];
-  } & {
-    tickets: TicketWithMoreInfo[];
-  };
+  interface Props {
+    event: Event & {
+      tags: Tag[];
+    } & {
+      tickets: TicketWithMoreInfo[];
+    };
+  }
+
+  let { event }: Props = $props();
 </script>
 
 <div

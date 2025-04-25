@@ -1,6 +1,6 @@
-<script>
+<script lang="ts">
   import SettingsPage from "$lib/components/member/SettingsPage.svelte";
-  export let data;
+  let { data } = $props();
 </script>
 
 <SettingsPage {data} />

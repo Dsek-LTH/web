@@ -10,8 +10,8 @@
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
 
-  export let data;
-  let editingSetting: AdminSetting | null = null;
+  let { data } = $props();
+  let editingSetting: AdminSetting | null = $state(null);
   const {
     enhance: updateEnhance,
     submitting: updateSubmitting,
@@ -39,7 +39,7 @@
       {#if editingSetting !== null}
         <div class="flex justify-between">
           <h3 class="text-lg font-semibold">Redigerar</h3>
-          <button class="btn btn-ghost" on:click={() => (editingSetting = null)}
+          <button class="btn btn-ghost" onclick={() => (editingSetting = null)}
             >Sluta redigera
           </button>
         </div>
@@ -99,7 +99,7 @@
                 data.user,
               )}
               class="btn btn-ghost"
-              on:click={() => (editingSetting = setting)}
+              onclick={() => (editingSetting = setting)}
             >
               <span class="i-mdi-edit"></span>
             </button>

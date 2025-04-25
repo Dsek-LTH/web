@@ -11,65 +11,75 @@
   import LikersList from "../LikersList.svelte";
   import type { PageData } from "./$types";
 
-  export let data: PageData;
+  interface Props {
+    data: PageData;
+  }
 
-  $: article = data.article;
-  $: author = article.author;
-  let isRemoving = false;
+  let { data }: Props = $props();
+
+  let article = $derived(data.article);
+  let author = $derived(article.author);
+  let isRemoving = $state(false);
 </script>
 
 <SetPageTitle title={article.header} />
 
 <article>
   <Article {article}>
-    <AuthorSignature
-      slot="author"
-      member={author.member}
-      position={author.mandate?.position}
-      customAuthor={author.customAuthor}
-      type={article.author.type}
-    />
+    {#snippet author()}
+      <AuthorSignature
+        member={author.member}
+        position={author.mandate?.position}
+        customAuthor={author.customAuthor}
+        type={article.author.type}
+      />
+    {/snippet}
 
-    <div slot="actions" class="flex flex-row">
-      {#if data.canEdit}
-        <!-- svelte-ignore a11y_consider_explicit_label -->
-        <a
-          href={`/news/${article.slug}/edit`}
-          class="btn btn-square btn-ghost btn-md"
-          title={m.news_edit()}
-        >
-          <span class="i-mdi-edit text-xl"></span>
-        </a>
-      {/if}
-      {#if data.canDelete}
-        <form
-          method="POST"
-          action="?/removeArticle"
-          use:enhance={() => {
-            isRemoving = true;
-            return ({ update }) => {
-              update();
-              isRemoving = false;
-            };
-          }}
-        >
-          <LoadingButton
-            isLoading={isRemoving}
-            type="submit"
+    {#snippet actions()}
+      <div class="flex flex-row">
+        {#if data.canEdit}
+          <!-- svelte-ignore a11y_consider_explicit_label -->
+          <a
+            href={`/news/${article.slug}/edit`}
             class="btn btn-square btn-ghost btn-md"
-            title={m.news_delete()}
+            title={m.news_edit()}
           >
-            <span class="i-mdi-delete text-xl"></span>
-          </LoadingButton>
-        </form>
-      {/if}
-    </div>
+            <span class="i-mdi-edit text-xl"></span>
+          </a>
+        {/if}
+        {#if data.canDelete}
+          <form
+            method="POST"
+            action="?/removeArticle"
+            use:enhance={() => {
+              isRemoving = true;
+              return ({ update }) => {
+                update();
+                isRemoving = false;
+              };
+            }}
+          >
+            <LoadingButton
+              isLoading={isRemoving}
+              type="submit"
+              class="btn btn-square btn-ghost btn-md"
+              title={m.news_delete()}
+            >
+              <span class="i-mdi-delete text-xl"></span>
+            </LoadingButton>
+          </form>
+        {/if}
+      </div>
+    {/snippet}
 
-    <div slot="tags" class="flex flex-row flex-wrap gap-2">
-      {#each article.tags as tag}
-        <TagChip {tag} />
-      {/each}
-    </div>
+    {#snippet tags()}
+      <div class="flex flex-row flex-wrap gap-2">
+        {#each article.tags as tag}
+          <TagChip {tag} />
+        {/each}
+      </div>
+    {/snippet}
+    <!-- @migration-task: migrate this slot by hand, `after-body` is an invalid identifier -->
     <div slot="after-body" class="mt-4">
       <div class="flex flex-col items-start gap-2">
         <LikersList likers={article.likers} />

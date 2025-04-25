@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { run } from "svelte/legacy";
+
   import { browser } from "$app/environment";
   import { enhance } from "$app/forms";
   import { invalidate } from "$app/navigation";
@@ -20,12 +22,21 @@
     | "authors"
   >;
 
-  export let notification: NotificationItem;
-  export let allowDelete = true;
-  export let onClick: (() => void) | undefined = undefined;
-  export let onRead: (() => void) | undefined = undefined;
+  interface Props {
+    notification: NotificationItem;
+    allowDelete?: boolean;
+    onClick?: (() => void) | undefined;
+    onRead?: (() => void) | undefined;
+  }
 
-  let readForm: HTMLFormElement;
+  let {
+    notification,
+    allowDelete = true,
+    onClick = undefined,
+    onRead = undefined,
+  }: Props = $props();
+
+  let readForm: HTMLFormElement = $state();
   const readNotification = () => {
     console.log("reading notification");
     // read notification
@@ -35,19 +46,25 @@
   };
 
   // Handle "reading" notification when visiting relevant link
-  $: isUnread = notification.readAt === null;
-  $: isPathSame = i18n.route($page.url.pathname) === notification.link;
-  $: (() => {
-    if (isUnread && isPathSame) {
-      setTimeout(() => {
-        readNotification();
-      });
-    }
-  })();
+  let isUnread = $derived(notification.readAt === null);
+  let isPathSame = $derived(
+    i18n.route($page.url.pathname) === notification.link,
+  );
+  run(() => {
+    (() => {
+      if (isUnread && isPathSame) {
+        setTimeout(() => {
+          readNotification();
+        });
+      }
+    })();
+  });
 
-  $: authors = notification.authors.filter(Boolean) as Array<
-    NonNullable<NotificationItem["authors"][number]>
-  >;
+  let authors = $derived(
+    notification.authors.filter(Boolean) as Array<
+      NonNullable<NotificationItem["authors"][number]>
+    >,
+  );
 </script>
 
 <div class="relative flex w-full items-stretch rounded-none p-2">
@@ -70,7 +87,7 @@
 
   <a
     href={notification.link}
-    on:click={onClick}
+    onclick={onClick}
     class="flex max-w-full flex-1 items-center gap-4 overflow-hidden"
   >
     <div>

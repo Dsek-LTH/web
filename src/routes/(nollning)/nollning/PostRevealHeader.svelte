@@ -14,21 +14,27 @@
   import { getContext } from "svelte";
   import type { Writable } from "svelte/store";
 
-  $: routes = getRoutes();
-  $: bottomNavRoutes = appBottomNavRoutes(routes);
-  $: currentRoute = getPostRevealRoute(i18n.route($page.url.pathname));
-  $: canGoBack = !bottomNavRoutes.some((route) =>
-    route.isCurrentRoute
-      ? route.isCurrentRoute(currentRoute)
-      : route.path === currentRoute,
+  let routes = $derived(getRoutes());
+  let bottomNavRoutes = $derived(appBottomNavRoutes(routes));
+  let currentRoute = $derived(
+    getPostRevealRoute(i18n.route($page.url.pathname)),
   );
-  $: pageData = $page.data as typeof $page.data & PostRevealLayoutData;
-  $: topInsets = $page.data.appInfo?.insets?.top ?? 0;
+  let canGoBack = $derived(
+    !bottomNavRoutes.some((route) =>
+      route.isCurrentRoute
+        ? route.isCurrentRoute(currentRoute)
+        : route.path === currentRoute,
+    ),
+  );
+  let pageData = $derived(
+    $page.data as typeof $page.data & PostRevealLayoutData,
+  );
+  let topInsets = $derived($page.data.appInfo?.insets?.top ?? 0);
 
-  $: notificationsPromise = pageData["notificationsPromise"];
+  let notificationsPromise = $derived(pageData["notificationsPromise"]);
 
-  let notificationModal: HTMLDialogElement;
-  let notifications: NotificationGroup[] | undefined = undefined;
+  let notificationModal: HTMLDialogElement = $state();
+  let notifications: NotificationGroup[] | undefined = $state(undefined);
 
   let pageTitle = getContext<Writable<string>>("pageTitle");
 </script>
@@ -45,7 +51,7 @@
   <div class="w-[5.5rem]">
     <!-- svelte-ignore a11y_consider_explicit_label -->
     <button
-      on:click={canGoBack ? () => window.history.back() : undefined}
+      onclick={canGoBack ? () => window.history.back() : undefined}
       class:opacity-0={!canGoBack}
       class="-m-4 p-4"
     >
@@ -73,15 +79,19 @@
           useModalInstead
           buttonClass="btn btn-circle bg-base-200 relative aspect-square size-10 !p-0"
         >
-          <span class="i-mdi-bell-outline size-7" slot="loading"></span>
-          <div class="indicator" let:unreadCount>
-            {#if unreadCount > 0}
-              <span
-                class="translate badge indicator-item badge-primary badge-xs translate-x-0 translate-y-0"
-              ></span>
-            {/if}
+          {#snippet loading()}
             <span class="i-mdi-bell-outline size-7"></span>
-          </div>
+          {/snippet}
+          {#snippet children({ unreadCount })}
+            <div class="indicator">
+              {#if unreadCount > 0}
+                <span
+                  class="translate badge indicator-item badge-primary badge-xs translate-x-0 translate-y-0"
+                ></span>
+              {/if}
+              <span class="i-mdi-bell-outline size-7"></span>
+            </div>
+          {/snippet}
         </NotificationBell>
       {/if}
       <PostRevealAccountMenu />

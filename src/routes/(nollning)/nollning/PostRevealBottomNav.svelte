@@ -7,11 +7,13 @@
     getPostRevealRoute,
     getRoutes,
   } from "./routes";
-  $: routes = getRoutes();
-  $: routesToShow = appBottomNavRoutes(routes);
+  let routes = $derived(getRoutes());
+  let routesToShow = $derived(appBottomNavRoutes(routes));
   const prefix = "/nollning";
-  $: currentRoute = getPostRevealRoute(i18n.route($page.url.pathname));
-  $: bottomInsets = $page.data.appInfo?.insets?.bottom ?? 0;
+  let currentRoute = $derived(
+    getPostRevealRoute(i18n.route($page.url.pathname)),
+  );
+  let bottomInsets = $derived($page.data.appInfo?.insets?.bottom ?? 0);
 </script>
 
 <nav

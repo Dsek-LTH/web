@@ -2,9 +2,12 @@
   import type { Tag } from "@prisma/client";
   import { twMerge } from "tailwind-merge";
 
-  export let tag: Pick<Tag, "color" | "name"> | undefined = undefined;
-  let clazz = "";
-  export { clazz as class };
+  interface Props {
+    tag?: Pick<Tag, "color" | "name"> | undefined;
+    class?: string;
+  }
+
+  let { tag = undefined, class: clazz = "" }: Props = $props();
 </script>
 
 {#if tag}

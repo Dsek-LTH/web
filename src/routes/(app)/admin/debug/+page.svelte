@@ -9,10 +9,10 @@
   } from "$lib/utils/featureFlag";
   import { onMount } from "svelte";
 
-  export let data;
-  $: user = data.user;
-  $: policies = user.policies.toSorted();
-  $: flags = new Map<string, boolean>();
+  let { data } = $props();
+  let user = $derived(data.user);
+  let policies = $derived(user.policies.toSorted());
+  let flags = $derived(new Map<string, boolean>());
   onMount(() => {
     const flagMap = new Map<string, boolean>();
     featureFlags.forEach((f) => {
@@ -103,7 +103,7 @@
             type="checkbox"
             class="toggle toggle-primary"
             checked={flags.get(flag)}
-            on:change={() => {
+            onchange={() => {
               setFeatureFlag(flag, isFeatureFlagEnabled(flag) ? false : true);
             }}
           />

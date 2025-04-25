@@ -11,13 +11,17 @@
   import Event from "./Event.svelte";
   import PostRevealSelect from "./PostRevealSelect.svelte";
 
-  export let data;
-  $: events = data.events;
-  let weekCollapseOpen = false;
-  $: weeks = Array(data.weeks)
-    .fill(0)
-    .map((_, i) => i);
-  $: eventsSubscribeUrl = `${$page.url.origin}${$page.url.pathname}/subscribe`;
+  let { data } = $props();
+  let events = $derived(data.events);
+  let weekCollapseOpen = $state(false);
+  let weeks = $derived(
+    Array(data.weeks)
+      .fill(0)
+      .map((_, i) => i),
+  );
+  let eventsSubscribeUrl = $derived(
+    `${$page.url.origin}${$page.url.pathname}/subscribe`,
+  );
 
   // $: userTickets = events
   //   .flatMap((events) => events.tickets)
@@ -62,7 +66,7 @@
   <div class="mb-4 flex items-start justify-between">
     <details
       class="dropdown"
-      on:toggle={(event) => {
+      ontoggle={(event) => {
         if (event.target instanceof HTMLDetailsElement && event.target.open) {
           navigator.clipboard.writeText(eventsSubscribeUrl);
           toast(m.events_calendar_subscribe_copyToClipboard(), "success");
@@ -97,7 +101,7 @@
             <a
               class="font-medium"
               href="?week={i}"
-              on:click={() => (weekCollapseOpen = false)}
+              onclick={() => (weekCollapseOpen = false)}
               >{m.events_calendar_week().toLowerCase()} {i}</a
             >
           </li>

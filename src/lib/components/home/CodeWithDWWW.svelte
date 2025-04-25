@@ -1,14 +1,18 @@
 <script lang="ts">
   import dayjs from "dayjs";
   import * as m from "$paraglide/messages";
-  export let commitCount: string;
-  export let commitData: {
-    author: string;
-    message: string;
-    avatarUrl: string;
-    date: string;
-    url: string;
-  };
+  interface Props {
+    commitCount: string;
+    commitData: {
+      author: string;
+      message: string;
+      avatarUrl: string;
+      date: string;
+      url: string;
+    };
+  }
+
+  let { commitCount, commitData }: Props = $props();
 
   const commitMessageHeader = commitData.message.split("\n")[0];
 </script>

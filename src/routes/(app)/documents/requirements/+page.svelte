@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { run } from "svelte/legacy";
+
   import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
   import Pagination from "$lib/components/Pagination.svelte";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
@@ -9,19 +11,16 @@
   import type { FolderType } from "./+page.server";
   import Folder from "./Folder.svelte";
 
-  export let data: PageData;
+  interface Props {
+    data: PageData;
+  }
 
-  let isEditing = false;
+  let { data }: Props = $props();
+
+  let isEditing = $state(false);
 
   const currentYear = new Date().getFullYear();
-  const folders: FolderType[] = [];
-
-  $: {
-    folders.length = 0; // make folders empty
-    Object.keys(data["folders"]).forEach((folder) => {
-      processFolder(folder, "", folders);
-    });
-  }
+  const folders: FolderType[] = $state([]);
 
   /*
       The purpose of this function is to take the input from data.folders and make it into a recursive folder structure that works
@@ -71,13 +70,23 @@
     }
   }
 
-  $: canCreate = isAuthorized(
-    apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).CREATE,
-    data.user,
+  run(() => {
+    folders.length = 0; // make folders empty
+    Object.keys(data["folders"]).forEach((folder) => {
+      processFolder(folder, "", folders);
+    });
+  });
+  let canCreate = $derived(
+    isAuthorized(
+      apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).CREATE,
+      data.user,
+    ),
   );
-  $: canDelete = isAuthorized(
-    apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).DELETE,
-    data.user,
+  let canDelete = $derived(
+    isAuthorized(
+      apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).DELETE,
+      data.user,
+    ),
   );
 </script>
 
@@ -105,7 +114,7 @@
     {#if canDelete}
       <button
         class="btn btn-secondary btn-sm"
-        on:click={() => {
+        onclick={() => {
           isEditing = !isEditing;
         }}
       >

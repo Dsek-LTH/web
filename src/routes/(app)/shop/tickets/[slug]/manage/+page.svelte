@@ -2,8 +2,8 @@
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import ConsumablesTable from "./ConsumablesTable.svelte";
 
-  export let data;
-  $: ticket = data.ticket;
+  let { data } = $props();
+  let ticket = $derived(data.ticket);
   /* Don't know how to show these yet or if we even want that
   $: inCart = data.inCart;
   $: reservations = data.reservations;

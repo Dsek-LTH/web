@@ -3,11 +3,15 @@
   import type { TicketSchema } from "$lib/utils/shop/types";
   import { fieldProxy, type SuperForm } from "sveltekit-superforms/client";
 
-  export let superform: SuperForm<TicketSchema>;
-  export let index: number;
-  export let onRemove: () => void;
+  interface Props {
+    superform: SuperForm<TicketSchema>;
+    index: number;
+    onRemove: () => void;
+  }
+
+  let { superform, index, onRemove }: Props = $props();
   const value = fieldProxy(superform, `accessPolicies[${index}]`);
-  let isRole = $value.studentId === null;
+  let isRole = $state($value.studentId === null);
 </script>
 
 <div class="join flex items-end gap-2">
@@ -18,7 +22,7 @@
       type="button"
       class="btn tooltip"
       data-tip="Byt till person"
-      on:click={() => {
+      onclick={() => {
         isRole = false;
         $value.role = null;
         $value.studentId = "";
@@ -37,7 +41,7 @@
       type="button"
       class="btn tooltip"
       data-tip="Byt till roll"
-      on:click={() => {
+      onclick={() => {
         isRole = true;
         $value.studentId = null;
         $value.role = "";
@@ -47,7 +51,7 @@
     </button>
   {/if}
   <!-- svelte-ignore a11y_consider_explicit_label -->
-  <button type="button" class="btn btn-error" on:click={onRemove}>
+  <button type="button" class="btn btn-error" onclick={onRemove}>
     <span class="i-mdi-trash"></span>
   </button>
 </div>

@@ -7,7 +7,11 @@
 
   import type { PageData } from "./$types";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
-  export let data: PageData;
+  interface Props {
+    data: PageData;
+  }
+
+  let { data }: Props = $props();
   const {
     form: createForm,
     errors,
@@ -16,12 +20,14 @@
   } = superForm(data.createForm, {
     resetForm: true,
   });
-  $: policies = data.policies.sort((a, b) => {
-    if (a.role && b.role) return a.role.localeCompare(b.role, "sv");
-    if (a.role && !b.role) return -1;
-    if (!a.role && b.role) return 1;
-    return a.studentId!.localeCompare(b.studentId!, "sv");
-  });
+  let policies = $derived(
+    data.policies.sort((a, b) => {
+      if (a.role && b.role) return a.role.localeCompare(b.role, "sv");
+      if (a.role && !b.role) return -1;
+      if (!a.role && b.role) return 1;
+      return a.studentId!.localeCompare(b.studentId!, "sv");
+    }),
+  );
 </script>
 
 <SetPageTitle title={$page.params["apiName"]} />

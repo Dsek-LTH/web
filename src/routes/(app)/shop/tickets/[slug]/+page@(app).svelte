@@ -11,11 +11,11 @@
   import { eventLink } from "$lib/utils/redirect";
   import { getFileUrl } from "$lib/files/client";
 
-  export let data;
-  $: ticket = data.ticket;
-  $: event = ticket.event;
+  let { data } = $props();
+  let ticket = $derived(data.ticket);
+  let event = $derived(ticket.event);
 
-  let isSubmitting = false;
+  let isSubmitting = $state(false);
 </script>
 
 <SetPageTitle title={ticket.title} />

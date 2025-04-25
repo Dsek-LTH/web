@@ -9,10 +9,10 @@
   import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
   import BookingCalendar from "./BookingCalendar.svelte";
 
-  export let data;
-  let deleteModal: HTMLDialogElement;
+  let { data = $bindable() } = $props();
+  let deleteModal: HTMLDialogElement = $state();
   let selectedBooking: (typeof data.bookingRequests)[number] | undefined =
-    undefined;
+    $state(undefined);
 </script>
 
 <SetPageTitle title={m.bookings()} />
@@ -73,7 +73,7 @@
                 </a>
                 <button
                   class="btn btn-xs px-8"
-                  on:click={() => {
+                  onclick={() => {
                     deleteModal?.showModal();
                     selectedBooking = bookingRequest;
                   }}
@@ -97,14 +97,16 @@
   formTarget="/booking?/delete"
   formData={{ id: selectedBooking?.id ?? "" }}
 >
-  <p slot="description">
-    {#if selectedBooking}
-      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-      {@html m.booking_deleteMyAreYouSure({
-        bookables: selectedBooking?.bookables
-          .map(({ name }) => name)
-          .join(", "),
-      })}
-    {/if}
-  </p>
+  {#snippet description()}
+    <p>
+      {#if selectedBooking}
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+        {@html m.booking_deleteMyAreYouSure({
+          bookables: selectedBooking?.bookables
+            .map(({ name }) => name)
+            .join(", "),
+        })}
+      {/if}
+    </p>
+  {/snippet}
 </ConfirmDialog>

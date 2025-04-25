@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { run } from "svelte/legacy";
+
   import { enhance } from "$app/forms";
   import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
   import FormFileInput from "$lib/components/forms/FormFileInput.svelte";
@@ -10,12 +12,14 @@
   import { superForm } from "$lib/utils/client/superForms";
   import * as m from "$paraglide/messages";
 
-  export let data;
+  let { data } = $props();
   const superform = superForm(data.uploadForm, {
     dataType: "json",
   });
   const { enhance: createEnhance, form } = superform;
-  $: console.log(data.files);
+  run(() => {
+    console.log(data.files);
+  });
 </script>
 
 {#if data.files.length === 0}
@@ -67,7 +71,7 @@
     <li class="join flex py-1">
       <button
         class="btn join-item flex-1 select-all justify-start"
-        on:click={() => {
+        onclick={() => {
           if (file.thumbnailUrl) {
             navigator.clipboard.writeText(file.thumbnailUrl);
             toast("Länk kopierad till urklipp", "success");

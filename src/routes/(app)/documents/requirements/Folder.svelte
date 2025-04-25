@@ -1,4 +1,7 @@
 <script lang="ts">
+  import Folder from "./Folder.svelte";
+  import { run } from "svelte/legacy";
+
   import type { SuperValidated } from "sveltekit-superforms";
   import DeleteFileForm from "../DeleteFileForm.svelte";
   import FileLink from "../FileLink.svelte";
@@ -9,11 +12,21 @@
   import { page } from "$app/stores";
   import type { FolderType } from "./+page.server";
 
-  export let expanded = true;
-  export let name: string;
-  export let folders: FolderType[];
-  export let isEditing = false;
-  export let deleteForm: SuperValidated<DeleteSchema>;
+  interface Props {
+    expanded?: boolean;
+    name: string;
+    folders: FolderType[];
+    isEditing?: boolean;
+    deleteForm: SuperValidated<DeleteSchema>;
+  }
+
+  let {
+    expanded = $bindable(true),
+    name,
+    folders,
+    isEditing = false,
+    deleteForm,
+  }: Props = $props();
 
   function foldersFirstAlphabetically(a: FolderType, b: FolderType) {
     if (a.isFolder && !b.isFolder) {
@@ -24,18 +37,20 @@
     }
     return a.name.localeCompare(b.name, "sv");
   }
-  $: folders.sort(foldersFirstAlphabetically);
+  run(() => {
+    folders.sort(foldersFirstAlphabetically);
+  });
 
-  $: foldericon = expanded
-    ? "i-mdi-folder-open-outline"
-    : "i-mdi-folder-outline";
+  let foldericon = $derived(
+    expanded ? "i-mdi-folder-open-outline" : "i-mdi-folder-outline",
+  );
   function toggle() {
     expanded = !expanded;
   }
 </script>
 
 <div class="flex" data-tip={name}>
-  <button on:click={toggle}
+  <button onclick={toggle}
     ><span class={foldericon + " align-text-top text-xl text-primary"}></span>
     {name}
   </button>
@@ -45,7 +60,7 @@
   {#if expanded}
     {#each folders as folder}
       {#if folder.isFolder}
-        <svelte:self
+        <Folder
           name={folder.name}
           folders={folder.files}
           expanded={false}

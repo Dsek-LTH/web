@@ -1,6 +1,10 @@
 <script lang="ts">
-  export let images: string[];
-  export let alt: string;
+  interface Props {
+    images: string[];
+    alt: string;
+  }
+
+  let { images, alt }: Props = $props();
 </script>
 
 <div class="h-full w-full p-1">

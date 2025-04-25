@@ -1,7 +1,11 @@
 <script lang="ts">
   import type { FileData } from "$lib/files/fileHandler";
   import * as m from "$paraglide/messages";
-  export let files: { next: FileData[]; last: FileData[] };
+  interface Props {
+    files: { next: FileData[]; last: FileData[] };
+  }
+
+  let { files }: Props = $props();
 </script>
 
 <div

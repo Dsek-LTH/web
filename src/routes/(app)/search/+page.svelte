@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { run } from "svelte/legacy";
+
   import { enhance } from "$app/forms";
   import * as m from "$paraglide/messages";
   import SearchResultList from "$lib/components/search/SearchResultList.svelte";
@@ -9,33 +11,20 @@
   import { mapIndexToMessage } from "$lib/search/searchHelpers";
   import { isSearchResultData } from "$lib/components/search/SearchUtils";
 
-  let formElement: HTMLFormElement;
-  let inputElement: HTMLInputElement;
+  let formElement: HTMLFormElement = $state();
+  let inputElement: HTMLInputElement = $state();
   let listItems: HTMLAnchorElement[] = [];
   let timeout: ReturnType<typeof setTimeout> | null = null;
 
-  let input = "";
+  let input = $state("");
   let limit = 20; // limits number of results per query, default in Meili is 20
-  let offset = 0;
+  let offset = $state(0);
   let currentIndex = -1;
-  let isSearching = false;
-  let thereIsMore = true;
+  let isSearching = $state(false);
+  let thereIsMore = $state(true);
 
-  let results: SearchDataWithType[] = [];
-  let error: Record<string, unknown> | undefined = undefined;
-
-  $: noResults = results.length === 0;
-
-  $: toSearchOn = availableSearchIndexes.map((index) => {
-    return {
-      index,
-      include: true,
-    };
-  });
-
-  // Call handleSearch whenever checkboxes change
-  // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- This syntax is valid and it's a good use case here
-  $: toSearchOn && handleSearch();
+  let results: SearchDataWithType[] = $state([]);
+  let error: Record<string, unknown> | undefined = $state(undefined);
 
   function handleSearch() {
     // Cancel the previous timeout
@@ -121,9 +110,23 @@
       formElement?.getElementsByClassName("search-result"),
     ) as HTMLAnchorElement[];
   }
+  let noResults = $derived(results.length === 0);
+  let toSearchOn = $derived(
+    availableSearchIndexes.map((index) => {
+      return {
+        index,
+        include: true,
+      };
+    }),
+  );
+  // Call handleSearch whenever checkboxes change
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- This syntax is valid and it's a good use case here
+  run(() => {
+    toSearchOn && handleSearch();
+  });
 </script>
 
-<svelte:window on:keydown={onKeyDown} />
+<svelte:window onkeydown={onKeyDown} />
 
 <form
   method="POST"
@@ -159,7 +162,7 @@
 >
   <label class="input input-bordered mb-2 flex items-center gap-2">
     <span class="i-mdi-magnify size-6"></span>
-    <!-- svelte-ignore a11y-autofocus -->
+    <!-- svelte-ignore a11y_autofocus -->
     <input
       autofocus
       type="text"
@@ -169,7 +172,7 @@
       autocomplete="off"
       bind:this={inputElement}
       bind:value={input}
-      on:input={handleSearch}
+      oninput={handleSearch}
     />
     {#if isSearching}
       <span class="loading loading-sm"></span>
@@ -211,7 +214,7 @@
   {/if}
   {#if results.length > 0 && thereIsMore}
     <!-- show more results -->
-    <button type="button" class="btn m-4" on:click={showMore}>
+    <button type="button" class="btn m-4" onclick={showMore}>
       {m.search_showMore()}
     </button>
   {/if}

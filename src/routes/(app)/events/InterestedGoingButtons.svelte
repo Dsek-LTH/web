@@ -6,28 +6,34 @@
   import type { Member } from "@prisma/client";
   import * as m from "$paraglide/messages";
 
-  export let eventId: string;
-  export let interested: Member[];
-  export let going: Member[];
-  export let interestedGoingForm: SuperValidated<InterestedGoingSchema>;
+  interface Props {
+    eventId: string;
+    interested: Member[];
+    going: Member[];
+    interestedGoingForm: SuperValidated<InterestedGoingSchema>;
+  }
+
+  let { eventId, interested, going, interestedGoingForm }: Props = $props();
   const { constraints, enhance } = superForm(interestedGoingForm, {
     id: eventId, // needs to be unique since there could be multiple like buttons on a page
   });
 
-  $: authorized = Boolean($page.data.user);
-  let isGoing = going.some(
-    (member) => member.studentId === $page.data.user?.studentId,
+  let authorized = $derived(Boolean($page.data.user));
+  let isGoing = $state(
+    going.some((member) => member.studentId === $page.data.user?.studentId),
   );
-  $: isGoingIcon = isGoing
-    ? "i-mdi-check-circle bg-primary"
-    : "i-mdi-check-circle-outline";
+  let isGoingIcon = $derived(
+    isGoing ? "i-mdi-check-circle bg-primary" : "i-mdi-check-circle-outline",
+  );
 
-  let isInterested = interested.some(
-    (member) => member.studentId === $page.data.user?.studentId,
+  let isInterested = $state(
+    interested.some(
+      (member) => member.studentId === $page.data.user?.studentId,
+    ),
   );
-  $: isInterestedIcon = isInterested
-    ? "i-mdi-star bg-yellow-500"
-    : "i-mdi-star-outline";
+  let isInterestedIcon = $derived(
+    isInterested ? "i-mdi-star bg-yellow-500" : "i-mdi-star-outline",
+  );
 </script>
 
 {#if $page.data.member}
@@ -46,7 +52,7 @@
         disabled={!authorized}
         type="submit"
         class="btn btn-ghost"
-        on:click={() => {
+        onclick={() => {
           isGoing = !isGoing;
           isInterested = false;
         }}
@@ -58,7 +64,7 @@
         disabled={!authorized}
         type="submit"
         class="btn btn-ghost"
-        on:click={() => {
+        onclick={() => {
           isInterested = !isInterested;
           isGoing = false;
         }}

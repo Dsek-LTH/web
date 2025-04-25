@@ -10,8 +10,12 @@
   import { languageTag } from "$paraglide/runtime";
   import * as m from "$paraglide/messages";
 
-  export let event: EventWithIncludes;
-  export let interestedGoingForm: SuperValidated<InterestedGoingSchema>;
+  interface Props {
+    event: EventWithIncludes;
+    interestedGoingForm: SuperValidated<InterestedGoingSchema>;
+  }
+
+  let { event, interestedGoingForm }: Props = $props();
 </script>
 
 <article

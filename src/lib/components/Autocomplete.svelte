@@ -1,9 +1,17 @@
 <script lang="ts">
-  export let value: string | null | undefined = "";
-  export let options: string[] = [];
-  $: filteredItems = options.filter(
-    (item) =>
-      item.toLowerCase().includes(value?.toLowerCase() ?? "") && value !== item,
+  interface Props {
+    value?: string | null | undefined;
+    options?: string[];
+    [key: string]: any;
+  }
+
+  let { value = $bindable(""), options = [], ...rest }: Props = $props();
+  let filteredItems = $derived(
+    options.filter(
+      (item) =>
+        item.toLowerCase().includes(value?.toLowerCase() ?? "") &&
+        value !== item,
+    ),
   );
 </script>
 
@@ -15,7 +23,7 @@
     type="text"
     class="input input-bordered w-full bg-transparent hover:border-base-content"
     bind:value
-    {...$$restProps}
+    {...rest}
   />
 
   {#if filteredItems.length !== 0}
@@ -30,7 +38,7 @@
           <button
             type="button"
             class="join-item w-full border-b border-b-base-content/10"
-            on:click={() => (value = item)}
+            onclick={() => (value = item)}
           >
             {item}
           </button>

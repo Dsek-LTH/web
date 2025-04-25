@@ -10,73 +10,86 @@
   import { superForm } from "$lib/utils/client/superForms";
   import type { PageData } from "./$types";
 
-  export let data: PageData;
+  interface Props {
+    data: PageData;
+  }
+
+  let { data }: Props = $props();
   const { enhance, form } = superForm(data.removeEventForm);
-  $: event = data.event;
-  let modal: HTMLDialogElement;
-  let submitString: "submit" | "button";
-  $: submitString = event.recurringParentId != undefined ? "button" : "submit";
+  let event = $derived(data.event);
+  let modal: HTMLDialogElement = $state();
+  let submitString: "submit" | "button" = $derived(
+    event.recurringParentId != undefined ? "button" : "submit",
+  );
 </script>
 
 <SetPageTitle title={event.title} />
 
 <Event {event}>
   <!-- svelte-ignore a11y_consider_explicit_label -->
-  <div slot="actions" class="flex flex-row">
-    {#if data.canEdit}
-      <a
-        href="/events/{event.slug}/edit"
-        class="btn btn-square btn-ghost btn-md"
-        title={m.events_edit()}
-      >
-        <span class="i-mdi-edit text-xl"></span>
-      </a>
-    {/if}
-    {#if data.canDelete}
-      <form method="POST" action="?/removeEvent" id="removeEvent" use:enhance>
-        <button
-          type={submitString}
+  {#snippet actions()}
+    <div class="flex flex-row">
+      {#if data.canEdit}
+        <a
+          href="/events/{event.slug}/edit"
           class="btn btn-square btn-ghost btn-md"
-          title="Radera"
-          on:click={() => {
-            if (event.recurringParentId !== null) {
-              modal.showModal();
-            }
-          }}
+          title={m.events_edit()}
         >
-          <span class="i-mdi-delete text-xl"></span>
-        </button>
-      </form>
-    {/if}
-  </div>
+          <span class="i-mdi-edit text-xl"></span>
+        </a>
+      {/if}
+      {#if data.canDelete}
+        <form method="POST" action="?/removeEvent" id="removeEvent" use:enhance>
+          <button
+            type={submitString}
+            class="btn btn-square btn-ghost btn-md"
+            title="Radera"
+            onclick={() => {
+              if (event.recurringParentId !== null) {
+                modal.showModal();
+              }
+            }}
+          >
+            <span class="i-mdi-delete text-xl"></span>
+          </button>
+        </form>
+      {/if}
+    </div>
+  {/snippet}
 
-  <div slot="tags" class="flex flex-row flex-wrap gap-2">
-    {#each event.tags as tag}
-      <TagChip {tag} />
-    {/each}
-  </div>
+  {#snippet tags()}
+    <div class="flex flex-row flex-wrap gap-2">
+      {#each event.tags as tag}
+        <TagChip {tag} />
+      {/each}
+    </div>
+  {/snippet}
 
-  <div slot="buttons">
-    <InterestedGoingButtons
-      eventId={event.id}
-      interestedGoingForm={data.interestedGoingForm}
-      interested={event.interested}
-      going={event.going}
-    />
-  </div>
-
-  <div slot="after">
-    <InterestedGoingList going={event.going} interested={event.interested} />
-    <div class="mt-4 flex flex-col gap-2">
-      <CommentSection
-        type="EVENT"
-        comments={event.comments}
-        taggedMembers={data.allTaggedMembers}
-        commentForm={data.commentForm}
-        removeCommentForm={data.removeCommentForm}
+  {#snippet buttons()}
+    <div>
+      <InterestedGoingButtons
+        eventId={event.id}
+        interestedGoingForm={data.interestedGoingForm}
+        interested={event.interested}
+        going={event.going}
       />
     </div>
-  </div>
+  {/snippet}
+
+  {#snippet after()}
+    <div>
+      <InterestedGoingList going={event.going} interested={event.interested} />
+      <div class="mt-4 flex flex-col gap-2">
+        <CommentSection
+          type="EVENT"
+          comments={event.comments}
+          taggedMembers={data.allTaggedMembers}
+          commentForm={data.commentForm}
+          removeCommentForm={data.removeCommentForm}
+        />
+      </div>
+    </div>
+  {/snippet}
 </Event>
 
 <dialog class="modal" bind:this={modal}>
@@ -134,7 +147,7 @@
         class="btn btn-error"
         type="submit"
         form="removeEvent"
-        on:click={() => {
+        onclick={() => {
           modal.close();
         }}
       >

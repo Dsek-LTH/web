@@ -5,16 +5,25 @@
   import type { RemovePositionForm, SetCanSendForm } from "./schema";
   import * as m from "$paraglide/messages";
 
-  export let emailAlias: EmailAlias & { position: Position };
-  export let canSendForm: SuperValidated<SetCanSendForm>;
-  export let isEditing: boolean;
   const { enhance: canSendEnchance } = superForm(canSendForm, {
     id: emailAlias.id,
   });
 
-  let canSendFormHTML: HTMLFormElement;
+  let canSendFormHTML: HTMLFormElement = $state();
 
-  export let removePositionForm: SuperValidated<RemovePositionForm>;
+  interface Props {
+    emailAlias: EmailAlias & { position: Position };
+    canSendForm: SuperValidated<SetCanSendForm>;
+    isEditing: boolean;
+    removePositionForm: SuperValidated<RemovePositionForm>;
+  }
+
+  let {
+    emailAlias = $bindable(),
+    canSendForm,
+    isEditing,
+    removePositionForm,
+  }: Props = $props();
   const { enhance: removePositionEnhance } = superForm(removePositionForm);
 </script>
 
@@ -38,7 +47,7 @@
           name="canSend"
           id="canSend"
           class="toggle toggle-primary"
-          on:click={async () => {
+          onclick={async () => {
             emailAlias.canSend = !emailAlias.canSend;
             setTimeout(() => {
               canSendFormHTML.requestSubmit();

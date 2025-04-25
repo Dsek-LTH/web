@@ -6,13 +6,17 @@
 
   import type { PageData } from "./$types";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
-  export let data: PageData;
-  let type: "role" | "studentId" = "role";
+  interface Props {
+    data: PageData;
+  }
 
-  let removeModal: HTMLDialogElement | undefined = undefined;
-  let informationModal: HTMLDialogElement | undefined = undefined;
+  let { data }: Props = $props();
+  let type: "role" | "studentId" = $state("role");
+
+  let removeModal: HTMLDialogElement | undefined = $state(undefined);
+  let informationModal: HTMLDialogElement | undefined = $state(undefined);
   let selectedPolicy: (typeof data)["doorAccessPolicies"][number] | undefined =
-    undefined;
+    $state(undefined);
   const { form, errors, constraints, enhance } = superForm(data.createForm);
   const {
     form: banForm,
@@ -71,7 +75,7 @@
               <td class="policy-information flex items-center">
                 <!-- svelte-ignore a11y_consider_explicit_label -->
                 <button
-                  on:click={() => {
+                  onclick={() => {
                     informationModal?.showModal();
                     selectedPolicy = policy;
                   }}
@@ -95,7 +99,7 @@
             {/if}
             <td class="text-right">
               <button
-                on:click={() => {
+                onclick={() => {
                   removeModal?.showModal();
                   selectedPolicy = policy;
                 }}
@@ -271,7 +275,7 @@
         <button
           type="submit"
           class="btn btn-error"
-          on:click={() => removeModal?.close()}
+          onclick={() => removeModal?.close()}
         >
           {m.admin_doors_remove()}
         </button>
@@ -300,7 +304,7 @@
     <p class="py-4">
       {selectedPolicy?.information}
     </p>
-    <button class="btn" on:click={() => informationModal?.close()}>
+    <button class="btn" onclick={() => informationModal?.close()}>
       Stäng
     </button>
   </div>

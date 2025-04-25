@@ -7,21 +7,26 @@
   import type { CommentSchema, RemoveCommentSchema } from "$lib/zod/comments";
   import type { ArticleComment, EventComment, Member } from "@prisma/client";
   import type { SuperValidated } from "sveltekit-superforms";
-  export let comments: Array<
-    (ArticleComment | EventComment) & {
-      member: Member;
-    }
-  >;
-  export let type: "NEWS" | "EVENT";
-  export let taggedMembers: Member[];
-  export let commentForm: SuperValidated<CommentSchema>;
-  export let removeCommentForm: SuperValidated<RemoveCommentSchema>;
+  interface Props {
+    comments: Array<
+      (ArticleComment | EventComment) & {
+        member: Member;
+      }
+    >;
+    type: "NEWS" | "EVENT";
+    taggedMembers: Member[];
+    commentForm: SuperValidated<CommentSchema>;
+    removeCommentForm: SuperValidated<RemoveCommentSchema>;
+  }
+
+  let { comments, type, taggedMembers, commentForm, removeCommentForm }: Props =
+    $props();
 
   const ALWAYS_SHOWN_COMMENTS = 3;
 
   let onReply: (
     comment: (ArticleComment | EventComment) & { member: Member },
-  ) => void;
+  ) => void = $state();
 </script>
 
 {#if comments.length > 0}

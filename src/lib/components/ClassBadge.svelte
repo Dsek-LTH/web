@@ -1,8 +1,12 @@
 <script lang="ts">
   import type { programmes } from "$lib/utils/programmes";
   import type { Member } from "@prisma/client";
-  export let member: Pick<Member, "classProgramme" | "classYear">;
-  export let size: "sm" | "xl" = "sm";
+  interface Props {
+    member: Pick<Member, "classProgramme" | "classYear">;
+    size?: "sm" | "xl";
+  }
+
+  let { member, size = "sm" }: Props = $props();
 
   // Couldn't make TS happy with colors[member.classProgramme] without
   // Record<string, string>. Should instead be the type it satisfies.

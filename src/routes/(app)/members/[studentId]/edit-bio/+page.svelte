@@ -7,8 +7,12 @@
   import * as m from "$paraglide/messages";
   import type { PageData } from "./$types";
 
-  export let data: PageData;
-  $: member = data.member;
+  interface Props {
+    data: PageData;
+  }
+
+  let { data }: Props = $props();
+  let member = $derived(data.member);
   const { form, errors, constraints, enhance } = superForm(data.form);
 </script>
 

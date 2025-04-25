@@ -6,12 +6,14 @@
   import LanguageSwitcher from "../../LanguageSwitcher.svelte";
   import * as m from "$paraglide/messages";
 
-  let checked = false;
-  $: topInsets = $page.data.appInfo?.insets?.top ?? 0;
-  $: member = $page.data.member;
-  $: nollaInGroup = $page.data["phadderGroup"] as Promise<
-    Pick<PhadderGroup, "name"> | undefined
-  >;
+  let checked = $state(false);
+  let topInsets = $derived($page.data.appInfo?.insets?.top ?? 0);
+  let member = $derived($page.data.member);
+  let nollaInGroup = $derived(
+    $page.data["phadderGroup"] as Promise<
+      Pick<PhadderGroup, "name"> | undefined
+    >,
+  );
 </script>
 
 <!-- PostRevealDesktopLeftNavbar also has some duplicated stuff so remember to change both -->
@@ -60,14 +62,14 @@
       {/if}
       <ul class="menu -mx-4 mt-4 items-start gap-2">
         <li>
-          <a on:click={() => (checked = false)} href="/members/me">
+          <a onclick={() => (checked = false)} href="/members/me">
             <span class="i-mdi-account text-2xl"></span>
             {m.navbar_userMenu_profile()}
           </a>
         </li>
         <li>
           <a
-            on:click={() => (checked = false)}
+            onclick={() => (checked = false)}
             href="{POST_REVEAL_PREFIX}/settings"
           >
             <span class="i-mdi-settings-outline text-2xl"></span>
@@ -76,7 +78,7 @@
         </li>
         <li>
           <a
-            on:click={() => (checked = false)}
+            onclick={() => (checked = false)}
             href="{POST_REVEAL_PREFIX}/shop/inventory"
           >
             <span class="i-mdi-treasure-chest-outline text-2xl"></span>

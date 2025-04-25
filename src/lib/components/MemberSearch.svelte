@@ -2,13 +2,28 @@
   import EntitySearch from "$lib/components/EntitySearch.svelte";
   import type { Member } from "@prisma/client";
   import AuthorSignature from "./socials/AuthorSignature.svelte";
-  let clazz = "";
-  export { clazz as class };
-  export let isSearching = false;
-  export let onSelect: ((member: Member) => void) | undefined;
-  export let handleSearch: (searchValue: string) => void;
-  export let endpoint = "/api/members";
-  export let year: number | undefined = undefined;
+
+  interface Props {
+    class?: string;
+    isSearching?: boolean;
+    onSelect: ((member: Member) => void) | undefined;
+    handleSearch: (searchValue: string) => void;
+    endpoint?: string;
+    year?: number | undefined;
+    children?: import("svelte").Snippet;
+    [key: string]: any;
+  }
+
+  let {
+    class: clazz = "",
+    isSearching = $bindable(false),
+    onSelect = $bindable(),
+    handleSearch = $bindable(),
+    endpoint = "/api/members",
+    year = undefined,
+    children,
+    ...rest
+  }: Props = $props();
 
   const getOption = (option: unknown) => option as Member;
 </script>
@@ -19,11 +34,13 @@
   bind:isSearching
   bind:onSelect
   bind:handleSearch
-  {...$$restProps}
+  {...rest}
   {year}
 >
-  <slot />
-  <div slot="entity" let:option>
-    <AuthorSignature links={false} member={getOption(option)} size="md" />
-  </div>
+  {@render children?.()}
+  {#snippet entity({ option })}
+    <div>
+      <AuthorSignature links={false} member={getOption(option)} size="md" />
+    </div>
+  {/snippet}
 </EntitySearch>

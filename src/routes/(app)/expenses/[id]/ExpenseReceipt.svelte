@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { preventDefault } from "svelte/legacy";
+
   import { enhance } from "$app/forms";
   import { page } from "$app/stores";
   import FormInput from "$lib/components/forms/FormInput.svelte";
@@ -17,39 +19,52 @@
   import { COST_CENTERS } from "../config";
   import type { UpdateItemSchema } from "../types";
 
-  export let prefix = "";
-  export let sentToBookkeeping = false;
-  export let item: ExpandedExpense["items"][number];
-  export let form: SuperValidated<UpdateItemSchema> | undefined = undefined;
-  $: superform = form
-    ? superForm(
-        {
-          ...form,
-          data: {
+  interface Props {
+    prefix?: string;
+    sentToBookkeeping?: boolean;
+    item: ExpandedExpense["items"][number];
+    form?: SuperValidated<UpdateItemSchema> | undefined;
+  }
+
+  let {
+    prefix = "",
+    sentToBookkeeping = false,
+    item,
+    form = undefined,
+  }: Props = $props();
+  let superform = $derived(
+    form
+      ? superForm(
+          {
+            ...form,
+            data: {
+              id: item.id,
+              costCenter: item.costCenter,
+              amount: item.amount,
+              comment: item.comment,
+            },
+          },
+          {
             id: item.id,
-            costCenter: item.costCenter,
-            amount: item.amount,
-            comment: item.comment,
+            onResult: (event) => {
+              if (event.result.type === "success") {
+                isEditing = false;
+              }
+            },
           },
-        },
-        {
-          id: item.id,
-          onResult: (event) => {
-            if (event.result.type === "success") {
-              isEditing = false;
-            }
-          },
-        },
-      )
-    : undefined;
+        )
+      : undefined,
+  );
 
-  $: user = $page.data.user;
-  $: canAlwaysSign = isAuthorized(apiNames.EXPENSES.CERTIFICATION, user);
+  let user = $derived($page.data.user);
+  let canAlwaysSign = $derived(
+    isAuthorized(apiNames.EXPENSES.CERTIFICATION, user),
+  );
 
-  let isEditing = false;
-  $: updateEnhance = superform?.enhance ?? enhance;
+  let isEditing = $state(false);
+  let updateEnhance = $derived(superform?.enhance ?? enhance);
 
-  let showImage = false;
+  let showImage = $state(false);
 </script>
 
 <li
@@ -82,7 +97,7 @@
           href={item.receiptUrl}
           target="_blank"
           class="link"
-          on:click|preventDefault={() => (showImage = true)}
+          onclick={preventDefault(() => (showImage = true))}
         >
           {#if isPdf}
             PDF <span class="i-mdi-file-pdf"></span>
@@ -165,7 +180,7 @@
           type="button"
           class="btn btn-square btn-sm"
           class:btn-error={isEditing}
-          on:click={() => {
+          onclick={() => {
             isEditing = !isEditing;
           }}
         >

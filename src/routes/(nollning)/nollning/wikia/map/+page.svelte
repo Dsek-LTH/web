@@ -7,7 +7,7 @@
   import floor4 from "./floor4.webp";
   import * as m from "$paraglide/messages";
   import { page } from "$app/stores";
-  $: revealTheme = $page.data["revealTheme"];
+  let revealTheme = $derived($page.data["revealTheme"]);
 </script>
 
 <div class="flex flex-col md:flex-row">

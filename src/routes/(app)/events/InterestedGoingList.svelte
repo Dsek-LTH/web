@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { preventDefault } from "svelte/legacy";
+
   import type { Member } from "@prisma/client";
   import AuthorSignature from "$lib/components/socials/AuthorSignature.svelte";
   import * as m from "$paraglide/messages";
@@ -7,19 +9,23 @@
     formatInterestedList,
   } from "$lib/events/pluralization";
 
-  let goingModal: HTMLDialogElement;
-  let interestedModal: HTMLDialogElement;
-  export let interested: Member[];
-  export let going: Member[];
+  let goingModal: HTMLDialogElement = $state();
+  let interestedModal: HTMLDialogElement = $state();
+  interface Props {
+    interested: Member[];
+    going: Member[];
+  }
 
-  $: goingText = formatGoingList(going);
+  let { interested, going }: Props = $props();
 
-  $: interestedText = formatInterestedList(interested);
+  let goingText = $derived(formatGoingList(going));
+
+  let interestedText = $derived(formatInterestedList(interested));
 </script>
 
 {#if going.length > 0}
   <button
-    on:click|preventDefault={() => goingModal.showModal()}
+    onclick={preventDefault(() => goingModal.showModal())}
     class="link text-sm opacity-40 hover:opacity-60"
   >
     {goingText}
@@ -42,7 +48,7 @@
 {/if}
 {#if interested.length > 0}
   <button
-    on:click|preventDefault={() => interestedModal.showModal()}
+    onclick={preventDefault(() => interestedModal.showModal())}
     class="link text-sm opacity-40 hover:opacity-60"
   >
     {interestedText}

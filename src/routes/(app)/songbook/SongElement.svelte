@@ -6,9 +6,12 @@
   import { languageTag } from "$paraglide/runtime";
   import type { Song } from "@prisma/client";
   import { twMerge } from "tailwind-merge";
-  export let song: Song;
-  let clazz = "";
-  export { clazz as class };
+  interface Props {
+    song: Song;
+    class?: string;
+  }
+
+  let { song, class: clazz = "" }: Props = $props();
 </script>
 
 <article

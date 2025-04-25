@@ -1,11 +1,16 @@
 <script lang="ts">
   import PostRevealDesktopLeftNavbar from "./PostRevealDesktopLeftNavbar.svelte";
   import { getRoutes } from "./routes";
+  interface Props {
+    children?: import("svelte").Snippet;
+  }
 
-  $: routes = getRoutes();
+  let { children }: Props = $props();
+
+  let routes = $derived(getRoutes());
 
   const prefix = "/nollning";
-  let checkbox: HTMLInputElement;
+  let checkbox: HTMLInputElement = $state();
 </script>
 
 <div class="drawer">
@@ -49,7 +54,7 @@
     <main class="*:scrollbar-hide relative flex-1 bg-base-100">
       <!-- so absolute positioning is outside padding -->
       <div class="scrollbar-hide px-6 py-6">
-        <slot />
+        {@render children?.()}
       </div>
     </main>
   </div>
@@ -61,7 +66,7 @@
       {#each routes as route}
         <li>
           <a
-            on:click={() => (checkbox.checked = false)}
+            onclick={() => (checkbox.checked = false)}
             class="btn btn-ghost justify-start text-xl font-bold"
             href={`${prefix}${route.path}`}
           >

@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { run } from "svelte/legacy";
+
   import NavigationLoader from "$lib/components/utils/NavigationLoader.svelte";
   import eye from "./(photos)/eye.svg";
   import favicon from "./(photos)/favicon.png";
@@ -18,12 +20,14 @@
   import PostRevealHeader from "./PostRevealHeader.svelte";
   import "./postReveal.css";
 
-  export let data;
+  let { data, children } = $props();
 
-  $: (() => {
-    const locale = languageTag();
-    dayjs.locale(locale);
-  })();
+  run(() => {
+    (() => {
+      const locale = languageTag();
+      dayjs.locale(locale);
+    })();
+  });
 </script>
 
 <svelte:head>
@@ -53,7 +57,7 @@
   <div class="flex h-full flex-col">
     {#if !data.isApp}
       <PostRevealDesktopNavbar>
-        <slot />
+        {@render children?.()}
       </PostRevealDesktopNavbar>
     {:else}
       {#await data.notificationsPromise then notifications}
@@ -70,7 +74,7 @@
       >
         <!-- so absolute positioning is outside padding -->
         <div class="scrollbar-hide px-6 py-6">
-          <slot />
+          {@render children?.()}
         </div>
       </main>
     {/if}

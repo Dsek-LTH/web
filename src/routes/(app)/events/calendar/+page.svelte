@@ -3,7 +3,7 @@
   import * as m from "$paraglide/messages";
 
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
-  export let data;
+  let { data } = $props();
 </script>
 
 <SetPageTitle title={m.events_calendar()} />

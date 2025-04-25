@@ -1,10 +1,17 @@
 <script lang="ts">
+  import { run } from "svelte/legacy";
+
   import { browser } from "$app/environment";
   import { page } from "$app/stores";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import { i18n } from "$lib/utils/i18n";
   import { POST_REVEAL_PREFIX } from "$lib/components/postReveal/types";
   import * as m from "$paraglide/messages";
+  interface Props {
+    children?: import("svelte").Snippet;
+  }
+
+  let { children }: Props = $props();
 
   const links = [
     {
@@ -40,31 +47,37 @@
       link: "literature",
     },
   ];
-  $: path = i18n
-    .route($page.url.pathname)
-    .replace(`${POST_REVEAL_PREFIX}/wikia/`, "");
-  $: currentLink = links.find((link) => link.link === path) ?? links[0];
-  $: currentLinkIndex = currentLink ? links.indexOf(currentLink) : undefined;
-  let elements: HTMLAnchorElement[] = [];
-  let scroller: HTMLDivElement;
+  let path = $derived(
+    i18n.route($page.url.pathname).replace(`${POST_REVEAL_PREFIX}/wikia/`, ""),
+  );
+  let currentLink = $derived(
+    links.find((link) => link.link === path) ?? links[0],
+  );
+  let currentLinkIndex = $derived(
+    currentLink ? links.indexOf(currentLink) : undefined,
+  );
+  let elements: HTMLAnchorElement[] = $state([]);
+  let scroller: HTMLDivElement = $state();
 
-  $: if (browser && currentLinkIndex !== undefined && currentLinkIndex >= 0) {
-    const el = elements[currentLinkIndex];
-    if (el) {
-      el.scrollIntoView({
-        block: "end",
-        inline: "nearest",
-        behavior: "smooth",
-      });
-      scroller.scrollBy({
-        left:
-          el.offsetLeft > scroller.scrollLeft + scroller.offsetWidth / 2
-            ? el.offsetWidth
-            : -el.offsetWidth, // if true, element is to the right
-        behavior: "smooth",
-      });
+  run(() => {
+    if (browser && currentLinkIndex !== undefined && currentLinkIndex >= 0) {
+      const el = elements[currentLinkIndex];
+      if (el) {
+        el.scrollIntoView({
+          block: "end",
+          inline: "nearest",
+          behavior: "smooth",
+        });
+        scroller.scrollBy({
+          left:
+            el.offsetLeft > scroller.scrollLeft + scroller.offsetWidth / 2
+              ? el.offsetWidth
+              : -el.offsetWidth, // if true, element is to the right
+          behavior: "smooth",
+        });
+      }
     }
-  }
+  });
 </script>
 
 <SetPageTitle title="Wikia" />
@@ -89,5 +102,5 @@
 </div>
 
 <div class="relative z-0 mx-auto max-w-screen-xl space-y-12 py-6">
-  <slot />
+  {@render children?.()}
 </div>

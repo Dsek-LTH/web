@@ -3,8 +3,12 @@
   import type { TicketWithMoreInfo } from "$lib/server/shop/getTickets";
   import dayjs from "dayjs";
 
-  export let event: TicketWithMoreInfo["event"];
-  $: date = dayjs(event.startDatetime);
+  interface Props {
+    event: TicketWithMoreInfo["event"];
+  }
+
+  let { event }: Props = $props();
+  let date = $derived(dayjs(event.startDatetime));
 </script>
 
 <figure class="relative aspect-video">

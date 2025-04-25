@@ -9,10 +9,14 @@
   import createBasicReceipt from "../baseItem";
   import * as m from "$paraglide/messages";
 
-  export let superform: SuperForm<ExpenseSchema>;
+  interface Props {
+    superform: SuperForm<ExpenseSchema>;
+  }
+
+  let { superform }: Props = $props();
   const proxy = arrayProxy(superform, "receipts") as ArrayProxy<ReceiptSchema>;
-  $: values = proxy.values;
-  $: errors = proxy.errors;
+  let values = $derived(proxy.values);
+  let errors = $derived(proxy.errors);
 </script>
 
 <section>
@@ -31,7 +35,7 @@
   <button
     type="button"
     class="btn mt-4"
-    on:click={() => {
+    onclick={() => {
       if ($values === undefined) {
         $values = [createBasicReceipt()];
       } else {

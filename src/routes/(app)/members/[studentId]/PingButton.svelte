@@ -2,10 +2,14 @@
   import { page } from "$app/stores";
   import type { Ping } from "@prisma/client";
   import * as m from "$paraglide/messages";
-  export let ping: Pick<
-    Ping,
-    "count" | "fromMemberId" | "fromSentAt" | "toSentAt"
-  > | null;
+  interface Props {
+    ping: Pick<
+      Ping,
+      "count" | "fromMemberId" | "fromSentAt" | "toSentAt"
+    > | null;
+  }
+
+  let { ping }: Props = $props();
 </script>
 
 <form method="POST" action="?/ping">

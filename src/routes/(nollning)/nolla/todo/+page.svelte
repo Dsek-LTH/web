@@ -1,9 +1,11 @@
 <script lang="ts">
+  import { run } from "svelte/legacy";
+
   import * as m from "$paraglide/messages";
   import { browser } from "$app/environment";
   import { onMount } from "svelte";
 
-  let stored: Record<string, boolean> = {};
+  let stored: Record<string, boolean> = $state({});
 
   onMount(() => {
     const storedTodo = localStorage.getItem("nolla-todo");
@@ -11,10 +13,12 @@
     else stored = {};
   });
 
-  $: (() => {
-    if (browser && Object.keys(stored).length > 0)
-      localStorage.setItem("nolla-todo", JSON.stringify(stored));
-  })();
+  run(() => {
+    (() => {
+      if (browser && Object.keys(stored).length > 0)
+        localStorage.setItem("nolla-todo", JSON.stringify(stored));
+    })();
+  });
 </script>
 
 <!-- eslint-disable svelte/no-at-html-tags -->

@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { run } from "svelte/legacy";
+
   import Modal from "$lib/components/Modal.svelte";
   import Price from "$lib/components/Price.svelte";
   import type { CartItem } from "$lib/utils/shop/types";
@@ -7,19 +9,30 @@
   type Question = CartItem["shoppable"]["questions"][number] & {
     expiresAt: Date | null;
   };
-  export let allQuestions: Question[];
-  // export let responses: CartItem["questionResponses"];
-  export let inspectedItem: CartItem | null = null;
-  export let onClose: () => void;
 
-  let selectedQuestion: Question | null = null;
-  $: questionInNeedOfAnswer = allQuestions.find(
-    (question) => question.form?.valid === false,
+  let selectedQuestion: Question | null = $state(null);
+  interface Props {
+    allQuestions: Question[];
+    // export let responses: CartItem["questionResponses"];
+    inspectedItem?: CartItem | null;
+    onClose: () => void;
+    open?: boolean;
+  }
+
+  let {
+    allQuestions,
+    inspectedItem = null,
+    onClose,
+    open = $bindable(!!currentQuestion || !!inspectedItem),
+  }: Props = $props();
+  let questionInNeedOfAnswer = $derived(
+    allQuestions.find((question) => question.form?.valid === false),
   );
-  $: currentQuestion = questionInNeedOfAnswer ?? selectedQuestion;
-  export let open: boolean = !!currentQuestion || !!inspectedItem;
-  $: if (!!currentQuestion || !!inspectedItem) open = true;
-  else open = false;
+  let currentQuestion = $derived(questionInNeedOfAnswer ?? selectedQuestion);
+  run(() => {
+    if (!!currentQuestion || !!inspectedItem) open = true;
+    else open = false;
+  });
 </script>
 
 <Modal
@@ -44,7 +57,7 @@
       <button
         type="button"
         class="btn btn-circle btn-ghost btn-lg"
-        on:click={onClose}
+        onclick={onClose}
       >
         <span class="i-mdi-close"></span>
       </button>
@@ -60,14 +73,16 @@
             {response?.answer ?? "Ej besvarad"}
             {#if response?.extraPrice}
               (<Price price={response.extraPrice}>
-                <span slot="prefix">+</span>
+                {#snippet prefix()}
+                  <span>+</span>
+                {/snippet}
               </Price>)
             {/if}
           </span>
           <!-- svelte-ignore a11y_consider_explicit_label -->
           <button
             class="btn btn-square btn-sm ml-2 inline-block"
-            on:click={() =>
+            onclick={() =>
               (selectedQuestion = {
                 ...question,
                 expiresAt: inspectedItem.expiresAt,

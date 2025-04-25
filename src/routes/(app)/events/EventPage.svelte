@@ -10,18 +10,25 @@
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import type { EventPageLoadData } from "./EventPageLoad";
 
-  export let data: EventPageLoadData & typeof $page.data;
-  let filteredTags: Tag[] = data.allTags.filter((tag) =>
-    $page.url.searchParams.getAll("tags").includes(tag.name),
+  interface Props {
+    data: EventPageLoadData & typeof $page.data;
+    children?: import("svelte").Snippet;
+  }
+
+  let { data, children }: Props = $props();
+  let filteredTags: Tag[] = $state(
+    data.allTags.filter((tag) =>
+      $page.url.searchParams.getAll("tags").includes(tag.name),
+    ),
   );
-  let filterButton: HTMLButtonElement;
-  $: isPast = $page.url.searchParams.get("past") == "on";
+  let filterButton: HTMLButtonElement = $state();
+  let isPast = $derived($page.url.searchParams.get("past") == "on");
 </script>
 
 <SetPageTitle title={m.events()} />
 
 <section class="flex flex-col gap-2">
-  <slot />
+  {@render children?.()}
   <form
     method="get"
     class="form-control flex-1 gap-2 md:flex-row md:items-center"
@@ -40,7 +47,7 @@
           value="off"
           checked={!isPast}
           class="hidden"
-          on:change={() => filterButton.click()}
+          onchange={() => filterButton.click()}
         />
       </label>
       <label
@@ -55,7 +62,7 @@
           value="on"
           checked={isPast}
           class="hidden"
-          on:change={() => filterButton.click()}
+          onchange={() => filterButton.click()}
         />
       </label>
     </div>
@@ -66,7 +73,7 @@
         type="hidden"
         name="tags"
         value={tag.name}
-        on:change={() => filterButton.click()}
+        onchange={() => filterButton.click()}
       />
     {/each}
     <button type="submit" class="btn btn-primary" bind:this={filterButton}>

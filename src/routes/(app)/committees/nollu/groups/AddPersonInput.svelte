@@ -3,10 +3,14 @@
   import type { Member } from "@prisma/client";
   import MemberSearchInput from "$lib/components/forms/MemberSearchInput.svelte";
 
-  export let year: number | undefined = undefined;
-  export let phadder = false;
-  export let groupId: string;
-  let member: Member | undefined = undefined;
+  interface Props {
+    year?: number | undefined;
+    phadder?: boolean;
+    groupId: string;
+  }
+
+  let { year = undefined, phadder = false, groupId }: Props = $props();
+  let member: Member | undefined = $state(undefined);
 </script>
 
 <form

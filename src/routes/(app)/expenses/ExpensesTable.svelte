@@ -4,10 +4,13 @@
   import dayjs from "dayjs";
   import type { ExpandedExpense } from "./+page.server";
 
-  export let expenses: ExpandedExpense[];
-  export let selectedExpense: ExpandedExpense | undefined;
+  interface Props {
+    expenses: ExpandedExpense[];
+    selectedExpense: ExpandedExpense | undefined;
+    hide?: Partial<Record<"from" | "signer" | "signed", boolean>>;
+  }
 
-  export let hide: Partial<Record<"from" | "signer" | "signed", boolean>> = {};
+  let { expenses, selectedExpense = $bindable(), hide = {} }: Props = $props();
 
   function uniqueSigners(expense: ExpandedExpense) {
     // get unique signers based on signer.id
@@ -53,7 +56,7 @@
           class:hover={selectedExpense !== expense}
           class:bg-base-content={selectedExpense === expense}
           class:text-base-100={selectedExpense === expense}
-          on:click={() => {
+          onclick={() => {
             if (selectedExpense === expense) selectedExpense = undefined;
             else selectedExpense = expense;
           }}

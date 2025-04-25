@@ -6,35 +6,37 @@
 
   import { getRoutes, type Route } from "../../../routes";
 
-  $: routes = getRoutes();
-  $: routesToShow = routes
-    .filter(
-      // first filter out all routes not accessible (root-level paths only)
-      (route) =>
-        !route.accessRequired ||
-        isAuthorized(route.accessRequired, $page.data.user),
-    )
-    .flatMap(
-      (
-        route, // then merge children into list
-      ) =>
-        route.children
-          ? [
-              route,
-              ...route.children.map((child) => ({ ...child, parent: route })),
-            ]
-          : route,
-    )
-    .filter((route) => {
-      // filter out pages to those which should be shown here
-      return route.appBehaviour === "home-link";
-    })
-    .filter(
-      // filter out based on accessibility AGAIN, this time for children
-      (route) =>
-        !route.accessRequired ||
-        isAuthorized(route.accessRequired, $page.data.user),
-    ) as Array<Route & { parent?: Route }>;
+  let routes = $derived(getRoutes());
+  let routesToShow = $derived(
+    routes
+      .filter(
+        // first filter out all routes not accessible (root-level paths only)
+        (route) =>
+          !route.accessRequired ||
+          isAuthorized(route.accessRequired, $page.data.user),
+      )
+      .flatMap(
+        (
+          route, // then merge children into list
+        ) =>
+          route.children
+            ? [
+                route,
+                ...route.children.map((child) => ({ ...child, parent: route })),
+              ]
+            : route,
+      )
+      .filter((route) => {
+        // filter out pages to those which should be shown here
+        return route.appBehaviour === "home-link";
+      })
+      .filter(
+        // filter out based on accessibility AGAIN, this time for children
+        (route) =>
+          !route.accessRequired ||
+          isAuthorized(route.accessRequired, $page.data.user),
+      ) as Array<Route & { parent?: Route }>,
+  );
 </script>
 
 <GlobalSearch />

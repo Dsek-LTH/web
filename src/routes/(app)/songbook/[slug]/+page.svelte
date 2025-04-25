@@ -7,7 +7,11 @@
   import * as m from "$paraglide/messages";
 
   import type { PageData } from "./$types";
-  export let data: PageData;
+  interface Props {
+    data: PageData;
+  }
+
+  let { data }: Props = $props();
 </script>
 
 <SetPageTitle title={data.song.title} />

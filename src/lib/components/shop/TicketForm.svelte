@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { run } from "svelte/legacy";
+
   import FormInput from "$lib/components/forms/FormInput.svelte";
   import type { TicketSchema } from "$lib/utils/shop/types";
   import type { Event } from "@prisma/client";
@@ -11,17 +13,27 @@
   import ItemQuestionsSection from "$lib/components/shop/ItemQuestionsSection.svelte";
   import FormNumberInput from "$lib/components/forms/FormNumberInput.svelte";
   import TicketAccessPolicies from "$lib/components/shop/TicketAccessPolicies.svelte";
-  // Assuming you have a schema definition based on zod
 
-  export let event: Event | undefined = undefined;
-  export let type: "create" | "edit" = "create";
-  let createForm: SuperValidated<TicketSchema>;
-  export { createForm as form };
+  interface Props {
+    // Assuming you have a schema definition based on zod
+    event?: Event | undefined;
+    type?: "create" | "edit";
+    form: SuperValidated<TicketSchema>;
+  }
+
+  let {
+    event = undefined,
+    type = "create",
+    form: createForm,
+  }: Props = $props();
+
   const superform = superForm(createForm, {
     dataType: "json",
   });
   const { enhance, submitting, allErrors } = superform;
-  $: console.log($allErrors);
+  run(() => {
+    console.log($allErrors);
+  });
 </script>
 
 <form

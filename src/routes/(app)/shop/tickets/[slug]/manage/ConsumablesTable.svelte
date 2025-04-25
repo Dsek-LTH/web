@@ -3,9 +3,13 @@
   import ConsumableRow from "./ConsumableRow.svelte";
   import type { ConsumableRowData, ReservationData } from "./types";
 
-  export let title: string | null = null;
-  export let questions: ItemQuestion[] = [];
-  export let consumables: Array<ConsumableRowData | ReservationData>;
+  interface Props {
+    title?: string | null;
+    questions?: ItemQuestion[];
+    consumables: Array<ConsumableRowData | ReservationData>;
+  }
+
+  let { title = null, questions = [], consumables }: Props = $props();
 </script>
 
 <div class="my-8 overflow-x-auto rounded-box bg-base-200 p-2 shadow-xl">

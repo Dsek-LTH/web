@@ -1,15 +1,21 @@
 <script lang="ts">
   import { type Tag } from "@prisma/client";
 
-  export let subscribedTags: Tag[];
-  export let tags: Tag[];
+  interface Props {
+    subscribedTags: Tag[];
+    tags: Tag[];
+  }
 
-  let selectedTags: string[] = tags
-    .map((tag) => {
-      if (subscribedTags.find((subTag) => subTag.id == tag.id)) return tag.id;
-      else return "";
-    })
-    .filter((t) => t != "");
+  let { subscribedTags, tags }: Props = $props();
+
+  let selectedTags: string[] = $state(
+    tags
+      .map((tag) => {
+        if (subscribedTags.find((subTag) => subTag.id == tag.id)) return tag.id;
+        else return "";
+      })
+      .filter((t) => t != ""),
+  );
 </script>
 
 <div class={"flex flex-col items-center xl:grid xl:grid-cols-2"}>

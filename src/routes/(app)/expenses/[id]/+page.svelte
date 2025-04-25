@@ -4,8 +4,8 @@
   import { superForm } from "$lib/utils/client/superForms";
   import ExpenseDetailView from "../ExpenseDetailView.svelte";
 
-  export let data;
-  $: expense = data.expense;
+  let { data } = $props();
+  let expense = $derived(data.expense);
   const superform = superForm(data.updateForm);
 </script>
 

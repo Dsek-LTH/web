@@ -7,8 +7,12 @@
   import type { SuperValidated } from "sveltekit-superforms";
   import { superForm } from "$lib/utils/client/superForms";
 
-  export let author: Member;
-  export let commentForm: SuperValidated<CommentSchema>;
+  interface Props {
+    author: Member;
+    commentForm: SuperValidated<CommentSchema>;
+  }
+
+  let { author, commentForm }: Props = $props();
   const { form, errors, constraints, enhance } = superForm(commentForm, {
     resetForm: true,
   });
@@ -29,9 +33,9 @@
     });
   };
 
-  let handleSearch: (searchValue: string) => void;
-  let indexOfTagStart = -1;
-  let inputEl: HTMLInputElement;
+  let handleSearch: (searchValue: string) => void = $state();
+  let indexOfTagStart = $state(-1);
+  let inputEl: HTMLInputElement = $state();
 </script>
 
 <div class="flex items-end gap-4">
@@ -72,7 +76,7 @@
           placeholder="Kommentera något kul..."
           bind:value={$form.content}
           {...$constraints}
-          on:keypress={(e) => {
+          onkeypress={(e) => {
             // on @ -> start tagging
             if (e.key === "@") {
               indexOfTagStart = e.currentTarget.selectionStart ?? -1;
@@ -81,7 +85,7 @@
               indexOfTagStart = -1;
             }
           }}
-          on:input={(e) => {
+          oninput={(e) => {
             if (indexOfTagStart === -1) return;
             const currentComment = e.currentTarget.value;
             if (currentComment.lastIndexOf("@") !== indexOfTagStart) {

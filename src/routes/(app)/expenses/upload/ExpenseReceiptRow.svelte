@@ -7,10 +7,14 @@
   import type { ExpenseSchema } from "../types";
   import * as m from "$paraglide/messages";
 
-  export let superform: SuperForm<ExpenseSchema>;
-  export let receiptIndex: number;
-  export let index: number;
-  export let onRemove: (() => void) | undefined;
+  interface Props {
+    superform: SuperForm<ExpenseSchema>;
+    receiptIndex: number;
+    index: number;
+    onRemove: (() => void) | undefined;
+  }
+
+  let { superform, receiptIndex, index, onRemove }: Props = $props();
   const options = [
     { label: "Välj kostnadsställe", value: null },
     ...COST_CENTERS.map((center) => ({
@@ -39,6 +43,6 @@
     field={`receipts[${receiptIndex}].rows[${index}].comment`}
   />
   {#if onRemove}
-    <button type="button" class="btn btn-error" on:click={onRemove}> X </button>
+    <button type="button" class="btn btn-error" onclick={onRemove}> X </button>
   {/if}
 </div>

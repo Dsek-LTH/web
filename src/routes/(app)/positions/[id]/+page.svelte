@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { preventDefault } from "svelte/legacy";
+
   import { page } from "$app/stores";
   import ClassBadge from "$lib/components/ClassBadge.svelte";
   import PageHeader from "$lib/components/nav/PageHeader.svelte";
@@ -18,27 +20,35 @@
   import CommitteeIcon from "$lib/components/images/CommitteeIcon.svelte";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import type { PageData } from "./$types";
-  export let data: PageData;
+  interface Props {
+    data: PageData;
+  }
 
-  $: groupedByYear = data.mandates.reduce<
-    Record<
-      string,
-      Array<Prisma.MandateGetPayload<{ include: { member: true } }>>
-    >
-  >((acc, mandate) => {
-    let year = mandate.startDate.getFullYear().toString();
-    if (mandate.endDate.getFullYear() !== mandate.startDate.getFullYear())
-      year += `-${mandate.endDate.getFullYear()}`;
-    if (!acc[year]) acc[year] = [];
-    acc[year]!.push(mandate);
-    return acc;
-  }, {});
-  $: years = Object.keys(groupedByYear).sort((a, b) =>
-    b.localeCompare(a, languageTag()),
+  let { data }: Props = $props();
+
+  let groupedByYear = $derived(
+    data.mandates.reduce<
+      Record<
+        string,
+        Array<Prisma.MandateGetPayload<{ include: { member: true } }>>
+      >
+    >((acc, mandate) => {
+      let year = mandate.startDate.getFullYear().toString();
+      if (mandate.endDate.getFullYear() !== mandate.startDate.getFullYear())
+        year += `-${mandate.endDate.getFullYear()}`;
+      if (!acc[year]) acc[year] = [];
+      acc[year]!.push(mandate);
+      return acc;
+    }, {}),
   );
-  let isEditing = false;
-  let isAdding = false;
-  $: editedMandate = $page.url.searchParams.get("editMandate");
+  let years = $derived(
+    Object.keys(groupedByYear).sort((a, b) =>
+      b.localeCompare(a, languageTag()),
+    ),
+  );
+  let isEditing = $state(false);
+  let isAdding = $state(false);
+  let editedMandate = $derived($page.url.searchParams.get("editMandate"));
 </script>
 
 <SetPageTitle title={data.position.name} />
@@ -61,7 +71,7 @@
         {#if isAuthorized(apiNames.MANDATE.CREATE, data.user) && !isEditing}
           <button
             class="btn btn-secondary btn-sm"
-            on:click={() => {
+            onclick={() => {
               isAdding = !isAdding;
             }}
           >
@@ -71,7 +81,7 @@
         {#if (!isAdding && isAuthorized(apiNames.MANDATE.UPDATE, data.user)) || isAuthorized(apiNames.MANDATE.DELETE, data.user) || isAuthorized(apiNames.POSITION.UPDATE, data.user)}
           <button
             class="btn btn-sm"
-            on:click={async () => {
+            onclick={async () => {
               isEditing = !isEditing;
             }}
           >
@@ -171,11 +181,11 @@
             {#if isAuthorized(apiNames.MANDATE.UPDATE, data.user)}
               <button
                 class="btn btn-secondary btn-sm pointer-events-auto"
-                on:click|preventDefault={async () => {
+                onclick={preventDefault(async () => {
                   await goto(
                     `positions/${data.position.id}?editMandate=${mandate.id}`,
                   );
-                }}
+                })}
               >
                 {m.positions_edit()}
               </button>

@@ -3,7 +3,11 @@
   import * as m from "$paraglide/messages";
   import StripeDescription from "./StripeDescription.svelte";
 
-  export let fee: number;
+  interface Props {
+    fee: number;
+  }
+
+  let { fee }: Props = $props();
 </script>
 
 <tr class="hidden border-none md:table-row">

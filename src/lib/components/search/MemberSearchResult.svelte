@@ -3,7 +3,11 @@
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import type { MemberSearchReturnAttributes } from "$lib/search/searchTypes";
   import ClassBadge from "../ClassBadge.svelte";
-  export let member: MemberSearchReturnAttributes;
+  interface Props {
+    member: MemberSearchReturnAttributes;
+  }
+
+  let { member }: Props = $props();
 </script>
 
 <li>
