@@ -333,8 +333,7 @@
   </div>
   <form method="dialog" class="modal-backdrop">
     <!-- svelte-ignore a11y_consider_explicit_label -->
-    <!-- svelte-ignore element_invalid_self_closing_tag -->
-    <button class="cursor-auto" />
+    <button class="cursor-auto"></button>
   </form>
 </dialog>
 
