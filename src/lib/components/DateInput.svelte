@@ -1,14 +1,17 @@
-<!-- @migration-task Error while migrating Svelte code: $$props is used together with named props in a way that cannot be automatically migrated. -->
 <script lang="ts">
+  import { run } from "svelte/legacy";
   import { twMerge } from "tailwind-merge";
 
-  export let date: Date;
+  interface Props {
+    date: Date;
+    class?: string;
+  }
 
-  let internal: string = date
-    .toLocaleString("sv")
-    .split(" ")
-    .join("T")
-    .slice(0, 16);
+  let { date = $bindable(), class: klass, ...rest }: Props = $props();
+
+  let internal: string = $state(
+    date.toLocaleString("sv").split(" ").join("T").slice(0, 16),
+  );
 
   const input = (x: Date) => {
     const newDateString = x
@@ -25,13 +28,17 @@
     date = new Date(x);
   };
 
-  $: input(date);
-  $: output(internal);
+  run(() => {
+    input(date);
+  });
+  run(() => {
+    output(internal);
+  });
 </script>
 
 <input
   type="datetime-local"
   bind:value={internal}
-  {...$$props}
-  class={twMerge("input input-bordered", $$props["class"] ?? "")}
+  {...rest}
+  class={twMerge("input input-bordered", klass ?? "")}
 />

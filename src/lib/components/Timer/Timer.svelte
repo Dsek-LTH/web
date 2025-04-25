@@ -1,4 +1,3 @@
-<!-- @migration-task Error while migrating Svelte code: Cannot overwrite a zero-length range – use appendLeft or prependRight instead -->
 <!--
   @component
   This component shows a live countdown (or count up) timer. 
@@ -10,19 +9,33 @@
   import ScrollingDigit from "$lib/components/Timer/ScrollingDigit.svelte";
   import { twMerge } from "tailwind-merge";
 
-  /** Seconds to display as `mm:ss`. Must be less than an hour. */
-  let clazz: string | undefined = undefined;
-  export { clazz as class };
-  export let seconds: number | undefined = undefined;
-  export let milliseconds: number | undefined = undefined;
-  export let allowNegative = false;
+  type Props = {
+    class?: string;
+    allowNegative?: boolean;
+  } & (
+    | {
+        /** Seconds to display as `mm:ss`. Must be less than an hour. */
+        seconds: number;
+        milliseconds?: never;
+      }
+    | {
+        seconds?: never;
+        /** Milliseconds to display as `mm:ss`. Must be less than an hour. */
+        milliseconds: number;
+      }
+  );
 
-  $: if (seconds === undefined && milliseconds === undefined) {
-    throw new Error("Either `seconds` or `milliseconds` must be provided.");
-  }
+  let {
+    class: clazz = "",
+    allowNegative = false,
+    seconds = undefined,
+    milliseconds = undefined,
+  }: Props = $props();
 
-  $: inSeconds = seconds ?? Math.ceil(milliseconds! / 1000);
-  $: absSeconds = inSeconds < 0 && !allowNegative ? 0 : Math.abs(inSeconds);
+  let inSeconds = $derived(seconds ?? Math.ceil(milliseconds! / 1000));
+  let absSeconds = $derived(
+    inSeconds < 0 && !allowNegative ? 0 : Math.abs(inSeconds),
+  );
 </script>
 
 <!-- <span class={twMerge("countdown font-mono", clazz)}>

@@ -1,4 +1,3 @@
-<!-- @migration-task Error while migrating Svelte code: This migration would change the name of a slot making the component unusable -->
 <script lang="ts">
   import AuthorSignature from "$lib/components/socials/AuthorSignature.svelte";
   import TagChip from "$lib/components/TagChip.svelte";
@@ -11,15 +10,28 @@
   import type { ArticleSchema } from "$lib/news/schema";
   import { superForm } from "$lib/utils/client/superForms";
 
-  export let data: SuperValidated<ArticleSchema>;
-  export let authorOptions: AuthorOption[];
-  export let allTags: Tag[];
-  export let superform = superForm(data, {
-    dataType: "json",
-  });
-  let articleImages: string[] = [];
-  let articleVideo: string | undefined = undefined;
+  interface Props {
+    data: SuperValidated<ArticleSchema>;
+    authorOptions: AuthorOption[];
+    allTags: Tag[];
+    superform?: any;
+    formEnd?: import("svelte").Snippet;
+  }
+
+  let {
+    data,
+    authorOptions,
+    allTags,
+    superform = superForm(data, {
+      dataType: "json",
+    }),
+    formEnd,
+  }: Props = $props();
+  let articleImages: string[] = $state([]);
+  let articleVideo: string | undefined = $state(undefined);
   const { form } = superform;
+
+  const formEnd_render = $derived(formEnd);
 </script>
 
 <main
@@ -33,7 +45,9 @@
       bind:articleImages
       bind:articleVideo
     >
-      <slot slot="form-end" name="form-end" />
+      {#snippet formEnd()}
+        {@render formEnd_render?.()}
+      {/snippet}
     </ArticleForm>
   </section>
   <section class="-mt-4">
@@ -57,21 +71,24 @@
         youtubeUrl: articleVideo ?? $form.youtubeUrl ?? null,
       }}
     >
-      <AuthorSignature
-        links={false}
-        slot="author"
-        member={$form.author.member}
-        position={$form.author.mandate?.position}
-        customAuthor={$form.author.customAuthor}
-        type={$form.author.type}
-      />
+      {#snippet author()}
+        <AuthorSignature
+          links={false}
+          member={$form.author.member}
+          position={$form.author.mandate?.position}
+          customAuthor={$form.author.customAuthor}
+          type={$form.author.type}
+        />
+      {/snippet}
 
-      <div slot="tags" class="flex flex-row flex-wrap gap-2">
-        {#each $form.tags as selectedTag}
-          {@const tag = allTags.find((t) => t.id === selectedTag.id)}
-          <TagChip {tag} />
-        {/each}
-      </div>
+      {#snippet tags()}
+        <div class="flex flex-row flex-wrap gap-2">
+          {#each $form.tags as selectedTag}
+            {@const tag = allTags.find((t) => t.id === selectedTag.id)}
+            <TagChip {tag} />
+          {/each}
+        </div>
+      {/snippet}
     </Article>
   </section>
 </main>

@@ -27,14 +27,19 @@
   allTags={data.allTags}
   authorOptions={data.authorOptions}
 >
-  <!-- @migration-task: migrate this slot by hand, `form-end` is an invalid identifier -->
-  <div slot="form-end">
-    <FormInput
-      {superform}
-      field="notificationText"
-      label="Notistext"
-      explanation="Texten som visas i notisen, om tom kommer det vara början av nyhetstexten"
-    />
-    <FormCheckbox {superform} field="sendNotification" label="Skicka notis?" />
-  </div>
+  {#snippet formEnd()}
+    <div>
+      <FormInput
+        {superform}
+        field="notificationText"
+        label="Notistext"
+        explanation="Texten som visas i notisen, om tom kommer det vara början av nyhetstexten"
+      />
+      <FormCheckbox
+        {superform}
+        field="sendNotification"
+        label="Skicka notis?"
+      />
+    </div>
+  {/snippet}
 </ArticleEditor>

@@ -1,4 +1,3 @@
-<!-- @migration-task Error while migrating Svelte code: This migration would change the name of a slot making the component unusable -->
 <script lang="ts">
   import type { Article } from "@prisma/client";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
@@ -6,7 +5,15 @@
   import { languageTag } from "$paraglide/runtime";
   import Carousel from "$lib/components/Carousel.svelte";
 
-  export let article: Article;
+  interface Props {
+    article: Article;
+    author?: import("svelte").Snippet;
+    actions?: import("svelte").Snippet;
+    tags?: import("svelte").Snippet;
+    afterBody?: import("svelte").Snippet;
+  }
+
+  let { article, author, actions, tags, afterBody }: Props = $props();
 </script>
 
 {#if article.youtubeUrl}
@@ -31,12 +38,12 @@
 <section
   class="flex items-center justify-between border-y border-gray-600 py-4"
 >
-  <slot name="author" />
-  <slot name="actions" />
+  {@render author?.()}
+  {@render actions?.()}
 </section>
 
 <section class="flex flex-row items-center justify-between">
-  <slot name="tags" />
+  {@render tags?.()}
   <p class="my-4 text-sm text-gray-600">
     {m.news_published({
       date: article.publishedAt?.toLocaleDateString(languageTag()) ?? "???",
@@ -46,4 +53,4 @@
 
 <MarkdownBody body={article.body} />
 
-<slot name="after-body" />
+{@render afterBody?.()}

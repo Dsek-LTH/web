@@ -1,4 +1,3 @@
-<!-- @migration-task Error while migrating Svelte code: This migration would change the name of a slot making the component unusable -->
 <!--
   @component
 
@@ -24,54 +23,67 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
   import * as m from "$paraglide/messages";
+  import type { Snippet } from "svelte";
   import { twMerge } from "tailwind-merge";
 
-  /** The title of the dialog displayed at the top. */
-  export let title = "Are you sure?";
+  interface Props {
+    /** The title of the dialog displayed at the top. */
+    title?: Snippet | string;
+    /** The description of the dialog displayed below the title. */
+    description?: Snippet | string;
+    /** The text of the confirm button. */
+    confirmText?: string;
+    /** The text of the cancel button. */
+    cancelText?: string;
+    /** The target URL for the confirm button. */
+    formTarget?: string | undefined;
+    /** The form data to submit with the confirm button. */
+    formData?: Record<string, string>;
+    /** Not recommended. Prefer using `formTarget` and `formData`. */
+    onClose?: (() => void) | undefined;
+    /** Not recommended. Prefer using `formTarget` and `formData`. */
+    onConfirm?: (() => void) | undefined;
+    /** Classes to apply to the confirm button. */
+    confirmClass?: string | undefined;
+    /** The dialog element. */
+    modal: HTMLDialogElement;
+    action?: Snippet;
+  }
 
-  /** The description of the dialog displayed below the title. */
-  export let description = "";
-
-  /** The text of the confirm button. */
-  export let confirmText = m.ok();
-
-  /** The text of the cancel button. */
-  export let cancelText = m.cancel();
-
-  /** The target URL for the confirm button. */
-  export let formTarget: string | undefined = undefined;
-
-  /** The form data to submit with the confirm button. */
-  export let formData: Record<string, string> = {};
-
-  /** Not recommended. Prefer using `formTarget` and `formData`. */
-  export let onClose: (() => void) | undefined = undefined;
-
-  /** Not recommended. Prefer using `formTarget` and `formData`. */
-  export let onConfirm: (() => void) | undefined = undefined;
-
-  /** Classes to apply to the confirm button. */
-  export let confirmClass: string | undefined = undefined;
-
-  /** The dialog element. */
-  export let modal: HTMLDialogElement;
+  let {
+    confirmText = m.ok(),
+    cancelText = m.cancel(),
+    formTarget = undefined,
+    formData = {},
+    onClose = undefined,
+    onConfirm = undefined,
+    confirmClass = undefined,
+    modal = $bindable(),
+    title = "Are you sure?",
+    description = "",
+    action = undefined,
+  }: Props = $props();
 </script>
 
 <dialog bind:this={modal} class="modal modal-bottom sm:modal-middle">
   <div class="modal-box">
-    <slot name="title">
+    {#if title && typeof title === "function"}
+      {@render title()}
+    {:else}
       <h1 class="mb-4 text-lg font-bold">{title}</h1>
-    </slot>
+    {/if}
 
-    <slot name="description">
+    {#if description && typeof description === "function"}
+      {@render description()}
+    {:else}
       <p>{description}</p>
-    </slot>
+    {/if}
 
     <div class="modal-action">
-      <slot name="action">
+      {#if action}{@render action()}{:else}
         <button
           class="btn"
-          on:click={() => {
+          onclick={() => {
             modal?.close();
             onClose?.();
           }}
@@ -85,7 +97,7 @@
           <button
             type="submit"
             class={twMerge("btn btn-primary", confirmClass)}
-            on:click={() => {
+            onclick={() => {
               modal?.close();
               onConfirm?.();
             }}
@@ -93,7 +105,7 @@
             {confirmText}
           </button>
         </form>
-      </slot>
+      {/if}
     </div>
   </div>
 

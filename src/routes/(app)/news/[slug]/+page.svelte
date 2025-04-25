@@ -18,7 +18,7 @@
   let { data }: Props = $props();
 
   let article = $derived(data.article);
-  let author = $derived(article.author);
+  let articleAuthor = $derived(article.author);
   let isRemoving = $state(false);
 </script>
 
@@ -28,9 +28,9 @@
   <Article {article}>
     {#snippet author()}
       <AuthorSignature
-        member={author.member}
-        position={author.mandate?.position}
-        customAuthor={author.customAuthor}
+        member={articleAuthor.member}
+        position={articleAuthor.mandate?.position}
+        customAuthor={articleAuthor.customAuthor}
         type={article.author.type}
       />
     {/snippet}
@@ -79,8 +79,7 @@
         {/each}
       </div>
     {/snippet}
-    <!-- @migration-task: migrate this slot by hand, `after-body` is an invalid identifier -->
-    <div slot="after-body" class="mt-4">
+    {#snippet afterBody()}
       <div class="flex flex-col items-start gap-2">
         <LikersList likers={article.likers} />
         <LikeButton
@@ -98,6 +97,6 @@
           removeCommentForm={data.removeCommentForm}
         />
       </div>
-    </div>
+    {/snippet}
   </Article>
 </article>

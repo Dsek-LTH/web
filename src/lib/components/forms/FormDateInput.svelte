@@ -1,5 +1,4 @@
-<!-- @migration-task Error while migrating Svelte code: $$props is used together with named props in a way that cannot be automatically migrated. -->
-<script lang="ts" context="module">
+<script lang="ts" module>
   type T = Record<string, unknown>;
 </script>
 
@@ -13,24 +12,40 @@
     type FormPathLeaves,
     type SuperForm,
   } from "sveltekit-superforms";
+  import type { HTMLInputAttributes } from "svelte/elements";
 
-  export let superform: SuperForm<T>;
-  export let field: FormPathLeaves<T>;
-  // as long as field is not nested, or data type is 'json', name does not need to be set
-  export let name: string | undefined = undefined;
-  export let label: string | null = null;
-  export let id: string | null = null;
+  interface Props extends HTMLInputAttributes {
+    superform: SuperForm<T>;
+    field: FormPathLeaves<T>;
+    // as long as field is not nested, or data type is 'json', name does not need to be set
+    name?: string | undefined;
+    label?: string | null;
+    id?: string | null;
+    onlyDate?: boolean;
+    class?: string | undefined;
+  }
 
-  $: fieldProxy = formFieldProxy(
+  let {
     superform,
     field,
-  ) satisfies FormFieldProxy<Date>;
-  $: errors = fieldProxy.errors;
-  $: constraints = fieldProxy.constraints;
-  export let onlyDate = false;
-  $: date = dateProxy(superform, field, {
-    format: onlyDate ? "date" : "datetime-local",
-  });
+    name = undefined,
+    label = null,
+    id = null,
+    onlyDate = false,
+    class: clazz = undefined,
+    ...rest
+  }: Props = $props();
+
+  let fieldProxy = $derived(
+    formFieldProxy(superform, field) satisfies FormFieldProxy<Date>,
+  );
+  let errors = $derived(fieldProxy.errors);
+  let constraints = $derived(fieldProxy.constraints);
+  let date = $derived(
+    dateProxy(superform, field, {
+      format: onlyDate ? "date" : "datetime-local",
+    }),
+  );
 </script>
 
 <Labeled {label} error={$errors}>
@@ -44,8 +59,8 @@
       {...$constraints}
       min={$constraints?.min?.toString().slice(0, 10)}
       max={$constraints?.max?.toString().slice(0, 10)}
-      {...$$props}
-      class={twMerge("input input-bordered", $$props["class"] ?? "")}
+      {...rest}
+      class={twMerge("input input-bordered", clazz ?? "")}
     />
   {:else}
     <input
@@ -57,8 +72,8 @@
       {...$constraints}
       min={$constraints?.min?.toString().slice(0, 10)}
       max={$constraints?.max?.toString().slice(0, 10)}
-      {...$$props}
-      class={twMerge("input input-bordered", $$props["class"] ?? "")}
+      {...rest}
+      class={twMerge("input input-bordered", clazz ?? "")}
     />
   {/if}
 </Labeled>

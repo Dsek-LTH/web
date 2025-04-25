@@ -1,4 +1,3 @@
-<!-- @migration-task Error while migrating Svelte code: This migration would change the name of a slot making the component unusable -->
 <script lang="ts">
   import FormFilesInput from "$lib/components/forms/FormFilesInput.svelte";
   import FormInput from "$lib/components/forms/FormInput.svelte";
@@ -13,11 +12,23 @@
   import type { Tag } from "@prisma/client";
   import { type SuperForm } from "sveltekit-superforms";
 
-  export let authorOptions: AuthorOption[];
-  export let allTags: Tag[];
-  export let superform: SuperForm<ArticleSchema>;
-  export let articleImages: string[] = [];
-  export let articleVideo: string | undefined = undefined;
+  interface Props {
+    authorOptions: AuthorOption[];
+    allTags: Tag[];
+    superform: SuperForm<ArticleSchema>;
+    articleImages?: string[];
+    articleVideo?: string | undefined;
+    formEnd?: import("svelte").Snippet;
+  }
+
+  let {
+    authorOptions,
+    allTags,
+    superform,
+    articleImages = $bindable([]),
+    articleVideo = $bindable(undefined),
+    formEnd,
+  }: Props = $props();
 
   const { form, enhance, errors } = superform;
 
@@ -67,14 +78,14 @@
   use:enhance
 >
   <LangTabs>
-    <svelte:fragment slot="sv">
+    {#snippet sv()}
       <FormInput {superform} field="header" label={m.news_header()} />
       <FormMarkdown {superform} field="body" label={m.news_description()} />
-    </svelte:fragment>
-    <svelte:fragment slot="en">
+    {/snippet}
+    {#snippet en()}
       <FormInput {superform} field="headerEn" label={m.news_header()} />
       <FormMarkdown {superform} field="bodyEn" label={m.news_description()} />
-    </svelte:fragment>
+    {/snippet}
   </LangTabs>
 
   <Labeled
@@ -130,7 +141,7 @@
     onChange={onVideoSelected}
   />
 
-  <slot name="form-end" />
+  {@render formEnd?.()}
   <FormSubmitButton {superform} class="btn btn-primary mt-4">
     {$form.slug ? m.save() : m.news_publish()}
   </FormSubmitButton>
