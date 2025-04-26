@@ -31,7 +31,7 @@ export const generateICS = async (
   const calendar = createEvents(icsEvents);
 
   if (calendar.error) {
-    throw error(
+    error(
       400,
       "Failed to create calendar ICS" +
         JSON.stringify(

@@ -81,10 +81,10 @@ export const load: PageServerLoad = async (event) => {
     specialReceiverResult.status === "rejected" ||
     specialSenderResult.status === "rejected"
   ) {
-    throw error(404, { message: m.admin_emailalias_addressNotFound() });
+    error(404, { message: m.admin_emailalias_addressNotFound() });
   }
   if (allPositionsResult.status === "rejected") {
-    throw error(500, { message: m.admin_emailalias_couldNotFetchPositions() });
+    error(500, { message: m.admin_emailalias_couldNotFetchPositions() });
   }
 
   const [
@@ -119,7 +119,7 @@ export const load: PageServerLoad = async (event) => {
     specialReceiver.length === 0 &&
     specialSender.length === 0
   ) {
-    throw error(404, { message: m.admin_emailalias_addressNotFound() });
+    error(404, { message: m.admin_emailalias_addressNotFound() });
   }
 
   return {

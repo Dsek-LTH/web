@@ -9,7 +9,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     },
   });
   if (markdownPage == undefined) {
-    throw error(404, {
+    error(404, {
       message: "Not found",
     });
   }

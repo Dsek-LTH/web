@@ -51,7 +51,7 @@ export const sendPing = async (
       );
     }
   } catch (e) {
-    throw error(
+    error(
       500,
       m.members_errors_couldntPing({
         e: e instanceof Error ? e.message : "???",
@@ -88,11 +88,11 @@ const assertMemberExists = async (
         lastName: true,
       },
     });
-    if (foundMember == null || !foundMember) throw error(400, errorMsg);
+    if (foundMember == null || !foundMember) error(400, errorMsg);
     return foundMember;
   } catch (e) {
     console.error(e);
-    throw error(
+    error(
       500,
       m.members_errors_failedToFindMember({
         e: e instanceof Error ? e.message : "???",

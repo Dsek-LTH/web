@@ -15,7 +15,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   });
 
   if (!governingDocument) {
-    throw error(404, m.documents_governing_errors_notFound());
+    error(404, m.documents_governing_errors_notFound());
   }
 
   return {

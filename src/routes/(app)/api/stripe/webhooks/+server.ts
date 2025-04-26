@@ -16,7 +16,7 @@ export async function POST({ request }) {
 
   // get the signature from the header
   const signature = request.headers.get("stripe-signature");
-  if (!signature) throw error(400, "Invalid request");
+  if (!signature) error(400, "Invalid request");
 
   // var to hold event data
   let event: Stripe.Event;
@@ -36,7 +36,7 @@ export async function POST({ request }) {
     );
 
     // return, because it's a bad request
-    throw error(400, "Invalid request");
+    error(400, "Invalid request");
   }
 
   try {
@@ -55,15 +55,15 @@ export async function POST({ request }) {
         return json({ message: "Marked as canceled" });
       default:
         console.log(`Unhandled event type: ${event.type}`);
-        throw error(400, "Invalid request");
+        error(400, "Invalid request");
     }
   } catch (e) {
     if (isHttpError(e)) {
       throw e;
     } else if (e instanceof Error) {
-      throw error(500, e.message);
+      error(500, e.message);
     } else {
-      throw error(500, "An unknown error occurred");
+      error(500, "An unknown error occurred");
     }
   }
 }

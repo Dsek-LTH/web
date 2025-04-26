@@ -128,7 +128,7 @@ export const getTicket = async (
   user: AuthUser,
 ): Promise<TicketWithMoreInfo | null> => {
   const { memberId, externalCode } = user ?? {};
-  if (!memberId && !externalCode) throw error(401);
+  if (!memberId && !externalCode) error(401);
   const identification = memberId
     ? {
         memberId: memberId,
@@ -162,7 +162,7 @@ export const getTickets = async (
   getAll = false,
 ): Promise<TicketWithMoreInfo[]> => {
   const { memberId, externalCode } = user ?? {};
-  if (!memberId && !externalCode) throw error(401);
+  if (!memberId && !externalCode) error(401);
   const identification = memberId
     ? {
         memberId: memberId,
@@ -211,7 +211,7 @@ export const getEventsWithTickets = async (
   nollningMode: boolean | null = false,
 ) => {
   const { memberId, externalCode } = user ?? {};
-  if (!memberId && !externalCode) throw error(401);
+  if (!memberId && !externalCode) error(401);
   const identification = memberId
     ? {
         memberId: memberId,

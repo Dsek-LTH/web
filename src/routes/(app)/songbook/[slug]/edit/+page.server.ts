@@ -60,12 +60,12 @@ export const actions: Actions = {
     const data = await request.formData();
     const id = data.get("id");
     if (id == null) {
-      throw error(400, {
+      error(400, {
         message: m.songbook_errors_missingID(),
       });
     }
     if (typeof id !== "string") {
-      throw error(400, {
+      error(400, {
         message: m.songbook_errors_invalidID(),
       });
     }
@@ -93,12 +93,12 @@ export const actions: Actions = {
     const data = await request.formData();
     const id = data.get("id");
     if (id == null) {
-      throw error(400, {
+      error(400, {
         message: m.songbook_errors_missingID(),
       });
     }
     if (typeof id !== "string") {
-      throw error(400, {
+      error(400, {
         message: m.songbook_errors_invalidID(),
       });
     }

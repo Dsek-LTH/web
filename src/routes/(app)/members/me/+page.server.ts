@@ -7,7 +7,7 @@ import { error } from "@sveltejs/kit";
 export const load = async ({ locals }) => {
   const { user } = locals;
   if (!user?.studentId) {
-    throw error(401, m.members_errors_meNotFound());
+    error(401, m.members_errors_meNotFound());
   }
   throw redirect(302, `/members/${user.studentId}`);
 };

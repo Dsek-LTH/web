@@ -76,7 +76,7 @@ export const createEvent: Action = async (event) => {
     if (isRecurringType(recurringType)) {
       recurType = recurringType;
     } else {
-      throw error(500);
+      error(500);
     }
     const recurringEventParent = await prisma.recurringEvent.create({
       data: {
@@ -206,7 +206,7 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
     },
   });
   if (!existingEvent) {
-    throw error(404, m.events_errors_eventNotFound());
+    error(404, m.events_errors_eventNotFound());
   }
 
   if (image) eventData.imageUrl = await uploadImage(user, image, slug);

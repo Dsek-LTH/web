@@ -23,7 +23,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     },
   });
   if (!event) {
-    throw error(404, m.events_errors_eventNotFound());
+    error(404, m.events_errors_eventNotFound());
   }
   if (event.authorId !== user.memberId) authorize(apiNames.EVENT.UPDATE, user);
   const isRecurring = event.recurringParentId !== null;

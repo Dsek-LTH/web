@@ -155,28 +155,28 @@ export const loadHomeData = async ({
     readmePromise,
   ]);
   if (news.status === "rejected") {
-    throw error(500, "Failed to fetch news");
+    error(500, "Failed to fetch news");
   }
   if (events.status === "rejected") {
-    throw error(500, "Failed to fetch events");
+    error(500, "Failed to fetch events");
   }
   if (upcomingMeeting.status === "rejected") {
-    throw error(500, "Failed to fetch upcoming meeting");
+    error(500, "Failed to fetch upcoming meeting");
   }
   if (previousMeeting.status === "rejected") {
-    throw error(500, "Failed to fetch previous meeting");
+    error(500, "Failed to fetch previous meeting");
   }
   if (cafeOpen.status === "rejected") {
-    throw error(500, "Failed to fetch cafe open");
+    error(500, "Failed to fetch cafe open");
   }
   if (commitData.status === "rejected") {
-    throw error(500, "Failed to fetch commit data");
+    error(500, "Failed to fetch commit data");
   }
   if (hasActiveMandate.status === "rejected") {
-    throw error(500, "Failed to fetch mandate data");
+    error(500, "Failed to fetch mandate data");
   }
   if (readme.status === "rejected") {
-    throw error(500, "Failed to fetch readme");
+    error(500, "Failed to fetch readme");
   }
 
   return {

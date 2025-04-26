@@ -23,7 +23,7 @@ export default async function servePdf(pathName: string) {
     const url = getGitHubUrl(pathName);
     const fetchResponse = await fetch(url);
     if (!fetchResponse.ok) {
-      throw error(
+      error(
         fetchResponse.status as NumericRange<400, 599>, // This is very likely if !fetchResponse.ok
         fetchResponse.statusText,
       );
@@ -33,7 +33,7 @@ export default async function servePdf(pathName: string) {
     // so we need to check the content type to make sure we got a PDF (or at least a file).
     const contentType = fetchResponse.headers.get("content-type");
     if (!contentType?.startsWith("application/octet-stream")) {
-      throw error(404, "Not Found");
+      error(404, "Not Found");
     }
 
     const buffer = await fetchResponse.arrayBuffer();
@@ -47,7 +47,7 @@ export default async function servePdf(pathName: string) {
       status: 200,
     });
   } else {
-    throw error(400, "Bad Request");
+    error(400, "Bad Request");
   }
 }
 

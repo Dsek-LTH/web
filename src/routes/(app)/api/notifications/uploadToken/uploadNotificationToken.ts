@@ -19,7 +19,7 @@ export const uploadNotificationToken = async (
   token: string,
 ) => {
   if (!user?.memberId) {
-    throw error(401, "Not logged in");
+    error(401, "Not logged in");
   }
   if (cache.get(token) == user.memberId) return;
   try {
@@ -49,8 +49,8 @@ export const uploadNotificationToken = async (
   } catch (e) {
     console.error(e);
     if (e instanceof Error) {
-      throw error(500, `Couldn't save token: ${e.message}`);
+      error(500, `Couldn't save token: ${e.message}`);
     }
-    throw error(500, `Couldn't save token: ${e}`);
+    error(500, `Couldn't save token: ${e}`);
   }
 };

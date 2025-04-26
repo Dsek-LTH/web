@@ -49,7 +49,7 @@ export const inventoryLoadFunction = async ({
     },
   });
   if (!memberId && consumables) {
-    throw error(403, m.inventory_errors_unauthorized());
+    error(403, m.inventory_errors_unauthorized());
   }
   authorize(apiNames.WEBSHOP.PURCHASE, user);
   const consumablesWithMoreInfo: ConsumableWithMoreInfo[] = consumables.map(

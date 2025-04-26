@@ -20,7 +20,7 @@ import { setFlash } from "sveltekit-flash-message/server";
 export const load = async ({ locals, params }) => {
   const { prisma } = locals;
   if (params.id.length === 0 || Number.isNaN(Number(params.id))) {
-    throw error(404, "Expense id should be a number");
+    error(404, "Expense id should be a number");
   }
   const expense = await prisma.expense.findUnique({
     where: {
@@ -29,7 +29,7 @@ export const load = async ({ locals, params }) => {
     include: expensesInclusion,
   });
   if (!expense) {
-    throw error(404, "Expense not found");
+    error(404, "Expense not found");
   }
   return {
     expense,
@@ -47,11 +47,10 @@ export const actions = {
     const { prisma, member } = locals;
     const form = await superValidate(request, zod(updateItemSchema));
     if (params.id.length === 0 || Number.isNaN(Number(params.id)))
-      throw error(404, "Expense id should be a number");
+      error(404, "Expense id should be a number");
 
     if (!form.valid) return fail(400, { form });
-    if (!member)
-      throw error(401, "Du måste vara inloggad för att uppdatera utlägg");
+    if (!member) error(401, "Du måste vara inloggad för att uppdatera utlägg");
 
     const data = form.data;
     await updateSignersCacheIfNecessary();
@@ -65,7 +64,7 @@ export const actions = {
         },
       },
     });
-    if (!before) throw error(404, "Utlägget hittades inte");
+    if (!before) error(404, "Utlägget hittades inte");
     const costCenter = getCostCenter(data.costCenter ?? before?.costCenter);
     const signer = resolveSignerLogic(
       getSigner(costCenter.signer),
@@ -104,7 +103,7 @@ export const actions = {
     const { prisma } = locals;
     const form = await superValidate(request, zod(updateExpenseSchema));
     if (params.id.length === 0 || Number.isNaN(Number(params.id)))
-      throw error(404, "Expense id should be a number");
+      error(404, "Expense id should be a number");
 
     if (!form.valid) return fail(400, { form });
 
@@ -128,7 +127,7 @@ export const actions = {
     const { locals, params } = event;
     const { prisma } = locals;
     if (params.id.length === 0 || Number.isNaN(Number(params.id)))
-      throw error(404, "Expense id should be a number");
+      error(404, "Expense id should be a number");
     await prisma.expense.update({
       where: {
         id: Number(params.id),
@@ -195,9 +194,9 @@ export const actions = {
     const { locals, params, request } = event;
     const { prisma, user } = locals;
     if (!user?.memberId)
-      throw error(401, "Du måste vara inloggad för att godkänna utlägg");
+      error(401, "Du måste vara inloggad för att godkänna utlägg");
     if (params.id.length === 0 || Number.isNaN(Number(params.id)))
-      throw error(404, "Expense id should be a number");
+      error(404, "Expense id should be a number");
     const form = await superValidate(request, zod(approveReceiptSchema));
     if (!form.valid) return fail(400, { form });
     const canAlwaysSign = isAuthorized(apiNames.EXPENSES.CERTIFICATION, user);
@@ -230,9 +229,9 @@ export const actions = {
     const { locals, params } = event;
     const { prisma, user } = locals;
     if (!user?.memberId)
-      throw error(401, "Du måste vara inloggad för att godkänna utlägg");
+      error(401, "Du måste vara inloggad för att godkänna utlägg");
     if (params.id.length === 0 || Number.isNaN(Number(params.id)))
-      throw error(404, "Expense id should be a number");
+      error(404, "Expense id should be a number");
     const canAlwaysSign = isAuthorized(apiNames.EXPENSES.CERTIFICATION, user);
     const result = await prisma.expenseItem.updateMany({
       where: {
@@ -247,7 +246,7 @@ export const actions = {
       },
     });
     if (result.count === 0) {
-      throw error(400, "Utlägget kunde inte godkännas");
+      error(400, "Utlägget kunde inte godkännas");
     }
     return redirect(
       "/expenses",
@@ -263,21 +262,15 @@ export const actions = {
     const { prisma, user } = locals;
 
     if (!user?.memberId) {
-      throw error(
-        401,
-        "Du måste vara inloggad för att skicka utlägg till bokföring",
-      );
+      error(401, "Du måste vara inloggad för att skicka utlägg till bokföring");
     }
 
     if (!isAuthorized(apiNames.EXPENSES.BOOKKEEPING, user)) {
-      throw error(
-        403,
-        "Du har inte behörighet att skicka utlägg till bokföring",
-      );
+      error(403, "Du har inte behörighet att skicka utlägg till bokföring");
     }
 
     if (params.id.length === 0 || Number.isNaN(Number(params.id))) {
-      throw error(404, "Expense id should be a number");
+      error(404, "Expense id should be a number");
     }
 
     try {

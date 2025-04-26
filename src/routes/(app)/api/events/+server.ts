@@ -7,7 +7,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
   const search = url.searchParams.get("search")?.toLowerCase();
 
   if (search == undefined || search.length === 0) {
-    throw error(400, "you need to provide a search value");
+    error(400, "you need to provide a search value");
   }
 
   const searchString = search

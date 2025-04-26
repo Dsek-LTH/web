@@ -25,13 +25,10 @@ export const load: PageServerLoad = async ({ locals }) => {
     redirect(302, "/");
   }
   if (!memberResult.value) {
-    throw error(404, m.onboarding_errors_memberNotFound());
+    error(404, m.onboarding_errors_memberNotFound());
   }
   if (phadderGroupsResult.status === "rejected")
-    throw error(
-      500,
-      phadderGroupsResult.reason ?? "Couldn't fetch phadder groups",
-    );
+    error(500, phadderGroupsResult.reason ?? "Couldn't fetch phadder groups");
   const member = memberResult.value;
   const phadderGroups = phadderGroupsResult.value;
   return {
@@ -71,7 +68,7 @@ export const actions: Actions = {
         },
       });
     } else {
-      throw error(500, m.onboarding_errors_studentIDNotFound());
+      error(500, m.onboarding_errors_studentIDNotFound());
     }
     keycloak.updateProfile(
       studentId,

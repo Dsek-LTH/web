@@ -106,10 +106,10 @@ const getPresignedPutUrl = async (
     return Promise.reject(new Error("MinIO is not healthy, cannot get files"));
   }
   authorize(apiNames.FILES.BUCKET(bucket).CREATE, user);
-  if (fileName === "") throw error(400, "File name cannot be empty");
+  if (fileName === "") error(400, "File name cannot be empty");
 
   if (!allowOverwrite && (await fileExists(bucket, fileName))) {
-    throw error(409, `File ${fileName} already exists`);
+    error(409, `File ${fileName} already exists`);
   }
   const url = await minio.presignedPutObject(
     bucket,
@@ -296,7 +296,7 @@ const renameObject = async (
   }
   authorize(apiNames.FILES.BUCKET(bucket).UPDATE, user);
   if (await fileExists(bucket, newFileName)) {
-    throw error(409, `File ${newFileName} already exists`);
+    error(409, `File ${newFileName} already exists`);
   }
   const dirname = path.dirname(fileName);
 

@@ -6,7 +6,7 @@ import apiNames from "$lib/utils/apiNames";
 
 export const load = async ({ locals }) => {
   const { prisma, user, member } = locals;
-  if (!member) throw error(401, "You must be logged in to handle expenses");
+  if (!member) error(401, "You must be logged in to handle expenses");
 
   const allExpenses = await prisma.expense.findMany({
     where: {

@@ -27,7 +27,7 @@ export const authorize = (
   const apiNames = Array.isArray(apiName) ? apiName : [apiName];
   for (const name of apiNames) {
     if (!isAuthorized(name, user)) {
-      throw error(403, `${m.errors_missingPermissions()} ${name}`);
+      error(403, `${m.errors_missingPermissions()} ${name}`);
     }
   }
 };

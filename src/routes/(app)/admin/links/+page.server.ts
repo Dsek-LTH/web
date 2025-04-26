@@ -46,7 +46,7 @@ const getParams = (url: URL) => {
     tags: url.searchParams.getAll("tags"), // Allow multiple tags
   });
   if (paramError) {
-    throw error(422, paramError.errors.map((e) => e.message).join(". "));
+    error(422, paramError.errors.map((e) => e.message).join(". "));
   }
   return params;
 };

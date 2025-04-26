@@ -44,7 +44,7 @@ async function sendPushNotifications(
     console.error(`Failed to send ${failedMessages} push notifications`);
   }
   if (failedMessages === messages.length) {
-    throw error(500, "Failed to send push notifications");
+    error(500, "Failed to send push notifications");
   }
 }
 

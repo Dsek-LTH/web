@@ -34,7 +34,7 @@ export const loadTicketData = async (
       event: true,
     },
   });
-  if (!ticket) throw error(404, "Ticket not found");
+  if (!ticket) error(404, "Ticket not found");
   if (ticket.shoppable.authorId !== user.memberId) {
     // author can always manage
     authorize(apiNames.WEBSHOP.MANAGE, user);

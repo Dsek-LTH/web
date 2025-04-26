@@ -16,6 +16,6 @@ export default async <T>(deleteFn: () => Promise<T>) => {
         return;
       }
     }
-    throw error(500, "Failed to delete record");
+    error(500, "Failed to delete record");
   });
 };

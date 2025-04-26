@@ -22,7 +22,7 @@ export const load: LayoutServerLoad = async ({ locals, params }) => {
   });
 
   if (song == null) {
-    throw error(404, {
+    error(404, {
       message: m.songbook_errors_songNotFound(),
     });
   }
