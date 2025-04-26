@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from "svelte/legacy";
-
   import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
   import Pagination from "$lib/components/Pagination.svelte";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
@@ -70,7 +68,7 @@
     }
   }
 
-  run(() => {
+  $effect(() => {
     folders.length = 0; // make folders empty
     Object.keys(data["folders"]).forEach((folder) => {
       processFolder(folder, "", folders);

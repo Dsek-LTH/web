@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from "svelte/legacy";
-
   import { invalidate } from "$app/navigation";
   import { page } from "$app/state";
   import LoadingButton from "$lib/components/LoadingButton.svelte";
@@ -45,7 +43,7 @@
 
   let isInGracePeriod = $derived(ticket.gracePeriodEndsAt > $now);
 
-  run(() => {
+  $effect(() => {
     if (
       isCurrentlyAvailable &&
       ticket.isInUsersCart &&

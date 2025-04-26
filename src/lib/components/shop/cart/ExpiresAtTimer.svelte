@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from "svelte/legacy";
-
   import { invalidateAll } from "$app/navigation";
   import Timer from "$lib/components/Timer/Timer.svelte";
   import { now } from "$lib/stores/date";
@@ -13,7 +11,7 @@
 
   let { class: clazz = undefined, expiresAt = null }: Props = $props();
 
-  run(() => {
+  $effect(() => {
     if (expiresAt && $now > expiresAt) {
       invalidateAll();
     }

@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { run } from "svelte/legacy";
   import FormCheckbox from "$lib/components/forms/FormCheckbox.svelte";
   import FormDateInput from "$lib/components/forms/FormDateInput.svelte";
   import FormInput from "$lib/components/forms/FormInput.svelte";
@@ -47,7 +46,7 @@
   });
   const { form, errors, enhance } = superform;
 
-  run(() => {
+  $effect(() => {
     if ($errors) console.log($errors);
   });
   let activeTab: AvailableLanguageTag = $state(languageTag());

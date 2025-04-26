@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from "svelte/legacy";
-
   import FormInput from "$lib/components/forms/FormInput.svelte";
   import type { TicketSchema } from "$lib/utils/shop/types";
   import type { Event } from "@prisma/client";
@@ -31,7 +29,7 @@
     dataType: "json",
   });
   const { enhance, submitting, allErrors } = superform;
-  run(() => {
+  $effect(() => {
     console.log($allErrors);
   });
 </script>

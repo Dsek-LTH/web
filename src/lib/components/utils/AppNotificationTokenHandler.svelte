@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from "svelte/legacy";
-
   import { page } from "$app/state";
   import { toast } from "$lib/stores/toast";
   import { onDestroy, onMount } from "svelte";
@@ -48,9 +46,7 @@
       window.removeEventListener("appSendNotificationToken", listener);
   });
 
-  run(() => {
-    (() => {
-      if (loggedIn && token) uploadToken(token);
-    })();
+  $effect(() => {
+    if (loggedIn && token) uploadToken(token);
   });
 </script>

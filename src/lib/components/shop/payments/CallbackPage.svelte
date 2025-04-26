@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from "svelte/legacy";
-
   import { browser } from "$app/environment";
   import { invalidate } from "$app/navigation";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
@@ -25,7 +23,8 @@
       interval = null;
     }
   });
-  run(() => {
+
+  $effect(() => {
     if (data.refreshPeriodically && browser) {
       interval = setInterval(async () => {
         const timeout = setTimeout(() => {

@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from "svelte/legacy";
-
   import NavigationLoader from "$lib/components/utils/NavigationLoader.svelte";
   import eye from "./(photos)/eye.svg";
   import favicon from "./(photos)/favicon.png";
@@ -22,11 +20,9 @@
 
   let { data, children } = $props();
 
-  run(() => {
-    (() => {
-      const locale = languageTag();
-      dayjs.locale(locale);
-    })();
+  $effect(() => {
+    const locale = languageTag();
+    dayjs.locale(locale);
   });
 </script>
 

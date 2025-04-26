@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from "svelte/legacy";
-
   import { enhance } from "$app/forms";
   import * as m from "$paraglide/messages";
   import SearchResultList from "$lib/components/search/SearchResultList.svelte";
@@ -120,9 +118,10 @@
     }),
   );
   // Call handleSearch whenever checkboxes change
-  // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- This syntax is valid and it's a good use case here
-  run(() => {
-    toSearchOn && handleSearch();
+  $effect(() => {
+    if (toSearchOn) {
+      handleSearch();
+    }
   });
 </script>
 

@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from "svelte/legacy";
-
   import Modal from "$lib/components/Modal.svelte";
   import Price from "$lib/components/Price.svelte";
   import type { CartItem } from "$lib/utils/shop/types";
@@ -29,7 +27,7 @@
     allQuestions.find((question) => question.form?.valid === false),
   );
   let currentQuestion = $derived(questionInNeedOfAnswer ?? selectedQuestion);
-  run(() => {
+  $effect(() => {
     if (!!currentQuestion || !!inspectedItem) open = true;
     else open = false;
   });

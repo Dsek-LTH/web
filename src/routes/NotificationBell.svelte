@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from "svelte/legacy";
-
   import { page } from "$app/state";
   import NotificationModal from "$lib/components/NotificationModal.svelte";
   import type { NotificationGroup } from "$lib/utils/notifications/group";
@@ -60,23 +58,21 @@
     children,
     loading,
   }: Props = $props();
-  run(() => {
-    (() => {
-      notificationsPromise.then((loadedNotifications) => {
-        notifications = loadedNotifications;
-      });
-    })();
+
+  $effect(() => {
+    notificationsPromise.then((loadedNotifications) => {
+      notifications = loadedNotifications;
+    });
   });
-  run(() => {
-    (() => {
-      if (page.form?.form?.data?.notificationId !== undefined) {
-        // a notification was removed
-        setTimeout(() => {
-          // needs to be done next update cycle, otherwise it doesn' work. In practice, is still instant
-          onDeleted();
-        });
-      }
-    })();
+
+  $effect(() => {
+    if (page.form?.form?.data?.notificationId !== undefined) {
+      // a notification was removed
+      setTimeout(() => {
+        // needs to be done next update cycle, otherwise it doesn' work. In practice, is still instant
+        onDeleted();
+      });
+    }
   });
 </script>
 

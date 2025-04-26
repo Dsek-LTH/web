@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from "svelte/legacy";
-
   interface Props {
     notificationCount?: number | undefined;
   }
@@ -19,7 +17,7 @@
     );
   };
 
-  run(() => {
-    (() => sendNotificationCountToApp(notificationCount))();
+  $effect(() => {
+    sendNotificationCountToApp(notificationCount);
   });
 </script>

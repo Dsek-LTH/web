@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from "svelte/legacy";
-
   import * as m from "$paraglide/messages";
   import { browser } from "$app/environment";
   import { onMount } from "svelte";
@@ -13,11 +11,9 @@
     else stored = {};
   });
 
-  run(() => {
-    (() => {
-      if (browser && Object.keys(stored).length > 0)
-        localStorage.setItem("nolla-todo", JSON.stringify(stored));
-    })();
+  $effect(() => {
+    if (browser && Object.keys(stored).length > 0)
+      localStorage.setItem("nolla-todo", JSON.stringify(stored));
   });
 </script>
 

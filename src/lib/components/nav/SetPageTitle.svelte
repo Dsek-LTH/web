@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from "svelte/legacy";
-
   import { getContext } from "svelte";
   import type { Writable } from "svelte/store";
 
@@ -16,7 +14,7 @@
 
   let pageTitle = getContext<Writable<string>>("pageTitle");
   $pageTitle = title ?? "D-sektionen";
-  run(() => {
+  $effect(() => {
     $pageTitle = title ?? "D-sektionen";
   });
 </script>

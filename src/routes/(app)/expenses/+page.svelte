@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from "svelte/legacy";
-
   import PageHeader from "$lib/components/nav/PageHeader.svelte";
   import * as m from "$paraglide/messages";
   import ExpenseDetailView from "./ExpenseDetailView.svelte";
@@ -16,7 +14,7 @@
 
   // This is required when updating through the preview. The data is updated but "selectedExpense" is not.
   // I tried an index but since we got two separate lists that didn't work
-  run(() => {
+  $effect(() => {
     if (
       !!selectedExpense &&
       !myExpenses.includes(selectedExpense) &&

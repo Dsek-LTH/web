@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from "svelte/legacy";
-
   import { enhance } from "$app/forms";
   import Price from "$lib/components/Price.svelte";
   import ScrollingNumber from "$lib/components/Timer/ScrollingNumber.svelte";
@@ -24,7 +22,7 @@
     item.order !== null ? null : shoppable.gracePeriodEndsAt,
   );
 
-  run(() => {
+  $effect(() => {
     if (lotteryAt && $now > lotteryAt) {
       invalidateAll();
     }

@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from "svelte/legacy";
-
   import { enhance } from "$app/forms";
   import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
   import FormFileInput from "$lib/components/forms/FormFileInput.svelte";
@@ -17,9 +15,6 @@
     dataType: "json",
   });
   const { enhance: createEnhance, form } = superform;
-  run(() => {
-    console.log(data.files);
-  });
 </script>
 
 {#if data.files.length === 0}

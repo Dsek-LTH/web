@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from "svelte/legacy";
-
   import EventSearch from "$lib/components/EventSearch.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
   import type { TicketSchema } from "$lib/utils/shop/types";
@@ -26,7 +24,8 @@
     }
     $value = event.id;
   };
-  run(() => {
+
+  $effect(() => {
     updateForm(event);
   });
 

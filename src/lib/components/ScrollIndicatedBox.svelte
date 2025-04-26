@@ -1,20 +1,16 @@
 <script lang="ts">
-  import { run } from "svelte/legacy";
-
   interface Props {
     element: HTMLElement;
     children?: import("svelte").Snippet;
   }
 
   let { element = $bindable(), children }: Props = $props();
-  run(() => {
-    (() => {
-      if (element && element.onscroll == null) {
-        element.onscroll = () => {
-          element = element; // for reactivity
-        };
-      }
-    })();
+  $effect(() => {
+    if (element && element.onscroll == null) {
+      element.onscroll = () => {
+        element = element; // for reactivity
+      };
+    }
   });
 </script>
 

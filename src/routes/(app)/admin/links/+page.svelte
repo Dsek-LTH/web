@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from "svelte/legacy";
-
   // eslint-disable-next-line no-restricted-imports -- project specific does not work, and goto is only used to update URLSearchParams
   import { goto } from "$app/navigation";
   import PageHeader from "$lib/components/nav/PageHeader.svelte";
@@ -100,7 +98,7 @@
       toggleAllCheckBox.checked = false;
     }
   };
-  run(() => {
+  $effect(() => {
     if (data.domains) {
       resetCheckboxes();
     }

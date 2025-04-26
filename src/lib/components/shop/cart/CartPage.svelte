@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from "svelte/legacy";
-
   import { invalidate } from "$app/navigation";
   import FoodPreferenceModal from "$lib/components/FoodPreferenceModal.svelte";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
@@ -22,7 +20,7 @@
   let isPurchasing = $derived($message?.["clientSecret"] !== undefined);
   let questionModalOpen: boolean = $state();
 
-  run(() => {
+  $effect(() => {
     if (!isPurchasing && $now.valueOf() - lastUpdate > 1000 * 10) {
       // refresh every 10 seconds, mainly used for reservations queue.
       // expiring cart item har handled in the ExpiresAtTimer component.

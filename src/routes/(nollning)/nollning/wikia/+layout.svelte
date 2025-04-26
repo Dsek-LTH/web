@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from "svelte/legacy";
-
   import { browser } from "$app/environment";
   import { page } from "$app/state";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
@@ -59,7 +57,7 @@
   let elements: HTMLAnchorElement[] = $state([]);
   let scroller: HTMLDivElement = $state();
 
-  run(() => {
+  $effect(() => {
     if (browser && currentLinkIndex !== undefined && currentLinkIndex >= 0) {
       const el = elements[currentLinkIndex];
       if (el) {

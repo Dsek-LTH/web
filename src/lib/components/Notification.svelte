@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from "svelte/legacy";
-
   import { browser } from "$app/environment";
   import { enhance } from "$app/forms";
   import { invalidate } from "$app/navigation";
@@ -50,14 +48,12 @@
   let isPathSame = $derived(
     i18n.route(page.url.pathname) === notification.link,
   );
-  run(() => {
-    (() => {
-      if (isUnread && isPathSame) {
-        setTimeout(() => {
-          readNotification();
-        });
-      }
-    })();
+  $effect(() => {
+    if (isUnread && isPathSame) {
+      setTimeout(() => {
+        readNotification();
+      });
+    }
   });
 
   let authors = $derived(

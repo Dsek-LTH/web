@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from "svelte/legacy";
-
   import { browser } from "$app/environment";
   import { enhance } from "$app/forms";
   import { invalidate } from "$app/navigation";
@@ -69,14 +67,12 @@
           .route(page.url.pathname)
           .startsWith(`${POST_REVEAL_PREFIX}/messages`)),
   );
-  run(() => {
-    (() => {
-      if (isUnread && isPathSame) {
-        setTimeout(() => {
-          readNotification();
-        });
-      }
-    })();
+  $effect(() => {
+    if (isUnread && isPathSame) {
+      setTimeout(() => {
+        readNotification();
+      });
+    }
   });
 
   let authors = $derived(

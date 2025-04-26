@@ -5,8 +5,6 @@
   out of view and the new number scrolling into view.  
 -->
 <script lang="ts">
-  import { run } from "svelte/legacy";
-
   interface Props {
     /** The number to display. */
     i?: number;
@@ -22,7 +20,7 @@
     currentI = newI;
   };
 
-  run(() => {
+  $effect(() => {
     updateI(i);
   });
 

@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { run } from "svelte/legacy";
   import { twMerge } from "tailwind-merge";
 
   interface Props {
@@ -28,10 +27,10 @@
     date = new Date(x);
   };
 
-  run(() => {
+  $effect(() => {
     input(date);
   });
-  run(() => {
+  $effect(() => {
     output(internal);
   });
 </script>

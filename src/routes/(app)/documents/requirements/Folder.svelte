@@ -1,6 +1,5 @@
 <script lang="ts">
   import Folder from "./Folder.svelte";
-  import { run } from "svelte/legacy";
 
   import type { SuperValidated } from "sveltekit-superforms";
   import DeleteFileForm from "../DeleteFileForm.svelte";
@@ -37,7 +36,7 @@
     }
     return a.name.localeCompare(b.name, "sv");
   }
-  run(() => {
+  $effect(() => {
     folders.sort(foldersFirstAlphabetically);
   });
 

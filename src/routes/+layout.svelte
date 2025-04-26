@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from "svelte/legacy";
-
   import { i18n } from "$lib/utils/i18n";
   import { languageTag } from "$paraglide/runtime";
   import { ParaglideJS } from "@inlang/paraglide-js-adapter-sveltekit";
@@ -13,11 +11,9 @@
 
   let { data, children } = $props();
 
-  run(() => {
-    (() => {
-      const locale = languageTag();
-      dayjs.locale(locale);
-    })();
+  $effect(() => {
+    const locale = languageTag();
+    dayjs.locale(locale);
   });
   let pageTitle = writable("D-sektionen");
   setContext("pageTitle", pageTitle);

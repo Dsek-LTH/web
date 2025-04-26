@@ -1,7 +1,5 @@
 <!-- @migration task: review uses of `navigating` -->
 <script lang="ts">
-  import { run } from "svelte/legacy";
-
   import { navigating } from "$app/state";
   interface Props {
     children?: import("svelte").Snippet;
@@ -12,7 +10,8 @@
   const threshhold = 100;
   let isLoadDelayed = $state(false);
   let timeout: ReturnType<typeof setTimeout> = $state();
-  run(() => {
+
+  $effect(() => {
     if (navigating) {
       timeout = setTimeout(() => {
         isLoadDelayed = navigating !== null;
