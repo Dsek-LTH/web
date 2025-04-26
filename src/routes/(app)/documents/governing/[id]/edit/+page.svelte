@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import GoverningDocumentEditor from "../../GoverningDocumentEditor.svelte";
 
@@ -16,5 +16,5 @@
 <GoverningDocumentEditor
   isCreating={false}
   data={data.form}
-  documentId={$page.params["id"]}
+  documentId={page.params["id"]}
 />

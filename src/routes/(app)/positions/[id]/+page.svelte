@@ -1,7 +1,7 @@
 <script lang="ts">
   import { preventDefault } from "svelte/legacy";
 
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import ClassBadge from "$lib/components/ClassBadge.svelte";
   import PageHeader from "$lib/components/nav/PageHeader.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
@@ -48,7 +48,7 @@
   );
   let isEditing = $state(false);
   let isAdding = $state(false);
-  let editedMandate = $derived($page.url.searchParams.get("editMandate"));
+  let editedMandate = $derived(page.url.searchParams.get("editMandate"));
 </script>
 
 <SetPageTitle title={data.position.name} />

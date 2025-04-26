@@ -5,7 +5,7 @@
   import type { PageData } from "./$types";
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
 
   interface Props {
     data: PageData;
@@ -13,7 +13,7 @@
 
   let { data }: Props = $props();
   const isPending = data.booking.status === "PENDING";
-  const isAdmin = isAuthorized(apiNames.BOOKINGS.UPDATE, $page.data.user);
+  const isAdmin = isAuthorized(apiNames.BOOKINGS.UPDATE, page.data.user);
 </script>
 
 <SetPageTitle title={m.booking_editBooking()} />

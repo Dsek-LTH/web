@@ -1,7 +1,7 @@
 <script lang="ts">
   import { run } from "svelte/legacy";
 
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import NotificationModal from "$lib/components/NotificationModal.svelte";
   import type { NotificationGroup } from "$lib/utils/notifications/group";
   import type { NotificationSchema } from "$lib/zod/schemas";
@@ -69,7 +69,7 @@
   });
   run(() => {
     (() => {
-      if ($page.form?.form?.data?.notificationId !== undefined) {
+      if (page.form?.form?.data?.notificationId !== undefined) {
         // a notification was removed
         setTimeout(() => {
           // needs to be done next update cycle, otherwise it doesn' work. In practice, is still instant

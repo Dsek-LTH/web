@@ -4,7 +4,7 @@
   import { browser } from "$app/environment";
   import { enhance } from "$app/forms";
   import { invalidate } from "$app/navigation";
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import LiveTimeSince from "$lib/components/LiveTimeSince.svelte";
   import AuthorAvatars from "$lib/components/socials/AuthorAvatars.svelte";
   import { i18n } from "$lib/utils/i18n";
@@ -48,7 +48,7 @@
   // Handle "reading" notification when visiting relevant link
   let isUnread = $derived(notification.readAt === null);
   let isPathSame = $derived(
-    i18n.route($page.url.pathname) === notification.link,
+    i18n.route(page.url.pathname) === notification.link,
   );
   run(() => {
     (() => {

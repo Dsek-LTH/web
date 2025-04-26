@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import CommentInput from "$lib/components/socials/CommentInput.svelte";
   import CommentRow from "$lib/components/socials/CommentRow.svelte";
   import apiNames from "$lib/utils/apiNames";
@@ -66,6 +66,6 @@
     </div>
   </div>
 {/if}
-{#if isAuthorized(apiNames[type].COMMENT, $page.data.user) && $page.data.member}
-  <CommentInput author={$page.data.member} {commentForm} bind:onReply />
+{#if isAuthorized(apiNames[type].COMMENT, page.data.user) && page.data.member}
+  <CommentInput author={page.data.member} {commentForm} bind:onReply />
 {/if}

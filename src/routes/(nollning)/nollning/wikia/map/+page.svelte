@@ -6,8 +6,8 @@
   import floor3 from "./floor3.webp";
   import floor4 from "./floor4.webp";
   import * as m from "$paraglide/messages";
-  import { page } from "$app/stores";
-  let revealTheme = $derived($page.data["revealTheme"]);
+  import { page } from "$app/state";
+  let revealTheme = $derived(page.data["revealTheme"]);
 </script>
 
 <div class="flex flex-col md:flex-row">

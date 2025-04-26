@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import CommitteeIcon from "$lib/components/images/CommitteeIcon.svelte";
   import PageHeader from "$lib/components/nav/PageHeader.svelte";
   import apiNames from "$lib/utils/apiNames";
@@ -33,7 +33,7 @@
   <div class="flex-1">
     <div class="flex flex-wrap items-center justify-between">
       <PageHeader title={committee.name} class="mb-0" />
-      {#if isAuthorized(apiNames.COMMITTEE.UPDATE, $page.data.user) || isAuthorized(apiNames.POSITION.CREATE, $page.data.user)}
+      {#if isAuthorized(apiNames.COMMITTEE.UPDATE, page.data.user) || isAuthorized(apiNames.POSITION.CREATE, page.data.user)}
         <button class="btn btn-secondary btn-sm" onclick={toggleEditing}>
           {editing ? m.committees_stopEditing() : m.committees_edit()}
         </button>

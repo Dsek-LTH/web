@@ -1,5 +1,5 @@
 <script lang="ts" generics="T extends {id: string}">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import { twMerge } from "tailwind-merge";
 
   // eslint-disable-next-line no-undef -- It is defined by svelte
@@ -43,7 +43,7 @@
       return;
     }
 
-    const url = new URL($page.url.origin + endpoint);
+    const url = new URL(page.url.origin + endpoint);
     url.searchParams.append("search", searchValue);
     if (year) {
       url.searchParams.append("year", year.toString());

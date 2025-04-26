@@ -1,6 +1,6 @@
 <script lang="ts">
   import { invalidateAll } from "$app/navigation";
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import DsekLogo from "$lib/components/DsekLogo.svelte";
   import { i18n } from "$lib/utils/i18n";
   import * as m from "$paraglide/messages";
@@ -63,7 +63,7 @@
         <!-- svelte-ignore a11y_consider_explicit_label -->
         <a
           class="neo-brutal-btn aspect-square"
-          href={i18n.route($page.url.pathname)}
+          href={i18n.route(page.url.pathname)}
           hreflang={languageTag() === "sv" ? "en" : "sv"}
           onclick={() => invalidateAll()}
         >

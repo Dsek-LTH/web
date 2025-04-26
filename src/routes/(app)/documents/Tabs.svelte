@@ -1,7 +1,7 @@
 <script lang="ts">
   import { run } from "svelte/legacy";
 
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
 
   type TabOption = {
     name: string;
@@ -20,7 +20,7 @@
   }: Props = $props();
   run(() => {
     (() => {
-      const searchParamValue = $page.url.searchParams.get(fieldName);
+      const searchParamValue = page.url.searchParams.get(fieldName);
       if (searchParamValue) {
         currentTab = searchParamValue;
       }
@@ -28,7 +28,7 @@
   });
 
   let generateLink = $derived((value: string) => {
-    const searchParams = new URLSearchParams($page.url.searchParams);
+    const searchParams = new URLSearchParams(page.url.searchParams);
     searchParams.set(fieldName, value.toString());
     return `?${searchParams.toString()}`;
   });

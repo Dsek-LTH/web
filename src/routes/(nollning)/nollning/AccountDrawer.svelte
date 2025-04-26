@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import { POST_REVEAL_PREFIX } from "$lib/components/postReveal/types";
   import { getFullName } from "$lib/utils/client/member";
   import type { PhadderGroup } from "@prisma/client";
@@ -7,10 +7,10 @@
   import * as m from "$paraglide/messages";
 
   let checked = $state(false);
-  let topInsets = $derived($page.data.appInfo?.insets?.top ?? 0);
-  let member = $derived($page.data.member);
+  let topInsets = $derived(page.data.appInfo?.insets?.top ?? 0);
+  let member = $derived(page.data.member);
   let nollaInGroup = $derived(
-    $page.data["phadderGroup"] as Promise<
+    page.data["phadderGroup"] as Promise<
       Pick<PhadderGroup, "name"> | undefined
     >,
   );

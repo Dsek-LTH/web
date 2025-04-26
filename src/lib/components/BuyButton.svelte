@@ -2,7 +2,7 @@
   import { run } from "svelte/legacy";
 
   import { invalidate } from "$app/navigation";
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import LoadingButton from "$lib/components/LoadingButton.svelte";
   import ScrollingNumber from "$lib/components/Timer/ScrollingNumber.svelte";
   import Timer from "$lib/components/Timer/Timer.svelte";
@@ -14,7 +14,7 @@
   import dayjs from "dayjs";
   import { twMerge } from "tailwind-merge";
 
-  let cartPath = $derived($page.data["paths"]?.["cart"] ?? "/shop/cart");
+  let cartPath = $derived(page.data["paths"]?.["cart"] ?? "/shop/cart");
 
   interface Props {
     /* If form that button is part of is currently submitting */
@@ -69,7 +69,7 @@
       - Has queue -> "Ställ i kö" (anoher color)
       - Doesn't have queue -> "Köp" (active color)
  -->
-{#if isAuthorized(apiNames.WEBSHOP.PURCHASE, $page.data.user)}
+{#if isAuthorized(apiNames.WEBSHOP.PURCHASE, page.data.user)}
   {#if isCurrentlyAvailable}
     {#if ticket.isInUsersCart}
       {#if isInGracePeriod}

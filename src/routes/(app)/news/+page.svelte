@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import Pagination from "$lib/components/Pagination.svelte";
   import SearchBar from "$lib/components/SearchBar.svelte";
   import TagSelector from "$lib/components/TagSelector.svelte";
@@ -18,7 +18,7 @@
   let { data }: Props = $props();
   let filteredTags: Tag[] = $state(
     data.allTags.filter((tag) =>
-      $page.url.searchParams.getAll("tags").includes(tag.name),
+      page.url.searchParams.getAll("tags").includes(tag.name),
     ),
   );
 

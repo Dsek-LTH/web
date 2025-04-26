@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import { isAuthorized } from "$lib/utils/authorization";
   import NavIcon from "$lib/components/NavIcon.svelte";
   import GlobalSearch from "$lib/components/search/GlobalSearch.svelte";
@@ -13,7 +13,7 @@
         // first filter out all routes not accessible (root-level paths only)
         (route) =>
           !route.accessRequired ||
-          isAuthorized(route.accessRequired, $page.data.user),
+          isAuthorized(route.accessRequired, page.data.user),
       )
       .flatMap(
         (
@@ -34,7 +34,7 @@
         // filter out based on accessibility AGAIN, this time for children
         (route) =>
           !route.accessRequired ||
-          isAuthorized(route.accessRequired, $page.data.user),
+          isAuthorized(route.accessRequired, page.data.user),
       ) as Array<Route & { parent?: Route }>,
   );
 </script>

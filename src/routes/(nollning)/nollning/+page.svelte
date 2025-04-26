@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import MembersList from "$lib/components/socials/MembersList.svelte";
   import PersonCarouselItem from "./PersonCarouselItem.svelte";
@@ -32,8 +32,8 @@
   import { languageTag } from "$paraglide/runtime";
 
   let { data } = $props();
-  let topInsets = $derived(($page.data.appInfo?.insets?.top ?? 0) + 8);
-  let bottomInsets = $derived($page.data.appInfo?.insets?.bottom ?? 0);
+  let topInsets = $derived((page.data.appInfo?.insets?.top ?? 0) + 8);
+  let bottomInsets = $derived(page.data.appInfo?.insets?.bottom ?? 0);
   let headerAndFooterHeight = $derived(128 + topInsets + bottomInsets);
 
   const stab = [

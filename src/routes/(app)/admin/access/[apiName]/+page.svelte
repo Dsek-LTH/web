@@ -1,7 +1,7 @@
 <script lang="ts">
   import DeletePolicyForm from "./DeletePolicyForm.svelte";
 
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import * as m from "$paraglide/messages";
   import { superForm } from "$lib/utils/client/superForms";
 
@@ -30,9 +30,9 @@
   );
 </script>
 
-<SetPageTitle title={$page.params["apiName"]} />
+<SetPageTitle title={page.params["apiName"]} />
 
-<h1 class="mb-4 text-2xl font-semibold">{$page.params["apiName"]}</h1>
+<h1 class="mb-4 text-2xl font-semibold">{page.params["apiName"]}</h1>
 <div class="overflow-x-auto">
   <table class="table">
     <thead>

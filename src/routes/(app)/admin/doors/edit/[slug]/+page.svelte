@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import Labeled from "$lib/components/Labeled.svelte";
   import { superForm } from "$lib/utils/client/superForms";
   import * as m from "$paraglide/messages";
@@ -26,10 +26,10 @@
   } = superForm(data.createForm);
 </script>
 
-<SetPageTitle title={$page.params["slug"]} />
+<SetPageTitle title={page.params["slug"]} />
 
 <main class="container mx-auto px-4">
-  <h1 class="mb-4 text-2xl font-semibold capitalize">{$page.params["slug"]}</h1>
+  <h1 class="mb-4 text-2xl font-semibold capitalize">{page.params["slug"]}</h1>
   <div class="overflow-x-auto rounded-lg">
     <table class="table">
       <thead class="bg-base-200">
@@ -258,13 +258,13 @@
       {#if selectedPolicy?.isBan}
         <!-- eslint-disable-next-line svelte/no-at-html-tags -->
         {@html m.admin_doors_revokeBanAreYouSure({
-          door: `${$page.params["slug"]}`,
+          door: `${page.params["slug"]}`,
           target: `${selectedPolicy?.role || selectedPolicy?.member?.studentId}`,
         })}
       {:else}
         <!-- eslint-disable-next-line svelte/no-at-html-tags -->
         {@html m.admin_doors_revokeAreYouSure({
-          door: `${$page.params["slug"]}`,
+          door: `${page.params["slug"]}`,
           target: `${selectedPolicy?.role || selectedPolicy?.member?.studentId}`,
         })}
       {/if}
@@ -293,7 +293,7 @@
     <div class="flex items-center">
       <span class="i-mdi-information size-6"></span>
       <h3 class="px-1 text-lg font-bold">
-        <b class="capitalize">{$page.params["slug"]} -</b>
+        <b class="capitalize">{page.params["slug"]} -</b>
         {#if selectedPolicy?.role}<b>{selectedPolicy.role}</b>{:else}<b>
             {selectedPolicy?.member?.firstName}
             {selectedPolicy?.member?.lastName}

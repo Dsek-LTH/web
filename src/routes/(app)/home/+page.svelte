@@ -8,7 +8,7 @@
   import Documents from "$lib/components/home/Documents.svelte";
   import type { PageData } from "./$types";
   import DsekLogo from "$lib/components/DsekLogo.svelte";
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import { getFullName } from "$lib/utils/client/member";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import * as m from "$paraglide/messages";
@@ -25,9 +25,9 @@
 <div class="grid grid-cols-1 gap-x-5 gap-y-10 md:grid-cols-3 xl:grid-cols-6">
   <section class="col-span-1 hidden flex-col place-items-center xl:flex">
     <DsekLogo class="size-48 pl-4 text-primary" />
-    {#if $page.data.member}
+    {#if page.data.member}
       <div class="pt-2 text-center text-2xl font-bold">
-        {getFullName($page.data.member)}
+        {getFullName(page.data.member)}
       </div>
 
       {#if data.hasActiveMandate}

@@ -2,7 +2,7 @@
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import * as m from "$paraglide/messages";
   import { isAuthorized } from "$lib/utils/authorization";
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import apiNames from "$lib/utils/apiNames";
   import StatusComponent from "./StatusComponent.svelte";
   import dayjs from "dayjs";
@@ -22,7 +22,7 @@
     + {m.booking_createBooking()}
   </a>
 
-  {#if isAuthorized(apiNames.BOOKINGS.UPDATE, $page.data.user)}
+  {#if isAuthorized(apiNames.BOOKINGS.UPDATE, page.data.user)}
     <a class="btn" href="/booking/admin">
       {m.booking_manageBookings()}
     </a>

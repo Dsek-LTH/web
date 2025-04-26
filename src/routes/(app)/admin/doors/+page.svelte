@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
   import type { PageData } from "./$types";
@@ -29,7 +29,7 @@
           <td class="font-medium">
             {door.verboseName}
           </td>
-          {#if isAuthorized(apiNames.DOOR.UPDATE, $page.data.user)}
+          {#if isAuthorized(apiNames.DOOR.UPDATE, page.data.user)}
             <td class="text-right">
               <a class="btn btn-xs px-8" href="doors/edit/{door.name}"
                 >{m.admin_doors_edit()}</a

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import LoadingButton from "$lib/components/LoadingButton.svelte";
   import NavIcon from "$lib/components/NavIcon.svelte";
   import { signIn } from "@auth/sveltekit/client";
@@ -11,12 +11,10 @@
   import type { PhadderGroup } from "@prisma/client";
   import * as m from "$paraglide/messages";
 
-  let pageData = $derived(
-    $page.data as typeof $page.data & PostRevealLayoutData,
-  );
-  let member = $derived($page.data.member);
+  let pageData = $derived(page.data as typeof page.data & PostRevealLayoutData);
+  let member = $derived(page.data.member);
   let nollaInGroup = $derived(
-    $page.data["phadderGroup"] as Promise<
+    page.data["phadderGroup"] as Promise<
       Pick<PhadderGroup, "name"> | undefined
     >,
   );
@@ -26,7 +24,7 @@
 
 <!-- notification and account -->
 <div class="absolute right-0 z-30 flex gap-2">
-  {#if $page.data.user && $page.data.member}
+  {#if page.data.user && page.data.member}
     {#if notificationsPromise !== null}
       <NotificationBell
         postReveal

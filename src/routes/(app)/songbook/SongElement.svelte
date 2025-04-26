@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
   import * as m from "$paraglide/messages";
@@ -20,7 +20,7 @@
     clazz,
   )}
 >
-  {#if isAuthorized(apiNames.SONG.DELETE, $page.data.user) && song.deletedAt != null}
+  {#if isAuthorized(apiNames.SONG.DELETE, page.data.user) && song.deletedAt != null}
     <p class="text-xl font-bold text-red-500">{m.songbook_deleted()}</p>
     <p class="text-sm text-red-300">
       {m.songbook_deletedExplanation()}

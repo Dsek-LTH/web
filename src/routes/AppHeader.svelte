@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import LoadingButton from "$lib/components/LoadingButton.svelte";
   import NavIcon from "$lib/components/NavIcon.svelte";
   import NotificationModal from "$lib/components/NotificationModal.svelte";
@@ -13,7 +13,7 @@
   import { getContext } from "svelte";
   import type { Writable } from "svelte/store";
 
-  let pageData = $derived($page.data as typeof $page.data & GlobalAppLoadData);
+  let pageData = $derived(page.data as typeof page.data & GlobalAppLoadData);
   let notificationsPromise = $derived(pageData["notificationsPromise"]);
   let mutateNotificationForm = $derived(pageData["mutateNotificationForm"]);
   let routes = $derived(getRoutes());
@@ -21,9 +21,9 @@
     appBottomNavRoutes(routes).map((route) => route.path),
   );
   let canGoBack = $derived(
-    !bottomNavRoutes.includes(i18n.route($page.url.pathname)),
+    !bottomNavRoutes.includes(i18n.route(page.url.pathname)),
   );
-  let topInsets = $derived($page.data.appInfo?.insets?.top ?? 0);
+  let topInsets = $derived(page.data.appInfo?.insets?.top ?? 0);
 
   let notificationModal: HTMLDialogElement = $state();
   let notifications: NotificationGroup[] | undefined = $state(undefined);
@@ -58,7 +58,7 @@
     <GlobalSearch />
   </div>
   <div class="w-12">
-    {#if $page.data.user && $page.data.member}
+    {#if page.data.user && page.data.member}
       {#if notificationsPromise !== null && notificationsPromise !== undefined && mutateNotificationForm !== null}
         <NotificationBell
           {notificationsPromise}

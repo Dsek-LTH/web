@@ -5,7 +5,7 @@
   import { superForm } from "$lib/utils/client/superForms";
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import * as m from "$paraglide/messages";
 
   let { data } = $props();
@@ -74,7 +74,7 @@
 <PageHeader title={m.admin_emailalias_emailAliases()} />
 
 <div>
-  {#if isAuthorized(apiNames.EMAIL_ALIAS.CREATE, $page.data.user)}
+  {#if isAuthorized(apiNames.EMAIL_ALIAS.CREATE, page.data.user)}
     <div class="my-4 rounded-lg p-4">
       <div class="border-b border-neutral p-4">
         <h2 class="text-lg font-semibold">{m.admin_emailalias_addAlias()}</h2>
@@ -261,7 +261,7 @@
                 <span class="font-mono">{positionId}</span>
               {/each}
             </td>
-            {#if isAuthorized(apiNames.EMAIL_ALIAS.UPDATE, $page.data.user)}
+            {#if isAuthorized(apiNames.EMAIL_ALIAS.UPDATE, page.data.user)}
               <td class="text-right">
                 <a class="btn btn-xs px-8" href="email-alias/{emailAlias[0]}"
                   >{m.admin_emailalias_edit()}</a
@@ -299,7 +299,7 @@
                 <span class="font-mono">{studentId}</span>
               {/each}
             </td>
-            {#if isAuthorized(apiNames.EMAIL_ALIAS.UPDATE, $page.data.user)}
+            {#if isAuthorized(apiNames.EMAIL_ALIAS.UPDATE, page.data.user)}
               <td class="text-right">
                 <a class="btn btn-xs px-8" href="email-alias/{email}"
                   >{m.admin_emailalias_edit()}</a
@@ -337,7 +337,7 @@
                 <span class="font-mono">{targetEmail}</span>
               {/each}
             </td>
-            {#if isAuthorized(apiNames.EMAIL_ALIAS.UPDATE, $page.data.user)}
+            {#if isAuthorized(apiNames.EMAIL_ALIAS.UPDATE, page.data.user)}
               <td class="text-right">
                 <a class="btn btn-xs px-8" href="email-alias/{email}"
                   >{m.admin_emailalias_edit()}</a

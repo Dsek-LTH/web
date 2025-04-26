@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import Pagination from "$lib/components/Pagination.svelte";
   import SearchBar from "$lib/components/SearchBar.svelte";
   import TagSelector from "$lib/components/TagSelector.svelte";
@@ -11,18 +11,18 @@
   import type { EventPageLoadData } from "./EventPageLoad";
 
   interface Props {
-    data: EventPageLoadData & typeof $page.data;
+    data: EventPageLoadData & typeof page.data;
     children?: import("svelte").Snippet;
   }
 
   let { data, children }: Props = $props();
   let filteredTags: Tag[] = $state(
     data.allTags.filter((tag) =>
-      $page.url.searchParams.getAll("tags").includes(tag.name),
+      page.url.searchParams.getAll("tags").includes(tag.name),
     ),
   );
   let filterButton: HTMLButtonElement = $state();
-  let isPast = $derived($page.url.searchParams.get("past") == "on");
+  let isPast = $derived(page.url.searchParams.get("past") == "on");
 </script>
 
 <SetPageTitle title={m.events()} />

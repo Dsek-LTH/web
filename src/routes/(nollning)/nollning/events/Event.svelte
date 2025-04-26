@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import type { TicketWithMoreInfo } from "$lib/server/shop/getTickets";
   import apiNames from "$lib/utils/apiNames";
@@ -55,7 +55,7 @@
       <MarkdownBody body={event.description} class="leading-tight" />
     </p>
     <!-- <div class="mt-4 flex flex-col flex-wrap gap-4">
-      {#if isAuthorized(apiNames.WEBSHOP.PURCHASE, $page.data.user)}
+      {#if isAuthorized(apiNames.WEBSHOP.PURCHASE, page.data.user)}
         {#each event.tickets as ticket, index (ticket.id)}
           <EventTicket {ticket} {index} />
         {/each}
@@ -66,7 +66,7 @@
         {m.nollning_events_ticketCTA()}
       </a>
     {/if}
-    {#if isAuthorized(apiNames.EVENT.UPDATE, $page.data.user)}
+    {#if isAuthorized(apiNames.EVENT.UPDATE, page.data.user)}
       <!-- svelte-ignore a11y_consider_explicit_label -->
       <a href="/events/{event.slug}" class="btn btn-secondary mt-8 self-start">
         <span class="i-mdi-edit"></span>

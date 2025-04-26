@@ -1,7 +1,8 @@
+<!-- @migration task: review uses of `navigating` -->
 <script lang="ts">
   import { run } from "svelte/legacy";
 
-  import { navigating } from "$app/stores";
+  import { navigating } from "$app/state";
   interface Props {
     children?: import("svelte").Snippet;
   }
@@ -12,9 +13,9 @@
   let isLoadDelayed = $state(false);
   let timeout: ReturnType<typeof setTimeout> = $state();
   run(() => {
-    if ($navigating) {
+    if (navigating) {
       timeout = setTimeout(() => {
-        isLoadDelayed = $navigating !== null;
+        isLoadDelayed = navigating !== null;
       }, threshhold);
     } else {
       if (timeout) clearTimeout(timeout);

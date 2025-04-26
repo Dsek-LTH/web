@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import PageHeader from "$lib/components/nav/PageHeader.svelte";
   import Pagination from "$lib/components/Pagination.svelte";
   import ExpenseDetailView from "../ExpenseDetailView.svelte";
@@ -10,7 +10,7 @@
     $state(undefined);
 
   let filter = $state(
-    ($page.url.searchParams.get("expense-filter") ?? "all") as
+    (page.url.searchParams.get("expense-filter") ?? "all") as
       | "all"
       | "signed"
       | "not-signed"

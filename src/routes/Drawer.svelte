@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import { isAuthorized } from "$lib/utils/authorization";
   import DarkLightToggle from "./DarkLightToggle.svelte";
   import LanguageSwitcher from "./LanguageSwitcher.svelte";
@@ -28,7 +28,7 @@
 
     <div class="p-2 pr-6">
       {#each routes as route (route.title)}
-        {#if !route.accessRequired || isAuthorized(route.accessRequired, $page.data.user)}
+        {#if !route.accessRequired || isAuthorized(route.accessRequired, page.data.user)}
           {#if route?.children?.length}
             <li class="py-1">
               <details>
@@ -38,7 +38,7 @@
                 </summary>
                 <ul>
                   {#each route.children as child (child.title)}
-                    {#if !child.accessRequired || isAuthorized(child.accessRequired, $page.data.user)}
+                    {#if !child.accessRequired || isAuthorized(child.accessRequired, page.data.user)}
                       <li class="py-1">
                         <a
                           onclick={close}

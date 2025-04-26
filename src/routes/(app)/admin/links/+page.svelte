@@ -7,7 +7,7 @@
   import Pagination from "$lib/components/Pagination.svelte";
   import type { ShlinkShortUrlsOrder } from "@shlinkio/shlink-js-sdk/api-contract";
   import type { PageData } from "./$types";
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import TagSelector from "$lib/components/TagSelector.svelte";
   import type { Tag } from "@prisma/client";
   import SearchBar from "$lib/components/SearchBar.svelte";
@@ -50,7 +50,7 @@
     resetForm: true,
   });
 
-  let query = $derived(new URLSearchParams($page.url.searchParams.toString()));
+  let query = $derived(new URLSearchParams(page.url.searchParams.toString()));
 
   const setUrlParams = (order: ShlinkShortUrlsOrder) => {
     if (
@@ -87,7 +87,7 @@
 
   let filteredTags = $state(
     allTags.filter((tag) =>
-      $page.url.searchParams.getAll("tags").includes(tag.name),
+      page.url.searchParams.getAll("tags").includes(tag.name),
     ),
   );
 

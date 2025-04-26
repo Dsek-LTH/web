@@ -4,7 +4,7 @@
   import { browser } from "$app/environment";
   import { enhance } from "$app/forms";
   import { invalidate } from "$app/navigation";
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import LiveTimeSince from "$lib/components/LiveTimeSince.svelte";
   import {
     OVERRIDEN_POST_REVEAL_ROUTES,
@@ -63,10 +63,10 @@
   // Handle "reading" notification when visiting relevant link
   let isUnread = $derived(notification.readAt === null);
   let isPathSame = $derived(
-    i18n.route($page.url.pathname) === link ||
+    i18n.route(page.url.pathname) === link ||
       (link.startsWith("/news/") &&
         i18n
-          .route($page.url.pathname)
+          .route(page.url.pathname)
           .startsWith(`${POST_REVEAL_PREFIX}/messages`)),
   );
   run(() => {

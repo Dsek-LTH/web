@@ -1,7 +1,7 @@
 <script lang="ts">
   // import { browser } from "$app/environment";
   // import { invalidateAll } from "$app/navigation";
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   // import ScrollingNumber from "$lib/components/Timer/ScrollingNumber.svelte";
   // import Timer from "$lib/components/Timer/Timer.svelte";
@@ -20,7 +20,7 @@
       .map((_, i) => i),
   );
   let eventsSubscribeUrl = $derived(
-    `${$page.url.origin}${$page.url.pathname}/subscribe`,
+    `${page.url.origin}${page.url.pathname}/subscribe`,
   );
 
   // $: userTickets = events

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import FormInput from "$lib/components/forms/FormInput.svelte";
   import FormSubmitButton from "$lib/components/forms/FormSubmitButton.svelte";
   import apiNames from "$lib/utils/apiNames";
@@ -27,7 +27,7 @@
   const { form, enhance } = superform;
 </script>
 
-{#if open && isAuthorized(apiNames.COMMITTEE.UPDATE, $page.data.user)}
+{#if open && isAuthorized(apiNames.COMMITTEE.UPDATE, page.data.user)}
   <form
     action="?/update"
     method="POST"

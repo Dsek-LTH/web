@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import apiNames from "$lib/utils/apiNames";
@@ -82,12 +82,12 @@
     </div>
 
     <div class="flex gap-1">
-      {#if isAuthorized(apiNames[type].COMMENT, $page.data.user)}
+      {#if isAuthorized(apiNames[type].COMMENT, page.data.user)}
         <button class="btn btn-square btn-ghost btn-md" onclick={onReply}>
           <span class="i-mdi-reply text-xl"></span>
         </button>
       {/if}
-      {#if isAuthorized(apiNames[type].COMMENT_DELETE, $page.data.user) || comment.memberId === $page.data.user?.memberId}
+      {#if isAuthorized(apiNames[type].COMMENT_DELETE, page.data.user) || comment.memberId === page.data.user?.memberId}
         <form method="POST" action="?/removeComment" use:enhance>
           <input
             type="hidden"

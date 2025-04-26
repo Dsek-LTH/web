@@ -3,7 +3,7 @@
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import { getFullName } from "$lib/utils/client/member";
   import type { Mandate, Member, Position } from "@prisma/client";
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import * as m from "$paraglide/messages";
 
   interface Props {
@@ -18,7 +18,7 @@
   let { position, mandates }: Props = $props();
   let mandatesBox: HTMLDivElement = $state(); // Function to check whether the element is overflowing
   let year = $derived(
-    parseInt($page.url.searchParams.get("year") ?? "") ||
+    parseInt(page.url.searchParams.get("year") ?? "") ||
       new Date().getFullYear(),
   );
 </script>

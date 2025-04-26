@@ -1,7 +1,7 @@
 <script lang="ts">
   import { preventDefault } from "svelte/legacy";
 
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import Price from "$lib/components/Price.svelte";
   import { toast } from "$lib/stores/toast";
   import { getFullName } from "$lib/utils/client/member";
@@ -18,14 +18,14 @@
 
   let { stripe, clientSecret, price }: Props = $props();
   let redirectPath = $derived(
-    $page.data["paths"]?.["purchaseRedirect"] ?? "/shop/success",
+    page.data["paths"]?.["purchaseRedirect"] ?? "/shop/success",
   );
   let redirectUrl = $derived(
-    ($page.data.isApp ? APP_REDIRECT_URL : $page.url.origin + "/") +
+    (page.data.isApp ? APP_REDIRECT_URL : page.url.origin + "/") +
       redirectPath.slice(1),
   );
 
-  let member = $derived($page.data.member);
+  let member = $derived(page.data.member);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- The lib we use for display the elements uses an older version of stripe. It works but has the wrong type
   let elements: any = $state();
 
@@ -79,7 +79,7 @@
     stripe={untypedStripe}
     {clientSecret}
     bind:elements
-    theme={$page.data.theme === "light" ? "stripe" : "night"}
+    theme={page.data.theme === "light" ? "stripe" : "night"}
     variables={{
       colorPrimary: "#f280a1",
     }}

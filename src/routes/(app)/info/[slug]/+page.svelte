@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import { isAuthorized } from "$lib/utils/authorization";
@@ -11,7 +11,7 @@
   let { data }: Props = $props();
 </script>
 
-<SetPageTitle title={$page.params["slug"]} />
+<SetPageTitle title={page.params["slug"]} />
 
 <div class="flex flex-col items-center p-2 text-neutral-content">
   {#if data && isAuthorized(`markdowns:${data.slug}:update`, data.user)}

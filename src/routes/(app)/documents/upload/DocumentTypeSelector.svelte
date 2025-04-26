@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import * as m from "$paraglide/messages";
 
   interface Props {
@@ -8,7 +8,7 @@
 
   let { type = $bindable() }: Props = $props();
 
-  type = $page.url.searchParams.get("type") ?? "meeting";
+  type = page.url.searchParams.get("type") ?? "meeting";
 </script>
 
 <ul class="xyz flex flex-wrap gap-4">

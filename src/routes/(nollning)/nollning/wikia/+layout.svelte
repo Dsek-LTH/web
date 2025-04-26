@@ -2,7 +2,7 @@
   import { run } from "svelte/legacy";
 
   import { browser } from "$app/environment";
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import { i18n } from "$lib/utils/i18n";
   import { POST_REVEAL_PREFIX } from "$lib/components/postReveal/types";
@@ -48,7 +48,7 @@
     },
   ];
   let path = $derived(
-    i18n.route($page.url.pathname).replace(`${POST_REVEAL_PREFIX}/wikia/`, ""),
+    i18n.route(page.url.pathname).replace(`${POST_REVEAL_PREFIX}/wikia/`, ""),
   );
   let currentLink = $derived(
     links.find((link) => link.link === path) ?? links[0],

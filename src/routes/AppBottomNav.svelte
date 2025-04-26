@@ -1,19 +1,19 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import type { UserShopItemCounts } from "$lib/server/shop/countUserShopItems";
   import { i18n } from "$lib/utils/i18n";
   import NavIcon from "$lib/components/NavIcon.svelte";
   import { appBottomNavRoutes, getRoutes } from "./routes";
   let shopItemCounts = $derived(
-    $page.data["shopItemCounts"] as UserShopItemCounts,
+    page.data["shopItemCounts"] as UserShopItemCounts,
   );
   let routes = $derived(getRoutes());
   let routesToShow = $derived(appBottomNavRoutes(routes));
-  let currentRoute = $derived(i18n.route($page.url.pathname));
+  let currentRoute = $derived(i18n.route(page.url.pathname));
   let currentRouteIndex = $derived(
     routesToShow.findIndex((route) => route.path === currentRoute),
   );
-  let bottomInsets = $derived($page.data.appInfo?.insets?.bottom ?? 0);
+  let bottomInsets = $derived(page.data.appInfo?.insets?.bottom ?? 0);
 </script>
 
 <nav

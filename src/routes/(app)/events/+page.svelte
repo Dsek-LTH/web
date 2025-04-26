@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
   import EventPage from "./EventPage.svelte";
@@ -8,7 +8,7 @@
 
   let { data } = $props();
   let eventsSubscribeUrl = $derived(
-    `${$page.url.origin}${$page.url.pathname}/subscribe`,
+    `${page.url.origin}${page.url.pathname}/subscribe`,
   );
 </script>
 

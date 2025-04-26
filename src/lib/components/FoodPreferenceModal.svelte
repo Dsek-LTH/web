@@ -1,11 +1,11 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import Input from "$lib/components/Input.svelte";
   import Modal from "$lib/components/Modal.svelte";
   import * as m from "$paraglide/messages";
 
-  let member = $derived($page.data.member);
+  let member = $derived(page.data.member);
   let shouldAskUserForFoodPreference = $derived(
     !!member && member.foodPreference == null,
   );

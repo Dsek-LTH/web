@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import LoadingButton from "$lib/components/LoadingButton.svelte";
   import NavIcon from "$lib/components/NavIcon.svelte";
   import NotificationModal from "$lib/components/NotificationModal.svelte";
@@ -17,7 +17,7 @@
   let routes = $derived(getRoutes());
   let bottomNavRoutes = $derived(appBottomNavRoutes(routes));
   let currentRoute = $derived(
-    getPostRevealRoute(i18n.route($page.url.pathname)),
+    getPostRevealRoute(i18n.route(page.url.pathname)),
   );
   let canGoBack = $derived(
     !bottomNavRoutes.some((route) =>
@@ -26,10 +26,8 @@
         : route.path === currentRoute,
     ),
   );
-  let pageData = $derived(
-    $page.data as typeof $page.data & PostRevealLayoutData,
-  );
-  let topInsets = $derived($page.data.appInfo?.insets?.top ?? 0);
+  let pageData = $derived(page.data as typeof page.data & PostRevealLayoutData);
+  let topInsets = $derived(page.data.appInfo?.insets?.top ?? 0);
 
   let notificationsPromise = $derived(pageData["notificationsPromise"]);
 
@@ -69,7 +67,7 @@
   </div>
 
   <div class="flex w-[5.5rem] justify-end gap-2">
-    {#if $page.data.user && $page.data.member}
+    {#if page.data.user && page.data.member}
       {#if notificationsPromise !== null}
         <NotificationBell
           {notificationsPromise}

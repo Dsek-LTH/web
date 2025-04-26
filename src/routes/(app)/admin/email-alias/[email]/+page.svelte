@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import PageHeader from "$lib/components/nav/PageHeader.svelte";
   import { superForm } from "$lib/utils/client/superForms";
   import UpdateMailAliasForm from "./EmailAliasForm.svelte";
@@ -9,7 +9,7 @@
   import * as m from "$paraglide/messages";
 
   let { data } = $props();
-  const { email } = $page.params;
+  const { email } = page.params;
   let emailAliases = $derived(data.emailAlias);
   let allPositions = $derived(data.allPositions);
 
