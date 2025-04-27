@@ -2,8 +2,12 @@
   import { marked } from "marked";
   import DOMPurify from "isomorphic-dompurify";
 
-  export let message: string;
-  export let severity: string;
+  interface Props {
+    message: string;
+    severity: string;
+  }
+
+  let { message, severity }: Props = $props();
 
   const icon = (() => {
     switch (severity) {

@@ -59,7 +59,7 @@ async function getGroupId(positionId: string, groups: GroupRepresentation[]) {
   const group = groups.find((g) => g.name === positionId);
 
   if (!group) {
-    throw error(404, {
+    error(404, {
       message: `Failed to find group for position ${positionId}`,
       statusDescription: "shouldmarksynced",
     });

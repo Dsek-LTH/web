@@ -35,8 +35,7 @@ export const load: PageServerLoad = async ({ locals }) => {
       },
     },
   });
-  if (!currentMemberWithMandates)
-    throw error(500, m.news_errors_memberNotFound());
+  if (!currentMemberWithMandates) error(500, m.news_errors_memberNotFound());
   const authorOptions = await getArticleAuthorOptions(
     prisma,
     currentMemberWithMandates,

@@ -148,7 +148,7 @@ export const cartLoadFunction = async ({
 }: ServerLoadEvent) => {
   const { user, prisma } = locals;
   if (!user?.memberId && !user?.externalCode) {
-    throw error(401, "Du har ingen kundvagn.");
+    error(401, "Du har ingen kundvagn.");
   }
   depends("cart");
   authorize(apiNames.WEBSHOP.PURCHASE, user);

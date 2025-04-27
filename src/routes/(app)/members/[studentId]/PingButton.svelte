@@ -1,18 +1,22 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import type { Ping } from "@prisma/client";
   import * as m from "$paraglide/messages";
-  export let ping: Pick<
-    Ping,
-    "count" | "fromMemberId" | "fromSentAt" | "toSentAt"
-  > | null;
+  interface Props {
+    ping: Pick<
+      Ping,
+      "count" | "fromMemberId" | "fromSentAt" | "toSentAt"
+    > | null;
+  }
+
+  let { ping }: Props = $props();
 </script>
 
 <form method="POST" action="?/ping">
   <!-- Button is disabled for the user who sent the last ping -->
   <button
     class="btn flex w-full flex-col"
-    disabled={ping?.fromMemberId == $page.data.user?.memberId
+    disabled={ping?.fromMemberId == page.data.user?.memberId
       ? ping?.toSentAt == null || ping?.fromSentAt > ping?.toSentAt
       : ping?.toSentAt != null && ping?.toSentAt > ping?.fromSentAt}
   >

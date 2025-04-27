@@ -1,35 +1,49 @@
 <script lang="ts">
+  import { run, preventDefault } from "svelte/legacy";
+
   import { onMount } from "svelte";
 
-  let modal: HTMLDialogElement;
-  let mounted = false;
-  export let show: boolean;
-  export let backdrop = false;
-  export let onClose: (() => void) | undefined = undefined;
+  let modal: HTMLDialogElement = $state();
+  let mounted = $state(false);
+  interface Props {
+    show: boolean;
+    backdrop?: boolean;
+    onClose?: (() => void) | undefined;
+    children?: import("svelte").Snippet;
+  }
+
+  let {
+    show,
+    backdrop = false,
+    onClose = undefined,
+    children,
+  }: Props = $props();
 
   onMount(() => {
     mounted = true;
   });
 
-  $: if (mounted && modal) {
-    if (show) {
-      modal.showModal();
-    } else {
-      modal.close();
+  run(() => {
+    if (mounted && modal) {
+      if (show) {
+        modal.showModal();
+      } else {
+        modal.close();
+      }
     }
-  }
+  });
 </script>
 
 <dialog class="modal" bind:this={modal}>
   <div class="modal-box">
-    <slot />
+    {@render children?.()}
   </div>
   {#if backdrop}
     {#if onClose}
       <form
         method="dialog"
         class="modal-backdrop"
-        on:submit|preventDefault={onClose}
+        onsubmit={preventDefault(onClose)}
       >
         <button>close</button>
       </form>

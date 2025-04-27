@@ -143,7 +143,7 @@ const cartActions: Actions = {
     const form = await superValidate(request, zod(purchaseForm));
     if (!form.valid) return fail(400, { form });
     if (!user?.memberId && !user?.externalCode) {
-      throw error(401, m.cart_errors_noCart());
+      error(401, m.cart_errors_noCart());
     }
     let redirectUrl: string | undefined = undefined;
     let data: Omit<Awaited<ReturnType<typeof purchaseCart>>, "redirect">;

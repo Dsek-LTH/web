@@ -1,13 +1,17 @@
 <script lang="ts">
   import DeletePolicyForm from "./DeletePolicyForm.svelte";
 
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import * as m from "$paraglide/messages";
   import { superForm } from "$lib/utils/client/superForms";
 
   import type { PageData } from "./$types";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
-  export let data: PageData;
+  interface Props {
+    data: PageData;
+  }
+
+  let { data }: Props = $props();
   const {
     form: createForm,
     errors,
@@ -16,17 +20,19 @@
   } = superForm(data.createForm, {
     resetForm: true,
   });
-  $: policies = data.policies.sort((a, b) => {
-    if (a.role && b.role) return a.role.localeCompare(b.role, "sv");
-    if (a.role && !b.role) return -1;
-    if (!a.role && b.role) return 1;
-    return a.studentId!.localeCompare(b.studentId!, "sv");
-  });
+  let policies = $derived(
+    data.policies.sort((a, b) => {
+      if (a.role && b.role) return a.role.localeCompare(b.role, "sv");
+      if (a.role && !b.role) return -1;
+      if (!a.role && b.role) return 1;
+      return a.studentId!.localeCompare(b.studentId!, "sv");
+    }),
+  );
 </script>
 
-<SetPageTitle title={$page.params["apiName"]} />
+<SetPageTitle title={page.params["apiName"]} />
 
-<h1 class="mb-4 text-2xl font-semibold">{$page.params["apiName"]}</h1>
+<h1 class="mb-4 text-2xl font-semibold">{page.params["apiName"]}</h1>
 <div class="overflow-x-auto">
   <table class="table">
     <thead>

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { invalidate } from "$app/navigation";
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import LoadingButton from "$lib/components/LoadingButton.svelte";
   import ScrollingNumber from "$lib/components/Timer/ScrollingNumber.svelte";
   import Timer from "$lib/components/Timer/Timer.svelte";
@@ -11,41 +11,48 @@
   import * as m from "$paraglide/messages";
   import dayjs from "dayjs";
   import { twMerge } from "tailwind-merge";
-  /* If form that button is part of is currently submitting */
-  export let isSubmitting: boolean;
-  export let ticket: Pick<
-    TicketWithMoreInfo,
-    | "isInUsersCart"
-    | "userAlreadyHasMax"
-    | "ticketsLeft"
-    | "availableFrom"
-    | "availableTo"
-    | "gracePeriodEndsAt"
-    | "hasQueue"
-    | "userItemsInCart"
-    | "userReservations"
-    | "price"
-  >;
-  $: cartPath = $page.data["paths"]?.["cart"] ?? "/shop/cart";
 
-  let clazz: string | undefined = undefined;
-  export { clazz as class };
+  let cartPath = $derived(page.data["paths"]?.["cart"] ?? "/shop/cart");
+
+  interface Props {
+    /* If form that button is part of is currently submitting */
+    isSubmitting: boolean;
+    ticket: Pick<
+      TicketWithMoreInfo,
+      | "isInUsersCart"
+      | "userAlreadyHasMax"
+      | "ticketsLeft"
+      | "availableFrom"
+      | "availableTo"
+      | "gracePeriodEndsAt"
+      | "hasQueue"
+      | "userItemsInCart"
+      | "userReservations"
+      | "price"
+    >;
+    class?: string | undefined;
+  }
+
+  let { isSubmitting, ticket, class: clazz = undefined }: Props = $props();
 
   /* If ticket is available time-wise (not upcoming, not past)*/
-  $: isUpcoming = ticket.availableFrom > $now;
-  $: isCurrentlyAvailable =
-    !isUpcoming && (!ticket.availableTo || ticket.availableTo > $now);
+  let isUpcoming = $derived(ticket.availableFrom > $now);
+  let isCurrentlyAvailable = $derived(
+    !isUpcoming && (!ticket.availableTo || ticket.availableTo > $now),
+  );
 
-  $: isInGracePeriod = ticket.gracePeriodEndsAt > $now;
+  let isInGracePeriod = $derived(ticket.gracePeriodEndsAt > $now);
 
-  $: if (
-    isCurrentlyAvailable &&
-    ticket.isInUsersCart &&
-    isInGracePeriod &&
-    $now > ticket.gracePeriodEndsAt
-  ) {
-    invalidate("tickets");
-  }
+  $effect(() => {
+    if (
+      isCurrentlyAvailable &&
+      ticket.isInUsersCart &&
+      isInGracePeriod &&
+      $now > ticket.gracePeriodEndsAt
+    ) {
+      invalidate("tickets");
+    }
+  });
 </script>
 
 <!-- 
@@ -60,7 +67,7 @@
       - Has queue -> "Ställ i kö" (anoher color)
       - Doesn't have queue -> "Köp" (active color)
  -->
-{#if isAuthorized(apiNames.WEBSHOP.PURCHASE, $page.data.user)}
+{#if isAuthorized(apiNames.WEBSHOP.PURCHASE, page.data.user)}
   {#if isCurrentlyAvailable}
     {#if ticket.isInUsersCart}
       {#if isInGracePeriod}

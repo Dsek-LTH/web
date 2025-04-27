@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   type T = Record<string, unknown>;
 </script>
 
@@ -13,40 +13,47 @@
   } from "sveltekit-superforms";
   import { twMerge } from "tailwind-merge";
 
-  export let superform: SuperForm<T>;
-  //export let field: FormPathLeaves<T>;
-  export let field;
-  export let label: string | null = null;
-  // as long as field is not nested, or data type is 'json', name does not need to be set
-  export let name: string | undefined = undefined;
-  export let accept: string | undefined = undefined;
-  let clazz: string | undefined = undefined;
-  export { clazz as class };
+  interface Props {
+    superform: SuperForm<T>;
+    //export let field: FormPathLeaves<T>;
+    field: any;
+    label?: string | null;
+    // as long as field is not nested, or data type is 'json', name does not need to be set
+    name?: string | undefined;
+    accept?: string | undefined;
+    class?: string | undefined;
+    onChange?:
+      | ((
+          event: Event & {
+            currentTarget: EventTarget & HTMLInputElement;
+          },
+        ) => void)
+      | undefined;
+    [key: string]: any;
+  }
 
-  export let onChange:
-    | ((
-        event: Event & {
-          currentTarget: EventTarget & HTMLInputElement;
-        },
-      ) => void)
-    | undefined = undefined;
+  let {
+    superform,
+    field,
+    label = null,
+    name = undefined,
+    accept = undefined,
+    class: clazz = undefined,
+    onChange = undefined,
+    ...rest
+  }: Props = $props();
 
-  $: fieldProxy = formFieldProxy(superform, field) satisfies FormFieldProxy<
-    File[]
-  >;
-  $: files = filesProxy(superform, field);
-  $: errors = fieldProxy.errors;
-  $: constraints = fieldProxy.constraints;
+  let fieldProxy = $derived(
+    formFieldProxy(superform, field) satisfies FormFieldProxy<File[]>,
+  );
+  let files = $derived(filesProxy(superform, field));
+  let errors = $derived(fieldProxy.errors);
+  let constraints = $derived(fieldProxy.constraints);
 </script>
 
-<Labeled
-  {label}
-  error={$errors}
-  required={$constraints?.required}
-  {...$$restProps}
->
+<Labeled {label} error={$errors} required={$constraints?.required} {...rest}>
   <input
-    on:change={onChange}
+    onchange={onChange}
     {name}
     type="file"
     multiple
@@ -54,6 +61,6 @@
     class={twMerge("file-input file-input-bordered w-full", clazz)}
     {accept}
     {...$constraints}
-    {...$$restProps}
+    {...rest}
   />
 </Labeled>

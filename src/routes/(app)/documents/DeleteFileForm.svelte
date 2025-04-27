@@ -4,10 +4,14 @@
   import * as m from "$paraglide/messages";
   import type { DeleteSchema } from "./+page.server";
 
-  export let data: SuperValidated<DeleteSchema>;
-  export let fileId: string;
-  export let fileName: string;
-  let deleteModal: HTMLDialogElement | undefined = undefined;
+  interface Props {
+    data: SuperValidated<DeleteSchema>;
+    fileId: string;
+    fileName: string;
+  }
+
+  let { data, fileId, fileName }: Props = $props();
+  let deleteModal: HTMLDialogElement | undefined = $state(undefined);
   const { enhance } = superForm(data, {
     id: fileId,
   });
@@ -15,7 +19,7 @@
 
 <!-- svelte-ignore a11y_consider_explicit_label -->
 <button
-  on:click={() => {
+  onclick={() => {
     deleteModal?.showModal();
   }}
   class="pointer-events-auto"
@@ -33,7 +37,7 @@
         <input type="hidden" name="id" value={fileId} /><button
           type="submit"
           class="btn btn-error"
-          on:click={() => deleteModal?.close()}>{m.documents_delete()}</button
+          onclick={() => deleteModal?.close()}>{m.documents_delete()}</button
         >
       </form>
     </div>

@@ -4,9 +4,13 @@
   import { languageTag } from "$paraglide/runtime";
   import * as m from "$paraglide/messages";
   import { eventLink } from "$lib/utils/redirect";
-  export let events: Array<
-    Pick<Event, "id" | "slug" | "title" | "description" | "startDatetime">
-  >;
+  interface Props {
+    events: Array<
+      Pick<Event, "id" | "slug" | "title" | "description" | "startDatetime">
+    >;
+  }
+
+  let { events }: Props = $props();
 </script>
 
 <div

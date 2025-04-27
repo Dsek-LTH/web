@@ -10,9 +10,13 @@
   } from "$lib/utils/payments/transactionFee";
   import { formFieldProxy, type SuperForm } from "sveltekit-superforms/client";
 
-  export let superform: SuperForm<TicketSchema>;
+  interface Props {
+    superform: SuperForm<TicketSchema>;
+  }
+
+  let { superform }: Props = $props();
   const { value, errors, constraints } = formFieldProxy(superform, "price");
-  $: price = Number($value) * 100;
+  let price = $derived(Number($value) * 100);
 
   const priceToText = (price: number) =>
     new Intl.NumberFormat("sv-SE", {

@@ -1,16 +1,21 @@
 <script lang="ts">
-  export let element: HTMLElement;
-  $: (() => {
+  interface Props {
+    element: HTMLElement;
+    children?: import("svelte").Snippet;
+  }
+
+  let { element = $bindable(), children }: Props = $props();
+  $effect(() => {
     if (element && element.onscroll == null) {
       element.onscroll = () => {
         element = element; // for reactivity
       };
     }
-  })();
+  });
 </script>
 
 <div class="relative">
-  <slot />
+  {@render children?.()}
   <div
     class="arrow-indicator pointer-events-none absolute right-1/2 top-2 translate-x-1/2 rounded-md bg-primary/40 px-2 text-xl transition-opacity {element &&
     element.scrollTop > 20

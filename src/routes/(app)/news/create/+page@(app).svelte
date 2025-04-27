@@ -8,13 +8,15 @@
   import ArticleEditor from "../ArticleEditor.svelte";
   import type { ArticleSchema } from "$lib/news/schema";
 
-  export let data;
+  let { data } = $props();
 
   const superform = superForm(data.form, {
     dataType: "json",
   });
-  $: form = data.form as unknown as SuperValidated<ArticleSchema>;
-  $: superformCorrectType = superform as unknown as SuperForm<ArticleSchema>;
+  let form = $derived(data.form as unknown as SuperValidated<ArticleSchema>);
+  let superformCorrectType = $derived(
+    superform as unknown as SuperForm<ArticleSchema>,
+  );
 </script>
 
 <SetPageTitle title={m.news_createArticle()} />
@@ -25,13 +27,19 @@
   allTags={data.allTags}
   authorOptions={data.authorOptions}
 >
-  <div slot="form-end">
-    <FormInput
-      {superform}
-      field="notificationText"
-      label="Notistext"
-      explanation="Texten som visas i notisen, om tom kommer det vara början av nyhetstexten"
-    />
-    <FormCheckbox {superform} field="sendNotification" label="Skicka notis?" />
-  </div>
+  {#snippet formEnd()}
+    <div>
+      <FormInput
+        {superform}
+        field="notificationText"
+        label="Notistext"
+        explanation="Texten som visas i notisen, om tom kommer det vara början av nyhetstexten"
+      />
+      <FormCheckbox
+        {superform}
+        field="sendNotification"
+        label="Skicka notis?"
+      />
+    </div>
+  {/snippet}
 </ArticleEditor>

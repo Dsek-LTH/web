@@ -81,7 +81,7 @@ export const getCurrentDoorPoliciesForMember = async (
       },
     })
     .catch(() => {
-      throw error(500, "Could not fetch member positions");
+      error(500, "Could not fetch member positions");
     });
   const userDoorPolicies = await prisma.doorAccessPolicy
     .findMany({
@@ -121,7 +121,7 @@ export const getCurrentDoorPoliciesForMember = async (
       },
     })
     .catch(() => {
-      throw error(500, "Could not fetch door access");
+      error(500, "Could not fetch door access");
     });
 
   const doors = await prisma.door.findMany();

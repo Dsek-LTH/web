@@ -46,7 +46,7 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
     },
   });
   if (!position) {
-    throw error(404, m.positions_errors_positionNotFound());
+    error(404, m.positions_errors_positionNotFound());
   }
   const editedMandateID = url.searchParams.get("editMandate");
   const editedMandate = position.mandates.find((m) => m.id === editedMandateID);

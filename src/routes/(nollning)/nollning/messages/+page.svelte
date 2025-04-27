@@ -3,8 +3,8 @@
   import Message from "./Message.svelte";
   import * as m from "$paraglide/messages";
 
-  export let data;
-  $: messages = data.messages;
+  let { data } = $props();
+  let messages = $derived(data.messages);
 </script>
 
 <div class="md:text-center">

@@ -10,22 +10,27 @@
   } from "@prisma/client";
   import dayjs from "dayjs";
 
-  export let message: Article & {
-    author: Author & {
-      member: Member;
-      mandate:
-        | (Mandate & {
-            position: Position;
-          })
-        | null;
-      customAuthor: CustomAuthor | null;
+  interface Props {
+    message: Article & {
+      author: Author & {
+        member: Member;
+        mandate:
+          | (Mandate & {
+              position: Position;
+            })
+          | null;
+        customAuthor: CustomAuthor | null;
+      };
     };
-  };
-  $: author = message.author;
-  $: authorName =
+  }
+
+  let { message }: Props = $props();
+  let author = $derived(message.author);
+  let authorName = $derived(
     author.type === "Custom"
       ? (author.customAuthor?.name ?? "Staben")
-      : `${author.member.firstName}${author.mandate?.position ? `, ${author.mandate?.position?.name}` : ""}`;
+      : `${author.member.firstName}${author.mandate?.position ? `, ${author.mandate?.position?.name}` : ""}`,
+  );
 </script>
 
 <article>

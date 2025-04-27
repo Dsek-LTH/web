@@ -3,14 +3,18 @@
   import type { ComponentProps } from "svelte";
 
   type CardProps = ComponentProps<PositionCard>;
-  export let positions: Array<
-    CardProps["position"] & {
-      mandates: CardProps["mandates"];
-    }
-  >;
+  interface Props {
+    positions: Array<
+      CardProps["position"] & {
+        mandates: CardProps["mandates"];
+      }
+    >;
+  }
 
-  $: everyOtherPosition = positions.filter((_, i) => i % 2 === 0);
-  $: everyOtherPosition2 = positions.filter((_, i) => i % 2 === 1);
+  let { positions }: Props = $props();
+
+  let everyOtherPosition = $derived(positions.filter((_, i) => i % 2 === 0));
+  let everyOtherPosition2 = $derived(positions.filter((_, i) => i % 2 === 1));
 </script>
 
 <div class="hidden grid-cols-2 gap-4 md:grid">

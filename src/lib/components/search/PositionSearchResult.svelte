@@ -2,7 +2,11 @@
   import CommitteeIcon from "$lib/components/images/CommitteeIcon.svelte";
   import type { PositionSearchReturnAttributes } from "$lib/search/searchTypes";
 
-  export let position: PositionSearchReturnAttributes;
+  interface Props {
+    position: PositionSearchReturnAttributes;
+  }
+
+  let { position }: Props = $props();
 </script>
 
 <li>

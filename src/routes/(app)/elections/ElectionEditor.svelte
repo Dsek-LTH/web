@@ -6,15 +6,19 @@
   import * as m from "$paraglide/messages";
   import type { Election } from "@prisma/client";
 
-  export let isCreating: boolean;
-  export let data: {
-    form: SuperValidated<ElectionSchema>;
-    committees: Array<{ id: string; name: string; nameEn: string | null }>;
-    election: Pick<
-      Election,
-      "markdown" | "markdownEn" | "link" | "expiresAt" | "committeeId"
-    >;
-  };
+  interface Props {
+    isCreating: boolean;
+    data: {
+      form: SuperValidated<ElectionSchema>;
+      committees: Array<{ id: string; name: string; nameEn: string | null }>;
+      election: Pick<
+        Election,
+        "markdown" | "markdownEn" | "link" | "expiresAt" | "committeeId"
+      >;
+    };
+  }
+
+  let { isCreating, data }: Props = $props();
   const { form, errors, constraints, enhance } = superForm(data.form);
 </script>
 

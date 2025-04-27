@@ -1,18 +1,22 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import Labeled from "$lib/components/Labeled.svelte";
   import { superForm } from "$lib/utils/client/superForms";
   import * as m from "$paraglide/messages";
 
   import type { PageData } from "./$types";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
-  export let data: PageData;
-  let type: "role" | "studentId" = "role";
+  interface Props {
+    data: PageData;
+  }
 
-  let removeModal: HTMLDialogElement | undefined = undefined;
-  let informationModal: HTMLDialogElement | undefined = undefined;
+  let { data }: Props = $props();
+  let type: "role" | "studentId" = $state("role");
+
+  let removeModal: HTMLDialogElement | undefined = $state(undefined);
+  let informationModal: HTMLDialogElement | undefined = $state(undefined);
   let selectedPolicy: (typeof data)["doorAccessPolicies"][number] | undefined =
-    undefined;
+    $state(undefined);
   const { form, errors, constraints, enhance } = superForm(data.createForm);
   const {
     form: banForm,
@@ -22,10 +26,10 @@
   } = superForm(data.createForm);
 </script>
 
-<SetPageTitle title={$page.params["slug"]} />
+<SetPageTitle title={page.params["slug"]} />
 
 <main class="container mx-auto px-4">
-  <h1 class="mb-4 text-2xl font-semibold capitalize">{$page.params["slug"]}</h1>
+  <h1 class="mb-4 text-2xl font-semibold capitalize">{page.params["slug"]}</h1>
   <div class="overflow-x-auto rounded-lg">
     <table class="table">
       <thead class="bg-base-200">
@@ -71,7 +75,7 @@
               <td class="policy-information flex items-center">
                 <!-- svelte-ignore a11y_consider_explicit_label -->
                 <button
-                  on:click={() => {
+                  onclick={() => {
                     informationModal?.showModal();
                     selectedPolicy = policy;
                   }}
@@ -95,7 +99,7 @@
             {/if}
             <td class="text-right">
               <button
-                on:click={() => {
+                onclick={() => {
                   removeModal?.showModal();
                   selectedPolicy = policy;
                 }}
@@ -254,13 +258,13 @@
       {#if selectedPolicy?.isBan}
         <!-- eslint-disable-next-line svelte/no-at-html-tags -->
         {@html m.admin_doors_revokeBanAreYouSure({
-          door: `${$page.params["slug"]}`,
+          door: `${page.params["slug"]}`,
           target: `${selectedPolicy?.role || selectedPolicy?.member?.studentId}`,
         })}
       {:else}
         <!-- eslint-disable-next-line svelte/no-at-html-tags -->
         {@html m.admin_doors_revokeAreYouSure({
-          door: `${$page.params["slug"]}`,
+          door: `${page.params["slug"]}`,
           target: `${selectedPolicy?.role || selectedPolicy?.member?.studentId}`,
         })}
       {/if}
@@ -271,7 +275,7 @@
         <button
           type="submit"
           class="btn btn-error"
-          on:click={() => removeModal?.close()}
+          onclick={() => removeModal?.close()}
         >
           {m.admin_doors_remove()}
         </button>
@@ -289,7 +293,7 @@
     <div class="flex items-center">
       <span class="i-mdi-information size-6"></span>
       <h3 class="px-1 text-lg font-bold">
-        <b class="capitalize">{$page.params["slug"]} -</b>
+        <b class="capitalize">{page.params["slug"]} -</b>
         {#if selectedPolicy?.role}<b>{selectedPolicy.role}</b>{:else}<b>
             {selectedPolicy?.member?.firstName}
             {selectedPolicy?.member?.lastName}
@@ -300,7 +304,7 @@
     <p class="py-4">
       {selectedPolicy?.information}
     </p>
-    <button class="btn" on:click={() => informationModal?.close()}>
+    <button class="btn" onclick={() => informationModal?.close()}>
       Stäng
     </button>
   </div>

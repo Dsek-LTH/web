@@ -1,16 +1,16 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import { isAuthorized } from "$lib/utils/authorization";
   import DarkLightToggle from "./DarkLightToggle.svelte";
   import LanguageSwitcher from "./LanguageSwitcher.svelte";
   import NavIcon from "$lib/components/NavIcon.svelte";
   import { getRoutes } from "./routes";
 
-  let checked = false;
+  let checked = $state(false);
   function close() {
     checked = !checked;
   }
-  $: routes = getRoutes();
+  let routes = $derived(getRoutes());
 </script>
 
 <input id="main-drawer" type="checkbox" class="drawer-toggle" bind:checked />
@@ -28,7 +28,7 @@
 
     <div class="p-2 pr-6">
       {#each routes as route (route.title)}
-        {#if !route.accessRequired || isAuthorized(route.accessRequired, $page.data.user)}
+        {#if !route.accessRequired || isAuthorized(route.accessRequired, page.data.user)}
           {#if route?.children?.length}
             <li class="py-1">
               <details>
@@ -38,10 +38,10 @@
                 </summary>
                 <ul>
                   {#each route.children as child (child.title)}
-                    {#if !child.accessRequired || isAuthorized(child.accessRequired, $page.data.user)}
+                    {#if !child.accessRequired || isAuthorized(child.accessRequired, page.data.user)}
                       <li class="py-1">
                         <a
-                          on:click={close}
+                          onclick={close}
                           href={child.path}
                           class="active:!bg-primary/10"
                         >
@@ -58,7 +58,7 @@
           {:else}
             <li class="py-1">
               <a
-                on:click={close}
+                onclick={close}
                 href={route.path}
                 class="active:!bg-primary/10"
               >

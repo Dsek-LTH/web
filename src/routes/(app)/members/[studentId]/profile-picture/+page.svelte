@@ -11,12 +11,16 @@
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import { zodClient } from "sveltekit-superforms/adapters";
   import type { PageData } from "./$types";
-  export let data: PageData;
-  $: member = data.member;
-  $: photos = data.photos;
-  let isEditing = false;
+  interface Props {
+    data: PageData;
+  }
 
-  let crop = { x: 0, y: 0, width: 0, height: 0 };
+  let { data }: Props = $props();
+  let member = $derived(data.member);
+  let photos = $derived(data.photos);
+  let isEditing = $state(false);
+
+  let crop = $state({ x: 0, y: 0, width: 0, height: 0 });
   const { form, errors, enhance } = superForm(data.uploadForm, {
     resetForm: true,
     onResult(event) {
@@ -29,7 +33,7 @@
   });
   const file = fileProxy(form, "image");
 
-  let avatar: string | undefined = undefined;
+  let avatar: string | undefined = $state(undefined);
   const onFileSelected = (
     event: Event & {
       currentTarget: EventTarget & HTMLInputElement;
@@ -68,7 +72,7 @@
   {#if !isEditing}
     <button
       class="btn btn-primary btn-lg"
-      on:click={() => {
+      onclick={() => {
         isEditing = true;
       }}
     >
@@ -119,7 +123,7 @@
         <p class="text-error">{$errors.cropHeight}</p>
       {/if}
       <input
-        on:change={(e) => onFileSelected(e)}
+        onchange={(e) => onFileSelected(e)}
         type="file"
         accept="image/*"
         name="image"

@@ -3,11 +3,15 @@
   import type { Committee } from "@prisma/client";
   import type { EventHandler } from "svelte/elements";
 
-  export let committee: Pick<
-    Committee,
-    "darkImageUrl" | "lightImageUrl" | "monoImageUrl" | "name"
-  >;
-  export let useMono = false;
+  interface Props {
+    committee: Pick<
+      Committee,
+      "darkImageUrl" | "lightImageUrl" | "monoImageUrl" | "name"
+    >;
+    useMono?: boolean;
+  }
+
+  let { committee, useMono = false }: Props = $props();
 
   const FALLBACK = {
     mono: "https://raw.githubusercontent.com/Dsek-LTH/grafik/main/guild/d_sektionen/full/bw.svg",
@@ -40,7 +44,7 @@
   <img
     src={getFileUrl(committee.monoImageUrl) ?? FALLBACK.mono}
     alt="{committee.name} icon"
-    on:error={onError(FALLBACK.mono)}
+    onerror={onError(FALLBACK.mono)}
   />
 {:else}
   <!-- dark/light support -->
@@ -48,12 +52,12 @@
     src={getFileUrl(committee.darkImageUrl) ?? FALLBACK.color}
     alt="{committee.name} icon"
     class="hidden dark:block"
-    on:error={onError(FALLBACK.color)}
+    onerror={onError(FALLBACK.color)}
   />
   <img
     src={getFileUrl(committee.lightImageUrl) ?? FALLBACK.color}
     alt="{committee.name} icon"
     class="block dark:hidden"
-    on:error={onError(FALLBACK.color)}
+    onerror={onError(FALLBACK.color)}
   />
 {/if}

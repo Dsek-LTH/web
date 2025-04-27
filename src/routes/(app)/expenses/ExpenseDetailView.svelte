@@ -11,16 +11,24 @@
   import ExpenseReceipt from "./[id]/ExpenseReceipt.svelte";
   import type { UpdateExpenseSchema, UpdateItemSchema } from "./types";
 
-  $: user = $page.data.user;
-  export let expense: ExpandedExpense;
-  $: canSign =
-    expense.items.some((item) => !item.signedAt) &&
-    (expense.items.some((item) => item.signerMemberId === user?.memberId) ||
-      isAuthorized(apiNames.EXPENSES.CERTIFICATION, user));
+  interface Props {
+    expense: ExpandedExpense;
+    superform?: SuperForm<UpdateExpenseSchema> | undefined;
+    itemForm?: SuperValidated<UpdateItemSchema> | undefined;
+  }
 
-  export let superform: SuperForm<UpdateExpenseSchema> | undefined = undefined;
-  export let itemForm: SuperValidated<UpdateItemSchema> | undefined = undefined;
-  $: updateEnhance = superform?.enhance;
+  let {
+    expense,
+    superform = undefined,
+    itemForm = undefined,
+  }: Props = $props();
+  let user = $derived($page.data.user);
+  let canSign = $derived(
+    expense.items.some((item) => !item.signedAt) &&
+      (expense.items.some((item) => item.signerMemberId === user?.memberId) ||
+        isAuthorized(apiNames.EXPENSES.CERTIFICATION, user)),
+  );
+  let updateEnhance = $derived(superform?.enhance);
 </script>
 
 <!-- Header with meta info (guild card, who sent it, and when) -->

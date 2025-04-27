@@ -1,24 +1,31 @@
+<!-- @migration task: review uses of `navigating` -->
 <script lang="ts">
-  import { navigating } from "$app/stores";
+  import { navigating } from "$app/state";
+  interface Props {
+    children?: import("svelte").Snippet;
+  }
+
+  let { children }: Props = $props();
 
   const threshhold = 100;
-  let isLoadDelayed = false;
-  let timeout: ReturnType<typeof setTimeout>;
-  $: {
-    if ($navigating) {
+  let isLoadDelayed = $state(false);
+  let timeout: ReturnType<typeof setTimeout> = $state();
+
+  $effect(() => {
+    if (navigating) {
       timeout = setTimeout(() => {
-        isLoadDelayed = $navigating !== null;
+        isLoadDelayed = navigating !== null;
       }, threshhold);
     } else {
       if (timeout) clearTimeout(timeout);
       isLoadDelayed = false;
     }
-  }
+  });
 </script>
 
 <div
   class:opacity-0={!isLoadDelayed}
   class="pointer-events-none fixed inset-0 grid place-items-center transition-opacity duration-500"
 >
-  <slot />
+  {@render children?.()}
 </div>

@@ -5,13 +5,17 @@
   import * as m from "$paraglide/messages";
   import ConsumableSection from "./ConsumableSection.svelte";
 
-  export let data: InventoryLoadData;
-  $: consumables = data.consumables;
-  $: unconsumed = consumables.filter(
-    (c) => c.consumedAt === null || c.consumedAt < $now,
+  interface Props {
+    data: InventoryLoadData;
+  }
+
+  let { data }: Props = $props();
+  let consumables = $derived(data.consumables);
+  let unconsumed = $derived(
+    consumables.filter((c) => c.consumedAt === null || c.consumedAt < $now),
   );
-  $: consumed = consumables.filter(
-    (c) => c.consumedAt !== null && c.consumedAt >= $now,
+  let consumed = $derived(
+    consumables.filter((c) => c.consumedAt !== null && c.consumedAt >= $now),
   );
 </script>
 

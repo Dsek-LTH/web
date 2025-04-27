@@ -21,7 +21,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     },
   });
   if (!member) {
-    throw error(404, m.members_errors_memberNotFound());
+    error(404, m.members_errors_memberNotFound());
   }
   return {
     member,

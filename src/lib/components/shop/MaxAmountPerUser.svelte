@@ -3,7 +3,11 @@
   import type { TicketSchema } from "$lib/utils/shop/types";
   import { type SuperForm } from "sveltekit-superforms/client";
 
-  export let superform: SuperForm<TicketSchema>;
+  interface Props {
+    superform: SuperForm<TicketSchema>;
+  }
+
+  let { superform }: Props = $props();
 </script>
 
 <FormNumberInput

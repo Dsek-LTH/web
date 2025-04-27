@@ -3,11 +3,11 @@
   import { signIn } from "@auth/sveltekit/client";
   import * as m from "$paraglide/messages";
   import { i18n } from "$lib/utils/i18n";
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import { languageTag } from "$paraglide/runtime";
   import { invalidateAll } from "$app/navigation";
 
-  let carouselEls: HTMLDivElement[] = [];
+  let carouselEls: HTMLDivElement[] = $state([]);
 
   function carouselLeft(i: number): void {
     const carouselEl = carouselEls[i];
@@ -30,7 +30,7 @@
     carouselEl.scroll(x, 0);
   }
 
-  let drawerOpen = false;
+  let drawerOpen = $state(false);
   function closeDrawer() {
     drawerOpen = !drawerOpen;
   }
@@ -156,21 +156,21 @@
 
       <div class="hidden items-center gap-4 lg:flex">
         <a
-          href={i18n.route($page.url.pathname)}
+          href={i18n.route(page.url.pathname)}
           hreflang={languageTag() === "sv" ? "en" : "sv"}
-          on:click={() => invalidateAll()}
+          onclick={() => invalidateAll()}
         >
           {languageTag() === "sv" ? "EN" : "SV"}
         </a>
         <button
           class="bg-[#433C3F]/60 px-8 py-4 uppercase text-white"
-          on:click={() => signIn("keycloak")}
+          onclick={() => signIn("keycloak")}
         >
           {m.navbar_logIn()}
         </button>
         <button
           class="bg-[#433C3F]/60 px-8 py-4 uppercase text-white"
-          on:click={() => (window.location.href = "https://regnew.dsek.se")}
+          onclick={() => (window.location.href = "https://regnew.dsek.se")}
         >
           {m.navbar_register()}
         </button>
@@ -250,7 +250,7 @@
             <div class="flex gap-6 lg:mt-auto lg:pb-10">
               <button
                 class="size-9 bg-[#24292A] lg:size-12"
-                on:click={() => carouselLeft(i)}
+                onclick={() => carouselLeft(i)}
               >
                 <span class="i-mdi-arrow-left"></span>
               </button>
@@ -258,7 +258,7 @@
                 class="size-9 lg:size-12"
                 class:bg-primary={i % 2 === 0}
                 class:bg-secondary={i % 2 !== 0}
-                on:click={() => carouselRight(i)}
+                onclick={() => carouselRight(i)}
               >
                 <span class="i-mdi-arrow-right"></span>
               </button>
@@ -348,7 +348,7 @@
           <a
             href={link.href}
             class="uppercase active:!bg-primary/10"
-            on:click={closeDrawer}
+            onclick={closeDrawer}
           >
             {link.title}
           </a>
@@ -357,27 +357,27 @@
       <li>
         <button
           class=" bg-[#433C3F]/60 uppercase text-white"
-          on:click={() => signIn("keycloak")}
+          onclick={() => signIn("keycloak")}
         >
           {m.navbar_logIn()}
         </button>
       </li>
       <li class="flex flex-row self-center pt-4">
         <a
-          href={i18n.route($page.url.pathname)}
+          href={i18n.route(page.url.pathname)}
           hreflang="sv"
           class="h-full rounded-full"
           class:badge={languageTag() === "sv"}
-          on:click={() => invalidateAll()}
+          onclick={() => invalidateAll()}
         >
           SV
         </a>
         <a
-          href={i18n.route($page.url.pathname)}
+          href={i18n.route(page.url.pathname)}
           hreflang="en"
           class="h-full rounded-full"
           class:badge={languageTag() === "en"}
-          on:click={() => invalidateAll()}
+          onclick={() => invalidateAll()}
         >
           EN
         </a>

@@ -1,11 +1,15 @@
 <script lang="ts">
   import type { SearchDataWithType } from "$lib/search/searchTypes";
 
-  export let document: Extract<
-    SearchDataWithType,
-    { type: "governingDocuments" | "meetingDocuments" }
-  >;
-  $: data = document.data;
+  interface Props {
+    document: Extract<
+      SearchDataWithType,
+      { type: "governingDocuments" | "meetingDocuments" }
+    >;
+  }
+
+  let { document }: Props = $props();
+  let data = $derived(document.data);
 
   const getUrl = (url: string) => {
     if (url.startsWith("http")) {

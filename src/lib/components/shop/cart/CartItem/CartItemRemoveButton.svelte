@@ -1,7 +1,11 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
 
-  export let itemId: string;
+  interface Props {
+    itemId: string;
+  }
+
+  let { itemId }: Props = $props();
 </script>
 
 <form method="POST" action="?/removeItem" use:enhance>

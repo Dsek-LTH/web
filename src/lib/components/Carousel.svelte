@@ -1,8 +1,12 @@
 <script lang="ts">
   import { getFileUrl } from "$lib/files/client";
-  export let images: string[] = [];
-  let carouselRef: HTMLDivElement;
-  let index = 1;
+  interface Props {
+    images?: string[];
+  }
+
+  let { images = [] }: Props = $props();
+  let carouselRef: HTMLDivElement = $state();
+  let index = $state(1);
 
   function onKeyDown(event: KeyboardEvent) {
     if (event.key === "ArrowRight") {
@@ -46,7 +50,7 @@
         <button
           aria-label="left"
           class="btn btn-circle"
-          on:click={() => scroll(false)}
+          onclick={() => scroll(false)}
         >
           <span class="i-mdi-arrow-left"></span>
         </button>
@@ -54,7 +58,7 @@
         <button
           aria-label="right"
           class="btn btn-circle"
-          on:click={() => scroll(true)}
+          onclick={() => scroll(true)}
         >
           <span class="i-mdi-arrow-right"></span>
         </button>
@@ -63,4 +67,4 @@
   </div>
 {/if}
 
-<svelte:window on:keydown={onKeyDown} />
+<svelte:window onkeydown={onKeyDown} />

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import LoadingButton from "$lib/components/LoadingButton.svelte";
   import NavIcon from "$lib/components/NavIcon.svelte";
   import { isAuthorized } from "$lib/utils/authorization";
@@ -12,11 +12,11 @@
   import UserMenu from "./UserMenu.svelte";
   import { getRoutes } from "./routes";
   import GlobalSearch from "$lib/components/search/GlobalSearch.svelte";
-  $: pageData = $page.data as typeof $page.data & GlobalAppLoadData;
-  $: notificationsPromise = pageData["notificationsPromise"];
-  $: mutateNotificationForm = pageData["mutateNotificationForm"];
-  $: shopItemCounts = pageData["shopItemCounts"];
-  $: routes = getRoutes();
+  let pageData = $derived(page.data as typeof page.data & GlobalAppLoadData);
+  let notificationsPromise = $derived(pageData["notificationsPromise"]);
+  let mutateNotificationForm = $derived(pageData["mutateNotificationForm"]);
+  let shopItemCounts = $derived(pageData["shopItemCounts"]);
+  let routes = $derived(getRoutes());
 </script>
 
 <div
@@ -38,21 +38,21 @@
     <!-- Navbar content -->
     <div class="container hidden flex-1 xl:block">
       {#each routes as route (route.title)}
-        {#if !route.accessRequired || isAuthorized(route.accessRequired, $page.data.user)}
+        {#if !route.accessRequired || isAuthorized(route.accessRequired, page.data.user)}
           {#if route?.children?.length}
             <div class="dropdown dropdown-hover">
-              <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+              <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
               <label tabindex="0" class="btn btn-ghost">
                 <NavIcon icon={route.icon} />
                 {route.title}</label
               >
-              <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+              <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
               <ul
                 tabindex="0"
                 class="menu dropdown-content z-[1] w-52 rounded-box bg-base-200 p-2 shadow"
               >
                 {#each route.children as child (child.title)}
-                  {#if !child.accessRequired || isAuthorized(child.accessRequired, $page.data.user)}
+                  {#if !child.accessRequired || isAuthorized(child.accessRequired, page.data.user)}
                     <li>
                       <a
                         href={child.path}
@@ -89,10 +89,10 @@
           form={mutateNotificationForm}
         />
       {/if}
-      {#if $page.data.user && $page.data.member}
+      {#if page.data.user && page.data.member}
         <UserMenu
-          user={$page.data.user}
-          member={$page.data.member}
+          user={page.data.user}
+          member={page.data.member}
           {shopItemCounts}
         />
       {:else}

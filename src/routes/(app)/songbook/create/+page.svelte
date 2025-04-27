@@ -7,7 +7,11 @@
   import { superForm } from "$lib/utils/client/superForms";
 
   import type { PageData } from "./$types";
-  export let data: PageData;
+  interface Props {
+    data: PageData;
+  }
+
+  let { data }: Props = $props();
 
   const { form, errors, constraints, enhance } = superForm(data.form);
 </script>

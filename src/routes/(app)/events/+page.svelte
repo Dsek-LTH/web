@@ -1,13 +1,15 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
   import EventPage from "./EventPage.svelte";
   import * as m from "$paraglide/messages";
   import { toast } from "$lib/stores/toast";
 
-  export let data;
-  $: eventsSubscribeUrl = `${$page.url.origin}${$page.url.pathname}/subscribe`;
+  let { data } = $props();
+  let eventsSubscribeUrl = $derived(
+    `${page.url.origin}${page.url.pathname}/subscribe`,
+  );
 </script>
 
 <EventPage {data}>
@@ -25,7 +27,7 @@
 
     <details
       class="dropdown"
-      on:toggle={(event) => {
+      ontoggle={(event) => {
         if (event.target instanceof HTMLDetailsElement && event.target.open) {
           navigator.clipboard.writeText(eventsSubscribeUrl);
           toast(m.events_calendar_subscribe_copyToClipboard(), "success");

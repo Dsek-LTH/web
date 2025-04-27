@@ -5,10 +5,13 @@
   import type { RemoveSpecialReceiverForm } from "./schema";
   import * as m from "$paraglide/messages";
 
-  export let specialReceiver: SpecialReceiver;
-  export let isEditing: boolean;
+  interface Props {
+    specialReceiver: SpecialReceiver;
+    isEditing: boolean;
+    removeReceiverForm: SuperValidated<RemoveSpecialReceiverForm>;
+  }
 
-  export let removeReceiverForm: SuperValidated<RemoveSpecialReceiverForm>;
+  let { specialReceiver, isEditing, removeReceiverForm }: Props = $props();
   const { enhance: removeReceiverEnhance } = superForm(removeReceiverForm);
 </script>
 

@@ -6,12 +6,16 @@
   import * as m from "$paraglide/messages";
   import { onDestroy } from "svelte";
 
-  export let data: {
-    refreshPeriodically?: boolean;
-    message: string;
-  };
+  interface Props {
+    data: {
+      refreshPeriodically?: boolean;
+      message: string;
+    };
+  }
 
-  let interval: ReturnType<typeof setInterval> | null = null;
+  let { data }: Props = $props();
+
+  let interval: ReturnType<typeof setInterval> | null = $state(null);
 
   onDestroy(() => {
     if (interval && browser) {
@@ -19,19 +23,22 @@
       interval = null;
     }
   });
-  $: if (data.refreshPeriodically && browser) {
-    interval = setInterval(async () => {
-      const timeout = setTimeout(() => {
-        goto(window.location.pathname); // reload page
+
+  $effect(() => {
+    if (data.refreshPeriodically && browser) {
+      interval = setInterval(async () => {
+        const timeout = setTimeout(() => {
+          goto(window.location.pathname); // reload page
+        }, 2000);
+        await invalidate("cart-success-page");
+        // this point is only reached if purchase is still not succesful
+        clearTimeout(timeout);
       }, 2000);
-      await invalidate("cart-success-page");
-      // this point is only reached if purchase is still not succesful
-      clearTimeout(timeout);
-    }, 2000);
-  } else if (interval && browser) {
-    clearInterval(interval);
-    interval = null;
-  }
+    } else if (interval && browser) {
+      clearInterval(interval);
+      interval = null;
+    }
+  });
 </script>
 
 <SetPageTitle title={m.cart_paymentStatus_pageTitle()} />

@@ -1,18 +1,18 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import { codeToMessage } from "$lib/utils/codeToMessage";
   import * as m from "$paraglide/messages";
 </script>
 
 <main class="gap mx-auto flex flex-1 flex-col items-center gap-2 pt-20">
-  <h1 class="text-6xl font-bold">{$page.status}</h1>
+  <h1 class="text-6xl font-bold">{page.status}</h1>
   <h3>
-    {($page.error?.statusDescription ?? $page.status in codeToMessage)
-      ? codeToMessage[$page.status]
+    {(page.error?.statusDescription ?? page.status in codeToMessage)
+      ? codeToMessage[page.status]
       : ""}
   </h3>
-  {#if $page.error?.message}
-    <h2 class="mt-4 text-center text-xl">{$page.error.message}</h2>
+  {#if page.error?.message}
+    <h2 class="mt-4 text-center text-xl">{page.error.message}</h2>
   {/if}
 
   <div class="flex flex-row gap-5 pt-10">
@@ -20,7 +20,7 @@
       {m.home()} <span class="i-mdi-house"></span>
     </a>
 
-    <button class="btn btn-secondary text-lg" on:click={() => history.back()}>
+    <button class="btn btn-secondary text-lg" onclick={() => history.back()}>
       {m.back()} <span class="i-mdi-keyboard-backspace"></span>
     </button>
   </div>

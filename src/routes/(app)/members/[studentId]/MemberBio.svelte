@@ -12,12 +12,16 @@
   import { marked } from "marked";
   import bioFrame from "./bio.html?raw";
 
-  export let bio: string;
+  interface Props {
+    bio: string;
+  }
 
-  $: theme = $page.data.theme;
+  let { bio }: Props = $props();
 
-  let stylesheets = "";
-  let css = "";
+  let theme = $derived($page.data.theme);
+
+  let stylesheets = $state("");
+  let css = $state("");
 
   if (browser) {
     if (dev) {
@@ -40,7 +44,7 @@
     }
   }
 
-  let iframeEl: HTMLIFrameElement;
+  let iframeEl: HTMLIFrameElement = $state();
   onMount(() => {
     function handleMessage(event: MessageEvent) {
       if (typeof event.data === "object" && "height" in event.data) {
@@ -55,11 +59,13 @@
     return () => window.removeEventListener("message", handleMessage);
   });
 
-  $: srcdoc = bioFrame
-    .replace("%STYLESHEETS%", stylesheets)
-    .replace("%CSS%", css)
-    .replace("%BIO%", marked(bio) as string)
-    .replace("%THEME%", theme);
+  let srcdoc = $derived(
+    bioFrame
+      .replace("%STYLESHEETS%", stylesheets)
+      .replace("%CSS%", css)
+      .replace("%BIO%", marked(bio) as string)
+      .replace("%THEME%", theme),
+  );
 </script>
 
 <iframe

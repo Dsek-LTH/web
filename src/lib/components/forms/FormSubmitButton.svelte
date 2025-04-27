@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   type T = Record<string, unknown>;
 </script>
 
@@ -7,17 +7,23 @@
 
   import { type SuperForm } from "sveltekit-superforms";
 
-  export let superform: SuperForm<T>;
-  let clazz: string | undefined = undefined;
-  export { clazz as class };
+  interface Props {
+    superform: SuperForm<T>;
+    class?: string | undefined;
+    children?: import("svelte").Snippet;
+    [key: string]: any;
+  }
+
+  let {
+    superform,
+    class: clazz = undefined,
+    children,
+    ...rest
+  }: Props = $props();
+
   const { delayed } = superform;
 </script>
 
-<LoadingButton
-  class={clazz}
-  type="submit"
-  isLoading={$delayed}
-  {...$$restProps}
->
-  <slot />
+<LoadingButton class={clazz} type="submit" isLoading={$delayed} {...rest}>
+  {@render children?.()}
 </LoadingButton>

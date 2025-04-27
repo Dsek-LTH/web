@@ -1,11 +1,19 @@
 <script lang="ts">
   import { twMerge } from "tailwind-merge";
 
-  export let name: string;
-  export let value: number | null;
-  export let constraints: object | undefined = undefined;
-  let clazz: string | undefined = undefined;
-  export { clazz as class };
+  interface Props {
+    name: string;
+    value: number | null;
+    constraints?: object | undefined;
+    class?: string | undefined;
+  }
+
+  let {
+    name,
+    value = $bindable(),
+    constraints = undefined,
+    class: clazz = undefined,
+  }: Props = $props();
 </script>
 
 <input

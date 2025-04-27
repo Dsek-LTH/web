@@ -8,7 +8,11 @@
   import type { SearchDataWithType } from "$lib/search/searchTypes";
   import DocumentSearchResult from "$lib/components/search/DocumentSearchResult.svelte";
 
-  export let results: SearchDataWithType[] = [];
+  interface Props {
+    results?: SearchDataWithType[];
+  }
+
+  let { results = [] }: Props = $props();
 </script>
 
 {#each results as searchValue}

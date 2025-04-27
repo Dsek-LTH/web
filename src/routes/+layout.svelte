@@ -9,12 +9,12 @@
   import { setContext } from "svelte";
   import { writable } from "svelte/store";
 
-  export let data;
+  let { data, children } = $props();
 
-  $: (() => {
+  $effect(() => {
     const locale = languageTag();
     dayjs.locale(locale);
-  })();
+  });
   let pageTitle = writable("D-sektionen");
   setContext("pageTitle", pageTitle);
 </script>
@@ -26,5 +26,5 @@
 </svelte:head>
 
 <ParaglideJS {i18n}>
-  <slot />
+  {@render children?.()}
 </ParaglideJS>

@@ -1,7 +1,10 @@
 <script lang="ts">
-  let clazz = "";
-  export { clazz as class };
-  export let variant: "full" | "letter" = "letter";
+  interface Props {
+    class?: string;
+    variant?: "full" | "letter";
+  }
+
+  let { class: clazz = "", variant = "letter" }: Props = $props();
 </script>
 
 {#if variant === "letter"}

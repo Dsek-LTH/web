@@ -8,21 +8,25 @@
   import type { PageData } from "./$types";
   import * as m from "$paraglide/messages";
   import Pagination from "$lib/components/Pagination.svelte";
-  export let data: PageData;
+  interface Props {
+    data: PageData;
+  }
 
-  $: plansOfOperations = data.plansOfOperations;
-  $: strategicGoals = data.strategicGoals;
-  $: frameworkBudgets = data.frameworkBudgets;
+  let { data }: Props = $props();
+
+  let plansOfOperations = $derived(data.plansOfOperations);
+  let strategicGoals = $derived(data.strategicGoals);
+  let frameworkBudgets = $derived(data.frameworkBudgets);
 
   const currentYear = new Date().getFullYear();
 
-  let isEditing = false;
-  let selectedPdf: string | null = null;
-  let dialog: HTMLDialogElement;
-  $: onPdfClick = (url: string) => {
+  let isEditing = $state(false);
+  let selectedPdf: string | null = $state(null);
+  let dialog: HTMLDialogElement = $state();
+  let onPdfClick = $derived((url: string) => {
     selectedPdf = url;
     dialog.showModal();
-  };
+  });
 </script>
 
 <div
@@ -38,7 +42,7 @@
       {/if}
       <button
         class="btn btn-secondary btn-sm"
-        on:click={() => {
+        onclick={() => {
           isEditing = !isEditing;
         }}
       >
@@ -234,7 +238,7 @@
     <!-- svelte-ignore a11y_consider_explicit_label -->
     <button
       class="cursor-auto"
-      on:click={() => {
+      onclick={() => {
         selectedPdf = null;
       }}
     ></button>
@@ -243,6 +247,6 @@
     title={m.documents_governing_pdfViewer()}
     src={selectedPdf}
     class="menu modal-box h-full max-h-[95vh] w-full max-w-[70vw]"
-    on:error={() => dialog.close()}
+    onerror={() => dialog.close()}
   ></iframe>
 </dialog>

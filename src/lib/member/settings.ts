@@ -9,7 +9,7 @@ import {
 export const settingsLoad = async ({ locals }: ServerLoadEvent) => {
   const { user, prisma } = locals;
   if (!user.memberId)
-    throw error(401, "Du måste logga in för att ändra inställningar");
+    error(401, "Du måste logga in för att ändra inställningar");
 
   const subscriptionSettings = await prisma.subscriptionSetting.findMany({
     where: {

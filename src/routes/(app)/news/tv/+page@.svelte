@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import TvArticleCard from "./TVArticleCard.svelte";
   import * as m from "$paraglide/messages";
 
-  const data = $page.data;
+  const data = page.data;
 </script>
 
 <SetPageTitle title={m.news()} />

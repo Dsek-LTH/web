@@ -7,10 +7,10 @@
   import * as m from "$paraglide/messages";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
 
-  export let data;
-  $: members = data.members;
-  $: programme = data.programme;
-  $: year = data.year;
+  let { data } = $props();
+  let members = $derived(data.members);
+  let programme = $derived(data.programme);
+  let year = $derived(data.year);
 
   const thisYear = new Date().getFullYear();
 
@@ -41,7 +41,7 @@
   class:text-primary={programme === "D" || programme === "VR/AR"}
   class:text-secondary={programme === "C"}
   value={programme}
-  on:change={async (e) =>
+  onchange={async (e) =>
     await goto(`/members/?programme=${e.currentTarget.value}&year=${year}`)}
 >
   <option value="all">{m.members_all()}</option>

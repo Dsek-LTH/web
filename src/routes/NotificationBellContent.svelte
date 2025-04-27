@@ -8,11 +8,21 @@
   import { flip } from "svelte/animate";
   import type { SuperValidated } from "sveltekit-superforms";
 
-  export let form: SuperValidated<NotificationSchema>;
-  export let notifications: NotificationGroup[];
-  export let postReveal = false;
-  export let onDeleted: () => void;
-  export let onRead: (id: number | "all") => void;
+  interface Props {
+    form: SuperValidated<NotificationSchema>;
+    notifications: NotificationGroup[];
+    postReveal?: boolean;
+    onDeleted: () => void;
+    onRead: (id: number | "all") => void;
+  }
+
+  let {
+    form,
+    notifications,
+    postReveal = false,
+    onDeleted,
+    onRead,
+  }: Props = $props();
 
   const { enhance: deleteEnhance } = superForm(form, {
     onUpdate: onDeleted,

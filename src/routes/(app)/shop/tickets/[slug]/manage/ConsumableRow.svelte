@@ -9,17 +9,21 @@
   import TruncatedTableCell from "./TruncatedTableCell.svelte";
   import type { ConsumableRowData, ReservationData } from "./types";
 
-  $: stripeIntentBaseUrl = $page.data["stripeIntentBaseUrl"]; // required to be return by the +page.server.ts where this is rendered.
-  // one of the following has to be specified
-  export let consumable: ConsumableRowData | null = null;
-  export let reservation: ReservationData | null = null;
+  let stripeIntentBaseUrl = $derived($page.data["stripeIntentBaseUrl"]); // required to be return by the +page.server.ts where this is rendered.
 
-  export let questions: ItemQuestion[];
+  interface Props {
+    // one of the following has to be specified
+    consumable?: ConsumableRowData | null;
+    reservation?: ReservationData | null;
+    questions: ItemQuestion[];
+  }
+
+  let { consumable = null, reservation = null, questions }: Props = $props();
 
   if (!consumable && !reservation)
     throw new Error("Either consumable or reservation must be specified");
-  $: item = (consumable ?? reservation)!;
-  $: member = item.member;
+  let item = $derived((consumable ?? reservation)!);
+  let member = $derived(item.member);
 </script>
 
 <tr>

@@ -2,8 +2,12 @@
   import type { TicketWithMoreInfo } from "$lib/server/shop/getTickets";
   import TicketCard from "./TicketCard/TicketCard.svelte";
 
-  export let title: string;
-  export let tickets: TicketWithMoreInfo[];
+  interface Props {
+    title: string;
+    tickets: TicketWithMoreInfo[];
+  }
+
+  let { title, tickets }: Props = $props();
 </script>
 
 {#if tickets.length > 0}

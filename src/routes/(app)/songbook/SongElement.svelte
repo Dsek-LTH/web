@@ -1,14 +1,17 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
   import * as m from "$paraglide/messages";
   import { languageTag } from "$paraglide/runtime";
   import type { Song } from "@prisma/client";
   import { twMerge } from "tailwind-merge";
-  export let song: Song;
-  let clazz = "";
-  export { clazz as class };
+  interface Props {
+    song: Song;
+    class?: string;
+  }
+
+  let { song, class: clazz = "" }: Props = $props();
 </script>
 
 <article
@@ -17,7 +20,7 @@
     clazz,
   )}
 >
-  {#if isAuthorized(apiNames.SONG.DELETE, $page.data.user) && song.deletedAt != null}
+  {#if isAuthorized(apiNames.SONG.DELETE, page.data.user) && song.deletedAt != null}
     <p class="text-xl font-bold text-red-500">{m.songbook_deleted()}</p>
     <p class="text-sm text-red-300">
       {m.songbook_deletedExplanation()}

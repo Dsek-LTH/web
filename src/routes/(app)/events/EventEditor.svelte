@@ -17,20 +17,40 @@
   import LangTabs from "$lib/components/layout/LangTabs.svelte";
   import FormFileInput from "$lib/components/forms/FormFileInput.svelte";
   import FormMarkdown from "$lib/components/forms/FormMarkdown.svelte";
+  import { languageTag, type AvailableLanguageTag } from "$paraglide/runtime";
 
-  export let recurringParentId: string | null;
-  export let creating = false;
-  export let data: SuperValidated<
-    EventSchema & { editType: "THIS" | "FUTURE" | "ALL" | undefined }
-  >;
+  interface Props {
+    recurringParentId: string | null;
+    creating?: boolean;
+    data: SuperValidated<
+      EventSchema & { editType: "THIS" | "FUTURE" | "ALL" | undefined }
+    >;
+    allTags: Tag[];
+    formStart?: import("svelte").Snippet;
+    formEnd?: import("svelte").Snippet;
+    error?: import("svelte").Snippet;
+  }
+
+  let {
+    recurringParentId,
+    creating = false,
+    data,
+    allTags,
+    formStart,
+    formEnd,
+    error,
+  }: Props = $props();
+
   const superform = superForm(data, {
     dataType: "json",
   });
   const { form, errors, enhance } = superform;
-  export let allTags: Tag[];
-  $: if ($errors) console.log($errors);
-  let activeTab: "sv" | "en";
-  let modal: HTMLDialogElement;
+
+  $effect(() => {
+    if ($errors) console.log($errors);
+  });
+  let activeTab: AvailableLanguageTag = $state(languageTag());
+  let modal: HTMLDialogElement | undefined = $state();
 </script>
 
 <main
@@ -44,9 +64,9 @@
       enctype="multipart/form-data"
       id="editForm"
     >
-      <slot name="form-start" />
+      {@render formStart?.()}
       <LangTabs bind:activeTab class="self-stretch">
-        <svelte:fragment slot="sv">
+        {#snippet sv()}
           <FormInput {superform} label={m.events_title()} field="title" />
           <FormInput
             {superform}
@@ -59,9 +79,9 @@
             field="description"
             class="min-h-[10rem]"
             placeholder={m.events_description()}
-          /></svelte:fragment
-        >
-        <svelte:fragment slot="en">
+          />
+        {/snippet}
+        {#snippet en()}
           <FormInput {superform} label={m.events_title()} field="titleEn" />
           <FormInput
             {superform}
@@ -75,7 +95,7 @@
             class="min-h-[10rem]"
             placeholder={m.events_description()}
           />
-        </svelte:fragment>
+        {/snippet}
       </LangTabs>
       <div
         class="flex flex-row justify-between gap-4 self-stretch [&>*]:flex-1"
@@ -155,14 +175,14 @@
         />
         <TagSelector name="tags" {allTags} bind:selectedTags={$form.tags} />
       </div>
-      <slot name="form-end" />
+      {@render formEnd?.()}
       {#if recurringParentId !== null && !creating}
         <button
           type="button"
           class="btn btn-primary my-4"
           title="Radera"
-          on:click={() => {
-            modal.showModal();
+          onclick={() => {
+            modal?.showModal();
           }}
         >
           {m.save()}
@@ -181,7 +201,7 @@
         </div>
       {/if}
     </form>
-    <slot name="error" />
+    {@render error?.()}
   </section>
   <section>
     <span class="italic">{m.events_create_preview()}</span>
@@ -205,12 +225,14 @@
         link: $form.link,
       }}
     >
-      <div slot="tags" class="flex flex-row flex-wrap gap-2">
-        {#each $form.tags as selectedTag}
-          {@const tag = allTags.find((t) => t.id === selectedTag.id)}
-          <TagChip {tag} />
-        {/each}
-      </div>
+      {#snippet tags()}
+        <div class="flex flex-row flex-wrap gap-2">
+          {#each $form.tags as selectedTag}
+            {@const tag = allTags.find((t) => t.id === selectedTag.id)}
+            <TagChip {tag} />
+          {/each}
+        </div>
+      {/snippet}
     </Event>
   </section>
 </main>

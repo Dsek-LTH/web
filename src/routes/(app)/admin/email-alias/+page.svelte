@@ -5,10 +5,10 @@
   import { superForm } from "$lib/utils/client/superForms";
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import * as m from "$paraglide/messages";
 
-  export let data;
+  let { data } = $props();
 
   const {
     form: createEmailPositionForm,
@@ -31,44 +31,50 @@
     enhance: createEmailSpecialReceiverEnhance,
   } = superForm(data.createEmailSpecialReceiverForm);
 
-  $: groupedEmailAliases = Array.from(
-    data.emailAliases.reduce((acc, emailAlias) => {
-      if (!acc.has(emailAlias.email)) {
-        acc.set(emailAlias.email, []);
-      }
-      acc.get(emailAlias.email)?.push(emailAlias.positionId);
-      return acc;
-    }, new Map<string, string[]>()),
+  let groupedEmailAliases = $derived(
+    Array.from(
+      data.emailAliases.reduce((acc, emailAlias) => {
+        if (!acc.has(emailAlias.email)) {
+          acc.set(emailAlias.email, []);
+        }
+        acc.get(emailAlias.email)?.push(emailAlias.positionId);
+        return acc;
+      }, new Map<string, string[]>()),
+    ),
   );
-  $: groupedSpecialReceivers = Array.from(
-    data.specialReceivers.reduce((acc, emailSpecialReceiver) => {
-      if (!acc.has(emailSpecialReceiver.email)) {
-        acc.set(emailSpecialReceiver.email, []);
-      }
-      acc
-        .get(emailSpecialReceiver.email)
-        ?.push(emailSpecialReceiver.targetEmail);
-      return acc;
-    }, new Map<string, string[]>()),
+  let groupedSpecialReceivers = $derived(
+    Array.from(
+      data.specialReceivers.reduce((acc, emailSpecialReceiver) => {
+        if (!acc.has(emailSpecialReceiver.email)) {
+          acc.set(emailSpecialReceiver.email, []);
+        }
+        acc
+          .get(emailSpecialReceiver.email)
+          ?.push(emailSpecialReceiver.targetEmail);
+        return acc;
+      }, new Map<string, string[]>()),
+    ),
   );
-  $: groupedSpecialSenders = Array.from(
-    data.specialSenders.reduce((acc, emailSpecialSender) => {
-      if (!acc.has(emailSpecialSender.email)) {
-        acc.set(emailSpecialSender.email, []);
-      }
-      acc.get(emailSpecialSender.email)?.push({
-        studentId: emailSpecialSender.studentId,
-        keycloakId: emailSpecialSender.keycloakId,
-      });
-      return acc;
-    }, new Map<string, Array<{ studentId: string; keycloakId: string | null }>>()),
+  let groupedSpecialSenders = $derived(
+    Array.from(
+      data.specialSenders.reduce((acc, emailSpecialSender) => {
+        if (!acc.has(emailSpecialSender.email)) {
+          acc.set(emailSpecialSender.email, []);
+        }
+        acc.get(emailSpecialSender.email)?.push({
+          studentId: emailSpecialSender.studentId,
+          keycloakId: emailSpecialSender.keycloakId,
+        });
+        return acc;
+      }, new Map<string, Array<{ studentId: string; keycloakId: string | null }>>()),
+    ),
   );
 </script>
 
 <PageHeader title={m.admin_emailalias_emailAliases()} />
 
 <div>
-  {#if isAuthorized(apiNames.EMAIL_ALIAS.CREATE, $page.data.user)}
+  {#if isAuthorized(apiNames.EMAIL_ALIAS.CREATE, page.data.user)}
     <div class="my-4 rounded-lg p-4">
       <div class="border-b border-neutral p-4">
         <h2 class="text-lg font-semibold">{m.admin_emailalias_addAlias()}</h2>
@@ -255,7 +261,7 @@
                 <span class="font-mono">{positionId}</span>
               {/each}
             </td>
-            {#if isAuthorized(apiNames.EMAIL_ALIAS.UPDATE, $page.data.user)}
+            {#if isAuthorized(apiNames.EMAIL_ALIAS.UPDATE, page.data.user)}
               <td class="text-right">
                 <a class="btn btn-xs px-8" href="email-alias/{emailAlias[0]}"
                   >{m.admin_emailalias_edit()}</a
@@ -293,7 +299,7 @@
                 <span class="font-mono">{studentId}</span>
               {/each}
             </td>
-            {#if isAuthorized(apiNames.EMAIL_ALIAS.UPDATE, $page.data.user)}
+            {#if isAuthorized(apiNames.EMAIL_ALIAS.UPDATE, page.data.user)}
               <td class="text-right">
                 <a class="btn btn-xs px-8" href="email-alias/{email}"
                   >{m.admin_emailalias_edit()}</a
@@ -331,7 +337,7 @@
                 <span class="font-mono">{targetEmail}</span>
               {/each}
             </td>
-            {#if isAuthorized(apiNames.EMAIL_ALIAS.UPDATE, $page.data.user)}
+            {#if isAuthorized(apiNames.EMAIL_ALIAS.UPDATE, page.data.user)}
               <td class="text-right">
                 <a class="btn btn-xs px-8" href="email-alias/{email}"
                   >{m.admin_emailalias_edit()}</a

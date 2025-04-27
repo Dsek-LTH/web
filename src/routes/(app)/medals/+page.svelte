@@ -17,11 +17,15 @@
 
   import type { PageData } from "./$types";
   import { error } from "@sveltejs/kit";
-  export let data: PageData;
+  interface Props {
+    data: PageData;
+  }
+
+  let { data }: Props = $props();
 
   const firstSemester: Semester = semesterFromYearAndTerm(1982, "HT");
-  $: currentSemester = dateToSemester(new Date());
-  $: recipients = data.recipients;
+  let currentSemester = $derived(dateToSemester(new Date()));
+  let recipients = $derived(data.recipients);
 </script>
 
 <SetPageTitle title={m.medals()} />

@@ -7,23 +7,24 @@
   import StatusComponent from "./StatusComponent.svelte";
 
   type BookingRequestWithBookables = BookingRequest & { bookables: Bookable[] };
-  export let data: {
-    form: SuperValidated<Infer<BookingSchema>>;
-    bookables: Bookable[];
-    booking?: BookingRequestWithBookables;
-    allBookingRequests?: BookingRequestWithBookables[];
-  };
-
-  $: bookingRequest = data.booking;
 
   const { form, errors, enhance, constraints } = superForm(data.form);
-  export let mode: "create" | "edit" | "review" = "create";
+  interface Props {
+    data: {
+      form: SuperValidated<Infer<BookingSchema>>;
+      bookables: Bookable[];
+      booking?: BookingRequestWithBookables;
+      allBookingRequests?: BookingRequestWithBookables[];
+    };
+    mode?: "create" | "edit" | "review";
+  }
 
-  let start = $form.start;
-  let end = $form.end;
+  let { data = $bindable(), mode = "create" }: Props = $props();
+
+  let start = $state($form.start);
+  let end = $state($form.end);
 
   const boardRoomId = "99854837-fdb9-4dba-85fc-86a5c514253c";
-  $: showBoardRooomWarning = $form.bookables.includes(boardRoomId);
 
   // Ensure that the start date is always before the end date
   function handleStartChange() {
@@ -66,6 +67,8 @@
       }
     }
   }
+  let bookingRequest = $derived(data.booking);
+  let showBoardRooomWarning = $derived($form.bookables.includes(boardRoomId));
 </script>
 
 <form method="POST" use:enhance class="form-control mx-auto max-w-5xl gap-4">
@@ -121,7 +124,7 @@
       placeholder="Start"
       class="input input-bordered w-full"
       bind:value={start}
-      on:change={handleStartChange}
+      onchange={handleStartChange}
       {...$constraints.start}
       disabled={mode === "review"}
     />
@@ -136,7 +139,7 @@
       class="input input-bordered w-full"
       class:border-error={$errors.end}
       bind:value={end}
-      on:change={handleEndChange}
+      onchange={handleEndChange}
       {...$constraints.end}
       disabled={mode === "review"}
     />

@@ -1,13 +1,19 @@
 <script lang="ts">
   import { getPdfApiUrl } from "$lib/utils/servePdf";
 
-  export let name: string;
-  export let url: string;
-  export let host = false;
-  export let full = false;
-  $: fileName = name.includes(".")
-    ? name.substring(0, name.lastIndexOf(".")).replace(/_+/g, " ")
-    : name;
+  interface Props {
+    name: string;
+    url: string;
+    host?: boolean;
+    full?: boolean;
+  }
+
+  let { name, url, host = false, full = false }: Props = $props();
+  let fileName = $derived(
+    name.includes(".")
+      ? name.substring(0, name.lastIndexOf(".")).replace(/_+/g, " ")
+      : name,
+  );
 </script>
 
 <div class="flex" class:w-full={full} data-tip={fileName}>

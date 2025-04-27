@@ -36,7 +36,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 
   const type = url.searchParams.get("type") || "board-meeting";
   if (!isValidDocumentType(type)) {
-    throw error(400, m.documents_errors_invalidType());
+    error(400, m.documents_errors_invalidType());
   }
 
   const files: FileData[] = await fileHandler

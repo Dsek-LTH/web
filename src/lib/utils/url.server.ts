@@ -90,9 +90,9 @@ export const getIntegerParamOrThrowSvelteError = (
   const value = parseInt(
     url.searchParams.get(param) || options.fallbackValue.toString(),
   );
-  if (isNaN(value)) throw error(400, options.errorMessage);
+  if (isNaN(value)) error(400, options.errorMessage);
   if (value < options.lowerBound || value > options.upperBound)
-    throw error(400, options.errorMessage);
+    error(400, options.errorMessage);
   return value;
 };
 

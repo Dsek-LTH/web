@@ -15,7 +15,7 @@ export const GET = async ({ params }) => {
     },
   });
   if (!event) {
-    throw error(404, "Event not found");
+    error(404, "Event not found");
   }
   let eventSlug = event?.slug;
   if (eventSlug == null) {

@@ -1,11 +1,14 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import { twMerge } from "tailwind-merge";
 
-  let clazz = "";
-  export { clazz as class };
+  interface Props {
+    class?: string;
+  }
 
-  let isCurrentThemeLight: boolean = $page.data["theme"] === "light";
+  let { class: clazz = "" }: Props = $props();
+
+  let isCurrentThemeLight: boolean = $state(page.data["theme"] === "light");
 
   const toggleTheme = () => {
     const newTheme = isCurrentThemeLight ? "dark" : "light";
@@ -19,7 +22,7 @@
 <button
   class={twMerge("btn btn-ghost swap swap-rotate *:text-2xl", clazz)}
   class:swap-active={isCurrentThemeLight}
-  on:click={toggleTheme}
+  onclick={toggleTheme}
 >
   <!-- moon icon -->
   <span class="swap-on i-mdi-weather-night"></span>

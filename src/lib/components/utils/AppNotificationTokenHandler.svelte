@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import { toast } from "$lib/stores/toast";
   import { onDestroy, onMount } from "svelte";
 
@@ -27,8 +27,8 @@
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Javascript addEventListener returns any
   let listener: any | undefined = undefined;
-  let token: string | null = null;
-  $: loggedIn = !!$page.data.user?.memberId;
+  let token: string | null = $state(null);
+  let loggedIn = $derived(!!page.data.user?.memberId);
   onMount(() => {
     // read notification already stored in global window object
 
@@ -46,7 +46,7 @@
       window.removeEventListener("appSendNotificationToken", listener);
   });
 
-  $: (() => {
+  $effect(() => {
     if (loggedIn && token) uploadToken(token);
-  })();
+  });
 </script>

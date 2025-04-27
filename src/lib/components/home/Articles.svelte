@@ -3,7 +3,11 @@
   import type { Article } from "@prisma/client";
   import * as m from "$paraglide/messages";
 
-  export let news: Array<Pick<Article, "header" | "body" | "slug">>;
+  interface Props {
+    news: Array<Pick<Article, "header" | "body" | "slug">>;
+  }
+
+  let { news }: Props = $props();
 </script>
 
 <div

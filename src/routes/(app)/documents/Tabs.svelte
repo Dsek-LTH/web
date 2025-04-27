@@ -1,25 +1,34 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
 
   type TabOption = {
     name: string;
     value: string;
   };
-  export let options: TabOption[] = [];
-  export let fieldName = "type";
-  export let currentTab = options[0]?.value;
-  $: (() => {
-    const searchParamValue = $page.url.searchParams.get(fieldName);
+  interface Props {
+    options?: TabOption[];
+    fieldName?: string;
+    currentTab?: any;
+  }
+
+  let {
+    options = [],
+    fieldName = "type",
+    currentTab = $bindable(options[0]?.value),
+  }: Props = $props();
+
+  $effect(() => {
+    const searchParamValue = page.url.searchParams.get(fieldName);
     if (searchParamValue) {
       currentTab = searchParamValue;
     }
-  })();
+  });
 
-  $: generateLink = (value: string) => {
-    const searchParams = new URLSearchParams($page.url.searchParams);
+  let generateLink = $derived((value: string) => {
+    const searchParams = new URLSearchParams(page.url.searchParams);
     searchParams.set(fieldName, value.toString());
     return `?${searchParams.toString()}`;
-  };
+  });
 </script>
 
 <div

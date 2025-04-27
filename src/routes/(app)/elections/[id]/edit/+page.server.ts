@@ -25,7 +25,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   const election = await electionPromise;
 
   if (!election) {
-    throw error(404, m.elections_notFound());
+    error(404, m.elections_notFound());
   }
 
   return {

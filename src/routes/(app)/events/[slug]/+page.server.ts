@@ -23,7 +23,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
   const event = await getEvent(prisma, params.slug);
   if (event == undefined) {
-    throw error(404, {
+    error(404, {
       message: m.events_errors_eventNotFound(),
     });
   }

@@ -14,10 +14,19 @@
 
   const slotWidth = 150;
 
-  export let bookingRequests: Array<BookingRequest & { bookables: Bookable[] }>;
-  export let bookables: Bookable[];
-  let clazz = "";
-  export { clazz as class };
+  interface Props {
+    bookingRequests: Array<BookingRequest & { bookables: Bookable[] }>;
+    bookables: Bookable[];
+    class?: string;
+    legend?: import("svelte").Snippet;
+  }
+
+  let {
+    bookingRequests,
+    bookables,
+    class: clazz = "",
+    legend,
+  }: Props = $props();
 
   let plugins = [TimeGrid];
   let options: Calendar.Options = {
@@ -95,7 +104,7 @@
   <Calendar {plugins} {options} />
 </div>
 
-<slot name="legend">
+{#if legend}{@render legend()}{:else}
   <div class="mt-8">
     <div class="badge badge-success">
       <span class="i-mdi-check-circle mr-1"></span>{m.booking_accepted()}
@@ -107,4 +116,4 @@
       <span class="i-mdi-hourglass mr-1"></span>{m.booking_pending()}
     </div>
   </div>
-</slot>
+{/if}

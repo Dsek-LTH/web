@@ -5,10 +5,10 @@
   import * as m from "$paraglide/messages";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
 
-  export let data;
+  let { data } = $props();
 
-  let removeModal: HTMLDialogElement | undefined = undefined;
-  let selectedAlert: Alert | undefined = undefined;
+  let removeModal: HTMLDialogElement | undefined = $state(undefined);
+  let selectedAlert: Alert | undefined = $state(undefined);
 </script>
 
 <SetPageTitle title="Alerts" />
@@ -61,7 +61,7 @@
           <!-- svelte-ignore a11y_consider_explicit_label -->
           <button
             class="btn btn-square"
-            on:click={() => {
+            onclick={() => {
               selectedAlert = alert;
               removeModal?.showModal();
             }}
@@ -85,7 +85,7 @@
         <button
           type="submit"
           class="btn btn-error"
-          on:click={() => removeModal?.close()}
+          onclick={() => removeModal?.close()}
         >
           {m.admin_alerts_remove()}
         </button>

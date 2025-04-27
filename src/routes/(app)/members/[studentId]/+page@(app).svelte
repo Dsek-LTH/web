@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import CommitteeSymbol from "$lib/components/images/CommitteeSymbol.svelte";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
@@ -16,7 +16,7 @@
 
   let { data }: PageProps = $props();
 
-  const studentId = $derived($page.params["studentId"]);
+  const studentId = $derived(page.params["studentId"]);
   const member = $derived(data.viewedMember);
 
   let isEditing = $state(false);

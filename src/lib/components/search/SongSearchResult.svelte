@@ -1,7 +1,11 @@
 <script lang="ts">
   import type { SongSearchReturnAttributes } from "$lib/search/searchTypes";
 
-  export let song: SongSearchReturnAttributes;
+  interface Props {
+    song: SongSearchReturnAttributes;
+  }
+
+  let { song }: Props = $props();
 </script>
 
 <li>

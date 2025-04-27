@@ -5,18 +5,30 @@
   import type { Author, CustomAuthor, Member, Position } from "@prisma/client";
   import { twMerge } from "tailwind-merge";
 
-  let clazz = "";
-  export { clazz as class };
-  export let member: Pick<
-    Member,
-    "firstName" | "lastName" | "nickname" | "studentId" | "picturePath"
-  >;
-  export let customAuthor: Pick<CustomAuthor, "name" | "imageUrl"> | null =
-    null;
-  export let position: Pick<Position, "id" | "name"> | undefined = undefined;
-  export let type: Author["type"] = "Member";
-  export let size: "sm" | "md" | "lg" | "xl" = "lg";
-  export let links = true;
+  interface Props {
+    class?: string;
+    member: Pick<
+      Member,
+      "firstName" | "lastName" | "nickname" | "studentId" | "picturePath"
+    >;
+    customAuthor?: Pick<CustomAuthor, "name" | "imageUrl"> | null;
+    position?: Pick<Position, "id" | "name"> | undefined;
+    type?: Author["type"];
+    size?: "sm" | "md" | "lg" | "xl";
+    links?: boolean;
+    end?: import("svelte").Snippet;
+  }
+
+  let {
+    class: clazz = "",
+    member,
+    customAuthor = null,
+    position = undefined,
+    type = "Member",
+    size = "lg",
+    links = true,
+    end,
+  }: Props = $props();
 
   const sizeToWidth: Record<typeof size, string> = {
     sm: "w-4",
@@ -109,7 +121,7 @@
         <!-- for positioning the slot correctly -->
       {/if}
       <div class="shrink-0">
-        <slot name="end" />
+        {@render end?.()}
       </div>
     </div>
   </div>

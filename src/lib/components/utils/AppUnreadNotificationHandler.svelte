@@ -1,5 +1,9 @@
 <script lang="ts">
-  export let notificationCount: number | undefined = undefined;
+  interface Props {
+    notificationCount?: number | undefined;
+  }
+
+  let { notificationCount = undefined }: Props = $props();
 
   const sendNotificationCountToApp = async (count: number | undefined) => {
     if (count === undefined) return;
@@ -13,5 +17,7 @@
     );
   };
 
-  $: (() => sendNotificationCountToApp(notificationCount))();
+  $effect(() => {
+    sendNotificationCountToApp(notificationCount);
+  });
 </script>

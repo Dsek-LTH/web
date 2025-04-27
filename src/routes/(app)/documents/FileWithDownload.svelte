@@ -1,7 +1,11 @@
 <script lang="ts">
-  export let name: string;
-  export let url: string;
-  export let onClick: (url: string) => void;
+  interface Props {
+    name: string;
+    url: string;
+    onClick: (url: string) => void;
+  }
+
+  let { name, url, onClick }: Props = $props();
 </script>
 
 <div class="flex items-center gap-2 py-2">
@@ -9,7 +13,7 @@
     class="link flex items-center gap-2 text-left no-underline hover:underline"
     href={url}
     target="_blank"
-    on:click={(e) => {
+    onclick={(e) => {
       // don't open modal if we're on too small a screen
       if (window.innerWidth < 768) return;
 

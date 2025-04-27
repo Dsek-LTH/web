@@ -6,12 +6,18 @@
   import type { Tag } from "@prisma/client";
   import SubscriptionTags from "./SubscriptionTags.svelte";
 
-  export let data: SettingsPageData;
-  $: subscribedTags = data.subscribedTags as { subscribedTags: Tag[] };
-  $: tags = data.tags;
+  interface Props {
+    data: SettingsPageData;
+  }
 
-  let subscriptionGroup = data.subscriptions;
-  let pushGroup = data.pushSubscriptions;
+  let { data }: Props = $props();
+  let subscribedTags = $derived(
+    data.subscribedTags as { subscribedTags: Tag[] },
+  );
+  let tags = $derived(data.tags);
+
+  let subscriptionGroup = $state(data.subscriptions);
+  let pushGroup = $state(data.pushSubscriptions);
 
   const notificationText: Record<NotificationSettingType, () => string> = {
     LIKE: m.setting_like,

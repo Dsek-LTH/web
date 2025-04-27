@@ -169,14 +169,14 @@ const sendNotification = async ({
     );
   } catch (e) {
     console.warn("Failed to create web notifications", e);
-    throw error(500, "Failed to create notifications");
+    error(500, "Failed to create notifications");
   }
 
   try {
     await sendPush(title, message, link, receivingMembers);
   } catch (e) {
     console.warn("Failed to create push notifications", e);
-    throw error(500, "Failed to create push notifications");
+    error(500, "Failed to create push notifications");
   }
 };
 

@@ -72,12 +72,12 @@ export const load: PageServerLoad = async ({ locals, params }) => {
       }),
     ]);
   if (memberResult.status === "rejected")
-    throw error(500, m.members_errors_couldntFetchMember());
+    error(500, m.members_errors_couldntFetchMember());
   if (publishedArticlesResult.status === "rejected")
-    throw error(500, m.members_errors_couldntFetchArticles());
-  if (!memberResult.value) throw error(404, m.members_errors_memberNotFound());
+    error(500, m.members_errors_couldntFetchArticles());
+  if (!memberResult.value) error(404, m.members_errors_memberNotFound());
   if (phadderGroupsResult.status === "rejected")
-    throw error(505, phadderGroupsResult.reason);
+    error(505, phadderGroupsResult.reason);
 
   const member = memberResult.value;
 
@@ -127,7 +127,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
         : null,
     };
   } catch {
-    throw error(500, m.members_errors_couldntFetchPings());
+    error(500, m.members_errors_couldntFetchPings());
   }
 };
 

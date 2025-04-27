@@ -11,9 +11,13 @@
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
   import { page } from "$app/stores";
-  export let isEditing;
-  export let phadderGroups: PhadderGroup[];
-  export let data: SuperValidated<UpdateSchema>;
+  interface Props {
+    isEditing: any;
+    phadderGroups: PhadderGroup[];
+    data: SuperValidated<UpdateSchema>;
+  }
+
+  let { isEditing = $bindable(), phadderGroups, data }: Props = $props();
   const superform = superForm<UpdateSchema>(data, {
     onResult: (event) => {
       if (event.result.type === "success") {

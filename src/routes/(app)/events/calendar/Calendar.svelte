@@ -12,19 +12,11 @@
   import dayjs from "dayjs";
   import type { RangeDateParam, ViewParam } from "./+page.server";
 
-  export let events: Event[] = [];
-  $: params = $page.url.searchParams;
-  $: view = formatViewName(params.get("view"));
-  $: middleDate = (() => {
-    const startDate = params.get("startDate");
-    const endDate = params.get("endDate");
-    if (startDate && endDate) {
-      return dayjs(startDate)
-        .add(dayjs(endDate).diff(startDate, "days") / 2, "day")
-        .toDate();
-    }
-    return null;
-  })();
+  interface Props {
+    events?: Event[];
+  }
+
+  let { events = [] }: Props = $props();
   const formatViewName = (view: string | null) => {
     switch (view) {
       case "day":
@@ -117,6 +109,20 @@
       },
     };
   }
+  let params = $derived($page.url.searchParams);
+  let view = $derived(formatViewName(params.get("view")));
+  let middleDate = $derived(
+    (() => {
+      const startDate = params.get("startDate");
+      const endDate = params.get("endDate");
+      if (startDate && endDate) {
+        return dayjs(startDate)
+          .add(dayjs(endDate).diff(startDate, "days") / 2, "day")
+          .toDate();
+      }
+      return null;
+    })(),
+  );
 </script>
 
 <div

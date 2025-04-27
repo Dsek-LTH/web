@@ -5,11 +5,16 @@
   import type { Event } from "@prisma/client";
   import dayjs from "dayjs";
   import { formFieldProxy, type SuperForm } from "sveltekit-superforms/client";
-  export let event: Event | undefined = undefined;
-  let isSearching: boolean;
-  let handleSearch: (search: string) => void;
+  let isSearching: boolean = $state();
+  let handleSearch: (search: string) => void = $state();
 
-  export let superform: SuperForm<TicketSchema>;
+  interface Props {
+    event?: Event | undefined;
+    superform: SuperForm<TicketSchema>;
+    [key: string]: any;
+  }
+
+  let { event = $bindable(undefined), superform, ...rest }: Props = $props();
   const { value, errors, constraints } = formFieldProxy(superform, "eventId");
 
   const updateForm = (event: Event | undefined) => {
@@ -19,9 +24,12 @@
     }
     $value = event.id;
   };
-  $: updateForm(event);
 
-  $: isSelected = !!event;
+  $effect(() => {
+    updateForm(event);
+  });
+
+  let isSelected = $derived(!!event);
 </script>
 
 <EventSearch
@@ -51,12 +59,12 @@
               event.slug ?? event.id
             })`
           : ""}
-        on:input={(e) => {
+        oninput={(e) => {
           event = undefined;
           handleSearch(e.currentTarget.value);
         }}
         required
-        {...$$restProps}
+        {...rest}
       />
       <span
         class="loading loading-spinner loading-md text-primary transition-opacity opacity-{isSearching

@@ -1,6 +1,10 @@
 <script lang="ts">
-  export let images: string[];
-  export let header: string;
+  interface Props {
+    images: string[];
+    header: string;
+  }
+
+  let { images, header }: Props = $props();
 </script>
 
 <div class="relative flex h-full w-full flex-col gap-2 p-1 hover:underline">

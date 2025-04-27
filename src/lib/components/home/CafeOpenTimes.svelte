@@ -2,7 +2,11 @@
   import type { Markdown } from "@prisma/client";
   import * as m from "$paraglide/messages";
 
-  export let cafeOpen: Pick<Markdown, "markdown"> | null;
+  interface Props {
+    cafeOpen: Pick<Markdown, "markdown"> | null;
+  }
+
+  let { cafeOpen }: Props = $props();
 </script>
 
 <a

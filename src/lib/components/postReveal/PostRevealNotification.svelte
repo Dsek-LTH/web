@@ -2,7 +2,7 @@
   import { browser } from "$app/environment";
   import { enhance } from "$app/forms";
   import { invalidate } from "$app/navigation";
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import LiveTimeSince from "$lib/components/LiveTimeSince.svelte";
   import {
     OVERRIDEN_POST_REVEAL_ROUTES,
@@ -34,14 +34,23 @@
     | "authors"
   >;
 
-  export let notification: NotificationItem;
-  export let allowDelete = true;
-  export let onClick: (() => void) | undefined = undefined;
-  export let onRead: (() => void) | undefined = undefined;
+  interface Props {
+    notification: NotificationItem;
+    allowDelete?: boolean;
+    onClick?: (() => void) | undefined;
+    onRead?: (() => void) | undefined;
+  }
 
-  $: link = overrideLink(notification.link);
+  let {
+    notification,
+    allowDelete = true,
+    onClick = undefined,
+    onRead = undefined,
+  }: Props = $props();
 
-  let readForm: HTMLFormElement;
+  let link = $derived(overrideLink(notification.link));
+
+  let readForm: HTMLFormElement = $state();
   const readNotification = () => {
     // read notification
     onRead?.();
@@ -50,24 +59,27 @@
   };
 
   // Handle "reading" notification when visiting relevant link
-  $: isUnread = notification.readAt === null;
-  $: isPathSame =
-    i18n.route($page.url.pathname) === link ||
-    (link.startsWith("/news/") &&
-      i18n
-        .route($page.url.pathname)
-        .startsWith(`${POST_REVEAL_PREFIX}/messages`));
-  $: (() => {
+  let isUnread = $derived(notification.readAt === null);
+  let isPathSame = $derived(
+    i18n.route(page.url.pathname) === link ||
+      (link.startsWith("/news/") &&
+        i18n
+          .route(page.url.pathname)
+          .startsWith(`${POST_REVEAL_PREFIX}/messages`)),
+  );
+  $effect(() => {
     if (isUnread && isPathSame) {
       setTimeout(() => {
         readNotification();
       });
     }
-  })();
+  });
 
-  $: authors = notification.authors.filter(Boolean) as Array<
-    NonNullable<NotificationItem["authors"][number]>
-  >;
+  let authors = $derived(
+    notification.authors.filter(Boolean) as Array<
+      NonNullable<NotificationItem["authors"][number]>
+    >,
+  );
 </script>
 
 <div
@@ -93,7 +105,7 @@
 
   <a
     href={link}
-    on:click={onClick}
+    onclick={onClick}
     class="flex max-w-full flex-1 items-center gap-4 overflow-hidden"
   >
     <div>

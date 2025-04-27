@@ -9,20 +9,23 @@
   import type { SuperForm } from "sveltekit-superforms";
   import SveltePaymentElement from "./SveltePaymentElement.svelte";
 
-  export let totalPrice: number;
-  export let showPrice = true;
-
-  let stripe: StripeJS.Stripe | null = null;
+  let stripe: StripeJS.Stripe | null = $state(null);
   onMount(async () => {
     stripe = await loadStripe(env.PUBLIC_STRIPE_KEY);
   });
 
   const idempotencyKey = crypto.randomUUID();
 
-  export let superform: SuperForm<PurchaseForm>;
+  interface Props {
+    totalPrice: number;
+    showPrice?: boolean;
+    superform: SuperForm<PurchaseForm>;
+  }
+
+  let { totalPrice, showPrice = true, superform }: Props = $props();
   const { enhance, message, submitting } = superform;
 
-  $: isPurchasing = $message?.["clientSecret"] !== undefined;
+  let isPurchasing = $derived($message?.["clientSecret"] !== undefined);
 </script>
 
 {#if isPurchasing}

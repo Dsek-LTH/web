@@ -6,15 +6,22 @@
   import { superForm } from "$lib/utils/client/superForms";
   import { type FormOptions, type SuperValidated } from "sveltekit-superforms";
 
-  export let create = false;
   type Schema = Omit<PhadderGroupSchema, "id"> | PhadderGroupSchema;
-  export let form: SuperValidated<Schema>;
-  export let onResult: FormOptions<Schema>["onResult"] | undefined = undefined;
-  $: superform = superForm(form, {
-    resetForm: true,
-    onResult,
-  });
-  $: enhance = superform.enhance;
+  interface Props {
+    create?: boolean;
+    form: SuperValidated<Schema>;
+    onResult?: FormOptions<Schema>["onResult"] | undefined;
+    start?: import("svelte").Snippet;
+  }
+
+  let { create = false, form, onResult = undefined, start }: Props = $props();
+  let superform = $derived(
+    superForm(form, {
+      resetForm: true,
+      onResult,
+    }),
+  );
+  let enhance = $derived(superform.enhance);
   const yearOptions = Array(new Date().getFullYear() - 1982 + 1)
     .fill(0)
     .map((_, i) => new Date().getFullYear() - i)
@@ -30,7 +37,7 @@
   method="POST"
   class="form-control"
 >
-  <slot name="start" />
+  {@render start?.()}
   <FormInput {superform} field="id" type="hidden" />
   <FormInput {superform} field="name" label="Namn" />
   <FormInput {superform} field="description" label="Beskrivning" />

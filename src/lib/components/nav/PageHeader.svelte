@@ -3,9 +3,12 @@
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import { twMerge } from "tailwind-merge";
 
-  export let title: string | undefined;
-  let clazz = "";
-  export { clazz as class };
+  interface Props {
+    title: string | undefined;
+    class?: string;
+  }
+
+  let { title, class: clazz = "" }: Props = $props();
 </script>
 
 <SetPageTitle {title} />
@@ -15,6 +18,5 @@
   <!-- page-title is to be styled in css -->
   <h1 class={twMerge("page-title mb-4 text-2xl font-bold", clazz)}>
     {title}
-    <slot name="after-title" />
   </h1>
 {/if}

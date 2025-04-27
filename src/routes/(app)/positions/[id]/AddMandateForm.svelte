@@ -7,14 +7,18 @@
   import type { Member } from "@prisma/client";
   import * as m from "$paraglide/messages";
 
-  export let data: SuperValidated<AddMandateSchema>;
-  export let onClose: () => void;
+  interface Props {
+    data: SuperValidated<AddMandateSchema>;
+    onClose: () => void;
+  }
+
+  let { data, onClose }: Props = $props();
   const { form, errors, constraints, enhance } = superForm(data, {
     onResult(event) {
       if (event.result.type === "success") onClose();
     },
   });
-  let member: Member | undefined;
+  let member: Member | undefined = $state();
 </script>
 
 <form

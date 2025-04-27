@@ -2,8 +2,12 @@
   import { relativeDate } from "$lib/utils/client/datetime";
   import { languageTag } from "$paraglide/runtime";
 
-  export let start: Date;
-  export let end: Date | undefined = undefined;
+  interface Props {
+    start: Date;
+    end?: Date | undefined;
+  }
+
+  let { start, end = undefined }: Props = $props();
 </script>
 
 <div class="text-primary">

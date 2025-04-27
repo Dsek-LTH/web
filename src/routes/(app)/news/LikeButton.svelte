@@ -8,16 +8,20 @@
   import { isAuthorized } from "$lib/utils/authorization";
   import * as m from "$paraglide/messages";
 
-  export let likers: Member[];
-  $: authorized = isAuthorized(apiNames.NEWS.LIKE, $page.data.user);
-  export let articleId: string;
-  export let likeForm: SuperValidated<LikeSchema>;
+  let authorized = $derived(isAuthorized(apiNames.NEWS.LIKE, $page.data.user));
+  interface Props {
+    likers: Member[];
+    articleId: string;
+    likeForm: SuperValidated<LikeSchema>;
+  }
+
+  let { likers, articleId, likeForm }: Props = $props();
   const { errors, constraints, enhance } = superForm(likeForm, {
     id: articleId, // needs to be unique since there could be multiple like buttons on a page
     invalidateAll: true,
   });
-  $: isLiked = likers.some(
-    (member) => member.studentId === $page.data.user?.studentId,
+  let isLiked = $derived(
+    likers.some((member) => member.studentId === $page.data.user?.studentId),
   );
 </script>
 

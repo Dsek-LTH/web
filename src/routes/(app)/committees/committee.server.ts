@@ -82,7 +82,7 @@ export const committeeLoad = async (
     },
   });
   if (!committee) {
-    throw error(404, m.committees_errors_committeeNotFound());
+    error(404, m.committees_errors_committeeNotFound());
   }
   const [uniqueMembersInCommittee, numberOfMandates, markdown] =
     await Promise.allSettled([

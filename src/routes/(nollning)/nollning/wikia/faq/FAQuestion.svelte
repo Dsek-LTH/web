@@ -1,8 +1,11 @@
 <script lang="ts">
-  export let title: string;
-  export let body: string;
-  export let _default = false;
-  export { _default as default };
+  interface Props {
+    title: string;
+    body: string;
+    default?: boolean;
+  }
+
+  let { title, body, default: _default = false }: Props = $props();
 </script>
 
 <div

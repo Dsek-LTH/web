@@ -10,31 +10,33 @@
   import DeleteGroupButton from "./DeleteGroupButton.svelte";
   import PhadderGroupForm from "./PhadderGroupForm.svelte";
 
-  export let group: PhadderGroup & {
-    nollor: Member[];
-    phaddrar: Array<
-      Mandate & {
-        member: Member;
-      }
-    >;
-    form: SuperValidated<PhadderGroupSchema>;
-  };
-  let nollaBox: HTMLDivElement;
-  let phadderBox: HTMLDivElement;
+  interface Props {
+    group: PhadderGroup & {
+      nollor: Member[];
+      phaddrar: Array<
+        Mandate & {
+          member: Member;
+        }
+      >;
+      form: SuperValidated<PhadderGroupSchema>;
+    };
+  }
 
-  let editing = false;
+  let { group }: Props = $props();
+  let nollaBox: HTMLDivElement = $state();
+  let phadderBox: HTMLDivElement = $state();
+
+  let editing = $state(false);
 </script>
 
 <div class="rounded-box bg-base-300 p-4">
   {#if editing}
     <PhadderGroupForm form={group.form} onResult={() => (editing = false)}>
-      <button
-        slot="start"
-        class="btn self-end"
-        on:click={() => (editing = false)}
-      >
-        Avbryt <span class="i-mdi-close"></span>
-      </button>
+      {#snippet start()}
+        <button class="btn self-end" onclick={() => (editing = false)}>
+          Avbryt <span class="i-mdi-close"></span>
+        </button>
+      {/snippet}
     </PhadderGroupForm>
   {:else}
     {#if group.imageUrl}
@@ -51,7 +53,7 @@
         <button
           type="button"
           class="btn btn-square btn-secondary btn-sm"
-          on:click={() => (editing = true)}
+          onclick={() => (editing = true)}
         >
           <span class="i-mdi-edit"></span>
         </button>

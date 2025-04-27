@@ -4,7 +4,11 @@
   import type { TicketSchema } from "$lib/utils/shop/types";
   import { formFieldProxy, type SuperForm } from "sveltekit-superforms/client";
 
-  export let superform: SuperForm<TicketSchema>;
+  interface Props {
+    superform: SuperForm<TicketSchema>;
+  }
+
+  let { superform }: Props = $props();
   const {
     value: availableFrom,
     errors: availableFromErrors,
@@ -39,7 +43,7 @@
     <button
       type="button"
       class="btn"
-      on:click={() => ($availableTo = undefined)}
+      onclick={() => ($availableTo = undefined)}
     >
       Ta bort sluttid
     </button>
@@ -47,7 +51,7 @@
     <button
       type="button"
       class="btn"
-      on:click={() => ($availableTo = $availableFrom)}
+      onclick={() => ($availableTo = $availableFrom)}
     >
       <span class="i-mdi-plus text-xl"></span>
       Lägg till sluttid

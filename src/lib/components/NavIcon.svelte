@@ -1,9 +1,12 @@
 <script lang="ts">
   import { twMerge } from "tailwind-merge";
   import DsekLogo from "./DsekLogo.svelte";
-  export let icon: string;
-  let clazz = "";
-  export { clazz as class };
+  interface Props {
+    icon: string;
+    class?: string;
+  }
+
+  let { icon, class: clazz = "" }: Props = $props();
 </script>
 
 {#if icon === "dsek-icon"}

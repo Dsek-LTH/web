@@ -5,7 +5,7 @@
   import Pagination from "$lib/components/Pagination.svelte";
   import type { ShlinkShortUrlsOrder } from "@shlinkio/shlink-js-sdk/api-contract";
   import type { PageData } from "./$types";
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import TagSelector from "$lib/components/TagSelector.svelte";
   import type { Tag } from "@prisma/client";
   import SearchBar from "$lib/components/SearchBar.svelte";
@@ -16,7 +16,11 @@
   import { superForm } from "$lib/utils/client/superForms";
   import * as m from "$paraglide/messages";
 
-  export let data: PageData;
+  interface Props {
+    data: PageData;
+  }
+
+  let { data }: Props = $props();
 
   const {
     form: createLinksForm,
@@ -44,7 +48,7 @@
     resetForm: true,
   });
 
-  $: query = new URLSearchParams($page.url.searchParams.toString());
+  let query = $derived(new URLSearchParams(page.url.searchParams.toString()));
 
   const setUrlParams = (order: ShlinkShortUrlsOrder) => {
     if (
@@ -63,7 +67,7 @@
     goto(`?${query.toString()}`);
   };
 
-  let createSelectedTags: Tag[] = [];
+  let createSelectedTags: Tag[] = $state([]);
 
   const tableHeaders: Array<{ order?: ShlinkShortUrlsOrder; title: string }> = [
     { order: { field: "shortCode" }, title: m.admin_links_table_header_slug() },
@@ -76,28 +80,32 @@
     { order: { field: "visits" }, title: m.admin_links_table_header_visits() },
   ];
 
-  let allTags = data.tags.map((t) => ({ id: t, name: t }) as Tag);
-  $: allTags = data.tags.map((t) => ({ id: t, name: t }) as Tag);
+  let allTags = $state(data.tags.map((t) => ({ id: t, name: t }) as Tag));
+  let allTags = $derived(data.tags.map((t) => ({ id: t, name: t }) as Tag));
 
-  let filteredTags = allTags.filter((tag) =>
-    $page.url.searchParams.getAll("tags").includes(tag.name),
+  let filteredTags = $state(
+    allTags.filter((tag) =>
+      page.url.searchParams.getAll("tags").includes(tag.name),
+    ),
   );
 
-  let removeModal: HTMLDialogElement;
-  let toggleAllCheckBox: HTMLInputElement;
-  let checkboxes: boolean[] = [];
+  let removeModal: HTMLDialogElement = $state();
+  let toggleAllCheckBox: HTMLInputElement = $state();
+  let checkboxes: boolean[] = $state([]);
   const resetCheckboxes = () => {
     checkboxes = [];
     if (toggleAllCheckBox) {
       toggleAllCheckBox.checked = false;
     }
   };
-  $: if (data.domains) {
-    resetCheckboxes();
-  }
+  $effect(() => {
+    if (data.domains) {
+      resetCheckboxes();
+    }
+  });
 
-  let editModal: HTMLDialogElement;
-  let editModalTags: Tag[] = [];
+  let editModal: HTMLDialogElement = $state();
+  let editModalTags: Tag[] = $state([]);
 </script>
 
 <PageHeader title={m.linkShortener()} />
@@ -183,7 +191,7 @@
       type="button"
       class="btn btn-square btn-error place-self-end"
       disabled={checkboxes.every((c) => !c)}
-      on:click={() => removeModal?.showModal()}
+      onclick={() => removeModal?.showModal()}
     >
       <span class="i-mdi-trash-can"></span>
     </button>
@@ -211,7 +219,7 @@
               type="checkbox"
               class="checkbox"
               bind:this={toggleAllCheckBox}
-              on:change={(e) =>
+              onchange={(e) =>
                 (checkboxes = [...Array(data.domains.length).keys()].map(
                   () => e.currentTarget.checked,
                 ))}
@@ -220,7 +228,7 @@
           {#each tableHeaders as th (th.title)}
             {#if th.order?.field}
               <th
-                on:click={() => setUrlParams({ field: th.order?.field })}
+                onclick={() => setUrlParams({ field: th.order?.field })}
                 class="cursor-pointer"
               >
                 {th.title}
@@ -283,7 +291,7 @@
               <button
                 type="button"
                 class="btn btn-square btn-sm"
-                on:click={() => {
+                onclick={() => {
                   $updateLinksForm.slug = d.shortCode;
                   $updateLinksForm.url = d.longUrl;
                   editModalTags = d.tags?.map((t) => ({
@@ -325,7 +333,7 @@
         type="submit"
         form="form_delete"
         class="btn btn-error"
-        on:click={() => removeModal?.close()}
+        onclick={() => removeModal?.close()}
       >
         {m.admin_links_remove_submit()}
       </button>
@@ -333,8 +341,7 @@
   </div>
   <form method="dialog" class="modal-backdrop">
     <!-- svelte-ignore a11y_consider_explicit_label -->
-    <!-- svelte-ignore element_invalid_self_closing_tag -->
-    <button class="cursor-auto" />
+    <button class="cursor-auto"></button>
   </form>
 </dialog>
 
@@ -379,7 +386,7 @@
         <input type="hidden" name="tags" value={tag.name} />
       {/each}
       <div class="modal-action">
-        <button type="button" class="btn" on:click={() => editModal?.close()}>
+        <button type="button" class="btn" onclick={() => editModal?.close()}>
           {m.admin_links_edit_cancel()}
         </button>
         <button type="submit" class="btn btn-primary">

@@ -4,13 +4,24 @@
   import { getFullName } from "$lib/utils/client/member";
   import type { Member } from "@prisma/client";
   import * as m from "$paraglide/messages";
-  export let member: Member | undefined = undefined;
-  let clazz: string | undefined = undefined;
-  export { clazz as class };
-  let isSearching: boolean;
-  let handleSearch: (search: string) => void;
-  export let endpoint: string | undefined = undefined;
-  export let year: number | undefined = undefined;
+
+  let isSearching: boolean = $state();
+  let handleSearch: (search: string) => void = $state();
+  interface Props {
+    member?: Member | undefined;
+    class?: string | undefined;
+    endpoint?: string | undefined;
+    year?: number | undefined;
+    [key: string]: any;
+  }
+
+  let {
+    member = $bindable(undefined),
+    class: clazz = undefined,
+    endpoint = undefined,
+    year = undefined,
+    ...rest
+  }: Props = $props();
 </script>
 
 <MemberSearch
@@ -38,11 +49,11 @@
       placeholder={m.positions_searchForMember()}
       tabIndex={0}
       value={member ? getFullName(member) : ""}
-      on:input={(e) => {
+      oninput={(e) => {
         member = undefined;
         handleSearch(e.currentTarget.value);
       }}
-      {...$$restProps}
+      {...rest}
     />
     <span
       class="loading loading-spinner loading-md absolute right-2 top-1/2 -translate-y-1/2 text-primary transition-opacity opacity-{isSearching

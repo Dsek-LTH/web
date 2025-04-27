@@ -6,7 +6,7 @@
   import { signIn, signOut } from "@auth/sveltekit/client";
   import DarkLightToggle from "../../../DarkLightToggle.svelte";
   import LanguageSwitcher from "../../../LanguageSwitcher.svelte";
-  export let data;
+  let { data } = $props();
 </script>
 
 <SetPageTitle title={m.account()} />

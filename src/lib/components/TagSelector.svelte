@@ -2,44 +2,54 @@
   import type { Tag } from "@prisma/client";
   import TagChip from "./TagChip.svelte";
 
-  /** Called when the list of selected tags changes */
-  export let onChange: () => void = () => {
-    searchValue = "";
-  };
-  export let name: string | undefined = undefined;
-
   const internalOnChange: () => void = () => {
     onChange();
     searchValue = "";
     autocompleteEl?.focus();
   };
 
-  /** All available tags */
-  export let allTags: Tag[] = [];
+  interface Props {
+    /** Called when the list of selected tags changes */
+    onChange?: () => void;
+    name?: string | undefined;
+    /** All available tags */
+    allTags?: Tag[];
+    /** All selected tags */
+    selectedTags?: Array<Pick<Tag, "id"> & Partial<Omit<Tag, "id">>>;
+    [key: string]: any;
+  }
 
-  /** All selected tags */
-  export let selectedTags: Array<Pick<Tag, "id"> & Partial<Omit<Tag, "id">>> =
-    [];
+  let {
+    onChange = () => {
+      searchValue = "";
+    },
+    name = undefined,
+    allTags = [],
+    selectedTags = $bindable([]),
+    ...rest
+  }: Props = $props();
 
-  let searchValue = "";
-  $: filteredTags = allTags.filter(
-    (tag) =>
-      tag.name.toLowerCase().includes(searchValue.toLowerCase()) &&
-      !selectedTags.map((tag) => tag.id).includes(tag.id),
+  let searchValue = $state("");
+  let filteredTags = $derived(
+    allTags.filter(
+      (tag) =>
+        tag.name.toLowerCase().includes(searchValue.toLowerCase()) &&
+        !selectedTags.map((tag) => tag.id).includes(tag.id),
+    ),
   );
 
-  let autocompleteEl: HTMLInputElement;
+  let autocompleteEl: HTMLInputElement = $state();
 </script>
 
 <div class="dropdown">
-  <!-- svelte-ignore a11y-click-events-have-key-events -->
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
   <div
     class="input input-bordered flex h-auto min-h-12 items-center gap-2 py-2"
     tabindex={0}
     role="combobox"
     aria-controls="tags-panel"
     aria-expanded="false"
-    on:click={() => autocompleteEl?.focus()}
+    onclick={() => autocompleteEl?.focus()}
   >
     <div class="flex flex-1 flex-wrap gap-1">
       {#if selectedTags.length > 0}
@@ -47,7 +57,7 @@
           {@const originalTag = allTags.find((t) => t.id === tag.id)}
           <button
             type="button"
-            on:click={() => {
+            onclick={() => {
               selectedTags = selectedTags.filter((o) => o !== tag);
               internalOnChange();
             }}
@@ -67,7 +77,7 @@
         class="bg-transparent"
         bind:value={searchValue}
         bind:this={autocompleteEl}
-        {...$$restProps}
+        {...rest}
       />
     </div>
 
@@ -75,7 +85,7 @@
       <button
         type="button"
         class="btn btn-xs"
-        on:click={() => {
+        onclick={() => {
           selectedTags = [];
           internalOnChange();
         }}>Clear</button
@@ -98,7 +108,7 @@
           )
             ? 'bg-primary hover:bg-primary-content hover:text-primary'
             : ''}"
-          on:click={() => {
+          onclick={() => {
             if (selectedTags.includes(tag)) {
               selectedTags = selectedTags.filter((o) => o.id !== tag.id);
             } else {

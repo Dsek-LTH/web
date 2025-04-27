@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import CommitteeIcon from "$lib/components/images/CommitteeIcon.svelte";
   import PageHeader from "$lib/components/nav/PageHeader.svelte";
   import apiNames from "$lib/utils/apiNames";
@@ -7,13 +7,23 @@
   import type { ComponentProps } from "svelte";
   import * as m from "$paraglide/messages";
 
-  export let editing: boolean;
-  export let toggleEditing: () => void;
-  export let uniqueMemberCount: number;
-  export let numberOfMandates: number;
-  export let committee: {
-    name: ComponentProps<PageHeader>["title"];
-  } & ComponentProps<CommitteeIcon>["committee"];
+  interface Props {
+    editing: boolean;
+    toggleEditing: () => void;
+    uniqueMemberCount: number;
+    numberOfMandates: number;
+    committee: {
+      name: ComponentProps<PageHeader>["title"];
+    } & ComponentProps<CommitteeIcon>["committee"];
+  }
+
+  let {
+    editing,
+    toggleEditing,
+    uniqueMemberCount,
+    numberOfMandates,
+    committee,
+  }: Props = $props();
 </script>
 
 <header class="mb-2 flex items-center gap-4">
@@ -23,8 +33,8 @@
   <div class="flex-1">
     <div class="flex flex-wrap items-center justify-between">
       <PageHeader title={committee.name} class="mb-0" />
-      {#if isAuthorized(apiNames.COMMITTEE.UPDATE, $page.data.user) || isAuthorized(apiNames.POSITION.CREATE, $page.data.user)}
-        <button class="btn btn-secondary btn-sm" on:click={toggleEditing}>
+      {#if isAuthorized(apiNames.COMMITTEE.UPDATE, page.data.user) || isAuthorized(apiNames.POSITION.CREATE, page.data.user)}
+        <button class="btn btn-secondary btn-sm" onclick={toggleEditing}>
           {editing ? m.committees_stopEditing() : m.committees_edit()}
         </button>
       {/if}

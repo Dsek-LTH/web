@@ -9,20 +9,22 @@
   import { slide } from "svelte/transition";
   import { twMerge } from "tailwind-merge";
 
-  let clazz = "";
-  export { clazz as class };
+  interface Props {
+    /** The number to display. */
+    number: number;
+    class?: string;
+  }
 
-  /** The number to display. */
-  export let number = 0;
+  let { number, class: clazz = "" }: Props = $props();
 
   // array with each digit of the number (in reverse order), so the number 123 => [3,2,1] and 41 => [1,4] and 8 => [8]
-  $: digits = number.toString().split("").reverse().map(Number);
+  let digits = $derived(number.toString().split("").reverse().map(Number));
 </script>
 
 <span
   class={twMerge(
     "inline-flex h-[1em] flex-row-reverse items-center overflow-hidden leading-[1em]",
-    clazz ?? "",
+    clazz,
   )}
 >
   {#if number < 0}

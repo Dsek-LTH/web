@@ -5,7 +5,11 @@
   import BookingEditor from "../BookingEditor.svelte";
   import BookingCalendar from "../BookingCalendar.svelte";
 
-  export let data: PageData;
+  interface Props {
+    data: PageData;
+  }
+
+  let { data }: Props = $props();
 </script>
 
 <SetPageTitle title={m.booking_createBooking()} />

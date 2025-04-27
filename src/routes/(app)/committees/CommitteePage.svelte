@@ -7,8 +7,19 @@
   import Pagination from "$lib/components/Pagination.svelte";
   import type { CommitteeLoadData } from "./committee.server";
   import type { page } from "$app/stores";
-  export let data: CommitteeLoadData & typeof $page.data;
-  export let isEditing = false;
+  interface Props {
+    data: CommitteeLoadData & typeof $page.data;
+    isEditing?: boolean;
+    before?: import("svelte").Snippet;
+    children?: import("svelte").Snippet;
+  }
+
+  let {
+    data,
+    isEditing = $bindable(false),
+    before,
+    children,
+  }: Props = $props();
   const thisYear = new Date().getFullYear();
 </script>
 
@@ -23,11 +34,11 @@
 <EditCommitteeForm form={data.form} open={isEditing} />
 
 <div class="">
-  <slot name="before" />
+  {@render before?.()}
   {#if data.markdown?.markdown}
     <MarkdownBody body={data.markdown.markdown} />
   {/if}
-  <slot />
+  {@render children?.()}
 </div>
 
 <Pagination

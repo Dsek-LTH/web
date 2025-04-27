@@ -143,7 +143,7 @@ const getFileContent = async (url: string) => {
     }
     // Check that the response is OK
     if (!pdfResponse.ok) {
-      throw error(
+      error(
         pdfResponse.status as NumericRange<400, 599>,
         pdfResponse.statusText,
       );
@@ -154,7 +154,7 @@ const getFileContent = async (url: string) => {
       !pdfResponse.headers.get("content-type")?.startsWith("application/pdf")
     ) {
       // 415 Unsupported Media Type
-      throw error(415, `Not a PDF: ${url}`);
+      error(415, `Not a PDF: ${url}`);
     }
     console.log(
       `Poppler: Received PDF from ${url}. Sending it to Poppler to extract text`,
@@ -187,7 +187,7 @@ const pdfToText = async (buffer: ArrayBuffer) => {
   });
 
   if (!popplerResponse.ok) {
-    throw error(
+    error(
       popplerResponse.status as NumericRange<400, 599>,
       popplerResponse.statusText,
     );

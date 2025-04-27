@@ -9,20 +9,26 @@
   import Cart from "./Cart.svelte";
   import Reservations from "./Reservations.svelte";
 
-  export let data: CartLoadData;
-  let lastUpdate = Date.now();
+  interface Props {
+    data: CartLoadData;
+  }
+
+  let { data }: Props = $props();
+  let lastUpdate = $state(Date.now());
   const superform = superForm(data.purchaseForm);
   const { message } = superform;
-  $: isPurchasing = $message?.["clientSecret"] !== undefined;
-  let questionModalOpen: boolean;
+  let isPurchasing = $derived($message?.["clientSecret"] !== undefined);
+  let questionModalOpen: boolean = $state();
 
-  $: if (!isPurchasing && $now.valueOf() - lastUpdate > 1000 * 10) {
-    // refresh every 10 seconds, mainly used for reservations queue.
-    // expiring cart item har handled in the ExpiresAtTimer component.
-    // we do not want to invalidate mid purchase
-    lastUpdate = Date.now();
-    invalidate("cart");
-  }
+  $effect(() => {
+    if (!isPurchasing && $now.valueOf() - lastUpdate > 1000 * 10) {
+      // refresh every 10 seconds, mainly used for reservations queue.
+      // expiring cart item har handled in the ExpiresAtTimer component.
+      // we do not want to invalidate mid purchase
+      lastUpdate = Date.now();
+      invalidate("cart");
+    }
+  });
 </script>
 
 <SetPageTitle title={m.cart()} />

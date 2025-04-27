@@ -4,8 +4,8 @@
   import StarterKit from "@tiptap/starter-kit";
   import * as m from "$paraglide/messages";
 
-  let element: Element;
-  let editor: Editor;
+  let element: Element = $state();
+  let editor: Editor = $state();
 
   onMount(() => {
     editor = new Editor({
@@ -34,19 +34,19 @@
 
 {#if editor}
   <button
-    on:click={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+    onclick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
     class:bg-primary={editor.isActive("heading", { level: 1 })}
   >
     H1
   </button>
   <button
-    on:click={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+    onclick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
     class:bg-primary={editor.isActive("heading", { level: 2 })}
   >
     H2
   </button>
   <button
-    on:click={() => editor.chain().focus().setParagraph().run()}
+    onclick={() => editor.chain().focus().setParagraph().run()}
     class:bg-primary={editor.isActive("paragraph")}
   >
     P

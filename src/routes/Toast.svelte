@@ -6,26 +6,32 @@
 
   const flash = getFlash(page);
   // Message from form (not redirect)
-  $: if (
-    $page.form?.form?.message &&
-    $page.form.form.message.type !== "hidden"
-  ) {
-    toast(
-      $page.form.form.message.message,
-      $page.form.form.message.type,
-      $page.form.form.message.id,
-    );
-  }
+  $effect(() => {
+    if (
+      $page.form?.form?.message &&
+      $page.form.form.message.type !== "hidden"
+    ) {
+      toast(
+        $page.form.form.message.message,
+        $page.form.form.message.type,
+        $page.form.form.message.id,
+      );
+    }
+  });
 
   // Message from form on redirect
-  $: if ($flash && $flash.type !== "hidden") {
-    toast($flash.message, $flash.type, $flash.id);
-  }
+  $effect(() => {
+    if ($flash && $flash.type !== "hidden") {
+      toast($flash.message, $flash.type, $flash.id);
+    }
+  });
 
-  $: toastLocationClasses = (() => {
-    if (!$page.data.isApp) return "bottom-2 right-2";
-    return `toast-top toast-center w-full flex-col-reverse items-center`;
-  })();
+  let toastLocationClasses = $derived(
+    (() => {
+      if (!$page.data.isApp) return "bottom-2 right-2";
+      return `toast-top toast-center w-full flex-col-reverse items-center`;
+    })(),
+  );
 </script>
 
 {#if $toasts.length > 0}

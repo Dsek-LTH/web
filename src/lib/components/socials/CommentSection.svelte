@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import CommentInput from "$lib/components/socials/CommentInput.svelte";
   import CommentRow from "$lib/components/socials/CommentRow.svelte";
   import apiNames from "$lib/utils/apiNames";
@@ -7,21 +7,26 @@
   import type { CommentSchema, RemoveCommentSchema } from "$lib/zod/comments";
   import type { ArticleComment, EventComment, Member } from "@prisma/client";
   import type { SuperValidated } from "sveltekit-superforms";
-  export let comments: Array<
-    (ArticleComment | EventComment) & {
-      member: Member;
-    }
-  >;
-  export let type: "NEWS" | "EVENT";
-  export let taggedMembers: Member[];
-  export let commentForm: SuperValidated<CommentSchema>;
-  export let removeCommentForm: SuperValidated<RemoveCommentSchema>;
+  interface Props {
+    comments: Array<
+      (ArticleComment | EventComment) & {
+        member: Member;
+      }
+    >;
+    type: "NEWS" | "EVENT";
+    taggedMembers: Member[];
+    commentForm: SuperValidated<CommentSchema>;
+    removeCommentForm: SuperValidated<RemoveCommentSchema>;
+  }
+
+  let { comments, type, taggedMembers, commentForm, removeCommentForm }: Props =
+    $props();
 
   const ALWAYS_SHOWN_COMMENTS = 3;
 
   let onReply: (
     comment: (ArticleComment | EventComment) & { member: Member },
-  ) => void;
+  ) => void = $state();
 </script>
 
 {#if comments.length > 0}
@@ -61,6 +66,6 @@
     </div>
   </div>
 {/if}
-{#if isAuthorized(apiNames[type].COMMENT, $page.data.user) && $page.data.member}
-  <CommentInput author={$page.data.member} {commentForm} bind:onReply />
+{#if isAuthorized(apiNames[type].COMMENT, page.data.user) && page.data.member}
+  <CommentInput author={page.data.member} {commentForm} bind:onReply />
 {/if}

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import PageHeader from "$lib/components/nav/PageHeader.svelte";
   import { superForm } from "$lib/utils/client/superForms";
   import UpdateMailAliasForm from "./EmailAliasForm.svelte";
@@ -8,10 +8,10 @@
   import Input from "$lib/components/Input.svelte";
   import * as m from "$paraglide/messages";
 
-  export let data;
-  const { email } = $page.params;
-  $: emailAliases = data.emailAlias;
-  $: allPositions = data.allPositions;
+  let { data } = $props();
+  const { email } = page.params;
+  let emailAliases = $derived(data.emailAlias);
+  let allPositions = $derived(data.allPositions);
 
   const {
     form: addPositionForm,
@@ -39,14 +39,14 @@
     data.deleteSpecialSenderForm,
   );
 
-  let isEditing = false;
+  let isEditing = $state(false);
 </script>
 
 <div class="flex flex-row justify-between">
   <PageHeader title={email} />
   <button
     class="btn"
-    on:click={() => {
+    onclick={() => {
       isEditing = !isEditing;
     }}
   >

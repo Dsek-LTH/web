@@ -2,8 +2,12 @@
   import { enhance } from "$app/forms";
   import LoadingButton from "$lib/components/LoadingButton.svelte";
 
-  export let groupId: string;
-  let isLoading = false;
+  interface Props {
+    groupId: string;
+  }
+
+  let { groupId }: Props = $props();
+  let isLoading = $state(false);
 </script>
 
 <form

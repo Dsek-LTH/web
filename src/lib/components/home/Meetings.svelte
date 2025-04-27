@@ -1,8 +1,12 @@
 <script lang="ts">
   import type { Meeting } from "@prisma/client";
   import * as m from "$paraglide/messages";
-  export let upcoming: Pick<Meeting, "title"> | null;
-  export let previous: Pick<Meeting, "title"> | null;
+  interface Props {
+    upcoming: Pick<Meeting, "title"> | null;
+    previous: Pick<Meeting, "title"> | null;
+  }
+
+  let { upcoming, previous }: Props = $props();
 </script>
 
 <a

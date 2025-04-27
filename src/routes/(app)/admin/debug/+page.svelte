@@ -1,6 +1,6 @@
 <script lang="ts">
   import { version } from "$app/environment";
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import { isAuthorized } from "$lib/utils/authorization";
   import {
     featureFlags,
@@ -9,10 +9,10 @@
   } from "$lib/utils/featureFlag";
   import { onMount } from "svelte";
 
-  export let data;
-  $: user = data.user;
-  $: policies = user.policies.toSorted();
-  $: flags = new Map<string, boolean>();
+  let { data } = $props();
+  let user = $derived(data.user);
+  let policies = $derived(user.policies.toSorted());
+  let flags = $derived(new Map<string, boolean>());
   onMount(() => {
     const flagMap = new Map<string, boolean>();
     featureFlags.forEach((f) => {
@@ -24,7 +24,7 @@
 
 <div class="flex flex-row gap-10">
   <div>
-    {#if isAuthorized("core:admin", $page.data.user)}
+    {#if isAuthorized("core:admin", page.data.user)}
       <section class="mb-4 space-y-2">
         <h1 class="text-lg font-semibold">Actions</h1>
         <form
@@ -103,7 +103,7 @@
             type="checkbox"
             class="toggle toggle-primary"
             checked={flags.get(flag)}
-            on:change={() => {
+            onchange={() => {
               setFeatureFlag(flag, isFeatureFlagEnabled(flag) ? false : true);
             }}
           />

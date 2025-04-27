@@ -2,8 +2,12 @@
   import type { ConsumableWithMoreInfo } from "$lib/server/shop/inventory/types";
   import Consumable from "./Consumable.svelte";
 
-  export let title: string;
-  export let consumables: ConsumableWithMoreInfo[];
+  interface Props {
+    title: string;
+    consumables: ConsumableWithMoreInfo[];
+  }
+
+  let { title, consumables }: Props = $props();
 </script>
 
 {#if consumables.length > 0}

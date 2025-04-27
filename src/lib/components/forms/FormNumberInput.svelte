@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   type T = Record<string, unknown>;
 </script>
 
@@ -13,21 +13,31 @@
     type SuperForm,
   } from "sveltekit-superforms";
 
-  export let superform: SuperForm<T>;
-  export let field: FormPathLeaves<T>;
-  // as long as field is not nested, or data type is 'json', name does not need to be set
-  export let name: string | undefined = undefined;
-  export let label: string | null = null;
-  let clazz: string | undefined = undefined;
-  export { clazz as class };
+  interface Props {
+    superform: SuperForm<T>;
+    field: FormPathLeaves<T>;
+    // as long as field is not nested, or data type is 'json', name does not need to be set
+    name?: string | undefined;
+    label?: string | null;
+    class?: string | undefined;
+    [key: string]: any;
+  }
 
-  $: fieldProxy = formFieldProxy(
+  let {
     superform,
     field,
-  ) satisfies FormFieldProxy<number>;
-  $: value = numberProxy(superform, field);
-  $: errors = fieldProxy.errors;
-  $: constraints = fieldProxy.constraints;
+    name = undefined,
+    label = null,
+    class: clazz = undefined,
+    ...rest
+  }: Props = $props();
+
+  let fieldProxy = $derived(
+    formFieldProxy(superform, field) satisfies FormFieldProxy<number>,
+  );
+  let value = $derived(numberProxy(superform, field));
+  let errors = $derived(fieldProxy.errors);
+  let constraints = $derived(fieldProxy.constraints);
 </script>
 
 <Input
@@ -38,5 +48,5 @@
   bind:value={$value}
   error={$errors}
   {...$constraints}
-  {...$$restProps}
+  {...rest}
 />

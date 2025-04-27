@@ -10,10 +10,14 @@
   import type { page } from "$app/stores";
   import { getFileUrl } from "$lib/files/client";
 
-  export let data: InventoryItemLoadData & typeof $page.data;
-  $: consumable = data.consumable;
-  $: shoppable = consumable.shoppable;
-  $: event = shoppable.event;
+  interface Props {
+    data: InventoryItemLoadData & typeof $page.data;
+  }
+
+  let { data }: Props = $props();
+  let consumable = $derived(data.consumable);
+  let shoppable = $derived(consumable.shoppable);
+  let event = $derived(shoppable.event);
 </script>
 
 <SetPageTitle title={shoppable.title} />

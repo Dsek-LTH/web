@@ -2,17 +2,17 @@
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import * as m from "$paraglide/messages";
   import { isAuthorized } from "$lib/utils/authorization";
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import apiNames from "$lib/utils/apiNames";
   import StatusComponent from "./StatusComponent.svelte";
   import dayjs from "dayjs";
   import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
   import BookingCalendar from "./BookingCalendar.svelte";
 
-  export let data;
-  let deleteModal: HTMLDialogElement;
+  let { data = $bindable() } = $props();
+  let deleteModal: HTMLDialogElement = $state();
   let selectedBooking: (typeof data.bookingRequests)[number] | undefined =
-    undefined;
+    $state(undefined);
 </script>
 
 <SetPageTitle title={m.bookings()} />
@@ -22,7 +22,7 @@
     + {m.booking_createBooking()}
   </a>
 
-  {#if isAuthorized(apiNames.BOOKINGS.UPDATE, $page.data.user)}
+  {#if isAuthorized(apiNames.BOOKINGS.UPDATE, page.data.user)}
     <a class="btn" href="/booking/admin">
       {m.booking_manageBookings()}
     </a>
@@ -73,7 +73,7 @@
                 </a>
                 <button
                   class="btn btn-xs px-8"
-                  on:click={() => {
+                  onclick={() => {
                     deleteModal?.showModal();
                     selectedBooking = bookingRequest;
                   }}
@@ -97,14 +97,16 @@
   formTarget="/booking?/delete"
   formData={{ id: selectedBooking?.id ?? "" }}
 >
-  <p slot="description">
-    {#if selectedBooking}
-      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-      {@html m.booking_deleteMyAreYouSure({
-        bookables: selectedBooking?.bookables
-          .map(({ name }) => name)
-          .join(", "),
-      })}
-    {/if}
-  </p>
+  {#snippet description()}
+    <p>
+      {#if selectedBooking}
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+        {@html m.booking_deleteMyAreYouSure({
+          bookables: selectedBooking?.bookables
+            .map(({ name }) => name)
+            .join(", "),
+        })}
+      {/if}
+    </p>
+  {/snippet}
 </ConfirmDialog>

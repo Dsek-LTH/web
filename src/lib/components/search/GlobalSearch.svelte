@@ -7,23 +7,23 @@
   import { enhance } from "$app/forms";
   import SearchResultList from "./SearchResultList.svelte";
   import { isSearchResultData } from "./SearchUtils";
-  let dialog: HTMLDialogElement;
+  let dialog: HTMLDialogElement = $state();
 
-  let formElement: HTMLFormElement;
-  let inputElement: HTMLInputElement;
+  let formElement: HTMLFormElement = $state();
+  let inputElement: HTMLInputElement = $state();
   let listItems: HTMLAnchorElement[] = [];
   let timeout: ReturnType<typeof setTimeout> | null = null;
-  let advancedSearchElement: HTMLAnchorElement;
+  let advancedSearchElement: HTMLAnchorElement = $state();
 
-  let input = "";
+  let input = $state("");
   let currentIndex = -1;
-  let isSearching = false;
+  let isSearching = $state(false);
   let isOpen = false;
 
-  let results: SearchDataWithType[] = [];
-  let error: Record<string, unknown> | undefined = undefined;
+  let results: SearchDataWithType[] = $state([]);
+  let error: Record<string, unknown> | undefined = $state(undefined);
 
-  $: noResults = results.length === 0;
+  let noResults = $derived(results.length === 0);
 
   function handleSearch() {
     // Cancel the previous timeout
@@ -138,7 +138,7 @@
   }
 </script>
 
-<svelte:window on:keydown={handleKeydown} />
+<svelte:window onkeydown={handleKeydown} />
 
 <!-- If user has disabled JavaScript -->
 <noscript>
@@ -152,17 +152,17 @@
   </a>
 </noscript>
 
-<button class="js btn btn-ghost" on:click={show} aria-label="Open search">
+<button class="js btn btn-ghost" onclick={show} aria-label="Open search">
   <span class="i-mdi-magnify size-6"></span>
 </button>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
-<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <dialog
   class="h-full max-w-xl rounded-2xl bg-transparent pt-16 text-base-content md:w-full"
   style="display: revert;"
   bind:this={dialog}
-  on:click={close}
+  onclick={close}
   tabindex="-1"
 >
   <form
@@ -190,12 +190,12 @@
       };
     }}
     class="rounded-2xl bg-base-100 p-2 shadow"
-    on:click={(event) => event.stopPropagation()}
+    onclick={(event) => event.stopPropagation()}
   >
     <div class="flex gap-2">
       <label class="input flex w-full items-center gap-2">
         <span class="i-mdi-magnify size-6"></span>
-        <!-- svelte-ignore a11y-autofocus -->
+        <!-- svelte-ignore a11y_autofocus -->
         <input
           autofocus
           type="text"
@@ -205,7 +205,7 @@
           autocomplete="off"
           bind:this={inputElement}
           bind:value={input}
-          on:input={handleSearch}
+          oninput={handleSearch}
         />
         {#if isSearching}
           <span class="loading loading-sm"></span>
@@ -217,7 +217,7 @@
       <button
         class="btn btn-ghost hidden sm:inline-flex"
         tabindex="-1"
-        on:click={close}
+        onclick={close}
       >
         <kbd class="kbd">ESC</kbd>
       </button>

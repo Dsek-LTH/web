@@ -4,11 +4,21 @@
   import { superForm } from "$lib/utils/client/superForms";
   import * as m from "$paraglide/messages";
 
-  export let fileName: string;
-  export let url: string;
-  export let current = false;
-  export let changeForm: SuperValidated<ChangeSchema>;
-  export let deleteForm: SuperValidated<DeleteSchema>;
+  interface Props {
+    fileName: string;
+    url: string;
+    current?: boolean;
+    changeForm: SuperValidated<ChangeSchema>;
+    deleteForm: SuperValidated<DeleteSchema>;
+  }
+
+  let {
+    fileName,
+    url,
+    current = false,
+    changeForm,
+    deleteForm,
+  }: Props = $props();
   const { errors: changeErrors, enhance: changeEnhance } = superForm(
     changeForm,
     {

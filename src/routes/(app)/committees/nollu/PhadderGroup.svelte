@@ -3,14 +3,18 @@
   import MembersList from "$lib/components/socials/MembersList.svelte";
   import type { Mandate, Member, PhadderGroup } from "@prisma/client";
 
-  export let group: PhadderGroup & {
-    nollor: Member[];
-    phaddrar: Array<
-      Mandate & {
-        member: Member;
-      }
-    >;
-  };
+  interface Props {
+    group: PhadderGroup & {
+      nollor: Member[];
+      phaddrar: Array<
+        Mandate & {
+          member: Member;
+        }
+      >;
+    };
+  }
+
+  let { group }: Props = $props();
 </script>
 
 <li class="flex flex-col items-center gap-2">

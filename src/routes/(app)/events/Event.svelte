@@ -4,19 +4,27 @@
   import type { Event } from "@prisma/client";
   import { getFileUrl } from "$lib/files/client";
   import * as m from "$paraglide/messages";
-  export let event: Pick<
-    Event,
-    | "title"
-    | "startDatetime"
-    | "endDatetime"
-    | "shortDescription"
-    | "description"
-    | "imageUrl"
-    | "isCancelled"
-    | "location"
-    | "link"
-  > &
-    Partial<Pick<Event, "removedAt">>;
+  interface Props {
+    event: Pick<
+      Event,
+      | "title"
+      | "startDatetime"
+      | "endDatetime"
+      | "shortDescription"
+      | "description"
+      | "imageUrl"
+      | "isCancelled"
+      | "location"
+      | "link"
+    > &
+      Partial<Pick<Event, "removedAt">>;
+    actions?: import("svelte").Snippet;
+    buttons?: import("svelte").Snippet;
+    tags?: import("svelte").Snippet;
+    after?: import("svelte").Snippet;
+  }
+
+  let { event, actions, buttons, tags, after }: Props = $props();
 </script>
 
 {#if event.imageUrl}
@@ -47,7 +55,7 @@
   class:line-through={event.isCancelled}
 >
   <DateSpan start={event.startDatetime} end={event.endDatetime} />
-  <slot name="actions" />
+  {@render actions?.()}
 </section>
 {#if event.location}
   <section class="my-2">
@@ -73,10 +81,10 @@
   </section>
 {/if}
 
-<slot name="buttons" />
+{@render buttons?.()}
 
 <section class="my-2 flex flex-row items-center justify-between">
-  <slot name="tags" />
+  {@render tags?.()}
 </section>
 
 {#if event.shortDescription}
@@ -87,4 +95,4 @@
 {/if}
 <MarkdownBody body={event.description} />
 
-<slot name="after" />
+{@render after?.()}

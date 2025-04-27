@@ -3,8 +3,12 @@
   import { superForm } from "$lib/utils/client/superForms";
   import type { DeleteSchema } from "./+page.server";
 
-  export let data: SuperValidated<DeleteSchema>;
-  export let policyId: string;
+  interface Props {
+    data: SuperValidated<DeleteSchema>;
+    policyId: string;
+  }
+
+  let { data, policyId }: Props = $props();
   const { errors, enhance } = superForm(data, {
     id: policyId,
   });

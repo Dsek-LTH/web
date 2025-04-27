@@ -3,7 +3,7 @@
   import { browser } from "$app/environment";
   import { onMount } from "svelte";
 
-  let stored: Record<string, boolean> = {};
+  let stored: Record<string, boolean> = $state({});
 
   onMount(() => {
     const storedTodo = localStorage.getItem("nolla-todo");
@@ -11,10 +11,10 @@
     else stored = {};
   });
 
-  $: (() => {
+  $effect(() => {
     if (browser && Object.keys(stored).length > 0)
       localStorage.setItem("nolla-todo", JSON.stringify(stored));
-  })();
+  });
 </script>
 
 <!-- eslint-disable svelte/no-at-html-tags -->

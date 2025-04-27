@@ -1,7 +1,7 @@
 <script lang="ts">
   import CallbackPage from "$lib/components/shop/payments/CallbackPage.svelte";
 
-  export let data;
+  let { data } = $props();
 </script>
 
 <CallbackPage {data} />

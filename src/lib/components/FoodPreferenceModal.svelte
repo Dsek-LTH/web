@@ -1,13 +1,15 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import Input from "$lib/components/Input.svelte";
   import Modal from "$lib/components/Modal.svelte";
   import * as m from "$paraglide/messages";
 
-  $: member = $page.data.member;
-  $: shouldAskUserForFoodPreference = !!member && member.foodPreference == null;
-  let hasFoodPreference = false;
+  let member = $derived(page.data.member);
+  let shouldAskUserForFoodPreference = $derived(
+    !!member && member.foodPreference == null,
+  );
+  let hasFoodPreference = $state(false);
 </script>
 
 {#if member}
@@ -29,7 +31,7 @@
         </form>
         <button
           class="btn btn-primary flex-1"
-          on:click={() => (hasFoodPreference = true)}>{m.yes()}</button
+          onclick={() => (hasFoodPreference = true)}>{m.yes()}</button
         >
       </div>
     {:else}

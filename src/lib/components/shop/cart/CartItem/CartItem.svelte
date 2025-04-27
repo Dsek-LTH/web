@@ -5,21 +5,33 @@
   import CartItemEvent from "./CartItemEvent.svelte";
   import CartItemRemoveButton from "./CartItemRemoveButton.svelte";
 
-  export let item: CartItem;
-  export let expiresAt: Date | null = null;
-  export let showQuestionsColumn: boolean;
-  export let showQuestions: () => void;
-  $: shoppable = item.shoppable;
-  $: event = shoppable.event;
-  $: unansweredQuestions = shoppable.questions.filter(
-    (q) => !item.questionResponses.some((r) => r.questionId === q.id),
+  interface Props {
+    item: CartItem;
+    expiresAt?: Date | null;
+    showQuestionsColumn: boolean;
+    showQuestions: () => void;
+  }
+
+  let {
+    item,
+    expiresAt = null,
+    showQuestionsColumn,
+    showQuestions,
+  }: Props = $props();
+  let shoppable = $derived(item.shoppable);
+  let event = $derived(shoppable.event);
+  let unansweredQuestions = $derived(
+    shoppable.questions.filter(
+      (q) => !item.questionResponses.some((r) => r.questionId === q.id),
+    ),
   );
-  $: totalPrice =
+  let totalPrice = $derived(
     item.shoppable.price +
-    item.questionResponses.reduce(
-      (acc, response) => acc + (response.extraPrice ?? 0),
-      0,
-    );
+      item.questionResponses.reduce(
+        (acc, response) => acc + (response.extraPrice ?? 0),
+        0,
+      ),
+  );
 </script>
 
 <tr class="hidden border-none md:table-row">
@@ -35,7 +47,7 @@
   {#if showQuestionsColumn}
     <td class="text-left">
       {#if shoppable.questions.length > 0}
-        <button class="btn btn-outline btn-sm" on:click={showQuestions}>
+        <button class="btn btn-outline btn-sm" onclick={showQuestions}>
           {#if unansweredQuestions.length > 0}Svara på frågor
           {:else}
             Visa svar
@@ -75,7 +87,7 @@
 {#if shoppable.questions.length > 0}
   <tr class="border-none md:hidden">
     <td colspan="3" class="text-left">
-      <button class="btn btn-outline btn-sm" on:click={showQuestions}>
+      <button class="btn btn-outline btn-sm" onclick={showQuestions}>
         {#if unansweredQuestions.length > 0}Svara på frågor
         {:else}
           Visa svar

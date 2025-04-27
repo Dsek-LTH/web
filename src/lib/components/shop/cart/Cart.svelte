@@ -10,16 +10,25 @@
   import CartQuestionsModal from "./Questions/CartQuestionsModal.svelte";
   import TransactionFee from "./TransactionFee/TransactionFee.svelte";
 
-  export let inCart: CartItemType[];
-  export let transactionFee: number;
-  export let totalPrice: number;
-  export let superform: SuperForm<PurchaseForm>;
+  let currentlyInspectedItem: number | null = $state(null);
+  interface Props {
+    inCart: CartItemType[];
+    transactionFee: number;
+    totalPrice: number;
+    superform: SuperForm<PurchaseForm>;
+    questionModalOpen: boolean;
+  }
 
-  $: questionsArePresent = inCart.some(
-    (item) => item.shoppable.questions.length > 0,
+  let {
+    inCart,
+    transactionFee,
+    totalPrice,
+    superform,
+    questionModalOpen = $bindable(),
+  }: Props = $props();
+  let questionsArePresent = $derived(
+    inCart.some((item) => item.shoppable.questions.length > 0),
   );
-  let currentlyInspectedItem: number | null = null;
-  export let questionModalOpen: boolean;
 </script>
 
 <h1 class="text-2xl">{m.cart()}</h1>

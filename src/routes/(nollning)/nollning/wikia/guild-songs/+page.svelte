@@ -8,11 +8,11 @@
   import ing from "./ing.webp";
   import w from "./w.webp";
   import i from "./i.webp";
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
 </script>
 
 <ul class="guild-song-list mx-auto max-w-screen-md">
-  {#if $page.data["revealTheme"]}
+  {#if page.data["revealTheme"]}
     <li>
       <h1>N0llevisan</h1>
       <pre>

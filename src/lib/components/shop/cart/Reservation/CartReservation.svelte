@@ -9,15 +9,24 @@
   import { invalidateAll } from "$app/navigation";
   import { getFileUrl } from "$lib/files/client";
 
-  export let item: CartReservation;
-  $: shoppable = item.shoppable;
-  $: event = shoppable.event;
-
-  $: lotteryAt = item.order !== null ? null : shoppable.gracePeriodEndsAt;
-
-  $: if (lotteryAt && $now > lotteryAt) {
-    invalidateAll();
+  interface Props {
+    item: CartReservation;
+    children?: import("svelte").Snippet;
   }
+
+  let { item, children }: Props = $props();
+  let shoppable = $derived(item.shoppable);
+  let event = $derived(shoppable.event);
+
+  let lotteryAt = $derived(
+    item.order !== null ? null : shoppable.gracePeriodEndsAt,
+  );
+
+  $effect(() => {
+    if (lotteryAt && $now > lotteryAt) {
+      invalidateAll();
+    }
+  });
 </script>
 
 <li class="flex flex-wrap items-center gap-x-4">
@@ -36,7 +45,7 @@
       <div class="text-sm opacity-50">
         {event.title}
       </div>
-      <slot />
+      {@render children?.()}
     </div>
   </div>
 

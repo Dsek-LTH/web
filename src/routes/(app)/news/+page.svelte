@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import Pagination from "$lib/components/Pagination.svelte";
   import SearchBar from "$lib/components/SearchBar.svelte";
   import TagSelector from "$lib/components/TagSelector.svelte";
@@ -8,15 +8,21 @@
   import { isAuthorized } from "$lib/utils/authorization";
   import SmallArticleCard from "./SmallArticleCard.svelte";
   import * as m from "$paraglide/messages";
-  export let data: PageData;
 
   import type { PageData } from "./$types";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
-  let filteredTags: Tag[] = data.allTags.filter((tag) =>
-    $page.url.searchParams.getAll("tags").includes(tag.name),
+  interface Props {
+    data: PageData;
+  }
+
+  let { data }: Props = $props();
+  let filteredTags: Tag[] = $state(
+    data.allTags.filter((tag) =>
+      page.url.searchParams.getAll("tags").includes(tag.name),
+    ),
   );
 
-  let form: HTMLFormElement;
+  let form: HTMLFormElement = $state();
 </script>
 
 <SetPageTitle title={m.news()} />

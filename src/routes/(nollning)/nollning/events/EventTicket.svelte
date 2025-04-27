@@ -4,9 +4,13 @@
   import Price from "$lib/components/Price.svelte";
   import type { TicketWithMoreInfo } from "$lib/server/shop/getTickets";
 
-  export let ticket: TicketWithMoreInfo;
-  export let index: number;
-  let isSubmitting = false;
+  interface Props {
+    ticket: TicketWithMoreInfo;
+    index: number;
+  }
+
+  let { ticket, index }: Props = $props();
+  let isSubmitting = $state(false);
 </script>
 
 <form

@@ -10,7 +10,7 @@
   import FormSubmitButton from "$lib/components/forms/FormSubmitButton.svelte";
   import * as m from "$paraglide/messages";
 
-  export let data;
+  let { data } = $props();
   const superform = superForm(data.form, {
     dataType: "json",
     validators: zodClient(expenseSchema),

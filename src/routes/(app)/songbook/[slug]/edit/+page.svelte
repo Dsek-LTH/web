@@ -8,7 +8,11 @@
   import { superForm } from "$lib/utils/client/superForms";
   import * as m from "$paraglide/messages";
   import type { PageData } from "./$types";
-  export let data: PageData;
+  interface Props {
+    data: PageData;
+  }
+
+  let { data }: Props = $props();
 
   const {
     form,
@@ -17,7 +21,7 @@
     enhance: updateEnhance,
   } = superForm(data.form);
 
-  let removeModal: HTMLDialogElement | undefined = undefined;
+  let removeModal: HTMLDialogElement | undefined = $state(undefined);
 </script>
 
 <SetPageTitle title={data.song.title} />
@@ -89,7 +93,7 @@
         <button
           class="btn"
           type="button"
-          on:click={() => removeModal?.showModal()}
+          onclick={() => removeModal?.showModal()}
         >
           {m.songbook_removeSong()}
         </button>
@@ -126,7 +130,7 @@
           <button
             class="btn"
             type="button"
-            on:click={() => removeModal?.close()}
+            onclick={() => removeModal?.close()}
           >
             {m.songbook_cancel()}
           </button>

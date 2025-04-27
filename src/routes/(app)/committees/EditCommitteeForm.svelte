@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import FormInput from "$lib/components/forms/FormInput.svelte";
   import FormSubmitButton from "$lib/components/forms/FormSubmitButton.svelte";
   import apiNames from "$lib/utils/apiNames";
@@ -12,9 +12,12 @@
   import FormMarkdown from "$lib/components/forms/FormMarkdown.svelte";
   import LangTabs from "$lib/components/layout/LangTabs.svelte";
 
-  let formData: SuperValidated<UpdateSchema>;
-  export { formData as form };
-  export let open = false;
+  interface Props {
+    form: SuperValidated<UpdateSchema>;
+    open?: boolean;
+  }
+
+  let { form: formData, open = false }: Props = $props();
 
   const superform = superForm(formData, {
     validators: zodClient(updateSchema),
@@ -24,7 +27,7 @@
   const { form, enhance } = superform;
 </script>
 
-{#if open && isAuthorized(apiNames.COMMITTEE.UPDATE, $page.data.user)}
+{#if open && isAuthorized(apiNames.COMMITTEE.UPDATE, page.data.user)}
   <form
     action="?/update"
     method="POST"
@@ -66,20 +69,22 @@
     {#if $form.markdownSlug}
       <input type="hidden" name="markdownSlug" value={$form.markdownSlug} />
       <LangTabs>
-        <FormMarkdown
-          {superform}
-          label="Markdown"
-          field="markdown"
-          rows={3}
-          slot="sv"
-        />
-        <FormMarkdown
-          {superform}
-          label="Markdown"
-          field="markdownEn"
-          rows={3}
-          slot="en"
-        />
+        {#snippet sv()}
+          <FormMarkdown
+            {superform}
+            label="Markdown"
+            field="markdown"
+            rows={3}
+          />
+        {/snippet}
+        {#snippet en()}
+          <FormMarkdown
+            {superform}
+            label="Markdown"
+            field="markdownEn"
+            rows={3}
+          />
+        {/snippet}
       </LangTabs>
     {/if}
     <FormSubmitButton {superform} class="btn btn-secondary my-4"
