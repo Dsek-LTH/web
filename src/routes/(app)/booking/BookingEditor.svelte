@@ -61,13 +61,13 @@
       const endDate = new Date(end);
 
       const localStartDate = new Date(
-        startDate.getTime() + startDate.getTimezoneOffset() * 60000,
+        startDate.getTime() - startDate.getTimezoneOffset() * 60000,
       );
       const localEndDate = new Date(
-        endDate.getTime() + endDate.getTimezoneOffset() * 60000,
+        endDate.getTime() - endDate.getTimezoneOffset() * 60000,
       );
 
-      if (localEndDate <= startDate) {
+      if (localEndDate <= localStartDate) {
         localStartDate.setTime(localEndDate.getTime() - 3600000); // Subtract 1 hour because that is the most likely duration
         start = localStartDate.toISOString().slice(0, 16);
         $form.start = start;
