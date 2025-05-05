@@ -22,10 +22,7 @@
     "migrate": "zenstack generate && prisma migrate dev && snaplet-seed sync",
     "seed": "prisma db seed",
     "prisma-case-format": "prisma-case-format -f src/database/prisma/schema.prisma",
-    "paraglide": "paraglide-js compile --project ./project.inlang --outdir ./src/translations/paraglide",
-    "docs:dev": "vitepress dev docs",
-    "docs:build": "vitepress build docs",
-    "docs:preview": "vitepress preview docs"
+    "paraglide": "paraglide-js compile --project ./project.inlang --outdir ./src/translations/paraglide"
   },
   "zenstack": {
     "schema": "src/database/schema.zmodel"
@@ -89,7 +86,6 @@
     "typescript": "^5.7.2",
     "vite": "^6.0.3",
     "vite-node": "^2.1.8",
-    "vitepress": "^1.5.0",
     "vitest": "^2.1.8",
     "vitest-mock-extended": "^2.0.2",
     "zenstack": "^2.10.0",
