@@ -12,19 +12,6 @@
   import dayjs from "dayjs";
   import type { RangeDateParam, ViewParam } from "./+page.server";
 
-  export let events: Event[] = [];
-  $: params = $page.url.searchParams;
-  $: view = formatViewName(params.get("view"));
-  $: middleDate = (() => {
-    const startDate = params.get("startDate");
-    const endDate = params.get("endDate");
-    if (startDate && endDate) {
-      return dayjs(startDate)
-        .add(dayjs(endDate).diff(startDate, "days") / 2, "day")
-        .toDate();
-    }
-    return null;
-  })();
   const formatViewName = (view: string | null) => {
     switch (view) {
       case "day":
@@ -50,8 +37,41 @@
     }
   };
 
+  function getMiddleDate(startDate: string | null, endDate: string | null) {
+    if (startDate && endDate) {
+      return dayjs(startDate)
+        .add(dayjs(endDate).diff(startDate, "days") / 2, "day")
+        .toDate();
+    }
+    return null;
+  }
+
+  let { events = [] }: { events: Event[] } = $props();
+  let params = $derived($page.url.searchParams);
+  let view = $derived(formatViewName(params.get("view")));
+  let middleDate = $derived(
+    getMiddleDate(params.get("startDate"), params.get("endDate")),
+  );
+  let calendar: Calendar;
+
+  $effect(() => {
+    if (events) {
+      calendar.removeAllEvents();
+      calendar.addEventSource(
+        events.map((event) => ({
+          title: event.title,
+          start: event.startDatetime,
+          end: event.endDatetime,
+          url: eventLink(event),
+          color: event.isCancelled ? "rgb(250, 43, 43)" : "#f280a1",
+          className: event.isCancelled ? "!line-through" : "",
+        })),
+      );
+    }
+  });
+
   function renderCalendar(calendarEl: HTMLElement) {
-    const cal = new Calendar(calendarEl, {
+    calendar = new Calendar(calendarEl, {
       initialView: view ? view : "dayGridMonth",
       initialDate: middleDate ?? undefined,
       plugins: [daygridPlugin],
@@ -110,10 +130,10 @@
         });
       },
     });
-    cal.render();
+    calendar.render();
     return {
       destroy() {
-        cal.destroy();
+        calendar.destroy();
       },
     };
   }
