@@ -2,7 +2,7 @@ import { error } from "@sveltejs/kit";
 import dayjs from "dayjs";
 
 export const load = async (event) => {
-  const { prisma, user } = event.locals;
+  const { prisma } = event.locals;
   const bookables = await prisma.bookable.findMany();
   const bookingRequests = await prisma.bookingRequest.findMany({
     where: {
