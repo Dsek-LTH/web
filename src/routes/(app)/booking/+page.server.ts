@@ -6,13 +6,13 @@ export const load = async (event) => {
   const bookables = await prisma.bookable.findMany();
   const bookingRequests = await prisma.bookingRequest.findMany({
     where: {
-      bookerId: user.memberId,
       start: {
         gte: dayjs().subtract(1, "week").toDate(),
       },
     },
     orderBy: [{ start: "asc" }, { end: "asc" }, { status: "asc" }],
     include: {
+      booker: true,
       bookables: true,
     },
   });

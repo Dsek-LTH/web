@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { PageData } from "./$types";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import * as m from "$paraglide/messages";
   import { isAuthorized } from "$lib/utils/authorization";
@@ -9,10 +10,14 @@
   import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
   import BookingCalendar from "./BookingCalendar.svelte";
 
-  export let data;
+  export let data: PageData;
   let deleteModal: HTMLDialogElement;
   let selectedBooking: (typeof data.bookingRequests)[number] | undefined =
     undefined;
+
+  let userBookings = data.bookingRequests.filter(
+    (v) => v.booker?.id === $page.data.member?.id,
+  );
 </script>
 
 <SetPageTitle title={m.bookings()} />
@@ -28,10 +33,9 @@
     </a>
   {/if}
 </div>
+<BookingCalendar {...data} />
 
-{#if data.bookingRequests.length === 0}
-  <BookingCalendar {...data} />
-{:else}
+{#if userBookings.length > 0}
   <div class="overflow-x-auto">
     <table class="table">
       <thead>
@@ -46,7 +50,7 @@
       </thead>
 
       <tbody>
-        {#each data.bookingRequests as bookingRequest (bookingRequest.id)}
+        {#each userBookings as bookingRequest (bookingRequest.id)}
           <tr>
             <td>
               {#each bookingRequest.bookables.map((a) => a.name) as bookable}
@@ -59,7 +63,7 @@
             <td>
               <StatusComponent
                 bind:bookingRequest
-                bind:bookingRequests={data.bookingRequests}
+                bind:bookingRequests={userBookings}
                 class="flex-col"
               />
             </td>
