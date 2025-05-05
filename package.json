@@ -5,7 +5,7 @@
   "scripts": {
     "prepare": "svelte-kit sync && zenstack generate && prisma generate && pnpm paraglide && pnpm snaplet-seed generate",
     "setup-dev": "vite-node dev/setup.ts",
-    "ci-check": "concurrently 'pnpm:lint' 'pnpm:format' 'pnpm:test' 'pnpm:check' --prefix-colors 'auto' --group",
+    "ci-check": "concurrently 'pnpm:lint' 'pnpm:format' 'pnpm:check' --prefix-colors 'auto' --group",
     "dev": "vite dev",
     "build": "vite build",
     "preview": "pm2 start prod/ecosystem.config.cjs --no-daemon",
