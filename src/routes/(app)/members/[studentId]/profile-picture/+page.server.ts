@@ -8,6 +8,9 @@ import { message, superValidate, withFiles } from "sveltekit-superforms/server";
 import { v4 as uuid } from "uuid";
 import type { Actions, PageServerLoad } from "./$types";
 import { changeSchema, deleteSchema, uploadSchema } from "./types";
+import { removeFilesWithoutAccessCheck } from "$lib/files/fileHandler";
+import { authorize } from "$lib/utils/authorization";
+import apiNames from "$lib/utils/apiNames";
 
 const PROFILE_PICTURE_PREFIX = (studentId: string) =>
   `public/${studentId}/profile-picture`;
@@ -126,12 +129,24 @@ export const actions: Actions = {
     const form = await superValidate(request, zod(deleteSchema));
     if (!form.valid) return fail(400, { form });
     const fileName = form.data.fileName;
-    await fileHandler.remove(locals.user, PUBLIC_BUCKETS_MEMBERS, [
-      `${PROFILE_PICTURE_PREFIX(params.studentId)}/${fileName}`,
-    ]);
+    if (
+      params.studentId === locals.member?.studentId ||
+      authorize(
+        apiNames.FILES.BUCKET(PUBLIC_BUCKETS_MEMBERS).DELETE,
+        locals.user,
+      )
+    ) {
+      removeFilesWithoutAccessCheck(locals.user, PUBLIC_BUCKETS_MEMBERS, [
+        `${PROFILE_PICTURE_PREFIX(params.studentId)}/${fileName}`,
+      ]);
+      return message(form, {
+        message: m.members_pictureRemoved(),
+        type: "success",
+      });
+    }
     return message(form, {
-      message: m.members_pictureRemoved(),
-      type: "success",
+      message: `${m.errors_missingPermissions()}${apiNames.FILES.BUCKET(PUBLIC_BUCKETS_MEMBERS).DELETE}`,
+      type: "error",
     });
   },
 };
