@@ -5,6 +5,9 @@
   import * as m from "$paraglide/messages";
   import type { Bookable, BookingRequest } from "@prisma/client";
   import StatusComponent from "./StatusComponent.svelte";
+  import dayjs from "dayjs";
+  import utc from "dayjs/plugin/utc";
+  import timezone from "dayjs/plugin/timezone";
 
   type BookingRequestWithBookables = BookingRequest & { bookables: Bookable[] };
   export let data: {
@@ -16,11 +19,16 @@
 
   $: bookingRequest = data.booking;
 
+  dayjs.extend(utc);
+  dayjs.extend(timezone);
+
   const { form, errors, enhance, constraints } = superForm(data.form);
   export let mode: "create" | "edit" | "review" = "create";
 
-  let start = $form.start;
-  let end = $form.end;
+  let start = dayjs($form.start)
+    .tz(dayjs.tz.guess())
+    .format("YYYY-MM-DDTHH:mm:ss");
+  let end = dayjs($form.end).tz(dayjs.tz.guess()).format("YYYY-MM-DDTHH:mm:ss");
 
   const boardRoomId = "99854837-fdb9-4dba-85fc-86a5c514253c";
   $: showBoardRooomWarning = $form.bookables.includes(boardRoomId);
