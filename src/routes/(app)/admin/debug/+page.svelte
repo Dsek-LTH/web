@@ -1,18 +1,20 @@
 <script lang="ts">
   import { version } from "$app/environment";
   import { page } from "$app/stores";
-  import { isAuthorized } from "$lib/utils/authorization";
+  import { getDerivedRoles, isAuthorized } from "$lib/utils/authorization";
   import {
     featureFlags,
     isFeatureFlagEnabled,
     setFeatureFlag,
   } from "$lib/utils/featureFlag";
+  import { Roles } from "@keycloak/keycloak-admin-client/lib/resources/roles";
   import { onMount } from "svelte";
 
   export let data;
   $: user = data.user;
   $: policies = user.policies.toSorted();
   $: flags = new Map<string, boolean>();
+  $: roles = user.roles.toSorted();
   onMount(() => {
     const flagMap = new Map<string, boolean>();
     featureFlags.forEach((f) => {
@@ -83,14 +85,23 @@
     </section>
 
     <section class="mt-4">
-      <h1 class="text-lg font-semibold">
-        User: {user.studentId ?? user.externalCode}
-      </h1>
+      <h1 class="text-lg font-semibold">Roles</h1>
       <ul class="ml-4 list-disc text-sm">
-        {#each policies as permission}
-          <li>{permission}</li>
+        {#each roles as role}
+          <li>{role}</li>
         {/each}
       </ul>
+
+      <section class="mt-4">
+        <h1 class="text-lg font-semibold">
+          User: {user.studentId ?? user.externalCode}
+        </h1>
+        <ul class="ml-4 list-disc text-sm">
+          {#each policies as permission}
+            <li>{permission}</li>
+          {/each}
+        </ul>
+      </section>
     </section>
   </div>
   <div>
