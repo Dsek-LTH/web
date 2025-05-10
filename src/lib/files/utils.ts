@@ -17,13 +17,7 @@ export const prepareNameForFilesystem = (
   fileName: string,
   extension: string | undefined = undefined,
 ) =>
-  // replaces spaces with "_", substitutes umlaut characters, and removes all special characters
-  `${name
-    .replace(/\s/g, "_")
-    .replace(/[åä]/g, "a")
-    .replace(/[ÅÄ]/g, "A")
-    .replace(/[ö]/g, "o")
-    .replace(/[Ö]/g, "O")
-    .replace(/[^a-zA-Z0-9_]/g, "")}.${
+  // replaces spaces with "_" and removes all special characters
+  `${name.replace(/\s/g, "_").replace(/[^a-zA-Z0-9_åäöÅÄÖ]/g, "")}.${
     extension ?? getExtensionOfFile(fileName)
   }`;
