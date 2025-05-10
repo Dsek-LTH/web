@@ -48,7 +48,7 @@
   <section
     class="flex flex-col justify-evenly gap-4 sm:flex-row md:col-span-3 lg:col-span-1 lg:flex-col xl:col-span-2"
   >
-    <WellbeingCTA />
+    <WellbeingCTA wellbeing={data.wellbeing} />
     <SRDCta />
     <CafeOpenTimes cafeOpen={data.cafeOpen} />
   </section>

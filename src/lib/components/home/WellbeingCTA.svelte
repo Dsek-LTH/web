@@ -1,5 +1,7 @@
 <script lang="ts">
   import * as m from "$paraglide/messages";
+
+  let { wellbeing }: { wellbeing: String } = $props();
 </script>
 
 <a
@@ -12,7 +14,7 @@
   ></span>
 
   <article>
-    <p>{m.home_feedback()}</p>
+    <p>{wellbeing}</p>
     <h2 class="text-xl font-bold text-secondary lg:text-primary">
       {m.home_contactWellbeing()}
     </h2>
