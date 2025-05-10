@@ -2,6 +2,7 @@
   import { browser } from "$app/environment";
   import { invalidate } from "$app/navigation";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
+  import SEO from "$lib/seo/SEO.svelte";
   import { goto } from "$lib/utils/redirect";
   import * as m from "$paraglide/messages";
   import { onDestroy } from "svelte";
@@ -35,6 +36,14 @@
 </script>
 
 <SetPageTitle title={m.cart_paymentStatus_pageTitle()} />
+<SEO
+  data={{
+    type: "website",
+    props: {
+      title: m.cart_paymentStatus_pageTitle(),
+    },
+  }}
+/>
 
 <h1 class="text-xl font-semibold">{data.message}</h1>
 {#if interval}

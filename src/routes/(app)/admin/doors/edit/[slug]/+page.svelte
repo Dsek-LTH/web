@@ -6,6 +6,7 @@
 
   import type { PageData } from "./$types";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
+  import SEO from "$lib/seo/SEO.svelte";
   export let data: PageData;
   let type: "role" | "studentId" = "role";
 
@@ -23,6 +24,14 @@
 </script>
 
 <SetPageTitle title={$page.params["slug"]} />
+<SEO
+  data={{
+    type: "website",
+    props: {
+      title: $page.params["slug"] ?? "",
+    },
+  }}
+/>
 
 <main class="container mx-auto px-4">
   <h1 class="mb-4 text-2xl font-semibold capitalize">{$page.params["slug"]}</h1>

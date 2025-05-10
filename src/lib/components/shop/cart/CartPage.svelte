@@ -2,6 +2,7 @@
   import { invalidate } from "$app/navigation";
   import FoodPreferenceModal from "$lib/components/FoodPreferenceModal.svelte";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
+  import SEO from "$lib/seo/SEO.svelte";
   import type { CartLoadData } from "$lib/server/shop/cart/getCart";
   import { now } from "$lib/stores/date";
   import { superForm } from "$lib/utils/client/superForms";
@@ -26,6 +27,14 @@
 </script>
 
 <SetPageTitle title={m.cart()} />
+<SEO
+  data={{
+    type: "website",
+    props: {
+      title: m.cart(),
+    },
+  }}
+/>
 
 <FoodPreferenceModal />
 

@@ -6,10 +6,19 @@
   import { signIn, signOut } from "@auth/sveltekit/client";
   import DarkLightToggle from "../../../DarkLightToggle.svelte";
   import LanguageSwitcher from "../../../LanguageSwitcher.svelte";
+  import SEO from "$lib/seo/SEO.svelte";
   export let data;
 </script>
 
 <SetPageTitle title={m.account()} />
+<SEO
+  data={{
+    type: "website",
+    props: {
+      title: m.account(),
+    },
+  }}
+/>
 
 <div class="flex flex-1 flex-col gap-4 rounded-box bg-base-300 p-2">
   <ul class="menu gap-4 [&>li>a]:py-2">

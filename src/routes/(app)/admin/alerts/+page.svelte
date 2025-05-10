@@ -4,6 +4,7 @@
   import dayjs from "dayjs";
   import * as m from "$paraglide/messages";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
+  import SEO from "$lib/seo/SEO.svelte";
 
   export let data;
 
@@ -12,6 +13,14 @@
 </script>
 
 <SetPageTitle title="Alerts" />
+<SEO
+  data={{
+    type: "website",
+    props: {
+      title: "Alerts",
+    },
+  }}
+/>
 
 <form
   method="POST"

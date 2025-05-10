@@ -7,11 +7,28 @@
   import Pagination from "$lib/components/Pagination.svelte";
   import type { CommitteeLoadData } from "./committee.server";
   import type { page } from "$app/stores";
+  import SEO from "$lib/seo/SEO.svelte";
   export let data: CommitteeLoadData & typeof $page.data;
   export let isEditing = false;
   const thisYear = new Date().getFullYear();
 </script>
 
+<SEO
+  data={{
+    type: "website",
+    props: {
+      title: data.committee.name,
+      description: data.committee.description,
+    },
+  }}
+  image={{
+    url: data.committee.lightImageUrl,
+    alt: data.committee.name,
+    width: 1500,
+    height: 1500,
+    mime_type: "image/svg+xml",
+  }}
+></SEO>
 <CommitteeHeader
   committee={data.committee}
   uniqueMemberCount={data.uniqueMemberCount}

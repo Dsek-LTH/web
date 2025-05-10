@@ -13,10 +13,20 @@
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import * as m from "$paraglide/messages";
   import Readme from "$lib/components/home/Readme.svelte";
+  import SEO from "$lib/seo/SEO.svelte";
   export let data: PageData;
 </script>
 
 <SetPageTitle />
+<SEO
+  data={{
+    type: "website",
+    props: {
+      title: "D-sektionen",
+      description: m.landing_intro(),
+    },
+  }}
+/>
 
 <div class="grid grid-cols-1 gap-x-5 gap-y-10 md:grid-cols-3 xl:grid-cols-6">
   <section class="col-span-1 hidden flex-col place-items-center xl:flex">
