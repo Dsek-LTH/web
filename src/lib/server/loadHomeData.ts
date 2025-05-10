@@ -5,6 +5,7 @@ import { BASIC_ARTICLE_FILTER } from "$lib/news/articles";
 import { error } from "@sveltejs/kit";
 // eslint-disable-next-line no-restricted-imports -- problem with lib and api, feels unecessary to create a bunch of helper files just to structure this one thing
 import type { GetCommitDataResponse } from "../../routes/(app)/api/home/+server";
+import * as m from "$paraglide/messages";
 
 type Fetch = typeof fetch;
 export const loadHomeData = async ({
@@ -115,6 +116,15 @@ export const loadHomeData = async ({
     res.json(),
   ) as Promise<GetCommitDataResponse>;
 
+  // RANDOM WELLBEING MESSAGE
+  const wellbeing_random_sentence = [
+    m.home_happened(),
+    m.home_weird(),
+    m.home_talk(),
+    m.home_not_good(),
+    m.home_change(),
+  ].at(Math.floor(Math.random() * 5))!;
+
   // ACTIVE MANDATE?
   const hasActiveMandatePromise = prisma.mandate
     .findFirst({
@@ -180,6 +190,7 @@ export const loadHomeData = async ({
   }
 
   return {
+    wellbeing: wellbeing_random_sentence,
     files: { next: nextBoardMeetingFiles, last: lastBoardMeetingFiles },
     news: news.value,
     events: events.value,
