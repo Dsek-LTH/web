@@ -1,7 +1,7 @@
 <script lang="ts">
   import * as m from "$paraglide/messages";
 
-  let { wellbeing }: { wellbeing: String } = $props();
+  let { wellbeing }: { wellbeing: string } = $props();
 </script>
 
 <a
