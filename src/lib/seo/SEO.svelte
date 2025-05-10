@@ -12,44 +12,6 @@
   let { image, data }: OpenGraphProps = $props();
 
   let actualImage = $state<ImageAttributes | null>(null);
-  if (image) actualImage = image;
-  else if (data.type === "article" && data.article.imageUrl) {
-    actualImage = {
-      url: data.article.imageUrl,
-      secure_url: data.article.imageUrl,
-      alt: data.article.header,
-      mime_type: "image/jpeg",
-      height: 1500,
-      width: 1500,
-    };
-  } else if (data.type === "profile" && data.member.picturePath) {
-    actualImage = {
-      url: data.member.picturePath,
-      secure_url: data.member.picturePath,
-      alt: `${data.member.firstName} ${data.member.lastName}`,
-      mime_type: "image/jpeg",
-      height: 1500,
-      width: 1500,
-    };
-  } else if (data.type === "committee" && data.committee.lightImageUrl) {
-    actualImage = {
-      url: data.committee.lightImageUrl,
-      secure_url: data.committee.lightImageUrl,
-      alt: data.committee.name,
-      mime_type: "image/svg+xml",
-      height: 1500,
-      width: 1500,
-    };
-  } else {
-    actualImage = {
-      url: getFileUrl("minio/photos/public/assets/guild-logo-full.svg"),
-      secure_url: getFileUrl("minio/photos/public/assets/guild-logo-full.svg"),
-      alt: "D-sektionen logo",
-      mime_type: "image/svg+xml",
-      height: 1500,
-      width: 1500,
-    };
-  }
 
   // https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/MIME_types#image_types
   type ImageMimeType =
@@ -175,6 +137,44 @@
     attributesProps = committeeToOpenGraphProps(data.committee);
   } else {
     attributesProps = websiteToOpenGraphProps(data.props);
+  }
+  if (image) actualImage = image;
+  else if (data.type === "article" && data.article.imageUrl) {
+    actualImage = {
+      url: data.article.imageUrl,
+      secure_url: data.article.imageUrl,
+      alt: data.article.header,
+      mime_type: "image/jpeg",
+      height: 1500,
+      width: 1500,
+    };
+  } else if (data.type === "profile" && data.member.picturePath) {
+    actualImage = {
+      url: data.member.picturePath,
+      secure_url: data.member.picturePath,
+      alt: `${data.member.firstName} ${data.member.lastName}`,
+      mime_type: "image/jpeg",
+      height: 1500,
+      width: 1500,
+    };
+  } else if (data.type === "committee" && data.committee.lightImageUrl) {
+    actualImage = {
+      url: data.committee.lightImageUrl,
+      secure_url: data.committee.lightImageUrl,
+      alt: data.committee.name,
+      mime_type: "image/svg+xml",
+      height: 1500,
+      width: 1500,
+    };
+  } else {
+    actualImage = {
+      url: getFileUrl("minio/photos/public/assets/guild-logo-full.svg"),
+      secure_url: getFileUrl("minio/photos/public/assets/guild-logo-full.svg"),
+      alt: "D-sektionen logo",
+      mime_type: "image/svg+xml",
+      height: 1500,
+      width: 1500,
+    };
   }
 </script>
 
