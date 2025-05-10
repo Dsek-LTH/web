@@ -1,13 +1,11 @@
 <script lang="ts">
   import { version } from "$app/environment";
-  import { page } from "$app/stores";
-  import { getDerivedRoles, isAuthorized } from "$lib/utils/authorization";
+  import { isAuthorized } from "$lib/utils/authorization";
   import {
     featureFlags,
     isFeatureFlagEnabled,
     setFeatureFlag,
   } from "$lib/utils/featureFlag";
-  import { Roles } from "@keycloak/keycloak-admin-client/lib/resources/roles";
   import { onMount } from "svelte";
 
   export let data;
@@ -26,7 +24,7 @@
 
 <div class="flex flex-row gap-10">
   <div>
-    {#if isAuthorized("core:admin", $page.data.user)}
+    {#if isAuthorized("core:admin", user)}
       <section class="mb-4 space-y-2">
         <h1 class="text-lg font-semibold">Actions</h1>
         <form
