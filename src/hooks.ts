@@ -1,10 +1,10 @@
 import "./dayjs-plugins";
 
 import { i18n } from "$lib/utils/i18n";
-import { dev } from "$app/environment";
+import { browser, dev } from "$app/environment";
 export const reroute = i18n.reroute();
 
-if (dev) {
+if (dev && browser) {
   localStorage.setItem("umami.disabled", "1"); // Disable usage tracking in dev mode
 }
 
