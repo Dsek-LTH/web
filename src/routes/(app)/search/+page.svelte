@@ -8,7 +8,7 @@
   } from "$lib/search/searchTypes";
   import { mapIndexToMessage } from "$lib/search/searchHelpers";
   import { isSearchResultData } from "$lib/components/search/SearchUtils";
-  import OpenGraph from "$lib/seo/SEO.svelte";
+  import SEO from "$lib/seo/SEO.svelte";
 
   let formElement: HTMLFormElement;
   let inputElement: HTMLInputElement;
@@ -126,7 +126,7 @@
 
 <svelte:window on:keydown={onKeyDown} />
 
-<OpenGraph
+<SEO
   data={{
     type: "website",
     props: {

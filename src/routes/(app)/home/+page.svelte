@@ -13,12 +13,12 @@
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import * as m from "$paraglide/messages";
   import Readme from "$lib/components/home/Readme.svelte";
-  import OpenGraph from "$lib/seo/SEO.svelte";
+  import SEO from "$lib/seo/SEO.svelte";
   export let data: PageData;
 </script>
 
 <SetPageTitle />
-<OpenGraph
+<SEO
   data={{
     type: "website",
     props: {
