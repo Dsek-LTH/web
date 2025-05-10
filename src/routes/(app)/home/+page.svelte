@@ -13,10 +13,27 @@
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import * as m from "$paraglide/messages";
   import Readme from "$lib/components/home/Readme.svelte";
+  import OpenGraph from "$lib/seo/SEO.svelte";
   export let data: PageData;
 </script>
 
 <SetPageTitle />
+<OpenGraph
+  data={{
+    type: "website",
+    props: {
+      title: "D-sektionen",
+      description: m.landing_intro(),
+    },
+  }}
+  image={{
+    url: "https://raw.githubusercontent.com/Dsek-LTH/grafik/refs/heads/main/guild/d_sektionen/full/color.svg",
+    mime_type: "image/svg+xml",
+    width: 400,
+    height: 400,
+    alt: "D-sektionen logo",
+  }}
+/>
 
 <div class="grid grid-cols-1 gap-x-5 gap-y-10 md:grid-cols-3 xl:grid-cols-6">
   <section class="col-span-1 hidden flex-col place-items-center xl:flex">

@@ -8,11 +8,31 @@
   import Documents from "$lib/components/home/Documents.svelte";
   import CodeWithDwww from "$lib/components/home/CodeWithDWWW.svelte";
   import AppHomeNavigation from "./AppHomeNavigation.svelte";
+  import SEO from "$lib/seo/SEO.svelte";
+  import * as m from "$paraglide/messages";
 
   export let data;
 </script>
 
+<!-- landing_intro -->
+
 <SetPageTitle title="D-sektionen" />
+<SEO
+  data={{
+    type: "website",
+    props: {
+      title: "D-sektionen",
+      description: m.landing_intro(),
+    },
+  }}
+  image={{
+    url: "https://raw.githubusercontent.com/Dsek-LTH/grafik/refs/heads/main/guild/d_sektionen/full/color.svg",
+    mime_type: "image/svg+xml",
+    width: 400,
+    height: 400,
+    alt: "D-sektionen logo",
+  }}
+/>
 
 <article class="flex flex-col gap-10">
   <section>
