@@ -26,13 +26,6 @@
       description: m.landing_intro(),
     },
   }}
-  image={{
-    url: "https://raw.githubusercontent.com/Dsek-LTH/grafik/refs/heads/main/guild/d_sektionen/full/color.svg",
-    mime_type: "image/svg+xml",
-    width: 400,
-    height: 400,
-    alt: "D-sektionen logo",
-  }}
 />
 
 <div class="grid grid-cols-1 gap-x-5 gap-y-10 md:grid-cols-3 xl:grid-cols-6">

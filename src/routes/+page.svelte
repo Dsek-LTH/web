@@ -6,6 +6,7 @@
   import { page } from "$app/stores";
   import { languageTag } from "$paraglide/runtime";
   import { invalidateAll } from "$app/navigation";
+  import SEO from "$lib/seo/SEO.svelte";
 
   let carouselEls: HTMLDivElement[] = [];
 
@@ -116,6 +117,16 @@
     },
   ] as const;
 </script>
+
+<SEO
+  data={{
+    type: "website",
+    props: {
+      title: "D-sektionen",
+      description: m.landing_intro(),
+    },
+  }}
+/>
 
 <!-- svelte-ignore a11y_consider_explicit_label -->
 <div class="drawer drawer-end">

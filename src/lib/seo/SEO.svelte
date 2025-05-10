@@ -6,7 +6,50 @@
 
 <script lang="ts">
   import { page } from "$app/state";
-  import type { Article, Member } from "@prisma/client";
+  import { getFileUrl } from "$lib/files/client";
+  import type { Article, Committee, Member } from "@prisma/client";
+
+  let { image, data }: OpenGraphProps = $props();
+
+  let actualImage = $state<ImageAttributes | null>(null);
+  if (image) actualImage = image;
+  else if (data.type === "article" && data.article.imageUrl) {
+    actualImage = {
+      url: data.article.imageUrl,
+      secure_url: data.article.imageUrl,
+      alt: data.article.header,
+      mime_type: "image/jpeg",
+      height: 1500,
+      width: 1500,
+    };
+  } else if (data.type === "profile" && data.member.picturePath) {
+    actualImage = {
+      url: data.member.picturePath,
+      secure_url: data.member.picturePath,
+      alt: `${data.member.firstName} ${data.member.lastName}`,
+      mime_type: "image/jpeg",
+      height: 1500,
+      width: 1500,
+    };
+  } else if (data.type === "committee" && data.committee.lightImageUrl) {
+    actualImage = {
+      url: data.committee.lightImageUrl,
+      secure_url: data.committee.lightImageUrl,
+      alt: data.committee.name,
+      mime_type: "image/svg+xml",
+      height: 1500,
+      width: 1500,
+    };
+  } else {
+    actualImage = {
+      url: getFileUrl("minio/photos/public/assets/guild-logo-full.svg"),
+      secure_url: getFileUrl("minio/photos/public/assets/guild-logo-full.svg"),
+      alt: "D-sektionen logo",
+      mime_type: "image/svg+xml",
+      height: 1500,
+      width: 1500,
+    };
+  }
 
   // https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/MIME_types#image_types
   type ImageMimeType =
@@ -17,6 +60,21 @@
     | "image/png"
     | "image/svg+xml"
     | "image/webp";
+
+  interface ImageAttributes {
+    url?: string | null;
+    secure_url?: string | null;
+    alt?: string | null;
+    mime_type: ImageMimeType;
+    /**
+     * og:image should be at least 200px in both dimensions, with 1500x1500 preferred.
+     */
+    height: number;
+    /**
+     * og:image should be at least 200px in both dimensions, with 1500x1500 preferred.
+     */
+    width: number;
+  }
 
   type ArticleOpenGraphProps = Pick<
     Article,
@@ -30,6 +88,11 @@
     "firstName" | "lastName" | "studentId" | "picturePath" | "bio"
   >;
 
+  type CommitteeOpenGraphProps = Pick<
+    Committee,
+    "name" | "description" | "lightImageUrl"
+  >;
+
   type OpenGraphProps = {
     data:
       | {
@@ -41,24 +104,18 @@
           member: MemberOpenGraphProps;
         }
       | {
+          type: "committee";
+          committee: CommitteeOpenGraphProps;
+        }
+      | {
           type: "website";
           props: {
             title: string;
-            description?: string;
+            description?: string | null;
           };
         };
-
-    image?: {
-      url: string;
-      secure_url?: string;
-      alt: string;
-      mime_type: ImageMimeType;
-      height: number;
-      width: number;
-    };
+    image?: ImageAttributes;
   };
-
-  let { image, data }: OpenGraphProps = $props();
 
   let { locale, locale_alternate } = page.url.pathname.includes("/en")
     ? { locale: "en_US", locale_alternate: ["se_SE"] }
@@ -70,15 +127,10 @@
     props.push(["og:title", article.header]);
     props.push(["og:description", article.body]);
     props.push(["og:article:author", article.authorName]);
-    if (article.publishedAt) {
+    if (article.publishedAt)
       props.push(["article:published_time", article.publishedAt.toISOString()]);
-    }
-    if (article.updatedAt) {
+    if (article.updatedAt)
       props.push(["article:modified_time", article.updatedAt.toISOString()]);
-    }
-    if (article.imageUrl) {
-      props.push(["og:image", article.imageUrl]);
-    }
     return props;
   }
 
@@ -86,34 +138,31 @@
     let props: Array<[string, string]> = [];
     props.push(["og:type", "profile"]);
     props.push(["og:title", `${member.firstName} ${member.lastName}`]);
-    if (member.firstName) {
-      props.push(["profile:first_name", member.firstName]);
-    }
-    if (member.lastName) {
-      props.push(["profile:last_name", member.lastName]);
-    }
-    if (member.studentId) {
-      props.push(["profile:username", member.studentId]);
-    }
-    if (member.bio) {
-      props.push(["og:description", member.bio]);
-    }
-    if (member.picturePath) {
-      props.push(["og:image", member.picturePath]);
-    }
+    if (member.firstName) props.push(["profile:first_name", member.firstName]);
+    if (member.lastName) props.push(["profile:last_name", member.lastName]);
+    if (member.studentId) props.push(["profile:username", member.studentId]);
+    if (member.bio) props.push(["og:description", member.bio]);
+    return props;
+  }
+
+  function committeeToOpenGraphProps(committee: CommitteeOpenGraphProps) {
+    let props: Array<[string, string]> = [];
+    props.push(["og:type", "website"]);
+    props.push(["og:title", committee.name]);
+    if (committee.description)
+      props.push(["og:description", committee.description]);
     return props;
   }
 
   function websiteToOpenGraphProps(website: {
     title: string;
-    description?: string;
+    description?: string | null;
   }) {
     let props: Array<[string, string]> = [];
     props.push(["og:type", "website"]);
     props.push(["og:title", website.title]);
     if (website.description)
       props.push(["og:description", website.description]);
-    if (image) props.push(["og:image", image.url]);
     return props;
   }
 
@@ -122,6 +171,8 @@
     attributesProps = articleToOpenGraphProps(data.article);
   } else if (data.type === "profile") {
     attributesProps = profileToOpenGraphProps(data.member);
+  } else if (data.type === "committee") {
+    attributesProps = committeeToOpenGraphProps(data.committee);
   } else {
     attributesProps = websiteToOpenGraphProps(data.props);
   }
@@ -134,13 +185,13 @@
     <meta property="og:locale:alternate" content={loc} />
   {/each}
   <meta property="og:url" content={page.url.toString()} />
-  {#if image}
-    <meta property="og:image" content={image.url} />
-    <meta property="og:secure_url" content={image.secure_url} />
-    <meta property="og:image:width" content={image.width.toString()} />
-    <meta property="og:image:height" content={image.height.toString()} />
-    <meta property="og:image:alt" content={image.alt} />
-    <meta property="og:image:type" content={image.mime_type} />
+  {#if actualImage}
+    <meta property="og:image" content={actualImage.url} />
+    <meta property="og:secure_url" content={actualImage.secure_url} />
+    <meta property="og:image:width" content={actualImage.width.toString()} />
+    <meta property="og:image:height" content={actualImage.height.toString()} />
+    <meta property="og:image:alt" content={actualImage.alt} />
+    <meta property="og:image:type" content={actualImage.mime_type} />
   {/if}
 
   {#each attributesProps as [key, value]}
