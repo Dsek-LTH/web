@@ -19,6 +19,8 @@
   let articleImages: string[] = [];
   let articleVideo: string | undefined = undefined;
   const { form } = superform;
+  let activeTab: "sv" | "en";
+
 </script>
 
 <main
@@ -31,6 +33,7 @@
       {authorOptions}
       bind:articleImages
       bind:articleVideo
+      bind:activeTab
     >
       <slot slot="form-end" name="form-end" />
     </ArticleForm>
@@ -41,10 +44,10 @@
       article={{
         id: "",
         slug: "",
-        header: $form.header,
-        headerEn: $form.headerEn,
-        body: $form.body,
-        bodyEn: $form.bodyEn,
+        header: activeTab === "en" && $form.headerEn ? $form.headerEn : $form.header,
+        headerEn: activeTab === "en" && $form.headerEn ? $form.headerEn : $form.header,
+        body: activeTab === "en" && $form.bodyEn ? $form.bodyEn : $form.body,
+        bodyEn: activeTab === "en" && $form.bodyEn ? $form.bodyEn : $form.body,
         authorId: $form.author.id,
         publishedAt: new Date(),
         createdAt: new Date(),
