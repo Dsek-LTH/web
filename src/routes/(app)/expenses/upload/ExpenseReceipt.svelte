@@ -73,7 +73,6 @@
     field={`receipts[${index}].image`}
     onChange={(e) => onFileSelected(e)}
     accept="image/*,application/pdf"
-    multiple
     compressionOptions={{
       maxWidthOrHeight: 1920 /* If larger than this it is unreasonably large */,
       initialQuality: 1 /* We want quality so we can read small text */,

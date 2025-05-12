@@ -15,8 +15,7 @@ const receiptSchema = z.object({
     .instanceof(File, { message: "Please upload a file" })
     .refine((file) => isFileImage(file) || isFilePDF(file), {
       message: "Måste vara en bild eller PDF",
-    })
-    .array(),
+    }),
   rows: z.array(itemSchema).nonempty(),
 });
 
