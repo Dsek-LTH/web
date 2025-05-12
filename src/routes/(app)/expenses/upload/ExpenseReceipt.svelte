@@ -30,7 +30,6 @@
     },
   ) => {
     let images = (event.target as HTMLInputElement | null)?.files;
-    console.log({ images });
     if (!images) return;
     let reader = new FileReader();
     receiptPhotos = [];
@@ -56,13 +55,11 @@
           };
         });
         receiptPhotos.push(result as string);
-      } catch (error) {
-        console.error("Could not read file", error);
+      } catch {
         toast("Kunde inte läsa fil", "error");
       }
     }
     receiptPhotos = receiptPhotos;
-    console.log({ receiptPhotos });
   };
 </script>
 

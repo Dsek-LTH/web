@@ -45,10 +45,10 @@
   $: fileStore = multiple ? multipleFilesStore : singleFileStore;
   $: constraints = fieldProxy.constraints;
 
-  $: internalErrors = fieldProxy.errors;
   // Errors might look like this:
   // {0: ["File is too large"], 1: ["File is too large"]}.  <- An object
-  // Convert it to [["File is too large"], ["File is too large"]] <- An array
+  // So this converts it to [["File is too large"], ["File is too large"]] <- An array
+  $: internalErrors = fieldProxy.errors;
   function processErrors(errors: typeof $internalErrors) {
     if (!errors) return undefined;
 
@@ -56,13 +56,11 @@
     if (Array.isArray(errors)) return errors as string[];
     return Object.values(errors) as string[][] | string[];
   }
-
   $: errors = processErrors($internalErrors) as
     | string
     | string[]
     | string[][]
     | undefined;
-  $: if (errors) console.log(errors);
 
   export let compressionOptions: CompressionOptions | undefined = undefined;
 
@@ -88,7 +86,6 @@
     }
     if (multiple) {
       const fileArr = Array.from(filesList);
-      console.log(fileArr);
       const processedFiles = await Promise.all(
         fileArr.map(async (f) => {
           if (f.type.startsWith("image/")) {
@@ -108,7 +105,6 @@
           return f;
         }),
       );
-      console.log(processedFiles);
       multipleFilesStore.set(processedFiles);
     } else {
       const fileObj = filesList[0];
@@ -132,7 +128,6 @@
           singleFileStore.set(fileObj);
         }
       } else {
-        console.log("Not an image");
         singleFileStore.set(fileObj);
       }
     }
