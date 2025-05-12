@@ -37,6 +37,7 @@
   bind:modal={notificationModal}
   postReveal
   bind:notifications
+  form={pageData["mutateNotificationForm"]}
 />
 <header
   class="navbar justify-between gap-2 shadow-[0_4px_4px_#191B2740]"
