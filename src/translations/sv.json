@@ -824,7 +824,7 @@
   "upload_reciept": "Ladda upp kvitto",
   "receipt_date": "Datum på kvitto",
   "is_guildCard": "Är sektionskort?",
-  "expense_description": "Beskrivning*",
+  "expense_description": "Beskrivning",
   "receipt": "Kvitto",
   "expense_type": "Kostnadcenter",
   "expense_amount": "Belopp",

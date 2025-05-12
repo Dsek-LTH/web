@@ -10,6 +10,7 @@
   import { createBasicReceiptRow } from "../baseItem";
   import type { ExpenseSchema, ReceiptRowSchema } from "../types";
   import ExpenseReceiptRow from "./ExpenseReceiptRow.svelte";
+  import { toast } from "$lib/stores/toast";
 
   export let superform: SuperForm<ExpenseSchema>;
   export let index: number;
@@ -28,33 +29,40 @@
       currentTarget: EventTarget & HTMLInputElement;
     },
   ) => {
-    let images = event.currentTarget.files;
+    let images = (event.target as HTMLInputElement | null)?.files;
+    console.log({ images });
     if (!images) return;
     let reader = new FileReader();
     receiptPhotos = [];
     for (let image of images) {
-      await new Promise((resolve) => {
-        reader.readAsDataURL(image);
-        reader.onload = (e) => {
-          let result = e.target?.result ?? undefined;
-          // If array buffer, convert to base64
-          if (result instanceof ArrayBuffer) {
-            receiptPhotos = [
-              ...receiptPhotos!,
-              btoa(
-                new Uint8Array(result).reduce(
-                  (data, byte) => data + String.fromCharCode(byte),
-                  "",
+      try {
+        const result = await new Promise((resolve) => {
+          reader.readAsDataURL(image);
+          reader.onload = (e) => {
+            let result = e.target?.result ?? undefined;
+            // If array buffer, convert to base64
+            if (result instanceof ArrayBuffer) {
+              resolve(
+                btoa(
+                  new Uint8Array(result).reduce(
+                    (data, byte) => data + String.fromCharCode(byte),
+                    "",
+                  ),
                 ),
-              ),
-            ];
-          } else if (result) {
-            receiptPhotos = [...receiptPhotos!, result];
-          }
-          resolve(true);
-        };
-      });
+              );
+            } else if (result) {
+              resolve(result);
+            }
+          };
+        });
+        receiptPhotos.push(result as string);
+      } catch (error) {
+        console.error("Could not read file", error);
+        toast("Kunde inte läsa fil", "error");
+      }
     }
+    receiptPhotos = receiptPhotos;
+    console.log({ receiptPhotos });
   };
 </script>
 
@@ -66,6 +74,10 @@
     onChange={(e) => onFileSelected(e)}
     accept="image/*,application/pdf"
     multiple
+    compressionOptions={{
+      maxWidthOrHeight: 1920 /* If larger than this it is unreasonably large */,
+      initialQuality: 1 /* We want quality so we can read small text */,
+    }}
   />
   {#if receiptPhotos !== undefined}
     {#each receiptPhotos as photo}

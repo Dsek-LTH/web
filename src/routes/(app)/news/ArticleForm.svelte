@@ -1,5 +1,5 @@
 <script lang="ts">
-  import FormFilesInput from "$lib/components/forms/FormFilesInput.svelte";
+  import FormFileInput from "$lib/components/forms/FormFileInput.svelte";
   import FormInput from "$lib/components/forms/FormInput.svelte";
   import FormMarkdown from "$lib/components/forms/FormMarkdown.svelte";
   import FormSubmitButton from "$lib/components/forms/FormSubmitButton.svelte";
@@ -114,12 +114,16 @@
     <TagSelector name="tags" {allTags} bind:selectedTags={$form.tags} />
   </div>
 
-  <FormFilesInput
+  <FormFileInput
     {superform}
     field="images"
     label="Bilder"
     onChange={onFileSelected}
     accept="image/*"
+    multiple
+    compressionOptions={{
+      maxWidthOrHeight: 1920,
+    }}
   />
 
   <FormInput
