@@ -32,7 +32,7 @@
   </section>
 
   <section>
-    <WellbeingCta />
+    <WellbeingCta wellbeing={data.wellbeing} />
   </section>
   <section>
     <SRDCta />
