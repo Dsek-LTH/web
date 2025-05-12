@@ -21,8 +21,8 @@
       </tr>
     </thead>
     <tbody>
-      {#each data.accessPolicies as apiName}
-        <tr>
+      {#each data.accessPolicies as apiName, i}
+        <tr class={i % 2 === 0 ? "bg-gray" : "bg-base-200"}>
           <td class="font-medium">{apiName}</td>
           <td class="text-right"
             ><a class="btn btn-xs px-8" href="access/{apiName}"
