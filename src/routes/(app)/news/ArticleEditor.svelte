@@ -20,7 +20,6 @@
   let articleVideo: string | undefined = undefined;
   const { form } = superform;
   let activeTab: "sv" | "en";
-
 </script>
 
 <main
@@ -44,8 +43,10 @@
       article={{
         id: "",
         slug: "",
-        header: activeTab === "en" && $form.headerEn ? $form.headerEn : $form.header,
-        headerEn: activeTab === "en" && $form.headerEn ? $form.headerEn : $form.header,
+        header:
+          activeTab === "en" && $form.headerEn ? $form.headerEn : $form.header,
+        headerEn:
+          activeTab === "en" && $form.headerEn ? $form.headerEn : $form.header,
         body: activeTab === "en" && $form.bodyEn ? $form.bodyEn : $form.body,
         bodyEn: activeTab === "en" && $form.bodyEn ? $form.bodyEn : $form.body,
         authorId: $form.author.id,
