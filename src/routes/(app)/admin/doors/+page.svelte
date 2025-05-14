@@ -5,10 +5,19 @@
   import type { PageData } from "./$types";
   import * as m from "$paraglide/messages";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
+  import SEO from "$lib/seo/SEO.svelte";
   export let data: PageData;
 </script>
 
 <SetPageTitle title="Doors" />
+<SEO
+  data={{
+    type: "website",
+    props: {
+      title: "Doors",
+    },
+  }}
+/>
 
 <div class="overflow-x-auto">
   <table class="table">

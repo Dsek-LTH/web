@@ -149,6 +149,7 @@ export const actions: Actions = {
         memberId: form.data.memberId,
         startDate: form.data.startDate,
         endDate: form.data.endDate,
+        lastSynced: new Date("1970"),
       },
     });
     keycloak.fetchGroupsAddMandate(

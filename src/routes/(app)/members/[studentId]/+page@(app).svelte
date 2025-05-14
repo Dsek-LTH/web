@@ -13,6 +13,7 @@
   import { languageTag } from "$paraglide/runtime";
   import PingButton from "./PingButton.svelte";
   import type { PageProps } from "./$types";
+  import SEO from "$lib/seo/SEO.svelte";
 
   let { data }: PageProps = $props();
 
@@ -50,6 +51,13 @@
 </script>
 
 <SetPageTitle title={member ? getFullName(member) : "Medlem"} />
+
+<SEO
+  data={{
+    type: "profile",
+    member,
+  }}
+/>
 
 <figure
   class="hero-gradient hero-gradient-{member.classProgramme ??

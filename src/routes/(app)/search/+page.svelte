@@ -8,6 +8,7 @@
   } from "$lib/search/searchTypes";
   import { mapIndexToMessage } from "$lib/search/searchHelpers";
   import { isSearchResultData } from "$lib/components/search/SearchUtils";
+  import SEO from "$lib/seo/SEO.svelte";
 
   let formElement: HTMLFormElement;
   let inputElement: HTMLInputElement;
@@ -124,6 +125,16 @@
 </script>
 
 <svelte:window on:keydown={onKeyDown} />
+
+<SEO
+  data={{
+    type: "website",
+    props: {
+      title: "D-sektionen",
+      description: m.landing_intro(),
+    },
+  }}
+/>
 
 <form
   method="POST"

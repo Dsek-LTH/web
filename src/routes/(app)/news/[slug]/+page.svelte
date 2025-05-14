@@ -1,5 +1,6 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
+  import SEO from "$lib/seo/SEO.svelte";
   import LoadingButton from "$lib/components/LoadingButton.svelte";
   import TagChip from "$lib/components/TagChip.svelte";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
@@ -19,6 +20,16 @@
 </script>
 
 <SetPageTitle title={article.header} />
+
+<SEO
+  data={{
+    type: "article",
+    article: {
+      ...article,
+      authorName: `${author.member.firstName} ${author.member.lastName}`,
+    },
+  }}
+/>
 
 <article>
   <Article {article}>

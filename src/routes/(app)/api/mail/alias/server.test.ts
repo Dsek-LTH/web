@@ -27,6 +27,7 @@ beforeAll(async () => {
               id: TEST_ID,
               startDate: new Date(),
               endDate: dayjs().add(1, "hour").toDate(),
+              lastSynced: new Date("1970"),
               member: {
                 create: {
                   studentId: TEST_ID,

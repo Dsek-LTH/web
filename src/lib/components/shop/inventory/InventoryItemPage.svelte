@@ -9,6 +9,7 @@
   import type { InventoryItemLoadData } from "$lib/server/shop/inventory/getInventory";
   import type { page } from "$app/stores";
   import { getFileUrl } from "$lib/files/client";
+  import SEO from "$lib/seo/SEO.svelte";
 
   export let data: InventoryItemLoadData & typeof $page.data;
   $: consumable = data.consumable;
@@ -17,6 +18,14 @@
 </script>
 
 <SetPageTitle title={shoppable.title} />
+<SEO
+  data={{
+    type: "website",
+    props: {
+      title: shoppable.title,
+    },
+  }}
+/>
 
 <div class="mx-auto md:container md:mt-8 md:grid md:grid-cols-2">
   <img

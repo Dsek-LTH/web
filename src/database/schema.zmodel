@@ -508,7 +508,7 @@ model Mandate {
   positionId  String        @map("position_id") @db.VarChar(255)
   startDate   DateTime      @map("start_date") @db.Date
   endDate     DateTime      @map("end_date") @db.Date
-  lastSynced  DateTime      @default(dbgenerated("TIMESTAMP '1970-01-01 00:00:00'")) @map("last_synced")
+  lastSynced  DateTime      @map("last_synced") @db.Date
   authors     Author[]
   member      Member        @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "mandates_member_id_foreign")
   position    Position      @relation(fields: [positionId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "mandates_position_id_foreign")
