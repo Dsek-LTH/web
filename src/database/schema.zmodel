@@ -116,7 +116,7 @@ model Article {
   headerEn    String?          @map("header_en") @db.VarChar(255)
   body        String
   bodyEn      String?          @map("body_en")
-  imageUrls   String[]         @map("image_urls")        
+  imageUrls   String[]         @map("image_urls")
   imageUrl    String?          @map("image_url") @db.Text
   youtubeUrl  String?          @map("youtube_url") @db.Text
   authorId    String           @map("author_id") @db.Uuid
@@ -444,7 +444,7 @@ model Event {
   @@allow("create", has(auth().policies, "event:create"))
   @@allow("read", has(auth().policies, "event:read"))
   @@deny("read", removedAt != null && removedAt <= now() && !has(auth().policies, "event:delete"))
-  @@allow("update", has(auth().policies, "event:update"))
+  @@allow("update", has(auth().policies, "event:update") || auth().memberId == authorId)
   @@allow("delete", has(auth().policies, "event:delete"))
   @@map("events")
 }
