@@ -112,6 +112,7 @@
     "@vercel/speed-insights": "^1.1.0",
     "@zenstackhq/runtime": "^2.10.0",
     "@zenstackhq/server": "^2.10.0",
+    "browser-image-compression": "^2.0.2",
     "croppie": "^2.6.5",
     "dayjs": "^1.11.13",
     "embla-carousel-autoplay": "^8.5.1",
