@@ -172,7 +172,7 @@
             <span>{event.going.length} going</span>
           </div>
 
-          <div class="card-actions mt-4">
+          <div class="card-actions mt-auto pt-4">
             <form
               method="POST"
               action="?/selectEvent"
