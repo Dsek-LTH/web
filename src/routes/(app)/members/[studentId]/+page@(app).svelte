@@ -31,14 +31,17 @@
     `/medals?semester=${toString(semester)}`;
 
   const mandatesByYear = $derived.by(() => {
-    const res = Object.groupBy(member.mandates, ({ startDate, endDate }) => {
-      // If the mandate spans only one year, show that year, e.g. "2020"
-      if (startDate.getFullYear() === endDate.getFullYear()) {
-        return startDate.getFullYear().toString();
-      }
-      // Otherwise, show both years, e.g. "2020-2021"
-      return `${startDate.getFullYear()}-${endDate.getFullYear()}`;
-    });
+    const res = Object.groupBy(
+      member.mandates.toReversed(),
+      ({ startDate, endDate }) => {
+        // If the mandate spans only one year, show that year, e.g. "2020"
+        if (startDate.getFullYear() === endDate.getFullYear()) {
+          return startDate.getFullYear().toString();
+        }
+        // Otherwise, show both years, e.g. "2020-2021"
+        return `${startDate.getFullYear()}-${endDate.getFullYear()}`;
+      },
+    );
 
     if (member.nollaIn) {
       res[member.nollaIn.year] ??= [];
