@@ -79,7 +79,7 @@ export const actions: Actions = {
             },
           },
         },
-      }
+      },
     });
 
     if (!consumable) {
