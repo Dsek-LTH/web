@@ -24,7 +24,7 @@
         <div class="stat">
           <div class="stat-title">Status</div>
           <div class="stat-value text-lg">
-            {#if consumable.shoppableId !== slug}
+            {#if consumable.shoppable.event.slug !== slug}
               <span class="text-error">Invalid - Wrong event</span>
               <br />
               <span class="text-sm font-normal"
@@ -33,7 +33,7 @@
             {:else if consumable.consumedAt}
               <span class="text-error">Invalid - Already consumed</span>
             {:else if consumable.purchasedAt}
-              <span class="text-success">Valid</span>
+              <span class="text-success">Valid - Not consumed</span>
             {:else}
               <span class="text-error">Invalid - Not purchased</span>
             {/if}
@@ -116,7 +116,7 @@
           <button
             class="btn btn-secondary"
             disabled={Boolean(consumable.consumedAt) ||
-              consumable.shoppableId !== slug ||
+              consumable.shoppable.event.slug !== slug ||
               submitting}
           >
             {#if submitting}

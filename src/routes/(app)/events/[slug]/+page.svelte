@@ -22,6 +22,15 @@
 
 <Event {event}>
   <div slot="actions" class="flex flex-row">
+    {#if data.canScan}
+      <a
+        href="/events/{event.slug}/scan"
+        class="btn btn-square btn-ghost btn-md"
+        title="QR Scanner"
+      >
+        <span class="i-mdi-qrcode-scan text-xl" />
+      </a>
+    {/if}
     {#if data.canEdit}
       <a
         href="/events/{event.slug}/edit"

@@ -1,13 +1,12 @@
 <script lang="ts">
   import { useQRScanner } from "$lib/hooks/useQRScanner";
-  import { onDestroy } from "svelte";
 
   export let onScan: (text: string) => void;
-  export let errorMessage = "";
 
   let videoElement: HTMLVideoElement;
+  let errorMessage = "";
 
-  const { initialize, reset } = useQRScanner();
+  const { initialize } = useQRScanner();
 
   $: if (videoElement) {
     initialize(videoElement, (text) => {
@@ -18,10 +17,6 @@
       }
     });
   }
-
-  onDestroy(() => {
-    reset();
-  });
 </script>
 
 <div class="qr-container">
@@ -33,7 +28,7 @@
       </p>
     {:else}
       <video bind:this={videoElement} id="qr-reader" playsinline>
-        <track kind="captions" src="" label="Captions" />
+        <track kind="captions" src="" label="English captions" srclang="en" />
       </video>
     {/if}
   </div>

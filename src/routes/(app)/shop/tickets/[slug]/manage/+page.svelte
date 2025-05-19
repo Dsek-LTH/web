@@ -18,7 +18,6 @@
   <!-- TODO: Add dynamic text -->
   <div class="flex gap-4">
     <a href="edit" class="btn btn-secondary">Redigera biljett</a>
-    <a href="scan" class="btn btn-primary">Scanna biljett</a>
   </div>
 </div>
 {#if ticket.description}

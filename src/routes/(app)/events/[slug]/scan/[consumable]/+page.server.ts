@@ -60,10 +60,26 @@ export const actions: Actions = {
 
     authorize(apiNames.WEBSHOP.CONSUME, user);
 
-    const consumable = await prisma.consumable.findUnique({
+    const consumable = await prisma.consumable.findFirst({
       where: {
         id: params.consumable,
+        shoppable: {
+          ticket: {
+            event: {
+              slug: params.slug,
+            },
+          },
+        },
       },
+      include: {
+        shoppable: {
+          include: {
+            ticket: {
+              include: { event: true },
+            },
+          },
+        },
+      }
     });
 
     if (!consumable) {
@@ -72,10 +88,6 @@ export const actions: Actions = {
 
     if (consumable.consumedAt) {
       error(400, "Ticket has already been consumed");
-    }
-
-    if (consumable.shoppableId !== params.slug) {
-      error(400, "Ticket is not valid for this event");
     }
 
     await prisma.consumable.update({
