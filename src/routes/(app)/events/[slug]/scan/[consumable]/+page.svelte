@@ -15,7 +15,7 @@
   let submitting = false;
 </script>
 
-<div class="container mx-auto p-4">
+<div class="container mx-auto p-2">
   <div class="card bg-base-200 shadow-xl">
     <div class="card-body">
       <h2 class="card-title">{shoppable.title}</h2>
