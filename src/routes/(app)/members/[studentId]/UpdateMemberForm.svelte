@@ -62,25 +62,6 @@
     error={$errors.foodPreference}
     {...$constraints.foodPreference}
   />
-  <FormSelect
-    {superform}
-    label={m.onboarding_phadderGroup()}
-    field="nollningGroupId"
-    options={[
-      {
-        value: null,
-        label: "-",
-      },
-      ...phadderGroups
-        .filter(
-          (group) => group.year === ($form.classYear ?? new Date().getFullYear),
-        )
-        .map((group) => ({
-          value: group.id,
-          label: group.name,
-        })),
-    ]}
-  />
   <div
     class="flex w-full flex-wrap gap-2 *:flex-1"
     class:hidden={!isAuthorized(apiNames.MEMBER.UPDATE, $page.data.user)}
@@ -112,6 +93,26 @@
         {...$constraints.classYear}
       />
     </Labeled>
+    <FormSelect
+      {superform}
+      label={m.onboarding_phadderGroup()}
+      field="nollningGroupId"
+      options={[
+        {
+          value: null,
+          label: "-",
+        },
+        ...phadderGroups
+          .filter(
+            (group) =>
+              group.year === ($form.classYear ?? new Date().getFullYear),
+          )
+          .map((group) => ({
+            value: group.id,
+            label: group.name,
+          })),
+      ]}
+    />
   </div>
   <div class="mt-4 flex flex-wrap gap-2 *:flex-1">
     <a href="{$page.params['studentId']}/edit-bio" class="btn">
