@@ -6,12 +6,7 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   plugins: [
-    sentrySvelteKit({
-      sourceMapsUploadOptions: {
-        org: "d-sektionen-o6",
-        project: "javascript-sveltekit",
-      },
-    }),
+    sentrySvelteKit(),
     sveltekit(),
     paraglide({
       project: "./project.inlang",
