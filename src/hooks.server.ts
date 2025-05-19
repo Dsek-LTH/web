@@ -33,9 +33,10 @@ import {
 } from "@prisma/client/runtime/library";
 import { verifyCostCenterData } from "./routes/(app)/expenses/verification";
 import { dev } from "$app/environment";
+import { env as publicEnv } from "$env/dynamic/public";
 
 Sentry.init({
-  dsn: "https://763ca90d83f725f70b31f0fd40e7ffda@o4508757277212672.ingest.de.sentry.io/4508757278523472",
+  dsn: publicEnv.PUBLIC_SENTRY_DSN,
   tracesSampleRate: 1,
 });
 
