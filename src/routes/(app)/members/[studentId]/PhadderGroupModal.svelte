@@ -3,7 +3,7 @@
   import { superForm } from "$lib/utils/client/superForms";
   import * as m from "$paraglide/messages";
   import FormSelect from "$lib/components/forms/FormSelect.svelte";
-  import type { PhadderGroup } from "@prisma/client";
+  import type { Member, PhadderGroup } from "@prisma/client";
   import { page } from "$app/state";
   import Modal from "$lib/components/Modal.svelte";
   import type { PhadderGroupSchema } from "./+page.server";
@@ -13,10 +13,12 @@
     isEditing = $bindable(),
     phadderGroups,
     data,
+    viewedMember,
   }: {
-    isEditing: Boolean;
+    isEditing: boolean;
     phadderGroups: PhadderGroup[];
     data: SuperValidated<PhadderGroupSchema>;
+    viewedMember: Member;
   } = $props();
 
   const superform = superForm<PhadderGroupSchema>(data, {
@@ -26,7 +28,7 @@
       }
     },
   });
-  const { form, errors, constraints, enhance } = superform;
+  const { form, enhance } = superform;
 
   let skipped = false;
   const member = $derived(page.data.member);
@@ -35,10 +37,11 @@
   );
 </script>
 
-{#if member}
+{#if member?.id === viewedMember?.id}
   <Modal show={noPhadderGroup}>
     <h3 class="text-lg font-bold">{m.members_phadder_group_modal_title()}</h3>
     <p class="text-sm font-light">
+      <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized client-side -->
       {@html marked(m.members_phadder_group_modal_subtitle())}
     </p>
 

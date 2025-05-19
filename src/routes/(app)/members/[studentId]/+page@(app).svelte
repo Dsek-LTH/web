@@ -231,6 +231,7 @@
   bind:isEditing
   data={data.form}
   phadderGroups={data.phadderGroups}
+  viewedMember={member}
 />
 
 <style>
