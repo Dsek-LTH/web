@@ -1,6 +1,6 @@
 <script lang="ts">
   import QRCodeScanner from "$lib/components/QRCodeScanner.svelte";
-  import { goto } from "$app/navigation";
+  import { goto } from "$lib/utils/redirect";
   import { page } from "$app/stores";
 
   function handleScan(qrCodeUuid: string) {
