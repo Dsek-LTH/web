@@ -28,6 +28,8 @@ jobs:
             "PUBLIC_BUCKETS_FILES=files"
             "PUBLIC_BUCKETS_MEMBERS=members"
             "VERSION=${{ github.ref_name }}"
+          secrets: |
+            "sentry_auth_token=${{ secrets.SENTRY_AUTH_TOKEN }}"
           push: true
           tags: registry.dsek.se/web/website:${{ github.ref_name }},registry.dsek.se/web/website:latest
 
