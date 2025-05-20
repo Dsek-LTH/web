@@ -35,7 +35,7 @@ ARG VERSION
 ENV VERSION ${VERSION}
 
 COPY . .
-RUN pnpm run build
+RUN --mount=type=secret,id=sentry_auth_token,env=SENTRY_AUTH_TOKEN pnpm run build
 
 FROM base AS final
 COPY package.json .
