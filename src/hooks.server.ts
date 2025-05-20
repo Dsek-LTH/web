@@ -32,13 +32,16 @@ import {
   PrismaClientValidationError,
 } from "@prisma/client/runtime/library";
 import { verifyCostCenterData } from "./routes/(app)/expenses/verification";
-import { dev } from "$app/environment";
+import { dev, version } from "$app/environment";
 import { env as publicEnv } from "$env/dynamic/public";
 
-Sentry.init({
-  dsn: publicEnv.PUBLIC_SENTRY_DSN,
-  tracesSampleRate: 1,
-});
+if (!dev) {
+  Sentry.init({
+    dsn: publicEnv.PUBLIC_SENTRY_DSN,
+    tracesSampleRate: 1,
+    release: version,
+  });
+}
 
 // TODO: This function should perhaps only be called during dev? Build? I'm not sure
 if (dev) verifyCostCenterData();
