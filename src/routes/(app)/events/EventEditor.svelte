@@ -101,7 +101,15 @@
         />
       </div>
 
-      <FormFileInput {superform} field="image" label="Bild" accept="image/*" />
+      <FormFileInput
+        {superform}
+        field="image"
+        label="Bild"
+        accept="image/*"
+        compressionOptions={{
+          maxWidthOrHeight: 1920,
+        }}
+      />
       <FormInput
         {superform}
         field="imageUrl"
