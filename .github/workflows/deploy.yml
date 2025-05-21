@@ -28,6 +28,8 @@ jobs:
             "PUBLIC_BUCKETS_FILES=files"
             "PUBLIC_BUCKETS_MEMBERS=members"
             "VERSION=${{ github.ref_name }}"
+            "SENTRY_ORG=d-sektionen-o6"
+            "SENTRY_PROJECT=dsek-web"
           secrets: |
             "sentry_auth_token=${{ secrets.SENTRY_AUTH_TOKEN }}"
           push: true
