@@ -192,7 +192,8 @@ export const models: SeedClientOptions["models"] = {
     data: {
       createdAt: () => faker.date.recent({ days: 14 }),
       expiresAt: () => faker.date.soon({ days: 14 }),
-      markdownSv: () => "- " + faker.lorem.sentences({ min: 3, max: 7 }, "\n- "),
+      markdownSv: () =>
+        "- " + faker.lorem.sentences({ min: 3, max: 7 }, "\n- "),
       markdownEn: () =>
         "- " + faker.lorem.sentences({ min: 3, max: 7 }, "\n- "),
       link: () => faker.internet.url(),

@@ -15,8 +15,9 @@ type PayloadToModel<T> = T extends OperationPayload
     ? Types.Result.DefaultSelection<T[number]>[]
     : never;
 
-type WithRelation<T extends keyof Prisma.TypeMap["model"]> =
-  PayloadToModel<Prisma.TypeMap["model"][T]["payload"]>;
+type WithRelation<T extends keyof Prisma.TypeMap["model"]> = PayloadToModel<
+  Prisma.TypeMap["model"][T]["payload"]
+>;
 
 type FieldType<
   ModelName extends keyof Prisma.TypeMap["model"],
