@@ -618,7 +618,7 @@
   "members_uploadNew": "Upload new",
   "members_profilePictureOption": "Profile picture option",
   "members_selectedProfilePictureOption": "Selected profile picture option",
-  "members_phadder_group_modal_title": "You haven't entered your phadder group. Please select the phadder group you where in during your introduction introduction?",
+  "members_phadder_group_modal_title": "You haven't entered your phadder group. Please select the phadder group you where in during your introduction?",
   "members_phadder_group_modal_subtitle": "Is your phadder group not in the list? Contact the <a class=\"underline\" href=\"https://discord.com/channels/689440442974208015/1325051888046964850\">tech support discord</a>.",
   "phadder_group_modal_skip": "Skip for now",
   "members_errors_notLoggedIn": "Not logged in",
