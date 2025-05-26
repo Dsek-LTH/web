@@ -164,6 +164,13 @@ export function mapIndexToMessage(index: SearchableIndex) {
   }
 }
 
+function bytesToBase64(bytes: ArrayLike<number>): string {
+  const binString = Array.from(bytes, (byte) =>
+    String.fromCodePoint(byte),
+  ).join("");
+  return btoa(binString);
+}
+
 /**
  * Meilisearch has constraints on the id field:
  * it can only contain alphanumeric characters (a-z, A-Z, 0-9), hyphens (-), and underscores (_).
@@ -172,5 +179,10 @@ export function mapIndexToMessage(index: SearchableIndex) {
  * It contains dots (.) and possibly swedish characters (åäö).
  */
 export function prismaIdToMeiliId(id: string) {
-  return btoa(id).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+  // btoa cannot handle characters larger than 1 byte
+  // https://developer.mozilla.org/en-US/docs/Web/API/Window/btoa#exceptions
+  const result = bytesToBase64(new TextEncoder().encode(id))
+    .replace(/[^a-zA-Z0-9_-]/g, "")
+    .trim();
+  return result;
 }
