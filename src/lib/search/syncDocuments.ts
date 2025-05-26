@@ -15,7 +15,8 @@ import { prismaIdToMeiliId } from "./searchHelpers";
 import { fileHandler } from "$lib/files";
 import type { AuthUser } from "@zenstackhq/runtime";
 import apiNames from "$lib/utils/apiNames";
-import { promiseAllInBatches } from "$lib/utils/batch";
+
+const batchSize = 5;
 
 /**
  * Syncs all governing documents
@@ -48,27 +49,34 @@ export const syncGoverningDocuments = async () => {
     },
   });
 
-  const governingDocumentsWithText: GoverningDocumentDataInMeilisearch[] =
-    await promiseAllInBatches(
-      governingDocuments,
-      async (document) => {
-        // Fetch the content of the document
-        const content = await getFileContent(document.url);
-        // If the fetch was successful, add the document to the result
-        if (content) {
-          return {
-            ...document,
-            content,
-            id: prismaIdToMeiliId(document.id),
-          };
+  for (let i = 0; i < governingDocuments.length; i += batchSize) {
+    const docsBatch = governingDocuments.slice(i, i + batchSize);
+    const data: GoverningDocumentDataInMeilisearch[] = await Promise.all(
+      docsBatch.map(async (document) => {
+        if (!document.url) {
+          console.log(
+            `Meilisearch: Document ${document.title} does not have a URL, skipping`,
+          );
+          return null;
         }
-      },
-      5,
-    ).then((documents) =>
-      documents.filter((document) => document !== undefined),
-    );
+        const content = await getFileContent(document.url);
+        if (!content) {
+          console.log(
+            `Meilisearch: Failed to fetch content for document ${document.title}, skipping`,
+          );
+          return null;
+        }
+        return {
+          ...document,
+          content,
+          id: prismaIdToMeiliId(document.id),
+        };
+      }),
+    ).then((docs) => docs.filter((doc) => doc !== null));
 
-  await addDataToIndex(documentsIndex, governingDocumentsWithText);
+    await addDataToIndex(documentsIndex, data);
+  }
+
   await setRulesForIndex(
     documentsIndex,
     meilisearchConstants.governingDocument,
@@ -105,28 +113,37 @@ export const syncMeetingDocuments = async () => {
   const documentsIndex = await meilisearch.getIndex(indexName);
   await resetIndex(documentsIndex, meilisearchConstants.meetingDocument);
 
-  const meetingDocumentsWithText: MeetingDocumentDataInMeilisearch[] =
-    await promiseAllInBatches(
-      files,
-      async (file) => {
-        if (file.thumbnailUrl) {
-          const content = await getFileContent(file.thumbnailUrl);
-          if (content) {
-            return {
-              id: prismaIdToMeiliId(file.id),
-              title: file.name,
-              content,
-              url: file.thumbnailUrl,
-            };
-          }
+  for (let i = 0; i < files.length; i += batchSize) {
+    const filesBatch = files.slice(i, i + batchSize);
+    // Fetch content for each file in the batch in parallel
+    const data: MeetingDocumentDataInMeilisearch[] = await Promise.all(
+      filesBatch.map(async (file) => {
+        if (!file.thumbnailUrl) {
+          console.log(
+            `Meilisearch: File ${file.name} does not have a thumbnail URL, skipping`,
+          );
+          return null; // Skip files without a thumbnail URL
         }
-      },
-      5,
-    ).then((documents) =>
-      documents.filter((document) => document !== undefined),
-    );
+        const content = await getFileContent(file.thumbnailUrl ?? "");
+        if (!content) {
+          console.log(
+            `Meilisearch: Failed to fetch content for file ${file.name}, skipping`,
+          );
+          return null; // Skip files where content could not be fetched
+        }
+        return {
+          id: prismaIdToMeiliId(file.id),
+          title: file.name ?? "",
+          content: content ?? "",
+          url: file.thumbnailUrl ?? "",
+        };
+      }),
+    ).then((docs) => docs.filter((doc) => doc !== null));
 
-  await addDataToIndex(documentsIndex, meetingDocumentsWithText);
+    // Add the data to the index for this batch and wait before continuing
+    await addDataToIndex(documentsIndex, data);
+  }
+
   await setRulesForIndex(documentsIndex, meilisearchConstants.meetingDocument);
 };
 
