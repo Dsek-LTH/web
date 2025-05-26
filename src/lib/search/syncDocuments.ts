@@ -16,7 +16,7 @@ import { fileHandler } from "$lib/files";
 import type { AuthUser } from "@zenstackhq/runtime";
 import apiNames from "$lib/utils/apiNames";
 
-const batchSize = 5;
+const batchSize = 10;
 
 /**
  * Syncs all governing documents
@@ -59,7 +59,7 @@ export const syncGoverningDocuments = async () => {
           );
           return null;
         }
-        const content = await getFileContent(document.url);
+        const content = await getFileContent(document.url, document.title);
         if (!content) {
           console.log(
             `Meilisearch: Failed to fetch content for document ${document.title}, skipping`,
@@ -124,7 +124,10 @@ export const syncMeetingDocuments = async () => {
           );
           return null; // Skip files without a thumbnail URL
         }
-        const content = await getFileContent(file.thumbnailUrl ?? "");
+        const content = await getFileContent(
+          file.thumbnailUrl ?? "",
+          file.name,
+        );
         if (!content) {
           console.log(
             `Meilisearch: Failed to fetch content for file ${file.name}, skipping`,
@@ -147,7 +150,7 @@ export const syncMeetingDocuments = async () => {
   await setRulesForIndex(documentsIndex, meilisearchConstants.meetingDocument);
 };
 
-const getFileContent = async (url: string) => {
+const getFileContent = async (url: string, fileName: string) => {
   try {
     console.log(`Poppler: Fetching PDF from ${url}`);
     let pdfResponse;
@@ -180,7 +183,7 @@ const getFileContent = async (url: string) => {
     const buffer = await pdfResponse.arrayBuffer();
     // Send the PDF to the Poppler server to extract the text
     const now = new Date();
-    const popplerResponse = await pdfToText(buffer);
+    const popplerResponse = await pdfToText(buffer, fileName);
     console.log(
       `Poppler: Received content from ${url} from Poppler server. Took ${new Date().getTime() - now.getTime()} ms`,
     );
@@ -191,11 +194,12 @@ const getFileContent = async (url: string) => {
   }
 };
 
-const pdfToText = async (buffer: ArrayBuffer) => {
+const pdfToText = async (buffer: ArrayBuffer, fileName: string) => {
   const formData = new FormData();
   formData.append(
     "file",
     new Blob([new Uint8Array(buffer)], { type: "application/pdf" }),
+    fileName,
   );
 
   const popplerResponse = await fetch(env.POPPLER_SERVER_URL, {
