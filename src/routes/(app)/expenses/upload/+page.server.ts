@@ -21,6 +21,7 @@ import { sendNotificationToSigner } from "../helper";
 import { authorize } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
 import { convertPriceToCents } from "$lib/utils/convertPrice";
+import { error } from "@sveltejs/kit";
 
 export const load = async ({ locals: { user } }) => {
   authorize(apiNames.EXPENSES.CREATE, user);
@@ -84,7 +85,10 @@ export const actions = {
       allowFiles: true,
     });
     if (!form.valid) return fail(400, { form });
-    if (!member) throw fail(401, { form });
+    if (!member)
+      throw error(401, {
+        message: "Du måste vara inloggad för att skapa utlägg",
+      });
     const expense = await prisma.expense.create({
       data: {
         date: form.data.date,
