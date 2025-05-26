@@ -1698,34 +1698,6 @@
           "maxLength": null
         },
         {
-          "id": "public.articles.body_sv",
-          "name": "body_sv",
-          "columnName": "body_sv",
-          "type": "text",
-          "isRequired": true,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": null
-        },
-        {
-          "id": "public.articles.header_sv",
-          "name": "header_sv",
-          "columnName": "header_sv",
-          "type": "varchar",
-          "isRequired": true,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": 255
-        },
-        {
           "id": "public.articles.image_urls",
           "name": "image_urls",
           "columnName": "image_urls",

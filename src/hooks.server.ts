@@ -117,7 +117,6 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
   setLanguageTag(lang);
   const session = await event.locals.getSession();
   const prisma = extendedPrisma(lang, session?.user.student_id);
-  const prisma = extendedPrisma(lang, session?.user.student_id);
 
   if (!session?.user) {
     let externalCode = event.cookies.get("externalCode"); // Retrieve the externalCode from cookies
