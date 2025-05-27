@@ -81,7 +81,7 @@
       >
     </form>
     <!-- Read all notifications (notifications are read on visit otherwise) -->
-    {#if notifications !== undefined && notifications?.filter((n) => n.readAt === null)?.length > 0}
+    {#if notifications && notifications?.filter((n) => n.readAt === null)?.length > 0}
       <form
         method="POST"
         action="/notifications?/readNotifications"
