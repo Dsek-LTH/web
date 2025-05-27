@@ -19,9 +19,7 @@
   }
 
   let { isEditing = $bindable(), phadderGroups, data }: PageProps = $props();
-  // const { phadderGroups, data }: PageProps = $props();
-  // export let phadderGroups: PhadderGroup[];
-  // export let data: SuperValidated<UpdateSchema>;
+
   const superform = superForm<UpdateSchema>(data, {
     onResult: (event) => {
       if (event.result.type === "success") {
