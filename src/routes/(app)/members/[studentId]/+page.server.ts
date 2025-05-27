@@ -145,6 +145,14 @@ const updateSchema = memberSchema
 
 export type UpdateSchema = Infer<typeof updateSchema>;
 
+const phadderGroupSchema = memberSchema
+  .pick({
+    classYear: true,
+    nollningGroupId: true,
+  })
+  .partial();
+export type PhadderGroupSchema = Infer<typeof updateSchema>;
+
 export const actions: Actions = {
   updateFoodPreference: async ({ params, locals, request }) => {
     const { prisma } = locals;
@@ -164,6 +172,24 @@ export const actions: Actions = {
       message: m.members_memberUpdated(),
       type: "success",
     });
+  },
+  updatePhadderGroup: async ({ params, locals, request }) => {
+    const { prisma } = locals;
+    const form = await superValidate(request, zod(phadderGroupSchema));
+    if (!form.valid) return fail(400, { form });
+    const { studentId } = params;
+    await prisma.member.update({
+      where: { studentId },
+      data: {
+        ...form.data,
+      },
+    });
+    if (form.data.nollningGroupId != null)
+      return message(form, {
+        message: m.members_memberUpdated(),
+        type: "success",
+      });
+    else return null;
   },
   update: async ({ params, locals, request }) => {
     const { prisma } = locals;
