@@ -139,6 +139,7 @@ const updateSchema = memberSchema
     foodPreference: true,
     classProgramme: true,
     classYear: true,
+    graduationYear: true,
     nollningGroupId: true,
   })
   .partial();

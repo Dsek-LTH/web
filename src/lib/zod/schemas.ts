@@ -28,6 +28,7 @@ export const memberSchema = z.object({
     .refine((p) => p == null || programmes.some((c) => c.id === p), {
       message: "Ogiltigt program",
     }),
+  graduationYear: z.number().min(1982).nullable().default(null),
   foodPreference: z.string().nullable().default(null),
   nollningGroupId: z.string().uuid().nullable(),
 });
