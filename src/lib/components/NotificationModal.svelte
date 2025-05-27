@@ -104,7 +104,7 @@
       </form>
     {/if}
     <!-- Deletes all notifications -->
-    {#if notifications !== undefined && notifications?.flatMap((n) => n.individualIds).length > 0}
+    {#if notifications && notifications?.flatMap((n) => n.individualIds).length > 0}
       <form
         method="POST"
         action="/notifications?/deleteNotification"
