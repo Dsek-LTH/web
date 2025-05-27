@@ -28,11 +28,7 @@
     },
   });
   const { form, errors, constraints, enhance } = superform;
-  let hasGraduated = $derived($form.graduationYear != null);
-  let isEditingGraduationYear = $state(false);
-  let shouldShowGraduationYear = $derived(
-    isEditingGraduationYear || hasGraduated,
-  );
+  let isEditingGraduationYear = $derived($form.graduationYear != null);
 </script>
 
 <form
@@ -128,14 +124,12 @@
       <Labeled label={m.members_hasGraduated()}>
         <input
           type="checkbox"
-          name="hasGraduated"
-          id="hasGraduated"
           class="checkbox-primary checkbox"
-          bind:checked={hasGraduated}
+          bind:checked={isEditingGraduationYear}
           {...$constraints.graduationYear}
         />
       </Labeled>
-      {#if shouldShowGraduationYear}
+      {#if isEditingGraduationYear}
         <Labeled
           label={m.members_graduationYear()}
           error={$errors.graduationYear}
