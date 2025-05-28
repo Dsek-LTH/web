@@ -564,6 +564,7 @@ model Member {
   picturePath             String?                 @map("picture_path") @db.Text
   classProgramme          String?                 @map("class_programme") @db.VarChar(255)
   classYear               Int?                    @map("class_year")
+  graduationYear          Int?                    @map("graduation_year")
   visible                 Boolean                 @default(true)
   foodPreference          String?                 @map("food_preference") @db.VarChar(255)
   stripeCustomerId        String?                 @map("stripe_customer_id")
