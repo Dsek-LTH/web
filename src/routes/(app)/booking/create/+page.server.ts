@@ -5,6 +5,8 @@ import { redirect } from "$lib/utils/redirect";
 import * as m from "$paraglide/messages";
 import { bookingSchema } from "../schema";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 import {
   type Bookable,
   type BookingRequest,
@@ -73,6 +75,9 @@ export const actions = {
     const { request, locals } = event;
     const { prisma, user } = locals;
 
+    dayjs.extend(utc);
+    dayjs.extend(timezone);
+
     const form = await superValidate(request, zod(bookingSchema));
     if (!form.valid) return fail(400, { form });
     const { start, end, name, bookables } = form.data;
@@ -80,8 +85,14 @@ export const actions = {
     const createdRequest = await prisma.bookingRequest.create({
       data: {
         bookerId: user?.memberId,
-        start: new Date(start),
-        end: new Date(end),
+        start: dayjs
+          .tz(start, "Europe/Stockholm")
+          .tz("Etc/UTC")
+          .format("YYYY-MM-DDTHH:mm:ssZ"),
+        end: dayjs
+          .tz(end, "Europe/Stockholm")
+          .tz("Etc/UTC")
+          .format("YYYY-MM-DDTHH:mm:ssZ"),
         event: name,
         bookables: {
           connect: bookables.map((bookable) => ({
