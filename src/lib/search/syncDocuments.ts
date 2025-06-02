@@ -127,7 +127,7 @@ export const syncMeetingDocuments = async () => {
         };
       }),
     ).then((docs) => docs.filter((doc) => doc !== null));
-    if (data.length != 0) await addDataToIndex(documentsIndex, data);
+    if (data.length !== 0) await addDataToIndex(documentsIndex, data);
   });
 
   await setRulesForIndex(documentsIndex, meilisearchConstants.meetingDocument);
@@ -157,7 +157,7 @@ const getFileContentOrNull = async (
     console.warn(`Meilisearch: No URL provided for ${fileName}, skipping`);
     return null;
   }
-  const ext = url.split(".").pop()?.toLowerCase();
+  const ext = new URL(url).pathname.split(".").pop()?.toLowerCase();
   if (ext === "pdf") return await getPDFContent(url, fileName);
   if (ext === "html" || ext === "htm") return await getHTMLContent(url);
   if (ext === "txt") return await getTxtContent(url);
