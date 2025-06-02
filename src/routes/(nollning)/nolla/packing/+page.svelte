@@ -135,6 +135,7 @@
         class="!border-secondary"
         width={1512}
         height={2016}
+        src="https://placehold.co/1512x2018?text=H%C3%B6gtidsdr%C3%A4kt"
         alt="Högtidsdräktsexempel"
       />
       <h6>{@html m.nolla_packing_frack()}</h6>
