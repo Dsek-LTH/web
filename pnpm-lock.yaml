@@ -107,6 +107,9 @@ importers:
       meilisearch:
         specifier: ^0.45.0
         version: 0.45.0
+      minecraft-server-ping:
+        specifier: ^0.3.3
+        version: 0.3.3(@avanio/logger-like@0.2.12)(@luolapeikko/result-option@1.0.7)(@types/varint@6.0.3)(varint@6.0.0)
       minio:
         specifier: ^8.0.2
         version: 8.0.2
@@ -365,6 +368,9 @@ packages:
         optional: true
       nodemailer:
         optional: true
+
+  '@avanio/logger-like@0.2.12':
+    resolution: {integrity: sha512-XoIRKMBtYmva8ElpC5ccr6JkD2WBzVMV4qTcdTFPNkCAf524IET2mcm923PwfoLinDwEuty08sSEtcsoq68+Lw==}
 
   '@babel/code-frame@7.26.2':
     resolution: {integrity: sha512-RJlIHRueQgwWitWgF8OdFYGZX328Ax5BCemNGlqHfplnRT9ESi8JkFlvaVYbS+UubVY6dpv87Fs2u5M29iNFVQ==}
@@ -1095,6 +1101,9 @@ packages:
   '@lix-js/fs@1.0.0':
     resolution: {integrity: sha512-B3gnR0B7mOiYePnxh+XNU1OpVvvRYcLJ3MrdqkFVKiXz1fbKKCEMA53Vwhu3ehAMFFDB1Mo9+GVjiY2ssbA/ZQ==}
 
+  '@luolapeikko/result-option@1.0.7':
+    resolution: {integrity: sha512-WaDWtXAlxDChlSOhcR5xFAt2p5bltIzSiS0AkVb9DXlgG0Ny+SfaJr6/EKTixE9sxFIt5uYd+YjYlvt+apBkVA==}
+
   '@mapbox/node-pre-gyp@1.0.11':
     resolution: {integrity: sha512-Yhlar6v9WQgUp/He7BdgzOz8lqMQ8sU+jkCq7Wx8Myc5YFJLbEe7lgui/V7G1qB1DJykHSGwreceSaD60Y0PUQ==}
     hasBin: true
@@ -1765,6 +1774,9 @@ packages:
 
   '@types/validator@13.12.2':
     resolution: {integrity: sha512-6SlHBzUW8Jhf3liqrGGXyTJSIFe4nqlJ5A5KaMZ2l/vbM3Wh3KSybots/wfWVzNLK4D1NZluDlSQIbIEPx6oyA==}
+
+  '@types/varint@6.0.3':
+    resolution: {integrity: sha512-DHukoGWdJ2aYkveZJTB2rN2lp6m7APzVsoJQ7j/qy1fQxyamJTPD5xQzCMoJ2Qtgn0mE3wWeNOpbTyBFvF+dyA==}
 
   '@types/wrap-ansi@3.0.0':
     resolution: {integrity: sha512-ltIpx+kM7g/MLRZfkbL7EsCEjfzCcScLpkg37eXEtx5kmrAKBkTJwd1GIAjDSL8wTpM6Hzn5YO4pSb91BEwu1g==}
@@ -3951,6 +3963,15 @@ packages:
     resolution: {integrity: sha512-I9jwMn07Sy/IwOj3zVkVik2JTvgpaykDZEigL6Rx6N9LbMywwUSMtxET+7lVoDLLd3O3IXwJwvuuns8UB/HeAg==}
     engines: {node: '>=4'}
 
+  minecraft-server-ping@0.3.3:
+    resolution: {integrity: sha512-XZvIg9TNKfnxsimgwhRBjzlG93JJ5otS89B+3cszpD1YfWTYwJ4tt8xqaYkaPpRkTXpabhliwMrcvndVKA0TYQ==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      '@avanio/logger-like': '>= 0.0.1'
+      '@luolapeikko/result-option': ^1.0
+      '@types/varint': ^6.0
+      varint: ^6.0
+
   minimatch@10.0.1:
     resolution: {integrity: sha512-ethXTt3SGGR+95gudmqJ1eNhRO7eGEGIgYA9vnPatK4/etz2MEVDno5GMCibdMTuBMyElzIlgxMna3K94XDIDQ==}
     engines: {node: 20 || >=22}
@@ -5592,6 +5613,9 @@ packages:
     resolution: {integrity: sha512-c1Q0mCiPlgdTVVVIJIrBuxNicYE+t/7oKeI9MWLj3fh/uq2Pxh/3eeWbVZ4OcGW1TUf53At0njHw5SMdA3tmMg==}
     engines: {node: '>= 0.10'}
 
+  varint@6.0.0:
+    resolution: {integrity: sha512-cXEIW6cfr15lFv563k4GuVuW/fiwjknytD37jIOLSdSWuOI6WnO/oKwmP2FQTU2l01LP8/M5TSAJpzUaGe3uWg==}
+
   vary@1.1.2:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
@@ -6005,6 +6029,8 @@ snapshots:
       svelte: 5.25.3
     optionalDependencies:
       nodemailer: 6.9.16
+
+  '@avanio/logger-like@0.2.12': {}
 
   '@babel/code-frame@7.26.2':
     dependencies:
@@ -6738,6 +6764,8 @@ snapshots:
       solid-js: 1.7.11
 
   '@lix-js/fs@1.0.0': {}
+
+  '@luolapeikko/result-option@1.0.7': {}
 
   '@mapbox/node-pre-gyp@1.0.11':
     dependencies:
@@ -7587,6 +7615,10 @@ snapshots:
 
   '@types/validator@13.12.2':
     optional: true
+
+  '@types/varint@6.0.3':
+    dependencies:
+      '@types/node': 22.10.1
 
   '@types/wrap-ansi@3.0.0': {}
 
@@ -10056,6 +10088,13 @@ snapshots:
 
   min-indent@1.0.1: {}
 
+  minecraft-server-ping@0.3.3(@avanio/logger-like@0.2.12)(@luolapeikko/result-option@1.0.7)(@types/varint@6.0.3)(varint@6.0.0):
+    dependencies:
+      '@avanio/logger-like': 0.2.12
+      '@luolapeikko/result-option': 1.0.7
+      '@types/varint': 6.0.3
+      varint: 6.0.0
+
   minimatch@10.0.1:
     dependencies:
       brace-expansion: 2.0.1
@@ -11816,6 +11855,8 @@ snapshots:
 
   validator@13.12.0:
     optional: true
+
+  varint@6.0.0: {}
 
   vary@1.1.2: {}
 

@@ -14,6 +14,8 @@
   import * as m from "$paraglide/messages";
   import Readme from "$lib/components/home/Readme.svelte";
   import SEO from "$lib/seo/SEO.svelte";
+  import Wiki from "$lib/components/home/Wiki.svelte";
+  import Minecraft from "$lib/components/home/Minecraft.svelte";
   export let data: PageData;
 </script>
 
@@ -64,6 +66,18 @@
   </section>
 
   <section
+    class="flex flex-col justify-evenly gap-4 sm:flex-row md:col-span-3 lg:col-span-1 lg:flex-col xl:col-span-2"
+  >
+    {#if data.readmeIssues}
+      <Readme issues={data.readmeIssues} />
+    {/if}
+  </section>
+
+  <section class="md:col-span-3 lg:col-span-2 xl:col-span-4">
+    <Wiki items={data.wikiData} />
+  </section>
+
+  <section
     class="order-last md:col-span-3 lg:col-span-3 xl:order-none xl:col-span-3"
   >
     <CodeWithDWWW
@@ -71,14 +85,11 @@
       commitData={data.latestCommit}
     />
   </section>
+  <section class="flex flex-col justify-evenly md:col-span-3">
+    <Minecraft minecraftStatus={data.minecraftStatus} />
+  </section>
 
   <section class="md:col-span-3 xl:col-span-3">
     <Documents files={data.files} />
-  </section>
-
-  <section class="md:col-span-3 xl:col-span-6">
-    {#if data.readme}
-      <Readme readme={data.readme} />
-    {/if}
   </section>
 </div>
