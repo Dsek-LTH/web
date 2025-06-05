@@ -2,7 +2,7 @@
   import slasque from "$lib/nollning/slasque.webp";
   import mixed from "$lib/nollning/mixed.webp";
   import suit from "$lib/nollning/suit.webp";
-  import frack from "$lib/nollning/frack.webp";
+  // import frack from "$lib/nollning/frack.webp";
   import * as m from "$paraglide/messages";
 </script>
 
@@ -86,7 +86,7 @@
   <h1
     class="nolla-page-title mb-8 font-nolla-mono text-3xl font-bold sm:text-4xl"
   >
-    {m.nollning_wikia_dressCodes}
+    {@html m.nollning_wikia_dressCodes()}
   </h1>
   <ul
     class="[&>li>img]:neo-brutal-border grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-4 [&>li>h6]:text-lg [&>li>h6]:font-semibold [&>li>img]:mb-2 [&>li>img]:!border-8 [&>li>img]:object-contain [&>li>p>i]:text-sm [&>li>p>i]:opacity-80 [&>li>p]:mt-2"
@@ -135,7 +135,7 @@
         class="!border-secondary"
         width={1512}
         height={2016}
-        src={frack}
+        src="https://placehold.co/1512x2018?text=H%C3%B6gtidsdr%C3%A4kt"
         alt="Högtidsdräktsexempel"
       />
       <h6>{@html m.nolla_packing_frack()}</h6>

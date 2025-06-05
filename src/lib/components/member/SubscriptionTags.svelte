@@ -12,11 +12,11 @@
     .filter((t) => t != "");
 </script>
 
-<div class={"flex flex-col items-center xl:grid xl:grid-cols-2"}>
+<div class={"columns-1 items-center gap-5 sm:columns-2"}>
   {#each tags as tag}
-    <div class="m-1 flex w-full justify-self-center">
+    <div class="mx-2 mb-3 flex w-full justify-self-center">
       <label
-        class="ml-auto mr-auto flex max-w-full cursor-pointer items-center rounded-full border pl-2"
+        class="flex w-full max-w-full cursor-pointer items-center justify-between rounded-2xl border pl-2"
         style={"border-color: " + tag.color + ";"}
       >
         <input
@@ -27,7 +27,7 @@
           value={tag.id}
         />
         <span
-          class="ms-3 box-border max-w-80 break-words pb-1 pt-1 text-center text-sm font-medium xl:max-w-44"
+          class="ms-3 box-border max-w-80 break-words pb-1 pt-1 text-left text-sm font-medium xl:max-w-44"
         >
           {tag.name}
         </span>

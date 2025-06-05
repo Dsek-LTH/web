@@ -17,6 +17,7 @@
   export let superform: SuperForm<ArticleSchema>;
   export let articleImages: string[] = [];
   export let articleVideo: string | undefined = undefined;
+  export let activeTab: "sv" | "en";
 
   const { form, enhance, errors } = superform;
 
@@ -65,7 +66,7 @@
   enctype="multipart/form-data"
   use:enhance
 >
-  <LangTabs>
+  <LangTabs bind:activeTab>
     <svelte:fragment slot="sv">
       <FormInput {superform} field="header" label={m.news_header()} />
       <FormMarkdown {superform} field="body" label={m.news_description()} />

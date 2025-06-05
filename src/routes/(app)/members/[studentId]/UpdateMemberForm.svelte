@@ -10,10 +10,16 @@
   import type { PhadderGroup } from "@prisma/client";
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
-  import { page } from "$app/stores";
-  export let isEditing;
-  export let phadderGroups: PhadderGroup[];
-  export let data: SuperValidated<UpdateSchema>;
+  import { page } from "$app/state";
+
+  interface PageProps {
+    isEditing: boolean;
+    phadderGroups: PhadderGroup[];
+    data: SuperValidated<UpdateSchema>;
+  }
+
+  let { isEditing = $bindable(), phadderGroups, data }: PageProps = $props();
+
   const superform = superForm<UpdateSchema>(data, {
     onResult: (event) => {
       if (event.result.type === "success") {
@@ -22,6 +28,7 @@
     },
   });
   const { form, errors, constraints, enhance } = superform;
+  let isEditingGraduationYear = $derived($form.graduationYear != null);
 </script>
 
 <form
@@ -64,7 +71,7 @@
   />
   <div
     class="flex w-full flex-wrap gap-2 *:flex-1"
-    class:hidden={!isAuthorized(apiNames.MEMBER.UPDATE, $page.data.user)}
+    class:hidden={!isAuthorized(apiNames.MEMBER.UPDATE, page.data.user)}
   >
     <Labeled
       label={m.members_programme()}
@@ -113,9 +120,34 @@
           })),
       ]}
     />
+    <div>
+      <Labeled label={m.members_hasGraduated()}>
+        <input
+          type="checkbox"
+          class="checkbox-primary checkbox"
+          bind:checked={isEditingGraduationYear}
+          {...$constraints.graduationYear}
+        />
+      </Labeled>
+      {#if isEditingGraduationYear}
+        <Labeled
+          label={m.members_graduationYear()}
+          error={$errors.graduationYear}
+        >
+          <input
+            type="number"
+            name="graduationYear"
+            id="graduationYear"
+            class="input input-bordered"
+            bind:value={$form.graduationYear}
+            {...$constraints.graduationYear}
+          />
+        </Labeled>
+      {/if}
+    </div>
   </div>
   <div class="mt-4 flex flex-wrap gap-2 *:flex-1">
-    <a href="{$page.params['studentId']}/edit-bio" class="btn">
+    <a href="{page.params['studentId']}/edit-bio" class="btn">
       {m.members_editBio()}
     </a>
     <button type="submit" class="btn btn-primary">{m.members_save()}</button>

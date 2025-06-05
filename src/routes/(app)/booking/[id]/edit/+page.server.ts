@@ -6,6 +6,9 @@ import * as m from "$paraglide/messages";
 import { isAuthorized } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
 import { getBookingRequestOrThrow, getSuperValidatedForm } from "../../utils";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 
 export const load = async ({ locals, params }) => {
   const { prisma } = locals;
@@ -28,13 +31,22 @@ export const actions = {
     if (!form.valid) return fail(400, { form });
     const { start, end, name, bookables } = form.data;
 
+    dayjs.extend(utc);
+    dayjs.extend(timezone);
+
     await prisma.bookingRequest.update({
       where: {
         id: event.params.id,
       },
       data: {
-        start: new Date(start),
-        end: new Date(end),
+        start: dayjs
+          .tz(start, "Europe/Stockholm")
+          .tz("Etc/UTC")
+          .format("YYYY-MM-DDTHH:mm:ssZ"),
+        end: dayjs
+          .tz(end, "Europe/Stockholm")
+          .tz("Etc/UTC")
+          .format("YYYY-MM-DDTHH:mm:ssZ"),
         event: name,
         bookables: {
           set: bookables.map((bookable) => ({
