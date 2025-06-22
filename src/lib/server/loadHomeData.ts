@@ -218,7 +218,7 @@ export const loadHomeData = async ({
   }
 
   // WIKI
-  let wikiData: WikiChangeItem[] = [];
+  let wikiData: WikiDataItem[] = [];
   const loginResponse = await wikiLoginToken();
   if (loginResponse) {
     const { loginToken, cookies: loginCookies } = loginResponse;
