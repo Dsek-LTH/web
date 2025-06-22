@@ -218,35 +218,55 @@ export const loadHomeData = async ({
   }
 
   // WIKI
-  const { loginToken, cookies: loginCookies } = await wikiLoginToken();
-  const { cookies } = await wikiLoginSession(
-    env.MEDIAWIKI_USERNAME,
-    env.MEDIAWIKI_PASSWORD,
-    loginToken,
-    loginCookies,
-  );
+  let wikiData: WikiChangeItem[] = [];
+  const loginResponse = await wikiLoginToken();
+  if (loginResponse) {
+    const { loginToken, cookies: loginCookies } = loginResponse;
 
-  const wikiChanges = await wikiApiRecentChanges(cookies);
-  let changes = wikiChanges.query.recentchanges;
-  let rccontinue: string | null = wikiChanges.continue.rccontinue;
-  const removeChangesDuplicates = () =>
-    changes.filter(
-      (v, i) => changes.findIndex(({ title }) => v.title == title) == i,
+    const {
+      cookies,
+      data: { login },
+    } = await wikiLoginSession(
+      env.MEDIAWIKI_USERNAME,
+      env.MEDIAWIKI_PASSWORD,
+      loginToken,
+      loginCookies,
     );
-  changes = removeChangesDuplicates();
-  while (changes.length < 3 && rccontinue) {
-    const moreWikiChanges = await wikiApiRecentChanges(cookies, rccontinue);
-    rccontinue = moreWikiChanges.continue
-      ? moreWikiChanges.continue.rccontinue
-      : null;
-    changes = changes.concat(moreWikiChanges.query.recentchanges);
-    changes = removeChangesDuplicates();
-  }
+    if (login.result == "Failed") {
+      error(
+        403,
+        `MediaWiki error: '${login.reason}' The login details are most likely wrong`,
+      );
+    }
 
-  const wikiExtracts = await wikiApiExtract(
-    cookies,
-    changes.map((x) => x.pageid),
-  );
+    const wikiChanges = await wikiApiRecentChanges(cookies);
+    let changes = wikiChanges.query.recentchanges;
+    let rccontinue: string | null = wikiChanges.continue.rccontinue;
+    const removeChangesDuplicates = () =>
+      changes.filter(
+        (v, i) => changes.findIndex(({ pageid }) => v.pageid == pageid) == i,
+      );
+    changes = removeChangesDuplicates();
+
+    while (changes.length < 3 && rccontinue) {
+      const moreWikiChanges = await wikiApiRecentChanges(cookies, rccontinue);
+      rccontinue = moreWikiChanges.continue
+        ? moreWikiChanges.continue.rccontinue
+        : null;
+      changes = changes.concat(moreWikiChanges.query.recentchanges);
+      changes = removeChangesDuplicates();
+    }
+
+    const wikiExtracts = await wikiApiExtract(
+      cookies,
+      changes.map((x) => x.pageid),
+    );
+
+    wikiData = changes.map((c) =>
+      Object.assign(c, wikiExtracts.query.pages[c.pageid]),
+    );
+  }
+  wikiData = wikiData.slice(0, 3);
 
   // Minecraft
   let minecraftStatus: IMinecraftData | null = null;
@@ -270,9 +290,7 @@ export const loadHomeData = async ({
     latestCommit: commitData.value.latestCommit,
     hasActiveMandate: hasActiveMandate.value,
     readmeIssues: readme.value,
-    wikiData: changes.map((c) =>
-      Object.assign(c, wikiExtracts.query.pages[c.pageid]),
-    ),
+    wikiData,
     minecraftStatus,
   };
 
@@ -286,21 +304,28 @@ export const loadHomeData = async ({
       format: "json",
     });
 
-    const res = await fetch(
-      `${PUBLIC_MEDIAWIKI_ENDPOINT}?${params.toString()}`,
-      {
-        method: "GET",
-        credentials: "include",
-      },
-    );
+    try {
+      const res = await fetch(
+        `${PUBLIC_MEDIAWIKI_ENDPOINT}?${params.toString()}`,
+        {
+          method: "GET",
+          credentials: "include",
+        },
+      );
 
-    const data = await res.json();
-    const loginToken = data?.query?.tokens?.logintoken;
+      const data = await res.json();
 
-    if (!loginToken) {
-      throw new Error("Login token not found");
+      const loginToken = data?.query?.tokens?.logintoken;
+
+      if (!loginToken) {
+        throw new Error("Login token not found");
+      }
+      return { loginToken, cookies: res.headers.get("set-cookie") ?? "" };
+    } catch (e) {
+      console.log("Wiki login error");
+      console.log(e);
+      return null;
     }
-    return { loginToken, cookies: res.headers.get("set-cookie") ?? "" };
   }
 
   async function wikiLoginSession(
@@ -308,7 +333,14 @@ export const loadHomeData = async ({
     wikiLgPassword: string,
     loginToken: string,
     cookies: string,
-  ) {
+  ): Promise<{
+    data: {
+      login:
+        | { result: "Success"; lguserid: number; lgusername: string }
+        | { result: "Failed"; reason: string };
+    };
+    cookies: string;
+  }> {
     const res = await fetch(PUBLIC_MEDIAWIKI_ENDPOINT, {
       method: "POST",
       headers: {
@@ -353,7 +385,6 @@ export const loadHomeData = async ({
         rccontinue && { rccontinue },
       ),
     );
-    console.log(body);
 
     const res = await fetch(PUBLIC_MEDIAWIKI_ENDPOINT, {
       method: "POST",
