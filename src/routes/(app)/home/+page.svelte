@@ -12,7 +12,6 @@
   import { getFullName } from "$lib/utils/client/member";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import * as m from "$paraglide/messages";
-  import Readme from "$lib/components/home/Readme.svelte";
   import SEO from "$lib/seo/SEO.svelte";
   import Wiki from "$lib/components/home/Wiki.svelte";
   import Minecraft from "$lib/components/home/Minecraft.svelte";
