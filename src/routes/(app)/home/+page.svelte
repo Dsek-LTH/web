@@ -16,6 +16,7 @@
   import SEO from "$lib/seo/SEO.svelte";
   import Wiki from "$lib/components/home/Wiki.svelte";
   import Minecraft from "$lib/components/home/Minecraft.svelte";
+  import ReadmeList from "$lib/components/home/ReadmeList.svelte";
   export let data: PageData;
 </script>
 
@@ -69,7 +70,7 @@
     class="flex flex-col justify-evenly gap-4 sm:flex-row md:col-span-3 lg:col-span-1 lg:flex-col xl:col-span-2"
   >
     {#if data.readmeIssues}
-      <Readme issues={data.readmeIssues} />
+      <ReadmeList issues={data.readmeIssues} />
     {/if}
   </section>
 
