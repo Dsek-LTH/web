@@ -48,12 +48,12 @@
         {m.privacy_policy()}
       </a>
     </li>
-    <!-- <li>
-        <a href="/nollning">
-          <NavIcon class="text-inherit" icon="i-mdi-cloud-outline" />
-          {m.landing_theIntroduction()}
-        </a>
-      </li> -->
+    <li>
+      <a href="/nollning">
+        <NavIcon class="text-inherit" icon="i-mdi-cloud-outline" />
+        {m.landing_theIntroduction()}
+      </a>
+    </li>
   </ul>
 
   <div class="mx-6 my-2 flex justify-between gap-8 [&>*]:flex-1">
