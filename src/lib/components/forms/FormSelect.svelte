@@ -16,7 +16,8 @@
     type SuperForm,
   } from "sveltekit-superforms";
   import { twMerge } from "tailwind-merge";
-  import { type HTMLSelectAttributes } from "svelte/elements";
+  // https://johnnyreilly.com/typescript-5-importsnotusedasvalues-error-eslint-consistent-type-imports#no-import-type-side-effects
+  import type { HTMLSelectAttributes } from "svelte/elements";
 
   let {
     superform,
