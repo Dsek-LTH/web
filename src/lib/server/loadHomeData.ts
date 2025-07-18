@@ -10,7 +10,7 @@ import { error } from "@sveltejs/kit";
 // eslint-disable-next-line no-restricted-imports -- problem with lib and api, feels unecessary to create a bunch of helper files just to structure this one thing
 import type { GetCommitDataResponse } from "../../routes/(app)/api/home/+server";
 import * as m from "$paraglide/messages";
-import { pingUri, type IMinecraftData } from "minecraft-server-ping";
+import { pingUri } from "minecraft-server-ping";
 import { env } from "$env/dynamic/private";
 
 export interface WikiChangeItem {
@@ -218,63 +218,60 @@ export const loadHomeData = async ({
   }
 
   // WIKI
-  let wikiData: WikiDataItem[] = [];
-  const loginResponse = await wikiLoginToken();
-  if (loginResponse) {
-    const { loginToken, cookies: loginCookies } = loginResponse;
+  const getWikiData = async () => {
+    let wikiData: WikiDataItem[] = [];
+    const loginResponse = await wikiLoginToken();
+    if (loginResponse) {
+      const { loginToken, cookies: loginCookies } = loginResponse;
 
-    const {
-      cookies,
-      data: { login },
-    } = await wikiLoginSession(
-      env.MEDIAWIKI_USERNAME,
-      env.MEDIAWIKI_PASSWORD,
-      loginToken,
-      loginCookies,
-    );
-    if (login.result == "Failed") {
-      error(
-        403,
-        `MediaWiki error: '${login.reason}' The login details are most likely wrong`,
+      const {
+        cookies,
+        data: { login },
+      } = await wikiLoginSession(
+        env.MEDIAWIKI_USERNAME,
+        env.MEDIAWIKI_PASSWORD,
+        loginToken,
+        loginCookies,
       );
-    }
+      if (login.result == "Failed") {
+        error(
+          403,
+          `MediaWiki error: '${login.reason}' The login details are most likely wrong`,
+        );
+      }
 
-    const wikiChanges = await wikiApiRecentChanges(cookies);
-    let changes = wikiChanges.query.recentchanges;
-    let rccontinue: string | null = wikiChanges.continue.rccontinue;
-    const removeChangesDuplicates = () =>
-      changes.filter(
-        (v, i) => changes.findIndex(({ pageid }) => v.pageid == pageid) == i,
-      );
-    changes = removeChangesDuplicates();
-
-    while (changes.length < 3 && rccontinue) {
-      const moreWikiChanges = await wikiApiRecentChanges(cookies, rccontinue);
-      rccontinue = moreWikiChanges.continue
-        ? moreWikiChanges.continue.rccontinue
-        : null;
-      changes = changes.concat(moreWikiChanges.query.recentchanges);
+      const wikiChanges = await wikiApiRecentChanges(cookies);
+      let changes = wikiChanges.query.recentchanges;
+      let rccontinue: string | null = wikiChanges.continue.rccontinue;
+      const removeChangesDuplicates = () =>
+        changes.filter(
+          (v, i) => changes.findIndex(({ pageid }) => v.pageid == pageid) == i,
+        );
       changes = removeChangesDuplicates();
+
+      while (changes.length < 3 && rccontinue) {
+        const moreWikiChanges = await wikiApiRecentChanges(cookies, rccontinue);
+        rccontinue = moreWikiChanges.continue
+          ? moreWikiChanges.continue.rccontinue
+          : null;
+        changes = changes.concat(moreWikiChanges.query.recentchanges);
+        changes = removeChangesDuplicates();
+      }
+
+      const wikiExtracts = await wikiApiExtract(
+        cookies,
+        changes.map((x) => x.pageid),
+      );
+
+      wikiData = changes.map((c) =>
+        Object.assign(c, wikiExtracts.query.pages[c.pageid]),
+      );
     }
+    return wikiData.slice(0, 3);
+  };
 
-    const wikiExtracts = await wikiApiExtract(
-      cookies,
-      changes.map((x) => x.pageid),
-    );
-
-    wikiData = changes.map((c) =>
-      Object.assign(c, wikiExtracts.query.pages[c.pageid]),
-    );
-  }
-  wikiData = wikiData.slice(0, 3);
-
-  // Minecraft
-  let minecraftStatus: IMinecraftData | null = null;
-  try {
-    minecraftStatus = await pingUri(PUBLIC_MINECRAFT_URL);
-  } catch {
-    console.log("Minecraft server unreachable");
-  }
+  const minecraftStatus = async () =>
+    await pingUri(PUBLIC_MINECRAFT_URL, { timeout: 2000 });
 
   return {
     wellbeing: wellbeing_random_sentence,
@@ -290,8 +287,8 @@ export const loadHomeData = async ({
     latestCommit: commitData.value.latestCommit,
     hasActiveMandate: hasActiveMandate.value,
     readmeIssues: readme.value,
-    wikiData,
-    minecraftStatus,
+    wikiData: getWikiData(),
+    minecraftStatus: minecraftStatus(),
   };
 
   // Wiki Functions
