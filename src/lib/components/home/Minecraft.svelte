@@ -1,8 +1,14 @@
 <script lang="ts">
   import { type IMinecraftData } from "minecraft-server-ping";
+  import { fade } from "svelte/transition";
 
-  let { minecraftStatus }: { minecraftStatus: IMinecraftData | null } =
+  let { minecraftStatus }: { minecraftStatus: Promise<IMinecraftData> } =
     $props();
+  let badge_type: "badge-error" | "badge-success" | "badge-warning" =
+    $state("badge-warning");
+  minecraftStatus
+    .then((status) => (badge_type = status ? "badge-success" : "badge-error"))
+    .catch(() => (badge_type = "badge-error"));
 </script>
 
 <div
@@ -29,23 +35,14 @@
       href="https://whitelist.dsek.se"
       class="text-xl font-bold hover:underline">Minecraft Server</a
     >
-    {#if !minecraftStatus}
-      <div class="badge badge-error ml-2 gap-2">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          class="inline-block h-4 w-4 stroke-current"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M6 18L18 6M6 6l12 12"
-          ></path>
-        </svg>
-      </div>
-    {/if}
+    <div class="inline-flex h-3">
+      {#key badge_type}
+        <div
+          class={`badge badge-xs ${badge_type} absolute ml-2 gap-2`}
+          transition:fade={{ duration: 500 }}
+        ></div>
+      {/key}
+    </div>
   </div>
 </div>
 <div class="flex h-full flex-col justify-between rounded-b-xl bg-base-200 p-4">
@@ -59,7 +56,15 @@
     >
   </div>
   <div class="m-2 flex flex-row justify-center rounded-xl bg-base-300 p-3">
-    <span class="font-bold">{minecraftStatus?.players.online ?? "-"}</span
-    >&nbsp;spelare online just nu
+    <span class="font-bold"
+      >{#await minecraftStatus}
+        <p>?</p>
+      {:then status}
+        {status.players.online}
+      {:catch}
+        <p>-</p>
+      {/await}</span
+    >
+    &nbsp;spelare online just nu
   </div>
 </div>
