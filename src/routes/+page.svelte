@@ -208,10 +208,10 @@
 
         <div class="flex flex-row items-start gap-10 lg:items-center">
           <a
-            href="/committees"
+            href="/nolla"
             class="inline-block bg-primary px-5 py-3 font-bold text-white lg:text-xl"
           >
-            {m.landing_getInvolved()}
+            {m.landing_theIntroduction()}
           </a>
           <a
             href="/info/for-foretag"

@@ -2,7 +2,7 @@
   import slasque from "$lib/nollning/slasque.webp";
   import mixed from "$lib/nollning/mixed.webp";
   import suit from "$lib/nollning/suit.webp";
-  // import frack from "$lib/nollning/frack.webp";
+  import frack from "$lib/nollning/frack.webp";
   import * as m from "$paraglide/messages";
 </script>
 
@@ -135,7 +135,7 @@
         class="!border-secondary"
         width={1512}
         height={2016}
-        src="https://placehold.co/1512x2018?text=H%C3%B6gtidsdr%C3%A4kt"
+        src={frack}
         alt="Högtidsdräktsexempel"
       />
       <h6>{@html m.nolla_packing_frack()}</h6>
