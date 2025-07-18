@@ -8,7 +8,7 @@
 >
   <h2 class="text-md flex items-center font-light">
     <!-- TODO: change to /readme one endpoint exists -->
-    <a href="/readme" class="text-xl font-bold hover:underline"> Readme </a>
+    <span class="text-xl font-bold">README.md</span>
   </h2>
   <ul class="menu flex h-max flex-row justify-between p-0">
     {#each issues as issue (issue.id)}
