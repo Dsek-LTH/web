@@ -1,14 +1,15 @@
 import { getEventsWithTickets } from "$lib/server/shop/getTickets";
 import { ticketPageActions } from "$lib/server/shop/tickets/actions";
 import { error } from "@sveltejs/kit";
+import type { PageServerLoad } from "./$types.js";
 
 const weekStarts = [
-  "2024-08-26",
-  "2024-09-02",
-  "2024-09-09",
-  "2024-09-16",
-  "2024-09-23",
-  "2024-09-30",
+  "2025-08-25",
+  "2025-09-01",
+  "2025-09-08",
+  "2025-09-15",
+  "2025-09-22",
+  "2025-09-29",
 ];
 
 const getWeekInterval = (week: number) => {
@@ -28,7 +29,12 @@ const getCurrentWeek = () => {
   return 0;
 };
 
-export const load = async ({ locals, url, depends, parent }) => {
+export const load: PageServerLoad = async ({
+  locals,
+  url,
+  depends,
+  parent,
+}) => {
   const { prisma } = locals;
   const { revealTheme } = await parent();
 
