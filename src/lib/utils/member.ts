@@ -7,6 +7,7 @@ import { error } from "@sveltejs/kit";
 import { getDerivedRoles } from "./authorization";
 import { isNollningPeriod } from "$lib/utils/adminSettings/nollning";
 import { NOLLNING_TAG_PREFIX } from "$lib/components/postReveal/types";
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 
 export const getCustomAuthorOptions = async (
   prisma: PrismaClient,
@@ -181,7 +182,7 @@ export const getCurrentDoorPoliciesForMember = async (
  * Create a member with default settings for notifications and tag subscriptions
  */
 export const createMember = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   data: {
     studentId: string;
     firstName: string;
