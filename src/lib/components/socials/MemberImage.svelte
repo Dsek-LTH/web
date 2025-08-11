@@ -2,6 +2,7 @@
   import type { Member } from "@prisma/client";
 
   export let member: Pick<Member, "picturePath">;
+  export let lazy = false;
 </script>
 
 <img
@@ -17,4 +18,5 @@
     }
   }}
   alt="Member avatar"
+  loading={lazy ? "lazy" : "eager"}
 />

@@ -28,7 +28,7 @@
     <ul class="modal-box m-1 flex flex-col">
       {#each going as person (person.id)}
         <li>
-          <AuthorSignature type="member" member={person} />
+          <AuthorSignature lazy type="member" member={person} />
         </li>
       {/each}
     </ul>
@@ -51,7 +51,7 @@
     <ul class="modal-box m-1 flex flex-col">
       {#each interested as person (person.id)}
         <li>
-          <AuthorSignature type="member" member={person} />
+          <AuthorSignature lazy type="member" member={person} />
         </li>
       {/each}
     </ul>
