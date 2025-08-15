@@ -36,7 +36,11 @@ export const load: PageServerLoad = async ({ locals }) => {
   const phadderGroups = phadderGroupsResult.value;
   return {
     form: await superValidate(
-      { ...member, classProgramme: member.classProgramme ?? "D" },
+      {
+        ...member,
+        classProgramme: member.classProgramme ?? "D",
+        classYear: member.classYear ?? new Date().getFullYear(),
+      },
       zod(memberSchema),
     ),
     member,
