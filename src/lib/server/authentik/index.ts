@@ -1,43 +1,43 @@
-import KcAdminClient from "@keycloak/keycloak-admin-client";
+import AuthentikClient from "@keycloak/keycloak-admin-client";
 import { env } from "$env/dynamic/private";
 import type { PrismaClient } from "@prisma/client";
 import { error } from "@sveltejs/kit";
 import { promiseAllInBatches } from "$lib/utils/batch";
 import type GroupRepresentation from "@keycloak/keycloak-admin-client/lib/defs/groupRepresentation";
 
-const KEYCLOAK_BOARD_GROUP = "dsek.styr";
+const AUTHENTIK_BOARD_GROUP = "dsek.styr";
 
-const enabled = env.KEYCLOAK_ENABLED === "true";
+const enabled = env.AUTHENTIK_ENABLED === "true";
 
-async function connect(): Promise<KcAdminClient> {
-  const kcAdminClient = new KcAdminClient({
-    baseUrl: env.KEYCLOAK_ENDPOINT || "",
+async function connect(): Promise<AuthentikClient> {
+  const authentikClient = new AuthentikClient({
+    baseUrl: env.AUTHENTIK_ENDPOINT || "",
     realmName: "master",
   });
 
-  await kcAdminClient.auth({
-    username: env.KEYCLOAK_ADMIN_USERNAME || "",
-    password: env.KEYCLOAK_ADMIN_PASSWORD || "",
+  await authentikClient.auth({
+    username: env.AUTHENTIK_ADMIN_USERNAME || "",
+    password: env.AUTHENTIK_ADMIN_PASSWORD || "",
     grantType: "password",
     clientId: "admin-cli",
   });
 
-  kcAdminClient.setConfig({ realmName: "dsek" });
+  authentikClient.setConfig({ realmName: "dsek" });
 
-  return kcAdminClient;
+  return authentikClient;
 }
 
-async function _getUserId(client: KcAdminClient, username: string) {
+async function _getUserId(client: AuthentikClient, username: string) {
   const response = await client.users.find({ username });
   if (response.length === 0) {
     error(404, {
-      message: `${username} not found in Keycloak`,
+      message: `${username} not found in authenitk`,
       statusDescription: "shouldmarksynced",
     });
   }
   if (!response[0] || response.length !== 1) {
     error(400, {
-      message: `${username} returned ${response.length} users in Keycloak`,
+      message: `${username} returned ${response.length} users in authentik`,
     });
   }
 
@@ -117,13 +117,13 @@ async function fetchGroupsAddMandate(
 ) {
   if (!enabled) return;
   try {
-    const keycloak = await connect();
+    const authentik = await connect();
     await addMandate(
       prisma,
       username,
       positionId,
       mandateId,
-      await keycloak.groups.find(),
+      await authentik.groups.find(),
     );
   } catch (error) {
     console.log(error);
@@ -140,18 +140,18 @@ async function addMandate(
   if (!enabled) return;
 
   try {
-    const keycloak = await connect();
+    const authentik = await connect();
 
     const [id, groupId] = await Promise.all([
-      _getUserId(keycloak, username),
+      _getUserId(authentik, username),
       getGroupId(positionId, groups),
     ]);
-    await keycloak.users.addToGroup({ id: id!, groupId: groupId! });
+    await authentik.users.addToGroup({ id: id!, groupId: groupId! });
 
     // Special case for board members
     if (await isBoardPosition(prisma, positionId)) {
-      const boardGroupId = await getGroupId(KEYCLOAK_BOARD_GROUP, groups);
-      await keycloak.users.addToGroup({ id: id!, groupId: boardGroupId! });
+      const boardGroupId = await getGroupId(AUTHENTIK_BOARD_GROUP, groups);
+      await authentik.users.addToGroup({ id: id!, groupId: boardGroupId! });
     }
     await prisma.mandate.update({
       where: { id: mandateId },
@@ -176,13 +176,13 @@ async function fetchGroupsDeleteMandate(
 ) {
   if (!enabled) return;
   try {
-    const keycloak = await connect();
+    const authentik = await connect();
     await deleteMandate(
       prisma,
       username,
       positionId,
       mandateId,
-      await keycloak.groups.find(),
+      await authentik.groups.find(),
     );
   } catch (error) {
     console.log(error);
@@ -199,20 +199,20 @@ async function deleteMandate(
   if (!enabled) return;
 
   try {
-    const keycloak = await connect();
+    const authentik = await connect();
     const [id, groupId] = await Promise.all([
-      _getUserId(keycloak, username),
+      _getUserId(authentik, username),
       getGroupId(positionId, groups),
     ]);
-    await keycloak.users.delFromGroup({ id: id!, groupId: groupId! });
+    await authentik.users.delFromGroup({ id: id!, groupId: groupId! });
 
     // Special case for board members
     if (
       (await isBoardPosition(prisma, positionId)) && // if the position is a board member
       !(await hasAnyBoardPosition(prisma, username)) // if the user has no other board positions
     ) {
-      const boardGroupId = await getGroupId(KEYCLOAK_BOARD_GROUP, groups);
-      await keycloak.users.delFromGroup({
+      const boardGroupId = await getGroupId(AUTHENTIK_BOARD_GROUP, groups);
+      await authentik.users.delFromGroup({
         id: id!,
         groupId: boardGroupId!,
       });
@@ -278,8 +278,8 @@ async function updateMandate(prisma: PrismaClient) {
   );
 
   try {
-    const keycloak = await connect();
-    const groups = await keycloak.groups.find();
+    const authentik = await connect();
+    const groups = await authentik.groups.find();
 
     await promiseAllInBatches(
       mandatesToBeDeleted,
@@ -345,7 +345,7 @@ async function updateEmails(prisma: PrismaClient) {
   }
 }
 
-// To reduce the amount of requests to Keycloak,
+// To reduce the amount of requests to authentik,
 // we fetch all emails for all users in one request
 // and then filter out the ones we need
 async function getManyUserEmails(
@@ -355,7 +355,7 @@ async function getManyUserEmails(
   const client = await connect();
   const userEmails = new Map<string, string>();
 
-  // Fetch all users from Keycloak
+  // Fetch all users from authentik
   // We can only fetch a limited amount of users at a time
   const users = [];
   do {
@@ -398,7 +398,7 @@ async function getEmail(username: string) {
 }
 
 /**
- * This function exists to keep Keycloak's
+ * This function exists to keep authentik's
  * database in sync with the Prisma database.
  * It should be run periodically.
  *
