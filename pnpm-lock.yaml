@@ -41,9 +41,9 @@ importers:
       '@fullcalendar/daygrid':
         specifier: ^6.1.17
         version: 6.1.17(@fullcalendar/core@6.1.17)
-      '@keycloak/keycloak-admin-client':
-        specifier: ^26.0.7
-        version: 26.0.7
+      '@goauthentik/api':
+        specifier: 2025.6.3-1751754396
+        version: 2025.6.3-1751754396
       '@playwright/test':
         specifier: ^1.49.0
         version: 1.49.0
@@ -853,6 +853,9 @@ packages:
   '@glideapps/ts-necessities@2.2.3':
     resolution: {integrity: sha512-gXi0awOZLHk3TbW55GZLCPP6O+y/b5X1pBXKBVckFONSwF1z1E5ND2BGJsghQFah+pW7pkkyFb2VhUQI2qhL5w==}
 
+  '@goauthentik/api@2025.6.3-1751754396':
+    resolution: {integrity: sha512-JL7V1OTRIYJYzWvqoo2TNEQZirFHHkUt2tludO82luVEPDZwWQ8NwvwcFvO74v/SDSqg9VGN6H9BDoUrPD6KHQ==}
+
   '@hapi/hoek@9.3.0':
     resolution: {integrity: sha512-/c6rf4UJlmHlC9b5BaNvzAcFv7HZ2QHaV0D4/HNlBdvFnvQq8RI4kYdhyPCl7Xj+oWvTWQ8ujhqS53LIgAe6KQ==}
 
@@ -1148,10 +1151,6 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.25':
     resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==}
-
-  '@keycloak/keycloak-admin-client@26.0.7':
-    resolution: {integrity: sha512-2vdx04sxnTQavnE7zuztyfmf1l5opG1Bi76hh3Wj02m6vR+aSiHFxlTXJFHVZtE9Emko+qgU7a5kEFC+Il+EwQ==}
-    engines: {node: '>=18'}
 
   '@langchain/core@0.2.36':
     resolution: {integrity: sha512-qHLvScqERDeH7y2cLuJaSAlMwg3f/3Oc9nayRSXRU2UuaK/SOhI42cxiPLj1FnuHJSmN0rBQFkrLx02gI4mcVg==}
@@ -2682,10 +2681,6 @@ packages:
   camelcase@8.0.0:
     resolution: {integrity: sha512-8WB3Jcas3swSvjIeA2yvCJ+Miyz5l1ZmB6HFb9R1317dt9LCQoswg/BGrmAmkWVEszSrrg4RwmO46qIm2OEnSA==}
     engines: {node: '>=16'}
-
-  camelize-ts@3.0.0:
-    resolution: {integrity: sha512-cgRwKKavoDKLTjO4FQTs3dRBePZp/2Y9Xpud0FhuCOTE86M2cniKN4CCXgRnsyXNMmQMifVHcv6SPaMtTx6ofQ==}
-    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
   caniuse-lite@1.0.30001686:
     resolution: {integrity: sha512-Y7deg0Aergpa24M3qLC5xjNklnKnhsmSyR/V89dLZ1n0ucJIFNs7PgR2Yfa/Zf6W79SbBicgtGxZr2juHkEUIA==}
@@ -6066,17 +6061,9 @@ packages:
   urijs@1.19.11:
     resolution: {integrity: sha512-HXgFDgDommxn5/bIv0cnQZsPhHDA90NPHD6+c/v21U5+Sx5hoP8+dP9IZXBU1gIfvdRfhG8cel9QNPeionfcCQ==}
 
-  url-join@5.0.0:
-    resolution: {integrity: sha512-n2huDr9h9yzd6exQVnH/jU5mr+Pfx08LRXXZhkLLetAMESRj+anQsTAh940iMrIetKAmry9coFuZQ2jY8/p3WA==}
-    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
-
   url-pattern@1.0.3:
     resolution: {integrity: sha512-uQcEj/2puA4aq1R3A2+VNVBgaWYR24FdWjl7VNW83rnWftlhyzOZ/tBjezRiC2UkIzuxC8Top3IekN3vUf1WxA==}
     engines: {node: '>=0.12.0'}
-
-  url-template@3.1.1:
-    resolution: {integrity: sha512-4oszoaEKE/mQOtAmdMWqIRHmkxWkUZMnXFnjQ5i01CuRSK3uluxcH1MRVVVWmhlnzT1SCDfKxxficm2G37qzCA==}
-    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
@@ -6957,6 +6944,8 @@ snapshots:
 
   '@glideapps/ts-necessities@2.2.3': {}
 
+  '@goauthentik/api@2025.6.3-1751754396': {}
+
   '@hapi/hoek@9.3.0':
     optional: true
 
@@ -7338,12 +7327,6 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
-
-  '@keycloak/keycloak-admin-client@26.0.7':
-    dependencies:
-      camelize-ts: 3.0.0
-      url-join: 5.0.0
-      url-template: 3.1.1
 
   '@langchain/core@0.2.36(openai@4.76.0(zod@3.23.8))':
     dependencies:
@@ -9356,8 +9339,6 @@ snapshots:
 
   camelcase@8.0.0:
     optional: true
-
-  camelize-ts@3.0.0: {}
 
   caniuse-lite@1.0.30001686: {}
 
@@ -13014,11 +12995,7 @@ snapshots:
 
   urijs@1.19.11: {}
 
-  url-join@5.0.0: {}
-
   url-pattern@1.0.3: {}
-
-  url-template@3.1.1: {}
 
   util-deprecate@1.0.2: {}
 

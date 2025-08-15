@@ -202,7 +202,7 @@ export const actions: Actions = {
       data: {
         email,
         studentId: username,
-        keycloakId: authentikId,
+        keycloakId: authentikId.toString(),
       },
     });
     return message(form, {

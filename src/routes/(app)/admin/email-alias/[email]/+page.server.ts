@@ -380,7 +380,7 @@ export const actions = {
       data: {
         email,
         studentId: usernameSender,
-        keycloakId: authentikId,
+        keycloakId: authentikId.toString(),
       },
     });
     return message(form, {
