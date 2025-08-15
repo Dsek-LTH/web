@@ -1,34 +1,29 @@
-import AuthentikClient from "@keycloak/keycloak-admin-client";
 import { env } from "$env/dynamic/private";
 import type { PrismaClient } from "@prisma/client";
 import { error } from "@sveltejs/kit";
 import { promiseAllInBatches } from "$lib/utils/batch";
-import type GroupRepresentation from "@keycloak/keycloak-admin-client/lib/defs/groupRepresentation";
+
+import { Configuration, type Group } from "@goauthentik/api";
+import { CoreApi } from "@goauthentik/api";
+import { fetchAll } from "./helpers";
 
 const AUTHENTIK_BOARD_GROUP = "dsek.styr";
 
 const enabled = env.AUTHENTIK_ENABLED === "true";
 
-async function connect(): Promise<AuthentikClient> {
-  const authentikClient = new AuthentikClient({
-    baseUrl: env.AUTHENTIK_ENDPOINT || "",
-    realmName: "master",
-  });
+const CONFIG = new Configuration({
+  basePath: env.AUTHENTIK_ENDPOINT,
+  accessToken: env.AUTHENTIK_API_TOKEN,
+});
 
-  await authentikClient.auth({
-    username: env.AUTHENTIK_ADMIN_USERNAME || "",
-    password: env.AUTHENTIK_ADMIN_PASSWORD || "",
-    grantType: "password",
-    clientId: "admin-cli",
-  });
+const client = new CoreApi(CONFIG);
 
-  authentikClient.setConfig({ realmName: "dsek" });
-
-  return authentikClient;
+function connect(): CoreApi {
+  return client;
 }
 
-async function _getUserId(client: AuthentikClient, username: string) {
-  const response = await client.users.find({ username });
+async function _fetchUserId(client: CoreApi, username: string) {
+  const response = (await client.coreUsersList({ username })).results;
   if (response.length === 0) {
     error(404, {
       message: `${username} not found in authenitk`,
@@ -41,21 +36,21 @@ async function _getUserId(client: AuthentikClient, username: string) {
     });
   }
 
-  return response[0].id;
+  return response[0].pk;
 }
 
 async function getUserId(username: string) {
   if (!enabled) return;
-  const client = await connect();
+  const client = connect();
   try {
-    return await _getUserId(client, username);
+    return await _fetchUserId(client, username);
   } catch (error) {
     console.log(error);
     return null;
   }
 }
 
-async function getGroupId(positionId: string, groups: GroupRepresentation[]) {
+async function getGroupId(positionId: string, groups: Group[]) {
   const group = groups.find((g) => g.name === positionId);
 
   if (!group) {
@@ -64,7 +59,7 @@ async function getGroupId(positionId: string, groups: GroupRepresentation[]) {
       statusDescription: "shouldmarksynced",
     });
   }
-  return group?.id;
+  return group.pk;
 }
 
 async function updateProfile(
@@ -75,16 +70,18 @@ async function updateProfile(
   if (!enabled) return;
 
   try {
-    const client = await connect();
-    const id = await _getUserId(client, username);
-    await client.users.update(
-      { id: id! },
-      {
-        firstName: firstName,
-        lastName: lastName,
+    const client = connect();
+    const id = await _fetchUserId(client, username);
+    await client.coreUsersPartialUpdate({
+      id: id,
+      patchedUserRequest: {
+        name: `${firstName} ${lastName}`,
+        attributes: {
+          givenName: firstName,
+          sn: lastName,
+        },
       },
-    );
-    console.log(`updated profile`);
+    });
   } catch (error) {
     console.log(error);
   }
@@ -117,13 +114,13 @@ async function fetchGroupsAddMandate(
 ) {
   if (!enabled) return;
   try {
-    const authentik = await connect();
+    const client = connect();
     await addMandate(
       prisma,
       username,
       positionId,
       mandateId,
-      await authentik.groups.find(),
+      await fetchAll(client.coreGroupsList.bind(client)),
     );
   } catch (error) {
     console.log(error);
@@ -135,23 +132,29 @@ async function addMandate(
   username: string,
   positionId: string,
   mandateId: string,
-  groups: GroupRepresentation[],
+  groups: Group[],
 ) {
   if (!enabled) return;
 
   try {
-    const authentik = await connect();
+    const client = connect();
 
     const [id, groupId] = await Promise.all([
-      _getUserId(authentik, username),
+      _fetchUserId(client, username),
       getGroupId(positionId, groups),
     ]);
-    await authentik.users.addToGroup({ id: id!, groupId: groupId! });
+    await client.coreGroupsAddUserCreate({
+      groupUuid: groupId,
+      userAccountRequest: { pk: id },
+    });
 
     // Special case for board members
     if (await isBoardPosition(prisma, positionId)) {
       const boardGroupId = await getGroupId(AUTHENTIK_BOARD_GROUP, groups);
-      await authentik.users.addToGroup({ id: id!, groupId: boardGroupId! });
+      await client.coreGroupsAddUserCreate({
+        groupUuid: boardGroupId!,
+        userAccountRequest: { pk: id! },
+      });
     }
     await prisma.mandate.update({
       where: { id: mandateId },
@@ -176,13 +179,13 @@ async function fetchGroupsDeleteMandate(
 ) {
   if (!enabled) return;
   try {
-    const authentik = await connect();
+    const client = connect();
     await deleteMandate(
       prisma,
       username,
       positionId,
       mandateId,
-      await authentik.groups.find(),
+      await fetchAll(client.coreGroupsList.bind(client)),
     );
   } catch (error) {
     console.log(error);
@@ -194,17 +197,20 @@ async function deleteMandate(
   username: string,
   positionId: string,
   mandateId: string,
-  groups: GroupRepresentation[],
+  groups: Group[],
 ) {
   if (!enabled) return;
 
   try {
-    const authentik = await connect();
+    const client = connect();
     const [id, groupId] = await Promise.all([
-      _getUserId(authentik, username),
+      _fetchUserId(client, username),
       getGroupId(positionId, groups),
     ]);
-    await authentik.users.delFromGroup({ id: id!, groupId: groupId! });
+    await client.coreGroupsRemoveUserCreate({
+      groupUuid: groupId,
+      userAccountRequest: { pk: id },
+    });
 
     // Special case for board members
     if (
@@ -212,9 +218,9 @@ async function deleteMandate(
       !(await hasAnyBoardPosition(prisma, username)) // if the user has no other board positions
     ) {
       const boardGroupId = await getGroupId(AUTHENTIK_BOARD_GROUP, groups);
-      await authentik.users.delFromGroup({
-        id: id!,
-        groupId: boardGroupId!,
+      await client.coreGroupsRemoveUserCreate({
+        groupUuid: boardGroupId,
+        userAccountRequest: { pk: id! },
       });
     }
     await prisma.mandate.update({
@@ -278,8 +284,8 @@ async function updateMandate(prisma: PrismaClient) {
   );
 
   try {
-    const authentik = await connect();
-    const groups = await authentik.groups.find();
+    const client = connect();
+    const groups = await fetchAll(client.coreGroupsList.bind(client));
 
     await promiseAllInBatches(
       mandatesToBeDeleted,
@@ -352,15 +358,10 @@ async function getManyUserEmails(
   currentUserEmail: Map<string, string | null>,
 ): Promise<Map<string, string>> {
   if (!enabled) return new Map();
-  const client = await connect();
+  const client = connect();
   const userEmails = new Map<string, string>();
 
-  // Fetch all users from authentik
-  // We can only fetch a limited amount of users at a time
-  const users = [];
-  do {
-    users.push(...(await client.users.find({ max: 500, first: users.length })));
-  } while (users.length % 500 === 0);
+  const users = await fetchAll(client.coreUsersList.bind(client));
 
   users.forEach((user) => {
     const { username, email } = user;
@@ -378,22 +379,22 @@ async function getManyUserEmails(
 
 async function hasUsername(username: string) {
   if (!enabled) return false;
-  const client = await connect();
-  const user = await client.users.find({ username });
+  const client = connect();
+  const user = (await client.coreUsersList({ username })).results;
   return user.filter((u) => u.username === username).length > 0;
 }
 
 async function hasEmail(email: string) {
   if (!enabled) return false;
-  const client = await connect();
-  const user = await client.users.find({ email });
+  const client = connect();
+  const user = (await client.coreUsersList({ email })).results;
   return user.filter((u) => u.email === email).length > 0;
 }
 
 async function getEmail(username: string) {
   if (!enabled) return;
-  const client = await connect();
-  const user = await client.users.find({ username });
+  const client = connect();
+  const user = (await client.coreUsersList({ username })).results;
   if (user.length === 1) return user[0]?.email;
 }
 

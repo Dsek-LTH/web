@@ -101,7 +101,7 @@
     "@fontsource/lexend": "^5.1.1",
     "@fullcalendar/core": "^6.1.17",
     "@fullcalendar/daygrid": "^6.1.17",
-    "@keycloak/keycloak-admin-client": "^26.0.7",
+    "@goauthentik/api": "2025.6.3-1751754396",
     "@playwright/test": "^1.49.0",
     "@prisma/client": "^6.0.1",
     "@sentry/sveltekit": "^9.20.0",

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { version } from "$app/environment";
+  import { enhance } from "$app/forms";
   import { isAuthorized } from "$lib/utils/authorization";
   import {
     featureFlags,
@@ -31,6 +32,7 @@
           action="?/authentikSync"
           method="POST"
           class="flex items-center gap-4"
+          use:enhance
         >
           <button type="submit" class="btn">Sync with authentik</button>
           <p>This will push mandates and pull email addresses.</p>
