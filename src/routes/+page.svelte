@@ -1,12 +1,12 @@
 <script lang="ts">
   import { getFileUrl } from "$lib/files/client";
-  import { signIn } from "@auth/sveltekit/client";
   import * as m from "$paraglide/messages";
   import { i18n } from "$lib/utils/i18n";
   import { page } from "$app/stores";
   import { languageTag } from "$paraglide/runtime";
   import { invalidateAll } from "$app/navigation";
   import SEO from "$lib/seo/SEO.svelte";
+  import { signIn } from "$lib/utils/auth";
 
   let carouselEls: HTMLDivElement[] = [];
 
@@ -175,7 +175,7 @@
         </a>
         <button
           class="bg-[#433C3F]/60 px-8 py-4 uppercase text-white"
-          on:click={() => signIn("keycloak")}
+          on:click={signIn}
         >
           {m.navbar_logIn()}
         </button>
@@ -366,10 +366,7 @@
         </li>
       {/each}
       <li>
-        <button
-          class=" bg-[#433C3F]/60 uppercase text-white"
-          on:click={() => signIn("keycloak")}
-        >
+        <button class=" bg-[#433C3F]/60 uppercase text-white" on:click={signIn}>
           {m.navbar_logIn()}
         </button>
       </li>

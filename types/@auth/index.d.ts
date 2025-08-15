@@ -4,7 +4,6 @@ import type { User as BaseUser } from "@auth/core/types";
 type ExtendedUserFields = {
   student_id: string;
   group_list: string[];
-  id_token: string | undefined;
   given_name: string;
   family_name: string;
 };

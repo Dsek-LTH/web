@@ -4,7 +4,7 @@
   import NavIcon from "$lib/components/NavIcon.svelte";
   import { isAuthorized } from "$lib/utils/authorization";
   import * as m from "$paraglide/messages";
-  import { signIn } from "@auth/sveltekit/client";
+  import { signIn } from "$lib/utils/auth";
   import type { GlobalAppLoadData } from "./(app)/+layout.server";
   import DarkLightToggle from "./DarkLightToggle.svelte";
   import LanguageSwitcher from "./LanguageSwitcher.svelte";
@@ -96,7 +96,7 @@
           {shopItemCounts}
         />
       {:else}
-        <LoadingButton class="btn btn-ghost" onClick={() => signIn("keycloak")}>
+        <LoadingButton class="btn btn-ghost" onClick={() => signIn()}>
           {m.navbar_logIn()}
         </LoadingButton>
       {/if}
