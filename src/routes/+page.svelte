@@ -179,12 +179,12 @@
         >
           {m.navbar_logIn()}
         </button>
-        <button
+        <a
           class="bg-[#433C3F]/60 px-8 py-4 uppercase text-white"
-          on:click={() => (window.location.href = "https://regnew.dsek.se")}
+          href="https://auth.dsek.se"
         >
           {m.navbar_register()}
-        </button>
+        </a>
       </div>
 
       <label for="landing-drawer" aria-label="open sidebar" class="lg:hidden">

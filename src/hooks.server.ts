@@ -89,6 +89,23 @@ const { handle: authHandle } = SvelteKitAuth({
       }
       return session;
     },
+    /**
+     * Controls which URLs are allowed for redirection after authentication.
+     * - Allows relative callback URLs for internal navigation.
+     * - Only permits absolute URLs if their hostname matches trusted domains (e.g., localhost, dsek.se).
+     *   This prevents open redirect vulnerabilities by restricting redirects to known safe domains.
+     */
+    redirect({ url, baseUrl }) {
+      // Handle relative callback URLs
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+
+      // Handle callback URLs to trusted domains
+      const hostname = new URL(url).hostname;
+      const allowedHostnames = ["localhost", "dsek.se"];
+      if (allowedHostnames.some((h) => hostname.endsWith(h))) return url;
+
+      return baseUrl;
+    },
   },
 });
 
