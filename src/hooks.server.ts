@@ -1,7 +1,7 @@
 import * as Sentry from "@sentry/sveltekit";
 import { env } from "$env/dynamic/private";
 import { env as envPublic } from "$env/dynamic/public";
-import keycloak from "$lib/server/keycloak";
+import authentik from "$lib/server/authentik";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import { i18n } from "$lib/utils/i18n";
 import { createMember } from "$lib/utils/member";
@@ -232,8 +232,8 @@ const themeHandle: Handle = async ({ event, resolve }) => {
   });
 };
 
-// run a keycloak sync every day at midnight
-schedule.scheduleJob("0 0 * * *", () => keycloak.sync(authorizedPrismaClient));
+// run a authentik sync every day at midnight
+schedule.scheduleJob("0 0 * * *", () => authentik.sync(authorizedPrismaClient));
 schedule.scheduleJob("0 0 * * *", meilisearchSync);
 
 export const handleError: HandleServerError = Sentry.handleErrorWithSentry(
