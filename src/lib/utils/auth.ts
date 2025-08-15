@@ -10,6 +10,6 @@ export function signIn() {
 
 export function signOut() {
   return authSignOut({
-    callbackUrl: `${env.PUBLIC_AUTH_AUTHENTIK_ISSUER}/end-session/`,
+    redirectTo: `${env.PUBLIC_AUTH_AUTHENTIK_ISSUER}end-session/`,
   });
 }
