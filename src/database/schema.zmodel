@@ -556,7 +556,7 @@ model Meeting {
 model Member {
   id                      String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   studentId               String?                 @unique(map: "members_student_id_unique") @map("student_id") @db.VarChar(255)
-  email                   String?                 @unique @db.VarChar(255) @deny("read", auth() == null)
+  email                   String?                 @unique @db.VarChar(255) @deny("read", (!has(auth().policies, "member:see_email")) || (mandates?[startDate < now() && now() < endDate && (startsWith(positionId, "dsek.noll.stab."))] && !has(auth().policies, "member:see_staben") && auth().memberId != id))
   firstName               String?                 @map("first_name") @db.VarChar(255)
   nickname                String?                 @db.VarChar(255) @deny("read", auth() == null)
   lastName                String?                 @map("last_name") @db.VarChar(255)
