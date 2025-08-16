@@ -3,10 +3,11 @@
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import NavIcon from "$lib/components/NavIcon.svelte";
   import * as m from "$paraglide/messages";
-  import { signIn, signOut } from "@auth/sveltekit/client";
   import DarkLightToggle from "../../../DarkLightToggle.svelte";
   import LanguageSwitcher from "../../../LanguageSwitcher.svelte";
   import SEO from "$lib/seo/SEO.svelte";
+  import { signIn } from "$lib/utils/auth";
+  import { signOut } from "$lib/utils/auth";
   export let data;
 </script>
 
@@ -71,7 +72,7 @@
   {:else}
     <LoadingButton
       class="btn btn-primary mx-6 my-4 self-stretch"
-      onClick={() => signIn("keycloak")}
+      onClick={() => signIn()}
     >
       <NavIcon class="text-inherit" icon="i-mdi-login" />
       {m.navbar_logIn()}

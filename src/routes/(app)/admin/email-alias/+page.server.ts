@@ -10,7 +10,7 @@ import { fuseEmail, getEmailDomains, isValidGuildEmail } from "./emailutils";
 import { fail, type Actions } from "@sveltejs/kit";
 import { authorize } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
-import keycloak from "$lib/server/keycloak";
+import authentik from "$lib/server/authentik";
 import * as m from "$paraglide/messages";
 export const load: PageServerLoad = async (event) => {
   const { prisma } = event.locals;
@@ -182,27 +182,27 @@ export const actions: Actions = {
         m.admin_emailalias_aliasAlreadyExists(),
       );
     }
-    const usernameInKeycloak = await keycloak.hasUsername(username);
-    if (!usernameInKeycloak) {
+    const usernameInAuthentik = await authentik.hasUsername(username);
+    if (!usernameInAuthentik) {
       return setError(
         form,
         "usernameSender",
-        m.admin_emailalias_userNotInKeycloak(),
+        m.admin_emailalias_userNotInAuthentik(),
       );
     }
-    const keycloakId = await keycloak.getUserId(username);
-    if (keycloakId == null) {
+    const authentikId = await authentik.getUserId(username);
+    if (authentikId == null) {
       return setError(
         form,
         "usernameSender",
-        m.admin_emailalias_userNotInKeycloak(),
+        m.admin_emailalias_userNotInAuthentik(),
       );
     }
     await prisma.specialSender.create({
       data: {
         email,
         studentId: username,
-        keycloakId,
+        keycloakId: authentikId.toString(),
       },
     });
     return message(form, {

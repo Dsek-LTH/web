@@ -18,7 +18,7 @@ import {
   setCanSendSchema,
 } from "./schema";
 import { isValidEmail, isValidGuildEmail } from "../emailutils";
-import keycloak from "$lib/server/keycloak";
+import authentik from "$lib/server/authentik";
 import type { PrismaClient } from "@prisma/client";
 import * as m from "$paraglide/messages";
 
@@ -361,26 +361,26 @@ export const actions = {
     if (!isValidGuildEmail(email)) {
       return setError(form, "email", m.admin_emailalias_invalidAddress());
     }
-    if (!(await keycloak.hasUsername(usernameSender))) {
+    if (!(await authentik.hasUsername(usernameSender))) {
       return setError(
         form,
         "usernameSender",
-        m.admin_emailalias_userNotInKeycloak(),
+        m.admin_emailalias_userNotInAuthentik(),
       );
     }
-    const keycloakId = await keycloak.getUserId(usernameSender);
-    if (keycloakId == null) {
+    const authentikId = await authentik.getUserId(usernameSender);
+    if (authentikId == null) {
       return setError(
         form,
         "usernameSender",
-        m.admin_emailalias_userNotInKeycloak(),
+        m.admin_emailalias_userNotInAuthentik(),
       );
     }
     await prisma.specialSender.create({
       data: {
         email,
         studentId: usernameSender,
-        keycloakId: keycloakId,
+        keycloakId: authentikId.toString(),
       },
     });
     return message(form, {

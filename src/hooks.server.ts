@@ -1,6 +1,7 @@
 import * as Sentry from "@sentry/sveltekit";
 import { env } from "$env/dynamic/private";
-import keycloak from "$lib/server/keycloak";
+import { env as envPublic } from "$env/dynamic/public";
+import authentik from "$lib/server/authentik";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import { i18n } from "$lib/utils/i18n";
 import { createMember } from "$lib/utils/member";
@@ -11,8 +12,9 @@ import {
   setLanguageTag,
   sourceLanguageTag,
 } from "$paraglide/runtime";
-import Keycloak, { type KeycloakProfile } from "@auth/core/providers/keycloak";
-import type { TokenSet } from "@auth/core/types";
+import Authentik, {
+  type AuthentikProfile,
+} from "@auth/core/providers/authentik";
 import { SvelteKitAuth } from "@auth/sveltekit";
 import { PrismaClient } from "@prisma/client";
 import { error, type Handle, type HandleServerError } from "@sveltejs/kit";
@@ -50,21 +52,18 @@ const { handle: authHandle } = SvelteKitAuth({
   secret: env.AUTH_SECRET,
   trustHost: true,
   providers: [
-    Keycloak({
-      clientId: env.KEYCLOAK_CLIENT_ID,
-      clientSecret: env.KEYCLOAK_CLIENT_SECRET,
-      issuer: env.KEYCLOAK_CLIENT_ISSUER,
-      profile: (profile: KeycloakProfile, tokens: TokenSet) => {
+    Authentik({
+      clientId: env.AUTH_AUTHENTIK_CLIENT_ID,
+      clientSecret: env.AUTH_AUTHENTIK_CLIENT_SECRET,
+      issuer: envPublic.PUBLIC_AUTH_AUTHENTIK_ISSUER,
+      profile: (profile: AuthentikProfile) => {
         return {
-          id_token: tokens.id_token,
           id: profile.sub,
           given_name: profile.given_name,
           family_name: profile.family_name,
           email: profile.email,
           student_id: profile.preferred_username,
-          // The keycloak client doesn't guarantee this field
-          // to be present, but we assume it always is.
-          group_list: profile["group_list"] ?? [],
+          group_list: profile.groups,
         };
       },
     }),
@@ -74,17 +73,14 @@ const { handle: authHandle } = SvelteKitAuth({
       if (user) {
         token.student_id = user.student_id;
         token.group_list = user.group_list ?? [];
-        token.id_token = user.id_token;
         token.given_name = user.given_name;
         token.family_name = user.family_name;
         token.email = user.email;
       }
       return token;
     },
-    session(params) {
-      const { session } = params;
-      if ("token" in params && params.session?.user) {
-        const { token } = params;
+    session({ session, token }) {
+      if (token && session?.user) {
         session.user.student_id = token.student_id;
         session.user.email = token.email ?? "";
         session.user.group_list = token.group_list;
@@ -93,20 +89,22 @@ const { handle: authHandle } = SvelteKitAuth({
       }
       return session;
     },
-  },
-  events: {
-    async signOut(message) {
-      if (!("token" in message)) {
-        return;
-      }
-      const idToken = message.token?.id_token;
-      const params = new URLSearchParams();
-      params.append("id_token_hint", idToken as string);
-      await fetch(
-        `${
-          env.KEYCLOAK_CLIENT_ISSUER
-        }/protocol/openid-connect/logout?${params.toString()}`,
-      );
+    /**
+     * Controls which URLs are allowed for redirection after authentication.
+     * - Allows relative callback URLs for internal navigation.
+     * - Only permits absolute URLs if their hostname matches trusted domains (e.g., localhost, dsek.se).
+     *   This prevents open redirect vulnerabilities by restricting redirects to known safe domains.
+     */
+    redirect({ url, baseUrl }) {
+      // Handle relative callback URLs
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+
+      // Handle callback URLs to trusted domains
+      const hostname = new URL(url).hostname;
+      const allowedHostnames = ["localhost", "dsek.se"];
+      if (allowedHostnames.some((h) => hostname.endsWith(h))) return url;
+
+      return baseUrl;
     },
   },
 });
@@ -234,8 +232,8 @@ const themeHandle: Handle = async ({ event, resolve }) => {
   });
 };
 
-// run a keycloak sync every day at midnight
-schedule.scheduleJob("0 0 * * *", () => keycloak.sync(authorizedPrismaClient));
+// run a authentik sync every day at midnight
+schedule.scheduleJob("0 0 * * *", () => authentik.sync(authorizedPrismaClient));
 schedule.scheduleJob("0 0 * * *", meilisearchSync);
 
 export const handleError: HandleServerError = Sentry.handleErrorWithSentry(

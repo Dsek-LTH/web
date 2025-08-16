@@ -2,7 +2,7 @@
   import { page } from "$app/stores";
   import LoadingButton from "$lib/components/LoadingButton.svelte";
   import NavIcon from "$lib/components/NavIcon.svelte";
-  import { signIn } from "@auth/sveltekit/client";
+  import { signIn } from "$lib/utils/auth";
   import NotificationBell from "../../NotificationBell.svelte";
   import type { PostRevealLayoutData } from "./+layout.server";
   import { getFullName } from "$lib/utils/client/member";
@@ -99,10 +99,7 @@
       </ul>
     </div>
   {:else}
-    <LoadingButton
-      class="btn btn-ghost gap-0"
-      onClick={() => signIn("keycloak")}
-    >
+    <LoadingButton class="btn btn-ghost gap-0" onClick={() => signIn()}>
       <NavIcon class="text-inherit" icon="i-mdi-login" />
     </LoadingButton>
   {/if}

@@ -258,7 +258,7 @@
   "admin_emailalias_specialSendersRemoved": "Särskilda avsändare borttagna",
   "admin_emailalias_studentIDOrUsername": "Student-ID eller användarnamn",
   "admin_emailalias_targetAddress": "Målmejladress",
-  "admin_emailalias_userNotInKeycloak": "Användaren finns inte i Keycloak",
+  "admin_emailalias_userNotInAuthentik": "Användaren finns inte i authentik",
   "admin_links_add_title": "Lägg till förkortad länk",
   "admin_links_add_submit": "Lägg till",
   "admin_links_add_placeholder_slug": "<länknamn>",

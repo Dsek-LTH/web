@@ -28,11 +28,11 @@
       <section class="mb-4 space-y-2">
         <h1 class="text-lg font-semibold">Actions</h1>
         <form
-          action="?/keycloakSync"
+          action="?/authentikSync"
           method="POST"
           class="flex items-center gap-4"
         >
-          <button type="submit" class="btn">Sync with Keycloak</button>
+          <button type="submit" class="btn">Sync with authentik</button>
           <p>This will push mandates and pull email addresses.</p>
         </form>
         <form
