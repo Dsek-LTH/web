@@ -240,7 +240,7 @@ async function deleteMandate(
         },
       });
     } else {
-      throw error;
+      console.log(error);
     }
   }
 }
@@ -361,20 +361,25 @@ async function getManyUserEmails(
   const client = connect();
   const userEmails = new Map<string, string>();
 
-  const users = await fetchAll(client.coreUsersList.bind(client));
+  try {
+    const users = await fetchAll(client.coreUsersList.bind(client));
 
-  users.forEach((user) => {
-    const { username, email } = user;
-    if (!username || !email) return;
+    users.forEach((user) => {
+      const { username, email } = user;
+      if (!username || !email) return;
 
-    if (
-      currentUserEmail.has(username) && // if the user exists in our database
-      currentUserEmail.get(username) !== user.email // if the email has changed
-    ) {
-      userEmails.set(username, email);
-    }
-  });
-  return userEmails;
+      if (
+        currentUserEmail.has(username) && // if the user exists in our database
+        currentUserEmail.get(username) !== user.email // if the email has changed
+      ) {
+        userEmails.set(username, email);
+      }
+    });
+    return userEmails;
+  } catch (error) {
+    console.log(error);
+    return new Map();
+  }
 }
 
 async function hasUsername(username: string) {
