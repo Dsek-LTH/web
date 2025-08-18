@@ -31,7 +31,6 @@
   class="form-control"
 >
   <slot name="start" />
-  <FormInput {superform} field="id" type="hidden" />
   <FormInput {superform} field="name" label="Namn" />
   <FormInput {superform} field="description" label="Beskrivning" />
   <FormSelect {superform} field="year" label="År" options={yearOptions} />
