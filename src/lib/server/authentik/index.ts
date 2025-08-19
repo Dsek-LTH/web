@@ -22,7 +22,7 @@ function connect(): CoreApi {
   return client;
 }
 
-async function _fetchUserId(client: CoreApi, username: string) {
+async function _fetchUser(client: CoreApi, username: string) {
   const response = (await client.coreUsersList({ username })).results;
   if (response.length === 0) {
     error(404, {
@@ -36,7 +36,12 @@ async function _fetchUserId(client: CoreApi, username: string) {
     });
   }
 
-  return response[0].pk;
+  return response[0];
+}
+
+async function _fetchUserId(client: CoreApi, username: string) {
+  const user = await _fetchUser(client, username);
+  return user.pk;
 }
 
 async function getUserId(username: string) {
@@ -71,14 +76,15 @@ async function updateProfile(
 
   try {
     const client = connect();
-    const id = await _fetchUserId(client, username);
+    const user = await _fetchUser(client, username);
     await client.coreUsersPartialUpdate({
-      id: id,
+      id: user.pk,
       patchedUserRequest: {
         name: `${firstName} ${lastName}`,
         attributes: {
           givenName: firstName,
           sn: lastName,
+          ...(user.attributes ?? {}),
         },
       },
     });
