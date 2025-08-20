@@ -7,7 +7,6 @@
 
   import {
     formFieldProxy,
-    numberProxy,
     type FormFieldProxy,
     type FormPathLeaves,
     type SuperForm,
@@ -25,14 +24,35 @@
     superform,
     field,
   ) satisfies FormFieldProxy<number>;
-  $: value = numberProxy(superform, field);
   $: errors = fieldProxy.errors;
   $: constraints = fieldProxy.constraints;
+  $: value = fieldProxy.value;
+
+  let oldValue: number | undefined = undefined;
+  $: {
+    if (
+      !/^\d+([.,]\d{0,2})?$/.test($value.toString()) &&
+      $value.toString() !== ""
+    ) {
+      value.set(oldValue ?? 0);
+    }
+
+    if (
+      !$value.toString().endsWith(".") &&
+      !$value.toString().endsWith(",") &&
+      $value.toString() !== ""
+    ) {
+      value.set(parseFloat($value.toString().replace(",", ".")));
+    }
+
+    oldValue = $value;
+  }
 </script>
 
 <Input
   name={name ?? field}
-  type="number"
+  type="text"
+  inputmode="decimal"
   {label}
   class={clazz}
   bind:value={$value}
