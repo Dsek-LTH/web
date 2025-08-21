@@ -369,6 +369,12 @@
         <button class=" bg-[#433C3F]/60 uppercase text-white" on:click={signIn}>
           {m.navbar_logIn()}
         </button>
+        <a
+          class="my-2 bg-[#433C3F]/60 uppercase text-white"
+          href="https://auth.dsek.se"
+        >
+          {m.navbar_register()}
+        </a>
       </li>
       <li class="flex flex-row self-center pt-4">
         <a
