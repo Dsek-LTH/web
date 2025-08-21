@@ -51,7 +51,7 @@
     {/if}
     {#if isAuthorized(apiNames.TAGS.UPDATE, data.user)}
       <a class="btn" href="/events/all-events">
-        <span class="i-mdi-administrator"></span>Alla events
+        <span class="i-mdi-administrator"></span>{m.events_all_events()}
       </a>
     {/if}
   </div>
