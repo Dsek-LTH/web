@@ -1,12 +1,12 @@
 <script lang="ts">
   import type { UserShopItemCounts } from "$lib/server/shop/countUserShopItems";
   import { getFullName } from "$lib/utils/client/member";
-  import { signOut } from "@auth/sveltekit/client";
   import type { Member } from "@prisma/client";
   import type { AuthUser } from "@zenstackhq/runtime";
   import * as m from "$paraglide/messages";
   import LoadingButton from "$lib/components/LoadingButton.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
+  import { signOut } from "$lib/utils/auth";
 
   export let member: Member;
   export let user: AuthUser;

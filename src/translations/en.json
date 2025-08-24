@@ -259,7 +259,7 @@
   "admin_emailalias_specialSendersRemoved": "Special senders removed",
   "admin_emailalias_studentIDOrUsername": "Student ID or Username",
   "admin_emailalias_targetAddress": "Target email address",
-  "admin_emailalias_userNotInKeycloak": "The user does not exist in Keycloak",
+  "admin_emailalias_userNotInAuthentik": "The user does not exist in authentik",
   "admin_links_add_title": "Add Shortened Link",
   "admin_links_add_submit": "Add",
   "admin_links_add_placeholder_slug": "<link name>",
