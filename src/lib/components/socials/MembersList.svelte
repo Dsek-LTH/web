@@ -1,34 +1,40 @@
 <script lang="ts">
   import AuthorSignature from "$lib/components/socials/AuthorSignature.svelte";
   import type { Member } from "@prisma/client";
+  import type { Snippet } from "svelte";
 
-  let modal: HTMLDialogElement | null;
-  export let members: Member[];
+  let modal: HTMLDialogElement | undefined = $state();
 
-  let clazz: string | undefined = undefined;
-  export { clazz as class };
-
-  let open = false;
-  $: {
-    if (open) modal?.showModal();
+  interface Props {
+    members: Member[];
+    class?: string | undefined;
+    children?: Snippet;
   }
+
+  let { members, class: clazz = undefined, children }: Props = $props();
+
+  let open = $state(false);
+  $effect(() => {
+    if (modal) modal.showModal();
+  });
 </script>
 
 {#if members.length > 0}
   <button
-    on:click|preventDefault={() => {
+    onclick={(event) => {
+      event.preventDefault();
       open = true;
     }}
     class={clazz}
   >
-    <slot />
+    {@render children?.()}
   </button>
   <dialog
     id="members_modal"
     class="modal"
     bind:this={modal}
-    on:close={() => (open = false)}
-    on:click={(e) => {
+    onclose={() => (open = false)}
+    onclick={(e) => {
       if (e.target === modal) modal?.close();
     }}
   >
