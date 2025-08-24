@@ -17,7 +17,7 @@
     <ul class="modal-box m-1 flex flex-col">
       {#each members as liker (liker.id)}
         <li>
-          <AuthorSignature type="member" member={liker} />
+          <AuthorSignature type="member" lazy member={liker} />
         </li>
       {/each}
     </ul>
