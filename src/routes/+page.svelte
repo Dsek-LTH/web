@@ -181,7 +181,7 @@
         </button>
         <a
           class="bg-[#433C3F]/60 px-8 py-4 uppercase text-white"
-          href="https://auth.dsek.se"
+          href="https://auth.dsek.se/if/flow/lu-signup/?next=%2F"
         >
           {m.navbar_register()}
         </a>
@@ -371,7 +371,7 @@
         </button>
         <a
           class="my-2 bg-[#433C3F]/60 uppercase text-white"
-          href="https://auth.dsek.se"
+          href="https://auth.dsek.se/if/flow/lu-signup/?next=%2F"
         >
           {m.navbar_register()}
         </a>
