@@ -3,6 +3,7 @@
   import { page } from "$app/stores";
   import { tick } from "svelte";
   import { i18n } from "$lib/utils/i18n";
+  import * as m from "$paraglide/messages";
 
   let isLoading = false;
 
@@ -34,7 +35,7 @@
     bind:this={inputField}
     name="search"
     type="text"
-    placeholder="Search"
+    placeholder={m.search_search()}
     class="input input-bordered w-full"
     value={$page.url.searchParams.get("search") ?? ""}
     on:input={(e) => {
