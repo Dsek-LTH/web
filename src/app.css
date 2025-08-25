@@ -37,6 +37,19 @@
     font-weight: normal;
     font-display: swap;
   }
+  @font-face {
+    font-family: "Mason Sans";
+    src: local("Mason Sans"), local("Mason-Sans"), local("mason sans"),
+      local("mason-sans"), url("/fonts/MasonSans.otf");
+    font-weight: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Genty";
+    src: local("Genty"), local("genty"), url("/fonts/Genty.otf");
+    font-weight: normal;
+    font-display: swap;
+  }
   .layout-container {
     @apply container mx-auto px-4 py-8 xl:px-32;
   }

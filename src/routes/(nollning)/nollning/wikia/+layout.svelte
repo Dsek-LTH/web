@@ -79,7 +79,7 @@
       bind:this={elements[i]}
       id={link.link}
       href={link.link}
-      class="btn btn-primary"
+      class="btn btn-primary !text-[#4E4A45]"
       class:btn-primary={isCurrent}
       class:btn-outline={!isCurrent}
     >
