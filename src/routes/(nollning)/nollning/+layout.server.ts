@@ -9,7 +9,7 @@ import { notificationSchema } from "$lib/zod/schemas";
 import { superValidate } from "sveltekit-superforms";
 import { zod } from "sveltekit-superforms/adapters";
 
-const afterNollning = new Date("2024-10-06");
+const afterNollning = new Date("2025-10-06");
 export const load = async ({ locals, cookies }) => {
   const { prisma, user, member } = locals;
 

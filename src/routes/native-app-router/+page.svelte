@@ -5,9 +5,7 @@
   import { onMount } from "svelte";
   import { fade } from "svelte/transition";
   // eslint-disable-next-line no-restricted-imports -- eh what the hell why not
-  import eye from "../(nollning)/nollning/(photos)/eye.svg";
-  // eslint-disable-next-line no-restricted-imports -- eh what the hell why not
-  import swirl from "../(nollning)/nollning/(photos)/swirl.svg";
+  import logo25 from "../(nollning)/nollning/(photos)/logo25.svg";
   import type { PageData } from "./$types";
 
   let { data }: { data: PageData } = $props();
@@ -35,14 +33,9 @@
       class="absolute left-1/2 top-1/2 size-60 max-h-[50%] max-w-[50%] -translate-x-1/2 -translate-y-1/2 md:size-80"
     >
       <img
-        src={swirl}
-        class="absolute inset-0 animate-[reverse-spin_2s_linear_infinite]"
+        src={logo25}
+        class="absolute inset-0 animate-scale-fade"
         alt="Nollning logo spinning"
-      />
-      <img
-        src={eye}
-        class="absolute inset-0"
-        alt="Nollning logo non-spinning"
       />
     </div>
   {:else}
