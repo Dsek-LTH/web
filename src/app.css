@@ -17,9 +17,7 @@
 @import "@fontsource/lexend/800.css";
 @import "@fontsource/lexend/900.css";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@reference "tailwindcss";
 
 @layer base {
   @font-face {

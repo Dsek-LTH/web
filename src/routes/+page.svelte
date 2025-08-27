@@ -132,7 +132,7 @@
     bind:checked={drawerOpen}
   />
   <div class="drawer-content">
-    <nav class="z-10 px-10 lg:px-20 xl:px-32">
+    <nav class="z-10 px-10 lg:px-20">
       <a href="/">
         <svg
           width="32"

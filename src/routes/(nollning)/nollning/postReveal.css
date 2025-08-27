@@ -1,5 +1,5 @@
 /* Here you will find styles that are specific to the /nolla pages. */
-@import "../../../app.css";
+@reference "../../../app.css";
 /* We need to import app.css, because if we don't then we can't use layers */
 /* And if we add our own @tailwind utilities; etc then the CSS will stop functioning/act weird due to everything being declared twice, in the wrong order. */
 /* This is how tailwind recommends doing it if you have multiple files. */
