@@ -307,7 +307,8 @@ My best tip for finding your way in the future is to ask questions to the older 
           href={"http://bit.ly/trivselkontakt"}
           class="{data.revealTheme
             ? 'btn-secondary-beige'
-            : 'btn-primary-dark'} btn self-start">{m.home_contactWellbeing()}</a
+            : 'btn-primary-dark'} btn mt-2 self-start"
+          >{m.home_contactWellbeing()}</a
         >
       </div>
     </section>
