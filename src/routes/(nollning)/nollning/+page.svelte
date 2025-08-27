@@ -39,7 +39,7 @@
     {
       name: "Øverphøs\nZenIT AeonIX",
       imageUrl: zenit,
-      body: `ZenIT Aeonix är Stabens beskyddare, född ur ljusets sken för att vaka över n0llningen. När stormen länge härjade i Lund stod ZenIT orubblig genom dess prövningar och genom hans närvaro förblev Staben intakt. Han är den pelare som bär tyngden av allt som är och skall bli. Så länge ZenIT finns kvar, kvarstår den trygghet som leder n0llan hem.`,
+      body: `ZenIT AeonIX är Stabens beskyddare, född ur ljusets sken för att vaka över n0llningen. När stormen länge härjade i Lund stod ZenIT orubblig genom dess prövningar och genom hans närvaro förblev Staben intakt. Han är den pelare som bär tyngden av allt som är och skall bli. Så länge ZenIT finns kvar, kvarstår den trygghet som leder n0llan hem.`,
       bodyEn:
         "ZenIT Aeonix, is the guardian of Staben, born from light to watch over n0llningen. When the storm long raged over Lund, ZenIT stood unyielding through its trials and through his presence, Staben remained intact. He is the pillar that bears the weight of all that is and shall be. As long as ZenIT endures, the safety that guides n0llan home shall remain.",
     },
