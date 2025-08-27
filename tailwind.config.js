@@ -131,14 +131,21 @@ export default {
         ".text-stroke-2": {
           "-webkit-text-stroke-width": "2px",
         },
+        ".text-stroke-black": {
+          "-webkit-text-stroke-color": "black",
+        },
+        ".text-stroke-secondary": {
+          "-webkit-text-stroke-color": "#921010",
+          "paint-order": "stroke fill"
+        },
         ".text-stroke-0": {
           "-webkit-text-stroke-width": "0px",
         },
         ".text-stroke-4": {
           "-webkit-text-stroke-width": "4px",
         },
-        ".text-stroke-8": {
-          "-webkit-text-stroke-width": "8px",
+        ".text-stroke-6": {
+          "-webkit-text-stroke-width": "6px",
         },
       });
     },

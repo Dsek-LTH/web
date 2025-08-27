@@ -6,14 +6,14 @@
   import * as m from "$paraglide/messages";
   import logo from "./(photos)/logo25.svg";
 
-  import arux from "./(photos)/staben24_Arux.webp";
-  import celesta from "./(photos)/staben24_Celesta.webp";
-  import macro from "./(photos)/staben24_Macro.webp";
-  import imre from "./(photos)/staben24_ImRe.webp";
-  import volto from "./(photos)/staben24_Volto.webp";
-  import lostrego from "./(photos)/staben24_Lostrego.webp";
-  import groupProfile from "./(photos)/staben24_9x16.webp";
-  import groupLandscape from "./(photos)/staben24_16x9.webp";
+  import zenit from "./(photos)/zenit.webp";
+  import stellara from "./(photos)/stellara.webp";
+  import lumos from "./(photos)/lumos.webp";
+  import astra from "./(photos)/astra.webp";
+  import axioma from "./(photos)/axioma.webp";
+  import atlas from "./(photos)/atlas.webp";
+  import groupProfile from "./(photos)/staben25_9x16.webp";
+  import groupLandscape from "./(photos)/staben25_16x9.webp";
   import heavenBG from "./(photos)/heaven_bg.webp";
 
   import william from "./(photos)/william.webp";
@@ -38,42 +38,42 @@
   const stab = [
     {
       name: "Øverphøs\nZenIT AeonIX",
-      imageUrl: arux,
+      imageUrl: zenit,
       body: `ZenIT Aeonix är Stabens beskyddare, född ur ljusets sken för att vaka över n0llningen. När stormen länge härjade i Lund stod ZenIT orubblig genom dess prövningar och genom hans närvaro förblev Staben intakt. Han är den pelare som bär tyngden av allt som är och skall bli. Så länge ZenIT finns kvar, kvarstår den trygghet som leder n0llan hem.`,
       bodyEn:
         "ZenIT Aeonix, is the guardian of Staben, born from light to watch over n0llningen. When the storm long raged over Lund, ZenIT stood unyielding through its trials and through his presence, Staben remained intact. He is the pillar that bears the weight of all that is and shall be. As long as ZenIT endures, the safety that guides n0llan home shall remain.",
     },
     {
       name: "Astra NebulUX",
-      imageUrl: imre,
+      imageUrl: astra,
       body: `Astra NebulUX väver materia och ting till enhet, och i tystnaden arbetar hon för att förena Staben i en gemensam vision. Genom uråldrig kunskap förvandlar hon form till mening där varje element bär på en dold sanning. I Astras händer blir varje skapelse ett uttryck för Stabens manifestation. Hon och hennes vision är förbindelsen mellan det synliga och det eviga.`,
       bodyEn:
         "Astra NebulUX weaves matter and things into unity, and in silence, the works to unite Staben in a shared vision. Through ancient knowledge, she transforms form into meaning where every element carries a hidden truth. In Astra’s hands, every creation becomes a manifestation of Staben’s essence. She and her vision is the connection between the visible and the eternal.",
     },
     {
       name: "AxI/Oma Solariz",
-      imageUrl: volto,
+      imageUrl: axioma,
       body: `I de allra yttersta lagren av himlavalvet, vävdes AxI/Oma Solariz ur stjärnstoft. Hon har nu trätt ner i jordens rum för att forma n0llningens himmelska tillställningar. Genom kosmiska krafter och ceremoniell magi skapar hon ögonblick där glädje och gemenskap förseglas i stjärnornas ljus. Under hennes blick tar n0llningens form gestalt.`,
       bodyEn:
         "In the outermost layers of the celestial vault, AxI/Oma Solariz was woven from stardust. She has now descended into the earthly realm to shape the heavenly gatherings of n0llningen. Through cosmic power and ceremonial magic, she creates moments where joy and fellowship are sealed in the light of the stars. Under her watchful gaze, the n0llning takes shape.",
     },
     {
-      name: "Atlas EteriON",
-      imageUrl: lostrego,
+      name: "Λtlαs EteriON",
+      imageUrl: atlas,
       body: `I himlarikets väldiga arkiv vandrar en själ vars blick ser bortom det synliga. Atlas Eterion, Stabens kompass, vägleder gruppen genom himlavalvet. Han söker inte bara efter vägen till ljusets domäner, utan även stigarna som leder till rikedom och överflöd. Till sin hjälp böjer Atlas ljusets kraft för att skapa magiska artifakter åt n0llan och Staben, föremål ämnade till att möjliggöra n0llningen.`,
       bodyEn:
         "Within the vast archives of the celestial realm, wanders a soul whose gaze pierces through the visible. Atlas Eterion, Staben’s compass guides the group through the heavens. He seeks not only the path to light but also the trails that lead to wealth and abundance. With his aid, Atlas bends the power of light to create magical artifacts for n0llan and Staben, items destined to make n0llningen possible.",
     },
     {
       name: "LumOS Kernael",
-      imageUrl: macro,
+      imageUrl: lumos,
       body: `LumOS Kernael väcktes ur himlavalvets oändligt sträckande ljus, där han nu vakar som domänens evige väktare. Med klarhet i varje steg och ljuset som sin följeslagare, säkerställer han att inga korruptioner gömmer sig bakom stormens moln. I sin hand bär han nyckeln som försvarar alla phaddrar och låter n0llorna tryggt finna sin väg.`,
       bodyEn:
         "LumOS Kernael was awakened from the endlessly stretching light of the celestial vault, where he now watches as the eternal guardian of the domain. With clarity in every step and the light as his companion, he ensures that no corruptions hide behind the storm’s clouds. In his hand he carries the key that defends all phaddrar and allows the n0llor to safely find their way.",
     },
     {
       name: "Ste||ara Venvelia",
-      imageUrl: celesta,
+      imageUrl: stellara,
       body: `Stellara Venvelia är länken mellan stjärnorna och n0llan. Utsänd från himlavalvets sfär vandrar hon bland n0llorna som Stabens röst. Genom sina klara budskap och varsamma kraft, vägleder Stellara n0llan genom ovisshetens dimma. Hon bär lugnet där kaos annars kunde gro och med sin helande förmåga skapar hon balans omkring sig.`,
       bodyEn:
         "Stellara Venvelia is the link between the stars and n0llan. Sent from the celestial sphere, she walks among n0llorna as the voice of Staben. Through her clear messages and gentle force, Stellara guides n0llan through the fog of uncertainty. She carries calm where chaos otherwise might grow, and with her healing ability creates balance around her.",
@@ -243,21 +243,21 @@ My best tip for finding your way in the future is to ask questions to the older 
       >
         <div
           class="h-full w-full bg-cover bg-center bg-no-repeat max-md:bg-scroll md:hidden md:bg-fixed"
-          style="background-image: url('{groupProfile}'); box-shadow: inset 0 -100px 100px -100px #303B70;"
+          style="background-image: url('{groupProfile}'); box-shadow: inset 0 -100px 100px -100px #E6D3B1;"
         ></div>
         <div
           class="hidden h-full w-full bg-cover bg-center bg-no-repeat max-md:bg-scroll md:block md:bg-fixed"
-          style="background-image: url('{groupLandscape}'); box-shadow: inset 0 -100px 100px -100px #303B70;"
+          style="background-image: url('{groupLandscape}'); box-shadow: inset 0 -100px 75px -100px #E6D3B1;"
         ></div>
 
         <span
-          class="absolute inset-x-4 bottom-10 hidden max-w-full transform text-center font-nolla-stab text-7xl leading-snug md:block lg:text-8xl"
+          class="absolute inset-x-4 bottom-10 hidden max-w-full transform text-center font-nolla-stab text-7xl leading-snug text-base-100 text-stroke-secondary text-stroke-6 md:block lg:text-8xl"
         >
           <!-- eslint-disable-next-line svelte/no-at-html-tags -->
           {@html m.nollning_title().replace("\n", " ")}
         </span>
         <span
-          class="absolute inset-x-4 bottom-10 max-w-full transform text-center font-nolla-stab text-6xl leading-snug md:hidden md:text-8xl"
+          class="absolute inset-x-4 bottom-10 max-w-full transform text-center font-nolla-stab text-6xl leading-snug text-base-100 text-stroke-secondary text-stroke-6 md:hidden md:text-8xl"
         >
           <!-- eslint-disable-next-line svelte/no-at-html-tags -->
           {@html m.nollning_title().replace("\n", "<br />")}
@@ -297,7 +297,7 @@ My best tip for finding your way in the future is to ask questions to the older 
       </p>
       <div>
         <a
-          href={`https://minio.api.dsek.se/files/public/miscellaneous/rights-${languageTag()}.pdf`}
+          href={`https://minio.api.dsek.se/files/public/miscellaneous/rights-sv-2025.pdf`}
           class="{data.revealTheme
             ? 'btn-secondary-beige'
             : 'btn-primary-dark'}  btn self-start"
@@ -313,7 +313,7 @@ My best tip for finding your way in the future is to ask questions to the older 
     </section>
     {#if data.revealTheme}
       <div
-        class="relative mx-auto mb-12 h-[420px] w-[420px] rounded-full border-8 border-secondary bg-[#1f1f1c]"
+        class="relative mx-auto mb-12 aspect-square max-h-[420px] max-w-[420px] rounded-full border-8 border-secondary bg-[#1f1f1c] max-md:scale-75"
       >
         <div class="size-60 md:size-80">
           <img
@@ -330,15 +330,15 @@ My best tip for finding your way in the future is to ask questions to the older 
         <p class="nolla-prose">
           {m.nollning_landing_lore_body()}
         </p>
-        <iframe
+        <!-- <iframe waiting for final video src
           class="aspect-video w-full"
-          src="https://www.youtube.com/embed/cHuM8WgDBuA?si=cCNMW7Hktij8qJCb"
+          src=""
           title="Reveal film"
           frameborder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           referrerpolicy="strict-origin-when-cross-origin"
           allowfullscreen
-        ></iframe>
+        ></iframe> -->
       </section>
 
       <section
@@ -380,7 +380,7 @@ My best tip for finding your way in the future is to ask questions to the older 
         style={`background-image: url('${infinity}')`}
       ></div>
       <h1
-        class="z-10 mb-4 p-2 text-center font-nolla-pepp text-5xl tracking-widest text-[#F280A1] text-stroke-gray text-stroke-4 md:text-8xl"
+        class="z-10 mb-4 p-2 text-center font-nolla-pepp text-5xl tracking-widest text-[#F280A1] text-stroke-gray text-stroke-4 max-md:text-stroke-2 md:text-8xl"
       >
         Peppfinity
       </h1>
