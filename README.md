@@ -41,7 +41,6 @@ This project is the main web page for the D-guild within TLTH, a non-profit orga
 
 ![builtwith][builtwith]
 [![svelte][svelte]][svelte-url]
-[![daisy][daisy]][daisy-url]
 [![typescript][typescript]][typescript-url]
 [![prisma][prisma]][prisma-url]
 [![zenstack][zenstack]][zenstack-url]
@@ -121,8 +120,6 @@ https://www.dsek.se/en/info/contact
 [typescript-url]: https://www.typescriptlang.org/
 [svelte]: https://img.shields.io/badge/svelte-FF3E00?style=for-the-badge&logo=svelte&logoColor=white
 [svelte-url]: https://svelte.dev/
-[daisy]: https://img.shields.io/badge/daisyui-107f65?style=for-the-badge&logo=data:image/svg+xml;base64,Cjxzdmcgd2lkdGg9IjEwMjQiIGhlaWdodD0iMTAyNCIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3QgeD0iMjU2IiB5PSI2NzAuNzIiIHdpZHRoPSI1MTIiIGhlaWdodD0iMjU2IiByeD0iMTI4IiBmaWxsPSIjMUFEMUE1Ii8+CjxjaXJjbGUgY3g9IjUxMiIgY3k9IjM1My4yOCIgcj0iMjU2IiBmaWxsPSJ3aGl0ZSIvPgo8Y2lyY2xlIGN4PSI1MTIiIGN5PSIzNTMuMjgiIHI9IjI2MSIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLW9wYWNpdHk9IjAuMiIgc3Ryb2tlLXdpZHRoPSIxMCIvPgo8Y2lyY2xlIGN4PSI1MTIiIGN5PSIzNTMuMjgiIHI9IjExNC42ODgiIGZpbGw9IiNGRjk5MDMiLz4KPC9zdmc+Cg==
-[daisy-url]: https://daisyui.com/
 [expo]: https://img.shields.io/badge/expo-000020?style=for-the-badge&logo=expo&logoColor=white
 [expo-url]: https://expo.dev/
 [prisma]: https://img.shields.io/badge/prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white

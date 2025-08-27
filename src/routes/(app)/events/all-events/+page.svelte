@@ -1,7 +1,5 @@
-<script lang="ts">
-  import EventPage from "../EventPage.svelte";
-
-  export let data;
+<script>
+  import NotImplemented from "$lib/components/NotImplemented.svelte";
 </script>
 
-<EventPage {data} />
+<NotImplemented />

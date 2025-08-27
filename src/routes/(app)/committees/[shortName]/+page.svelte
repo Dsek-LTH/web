@@ -1,7 +1,5 @@
-<script lang="ts">
-  import CommitteePage from "../CommitteePage.svelte";
-
-  export let data;
+<script>
+  import NotImplemented from "$lib/components/NotImplemented.svelte";
 </script>
 
-<CommitteePage {data} />
+<NotImplemented />

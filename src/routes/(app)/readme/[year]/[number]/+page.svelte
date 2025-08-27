@@ -1,7 +1,5 @@
-<script lang="ts">
-  import type { PageData } from "./$types";
-  import Readme from "./Readme.svelte";
-  export let data: PageData;
+<script>
+  import NotImplemented from "$lib/components/NotImplemented.svelte";
 </script>
 
-<Readme readme={data.readme} />
+<NotImplemented />

@@ -1,7 +1,5 @@
-<script lang="ts">
-  import CallbackPage from "$lib/components/shop/payments/CallbackPage.svelte";
-
-  export let data;
+<script>
+  import NotImplemented from "$lib/components/NotImplemented.svelte";
 </script>
 
-<CallbackPage {data} />
+<NotImplemented />
