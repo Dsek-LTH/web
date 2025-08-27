@@ -4,7 +4,7 @@
 </script>
 
 <div
-  class="collapse z-10 w-auto !grid-rows-[min-content_0fr] rounded-btn border-2 border-neutral bg-neutral duration-300 has-[input[type='checkbox']:checked]:!grid-rows-[min-content_1fr] has-[input[type='checkbox']:checked]:border-base-content has-[input[type='checkbox']:checked]:bg-base-100"
+  class="collapse z-10 w-auto !grid-rows-[min-content_0fr] rounded-btn border-2 border-base-content duration-300 has-[input[type='checkbox']:checked]:!grid-rows-[min-content_1fr] has-[input[type='checkbox']:checked]:border-base-content has-[input[type='checkbox']:checked]:bg-base-100"
 >
   <input type="checkbox" class="peer min-h-0" bind:checked />
   <div

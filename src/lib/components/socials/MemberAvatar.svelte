@@ -3,6 +3,7 @@
   import { twMerge } from "tailwind-merge";
 
   export let member: Pick<Member, "picturePath"> | null = null;
+  export let lazy = false;
   // export let uniqueCode: string | null = null; // unused for now, might use for creating better unique "backup images" later
   let clazz = "";
   export { clazz as class };
@@ -18,6 +19,7 @@
 >
   <figure class="relative w-full">
     <img
+      loading={lazy ? "lazy" : "eager"}
       src={member?.picturePath || backupUrl}
       on:error|preventDefault={(e) => {
         const imgElement = e.currentTarget;

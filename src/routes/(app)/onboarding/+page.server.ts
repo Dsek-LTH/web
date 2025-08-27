@@ -5,7 +5,7 @@ import type { Actions, PageServerLoad } from "./$types";
 import { error, fail } from "@sveltejs/kit";
 import { redirect } from "$lib/utils/redirect";
 import * as m from "$paraglide/messages";
-import keycloak from "$lib/server/keycloak";
+import authentik from "$lib/server/authentik";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma } = locals;
@@ -36,7 +36,11 @@ export const load: PageServerLoad = async ({ locals }) => {
   const phadderGroups = phadderGroupsResult.value;
   return {
     form: await superValidate(
-      { ...member, classProgramme: member.classProgramme ?? "D" },
+      {
+        ...member,
+        classProgramme: member.classProgramme ?? "D",
+        classYear: member.classYear ?? new Date().getFullYear(),
+      },
       zod(memberSchema),
     ),
     member,
@@ -73,7 +77,7 @@ export const actions: Actions = {
     } else {
       throw error(500, m.onboarding_errors_studentIDNotFound());
     }
-    keycloak.updateProfile(
+    authentik.updateProfile(
       studentId,
       form.data.firstName ?? "",
       form.data.lastName ?? "",

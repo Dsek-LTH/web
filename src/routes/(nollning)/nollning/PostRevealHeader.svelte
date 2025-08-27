@@ -4,7 +4,7 @@
   import NavIcon from "$lib/components/NavIcon.svelte";
   import NotificationModal from "$lib/components/NotificationModal.svelte";
   import { i18n } from "$lib/utils/i18n";
-  import { signIn } from "@auth/sveltekit/client";
+  import { signIn } from "$lib/utils/auth";
   import NotificationBell from "../../NotificationBell.svelte";
   import AccountDrawer from "./AccountDrawer.svelte";
   import PostRevealAccountMenu from "./PostRevealAccountMenu.svelte";
@@ -87,10 +87,7 @@
       {/if}
       <PostRevealAccountMenu />
     {:else}
-      <LoadingButton
-        class="btn btn-ghost gap-0"
-        onClick={() => signIn("keycloak")}
-      >
+      <LoadingButton class="btn btn-ghost gap-0" onClick={() => signIn()}>
         <NavIcon class="text-inherit" icon="i-mdi-login" />
       </LoadingButton>
     {/if}
