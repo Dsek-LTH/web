@@ -300,14 +300,14 @@ My best tip for finding your way in the future is to ask questions to the older 
           href={`https://minio.api.dsek.se/files/public/miscellaneous/rights-sv-2025.pdf`}
           class="{data.revealTheme
             ? 'btn-secondary-beige'
-            : 'btn-primary-dark'}  btn self-start"
-          >{m.nollning_landing_policy_read()}</a
+            : 'btn-primary-dark'}  btn self-start">Läs dina rättigheter</a
         >
         <a
           href={"http://bit.ly/trivselkontakt"}
           class="{data.revealTheme
             ? 'btn-secondary-beige'
-            : 'btn-primary-dark'} btn self-start">{m.home_contactWellbeing()}</a
+            : 'btn-primary-dark'} btn mt-2 self-start"
+          >{m.home_contactWellbeing()}</a
         >
       </div>
     </section>
