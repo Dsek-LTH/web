@@ -136,7 +136,7 @@ export default {
         },
         ".text-stroke-secondary": {
           "-webkit-text-stroke-color": "#921010",
-          "paint-order": "stroke fill"
+          "paint-order": "stroke fill",
         },
         ".text-stroke-0": {
           "-webkit-text-stroke-width": "0px",
