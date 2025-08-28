@@ -13,9 +13,11 @@
   let {
     bookingRequests,
     bookables,
+    class: clazz,
   }: {
     bookingRequests: Array<BookingRequest & { bookables: Bookable[] }>;
     bookables: Bookable[];
+    class?: string;
   } = $props();
 
   let options: Calendar.Options = $state({
@@ -89,7 +91,7 @@
   });
 </script>
 
-<div style="--slot-width: {slotWidth}px">
+<div class={clazz} style="--slot-width: {slotWidth}px">
   <Calendar plugins={[ResourceTimeline]} {options} />
 </div>
 
