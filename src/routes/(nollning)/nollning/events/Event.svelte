@@ -24,7 +24,7 @@
     ? 'bg-[#ECDDBC]'
     : 'bg-base-100'}  has-[input[type='radio']:checked]:border-base-content"
 >
-  <input type="radio" name="nolla-event-list" />
+  <input type="checkbox" name="nolla-event-list" />
   <div class="collapse-title flex flex-col">
     <!-- Format date as Weekday HH:mm such as Monday 17.15 -->
     <span class="text-sm font-medium capitalize text-secondary"
