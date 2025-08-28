@@ -74,7 +74,7 @@
           buttonClass="btn btn-circle bg-base-200 relative aspect-square size-10 !p-0"
         >
           <span class="i-mdi-bell-outline size-7" slot="loading"></span>
-          <div class="indicator" let:unreadCount>
+          <div class="indicator text-base-100" let:unreadCount>
             {#if unreadCount > 0}
               <span
                 class="translate badge indicator-item badge-primary badge-xs translate-x-0 translate-y-0"
