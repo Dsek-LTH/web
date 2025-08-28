@@ -1,10 +1,6 @@
 <script lang="ts">
-  // @ts-nocheck
-  // We need this to suppress an error on the the Calendar component
-  // TODO: update @event-calendar/core when they start supporting svelte 5
   import { twMerge } from "tailwind-merge";
-  import Calendar from "@event-calendar/core";
-  import TimeGrid from "@event-calendar/resource-timeline";
+  import { Calendar, ResourceTimeline } from "@event-calendar/core";
   import "./BookingCalendar.css";
   import { getFullName } from "$lib/utils/client/member";
   import dayjs from "dayjs";
@@ -14,13 +10,17 @@
 
   const slotWidth = 150;
 
-  export let bookingRequests: Array<BookingRequest & { bookables: Bookable[] }>;
-  export let bookables: Bookable[];
-  let clazz = "";
-  export { clazz as class };
+  let {
+    bookingRequests,
+    bookables,
+    class: clazz,
+  }: {
+    bookingRequests: Array<BookingRequest & { bookables: Bookable[] }>;
+    bookables: Bookable[];
+    class: string;
+  } = $props();
 
-  let plugins = [TimeGrid];
-  let options: Calendar.Options = {
+  let options: Calendar.Options = $state({
     view: "resourceTimelineMonth",
     events: bookingRequests
       .filter((booking) => booking.start !== null && booking.end !== null)
@@ -71,7 +71,7 @@
       `,
       };
     },
-  };
+  });
 
   onMount(() => {
     function scrollToToday() {
@@ -92,19 +92,17 @@
 </script>
 
 <div class={clazz} style="--slot-width: {slotWidth}px">
-  <Calendar {plugins} {options} />
+  <Calendar plugins={[ResourceTimeline]} {options} />
 </div>
 
-<slot name="legend">
-  <div class="mt-8">
-    <div class="badge badge-success">
-      <span class="i-mdi-check-circle mr-1"></span>{m.booking_accepted()}
-    </div>
-    <div class="badge badge-error">
-      <span class="i-mdi-denied mr-1"></span>{m.booking_denied()}
-    </div>
-    <div class="badge badge-info">
-      <span class="i-mdi-hourglass mr-1"></span>{m.booking_pending()}
-    </div>
+<div class="mt-8">
+  <div class="badge badge-success">
+    <span class="i-mdi-check-circle mr-1"></span>{m.booking_accepted()}
   </div>
-</slot>
+  <div class="badge badge-error">
+    <span class="i-mdi-denied mr-1"></span>{m.booking_denied()}
+  </div>
+  <div class="badge badge-info">
+    <span class="i-mdi-hourglass mr-1"></span>{m.booking_pending()}
+  </div>
+</div>
