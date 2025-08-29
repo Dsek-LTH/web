@@ -47,9 +47,10 @@
   </div>
   <div class="collapse-content flex flex-col">
     {#if event.shortDescription}
-      <span class="text-xl font-medium text-base-content"
-        >{event.shortDescription}</span
-      >
+      <MarkdownBody
+        class="text-xl font-medium text-base-content"
+        body={event.shortDescription}
+      />
     {/if}
     <MarkdownBody body={event.description} />
     <!-- <div class="mt-4 flex flex-col flex-wrap gap-4">
