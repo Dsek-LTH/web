@@ -1,4 +1,4 @@
-import type { PrismaClient, Member, Mandate, Committee } from "@prisma/client";
+import type { Member, Mandate, Committee } from "@prisma/client";
 import {
   type Semester,
   startDate,
@@ -7,6 +7,7 @@ import {
 } from "$lib/utils/semesters";
 import { languageTag } from "$paraglide/runtime";
 import * as m from "$paraglide/messages";
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 
 /**
  * Counts what semesters different members had mandates on.
@@ -54,7 +55,7 @@ const getSemesters = (mandates: Mandate[]): Semester[] => [
  * @returns An array of the Member objects corresponding to `ids`.
  */
 const getMembers = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   ids: Array<Member["id"]>,
 ): Promise<Member[]> =>
   await prisma.member.findMany({
@@ -72,7 +73,7 @@ const getMembers = async (
  * @returns An array of the Committees that have committee medals.
  */
 const committeesWithMedals = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
 ): Promise<Committee[]> =>
   await prisma.committee.findMany({
     where: {
@@ -150,7 +151,7 @@ const gammalOchÄckligSemester = (
 const committeeMedalName = (committee: Committee): string =>
   m.medals_committeeMedal() +
   " — " +
-  (languageTag() === "sv" ? committee.name : committee.nameEn);
+  (languageTag() === "sv" ? committee.nameSv : committee.nameEn);
 
 /**
  * Calculate after which semesters a certain member deserved their different
@@ -166,7 +167,7 @@ const committeeMedalName = (committee: Committee): string =>
  * semester after which they should have been awarded the medal.
  */
 export const memberMedals = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   memberId: Member["id"],
   after: Semester,
 ): Promise<Array<{ medal: string; after: Semester }>> => {
@@ -241,7 +242,7 @@ export const memberMedals = async (
  * an array of members that should have recived that medal after `after`.
  */
 export const medalRecipients = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   after: Semester,
 ): Promise<Array<{ medal: string; recipients: Member[] }>> => {
   const mandatesInAfter = await prisma.mandate.findMany({

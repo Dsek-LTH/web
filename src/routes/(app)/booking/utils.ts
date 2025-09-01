@@ -3,11 +3,12 @@ import { NotificationType } from "$lib/utils/notifications/types";
 import { error, type RequestEvent } from "@sveltejs/kit";
 import type { Actions } from "./$types";
 import dayjs from "dayjs";
-import type { Bookable, BookingRequest, PrismaClient } from "@prisma/client";
+import type { Bookable, BookingRequest } from "@prisma/client";
 import { superValidate } from "sveltekit-superforms/server";
 import { zod } from "sveltekit-superforms/adapters";
 import { bookingSchema } from "./schema";
 import * as m from "$paraglide/messages";
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 
 export const actions: Actions = {
   accept: async (event: RequestEvent) => {
@@ -18,7 +19,7 @@ export const actions: Actions = {
   },
 };
 
-export async function getUpcomingBookingRequests(prisma: PrismaClient) {
+export async function getUpcomingBookingRequests(prisma: ExtendedPrisma) {
   return prisma.bookingRequest.findMany({
     where: {
       start: {
@@ -34,7 +35,7 @@ export async function getUpcomingBookingRequests(prisma: PrismaClient) {
 }
 
 export async function getBookingRequestOrThrow(
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   id: string,
 ) {
   return prisma.bookingRequest

@@ -8,8 +8,8 @@ import type {
   Member,
   Position,
   Prisma,
-  PrismaClient,
 } from "@prisma/client";
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 
 type ArticleFilters = {
   tags?: string[];
@@ -40,7 +40,7 @@ const include = {
 };
 
 export const getAllArticles = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   filters: ArticleFilters = { page: 0, pageSize: 10 },
 ): Promise<[Article[], number]> => {
   const pageNumber = filters.page ?? 0;
@@ -54,7 +54,7 @@ export const getAllArticles = async (
       ? {
           OR: [
             {
-              header: {
+              headerSv: {
                 contains: filters.search,
                 mode: "insensitive",
               },
@@ -66,7 +66,7 @@ export const getAllArticles = async (
               },
             },
             {
-              body: {
+              bodySv: {
                 contains: filters.search,
                 mode: "insensitive",
               },
@@ -88,7 +88,7 @@ export const getAllArticles = async (
             some: {
               OR: [
                 {
-                  name: {
+                  nameSv: {
                     in: filters.tags,
                     mode: "insensitive",
                   },
@@ -122,7 +122,7 @@ export const getAllArticles = async (
   return [articles, Math.ceil(count / pageSize)];
 };
 
-export const getArticle = async (prisma: PrismaClient, slug: string) => {
+export const getArticle = async (prisma: ExtendedPrisma, slug: string) => {
   const response = await prisma.article.findUnique({
     where: {
       slug,
@@ -150,7 +150,7 @@ export type AuthorOption = Author & {
 };
 
 export const getArticleAuthorOptions = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   memberWithMandates: Prisma.MemberGetPayload<{
     include: {
       mandates: {

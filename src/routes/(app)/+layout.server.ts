@@ -2,13 +2,13 @@ import { env } from "$env/dynamic/public";
 import { countUserShopItems } from "$lib/server/shop/countUserShopItems";
 import { getMyGroupedNotifications } from "$lib/utils/notifications/myNotifications";
 import { emptySchema, notificationSchema } from "$lib/zod/schemas";
-import type { Alert } from "@prisma/client";
 import { loadFlash } from "sveltekit-flash-message/server";
 import { zod } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
+import type { ExtendedPrismaModel } from "../../database/prisma/translationExtension";
 
 const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
-const alertsCache: { alerts: Alert[]; lastUpdated: number | null } = {
+const alertsCache: { alerts: ExtendedPrismaModel<"Alert">[]; lastUpdated: number | null } = {
   alerts: [],
   lastUpdated: null,
 };
