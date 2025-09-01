@@ -18,7 +18,7 @@ import { sendPing } from "./pings";
 import { dateToSemester } from "$lib/utils/semesters";
 import { memberMedals } from "$lib/server/medals/medals";
 
-export const load: PageServerLoad = async ({ locals, params }) => {
+export const load: PageServerLoad = async ({ locals, params, cookies }) => {
   const { prisma, user } = locals;
   const { studentId } = params;
   const [memberResult, publishedArticlesResult, phadderGroupsResult] =

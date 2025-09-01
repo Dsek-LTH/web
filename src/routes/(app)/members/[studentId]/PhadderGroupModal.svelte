@@ -8,17 +8,20 @@
   import Modal from "$lib/components/Modal.svelte";
   import type { PhadderGroupSchema } from "./+page.server";
   import { marked } from "marked";
+  import type { Cookies } from "@sveltejs/kit";
 
   let {
     isEditing = $bindable(),
     phadderGroups,
     data,
     viewedMember,
+    cookies,
   }: {
     isEditing: boolean;
     phadderGroups: PhadderGroup[];
     data: SuperValidated<PhadderGroupSchema>;
     viewedMember: Member;
+    cookies: Cookies;
   } = $props();
 
   const superform = superForm<PhadderGroupSchema>(data, {
@@ -30,14 +33,15 @@
   });
   const { form, enhance } = superform;
 
-  let skipped = false;
+  let skipped: Boolean = cookies.get("phadder_group_modal_skipped") == "1";
+  let never: Boolean = cookies.get("phadder_group_modal_never") == "1";
   const member = $derived(page.data.member);
   const noPhadderGroup = $derived(
     !!member && member.nollningGroupId == null && !skipped,
   );
 </script>
 
-{#if member?.id === viewedMember?.id}
+{#if member?.id === viewedMember?.id && !skipped && !never}
   <Modal show={noPhadderGroup}>
     <h3 class="text-lg font-bold">{m.members_phadder_group_modal_title()}</h3>
     <p class="text-sm font-light">
@@ -76,8 +80,24 @@
         <button type="submit" class="btn btn-primary">
           {m.members_save()}
         </button>
-        <button type="submit" class="btn" onclick={() => (skipped = true)}>
-          {m.phadder_group_modal_skip()}
+        <button
+          type="submit"
+          class="btn"
+          onclick={() =>
+            cookies.set("phadder_group_modal_skipped", "1", {
+              path: "/",
+              maxAge: 12 * 60 * 60,
+            })}
+        >
+          {m.members_phadder_group_modal_skip()}
+        </button>
+        <button
+          type="submit"
+          class="btn"
+          onclick={() =>
+            cookies.set("phadder_group_modal_never", "1", { path: "/" })}
+        >
+          {m.members_phadder_group_modal_never()}
         </button>
       </div>
     </form>

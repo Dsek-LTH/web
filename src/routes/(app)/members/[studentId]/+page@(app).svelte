@@ -12,11 +12,12 @@
   import UpdateMemberForm from "./UpdateMemberForm.svelte";
   import { languageTag } from "$paraglide/runtime";
   import PingButton from "./PingButton.svelte";
-  import type { PageProps } from "./$types";
+  import type { PageData } from "./$types";
   import SEO from "$lib/seo/SEO.svelte";
   import PhadderGroupModal from "./PhadderGroupModal.svelte";
+  import type { Cookies } from "@sveltejs/kit";
 
-  let { data }: PageProps = $props();
+  let { data, cookies }: { data: PageData; cookies: Cookies } = $props();
 
   const studentId = $derived($page.params["studentId"]);
   const member = $derived(data.viewedMember);
@@ -232,6 +233,7 @@
   data={data.form}
   phadderGroups={data.phadderGroups}
   viewedMember={member}
+  {cookies}
 />
 
 <style>
