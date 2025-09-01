@@ -1,6 +1,6 @@
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 import { BASIC_EVENT_FILTER } from "$lib/events/events";
 import {
-  PrismaClient,
   type Consumable,
   type ConsumableReservation,
   type Event,
@@ -123,7 +123,7 @@ const shoppableAccessPolicyFilter = (
 });
 
 export const getTicket = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   id: string,
   user: AuthUser,
 ): Promise<TicketWithMoreInfo | null> => {
@@ -157,7 +157,7 @@ export const getTicket = async (
  * @returns A promise that resolves to an array of tickets.
  */
 export const getTickets = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   user: AuthUser,
   getAll = false,
 ): Promise<TicketWithMoreInfo[]> => {
@@ -205,7 +205,7 @@ export const getTickets = async (
  * @returns A promise that resolves to an array of tickets.
  */
 export const getEventsWithTickets = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   user: AuthUser,
   filters: Prisma.EventWhereInput = {},
   nollningMode: boolean | null = false,

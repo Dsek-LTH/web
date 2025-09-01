@@ -1,3 +1,4 @@
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 import {
   removeExpiredConsumables,
   withHandledNotificationQueue,
@@ -11,7 +12,6 @@ import { getFullName } from "$lib/utils/client/member";
 import {
   ShoppableType,
   type ItemQuestionResponse,
-  type PrismaClient,
   type Shoppable,
 } from "@prisma/client";
 import type Stripe from "stripe";
@@ -88,7 +88,7 @@ const clearOutConsumablesAfterSellingOut = async (
 };
 
 const purchaseCart = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   identification: ShopIdentification,
   idempotencyKey: string,
 ) => {

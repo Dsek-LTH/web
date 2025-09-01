@@ -1,6 +1,7 @@
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 import type { TransactionClient } from "$lib/server/shop/types";
 import { SUBSCRIPTION_SETTINGS_MAP } from "$lib/utils/notifications/types";
-import { ShoppableType, type Member, type PrismaClient } from "@prisma/client";
+import { ShoppableType, type Member } from "@prisma/client";
 
 export const MOCK_EVENT_1 = {
   title: "Event 1",
@@ -90,7 +91,7 @@ export const MOCK_UPCOMING_TICKET = {
 
 export type MockTickets = Awaited<ReturnType<typeof addMockTickets>>;
 export const addMockUser = async (
-  prisma: TransactionClient | PrismaClient,
+  prisma: TransactionClient | ExtendedPrisma,
   suitePrefix: string,
 ) => {
   return await prisma.member.create({
@@ -100,7 +101,7 @@ export const addMockUser = async (
   });
 };
 export const addMockUsers = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   suitePrefix: string,
 ) => {
   return await prisma.$transaction(async (prisma) => {
@@ -113,7 +114,7 @@ export const addMockUsers = async (
   });
 };
 export const addMockTickets = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   adminMember: Member,
 ) => {
   return await prisma.$transaction(async (prisma) => {
@@ -182,7 +183,7 @@ export const addMockTickets = async (
 };
 
 export const removeMockTickets = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   ticketIds: string[],
 ) => {
   await prisma.$transaction(async (tx) => {
@@ -232,7 +233,7 @@ export const removeMockTickets = async (
 };
 
 export const removeMockUsers = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   memberIds: string[],
 ) => {
   await prisma.$transaction(async (tx) => {
@@ -254,7 +255,7 @@ export const removeMockUsers = async (
 };
 
 export const removeAllTestData = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   suitePrefix: string,
 ) => {
   await prisma.notification.deleteMany({

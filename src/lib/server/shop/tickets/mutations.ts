@@ -1,13 +1,14 @@
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 import type { TransactionClient } from "$lib/server/shop/types";
 import { convertPriceToCents } from "$lib/utils/convertPrice";
 import type { TicketSchema } from "$lib/utils/shop/types";
-import { PrismaClient, ShoppableType } from "@prisma/client";
+import { ShoppableType } from "@prisma/client";
 
 /**
  * @param authorId member id
  */
 export const createTicket = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   authorId: string,
   data: TicketSchema,
 ) => {
@@ -71,7 +72,7 @@ export const createTicket = async (
 };
 
 export const updateTicket = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   ticketId: string,
   data: TicketSchema,
 ) => {

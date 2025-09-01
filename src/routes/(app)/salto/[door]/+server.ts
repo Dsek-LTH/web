@@ -124,12 +124,12 @@ export const GET: RequestHandler = async ({ params }) => {
 
     const positions = await fetchMatchingPositions(
       positionIds,
-      authorizedPrismaClient,
+      authorizedPrismaClient
     );
 
     const studentsFromPositions = await fetchStudentsWithPositions(
       positions.map((p) => p.id),
-      authorizedPrismaClient,
+      authorizedPrismaClient
     );
 
     // Fpr no we are only interested in the studentIds that are banned,

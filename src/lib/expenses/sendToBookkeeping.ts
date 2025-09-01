@@ -1,3 +1,4 @@
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 import { dev } from "$app/environment";
 import { env } from "$env/dynamic/private";
 import { sendEmail } from "$lib/email/emailService";
@@ -6,7 +7,6 @@ import type {
   Expense,
   ExpenseItem,
   Member,
-  PrismaClient,
 } from "@prisma/client";
 import dayjs from "dayjs";
 import fs from "fs";
@@ -35,7 +35,7 @@ export type ExpandedExpenseForPdf = Expense & {
  * Also verifies that all items are signed and have receipts.
  */
 export async function gatherExpenseDataForPdf(
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   expenseId: number,
 ): Promise<ExpandedExpenseForPdf> {
   const expense = await prisma.expense.findUnique({
@@ -90,7 +90,7 @@ function writePDFToFile(expense: Expense, pdfBytes: Uint8Array) {
  * 3. Marking the expense as sent to bookkeeping
  */
 export async function sendExpenseToBookkeeping(
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   expenseId: number,
 ): Promise<void> {
   if (

@@ -1,6 +1,6 @@
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 import { compareCommitteePositions } from "$lib/utils/committee-ordering/sort";
 import * as m from "$paraglide/messages";
-import type { PrismaClient } from "@prisma/client";
 import { error, fail, type Actions } from "@sveltejs/kit";
 import { zod } from "sveltekit-superforms/adapters";
 import { message, superValidate, withFiles } from "sveltekit-superforms/server";
@@ -16,7 +16,7 @@ import { getYearOrThrowSvelteError } from "$lib/utils/url.server";
  * @returns All data that the every committee load function needs
  */
 export const committeeLoad = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   shortName: string,
   url: URL,
 ) => {

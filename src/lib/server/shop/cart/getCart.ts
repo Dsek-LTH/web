@@ -1,3 +1,4 @@
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 import {
   removeExpiredConsumables,
   withHandledNotificationQueue,
@@ -17,13 +18,13 @@ import {
   transactionFee,
 } from "$lib/utils/payments/transactionFee";
 import { questionForm } from "$lib/utils/shop/types";
-import { PrismaClient, ShoppableType } from "@prisma/client";
+import { ShoppableType } from "@prisma/client";
 import { error, type ServerLoadEvent } from "@sveltejs/kit";
 import { zod } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
 import { purchaseForm } from "./types";
 
-export const getCart = async (prisma: PrismaClient, id: ShopIdentification) => {
+export const getCart = async (prisma: ExtendedPrisma, id: ShopIdentification) => {
   const now = new Date();
   await withHandledNotificationQueue(
     removeExpiredConsumables(authorizedPrismaClient, now).then(
@@ -93,7 +94,7 @@ export const getCart = async (prisma: PrismaClient, id: ShopIdentification) => {
 };
 
 export const getCartWithExtras = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   identification: ShopIdentification,
 ) => {
   const { inCart, reservations } = await getCart(prisma, identification);

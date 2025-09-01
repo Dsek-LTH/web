@@ -1,13 +1,13 @@
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import apiNames from "$lib/utils/apiNames";
 import { isAuthorized } from "$lib/utils/authorization";
-import type { PrismaClient } from "@prisma/client";
 import type { AuthUser } from "@zenstackhq/runtime";
 import DOMPurify from "isomorphic-dompurify";
 
 export const updateMarkdown = async (
   user: AuthUser,
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   markdown: {
     name: string;
     markdown: string;

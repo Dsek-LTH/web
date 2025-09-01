@@ -1,8 +1,8 @@
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 import {
   dbIdentification,
   type ShopIdentification,
 } from "$lib/server/shop/types";
-import type { PrismaClient } from "@prisma/client";
 import { z } from "zod";
 import * as m from "$paraglide/messages";
 import { QuestionType, type questionForm } from "$lib/utils/shop/types";
@@ -10,7 +10,7 @@ import { QuestionType, type questionForm } from "$lib/utils/shop/types";
 type AnswerQuestionData = z.infer<typeof questionForm>;
 
 export const answerQuestion = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   identification: ShopIdentification,
   data: AnswerQuestionData,
 ) => {

@@ -1,12 +1,12 @@
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 import { tagRegex } from "$lib/utils/client/commentTagging";
 import type {
   ArticleComment,
   EventComment,
-  PrismaClient,
 } from "@prisma/client";
 
 export const getAllTaggedMembers = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   comments: Array<ArticleComment | EventComment>,
 ) => {
   return await prisma.member.findMany({

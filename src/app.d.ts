@@ -1,7 +1,7 @@
 import type { ToastNotification } from "$lib/stores/toast";
 import type { Theme } from "$lib/utils/themes";
 import type { AvailableLanguageTag } from "$paraglide/runtime";
-import type { Member, PrismaClient } from "@prisma/client";
+import type { Member } from "@prisma/client";
 import type { AuthUser } from "@zenstackhq/runtime";
 import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 

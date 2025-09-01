@@ -1,6 +1,7 @@
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 import type { SendNotificationProps } from "$lib/utils/notifications";
 import * as m from "$paraglide/messages";
-import { PrismaClient, type Shoppable, type Ticket } from "@prisma/client";
+import { type Shoppable, type Ticket } from "@prisma/client";
 import type { AuthUser } from "@zenstackhq/runtime";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import {
@@ -33,7 +34,7 @@ export type AddToCartResult =
       queuePosition: number;
     };
 export const addTicketToCart = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   ticketId: string,
   user: AuthUser,
 ): Promise<AddToCartResult> => {
