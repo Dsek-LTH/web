@@ -201,6 +201,7 @@ export const createMember = async (
     return await prisma.member.create({
       data: {
         ...data,
+        classYear: new Date().getFullYear(),
         subscriptionSettings: {
           createMany: {
             data: NOLLA_DEFAULT_SUBSCRIPTION_SETTINGS,
@@ -220,6 +221,7 @@ export const createMember = async (
   return await prisma.member.create({
     data: {
       ...data,
+      classYear: new Date().getFullYear(),
       subscriptionSettings: {
         createMany: {
           data: DEFAULT_SUBSCRIPTION_SETTINGS,

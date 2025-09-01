@@ -6081,6 +6081,20 @@
           "maxLength": null
         },
         {
+          "id": "public.members.graduation_year",
+          "name": "graduation_year",
+          "columnName": "graduation_year",
+          "type": "int4",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
           "name": "phadder_groups",
           "type": "phadder_groups",
           "isRequired": false,

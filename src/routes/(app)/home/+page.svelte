@@ -12,7 +12,6 @@
   import { getFullName } from "$lib/utils/client/member";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import * as m from "$paraglide/messages";
-  import Readme from "$lib/components/home/Readme.svelte";
   import SEO from "$lib/seo/SEO.svelte";
   export let data: PageData;
 </script>
@@ -74,11 +73,5 @@
 
   <section class="md:col-span-3 xl:col-span-3">
     <Documents files={data.files} />
-  </section>
-
-  <section class="md:col-span-3 xl:col-span-6">
-    {#if data.readme}
-      <Readme readme={data.readme} />
-    {/if}
   </section>
 </div>

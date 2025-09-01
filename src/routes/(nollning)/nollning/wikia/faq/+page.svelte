@@ -9,7 +9,7 @@
     // },
     {
       title: "Hur funkar biljetter?",
-      desc: "Biljetter köps på ORBI, se till att du är medlem i D-sektionen Nollor 2024. Ditt efternamn ska vara din phaddergrupp.",
+      desc: "Biljetter köps på ORBI, se till att du är medlem i D-sektionen Nollor 2025. Ditt efternamn ska vara din phaddergrupp.",
     },
     {
       title: "Måste jag vara med på allt under nollningen?",
@@ -39,7 +39,7 @@
     // },
     {
       title: "How do tickets work?",
-      desc: "Tickets are bought on ORBI, make sure you have a membership in D-sektionen Nollor 2024. Your last name should be your phadder group.",
+      desc: "Tickets are bought on ORBI, make sure you have a membership in D-sektionen Nollor 2025. Your last name should be your phadder group.",
     },
     {
       title: "Do I have to participate in everything during nollningen?",

@@ -27,8 +27,7 @@
 
   <a
     class="neo-brutal-btn col-start-1 mb-16 w-min whitespace-nowrap"
-    href="https://bit.ly/kontaktatrivsel"
-    >{m.nolla_wellbeing_contact_trivsel()}</a
+    href="http://bit.ly/trivselkontakt">{m.nolla_wellbeing_contact_trivsel()}</a
   >
 
   <p class="nolla-prose col-start-1">
