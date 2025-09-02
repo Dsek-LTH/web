@@ -1,5 +1,5 @@
 import { isFileImage, isFilePDF } from "$lib/files/utils";
-import { type Infer } from "sveltekit-superforms";
+import type { Infer } from "sveltekit-superforms";
 import { z } from "zod";
 import { isValidCostCenter } from "./config";
 

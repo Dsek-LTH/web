@@ -1,5 +1,5 @@
 import type { PageServerLoad } from "./$types";
-import { type Semester } from "$lib/utils/semesters";
+import type { Semester } from "$lib/utils/semesters";
 import { medalRecipients } from "$lib/server/medals/medals";
 import { getSemesterOrThrowSvelteError } from "$lib/utils/url.server";
 
