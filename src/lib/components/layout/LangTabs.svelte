@@ -9,7 +9,7 @@
 <div
   role="tablist"
   class={twMerge(
-    "tabs-boxed tabs relative -mx-4 overflow-hidden p-4 shadow",
+    "tabs-box tabs relative -mx-4 overflow-hidden p-4 shadow-sm",
     clazz,
   )}
 >

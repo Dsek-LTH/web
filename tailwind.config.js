@@ -56,4 +56,32 @@ export default {
       },
     },
   },
+  plugins: [
+    function ({ addUtilities }) {
+      addUtilities({
+        ".text-stroke": {
+          "-webkit-text-stroke-width": "1px",
+          "-webkit-text-stroke-color": "black",
+        },
+        ".text-stroke-white": {
+          "-webkit-text-stroke-color": "white",
+        },
+        ".text-stroke-gray": {
+          "-webkit-text-stroke-color": "#4E4A45",
+        },
+        ".text-stroke-2": {
+          "-webkit-text-stroke-width": "2px",
+        },
+        ".text-stroke-0": {
+          "-webkit-text-stroke-width": "0px",
+        },
+        ".text-stroke-4": {
+          "-webkit-text-stroke-width": "4px",
+        },
+        ".text-stroke-8": {
+          "-webkit-text-stroke-width": "8px",
+        },
+      });
+    },
+  ],
 };

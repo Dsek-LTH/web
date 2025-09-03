@@ -124,7 +124,7 @@
         accept="image/*"
         name="image"
         bind:files={$file}
-        class="file-input file-input-bordered w-full max-w-xs"
+        class="file-input w-full max-w-xs"
       />
       {#if $errors.image}
         <p class="text-error">{$errors.image}</p>

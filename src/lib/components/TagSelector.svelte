@@ -36,7 +36,7 @@
 <div class="dropdown">
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   <div
-    class="input input-bordered flex h-auto min-h-12 items-center gap-2 py-2"
+    class="input flex h-auto min-h-12 items-center gap-2 py-2"
     tabindex={0}
     role="combobox"
     aria-controls="tags-panel"
