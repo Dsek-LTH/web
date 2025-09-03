@@ -64,7 +64,7 @@
     label={m.receipt()}
     field={`receipts[${index}].image`}
     onChange={(e) => onFileSelected(e)}
-    accept="image/png,image/jpeg,application/pdf"
+    accept="application/pdf"
     multiple
   />
   {#if receiptPhotos !== undefined}

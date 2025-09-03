@@ -10,7 +10,7 @@
   import type { ArticleSchema } from "$lib/news/schema";
   import * as m from "$paraglide/messages";
   import type { Tag } from "@prisma/client";
-  import { type SuperForm } from "sveltekit-superforms";
+  import type { SuperForm } from "sveltekit-superforms";
 
   export let authorOptions: AuthorOption[];
   export let allTags: Tag[];

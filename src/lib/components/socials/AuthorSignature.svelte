@@ -17,6 +17,7 @@
   export let type: Author["type"] = "Member";
   export let size: "sm" | "md" | "lg" | "xl" = "lg";
   export let links = true;
+  export let lazy = false;
 
   const sizeToWidth: Record<typeof size, string> = {
     sm: "w-4",
@@ -58,7 +59,7 @@
             ? ''
             : 'pointer-events-none'}"
         >
-          <MemberImage {member} />
+          <MemberImage {lazy} {member} />
         </a>
       {/if}
     </div>

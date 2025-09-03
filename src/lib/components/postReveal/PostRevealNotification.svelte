@@ -103,8 +103,7 @@
       class="flex h-full flex-1 flex-col flex-nowrap items-stretch justify-center"
     >
       <span class="mt-1 line-clamp-1 text-base">{notification.title}</span>
-      <span
-        class="mb-1 line-clamp-2 text-ellipsis break-words text-xs text-neutral"
+      <span class="mb-1 line-clamp-2 text-ellipsis break-words text-xs"
         >{notification.message}</span
       >
       <span class="line-clamp-1 text-xs text-base-300">

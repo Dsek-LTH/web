@@ -65,7 +65,7 @@
                 <div
                   class="grid w-full grid-cols-[auto_1fr] items-center gap-2"
                 >
-                  <MemberAvatar member={mandate.member} />
+                  <MemberAvatar lazy member={mandate.member} />
                   <div class="min-w-0">
                     <h3
                       class="truncate font-medium"
