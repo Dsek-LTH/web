@@ -35,7 +35,7 @@
   <section>
     <form
       method="get"
-      class="form-control flex-1 gap-2 md:flex-row md:items-end"
+      class="form-control flex gap-2 md:flex-row md:items-end"
       id="filter-form"
       bind:this={form}
     >
@@ -49,10 +49,10 @@
         <input type="hidden" name="tags" value={tag.name} />
       {/each}
       {#if isAuthorized(apiNames.TAGS.CREATE, data.user) || isAuthorized(apiNames.TAGS.UPDATE, data.user)}
-        <a class="btn" href="/news/tags">{m.news_tags()}</a>
+        <a class="btn btn-lg text-sm" href="/news/tags">{m.news_tags()}</a>
       {/if}
       {#if isAuthorized(apiNames.NEWS.CREATE, data.user)}
-        <a class="btn btn-primary" href="/news/create">+ {m.news_create()}</a>
+        <a class="btn btn-lg text-sm btn-primary" href="/news/create">+ {m.news_create()}</a>
       {/if}
     </form>
   </section>

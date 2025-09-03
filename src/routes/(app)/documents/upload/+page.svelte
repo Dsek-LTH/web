@@ -73,7 +73,7 @@
       id="file"
       type="file"
       name="file"
-      class="file-input file-input-bordered"
+      class="file-input"
       bind:files={$file}
       oninput={(e) => {
         if (e.currentTarget.files) {

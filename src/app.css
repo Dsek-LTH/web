@@ -17,7 +17,39 @@
 @import "@fontsource/lexend/800.css";
 @import "@fontsource/lexend/900.css";
 
-@reference "tailwindcss";
+@import "tailwindcss";
+@plugin "@egoist/tailwindcss-icons";
+@plugin "@tailwindcss/typography";
+@plugin "daisyui";
+@plugin "daisyui/theme" {
+  name: "light";
+  --color-primary: hsl(342, 55%, 60%);
+  --color-secondary: hsl(270, 50%, 60%);
+  --color-accent: hsl(174, 73%, 45%);
+  --color-neutral: hsl(0, 0%, 93%);
+  --color-base-100: hsl(0, 0%, 87%);
+  --color-base-200: hsl(0, 0%, 90%);
+  --color-base-300: hsl(0, 0%, 93%);
+  --color-info: hsl(198, 94%, 40%);
+  --color-success: hsl(156, 64%, 37%);
+  --color-warning: hsl(43, 91%, 50%);
+  --color-error: hsl(0, 89%, 63%);
+}
+
+@plugin "daisyui/theme" {
+  name: "dark";
+  --color-primary: hsl(342, 77%, 71%);
+  --color-secondary: hsl(270, 50%, 60%);
+  --color-accent: hsl(174, 73%, 45%);
+  --color-neutral: hsl(300, 5%, 11%);
+  --color-base-100: hsl(300, 5%, 14%);
+  --color-base-200: hsl(300, 5%, 13%);
+  --color-base-300: hsl(300, 5%, 11%);
+  --color-info: hsl(198, 94%, 60%);
+  --color-success: hsl(156, 64%, 47%);
+  --color-warning: hsl(43, 91%, 56%);
+  --color-error: hsl(0, 89%, 72%);
+}
 
 @layer base {
   @font-face {
@@ -53,7 +85,7 @@
   }
 
   .pop-out {
-    @apply transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:bg-base-200 hover:shadow-xl;
+    @apply hover:bg-base-200 transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:shadow-xl;
   }
   /* For Webkit-based browsers (Chrome, Safari and Opera) */
   .scrollbar-hide::-webkit-scrollbar {

@@ -51,7 +51,7 @@
     {name}
     type="file"
     bind:files={$file}
-    class={twMerge("file-input file-input-bordered w-full", clazz)}
+    class={twMerge("file-input w-full", clazz)}
     {accept}
     {...$constraints}
     {...$$restProps}

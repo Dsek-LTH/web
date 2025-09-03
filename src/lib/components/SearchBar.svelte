@@ -30,20 +30,18 @@
   };
 </script>
 
-<div class="relative min-w-72 flex-1">
-  <input
-    bind:this={inputField}
-    name="search"
-    type="text"
-    placeholder={m.search_search()}
-    class="input input-bordered w-full"
-    value={$page.url.searchParams.get("search") ?? ""}
-    on:input={(e) => {
-      refetchArticles(e.currentTarget.value);
-    }}
-  />
-  {#if isLoading}
-    <span class="loading loading-sm absolute right-4 top-1/2 -translate-y-1/2"
-    ></span>
-  {/if}
-</div>
+<input
+  bind:this={inputField}
+  name="search"
+  type="text"
+  placeholder={m.search_search()}
+  class="input w-full min-w-72 flex-1 input-lg text-sm"
+  value={$page.url.searchParams.get("search") ?? ""}
+  on:input={(e) => {
+    refetchArticles(e.currentTarget.value);
+  }}
+/>
+{#if isLoading}
+  <span class="loading loading-sm absolute top-1/2 right-4 -translate-y-1/2"
+  ></span>
+{/if}

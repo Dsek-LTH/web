@@ -106,7 +106,7 @@
       {/each}
     </select>
   </Labeled>
-  <div class="flex w-full flex-col items-stretch">
+  <div class="flex w-full flex-col items-stretch h-full">
     <Labeled
       for="tags"
       label={m.news_tags()}
