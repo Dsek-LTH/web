@@ -64,7 +64,7 @@ const main = async () => {
     ...MARKDOWNS,
     ...x(5, (ctx) => ({
       name: `cafe:open:${ctx.index}`,
-      markdown: "11:30 - 13:00",
+      markdownSv: "11:30 - 13:00",
       markdownEn: "11:30 - 13:00",
     })),
   ]);
