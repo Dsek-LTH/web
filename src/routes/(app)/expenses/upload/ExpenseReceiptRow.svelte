@@ -2,7 +2,7 @@
   import FormInput from "$lib/components/forms/FormInput.svelte";
   import FormNumberInput from "$lib/components/forms/FormNumberInput.svelte";
   import FormSelect from "$lib/components/forms/FormSelect.svelte";
-  import { type SuperForm } from "sveltekit-superforms";
+  import type { SuperForm } from "sveltekit-superforms";
   import { COST_CENTERS } from "../config";
   import type { ExpenseSchema } from "../types";
   import * as m from "$paraglide/messages";

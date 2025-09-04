@@ -16,7 +16,7 @@
     type SuperForm,
   } from "sveltekit-superforms";
   import { twMerge } from "tailwind-merge";
-  import { type HTMLSelectAttributes } from "svelte/elements";
+  import type { HTMLSelectAttributes } from "svelte/elements";
 
   let {
     superform,

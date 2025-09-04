@@ -1,5 +1,5 @@
 import { fakerSV as faker } from "@faker-js/faker";
-import { type SeedClientOptions } from "@snaplet/seed";
+import type { SeedClientOptions } from "@snaplet/seed";
 import dayjs from "dayjs";
 import apiNames from "$lib/utils/apiNames";
 import * as positionEnums from "$lib/utils/committee-ordering/enums";

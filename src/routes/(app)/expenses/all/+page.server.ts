@@ -1,4 +1,4 @@
-import { type Actions } from "@sveltejs/kit";
+import type { Actions } from "@sveltejs/kit";
 import { expensesInclusion } from "../getExpenses";
 import type { Prisma } from "@prisma/client";
 import {

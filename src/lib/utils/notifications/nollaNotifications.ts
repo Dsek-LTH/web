@@ -18,7 +18,7 @@ const getNollaNotifications = (user: AuthUser, prisma: PrismaClient) => {
   return prisma.notification.findMany({
     where: {
       createdAt: {
-        gt: new Date("2024-06-26T00:00:00"),
+        gt: new Date("2025-06-26T00:00:00"),
       },
       memberId: user.memberId,
       OR: [

@@ -18,7 +18,6 @@
   <br /><br />
   <section>
     <h3 class="page-title">{m.theBoard()}</h3>
-    <!-- TODO: Add image of the board -->
     <img
       src={board}
       alt="D-sek board"
@@ -26,7 +25,7 @@
     />
     <p class="nolla-prose">
       {m.nollning_wikia_board_body()}
-      <a href="/board" class="link">{m.nolla_readMore()}!</a>
+      <a href="/committees" class="link">{m.nolla_readMore()}!</a>
     </p>
     <ul class="list-disc space-y-2 leading-normal">
       <li>

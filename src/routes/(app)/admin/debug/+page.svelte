@@ -1,5 +1,6 @@
 <script lang="ts">
   import { version } from "$app/environment";
+  import { enhance } from "$app/forms";
   import { isAuthorized } from "$lib/utils/authorization";
   import {
     featureFlags,
@@ -28,11 +29,12 @@
       <section class="mb-4 space-y-2">
         <h1 class="text-lg font-semibold">Actions</h1>
         <form
-          action="?/keycloakSync"
+          action="?/authentikSync"
           method="POST"
           class="flex items-center gap-4"
+          use:enhance
         >
-          <button type="submit" class="btn">Sync with Keycloak</button>
+          <button type="submit" class="btn">Sync with authentik</button>
           <p>This will push mandates and pull email addresses.</p>
         </form>
         <form

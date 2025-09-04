@@ -69,12 +69,14 @@
         }
       }}
     >
-      <summary class="btn btn-lg !h-10"
+      <summary class="btn-base-content btn btn-lg !h-10 border-2"
         >{m.events_calendar_subscribe()}
         <span class="i-mdi-calendar-sync"></span>
       </summary>
       <div
-        class="dropdown-content z-20 -ml-8 w-[calc(100dvw-1rem)] rounded-box bg-base-300 p-4 shadow md:max-w-2xl"
+        class="dropdown-content z-20 -ml-8 w-[calc(100dvw-1rem)] {data.revealTheme
+          ? 'text-base-100'
+          : ''} rounded-box bg-base-300 p-4 shadow md:max-w-2xl"
       >
         <p>
           {m.events_calendar_subscribe_details()}
