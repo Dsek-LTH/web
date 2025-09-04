@@ -30,7 +30,6 @@
   <FormNumberInput
     {superform}
     label={m.expense_amount()}
-    step="0.01"
     field={`receipts[${receiptIndex}].rows[${index}].amount`}
   />
   <FormInput
