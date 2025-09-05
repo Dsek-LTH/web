@@ -3,7 +3,7 @@
   import type { BookingSchema } from "./schema";
   import { superForm } from "$lib/utils/client/superForms";
   import * as m from "$paraglide/messages";
-  import type { Bookable, BookingRequest } from "@prisma/client";
+  import type { Bookable, BookingRequest, Position } from "@prisma/client";
   import StatusComponent from "./StatusComponent.svelte";
   import dayjs from "dayjs";
   import utc from "dayjs/plugin/utc";
@@ -15,9 +15,11 @@
     bookables: Bookable[];
     booking?: BookingRequestWithBookables;
     allBookingRequests?: BookingRequestWithBookables[];
+    allPositions: Position[];
   };
 
   $: bookingRequest = data.booking;
+  $: allPositions = data.allPositions;
 
   dayjs.extend(utc);
   dayjs.extend(timezone);
@@ -29,6 +31,9 @@
     .tz(dayjs.tz.guess())
     .format("YYYY-MM-DDTHH:mm:ss");
   let end = dayjs($form.end).tz(dayjs.tz.guess()).format("YYYY-MM-DDTHH:mm:ss");
+
+  let selectedPos: Position;
+  let groups: Position[] = [];
 
   const boardRoomId = "99854837-fdb9-4dba-85fc-86a5c514253c";
   $: showBoardRooomWarning = $form.bookables.includes(boardRoomId);
@@ -73,6 +78,10 @@
         $form.start = start;
       }
     }
+  }
+
+  function addGroup() {
+    groups = groups.concat(selectedPos);
   }
 </script>
 
@@ -160,6 +169,42 @@
       {...$constraints.name}
       disabled={mode === "review"}
     />
+  </label>
+
+  <label>
+    <span class="label-text ml-2 font-bold"
+      >{m.admin_emailalias_position()}</span
+    >
+    <select
+      id="group"
+      name="group"
+      class="select select-bordered w-full"
+      bind:value={selectedPos}
+    >
+      {#each allPositions as position (position.id)}
+        <option value={position.id}>{position.name}</option>
+      {/each}
+    </select>
+
+    <button
+      type="button"
+      on:click={addGroup}
+      class="btn btn-primary"
+      aria-label={m.admin_doors_add()}
+    >
+      {m.admin_doors_add()}
+    </button>
+
+    <select
+      id="groups"
+      name="groups"
+      class="select select-bordered w-full"
+      bind:value={groups}
+    >
+      {#each groups as position (position.id)}
+        <option value={position.id}>{position.name}</option>
+      {/each}
+    </select>
   </label>
 
   {#if mode === "review" && bookingRequest}

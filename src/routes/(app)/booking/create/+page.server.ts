@@ -1,4 +1,4 @@
-import { fail } from "@sveltejs/kit";
+import { error, fail } from "@sveltejs/kit";
 import { superValidate } from "sveltekit-superforms/server";
 import { zod } from "sveltekit-superforms/adapters";
 import { redirect } from "$lib/utils/redirect";
@@ -32,7 +32,27 @@ export const load = async ({ locals }) => {
   });
   const form = await superValidate(zod(bookingSchema));
 
-  return { bookables, bookingRequests, form };
+  const [allPositionsResult] = await Promise.allSettled([
+    prisma.position.findMany({
+      where: {
+        active: true,
+      },
+      orderBy: {
+        name: "asc",
+      },
+    }),
+  ]);
+
+  if (allPositionsResult.status === "rejected") {
+    throw error(500, { message: m.admin_emailalias_couldNotFetchPositions() });
+  }
+
+  return {
+    bookables,
+    bookingRequests,
+    form,
+    allPositions: allPositionsResult.value,
+  };
 };
 
 const sendNotificationToKM = async (
@@ -117,4 +137,30 @@ export const actions = {
       event,
     );
   },
+
+  // create: async ({ request, locals, params }) => {
+  //   const { prisma } = locals;
+  //   const form = await superValidate(request, zod(createSchema));
+  //   if (!form.valid) return fail(400, { form });
+  //   const doorName = params.slug;
+  //   const { studentId } = form.data;
+  //   if (
+  //     studentId &&
+  //     (await prisma.member.count({
+  //       where: { studentId },
+  //     })) <= 0
+  //   ) {
+  //     return setError(form, "studentId", "Medlemmen finns inte");
+  //   }
+  //   await prisma.doorAccessPolicy.create({
+  //     data: {
+  //       doorName,
+  //       ...form.data,
+  //     },
+  //   });
+  //   return message(form, {
+  //     message: "Dörrpolicy skapad",
+  //     type: "success",
+  //   });
+  // },
 };
