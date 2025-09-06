@@ -1,0 +1,108 @@
+@import "@fontsource-variable/inter";
+@import "@fontsource/ibm-plex-mono/100.css";
+@import "@fontsource/ibm-plex-mono/200.css";
+@import "@fontsource/ibm-plex-mono/300.css";
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/500.css";
+@import "@fontsource/ibm-plex-mono/600.css";
+@import "@fontsource/ibm-plex-mono/700.css";
+@import "@fontsource/lexend";
+@import "@fontsource/lexend/100.css";
+@import "@fontsource/lexend/200.css";
+@import "@fontsource/lexend/300.css";
+@import "@fontsource/lexend/400.css";
+@import "@fontsource/lexend/500.css";
+@import "@fontsource/lexend/600.css";
+@import "@fontsource/lexend/700.css";
+@import "@fontsource/lexend/800.css";
+@import "@fontsource/lexend/900.css";
+
+@import "tailwindcss";
+@plugin "@egoist/tailwindcss-icons";
+@plugin "@tailwindcss/typography";
+@plugin "daisyui";
+@plugin "daisyui/theme" {
+  name: "light";
+  --color-primary: hsl(342, 55%, 60%);
+  --color-secondary: hsl(270, 50%, 60%);
+  --color-accent: hsl(174, 73%, 45%);
+  --color-neutral: hsl(0, 0%, 93%);
+  --color-base-100: hsl(0, 0%, 87%);
+  --color-base-200: hsl(0, 0%, 90%);
+  --color-base-300: hsl(0, 0%, 93%);
+  --color-info: hsl(198, 94%, 40%);
+  --color-success: hsl(156, 64%, 37%);
+  --color-warning: hsl(43, 91%, 50%);
+  --color-error: hsl(0, 89%, 63%);
+}
+
+@plugin "daisyui/theme" {
+  name: "dark";
+  --color-primary: hsl(342, 77%, 71%);
+  --color-secondary: hsl(270, 50%, 60%);
+  --color-accent: hsl(174, 73%, 45%);
+  --color-neutral: hsl(300, 5%, 11%);
+  --color-base-100: hsl(300, 5%, 14%);
+  --color-base-200: hsl(300, 5%, 13%);
+  --color-base-300: hsl(300, 5%, 11%);
+  --color-info: hsl(198, 94%, 60%);
+  --color-success: hsl(156, 64%, 47%);
+  --color-warning: hsl(43, 91%, 56%);
+  --color-error: hsl(0, 89%, 72%);
+}
+
+@layer base {
+  @font-face {
+    font-family: "Texas Tango";
+    src: local("Texas Tango"), local("Texas-Tango"), local("texas tango"),
+      local("texas-tango"), url("/fonts/TexasTango.otf");
+    font-weight: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Legendary Runes";
+    src: local("Legenday Runes"), local("Legendary-Runes"),
+      local("legendary runes"), local("legendary-runes"),
+      url("/fonts/LegendaryRunes.ttf");
+    font-weight: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Mason Sans";
+    src: local("Mason Sans"), local("Mason-Sans"), local("mason sans"),
+      local("mason-sans"), url("/fonts/MasonSans.otf");
+    font-weight: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Genty";
+    src: local("Genty"), local("genty"), url("/fonts/Genty.otf");
+    font-weight: normal;
+    font-display: swap;
+  }
+  .layout-container {
+    @apply container mx-auto px-4 py-8 xl:px-32;
+  }
+
+  .pop-out {
+    @apply hover:bg-base-200 transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:shadow-xl;
+  }
+  /* For Webkit-based browsers (Chrome, Safari and Opera) */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* For IE, Edge and Firefox */
+  .scrollbar-hide {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+}
