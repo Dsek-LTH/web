@@ -3,7 +3,8 @@
   import { languageTag } from "$paraglide/runtime";
   import { ParaglideJS } from "@inlang/paraglide-js-adapter-sveltekit";
   import dayjs from "dayjs";
-  import "../app.css";
+  import "../app-old.css";
+  import { ModeWatcher } from "mode-watcher";
   /* Recommended for fraud detection */
   import "@stripe/stripe-js";
   import { setContext } from "svelte";
@@ -19,6 +20,7 @@
   setContext("pageTitle", pageTitle);
 </script>
 
+<ModeWatcher />
 <svelte:head>
   {#if data.isApp}
     <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0" />

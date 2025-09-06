@@ -1,6 +1,7 @@
 <script lang="ts">
   import { page } from "$app/stores";
   import { twMerge } from "tailwind-merge";
+  import { toggleMode } from "mode-watcher";
 
   let clazz = "";
   export { clazz as class };
@@ -13,6 +14,7 @@
     document.cookie = `theme=${newTheme}; max-age=${one_year}; path=/; SameSite=Lax;`;
     document.documentElement.setAttribute("data-theme", newTheme);
     isCurrentThemeLight = newTheme === "light";
+    toggleMode();
   };
 </script>
 
