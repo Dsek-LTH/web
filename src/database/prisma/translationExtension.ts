@@ -12,7 +12,7 @@ type Fields<Model extends Models> =
 type PayloadToModel<T> = T extends OperationPayload
   ? Types.Result.DefaultSelection<T>
   : T extends OperationPayload[]
-    ? Types.Result.DefaultSelection<T[number]>[]
+    ? Array<Types.Result.DefaultSelection<T[number]>>
     : never;
 
 type WithRelation<T extends keyof Prisma.TypeMap["model"]> = PayloadToModel<
@@ -79,15 +79,16 @@ type ComputedModelFields<Model extends Models> = {
   >;
 };
 
-type TranslatedModelField = {
-  [key: string]: {
-    needs: { [key: string]: boolean };
+type TranslatedModelField = Record<
+  string,
+  {
+    needs: Record<string, boolean>;
     compute(data: Record<string, string | null>): string | null;
-  };
-};
+  }
+>;
 
 const models = Prisma.dmmf.datamodel.models;
-const translatedModelFields: { [key: string]: TranslatedModelField } = {};
+const translatedModelFields: Record<string, TranslatedModelField> = {};
 
 const modelFields = (lang: AvailableLanguageTag): ModelFields => {
   models.forEach((model) => {
