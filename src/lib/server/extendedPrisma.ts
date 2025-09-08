@@ -10,3 +10,5 @@ export function extendedPrisma(lang: AvailableLanguageTag, studentId?: string) {
 }
 
 export type ExtendedPrisma = ReturnType<typeof extendedPrisma>;
+
+export type { ExtendedPrismaModel } from "../../database/prisma/translationExtension";
