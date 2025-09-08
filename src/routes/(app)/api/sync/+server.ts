@@ -3,13 +3,12 @@ import authentik from "$lib/server/authentik";
 import meilisearchSync from "$lib/search/sync";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import { error } from "@sveltejs/kit";
-import process from "process";
 
 export const POST: RequestHandler = async ({ request }) => {
   // extract body
   const body = await request.text();
 
-  if (body === process.env.SYNC_PASSWORD) {
+  if (body === process.env["SYNC_PASSWORD"]) {
     try {
       authentik.sync(authorizedPrismaClient);
       meilisearchSync();
