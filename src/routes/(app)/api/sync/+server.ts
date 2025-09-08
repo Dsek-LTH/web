@@ -12,7 +12,7 @@ export const POST: RequestHandler = async ({ request }) => {
     try {
       authentik.sync(authorizedPrismaClient);
       meilisearchSync();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- exception should be any
     } catch (e: any) {
       throw error(500, e.message);
     }
