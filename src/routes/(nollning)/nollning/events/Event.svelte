@@ -24,7 +24,7 @@
     ? 'bg-[#ECDDBC]'
     : 'bg-base-100'}  has-[input[type='radio']:checked]:border-base-content"
 >
-  <input type="radio" name="nolla-event-list" />
+  <input type="checkbox" name="nolla-event-list" />
   <div class="collapse-title flex flex-col">
     <!-- Format date as Weekday HH:mm such as Monday 17.15 -->
     <span class="text-sm font-medium capitalize text-secondary"
@@ -47,9 +47,10 @@
   </div>
   <div class="collapse-content flex flex-col">
     {#if event.shortDescription}
-      <span class="text-xl font-medium text-base-content"
-        >{event.shortDescription}</span
-      >
+      <MarkdownBody
+        class="text-xl font-medium text-base-content"
+        body={event.shortDescription}
+      />
     {/if}
     <MarkdownBody body={event.description} />
     <!-- <div class="mt-4 flex flex-col flex-wrap gap-4">
