@@ -27,7 +27,8 @@ const isMinIOHealthy = async (): Promise<boolean> => {
     .then((response) => {
       return response.ok && response.status === 200;
     })
-    .catch(() => {
+    .catch((e) => {
+      console.error(e);
       return false;
     });
 };

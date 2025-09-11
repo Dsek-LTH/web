@@ -70,18 +70,7 @@
     field={`receipts[${index}].image`}
     onChange={(e) => onFileSelected(e)}
     accept="application/pdf"
-    compressionOptions={{
-      maxWidthOrHeight: 1920 /* If larger than this it is unreasonably large */,
-      initialQuality: 1 /* We want quality so we can read small text */,
-    }}
   />
-  {#if receiptPhotos !== undefined}
-    {#each receiptPhotos as photo}
-      {#if !photo.startsWith("data:application/pdf")}
-        <img src={photo} alt="Kvitto" />
-      {/if}
-    {/each}
-  {/if}
   <!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
   {#each $values as _, i}
     <ExpenseReceiptRow
