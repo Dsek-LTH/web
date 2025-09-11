@@ -1,11 +1,12 @@
 <script lang="ts">
   import { getFileUrl } from "$lib/files/client";
-  import { signIn } from "@auth/sveltekit/client";
   import * as m from "$paraglide/messages";
   import { i18n } from "$lib/utils/i18n";
   import { page } from "$app/stores";
   import { languageTag } from "$paraglide/runtime";
   import { invalidateAll } from "$app/navigation";
+  import SEO from "$lib/seo/SEO.svelte";
+  import { signIn } from "$lib/utils/auth";
 
   let carouselEls: HTMLDivElement[] = [];
 
@@ -117,6 +118,16 @@
   ] as const;
 </script>
 
+<SEO
+  data={{
+    type: "website",
+    props: {
+      title: "D-sektionen",
+      description: m.landing_intro(),
+    },
+  }}
+/>
+
 <!-- svelte-ignore a11y_consider_explicit_label -->
 <div class="drawer drawer-end">
   <input
@@ -164,16 +175,16 @@
         </a>
         <button
           class="bg-[#433C3F]/60 px-8 py-4 uppercase text-white"
-          on:click={() => signIn("keycloak")}
+          on:click={signIn}
         >
           {m.navbar_logIn()}
         </button>
-        <button
+        <a
           class="bg-[#433C3F]/60 px-8 py-4 uppercase text-white"
-          on:click={() => (window.location.href = "https://regnew.dsek.se")}
+          href="https://auth.dsek.se/if/flow/lu-signup/?next=%2F"
         >
           {m.navbar_register()}
-        </button>
+        </a>
       </div>
 
       <label for="landing-drawer" aria-label="open sidebar" class="lg:hidden">
@@ -197,10 +208,10 @@
 
         <div class="flex flex-row items-start gap-10 lg:items-center">
           <a
-            href="/committees"
+            href="/nolla"
             class="inline-block bg-primary px-5 py-3 font-bold text-white lg:text-xl"
           >
-            {m.landing_getInvolved()}
+            {m.landing_theIntroduction()}
           </a>
           <a
             href="/info/for-foretag"
@@ -355,12 +366,15 @@
         </li>
       {/each}
       <li>
-        <button
-          class=" bg-[#433C3F]/60 uppercase text-white"
-          on:click={() => signIn("keycloak")}
-        >
+        <button class=" bg-[#433C3F]/60 uppercase text-white" on:click={signIn}>
           {m.navbar_logIn()}
         </button>
+        <a
+          class="my-2 bg-[#433C3F]/60 uppercase text-white"
+          href="https://auth.dsek.se/if/flow/lu-signup/?next=%2F"
+        >
+          {m.navbar_register()}
+        </a>
       </li>
       <li class="flex flex-row self-center pt-4">
         <a

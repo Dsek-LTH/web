@@ -26,11 +26,8 @@ export default {
         "nolla-sans": ["Inter", "ui-sans-serif", "sans-serif"],
         "nolla-mono": ['"IBM Plex Mono"', "ui-monospace", "monospace"],
         "nolla-post-reveal": ["Lexend", "ui-sans-serif", "sans-serif"],
-        "nolla-stab": ["Legendary Runes", "ui-serif", "serif"],
-        "nolla-pepp": ["Texas Tango", "ui-sans-serif", "sans-serif"],
-      },
-      animation: {
-        "reverse-spin": "reverse-spin 1s linear infinite",
+        "nolla-stab": ["Mason Sans", "ui-serif", "serif"],
+        "nolla-pepp": ["Genty", "ui-sans-serif", "sans-serif"],
       },
       keyframes: {
         "reverse-spin": {
@@ -38,6 +35,24 @@ export default {
             transform: "rotate(360deg)",
           },
         },
+        "scale-fade": {
+          "0%": {
+            transform: "scale(1)",
+            opacity: "0.6",
+          },
+          "50%": {
+            transform: "scale(1.1)",
+            opacity: "1",
+          },
+          "100%": {
+            transform: "scale(1)",
+            opacity: "0.6",
+          },
+        },
+      },
+      animation: {
+        "scale-fade": "scale-fade 2s ease-in-out infinite",
+        "reverse-spin": "reverse-spin 1s linear infinite",
       },
     },
   },
@@ -101,5 +116,38 @@ export default {
       collections: getIconCollections(["mdi", "flag"]),
     }),
     tailwindEasing,
+    function ({ addUtilities }) {
+      addUtilities({
+        ".text-stroke": {
+          "-webkit-text-stroke-width": "1px",
+          "-webkit-text-stroke-color": "black",
+        },
+        ".text-stroke-white": {
+          "-webkit-text-stroke-color": "white",
+        },
+        ".text-stroke-gray": {
+          "-webkit-text-stroke-color": "#4E4A45",
+        },
+        ".text-stroke-2": {
+          "-webkit-text-stroke-width": "2px",
+        },
+        ".text-stroke-black": {
+          "-webkit-text-stroke-color": "black",
+        },
+        ".text-stroke-secondary": {
+          "-webkit-text-stroke-color": "#921010",
+          "paint-order": "stroke fill",
+        },
+        ".text-stroke-0": {
+          "-webkit-text-stroke-width": "0px",
+        },
+        ".text-stroke-4": {
+          "-webkit-text-stroke-width": "4px",
+        },
+        ".text-stroke-6": {
+          "-webkit-text-stroke-width": "6px",
+        },
+      });
+    },
   ],
 };

@@ -8,7 +8,7 @@ import {
 } from "sveltekit-superforms/server";
 import { zod } from "sveltekit-superforms/adapters";
 import { z } from "zod";
-import keycloak from "$lib/server/keycloak";
+import authentik from "$lib/server/authentik";
 import type { Actions, PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
 import { languageTag } from "$paraglide/runtime";
@@ -149,9 +149,10 @@ export const actions: Actions = {
         memberId: form.data.memberId,
         startDate: form.data.startDate,
         endDate: form.data.endDate,
+        lastSynced: new Date("1970"),
       },
     });
-    keycloak.fetchGroupsAddMandate(
+    authentik.fetchGroupsAddMandate(
       prisma,
       member.studentId!,
       params.id,
@@ -224,7 +225,7 @@ export const actions: Actions = {
     await prisma.mandate.delete({
       where: { id: form.data.mandateId, positionId: params.id },
     });
-    keycloak.fetchGroupsDeleteMandate(
+    authentik.fetchGroupsDeleteMandate(
       prisma,
       member.studentId!,
       params.id,

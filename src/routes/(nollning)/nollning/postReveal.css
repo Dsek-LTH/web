@@ -33,9 +33,19 @@
     @apply h-auto min-h-0 px-4 py-2 font-medium text-base-content;
   }
 
+  .post-reveal .btn.btn-secondary-beige {
+    /* secondary bg, beige text */
+    @apply btn-secondary text-base-100;
+  }
+
   .post-reveal .btn.btn-primary-dark {
-    /* primary bg, dark text */
+    /* secondary bg, beige text */
     @apply btn-primary text-base-100;
+  }
+
+  .post-reveal .btn.btn-base-content {
+    /* base bg, content text */
+    @apply bg-transparent text-base-content;
   }
   .post-reveal .btn-outline {
     /* transparent bg, text otherwise */

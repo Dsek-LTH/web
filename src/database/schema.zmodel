@@ -116,7 +116,7 @@ model Article {
   headerEn    String?          @map("header_en") @db.VarChar(255)
   body        String
   bodyEn      String?          @map("body_en")
-  imageUrls   String[]         @map("image_urls")        
+  imageUrls   String[]         @map("image_urls")
   imageUrl    String?          @map("image_url") @db.Text
   youtubeUrl  String?          @map("youtube_url") @db.Text
   authorId    String           @map("author_id") @db.Uuid
@@ -444,7 +444,7 @@ model Event {
   @@allow("create", has(auth().policies, "event:create"))
   @@allow("read", has(auth().policies, "event:read"))
   @@deny("read", removedAt != null && removedAt <= now() && !has(auth().policies, "event:delete"))
-  @@allow("update", has(auth().policies, "event:update"))
+  @@allow("update", has(auth().policies, "event:update") || auth().memberId == authorId)
   @@allow("delete", has(auth().policies, "event:delete"))
   @@map("events")
 }
@@ -508,7 +508,7 @@ model Mandate {
   positionId  String        @map("position_id") @db.VarChar(255)
   startDate   DateTime      @map("start_date") @db.Date
   endDate     DateTime      @map("end_date") @db.Date
-  lastSynced  DateTime      @default(dbgenerated("TIMESTAMP '1970-01-01 00:00:00'")) @map("last_synced")
+  lastSynced  DateTime      @map("last_synced") @db.Date
   authors     Author[]
   member      Member        @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "mandates_member_id_foreign")
   position    Position      @relation(fields: [positionId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "mandates_position_id_foreign")
@@ -556,7 +556,7 @@ model Meeting {
 model Member {
   id                      String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   studentId               String?                 @unique(map: "members_student_id_unique") @map("student_id") @db.VarChar(255)
-  email                   String?                 @unique @db.VarChar(255) @deny("read", auth() == null)
+  email                   String?                 @unique @db.VarChar(255) @deny("read", (!has(auth().policies, "member:see_email")) || (mandates?[startDate < now() && now() < endDate && (startsWith(positionId, "dsek.noll.stab."))] && !has(auth().policies, "member:see_staben") && auth().memberId != id))
   firstName               String?                 @map("first_name") @db.VarChar(255)
   nickname                String?                 @db.VarChar(255) @deny("read", auth() == null)
   lastName                String?                 @map("last_name") @db.VarChar(255)
@@ -564,6 +564,7 @@ model Member {
   picturePath             String?                 @map("picture_path") @db.Text
   classProgramme          String?                 @map("class_programme") @db.VarChar(255)
   classYear               Int?                    @map("class_year")
+  graduationYear          Int?                    @map("graduation_year")
   visible                 Boolean                 @default(true)
   foodPreference          String?                 @map("food_preference") @db.VarChar(255)
   stripeCustomerId        String?                 @map("stripe_customer_id")

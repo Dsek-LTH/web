@@ -12,11 +12,20 @@
   import { getFullName } from "$lib/utils/client/member";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import * as m from "$paraglide/messages";
-  import Readme from "$lib/components/home/Readme.svelte";
+  import SEO from "$lib/seo/SEO.svelte";
   export let data: PageData;
 </script>
 
 <SetPageTitle />
+<SEO
+  data={{
+    type: "website",
+    props: {
+      title: "D-sektionen",
+      description: m.landing_intro(),
+    },
+  }}
+/>
 
 <div class="grid grid-cols-1 gap-x-5 gap-y-10 md:grid-cols-3 xl:grid-cols-6">
   <section class="col-span-1 hidden flex-col place-items-center xl:flex">
@@ -48,7 +57,7 @@
   <section
     class="flex flex-col justify-evenly gap-4 sm:flex-row md:col-span-3 lg:col-span-1 lg:flex-col xl:col-span-2"
   >
-    <WellbeingCTA />
+    <WellbeingCTA wellbeing={data.wellbeing} />
     <SRDCta />
     <CafeOpenTimes cafeOpen={data.cafeOpen} />
   </section>
@@ -64,11 +73,5 @@
 
   <section class="md:col-span-3 xl:col-span-3">
     <Documents files={data.files} />
-  </section>
-
-  <section class="md:col-span-3 xl:col-span-6">
-    {#if data.readme}
-      <Readme readme={data.readme} />
-    {/if}
   </section>
 </div>

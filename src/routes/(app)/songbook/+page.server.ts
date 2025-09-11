@@ -82,7 +82,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     prisma.song.findMany({
       take: pageSize,
       skip: Math.max((page - 1) * pageSize, 0), // If page is 1, we don't skip anything, otherwise we skip (page - 1) * pageSize
-      orderBy: { title: "asc" },
+      orderBy: { createdAt: "desc" },
       where,
     }),
     prisma.song.count({ where }),

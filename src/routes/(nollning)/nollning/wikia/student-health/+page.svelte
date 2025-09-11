@@ -13,7 +13,7 @@
     </p>
     <a
       class="btn-primary-dark btn"
-      href="https://docs.google.com/forms/d/e/1FAIpQLSdJxFJ6_G-1s69jKFLnmtZamioNOtZuIYnBxwdbcLLd3ZhkWA/viewform"
+      href="http://bit.ly/trivselkontakt"
       target="_blank">{m.nollning_wikia_studentHealth_wellBeing_contact()}</a
     >
   </section>
@@ -41,11 +41,11 @@
       <strong class="">{m.infocom()}</strong>
       <br />
       <strong>Mail: </strong>
-      <a class="link" href="mailto:ulla.bergman@lth.lu.se" target="_blank">
-        ulla.bergman@lth.lu.se
+      <a class="link" href="mailto:emma.hammarlund@lth.lu.se" target="_blank">
+        emma.hammarlund@lth.lu.se
       </a><br />
       <strong>Tel: </strong>
-      <a class="link" href="tel:+46462223714" target="_blank">046-222 37 14</a
+      <a class="link" href="tel:+46462227247" target="_blank">046-222 72 47</a
       ><br />
     </p>
   </section>
@@ -87,7 +87,9 @@
   </section>
   <div class="divider"></div>
   <section>
-    <h3 class="page-title">{m.nollning_wikia_studentHealth_priests_title()}</h3>
+    <h3 class="page-title">
+      {m.nollning_wikia_studentHealth_priests_title()}
+    </h3>
     <p class="nolla-prose">
       {m.nollning_wikia_studentHealth_priests_body()}<br /><br />
       <strong>Mail: </strong>

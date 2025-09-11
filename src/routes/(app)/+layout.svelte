@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { env } from "$env/dynamic/public";
   import GlobalAlert from "$lib/components/GlobalAlert.svelte";
   import AppNotificationTokenHandler from "$lib/components/utils/AppNotificationTokenHandler.svelte";
   import AppUnreadNotificationHandler from "$lib/components/utils/AppUnreadNotificationHandler.svelte";
@@ -13,6 +14,14 @@
 
   export let data;
 </script>
+
+<svelte:head>
+  <script
+    defer
+    src={env.PUBLIC_UMAMI_SRC}
+    data-website-id={env.PUBLIC_UMAMI_WEBSITE_ID}
+  ></script>
+</svelte:head>
 
 {#if !data.isApp}
   <nav class="contents">

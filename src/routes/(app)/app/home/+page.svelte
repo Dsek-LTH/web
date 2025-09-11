@@ -8,11 +8,24 @@
   import Documents from "$lib/components/home/Documents.svelte";
   import CodeWithDwww from "$lib/components/home/CodeWithDWWW.svelte";
   import AppHomeNavigation from "./AppHomeNavigation.svelte";
+  import SEO from "$lib/seo/SEO.svelte";
+  import * as m from "$paraglide/messages";
 
   export let data;
 </script>
 
+<!-- landing_intro -->
+
 <SetPageTitle title="D-sektionen" />
+<SEO
+  data={{
+    type: "website",
+    props: {
+      title: "D-sektionen",
+      description: m.landing_intro(),
+    },
+  }}
+/>
 
 <article class="flex flex-col gap-10">
   <section>
@@ -32,7 +45,7 @@
   </section>
 
   <section>
-    <WellbeingCta />
+    <WellbeingCta wellbeing={data.wellbeing} />
   </section>
   <section>
     <SRDCta />

@@ -3,6 +3,7 @@
   import type { PageData } from "./$types";
   import * as m from "$paraglide/messages";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
+  import SEO from "$lib/seo/SEO.svelte";
   export let data: PageData;
   const { form, errors, constraints, enhance } = superForm(data.form, {
     resetForm: true,
@@ -10,6 +11,14 @@
 </script>
 
 <SetPageTitle title="Access policies" />
+<SEO
+  data={{
+    type: "website",
+    props: {
+      title: "Access policies",
+    },
+  }}
+/>
 
 <div class="overflow-x-auto">
   <table class="table">
@@ -21,8 +30,8 @@
       </tr>
     </thead>
     <tbody>
-      {#each data.accessPolicies as apiName}
-        <tr>
+      {#each data.accessPolicies as apiName, i}
+        <tr class={i % 2 === 0 ? "bg-gray" : "bg-base-200"}>
           <td class="font-medium">{apiName}</td>
           <td class="text-right"
             ><a class="btn btn-xs px-8" href="access/{apiName}"

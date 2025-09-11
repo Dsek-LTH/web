@@ -7,7 +7,7 @@
   import Labeled from "$lib/components/Labeled.svelte";
   import TagChip from "$lib/components/TagChip.svelte";
   import TagSelector from "$lib/components/TagSelector.svelte";
-  import { type EventSchema } from "$lib/events/schema";
+  import type { EventSchema } from "$lib/events/schema";
   import { superForm } from "$lib/utils/client/superForms";
   import { recurringTypes } from "$lib/utils/events";
   import * as m from "$paraglide/messages";
@@ -273,7 +273,7 @@
         </label>
       </div>
     </div>
-    <FormSubmitButton {superform} class="btn btn-primary my-4">
+    <FormSubmitButton {superform} class="btn btn-primary my-4" form="editForm">
       {creating ? m.news_publish() : m.save()}
     </FormSubmitButton>
   </div>

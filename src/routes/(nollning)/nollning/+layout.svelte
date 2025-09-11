@@ -1,9 +1,7 @@
 <script lang="ts">
   import NavigationLoader from "$lib/components/utils/NavigationLoader.svelte";
-  import eye from "./(photos)/eye.svg";
-  import favicon from "./(photos)/favicon.png";
-  import swirl from "./(photos)/swirl.svg";
-
+  import favicon from "./(photos)/favicon.svg";
+  import logo25 from "./(photos)/logo25.svg";
   import AppNotificationTokenHandler from "$lib/components/utils/AppNotificationTokenHandler.svelte";
   import AppUnreadNotificationHandler from "$lib/components/utils/AppUnreadNotificationHandler.svelte";
   import { languageTag } from "$paraglide/runtime";
@@ -98,14 +96,9 @@
     {#if data.revealTheme}
       <div class="relative size-60 md:size-80">
         <img
-          src={swirl}
-          class="absolute inset-0 animate-[reverse-spin_2s_linear_infinite]"
-          alt="Nollning logo spinning"
-        />
-        <img
-          src={eye}
-          class="absolute inset-0"
-          alt="Nollning logo non-spinning"
+          src={logo25}
+          class="absolute inset-0 animate-scale-fade"
+          alt="Nollning logo scale-fade"
         />
       </div>
     {:else}
