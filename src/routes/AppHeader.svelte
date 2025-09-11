@@ -72,5 +72,9 @@
   </div>
 </header>
 {#if notificationsPromise !== null && mutateNotificationForm !== null}
-  <NotificationModal bind:modal={notificationModal} bind:notifications />
+  <NotificationModal
+    bind:modal={notificationModal}
+    bind:notifications
+    form={mutateNotificationForm}
+  />
 {/if}
