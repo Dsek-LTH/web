@@ -83,7 +83,6 @@ export const createArticle: Action = async (event) => {
     bodyEn,
     ...rest
   } = form.data;
-  delete rest.image;
   const existingAuthor = await prisma.author.findFirst({
     where: {
       member: { studentId: user?.studentId },
@@ -183,7 +182,6 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
   });
   if (!form.valid) return fail(400, { form });
   const { slug, author, tags, images, body, bodyEn, ...rest } = form.data;
-  delete rest.image;
   const existingAuthor = await prisma.author.findFirst({
     where: {
       member: { id: author.memberId },
