@@ -8,6 +8,7 @@
   import dayjs from "dayjs";
   import utc from "dayjs/plugin/utc";
   import timezone from "dayjs/plugin/timezone";
+  import PosSelector from "$lib/components/PosSelector.svelte";
 
   type BookingRequestWithBookables = BookingRequest & { bookables: Bookable[] };
   export let data: {
@@ -20,11 +21,14 @@
 
   $: bookingRequest = data.booking;
   $: allPositions = data.allPositions;
+  $: selectedPositions = [] as Position[];
 
   dayjs.extend(utc);
   dayjs.extend(timezone);
 
   const { form, errors, enhance, constraints } = superForm(data.form);
+  $form.positionIds = selectedPositions.map((p) => p.id);
+
   export let mode: "create" | "edit" | "review" = "create";
 
   let start = dayjs($form.start)
@@ -32,11 +36,8 @@
     .format("YYYY-MM-DDTHH:mm:ss");
   let end = dayjs($form.end).tz(dayjs.tz.guess()).format("YYYY-MM-DDTHH:mm:ss");
 
-  let selectedPos: Position;
-  let groups: Position[] = [];
-
   const boardRoomId = "99854837-fdb9-4dba-85fc-86a5c514253c";
-  $: showBoardRooomWarning = $form.bookables.includes(boardRoomId);
+  $: showBoardRoomWarning = $form.bookables.includes(boardRoomId);
 
   // Ensure that the start date is always before the end date
   function handleStartChange() {
@@ -79,10 +80,6 @@
       }
     }
   }
-
-  function addGroup() {
-    groups = groups.concat(selectedPos);
-  }
 </script>
 
 <form method="POST" use:enhance class="form-control mx-auto max-w-5xl gap-4">
@@ -123,7 +120,7 @@
     {/each}
   </fieldset>
 
-  {#if showBoardRooomWarning}
+  {#if showBoardRoomWarning}
     <div role="alert" class="alert alert-warning">
       <span class="i-mdi-alert-outline size-6"></span>
       <span>{m.booking_boardRoomWarning()}</span>
@@ -175,36 +172,13 @@
     <span class="label-text ml-2 font-bold"
       >{m.admin_emailalias_position()}</span
     >
-    <select
-      id="group"
-      name="group"
-      class="select select-bordered w-full"
-      bind:value={selectedPos}
-    >
-      {#each allPositions as position (position.id)}
-        <option value={position.id}>{position.name}</option>
-      {/each}
-    </select>
-
-    <button
-      type="button"
-      on:click={addGroup}
-      class="btn btn-primary"
-      aria-label={m.admin_doors_add()}
-    >
-      {m.admin_doors_add()}
-    </button>
-
-    <select
-      id="groups"
-      name="groups"
-      class="select select-bordered w-full"
-      bind:value={groups}
-    >
-      {#each groups as position (position.id)}
-        <option value={position.id}>{position.name}</option>
-      {/each}
-    </select>
+    <div>
+      <PosSelector
+        class="w-full"
+        options={allPositions}
+        bind:selected={selectedPositions}
+      />
+    </div>
   </label>
 
   {#if mode === "review" && bookingRequest}
