@@ -1,18 +1,25 @@
 <script lang="ts">
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
-  import SEO from "$lib/seo/SEO.svelte";
   import { superForm } from "$lib/utils/client/superForms";
   import * as m from "$paraglide/messages";
   import { zodClient } from "sveltekit-superforms/adapters";
   import { emailAliasSchema } from "./helpers";
+  import { enhance } from "$app/forms";
 
   const { data } = $props();
 
-  const { form, enhance, errors, tainted, isTainted } = superForm(data.form, {
+  const {
+    form,
+    enhance: superEnhance,
+    errors,
+  } = superForm(data.form, {
     validators: zodClient(emailAliasSchema),
   });
 
-  let dialog: HTMLDialogElement;
+  let createDialog: HTMLDialogElement;
+  let removeDialog: HTMLDialogElement;
+  let selectedEmailAlias: (typeof data)["emailAliases"][number] | undefined =
+    $state();
 </script>
 
 <SetPageTitle title="Email aliases" />
@@ -22,10 +29,11 @@
     <thead>
       <tr class="bg-base-200">
         <th>{m.emailAliases()}</th>
+        <th>Mottagare</th>
         <th>
           <button
             class="btn btn-primary btn-xs float-right px-4"
-            onclick={() => dialog.showModal()}
+            onclick={() => createDialog.showModal()}
           >
             <span class="i-mdi-add"></span>
             {m.admin_emailalias_add()}
@@ -35,13 +43,35 @@
     </thead>
     <tbody>
       {#each data.emailAliases as emailAlias}
-        {@const { email } = emailAlias}
+        {@const { mail: email, recipients = [] } = emailAlias}
         <tr>
           <td class="font-medium">{email}</td>
-          <td class="text-right">
+          <td>
+            {#if recipients.length >= 2}
+              {recipients[0]}
+              and
+              <a href="email-alias/{email}" class="link">
+                {recipients.length - 1} more
+              </a>
+            {:else if recipients.length === 1}
+              {recipients[0]}
+            {/if}
+          </td>
+          <td class="flex justify-end gap-2">
             <a class="btn btn-outline btn-xs px-8" href="email-alias/{email}">
               {m.admin_emailalias_edit()}
             </a>
+
+            <button
+              class="btn btn-square btn-outline btn-xs"
+              aria-label="delete"
+              onclick={() => {
+                removeDialog.showModal();
+                selectedEmailAlias = emailAlias;
+              }}
+            >
+              <span class="i-mdi-delete"></span>
+            </button>
           </td>
         </tr>
       {:else}
@@ -53,7 +83,8 @@
   </table>
 </div>
 
-<dialog class="modal modal-bottom sm:modal-middle" bind:this={dialog}>
+<!-- Dialog for creating a new email alias -->
+<dialog class="modal modal-bottom sm:modal-middle" bind:this={createDialog}>
   <div class="modal-box flex flex-col gap-4">
     <h3 class="text-lg font-bold">Create an email alias</h3>
     <p>Enter the email alias you'd like to create.</p>
@@ -63,7 +94,7 @@
       id="create_email_alias"
       method="POST"
       action="?/create"
-      use:enhance
+      use:superEnhance
     >
       <label class="input join-item flex w-full items-center gap-2">
         <span class="i-mdi-email"></span>
@@ -101,6 +132,37 @@
         <button class="btn">Cancel</button>
         <button class="btn btn-primary" form="create_email_alias">
           Create
+        </button>
+      </form>
+    </div>
+  </div>
+</dialog>
+
+<!-- Dialog for removing email alias -->
+<dialog class="modal modal-bottom sm:modal-middle" bind:this={removeDialog}>
+  <div class="modal-box flex flex-col gap-4">
+    <h3 class="text-lg font-bold">Delete email alias</h3>
+    <p>Are you sure you want to remove <b>{selectedEmailAlias?.mail}</b>?</p>
+
+    <form
+      action="?/delete"
+      method="POST"
+      use:enhance
+      class="hidden"
+      id="remove_email_alias"
+    >
+      <input type="text" hidden name="id" value={selectedEmailAlias?.id} />
+    </form>
+
+    <div class="modal-action">
+      <form method="dialog" class="flex gap-2">
+        <button class="btn">Cancel</button>
+        <button
+          class="btn btn-error"
+          form="remove_email_alias"
+          onclick={() => removeDialog.close()}
+        >
+          Delete
         </button>
       </form>
     </div>

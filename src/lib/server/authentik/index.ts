@@ -3,9 +3,14 @@ import { env } from "$env/dynamic/private";
 import { error } from "@sveltejs/kit";
 import { promiseAllInBatches } from "$lib/utils/batch";
 
-import { Configuration, type Group } from "@goauthentik/api";
+import {
+  Configuration,
+  type CoreGroupsListRequest,
+  type Group,
+} from "@goauthentik/api";
 import { CoreApi } from "@goauthentik/api";
 import { fetchAll } from "./helpers";
+import { z } from "zod";
 
 const AUTHENTIK_BOARD_GROUP = "dsek.styr";
 
@@ -20,6 +25,66 @@ const client = new CoreApi(CONFIG);
 
 function connect(): CoreApi {
   return client;
+}
+
+export async function fetchEmailGroups() {
+  // if (!enabled) return [];
+
+  const groups = await fetchAll<Group, CoreGroupsListRequest>(
+    client.coreGroupsList.bind(client),
+    { search: "emailalias" },
+  );
+  const schema = z.object({
+    mail: z.string(),
+    recipients: z.array(z.string()).optional(), // TO-DO: should not be optional?
+  });
+  type EmailAlias = { id: string } & z.infer<typeof schema>;
+
+  const emailAliases: EmailAlias[] = [];
+  for (const group of groups) {
+    const { data, success, error } = schema.safeParse(group.attributes);
+
+    if (!success) {
+      console.warn(`authentik: failed to parse group ${group.name}: ${error}`);
+      continue;
+    }
+
+    emailAliases.push({ id: group.pk, ...data });
+  }
+  return emailAliases;
+}
+
+function _getEmailGroupName(email: string) {
+  const [alias, domain] = email.split("@");
+
+  const error = new Error("authentik: Failed to create email group name");
+  if (!alias || !domain) throw error;
+  const [domainName] = domain.split(".");
+  if (!domainName) throw error;
+
+  return `emailalias.${domainName}.${alias}`;
+}
+
+export async function createEmailGroup(email: string) {
+  if (!enabled) return;
+
+  const name = _getEmailGroupName(email);
+  console.info("authentik: creating group", {
+    name,
+    attributes: { mail: email },
+  });
+  await client.coreGroupsCreate({
+    groupRequest: {
+      name,
+      attributes: { mail: email },
+    },
+  });
+}
+
+export async function deleteEmailGroup(id: string) {
+  if (!enabled) return;
+
+  await client.coreGroupsDestroy({ groupUuid: id });
 }
 
 async function _fetchUser(client: CoreApi, username: string) {

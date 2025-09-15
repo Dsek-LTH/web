@@ -1,4 +1,4 @@
-import type { Pagination } from "@goauthentik/api";
+import { ResponseError, type Pagination } from "@goauthentik/api";
 
 // We define a generic for request parameters that must include an optional page
 export interface PaginatedRequestParams {
@@ -28,7 +28,13 @@ export async function fetchAll<T, P extends PaginatedRequestParams>(
   const firstPageResponse = await fetchFunction({
     ...initialParams,
     page: 1,
-  } as P);
+  } as P).catch((e) => {
+    if (e instanceof ResponseError) {
+      const res = e.response;
+      throw new Error(`authentik: got response with status ${res.status}`);
+    }
+    throw e;
+  });
   const allResults = [...firstPageResponse.results];
   const totalPages = firstPageResponse.pagination.totalPages;
 
