@@ -5,8 +5,8 @@
   import { getFullName } from "$lib/utils/client/member";
   import dayjs from "dayjs";
   import { onMount } from "svelte";
-  import type { Bookable, BookingRequest, Member } from "@prisma/client";
   import * as m from "$paraglide/messages";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
   const slotWidth = 150;
 
@@ -15,8 +15,12 @@
     bookables,
     class: clazz,
   }: {
-    bookingRequests: Array<BookingRequest & { bookables: Bookable[] }>;
-    bookables: Bookable[];
+    bookingRequests: Array<
+      ExtendedPrismaModel<"BookingRequest"> & {
+        bookables: Array<ExtendedPrismaModel<"Bookable">>;
+      }
+    >;
+    bookables: Array<ExtendedPrismaModel<"Bookable">>;
     class?: string;
   } = $props();
 
@@ -42,7 +46,7 @@
       const endTime = dayjs(info.event.end).format("HH:mm");
       const eventTitle = info.event.title;
       const bookerName = getFullName(
-        info.event.extendedProps["booker"] as Member,
+        info.event.extendedProps["booker"] as ExtendedPrismaModel<"Member">,
         {
           hideNickname: true,
         },

@@ -121,12 +121,13 @@ export const addMockTickets = async (
     const event1 = await prisma.event.create({
       data: {
         ...MOCK_EVENT_1,
-        title: "MOCKED_" + MOCK_EVENT_1.title,
+        descriptionSv: MOCK_EVENT_1.description,
+        titleSv: "MOCKED_" + MOCK_EVENT_1.title,
         authorId: adminMember.id,
         tags: {
           create: MOCK_EVENT_1.tags.map((tag) => ({
             ...tag,
-            name: "MOCKED_" + tag.name,
+            nameSv: "MOCKED_" + tag.name,
           })),
         },
       },
@@ -149,7 +150,7 @@ export const addMockTickets = async (
           shoppable: {
             create: {
               ...ticket.shoppable,
-              title: "MOCKED_" + ticket.shoppable.title,
+              titleSv: "MOCKED_" + ticket.shoppable.title,
               authorId: adminMember.id,
             },
           },
@@ -292,7 +293,7 @@ export const removeAllTestData = async (
   });
   await prisma.tag.deleteMany({
     where: {
-      name: {
+      nameSv: {
         startsWith: "MOCKED_",
       },
     },

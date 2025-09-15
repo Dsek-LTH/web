@@ -2,17 +2,17 @@
   import AuthorSignature from "$lib/components/socials/AuthorSignature.svelte";
   import TagChip from "$lib/components/TagChip.svelte";
   import * as m from "$paraglide/messages";
-  import type { Tag } from "@prisma/client";
   import type { SuperValidated } from "sveltekit-superforms";
   import Article from "./Article.svelte";
   import ArticleForm from "./ArticleForm.svelte";
   import type { AuthorOption } from "$lib/news/getArticles";
   import type { ArticleSchema } from "$lib/news/schema";
   import { superForm } from "$lib/utils/client/superForms";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
   export let data: SuperValidated<ArticleSchema>;
   export let authorOptions: AuthorOption[];
-  export let allTags: Tag[];
+  export let allTags: Array<ExtendedPrismaModel<"Tag">>;
   export let superform = superForm(data, {
     dataType: "json",
   });
@@ -45,9 +45,12 @@
         slug: "",
         header:
           activeTab === "en" && $form.headerEn ? $form.headerEn : $form.header,
+        headerSv:
+          activeTab === "en" && $form.headerEn ? $form.headerEn : $form.header,
         headerEn:
           activeTab === "en" && $form.headerEn ? $form.headerEn : $form.header,
         body: activeTab === "en" && $form.bodyEn ? $form.bodyEn : $form.body,
+        bodySv: activeTab === "en" && $form.bodyEn ? $form.bodyEn : $form.body,
         bodyEn: activeTab === "en" && $form.bodyEn ? $form.bodyEn : $form.body,
         authorId: $form.author.id,
         publishedAt: new Date(),

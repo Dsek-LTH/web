@@ -1,7 +1,10 @@
 import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 import { slugify } from "$lib/utils/slugify";
 
-export const slugifySongTitle = async (prisma: ExtendedPrisma, title: string) => {
+export const slugifySongTitle = async (
+  prisma: ExtendedPrisma,
+  title: string,
+) => {
   const slug = slugify(title);
   const count = await prisma.song.count({
     where: {

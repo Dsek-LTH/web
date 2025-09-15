@@ -1,10 +1,12 @@
 <script lang="ts">
-  import type { Bookable, BookingRequest } from "@prisma/client";
   import dayjs from "dayjs";
   import * as m from "$paraglide/messages";
   import { twMerge } from "tailwind-merge";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
-  type T = BookingRequest & { bookables: Bookable[] };
+  type T = ExtendedPrismaModel<"BookingRequest"> & {
+    bookables: Array<ExtendedPrismaModel<"Bookable">>;
+  };
   export let bookingRequest: T;
   export let bookingRequests: T[];
   let clazz: string | undefined = undefined;

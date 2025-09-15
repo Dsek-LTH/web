@@ -1,10 +1,12 @@
 import { getFullName } from "$lib/utils/client/member";
 import sendNotification from "$lib/utils/notifications";
 import { NotificationType } from "$lib/utils/notifications/types";
-import type { Ping } from "@prisma/client";
 import * as m from "$paraglide/messages";
 import { error } from "@sveltejs/kit";
-import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
+import type {
+  ExtendedPrisma,
+  ExtendedPrismaModel,
+} from "$lib/server/extendedPrisma";
 
 type MemberIdentification =
   | {
@@ -145,7 +147,7 @@ const performSubsequentPing = (
   prisma: ExtendedPrisma,
   fromMemberId: string,
   toMemberId: string,
-  previousPing: Pick<Ping, "fromMemberId">,
+  previousPing: Pick<ExtendedPrismaModel<"Ping">, "fromMemberId">,
 ) => {
   const isSenderFromColumn = previousPing.fromMemberId === fromMemberId;
   return prisma.ping.update({

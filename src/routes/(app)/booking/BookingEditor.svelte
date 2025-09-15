@@ -3,16 +3,18 @@
   import type { BookingSchema } from "./schema";
   import { superForm } from "$lib/utils/client/superForms";
   import * as m from "$paraglide/messages";
-  import type { Bookable, BookingRequest } from "@prisma/client";
   import StatusComponent from "./StatusComponent.svelte";
   import dayjs from "dayjs";
   import utc from "dayjs/plugin/utc";
   import timezone from "dayjs/plugin/timezone";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
-  type BookingRequestWithBookables = BookingRequest & { bookables: Bookable[] };
+  type BookingRequestWithBookables = ExtendedPrismaModel<"BookingRequest"> & {
+    bookables: Array<ExtendedPrismaModel<"Bookable">>;
+  };
   export let data: {
     form: SuperValidated<Infer<BookingSchema>>;
-    bookables: Bookable[];
+    bookables: Array<ExtendedPrismaModel<"Bookable">>;
     booking?: BookingRequestWithBookables;
     allBookingRequests?: BookingRequestWithBookables[];
   };

@@ -8,14 +8,14 @@
   import { getFullName } from "$lib/utils/client/member";
   import { POST_REVEAL_PREFIX } from "$lib/components/postReveal/types";
   import LanguageSwitcher from "../../LanguageSwitcher.svelte";
-  import type { PhadderGroup } from "@prisma/client";
   import * as m from "$paraglide/messages";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
   $: revealTheme = $page.data["revealTheme"];
   $: pageData = $page.data as typeof $page.data & PostRevealLayoutData;
   $: member = $page.data.member;
   $: nollaInGroup = $page.data["phadderGroup"] as Promise<
-    Pick<PhadderGroup, "name"> | undefined
+    Pick<ExtendedPrismaModel<"PhadderGroup">, "name"> | undefined
   >;
 
   $: notificationsPromise = pageData["notificationsPromise"];

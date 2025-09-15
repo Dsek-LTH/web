@@ -4,14 +4,14 @@
   import { superForm } from "$lib/utils/client/superForms";
   import type { ElectionSchema } from "./schemas";
   import * as m from "$paraglide/messages";
-  import type { Election } from "@prisma/client";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
   export let isCreating: boolean;
   export let data: {
     form: SuperValidated<ElectionSchema>;
     committees: Array<{ id: string; name: string; nameEn: string | null }>;
     election: Pick<
-      Election,
+      ExtendedPrismaModel<"Election">,
       "markdown" | "markdownEn" | "link" | "expiresAt" | "committeeId"
     >;
   };

@@ -1,10 +1,10 @@
 <script lang="ts">
   import { getFileUrl } from "$lib/files/client";
-  import type { Committee } from "@prisma/client";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import type { EventHandler } from "svelte/elements";
 
   export let committee: Pick<
-    Committee,
+    ExtendedPrismaModel<"Committee">,
     "darkImageUrl" | "lightImageUrl" | "monoImageUrl" | "name"
   >;
   export let useMono = false;

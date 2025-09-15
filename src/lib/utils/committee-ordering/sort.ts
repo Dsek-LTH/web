@@ -1,4 +1,3 @@
-import type { Committee, Position } from "@prisma/client";
 import {
   Aktu,
   BoardOrder,
@@ -20,10 +19,11 @@ import {
   Valb,
 } from "./enums";
 import in_ from "../in";
+import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
 function comparePositions(
-  posId1: Position["id"],
-  posId2: Position["id"],
+  posId1: ExtendedPrismaModel<"Position">["id"],
+  posId2: ExtendedPrismaModel<"Position">["id"],
   orderTable: object,
 ): number {
   // Preserve order if at least one position order is not defined
@@ -36,16 +36,18 @@ function comparePositions(
 }
 
 export function compareBoardPositions(
-  posId1: Position["id"],
-  posId2: Position["id"],
+  posId1: ExtendedPrismaModel<"Position">["id"],
+  posId2: ExtendedPrismaModel<"Position">["id"],
 ): number {
   return comparePositions(posId1, posId2, BoardOrder);
 }
 
 export function compareCommitteePositions(
-  posId1: Position["id"],
-  posId2: Position["id"],
-  committeeShortName: NonNullable<Committee["shortName"]>,
+  posId1: ExtendedPrismaModel<"Position">["id"],
+  posId2: ExtendedPrismaModel<"Position">["id"],
+  committeeShortName: NonNullable<
+    ExtendedPrismaModel<"Committee">["shortName"]
+  >,
 ): number {
   if (!in_(committeeShortName, committeeEnums)) return 0; // No committee? Preserve order
   const committee = committeeEnums[committeeShortName];

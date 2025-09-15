@@ -1,13 +1,11 @@
-import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
+import type {
+  ExtendedPrisma,
+  ExtendedPrismaModel,
+} from "$lib/server/extendedPrisma";
 import { dev } from "$app/environment";
 import { env } from "$env/dynamic/private";
 import { sendEmail } from "$lib/email/emailService";
 import { getFullName } from "$lib/utils/client/member";
-import type {
-  Expense,
-  ExpenseItem,
-  Member,
-} from "@prisma/client";
 import dayjs from "dayjs";
 import fs from "fs";
 import path from "path";
@@ -19,12 +17,12 @@ const {
   BOOKKEEPING_CC_TO_ADDRESS,
 } = env;
 
-export type ExpandedExpenseForPdf = Expense & {
-  member: Member;
+export type ExpandedExpenseForPdf = ExtendedPrismaModel<"Expense"> & {
+  member: ExtendedPrismaModel<"Member">;
   items: Array<
-    ExpenseItem & {
-      signer: Member;
-      signedBy: Member | null;
+    ExtendedPrismaModel<"ExpenseItem"> & {
+      signer: ExtendedPrismaModel<"Member">;
+      signedBy: ExtendedPrismaModel<"Member"> | null;
     }
   >;
 };
@@ -72,7 +70,10 @@ export async function gatherExpenseDataForPdf(
   return expense;
 }
 
-function writePDFToFile(expense: Expense, pdfBytes: Uint8Array) {
+function writePDFToFile(
+  expense: ExtendedPrismaModel<"Expense">,
+  pdfBytes: Uint8Array,
+) {
   // for testing
   const pdfDir = path.join(process.cwd(), "data", "expense-pdfs");
   fs.mkdirSync(pdfDir, { recursive: true });

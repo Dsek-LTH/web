@@ -1,15 +1,11 @@
 import { BASIC_ARTICLE_FILTER } from "$lib/news/articles";
 import { getCustomAuthorOptions } from "$lib/utils/member";
 
+import type { Prisma } from "@prisma/client";
 import type {
-  Author,
-  CustomAuthor,
-  Mandate,
-  Member,
-  Position,
-  Prisma,
-} from "@prisma/client";
-import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
+  ExtendedPrisma,
+  ExtendedPrismaModel,
+} from "$lib/server/extendedPrisma";
 
 type ArticleFilters = {
   tags?: string[];
@@ -139,27 +135,30 @@ export const getArticle = async (prisma: ExtendedPrisma, slug: string) => {
 
 export type Article = NonNullable<Awaited<ReturnType<typeof getArticle>>>;
 
-export type AuthorOption = Author & {
-  member: Member;
+export type AuthorOption = ExtendedPrismaModel<"Author"> & {
+  member: ExtendedPrismaModel<"Member">;
   mandate:
-    | (Mandate & {
-        position: Position;
+    | (ExtendedPrismaModel<"Mandate"> & {
+        position: ExtendedPrismaModel<"Position">;
       })
     | null;
-  customAuthor: CustomAuthor | null;
+  customAuthor: ExtendedPrismaModel<"CustomAuthor"> | null;
 };
 
-export const getArticleAuthorOptions = async (
-  prisma: ExtendedPrisma,
-  memberWithMandates: Prisma.MemberGetPayload<{
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- used for its type in getArticleAuthorOptions
+const getMemberWithMandates = (prisma: ExtendedPrisma) =>
+  prisma.member.findMany({
     include: {
       mandates: {
         include: {
-          position: true;
-        };
-      };
-    };
-  }>,
+          position: true,
+        },
+      },
+    },
+  });
+export const getArticleAuthorOptions = async (
+  prisma: ExtendedPrisma,
+  memberWithMandates: Awaited<ReturnType<typeof getMemberWithMandates>>[number],
 ) => {
   const memberId = memberWithMandates.id;
   const customAuthorOptions = await getCustomAuthorOptions(prisma, memberId);

@@ -5,17 +5,20 @@ import {
 } from "$lib/server/shop/addToCart/reservations";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import { refundConsumable } from "$lib/server/shop/payments/stripeMethods";
-import type { Event, ItemQuestion, Shoppable, Ticket } from "@prisma/client";
 import { fail } from "@sveltejs/kit";
 import { zod } from "sveltekit-superforms/adapters";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import { loadTicketData } from "./loadTicketData";
+import {
+  extendedPrisma,
+  type ExtendedPrismaModel,
+} from "$lib/server/extendedPrisma";
 
-export type ManagedTicket = Ticket &
-  Shoppable & {
-    questions: ItemQuestion[];
-    event: Event;
+export type ManagedTicket = ExtendedPrismaModel<"Ticket"> &
+  ExtendedPrismaModel<"Shoppable"> & {
+    questions: Array<ExtendedPrismaModel<"ItemQuestion">>;
+    event: ExtendedPrismaModel<"Event">;
   };
 
 export const load = async ({ locals, params }) => {
@@ -32,7 +35,10 @@ export const load = async ({ locals, params }) => {
   const consumablesInCart = consumables.filter((c) => c.purchasedAt === null);
   const reservations = ticket.shoppable.reservations;
   // Typing just so we can remove consumables and reservations from shoppable
-  const shoppable: Omit<Shoppable, "consumables" | "reservations"> & {
+  const shoppable: Omit<
+    ExtendedPrismaModel<"Shoppable">,
+    "consumables" | "reservations"
+  > & {
     consumables?: unknown;
     reservations?: unknown;
   } = ticket.shoppable;
@@ -161,12 +167,7 @@ export const actions = {
         },
       });
       await withHandledNotificationQueue(
-        moveQueueToCart(
-          authorizedPrismaClient,
-          consumable.shoppableId,
-          1,
-          true,
-        ),
+        moveQueueToCart(extendedPrisma("en"), consumable.shoppableId, 1, true),
       );
 
       return message(form, {

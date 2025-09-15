@@ -16,7 +16,7 @@ export const load: PageServerLoad = async ({ locals }) => {
   const { prisma, user } = locals;
   authorize(apiNames.TAGS.READ, user);
 
-  const tags = await prisma.tag.findMany({ orderBy: { name: "asc" } });
+  const tags = await prisma.tag.findMany({ orderBy: { nameSv: "asc" } });
   const createForm = await superValidate(zod(createSchema));
   const updateForm = await superValidate(zod(updateSchema));
   return {
@@ -46,7 +46,7 @@ export const actions: Actions = {
     if (!form.valid) return fail(400, { form });
     await prisma.tag.create({
       data: {
-        name: form.data.name,
+        nameSv: form.data.name,
       },
     });
     return message(form, {

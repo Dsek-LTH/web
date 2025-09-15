@@ -3,18 +3,21 @@
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import { getFullName } from "$lib/utils/client/member";
   import type { CommentSchema } from "$lib/zod/comments";
-  import type { ArticleComment, EventComment, Member } from "@prisma/client";
   import type { SuperValidated } from "sveltekit-superforms";
   import { superForm } from "$lib/utils/client/superForms";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
-  export let author: Member;
+  export let author: ExtendedPrismaModel<"Member">;
   export let commentForm: SuperValidated<CommentSchema>;
   const { form, errors, constraints, enhance } = superForm(commentForm, {
     resetForm: true,
   });
 
   export const onReply = (
-    comment: (ArticleComment | EventComment) & { member: Member },
+    comment: (
+      | ExtendedPrismaModel<"ArticleComment">
+      | ExtendedPrismaModel<"EventComment">
+    ) & { member: ExtendedPrismaModel<"Member"> },
   ) => {
     const tagString = `[@${getFullName(comment.member)}](/members/${
       comment.member.studentId

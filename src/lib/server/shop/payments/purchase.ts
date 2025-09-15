@@ -1,4 +1,7 @@
-import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
+import type {
+  ExtendedPrisma,
+  ExtendedPrismaModel,
+} from "$lib/server/extendedPrisma";
 import {
   removeExpiredConsumables,
   withHandledNotificationQueue,
@@ -9,11 +12,7 @@ import {
   passOnTransactionFee,
 } from "$lib/utils/payments/transactionFee";
 import { getFullName } from "$lib/utils/client/member";
-import {
-  ShoppableType,
-  type ItemQuestionResponse,
-  type Shoppable,
-} from "@prisma/client";
+import { ShoppableType } from "@prisma/client";
 import type Stripe from "stripe";
 import * as m from "$paraglide/messages";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
@@ -76,7 +75,7 @@ const clearOutConsumablesAfterSellingOut = async (
         {
           title: "😢 Slutsålt:(",
           message: `${
-            soldOutReservations[0]?.shoppable?.title ?? "Biljett"
+            soldOutReservations[0]?.shoppable?.titleSv ?? "Biljett"
           } har blivit slutsåld`,
           memberIds,
           type: NotificationType.PURCHASE_SOLD_OUT,
@@ -320,8 +319,10 @@ const purchaseCart = async (
 };
 
 type ConsumableFieldsForPrice = {
-  shoppable: Pick<Shoppable, "price">;
-  questionResponses: Array<Pick<ItemQuestionResponse, "extraPrice">>;
+  shoppable: Pick<ExtendedPrismaModel<"Shoppable">, "price">;
+  questionResponses: Array<
+    Pick<ExtendedPrismaModel<"ItemQuestionResponse">, "extraPrice">
+  >;
 };
 export const calculateConsumablePrice = (
   consumable: ConsumableFieldsForPrice,

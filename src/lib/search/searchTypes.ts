@@ -17,15 +17,7 @@
  * a higher ranking, and tweak which typo tolerance is allowed.
  */
 
-import type {
-  Article,
-  Member,
-  Event,
-  Song,
-  Position,
-  Committee,
-  Document,
-} from "@prisma/client";
+import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
 /**
  * Utility type that creates a new object type based on a union of keys (Keys).
@@ -88,12 +80,12 @@ export const memberSearchableAttributes = [
   "studentId",
 ] as const satisfies Array<keyof MemberDataInMeilisearch>;
 export type SearchableMemberAttributes = FilterKeys<
-  Member,
+  ExtendedPrismaModel<"Member">,
   (typeof memberSearchableAttributes)[number]
 >;
 export type MemberDataInMeilisearch = Prettify<
   Pick<
-    Member,
+    ExtendedPrismaModel<"Member">,
     | "firstName"
     | "lastName"
     | "nickname"
@@ -102,7 +94,7 @@ export type MemberDataInMeilisearch = Prettify<
     | "classProgramme"
     | "picturePath"
   > & {
-    fullName: `${Member["firstName"]} ${Member["lastName"]}`;
+    fullName: `${ExtendedPrismaModel<"Member">["firstName"]} ${ExtendedPrismaModel<"Member">["lastName"]}`;
   }
 >;
 export type MemberSearchReturnAttributes = OnlySwedishAttributes<
@@ -126,12 +118,12 @@ export const eventSearchableAttributes = [
   "descriptionEn",
 ] as const satisfies Array<keyof EventDataInMeilisearch>;
 export type SearchableEventAttributes = Pick<
-  Event,
+  ExtendedPrismaModel<"Event">,
   (typeof eventSearchableAttributes)[number]
 >;
 export type EventDataInMeilisearch = Prettify<
   Pick<
-    Event,
+    ExtendedPrismaModel<"Event">,
     | "title"
     | "titleEn"
     | "description"
@@ -157,11 +149,11 @@ export const articleSearchableAttributes = [
   "bodyEn",
 ] as const satisfies Array<keyof ArticleDataInMeilisearch>;
 export type SearchableArticleAttributes = Pick<
-  Article,
+  ExtendedPrismaModel<"Article">,
   (typeof articleSearchableAttributes)[number]
 >;
 export type ArticleDataInMeilisearch = Pick<
-  Article,
+  ExtendedPrismaModel<"Article">,
   "header" | "headerEn" | "body" | "bodyEn" | "slug" | "publishedAt"
 >;
 export type ArticleSearchReturnAttributes = OnlySwedishAttributes<
@@ -184,15 +176,18 @@ export const positionSearchableAttributes = [
   "dsekId",
 ] as const satisfies Array<keyof PositionDataInMeilisearch>;
 export type SearchablePositionAttributes = FilterKeys<
-  Position,
+  ExtendedPrismaModel<"Position">,
   (typeof positionSearchableAttributes)[number]
 >;
 export type PositionDataInMeilisearch = Prettify<
-  Pick<Position, "name" | "nameEn" | "description" | "descriptionEn"> & {
-    committee: Committee | null;
+  Pick<
+    ExtendedPrismaModel<"Position">,
+    "name" | "nameEn" | "description" | "descriptionEn"
+  > & {
+    committee: ExtendedPrismaModel<"Committee"> | null;
     dsekId: string;
-    committeeName: Committee["name"];
-    committeeNameEn: Committee["nameEn"];
+    committeeName: ExtendedPrismaModel<"Committee">["name"];
+    committeeNameEn: ExtendedPrismaModel<"Committee">["nameEn"];
   }
 >;
 export type PositionSearchReturnAttributes = OnlySwedishAttributes<
@@ -213,12 +208,12 @@ export const committeeSearchableAttributes = [
   "descriptionEn",
 ] as const satisfies Array<keyof CommitteeDataInMeilisearch>;
 export type SearchableCommitteeAttributes = Pick<
-  Committee,
+  ExtendedPrismaModel<"Committee">,
   (typeof committeeSearchableAttributes)[number]
 >;
 export type CommitteeDataInMeilisearch = Prettify<
   Pick<
-    Committee,
+    ExtendedPrismaModel<"Committee">,
     | "name"
     | "nameEn"
     | "description"
@@ -250,11 +245,14 @@ export const songSearchableAttributes = [
   "category",
 ] as const satisfies Array<keyof SongDataInMeilisearch>;
 export type SearchableSongAttributes = Pick<
-  Song,
+  ExtendedPrismaModel<"Song">,
   (typeof songSearchableAttributes)[number]
 >;
 export type SongDataInMeilisearch = Prettify<
-  Pick<Song, "title" | "lyrics" | "melody" | "category" | "slug">
+  Pick<
+    ExtendedPrismaModel<"Song">,
+    "title" | "lyrics" | "melody" | "category" | "slug"
+  >
 >;
 export type SongSearchReturnAttributes = OnlySwedishAttributes<
   SearchableSongAttributes & Pick<SongDataInMeilisearch, "slug">
@@ -275,7 +273,7 @@ export type SearchableGoverningDocumentAttributes = Pick<
   (typeof governingDocumentSearchableAttributes)[number]
 >;
 export type GoverningDocumentDataInMeilisearch = Prettify<
-  Pick<Document, "id" | "title" | "url" | "type"> & {
+  Pick<ExtendedPrismaModel<"Document">, "id" | "title" | "url" | "type"> & {
     content: string;
   }
 >;

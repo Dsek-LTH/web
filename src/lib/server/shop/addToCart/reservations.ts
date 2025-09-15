@@ -1,4 +1,3 @@
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import {
   ensurePaymentIntentState,
   removePaymentIntent,
@@ -9,16 +8,14 @@ import sendNotification, {
 import { NotificationType } from "$lib/utils/notifications/types";
 import * as m from "$paraglide/messages";
 import {
-  type Consumable,
-  type ConsumableReservation,
-  type Shoppable,
-  type Ticket,
-} from "@prisma/client";
-import {
   GRACE_PERIOD_WINDOW,
   TIME_TO_BUY,
   type TransactionClient,
 } from "../types";
+import {
+  extendedPrisma,
+  type ExtendedPrismaModel,
+} from "$lib/server/extendedPrisma";
 
 /*
 NOTE ON NOTIFICATION QUEUE SYSTEM:
@@ -141,24 +138,25 @@ let pruneTimeout: ReturnType<typeof setTimeout> | null = null;
 // Queues a timeout to call removeExpiredConsumables when next consumable expires
 export const queueNextExpiredConsumablesPruning = async () => {
   if (pruneTimeout) return;
-  const nextConsumableToExpire =
-    await authorizedPrismaClient.consumable.findFirst({
-      where: {
-        expiresAt: {
-          not: null,
-          gt: new Date(),
-        },
+  const nextConsumableToExpire = await extendedPrisma(
+    "en",
+  ).consumable.findFirst({
+    where: {
+      expiresAt: {
+        not: null,
+        gt: new Date(),
       },
-      orderBy: {
-        expiresAt: "asc",
-      },
-    });
+    },
+    orderBy: {
+      expiresAt: "asc",
+    },
+  });
   if (nextConsumableToExpire == null || !nextConsumableToExpire.expiresAt)
     return;
   pruneTimeout = setTimeout(async () => {
     const now = new Date();
     await withHandledNotificationQueue(
-      removeExpiredConsumables(authorizedPrismaClient, now).then(
+      removeExpiredConsumables(extendedPrisma("en"), now).then(
         (r) => r.queuedNotifications,
       ),
     );
@@ -231,9 +229,13 @@ const updateAllNecessaryQueues = async (
  */
 const updateQueue = async (
   prisma: TransactionClient,
-  ticket: Ticket,
-  reservations: Array<ConsumableReservation & { shoppable: Shoppable }>,
-  consumables: Consumable[],
+  ticket: ExtendedPrismaModel<"Ticket">,
+  reservations: Array<
+    ExtendedPrismaModel<"ConsumableReservation"> & {
+      shoppable: ExtendedPrismaModel<"Shoppable">;
+    }
+  >,
+  consumables: Array<ExtendedPrismaModel<"Consumable">>,
 ): Promise<SendNotificationProps[]> => {
   const purchasedConsumablesCount = consumables.filter(
     (con) => con.purchasedAt != null,
@@ -285,7 +287,11 @@ const updateQueue = async (
 const updateQueueGivenStock = async (
   prisma: TransactionClient,
   shoppableId: string,
-  reservations: Array<ConsumableReservation & { shoppable: Shoppable }>,
+  reservations: Array<
+    ExtendedPrismaModel<"ConsumableReservation"> & {
+      shoppable: ExtendedPrismaModel<"Shoppable">;
+    }
+  >,
   inCartOrPurchased: number,
   stock: number,
 ): Promise<{
@@ -376,7 +382,11 @@ export const moveQueueToCart = async (
 const moveReservationsToCart = async (
   prisma: TransactionClient,
   shoppableId: string,
-  reservationsToMove: Array<ConsumableReservation & { shoppable: Shoppable }>,
+  reservationsToMove: Array<
+    ExtendedPrismaModel<"ConsumableReservation"> & {
+      shoppable: ExtendedPrismaModel<"Shoppable">;
+    }
+  >,
   updateOrder = true,
   shouldQueueNotifications = true,
 ): Promise<SendNotificationProps[]> => {

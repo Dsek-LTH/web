@@ -60,7 +60,7 @@ export const onPaymentSuccess = async (intent: Stripe.PaymentIntent) => {
     await sendNotification({
       title:
         purchasedConsumables.length === 1
-          ? `${purchasedConsumables[0]?.shoppable.title} har köpts`
+          ? `${purchasedConsumables[0]?.shoppable.titleSv} har köpts`
           : `${purchasedConsumables.length} produkter har köpts`,
       message: `Ditt köp på ${intent.amount / 100} ${
         intent.currency?.toUpperCase() ?? "SEK"

@@ -17,9 +17,9 @@ export const createTicket = async (
       data: {
         shoppable: {
           create: {
-            title: data.title,
+            titleSv: data.title,
             titleEn: data.titleEn,
-            description: data.description,
+            descriptionSv: data.description,
             descriptionEn: data.descriptionEn,
             price: convertPriceToCents(data.price),
             availableFrom: data.availableFrom,
@@ -50,6 +50,8 @@ export const createTicket = async (
         data: {
           shoppableId: ticket.id,
           ...question,
+          titleSv: question.title,
+          descriptionSv: question.description,
           id: undefined,
           options:
             question.options === undefined
@@ -58,6 +60,7 @@ export const createTicket = async (
                   createMany: {
                     data: question.options.map((o) => ({
                       ...o,
+                      answerSv: o.answer,
                       extraPrice: o.extraPrice
                         ? convertPriceToCents(o.extraPrice)
                         : o.extraPrice,
@@ -89,9 +92,9 @@ export const updateTicket = async (
       data: {
         shoppable: {
           update: {
-            title: data.title,
+            titleSv: data.title,
             titleEn: data.titleEn,
-            description: data.description,
+            descriptionSv: data.description,
             descriptionEn: data.descriptionEn,
             price: convertPriceToCents(data.price),
             availableFrom: data.availableFrom,
@@ -198,6 +201,7 @@ const updateQuestions = async (
                 createMany: {
                   data: question.options.map((o) => ({
                     ...o,
+                    answerSv: o.answer,
                     extraPrice: o.extraPrice
                       ? convertPriceToCents(o.extraPrice)
                       : o.extraPrice,
@@ -214,6 +218,8 @@ const updateQuestions = async (
       await tx.itemQuestion.create({
         data: {
           ...question,
+          titleSv: question.title,
+          descriptionSv: question.description,
           id: undefined,
           shoppableId: ticketId,
           options:
@@ -223,6 +229,7 @@ const updateQuestions = async (
                   createMany: {
                     data: question.options.map((o) => ({
                       ...o,
+                      answerSv: o.answer,
                       extraPrice: o.extraPrice
                         ? convertPriceToCents(o.extraPrice)
                         : o.extraPrice,

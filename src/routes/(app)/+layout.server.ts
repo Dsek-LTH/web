@@ -8,7 +8,10 @@ import { superValidate } from "sveltekit-superforms/server";
 import type { ExtendedPrismaModel } from "../../database/prisma/translationExtension";
 
 const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
-const alertsCache: { alerts: ExtendedPrismaModel<"Alert">[]; lastUpdated: number | null } = {
+const alertsCache: {
+  alerts: ExtendedPrismaModel<"Alert">[];
+  lastUpdated: number | null;
+} = {
   alerts: [],
   lastUpdated: null,
 };

@@ -4,10 +4,10 @@ import {
   onPaymentSuccess,
 } from "$lib/server/shop/payments/stripeWebhooks";
 import * as m from "$paraglide/messages";
-import type { Consumable, Shoppable } from "@prisma/client";
 import Stripe from "stripe";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import stripe from "./stripe";
+import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
 type RequiredProps = "amount" | "metadata" | "customer";
 type Props = Pick<Stripe.PaymentIntentCreateParams, RequiredProps> &
@@ -47,8 +47,8 @@ export const updatePaymentIntent = (
 
 export const creteConsumableMetadata = (
   consumables: Array<
-    Consumable & {
-      shoppable: Shoppable;
+    ExtendedPrismaModel<"Consumable"> & {
+      shoppable: ExtendedPrismaModel<"Shoppable">;
     }
   >,
 ): Stripe.MetadataParam => {

@@ -47,7 +47,7 @@ export const getAllEvents = async (
           ? {
               OR: [
                 {
-                  title: {
+                  titleSv: {
                     contains: filters.search,
                     mode: "insensitive",
                   },
@@ -59,7 +59,7 @@ export const getAllEvents = async (
                   },
                 },
                 {
-                  shortDescription: {
+                  shortDescriptionSv: {
                     contains: filters.search,
                     mode: "insensitive",
                   },
@@ -71,7 +71,7 @@ export const getAllEvents = async (
                   },
                 },
                 {
-                  description: {
+                  descriptionSv: {
                     contains: filters.search,
                     mode: "insensitive",
                   },
@@ -92,7 +92,7 @@ export const getAllEvents = async (
                 some: {
                   OR: [
                     {
-                      name: {
+                      nameSv: {
                         in: filters.tags,
                         mode: "insensitive",
                       },

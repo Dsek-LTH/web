@@ -1,7 +1,10 @@
 <script lang="ts">
-  import type { CustomAuthor } from "@prisma/client";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
-  export let customAuthor: Pick<CustomAuthor, "imageUrl" | "name"> | null;
+  export let customAuthor: Pick<
+    ExtendedPrismaModel<"CustomAuthor">,
+    "imageUrl" | "name"
+  > | null;
 </script>
 
 <img

@@ -3,12 +3,14 @@ import { NotificationType } from "$lib/utils/notifications/types";
 import { error, type RequestEvent } from "@sveltejs/kit";
 import type { Actions } from "./$types";
 import dayjs from "dayjs";
-import type { Bookable, BookingRequest } from "@prisma/client";
 import { superValidate } from "sveltekit-superforms/server";
 import { zod } from "sveltekit-superforms/adapters";
 import { bookingSchema } from "./schema";
 import * as m from "$paraglide/messages";
-import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
+import type {
+  ExtendedPrisma,
+  ExtendedPrismaModel,
+} from "$lib/server/extendedPrisma";
 
 export const actions: Actions = {
   accept: async (event: RequestEvent) => {
@@ -49,7 +51,9 @@ export async function getBookingRequestOrThrow(
 }
 
 export async function getSuperValidatedForm(
-  bookingRequest: BookingRequest & { bookables: Bookable[] },
+  bookingRequest: ExtendedPrismaModel<"BookingRequest"> & {
+    bookables: Array<ExtendedPrismaModel<"Bookable">>;
+  },
 ) {
   const initialData = {
     name: bookingRequest.event ?? undefined,

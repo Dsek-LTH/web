@@ -11,12 +11,12 @@
   import { superForm } from "$lib/utils/client/superForms";
   import { recurringTypes } from "$lib/utils/events";
   import * as m from "$paraglide/messages";
-  import type { Tag } from "@prisma/client";
   import type { SuperValidated } from "sveltekit-superforms";
   import Event from "./Event.svelte";
   import LangTabs from "$lib/components/layout/LangTabs.svelte";
   import FormFileInput from "$lib/components/forms/FormFileInput.svelte";
   import FormMarkdown from "$lib/components/forms/FormMarkdown.svelte";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
   export let recurringParentId: string | null;
   export let creating = false;
@@ -27,7 +27,7 @@
     dataType: "json",
   });
   const { form, errors, enhance } = superform;
-  export let allTags: Tag[];
+  export let allTags: Array<ExtendedPrismaModel<"Tag">>;
   $: if ($errors) console.log($errors);
   let activeTab: "sv" | "en";
   let modal: HTMLDialogElement;

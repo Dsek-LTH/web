@@ -7,13 +7,12 @@ import { bookingSchema } from "../schema";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
-import {
-  type Bookable,
-  type BookingRequest,
-} from "@prisma/client";
 import sendNotification from "$lib/utils/notifications";
 import { NotificationType } from "$lib/utils/notifications/types";
-import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
+import type {
+  ExtendedPrisma,
+  ExtendedPrismaModel,
+} from "$lib/server/extendedPrisma";
 
 export const load = async ({ locals }) => {
   const { prisma } = locals;
@@ -36,7 +35,9 @@ export const load = async ({ locals }) => {
 };
 
 const sendNotificationToKM = async (
-  bookingRequest: BookingRequest & { bookables: Bookable[] },
+  bookingRequest: ExtendedPrismaModel<"BookingRequest"> & {
+    bookables: Array<ExtendedPrismaModel<"Bookable">>;
+  },
   prisma: ExtendedPrisma,
 ) => {
   const kallarMastare = await prisma.member.findFirstOrThrow({

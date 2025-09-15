@@ -1,4 +1,5 @@
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 import sendPushNotifications from "$lib/utils/notifications/push";
 import {
   NOTIFICATION_SETTINGS_ALWAYS_ON,
@@ -6,11 +7,6 @@ import {
   NotificationType,
   SUBSCRIPTION_SETTINGS_MAP,
 } from "$lib/utils/notifications/types";
-import {
-  type Author,
-  type Member,
-  type SubscriptionSetting,
-} from "@prisma/client";
 import { error } from "@sveltejs/kit";
 
 const DUPLICATE_ALLOWED_TYPES = [
@@ -37,7 +33,7 @@ export type SendNotificationProps = BaseSendNotificationProps &
   (
     | {
         // Send as author (e.g. Jane Smith, Källarmästare)
-        fromAuthor: Author;
+        fromAuthor: ExtendedPrismaModel<"Author">;
         fromMemberId?: never;
       }
     | {
@@ -185,8 +181,8 @@ const sendWeb = async (
   message: string,
   type: NotificationType,
   link: string,
-  notificationAuthor: Author | undefined,
-  receivingMembers: Array<Pick<Member, "id">>,
+  notificationAuthor: ExtendedPrismaModel<"Author"> | undefined,
+  receivingMembers: Array<Pick<ExtendedPrismaModel<"Member">, "id">>,
 ) => {
   return prisma.notification.createMany({
     data: receivingMembers.map(({ id: memberId }) => ({
@@ -205,9 +201,9 @@ const sendPush = async (
   message: string,
   link: string,
   receivingMembers: Array<
-    Pick<Member, "id"> & {
+    Pick<ExtendedPrismaModel<"Member">, "id"> & {
       subscriptionSettings: Array<
-        Pick<SubscriptionSetting, "pushNotification">
+        Pick<ExtendedPrismaModel<"SubscriptionSetting">, "pushNotification">
       >;
     }
   >,

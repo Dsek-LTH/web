@@ -1,7 +1,8 @@
-import type { DoorAccessPolicy, PrismaClient } from "@prisma/client";
+import type { PrismaClient } from "@prisma/client";
 import type { RequestHandler } from "./$types";
 import { BACKUP_LIST_OF_STUDENT_IDS } from "./constants";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
 /**
  * The arrays contain students and positions respectively.
@@ -9,7 +10,9 @@ import authorizedPrismaClient from "$lib/server/authorizedPrisma";
  * This function splits the policies into two respective arrays.
  */
 function parseDoorPolicies(
-  policies: Array<Pick<DoorAccessPolicy, "studentId" | "role">>,
+  policies: Array<
+    Pick<ExtendedPrismaModel<"DoorAccessPolicy">, "studentId" | "role">
+  >,
 ) {
   const studentIds = policies
     .map((policy) => policy.studentId)
@@ -26,7 +29,12 @@ function parseDoorPolicies(
  * This function splits the policies into two respective arrays.
  */
 function parseDoorBanPolicies(
-  policies: Array<Pick<DoorAccessPolicy, "studentId" | "role" | "isBan">>,
+  policies: Array<
+    Pick<
+      ExtendedPrismaModel<"DoorAccessPolicy">,
+      "studentId" | "role" | "isBan"
+    >
+  >,
 ) {
   const studentIdsBanned = policies
     .filter((policy) => policy.isBan)
@@ -124,12 +132,12 @@ export const GET: RequestHandler = async ({ params }) => {
 
     const positions = await fetchMatchingPositions(
       positionIds,
-      authorizedPrismaClient
+      authorizedPrismaClient,
     );
 
     const studentsFromPositions = await fetchStudentsWithPositions(
       positions.map((p) => p.id),
-      authorizedPrismaClient
+      authorizedPrismaClient,
     );
 
     // Fpr no we are only interested in the studentIds that are banned,
