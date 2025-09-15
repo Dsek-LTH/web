@@ -3,13 +3,14 @@ import { BASIC_EVENT_FILTER } from "$lib/events/events";
 import { fileHandler } from "$lib/files";
 import { BASIC_ARTICLE_FILTER } from "$lib/news/articles";
 import { error } from "@sveltejs/kit";
-// eslint-disable-next-line no-restricted-imports -- problem with lib and api, feels unecessary to create a bunch of helper files just to structure this one thing
-import { getCommitData, type GetCommitDataResponse } from "./getCommitData";
+
+import { getCommitData } from "./getCommitData";
 import * as m from "$paraglide/messages";
 
 type Fetch = typeof fetch;
 export const loadHomeData = async ({
   locals,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- incorrectly flagged
   fetch,
 }: {
   locals: App.Locals;

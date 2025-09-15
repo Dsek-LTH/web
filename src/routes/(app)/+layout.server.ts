@@ -9,7 +9,7 @@ import type { ExtendedPrismaModel } from "../../database/prisma/translationExten
 
 const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
 const alertsCache: {
-  alerts: ExtendedPrismaModel<"Alert">[];
+  alerts: Array<ExtendedPrismaModel<"Alert">>;
   lastUpdated: number | null;
 } = {
   alerts: [],
