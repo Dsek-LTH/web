@@ -6,7 +6,7 @@
   import { emailAliasSchema } from "./helpers";
   import { enhance } from "$app/forms";
 
-  const { data } = $props();
+  let { data } = $props();
 
   const {
     form,
@@ -43,14 +43,14 @@
     </thead>
     <tbody>
       {#each data.emailAliases as emailAlias}
-        {@const { mail: email, recipients = [] } = emailAlias}
+        {@const { id, mail: email, recipients = [] } = emailAlias}
         <tr>
           <td class="font-medium">{email}</td>
           <td>
             {#if recipients.length >= 2}
               {recipients[0]}
               and
-              <a href="email-alias/{email}" class="link">
+              <a href="email-alias/{id}" class="link">
                 {recipients.length - 1} more
               </a>
             {:else if recipients.length === 1}
@@ -58,7 +58,7 @@
             {/if}
           </td>
           <td class="flex justify-end gap-2">
-            <a class="btn btn-outline btn-xs px-8" href="email-alias/{email}">
+            <a class="btn btn-outline btn-xs px-8" href="email-alias/{id}">
               {m.admin_emailalias_edit()}
             </a>
 
@@ -76,7 +76,7 @@
         </tr>
       {:else}
         <tr>
-          <td colspan="2" class="text-center">No email aliases found.</td>
+          <td colspan="3" class="text-center">No email aliases found.</td>
         </tr>
       {/each}
     </tbody>

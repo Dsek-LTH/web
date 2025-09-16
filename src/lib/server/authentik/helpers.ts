@@ -30,6 +30,7 @@ export async function fetchAll<T, P extends PaginatedRequestParams>(
     page: 1,
   } as P).catch((e) => {
     if (e instanceof ResponseError) {
+      console.error(e);
       const res = e.response;
       throw new Error(`authentik: got response with status ${res.status}`);
     }
