@@ -9,6 +9,10 @@ const VALID_DOMAINS = [
 
 const emailSchema = z.string().email();
 
+export const emailFormSchema = z.object({
+  email: emailSchema,
+});
+
 export const emailAliasSchema = z
   .object({
     alias: z.string(),
