@@ -31,8 +31,9 @@ import {
 } from "@prisma/client/runtime/library";
 import { verifyCostCenterData } from "./routes/(app)/expenses/verification";
 import { dev, version } from "$app/environment";
-import { extendedPrisma } from "$lib/server/extendedPrisma";
+import { getExtendedPrismaClient } from "$lib/server/extendedPrisma";
 import { env as publicEnv } from "$env/dynamic/public";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 
 if (!dev) {
   Sentry.init({
@@ -113,7 +114,7 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
   event.locals.language = lang;
   setLanguageTag(lang);
   const session = await event.locals.getSession();
-  const prisma = extendedPrisma(lang, session?.user.student_id);
+  const prisma = getExtendedPrismaClient(lang, session?.user.student_id);
 
   if (!session?.user) {
     let externalCode = event.cookies.get("externalCode"); // Retrieve the externalCode from cookies
@@ -227,7 +228,7 @@ const themeHandle: Handle = async ({ event, resolve }) => {
 };
 
 // run a authentik sync every day at midnight
-schedule.scheduleJob("0 0 * * *", () => authentik.sync(extendedPrisma("en")));
+schedule.scheduleJob("0 0 * * *", () => authentik.sync(authorizedPrismaClient));
 schedule.scheduleJob("0 0 * * *", meilisearchSync);
 
 export const handleError: HandleServerError = Sentry.handleErrorWithSentry(

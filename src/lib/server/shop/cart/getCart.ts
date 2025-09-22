@@ -1,7 +1,4 @@
-import {
-  extendedPrisma,
-  type ExtendedPrisma,
-} from "$lib/server/extendedPrisma";
+import { type ExtendedPrisma } from "$lib/server/extendedPrisma";
 import {
   removeExpiredConsumables,
   withHandledNotificationQueue,
@@ -25,6 +22,7 @@ import { error, type ServerLoadEvent } from "@sveltejs/kit";
 import { zod } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
 import { purchaseForm } from "./types";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 
 export const getCart = async (
   prisma: ExtendedPrisma,
@@ -32,7 +30,7 @@ export const getCart = async (
 ) => {
   const now = new Date();
   await withHandledNotificationQueue(
-    removeExpiredConsumables(extendedPrisma("en"), now).then(
+    removeExpiredConsumables(authorizedPrismaClient, now).then(
       (res) => res.queuedNotifications,
     ),
   );

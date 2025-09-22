@@ -1,7 +1,4 @@
-import {
-  extendedPrisma,
-  type ExtendedPrisma,
-} from "$lib/server/extendedPrisma";
+import { type ExtendedPrisma } from "$lib/server/extendedPrisma";
 import type { SendNotificationProps } from "$lib/utils/notifications";
 import * as m from "$paraglide/messages";
 import { type Shoppable, type Ticket } from "@prisma/client";
@@ -19,6 +16,7 @@ import {
   sendQueuedNotifications,
 } from "./reservations";
 import { error } from "console";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 
 export enum AddToCartStatus {
   AddedToCart = "AddedToCart",
@@ -56,7 +54,7 @@ export const addTicketToCart = async (
         },
   );
 
-  await extendedPrisma("en").$transaction(async (prisma) => {
+  await authorizedPrismaClient.$transaction(async (prisma) => {
     const result = await ensureState(prisma, now, ticketId);
     queuedNotifications.push(...result.queuedNotifications);
   });
@@ -221,7 +219,7 @@ const addToQueue = async (
 
 const afterGracePeriod = async (shoppableId: string) => {
   try {
-    const queuedNotifications = await extendedPrisma("en").$transaction(
+    const queuedNotifications = await authorizedPrismaClient.$transaction(
       async (prisma) => {
         return await performLotteryIfNecessary(prisma, new Date(), shoppableId);
       },

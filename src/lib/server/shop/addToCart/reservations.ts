@@ -12,10 +12,8 @@ import {
   TIME_TO_BUY,
   type TransactionClient,
 } from "../types";
-import {
-  extendedPrisma,
-  type ExtendedPrismaModel,
-} from "$lib/server/extendedPrisma";
+import { type ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 
 /*
 NOTE ON NOTIFICATION QUEUE SYSTEM:
@@ -138,25 +136,24 @@ let pruneTimeout: ReturnType<typeof setTimeout> | null = null;
 // Queues a timeout to call removeExpiredConsumables when next consumable expires
 export const queueNextExpiredConsumablesPruning = async () => {
   if (pruneTimeout) return;
-  const nextConsumableToExpire = await extendedPrisma(
-    "en",
-  ).consumable.findFirst({
-    where: {
-      expiresAt: {
-        not: null,
-        gt: new Date(),
+  const nextConsumableToExpire =
+    await authorizedPrismaClient.consumable.findFirst({
+      where: {
+        expiresAt: {
+          not: null,
+          gt: new Date(),
+        },
       },
-    },
-    orderBy: {
-      expiresAt: "asc",
-    },
-  });
+      orderBy: {
+        expiresAt: "asc",
+      },
+    });
   if (nextConsumableToExpire == null || !nextConsumableToExpire.expiresAt)
     return;
   pruneTimeout = setTimeout(async () => {
     const now = new Date();
     await withHandledNotificationQueue(
-      removeExpiredConsumables(extendedPrisma("en"), now).then(
+      removeExpiredConsumables(authorizedPrismaClient, now).then(
         (r) => r.queuedNotifications,
       ),
     );

@@ -10,10 +10,7 @@ import { zod } from "sveltekit-superforms/adapters";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import { loadTicketData } from "./loadTicketData";
-import {
-  extendedPrisma,
-  type ExtendedPrismaModel,
-} from "$lib/server/extendedPrisma";
+import { type ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
 export type ManagedTicket = ExtendedPrismaModel<"Ticket"> &
   ExtendedPrismaModel<"Shoppable"> & {
@@ -167,7 +164,12 @@ export const actions = {
         },
       });
       await withHandledNotificationQueue(
-        moveQueueToCart(extendedPrisma("en"), consumable.shoppableId, 1, true),
+        moveQueueToCart(
+          authorizedPrismaClient,
+          consumable.shoppableId,
+          1,
+          true,
+        ),
       );
 
       return message(form, {
