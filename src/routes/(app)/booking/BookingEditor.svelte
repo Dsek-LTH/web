@@ -21,7 +21,7 @@
 
   $: bookingRequest = data.booking;
   $: allPositions = data.allPositions;
-  $: selectedPositions = [] as Position[];
+  // $: selectedPositions = [] as Position[];
 
   dayjs.extend(utc);
   dayjs.extend(timezone);
@@ -35,11 +35,17 @@
     .format("YYYY-MM-DDTHH:mm:ss");
   let end = dayjs($form.end).tz(dayjs.tz.guess()).format("YYYY-MM-DDTHH:mm:ss");
 
+  let selectedPositions = allPositions.filter((p) => {
+    $form.positionIds.includes(p.id);
+  });
+
   const boardRoomId = "99854837-fdb9-4dba-85fc-86a5c514253c";
   $: showBoardRoomWarning = $form.bookables.includes(boardRoomId);
 
   function handlePositionsChange() {
     $form.positionIds = selectedPositions.map((p) => p.id);
+    console.log("hej");
+    console.log(allPositions);
   }
 
   // Ensure that the start date is always before the end date

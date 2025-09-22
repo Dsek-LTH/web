@@ -32,26 +32,20 @@ export const load = async ({ locals }) => {
   });
   const form = await superValidate(zod(bookingSchema));
 
-  const [allPositionsResult] = await Promise.allSettled([
-    prisma.position.findMany({
-      where: {
-        active: true,
-      },
-      orderBy: {
-        name: "asc",
-      },
-    }),
-  ]);
-
-  if (allPositionsResult.status === "rejected") {
-    throw error(500, { message: m.admin_emailalias_couldNotFetchPositions() });
-  }
+  const allPositions = await prisma.position.findMany({
+    where: {
+      active: true,
+    },
+    orderBy: {
+      name: "asc",
+    },
+  });
 
   return {
     bookables,
     bookingRequests,
     form,
-    allPositions: allPositionsResult.value,
+    allPositions,
   };
 };
 
