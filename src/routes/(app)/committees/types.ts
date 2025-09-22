@@ -8,7 +8,7 @@ export const updateSchema = z.object({
   lightImageUrl: z.string().nullable(),
   monoImageUrl: z.string().nullable(),
   symbolUrl: z.string().nullable(),
-  markdown: z.string().optional(),
+  markdownSv: z.string().optional(),
   markdownEn: z.string().optional().nullable(),
   markdownSlug: z.string().optional(),
 });

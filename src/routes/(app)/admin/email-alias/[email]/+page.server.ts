@@ -56,7 +56,7 @@ export const load: PageServerLoad = async (event) => {
         active: true,
       },
       orderBy: {
-        name: "asc",
+        nameSv: "asc",
       },
     }),
     prisma.specialReceiver.findMany({

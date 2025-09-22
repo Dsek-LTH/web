@@ -21,7 +21,7 @@ export const load: PageServerLoad = async ({ locals }) => {
           },
         },
         orderBy: {
-          name: "asc",
+          nameSv: "asc",
         },
       },
     },

@@ -69,7 +69,7 @@
         <FormMarkdown
           {superform}
           label="Markdown"
-          field="markdown"
+          field="markdownSv"
           rows={3}
           slot="sv"
         />

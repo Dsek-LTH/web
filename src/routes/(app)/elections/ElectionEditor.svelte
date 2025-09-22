@@ -48,11 +48,11 @@
       name="markdown"
       label={m.elections_content_sv()}
       textarea
-      bind:value={$form.markdown}
-      error={$errors.markdown}
+      bind:value={$form.markdownSv}
+      error={$errors.markdownSv}
       class="h-full"
       placeholder="- Post 1&#13;- Post 2&#13;- Post 3"
-      {...$constraints.markdown}
+      {...$constraints.markdownSv}
     />
     <Input
       name="markdownEn"

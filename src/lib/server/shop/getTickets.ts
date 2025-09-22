@@ -1,14 +1,9 @@
-import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
+import type {
+  ExtendedPrisma,
+  ExtendedPrismaModel,
+} from "$lib/server/extendedPrisma";
 import { BASIC_EVENT_FILTER } from "$lib/events/events";
-import {
-  type Consumable,
-  type ConsumableReservation,
-  type Event,
-  type Prisma,
-  type Shoppable,
-  type Tag,
-  type Ticket,
-} from "@prisma/client";
+import { type Prisma } from "@prisma/client";
 import { error } from "@sveltejs/kit";
 import type { AuthUser } from "@zenstackhq/runtime";
 import dayjs from "dayjs";
@@ -18,12 +13,12 @@ import {
   type DBShopIdentification,
 } from "./types";
 
-export type TicketWithMoreInfo = Ticket &
-  Shoppable & {
-    userItemsInCart: Consumable[];
-    userReservations: ConsumableReservation[];
-    event: Event & {
-      tags: Tag[];
+export type TicketWithMoreInfo = ExtendedPrismaModel<"Ticket"> &
+  ExtendedPrismaModel<"Shoppable"> & {
+    userItemsInCart: Array<ExtendedPrismaModel<"Consumable">>;
+    userReservations: Array<ExtendedPrismaModel<"ConsumableReservation">>;
+    event: ExtendedPrismaModel<"Event"> & {
+      tags: Array<ExtendedPrismaModel<"Tag">>;
     };
     gracePeriodEndsAt: Date;
     isInUsersCart: boolean;
@@ -63,8 +58,24 @@ export const ticketIncludedFields = (id: DBShopIdentification) => ({
   event: { include: { tags: true } },
 });
 
-type TicketInclude = ReturnType<typeof ticketIncludedFields>;
-type TicketFromPrisma = Prisma.TicketGetPayload<{ include: TicketInclude }>;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- used for its type in getTicketFromPrisma
+const getTicketFromPrisma = (prisma: ExtendedPrisma) =>
+  prisma.ticket.findFirst({
+    include: ticketIncludedFields({ memberId: "" }),
+  });
+
+/**
+ * This is a replacement for:
+ *
+ * ```ts
+ * type TicketInclude = ReturnType<typeof ticketIncludedFields>;
+ * type TicketFromPrisma = Prisma.TicketGetPayload<{ include: TicketInclude }>;
+ * ```
+ * which is necessary because `ExtendedPrisma` does not have any `GetPayload` types.
+ */
+type TicketFromPrisma = NonNullable<
+  Awaited<ReturnType<typeof getTicketFromPrisma>>
+>;
 
 export const formatTicket = (ticket: TicketFromPrisma): TicketWithMoreInfo => {
   const base: TicketWithMoreInfo &

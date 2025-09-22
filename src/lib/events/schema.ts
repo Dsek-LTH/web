@@ -7,11 +7,11 @@ import { recurringTypesList, recurringTypeValues } from "$lib/utils/events"; // 
 
 export const eventSchema = z
   .object({
-    title: z.string(),
+    titleSv: z.string(),
     titleEn: z.string().nullable(),
-    description: z.string().default(""),
+    descriptionSv: z.string().default(""),
     descriptionEn: z.string().nullable(),
-    shortDescription: z.string().nullable().default(null),
+    shortDescriptionSv: z.string().nullable().default(null),
     shortDescriptionEn: z.string().nullable().default(null),
 
     link: z.string().nullable().default(null),

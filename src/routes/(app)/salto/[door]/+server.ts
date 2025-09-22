@@ -1,8 +1,10 @@
-import type { PrismaClient } from "@prisma/client";
 import type { RequestHandler } from "./$types";
 import { BACKUP_LIST_OF_STUDENT_IDS } from "./constants";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
-import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+import type {
+  ExtendedPrisma,
+  ExtendedPrismaModel,
+} from "$lib/server/extendedPrisma";
 
 /**
  * The arrays contain students and positions respectively.
@@ -51,7 +53,7 @@ function parseDoorBanPolicies(
  * Given an array of role strings such as "dsek", "dsek.km", etc,
  * return an array of positions that match the input strings.
  */
-function fetchMatchingPositions(positions: string[], prisma: PrismaClient) {
+function fetchMatchingPositions(positions: string[], prisma: ExtendedPrisma) {
   return prisma.position.findMany({
     select: { id: true },
     where: {
@@ -70,7 +72,7 @@ function fetchMatchingPositions(positions: string[], prisma: PrismaClient) {
  */
 async function fetchStudentsWithPositions(
   positions: string[],
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
 ) {
   const mandates = await prisma.mandate.findMany({
     where: {

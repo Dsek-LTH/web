@@ -47,16 +47,16 @@
       <slot name="form-start" />
       <LangTabs bind:activeTab class="self-stretch">
         <svelte:fragment slot="sv">
-          <FormInput {superform} label={m.events_title()} field="title" />
+          <FormInput {superform} label={m.events_title()} field="titleSv" />
           <FormInput
             {superform}
             label={m.events_subtitle()}
-            field="shortDescription"
+            field="shortDescriptionSv"
           />
           <FormMarkdown
             {superform}
             label={m.events_description()}
-            field="description"
+            field="descriptionSv"
             class="min-h-[10rem]"
             placeholder={m.events_description()}
           /></svelte:fragment
@@ -189,15 +189,15 @@
       event={{
         ...$form,
         title:
-          activeTab === "en" && $form.titleEn ? $form.titleEn : $form.title,
+          activeTab === "en" && $form.titleEn ? $form.titleEn : $form.titleSv,
         shortDescription:
           activeTab === "en" && $form.shortDescriptionEn
             ? $form.shortDescriptionEn
-            : $form.shortDescription,
+            : $form.shortDescriptionSv,
         description:
           activeTab === "en" && $form.descriptionEn
             ? $form.descriptionEn
-            : $form.description,
+            : $form.descriptionSv,
         imageUrl: $form.image
           ? URL.createObjectURL($form.image)
           : ($form.imageUrl ?? null),

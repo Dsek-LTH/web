@@ -112,8 +112,8 @@ export const actions: Actions = {
         await prisma.position.update({
           where: { id: params.id },
           data: {
-            name: form.data.name,
-            description: form.data.description,
+            nameSv: form.data.name,
+            descriptionSv: form.data.description,
             email: form.data.email,
           },
         });

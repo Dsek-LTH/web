@@ -158,6 +158,7 @@ const getMemberWithMandates = (prisma: ExtendedPrisma) =>
   });
 export const getArticleAuthorOptions = async (
   prisma: ExtendedPrisma,
+  // This is necessary because `ExtendedPrisma` does not have any `GetPayload` types.
   memberWithMandates: Awaited<ReturnType<typeof getMemberWithMandates>>[number],
 ) => {
   const memberId = memberWithMandates.id;

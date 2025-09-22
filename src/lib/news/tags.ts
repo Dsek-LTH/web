@@ -6,12 +6,12 @@ export const getAllTags = (
   includeNollningTag = false,
 ) =>
   prisma.tag.findMany({
-    orderBy: { name: "asc" },
+    orderBy: { nameSv: "asc" },
     where: includeNollningTag
       ? undefined
       : {
           NOT: {
-            name: {
+            nameSv: {
               startsWith: NOLLNING_TAG_PREFIX,
             },
           },

@@ -112,9 +112,9 @@ export type MemberSearchReturnAttributes = OnlySwedishAttributes<
 // The order of the attributes in the array is important for ranking
 // The lower the index, the higher the weight
 export const eventSearchableAttributes = [
-  "title",
+  "titleSv",
   "titleEn",
-  "description",
+  "descriptionSv",
   "descriptionEn",
 ] as const satisfies Array<keyof EventDataInMeilisearch>;
 export type SearchableEventAttributes = Pick<
@@ -124,17 +124,16 @@ export type SearchableEventAttributes = Pick<
 export type EventDataInMeilisearch = Prettify<
   Pick<
     ExtendedPrismaModel<"Event">,
-    | "title"
+    | "titleSv"
     | "titleEn"
-    | "description"
+    | "descriptionSv"
     | "descriptionEn"
     | "slug"
     | "startDatetime"
   >
 >;
-export type EventSearchReturnAttributes = OnlySwedishAttributes<
-  SearchableEventAttributes & Pick<EventDataInMeilisearch, "slug">
->;
+export type EventSearchReturnAttributes = SearchableEventAttributes &
+  Pick<EventDataInMeilisearch, "slug">;
 
 // --------------------------------------------------
 // ARTICLE
@@ -143,9 +142,9 @@ export type EventSearchReturnAttributes = OnlySwedishAttributes<
 // The order of the attributes in the array is important for ranking
 // The lower the index, the higher the weight
 export const articleSearchableAttributes = [
-  "header",
+  "headerSv",
   "headerEn",
-  "body",
+  "bodySv",
   "bodyEn",
 ] as const satisfies Array<keyof ArticleDataInMeilisearch>;
 export type SearchableArticleAttributes = Pick<
@@ -154,11 +153,10 @@ export type SearchableArticleAttributes = Pick<
 >;
 export type ArticleDataInMeilisearch = Pick<
   ExtendedPrismaModel<"Article">,
-  "header" | "headerEn" | "body" | "bodyEn" | "slug" | "publishedAt"
+  "headerSv" | "headerEn" | "bodySv" | "bodyEn" | "slug" | "publishedAt"
 >;
-export type ArticleSearchReturnAttributes = OnlySwedishAttributes<
-  SearchableArticleAttributes & Pick<ArticleDataInMeilisearch, "slug">
->;
+export type ArticleSearchReturnAttributes = SearchableArticleAttributes &
+  Pick<ArticleDataInMeilisearch, "slug">;
 
 // --------------------------------------------------
 // POSITION
@@ -167,11 +165,11 @@ export type ArticleSearchReturnAttributes = OnlySwedishAttributes<
 // The order of the attributes in the array is important for ranking
 // The lower the index, the higher the weight
 export const positionSearchableAttributes = [
-  "name",
+  "nameSv",
   "nameEn",
-  "description",
+  "descriptionSv",
   "descriptionEn",
-  "committeeName",
+  "committeeNameSv",
   "committeeNameEn",
   "dsekId",
 ] as const satisfies Array<keyof PositionDataInMeilisearch>;
@@ -182,18 +180,19 @@ export type SearchablePositionAttributes = FilterKeys<
 export type PositionDataInMeilisearch = Prettify<
   Pick<
     ExtendedPrismaModel<"Position">,
-    "name" | "nameEn" | "description" | "descriptionEn"
+    "nameSv" | "nameEn" | "descriptionSv" | "descriptionEn"
   > & {
-    committee: ExtendedPrismaModel<"Committee"> | null;
+    committee: Omit<
+      ExtendedPrismaModel<"Committee">,
+      "name" | "description"
+    > | null;
     dsekId: string;
-    committeeName: ExtendedPrismaModel<"Committee">["name"];
+    committeeNameSv: ExtendedPrismaModel<"Committee">["nameSv"];
     committeeNameEn: ExtendedPrismaModel<"Committee">["nameEn"];
   }
 >;
-export type PositionSearchReturnAttributes = OnlySwedishAttributes<
-  SearchablePositionAttributes &
-    Pick<PositionDataInMeilisearch, "committee" | "dsekId">
->;
+export type PositionSearchReturnAttributes = SearchablePositionAttributes &
+  Pick<PositionDataInMeilisearch, "committee" | "dsekId">;
 
 // --------------------------------------------------
 // COMMITTEE
@@ -202,9 +201,9 @@ export type PositionSearchReturnAttributes = OnlySwedishAttributes<
 // The order of the attributes in the array is important for ranking
 // The lower the index, the higher the weight
 export const committeeSearchableAttributes = [
-  "name",
+  "nameSv",
   "nameEn",
-  "description",
+  "descriptionSv",
   "descriptionEn",
 ] as const satisfies Array<keyof CommitteeDataInMeilisearch>;
 export type SearchableCommitteeAttributes = Pick<
@@ -214,9 +213,9 @@ export type SearchableCommitteeAttributes = Pick<
 export type CommitteeDataInMeilisearch = Prettify<
   Pick<
     ExtendedPrismaModel<"Committee">,
-    | "name"
+    | "nameSv"
     | "nameEn"
-    | "description"
+    | "descriptionSv"
     | "descriptionEn"
     | "shortName"
     | "darkImageUrl"
@@ -224,13 +223,11 @@ export type CommitteeDataInMeilisearch = Prettify<
     | "monoImageUrl"
   >
 >;
-export type CommitteeSearchReturnAttributes = OnlySwedishAttributes<
-  SearchableCommitteeAttributes &
-    Pick<
-      CommitteeDataInMeilisearch,
-      "shortName" | "darkImageUrl" | "lightImageUrl" | "monoImageUrl"
-    >
->;
+export type CommitteeSearchReturnAttributes = SearchableCommitteeAttributes &
+  Pick<
+    CommitteeDataInMeilisearch,
+    "shortName" | "darkImageUrl" | "lightImageUrl" | "monoImageUrl"
+  >;
 
 // --------------------------------------------------
 // SONG
@@ -277,10 +274,9 @@ export type GoverningDocumentDataInMeilisearch = Prettify<
     content: string;
   }
 >;
-export type GoverningDocumentSearchReturnAttributes = OnlySwedishAttributes<
+export type GoverningDocumentSearchReturnAttributes =
   SearchableGoverningDocumentAttributes &
-    Pick<GoverningDocumentDataInMeilisearch, "url">
->;
+    Pick<GoverningDocumentDataInMeilisearch, "url">;
 
 // --------------------------------------------------
 // MEETING DOCUMENT
@@ -302,10 +298,9 @@ export type MeetingDocumentDataInMeilisearch = Prettify<{
   url: string;
   content: string;
 }>;
-export type MeetingDocumentSearchReturnAttributes = OnlySwedishAttributes<
+export type MeetingDocumentSearchReturnAttributes =
   SearchableMeetingDocumentAttributes &
-    Pick<MeetingDocumentDataInMeilisearch, "url">
->;
+    Pick<MeetingDocumentDataInMeilisearch, "url">;
 
 export type AnySearchReturnAttributes =
   | SongSearchReturnAttributes

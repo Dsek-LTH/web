@@ -145,7 +145,7 @@ export const committeeLoad = async (
     {
       ...committee,
       markdownSlug: markdown.value?.name,
-      markdown: markdown.value?.markdown,
+      markdownSv: markdown.value?.markdown,
       markdownEn: markdown.value?.markdownEn,
     },
     zod(updateSchema),
@@ -175,7 +175,7 @@ export const committeeActions = (
     });
     if (!form.valid) return fail(400, withFiles({ form }));
 
-    const { markdown, markdownEn, markdownSlug, ...rest } = form.data;
+    const { markdownSv, markdownEn, markdownSlug, ...rest } = form.data;
 
     await prisma.committee.update({
       where: { shortName: shortName ?? params.shortName },
@@ -184,10 +184,10 @@ export const committeeActions = (
       },
     });
 
-    if (markdownSlug && markdown) {
+    if (markdownSlug && markdownSv) {
       await updateMarkdown(user, prisma, {
         name: markdownSlug,
-        markdown,
+        markdownSv,
         markdownEn: markdownEn ?? null,
       });
     }
