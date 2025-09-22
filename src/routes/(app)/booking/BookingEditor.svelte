@@ -27,7 +27,6 @@
   dayjs.extend(timezone);
 
   const { form, errors, enhance, constraints } = superForm(data.form);
-  $form.positionIds = selectedPositions.map((p) => p.id);
 
   export let mode: "create" | "edit" | "review" = "create";
 
@@ -38,6 +37,10 @@
 
   const boardRoomId = "99854837-fdb9-4dba-85fc-86a5c514253c";
   $: showBoardRoomWarning = $form.bookables.includes(boardRoomId);
+
+  function handlePositionsChange() {
+    $form.positionIds = selectedPositions.map((p) => p.id);
+  }
 
   // Ensure that the start date is always before the end date
   function handleStartChange() {
@@ -177,6 +180,7 @@
         class="w-full"
         options={allPositions}
         bind:selected={selectedPositions}
+        on:change={handlePositionsChange}
       />
     </div>
   </label>
