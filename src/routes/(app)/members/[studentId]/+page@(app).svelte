@@ -16,6 +16,7 @@
   import SEO from "$lib/seo/SEO.svelte";
   import PhadderGroupModal from "./PhadderGroupModal.svelte";
   import type { Cookies } from "@sveltejs/kit";
+  import ClassBadge from "$lib/components/ClassBadge.svelte";
 
   let { data, cookies }: { data: PageData; cookies: Cookies } = $props();
 
@@ -101,6 +102,15 @@
         >
       </h2>
     {/if}
+
+    <div class="flex flex-col p-2">
+      <ClassBadge {member} size="xl"></ClassBadge>
+      {#if member.graduationYear}
+        <span class="text-gray-500">
+          {m.members_graduated()}: {member.graduationYear}
+        </span>
+      {/if}
+    </div>
 
     {#if member.email}
       <p

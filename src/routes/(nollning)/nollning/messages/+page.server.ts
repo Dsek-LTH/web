@@ -6,7 +6,7 @@ export const load = async ({ locals }) => {
     where: {
       ...BASIC_ARTICLE_FILTER(true),
       publishedAt: {
-        gte: new Date("2024-01-01"),
+        gte: new Date("2025-01-01"),
       },
     },
     orderBy: {

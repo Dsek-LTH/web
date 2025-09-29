@@ -5,7 +5,7 @@
   import NotificationModal from "$lib/components/NotificationModal.svelte";
   import { i18n } from "$lib/utils/i18n";
   import type { NotificationGroup } from "$lib/utils/notifications/group";
-  import { signIn } from "@auth/sveltekit/client";
+  import { signIn } from "$lib/utils/auth";
   import type { GlobalAppLoadData } from "./(app)/+layout.server";
   import NotificationBell from "./NotificationBell.svelte";
   import GlobalSearch from "$lib/components/search/GlobalSearch.svelte";
@@ -65,15 +65,16 @@
         />
       {/if}
     {:else}
-      <LoadingButton
-        class="btn btn-ghost gap-0"
-        onClick={() => signIn("keycloak")}
-      >
+      <LoadingButton class="btn btn-ghost gap-0" onClick={() => signIn()}>
         <NavIcon class="text-inherit" icon="i-mdi-login" />
       </LoadingButton>
     {/if}
   </div>
 </header>
 {#if notificationsPromise !== null && mutateNotificationForm !== null}
-  <NotificationModal bind:modal={notificationModal} bind:notifications />
+  <NotificationModal
+    bind:modal={notificationModal}
+    bind:notifications
+    form={mutateNotificationForm}
+  />
 {/if}

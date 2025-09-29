@@ -28,13 +28,6 @@ export const articleSchema = z.object({
     })
     .array()
     .default([]),
-  image: z
-    .instanceof(File, { message: "Please upload a file" })
-    .nullable()
-    .optional()
-    .refine((file) => !file || isFileImage(file), {
-      message: "Måste vara en bild",
-    }),
 });
 export type ArticleSchema = Infer<typeof articleSchema>;
 

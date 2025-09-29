@@ -431,7 +431,7 @@ model Event {
   slug                 String?         @unique(map: "events_slug_unique") @db.VarChar(255)
   alarmActive          Boolean?        @default(false) @map("alarm_active")
   isCancelled          Boolean?        @default(false) @map("is_cancelled")
-  removedAt            DateTime?       @map("removed_at") @db.Timestamptz(6) @allow("update", has(auth().policies, "event:delete"))
+  removedAt            DateTime?       @map("removed_at") @db.Timestamptz(6) @allow("update", has(auth().policies, "event:delete") || auth().memberId == authorId)
   comments             EventComment[]
   going                Member[]        @relation("event_going")
   interested           Member[]        @relation("event_interested")
@@ -556,7 +556,7 @@ model Meeting {
 model Member {
   id                      String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   studentId               String?                 @unique(map: "members_student_id_unique") @map("student_id") @db.VarChar(255)
-  email                   String?                 @unique @db.VarChar(255) @deny("read", auth() == null)
+  email                   String?                 @unique @db.VarChar(255) @deny("read", (!has(auth().policies, "member:see_email")) || (mandates?[startDate < now() && now() < endDate && (startsWith(positionId, "dsek.noll.stab."))] && !has(auth().policies, "member:see_staben") && auth().memberId != id))
   firstName               String?                 @map("first_name") @db.VarChar(255)
   nickname                String?                 @db.VarChar(255) @deny("read", auth() == null)
   lastName                String?                 @map("last_name") @db.VarChar(255)
@@ -564,6 +564,7 @@ model Member {
   picturePath             String?                 @map("picture_path") @db.Text
   classProgramme          String?                 @map("class_programme") @db.VarChar(255)
   classYear               Int?                    @map("class_year")
+  graduationYear          Int?                    @map("graduation_year")
   visible                 Boolean                 @default(true)
   foodPreference          String?                 @map("food_preference") @db.VarChar(255)
   stripeCustomerId        String?                 @map("stripe_customer_id")

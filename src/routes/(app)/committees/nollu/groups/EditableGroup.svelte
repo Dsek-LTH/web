@@ -59,9 +59,7 @@
       </div>
     </div>
     {#if group.description}
-      <p>
-        <MarkdownBody body={group.description} />
-      </p>
+      <MarkdownBody body={group.description} />
     {/if}
     <div class="mt-4">
       <h5 class="font-medium">Nollor</h5>

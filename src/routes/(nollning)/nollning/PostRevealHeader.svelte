@@ -4,7 +4,7 @@
   import NavIcon from "$lib/components/NavIcon.svelte";
   import NotificationModal from "$lib/components/NotificationModal.svelte";
   import { i18n } from "$lib/utils/i18n";
-  import { signIn } from "@auth/sveltekit/client";
+  import { signIn } from "$lib/utils/auth";
   import NotificationBell from "../../NotificationBell.svelte";
   import AccountDrawer from "./AccountDrawer.svelte";
   import PostRevealAccountMenu from "./PostRevealAccountMenu.svelte";
@@ -37,6 +37,7 @@
   bind:modal={notificationModal}
   postReveal
   bind:notifications
+  form={pageData["mutateNotificationForm"]}
 />
 <header
   class="navbar justify-between gap-2 shadow-[0_4px_4px_#191B2740]"
@@ -74,7 +75,7 @@
           buttonClass="btn btn-circle bg-base-200 relative aspect-square size-10 !p-0"
         >
           <span class="i-mdi-bell-outline size-7" slot="loading"></span>
-          <div class="indicator" let:unreadCount>
+          <div class="indicator text-base-100" let:unreadCount>
             {#if unreadCount > 0}
               <span
                 class="translate badge indicator-item badge-primary badge-xs translate-x-0 translate-y-0"
@@ -86,10 +87,7 @@
       {/if}
       <PostRevealAccountMenu />
     {:else}
-      <LoadingButton
-        class="btn btn-ghost gap-0"
-        onClick={() => signIn("keycloak")}
-      >
+      <LoadingButton class="btn btn-ghost gap-0" onClick={() => signIn()}>
         <NavIcon class="text-inherit" icon="i-mdi-login" />
       </LoadingButton>
     {/if}

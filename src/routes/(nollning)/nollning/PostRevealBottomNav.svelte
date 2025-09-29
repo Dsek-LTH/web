@@ -25,8 +25,8 @@
     {@const icon = getIcon(route.icon, $page.data["revealTheme"])}
     <a
       href={`${prefix}${route.path}`}
-      class:text-base-content={isCurrent}
-      class:text-neutral={!isCurrent}
+      class:text-secondary={isCurrent}
+      class:text-content={!isCurrent}
       class="h-12"
     >
       <span class="{icon} size-8"></span>
