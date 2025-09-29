@@ -3,18 +3,18 @@
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import { getFullName } from "$lib/utils/client/member";
   import { formatPrice, priceFormatClasses } from "$lib/utils/client/price";
-  import type { ItemQuestion } from "@prisma/client";
   import dayjs from "dayjs";
   import RowAction from "./RowAction.svelte";
   import TruncatedTableCell from "./TruncatedTableCell.svelte";
   import type { ConsumableRowData, ReservationData } from "./types";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
   $: stripeIntentBaseUrl = $page.data["stripeIntentBaseUrl"]; // required to be return by the +page.server.ts where this is rendered.
   // one of the following has to be specified
   export let consumable: ConsumableRowData | null = null;
   export let reservation: ReservationData | null = null;
 
-  export let questions: ItemQuestion[];
+  export let questions: Array<ExtendedPrismaModel<"ItemQuestion">>;
 
   if (!consumable && !reservation)
     throw new Error("Either consumable or reservation must be specified");

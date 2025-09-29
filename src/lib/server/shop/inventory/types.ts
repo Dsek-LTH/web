@@ -1,12 +1,12 @@
+import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 import type { ShoppableType } from "@prisma/client";
-import type { Consumable, Event, Shoppable, Ticket } from "@prisma/client";
 
-export type TicketShoppable = Omit<Shoppable, "type"> & {
+export type TicketShoppable = Omit<ExtendedPrismaModel<"Shoppable">, "type"> & {
   type: typeof ShoppableType.TICKET;
-} & Ticket & {
-    event: Event;
+} & ExtendedPrismaModel<"Ticket"> & {
+    event: ExtendedPrismaModel<"Event">;
   };
 // Can have other types of shoppables
-export type ConsumableWithMoreInfo = Consumable & {
+export type ConsumableWithMoreInfo = ExtendedPrismaModel<"Consumable"> & {
   shoppable: TicketShoppable;
 };

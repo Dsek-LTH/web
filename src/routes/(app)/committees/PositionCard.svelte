@@ -2,14 +2,14 @@
   import ScrollIndicatedBox from "$lib/components/layout/ScrollIndicatedBox.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import { getFullName } from "$lib/utils/client/member";
-  import type { Mandate, Member, Position } from "@prisma/client";
   import { page } from "$app/stores";
   import * as m from "$paraglide/messages";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
-  export let position: Position;
+  export let position: ExtendedPrismaModel<"Position">;
   export let mandates: Array<
-    Mandate & {
-      member: Member;
+    ExtendedPrismaModel<"Mandate"> & {
+      member: ExtendedPrismaModel<"Member">;
     }
   >;
   let mandatesBox: HTMLDivElement; // Function to check whether the element is overflowing

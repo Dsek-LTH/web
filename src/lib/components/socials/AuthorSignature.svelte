@@ -1,20 +1,24 @@
 <script lang="ts">
   import CustomAuthorImage from "$lib/components/socials/CustomAuthorImage.svelte";
   import MemberImage from "$lib/components/socials/MemberImage.svelte";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import { getFullName } from "$lib/utils/client/member";
-  import type { Author, CustomAuthor, Member, Position } from "@prisma/client";
   import { twMerge } from "tailwind-merge";
 
   let clazz = "";
   export { clazz as class };
   export let member: Pick<
-    Member,
+    ExtendedPrismaModel<"Member">,
     "firstName" | "lastName" | "nickname" | "studentId" | "picturePath"
   >;
-  export let customAuthor: Pick<CustomAuthor, "name" | "imageUrl"> | null =
-    null;
-  export let position: Pick<Position, "id" | "name"> | undefined = undefined;
-  export let type: Author["type"] = "Member";
+  export let customAuthor: Pick<
+    ExtendedPrismaModel<"CustomAuthor">,
+    "name" | "imageUrl"
+  > | null = null;
+  export let position:
+    | Pick<ExtendedPrismaModel<"Position">, "id" | "name">
+    | undefined = undefined;
+  export let type: ExtendedPrismaModel<"Author">["type"] = "Member";
   export let size: "sm" | "md" | "lg" | "xl" = "lg";
   export let links = true;
   export let lazy = false;

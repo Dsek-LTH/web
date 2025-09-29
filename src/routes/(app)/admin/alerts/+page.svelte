@@ -1,15 +1,15 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
-  import type { Alert } from "@prisma/client";
   import dayjs from "dayjs";
   import * as m from "$paraglide/messages";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import SEO from "$lib/seo/SEO.svelte";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
   export let data;
 
   let removeModal: HTMLDialogElement | undefined = undefined;
-  let selectedAlert: Alert | undefined = undefined;
+  let selectedAlert: ExtendedPrismaModel<"Alert"> | undefined = undefined;
 </script>
 
 <SetPageTitle title="Alerts" />

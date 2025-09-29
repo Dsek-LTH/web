@@ -1,4 +1,4 @@
-import { PrismaClient, type Member } from "@prisma/client";
+import { type Member } from "@prisma/client";
 import {
   afterAll,
   afterEach,
@@ -24,7 +24,9 @@ import {
   removeMockUsers,
 } from "../mock";
 import { performLotteryIfNecessary } from "./reservations";
-const prisma = new PrismaClient();
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
+const prisma = authorizedPrismaClient;
 
 const SUITE_PREFIX = "addToCart";
 
@@ -50,7 +52,7 @@ const expectReservationCount = async (shoppableId: string, count: number) =>
   ).toBe(count);
 
 const addTicketsTestForUser = (
-  prismaWithAccess: PrismaClient,
+  prismaWithAccess: ExtendedPrisma,
   adminMember: Member,
   user: AuthUser,
 ) => {

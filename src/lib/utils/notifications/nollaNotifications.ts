@@ -4,9 +4,9 @@ import {
   NotificationType,
   SUBSCRIPTION_SETTINGS_MAP,
 } from "$lib/utils/notifications/types";
-import type { PrismaClient } from "@prisma/client";
 import type { AuthUser } from "@zenstackhq/runtime";
 import { POST_REVEAL_PREFIX } from "$lib/components/postReveal/types";
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 
 /**
  * Gets all notifications for a user
@@ -14,7 +14,7 @@ import { POST_REVEAL_PREFIX } from "$lib/components/postReveal/types";
  * @param prisma a prisma client with correct authorization for the user
  * @returns a list of notifications
  */
-const getNollaNotifications = (user: AuthUser, prisma: PrismaClient) => {
+const getNollaNotifications = (user: AuthUser, prisma: ExtendedPrisma) => {
   return prisma.notification.findMany({
     where: {
       createdAt: {
@@ -58,7 +58,7 @@ const getNollaNotifications = (user: AuthUser, prisma: PrismaClient) => {
 
 export const getNollaGroupedNotifications = async (
   user: AuthUser,
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
 ) => {
   const myNotifications = await getNollaNotifications(user, prisma);
   return groupNotifications(myNotifications);

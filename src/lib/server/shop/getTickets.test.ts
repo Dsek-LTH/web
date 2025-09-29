@@ -1,4 +1,4 @@
-import { PrismaClient, type Member } from "@prisma/client";
+import { type Member } from "@prisma/client";
 import { enhance } from "@zenstackhq/runtime";
 import { afterAll, describe, expect, it } from "vitest";
 import { getTickets } from "./getTickets";
@@ -11,11 +11,13 @@ import {
 } from "./mock";
 import apiNames from "$lib/utils/apiNames";
 import { getDerivedRoles } from "$lib/utils/authorization";
-const prisma = new PrismaClient();
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
+const prisma = authorizedPrismaClient;
 const SUITE_PREFIX = "getTickets";
 
 const getTicketsTest = async (
-  prismaWithAccess: PrismaClient,
+  prismaWithAccess: ExtendedPrisma,
   adminMember: Member,
 ) => {
   it("should get all tickets", async () => {

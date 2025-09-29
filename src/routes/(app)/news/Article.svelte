@@ -1,11 +1,11 @@
 <script lang="ts">
-  import type { Article } from "@prisma/client";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import * as m from "$paraglide/messages";
   import { languageTag } from "$paraglide/runtime";
   import Carousel from "$lib/components/Carousel.svelte";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
-  export let article: Article;
+  export let article: ExtendedPrismaModel<"Article">;
 </script>
 
 {#if article.youtubeUrl}

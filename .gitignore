@@ -15,5 +15,6 @@ src/routes/api/openapi.json/openapi.json
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+.idea/
 # Sentry Config File
 .env.sentry-build-plugin

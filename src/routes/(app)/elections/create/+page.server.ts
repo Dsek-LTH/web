@@ -40,10 +40,10 @@ export const actions: Actions = {
     const { prisma } = locals;
     const form = await superValidate(request, zod(electionSchema));
     if (!form.valid) return fail(400, { form });
-    const { markdown, markdownEn, link, expiresAt, committeeId } = form.data;
+    const { markdownSv, markdownEn, link, expiresAt, committeeId } = form.data;
     await prisma.election.create({
       data: {
-        markdown,
+        markdownSv,
         markdownEn,
         link,
         expiresAt: dayjs(expiresAt).endOf("day").toDate(),

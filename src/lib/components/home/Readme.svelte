@@ -1,6 +1,7 @@
 <script lang="ts">
-  import type { Readme } from "@prisma/client";
-  export let readme: Readme;
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+
+  export let readme: Pick<ExtendedPrismaModel<"Readme">, "url">;
 </script>
 
 <iframe

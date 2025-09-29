@@ -4,15 +4,15 @@
   import SearchBar from "$lib/components/SearchBar.svelte";
   import TagSelector from "$lib/components/TagSelector.svelte";
   import * as m from "$paraglide/messages";
-  import type { Tag } from "@prisma/client";
   import SmallEventCard from "./SmallEventCard.svelte";
 
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import type { EventPageLoadData } from "./EventPageLoad";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
   export let data: EventPageLoadData & typeof $page.data;
-  let filteredTags: Tag[] = data.allTags.filter((tag) =>
-    $page.url.searchParams.getAll("tags").includes(tag.name),
+  let filteredTags: Array<ExtendedPrismaModel<"Tag">> = data.allTags.filter(
+    (tag) => $page.url.searchParams.getAll("tags").includes(tag.name),
   );
   let filterButton: HTMLButtonElement;
   $: isPast = $page.url.searchParams.get("past") == "on";

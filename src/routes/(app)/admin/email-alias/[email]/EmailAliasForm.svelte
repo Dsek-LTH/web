@@ -1,11 +1,13 @@
 <script lang="ts">
   import type { SuperValidated } from "sveltekit-superforms";
   import { superForm } from "$lib/utils/client/superForms";
-  import type { EmailAlias, Position } from "@prisma/client";
   import type { RemovePositionForm, SetCanSendForm } from "./schema";
   import * as m from "$paraglide/messages";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
-  export let emailAlias: EmailAlias & { position: Position };
+  export let emailAlias: ExtendedPrismaModel<"EmailAlias"> & {
+    position: ExtendedPrismaModel<"Position">;
+  };
   export let canSendForm: SuperValidated<SetCanSendForm>;
   export let isEditing: boolean;
   const { enhance: canSendEnchance } = superForm(canSendForm, {

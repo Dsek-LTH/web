@@ -22,7 +22,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
         {
           OR: [
             {
-              title: {
+              titleSv: {
                 contains: search,
                 mode: "insensitive",
               },
@@ -34,7 +34,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
               },
             },
             {
-              title: {
+              titleSv: {
                 search: searchString,
               },
             },
@@ -50,7 +50,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
     orderBy: [
       {
         _relevance: {
-          fields: ["title"],
+          fields: ["titleSv"],
           search: searchString,
           sort: "desc",
         },

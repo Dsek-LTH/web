@@ -1,4 +1,3 @@
-import type { PrismaClient, Member, Mandate, Committee } from "@prisma/client";
 import {
   type Semester,
   startDate,
@@ -7,6 +6,10 @@ import {
 } from "$lib/utils/semesters";
 import { languageTag } from "$paraglide/runtime";
 import * as m from "$paraglide/messages";
+import type {
+  ExtendedPrisma,
+  ExtendedPrismaModel,
+} from "$lib/server/extendedPrisma";
 
 /**
  * Counts what semesters different members had mandates on.
@@ -17,9 +20,9 @@ import * as m from "$paraglide/messages";
  * `mandates` belonging to them cover.
  */
 const countMandateSemesters = (
-  mandates: Mandate[],
+  mandates: Array<ExtendedPrismaModel<"Mandate">>,
   now: Semester,
-): Map<Member["id"], Set<Semester>> =>
+): Map<ExtendedPrismaModel<"Member">["id"], Set<Semester>> =>
   mandates.reduce((acc, curr) => {
     const set = acc.get(curr.memberId) ?? new Set<Semester>();
 
@@ -29,7 +32,7 @@ const countMandateSemesters = (
     acc.set(curr.memberId, set);
 
     return acc;
-  }, new Map<Member["id"], Set<Semester>>());
+  }, new Map<ExtendedPrismaModel<"Member">["id"], Set<Semester>>());
 
 /**
  * Get what semesters are covered by a collection of mandates.
@@ -38,7 +41,9 @@ const countMandateSemesters = (
  * @returns An array of the semesters covered by at least one of the mandates in
  * `mandates`.
  */
-const getSemesters = (mandates: Mandate[]): Semester[] => [
+const getSemesters = (
+  mandates: Array<ExtendedPrismaModel<"Mandate">>,
+): Semester[] => [
   ...mandates.reduce((acc, curr) => {
     coveredSemesters(curr.startDate, curr.endDate).forEach((x) => acc.add(x));
     return acc;
@@ -54,9 +59,9 @@ const getSemesters = (mandates: Mandate[]): Semester[] => [
  * @returns An array of the Member objects corresponding to `ids`.
  */
 const getMembers = async (
-  prisma: PrismaClient,
-  ids: Array<Member["id"]>,
-): Promise<Member[]> =>
+  prisma: ExtendedPrisma,
+  ids: Array<ExtendedPrismaModel<"Member">["id"]>,
+): Promise<Array<ExtendedPrismaModel<"Member">>> =>
   await prisma.member.findMany({
     where: {
       id: {
@@ -72,8 +77,8 @@ const getMembers = async (
  * @returns An array of the Committees that have committee medals.
  */
 const committeesWithMedals = async (
-  prisma: PrismaClient,
-): Promise<Committee[]> =>
+  prisma: ExtendedPrisma,
+): Promise<Array<ExtendedPrismaModel<"Committee">>> =>
   await prisma.committee.findMany({
     where: {
       NOT: {
@@ -147,10 +152,12 @@ const gammalOchÄckligSemester = (
  * @param committee - The committee.
  * @returns a string with the name.
  */
-const committeeMedalName = (committee: Committee): string =>
+const committeeMedalName = (
+  committee: ExtendedPrismaModel<"Committee">,
+): string =>
   m.medals_committeeMedal() +
   " — " +
-  (languageTag() === "sv" ? committee.name : committee.nameEn);
+  (languageTag() === "sv" ? committee.nameSv : committee.nameEn);
 
 /**
  * Calculate after which semesters a certain member deserved their different
@@ -166,8 +173,8 @@ const committeeMedalName = (committee: Committee): string =>
  * semester after which they should have been awarded the medal.
  */
 export const memberMedals = async (
-  prisma: PrismaClient,
-  memberId: Member["id"],
+  prisma: ExtendedPrisma,
+  memberId: ExtendedPrismaModel<"Member">["id"],
   after: Semester,
 ): Promise<Array<{ medal: string; after: Semester }>> => {
   const mandates = await prisma.mandate.findMany({
@@ -241,9 +248,11 @@ export const memberMedals = async (
  * an array of members that should have recived that medal after `after`.
  */
 export const medalRecipients = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   after: Semester,
-): Promise<Array<{ medal: string; recipients: Member[] }>> => {
+): Promise<
+  Array<{ medal: string; recipients: Array<ExtendedPrismaModel<"Member">> }>
+> => {
   const mandatesInAfter = await prisma.mandate.findMany({
     where: {
       startDate: {

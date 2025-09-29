@@ -7,7 +7,6 @@
   import type { PageData } from "./$types";
   import { page } from "$app/stores";
   import TagSelector from "$lib/components/TagSelector.svelte";
-  import type { Tag } from "@prisma/client";
   import SearchBar from "$lib/components/SearchBar.svelte";
   import { enhance } from "$app/forms";
   import TagSelectCreate from "./TagSelectCreate.svelte";
@@ -15,6 +14,7 @@
   import Labeled from "$lib/components/Labeled.svelte";
   import { superForm } from "$lib/utils/client/superForms";
   import * as m from "$paraglide/messages";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
   export let data: PageData;
 
@@ -63,7 +63,7 @@
     goto(`?${query.toString()}`);
   };
 
-  let createSelectedTags: Tag[] = [];
+  let createSelectedTags: Array<ExtendedPrismaModel<"Tag">> = [];
 
   const tableHeaders: Array<{ order?: ShlinkShortUrlsOrder; title: string }> = [
     { order: { field: "shortCode" }, title: m.admin_links_table_header_slug() },
@@ -76,8 +76,12 @@
     { order: { field: "visits" }, title: m.admin_links_table_header_visits() },
   ];
 
-  let allTags = data.tags.map((t) => ({ id: t, name: t }) as Tag);
-  $: allTags = data.tags.map((t) => ({ id: t, name: t }) as Tag);
+  let allTags = data.tags.map(
+    (t) => ({ id: t, name: t }) as ExtendedPrismaModel<"Tag">,
+  );
+  $: allTags = data.tags.map(
+    (t) => ({ id: t, name: t }) as ExtendedPrismaModel<"Tag">,
+  );
 
   let filteredTags = allTags.filter((tag) =>
     $page.url.searchParams.getAll("tags").includes(tag.name),
@@ -97,7 +101,7 @@
   }
 
   let editModal: HTMLDialogElement;
-  let editModalTags: Tag[] = [];
+  let editModalTags: Array<ExtendedPrismaModel<"Tag">> = [];
 </script>
 
 <PageHeader title={m.linkShortener()} />
@@ -289,6 +293,7 @@
                   editModalTags = d.tags?.map((t) => ({
                     id: t,
                     name: t,
+                    nameSv: t,
                     color: null,
                     isDefault: null,
                     nameEn: null,

@@ -1,15 +1,11 @@
 import { BASIC_ARTICLE_FILTER } from "$lib/news/articles";
 import { getCustomAuthorOptions } from "$lib/utils/member";
 
+import type { Prisma } from "@prisma/client";
 import type {
-  Author,
-  CustomAuthor,
-  Mandate,
-  Member,
-  Position,
-  Prisma,
-  PrismaClient,
-} from "@prisma/client";
+  ExtendedPrisma,
+  ExtendedPrismaModel,
+} from "$lib/server/extendedPrisma";
 
 type ArticleFilters = {
   tags?: string[];
@@ -40,7 +36,7 @@ const include = {
 };
 
 export const getAllArticles = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   filters: ArticleFilters = { page: 0, pageSize: 10 },
 ): Promise<[Article[], number]> => {
   const pageNumber = filters.page ?? 0;
@@ -54,7 +50,7 @@ export const getAllArticles = async (
       ? {
           OR: [
             {
-              header: {
+              headerSv: {
                 contains: filters.search,
                 mode: "insensitive",
               },
@@ -66,7 +62,7 @@ export const getAllArticles = async (
               },
             },
             {
-              body: {
+              bodySv: {
                 contains: filters.search,
                 mode: "insensitive",
               },
@@ -88,7 +84,7 @@ export const getAllArticles = async (
             some: {
               OR: [
                 {
-                  name: {
+                  nameSv: {
                     in: filters.tags,
                     mode: "insensitive",
                   },
@@ -122,7 +118,7 @@ export const getAllArticles = async (
   return [articles, Math.ceil(count / pageSize)];
 };
 
-export const getArticle = async (prisma: PrismaClient, slug: string) => {
+export const getArticle = async (prisma: ExtendedPrisma, slug: string) => {
   const response = await prisma.article.findUnique({
     where: {
       slug,
@@ -139,27 +135,31 @@ export const getArticle = async (prisma: PrismaClient, slug: string) => {
 
 export type Article = NonNullable<Awaited<ReturnType<typeof getArticle>>>;
 
-export type AuthorOption = Author & {
-  member: Member;
+export type AuthorOption = ExtendedPrismaModel<"Author"> & {
+  member: ExtendedPrismaModel<"Member">;
   mandate:
-    | (Mandate & {
-        position: Position;
+    | (ExtendedPrismaModel<"Mandate"> & {
+        position: ExtendedPrismaModel<"Position">;
       })
     | null;
-  customAuthor: CustomAuthor | null;
+  customAuthor: ExtendedPrismaModel<"CustomAuthor"> | null;
 };
 
-export const getArticleAuthorOptions = async (
-  prisma: PrismaClient,
-  memberWithMandates: Prisma.MemberGetPayload<{
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- used for its type in getArticleAuthorOptions
+const getMemberWithMandates = (prisma: ExtendedPrisma) =>
+  prisma.member.findMany({
     include: {
       mandates: {
         include: {
-          position: true;
-        };
-      };
-    };
-  }>,
+          position: true,
+        },
+      },
+    },
+  });
+export const getArticleAuthorOptions = async (
+  prisma: ExtendedPrisma,
+  // This is necessary because `ExtendedPrisma` does not have any `GetPayload` types.
+  memberWithMandates: Awaited<ReturnType<typeof getMemberWithMandates>>[number],
 ) => {
   const memberId = memberWithMandates.id;
   const customAuthorOptions = await getCustomAuthorOptions(prisma, memberId);

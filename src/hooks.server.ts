@@ -1,7 +1,6 @@
 import * as Sentry from "@sentry/sveltekit";
 import { env } from "$env/dynamic/private";
 import { env as envPublic } from "$env/dynamic/public";
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import { i18n } from "$lib/utils/i18n";
 import { createMember } from "$lib/utils/member";
 import { redirect } from "$lib/utils/redirect";
@@ -15,15 +14,12 @@ import Authentik, {
   type AuthentikProfile,
 } from "@auth/core/providers/authentik";
 import { SvelteKitAuth } from "@auth/sveltekit";
-import { PrismaClient } from "@prisma/client";
 import { error, type Handle, type HandleServerError } from "@sveltejs/kit";
 import { sequence } from "@sveltejs/kit/hooks";
 import { enhance } from "@zenstackhq/runtime";
 import RPCApiHandler from "@zenstackhq/server/api/rpc";
 import zenstack from "@zenstackhq/server/sveltekit";
 import { randomBytes } from "crypto";
-import loggingExtension from "./database/prisma/loggingExtension";
-import translatedExtension from "./database/prisma/translationExtension";
 import { getAccessPolicies } from "./hooks.server.helpers";
 import { getDerivedRoles } from "$lib/utils/authorization";
 import {
@@ -32,6 +28,7 @@ import {
 } from "@prisma/client/runtime/library";
 import { verifyCostCenterData } from "./routes/(app)/expenses/verification";
 import { dev, version } from "$app/environment";
+import { getExtendedPrismaClient } from "$lib/server/extendedPrisma";
 import { env as publicEnv } from "$env/dynamic/public";
 
 if (!dev) {
@@ -106,7 +103,6 @@ const { handle: authHandle } = SvelteKitAuth({
   },
 });
 
-const prismaClient = authorizedPrismaClient;
 const databaseHandle: Handle = async ({ event, resolve }) => {
   const lang = isAvailableLanguageTag(event.locals.paraglide?.lang)
     ? event.locals.paraglide?.lang
@@ -114,9 +110,7 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
   event.locals.language = lang;
   setLanguageTag(lang);
   const session = await event.locals.getSession();
-  const prisma = prismaClient
-    .$extends(translatedExtension(lang))
-    .$extends(loggingExtension(session?.user.student_id)) as PrismaClient;
+  const prisma = getExtendedPrismaClient(lang, session?.user.student_id);
 
   if (!session?.user) {
     let externalCode = event.cookies.get("externalCode"); // Retrieve the externalCode from cookies

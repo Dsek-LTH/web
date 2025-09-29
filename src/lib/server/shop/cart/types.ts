@@ -1,14 +1,5 @@
+import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 import type { QuestionForm } from "$lib/utils/shop/types";
-import type {
-  Consumable,
-  ConsumableReservation,
-  Event,
-  ItemQuestion,
-  ItemQuestionOption,
-  ItemQuestionResponse,
-  Shoppable,
-  Ticket,
-} from "@prisma/client";
 import type { Infer, SuperValidated } from "sveltekit-superforms";
 import z from "zod";
 
@@ -18,24 +9,24 @@ export const purchaseForm = z.object({
 export type PurchaseForm = Infer<typeof purchaseForm>;
 
 type ItemMetadata = {
-  shoppable: Shoppable &
-    Ticket & {
-      event: Event;
+  shoppable: ExtendedPrismaModel<"Shoppable"> &
+    ExtendedPrismaModel<"Ticket"> & {
+      event: ExtendedPrismaModel<"Event">;
     };
 };
-export type CartItem = Consumable &
+export type CartItem = ExtendedPrismaModel<"Consumable"> &
   ItemMetadata & {
     shoppable: {
       questions: Array<
-        ItemQuestion & {
-          options: ItemQuestionOption[];
+        ExtendedPrismaModel<"ItemQuestion"> & {
+          options: Array<ExtendedPrismaModel<"ItemQuestionOption">>;
           form: SuperValidated<QuestionForm>;
         }
       >;
     };
-    questionResponses: ItemQuestionResponse[];
+    questionResponses: Array<ExtendedPrismaModel<"ItemQuestionResponse">>;
   };
-export type CartReservation = ConsumableReservation &
+export type CartReservation = ExtendedPrismaModel<"ConsumableReservation"> &
   ItemMetadata & {
     shoppable: {
       gracePeriodEndsAt: Date;

@@ -1,28 +1,25 @@
+import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 import { getAuthorName } from "$lib/utils/client/member";
 import {
   NotificationType,
   SHOULD_MERGE_NOTIFICATIONS,
 } from "$lib/utils/notifications/types";
-import type {
-  Notification as Notification,
-  Author,
-  CustomAuthor,
-  Member,
-  Position,
-} from "@prisma/client";
 
 // A notification as it is returned from prisma query
-export type ExpandedNotification = Notification & {
+export type ExpandedNotification = ExtendedPrismaModel<"Notification"> & {
   fromAuthor:
-    | (Pick<Author, "id" | "type"> & {
+    | (Pick<ExtendedPrismaModel<"Author">, "id" | "type"> & {
         member: Pick<
-          Member,
+          ExtendedPrismaModel<"Member">,
           "firstName" | "nickname" | "lastName" | "picturePath"
         >;
         mandate: {
-          position: Pick<Position, "name">;
+          position: Pick<ExtendedPrismaModel<"Position">, "name">;
         } | null;
-        customAuthor: Pick<CustomAuthor, "name" | "imageUrl"> | null;
+        customAuthor: Pick<
+          ExtendedPrismaModel<"CustomAuthor">,
+          "name" | "imageUrl"
+        > | null;
       })
     | null;
 };

@@ -16,10 +16,10 @@ export const load: PageServerLoad = async ({ locals }) => {
   });
 
   const committeesPromise = prisma.committee.findMany({
-    orderBy: [{ name: "asc" }],
+    orderBy: [{ nameSv: "asc" }],
     select: {
       id: true,
-      name: true,
+      nameSv: true,
       nameEn: true,
     },
   });

@@ -1,10 +1,10 @@
 import { dbIdentification } from "$lib/server/shop/types";
-import type { PrismaClient } from "@prisma/client";
 import type { AuthUser } from "@zenstackhq/runtime";
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 
 export type UserShopItemCounts = ReturnType<typeof countUserShopItems>;
 
-export const countUserShopItems = (prisma: PrismaClient, user: AuthUser) => {
+export const countUserShopItems = (prisma: ExtendedPrisma, user: AuthUser) => {
   if (!user) return;
   if (!user.memberId && !user.externalCode) return;
   const identification = dbIdentification(

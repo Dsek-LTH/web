@@ -5,13 +5,13 @@
   import Labeled from "$lib/components/Labeled.svelte";
   import LoadingButton from "$lib/components/LoadingButton.svelte";
   import PageHeader from "$lib/components/nav/PageHeader.svelte";
-  import type { AdminSetting } from "@prisma/client";
   import { superForm } from "$lib/utils/client/superForms";
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
   export let data;
-  let editingSetting: AdminSetting | null = null;
+  let editingSetting: ExtendedPrismaModel<"AdminSetting"> | null = null;
   const {
     enhance: updateEnhance,
     submitting: updateSubmitting,

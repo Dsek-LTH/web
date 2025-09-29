@@ -2,8 +2,8 @@ import {
   groupNotifications,
   type ExpandedNotification,
 } from "$lib/utils/notifications/group";
-import type { PrismaClient } from "@prisma/client";
 import type { AuthUser } from "@zenstackhq/runtime";
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 
 /**
  * Gets all notifications for a user
@@ -13,7 +13,7 @@ import type { AuthUser } from "@zenstackhq/runtime";
  */
 const getMyNotifications = (
   user: AuthUser,
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
 ): Promise<ExpandedNotification[]> => {
   return prisma.notification.findMany({
     where: {
@@ -58,7 +58,7 @@ const getMyNotifications = (
 
 export const getMyGroupedNotifications = async (
   user: AuthUser,
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
 ) => {
   const myNotifications = await getMyNotifications(user, prisma);
   return groupNotifications(myNotifications);

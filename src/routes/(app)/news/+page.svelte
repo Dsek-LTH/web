@@ -4,7 +4,6 @@
   import SearchBar from "$lib/components/SearchBar.svelte";
   import TagSelector from "$lib/components/TagSelector.svelte";
   import apiNames from "$lib/utils/apiNames";
-  import type { Tag } from "@prisma/client";
   import { isAuthorized } from "$lib/utils/authorization";
   import SmallArticleCard from "./SmallArticleCard.svelte";
   import * as m from "$paraglide/messages";
@@ -13,8 +12,9 @@
   import type { PageData } from "./$types";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import SEO from "$lib/seo/SEO.svelte";
-  let filteredTags: Tag[] = data.allTags.filter((tag) =>
-    $page.url.searchParams.getAll("tags").includes(tag.name),
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+  let filteredTags: Array<ExtendedPrismaModel<"Tag">> = data.allTags.filter(
+    (tag) => $page.url.searchParams.getAll("tags").includes(tag.name),
   );
 
   let form: HTMLFormElement;

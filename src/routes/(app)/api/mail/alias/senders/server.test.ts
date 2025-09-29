@@ -1,11 +1,11 @@
 import { expect, test, beforeAll, afterAll } from "vitest";
 import { type MockProxy, mockDeep } from "vitest-mock-extended";
 import { GET } from "./+server";
-import { PrismaClient } from "@prisma/client";
 import { v4 as uuid } from "uuid";
 import dayjs from "dayjs";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 
-const prisma = new PrismaClient();
+const prisma = authorizedPrismaClient;
 
 const TEST_ID = uuid();
 const TEST_EMAIL = TEST_ID + "@user.dsek.se";
@@ -22,7 +22,7 @@ beforeAll(async () => {
       position: {
         create: {
           id: TEST_ID,
-          name: TEST_ID,
+          nameSv: TEST_ID,
           mandates: {
             create: {
               startDate: new Date(),

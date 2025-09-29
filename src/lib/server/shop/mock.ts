@@ -1,21 +1,22 @@
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 import type { TransactionClient } from "$lib/server/shop/types";
 import { SUBSCRIPTION_SETTINGS_MAP } from "$lib/utils/notifications/types";
-import { ShoppableType, type Member, type PrismaClient } from "@prisma/client";
+import { ShoppableType, type Member } from "@prisma/client";
 
 export const MOCK_EVENT_1 = {
-  title: "Event 1",
-  description: "Event 1 description",
+  titleSv: "Event 1",
+  descriptionSv: "Event 1 description",
   organizer: "Organizer 1",
   location: "Location 1",
-  shortDescription: "Short description 1",
+  shortDescriptionSv: "Short description 1",
   startDatetime: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
   endDatetime: new Date(Date.now() + 1000 * 60 * 60 * 24 * 8),
   tags: [
     {
-      name: "MOCKED_tag1",
+      nameSv: "MOCKED_tag1",
     },
     {
-      name: "MOCKED_tag2",
+      nameSv: "MOCKED_tag2",
     },
   ],
 };
@@ -24,8 +25,8 @@ export const MOCK_ACTIVE_TICKET = {
   stock: 10,
   shoppable: {
     type: ShoppableType.TICKET,
-    title: "Active ticket",
-    description: "Active ticket description",
+    titleSv: "Active ticket",
+    descriptionSv: "Active ticket description",
     price: 10000,
     availableFrom: new Date(Date.now() - 1000 * 60 * 60 * 24),
     availableTo: new Date(Date.now() + 1000 * 60 * 60 * 24),
@@ -35,8 +36,8 @@ export const MOCK_ACTIVE_TICKET_2 = {
   stock: 2,
   shoppable: {
     type: ShoppableType.TICKET,
-    title: "Active ticket 2",
-    description: "Active ticket description 2",
+    titleSv: "Active ticket 2",
+    descriptionSv: "Active ticket description 2",
     price: 8900,
     availableFrom: new Date(Date.now() - 1000 * 60 * 60 * 23),
     availableTo: new Date(Date.now() + 1000 * 60 * 60 * 24),
@@ -46,8 +47,8 @@ export const MOCK_FREE_ACTIVE_TICKET = {
   stock: 10,
   shoppable: {
     type: ShoppableType.TICKET,
-    title: "Free ticket",
-    description: "Free ticket description",
+    titleSv: "Free ticket",
+    descriptionSv: "Free ticket description",
     price: 0,
     availableFrom: new Date(Date.now() - 1000 * 60 * 60 * 22),
     availableTo: new Date(Date.now() + 1000 * 60 * 60 * 24),
@@ -58,8 +59,8 @@ export const MOCK_ACTIVE_EARLY_TICKET = {
   stock: 10,
   shoppable: {
     type: ShoppableType.TICKET,
-    title: "Early ticket",
-    description: "Early ticket description",
+    titleSv: "Early ticket",
+    descriptionSv: "Early ticket description",
     price: 12400,
     availableFrom: new Date(Date.now()), // just became available
     availableTo: new Date(Date.now() + 1000 * 60 * 60 * 24 * 2),
@@ -69,8 +70,8 @@ export const MOCK_PAST_TICKET = {
   stock: 10,
   shoppable: {
     type: ShoppableType.TICKET,
-    title: "Past ticket",
-    description: "Past ticket description",
+    titleSv: "Past ticket",
+    descriptionSv: "Past ticket description",
     price: 8900,
     availableFrom: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3),
     availableTo: new Date(Date.now() - 1000 * 60 * 60 * 24),
@@ -80,8 +81,8 @@ export const MOCK_UPCOMING_TICKET = {
   stock: 10,
   shoppable: {
     type: ShoppableType.TICKET,
-    title: "Upcoming ticket",
-    description: "Upcoming ticket description",
+    titleSv: "Upcoming ticket",
+    descriptionSv: "Upcoming ticket description",
     price: 7400,
     availableFrom: new Date(Date.now() + 1000 * 60 * 60 * 24),
     availableTo: new Date(Date.now() + 1000 * 60 * 60 * 24 * 2),
@@ -90,7 +91,7 @@ export const MOCK_UPCOMING_TICKET = {
 
 export type MockTickets = Awaited<ReturnType<typeof addMockTickets>>;
 export const addMockUser = async (
-  prisma: TransactionClient | PrismaClient,
+  prisma: TransactionClient | ExtendedPrisma,
   suitePrefix: string,
 ) => {
   return await prisma.member.create({
@@ -100,7 +101,7 @@ export const addMockUser = async (
   });
 };
 export const addMockUsers = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   suitePrefix: string,
 ) => {
   return await prisma.$transaction(async (prisma) => {
@@ -113,19 +114,20 @@ export const addMockUsers = async (
   });
 };
 export const addMockTickets = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   adminMember: Member,
 ) => {
   return await prisma.$transaction(async (prisma) => {
     const event1 = await prisma.event.create({
       data: {
         ...MOCK_EVENT_1,
-        title: "MOCKED_" + MOCK_EVENT_1.title,
+        descriptionSv: MOCK_EVENT_1.descriptionSv,
+        titleSv: "MOCKED_" + MOCK_EVENT_1.titleSv,
         authorId: adminMember.id,
         tags: {
           create: MOCK_EVENT_1.tags.map((tag) => ({
             ...tag,
-            name: "MOCKED_" + tag.name,
+            nameSv: "MOCKED_" + tag.nameSv,
           })),
         },
       },
@@ -148,7 +150,7 @@ export const addMockTickets = async (
           shoppable: {
             create: {
               ...ticket.shoppable,
-              title: "MOCKED_" + ticket.shoppable.title,
+              titleSv: "MOCKED_" + ticket.shoppable.titleSv,
               authorId: adminMember.id,
             },
           },
@@ -182,7 +184,7 @@ export const addMockTickets = async (
 };
 
 export const removeMockTickets = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   ticketIds: string[],
 ) => {
   await prisma.$transaction(async (tx) => {
@@ -232,7 +234,7 @@ export const removeMockTickets = async (
 };
 
 export const removeMockUsers = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   memberIds: string[],
 ) => {
   await prisma.$transaction(async (tx) => {
@@ -254,7 +256,7 @@ export const removeMockUsers = async (
 };
 
 export const removeAllTestData = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   suitePrefix: string,
 ) => {
   await prisma.notification.deleteMany({
@@ -291,7 +293,7 @@ export const removeAllTestData = async (
   });
   await prisma.tag.deleteMany({
     where: {
-      name: {
+      nameSv: {
         startsWith: "MOCKED_",
       },
     },

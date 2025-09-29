@@ -6,5 +6,5 @@
   export let data: PageData;
 </script>
 
-<SetPageTitle title={data.form.data.markdown} />
+<SetPageTitle title={data.form.data.markdownSv} />
 <ElectionEditor isCreating {data} />

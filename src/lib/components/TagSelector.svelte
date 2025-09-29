@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Tag } from "@prisma/client";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import TagChip from "./TagChip.svelte";
 
   /** Called when the list of selected tags changes */
@@ -15,11 +15,13 @@
   };
 
   /** All available tags */
-  export let allTags: Tag[] = [];
+  export let allTags: Array<ExtendedPrismaModel<"Tag">> = [];
 
   /** All selected tags */
-  export let selectedTags: Array<Pick<Tag, "id"> & Partial<Omit<Tag, "id">>> =
-    [];
+  export let selectedTags: Array<
+    Pick<ExtendedPrismaModel<"Tag">, "id"> &
+      Partial<Omit<ExtendedPrismaModel<"Tag">, "id">>
+  > = [];
 
   let searchValue = "";
   $: filteredTags = allTags.filter(

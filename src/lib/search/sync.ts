@@ -144,9 +144,9 @@ async function syncArticles() {
         .findMany({
           select: {
             id: true,
-            body: true,
+            bodySv: true,
             bodyEn: true,
-            header: true,
+            headerSv: true,
             headerEn: true,
             slug: true,
             publishedAt: true,
@@ -189,9 +189,9 @@ async function syncEvents() {
       .findMany({
         select: {
           id: true,
-          title: true,
+          titleSv: true,
           titleEn: true,
-          description: true,
+          descriptionSv: true,
           descriptionEn: true,
           slug: true,
           startDatetime: true,
@@ -232,15 +232,15 @@ async function syncPositions() {
             id: true,
             committeeId: true,
             committee: true,
-            description: true,
+            descriptionSv: true,
             descriptionEn: true,
-            name: true,
+            nameSv: true,
             nameEn: true,
           },
           skip: i,
           take: BATCH_SIZE,
           orderBy: {
-            name: "asc",
+            nameSv: "asc",
           },
         })
         .then((positions) =>
@@ -248,7 +248,7 @@ async function syncPositions() {
             ...position,
             // ID is reserved in Meilisearch, so we use dsekId instead
             dsekId: position.id,
-            committeeName: position.committee?.name ?? "",
+            committeeNameSv: position.committee?.nameSv ?? "",
             committeeNameEn: position.committee?.nameEn ?? "",
             id: prismaIdToMeiliId(position.id),
           })),
@@ -269,9 +269,9 @@ async function syncCommittees() {
           select: {
             id: true,
             shortName: true,
-            name: true,
+            nameSv: true,
             nameEn: true,
-            description: true,
+            descriptionSv: true,
             descriptionEn: true,
             darkImageUrl: true,
             lightImageUrl: true,

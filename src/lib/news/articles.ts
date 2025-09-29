@@ -8,14 +8,14 @@ export const BASIC_ARTICLE_FILTER = (
   tags: showNollningEventsInstead
     ? {
         some: {
-          name: {
+          nameSv: {
             startsWith: NOLLNING_TAG_PREFIX,
           },
         },
       }
     : {
         none: {
-          name: {
+          nameSv: {
             startsWith: NOLLNING_TAG_PREFIX,
           },
         },

@@ -3,12 +3,12 @@
   import type { SuperValidated } from "sveltekit-superforms";
   import type { InterestedGoingSchema } from "$lib/events/schema";
   import { superForm } from "$lib/utils/client/superForms";
-  import type { Member } from "@prisma/client";
   import * as m from "$paraglide/messages";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
   export let eventId: string;
-  export let interested: Member[];
-  export let going: Member[];
+  export let interested: Array<ExtendedPrismaModel<"Member">>;
+  export let going: Array<ExtendedPrismaModel<"Member">>;
   export let interestedGoingForm: SuperValidated<InterestedGoingSchema>;
   const { constraints, enhance } = superForm(interestedGoingForm, {
     id: eventId, // needs to be unique since there could be multiple like buttons on a page

@@ -1,11 +1,11 @@
 <script lang="ts">
   import type { SuperValidated } from "sveltekit-superforms";
   import { superForm } from "$lib/utils/client/superForms";
-  import type { SpecialReceiver } from "@prisma/client";
   import type { RemoveSpecialReceiverForm } from "./schema";
   import * as m from "$paraglide/messages";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
-  export let specialReceiver: SpecialReceiver;
+  export let specialReceiver: ExtendedPrismaModel<"SpecialReceiver">;
   export let isEditing: boolean;
 
   export let removeReceiverForm: SuperValidated<RemoveSpecialReceiverForm>;

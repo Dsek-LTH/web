@@ -1,7 +1,8 @@
-import type { Prisma, PrismaClient } from "@prisma/client";
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
+import type { Prisma } from "@prisma/client";
 
 export const searchForMembers = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   search: string,
   filter: Prisma.MemberWhereInput = {},
 ) => {

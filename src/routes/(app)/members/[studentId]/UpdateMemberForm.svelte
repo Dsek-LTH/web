@@ -7,14 +7,14 @@
   import { superForm } from "$lib/utils/client/superForms";
   import * as m from "$paraglide/messages";
   import FormSelect from "$lib/components/forms/FormSelect.svelte";
-  import type { PhadderGroup } from "@prisma/client";
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
   import { page } from "$app/state";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
   interface PageProps {
     isEditing: boolean;
-    phadderGroups: PhadderGroup[];
+    phadderGroups: Array<ExtendedPrismaModel<"PhadderGroup">>;
     data: SuperValidated<UpdateSchema>;
   }
 

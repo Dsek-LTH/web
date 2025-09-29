@@ -1,7 +1,7 @@
 <script lang="ts">
-  import type { Member } from "@prisma/client";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
-  export let member: Pick<Member, "picturePath">;
+  export let member: Pick<ExtendedPrismaModel<"Member">, "picturePath">;
   export let lazy = false;
 </script>
 

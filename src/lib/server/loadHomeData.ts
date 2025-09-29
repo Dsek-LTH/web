@@ -3,13 +3,14 @@ import { BASIC_EVENT_FILTER } from "$lib/events/events";
 import { fileHandler } from "$lib/files";
 import { BASIC_ARTICLE_FILTER } from "$lib/news/articles";
 import { error } from "@sveltejs/kit";
-// eslint-disable-next-line no-restricted-imports -- problem with lib and api, feels unecessary to create a bunch of helper files just to structure this one thing
-import type { GetCommitDataResponse } from "../../routes/(app)/api/home/+server";
+
+import { getCommitData } from "./getCommitData";
 import * as m from "$paraglide/messages";
 
 type Fetch = typeof fetch;
 export const loadHomeData = async ({
   locals,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- incorrectly flagged
   fetch,
 }: {
   locals: App.Locals;
@@ -112,9 +113,7 @@ export const loadHomeData = async ({
   });
 
   // COMMIT DATA
-  const commitPromise = fetch("/api/home").then((res) =>
-    res.json(),
-  ) as Promise<GetCommitDataResponse>;
+  const commitPromise = getCommitData();
 
   // RANDOM WELLBEING MESSAGE
   const wellbeing_random_sentence = [
