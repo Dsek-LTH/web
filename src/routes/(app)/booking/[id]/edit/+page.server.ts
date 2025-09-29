@@ -29,7 +29,7 @@ export const actions = {
 
     const form = await superValidate(request, zod(bookingSchema));
     if (!form.valid) return fail(400, { form });
-    const { start, end, name, bookables } = form.data;
+    const { start, end, name, bookables, groups } = form.data;
 
     dayjs.extend(utc);
     dayjs.extend(timezone);
@@ -52,6 +52,9 @@ export const actions = {
           set: bookables.map((bookable) => ({
             id: bookable,
           })),
+        },
+        groups: {
+          set: groups,
         },
         // Require new approval of booking after edit (if the user is not an admin)
         ...(!isAdmin && { status: "PENDING" }),

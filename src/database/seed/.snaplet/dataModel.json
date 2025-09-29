@@ -218,6 +218,87 @@
         }
       ]
     },
+    "_BookingRequestToPosition": {
+      "id": "public._BookingRequestToPosition",
+      "schemaName": "public",
+      "tableName": "_BookingRequestToPosition",
+      "fields": [
+        {
+          "id": "public._BookingRequestToPosition.A",
+          "name": "A",
+          "columnName": "A",
+          "type": "uuid",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": true,
+          "maxLength": null
+        },
+        {
+          "id": "public._BookingRequestToPosition.B",
+          "name": "B",
+          "columnName": "B",
+          "type": "varchar",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": true,
+          "maxLength": 255
+        },
+        {
+          "name": "booking_requests",
+          "type": "booking_requests",
+          "isRequired": true,
+          "kind": "object",
+          "relationName": "_BookingRequestToPositionTobooking_requests",
+          "relationFromFields": [
+            "A"
+          ],
+          "relationToFields": [
+            "id"
+          ],
+          "isList": false,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        },
+        {
+          "name": "positions",
+          "type": "positions",
+          "isRequired": true,
+          "kind": "object",
+          "relationName": "_BookingRequestToPositionTopositions",
+          "relationFromFields": [
+            "B"
+          ],
+          "relationToFields": [
+            "id"
+          ],
+          "isList": false,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        }
+      ],
+      "uniqueConstraints": [
+        {
+          "name": "_BookingRequestToPosition_AB_pkey",
+          "fields": [
+            "A",
+            "B"
+          ],
+          "nullNotDistinct": false
+        }
+      ]
+    },
     "_article_likes": {
       "id": "public._article_likes",
       "schemaName": "public",
@@ -2328,6 +2409,20 @@
             "id"
           ],
           "isList": false,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        },
+        {
+          "name": "_BookingRequestToPosition",
+          "type": "_BookingRequestToPosition",
+          "isRequired": false,
+          "kind": "object",
+          "relationName": "_BookingRequestToPositionTobooking_requests",
+          "relationFromFields": [],
+          "relationToFields": [],
+          "isList": true,
           "isId": false,
           "isGenerated": false,
           "sequence": false,
@@ -7586,6 +7681,20 @@
             "id"
           ],
           "isList": false,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        },
+        {
+          "name": "_BookingRequestToPosition",
+          "type": "_BookingRequestToPosition",
+          "isRequired": false,
+          "kind": "object",
+          "relationName": "_BookingRequestToPositionTopositions",
+          "relationFromFields": [],
+          "relationToFields": [],
+          "isList": true,
           "isId": false,
           "isGenerated": false,
           "sequence": false,

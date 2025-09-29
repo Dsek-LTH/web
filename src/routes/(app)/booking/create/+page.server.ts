@@ -94,7 +94,9 @@ export const actions = {
 
     const form = await superValidate(request, zod(bookingSchema));
     if (!form.valid) return fail(400, { form });
-    const { start, end, name, bookables } = form.data;
+    const { start, end, name, bookables, groups } = form.data;
+
+    console.log(groups);
 
     const createdRequest = await prisma.bookingRequest.create({
       data: {
@@ -114,8 +116,11 @@ export const actions = {
           })),
         },
         status: "PENDING",
+        groups: {
+          connect: groups,
+        },
       },
-      include: { bookables: true },
+      include: { bookables: true, groups: true, booker: true },
     });
 
     await sendNotificationToKM(createdRequest, prisma).catch((e) => {

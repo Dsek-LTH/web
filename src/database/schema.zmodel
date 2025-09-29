@@ -227,6 +227,7 @@ model BookingRequest {
   status    BookingRequestStatus @default(PENDING)
   bookables Bookable[]           @relation("booking_requests_bookables")
   booker    Member?              @relation(fields: [bookerId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "booking_requests_booker_id_foreign")
+  groups    Position[]
 
   @@allow("create", has(auth().policies, "booking_request:create"))
   @@allow("read", has(auth().policies, "booking_request:read"))
@@ -713,18 +714,19 @@ model PhadderGroup {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Positions{
 model Position {
-  id            String       @id @db.VarChar(255)
-  name          String       @db.VarChar(255)
-  nameEn        String?      @map("name_en") @db.VarChar(255)
-  committeeId   String?      @map("committee_id") @db.Uuid
-  email         String?      @db.VarChar(255)
-  active        Boolean      @default(true)
-  boardMember   Boolean      @default(false) @map("board_member")
+  id            String            @id @db.VarChar(255)
+  name          String            @db.VarChar(255)
+  nameEn        String?           @map("name_en") @db.VarChar(255)
+  committeeId   String?           @map("committee_id") @db.Uuid
+  email         String?           @db.VarChar(255)
+  active        Boolean           @default(true)
+  boardMember   Boolean           @default(false) @map("board_member")
   description   String?
-  descriptionEn String?      @map("description_en")
-  committee     Committee?   @relation(fields: [committeeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "positions_committee_id_foreign")
+  descriptionEn String?           @map("description_en")
+  committee     Committee?        @relation(fields: [committeeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "positions_committee_id_foreign")
   emailAliases  EmailAlias[]
   mandates      Mandate[]
+  bookings      BookingRequest[]
 
   @@allow("create", has(auth().policies, "core:position:create"))
   @@allow("read", has(auth().policies, "core:position:read"))

@@ -18,7 +18,8 @@
 
   /** All selected options */
   export let selected: Array<
-    Pick<Position, "id"> & Partial<Omit<Position, "id">>
+    Pick<Position, "id" | "name" | "nameEn"> &
+      Partial<Omit<Position, "id" | "name" | "nameEn">>
   > = [];
 
   let searchValue = "";
