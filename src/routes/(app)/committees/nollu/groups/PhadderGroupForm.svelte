@@ -4,7 +4,7 @@
   import FormSubmitButton from "$lib/components/forms/FormSubmitButton.svelte";
   import type { PhadderGroupSchema } from "$lib/nollning/groups/types";
   import { superForm } from "$lib/utils/client/superForms";
-  import { type FormOptions, type SuperValidated } from "sveltekit-superforms";
+  import type { FormOptions, SuperValidated } from "sveltekit-superforms";
 
   export let create = false;
   type Schema = Omit<PhadderGroupSchema, "id"> | PhadderGroupSchema;

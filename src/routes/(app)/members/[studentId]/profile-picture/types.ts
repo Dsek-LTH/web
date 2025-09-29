@@ -1,5 +1,5 @@
 import * as m from "$paraglide/messages";
-import { type Infer } from "sveltekit-superforms/server";
+import type { Infer } from "sveltekit-superforms/server";
 import { z } from "zod";
 
 export const changeSchema = z.object({

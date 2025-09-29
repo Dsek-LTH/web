@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { type Infer, type SuperValidated } from "sveltekit-superforms";
+  import type { Infer, SuperValidated } from "sveltekit-superforms";
   import type { BookingSchema } from "./schema";
   import { superForm } from "$lib/utils/client/superForms";
   import * as m from "$paraglide/messages";

@@ -1,4 +1,4 @@
-import { type Infer } from "sveltekit-superforms/server";
+import type { Infer } from "sveltekit-superforms/server";
 import { z } from "zod";
 
 export const updateSchema = z.object({
