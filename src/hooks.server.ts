@@ -1,7 +1,6 @@
 import * as Sentry from "@sentry/sveltekit";
 import { env } from "$env/dynamic/private";
 import { env as envPublic } from "$env/dynamic/public";
-import authentik from "$lib/server/authentik";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import { i18n } from "$lib/utils/i18n";
 import { createMember } from "$lib/utils/member";
@@ -23,12 +22,10 @@ import { enhance } from "@zenstackhq/runtime";
 import RPCApiHandler from "@zenstackhq/server/api/rpc";
 import zenstack from "@zenstackhq/server/sveltekit";
 import { randomBytes } from "crypto";
-import schedule from "node-schedule";
 import loggingExtension from "./database/prisma/loggingExtension";
 import translatedExtension from "./database/prisma/translationExtension";
 import { getAccessPolicies } from "./hooks.server.helpers";
 import { getDerivedRoles } from "$lib/utils/authorization";
-import meilisearchSync from "$lib/search/sync";
 import {
   PrismaClientKnownRequestError,
   PrismaClientValidationError,
@@ -231,10 +228,6 @@ const themeHandle: Handle = async ({ event, resolve }) => {
     },
   });
 };
-
-// run a authentik sync every day at midnight
-schedule.scheduleJob("0 0 * * *", () => authentik.sync(authorizedPrismaClient));
-schedule.scheduleJob("0 0 * * *", meilisearchSync);
 
 export const handleError: HandleServerError = Sentry.handleErrorWithSentry(
   ({ error }) => {

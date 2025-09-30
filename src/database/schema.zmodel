@@ -431,7 +431,7 @@ model Event {
   slug                 String?         @unique(map: "events_slug_unique") @db.VarChar(255)
   alarmActive          Boolean?        @default(false) @map("alarm_active")
   isCancelled          Boolean?        @default(false) @map("is_cancelled")
-  removedAt            DateTime?       @map("removed_at") @db.Timestamptz(6) @allow("update", has(auth().policies, "event:delete"))
+  removedAt            DateTime?       @map("removed_at") @db.Timestamptz(6) @allow("update", has(auth().policies, "event:delete") || auth().memberId == authorId)
   comments             EventComment[]
   going                Member[]        @relation("event_going")
   interested           Member[]        @relation("event_interested")
