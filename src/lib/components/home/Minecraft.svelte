@@ -1,8 +1,7 @@
 <script lang="ts">
   import { type IMinecraftData } from "minecraft-server-ping";
-  import { fade } from "svelte/transition";
 
-  let { minecraftStatus }: { minecraftStatus: Promise<IMinecraftData> } =
+  let { minecraftStatus }: { minecraftStatus: Promise<IMinecraftData | null> } =
     $props();
   let badge_type: "badge-error" | "badge-success" | "badge-warning" =
     $state("badge-warning");
@@ -36,12 +35,9 @@
       class="text-xl font-bold hover:underline">Minecraft Server</a
     >
     <div class="inline-flex h-3">
-      {#key badge_type}
-        <div
-          class={`badge badge-xs ${badge_type} absolute ml-2 gap-2`}
-          transition:fade={{ duration: 500 }}
-        ></div>
-      {/key}
+      <div
+        class="badge badge-xs transition-colors duration-500 {badge_type} absolute ml-2 gap-2"
+      ></div>
     </div>
   </div>
 </div>
@@ -60,7 +56,11 @@
       >{#await minecraftStatus}
         <p>?</p>
       {:then status}
-        {status.players.online}
+        {#if status}
+          {status.players.online}
+        {:else}
+          <p>-</p>
+        {/if}
       {:catch}
         <p>-</p>
       {/await}</span

@@ -233,13 +233,13 @@ export const loadHomeData = async ({
         loginToken,
         loginCookies,
       );
+
       if (login.result == "Failed") {
-        error(
-          403,
+        console.log(
           `MediaWiki error: '${login.reason}' The login details are most likely wrong`,
         );
+        return [];
       }
-
       const wikiChanges = await wikiApiRecentChanges(cookies);
       let changes = wikiChanges.query.recentchanges;
       let rccontinue: string | null = wikiChanges.continue.rccontinue;
@@ -270,8 +270,14 @@ export const loadHomeData = async ({
     return wikiData.slice(0, 3);
   };
 
-  const minecraftStatus = async () =>
-    await pingUri(PUBLIC_MINECRAFT_URL, { timeout: 2000 });
+  const minecraftStatus = async () => {
+    try {
+      return await pingUri(PUBLIC_MINECRAFT_URL, { timeout: 2000 });
+    } catch {
+      console.log("Error, minecraft timed out");
+      return null;
+    }
+  };
 
   return {
     wellbeing: wellbeing_random_sentence,
@@ -338,6 +344,19 @@ export const loadHomeData = async ({
     };
     cookies: string;
   }> {
+    if (!wikiLgUsername) {
+      return {
+        data: { login: { result: "Failed", reason: "username not set" } },
+        cookies: "",
+      };
+    }
+    if (!wikiLgPassword) {
+      return {
+        data: { login: { result: "Failed", reason: "password not set" } },
+        cookies: "",
+      };
+    }
+
     const res = await fetch(PUBLIC_MEDIAWIKI_ENDPOINT, {
       method: "POST",
       headers: {
