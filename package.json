@@ -124,6 +124,7 @@
     "markdown-to-txt": "^2.0.1",
     "marked": "^15.0.3",
     "meilisearch": "^0.45.0",
+    "minecraft-server-ping": "^0.3.3",
     "minio": "^8.0.2",
     "node-schedule": "^2.1.1",
     "nodemailer": "^6.9.16",
@@ -138,7 +139,7 @@
     "vite-plugin-cjs-interop": "^2.1.6"
   },
   "engines": {
-    "node": "<=23"
+    "node": "<=24"
   },
   "packageManager": "pnpm@9.14.4",
   "pnpm": {
