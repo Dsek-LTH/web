@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { PageData } from "./$types";
-  import Readme from "$lib/components/home/Readme.svelte";
+  import Readme from "./Readme.svelte";
   export let data: PageData;
 </script>
 
