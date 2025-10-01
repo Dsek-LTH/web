@@ -6,7 +6,7 @@ export interface WikiChangeItem {
   type: string;
   ns: number;
   title: string;
-  pageid: 41;
+  pageid: number;
   revid: number;
   comment: string;
   parsedcomment: string;

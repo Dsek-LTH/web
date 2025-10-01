@@ -10,7 +10,7 @@
     <!-- TODO: change to /readme one endpoint exists -->
     <span class="text-xl font-bold">README.md</span>
   </h2>
-  <ul class="menu flex h-max flex-row justify-between p-0">
+  <ul class="menu flex h-full flex-col justify-around p-0">
     {#each issues as issue (issue.id)}
       <li class="pop-out inline-block w-full">
         <a href={`/readme/${issue.year}/${issue.number}`}>
