@@ -532,8 +532,13 @@
   "documents_errors_noFiles": "Hittade inga filer",
   "documents_errors_erroneousFile": "Felaktig fil",
   "documents_errors_couldNotUploadFile": "Kunde inte ladda upp fil: {x}",
+<<<<<<< Updated upstream
   "documents_governing_createNewDocument": "Skapa nytt styrdokunent",
   "documents_governing_editDocument": "Redigera styrdokument",
+=======
+  "documents_governing_createNewDocument": "Skapa nytt styrdokument",
+  "documents_governing_editDocument": "Redigera styrdokunent",
+>>>>>>> Stashed changes
   "documents_governing_title": "Titel",
   "documents_governing_filePath": "Filsökväg",
   "documents_governing_example": "Exempel: {x}",
