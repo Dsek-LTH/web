@@ -34,14 +34,8 @@ ENV PUBLIC_BUCKETS_MEMBERS ${PUBLIC_BUCKETS_MEMBERS}
 ARG VERSION
 ENV VERSION ${VERSION}
 
-ARG SENTRY_ORG
-ENV SENTRY_ORG ${SENTRY_ORG}
-
-ARG SENTRY_PROJECT
-ENV SENTRY_PROJECT ${SENTRY_PROJECT}
-
 COPY . .
-RUN --mount=type=secret,id=sentry_auth_token,env=SENTRY_AUTH_TOKEN pnpm run build
+RUN --mount=type=secret pnpm run build
 
 FROM base AS final
 COPY package.json .
