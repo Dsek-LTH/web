@@ -1,7 +1,5 @@
-import * as Sentry from "@sentry/sveltekit";
 import { env } from "$env/dynamic/private";
 import { env as envPublic } from "$env/dynamic/public";
-import authentik from "$lib/server/authentik";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import { i18n } from "$lib/utils/i18n";
 import { createMember } from "$lib/utils/member";
@@ -23,27 +21,16 @@ import { enhance } from "@zenstackhq/runtime";
 import RPCApiHandler from "@zenstackhq/server/api/rpc";
 import zenstack from "@zenstackhq/server/sveltekit";
 import { randomBytes } from "crypto";
-import schedule from "node-schedule";
 import loggingExtension from "./database/prisma/loggingExtension";
 import translatedExtension from "./database/prisma/translationExtension";
 import { getAccessPolicies } from "./hooks.server.helpers";
 import { getDerivedRoles } from "$lib/utils/authorization";
-import meilisearchSync from "$lib/search/sync";
 import {
   PrismaClientKnownRequestError,
   PrismaClientValidationError,
 } from "@prisma/client/runtime/library";
 import { verifyCostCenterData } from "./routes/(app)/expenses/verification";
-import { dev, version } from "$app/environment";
-import { env as publicEnv } from "$env/dynamic/public";
-
-if (!dev) {
-  Sentry.init({
-    dsn: publicEnv.PUBLIC_SENTRY_DSN,
-    tracesSampleRate: 1,
-    release: version,
-  });
-}
+import { dev } from "$app/environment";
 
 // TODO: This function should perhaps only be called during dev? Build? I'm not sure
 if (dev) verifyCostCenterData();
@@ -232,32 +219,25 @@ const themeHandle: Handle = async ({ event, resolve }) => {
   });
 };
 
-// run a authentik sync every day at midnight
-schedule.scheduleJob("0 0 * * *", () => authentik.sync(authorizedPrismaClient));
-schedule.scheduleJob("0 0 * * *", meilisearchSync);
-
-export const handleError: HandleServerError = Sentry.handleErrorWithSentry(
-  ({ error }) => {
-    if (error instanceof PrismaClientKnownRequestError) {
-      const { message, name, code } = error;
-      console.log("prisma known request error", { message, name, code });
-      return {
-        message: message,
-      };
-    } else if (error instanceof PrismaClientValidationError) {
-      console.error("prisma validation error", error.message, error.name);
-      return {
-        message: "Database validation error, see logs for more info",
-      };
-    }
+export const handleError: HandleServerError = ({ error }) => {
+  if (error instanceof PrismaClientKnownRequestError) {
+    const { message, name, code } = error;
+    console.log("prisma known request error", { message, name, code });
     return {
-      message: error instanceof Error ? error.message : `${error}`,
+      message: message,
     };
-  },
-);
+  } else if (error instanceof PrismaClientValidationError) {
+    console.error("prisma validation error", error.message, error.name);
+    return {
+      message: "Database validation error, see logs for more info",
+    };
+  }
+  return {
+    message: error instanceof Error ? error.message : `${error}`,
+  };
+};
 
 export const handle = sequence(
-  Sentry.sentryHandle(),
   authHandle,
   i18n.handle(),
   databaseHandle,

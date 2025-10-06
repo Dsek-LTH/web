@@ -7,7 +7,7 @@ export const MINIO_BASE_URL = (() => {
   if (PUBLIC_MINIO_PORT === "443") return `https://${PUBLIC_MINIO_ENDPOINT}/`;
   if (PUBLIC_MINIO_PORT === "80") return `http://${PUBLIC_MINIO_ENDPOINT}/`;
   return `http${
-    PUBLIC_MINIO_USE_SSL ? "s" : ""
+    PUBLIC_MINIO_USE_SSL === "true" ? "s" : ""
   }://${PUBLIC_MINIO_ENDPOINT}:${PUBLIC_MINIO_PORT}/`;
 })();
 

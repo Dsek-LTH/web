@@ -3,7 +3,7 @@
     class?: ClassNameValue;
     label?: string | null;
     explanation?: string | null;
-    error?: string | string[] | undefined;
+    error?: string | string[] | string[][] | undefined;
     fullWidth?: boolean;
     invisibleText?: boolean;
     required?: boolean | undefined | null;
@@ -29,6 +29,10 @@
     class?: string;
     for?: string;
   } & LabeledAttributes = $props();
+
+  $effect(() => {
+    console.log(error);
+  });
 </script>
 
 <label
@@ -63,7 +67,11 @@
         class="form-error label-text-alt text-error"
         class:invisible={invisibleText}
       >
-        {#if typeof error === "string"}{error}{:else}{error.join(", ")}{/if}
+        {#if typeof error === "string"}{error}{:else if Array.isArray(error) && error.length > 0 && Array.isArray(error[0])}{error
+            .map((e) => (Array.isArray(e) ? e.join(", ") : e))
+            .join(", ")}{:else if Array.isArray(error)}{error.join(
+            ", ",
+          )}{:else}{error}{/if}
       </span>
     </div>
   {/if}

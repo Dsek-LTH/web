@@ -98,6 +98,7 @@
 
   {#if !externalModal && useModalInstead}
     <NotificationModal
+      {form}
       {postReveal}
       bind:modal={internalModal}
       {onRead}

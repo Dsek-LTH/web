@@ -30,7 +30,7 @@ export const memberSchema = z.object({
     }),
   graduationYear: z.number().min(1962).nullable().default(null),
   foodPreference: z.string().nullable().default(null),
-  nollningGroupId: z.string().uuid().nullable(),
+  nollningGroupId: z.string().uuid().nullable().default(null),
 });
 export const positionSchema = z.object({
   id: z.string(),
