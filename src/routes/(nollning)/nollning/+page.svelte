@@ -29,6 +29,7 @@
   import wilma from "./(photos)/wilma.webp";
   import infinity from "./(photos)/infinity.svg";
   import { languageTag } from "$paraglide/runtime";
+  import { getFileUrl } from "$lib/files/client";
 
   export let data;
   $: topInsets = ($page.data.appInfo?.insets?.top ?? 0) + 8;
@@ -297,7 +298,9 @@ My best tip for finding your way in the future is to ask questions to the older 
       </p>
       <div>
         <a
-          href={`https://minio.api.dsek.se/files/public/miscellaneous/rights-sv-2025.pdf`}
+          href={getFileUrl(
+            `minio/files/public/miscellaneous/rights-sv-2025.pdf`,
+          )}
           class="{data.revealTheme
             ? 'btn-secondary-beige'
             : 'btn-primary-dark'}  btn self-start"
