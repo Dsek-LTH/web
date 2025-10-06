@@ -190,22 +190,17 @@ export const actions: Actions = {
     if (!form.valid) return fail(400, { form });
     const { studentId } = params;
 
-    console.log(form.data);
-
     switch (form.data.skipAction) {
       case "skip":
-        console.log("Setting cookie to skip");
         cookies.set("phadder_group_modal_skipped", "1", {
           path: "/",
           maxAge: 12 * 60 * 60,
         });
         break;
       case "never":
-        console.log("Setting cookie to never show");
         cookies.set("phadder_group_modal_never", "1", { path: "/" });
         break;
       default:
-        console.log("No skip cookie set");
         await prisma.member.update({
           where: { studentId },
           data: {
