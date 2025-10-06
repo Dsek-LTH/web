@@ -8,52 +8,52 @@ metadata:
   name: dsekweb-services
 spec:
   containers:
-  - name: db
-    image: docker.io/library/postgres:16-alpine
-    env:
-    - name: POSTGRES_DB
-      value: dsek
-    - name: POSTGRES_USER
-      value: postgres
-    - name: POSTGRES_PASSWORD
-      value: postgres
-    ports:
-    - containerPort: 5432
-      hostPort: 5432
-    volumeMounts:
-    - mountPath: /var/lib/postgresql/data
-      name: db-pvc
+    - name: db
+      image: docker.io/library/postgres:16-alpine
+      env:
+        - name: POSTGRES_DB
+          value: dsek
+        - name: POSTGRES_USER
+          value: postgres
+        - name: POSTGRES_PASSWORD
+          value: postgres
+      ports:
+        - containerPort: 5432
+          hostPort: 5432
+      volumeMounts:
+        - mountPath: /var/lib/postgresql/data
+          name: db-pvc
 
-  - name: meilisearch
-    image: docker.io/getmeili/meilisearch:latest
-    env:
-    - name: MEILI_MASTER_KEY
-      value: masterKey
-    - name: MEILI_NO_ANALYTICS
-      value: "true"
-    ports:
-    - containerPort: 7700
-      hostPort: 7700
-    volumeMounts:
-    - mountPath: /data.ms
-      name: meilisearch-pvc
+    - name: meilisearch
+      image: docker.io/getmeili/meilisearch:latest
+      env:
+        - name: MEILI_MASTER_KEY
+          value: masterKey
+        - name: MEILI_NO_ANALYTICS
+          value: "true"
+      ports:
+        - containerPort: 7700
+          hostPort: 7700
+      volumeMounts:
+        - mountPath: /data.ms
+          name: meilisearch-pvc
 
-  - name: poppler-server
-    image: poppler-server
-    env:
-    - name: PORT
-      value: "8800"
-    ports:
-    - containerPort: 8800
-      hostPort: 8800
+    - name: poppler-server
+      image: poppler-server
+      env:
+        - name: PORT
+          value: "8800"
+      ports:
+        - containerPort: 8800
+          hostPort: 8800
 
   volumes:
-  - name: db-pvc
-    persistentVolumeClaim:
-      claimName: db
-  - name: meilisearch-pvc
-    persistentVolumeClaim:
-      claimName: meilisearch
+    - name: db-pvc
+      persistentVolumeClaim:
+        claimName: db
+    - name: meilisearch-pvc
+      persistentVolumeClaim:
+        claimName: meilisearch
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -63,7 +63,7 @@ metadata:
   name: db
 spec:
   accessModes:
-  - ReadWriteOnce
+    - ReadWriteOnce
   resources:
     requests:
       storage: 1Gi
@@ -76,7 +76,7 @@ metadata:
   name: meilisearch
 spec:
   accessModes:
-  - ReadWriteOnce
+    - ReadWriteOnce
   resources:
     requests:
       storage: 1Gi
