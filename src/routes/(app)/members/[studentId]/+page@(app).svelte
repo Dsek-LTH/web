@@ -18,7 +18,7 @@
   import type { Cookies } from "@sveltejs/kit";
   import ClassBadge from "$lib/components/ClassBadge.svelte";
 
-  let { data, cookies }: { data: PageData; cookies: Cookies } = $props();
+  let { data }: { data: PageData } = $props();
 
   const studentId = $derived($page.params["studentId"]);
   const member = $derived(data.viewedMember);
@@ -240,10 +240,10 @@
 
 <PhadderGroupModal
   bind:isEditing
-  data={data.form}
+  data={data.phadderGroupForm}
   phadderGroups={data.phadderGroups}
   viewedMember={member}
-  {cookies}
+  showModal={data.showPhadderGroupModal}
 />
 
 <style>
