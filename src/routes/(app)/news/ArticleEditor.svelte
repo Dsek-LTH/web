@@ -44,14 +44,14 @@
         id: "",
         slug: "",
         header:
-          activeTab === "en" && $form.headerEn ? $form.headerEn : $form.header,
-        headerSv:
-          activeTab === "en" && $form.headerEn ? $form.headerEn : $form.header,
-        headerEn:
-          activeTab === "en" && $form.headerEn ? $form.headerEn : $form.header,
-        body: activeTab === "en" && $form.bodyEn ? $form.bodyEn : $form.body,
-        bodySv: activeTab === "en" && $form.bodyEn ? $form.bodyEn : $form.body,
-        bodyEn: activeTab === "en" && $form.bodyEn ? $form.bodyEn : $form.body,
+          activeTab === "en" && $form.headerEn
+            ? $form.headerEn
+            : $form.headerSv,
+        headerSv: $form.headerSv,
+        headerEn: $form.headerEn,
+        body: activeTab === "en" && $form.bodyEn ? $form.bodyEn : $form.bodySv,
+        bodySv: $form.bodySv,
+        bodyEn: $form.bodyEn,
         authorId: $form.author.id,
         publishedAt: new Date(),
         createdAt: new Date(),

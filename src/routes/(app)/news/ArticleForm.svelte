@@ -68,8 +68,8 @@
 >
   <LangTabs bind:activeTab>
     <svelte:fragment slot="sv">
-      <FormInput {superform} field="header" label={m.news_header()} />
-      <FormMarkdown {superform} field="body" label={m.news_description()} />
+      <FormInput {superform} field="headerSv" label={m.news_header()} />
+      <FormMarkdown {superform} field="bodySv" label={m.news_description()} />
     </svelte:fragment>
     <svelte:fragment slot="en">
       <FormInput {superform} field="headerEn" label={m.news_header()} />

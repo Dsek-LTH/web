@@ -7,6 +7,7 @@ export const load: PageServerLoad = async ({ locals }) => {
     where: { expiresAt: { gte: new Date() } },
     select: {
       markdown: true,
+      markdownSv: true,
       markdownEn: true,
       link: true,
       expiresAt: true,

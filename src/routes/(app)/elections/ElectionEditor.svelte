@@ -12,7 +12,7 @@
     committees: Array<{ id: string; name: string; nameEn: string | null }>;
     election: Pick<
       ExtendedPrismaModel<"Election">,
-      "markdown" | "markdownEn" | "link" | "expiresAt" | "committeeId"
+      "markdownSv" | "markdownEn" | "link" | "expiresAt" | "committeeId"
     >;
   };
   const { form, errors, constraints, enhance } = superForm(data.form);
@@ -45,7 +45,7 @@
   {/if}
   <div class="flex flex-col gap-0 *:w-full md:h-64 md:flex-row md:gap-8">
     <Input
-      name="markdown"
+      name="markdownSv"
       label={m.elections_content_sv()}
       textarea
       bind:value={$form.markdownSv}

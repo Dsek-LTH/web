@@ -32,11 +32,18 @@
     class="form-control"
     enctype="multipart/form-data"
   >
-    <FormInput {superform} label={m.committees_name()} field="name" />
+    <FormInput {superform} label={m.committees_name()} field="nameSv" />
+    <FormInput {superform} label={m.committees_name_en()} field="nameEn" />
     <FormInput
       {superform}
       label={m.committees_description()}
-      field="description"
+      field="descriptionSv"
+      rows={3}
+    />
+    <FormInput
+      {superform}
+      label={m.committees_description_en()}
+      field="descriptionEn"
       rows={3}
     />
     <FormInput

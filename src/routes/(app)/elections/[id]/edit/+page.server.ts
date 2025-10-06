@@ -48,6 +48,7 @@ export const actions: Actions = {
     const form = await superValidate(request, zod(electionSchema));
     if (!form.valid) return fail(400, { form });
     const id = params.id;
+    console.log(form.data);
     const { markdownSv, markdownEn, link, expiresAt, committeeId } = form.data;
     await prisma.election.update({
       where: { id },

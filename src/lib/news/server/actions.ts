@@ -79,11 +79,12 @@ export const createArticle: Action = async (event) => {
   const {
     author,
     tags,
-    header,
+    headerSv,
+    headerEn,
     sendNotification: shouldSendNotification,
     notificationText,
     images,
-    body,
+    bodySv,
     bodyEn,
     ...rest
   } = form.data;
@@ -94,7 +95,7 @@ export const createArticle: Action = async (event) => {
       customId: author.customId,
     },
   });
-  let slug = slugify(header);
+  let slug = slugify(headerSv);
   // authorized so we actually count all
   const slugCount = await authorizedPrismaClient.article.count({
     where: {
@@ -112,8 +113,9 @@ export const createArticle: Action = async (event) => {
   const result = await prisma.article.create({
     data: {
       slug,
-      headerSv: header,
-      bodySv: DOMPurify.sanitize(body),
+      headerSv: headerSv,
+      headerEn: headerEn,
+      bodySv: DOMPurify.sanitize(bodySv),
       bodyEn: bodyEn ? DOMPurify.sanitize(bodyEn) : bodyEn,
       ...rest,
       author: {
@@ -185,7 +187,7 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
     allowFiles: true,
   });
   if (!form.valid) return fail(400, { form });
-  const { slug, author, tags, images, body, bodyEn, ...rest } = form.data;
+  const { slug, author, tags, images, bodySv, bodyEn, ...rest } = form.data;
   const existingAuthor = await prisma.author.findFirst({
     where: {
       member: { id: author.memberId },
@@ -212,7 +214,7 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
         slug: slug,
       },
       data: {
-        bodySv: DOMPurify.sanitize(body),
+        bodySv: DOMPurify.sanitize(bodySv),
         bodyEn: bodyEn ? DOMPurify.sanitize(bodyEn) : bodyEn,
         ...rest,
         author: {
