@@ -15,7 +15,6 @@
   import type { PageData } from "./$types";
   import SEO from "$lib/seo/SEO.svelte";
   import PhadderGroupModal from "./PhadderGroupModal.svelte";
-  import type { Cookies } from "@sveltejs/kit";
   import ClassBadge from "$lib/components/ClassBadge.svelte";
 
   let { data }: { data: PageData } = $props();
