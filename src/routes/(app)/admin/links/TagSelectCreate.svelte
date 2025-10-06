@@ -1,6 +1,6 @@
 <script lang="ts">
-  import type { Tag } from "@prisma/client";
   import TagChip from "$lib/components/TagChip.svelte";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
   /** Called when the list of selected tags changes */
   export let onChange: () => void = () => {
@@ -14,10 +14,10 @@
   };
 
   /** All available tags */
-  export let allTags: Tag[] = [];
+  export let allTags: Array<ExtendedPrismaModel<"Tag">> = [];
 
   /** All selected tags */
-  export let selectedTags: Tag[] = [];
+  export let selectedTags: Array<ExtendedPrismaModel<"Tag">> = [];
 
   export let placeholder = "Taggar";
 
@@ -97,6 +97,7 @@
       {@const tag = {
         id: searchValue,
         name: searchValue,
+        nameSv: searchValue,
         color: null,
         isDefault: null,
         nameEn: null,

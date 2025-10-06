@@ -1,7 +1,7 @@
-import type { PrismaClient } from "@prisma/client";
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 
 export type TransactionClient = Parameters<
-  Parameters<PrismaClient["$transaction"]>[0]
+  Parameters<ExtendedPrisma["$transaction"]>[0]
 >[0];
 
 export type ShopIdentification =

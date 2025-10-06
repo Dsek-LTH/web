@@ -1,16 +1,16 @@
 <script lang="ts">
-  import type { Member } from "@prisma/client";
   import AuthorSignature from "$lib/components/socials/AuthorSignature.svelte";
   import * as m from "$paraglide/messages";
   import {
     formatGoingList,
     formatInterestedList,
   } from "$lib/events/pluralization";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
   let goingModal: HTMLDialogElement;
   let interestedModal: HTMLDialogElement;
-  export let interested: Member[];
-  export let going: Member[];
+  export let interested: Array<ExtendedPrismaModel<"Member">>;
+  export let going: Array<ExtendedPrismaModel<"Member">>;
 
   $: goingText = formatGoingList(going);
 

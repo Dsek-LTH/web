@@ -1,11 +1,11 @@
 <script lang="ts">
   import DateSpan from "./DateSpan.svelte";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
-  import type { Event } from "@prisma/client";
   import { getFileUrl } from "$lib/files/client";
   import * as m from "$paraglide/messages";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   export let event: Pick<
-    Event,
+    ExtendedPrismaModel<"Event">,
     | "title"
     | "startDatetime"
     | "endDatetime"
@@ -16,7 +16,7 @@
     | "location"
     | "link"
   > &
-    Partial<Pick<Event, "removedAt">>;
+    Partial<Pick<ExtendedPrismaModel<"Event">, "removedAt">>;
 </script>
 
 {#if event.imageUrl}

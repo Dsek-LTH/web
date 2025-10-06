@@ -1,12 +1,14 @@
 <script lang="ts">
   import MembersList from "$lib/components/socials/MembersList.svelte";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import { getFullName } from "$lib/utils/client/member";
   import * as m from "$paraglide/messages";
-  import type { Member } from "@prisma/client";
 
-  export let likers: Member[];
+  export let likers: Array<ExtendedPrismaModel<"Member">>;
 
-  const formatLikersList = (likers: Member[]): string => {
+  const formatLikersList = (
+    likers: Array<ExtendedPrismaModel<"Member">>,
+  ): string => {
     switch (likers.length) {
       case 0:
         return "";

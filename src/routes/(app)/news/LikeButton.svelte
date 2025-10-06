@@ -1,14 +1,14 @@
 <script lang="ts">
   import { page } from "$app/stores";
-  import type { Member } from "@prisma/client";
   import type { SuperValidated } from "sveltekit-superforms";
   import { superForm } from "$lib/utils/client/superForms";
   import type { LikeSchema } from "./likes";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
   import * as m from "$paraglide/messages";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
-  export let likers: Member[];
+  export let likers: Array<ExtendedPrismaModel<"Member">>;
   $: authorized = isAuthorized(apiNames.NEWS.LIKE, $page.data.user);
   export let articleId: string;
   export let likeForm: SuperValidated<LikeSchema>;

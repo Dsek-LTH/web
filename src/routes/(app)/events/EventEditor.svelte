@@ -11,12 +11,12 @@
   import { superForm } from "$lib/utils/client/superForms";
   import { recurringTypes } from "$lib/utils/events";
   import * as m from "$paraglide/messages";
-  import type { Tag } from "@prisma/client";
   import type { SuperValidated } from "sveltekit-superforms";
   import Event from "./Event.svelte";
   import LangTabs from "$lib/components/layout/LangTabs.svelte";
   import FormFileInput from "$lib/components/forms/FormFileInput.svelte";
   import FormMarkdown from "$lib/components/forms/FormMarkdown.svelte";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
   export let recurringParentId: string | null;
   export let creating = false;
@@ -27,7 +27,7 @@
     dataType: "json",
   });
   const { form, errors, enhance } = superform;
-  export let allTags: Tag[];
+  export let allTags: Array<ExtendedPrismaModel<"Tag">>;
   $: if ($errors) console.log($errors);
   let activeTab: "sv" | "en";
   let modal: HTMLDialogElement;
@@ -47,16 +47,16 @@
       <slot name="form-start" />
       <LangTabs bind:activeTab class="self-stretch">
         <svelte:fragment slot="sv">
-          <FormInput {superform} label={m.events_title()} field="title" />
+          <FormInput {superform} label={m.events_title()} field="titleSv" />
           <FormInput
             {superform}
             label={m.events_subtitle()}
-            field="shortDescription"
+            field="shortDescriptionSv"
           />
           <FormMarkdown
             {superform}
             label={m.events_description()}
-            field="description"
+            field="descriptionSv"
             class="min-h-[10rem]"
             placeholder={m.events_description()}
           /></svelte:fragment
@@ -197,15 +197,15 @@
       event={{
         ...$form,
         title:
-          activeTab === "en" && $form.titleEn ? $form.titleEn : $form.title,
+          activeTab === "en" && $form.titleEn ? $form.titleEn : $form.titleSv,
         shortDescription:
           activeTab === "en" && $form.shortDescriptionEn
             ? $form.shortDescriptionEn
-            : $form.shortDescription,
+            : $form.shortDescriptionSv,
         description:
           activeTab === "en" && $form.descriptionEn
             ? $form.descriptionEn
-            : $form.description,
+            : $form.descriptionSv,
         imageUrl: $form.image
           ? URL.createObjectURL($form.image)
           : ($form.imageUrl ?? null),

@@ -10,14 +10,14 @@ export const BASIC_EVENT_FILTER = (
       ? showNollningEventsInstead
         ? {
             some: {
-              name: {
+              nameSv: {
                 startsWith: NOLLNING_TAG_PREFIX,
               },
             },
           }
         : {
             none: {
-              name: {
+              nameSv: {
                 startsWith: NOLLNING_TAG_PREFIX,
               },
             },

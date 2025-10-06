@@ -4,8 +4,8 @@
   import type { SuperValidated } from "sveltekit-superforms";
   import type { AddMandateSchema } from "./+page.server";
   import { superForm } from "$lib/utils/client/superForms";
-  import type { Member } from "@prisma/client";
   import * as m from "$paraglide/messages";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
   export let data: SuperValidated<AddMandateSchema>;
   export let onClose: () => void;
@@ -14,7 +14,7 @@
       if (event.result.type === "success") onClose();
     },
   });
-  let member: Member | undefined;
+  let member: ExtendedPrismaModel<"Member"> | undefined;
 </script>
 
 <form

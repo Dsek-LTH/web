@@ -1,18 +1,18 @@
 <script lang="ts">
   import EventSearch from "$lib/components/EventSearch.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import type { TicketSchema } from "$lib/utils/shop/types";
-  import type { Event } from "@prisma/client";
   import dayjs from "dayjs";
   import { formFieldProxy, type SuperForm } from "sveltekit-superforms/client";
-  export let event: Event | undefined = undefined;
+  export let event: ExtendedPrismaModel<"Event"> | undefined = undefined;
   let isSearching: boolean;
   let handleSearch: (search: string) => void;
 
   export let superform: SuperForm<TicketSchema>;
   const { value, errors, constraints } = formFieldProxy(superform, "eventId");
 
-  const updateForm = (event: Event | undefined) => {
+  const updateForm = (event: ExtendedPrismaModel<"Event"> | undefined) => {
     if (!event) {
       $value = "";
       return;

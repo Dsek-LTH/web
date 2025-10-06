@@ -1019,9 +1019,9 @@
           "maxLength": 255
         },
         {
-          "id": "public.alerts.message",
-          "name": "message",
-          "columnName": "message",
+          "id": "public.alerts.message_sv",
+          "name": "message_sv",
+          "columnName": "message_sv",
           "type": "varchar",
           "isRequired": true,
           "kind": "scalar",
@@ -1415,9 +1415,9 @@
           "maxLength": null
         },
         {
-          "id": "public.article_requests.notification_body",
-          "name": "notification_body",
-          "columnName": "notification_body",
+          "id": "public.article_requests.notification_body_sv",
+          "name": "notification_body_sv",
+          "columnName": "notification_body_sv",
           "type": "varchar",
           "isRequired": false,
           "kind": "scalar",
@@ -1516,9 +1516,9 @@
           "maxLength": null
         },
         {
-          "id": "public.articles.header",
-          "name": "header",
-          "columnName": "header",
+          "id": "public.articles.header_sv",
+          "name": "header_sv",
+          "columnName": "header_sv",
           "type": "varchar",
           "isRequired": true,
           "kind": "scalar",
@@ -1544,9 +1544,9 @@
           "maxLength": 255
         },
         {
-          "id": "public.articles.body",
-          "name": "body",
-          "columnName": "body",
+          "id": "public.articles.body_sv",
+          "name": "body_sv",
+          "columnName": "body_sv",
           "type": "text",
           "isRequired": true,
           "kind": "scalar",
@@ -2028,9 +2028,9 @@
           "maxLength": null
         },
         {
-          "id": "public.bookable_categories.name",
-          "name": "name",
-          "columnName": "name",
+          "id": "public.bookable_categories.name_sv",
+          "name": "name_sv",
+          "columnName": "name_sv",
           "type": "varchar",
           "isRequired": true,
           "kind": "scalar",
@@ -2100,9 +2100,9 @@
           "maxLength": null
         },
         {
-          "id": "public.bookables.name",
-          "name": "name",
-          "columnName": "name",
+          "id": "public.bookables.name_sv",
+          "name": "name_sv",
+          "columnName": "name_sv",
           "type": "varchar",
           "isRequired": true,
           "kind": "scalar",
@@ -2649,9 +2649,9 @@
           "maxLength": null
         },
         {
-          "id": "public.committees.name",
-          "name": "name",
-          "columnName": "name",
+          "id": "public.committees.name_sv",
+          "name": "name_sv",
+          "columnName": "name_sv",
           "type": "varchar",
           "isRequired": true,
           "kind": "scalar",
@@ -2691,9 +2691,9 @@
           "maxLength": 255
         },
         {
-          "id": "public.committees.description",
-          "name": "description",
-          "columnName": "description",
+          "id": "public.committees.description_sv",
+          "name": "description_sv",
+          "columnName": "description_sv",
           "type": "varchar",
           "isRequired": false,
           "kind": "scalar",
@@ -3328,9 +3328,9 @@
           "maxLength": null
         },
         {
-          "id": "public.custom_authors.name",
-          "name": "name",
-          "columnName": "name",
+          "id": "public.custom_authors.name_sv",
+          "name": "name_sv",
+          "columnName": "name_sv",
           "type": "varchar",
           "isRequired": true,
           "kind": "scalar",
@@ -3820,9 +3820,9 @@
           "maxLength": null
         },
         {
-          "id": "public.elections.markdown",
-          "name": "markdown",
-          "columnName": "markdown",
+          "id": "public.elections.markdown_sv",
+          "name": "markdown_sv",
+          "columnName": "markdown_sv",
           "type": "text",
           "isRequired": true,
           "kind": "scalar",
@@ -4150,9 +4150,9 @@
           "maxLength": null
         },
         {
-          "id": "public.events.title",
-          "name": "title",
-          "columnName": "title",
+          "id": "public.events.title_sv",
+          "name": "title_sv",
+          "columnName": "title_sv",
           "type": "varchar",
           "isRequired": true,
           "kind": "scalar",
@@ -4178,9 +4178,9 @@
           "maxLength": 255
         },
         {
-          "id": "public.events.description",
-          "name": "description",
-          "columnName": "description",
+          "id": "public.events.description_sv",
+          "name": "description_sv",
+          "columnName": "description_sv",
           "type": "text",
           "isRequired": true,
           "kind": "scalar",
@@ -4262,9 +4262,9 @@
           "maxLength": null
         },
         {
-          "id": "public.events.short_description",
-          "name": "short_description",
-          "columnName": "short_description",
+          "id": "public.events.short_description_sv",
+          "name": "short_description_sv",
+          "columnName": "short_description_sv",
           "type": "varchar",
           "isRequired": false,
           "kind": "scalar",
@@ -5128,9 +5128,9 @@
           "maxLength": null
         },
         {
-          "id": "public.item_question.title",
-          "name": "title",
-          "columnName": "title",
+          "id": "public.item_question.title_sv",
+          "name": "title_sv",
+          "columnName": "title_sv",
           "type": "text",
           "isRequired": true,
           "kind": "scalar",
@@ -5142,9 +5142,9 @@
           "maxLength": null
         },
         {
-          "id": "public.item_question.titleEn",
-          "name": "titleEn",
-          "columnName": "titleEn",
+          "id": "public.item_question.title_en",
+          "name": "title_en",
+          "columnName": "title_en",
           "type": "text",
           "isRequired": false,
           "kind": "scalar",
@@ -5156,9 +5156,9 @@
           "maxLength": null
         },
         {
-          "id": "public.item_question.description",
-          "name": "description",
-          "columnName": "description",
+          "id": "public.item_question.description_sv",
+          "name": "description_sv",
+          "columnName": "description_sv",
           "type": "text",
           "isRequired": true,
           "kind": "scalar",
@@ -5170,9 +5170,9 @@
           "maxLength": null
         },
         {
-          "id": "public.item_question.descriptionEn",
-          "name": "descriptionEn",
-          "columnName": "descriptionEn",
+          "id": "public.item_question.description_en",
+          "name": "description_en",
+          "columnName": "description_en",
           "type": "text",
           "isRequired": false,
           "kind": "scalar",
@@ -5316,9 +5316,9 @@
           "maxLength": null
         },
         {
-          "id": "public.item_question_option.answer",
-          "name": "answer",
-          "columnName": "answer",
+          "id": "public.item_question_option.answer_sv",
+          "name": "answer_sv",
+          "columnName": "answer_sv",
           "type": "text",
           "isRequired": true,
           "kind": "scalar",
@@ -5330,9 +5330,9 @@
           "maxLength": null
         },
         {
-          "id": "public.item_question_option.answerEn",
-          "name": "answerEn",
-          "columnName": "answerEn",
+          "id": "public.item_question_option.answer_en",
+          "name": "answer_en",
+          "columnName": "answer_en",
           "type": "text",
           "isRequired": false,
           "kind": "scalar",
@@ -5762,9 +5762,9 @@
           "maxLength": 255
         },
         {
-          "id": "public.markdowns.markdown",
-          "name": "markdown",
-          "columnName": "markdown",
+          "id": "public.markdowns.markdown_sv",
+          "name": "markdown_sv",
+          "columnName": "markdown_sv",
           "type": "text",
           "isRequired": true,
           "kind": "scalar",
@@ -7462,9 +7462,9 @@
           "maxLength": 255
         },
         {
-          "id": "public.positions.name",
-          "name": "name",
-          "columnName": "name",
+          "id": "public.positions.name_sv",
+          "name": "name_sv",
+          "columnName": "name_sv",
           "type": "varchar",
           "isRequired": true,
           "kind": "scalar",
@@ -7546,9 +7546,9 @@
           "maxLength": null
         },
         {
-          "id": "public.positions.description",
-          "name": "description",
-          "columnName": "description",
+          "id": "public.positions.description_sv",
+          "name": "description_sv",
+          "columnName": "description_sv",
           "type": "text",
           "isRequired": false,
           "kind": "scalar",
@@ -8456,9 +8456,9 @@
           "maxLength": null
         },
         {
-          "id": "public.shoppable.title",
-          "name": "title",
-          "columnName": "title",
+          "id": "public.shoppable.title_sv",
+          "name": "title_sv",
+          "columnName": "title_sv",
           "type": "text",
           "isRequired": true,
           "kind": "scalar",
@@ -8470,9 +8470,9 @@
           "maxLength": null
         },
         {
-          "id": "public.shoppable.titleEn",
-          "name": "titleEn",
-          "columnName": "titleEn",
+          "id": "public.shoppable.title_en",
+          "name": "title_en",
+          "columnName": "title_en",
           "type": "text",
           "isRequired": false,
           "kind": "scalar",
@@ -8484,9 +8484,9 @@
           "maxLength": null
         },
         {
-          "id": "public.shoppable.description",
-          "name": "description",
-          "columnName": "description",
+          "id": "public.shoppable.description_sv",
+          "name": "description_sv",
+          "columnName": "description_sv",
           "type": "text",
           "isRequired": false,
           "kind": "scalar",
@@ -8498,9 +8498,9 @@
           "maxLength": null
         },
         {
-          "id": "public.shoppable.descriptionEn",
-          "name": "descriptionEn",
-          "columnName": "descriptionEn",
+          "id": "public.shoppable.description_en",
+          "name": "description_en",
+          "columnName": "description_en",
           "type": "text",
           "isRequired": false,
           "kind": "scalar",
@@ -9241,9 +9241,9 @@
           "maxLength": null
         },
         {
-          "id": "public.tags.name",
-          "name": "name",
-          "columnName": "name",
+          "id": "public.tags.name_sv",
+          "name": "name_sv",
+          "columnName": "name_sv",
           "type": "varchar",
           "isRequired": true,
           "kind": "scalar",
