@@ -31,8 +31,8 @@
 >
   <div>
     <EventSearchInput {superform} {event} />
-    <FormInput {superform} field="title" label="Biljettnamn" />
-    <FormInput {superform} field="description" label="Biljettbeskrivning" />
+    <FormInput {superform} field="titleSv" label="Biljettnamn" />
+    <FormInput {superform} field="descriptionSv" label="Biljettbeskrivning" />
     <FormInput {superform} field="titleEn" label="Biljettnamn (EN)" />
     <FormInput {superform} field="descriptionEn" label="Beskrivning (EN)" />
     <PriceInput {superform} />
