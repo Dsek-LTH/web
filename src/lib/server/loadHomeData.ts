@@ -1,11 +1,16 @@
-import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
+import {
+  PUBLIC_BUCKETS_DOCUMENTS,
+  PUBLIC_MINECRAFT_URL,
+} from "$env/static/public";
 import { BASIC_EVENT_FILTER } from "$lib/events/events";
 import { fileHandler } from "$lib/files";
 import { BASIC_ARTICLE_FILTER } from "$lib/news/articles";
 import { error } from "@sveltejs/kit";
-
-import { getCommitData } from "./getCommitData";
+// eslint-disable-next-line no-restricted-imports -- problem with lib and api, feels unnecessary to create a bunch of helper files just to structure this one thing
+import type { GetCommitDataResponse } from "../../routes/(app)/api/home/+server";
 import * as m from "$paraglide/messages";
+import { pingUri } from "minecraft-server-ping";
+import { wikiDataCache } from "./wiki/wiki";
 
 type Fetch = typeof fetch;
 export const loadHomeData = async ({
@@ -138,10 +143,11 @@ export const loadHomeData = async ({
     })
     .then((res) => res !== null);
 
-  const readmePromise = prisma.readme.findFirst({
+  const readmePromise = prisma.readme.findMany({
     orderBy: {
       publishedAt: "desc",
     },
+    take: 4,
   });
 
   const [
@@ -188,6 +194,17 @@ export const loadHomeData = async ({
     throw error(500, "Failed to fetch readme");
   }
 
+  // WIKI
+
+  const minecraftStatus = async () => {
+    try {
+      return await pingUri(PUBLIC_MINECRAFT_URL, { timeout: 2000 });
+    } catch {
+      console.log("Error, minecraft timed out");
+      return null;
+    }
+  };
+
   return {
     wellbeing: wellbeing_random_sentence,
     files: { next: nextBoardMeetingFiles, last: lastBoardMeetingFiles },
@@ -201,6 +218,8 @@ export const loadHomeData = async ({
     commitCount: commitData.value.commitCount,
     latestCommit: commitData.value.latestCommit,
     hasActiveMandate: hasActiveMandate.value,
-    readme: readme.value,
+    readmeIssues: readme.value,
+    wikiData: await wikiDataCache.get(),
+    minecraftStatus: minecraftStatus(),
   };
 };

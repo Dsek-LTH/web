@@ -1,4 +1,3 @@
-import * as Sentry from "@sentry/sveltekit";
 import { env } from "$env/dynamic/private";
 import { env as envPublic } from "$env/dynamic/public";
 import { i18n } from "$lib/utils/i18n";
@@ -27,17 +26,8 @@ import {
   PrismaClientValidationError,
 } from "@prisma/client/runtime/library";
 import { verifyCostCenterData } from "./routes/(app)/expenses/verification";
-import { dev, version } from "$app/environment";
 import { getExtendedPrismaClient } from "$lib/server/extendedPrisma";
-import { env as publicEnv } from "$env/dynamic/public";
-
-if (!dev) {
-  Sentry.init({
-    dsn: publicEnv.PUBLIC_SENTRY_DSN,
-    tracesSampleRate: 1,
-    release: version,
-  });
-}
+import { dev } from "$app/environment";
 
 // TODO: This function should perhaps only be called during dev? Build? I'm not sure
 if (dev) verifyCostCenterData();
@@ -223,28 +213,25 @@ const themeHandle: Handle = async ({ event, resolve }) => {
   });
 };
 
-export const handleError: HandleServerError = Sentry.handleErrorWithSentry(
-  ({ error }) => {
-    if (error instanceof PrismaClientKnownRequestError) {
-      const { message, name, code } = error;
-      console.log("prisma known request error", { message, name, code });
-      return {
-        message: message,
-      };
-    } else if (error instanceof PrismaClientValidationError) {
-      console.error("prisma validation error", error.message, error.name);
-      return {
-        message: "Database validation error, see logs for more info",
-      };
-    }
+export const handleError: HandleServerError = ({ error }) => {
+  if (error instanceof PrismaClientKnownRequestError) {
+    const { message, name, code } = error;
+    console.log("prisma known request error", { message, name, code });
     return {
-      message: error instanceof Error ? error.message : `${error}`,
+      message: message,
     };
-  },
-);
+  } else if (error instanceof PrismaClientValidationError) {
+    console.error("prisma validation error", error.message, error.name);
+    return {
+      message: "Database validation error, see logs for more info",
+    };
+  }
+  return {
+    message: error instanceof Error ? error.message : `${error}`,
+  };
+};
 
 export const handle = sequence(
-  Sentry.sentryHandle(),
   authHandle,
   i18n.handle(),
   databaseHandle,
