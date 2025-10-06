@@ -15,12 +15,13 @@ export const load: PageServerLoad = async ({ locals }) => {
     select: {
       id: true,
       name: true,
+      nameSv: true,
       nameEn: true,
     },
   });
 
   const election = {
-    markdown: "",
+    markdownSv: "",
     markdownEn: null,
     link: "",
     expiresAt: dayjs().endOf("day").toDate(),

@@ -18,6 +18,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     select: {
       id: true,
       name: true,
+      nameSv: true,
       nameEn: true,
     },
   });

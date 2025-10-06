@@ -9,7 +9,12 @@
   export let isCreating: boolean;
   export let data: {
     form: SuperValidated<ElectionSchema>;
-    committees: Array<{ id: string; name: string; nameEn: string | null }>;
+    committees: Array<{
+      id: string;
+      name: string;
+      nameSv: string;
+      nameEn: string | null;
+    }>;
     election: Pick<
       ExtendedPrismaModel<"Election">,
       "markdownSv" | "markdownEn" | "link" | "expiresAt" | "committeeId"
