@@ -15,6 +15,7 @@
   import { enhance } from "$app/forms";
 
   let submitting = false;
+  let fiveMinutesInMs = 5 * 60 * 1000;
 </script>
 
 <div class="container mx-auto p-2">
@@ -35,6 +36,9 @@
               <span class="text-sm font-normal"
                 >Ticket not valid for this event</span
               >
+            {:else if consumable.consumedAt && consumable.consumedAt.getUTCMilliseconds() - Date.now() < fiveMinutesInMs}
+              <!-- If the ticket was recently consumed (just after marking as consumed in admin interface) -->
+              <span class="text-warning">Consumed just now</span>
             {:else if consumable.consumedAt}
               <span class="text-error">Invalid - Already consumed</span>
             {:else if consumable.purchasedAt}
