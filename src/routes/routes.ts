@@ -214,7 +214,7 @@ export const getRoutes = (): Route[] =>
           appBehaviour: "home-link",
         },
         {
-          title: "QR Code", // TODO: Add translation
+          title: m.qrCode(),
           path: "/admin/qr",
           icon: "i-mdi-qrcode-scan",
           accessRequired: apiNames.WEBSHOP.MANAGE,

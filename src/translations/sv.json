@@ -507,6 +507,7 @@
   "events_scanning": "Event",
   "events_scanInstructions": "Skanna QR-kod",
   "events_scanDescription": "Peka kameran mot QR-koden för att skanna den.",
+  "qrCode": "QR Kod",
   "events_all_events": "Alla events",
   "documents_deleteFile": "Radera fil",
   "documents_deleteAreYouSure": "Är du säker på att du vill radera filen <strong>{fileName}</strong>?",

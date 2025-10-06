@@ -509,6 +509,7 @@
   "events_scanning": "Event",
   "events_scanInstructions": "Scan QR Code",
   "events_scanDescription": "Point your camera at the QR code to scan it.",
+  "qrCode": "QR Code",
   "events_all_events": "All events",
   "documents_deleteFile": "Delete file",
   "documents_deleteAreYouSure": "Are you sure you want to delete the file <strong>{fileName}</strong>?",
