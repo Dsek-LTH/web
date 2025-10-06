@@ -24,21 +24,26 @@
 </script>
 
 <!-- Header with meta info (guild card, who sent it, and when) -->
-<section class="inline-block rounded-md border border-base-content px-4 py-2">
-  <div class="flex justify-between gap-4">
-    <div class="font-medium text-primary">
-      {expense.isGuildCard ? "Sektionskort" : "Privat utlägg"}
+<div>
+  <section class="inline-block rounded-md border border-base-content px-4 py-2">
+    <div class="flex justify-between gap-4">
+      <div class="font-medium text-primary">
+        {expense.isGuildCard ? "Sektionskort" : "Privat utlägg"}
+      </div>
+      <div>
+        Skapad
+        {dayjs(expense.createdAt).format("DD MMM YYYY, HH:mm")}
+      </div>
     </div>
-    <div>
-      Skapad
-      {dayjs(expense.createdAt).format("DD MMM YYYY, HH:mm")}
+    <div class="flex items-center gap-2">
+      <MemberAvatar member={expense.member} />
+      {getFullName(expense.member)}
     </div>
-  </div>
-  <div class="flex items-center gap-2">
-    <MemberAvatar member={expense.member} />
-    {getFullName(expense.member)}
-  </div>
-</section>
+  </section>
+  <button class="btn btn-square btn-error"
+    ><span class="i-mdi-delete text-3xl"></span></button
+  >
+</div>
 <br />
 
 <div class="my-4">
