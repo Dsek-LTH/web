@@ -35,7 +35,7 @@ ARG VERSION
 ENV VERSION ${VERSION}
 
 COPY . .
-RUN --mount=type=secret pnpm run build
+RUN pnpm run build
 
 FROM base AS final
 COPY package.json .
