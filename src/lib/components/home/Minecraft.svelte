@@ -11,9 +11,9 @@
 </script>
 
 <div
-  class="flex-col justify-between gap-2 bg-base-300 max-md:flex-col md:flex-1"
+  class="flex-col justify-between gap-2 rounded-t-2xl bg-base-300 max-md:flex-col md:flex-1"
 >
-  <div class="flex w-full flex-row overflow-hidden rounded-2xl">
+  <div class="flex w-full flex-row overflow-hidden rounded-t-2xl">
     {#snippet minecraft_border()}
       <svg class="-mr-px w-full fill-primary" viewBox="0 0 4.2333333 1.0583333">
         <path
