@@ -15,7 +15,6 @@ import { wikiDataCache } from "./wiki/wiki";
 type Fetch = typeof fetch;
 export const loadHomeData = async ({
   locals,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- incorrectly flagged
   fetch,
 }: {
   locals: App.Locals;
@@ -118,7 +117,9 @@ export const loadHomeData = async ({
   });
 
   // COMMIT DATA
-  const commitPromise = getCommitData();
+  const commitPromise = fetch("/api/home").then((res) =>
+    res.json(),
+  ) as Promise<GetCommitDataResponse>;
 
   // RANDOM WELLBEING MESSAGE
   const wellbeing_random_sentence = [

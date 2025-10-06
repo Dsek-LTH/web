@@ -1,3 +1,4 @@
+import { json } from "@sveltejs/kit";
 import dayjs from "dayjs";
 
 const cacheDuration = 600;
@@ -11,7 +12,7 @@ let latestCommit: {
 };
 let lastFetch: dayjs.Dayjs;
 
-export const getCommitData = async () => {
+export async function GET() {
   const now = dayjs();
   if (!lastFetch || lastFetch.add(cacheDuration, "s").isBefore(now)) {
     lastFetch = now;
@@ -55,8 +56,8 @@ export const getCommitData = async () => {
     }
   }
 
-  return { commitCount, latestCommit };
-};
+  return json({ commitCount, latestCommit });
+}
 
 export type GetCommitDataResponse = {
   commitCount: string;
