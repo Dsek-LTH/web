@@ -16,6 +16,7 @@ in pkgs.mkShell {
   shellHook = ''
     if ! type "docker" > /dev/null; then
       echo "install docker and try again: https://wiki.nixos.org/wiki/Docker"
+      exit 1
     fi
 
     export PKG_CONFIG_PATH="${pkgs.openssl.dev}/lib/pkgconfig"
@@ -28,7 +29,7 @@ in pkgs.mkShell {
       docker start dsek-meilisearch > /dev/null
       docker start dsek-poppler > /dev/null
     else
-      docker rm -f dsek-db dsek-meilisearch dsek-poppler
+      docker rm -f dsek-db dsek-meilisearch dsek-poppler 2> /dev/null
       pnpm install
       ${pkgs.bash}/bin/bash ./dev/setup_db.sh
     fi
