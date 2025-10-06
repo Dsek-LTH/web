@@ -1,0 +1,54 @@
+name: Deployment
+permissions:
+  contents: read
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  website:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to image registry
+        id: registry-login
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.IMAGEREPO_USERNAME }}
+          password: ${{ secrets.IMAGEREPO_PASSWORD }}
+          registry: registry.dsek.se
+      - name: Build and push website
+        uses: docker/build-push-action@v6
+        with:
+          build-args: |
+            "PUBLIC_MINIO_ENDPOINT=minio.api.dsek.se"
+            "PUBLIC_MINIO_PORT=443"
+            "PUBLIC_MINIO_USE_SSL=true"
+            "PUBLIC_BUCKETS_DOCUMENTS=documents"
+            "PUBLIC_BUCKETS_FILES=files"
+            "PUBLIC_BUCKETS_MEMBERS=members"
+            "VERSION=${{ github.ref_name }}"
+          push: true
+          tags: registry.dsek.se/web-staging/website:${{ github.ref_name }},registry.dsek.se/web-staging/website:latest
+
+  poppler:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to image registry
+        id: registry-login
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.IMAGEREPO_USERNAME }}
+          password: ${{ secrets.IMAGEREPO_PASSWORD }}
+          registry: registry.dsek.se
+      - name: Build and push poppler
+        uses: docker/build-push-action@v6
+        with:
+          context: "{{defaultContext}}:poppler-server"
+          push: true
+          tags: registry.dsek.se/web-staging/poppler:${{ github.ref_name }},registry.dsek.se/web-staging/poppler:latest
