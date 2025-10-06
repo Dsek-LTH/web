@@ -36,7 +36,7 @@
               <span class="text-sm font-normal"
                 >Ticket not valid for this event</span
               >
-            {:else if consumable.consumedAt && consumable.consumedAt.getTime() - Date.now() < fiveMinutesInMs}
+            {:else if consumable.consumedAt && Date.now() - consumable.consumedAt.getTime() < fiveMinutesInMs}
               <!-- If the ticket was recently consumed (just after marking as consumed in admin interface) -->
               <span class="text-warning">Consumed just now</span>
             {:else if consumable.consumedAt}
