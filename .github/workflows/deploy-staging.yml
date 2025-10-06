@@ -1,4 +1,6 @@
 name: Deployment
+permissions:
+  contents: read
 
 on:
   push:
