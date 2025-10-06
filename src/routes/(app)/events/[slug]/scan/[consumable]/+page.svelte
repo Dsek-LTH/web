@@ -56,7 +56,7 @@
           <div class="stat-title">Owner</div>
           <div class="stat-value text-lg">
             {#if member}
-              <td class="flex items-center gap-3">
+              <div class="flex items-center gap-3">
                 <div class="avatar">
                   <div class="w-6 rounded-full">
                     {#if member.picturePath}
@@ -71,7 +71,7 @@
                   {member.lastName}
                   <span class="text-stone-500">({member.studentId})</span>
                 </p>
-              </td>
+              </div>
             {:else if consumable.externalCustomerEmail}
               {consumable.externalCustomerEmail}
             {:else}

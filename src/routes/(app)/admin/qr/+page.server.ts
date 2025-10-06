@@ -23,10 +23,10 @@ export const load: PageServerLoad = async ({ locals, url }) => {
       tickets: {
         some: {
           stock: {
-            gt: 0
-          }
-        }
-      }
+            gt: 0,
+          },
+        },
+      },
     },
   });
 
@@ -40,10 +40,10 @@ export const load: PageServerLoad = async ({ locals, url }) => {
       tickets: {
         some: {
           stock: {
-            gt: 0
-          }
-        }
-      }
+            gt: 0,
+          },
+        },
+      },
     },
     orderBy: {
       startDatetime: "desc",
