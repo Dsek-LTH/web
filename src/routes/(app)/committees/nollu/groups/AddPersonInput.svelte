@@ -1,12 +1,12 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
-  import type { Member } from "@prisma/client";
   import MemberSearchInput from "$lib/components/forms/MemberSearchInput.svelte";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
   export let year: number | undefined = undefined;
   export let phadder = false;
   export let groupId: string;
-  let member: Member | undefined = undefined;
+  let member: ExtendedPrismaModel<"Member"> | undefined = undefined;
 </script>
 
 <form

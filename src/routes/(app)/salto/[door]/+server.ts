@@ -1,7 +1,10 @@
-import type { DoorAccessPolicy, PrismaClient } from "@prisma/client";
 import type { RequestHandler } from "./$types";
 import { BACKUP_LIST_OF_STUDENT_IDS } from "./constants";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import type {
+  ExtendedPrisma,
+  ExtendedPrismaModel,
+} from "$lib/server/extendedPrisma";
 
 /**
  * The arrays contain students and positions respectively.
@@ -9,7 +12,9 @@ import authorizedPrismaClient from "$lib/server/authorizedPrisma";
  * This function splits the policies into two respective arrays.
  */
 function parseDoorPolicies(
-  policies: Array<Pick<DoorAccessPolicy, "studentId" | "role">>,
+  policies: Array<
+    Pick<ExtendedPrismaModel<"DoorAccessPolicy">, "studentId" | "role">
+  >,
 ) {
   const studentIds = policies
     .map((policy) => policy.studentId)
@@ -26,7 +31,12 @@ function parseDoorPolicies(
  * This function splits the policies into two respective arrays.
  */
 function parseDoorBanPolicies(
-  policies: Array<Pick<DoorAccessPolicy, "studentId" | "role" | "isBan">>,
+  policies: Array<
+    Pick<
+      ExtendedPrismaModel<"DoorAccessPolicy">,
+      "studentId" | "role" | "isBan"
+    >
+  >,
 ) {
   const studentIdsBanned = policies
     .filter((policy) => policy.isBan)
@@ -43,7 +53,7 @@ function parseDoorBanPolicies(
  * Given an array of role strings such as "dsek", "dsek.km", etc,
  * return an array of positions that match the input strings.
  */
-function fetchMatchingPositions(positions: string[], prisma: PrismaClient) {
+function fetchMatchingPositions(positions: string[], prisma: ExtendedPrisma) {
   return prisma.position.findMany({
     select: { id: true },
     where: {
@@ -62,7 +72,7 @@ function fetchMatchingPositions(positions: string[], prisma: PrismaClient) {
  */
 async function fetchStudentsWithPositions(
   positions: string[],
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
 ) {
   const mandates = await prisma.mandate.findMany({
     where: {

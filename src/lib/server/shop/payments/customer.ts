@@ -1,9 +1,13 @@
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import stripe from "./stripe";
 import { getFullName } from "$lib/utils/client/member";
-import type { Member } from "@prisma/client";
+import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
-const createStripeCustomer = async ({ member }: { member: Member }) => {
+const createStripeCustomer = async ({
+  member,
+}: {
+  member: ExtendedPrismaModel<"Member">;
+}) => {
   const { id, studentId } = member;
   try {
     const customer = await stripe.customers.create({
@@ -33,7 +37,9 @@ const createStripeCustomer = async ({ member }: { member: Member }) => {
 /**
  * Gets stripe customer connected to member, or creates a new one if none exists.
  */
-export const obtainStripeCustomer = async (member: Member) => {
+export const obtainStripeCustomer = async (
+  member: ExtendedPrismaModel<"Member">,
+) => {
   const { stripeCustomerId } = member;
   if (!stripeCustomerId) {
     return await createStripeCustomer({ member });

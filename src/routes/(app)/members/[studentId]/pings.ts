@@ -1,9 +1,13 @@
 import { getFullName } from "$lib/utils/client/member";
 import sendNotification from "$lib/utils/notifications";
 import { NotificationType } from "$lib/utils/notifications/types";
-import type { Ping, PrismaClient } from "@prisma/client";
 import * as m from "$paraglide/messages";
 import { error } from "@sveltejs/kit";
+import type {
+  ExtendedPrisma,
+  ExtendedPrismaModel,
+} from "$lib/server/extendedPrisma";
+
 type MemberIdentification =
   | {
       memberId: string;
@@ -20,7 +24,7 @@ type SendPingProps = {
 };
 
 export const sendPing = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   { link, fromMemberId, toMemberId }: SendPingProps,
 ) => {
   const sendingMember = await assertMemberExists(
@@ -70,7 +74,7 @@ export const sendPing = async (
 };
 
 const assertMemberExists = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   member: MemberIdentification,
   errorMsg = m.members_errors_memberDoesntExist(),
 ) => {
@@ -102,7 +106,7 @@ const assertMemberExists = async (
 };
 
 const findPreviousPing = (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   fromMemberId: string,
   toMemberId: string,
 ) =>
@@ -125,7 +129,7 @@ const findPreviousPing = (
   });
 
 const performInitialPing = (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   fromMemberId: string,
   toMemberId: string,
 ) =>
@@ -140,10 +144,10 @@ const performInitialPing = (
   });
 
 const performSubsequentPing = (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   fromMemberId: string,
   toMemberId: string,
-  previousPing: Pick<Ping, "fromMemberId">,
+  previousPing: Pick<ExtendedPrismaModel<"Ping">, "fromMemberId">,
 ) => {
   const isSenderFromColumn = previousPing.fromMemberId === fromMemberId;
   return prisma.ping.update({

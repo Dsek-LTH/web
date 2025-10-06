@@ -1,8 +1,8 @@
 <script lang="ts">
-  import type { Tag } from "@prisma/client";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
-  export let subscribedTags: Tag[];
-  export let tags: Tag[];
+  export let subscribedTags: Array<ExtendedPrismaModel<"Tag">>;
+  export let tags: Array<ExtendedPrismaModel<"Tag">>;
 
   let selectedTags: string[] = tags
     .map((tag) => {

@@ -4,16 +4,16 @@
   import type { TicketWithMoreInfo } from "$lib/server/shop/getTickets";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
-  import type { Event, Tag } from "@prisma/client";
   import dayjs from "dayjs";
   // import EventTicket from "./EventTicket.svelte";
   import TagChip from "$lib/components/TagChip.svelte";
   import { NOLLNING_TAG_PREFIX } from "$lib/components/postReveal/types";
   import * as m from "$paraglide/messages";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   $: revealTheme = $page.data["revealTheme"];
 
-  export let event: Event & {
-    tags: Tag[];
+  export let event: ExtendedPrismaModel<"Event"> & {
+    tags: Array<ExtendedPrismaModel<"Tag">>;
   } & {
     tickets: TicketWithMoreInfo[];
   };

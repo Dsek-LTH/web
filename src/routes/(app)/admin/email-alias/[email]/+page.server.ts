@@ -1,3 +1,4 @@
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 import type { PageServerLoad } from "./$types";
@@ -19,7 +20,6 @@ import {
 } from "./schema";
 import { isValidEmail, isValidGuildEmail } from "../emailutils";
 import authentik from "$lib/server/authentik";
-import type { PrismaClient } from "@prisma/client";
 import * as m from "$paraglide/messages";
 
 export const load: PageServerLoad = async (event) => {
@@ -56,7 +56,7 @@ export const load: PageServerLoad = async (event) => {
         active: true,
       },
       orderBy: {
-        name: "asc",
+        nameSv: "asc",
       },
     }),
     prisma.specialReceiver.findMany({
@@ -413,7 +413,7 @@ export const actions = {
 // This function checks if an email alias is used for any of these
 // If it is, it should not be deleted, and thus there should still be a page for that email
 async function emailStillInUse(
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   email: string,
 ): Promise<boolean> {
   const [aliasCount, receiverCount, senderCount] = await Promise.all([

@@ -1,11 +1,14 @@
 <script lang="ts">
   import { markdownToTxt } from "markdown-to-txt";
-  import type { Event } from "@prisma/client";
   import { languageTag } from "$paraglide/runtime";
   import * as m from "$paraglide/messages";
   import { eventLink } from "$lib/utils/redirect";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   export let events: Array<
-    Pick<Event, "id" | "slug" | "title" | "description" | "startDatetime">
+    Pick<
+      ExtendedPrismaModel<"Event">,
+      "id" | "slug" | "title" | "description" | "startDatetime"
+    >
   >;
 </script>
 

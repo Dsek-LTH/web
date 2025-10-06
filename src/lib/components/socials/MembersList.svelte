@@ -1,9 +1,9 @@
 <script lang="ts">
   import AuthorSignature from "$lib/components/socials/AuthorSignature.svelte";
-  import type { Member } from "@prisma/client";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
   let modal: HTMLDialogElement | null;
-  export let members: Member[];
+  export let members: Array<ExtendedPrismaModel<"Member">>;
 
   let clazz: string | undefined = undefined;
   export { clazz as class };

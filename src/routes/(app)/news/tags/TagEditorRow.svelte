@@ -1,14 +1,14 @@
 <script lang="ts">
   import TagChip from "$lib/components/TagChip.svelte";
-  import type { Tag } from "@prisma/client";
   import type { UpdateSchema } from "./proxy+page.server";
   import { superForm } from "$lib/utils/client/superForms";
   import type { SuperValidated } from "sveltekit-superforms";
   import { onMount } from "svelte";
   import * as m from "$paraglide/messages";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
   export let data: SuperValidated<UpdateSchema>;
-  export let tag: Tag;
+  export let tag: ExtendedPrismaModel<"Tag">;
   const { form, errors, constraints, enhance, submitting } = superForm(data, {
     id: tag.id,
     onResult: (event) => {
@@ -19,7 +19,7 @@
   });
   onMount(() => {
     form.update((f) => {
-      f.name = tag.name;
+      f.nameSv = tag.nameSv;
       f.nameEn = tag.nameEn;
       f.color = tag.color ?? undefined;
       return f;
@@ -33,13 +33,13 @@
     ><TagChip
       tag={{
         ...tag,
-        name: $form.name ?? tag.name,
+        name: tag.name,
         color: $form.color ?? tag.color,
       }}
     /></td
   >
   {#if !isEditing}
-    <td>{tag.name}</td>
+    <td>{tag.nameSv}</td>
     <td>{tag.nameEn ?? ""}</td>
     <td style="color: {tag.color}">{tag.color}</td>
     <td class="text-right">
@@ -63,11 +63,12 @@
         <input
           type="text"
           name="name"
-          bind:value={$form.name}
+          bind:value={$form.nameSv}
           class="input input-xs input-bordered"
-          {...$constraints.name}
+          {...$constraints.nameSv}
         />
-        {#if $errors.name}<span class="text-error">{$errors.name}</span>{/if}
+        {#if $errors.nameSv}<span class="text-error">{$errors.nameSv}</span
+          >{/if}
         <input
           type="text"
           name="nameEn"

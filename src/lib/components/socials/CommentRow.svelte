@@ -8,17 +8,19 @@
   import { relativeDate } from "$lib/utils/client/datetime";
   import { getFullName } from "$lib/utils/client/member";
   import type { RemoveCommentSchema } from "$lib/zod/comments";
-  import type { ArticleComment, EventComment, Member } from "@prisma/client";
   import type { SuperValidated } from "sveltekit-superforms";
   import { superForm } from "$lib/utils/client/superForms";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
   export let type: "NEWS" | "EVENT";
-  export let comment: ArticleComment | EventComment;
-  export let author: Member;
+  export let comment:
+    | ExtendedPrismaModel<"ArticleComment">
+    | ExtendedPrismaModel<"EventComment">;
+  export let author: ExtendedPrismaModel<"Member">;
   /**
    * A list of all members that have been tagged in the comment. Can be more than JUST this comment's tagged members.
    */
-  export let taggedMembers: Member[];
+  export let taggedMembers: Array<ExtendedPrismaModel<"Member">>;
   export let onReply: () => void;
   export let removeCommentForm: SuperValidated<RemoveCommentSchema>;
   const { errors, constraints, enhance } = superForm(removeCommentForm, {
@@ -26,9 +28,8 @@
   });
 
   const getReplacementValue = (studentId: string) => {
-    const member: Member | undefined = taggedMembers.find(
-      (member) => member.studentId === studentId,
-    );
+    const member: ExtendedPrismaModel<"Member"> | undefined =
+      taggedMembers.find((member) => member.studentId === studentId);
     if (!member) return "@Unknown User";
     // Logic to return the replacement value based on the UUID
     // For example, this could be a lookup in a map or an API call

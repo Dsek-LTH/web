@@ -1,14 +1,14 @@
 <script lang="ts">
   import type { UserShopItemCounts } from "$lib/server/shop/countUserShopItems";
   import { getFullName } from "$lib/utils/client/member";
-  import type { Member } from "@prisma/client";
   import type { AuthUser } from "@zenstackhq/runtime";
   import * as m from "$paraglide/messages";
   import LoadingButton from "$lib/components/LoadingButton.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import { signOut } from "$lib/utils/auth";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
-  export let member: Member;
+  export let member: ExtendedPrismaModel<"Member">;
   export let user: AuthUser;
   export let shopItemCounts: UserShopItemCounts;
 
