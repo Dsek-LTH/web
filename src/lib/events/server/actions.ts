@@ -244,7 +244,24 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
 
     await Promise.all(
       eventsToBeUpdated.map((e) => {
-        const { startDatetime, endDatetime, id, ...oldData } = e;
+        const {
+          startDatetime,
+          endDatetime,
+          id,
+          /* eslint-disable-next-line @typescript-eslint/no-unused-vars --
+           * To avoid lint complaining about unused vars
+           **/
+          title,
+          /* eslint-disable-next-line @typescript-eslint/no-unused-vars --
+           * To avoid lint complaining about unused vars
+           **/
+          description,
+          /* eslint-disable-next-line @typescript-eslint/no-unused-vars --
+           * To avoid lint complaining about unused vars
+           **/
+          shortDescription,
+          ...oldData
+        } = e;
         const newData = {
           ...oldData,
           ...eventData,
