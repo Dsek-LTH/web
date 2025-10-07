@@ -5,7 +5,6 @@
   import { superForm } from "$lib/utils/client/superForms";
   import * as m from "$paraglide/messages";
   export let data: SuperValidated<UpdateMandateSchema>;
-  export let mandateId: string;
   const { form, errors, constraints, enhance } = superForm(data);
 </script>
 
@@ -15,7 +14,7 @@
   use:enhance
   class="form-control my-2 flex-row items-end gap-2"
 >
-  <input type="hidden" name="mandateId" value={mandateId} />
+  <input type="hidden" name="mandateId" value={$form.mandateId} />
   <Labeled label={m.positions_startDate()}>
     <input
       name="startDate"

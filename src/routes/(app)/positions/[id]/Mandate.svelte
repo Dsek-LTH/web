@@ -7,7 +7,6 @@
   import { isAuthorized } from "$lib/utils/authorization";
   import { getFullName } from "$lib/utils/client/member";
   import { languageTag } from "$paraglide/runtime";
-  import type { Prisma } from "@prisma/client";
   import type { PageData } from "./$types";
   import { onMount } from "svelte";
   export let data: PageData;
@@ -18,20 +17,20 @@
 
   onMount(() =>
     document.addEventListener("pointerdown", (event) => {
-      if (!container.contains(event.target as Node)) {
+      if (!container?.contains(event.target as Node)) {
         isEditing = false;
       }
     }),
   );
+
+  $: startDate = mandate.startDate.toLocaleDateString(languageTag());
+  $: endDate = mandate.endDate.toLocaleDateString(languageTag());
 </script>
 
 <div
   bind:this={container}
-  class="tooltip relative flex items-center gap-2"
-  data-tip={getFullName(mandate.member) +
-    `\n${mandate.startDate.toLocaleDateString(
-      languageTag(),
-    )} - ${mandate.endDate.toLocaleDateString(languageTag())}`}
+  class="tooltip relative flex items-center gap-2 before:whitespace-pre"
+  data-tip={getFullName(mandate.member) + `\n${startDate} - ${endDate}`}
 >
   <a
     href="/members/{mandate.member.studentId}"
@@ -45,11 +44,14 @@
     </span>
   </a>
   <ClassBadge member={mandate.member} />
-  {#if isAuthorized(apiNames.MANDATE.UPDATE, data.user)}
+  {#if isAuthorized(apiNames.MANDATE.UPDATE, data.user) || isAuthorized(apiNames.MANDATE.DELETE, data.user)}
     <button
       class="aspect-square h-full"
       on:click={() => (isEditing = !isEditing)}
-      ><span class="h-full w-full i-mdi-{isEditing ? 'close' : 'pen'}"
+      ><span
+        class="h-full w-full {isEditing
+          ? 'i-mdi-close opacity-80'
+          : 'i-mdi-pencil opacity-20'} transition-opacity hover:opacity-100"
         >edit</span
       ></button
     >
@@ -57,7 +59,15 @@
 
   {#if isEditing}<div class="absolute top-full z-10 bg-gray-600 text-green-500">
       {#await data.updateMandateForm then form}
-        <UpdateMandateForm data={form} mandateId={mandate.id} />
+        <UpdateMandateForm
+          data={((f) => {
+            // I REALLY hate to do this but they seem to be unset and I don't know how to fix it properly
+            f.data.startDate = mandate.startDate;
+            f.data.endDate = mandate.endDate;
+            f.data.mandateId = mandate.id;
+            return f;
+          })(form)}
+        />
       {/await}
       {#if isAuthorized(apiNames.MANDATE.DELETE, data.user)}
         {#await data.deleteMandateForm then form}
@@ -65,9 +75,7 @@
         {/await}
       {/if}
       <span class="text-xs">
-        {mandate.startDate.toLocaleDateString(languageTag())} - {mandate.endDate.toLocaleDateString(
-          languageTag(),
-        )}
+        {startDate} - {endDate}
       </span>
     </div>{/if}
 
