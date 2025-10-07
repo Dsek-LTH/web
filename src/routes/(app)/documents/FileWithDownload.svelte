@@ -4,7 +4,7 @@
   export let onClick: (url: string) => void;
 </script>
 
-<div class="flex items-center gap-2 py-2">
+<div class="flex w-full items-center justify-between gap-2 py-2">
   <a
     class="link flex items-center gap-2 text-left no-underline hover:underline"
     href={url}
