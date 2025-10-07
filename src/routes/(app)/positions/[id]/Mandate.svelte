@@ -44,6 +44,8 @@
     </span>
   </a>
   <ClassBadge member={mandate.member} />
+
+  <!-- Edit button -->
   {#if isAuthorized(apiNames.MANDATE.UPDATE, data.user) || isAuthorized(apiNames.MANDATE.DELETE, data.user)}
     <button
       class="aspect-square h-full"
@@ -57,6 +59,7 @@
     >
   {/if}
 
+  <!-- Edit modal -->
   {#if isEditing}<div class="absolute top-full z-10 bg-gray-600 text-green-500">
       {#await data.updateMandateForm then form}
         <UpdateMandateForm
@@ -78,19 +81,4 @@
         {startDate} - {endDate}
       </span>
     </div>{/if}
-
-  <!-- Remove and edit buttons -->
-  {#if isEditing && false}
-    <!--{#if isAuthorized(apiNames.MANDATE.UPDATE, data.user)}
-      <button
-        class="btn btn-secondary btn-sm pointer-events-auto"
-        on:click|preventDefault={async () => {
-          await goto(`positions/${data.position.id}?editMandate=${mandate.id}`);
-        }}
-      >
-        {m.positions_edit()}
-      </button>
-    {/if}-->
-  {:else}{/if}
-  {#if isEditing && false}{/if}
 </div>
