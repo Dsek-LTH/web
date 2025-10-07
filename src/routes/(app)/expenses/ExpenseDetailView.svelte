@@ -40,9 +40,15 @@
       {getFullName(expense.member)}
     </div>
   </section>
-  <button class="btn btn-square btn-error"
-    ><span class="i-mdi-delete text-3xl"></span></button
-  >
+  <form method="POST" action="/expenses/{expense.id}?/delete" use:enhance>
+    <button
+      type="submit"
+      class="btn btn-square btn-error"
+      aria-label="delete expense"
+    >
+      <span class="i-mdi-delete text-3xl"></span>
+    </button>
+  </form>
 </div>
 <br />
 
