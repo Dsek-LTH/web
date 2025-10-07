@@ -24,7 +24,7 @@
 </script>
 
 <!-- Header with meta info (guild card, who sent it, and when) -->
-<div>
+<div class="flex items-center">
   <section class="inline-block rounded-md border border-base-content px-4 py-2">
     <div class="flex justify-between gap-4">
       <div class="font-medium text-primary">
@@ -43,7 +43,7 @@
   <form method="POST" action="/expenses/{expense.id}?/delete" use:enhance>
     <button
       type="submit"
-      class="btn btn-square btn-error"
+      class="btn btn-square btn-error m-4"
       aria-label="delete expense"
     >
       <span class="i-mdi-delete text-3xl"></span>
