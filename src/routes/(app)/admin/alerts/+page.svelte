@@ -30,7 +30,7 @@
   <p>{m.admin_alerts_info()}</p>
   <input
     type="text"
-    name="message"
+    name="messageSv"
     placeholder={m.admin_alerts_messageSwedish()}
     class="input input-bordered w-full max-w-lg"
   />
