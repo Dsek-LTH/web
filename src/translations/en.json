@@ -850,5 +850,6 @@
   "create_expense": "Create",
   "pub_example": "Food to pub",
   "add_receipt": "Add receipt",
-  "add_row": "Add row"
+  "add_row": "Add row",
+  "positions_removeMandate": "Remove mandate"
 }
