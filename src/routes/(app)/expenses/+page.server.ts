@@ -24,6 +24,11 @@ export const load = async ({ locals }) => {
           },
         },
       ],
+      AND: [
+        {
+          removedAt: null,
+        },
+      ],
     },
     orderBy: {
       date: "desc",
