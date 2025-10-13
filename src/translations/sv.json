@@ -847,5 +847,6 @@
   "pub_example": "Mat till pub",
   "add_receipt": "Lägg till kvitto",
   "add_row": "Lägg till rad",
-  "positions_removeMandate": "Ta bort mandat"
+  "positions_removeMandate": "Ta bort mandat",
+  "positions": "Poster"
 }
