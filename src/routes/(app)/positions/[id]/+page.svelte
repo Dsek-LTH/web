@@ -3,7 +3,6 @@
   import PageHeader from "$lib/components/nav/PageHeader.svelte";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
-  import { goto } from "$lib/utils/redirect";
   import * as m from "$paraglide/messages";
   import { languageTag } from "$paraglide/runtime";
   import type { Prisma } from "@prisma/client";
