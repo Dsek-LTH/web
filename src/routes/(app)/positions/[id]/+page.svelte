@@ -33,7 +33,6 @@
   );
   let isEditing = false;
   let isAdding = false;
-  $: editedMandate = $page.url.searchParams.get("editMandate");
 </script>
 
 <SetPageTitle title={data.position.name} />
@@ -63,7 +62,7 @@
             {isAdding ? m.positions_cancel() : m.positions_addMandate()}
           </button>
         {/if}
-        {#if (!isAdding && isAuthorized(apiNames.MANDATE.UPDATE, data.user)) || isAuthorized(apiNames.MANDATE.DELETE, data.user) || isAuthorized(apiNames.POSITION.UPDATE, data.user)}
+        {#if isAuthorized(apiNames.POSITION.UPDATE, data.user)}
           <button
             class="btn btn-sm"
             on:click={async () => {
@@ -106,7 +105,7 @@
 </div>
 
 <!-- Edit position form -->
-{#if isEditing && isAuthorized(apiNames.POSITION.UPDATE, data.user)}
+{#if isEditing}
   {#await data.updateForm then form}
     <UpdatePositionForm data={form} />
   {/await}
