@@ -63,8 +63,8 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 };
 
 const updateSchema = z.object({
-  nameSv: z.string().optional(),
-  descriptionSv: z.string().nullable(),
+  name: z.string().optional(),
+  description: z.string().nullable(),
   email: z.string().email().nullable(),
 });
 export type UpdatePositionSchema = Infer<typeof updateSchema>;
@@ -112,8 +112,8 @@ export const actions: Actions = {
         await prisma.position.update({
           where: { id: params.id },
           data: {
-            nameSv: form.data.nameSv,
-            descriptionSv: form.data.descriptionSv,
+            nameSv: form.data.name,
+            descriptionSv: form.data.description,
             email: form.data.email,
           },
         });
@@ -122,8 +122,8 @@ export const actions: Actions = {
         await prisma.position.update({
           where: { id: params.id },
           data: {
-            nameEn: form.data.nameSv,
-            descriptionEn: form.data.descriptionSv,
+            nameEn: form.data.name,
+            descriptionEn: form.data.description,
             email: form.data.email,
           },
         });
