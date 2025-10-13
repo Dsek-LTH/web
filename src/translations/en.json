@@ -852,5 +852,8 @@
   "add_receipt": "Add receipt",
   "add_row": "Add row",
   "positions_removeMandate": "Remove mandate",
-  "positions": "Positions"
+  "positions": "Positions",
+  "positions_active": "Active",
+  "positions_board_member": "Board member",
+  "positions_apply_change": "Apply"
 }

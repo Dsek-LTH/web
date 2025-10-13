@@ -848,5 +848,8 @@
   "add_receipt": "Lägg till kvitto",
   "add_row": "Lägg till rad",
   "positions_removeMandate": "Ta bort mandat",
-  "positions": "Poster"
+  "positions": "Poster",
+  "positions_active": "Aktiv",
+  "positions_board_member": "Styrelsemedlem",
+  "positions_apply_change": "Spara"
 }

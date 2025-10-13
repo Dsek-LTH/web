@@ -4,6 +4,7 @@
   import type { UpdatePositionAttributeSchema } from "./+page.server";
   import type { SuperValidated } from "sveltekit-superforms";
   import { superForm } from "$lib/utils/client/superForms";
+  import * as m from "$paraglide/messages";
 
   export let position: Position;
   export let data: SuperValidated<UpdatePositionAttributeSchema>;
@@ -19,7 +20,7 @@
 <form action="?/update" method="POST" style="display:contents" use:enhance>
   <input type="hidden" name="id" value={position.id} />
   <input type="hidden" name="active" value="false" />
-  <Labeled label="Active">
+  <Labeled label={m.positions_active()}>
     <input
       type="checkbox"
       name="active"
@@ -33,7 +34,7 @@
     {/if}
   </Labeled>
   <input type="hidden" name="isBoardMember" value="false" />
-  <Labeled label="Board member">
+  <Labeled label={m.positions_board_member()}>
     <input
       type="checkbox"
       name="isBoardMember"
@@ -48,7 +49,7 @@
   </Labeled>
   <input
     type="submit"
-    value="Apply"
+    value={m.positions_apply_change()}
     disabled={!isTainted($tainted)}
     class="btn btn-secondary"
   />
