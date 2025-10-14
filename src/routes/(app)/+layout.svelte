@@ -50,7 +50,7 @@
 </main>
 <Toast />
 {#if !data.isApp}
-  <Footer />
+  <Footer {data} />
 {:else}
   <AppBottomNav />
 
