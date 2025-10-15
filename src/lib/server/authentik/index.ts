@@ -2,6 +2,7 @@ import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 import { env } from "$env/dynamic/private";
 import { error } from "@sveltejs/kit";
 import { promiseAllInBatches } from "$lib/utils/batch";
+import { withCache } from "$lib/utils/cache";
 
 import {
   Configuration,
@@ -70,6 +71,8 @@ export async function addEmailGroupRecipient(id: string, email: string) {
     groupUuid: id,
     patchedGroupRequest: { attributes: { ...attributes, recipients } },
   });
+
+  fetchEmailGroups.invalidate();
 }
 
 export async function removeEmailGroupRecipient(id: string, email: string) {
@@ -86,9 +89,11 @@ export async function removeEmailGroupRecipient(id: string, email: string) {
       attributes: { ...attributes, recipients: [...recipients] },
     },
   });
+
+  fetchEmailGroups.invalidate();
 }
 
-export async function fetchEmailGroups() {
+export async function _fetchEmailGroups() {
   if (!enabled) return [];
 
   const groups = await fetchAll<Group, CoreGroupsListRequest>(
@@ -111,6 +116,8 @@ export async function fetchEmailGroups() {
   }
   return emailAliases;
 }
+
+export const fetchEmailGroups = withCache(_fetchEmailGroups);
 
 function _getEmailGroupName(email: string) {
   const [alias, domain] = email.split("@");
@@ -137,6 +144,8 @@ export async function createEmailGroup(email: string) {
       attributes: { mail: email },
     },
   });
+
+  fetchEmailGroups.invalidate();
   return group;
 }
 
@@ -144,6 +153,8 @@ export async function deleteEmailGroup(id: string) {
   if (!enabled) return;
 
   await client.coreGroupsDestroy({ groupUuid: id });
+
+  fetchEmailGroups.invalidate();
 }
 
 async function _fetchUser(client: CoreApi, username: string) {

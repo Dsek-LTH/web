@@ -6,14 +6,12 @@ import { superValidate } from "sveltekit-superforms";
 import { zod } from "sveltekit-superforms/adapters";
 import { emailAliasSchema } from "./helpers";
 import {
-  fetchEmailGroups as _fetchEmailGroups,
+  fetchEmailGroups,
   createEmailGroup,
   deleteEmailGroup,
 } from "$lib/server/authentik";
-import { withCache } from "$lib/utils/cache";
 import { redirect } from "$lib/utils/redirect";
 
-const fetchEmailGroups = withCache(_fetchEmailGroups);
 
 export const load: PageServerLoad = async ({ locals }) => {
   authorize(apiNames.EMAIL_ALIAS.READ, locals.user);
@@ -45,8 +43,6 @@ export const actions: Actions = {
     // pk is primary key, which we call id in this context
     const id = (await createEmailGroup(email))?.pk;
 
-    fetchEmailGroups.invalidate();
-
     redirect(303, `email-alias/${id}`);
   },
   delete: async ({ locals, request }) => {
@@ -57,6 +53,5 @@ export const actions: Actions = {
     if (typeof id !== "string" || !id) throw error(400, "Missing id");
 
     await deleteEmailGroup(id);
-    fetchEmailGroups.invalidate();
   },
 };
