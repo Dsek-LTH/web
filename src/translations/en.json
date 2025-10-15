@@ -237,6 +237,7 @@
   "admin_emailalias_noAliasesFound": "No email aliases found.",
   "admin_emailalias_receiver": "Receivers",
   "admin_emailalias_goBack": "Go back",
+  "admin_emailalias_duplicateError": "email alias: {email} already exists",
   "admin_links_add_title": "Add Shortened Link",
   "admin_links_add_submit": "Add",
   "admin_links_add_placeholder_slug": "<link name>",
