@@ -22,14 +22,14 @@
     $state();
 </script>
 
-<SetPageTitle title="Email aliases" />
+<SetPageTitle title={m.emailAliases()} />
 
 <div class="overflow-x-auto">
   <table class="table table-zebra">
     <thead>
       <tr class="bg-base-200">
         <th>{m.emailAliases()}</th>
-        <th>Mottagare</th>
+        <th>{m.admin_emailalias_receiver()}</th>
         <th>
           <button
             class="btn btn-primary btn-xs float-right px-4"
@@ -64,7 +64,7 @@
 
             <button
               class="btn btn-square btn-outline btn-xs"
-              aria-label="delete"
+              aria-label={m.admin_emailalias_remove()}
               onclick={() => {
                 removeDialog.showModal();
                 selectedEmailAlias = emailAlias;
@@ -76,7 +76,7 @@
         </tr>
       {:else}
         <tr>
-          <td colspan="3" class="text-center">No email aliases found.</td>
+          <td colspan="3" class="text-center">{m.admin_emailalias_noAliasesFound()}</td>
         </tr>
       {/each}
     </tbody>
@@ -86,8 +86,8 @@
 <!-- Dialog for creating a new email alias -->
 <dialog class="modal modal-bottom sm:modal-middle" bind:this={createDialog}>
   <div class="modal-box flex flex-col gap-4">
-    <h3 class="text-lg font-bold">Create an email alias</h3>
-    <p>Enter the email alias you'd like to create.</p>
+    <h3 class="text-lg font-bold">{m.admin_emailalias_addAlias()}</h3>
+    <p>{m.admin_emailalias_addAliasDescription()}</p>
     <form
       class="join w-full *:input-bordered"
       class:*:input-error={$errors.alias}
@@ -125,13 +125,13 @@
       <p class="text-error">{$errors.alias}</p>
     {/if}
 
-    <p>You'll be able to add recipients to the group next.</p>
+    <p>{m.admin_emailalias_addAliasInstruction()}</p>
 
     <div class="modal-action">
       <form method="dialog" class="flex gap-2">
-        <button class="btn">Cancel</button>
+        <button class="btn">{m.admin_emailalias_cancel()}</button>
         <button class="btn btn-primary" form="create_email_alias">
-          Create
+          {m.admin_emailalias_add()}
         </button>
       </form>
     </div>
@@ -141,8 +141,8 @@
 <!-- Dialog for removing email alias -->
 <dialog class="modal modal-bottom sm:modal-middle" bind:this={removeDialog}>
   <div class="modal-box flex flex-col gap-4">
-    <h3 class="text-lg font-bold">Delete email alias</h3>
-    <p>Are you sure you want to remove <b>{selectedEmailAlias?.mail}</b>?</p>
+    <h3 class="text-lg font-bold">{m.admin_emailalias_removeAlias()}</h3>
+    <p>{@html m.admin_emailalias_removeAliasConfirm( {mailaliasName : selectedEmailAlias?.mail} )}</p>
 
     <form
       action="?/delete"
@@ -156,13 +156,13 @@
 
     <div class="modal-action">
       <form method="dialog" class="flex gap-2">
-        <button class="btn">Cancel</button>
+        <button class="btn">{m.admin_emailalias_cancel()}</button>
         <button
           class="btn btn-error"
           form="remove_email_alias"
           onclick={() => removeDialog.close()}
         >
-          Delete
+          {m.admin_emailalias_remove()}
         </button>
       </form>
     </div>

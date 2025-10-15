@@ -4,6 +4,8 @@
   import { zodClient } from "sveltekit-superforms/adapters";
   import { emailFormSchema } from "../helpers";
   import { enhance } from "$app/forms";
+  import * as m from "$paraglide/messages";
+
 
   let { data } = $props();
   let { mail: email, recipients = [] } = $derived(data.emailAlias);
@@ -28,7 +30,7 @@
   <h1 class="text-lg font-bold">{email}</h1>
   <a href="/admin/email-alias" class="btn btn-neutral btn-xs">
     <span class="i-mdi-arrow-left"></span>
-    <p>Go back</p>
+    <p>{m.admin_emailalias_goBack()}</p>
   </a>
 </div>
 
@@ -36,14 +38,14 @@
   <table class="table table-zebra">
     <thead>
       <tr class="bg-base-200">
-        <th>Mottagare</th>
+        <th>{m.admin_emailalias_receiver()}<th>
         <th>
           <button
             class="btn btn-primary btn-xs float-right px-4"
             onclick={() => addDialog.showModal()}
           >
             <span class="i-mdi-add"></span>
-            Lägg till
+            {m.admin_emailalias_addRecipient()}
           </button>
         </th>
       </tr>
@@ -60,13 +62,13 @@
                 selectedRecipient = recipient;
               }}
             >
-              Ta bort
+              {m.admin_emailalias_remove()}
             </button>
           </td>
         </tr>
       {:else}
         <tr>
-          <td colspan="2" class="text-center">No recipients found.</td>
+          <td colspan="2" class="text-center">{m.admin_emailalias_noRecipients()}</td>
         </tr>
       {/each}
     </tbody>
@@ -76,8 +78,8 @@
 <!-- Dialog for adding a new recipient -->
 <dialog class="modal modal-bottom sm:modal-middle" bind:this={addDialog}>
   <div class="modal-box flex flex-col gap-4">
-    <h3 class="text-lg font-bold">Add a recipient</h3>
-    <p>Enter an email address you'd like to add as a recipient.</p>
+    <h3 class="text-lg font-bold">{m.admin_emailalias_addRecipientTitle()}</h3>
+    <p>{m.admin_emailalias_addRecipientDescription()}</p>
     <form
       class="w-full *:input-bordered"
       class:*:input-error={$errors.email}
@@ -105,13 +107,13 @@
 
     <div class="modal-action">
       <form method="dialog" class="flex gap-2">
-        <button class="btn">Cancel</button>
+        <button class="btn">{m.admin_emailalias_cancel()}</button>
         <button
           class="btn btn-primary"
           form="add_recipient"
           onclick={() => addDialog.close()}
         >
-          Add
+          {m.admin_emailalias_addRecipient()}
         </button>
       </form>
     </div>
@@ -121,8 +123,8 @@
 <!-- Dialog for removing recipient -->
 <dialog class="modal modal-bottom sm:modal-middle" bind:this={removeDialog}>
   <div class="modal-box flex flex-col gap-4">
-    <h3 class="text-lg font-bold">Remove recipient</h3>
-    <p>Are you sure you want to remove <b>{selectedRecipient}</b>?</p>
+    <h3 class="text-lg font-bold">{m.admin_emailalias_removeRecipient()}</h3>
+    <p>{@html m.admin_emailalias_removeRecipientDescription({recipient: selectedRecipient})}</p>
 
     <form
       action="?/remove"
@@ -136,13 +138,13 @@
 
     <div class="modal-action">
       <form method="dialog" class="flex gap-2">
-        <button class="btn">Cancel</button>
+        <button class="btn">{m.admin_emailalias_cancel()}</button>
         <button
           class="btn btn-error"
           form="remove_email_alias"
           onclick={() => removeDialog.close()}
         >
-          Delete
+          {m.admin_emailalias_remove()}
         </button>
       </form>
     </div>
