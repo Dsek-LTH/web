@@ -42,10 +42,12 @@ export const actions: Actions = {
     const { alias, domain } = form.data;
     const email = `${alias}@${domain}`;
 
-    await createEmailGroup(email);
+    // pk is primary key, which we call id in this context
+    const id = (await createEmailGroup(email))?.pk;
+
     fetchEmailGroups.invalidate();
 
-    redirect(303, `email-alias/${email}`);
+    redirect(303, `email-alias/${id}`);
   },
   delete: async ({ locals, request }) => {
     authorize(apiNames.EMAIL_ALIAS.DELETE, locals.user);

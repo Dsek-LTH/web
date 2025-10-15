@@ -131,12 +131,13 @@ export async function createEmailGroup(email: string) {
     name,
     attributes: { mail: email },
   });
-  await client.coreGroupsCreate({
+  const group = await client.coreGroupsCreate({
     groupRequest: {
       name,
       attributes: { mail: email },
     },
   });
+  return group;
 }
 
 export async function deleteEmailGroup(id: string) {
