@@ -13,7 +13,6 @@ import {
 import { redirect } from "$lib/utils/redirect";
 import * as m from "$paraglide/messages";
 
-
 export const load: PageServerLoad = async ({ locals }) => {
   authorize(apiNames.EMAIL_ALIAS.READ, locals.user);
 
@@ -41,7 +40,7 @@ export const actions: Actions = {
     const { alias, domain } = form.data;
     const email = `${alias}@${domain}`;
 
-    if ((await fetchEmailGroups.get()).some(alias => alias.mail == email)) {
+    if ((await fetchEmailGroups.get()).some((alias) => alias.mail == email)) {
       // throw error(500, "mailalias: " + email + " already exists");
       throw error(500, m.admin_emailalias_duplicateError({ email: email }));
     } else {
