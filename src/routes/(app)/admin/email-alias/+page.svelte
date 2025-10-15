@@ -142,6 +142,7 @@
 <dialog class="modal modal-bottom sm:modal-middle" bind:this={removeDialog}>
   <div class="modal-box flex flex-col gap-4">
     <h3 class="text-lg font-bold">{m.admin_emailalias_removeAlias()}</h3>
+    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
     <p>{@html m.admin_emailalias_removeAliasConfirm( {mailaliasName : selectedEmailAlias?.mail} )}</p>
 
     <form
