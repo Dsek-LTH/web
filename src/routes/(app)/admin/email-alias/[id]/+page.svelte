@@ -6,7 +6,6 @@
   import { enhance } from "$app/forms";
   import * as m from "$paraglide/messages";
 
-
   let { data } = $props();
   let { mail: email, recipients = [] } = $derived(data.emailAlias);
 
@@ -38,8 +37,7 @@
   <table class="table table-zebra">
     <thead>
       <tr class="bg-base-200">
-        <th>{m.admin_emailalias_receiver()}<th>
-        <th>
+        <th>{m.admin_emailalias_receiver()}</th>
           <button
             class="btn btn-primary btn-xs float-right px-4"
             onclick={() => addDialog.showModal()}
@@ -68,7 +66,9 @@
         </tr>
       {:else}
         <tr>
-          <td colspan="2" class="text-center">{m.admin_emailalias_noRecipients()}</td>
+          <td colspan="2" class="text-center"
+            >{m.admin_emailalias_noRecipients()}</td
+          >
         </tr>
       {/each}
     </tbody>
@@ -125,7 +125,11 @@
   <div class="modal-box flex flex-col gap-4">
     <h3 class="text-lg font-bold">{m.admin_emailalias_removeRecipient()}</h3>
     <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-    <p>{@html m.admin_emailalias_removeRecipientDescription({recipient: selectedRecipient})}</p>
+    <p>
+      {@html m.admin_emailalias_removeRecipientDescription({
+        recipient: selectedRecipient,
+      })}
+    </p>
 
     <form
       action="?/remove"
