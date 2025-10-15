@@ -4,14 +4,14 @@ import {
 } from "$lib/nollning/groups/types";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
-import type { PrismaClient } from "@prisma/client";
 import DOMPurify from "isomorphic-dompurify";
 import { fail, message, setError, superValidate } from "sveltekit-superforms";
 import { zod } from "sveltekit-superforms/adapters";
 import { z } from "zod";
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 
 const getPhadderMandates = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   memberId: string,
   year: number,
 ) =>

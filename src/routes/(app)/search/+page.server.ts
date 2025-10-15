@@ -40,6 +40,7 @@ export const actions = {
     url.searchParams.set("indexes", JSON.stringify(indexes));
     url.searchParams.set("limit", limit.toString());
     url.searchParams.set("offset", offset.toString());
+    console.log("Searching with url", url.toString());
     const response = await event.fetch(url);
     if (!response.ok) {
       const responseText = await response.text();

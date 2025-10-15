@@ -7,13 +7,14 @@ import { NotificationType } from "$lib/utils/notifications/types";
 import { redirect } from "$lib/utils/redirect";
 import { slugWithCount, slugify } from "$lib/utils/slugify";
 import * as m from "$paraglide/messages";
-import { Prisma, type Article, type Author, type Tag } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import type { Action } from "@sveltejs/kit";
 import type { AuthUser } from "@zenstackhq/runtime";
 import { zod } from "sveltekit-superforms/adapters";
 import { message, superValidate, fail } from "sveltekit-superforms";
 import DOMPurify from "isomorphic-dompurify";
 import { markdownToTxt } from "markdown-to-txt";
+import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
 const uploadImage = async (user: AuthUser, image: File, slug: string) => {
   const randomName = (Math.random() + 1).toString(36).substring(2);
@@ -33,7 +34,10 @@ const uploadImage = async (user: AuthUser, image: File, slug: string) => {
 };
 
 const sendNewArticleNotification = async (
-  article: Article & { tags: Array<Pick<Tag, "id">>; author: Author },
+  article: ExtendedPrismaModel<"Article"> & {
+    tags: Array<Pick<ExtendedPrismaModel<"Tag">, "id">>;
+    author: ExtendedPrismaModel<"Author">;
+  },
   notificationText: string | null | undefined,
 ) => {
   console.log("notifications: getting members");
@@ -75,11 +79,12 @@ export const createArticle: Action = async (event) => {
   const {
     author,
     tags,
-    header,
+    headerSv,
+    headerEn,
     sendNotification: shouldSendNotification,
     notificationText,
     images,
-    body,
+    bodySv,
     bodyEn,
     ...rest
   } = form.data;
@@ -90,7 +95,7 @@ export const createArticle: Action = async (event) => {
       customId: author.customId,
     },
   });
-  let slug = slugify(header);
+  let slug = slugify(headerSv);
   // authorized so we actually count all
   const slugCount = await authorizedPrismaClient.article.count({
     where: {
@@ -108,8 +113,9 @@ export const createArticle: Action = async (event) => {
   const result = await prisma.article.create({
     data: {
       slug,
-      header: header,
-      body: DOMPurify.sanitize(body),
+      headerSv: headerSv,
+      headerEn: headerEn,
+      bodySv: DOMPurify.sanitize(bodySv),
       bodyEn: bodyEn ? DOMPurify.sanitize(bodyEn) : bodyEn,
       ...rest,
       author: {
@@ -181,7 +187,7 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
     allowFiles: true,
   });
   if (!form.valid) return fail(400, { form });
-  const { slug, author, tags, images, body, bodyEn, ...rest } = form.data;
+  const { slug, author, tags, images, bodySv, bodyEn, ...rest } = form.data;
   const existingAuthor = await prisma.author.findFirst({
     where: {
       member: { id: author.memberId },
@@ -208,7 +214,7 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
         slug: slug,
       },
       data: {
-        body: DOMPurify.sanitize(body),
+        bodySv: DOMPurify.sanitize(bodySv),
         bodyEn: bodyEn ? DOMPurify.sanitize(bodyEn) : bodyEn,
         ...rest,
         author: {

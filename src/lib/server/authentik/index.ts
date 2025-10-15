@@ -1,5 +1,5 @@
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 import { env } from "$env/dynamic/private";
-import type { PrismaClient } from "@prisma/client";
 import { error } from "@sveltejs/kit";
 import { promiseAllInBatches } from "$lib/utils/batch";
 import { withCache } from "$lib/utils/cache";
@@ -229,14 +229,14 @@ async function updateProfile(
 }
 
 // Checks if the position is a board member from the database
-async function isBoardPosition(prisma: PrismaClient, positionId: string) {
+async function isBoardPosition(prisma: ExtendedPrisma, positionId: string) {
   const position = await prisma.position.findFirst({
     where: { id: positionId },
   });
   return position?.boardMember ?? false;
 }
 
-async function hasAnyBoardPosition(prisma: PrismaClient, studentId: string) {
+async function hasAnyBoardPosition(prisma: ExtendedPrisma, studentId: string) {
   const boardPosition = await prisma.mandate.findFirst({
     where: {
       member: { studentId },
@@ -248,7 +248,7 @@ async function hasAnyBoardPosition(prisma: PrismaClient, studentId: string) {
 }
 
 async function fetchGroupsAddMandate(
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   username: string,
   positionId: string,
   mandateId: string,
@@ -269,7 +269,7 @@ async function fetchGroupsAddMandate(
 }
 
 async function addMandate(
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   username: string,
   positionId: string,
   mandateId: string,
@@ -313,7 +313,7 @@ async function addMandate(
 }
 
 async function fetchGroupsDeleteMandate(
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   username: string,
   positionId: string,
   mandateId: string,
@@ -334,7 +334,7 @@ async function fetchGroupsDeleteMandate(
 }
 
 async function deleteMandate(
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   username: string,
   positionId: string,
   mandateId: string,
@@ -386,7 +386,7 @@ async function deleteMandate(
   }
 }
 
-async function updateMandate(prisma: PrismaClient) {
+async function updateMandate(prisma: ExtendedPrisma) {
   if (!enabled) return;
 
   const now = new Date().toISOString();
@@ -447,7 +447,7 @@ async function updateMandate(prisma: PrismaClient) {
   }
 }
 
-async function updateEmails(prisma: PrismaClient) {
+async function updateEmails(prisma: ExtendedPrisma) {
   if (!enabled) return;
 
   const currentUserEmail = (
@@ -553,7 +553,7 @@ async function getEmail(username: string) {
  * 1. It is not bi-directional: mandates are pushed and emails are pulled.
  * 2. It doesn't sync everything: member names, `dsek.styr`, etc?
  */
-async function sync(prisma: PrismaClient) {
+async function sync(prisma: ExtendedPrisma) {
   updateMandate(prisma);
   updateEmails(prisma);
 }

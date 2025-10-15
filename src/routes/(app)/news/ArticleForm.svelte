@@ -8,12 +8,12 @@
   import TagSelector from "$lib/components/TagSelector.svelte";
   import type { AuthorOption } from "$lib/news/getArticles";
   import type { ArticleSchema } from "$lib/news/schema";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import * as m from "$paraglide/messages";
-  import type { Tag } from "@prisma/client";
-  import type { SuperForm } from "sveltekit-superforms";
+  import { type SuperForm } from "sveltekit-superforms";
 
   export let authorOptions: AuthorOption[];
-  export let allTags: Tag[];
+  export let allTags: Array<ExtendedPrismaModel<"Tag">>;
   export let superform: SuperForm<ArticleSchema>;
   export let articleImages: string[] = [];
   export let articleVideo: string | undefined = undefined;
@@ -68,8 +68,8 @@
 >
   <LangTabs bind:activeTab>
     <svelte:fragment slot="sv">
-      <FormInput {superform} field="header" label={m.news_header()} />
-      <FormMarkdown {superform} field="body" label={m.news_description()} />
+      <FormInput {superform} field="headerSv" label={m.news_header()} />
+      <FormMarkdown {superform} field="bodySv" label={m.news_description()} />
     </svelte:fragment>
     <svelte:fragment slot="en">
       <FormInput {superform} field="headerEn" label={m.news_header()} />

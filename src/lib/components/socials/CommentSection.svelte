@@ -2,25 +2,31 @@
   import { page } from "$app/stores";
   import CommentInput from "$lib/components/socials/CommentInput.svelte";
   import CommentRow from "$lib/components/socials/CommentRow.svelte";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
   import type { CommentSchema, RemoveCommentSchema } from "$lib/zod/comments";
-  import type { ArticleComment, EventComment, Member } from "@prisma/client";
   import type { SuperValidated } from "sveltekit-superforms";
   export let comments: Array<
-    (ArticleComment | EventComment) & {
-      member: Member;
+    (
+      | ExtendedPrismaModel<"ArticleComment">
+      | ExtendedPrismaModel<"EventComment">
+    ) & {
+      member: ExtendedPrismaModel<"Member">;
     }
   >;
   export let type: "NEWS" | "EVENT";
-  export let taggedMembers: Member[];
+  export let taggedMembers: Array<ExtendedPrismaModel<"Member">>;
   export let commentForm: SuperValidated<CommentSchema>;
   export let removeCommentForm: SuperValidated<RemoveCommentSchema>;
 
   const ALWAYS_SHOWN_COMMENTS = 3;
 
   let onReply: (
-    comment: (ArticleComment | EventComment) & { member: Member },
+    comment: (
+      | ExtendedPrismaModel<"ArticleComment">
+      | ExtendedPrismaModel<"EventComment">
+    ) & { member: ExtendedPrismaModel<"Member"> },
   ) => void;
 </script>
 

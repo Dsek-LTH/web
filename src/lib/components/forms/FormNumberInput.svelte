@@ -31,20 +31,11 @@
   let oldValue: number | undefined = undefined;
   $: {
     if (
-      !/^\d+([.,]\d{0,2})?$/.test($value.toString()) &&
+      !/^[-+]{0,1}\d*([.,]\d{0,2})?$/.test($value.toString()) &&
       $value.toString() !== ""
     ) {
       value.set(oldValue ?? 0);
     }
-
-    if (
-      !$value.toString().endsWith(".") &&
-      !$value.toString().endsWith(",") &&
-      $value.toString() !== ""
-    ) {
-      value.set(parseFloat($value.toString().replace(",", ".")));
-    }
-
     oldValue = $value;
   }
 </script>
@@ -56,6 +47,9 @@
   {label}
   class={clazz}
   bind:value={$value}
+  onfocusout={() => {
+    value.set(parseFloat($value.toString().replace(",", ".")));
+  }}
   error={$errors}
   {...$constraints}
   {...$$restProps}

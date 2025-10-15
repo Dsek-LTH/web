@@ -1,6 +1,7 @@
 <script lang="ts">
   import CommitteeIcon from "$lib/components/images/CommitteeIcon.svelte";
   import type { PositionSearchReturnAttributes } from "$lib/search/searchTypes";
+  import { languageTag } from "$paraglide/runtime";
 
   export let position: PositionSearchReturnAttributes;
 </script>
@@ -19,10 +20,12 @@
     {/if}
     <div>
       <h4>
-        {position.name}
+        {languageTag() === "sv" ? position.nameSv : position.nameEn}
       </h4>
       <p class="line-clamp-1 text-gray-500">
-        {position.description}
+        {languageTag() === "sv"
+          ? position.descriptionSv
+          : position.descriptionEn}
       </p>
     </div>
   </a>

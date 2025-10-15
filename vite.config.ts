@@ -1,4 +1,3 @@
-import { sentrySvelteKit } from "@sentry/sveltekit";
 import { paraglide } from "@inlang/paraglide-js-adapter-sveltekit/vite";
 import { sveltekit } from "@sveltejs/kit/vite";
 import { cjsInterop } from "vite-plugin-cjs-interop";
@@ -6,7 +5,6 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   plugins: [
-    sentrySvelteKit(),
     sveltekit(),
     paraglide({
       project: "./project.inlang",

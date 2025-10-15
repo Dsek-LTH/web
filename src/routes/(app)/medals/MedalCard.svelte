@@ -1,11 +1,11 @@
 <script lang="ts">
   import ScrollIndicatedBox from "$lib/components/ScrollIndicatedBox.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import { getFullName } from "$lib/utils/client/member";
-  import type { Member } from "@prisma/client";
 
   export let medal: string;
-  export let recipients: Member[];
+  export let recipients: Array<ExtendedPrismaModel<"Member">>;
   let mandatesBox: HTMLDivElement; // Function to check whether the element is overflowing
 </script>
 

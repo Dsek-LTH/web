@@ -7,7 +7,7 @@
 <script lang="ts">
   import { page } from "$app/state";
   import { getFileUrl } from "$lib/files/client";
-  import type { Article, Committee, Member } from "@prisma/client";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
   let { image, data }: OpenGraphProps = $props();
 
@@ -39,19 +39,19 @@
   }
 
   type ArticleOpenGraphProps = Pick<
-    Article,
+    ExtendedPrismaModel<"Article">,
     "header" | "body" | "publishedAt" | "updatedAt" | "imageUrl" | "slug"
   > & {
     authorName: string;
   };
 
   type MemberOpenGraphProps = Pick<
-    Member,
+    ExtendedPrismaModel<"Member">,
     "firstName" | "lastName" | "studentId" | "picturePath" | "bio"
   >;
 
   type CommitteeOpenGraphProps = Pick<
-    Committee,
+    ExtendedPrismaModel<"Committee">,
     "name" | "description" | "lightImageUrl"
   >;
 

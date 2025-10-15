@@ -2,7 +2,7 @@ import { i18n } from "$lib/utils/i18n";
 /* eslint-disable no-restricted-imports -- This is the wrapper that should be used */
 import { goto as rawGoto } from "$app/navigation";
 import { redirect as rawRedirect } from "sveltekit-flash-message/server";
-import type { Event } from "@prisma/client";
+import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 /* eslint-enable no-restricted-imports -- Enable again, for eslint */
 
 export const goto: typeof rawGoto = (url, opts) => {
@@ -55,7 +55,8 @@ export const redirect: typeof rawRedirect = ((...args) => {
 }) as typeof rawRedirect;
 /* eslint-enable @typescript-eslint/no-explicit-any -- Enable again, for eslint*/
 
-export const eventLink = (event: Pick<Event, "id" | "slug">) =>
-  event.slug ? `/events/${event.slug}` : `/events/id/${event.id}`;
+export const eventLink = (
+  event: Pick<ExtendedPrismaModel<"Event">, "id" | "slug">,
+) => (event.slug ? `/events/${event.slug}` : `/events/id/${event.id}`);
 
 export const APP_REDIRECT_URL = "dsek://";

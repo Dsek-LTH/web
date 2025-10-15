@@ -28,8 +28,8 @@
         ...$values,
         {
           type: QuestionType.Text,
-          title: "",
-          description: "",
+          titleSv: "",
+          descriptionSv: "",
           forExternalsOnly: false,
         },
       ];

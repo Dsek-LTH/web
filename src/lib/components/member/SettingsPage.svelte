@@ -1,13 +1,15 @@
 <script lang="ts">
   import PageHeader from "$lib/components/nav/PageHeader.svelte";
   import type { SettingsPageData } from "$lib/member/settings";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import { NotificationSettingType } from "$lib/utils/notifications/types";
   import * as m from "$paraglide/messages";
-  import type { Tag } from "@prisma/client";
   import SubscriptionTags from "./SubscriptionTags.svelte";
 
   export let data: SettingsPageData;
-  $: subscribedTags = data.subscribedTags as { subscribedTags: Tag[] };
+  $: subscribedTags = data.subscribedTags as {
+    subscribedTags: Array<ExtendedPrismaModel<"Tag">>;
+  };
   $: tags = data.tags;
 
   let subscriptionGroup = data.subscriptions;

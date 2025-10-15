@@ -5,7 +5,7 @@
 </script>
 
 <div
-  class="flex justify-between gap-2 rounded-2xl border-t-4 bg-base-300 p-4 max-lg:border-t-primary max-md:flex-col md:flex-1 lg:border-t-secondary"
+  class="flex justify-between gap-2 rounded-2xl border-t-4 border-t-secondary bg-base-300 p-4 max-md:flex-col md:flex-1"
 >
   <div>
     <h2 class="text-md flex items-center font-light">
@@ -18,9 +18,7 @@
       {#each files.next.slice(0, 4) as file}
         <li class="inline-block max-w-full">
           <a href={file.thumbnailUrl}>
-            <span
-              class="i-mdi-document size-6 max-lg:text-primary lg:text-secondary"
-            ></span>
+            <span class="i-mdi-document size-6 text-secondary"></span>
             <span class="overflow-x-hidden text-ellipsis whitespace-nowrap">
               {file.name}
             </span>
@@ -42,9 +40,7 @@
       {#each files.last.slice(0, 4) as file}
         <li class="inline-block max-w-full">
           <a href={file.thumbnailUrl} class="text-ellipsis">
-            <span
-              class="i-mdi-document size-6 max-lg:text-primary lg:text-secondary"
-            ></span>
+            <span class="i-mdi-document size-6 text-secondary"></span>
             <span class="overflow-x-hidden text-ellipsis whitespace-nowrap">
               {file.name}
             </span>

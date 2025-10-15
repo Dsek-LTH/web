@@ -1,8 +1,10 @@
 <script lang="ts">
-  import type { Tag } from "@prisma/client";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import { twMerge } from "tailwind-merge";
 
-  export let tag: Pick<Tag, "color" | "name"> | undefined = undefined;
+  export let tag:
+    | Pick<ExtendedPrismaModel<"Tag">, "color" | "name">
+    | undefined = undefined;
   let clazz = "";
   export { clazz as class };
 </script>

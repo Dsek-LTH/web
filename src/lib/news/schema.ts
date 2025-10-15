@@ -5,9 +5,9 @@ import { z } from "zod";
 
 export const articleSchema = z.object({
   slug: z.string(),
-  header: z.string().min(1, "Title cannot be empty"),
+  headerSv: z.string().min(1, "Title cannot be empty"),
   headerEn: z.string().nullable(),
-  body: z.string().default(""),
+  bodySv: z.string().default(""),
   bodyEn: z.string().nullable(),
   author: authorSchema,
   tags: z

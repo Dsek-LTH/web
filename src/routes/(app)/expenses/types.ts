@@ -1,4 +1,4 @@
-import { isFileImage, isFilePDF } from "$lib/files/utils";
+import { isFilePDF } from "$lib/files/utils";
 import type { Infer } from "sveltekit-superforms";
 import { z } from "zod";
 import { isValidCostCenter } from "./config";
@@ -13,8 +13,8 @@ const itemSchema = z.object({
 const receiptSchema = z.object({
   image: z
     .instanceof(File, { message: "Please upload a file" })
-    .refine((file) => isFileImage(file) || isFilePDF(file), {
-      message: "Måste vara en bild eller PDF",
+    .refine((file) => isFilePDF(file), {
+      message: "Måste vara en PDF",
     }),
   rows: z.array(itemSchema).nonempty(),
 });

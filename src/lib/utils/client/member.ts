@@ -1,6 +1,10 @@
-import type { Author, CustomAuthor, Member, Position } from "@prisma/client";
-export type MemberNames = Pick<Member, "firstName" | "lastName"> &
-  Partial<Pick<Member, "nickname">>;
+import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+
+export type MemberNames = Pick<
+  ExtendedPrismaModel<"Member">,
+  "firstName" | "lastName"
+> &
+  Partial<Pick<ExtendedPrismaModel<"Member">, "nickname">>;
 type Options = {
   hideNickname?: boolean;
 };
@@ -21,12 +25,15 @@ export const getFullName = (member: MemberNames, options: Options = {}) => {
 };
 
 export const getAuthorName = (
-  author: Pick<Author, "type"> & {
-    member: Pick<Member, "firstName" | "nickname" | "lastName" | "picturePath">;
+  author: Pick<ExtendedPrismaModel<"Author">, "type"> & {
+    member: Pick<
+      ExtendedPrismaModel<"Member">,
+      "firstName" | "nickname" | "lastName" | "picturePath"
+    >;
     mandate: {
-      position: Pick<Position, "name">;
+      position: Pick<ExtendedPrismaModel<"Position">, "name">;
     } | null;
-    customAuthor: Pick<CustomAuthor, "name"> | null;
+    customAuthor: Pick<ExtendedPrismaModel<"CustomAuthor">, "name"> | null;
   },
 ) => {
   if (author.type === "Custom") {

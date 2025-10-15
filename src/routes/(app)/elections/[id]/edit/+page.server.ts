@@ -18,6 +18,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     select: {
       id: true,
       name: true,
+      nameSv: true,
       nameEn: true,
     },
   });
@@ -48,11 +49,12 @@ export const actions: Actions = {
     const form = await superValidate(request, zod(electionSchema));
     if (!form.valid) return fail(400, { form });
     const id = params.id;
-    const { markdown, markdownEn, link, expiresAt, committeeId } = form.data;
+    console.log(form.data);
+    const { markdownSv, markdownEn, link, expiresAt, committeeId } = form.data;
     await prisma.election.update({
       where: { id },
       data: {
-        markdown,
+        markdownSv,
         markdownEn,
         link,
         expiresAt: dayjs(expiresAt).endOf("day").toDate(),

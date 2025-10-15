@@ -17,11 +17,11 @@ export const actions: Actions = {
     const { prisma } = locals;
     const form = await superValidate(request, zod(infoPageSchema));
     if (!form.valid) return fail(400, { form });
-    const { name, markdown, markdownEn } = form.data;
+    const { name, markdownSv, markdownEn } = form.data;
     await prisma.markdown.create({
       data: {
         name: slugify(name),
-        markdown,
+        markdownSv,
         markdownEn,
       },
     });

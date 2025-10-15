@@ -1,5 +1,5 @@
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
-import type { PrismaClient } from "@prisma/client";
 
 export const NOLLNING_START_KEY = "nollning_start";
 export const NOLLNING_END_KEY = "nollning_end";
@@ -41,7 +41,7 @@ export const isNollningPeriod = async () => {
 };
 
 export const updateNollningPeriod = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   start: Date,
   end: Date,
 ) => {

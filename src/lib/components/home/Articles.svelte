@@ -1,9 +1,11 @@
 <script lang="ts">
   import { markdownToTxt } from "markdown-to-txt";
-  import type { Article } from "@prisma/client";
   import * as m from "$paraglide/messages";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
-  export let news: Array<Pick<Article, "header" | "body" | "slug">>;
+  export let news: Array<
+    Pick<ExtendedPrismaModel<"Article">, "header" | "body" | "slug">
+  >;
 </script>
 
 <div

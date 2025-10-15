@@ -1,25 +1,18 @@
 <script lang="ts">
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import { page } from "$app/stores";
-  import type {
-    Article,
-    Author,
-    CustomAuthor,
-    Mandate,
-    Member,
-    Position,
-  } from "@prisma/client";
   import dayjs from "dayjs";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   $: revealTheme = $page.data["revealTheme"];
-  export let message: Article & {
-    author: Author & {
-      member: Member;
+  export let message: ExtendedPrismaModel<"Article"> & {
+    author: ExtendedPrismaModel<"Author"> & {
+      member: ExtendedPrismaModel<"Member">;
       mandate:
-        | (Mandate & {
-            position: Position;
+        | (ExtendedPrismaModel<"Mandate"> & {
+            position: ExtendedPrismaModel<"Position">;
           })
         | null;
-      customAuthor: CustomAuthor | null;
+      customAuthor: ExtendedPrismaModel<"CustomAuthor"> | null;
     };
   };
   $: author = message.author;

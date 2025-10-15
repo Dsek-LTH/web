@@ -1,13 +1,13 @@
 <script lang="ts">
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import MembersList from "$lib/components/socials/MembersList.svelte";
-  import type { Mandate, Member, PhadderGroup } from "@prisma/client";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
-  export let group: PhadderGroup & {
-    nollor: Member[];
+  export let group: ExtendedPrismaModel<"PhadderGroup"> & {
+    nollor: Array<ExtendedPrismaModel<"Member">>;
     phaddrar: Array<
-      Mandate & {
-        member: Member;
+      ExtendedPrismaModel<"Mandate"> & {
+        member: ExtendedPrismaModel<"Member">;
       }
     >;
   };

@@ -11,7 +11,6 @@ import {
   deleteEmailGroup,
 } from "$lib/server/authentik";
 import { redirect } from "$lib/utils/redirect";
-import * as m from "$paraglide/messages";
 
 
 export const load: PageServerLoad = async ({ locals }) => {

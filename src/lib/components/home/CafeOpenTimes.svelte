@@ -1,8 +1,8 @@
 <script lang="ts">
-  import type { Markdown } from "@prisma/client";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import * as m from "$paraglide/messages";
 
-  export let cafeOpen: Pick<Markdown, "markdown"> | null;
+  export let cafeOpen: Pick<ExtendedPrismaModel<"Markdown">, "markdown"> | null;
 </script>
 
 <a

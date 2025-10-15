@@ -27,7 +27,6 @@
     {#await shopItemCounts?.inCart}
       <a href={route.path}>
         <NavIcon icon={route.icon} />
-        <!-- <span class="btm-nav-label text-[0.5rem] uppercase">{route.title}</span> -->
       </a>
     {:then inCart}
       {#if inCart && route.specialBehaviour === "cart-badge"}

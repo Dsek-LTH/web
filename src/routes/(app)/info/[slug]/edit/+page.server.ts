@@ -25,7 +25,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   return {
     form: await superValidate(
       {
-        markdown: markdownPage?.markdown ?? "",
+        markdownSv: markdownPage?.markdown ?? "",
         markdownEn: markdownPage?.markdownEn ?? null,
       },
       zod(markdownSchema),
@@ -35,7 +35,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 };
 
 const markdownSchema = z.object({
-  markdown: z.string(),
+  markdownSv: z.string(),
   markdownEn: z.string().nullable(),
 });
 
@@ -46,7 +46,7 @@ export const actions: Actions = {
     const form = await superValidate(request, zod(markdownSchema));
     if (!form.valid) return fail(400, { form });
     const name = params.slug;
-    form.data.markdown = DOMPurify.sanitize(form.data.markdown);
+    form.data.markdownSv = DOMPurify.sanitize(form.data.markdownSv);
     form.data.markdownEn = form.data.markdownEn
       ? DOMPurify.sanitize(form.data.markdownEn)
       : form.data.markdownEn;

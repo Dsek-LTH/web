@@ -1,13 +1,14 @@
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 import type { TransactionClient } from "$lib/server/shop/types";
 import { convertPriceToCents } from "$lib/utils/convertPrice";
 import type { TicketSchema } from "$lib/utils/shop/types";
-import { PrismaClient, ShoppableType } from "@prisma/client";
+import { ShoppableType } from "@prisma/client";
 
 /**
  * @param authorId member id
  */
 export const createTicket = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   authorId: string,
   data: TicketSchema,
 ) => {
@@ -16,9 +17,9 @@ export const createTicket = async (
       data: {
         shoppable: {
           create: {
-            title: data.title,
+            titleSv: data.titleSv,
             titleEn: data.titleEn,
-            description: data.description,
+            descriptionSv: data.descriptionSv,
             descriptionEn: data.descriptionEn,
             price: convertPriceToCents(data.price),
             availableFrom: data.availableFrom,
@@ -49,6 +50,8 @@ export const createTicket = async (
         data: {
           shoppableId: ticket.id,
           ...question,
+          titleSv: question.titleSv,
+          descriptionSv: question.descriptionSv,
           id: undefined,
           options:
             question.options === undefined
@@ -57,6 +60,7 @@ export const createTicket = async (
                   createMany: {
                     data: question.options.map((o) => ({
                       ...o,
+                      answerSv: o.answerSv,
                       extraPrice: o.extraPrice
                         ? convertPriceToCents(o.extraPrice)
                         : o.extraPrice,
@@ -71,7 +75,7 @@ export const createTicket = async (
 };
 
 export const updateTicket = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   ticketId: string,
   data: TicketSchema,
 ) => {
@@ -88,9 +92,9 @@ export const updateTicket = async (
       data: {
         shoppable: {
           update: {
-            title: data.title,
+            titleSv: data.titleSv,
             titleEn: data.titleEn,
-            description: data.description,
+            descriptionSv: data.descriptionSv,
             descriptionEn: data.descriptionEn,
             price: convertPriceToCents(data.price),
             availableFrom: data.availableFrom,
@@ -197,6 +201,7 @@ const updateQuestions = async (
                 createMany: {
                   data: question.options.map((o) => ({
                     ...o,
+                    answerSv: o.answerSv,
                     extraPrice: o.extraPrice
                       ? convertPriceToCents(o.extraPrice)
                       : o.extraPrice,
@@ -213,6 +218,8 @@ const updateQuestions = async (
       await tx.itemQuestion.create({
         data: {
           ...question,
+          titleSv: question.titleSv,
+          descriptionSv: question.descriptionSv,
           id: undefined,
           shoppableId: ticketId,
           options:
@@ -222,6 +229,7 @@ const updateQuestions = async (
                   createMany: {
                     data: question.options.map((o) => ({
                       ...o,
+                      answerSv: o.answerSv,
                       extraPrice: o.extraPrice
                         ? convertPriceToCents(o.extraPrice)
                         : o.extraPrice,

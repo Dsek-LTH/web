@@ -4,15 +4,20 @@
   import { superForm } from "$lib/utils/client/superForms";
   import type { ElectionSchema } from "./schemas";
   import * as m from "$paraglide/messages";
-  import type { Election } from "@prisma/client";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
   export let isCreating: boolean;
   export let data: {
     form: SuperValidated<ElectionSchema>;
-    committees: Array<{ id: string; name: string; nameEn: string | null }>;
+    committees: Array<{
+      id: string;
+      name: string;
+      nameSv: string;
+      nameEn: string | null;
+    }>;
     election: Pick<
-      Election,
-      "markdown" | "markdownEn" | "link" | "expiresAt" | "committeeId"
+      ExtendedPrismaModel<"Election">,
+      "markdownSv" | "markdownEn" | "link" | "expiresAt" | "committeeId"
     >;
   };
   const { form, errors, constraints, enhance } = superForm(data.form);
@@ -45,14 +50,14 @@
   {/if}
   <div class="flex flex-col gap-0 *:w-full md:h-64 md:flex-row md:gap-8">
     <Input
-      name="markdown"
+      name="markdownSv"
       label={m.elections_content_sv()}
       textarea
-      bind:value={$form.markdown}
-      error={$errors.markdown}
+      bind:value={$form.markdownSv}
+      error={$errors.markdownSv}
       class="h-full"
       placeholder="- Post 1&#13;- Post 2&#13;- Post 3"
-      {...$constraints.markdown}
+      {...$constraints.markdownSv}
     />
     <Input
       name="markdownEn"

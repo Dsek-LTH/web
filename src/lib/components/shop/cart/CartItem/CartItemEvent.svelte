@@ -1,9 +1,9 @@
 <script lang="ts">
   import { getFileUrl } from "$lib/files/client";
-  import type { Event } from "@prisma/client";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import dayjs from "dayjs";
 
-  export let event: Event;
+  export let event: ExtendedPrismaModel<"Event">;
 </script>
 
 <div class="flex items-center gap-3">

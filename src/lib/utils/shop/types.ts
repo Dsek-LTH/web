@@ -16,9 +16,9 @@ export type QuestionForm = Infer<typeof questionForm>;
 
 export const ticketSchema = z
   .object({
-    title: z.string().min(1, "Title cannot be empty"),
+    titleSv: z.string().min(1, "Title cannot be empty"),
     titleEn: z.string().nullable().optional(),
-    description: z
+    descriptionSv: z
       .string()
       .min(1, "Description cannot be empty")
       .nullable()
@@ -39,9 +39,9 @@ export const ticketSchema = z
       z
         .object({
           id: z.string().uuid().optional().nullable(),
-          title: z.string().min(1, "Title cannot be empty"),
+          titleSv: z.string().min(1, "Title cannot be empty"),
           titleEn: z.string().nullable().optional(),
-          description: z.string().default(""),
+          descriptionSv: z.string().default(""),
           descriptionEn: z.string().nullable().optional(),
           // type can be any of "multple-choice" or "text"
           type: z.nativeEnum(QuestionType).default(QuestionType.Text),
@@ -49,7 +49,7 @@ export const ticketSchema = z
           options: z
             .array(
               z.object({
-                answer: z.string().min(1, "Answer cannot be empty"),
+                answerSv: z.string().min(1, "Answer cannot be empty"),
                 answerEn: z.string().nullable().optional(),
                 extraPrice: z.number().int().default(0).nullable(),
               }),

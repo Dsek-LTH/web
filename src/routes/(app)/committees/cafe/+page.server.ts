@@ -32,13 +32,13 @@ export const actions = {
     const form = await superValidate(request, zod(updateSchema));
     if (!form.valid) return fail(400, { form });
 
-    const { markdown, markdownEn, markdownSlug } = form.data;
+    const { markdownSv, markdownEn, markdownSlug } = form.data;
 
-    if (markdownSlug && markdown) {
+    if (markdownSlug && markdownSv) {
       await updateMarkdown(user, prisma, {
         name: markdownSlug,
-        markdown,
-        markdownEn: markdownEn,
+        markdownSv,
+        markdownEn,
       });
     }
     return message(form, {

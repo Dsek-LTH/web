@@ -26,13 +26,13 @@
     use:enhance
   >
     <LangTabs>
-      <FormMarkdown {superform} field="markdown" slot="sv" rows={10} />
+      <FormMarkdown {superform} field="markdownSv" slot="sv" rows={10} />
       <FormMarkdown {superform} field="markdownEn" slot="en" rows={10} />
     </LangTabs>
     <input type="hidden" name="name" value={$page.params["slug"]} />
-    <input type="hidden" name="markdown" bind:value={$form.markdown} />
-    {#if $errors.markdown}
-      <p class="text-error">{$errors.markdown}</p>
+    <input type="hidden" name="markdown" bind:value={$form.markdownSv} />
+    {#if $errors.markdownSv}
+      <p class="text-error">{$errors.markdownSv}</p>
     {/if}
     <button class="btn" type="submit">Submit</button>
   </form>

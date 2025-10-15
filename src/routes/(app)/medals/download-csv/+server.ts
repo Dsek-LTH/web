@@ -1,7 +1,7 @@
-import type { Member } from "@prisma/client";
 import { type Semester, toString } from "$lib/utils/semesters";
 import { medalRecipients } from "$lib/server/medals/medals";
 import { getSemesterOrThrowSvelteError } from "$lib/utils/url.server";
+import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
 export const GET = async ({ locals, url }) => {
   const { prisma } = locals;
@@ -13,7 +13,7 @@ export const GET = async ({ locals, url }) => {
   ).flatMap((x) =>
     x.recipients.map((y) => {
       const medal: string = x.medal;
-      const member: Member = y;
+      const member: ExtendedPrismaModel<"Member"> = y;
       return [
         `${member.firstName} ${member.lastName}`.replace(",", ""),
         member.studentId,

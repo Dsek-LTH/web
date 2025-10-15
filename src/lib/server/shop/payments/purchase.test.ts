@@ -9,7 +9,7 @@ import {
   onPaymentFailure,
   onPaymentSuccess,
 } from "$lib/server/shop/payments/stripeWebhooks";
-import { PrismaClient, type Member } from "@prisma/client";
+import { type Member } from "@prisma/client";
 import { enhance, type AuthUser } from "@zenstackhq/runtime";
 import type Stripe from "stripe";
 import {
@@ -37,6 +37,8 @@ import {
 } from "../types";
 import apiNames from "$lib/utils/apiNames";
 import { NotificationType } from "$lib/utils/notifications/types";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 
 const mockFns = vi.hoisted(() => ({
   customers: {
@@ -77,12 +79,12 @@ vi.mock("./stripe", () => ({
 }));
 /* eslint-enable @typescript-eslint/no-explicit-any -- End of mocking*/
 
-const prisma = new PrismaClient();
+const prisma = authorizedPrismaClient;
 
 const SUITE_PREFIX = "purchase";
 
 const addPurchaseTestForUser = (
-  prismaWithAccess: PrismaClient,
+  prismaWithAccess: ExtendedPrisma,
   adminMember: Member,
   user: AuthUser,
   identification: ShopIdentification,

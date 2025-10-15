@@ -15,11 +15,11 @@
       name="name"
       id="name"
       class="input input-bordered"
-      value={$form.name ?? ""}
-      {...$constraints.name}
+      value={$form.nameSv ?? ""}
+      {...$constraints.nameSv}
     />
-    {#if $errors.name}
-      <p class="text-error">{$errors.name}</p>
+    {#if $errors.nameSv}
+      <p class="text-error">{$errors.nameSv}</p>
     {/if}
   </Labeled>
   <Labeled label={m.positions_description()}>
@@ -28,11 +28,11 @@
       id="description"
       class="textarea textarea-bordered"
       rows="3"
-      value={$form.description ?? ""}
-      {...$constraints.description}
+      value={$form.descriptionSv ?? ""}
+      {...$constraints.descriptionSv}
     ></textarea>
-    {#if $errors.description}
-      <p class="text-error">{$errors.description}</p>
+    {#if $errors.descriptionSv}
+      <p class="text-error">{$errors.descriptionSv}</p>
     {/if}
   </Labeled>
   <Labeled

@@ -1,8 +1,11 @@
 import apiNames from "$lib/utils/apiNames";
-import type { PrismaClient, Song } from "@prisma/client";
+import type {
+  ExtendedPrisma,
+  ExtendedPrismaModel,
+} from "$lib/server/extendedPrisma";
 
 export async function getExistingCategories(
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   accessPolicies: string[] = [],
   includeDeleted = false,
 ): Promise<string[]> {
@@ -24,17 +27,20 @@ export async function getExistingCategories(
             deletedAt: null,
           },
     })
-  ).reduce<Array<NonNullable<Song["category"]>>>((acc, cur) => {
-    if (cur.category !== null) {
-      acc.push(cur.category);
-    }
-    return acc;
-  }, []);
+  ).reduce<Array<NonNullable<ExtendedPrismaModel<"Song">["category"]>>>(
+    (acc, cur) => {
+      if (cur.category !== null) {
+        acc.push(cur.category);
+      }
+      return acc;
+    },
+    [],
+  );
   return existingCategories;
 }
 
 export async function getExistingMelodies(
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   accessPolicies: string[] = [],
   includeDeleted = false,
 ): Promise<string[]> {
@@ -56,12 +62,15 @@ export async function getExistingMelodies(
             deletedAt: null,
           },
     })
-  ).reduce<Array<NonNullable<Song["melody"]>>>((acc, cur) => {
-    if (cur.melody !== null) {
-      acc.push(cur.melody);
-    }
-    return acc;
-  }, []);
+  ).reduce<Array<NonNullable<ExtendedPrismaModel<"Song">["melody"]>>>(
+    (acc, cur) => {
+      if (cur.melody !== null) {
+        acc.push(cur.melody);
+      }
+      return acc;
+    },
+    [],
+  );
   return existingMelodies;
 }
 

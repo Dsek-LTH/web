@@ -1,9 +1,9 @@
 import { env } from "$env/dynamic/private";
 import authentik from "$lib/server/authentik";
 import meilisearchSync from "$lib/search/sync";
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import { isNollningPeriod } from "$lib/utils/adminSettings/nollning";
 import { fileHandler } from "$lib/files";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 
 export const load = async () => {
   return {

@@ -18,7 +18,7 @@ import { sendPing } from "./pings";
 import { dateToSemester } from "$lib/utils/semesters";
 import { memberMedals } from "$lib/server/medals/medals";
 
-export const load: PageServerLoad = async ({ locals, params }) => {
+export const load: PageServerLoad = async ({ locals, params, cookies }) => {
   const { prisma, user } = locals;
   const { studentId } = params;
   const [memberResult, publishedArticlesResult, phadderGroupsResult] =
@@ -81,6 +81,11 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
   const member = memberResult.value;
 
+  const showPhadderGroupModal =
+    member.nollningGroupId === null &&
+    cookies.get("phadder_group_modal_skipped") !== "1" &&
+    cookies.get("phadder_group_modal_never") !== "1";
+
   const doorAccess =
     member.id === user?.memberId
       ? await getCurrentDoorPoliciesForMember(prisma, studentId)
@@ -99,6 +104,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     return {
       form: await superValidate(member, zod(memberSchema)),
       pingForm: await superValidate(zod(emptySchema)),
+      phadderGroupForm: await superValidate(member, zod(phadderGroupSchema)),
       viewedMember: member, // https://github.com/Dsek-LTH/web/issues/194
       doorAccess,
       publishedArticles: publishedArticlesResult.value ?? [],
@@ -125,6 +131,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
             },
           })
         : null,
+      showPhadderGroupModal: showPhadderGroupModal,
     };
   } catch {
     throw error(500, m.members_errors_couldntFetchPings());
@@ -146,6 +153,17 @@ const updateSchema = memberSchema
 
 export type UpdateSchema = Infer<typeof updateSchema>;
 
+const phadderGroupSchema = memberSchema
+  .pick({
+    classYear: true,
+    nollningGroupId: true,
+  })
+  .partial()
+  .extend({
+    skipAction: z.enum(["skip", "never", "none"]).optional().default("none"),
+  });
+export type PhadderGroupSchema = Infer<typeof phadderGroupSchema>;
+
 export const actions: Actions = {
   updateFoodPreference: async ({ params, locals, request }) => {
     const { prisma } = locals;
@@ -165,6 +183,39 @@ export const actions: Actions = {
       message: m.members_memberUpdated(),
       type: "success",
     });
+  },
+  updatePhadderGroup: async ({ params, locals, request, cookies }) => {
+    const { prisma } = locals;
+    const form = await superValidate(request, zod(phadderGroupSchema));
+    if (!form.valid) return fail(400, { form });
+    const { studentId } = params;
+
+    switch (form.data.skipAction) {
+      case "skip":
+        cookies.set("phadder_group_modal_skipped", "1", {
+          path: "/",
+          maxAge: 12 * 60 * 60,
+        });
+        break;
+      case "never":
+        cookies.set("phadder_group_modal_never", "1", { path: "/" });
+        break;
+      default:
+        await prisma.member.update({
+          where: { studentId },
+          data: {
+            nollningGroupId: form.data.nollningGroupId ?? null,
+          },
+        });
+        break;
+    }
+
+    if (form.data.nollningGroupId !== null)
+      return message(form, {
+        message: m.members_memberUpdated(),
+        type: "success",
+      });
+    else return null;
   },
   update: async ({ params, locals, request }) => {
     const { prisma } = locals;
