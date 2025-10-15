@@ -237,6 +237,7 @@
   "admin_emailalias_noAliasesFound": "Inga mailalias hittades.",
   "admin_emailalias_receiver": "Mottagare",
   "admin_emailalias_goBack": "Gå tillbaka",
+  "admin_emailalias_duplicateError": "mailalias: {email} existerar redan",
   "admin_links_add_title": "Lägg till förkortad länk",
   "admin_links_add_submit": "Lägg till",
   "admin_links_add_placeholder_slug": "<länknamn>",

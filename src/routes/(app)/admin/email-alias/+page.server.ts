@@ -41,10 +41,14 @@ export const actions: Actions = {
     const { alias, domain } = form.data;
     const email = `${alias}@${domain}`;
 
-    // pk is primary key, which we call id in this context
-    const id = (await createEmailGroup(email))?.pk;
-
-    redirect(303, `email-alias/${id}`);
+    if ((await fetchEmailGroups.get()).some(alias => alias.mail == email)) {
+      // throw error(500, "mailalias: " + email + " already exists");
+      throw error(500, m.admin_emailalias_duplicateError({ email: email }));
+    } else {
+      // pk is primary key, which we call id in this context
+      const id = (await createEmailGroup(email))?.pk;
+      redirect(303, `email-alias/${id}`);
+    }
   },
   delete: async ({ locals, request }) => {
     authorize(apiNames.EMAIL_ALIAS.DELETE, locals.user);
