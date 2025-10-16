@@ -87,7 +87,7 @@
       <a href="/home" class="btn-primary-dark btn mt-8 self-stretch">
         D-sek <span class="i-mdi-arrow-right"></span>
       </a>
-      <LanguageSwitcher class=" mt-8 bg-base-200" />
+      <LanguageSwitcher class=" mt-8 border-base-300 bg-base-100" />
     </aside>
   </div>
 </div>
