@@ -10,6 +10,9 @@
   import AppHomeNavigation from "./AppHomeNavigation.svelte";
   import SEO from "$lib/seo/SEO.svelte";
   import * as m from "$paraglide/messages";
+  import ReadmeList from "$lib/components/home/ReadmeList.svelte";
+  import Wiki from "$lib/components/home/Wiki.svelte";
+  import Minecraft from "$lib/components/home/Minecraft.svelte";
 
   export let data;
 </script>
@@ -47,8 +50,21 @@
   <section>
     <WellbeingCta wellbeing={data.wellbeing} />
   </section>
+
   <section>
     <SRDCta />
+  </section>
+
+  <section>
+    <ReadmeList issues={data.readmeIssues} />
+  </section>
+
+  <section>
+    <Wiki items={data.wikiData} />
+  </section>
+
+  <section>
+    <Minecraft minecraftStatus={data.minecraftStatus} />
   </section>
 
   <section>
