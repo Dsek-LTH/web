@@ -5,15 +5,15 @@ ENV NODE_ENV=production
 # Install pdftotext (from poppler-utils)
 RUN apk add --no-cache poppler-utils
 
-# Enable Corepack (comes pre-installed with Node.js)
-RUN corepack enable
+# Install pnpm
+RUN npm install -g pnpm
 
 # Set the working directory inside the container
 WORKDIR /app
 
 # Copy the package.json and install dependencies
 COPY ./package.json ./pnpm-lock.yaml ./
-RUN corepack prepare pnpm@latest --activate && pnpm install
+RUN pnpm install
 
 # Copy the web service's code
 COPY . .
