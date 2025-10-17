@@ -1,5 +1,7 @@
 <script lang="ts">
   import * as m from "$paraglide/messages";
+  import type { PageData } from "./$types";
+  let { data }: { data: PageData } = $props();
 </script>
 
 <footer class="bg-base-300">
@@ -20,9 +22,11 @@
       class="grid-flow-col place-self-center *:text-xl md:place-self-end"
       aria-label={m.footer_socialMedia()}
     >
-      <a class="btn btn-ghost" href="https://discord.com/invite/wxHQcvZ38p">
-        <span class="i-mdi-discord"></span>
-      </a>
+      {#if data?.user?.memberId}
+        <a class="btn btn-ghost" href="https://discord.com/invite/wxHQcvZ38p">
+          <span class="i-mdi-discord"></span>
+        </a>
+      {/if}
       <a class="btn btn-ghost" href="https://instagram.com/dseklth">
         <span class="i-mdi-instagram"></span>
       </a>
