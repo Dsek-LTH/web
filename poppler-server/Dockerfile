@@ -1,5 +1,5 @@
 # Use a lightweight Node.js image
-FROM node:alpine
+FROM node:25-alpine
 ENV NODE_ENV=production
 
 # Install pdftotext (from poppler-utils)
