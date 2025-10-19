@@ -328,7 +328,7 @@
 
         <ul class="flex w-[50vw] flex-wrap justify-center lg:w-auto">
           {#each SOCIALS as social}
-            <li class="p-[1rem]">
+            <li class="p-4">
               <a href={social.href} target="_blank">
                 <span class="{social.icon} size-8"></span>
               </a>
