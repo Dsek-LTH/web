@@ -140,3 +140,5 @@
     </div>
   </section>
 {/each}
+
+<a class="btn" href="/positions">{m.positions_all_positions()}</a>
