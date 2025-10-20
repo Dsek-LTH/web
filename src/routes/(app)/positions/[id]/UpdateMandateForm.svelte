@@ -12,7 +12,7 @@
   action="?/updateMandate"
   method="POST"
   use:enhance
-  class="form-control my-2 flex-row items-end gap-2"
+  class="form-control my-2 flex-row items-end justify-center gap-2"
 >
   <input type="hidden" name="mandateId" value={$form.mandateId} />
   <Labeled label={m.positions_startDate()}>

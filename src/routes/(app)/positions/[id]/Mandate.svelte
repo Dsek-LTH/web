@@ -30,7 +30,9 @@
 <div
   bind:this={container}
   class="tooltip relative flex items-center gap-2 before:whitespace-pre"
-  data-tip={getFullName(mandate.member) + `\n${startDate} - ${endDate}`}
+  data-tip={isEditing
+    ? undefined // remove tooltip when editing
+    : getFullName(mandate.member) + `\n${startDate} - ${endDate}`}
 >
   <a
     href="/members/{mandate.member.studentId}"
@@ -48,7 +50,7 @@
   <!-- Edit button -->
   {#if isAuthorized(apiNames.MANDATE.UPDATE, data.user) || isAuthorized(apiNames.MANDATE.DELETE, data.user)}
     <button
-      class="aspect-square h-full"
+      class="aspect-square h-2/3"
       on:click={() => (isEditing = !isEditing)}
       ><span
         class="h-full w-full {isEditing
@@ -60,11 +62,14 @@
   {/if}
 
   <!-- Edit modal -->
-  {#if isEditing}<div class="absolute top-full z-10 bg-gray-600 text-green-500">
+  {#if isEditing}<div
+      class="absolute top-full z-10 w-full rounded-lg bg-base-100 p-2"
+      style="box-shadow: inset 0 -2px 4px 0 oklch(from white l c h / 0.1), inset 0 2px 4px 0 oklch(from black l c h / 0.3);"
+    >
       {#await data.updateMandateForm then form}
         <UpdateMandateForm
           data={((f) => {
-            // I REALLY hate to do this but they seem to be unset and I don't know how to fix it properly
+            // This works well enough
             f.data.startDate = mandate.startDate;
             f.data.endDate = mandate.endDate;
             f.data.mandateId = mandate.id;
