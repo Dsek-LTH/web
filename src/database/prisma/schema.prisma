@@ -27,6 +27,19 @@ enum recurringType {
   YEARLY
 }
 
+enum DrinkQuantityType {
+  NONE
+  WEIGHT
+  COUNTS
+}
+
+enum DrinkGroup {
+  S1
+  S2
+  S3
+  S4
+}
+
 enum DocumentType {
   POLICY
   GUIDELINE
@@ -442,6 +455,28 @@ model Markdown {
   markdownEn String? @map("markdown_en")
 
   @@map("markdowns")
+}
+
+model DrinkItem {
+  id              String            @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  quantityType    DrinkQuantityType @map("quantity_type")
+  name            String
+  price           Int
+  group           DrinkGroup
+  systembolagetID Int               @map("systembolaget_id")
+  stockLists      DrinkItemBatch[]
+
+  @@map("drinkitem")
+}
+
+model DrinkItemBatch {
+  id             String    @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  drinkItemId    String    @map("drink_item_id") @db.Uuid()
+  item           DrinkItem @relation(fields: [drinkItemId], references: [id])
+  bestBeforeDate DateTime  @map("best_before_date")
+  quantity       Int
+
+  @@map("drinkitembatch")
 }
 
 model Meeting {
