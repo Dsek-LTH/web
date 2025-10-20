@@ -148,6 +148,13 @@ export const getRoutes = (): Route[] =>
           accessRequired: null,
           appBehaviour: "home-link",
         },
+        {
+          title: m.gallery(),
+          path: "/gallery",
+          icon: "i-mdi-folder-image",
+          accessRequired: null,
+          appBehaviour: "home-link",
+        },
       ],
     },
     {

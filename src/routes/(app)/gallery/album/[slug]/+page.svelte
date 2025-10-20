@@ -1,11 +1,14 @@
 <script lang="ts">
   import * as m from "$paraglide/messages";
-
   import type { PageProps } from "./$types";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
+
   let { data }: PageProps = $props();
 
-  let pictureModal: HTMLDialogElement = $state();
+  const albumName = data.album.split(/ (.*)/s)[1];
+  const albumDate = data.album.split(" ")[0];
+
+  let pictureModal: HTMLDialogElement | undefined = $state();
   let selectedModalPicture = $state(0);
   $effect(() => {
     if (selectedModalPicture < 0) {
@@ -14,14 +17,14 @@
     if (selectedModalPicture > pictures.length - 1) {
       selectedModalPicture = pictures.length - 1;
     }
-    selectedModalUrl = pictures[selectedModalPicture].thumbnailUrl;
+    selectedModalUrl = pictures[selectedModalPicture]?.thumbnailUrl;
   });
-  let selectedModalUrl = $state();
+  let selectedModalUrl: string | undefined = $state();
 
   let pictures = data.pictures;
 
-  let modalPrev: HTMLButtonElement = $state();
-  let modalNext: HTMLButtonElement = $state();
+  let modalPrev: HTMLButtonElement | undefined = $state();
+  let modalNext: HTMLButtonElement | undefined = $state();
 
   function onKeyDown(e: { key: string }) {
     switch (e.key) {
@@ -33,82 +36,57 @@
         break;
     }
   }
-
-  /*$: meetings = Object.keys(data.meetings).sort((a, b) =>
-    type === "board-meeting" || type === "SRD-meeting"
-      ? b.localeCompare(a, "sv")
-      : a.localeCompare(b, "sv"),
-  );
-  $: canCreate = isAuthorized(
-    apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).CREATE,
-    data.user,
-  );
-  $: canEdit = isAuthorized(
-    apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).DELETE,
-    data.user,
-  );*/
-
-  let canEdit,
-    canCreate = true;
 </script>
 
 <svelte:window on:keydown={onKeyDown} />
 
-<SetPageTitle title={m.documents()} />
+<SetPageTitle title={m.gallery_album() + " - " + albumName} />
 
-<div class="flex flex-row flex-wrap justify-between">
-  {#if canCreate || canEdit}
-    <div class="mb-4 flex flex-row gap-1">
-      {#if canCreate}
-        <a class="btn btn-primary btn-sm" href="/documents/upload"
-          >{m.documents_uploadFile()}</a
-        >
-      {/if}
-      {#if canEdit}
-        <button
-          class="btn btn-secondary btn-sm"
-          onclick={() => {
-            isEditing = !isEditing;
-          }}
-        >
-          {isEditing ? m.documents_stopEditing() : m.documents_edit()}
-        </button>
-      {/if}
-    </div>
-  {/if}
-</div>
-<a href="/gallery" class="btn">Tillbaka</a>
-<div class="flex gap-4 flex-wrap bg-base-300 p-7 rounded-xl">
-  {#each pictures as picture, index (picture)}
-    <a
-      onclick={() => {
-        pictureModal.showModal();
-        selectedModalPicture = index;
-      }}
-      href="#he"
-      ><img
-        class="block max-h-[15rem] relative"
-        src={picture.thumbnailUrl}
+<a href="/gallery" class="btn btn-outline btn-sm m-2">{m.gallery_back()}</a>
+<div class="rounded-xl bg-base-300 p-7">
+  <div class="flex flex-row items-center justify-between p-3">
+    <h1 class="text-2xl font-bold">{albumName}</h1>
+    <span class="">{albumDate}</span>
+  </div>
+  <!--flex flex-col items-center gap-4 md:flex-row md:flex-wrap-->
+  <div class="columns-3 items-center gap-4 md:flex-row md:flex-wrap">
+    {#each pictures as picture, index (picture)}
+      <button
+        type="button"
+        onclick={() => {
+          selectedModalPicture = index;
+          pictureModal?.showModal();
+        }}
+        class="block text-left leading-[unset]"
+        ><img
+          class="relative my-4 block object-contain"
+          src={picture.thumbnailUrl}
+          alt="display"
+        />
+      </button>
+    {/each}
+  </div>
+  <dialog bind:this={pictureModal} class="modal">
+    <div class="modal-box flex max-w-[50vw] flex-col justify-center">
+      <img
+        src={selectedModalUrl}
+        class="max-h-[70vh] object-contain"
         alt="display"
       />
-    </a>
-
-    <!--<Album
-      name={album}
-      files={data.albums[album] ?? []}
-      {isEditing}
-      deleteForm={data.deleteForm}
-    />-->
-  {/each}
-  <dialog bind:this={pictureModal} class="modal">
-    <div class="max-w-[50vw] modal-box">
-      <img src={selectedModalUrl} class="max-h-[70vh]" alt="display" />
-      <button bind:this={modalPrev} class="btn" onclick={selectedModalPicture--}
-        >prev</button
-      >
-      <button bind:this={modalNext} class="btn" onclick={selectedModalPicture++}
-        >next</button
-      >
+      <div class="m-1 flex flex-row items-center justify-center">
+        <button
+          bind:this={modalPrev}
+          class="btn"
+          onclick={() => selectedModalPicture--}
+          ><span class="i-mdi-arrow-left"></span>{m.gallery_previous()}</button
+        >
+        <button
+          bind:this={modalNext}
+          class="btn"
+          onclick={() => selectedModalPicture++}
+          ><span class="i-mdi-arrow-right"></span>{m.gallery_next()}</button
+        >
+      </div>
     </div>
     <form method="dialog" class="modal-backdrop">
       <button>close</button>
