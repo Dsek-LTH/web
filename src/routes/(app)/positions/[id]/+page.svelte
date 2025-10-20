@@ -107,7 +107,12 @@
 <!-- Edit position form -->
 {#if isEditing}
   {#await data.updateForm then form}
-    <UpdatePositionForm data={form} />
+    <UpdatePositionForm
+      data={form}
+      onSubmit={() => {
+        isEditing = false;
+      }}
+    />
   {/await}
 {/if}
 

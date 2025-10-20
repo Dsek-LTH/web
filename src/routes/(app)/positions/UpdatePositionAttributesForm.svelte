@@ -12,7 +12,7 @@
     superForm(data);
   $: correctConstraints = ((c) => {
     if (c.active !== undefined) c.active.required = false;
-    if (c.isBoardMember !== undefined) c.isBoardMember.required = false;
+    if (c.boardMember !== undefined) c.boardMember.required = false;
     return c;
   })($constraints);
 </script>
@@ -33,18 +33,18 @@
       <p class="text-error">{$errors.active}</p>
     {/if}
   </Labeled>
-  <input type="hidden" name="isBoardMember" value="false" />
+  <input type="hidden" name="boardMember" value="false" />
   <Labeled label={m.positions_board_member()}>
     <input
       type="checkbox"
-      name="isBoardMember"
-      id="isBoardMember"
-      value="isBoardMember"
-      bind:checked={$form.isBoardMember}
-      {...$constraints.isBoardMember}
+      name="boardMember"
+      id="boardMember"
+      value="boardMember"
+      bind:checked={$form.boardMember}
+      {...$constraints.boardMember}
     />
-    {#if $errors.isBoardMember}
-      <p class="text-error">{$errors.isBoardMember}</p>
+    {#if $errors.boardMember}
+      <p class="text-error">{$errors.boardMember}</p>
     {/if}
   </Labeled>
   <input

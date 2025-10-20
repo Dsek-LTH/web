@@ -5,7 +5,10 @@
   import { superForm } from "$lib/utils/client/superForms";
   import * as m from "$paraglide/messages";
   export let data: SuperValidated<UpdatePositionSchema>;
-  const { form, errors, constraints, enhance } = superForm(data);
+  export let onSubmit: () => void;
+  const { form, errors, constraints, enhance } = superForm(data, {
+    onSubmit,
+  });
 </script>
 
 <form action="?/update" method="POST" use:enhance class="form-control">

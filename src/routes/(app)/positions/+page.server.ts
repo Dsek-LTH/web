@@ -35,7 +35,7 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 const updateSchema = z.object({
   id: z.string(),
   active: z.boolean(),
-  isBoardMember: z.boolean(),
+  boardMember: z.boolean(),
 });
 export type UpdatePositionAttributeSchema = Infer<typeof updateSchema>;
 
@@ -49,7 +49,7 @@ export const actions: Actions = {
       where: { id: form.data.id },
       data: {
         active: form.data.active,
-        boardMember: form.data.isBoardMember,
+        boardMember: form.data.boardMember,
       },
     });
     return message(form, {
