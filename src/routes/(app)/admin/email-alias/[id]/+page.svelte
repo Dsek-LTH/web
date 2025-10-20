@@ -37,8 +37,8 @@
   <table class="table table-zebra">
     <thead>
       <tr class="bg-base-200">
-        <th
-          >{m.admin_emailalias_receiver()}
+        <th>{m.admin_emailalias_receiver()}</th>
+        <th>
           <button
             class="btn btn-primary btn-xs float-right px-4"
             onclick={() => addDialog.showModal()}

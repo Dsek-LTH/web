@@ -147,7 +147,7 @@
     <p>
       <!-- eslint-disable-next-line svelte/no-at-html-tags -->
       {@html m.admin_emailalias_removeAliasConfirm({
-        mailaliasName: selectedEmailAlias!.mail,
+        mailaliasName: selectedEmailAlias?.mail ?? "no mail found",
       })}
     </p>
 
