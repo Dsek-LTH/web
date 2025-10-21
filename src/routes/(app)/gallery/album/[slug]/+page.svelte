@@ -49,7 +49,9 @@
     <span class="">{albumDate}</span>
   </div>
   <!--flex flex-col items-center gap-4 md:flex-row md:flex-wrap-->
-  <div class="columns-3 items-center gap-4 md:flex-row md:flex-wrap">
+  <div
+    class="flex flex-col items-center gap-4 sm:block sm:columns-2 md:columns-3"
+  >
     {#each pictures as picture, index (picture)}
       <button
         type="button"
