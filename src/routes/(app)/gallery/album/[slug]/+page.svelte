@@ -44,9 +44,17 @@
 
 <a href="/gallery" class="btn btn-outline btn-sm m-2">{m.gallery_back()}</a>
 <div class="rounded-xl bg-base-300 p-7">
-  <div class="flex flex-row items-center justify-between p-3">
-    <h1 class="text-2xl font-bold">{albumName}</h1>
-    <span class="">{albumDate}</span>
+  <div class="flex flex-col">
+    <div class="flex flex-row items-center justify-between p-3">
+      <h1 class="text-2xl font-bold">{albumName}</h1>
+      <span class="">{albumDate}</span>
+    </div>
+    <div class="flex flex-col px-3">
+      {#if data.metadata}
+        <p>{m.gallery_photographer() + ": " + data.metadata.photographer}</p>
+        <p>{m.gallery_editor() + ": " + data.metadata.editor}</p>
+      {/if}
+    </div>
   </div>
   <!--flex flex-col items-center gap-4 md:flex-row md:flex-wrap-->
   <div
