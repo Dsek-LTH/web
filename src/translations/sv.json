@@ -839,5 +839,7 @@
   "gallery_upload_date": "Datum",
   "gallery_upload_name": "Namn",
   "gallery_upload_files": "Filer",
-  "gallery_upload_upload": "Ladda upp"
+  "gallery_upload_upload": "Ladda upp",
+  "gallery_photographer": "Fotograf",
+  "gallery_editor": "Redigering"
 }
