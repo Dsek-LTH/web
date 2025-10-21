@@ -140,57 +140,55 @@
   <section class="mb-4">
     <h1 class="mb-2 text-xl font-semibold">{year}</h1>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2">
       {#each groupedByYear[year] ?? [] as mandate (mandate.id)}
         <div
-          class="tooltip flex flex-col whitespace-pre {(groupedByYear[year]
-            ?.length ?? 0) <= 8
-            ? 'col-span-2'
-            : ''}"
+          class="tooltip flex flex-col items-start gap-2 rounded-xl border border-base-300 bg-base-200 p-3"
           data-tip={getFullName(mandate.member) +
-            `\n${mandate.startDate.toLocaleDateString(
-              languageTag(),
-            )} - ${mandate.endDate.toLocaleDateString(languageTag())}`}
+            `\n${mandate.startDate.toLocaleDateString(languageTag())} - ${mandate.endDate.toLocaleDateString(languageTag())}`}
         >
-          <a
-            href="/members/{mandate.member.studentId}"
-            class="btn btn-ghost w-full flex-nowrap justify-start normal-case {isEditing
-              ? 'pointer-events-none'
-              : ''}"
-          >
-            <MemberAvatar member={mandate.member} />
-            <span
-              class="flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium"
+          <div class="flex w-full items-center justify-between gap-2">
+            <a
+              href="/members/{mandate.member.studentId}"
+              class="btn btn-ghost flex flex-1 flex-nowrap justify-start normal-case"
             >
-              {getFullName(mandate.member)}
-            </span>
-          </a>
-
-          <!-- Remove and edit buttons -->
-          {#if isEditing}
-            {#if isAuthorized(apiNames.MANDATE.UPDATE, data.user)}
-              <button
-                class="btn btn-secondary btn-sm pointer-events-auto"
-                on:click|preventDefault={async () => {
-                  await goto(
-                    `positions/${data.position.id}?editMandate=${mandate.id}`,
-                  );
-                }}
+              <MemberAvatar member={mandate.member} />
+              <span
+                class="overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium"
               >
-                {m.positions_edit()}
-              </button>
+                {getFullName(mandate.member)}
+              </span>
+            </a>
+
+            {#if isEditing}
+              <div class="flex items-center gap-1">
+                {#if isAuthorized(apiNames.MANDATE.UPDATE, data.user)}
+                  <button
+                    class="btn btn-secondary btn-sm py-1.5"
+                    on:click|preventDefault={async () => {
+                      await goto(
+                        `positions/${data.position.id}?editMandate=${mandate.id}`,
+                      );
+                    }}
+                  >
+                    {m.positions_edit()}
+                  </button>
+                {/if}
+
+                {#if isAuthorized(apiNames.MANDATE.DELETE, data.user)}
+                  {#await data.deleteMandateForm then form}
+                    <DeleteMandateForm mandateId={mandate.id} data={form} />
+                  {/await}
+                {/if}
+              </div>
+            {:else}
+              <ClassBadge member={mandate.member} />
             {/if}
-            {#if isAuthorized(apiNames.MANDATE.DELETE, data.user)}
-              {#await data.deleteMandateForm then form}
-                <DeleteMandateForm mandateId={mandate.id} data={form} />
-              {/await}
-            {/if}
-          {:else}
-            <ClassBadge member={mandate.member} />
-          {/if}
+          </div>
+
           {#if isEditing}
-            <span class="text-xs">
-              {mandate.startDate.toLocaleDateString(languageTag())} - {mandate.endDate.toLocaleDateString(
+            <span class="text-xs opacity-75">
+              {mandate.startDate.toLocaleDateString(languageTag())} – {mandate.endDate.toLocaleDateString(
                 languageTag(),
               )}
             </span>
