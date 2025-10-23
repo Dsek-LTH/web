@@ -13,9 +13,4 @@ export const uploadAlbumFiles = async (user: AuthUser, data: UploadSchema) => {
     tasks.push(uploadFile(user, file, prefix, bucket, file.name));
   });
   await Promise.resolve();
-  // await prisma.meeting.upsert({
-  //   where: { url: folderPath },
-  //   update: {},
-  //   create: { title: meeting, date, url: folderPath },
-  // });
 };
