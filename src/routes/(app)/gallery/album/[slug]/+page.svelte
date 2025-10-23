@@ -14,7 +14,7 @@
     if (selectedModalPicture < 0) {
       selectedModalPicture = 0;
     }
-    if (selectedModalPicture > pictures.length - 1) {
+    if (selectedModalPicture > pictures.length - 1 && pictures.length > 0) {
       selectedModalPicture = pictures.length - 1;
     }
     selectedModalUrl = pictures[selectedModalPicture]?.thumbnailUrl;
