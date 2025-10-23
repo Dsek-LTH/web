@@ -56,7 +56,6 @@
       {/if}
     </div>
   </div>
-  <!--flex flex-col items-center gap-4 md:flex-row md:flex-wrap-->
   <div
     class="flex flex-col items-center gap-4 sm:block sm:columns-2 md:columns-3"
   >

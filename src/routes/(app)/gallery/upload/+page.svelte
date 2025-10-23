@@ -11,12 +11,6 @@
   let { data }: PageProps = $props();
 
   const { form, constraints, errors, enhance } = superForm(data.form, {
-    onResult: (event) => {
-      if (event.result.type === "success") {
-        // On successful upload, set files to undefined and clear the filename
-        fileInput.value = "";
-      }
-    },
     resetForm: false,
     validators: zodClient(uploadSchema),
   }) as SuperForm<UploadSchema>;
