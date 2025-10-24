@@ -188,7 +188,7 @@
     </nav>
 
     <header
-      style:--url="url({getFileUrl('minio/photos/public/assets/hero.jpg')})"
+      style:--url="url({getFileUrl('minio/files/public/photos/hero.jpg')})"
       style:background-size="cover"
     >
       <div class="absolute top-1/3 px-10 lg:pl-44">
@@ -231,7 +231,7 @@
             {#each section.images as image, i}
               <div id="slide{i}" class="carousel-item relative w-full">
                 <img
-                  src={getFileUrl(`minio/photos/public/assets/${image}`)}
+                  src={getFileUrl(`minio/files/public/photos/${image}`)}
                   class="h-full w-full object-cover"
                   alt="party"
                   loading="lazy"
@@ -281,7 +281,7 @@
           {#each ARTICLES as article}
             <article
               style:--url="url({getFileUrl(
-                `minio/photos/public/assets/${article.image}`,
+                `minio/files/public/photos/${article.image}`,
               )})"
               style:background-size={article.imageSize}
               style:background-position={article.imagePosition}
