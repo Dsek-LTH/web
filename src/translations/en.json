@@ -828,5 +828,9 @@
   "create_expense": "Create",
   "pub_example": "Food to pub",
   "add_receipt": "Add receipt",
-  "add_row": "Add row"
+  "add_row": "Add row",
+  "minecraft_server_description": "Gå med i Sektionents Minecraft Server, delad med F-sektionen!\nFör att kunna gå med måste du registrera dig nedan.",
+  "minecraft_dynmap": "Dynmap",
+  "minecraft_join_prompt": "Gå med nu!",
+  "minecraft_players_online": "spelare online just nu"
 }
