@@ -20,6 +20,8 @@
   }}
 />
 
+<a href="access/positions" class="link-primary mb-4">View per position</a>
+
 <div class="overflow-x-auto">
   <table class="table">
     <!-- head -->
