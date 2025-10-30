@@ -43,12 +43,14 @@
   </div>
 </div>
 <div class="flex h-full flex-col justify-between rounded-b-xl bg-base-200 p-4">
-    {m.minecraft_server_description()}
+  {m.minecraft_server_description()}
   <div class="flex w-full justify-around">
     <a class="btn btn-ghost btn-sm" href="https://dynmap.dsek.se"
-      ><span class="i-mdi-map text-lg text-primary"></span>{m.minecraft_dynmap()}</a
+      ><span class="i-mdi-map text-lg text-primary"
+      ></span>{m.minecraft_dynmap()}</a
     ><a class="btn btn-ghost btn-sm" href="https://whitelist.dsek.se"
-      ><span class="i-mdi-playlist-add text-lg text-primary"></span>{m.minecraft_join_prompt()}</a
+      ><span class="i-mdi-playlist-add text-lg text-primary"
+      ></span>{m.minecraft_join_prompt()}</a
     >
   </div>
   <div class="m-2 flex flex-row justify-center rounded-xl bg-base-300 p-3">
