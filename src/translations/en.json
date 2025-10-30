@@ -829,8 +829,8 @@
   "pub_example": "Food to pub",
   "add_receipt": "Add receipt",
   "add_row": "Add row",
-  "minecraft_server_description": "Gå med i Sektionens Minecraft Server, delad med F-sektionen!\nFör att kunna gå med måste du registrera dig nedan.",
+  "minecraft_server_description": "Join the Guild's Minecraft Server, shared with the F-Guild! To join the server you have to sign up with the button below.",
   "minecraft_dynmap": "Dynmap",
-  "minecraft_join_prompt": "Gå med nu!",
-  "minecraft_players_online": "spelare online just nu"
+  "minecraft_join_prompt": "Join now!",
+  "minecraft_players_online": "players online right now"
 }
