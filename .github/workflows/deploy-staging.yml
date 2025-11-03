@@ -24,7 +24,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           build-args: |
-            "PUBLIC_MINIO_ENDPOINT=minio.api.dsek.se"
+            "PUBLIC_MINIO_ENDPOINT=files-sandbox.dsek.se"
             "PUBLIC_MINIO_PORT=443"
             "PUBLIC_MINIO_USE_SSL=true"
             "PUBLIC_BUCKETS_DOCUMENTS=documents"

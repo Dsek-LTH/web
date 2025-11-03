@@ -39,10 +39,13 @@
 {/if}
 
 {#each data.alerts as alert}
-  <GlobalAlert
-    message={languageTag() === "sv" ? alert.message : alert.messageEn}
-    severity={alert.severity}
-  />
+  {#if !alert.closedByMember.find((member) => member.id === data.member?.id)}
+    <GlobalAlert
+      id={alert.id}
+      message={languageTag() === "sv" ? alert.message : alert.messageEn}
+      severity={alert.severity}
+    />
+  {/if}
 {/each}
 
 <main class="w-full flex-1 overflow-x-auto" class:pb-16={data.isApp}>
@@ -50,7 +53,7 @@
 </main>
 <Toast />
 {#if !data.isApp}
-  <Footer />
+  <Footer {data} />
 {:else}
   <AppBottomNav />
 

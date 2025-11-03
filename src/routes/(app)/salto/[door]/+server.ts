@@ -153,11 +153,12 @@ export const GET: RequestHandler = async ({ params }) => {
       ...(await studentsFromWildcard),
     ].filter((studentId) => !bannedStudents.has(studentId));
 
-    return new Response(
-      Array.from([
-        ...new Set([...allowedStudents, ...BACKUP_LIST_OF_STUDENT_IDS]),
-      ]).join("\n"),
-    );
+    const finalList =
+      allowedStudents.length > 0
+        ? Array.from(new Set(allowedStudents))
+        : BACKUP_LIST_OF_STUDENT_IDS;
+
+    return new Response(finalList.join("\n"));
   } catch {
     return new Response(BACKUP_LIST_OF_STUDENT_IDS.join("\n"));
   }

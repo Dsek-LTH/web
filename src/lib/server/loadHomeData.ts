@@ -117,9 +117,9 @@ export const loadHomeData = async ({
   });
 
   // COMMIT DATA
-  const commitPromise = fetch("/api/home").then((res) =>
-    res.json(),
-  ) as Promise<GetCommitDataResponse>;
+  const commitPromise = fetch(
+    `${locals.language === "en" ? "/en" : ""}/api/home`,
+  ).then((res) => res.json()) as Promise<GetCommitDataResponse>;
 
   // RANDOM WELLBEING MESSAGE
   const wellbeing_random_sentence = [
