@@ -1,347 +1,177 @@
 <script lang="ts">
-  import Input from "$lib/components/Input.svelte";
-  import Labeled from "$lib/components/Labeled.svelte";
-  import PageHeader from "$lib/components/nav/PageHeader.svelte";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import { superForm } from "$lib/utils/client/superForms";
-  import { isAuthorized } from "$lib/utils/authorization";
-  import apiNames from "$lib/utils/apiNames";
-  import { page } from "$app/stores";
   import * as m from "$paraglide/messages";
+  import { zodClient } from "sveltekit-superforms/adapters";
+  import { emailAliasSchema } from "./helpers";
+  import { enhance } from "$app/forms";
 
-  export let data;
-
-  const {
-    form: createEmailPositionForm,
-    errors: createEmailPositionErrors,
-    constraints: createEmailPositionConstraints,
-    enhance: createEmailPositionEnhance,
-  } = superForm(data.createEmailPositionForm);
+  let { data } = $props();
 
   const {
-    form: createEmailSpecialSenderForm,
-    errors: createEmailSpecialSenderErrors,
-    constraints: createEmailSpecialSenderConstraints,
-    enhance: createEmailSpecialSenderEnhance,
-  } = superForm(data.createEmailSpecialSenderForm);
+    form,
+    enhance: superEnhance,
+    errors,
+  } = superForm(data.form, {
+    validators: zodClient(emailAliasSchema),
+  });
 
-  const {
-    form: createEmailSpecialReceiverForm,
-    errors: createEmailSpecialReceiverErrors,
-    constraints: createEmailSpecialReceiverConstraints,
-    enhance: createEmailSpecialReceiverEnhance,
-  } = superForm(data.createEmailSpecialReceiverForm);
-
-  $: groupedEmailAliases = Array.from(
-    data.emailAliases.reduce((acc, emailAlias) => {
-      if (!acc.has(emailAlias.email)) {
-        acc.set(emailAlias.email, []);
-      }
-      acc.get(emailAlias.email)?.push(emailAlias.positionId);
-      return acc;
-    }, new Map<string, string[]>()),
-  );
-  $: groupedSpecialReceivers = Array.from(
-    data.specialReceivers.reduce((acc, emailSpecialReceiver) => {
-      if (!acc.has(emailSpecialReceiver.email)) {
-        acc.set(emailSpecialReceiver.email, []);
-      }
-      acc
-        .get(emailSpecialReceiver.email)
-        ?.push(emailSpecialReceiver.targetEmail);
-      return acc;
-    }, new Map<string, string[]>()),
-  );
-  $: groupedSpecialSenders = Array.from(
-    data.specialSenders.reduce((acc, emailSpecialSender) => {
-      if (!acc.has(emailSpecialSender.email)) {
-        acc.set(emailSpecialSender.email, []);
-      }
-      acc.get(emailSpecialSender.email)?.push({
-        studentId: emailSpecialSender.studentId,
-        keycloakId: emailSpecialSender.keycloakId,
-      });
-      return acc;
-    }, new Map<string, Array<{ studentId: string; keycloakId: string | null }>>()),
-  );
+  let createDialog: HTMLDialogElement;
+  let removeDialog: HTMLDialogElement;
+  let selectedEmailAlias: (typeof data)["emailAliases"][number] | undefined =
+    $state();
 </script>
 
-<PageHeader title={m.admin_emailalias_emailAliases()} />
+<SetPageTitle title={m.emailAliases()} />
 
-<div>
-  {#if isAuthorized(apiNames.EMAIL_ALIAS.CREATE, $page.data.user)}
-    <div class="my-4 rounded-lg p-4">
-      <div class="border-b border-neutral p-4">
-        <h2 class="text-lg font-semibold">{m.admin_emailalias_addAlias()}</h2>
-        <form
-          class="flex flex-row items-end gap-2"
-          use:createEmailPositionEnhance
-          action="?/createEmailPosition"
-          name="createEmailPosition"
-          method="POST"
-        >
-          <Input
-            name="localPartAlias"
-            id="localPartAlias"
-            label={m.admin_emailalias_emailAddress()}
-            required
-            bind:value={$createEmailPositionForm.localPartAlias}
-            {...$createEmailPositionConstraints.localPartAlias}
-            error={$createEmailPositionErrors.localPartAlias}
-          />
-          <Labeled
-            label={m.admin_emailalias_domain()}
-            error={$createEmailPositionErrors.domainAlias}
+<div class="overflow-x-auto">
+  <table class="table table-zebra">
+    <thead>
+      <tr class="bg-base-200">
+        <th>{m.emailAliases()}</th>
+        <th>{m.admin_emailalias_receiver()}</th>
+        <th>
+          <button
+            class="btn btn-primary btn-xs float-right px-4"
+            onclick={() => createDialog.showModal()}
           >
-            <select
-              id="domainAlias"
-              name="domainAlias"
-              class="select select-bordered w-full max-w-xs"
-              bind:value={$createEmailPositionForm.domainAlias}
-              {...$createEmailPositionConstraints.domainAlias}
-              required
-            >
-              {#each data.domains as domain}
-                <option value={domain}>{domain}</option>
-              {/each}
-            </select>
-          </Labeled>
-          <Labeled label={m.admin_emailalias_position()}>
-            <select
-              id="positionIdAlias"
-              name="positionIdAlias"
-              class="select select-bordered w-full max-w-xs"
-              bind:value={$createEmailPositionForm.positionIdAlias}
-              {...$createEmailPositionConstraints.positionIdAlias}
-              required
-            >
-              {#each data.positions as position (position.id)}
-                <option value={position.id}>{position.name}</option>
-              {/each}
-            </select>
-          </Labeled>
-          <button class="btn btn-primary" type="submit"
-            >{m.admin_emailalias_add()}</button
-          >
-        </form>
-      </div>
-
-      <div class="border-b border-neutral p-4">
-        <h2 class="text-lg font-semibold">
-          {m.admin_emailalias_addSpecialSender()}
-        </h2>
-        <form
-          class="flex flex-row items-end gap-2"
-          action="?/createEmailSpecialSender"
-          name="createEmailSpecialSender"
-          method="POST"
-          use:createEmailSpecialSenderEnhance
-        >
-          <Input
-            name="localPartSender"
-            label={m.admin_emailalias_emailAddress()}
-            id="localPartSender"
-            required
-            bind:value={$createEmailSpecialSenderForm.localPartSender}
-            {...$createEmailSpecialSenderConstraints.localPartSender}
-            error={$createEmailSpecialSenderErrors.localPartSender}
-          />
-          <Labeled
-            label={m.admin_emailalias_domain()}
-            error={$createEmailSpecialSenderErrors.domainSender}
-          >
-            <select
-              id="domainSender"
-              name="domainSender"
-              class="select select-bordered w-full max-w-xs"
-              bind:value={$createEmailSpecialSenderForm.domainSender}
-              {...$createEmailSpecialSenderConstraints.domainSender}
-              required
-            >
-              {#each data.domains as domain}
-                <option value={domain}>{domain}</option>
-              {/each}
-            </select>
-          </Labeled>
-          <Input
-            name="usernameSender"
-            label={m.admin_emailalias_studentIDOrUsername()}
-            required
-            id="usernameSender"
-            bind:value={$createEmailSpecialSenderForm.usernameSender}
-            {...$createEmailSpecialSenderConstraints.usernameSender}
-            error={$createEmailSpecialSenderErrors.usernameSender}
-          />
-
-          <button class="btn btn-primary" type="submit"
-            >{m.admin_emailalias_add()}</button
-          >
-        </form>
-      </div>
-
-      <div class="p-4">
-        <h2 class="text-lg font-semibold">
-          {m.admin_emailalias_addSpecialReceiver()}
-        </h2>
-        <form
-          class="flex flex-row items-end gap-2"
-          action="?/createEmailSpecialReceiver"
-          name="createEmailSpecialReceiver"
-          method="POST"
-          use:createEmailSpecialReceiverEnhance
-        >
-          <Input
-            name="localPartReceiver"
-            label={m.admin_emailalias_emailAddress()}
-            required
-            id="localPartReceiver"
-            bind:value={$createEmailSpecialReceiverForm.localPartReceiver}
-            {...$createEmailSpecialReceiverConstraints.localPartReceiver}
-            error={$createEmailSpecialReceiverErrors.localPartReceiver}
-          />
-          <Labeled
-            label={m.admin_emailalias_domain()}
-            error={$createEmailSpecialReceiverErrors.domainReceiver}
-          >
-            <select
-              id="domainReceiver"
-              name="domainReceiver"
-              class="select select-bordered w-full max-w-xs"
-              bind:value={$createEmailSpecialReceiverForm.domainReceiver}
-              {...$createEmailSpecialReceiverConstraints.domainReceiver}
-              required
-            >
-              {#each data.domains as domain}
-                <option value={domain}>{domain}</option>
-              {/each}
-            </select>
-          </Labeled>
-          <Input
-            name="targetEmailReceiver"
-            label={m.admin_emailalias_targetAddress()}
-            required
-            id="targetEmailReceiver"
-            bind:value={$createEmailSpecialReceiverForm.targetEmailReceiver}
-            error={$createEmailSpecialReceiverErrors.targetEmailReceiver}
-            {...$createEmailSpecialReceiverConstraints.targetEmailReceiver}
-          />
-          <button class="btn btn-primary" type="submit"
-            >{m.admin_emailalias_add()}</button
-          >
-        </form>
-      </div>
-    </div>
-  {/if}
-
-  <div class="overflow-x-auto">
-    <h1 class="my-4 text-2xl font-bold">{m.admin_emailalias_emailAliases()}</h1>
-    <table class="table">
-      <!-- head -->
-      <thead>
-        <tr class="bg-base-200">
-          <th>{m.admin_emailalias_emailAddress()}</th>
-          <th>{m.admin_emailalias_positionID()}</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        {#each groupedEmailAliases as emailAlias}
-          <tr>
-            <td class="font-medium">{emailAlias[0]}</td>
-            <td>
-              {#each emailAlias[1] as positionId, i}
-                {#if i > 0}
-                  ,&nbsp;
-                {/if}
-                <span class="font-mono">{positionId}</span>
-              {/each}
-            </td>
-            {#if isAuthorized(apiNames.EMAIL_ALIAS.UPDATE, $page.data.user)}
-              <td class="text-right">
-                <a class="btn btn-xs px-8" href="email-alias/{emailAlias[0]}"
-                  >{m.admin_emailalias_edit()}</a
-                ></td
-              >
+            <span class="i-mdi-add"></span>
+            {m.admin_emailalias_add()}
+          </button>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      {#each data.emailAliases as emailAlias}
+        {@const { id, mail: email, recipients = [] } = emailAlias}
+        <tr>
+          <td class="font-medium">{email}</td>
+          <td>
+            {#if recipients.length >= 2}
+              {recipients[0]}
+              and
+              <a href="email-alias/{id}" class="link">
+                {recipients.length - 1} more
+              </a>
+            {:else if recipients.length === 1}
+              {recipients[0]}
             {/if}
-          </tr>
-        {/each}
-      </tbody>
-    </table>
-  </div>
-  <hr />
-  <div class="overflow-x-auto">
-    <h1 class="my-4 text-2xl font-bold">
-      {m.admin_emailalias_specialSenders()}
-    </h1>
-    <table class="table">
-      <!-- head -->
-      <thead>
-        <tr class="bg-base-200">
-          <th>{m.admin_emailalias_emailAddress()}</th>
-          <th>{m.admin_emailalias_studentIDOrUsername()}</th>
-          <th></th>
+          </td>
+          <td class="flex justify-end gap-2">
+            <a class="btn btn-outline btn-xs px-8" href="email-alias/{id}">
+              {m.admin_emailalias_edit()}
+            </a>
+
+            <button
+              class="btn btn-square btn-outline btn-xs"
+              aria-label={m.admin_emailalias_remove()}
+              onclick={() => {
+                removeDialog.showModal();
+                selectedEmailAlias = emailAlias;
+              }}
+            >
+              <span class="i-mdi-delete"></span>
+            </button>
+          </td>
         </tr>
-      </thead>
-      <tbody>
-        {#each groupedSpecialSenders as { 0: email, 1: ids }}
-          <tr>
-            <td class="font-medium">{email}</td>
-            <td>
-              {#each ids as { studentId }, i}
-                {#if i > 0}
-                  ,&nbsp;
-                {/if}
-                <span class="font-mono">{studentId}</span>
-              {/each}
-            </td>
-            {#if isAuthorized(apiNames.EMAIL_ALIAS.UPDATE, $page.data.user)}
-              <td class="text-right">
-                <a class="btn btn-xs px-8" href="email-alias/{email}"
-                  >{m.admin_emailalias_edit()}</a
-                ></td
-              >
-            {/if}
-          </tr>
-        {/each}
-      </tbody>
-    </table>
-  </div>
-  <hr />
-  <div class="overflow-x-auto">
-    <h1 class="my-4 text-2xl font-bold">
-      {m.admin_emailalias_specialReceivers()}
-    </h1>
-    <table class="table">
-      <!-- head -->
-      <thead>
-        <tr class="bg-base-200">
-          <th>{m.admin_emailalias_emailAddress()}</th>
-          <th>{m.admin_emailalias_targetAddress()}</th>
-          <th></th>
+      {:else}
+        <tr>
+          <td colspan="3" class="text-center"
+            >{m.admin_emailalias_noAliasesFound()}</td
+          >
         </tr>
-      </thead>
-      <tbody>
-        {#each groupedSpecialReceivers as { 0: email, 1: targetEmails }}
-          <tr>
-            <td class="font-medium">{email}</td>
-            <td>
-              {#each targetEmails as targetEmail, i}
-                {#if i > 0}
-                  ,&nbsp;
-                {/if}
-                <span class="font-mono">{targetEmail}</span>
-              {/each}
-            </td>
-            {#if isAuthorized(apiNames.EMAIL_ALIAS.UPDATE, $page.data.user)}
-              <td class="text-right">
-                <a class="btn btn-xs px-8" href="email-alias/{email}"
-                  >{m.admin_emailalias_edit()}</a
-                ></td
-              >
-            {/if}
-          </tr>
-        {/each}
-      </tbody>
-    </table>
-  </div>
-  <hr />
+      {/each}
+    </tbody>
+  </table>
 </div>
+
+<!-- Dialog for creating a new email alias -->
+<dialog class="modal modal-bottom sm:modal-middle" bind:this={createDialog}>
+  <div class="modal-box flex flex-col gap-4">
+    <h3 class="text-lg font-bold">{m.admin_emailalias_addAlias()}</h3>
+    <p>{m.admin_emailalias_addAliasDescription()}</p>
+    <form
+      class="join w-full *:input-bordered"
+      class:*:input-error={$errors.alias}
+      id="create_email_alias"
+      method="POST"
+      action="?/create"
+      use:superEnhance
+    >
+      <label class="input join-item flex w-full items-center gap-2">
+        <span class="i-mdi-email"></span>
+        <input
+          class="w-full"
+          type="text"
+          placeholder="naringsliv"
+          name="alias"
+          required
+          bind:value={$form.alias}
+        />
+      </label>
+
+      <select
+        class="join-item select"
+        name="domain"
+        bind:value={$form.domain}
+        required
+      >
+        <option value="dsek.se">@dsek.se</option>
+        <option value="nolla.nu">@nolla.nu</option>
+        <option value="teknikfokus.se">@teknikfokus.se</option>
+        <option value="dchip.se">@dchip.se</option>
+      </select>
+    </form>
+
+    {#if $errors.alias}
+      <p class="text-error">{$errors.alias}</p>
+    {/if}
+
+    <p>{m.admin_emailalias_addAliasInstruction()}</p>
+
+    <div class="modal-action">
+      <form method="dialog" class="flex gap-2">
+        <button class="btn">{m.admin_emailalias_cancel()}</button>
+        <button class="btn btn-primary" form="create_email_alias">
+          {m.admin_emailalias_add()}
+        </button>
+      </form>
+    </div>
+  </div>
+</dialog>
+
+<!-- Dialog for removing email alias -->
+<dialog class="modal modal-bottom sm:modal-middle" bind:this={removeDialog}>
+  <div class="modal-box flex flex-col gap-4">
+    <h3 class="text-lg font-bold">{m.admin_emailalias_removeAlias()}</h3>
+    <p>
+      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+      {@html m.admin_emailalias_removeAliasConfirm({
+        mailaliasName: selectedEmailAlias?.mail ?? "no mail found",
+      })}
+    </p>
+
+    <form
+      action="?/delete"
+      method="POST"
+      use:enhance
+      class="hidden"
+      id="remove_email_alias"
+    >
+      <input type="text" hidden name="id" value={selectedEmailAlias?.id} />
+    </form>
+
+    <div class="modal-action">
+      <form method="dialog" class="flex gap-2">
+        <button class="btn">{m.admin_emailalias_cancel()}</button>
+        <button
+          class="btn btn-error"
+          form="remove_email_alias"
+          onclick={() => removeDialog.close()}
+        >
+          {m.admin_emailalias_remove()}
+        </button>
+      </form>
+    </div>
+  </div>
+</dialog>
