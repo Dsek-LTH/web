@@ -69,7 +69,7 @@
     label={m.receipt()}
     field={`receipts[${index}].image`}
     onChange={(e) => onFileSelected(e)}
-    accept="application/pdf"
+    accept="application/pdf,image/*"
   />
   <!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
   {#each $values as _, i}
