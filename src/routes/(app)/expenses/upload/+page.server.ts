@@ -111,7 +111,12 @@ const uploadReceipt = async (
     }
     const x = (width - finalWidth) / 2;
     const y = (height - finalHeight - 100) / 2;
-    page.drawImage(embeddedImage, { x, y, width: finalWidth, height: finalHeight });
+    page.drawImage(embeddedImage, {
+      x,
+      y,
+      width: finalWidth,
+      height: finalHeight,
+    });
 
     const pdfBytes = await pdfDoc.save();
 
@@ -121,7 +126,6 @@ const uploadReceipt = async (
     const pdfFile = new File([pdfBlob], `${getNameOfFile(image.name)}.pdf`, {
       type: "application/pdf",
     });
-    
 
     const url = await uploadFile(
       user,
