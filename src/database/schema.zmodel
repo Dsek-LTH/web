@@ -40,12 +40,13 @@ model AdminSetting {
 }
 
 model Alert {
-  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  severity  String    @db.VarChar(255)
-  messageSv String    @map("message_sv") @db.VarChar(255)
-  messageEn String    @map("message_en") @db.VarChar(255)
-  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-  removedAt DateTime? @map("removed_at") @db.Timestamptz(6)
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  severity       String    @db.VarChar(255)
+  messageSv      String    @map("message_sv") @db.VarChar(255)
+  messageEn      String    @map("message_en") @db.VarChar(255)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  removedAt      DateTime? @map("removed_at") @db.Timestamptz(6)
+  closedByMember Member[]  @relation("alerts_closed_by")
 
   @@allow("all", has(auth().policies, "alert"))
   @@allow("read", true)
@@ -598,6 +599,7 @@ model Member {
   expenses                Expense[]
   expensesToSign          ExpenseItem[]           @relation("expense_item_signer")
   signedExpenses          ExpenseItem[]           @relation("expense_item_signed_by")
+  closedAlerts            Alert[]                 @relation("alerts_closed_by")
 
   @@allow('create', has(auth().policies, "core:member:create"))
   @@allow('create', auth().studentId == studentId)

@@ -218,6 +218,87 @@
         }
       ]
     },
+    "_alerts_closed_by": {
+      "id": "public._alerts_closed_by",
+      "schemaName": "public",
+      "tableName": "_alerts_closed_by",
+      "fields": [
+        {
+          "id": "public._alerts_closed_by.A",
+          "name": "A",
+          "columnName": "A",
+          "type": "uuid",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": true,
+          "maxLength": null
+        },
+        {
+          "id": "public._alerts_closed_by.B",
+          "name": "B",
+          "columnName": "B",
+          "type": "uuid",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": true,
+          "maxLength": null
+        },
+        {
+          "name": "alerts",
+          "type": "alerts",
+          "isRequired": true,
+          "kind": "object",
+          "relationName": "_alerts_closed_byToalerts",
+          "relationFromFields": [
+            "A"
+          ],
+          "relationToFields": [
+            "id"
+          ],
+          "isList": false,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        },
+        {
+          "name": "members",
+          "type": "members",
+          "isRequired": true,
+          "kind": "object",
+          "relationName": "_alerts_closed_byTomembers",
+          "relationFromFields": [
+            "B"
+          ],
+          "relationToFields": [
+            "id"
+          ],
+          "isList": false,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        }
+      ],
+      "uniqueConstraints": [
+        {
+          "name": "_alerts_closed_by_AB_pkey",
+          "fields": [
+            "A",
+            "B"
+          ],
+          "nullNotDistinct": false
+        }
+      ]
+    },
     "_article_likes": {
       "id": "public._article_likes",
       "schemaName": "public",
@@ -1073,6 +1154,20 @@
           "hasDefaultValue": false,
           "isId": false,
           "maxLength": null
+        },
+        {
+          "name": "_alerts_closed_by",
+          "type": "_alerts_closed_by",
+          "isRequired": false,
+          "kind": "object",
+          "relationName": "_alerts_closed_byToalerts",
+          "relationFromFields": [],
+          "relationToFields": [],
+          "isList": true,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
         }
       ],
       "uniqueConstraints": [
@@ -6118,6 +6213,20 @@
           "isRequired": false,
           "kind": "object",
           "relationName": "RecurringEventTomembers",
+          "relationFromFields": [],
+          "relationToFields": [],
+          "isList": true,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        },
+        {
+          "name": "_alerts_closed_by",
+          "type": "_alerts_closed_by",
+          "isRequired": false,
+          "kind": "object",
+          "relationName": "_alerts_closed_byTomembers",
           "relationFromFields": [],
           "relationToFields": [],
           "isList": true,
