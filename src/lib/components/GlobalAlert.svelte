@@ -21,7 +21,7 @@
   })();
 </script>
 
-<div role="alert" class={`alert alert-${severity} rounded-none gap-[0.3rem]`}>
+<div role="alert" class={`alert alert-${severity} rounded-none gap-1`}>
   <span class={`${icon} text-xl`}></span>
   <span class="font-bold prose-a:link">
     <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized client-side -->
@@ -48,7 +48,7 @@
       }).then(() => invalidate("alerts"));
     }}
   >
-    <button class="h-7 w-7 sm:p-2 font-black rounded-full sm:h-auto sm:w-auto sm:m-0 sm:mt-0 mt-1 bg-white bg-opacity-0 hover:bg-opacity-20 sm:rounded-lg transition"> ✕ </button>
+    <button class="aspect-square h-7 w-7 mt-1 sm:mt-0 font-black rounded-lg bg-transparent hover:bg-white/20 transition"> ✕ </button>
     <input type="hidden" name="alertId" value={id} />
   </form>
 </div>
