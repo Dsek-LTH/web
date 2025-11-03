@@ -22,8 +22,11 @@ import { authorize } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
 import { convertPriceToCents } from "$lib/utils/convertPrice";
 import { error } from "@sveltejs/kit";
+import { isFileImage, isFilePDF, getNameOfFile } from "$lib/files/utils";
+import { PDFDocument, PageSizes } from "pdf-lib";
+import type { Actions, PageServerLoad } from "./$types";
 
-export const load = async ({ locals: { user } }) => {
+export const load: PageServerLoad = async ({ locals: { user } }) => {
   authorize(apiNames.EXPENSES.CREATE, user);
   return {
     form: await superValidate(
@@ -61,15 +64,78 @@ const uploadReceipt = async (
   date: Date,
   id: number,
 ) => {
-  const imageUrl = await uploadFile(
-    user,
-    image,
-    expensePhotoUrl(date, id),
-    PUBLIC_BUCKETS_FILES,
-    undefined,
-    { resize: { width: 1920, height: 1920, fit: "outside" } },
-  );
-  return imageUrl;
+  if (isFilePDF(image)) {
+    console.log("uploading already a pdf");
+    const url = await uploadFile(
+      user,
+      image,
+      expensePhotoUrl(date, id),
+      PUBLIC_BUCKETS_FILES,
+      undefined,
+      false,
+    );
+    return url;
+  }
+
+  // If an image is uploaded, convert to a single-page PDF and store the PDF
+  if (isFileImage(image)) {
+    const arrayBuffer = await image.arrayBuffer();
+    const inputBytes = new Uint8Array(arrayBuffer);
+
+    const pdfDoc = await PDFDocument.create();
+    const page = pdfDoc.addPage(PageSizes.A4);
+    const { width, height } = page.getSize();
+
+    let embeddedImage;
+    const mime = image.type.toLowerCase();
+    if (mime.includes("png")) {
+      embeddedImage = await pdfDoc.embedPng(inputBytes);
+    } else {
+      try {
+        embeddedImage = await pdfDoc.embedJpg(inputBytes);
+      } catch {
+        // fallback: try to treat as PNG
+        embeddedImage = await pdfDoc.embedPng(inputBytes);
+      }
+    }
+
+    const MARGIN = 50;
+    const pageWidth = width - MARGIN * 2;
+    const pageHeight = height - 150;
+    const imageRatio = embeddedImage.width / embeddedImage.height;
+
+    let finalWidth = pageWidth;
+    let finalHeight = pageWidth / imageRatio;
+    if (finalHeight > pageHeight) {
+      finalHeight = pageHeight;
+      finalWidth = pageHeight * imageRatio;
+    }
+    const x = (width - finalWidth) / 2;
+    const y = (height - finalHeight - 100) / 2;
+    page.drawImage(embeddedImage, { x, y, width: finalWidth, height: finalHeight });
+
+    const pdfBytes = await pdfDoc.save();
+
+    const ab = new ArrayBuffer(pdfBytes.length);
+    new Uint8Array(ab).set(pdfBytes);
+    const pdfBlob = new Blob([ab], { type: "application/pdf" });
+    const pdfFile = new File([pdfBlob], `${getNameOfFile(image.name)}.pdf`, {
+      type: "application/pdf",
+    });
+    
+
+    const url = await uploadFile(
+      user,
+      pdfFile,
+      expensePhotoUrl(date, id),
+      PUBLIC_BUCKETS_FILES,
+      undefined,
+      false,
+    );
+    return url;
+  }
+
+  throw new Error("Unsupported file type. Please upload a PDF or image.");
 };
 
 const removeReceiptImages = (user: AuthUser, date: Date, id: number) =>
@@ -77,7 +143,7 @@ const removeReceiptImages = (user: AuthUser, date: Date, id: number) =>
     expensePhotoUrl(date, id),
   ]);
 
-export const actions = {
+export const actions: Actions = {
   default: async (event) => {
     const { locals, request } = event;
     const { prisma, user, member } = locals;
