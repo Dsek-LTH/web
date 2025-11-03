@@ -20,7 +20,7 @@
     {@const date = new Date(item.timestamp)}
     <div class="pop-out mt-0.5 bg-base-200">
       <a
-        href="{wikiUrl}/wiki/{item.title}"
+        href="{wikiUrl}/index.php?title=Special:Login&returnto={item.title}"
         class="flex h-full overflow-hidden p-4"
       >
         <article class="flex flex-col justify-between">

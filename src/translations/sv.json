@@ -825,5 +825,11 @@
   "create_expense": "Skapa",
   "pub_example": "Mat till pub",
   "add_receipt": "Lägg till kvitto",
-  "add_row": "Lägg till rad"
+  "add_row": "Lägg till rad",
+  "positions_removeMandate": "Ta bort mandat",
+  "positions": "Poster",
+  "positions_active": "Aktiv",
+  "positions_board_member": "Styrelsemedlem",
+  "positions_apply_change": "Spara",
+  "positions_all_positions": "Se alla poster"
 }
