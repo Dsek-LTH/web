@@ -21,7 +21,7 @@
   })();
 </script>
 
-<div role="alert" class={`alert alert-${severity} rounded-none`}>
+<div role="alert" class={`alert alert-${severity} rounded-none gap-[0.3rem]`}>
   <span class={`${icon} text-xl`}></span>
   <span class="font-bold prose-a:link">
     <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized client-side -->
@@ -30,6 +30,7 @@
   <form
     method="POST"
     action="/api/closeAlert"
+    class="sm:h-[unset] h-7 w-20 sm:border-0 sm:w-7 border-t-[1.5px] border-black border-opacity-20"
     on:submit={(e) => {
       e.preventDefault();
       const ACTION_URL = "/api/closeAlert";
@@ -47,7 +48,7 @@
       }).then(() => invalidate("alerts"));
     }}
   >
-    <button class="p-2 font-black"> ✕ </button>
+    <button class="h-7 w-7 sm:p-2 font-black rounded-full sm:h-auto sm:w-auto sm:m-0 sm:mt-0 mt-1 bg-white bg-opacity-0 hover:bg-opacity-20 sm:rounded-lg transition"> ✕ </button>
     <input type="hidden" name="alertId" value={id} />
   </form>
 </div>
