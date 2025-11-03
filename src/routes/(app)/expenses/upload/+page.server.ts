@@ -65,7 +65,6 @@ const uploadReceipt = async (
   id: number,
 ) => {
   if (isFilePDF(image)) {
-    console.log("uploading already a pdf");
     const url = await uploadFile(
       user,
       image,
