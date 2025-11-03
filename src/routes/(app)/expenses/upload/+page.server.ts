@@ -93,8 +93,7 @@ const uploadReceipt = async (
       try {
         embeddedImage = await pdfDoc.embedJpg(inputBytes);
       } catch {
-        // fallback: try to treat as PNG
-        embeddedImage = await pdfDoc.embedPng(inputBytes);
+        throw new Error("Unsupported image type. Please upload JPEG or a PNG.");
       }
     }
 
