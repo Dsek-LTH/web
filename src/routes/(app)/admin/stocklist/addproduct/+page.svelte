@@ -6,11 +6,12 @@
   import Labeled from "$lib/components/Labeled.svelte";
 
   const drinkGroup = Object.values(DrinkGroup);
-  let selected: DrinkQuantityType | "" = "";
 
   export let data: PageData;
 
-  const { form, enhance } = superForm(data.form);
+  const { form, enhance } = superForm(data.form, {
+    resetForm: true,
+  });
 </script>
 
 <div>
@@ -28,19 +29,10 @@
 </div>
 
 <div class="mg mt-4">
-  <select
-    class="select select-bordered w-52"
-    bind:value={selected}
-    on:change={() => {
-      if (
-        selected === DrinkQuantityType.COUNTS ||
-        selected === DrinkQuantityType.WEIGHT
-      ) {
-        $form.quantityType = selected;
-      }
-    }}
-  >
-    <option value="" disabled selected>Välj kategori</option>
+  <select class="select select-bordered w-52" bind:value={$form.quantityType}>
+    <option value={DrinkQuantityType.NONE} disabled selected
+      >Välj kategori</option
+    >
     <option value={DrinkQuantityType.COUNTS}>Öl/Cider/Vin/Annat</option>
     <option value={DrinkQuantityType.WEIGHT}>Sprit</option>
   </select>

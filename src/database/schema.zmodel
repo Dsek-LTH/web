@@ -558,11 +558,10 @@ model DrinkItem {
 }
 
 model DrinkItemBatch {
-  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  drinkItemId    String    @map("drink_item_id") @db.Uuid
-  item           DrinkItem @relation(fields: [drinkItemId], references: [id])
-  bestBeforeDate DateTime  @map("best_before_date")
-  quantity       Int
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  drinkItemId String    @map("drink_item_id") @db.Uuid
+  item        DrinkItem @relation(fields: [drinkItemId], references: [id])
+  quantity    Int
 
   @@allow("read", true)
   @@allow("create", has(auth().policies, "drinkitembatch:create"))

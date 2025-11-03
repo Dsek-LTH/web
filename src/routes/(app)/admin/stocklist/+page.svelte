@@ -20,8 +20,10 @@
   }}
 />
 
-<div>
-  <ul style="list-style: none;">
+<div
+  style="display: flex; justify-content: space-between; align-items: center;"
+>
+  <ul style="list-style: none; padding: 0; margin: 0; display: flex;">
     <a href="/admin/stocklist" style="margin-right:15px">
       <button class="btn btn-primary"> Överblick </button>
     </a>
@@ -32,6 +34,9 @@
       <button class=" btn btn-primary"> Skriv in/ut </button>
     </a>
   </ul>
+  <h1 style="font-size: large;">
+    Totalt lagervärde: {data.totalInventoryValue / 100} kr
+  </h1>
 </div>
 <div class="overflow-x-auto">
   <table class="table">
@@ -45,7 +50,7 @@
       </tr>
     </thead>
     <tbody>
-      {#each data.items as item}
+      {#each data.grouped as item}
         <tr>
           <th>{item.item.systembolagetID}</th>
           <td>{item.item.name}</td>

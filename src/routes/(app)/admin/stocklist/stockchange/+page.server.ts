@@ -15,7 +15,6 @@ export const load: PageServerLoad = async (event) => {
 
 const DrinkItemBatchSchema = z.object({
   drinkItemId: z.string(),
-  bestBeforeDate: z.string(),
   quantity: z.number(),
   inOut: z.string(),
 });
@@ -23,18 +22,21 @@ const DrinkItemBatchSchema = z.object({
 export const actions: Actions = {
   createDrinkItemBatch: async (event) => {
     const { user, prisma } = event.locals;
+
     authorize(apiNames.DRINKITEMBATCH.CREATE, user);
     const form = await superValidate(event.request, zod(DrinkItemBatchSchema));
     if (!form.valid) return fail(400, { form });
-
+    console.log(form.data.inOut);
+    console.log(form.data.drinkItemId);
+    console.log(form.data.quantity);
     if (form.data.inOut == "IN") {
       await prisma.drinkItemBatch.create({
         data: {
           drinkItemId: form.data.drinkItemId,
           quantity: form.data.quantity,
-          bestBeforeDate: form.data.bestBeforeDate,
         },
       });
+
       return message(form, { message: "Antal inskrivet" });
     }
     if (form.data.inOut == "OUT") {
@@ -52,7 +54,6 @@ export const actions: Actions = {
             drinkItemId,
             quantity: { gt: 0 },
           },
-          orderBy: [{ bestBeforeDate: "asc" }, { id: "asc" }], // oldest first
         });
 
         const available = batches.reduce((sum, b) => sum + b.quantity, 0);

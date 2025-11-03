@@ -3934,20 +3934,6 @@
           "maxLength": null
         },
         {
-          "id": "public.drinkitembatch.best_before_date",
-          "name": "best_before_date",
-          "columnName": "best_before_date",
-          "type": "timestamp",
-          "isRequired": true,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": null
-        },
-        {
           "id": "public.drinkitembatch.quantity",
           "name": "quantity",
           "columnName": "quantity",

@@ -4,8 +4,8 @@
   import { DrinkQuantityType } from "@prisma/client";
   import Input from "$lib/components/Input.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
-
-  let selected: string | "" = "";
+  import Price from "$lib/components/Price.svelte";
+  import { id_ID } from "@faker-js/faker";
 
   export let data: PageData;
 
@@ -27,18 +27,10 @@
 </div>
 
 <div class="mg mt-4">
-  <select
-    class="select select-bordered w-52"
-    bind:value={selected}
-    on:change={() => {
-      if (selected === "IN" || selected === "OUT") {
-        $form.inOut = selected;
-      }
-    }}
-  >
+  <select class="select select-bordered w-52" bind:value={$form.inOut}>
     <option value="" disabled selected>Välj kategori</option>
-    <option value={"IN"}>Skriv in</option>
-    <option value={"OUT"}>Skriv ut</option>
+    <option value="IN">Skriv in</option>
+    <option value="OUT">Skriv ut</option>
   </select>
 </div>
 
@@ -55,23 +47,23 @@
       use:enhance
     >
       <Labeled label="Produkt" />
-      <select class="input bg-base-300" bind:value={$form.drinkItemId}>
-        {#each data.drinks as drink}
-          <option value={drink.id}> {drink.name} </option>{/each}</select
+      <select
+        class="input bg-base-300"
+        name="drinkItemId"
+        bind:value={$form.drinkItemId}
       >
+        {#each data.drinks as drink}
+          <option value={drink.id}>
+            {drink.name} ({drink.price / 100} kr)
+          </option>{/each}</select
+      >
+      <Input type="hidden" name="inOut" bind:value={$form.inOut} />
       <Input
         label="Antal"
         type="number"
         name="quantity"
         class="input bg-base-300"
         bind:value={$form.quantity}
-      />
-      <Input
-        label="Utgångsdatum"
-        type="datetime-local"
-        name="bestbeforedate"
-        class="input bg-base-300"
-        bind:value={$form.bestBeforeDate}
       />
       <div class="flex justify-end">
         <button type="submit" class=" btn btn-primary mt-2 w-4/12">Add</button>
