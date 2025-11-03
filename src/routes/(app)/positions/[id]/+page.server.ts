@@ -13,7 +13,7 @@ import type { Actions, PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
 import { languageTag } from "$paraglide/runtime";
 
-export const load: PageServerLoad = async ({ locals, params, url }) => {
+export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma } = locals;
   const position = await prisma.position.findUnique({
     where: {

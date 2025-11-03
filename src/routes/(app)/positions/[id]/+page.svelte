@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { page } from "$app/stores";
   import PageHeader from "$lib/components/nav/PageHeader.svelte";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";

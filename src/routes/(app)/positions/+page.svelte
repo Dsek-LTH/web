@@ -4,7 +4,7 @@
   import { isAuthorized } from "$lib/utils/authorization";
   import * as m from "$paraglide/messages";
   import { languageTag } from "$paraglide/runtime";
-  import type { Committee, Position, Prisma } from "@prisma/client";
+  import type { Committee, Prisma } from "@prisma/client";
 
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import type { PageData } from "./$types";
@@ -27,12 +27,21 @@
         string,
         Array<Prisma.PositionGetPayload<{ include: { committee: true } }>>
       >
-    >((acc: any, position: Position) => {
-      let committee = position.committeeId ?? "other";
-      if (!acc[committee]) acc[committee] = [];
-      acc[committee].push(position);
-      return acc;
-    }, {});
+    >(
+      (
+        acc: Record<
+          string,
+          Array<Prisma.PositionGetPayload<{ include: { committee: true } }>>
+        >,
+        position: Prisma.PositionGetPayload<{ include: { committee: true } }>,
+      ) => {
+        let committee = position.committeeId ?? "other";
+        if (!acc[committee]) acc[committee] = [];
+        acc[committee].push(position);
+        return acc;
+      },
+      {},
+    );
 </script>
 
 <SetPageTitle title={m.positions()} />
@@ -55,7 +64,11 @@
             href="/positions/{position.id}">{position.nameSv}</a
           >
           {#if isAuthorized(apiNames.POSITION.UPDATE, data.user)}
-            <UpdatePositionAttributesForm {position} data={form!} />
+            <UpdatePositionAttributesForm
+              {position}
+              data={form!}
+              user={data.user}
+            />
           {/if}
         </div>
       {/await}
