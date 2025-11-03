@@ -314,7 +314,6 @@ model EmailAlias {
   id         String   @id(map: "mail_aliases_pkey") @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
   positionId String   @map("position_id") @db.VarChar(255)
   email      String   @db.VarChar(255)
-  canSend    Boolean  @default(false) @map("can_send")
   position   Position @relation(fields: [positionId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "email_aliases_position_id_foreign")
 
   @@map("email_aliases")
@@ -687,25 +686,6 @@ model Song {
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
 
   @@map("songs")
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model SpecialReceiver {
-  id          String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  email       String @db.VarChar(255)
-  targetEmail String @map("target_email") @db.VarChar(255)
-
-  @@map("special_receivers")
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model SpecialSender {
-  id         String  @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  email      String  @db.VarChar(255)
-  studentId  String  @map("student_id") @db.VarChar(255)
-  keycloakId String? @map("keycloak_id") @db.VarChar(255)
-
-  @@map("special_senders")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
