@@ -8,7 +8,6 @@ import { superValidate } from "sveltekit-superforms/server";
 import type { ExtendedPrismaModel } from "../../database/prisma/translationExtension";
 import type { Member } from "@prisma/client";
 
-const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
 const alertsCache: {
   alerts: Array<ExtendedPrismaModel<"Alert"> & { closedByMember: Member[] }>;
   lastUpdated: number | null;
