@@ -845,4 +845,10 @@
   "gallery_upload_upload": "Upload",
   "gallery_photographer": "Photographer",
   "gallery_editor": "Editor"
+  "positions_removeMandate": "Remove mandate",
+  "positions": "Positions",
+  "positions_active": "Active",
+  "positions_board_member": "Board member",
+  "positions_apply_change": "Apply",
+  "positions_all_positions": "See all positions"
 }

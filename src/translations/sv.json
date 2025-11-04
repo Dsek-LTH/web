@@ -842,4 +842,10 @@
   "gallery_upload_upload": "Ladda upp",
   "gallery_photographer": "Fotograf",
   "gallery_editor": "Redigering"
+  "positions_removeMandate": "Ta bort mandat",
+  "positions": "Poster",
+  "positions_active": "Aktiv",
+  "positions_board_member": "Styrelsemedlem",
+  "positions_apply_change": "Spara",
+  "positions_all_positions": "Se alla poster"
 }

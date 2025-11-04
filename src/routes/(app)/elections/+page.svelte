@@ -3,10 +3,10 @@
   import type { PageData } from "./$types";
   import * as m from "$paraglide/messages";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
-  import { languageTag } from "$paraglide/runtime";
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
   import CommitteeIcon from "$lib/components/images/CommitteeIcon.svelte";
+  import dayjs from "dayjs";
   export let data: PageData;
 </script>
 
@@ -45,7 +45,7 @@
         <MarkdownBody body={election.markdown} />
         <p class="text-center font-bold">
           {m.elections_close()}
-          {election.expiresAt.toLocaleDateString(languageTag())}
+          {dayjs(election.expiresAt).format("YYYY-MM-DD")}
         </p>
         <div class="card-actions self-center">
           <a
