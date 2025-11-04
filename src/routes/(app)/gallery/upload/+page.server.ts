@@ -32,9 +32,6 @@ export const actions: Actions = {
         { status: 500 },
       );
     }
-    // Clear file and name
-    form.data.files = null as unknown as File[]; // will work, but not type correct
-    form.data.name = "";
     redirect(303, "/gallery/album/" + form.data.date + " " + form.data.name);
   },
 };
