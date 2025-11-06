@@ -44,16 +44,16 @@
         ? start.getFullYear() // Aug-Dec -> same year
         : start.getFullYear() - 1; // Jan-Jul -> previous year
 
-    const arskurs = startAcademicYear - classYear + 1;
-    return arskurs >= 1 ? arskurs : null;
+    const studyYear = startAcademicYear - classYear + 1;
+    return studyYear >= 1 ? studyYear : null;
   }
   $: mandateYearRatios = (() => {
     let totalMandateCount = 0;
     const counts: Record<number, number> = {};
     for (const mandate of data.mandates) {
-      const arskurs = getArskurs(mandate);
-      if (arskurs === null) continue;
-      counts[arskurs] = (counts[arskurs] ?? 0) + 1;
+      const studyYear = getArskurs(mandate);
+      if (studyYear === null) continue;
+      counts[studyYear] = (counts[studyYear] ?? 0) + 1;
       totalMandateCount++;
     }
 
@@ -61,11 +61,9 @@
     return Object.keys(counts)
       .map(Number)
       .sort((a, b) => a - b)
-      .map((arskurs) => ({
-        arskurs,
-        percentage: counts
-          ? (counts[arskurs]! / totalMandateCount) * 100
-          : 0,
+      .map((studyYear) => ({
+        studyYear,
+        percentage: counts ? (counts[studyYear]! / totalMandateCount) * 100 : 0,
       }));
   })();
   let isEditing = false;
@@ -142,10 +140,14 @@
       </div>
     {/if}
     <div class="flex-box mt-4 w-full border-t pt-4">
-      <h2 class="text-lg">Historisk mandatfördelning per årskurs</h2>
-      {#each mandateYearRatios as { arskurs, percentage }}
+      <h2 class="text-lg">
+        {m.positions_historical_mandate_distribution_per_study_year()}
+      </h2>
+      {#each mandateYearRatios as { studyYear, percentage }}
         <div class="flex w-64 flex-row items-center gap-2">
-          <div class="bar-label w-16">Åk&nbsp;{arskurs}</div>
+          <div class="bar-label w-24">
+            {m.positions_study_year()}&nbsp;{studyYear}
+          </div>
           <progress class="progress" value={percentage} max="100"></progress>
           <div class="text-xs text-neutral-400">{percentage.toFixed(1)}%</div>
         </div>

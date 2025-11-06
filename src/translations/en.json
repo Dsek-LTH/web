@@ -850,5 +850,7 @@
   "positions_active": "Active",
   "positions_board_member": "Board member",
   "positions_apply_change": "Apply",
-  "positions_all_positions": "See all positions"
+  "positions_all_positions": "See all positions",
+  "positions_historical_mandate_distribution_per_study_year": "Historical mandate distribution per study year",
+  "positions_study_year": "Year"
 }
