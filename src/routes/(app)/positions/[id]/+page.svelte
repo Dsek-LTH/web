@@ -38,8 +38,8 @@
     ),
   );
 
-  // Mandates per årskurs
-  function getArskurs(mandate: MandateWithMember): number | null {
+  // Mandates per study year
+  function getStudyYear(mandate: MandateWithMember): number | null {
     const start = mandate.startDate;
     const classYear = mandate.member.classYear;
     if (!classYear || isNaN(start.getTime())) return null;
@@ -57,7 +57,7 @@
       let totalMandateCount = 0;
       const counts: Record<number, number> = {};
       for (const mandate of data.mandates) {
-        const studyYear = getArskurs(mandate);
+        const studyYear = getStudyYear(mandate);
         if (studyYear === null || studyYear > mandateStatsCutoffYears) {
           continue;
         }
@@ -65,7 +65,7 @@
         totalMandateCount++;
       }
 
-      // Dynamically generate stats for all årskurser present
+      // Dynamically generate stats for all study years present
       return Object.keys(counts)
         .map(Number)
         .sort((a, b) => a - b)
