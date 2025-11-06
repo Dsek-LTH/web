@@ -14,22 +14,62 @@
   import type { PageData } from "./$types";
   export let data: PageData;
 
-  $: groupedByYear = data.mandates.reduce<
-    Record<
-      string,
-      Array<Prisma.MandateGetPayload<{ include: { member: true } }>>
-    >
-  >((acc, mandate) => {
-    let year = mandate.startDate.getFullYear().toString();
-    if (mandate.endDate.getFullYear() !== mandate.startDate.getFullYear())
-      year += `-${mandate.endDate.getFullYear()}`;
-    if (!acc[year]) acc[year] = [];
-    acc[year]!.push(mandate);
-    return acc;
-  }, {});
+  const mandateStatsCutoffYears = 7;
+
+  type MandateWithMember = Prisma.MandateGetPayload<{
+    include: { member: true };
+  }>;
+
+  $: groupedByYear = data.mandates.reduce<Record<string, MandateWithMember[]>>(
+    (acc, mandate) => {
+      let year = mandate.startDate.getFullYear().toString();
+      if (mandate.endDate.getFullYear() !== mandate.startDate.getFullYear())
+        year += `-${mandate.endDate.getFullYear()}`;
+      if (!acc[year]) acc[year] = [];
+      acc[year]!.push(mandate);
+      return acc;
+    },
+    {},
+  );
   $: years = Object.keys(groupedByYear).sort((a, b) =>
     b.localeCompare(a, languageTag()),
   );
+
+  // Mandates per årskurs
+  function getStudyYear(mandate: MandateWithMember): number | null {
+    const start = mandate.startDate;
+    const classYear = mandate.member.classYear;
+    if (!classYear || isNaN(start.getTime())) return null;
+
+    const startAcademicYear =
+      start.getMonth() >= 7
+        ? start.getFullYear() // Aug-Dec -> same year
+        : start.getFullYear() - 1; // Jan-Jul -> previous year
+
+    const studyYear = startAcademicYear - classYear + 1;
+    return studyYear >= 1 ? studyYear : null;
+  }
+  $: mandateYearRatios = (() => {
+    let totalMandateCount = 0;
+    const counts: Record<number, number> = {};
+    for (const mandate of data.mandates) {
+      const studyYear = getStudyYear(mandate);
+      if (studyYear === null || studyYear > mandateStatsCutoffYears) {
+        continue;
+      }
+      counts[studyYear] = (counts[studyYear] ?? 0) + 1;
+      totalMandateCount++;
+    }
+
+    // Dynamically generate stats for all årskurser present
+    return Object.keys(counts)
+      .map(Number)
+      .sort((a, b) => a - b)
+      .map((studyYear) => ({
+        studyYear,
+        percentage: counts ? (counts[studyYear]! / totalMandateCount) * 100 : 0,
+      }));
+  })();
   let isEditing = false;
   let isAdding = false;
 </script>
@@ -39,7 +79,10 @@
   class="mb-4 flex flex-col items-start gap-2 md:flex-row md:items-center md:gap-8"
 >
   {#if data.position.committee}
-    <a href="/committees/{data.position.committee?.shortName}" class="group">
+    <a
+      href="/committees/{data.position.committee?.shortName}"
+      class="group self-start"
+    >
       <figure
         class="h-32 w-32 transition-transform group-hover:scale-95 md:h-40 md:w-40"
       >
@@ -97,6 +140,25 @@
           <a class="link-hover link link-primary" href="mailto:{alias.email}">
             {alias.email}
           </a>
+        {/each}
+      </div>
+    {/if}
+    {#if mandateYearRatios.length !== 0}
+      <div class="flex-box mt-4 w-full border-t pt-4">
+        <h2 class="flex items-center gap-2 text-lg">
+          {m.positions_historical_mandate_distribution_per_study_year()}
+          <span class="text-sm text-neutral-400">
+            ({mandateStatsCutoffYears}&nbsp;{m.positions_years()})
+          </span>
+        </h2>
+        {#each mandateYearRatios as { studyYear, percentage }}
+          <div class="flex w-64 flex-row items-center gap-2">
+            <div class="bar-label w-24">
+              {m.positions_study_year()}&nbsp;{studyYear}
+            </div>
+            <progress class="progress" value={percentage} max="100"></progress>
+            <div class="text-xs text-neutral-400">{percentage.toFixed(1)}%</div>
+          </div>
         {/each}
       </div>
     {/if}
