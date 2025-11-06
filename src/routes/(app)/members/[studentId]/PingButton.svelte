@@ -1,9 +1,9 @@
 <script lang="ts">
   import { page } from "$app/stores";
-  import type { Ping } from "@prisma/client";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import * as m from "$paraglide/messages";
   export let ping: Pick<
-    Ping,
+    ExtendedPrismaModel<"Ping">,
     "count" | "fromMemberId" | "fromSentAt" | "toSentAt"
   > | null;
 </script>

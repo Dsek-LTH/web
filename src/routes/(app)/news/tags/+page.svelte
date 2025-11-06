@@ -48,8 +48,8 @@
         name="name"
         placeholder={m.news_tags_tagName()}
         class="input join-item input-bordered input-primary w-80"
-        bind:value={$form.name}
-        {...$constraints.name}
+        bind:value={$form.nameSv}
+        {...$constraints.nameSv}
       />
       <button
         type="submit"
@@ -59,8 +59,8 @@
         {m.news_tags_create()}</button
       >
     </label>
-    {#if $errors.name}
-      <p class="text-error">{$errors.name}</p>
+    {#if $errors.nameSv}
+      <p class="text-error">{$errors.nameSv}</p>
     {/if}
   </form>
 </section>

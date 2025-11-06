@@ -1,18 +1,13 @@
-import type {
-  Committee,
-  Mandate,
-  PhadderGroup,
-  Position,
-} from "@prisma/client";
+import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
 export type MandateWithPositionAndCommitte = Pick<
-  Mandate,
+  ExtendedPrismaModel<"Mandate">,
   "id" | "startDate" | "endDate"
 > & {
-  phadderIn: PhadderGroup | null;
-  position: Pick<Position, "id" | "name"> & {
+  phadderIn: ExtendedPrismaModel<"PhadderGroup"> | null;
+  position: Pick<ExtendedPrismaModel<"Position">, "id" | "name"> & {
     committee: Pick<
-      Committee,
+      ExtendedPrismaModel<"Committee">,
       "name" | "lightImageUrl" | "darkImageUrl" | "monoImageUrl" | "symbolUrl"
     > | null;
   };

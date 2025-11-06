@@ -48,7 +48,7 @@ export const createEvent: Action = async (event) => {
     recurringEndDatetime,
     ...eventData
   } = form.data;
-  const slug = slugify(form.data.title);
+  const slug = slugify(form.data.titleSv);
   // has to be authorized to count all slugs
   let slugCount = await authorizedPrismaClient.event.count({
     where: {
@@ -66,7 +66,7 @@ export const createEvent: Action = async (event) => {
       id: tag.id,
     }));
   // sanitize
-  eventData.description = DOMPurify.sanitize(eventData.description);
+  eventData.descriptionSv = DOMPurify.sanitize(eventData.descriptionSv);
   eventData.descriptionEn = eventData.descriptionEn
     ? DOMPurify.sanitize(eventData.descriptionEn)
     : eventData.descriptionEn;
@@ -190,7 +190,7 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
     ...eventData
   } = recurringEventData;
 
-  eventData.description = DOMPurify.sanitize(eventData.description);
+  eventData.descriptionSv = DOMPurify.sanitize(eventData.descriptionSv);
   eventData.descriptionEn = eventData.descriptionEn
     ? DOMPurify.sanitize(eventData.descriptionEn)
     : eventData.descriptionEn;
@@ -244,7 +244,24 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
 
     await Promise.all(
       eventsToBeUpdated.map((e) => {
-        const { startDatetime, endDatetime, id, ...oldData } = e;
+        const {
+          startDatetime,
+          endDatetime,
+          id,
+          /* eslint-disable-next-line @typescript-eslint/no-unused-vars --
+           * To avoid lint complaining about unused vars
+           **/
+          title,
+          /* eslint-disable-next-line @typescript-eslint/no-unused-vars --
+           * To avoid lint complaining about unused vars
+           **/
+          description,
+          /* eslint-disable-next-line @typescript-eslint/no-unused-vars --
+           * To avoid lint complaining about unused vars
+           **/
+          shortDescription,
+          ...oldData
+        } = e;
         const newData = {
           ...oldData,
           ...eventData,

@@ -63,12 +63,13 @@ model AdminSetting {
 }
 
 model Alert {
-  id        String    @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  severity  String    @db.VarChar(255)
-  message   String    @db.VarChar(255)
-  messageEn String    @map("message_en") @db.VarChar(255)
-  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-  removedAt DateTime? @map("removed_at") @db.Timestamptz(6)
+  id             String    @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  severity       String    @db.VarChar(255)
+  messageSv      String    @map("message_sv") @db.VarChar(255)
+  messageEn      String    @map("message_en") @db.VarChar(255)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  removedAt      DateTime? @map("removed_at") @db.Timestamptz(6)
+  closedByMember Member[]  @relation("alerts_closed_by")
 
   @@map("alerts")
 }
@@ -106,7 +107,7 @@ model ArticleRequest {
   rejectionReason        String?   @map("rejection_reason")
   handledById            String?   @map("handled_by") @db.Uuid()
   shouldSendNotification Boolean?  @default(false) @map("should_send_notification")
-  notificationBody       String?   @map("notification_body") @db.VarChar(255)
+  notificationBodySv     String?   @map("notification_body_sv") @db.VarChar(255)
   notificationBodyEn     String?   @map("notification_body_en") @db.VarChar(255)
   article                Article?  @relation(fields: [articleId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "article_requests_article_id_foreign")
   handledBy              Member?   @relation(fields: [handledById], references: [id], onUpdate: NoAction, map: "article_requests_handled_by_foreign")
@@ -118,9 +119,9 @@ model ArticleRequest {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model Article {
   id          String           @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  header      String           @db.VarChar(255)
+  headerSv    String           @map("header_sv") @db.VarChar(255)
   headerEn    String?          @map("header_en") @db.VarChar(255)
-  body        String
+  bodySv      String           @map("body_sv")
   bodyEn      String?          @map("body_en")
   imageUrls   String[]         @map("image_urls")
   imageUrl    String?          @map("image_url") @db.Text()
@@ -144,7 +145,7 @@ model Article {
 model Election {
   id          String    @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
   committeeId String    @map("committee_id") @db.Uuid()
-  markdown    String
+  markdownSv  String    @map("markdown_sv")
   markdownEn  String?   @map("markdown_en")
   link        String    @map("link")
   createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
@@ -176,7 +177,7 @@ model Author {
 
 model BookableCategory {
   id        String     @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  name      String     @db.VarChar(255)
+  nameSv    String     @map("name_sv") @db.VarChar(255)
   nameEn    String?    @map("name_en") @db.VarChar(255)
   bookables Bookable[]
 
@@ -186,7 +187,7 @@ model BookableCategory {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model Bookable {
   id         String            @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  name       String            @db.VarChar(255)
+  nameSv     String            @map("name_sv") @db.VarChar(255)
   nameEn     String?           @map("name_en") @db.VarChar(255)
   isDisabled Boolean           @default(false)
   categoryId String?           @map("category_id") @db.Uuid()
@@ -241,7 +242,7 @@ model CartItem {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Committees{
 model Committee {
   id            String        @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  name          String        @db.VarChar(255)
+  nameSv        String        @map("name_sv") @db.VarChar(255)
   nameEn        String?       @map("name_en") @db.VarChar(255)
   shortName     String?       @unique() @map("short_name") @db.VarChar(255)
   positions     Position[]
@@ -249,7 +250,7 @@ model Committee {
   lightImageUrl String?       @map("light_image_url") @db.Text()
   monoImageUrl  String?       @map("mono_image_url") @db.Text()
   symbolUrl     String?       @map("symbol_url") @db.Text()
-  description   String?       @db.VarChar(255)
+  descriptionSv String?       @map("description_sv") @db.VarChar(255)
   descriptionEn String?       @map("description_en") @db.VarChar(255)
   expenseItems  ExpenseItem[]
   election      Election[]
@@ -272,7 +273,7 @@ model CustomAuthorRole {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model CustomAuthor {
   id        String             @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  name      String             @db.VarChar(255)
+  nameSv    String             @map("name_sv") @db.VarChar(255)
   nameEn    String?            @map("name_en") @db.VarChar(255)
   imageUrl  String?            @map("image_url") @db.Text()
   createdAt DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
@@ -313,7 +314,6 @@ model EmailAlias {
   id         String   @id(map: "mail_aliases_pkey") @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
   positionId String   @map("position_id") @db.VarChar(255)
   email      String   @db.VarChar(255)
-  canSend    Boolean  @default(false) @map("can_send")
   position   Position @relation(fields: [positionId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "email_aliases_position_id_foreign")
 
   @@map("email_aliases")
@@ -348,16 +348,16 @@ model Event {
   id                   String          @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
   recurringParentId    String?         @map("recurring_parent_id") @db.Uuid()
   isDetatched          Boolean         @default(false) @map("is_detatched")
-  title                String          @db.VarChar(255)
+  titleSv              String          @map("title_sv") @db.VarChar(255)
   titleEn              String?         @map("title_en") @db.VarChar(255)
-  description          String
+  descriptionSv        String          @map("description_sv")
   descriptionEn        String?         @map("description_en")
   imageUrl             String?         @db.Text()
   link                 String?         @db.VarChar(255)
   location             String?         @db.VarChar(255)
   organizer            String          @db.VarChar(255)
   authorId             String          @map("author_id") @db.Uuid()
-  shortDescription     String?         @map("short_description") @db.VarChar(255)
+  shortDescriptionSv   String?         @map("short_description_sv") @db.VarChar(255)
   shortDescriptionEn   String?         @map("short_description_en") @db.VarChar(255)
   startDatetime        DateTime        @map("start_datetime") @db.Timestamptz(6)
   endDatetime          DateTime        @map("end_datetime") @db.Timestamptz(6)
@@ -438,7 +438,7 @@ model Mandate {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Markdowns{
 model Markdown {
   name       String  @id() @db.VarChar(255)
-  markdown   String
+  markdownSv String  @map("markdown_sv")
   markdownEn String? @map("markdown_en")
 
   @@map("markdowns")
@@ -497,6 +497,7 @@ model Member {
   expenses                Expense[]
   expensesToSign          ExpenseItem[]           @relation("expense_item_signer")
   signedExpenses          ExpenseItem[]           @relation("expense_item_signed_by")
+  closedAlerts            Alert[]                 @relation("alerts_closed_by")
 
   @@map("members")
 }
@@ -594,13 +595,13 @@ model PhadderGroup {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Positions{
 model Position {
   id            String       @id() @db.VarChar(255)
-  name          String       @db.VarChar(255)
+  nameSv        String       @map("name_sv") @db.VarChar(255)
   nameEn        String?      @map("name_en") @db.VarChar(255)
   committeeId   String?      @map("committee_id") @db.Uuid()
   email         String?      @db.VarChar(255)
   active        Boolean      @default(true)
   boardMember   Boolean      @default(false) @map("board_member")
-  description   String?
+  descriptionSv String?      @map("description_sv")
   descriptionEn String?      @map("description_en")
   committee     Committee?   @relation(fields: [committeeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "positions_committee_id_foreign")
   emailAliases  EmailAlias[]
@@ -688,25 +689,6 @@ model Song {
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model SpecialReceiver {
-  id          String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  email       String @db.VarChar(255)
-  targetEmail String @map("target_email") @db.VarChar(255)
-
-  @@map("special_receivers")
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model SpecialSender {
-  id         String  @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  email      String  @db.VarChar(255)
-  studentId  String  @map("student_id") @db.VarChar(255)
-  keycloakId String? @map("keycloak_id") @db.VarChar(255)
-
-  @@map("special_senders")
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model SubscriptionSetting {
   id               String  @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
   memberId         String  @map("member_id") @db.Uuid()
@@ -721,7 +703,7 @@ model SubscriptionSetting {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Tags{
 model Tag {
   id                String    @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  name              String    @db.VarChar(255)
+  nameSv            String    @map("name_sv") @db.VarChar(255)
   nameEn            String?   @map("name_en") @db.VarChar(255)
   color             String?   @db.VarChar(255)
   isDefault         Boolean?  @default(false) @map("is_default")
@@ -767,10 +749,10 @@ model UserInventoryItem {
 
 model Shoppable {
   id             String                  @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  title          String
-  titleEn        String?
-  description    String?
-  descriptionEn  String?
+  titleSv        String                  @map("title_sv")
+  titleEn        String?                 @map("title_en")
+  descriptionSv  String?                 @map("description_sv")
+  descriptionEn  String?                 @map("description_en")
   type           ShoppableType
   authorId       String                  @db.Uuid()
   author         Member                  @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -804,10 +786,10 @@ model ItemQuestion {
   id               String                 @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
   shoppableId      String                 @db.Uuid()
   shoppable        Shoppable              @relation(fields: [shoppableId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  title            String
-  titleEn          String?
-  description      String
-  descriptionEn    String?
+  titleSv          String                 @map("title_sv")
+  titleEn          String?                @map("title_en")
+  descriptionSv    String                 @map("description_sv")
+  descriptionEn    String?                @map("description_en")
   type             String                 @db.VarChar(255)
   forExternalsOnly Boolean                @default(false)
   removedAt        DateTime?
@@ -821,8 +803,8 @@ model ItemQuestionOption {
   id         String       @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
   questionId String       @db.Uuid()
   question   ItemQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  answer     String
-  answerEn   String?
+  answerSv   String       @map("answer_sv")
+  answerEn   String?      @map("answer_en")
   extraPrice Int?
 
   @@map("item_question_option")

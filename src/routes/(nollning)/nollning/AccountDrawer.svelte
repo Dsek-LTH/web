@@ -2,15 +2,15 @@
   import { page } from "$app/stores";
   import { POST_REVEAL_PREFIX } from "$lib/components/postReveal/types";
   import { getFullName } from "$lib/utils/client/member";
-  import type { PhadderGroup } from "@prisma/client";
   import LanguageSwitcher from "../../LanguageSwitcher.svelte";
   import * as m from "$paraglide/messages";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
   let checked = false;
   $: topInsets = $page.data.appInfo?.insets?.top ?? 0;
   $: member = $page.data.member;
   $: nollaInGroup = $page.data["phadderGroup"] as Promise<
-    Pick<PhadderGroup, "name"> | undefined
+    Pick<ExtendedPrismaModel<"PhadderGroup">, "name"> | undefined
   >;
 </script>
 
@@ -87,7 +87,7 @@
       <a href="/home" class="btn-primary-dark btn mt-8 self-stretch">
         D-sek <span class="i-mdi-arrow-right"></span>
       </a>
-      <LanguageSwitcher class=" mt-8 bg-base-200" />
+      <LanguageSwitcher class=" mt-8 border-base-300 bg-base-100" />
     </aside>
   </div>
 </div>

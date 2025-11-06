@@ -25,7 +25,7 @@
 <div class="relative rounded-lg border-[1px] p-2">
   <FormInput
     {superform}
-    field="{field}.answer"
+    field="{field}.answerSv"
     label="Svenska"
     placeholder="Svarsalternativ..."
   />

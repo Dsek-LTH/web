@@ -1,11 +1,11 @@
+import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 import { getFullName } from "$lib/utils/client/member";
 import sendNotification from "$lib/utils/notifications";
 import { NotificationType } from "$lib/utils/notifications/types";
-import type { Expense, Member } from "@prisma/client";
 
 export const sendNotificationToSigner = async (
-  member: Pick<Member, "id" | "firstName" | "lastName">,
-  expense: Pick<Expense, "description">,
+  member: Pick<ExtendedPrismaModel<"Member">, "id" | "firstName" | "lastName">,
+  expense: Pick<ExtendedPrismaModel<"Expense">, "description">,
   memberIds: string[],
 ) => {
   try {

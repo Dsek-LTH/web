@@ -8,9 +8,9 @@
   import { languageTag } from "$paraglide/runtime";
   import { Calendar } from "@fullcalendar/core";
   import daygridPlugin from "@fullcalendar/daygrid";
-  import type { Event } from "@prisma/client";
   import dayjs from "dayjs";
   import type { RangeDateParam, ViewParam } from "./+page.server";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
   const formatViewName = (view: string | null) => {
     switch (view) {
@@ -46,7 +46,8 @@
     return null;
   }
 
-  let { events = [] }: { events: Event[] } = $props();
+  let { events = [] }: { events: Array<ExtendedPrismaModel<"Event">> } =
+    $props();
   let params = $derived($page.url.searchParams);
   let view = $derived(formatViewName(params.get("view")));
   let middleDate = $derived(

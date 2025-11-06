@@ -1,11 +1,17 @@
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 import { env } from "$env/dynamic/private";
-import type { PrismaClient } from "@prisma/client";
 import { error } from "@sveltejs/kit";
 import { promiseAllInBatches } from "$lib/utils/batch";
+import { withCache } from "$lib/utils/cache";
 
-import { Configuration, type Group } from "@goauthentik/api";
+import {
+  Configuration,
+  type CoreGroupsListRequest,
+  type Group,
+} from "@goauthentik/api";
 import { CoreApi } from "@goauthentik/api";
 import { fetchAll } from "./helpers";
+import { z } from "zod";
 
 const AUTHENTIK_BOARD_GROUP = "dsek.styr";
 
@@ -20,6 +26,135 @@ const client = new CoreApi(CONFIG);
 
 function connect(): CoreApi {
   return client;
+}
+
+const emailAliasSchema = z.object({
+  mail: z.string(),
+  recipients: z.array(z.string()).optional(),
+});
+type EmailAlias = { id: string } & z.infer<typeof emailAliasSchema>;
+
+function _emailAliasFromGroup(group: Group): EmailAlias {
+  const { data, success, error } = emailAliasSchema.safeParse(group.attributes);
+  if (!success) {
+    throw new Error(`authentik: failed to parse group ${group.name}: ${error}`);
+  }
+  const emailAlias = { id: group.pk, ...data };
+  return emailAlias;
+}
+
+export async function fetchGroup(id: string) {
+  return client.coreGroupsRetrieve({ groupUuid: id });
+}
+
+export async function fetchEmailGroup(id: string) {
+  if (!enabled) return { id, mail: "test@example.se" };
+
+  const group = await fetchGroup(id);
+  const emailAlias = _emailAliasFromGroup(group);
+  return emailAlias;
+}
+
+export async function addEmailGroupRecipient(id: string, email: string) {
+  if (!enabled) return;
+
+  // We fetch the old attributes to avoid overwriting other fields.
+  // TO-DO: If we know that only mail and recipients are stored as attributes,
+  // then this is unnecessary and we could instead overwrite everything.
+  const group = await fetchGroup(id);
+  const { attributes } = group;
+  const recipients = [
+    ...new Set([...(attributes?.["recipients"] ?? []), email]),
+  ];
+
+  client.coreGroupsPartialUpdate({
+    groupUuid: id,
+    patchedGroupRequest: { attributes: { ...attributes, recipients } },
+  });
+
+  fetchEmailGroups.invalidate();
+}
+
+export async function removeEmailGroupRecipient(id: string, email: string) {
+  if (!enabled) return;
+
+  const group = await fetchGroup(id);
+  const { attributes } = group;
+  const recipients = new Set(attributes?.["recipients"] ?? []);
+  recipients.delete(email);
+
+  client.coreGroupsPartialUpdate({
+    groupUuid: id,
+    patchedGroupRequest: {
+      attributes: { ...attributes, recipients: [...recipients] },
+    },
+  });
+
+  fetchEmailGroups.invalidate();
+}
+
+export async function _fetchEmailGroups() {
+  if (!enabled) return [];
+
+  const groups = await fetchAll<Group, CoreGroupsListRequest>(
+    client.coreGroupsList.bind(client),
+    { search: "emailalias" },
+  );
+
+  const emailAliases: EmailAlias[] = [];
+  for (const group of groups) {
+    const { data, success, error } = emailAliasSchema.safeParse(
+      group.attributes,
+    );
+
+    if (!success) {
+      console.warn(`authentik: failed to parse group ${group.name}: ${error}`);
+      continue;
+    }
+
+    emailAliases.push({ id: group.pk, ...data });
+  }
+  return emailAliases;
+}
+
+export const fetchEmailGroups = withCache(_fetchEmailGroups);
+
+function _getEmailGroupName(email: string) {
+  const [alias, domain] = email.split("@");
+
+  const error = new Error("authentik: Failed to create email group name");
+  if (!alias || !domain) throw error;
+  const [domainName] = domain.split(".");
+  if (!domainName) throw error;
+
+  return `emailalias.${domainName}.${alias}`;
+}
+
+export async function createEmailGroup(email: string) {
+  if (!enabled) return;
+
+  const name = _getEmailGroupName(email);
+  console.info("authentik: creating group", {
+    name,
+    attributes: { mail: email },
+  });
+  const group = await client.coreGroupsCreate({
+    groupRequest: {
+      name,
+      attributes: { mail: email },
+    },
+  });
+
+  fetchEmailGroups.invalidate();
+  return group;
+}
+
+export async function deleteEmailGroup(id: string) {
+  if (!enabled) return;
+
+  await client.coreGroupsDestroy({ groupUuid: id });
+
+  fetchEmailGroups.invalidate();
 }
 
 async function _fetchUser(client: CoreApi, username: string) {
@@ -94,14 +229,14 @@ async function updateProfile(
 }
 
 // Checks if the position is a board member from the database
-async function isBoardPosition(prisma: PrismaClient, positionId: string) {
+async function isBoardPosition(prisma: ExtendedPrisma, positionId: string) {
   const position = await prisma.position.findFirst({
     where: { id: positionId },
   });
   return position?.boardMember ?? false;
 }
 
-async function hasAnyBoardPosition(prisma: PrismaClient, studentId: string) {
+async function hasAnyBoardPosition(prisma: ExtendedPrisma, studentId: string) {
   const boardPosition = await prisma.mandate.findFirst({
     where: {
       member: { studentId },
@@ -113,7 +248,7 @@ async function hasAnyBoardPosition(prisma: PrismaClient, studentId: string) {
 }
 
 async function fetchGroupsAddMandate(
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   username: string,
   positionId: string,
   mandateId: string,
@@ -134,7 +269,7 @@ async function fetchGroupsAddMandate(
 }
 
 async function addMandate(
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   username: string,
   positionId: string,
   mandateId: string,
@@ -178,7 +313,7 @@ async function addMandate(
 }
 
 async function fetchGroupsDeleteMandate(
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   username: string,
   positionId: string,
   mandateId: string,
@@ -199,7 +334,7 @@ async function fetchGroupsDeleteMandate(
 }
 
 async function deleteMandate(
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   username: string,
   positionId: string,
   mandateId: string,
@@ -251,7 +386,7 @@ async function deleteMandate(
   }
 }
 
-async function updateMandate(prisma: PrismaClient) {
+async function updateMandate(prisma: ExtendedPrisma) {
   if (!enabled) return;
 
   const now = new Date().toISOString();
@@ -312,7 +447,7 @@ async function updateMandate(prisma: PrismaClient) {
   }
 }
 
-async function updateEmails(prisma: PrismaClient) {
+async function updateEmails(prisma: ExtendedPrisma) {
   if (!enabled) return;
 
   const currentUserEmail = (
@@ -418,7 +553,7 @@ async function getEmail(username: string) {
  * 1. It is not bi-directional: mandates are pushed and emails are pulled.
  * 2. It doesn't sync everything: member names, `dsek.styr`, etc?
  */
-async function sync(prisma: PrismaClient) {
+async function sync(prisma: ExtendedPrisma) {
   updateMandate(prisma);
   updateEmails(prisma);
 }

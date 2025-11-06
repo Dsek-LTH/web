@@ -70,8 +70,8 @@ export function getSearchableAttributes(
     case "events": {
       // default is swedish
       let res: Array<keyof SearchableEventAttributes> = [
-        "title",
-        "description",
+        "titleSv",
+        "descriptionSv",
       ];
       if (language === "en") {
         res = ["titleEn", "descriptionEn"];
@@ -80,7 +80,10 @@ export function getSearchableAttributes(
     }
     case "articles": {
       // default is swedish
-      let res: Array<keyof SearchableArticleAttributes> = ["header", "body"];
+      let res: Array<keyof SearchableArticleAttributes> = [
+        "headerSv",
+        "bodySv",
+      ];
       if (language === "en") {
         res = ["headerEn", "bodyEn"];
       }
@@ -89,9 +92,9 @@ export function getSearchableAttributes(
     case "positions": {
       // default is swedish
       let res: Array<keyof SearchablePositionAttributes> = [
-        "name",
-        "description",
-        "committeeName",
+        "nameSv",
+        "descriptionSv",
+        "committeeNameSv",
         "dsekId",
       ];
       if (language === "en") {
@@ -112,8 +115,8 @@ export function getSearchableAttributes(
     case "committees": {
       // default is swedish
       let res: Array<keyof SearchableCommitteeAttributes> = [
-        "name",
-        "description",
+        "nameSv",
+        "descriptionSv",
       ];
       if (language === "en") {
         res = ["nameEn", "descriptionEn"];

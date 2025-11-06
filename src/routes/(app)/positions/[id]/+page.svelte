@@ -1,44 +1,89 @@
 <script lang="ts">
-  import { page } from "$app/stores";
-  import ClassBadge from "$lib/components/ClassBadge.svelte";
   import PageHeader from "$lib/components/nav/PageHeader.svelte";
-  import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
-  import { getFullName } from "$lib/utils/client/member";
-  import { goto } from "$lib/utils/redirect";
   import * as m from "$paraglide/messages";
   import { languageTag } from "$paraglide/runtime";
   import type { Prisma } from "@prisma/client";
   import AddMandateForm from "./AddMandateForm.svelte";
-  import DeleteMandateForm from "./DeleteMandateForm.svelte";
-  import UpdateMandateForm from "./UpdateMandateForm.svelte";
   import UpdatePositionForm from "./UpdatePositionForm.svelte";
+  import Mandate from "./Mandate.svelte";
 
   import CommitteeIcon from "$lib/components/images/CommitteeIcon.svelte";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
-  import type { PageData } from "./$types";
-  export let data: PageData;
+  let { data } = $props();
 
-  $: groupedByYear = data.mandates.reduce<
-    Record<
-      string,
-      Array<Prisma.MandateGetPayload<{ include: { member: true } }>>
-    >
-  >((acc, mandate) => {
-    let year = mandate.startDate.getFullYear().toString();
-    if (mandate.endDate.getFullYear() !== mandate.startDate.getFullYear())
-      year += `-${mandate.endDate.getFullYear()}`;
-    if (!acc[year]) acc[year] = [];
-    acc[year]!.push(mandate);
-    return acc;
-  }, {});
-  $: years = Object.keys(groupedByYear).sort((a, b) =>
-    b.localeCompare(a, languageTag()),
+  const mandateStatsCutoffYears = 7;
+
+  type MandateWithMember = Prisma.MandateGetPayload<{
+    include: { member: true };
+  }>;
+
+  let groupedByYear = $state(
+    data.mandates.reduce<Record<string, MandateWithMember[]>>(
+      (acc, mandate) => {
+        let year = mandate.startDate.getFullYear().toString();
+        if (mandate.endDate.getFullYear() !== mandate.startDate.getFullYear())
+          year += `-${mandate.endDate.getFullYear()}`;
+        if (!acc[year]) acc[year] = [];
+        acc[year]!.push(mandate);
+        return acc;
+      },
+      {},
+    ),
   );
-  let isEditing = false;
-  let isAdding = false;
-  $: editedMandate = $page.url.searchParams.get("editMandate");
+  let years = $state(
+    Object.keys(groupedByYear).sort((a, b) =>
+      b.localeCompare(a, languageTag()),
+    ),
+  );
+
+  // Mandates per study year
+  function getStudyYear(mandate: MandateWithMember): number | null {
+    const start = mandate.startDate;
+    const classYear = mandate.member.classYear;
+    if (!classYear || isNaN(start.getTime())) return null;
+
+    const startAcademicYear =
+      start.getMonth() >= 7
+        ? start.getFullYear() // Aug-Dec -> same year
+        : start.getFullYear() - 1; // Jan-Jul -> previous year
+
+    const studyYear = startAcademicYear - classYear + 1;
+    return studyYear >= 1 ? studyYear : null;
+  }
+  let mandateYearRatios = $state(
+    (() => {
+      let totalMandateCount = 0;
+      const counts: Record<number, number> = {};
+      const currentYear = new Date().getFullYear();
+      for (const mandate of data.mandates) {
+        const mandateStartYear = mandate.startDate.getFullYear();
+        const studyYear = getStudyYear(mandate);
+        if (
+          studyYear === null ||
+          currentYear - mandateStartYear > mandateStatsCutoffYears
+        ) {
+          continue;
+        }
+        counts[studyYear] = (counts[studyYear] ?? 0) + 1;
+        totalMandateCount++;
+      }
+
+      // Dynamically generate stats for all study years present
+      return Object.keys(counts)
+        .map(Number)
+        .sort((a, b) => a - b)
+        .map((studyYear) => ({
+          studyYear,
+          percentage: counts
+            ? (counts[studyYear]! / totalMandateCount) * 100
+            : 0,
+        }));
+    })(),
+  );
+  let isEditing = $state(false);
+  let isAdding = $state(false);
 </script>
 
 <SetPageTitle title={data.position.name} />
@@ -46,7 +91,10 @@
   class="mb-4 flex flex-col items-start gap-2 md:flex-row md:items-center md:gap-8"
 >
   {#if data.position.committee}
-    <a href="/committees/{data.position.committee?.shortName}" class="group">
+    <a
+      href="/committees/{data.position.committee?.shortName}"
+      class="group self-start"
+    >
       <figure
         class="h-32 w-32 transition-transform group-hover:scale-95 md:h-40 md:w-40"
       >
@@ -58,20 +106,20 @@
     <div class="flex flex-wrap items-center justify-between gap-x-2">
       <PageHeader title={data.position.name} />
       <div>
-        {#if isAuthorized(apiNames.MANDATE.CREATE, data.user) && !isEditing}
+        {#if isAuthorized(apiNames.MANDATE.CREATE, data.user)}
           <button
             class="btn btn-secondary btn-sm"
-            on:click={() => {
+            onclick={() => {
               isAdding = !isAdding;
             }}
           >
             {isAdding ? m.positions_cancel() : m.positions_addMandate()}
           </button>
         {/if}
-        {#if (!isAdding && isAuthorized(apiNames.MANDATE.UPDATE, data.user)) || isAuthorized(apiNames.MANDATE.DELETE, data.user) || isAuthorized(apiNames.POSITION.UPDATE, data.user)}
+        {#if isAuthorized(apiNames.POSITION.UPDATE, data.user)}
           <button
             class="btn btn-sm"
-            on:click={async () => {
+            onclick={async () => {
               isEditing = !isEditing;
             }}
           >
@@ -107,13 +155,37 @@
         {/each}
       </div>
     {/if}
+    {#if mandateYearRatios.length !== 0}
+      <div class="flex-box mt-4 w-full border-t pt-4">
+        <h2 class="flex items-center gap-2 text-lg">
+          {m.positions_historical_mandate_distribution_per_study_year()}
+          <span class="text-sm text-neutral-400">
+            ({mandateStatsCutoffYears}&nbsp;{m.positions_years()})
+          </span>
+        </h2>
+        {#each mandateYearRatios as { studyYear, percentage }}
+          <div class="flex w-64 flex-row items-center gap-2">
+            <div class="bar-label w-24">
+              {m.positions_study_year()}&nbsp;{studyYear}
+            </div>
+            <progress class="progress" value={percentage} max="100"></progress>
+            <div class="text-xs text-neutral-400">{percentage.toFixed(1)}%</div>
+          </div>
+        {/each}
+      </div>
+    {/if}
   </div>
 </div>
 
 <!-- Edit position form -->
-{#if isEditing && isAuthorized(apiNames.POSITION.UPDATE, data.user)}
+{#if isEditing}
   {#await data.updateForm then form}
-    <UpdatePositionForm data={form} />
+    <UpdatePositionForm
+      data={form}
+      onSubmit={() => {
+        isEditing = false;
+      }}
+    />
   {/await}
 {/if}
 
@@ -128,75 +200,18 @@
     />
   {/await}
 {/if}
-<!-- Edit mandate form -->
-{#if editedMandate != undefined}
-  {#await data.updateMandateForm then form}
-    <UpdateMandateForm data={form} mandateId={editedMandate} />
-  {/await}
-{/if}
 
 <!-- List of mandates -->
 {#each years as year}
   <section class="mb-4">
     <h1 class="mb-2 text-xl font-semibold">{year}</h1>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+    <div class="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-2">
       {#each groupedByYear[year] ?? [] as mandate (mandate.id)}
-        <div
-          class="tooltip flex flex-col whitespace-pre {(groupedByYear[year]
-            ?.length ?? 0) <= 8
-            ? 'col-span-2'
-            : ''}"
-          data-tip={getFullName(mandate.member) +
-            `\n${mandate.startDate.toLocaleDateString(
-              languageTag(),
-            )} - ${mandate.endDate.toLocaleDateString(languageTag())}`}
-        >
-          <a
-            href="/members/{mandate.member.studentId}"
-            class="btn btn-ghost w-full flex-nowrap justify-start normal-case {isEditing
-              ? 'pointer-events-none'
-              : ''}"
-          >
-            <MemberAvatar member={mandate.member} />
-            <span
-              class="flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium"
-            >
-              {getFullName(mandate.member)}
-            </span>
-          </a>
-
-          <!-- Remove and edit buttons -->
-          {#if isEditing}
-            {#if isAuthorized(apiNames.MANDATE.UPDATE, data.user)}
-              <button
-                class="btn btn-secondary btn-sm pointer-events-auto"
-                on:click|preventDefault={async () => {
-                  await goto(
-                    `positions/${data.position.id}?editMandate=${mandate.id}`,
-                  );
-                }}
-              >
-                {m.positions_edit()}
-              </button>
-            {/if}
-            {#if isAuthorized(apiNames.MANDATE.DELETE, data.user)}
-              {#await data.deleteMandateForm then form}
-                <DeleteMandateForm mandateId={mandate.id} data={form} />
-              {/await}
-            {/if}
-          {:else}
-            <ClassBadge member={mandate.member} />
-          {/if}
-          {#if isEditing}
-            <span class="text-xs">
-              {mandate.startDate.toLocaleDateString(languageTag())} - {mandate.endDate.toLocaleDateString(
-                languageTag(),
-              )}
-            </span>
-          {/if}
-        </div>
+        <Mandate {data} {mandate} />
       {/each}
     </div>
   </section>
 {/each}
+
+<a class="btn" href="/positions">{m.positions_all_positions()}</a>

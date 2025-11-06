@@ -13,7 +13,7 @@ import type { Actions, PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
 import { languageTag } from "$paraglide/runtime";
 
-export const load: PageServerLoad = async ({ locals, params, url }) => {
+export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma } = locals;
   const position = await prisma.position.findUnique({
     where: {
@@ -48,14 +48,10 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
   if (!position) {
     throw error(404, m.positions_errors_positionNotFound());
   }
-  const editedMandateID = url.searchParams.get("editMandate");
-  const editedMandate = position.mandates.find((m) => m.id === editedMandateID);
   return {
     updateForm: superValidate(position, zod(updateSchema)),
     addMandateForm: superValidate(zod(addManadateSchema)),
-    updateMandateForm: editedMandate
-      ? superValidate(editedMandate, zod(updateMandateSchema))
-      : superValidate(zod(updateMandateSchema)),
+    updateMandateForm: superValidate(zod(updateMandateSchema)),
     deleteMandateForm: superValidate(zod(deleteMandateSchema)),
     position,
     mandates: position.mandates,
@@ -112,8 +108,8 @@ export const actions: Actions = {
         await prisma.position.update({
           where: { id: params.id },
           data: {
-            name: form.data.name,
-            description: form.data.description,
+            nameSv: form.data.name,
+            descriptionSv: form.data.description,
             email: form.data.email,
           },
         });

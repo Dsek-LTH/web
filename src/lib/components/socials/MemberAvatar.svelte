@@ -1,8 +1,9 @@
 <script lang="ts">
-  import type { Member } from "@prisma/client";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import { twMerge } from "tailwind-merge";
 
-  export let member: Pick<Member, "picturePath"> | null = null;
+  export let member: Pick<ExtendedPrismaModel<"Member">, "picturePath"> | null =
+    null;
   export let lazy = false;
   // export let uniqueCode: string | null = null; // unused for now, might use for creating better unique "backup images" later
   let clazz = "";

@@ -1,14 +1,17 @@
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 import { NOLLNING_TAG_PREFIX } from "$lib/components/postReveal/types";
-import type { PrismaClient } from "@prisma/client";
 
-export const getAllTags = (prisma: PrismaClient, includeNollningTag = false) =>
+export const getAllTags = (
+  prisma: ExtendedPrisma,
+  includeNollningTag = false,
+) =>
   prisma.tag.findMany({
-    orderBy: { name: "asc" },
+    orderBy: { nameSv: "asc" },
     where: includeNollningTag
       ? undefined
       : {
           NOT: {
-            name: {
+            nameSv: {
               startsWith: NOLLNING_TAG_PREFIX,
             },
           },

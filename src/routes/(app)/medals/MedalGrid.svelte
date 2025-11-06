@@ -1,10 +1,10 @@
 <script lang="ts">
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import MedalCard from "./MedalCard.svelte";
-  import type { Member } from "@prisma/client";
 
   export let groups: Array<{
     medal: string;
-    recipients: Member[];
+    recipients: Array<ExtendedPrismaModel<"Member">>;
   }>;
 
   $: everyOtherGroup = groups.filter((_, i) => i % 2 === 0);
