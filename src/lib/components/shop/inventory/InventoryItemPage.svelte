@@ -30,7 +30,8 @@
 <div class="mx-auto md:container md:mt-8 md:grid md:grid-cols-2">
   <img
     src={getFileUrl(
-      "minio/news/public/8c97c4c6-d4f4-44f5-9658-cff70110ad85.webp",
+      event.imageUrl ??
+        "minio/news/public/8c97c4c6-d4f4-44f5-9658-cff70110ad85.webp",
     )}
     alt="{event.title} cover photo"
     class="aspect-video object-cover md:rounded-xl"

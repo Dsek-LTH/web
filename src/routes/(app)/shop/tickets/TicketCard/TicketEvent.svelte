@@ -10,7 +10,8 @@
 <figure class="relative aspect-video">
   <img
     src={getFileUrl(
-      "minio/news/public/8c97c4c6-d4f4-44f5-9658-cff70110ad85.webp",
+      event.imageUrl ??
+        "minio/news/public/8c97c4c6-d4f4-44f5-9658-cff70110ad85.webp",
     )}
     alt="{event.title} cover photo"
     class="aspect-video object-cover"
