@@ -56,9 +56,14 @@
     (() => {
       let totalMandateCount = 0;
       const counts: Record<number, number> = {};
+      const currentYear = new Date().getFullYear();
       for (const mandate of data.mandates) {
+        const mandateStartYear = mandate.startDate.getFullYear();
         const studyYear = getStudyYear(mandate);
-        if (studyYear === null || studyYear > mandateStatsCutoffYears) {
+        if (
+          studyYear === null ||
+          currentYear - mandateStartYear > mandateStatsCutoffYears
+        ) {
           continue;
         }
         counts[studyYear] = (counts[studyYear] ?? 0) + 1;
