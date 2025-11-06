@@ -2,16 +2,12 @@ import nodemailer from "nodemailer";
 import { env } from "$env/dynamic/private";
 import type Mail from "nodemailer/lib/mailer";
 
-const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = env;
+const { SMTP_HOST, SMTP_PORT } = env;
 
 const transporter = nodemailer.createTransport({
   host: SMTP_HOST,
   port: Number(SMTP_PORT),
   secure: false, // TLS requires secureConnection to be false
-  auth: {
-    user: SMTP_USER,
-    pass: SMTP_PASS,
-  },
 });
 
 export interface EmailAttachment {
@@ -20,7 +16,7 @@ export interface EmailAttachment {
 }
 
 export type EmailOptions = {
-  from?: string;
+  from: string;
   to: string;
   subject: string;
   text: string;
@@ -39,7 +35,7 @@ export async function sendEmail({
   ...options
 }: EmailOptions) {
   return transporter.sendMail({
-    from: from ?? `${SMTP_USER}@user.dsek.se`,
+    from: from,
     to: to,
     subject: subject,
     text: text,
