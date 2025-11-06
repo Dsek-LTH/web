@@ -14,6 +14,8 @@
   import type { PageData } from "./$types";
   export let data: PageData;
 
+  const mandateStatsCutoffYears = 7;
+
   type MandateWithMember = Prisma.MandateGetPayload<{
     include: { member: true };
   }>;
@@ -52,7 +54,9 @@
     const counts: Record<number, number> = {};
     for (const mandate of data.mandates) {
       const studyYear = getArskurs(mandate);
-      if (studyYear === null) continue;
+      if (studyYear === null || studyYear > mandateStatsCutoffYears) {
+        continue;
+      }
       counts[studyYear] = (counts[studyYear] ?? 0) + 1;
       totalMandateCount++;
     }
@@ -139,20 +143,25 @@
         {/each}
       </div>
     {/if}
-    <div class="flex-box mt-4 w-full border-t pt-4">
-      <h2 class="text-lg">
-        {m.positions_historical_mandate_distribution_per_study_year()}
-      </h2>
-      {#each mandateYearRatios as { studyYear, percentage }}
-        <div class="flex w-64 flex-row items-center gap-2">
-          <div class="bar-label w-24">
-            {m.positions_study_year()}&nbsp;{studyYear}
+    {#if mandateYearRatios.length !== 0}
+      <div class="flex-box mt-4 w-full border-t pt-4">
+        <h2 class="flex items-center gap-2 text-lg">
+          {m.positions_historical_mandate_distribution_per_study_year()}
+          <span class="text-sm text-neutral-400">
+            ({mandateStatsCutoffYears}&nbsp;{m.positions_years()})
+          </span>
+        </h2>
+        {#each mandateYearRatios as { studyYear, percentage }}
+          <div class="flex w-64 flex-row items-center gap-2">
+            <div class="bar-label w-24">
+              {m.positions_study_year()}&nbsp;{studyYear}
+            </div>
+            <progress class="progress" value={percentage} max="100"></progress>
+            <div class="text-xs text-neutral-400">{percentage.toFixed(1)}%</div>
           </div>
-          <progress class="progress" value={percentage} max="100"></progress>
-          <div class="text-xs text-neutral-400">{percentage.toFixed(1)}%</div>
-        </div>
-      {/each}
-    </div>
+        {/each}
+      </div>
+    {/if}
   </div>
 </div>
 
