@@ -165,11 +165,13 @@
         </h2>
         {#each mandateYearRatios as { studyYear, percentage }}
           <div class="flex w-64 flex-row items-center gap-2">
-            <div class="bar-label w-24">
+            <div class="w-24">
               {m.positions_study_year()}&nbsp;{studyYear}
             </div>
             <progress class="progress" value={percentage} max="100"></progress>
-            <div class="text-xs text-neutral-400">{percentage.toFixed(1)}%</div>
+            <div class="w-16 text-right text-xs text-neutral-400">
+              {percentage.toFixed(1)}%
+            </div>
           </div>
         {/each}
       </div>
