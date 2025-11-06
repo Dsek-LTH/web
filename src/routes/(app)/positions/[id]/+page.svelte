@@ -14,22 +14,60 @@
   import type { PageData } from "./$types";
   export let data: PageData;
 
-  $: groupedByYear = data.mandates.reduce<
-    Record<
-      string,
-      Array<Prisma.MandateGetPayload<{ include: { member: true } }>>
-    >
-  >((acc, mandate) => {
-    let year = mandate.startDate.getFullYear().toString();
-    if (mandate.endDate.getFullYear() !== mandate.startDate.getFullYear())
-      year += `-${mandate.endDate.getFullYear()}`;
-    if (!acc[year]) acc[year] = [];
-    acc[year]!.push(mandate);
-    return acc;
-  }, {});
+  type MandateWithMember = Prisma.MandateGetPayload<{
+    include: { member: true };
+  }>;
+
+  $: groupedByYear = data.mandates.reduce<Record<string, MandateWithMember[]>>(
+    (acc, mandate) => {
+      let year = mandate.startDate.getFullYear().toString();
+      if (mandate.endDate.getFullYear() !== mandate.startDate.getFullYear())
+        year += `-${mandate.endDate.getFullYear()}`;
+      if (!acc[year]) acc[year] = [];
+      acc[year]!.push(mandate);
+      return acc;
+    },
+    {},
+  );
   $: years = Object.keys(groupedByYear).sort((a, b) =>
     b.localeCompare(a, languageTag()),
   );
+
+  // Mandates per årskurs
+  function getArskurs(mandate: MandateWithMember): number | null {
+    const start = mandate.startDate;
+    const classYear = mandate.member.classYear;
+    if (!classYear || isNaN(start.getTime())) return null;
+
+    const startAcademicYear =
+      start.getMonth() >= 7
+        ? start.getFullYear() // Aug-Dec -> same year
+        : start.getFullYear() - 1; // Jan-Jul -> previous year
+
+    const arskurs = startAcademicYear - classYear + 1;
+    return arskurs >= 1 ? arskurs : null;
+  }
+  $: mandateYearRatios = (() => {
+    let totalMandateCount = 0;
+    const counts: Record<number, number> = {};
+    for (const mandate of data.mandates) {
+      const arskurs = getArskurs(mandate);
+      if (arskurs === null) continue;
+      counts[arskurs] = (counts[arskurs] ?? 0) + 1;
+      totalMandateCount++;
+    }
+
+    // Dynamically generate stats for all årskurser present
+    return Object.keys(counts)
+      .map(Number)
+      .sort((a, b) => a - b)
+      .map((arskurs) => ({
+        arskurs,
+        percentage: counts
+          ? (counts[arskurs]! / totalMandateCount) * 100
+          : 0,
+      }));
+  })();
   let isEditing = false;
   let isAdding = false;
 </script>
@@ -39,7 +77,10 @@
   class="mb-4 flex flex-col items-start gap-2 md:flex-row md:items-center md:gap-8"
 >
   {#if data.position.committee}
-    <a href="/committees/{data.position.committee?.shortName}" class="group">
+    <a
+      href="/committees/{data.position.committee?.shortName}"
+      class="group self-start"
+    >
       <figure
         class="h-32 w-32 transition-transform group-hover:scale-95 md:h-40 md:w-40"
       >
@@ -100,6 +141,16 @@
         {/each}
       </div>
     {/if}
+    <div class="flex-box mt-4 w-full border-t pt-4">
+      <h2 class="text-lg">Historisk mandatfördelning per årskurs</h2>
+      {#each mandateYearRatios as { arskurs, percentage }}
+        <div class="flex w-64 flex-row items-center gap-2">
+          <div class="bar-label w-16">Åk&nbsp;{arskurs}</div>
+          <progress class="progress" value={percentage} max="100"></progress>
+          <div class="text-xs text-neutral-400">{percentage.toFixed(1)}%</div>
+        </div>
+      {/each}
+    </div>
   </div>
 </div>
 
