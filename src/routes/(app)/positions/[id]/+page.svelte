@@ -11,8 +11,7 @@
 
   import CommitteeIcon from "$lib/components/images/CommitteeIcon.svelte";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
-  import type { PageData } from "./$types";
-  export let data: PageData;
+  let { data } = $props();
 
   const mandateStatsCutoffYears = 7;
 
@@ -20,19 +19,23 @@
     include: { member: true };
   }>;
 
-  $: groupedByYear = data.mandates.reduce<Record<string, MandateWithMember[]>>(
-    (acc, mandate) => {
-      let year = mandate.startDate.getFullYear().toString();
-      if (mandate.endDate.getFullYear() !== mandate.startDate.getFullYear())
-        year += `-${mandate.endDate.getFullYear()}`;
-      if (!acc[year]) acc[year] = [];
-      acc[year]!.push(mandate);
-      return acc;
-    },
-    {},
+  let groupedByYear = $state(
+    data.mandates.reduce<Record<string, MandateWithMember[]>>(
+      (acc, mandate) => {
+        let year = mandate.startDate.getFullYear().toString();
+        if (mandate.endDate.getFullYear() !== mandate.startDate.getFullYear())
+          year += `-${mandate.endDate.getFullYear()}`;
+        if (!acc[year]) acc[year] = [];
+        acc[year]!.push(mandate);
+        return acc;
+      },
+      {},
+    ),
   );
-  $: years = Object.keys(groupedByYear).sort((a, b) =>
-    b.localeCompare(a, languageTag()),
+  let years = $state(
+    Object.keys(groupedByYear).sort((a, b) =>
+      b.localeCompare(a, languageTag()),
+    ),
   );
 
   // Mandates per årskurs
@@ -49,29 +52,33 @@
     const studyYear = startAcademicYear - classYear + 1;
     return studyYear >= 1 ? studyYear : null;
   }
-  $: mandateYearRatios = (() => {
-    let totalMandateCount = 0;
-    const counts: Record<number, number> = {};
-    for (const mandate of data.mandates) {
-      const studyYear = getArskurs(mandate);
-      if (studyYear === null || studyYear > mandateStatsCutoffYears) {
-        continue;
+  let mandateYearRatios = $state(
+    (() => {
+      let totalMandateCount = 0;
+      const counts: Record<number, number> = {};
+      for (const mandate of data.mandates) {
+        const studyYear = getArskurs(mandate);
+        if (studyYear === null || studyYear > mandateStatsCutoffYears) {
+          continue;
+        }
+        counts[studyYear] = (counts[studyYear] ?? 0) + 1;
+        totalMandateCount++;
       }
-      counts[studyYear] = (counts[studyYear] ?? 0) + 1;
-      totalMandateCount++;
-    }
 
-    // Dynamically generate stats for all årskurser present
-    return Object.keys(counts)
-      .map(Number)
-      .sort((a, b) => a - b)
-      .map((studyYear) => ({
-        studyYear,
-        percentage: counts ? (counts[studyYear]! / totalMandateCount) * 100 : 0,
-      }));
-  })();
-  let isEditing = false;
-  let isAdding = false;
+      // Dynamically generate stats for all årskurser present
+      return Object.keys(counts)
+        .map(Number)
+        .sort((a, b) => a - b)
+        .map((studyYear) => ({
+          studyYear,
+          percentage: counts
+            ? (counts[studyYear]! / totalMandateCount) * 100
+            : 0,
+        }));
+    })(),
+  );
+  let isEditing = $state(false);
+  let isAdding = $state(false);
 </script>
 
 <SetPageTitle title={data.position.name} />
@@ -97,7 +104,7 @@
         {#if isAuthorized(apiNames.MANDATE.CREATE, data.user)}
           <button
             class="btn btn-secondary btn-sm"
-            on:click={() => {
+            onclick={() => {
               isAdding = !isAdding;
             }}
           >
@@ -107,7 +114,7 @@
         {#if isAuthorized(apiNames.POSITION.UPDATE, data.user)}
           <button
             class="btn btn-sm"
-            on:click={async () => {
+            onclick={async () => {
               isEditing = !isEditing;
             }}
           >
