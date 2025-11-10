@@ -15,6 +15,11 @@
       data.user,
     ),
   );
+
+  const albums = data.albums.sort(
+    (e1, e2) =>
+      Date.parse(e2[0].split(" ")[0]!) - Date.parse(e1[0].split(" ")[0]!),
+  );
 </script>
 
 <SetPageTitle title={m.gallery()} />
@@ -34,7 +39,7 @@
   <div
     class="grid grid-cols-1 items-stretch justify-items-stretch gap-4 md:grid-cols-2 lg:grid-cols-3"
   >
-    {#each data.albums as album (album)}
+    {#each albums as album (album)}
       <AlbumCard {album} />
     {/each}
   </div>
