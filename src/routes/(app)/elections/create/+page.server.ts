@@ -6,6 +6,9 @@ import { redirect } from "$lib/utils/redirect";
 import { electionSchema } from "../schemas";
 import * as m from "$paraglide/messages";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+
+dayjs.extend(utc);
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma } = locals;
@@ -24,7 +27,7 @@ export const load: PageServerLoad = async ({ locals }) => {
     markdownSv: "",
     markdownEn: null,
     link: "",
-    expiresAt: dayjs().endOf("day").toDate(),
+    expiresAt: dayjs().endOf("day").utc().toDate(),
     committeeId: "",
   };
 
@@ -47,7 +50,7 @@ export const actions: Actions = {
         markdownSv,
         markdownEn,
         link,
-        expiresAt: dayjs(expiresAt).endOf("day").toDate(),
+        expiresAt: dayjs(expiresAt).endOf("day").utc().toDate(),
         committeeId,
       },
     });
