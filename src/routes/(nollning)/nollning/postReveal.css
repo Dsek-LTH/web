@@ -21,7 +21,7 @@
 
   & .btn {
     /* text button */
-    @apply h-auto min-h-0 px-4 py-2 font-medium text-base-content;
+    @apply text-base-content h-auto min-h-0 px-4 py-2 font-medium;
   }
 
   & .btn.btn-secondary-beige {
@@ -36,7 +36,7 @@
 
   & .btn.btn-base-content {
     /* base bg, content text */
-    @apply bg-transparent text-base-content;
+    @apply text-base-content bg-transparent;
   }
   & .btn-outline {
     /* transparent bg, text otherwise */
@@ -64,7 +64,7 @@
 @utility btn {
   .post-reveal & {
     /* text button */
-    @apply h-auto min-h-0 px-4 py-2 font-medium text-base-content;
+    @apply text-base-content h-auto min-h-0 px-4 py-2 font-medium;
   }
 
   .post-reveal &.btn-secondary-beige {
@@ -79,7 +79,7 @@
 
   .post-reveal &.btn-base-content {
     /* base bg, content text */
-    @apply bg-transparent text-base-content;
+    @apply text-base-content bg-transparent;
   }
 }
 
@@ -100,7 +100,7 @@
 @utility btn-base-content {
   .post-reveal &.btn {
     /* base bg, content text */
-    @apply bg-transparent text-base-content;
+    @apply text-base-content bg-transparent;
   }
 }
 

@@ -13,6 +13,7 @@
 
   export let data;
 
+  // eslint-disable-next-line svelte/no-immutable-reactive-statements
   $: (() => {
     const locale = languageTag();
     dayjs.locale(locale);

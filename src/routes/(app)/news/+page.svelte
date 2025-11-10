@@ -1,6 +1,4 @@
 <script lang="ts">
-  import apiNames from "$lib/utils/apiNames";
-  import { isAuthorized } from "$lib/utils/authorization";
   import * as m from "$paraglide/messages";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import SEO from "$lib/seo/SEO.svelte";

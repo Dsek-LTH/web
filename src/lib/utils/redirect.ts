@@ -5,6 +5,7 @@ import { redirect as rawRedirect } from "sveltekit-flash-message/server";
 import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 /* eslint-enable no-restricted-imports -- Enable again, for eslint */
 
+/* eslint-disable svelte/no-navigation-without-resolve */
 export const goto: typeof rawGoto = (url, opts) => {
   if (typeof url === "string" && url.startsWith("/")) {
     return rawGoto(i18n.resolveRoute(url), opts);
@@ -14,6 +15,7 @@ export const goto: typeof rawGoto = (url, opts) => {
   }
   return rawGoto(i18n.resolveRoute(url), opts);
 };
+/* eslint-enable svelte/no-navigation-without-resolve */
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- rawRedirect has difficult typings */
 
