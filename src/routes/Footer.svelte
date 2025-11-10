@@ -22,6 +22,9 @@
       class="grid-flow-col place-self-center *:text-xl md:place-self-end"
       aria-label={m.footer_socialMedia()}
     >
+      <a class="btn btn-ghost opacity-0 hover:opacity-100" href="/admin/debug">
+        <span class="i-mdi-bug-outline"></span>
+      </a>
       {#if data?.user?.memberId}
         <a class="btn btn-ghost" href="https://discord.com/invite/wxHQcvZ38p">
           <span class="i-mdi-discord"></span>
