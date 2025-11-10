@@ -829,7 +829,7 @@
   "minecraft_server_description": "Gå med i Sektionens Minecraft Server, delad med F-sektionen! För att kunna gå med måste du registrera dig nedan.",
   "minecraft_dynmap": "Dynmap",
   "minecraft_join_prompt": "Gå med nu!",
-  "minecraft_players_online": "spelare online just nu"
+  "minecraft_players_online": "spelare online just nu",
   "gallery": "Bildgalleri",
   "gallery_album": "Album",
   "gallery_create_album": "Skapa album",
@@ -847,7 +847,7 @@
   "gallery_photographer": "Fotograf",
   "gallery_editor": "Redigering",
   "positions_removeMandate": "Ta bort mandat",
-  "positions": "Poster",Please contact the website owners to inform them of th
+  "positions": "Poster",
   "positions_active": "Aktiv",
   "positions_board_member": "Styrelsemedlem",
   "positions_apply_change": "Spara",
