@@ -723,6 +723,8 @@ model Position {
   boardMember   Boolean      @default(false) @map("board_member")
   descriptionSv String?      @map("description_sv")
   descriptionEn String?      @map("description_en")
+  startMonth    Int          @default(0)
+  endMonth      Int          @default(11)
   committee     Committee?   @relation(fields: [committeeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "positions_committee_id_foreign")
   emailAliases  EmailAlias[]
   mandates      Mandate[]

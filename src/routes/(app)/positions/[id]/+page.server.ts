@@ -12,6 +12,10 @@ import authentik from "$lib/server/authentik";
 import type { Actions, PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
 import { languageTag } from "$paraglide/runtime";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+
+dayjs.extend(utc);
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma } = locals;
@@ -48,10 +52,33 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   if (!position) {
     throw error(404, m.positions_errors_positionNotFound());
   }
+
+  const addMandateMonthDifference =
+    position.endMonth > position.startMonth
+      ? position.endMonth - position.startMonth
+      : 12 - Math.abs(position.endMonth - position.startMonth);
+
   return {
     updateForm: superValidate(position, zod(updateSchema)),
-    addMandateForm: superValidate(zod(addManadateSchema)),
-    updateMandateForm: superValidate(zod(updateMandateSchema)),
+    addMandateForm: superValidate(zod(addManadateSchema), {
+      defaults: {
+        startDate: dayjs()
+          .month(position.startMonth)
+          .utc()
+          .startOf("month")
+          .toDate(),
+        endDate: dayjs()
+          .month(position.startMonth)
+          .utc()
+          .startOf("month")
+          .add(addMandateMonthDifference, "months")
+          .endOf("month")
+          .toDate(),
+      },
+    }),
+    updateMandateForm: editedMandate
+      ? superValidate(editedMandate, zod(updateMandateSchema))
+      : superValidate(zod(updateMandateSchema)),
     deleteMandateForm: superValidate(zod(deleteMandateSchema)),
     position,
     mandates: position.mandates,
