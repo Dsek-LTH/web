@@ -27,7 +27,7 @@
   class="flex w-full flex-col items-center gap-2"
   action="?/create"
 >
-  <p>{m.admin_alerts_info()}</p>
+  <h1 class="mb-6 text-2xl font-semibold">{m.admin_alerts_title()}</h1>
   <input
     type="text"
     name="messageSv"
