@@ -1,3 +1,0 @@
--- AlterTable
-ALTER TABLE "positions" ADD COLUMN     "endMonth" INTEGER NOT NULL DEFAULT 11,
-ADD COLUMN     "startMonth" INTEGER NOT NULL DEFAULT 0;

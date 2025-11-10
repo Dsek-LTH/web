@@ -7669,9 +7669,9 @@
           "maxLength": null
         },
         {
-          "id": "public.positions.endMonth",
-          "name": "endMonth",
-          "columnName": "endMonth",
+          "id": "public.positions.end_month",
+          "name": "end_month",
+          "columnName": "end_month",
           "type": "int4",
           "isRequired": true,
           "kind": "scalar",
@@ -7683,9 +7683,9 @@
           "maxLength": null
         },
         {
-          "id": "public.positions.startMonth",
-          "name": "startMonth",
-          "columnName": "startMonth",
+          "id": "public.positions.start_month",
+          "name": "start_month",
+          "columnName": "start_month",
           "type": "int4",
           "isRequired": true,
           "kind": "scalar",

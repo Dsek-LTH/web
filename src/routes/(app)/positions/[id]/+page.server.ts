@@ -77,9 +77,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
           .toDate(),
       },
     }),
-    updateMandateForm: editedMandate
-      ? superValidate(editedMandate, zod(updateMandateSchema))
-      : superValidate(zod(updateMandateSchema)),
+    updateMandateForm: superValidate(zod(updateMandateSchema)),
     deleteMandateForm: superValidate(zod(deleteMandateSchema)),
     position,
     mandates: position.mandates,
