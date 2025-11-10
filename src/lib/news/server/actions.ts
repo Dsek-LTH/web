@@ -69,6 +69,75 @@ const sendNewArticleNotification = async (
   });
 };
 
+const sendNewArticleWebhook = async (
+  article: ExtendedPrismaModel<"Article"> & {
+    tags: Array<Pick<ExtendedPrismaModel<"Tag">, "id">>;
+    author: ExtendedPrismaModel<"Author">;
+  },
+  notificationText: string | null | undefined,
+) => {
+  // Create an object mapping key -> value of the following
+  // keys. Removes potential duplicates (if possible)
+  const settings = Object.fromEntries(
+    (
+      await authorizedPrismaClient.adminSetting.findMany({
+        where: {
+          key: {
+            in: [
+              "discord_webhook_se",
+              "discord_webhook_en",
+              "webhook_tags_se",
+              "webhook_tags_en",
+            ],
+          },
+        },
+        select: {
+          key: true,
+          value: true,
+        },
+      })
+    ).map((row) => [row.key, row.value]),
+  );
+
+  if (!settings["discord_webhook"]) return; // No webhook to call
+
+  // If webhook_tags is not set, we allow through all news
+  if (settings["webhook_tags"]) {
+    const webhookTags = new Set(settings["webhook_tags"].split(","));
+
+    // Otherwise, webhook_tags acts as a filter. Only allow articles that
+    // have any of the tags
+    if (!article.tags.some((tag) => webhookTags.has(tag.id))) return;
+  }
+
+  // In most cases, an event will only have one tag. For the others,
+  // we just pick an arbitrary tag until we have a priority...
+  let color = null
+  if (article.tags.length > 0) {
+    // TODO: Figure out which structure tag color has?..
+    color = tags.find(tag => tag.id === article.tags[0]?.id)?.color
+  }
+
+  await fetch(settings["discord_webhook"], {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      content: notificationText,
+      embeds: [
+        {
+          title: article.headerSv,
+          author: {
+            name: `${member?.firstName} "${member?.nickname}" ${member?.lastName}`,
+            icon_url: member?.picturePath,
+          },
+          url: `${process.env["ORIGIN"]}/news/${article.slug}`,
+          
+        }
+      ]
+    }),
+  });
+};
+
 export const createArticle: Action = async (event) => {
   const { request, locals } = event;
   const { prisma, user } = locals;
@@ -163,6 +232,13 @@ export const createArticle: Action = async (event) => {
   if (shouldSendNotification) {
     console.log("send notifications");
     await sendNewArticleNotification(
+      {
+        ...result,
+        tags,
+      },
+      notificationText,
+    );
+    await sendNewArticleWebhook(
       {
         ...result,
         tags,
