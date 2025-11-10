@@ -18,7 +18,7 @@
 
   $: updateI(i);
 
-  $: allNumbers = Array.from({ length: 12 }, (_, i) => i - 1);
+  const allNumbers = Array.from({ length: 12 }, (_, i) => i - 1);
   $: isBigJump =
     lastI !== undefined &&
     ((lastI === 0 && currentI > 1) || (lastI > 1 && currentI === 0));
@@ -28,7 +28,7 @@
 <div class="relative h-[1em] text-center transition-all">
   <span class="opacity-0">{currentI}</span>
   <div
-    class="absolute bottom-0 left-0 right-0 transition-all duration-300 ease-out"
+    class="absolute right-0 bottom-0 left-0 transition-all duration-300 ease-out"
     style="top: {isBigJump ? direction : 0}em"
   >
     <div class="relative">

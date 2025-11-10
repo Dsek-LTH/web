@@ -1,8 +1,3 @@
-import { iconsPlugin, getIconCollections } from "@egoist/tailwindcss-icons";
-import { colors } from "./src/lib/utils/themes";
-import typographyPlugin from "@tailwindcss/typography";
-import tailwindEasing from "@whiterussianstudio/tailwind-easing";
-
 /** @type {import('tailwindcss').Config} */
 export default {
   darkMode: ["class", '[data-theme="dark"]'], // dark mode set by class="dark" or data-theme="dark" in DOM
