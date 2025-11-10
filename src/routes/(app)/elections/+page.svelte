@@ -45,7 +45,7 @@
         <MarkdownBody body={election.markdown} />
         <p class="text-center font-bold">
           {m.elections_close()}
-          {dayjs(election.expiresAt).format("YYYY-MM-DD")}
+          {dayjs(election.expiresAt).tz(dayjs.tz.guess()).format("YYYY-MM-DD")}
         </p>
         <div class="card-actions self-center">
           <a
