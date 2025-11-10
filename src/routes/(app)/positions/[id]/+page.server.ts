@@ -62,6 +62,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     updateForm: superValidate(position, zod(updateSchema)),
     addMandateForm: superValidate(zod(addManadateSchema), {
       defaults: {
+        memberId: "",
         startDate: dayjs()
           .month(position.startMonth)
           .utc()
