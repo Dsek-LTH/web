@@ -150,7 +150,7 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
       session.user.group_list,
       !!session.user.student_id,
       member.classYear ?? undefined,
-      member.classProgramme ?? undefined
+      member.classProgramme ?? undefined,
     );
     const user = {
       studentId: session.user.student_id,
