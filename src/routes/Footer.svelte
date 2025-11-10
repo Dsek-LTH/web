@@ -22,7 +22,10 @@
       class="grid-flow-col place-self-center *:text-xl md:place-self-end"
       aria-label={m.footer_socialMedia()}
     >
-      <a class="btn btn-ghost opacity-0 hover:opacity-100" href="/admin/debug">
+      <a
+        class="btn btn-ghost hidden opacity-0 hover:opacity-100 md:flex"
+        href="/admin/debug"
+      >
         <span class="i-mdi-bug-outline"></span>
       </a>
       {#if data?.user?.memberId}
