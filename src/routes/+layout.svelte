@@ -9,6 +9,7 @@
   import "@stripe/stripe-js";
   import { setContext } from "svelte";
   import { writable } from "svelte/store";
+  import DarkmodeToggle from "./DarkmodeToggle.svelte";
 
   export let data;
 
@@ -27,6 +28,9 @@
   {/if}
 </svelte:head>
 
+<div class="p-2">
+  <DarkmodeToggle />
+</div>
 <ParaglideJS {i18n}>
   <slot />
 </ParaglideJS>
