@@ -27,6 +27,8 @@
         sm: "h-8 gap-1.5 rounded-md px-3 has-[>svg]:px-2.5",
         lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
         icon: "size-9",
+        "icon-sm": "size-8",
+        "icon-lg": "size-10",
       },
     },
     defaultVariants: {
@@ -42,14 +44,10 @@
     WithElementRef<HTMLAnchorAttributes> & {
       variant?: ButtonVariant;
       size?: ButtonSize;
-      isLoaderButton?: boolean;
-      isLoading?: boolean;
     };
 </script>
 
 <script lang="ts">
-  import Spinner from "../spinner/spinner.svelte";
-
   let {
     class: className,
     variant = "default",
@@ -59,14 +57,12 @@
     type = "button",
     disabled,
     children,
-    onclick,
-    isLoading = false,
-    isLoaderButton,
     ...restProps
   }: ButtonProps = $props();
 </script>
 
 {#if href}
+  <!-- eslint-disable svelte/no-navigation-without-resolve -->
   <a
     bind:this={ref}
     data-slot="button"
@@ -86,31 +82,8 @@
     class={cn(buttonVariants({ variant, size }), className)}
     {type}
     {disabled}
-    onclick={onclick
-      ? async (e) => {
-          if (isLoaderButton) {
-            const timeout = setTimeout(() => {
-              isLoading = true;
-              // ms to wait before showing the loading spinner
-              // The reason behind this can be read up on here: https://www.nngroup.com/articles/response-times-3-important-limits/
-              // TL;DR: Under 100ms delay, the user feels it as instant. Over 1000ms delay, the user feels it as a separate task. 500ms is a sweet spot to show a loading spinner to tell the user something is happening.
-            }, 500);
-            await onclick(e); // svelte doesn't recoginize that this is non-nullable
-            clearTimeout(timeout);
-            isLoading = false;
-          } else {
-            await onclick(e); // svelte doesn't recoginize that this is non-nullable
-          }
-        }
-      : undefined}
     {...restProps}
   >
     {@render children?.()}
-    <div
-      class="absolute inset-0 flex items-center justify-center transition-all"
-      class:opacity-0={!isLoading}
-    >
-      <Spinner></Spinner>
-    </div>
   </button>
 {/if}
