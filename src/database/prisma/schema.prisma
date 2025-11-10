@@ -464,6 +464,8 @@ model DrinkItem {
   price           Int
   group           DrinkGroup
   systembolagetID Int               @map("systembolaget_id")
+  weight          Int? // Total weight in grams (required for WEIGHT type)
+  emptyWeight     Int?              @map("empty_weight") // Empty bottle weight in grams (required for WEIGHT type)
   stockLists      DrinkItemBatch[]
 
   @@map("drinkitem")
@@ -473,7 +475,7 @@ model DrinkItemBatch {
   id          String    @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
   drinkItemId String    @map("drink_item_id") @db.Uuid()
   item        DrinkItem @relation(fields: [drinkItemId], references: [id])
-  quantity    Int
+  quantity    Int       // For WEIGHT: grams of liquid content, For COUNTS: number of units
 
   @@map("drinkitembatch")
 }

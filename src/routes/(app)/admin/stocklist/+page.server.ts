@@ -22,9 +22,14 @@ export const load: PageServerLoad = async ({ locals }) => {
 
   const grouped = Array.from(groupedMap.values());
 
+  // Also fetch all drink items from the catalog (like spritvikter page)
+  const allDrinkItems = await prisma.drinkItem.findMany({
+    orderBy: { name: "asc" },
+  });
+
   const totalInventoryValue = items.reduce(
     (sum, i) => sum + i.item.price * i.quantity,
     0,
   );
-  return { totalInventoryValue, grouped };
+  return { totalInventoryValue, grouped, allDrinkItems };
 };

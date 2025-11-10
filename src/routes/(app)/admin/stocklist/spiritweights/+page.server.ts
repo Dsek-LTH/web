@@ -7,44 +7,47 @@ import type { PageServerLoad } from "./$types";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 
-const zDrinkGroup = z.nativeEnum(DrinkGroup);
-const zDrinkQuantityType = z.nativeEnum(DrinkQuantityType);
-
 export const load: PageServerLoad = async (event) => {
   const { prisma } = event.locals;
-  const form = await superValidate(event.request, zod(DrinkItemSchema));
-  return { form };
+
+  const spirits = await prisma.drinkItem.findMany({
+    where: { quantityType: DrinkQuantityType.WEIGHT },
+    orderBy: { name: "asc" },
+  });
+
+  const form = await superValidate(zod(AddSpiritSchema));
+  return { spirits, form };
 };
 
-const DrinkItemSchema = z.object({
-  quantityType: zDrinkQuantityType,
+const AddSpiritSchema = z.object({
   name: z.string().min(1),
-  price: z.number(),
-  group: zDrinkGroup,
-  systembolagetID: z.number().int(),
-  weight: z.number().int().optional(),
-  emptyWeight: z.number().int().optional(),
+  systembolagetID: z.coerce.number().int(),
+  price: z.coerce.number(),
+  group: z.nativeEnum(DrinkGroup),
+  weight: z.coerce.number().int().optional(),
+  emptyWeight: z.coerce.number().int().optional(),
 });
 
 export const actions: Actions = {
-  createDrinkItem: async (event) => {
+  addSpirit: async (event) => {
     const { user, prisma } = event.locals;
     authorize(apiNames.DRINKITEM.CREATE, user);
-    const form = await superValidate(event.request, zod(DrinkItemSchema));
+
+    const form = await superValidate(event.request, zod(AddSpiritSchema));
     if (!form.valid) return fail(400, { form });
 
     await prisma.drinkItem.create({
       data: {
-        quantityType: form.data.quantityType,
+        quantityType: DrinkQuantityType.WEIGHT,
         name: form.data.name,
-        price: form.data.price * 100,
-        group: form.data.group,
         systembolagetID: form.data.systembolagetID,
+        price: Math.round(form.data.price * 100),
+        group: form.data.group,
         weight: form.data.weight,
         emptyWeight: form.data.emptyWeight,
       },
     });
 
-    return message(form, { message: "Produkt tillagd" });
+    return message(form, { message: "Sprit tillagd" });
   },
 };

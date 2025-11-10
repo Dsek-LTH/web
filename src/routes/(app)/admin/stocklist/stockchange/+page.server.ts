@@ -14,9 +14,10 @@ export const load: PageServerLoad = async (event) => {
 };
 
 const DrinkItemBatchSchema = z.object({
-  drinkItemId: z.string(),
-  quantity: z.number(),
-  inOut: z.string(),
+  drinkItemId: z.string().default(""),
+  quantity: z.number().default(0),
+  weight: z.number().default(0),
+  inOut: z.string().default(""),
 });
 
 export const actions: Actions = {
@@ -26,23 +27,61 @@ export const actions: Actions = {
     authorize(apiNames.DRINKITEMBATCH.CREATE, user);
     const form = await superValidate(event.request, zod(DrinkItemBatchSchema));
     if (!form.valid) return fail(400, { form });
+
+    // Get the drink item to check if it's a spirit
+    const drinkItem = await prisma.drinkItem.findUnique({
+      where: { id: form.data.drinkItemId },
+    });
+
+    if (!drinkItem) {
+      return fail(400, { form, message: "Drink item not found" });
+    }
+
+    // Calculate quantity based on whether it's a spirit or not
+    let finalQuantity: number;
+
+    if (
+      drinkItem.weight &&
+      drinkItem.emptyWeight &&
+      form.data.weight &&
+      form.data.weight > 0
+    ) {
+      // It's a spirit - calculate spirit volume from weight
+      finalQuantity = form.data.weight - drinkItem.emptyWeight;
+      if (finalQuantity <= 0) {
+        return fail(400, {
+          form,
+          message: "Vikten måste vara större än tom flaskans vikt",
+        });
+      }
+    } else if (form.data.quantity && form.data.quantity > 0) {
+      // Regular item - use quantity directly
+      finalQuantity = form.data.quantity;
+    } else {
+      return fail(400, { form, message: "Quantity or weight required" });
+    }
+
     console.log(form.data.inOut);
     console.log(form.data.drinkItemId);
-    console.log(form.data.quantity);
+    console.log("Final quantity:", finalQuantity);
+
     if (form.data.inOut == "IN") {
       await prisma.drinkItemBatch.create({
         data: {
           drinkItemId: form.data.drinkItemId,
-          quantity: form.data.quantity,
+          quantity: finalQuantity,
         },
       });
 
-      return message(form, { message: "Antal inskrivet" });
+      return message(form, {
+        message: drinkItem.weight ? "Sprit inskriven" : "Antal inskrivet",
+      });
     }
+
     if (form.data.inOut == "OUT") {
       await prisma.$transaction(async (tx) => {
         const drinkItemId = form.data.drinkItemId;
-        const requested = form.data.quantity;
+        const requested = finalQuantity;
 
         if (requested <= 0) {
           throw new Error("Quantity must be greater than 0.");
@@ -82,7 +121,9 @@ export const actions: Actions = {
           remaining -= take;
         }
       });
-      return message(form, { message: "Antal utskrivet" });
+      return message(form, {
+        message: drinkItem.weight ? "Sprit utskriven" : "Antal utskrivet",
+      });
     }
   },
 };

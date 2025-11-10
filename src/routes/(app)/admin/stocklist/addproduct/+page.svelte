@@ -25,6 +25,9 @@
     <a href="/admin/stocklist/stockchange" style="margin-right:15px">
       <button class=" btn btn-primary"> Skriv in/ut </button>
     </a>
+    <a href="/admin/stocklist/spiritweights" style="margin-right:15px">
+      <button class="btn btn-secondary"> Spritvikter </button>
+    </a>
   </ul>
 </div>
 
@@ -84,6 +87,28 @@
         class="input bg-base-300"
         bind:value={$form.price}
       />
+      {#if $form.quantityType == DrinkQuantityType.WEIGHT}
+        <Input
+          label="Total vikt (gram)"
+          type="number"
+          name="weight"
+          class="input bg-base-300"
+          value={$form.weight || ""}
+          placeholder="t.ex. 750"
+        />
+        <Input
+          label="Tom flaskvikt (gram) - valfritt"
+          type="number"
+          name="emptyWeight"
+          class="input bg-base-300"
+          value={$form.emptyWeight || ""}
+          placeholder="t.ex. 200 (kan uppdateras senare)"
+        />
+        <div class="mt-2 rounded bg-base-200 p-2 text-sm text-gray-600">
+          <strong>Tips:</strong> Du kan lägga till tom flaskvikt nu eller senare
+          i Spritvikter-sektionen. Spritvikt beräknas som: Total vikt - Tom flaskvikt
+        </div>
+      {/if}
       <div class="flex justify-end">
         <button type="submit" class=" btn btn-primary mt-2 w-4/12">Add</button>
       </div>
