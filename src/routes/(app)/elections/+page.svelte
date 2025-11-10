@@ -7,7 +7,12 @@
   import apiNames from "$lib/utils/apiNames";
   import CommitteeIcon from "$lib/components/images/CommitteeIcon.svelte";
   import dayjs from "dayjs";
+  import utc from "dayjs/plugin/utc";
+  import timezone from "dayjs/plugin/timezone";
   export let data: PageData;
+
+  dayjs.extend(utc);
+  dayjs.extend(timezone);
 </script>
 
 <div class="flex flex-row">
