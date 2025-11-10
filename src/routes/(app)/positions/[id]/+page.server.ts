@@ -12,6 +12,10 @@ import authentik from "$lib/server/authentik";
 import type { Actions, PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
 import { languageTag } from "$paraglide/runtime";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+
+dayjs.extend(utc);
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma } = locals;
@@ -48,9 +52,40 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   if (!position) {
     throw error(404, m.positions_errors_positionNotFound());
   }
+
+  //Logic for startMonth and endMonth that can wrap over new years
+
+  //If the mandateperiod is within a year the endMonth will be greater than the startMonth which gives the difference:
+  //(position.endMonth - position.startMonth) to be added.
+
+  //If the mandateperiod wraps into a new year (and is a year or less) the endMonth will be smaller than the startMonth.
+  //The months that need to be added in this case is a full year minus the difference between the months:
+  //12 - Math.abs(position.endMonth - position.startMonth)
+
+  const addMandateMonthDifference =
+    position.endMonth > position.startMonth
+      ? position.endMonth - position.startMonth
+      : 12 - Math.abs(position.endMonth - position.startMonth);
+
   return {
     updateForm: superValidate(position, zod(updateSchema)),
-    addMandateForm: superValidate(zod(addManadateSchema)),
+    addMandateForm: superValidate(zod(addManadateSchema), {
+      defaults: {
+        memberId: "",
+        startDate: dayjs()
+          .month(position.startMonth)
+          .utc()
+          .startOf("month")
+          .toDate(),
+        endDate: dayjs()
+          .month(position.startMonth)
+          .utc()
+          .startOf("month")
+          .add(addMandateMonthDifference, "months")
+          .endOf("month")
+          .toDate(),
+      },
+    }),
     updateMandateForm: superValidate(zod(updateMandateSchema)),
     deleteMandateForm: superValidate(zod(deleteMandateSchema)),
     position,
