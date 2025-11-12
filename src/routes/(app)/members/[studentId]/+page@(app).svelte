@@ -176,7 +176,11 @@
               class="flex items-center gap-2"
               href="/positions/{mandate.position.id}"
             >
-              {#if mandate.position.committee}
+              {#if mandate.phadderIn?.imageUrl}
+                <figure class="size-7 overflow-hidden rounded-sm">
+                  <img src={mandate.phadderIn.imageUrl} alt="Group logo" />
+                </figure>
+              {:else if mandate.position.committee}
                 <figure class="size-7 overflow-hidden">
                   <CommitteeSymbol committee={mandate.position.committee} />
                 </figure>
