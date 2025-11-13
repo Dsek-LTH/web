@@ -26,7 +26,7 @@ type ScheduledTask struct {
 	RunTimestamp string
 	EndpointURL  string
 	Body         string
-	Executed     bool
+	HasExecuted  bool
 }
 
 var (
@@ -52,7 +52,7 @@ func handlePost(w http.ResponseWriter, r *http.Request) {
 		RunTimestamp: data.RunTimestamp,
 		EndpointURL:  data.EndpointURL,
 		Body:         data.Body,
-		Executed:     false,
+		HasExecuted:  false,
 	}
 
 	err = gorm.G[ScheduledTask](db).Create(ctx, &newTask)
@@ -128,7 +128,7 @@ func executeTask(task ScheduledTask) {
 
 // TODO: Decide how to handle failures/retries
 func setTaskExecuted(taskID uint) {
-	_, err := gorm.G[ScheduledTask](db).Where("id = ?", taskID).Update(ctx, "executed", true)
+	_, err := gorm.G[ScheduledTask](db).Where("id = ?", taskID).Update(ctx, "has_executed", true)
 	if err != nil {
 		log.Printf("Failed to update database for task ID %d: %v", taskID, err)
 	}
@@ -160,11 +160,11 @@ func main() {
 	// 	log.Println("Error clearing scheduled tasks:", err)
 	// }
 
-	scheduledTasks, err := gorm.G[ScheduledTask](db).Where("executed = ?", false).Find(ctx)
+	scheduledTasks, err := gorm.G[ScheduledTask](db).Where("has_executed = ?", false).Find(ctx)
 	if err != nil {
 		log.Println("Error fetching scheduled tasks:", err)
 	}
-	log.Printf("Pending scheduled tasks: %v", scheduledTasks)
+	// log.Printf("Pending scheduled tasks: %v", scheduledTasks)
 
 	for _, task := range scheduledTasks {
 		go scheduleTaskExecution(task)
