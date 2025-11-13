@@ -19,6 +19,7 @@ type ScheduledTaskRequestData struct {
 	RunTimestamp string `json:"runTimestamp"`
 	EndpointURL  string `json:"endpointURL"`
 	Body         string `json:"body"`
+	Password     string `json:"password"`
 }
 
 type ScheduledTask struct {
@@ -34,10 +35,10 @@ var (
 	ctx context.Context
 )
 
-// TODO: Add authentication/authorisation
 func handlePost(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Only POST allowed", http.StatusMethodNotAllowed)
+
 		return
 	}
 
@@ -45,6 +46,14 @@ func handlePost(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+
+		return
+	}
+
+	if data.Password != os.Getenv("PASSWORD") {
+		log.Printf("Unauthorised access attempt from %s with password: %s", r.RemoteAddr, data.Password)
+		http.Error(w, "Unauthorised", http.StatusUnauthorized)
+
 		return
 	}
 
@@ -58,6 +67,7 @@ func handlePost(w http.ResponseWriter, r *http.Request) {
 	err = gorm.G[ScheduledTask](db).Create(ctx, &newTask)
 	if err != nil {
 		http.Error(w, "Failed to write to database", http.StatusInternalServerError)
+
 		return
 	} else {
 		log.Printf("Scheduled task created: %+v", data)
@@ -155,10 +165,10 @@ func main() {
 		log.Fatal("Failed to migrate database:", err)
 	}
 
-	// _, err = gorm.G[ScheduledTask](db).Where("1 = 1").Delete(ctx)
-	// if err != nil {
-	// 	log.Println("Error clearing scheduled tasks:", err)
-	// }
+	_, err = gorm.G[ScheduledTask](db).Where("1 = 1").Delete(ctx)
+	if err != nil {
+		log.Println("Error clearing scheduled tasks:", err)
+	}
 
 	scheduledTasks, err := gorm.G[ScheduledTask](db).Where("has_executed = ?", false).Find(ctx)
 	if err != nil {
