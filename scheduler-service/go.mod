@@ -5,6 +5,7 @@ go 1.25.4
 require github.com/joho/godotenv v1.5.1
 
 require (
+	golang.org/x/time v0.14.0
 	gorm.io/driver/postgres v1.6.0
 	gorm.io/gorm v1.31.1
 )
