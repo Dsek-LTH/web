@@ -6,11 +6,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/joho/godotenv"
+	"golang.org/x/time/rate"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -31,9 +34,42 @@ type ScheduledTask struct {
 }
 
 var (
-	db  *gorm.DB
-	ctx context.Context
+	db       *gorm.DB
+	ctx      context.Context
+	limiters = make(map[string]*rate.Limiter)
+	mu       sync.Mutex
 )
+
+func getLimiter(ip string) *rate.Limiter {
+	mu.Lock()
+	defer mu.Unlock()
+
+	limiter, exists := limiters[ip]
+	if !exists {
+		limiter = rate.NewLimiter(1, 5)
+		limiters[ip] = limiter
+	}
+
+	return limiter
+}
+
+func rateLimitMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		host, _, err := net.SplitHostPort(r.RemoteAddr)
+		if err != nil {
+			host = r.RemoteAddr
+		}
+
+		limiter := getLimiter(host)
+		if !limiter.Allow() {
+			http.Error(w, "Too Many Requests", http.StatusTooManyRequests)
+
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
 
 func handlePost(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -117,6 +153,7 @@ func executeTask(task ScheduledTask) {
 	req, err := http.NewRequest(http.MethodPost, task.EndpointURL, bytes.NewBuffer([]byte(task.Body)))
 	if err != nil {
 		log.Printf("Error creating request for task ID %d: %v", task.ID, err)
+
 		return
 	}
 
@@ -129,6 +166,7 @@ func executeTask(task ScheduledTask) {
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Printf("Error executing request for task ID %d: %v", task.ID, err)
+
 		return
 	}
 	defer func() {
@@ -156,7 +194,7 @@ func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	http.HandleFunc("/schedule", handlePost)
+	http.Handle("/schedule", rateLimitMiddleware(http.HandlerFunc(handlePost)))
 
 	host, user, password, name, port := os.Getenv("POSTGRES_HOST"), os.Getenv("POSTGRES_USER"), os.Getenv("POSTGRES_PASSWORD"), os.Getenv("POSTGRES_DB"), os.Getenv("POSTGRES_PORT")
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=UTC", host, user, password, name, port)
@@ -173,6 +211,7 @@ func main() {
 		log.Fatal("Failed to migrate database:", err)
 	}
 
+	// TODO: Remove this line
 	_, err = gorm.G[ScheduledTask](db).Where("1 = 1").Delete(ctx)
 	if err != nil {
 		log.Println("Error clearing scheduled tasks:", err)
