@@ -70,7 +70,15 @@ func handlePost(w http.ResponseWriter, r *http.Request) {
 
 		return
 	} else {
-		log.Printf("Scheduled task created: %+v", data)
+		log.Printf("Scheduled task created: %+v", struct {
+			RunTimestamp string
+			EndpointURL  string
+			Body         string
+		}{
+			RunTimestamp: newTask.RunTimestamp,
+			EndpointURL:  newTask.EndpointURL,
+			Body:         newTask.Body,
+		})
 	}
 
 	scheduleTaskExecution(newTask)
