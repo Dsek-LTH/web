@@ -10,19 +10,13 @@ import (
 	"gorm.io/gorm"
 )
 
-type ScheduledTaskRequestData struct {
-	RunTimestamp string `json:"runTimestamp"`
-	EndpointURL  string `json:"endpointURL"`
-	Body         string `json:"body"`
-	Password     string `json:"password"`
-}
-
 type ScheduledTask struct {
 	gorm.Model
 	RunTimestamp string
 	EndpointURL  string
 	Body         string
 	HasExecuted  bool
+	CreatedBy    *string
 }
 
 func scheduleTaskExecution(ctx context.Context, task ScheduledTask) {

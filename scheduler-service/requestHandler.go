@@ -10,6 +10,14 @@ import (
 	"gorm.io/gorm"
 )
 
+type ScheduledTaskRequestData struct {
+	RunTimestamp string `json:"runTimestamp"`
+	EndpointURL  string `json:"endpointURL"`
+	Body         string `json:"body"`
+	Password     string `json:"password"`
+	Subject      string `json:"subject,omitempty"`
+}
+
 func handlePost(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Only POST allowed", http.StatusMethodNotAllowed)
@@ -37,6 +45,7 @@ func handlePost(w http.ResponseWriter, r *http.Request) {
 		EndpointURL:  data.EndpointURL,
 		Body:         data.Body,
 		HasExecuted:  false,
+		CreatedBy:    &data.Subject,
 	}
 
 	err = gorm.G[ScheduledTask](db).Create(r.Context(), &newTask)
