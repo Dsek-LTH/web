@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"log"
 	"net/http"
 	"time"
@@ -24,7 +25,7 @@ type ScheduledTask struct {
 	HasExecuted  bool
 }
 
-func scheduleTaskExecution(task ScheduledTask) {
+func scheduleTaskExecution(ctx context.Context, task ScheduledTask) {
 	runTime, err := time.Parse(time.RFC3339, task.RunTimestamp)
 	if err != nil {
 		log.Printf("Failed to parse RunTimestamp for task ID %d: %v", task.ID, err)
@@ -36,7 +37,7 @@ func scheduleTaskExecution(task ScheduledTask) {
 
 	if delay <= 0 {
 		log.Printf("RunTimestamp for task ID %d is in the past. Executing immediately.", task.ID)
-		go executeTask(task)
+		go executeTask(ctx, task)
 
 		return
 	}
@@ -44,12 +45,12 @@ func scheduleTaskExecution(task ScheduledTask) {
 	log.Printf("Scheduling task ID %d to run at %s", task.ID, runTime.Format(time.RFC1123))
 
 	time.AfterFunc(delay, func() {
-		executeTask(task)
+		executeTask(ctx, task)
 	})
 }
 
 // TODO: Decide how to handle failures/retries
-func executeTask(task ScheduledTask) {
+func executeTask(ctx context.Context, task ScheduledTask) {
 	log.Printf("Executing task ID: %d to %s", task.ID, task.EndpointURL)
 
 	req, err := http.NewRequest(http.MethodPost, task.EndpointURL, bytes.NewBuffer([]byte(task.Body)))
@@ -81,13 +82,12 @@ func executeTask(task ScheduledTask) {
 		log.Printf("Task ID %d executed with non-success status: %d", task.ID, resp.StatusCode)
 	}
 
-	setTaskExecuted(task.ID)
+	setTaskExecuted(ctx, task.ID)
 }
 
 // TODO: Decide how to handle failures/retries
-func setTaskExecuted(taskID uint) {
-	_, err := gorm.G[ScheduledTask](db).Where("id = ?", taskID).Update(ctx, "has_executed", true)
-	if err != nil {
+func setTaskExecuted(ctx context.Context, taskID uint) {
+	if _, err := gorm.G[ScheduledTask](db).Where("id = ?", taskID).Update(ctx, "has_executed", true); err != nil {
 		log.Printf("Failed to update database for task ID %d: %v", taskID, err)
 	}
 }

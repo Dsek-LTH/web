@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -38,7 +39,7 @@ func handlePost(w http.ResponseWriter, r *http.Request) {
 		HasExecuted:  false,
 	}
 
-	err = gorm.G[ScheduledTask](db).Create(ctx, &newTask)
+	err = gorm.G[ScheduledTask](db).Create(r.Context(), &newTask)
 	if err != nil {
 		http.Error(w, "Failed to write to database", http.StatusInternalServerError)
 
@@ -55,7 +56,7 @@ func handlePost(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	scheduleTaskExecution(newTask)
+	scheduleTaskExecution(context.Background(), newTask)
 
 	w.WriteHeader(http.StatusCreated)
 }

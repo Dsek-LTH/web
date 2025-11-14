@@ -11,18 +11,12 @@ import (
 	"gorm.io/gorm"
 )
 
-var (
-	db *gorm.DB
-	// TODO: Remove global context
-	ctx context.Context
-)
+var db *gorm.DB
 
 func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Fatal("Error loading .env file")
 	}
-
-	ctx = context.Background()
 
 	if err := openDatabaseConnection(&db); err != nil {
 		log.Fatal("Failed to connect to database:", err)
@@ -33,15 +27,15 @@ func main() {
 	}
 
 	// TODO: Remove this
-	if _, err := gorm.G[ScheduledTask](db).Where("1 = 1").Delete(ctx); err != nil {
+	if _, err := gorm.G[ScheduledTask](db).Where("1 = 1").Delete(context.Background()); err != nil {
 		log.Println("Error clearing scheduled tasks:", err)
 	}
 
-	if scheduledTasks, err := gorm.G[ScheduledTask](db).Where("has_executed = ?", false).Find(ctx); err != nil {
+	if scheduledTasks, err := gorm.G[ScheduledTask](db).Where("has_executed = ?", false).Find(context.Background()); err != nil {
 		log.Println("Error fetching scheduled tasks:", err)
 	} else {
 		for _, task := range scheduledTasks {
-			go scheduleTaskExecution(task)
+			go scheduleTaskExecution(context.Background(), task)
 		}
 	}
 
