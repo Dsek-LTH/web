@@ -850,5 +850,21 @@
   "positions_all_positions": "Se alla poster",
   "positions_historical_mandate_distribution_per_study_year": "Historisk mandatfördelning per årskurs",
   "positions_study_year": "Åk",
-  "positions_years": "år"
+  "positions_years": "år",
+  "applicant": "Sökande",
+  "nollning_nav_picture_title": "Nollningen 2025",
+  "nollning_theme": "En nollning från himlavalvet",
+  "nav_applicant_description": "Mer information om de olika programmen under D-sektionen",
+  "nav_nollning": "Nollningen",
+  "nav_nollning_description": "Ett sammanhang inom vilket du kan lära känna studentlivet och nya människor",
+  "nav_about_guild": "Om sektionen",
+  "nav_about_guild_desc": "Sektionen består av 15 olika utskott, varav de flesta leds av en styrelsemedlem",
+  "nav_news_feed": "Nyhetsflöde",
+  "nav_news_feed_desc": "Se de senaste nyheterna på D-sektionen.",
+  "nav_events": "Evenemang",
+  "nav_events_desc": "Se aktuella evenemang på D-sektionen.",
+  "nav_guild": "Sektionen",
+  "nav_board": "Styrelsen",
+  "nav_board_desc": "Något bra om styrelsen",
+  "documents_desc": "Läs styr- och mötesdokument."
 }

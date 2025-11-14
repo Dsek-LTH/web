@@ -1,3 +1,7 @@
+<script lang="ts">
+  const { children } = $props();
+</script>
+
 <div class="layout-container">
-  <slot />
+  {@render children?.()}
 </div>

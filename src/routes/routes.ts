@@ -1,6 +1,6 @@
-import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
-import apiNames from "$lib/utils/apiNames";
 import * as m from "$paraglide/messages";
+
+import nollningImage from "./(nollning)/nollning/(photos)/staben25_9x16.webp";
 // bottom-nav: Show in the bottom navigation bar
 // home-link: Show on the home page
 // none: Don't show anywhere
@@ -9,216 +9,85 @@ type AppBehaviour = "bottom-nav" | "home-link" | "none";
 type RouteSpecialBehaviour = "cart-badge";
 export type Route = {
   title: string;
+  description?: string;
   path: string | null;
   specialBehaviour?: RouteSpecialBehaviour;
-  icon: string;
   accessRequired: string | null;
   appBehaviour: AppBehaviour;
+  pictureUrl?: string;
+  pictureTitle?: string;
+  pictureDescription?: string;
+  picturePath?: string;
   children?: Route[];
   isCurrentRoute?: (currentPathname: string) => boolean;
 };
 export const getRoutes = (): Route[] =>
   [
     {
-      title: m.home(),
-      path: "/",
-      icon: "i-mdi-home",
+      title: m.applicant(),
+      pictureUrl: nollningImage,
+      path: null,
       accessRequired: null,
+      pictureTitle: m.nollning_nav_picture_title(),
+      pictureDescription: m.nollning_theme(),
+      picturePath: "/nollning",
       appBehaviour: "none",
+      children: [
+        {
+          title: m.applicant(),
+          description: m.nav_applicant_description(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/sokande",
+        },
+        {
+          title: m.nav_nollning(),
+          description: m.nav_nollning_description(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/nollning",
+        },
+        {
+          title: m.nav_about_guild(),
+          description: m.nav_about_guild_desc(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/about-guild",
+        },
+      ],
     },
-    // {
-    //   title: m.nolla_nav_nollning(),
-    //   path: "/nolla",
-    //   icon: "i-mdi-party-popper",
-    //   accessRequired: null,
-    //   appBehaviour: "none",
-    // },
     {
       title: m.news(),
+      accessRequired: null,
+      appBehaviour: "none",
       path: "/news",
-      icon: "i-mdi-newspaper",
-      accessRequired: apiNames.NEWS.READ,
-      appBehaviour: "bottom-nav",
     },
     {
-      title: m.events(),
-      path: "/events",
-      icon: "i-mdi-calendar",
-      accessRequired: apiNames.EVENT.READ,
-      appBehaviour: "bottom-nav",
-    },
-    {
-      title: m.tickets(),
-      path: "/shop/tickets",
-      specialBehaviour: "cart-badge",
-      icon: "i-mdi-ticket",
-      accessRequired: apiNames.WEBSHOP.PURCHASE,
-      appBehaviour: "bottom-nav",
-    },
-    {
-      title: m.documents(),
-      path: null,
-      icon: "i-mdi-text-box-multiple",
-      appBehaviour: "none",
+      title: m.nav_guild(),
       accessRequired: null,
+      appBehaviour: "none",
+      path: null,
       children: [
         {
-          title: m.documents_governingDocuments(),
-          path: "/documents/governing",
-          icon: "i-mdi-gavel",
+          title: m.nav_about_guild(),
+          description: m.nav_about_guild_desc(),
           accessRequired: null,
-          appBehaviour: "home-link",
+          appBehaviour: "none",
+          path: "/news",
         },
         {
-          title: m.documents_meetingDocuments(),
+          title: m.nav_board(),
+          description: m.nav_board_desc(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/events",
+        },
+        {
+          title: m.documents(),
+          description: m.documents_desc(),
+          accessRequired: null,
+          appBehaviour: "none",
           path: "/documents",
-          icon: "i-mdi-text-box-multiple",
-          accessRequired: null,
-          appBehaviour: "home-link",
-        },
-        {
-          title: m.documents_requirementProfiles(),
-          path: "/documents/requirements",
-          icon: "i-mdi-vote",
-          accessRequired: null,
-          appBehaviour: "home-link",
-        },
-        {
-          title: "Gerda",
-          path: "https://gerda.dsek.se",
-          icon: "i-mdi-typewriter",
-          accessRequired: null,
-          appBehaviour: "home-link",
-        },
-      ],
-    },
-    {
-      title: m.theGuild(),
-      path: null,
-      icon: "dsek-icon",
-      accessRequired: null,
-      appBehaviour: "none",
-      children: [
-        {
-          title: m.theBoard(),
-          path: "/board",
-          icon: "i-mdi-account-tie",
-          accessRequired: null,
-          appBehaviour: "home-link",
-        },
-        {
-          title: m.committees(),
-          path: "/committees",
-          icon: "i-mdi-account-group",
-          accessRequired: null,
-          appBehaviour: "home-link",
-        },
-        {
-          title: m.openElections(),
-          path: "/elections",
-          icon: "i-mdi-dolphin",
-          accessRequired: null,
-          appBehaviour: "home-link",
-        },
-        {
-          title: m.bookings(),
-          path: "/booking",
-          icon: "i-mdi-calendar-cursor",
-          accessRequired: apiNames.BOOKINGS.READ,
-          appBehaviour: "home-link",
-        },
-        {
-          title: m.expenses(),
-          path: "/expenses",
-          icon: "i-mdi-cash-multiple",
-          accessRequired: apiNames.EXPENSES.CREATE,
-          appBehaviour: "home-link",
-        },
-        {
-          title: m.songBook(),
-          path: "/songbook",
-          icon: "i-mdi-library-music",
-          accessRequired: null,
-          appBehaviour: "home-link",
-        },
-        {
-          title: m.medals(),
-          path: "/medals",
-          icon: "i-mdi-medal",
-          accessRequired: null,
-          appBehaviour: "home-link",
-        },
-        {
-          title: m.gallery(),
-          path: "/gallery",
-          icon: "i-mdi-folder-image",
-          accessRequired: null,
-          appBehaviour: "home-link",
-        },
-      ],
-    },
-    {
-      title: m.admin(),
-      path: null,
-      icon: "i-mdi-security",
-      accessRequired: apiNames.ADMIN.READ,
-      appBehaviour: "none",
-      children: [
-        {
-          title: m.access(),
-          path: "/admin/access",
-          icon: "i-mdi-key",
-          accessRequired: apiNames.ACCESS_POLICY.READ,
-          appBehaviour: "home-link",
-        },
-        {
-          title: m.doors(),
-          path: "/admin/doors",
-          icon: "i-mdi-door-open",
-          accessRequired: apiNames.DOOR.READ,
-          appBehaviour: "home-link",
-        },
-        {
-          title: m.emailAliases(),
-          path: "/admin/email-alias",
-          icon: "i-mdi-email",
-          accessRequired: apiNames.EMAIL_ALIAS.READ,
-          appBehaviour: "home-link",
-        },
-        {
-          title: m.alerts(),
-          path: "/admin/alerts",
-          icon: "i-mdi-alert-circle",
-          accessRequired: apiNames.ALERT,
-          appBehaviour: "home-link",
-        },
-        {
-          title: m.linkShortener(),
-          path: "/admin/links",
-          icon: "i-mdi-link-variant",
-          accessRequired: apiNames.ADMIN.SHLINK.READ,
-          appBehaviour: "home-link",
-        },
-        {
-          title: m.adminSettings(),
-          path: "/admin/settings",
-          icon: "i-mdi-wrench",
-          accessRequired: apiNames.ADMIN.SETTINGS.READ,
-          appBehaviour: "home-link",
-        },
-        {
-          title: m.files(),
-          path: "/admin/minio",
-          icon: "i-mdi-files",
-          accessRequired: apiNames.FILES.BUCKET(PUBLIC_BUCKETS_FILES).CREATE,
-          appBehaviour: "home-link",
-        },
-        {
-          title: m.info(),
-          path: "/admin/info",
-          icon: "i-mdi-text-box-edit",
-          accessRequired: apiNames.MARKDOWN.CREATE,
-          appBehaviour: "home-link",
         },
       ],
     },
@@ -246,7 +115,7 @@ export const appBottomNavRoutes = (routes: Route[]): Route[] =>
     .concat([
       {
         title: "Konto",
-        icon: "i-mdi-account-circle",
+        // icon: "i-mdi-account-circle",
         path: "/app/account",
         accessRequired: null,
         appBehaviour: "bottom-nav",
