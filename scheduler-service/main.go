@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/joho/godotenv"
 	"gorm.io/gorm"
@@ -45,7 +47,6 @@ func main() {
 
 	http.Handle("/schedule", rateLimitMiddleware(http.HandlerFunc(handlePost)))
 
-	// TODO: Read port from env
-	log.Println("Server running on :8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Printf("Server running on :%s", os.Getenv("SERVER_PORT"))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("SERVER_PORT")), nil))
 }
