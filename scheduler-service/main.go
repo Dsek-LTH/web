@@ -39,7 +39,7 @@ func main() {
 		}
 	}
 
-	http.Handle("/schedule", rateLimitMiddleware(http.HandlerFunc(handlePost)))
+	http.HandleFunc("/schedule", handleRequest)
 
 	log.Printf("Server running on :%s", os.Getenv("SERVER_PORT"))
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("SERVER_PORT")), nil))
