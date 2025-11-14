@@ -10,7 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type ScheduledTaskRequestData struct {
+type ScheduleTaskRequestData struct {
 	RunTimestamp string `json:"runTimestamp"`
 	EndpointURL  string `json:"endpointURL"`
 	Body         string `json:"body"`
@@ -18,16 +18,23 @@ type ScheduledTaskRequestData struct {
 	Subject      string `json:"subject,omitempty"`
 }
 
-func handlePost(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Only POST allowed", http.StatusMethodNotAllowed)
+func handleRequest(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodPost:
+		rateLimitMiddleware(http.HandlerFunc(handlePost)).ServeHTTP(w, r)
 
-		return
+	case http.MethodGet:
+		rateLimitMiddleware(AuthMiddleware(http.HandlerFunc(handleGet))).ServeHTTP(w, r)
+
+	default:
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 	}
+}
 
-	var data ScheduledTaskRequestData
-	err := json.NewDecoder(r.Body).Decode(&data)
-	if err != nil {
+func handlePost(w http.ResponseWriter, r *http.Request) {
+	var data ScheduleTaskRequestData
+
+	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
 
 		return
@@ -35,7 +42,6 @@ func handlePost(w http.ResponseWriter, r *http.Request) {
 
 	if data.Password != os.Getenv("PASSWORD") {
 		log.Printf("Unauthorised access attempt from %s with password: %s", r.RemoteAddr, data.Password)
-		http.Error(w, "Unauthorised", http.StatusUnauthorized)
 
 		return
 	}
@@ -48,8 +54,7 @@ func handlePost(w http.ResponseWriter, r *http.Request) {
 		CreatedBy:    &data.Subject,
 	}
 
-	err = gorm.G[ScheduledTask](db).Create(r.Context(), &newTask)
-	if err != nil {
+	if err := gorm.G[ScheduledTask](db).Create(r.Context(), &newTask); err != nil {
 		http.Error(w, "Failed to write to database", http.StatusInternalServerError)
 
 		return
@@ -68,4 +73,34 @@ func handlePost(w http.ResponseWriter, r *http.Request) {
 	scheduleTaskExecution(context.Background(), newTask)
 
 	w.WriteHeader(http.StatusCreated)
+}
+
+func handleGet(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query()
+	password := query.Get("password")
+	subject := query.Get("subject")
+
+	if password == "" || subject == "" {
+		http.Error(w, "Missing query parameters", http.StatusBadRequest)
+
+		return
+	}
+
+	if password != os.Getenv("PASSWORD") {
+		log.Printf("Unauthorised access attempt from %s with password: %s", r.RemoteAddr, password)
+
+		return
+	}
+
+	tasks, err := gorm.G[ScheduledTask](db).Where("created_by = ?", subject).Find(r.Context())
+	if err != nil {
+		http.Error(w, "Failed to read from database", http.StatusInternalServerError)
+
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err = json.NewEncoder(w).Encode(tasks); err != nil {
+		log.Printf("Error encoding response: %v", err)
+	}
 }
