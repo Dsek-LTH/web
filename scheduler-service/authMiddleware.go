@@ -15,10 +15,9 @@ import (
 	"github.com/lestrrat-go/jwx/v3/jwt"
 )
 
-const (
-	JWKSEndpoint   = "https://auth.dsek.se/application/o/dev/jwks/"
-	sampleIssuer   = "https://auth.dsek.se/application/o/dev/"
-	sampleAudience = "SvRybUTCGqhNiw2Y3gn1wqt0YxpjW2sv9fbPsUaP"
+var (
+	JWKSEndpoint = os.Getenv("JWKS_ENDPOINT")
+	JWTIssuer    = os.Getenv("JWT_ISSUER")
 )
 
 var cachedJWKS jwk.Set
@@ -37,6 +36,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		stringToken = strings.TrimPrefix(stringToken, bearerPrefix)
 
 		query := r.URL.Query()
+		audience := query.Get("audience")
 		subject := query.Get("subject")
 
 		if subject == "" {
@@ -54,11 +54,10 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			}
 		}
 
-		// TODO: Stop using sample constants
 		parseOptions := []jwt.ParseOption{
 			jwt.WithKeySet(cachedJWKS),
-			jwt.WithIssuer(sampleIssuer),
-			jwt.WithAudience(sampleAudience),
+			jwt.WithIssuer(JWTIssuer),
+			jwt.WithAudience(audience),
 			jwt.WithSubject(subject),
 		}
 
@@ -109,59 +108,3 @@ func createJWKCache() error {
 
 	return nil
 }
-
-// func main() {
-// 	http.Handle("/test", AuthMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-// 		_, _ = w.Write([]byte("test"))
-// 	})))
-//
-// 	log.Println("Server running on :8080")
-// 	log.Fatal(http.ListenAndServe(":8080", nil))
-// }
-
-// func main() {
-// 	set, err := jwk.Fetch(context.Background(), JWKSEndpoint)
-// 	if err != nil {
-// 		log.Printf("Failed to parse JWK: %s", err)
-//
-// 		return
-// 	}
-//
-// 	opts := []jwt.ParseOption{
-// 		jwt.WithKeySet(set),
-// 		jwt.WithIssuer(sampleIssuer),
-// 		jwt.WithAudience(sampleAudience),
-// 		jwt.WithSubject(sampleSubject),
-// 	}
-// 	token, err := jwt.Parse([]byte(sampleJWT), opts...)
-// 	if err != nil {
-// 		log.Printf("Failed to parse JWT: %s", err)
-//
-// 		return
-// 	}
-//
-// 	log.Printf("JWT Claims: %+v", token)
-//
-// 	subject, _ := token.Subject()
-// 	log.Printf("Subject: %s", subject)
-//
-// 	// json.NewEncoder(os.Stdout).Encode(set)
-//
-// 	// for i := 0; i < set.Len(); i++ {
-// 	// 	var rawKey any
-// 	// 	key, ok := set.Key(i)
-// 	// 	if !ok {
-// 	// 		log.Printf("Failed to get key at index %d", i)
-// 	//
-// 	// 		return
-// 	// 	}
-// 	//
-// 	// 	if err = jwk.Export(key, &rawKey); err != nil {
-// 	// 		log.Printf("Failed to create public key: %s", err)
-// 	//
-// 	// 		return
-// 	// 	}
-// 	//
-// 	// 	log.Printf("Key %d: %+v", i, rawKey)
-// 	// }
-// }
