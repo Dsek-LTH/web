@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"log"
 	"log/slog"
 	"net/http"
@@ -15,10 +14,6 @@ import (
 	"github.com/lestrrat-go/jwx/v3/jwk"
 	"github.com/lestrrat-go/jwx/v3/jwt"
 )
-
-type AuthRequestData struct {
-	Subject string `json:"subject"`
-}
 
 const (
 	JWKSEndpoint   = "https://auth.dsek.se/application/o/dev/jwks/"
@@ -34,7 +29,6 @@ func AuthMiddleware(next http.Handler) http.Handler {
 
 		const bearerPrefix = "Bearer "
 		if !strings.HasPrefix(stringToken, bearerPrefix) {
-			log.Printf("missing or invalid Authorization header")
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 
 			return
@@ -42,17 +36,18 @@ func AuthMiddleware(next http.Handler) http.Handler {
 
 		stringToken = strings.TrimPrefix(stringToken, bearerPrefix)
 
-		var data AuthRequestData
-		err := json.NewDecoder(r.Body).Decode(&data)
-		if err != nil {
-			log.Printf("failed to decode auth request data: %s", err)
-			http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		query := r.URL.Query()
+		subject := query.Get("subject")
+
+		if subject == "" {
+			http.Error(w, "Missing subject query parameter", http.StatusBadRequest)
 
 			return
 		}
 
 		if cachedJWKS == nil {
-			if err = createJWKCache(); err != nil {
+			if err := createJWKCache(); err != nil {
+				log.Printf("Failed to create JWK cache: %s", err)
 				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 
 				return
@@ -64,12 +59,11 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			jwt.WithKeySet(cachedJWKS),
 			jwt.WithIssuer(sampleIssuer),
 			jwt.WithAudience(sampleAudience),
-			jwt.WithSubject(data.Subject),
+			jwt.WithSubject(subject),
 		}
 
-		_, err = jwt.Parse([]byte(stringToken), parseOptions...)
-		if err != nil {
-			log.Printf("failed to parse JWT: %s", err)
+		if _, err := jwt.Parse([]byte(stringToken), parseOptions...); err != nil {
+			log.Printf("Failed to parse JWT: %s", err)
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 
 			return
@@ -90,7 +84,7 @@ func createJWKCache() error {
 		),
 	)
 	if err != nil {
-		log.Printf("failed to create JWK cache: %s", err)
+		log.Printf("Failed to create JWK cache: %s", err)
 
 		return err
 	}
@@ -101,14 +95,14 @@ func createJWKCache() error {
 		jwk.WithMaxInterval(24*time.Hour*7),
 		jwk.WithMinInterval(5*time.Minute),
 	); err != nil {
-		log.Printf("failed to register JWK endpoint: %s", err)
+		log.Printf("Failed to register JWK endpoint: %s", err)
 
 		return err
 	}
 
 	cachedJWKS, err = jwkCache.CachedSet(JWKSEndpoint)
 	if err != nil {
-		log.Printf("failed to get cached JWK set: %s", err)
+		log.Printf("Failed to get cached JWK set: %s", err)
 
 		return err
 	}
@@ -128,7 +122,7 @@ func createJWKCache() error {
 // func main() {
 // 	set, err := jwk.Fetch(context.Background(), JWKSEndpoint)
 // 	if err != nil {
-// 		log.Printf("failed to parse JWK: %s", err)
+// 		log.Printf("Failed to parse JWK: %s", err)
 //
 // 		return
 // 	}
@@ -141,7 +135,7 @@ func createJWKCache() error {
 // 	}
 // 	token, err := jwt.Parse([]byte(sampleJWT), opts...)
 // 	if err != nil {
-// 		log.Printf("failed to parse JWT: %s", err)
+// 		log.Printf("Failed to parse JWT: %s", err)
 //
 // 		return
 // 	}
@@ -157,13 +151,13 @@ func createJWKCache() error {
 // 	// 	var rawKey any
 // 	// 	key, ok := set.Key(i)
 // 	// 	if !ok {
-// 	// 		log.Printf("failed to get key at index %d", i)
+// 	// 		log.Printf("Failed to get key at index %d", i)
 // 	//
 // 	// 		return
 // 	// 	}
 // 	//
 // 	// 	if err = jwk.Export(key, &rawKey); err != nil {
-// 	// 		log.Printf("failed to create public key: %s", err)
+// 	// 		log.Printf("Failed to create public key: %s", err)
 // 	//
 // 	// 		return
 // 	// 	}
