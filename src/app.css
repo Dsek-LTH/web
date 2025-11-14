@@ -16,6 +16,9 @@
   --lila-background: #9966cc;
   --lila-foreground: oklch(1 0 0);
   --lila-hover: #7943ad; /* TODO: rename to -hover */
+  --pistachio-background: #99cc66;
+  --pistachio-foreground: oklch(1 0 0);
+  --pistachio-hover: #457200;
   --secondary-background: oklch(1 0 0);
   --secondary-foreground: oklch(14.1% 0.005 285.823);
   --secondary-hover: oklch(96.7% 0.001 286.375);
@@ -34,6 +37,9 @@
   --lila-background: #a574d8;
   --lila-foreground: oklch(0 0 0);
   --lila-hover: #9966cc;
+  --pistachio-background: #99cc66;
+  --pistachio-foreground: oklch(0 0 0);
+  --pistachio-hover: #457200;
   --secondary-background: oklch(0 0 0);
   --secondary-foreground: oklch(98.5% 0 0);
   --secondary-hover: oklch(21% 0.006 285.885);
@@ -82,6 +88,9 @@
   --color-lila-background: var(--lila-background);
   --color-lila-foreground: var(--lila-foreground);
   --color-lila-hover: var(--lila-hover);
+  --color-pistachio-background: var(--pistachio-background);
+  --color-pistachio-foreground: var(--pistachio-foreground);
+  --color-pistachio-hover: var(--pistachio-hover);
   --color-secondary-background: var(--secondary-background);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-secondary-hover: var(--secondary-hover);
