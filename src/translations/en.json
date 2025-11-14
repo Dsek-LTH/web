@@ -923,5 +923,17 @@
   "cafe_closed": "Closed",
   "documents_governing_not_finding_intro": "Not finding what you're looking for? Keep in mind that our governing documents are subordinate to the ",
   "documents_governing_union_governing_documents": "governing documents of the Union",
-  "documents_governing_not_finding_outro": ". Perhaps you might find what you seek there?"
+  "documents_governing_not_finding_outro": ". Perhaps you might find what you seek there?",
+  "applicant": "Applicant",
+  "nollning_nav_picture_title": "Introduction 2025",
+  "nollning_theme": "An Introduction from the Celistial Sphere",
+  "nav_applicant_description": "More information about the different programs under the D-guild.",
+  "nav_nollning": "The Introduction Period",
+  "nav_nollning_description": "A context where you can learn about the student life and get to know new people.",
+  "nav_about_guild": "About the guild",
+  "nav_about_guild_desc": "The guild consists of 15 different committees, most of which are lead by a board member",
+  "nav_guild": "The Guild",
+  "nav_board": "The Board",
+  "nav_board_desc": "Something good about the board.",
+  "documents_desc": "Read governing- and meeting-documents."
 }

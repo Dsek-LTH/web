@@ -190,4 +190,8 @@
   td {
     @apply border-t border-l px-3 py-2 text-left first:border-l-0 [&[align=center]]:text-center [&[align=right]]:text-right;
   }
+
+  .layout-container {
+    @apply container mx-auto px-4 py-8 xl:px-32;
+  }
 }

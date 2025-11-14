@@ -920,5 +920,21 @@
   "cafe_closed": "Stängt",
   "documents_governing_not_finding_intro": "Hittar du inte vad du söker? Kom ihåg att våra styrdokument är underordnade ",
   "documents_governing_union_governing_documents": "Kårens styrdokument",
-  "documents_governing_not_finding_outro": ". Kanske hittar du det du letar efter där?"
+  "documents_governing_not_finding_outro": ". Kanske hittar du det du letar efter där?",
+  "applicant": "Sökande",
+  "nollning_nav_picture_title": "Nollningen 2025",
+  "nollning_theme": "En nollning från himlavalvet",
+  "nav_applicant_description": "Mer information om de olika programmen under D-sektionen",
+  "nav_nollning": "Nollningen",
+  "nav_nollning_description": "Ett sammanhang inom vilket du kan lära känna studentlivet och nya människor",
+  "nav_about_guild": "Om sektionen",
+  "nav_about_guild_desc": "Sektionen består av 15 olika utskott, varav de flesta leds av en styrelsemedlem",
+  "nav_news_feed": "Nyhetsflöde",
+  "nav_news_feed_desc": "Se de senaste nyheterna på D-sektionen.",
+  "nav_events": "Evenemang",
+  "nav_events_desc": "Se aktuella evenemang på D-sektionen.",
+  "nav_guild": "Sektionen",
+  "nav_board": "Styrelsen",
+  "nav_board_desc": "Något bra om styrelsen",
+  "documents_desc": "Läs styr- och mötesdokument."
 }
