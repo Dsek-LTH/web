@@ -2,6 +2,7 @@
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
+@custom-variant aria-invalid (&[aria-invalid="true"]);
 
 :root {
   --background: oklch(1 0 0); /* TODO: change to 100% white */
