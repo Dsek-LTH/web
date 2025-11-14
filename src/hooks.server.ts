@@ -55,7 +55,10 @@ const { handle: authHandle } = SvelteKitAuth({
     }),
   ],
   callbacks: {
-    jwt({ token, user }) {
+    jwt({ token, user, account }) {
+      if (account) {
+        token["id_token"] = account.id_token;
+      }
       if (user) {
         token.student_id = user.student_id;
         token.group_list = user.group_list ?? [];
