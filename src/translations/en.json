@@ -860,5 +860,17 @@
   "positions_all_positions": "See all positions",
   "positions_historical_mandate_distribution_per_study_year": "Historical mandate distribution per study year",
   "positions_study_year": "Year",
-  "positions_years": "years"
+  "positions_years": "years",
+  "applicant": "Applicant",
+  "nollning_nav_picture_title": "Introduction 2025",
+  "nollning_theme": "An Introduction from the Celistial Sphere",
+  "nav_applicant_description": "More information about the different programs under the D-guild.",
+  "nav_nollning": "The Introduction Period",
+  "nav_nollning_description": "A context where you can learn about the student life and get to know new people.",
+  "nav_about_guild": "About the guild",
+  "nav_about_guild_desc": "The guild consists of 15 different committees, most of which are lead by a board member",
+  "nav_guild": "The Guild",
+  "nav_board": "The Board",
+  "nav_board_desc": "Something good about the board.",
+  "documents_desc": "Read governing- and meeting-documents."
 }
