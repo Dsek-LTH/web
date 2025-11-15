@@ -18,33 +18,13 @@ import (
 var (
 	JWKSEndpoint = os.Getenv("JWKS_ENDPOINT")
 	JWTIssuer    = os.Getenv("JWT_ISSUER")
+	JWTAudience  = os.Getenv("JWT_AUDIENCE")
 )
 
 var cachedJWKS jwk.Set
 
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		stringToken := r.Header.Get("Authorization")
-
-		const bearerPrefix = "Bearer "
-		if !strings.HasPrefix(stringToken, bearerPrefix) {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-
-			return
-		}
-
-		stringToken = strings.TrimPrefix(stringToken, bearerPrefix)
-
-		query := r.URL.Query()
-		audience := query.Get("audience")
-		subject := query.Get("subject")
-
-		if subject == "" {
-			http.Error(w, "Missing subject query parameter", http.StatusBadRequest)
-
-			return
-		}
-
 		if cachedJWKS == nil {
 			if err := createJWKCache(); err != nil {
 				log.Printf("Failed to create JWK cache: %s", err)
@@ -57,11 +37,10 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		parseOptions := []jwt.ParseOption{
 			jwt.WithKeySet(cachedJWKS),
 			jwt.WithIssuer(JWTIssuer),
-			jwt.WithAudience(audience),
-			jwt.WithSubject(subject),
+			jwt.WithAudience(JWTAudience),
 		}
 
-		if _, err := jwt.Parse([]byte(stringToken), parseOptions...); err != nil {
+		if _, err := jwt.Parse([]byte(getTokenFromHeader(r)), parseOptions...); err != nil {
 			log.Printf("Failed to parse JWT: %s", err)
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 
@@ -70,6 +49,19 @@ func AuthMiddleware(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r)
 	})
+}
+
+func getTokenFromHeader(r *http.Request) string {
+	stringToken := r.Header.Get("Authorization")
+
+	const bearerPrefix = "Bearer "
+	if !strings.HasPrefix(stringToken, bearerPrefix) {
+		return ""
+	}
+
+	stringToken = strings.TrimPrefix(stringToken, bearerPrefix)
+
+	return stringToken
 }
 
 func createJWKCache() error {

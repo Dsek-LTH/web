@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/lestrrat-go/jwx/v3/jwt"
 	"gorm.io/gorm"
 )
 
@@ -42,6 +43,7 @@ func handlePost(w http.ResponseWriter, r *http.Request) {
 
 	if data.Password != os.Getenv("PASSWORD") {
 		log.Printf("Unauthorised access attempt from %s with password: %s", r.RemoteAddr, data.Password)
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 
 		return
 	}
@@ -78,19 +80,21 @@ func handlePost(w http.ResponseWriter, r *http.Request) {
 func handleGet(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	password := query.Get("password")
-	subject := query.Get("subject")
-
-	if password == "" || subject == "" {
-		http.Error(w, "Missing query parameters", http.StatusBadRequest)
-
-		return
-	}
 
 	if password != os.Getenv("PASSWORD") {
 		log.Printf("Unauthorised access attempt from %s with password: %s", r.RemoteAddr, password)
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 
 		return
 	}
+
+	parsedToken, err := jwt.Parse([]byte(getTokenFromHeader(r)), jwt.WithVerify(false))
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+
+		return
+	}
+	subject, _ := parsedToken.Subject()
 
 	tasks, err := gorm.G[ScheduledTask](db).Where("created_by = ?", subject).Find(r.Context())
 	if err != nil {
