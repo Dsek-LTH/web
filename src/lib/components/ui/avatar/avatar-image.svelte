@@ -12,6 +12,9 @@
 <AvatarPrimitive.Image
   bind:ref
   data-slot="avatar-image"
-  class={cn("aspect-square size-full", className)}
+  class={cn(
+    "border-secondary-background aspect-square size-full rounded-full border-[1px]",
+    className,
+  )}
   {...restProps}
 />
