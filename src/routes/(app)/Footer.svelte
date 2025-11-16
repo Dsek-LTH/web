@@ -6,6 +6,7 @@
   import ExternalLink from "@lucide/svelte/icons/external-link";
   import ChevronDown from "@lucide/svelte/icons/chevron-down";
   import ChevronRight from "@lucide/svelte/icons/chevron-right";
+  import * as m from "$paraglide/messages";
 </script>
 
 <div
@@ -45,11 +46,12 @@
         >
       </div>
       <div class="hidden flex-row justify-between *:mx-7 md:flex">
-        <span>D-sektionen inom TLTH<br />Box 118<br />221 00 Lund</span>
-        <span
-          >iDét, E-husets källare<br />Kommunikationsvägen 2A<br />223 63 Lund</span
-        >
-        <span>Organisationsnummer<br />845003-2878</span>
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+        <span>{@html m.nav_postal_address()}</span>
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+        <span>{@html m.nav_visitor_address()}</span>
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+        <span>{@html m.nav_organisation_number()}</span>
       </div>
     </section>
   </div>
@@ -176,6 +178,29 @@
         </div>
       </details>
     {/each}
+    <details class="group my-1 w-full text-left">
+      <summary class="cursor-pointer list-none">
+        <ChevronRight
+          class="text-muted-foreground mb-[10px]  inline group-open:hidden"
+        />
+        <ChevronDown
+          class="text-muted-foreground mb-[10px] hidden group-open:inline"
+        />
+        <h3 class="underline-none text-foreground mb-1 inline font-medium">
+          {m.nav_address()}
+        </h3>
+      </summary>
+      <div class="flex flex-col">
+        <div class="flex flex-col justify-between *:mx-7 *:mb-3">
+          <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+          <span>{@html m.nav_postal_address()}</span>
+          <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+          <span>{@html m.nav_visitor_address()}</span>
+          <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+          <span>{@html m.nav_organisation_number()}</span>
+        </div>
+      </div>
+    </details>
   </div>
 {/snippet}
 
