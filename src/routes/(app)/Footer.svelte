@@ -5,6 +5,7 @@
   import { getFooterRoutes } from "../routes";
   import ExternalLink from "@lucide/svelte/icons/external-link";
   import ChevronDown from "@lucide/svelte/icons/chevron-down";
+  import ChevronRight from "@lucide/svelte/icons/chevron-right";
 </script>
 
 <div
@@ -149,9 +150,14 @@
     class={twMerge(klass, "flex flex-col justify-between *:mx-4 lg:flex-row")}
   >
     {#each getFooterRoutes() as route (route.title)}
-      <details class="my-1 w-50 text-left">
+      <details class="group my-1 w-50 text-left">
         <summary class="cursor-pointer list-none">
-          <ChevronDown class="text-muted-foreground  mb-[10px] inline" />
+          <ChevronRight
+            class="text-muted-foreground mb-[10px]  inline group-open:hidden"
+          />
+          <ChevronDown
+            class="text-muted-foreground mb-[10px] hidden group-open:inline"
+          />
           <h3 class="underline-none text-foreground mb-1 inline font-medium">
             {route.title}
           </h3>
@@ -160,7 +166,7 @@
           {#each route.children as child (child.title)}
             <a
               href={child.path}
-              class="text-muted-foreground my-[1px] no-underline"
+              class="text-muted-foreground my-[2px] ml-3 no-underline"
             >
               {child.title}{#if child.path?.startsWith("https://")}
                 <ExternalLink class="mb-[4px] inline h-[0.8lh]" />
