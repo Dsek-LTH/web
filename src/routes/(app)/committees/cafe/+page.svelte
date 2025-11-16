@@ -4,6 +4,7 @@
   import { languageTag } from "$paraglide/runtime";
 
   import CommitteePage from "../CommitteePage.svelte";
+  import CafeBookingCalendar from "./CafeBookingCalendar.svelte";
   import type { PageData } from "./$types";
   export let data: PageData;
   let isEditing = false;
@@ -18,8 +19,6 @@
       weekday: "long",
     });
   };
-
-  const weekDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 </script>
 
 <CommitteePage {data} {isEditing}>
@@ -100,45 +99,10 @@
   {/snippet}
 
   {#snippet main()}
-    <!-- The bg-zinc here is very ugly, but I couldn't find better fitting colours...-->
-    <div
-      class="m:2 i-mdi-border-radius:25px relative col-span-2 grid gap-2 rounded-lg border border-primary bg-zinc-300 dark:bg-zinc-800"
-    >
-      <div class="flex flex-wrap gap-2 p-2">
-        <p>{m.booking_week()} 45</p>
-      </div>
-      <div class="grid grid-cols-1 gap-2 p-2 md:grid-cols-5">
-        {#each weekDays as day}
-          <div class="m-1 grid rounded bg-base-200 p-2">
-            <p class="flex gap-1 font-medium">{day}</p>
-            <p class="flex gap-1 font-bold text-primary">Dagis:</p>
-            <div
-              class=" m-1 rounded border-2 border-t border-base-300 bg-base-300 p-2"
-            >
-              field here
-            </div>
-            <hr class="mb-2 mt-2 border-base-content" />
-            <p class="flex gap-1 font-medium">kl 11-12</p>
-            <div
-              class=" m-1 rounded border-2 border-t border-base-300 bg-base-300 p-2"
-            >
-              field here
-            </div>
-            <div
-              class=" m-1 rounded border-2 border-t border-base-300 bg-base-300 p-2"
-            >
-              field here
-            </div>
-            <hr class="mb-2 mt-2 border-base-content" />
-            <p class="flex gap-1 font-medium">kl 12-13</p>
-            <div
-              class=" m-1 rounded border-2 border-t border-base-300 bg-base-300 p-2"
-            >
-              field here
-            </div>
-          </div>
-        {/each}
-      </div>
+    <div>
+      <button class="btn join-item" aria-label="go to previous week">«</button>
+      <CafeBookingCalendar week="42" />
+      <button class="btn join-item" aria-label="go to next week">»</button>
     </div>
   {/snippet}
 </CommitteePage>
