@@ -169,10 +169,6 @@
     @apply font-sans text-[12px] leading-[16px] font-semibold;
   }
 
-  a {
-    @apply text-rosa-background hover:text-rosa-hover underline underline-offset-4 transition-colors;
-  }
-
   blockquote {
     @apply border-l pl-4 italic;
   }
@@ -204,4 +200,8 @@
   .layout-container {
     @apply container mx-auto px-4 py-8 xl:px-32;
   }
+}
+
+@utility link {
+  @apply text-rosa-background hover:text-rosa-hover underline underline-offset-4 transition-colors;
 }
