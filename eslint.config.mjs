@@ -108,6 +108,9 @@ export default [
           default: "array-simple",
         },
       ],
+
+      // TODO: turn on after upgrading to SvelteKit >= 2.26
+      "svelte/no-navigation-without-resolve": ["error", { ignoreLinks: true }],
     },
   },
   {
