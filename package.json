@@ -150,7 +150,7 @@
       "@prisma/internals@5.14.0-dev.34": "^6.0.0"
     },
     "patchedDependencies": {
-      "devalue@5.1.1": "patches/devalue@5.1.1.patch"
+      "devalue@5.5.0": "patches/devalue@5.5.0.patch"
     }
   }
 }
