@@ -13,32 +13,12 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   const doorAccessPolicies = await prisma.doorAccessPolicy.findMany({
     where: {
       doorName: params.slug,
-      OR: [
-        {
-          endDatetime: {
-            gte: new Date(),
-          },
-        },
-        {
-          endDatetime: null,
-        },
-      ],
+      OR: [{ endDatetime: { gte: new Date() } }, { endDatetime: null }],
     },
-    include: {
-      member: true,
-    },
-    orderBy: [
-      {
-        startDatetime: "asc",
-      },
-      {
-        role: "asc",
-      },
-      {
-        studentId: "asc",
-      },
-    ],
+    include: { member: true },
+    orderBy: [{ startDatetime: "asc" }, { role: "asc" }, { studentId: "asc" }],
   });
+
   return {
     doorAccessPolicies,
     createForm: await superValidate(zod4(createSchema), { id: "createForm" }),
