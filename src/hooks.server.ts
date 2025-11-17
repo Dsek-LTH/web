@@ -95,8 +95,17 @@ const { handle: authHandle } = SvelteKitAuth({
 });
 
 const databaseHandle: Handle = async ({ event, resolve }) => {
+  const session = await event.locals.getSession();
+  const studentId = session?.user.student_id;
+
   const aClient = authorizedPrismaClient;
-  const member = aClient.Member;
+  let member;
+  if (studentId) {
+    member = await aClient.member.findUnique({
+      where: { studentId },
+      select: { language: true },
+    });
+  }
 
   const lang =
     member?.language && isAvailableLanguageTag(member.language)
@@ -105,7 +114,6 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
   event.locals.language = lang;
   setLanguageTag(lang);
 
-  const session = await event.locals.getSession();
   const prisma = getExtendedPrismaClient(lang, session?.user.student_id);
 
   if (!session?.user) {
