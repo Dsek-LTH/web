@@ -17,7 +17,6 @@ import type { Actions, PageServerLoad } from "./$types";
 import { sendPing } from "./pings";
 import { dateToSemester } from "$lib/utils/semesters";
 import { memberMedals } from "$lib/server/medals/medals";
-import { setLanguageTag, languageTag } from "$paraglide/runtime";
 
 export const load: PageServerLoad = async ({ locals, params, cookies }) => {
   const { prisma, user } = locals;
