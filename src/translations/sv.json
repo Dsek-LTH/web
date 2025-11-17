@@ -892,5 +892,6 @@
   "nav_organisation_number": "Organisationsnummer<br />845003-2878",
   "editor_words": "ord",
   "editor_chars": "tecken",
-  "editor_markdown_help": "Markdown-hjälp"
+  "editor_markdown_help": "Markdown-hjälp",
+  "dialog_close": "Stäng"
 }

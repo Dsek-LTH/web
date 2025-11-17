@@ -878,7 +878,7 @@
   "nav_footer_lunduni": "Lund University",
   "nav_trivia": "Trivia",
   "nav_studybank": "Study bank",
-  "nav_songbook": "Songbook",
+  "nav_songbook": "Song book",
   "nav_documents": "Documents",
   "nav_engage_yourself": "Become a volunteer",
   "nav_volunteer_benefits": "Volunteer benefits",
@@ -886,7 +886,11 @@
   "nav_for_companies": "For companies",
   "nav_contact_details": "Contact details",
   "nav_address": "Address",
+  "nav_postal_address": "D-sektionen inom TLTH<br />Box 118<br />221 00 Lund",
+  "nav_visitor_address": "iDét, E-husets källare<br />Kommunikationsvägen 2A<br />223 63 Lund",
+  "nav_organisation_number": "Organisationsnummer<br />845003-2878",
   "editor_words": "words",
   "editor_chars": "characters",
-  "editor_markdown_help": "Markdown help"
+  "editor_markdown_help": "Markdown help",
+  "dialog_close": "Close"
 }
