@@ -588,6 +588,7 @@
   "members_nickname_explanation": "Max 60 tecken, resten kommer trunkeras",
   "members_lastName": "Efternamn",
   "members_programme": "Program",
+  "members_language": "Språk",
   "members_year": "År",
   "members_graduationYear": "Examensår",
   "members_hasGraduated": "Har tagit examen",

@@ -591,6 +591,7 @@
   "members_nickname_explanation": "Max 60 characters, the rest is truncated",
   "members_lastName": "Last name",
   "members_programme": "Programme",
+  "members_language": "Language",
   "members_year": "Year",
   "members_graduationYear": "Graduation year",
   "members_hasGraduated": "Has graduated",
