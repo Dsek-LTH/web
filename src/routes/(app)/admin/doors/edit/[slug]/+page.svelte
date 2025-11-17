@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { PageProps } from "./$types";
   import { page } from "$app/state";
+  import { enhance as svEnhance } from "$app/forms";
   import {
     Card,
     CardContent,
@@ -21,6 +22,16 @@
   import TrashIcon from "@lucide/svelte/icons/trash";
   import { getFullName } from "$lib/utils/client/member";
   import { Badge } from "$lib/components/ui/badge";
+  import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+  } from "$lib/components/ui/alert-dialog";
 
   let { data }: PageProps = $props();
   let policies = $derived(data.doorAccessPolicies);
@@ -43,6 +54,10 @@
     const found = modes.find((m) => m.value === $form.mode);
     return found ? found.label : "Choose mode";
   });
+
+  let open = $state(false);
+  let selectedPolicy: (typeof data)["doorAccessPolicies"][number] | null =
+    $state(null);
 </script>
 
 <div class="space-y-6">
@@ -205,12 +220,18 @@
                   </p>
                 {/if}
               </div>
-              <form method="POST" action="?/delete" class="ml-4">
-                <input type="hidden" name="id" value={policy.id} />
-                <Button type="submit" size="icon" aria-label="Delete">
-                  <TrashIcon />
-                </Button>
-              </form>
+
+              <Button
+                type="submit"
+                size="icon"
+                aria-label="Delete"
+                onclick={() => {
+                  open = true;
+                  selectedPolicy = policy;
+                }}
+              >
+                <TrashIcon />
+              </Button>
             </li>
           {/each}
         </ul>
@@ -218,3 +239,34 @@
     {/if}
   </Card>
 </div>
+
+<!-- Delete dialog -->
+<AlertDialog bind:open>
+  {#if selectedPolicy}
+    <AlertDialogContent>
+      <AlertDialogHeader>
+        <AlertDialogTitle>Ta bort åtkomstregel</AlertDialogTitle>
+        <AlertDialogDescription>
+          Är du säher på att du vill ta bort åtkomstregeln för <b>
+            {selectedPolicy.role || getFullName(selectedPolicy.member!)}
+          </b>
+          till <b>{selectedPolicy.doorName}</b>?
+        </AlertDialogDescription>
+      </AlertDialogHeader>
+      <AlertDialogFooter>
+        <AlertDialogCancel>Cancel</AlertDialogCancel>
+        <form
+          method="POST"
+          action="?/delete"
+          class="contents"
+          use:svEnhance={() => {
+            open = false;
+          }}
+        >
+          <input type="hidden" name="id" value={selectedPolicy.id} />
+          <AlertDialogAction type="submit">Continue</AlertDialogAction>
+        </form>
+      </AlertDialogFooter>
+    </AlertDialogContent>
+  {/if}
+</AlertDialog>
