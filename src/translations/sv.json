@@ -6,6 +6,8 @@
   "save": "Spara",
   "cancel": "Avbryt",
   "ok": "Ok",
+  "language_english": "Engelska",
+  "language_swedish": "Svenska",
   "errors_notImplemented": "Inte implementerat än",
   "errors_missingPermissions": "Du har inte access, har du loggat in? Policy som krävs:",
   "home": "Hem",

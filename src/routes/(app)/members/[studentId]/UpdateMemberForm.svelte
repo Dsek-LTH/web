@@ -12,6 +12,8 @@
   import apiNames from "$lib/utils/apiNames";
   import { page } from "$app/state";
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+  import { goto } from "$app/navigation";
+  import { i18n } from "$lib/utils/i18n";
 
   interface PageProps {
     isEditing: boolean;
@@ -22,9 +24,11 @@
   let { isEditing = $bindable(), phadderGroups, data }: PageProps = $props();
 
   const superform = superForm<UpdateSchema>(data, {
-    onResult: (event) => {
+    onResult: async (event) => {
       if (event.result.type === "success") {
         isEditing = false;
+        const language = event.result.data?.["form"]["data"]["language"];
+        await goto(i18n.resolveRoute(i18n.route(page.url.pathname), language));
       }
     },
   });
@@ -70,11 +74,7 @@
     error={$errors.foodPreference}
     {...$constraints.foodPreference}
   />
-  <Labeled
-    label={m.members_language()}
-    error={$errors.language}
-    fullWidth
-  >
+  <Labeled label={m.members_language()} error={$errors.language} fullWidth>
     <select
       id="language"
       name="language"
@@ -83,7 +83,7 @@
       {...$constraints.language}
     >
       {#each languages as language (language.id)}
-        <option value={language.id}>{language.name}</option>
+        <option value={language.id}>{language.name()}</option>
       {/each}
     </select>
   </Labeled>

@@ -6,6 +6,8 @@
   "save": "Save",
   "cancel": "Cancel",
   "ok": "Ok",
+  "language_english": "English",
+  "language_swedish": "Swedish",
   "errors_notImplemented": "Not implemented yet",
   "errors_missingPermissions": "You do not have permission, have you logged in? Required policy:",
   "home": "Home",

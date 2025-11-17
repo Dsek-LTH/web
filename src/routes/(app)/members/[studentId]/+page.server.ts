@@ -17,6 +17,7 @@ import type { Actions, PageServerLoad } from "./$types";
 import { sendPing } from "./pings";
 import { dateToSemester } from "$lib/utils/semesters";
 import { memberMedals } from "$lib/server/medals/medals";
+import { setLanguageTag, languageTag } from "$paraglide/runtime";
 
 export const load: PageServerLoad = async ({ locals, params, cookies }) => {
   const { prisma, user } = locals;
@@ -185,30 +186,6 @@ export const actions: Actions = {
       type: "success",
     });
   },
-  updateLanguage: async ({ params, locals, request }) => {
-    const { prisma } = locals;
-
-    const form = await superValidate(
-      request,
-      zod(z.object({ language: z.string() })),
-    );
-
-    if (!form.valid) return fail(400, { form });
-
-    const { studentId } = params;
-
-    await prisma.member.update({
-      where: { studentId },
-      data: {
-        language: form.data["language"] as string | null,
-      },
-    });
-
-    return message(form, {
-      message: "Språk uppdaterat!",
-      type: "success",
-    });
-  },
   updatePhadderGroup: async ({ params, locals, request, cookies }) => {
     const { prisma } = locals;
     const form = await superValidate(request, zod(phadderGroupSchema));
@@ -253,6 +230,7 @@ export const actions: Actions = {
         ...form.data,
       },
     });
+
     authentik.updateProfile(
       studentId,
       form.data.firstName ?? "",
