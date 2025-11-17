@@ -27,6 +27,8 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   };
 };
 
+// TODO: require reason and end date for member rules
+// TODO: don't allow banning groups since this is not implemented
 const createSchema = z
   .object({
     subject: z.string().min(1),
