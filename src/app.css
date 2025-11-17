@@ -23,6 +23,8 @@
   --secondary-background: oklch(1 0 0);
   --secondary-foreground: oklch(14.1% 0.005 285.823);
   --secondary-hover: oklch(96.7% 0.001 286.375);
+  --accent: oklch(0.967 0.001 286.375);
+  --accent-foreground: oklch(0.21 0.006 285.885);
 }
 
 .dark {
@@ -44,6 +46,8 @@
   --secondary-background: oklch(0 0 0);
   --secondary-foreground: oklch(98.5% 0 0);
   --secondary-hover: oklch(21% 0.006 285.885);
+  --accent: oklch(0.274 0.006 286.033);
+  --accent-foreground: oklch(0.985 0 0);
 }
 
 @font-face {
@@ -79,8 +83,12 @@
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-popover: var(--background);
+  --color-popover-foreground: var(--foreground);
   --color-muted-background: var(--muted-background);
   --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
   --color-border: var(--border);
   --color-ring: var(--ring);
   --color-rosa-background: var(--rosa-background);
