@@ -1,15 +1,8 @@
 diff --git a/src/stringify.js b/src/stringify.js
-index df291fdf1a10d076dae1cb2dcdb717b2c9fd042f..78af3d852e64e7f1a1e1b31062bdab6217d01cf6 100644
+index 602ac1dce940a8aae8cbb0a6460d15b86447c2f9..e7fe8c4d189c39640318ce56204036970438a016 100644
 --- a/src/stringify.js
 +++ b/src/stringify.js
-@@ -1,6 +1,5 @@
- import {
- 	DevalueError,
--	enumerable_symbols,
- 	get_type,
- 	is_plain_object,
- 	is_primitive,
-@@ -175,13 +174,6 @@ export function stringify(value, reducers) {
+@@ -204,13 +204,6 @@ export function stringify(value, reducers) {
  						);
  					}
  
@@ -24,17 +17,10 @@ index df291fdf1a10d076dae1cb2dcdb717b2c9fd042f..78af3d852e64e7f1a1e1b31062bdab62
  						str = '["null"';
  						for (const key in thing) {
 diff --git a/src/uneval.js b/src/uneval.js
-index ce3ef34aee0ed12405c8b72d0dbee13cb02f8825..dbde0b82758e8846f40be687081aca5456b8316e 100644
+index 6656bd4a27406210fc76941c2dd018dc8695fd4d..87d37aebab4157ee87f74874e254d8207d5c773a 100644
 --- a/src/uneval.js
 +++ b/src/uneval.js
-@@ -1,6 +1,5 @@
- import {
- 	DevalueError,
--	enumerable_symbols,
- 	escaped,
- 	get_type,
- 	is_plain_object,
-@@ -107,13 +106,6 @@ export function uneval(value, replacer) {
+@@ -120,13 +120,6 @@ export function uneval(value, replacer) {
  						);
  					}
  
