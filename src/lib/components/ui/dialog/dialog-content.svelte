@@ -4,7 +4,7 @@
   import type { Snippet } from "svelte";
   import * as Dialog from "./index.js";
   import { cn, type WithoutChildrenOrChild } from "$lib/utils.js";
-  import * as m from "@paraglide/messages";
+  import * as m from "$paraglide/messages";
 
   let {
     ref = $bindable(null),

@@ -6,7 +6,7 @@
   export let committee: Pick<
     ExtendedPrismaModel<"Committee">,
     "darkImageUrl" | "lightImageUrl" | "monoImageUrl" | "nameSv"
-  >;
+  > | null;
   export let useMono = false;
 
   const FALLBACK = {
@@ -38,21 +38,21 @@
 
 {#if useMono}
   <img
-    src={getFileUrl(committee.monoImageUrl) ?? FALLBACK.mono}
-    alt="{committee.nameSv} icon"
+    src={getFileUrl(committee?.monoImageUrl) ?? FALLBACK.mono}
+    alt="{committee?.nameSv} icon"
     on:error={onError(FALLBACK.mono)}
   />
 {:else}
   <!-- dark/light support -->
   <img
-    src={getFileUrl(committee.darkImageUrl) ?? FALLBACK.color}
-    alt="{committee.nameSv} icon"
+    src={getFileUrl(committee?.darkImageUrl) ?? FALLBACK.color}
+    alt="{committee?.nameSv} icon"
     class="hidden dark:block"
     on:error={onError(FALLBACK.color)}
   />
   <img
-    src={getFileUrl(committee.lightImageUrl) ?? FALLBACK.color}
-    alt="{committee.nameSv} icon"
+    src={getFileUrl(committee?.lightImageUrl) ?? FALLBACK.color}
+    alt="{committee?.nameSv} icon"
     class="block dark:hidden"
     on:error={onError(FALLBACK.color)}
   />
