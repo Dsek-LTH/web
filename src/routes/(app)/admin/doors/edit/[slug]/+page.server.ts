@@ -1,10 +1,11 @@
 import apiNames from "$lib/utils/apiNames";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
-import { message, setError, superValidate } from "sveltekit-superforms/server";
+import { message, superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { fail } from "@sveltejs/kit";
 import { authorize } from "$lib/utils/authorization";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
@@ -21,23 +22,43 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
   return {
     doorAccessPolicies,
-    createForm: await superValidate(zod4(createSchema), { id: "createForm" }),
-    banForm: await superValidate(zod4(createSchema), { id: "banForm" }),
+    createForm: await superValidate(zod4(createSchema)),
     deleteForm: await superValidate(zod4(deleteSchema)),
   };
 };
 
 const createSchema = z
   .object({
-    studentId: z.string().min(1).optional(),
-    role: z.string().min(1).optional(),
+    subject: z.string().min(1),
+    type: z.enum(["member", "role"]).default("member"),
+    mode: z.enum(["allow", "deny"]).default("allow"),
     startDatetime: z.date().optional(),
     endDatetime: z.date().optional(),
-    information: z.string().optional(),
+    reason: z.string().optional(),
   })
-  .refine((data) => data.studentId != null || data.role != null, {
-    message: "Du måste ange roll eller student id",
-  });
+  .refine(
+    (data) => (data.startDatetime ?? 0) < (data.endDatetime ?? Infinity),
+    {
+      message: "Slutdatum kan inte vara före startdatum",
+      path: ["endDatetime"],
+    },
+  )
+  .refine(
+    async ({ type, subject }) => {
+      if (type === "member") {
+        // check if member exists
+        return await authorizedPrismaClient.member.findFirst({
+          where: { studentId: subject },
+        });
+      } else {
+        // check if role exists
+        return await authorizedPrismaClient.position.findFirst({
+          where: { id: { startsWith: `${subject}%` } },
+        });
+      }
+    },
+    { message: "Medlemmen/rollen finns inte", path: ["subject"] },
+  );
 
 const deleteSchema = z.object({
   id: z.string(),
@@ -49,47 +70,18 @@ export const actions: Actions = {
     const form = await superValidate(request, zod4(createSchema));
     if (!form.valid) return fail(400, { form });
     const doorName = params.slug;
-    const { studentId } = form.data;
-    if (
-      studentId &&
-      (await prisma.member.count({
-        where: { studentId },
-      })) <= 0
-    ) {
-      return setError(form, "studentId", "Medlemmen finns inte");
-    }
+    const { mode, subject, type, startDatetime, endDatetime } = form.data;
+
     await prisma.doorAccessPolicy.create({
       data: {
         doorName,
-        ...form.data,
+        startDatetime,
+        endDatetime,
+        isBan: mode === "deny",
+        ...(type === "member" ? { studentId: subject } : { role: subject }),
       },
     });
-    return message(form, {
-      message: "Dörrpolicy skapad",
-      type: "success",
-    });
-  },
-  ban: async ({ request, locals, params }) => {
-    const { prisma } = locals;
-    const form = await superValidate(request, zod4(createSchema));
-    if (!form.valid) return fail(400, { form });
-    const doorName = params.slug;
-    const { studentId } = form.data;
-    if (
-      studentId &&
-      (await prisma.member.count({
-        where: { studentId },
-      })) <= 0
-    ) {
-      return setError(form, "studentId", "Medlemmen finns inte");
-    }
-    await prisma.doorAccessPolicy.create({
-      data: {
-        doorName,
-        isBan: true,
-        ...form.data,
-      },
-    });
+
     return message(form, {
       message: "Dörrpolicy skapad",
       type: "success",
