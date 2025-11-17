@@ -22,7 +22,7 @@
   let words = $state(0);
 
   let {
-    value = "",
+    value = $bindable(""),
     placeholder = "Enter text here...",
     ...restProps
   }: {
