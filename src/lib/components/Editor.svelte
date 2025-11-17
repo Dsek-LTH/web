@@ -25,7 +25,10 @@
     value = "",
     placeholder = "Enter text here...",
     ...restProps
-  }: { value: string | null; placeholder: string } = $props();
+  }: {
+    value?: string;
+    placeholder?: string;
+  } = $props();
 
   function countChar() {
     chars = value?.length ?? 0;
@@ -52,6 +55,8 @@
       return;
     }
     let newpos: number;
+    const originStart = textarea.selectionStart;
+    const originEnd = textarea.selectionEnd;
     if (textarea.selectionStart != textarea.selectionEnd) {
       const before = value?.substring(0, textarea.selectionStart);
       const selection = value?.substring(
@@ -65,16 +70,26 @@
         add.length * 2 +
         textarea.selectionEnd -
         textarea.selectionStart;
+      textarea.focus();
+      setTimeout(() => {
+        textarea?.setSelectionRange(
+          originStart + add.length,
+          originEnd + add.length,
+          "forward",
+        );
+      }, 0);
     } else {
       const before = value?.substring(0, textarea.selectionStart);
       const after = value?.substring(textarea.selectionStart, value?.length);
       value = before + add + add + after;
       newpos = textarea.selectionStart + add.length;
+      textarea.focus();
+      setTimeout(() => {
+        console.log("this does not happen");
+        textarea?.setSelectionRange(newpos, newpos);
+      }, 0);
     }
-    textarea.focus();
-    setTimeout(() => {
-      textarea?.setSelectionRange(newpos, newpos);
-    }, 0);
+
     countChar();
   }
 
