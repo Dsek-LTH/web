@@ -110,7 +110,7 @@ export default [
       ],
 
       // TODO: turn on after upgrading to SvelteKit >= 2.26
-      "svelte/no-navigation-without-resolve": ["error", { ignoreLinks: true }],
+      "svelte/no-navigation-without-resolve": ["warn", { ignoreLinks: true }],
     },
   },
   {
