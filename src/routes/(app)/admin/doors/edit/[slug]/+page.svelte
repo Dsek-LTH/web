@@ -18,8 +18,12 @@
     SelectTrigger,
   } from "$lib/components/ui/select";
   import { superForm } from "$lib/utils/client/superForms";
+  import TrashIcon from "@lucide/svelte/icons/trash";
+  import { getFullName } from "$lib/utils/client/member";
+  import { Badge } from "$lib/components/ui/badge";
 
   let { data }: PageProps = $props();
+  let policies = $derived(data.doorAccessPolicies);
   const { form, errors, constraints, enhance } = superForm(data.createForm);
 
   const types = [
@@ -52,6 +56,7 @@
     </CardHeader>
     <CardContent>
       <form class="space-y-4" method="POST" action="?/create" use:enhance>
+        <!-- TODO: display toast on success and form errors on failure -->
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-4">
           <div class="space-y-2 sm:col-span-2">
             <Label for="subject">Subject</Label>
@@ -152,4 +157,64 @@
   </Card>
 
   <!-- Access policy list -->
+  <Card>
+    <CardHeader>
+      <CardTitle>Current Rules</CardTitle>
+      <CardDescription>
+        {#if policies.length === 0}
+          No access policies configured yet
+        {:else}
+          {policies.length} rule{policies.length !== 1 ? "s" : ""} configured
+        {/if}
+      </CardDescription>
+    </CardHeader>
+    {#if policies.length > 0}
+      <CardContent>
+        <ul class="m-0 space-y-3">
+          {#each policies as policy (policy.id)}
+            {@const type = policy.studentId === null ? "role" : "member"}
+            <li class="flex items-center justify-between rounded-md border p-4">
+              <div>
+                <div class="flex items-center gap-2">
+                  <p class="mt-0 font-medium">
+                    {#if type === "member"}
+                      {getFullName(policy.member!, { hideNickname: true })}
+                    {:else}
+                      {policy.role}
+                    {/if}
+                  </p>
+                  <Badge variant="outline">
+                    {#if type === "member"}
+                      Member
+                    {:else}
+                      Role
+                    {/if}
+                  </Badge>
+                  {#if policy.isBan}
+                    <Badge variant="rosa">Banned</Badge>
+                  {/if}
+                  {#if policy.endDatetime}
+                    <Badge variant="rosa">
+                      Expires {policy.endDatetime.toLocaleDateString("sv")}
+                    </Badge>
+                  {/if}
+                </div>
+                {#if policy.information}
+                  <p class="text-muted-foreground text-sm">
+                    Reason: {policy.information}
+                  </p>
+                {/if}
+              </div>
+              <form method="POST" action="?/delete" class="ml-4">
+                <input type="hidden" name="id" value={policy.id} />
+                <Button type="submit" size="icon" aria-label="Delete">
+                  <TrashIcon />
+                </Button>
+              </form>
+            </li>
+          {/each}
+        </ul>
+      </CardContent>
+    {/if}
+  </Card>
 </div>
