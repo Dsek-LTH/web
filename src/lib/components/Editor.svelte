@@ -118,7 +118,7 @@
       value = before + add + " " + after;
     }
 
-    const newpos = sel + 2;
+    const newpos = sel + add.length + 1;
     textarea.focus();
     console.log(textarea);
     setTimeout(() => {
