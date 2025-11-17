@@ -140,114 +140,114 @@
       class="border-border flex flex-row items-center justify-between border-r-[1px] *:mx-[12px] *:size-4 *:cursor-pointer"
     >
       <Heading
-        aria-label="Heading"
+        aria-label={m.editor_heading()}
         role="button"
         onclick={() => {
           addMdPrepend("#");
-        }}><title>Heading</title></Heading
+        }}><title>{m.editor_heading()}</title></Heading
       >
       <Bold
-        aria-label="Bold"
+        aria-label={m.editor_bold()}
         role="button"
         onclick={() => {
           addMdOutline("**");
-        }}><title>Bold</title></Bold
+        }}><title>{m.editor_bold()}</title></Bold
       >
       <Italic
-        aria-label="Italic"
+        aria-label={m.editor_italic()}
         role="button"
         onclick={() => {
           addMdOutline("*");
-        }}><title>Italic</title></Italic
+        }}><title>{m.editor_italic()}</title></Italic
       >
       <Strikethrough
-        aria-label="Strikethrough"
+        aria-label={m.editor_strikethrough()}
         role="button"
         onclick={() => {
           addMdOutline("~~");
-        }}><title>Strikethrough</title></Strikethrough
+        }}><title>{m.editor_strikethrough()}</title></Strikethrough
       >
     </div>
     <div
       class="border-border flex flex-row items-center justify-between border-r-[1px] *:mx-[12px] *:size-4 *:cursor-pointer"
     >
       <Image
-        aria-label="Image"
+        aria-label={m.editor_image()}
         role="button"
         onclick={() => {
           addMdAfter("![Image title](https://image url here)");
-        }}><title>Image</title></Image
+        }}><title>{m.editor_image()}</title></Image
       >
 
       <Link
-        aria-label="Link"
+        aria-label={m.editor_link()}
         role="button"
         onclick={() => {
           addMdAfter("[Example](https://example.com)");
-        }}><title>Link</title></Link
+        }}><title>{m.editor_link()}</title></Link
       >
       <Code
-        aria-label="Inline code"
+        aria-label={m.editor_inlinecode()}
         role="button"
         onclick={() => {
           addMdOutline("`");
-        }}><title>Inline code</title></Code
+        }}><title>{m.editor_inlinecode()}</title></Code
       >
       <SquareCode
-        aria-label="Code block"
+        aria-label={m.editor_codeblock()}
         role="button"
         onclick={() => {
           addMdOutline("```\n\n");
-        }}><title>Code block</title></SquareCode
+        }}><title>{m.editor_codeblock()}</title></SquareCode
       >
       <Table
-        aria-label="Table"
+        aria-label={m.editor_table()}
         role="button"
         onclick={() => {
           addMdAfter(`| Label      | Data |
 | ----------- | ----------- |
 | One      | Three           |
 | Two      | Four       |`);
-        }}><title>Table</title></Table
+        }}><title>{m.editor_table()}</title></Table
       >
       <TextQuote
-        aria-label="Quote"
+        aria-label={m.editor_quote()}
         role="button"
         onclick={() => {
           addMdPrepend(">");
-        }}><title>Quote</title></TextQuote
+        }}><title>{m.editor_quote()}</title></TextQuote
       >
       <Minus
-        aria-label="Separator"
+        aria-label={m.editor_separator()}
         role="button"
         onclick={() => {
           addMdPrepend("***");
-        }}><title>Horizontal separator</title></Minus
+        }}><title>{m.editor_separator()}</title></Minus
       >
     </div>
     <div
       class="border-border flex flex-row items-center justify-between border-r-[1px] *:mx-[12px] *:size-4 *:cursor-pointer"
     >
       <List
-        aria-label="Unordered list"
+        aria-label={m.editor_ulist()}
         role="button"
         onclick={() => {
           addMdAfter("- one\n- two\n- three");
-        }}><title>Unordered list</title></List
+        }}><title>{m.editor_ulist()}</title></List
       >
       <ListOrdered
-        aria-label="Ordered list"
+        aria-label={m.editor_olist()}
         role="button"
         onclick={() => {
           addMdAfter("1. one\n2. two\n3. three");
-        }}><title>Ordered list</title></ListOrdered
+        }}><title>{m.editor_olist()}</title></ListOrdered
       >
       <ListTodo
-        aria-label="Todo list"
+        aria-label={m.editor_tasklist()}
         role="button"
         onclick={() => {
           addMdAfter("- [x] one\n- [ ] two\n- [ ] three");
-        }}><title>Todo list</title></ListTodo
+        }}><title>{m.editor_tasklist()}</title></ListTodo
       >
     </div>
   </div>
