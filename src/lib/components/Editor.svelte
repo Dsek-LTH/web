@@ -109,6 +109,9 @@
       }
     }
     rowIndexes = rowIndexes.filter((e) => e < sel);
+    if (rowIndexes.length == 0) {
+      rowIndexes.push(0);
+    }
     const begin = rowIndexes.pop();
     if (begin == 0) {
       value = add + " " + value;
