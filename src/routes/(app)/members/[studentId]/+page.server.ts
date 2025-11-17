@@ -148,6 +148,7 @@ const updateSchema = memberSchema
     classYear: true,
     graduationYear: true,
     nollningGroupId: true,
+    language: true,
   })
   .partial();
 
@@ -181,6 +182,30 @@ export const actions: Actions = {
     });
     return message(form, {
       message: m.members_memberUpdated(),
+      type: "success",
+    });
+  },
+  updateLanguage: async ({ params, locals, request }) => {
+    const { prisma } = locals;
+
+    const form = await superValidate(
+      request,
+      zod(z.object({ language: z.string() })),
+    );
+
+    if (!form.valid) return fail(400, { form });
+
+    const { studentId } = params;
+
+    await prisma.member.update({
+      where: { studentId },
+      data: {
+        language: form.data["language"] as string | null,
+      },
+    });
+
+    return message(form, {
+      message: "Språk uppdaterat!",
       type: "success",
     });
   },

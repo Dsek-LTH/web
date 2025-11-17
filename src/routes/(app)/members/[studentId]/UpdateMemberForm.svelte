@@ -4,6 +4,7 @@
   import type { SuperValidated } from "sveltekit-superforms";
   import type { UpdateSchema } from "./+page.server";
   import { programmes } from "$lib/utils/programmes";
+  import { languages } from "$lib/utils/languages";
   import { superForm } from "$lib/utils/client/superForms";
   import * as m from "$paraglide/messages";
   import FormSelect from "$lib/components/forms/FormSelect.svelte";
@@ -69,6 +70,23 @@
     error={$errors.foodPreference}
     {...$constraints.foodPreference}
   />
+  <Labeled
+    label={m.members_language()}
+    error={$errors.language}
+    fullWidth
+  >
+    <select
+      id="language"
+      name="language"
+      class="select select-bordered"
+      bind:value={$form.language}
+      {...$constraints.language}
+    >
+      {#each languages as language (language.id)}
+        <option value={language.id}>{language.name}</option>
+      {/each}
+    </select>
+  </Labeled>
   <div
     class="flex w-full flex-wrap gap-2 *:flex-1"
     class:hidden={!isAuthorized(apiNames.MEMBER.UPDATE, page.data.user)}
