@@ -123,7 +123,6 @@
 
     const newpos = sel + add.length + 1;
     textarea.focus();
-    console.log(textarea);
     setTimeout(() => {
       textarea?.setSelectionRange(newpos, newpos);
     }, 0);
