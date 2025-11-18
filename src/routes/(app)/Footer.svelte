@@ -26,7 +26,7 @@
       <aside class="mx-8 mb-4 md:mb-0">
         <div>
           <h1
-            class="text-foreground text-3xl leading-9 font-bold md:text-5xl md:leading-normal"
+            class="text-foreground text-3xl leading-9 font-bold md:text-5xl md:leading-[56px]"
           >
             Er linja,<br class="hidden md:inline" /> Er färg!
           </h1>
