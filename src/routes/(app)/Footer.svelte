@@ -209,7 +209,7 @@
         <h3 class="text-foreground mb-1">{route.title}</h3>
         {#each route.children as child (child.title)}
           <a
-            href={route.path}
+            href={child.path}
             class="text-muted-foreground my-[1px] no-underline"
           >
             {child.title}{#if child.path?.startsWith("https://")}
