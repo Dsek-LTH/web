@@ -9,6 +9,7 @@
   import "@stripe/stripe-js";
   import { setContext } from "svelte";
   import { writable } from "svelte/store";
+  import Navbar from "./Navbar.svelte";
 
   const { children, data } = $props();
 
@@ -28,5 +29,8 @@
 </svelte:head>
 
 <ParaglideJS {i18n}>
+  <nav class="contents">
+    <Navbar />
+  </nav>
   {@render children?.()}
 </ParaglideJS>
