@@ -200,7 +200,29 @@
           addMdOutline("```\n\n");
         }}><title>{m.editor_codeblock()}</title></SquareCode
       >
-      aria-label={m.editor_table()}
+      <Table
+        aria-label={m.editor_table()}
+        role="button"
+        onclick={() => {
+          addMdAfter(`| Label      | Data |
+| ----------- | ----------- |
+| One      | Three           |
+| Two      | Four       |`);
+        }}><title>{m.editor_table()}</title></Table
+      >
+      <TextQuote
+        aria-label={m.editor_quote()}
+        role="button"
+        onclick={() => {
+          addMdPrepend(">");
+        }}><title>{m.editor_quote()}</title></TextQuote
+      >
+      <Minus
+        aria-label={m.editor_separator()}
+        role="button"
+        onclick={() => {
+          addMdPrepend("***");
+        }}><title>{m.editor_separator()}</title></Minus
       >
     </div>
     <div
