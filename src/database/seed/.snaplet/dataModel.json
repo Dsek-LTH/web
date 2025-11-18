@@ -6176,6 +6176,20 @@
           "maxLength": null
         },
         {
+          "id": "public.members.language",
+          "name": "language",
+          "columnName": "language",
+          "type": "varchar",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": 255
+        },
+        {
           "name": "phadder_groups",
           "type": "phadder_groups",
           "isRequired": false,

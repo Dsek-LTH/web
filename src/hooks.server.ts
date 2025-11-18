@@ -28,6 +28,7 @@ import {
 import { verifyCostCenterData } from "./routes/(app)/expenses/verification";
 import { getExtendedPrismaClient } from "$lib/server/extendedPrisma";
 import { dev } from "$app/environment";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 
 // TODO: This function should perhaps only be called during dev? Build? I'm not sure
 if (dev) verifyCostCenterData();
@@ -94,12 +95,25 @@ const { handle: authHandle } = SvelteKitAuth({
 });
 
 const databaseHandle: Handle = async ({ event, resolve }) => {
-  const lang = isAvailableLanguageTag(event.locals.paraglide?.lang)
-    ? event.locals.paraglide?.lang
-    : sourceLanguageTag;
+  const session = await event.locals.getSession();
+  const studentId = session?.user.student_id;
+
+  const aClient = authorizedPrismaClient;
+  let member;
+  if (studentId) {
+    member = await aClient.member.findUnique({
+      where: { studentId },
+      select: { language: true },
+    });
+  }
+
+  const lang =
+    member?.language && isAvailableLanguageTag(member.language)
+      ? member.language
+      : sourceLanguageTag;
   event.locals.language = lang;
   setLanguageTag(lang);
-  const session = await event.locals.getSession();
+
   const prisma = getExtendedPrismaClient(lang, session?.user.student_id);
 
   if (!session?.user) {

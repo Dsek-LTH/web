@@ -4,6 +4,7 @@
   import type { SuperValidated } from "sveltekit-superforms";
   import type { UpdateSchema } from "./+page.server";
   import { programmes } from "$lib/utils/programmes";
+  import { languages } from "$lib/utils/languages";
   import { superForm } from "$lib/utils/client/superForms";
   import * as m from "$paraglide/messages";
   import FormSelect from "$lib/components/forms/FormSelect.svelte";
@@ -11,6 +12,8 @@
   import apiNames from "$lib/utils/apiNames";
   import { page } from "$app/state";
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+  import { goto } from "$lib/utils/redirect";
+  import { i18n } from "$lib/utils/i18n";
 
   interface PageProps {
     isEditing: boolean;
@@ -21,9 +24,11 @@
   let { isEditing = $bindable(), phadderGroups, data }: PageProps = $props();
 
   const superform = superForm<UpdateSchema>(data, {
-    onResult: (event) => {
+    onResult: async (event) => {
       if (event.result.type === "success") {
         isEditing = false;
+        const language = event.result.data?.["form"]["data"]["language"];
+        await goto(i18n.resolveRoute(i18n.route(page.url.pathname), language));
       }
     },
   });
@@ -69,6 +74,19 @@
     error={$errors.foodPreference}
     {...$constraints.foodPreference}
   />
+  <Labeled label={m.members_language()} error={$errors.language} fullWidth>
+    <select
+      id="language"
+      name="language"
+      class="select select-bordered"
+      bind:value={$form.language}
+      {...$constraints.language}
+    >
+      {#each languages as language (language.id)}
+        <option value={language.id}>{language.name()}</option>
+      {/each}
+    </select>
+  </Labeled>
   <div
     class="flex w-full flex-wrap gap-2 *:flex-1"
     class:hidden={!isAuthorized(apiNames.MEMBER.UPDATE, page.data.user)}

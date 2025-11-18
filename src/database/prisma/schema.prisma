@@ -468,6 +468,7 @@ model Member {
   graduationYear          Int?                    @map("graduation_year")
   visible                 Boolean                 @default(true)
   foodPreference          String?                 @map("food_preference") @db.VarChar(255)
+  language                String?                 @map("language") @db.VarChar(255)
   stripeCustomerId        String?                 @map("stripe_customer_id")
   nollningGroupId         String?                 @map("nollning_group_id") @db.Uuid()
   nollaIn                 PhadderGroup?           @relation(fields: [nollningGroupId], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "members_nollning_group_id_foreign")
