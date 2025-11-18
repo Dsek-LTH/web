@@ -155,7 +155,7 @@
       <details class="group my-1 w-50 text-left">
         <summary class="cursor-pointer list-none">
           <ChevronRight
-            class="text-muted-foreground mb-[10px]  inline group-open:hidden"
+            class="text-muted-foreground mb-[10px] inline group-open:hidden"
           />
           <ChevronDown
             class="text-muted-foreground mb-[10px] hidden group-open:inline"
@@ -181,7 +181,7 @@
     <details class="group my-1 w-full text-left">
       <summary class="cursor-pointer list-none">
         <ChevronRight
-          class="text-muted-foreground mb-[10px]  inline group-open:hidden"
+          class="text-muted-foreground mb-[10px] inline group-open:hidden"
         />
         <ChevronDown
           class="text-muted-foreground mb-[10px] hidden group-open:inline"
