@@ -17,7 +17,7 @@
 </script>
 
 <div
-  class="bg-muted-background text-muted-foreground flex min-w-screen flex-col justify-center"
+  class="bg-muted-background text-muted-foreground flex min-w-screen flex-col justify-center border-t-[1px]"
 >
   <div class="container mx-auto py-0 md:px-8 md:py-4 xl:px-32">
     <section
