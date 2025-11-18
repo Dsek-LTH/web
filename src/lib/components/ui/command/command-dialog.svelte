@@ -32,7 +32,7 @@
     <Dialog.Description>{description}</Dialog.Description>
   </Dialog.Header>
   <Dialog.Content
-    class="top-16 max-h-[calc(100vh-8rem)] translate-y-0 overflow-hidden"
+    class="top-16 max-h-[calc(100vh-8rem)] translate-y-0 overflow-hidden p-0"
     {portalProps}
   >
     <Command
