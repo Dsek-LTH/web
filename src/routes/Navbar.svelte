@@ -6,7 +6,7 @@
   import Search from "@lucide/svelte/icons/search";
   import Languages from "@lucide/svelte/icons/languages";
   import Bell from "@lucide/svelte/icons/bell";
-  import { getRoutes } from "../routes";
+  import { getRoutes } from "./routes";
   import { navigationMenuTriggerStyle } from "$lib/components/ui/navigation-menu/navigation-menu-trigger.svelte";
 </script>
 
