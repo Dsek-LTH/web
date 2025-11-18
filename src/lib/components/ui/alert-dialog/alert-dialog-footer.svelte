@@ -14,7 +14,7 @@
   bind:this={ref}
   data-slot="alert-dialog-footer"
   class={cn(
-    "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
+    "bg-muted-background border-border flex flex-col-reverse gap-2 rounded-b-lg border-t-[1px] py-2 pr-2 sm:flex-row sm:justify-end",
     className,
   )}
   {...restProps}
