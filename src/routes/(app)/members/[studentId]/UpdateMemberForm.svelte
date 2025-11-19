@@ -12,7 +12,7 @@
   import apiNames from "$lib/utils/apiNames";
   import { page } from "$app/state";
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
-  import { goto } from "$lib/utils/redirect";
+  import { goto } from "$app/navigation";
   import { i18n } from "$lib/utils/i18n";
 
   interface PageProps {
