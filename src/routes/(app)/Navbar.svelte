@@ -6,8 +6,11 @@
   import Search from "@lucide/svelte/icons/search";
   import Languages from "@lucide/svelte/icons/languages";
   import Bell from "@lucide/svelte/icons/bell";
-  import { getRoutes } from "./routes";
+  import { getRoutes } from "../routes";
   import { navigationMenuTriggerStyle } from "$lib/components/ui/navigation-menu/navigation-menu-trigger.svelte";
+  import { page } from "$app/state";
+  import { i18n } from "$lib/utils/i18n";
+  import { languageTag } from "$paraglide/runtime";
 </script>
 
 <div class=" flex min-w-screen flex-row justify-center border-b-[1px]">
@@ -82,11 +85,16 @@
         variant="ghost"
         class="p-1.5"><Search /></Button
       >
-      <Button
-        aria-label="languages"
-        size="icon-lg"
-        variant="ghost"
-        class="p-1.5"><Languages /></Button
+      <a
+        href={i18n.route(page.url.pathname)}
+        hreflang={languageTag() === "sv" ? "en" : "sv"}
+      >
+        <Button
+          aria-label="languages"
+          size="icon-lg"
+          variant="ghost"
+          class="p-1.5"><Languages /></Button
+        ></a
       >
       <Button
         aria-label="notifications"

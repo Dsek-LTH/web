@@ -60,6 +60,12 @@
 }
 
 @font-face {
+  font-family: "IBM Plex Sans Condensed";
+  src: url("/fonts/IBMPlexSansCondensed-Medium.ttf") format("truetype");
+  font-weight: 600;
+}
+
+@font-face {
   font-family: "JetBrains Mono";
   src: url("/fonts/JetBrainsMono-VariableFont_wght.ttf")
     format("truetype-variations");
