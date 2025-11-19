@@ -93,6 +93,126 @@ export const getRoutes = (): Route[] =>
     },
   ] as const;
 
+export const getFooterRoutes = (): Route[] =>
+  [
+    {
+      title: m.applicant(),
+      path: null,
+      accessRequired: null,
+      appBehaviour: "none",
+      children: [
+        {
+          title: m.nav_footer_nollning(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/nollning",
+        },
+        {
+          title: m.nav_footer_tlth(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "https://tlth.se",
+        },
+        {
+          title: m.nav_footer_lth(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "https://lth.se",
+        },
+        {
+          title: m.nav_footer_lunduni(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "https://lu.se",
+        },
+      ],
+    },
+    {
+      title: m.nav_guild(),
+      accessRequired: null,
+      appBehaviour: "none",
+      path: "/news",
+      children: [
+        {
+          title: m.nav_about_guild(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/news",
+        },
+        {
+          title: m.nav_trivia(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/events",
+        },
+        {
+          title: m.nav_studybank(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/events",
+        },
+        {
+          title: m.nav_songbook(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/documents",
+        },
+        {
+          title: m.nav_documents(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/documents",
+        },
+      ],
+    },
+    {
+      title: m.nav_engagement(),
+      accessRequired: null,
+      appBehaviour: "none",
+      path: null,
+      children: [
+        {
+          title: m.nav_engage_yourself(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/news",
+        },
+        {
+          title: m.nav_volunteer_benefits(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/events",
+        },
+        {
+          title: m.nav_committees(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/events",
+        },
+      ],
+    },
+    {
+      title: m.nav_contact(),
+      accessRequired: null,
+      appBehaviour: "none",
+      path: "/news",
+      children: [
+        {
+          title: m.nav_for_companies(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/news",
+        },
+        {
+          title: m.nav_contact_details(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/events",
+        },
+      ],
+    },
+  ] as const;
+
 export const appBottomNavRoutes = (routes: Route[]): Route[] =>
   [
     {
