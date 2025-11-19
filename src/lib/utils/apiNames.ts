@@ -21,6 +21,12 @@ const apiNames = {
   TAGS: {
     ...crud("tags"),
   },
+  DRINKITEM: {
+    ...crud("drinkitem"),
+  },
+  DRINKITEMBATCH: {
+    ...crud("drinkitembatch"),
+  },
   EVENT: {
     ...crud("event"),
     COMMENT: "event:comment",
