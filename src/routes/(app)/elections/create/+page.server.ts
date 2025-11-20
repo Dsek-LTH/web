@@ -50,7 +50,10 @@ export const actions: Actions = {
         markdownSv,
         markdownEn,
         link,
-        expiresAt: dayjs(expiresAt).endOf("day").utc().toDate(),
+        expiresAt: dayjs
+          .tz(`${expiresAt} 23:59:59`, "Europe/Stockholm")
+          .utc()
+          .toDate(),
         committeeId,
       },
     });
