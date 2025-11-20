@@ -8,6 +8,7 @@ import {
   isAvailableLanguageTag,
   setLanguageTag,
   sourceLanguageTag,
+  type AvailableLanguageTag,
 } from "$paraglide/runtime";
 import Authentik, {
   type AuthentikProfile,
@@ -107,10 +108,16 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
     });
   }
 
+  const langCandidates = [
+    event.cookies.get("languageOverride"),
+    member?.language,
+  ];
+
   const lang =
-    member?.language && isAvailableLanguageTag(member.language)
-      ? member.language
-      : sourceLanguageTag;
+    langCandidates.find(
+      (tag): tag is AvailableLanguageTag =>
+        !!tag && isAvailableLanguageTag(tag),
+    ) ?? sourceLanguageTag;
   event.locals.language = lang;
   setLanguageTag(lang);
 
