@@ -39,7 +39,7 @@
     e.preventDefault();
   }}
   role="form"
-  class="bg-secondary-background border-border flex h-[256px] w-[384px] flex-col items-center justify-center rounded-md border-[1px] text-center"
+  class="bg-secondary-background border-border flex h-[256px] flex-col items-center justify-center rounded-md border-[1px] text-center"
 >
   <div class="mb-4 flex flex-col">
     <h6>{m.fileupload_title()}</h6>
