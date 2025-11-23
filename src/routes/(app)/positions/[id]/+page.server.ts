@@ -183,12 +183,15 @@ export const actions: Actions = {
         lastSynced: new Date("1970"),
       },
     });
-    authentik.fetchGroupsAddMandate(
-      prisma,
-      member.studentId!,
-      params.id,
-      createdMandate.id,
-    );
+    const now = new Date();
+    if (form.data.startDate < now && now < form.data.endDate) {
+      authentik.fetchGroupsAddMandate(
+        prisma,
+        member.studentId!,
+        params.id,
+        createdMandate.id,
+      );
+    }
     return message(form, {
       message: m.positions_newMandateGivenTo({
         name: member.firstName ?? m.positions_theMember(),
