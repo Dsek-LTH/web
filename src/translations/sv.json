@@ -430,6 +430,8 @@
   "news_errors_invalidPage": "Ogiltig sida",
   "news_errors_articleNotFound": "Kunde inte hitta artikel",
   "news_errors_tagNotFound": "Tag not found",
+  "news_errors_schedulingFailed": "Misslyckades med schemaläggning",
+  "news_articleScheduled": "Nyhet schemalagd",
   "events_create": "Skapa",
   "events_createEvent": "Skapa evenemang",
   "events_title": "Titel",

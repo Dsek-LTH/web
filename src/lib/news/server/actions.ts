@@ -2,8 +2,6 @@ import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
 import { uploadFile } from "$lib/files/uploadFiles";
 import { createSchema, updateSchema } from "$lib/news/schema";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
-import sendNotification from "$lib/utils/notifications";
-import { NotificationType } from "$lib/utils/notifications/types";
 import { redirect } from "$lib/utils/redirect";
 import { slugWithCount, slugify } from "$lib/utils/slugify";
 import * as m from "$paraglide/messages";
@@ -13,8 +11,9 @@ import type { AuthUser } from "@zenstackhq/runtime";
 import { zod } from "sveltekit-superforms/adapters";
 import { message, superValidate, fail } from "sveltekit-superforms";
 import DOMPurify from "isomorphic-dompurify";
-import { markdownToTxt } from "markdown-to-txt";
-import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+import { env } from "$env/dynamic/private";
+import { env as envPublic } from "$env/dynamic/public";
+import { sendNewArticleNotification } from "./notifications";
 
 const uploadImage = async (user: AuthUser, image: File, slug: string) => {
   const randomName = (Math.random() + 1).toString(36).substring(2);
@@ -31,42 +30,6 @@ const uploadImage = async (user: AuthUser, image: File, slug: string) => {
     },
   );
   return imageUrl;
-};
-
-const sendNewArticleNotification = async (
-  article: ExtendedPrismaModel<"Article"> & {
-    tags: Array<Pick<ExtendedPrismaModel<"Tag">, "id">>;
-    author: ExtendedPrismaModel<"Author">;
-  },
-  notificationText: string | null | undefined,
-) => {
-  console.log("notifications: getting members");
-  const subscribedMembers = await authorizedPrismaClient.member.findMany({
-    where: {
-      subscribedTags: {
-        some: {
-          id: {
-            in: article.tags.map(({ id }) => id),
-          },
-        },
-      },
-    },
-    select: {
-      id: true,
-    },
-  });
-
-  console.log("notifications: sending");
-  await sendNotification({
-    title: article.header,
-    message: notificationText
-      ? notificationText
-      : markdownToTxt(article.body).slice(0, 254),
-    type: NotificationType.NEW_ARTICLE,
-    link: `/news/${article.slug}`,
-    fromAuthor: article.author,
-    memberIds: subscribedMembers.map(({ id }) => id),
-  });
 };
 
 export const createArticle: Action = async (event) => {
@@ -86,6 +49,7 @@ export const createArticle: Action = async (event) => {
     images,
     bodySv,
     bodyEn,
+    publishTime,
     ...rest
   } = form.data;
   const existingAuthor = await prisma.author.findFirst({
@@ -110,50 +74,76 @@ export const createArticle: Action = async (event) => {
   await Promise.resolve();
   rest.imageUrls = await Promise.all(tasks);
 
-  const result = await prisma.article.create({
-    data: {
-      slug,
-      headerSv: headerSv,
-      headerEn: headerEn,
-      bodySv: DOMPurify.sanitize(bodySv),
-      bodyEn: bodyEn ? DOMPurify.sanitize(bodyEn) : bodyEn,
-      ...rest,
-      author: {
-        connect: existingAuthor
-          ? {
-              id: existingAuthor.id,
-            }
-          : undefined,
-        create: !existingAuthor
-          ? {
-              member: {
-                connect: { studentId: user?.studentId },
-              },
-              mandate: author.mandateId
-                ? {
-                    connect: {
-                      member: { studentId: user?.studentId },
-                      id: author.mandateId,
-                    },
-                  }
-                : undefined,
-              customAuthor: author.customId
-                ? {
-                    connect: { id: author.customId },
-                  }
-                : undefined,
-            }
-          : undefined,
-      },
-      tags: {
-        connect: tags
-          .filter((tag) => !!tag)
-          .map((tag) => ({
-            id: tag.id,
-          })),
-      },
-      publishedAt: new Date(),
+  const data = {
+    slug,
+    headerSv: headerSv,
+    headerEn: headerEn,
+    bodySv: DOMPurify.sanitize(bodySv),
+    bodyEn: bodyEn ? DOMPurify.sanitize(bodyEn) : bodyEn,
+    ...rest,
+    author: {
+      connect: existingAuthor
+        ? {
+            id: existingAuthor.id,
+          }
+        : undefined,
+      create: !existingAuthor
+        ? {
+            member: {
+              connect: { studentId: user?.studentId },
+            },
+            mandate: author.mandateId
+              ? {
+                  connect: {
+                    member: { studentId: user?.studentId },
+                    id: author.mandateId,
+                  },
+                }
+              : undefined,
+            customAuthor: author.customId
+              ? {
+                  connect: { id: author.customId },
+                }
+              : undefined,
+          }
+        : undefined,
     },
+    tags: {
+      connect: tags
+        .filter((tag) => !!tag)
+        .map((tag) => ({
+          id: tag.id,
+        })),
+    },
+    publishedAt: publishTime ?? new Date(),
+  };
+
+  if (publishTime && publishTime > new Date()) {
+    const result = await fetch(env.SCHEDULER_ENDPOINT, {
+      method: "POST",
+      body: JSON.stringify({
+        body: JSON.stringify(data),
+        endpointURL: `${envPublic.PUBLIC_APP_URL}/api/schedule/news`,
+        runTimestamp: publishTime,
+        password: env.SCHEDULER_PASSWORD,
+      }),
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!result.ok) throw new Error(m.news_errors_schedulingFailed());
+
+    throw redirect(
+      "/home",
+      {
+        message: m.news_articleScheduled(),
+        type: "success",
+      },
+      event,
+    );
+  }
+
+  const result = await prisma.article.create({
+    data,
     include: {
       author: true,
     },
@@ -180,6 +170,7 @@ export const createArticle: Action = async (event) => {
     event,
   );
 };
+
 export const updateArticle: Action<{ slug: string }> = async (event) => {
   const { request, locals } = event;
   const { prisma, user } = locals;

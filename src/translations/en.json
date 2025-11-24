@@ -431,6 +431,8 @@
   "news_errors_invalidPage": "Invalid page",
   "news_errors_articleNotFound": "Article not found",
   "news_errors_tagNotFound": "Tag not found",
+  "news_errors_schedulingFailed": "Failed to schedule article",
+  "news_articleScheduled": "Article scheduled for publishing",
   "events_create": "Create",
   "events_createEvent": "Create event",
   "events_title": "Title",
