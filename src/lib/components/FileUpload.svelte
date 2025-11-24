@@ -5,27 +5,39 @@
   import Separator from "$lib/components/ui/separator/separator.svelte";
   import * as AlertDialog from "$lib/components/ui/alert-dialog/index";
   import * as m from "$paraglide/messages";
+  import { twMerge } from "tailwind-merge";
 
   let {
     files = $bindable(),
     url = $bindable(),
-  }: { files?: FileList; url?: string } = $props();
+    class: klass,
+  }: { files?: FileList; url?: string; class?: string } = $props();
 
-  let images: string[] = $state([]);
+  let uploads: string[] = $state([]);
 
   let urlInput: HTMLInputElement | null = $state(null);
   let urlError: string | undefined = $state();
 
   $effect(() => {
-    Array.from(files ?? []).forEach((file) => {
+    Array.from(files ?? []).forEach((upload) => {
       const reader = new FileReader();
       reader.onload = () => {
         const result = reader.result;
         if (typeof result === "string") {
-          images = [...images, result];
+          const datatype = result.substring(0, 30);
+          if (
+            datatype.includes("png") ||
+            datatype.includes("jpg") ||
+            datatype.includes("octet-stream") ||
+            datatype.includes("webp")
+          ) {
+            uploads = [...uploads, result];
+          } else {
+            uploads = [...uploads, upload.name];
+          }
         }
       };
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(upload);
     });
   });
 </script>
@@ -39,7 +51,10 @@
     e.preventDefault();
   }}
   role="form"
-  class="bg-secondary-background border-border flex h-[256px] flex-col items-center justify-center rounded-md border-[1px] text-center"
+  class={twMerge(
+    klass,
+    "bg-secondary-background border-border flex h-[256px] flex-col items-center justify-center rounded-md border-[1px] text-center",
+  )}
 >
   <div class="mb-4 flex flex-col">
     <h6>{m.fileupload_title()}</h6>
@@ -95,12 +110,12 @@
     </AlertDialog.Root>
   </div>
 </div>
-{#if images.length > 0}
+{#if uploads.length > 0}
   <div
-    class="bg-muted-background border-border mt-2 flex w-[384px] flex-row flex-wrap rounded-md border-[1px] p-2"
+    class="bg-muted-background border-border mt-2 flex w-full flex-row flex-wrap rounded-md border-[1px] p-2"
   >
-    {#each images as file (file)}
-      <img class="m-1 max-h-24" src={file} alt="Upload" />
+    {#each uploads as file (file)}
+      <img class="m-1 max-h-24" src={file} alt={file} />
     {/each}
   </div>
 {/if}
