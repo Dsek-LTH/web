@@ -148,6 +148,7 @@ const updateSchema = memberSchema
     classYear: true,
     graduationYear: true,
     nollningGroupId: true,
+    language: true,
   })
   .partial();
 
@@ -228,6 +229,7 @@ export const actions: Actions = {
         ...form.data,
       },
     });
+
     authentik.updateProfile(
       studentId,
       form.data.firstName ?? "",
