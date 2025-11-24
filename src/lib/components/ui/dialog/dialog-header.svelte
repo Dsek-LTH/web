@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { cn, type WithElementRef } from "$lib/utils.js";
   import type { HTMLAttributes } from "svelte/elements";
+  import { cn, type WithElementRef } from "$lib/utils.js";
 
   let {
     ref = $bindable(null),
@@ -12,11 +12,8 @@
 
 <div
   bind:this={ref}
-  data-slot="alert-dialog-footer"
-  class={cn(
-    "bg-muted-background border-border flex flex-col-reverse gap-2 rounded-b-lg border-t-[1px] py-2 pr-2 sm:flex-row sm:justify-end",
-    className,
-  )}
+  data-slot="dialog-header"
+  class={cn("flex flex-col px-4 pt-4 text-center sm:text-left", className)}
   {...restProps}
 >
   {@render children?.()}
