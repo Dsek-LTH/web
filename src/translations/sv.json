@@ -910,5 +910,14 @@
   "editor_ulist": "Osorterad lista",
   "editor_olist": "Sorterad lista",
   "editor_tasklist": "Uppgiftslista",
-  "dialog_close": "Stäng"
+  "dialog_close": "Stäng",
+  "dialog_cancel": "Avbryt",
+  "dialog_submit": "Skicka",
+  "fileupload_dialog_title": "Ange en fil-URL",
+  "fileupload_choose": "Bläddra",
+  "fileupload_title": "Välj en fil eller släpp den här",
+  "fileupload_filetypes": "JPEG, PNG, PDG, eller MP4, upp till 50MB",
+  "fileupload_choose_url": "Välj URL",
+  "fileupload_or": "eller",
+  "fileupload_error": "Sidan tillåter inte nedladdning av filer."
 }

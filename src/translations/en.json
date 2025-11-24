@@ -909,5 +909,14 @@
   "editor_ulist": "Unordered list",
   "editor_olist": "Ordered list",
   "editor_tasklist": "Task list",
-  "dialog_close": "Close"
+  "dialog_close": "Close",
+  "dialog_cancel": "Cancel",
+  "dialog_submit": "Submit",
+  "fileupload_dialog_title": "Enter a file URL",
+  "fileupload_choose": "Choose",
+  "fileupload_title": "Choose a file or drop it here",
+  "fileupload_filetypes": "JPEG, PNG, PDG, or MP4, up to 50MB",
+  "fileupload_choose_url": "Enter URL",
+  "fileupload_or": "or",
+  "fileupload_error": "The website does not allow downloads."
 }
