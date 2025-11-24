@@ -52,13 +52,13 @@ const { handle: authHandle } = SvelteKitAuth({
           group_list: profile.groups,
         };
       },
+      authorization: {
+        params: { scope: "openid profile email offline_access" },
+      },
     }),
   ],
   callbacks: {
-    jwt({ token, user, account }) {
-      if (account) {
-        token["id_token"] = account.id_token;
-      }
+    async jwt({ token, user, account }) {
       if (user) {
         token.student_id = user.student_id;
         token.group_list = user.group_list ?? [];
@@ -66,6 +66,49 @@ const { handle: authHandle } = SvelteKitAuth({
         token.family_name = user.family_name;
         token.email = user.email;
       }
+
+      if (account) {
+        token["refresh_token"] = account.refresh_token;
+        token["id_token"] = account.id_token;
+        token["expires_at"] = account.expires_at;
+      } else if (Date.now() < (token["expires_at"] as number) * 1000) {
+        return token;
+      } else {
+        if (!token["refresh_token"]) throw new Error("Missing refresh_token");
+
+        try {
+          const response = await fetch(
+            envPublic.PUBLIC_AUTH_AUTHENTIK_TOKEN_ENDPOINT,
+            {
+              method: "POST",
+              body: new URLSearchParams({
+                client_id: env.AUTH_AUTHENTIK_CLIENT_ID,
+                client_secret: env.AUTH_AUTHENTIK_CLIENT_SECRET,
+                grant_type: "refresh_token",
+                refresh_token: token["refresh_token"] as string,
+              }),
+            },
+          );
+
+          const tokensOrError = await response.json();
+
+          if (!response.ok) throw tokensOrError;
+
+          token["id_token"] = tokensOrError.id_token;
+          token["expires_at"] =
+            Math.floor(Date.now() / 1000) + tokensOrError.expires_in;
+          token["refresh_token"] =
+            tokensOrError.refresh_token ?? token["refresh_token"];
+
+          return token;
+        } catch (error) {
+          console.error("Error refreshing Authentik access_token:", error);
+          token["error"] = "RefreshTokenError";
+
+          return token;
+        }
+      }
+
       return token;
     },
     session({ session, token }) {
@@ -76,6 +119,7 @@ const { handle: authHandle } = SvelteKitAuth({
         session.user.given_name = token.given_name;
         session.user.family_name = token.family_name;
       }
+
       return session;
     },
     /**
@@ -99,7 +143,7 @@ const { handle: authHandle } = SvelteKitAuth({
 });
 
 const databaseHandle: Handle = async ({ event, resolve }) => {
-  const session = await event.locals.getSession();
+  const session = await event.locals.auth();
   const studentId = session?.user.student_id;
 
   const aClient = authorizedPrismaClient;
@@ -123,7 +167,6 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
     ) ?? sourceLanguageTag;
   event.locals.language = lang;
   setLanguageTag(lang);
-
   const prisma = getExtendedPrismaClient(lang, session?.user.student_id);
 
   if (!session?.user) {
