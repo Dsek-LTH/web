@@ -18,6 +18,8 @@
   );
 
   let form: HTMLFormElement;
+  const { scheduledTasks } = data;
+  let showScheduled = false;
 </script>
 
 <SetPageTitle title={m.news()} />
@@ -54,8 +56,32 @@
       {#if isAuthorized(apiNames.NEWS.CREATE, data.user)}
         <a class="btn btn-primary" href="/news/create">+ {m.news_create()}</a>
       {/if}
+      {#if scheduledTasks.length > 0}
+        <button
+          class="btn btn-secondary"
+          on:click={() => (showScheduled = !showScheduled)}
+          >{`${!showScheduled ? m.news_show() : m.news_hide()} ${m.news_scheduled()}`}</button
+        >
+      {/if}
     </form>
   </section>
+
+  {#if showScheduled}
+    <section class="space-y-4 rounded-lg bg-base-200 p-4">
+      <h2 class="text-xl font-semibold">{m.news_scheduledNews()}</h2>
+      <div class="space-y-2">
+        {#each scheduledTasks as task (task.ID)}
+          <div class="rounded-lg bg-base-300 p-4">
+            <p><strong>{`${m.news_title()}:`}</strong> {task.Body.headerSv}</p>
+            <p>
+              <strong>{`${m.news_publishDate()}:`}</strong>
+              {new Date(task.RunTimestamp).toLocaleString()}
+            </p>
+          </div>
+        {/each}
+      </div>
+    </section>
+  {/if}
 
   <section class="grid grid-cols-1 gap-8 md:grid-cols-2">
     {#each data.articles as article (article.id)}

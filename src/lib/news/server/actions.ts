@@ -14,6 +14,7 @@ import DOMPurify from "isomorphic-dompurify";
 import { env } from "$env/dynamic/private";
 import { env as envPublic } from "$env/dynamic/public";
 import { sendNewArticleNotification } from "./notifications";
+import { getDecryptedJWT } from "$lib/server/getDecryptedJWT";
 
 const uploadImage = async (user: AuthUser, image: File, slug: string) => {
   const randomName = (Math.random() + 1).toString(36).substring(2);
@@ -119,6 +120,7 @@ export const createArticle: Action = async (event) => {
   };
 
   if (publishTime && publishTime > new Date()) {
+    const jwt = await getDecryptedJWT(request);
     const result = await fetch(env.SCHEDULER_ENDPOINT, {
       method: "POST",
       body: JSON.stringify({
@@ -126,6 +128,7 @@ export const createArticle: Action = async (event) => {
         endpointURL: `${envPublic.PUBLIC_APP_URL}/api/schedule/news`,
         runTimestamp: publishTime,
         password: env.SCHEDULER_PASSWORD,
+        token: jwt?.["id_token"],
       }),
       headers: { "Content-Type": "application/json" },
     });
