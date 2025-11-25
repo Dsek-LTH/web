@@ -11,12 +11,21 @@ import (
 	"gorm.io/gorm"
 )
 
-var db *gorm.DB
+var (
+	db           *gorm.DB
+	JWKSEndpoint string
+	JWTIssuer    string
+	JWTAudience  string
+)
 
 func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Fatal("Error loading .env file")
 	}
+
+	JWKSEndpoint = os.Getenv("JWKS_ENDPOINT")
+	JWTIssuer = os.Getenv("JWT_ISSUER")
+	JWTAudience = os.Getenv("JWT_AUDIENCE")
 
 	if err := openDatabaseConnection(&db); err != nil {
 		log.Fatal("Failed to connect to database:", err)
@@ -24,11 +33,6 @@ func main() {
 
 	if err := db.AutoMigrate(&ScheduledTask{}); err != nil {
 		log.Fatal("Failed to migrate database:", err)
-	}
-
-	// TODO: Remove this
-	if _, err := gorm.G[ScheduledTask](db).Where("1 = 1").Delete(context.Background()); err != nil {
-		log.Println("Error clearing scheduled tasks:", err)
 	}
 
 	if scheduledTasks, err := gorm.G[ScheduledTask](db).Where("has_executed = ?", false).Find(context.Background()); err != nil {

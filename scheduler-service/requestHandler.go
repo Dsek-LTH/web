@@ -16,7 +16,7 @@ type ScheduleTaskRequestData struct {
 	EndpointURL  string `json:"endpointURL"`
 	Body         string `json:"body"`
 	Password     string `json:"password"`
-	Subject      string `json:"subject,omitempty"`
+	Token        string `json:"token,omitempty"`
 }
 
 func handleRequest(w http.ResponseWriter, r *http.Request) {
@@ -48,12 +48,30 @@ func handlePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var subject string
+	if data.Token != "" {
+		parseOptions := []jwt.ParseOption{
+			jwt.WithVerify(false),
+			jwt.WithIssuer(JWTIssuer),
+			jwt.WithAudience(JWTAudience),
+		}
+
+		if token, err := jwt.Parse([]byte(data.Token), parseOptions...); err != nil {
+			log.Printf("Failed to parse JWT: %s", err)
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+
+			return
+		} else {
+			subject, _ = token.Subject()
+		}
+	}
+
 	newTask := ScheduledTask{
 		RunTimestamp: data.RunTimestamp,
 		EndpointURL:  data.EndpointURL,
 		Body:         data.Body,
 		HasExecuted:  false,
-		CreatedBy:    &data.Subject,
+		CreatedBy:    &subject,
 	}
 
 	if err := gorm.G[ScheduledTask](db).Create(r.Context(), &newTask); err != nil {
