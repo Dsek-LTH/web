@@ -16,14 +16,18 @@ import (
 )
 
 var (
-	JWKSEndpoint = os.Getenv("JWKS_ENDPOINT")
-	JWTIssuer    = os.Getenv("JWT_ISSUER")
-	JWTAudience  = os.Getenv("JWT_AUDIENCE")
+	JWKSEndpoint string
+	JWTIssuer    string
+	JWTAudience  string
 )
 
 var cachedJWKS jwk.Set
 
 func AuthMiddleware(next http.Handler) http.Handler {
+	JWKSEndpoint = os.Getenv("JWKS_ENDPOINT")
+	JWTIssuer = os.Getenv("JWT_ISSUER")
+	JWTAudience = os.Getenv("JWT_AUDIENCE")
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if cachedJWKS == nil {
 			if err := createJWKCache(); err != nil {
