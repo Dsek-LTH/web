@@ -1,6 +1,5 @@
 <script lang="ts">
   import type { PageProps } from "./$types";
-  import { page } from "$app/state";
   import { enhance as svEnhance } from "$app/forms";
   import {
     Card,
@@ -32,27 +31,29 @@
     AlertDialogHeader,
     AlertDialogTitle,
   } from "$lib/components/ui/alert-dialog";
+  import * as m from "$paraglide/messages";
 
   let { data }: PageProps = $props();
+  let door = $derived(data.door);
   let policies = $derived(data.doorAccessPolicies);
   const { form, errors, constraints, enhance } = superForm(data.createForm);
 
   const types = [
-    { value: "member", label: "Member" },
-    { value: "role", label: "Role" },
+    { value: "member", label: m.admin_doors_member() },
+    { value: "role", label: m.admin_doors_role() },
   ] as const;
   let typeTrigger = $derived.by(() => {
     const found = types.find((t) => t.value === $form.type);
-    return found ? found.label : "Choose type";
+    return found!.label;
   });
 
   const modes = [
-    { value: "allow", label: "Allow" },
-    { value: "deny", label: "Deny" },
+    { value: "allow", label: m.admin_doors_allow() },
+    { value: "deny", label: m.admin_doors_deny() },
   ] as const;
   let modeTrigger = $derived.by(() => {
     const found = modes.find((m) => m.value === $form.mode);
-    return found ? found.label : "Choose mode";
+    return found!.label;
   });
 
   let open = $state(false);
@@ -64,9 +65,9 @@
   <!-- Form -->
   <Card>
     <CardHeader>
-      <CardTitle>Add Access Rule</CardTitle>
+      <CardTitle>{m.admin_doors_addAccessRule()}</CardTitle>
       <CardDescription>
-        Grant or restrict access to {page.params["slug"]}
+        {m.admin_doors_grantOrRestrict({ door: door.verboseName })}
       </CardDescription>
     </CardHeader>
     <CardContent>
@@ -74,11 +75,17 @@
         <!-- TODO: display toast on success and form errors on failure -->
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-4">
           <div class="space-y-2 sm:col-span-2">
-            <Label for="subject">Subject</Label>
+            <Label for="subject">
+              {#if $form.type === "member"}
+                {m.admin_doors_member()}
+              {:else}
+                {m.admin_doors_role()}
+              {/if}
+            </Label>
             <Input
               id="subject"
               name="subject"
-              placeholder="e.g., John Doe or dsek.cpu"
+              placeholder={$form.type === "member" ? "ab1234cd-s" : "dsek.cpu"}
               aria-invalid={$errors.subject ? "true" : undefined}
               bind:value={$form.subject}
               {...$constraints.subject}
@@ -86,7 +93,7 @@
           </div>
 
           <div class="space-y-2">
-            <Label for="type">Type</Label>
+            <Label for="type">{m.admin_doors_type()}</Label>
             <Select
               type="single"
               name="type"
@@ -107,7 +114,7 @@
           </div>
 
           <div class="space-y-2">
-            <Label for="mode">Mode</Label>
+            <Label for="mode">{m.admin_doors_mode()}</Label>
             <Select
               type="single"
               name="mode"
@@ -130,7 +137,7 @@
 
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div class="space-y-2">
-            <Label for="start-date">Start Date (Optional)</Label>
+            <Label for="start-date">{m.admin_doors_startDate()}</Label>
             <Input
               id="start-date"
               type="date"
@@ -142,7 +149,7 @@
           </div>
 
           <div class="space-y-2">
-            <Label for="end-date">End Date (Optional)</Label>
+            <Label for="end-date">{m.admin_doors_endDate()}</Label>
             <Input
               id="end-date"
               type="date"
@@ -155,10 +162,10 @@
         </div>
 
         <div class="space-y-2 sm:col-span-2">
-          <Label for="entity-name">Reason (Optional)</Label>
+          <Label for="entity-name">{m.admin_doors_reasonLabel()}</Label>
           <Input
             id="entity-name"
-            placeholder="Why is this rule added?"
+            placeholder={m.admin_doors_reasonPlaceholder()}
             name="reason"
             aria-invalid={$errors.reason ? "true" : undefined}
             bind:value={$form.reason}
@@ -166,7 +173,9 @@
           />
         </div>
 
-        <Button type="submit" class="w-full">Add Rule</Button>
+        <Button type="submit" class="w-full">
+          {m.admin_doors_add()}
+        </Button>
       </form>
     </CardContent>
   </Card>
@@ -174,12 +183,12 @@
   <!-- Access policy list -->
   <Card>
     <CardHeader>
-      <CardTitle>Current Rules</CardTitle>
+      <CardTitle>{m.admin_doors_currentRules()}</CardTitle>
       <CardDescription>
         {#if policies.length === 0}
-          No access policies configured yet
+          {m.admin_doors_noRules()}
         {:else}
-          {policies.length} rule{policies.length !== 1 ? "s" : ""} configured
+          {m.admin_doors_numRules({ count: policies.length })}
         {/if}
       </CardDescription>
     </CardHeader>
@@ -200,23 +209,24 @@
                   </p>
                   <Badge variant="outline">
                     {#if type === "member"}
-                      Member
+                      {m.admin_doors_member()}
                     {:else}
-                      Role
+                      {m.admin_doors_role()}
                     {/if}
                   </Badge>
                   {#if policy.isBan}
-                    <Badge variant="rosa">Banned</Badge>
+                    <Badge variant="rosa">{m.admin_doors_banned()}</Badge>
                   {/if}
                   {#if policy.endDatetime}
                     <Badge variant="rosa">
-                      Expires {policy.endDatetime.toLocaleDateString("sv")}
+                      {m.admin_doors_expires()}
+                      {policy.endDatetime.toLocaleDateString("sv")}
                     </Badge>
                   {/if}
                 </div>
                 {#if policy.information}
                   <p class="text-muted-foreground text-sm">
-                    Reason: {policy.information}
+                    {m.admin_doors_reason()}: {policy.information}
                   </p>
                 {/if}
               </div>
@@ -243,18 +253,19 @@
 <!-- Delete dialog -->
 <AlertDialog bind:open>
   {#if selectedPolicy}
+    {@const subject =
+      selectedPolicy.role ||
+      getFullName(selectedPolicy.member!, { hideNickname: true })}
     <AlertDialogContent>
       <AlertDialogHeader>
-        <AlertDialogTitle>Ta bort åtkomstregel</AlertDialogTitle>
+        <AlertDialogTitle>{m.admin_doors_removeAccessRule()}</AlertDialogTitle>
         <AlertDialogDescription>
-          Är du säher på att du vill ta bort åtkomstregeln för <b>
-            {selectedPolicy.role || getFullName(selectedPolicy.member!)}
-          </b>
-          till <b>{selectedPolicy.doorName}</b>?
+          <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+          {@html m.admin_doors_areYouSure({ door: door.verboseName, subject })}
         </AlertDialogDescription>
       </AlertDialogHeader>
       <AlertDialogFooter>
-        <AlertDialogCancel>Cancel</AlertDialogCancel>
+        <AlertDialogCancel>{m.cancel()}</AlertDialogCancel>
         <form
           method="POST"
           action="?/delete"
@@ -264,7 +275,7 @@
           }}
         >
           <input type="hidden" name="id" value={selectedPolicy.id} />
-          <AlertDialogAction type="submit">Continue</AlertDialogAction>
+          <AlertDialogAction type="submit">{m.save()}</AlertDialogAction>
         </form>
       </AlertDialogFooter>
     </AlertDialogContent>
