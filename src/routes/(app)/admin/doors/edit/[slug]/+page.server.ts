@@ -7,6 +7,11 @@ import { error, fail } from "@sveltejs/kit";
 import { authorize } from "$lib/utils/authorization";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import * as m from "$paraglide/messages";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export const load: PageServerLoad = async ({ locals, params, parent }) => {
   const { prisma, user } = locals;
@@ -34,36 +39,58 @@ export const load: PageServerLoad = async ({ locals, params, parent }) => {
   };
 };
 
-// TODO: require reason and end date for member rules
-// TODO: don't allow banning groups since this is not implemented
 const createSchema = z
   .object({
     subject: z.string().min(1),
     type: z.enum(["member", "role"]).default("member"),
     mode: z.enum(["allow", "deny"]).default("allow"),
-    startDatetime: z.date().optional(),
-    endDatetime: z.date().optional(),
+    startDatetime: z.string().date().optional(),
+    endDatetime: z.string().date().optional(),
     reason: z.string().optional(),
   })
+  // These refinements return true for valid data, but it's
+  // easier to express them in terms of what is invalid.
   .refine(
-    (data) => (data.startDatetime ?? 0) < (data.endDatetime ?? Infinity),
-    {
-      message: m.admin_doors_endDateBeforeStart(),
-      path: ["endDatetime"],
-    },
+    // Require the start date to be before the end date
+    ({ startDatetime: start, endDatetime: end }) =>
+      !(start && end && dayjs(end).isBefore(start)),
+    { message: m.admin_doors_endDateBeforeStart(), path: ["endDatetime"] },
   )
   .refine(
-    async ({ type, subject }) => {
-      if (type === "member") {
+    // Require an end date for member rules
+    (data) => !(data.type === "member" && !data.endDatetime),
+    { message: m.admin_doors_memberRuleRequireEnd(), path: ["endDatetime"] },
+  )
+  .refine(
+    // Require a reason for member rules
+    (data) => !(data.type === "member" && !data.reason),
+    { message: m.admin_doors_memberRuleRequireReason(), path: ["reason"] },
+  )
+  .refine(
+    // Require a reason for bans
+    (data) => !(data.mode === "deny" && !data.reason),
+    { message: m.admin_doors_banRuleRequireReason(), path: ["reason"] },
+  )
+  .refine(
+    // TODO: Banning groups is not implemented
+    (data) => !(data.type === "role" && data.mode === "deny"),
+    { message: "Not implemented", path: ["mode"] },
+  )
+  .refine(
+    async (data) => {
+      if (data.type === "member") {
         // check if member exists
         return await authorizedPrismaClient.member.findFirst({
-          where: { studentId: subject },
+          where: { studentId: data.subject },
         });
       } else {
         // check if role exists
-        return await authorizedPrismaClient.position.findFirst({
-          where: { id: { startsWith: `${subject}%` } },
-        });
+        return (
+          data.subject === "*" ||
+          (await authorizedPrismaClient.position.findFirst({
+            where: { id: { startsWith: `${data.subject}%` } },
+          }))
+        );
       }
     },
     { message: m.admin_doors_memberOrRoleNotFound(), path: ["subject"] },
@@ -79,14 +106,22 @@ export const actions: Actions = {
     const form = await superValidate(request, zod4(createSchema));
     if (!form.valid) return fail(400, { form });
     const doorName = params.slug;
-    const { mode, subject, type, startDatetime, endDatetime } = form.data;
+    const { mode, subject, type, startDatetime, endDatetime, reason } =
+      form.data;
 
     await prisma.doorAccessPolicy.create({
       data: {
         doorName,
-        startDatetime,
-        endDatetime,
+        startDatetime: dayjs(startDatetime)
+          .startOf("day")
+          .tz("Europe/Stockholm", true)
+          .toDate(),
+        endDatetime: dayjs(endDatetime)
+          .endOf("day")
+          .tz("Europe/Stockholm", true)
+          .toDate(),
         isBan: mode === "deny",
+        information: reason,
         ...(type === "member" ? { studentId: subject } : { role: subject }),
       },
     });
