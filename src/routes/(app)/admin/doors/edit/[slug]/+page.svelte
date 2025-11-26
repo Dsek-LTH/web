@@ -162,9 +162,9 @@
         </div>
 
         <div class="space-y-2 sm:col-span-2">
-          <Label for="entity-name">{m.admin_doors_reasonLabel()}</Label>
+          <Label for="reason">{m.admin_doors_reasonLabel()}</Label>
           <Input
-            id="entity-name"
+            id="reason"
             placeholder={m.admin_doors_reasonPlaceholder()}
             name="reason"
             aria-invalid={$errors.reason ? "true" : undefined}
