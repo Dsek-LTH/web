@@ -3,13 +3,19 @@ import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
-import { fail } from "@sveltejs/kit";
+import { error, fail } from "@sveltejs/kit";
 import { authorize } from "$lib/utils/authorization";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import * as m from "$paraglide/messages";
 
-export const load: PageServerLoad = async ({ locals, params }) => {
+export const load: PageServerLoad = async ({ locals, params, parent }) => {
   const { prisma, user } = locals;
   authorize(apiNames.DOOR.READ, user);
+
+  const { doors } = await parent();
+  const door = doors.find((door) => door.name === params.slug);
+
+  if (!door) error(404, m.admin_doors_notFound());
 
   const doorAccessPolicies = await prisma.doorAccessPolicy.findMany({
     where: {
@@ -21,6 +27,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   });
 
   return {
+    door,
     doorAccessPolicies,
     createForm: await superValidate(zod4(createSchema)),
     deleteForm: await superValidate(zod4(deleteSchema)),
@@ -41,7 +48,7 @@ const createSchema = z
   .refine(
     (data) => (data.startDatetime ?? 0) < (data.endDatetime ?? Infinity),
     {
-      message: "Slutdatum kan inte vara före startdatum",
+      message: m.admin_doors_endDateBeforeStart(),
       path: ["endDatetime"],
     },
   )
@@ -59,7 +66,7 @@ const createSchema = z
         });
       }
     },
-    { message: "Medlemmen/rollen finns inte", path: ["subject"] },
+    { message: m.admin_doors_memberOrRoleNotFound(), path: ["subject"] },
   );
 
 const deleteSchema = z.object({
@@ -85,7 +92,7 @@ export const actions: Actions = {
     });
 
     return message(form, {
-      message: "Dörrpolicy skapad",
+      message: m.admin_doors_ruleCreated(),
       type: "success",
     });
   },
@@ -98,7 +105,7 @@ export const actions: Actions = {
       where: { id },
     });
     return message(form, {
-      message: "Dörrpolicy raderad",
+      message: m.admin_doors_ruleDeleted(),
       type: "success",
     });
   },
