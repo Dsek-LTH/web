@@ -121,19 +121,32 @@ export const createArticle: Action = async (event) => {
 
   if (publishTime && publishTime > new Date()) {
     const jwt = await getDecryptedJWT(request);
-    const result = await fetch(env.SCHEDULER_ENDPOINT, {
-      method: "POST",
-      body: JSON.stringify({
-        body: JSON.stringify(data),
-        endpointURL: `${envPublic.PUBLIC_APP_URL}/api/schedule/news`,
-        runTimestamp: publishTime,
-        password: env.SCHEDULER_PASSWORD,
-        token: jwt?.["id_token"],
-      }),
-      headers: { "Content-Type": "application/json" },
-    });
+    let result;
+    try {
+      result = await fetch(env.SCHEDULER_ENDPOINT, {
+        method: "POST",
+        body: JSON.stringify({
+          body: JSON.stringify(data),
+          endpointURL: `${envPublic.PUBLIC_APP_URL}/api/schedule/news`,
+          runTimestamp: publishTime,
+          password: env.SCHEDULER_PASSWORD,
+          token: jwt?.["id_token"],
+        }),
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (error) {
+      return fail(500, {
+        form,
+        message: `${m.news_errors_schedulingFailed()}: ${error}`,
+      });
+    }
 
-    if (!result.ok) throw new Error(m.news_errors_schedulingFailed());
+    if (!result.ok) {
+      return fail(500, {
+        form,
+        message: m.news_errors_schedulingFailed(),
+      });
+    }
 
     throw redirect(
       "/home",
