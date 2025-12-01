@@ -114,7 +114,9 @@ func handleGet(w http.ResponseWriter, r *http.Request) {
 	}
 	subject, _ := parsedToken.Subject()
 
-	tasks, err := gorm.G[ScheduledTask](db).Where("created_by = ?", subject).Find(r.Context())
+	tasks, err := gorm.G[ScheduledTask](db).
+		Where("created_by = ? AND has_executed = ?", subject, false).
+		Find(r.Context())
 	if err != nil {
 		http.Error(w, "Failed to read from database", http.StatusInternalServerError)
 
