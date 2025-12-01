@@ -7,7 +7,7 @@
   let {
     title,
     description = "",
-    ...restprops
+    ...restProps
   }: WithoutChildrenOrChild<RadioGroupPrimitive.ItemProps> & {
     description: string;
   } = $props();
@@ -39,6 +39,6 @@
   </div>
   <RadioGroup.Item
     class="data-[state=checked]:ring-rosa-background data-[state=checked]:accent-rosa-background data-[state=checked]:border-rosa-background"
-    {...restprops}
+    {...restProps}
   ></RadioGroup.Item>
 </Label>

@@ -32,6 +32,7 @@
       id="toggle-2"
       checked
       class="data-[state=checked]:bg-rosa-background data-[state=checked]:border-rosa-background dark:data-[state=checked]:text-rosa-950 data-[state=checked]:text-white"
+      {...restProps}
     />
   </div>
 </Label>
