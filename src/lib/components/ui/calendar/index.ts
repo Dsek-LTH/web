@@ -16,25 +16,28 @@ import YearSelect from "./calendar-year-select.svelte";
 import Month from "./calendar-month.svelte";
 import Nav from "./calendar-nav.svelte";
 import Caption from "./calendar-caption.svelte";
+import type { CalendarProps } from "./calendar.svelte";
 
 export {
-	Day,
-	Cell,
-	Grid,
-	Header,
-	Months,
-	GridRow,
-	Heading,
-	GridBody,
-	GridHead,
-	HeadCell,
-	NextButton,
-	PrevButton,
-	Nav,
-	Month,
-	YearSelect,
-	MonthSelect,
-	Caption,
-	//
-	Root as Calendar,
+  Day,
+  Cell,
+  Grid,
+  Header,
+  Months,
+  GridRow,
+  Heading,
+  GridBody,
+  GridHead,
+  HeadCell,
+  NextButton,
+  PrevButton,
+  Nav,
+  Month,
+  YearSelect,
+  MonthSelect,
+  Caption,
+  //
+  Root as Calendar,
 };
+
+export type { CalendarProps };

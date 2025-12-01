@@ -3,13 +3,12 @@
   import {
     CalendarDate,
     DateFormatter,
-    type DateValue,
     getLocalTimeZone,
   } from "@internationalized/date";
   import { cn } from "$lib/utils.js";
-  import { buttonVariants } from "$lib/components/ui/button/index.js";
-  import { Calendar } from "$lib/components/ui/calendar/index.js";
-  import * as Popover from "$lib/components/ui/popover/index.js";
+  import { buttonVariants } from "$lib/components/ui/button";
+  import { Calendar, type CalendarProps } from "$lib/components/ui/calendar";
+  import * as Popover from "$lib/components/ui/popover";
 
   const df = new DateFormatter("sv-SE", {
     dateStyle: "full",
@@ -34,8 +33,12 @@
     return text;
   }
 
-  const { initialValue }: { initialValue?: CalendarDate } = $props();
-  let value = $state<DateValue | undefined>(initialValue);
+  let {
+    value = $bindable(),
+    weekStartsOn = 1,
+    class: className,
+    ...restProps
+  }: Omit<CalendarProps, "type" | "captionLayout"> = $props(); // @ts-ignore
   let contentRef = $state<HTMLElement | null>(null);
 </script>
 
@@ -52,7 +55,14 @@
     <CalendarIcon />
     {value ? format(value.toDate(getLocalTimeZone())) : "Pick a date"}
   </Popover.Trigger>
-  <Popover.Content bind:ref={contentRef} class="w-auto p-0">
-    <Calendar type="single" bind:value captionLayout="dropdown" />
+  <Popover.Content bind:ref={contentRef} class="bg-background w-auto p-0">
+    <Calendar
+      type="single"
+      bind:value
+      captionLayout="dropdown"
+      {weekStartsOn}
+      class={cn("rounded-md border shadow-sm", className)}
+      {...restProps}
+    />
   </Popover.Content>
 </Popover.Root>

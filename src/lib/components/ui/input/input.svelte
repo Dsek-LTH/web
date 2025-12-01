@@ -8,7 +8,7 @@
 
   type InputType = Exclude<HTMLInputTypeAttribute, "file">;
 
-  type Props = WithElementRef<
+  export type Props = WithElementRef<
     Omit<HTMLInputAttributes, "type"> &
       (
         | { type: "file"; files?: FileList }
@@ -32,7 +32,7 @@
   {#if childProps}<span
       aria-hidden="true"
       class={cn(
-        "absolute left-3 flex h-full w-4 items-center overflow-hidden",
+        "pointer-events-none absolute left-3 flex h-8 w-4 items-center overflow-hidden",
         restProps["aria-errormessage"] ? "text-rosa-500" : "",
       )}>{@render childProps()}</span
     >{/if}
@@ -66,13 +66,13 @@
       {...restProps}
     />
   {/if}
+  {#if restProps["aria-errormessage"]}
+    <p class="text-rosa-500 mt-1 text-xs font-semibold">
+      <CircleAlert class="mb-[2px] inline h-[1rem] w-[1rem]" />
+      {restProps["aria-errormessage"]}
+    </p>
+  {/if}
 </div>
-{#if restProps["aria-errormessage"]}
-  <p class="text-rosa-500 mt-1 text-xs font-semibold">
-    <CircleAlert class="mb-[2px] inline h-[1rem] w-[1rem]" />
-    {restProps["aria-errormessage"]}
-  </p>
-{/if}
 
 {#if childProps}
   <style>

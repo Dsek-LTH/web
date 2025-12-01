@@ -1,53 +1,47 @@
 <script lang="ts">
-  import Input from "$lib/components/ui/input/input.svelte";
+  import { Input, type InputProps } from "$lib/components/ui/input";
   import ClockIcon from "@lucide/svelte/icons/clock";
+  import { parseTime, Time } from "@internationalized/date";
   import { cn } from "$lib/utils";
 
   import { formatTimeString } from "./timehelpers";
 
   let {
-    initialTime = new Date(),
-    timestep = 1,
+    value = $bindable(parseTime("00:00")),
     oninput,
-  }: {
-    initialTime?: Date;
+    ...restProps
+  }: InputProps & {
     timestep?: number;
-    oninput?: (value: string) => void;
+    oninput?: (value: Time) => void;
+    value?: Time;
   } = $props();
 
-  const tstep = Math.min(Math.max(1, timestep), 60);
-
-  const now =
-    initialTime.getHours() * 60 +
-    Math.ceil(initialTime.getMinutes() / tstep) * tstep;
-
-  let value = $state(
-    initialTime.getHours().toString().padStart(2, "0") +
-      ":" +
-      (Math.ceil(initialTime.getMinutes() / tstep) * tstep)
-        .toString()
-        .padStart(2, "0"),
-  );
+  let timeString = $state(value.toString().substring(0, 5));
   let error: Error | undefined = $state();
 
+  $effect(() => {
+    timeString = value.toString().substring(0, 5);
+  });
+
   const formatValue = () => {
-    let parsed = formatTimeString(value);
+    let parsed = formatTimeString(timeString);
 
     if (parsed === undefined) {
       return;
     }
 
-    value = parsed;
+    timeString = parsed;
+    value = parseTime(timeString);
     setTimeout(() => oninput?.(value), 0);
   };
 
   const eachInput = () => {
-    if (value === "") {
+    if (timeString === "") {
       error = undefined;
       return;
     }
 
-    let parsed = formatTimeString(value);
+    let parsed = formatTimeString(timeString);
 
     if (parsed === undefined) {
       error = new Error("Invalid time");
@@ -64,8 +58,9 @@
     error ? "border-rosa-500 bg-rosa-50 dark:bg-rosa-950" : "",
   )}
   aria-errormessage={error ? error.message : ""}
-  bind:value
+  bind:value={timeString}
   onchange={formatValue}
   oninput={eachInput}
-  placeholder="hh:mm"><ClockIcon class="h-4 w-full" /></Input
+  placeholder="hh:mm"
+  {...restProps}><ClockIcon class="h-4 w-full" /></Input
 >
