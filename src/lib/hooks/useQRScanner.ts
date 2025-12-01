@@ -31,12 +31,9 @@ export function useQRScanner() {
       await codeReader.decodeFromVideoDevice(
         selectedDevice.deviceId,
         videoElement,
-        (result, err) => {
+        (result) => {
           if (result && onResult) {
             onResult(result.getText());
-          }
-          if (err) {
-            console.error("Scanning error:", err);
           }
         },
       );

@@ -6,13 +6,22 @@
   import { relativeDate } from "$lib/utils/client/datetime";
   import { languageTag } from "$paraglide/runtime";
   import * as m from "$paraglide/messages";
+  import { z } from "zod";
 
   export let data: PageData;
   const { event } = data;
+  let error = "";
 
   function handleScan(qrCodeUuid: string) {
     // Navigate to the event scan page with the scanned QR code UUID
-    goto(`${$page.url.pathname}/${qrCodeUuid}`);
+    const uuidSchema = z.string().uuid();
+    const result = uuidSchema.safeParse(qrCodeUuid);
+
+    if (result.success) {
+      goto(`${$page.url.pathname}/${qrCodeUuid}`);
+    } else {
+      error = m.events_invalidQrCode();
+    }
   }
 </script>
 
@@ -53,6 +62,11 @@
   <div class="mb-6 rounded-lg bg-base-200 p-4">
     <h2 class="mb-2 text-xl font-semibold">{m.events_scanInstructions()}</h2>
     <p class="mb-2">{m.events_scanDescription()}</p>
+    {#if error}
+      <p class="alert alert-error mt-2 p-2">
+        {error}
+      </p>
+    {/if}
   </div>
 
   <div class="flex justify-center">

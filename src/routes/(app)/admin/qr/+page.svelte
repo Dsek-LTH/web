@@ -7,22 +7,20 @@
   import { page } from "$app/stores";
   import { goto } from "$lib/utils/redirect";
 
-  export let data;
+  let { data } = $props();
 
-  // Add local search functionality
-  let searchTerm = "";
-  $: filteredEvents = searchTerm
-    ? data.events.filter(
-        (event) =>
-          event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (event.description &&
-            event.description
-              .toLowerCase()
-              .includes(searchTerm.toLowerCase())) ||
-          (event.location &&
-            event.location.toLowerCase().includes(searchTerm.toLowerCase())),
-      )
-    : data.events;
+  // Local filtering
+  let searchTerm = $state("");
+  let filteredEvents = $derived.by(() => {
+    if (!searchTerm) return data.events;
+    const term = searchTerm.toLowerCase();
+    return data.events.filter(
+      (event) =>
+        event.title.toLowerCase().includes(term) ||
+        event.description?.toLowerCase().includes(term) ||
+        event.location?.toLowerCase().includes(term),
+    );
+  });
 
   // Pagination functions
   const goToPage = (pageNum: number) => {
@@ -33,64 +31,55 @@
 
   const PAGES_TO_SHOW = 3;
 
-  let displayPages: number[] = [];
-  let showFirstButton = false;
-  let showLastButton = false;
-  let showPrevEllipsis = false;
-  let showNextEllipsis = false;
-
-  $: {
-    if (data && data.pagination) {
-      const currentPage = data.pagination.currentPage;
-      const totalPages = data.pagination.totalPages;
-
-      if (totalPages <= 1) {
-        displayPages = totalPages === 1 ? [1] : [];
-        showFirstButton = false;
-        showLastButton = false;
-        showPrevEllipsis = false;
-        showNextEllipsis = false;
-      } else if (totalPages <= PAGES_TO_SHOW) {
-        displayPages = Array.from({ length: totalPages }, (_, i) => i + 1);
-        showFirstButton = false;
-        showLastButton = false;
-        showPrevEllipsis = false;
-        showNextEllipsis = false;
-      } else {
-        const half = Math.floor(PAGES_TO_SHOW / 2);
-        let startPage: number;
-        let endPage: number;
-
-        if (currentPage <= half + 1) {
-          startPage = 1;
-          endPage = PAGES_TO_SHOW;
-        } else if (currentPage >= totalPages - half) {
-          endPage = totalPages;
-          startPage = totalPages - PAGES_TO_SHOW + 1;
-        } else {
-          startPage = currentPage - half;
-          endPage = currentPage + (PAGES_TO_SHOW % 2 === 0 ? half - 1 : half);
-        }
-        displayPages = Array.from(
-          { length: endPage - startPage + 1 },
-          (_, i) => startPage + i,
-        );
-
-        showFirstButton = startPage > 1;
-        showPrevEllipsis = startPage > 2;
-
-        showLastButton = endPage < totalPages;
-        showNextEllipsis = endPage < totalPages - 1;
-      }
-    } else {
-      // Default state if data.pagination is not yet available
-      displayPages = [];
-      showFirstButton = false;
-      showLastButton = false;
-      showPrevEllipsis = false;
-      showNextEllipsis = false;
+  let paginationInfo = $derived.by(() => {
+    if (!data || !data.pagination) {
+      return {
+        displayPages: [],
+        showFirstButton: false,
+        showLastButton: false,
+        showPrevEllipsis: false,
+        showNextEllipsis: false,
+      };
     }
-  }
+
+    const currentPage = data.pagination.currentPage;
+    const totalPages = data.pagination.totalPages;
+
+    if (totalPages <= PAGES_TO_SHOW) {
+      return {
+        displayPages: Array.from({ length: totalPages }, (_, i) => i + 1),
+        showFirstButton: false,
+        showLastButton: false,
+        showPrevEllipsis: false,
+        showNextEllipsis: false,
+      };
+    }
+
+    const half = Math.floor(PAGES_TO_SHOW / 2);
+    let startPage: number;
+    let endPage: number;
+
+    if (currentPage <= half + 1) {
+      startPage = 1;
+      endPage = PAGES_TO_SHOW;
+    } else if (currentPage >= totalPages - half) {
+      endPage = totalPages;
+      startPage = totalPages - PAGES_TO_SHOW + 1;
+    } else {
+      startPage = currentPage - half;
+      endPage = currentPage + (PAGES_TO_SHOW % 2 === 0 ? half - 1 : half);
+    }
+    return {
+      displayPages: Array.from(
+        { length: endPage - startPage + 1 },
+        (_, i) => startPage + i,
+      ),
+      showFirstButton: startPage > 1,
+      showPrevEllipsis: startPage > 2,
+      showLastButton: endPage < totalPages,
+      showNextEllipsis: endPage < totalPages - 1,
+    };
+  });
 </script>
 
 <PageHeader title="Event QR Scanner" />
@@ -169,7 +158,7 @@
 
           <div class="flex items-center gap-2 text-sm">
             <span class="i-mdi-account-group mr-1"></span>
-            <span>{event.going.length} going</span>
+            <span>{event.going.length} {m.events_going_members()}</span>
           </div>
 
           <div class="card-actions mt-auto pt-4">
@@ -182,7 +171,7 @@
               <input type="hidden" name="eventSlug" value={event.slug} />
               <button type="submit" class="btn btn-primary w-full">
                 <span class="i-mdi-qrcode-scan mr-1 text-current"></span>
-                Select
+                {m.events_select_button()}
               </button>
             </form>
           </div>
@@ -190,8 +179,8 @@
       </div>
     {:else}
       <div class="col-span-full rounded-lg bg-base-200 p-8 text-center">
-        <p class="text-lg font-medium">No events found</p>
-        <p class="mt-2 text-sm opacity-70">Try changing your search term</p>
+        <p class="text-lg font-medium">{m.events_no_events_found()}</p>
+        <p class="mt-2 text-sm opacity-70">{m.events_change_search_term()}</p>
       </div>
     {/each}
   </div>
@@ -203,43 +192,43 @@
       <button
         class="btn join-item"
         disabled={!data.pagination.hasPrevPage}
-        on:click={() => goToPage(data.pagination.currentPage - 1)}
+        onclick={() => goToPage(data.pagination.currentPage - 1)}
       >
         «
       </button>
 
       <!-- First page button -->
-      {#if showFirstButton}
-        <button class="btn join-item" on:click={() => goToPage(1)}>1</button>
+      {#if paginationInfo.showFirstButton}
+        <button class="btn join-item" onclick={() => goToPage(1)}>1</button>
       {/if}
 
       <!-- Previous ellipsis -->
-      {#if showPrevEllipsis}
+      {#if paginationInfo.showPrevEllipsis}
         <button class="btn btn-disabled join-item">...</button>
       {/if}
 
       <!-- Page number buttons -->
-      {#each displayPages as pageNum (pageNum)}
+      {#each paginationInfo.displayPages as pageNum (pageNum)}
         <button
           class="btn join-item {pageNum === data.pagination.currentPage
             ? 'btn-active'
             : ''}"
-          on:click={() => goToPage(pageNum)}
+          onclick={() => goToPage(pageNum)}
         >
           {pageNum}
         </button>
       {/each}
 
       <!-- Next ellipsis -->
-      {#if showNextEllipsis}
+      {#if paginationInfo.showNextEllipsis}
         <button class="btn btn-disabled join-item">...</button>
       {/if}
 
       <!-- Last page button -->
-      {#if showLastButton}
+      {#if paginationInfo.showLastButton}
         <button
           class="btn join-item"
-          on:click={() => goToPage(data.pagination.totalPages)}
+          onclick={() => goToPage(data.pagination.totalPages)}
         >
           {data.pagination.totalPages}
         </button>
@@ -249,15 +238,18 @@
       <button
         class="btn join-item"
         disabled={!data.pagination.hasNextPage}
-        on:click={() => goToPage(data.pagination.currentPage + 1)}
+        onclick={() => goToPage(data.pagination.currentPage + 1)}
       >
         »
       </button>
     </div>
 
     <div class="mt-2 self-center text-sm text-base-content/70">
-      Showing page {data.pagination.currentPage} of {data.pagination.totalPages}
-      ({data.pagination.totalEvents} events total)
+      {m.events_pagination_info({
+        currentPage: data.pagination.currentPage,
+        totalPages: data.pagination.totalPages,
+        totalEvents: data.pagination.totalEvents,
+      })}
     </div>
   {/if}
 </div>

@@ -34,8 +34,10 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     },
   });
 
-  if (!consumable) {
-    error(404, m.inventory_errors_consumableNotFound());
+  if (!consumable || !consumable.shoppable.ticket) {
+    return {
+      consumable: null,
+    };
   }
 
   return {
@@ -43,8 +45,8 @@ export const load: PageServerLoad = async ({ locals, params }) => {
       ...consumable,
       shoppable: {
         ...consumable.shoppable,
-        ...consumable.shoppable.ticket!,
-        event: consumable.shoppable.ticket!.event,
+        ...consumable.shoppable.ticket,
+        event: consumable.shoppable.ticket.event,
       },
     },
   };
