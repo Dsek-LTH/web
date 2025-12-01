@@ -28,7 +28,7 @@
     </div>
     <div class="text-muted-foreground flex flex-col text-right">
       {dayjsStartDateTime.format("YYYY-MM-DD")}
-      <div>
+      <div class="text-nowrap">
         {`${dayjsStartDateTime.format("hh:mm")} - ${dayjs(
           data.endDatetime,
         ).format("hh:mm")}`}
