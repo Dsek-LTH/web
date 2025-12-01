@@ -32,20 +32,31 @@ export const load: PageServerLoad = async ({ locals, url, request }) => {
   const jwt = await getDecryptedJWT(request);
   const scheduledTasks: ScheduledTaskParsed[] = [];
   if (jwt) {
-    const result = await fetch(
-      `${env.SCHEDULER_ENDPOINT}?password=${env.SCHEDULER_PASSWORD}`,
-      {
-        headers: {
-          Authorization: `Bearer ${jwt["id_token"]}`,
+    try {
+      const result = await fetch(
+        `${env.SCHEDULER_ENDPOINT}?password=${env.SCHEDULER_PASSWORD}`,
+        {
+          headers: {
+            Authorization: `Bearer ${jwt["id_token"]}`,
+          },
         },
-      },
-    );
-    for (const task of (await result.json()) as ScheduledTaskRaw[]) {
-      scheduledTasks.push({
-        ID: task.ID,
-        RunTimestamp: task.RunTimestamp,
-        Body: JSON.parse(task.Body) as NewsArticleData,
-      });
+      );
+
+      if (!result.ok) {
+        console.error(
+          `Failed to fetch scheduled tasks: ${result.status} ${result.statusText}`,
+        );
+      } else {
+        for (const task of (await result.json()) as ScheduledTaskRaw[]) {
+          scheduledTasks.push({
+            ID: task.ID,
+            RunTimestamp: task.RunTimestamp,
+            Body: JSON.parse(task.Body) as NewsArticleData,
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching or parsing scheduled tasks:", error);
     }
   }
   return {
