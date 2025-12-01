@@ -1,15 +1,12 @@
 <script lang="ts">
   import {
-    CalendarDate,
     CalendarDateTime,
-    Time,
     toCalendarDate,
     toTime as toTimeConv,
     toCalendarDateTime,
   } from "@internationalized/date";
   import DatePicker from "./DatePicker.svelte";
   import TimePicker from "./TimePicker.svelte";
-  import { writable } from "svelte/store";
   import { untrack } from "svelte";
 
   const now = new Date();
@@ -25,8 +22,18 @@
       ),
     ),
     toDateTime = $bindable(fromDateTime.add({ minutes: 30 })),
-  }: { fromDateTime?: CalendarDateTime; toDateTime?: CalendarDateTime } =
-    $props();
+    onTimeChange = () => {},
+  }: {
+    fromDateTime?: CalendarDateTime;
+    toDateTime?: CalendarDateTime;
+    onTimeChange?: (
+      time: {
+        fromCalendarDateTime: CalendarDateTime;
+        toCalendarDateTime: CalendarDateTime;
+      },
+      error: boolean,
+    ) => void;
+  } = $props();
 
   let fromDate = $state(toCalendarDate(fromDateTime)),
     fromTime = $state(toTimeConv(fromDateTime)),
@@ -74,24 +81,16 @@
     toTime.set(toTimeConv(fromDateTime));
   });
 
-  /*const f: (x: CalendarDateTime) => void = (x) => {
-    fromDate = toCalendarDate(fromDateTime);
-    fromTime = toTimeConv(fromDateTime);
-  };
-  const fInv: (x: CalendarDate, y: Time) => void = (x, y) =>
-    (fromDateTime = toCalendarDateTime(x, y));
+  let err = $derived(fromDateTime.compare(toDateTime) > 0);
 
-  const t: (x: CalendarDateTime) => void = (x) => {
-    toDate = toCalendarDate(toDateTime);
-    toTime = toTimeConv(toDateTime);
-  };
-  const tInv: (x: CalendarDate, y: Time) => void = (x, y) =>
-    (toDateTime = toCalendarDateTime(x, y));
-
-  $effect(() => f(fromDateTime));
-  $effect(() => fInv(fromDate, fromTime));
-  $effect(() => t(toDateTime));
-  $effect(() => tInv(toDate, toTime));*/
+  // maybe not the best way to implement this, but found no good way to
+  // allow for e.preventDefault on form elements aside from exposing error
+  $effect(() => {
+    onTimeChange(
+      { fromCalendarDateTime: fromDateTime, toCalendarDateTime: toDateTime },
+      err,
+    );
+  });
 </script>
 
 <div class="flex flex-col gap-2">
@@ -101,5 +100,8 @@
     <div class="bg-border h-px flex-1"></div>
     <TimePicker bind:value={toTime}></TimePicker>
   </div>
-  <DatePicker bind:value={toDate}></DatePicker>
+  <DatePicker error={err} bind:value={toDate}></DatePicker>
+  {#if err}<p class="text-rosa-background">Range ends before it starts</p>{/if}
+  <input type="hidden" name="fromCalendarDateTime" value={fromDateTime} />
+  <input type="hidden" name="toCalendarDateTime" value={toDateTime} />
 </div>

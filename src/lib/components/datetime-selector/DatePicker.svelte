@@ -37,8 +37,11 @@
     value = $bindable(),
     weekStartsOn = 1,
     class: className,
+    error = false,
     ...restProps
-  }: Omit<CalendarProps, "type" | "captionLayout"> = $props(); // @ts-ignore
+  }: Omit<CalendarProps, "type" | "captionLayout"> & {
+    error?: boolean;
+  } = $props();
   let contentRef = $state<HTMLElement | null>(null);
 </script>
 
@@ -50,6 +53,7 @@
         class: "w-[280px] justify-start text-left font-normal",
       }),
       !value && "text-muted-foreground",
+      error && "bg-rosa-50 dark:bg-rosa-950 border-rosa-background",
     )}
   >
     <CalendarIcon />
