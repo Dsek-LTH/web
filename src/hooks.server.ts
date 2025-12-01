@@ -68,13 +68,13 @@ const { handle: authHandle } = SvelteKitAuth({
       }
 
       if (account) {
-        token["refresh_token"] = account.refresh_token;
-        token["id_token"] = account.id_token;
-        token["expires_at"] = account.expires_at;
-      } else if (Date.now() < (token["expires_at"] as number) * 1000) {
+        token.refresh_token = account.refresh_token;
+        token.id_token = account.id_token;
+        token.expires_at = account.expires_at;
+      } else if (token.expires_at && Date.now() < token.expires_at * 1000) {
         return token;
       } else {
-        if (!token["refresh_token"]) throw new Error("Missing refresh_token");
+        if (!token.refresh_token) throw new Error("Missing refresh_token");
 
         try {
           const response = await fetch(
@@ -85,7 +85,7 @@ const { handle: authHandle } = SvelteKitAuth({
                 client_id: env.AUTH_AUTHENTIK_CLIENT_ID,
                 client_secret: env.AUTH_AUTHENTIK_CLIENT_SECRET,
                 grant_type: "refresh_token",
-                refresh_token: token["refresh_token"] as string,
+                refresh_token: token.refresh_token,
               }),
             },
           );
@@ -94,16 +94,16 @@ const { handle: authHandle } = SvelteKitAuth({
 
           if (!response.ok) throw tokensOrError;
 
-          token["id_token"] = tokensOrError.id_token;
-          token["expires_at"] =
+          token.id_token = tokensOrError.id_token;
+          token.expires_at =
             Math.floor(Date.now() / 1000) + tokensOrError.expires_in;
-          token["refresh_token"] =
+          token.refresh_token =
             tokensOrError.refresh_token ?? token["refresh_token"];
 
           return token;
         } catch (error) {
           console.error("Error refreshing Authentik access_token:", error);
-          token["error"] = "RefreshTokenError";
+          token.error = "RefreshTokenError";
 
           return token;
         }
@@ -112,12 +112,16 @@ const { handle: authHandle } = SvelteKitAuth({
       return token;
     },
     session({ session, token }) {
-      if (token && session?.user) {
-        session.user.student_id = token.student_id;
-        session.user.email = token.email ?? "";
-        session.user.group_list = token.group_list;
-        session.user.given_name = token.given_name;
-        session.user.family_name = token.family_name;
+      if (token) {
+        if (session?.user) {
+          session.user.student_id = token.student_id;
+          session.user.email = token.email ?? "";
+          session.user.group_list = token.group_list;
+          session.user.given_name = token.given_name;
+          session.user.family_name = token.family_name;
+        }
+
+        session.error = token.error;
       }
 
       return session;
