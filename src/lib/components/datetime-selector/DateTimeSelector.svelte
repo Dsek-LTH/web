@@ -93,14 +93,14 @@
   });
 </script>
 
-<div class="flex flex-col gap-2">
-  <DatePicker bind:value={fromDate}></DatePicker>
+<div class="flex w-min min-w-[16rem] flex-col gap-2">
+  <DatePicker bind:value={fromDate} class="w-full"></DatePicker>
   <div class="flex items-center gap-2">
     <TimePicker bind:value={fromTime}></TimePicker>
     <div class="bg-border h-px flex-1"></div>
     <TimePicker bind:value={toTime}></TimePicker>
   </div>
-  <DatePicker error={err} bind:value={toDate}></DatePicker>
+  <DatePicker error={err} bind:value={toDate} class="w-full"></DatePicker>
   {#if err}<p class="text-rosa-background">Range ends before it starts</p>{/if}
   <input type="hidden" name="fromCalendarDateTime" value={fromDateTime} />
   <input type="hidden" name="toCalendarDateTime" value={toDateTime} />

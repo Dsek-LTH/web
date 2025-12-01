@@ -54,6 +54,7 @@
       }),
       !value && "text-muted-foreground",
       error && "bg-rosa-50 dark:bg-rosa-950 border-rosa-background",
+      className,
     )}
   >
     <CalendarIcon />
@@ -65,7 +66,7 @@
       bind:value
       captionLayout="dropdown"
       {weekStartsOn}
-      class={cn("rounded-md border shadow-sm", className)}
+      class="rounded-md border shadow-sm"
       {...restProps}
     />
   </Popover.Content>
