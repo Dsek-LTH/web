@@ -6,12 +6,12 @@
   import { enhance } from "$app/forms";
 
   const slug = $page.params["slug"];
-  export let data;
+  let { data } = $props();
 
-  $: consumable = data.consumable;
+  let consumable = $derived(data.consumable);
 
-  let submitting = false;
-  let fiveMinutesInMs = 5 * 60 * 1000;
+  let submitting = $state(false);
+  const fiveMinutesInMs = 5 * 60 * 1000;
 </script>
 
 <div class="container mx-auto p-2">
