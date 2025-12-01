@@ -7,10 +7,12 @@
   let {
     title,
     description = "",
+    checked = $bindable(false),
+    indeterminate = $bindable(false),
     ...restProps
   }: WithoutChildrenOrChild<CheckboxPrimitive.RootProps> & {
     title: string;
-    description: string;
+    description?: string;
   } = $props();
 </script>
 
@@ -30,7 +32,8 @@
   <div class="flex flex-col justify-center">
     <Checkbox
       id="toggle-2"
-      checked
+      bind:checked
+      bind:indeterminate
       class="data-[state=checked]:bg-rosa-background data-[state=checked]:border-rosa-background dark:data-[state=checked]:text-rosa-950 data-[state=checked]:text-white"
       {...restProps}
     />

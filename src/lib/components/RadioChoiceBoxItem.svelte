@@ -9,7 +9,7 @@
     description = "",
     ...restProps
   }: WithoutChildrenOrChild<RadioGroupPrimitive.ItemProps> & {
-    description: string;
+    description?: string;
   } = $props();
 </script>
 
