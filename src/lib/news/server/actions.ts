@@ -11,10 +11,8 @@ import type { AuthUser } from "@zenstackhq/runtime";
 import { zod } from "sveltekit-superforms/adapters";
 import { message, superValidate, fail } from "sveltekit-superforms";
 import DOMPurify from "isomorphic-dompurify";
-import { env } from "$env/dynamic/private";
-import { env as envPublic } from "$env/dynamic/public";
 import { sendNewArticleNotification } from "./notifications";
-import { getDecryptedJWT } from "$lib/server/getDecryptedJWT";
+import { scheduleExecution } from "$lib/server/scheduleExecution";
 
 const uploadImage = async (user: AuthUser, image: File, slug: string) => {
   const randomName = (Math.random() + 1).toString(36).substring(2);
@@ -120,40 +118,14 @@ export const createArticle: Action = async (event) => {
   };
 
   if (publishTime && publishTime > new Date()) {
-    const jwt = await getDecryptedJWT(request);
-    let result;
-    try {
-      result = await fetch(env.SCHEDULER_ENDPOINT, {
-        method: "POST",
-        body: JSON.stringify({
-          body: JSON.stringify(data),
-          endpointURL: `${envPublic.PUBLIC_APP_URL}/api/schedule/news`,
-          runTimestamp: publishTime,
-          password: env.SCHEDULER_PASSWORD,
-          token: jwt?.["id_token"],
-        }),
-        headers: { "Content-Type": "application/json" },
-      });
-    } catch (error) {
-      return fail(500, {
-        form,
-        message: `${m.news_errors_schedulingFailed()}: ${error}`,
-      });
-    }
-
-    if (!result.ok) {
-      return fail(500, {
-        form,
-        message: m.news_errors_schedulingFailed(),
-      });
-    }
-
-    throw redirect(
+    return await scheduleExecution(
+      request,
+      data,
+      publishTime,
+      form,
+      m.news_errors_schedulingFailed(),
+      m.news_articleScheduled(),
       "/news",
-      {
-        message: m.news_articleScheduled(),
-        type: "success",
-      },
       event,
     );
   }
