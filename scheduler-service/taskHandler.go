@@ -89,6 +89,8 @@ func executeTask(ctx context.Context, task ScheduledTask) {
 		log.Printf("Task ID %d executed successfully. Status: %d", task.ID, resp.StatusCode)
 	} else {
 		log.Printf("Task ID %d executed with non-success status: %d", task.ID, resp.StatusCode)
+
+		return
 	}
 
 	setTaskExecuted(ctx, task.ID)
