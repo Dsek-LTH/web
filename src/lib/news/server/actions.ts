@@ -149,7 +149,7 @@ export const createArticle: Action = async (event) => {
     }
 
     throw redirect(
-      "/home",
+      "/news",
       {
         message: m.news_articleScheduled(),
         type: "success",
