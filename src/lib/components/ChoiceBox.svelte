@@ -1,8 +1,17 @@
 <script lang="ts">
   import { Checkbox } from "$lib/components/ui/checkbox/index";
+  import { Checkbox as CheckboxPrimitive } from "bits-ui";
   import { Label } from "$lib/components/ui/label/index.js";
+  import type { WithoutChildrenOrChild } from "$lib/utils";
 
-  let { title, description = "" } = $props();
+  let {
+    title,
+    description = "",
+    ...restProps
+  }: WithoutChildrenOrChild<CheckboxPrimitive.RootProps> & {
+    title: string;
+    description: string;
+  } = $props();
 </script>
 
 <Label
