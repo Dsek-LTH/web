@@ -213,6 +213,13 @@ export const getRoutes = (): Route[] =>
           accessRequired: apiNames.MARKDOWN.CREATE,
           appBehaviour: "home-link",
         },
+        {
+          title: m.stocklist(),
+          path: "/admin/stocklist",
+          icon: "i-mdi-text-box-edit",
+          accessRequired: apiNames.DRINKITEM.READ,
+          appBehaviour: "home-link",
+        },
       ],
     },
   ] as const;

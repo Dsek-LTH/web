@@ -10,13 +10,27 @@ export const load: PageServerLoad = async (event) => {
   const { prisma } = event.locals;
   const form = await superValidate(event.request, zod(DrinkItemBatchSchema));
   const drinks = await prisma.drinkItem.findMany();
-  return { form, drinks };
+
+  const entriesIn = await prisma.drinkItemBatch.findMany({
+    where: {
+      quantityIn: { gt: 0 },
+    },
+  });
+  const entriesOut = await prisma.drinkItemBatch.findMany({
+    where: {
+      quantityOut: { gt: 0 },
+    },
+  });
+
+  return { form, drinks, entriesIn, entriesOut };
 };
 
 const DrinkItemBatchSchema = z.object({
   drinkItemId: z.string(),
-  quantity: z.number(),
+  quantityOut: z.number().nonnegative(),
   inOut: z.string(),
+  quantityIn: z.number().nonnegative(),
+  date: z.coerce.date().default(() => new Date()),
 });
 
 export const actions: Actions = {
@@ -26,69 +40,62 @@ export const actions: Actions = {
     authorize(apiNames.DRINKITEMBATCH.CREATE, user);
     const form = await superValidate(event.request, zod(DrinkItemBatchSchema));
     if (!form.valid) return fail(400, { form });
-    console.log(form.data.inOut);
-    console.log(form.data.drinkItemId);
-    console.log(form.data.quantity);
+
     if (form.data.inOut == "IN") {
+      if (form.data.quantityIn === 0) {
+        return message(form, { message: "Får inte vara 0" });
+      }
       await prisma.drinkItemBatch.create({
         data: {
           drinkItemId: form.data.drinkItemId,
-          quantity: form.data.quantity,
+          quantityIn: form.data.quantityIn,
+          date: form.data.date,
+          user: user.studentId!,
         },
       });
 
       return message(form, { message: "Antal inskrivet" });
     }
     if (form.data.inOut == "OUT") {
-      await prisma.$transaction(async (tx) => {
-        const drinkItemId = form.data.drinkItemId;
-        const requested = form.data.quantity;
+      if (form.data.quantityOut === 0) {
+        return message(form, { message: "Får inte vara 0" });
+      }
+      const requestedId = form.data.drinkItemId;
+      const requestedAmount = form.data.quantityOut;
 
-        if (requested <= 0) {
-          throw new Error("Quantity must be greater than 0.");
-        }
-
-        // Fetch all batches for this item with stock, oldest first (FIFO)
-        const batches = await tx.drinkItemBatch.findMany({
-          where: {
-            drinkItemId,
-            quantity: { gt: 0 },
-          },
-        });
-
-        const available = batches.reduce((sum, b) => sum + b.quantity, 0);
-
-        if (available < requested) {
-          throw new Error(
-            `Not enough stock for drinkItemId=${drinkItemId}. Requested: ${requested}, available: ${available}.`,
-          );
-        }
-
-        // Deduct across batches FIFO
-        let remaining = requested;
-
-        for (const batch of batches) {
-          if (remaining === 0) break;
-
-          const take = Math.min(batch.quantity, remaining);
-
-          await tx.drinkItemBatch.update({
-            where: { id: batch.id },
-            data: {
-              quantity: { decrement: take }, // atomic
-            },
-          });
-
-          remaining -= take;
-        }
+      const entriesIn = await prisma.drinkItemBatch.findMany({
+        where: {
+          drinkItemId: requestedId,
+          quantityIn: { gt: 0 },
+        },
       });
+      const entriesOut = await prisma.drinkItemBatch.findMany({
+        where: {
+          drinkItemId: requestedId,
+          quantityOut: { gt: 0 },
+        },
+      });
+      const amountIn = entriesIn.reduce((sum, i) => sum + i.quantityIn!, 0);
+      const amountOut = entriesOut.reduce((sum, i) => sum + i.quantityOut!, 0);
+
+      const availableAmount = amountIn - amountOut;
+
+      if (requestedAmount! > availableAmount) {
+        return message(form, {
+          message: `Finns inte ${requestedAmount} i lager`,
+        });
+      }
+
+      await prisma.drinkItemBatch.create({
+        data: {
+          drinkItemId: form.data.drinkItemId,
+          quantityOut: form.data.quantityOut,
+          date: form.data.date,
+          user: user.studentId!,
+        },
+      });
+
       return message(form, { message: "Antal utskrivet" });
     }
   },
 };
-
-// HÄMTA ALLA DRINK ITEMS
-
-// SKAPA EN FUNCTION FÖR ATT SKRIVA IN
-
-// SKAPA EN FUNCTION FÖR ATT SKRIVA UT

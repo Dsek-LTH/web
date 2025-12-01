@@ -22,6 +22,8 @@ const DrinkItemSchema = z.object({
   price: z.number(),
   group: zDrinkGroup,
   systembolagetID: z.number().int(),
+  bottleEmptyWeight: z.number().int(),
+  bottleFullWeight: z.number().int(),
 });
 
 export const actions: Actions = {
@@ -38,6 +40,8 @@ export const actions: Actions = {
         price: form.data.price * 100,
         group: form.data.group,
         systembolagetID: form.data.systembolagetID,
+        bottleEmptyWeight: form.data.bottleEmptyWeight,
+        bottleFullWeight: form.data.bottleFullWeight,
       },
     });
 

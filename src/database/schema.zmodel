@@ -541,14 +541,16 @@ model Markdown {
 
 
 model DrinkItem {
-  id              String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  quantityType    DrinkQuantityType @map("quantity_type")
-  name            String
-  price           Int
-  group           DrinkGroup
-  systembolagetID Int               @map("systembolaget_id")
+  id                String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  quantityType      DrinkQuantityType @map("quantity_type")
+  name              String
+  price             Int
+  group             DrinkGroup
+  systembolagetID   Int               @map("systembolaget_id")
+  bottleEmptyWeight Int?              @map("bottle_empty_weight")
+  bottleFullWeight  Int?              @map("bottle_full_weight")
 
-  stockLists      DrinkItemBatch[]
+  stockLists        DrinkItemBatch[]
 
   @@allow("read", true)
   @@allow("create", has(auth().policies, "drinkitem:create"))
@@ -561,13 +563,28 @@ model DrinkItemBatch {
   id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   drinkItemId String    @map("drink_item_id") @db.Uuid
   item        DrinkItem @relation(fields: [drinkItemId], references: [id])
-  quantity    Int
+  quantityIn  Int?
+  quantityOut Int?
+  user        String
+  date        DateTime
 
   @@allow("read", true)
   @@allow("create", has(auth().policies, "drinkitembatch:create"))
   @@allow("update", has(auth().policies, "drinkitembatch:update"))
   @@allow("delete", has(auth().policies, "drinkitembatch:delete"))
   @@map("drinkitembatch")
+}
+
+model SexetInventoryValueLog {
+  id    String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  date  DateTime
+  value Int
+
+  @@allow("read", true)
+  @@allow("create", has(auth().policies, "drinkitembatch:create"))
+  @@allow("update", has(auth().policies, "drinkitembatch:update"))
+  @@allow("delete", has(auth().policies, "drinkitembatch:delete"))
+  @@map("sexetinventoryvaluelog")
 }
 
 enum DrinkQuantityType {

@@ -25,6 +25,9 @@
     <a href="/admin/stocklist/stockchange" style="margin-right:15px">
       <button class=" btn btn-primary"> Skriv in/ut </button>
     </a>
+    <a href="/admin/stocklist/treasury" style="margin-right:15px">
+      <button class=" btn btn-primary"> Tristan Tvinga Mig </button>
+    </a>
   </ul>
 </div>
 
@@ -71,9 +74,9 @@
         bind:value={$form.systembolagetID}
       />
       <Labeled label="Grupp" />
-      <select class="input bg-base-300" bind:value={$form.group}>
+      <select class="input bg-base-300" name="group" bind:value={$form.group}>
         {#each drinkGroup as dg}
-          <option>{dg}</option>
+          <option value={dg}>{dg}</option>
         {/each}
       </select>
       <Input
@@ -84,6 +87,22 @@
         class="input bg-base-300"
         bind:value={$form.price}
       />
+      {#if $form.quantityType === DrinkQuantityType.WEIGHT}
+        <Input
+          label="Flaska tomvikt (g)"
+          type="number"
+          name="bottleEmptyWeight"
+          class="input bg-base-300"
+          bind:value={$form.bottleEmptyWeight}
+        />
+        <Input
+          label="Flaska fullvikt (g)"
+          type="number"
+          name="bottleFullWeight"
+          class="input bg-base-300"
+          bind:value={$form.bottleFullWeight}
+        />
+      {/if}
       <div class="flex justify-end">
         <button type="submit" class=" btn btn-primary mt-2 w-4/12">Add</button>
       </div>
