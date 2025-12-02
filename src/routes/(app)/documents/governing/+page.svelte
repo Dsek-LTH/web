@@ -60,7 +60,7 @@
       styrelsen@dsek.se
     </a>
   </p>
-  <div class="flex items-center gap-5">
+  <div class="flex max-w-28 items-center gap-5">
     <FileWithDownload
       name={m.documents_governing_statutes()}
       url="/stadgar"

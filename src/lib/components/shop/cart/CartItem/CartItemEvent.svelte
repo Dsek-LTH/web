@@ -1,17 +1,19 @@
 <script lang="ts">
   import { getFileUrl } from "$lib/files/client";
-  import type { Event } from "@prisma/client";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import dayjs from "dayjs";
 
-  export let event: Event;
+  export let event: ExtendedPrismaModel<"Event">;
 </script>
 
 <div class="flex items-center gap-3">
   <div class="avatar">
     <div class="mask mask-squircle h-12 w-12">
       <img
-        src={getFileUrl(event.imageUrl) ??
-          "https://minio.api.dsek.se/news/public/8c97c4c6-d4f4-44f5-9658-cff70110ad85.webp"}
+        src={getFileUrl(
+          event.imageUrl ??
+            "minio/news/public/8c97c4c6-d4f4-44f5-9658-cff70110ad85.webp",
+        )}
         alt="{event.title} event photo"
       />
     </div>

@@ -16,7 +16,7 @@ export const load: PageServerLoad = async ({ locals }) => {
   const { prisma, user } = locals;
   authorize(apiNames.TAGS.READ, user);
 
-  const tags = await prisma.tag.findMany({ orderBy: { name: "asc" } });
+  const tags = await prisma.tag.findMany({ orderBy: { nameSv: "asc" } });
   const createForm = await superValidate(zod(createSchema));
   const updateForm = await superValidate(zod(updateSchema));
   return {
@@ -27,13 +27,13 @@ export const load: PageServerLoad = async ({ locals }) => {
 };
 
 const createSchema = z.object({
-  name: z.string().default(""),
+  nameSv: z.string().default(""),
 });
 export type CreateSchema = Infer<typeof createSchema>;
 
 const updateSchema = z.object({
   id: z.string().uuid(),
-  name: z.string().optional(),
+  nameSv: z.string().optional(),
   nameEn: z.string().nullable().optional(),
   color: z.string().optional(),
 });
@@ -46,7 +46,7 @@ export const actions: Actions = {
     if (!form.valid) return fail(400, { form });
     await prisma.tag.create({
       data: {
-        name: form.data.name,
+        nameSv: form.data.nameSv,
       },
     });
     return message(form, {

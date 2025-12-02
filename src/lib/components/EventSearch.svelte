@@ -1,14 +1,16 @@
 <script lang="ts">
   import EntitySearch from "$lib/components/EntitySearch.svelte";
-  import type { Event } from "@prisma/client";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import dayjs from "dayjs";
   let clazz = "";
   export { clazz as class };
   export let isSearching = false;
-  export let onSelect: ((event: Event) => void) | undefined;
+  export let onSelect:
+    | ((event: ExtendedPrismaModel<"Event">) => void)
+    | undefined;
   export let handleSearch: (searchValue: string) => void;
 
-  const getOption = (option: unknown) => option as Event;
+  const getOption = (option: unknown) => option as ExtendedPrismaModel<"Event">;
 </script>
 
 <EntitySearch

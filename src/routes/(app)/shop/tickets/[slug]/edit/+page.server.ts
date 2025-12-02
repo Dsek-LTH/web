@@ -39,9 +39,9 @@ export const load = async ({ locals, params }) => {
   return {
     form: await superValidate(
       {
-        title: ticket.shoppable.title,
+        titleSv: ticket.shoppable.title,
         titleEn: ticket.shoppable.titleEn,
-        description: ticket.shoppable.description,
+        descriptionSv: ticket.shoppable.description,
         descriptionEn: ticket.shoppable.descriptionEn,
         price: ticket.shoppable.price / 100,
         availableFrom: ticket.shoppable.availableFrom,

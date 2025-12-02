@@ -1,10 +1,10 @@
 <script lang="ts">
   import MemberSearch from "$lib/components/MemberSearch.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import { getFullName } from "$lib/utils/client/member";
-  import type { Member } from "@prisma/client";
   import * as m from "$paraglide/messages";
-  export let member: Member | undefined = undefined;
+  export let member: ExtendedPrismaModel<"Member"> | undefined = undefined;
   let clazz: string | undefined = undefined;
   export { clazz as class };
   let isSearching: boolean;

@@ -2,14 +2,14 @@ import {
   DEFAULT_SUBSCRIPTION_SETTINGS,
   NOLLA_DEFAULT_SUBSCRIPTION_SETTINGS,
 } from "$lib/utils/notifications/types";
-import type { PrismaClient } from "@prisma/client";
 import { error } from "@sveltejs/kit";
 import { getDerivedRoles } from "./authorization";
 import { isNollningPeriod } from "$lib/utils/adminSettings/nollning";
 import { NOLLNING_TAG_PREFIX } from "$lib/components/postReveal/types";
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 
 export const getCustomAuthorOptions = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   memberId: string,
 ) => {
   const activePositionIds = await prisma.position
@@ -54,7 +54,7 @@ export type MemberDoorPolicies = Array<{
 }>;
 
 export const getCurrentDoorPoliciesForMember = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   studentId: string,
 ) => {
   const memberPositionIds = await prisma.position
@@ -181,7 +181,7 @@ export const getCurrentDoorPoliciesForMember = async (
  * Create a member with default settings for notifications and tag subscriptions
  */
 export const createMember = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   data: {
     studentId: string;
     firstName: string;
@@ -192,7 +192,7 @@ export const createMember = async (
   if (await isNollningPeriod()) {
     const defaultTag = await prisma.tag.findFirst({
       where: {
-        name: {
+        nameSv: {
           startsWith: NOLLNING_TAG_PREFIX,
         },
       },

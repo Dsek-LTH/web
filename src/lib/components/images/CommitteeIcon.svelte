@@ -1,11 +1,11 @@
 <script lang="ts">
   import { getFileUrl } from "$lib/files/client";
-  import type { Committee } from "@prisma/client";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import type { EventHandler } from "svelte/elements";
 
   export let committee: Pick<
-    Committee,
-    "darkImageUrl" | "lightImageUrl" | "monoImageUrl" | "name"
+    ExtendedPrismaModel<"Committee">,
+    "darkImageUrl" | "lightImageUrl" | "monoImageUrl" | "nameSv"
   >;
   export let useMono = false;
 
@@ -39,20 +39,20 @@
 {#if useMono}
   <img
     src={getFileUrl(committee.monoImageUrl) ?? FALLBACK.mono}
-    alt="{committee.name} icon"
+    alt="{committee.nameSv} icon"
     on:error={onError(FALLBACK.mono)}
   />
 {:else}
   <!-- dark/light support -->
   <img
     src={getFileUrl(committee.darkImageUrl) ?? FALLBACK.color}
-    alt="{committee.name} icon"
+    alt="{committee.nameSv} icon"
     class="hidden dark:block"
     on:error={onError(FALLBACK.color)}
   />
   <img
     src={getFileUrl(committee.lightImageUrl) ?? FALLBACK.color}
-    alt="{committee.name} icon"
+    alt="{committee.nameSv} icon"
     class="block dark:hidden"
     on:error={onError(FALLBACK.color)}
   />

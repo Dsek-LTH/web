@@ -31,10 +31,12 @@ export const memberSchema = z.object({
   graduationYear: z.number().min(1962).nullable().default(null),
   foodPreference: z.string().nullable().default(null),
   nollningGroupId: z.string().uuid().nullable().default(null),
+  language: z.string().nullable().default(null),
 });
 export const positionSchema = z.object({
   id: z.string(),
   name: z.string(),
+  nameSv: z.string(),
   nameEn: z.string().nullable(),
 });
 export const mandateSchema = z.object({
@@ -44,6 +46,7 @@ export const mandateSchema = z.object({
 export const customAuthorSchema = z.object({
   id: z.string().uuid(),
   name: z.string(),
+  nameSv: z.string(),
   nameEn: z.string().nullable(),
   imageUrl: z.string().nullable(),
 });
@@ -59,7 +62,7 @@ export const authorSchema = z.object({
 });
 export const tagSchema = z.object({
   id: z.string().uuid(),
-  name: z.string(),
+  nameSv: z.string(),
   nameEn: z.string().nullable(),
   color: z.string().nullable(),
   isDefault: z.boolean().nullable(),
@@ -72,9 +75,9 @@ export type NotificationSchema = Infer<typeof notificationSchema>;
 
 export const ticketSchema = z
   .object({
-    title: z.string().min(1, "Title cannot be empty"),
+    titleSv: z.string().min(1, "Title cannot be empty"),
     titleEn: z.string().nullable().optional(),
-    description: z
+    descriptionSv: z
       .string()
       .min(1, "Description cannot be empty")
       .nullable()
@@ -95,7 +98,7 @@ export const ticketSchema = z
       z
         .object({
           id: z.string().uuid().optional(),
-          title: z.string().min(1, "Title cannot be empty"),
+          titleSv: z.string().min(1, "Title cannot be empty"),
           titleEn: z.string().nullable().optional(),
           description: z.string().default(""),
           descriptionEn: z.string().nullable().optional(),
@@ -105,7 +108,7 @@ export const ticketSchema = z
           options: z
             .array(
               z.object({
-                answer: z.string().min(1, "Answer cannot be empty"),
+                answerSv: z.string().min(1, "Answer cannot be empty"),
                 answerEn: z.string().nullable().optional(),
                 extraPrice: z.number().int().default(0).nullable(),
               }),

@@ -1,10 +1,10 @@
 import { dev } from "$app/environment";
 import { isNollningPeriod } from "$lib/utils/adminSettings/nollning";
 import apiNames from "$lib/utils/apiNames";
-import type { PrismaClient } from "@prisma/client";
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 
 const fetchAccessPolicies = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   roles: string[],
   studentId?: string,
 ) => {
@@ -45,7 +45,7 @@ const hasCacheExpired = (cache: typeof accessPoliciesCache) =>
  * @returns e.g. `["news:create", "news:like", ...etc]`
  */
 export const getAccessPolicies = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   roles: string[],
   studentId?: string,
 ) => {
@@ -72,7 +72,7 @@ export const getAccessPolicies = async (
 };
 
 /** Should only be used in development mode. */
-const getAllAccessPolicies = async (prisma: PrismaClient) =>
+const getAllAccessPolicies = async (prisma: ExtendedPrisma) =>
   prisma.accessPolicy
     .findMany({ distinct: "apiName" })
     .then((policies) => policies.map((p) => p.apiName));

@@ -176,11 +176,13 @@
               class="flex items-center gap-2"
               href="/positions/{mandate.position.id}"
             >
-              {#if mandate.position.committee}
-                <figure class="size-7 overflow-hidden">
+              <figure class="size-7 overflow-hidden rounded-sm">
+                {#if mandate.phadderIn?.imageUrl}
+                  <img src={mandate.phadderIn.imageUrl} alt="Group logo" />
+                {:else if mandate.position.committee}
                   <CommitteeSymbol committee={mandate.position.committee} />
-                </figure>
-              {/if}
+                {/if}
+              </figure>
               <p
                 class="text-[var(--text-pink)] lg:tooltip before:text-balance"
                 data-tip={mandate.position.committee?.name +

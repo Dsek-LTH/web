@@ -1,9 +1,12 @@
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
-import type { Member } from "@prisma/client";
+import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 import { COST_CENTERS } from "./config";
 
 const CACHE_TTL = 1000 * 60 * 60 * 24; // 1 week
-const CACHED_SIGNERS: Record<string, Member["id"] | undefined> = {};
+const CACHED_SIGNERS: Record<
+  string,
+  ExtendedPrismaModel<"Member">["id"] | undefined
+> = {};
 let CACHE_UPDATED_AT = 0;
 
 const TREASURER = "dsek.skattm.mastare";

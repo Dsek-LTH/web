@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { SuperValidated } from "sveltekit-superforms";
   import { superForm } from "$lib/utils/client/superForms";
+  import * as m from "$paraglide/messages";
   import type { DeleteMandateSchema } from "./+page.server";
 
   export let mandateId: string;
@@ -17,7 +18,7 @@
     class="btn btn-error btn-sm pointer-events-auto"
     on:click|stopPropagation
   >
-    X
+    {m.positions_removeMandate()}
   </button>
   {#if $errors.mandateId}
     <p class="text-error">{$errors.mandateId}</p>

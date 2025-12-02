@@ -1,5 +1,6 @@
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 import { BASIC_EVENT_FILTER } from "$lib/events/events";
-import type { Prisma, PrismaClient } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 
 type EventFilters = {
   tags?: string[];
@@ -22,7 +23,7 @@ const include = {
 };
 
 export const getAllEvents = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   filters: EventFilters = { page: 0, pageSize: 10 },
   baseFilter = true,
 ): Promise<[EventWithIncludes[], number]> => {
@@ -46,7 +47,7 @@ export const getAllEvents = async (
           ? {
               OR: [
                 {
-                  title: {
+                  titleSv: {
                     contains: filters.search,
                     mode: "insensitive",
                   },
@@ -58,7 +59,7 @@ export const getAllEvents = async (
                   },
                 },
                 {
-                  shortDescription: {
+                  shortDescriptionSv: {
                     contains: filters.search,
                     mode: "insensitive",
                   },
@@ -70,7 +71,7 @@ export const getAllEvents = async (
                   },
                 },
                 {
-                  description: {
+                  descriptionSv: {
                     contains: filters.search,
                     mode: "insensitive",
                   },
@@ -91,7 +92,7 @@ export const getAllEvents = async (
                 some: {
                   OR: [
                     {
-                      name: {
+                      nameSv: {
                         in: filters.tags,
                         mode: "insensitive",
                       },
@@ -126,7 +127,7 @@ export const getAllEvents = async (
   return [events, Math.ceil(count / pageSize)];
 };
 
-export const getEvent = async (prisma: PrismaClient, slug: string) => {
+export const getEvent = async (prisma: ExtendedPrisma, slug: string) => {
   const response = await prisma.event.findUnique({
     where: {
       slug,

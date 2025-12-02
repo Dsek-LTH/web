@@ -1,8 +1,11 @@
 <script lang="ts">
   import { getFileUrl } from "$lib/files/client";
-  import type { Committee } from "@prisma/client";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
-  export let committee: Pick<Committee, "symbolUrl" | "name">;
+  export let committee: Pick<
+    ExtendedPrismaModel<"Committee">,
+    "symbolUrl" | "name"
+  >;
   $: dark = committee.symbolUrl?.endsWith("light.svg")
     ? committee.symbolUrl.slice(0, -9) + "dark.svg"
     : committee.symbolUrl;

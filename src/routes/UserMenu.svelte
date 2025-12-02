@@ -1,14 +1,14 @@
 <script lang="ts">
   import type { UserShopItemCounts } from "$lib/server/shop/countUserShopItems";
   import { getFullName } from "$lib/utils/client/member";
-  import type { Member } from "@prisma/client";
   import type { AuthUser } from "@zenstackhq/runtime";
   import * as m from "$paraglide/messages";
   import LoadingButton from "$lib/components/LoadingButton.svelte";
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import { signOut } from "$lib/utils/auth";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
-  export let member: Member;
+  export let member: ExtendedPrismaModel<"Member">;
   export let user: AuthUser;
   export let shopItemCounts: UserShopItemCounts;
 
@@ -40,7 +40,7 @@
   <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
   <div
     tabindex="0"
-    class="card dropdown-content card-compact z-[1] min-w-[200px] max-w-[min(800px,calc(100vw-20px))] bg-base-200 p-2 text-center text-base-content shadow"
+    class="card dropdown-content card-compact z-[1] min-w-[220px] max-w-[min(800px,calc(100vw-20px))] bg-base-200 p-2 text-center text-base-content shadow"
   >
     <div class="card-body">
       <p class="text-center font-semibold">{m.navbar_userMenu_loggedInAs()}</p>

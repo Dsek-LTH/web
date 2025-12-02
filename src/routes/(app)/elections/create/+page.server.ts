@@ -6,6 +6,11 @@ import { redirect } from "$lib/utils/redirect";
 import { electionSchema } from "../schemas";
 import * as m from "$paraglide/messages";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma } = locals;
@@ -15,15 +20,16 @@ export const load: PageServerLoad = async ({ locals }) => {
     select: {
       id: true,
       name: true,
+      nameSv: true,
       nameEn: true,
     },
   });
 
   const election = {
-    markdown: "",
+    markdownSv: "",
     markdownEn: null,
     link: "",
-    expiresAt: dayjs().endOf("day").toDate(),
+    expiresAt: dayjs().endOf("day").utc().toDate(),
     committeeId: "",
   };
 
@@ -40,13 +46,16 @@ export const actions: Actions = {
     const { prisma } = locals;
     const form = await superValidate(request, zod(electionSchema));
     if (!form.valid) return fail(400, { form });
-    const { markdown, markdownEn, link, expiresAt, committeeId } = form.data;
+    const { markdownSv, markdownEn, link, expiresAt, committeeId } = form.data;
     await prisma.election.create({
       data: {
-        markdown,
+        markdownSv,
         markdownEn,
         link,
-        expiresAt: dayjs(expiresAt).endOf("day").toDate(),
+        expiresAt: dayjs
+          .tz(`${expiresAt} 23:59:59`, "Europe/Stockholm")
+          .utc()
+          .toDate(),
         committeeId,
       },
     });

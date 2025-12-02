@@ -1,12 +1,12 @@
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 import { phadderMandateFilter } from "$lib/nollning/groups/types";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
-import type { PrismaClient } from "@prisma/client";
 import { error } from "@sveltejs/kit";
 import type { AuthUser } from "@zenstackhq/runtime";
 
 export const loadTicketData = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   user: AuthUser,
   ticketId: string,
 ) => {
