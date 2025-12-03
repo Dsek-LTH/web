@@ -2,6 +2,7 @@
   import { page } from "$app/stores";
   import PageHeader from "$lib/components/nav/PageHeader.svelte";
   import Pagination from "$lib/components/Pagination.svelte";
+  import { getPageSizeOrThrowSvelteError } from "$lib/utils/url.server";
   import ExpenseDetailView from "../ExpenseDetailView.svelte";
   import ExpensesTable from "../ExpensesTable.svelte";
 
@@ -16,6 +17,7 @@
     | "in-book";
 
   let filterForm: HTMLFormElement;
+  const pageSize = getPageSizeOrThrowSvelteError($page.url);
 </script>
 
 <PageHeader title="All expenses" />
@@ -72,9 +74,13 @@
     />
   </label>
 </form>
+
 {#if data.allExpenses.length > 0}
   <ExpensesTable expenses={data.allExpenses} bind:selectedExpense />
-  <Pagination count={data.pageCount} class="mt-4" />
+  <Pagination
+    count={Math.max(data.allExpenses.length / pageSize, 1)}
+    class="mt-4"
+  />
 {:else}
   <p class="my-8 text-center">Inga utlägg</p>
 {/if}

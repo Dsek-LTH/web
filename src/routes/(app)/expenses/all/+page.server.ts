@@ -47,6 +47,7 @@ const whereGivenFilter = (filter: Filter): Prisma.ExpenseWhereInput => {
 export const load = async ({ locals, url }) => {
   const { prisma } = locals;
   const allExpensesCount = await prisma.expense.count();
+
   const pageSize = getPageSizeOrThrowSvelteError(url);
   const pageCount = Math.max(Math.ceil(allExpensesCount / pageSize), 1);
   const page = getPageOrThrowSvelteError(url, {
@@ -67,7 +68,6 @@ export const load = async ({ locals, url }) => {
   });
   return {
     allExpenses,
-    pageCount,
   };
 };
 
