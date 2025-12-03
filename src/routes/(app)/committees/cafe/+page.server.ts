@@ -119,10 +119,11 @@ export const actions: Actions = {
     if (date && timeSlot) {
       const member = worker || user.studentId
       if (!member) {
+        //TODO: These don't seem to do a lot, take a look and fix:
         return fail(400, { form });
       }
       // TODO: check for permissions here so we don't fail
-      const cafeShift = await prisma.cafeShift.findFirst({ where: { date: date, timeSlot: timeSlot }, })
+      const cafeShift = await prisma.cafeShift.findFirst({ where: { date: date, timeSlot: timeSlot }, include: { worker: { select: { studentId: true } } } })
       if (!cafeShift) {
         await prisma.cafeShift.create({
           data: {
@@ -135,6 +136,21 @@ export const actions: Actions = {
             timeSlot: timeSlot
           },
         })
+      } else {
+        // There is already a shift and we might be able to delete it:
+        if (cafeShift.worker.studentId === user.studentId) {
+          await prisma.cafeShift.delete({ where: { id: cafeShift.id } })
+          return message(form, {
+            message: "removed!",
+            type: "success",
+          })
+        } else {
+          //TODO: ERROR here
+          return message(form, {
+            message: "something went wrong!",
+            type: "error",
+          })
+        }
       }
 
       return message(form, {
@@ -144,6 +160,7 @@ export const actions: Actions = {
       })
 
     } else {
+      //TODO: These don't seem to do a lot, take a look and fix:
       return fail(400, { form });
     }
   },

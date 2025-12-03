@@ -7,6 +7,8 @@
   import { TimeSlot } from "@prisma/client";
   import type { ShiftWithWorker } from "./+page.server";
 
+  import { goto, invalidateAll } from "$app/navigation";
+
   dayjs.extend(weekOfYear);
   dayjs.extend(weekYear);
 
@@ -16,6 +18,20 @@
     week = $bindable(),
     shifts,
   }: { week: dayjs.Dayjs; shifts: ShiftWithWorker[] } = $props();
+
+  async function handleSubmit(event: SubmitEvent, increment: number) {
+    event.preventDefault();
+
+    // Get the current URL
+    const url = new URL(window.location.href);
+
+    //BUG: This is all sorts of cursed around the new years, but is almost ok for a test version. Almost
+    url.searchParams.set(
+      "week",
+      (week.week() - dayjs().week() + increment).toString(),
+    );
+    window.location.href = url.toString();
+  }
 </script>
 
 <!-- The bg-zinc here is very ugly, but I couldn't find better fitting colours...-->
@@ -25,25 +41,24 @@
   <div class="flex flex-wrap gap-2 pl-3 pt-3 align-middle text-primary">
     <p class="pl-3 text-4xl font-bold leading-snug">
       {m.booking_week()}
-      {week}
       {week.week()}
     </p>
-    <form method="POST" action="?/changeWeek" use:enhance>
-      <input type="hidden" name="week" value={week.subtract(1, "week")} />
+    <form method="POST" onsubmit={(e) => handleSubmit(e, -1)}>
+      <input type="hidden" name="week" value={week.subtract(-1, "week")} />
       <button
         class="btn btn-square btn-neutral ml-5 h-fit"
-        disabled={dayjs().week() > week.week()}
+        disabled={dayjs().subtract(1, "day").isAfter(week)}
         aria-label="go to previous week"
       >
         «
       </button>
     </form>
-    <form method="POST" action="?/changeWeek" use:enhance>
+    <form method="POST" onsubmit={(e) => handleSubmit(e, 1)}>
       <input type="hidden" name="week" value={week.add(1, "week")} />
       <button
         class="btn btn-square btn-neutral h-fit"
         aria-label="go to next week"
-        disabled={dayjs().week() + 1 < week.week()}
+        disabled={week.subtract(3, "day").isAfter(dayjs())}
       >
         »
       </button>
