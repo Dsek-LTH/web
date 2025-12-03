@@ -77,7 +77,7 @@
             aria-label="menubar"
             size="icon-lg"
             variant="ghost"
-            class="block p-1.5 md:hidden"><Menu /></Button
+            class="md-nav:hidden block p-1.5"><Menu /></Button
           ></Drawer.Trigger
         >
         <Drawer.Content class="max-w-xs!">
@@ -108,7 +108,7 @@
 
 {#snippet desktopLinks()}
   {#each getRoutes() as route (route.title)}
-    <NavigationMenu.Item class="hidden md:block">
+    <NavigationMenu.Item class="md-nav:block hidden">
       {#if route.children}
         <NavigationMenu.Trigger>{route.title}</NavigationMenu.Trigger>
 
