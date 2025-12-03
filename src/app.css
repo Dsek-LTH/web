@@ -138,6 +138,8 @@
   --color-lila-950: #381952;
 
   --color-pistachio-400: #99cc66;
+
+  --breakpoint-md-nav: 56rem;
 }
 
 @layer base {
