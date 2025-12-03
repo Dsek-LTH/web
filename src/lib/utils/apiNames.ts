@@ -96,6 +96,9 @@ const apiNames = {
     CERTIFICATION: "expenses:certification", // who can ALWAYS certify/sign expenses. As of writing this is treasurer and president.
     BOOKKEEPING: "expenses:bookkeeping", // who can manage expenses for bookkeeping
   },
+  CAFE: {
+    EDIT_WORKERS: "cafe:edit_workers"
+  }
 } as const;
 
 export default apiNames;

@@ -1230,9 +1230,10 @@ model CafeShift {
 
   @@allow("create",
     (
-      workerId == auth().memberId
-      && !(timeSlot in [DAGIS])
-      || has(auth().policies, "cafe:day_manager")
+      (workerId == auth().memberId
+      && !(timeSlot in [DAGIS]))
+      || (workerId == auth().memberId
+      && has(auth().policies, "cafe:day_manager"))
     )
     || has(auth().policies, "cafe:edit_workers")
     )
