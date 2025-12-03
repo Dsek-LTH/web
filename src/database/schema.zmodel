@@ -599,6 +599,7 @@ model Member {
   expensesToSign          ExpenseItem[]           @relation("expense_item_signer")
   signedExpenses          ExpenseItem[]           @relation("expense_item_signed_by")
   closedAlerts            Alert[]                 @relation("alerts_closed_by")
+  cafeShifts              CafeShift[]
 
   @@allow('create', has(auth().policies, "core:member:create"))
   @@allow('create', auth().studentId == studentId)
@@ -1215,4 +1216,44 @@ model Readme {
 
   @@map("readme")
   @@allow("read", true)
+}
+
+model CafeShift {
+  id            String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  date          DateTime
+  workerId      String      @db.Uuid
+  worker        Member      @relation(fields: [workerId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "worker_id_foreign")
+  timeSlot      TimeSlot    @map("time_slot")
+
+  @@map("cafe_shifts")
+  @@allow("read", true)
+
+  @@allow("create",
+    (
+      workerId == auth().memberId
+      && !(timeSlot in [DAGIS])
+      || has(auth().policies, "cafe:day_manager")
+    )
+    || has(auth().policies, "cafe:edit_workers")
+    )
+
+  @@allow("update", (
+    workerId == auth().memberId 
+    || has(auth().policies, "cafe:edit_workers")
+  ))
+
+  @@allow("delete", (
+    workerId == auth().memberId 
+    || has(auth().policies, "cafe:edit_workers")
+  ))
+  @@unique([date, timeSlot], map: "date_timeslot_unique")
+}
+
+enum TimeSlot {
+  DAGIS
+  EARLY_1
+  EARLY_2
+  LATE
+
+  @@map("time_slots")
 }

@@ -2,12 +2,15 @@
   import { enhance } from "$app/forms";
   import * as m from "$paraglide/messages";
   import { languageTag } from "$paraglide/runtime";
+  import dayjs from "dayjs";
 
   import CommitteePage from "../CommitteePage.svelte";
   import CafeBookingCalendar from "./CafeBookingCalendar.svelte";
   import type { PageData } from "./$types";
-  export let data: PageData;
-  let isEditing = false;
+  let { data }: { data: PageData } = $props();
+  import weekYear from "dayjs/plugin/weekYear";
+  import weekOfYear from "dayjs/plugin/weekOfYear";
+  let isEditing = $state(false);
 
   const getWeekdayName = (weekday: number): string => {
     let date = new Date();
@@ -19,9 +22,14 @@
       weekday: "long",
     });
   };
+  dayjs.extend(weekOfYear);
+  dayjs.extend(weekYear);
+
+  const week = dayjs().add(data.weekShift, "week");
+  const shifts = $derived(data.shifts);
 </script>
 
-<CommitteePage {data} {isEditing}>
+<CommitteePage bind:data bind:isEditing>
   {#snippet beforeMarkdown()}
     <div
       class="card mb-5 w-full border border-primary bg-base-100 p-6 shadow-xl md:mb-0 md:ml-20 lg:max-w-80"
@@ -99,10 +107,6 @@
   {/snippet}
 
   {#snippet main()}
-    <div>
-      <button class="btn join-item" aria-label="go to previous week">«</button>
-      <CafeBookingCalendar week="42" />
-      <button class="btn join-item" aria-label="go to next week">»</button>
-    </div>
+    <CafeBookingCalendar {week} {shifts} />
   {/snippet}
 </CommitteePage>

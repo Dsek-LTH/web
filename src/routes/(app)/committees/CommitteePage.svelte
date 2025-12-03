@@ -12,17 +12,17 @@
   // export let data: CommitteeLoadData & typeof $page.data;
   // export let isEditing = false;
   let {
-    data,
-    isEditing,
+    data = $bindable(),
+    isEditing = $bindable(),
     beforeMarkdown,
     afterMarkdown,
     main,
   }: {
     data: CommitteeLoadData & typeof page.data;
     isEditing: boolean;
-    beforeMarkdown: Snippet;
-    afterMarkdown: Snippet;
-    main: Snippet;
+    beforeMarkdown?: Snippet;
+    afterMarkdown?: Snippet;
+    main?: Snippet;
   } = $props();
   const thisYear = new Date().getFullYear();
 </script>
@@ -54,16 +54,16 @@
 <EditCommitteeForm form={data.form} open={isEditing} />
 
 <div class="flex flex-col place-content-start md:flex-row-reverse">
-  {@render beforeMarkdown()}
+  {@render beforeMarkdown?.()}
   <div>
     {#if data.markdown?.markdown}
       <MarkdownBody body={data.markdown.markdown} />
     {/if}
-    {@render afterMarkdown()}
+    {@render afterMarkdown?.()}
   </div>
 </div>
 <br />
-{@render main()}
+{@render main?.()}
 
 <Pagination
   count={thisYear - 1982 + 1}
