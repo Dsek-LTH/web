@@ -123,17 +123,22 @@ export type SearchableEventAttributes = Pick<
 >;
 export type EventDataInMeilisearch = Prettify<
   Pick<
-    ExtendedPrismaModel<"Event">,
+    ExtendedPrismaModel<"Event"> & ExtendedPrismaModel<"RecurringEvent">,
     | "titleSv"
     | "titleEn"
-    | "descriptionSv"
-    | "descriptionEn"
     | "slug"
     | "startDatetime"
+    | "endDatetime"
+    | "location"
+    | "descriptionEn"
+    | "descriptionSv"
   >
 >;
 export type EventSearchReturnAttributes = SearchableEventAttributes &
-  Pick<EventDataInMeilisearch, "slug">;
+  Pick<
+    EventDataInMeilisearch,
+    "slug" | "location" | "startDatetime" | "endDatetime"
+  >;
 
 // --------------------------------------------------
 // ARTICLE
@@ -151,12 +156,19 @@ export type SearchableArticleAttributes = Pick<
   ExtendedPrismaModel<"Article">,
   (typeof articleSearchableAttributes)[number]
 >;
-export type ArticleDataInMeilisearch = Pick<
-  ExtendedPrismaModel<"Article">,
-  "headerSv" | "headerEn" | "bodySv" | "bodyEn" | "slug" | "publishedAt"
+export type ArticleDataInMeilisearch = Prettify<
+  Pick<
+    ExtendedPrismaModel<"Article"> & ExtendedPrismaModel<"Member">,
+    "headerSv" | "headerEn" | "bodySv" | "bodyEn" | "slug" | "publishedAt"
+  > & {
+    author: Pick<
+      ExtendedPrismaModel<"Member">,
+      "firstName" | "lastName" | "nickname" | "picturePath"
+    >;
+  }
 >;
 export type ArticleSearchReturnAttributes = SearchableArticleAttributes &
-  Pick<ArticleDataInMeilisearch, "slug">;
+  Pick<ArticleDataInMeilisearch, "slug" | "publishedAt" | "author">;
 
 // --------------------------------------------------
 // POSITION

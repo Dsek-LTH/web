@@ -3,6 +3,7 @@
   import DsekLogo from "$lib/components/DsekLogo.svelte";
   import * as Avatar from "$lib/components/ui/avatar/index.js";
   import { Button } from "$lib/components/ui/button";
+  import CommandDialog from "$lib/components/search/CommandDialog.svelte";
   import Search from "@lucide/svelte/icons/search";
   import Languages from "@lucide/svelte/icons/languages";
   import Bell from "@lucide/svelte/icons/bell";
@@ -11,6 +12,8 @@
   import { page } from "$app/state";
   import { i18n } from "$lib/utils/i18n";
   import { languageTag } from "$paraglide/runtime";
+
+  let commandDialogOpen = $state(false);
 </script>
 
 <div class=" flex min-w-screen flex-row justify-center border-b-[1px]">
@@ -20,7 +23,7 @@
     <div class="flex flex-row items-center">
       <NavigationMenu.Root viewport={false}>
         <NavigationMenu.List>
-          <NavigationMenu.Item>
+          <NavigationMenu.Item class="mr-4">
             <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
             <a href="/">
               <DsekLogo
@@ -80,10 +83,11 @@
     </div>
     <div class="flex flex-row items-center gap-2">
       <Button
-        aria-label="search button"
+        aria-label="search (Ctrl+K)"
         size="icon-lg"
         variant="ghost"
-        class="p-1.5"><Search /></Button
+        class="p-1.5"
+        onclick={() => (commandDialogOpen = true)}><Search /></Button
       >
       <a
         href={i18n.route(page.url.pathname)}
@@ -109,3 +113,5 @@
     </div>
   </div>
 </div>
+
+<CommandDialog bind:open={commandDialogOpen} />
