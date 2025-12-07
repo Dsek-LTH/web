@@ -8,8 +8,6 @@
   import Pagination from "$lib/components/Pagination.svelte";
 
   let { data } = $props();
-
-  let form: HTMLFormElement | undefined = $state();
 </script>
 
 <SetPageTitle title={m.news()} />
@@ -24,15 +22,10 @@
 />
 
 <div class="flex flex-row gap-2 py-4">
-  <form
-    method="get"
-    class="form-control flex-1 gap-2 md:flex-row md:items-end"
-    id="filter-form"
-    bind:this={form}
-  >
+  <div class="flex-1 gap-2 md:flex-row md:items-end">
     <NewsSearch />
-  </form>
-  <Button>+ Skapa</Button>
+  </div>
+  <a href="/news/create"><Button>+ {m.news_create()}</Button></a>
 </div>
 <div class="space-y-4">
   <section class="grid grid-cols-1 gap-8 md:grid-cols-2">
