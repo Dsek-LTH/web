@@ -5,7 +5,6 @@
     SearchDataWithType,
   } from "$lib/search/searchTypes";
   import { availableSearchIndexes } from "$lib/search/searchTypes";
-  import { onMount } from "svelte";
   import { enhance } from "$app/forms";
   import { isSearchResultData } from "$lib/utils/search";
   import ArticleSearchResult from "./ArticleSearchResult.svelte";
@@ -16,11 +15,8 @@
 
   let formElement: HTMLFormElement | null = $state(null);
   let inputElement: HTMLInputElement | null = $state(null);
-  let listItems: HTMLElement[] = $state([]);
-  let advancedSearchElement: HTMLElement | null = $state(null);
 
   let input = $state("");
-  let currentIndex = $state(-1);
   let timeout: ReturnType<typeof setTimeout> | null = null;
   let results: SearchDataWithType[] = $state([]);
 
@@ -44,79 +40,9 @@
       // Do the search after 300ms
       timeout = setTimeout(() => {
         formElement?.requestSubmit();
-        currentIndex = -1;
       }, 300);
     }
   }
-
-  function captureListItems() {
-    // Capture all the search results, and the advanced search link
-    const resultElements = Array.from(
-      document.querySelectorAll("[data-search-result]"),
-    ) as HTMLElement[];
-
-    listItems = advancedSearchElement
-      ? [...resultElements, advancedSearchElement]
-      : resultElements;
-  }
-
-  function handleKeydown(event: KeyboardEvent) {
-    // Most probable case first: user just presses a key
-    // We should then start searching
-    if (
-      (open && currentIndex !== -1 && event.key.length === 1) ||
-      ((event.key === "Backspace" || event.key === "Delete") &&
-        input.length > 0)
-    ) {
-      inputElement?.focus();
-      return;
-    }
-
-    // Second most probable case: user presses arrow keys
-    if (open && (event.key === "ArrowDown" || event.key === "ArrowUp")) {
-      captureListItems();
-      event.preventDefault();
-
-      // Move the index based on the key pressed
-      if (event.key === "ArrowDown") {
-        if (currentIndex + 1 < listItems.length) {
-          currentIndex++;
-        }
-      } else if (event.key === "ArrowUp") {
-        if (currentIndex > 0) {
-          currentIndex--;
-        } else {
-          // Focus the input if we're at the top of the list
-          currentIndex = -1;
-          inputElement?.focus();
-          return;
-        }
-      }
-      // Update focus
-      listItems[currentIndex]?.focus();
-      return;
-    }
-
-    // User presses enter
-    if (open && event.key === "Enter") {
-      captureListItems();
-      // If we have a current index, click it
-      if (currentIndex !== -1) {
-        listItems[currentIndex]?.click();
-      }
-      event.preventDefault();
-      return;
-    }
-  }
-
-  onMount(() => {
-    document.addEventListener("keydown", handleKeydown);
-    return () => {
-      document.removeEventListener("keydown", handleKeydown);
-    };
-  });
-
-  export { open };
 </script>
 
 <div>
@@ -144,6 +70,7 @@
     }}
   >
     <div class="flex flex-row">
+      <!-- TODO: Add an icon here after #1028 gets merged-->
       <Input
         name="input"
         type="text"
@@ -161,7 +88,7 @@
 
   {#if groupedResults.articles.length > 0}
     <ScrollArea
-      class="bg-background absolute! mr-4 h-48 max-w-108 rounded-md border-[1px] sm:mr-0 sm:max-w-128"
+      class="bg-background absolute! mr-4 max-h-48 max-w-108 overflow-scroll rounded-md border-[1px] sm:mr-0 sm:max-w-128 sm:min-w-128"
     >
       {#each groupedResults.articles as result, i (`article-${i}`)}
         <ArticleSearchResult data={result.data} />
