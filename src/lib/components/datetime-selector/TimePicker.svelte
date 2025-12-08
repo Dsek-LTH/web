@@ -3,6 +3,7 @@
   import ClockIcon from "@lucide/svelte/icons/clock";
   import { parseTime, Time } from "@internationalized/date";
   import { cn } from "$lib/utils";
+  import * as m from "$paraglide/messages";
 
   import { formatTimeString } from "./timehelpers";
 
@@ -44,7 +45,7 @@
     let parsed = formatTimeString(timeString);
 
     if (parsed === undefined) {
-      error = new Error("Invalid time");
+      error = new Error(m.timepicker_invalid_time());
       return;
     }
 

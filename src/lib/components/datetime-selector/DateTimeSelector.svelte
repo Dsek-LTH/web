@@ -8,6 +8,8 @@
   import DatePicker from "./DatePicker.svelte";
   import TimePicker from "./TimePicker.svelte";
   import { untrack } from "svelte";
+  import * as m from "$paraglide/messages";
+  import { z } from "zod";
 
   const now = new Date();
 
@@ -101,7 +103,9 @@
     <TimePicker bind:value={toTime}></TimePicker>
   </div>
   <DatePicker error={err} bind:value={toDate} class="w-full"></DatePicker>
-  {#if err}<p class="text-rosa-background">Range ends before it starts</p>{/if}
+  {#if err}<p class="text-rosa-background">
+      {m.datetimeselector_range_error()}
+    </p>{/if}
   <input type="hidden" name="fromCalendarDateTime" value={fromDateTime} />
   <input type="hidden" name="toCalendarDateTime" value={toDateTime} />
 </div>

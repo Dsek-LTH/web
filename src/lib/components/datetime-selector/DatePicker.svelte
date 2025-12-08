@@ -9,8 +9,9 @@
   import { buttonVariants } from "$lib/components/ui/button";
   import { Calendar, type CalendarProps } from "$lib/components/ui/calendar";
   import * as Popover from "$lib/components/ui/popover";
+  import * as m from "$paraglide/messages";
 
-  const df = new DateFormatter("sv-SE", {
+  const df = new DateFormatter(m.locale(), {
     dateStyle: "full",
   });
 
@@ -22,7 +23,7 @@
     let parts = df.formatToParts(date);
     let text = "";
     text += capitalize(parts.find((p) => p.type == "weekday")?.value ?? "");
-    text += ", den ";
+    text += m.datepicker_weekday_separator();
     text += parts.find((p) => p.type === "day")?.value;
     text += " ";
     text += parts.find((p) => p.type == "month")?.value;
@@ -58,7 +59,9 @@
     )}
   >
     <CalendarIcon />
-    {value ? format(value.toDate(getLocalTimeZone())) : "Pick a date"}
+    {value
+      ? format(value.toDate(getLocalTimeZone()))
+      : m.datepicker_pick_date()}
   </Popover.Trigger>
   <Popover.Content bind:ref={contentRef} class="bg-background w-auto p-0">
     <Calendar
