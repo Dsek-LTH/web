@@ -185,3 +185,5 @@
     {/each}
   </div>
 {/snippet}
+
+<CommandDialog bind:open={commandDialogOpen} />
