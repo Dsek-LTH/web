@@ -73,14 +73,14 @@ export const getRoutes = (): Route[] =>
           description: m.nav_about_guild_desc(),
           accessRequired: null,
           appBehaviour: "none",
-          path: "/news",
+          path: "/about-guild",
         },
         {
           title: m.nav_board(),
           description: m.nav_board_desc(),
           accessRequired: null,
           appBehaviour: "none",
-          path: "/events",
+          path: "/board",
         },
         {
           title: m.documents(),
@@ -95,13 +95,27 @@ export const getRoutes = (): Route[] =>
       title: "Engagera dig",
       accessRequired: null,
       appBehaviour: "none",
-      path: null,
+      path: "/volunteer",
     },
     {
       title: "Medlem",
       accessRequired: null,
       appBehaviour: "none",
       path: null,
+      children: [
+        {
+          title: "Bokningar",
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/bookings",
+        },
+        {
+          title: "Utlägg",
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/expenses",
+        },
+      ],
     },
   ] as const;
 
