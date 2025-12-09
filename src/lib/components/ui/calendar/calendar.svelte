@@ -6,20 +6,15 @@
   import { isEqualMonth, type DateValue } from "@internationalized/date";
   import type { Snippet } from "svelte";
 
-  export type CalendarProps =
-    WithoutChildrenOrChild<CalendarPrimitive.RootProps> & {
-      buttonVariant?: ButtonVariant;
-      captionLayout?:
-        | "dropdown"
-        | "dropdown-months"
-        | "dropdown-years"
-        | "label";
-      months?: CalendarPrimitive.MonthSelectProps["months"];
-      years?: CalendarPrimitive.YearSelectProps["years"];
-      monthFormat?: CalendarPrimitive.MonthSelectProps["monthFormat"];
-      yearFormat?: CalendarPrimitive.YearSelectProps["yearFormat"];
-      day?: Snippet<[{ day: DateValue; outsideMonth: boolean }]>;
-    };
+  type CalendarProps = WithoutChildrenOrChild<CalendarPrimitive.RootProps> & {
+    buttonVariant?: ButtonVariant;
+    captionLayout?: "dropdown" | "dropdown-months" | "dropdown-years" | "label";
+    months?: CalendarPrimitive.MonthSelectProps["months"];
+    years?: CalendarPrimitive.YearSelectProps["years"];
+    monthFormat?: CalendarPrimitive.MonthSelectProps["monthFormat"];
+    yearFormat?: CalendarPrimitive.YearSelectProps["yearFormat"];
+    day?: Snippet<[{ day: DateValue; outsideMonth: boolean }]>;
+  };
 
   let {
     ref = $bindable(null),

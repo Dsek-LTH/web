@@ -7,10 +7,9 @@
   } from "@internationalized/date";
   import { cn } from "$lib/utils.js";
   import { buttonVariants } from "$lib/components/ui/button";
-  import { Calendar, type CalendarProps } from "$lib/components/ui/calendar";
+  import { Calendar } from "$lib/components/ui/calendar";
   import * as Popover from "$lib/components/ui/popover";
   import * as m from "$paraglide/messages";
-  import type { CalendarRootProps, WithoutChildrenOrChild } from "bits-ui";
   import type { AriaAttributes } from "svelte/elements";
   import type { ClassValue } from "clsx";
 

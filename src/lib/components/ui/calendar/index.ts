@@ -16,7 +16,6 @@ import YearSelect from "./calendar-year-select.svelte";
 import Month from "./calendar-month.svelte";
 import Nav from "./calendar-nav.svelte";
 import Caption from "./calendar-caption.svelte";
-import type { CalendarProps } from "./calendar.svelte";
 
 export {
   Day,
@@ -39,5 +38,3 @@ export {
   //
   Root as Calendar,
 };
-
-export type { CalendarProps };
