@@ -1,11 +1,18 @@
 <script lang="ts">
   import CalendarIcon from "@lucide/svelte/icons/calendar";
-  import { DateFormatter, getLocalTimeZone } from "@internationalized/date";
+  import {
+    CalendarDate,
+    DateFormatter,
+    getLocalTimeZone,
+  } from "@internationalized/date";
   import { cn } from "$lib/utils.js";
   import { buttonVariants } from "$lib/components/ui/button";
   import { Calendar, type CalendarProps } from "$lib/components/ui/calendar";
   import * as Popover from "$lib/components/ui/popover";
   import * as m from "$paraglide/messages";
+  import type { CalendarRootProps, WithoutChildrenOrChild } from "bits-ui";
+  import type { AriaAttributes } from "svelte/elements";
+  import type { ClassValue } from "clsx";
 
   const df = new DateFormatter(m.locale(), {
     dateStyle: "full",
@@ -36,7 +43,10 @@
     class: className,
     error = false,
     ...restProps
-  }: Omit<CalendarProps, "type" | "captionLayout" | "error"> & {
+  }: AriaAttributes & {
+    value: CalendarDate;
+    weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+    class: ClassValue;
     error?: boolean;
   } = $props();
   let contentRef = $state<HTMLElement | null>(null);
