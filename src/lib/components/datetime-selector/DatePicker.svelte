@@ -36,7 +36,7 @@
     class: className,
     error = false,
     ...restProps
-  }: Omit<CalendarProps, "type" | "captionLayout"> & {
+  }: Omit<CalendarProps, "type" | "captionLayout" | "error"> & {
     error?: boolean;
   } = $props();
   let contentRef = $state<HTMLElement | null>(null);
