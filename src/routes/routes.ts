@@ -91,6 +91,18 @@ export const getRoutes = (): Route[] =>
         },
       ],
     },
+    {
+      title: "Engagera dig",
+      accessRequired: null,
+      appBehaviour: "none",
+      path: null,
+    },
+    {
+      title: "Medlem",
+      accessRequired: null,
+      appBehaviour: "none",
+      path: null,
+    },
   ] as const;
 
 export const getFooterRoutes = (): Route[] =>

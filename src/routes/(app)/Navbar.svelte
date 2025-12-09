@@ -14,6 +14,7 @@
   import { languageTag } from "$paraglide/runtime";
 
   let commandDialogOpen = $state(false);
+  import DarkmodeToggle from "./DarkmodeToggle.svelte";
 </script>
 
 <div class=" flex min-w-screen flex-row justify-center border-b-[1px]">
@@ -106,6 +107,7 @@
         variant="ghost"
         class="p-1.5"><Bell /></Button
       >
+      <DarkmodeToggle class="text-muted-foreground border-0" />
       <Avatar.Root>
         <Avatar.Image src="https://picsum.photos/200" alt="profile picture" />
         <Avatar.Fallback>IK</Avatar.Fallback>
