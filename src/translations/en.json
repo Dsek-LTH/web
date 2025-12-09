@@ -919,5 +919,9 @@
   "fileupload_filetypes": "JPEG, PNG, PDG, or MP4, up to 50MB",
   "fileupload_choose_url": "Enter URL",
   "fileupload_or": "or",
-  "fileupload_error": "The website does not allow downloads."
+  "fileupload_error": "The website does not allow downloads.",
+  "datetimeselector_range_error": "Range ends before it starts",
+  "timepicker_invalid_time": "Invalid time",
+  "datepicker_weekday_separator": ", ",
+  "locale": "en-GB"
 }

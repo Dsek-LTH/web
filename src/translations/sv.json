@@ -920,5 +920,10 @@
   "fileupload_filetypes": "JPEG, PNG, PDG, eller MP4, upp till 50MB",
   "fileupload_choose_url": "Välj URL",
   "fileupload_or": "eller",
-  "fileupload_error": "Sidan tillåter inte nedladdning av filer."
+  "fileupload_error": "Sidan tillåter inte nedladdning av filer.",
+  "datetimeselector_range_error": "Intervall slutar innan det börjar ",
+  "timepicker_invalid_time": " Ogiltig tid",
+  "datepicker_pick_date": "Pick a date",
+  "datepicker_weekday_separator": ", den ",
+  "locale": "sv-SE"
 }
