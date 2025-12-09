@@ -17,12 +17,8 @@
     value?: Time;
   } = $props();
 
-  let timeString = $state(value.toString().substring(0, 5));
+  let timeString = $derived(value.toString().substring(0, 5));
   let error: Error | undefined = $state();
-
-  $effect(() => {
-    timeString = value.toString().substring(0, 5);
-  });
 
   const formatValue = () => {
     let parsed = formatTimeString(timeString);

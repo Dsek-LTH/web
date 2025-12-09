@@ -4,12 +4,13 @@
  * @returns {string | undefined} The parsed string in 24h format "17:15", or undefined if invalid
  */
 function formatTimeString(timeString: string): string | undefined {
-  let parsed = parseHourMinute(timeString);
+  const parsed = parseHourMinute(timeString);
   if (parsed === undefined) return undefined;
-  let { hour, minute } = parsed;
+  let hour = parsed.hour;
+  const minute = parsed.minute;
 
-  let hInt = parseInt(hour);
-  let mInt = parseInt(minute);
+  const hInt = parseInt(hour);
+  const mInt = parseInt(minute);
 
   if (hInt > 23 || mInt > 59) return undefined;
 
@@ -21,10 +22,11 @@ function formatTimeString(timeString: string): string | undefined {
 function parseHourMinute(
   timeString: string,
 ): { hour: string; minute: string } | undefined {
-  let match = /\D*(\d{1,2})(\D*)(\d{0,2})(\D*)(\d*)\D*/.exec(timeString);
+  const match = /\D*(\d{1,2})(\D*)(\d{0,2})(\D*)(\d*)\D*/.exec(timeString);
   if (match === null) return undefined;
 
-  let { 1: hour, 2: hsep, 3: minute, 4: msep, 5: trail } = match;
+  let { 1: hour, 3: minute } = match;
+  const { 2: hsep, 4: msep, 5: trail } = match;
   hour ??= "";
   minute ??= "";
 
@@ -32,11 +34,11 @@ function parseHourMinute(
     let number: string;
     if (msep === "") {
       number = hour + minute + trail;
-      let l = number.length;
+      const l = number.length;
       if (l < 1 || 6 < l) return undefined;
     } else {
       number = hour + minute;
-      let l = number.length;
+      const l = number.length;
       if (l < 1 || 4 < l) return undefined;
     }
 
@@ -55,7 +57,7 @@ function parseHourMinute(
 }
 
 function handleAmPm(hour: string, original: string): string {
-  let match = original
+  const match = original
     .matchAll(/(am?)|(pm?)/gi)
     .toArray()
     .toSorted(

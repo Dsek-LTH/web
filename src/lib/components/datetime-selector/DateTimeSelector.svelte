@@ -9,7 +9,6 @@
   import TimePicker from "./TimePicker.svelte";
   import { untrack } from "svelte";
   import * as m from "$paraglide/messages";
-  import { z } from "zod";
 
   const now = new Date();
 
@@ -24,7 +23,9 @@
       ),
     ),
     toDateTime = $bindable(fromDateTime.add({ minutes: 30 })),
-    onTimeChange = () => {},
+    onTimeChange = () => {
+      // do nothing
+    },
   }: {
     fromDateTime?: CalendarDateTime;
     toDateTime?: CalendarDateTime;
