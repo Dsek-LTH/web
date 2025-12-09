@@ -10,13 +10,15 @@
   import Menu from "@lucide/svelte/icons/menu";
   import ChevronDown from "@lucide/svelte/icons/chevron-down";
   import X from "@lucide/svelte/icons/x";
-  import { getRoutes } from "./(app)/routes";
+  import { getRoutes } from "../routes";
   import { navigationMenuTriggerStyle } from "$lib/components/ui/navigation-menu/navigation-menu-trigger.svelte";
   import { page } from "$app/state";
   import { i18n } from "$lib/utils/i18n";
   import { languageTag } from "$paraglide/runtime";
   import DarkmodeToggle from "./DarkmodeToggle.svelte";
   import * as Drawer from "$lib/components/ui/drawer";
+
+  let commandDialogOpen = $state(false);
 </script>
 
 <div class=" flex min-w-screen flex-row justify-center border-b-[1px]">
