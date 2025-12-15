@@ -4,16 +4,21 @@
   import Input from "$lib/components/Input.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
   import { DrinkQuantityType, type DrinkItem } from "@prisma/client";
+  import FormDateInput from "$lib/components/forms/FormDateInput.svelte";
+  import dayjs from "dayjs";
 
   const { data } = $props();
   const { form, enhance } = superForm(data.form);
+  console.log($form.date);
 
   let selectedDrinkItem: DrinkItem | undefined = $derived(
     data.drinks.filter((drink) => drink.id === $form.drinkItemId).pop(),
   );
 </script>
 
-<div>
+<div
+  style="display: flex; justify-content: space-between; align-items: center;"
+>
   <ul style="list-style: none;">
     <a href="/admin/stocklist" style="margin-right:15px">
       <button class="btn btn-primary"> Överblick </button>
@@ -25,7 +30,10 @@
       <button class=" btn btn-primary"> Skriv in/ut </button>
     </a>
     <a href="/admin/stocklist/treasury" style="margin-right:15px">
-      <button class=" btn btn-primary"> Tristan Tvinga Mig </button>
+      <button class=" btn btn-primary"> Action Logs </button>
+    </a>
+    <a href="/admin/stocklist/showproducts" style="margin-right:15px">
+      <button class=" btn btn-primary"> Show Products </button>
     </a>
   </ul>
 </div>
@@ -63,20 +71,60 @@
           {/each}
         </select>
         <Input type="hidden" name="inOut" bind:value={$form.inOut} />
-        <Input
-          label="Antal/Vikt"
-          type="number"
-          name="quantityIn"
-          class="input bg-base-300"
-          bind:value={$form.quantityIn}
-        />
-        <Input
-          label="Datum"
-          type="date"
-          name="date"
-          class="input bg-base-300"
-          bind:value={$form.date}
-        />
+
+        {#if selectedDrinkItem}
+          {#if selectedDrinkItem!.quantityType === DrinkQuantityType.COUNTS}
+            <Labeled
+              label={`Tillgängligt: ${data.entriesIn.filter((i) => i.drinkItemId === selectedDrinkItem!.id).reduce((sum, i) => sum + i.quantityIn!, 0) - data.entriesOut.filter((i) => i.drinkItemId === selectedDrinkItem!.id).reduce((sum, i) => sum + i.quantityOut!, 0)}`}
+            />
+
+            <Input type="hidden" name="inOut" bind:value={$form.inOut} />
+            <Input
+              label="Antal"
+              type="number"
+              name="quantityIn"
+              class="input bg-base-300"
+              bind:value={$form.quantityIn}
+            />
+
+            <Input
+              label="Datum"
+              type="date"
+              name="date"
+              class="input bg-base-300"
+              bind:value={$form.date}
+            />
+          {:else}
+            <Labeled
+              label={`Tillgängligt: ${data.entriesIn.filter((i) => i.drinkItemId === selectedDrinkItem!.id).reduce((sum, i) => sum + i.quantityIn!, 0) - data.entriesOut.filter((i) => i.drinkItemId === selectedDrinkItem!.id).reduce((sum, i) => sum + i.quantityOut!, 0)}`}
+            />
+
+            <Input type="hidden" name="inOut" bind:value={$form.inOut} />
+            <Input
+              label="Vikt"
+              type="number"
+              name="quantityIn"
+              class="input bg-base-300"
+              bind:value={$form.quantityIn}
+            />
+
+            <Input
+              label="Antal flaskor"
+              type="number"
+              name="nrBottles"
+              class="input bg-base-300"
+              bind:value={$form.nrBottles}
+            />
+
+            <Input
+              label="Datum"
+              type="date"
+              name="date"
+              class="input bg-base-300"
+              bind:value={$form.date}
+            />
+          {/if}
+        {/if}
 
         <div class="flex justify-end">
           <button type="submit" class=" btn btn-primary mt-2 w-4/12">Add</button
@@ -141,6 +189,14 @@
               name="quantityOut"
               class="input bg-base-300"
               bind:value={$form.quantityOut}
+            />
+
+            <Input
+              label="Antal flaskor"
+              type="number"
+              name="nrBottles"
+              class="input bg-base-300"
+              bind:value={$form.nrBottles}
             />
 
             <Input

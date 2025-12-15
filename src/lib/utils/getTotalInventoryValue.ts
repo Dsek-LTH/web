@@ -15,6 +15,15 @@ export async function getTotalInventoryValue(prisma: PrismaClient) {
         (existing.quantityIn ?? 0) + (batch.quantityIn ?? 0);
       existing.quantityOut =
         (existing.quantityOut ?? 0) + (batch.quantityOut ?? 0);
+
+      if (batch.item.quantityType === DrinkQuantityType.WEIGHT) {
+        const isBatchIn = batch.quantityIn != null;
+        if (isBatchIn) {
+          existing.nrBottles = existing.nrBottles! + batch.nrBottles!;
+        } else {
+          existing.nrBottles = existing.nrBottles! - batch.nrBottles!;
+        }
+      }
     } else {
       groupedMap.set(batch.item.id, { ...batch });
     }
@@ -25,7 +34,9 @@ export async function getTotalInventoryValue(prisma: PrismaClient) {
   const totalInventoryValue = grouped.reduce((sum, i) => {
     if (i.item.quantityType === DrinkQuantityType.WEIGHT) {
       const realWeight =
-        (i.quantityIn ?? 0) - (i.quantityOut ?? 0) - i.item.bottleEmptyWeight!;
+        (i.quantityIn ?? 0) -
+        (i.quantityOut ?? 0) -
+        i.item.bottleEmptyWeight! * i.nrBottles!;
       const fullRealWeight =
         i.item.bottleFullWeight! - i.item.bottleEmptyWeight!;
       const pricePerWeight = i.item.price / fullRealWeight;

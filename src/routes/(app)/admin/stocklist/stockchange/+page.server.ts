@@ -5,6 +5,7 @@ import { z } from "zod";
 import type { PageServerLoad } from "./$types";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
+import dayjs from "dayjs";
 
 export const load: PageServerLoad = async (event) => {
   const { prisma } = event.locals;
@@ -30,16 +31,21 @@ const DrinkItemBatchSchema = z.object({
   quantityOut: z.number().nonnegative(),
   inOut: z.string(),
   quantityIn: z.number().nonnegative(),
-  date: z.coerce.date().default(() => new Date()),
+  date: z
+    .string()
+    .date()
+    .default(() => new Date().toLocaleDateString("se-SE")),
+  nrBottles: z.number().nonnegative(),
 });
 
 export const actions: Actions = {
   createDrinkItemBatch: async (event) => {
     const { user, prisma } = event.locals;
-
     authorize(apiNames.DRINKITEMBATCH.CREATE, user);
     const form = await superValidate(event.request, zod(DrinkItemBatchSchema));
-    if (!form.valid) return fail(400, { form });
+    if (!form.valid) {
+      return message(form, { message: "inkorrekt värde" });
+    }
 
     if (form.data.inOut == "IN") {
       if (form.data.quantityIn === 0) {
@@ -49,7 +55,8 @@ export const actions: Actions = {
         data: {
           drinkItemId: form.data.drinkItemId,
           quantityIn: form.data.quantityIn,
-          date: form.data.date,
+          date: dayjs(form.data.date).toDate(),
+          nrBottles: form.data.nrBottles,
           user: user.studentId!,
         },
       });
@@ -90,7 +97,8 @@ export const actions: Actions = {
         data: {
           drinkItemId: form.data.drinkItemId,
           quantityOut: form.data.quantityOut,
-          date: form.data.date,
+          date: dayjs(form.data.date).toDate(),
+          nrBottles: form.data.nrBottles,
           user: user.studentId!,
         },
       });

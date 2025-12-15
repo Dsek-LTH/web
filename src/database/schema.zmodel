@@ -567,6 +567,7 @@ model DrinkItemBatch {
   quantityOut Int?
   user        String
   date        DateTime
+  nrBottles   Int?
 
   @@allow("read", true)
   @@allow("create", has(auth().policies, "drinkitembatch:create"))

@@ -31,7 +31,10 @@
         <button class=" btn btn-primary"> Skriv in/ut </button>
       </a>
       <a href="/admin/stocklist/treasury" style="margin-right:15px">
-        <button class=" btn btn-primary"> Tristan Tvinga Mig </button>
+        <button class=" btn btn-primary"> Action Logs </button>
+      </a>
+      <a href="/admin/stocklist/showproducts" style="margin-right:15px">
+        <button class=" btn btn-primary"> Show Products </button>
       </a>
     </ul>
   </div>
@@ -65,11 +68,7 @@
             <th>{item.item.systembolagetID}</th>
             <td>{item.item.name}</td>
             <td>{item.item.price / 100} kr</td>
-            <td
-              >{(item.quantityIn ?? 0) -
-                (item.quantityOut ?? 0) -
-                item.item.bottleEmptyWeight!} g</td
-            >
+            <td>{(item.quantityIn ?? 0) - (item.quantityOut ?? 0)} g</td>
             <td>{item.item.group}</td>
           </tr>
         {/if}

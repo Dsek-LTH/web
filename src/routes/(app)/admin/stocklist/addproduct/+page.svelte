@@ -26,7 +26,10 @@
       <button class=" btn btn-primary"> Skriv in/ut </button>
     </a>
     <a href="/admin/stocklist/treasury" style="margin-right:15px">
-      <button class=" btn btn-primary"> Tristan Tvinga Mig </button>
+      <button class=" btn btn-primary"> Action Logs </button>
+    </a>
+    <a href="/admin/stocklist/showproducts" style="margin-right:15px">
+      <button class=" btn btn-primary"> Show Products </button>
     </a>
   </ul>
 </div>

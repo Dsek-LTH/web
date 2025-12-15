@@ -19,10 +19,20 @@ const dateSchema = z.object({
   date: z.string().nullable(),
 });
 
+const updateSchema = z.object({
+  id: z.string(),
+  date: z.string(),
+  drinkItemId: z.string(),
+  quantityIn: z.number().min(0),
+  quantityOut: z.number().min(0),
+});
+
 export const load: PageServerLoad = async (event) => {
   const { prisma } = event.locals;
+  const drinks = await prisma.drinkItem.findMany();
   const date = event.url.searchParams.get("date");
   const deleteForm = await superValidate(zod(deleteSchema));
+  const updateForm = await superValidate(zod(updateSchema));
   const dateForm = await superValidate({ date: date ?? null }, zod(dateSchema));
 
   let entries;
@@ -68,11 +78,13 @@ export const load: PageServerLoad = async (event) => {
 
         if (row.quantityIn === null) {
           const realWeight =
-            (row.quantityOut ?? 0) - row.item.bottleEmptyWeight!;
+            row.quantityOut! - row.item.bottleEmptyWeight! * row.nrBottles!;
+          console.log(realWeight);
           localTotalInventoryValue -= pricePerWeight * realWeight;
         } else {
           const realWeight =
-            (row.quantityIn ?? 0) - row.item.bottleEmptyWeight!;
+            (row.quantityIn ?? 0) -
+            row.item.bottleEmptyWeight! * row.nrBottles!;
           localTotalInventoryValue += pricePerWeight * realWeight;
         }
       } else {
@@ -91,7 +103,9 @@ export const load: PageServerLoad = async (event) => {
     entriesOnDate,
     totalInventoryValue,
     deleteForm,
+    updateForm,
     dateForm,
+    drinks,
   };
 };
 
@@ -109,10 +123,37 @@ export const actions: Actions = {
     return message(form, { message: `Batch borttagen` });
   },
 
+  updateEntry: async ({ request, locals }) => {
+    const { prisma } = locals;
+    const form = await superValidate(request, zod(updateSchema));
+
+    if (!form.valid) return fail(400, { form });
+
+    try {
+      await prisma.drinkItemBatch.update({
+        where: { id: form.data.id },
+        data: {
+          date: new Date(form.data.date),
+          drinkItemId: form.data.drinkItemId,
+          quantityIn: form.data.quantityIn,
+          quantityOut: form.data.quantityOut,
+        },
+      });
+    } catch (err) {
+      return fail(500, { message: "Failed to update" });
+    }
+
+    redirect(302, request.url);
+  },
+
   redirectDate: async (event) => {
     const form = await superValidate(event.request, zod(dateSchema));
 
     if (!form.valid) return fail(400, { form });
+
+    if (form.data.date === null) {
+      redirect(302, "treasury");
+    }
 
     const date = dayjs(form.data.date).format("YYYY-MM-DD");
     event.url.searchParams.set("date", date);

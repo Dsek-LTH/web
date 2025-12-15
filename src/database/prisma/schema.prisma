@@ -479,6 +479,7 @@ model DrinkItemBatch {
   quantityOut Int?
   user        String
   date        DateTime
+  nrBottles   Int?
 
   @@map("drinkitembatch")
 }
