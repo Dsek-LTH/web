@@ -176,7 +176,7 @@
         </div>
       </details>
     {/each}
-    <details class="group my-1 w-full text-left">
+    <details class="group my-1 text-left">
       <summary class="cursor-pointer list-none">
         <ChevronRight
           class="text-muted-foreground mb-[10px] inline group-open:hidden"
