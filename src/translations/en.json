@@ -923,5 +923,9 @@
   "datetimeselector_range_error": "Range ends before it starts",
   "timepicker_invalid_time": "Invalid time",
   "datepicker_weekday_separator": ", ",
-  "locale": "en-GB"
+  "locale": "en-GB",
+  "pagination_previous": "Previous",
+  "pagination_next": "Next",
+  "nav_volunteer": "Volunteer",
+  "nav_member": "Medlem"
 }
