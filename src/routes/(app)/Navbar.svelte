@@ -29,7 +29,6 @@
 
   $effect(() => {
     if (navOpen == false) {
-      console.log("hej");
       setTimeout(() => (visible = true), 20);
     }
   });
