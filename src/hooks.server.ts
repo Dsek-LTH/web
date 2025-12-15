@@ -98,7 +98,7 @@ const { handle: authHandle } = SvelteKitAuth({
           token.expires_at =
             Math.floor(Date.now() / 1000) + tokensOrError.expires_in;
           token.refresh_token =
-            tokensOrError.refresh_token ?? token["refresh_token"];
+            tokensOrError.refresh_token ?? token.refresh_token;
 
           return token;
         } catch (error) {
@@ -122,6 +122,9 @@ const { handle: authHandle } = SvelteKitAuth({
         }
 
         session.error = token.error;
+        if (session.error) {
+          throw redirect(302, "/signout");
+        }
       }
 
       return session;
