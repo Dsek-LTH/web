@@ -92,13 +92,13 @@ export const getRoutes = (): Route[] =>
       ],
     },
     {
-      title: "Engagera dig",
+      title: m.nav_volunteer(),
       accessRequired: null,
       appBehaviour: "none",
       path: "/volunteer",
     },
     {
-      title: "Medlem",
+      title: m.nav_member(),
       accessRequired: null,
       appBehaviour: "none",
       path: null,
