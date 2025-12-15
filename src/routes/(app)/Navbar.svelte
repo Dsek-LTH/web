@@ -10,6 +10,10 @@
   import Menu from "@lucide/svelte/icons/menu";
   import ChevronDown from "@lucide/svelte/icons/chevron-down";
   import X from "@lucide/svelte/icons/x";
+  import User from "@lucide/svelte/icons/user";
+  import Settings from "@lucide/svelte/icons/settings";
+  import LogOut from "@lucide/svelte/icons/log-out";
+
   import { getRoutes } from "../routes";
   import { navigationMenuTriggerStyle } from "$lib/components/ui/navigation-menu/navigation-menu-trigger.svelte";
   import { page } from "$app/state";
@@ -17,19 +21,47 @@
   import { languageTag } from "$paraglide/runtime";
   import DarkmodeToggle from "./DarkmodeToggle.svelte";
   import * as Drawer from "$lib/components/ui/drawer";
+  import { onMount } from "svelte";
 
   let commandDialogOpen = $state(false);
+
+  let navOpen: boolean = $state(false);
+
+  $effect(() => {
+    if (navOpen == false) {
+      console.log("hej");
+      setTimeout(() => (visible = true), 20);
+    }
+  });
+
+  let oldScroll: number;
+  let visible = $state(true);
+
+  onMount(() => {
+    window.onscroll = () => {
+      if (window.innerWidth < 896) {
+        if (window.scrollY > oldScroll) {
+          visible = false;
+        } else {
+          visible = true;
+        }
+        oldScroll = window.scrollY;
+      }
+    };
+  });
 </script>
 
-<div class=" flex min-w-screen flex-row justify-center border-b-[1px]">
+<div
+  class:visible
+  class="nav-mobile bg-muted-background md-nav:top-0 md-nav:bottom-[unset] md-nav:h-[unset]! md-nav:relative fixed bottom-0 z-100 h-[64px] w-full max-w-screen flex-row justify-center border-t-[1px] border-b-[1px] font-[1.25rem]"
+>
   <div
-    class="container mx-auto flex flex-row items-center justify-between px-8 py-4 xl:px-32"
+    class="md-nav:py-4 md-nav:py-4 container mx-auto flex shrink flex-row items-center justify-between px-8 py-3 xl:px-32"
   >
     <div class="flex flex-row items-center">
       <NavigationMenu.Root viewport={false}>
         <NavigationMenu.List>
           <NavigationMenu.Item class="mr-4">
-            <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
             <a href="/">
               <DsekLogo
                 variant="letter"
@@ -41,7 +73,7 @@
         </NavigationMenu.List>
       </NavigationMenu.Root>
     </div>
-    <div class="flex flex-row items-center gap-2">
+    <div class="z-150 flex flex-row items-center gap-2">
       <Button
         aria-label="search (Ctrl+K)"
         size="icon-lg"
@@ -52,6 +84,7 @@
       <a
         href={i18n.route(page.url.pathname)}
         hreflang={languageTag() === "sv" ? "en" : "sv"}
+        class="md-nav:inline-flex hidden"
       >
         <Button
           aria-label="languages"
@@ -66,38 +99,90 @@
         variant="ghost"
         class="p-1.5"><Bell /></Button
       >
-      <DarkmodeToggle class="text-muted-foreground border-0" />
-      <Avatar.Root>
+      <DarkmodeToggle
+        class="md-nav:inline-flex text-muted-foreground hidden border-0"
+      />
+      <Avatar.Root class="md-nav:flex hidden">
         <Avatar.Image src="https://picsum.photos/200" alt="profile picture" />
         <Avatar.Fallback>IK</Avatar.Fallback>
       </Avatar.Root>
-      <Drawer.Root direction="right">
-        <Drawer.Trigger
-          ><Button
-            aria-label="menubar"
-            size="icon-lg"
-            variant="ghost"
-            class="md-nav:hidden block p-1.5"><Menu /></Button
-          ></Drawer.Trigger
-        >
-        <Drawer.Content class="max-w-xs!">
+      <Drawer.Root bind:open={navOpen} direction="bottom">
+        {#if navOpen}
+          <Drawer.Close
+            ><Button
+              aria-label="menubar"
+              size="icon-lg"
+              variant="ghost"
+              class="md-nav:hidden block p-1.5"><X /></Button
+            ></Drawer.Close
+          >
+        {:else}
+          <Drawer.Trigger
+            ><Button
+              aria-label="menubar"
+              size="icon-lg"
+              variant="ghost"
+              class="md-nav:hidden block p-1.5"><Menu /></Button
+            ></Drawer.Trigger
+          >{/if}
+        <Drawer.Content class="pb-[64px]" compact>
           <Drawer.Header>
-            <Drawer.Title class="flex flex-row justify-between"
-              ><div class="flex flex-row items-center gap-2">
-                <DsekLogo
-                  variant="letter"
-                  class="hover:fill-rosa-400 fill-rosa-400 size-6"
-                />
-                <h1 class="text-[14px] leading-6">D-sektionen inom TLTH</h1>
+            <Drawer.Title class="flex flex-col"
+              ><div class="flex flex-row justify-between">
+                <div class="flex flex-row items-center gap-2">
+                  <Avatar.Root>
+                    <Avatar.Image
+                      src="https://picsum.photos/200"
+                      alt="profile picture"
+                    />
+                    <Avatar.Fallback>IK</Avatar.Fallback>
+                  </Avatar.Root>
+                  <p class="text-muted-foreground mt-0 font-medium">Es Björn</p>
+                </div>
+                <div class="flex flex-row justify-between gap-2">
+                  <a href="/members/me">
+                    <Button
+                      aria-label="profile"
+                      size="icon-lg"
+                      variant="outline"
+                      class="text-muted-foreground size-9"><User /></Button
+                    ></a
+                  ><a href="/settings">
+                    <Button
+                      aria-label="settings"
+                      size="icon-lg"
+                      variant="outline"
+                      class="text-muted-foreground size-9"><Settings /></Button
+                    ></a
+                  ><a href="#signout">
+                    <Button
+                      aria-label="sign out"
+                      size="icon-lg"
+                      variant="outline"
+                      class="text-muted-foreground size-9"><LogOut /></Button
+                    ></a
+                  >
+                </div>
               </div>
-              <Drawer.Close
-                ><X
-                  class="text-muted-foreground hover:bg-secondary-hover m-1 h-6 w-6 rounded-xs p-1"
-                /></Drawer.Close
-              ></Drawer.Title
-            >
-            <Drawer.Description class="flex flex-col">
-              {@render mobileLinks()}</Drawer.Description
+            </Drawer.Title>
+            <Drawer.Description class="flex flex-row justify-between">
+              <div class="flex flex-col">
+                {@render mobileLinks()}
+              </div>
+              <div class="flex flex-col justify-end gap-1">
+                <a
+                  href={i18n.route(page.url.pathname)}
+                  hreflang={languageTag() === "sv" ? "en" : "sv"}
+                >
+                  <Button
+                    aria-label="languages"
+                    size="icon-lg"
+                    variant="outline"
+                    class="text-muted-foreground size-9 p-1.5"
+                    ><Languages /></Button
+                  ></a
+                ><DarkmodeToggle class="text-muted-foreground size-9 p-1.5" />
+              </div></Drawer.Description
             >
           </Drawer.Header>
         </Drawer.Content>

@@ -223,3 +223,14 @@
 @utility layout-container {
   @apply container mx-auto px-4 py-8 xl:px-32;
 }
+
+.nav-mobile:not(.visible):not(:focus-within) {
+  transform: translateY(72px);
+}
+.nav-mobile {
+  transition: transform 0.2s;
+}
+body {
+  /* This is needed to avoid Drawers removing navbar controls */
+  pointer-events: all !important;
+}
