@@ -46,6 +46,28 @@
   };
 </script>
 
+{#snippet eventCard(event: (typeof mapped)[0])}
+  <a
+    href={`/events/${event.slug}`}
+    class={`hover:bg-secondary-hover rounded-md border-2 p-3 ${dayjs(event.startDate).isBefore(allDays[0]?.startOf("day")) ? "rounded-l-none" : ""} ${dayjs(event.endDate).isAfter(allDays[allDays.length - 1]?.endOf("day")) ? "rounded-r-none" : ""} ${isInProgress(event.startDate, event.endDate) ? "bg-rosa-50 dark:bg-rosa-950 border-rosa-500" : ""}`}
+    style="grid-column-start: {event.startDateNumber}; grid-column-end: {event.endDateNumber};"
+  >
+    <div class="line-clamp-1 font-sans text-sm font-medium">
+      {event.title}
+    </div>
+    <div class="text-muted-foreground">
+      {#if event.diff > 0}
+        {dayjs(event.startDate).format("DD/MM HH:mm")} - {dayjs(
+          event.endDate,
+        ).format("DD/MM HH:mm")}{:else}
+        {dayjs(event.startDate).format("HH:mm")} - {dayjs(event.endDate).format(
+          "HH:mm",
+        )}
+      {/if}
+    </div>
+  </a>
+{/snippet}
+
 <div
   class="grid auto-rows-fr grid-cols-3 gap-4 lg:hidden"
   style="grid-auto-flow: dense;"
@@ -65,36 +87,20 @@
     </div>
   {/each}
   {#each mapped.filter(isEventInMobileRange) as event}
-    {@const mobileStartCol = Math.max(
-      1,
-      Math.min(
-        3,
-        dayjs(event.startDate).diff(dayjs().startOf("day"), "day") + 1,
+    {@render eventCard({
+      ...event,
+      startDateNumber: Math.max(
+        1,
+        Math.min(
+          3,
+          dayjs(event.startDate).diff(dayjs().startOf("day"), "day") + 1,
+        ),
       ),
-    )}
-    {@const mobileEndCol = Math.min(
-      4,
-      dayjs(event.endDate).diff(dayjs().startOf("day"), "day") + 2,
-    )}
-    <a
-      href={`/events/${event.slug}`}
-      class={`hover:bg-secondary-hover rounded-md border-2 p-3 ${isInProgress(event.startDate, event.endDate) ? "bg-rosa-50 dark:bg-rosa-950 border-rosa-500" : ""}`}
-      style="grid-column-start: {mobileStartCol}; grid-column-end: {mobileEndCol};"
-    >
-      <div class="line-clamp-1 font-sans text-sm font-medium">
-        {event.title}
-      </div>
-      <div class="text-muted-foreground text-xs">
-        {#if event.diff > 0}
-          {dayjs(event.startDate).format("DD/MM HH:mm")} - {dayjs(
-            event.endDate,
-          ).format("DD/MM HH:mm")}{:else}
-          {dayjs(event.startDate).format("HH:mm")} - {dayjs(
-            event.endDate,
-          ).format("HH:mm")}
-        {/if}
-      </div>
-    </a>
+      endDateNumber: Math.min(
+        4,
+        dayjs(event.endDate).diff(dayjs().startOf("day"), "day") + 2,
+      ),
+    })}
   {/each}
 </div>
 
@@ -117,24 +123,6 @@
     </div>
   {/each}
   {#each mapped as event}
-    <a
-      href={`/events/${event.slug}`}
-      class={`hover:bg-secondary-hover rounded-md border-2 p-3 ${dayjs(event.startDate).isBefore(allDays[0]?.startOf("day")) ? "rounded-l-none" : ""} ${dayjs(event.endDate).isAfter(allDays[allDays.length - 1]?.endOf("day")) ? "rounded-r-none" : ""} ${isInProgress(event.startDate, event.endDate) ? "bg-rosa-50 dark:bg-rosa-950 border-rosa-500" : ""}`}
-      style="grid-column-start: {event.startDateNumber}; grid-column-end: {event.endDateNumber};"
-    >
-      <div class="line-clamp-1 font-sans text-sm font-medium">
-        {event.title}
-      </div>
-      <div class="text-muted-foreground">
-        {#if event.diff > 0}
-          {dayjs(event.startDate).format("DD/MM HH:mm")} - {dayjs(
-            event.endDate,
-          ).format("DD/MM HH:mm")}{:else}
-          {dayjs(event.startDate).format("HH:mm")} - {dayjs(
-            event.endDate,
-          ).format("HH:mm")}
-        {/if}
-      </div>
-    </a>
+    {@render eventCard(event)}
   {/each}
 </div>
