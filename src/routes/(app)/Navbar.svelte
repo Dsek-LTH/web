@@ -124,8 +124,8 @@
               class="md-nav:hidden block p-1.5"><Menu /></Button
             ></Drawer.Trigger
           >{/if}
-        <Drawer.Content class="pb-[64px]" compact>
-          <Drawer.Header>
+        <Drawer.Content class="mb-[64px]" compact>
+          <Drawer.Header class="overflow-y-scroll">
             <Drawer.Title class="flex flex-col"
               ><div class="flex flex-row justify-between">
                 <div class="flex flex-row items-center gap-2">
