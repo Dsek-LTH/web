@@ -31,11 +31,6 @@
     dayjs().add(i, "day"),
   );
 
-  const isInProgress = (start: Date, end: Date) => {
-    const now = dayjs(new Date());
-    return now.isAfter(dayjs(start)) && now.isBefore(dayjs(end));
-  };
-
   const isEventInMobileRange = (event: (typeof mapped)[0]) => {
     const eventStart = dayjs(event.startDate);
     const eventEnd = dayjs(event.endDate);
@@ -49,7 +44,7 @@
 {#snippet eventCard(event: (typeof mapped)[0])}
   <a
     href={`/events/${event.slug}`}
-    class={`hover:bg-secondary-hover rounded-md border-2 p-3 ${dayjs(event.startDate).isBefore(allDays[0]?.startOf("day")) ? "rounded-l-none" : ""} ${dayjs(event.endDate).isAfter(allDays[allDays.length - 1]?.endOf("day")) ? "rounded-r-none" : ""} ${isInProgress(event.startDate, event.endDate) ? "bg-rosa-50 dark:bg-rosa-950 border-rosa-500" : ""}`}
+    class={`hover:bg-secondary-hover rounded-md border-2 p-3 ${dayjs(event.startDate).isBefore(allDays[0]?.startOf("day")) ? "rounded-l-none" : ""} ${dayjs(event.endDate).isAfter(allDays[allDays.length - 1]?.endOf("day")) ? "rounded-r-none" : ""} ${dayjs(new Date()).isAfter(dayjs(event.startDate)) && dayjs(new Date()).isBefore(dayjs(event.endDate)) ? "bg-rosa-50 dark:bg-rosa-950 border-rosa-500" : ""}`}
     style="grid-column-start: {event.startDateNumber}; grid-column-end: {event.endDateNumber};"
   >
     <div class="line-clamp-1 font-sans text-sm font-medium">
