@@ -6,6 +6,7 @@
   import { DrinkQuantityType, type DrinkItem } from "@prisma/client";
   import FormDateInput from "$lib/components/forms/FormDateInput.svelte";
   import dayjs from "dayjs";
+  import StocklistNav from "../StocklistNav.svelte";
 
   const { data } = $props();
   const { form, enhance } = superForm(data.form);
@@ -16,27 +17,7 @@
   );
 </script>
 
-<div
-  style="display: flex; justify-content: space-between; align-items: center;"
->
-  <ul style="list-style: none;">
-    <a href="/admin/stocklist" style="margin-right:15px">
-      <button class="btn btn-primary"> Överblick </button>
-    </a>
-    <a href="/admin/stocklist/addproduct" style="margin-right:15px">
-      <button class="btn btn-primary"> Lägg till produkt </button>
-    </a>
-    <a href="/admin/stocklist/stockchange" style="margin-right:15px">
-      <button class=" btn btn-primary"> Skriv in/ut </button>
-    </a>
-    <a href="/admin/stocklist/treasury" style="margin-right:15px">
-      <button class=" btn btn-primary"> Action Logs </button>
-    </a>
-    <a href="/admin/stocklist/showproducts" style="margin-right:15px">
-      <button class=" btn btn-primary"> Show Products </button>
-    </a>
-  </ul>
-</div>
+<StocklistNav />
 
 <div class="mg mt-4">
   <select class="select select-bordered w-52" bind:value={$form.inOut}>

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { DrinkQuantityType } from "@prisma/client";
   import { superForm } from "sveltekit-superforms";
+  import StocklistNav from "../StocklistNav.svelte";
 
   const { data } = $props();
   const { enhance: deleteFormEnhance, form: deleteForm } = superForm(
@@ -8,29 +9,7 @@
   );
 </script>
 
-<div
-  style="display: flex; justify-content: space-between; align-items: center;"
->
-  <div>
-    <ul style="list-style: none;">
-      <a href="/admin/stocklist" style="margin-right:15px">
-        <button class="btn btn-primary"> Överblick </button>
-      </a>
-      <a href="/admin/stocklist/addproduct" style="margin-right:15px">
-        <button class="btn btn-primary"> Lägg till produkt </button>
-      </a>
-      <a href="/admin/stocklist/stockchange" style="margin-right:15px">
-        <button class=" btn btn-primary"> Skriv in/ut </button>
-      </a>
-      <a href="/admin/stocklist/treasury" style="margin-right:15px">
-        <button class=" btn btn-primary"> Action Logs </button>
-      </a>
-      <a href="/admin/stocklist/showproducts" style="margin-right:15px">
-        <button class=" btn btn-primary"> Show Products </button>
-      </a>
-    </ul>
-  </div>
-</div>
+<StocklistNav />
 <div class="overflow-x-auto">
   <table class="table">
     <thead>
@@ -54,7 +33,7 @@
             <td>{item.group}</td>
             <td>-</td>
             <td>-</td>
-            <td style="padding-left: 0%;">
+            <td class="pl-0">
               <form
                 method="POST"
                 id="deleteForm"
@@ -76,7 +55,7 @@
             <td>{item.group}</td>
             <td>{item.bottleEmptyWeight}</td>
             <td>{item.bottleFullWeight}</td>
-            <td style="padding-left: 0%;">
+            <td class="pl-0">
               <form
                 method="POST"
                 id="deleteForm"

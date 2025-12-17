@@ -4,6 +4,7 @@
   import { DrinkQuantityType, type Prisma } from "@prisma/client";
   import dayjs from "dayjs";
   import { isEmptyObject } from "@tiptap/core";
+  import StocklistNav from "../StocklistNav.svelte";
   const { data } = $props();
   const { enhance: deleteFormEnhance, form: deleteForm } = superForm(
     data.deleteForm,
@@ -31,54 +32,27 @@
   }
 </script>
 
-<div
-  style="display: flex; justify-content: space-between; align-items: center;"
->
-  <div>
-    <ul style="list-style: none;">
-      <a href="/admin/stocklist" style="margin-right:10px">
-        <button class="btn btn-primary"> Överblick </button>
-      </a>
-      <a href="/admin/stocklist/addproduct" style="margin-right:10px">
-        <button class="btn btn-primary"> Lägg till produkt </button>
-      </a>
-      <a href="/admin/stocklist/stockchange" style="margin-right:10px">
-        <button class=" btn btn-primary"> Skriv in/ut </button>
-      </a>
-      <a href="/admin/stocklist/treasury" style="margin-right:10px">
-        <button class=" btn btn-primary"> Action Logs </button>
-      </a>
-      <a href="/admin/stocklist/showproducts" style="margin-right:5px">
-        <button class=" btn btn-primary"> Show Products </button>
-      </a>
-    </ul>
+<StocklistNav
+  totalInventoryValue={(Math.floor(data.totalInventoryValue * 100) / 100) * 100}
+  showDateInput={true}
+  dateValue={$dateForm.date ?? ""}
+  onDateChange={(date) => {
+    $dateForm.date = date;
+    dateFormElement.submit();
+  }}
+/>
 
-    <form
-      action="?/redirectDate"
-      id="dateForm"
-      method="POST"
-      bind:this={dateFormElement}
-    >
-      <input
-        type="date"
-        style="margin-top:10px"
-        class="input-border input border-primary"
-        name="date"
-        bind:value={$dateForm.date}
-        oninput={() => dateFormElement.submit()}
-      />
-    </form>
-  </div>
-  <h1 style="font-size: large;">
-    Totalt lagervärde: {(
-      Math.floor(data.totalInventoryValue * 100) / 100
-    ).toFixed(2)} kr
-  </h1>
-</div>
-<div
-  class="overflow-x-auto"
-  style="display: flex; justify-content: space-between; align-items: center;"
+<form
+  action="?/redirectDate"
+  id="dateForm"
+  method="POST"
+  bind:this={dateFormElement}
+  class="hidden"
 >
+  <input type="date" name="date" bind:value={$dateForm.date} />
+</form>
+
+<div class="flex items-center justify-between overflow-x-auto">
   <table class="table">
     <thead>
       <tr>
@@ -88,7 +62,7 @@
         <th>Antal/Vikt Ut</th>
         <th>Användare</th>
         <th>Ändra</th>
-        <th style="padding-left: 0%;">Ta bort</th>
+        <th class="pl-0">Ta bort</th>
       </tr>
     </thead>
 
@@ -103,7 +77,7 @@
                 method="POST"
                 action="?/updateEntry"
                 id={formId}
-                style="display:none"
+                class="hidden"
                 use:updateFormEnhance={{
                   onResult: ({ result }) => {
                     invalidateAll();
@@ -173,7 +147,7 @@
               </button>
             </td>
 
-            <td style="padding-left: 0%;">
+            <td class="pl-0">
               <button
                 class="btn btn-ghost btn-sm"
                 onclick={() => toggleEdit(entry.id)}
@@ -203,7 +177,7 @@
               </button>
             </td>
 
-            <td style="padding-left: 0%;">
+            <td class="pl-0">
               <form
                 method="POST"
                 id="deleteForm"
