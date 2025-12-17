@@ -97,7 +97,8 @@ const apiNames = {
     BOOKKEEPING: "expenses:bookkeeping", // who can manage expenses for bookkeeping
   },
   CAFE: {
-    EDIT_WORKERS: "cafe:edit_workers"
+    EDIT_WORKERS: "cafe:edit_workers",
+    DAY_MANAGER: "cafe:day_manager"
   }
 } as const;
 

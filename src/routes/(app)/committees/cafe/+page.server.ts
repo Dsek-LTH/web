@@ -1,6 +1,6 @@
 import type { PageServerLoad, Actions } from "./$types";
 import apiNames from "$lib/utils/apiNames";
-import { authorize } from "$lib/utils/authorization";
+import { isAuthorized } from "$lib/utils/authorization";
 import { committeeActions, committeeLoad } from "../committee.server";
 import * as m from "$paraglide/messages";
 import { fail, } from "@sveltejs/kit";
@@ -126,8 +126,15 @@ export const actions: Actions = {
       }
       // TODO: check for permissions here so we don't fail
       const cafeShift = await prisma.cafeShift.findFirst({ where: { date: date, timeSlot: timeSlot }, include: { worker: { select: { studentId: true } } } })
+      const isDagis = isAuthorized(apiNames.CAFE.DAY_MANAGER, user);
       if (!cafeShift) {
-        authorize(apiNames.CAFE.EDIT_WORKERS, user);
+        if (timeSlot == TimeSlot.DAGIS && !isDagis) {
+          //TODO: ERROR here
+          return message(form, {
+            message: "only dagisar can sign up there",
+            type: "error",
+          })
+        }
         await prisma.cafeShift.create({
           data: {
             date: date,

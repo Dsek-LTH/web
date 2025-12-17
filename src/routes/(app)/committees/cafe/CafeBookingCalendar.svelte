@@ -7,8 +7,6 @@
   import { TimeSlot } from "@prisma/client";
   import type { ShiftWithWorker } from "./+page.server";
 
-  import { goto, invalidateAll } from "$app/navigation";
-
   dayjs.extend(weekOfYear);
   dayjs.extend(weekYear);
 
@@ -19,18 +17,30 @@
     shifts,
   }: { week: dayjs.Dayjs; shifts: ShiftWithWorker[] } = $props();
 
-  async function handleSubmit(event: SubmitEvent, increment: number) {
+  async function handleSubmit(event: SubmitEvent, increment: boolean) {
     event.preventDefault();
 
     // Get the current URL
     const url = new URL(window.location.href);
 
     //BUG: This is all sorts of cursed around the new years, but is almost ok for a test version. Almost
+    // TODO: fix this ^^^
+    week = week.add(increment ? 1 : -1, "week");
+    let diff = dayjs().diff(week, "week");
+    let val = 0;
+    if (!increment) {
+      let val = 0 - Math.abs(diff);
+    } else {
+      let val = 0 + Math.abs(diff);
+    }
+
     url.searchParams.set(
       "week",
-      (week.week() - dayjs().week() + increment).toString(),
+      // week.add(increment, "week").diff(dayjs(), "week").toString(),
+      val.toString(),
     );
-    window.location.href = url.toString();
+    window.history.replaceState({}, "", url.toString());
+    // window.location.href = url.toString();
   }
 </script>
 
@@ -43,23 +53,23 @@
       {m.booking_week()}
       {week.week()}
     </p>
-    <form method="POST" onsubmit={(e) => handleSubmit(e, -1)}>
+    <form method="POST" onsubmit={(e) => handleSubmit(e, false)}>
       <input type="hidden" name="week" value={week.subtract(-1, "week")} />
       <button
         class="btn btn-square btn-neutral ml-5 h-fit"
-        disabled={dayjs().subtract(1, "day").isAfter(week)}
         aria-label="go to previous week"
       >
+        <!-- disabled={dayjs().subtract(1, "day").isAfter(week)} -->
         «
       </button>
     </form>
-    <form method="POST" onsubmit={(e) => handleSubmit(e, 1)}>
+    <form method="POST" onsubmit={(e) => handleSubmit(e, true)}>
       <input type="hidden" name="week" value={week.add(1, "week")} />
       <button
         class="btn btn-square btn-neutral h-fit"
         aria-label="go to next week"
-        disabled={week.subtract(3, "day").isAfter(dayjs())}
       >
+        <!-- disabled={week.subtract(3, "day").isAfter(dayjs())} -->
         »
       </button>
     </form>

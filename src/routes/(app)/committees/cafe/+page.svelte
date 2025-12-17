@@ -25,7 +25,10 @@
   dayjs.extend(weekOfYear);
   dayjs.extend(weekYear);
 
-  const week = dayjs().add(data.weekShift, "week");
+  let week = $state(dayjs().add(data.weekShift, "week"));
+  $effect(() => {
+    week = dayjs().add(data.weekShift, "week");
+  });
   const shifts = $derived(data.shifts);
 </script>
 
@@ -107,6 +110,6 @@
   {/snippet}
 
   {#snippet main()}
-    <CafeBookingCalendar {week} {shifts} />
+    <CafeBookingCalendar bind:week {shifts} />
   {/snippet}
 </CommitteePage>
