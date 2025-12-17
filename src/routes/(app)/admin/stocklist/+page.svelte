@@ -3,6 +3,7 @@
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import SEO from "$lib/seo/SEO.svelte";
   import { DrinkQuantityType } from "@prisma/client";
+  import StocklistNav from "./StocklistNav.svelte";
   export let data: PageData;
 </script>
 
@@ -16,32 +17,7 @@
   }}
 />
 
-<div
-  style="display: flex; justify-content: space-between; align-items: center;"
->
-  <div>
-    <ul style="list-style: none;">
-      <a href="/admin/stocklist" style="margin-right:15px">
-        <button class="btn btn-primary"> Överblick </button>
-      </a>
-      <a href="/admin/stocklist/addproduct" style="margin-right:15px">
-        <button class="btn btn-primary"> Lägg till produkt </button>
-      </a>
-      <a href="/admin/stocklist/stockchange" style="margin-right:15px">
-        <button class=" btn btn-primary"> Skriv in/ut </button>
-      </a>
-      <a href="/admin/stocklist/treasury" style="margin-right:15px">
-        <button class=" btn btn-primary"> Action Logs </button>
-      </a>
-      <a href="/admin/stocklist/showproducts" style="margin-right:15px">
-        <button class=" btn btn-primary"> Show Products </button>
-      </a>
-    </ul>
-  </div>
-  <h1 style="font-size: large;">
-    Totalt lagervärde: {data.totalInventoryValue / 100} kr
-  </h1>
-</div>
+<StocklistNav totalInventoryValue={data.totalInventoryValue} />
 <div class="overflow-x-auto">
   <table class="table">
     <thead>
