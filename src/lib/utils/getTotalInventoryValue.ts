@@ -1,7 +1,9 @@
 import { DrinkQuantityType } from "@prisma/client";
-import type { PrismaClient } from "@prisma/client";
+import type { Prisma, PrismaClient } from "@prisma/client";
 
-export async function getTotalInventoryValue(prisma: PrismaClient) {
+export async function getTotalInventoryValue(
+  prisma: PrismaClient | Prisma.TransactionClient,
+) {
   const items = await prisma.drinkItemBatch.findMany({
     include: { item: true },
   });

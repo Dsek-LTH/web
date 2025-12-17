@@ -112,13 +112,52 @@ export const load: PageServerLoad = async (event) => {
 export const actions: Actions = {
   deleteEntry: async (event) => {
     const { prisma, user } = event.locals;
-
     const form = await superValidate(event.request, zod(deleteSchema));
+
     if (!form.valid) return fail(400, { form });
 
-    await prisma.drinkItemBatch.delete({
-      where: { id: form.data.id },
-    });
+    try {
+      await prisma.$transaction(async (tx) => {
+        await tx.drinkItemBatch.delete({
+          where: { id: form.data.id },
+        });
+
+        const inventoryResult = await getTotalInventoryValue(tx);
+
+        if (inventoryResult.totalInventoryValue < 0) {
+          throw new Error("INVENTORY_NEGATIVE");
+        }
+
+        const productStock = new Map<string, number>();
+
+        for (const batch of inventoryResult.grouped) {
+          const itemId = batch.item.id;
+
+          const quantity = (batch.quantityIn ?? 0) - (batch.quantityOut ?? 0);
+
+          const currentTotal = productStock.get(itemId) || 0;
+          productStock.set(itemId, currentTotal + quantity);
+        }
+
+        for (const [itemId, stock] of productStock) {
+          if (stock < 0) {
+            throw new Error("PRODUCT_NEGATIVE");
+          }
+        }
+      });
+    } catch (error) {
+      if (error instanceof Error && error.message === "INVENTORY_NEGATIVE") {
+        return message(form, { message: `Totalvärde blir negativt` });
+      } else if (
+        error instanceof Error &&
+        error.message === "PRODUCT_NEGATIVE"
+      ) {
+        return message(form, { message: `Mängd av produkt blir negativt` });
+      }
+
+      console.error(error);
+      return fail(500, { form });
+    }
 
     return message(form, { message: `Batch borttagen` });
   },
@@ -128,6 +167,49 @@ export const actions: Actions = {
     const form = await superValidate(request, zod(updateSchema));
 
     if (!form.valid) return fail(400, { form });
+
+    try {
+      await prisma.$transaction(async (tx) => {
+        await tx.drinkItemBatch.delete({
+          where: { id: form.data.id },
+        });
+
+        const inventoryResult = await getTotalInventoryValue(tx);
+
+        if (inventoryResult.totalInventoryValue < 0) {
+          throw new Error("INVENTORY_NEGATIVE");
+        }
+
+        const productStock = new Map<string, number>();
+
+        for (const batch of inventoryResult.grouped) {
+          const itemId = batch.item.id;
+
+          const quantity = (batch.quantityIn ?? 0) - (batch.quantityOut ?? 0);
+
+          const currentTotal = productStock.get(itemId) || 0;
+          productStock.set(itemId, currentTotal + quantity);
+        }
+
+        for (const [itemId, stock] of productStock) {
+          if (stock < 0) {
+            throw new Error("PRODUCT_NEGATIVE");
+          }
+        }
+      });
+    } catch (error) {
+      if (error instanceof Error && error.message === "INVENTORY_NEGATIVE") {
+        return message(form, { message: `Totalvärde blir negativt` });
+      } else if (
+        error instanceof Error &&
+        error.message === "PRODUCT_NEGATIVE"
+      ) {
+        return message(form, { message: `Mängd av produkt blir negativt` });
+      }
+
+      console.error(error);
+      return fail(500, { form });
+    }
 
     try {
       await prisma.drinkItemBatch.update({
