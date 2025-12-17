@@ -1,8 +1,8 @@
 <script lang="ts">
-  import type { Meeting } from "@prisma/client";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import * as m from "$paraglide/messages";
-  export let upcoming: Pick<Meeting, "title"> | null;
-  export let previous: Pick<Meeting, "title"> | null;
+  export let upcoming: Pick<ExtendedPrismaModel<"Meeting">, "title"> | null;
+  export let previous: Pick<ExtendedPrismaModel<"Meeting">, "title"> | null;
 </script>
 
 <a

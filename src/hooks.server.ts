@@ -1,7 +1,5 @@
-import * as Sentry from "@sentry/sveltekit";
 import { env } from "$env/dynamic/private";
 import { env as envPublic } from "$env/dynamic/public";
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import { i18n } from "$lib/utils/i18n";
 import { createMember } from "$lib/utils/member";
 import { redirect } from "$lib/utils/redirect";
@@ -10,20 +8,18 @@ import {
   isAvailableLanguageTag,
   setLanguageTag,
   sourceLanguageTag,
+  type AvailableLanguageTag,
 } from "$paraglide/runtime";
 import Authentik, {
   type AuthentikProfile,
 } from "@auth/core/providers/authentik";
 import { SvelteKitAuth } from "@auth/sveltekit";
-import { PrismaClient } from "@prisma/client";
 import { error, type Handle, type HandleServerError } from "@sveltejs/kit";
 import { sequence } from "@sveltejs/kit/hooks";
 import { enhance } from "@zenstackhq/runtime";
 import RPCApiHandler from "@zenstackhq/server/api/rpc";
 import zenstack from "@zenstackhq/server/sveltekit";
 import { randomBytes } from "crypto";
-import loggingExtension from "./database/prisma/loggingExtension";
-import translatedExtension from "./database/prisma/translationExtension";
 import { getAccessPolicies } from "./hooks.server.helpers";
 import { getDerivedRoles } from "$lib/utils/authorization";
 import {
@@ -31,16 +27,9 @@ import {
   PrismaClientValidationError,
 } from "@prisma/client/runtime/library";
 import { verifyCostCenterData } from "./routes/(app)/expenses/verification";
-import { dev, version } from "$app/environment";
-import { env as publicEnv } from "$env/dynamic/public";
-
-if (!dev) {
-  Sentry.init({
-    dsn: publicEnv.PUBLIC_SENTRY_DSN,
-    tracesSampleRate: 1,
-    release: version,
-  });
-}
+import { getExtendedPrismaClient } from "$lib/server/extendedPrisma";
+import { dev } from "$app/environment";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 
 // TODO: This function should perhaps only be called during dev? Build? I'm not sure
 if (dev) verifyCostCenterData();
@@ -63,10 +52,13 @@ const { handle: authHandle } = SvelteKitAuth({
           group_list: profile.groups,
         };
       },
+      authorization: {
+        params: { scope: "openid profile email offline_access" },
+      },
     }),
   ],
   callbacks: {
-    jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       if (user) {
         token.student_id = user.student_id;
         token.group_list = user.group_list ?? [];
@@ -74,16 +66,67 @@ const { handle: authHandle } = SvelteKitAuth({
         token.family_name = user.family_name;
         token.email = user.email;
       }
+
+      if (account) {
+        token.refresh_token = account.refresh_token;
+        token.id_token = account.id_token;
+        token.expires_at = account.expires_at;
+      } else if (token.expires_at && Date.now() < token.expires_at * 1000) {
+        return token;
+      } else {
+        if (!token.refresh_token) throw new Error("Missing refresh_token");
+
+        try {
+          const response = await fetch(
+            envPublic.PUBLIC_AUTH_AUTHENTIK_TOKEN_ENDPOINT,
+            {
+              method: "POST",
+              body: new URLSearchParams({
+                client_id: env.AUTH_AUTHENTIK_CLIENT_ID,
+                client_secret: env.AUTH_AUTHENTIK_CLIENT_SECRET,
+                grant_type: "refresh_token",
+                refresh_token: token.refresh_token,
+              }),
+            },
+          );
+
+          const tokensOrError = await response.json();
+
+          if (!response.ok) throw tokensOrError;
+
+          token.id_token = tokensOrError.id_token;
+          token.expires_at =
+            Math.floor(Date.now() / 1000) + tokensOrError.expires_in;
+          token.refresh_token =
+            tokensOrError.refresh_token ?? token.refresh_token;
+
+          return token;
+        } catch (error) {
+          console.error("Error refreshing Authentik access_token:", error);
+          token.error = "RefreshTokenError";
+
+          return token;
+        }
+      }
+
       return token;
     },
     session({ session, token }) {
-      if (token && session?.user) {
-        session.user.student_id = token.student_id;
-        session.user.email = token.email ?? "";
-        session.user.group_list = token.group_list;
-        session.user.given_name = token.given_name;
-        session.user.family_name = token.family_name;
+      if (token) {
+        if (session?.user) {
+          session.user.student_id = token.student_id;
+          session.user.email = token.email ?? "";
+          session.user.group_list = token.group_list;
+          session.user.given_name = token.given_name;
+          session.user.family_name = token.family_name;
+        }
+
+        session.error = token.error;
+        if (session.error) {
+          throw redirect(302, "/signout");
+        }
       }
+
       return session;
     },
     /**
@@ -106,17 +149,32 @@ const { handle: authHandle } = SvelteKitAuth({
   },
 });
 
-const prismaClient = authorizedPrismaClient;
 const databaseHandle: Handle = async ({ event, resolve }) => {
-  const lang = isAvailableLanguageTag(event.locals.paraglide?.lang)
-    ? event.locals.paraglide?.lang
-    : sourceLanguageTag;
+  const session = await event.locals.auth();
+  const studentId = session?.user.student_id;
+
+  const aClient = authorizedPrismaClient;
+  let member;
+  if (studentId) {
+    member = await aClient.member.findUnique({
+      where: { studentId },
+      select: { language: true },
+    });
+  }
+
+  const langCandidates = [
+    event.cookies.get("languageOverride"),
+    member?.language,
+  ];
+
+  const lang =
+    langCandidates.find(
+      (tag): tag is AvailableLanguageTag =>
+        !!tag && isAvailableLanguageTag(tag),
+    ) ?? sourceLanguageTag;
   event.locals.language = lang;
   setLanguageTag(lang);
-  const session = await event.locals.getSession();
-  const prisma = prismaClient
-    .$extends(translatedExtension(lang))
-    .$extends(loggingExtension(session?.user.student_id)) as PrismaClient;
+  const prisma = getExtendedPrismaClient(lang, session?.user.student_id);
 
   if (!session?.user) {
     let externalCode = event.cookies.get("externalCode"); // Retrieve the externalCode from cookies
@@ -166,6 +224,7 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
       session.user.group_list,
       !!session.user.student_id,
       member.classYear ?? undefined,
+      member.classProgramme ?? undefined,
     );
     const user = {
       studentId: session.user.student_id,
@@ -229,28 +288,25 @@ const themeHandle: Handle = async ({ event, resolve }) => {
   });
 };
 
-export const handleError: HandleServerError = Sentry.handleErrorWithSentry(
-  ({ error }) => {
-    if (error instanceof PrismaClientKnownRequestError) {
-      const { message, name, code } = error;
-      console.log("prisma known request error", { message, name, code });
-      return {
-        message: message,
-      };
-    } else if (error instanceof PrismaClientValidationError) {
-      console.error("prisma validation error", error.message, error.name);
-      return {
-        message: "Database validation error, see logs for more info",
-      };
-    }
+export const handleError: HandleServerError = ({ error }) => {
+  if (error instanceof PrismaClientKnownRequestError) {
+    const { message, name, code } = error;
+    console.log("prisma known request error", { message, name, code });
     return {
-      message: error instanceof Error ? error.message : `${error}`,
+      message: message,
     };
-  },
-);
+  } else if (error instanceof PrismaClientValidationError) {
+    console.error("prisma validation error", error.message, error.name);
+    return {
+      message: "Database validation error, see logs for more info",
+    };
+  }
+  return {
+    message: error instanceof Error ? error.message : `${error}`,
+  };
+};
 
 export const handle = sequence(
-  Sentry.sentryHandle(),
   authHandle,
   i18n.handle(),
   databaseHandle,

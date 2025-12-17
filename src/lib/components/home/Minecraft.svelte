@@ -1,5 +1,6 @@
 <script lang="ts">
   import { type IMinecraftData } from "minecraft-server-ping";
+  import * as m from "$paraglide/messages";
 
   let { minecraftStatus }: { minecraftStatus: Promise<IMinecraftData | null> } =
     $props();
@@ -11,9 +12,9 @@
 </script>
 
 <div
-  class="flex-col justify-between gap-2 bg-base-300 max-md:flex-col md:flex-1"
+  class="flex-col justify-between gap-2 rounded-t-2xl bg-base-300 max-md:flex-col md:flex-1"
 >
-  <div class="flex w-full flex-row overflow-hidden rounded-2xl">
+  <div class="flex w-full flex-row overflow-hidden rounded-t-2xl">
     {#snippet minecraft_border()}
       <svg class="-mr-px w-full fill-primary" viewBox="0 0 4.2333333 1.0583333">
         <path
@@ -42,13 +43,14 @@
   </div>
 </div>
 <div class="flex h-full flex-col justify-between rounded-b-xl bg-base-200 p-4">
-  Gå med i Sektionents Minecraft Server, delad med F-sektionen! För att kunna gå
-  med måste du registrera dig nedan.
+  {m.minecraft_server_description()}
   <div class="flex w-full justify-around">
     <a class="btn btn-ghost btn-sm" href="https://dynmap.dsek.se"
-      ><span class="i-mdi-map text-lg text-primary"></span>Dynmap</a
+      ><span class="i-mdi-map text-lg text-primary"
+      ></span>{m.minecraft_dynmap()}</a
     ><a class="btn btn-ghost btn-sm" href="https://whitelist.dsek.se"
-      ><span class="i-mdi-playlist-add text-lg text-primary"></span>Join Now!</a
+      ><span class="i-mdi-playlist-add text-lg text-primary"
+      ></span>{m.minecraft_join_prompt()}</a
     >
   </div>
   <div class="m-2 flex flex-row justify-center rounded-xl bg-base-300 p-3">
@@ -65,6 +67,6 @@
         <p>-</p>
       {/await}</span
     >
-    &nbsp;spelare online just nu
+    &nbsp;{m.minecraft_players_online()}
   </div>
 </div>

@@ -1,10 +1,10 @@
 <script lang="ts">
-  import type { ItemQuestion } from "@prisma/client";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import ConsumableRow from "./ConsumableRow.svelte";
   import type { ConsumableRowData, ReservationData } from "./types";
 
   export let title: string | null = null;
-  export let questions: ItemQuestion[] = [];
+  export let questions: Array<ExtendedPrismaModel<"ItemQuestion">> = [];
   export let consumables: Array<ConsumableRowData | ReservationData>;
 </script>
 

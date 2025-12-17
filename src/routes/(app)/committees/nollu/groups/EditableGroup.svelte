@@ -4,17 +4,17 @@
   import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
   import type { PhadderGroupSchema } from "$lib/nollning/groups/types";
   import { getFullName } from "$lib/utils/client/member";
-  import type { Mandate, Member, PhadderGroup } from "@prisma/client";
   import type { SuperValidated } from "sveltekit-superforms";
   import AddPersonInput from "./AddPersonInput.svelte";
   import DeleteGroupButton from "./DeleteGroupButton.svelte";
   import PhadderGroupForm from "./PhadderGroupForm.svelte";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
-  export let group: PhadderGroup & {
-    nollor: Member[];
+  export let group: ExtendedPrismaModel<"PhadderGroup"> & {
+    nollor: Array<ExtendedPrismaModel<"Member">>;
     phaddrar: Array<
-      Mandate & {
-        member: Member;
+      ExtendedPrismaModel<"Mandate"> & {
+        member: ExtendedPrismaModel<"Member">;
       }
     >;
     form: SuperValidated<PhadderGroupSchema>;

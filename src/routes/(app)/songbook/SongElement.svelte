@@ -1,12 +1,12 @@
 <script lang="ts">
   import { page } from "$app/stores";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
   import * as m from "$paraglide/messages";
   import { languageTag } from "$paraglide/runtime";
-  import type { Song } from "@prisma/client";
   import { twMerge } from "tailwind-merge";
-  export let song: Song;
+  export let song: ExtendedPrismaModel<"Song">;
   let clazz = "";
   export { clazz as class };
 </script>

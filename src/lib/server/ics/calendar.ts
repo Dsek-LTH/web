@@ -1,10 +1,10 @@
-import type { Event } from "@prisma/client";
 import { error } from "@sveltejs/kit";
 import dayjs from "dayjs";
 import { createEvents, type EventAttributes } from "ics";
+import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
 export const generateICS = async (
-  events: Event[],
+  events: Array<ExtendedPrismaModel<"Event">>,
   setHeaders: (headers: Record<string, string>) => void,
 ) => {
   const icsEvents: EventAttributes[] = events.map((event) => {

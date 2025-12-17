@@ -14,9 +14,15 @@ import * as m from "$paraglide/messages";
 import { error, type Action } from "@sveltejs/kit";
 import type { AuthUser } from "@zenstackhq/runtime";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 import DOMPurify from "isomorphic-dompurify";
 import { fail, superValidate } from "sveltekit-superforms";
 import { zod } from "sveltekit-superforms/adapters";
+
+// Extend dayjs with timezone support to handle DST correctly
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const uploadImage = async (user: AuthUser, image: File, slug: string) => {
   const imageUrl = await uploadFile(
@@ -48,7 +54,7 @@ export const createEvent: Action = async (event) => {
     recurringEndDatetime,
     ...eventData
   } = form.data;
-  const slug = slugify(form.data.title);
+  const slug = slugify(form.data.titleSv);
   // has to be authorized to count all slugs
   let slugCount = await authorizedPrismaClient.event.count({
     where: {
@@ -66,7 +72,7 @@ export const createEvent: Action = async (event) => {
       id: tag.id,
     }));
   // sanitize
-  eventData.description = DOMPurify.sanitize(eventData.description);
+  eventData.descriptionSv = DOMPurify.sanitize(eventData.descriptionSv);
   eventData.descriptionEn = eventData.descriptionEn
     ? DOMPurify.sanitize(eventData.descriptionEn)
     : eventData.descriptionEn;
@@ -93,28 +99,58 @@ export const createEvent: Action = async (event) => {
     });
 
     const incrementType: dayjs.ManipulateType = getIncrementType(recurType);
-    const dates: Date[] = [];
-    const dayjsEndDate = dayjs(form.data.recurringEndDatetime);
-    let date = dayjs(form.data.startDatetime);
-    const startEndDiff = dayjs(form.data.endDatetime).diff(date);
+    const events: Array<{ start: Date; end: Date }> = [];
+
+    // Parse dates in correct timezone to handle DST correctly
+    const dayjsEndDate = dayjs.tz(
+      form.data.recurringEndDatetime,
+      "Europe/Stockholm",
+    );
+    const startDateTz = dayjs.tz(form.data.startDatetime, "Europe/Stockholm");
+    const endDateTz = dayjs.tz(form.data.endDatetime, "Europe/Stockholm");
+
+    // Extract time components from the original event to preserve wall clock time
+    const startHour = startDateTz.hour();
+    const startMinute = startDateTz.minute();
+    const endHour = endDateTz.hour();
+    const endMinute = endDateTz.minute();
+
+    let currentDate = startDateTz;
+
     while (
-      date.isBefore(dayjsEndDate, "day") ||
-      date.isSame(dayjsEndDate, "day")
+      currentDate.isBefore(dayjsEndDate, "day") ||
+      currentDate.isSame(dayjsEndDate, "day")
     ) {
-      dates.push(date.toDate());
-      date = date.add(form.data.separationCount + 1, incrementType);
+      // Reconstruct the time in Europe/Stockholm timezone to maintain wall clock time across DST
+      const eventStart = dayjs
+        .tz(currentDate.format("YYYY-MM-DD"), "Europe/Stockholm")
+        .hour(startHour)
+        .minute(startMinute)
+        .toDate();
+
+      const eventEnd = dayjs
+        .tz(currentDate.format("YYYY-MM-DD"), "Europe/Stockholm")
+        .hour(endHour)
+        .minute(endMinute)
+        .toDate();
+
+      events.push({ start: eventStart, end: eventEnd });
+      currentDate = currentDate.add(
+        form.data.separationCount + 1,
+        incrementType,
+      );
     }
 
     await prisma.$transaction(async (tx) => {
-      for (const date of dates) {
+      for (const event of events) {
         await tx.event.create({
           data: {
             ...eventData,
             recurringParentId: recurringEventParent.id,
-            startDatetime: date,
+            startDatetime: event.start,
             isDetatched: false,
             authorId: user?.memberId ?? error(500, "No user"),
-            endDatetime: dayjs(date).add(startEndDiff).toDate(),
+            endDatetime: event.end,
             slug: slugWithCount(slug, slugCount),
             tags: {
               connect: tagIds,
@@ -126,7 +162,7 @@ export const createEvent: Action = async (event) => {
     });
 
     redirect(
-      `/events/${slugWithCount(slug, slugCount - dates.length)}`, // first one created
+      `/events/${slugWithCount(slug, slugCount - events.length)}`, // first one created
       {
         message: "Evenemang skapat",
         type: "success",
@@ -190,7 +226,7 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
     ...eventData
   } = recurringEventData;
 
-  eventData.description = DOMPurify.sanitize(eventData.description);
+  eventData.descriptionSv = DOMPurify.sanitize(eventData.descriptionSv);
   eventData.descriptionEn = eventData.descriptionEn
     ? DOMPurify.sanitize(eventData.descriptionEn)
     : eventData.descriptionEn;
@@ -235,21 +271,58 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
       },
     });
 
-    const startTimeDiff = dayjs(eventData.startDatetime).diff(
-      dayjs(existingEvent.startDatetime),
-    );
-    const endTimeDiff = dayjs(eventData.endDatetime).diff(
-      dayjs(existingEvent.endDatetime),
-    );
+    // Parse dates in Europe/Stockholm timezone to handle DST correctly
+    const newStartTz = dayjs.tz(eventData.startDatetime, "Europe/Stockholm");
+    const newEndTz = dayjs.tz(eventData.endDatetime, "Europe/Stockholm");
+
+    // Extract new time components to preserve wall clock time across DST
+    const newStartHour = newStartTz.hour();
+    const newStartMinute = newStartTz.minute();
+    const newEndHour = newEndTz.hour();
+    const newEndMinute = newEndTz.minute();
 
     await Promise.all(
       eventsToBeUpdated.map((e) => {
-        const { startDatetime, endDatetime, id, ...oldData } = e;
+        const {
+          startDatetime,
+          endDatetime,
+          id,
+          /* eslint-disable-next-line @typescript-eslint/no-unused-vars --
+           * To avoid lint complaining about unused vars
+           **/
+          title,
+          /* eslint-disable-next-line @typescript-eslint/no-unused-vars --
+           * To avoid lint complaining about unused vars
+           **/
+          description,
+          /* eslint-disable-next-line @typescript-eslint/no-unused-vars --
+           * To avoid lint complaining about unused vars
+           **/
+          shortDescription,
+          ...oldData
+        } = e;
+
+        // If times are being changed, reconstruct with new time components to preserve wall clock time
+        const eventStartTz = dayjs.tz(startDatetime, "Europe/Stockholm");
+        const eventEndTz = dayjs.tz(endDatetime, "Europe/Stockholm");
+
+        const newStartDatetime = dayjs
+          .tz(eventStartTz.format("YYYY-MM-DD"), "Europe/Stockholm")
+          .hour(newStartHour)
+          .minute(newStartMinute)
+          .format();
+
+        const newEndDatetime = dayjs
+          .tz(eventEndTz.format("YYYY-MM-DD"), "Europe/Stockholm")
+          .hour(newEndHour)
+          .minute(newEndMinute)
+          .format();
+
         const newData = {
           ...oldData,
           ...eventData,
-          startDatetime: dayjs(startDatetime).add(startTimeDiff, "ms").format(),
-          endDatetime: dayjs(endDatetime).add(endTimeDiff, "ms").format(),
+          startDatetime: newStartDatetime,
+          endDatetime: newEndDatetime,
           author: undefined,
           tags: {
             set: tags.map(({ id }) => ({ id })),

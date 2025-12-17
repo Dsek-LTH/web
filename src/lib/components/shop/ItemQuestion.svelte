@@ -46,11 +46,11 @@
   <FormInput {superform} field="{field}.id" type="hidden" />
   <FormInput
     {superform}
-    field="{field}.title"
+    field="{field}.titleSv"
     label="Fråga"
     placeholder="Önskar du...?"
   />
-  <FormInput {superform} field="{field}.description" label="Förklaring" />
+  <FormInput {superform} field="{field}.descriptionSv" label="Förklaring" />
   <FormInput {superform} field="{field}.titleEn" label="Fråga (EN)" />
   <FormInput
     {superform}
@@ -103,8 +103,8 @@
           class="btn btn-primary btn-lg m-8"
           onclick={() => {
             if ($options)
-              $options = [...$options, { answer: "", extraPrice: null }];
-            else $options = [{ answer: "", extraPrice: null }];
+              $options = [...$options, { answerSv: "", extraPrice: null }];
+            else $options = [{ answerSv: "", extraPrice: null }];
           }}
         >
           <span class="i-mdi-plus-bold text-xl"></span></button

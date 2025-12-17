@@ -1,7 +1,7 @@
-import type { Event, ItemQuestion, Shoppable, Ticket } from "@prisma/client";
 import dayjs from "dayjs";
 import { loadTicketData } from "../loadTicketData";
 import type { ConsumableRowData } from "../types";
+import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
 export const GET = async ({ locals, params }) => {
   const { user, prisma } = locals;
@@ -22,17 +22,17 @@ export const GET = async ({ locals, params }) => {
 };
 
 const generateCSV = (
-  ticket: Ticket & {
-    shoppable: Shoppable & {
-      questions: ItemQuestion[];
+  ticket: ExtendedPrismaModel<"Ticket"> & {
+    shoppable: ExtendedPrismaModel<"Shoppable"> & {
+      questions: Array<ExtendedPrismaModel<"ItemQuestion">>;
     };
-    event: Event;
+    event: ExtendedPrismaModel<"Event">;
   },
   consumables: ConsumableRowData[],
 ): string => {
   let output = "";
   let headers =
-    "Namn,Email,Matpreferens,Phaddergrupp,Betalad mängd,Köpdatum,Payment Intent id";
+    "Namn,StilID,Email,Matpreferens,Phaddergrupp,Betalad mängd,Köpdatum,Payment Intent id";
   for (const question of ticket.shoppable.questions) {
     headers += `,${question.title.replace(",", " ")}`;
   }
@@ -48,6 +48,7 @@ const generateCSV = (
     const name = member
       ? `${member.firstName} ${member.lastName}`.replace(",", " ")
       : "Anonym användare";
+    const stilId = member ? member.studentId : "Anonym användare";
     const email = member
       ? "Finns inte"
       : (consumable.externalCustomerEmail?.replace(",", " ") ?? "Finns inte");
@@ -62,7 +63,7 @@ const generateCSV = (
     const phadderGroup = member
       ? (member?.phadderGroup?.name.replace(",", " ") ?? "")
       : "Anonym användare";
-    let row = `${name},${email},${foodPreference},${phadderGroup},${paidAmount},${dayjs(
+    let row = `${name},${stilId},${email},${foodPreference},${phadderGroup},${paidAmount},${dayjs(
       consumable.purchasedAt,
     ).format("YYYY-MM-DD HH:mm:ss")},${
       consumable.stripeIntentId?.replace(",", " ") ?? "N/A"
