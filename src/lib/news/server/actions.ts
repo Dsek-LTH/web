@@ -164,7 +164,7 @@ const sendNewArticleWebhook = async (
 
   // Limit news description to first few characters as a preview, although
   // you could technically fit the entire article within the 4096 character limit
-  let description = limitDescription(article.bodySv);
+  const description = limitDescription(article.bodySv);
 
   const body = {
     content: notificationText,
