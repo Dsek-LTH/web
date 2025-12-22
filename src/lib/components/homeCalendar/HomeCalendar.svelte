@@ -67,7 +67,7 @@
   class="grid auto-rows-fr grid-cols-3 gap-4 lg:hidden"
   style="grid-auto-flow: dense;"
 >
-  {#each mobileDays as day, index}
+  {#each mobileDays as day, index (index)}
     <div class="col-span-1 flex flex-row items-center">
       <div class="flex flex-row">
         <h3 class={day.isSame(dayjs(new Date()), "day") ? "text-pink-400" : ""}>
@@ -81,7 +81,7 @@
       </div>
     </div>
   {/each}
-  {#each mapped.filter(isEventInMobileRange) as event}
+  {#each mapped.filter(isEventInMobileRange) as event (event.slug)}
     {@render eventCard({
       ...event,
       startDateNumber: Math.max(
@@ -103,7 +103,7 @@
   class="hidden auto-rows-fr gap-4 lg:grid lg:grid-cols-7"
   style="grid-auto-flow: dense;"
 >
-  {#each allDays as day}
+  {#each allDays as day (day)}
     <div class="col-span-1 flex flex-row items-center">
       <div class="flex flex-row">
         <h3 class={day.isSame(dayjs(new Date()), "day") ? "text-pink-400" : ""}>
@@ -117,7 +117,7 @@
       </div>
     </div>
   {/each}
-  {#each mapped as event}
+  {#each mapped as event (event.slug)}
     {@render eventCard(event)}
   {/each}
 </div>
