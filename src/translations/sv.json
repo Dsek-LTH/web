@@ -6,6 +6,7 @@
   "save": "Spara",
   "cancel": "Avbryt",
   "ok": "Ok",
+  "delete_delete": "Radera",
   "language_english": "Engelska",
   "language_swedish": "Svenska",
   "errors_notImplemented": "Inte implementerat än",
@@ -360,7 +361,7 @@
   "onboarding_year": "År",
   "onboarding_phadderGroup": "Phaddergrupp",
   "onboarding_save": "Spara",
-  "onboarding_welcome": "Välkommen",
+  "onboarding_welcome": "Välkommen!",
   "onboarding_fillInInfoBelow": "Fyll i dina uppgifter nedan",
   "medals": "Medaljer",
   "medals_since": "Sedan",
@@ -927,5 +928,7 @@
   "datepicker_weekday_separator": ", den ",
   "locale": "sv-SE",
   "pagination_previous": "Föregående",
-  "pagination_next": "Nästa"
+  "pagination_next": "Nästa",
+  "news_dialog_title": "Är du säker på att du vill ta bort nyheten?",
+  "news_dialog_desc": "Detta kan inte ångras."
 }

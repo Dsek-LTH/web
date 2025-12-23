@@ -6,6 +6,7 @@
   "save": "Save",
   "cancel": "Cancel",
   "ok": "Ok",
+  "delete_delete": "Delete",
   "language_english": "English",
   "language_swedish": "Swedish",
   "errors_notImplemented": "Not implemented yet",
@@ -361,7 +362,7 @@
   "onboarding_year": "Year",
   "onboarding_phadderGroup": "Phadder group",
   "onboarding_save": "Save",
-  "onboarding_welcome": "Welcome",
+  "onboarding_welcome": "Welcome!",
   "onboarding_fillInInfoBelow": "Fill in your information below",
   "medals": "Medals",
   "medals_since": "Since",
@@ -925,5 +926,7 @@
   "datepicker_weekday_separator": ", ",
   "locale": "en-GB",
   "pagination_previous": "Previous",
-  "pagination_next": "Next"
+  "pagination_next": "Next",
+  "news_dialog_title": "Are you sure you want to remove the article?",
+  "news_dialog_desc": "This cannot be undone."
 }
