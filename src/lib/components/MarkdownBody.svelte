@@ -2,18 +2,15 @@
   import { marked } from "marked";
   import { twMerge } from "tailwind-merge";
 
-  let clazz = "";
-  export { clazz as class };
-  export let body: string;
+  let { body, class: klass }: { body: string; class?: string } = $props();
 </script>
 
 <section
   class={twMerge(
-    "prose prose-a:link prose-a:link-primary prose-a:no-underline",
-    clazz,
+    "prose prose-a:text-rosa-background prose-a:no-underline hover:prose-a:underline",
+    klass,
   )}
 >
-  <slot />
   <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized client-side -->
   {@html marked(body)}
 </section>
