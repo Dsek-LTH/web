@@ -16,6 +16,9 @@
   import ListTodo from "@lucide/svelte/icons/list-todo";
 
   import * as m from "$paraglide/messages";
+  import type { WithoutChildren, WithElementRef } from "bits-ui";
+  import type { HTMLTextareaAttributes } from "svelte/elements";
+  import { onMount } from "svelte";
 
   let textarea: HTMLTextAreaElement | null = $state(null);
   let chars = $state(0);
@@ -28,7 +31,7 @@
   }: {
     value?: string;
     placeholder?: string;
-  } = $props();
+  } & WithoutChildren<WithElementRef<HTMLTextareaAttributes>> = $props();
 
   function countChar() {
     chars = value?.length ?? 0;
@@ -128,13 +131,18 @@
     }, 0);
     countChar();
   }
+
+  onMount(() => {
+    countChar();
+  });
 </script>
 
 <div
-  class="border-border flex w-[640px] flex-col rounded-lg border-[1px] border-solid"
+  class="border-border flex w-full flex-col rounded-lg border-[1px] border-solid"
 >
   <div
-    class="bg-muted-background *:text-muted-foreground flex h-12 flex-row rounded-t-lg"
+    style=""
+    class="bg-muted-background *:text-muted-foreground after:to-[rgba(0, 0, 0, 1)] after:from-accent flex h-12 flex-row overflow-scroll rounded-t-lg after:sticky after:right-0 after:bg-linear-to-l after:pl-10"
   >
     <div
       class="border-border flex flex-row items-center justify-between border-r-[1px] *:mx-[12px] *:size-4 *:cursor-pointer"
