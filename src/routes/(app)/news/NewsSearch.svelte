@@ -11,6 +11,8 @@
   import Input from "$lib/components/ui/input/input.svelte";
   import { ScrollArea } from "$lib/components/ui/scroll-area";
 
+  import Search from "@lucide/svelte/icons/search";
+
   let { open = $bindable(false) } = $props();
 
   let formElement: HTMLFormElement | null = $state(null);
@@ -78,8 +80,8 @@
         placeholder={m.search_search()}
         bind:value={input}
         bind:ref={inputElement}
-        autocomplete="off"
-      />
+        autocomplete="off"><Search /></Input
+      >
     </div>
     {#each availableSearchIndexes as index (index)}
       <input type="hidden" name={index} value="on" />
