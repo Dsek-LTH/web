@@ -1,6 +1,5 @@
 import { isFileImage } from "$lib/files/utils";
 import { authorSchema, tagSchema } from "$lib/zod/schemas";
-import type { Infer } from "sveltekit-superforms";
 import { z } from "zod";
 
 export const articleSchema = z.object({
@@ -29,7 +28,8 @@ export const articleSchema = z.object({
     .array()
     .default([]),
 });
-export type ArticleSchema = Infer<typeof articleSchema>;
+export type ArticleSchema = z.infer<typeof articleSchema>;
+export type CreateSchema = z.infer<typeof createSchema>;
 
 export const createSchema = articleSchema
   .omit({

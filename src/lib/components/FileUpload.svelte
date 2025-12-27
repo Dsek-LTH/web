@@ -6,12 +6,19 @@
   import * as AlertDialog from "$lib/components/ui/alert-dialog/index";
   import * as m from "$paraglide/messages";
   import { twMerge } from "tailwind-merge";
+  import type { HTMLInputAttributes } from "svelte/elements";
+  import type { WithElementRef, WithoutChildren } from "$lib/utils";
 
   let {
     files = $bindable(),
     url = $bindable(),
     class: klass,
-  }: { files?: FileList; url?: string; class?: string } = $props();
+    ...restProps
+  }: {
+    files?: FileList;
+    url?: string;
+    class?: string;
+  } & WithoutChildren<WithElementRef<HTMLInputAttributes>> = $props();
 
   let uploads: string[] = $state([]);
 
@@ -51,6 +58,7 @@
     e.preventDefault();
   }}
   role="form"
+  id="fileupload-form"
   class={twMerge(
     klass,
     "bg-secondary-background border-border flex h-[256px] flex-col items-center justify-center rounded-md border-[1px] text-center",
@@ -63,7 +71,7 @@
     </p>
   </div>
   <div class="flex flex-col gap-4 px-16">
-    <Input bind:files class="w-26" type="file" />
+    <Input {...restProps} bind:files class="w-26" type="file" />
     <Separator text={m.fileupload_or()} textClass="font-medium" />
 
     <AlertDialog.Root>

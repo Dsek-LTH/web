@@ -2,7 +2,10 @@
   import * as m from "$paraglide/messages";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import SEO from "$lib/seo/SEO.svelte";
-  import * as Card from "$lib/components/ui/card/index.js";
+  import NewsCard from "$lib/components/NewsCard.svelte";
+  import NewsSearch from "./NewsSearch.svelte";
+  import { Button } from "$lib/components/ui/button";
+  import Pagination from "$lib/components/Pagination.svelte";
 
   let { data } = $props();
 </script>
@@ -18,17 +21,17 @@
   }}
 />
 
+<div class="flex flex-row gap-2 py-4">
+  <div class="flex-1 gap-2 md:flex-row md:items-end">
+    <NewsSearch />
+  </div>
+  <a href="/news/create"><Button>+ {m.news_create()}</Button></a>
+</div>
 <div class="space-y-4">
-  <section class="grid grid-cols-1 gap-8 p-16 md:grid-cols-2">
-    {#each data.articles as article (article.id)}
-      <Card.Root class="w-5/6 p-6">
-        <h1 class="line-clamp-1 text-3xl font-bold">
-          {article.header}
-        </h1>
-        <div class="line-clamp-4">
-          {article.body}
-        </div>
-      </Card.Root>
+  <section class="grid grid-cols-1 gap-8 md:grid-cols-2">
+    {#each data.articles as article, index (article.id)}
+      <NewsCard {article} {index} />
     {/each}
   </section>
+  <Pagination />
 </div>

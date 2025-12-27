@@ -1,5 +1,13 @@
-<script>
-  import NotImplemented from "$lib/components/NotImplemented.svelte";
+<script lang="ts">
+  import ArticleEditor from "../ArticleEditor.svelte";
+  import type { PageData } from "./$types";
+
+  let { data }: { data: PageData } = $props();
 </script>
 
-<NotImplemented />
+<ArticleEditor
+  data={data.form}
+  authorOptions={data.authorOptions}
+  allTags={data.allTags}
+  isCreating={true}
+/>
