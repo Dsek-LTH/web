@@ -54,6 +54,7 @@
     "@sveltejs/kit": "^2.48.5",
     "@sveltejs/vite-plugin-svelte": "^5.0.1",
     "@tailwindcss/postcss": "^4.1.12",
+    "@tailwindcss/typography": "^0.5.19",
     "@types/eslint": "^9.6.1",
     "@types/node": "^22.10.1",
     "@types/node-schedule": "^2.1.7",
