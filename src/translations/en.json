@@ -925,5 +925,11 @@
   "datepicker_weekday_separator": ", ",
   "locale": "en-GB",
   "pagination_previous": "Previous",
-  "pagination_next": "Next"
+  "pagination_next": "Next",
+  "news_dialog_title": "Are you sure you want to remove the article?",
+  "news_dialog_desc": "This cannot be undone.",
+  "news_notification_send": "Send notification?",
+  "news_notification_text": "Notification text",
+  "news_youtube_url": "Youtube URL",
+  "news_notification_explanation": "The notification text. If left empty, the beginning of the article body will be used."
 }
