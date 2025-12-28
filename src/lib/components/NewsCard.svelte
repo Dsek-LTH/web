@@ -8,7 +8,7 @@
 </script>
 
 <div
-  class="hover:bg-muted-background animate-in fade-in fill-mode-backwards slide-in-from-bottom-[2rem] border-border flex max-w-lg flex-col rounded-xl border-[1px] p-4 duration-300"
+  class="hover:bg-muted-background animate-in fade-in fill-mode-backwards slide-in-from-bottom-[2rem] border-border flex flex-col rounded-xl border-[1px] p-4 duration-300"
   style="animation-delay:{index * 50}ms"
 >
   <a href={"/news/" + article.slug}>
