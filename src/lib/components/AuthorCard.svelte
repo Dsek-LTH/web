@@ -34,13 +34,12 @@
   {#if type == "Custom"}
     <Avatar.Root class="relative">
       <Avatar.Image {lazy} src={customAuthor?.imageUrl} alt="Author image" />
-      <Avatar.Fallback></Avatar.Fallback>
     </Avatar.Root>
   {:else}
     <a
       href="/members/{member.studentId}"
       tabindex={links ? 0 : -1}
-      class="link transition-opacity hover:opacity-80 focus:opacity-80 {links
+      class="transition-opacity hover:opacity-80 focus:opacity-80 {links
         ? ''
         : 'pointer-events-none'}"
     >

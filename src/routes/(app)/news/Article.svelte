@@ -48,7 +48,7 @@
       </p>
     </div>
   </div>
-  <div class="flex flex-row">
+  <div class="flex flex-row gap-2">
     {#each article.tags as tag (tag.id)}
       <TagChip {tag} />
     {/each}
