@@ -15,6 +15,7 @@
   const superform = superForm(data.form, {
     dataType: "json",
     id: "createpage",
+    delayMs: 500,
   });
 
   let { form } = superform;

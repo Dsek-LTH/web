@@ -20,6 +20,7 @@
   import type { ArticleSchema } from "$lib/news/schema";
   import type { AuthorOption } from "$lib/news/getArticles";
   import type { Snippet } from "svelte";
+  import { Spinner } from "$lib/components/ui/spinner";
 
   let {
     allTags,
@@ -35,7 +36,7 @@
     formEnd?: Snippet;
   } = $props();
 
-  const { form, errors, enhance } = superform;
+  const { form, errors, enhance, delayed } = superform;
 
   const sameAuthorOption = (
     a: Pick<AuthorOption, "memberId" | "mandateId" | "customId" | "type">,
@@ -181,5 +182,7 @@
       placeholder="https://youtube.com/v/..."><Pen /></Input
     >
   </div>
-  <Button type="submit">{m.save()}</Button>
+  <Button type="submit"
+    >{m.save()}{#if $delayed}<Spinner />{/if}</Button
+  >
 </form>
