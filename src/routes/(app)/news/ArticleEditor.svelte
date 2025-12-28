@@ -13,7 +13,7 @@
     data,
     allTags,
     authorOptions,
-    superform = superForm(data, { dataType: "json" }),
+    superform = superForm(data, { dataType: "json", delayMs: 500 }),
     formEnd,
   }: {
     allTags: Array<ExtendedPrismaModel<"Tag">>;
