@@ -9,5 +9,4 @@
   allTags={data.allTags}
   authorOptions={data.authorOptions}
   data={data.form}
-  isCreating={false}
 />

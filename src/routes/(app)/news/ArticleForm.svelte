@@ -1,37 +1,38 @@
 <script lang="ts">
   import { Input } from "$lib/components/ui/input";
   import { Label } from "$lib/components/ui/label";
-  import * as m from "$paraglide/messages";
-
+  import Button from "$lib/components/ui/button/button.svelte";
   import * as ButtonGroup from "$lib/components/ui/button-group";
   import * as Select from "$lib/components/ui/select";
+
+  import FileUpload from "$lib/components/FileUpload.svelte";
+  import Editor from "$lib/components/Editor.svelte";
+  import TagSelector from "$lib/components/TagSelector.svelte";
+
+  import * as m from "$paraglide/messages";
 
   import Pen from "@lucide/svelte/icons/pen";
   import User from "@lucide/svelte/icons/user";
 
-  import Button from "$lib/components/ui/button/button.svelte";
-  import Editor from "$lib/components/Editor.svelte";
-  import TagSelector from "$lib/components/TagSelector.svelte";
-  import SuperDebug, { type SuperForm } from "sveltekit-superforms";
-  import type { AuthorOption } from "$lib/news/getArticles";
-  import { dev } from "$app/environment";
-  import FileUpload from "$lib/components/FileUpload.svelte";
+  import { type SuperForm } from "sveltekit-superforms";
+
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
-  import { Checkbox } from "$lib/components/ui/checkbox";
-  import type { CreateSchema } from "$lib/news/schema";
+  import type { ArticleSchema } from "$lib/news/schema";
+  import type { AuthorOption } from "$lib/news/getArticles";
+  import type { Snippet } from "svelte";
 
   let {
     allTags,
     superform,
     activeTab = $bindable(),
     authorOptions,
-    isCreating,
+    formEnd,
   }: {
     allTags: Array<ExtendedPrismaModel<"Tag">>;
     activeTab: "sv" | "en";
-    superform: SuperForm<CreateSchema>;
+    superform: SuperForm<ArticleSchema>;
     authorOptions: AuthorOption[];
-    isCreating: boolean;
+    formEnd?: Snippet;
   } = $props();
 
   const { form, errors, enhance } = superform;
@@ -154,7 +155,13 @@
 
   <div class="flex w-full flex-col gap-1.5">
     <Label for="tags">{m.news_tags()}</Label>
-    <TagSelector name="tags" bind:selectedTags={$form.tags} {allTags} />
+    <TagSelector
+      aria-invalid={$errors.tags ? true : false}
+      aria-errormessage={$errors.tags?._errors?.at(0)}
+      name="tags"
+      bind:selectedTags={$form.tags}
+      {allTags}
+    />
   </div>
 
   <FileUpload
@@ -163,28 +170,8 @@
     bind:files={() => filelist, (f) => (filelist = f)}
   />
 
-  {#if isCreating}
-    <div class="flex w-full flex-col gap-1.5">
-      <Label for="sendNotification">{m.news_notification_send()}</Label
-      ><!-- @ts-ignore -- notification missing in type --><Checkbox
-        bind:checked={$form.sendNotification}
-        id="sendNotification"
-        name="sendNotification"
-        class="p-2"
-      />
-    </div>
-    <div class="flex w-full flex-col gap-1.5">
-      <Label for="notificationText">{m.news_notification_text()}</Label
-      ><!-- @ts-expect-error -- notification missing in type --><Input
-        bind:value={$form.notificationText}
-        type="text"
-        id="notificationText"
-        name="notificationText"
-        placeholder="Notistext"><Pen /></Input
-      >
-      <span class="text-xs">{m.news_notification_explanation()}</span>
-    </div>
-  {/if}
+  {@render formEnd?.()}
+
   <div class="flex w-full flex-col gap-1.5">
     <Label for="youtubeUrl">{m.news_youtube_url()}</Label><Input
       bind:value={$form.youtubeUrl}
@@ -195,7 +182,4 @@
     >
   </div>
   <Button type="submit">{m.save()}</Button>
-
-  <SuperDebug data={$form} display={dev} />
-  <SuperDebug data={$errors} display={dev} />
 </form>

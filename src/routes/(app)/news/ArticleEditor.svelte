@@ -7,35 +7,34 @@
   import AuthorCard from "$lib/components/AuthorCard.svelte";
   import type { AuthorOption } from "$lib/news/getArticles";
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+  import type { Snippet } from "svelte";
 
   let {
     data,
     allTags,
     authorOptions,
-    superform = superForm(data, {
-      dataType: "json",
-    }),
-    isCreating,
+    superform = superForm(data, { dataType: "json" }),
+    formEnd,
   }: {
     allTags: Array<ExtendedPrismaModel<"Tag">>;
-    superform?: SuperForm<ArticleSchema>;
     authorOptions: AuthorOption[];
     data: SuperValidated<ArticleSchema>;
-    isCreating: boolean;
+    superform?: SuperForm<ArticleSchema>;
+    formEnd?: Snippet;
   } = $props();
 
   const { form } = superform;
   let activeTab: "sv" | "en" = $state("sv");
+
+  let tagIds = $form.tags
+    .values()
+    .toArray()
+    .flat()
+    .map((t) => t.id);
 </script>
 
 <div class="flex flex-row gap-4 *:w-1/2">
-  <ArticleForm
-    bind:activeTab
-    {authorOptions}
-    {superform}
-    {allTags}
-    {isCreating}
-  />
+  <ArticleForm bind:activeTab {authorOptions} {superform} {allTags} {formEnd} />
   <Article
     article={{
       id: "",
@@ -56,6 +55,7 @@
       imageUrls: $form.imageUrls ?? [],
       imageUrl: $form.imageUrl ?? null,
       youtubeUrl: $form.youtubeUrl ?? null,
+      tags: allTags.filter((t) => tagIds.includes(t.id)),
     }}
     canEdit={false}
     canDelete={false}
