@@ -91,12 +91,16 @@
         {/if}
         <ButtonGroup.Root>
           <Button
-            class={activeTab == "sv" ? "bg-neutral-100" : ""}
+            class={activeTab == "sv"
+              ? "bg-neutral-100 dark:bg-neutral-900"
+              : ""}
             onclick={() => (activeTab = "sv")}
             variant="outline">{m.language_swedish()}</Button
           >
           <Button
-            class={activeTab == "en" ? "bg-neutral-100" : ""}
+            class={activeTab == "en"
+              ? "bg-neutral-100 dark:bg-neutral-900"
+              : ""}
             onclick={() => (activeTab = "en")}
             variant="outline">{m.language_english()}</Button
           >
