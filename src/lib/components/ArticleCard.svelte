@@ -26,7 +26,7 @@
     <h3 class="mt-2 px-2">
       {article.header}
     </h3>
-    <div class="line-clamp-2 px-2 overflow-ellipsis">
+    <div class="prose-p:text-foreground line-clamp-2 px-2 overflow-ellipsis">
       <MarkdownBody body={article.body} />
     </div></a
   >
