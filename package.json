@@ -46,7 +46,7 @@
     "@inlang/paraglide-js": "1.11.3",
     "@inlang/paraglide-js-adapter-sveltekit": "^0.6.7",
     "@internationalized/date": "^3.8.1",
-    "@lucide/svelte": "^0.544.0",
+    "@lucide/svelte": "^0.561.0",
     "@snaplet/copycat": "^5.1.0",
     "@snaplet/seed": "0.98.0",
     "@sveltejs/adapter-node": "^5.4.0",
