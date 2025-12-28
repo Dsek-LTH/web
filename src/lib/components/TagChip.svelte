@@ -15,7 +15,7 @@
 {#if tag}
   <Badge
     class={twMerge(
-      "relative cursor-pointer overflow-hidden border-[--tag-color] text-xs whitespace-nowrap before:absolute before:inset-0 before:bg-[--tag-color] before:opacity-10 before:content-['']",
+      "relative cursor-pointer overflow-hidden border-[var(--tag-color)] bg-[var(--tag-color)] text-xs whitespace-nowrap before:absolute before:inset-0 before:opacity-10 before:content-['']",
       klass,
     )}
     style="--tag-color: {tag.color || 'var(--bc)'}"
