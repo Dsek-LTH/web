@@ -10,7 +10,7 @@
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import TagChip from "$lib/components/TagChip.svelte";
   import type { Snippet } from "svelte";
-  import type { Article } from "$lib/news/getArticles";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
   let {
     article,
@@ -18,7 +18,9 @@
     canDelete,
     children,
   }: {
-    article: Article;
+    article: ExtendedPrismaModel<"Article"> & {
+      tags: Array<ExtendedPrismaModel<"Tag">>;
+    };
     canEdit: boolean;
     canDelete: boolean;
     children?: Snippet;
@@ -47,7 +49,7 @@
     </div>
   </div>
   <div class="flex flex-row">
-    {#each article.tags as tag (tag.name)}
+    {#each article.tags as tag (tag.id)}
       <TagChip {tag} />
     {/each}
   </div>
@@ -73,7 +75,7 @@
         <AlertDialog.Cancel>{m.cancel()}</AlertDialog.Cancel>
         <form action="?/removeArticle" method="POST">
           <AlertDialog.Action type="submit"
-            >{m.delete_delete()}</AlertDialog.Action
+            >{m.news_delete()}</AlertDialog.Action
           >
         </form>
       </AlertDialog.Footer>

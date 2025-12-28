@@ -196,7 +196,6 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
       customId: author.customId,
     },
   });
-  console.log(form);
 
   const tasks: Array<Promise<string>> = [];
   Array.from(images).forEach((image) => {
@@ -228,7 +227,9 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
           create: !existingAuthor
             ? {
                 member: {
-                  connect: { studentId: author.member.studentId },
+                  connect: {
+                    studentId: author.member.studentId as string | undefined,
+                  },
                 },
                 mandate: author.mandateId
                   ? {
