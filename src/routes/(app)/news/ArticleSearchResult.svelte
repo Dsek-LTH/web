@@ -24,8 +24,13 @@
 
       <div class="flex flex-row items-center gap-1">
         <Avatar.Root class="size-4">
-          <Avatar.Image src="https://picsum.photos/200" alt="profile picture" />
-          <Avatar.Fallback>IK</Avatar.Fallback>
+          <Avatar.Image src={data.author.picturePath} alt="profile picture" />
+          <Avatar.Fallback
+            >{data.author.firstName && data.author.lastName
+              ? data.author.firstName?.charAt(0) +
+                data.author.lastName?.charAt(0)
+              : "NN"}</Avatar.Fallback
+          >
         </Avatar.Root>
 
         <span class="text-muted-foreground line-clamp-1"
