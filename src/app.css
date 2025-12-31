@@ -6,6 +6,7 @@
 @custom-variant aria-invalid (&[aria-invalid="true"]);
 
 :root {
+  --primary: #f280a1;
   --background: oklch(1 0 0);
   --foreground: oklch(14.1% 0.005 285.823);
   --muted-background: oklch(98.5% 0 0);
@@ -30,6 +31,7 @@
 }
 
 .dark {
+  --primary: var(--color-rosa-400);
   --background: oklch(0 0 0);
   --foreground: oklch(98.5% 0 0);
   --muted-background: oklch(14.1% 0.005 285.823);
@@ -112,6 +114,8 @@
   --color-secondary-background: var(--secondary-background);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-secondary-hover: var(--secondary-hover);
+  --color-primary: var(--primary);
+  --color-input: var(--input);
 
   /* TODO: change to oklch colors (except #f280a1, #9966cc, and #99cc66)? */
   --color-rosa-50: #fef2f5;
