@@ -179,13 +179,6 @@ export const getRoutes = (): Route[] =>
           appBehaviour: "home-link",
         },
         {
-          title: m.emailAliases(),
-          path: "/admin/email-alias",
-          icon: "i-mdi-email",
-          accessRequired: apiNames.EMAIL_ALIAS.READ,
-          appBehaviour: "home-link",
-        },
-        {
           title: m.alerts(),
           path: "/admin/alerts",
           icon: "i-mdi-alert-circle",
