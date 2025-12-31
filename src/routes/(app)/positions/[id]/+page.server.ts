@@ -8,7 +8,6 @@ import {
 } from "sveltekit-superforms/server";
 import { zod } from "sveltekit-superforms/adapters";
 import { z } from "zod";
-import authentik from "$lib/server/authentik";
 import type { Actions, PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
 import { languageTag } from "$paraglide/runtime";
@@ -184,14 +183,6 @@ export const actions: Actions = {
       },
     });
     const now = new Date();
-    if (form.data.startDate < now && now < form.data.endDate) {
-      authentik.fetchGroupsAddMandate(
-        prisma,
-        member.studentId!,
-        params.id,
-        createdMandate.id,
-      );
-    }
     return message(form, {
       message: m.positions_newMandateGivenTo({
         name: member.firstName ?? m.positions_theMember(),
@@ -259,12 +250,6 @@ export const actions: Actions = {
     await prisma.mandate.delete({
       where: { id: form.data.mandateId, positionId: params.id },
     });
-    authentik.fetchGroupsDeleteMandate(
-      prisma,
-      member.studentId!,
-      params.id,
-      form.data.mandateId,
-    );
     return message(form, {
       message: m.positions_mandateRemoved({
         names: genitiveCase(member.firstName ?? m.positions_theMember()),
