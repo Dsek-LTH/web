@@ -19,7 +19,6 @@
   import { page } from "$app/state";
   import { i18n } from "$lib/utils/i18n";
   import { languageTag } from "$paraglide/runtime";
-  import DarkmodeToggle from "./DarkmodeToggle.svelte";
   import * as Drawer from "$lib/components/ui/drawer";
   import { onMount } from "svelte";
 
@@ -55,7 +54,7 @@
   class="nav-mobile bg-muted-background md-nav:top-0 md-nav:bottom-[unset] md-nav:h-[unset]! md-nav:relative fixed bottom-0 z-100 h-[64px] w-full max-w-screen flex-row justify-center border-t-[1px] border-b-[1px] font-[1.25rem]"
 >
   <div
-    class="md-nav:py-4 md-nav:py-4 container mx-auto flex shrink flex-row items-center justify-between px-8 py-3 xl:px-32"
+    class="md-nav:py-4 container mx-auto flex shrink flex-row items-center justify-between px-8 py-3 xl:px-32"
   >
     <div class="flex flex-row items-center">
       <NavigationMenu.Root viewport={false}>
@@ -98,9 +97,6 @@
         variant="ghost"
         class="p-1.5"><Bell /></Button
       >
-      <DarkmodeToggle
-        class="md-nav:inline-flex text-muted-foreground hidden border-0"
-      />
       <Avatar.Root class="md-nav:flex hidden">
         <Avatar.Image src="https://picsum.photos/200" alt="profile picture" />
         <Avatar.Fallback>IK</Avatar.Fallback>
@@ -180,7 +176,7 @@
                     class="text-muted-foreground size-9 p-1.5"
                     ><Languages /></Button
                   ></a
-                ><DarkmodeToggle class="text-muted-foreground size-9 p-1.5" />
+                >
               </div></Drawer.Description
             >
           </Drawer.Header>
