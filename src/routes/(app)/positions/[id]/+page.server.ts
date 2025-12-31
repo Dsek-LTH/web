@@ -173,7 +173,7 @@ export const actions: Actions = {
     });
     if (!member)
       return setError(form, "memberId", m.positions_errors_memberNotFound());
-    const createdMandate = await prisma.mandate.create({
+    await prisma.mandate.create({
       data: {
         positionId: params.id,
         memberId: form.data.memberId,
@@ -182,7 +182,6 @@ export const actions: Actions = {
         lastSynced: new Date("1970"),
       },
     });
-    const now = new Date();
     return message(form, {
       message: m.positions_newMandateGivenTo({
         name: member.firstName ?? m.positions_theMember(),

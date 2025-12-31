@@ -1,6 +1,5 @@
 <script lang="ts">
   import { version } from "$app/environment";
-  import { enhance } from "$app/forms";
   import { isAuthorized } from "$lib/utils/authorization";
   import {
     featureFlags,
