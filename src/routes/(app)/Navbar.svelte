@@ -10,17 +10,24 @@
   import Menu from "@lucide/svelte/icons/menu";
   import ChevronDown from "@lucide/svelte/icons/chevron-down";
   import X from "@lucide/svelte/icons/x";
-  import User from "@lucide/svelte/icons/user";
   import Settings from "@lucide/svelte/icons/settings";
+  import LogIn from "@lucide/svelte/icons/log-in";
   import LogOut from "@lucide/svelte/icons/log-out";
+  import User from "@lucide/svelte/icons/user";
 
   import { getRoutes } from "../routes";
   import { navigationMenuTriggerStyle } from "$lib/components/ui/navigation-menu/navigation-menu-trigger.svelte";
   import { page } from "$app/state";
   import { i18n } from "$lib/utils/i18n";
+  import * as m from "$paraglide/messages";
   import { languageTag } from "$paraglide/runtime";
   import * as Drawer from "$lib/components/ui/drawer";
   import { onMount } from "svelte";
+  import { getFullName, getInitials } from "$lib/utils/client/member";
+  import { signIn, signOut } from "$lib/utils/auth";
+  import ChevronUp from "@lucide/svelte/icons/chevron-up";
+
+  import * as Popover from "$lib/components/ui/popover";
 
   let commandDialogOpen = $state(false);
 
@@ -47,6 +54,16 @@
       }
     };
   });
+
+  let userPopover: boolean | undefined = $state();
+  let popoverMove = false;
+
+  function closePopover() {
+    setTimeout(() => {
+      if (!popoverMove) userPopover = false;
+    }, 1000);
+    popoverMove = false;
+  }
 </script>
 
 <div
@@ -97,10 +114,68 @@
         variant="ghost"
         class="p-1.5"><Bell /></Button
       >
-      <Avatar.Root class="md-nav:flex hidden">
-        <Avatar.Image src="https://picsum.photos/200" alt="profile picture" />
-        <Avatar.Fallback>IK</Avatar.Fallback>
-      </Avatar.Root>
+      {#if page.data.member}
+        <Popover.Root open={userPopover}>
+          <Popover.Trigger
+            onmouseover={() => (userPopover = true)}
+            onmouseleave={() => closePopover()}
+          >
+            <Avatar.Root class="md-nav:flex hidden">
+              <Avatar.Image
+                src={page.data.member?.picturePath}
+                alt="profile picture"
+              />
+              <Avatar.Fallback>{getInitials(page.data.member)}</Avatar.Fallback>
+            </Avatar.Root>
+          </Popover.Trigger>
+          <Popover.Content
+            onmouseleave={() => (userPopover = false)}
+            onmouseenter={() => (popoverMove = true)}
+            class="z-150 flex max-w-[200px] flex-col items-center gap-2"
+          >
+            <Avatar.Root class="size-12">
+              <Avatar.Image
+                src={page.data.member?.picturePath}
+                alt="profile picture"
+              />
+              <Avatar.Fallback>{getInitials(page.data.member)}</Avatar.Fallback>
+            </Avatar.Root>
+            <h5 class="text-center break-all">
+              {getFullName(page.data.member)}
+            </h5>
+            <a href="/members/me">
+              <Button
+                aria-label="profile"
+                variant="outline"
+                class="text-muted-foreground"
+                ><User /> {m.navbar_userMenu_profile()}</Button
+              ></a
+            >
+            <a href="/settings">
+              <Button
+                aria-label="settings"
+                variant="outline"
+                class="text-muted-foreground"
+                ><Settings /> {m.navbar_userMenu_settings()}</Button
+              ></a
+            >
+            <Button
+              aria-label="sign out"
+              variant="outline"
+              class="text-muted-foreground"
+              onclick={signOut}><LogOut /> {m.navbar_userMenu_logOut()}</Button
+            >
+          </Popover.Content>
+        </Popover.Root>
+      {:else}
+        <Button
+          aria-label="sign in"
+          variant="ghost"
+          size="icon-lg"
+          class="text-muted-foreground"
+          onclick={signIn}><LogIn /></Button
+        >
+      {/if}
       <Drawer.Root bind:open={navOpen} direction="bottom">
         {#if navOpen}
           <Drawer.Close
@@ -125,43 +200,67 @@
             <Drawer.Title class="flex flex-col"
               ><div class="flex flex-row justify-between">
                 <div class="flex flex-row items-center gap-2">
-                  <Avatar.Root>
-                    <Avatar.Image
-                      src="https://picsum.photos/200"
-                      alt="profile picture"
-                    />
-                    <Avatar.Fallback>IK</Avatar.Fallback>
-                  </Avatar.Root>
-                  <p class="text-muted-foreground mt-0 font-medium">Es Björn</p>
+                  {#if page.data.member}
+                    <a
+                      href="/members/me"
+                      class="hover:bg-secondary-hover flex flex-row items-center gap-2 rounded-md px-2"
+                    >
+                      <Avatar.Root>
+                        <Avatar.Image
+                          src={page.data.member?.picturePath}
+                          alt="profile picture"
+                        />
+                        <Avatar.Fallback
+                          >{getInitials(page.data.member)}</Avatar.Fallback
+                        >
+                      </Avatar.Root>
+                      <p class="text-muted-foreground mt-0 font-medium">
+                        <span>{getFullName(page.data.member)}</span>
+                      </p>
+                    </a>
+                  {/if}
                 </div>
                 <div class="flex flex-row justify-between gap-2">
-                  <a href="/members/me">
+                  {#if page.data.member}
+                    <a href="/settings">
+                      <Button
+                        aria-label="settings"
+                        size="icon-lg"
+                        variant="outline"
+                        class="text-muted-foreground size-9"
+                        ><Settings /></Button
+                      ></a
+                    >
                     <Button
-                      aria-label="profile"
-                      size="icon-lg"
-                      variant="outline"
-                      class="text-muted-foreground size-9"><User /></Button
-                    ></a
-                  ><a href="/settings">
-                    <Button
-                      aria-label="settings"
-                      size="icon-lg"
-                      variant="outline"
-                      class="text-muted-foreground size-9"><Settings /></Button
-                    ></a
-                  ><a href="#signout">
-                    <Button
+                      onclick={signOut}
                       aria-label="sign out"
                       size="icon-lg"
                       variant="outline"
                       class="text-muted-foreground size-9"><LogOut /></Button
-                    ></a
-                  >
+                    >
+                  {:else}
+                    <a href="https://auth.dsek.se/if/flow/lu-signup/?next=%2F">
+                      <Button
+                        onclick={signIn}
+                        aria-label="sign in"
+                        variant="outline"
+                        class="text-muted-foreground h-9"
+                        ><User /> {m.navbar_register()}</Button
+                      ></a
+                    >
+                    <Button
+                      onclick={signIn}
+                      aria-label="sign in"
+                      variant="outline"
+                      class="text-muted-foreground h-9"
+                      ><LogIn /> {m.navbar_logIn()}</Button
+                    >
+                  {/if}
                 </div>
               </div>
             </Drawer.Title>
             <Drawer.Description class="flex flex-row justify-between">
-              <div class="flex flex-col">
+              <div class="flex w-full flex-col">
                 {@render mobileLinks()}
               </div>
               <div class="flex flex-col justify-end gap-1">
@@ -237,28 +336,36 @@
   <div class="">
     {#each getRoutes() as route (route.title)}
       {#if route.children}
-        <h6 class="text-foreground m-1 block p-1 text-lg font-medium">
-          <ChevronDown class="mr-[2px] inline h-[16px] w-[16px]" />{route.title}
-        </h6>
+        <details open class="group list-none">
+          <summary class="list-none">
+            <h6
+              class="text-muted-foreground hover:bg-secondary-hover m-1 flex w-full cursor-pointer flex-row items-center justify-between rounded-md px-[12px] py-[6px] font-normal"
+            >
+              {route.title}<ChevronDown
+                class="ml-auto inline h-[16px] w-[16px] group-open:hidden"
+              /><ChevronUp
+                class="ml-auto hidden h-[16px] w-[16px] group-open:inline"
+              />
+            </h6>
+          </summary>
 
-        <div>
-          <ul
-            class="ml-0 grid list-none pr-2 pb-2 pl-7 md:w-[400px] lg:w-[472px] lg:grid-cols-[.75fr_1fr]"
-          >
-            {#each route.children as child (child.title)}
-              <a
-                class="hover:bg-secondary-hover block rounded-sm px-1 py-1 transition-all"
-                href={child.path}
-              >
-                {child.title}
-              </a>
-            {/each}
-          </ul>
-        </div>
+          <div>
+            <ul class="list-none border-l-[1px]">
+              {#each route.children as child (child.title)}
+                <a
+                  class="hover:bg-secondary-hover text-foreground ml-[6px] block rounded-sm py-[6px] pr-[12px] pl-[6px] transition-all"
+                  href={child.path}
+                >
+                  {child.title}
+                </a>
+              {/each}
+            </ul>
+          </div>
+        </details>
       {:else}
         <a href={route.path} class="hover:bg-secondary-hover block rounded-sm">
-          <h6 class="text-foreground m-1 block p-1 text-lg font-medium">
-            <span class="ml-[18px]">{route.title}</span>
+          <h6 class="text-foreground m-1 block px-[12px] py-[6px] font-normal">
+            <span class="">{route.title}</span>
           </h6>
         </a>
       {/if}
