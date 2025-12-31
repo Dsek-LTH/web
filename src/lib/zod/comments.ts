@@ -1,4 +1,4 @@
-import { fail, type RequestEvent } from "@sveltejs/kit";
+import { fail, type Action } from "@sveltejs/kit";
 import {
   message,
   superValidate,
@@ -20,12 +20,8 @@ export const removeCommentSchema = z.object({
 export type RemoveCommentSchema = Infer<typeof removeCommentSchema>;
 
 export const commentAction =
-  (entityType: "NEWS" | "EVENT") =>
-  async ({
-    locals,
-    request,
-    params,
-  }: RequestEvent<Record<string, string>, string>) => {
+  (entityType: "NEWS" | "EVENT"): Action =>
+  async ({ locals, request, params }) => {
     const { prisma, user } = locals;
     const form = await superValidate(request, zod(commentSchema));
     if (!form.valid) return fail(400, { form });
@@ -72,12 +68,8 @@ export const commentAction =
   };
 
 export const removeCommentAction =
-  (entityType: "NEWS" | "EVENT") =>
-  async ({
-    locals,
-    request,
-    params,
-  }: RequestEvent<Record<string, string>, string>) => {
+  (entityType: "NEWS" | "EVENT"): Action =>
+  async ({ locals, request, params }) => {
     const { prisma } = locals;
     const form = await superValidate(request, zod(removeCommentSchema));
     if (!form.valid) return fail(400, { form });

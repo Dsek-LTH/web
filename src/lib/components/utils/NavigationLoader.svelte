@@ -7,6 +7,7 @@
   $: {
     if ($navigating) {
       timeout = setTimeout(() => {
+        // eslint-disable-next-line svelte/infinite-reactive-loop
         isLoadDelayed = $navigating !== null;
       }, threshhold);
     } else {
