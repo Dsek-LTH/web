@@ -1,11 +1,12 @@
 import { memberSchema } from "$lib/zod/schemas";
-import { superValidate, type Infer } from "sveltekit-superforms/server";
+import { superValidate } from "sveltekit-superforms/server";
 import { zod } from "sveltekit-superforms/adapters";
 import type { Actions, PageServerLoad } from "./$types";
 import { error, fail } from "@sveltejs/kit";
 import { redirect } from "$lib/utils/redirect";
 import * as m from "$paraglide/messages";
 import authentik from "$lib/server/authentik";
+import type { z } from "zod";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma } = locals;
@@ -59,7 +60,7 @@ const updateSchema = memberSchema.pick({
   nollningGroupId: true,
 });
 
-export type UpdateSchema = Infer<typeof updateSchema>;
+export type UpdateSchema = z.infer<typeof updateSchema>;
 
 export const actions: Actions = {
   update: async ({ locals, request, cookies }) => {
