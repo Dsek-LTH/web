@@ -5,13 +5,15 @@
   let {
     ref = $bindable(null),
     class: className,
+    lazy = false,
     ...restProps
-  }: AvatarPrimitive.ImageProps = $props();
+  }: AvatarPrimitive.ImageProps & { lazy?: boolean } = $props();
 </script>
 
 <AvatarPrimitive.Image
   bind:ref
   data-slot="avatar-image"
+  loading={lazy ? "lazy" : "eager"}
   class={cn(
     "border-secondary-background aspect-square size-full rounded-full border-[1px]",
     className,
