@@ -9,7 +9,7 @@ import {
 } from "$lib/server/authentik";
 import { ResponseError } from "@goauthentik/api";
 import { message, superValidate } from "sveltekit-superforms";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { emailFormSchema } from "../helpers";
 import { fail } from "@sveltejs/kit";
 
@@ -26,7 +26,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
   return {
     emailAlias: await emailAlias,
-    form: await superValidate(zod(emailFormSchema)),
+    form: await superValidate(zod4(emailFormSchema)),
   };
 };
 
@@ -34,7 +34,7 @@ export const actions: Actions = {
   add: async ({ locals, request, params }) => {
     authorize(apiNames.EMAIL_ALIAS.UPDATE, locals.user);
 
-    const form = await superValidate(request, zod(emailFormSchema));
+    const form = await superValidate(request, zod4(emailFormSchema));
     if (!form.valid) {
       return fail(400, { form });
     }

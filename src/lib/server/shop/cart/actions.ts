@@ -13,7 +13,7 @@ import { redirect } from "$lib/utils/redirect";
 import { questionForm } from "$lib/utils/shop/types";
 import * as m from "$paraglide/messages";
 import { error, fail, type Actions } from "@sveltejs/kit";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 
@@ -22,7 +22,7 @@ const cartActions: Actions = {
     const { user, prisma } = locals;
     const form = await superValidate(
       request,
-      zod(z.object({ id: z.string() })),
+      zod4(z.object({ id: z.string() })),
     );
     if (!form.valid) return fail(400, { form });
     if (!user?.memberId && !user?.externalCode) {
@@ -63,7 +63,7 @@ const cartActions: Actions = {
     const { user, prisma } = locals;
     const form = await superValidate(
       request,
-      zod(z.object({ id: z.string() })),
+      zod4(z.object({ id: z.string() })),
     );
     if (!form.valid) return fail(400, { form });
     if (!user?.memberId && !user?.externalCode) {
@@ -104,7 +104,7 @@ const cartActions: Actions = {
   },
   answerQuestion: async ({ locals, request }) => {
     const { user, prisma } = locals;
-    const form = await superValidate(request, zod(questionForm));
+    const form = await superValidate(request, zod4(questionForm));
     if (!form.valid) return fail(400, { form });
     if (!user?.memberId && !user?.externalCode) {
       return message(form, {
@@ -140,7 +140,7 @@ const cartActions: Actions = {
     const { locals, request } = event;
     const { user, prisma } = locals;
     authorize(apiNames.WEBSHOP.PURCHASE, user);
-    const form = await superValidate(request, zod(purchaseForm));
+    const form = await superValidate(request, zod4(purchaseForm));
     if (!form.valid) return fail(400, { form });
     if (!user?.memberId && !user?.externalCode) {
       throw error(401, m.cart_errors_noCart());

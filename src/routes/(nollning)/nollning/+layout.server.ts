@@ -7,7 +7,7 @@ import { getNollaGroupedNotifications } from "$lib/utils/notifications/nollaNoti
 import type { Theme } from "$lib/utils/themes";
 import { notificationSchema } from "$lib/zod/schemas";
 import { superValidate } from "sveltekit-superforms";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 
 const afterNollning = new Date("2025-10-06");
 export const load = async ({ locals, cookies }) => {
@@ -37,7 +37,7 @@ export const load = async ({ locals, cookies }) => {
   return {
     revealTheme,
     notificationsPromise,
-    mutateNotificationForm: await superValidate(zod(notificationSchema)),
+    mutateNotificationForm: await superValidate(zod4(notificationSchema)),
     paths: {
       cart: `${POST_REVEAL_PREFIX}/shop/cart`,
       purchaseRedirect: `${POST_REVEAL_PREFIX}/shop/success`,

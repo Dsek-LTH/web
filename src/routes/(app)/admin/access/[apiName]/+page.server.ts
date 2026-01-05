@@ -6,7 +6,7 @@ import {
   superValidate,
   type Infer,
 } from "sveltekit-superforms/server";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import { authorize } from "$lib/utils/authorization";
@@ -43,8 +43,8 @@ export const load: PageServerLoad = async ({ locals, params }) => {
       member: true,
     },
   });
-  const createForm = await superValidate(zod(createSchema));
-  const deleteForm = await superValidate(zod(deleteSchema));
+  const createForm = await superValidate(zod4(createSchema));
+  const deleteForm = await superValidate(zod4(deleteSchema));
   return {
     policies,
     createForm,
@@ -55,7 +55,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 export const actions: Actions = {
   create: async ({ params, request, locals }) => {
     const { prisma } = locals;
-    const form = await superValidate(request, zod(createSchema));
+    const form = await superValidate(request, zod4(createSchema));
     if (!form.valid) return fail(400, { form });
     if (
       form.data.studentId &&
@@ -79,7 +79,7 @@ export const actions: Actions = {
   },
   delete: async ({ request, locals }) => {
     const { prisma } = locals;
-    const form = await superValidate(request, zod(deleteSchema));
+    const form = await superValidate(request, zod4(deleteSchema));
     if (!form.valid) return fail(400, { form });
     await prisma.accessPolicy.delete({
       where: {

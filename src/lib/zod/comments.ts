@@ -4,7 +4,7 @@ import {
   superValidate,
   type Infer,
 } from "sveltekit-superforms/server";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 
 import { z } from "zod";
 import DOMPurify from "isomorphic-dompurify";
@@ -23,7 +23,7 @@ export const commentAction =
   (entityType: "NEWS" | "EVENT"): Action =>
   async ({ locals, request, params }) => {
     const { prisma, user } = locals;
-    const form = await superValidate(request, zod(commentSchema));
+    const form = await superValidate(request, zod4(commentSchema));
     if (!form.valid) return fail(400, { form });
     const args = {
       where: { slug: params["slug"] },
@@ -71,7 +71,7 @@ export const removeCommentAction =
   (entityType: "NEWS" | "EVENT"): Action =>
   async ({ locals, request, params }) => {
     const { prisma } = locals;
-    const form = await superValidate(request, zod(removeCommentSchema));
+    const form = await superValidate(request, zod4(removeCommentSchema));
     if (!form.valid) return fail(400, { form });
     const args = {
       where: { slug: params["slug"] },

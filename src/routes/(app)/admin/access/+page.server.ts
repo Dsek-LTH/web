@@ -1,7 +1,7 @@
 import apiNames from "$lib/utils/apiNames";
 import { fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import { authorize } from "$lib/utils/authorization";
@@ -17,7 +17,7 @@ export const load: PageServerLoad = async ({ locals }) => {
       .filter((value, index, self) => self.indexOf(value) === index)
       .sort(),
   );
-  const form = await superValidate(zod(createSchema));
+  const form = await superValidate(zod4(createSchema));
   return {
     accessPolicies,
     form,
@@ -31,7 +31,7 @@ const createSchema = z.object({
 export const actions: Actions = {
   create: async ({ locals, request }) => {
     const { prisma } = locals;
-    const form = await superValidate(request, zod(createSchema));
+    const form = await superValidate(request, zod4(createSchema));
     if (!form.valid) return fail(400, { form });
 
     await prisma.accessPolicy.create({

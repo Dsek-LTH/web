@@ -4,7 +4,7 @@ import { authorize } from "$lib/utils/authorization";
 import { redirect } from "$lib/utils/redirect";
 import { error, fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { updateTicket } from "$lib/server/shop/tickets/mutations";
 
 export const load = async ({ locals, params }) => {
@@ -59,7 +59,7 @@ export const load = async ({ locals, params }) => {
         })),
         accessPolicies: ticket.shoppable.accessPolicies,
       },
-      zod(ticketSchema),
+      zod4(ticketSchema),
       { errors: false },
     ),
     event: ticket.event,
@@ -70,7 +70,7 @@ export const actions = {
   default: async (event) => {
     const { locals, request } = event;
     const { prisma, user, member } = locals;
-    const form = await superValidate(request, zod(ticketSchema));
+    const form = await superValidate(request, zod4(ticketSchema));
     if (!form.valid) return fail(400, { form });
     authorize(apiNames.WEBSHOP.CREATE, user);
     if (!member) {

@@ -2,7 +2,7 @@ import type { PageServerLoad } from "./$types";
 import { committeeActions, committeeLoad } from "../committee.server";
 import * as m from "$paraglide/messages";
 import { fail } from "@sveltejs/kit";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { updateMarkdown } from "$lib/news/markdown/mutations.server";
 import { updateSchema } from "../types";
@@ -29,7 +29,7 @@ export const actions = {
   ...committeeActions("cafe"),
   updateHours: async ({ request, locals }) => {
     const { user, prisma } = locals;
-    const form = await superValidate(request, zod(updateSchema));
+    const form = await superValidate(request, zod4(updateSchema));
     if (!form.valid) return fail(400, { form });
 
     const { markdownSv, markdownEn, markdownSlug } = form.data;

@@ -2,7 +2,7 @@ import apiNames from "$lib/utils/apiNames";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import { message, setError, superValidate } from "sveltekit-superforms/server";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { fail } from "@sveltejs/kit";
 import { authorize } from "$lib/utils/authorization";
 
@@ -41,9 +41,9 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   });
   return {
     doorAccessPolicies,
-    createForm: await superValidate(zod(createSchema), { id: "createForm" }),
-    banForm: await superValidate(zod(createSchema), { id: "banForm" }),
-    deleteForm: await superValidate(zod(deleteSchema)),
+    createForm: await superValidate(zod4(createSchema), { id: "createForm" }),
+    banForm: await superValidate(zod4(createSchema), { id: "banForm" }),
+    deleteForm: await superValidate(zod4(deleteSchema)),
   };
 };
 
@@ -66,7 +66,7 @@ const deleteSchema = z.object({
 export const actions: Actions = {
   create: async ({ request, locals, params }) => {
     const { prisma } = locals;
-    const form = await superValidate(request, zod(createSchema));
+    const form = await superValidate(request, zod4(createSchema));
     if (!form.valid) return fail(400, { form });
     const doorName = params.slug;
     const { studentId } = form.data;
@@ -91,7 +91,7 @@ export const actions: Actions = {
   },
   ban: async ({ request, locals, params }) => {
     const { prisma } = locals;
-    const form = await superValidate(request, zod(createSchema));
+    const form = await superValidate(request, zod4(createSchema));
     if (!form.valid) return fail(400, { form });
     const doorName = params.slug;
     const { studentId } = form.data;
@@ -117,7 +117,7 @@ export const actions: Actions = {
   },
   delete: async ({ request, locals }) => {
     const { prisma } = locals;
-    const form = await superValidate(request, zod(deleteSchema));
+    const form = await superValidate(request, zod4(deleteSchema));
     if (!form.valid) return fail(400, { form });
     const { id } = form.data;
     await prisma.doorAccessPolicy.delete({

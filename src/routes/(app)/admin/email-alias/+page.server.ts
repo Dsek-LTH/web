@@ -3,7 +3,7 @@ import { authorize } from "$lib/utils/authorization";
 import { error, fail } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 import { superValidate } from "sveltekit-superforms";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { emailAliasSchema } from "./helpers";
 import {
   fetchEmailGroups,
@@ -22,7 +22,7 @@ export const load: PageServerLoad = async ({ locals }) => {
     emailAliases: await emailAliases,
     form: await superValidate(
       { alias: "", domain: "dsek.se" },
-      zod(emailAliasSchema),
+      zod4(emailAliasSchema),
       { errors: false }, // Hide errors on initial load
     ),
   };
@@ -32,7 +32,7 @@ export const actions: Actions = {
   create: async ({ locals, request }) => {
     authorize(apiNames.EMAIL_ALIAS.CREATE, locals.user);
 
-    const form = await superValidate(request, zod(emailAliasSchema));
+    const form = await superValidate(request, zod4(emailAliasSchema));
     if (!form.valid) {
       return fail(400, { form });
     }
