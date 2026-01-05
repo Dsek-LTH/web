@@ -24,6 +24,14 @@ const config = {
         ? env.VERSION
         : execSync("git describe --tags").toString().trim(),
     },
+    experimental: {
+      remoteFunctions: true,
+    }
+  },
+  compilerOptions: {
+    experimental: {
+      async: true,
+    },
   },
 };
 
