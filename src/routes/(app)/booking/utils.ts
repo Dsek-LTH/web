@@ -4,7 +4,7 @@ import { error, type RequestEvent } from "@sveltejs/kit";
 import type { Actions } from "./$types";
 import dayjs from "dayjs";
 import { superValidate } from "sveltekit-superforms/server";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { bookingSchema } from "./schema";
 import * as m from "$paraglide/messages";
 import type {
@@ -69,7 +69,7 @@ export async function getSuperValidatedForm(
       : undefined,
     bookables: bookingRequest.bookables?.map((bookable) => bookable.id),
   };
-  return await superValidate(initialData, zod(bookingSchema));
+  return await superValidate(initialData, zod4(bookingSchema));
 }
 
 async function performAction(event: RequestEvent, accepted: boolean) {

@@ -4,7 +4,7 @@ import { redirect } from "$lib/utils/redirect";
 import { memberSchema } from "$lib/zod/schemas";
 import { error, fail } from "@sveltejs/kit";
 import { superValidate } from "sveltekit-superforms/server";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import type { Actions, PageServerLoad } from "./$types";
 import DOMPurify from "isomorphic-dompurify";
 import * as m from "$paraglide/messages";
@@ -25,7 +25,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   }
   return {
     member,
-    form: await superValidate(member, zod(updateBioSchema)),
+    form: await superValidate(member, zod4(updateBioSchema)),
   };
 };
 
@@ -35,7 +35,7 @@ export const actions: Actions = {
   update: async (event) => {
     const { request, locals, params } = event;
     const { prisma } = locals;
-    const form = await superValidate(request, zod(updateBioSchema));
+    const form = await superValidate(request, zod4(updateBioSchema));
     if (!form) return fail(400, { form });
     const studentId = params.studentId;
     await prisma.member.update({

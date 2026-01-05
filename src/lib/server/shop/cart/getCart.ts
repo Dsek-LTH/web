@@ -19,7 +19,7 @@ import {
 import { questionForm } from "$lib/utils/shop/types";
 import { ShoppableType } from "@prisma/client";
 import { error, type ServerLoadEvent } from "@sveltejs/kit";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
 import { purchaseForm } from "./types";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
@@ -125,7 +125,7 @@ export const getCartWithExtras = async (
                     questionId: question.id,
                     answer: answer?.answer,
                   },
-                  zod(questionForm),
+                  zod4(questionForm),
                   {
                     errors: false,
                   },
@@ -140,7 +140,7 @@ export const getCartWithExtras = async (
   return {
     inCart: inCartWithQuestionForms,
     reservations,
-    purchaseForm: await superValidate(zod(purchaseForm)),
+    purchaseForm: await superValidate(zod4(purchaseForm)),
     totalPrice: totalPrice,
     transactionFee: passOnTransactionFee ? transactionFee(totalPrice) : 0,
   };

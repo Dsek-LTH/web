@@ -2,7 +2,7 @@ import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 import { compareCommitteePositions } from "$lib/utils/committee-ordering/sort";
 import * as m from "$paraglide/messages";
 import { error, fail, type Actions } from "@sveltejs/kit";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { message, superValidate, withFiles } from "sveltekit-superforms/server";
 import { updateSchema } from "./types";
 import { updateMarkdown } from "$lib/news/markdown/mutations.server";
@@ -148,7 +148,7 @@ export const committeeLoad = async (
       markdownSv: markdown.value?.markdown,
       markdownEn: markdown.value?.markdownEn,
     },
-    zod(updateSchema),
+    zod4(updateSchema),
   );
 
   return {
@@ -170,7 +170,7 @@ export const committeeActions = (
 ): Actions<{ shortName: string }> => ({
   update: async ({ params, request, locals }) => {
     const { user, prisma } = locals;
-    const form = await superValidate(request, zod(updateSchema), {
+    const form = await superValidate(request, zod4(updateSchema), {
       allowFiles: true,
     });
     if (!form.valid) return fail(400, withFiles({ form }));

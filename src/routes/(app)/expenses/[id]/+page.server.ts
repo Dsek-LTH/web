@@ -3,7 +3,7 @@ import { isAuthorized } from "$lib/utils/authorization";
 import { redirect } from "$lib/utils/redirect";
 import { error } from "@sveltejs/kit";
 import { fail, message, superValidate } from "sveltekit-superforms";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import { getCostCenter } from "../config";
 import { expensesInclusion } from "../getExpenses";
@@ -34,8 +34,8 @@ export const load = async ({ locals, params }) => {
   }
   return {
     expense,
-    updateItemForm: await superValidate(zod(updateItemSchema)),
-    updateForm: await superValidate(expense, zod(updateExpenseSchema)),
+    updateItemForm: await superValidate(zod4(updateItemSchema)),
+    updateForm: await superValidate(expense, zod4(updateExpenseSchema)),
   };
 };
 
@@ -46,7 +46,7 @@ const approveReceiptSchema = z.object({
 export const actions = {
   updateReceipt: async ({ params, request, locals }) => {
     const { prisma, member } = locals;
-    const form = await superValidate(request, zod(updateItemSchema));
+    const form = await superValidate(request, zod4(updateItemSchema));
     if (params.id.length === 0 || Number.isNaN(Number(params.id)))
       throw error(404, "Expense id should be a number");
 
@@ -104,7 +104,7 @@ export const actions = {
   },
   update: async ({ params, request, locals }) => {
     const { prisma } = locals;
-    const form = await superValidate(request, zod(updateExpenseSchema));
+    const form = await superValidate(request, zod4(updateExpenseSchema));
     if (params.id.length === 0 || Number.isNaN(Number(params.id)))
       throw error(404, "Expense id should be a number");
 
@@ -156,7 +156,7 @@ export const actions = {
         fail,
         message: "Du måste vara inloggad för att av-godkänna utlägg",
       });
-    const form = await superValidate(request, zod(approveReceiptSchema));
+    const form = await superValidate(request, zod4(approveReceiptSchema));
     if (!form.valid) return fail(400, { form });
     const canAlwaysSign = isAuthorized(apiNames.EXPENSES.CERTIFICATION, user);
     try {
@@ -200,7 +200,7 @@ export const actions = {
       throw error(401, "Du måste vara inloggad för att godkänna utlägg");
     if (params.id.length === 0 || Number.isNaN(Number(params.id)))
       throw error(404, "Expense id should be a number");
-    const form = await superValidate(request, zod(approveReceiptSchema));
+    const form = await superValidate(request, zod4(approveReceiptSchema));
     if (!form.valid) return fail(400, { form });
     const canAlwaysSign = isAuthorized(apiNames.EXPENSES.CERTIFICATION, user);
     try {

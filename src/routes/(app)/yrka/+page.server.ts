@@ -1,7 +1,7 @@
 import apiNames from "$lib/utils/apiNames";
 import { fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import { getFullName } from "$lib/utils/client/member";
@@ -23,7 +23,7 @@ export const load: PageServerLoad = async ({ locals }) => {
   const { user } = locals;
   authorize(apiNames.YRKA.SEND, user);
   return {
-    form: await superValidate(zod(createSchema)),
+    form: await superValidate(zod4(createSchema)),
   };
 };
 
@@ -34,7 +34,7 @@ const createSchema = z.object({
 export const actions: Actions = {
   default: async ({ request, locals }) => {
     const { member } = locals;
-    const form = await superValidate(request, zod(createSchema));
+    const form = await superValidate(request, zod4(createSchema));
     if (!form) return fail(400, { form });
     const name = member ? getFullName(member) : "Anonym";
     const { title, content } = form.data;

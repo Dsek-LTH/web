@@ -2,13 +2,13 @@ import { redirect } from "$lib/utils/redirect";
 import * as m from "$paraglide/messages";
 import { error, fail } from "@sveltejs/kit";
 import DOMPurify from "isomorphic-dompurify";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { setError, superValidate } from "sveltekit-superforms/server";
 import { updateSongSchema } from "../../schema";
 import type { Actions, PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async () => {
-  const form = await superValidate(zod(updateSongSchema));
+  const form = await superValidate(zod4(updateSongSchema));
   return { form };
 };
 
@@ -17,7 +17,7 @@ export const actions: Actions = {
     const { request, locals } = event;
     const { prisma } = locals;
     const formData = await request.formData();
-    const form = await superValidate(formData, zod(updateSongSchema));
+    const form = await superValidate(formData, zod4(updateSongSchema));
     if (!form.valid) return fail(400, { form });
     const data = form.data;
     if (data.title == null) {

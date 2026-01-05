@@ -8,7 +8,7 @@ import { authorize } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
 import { z } from "zod";
 import { message, superValidate } from "sveltekit-superforms/server";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 
 const VALID_ORDER = [
   "title",
@@ -46,7 +46,7 @@ const getParams = (url: URL) => {
     tags: url.searchParams.getAll("tags"), // Allow multiple tags
   });
   if (paramError) {
-    throw error(422, paramError.errors.map((e) => e.message).join(". "));
+    throw error(422, z.treeifyError(paramError).errors.join(". "));
   }
   return params;
 };
@@ -83,10 +83,10 @@ export const load: PageServerLoad = async ({ url, locals }) => {
     domains: domains.data,
     pagination: domains.pagination,
     tags: tags.data,
-    createLinksForm: await superValidate(zod(createLinksSchema), {
+    createLinksForm: await superValidate(zod4(createLinksSchema), {
       id: "create",
     }),
-    updateLinksForm: await superValidate(zod(updateLinksSchema), {
+    updateLinksForm: await superValidate(zod4(updateLinksSchema), {
       id: "update",
     }),
   };
@@ -94,7 +94,7 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 export const actions: Actions = {
   create: async ({ locals, request }) => {
     authorize(apiNames.ADMIN.SHLINK.CREATE, locals.user);
-    const createForm = await superValidate(request, zod(createLinksSchema));
+    const createForm = await superValidate(request, zod4(createLinksSchema));
     if (!createForm.valid) {
       return fail(400, { createForm });
     }
@@ -123,7 +123,7 @@ export const actions: Actions = {
   },
   update: async ({ locals, request }) => {
     authorize(apiNames.ADMIN.SHLINK.UPDATE, locals.user);
-    const updateForm = await superValidate(request, zod(updateLinksSchema));
+    const updateForm = await superValidate(request, zod4(updateLinksSchema));
     if (!updateForm.valid) {
       return fail(400, { updateForm });
     }
@@ -151,7 +151,7 @@ export const actions: Actions = {
   },
   delete: async ({ locals, request }) => {
     authorize(apiNames.ADMIN.SHLINK.DELETE, locals.user);
-    const deleteForm = await superValidate(request, zod(deleteLinksSchema));
+    const deleteForm = await superValidate(request, zod4(deleteLinksSchema));
     if (!deleteForm.valid) {
       return fail(400, { deleteForm });
     }

@@ -1,7 +1,7 @@
 import { actionType, eventSchema } from "$lib/events/schema";
 import { createEvent } from "$lib/events/server/actions";
 import { error } from "@sveltejs/kit";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
 import type { Actions, PageServerLoad } from "./$types";
 import { getAllTags } from "$lib/news/tags";
@@ -15,7 +15,7 @@ export const load: PageServerLoad = async ({ locals }) => {
     allTags,
     form: await superValidate(
       { organizer: `${member.firstName} ${member.lastName}` },
-      zod(eventSchema.and(z.object({ editType: actionType }))),
+      zod4(eventSchema.and(z.object({ editType: actionType }))),
     ),
   };
 };

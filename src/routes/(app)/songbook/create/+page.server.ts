@@ -2,7 +2,7 @@ import apiNames from "$lib/utils/apiNames";
 import { fail } from "@sveltejs/kit";
 import { redirect } from "$lib/utils/redirect";
 import { superValidate } from "sveltekit-superforms/server";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { createSongSchema } from "../schema";
 import type { PageServerLoad, Actions } from "./$types";
 import { slugifySongTitle } from "./helpers";
@@ -20,7 +20,7 @@ export const load: PageServerLoad = async ({ locals }) => {
     getExistingMelodies(prisma),
   ]);
   return {
-    form: await superValidate(zod(createSongSchema)),
+    form: await superValidate(zod4(createSongSchema)),
     existingCategories,
     existingMelodies,
   };
@@ -30,7 +30,7 @@ export const actions: Actions = {
   create: async (event) => {
     const { request, locals } = event;
     const { prisma } = locals;
-    const form = await superValidate(request, zod(createSongSchema));
+    const form = await superValidate(request, zod4(createSongSchema));
     if (!form.valid) return fail(400, { form });
     const { title, melody, category, lyrics } = form.data;
     const now = new Date();

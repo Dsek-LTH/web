@@ -1,7 +1,7 @@
 import { fail, superValidate } from "sveltekit-superforms";
 import type { RequestHandler } from "./$types";
 import { z } from "zod";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 
 export const _closeAlertSchema = z.object({
   alertId: z.string(),
@@ -9,7 +9,7 @@ export const _closeAlertSchema = z.object({
 
 export const POST: RequestHandler = async ({ request, locals }) => {
   const { prisma } = locals;
-  const form = await superValidate(request, zod(_closeAlertSchema));
+  const form = await superValidate(request, zod4(_closeAlertSchema));
   if (!form.valid) throw fail(400, { form });
   await prisma.alert.update({
     where: { id: form.data.alertId },

@@ -1,7 +1,7 @@
 import { fail, superValidate } from "sveltekit-superforms";
 import type { Actions, PageServerLoad } from "./$types";
 import { z } from "zod";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 
@@ -32,15 +32,15 @@ export const load: PageServerLoad = async ({ locals }) => {
       ]);
     }
   });
-  const createForm = await superValidate(zod(createPolicySchema));
-  const deleteForm = await superValidate(zod(deletePolicySchema));
+  const createForm = await superValidate(zod4(createPolicySchema));
+  const deleteForm = await superValidate(zod4(deletePolicySchema));
   return { posToAccessPolicies, createForm, deleteForm };
 };
 
 export const actions: Actions = {
   deletePolicy: async ({ locals, request }) => {
     const { prisma } = locals;
-    const form = await superValidate(request, zod(deletePolicySchema));
+    const form = await superValidate(request, zod4(deletePolicySchema));
     if (!form.valid) return fail(400, { form });
     await prisma.accessPolicy.delete({
       where: {
@@ -50,7 +50,7 @@ export const actions: Actions = {
   },
   createPolicy: async ({ locals, request }) => {
     const { prisma } = locals;
-    const form = await superValidate(request, zod(createPolicySchema));
+    const form = await superValidate(request, zod4(createPolicySchema));
     if (!form.valid) return fail(400, { form });
     await prisma.accessPolicy.create({
       data: {

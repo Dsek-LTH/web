@@ -4,14 +4,14 @@ import sendNotification from "$lib/utils/notifications";
 import { NotificationType } from "$lib/utils/notifications/types";
 import { eventLink } from "$lib/utils/redirect";
 import { fail, type Action } from "@sveltejs/kit";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { message, superValidate } from "sveltekit-superforms/server";
 
 export const interestedAction =
   (isInterested: boolean, isGoing: boolean): Action =>
   async ({ request, locals }) => {
     const { prisma, user, member } = locals;
-    const form = await superValidate(request, zod(interestedGoingSchema));
+    const form = await superValidate(request, zod4(interestedGoingSchema));
     if (!form.valid) return fail(400, { form });
 
     const event = await prisma.event.update({

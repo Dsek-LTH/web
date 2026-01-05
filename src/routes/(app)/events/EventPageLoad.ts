@@ -6,7 +6,7 @@ import {
   getPageSizeOrThrowSvelteError,
 } from "$lib/utils/url.server";
 import type { ServerLoadEvent } from "@sveltejs/kit";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
 
 const eventPageLoad =
@@ -38,7 +38,7 @@ const eventPageLoad =
       events,
       pageCount,
       allTags,
-      interestedGoingForm: await superValidate(zod(interestedGoingSchema)),
+      interestedGoingForm: await superValidate(zod4(interestedGoingSchema)),
     };
   };
 

@@ -1,6 +1,6 @@
 import * as m from "$paraglide/messages";
 import { error } from "@sveltejs/kit";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
 import {
   canAccessDeletedSongs,
@@ -40,7 +40,7 @@ export const load: LayoutServerLoad = async ({ locals, params }) => {
     ),
   ]);
 
-  const form = await superValidate(song, zod(updateSongSchema));
+  const form = await superValidate(song, zod4(updateSongSchema));
 
   return {
     song: {

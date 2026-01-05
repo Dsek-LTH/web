@@ -7,7 +7,7 @@ import {
   superValidate,
   type Infer,
 } from "sveltekit-superforms/server";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import * as m from "$paraglide/messages";
 
@@ -20,7 +20,7 @@ export const likesAction =
   (shouldLike: boolean): Action =>
   async ({ request, locals }) => {
     const { prisma, user, member } = locals;
-    const form = await superValidate(request, zod(likeSchema));
+    const form = await superValidate(request, zod4(likeSchema));
     if (!form.valid) return fail(400, { form });
 
     const article = await prisma.article.update({

@@ -8,7 +8,7 @@ import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 import * as m from "$paraglide/messages";
 import { fail, message, superValidate, withFiles } from "sveltekit-superforms";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { v4 as uuid } from "uuid";
 import { z } from "zod";
 
@@ -28,8 +28,8 @@ export const load = async ({ locals }) => {
     });
   return {
     files,
-    uploadForm: await superValidate(zod(uploadSchema)),
-    deleteForm: await superValidate(zod(deleteSchema)),
+    uploadForm: await superValidate(zod4(uploadSchema)),
+    deleteForm: await superValidate(zod4(deleteSchema)),
     prefix: MISCELLANEOUS_FILES_PREFIX,
   };
 };
@@ -50,7 +50,7 @@ const deleteSchema = z.object({
 
 export const actions = {
   upload: async ({ locals, request }) => {
-    const form = await superValidate(request, zod(uploadSchema), {
+    const form = await superValidate(request, zod4(uploadSchema), {
       allowFiles: true,
     });
     if (!form.valid) return fail(400, withFiles({ form }));
@@ -87,7 +87,7 @@ export const actions = {
     });
   },
   delete: async ({ locals, request }) => {
-    const form = await superValidate(request, zod(deleteSchema));
+    const form = await superValidate(request, zod4(deleteSchema));
     if (!form.valid) return fail(400, form);
 
     const { id } = form.data;

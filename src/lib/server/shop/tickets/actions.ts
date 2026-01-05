@@ -9,7 +9,7 @@ import { redirect } from "$lib/utils/redirect";
 import * as m from "$paraglide/messages";
 import type { Actions } from "@sveltejs/kit";
 import { fail, message, superValidate, type Infer } from "sveltekit-superforms";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 
 const addToCartSchema = z.object({
@@ -22,7 +22,7 @@ export const ticketPageActions = (prefix = "/shop/"): Actions => ({
     const { locals, request } = event;
     const { prisma, user } = locals;
     authorize(apiNames.WEBSHOP.PURCHASE, user);
-    const form = await superValidate(request, zod(addToCartSchema));
+    const form = await superValidate(request, zod4(addToCartSchema));
     if (!form.valid) return fail(400, { form });
     if (!user?.memberId && !user?.externalCode) {
       return fail(401, { form });
