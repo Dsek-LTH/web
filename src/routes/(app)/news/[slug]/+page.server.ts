@@ -15,7 +15,7 @@ import {
 } from "$lib/zod/comments";
 import * as m from "$paraglide/messages";
 import { error } from "@sveltejs/kit";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
 import { likeSchema, likesAction } from "../likes";
 import type { Actions, PageServerLoad } from "./$types";
@@ -42,9 +42,9 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     allTaggedMembers,
     canEdit,
     canDelete,
-    likeForm: await superValidate(zod(likeSchema)),
-    commentForm: await superValidate(zod(commentSchema)),
-    removeCommentForm: await superValidate(zod(removeCommentSchema)),
+    likeForm: await superValidate(zod4(likeSchema)),
+    commentForm: await superValidate(zod4(commentSchema)),
+    removeCommentForm: await superValidate(zod4(removeCommentSchema)),
   };
 };
 

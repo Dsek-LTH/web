@@ -18,7 +18,7 @@ import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import DOMPurify from "isomorphic-dompurify";
 import { fail, superValidate } from "sveltekit-superforms";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 
 // Extend dayjs with timezone support to handle DST correctly
 dayjs.extend(utc);
@@ -43,7 +43,7 @@ const uploadImage = async (user: AuthUser, image: File, slug: string) => {
 export const createEvent: Action = async (event) => {
   const { request, locals } = event;
   const { prisma, user } = locals;
-  const form = await superValidate(request, zod(eventSchema));
+  const form = await superValidate(request, zod4(eventSchema));
   if (!form.valid) return fail(400, { form });
   const {
     tags,
@@ -202,7 +202,7 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
   const slug = params.slug;
   const form = await superValidate(
     request,
-    zod(eventSchema.and(z.object({ editType: actionType }))),
+    zod4(eventSchema.and(z.object({ editType: actionType }))),
   );
   if (!form.valid) return fail(400, { form });
   /* eslint-disable-next-line @typescript-eslint/no-unused-vars --

@@ -1,20 +1,20 @@
 import * as m from "$paraglide/messages";
 import { fail } from "@sveltejs/kit";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { message, superValidate, withFiles } from "sveltekit-superforms/server";
 import type { Actions, PageServerLoad } from "./$types";
 import { uploadSchema } from "./types";
 import { uploadDocumentsFile } from "./uploadFiles";
 
 export const load: PageServerLoad = async () => {
-  const form = await superValidate(zod(uploadSchema));
+  const form = await superValidate(zod4(uploadSchema));
   return { form };
 };
 
 export const actions: Actions = {
   default: async ({ request, locals }) => {
     const { user } = locals;
-    const form = await superValidate(request, zod(uploadSchema), {
+    const form = await superValidate(request, zod4(uploadSchema), {
       allowFiles: true,
     });
     if (!form.valid) return fail(400, withFiles({ form }));

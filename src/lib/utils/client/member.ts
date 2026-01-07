@@ -24,6 +24,12 @@ export const getFullName = (member: MemberNames, options: Options = {}) => {
   return member.firstName || member.lastName || "No name";
 };
 
+export const getInitials = (member?: MemberNames) => {
+  if (member && member.firstName && member.lastName)
+    return `${member.firstName.charAt(0)}${member.lastName.charAt(0)}`;
+  return "NN";
+};
+
 export const getAuthorName = (
   author: Pick<ExtendedPrismaModel<"Author">, "type"> & {
     member: Pick<

@@ -2,6 +2,7 @@ import type { PageServerLoad } from "./$types";
 import type { Semester } from "$lib/utils/semesters";
 import { medalRecipients } from "$lib/server/medals/medals";
 import { getSemesterOrThrowSvelteError } from "$lib/utils/url.server";
+import sync from "$lib/search/sync";
 
 export const load: PageServerLoad = async ({ locals, url }) => {
   const { prisma } = locals;
@@ -9,6 +10,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   const semester: Semester = getSemesterOrThrowSvelteError(url);
 
   const recipients = await medalRecipients(prisma, semester);
+  sync();
 
   return {
     recipients,

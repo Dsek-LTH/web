@@ -1,7 +1,7 @@
 import { error, fail } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 import { superValidate } from "sveltekit-superforms/server";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { redirect } from "$lib/utils/redirect";
 import { electionSchema } from "../../schemas";
 import * as m from "$paraglide/messages";
@@ -37,7 +37,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
         ...election,
         expiresAt: dayjs(election.expiresAt).format("YYYY-MM-DD"),
       },
-      zod(electionSchema),
+      zod4(electionSchema),
     ),
   };
 };
@@ -46,7 +46,7 @@ export const actions: Actions = {
   update: async (event) => {
     const { request, locals, params } = event;
     const { prisma } = locals;
-    const form = await superValidate(request, zod(electionSchema));
+    const form = await superValidate(request, zod4(electionSchema));
     if (!form.valid) return fail(400, { form });
     const id = params.id;
     console.log(form.data);

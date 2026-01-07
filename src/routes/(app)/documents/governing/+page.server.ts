@@ -1,7 +1,7 @@
 import { fail } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 import { message, superValidate } from "sveltekit-superforms/server";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import * as m from "$paraglide/messages";
 import { getYearOrThrowSvelteError } from "$lib/utils/url.server";
@@ -38,7 +38,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     frameworkBudgets: governingDocuments.frameworkBudgets,
     strategicGoals: governingDocuments.strategicGoals,
     guidelines: governingDocuments.guidelines,
-    deleteForm: await superValidate(zod(deleteSchema)),
+    deleteForm: await superValidate(zod4(deleteSchema)),
   };
 };
 
@@ -49,7 +49,7 @@ const deleteSchema = z.object({
 export const actions: Actions = {
   deleteFile: async ({ request, locals }) => {
     const { prisma } = locals;
-    const form = await superValidate(request, zod(deleteSchema));
+    const form = await superValidate(request, zod4(deleteSchema));
     if (!form.valid) return fail(400, { form });
     const { id } = form.data;
     await prisma.document.delete({

@@ -6,7 +6,7 @@ import {
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import { refundConsumable } from "$lib/server/shop/payments/stripeMethods";
 import { fail } from "@sveltejs/kit";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import { loadTicketData } from "./loadTicketData";
@@ -67,7 +67,7 @@ export const actions = {
     const { prisma } = locals;
     const form = await superValidate(
       request,
-      zod(z.object({ consumableId: z.string() })),
+      zod4(z.object({ consumableId: z.string() })),
     );
     if (!form.valid) return fail(400, { form });
     try {
@@ -100,7 +100,7 @@ export const actions = {
     const { prisma } = locals;
     const form = await superValidate(
       request,
-      zod(z.object({ consumableId: z.string() })),
+      zod4(z.object({ consumableId: z.string() })),
     );
     if (!form.valid) return fail(400, { form });
     try {
@@ -133,7 +133,7 @@ export const actions = {
     const { prisma } = locals;
     const form = await superValidate(
       request,
-      zod(z.object({ consumableId: z.string() })),
+      zod4(z.object({ consumableId: z.string() })),
     );
     if (!form.valid) return fail(400, { form });
     try {

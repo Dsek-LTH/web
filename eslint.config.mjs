@@ -6,6 +6,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import js from "@eslint/js";
 import { FlatCompat } from "@eslint/eslintrc";
+import svelte from "eslint-plugin-svelte";
+import eslintComments from "@eslint-community/eslint-plugin-eslint-comments/configs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -33,15 +35,15 @@ export default [
       "**/yarn.lock",
     ],
   },
+  js.configs.recommended,
+  eslintComments.recommended,
   ...compat.extends(
-    "eslint:recommended",
-    "plugin:eslint-comments/recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:@typescript-eslint/stylistic",
-    "plugin:svelte/recommended",
-    "plugin:svelte/prettier",
     "prettier",
   ),
+  ...svelte.configs.recommended,
+  ...svelte.configs.prettier,
   {
     plugins: {
       "@typescript-eslint": typescriptEslint,
@@ -67,7 +69,7 @@ export default [
     },
 
     rules: {
-      "eslint-comments/require-description": "warn",
+      "@eslint-community/eslint-comments/require-description": "warn",
 
       "no-restricted-imports": [
         "warn",
@@ -106,6 +108,9 @@ export default [
           default: "array-simple",
         },
       ],
+
+      // TODO: turn on after upgrading to SvelteKit >= 2.26
+      "svelte/no-navigation-without-resolve": ["warn", { ignoreLinks: true }],
     },
   },
   {

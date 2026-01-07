@@ -1,61 +1,124 @@
-/* Here you will find styles that are specific to the /nolla pages. */
-@import "../../../app.css";
 /* We need to import app.css, because if we don't then we can't use layers */
 /* And if we add our own @tailwind utilities; etc then the CSS will stop functioning/act weird due to everything being declared twice, in the wrong order. */
 /* This is how tailwind recommends doing it if you have multiple files. */
-@layer utilities {
-}
 
-@layer components {
-  .post-reveal {
-    scroll-behavior: smooth;
-    @apply font-nolla-post-reveal;
-    font-display: auto;
-  }
-  .post-reveal * {
+@utility post-reveal {
+  scroll-behavior: smooth;
+  @apply font-nolla-post-reveal;
+  font-display: auto;
+  & * {
     scroll-behavior: smooth;
   }
-
-  .post-reveal {
-    @apply font-nolla-post-reveal text-sm leading-tight md:text-base;
-  }
-  .post-reveal .page-title {
+  @apply font-nolla-post-reveal text-sm leading-tight md:text-base;
+  & .page-title {
     /* figma: page title */
     @apply text-xl font-medium tracking-wider;
   }
 
-  .post-reveal .nolla-list-item {
+  & .nolla-list-item {
     @apply text-base;
   }
 
-  .post-reveal .btn {
+  & .btn {
     /* text button */
-    @apply h-auto min-h-0 px-4 py-2 font-medium text-base-content;
+    @apply text-base-content h-auto min-h-0 px-4 py-2 font-medium;
   }
 
-  .post-reveal .btn.btn-secondary-beige {
+  & .btn.btn-secondary-beige {
     /* secondary bg, beige text */
     @apply btn-secondary text-base-100;
   }
 
-  .post-reveal .btn.btn-primary-dark {
+  & .btn.btn-primary-dark {
     /* secondary bg, beige text */
     @apply btn-primary text-base-100;
   }
 
-  .post-reveal .btn.btn-base-content {
+  & .btn.btn-base-content {
     /* base bg, content text */
-    @apply bg-transparent text-base-content;
+    @apply text-base-content bg-transparent;
   }
-  .post-reveal .btn-outline {
+  & .btn-outline {
     /* transparent bg, text otherwise */
     @apply hover:text-base-100;
   }
 
-  .post-reveal .nolla-prose {
+  & .nolla-prose {
     @apply my-4;
   }
 }
+
+@utility page-title {
+  .post-reveal & {
+    /* figma: page title */
+    @apply text-xl font-medium tracking-wider;
+  }
+}
+
+@utility nolla-list-item {
+  .post-reveal & {
+    @apply text-base;
+  }
+}
+
+@utility btn {
+  .post-reveal & {
+    /* text button */
+    @apply text-base-content h-auto min-h-0 px-4 py-2 font-medium;
+  }
+
+  .post-reveal &.btn-secondary-beige {
+    /* secondary bg, beige text */
+    @apply btn-secondary text-base-100;
+  }
+
+  .post-reveal &.btn-primary-dark {
+    /* secondary bg, beige text */
+    @apply btn-primary text-base-100;
+  }
+
+  .post-reveal &.btn-base-content {
+    /* base bg, content text */
+    @apply text-base-content bg-transparent;
+  }
+}
+
+@utility btn-secondary-beige {
+  .post-reveal &.btn {
+    /* secondary bg, beige text */
+    @apply btn-secondary text-base-100;
+  }
+}
+
+@utility btn-primary-dark {
+  .post-reveal &.btn {
+    /* secondary bg, beige text */
+    @apply btn-primary text-base-100;
+  }
+}
+
+@utility btn-base-content {
+  .post-reveal &.btn {
+    /* base bg, content text */
+    @apply text-base-content bg-transparent;
+  }
+}
+
+@utility btn-outline {
+  .post-reveal & {
+    /* transparent bg, text otherwise */
+    @apply hover:text-base-100;
+  }
+}
+
+@utility nolla-prose {
+  .post-reveal & {
+    @apply my-4;
+  }
+}
+
+/* Here you will find styles that are specific to the /nolla pages. */
+@reference "../../../app.css";
 
 [data-theme="nollningPostReveal"] {
   scroll-behavior: smooth;

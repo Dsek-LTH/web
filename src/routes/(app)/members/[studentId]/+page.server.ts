@@ -5,7 +5,7 @@ import { getCurrentDoorPoliciesForMember } from "$lib/utils/member";
 import { emptySchema, memberSchema } from "$lib/zod/schemas";
 import * as m from "$paraglide/messages";
 import { error, fail, isHttpError, type NumericRange } from "@sveltejs/kit";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import {
   message,
   superValidate,
@@ -98,9 +98,9 @@ export const load: PageServerLoad = async ({ locals, params, cookies }) => {
 
   try {
     return {
-      form: await superValidate(member, zod(memberSchema)),
-      pingForm: await superValidate(zod(emptySchema)),
-      phadderGroupForm: await superValidate(member, zod(phadderGroupSchema)),
+      form: await superValidate(member, zod4(memberSchema)),
+      pingForm: await superValidate(zod4(emptySchema)),
+      phadderGroupForm: await superValidate(member, zod4(phadderGroupSchema)),
       viewedMember: member, // https://github.com/Dsek-LTH/web/issues/194
       doorAccess,
       publishedArticles: publishedArticlesResult.value ?? [],
@@ -166,7 +166,7 @@ export const actions: Actions = {
     const { prisma } = locals;
     const form = await superValidate(
       request,
-      zod(z.object({ foodPreference: z.string() })),
+      zod4(z.object({ foodPreference: z.string() })),
     );
     if (!form.valid) return fail(400, { form });
     const { studentId } = params;
@@ -183,7 +183,7 @@ export const actions: Actions = {
   },
   updatePhadderGroup: async ({ params, locals, request, cookies }) => {
     const { prisma } = locals;
-    const form = await superValidate(request, zod(phadderGroupSchema));
+    const form = await superValidate(request, zod4(phadderGroupSchema));
     if (!form.valid) return fail(400, { form });
     const { studentId } = params;
 
@@ -216,7 +216,7 @@ export const actions: Actions = {
   },
   update: async ({ params, locals, request }) => {
     const { prisma } = locals;
-    const form = await superValidate(request, zod(updateSchema));
+    const form = await superValidate(request, zod4(updateSchema));
     if (!form.valid) return fail(400, { form });
     const { studentId } = params;
     await prisma.member.update({
@@ -233,7 +233,7 @@ export const actions: Actions = {
   },
   ping: async ({ params, locals, request }) => {
     const { user, prisma } = locals;
-    const form = await superValidate(request, zod(emptySchema));
+    const form = await superValidate(request, zod4(emptySchema));
     authorize(apiNames.MEMBER.PING, user);
     if (!user?.memberId) return fail(401, { form });
 

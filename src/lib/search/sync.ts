@@ -150,6 +150,18 @@ async function syncArticles() {
             headerEn: true,
             slug: true,
             publishedAt: true,
+            author: {
+              select: {
+                member: {
+                  select: {
+                    firstName: true,
+                    lastName: true,
+                    nickname: true,
+                    picturePath: true,
+                  },
+                },
+              },
+            },
           },
           where: {
             AND: [
@@ -172,6 +184,12 @@ async function syncArticles() {
         .then((articles) =>
           articles.map((article) => ({
             ...article,
+            author: {
+              firstName: article.author.member.firstName,
+              nickname: article.author.member.nickname,
+              lastName: article.author.member.lastName,
+              picturePath: article.author.member.picturePath,
+            },
             id: prismaIdToMeiliId(article.id),
           })),
         );
@@ -195,6 +213,8 @@ async function syncEvents() {
           descriptionEn: true,
           slug: true,
           startDatetime: true,
+          endDatetime: true,
+          location: true,
         },
         where: {
           AND: [
