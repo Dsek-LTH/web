@@ -1,4 +1,4 @@
-export const themes = ["dark", "light", "nollningPostReveal"] as const;
+export const themes = ["dark", "light", "system"] as const;
 export type Theme = (typeof themes)[number];
 export const colors = {
   light: {
