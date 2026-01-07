@@ -925,5 +925,9 @@
   "timepicker_invalid_time": " Ogiltig tid",
   "datepicker_pick_date": "Pick a date",
   "datepicker_weekday_separator": ", den ",
-  "locale": "sv-SE"
+  "locale": "sv-SE",
+  "pagination_previous": "Föregående",
+  "pagination_next": "Nästa",
+  "nav_volunteer": "Engagera dig",
+  "nav_member": "Medlem"
 }

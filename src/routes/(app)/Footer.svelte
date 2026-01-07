@@ -28,7 +28,7 @@
           <h1
             class="text-foreground text-3xl leading-9 font-bold md:text-5xl md:leading-[56px]"
           >
-            Er linja,<br class="hidden md:inline" /> Er färg!
+            Er linje,<br class="hidden md:inline" /> Er färg!
           </h1>
           <p class="m-0 md:mt-2">– Evert Taube</p>
         </div>
@@ -176,7 +176,7 @@
         </div>
       </details>
     {/each}
-    <details class="group my-1 w-full text-left">
+    <details class="group my-1 text-left">
       <summary class="cursor-pointer list-none">
         <ChevronRight
           class="text-muted-foreground mb-[10px] inline group-open:hidden"
