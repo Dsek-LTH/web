@@ -26,7 +26,7 @@ const config = {
     },
     experimental: {
       remoteFunctions: true,
-    }
+    },
   },
   compilerOptions: {
     experimental: {
