@@ -234,3 +234,8 @@ body {
   /* This is needed to avoid Drawers removing navbar controls */
   pointer-events: all !important;
 }
+
+details summary::-webkit-details-marker {
+  /* This is needed to remove the marker in Safari */
+  display: none;
+}
