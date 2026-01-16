@@ -184,7 +184,7 @@
               aria-label="menubar"
               size="icon-lg"
               variant="ghost"
-              class="md-nav:hidden block p-1.5"><X /></Button
+              class="md-nav:hidden inline-flex p-1.5"><X /></Button
             ></Drawer.Close
           >
         {:else}
@@ -192,7 +192,7 @@
             class={cn(
               "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
               "hover:bg-secondary-hover text-muted-foreground hover:text-secondary-foreground",
-              "md-nav:hidden block size-10 p-1.5",
+              "md-nav:hidden inline-flex size-10 p-1.5",
             )}
             aria-label="menubar"><Menu /></Drawer.Trigger
           >{/if}
