@@ -16,6 +16,14 @@
       return `
             <span>${text}</span>`;
     },
+    heading({ tokens }: { tokens: Tokens.Heading }): string {
+      //remove headings from preview
+      // @ts-expect-error using marked types from documentation
+      const text: string = this.parser.parseInline(tokens);
+
+      return `
+            <span>${text}</span>`;
+    },
   };
 
   // @ts-expect-error using marked types from documentation
