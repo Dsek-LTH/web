@@ -6,6 +6,8 @@
   import { Button } from "$lib/components/ui/button";
   import Pagination from "$lib/components/Pagination.svelte";
   import ArticleCard from "$lib/components/ArticleCard.svelte";
+  import { isAuthorized } from "$lib/utils/authorization";
+  import apiNames from "$lib/utils/apiNames";
 
   let { data } = $props();
 </script>
@@ -21,17 +23,20 @@
   }}
 />
 
-<div class="flex flex-row gap-2 py-4">
+<div class="flex flex-row gap-2 pt-4 pb-2">
   <div class="flex-1 gap-2 md:flex-row md:items-end">
     <NewsSearch />
   </div>
-  <a href="/news/create"><Button>+ {m.news_create()}</Button></a>
+  {#if isAuthorized(apiNames.NEWS.CREATE, data.user)}
+    <a href="/news/create"><Button>+ {m.news_create()}</Button></a>
+  {/if}
 </div>
+<Pagination pageCount={data.pageCount} class="pb-2" />
 <div class="space-y-4">
   <section class="grid grid-cols-1 gap-8 md:grid-cols-2">
     {#each data.articles as article, index (article.id)}
       <ArticleCard {article} {index} />
     {/each}
   </section>
-  <Pagination />
+  <Pagination pageCount={data.pageCount} />
 </div>
