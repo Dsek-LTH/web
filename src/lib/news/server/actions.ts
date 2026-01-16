@@ -79,6 +79,7 @@ export const createArticle: Action = async (event) => {
   });
   await Promise.resolve();
   rest.imageUrls = await Promise.all(tasks);
+  rest.imageUrl = rest.imageUrls[0];
 
   const result = await prisma.article.create({
     data: {
@@ -370,11 +371,16 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
           create: !existingAuthor
             ? {
                 member: {
-                  connect: { id: author.memberId },
+                  connect: {
+                    studentId: author.member.studentId as string | undefined,
+                  },
                 },
                 mandate: author.mandateId
                   ? {
-                      connect: { id: author.mandateId },
+                      connect: {
+                        member: { studentId: author.member.studentId },
+                        id: author.mandateId,
+                      },
                     }
                   : undefined,
                 customAuthor: author.customId

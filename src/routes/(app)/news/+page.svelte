@@ -2,7 +2,12 @@
   import * as m from "$paraglide/messages";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import SEO from "$lib/seo/SEO.svelte";
-  import * as Card from "$lib/components/ui/card/index.js";
+  import NewsSearch from "./NewsSearch.svelte";
+  import { Button } from "$lib/components/ui/button";
+  import Pagination from "$lib/components/Pagination.svelte";
+  import ArticleCard from "$lib/components/ArticleCard.svelte";
+  import { isAuthorized } from "$lib/utils/authorization";
+  import apiNames from "$lib/utils/apiNames";
 
   let { data } = $props();
 </script>
@@ -18,17 +23,20 @@
   }}
 />
 
+<div class="flex flex-row gap-2 pt-4 pb-2">
+  <div class="flex-1 gap-2 md:flex-row md:items-end">
+    <NewsSearch />
+  </div>
+  {#if isAuthorized(apiNames.NEWS.CREATE, data.user)}
+    <a href="/news/create"><Button>+ {m.news_create()}</Button></a>
+  {/if}
+</div>
+<Pagination pageCount={data.pageCount} class="pb-2" />
 <div class="space-y-4">
-  <section class="grid grid-cols-1 gap-8 p-16 md:grid-cols-2">
-    {#each data.articles as article (article.id)}
-      <Card.Root class="w-5/6 p-6">
-        <h1 class="line-clamp-1 text-3xl font-bold">
-          {article.header}
-        </h1>
-        <div class="line-clamp-4">
-          {article.body}
-        </div>
-      </Card.Root>
+  <section class="grid grid-cols-1 gap-8 md:grid-cols-2">
+    {#each data.articles as article, index (article.id)}
+      <ArticleCard {article} {index} />
     {/each}
   </section>
+  <Pagination pageCount={data.pageCount} />
 </div>

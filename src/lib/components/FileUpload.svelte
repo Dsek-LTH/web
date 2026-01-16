@@ -1,17 +1,23 @@
 <script lang="ts">
-  import Button from "./ui/button/button.svelte";
   import { Input } from "./ui/input";
   import Link from "@lucide/svelte/icons/link";
   import Separator from "$lib/components/ui/separator/separator.svelte";
   import * as AlertDialog from "$lib/components/ui/alert-dialog/index";
   import * as m from "$paraglide/messages";
   import { twMerge } from "tailwind-merge";
+  import type { HTMLInputAttributes } from "svelte/elements";
+  import { cn, type WithElementRef, type WithoutChildren } from "$lib/utils";
 
   let {
     files = $bindable(),
     url = $bindable(),
     class: klass,
-  }: { files?: FileList; url?: string; class?: string } = $props();
+    ...restProps
+  }: {
+    files?: FileList;
+    url?: string;
+    class?: string;
+  } & WithoutChildren<WithElementRef<HTMLInputAttributes>> = $props();
 
   let uploads: string[] = $state([]);
 
@@ -51,6 +57,7 @@
     e.preventDefault();
   }}
   role="form"
+  id="fileupload-form"
   class={twMerge(
     klass,
     "bg-secondary-background border-border flex h-[256px] flex-col items-center justify-center rounded-md border-[1px] text-center",
@@ -63,14 +70,18 @@
     </p>
   </div>
   <div class="flex flex-col gap-4 px-16">
-    <Input bind:files class="w-26" type="file" />
+    <Input {...restProps} bind:files class="w-26" type="file" />
     <Separator text={m.fileupload_or()} textClass="font-medium" />
 
     <AlertDialog.Root>
-      <AlertDialog.Trigger>
-        <Button class="w-26" variant="outline"
-          ><Link />{m.fileupload_choose_url()}</Button
-        >
+      <AlertDialog.Trigger
+        class={cn(
+          "bg-secondary-background text-secondary-foreground hover:bg-secondary-hover dark:bg-input/30 dark:border-input dark:hover:bg-input/50 w-26 border shadow-xs",
+          "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+          "h-9 px-4 py-2 has-[>svg]:px-3",
+        )}
+      >
+        <Link />{m.fileupload_choose_url()}
       </AlertDialog.Trigger>
       <AlertDialog.Content>
         <AlertDialog.Header>
