@@ -6,6 +6,7 @@
 
 {#if images.length > 0}
   <div
+    data-sveltekit-preload-data="off"
     class="bg-muted-background border-border mt-2 flex h-40 w-full flex-row overflow-scroll rounded-md border-[1px] p-2"
   >
     {#each images as image (image)}
