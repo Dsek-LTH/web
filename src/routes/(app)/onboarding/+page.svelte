@@ -32,7 +32,6 @@
       data.member &&
       data.member.firstName &&
       data.member.lastName &&
-      data.member.email &&
       data.member.classProgramme &&
       data.member.classYear
     ) {
@@ -50,7 +49,6 @@
 </script>
 
 <SetPageTitle title={m.onboarding()} />
-
 <div
   class="hero-image min-h-screen bg-cover bg-center"
   style:--url="url({getFileUrl('minio/files/public/photos/stock2.jpg')})"
@@ -122,7 +120,9 @@
               bind:value={$form.classProgramme as string | undefined}
             >
               <Select.Trigger class="w-full"
-                ><Book />{$form.classProgramme}</Select.Trigger
+                ><span class="flex flex-row items-center gap-1.5"
+                  ><Book />{$form.classProgramme}</span
+                ></Select.Trigger
               >
               <Select.Content>
                 {#each programmes as programme (programme.id)}
