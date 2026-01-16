@@ -33,7 +33,7 @@
   <div class="flex flex-row justify-between">
     <h2>{article.header}</h2>
     <div class="flex flex-row gap-2">
-      {#if canEdit}<a href={article.slug + "/edit"}
+      {#if canEdit}<a href={"/news/" + article.slug + "/edit"}
           ><Button variant="outline"><Pen /></Button></a
         >{/if}
       {#if canDelete}{@render removeArticle()}{/if}
