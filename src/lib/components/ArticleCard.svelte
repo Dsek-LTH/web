@@ -2,9 +2,24 @@
   import type { Article } from "$lib/news/getArticles";
   import dayjs from "dayjs";
   import AuthorCard from "./AuthorCard.svelte";
-  import MarkdownBody from "./MarkdownBody.svelte";
+  import { marked } from "marked";
+  import type { Tokens } from "marked";
 
   let { article, index }: { article: Article; index: number } = $props();
+
+  const renderer = {
+    // this removes links in the article preview, preventing svelte hydration issues
+    link({ tokens }: { tokens: Tokens.Link }): string {
+      // @ts-expect-error using marked types from documentation
+      const text: string = this.parser.parseInline(tokens);
+
+      return `
+            <span>${text}</span>`;
+    },
+  };
+
+  // @ts-expect-error using marked types from documentation
+  marked.use({ renderer });
 </script>
 
 <div
@@ -27,7 +42,8 @@
       {article.header}
     </h3>
     <div class="prose-p:text-foreground line-clamp-2 px-2 overflow-ellipsis">
-      <MarkdownBody body={article.body} />
+      <!-- eslint-disable-next-line svelte/no-at-html-tags this should already be sanitized -->
+      {@html marked.parse(article.body)}
     </div></a
   >
   <div class="mt-auto flex flex-row items-center justify-between pt-2">
