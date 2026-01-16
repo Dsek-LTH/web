@@ -72,8 +72,8 @@
       ><svg
         role="img"
         fill="var(--muted-foreground)"
-        height="24"
-        width="24"
+        height="16"
+        width="16"
         viewBox="0 0 24 24"
         xmlns="http://www.w3.org/2000/svg"
         ><title>Discord</title><path d={siDiscord.path} /></svg
@@ -83,8 +83,8 @@
       <svg
         role="img"
         fill="var(--muted-foreground)"
-        height="24"
-        width="24"
+        height="16"
+        width="16"
         viewBox="0 0 24 24"
         xmlns="http://www.w3.org/2000/svg"
         ><title>Instagram</title><path d={siInstagram.path} /></svg
@@ -94,8 +94,8 @@
       ><svg
         role="img"
         fill="var(--muted-foreground)"
-        height="24"
-        width="24"
+        height="16"
+        width="16"
         viewBox="0 0 24 24"
         xmlns="http://www.w3.org/2000/svg"
         ><title>Facebook</title><path d={siFacebook.path} /></svg
@@ -105,8 +105,8 @@
       <svg
         role="img"
         fill="var(--muted-foreground)"
-        height="24"
-        width="24"
+        height="16"
+        width="16"
         viewBox="0 0 24 24"
         xmlns="http://www.w3.org/2000/svg"
         ><title>YouTube</title><path d={siYoutube.path} /></svg
@@ -117,8 +117,8 @@
         xmlns="http://www.w3.org/2000/svg"
         role="img"
         fill="var(--muted-foreground)"
-        width="24"
-        height="24"
+        width="16"
+        height="16"
         viewBox="0 0 24 24"
         class="lucide lucide-linkedin-icon lucide-linkedin"
         ><title>Github</title><path d={siGithub.path} /></svg
@@ -129,8 +129,8 @@
         xmlns="http://www.w3.org/2000/svg"
         role="img"
         fill="var(--muted-foreground)"
-        width="24"
-        height="24"
+        width="16"
+        height="16"
         viewBox="0 0 24 24"
         class="lucide lucide-linkedin-icon lucide-linkedin"
         ><title>LinkedIn</title><path

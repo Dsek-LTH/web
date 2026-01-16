@@ -1,0 +1,40 @@
+diff --git a/src/stringify.js b/src/stringify.js
+index 041fc1996c7db4aebfc39c33dd94543c51260b12..55994b4afb9c461c108d42ca7278f08e7f533443 100644
+--- a/src/stringify.js
++++ b/src/stringify.js
+@@ -206,15 +206,6 @@ export function stringify(value, reducers) {
+ 						);
+ 					}
+ 
+-					if (enumerable_symbols(thing).length > 0) {
+-						throw new DevalueError(
+-							`Cannot stringify POJOs with symbolic keys`,
+-							keys,
+-							thing,
+-							value
+-						);
+-					}
+-
+ 					if (Object.getPrototypeOf(thing) === null) {
+ 						str = '["null"';
+ 						for (const key in thing) {
+diff --git a/src/uneval.js b/src/uneval.js
+index cf4a5de681272db1f7ac0f2ecc7d279501a53542..82026a2c0c2176026dee37cb4a9eebe899f74a12 100644
+--- a/src/uneval.js
++++ b/src/uneval.js
+@@ -122,15 +122,6 @@ export function uneval(value, replacer) {
+ 						);
+ 					}
+ 
+-					if (enumerable_symbols(thing).length > 0) {
+-						throw new DevalueError(
+-							`Cannot stringify POJOs with symbolic keys`,
+-							keys,
+-							thing,
+-							value
+-						);
+-					}
+-
+ 					for (const key in thing) {
+ 						keys.push(stringify_key(key));
+ 						walk(thing[key]);

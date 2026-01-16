@@ -929,5 +929,11 @@
   "pagination_previous": "Föregående",
   "pagination_next": "Nästa",
   "nav_volunteer": "Engagera dig",
-  "nav_member": "Medlem"
+  "nav_member": "Medlem",
+  "news_dialog_title": "Är du säker på att du vill ta bort nyheten?",
+  "news_dialog_desc": "Detta kan inte ångras.",
+  "news_notification_send": "Skicka notis?",
+  "news_notification_text": "Notistext",
+  "news_youtube_url": "Youtube-URL",
+  "news_notification_explanation": "Texten som visas i notisen, om fältet lämnas tomt kommer nyhetens inledning att visas."
 }
