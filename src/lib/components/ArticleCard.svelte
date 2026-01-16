@@ -2,7 +2,7 @@
   import type { Article } from "$lib/news/getArticles";
   import dayjs from "dayjs";
   import AuthorCard from "./AuthorCard.svelte";
-  import { marked } from "marked";
+  import { Marked } from "marked";
   import type { Tokens } from "marked";
 
   let { article, index }: { article: Article; index: number } = $props();
@@ -16,10 +16,20 @@
       return `
             <span>${text}</span>`;
     },
+    heading({ tokens }: { tokens: Tokens.Heading }): string {
+      //remove headings from preview
+      // @ts-expect-error using marked types from documentation
+      const text: string = this.parser.parseInline(tokens);
+
+      return `
+            <span>${text}</span>`;
+    },
   };
 
+  const previewMarked = new Marked();
+
   // @ts-expect-error using marked types from documentation
-  marked.use({ renderer });
+  previewMarked.use({ renderer });
 </script>
 
 <div
@@ -43,7 +53,7 @@
     </h3>
     <div class="prose-p:text-foreground line-clamp-2 px-2 overflow-ellipsis">
       <!-- eslint-disable-next-line svelte/no-at-html-tags this should already be sanitized -->
-      {@html marked.parse(article.body)}
+      {@html previewMarked.parse(article.body)}
     </div></a
   >
   <div class="mt-auto flex flex-row items-center justify-between pt-2">
