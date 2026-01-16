@@ -240,3 +240,8 @@ details summary::-webkit-details-marker {
   /* This is needed to remove the marker in Safari */
   display: none;
 }
+
+.article-body th,
+.article-body td {
+  padding: 0.5rem;
+}

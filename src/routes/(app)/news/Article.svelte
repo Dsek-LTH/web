@@ -53,7 +53,7 @@
       <TagChip {tag} />
     {/each}
   </div>
-  <MarkdownBody class="text-foreground" body={article.body} />
+  <MarkdownBody class="text-foreground article-body" body={article.body} />
   {#if article.imageUrls}
     <ImageList images={article.imageUrls} />
   {/if}
