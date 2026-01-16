@@ -7,7 +7,7 @@
 
 <section
   class={twMerge(
-    "prose prose-a:text-rosa-background prose-a:no-underline hover:prose-a:underline",
+    "prose dark:prose-invert prose-a:text-rosa-background prose-a:no-underline hover:prose-a:underline",
     klass,
   )}
 >
