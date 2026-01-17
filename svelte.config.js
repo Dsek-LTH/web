@@ -27,12 +27,12 @@ const config = {
     experimental: {
       remoteFunctions: true,
       tracing: {
-        server: true
+        server: true,
       },
       instrumentation: {
-        server: true
-      }
-    }
+        server: true,
+      },
+    },
   },
   compilerOptions: {
     experimental: {
