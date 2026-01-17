@@ -1,6 +1,5 @@
 <script>
-  import SettingsPage from "$lib/components/member/SettingsPage.svelte";
-  export let data;
+  import NotImplemented from "$lib/components/NotImplemented.svelte";
 </script>
 
-<SettingsPage {data} />
+<NotImplemented />

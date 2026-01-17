@@ -3,7 +3,7 @@ import { fileHandler } from "$lib/files";
 import * as m from "$paraglide/messages";
 import { error, fail } from "@sveltejs/kit";
 import sharp from "sharp";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { message, superValidate, withFiles } from "sveltekit-superforms/server";
 import { v4 as uuid } from "uuid";
 import type { Actions, PageServerLoad } from "./$types";
@@ -37,16 +37,16 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   return {
     member,
     photos,
-    changeForm: await superValidate(zod(changeSchema)),
-    uploadForm: await superValidate(zod(uploadSchema)),
-    deleteForm: await superValidate(zod(deleteSchema)),
+    changeForm: await superValidate(zod4(changeSchema)),
+    uploadForm: await superValidate(zod4(uploadSchema)),
+    deleteForm: await superValidate(zod4(deleteSchema)),
   };
 };
 
 export const actions: Actions = {
   change: async ({ params, locals, request }) => {
     const { prisma } = locals;
-    const form = await superValidate(request, zod(changeSchema));
+    const form = await superValidate(request, zod4(changeSchema));
     if (!form.valid) {
       return fail(400, { form });
     }
@@ -64,7 +64,7 @@ export const actions: Actions = {
   },
   upload: async ({ params, locals, request }) => {
     const formData = await request.formData();
-    const form = await superValidate(formData, zod(uploadSchema), {
+    const form = await superValidate(formData, zod4(uploadSchema), {
       allowFiles: true,
     });
     if (!form.valid) return fail(400, withFiles({ form }));
@@ -126,7 +126,7 @@ export const actions: Actions = {
     });
   },
   delete: async ({ params, locals, request }) => {
-    const form = await superValidate(request, zod(deleteSchema));
+    const form = await superValidate(request, zod4(deleteSchema));
     if (!form.valid) {
       return fail(400, { form });
     }

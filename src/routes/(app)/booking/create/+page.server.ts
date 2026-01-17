@@ -1,6 +1,6 @@
 import { fail } from "@sveltejs/kit";
 import { superValidate } from "sveltekit-superforms/server";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { redirect } from "$lib/utils/redirect";
 import * as m from "$paraglide/messages";
 import { bookingSchema } from "../schema";
@@ -29,7 +29,7 @@ export const load = async ({ locals }) => {
       booker: true,
     },
   });
-  const form = await superValidate(zod(bookingSchema));
+  const form = await superValidate(zod4(bookingSchema));
 
   return { bookables, bookingRequests, form };
 };
@@ -79,7 +79,7 @@ export const actions = {
     dayjs.extend(utc);
     dayjs.extend(timezone);
 
-    const form = await superValidate(request, zod(bookingSchema));
+    const form = await superValidate(request, zod4(bookingSchema));
     if (!form.valid) return fail(400, { form });
     const { start, end, name, bookables } = form.data;
 

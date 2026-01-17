@@ -1,32 +1,28 @@
 <script lang="ts">
+  import * as Command from "$lib/components/ui/command/index.js";
+  import * as Avatar from "$lib/components/ui/avatar/index.js";
   import type { CommitteeSearchReturnAttributes } from "$lib/search/searchTypes";
-  import CommitteeIcon from "$lib/components/images/CommitteeIcon.svelte";
+  import CommitteeIcon from "../images/CommitteeIcon.svelte";
   import { languageTag } from "$paraglide/runtime";
-
-  export let committee: CommitteeSearchReturnAttributes;
+  const { data }: { data: CommitteeSearchReturnAttributes } = $props();
 </script>
 
-<li>
-  <a
-    href={"/committees/" + committee.shortName}
-    class="search-result border border-transparent focus:border-primary"
-  >
-    <div class="avatar aspect-square w-8 overflow-hidden rounded-full">
-      <figure class="relative w-full">
-        <CommitteeIcon {committee} />
-      </figure>
+<Command.LinkItem
+  class="flex flex-row justify-between"
+  href={`/comittees/${data.shortName}`}
+  data-search-result
+>
+  <div class="flex flex-row items-center gap-2">
+    <Avatar.Root>
+      <CommitteeIcon committee={data}></CommitteeIcon>
+    </Avatar.Root>
+    <div class="flex flex-col">
+      <span class="font-medium"
+        >{languageTag() === "sv" ? data.nameSv : data.nameEn}</span
+      >
+      <span class="text-muted-foreground">
+        {languageTag() === "sv" ? data.descriptionSv : data.descriptionEn}
+      </span>
     </div>
-    <div>
-      <h4>
-        <b>
-          {languageTag() === "sv" ? committee.nameSv : committee.nameEn}
-        </b>
-      </h4>
-      <p class="line-clamp-1 text-gray-500">
-        {languageTag() === "sv"
-          ? committee.descriptionSv
-          : committee.descriptionEn}
-      </p>
-    </div></a
-  >
-</li>
+  </div>
+</Command.LinkItem>

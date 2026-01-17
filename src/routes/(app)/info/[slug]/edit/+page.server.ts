@@ -2,7 +2,7 @@ import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 import { redirect } from "$lib/utils/redirect";
 import { fail } from "@sveltejs/kit";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
@@ -28,7 +28,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
         markdownSv: markdownPage?.markdown ?? "",
         markdownEn: markdownPage?.markdownEn ?? null,
       },
-      zod(markdownSchema),
+      zod4(markdownSchema),
     ),
     isCreating: markdownPage == undefined,
   };
@@ -43,7 +43,7 @@ export const actions: Actions = {
   create: async (event) => {
     const { request, locals, params } = event;
     const { prisma, user } = locals;
-    const form = await superValidate(request, zod(markdownSchema));
+    const form = await superValidate(request, zod4(markdownSchema));
     if (!form.valid) return fail(400, { form });
     const name = params.slug;
     form.data.markdownSv = DOMPurify.sanitize(form.data.markdownSv);
@@ -75,7 +75,7 @@ export const actions: Actions = {
   update: async (event) => {
     const { request, locals, params } = event;
     const { user, prisma } = locals;
-    const form = await superValidate(request, zod(markdownSchema));
+    const form = await superValidate(request, zod4(markdownSchema));
     if (!form.valid) return fail(400, { form });
     const name = params.slug;
     // read the form data sent by the browser

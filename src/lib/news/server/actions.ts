@@ -10,7 +10,7 @@ import * as m from "$paraglide/messages";
 import { Prisma } from "@prisma/client";
 import type { Action } from "@sveltejs/kit";
 import type { AuthUser } from "@zenstackhq/runtime";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { message, superValidate, fail } from "sveltekit-superforms";
 import DOMPurify from "isomorphic-dompurify";
 import { markdownToTxt } from "markdown-to-txt";
@@ -72,7 +72,7 @@ const sendNewArticleNotification = async (
 export const createArticle: Action = async (event) => {
   const { request, locals } = event;
   const { prisma, user } = locals;
-  const form = await superValidate(request, zod(createSchema), {
+  const form = await superValidate(request, zod4(createSchema), {
     allowFiles: true,
   });
   if (!form.valid) return fail(400, { form });
@@ -109,6 +109,7 @@ export const createArticle: Action = async (event) => {
   });
   await Promise.resolve();
   rest.imageUrls = await Promise.all(tasks);
+  rest.imageUrl = rest.imageUrls[0];
 
   const result = await prisma.article.create({
     data: {
@@ -183,7 +184,7 @@ export const createArticle: Action = async (event) => {
 export const updateArticle: Action<{ slug: string }> = async (event) => {
   const { request, locals } = event;
   const { prisma, user } = locals;
-  const form = await superValidate(request, zod(updateSchema), {
+  const form = await superValidate(request, zod4(updateSchema), {
     allowFiles: true,
   });
   if (!form.valid) return fail(400, { form });
@@ -223,15 +224,17 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
                 id: existingAuthor.id,
               }
             : undefined,
-          create: existingAuthor
+          create: !existingAuthor
             ? {
                 member: {
-                  connect: { studentId: user?.studentId },
+                  connect: {
+                    studentId: author.member.studentId as string | undefined,
+                  },
                 },
                 mandate: author.mandateId
                   ? {
                       connect: {
-                        member: { studentId: user?.studentId },
+                        member: { studentId: author.member.studentId },
                         id: author.mandateId,
                       },
                     }

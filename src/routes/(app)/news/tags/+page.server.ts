@@ -6,7 +6,7 @@ import {
   superValidate,
   type Infer,
 } from "sveltekit-superforms/server";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import { authorize } from "$lib/utils/authorization";
@@ -17,8 +17,8 @@ export const load: PageServerLoad = async ({ locals }) => {
   authorize(apiNames.TAGS.READ, user);
 
   const tags = await prisma.tag.findMany({ orderBy: { nameSv: "asc" } });
-  const createForm = await superValidate(zod(createSchema));
-  const updateForm = await superValidate(zod(updateSchema));
+  const createForm = await superValidate(zod4(createSchema));
+  const updateForm = await superValidate(zod4(updateSchema));
   return {
     tags,
     createForm,
@@ -42,7 +42,7 @@ export type UpdateSchema = Infer<typeof updateSchema>;
 export const actions: Actions = {
   create: async ({ request, locals }) => {
     const { prisma } = locals;
-    const form = await superValidate(request, zod(createSchema));
+    const form = await superValidate(request, zod4(createSchema));
     if (!form.valid) return fail(400, { form });
     await prisma.tag.create({
       data: {
@@ -56,7 +56,7 @@ export const actions: Actions = {
   },
   update: async ({ request, locals }) => {
     const { prisma } = locals;
-    const form = await superValidate(request, zod(updateSchema));
+    const form = await superValidate(request, zod4(updateSchema));
     if (!form.valid) return fail(400, { form });
     const { id, ...data } = form.data;
     try {

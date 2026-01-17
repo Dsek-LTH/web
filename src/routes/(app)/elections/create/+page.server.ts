@@ -1,7 +1,7 @@
 import { fail } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 import { superValidate } from "sveltekit-superforms/server";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { redirect } from "$lib/utils/redirect";
 import { electionSchema } from "../schemas";
 import * as m from "$paraglide/messages";
@@ -36,7 +36,7 @@ export const load: PageServerLoad = async ({ locals }) => {
   return {
     committees,
     election,
-    form: await superValidate(zod(electionSchema)),
+    form: await superValidate(zod4(electionSchema)),
   };
 };
 
@@ -44,7 +44,7 @@ export const actions: Actions = {
   create: async (event) => {
     const { request, locals } = event;
     const { prisma } = locals;
-    const form = await superValidate(request, zod(electionSchema));
+    const form = await superValidate(request, zod4(electionSchema));
     if (!form.valid) return fail(400, { form });
     const { markdownSv, markdownEn, link, expiresAt, committeeId } = form.data;
     await prisma.election.create({

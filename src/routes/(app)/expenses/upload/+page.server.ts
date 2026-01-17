@@ -7,7 +7,7 @@ import * as m from "$paraglide/messages";
 import type { Prisma } from "@prisma/client";
 import type { AuthUser } from "@zenstackhq/runtime";
 import { fail } from "sveltekit-superforms";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { message, superValidate } from "sveltekit-superforms/server";
 import createBasicReceipt from "../baseItem";
 import { getCostCenter } from "../config";
@@ -35,7 +35,7 @@ export const load: PageServerLoad = async ({ locals: { user } }) => {
         isGuildCard: false,
         receipts: [createBasicReceipt()],
       },
-      zod(expenseSchema),
+      zod4(expenseSchema),
       {
         errors: false,
       },
@@ -149,7 +149,7 @@ export const actions: Actions = {
   default: async (event) => {
     const { locals, request } = event;
     const { prisma, user, member } = locals;
-    const form = await superValidate(request, zod(expenseSchema), {
+    const form = await superValidate(request, zod4(expenseSchema), {
       allowFiles: true,
     });
     if (!form.valid) return fail(400, { form });

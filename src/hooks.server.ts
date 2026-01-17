@@ -30,6 +30,11 @@ import { verifyCostCenterData } from "./routes/(app)/expenses/verification";
 import { getExtendedPrismaClient } from "$lib/server/extendedPrisma";
 import { dev } from "$app/environment";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import {
+  httpRequestsTotal,
+  httpRequestDurationMs,
+  inflightRequests,
+} from "$lib/server/metrics";
 
 // TODO: This function should perhaps only be called during dev? Build? I'm not sure
 if (dev) verifyCostCenterData();
@@ -307,6 +312,22 @@ export const handleError: HandleServerError = ({ error }) => {
 };
 
 export const handle = sequence(
+  async ({ event, resolve }) => {
+    const route = event.url.pathname || "-";
+    const method = event.request.method;
+
+    inflightRequests.inc();
+    const endTimer = httpRequestDurationMs.startTimer({ method, route });
+    try {
+      const response = await resolve(event);
+      const status = String(response.status);
+      httpRequestsTotal.inc({ method, route, status_code: status });
+      endTimer({ status_code: status });
+      return response;
+    } finally {
+      inflightRequests.dec();
+    }
+  },
   authHandle,
   i18n.handle(),
   databaseHandle,

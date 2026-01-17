@@ -1,32 +1,28 @@
 <script lang="ts">
-  import CommitteeIcon from "$lib/components/images/CommitteeIcon.svelte";
+  import * as Command from "$lib/components/ui/command/index.js";
+  import * as Avatar from "$lib/components/ui/avatar/index.js";
   import type { PositionSearchReturnAttributes } from "$lib/search/searchTypes";
+  import CommitteeIcon from "../images/CommitteeIcon.svelte";
   import { languageTag } from "$paraglide/runtime";
-
-  export let position: PositionSearchReturnAttributes;
+  const { data }: { data: PositionSearchReturnAttributes } = $props();
 </script>
 
-<li>
-  <a
-    href={"/positions/" + position.dsekId}
-    class="search-result border border-transparent focus:border-primary"
-  >
-    {#if position.committee !== null}
-      <div class="avatar aspect-square w-8 overflow-hidden rounded-full">
-        <figure class="relative w-full">
-          <CommitteeIcon committee={position.committee} />
-        </figure>
-      </div>
-    {/if}
-    <div>
-      <h4>
-        {languageTag() === "sv" ? position.nameSv : position.nameEn}
-      </h4>
-      <p class="line-clamp-1 text-gray-500">
-        {languageTag() === "sv"
-          ? position.descriptionSv
-          : position.descriptionEn}
-      </p>
+<Command.LinkItem
+  class="flex flex-row justify-between"
+  href={`/positions/${data.dsekId}`}
+  data-search-result
+>
+  <div class="flex flex-row items-center gap-2">
+    <Avatar.Root>
+      <CommitteeIcon committee={data.committee}></CommitteeIcon>
+    </Avatar.Root>
+    <div class="flex flex-col">
+      <span class="font-medium"
+        >{languageTag() === "sv" ? data.nameSv : data.nameEn}</span
+      >
+      <span class="text-muted-foreground line-clamp-1">
+        {languageTag() === "sv" ? data.descriptionSv : data.descriptionEn}
+      </span>
     </div>
-  </a>
-</li>
+  </div>
+</Command.LinkItem>

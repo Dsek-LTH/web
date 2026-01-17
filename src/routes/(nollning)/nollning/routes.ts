@@ -1,7 +1,7 @@
 import { POST_REVEAL_PREFIX } from "$lib/components/postReveal/types";
-import apiNames from "$lib/utils/apiNames";
+// import apiNames from "$lib/utils/apiNames";
 import type { Route } from "../../routes";
-import * as m from "$paraglide/messages";
+// import * as m from "$paraglide/messages";
 export const getPostRevealRoute = (pathname: string) => {
   if (pathname.startsWith(POST_REVEAL_PREFIX)) {
     if (pathname === POST_REVEAL_PREFIX) {
@@ -13,6 +13,7 @@ export const getPostRevealRoute = (pathname: string) => {
 };
 export const getRoutes = (): Route[] =>
   [
+    /*
     {
       title: "Nollning",
       path: "/",
@@ -45,6 +46,7 @@ export const getRoutes = (): Route[] =>
         return currentPathname.startsWith("/wikia");
       },
     },
+    */
   ] as const;
 
 export const appBottomNavRoutes = (routes: Route[]): Route[] =>
