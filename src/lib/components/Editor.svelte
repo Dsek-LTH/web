@@ -20,6 +20,11 @@
   import type { HTMLTextareaAttributes } from "svelte/elements";
   import { onMount } from "svelte";
   import CircleAlert from "@lucide/svelte/icons/circle-alert";
+  import {
+    toggleItalic,
+    toggleBold,
+    toggleStrikethrough,
+  } from "./textareacommands";
 
   let textarea: HTMLTextAreaElement | null = $state(null);
   let chars = $state(0);
@@ -160,21 +165,21 @@
           aria-label={m.editor_bold()}
           role="button"
           onclick={() => {
-            addMdOutline("**");
+            toggleBold(textarea);
           }}><title>{m.editor_bold()}</title></Bold
         >
         <Italic
           aria-label={m.editor_italic()}
           role="button"
           onclick={() => {
-            addMdOutline("*");
+            toggleItalic(textarea);
           }}><title>{m.editor_italic()}</title></Italic
         >
         <Strikethrough
           aria-label={m.editor_strikethrough()}
           role="button"
           onclick={() => {
-            addMdOutline("~~");
+            toggleStrikethrough(textarea);
           }}><title>{m.editor_strikethrough()}</title></Strikethrough
         >
       </div>
