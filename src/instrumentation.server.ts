@@ -15,7 +15,7 @@ register(
 );
 
 const sdk = new NodeSDK({
-  serviceName: "dsek.se",
+  serviceName: env.PUBLIC_OTLP_SERVICE_NAME,
   traceExporter: new OTLPTraceExporter({
     url: env.PUBLIC_OTLP_TRACE_EXPORT_URL,
   }),
