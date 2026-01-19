@@ -29,7 +29,7 @@
   $effect(() => {
     week = dayjs().add(data.weekShift, "week");
   });
-  const shifts = $derived(data.shifts);
+  let shifts = $derived(data.shifts);
 </script>
 
 <CommitteePage bind:data bind:isEditing>

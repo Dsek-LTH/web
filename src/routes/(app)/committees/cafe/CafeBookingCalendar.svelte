@@ -34,12 +34,12 @@
       let val = 0 + Math.abs(diff);
     }
 
-    url.searchParams.set(
-      "week",
-      // week.add(increment, "week").diff(dayjs(), "week").toString(),
-      val.toString(),
-    );
-    window.history.replaceState({}, "", url.toString());
+    // url.searchParams.set(
+    //   "week",
+    //   // week.add(increment, "week").diff(dayjs(), "week").toString(),
+    //   val.toString(),
+    // );
+    // window.history.replaceState({}, "", url.toString());
     // window.location.href = url.toString();
   }
 </script>
