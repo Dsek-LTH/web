@@ -1,43 +1,31 @@
 <script lang="ts">
-  import type { SearchDataWithType } from "$lib/search/searchTypes";
-
-  export let document: Extract<
-    SearchDataWithType,
-    { type: "governingDocuments" | "meetingDocuments" }
-  >;
-  $: data = document.data;
-
-  const getUrl = (url: string) => {
-    if (url.startsWith("http")) {
-      return url;
-    } else {
-      // We store the url of governing documents as
-      // relative paths, and that logic is handled in the
-      // api/pdf endpoint
-      return `/api/pdf/${url}`;
-    }
-  };
+  import * as Command from "$lib/components/ui/command/index.js";
+  import type {
+    GoverningDocumentSearchReturnAttributes,
+    MeetingDocumentSearchReturnAttributes,
+  } from "$lib/search/searchTypes";
+  import FileText from "@lucide/svelte/icons/file-text";
+  const {
+    data,
+  }: {
+    data:
+      | GoverningDocumentSearchReturnAttributes
+      | MeetingDocumentSearchReturnAttributes;
+  } = $props();
 </script>
 
-<li>
-  <a
-    href={getUrl(data.url)}
-    class="search-result border border-transparent focus:border-primary"
-  >
-    <div class="avatar aspect-square w-8 overflow-hidden rounded-full">
-      {#if document.type === "governingDocuments"}
-        <span class="i-mdi-gavel text-2xl"></span>
-      {:else}
-        <span class="i-mdi-text-box-multiple-outline text-2xl"></span>
-      {/if}
-    </div>
-    <div>
-      <h4>
-        {data.title ? data.title : data.content.slice(0, 20)}
-      </h4>
-      <p class="line-clamp-1 text-gray-500">
+<Command.LinkItem
+  class="flex flex-row justify-between"
+  href={data.url}
+  data-search-result
+>
+  <div class="flex flex-row items-center gap-2">
+    <FileText />
+    <div class="flex flex-col">
+      <span class="font-medium">{data.title}</span>
+      <span class="text-muted-foreground line-clamp-1">
         {data.content}
-      </p>
+      </span>
     </div>
-  </a>
-</li>
+  </div>
+</Command.LinkItem>

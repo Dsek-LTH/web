@@ -10,7 +10,7 @@ import {
   superValidate,
   type Infer,
 } from "sveltekit-superforms/server";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
@@ -126,7 +126,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   return {
     files,
     meetings: filesGroupedByMeeting,
-    deleteForm: await superValidate(zod(deleteSchema)),
+    deleteForm: await superValidate(zod4(deleteSchema)),
   };
 };
 
@@ -138,7 +138,7 @@ export type DeleteSchema = Infer<typeof deleteSchema>;
 export const actions: Actions = {
   deleteFile: async ({ request, locals }) => {
     const { user } = locals;
-    const form = await superValidate(request, zod(deleteSchema));
+    const form = await superValidate(request, zod4(deleteSchema));
     if (!form.valid) return fail(400, { form });
     const { id } = form.data;
     await fileHandler.remove(user, PUBLIC_BUCKETS_DOCUMENTS, [id]);

@@ -6,7 +6,7 @@ import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 import DOMPurify from "isomorphic-dompurify";
 import { fail, message, setError, superValidate } from "sveltekit-superforms";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 
@@ -52,10 +52,10 @@ export const load = async ({ locals }) => {
     groups: await Promise.all(
       phadderGroups.map(async (group) => ({
         ...group,
-        form: await superValidate(group, zod(phadderGroupSchema)),
+        form: await superValidate(group, zod4(phadderGroupSchema)),
       })),
     ),
-    form: await superValidate(zod(createPhadderGroupSchema)),
+    form: await superValidate(zod4(createPhadderGroupSchema)),
   };
 };
 
@@ -74,7 +74,7 @@ const personSchema = z.object({
 
 export const actions = {
   create: async ({ locals, request }) => {
-    const form = await superValidate(request, zod(createPhadderGroupSchema));
+    const form = await superValidate(request, zod4(createPhadderGroupSchema));
     if (!form.valid) return fail(400, { form });
     const { prisma } = locals;
     form.data.description = form.data.description
@@ -89,7 +89,7 @@ export const actions = {
     });
   },
   update: async ({ locals, request }) => {
-    const form = await superValidate(request, zod(updatePhadderGroupSchema));
+    const form = await superValidate(request, zod4(updatePhadderGroupSchema));
     if (!form.valid) return fail(400, { form });
     const { prisma } = locals;
     form.data.description = form.data.description
@@ -108,7 +108,7 @@ export const actions = {
     });
   },
   delete: async ({ locals, request }) => {
-    const form = await superValidate(request, zod(deletePhadderGroupSchema));
+    const form = await superValidate(request, zod4(deletePhadderGroupSchema));
     if (!form.valid) return fail(400, { form });
     const { prisma } = locals;
     await prisma.phadderGroup.delete({
@@ -122,7 +122,7 @@ export const actions = {
     });
   },
   addNolla: async ({ locals, request }) => {
-    const form = await superValidate(request, zod(personSchema));
+    const form = await superValidate(request, zod4(personSchema));
     if (!form.valid) return fail(400, { form });
     const { prisma } = locals;
     await prisma.phadderGroup.update({
@@ -143,7 +143,7 @@ export const actions = {
     });
   },
   removeNolla: async ({ locals, request }) => {
-    const form = await superValidate(request, zod(personSchema));
+    const form = await superValidate(request, zod4(personSchema));
     if (!form.valid) return fail(400, { form });
     const { prisma } = locals;
     await prisma.phadderGroup.update({
@@ -164,7 +164,7 @@ export const actions = {
     });
   },
   addPhadder: async ({ locals, request }) => {
-    const form = await superValidate(request, zod(personSchema));
+    const form = await superValidate(request, zod4(personSchema));
     if (!form.valid) return fail(400, { form });
     const { prisma } = locals;
     const group = await prisma.phadderGroup.findUnique({
@@ -203,7 +203,7 @@ export const actions = {
     });
   },
   removePhadder: async ({ locals, request }) => {
-    const form = await superValidate(request, zod(personSchema));
+    const form = await superValidate(request, zod4(personSchema));
     if (!form.valid) return fail(400, { form });
     const { prisma } = locals;
     const group = await prisma.phadderGroup.findUnique({

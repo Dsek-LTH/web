@@ -3,7 +3,7 @@ import { authorize } from "$lib/utils/authorization";
 import { redirect } from "$lib/utils/redirect";
 import * as m from "$paraglide/messages";
 import { error, fail, type Action } from "@sveltejs/kit";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { superValidate, type Infer } from "sveltekit-superforms/server";
 import { z } from "zod";
 import { actionType } from "../schema";
@@ -17,7 +17,7 @@ export const removeEventAction: Action<{ slug: string }> = async (event) => {
   const { request, locals, params } = event;
   const { prisma, user } = locals;
 
-  const form = await superValidate(request, zod(removeEventSchema));
+  const form = await superValidate(request, zod4(removeEventSchema));
   if (!form.valid) return fail(400, { form });
   authorize(apiNames.EVENT.DELETE, user);
 

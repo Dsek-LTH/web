@@ -30,11 +30,11 @@
   {#if data.redirect === "/nollning" && revealTheme}
     <!-- TODO: Replace with nollnings logo -->
     <div
-      class="absolute left-1/2 top-1/2 size-60 max-h-[50%] max-w-[50%] -translate-x-1/2 -translate-y-1/2 md:size-80"
+      class="absolute top-1/2 left-1/2 size-60 max-h-[50%] max-w-[50%] -translate-x-1/2 -translate-y-1/2 md:size-80"
     >
       <img
         src={logo25}
-        class="absolute inset-0 animate-scale-fade"
+        class="animate-scale-fade absolute inset-0"
         alt="Nollning logo spinning"
       />
     </div>
@@ -42,7 +42,7 @@
     <img
       src="/d-white.webp"
       alt="D-sek logo"
-      class="absolute left-1/2 top-1/2 max-h-[50%] max-w-[50%] -translate-x-1/2 -translate-y-1/2"
+      class="absolute top-1/2 left-1/2 max-h-[50%] max-w-[50%] -translate-x-1/2 -translate-y-1/2"
     />
   {/if}
 </div>

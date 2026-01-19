@@ -1,6 +1,5 @@
 <script>
-  import Toast from "../../Toast.svelte";
+  const { children } = $props();
 </script>
 
-<slot />
-<Toast />
+{@render children?.()}

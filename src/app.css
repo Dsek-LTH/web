@@ -1,78 +1,247 @@
-@import "@fontsource-variable/inter";
-@import "@fontsource/ibm-plex-mono/100.css";
-@import "@fontsource/ibm-plex-mono/200.css";
-@import "@fontsource/ibm-plex-mono/300.css";
-@import "@fontsource/ibm-plex-mono/400.css";
-@import "@fontsource/ibm-plex-mono/500.css";
-@import "@fontsource/ibm-plex-mono/600.css";
-@import "@fontsource/ibm-plex-mono/700.css";
-@import "@fontsource/lexend";
-@import "@fontsource/lexend/100.css";
-@import "@fontsource/lexend/200.css";
-@import "@fontsource/lexend/300.css";
-@import "@fontsource/lexend/400.css";
-@import "@fontsource/lexend/500.css";
-@import "@fontsource/lexend/600.css";
-@import "@fontsource/lexend/700.css";
-@import "@fontsource/lexend/800.css";
-@import "@fontsource/lexend/900.css";
+@import "tailwindcss";
+@import "tw-animate-css";
+@plugin '@tailwindcss/typography';
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@custom-variant dark (&:is(.dark *));
+@custom-variant aria-invalid (&[aria-invalid="true"]);
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(14.1% 0.005 285.823);
+  --muted-background: oklch(98.5% 0 0);
+  --muted-foreground: oklch(44.2% 0.017 285.786);
+  --border: oklch(87.1% 0.006 286.286);
+  --ring: #f280a1;
+  --destructive: var(--color-rosa-500);
+  --rosa-background: #e74c7c;
+  --rosa-foreground: oklch(1 0 0);
+  --rosa-hover: #d32b68;
+  --lila-background: #9966cc;
+  --lila-foreground: oklch(1 0 0);
+  --lila-hover: #7943ad;
+  --pistachio-background: #99cc66;
+  --pistachio-foreground: oklch(1 0 0);
+  --pistachio-hover: #457200;
+  --secondary-background: oklch(1 0 0);
+  --secondary-foreground: oklch(14.1% 0.005 285.823);
+  --secondary-hover: oklch(96.7% 0.001 286.375);
+  --accent: oklch(0.967 0.001 286.375);
+  --accent-foreground: oklch(0.21 0.006 285.885);
+}
+
+.dark {
+  --background: oklch(0 0 0);
+  --foreground: oklch(98.5% 0 0);
+  --muted-background: oklch(14.1% 0.005 285.823);
+  --muted-foreground: oklch(70.5% 0.015 286.067);
+  --border: oklch(37% 0.013 285.805);
+  --ring: #d32b68;
+  --destructive: var(--color-rosa-500);
+  --rosa-background: #f280a1;
+  --rosa-foreground: oklch(0 0 0);
+  --rosa-hover: #e74c7c;
+  --lila-background: #a574d8;
+  --lila-foreground: oklch(0 0 0);
+  --lila-hover: #9966cc;
+  --pistachio-background: #99cc66;
+  --pistachio-foreground: oklch(0 0 0);
+  --pistachio-hover: #457200;
+  --secondary-background: oklch(0 0 0);
+  --secondary-foreground: oklch(98.5% 0 0);
+  --secondary-hover: oklch(21% 0.006 285.885);
+  --accent: oklch(0.274 0.006 286.033);
+  --accent-foreground: oklch(0.985 0 0);
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  src: url("/fonts/IBMPlexSans-VariableFont_wdth,wght.ttf")
+    format("truetype-variations");
+  font-weight: 100 700;
+}
+
+@font-face {
+  font-family: "IBM Plex Sans Condensed";
+  src: url("/fonts/IBMPlexSansCondensed-Regular.ttf") format("truetype");
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "IBM Plex Sans Condensed";
+  src: url("/fonts/IBMPlexSansCondensed-Medium.ttf") format("truetype");
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/fonts/JetBrainsMono-VariableFont_wght.ttf")
+    format("truetype-variations");
+  font-weight: 100 800;
+}
+
+/* TODO: remove default tailwind stuff? */
+@theme inline {
+  --font-display: "IBM Plex Sans Condensed", sans-serif;
+  --font-sans: "IBM Plex Sans", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-popover: var(--background);
+  --color-popover-foreground: var(--foreground);
+  --color-muted-background: var(--muted-background);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --color-rosa-background: var(--rosa-background);
+  --color-rosa-foreground: var(--rosa-foreground);
+  --color-rosa-hover: var(--rosa-hover);
+  --color-lila-background: var(--lila-background);
+  --color-lila-foreground: var(--lila-foreground);
+  --color-lila-hover: var(--lila-hover);
+  --color-pistachio-background: var(--pistachio-background);
+  --color-pistachio-foreground: var(--pistachio-foreground);
+  --color-pistachio-hover: var(--pistachio-hover);
+  --color-secondary-background: var(--secondary-background);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary-hover: var(--secondary-hover);
+
+  /* TODO: change to oklch colors (except #f280a1, #9966cc, and #99cc66)? */
+  --color-rosa-50: #fef2f5;
+  --color-rosa-100: #fde6eb;
+  --color-rosa-200: #fbd0dc;
+  --color-rosa-300: #f7aabf;
+  --color-rosa-400: #f280a1;
+  --color-rosa-500: #e74c7c;
+  --color-rosa-600: #d32b68;
+  --color-rosa-700: #b21e57;
+  --color-rosa-800: #951c4e;
+  --color-rosa-900: #801b49;
+  --color-rosa-950: #470a24;
+
+  --color-lila-50: #f7f3fc;
+  --color-lila-100: #f3ecfb;
+  --color-lila-200: #e8ddf7;
+  --color-lila-300: #d7c2f0;
+  --color-lila-400: #be9be5;
+  --color-lila-500: #a574d8;
+  --color-lila-600: #9966cc;
+  --color-lila-700: #7943ad;
+  --color-lila-800: #663b8e;
+  --color-lila-900: #533172;
+  --color-lila-950: #381952;
+
+  --color-pistachio-400: #99cc66;
+
+  --breakpoint-md-nav: 56rem;
+}
 
 @layer base {
-  @font-face {
-    font-family: "Texas Tango";
-    src: local("Texas Tango"), local("Texas-Tango"), local("texas tango"),
-      local("texas-tango"), url("/fonts/TexasTango.otf");
-    font-weight: normal;
-    font-display: swap;
-  }
-  @font-face {
-    font-family: "Legendary Runes";
-    src: local("Legenday Runes"), local("Legendary-Runes"),
-      local("legendary runes"), local("legendary-runes"),
-      url("/fonts/LegendaryRunes.ttf");
-    font-weight: normal;
-    font-display: swap;
-  }
-  @font-face {
-    font-family: "Mason Sans";
-    src: local("Mason Sans"), local("Mason-Sans"), local("mason sans"),
-      local("mason-sans"), url("/fonts/MasonSans.otf");
-    font-weight: normal;
-    font-display: swap;
-  }
-  @font-face {
-    font-family: "Genty";
-    src: local("Genty"), local("genty"), url("/fonts/Genty.otf");
-    font-weight: normal;
-    font-display: swap;
-  }
-  .layout-container {
-    @apply container mx-auto px-4 py-8 xl:px-32;
+  * {
+    @apply border-border outline-ring/50;
   }
 
-  .pop-out {
-    @apply transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:bg-base-200 hover:shadow-xl;
-  }
-  /* For Webkit-based browsers (Chrome, Safari and Opera) */
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
+  body {
+    @apply bg-background text-foreground selection:bg-rosa-400 text-[14px] leading-[20px] selection:text-zinc-50;
   }
 
-  /* For IE, Edge and Firefox */
-  .scrollbar-hide {
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
+  h1 {
+    @apply font-display text-[48px] leading-[56px] font-semibold tracking-tight;
+  }
+
+  h2 {
+    @apply font-sans text-[30px] leading-[36px] font-semibold tracking-tight;
+  }
+
+  h3 {
+    @apply font-sans text-[24px] leading-[32px] font-semibold tracking-tight;
+  }
+
+  h4 {
+    @apply font-sans text-[20px] leading-[28px] font-semibold tracking-tight;
+  }
+
+  h5 {
+    @apply font-sans text-[16px] leading-[24px] font-medium;
+  }
+
+  h6 {
+    @apply font-sans text-[14px] leading-[20px] font-medium;
+  }
+
+  p {
+    @apply not-first:mt-2;
+  }
+
+  code {
+    @apply font-mono text-[14px] leading-[20px] font-normal;
+  }
+
+  small {
+    @apply font-sans text-[12px] leading-[16px] font-semibold;
+  }
+
+  blockquote {
+    @apply border-l pl-4 italic;
+  }
+
+  ul {
+    @apply ml-4 list-disc [&>li]:my-1;
+  }
+
+  ol {
+    @apply ml-4 list-decimal [&>li]:my-1;
+  }
+
+  table {
+    @apply border-separate border-spacing-0 rounded-md border;
+  }
+
+  tr {
+    @apply even:bg-muted-background;
+  }
+
+  th {
+    @apply border-l px-3 py-2 text-left font-medium first:border-l-0 [&[align=center]]:text-center [&[align=right]]:text-right;
+  }
+
+  td {
+    @apply border-t border-l px-3 py-2 text-left first:border-l-0 [&[align=center]]:text-center [&[align=right]]:text-right;
   }
 }
 
-[data-theme="dark"] {
-  color-scheme: dark;
+@utility link {
+  @apply text-rosa-background hover:text-rosa-hover underline underline-offset-4 transition-colors;
 }
 
-[data-theme="light"] {
-  color-scheme: light;
+@utility layout-container {
+  @apply container mx-auto px-4 py-8 xl:px-32;
+}
+
+.nav-mobile:not(.visible):not(:focus-within) {
+  transform: translateY(72px);
+}
+.nav-mobile {
+  transition: transform 0.2s;
+}
+body {
+  /* This is needed to avoid Drawers removing navbar controls */
+  pointer-events: all !important;
+}
+
+details summary::-webkit-details-marker {
+  /* This is needed to remove the marker in Safari */
+  display: none;
+}
+
+.article-body th,
+.article-body td {
+  padding: 0.5rem;
 }

@@ -2,7 +2,7 @@ import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 import * as m from "$paraglide/messages";
 import { error } from "@sveltejs/kit";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
 import { getArticleAuthorOptions } from "$lib/news/getArticles";
 import type { Actions, PageServerLoad } from "./$types";
@@ -69,7 +69,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   return {
     allTags,
     authorOptions,
-    form: await superValidate(article, zod(updateSchema)),
+    form: await superValidate(article, zod4(updateSchema)),
   };
 };
 

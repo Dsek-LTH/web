@@ -1,21 +1,21 @@
 import { fail } from "@sveltejs/kit";
 import { redirect } from "$lib/utils/redirect";
 import { superValidate } from "sveltekit-superforms/server";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { infoPageSchema } from "./schemas";
 import type { Actions, PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
 import { slugify } from "$lib/utils/slugify";
 
 export const load: PageServerLoad = async () => ({
-  form: await superValidate(zod(infoPageSchema)),
+  form: await superValidate(zod4(infoPageSchema)),
 });
 
 export const actions: Actions = {
   create: async (event) => {
     const { request, locals } = event;
     const { prisma } = locals;
-    const form = await superValidate(request, zod(infoPageSchema));
+    const form = await superValidate(request, zod4(infoPageSchema));
     if (!form.valid) return fail(400, { form });
     const { name, markdownSv, markdownEn } = form.data;
     await prisma.markdown.create({

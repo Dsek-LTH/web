@@ -1,6 +1,6 @@
 import { memberSchema } from "$lib/zod/schemas";
 import { superValidate, type Infer } from "sveltekit-superforms/server";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import type { Actions, PageServerLoad } from "./$types";
 import { error, fail } from "@sveltejs/kit";
 import { redirect } from "$lib/utils/redirect";
@@ -40,7 +40,7 @@ export const load: PageServerLoad = async ({ locals }) => {
         classProgramme: member.classProgramme ?? "D",
         classYear: member.classYear ?? new Date().getFullYear(),
       },
-      zod(memberSchema),
+      zod4(memberSchema),
     ),
     member,
     phadderGroups,
@@ -63,7 +63,7 @@ export type UpdateSchema = Infer<typeof updateSchema>;
 export const actions: Actions = {
   update: async ({ locals, request, cookies }) => {
     const { prisma } = locals;
-    const form = await superValidate(request, zod(updateSchema));
+    const form = await superValidate(request, zod4(updateSchema));
     if (!form.valid) return fail(400, { form });
     const studentId = locals.user?.studentId;
     if (studentId) {

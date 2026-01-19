@@ -1,19 +1,30 @@
 <script lang="ts">
-  import { getFullName } from "$lib/utils/client/member";
-  import MemberAvatar from "$lib/components/socials/MemberAvatar.svelte";
+  import * as Command from "$lib/components/ui/command/index.js";
+  import * as Avatar from "$lib/components/ui/avatar/index.js";
+  import { getBadgeVariantFromProgramme } from "../ui/badge/badge.svelte";
+  import { Badge } from "$lib/components/ui/badge/index.js";
   import type { MemberSearchReturnAttributes } from "$lib/search/searchTypes";
-  import ClassBadge from "../ClassBadge.svelte";
-  export let member: MemberSearchReturnAttributes;
+  const { data }: { data: MemberSearchReturnAttributes } = $props();
 </script>
 
-<li>
-  <a
-    href={"/members/" + member.studentId}
-    class="search-result border border-transparent focus:border-primary"
+<Command.LinkItem
+  class="flex flex-row justify-between"
+  href={`/members/${data.studentId}`}
+  data-search-result
+>
+  <div class="flex flex-row items-center gap-2">
+    <Avatar.Root>
+      <Avatar.Image src="https://picsum.photos/200" alt="profile picture" />
+      <Avatar.Fallback>IK</Avatar.Fallback>
+    </Avatar.Root>
+    <div class="flex flex-col">
+      <span class="font-medium">{`${data.fullName}`}</span>
+      <span class="text-muted-foreground">
+        {data.studentId}
+      </span>
+    </div>
+  </div>
+  <Badge variant={getBadgeVariantFromProgramme(data.classProgramme)}
+    >{`${data.classProgramme}${data.classYear?.toString().slice(2)}`}</Badge
   >
-    <MemberAvatar class="h-8 w-8" {member} />
-    <h4>{getFullName(member)}</h4>
-    <ClassBadge {member} />
-    <p class="text-primary">({member.studentId})</p>
-  </a>
-</li>
+</Command.LinkItem>

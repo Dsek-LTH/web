@@ -4,7 +4,7 @@ import { redirect } from "$lib/utils/redirect";
 import { fail } from "@sveltejs/kit";
 import dayjs from "dayjs";
 import { message, superValidate } from "sveltekit-superforms/server";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { createTicket } from "$lib/server/shop/tickets/mutations";
 import { ticketSchema } from "$lib/utils/shop/types";
 
@@ -25,7 +25,7 @@ export const load = async ({ locals }) => {
         stock: 0,
         price: 0,
       },
-      zod(ticketSchema),
+      zod4(ticketSchema),
       { errors: false },
     ),
   };
@@ -35,7 +35,7 @@ export const actions = {
   default: async (event) => {
     const { locals, request } = event;
     const { prisma, user, member } = locals;
-    const form = await superValidate(request, zod(ticketSchema));
+    const form = await superValidate(request, zod4(ticketSchema));
     if (!form.valid) return fail(400, { form });
     authorize(apiNames.WEBSHOP.CREATE, user);
     if (!member) {

@@ -1,83 +1,71 @@
 <script lang="ts">
-  import AuthorSignature from "$lib/components/socials/AuthorSignature.svelte";
-  import TagChip from "$lib/components/TagChip.svelte";
-  import * as m from "$paraglide/messages";
-  import type { SuperValidated } from "sveltekit-superforms";
+  import type { SuperForm, SuperValidated } from "sveltekit-superforms";
   import Article from "./Article.svelte";
   import ArticleForm from "./ArticleForm.svelte";
-  import type { AuthorOption } from "$lib/news/getArticles";
   import type { ArticleSchema } from "$lib/news/schema";
   import { superForm } from "$lib/utils/client/superForms";
+  import AuthorCard from "$lib/components/AuthorCard.svelte";
+  import type { AuthorOption } from "$lib/news/getArticles";
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+  import type { Snippet } from "svelte";
 
-  export let data: SuperValidated<ArticleSchema>;
-  export let authorOptions: AuthorOption[];
-  export let allTags: Array<ExtendedPrismaModel<"Tag">>;
-  export let superform = superForm(data, {
-    dataType: "json",
-  });
-  let articleImages: string[] = [];
-  let articleVideo: string | undefined = undefined;
+  let {
+    data,
+    allTags,
+    authorOptions,
+    superform = superForm(data, { dataType: "json", delayMs: 500 }),
+    formEnd,
+  }: {
+    allTags: Array<ExtendedPrismaModel<"Tag">>;
+    authorOptions: AuthorOption[];
+    data: SuperValidated<ArticleSchema>;
+    superform?: SuperForm<ArticleSchema>;
+    formEnd?: Snippet;
+  } = $props();
+
   const { form } = superform;
-  let activeTab: "sv" | "en";
+  let activeTab: "sv" | "en" = $state("sv");
+
+  let tagIds = $form.tags
+    .values()
+    .toArray()
+    .flat()
+    .map((t) => t.id);
 </script>
 
-<main
-  class="container mx-auto flex flex-col gap-8 px-4 pt-8 lg:flex-row [&>*]:flex-1"
->
-  <section>
-    <ArticleForm
-      {superform}
-      {allTags}
-      {authorOptions}
-      bind:articleImages
-      bind:articleVideo
-      bind:activeTab
-    >
-      <slot slot="form-end" name="form-end" />
-    </ArticleForm>
-  </section>
-  <section class="-mt-4">
-    <span class="italic">{m.news_preview()}</span>
-    <Article
-      article={{
-        id: "",
-        slug: "",
-        header:
-          activeTab === "en" && $form.headerEn
-            ? $form.headerEn
-            : $form.headerSv,
-        headerSv: $form.headerSv,
-        headerEn: $form.headerEn,
-        body: activeTab === "en" && $form.bodyEn ? $form.bodyEn : $form.bodySv,
-        bodySv: $form.bodySv,
-        bodyEn: $form.bodyEn,
-        authorId: $form.author.id,
-        publishedAt: new Date(),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        removedAt: null,
-        status: "draft",
-        imageUrls: $form.imageUrls ?? articleImages,
-        imageUrl: $form.imageUrl ?? null,
-        youtubeUrl: articleVideo ?? $form.youtubeUrl ?? null,
-      }}
-    >
-      <AuthorSignature
-        links={false}
-        slot="author"
-        member={$form.author.member}
-        position={$form.author.mandate?.position}
-        customAuthor={$form.author.customAuthor}
-        type={$form.author.type}
-      />
-
-      <div slot="tags" class="flex flex-row flex-wrap gap-2">
-        {#each $form.tags as selectedTag}
-          {@const tag = allTags.find((t) => t.id === selectedTag.id)}
-          <TagChip {tag} />
-        {/each}
-      </div>
-    </Article>
-  </section>
-</main>
+<div class="flex flex-row gap-4 *:w-1/2">
+  <ArticleForm bind:activeTab {authorOptions} {superform} {allTags} {formEnd} />
+  <Article
+    article={{
+      id: "",
+      slug: "",
+      header:
+        activeTab === "en" && $form.headerEn ? $form.headerEn : $form.headerSv,
+      headerSv: $form.headerSv,
+      headerEn: $form.headerEn,
+      body: activeTab === "en" && $form.bodyEn ? $form.bodyEn : $form.bodySv,
+      bodySv: $form.bodySv,
+      bodyEn: $form.bodyEn,
+      authorId: $form.author.id,
+      publishedAt: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      removedAt: null,
+      status: "draft",
+      imageUrls: $form.imageUrls ?? [],
+      imageUrl: $form.imageUrl ?? null,
+      youtubeUrl: $form.youtubeUrl ?? null,
+      tags: allTags.filter((t) => tagIds.includes(t.id)),
+    }}
+    canEdit={false}
+    canDelete={false}
+  >
+    <AuthorCard
+      links={false}
+      member={$form.author.member}
+      position={$form.author.mandate?.position}
+      customAuthor={$form.author.customAuthor}
+      type={$form.author.type}
+    /></Article
+  >
+</div>

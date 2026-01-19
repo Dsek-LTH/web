@@ -5,7 +5,7 @@ import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 import * as m from "$paraglide/messages";
 import { error } from "@sveltejs/kit";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
 import type { Actions, PageServerLoad } from "./$types";
 import { getAllTags } from "$lib/news/tags";
@@ -49,7 +49,7 @@ export const load: PageServerLoad = async ({ locals }) => {
         sendNotification: true,
         author: authorOptions[0],
       },
-      zod(createSchema),
+      zod4(createSchema),
       {
         errors: false,
       },

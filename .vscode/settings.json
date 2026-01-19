@@ -2,7 +2,7 @@
   "npm.packageManager": "pnpm",
   "editor.formatOnSave": true,
   "[svelte]": {
-    "editor.defaultFormatter": "svelte.svelte-vscode"
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
@@ -21,6 +21,7 @@
     "class:(.+)", // for svelte class: directive
     ".*icon: \"(.+)\"", // for icon property in routes.ts
   ],
+  "tailwindCSS.experimental.configFile": "src/app.css",
   "workbench.editor.labelFormat": "short", // show filename + route in tab
   "explorer.compactFolders": false, // present folders in explorer as a tree
   "git.inputValidation": true,

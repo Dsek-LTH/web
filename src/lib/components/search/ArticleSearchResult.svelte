@@ -1,24 +1,37 @@
 <script lang="ts">
+  import * as Command from "$lib/components/ui/command/index.js";
+  import * as Avatar from "$lib/components/ui/avatar/index.js";
+
   import type { ArticleSearchReturnAttributes } from "$lib/search/searchTypes";
   import { languageTag } from "$paraglide/runtime";
-  export let article: ArticleSearchReturnAttributes;
+  const { data }: { data: ArticleSearchReturnAttributes } = $props();
+  import dayjs from "dayjs";
 </script>
 
-<li>
-  <a
-    href={"/news/" + article.slug}
-    class="search-result border border-transparent focus:border-primary"
-  >
-    <div class="avatar aspect-square w-8 overflow-hidden rounded-full">
-      <span class="i-mdi-newspaper text-2xl"></span>
+<Command.LinkItem
+  class="flex w-full flex-row justify-between"
+  href={`/news/${data.slug}`}
+  data-search-result
+>
+  <div class="flex w-full flex-col">
+    <div class="flex w-full flex-row justify-between">
+      <span class="line-clamp-1 font-medium">
+        {languageTag() === "sv" ? data.headerSv : data.headerEn}
+      </span>
+      <div class="text-muted-foreground">
+        {dayjs(data.publishedAt).format("YYYY-MM-DD")}
+      </div>
     </div>
-    <div>
-      <h4 class="text-balance">
-        {languageTag() === "sv" ? article.headerSv : article.headerEn}
-      </h4>
-      <p class="line-clamp-1 text-gray-500">
-        {languageTag() === "sv" ? article.bodySv : article.bodyEn}
-      </p>
+
+    <div class="flex flex-row items-center gap-1">
+      <Avatar.Root class="size-4">
+        <Avatar.Image src="https://picsum.photos/200" alt="profile picture" />
+        <Avatar.Fallback>IK</Avatar.Fallback>
+      </Avatar.Root>
+
+      <span class="text-muted-foreground line-clamp-1"
+        >{`${data.author.firstName} "${data.author.nickname}" ${data.author.lastName}`}</span
+      >
     </div>
-  </a>
-</li>
+  </div>
+</Command.LinkItem>
