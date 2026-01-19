@@ -12,15 +12,14 @@
   const { enhance: deleteFormEnhance } = superForm(data.deleteForm);
 </script>
 
-<a href="." class="link-primary mb-4">View per apiname</a>
-
 <div class="overflow-x-auto">
   <table class="table">
     <!-- head -->
     <thead>
       <tr class="bg-base-200">
-        <th>Position</th>
-        <th>Number of policies</th>
+        <th colspan="2">
+          <a href="." class="link-primary">View Per API-Name</a>
+        </th>
       </tr>
     </thead>
     <tbody class="">

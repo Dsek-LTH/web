@@ -8,6 +8,17 @@
   const { form, errors, constraints, enhance } = superForm(data.form, {
     resetForm: true,
   });
+  const groupedPolicies: Record<string, string[]> = (data.accessPolicies ?? [])
+    .filter((p): p is string => !!p) // ensure no undefined
+    .reduce(
+      (acc, policy) => {
+        const prefix = policy.includes(":") ? policy.split(":", 1)[0]! : policy;
+        acc[prefix] ??= [];
+        acc[prefix].push(policy);
+        return acc;
+      },
+      {} as Record<string, string[]>,
+    );
 </script>
 
 <SetPageTitle title="Access policies" />
@@ -20,26 +31,40 @@
   }}
 />
 
-<a href="access/positions" class="link-primary mb-4">View per position</a>
-
 <div class="overflow-x-auto">
   <table class="table">
     <!-- head -->
     <thead>
       <tr class="bg-base-200">
-        <th>{m.admin_access_policyCode()}</th>
-        <th></th>
+        <th colspan="2">
+          <a href="access/positions" class="link-primary mb-4"
+            >View Per Position</a
+          >
+        </th>
       </tr>
     </thead>
     <tbody>
-      {#each data.accessPolicies as apiName, i}
-        <tr class={i % 2 === 0 ? "bg-gray" : "bg-base-200"}>
-          <td class="font-medium">{apiName}</td>
-          <td class="text-right"
-            ><a class="btn btn-xs px-8" href="access/{apiName}"
-              >{m.admin_access_edit()}</a
-            ></td
-          >
+      {#each Object.entries(groupedPolicies) as [prefix, policies]}
+        <tr>
+          <td>
+            <details class="collapse collapse-arrow rounded bg-base-200">
+              <summary class="collapse-title font-semibold">
+                {prefix} ({policies.length})
+              </summary>
+              <div class="collapse-content mt-2 space-y-2">
+                {#each policies as policy}
+                  <div
+                    class="flex items-center justify-between rounded bg-base-100 px-2 py-1"
+                  >
+                    <span class="font-mono">{policy}</span>
+                    <a class="btn btn-xs px-4" href="access/{policy}">
+                      {m.admin_access_edit()}
+                    </a>
+                  </div>
+                {/each}
+              </div>
+            </details>
+          </td>
         </tr>
       {/each}
     </tbody>
