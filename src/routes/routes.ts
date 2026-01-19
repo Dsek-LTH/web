@@ -155,6 +155,13 @@ export const getRoutes = (): Route[] =>
           accessRequired: null,
           appBehaviour: "home-link",
         },
+        {
+          title: m.map(),
+          path: "/map",
+          icon: "",
+          accessRequired: null,
+          appBehaviour: "home-link",
+        },
       ],
     },
     {
