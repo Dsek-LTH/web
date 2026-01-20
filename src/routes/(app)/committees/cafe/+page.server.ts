@@ -40,10 +40,16 @@ export const actions = {
         markdownSv,
         markdownEn,
       });
+
+      return message(form, {
+        message: m.committees_committeeUpdated(),
+        type: "success",
+      });
     }
+
     return message(form, {
-      message: m.committees_committeeUpdated(),
-      type: "success",
+      message: m.committees_errors_fetchMarkdown(),
+      type: "error",
     });
   },
 };

@@ -1,4 +1,3 @@
-import authentik from "$lib/server/authentik";
 import apiNames from "$lib/utils/apiNames";
 import { BASIC_ARTICLE_FILTER } from "$lib/news/articles";
 import { authorize, isAuthorized } from "$lib/utils/authorization";
@@ -94,10 +93,7 @@ export const load: PageServerLoad = async ({ locals, params, cookies }) => {
   const email =
     user.studentId === studentId ||
     isAuthorized(apiNames.MEMBER.SEE_EMAIL, user)
-      ? (member.email ??
-        (member.studentId !== null
-          ? await authentik.getEmail(member.studentId)
-          : undefined))
+      ? member.email
       : undefined;
 
   try {
@@ -148,6 +144,7 @@ const updateSchema = memberSchema
     classYear: true,
     graduationYear: true,
     nollningGroupId: true,
+    language: true,
   })
   .partial();
 
@@ -228,11 +225,7 @@ export const actions: Actions = {
         ...form.data,
       },
     });
-    authentik.updateProfile(
-      studentId,
-      form.data.firstName ?? "",
-      form.data.lastName ?? "",
-    );
+
     return message(form, {
       message: m.members_memberUpdated(),
       type: "success",

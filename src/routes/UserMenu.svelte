@@ -40,7 +40,7 @@
   <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
   <div
     tabindex="0"
-    class="card dropdown-content card-compact z-[1] min-w-[200px] max-w-[min(800px,calc(100vw-20px))] bg-base-200 p-2 text-center text-base-content shadow"
+    class="card dropdown-content card-compact z-[1] min-w-[220px] max-w-[min(800px,calc(100vw-20px))] bg-base-200 p-2 text-center text-base-content shadow"
   >
     <div class="card-body">
       <p class="text-center font-semibold">{m.navbar_userMenu_loggedInAs()}</p>
