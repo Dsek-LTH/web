@@ -62,6 +62,19 @@ export function toggleStrikethrough(textarea: HTMLTextAreaElement | null) {
   toggleWrap(textarea, "~~", "~~");
 }
 
+export function toggleInlineCode(textarea: HTMLTextAreaElement | null) {
+  toggleWrap(textarea, "`", "`");
+}
+
+// not perfect by any means, but a better implementation would require parsing the entire text area
+export function toggleFencedCode(textarea: HTMLTextAreaElement | null) {
+  textarea?.setSelectionRange(
+    getLineStart(textarea.value, textarea.selectionStart),
+    getLineEnd(textarea.value, textarea.selectionEnd),
+  );
+  toggleWrap(textarea, "```\n", "\n```");
+}
+
 export function cycleHeader(textarea: HTMLTextAreaElement | null) {
   if (textarea === null) return;
 
@@ -80,4 +93,26 @@ export function cycleHeader(textarea: HTMLTextAreaElement | null) {
 
   const sel = selectionStart + diff;
   textarea.setSelectionRange(sel, sel);
+}
+
+export function insertLink(
+  textarea: HTMLTextAreaElement | null,
+  isImage?: boolean,
+) {
+  if (textarea === null) return;
+  isImage ??= false;
+  const start = textarea.selectionStart;
+  const selection =
+    textarea.value.substring(start, textarea.selectionEnd) ||
+    (isImage ? "Alt text describing the image" : "link text");
+  const linkTxt = (isImage ? "![" : "[") + selection + "](url)";
+  insertText(textarea, linkTxt);
+  textarea.setSelectionRange(
+    start + linkTxt.length - 4,
+    start + linkTxt.length - 1,
+  );
+}
+
+export function insertImage(textarea: HTMLTextAreaElement | null) {
+  insertLink(textarea, true);
 }

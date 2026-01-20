@@ -25,6 +25,10 @@
     toggleBold,
     toggleStrikethrough,
     cycleHeader,
+    insertLink,
+    insertImage,
+    toggleInlineCode,
+    toggleFencedCode,
   } from "./textareacommands";
 
   let textarea: HTMLTextAreaElement | null = $state(null);
@@ -191,7 +195,7 @@
           aria-label={m.editor_image()}
           role="button"
           onclick={() => {
-            addMdAfter("![Image title](https://image url here)");
+            insertImage(textarea);
           }}><title>{m.editor_image()}</title></Image
         >
 
@@ -199,21 +203,21 @@
           aria-label={m.editor_link()}
           role="button"
           onclick={() => {
-            addMdAfter("[Example](https://example.com)");
+            insertLink(textarea);
           }}><title>{m.editor_link()}</title></Link
         >
         <Code
           aria-label={m.editor_inlinecode()}
           role="button"
           onclick={() => {
-            addMdOutline("`");
+            toggleInlineCode(textarea);
           }}><title>{m.editor_inlinecode()}</title></Code
         >
         <SquareCode
           aria-label={m.editor_codeblock()}
           role="button"
           onclick={() => {
-            addMdOutline("```\n\n");
+            toggleFencedCode(textarea);
           }}><title>{m.editor_codeblock()}</title></SquareCode
         >
         <Table
