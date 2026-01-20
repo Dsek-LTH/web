@@ -30,6 +30,8 @@
     toggleInlineCode,
     toggleFencedCode,
     insertTable,
+    toggleQuote,
+    toggleSeparator,
   } from "./textareacommands";
 
   let textarea: HTMLTextAreaElement | null = $state(null);
@@ -232,14 +234,14 @@
           aria-label={m.editor_quote()}
           role="button"
           onclick={() => {
-            addMdPrepend(">");
+            toggleQuote(textarea);
           }}><title>{m.editor_quote()}</title></TextQuote
         >
         <Minus
           aria-label={m.editor_separator()}
           role="button"
           onclick={() => {
-            addMdPrepend("***");
+            toggleSeparator(textarea);
           }}><title>{m.editor_separator()}</title></Minus
         >
       </div>
