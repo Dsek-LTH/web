@@ -139,3 +139,50 @@ export function insertTable(textarea: HTMLTextAreaElement | null) {
   textarea.setSelectionRange(end, end);
   insertText(textarea, "\n" + table);
 }
+
+export function toggleQuote(textarea: HTMLTextAreaElement | null) {
+  if (textarea === null) return;
+
+  const start = getLineStart(textarea.value, textarea.selectionStart);
+  const end = getLineEnd(textarea.value, textarea.selectionEnd);
+  textarea.setSelectionRange(start, end);
+
+  const lines = textarea.value.substring(start, end).split("\n");
+
+  if (lines.every((l) => l.match(/>\s?/))) {
+    // unquote
+    insertText(
+      textarea,
+      lines
+        .map((l) => l.substring(l.match(/>\s?/)?.[0].length ?? 0))
+        .join("\n"),
+    );
+    return;
+  }
+
+  // quote
+  insertText(textarea, lines.map((l) => "> " + l).join("\n"));
+}
+
+export function toggleSeparator(textarea: HTMLTextAreaElement | null) {
+  if (textarea === null) return;
+
+  const start = getLineStart(textarea.value, textarea.selectionStart);
+  const end = getLineEnd(textarea.value, textarea.selectionStart);
+  const line = textarea.value.substring(start, end);
+
+  if (line.match(/\s{0,3}\*\s*\*\s*\*[*\s]*/)) {
+    // lmao that regex is ugly, but it checks for a separator
+    textarea.setSelectionRange(start, end);
+    insertText(textarea, "");
+    return;
+  }
+
+  if (line.match(/^\s*$/)) {
+    textarea.setSelectionRange(start, end);
+    insertText(textarea, "***");
+  } else {
+    textarea.setSelectionRange(end, end);
+    insertText(textarea, "\n***");
+  }
+}
