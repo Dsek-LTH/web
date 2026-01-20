@@ -24,6 +24,7 @@
     toggleItalic,
     toggleBold,
     toggleStrikethrough,
+    cycleHeader,
   } from "./textareacommands";
 
   let textarea: HTMLTextAreaElement | null = $state(null);
@@ -158,7 +159,7 @@
           aria-label={m.editor_heading()}
           role="button"
           onclick={() => {
-            addMdPrepend("#");
+            cycleHeader(textarea);
           }}><title>{m.editor_heading()}</title></Heading
         >
         <Bold
