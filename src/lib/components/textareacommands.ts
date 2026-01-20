@@ -116,3 +116,26 @@ export function insertLink(
 export function insertImage(textarea: HTMLTextAreaElement | null) {
   insertLink(textarea, true);
 }
+
+export function insertTable(textarea: HTMLTextAreaElement | null) {
+  if (textarea === null) return;
+
+  const start = getLineStart(textarea.value, textarea.selectionStart);
+  const end = getLineEnd(textarea.value, textarea.selectionStart);
+  const line = textarea.value.substring(start, end);
+  const table = `| Header | Header |
+| ------ | ------ |
+| Cell | Cell |
+| Cell | Cell |`;
+
+  if (line.match(/^\s*$/) != null) {
+    // empty (enough), replace
+    textarea.setSelectionRange(start, end);
+    insertText(textarea, table);
+    return;
+  }
+
+  // append
+  textarea.setSelectionRange(end, end);
+  insertText(textarea, "\n" + table);
+}

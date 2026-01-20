@@ -29,6 +29,7 @@
     insertImage,
     toggleInlineCode,
     toggleFencedCode,
+    insertTable,
   } from "./textareacommands";
 
   let textarea: HTMLTextAreaElement | null = $state(null);
@@ -224,10 +225,7 @@
           aria-label={m.editor_table()}
           role="button"
           onclick={() => {
-            addMdAfter(`| Label      | Data |
-| ----------- | ----------- |
-| One      | Three           |
-| Two      | Four       |`);
+            insertTable(textarea);
           }}><title>{m.editor_table()}</title></Table
         >
         <TextQuote
