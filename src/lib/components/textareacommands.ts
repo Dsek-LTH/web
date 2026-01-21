@@ -50,6 +50,33 @@ function getLineEnd(text: string, index: Number) {
   return lineEndOffset == -1 ? text.length : index + lineEndOffset;
 }
 
+function toggleForEachLine(
+  textarea: HTMLTextAreaElement | null,
+  rule: RegExp,
+  prefix: string,
+) {
+  if (textarea === null) return;
+
+  const start = getLineStart(textarea.value, textarea.selectionStart);
+  const end = getLineEnd(textarea.value, textarea.selectionEnd);
+  textarea.setSelectionRange(start, end);
+
+  const lines = textarea.value.substring(start, end).split("\n");
+
+  if (lines.every((l) => l.match(rule))) {
+    const removedPrefix = lines
+      .map((l) => l.substring(l.match(rule)?.[0].length ?? 0))
+      .join("\n");
+    insertText(textarea, removedPrefix);
+    textarea.setSelectionRange(start, start + removedPrefix.length);
+    return;
+  }
+
+  const addedPrefix = lines.map((l) => prefix + l).join("\n");
+  insertText(textarea, addedPrefix);
+  textarea.setSelectionRange(start, start + addedPrefix.length);
+}
+
 export function toggleItalic(textarea: HTMLTextAreaElement | null) {
   toggleWrap(textarea, "_", "_");
 }
@@ -141,27 +168,7 @@ export function insertTable(textarea: HTMLTextAreaElement | null) {
 }
 
 export function toggleQuote(textarea: HTMLTextAreaElement | null) {
-  if (textarea === null) return;
-
-  const start = getLineStart(textarea.value, textarea.selectionStart);
-  const end = getLineEnd(textarea.value, textarea.selectionEnd);
-  textarea.setSelectionRange(start, end);
-
-  const lines = textarea.value.substring(start, end).split("\n");
-
-  if (lines.every((l) => l.match(/>\s?/))) {
-    // unquote
-    insertText(
-      textarea,
-      lines
-        .map((l) => l.substring(l.match(/>\s?/)?.[0].length ?? 0))
-        .join("\n"),
-    );
-    return;
-  }
-
-  // quote
-  insertText(textarea, lines.map((l) => "> " + l).join("\n"));
+  toggleForEachLine(textarea, />\s?/, "> ");
 }
 
 export function toggleSeparator(textarea: HTMLTextAreaElement | null) {
@@ -185,4 +192,16 @@ export function toggleSeparator(textarea: HTMLTextAreaElement | null) {
     textarea.setSelectionRange(end, end);
     insertText(textarea, "\n***");
   }
+}
+
+export function toggleUList(textarea: HTMLTextAreaElement | null) {
+  toggleForEachLine(textarea, /-\s/, "- ");
+}
+
+export function toggleOList(textarea: HTMLTextAreaElement | null) {
+  toggleForEachLine(textarea, /\d{1,9}\.\s/, "1. ");
+}
+
+export function toggleTaskList(textarea: HTMLTextAreaElement | null) {
+  toggleForEachLine(textarea, /-\s\[[xX ]]\s/, "- [ ] ");
 }
