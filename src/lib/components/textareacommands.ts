@@ -40,11 +40,11 @@ function toggleWrap(
   textarea.setSelectionRange(start + before.length, end + before.length);
 }
 
-function getLineStart(text: string, index: Number) {
+function getLineStart(text: string, index: number) {
   return text.substring(0, index).lastIndexOf("\n") + 1;
 }
 
-function getLineEnd(text: string, index: Number) {
+function getLineEnd(text: string, index: number) {
   const lineEndOffset = text.substring(index).indexOf("\n");
 
   return lineEndOffset == -1 ? text.length : index + lineEndOffset;
