@@ -5,22 +5,14 @@
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import SEO from "$lib/seo/SEO.svelte";
   import { writable, derived } from "svelte/store";
+  import PolicyTreeNode from "$lib/components/access/PolicyTreeNode.svelte";
+  import type { PolicyNode } from "$lib/components/access/PolicyTreeNode.svelte";
 
   export let data: PageData;
 
   const { form, errors, constraints, enhance } = superForm(data.form, {
     resetForm: true,
   });
-
-  type PolicyNode = {
-    name: string;
-    fullPath?: string;
-    children: Record<string, PolicyNode>;
-  };
-
-  function capitalize(label: string) {
-    return label.charAt(0).toUpperCase() + label.slice(1);
-  }
 
   function insertPolicy(root: PolicyNode, policy: string) {
     const parts = policy.split(":");
@@ -59,53 +51,6 @@
 
     return root;
   })();
-
-  function render(node: PolicyNode, depth = 0): string {
-    const indent = depth * 1.25;
-    const bgClass = depth % 2 === 0 ? "bg-base-200" : "bg-base-200/60";
-    const isLeaf = !!node.fullPath && Object.keys(node.children).length === 0;
-
-    // faktisk policy
-    if (isLeaf) {
-      return `
-        <div style="margin-left:${indent}rem" class="border-l border-base-300 pl-3">
-          <div
-            class="flex items-center justify-between rounded ${bgClass} px-3 py-2"
-          >
-            <span class="font-semibold">
-              ${capitalize(node.name)}
-              <span class="ml-2 font-mono font-normal text-sm text-base-content/70">
-                : ${node.fullPath}
-              </span>
-            </span>
-
-            <a class="btn btn-xs px-4" href="access/${node.fullPath}">
-              ${m.admin_access_edit()}
-            </a>
-          </div>
-        </div>
-      `;
-    }
-
-    // har barn
-    return `
-      <div style="margin-left:${indent}rem" class="border-l border-base-300 pl-3">
-        <details class="collapse collapse-arrow rounded ${bgClass}" ${
-          $search ? "open" : ""
-        }>
-          <summary class="collapse-title font-semibold">
-            ${capitalize(node.name)}
-          </summary>
-
-          <div class="collapse-content mt-2 space-y-2">
-            ${Object.values(node.children)
-              .map((child) => render(child, depth + 1))
-              .join("")}
-          </div>
-        </details>
-      </div>
-    `;
-  }
 </script>
 
 <SetPageTitle title="Access policies" />
@@ -118,7 +63,7 @@
   }}
 />
 
-<!-- Sök -->
+<!-- Search -->
 <div class="mb-4 flex items-center gap-2">
   <input
     type="text"
@@ -148,23 +93,7 @@
       {#each Object.values(policyTree.children) as node}
         <tr>
           <td>
-            {#if !!node.fullPath && Object.keys(node.children).length === 0}
-              <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-              {@html render(node)}
-            {:else}
-              <details class="collapse collapse-arrow rounded bg-base-200">
-                <summary class="collapse-title font-semibold">
-                  {capitalize(node.name)}
-                </summary>
-
-                <div class="collapse-content mt-2 space-y-2">
-                  {#each Object.values(node.children) as child}
-                    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                    {@html render(child)}
-                  {/each}
-                </div>
-              </details>
-            {/if}
+            <PolicyTreeNode {node} showEditLink editHrefBase="access" />
           </td>
         </tr>
       {/each}

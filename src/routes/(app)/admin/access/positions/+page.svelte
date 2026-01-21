@@ -1,5 +1,7 @@
 <script lang="ts">
   import { superForm } from "$lib/utils/client/superForms";
+  import PolicyTreeNode from "$lib/components/access/PolicyTreeNode.svelte";
+  import type { PolicyNode } from "$lib/components/access/PolicyTreeNode.svelte";
 
   let { data } = $props();
 
@@ -9,16 +11,6 @@
     constraints: createFormConstraints,
     enhance: createFormEnhance,
   } = superForm(data.createForm);
-
-  type PolicyNode = {
-    name: string;
-    fullPath?: string;
-    children: Record<string, PolicyNode>;
-  };
-
-  function capitalize(label: string) {
-    return label.charAt(0).toUpperCase() + label.slice(1);
-  }
 
   function insertPolicy(root: PolicyNode, policy: string) {
     const parts = policy.split(":");
@@ -32,57 +24,6 @@
         node.fullPath = policy;
       }
     });
-  }
-
-  function render(node: PolicyNode, depth = 0): string {
-    const indent = depth * 1.25;
-    const isLeaf = !!node.fullPath && Object.keys(node.children).length === 0;
-
-    const bgClass = isLeaf
-      ? "bg-base-100"
-      : depth % 2 === 0
-        ? "bg-base-200"
-        : "bg-base-200/60";
-
-    if (isLeaf) {
-      return `
-      <div style="margin-left:${indent}rem" class="border-l border-base-300 pl-3">
-        <div
-          class="flex items-center justify-between rounded ${bgClass} px-3 py-2"
-        >
-          <span class="font-semibold">
-            ${capitalize(node.name)}
-            <span class="ml-2 font-mono font-normal text-sm text-base-content/70">
-              : ${node.fullPath}
-            </span>
-          </span>
-
-          <form method="POST" action="?/deletePolicy" class="ml-2" use:deleteFormEnhance>
-            <input type="hidden" name="policyId" value="${node.fullPath}" />
-            <button type="submit" aria-label="delete" class="btn btn-xs">
-              Delete
-            </button>
-          </form>
-        </div>
-      </div>
-    `;
-    }
-
-    return `
-    <div style="margin-left:${indent}rem" class="border-l border-base-300 pl-3">
-      <details class="collapse collapse-arrow rounded ${bgClass}">
-        <summary class="collapse-title font-semibold">
-          ${capitalize(node.name)}
-        </summary>
-
-        <div class="collapse-content mt-2 space-y-2">
-          ${Object.values(node.children)
-            .map((child) => render(child, depth + 1))
-            .join("")}
-        </div>
-      </details>
-    </div>
-  `;
   }
 
   function buildPolicyTreeForPolicies(
@@ -133,8 +74,11 @@
 
                 <div class="collapse-content mt-2 space-y-2">
                   {#each Object.values(tree) as node}
-                    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                    {@html render(node)}
+                    <PolicyTreeNode
+                      {node}
+                      showDelete
+                      deleteAction="?/deletePolicy"
+                    />
                   {/each}
 
                   <form
