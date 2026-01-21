@@ -32,6 +32,9 @@
     insertTable,
     toggleQuote,
     toggleSeparator,
+    toggleUList,
+    toggleOList,
+    toggleTaskList,
   } from "./textareacommands";
 
   let textarea: HTMLTextAreaElement | null = $state(null);
@@ -50,100 +53,6 @@
   function countChar() {
     chars = value?.length ?? 0;
     words = chars == 0 ? 0 : value!.split(/\s+/).length;
-  }
-
-  function addMdAfter(add: string) {
-    if (textarea == null) {
-      return;
-    }
-    const before = value?.substring(0, textarea.selectionStart);
-    const after = value?.substring(textarea.selectionEnd, value.length);
-    value = before + add + after;
-    textarea.focus();
-    const newpos = textarea.selectionStart + add.length;
-    setTimeout(() => {
-      textarea?.setSelectionRange(newpos, newpos);
-    }, 0);
-    countChar();
-  }
-
-  function addMdOutline(add: string) {
-    if (textarea == null) {
-      return;
-    }
-    let newpos: number;
-    const originStart = textarea.selectionStart;
-    const originEnd = textarea.selectionEnd;
-    if (textarea.selectionStart != textarea.selectionEnd) {
-      const before = value?.substring(0, textarea.selectionStart);
-      const selection = value?.substring(
-        textarea.selectionStart,
-        textarea.selectionEnd,
-      );
-      const after = value?.substring(textarea.selectionEnd, value.length);
-      value = before + add + selection + add + after;
-      newpos =
-        textarea.selectionStart +
-        add.length * 2 +
-        textarea.selectionEnd -
-        textarea.selectionStart;
-      textarea.focus();
-      setTimeout(() => {
-        textarea?.setSelectionRange(
-          originStart + add.length,
-          originEnd + add.length,
-          "forward",
-        );
-      }, 0);
-    } else {
-      const before = value?.substring(0, textarea.selectionStart);
-      const after = value?.substring(textarea.selectionStart, value?.length);
-      value = before + add + add + after;
-      newpos = textarea.selectionStart + add.length;
-      textarea.focus();
-      setTimeout(() => {
-        console.log("this does not happen");
-        textarea?.setSelectionRange(newpos, newpos);
-      }, 0);
-    }
-
-    countChar();
-  }
-
-  function addMdPrepend(add: string) {
-    if (textarea == null) {
-      return;
-    }
-    const sel = textarea.selectionStart;
-    let rowIndexes = [0];
-    if (value == null) {
-      return;
-    } else {
-      for (let i = 0; i < value?.length; i++) {
-        if (value[i] == "\n") {
-          rowIndexes.push(i);
-        }
-      }
-    }
-    rowIndexes = rowIndexes.filter((e) => e < sel);
-    if (rowIndexes.length == 0) {
-      rowIndexes.push(0);
-    }
-    const begin = rowIndexes.pop();
-    if (begin == 0) {
-      value = add + " " + value;
-    } else {
-      let before = value.substring(0, (begin ?? 0) + 1);
-      let after = value.substring((begin ?? 0) + 1, value.length);
-      value = before + add + " " + after;
-    }
-
-    const newpos = sel + add.length + 1;
-    textarea.focus();
-    setTimeout(() => {
-      textarea?.setSelectionRange(newpos, newpos);
-    }, 0);
-    countChar();
   }
 
   onMount(() => {
@@ -167,6 +76,7 @@
           role="button"
           onclick={() => {
             cycleHeader(textarea);
+            countChar();
           }}><title>{m.editor_heading()}</title></Heading
         >
         <Bold
@@ -174,6 +84,7 @@
           role="button"
           onclick={() => {
             toggleBold(textarea);
+            countChar();
           }}><title>{m.editor_bold()}</title></Bold
         >
         <Italic
@@ -181,6 +92,7 @@
           role="button"
           onclick={() => {
             toggleItalic(textarea);
+            countChar();
           }}><title>{m.editor_italic()}</title></Italic
         >
         <Strikethrough
@@ -188,6 +100,7 @@
           role="button"
           onclick={() => {
             toggleStrikethrough(textarea);
+            countChar();
           }}><title>{m.editor_strikethrough()}</title></Strikethrough
         >
       </div>
@@ -199,6 +112,7 @@
           role="button"
           onclick={() => {
             insertImage(textarea);
+            countChar();
           }}><title>{m.editor_image()}</title></Image
         >
 
@@ -207,6 +121,7 @@
           role="button"
           onclick={() => {
             insertLink(textarea);
+            countChar();
           }}><title>{m.editor_link()}</title></Link
         >
         <Code
@@ -214,6 +129,7 @@
           role="button"
           onclick={() => {
             toggleInlineCode(textarea);
+            countChar();
           }}><title>{m.editor_inlinecode()}</title></Code
         >
         <SquareCode
@@ -221,6 +137,7 @@
           role="button"
           onclick={() => {
             toggleFencedCode(textarea);
+            countChar();
           }}><title>{m.editor_codeblock()}</title></SquareCode
         >
         <Table
@@ -228,6 +145,7 @@
           role="button"
           onclick={() => {
             insertTable(textarea);
+            countChar();
           }}><title>{m.editor_table()}</title></Table
         >
         <TextQuote
@@ -235,6 +153,7 @@
           role="button"
           onclick={() => {
             toggleQuote(textarea);
+            countChar();
           }}><title>{m.editor_quote()}</title></TextQuote
         >
         <Minus
@@ -242,6 +161,7 @@
           role="button"
           onclick={() => {
             toggleSeparator(textarea);
+            countChar();
           }}><title>{m.editor_separator()}</title></Minus
         >
       </div>
@@ -252,21 +172,24 @@
           aria-label={m.editor_ulist()}
           role="button"
           onclick={() => {
-            addMdAfter("- one\n- two\n- three");
+            toggleUList(textarea);
+            countChar();
           }}><title>{m.editor_ulist()}</title></List
         >
         <ListOrdered
           aria-label={m.editor_olist()}
           role="button"
           onclick={() => {
-            addMdAfter("1. one\n2. two\n3. three");
+            toggleOList(textarea);
+            countChar();
           }}><title>{m.editor_olist()}</title></ListOrdered
         >
         <ListTodo
           aria-label={m.editor_tasklist()}
           role="button"
           onclick={() => {
-            addMdAfter("- [x] one\n- [ ] two\n- [ ] three");
+            toggleTaskList(textarea);
+            countChar();
           }}><title>{m.editor_tasklist()}</title></ListTodo
         >
       </div>
