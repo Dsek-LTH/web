@@ -19,7 +19,10 @@
   const onError =
     (imageUrl: string): EventHandler =>
     (event) => {
-      if (event.target instanceof HTMLImageElement) {
+      if (
+        event.target instanceof HTMLImageElement &&
+        (imageUrl != FALLBACK.color || imageUrl != FALLBACK.mono)
+      ) {
         event.target.src = imageUrl;
       }
     };
