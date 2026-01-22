@@ -1,7 +1,7 @@
-import type { PrismaClient } from "@prisma/client";
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 
 export const consumeConsumable = async (
-  prisma: PrismaClient,
+  prisma: ExtendedPrisma,
   consumableId: string,
 ): Promise<Message> => {
   try {
