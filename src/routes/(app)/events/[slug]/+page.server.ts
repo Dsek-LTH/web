@@ -31,11 +31,13 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   const canEdit =
     isAuthorized(apiNames.EVENT.UPDATE, user) ||
     event.authorId === user.memberId;
+  const canScan = isAuthorized(apiNames.WEBSHOP.MANAGE, user);
   const canDelete = isAuthorized(apiNames.EVENT.DELETE, user);
   return {
     event,
     allTaggedMembers,
     canEdit,
+    canScan,
     canDelete,
     commentForm: await superValidate(zod(commentSchema)),
     removeCommentForm: await superValidate(zod(removeCommentSchema)),
