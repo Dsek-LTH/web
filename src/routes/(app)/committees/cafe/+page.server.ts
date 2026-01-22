@@ -42,7 +42,7 @@ export type ShiftWithWorker = {
 };
 
 export const load: PageServerLoad = async ({ locals, url }) => {
-  const weekShift = Number(url.searchParams.get('week') ?? 0);
+  const weekShift = Number(url.searchParams.get('week') ?? dayjs().startOf("week").week());
 
   const { prisma } = locals;
   const openingHours = prisma.markdown.findMany({
@@ -56,7 +56,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     },
   });
 
-  const targetWeek = dayjs().add(weekShift, "week");
+  const targetWeek = dayjs().startOf("year").add(weekShift - 1, "week")
   const shifts = prisma.cafeShift.findMany({
     where: {
       date: {

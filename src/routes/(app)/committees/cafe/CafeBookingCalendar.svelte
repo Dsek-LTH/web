@@ -6,42 +6,29 @@
   import { enhance } from "$app/forms";
   import { TimeSlot } from "@prisma/client";
   import type { ShiftWithWorker } from "./+page.server";
+  import Pagination from "$lib/components/Pagination.svelte";
 
   dayjs.extend(weekOfYear);
   dayjs.extend(weekYear);
 
   // TODO: translate day strings
-  const weekDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+  const weekDays = [
+    m.monday(),
+    m.tuesday(),
+    m.wednesday(),
+    m.thursday(),
+    m.friday(),
+  ];
   let {
     week = $bindable(),
     shifts,
   }: { week: dayjs.Dayjs; shifts: ShiftWithWorker[] } = $props();
 
-  async function handleSubmit(event: SubmitEvent, increment: boolean) {
-    event.preventDefault();
+  const now = dayjs();
 
-    // Get the current URL
-    const url = new URL(window.location.href);
-
-    //BUG: This is all sorts of cursed around the new years, but is almost ok for a test version. Almost
-    // TODO: fix this ^^^
-    week = week.add(increment ? 1 : -1, "week");
-    let diff = dayjs().diff(week, "week");
-    let val = 0;
-    if (!increment) {
-      let val = 0 - Math.abs(diff);
-    } else {
-      let val = 0 + Math.abs(diff);
-    }
-
-    // url.searchParams.set(
-    //   "week",
-    //   // week.add(increment, "week").diff(dayjs(), "week").toString(),
-    //   val.toString(),
-    // );
-    // window.history.replaceState({}, "", url.toString());
-    // window.location.href = url.toString();
-  }
+  const windowStartWeek = now.week();
+  const windowYear = now.weekYear();
+  const weeksInYear = dayjs(`${windowYear}-12-31`).week();
 </script>
 
 <!-- The bg-zinc here is very ugly, but I couldn't find better fitting colours...-->
@@ -53,32 +40,31 @@
       {m.booking_week()}
       {week.week()}
     </p>
-    <form method="POST" onsubmit={(e) => handleSubmit(e, false)}>
-      <input type="hidden" name="week" value={week.subtract(-1, "week")} />
-      <button
-        class="btn btn-square btn-neutral ml-5 h-fit"
-        aria-label="go to previous week"
-      >
-        <!-- disabled={dayjs().subtract(1, "day").isAfter(week)} -->
-        «
-      </button>
-    </form>
-    <form method="POST" onsubmit={(e) => handleSubmit(e, true)}>
-      <input type="hidden" name="week" value={week.add(1, "week")} />
-      <button
-        class="btn btn-square btn-neutral h-fit"
-        aria-label="go to next week"
-      >
-        <!-- disabled={week.subtract(3, "day").isAfter(dayjs())} -->
-        »
-      </button>
-    </form>
+    <Pagination
+      count={4}
+      fieldName="week"
+      getPageName={(index) => {
+        const week = windowStartWeek + index;
+        return week > weeksInYear
+          ? (week - weeksInYear).toString()
+          : week.toString();
+      }}
+      getPageNumber={(weekString) => {
+        const week = Number(weekString);
+
+        // map absolute week → window index
+        let index = week - windowStartWeek;
+        if (index < 0) index += weeksInYear;
+
+        return index;
+      }}
+    />
   </div>
   <div class="mt-1 grid grid-cols-1 gap-3 p-3 md:grid-cols-5 md:gap-0">
     {#each weekDays as day}
       <div class="m-1 grid rounded bg-base-200 p-2">
-        <p class="flex gap-1 font-medium">{day}</p>
-        <p class="flex gap-1 font-bold text-primary">Dagis:</p>
+        <p class="gap-1 text-center font-medium">{day}</p>
+        <p class="gap-1 font-bold text-primary">Dagis:</p>
         <!-- TODO: Maybe move out this whole block into it's own component so we can re-use more code -->
         <form
           method="POST"
@@ -93,7 +79,7 @@
           />
           <input type="hidden" name="timeSlot" value={TimeSlot.DAGIS} />
           <button
-            class=" border-1 m-1 w-full rounded border border-base-300 bg-base-300 p-2 enabled:hover:border-primary"
+            class="border-1 m-1 w-full rounded border border-base-300 bg-base-300 p-2 enabled:hover:border-primary"
           >
             <!-- TODO: only disable if we aren't dagis -->
             <!-- TODO: check this with "some api somewhere" - Felix -->
