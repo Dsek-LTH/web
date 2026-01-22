@@ -70,7 +70,7 @@ const sendNewArticleNotification = async (
 };
 
 const limitDescription = (text: string): string => {
-  let description = text.replace("\n", " ").slice(0, 256 - 3);
+  let description = text.replace(/\n/g, " ").slice(0, 256 - 3);
   description += description.length == 256 - 3 ? "..." : "";
 
   const rows = description.split("\n");
