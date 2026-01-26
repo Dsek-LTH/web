@@ -3,23 +3,23 @@
   import * as Select from "$lib/components/ui/select/index.js";
   import { NotificationSettingType } from "$lib/utils/notifications/types";
   import { availableLanguageTags, languageTag } from "$paraglide/runtime";
-  import { mode, setMode } from "mode-watcher";
+  import { setMode } from "mode-watcher";
   import * as m from "$paraglide/messages";
   import { Switch } from "$lib/components/ui/switch/index.js";
   import Button from "$lib/components/ui/button/button.svelte";
   import { updateSettings } from "./settings.remote";
   import { setLanguage } from "$lib/utils/languages.remote";
-  import { goto, invalidateAll } from "$app/navigation";
+  import { goto } from "$app/navigation";
   import * as Table from "$lib/components/ui/table/index.js";
 
   const { data } = $props();
 
-  let items: {
+  let items: Array<{
     title: string;
     checked: boolean;
     color: string | null;
     value: string;
-  }[] = $state(
+  }> = $state(
     data.tags.map((tag) => ({
       title: tag.name,
       color: tag.color,
@@ -131,8 +131,7 @@
       <Select.Root
         type="single"
         name="mode"
-        onValueChange={(value) =>
-          setMode(value as any as "dark" | "light" | "system")}
+        onValueChange={(value) => setMode(value as "dark" | "light" | "system")}
       >
         <Select.Trigger class="w-36"
           >{modeTranslation(data.theme)}</Select.Trigger
@@ -167,7 +166,7 @@
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {#each Object.values(NotificationSettingType) as settingType}
+            {#each Object.values(NotificationSettingType) as settingType (settingType)}
               {@const subscriptionKey = `subscription_${settingType}`}
               {@const pushKey = `push_${settingType}`}
 

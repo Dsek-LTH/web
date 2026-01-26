@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { error, fail, redirect } from "@sveltejs/kit";
-import { query, form, getRequestEvent } from "$app/server";
+import { fail } from "@sveltejs/kit";
+import { form, getRequestEvent } from "$app/server";
 import { NotificationSettingType } from "$lib/utils/notifications/types";
 
 // Create a schema for notification settings dynamically
