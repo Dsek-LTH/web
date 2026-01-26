@@ -72,8 +72,7 @@
   />
 
   {#if $search}
-    <!-- svelte-ignore event_directive_deprecated -->
-    <button class="btn btn-sm" on:click={() => search.set("")}> Clear </button>
+    <button class="btn btn-sm" onclick={() => search.set("")}> Clear </button>
   {/if}
 </div>
 

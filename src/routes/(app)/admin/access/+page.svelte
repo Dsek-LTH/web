@@ -73,7 +73,7 @@
   />
 
   {#if $search}
-    <button class="btn btn-sm" on:click={() => search.set("")}> Clear </button>
+    <button class="btn btn-sm" onclick={() => search.set("")}> Clear </button>
   {/if}
 </div>
 
