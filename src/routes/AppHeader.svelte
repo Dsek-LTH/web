@@ -38,6 +38,7 @@
       on:click={canGoBack
         ? () => window.history.back()
         : () => goto("/app/home")}
+      on:click={canGoBack ? () => window.history.back() : () => goto("/app/home")}
       class:opacity-0={!canGoBack}
       class="-m-4 p-4"
     >
