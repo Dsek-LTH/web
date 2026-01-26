@@ -116,10 +116,9 @@ export const actions: Actions = {
           .startOf("day")
           .tz("Europe/Stockholm", true)
           .toDate(),
-        endDatetime: dayjs(endDatetime)
-          .endOf("day")
-          .tz("Europe/Stockholm", true)
-          .toDate(),
+        endDatetime:
+          endDatetime &&
+          dayjs(endDatetime).endOf("day").tz("Europe/Stockholm", true).toDate(),
         isBan: mode === "deny",
         information: reason,
         ...(type === "member" ? { studentId: subject } : { role: subject }),
