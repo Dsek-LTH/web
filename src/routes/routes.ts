@@ -213,6 +213,13 @@ export const getRoutes = (): Route[] =>
           accessRequired: apiNames.MARKDOWN.CREATE,
           appBehaviour: "home-link",
         },
+        {
+          title: m.qr_code(),
+          path: "/admin/qr",
+          icon: "i-mdi-qrcode-scan",
+          accessRequired: apiNames.WEBSHOP.MANAGE,
+          appBehaviour: "home-link",
+        },
       ],
     },
   ] as const;
