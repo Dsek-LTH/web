@@ -14,8 +14,6 @@
   function mayWatchVideos(user: AuthUser): boolean {
     return user.roles.some((role) => ["C", "D", "VR/AR"].includes(role));
   }
-
-  console.log(data.user);
 </script>
 
 <SetPageTitle title={data.song.title} />
