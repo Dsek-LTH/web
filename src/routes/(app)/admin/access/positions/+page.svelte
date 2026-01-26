@@ -60,18 +60,6 @@
     policies.forEach((p) => insertPolicy(root, p));
     return root.children; // return children instead of the root node
   }
-
-  const posTrees: Array<{
-    position: string;
-    tree: Record<string, PolicyNode>;
-    policies: Array<{ apiName: string; id: string }>;
-  }> = Array.from(data.posToAccessPolicies.entries())
-    .sort((a, b) => (a[0] < b[0] ? -1 : 1))
-    .map(([position, policies]) => ({
-      position,
-      tree: buildPolicyTreeForPolicies(policies.map((p) => p.apiName)),
-      policies,
-    }));
 </script>
 
 <!-- Search -->
