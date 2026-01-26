@@ -17,6 +17,13 @@
 
 <SongElement song={data.song} class="my-0 p-0 shadow-none ring-transparent" />
 
+{#if data.song.video !== null}
+  <video controls class="pb-8 pt-8">
+    <source src={data.song.video} />
+    <track kind="captions" />
+  </video>
+{/if}
+
 <Disclaimer />
 
 {#if isAuthorized(apiNames.SONG.UPDATE, data.user)}
