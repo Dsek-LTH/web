@@ -12,6 +12,7 @@
   import { appBottomNavRoutes, getRoutes } from "./routes";
   import { getContext } from "svelte";
   import type { Writable } from "svelte/store";
+  import { goto } from "$lib/utils/redirect"
 
   $: pageData = $page.data as typeof $page.data & GlobalAppLoadData;
   $: notificationsPromise = pageData["notificationsPromise"];
@@ -34,7 +35,7 @@
   <div class="w-16">
     <!-- svelte-ignore a11y_consider_explicit_label -->
     <button
-      on:click={canGoBack ? () => window.history.back() : undefined}
+      on:click={!canGoBack ? () => window.history.back() : () => goto("/app/home")}
       class:opacity-0={!canGoBack}
       class="-m-4 p-4"
     >
