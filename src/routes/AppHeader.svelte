@@ -26,6 +26,17 @@
   let notifications: NotificationGroup[] | undefined = undefined;
 
   let pageTitle = getContext<Writable<string>>("pageTitle");
+
+  const handleBack = () => {
+    const lastPathname = sessionStorage.getItem("lastPathname");
+    const currentPathname = $page.url.pathname;
+
+    if (!lastPathname || lastPathname === currentPathname) {
+      goto("/app/home");
+    } else {
+      goto(lastPathname);
+    }
+  };
 </script>
 
 <header
@@ -35,12 +46,7 @@
   <div class="w-16">
     <!-- svelte-ignore a11y_consider_explicit_label -->
     <button
-      on:click={canGoBack
-        ? () =>
-            window.history.length > 1
-              ? window.history.back()
-              : goto("/app/home")
-        : undefined}
+      on:click={canGoBack ? handleBack : undefined}
       class:opacity-0={!canGoBack}
       class="-m-4 p-4"
     >
