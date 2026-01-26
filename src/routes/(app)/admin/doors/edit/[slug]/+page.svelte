@@ -137,7 +137,7 @@
 
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div class="space-y-2">
-            <Label for="start-date">{m.admin_doors_startDate()}</Label>
+            <Label for="start-date">{m.admin_doors_startDate_optional()}</Label>
             <Input
               id="start-date"
               type="date"
@@ -149,7 +149,13 @@
           </div>
 
           <div class="space-y-2">
-            <Label for="end-date">{m.admin_doors_endDate()}</Label>
+            <Label for="end-date">
+              {#if $form.type === "member"}
+                {m.admin_doors_endDate()}
+              {:else}
+                {m.admin_doors_endDate_optional()}
+              {/if}
+            </Label>
             <Input
               id="end-date"
               type="date"
