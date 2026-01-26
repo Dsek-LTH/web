@@ -12,7 +12,7 @@
 
   // This exist to make svansen of spritbolaget private to members.
   function mayWatchVideos(user: AuthUser): boolean {
-    return user.roles.some((user) => ["C", "D", "VR/AR"].includes(user));
+    return user.roles.some((role) => ["C", "D", "VR/AR"].includes(role));
   }
 
   console.log(data.user);
