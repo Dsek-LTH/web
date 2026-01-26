@@ -2,8 +2,35 @@
   import { superForm } from "$lib/utils/client/superForms";
   import PolicyTreeNode from "$lib/components/access/PolicyTreeNode.svelte";
   import type { PolicyNode } from "$lib/components/access/PolicyTreeNode.svelte";
+  import { writable, derived } from "svelte/store";
 
   let { data } = $props();
+
+  const search = writable("");
+
+  // Filtered trees, reactive to search
+  const filteredPosTrees = derived(search, ($search) => {
+    const q = $search.toLowerCase().trim();
+
+    return Array.from(data.posToAccessPolicies.entries())
+      .sort((a, b) => (a[0] < b[0] ? -1 : 1))
+      .map(([position, policies]) => {
+        const positionMatches = position.toLowerCase().includes(q);
+
+        const visibleApiNames = positionMatches
+          ? policies.map((p) => p.apiName)
+          : policies
+              .filter((p) => p.apiName.toLowerCase().includes(q))
+              .map((p) => p.apiName);
+
+        return {
+          position,
+          policies,
+          tree: buildPolicyTreeForPolicies(visibleApiNames),
+        };
+      })
+      .filter(({ tree }) => Object.keys(tree).length > 0);
+  });
 
   const {
     form: createForm,
@@ -47,6 +74,21 @@
     }));
 </script>
 
+<!-- Search -->
+<div class="mb-4 flex items-center gap-2">
+  <input
+    type="text"
+    placeholder="Search policies..."
+    class="input input-bordered w-full max-w-md"
+    bind:value={$search}
+  />
+
+  {#if $search}
+    <!-- svelte-ignore event_directive_deprecated -->
+    <button class="btn btn-sm" on:click={() => search.set("")}> Clear </button>
+  {/if}
+</div>
+
 <div class="overflow-x-auto">
   <table class="table w-full">
     <thead>
@@ -62,7 +104,7 @@
     </thead>
 
     <tbody>
-      {#each posTrees as { position, tree, policies }}
+      {#each $filteredPosTrees as { position, tree, policies }}
         <tr class="odd:bg-gray/10 even:bg-base-200/50">
           <td class="font-medium">{position}</td>
           <td>
