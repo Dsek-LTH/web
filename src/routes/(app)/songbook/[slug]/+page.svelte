@@ -5,9 +5,17 @@
   import Disclaimer from "../Disclaimer.svelte";
   import SongElement from "../SongElement.svelte";
   import * as m from "$paraglide/messages";
+  import type { AuthUser } from "@zenstackhq/runtime";
 
   import type { PageData } from "./$types";
   export let data: PageData;
+
+  // This exist to make svansen of spritbolaget private to members.
+  function mayWatchVideos(user: AuthUser): boolean {
+    return user.roles.some((user) => ["C", "D", "VR/AR"].includes(user));
+  }
+
+  console.log(data.user);
 </script>
 
 <SetPageTitle title={data.song.title} />
@@ -17,7 +25,7 @@
 
 <SongElement song={data.song} class="my-0 p-0 shadow-none ring-transparent" />
 
-{#if data.song.video !== null}
+{#if data.song.video !== null && mayWatchVideos(data.user)}
   <video controls class="pb-8 pt-8">
     <source src={data.song.video} />
     <track kind="captions" />
