@@ -8,7 +8,6 @@ import {
   isAvailableLanguageTag,
   setLanguageTag,
   sourceLanguageTag,
-  type AvailableLanguageTag,
 } from "$paraglide/runtime";
 import Authentik, {
   type AuthentikProfile,

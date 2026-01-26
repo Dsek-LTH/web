@@ -21,12 +21,9 @@
   const selected = $derived(items.filter((i) => i.checked));
   const unSelected = $derived(items.filter((i) => !i.checked));
 
-  let selectedValues: string[] = $state([]);
-
-  // Sync selectedValues with items
-  $effect(() => {
-    selectedValues = items.filter((i) => i.checked).map((i) => i.value);
-  });
+  let selectedValues: string[] = $derived(
+    items.filter((i) => i.checked).map((i) => i.value),
+  );
 </script>
 
 <div
@@ -44,7 +41,7 @@
             {selectedItem.title}
           </Badge>
           <Button.Root
-            onclick={(_) => {
+            onclick={() => {
               items = items.map((item) =>
                 item.title === selectedItem.title
                   ? { ...item, checked: false }
@@ -67,7 +64,7 @@
       {#each unSelected as unSelectedItem, i (`unselected-${i}`)}
         <div class="flex flex-row items-center justify-between gap-2">
           <Button.Root
-            onclick={(_) => {
+            onclick={() => {
               items = items.map((item) =>
                 item.title === unSelectedItem.title
                   ? { ...item, checked: true }
