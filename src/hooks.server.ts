@@ -158,25 +158,18 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
   const session = await event.locals.auth();
   const studentId = session?.user.student_id;
 
-  const aClient = authorizedPrismaClient;
   let member;
   if (studentId) {
-    member = await aClient.member.findUnique({
+    member = await authorizedPrismaClient.member.findUnique({
       where: { studentId },
       select: { language: true },
     });
   }
 
-  const langCandidates = [
-    event.cookies.get("languageOverride"),
-    member?.language,
-  ];
-
   const lang =
-    langCandidates.find(
-      (tag): tag is AvailableLanguageTag =>
-        !!tag && isAvailableLanguageTag(tag),
-    ) ?? sourceLanguageTag;
+    member?.language && isAvailableLanguageTag(member?.language)
+      ? member.language
+      : sourceLanguageTag;
   event.locals.language = lang;
   setLanguageTag(lang);
   const prisma = getExtendedPrismaClient(lang, session?.user.student_id);

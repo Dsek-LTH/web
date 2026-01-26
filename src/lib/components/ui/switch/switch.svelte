@@ -6,7 +6,6 @@
     ref = $bindable(null),
     class: className,
     checked = $bindable(false),
-    group = $bindable(),
     ...restProps
   }: WithoutChildrenOrChild<SwitchPrimitive.RootProps> = $props();
 </script>
