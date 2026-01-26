@@ -35,7 +35,7 @@
   <div class="w-16">
     <!-- svelte-ignore a11y_consider_explicit_label -->
     <button
-      on:click={!canGoBack ? () => window.history.back() : () => goto("/app/home")}
+      on:click={canGoBack ? () => window.history.back() : () => goto("/app/home")}
       class:opacity-0={!canGoBack}
       class="-m-4 p-4"
     >
