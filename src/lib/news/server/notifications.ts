@@ -11,7 +11,6 @@ export const sendNewArticleNotification = async (
   },
   notificationText: string | null | undefined,
 ) => {
-  console.log("notifications: getting members");
   const subscribedMembers = await authorizedPrismaClient.member.findMany({
     where: {
       subscribedTags: {
@@ -27,7 +26,6 @@ export const sendNewArticleNotification = async (
     },
   });
 
-  console.log("notifications: sending");
   await sendNotification({
     title: article.header,
     message: notificationText
