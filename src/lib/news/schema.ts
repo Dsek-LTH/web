@@ -20,6 +20,7 @@ export const articleSchema = z.object({
   imageUrls: z.string().array().optional(),
   imageUrl: z.string().optional().nullable(),
   youtubeUrl: z.string().optional().nullable(),
+  publishTime: z.date().optional().nullable(),
   // https://github.com/colinhacks/zod/pull/3118
   images: z
     .instanceof(File, { message: "Please upload a file." })
