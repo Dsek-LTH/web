@@ -33,7 +33,7 @@
     .map((t) => t.id);
 </script>
 
-<div class="flex flex-row gap-4 *:w-1/2">
+<div class="flex flex-col gap-4 sm:flex-row sm:*:w-1/2">
   <ArticleForm bind:activeTab {authorOptions} {superform} {allTags} {formEnd} />
   <Article
     article={{
