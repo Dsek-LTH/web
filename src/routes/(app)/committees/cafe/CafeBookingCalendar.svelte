@@ -11,7 +11,6 @@
   dayjs.extend(weekOfYear);
   dayjs.extend(weekYear);
 
-  // TODO: translate day strings
   const weekDays = [
     m.monday(),
     m.tuesday(),
@@ -62,10 +61,7 @@
   </div>
   <div class="mt-1 grid grid-cols-1 gap-3 p-3 md:grid-cols-5 md:gap-0">
     {#each weekDays as day}
-      <div class="m-1 grid rounded bg-base-200 p-2">
-        <p class="gap-1 text-center font-medium">{day}</p>
-        <p class="gap-1 font-bold text-primary">Dagis:</p>
-        <!-- TODO: Maybe move out this whole block into it's own component so we can re-use more code -->
+      {#snippet DayForm(timeSlot: TimeSlot, disabled: boolean)}
         <form
           method="POST"
           action="?/updateSchedule"
@@ -77,98 +73,43 @@
             name="date"
             value={week.startOf("week").add(weekDays.indexOf(day), "day")}
           />
-          <input type="hidden" name="timeSlot" value={TimeSlot.DAGIS} />
+          <input type="hidden" name="timeSlot" value={timeSlot} />
           <button
             class="border-1 m-1 w-full rounded border border-base-300 bg-base-300 p-2 enabled:hover:border-primary"
+            {disabled}
           >
-            <!-- TODO: only disable if we aren't dagis -->
-            <!-- TODO: check this with "some api somewhere" - Felix -->
             {shifts.find(
               (s) =>
                 dayjs(s.date).isSame(
                   week.startOf("week").add(weekDays.indexOf(day), "day"),
                   "day",
-                ) && s.timeSlot == TimeSlot.DAGIS,
+                ) && s.timeSlot == timeSlot,
             )?.worker.studentId || "-----"}
           </button>
         </form>
+      {/snippet}
+
+      <div class="m-1 grid rounded bg-base-200 p-2">
+        <p class="gap-1 text-center font-medium">{day}</p>
+
+        <p class="gap-1 font-bold text-primary">Dagis:</p>
+        {@render DayForm(
+          TimeSlot.DAGIS,
+          // TODO: Make this check for if you're DAGIS with "some api somewhere" - Felix
+          false,
+        )}
+
         <hr class="mb-2 mt-2 border-base-content" />
+
         <p class="flex gap-1 font-medium">kl 11-12</p>
-        <form
-          method="POST"
-          action="?/updateSchedule"
-          class="flex w-full"
-          use:enhance
-        >
-          <input
-            type="hidden"
-            name="date"
-            value={week.startOf("week").add(weekDays.indexOf(day), "day")}
-          />
-          <input type="hidden" name="timeSlot" value={TimeSlot.EARLY_1} />
-          <button
-            class=" border-1 m-1 w-full rounded border border-base-300 bg-base-300 p-2 hover:border-primary"
-          >
-            <!-- TODO: Change formatting of name to something resaonable. Make a helper funciton somewhere. -->
-            {shifts.find(
-              (s) =>
-                dayjs(s.date).isSame(
-                  week.startOf("week").add(weekDays.indexOf(day), "day"),
-                  "day",
-                ) && s.timeSlot == TimeSlot.EARLY_1,
-            )?.worker.studentId || "-----"}
-          </button>
-        </form>
-        <form
-          method="POST"
-          action="?/updateSchedule"
-          class="flex w-full"
-          use:enhance
-        >
-          <input
-            type="hidden"
-            name="date"
-            value={week.startOf("week").add(weekDays.indexOf(day), "day")}
-          />
-          <input type="hidden" name="timeSlot" value={TimeSlot.EARLY_2} />
-          <button
-            class=" border-1 m-1 w-full rounded border border-base-300 bg-base-300 p-2 hover:border-primary"
-          >
-            {shifts.find(
-              (s) =>
-                dayjs(s.date).isSame(
-                  week.startOf("week").add(weekDays.indexOf(day), "day"),
-                  "day",
-                ) && s.timeSlot == TimeSlot.EARLY_2,
-            )?.worker.studentId || "-----"}
-          </button>
-        </form>
+        {@render DayForm(TimeSlot.EARLY_1, false)}
+
+        {@render DayForm(TimeSlot.EARLY_2, false)}
+
         <hr class="mb-2 mt-2 border-base-content" />
+
         <p class="flex gap-1 font-medium">kl 12-13</p>
-        <form
-          method="POST"
-          action="?/updateSchedule"
-          class="flex w-full"
-          use:enhance
-        >
-          <input
-            type="hidden"
-            name="date"
-            value={week.startOf("week").add(weekDays.indexOf(day), "day")}
-          />
-          <input type="hidden" name="timeSlot" value={TimeSlot.LATE} />
-          <button
-            class=" border-1 m-1 w-full rounded border border-base-300 bg-base-300 p-2 hover:border-primary"
-          >
-            {shifts.find(
-              (s) =>
-                dayjs(s.date).isSame(
-                  week.startOf("week").add(weekDays.indexOf(day), "day"),
-                  "day",
-                ) && s.timeSlot == TimeSlot.LATE,
-            )?.worker.studentId || "-----"}
-          </button>
-        </form>
+        {@render DayForm(TimeSlot.LATE, false)}
       </div>
     {/each}
   </div>
