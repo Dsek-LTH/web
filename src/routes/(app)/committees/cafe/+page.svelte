@@ -61,7 +61,7 @@
               <input
                 type="text"
                 class="input input-bordered font-normal"
-                name="markdown"
+                name="markdownSv"
                 value={openingHour.markdown}
                 size="8"
               />
