@@ -40,7 +40,7 @@
       {week.week()}
     </p>
     <Pagination
-      count={4}
+      count={3}
       fieldName="week"
       getPageName={(index) => {
         const week = windowStartWeek + index;
@@ -57,6 +57,7 @@
 
         return index;
       }}
+      keepScrollPosition={true}
     />
   </div>
   <div class="mt-1 grid grid-cols-1 gap-3 p-3 md:grid-cols-5 md:gap-0">
@@ -92,23 +93,23 @@
       <div class="m-1 grid rounded bg-base-200 p-2">
         <p class="gap-1 text-center font-medium">{day}</p>
 
-        <p class="gap-1 font-bold text-primary">Dagis:</p>
+        <p class="gap-1 text-center font-bold text-primary">Dagis</p>
         {@render DayForm(
           TimeSlot.DAGIS,
           // TODO: Make this check for if you're DAGIS with "some api somewhere" - Felix
-          false,
+          true,
         )}
 
         <hr class="mb-2 mt-2 border-base-content" />
 
-        <p class="flex gap-1 font-medium">kl 11-12</p>
+        <p class="gap-1 text-center font-medium">kl 11-12</p>
         {@render DayForm(TimeSlot.EARLY_1, false)}
 
         {@render DayForm(TimeSlot.EARLY_2, false)}
 
         <hr class="mb-2 mt-2 border-base-content" />
 
-        <p class="flex gap-1 font-medium">kl 12-13</p>
+        <p class="gap-1 text-center font-medium">kl 12-13</p>
         {@render DayForm(TimeSlot.LATE, false)}
       </div>
     {/each}
