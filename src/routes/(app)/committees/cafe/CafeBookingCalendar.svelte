@@ -10,7 +10,6 @@
 
   dayjs.extend(weekOfYear);
   dayjs.extend(weekYear);
-
   const weekDays = [
     m.monday(),
     m.tuesday(),
@@ -21,13 +20,29 @@
   let {
     week = $bindable(),
     shifts,
-  }: { week: dayjs.Dayjs; shifts: ShiftWithWorker[] } = $props();
+    isDagis,
+  }: {
+    week: dayjs.Dayjs;
+    shifts: ShiftWithWorker[];
+    isDagis: boolean;
+  } = $props();
 
   const now = dayjs();
 
   const windowStartWeek = now.week();
   const windowYear = now.weekYear();
   const weeksInYear = dayjs(`${windowYear}-12-31`).week();
+
+  function getName(day: dayjs.Dayjs, timeSlot: TimeSlot) {
+    let shift = shifts.find(
+      (s) => dayjs(s.date).isSame(day, "day") && s.timeSlot == timeSlot,
+    );
+    if (shift) {
+      return shift.worker.firstName + " " + shift.worker.lastName;
+    } else {
+      return "-----";
+    }
+  }
 </script>
 
 <!-- The bg-zinc here is very ugly, but I couldn't find better fitting colours...-->
@@ -61,56 +76,71 @@
     />
   </div>
   <div class="mt-1 grid grid-cols-1 gap-3 p-3 md:grid-cols-5 md:gap-0">
-    {#each weekDays as day}
-      {#snippet DayForm(timeSlot: TimeSlot, disabled: boolean)}
+    {#each weekDays as dayName}
+      {@const day = week.startOf("week").add(weekDays.indexOf(dayName), "day")}
+      {@const hasDagis: boolean = shifts.find((s) => dayjs(s.date).isSame(day, "day") && s.timeSlot == TimeSlot.DAGIS) != undefined}
+
+      {#snippet DayForm(
+        timeSlot: TimeSlot,
+        disabled: boolean,
+        checkForDagis: boolean = true,
+      )}
         <form
           method="POST"
           action="?/updateSchedule"
           class="flex w-full"
           use:enhance
         >
-          <input
-            type="hidden"
-            name="date"
-            value={week.startOf("week").add(weekDays.indexOf(day), "day")}
-          />
+          <input type="hidden" name="date" value={day} />
           <input type="hidden" name="timeSlot" value={timeSlot} />
           <button
-            class="border-1 m-1 w-full rounded border border-base-300 bg-base-300 p-2 enabled:hover:border-primary"
+            class="border-1 m-1 w-full rounded border border-base-300 p-2 enabled:bg-base-300 enabled:hover:border-primary {hasDagis ||
+            !checkForDagis
+              ? ''
+              : 'text-slate-500'}"
             {disabled}
           >
-            {shifts.find(
-              (s) =>
-                dayjs(s.date).isSame(
-                  week.startOf("week").add(weekDays.indexOf(day), "day"),
-                  "day",
-                ) && s.timeSlot == timeSlot,
-            )?.worker.studentId || "-----"}
+            {getName(day, timeSlot)}
           </button>
         </form>
       {/snippet}
 
       <div class="m-1 grid rounded bg-base-200 p-2">
-        <p class="gap-1 text-center font-medium">{day}</p>
+        <p class="gap-1 text-center font-medium">{dayName}</p>
 
         <p class="gap-1 text-center font-bold text-primary">Dagis</p>
         {@render DayForm(
           TimeSlot.DAGIS,
           // TODO: Make this check for if you're DAGIS with "some api somewhere" - Felix
-          true,
+          !isDagis,
+          false,
         )}
 
         <hr class="mb-2 mt-2 border-base-content" />
 
-        <p class="gap-1 text-center font-medium">kl 11-12</p>
-        {@render DayForm(TimeSlot.EARLY_1, false)}
+        <!-- TODO: Rename all timeslots to just be indexes or similar to allow
+                   for changing how many timeslots are before or after lunch -->
+        <p
+          class="gap-1 text-center font-medium {hasDagis
+            ? ''
+            : 'text-slate-500'}"
+        >
+          kl 11-12
+        </p>
+        {@render DayForm(TimeSlot.EARLY_1, !hasDagis)}
 
-        {@render DayForm(TimeSlot.EARLY_2, false)}
+        {@render DayForm(TimeSlot.EARLY_2, !hasDagis)}
 
         <hr class="mb-2 mt-2 border-base-content" />
 
-        <p class="gap-1 text-center font-medium">kl 12-13</p>
-        {@render DayForm(TimeSlot.LATE, false)}
+        <p
+          class="gap-1 text-center font-medium {hasDagis
+            ? ''
+            : 'text-slate-500'}"
+        >
+          kl 12-13
+        </p>
+        {@render DayForm(TimeSlot.LATE, !hasDagis)}
       </div>
     {/each}
   </div>

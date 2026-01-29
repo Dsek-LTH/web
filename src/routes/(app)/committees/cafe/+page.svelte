@@ -10,6 +10,8 @@
   let { data }: { data: PageData } = $props();
   import weekYear from "dayjs/plugin/weekYear";
   import weekOfYear from "dayjs/plugin/weekOfYear";
+  import { isAuthorized } from "$lib/utils/authorization";
+  import apiNames from "$lib/utils/apiNames";
   let isEditing = $state(false);
 
   const getWeekdayName = (weekday: number): string => {
@@ -118,6 +120,10 @@
   {/snippet}
 
   {#snippet main()}
-    <CafeBookingCalendar bind:week {shifts} />
+    <CafeBookingCalendar
+      bind:week
+      {shifts}
+      isDagis={isAuthorized(apiNames.CAFE.DAY_MANAGER, data.user)}
+    />
   {/snippet}
 </CommitteePage>
