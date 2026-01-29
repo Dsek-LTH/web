@@ -151,7 +151,7 @@ export const actions: Actions = {
         if (cafeShift.worker.studentId === user.studentId) {
           await prisma.cafeShift.delete({ where: { id: cafeShift.id } })
           return message(form, {
-            message: "removed!",
+            message: m.cafe_quit_shift(),
             type: "success",
           })
         } else {
@@ -165,7 +165,7 @@ export const actions: Actions = {
 
       return message(form, {
         //TODO: fix this to be it's own translation string
-        message: m.songbook_songUpdated(),
+        message: m.cafe_signed_up(),
         type: "success",
       })
 
