@@ -6,6 +6,7 @@ import type { RequestEvent } from "@sveltejs/kit";
 
 export const scheduleExecution = async (
   request: Request,
+  endpointURL: string,
   data: Record<string, unknown>,
   publishTime: Date,
   form: SuperValidated<Record<string, unknown>>,
@@ -21,7 +22,7 @@ export const scheduleExecution = async (
       method: "POST",
       body: JSON.stringify({
         body: JSON.stringify(data),
-        endpointURL: request.url,
+        endpointURL,
         runTimestamp: publishTime,
         password: env.SCHEDULER_PASSWORD,
         token: jwt?.["id_token"],
