@@ -1,5 +1,4 @@
 <script lang="ts">
-  import FormDateInput from "$lib/components/forms/FormDateInput.svelte";
   import FormFileInput from "$lib/components/forms/FormFileInput.svelte";
   import FormInput from "$lib/components/forms/FormInput.svelte";
   import FormMarkdown from "$lib/components/forms/FormMarkdown.svelte";
@@ -133,12 +132,6 @@
     field="youtubeUrl"
     label="Youtube video URL"
     onChange={onVideoSelected}
-  />
-
-  <FormDateInput
-    {superform}
-    field="publishTime"
-    label="Schemalägg publicering"
   />
 
   <slot name="form-end" />

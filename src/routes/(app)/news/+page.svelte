@@ -18,7 +18,7 @@
   );
 
   let form: HTMLFormElement;
-  const { scheduledTasks } = data;
+  const { scheduledArticles } = data;
   let showScheduled = false;
 </script>
 
@@ -56,7 +56,7 @@
       {#if isAuthorized(apiNames.NEWS.CREATE, data.user)}
         <a class="btn btn-primary" href="/news/create">+ {m.news_create()}</a>
       {/if}
-      {#if scheduledTasks.length > 0}
+      {#if scheduledArticles.length > 0}
         <button
           class="btn btn-secondary"
           on:click={() => (showScheduled = !showScheduled)}
@@ -70,13 +70,34 @@
     <section class="space-y-4 rounded-lg bg-base-200 p-4">
       <h2 class="text-xl font-semibold">{m.news_scheduledNews()}</h2>
       <div class="space-y-2">
-        {#each scheduledTasks as task (task.ID)}
-          <div class="rounded-lg bg-base-300 p-4">
-            <p><strong>{`${m.news_title()}:`}</strong> {task.Body.headerSv}</p>
-            <p>
-              <strong>{`${m.news_publishDate()}:`}</strong>
-              {new Date(task.RunTimestamp).toLocaleString()}
-            </p>
+        {#each scheduledArticles as article (article.id)}
+          <div class="flex gap-4 rounded-lg bg-base-300 p-4">
+            <div class=" flex flex-col items-center">
+              <span class="text-3xl font-bold"
+                >{article.publishedAt?.getDate()}</span
+              >
+              <span class="text-sm">
+                {article.publishedAt
+                  ? article.publishedAt.toLocaleString("default", {
+                      month: "short",
+                    })
+                  : ""}
+              </span>
+            </div>
+            <div class="flex-1">
+              <h3 class="mb-2 text-lg font-semibold">{article.header}</h3>
+              <p class="prose text-sm">
+                {article.body.length > 200
+                  ? `${article.body.slice(0, 200)}...`
+                  : article.body}
+              </p>
+            </div>
+            <div class="flex items-center">
+              <a
+                class="btn btn-primary btn-sm"
+                href={`/news/${article.slug}/edit`}>{m.news_edit()}</a
+              >
+            </div>
           </div>
         {/each}
       </div>

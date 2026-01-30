@@ -66,10 +66,15 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     memberWithMandtes,
   );
 
+  const articleForm = {
+    ...article,
+    publishTime: article.publishedAt ?? null,
+  };
+  console.log(articleForm);
   return {
     allTags,
     authorOptions,
-    form: await superValidate(article, zod(updateSchema)),
+    form: await superValidate(articleForm, zod(updateSchema)),
   };
 };
 

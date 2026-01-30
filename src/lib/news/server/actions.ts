@@ -124,7 +124,8 @@ export const createArticle: Action = async (event) => {
     },
   });
 
-  if (publishTime && publishTime > new Date() && shouldSendNotification) {
+  const pubishTimeIsInFuture = publishTime && publishTime > new Date();
+  if (pubishTimeIsInFuture && shouldSendNotification) {
     return await scheduleExecution(
       request,
       `${env.PUBLIC_APP_URL}/api/schedule/news`,
@@ -158,7 +159,7 @@ export const createArticle: Action = async (event) => {
   }
 
   throw redirect(
-    `/news/${result.slug}`,
+    pubishTimeIsInFuture ? "/news" : `/news/${result.slug}`,
     {
       message: m.news_articleCreated(),
       type: "success",
