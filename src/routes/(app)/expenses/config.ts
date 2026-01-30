@@ -7,13 +7,6 @@ export const COST_CENTERS = [
     committee: "aktu",
   },
   {
-    name: "AKTU02",
-    description: "D-shopen",
-    example: "Inköp av varor från Sverige, Programvaror",
-    signer: "dsek.aktu.mastare",
-    committee: "aktu",
-  },
-  {
     name: "AKTU03",
     description: "UtEDischot",
     example:
@@ -89,10 +82,9 @@ export const COST_CENTERS = [
     committee: "infu",
   },
   {
-    name: "INFU02",
-    description: "DWWW (kommer nog flyttas)",
-    example:
-      "Jobbarmat/Mötesfika, Domäner / ProgramvaraArbetskläder och skyddsmaterial, Tack",
+    name: "IFNU03",
+    description: "D-shopen",
+    example: "Inköp av varor från Sverige, Programvaror",
     signer: "dsek.infu.mastare",
     committee: "infu",
   },
