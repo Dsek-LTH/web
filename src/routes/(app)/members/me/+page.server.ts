@@ -1,6 +1,6 @@
 // redirect to /members/studentId with their student id
 
-import { redirect } from "$lib/utils/redirect";
+import { redirect } from "@sveltejs/kit";
 import * as m from "$paraglide/messages";
 import { error } from "@sveltejs/kit";
 

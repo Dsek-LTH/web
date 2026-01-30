@@ -5,7 +5,7 @@ import {
 } from "$lib/server/shop/addToCart/addToCart";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
-import { redirect } from "$lib/utils/redirect";
+import { redirect } from "sveltekit-flash-message/server";
 import * as m from "$paraglide/messages";
 import type { Actions } from "@sveltejs/kit";
 import { fail, message, superValidate, type Infer } from "sveltekit-superforms";
