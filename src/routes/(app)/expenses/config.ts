@@ -82,7 +82,7 @@ export const COST_CENTERS = [
     committee: "infu",
   },
   {
-    name: "IFNU03",
+    name: "INFU03",
     description: "D-shopen",
     example: "Inköp av varor från Sverige, Programvaror",
     signer: "dsek.infu.mastare",
