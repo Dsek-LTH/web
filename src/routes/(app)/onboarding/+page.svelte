@@ -6,7 +6,6 @@
   import { onMount } from "svelte";
   import type { PageData } from "./$types";
   import type { UpdateSchema } from "./+page.server";
-  import { goto } from "$lib/utils/redirect";
   import { getFileUrl } from "$lib/files/client";
   import { Input } from "$lib/components/ui/input";
   import { Label } from "$lib/components/ui/label";
@@ -18,10 +17,11 @@
   import Calendar from "@lucide/svelte/icons/calendar";
   import UtensilsCrossed from "@lucide/svelte/icons/utensils-crossed";
   import { Button } from "$lib/components/ui/button";
-  import { languageTag } from "$paraglide/runtime";
-  import { i18n } from "$lib/utils/i18n";
-  import { page } from "$app/state";
+  import { getLocale, setLocale } from "$paraglide/runtime";
   import Languages from "@lucide/svelte/icons/languages";
+  import { setLanguage } from "$lib/utils/languages.remote";
+  import { goto } from "$app/navigation";
+  import { resolve } from "$app/paths";
 
   let { data }: { data: PageData } = $props();
   const { form, errors, constraints, enhance } = superForm<UpdateSchema>(
@@ -35,7 +35,7 @@
       data.member.classProgramme &&
       data.member.classYear
     ) {
-      goto("/");
+      goto(resolve("/"));
     }
   });
 
@@ -174,13 +174,16 @@
             {m.onboarding_save()}
           </Button>
 
-          <a
-            href={i18n.route(page.url.pathname)}
-            hreflang={languageTag() === "sv" ? "en" : "sv"}
-          >
-            <Button aria-label="languages" size="icon" variant="outline"
-              ><Languages /></Button
-            ></a
+          <Button
+            aria-label="languages"
+            onclick={async () => {
+              const lang = getLocale() === "en" ? "sv" : "en";
+              await setLanguage(lang);
+              setLocale(lang);
+            }}
+            size="icon-lg"
+            variant="ghost"
+            class="p-1.5"><Languages /></Button
           >
         </div>
       </form>

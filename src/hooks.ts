@@ -1,12 +1,16 @@
 import "./dayjs-plugins";
 
-import { i18n } from "$lib/utils/i18n";
 import { browser, dev } from "$app/environment";
-export const reroute = i18n.reroute();
+import type { Reroute } from "@sveltejs/kit";
+import { deLocalizeUrl } from "$paraglide/runtime";
 
 if (dev && browser) {
   localStorage.setItem("umami.disabled", "1"); // Disable usage tracking in dev mode
 }
+
+export const reroute: Reroute = (request) => {
+  return deLocalizeUrl(request.url).pathname;
+};
 
 // Polyfill Object.groupBy
 if (typeof Object.groupBy === typeof undefined) {

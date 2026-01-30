@@ -8,6 +8,7 @@ import {
   listOfAttributesUsedAsLink,
   type SearchDataWithType,
 } from "$lib/search/searchTypes";
+import { getLocale } from "$paraglide/runtime";
 
 /**
  * This endpoint is used to search multiple indexes at once.
@@ -17,7 +18,7 @@ import {
  * GET /api/search?query=oddput clementin&indexes=["members", "articles"]
  * This will search for "oddput clementin" in the "members" and "articles" indexes.
  */
-export const GET: RequestHandler = async ({ url, locals }) => {
+export const GET: RequestHandler = async ({ url }) => {
   const query = url.searchParams.get("query");
   if (!query) {
     return new Response("Missing query", { status: 400 });
@@ -47,7 +48,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
   if (limit === -1) {
     limit = 20;
   }
-  const language = locals.language;
+  const language = getLocale();
 
   const offset = Number.parseInt(url.searchParams.get("offset") ?? "0");
 

@@ -2,15 +2,14 @@
   import DualSelect from "$lib/components/dualSelect/DualSelect.svelte";
   import * as Select from "$lib/components/ui/select/index.js";
   import { NotificationSettingType } from "$lib/utils/notifications/types";
-  import { availableLanguageTags, languageTag } from "$paraglide/runtime";
-  import { setMode } from "mode-watcher";
+  import { mode, setMode } from "mode-watcher";
   import * as m from "$paraglide/messages";
   import { Switch } from "$lib/components/ui/switch/index.js";
   import Button from "$lib/components/ui/button/button.svelte";
   import { updateSettings } from "./settings.remote";
   import { setLanguage } from "$lib/utils/languages.remote";
-  import { goto } from "$app/navigation";
   import * as Table from "$lib/components/ui/table/index.js";
+  import { getLocale, locales, setLocale } from "$paraglide/runtime";
 
   const { data } = $props();
 
@@ -31,7 +30,7 @@
     })),
   );
   let selectedLanguage = $state<"en" | "sv">(
-    (data.member?.language ?? languageTag()) as "en" | "sv",
+    (data.member?.language ?? getLocale()) as "en" | "sv",
   );
 
   const languageTranslation = (lang: "en" | "sv") => {
@@ -108,8 +107,8 @@
         type="single"
         name="language"
         onValueChange={async (e) => {
-          const { redirect } = await setLanguage(e);
-          goto(redirect, { invalidateAll: true });
+          await setLanguage(e);
+          setLocale(e as "sv" | "en");
         }}
         bind:value={selectedLanguage}
       >
@@ -119,7 +118,7 @@
         <Select.Content>
           <Select.Group>
             <Select.Label>{m.setting_language()}</Select.Label>
-            {#each availableLanguageTags as lan (lan)}
+            {#each locales as lan (lan)}
               <Select.Item value={lan} label={languageTranslation(lan)} />
             {/each}
           </Select.Group>
@@ -134,7 +133,7 @@
         onValueChange={(value) => setMode(value as "dark" | "light" | "system")}
       >
         <Select.Trigger class="w-36"
-          >{modeTranslation(data.theme)}</Select.Trigger
+          >{modeTranslation(mode.current ?? data.theme)}</Select.Trigger
         >
         <Select.Content>
           <Select.Group>

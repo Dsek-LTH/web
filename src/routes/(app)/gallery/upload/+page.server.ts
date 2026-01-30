@@ -4,7 +4,7 @@ import { message, superValidate, withFiles } from "sveltekit-superforms/server";
 import type { Actions, PageServerLoad } from "./$types";
 import { uploadSchema } from "./types";
 import { uploadAlbumFiles } from "./uploadFiles";
-import { redirect } from "$lib/utils/redirect";
+import { redirect } from "@sveltejs/kit";
 
 export const load: PageServerLoad = async () => {
   const form = await superValidate(zod4(uploadSchema));
