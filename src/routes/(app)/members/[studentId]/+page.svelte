@@ -4,12 +4,14 @@
   import * as Tabs from "$lib/components/ui/tabs/index";
   import { Badge } from "$lib/components/ui/badge";
   import * as m from "$paraglide/messages";
-  import type { Semester } from "$lib/utils/semesters";
+  import { toString, type Semester } from "$lib/utils/semesters";
   import CommitteeIcon from "$lib/components/images/CommitteeIcon.svelte";
   import MemberBio from "./MemberBio.svelte";
-  import { Button } from "$lib/components/ui/button";
+  import { Button, buttonVariants } from "$lib/components/ui/button";
   import Pen from "@lucide/svelte/icons/pen";
   import Copy from "@lucide/svelte/icons/copy";
+  import * as Dialog from "$lib/components/ui/dialog";
+  import MemberForm from "./MemberForm.svelte";
   import { cn } from "$lib/utils";
 
   let { data } = $props();
@@ -36,6 +38,19 @@
   const medals = $derived(data.medals);
   const getMedalLink = (semester: Semester) =>
     `/medals?semester=${toString(semester)}`;
+
+  const programmeColors: Record<
+    string,
+    "rosa" | "lila" | "pistachio" | "outline"
+  > = {
+    D: "rosa",
+    C: "lila",
+    "VR/AR": "pistachio",
+    E: "outline",
+    BME: "outline",
+    Dokt: "outline",
+    "?": "rosa",
+  };
 </script>
 
 {@render mobile("md:hidden")}
@@ -53,8 +68,10 @@
     <section
       class="layout-container bg-muted-background relative flex flex-col border-b-[1px] py-0 pb-4"
     >
-      <Button variant="outline" class="absolute top-2 right-2" size="sm"
-        ><Pen /> Redigera profil</Button
+      <a href={member.studentId + "/edit"}>
+        <Button variant="outline" class="absolute top-2 right-2" size="sm"
+          ><Pen /> {m.member_edit_profile()}</Button
+        ></a
       >
       <div class="field-sizing-content h-24">
         <Avatar.Root
@@ -77,7 +94,7 @@
       >
       <div class="flex flex-row items-center gap-2">
         <h3>{member.firstName} {member.lastName}</h3>
-        <Badge
+        <Badge variant={programmeColors[member.classProgramme ?? "?"] ?? "rosa"}
           >{(member.classProgramme ?? "?") +
             (member.classYear?.toString().slice(-2) ?? "??")}</Badge
         >
@@ -91,7 +108,7 @@
     <section class="layout-container flex flex-col gap-8 py-4">
       <div class="flex flex-col items-baseline">
         {#if Object.keys(mandatesByYear).length > 0}
-          <h2 class="self-center">Poster</h2>
+          <h2 class="self-center">{m.positions()}</h2>
           {#each Object.entries(mandatesByYear)
             .toSorted()
             .toReversed() as [year, mandates] (year)}
@@ -111,13 +128,29 @@
                   {/each}
                 </div>
               {/if}
+
+              {#if member.nollaIn?.year.toString() === year}
+                <a
+                  class="flex items-center gap-2"
+                  href="/committees/nollu?year={member.nollaIn.year}"
+                >
+                  {#if member.nollaIn.imageUrl}
+                    <figure class="size-7 overflow-hidden rounded-sm">
+                      <img src={member.nollaIn.imageUrl} alt="Group logo" />
+                    </figure>
+                  {/if}
+                  <p class="text-[var(--text-pink)]">
+                    Nolla i {member.nollaIn.name}
+                  </p>
+                </a>
+              {/if}
             </div>
           {/each}
         {/if}
       </div>
       {#if medals.length > 0}
         <div class="flex flex-col items-center">
-          <h2 class="my-4 self-center">Medaljer</h2>
+          <h2 class="my-4 self-center">{m.medals()}</h2>
           {#each medals as medal (medal.medal)}
             <div class="inline-flex flex-col items-center gap-2">
               <CommitteeIcon class="size-32" committee={null} />
@@ -128,7 +161,7 @@
                   </h6></a
                 >
                 <p class="text-muted-foreground mt-0">
-                  {m.medals_since() + " " + medal.after}
+                  {m.medals_since() + " " + toString(medal.after)}
                 </p>
               </div>
             </div>
@@ -178,23 +211,7 @@
                   </h6></a
                 >
                 <p class="text-muted-foreground mt-0">
-                  {m.medals_since() + " " + medal.after}
-                </p>
-              </div>
-            </div>
-          {/each}{#each medals as medal (medal.medal)}
-            <div
-              class="inline-flex flex-row items-center gap-4 rounded-md border-[1px] p-3 pr-4"
-            >
-              <CommitteeIcon class="size-8" committee={null} />
-              <div class="flex flex-col justify-center">
-                <a href={getMedalLink(medal.after)}
-                  ><h6>
-                    {medal.medal}
-                  </h6></a
-                >
-                <p class="text-muted-foreground mt-0">
-                  {m.medals_since() + " " + medal.after}
+                  {m.medals_since() + " " + toString(medal.after)}
                 </p>
               </div>
             </div>
@@ -208,20 +225,39 @@
     <!-- <h4>Riddare</h4> -->
     <div class="flex flex-row items-end gap-1 pt-7">
       <h1>{member.firstName} {member.lastName}</h1>
-      <Badge class="mb-2 ml-3" size="lg"
+      <Badge
+        variant={programmeColors[member.classProgramme ?? "?"] ?? "rosa"}
+        class="mb-2 ml-3"
+        size="lg"
         >{(member.classProgramme ?? "?") +
           (member.classYear?.toString().slice(-2) ?? "??")}</Badge
       >
-      <Button variant="outline" class="ml-auto self-center" size="sm"
-        ><Pen /> Redigera profil</Button
-      >
+      <Dialog.Root>
+        <div class="ml-auto self-center">
+          <Dialog.Trigger
+            class={cn(
+              buttonVariants({ variant: "outline", size: "sm" }),
+              "ml-auto self-center",
+            )}><Pen /> {m.member_edit_profile()}</Dialog.Trigger
+          >
+          <Dialog.Content
+            class="max-h-[90vh] overflow-y-scroll sm:max-w-[425px]"
+          >
+            <Dialog.Header>
+              <Dialog.Title>Edit profile</Dialog.Title>
+            </Dialog.Header>
+            <MemberForm {data} dialog />
+          </Dialog.Content>
+        </div>
+      </Dialog.Root>
     </div>
-    <h4 class="mb-12">"{member.nickname}"</h4>
+    <h4 class="mb-12">{member.nickname ? "“" + member.nickname + "”" : ""}</h4>
+
     <Tabs.Root value="positions">
       <Tabs.List>
-        <Tabs.Trigger value="positions">Poster</Tabs.Trigger>
-        <Tabs.Trigger disabled value="pictures">Bilder</Tabs.Trigger>
-        <Tabs.Trigger disabled value="articles">Nyheter</Tabs.Trigger>
+        <Tabs.Trigger value="positions">{m.positions()}</Tabs.Trigger>
+        <Tabs.Trigger disabled value="pictures">{m.pictures()}</Tabs.Trigger>
+        <Tabs.Trigger value="articles">{m.news()}</Tabs.Trigger>
       </Tabs.List>
       <Tabs.Content value="positions">
         {#if Object.keys(mandatesByYear).length > 0}
@@ -247,6 +283,14 @@
             </div>
           {/each}
         {/if}
+      </Tabs.Content>
+      <Tabs.Content value="articles">
+        {#each data.publishedArticles as article (article.id)}
+          <div class="flex w-full p-4">
+            {article.header}
+            {article.body}
+          </div>
+        {/each}
       </Tabs.Content>
     </Tabs.Root>
   </main>

@@ -934,5 +934,7 @@
   "news_notification_send": "Send notification?",
   "news_notification_text": "Notification text",
   "news_youtube_url": "Youtube URL",
-  "news_notification_explanation": "The notification text. If left empty, the beginning of the article body will be used."
+  "news_notification_explanation": "The notification text. If left empty, the beginning of the article body will be used.",
+  "member_edit_profile": "Edit profile",
+  "pictures": "Pictures"
 }

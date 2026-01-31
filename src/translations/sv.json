@@ -936,5 +936,7 @@
   "news_notification_send": "Skicka notis?",
   "news_notification_text": "Notistext",
   "news_youtube_url": "Youtube-URL",
-  "news_notification_explanation": "Texten som visas i notisen, om fältet lämnas tomt kommer nyhetens inledning att visas."
+  "news_notification_explanation": "Texten som visas i notisen, om fältet lämnas tomt kommer nyhetens inledning att visas.",
+  "member_edit_profile": "Redigera profil",
+  "pictures": "Bilder"
 }
