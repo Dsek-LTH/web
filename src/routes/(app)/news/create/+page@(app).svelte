@@ -7,6 +7,7 @@
   import type { SuperForm, SuperValidated } from "sveltekit-superforms";
   import ArticleEditor from "../ArticleEditor.svelte";
   import type { ArticleSchema } from "$lib/news/schema";
+  import FormDateInput from "$lib/components/forms/FormDateInput.svelte";
 
   export let data;
 
@@ -26,6 +27,11 @@
   authorOptions={data.authorOptions}
 >
   <div slot="form-end">
+    <FormDateInput
+      {superform}
+      field="publishTime"
+      label="Schemalägg publicering"
+    />
     <FormInput
       {superform}
       field="notificationText"

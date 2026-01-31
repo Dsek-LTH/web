@@ -29,13 +29,14 @@
   />
 {:else}
   <ArticleEditor
+    superform={superformCorrectType}
     allTags={data.allTags}
     authorOptions={data.authorOptions}
     data={data.form}
   >
     <div slot="form-end">
       <FormDateInput
-        superform={superformCorrectType}
+        {superform}
         field="publishTime"
         label="Schemalägg publicering"
       />

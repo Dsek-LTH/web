@@ -70,7 +70,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     ...article,
     publishTime: article.publishedAt ?? null,
   };
-  console.log(articleForm);
+
   return {
     allTags,
     authorOptions,

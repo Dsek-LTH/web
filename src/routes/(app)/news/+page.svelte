@@ -67,36 +67,64 @@
   </section>
 
   {#if showScheduled}
-    <section class="space-y-4 rounded-lg bg-base-200 p-4">
+    <section class="space-y-4 rounded-lg bg-base-200 p-6">
       <h2 class="text-xl font-semibold">{m.news_scheduledNews()}</h2>
-      <div class="space-y-2">
+
+      <div class="space-y-3">
         {#each scheduledArticles as article (article.id)}
-          <div class="flex gap-4 rounded-lg bg-base-300 p-4">
-            <div class=" flex flex-col items-center">
-              <span class="text-3xl font-bold"
-                >{article.publishedAt?.getDate()}</span
-              >
-              <span class="text-sm">
+          <div class="flex gap-5 rounded-xl bg-base-300 p-5 shadow-sm">
+            <div
+              class="flex w-20 flex-col items-center justify-center rounded-lg bg-base-100 p-3 text-center"
+            >
+              <span class="text-3xl font-bold leading-none">
+                {article.publishedAt?.getDate()}
+              </span>
+              <span class="text-sm uppercase opacity-70">
                 {article.publishedAt
                   ? article.publishedAt.toLocaleString("default", {
                       month: "short",
                     })
                   : ""}
               </span>
+              <span class="mt-1 text-xs font-medium opacity-60">
+                {article.publishedAt
+                  ? article.publishedAt.toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                  : ""}
+              </span>
             </div>
-            <div class="flex-1">
-              <h3 class="mb-2 text-lg font-semibold">{article.header}</h3>
-              <p class="prose text-sm">
+
+            <div class="flex-1 space-y-2">
+              <h3 class="text-lg font-semibold leading-tight">
+                {article.header}
+              </h3>
+
+              <p class="text-sm opacity-80">
                 {article.body.length > 200
-                  ? `${article.body.slice(0, 200)}...`
+                  ? `${article.body.slice(0, 200)}…`
                   : article.body}
               </p>
+
+              {#if article.publishedAt}
+                <p class="text-xs opacity-60">
+                  {m.news_scheduledFor() + " "}
+                  {article.publishedAt.toLocaleString([], {
+                    dateStyle: "medium",
+                    timeStyle: "short",
+                  })}
+                </p>
+              {/if}
             </div>
-            <div class="flex items-center">
+
+            <div class="flex items-start">
               <a
                 class="btn btn-primary btn-sm"
-                href={`/news/${article.slug}/edit`}>{m.news_edit()}</a
+                href={`/news/${article.slug}/edit`}
               >
+                {m.news_edit()}
+              </a>
             </div>
           </div>
         {/each}

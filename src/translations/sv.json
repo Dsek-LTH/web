@@ -436,6 +436,7 @@
   "news_hide": "Dölj",
   "news_scheduled": "schemalagda",
   "news_scheduledNews": "Schemalagda nyheter",
+  "news_scheduledFor": "Schemalagd för",
   "events_create": "Skapa",
   "events_createEvent": "Skapa evenemang",
   "events_title": "Titel",
