@@ -13,6 +13,7 @@
   import * as Dialog from "$lib/components/ui/dialog";
   import MemberForm from "./MemberForm.svelte";
   import { cn } from "$lib/utils";
+  import dayjs from "dayjs";
 
   let { data } = $props();
 
@@ -170,7 +171,7 @@
               <CommitteeIcon class="size-32" committee={null} />
               <div class="flex flex-col items-center justify-center">
                 <a href={getMedalLink(medal.after)}
-                  ><h6>
+                  ><h6 class="hover:text-muted-foreground transition-all">
                     {medal.medal}
                   </h6></a
                 >
@@ -220,7 +221,7 @@
               <CommitteeIcon class="size-8" committee={null} />
               <div class="flex flex-col justify-center">
                 <a href={getMedalLink(medal.after)}
-                  ><h6>
+                  ><h6 class="hover:text-muted-foreground transition-all">
                     {medal.medal}
                   </h6></a
                 >
@@ -258,7 +259,7 @@
             class="max-h-[90vh] overflow-y-scroll sm:max-w-[425px]"
           >
             <Dialog.Header>
-              <Dialog.Title>Edit profile</Dialog.Title>
+              <Dialog.Title>{m.member_edit_profile()}</Dialog.Title>
             </Dialog.Header>
             <MemberForm {data} dialog />
           </Dialog.Content>
@@ -330,12 +331,24 @@
         {/if}
       </Tabs.Content>
       <Tabs.Content value="articles">
-        {#each data.publishedArticles as article (article.id)}
-          <div class="flex w-full p-4">
-            {article.header}
-            {article.body}
-          </div>
-        {/each}
+        <div class="flex flex-col gap-2">
+          {#each data.publishedArticles as article, index (article.id)}
+            <a href="/news/{article.slug}">
+              <div
+                class="hover:prose-h5:text-muted-foreground hover:prose-p:text-muted-foreground bg-background hover:bg-muted-background animate-in slide-in-from-bottom-[0.5rem] flex w-full flex-col rounded-md border p-4 transition-all duration-500"
+                style="animation-delay: {index * 30}ms"
+              >
+                <div class="flex flex-row justify-between">
+                  <h5>{article.header}</h5>
+                  <span class="text-muted-foreground"
+                    >{dayjs(article.createdAt).format("YYYY-MM-DD")}</span
+                  >
+                </div>
+                <p class="line-clamp-2 overflow-ellipsis">{article.body}</p>
+              </div>
+            </a>
+          {/each}
+        </div>
       </Tabs.Content>
     </Tabs.Root>
   </main>

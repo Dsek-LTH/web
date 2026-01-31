@@ -20,18 +20,27 @@
     ? 'gap-2'
     : 'w-84 gap-4 border-[1px] p-3'} inline-flex flex-row items-center rounded-md"
 >
-  {#if mandate.position && mandate.position.committee}<CommitteeSymbol
-      size="sm"
-      committee={mandate.position.committee}
-    />{/if}
+  {#if mandate.position && mandate.position.committee}<a
+      href="/committees/{mandate.position.committee.shortName}"
+      ><CommitteeSymbol size="sm" committee={mandate.position.committee} /></a
+    >{/if}
   <div class="flex flex-col justify-center">
-    {#if compact}
-      <h5>{mandate.position?.name}</h5>
-    {:else}<h6>
-        {mandate.position?.name}
-      </h6>{/if}
+    <a href="/positions/{mandate.position.id}">
+      {#if compact}
+        <h5 class="hover:text-muted-foreground transition-all">
+          {mandate.position?.name}
+        </h5>
+      {:else}<h6 class="hover:text-muted-foreground transition-all">
+          {mandate.position?.name}
+        </h6>{/if}
+    </a>
     {#if !compact}
-      <p class="mt-0">{mandate.position?.committee?.name}</p>
+      <a
+        class="hover:text-muted-foreground transition-all"
+        href="/committees/{mandate?.position?.committee?.shortName}"
+      >
+        <p class="mt-0">{mandate.position?.committee?.name}</p>
+      </a>
     {/if}
   </div>
 </div>
