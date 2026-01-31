@@ -7,8 +7,8 @@
     compact = false,
   }: {
     mandate: ExtendedPrismaModel<"Mandate"> & {
-      position: ExtendedPrismaModel<"Position"> & {
-        committee: ExtendedPrismaModel<"Committee">;
+      position: (ExtendedPrismaModel<"Position"> | null) & {
+        committee: ExtendedPrismaModel<"Committee"> | null;
       };
     };
     compact?: boolean;
@@ -20,15 +20,18 @@
     ? 'gap-2'
     : 'w-84 gap-4 border-[1px] p-3'} inline-flex flex-row items-center rounded-md"
 >
-  <CommitteeSymbol size="sm" committee={mandate.position.committee} />
+  {#if mandate.position && mandate.position.committee}<CommitteeSymbol
+      size="sm"
+      committee={mandate.position.committee}
+    />{/if}
   <div class="flex flex-col justify-center">
     {#if compact}
-      <h5>{mandate.position.name}</h5>
+      <h5>{mandate.position?.name}</h5>
     {:else}<h6>
-        {mandate.position.name}
+        {mandate.position?.name}
       </h6>{/if}
     {#if !compact}
-      <p class="mt-0">{mandate.position.committee.name}</p>
+      <p class="mt-0">{mandate.position?.committee?.name}</p>
     {/if}
   </div>
 </div>
