@@ -96,7 +96,7 @@
           onchange={(e) => onFileSelected(e)}
         /></label
       >
-      {#if !member?.picturePath}
+      {#if member?.picturePath}
         <AlertDialog.Root bind:open={deleteOpen}>
           <AlertDialog.Trigger
             class={buttonVariants({ variant: "outline", size: "icon-sm" })}
