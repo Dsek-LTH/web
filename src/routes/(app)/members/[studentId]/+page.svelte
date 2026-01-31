@@ -130,19 +130,33 @@
               {/if}
 
               {#if member.nollaIn?.year.toString() === year}
-                <a
-                  class="flex items-center gap-2"
-                  href="/committees/nollu?year={member.nollaIn.year}"
-                >
-                  {#if member.nollaIn.imageUrl}
-                    <figure class="size-7 overflow-hidden rounded-sm">
-                      <img src={member.nollaIn.imageUrl} alt="Group logo" />
-                    </figure>
-                  {/if}
-                  <p class="text-[var(--text-pink)]">
-                    Nolla i {member.nollaIn.name}
-                  </p>
-                </a>
+                <div class="inline-flex flex-row items-center gap-2 rounded-md">
+                  <a href="/committees/nollu?year={member.nollaIn.year}">
+                    {#if member.nollaIn.imageUrl}
+                      <figure class="size-7 overflow-hidden rounded-sm">
+                        <img src={member.nollaIn.imageUrl} alt="Group logo" />
+                      </figure>
+                    {:else}
+                      <CommitteeIcon
+                        class="size-7"
+                        committee={{
+                          nameSv: "nollu",
+                          darkImageUrl:
+                            "https://raw.githubusercontent.com/Dsek-LTH/grafik/refs/heads/main/committee_logos/nollu/SVG/symbol/dark.svg",
+                          lightImageUrl:
+                            "https://raw.githubusercontent.com/Dsek-LTH/grafik/refs/heads/main/committee_logos/nollu/SVG/symbol/light.svg",
+                          monoImageUrl:
+                            "https://raw.githubusercontent.com/Dsek-LTH/grafik/refs/heads/main/committee_logos/nollu/SVG/symbol/bw.svg",
+                        }}
+                      />
+                    {/if}
+                  </a>
+                  <div class="flex flex-col justify-center">
+                    <h5>
+                      Nolla i {member.nollaIn.name}
+                    </h5>
+                  </div>
+                </div>
               {/if}
             </div>
           {/each}
@@ -273,13 +287,44 @@
             >
               <h6 class="my-2">{year}</h6>
               <!-- This if-statement is just to make TypeScript happy. -->
-              {#if mandates}
-                <div class="inline-grid grid-cols-1 gap-4 lg:grid-cols-2">
+              <div class="inline-grid grid-cols-1 gap-4 lg:grid-cols-2">
+                {#if mandates}
                   {#each mandates as mandate (mandate.id)}
                     <PositionCard {mandate} />
                   {/each}
-                </div>
-              {/if}
+                {/if}
+                {#if member.nollaIn?.year.toString() === year}
+                  <div
+                    class="inline-flex w-84 flex-row items-center gap-4 rounded-md border-[1px] p-3"
+                  >
+                    <a href="/committees/nollu?year={member.nollaIn.year}">
+                      {#if member.nollaIn.imageUrl}
+                        <figure class="size-7 overflow-hidden rounded-sm">
+                          <img src={member.nollaIn.imageUrl} alt="Group logo" />
+                        </figure>
+                      {:else}
+                        <CommitteeIcon
+                          class="size-8"
+                          committee={{
+                            nameSv: "nollu",
+                            darkImageUrl:
+                              "https://raw.githubusercontent.com/Dsek-LTH/grafik/refs/heads/main/committee_logos/nollu/SVG/symbol/dark.svg",
+                            lightImageUrl:
+                              "https://raw.githubusercontent.com/Dsek-LTH/grafik/refs/heads/main/committee_logos/nollu/SVG/symbol/light.svg",
+                            monoImageUrl:
+                              "https://raw.githubusercontent.com/Dsek-LTH/grafik/refs/heads/main/committee_logos/nollu/SVG/symbol/bw.svg",
+                          }}
+                        />
+                      {/if}
+                    </a>
+                    <div class="flex flex-col justify-center">
+                      <h6>
+                        Nolla i {member.nollaIn.name}
+                      </h6>
+                    </div>
+                  </div>
+                {/if}
+              </div>
             </div>
           {/each}
         {/if}
