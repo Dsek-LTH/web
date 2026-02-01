@@ -27,7 +27,7 @@
   import { signIn, signOut } from "$lib/utils/auth";
   import ChevronUp from "@lucide/svelte/icons/chevron-up";
 
-  import * as Popover from "$lib/components/ui/popover";
+  import * as HoverCard from "$lib/components/ui/hover-card";
   import { cn } from "$lib/utils";
 
   let commandDialogOpen = $state(false);
@@ -55,16 +55,6 @@
       }
     };
   });
-
-  let userPopover: boolean | undefined = $state();
-  let popoverMove = false;
-
-  function closePopover() {
-    setTimeout(() => {
-      if (!popoverMove) userPopover = false;
-    }, 1000);
-    popoverMove = false;
-  }
 </script>
 
 <div
@@ -116,11 +106,8 @@
         class="p-1.5"><Bell /></Button
       >
       {#if page.data.member}
-        <Popover.Root open={userPopover}>
-          <Popover.Trigger
-            onmouseover={() => (userPopover = true)}
-            onmouseleave={() => closePopover()}
-          >
+        <HoverCard.Root openDelay="0" closeDelay="125">
+          <HoverCard.Trigger>
             <Avatar.Root class="md-nav:flex hidden">
               <Avatar.Image
                 src={page.data.member?.picturePath}
@@ -128,10 +115,9 @@
               />
               <Avatar.Fallback>{getInitials(page.data.member)}</Avatar.Fallback>
             </Avatar.Root>
-          </Popover.Trigger>
-          <Popover.Content
-            onmouseleave={() => (userPopover = false)}
-            onmouseenter={() => (popoverMove = true)}
+          </HoverCard.Trigger>
+          <HoverCard.Content
+            side="bottom"
             class="z-150 flex max-w-[200px] flex-col items-center gap-2"
           >
             <Avatar.Root class="size-12">
@@ -166,8 +152,8 @@
               class="text-muted-foreground"
               onclick={signOut}><LogOut /> {m.navbar_userMenu_logOut()}</Button
             >
-          </Popover.Content>
-        </Popover.Root>
+          </HoverCard.Content>
+        </HoverCard.Root>
       {:else}
         <Button
           aria-label="sign in"
