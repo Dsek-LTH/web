@@ -938,5 +938,7 @@
   "news_youtube_url": "Youtube-URL",
   "news_notification_explanation": "Texten som visas i notisen, om fältet lämnas tomt kommer nyhetens inledning att visas.",
   "member_edit_profile": "Redigera profil",
-  "pictures": "Bilder"
+  "pictures": "Bilder",
+  "member_removePicture_title": "Är du säker på att du vill ta bort din profilbild?",
+  "member_removePicture_desc": "Detta kan inte ångras."
 }

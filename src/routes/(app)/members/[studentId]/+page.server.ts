@@ -178,7 +178,6 @@ export type PhadderGroupSchema = Infer<typeof phadderGroupSchema>;
 export const actions: Actions = {
   uploadPicture: async ({ params, locals, request }) => {
     const formData = await request.formData();
-    console.log(formData);
     const form = await superValidate(formData, zod4(uploadPictureSchema), {
       allowFiles: true,
     });
@@ -241,7 +240,6 @@ export const actions: Actions = {
     });
   },
   deletePicture: async ({ params, locals, request }) => {
-    console.log("trying to delete picture");
     const form = await superValidate(request, zod4(deletePictureSchema));
     if (!form.valid) {
       return fail(400, { form });

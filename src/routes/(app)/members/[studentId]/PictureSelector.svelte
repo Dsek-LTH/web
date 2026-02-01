@@ -103,7 +103,7 @@
           >
             <Trash />
           </AlertDialog.Trigger>
-          <AlertDialog.Content class="z-[400]">
+          <AlertDialog.Content class="z-[500]">
             <form
               method="POST"
               action="?/deletePicture"
@@ -117,16 +117,17 @@
             >
               <AlertDialog.Header>
                 <AlertDialog.Title
-                  >form submission tar sönder dialogen</AlertDialog.Title
+                  >{m.member_removePicture_title()}</AlertDialog.Title
                 >
                 <AlertDialog.Description>
-                  This action cannot be undone. This will permanently delete
-                  your account and remove your data from our servers.
+                  {m.member_removePicture_desc()}
                 </AlertDialog.Description>
               </AlertDialog.Header>
               <AlertDialog.Footer>
-                <AlertDialog.Cancel type="button">Cancel</AlertDialog.Cancel>
-                <AlertDialog.Action>Continue</AlertDialog.Action>
+                <AlertDialog.Cancel type="button"
+                  >{m.cancel()}</AlertDialog.Cancel
+                >
+                <AlertDialog.Action>{m.delete_delete()}</AlertDialog.Action>
               </AlertDialog.Footer>
             </form>
           </AlertDialog.Content>

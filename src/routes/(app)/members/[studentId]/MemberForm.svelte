@@ -123,7 +123,7 @@
       </div>
       <div class="flex w-full flex-row gap-1">
         <div class="flex w-full flex-col gap-1.5">
-          <Label for="classProgramme">{m.onboarding_programme()}</Label>
+          <Label for="classProgramme">{m.members_programme()}</Label>
           <Select.Root
             type="single"
             bind:value={$form.classProgramme as string | undefined}
@@ -142,7 +142,7 @@
           </Select.Root>
         </div>
         <div class="grid w-full items-center gap-1.5">
-          <Label for="classYear">{m.onboarding_year()}</Label>
+          <Label for="classYear">{m.members_year()}</Label>
           <Input
             name="classYear"
             required
