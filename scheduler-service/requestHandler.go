@@ -24,16 +24,24 @@ type PatchScheduledTaskRequestData struct {
 func handleRequest(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
-		rateLimitMiddleware(passwordMiddleware(authMiddleware(http.HandlerFunc(handlePost)))).ServeHTTP(w, r)
+		rateLimitMiddleware(
+			passwordMiddleware(authMiddleware(http.HandlerFunc(handlePost))),
+		).ServeHTTP(w, r)
 
 	case http.MethodGet:
-		rateLimitMiddleware(passwordMiddleware(authMiddleware(http.HandlerFunc(handleGet)))).ServeHTTP(w, r)
+		rateLimitMiddleware(
+			passwordMiddleware(authMiddleware(http.HandlerFunc(handleGet))),
+		).ServeHTTP(w, r)
 
 	case http.MethodPatch:
-		rateLimitMiddleware(passwordMiddleware(authMiddleware(http.HandlerFunc(handlePatch)))).ServeHTTP(w, r)
+		rateLimitMiddleware(
+			passwordMiddleware(authMiddleware(http.HandlerFunc(handlePatch))),
+		).ServeHTTP(w, r)
 
 	case http.MethodDelete:
-		rateLimitMiddleware(passwordMiddleware(authMiddleware(http.HandlerFunc(handleDelete)))).ServeHTTP(w, r)
+		rateLimitMiddleware(
+			passwordMiddleware(authMiddleware(http.HandlerFunc(handleDelete))),
+		).ServeHTTP(w, r)
 
 	default:
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)

@@ -137,7 +137,10 @@ func executeTask(ctx context.Context, task ScheduledTask) {
 
 // TODO: Decide how to handle failures/retries
 func setTaskExecuted(ctx context.Context, taskID uint) {
-	if _, err := gorm.G[ScheduledTask](db).Where("id = ?", taskID).Update(ctx, "has_executed", true); err != nil {
+	if _, err := gorm.G[ScheduledTask](
+		db,
+	).Where("id = ?", taskID).
+		Update(ctx, "has_executed", true); err != nil {
 		log.Printf("Failed to update database for task ID %d: %v", taskID, err)
 	}
 }

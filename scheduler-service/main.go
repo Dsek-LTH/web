@@ -35,7 +35,10 @@ func main() {
 		log.Fatal("Failed to migrate database:", err)
 	}
 
-	if scheduledTasks, err := gorm.G[ScheduledTask](db).Where("has_executed = ?", false).Find(context.Background()); err != nil {
+	if scheduledTasks, err := gorm.G[ScheduledTask](
+		db,
+	).Where("has_executed = ?", false).
+		Find(context.Background()); err != nil {
 		log.Println("Error fetching scheduled tasks:", err)
 	} else {
 		for _, task := range scheduledTasks {
