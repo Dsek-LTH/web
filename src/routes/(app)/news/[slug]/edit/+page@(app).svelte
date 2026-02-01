@@ -8,6 +8,8 @@
   import type { PageData } from "./$types";
   import FormDateInput from "$lib/components/forms/FormDateInput.svelte";
   import type { ArticleSchema } from "$lib/news/schema";
+  import FormCheckbox from "$lib/components/forms/FormCheckbox.svelte";
+  import FormInput from "$lib/components/forms/FormInput.svelte";
   export let data: PageData;
 
   const superform = superForm(data.form, {
@@ -39,6 +41,17 @@
         {superform}
         field="publishTime"
         label="Schemalägg publicering"
+      />
+      <FormInput
+        {superform}
+        field="notificationText"
+        label="Notistext"
+        explanation="Texten som visas i notisen, om tom kommer det vara början av nyhetstexten"
+      />
+      <FormCheckbox
+        {superform}
+        field="sendNotification"
+        label="Skicka notis?"
       />
     </div>
   </ArticleEditor>

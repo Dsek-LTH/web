@@ -68,6 +68,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
   const articleForm = {
     ...article,
+    sendNotification: article.shouldSendNotification ?? undefined,
     publishTime: article.publishedAt ?? null,
   };
 

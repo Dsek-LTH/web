@@ -5,27 +5,35 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"os"
 
-	"github.com/lestrrat-go/jwx/v3/jwt"
 	"gorm.io/gorm"
 )
 
-type ScheduleTaskRequestData struct {
+type PostScheduledTaskRequestData struct {
 	RunTimestamp string `json:"runTimestamp"`
 	EndpointURL  string `json:"endpointURL"`
 	Body         string `json:"body"`
-	Password     string `json:"password"`
-	Token        string `json:"token,omitempty"`
+}
+
+type PatchScheduledTaskRequestData struct {
+	ScheduledTaskID uint   `json:"scheduledTaskID"`
+	RunTimestamp    string `json:"runTimestamp,omitempty"`
+	Body            string `json:"body,omitempty"`
 }
 
 func handleRequest(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
-		rateLimitMiddleware(http.HandlerFunc(handlePost)).ServeHTTP(w, r)
+		rateLimitMiddleware(passwordMiddleware(authMiddleware(http.HandlerFunc(handlePost)))).ServeHTTP(w, r)
 
 	case http.MethodGet:
-		rateLimitMiddleware(AuthMiddleware(http.HandlerFunc(handleGet))).ServeHTTP(w, r)
+		rateLimitMiddleware(passwordMiddleware(authMiddleware(http.HandlerFunc(handleGet)))).ServeHTTP(w, r)
+
+	case http.MethodPatch:
+		rateLimitMiddleware(passwordMiddleware(authMiddleware(http.HandlerFunc(handlePatch)))).ServeHTTP(w, r)
+
+	case http.MethodDelete:
+		rateLimitMiddleware(passwordMiddleware(authMiddleware(http.HandlerFunc(handleDelete)))).ServeHTTP(w, r)
 
 	default:
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
@@ -33,7 +41,7 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func handlePost(w http.ResponseWriter, r *http.Request) {
-	var data ScheduleTaskRequestData
+	var data PostScheduledTaskRequestData
 
 	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
@@ -41,29 +49,11 @@ func handlePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if data.Password != os.Getenv("PASSWORD") {
-		log.Printf("Unauthorised access attempt from %s with password: %s", r.RemoteAddr, data.Password)
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+	subject, ok := getJwtSubjectFromContext(r.Context())
+	if !ok {
+		http.Error(w, "Forbidden", http.StatusForbidden)
 
 		return
-	}
-
-	var subject string
-	if data.Token != "" {
-		parseOptions := []jwt.ParseOption{
-			jwt.WithVerify(false),
-			jwt.WithIssuer(JWTIssuer),
-			jwt.WithAudience(JWTAudience),
-		}
-
-		if token, err := jwt.Parse([]byte(data.Token), parseOptions...); err != nil {
-			log.Printf("Failed to parse JWT: %s", err)
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-
-			return
-		} else {
-			subject, _ = token.Subject()
-		}
 	}
 
 	newTask := ScheduledTask{
@@ -92,27 +82,25 @@ func handlePost(w http.ResponseWriter, r *http.Request) {
 
 	scheduleTaskExecution(context.Background(), newTask)
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
+
+	response := CreateScheduledTaskResponse{
+		ScheduledTaskID: newTask.ID,
+	}
+
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		log.Printf("Error encoding response: %v", err)
+	}
 }
 
 func handleGet(w http.ResponseWriter, r *http.Request) {
-	query := r.URL.Query()
-	password := query.Get("password")
-
-	if password != os.Getenv("PASSWORD") {
-		log.Printf("Unauthorised access attempt from %s with password: %s", r.RemoteAddr, password)
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+	subject, ok := getJwtSubjectFromContext(r.Context())
+	if !ok {
+		http.Error(w, "Forbidden", http.StatusForbidden)
 
 		return
 	}
-
-	parsedToken, err := jwt.Parse([]byte(getTokenFromHeader(r)), jwt.WithVerify(false))
-	if err != nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-
-		return
-	}
-	subject, _ := parsedToken.Subject()
 
 	tasks, err := gorm.G[ScheduledTask](db).
 		Where("created_by = ? AND has_executed = ?", subject, false).
@@ -124,7 +112,80 @@ func handleGet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	if err = json.NewEncoder(w).Encode(tasks); err != nil {
+	if err := json.NewEncoder(w).Encode(tasks); err != nil {
 		log.Printf("Error encoding response: %v", err)
 	}
+}
+
+func getJwtSubjectFromContext(ctx context.Context) (string, bool) {
+	subject, ok := ctx.Value(jwtSubjectCtxKey).(string)
+
+	return subject, ok
+}
+
+func handlePatch(w http.ResponseWriter, r *http.Request) {
+	var data PatchScheduledTaskRequestData
+	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // Limit to 1MB
+	if r.Body == nil {
+		http.Error(w, "Missing request body", http.StatusBadRequest)
+		return
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+
+		return
+	}
+
+	subject, ok := getJwtSubjectFromContext(r.Context())
+	if !ok {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+
+		return
+	}
+
+	rowsAffected, err := gorm.G[ScheduledTask](db).
+		Where("id = ? AND created_by = ? AND has_executed = ?", data.ScheduledTaskID, subject, false).
+		Updates(r.Context(), ScheduledTask{RunTimestamp: data.RunTimestamp, Body: data.Body})
+	if err != nil {
+		http.Error(w, "Failed to update task", http.StatusInternalServerError)
+
+		return
+	}
+	if rowsAffected == 0 {
+		http.Error(w, "Task not found or already executed", http.StatusNotFound)
+
+		return
+	}
+
+	rescheduleTaskExecution(context.Background(), data.ScheduledTaskID)
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func handleDelete(w http.ResponseWriter, r *http.Request) {
+	subject, ok := getJwtSubjectFromContext(r.Context())
+	if !ok {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+
+		return
+	}
+
+	taskID := r.URL.Query().Get("scheduledTaskID")
+
+	rowsAffected, err := gorm.G[ScheduledTask](db).
+		Where("id = ? AND created_by = ? AND has_executed = ?", taskID, subject, false).
+		Delete(r.Context())
+	if err != nil {
+		http.Error(w, "Failed to delete task", http.StatusInternalServerError)
+
+		return
+	}
+	if rowsAffected == 0 {
+		http.Error(w, "Task not found or already executed", http.StatusNotFound)
+
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }

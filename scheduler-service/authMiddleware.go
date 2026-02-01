@@ -15,9 +15,13 @@ import (
 	"github.com/lestrrat-go/jwx/v3/jwt"
 )
 
+type ctxKey string
+
+const jwtSubjectCtxKey ctxKey = "jwtSubject"
+
 var cachedJWKS jwk.Set
 
-func AuthMiddleware(next http.Handler) http.Handler {
+func authMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if cachedJWKS == nil {
 			if err := createJWKCache(); err != nil {
@@ -34,14 +38,24 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			jwt.WithAudience(JWTAudience),
 		}
 
-		if _, err := jwt.Parse([]byte(getTokenFromHeader(r)), parseOptions...); err != nil {
+		token, err := jwt.Parse([]byte(getTokenFromHeader(r)), parseOptions...)
+		if err != nil {
 			log.Printf("Failed to parse JWT: %s", err)
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			http.Error(w, "Unauthorised", http.StatusUnauthorized)
 
 			return
 		}
 
-		next.ServeHTTP(w, r)
+		subject, _ := token.Subject()
+		if subject == "" {
+			log.Printf("Invalid subject in JWT: %s", err)
+			http.Error(w, "Unauthorised", http.StatusUnauthorized)
+
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), jwtSubjectCtxKey, subject)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
