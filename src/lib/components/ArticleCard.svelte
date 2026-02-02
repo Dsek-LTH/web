@@ -44,7 +44,7 @@
       ></div>
     {:else}
       <div
-        style="background-image: url(https://raw.githubusercontent.com/Dsek-LTH/grafik/refs/heads/main/guild/d_sektionen/full/color.svg);"
+        style="background-image: url(https://raw.githubusercontent.com/Dsek-LTH/grafik/refs/heads/main/guild/dsek/color.svg);"
         class="aspect-[2/1] w-full shrink-0 rounded-md bg-[#eee] bg-size-[30%] bg-center bg-no-repeat"
       ></div>
     {/if}
