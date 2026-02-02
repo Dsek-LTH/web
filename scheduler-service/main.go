@@ -19,8 +19,10 @@ var (
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Println("Error loading .env file")
+	if os.Getenv("GO_ENV") != "production" {
+		if err := godotenv.Load(); err != nil {
+			log.Println("Error loading .env file")
+		}
 	}
 
 	JWKSEndpoint = os.Getenv("JWKS_ENDPOINT")
@@ -48,6 +50,7 @@ func main() {
 
 	http.HandleFunc("/schedule", handleRequest)
 
-	log.Printf("Server running on :%s", os.Getenv("SERVER_PORT"))
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("SERVER_PORT")), nil))
+	serverPort := os.Getenv("SERVER_PORT")
+	log.Printf("Server running on :%s", serverPort)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", serverPort), nil))
 }
