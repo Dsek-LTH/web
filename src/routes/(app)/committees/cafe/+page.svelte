@@ -124,6 +124,7 @@
       bind:week
       {shifts}
       isDagis={isAuthorized(apiNames.CAFE.DAY_MANAGER, data.user)}
+      canEditWorkers={isAuthorized(apiNames.CAFE.EDIT_WORKERS, data.user)}
     />
   {/snippet}
 </CommitteePage>

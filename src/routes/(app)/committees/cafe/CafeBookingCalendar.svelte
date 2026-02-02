@@ -21,10 +21,12 @@
     week = $bindable(),
     shifts,
     isDagis,
+    canEditWorkers,
   }: {
     week: dayjs.Dayjs;
     shifts: ShiftWithWorker[];
     isDagis: boolean;
+    canEditWorkers: boolean;
   } = $props();
 
   const now = dayjs();
@@ -49,16 +51,19 @@
 <div
   class="i-mdi-border-radius:25px relative col-span-2 m-2 grid gap-2 rounded-lg border border-primary bg-zinc-300 p-2 dark:bg-zinc-800"
 >
-  <div class="flex flex-wrap gap-2 pl-3 pt-3 align-middle text-primary">
+  <div
+    class="flex flex-wrap gap-2 overflow-x-auto pl-3 pr-3 pt-3 align-middle text-primary"
+  >
     <p class="pl-3 text-4xl font-bold leading-snug">
       {m.booking_week()}
       {week.week()}
     </p>
     <Pagination
-      count={3}
+      count={canEditWorkers ? 52 : 3}
       fieldName="week"
       getPageName={(index) => {
-        const week = windowStartWeek + index;
+        const week = canEditWorkers ? index + 1 : windowStartWeek + index;
+        // const week = windowStartWeek + index;
         return week > weeksInYear
           ? (week - weeksInYear).toString()
           : week.toString();
@@ -67,7 +72,7 @@
         const week = Number(weekString);
 
         // map absolute week → window index
-        let index = week - windowStartWeek;
+        let index = canEditWorkers ? week - 1 : week - windowStartWeek;
         if (index < 0) index += weeksInYear;
 
         return index;
@@ -94,10 +99,8 @@
           <input type="hidden" name="date" value={day} />
           <input type="hidden" name="timeSlot" value={timeSlot} />
           <button
-            class="border-1 m-1 w-full rounded border border-base-300 p-2 enabled:bg-base-300 enabled:hover:border-primary {hasDagis ||
-            !checkForDagis
-              ? ''
-              : 'text-slate-500'}"
+            class="border-1 m-1 w-full rounded border border-base-300 p-2 enabled:bg-base-300 enabled:hover:border-primary
+            {hasDagis || !checkForDagis ? '' : 'text-slate-500'}"
             {disabled}
           >
             {getName(day, timeSlot)}
