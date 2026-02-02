@@ -120,11 +120,6 @@
   {/snippet}
 
   {#snippet main()}
-    <CafeBookingCalendar
-      bind:week
-      {shifts}
-      isDagis={isAuthorized(apiNames.CAFE.DAY_MANAGER, data.user)}
-      canEditWorkers={isAuthorized(apiNames.CAFE.EDIT_WORKERS, data.user)}
-    />
+    <CafeBookingCalendar bind:week {shifts} user={data.user} />
   {/snippet}
 </CommitteePage>

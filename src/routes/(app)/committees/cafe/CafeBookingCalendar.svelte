@@ -7,6 +7,9 @@
   import { TimeSlot } from "@prisma/client";
   import type { ShiftWithWorker } from "./+page.server";
   import Pagination from "$lib/components/Pagination.svelte";
+  import { isAuthorized } from "$lib/utils/authorization";
+  import apiNames from "$lib/utils/apiNames";
+  import type { AuthUser } from "@zenstackhq/runtime";
 
   dayjs.extend(weekOfYear);
   dayjs.extend(weekYear);
@@ -20,20 +23,29 @@
   let {
     week = $bindable(),
     shifts,
-    isDagis,
-    canEditWorkers,
+    user,
   }: {
     week: dayjs.Dayjs;
     shifts: ShiftWithWorker[];
-    isDagis: boolean;
-    canEditWorkers: boolean;
+    user: AuthUser;
   } = $props();
 
   const now = dayjs();
-
   const windowStartWeek = now.week();
-  const windowYear = now.weekYear();
-  const weeksInYear = dayjs(`${windowYear}-12-31`).week();
+  const weeksInYear = dayjs(`$windowYear-12-31`).week();
+  const isDayManager = isAuthorized(apiNames.CAFE.DAY_MANAGER, user);
+  const canEditWorkers = isAuthorized(apiNames.CAFE.EDIT_WORKERS, user);
+
+  function hasShift(day: dayjs.Dayjs, timeSlot: TimeSlot, user: AuthUser) {
+    return shifts.find(
+      (s) =>
+        dayjs(s.date).isSame(day, "day") &&
+        s.timeSlot == timeSlot &&
+        s.worker.studentId == user.studentId,
+    )
+      ? true
+      : false;
+  }
 
   function getName(day: dayjs.Dayjs, timeSlot: TimeSlot) {
     let shift = shifts.find(
@@ -63,7 +75,6 @@
       fieldName="week"
       getPageName={(index) => {
         const week = canEditWorkers ? index + 1 : windowStartWeek + index;
-        // const week = windowStartWeek + index;
         return week > weeksInYear
           ? (week - weeksInYear).toString()
           : week.toString();
@@ -83,12 +94,13 @@
   <div class="mt-1 grid grid-cols-1 gap-3 p-3 md:grid-cols-5 md:gap-0">
     {#each weekDays as dayName}
       {@const day = week.startOf("week").add(weekDays.indexOf(dayName), "day")}
-      {@const hasDagis: boolean = shifts.find((s) => dayjs(s.date).isSame(day, "day") && s.timeSlot == TimeSlot.DAGIS) != undefined}
+      {@const dayHasManager: boolean = shifts.find((s) => dayjs(s.date).isSame(day, "day") && s.timeSlot == TimeSlot.DAGIS) != undefined}
 
       {#snippet DayForm(
         timeSlot: TimeSlot,
         disabled: boolean,
-        checkForDagis: boolean = true,
+        user: AuthUser,
+        checkForDayManager: boolean = true,
       )}
         <form
           method="POST"
@@ -100,7 +112,11 @@
           <input type="hidden" name="timeSlot" value={timeSlot} />
           <button
             class="border-1 m-1 w-full rounded border border-base-300 p-2 enabled:bg-base-300 enabled:hover:border-primary
-            {hasDagis || !checkForDagis ? '' : 'text-slate-500'}"
+            {dayHasManager ||
+            !checkForDayManager ||
+            hasShift(day, timeSlot, user)
+              ? ''
+              : 'text-slate-500'}"
             {disabled}
           >
             {getName(day, timeSlot)}
@@ -111,11 +127,11 @@
       <div class="m-1 grid rounded bg-base-200 p-2">
         <p class="gap-1 text-center font-medium">{dayName}</p>
 
-        <p class="gap-1 text-center font-bold text-primary">Dagis</p>
+        <p class="gap-1 text-center font-bold text-primary">Day Manager</p>
         {@render DayForm(
           TimeSlot.DAGIS,
-          // TODO: Make this check for if you're DAGIS with "some api somewhere" - Felix
-          !isDagis,
+          !isDayManager && !hasShift(day, TimeSlot.DAGIS, user),
+          user,
           false,
         )}
 
@@ -124,26 +140,38 @@
         <!-- TODO: Rename all timeslots to just be indexes or similar to allow
                    for changing how many timeslots are before or after lunch -->
         <p
-          class="gap-1 text-center font-medium {hasDagis
+          class="gap-1 text-center font-medium {dayHasManager
             ? ''
             : 'text-slate-500'}"
         >
           kl 11-12
         </p>
-        {@render DayForm(TimeSlot.EARLY_1, !hasDagis)}
+        {@render DayForm(
+          TimeSlot.EARLY_1,
+          !dayHasManager && !hasShift(day, TimeSlot.EARLY_1, user),
+          user,
+        )}
 
-        {@render DayForm(TimeSlot.EARLY_2, !hasDagis)}
+        {@render DayForm(
+          TimeSlot.EARLY_2,
+          !dayHasManager && !hasShift(day, TimeSlot.EARLY_2, user),
+          user,
+        )}
 
         <hr class="mb-2 mt-2 border-base-content" />
 
         <p
-          class="gap-1 text-center font-medium {hasDagis
+          class="gap-1 text-center font-medium {dayHasManager
             ? ''
             : 'text-slate-500'}"
         >
           kl 12-13
         </p>
-        {@render DayForm(TimeSlot.LATE, !hasDagis)}
+        {@render DayForm(
+          TimeSlot.LATE,
+          !dayHasManager && !hasShift(day, TimeSlot.LATE, user),
+          user,
+        )}
       </div>
     {/each}
   </div>
