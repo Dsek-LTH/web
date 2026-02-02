@@ -15,23 +15,25 @@
   <div class="grid grid-cols-1 gap-8 lg:grid-cols-[auto_1fr]">
     <!-- Left column: list of doors -->
     <section>
-      <ul class="m-0 space-y-2">
+      <ul
+        class="m-0 flex items-stretch gap-2 overflow-x-auto p-1 lg:flex-col lg:overflow-x-visible lg:p-0"
+      >
         {#each doors as door (door.id)}
           {@const isCurrent = door.name == selectedDoor}
           <a href="/admin/doors/edit/{door.name}" class="block">
             <li
               class={{
-                "list-none rounded-lg border p-4 px-6": true,
+                "list-none rounded-lg border p-2 px-4 lg:p-4 lg:px-6": true,
                 "ring-rosa-background ring-2": isCurrent,
                 "hover:border-rosa-hover": !isCurrent,
               }}
             >
               <div class="flex items-center justify-between gap-16">
                 <div>
-                  <CardTitle>{door.verboseName}</CardTitle>
+                  <CardTitle class="text-nowrap">{door.verboseName}</CardTitle>
                 </div>
 
-                <DoorOpen />
+                <DoorOpen class="hidden lg:block" />
               </div>
             </li>
           </a>

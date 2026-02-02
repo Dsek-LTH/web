@@ -32,11 +32,14 @@
     AlertDialogTitle,
   } from "$lib/components/ui/alert-dialog";
   import * as m from "$paraglide/messages";
+  import { untrack } from "svelte";
 
   let { data }: PageProps = $props();
   let door = $derived(data.door);
   let policies = $derived(data.doorAccessPolicies);
-  const { form, errors, constraints, enhance } = superForm(data.createForm);
+  const { form, errors, constraints, enhance } = superForm(
+    untrack(() => data.createForm),
+  );
 
   const types = [
     { value: "member", label: m.admin_doors_member() },
@@ -140,7 +143,7 @@
             <Label for="start-date">{m.admin_doors_startDate_optional()}</Label>
             <Input
               id="start-date"
-              type="date"
+              type="datetime-local"
               name="startDatetime"
               aria-invalid={$errors.startDatetime ? "true" : undefined}
               bind:value={$form.startDatetime}
@@ -158,7 +161,7 @@
             </Label>
             <Input
               id="end-date"
-              type="date"
+              type="datetime-local"
               name="endDatetime"
               aria-invalid={$errors.endDatetime ? "true" : undefined}
               bind:value={$form.endDatetime}
@@ -203,9 +206,13 @@
         <ul class="m-0 space-y-3">
           {#each policies as policy (policy.id)}
             {@const type = policy.studentId === null ? "role" : "member"}
-            <li class="flex items-center justify-between rounded-md border p-4">
+            <li
+              class="flex items-start justify-between rounded-md border p-4 lg:items-center"
+            >
               <div>
-                <div class="flex items-center gap-2">
+                <div
+                  class="flex flex-col items-start gap-2 lg:flex-row lg:items-center"
+                >
                   <p class="mt-0 font-medium">
                     {#if type === "member"}
                       {getFullName(policy.member!, { hideNickname: true })}

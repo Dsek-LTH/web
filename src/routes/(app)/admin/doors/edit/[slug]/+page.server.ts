@@ -35,7 +35,6 @@ export const load: PageServerLoad = async ({ locals, params, parent }) => {
     door,
     doorAccessPolicies,
     createForm: await superValidate(zod4(createSchema)),
-    deleteForm: await superValidate(zod4(deleteSchema)),
   };
 };
 
@@ -44,8 +43,8 @@ const createSchema = z
     subject: z.string().min(1),
     type: z.enum(["member", "role"]).default("member"),
     mode: z.enum(["allow", "deny"]).default("allow"),
-    startDatetime: z.string().date().optional(),
-    endDatetime: z.string().date().optional(),
+    startDatetime: z.iso.datetime({ local: true }).optional(),
+    endDatetime: z.iso.datetime({ local: true }).optional(),
     reason: z.string().optional(),
   })
   // These refinements return true for valid data, but it's
@@ -112,13 +111,10 @@ export const actions: Actions = {
     await prisma.doorAccessPolicy.create({
       data: {
         doorName,
-        startDatetime: dayjs(startDatetime)
-          .startOf("day")
-          .tz("Europe/Stockholm", true)
-          .toDate(),
+        startDatetime:
+          startDatetime && dayjs.tz(startDatetime, "Europe/Stockholm").toDate(),
         endDatetime:
-          endDatetime &&
-          dayjs(endDatetime).endOf("day").tz("Europe/Stockholm", true).toDate(),
+          endDatetime && dayjs.tz(endDatetime, "Europe/Stockholm").toDate(),
         isBan: mode === "deny",
         information: reason,
         ...(type === "member" ? { studentId: subject } : { role: subject }),
