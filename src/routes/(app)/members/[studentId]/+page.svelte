@@ -256,7 +256,7 @@
             )}><Pen /> {m.member_edit_profile()}</Dialog.Trigger
           >
           <Dialog.Content
-            class="max-h-[90vh] overflow-y-scroll sm:max-w-[425px]"
+            class="z-51 max-h-[90vh] overflow-y-scroll sm:max-w-[425px]"
           >
             <Dialog.Header>
               <Dialog.Title>{m.member_edit_profile()}</Dialog.Title>
