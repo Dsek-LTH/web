@@ -179,13 +179,6 @@ export const getRoutes = (): Route[] =>
           appBehaviour: "home-link",
         },
         {
-          title: m.emailAliases(),
-          path: "/admin/email-alias",
-          icon: "i-mdi-email",
-          accessRequired: apiNames.EMAIL_ALIAS.READ,
-          appBehaviour: "home-link",
-        },
-        {
           title: m.alerts(),
           path: "/admin/alerts",
           icon: "i-mdi-alert-circle",
@@ -225,6 +218,13 @@ export const getRoutes = (): Route[] =>
           path: "/admin/stocklist",
           icon: "i-mdi-text-box-edit",
           accessRequired: apiNames.DRINKITEM.READ,
+          appBehaviour: "home-link",
+        },
+        {
+          title: m.qr_code(),
+          path: "/admin/qr",
+          icon: "i-mdi-qrcode-scan",
+          accessRequired: apiNames.WEBSHOP.MANAGE,
           appBehaviour: "home-link",
         },
       ],

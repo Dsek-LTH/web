@@ -9443,6 +9443,20 @@
           "hasDefaultValue": false,
           "isId": false,
           "maxLength": 255
+        },
+        {
+          "id": "public.songs.video",
+          "name": "video",
+          "columnName": "video",
+          "type": "text",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
         }
       ],
       "uniqueConstraints": [
