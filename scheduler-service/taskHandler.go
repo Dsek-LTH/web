@@ -13,7 +13,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type ScheduledTask struct {
+type scheduledTask struct {
 	gorm.Model
 	RunTimestamp string
 	EndpointURL  string
@@ -22,16 +22,20 @@ type ScheduledTask struct {
 	CreatedBy    *string
 }
 
-type CreateScheduledTaskResponse struct {
+type createScheduledTaskResponse struct {
 	ScheduledTaskID uint `json:"scheduledTaskID"`
 }
 
-var (
-	taskTimers   = make(map[uint]*time.Timer)
-	taskTimersMu sync.Mutex
-)
+type taskTimerManager struct {
+	timers   map[uint]*time.Timer
+	timersMu sync.Mutex
+}
 
-func scheduleTaskExecution(ctx context.Context, task ScheduledTask) {
+var timerManager = taskTimerManager{
+	timers: make(map[uint]*time.Timer),
+}
+
+func scheduleTaskExecution(ctx context.Context, task scheduledTask) {
 	runTime, err := time.Parse(time.RFC3339, task.RunTimestamp)
 	if err != nil {
 		log.Printf("Failed to parse RunTimestamp for task ID %d: %v", task.ID, err)
@@ -41,11 +45,11 @@ func scheduleTaskExecution(ctx context.Context, task ScheduledTask) {
 
 	delay := time.Until(runTime)
 
-	if timer, ok := taskTimers[task.ID]; ok {
+	if timer, ok := timerManager.timers[task.ID]; ok {
 		timer.Stop()
-		taskTimersMu.Lock()
-		delete(taskTimers, task.ID)
-		taskTimersMu.Unlock()
+		timerManager.timersMu.Lock()
+		delete(timerManager.timers, task.ID)
+		timerManager.timersMu.Unlock()
 	}
 
 	if delay <= 0 {
@@ -60,19 +64,19 @@ func scheduleTaskExecution(ctx context.Context, task ScheduledTask) {
 	timer := time.AfterFunc(delay, func() {
 		executeTask(ctx, task)
 
-		taskTimersMu.Lock()
-		delete(taskTimers, task.ID)
-		taskTimersMu.Unlock()
+		timerManager.timersMu.Lock()
+		delete(timerManager.timers, task.ID)
+		timerManager.timersMu.Unlock()
 	})
 
-	taskTimersMu.Lock()
-	taskTimers[task.ID] = timer
-	taskTimersMu.Unlock()
+	timerManager.timersMu.Lock()
+	timerManager.timers[task.ID] = timer
+	timerManager.timersMu.Unlock()
 }
 
 func rescheduleTaskExecution(ctx context.Context, taskID uint) {
 	log.Printf("Rescheduling task ID %d", taskID)
-	task, err := gorm.G[ScheduledTask](db).
+	task, err := gorm.G[scheduledTask](db).
 		Where("id = ? AND has_executed = ?", taskID, false).
 		First(ctx)
 	if err != nil {
@@ -85,7 +89,7 @@ func rescheduleTaskExecution(ctx context.Context, taskID uint) {
 }
 
 // TODO: Decide how to handle failures/retries
-func executeTask(ctx context.Context, task ScheduledTask) {
+func executeTask(ctx context.Context, task scheduledTask) {
 	log.Printf("Executing task ID: %d to %s", task.ID, task.EndpointURL)
 
 	var bodyMap map[string]any
@@ -137,7 +141,7 @@ func executeTask(ctx context.Context, task ScheduledTask) {
 
 // TODO: Decide how to handle failures/retries
 func setTaskExecuted(ctx context.Context, taskID uint) {
-	if _, err := gorm.G[ScheduledTask](
+	if _, err := gorm.G[scheduledTask](
 		db,
 	).Where("id = ?", taskID).
 		Update(ctx, "has_executed", true); err != nil {

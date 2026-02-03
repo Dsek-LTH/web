@@ -9,13 +9,13 @@ import (
 	"gorm.io/gorm"
 )
 
-type PostScheduledTaskRequestData struct {
+type postScheduledTaskRequestData struct {
 	RunTimestamp string `json:"runTimestamp"`
 	EndpointURL  string `json:"endpointURL"`
 	Body         string `json:"body"`
 }
 
-type PatchScheduledTaskRequestData struct {
+type patchScheduledTaskRequestData struct {
 	ScheduledTaskID uint   `json:"scheduledTaskID"`
 	RunTimestamp    string `json:"runTimestamp,omitempty"`
 	Body            string `json:"body,omitempty"`
@@ -49,7 +49,7 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func handlePost(w http.ResponseWriter, r *http.Request) {
-	var data PostScheduledTaskRequestData
+	var data postScheduledTaskRequestData
 
 	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
@@ -64,7 +64,7 @@ func handlePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newTask := ScheduledTask{
+	newTask := scheduledTask{
 		RunTimestamp: data.RunTimestamp,
 		EndpointURL:  data.EndpointURL,
 		Body:         data.Body,
@@ -72,7 +72,7 @@ func handlePost(w http.ResponseWriter, r *http.Request) {
 		CreatedBy:    &subject,
 	}
 
-	if err := gorm.G[ScheduledTask](db).Create(r.Context(), &newTask); err != nil {
+	if err := gorm.G[scheduledTask](db).Create(r.Context(), &newTask); err != nil {
 		http.Error(w, "Failed to write to database", http.StatusInternalServerError)
 
 		return
@@ -93,7 +93,7 @@ func handlePost(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 
-	response := CreateScheduledTaskResponse{
+	response := createScheduledTaskResponse{
 		ScheduledTaskID: newTask.ID,
 	}
 
@@ -110,7 +110,7 @@ func handleGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tasks, err := gorm.G[ScheduledTask](db).
+	tasks, err := gorm.G[scheduledTask](db).
 		Where("created_by = ? AND has_executed = ?", subject, false).
 		Find(r.Context())
 	if err != nil {
@@ -132,7 +132,7 @@ func getJwtSubjectFromContext(ctx context.Context) (string, bool) {
 }
 
 func handlePatch(w http.ResponseWriter, r *http.Request) {
-	var data PatchScheduledTaskRequestData
+	var data patchScheduledTaskRequestData
 	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // Limit to 1MB
 	if r.Body == nil {
 		http.Error(w, "Missing request body", http.StatusBadRequest)
@@ -152,9 +152,9 @@ func handlePatch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rowsAffected, err := gorm.G[ScheduledTask](db).
+	rowsAffected, err := gorm.G[scheduledTask](db).
 		Where("id = ? AND created_by = ? AND has_executed = ?", data.ScheduledTaskID, subject, false).
-		Updates(r.Context(), ScheduledTask{RunTimestamp: data.RunTimestamp, Body: data.Body})
+		Updates(r.Context(), scheduledTask{RunTimestamp: data.RunTimestamp, Body: data.Body})
 	if err != nil {
 		http.Error(w, "Failed to update task", http.StatusInternalServerError)
 
@@ -181,7 +181,7 @@ func handleDelete(w http.ResponseWriter, r *http.Request) {
 
 	taskID := r.URL.Query().Get("scheduledTaskID")
 
-	rowsAffected, err := gorm.G[ScheduledTask](db).
+	rowsAffected, err := gorm.G[scheduledTask](db).
 		Where("id = ? AND created_by = ? AND has_executed = ?", taskID, subject, false).
 		Delete(r.Context())
 	if err != nil {
@@ -194,6 +194,8 @@ func handleDelete(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
+
+	log.Printf("Scheduled task deleted: ID %s", taskID)
 
 	w.WriteHeader(http.StatusNoContent)
 }

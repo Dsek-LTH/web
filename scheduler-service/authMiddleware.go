@@ -48,7 +48,7 @@ func authMiddleware(next http.Handler) http.Handler {
 
 		subject, _ := token.Subject()
 		if subject == "" {
-			log.Printf("Invalid subject in JWT: %s", err)
+			log.Printf("Invalid subject in JWT: subject is empty")
 			http.Error(w, "Unauthorised", http.StatusUnauthorized)
 
 			return

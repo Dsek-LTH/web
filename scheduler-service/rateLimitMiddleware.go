@@ -10,10 +10,14 @@ import (
 	"golang.org/x/time/rate"
 )
 
-var (
-	limiters = make(map[string]*trackedLimiter)
+type rateLimiterManager struct {
+	limiters map[string]*trackedLimiter
 	mu       sync.Mutex
-)
+}
+
+var limiterManager = rateLimiterManager{
+	limiters: make(map[string]*trackedLimiter),
+}
 
 type trackedLimiter struct {
 	*rate.Limiter
@@ -22,27 +26,27 @@ type trackedLimiter struct {
 
 func cleanupLimiters(expiry time.Duration) {
 	now := time.Now()
-	for ip, limiter := range limiters {
+	for ip, limiter := range limiterManager.limiters {
 		if now.Sub(limiter.lastSeen) > expiry {
-			delete(limiters, ip)
+			delete(limiterManager.limiters, ip)
 		}
 	}
 }
 
 func getLimiter(ip string) *rate.Limiter {
-	mu.Lock()
-	defer mu.Unlock()
+	limiterManager.mu.Lock()
+	defer limiterManager.mu.Unlock()
 
 	cleanupLimiters(10 * time.Minute)
-	log.Println("Current limiters:", len(limiters))
+	log.Println("Current limiters:", len(limiterManager.limiters))
 
-	lim, exists := limiters[ip]
+	lim, exists := limiterManager.limiters[ip]
 	if !exists {
 		lim = &trackedLimiter{
 			Limiter:  rate.NewLimiter(1, 5),
 			lastSeen: time.Now(),
 		}
-		limiters[ip] = lim
+		limiterManager.limiters[ip] = lim
 	} else {
 		lim.lastSeen = time.Now()
 	}
