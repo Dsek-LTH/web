@@ -151,7 +151,6 @@ export const createArticle: Action = async (event) => {
 
     const { redirectFunction, scheduledId } =
       scheduledResult as ScheduleSuccess;
-    console.log("scheduledId", scheduledId);
 
     await prisma.article.update({
       where: {
