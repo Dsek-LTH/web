@@ -252,7 +252,7 @@ export const COST_CENTERS = [
     name: "SEX03",
     description: "Pubar",
     example:
-      "Alkoholkostnader, Livsmedel till försäljning, Arrangemangskostnader, Myndighetsavgifter",
+      "Livsmedel till försäljning, Arrangemangskostnader, Myndighetsavgifter",
     signer: "dsek.sex.mastare",
     committee: "sexm",
   },
@@ -260,7 +260,7 @@ export const COST_CENTERS = [
     name: "SEX04",
     description: "Nollegasque",
     example:
-      "Alkoholkostnader, Livsmedel till försäljning, Arrangemangskostnader, Övriga externa tjänster, Myndighetsavgifter",
+      "Livsmedel till försäljning, Arrangemangskostnader, Övriga externa tjänster, Myndighetsavgifter",
     signer: "dsek.sex.mastare",
     committee: "sexm",
   },
@@ -268,7 +268,7 @@ export const COST_CENTERS = [
     name: "SEX05",
     description: "Skiptesgasque",
     example:
-      "Alkoholkostnader, Livsmedel till försäljning, Arrangemangskostnader, Myndighetsavgifter",
+      "Livsmedel till försäljning, Arrangemangskostnader, Myndighetsavgifter",
     signer: "dsek.sex.mastare",
     committee: "sexm",
   },
@@ -276,14 +276,14 @@ export const COST_CENTERS = [
     name: "SEX06",
     description: "Företagsevenemang",
     example:
-      "Alkoholkostnader, Livsmedel till försäljning, Arrangemangskostnader, Myndighetsavgifter",
+      "Livsmedel till försäljning, Arrangemangskostnader, Myndighetsavgifter",
     signer: "dsek.sex.mastare",
     committee: "sexm",
   },
   {
     name: "SEX09",
     description: "UtEDischot",
-    example: "Alkoholkostnader, Livsmedel till försäljning, Vinstdelning",
+    example: "Livsmedel till försäljning, Vinstdelning",
     signer: "dsek.sex.mastare",
     committee: "sexm",
   },
