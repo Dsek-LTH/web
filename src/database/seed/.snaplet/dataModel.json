@@ -10038,16 +10038,16 @@
       "schemaName": "public",
       "values": [
         {
-          "name": "DAGIS"
+          "name": "DAYMANAGER"
         },
         {
-          "name": "EARLY_1"
+          "name": "SHIFT_1"
         },
         {
-          "name": "EARLY_2"
+          "name": "SHIFT_2"
         },
         {
-          "name": "LATE"
+          "name": "SHIFT_3"
         }
       ]
     }

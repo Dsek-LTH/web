@@ -29,7 +29,6 @@
     shifts: ShiftWithWorker[];
     user: AuthUser;
   } = $props();
-
   const now = dayjs();
   const windowStartWeek = now.week();
   const weeksInYear = dayjs(`$windowYear-12-31`).week();
@@ -94,7 +93,7 @@
   <div class="mt-1 grid grid-cols-1 gap-3 p-3 md:grid-cols-5 md:gap-0">
     {#each weekDays as dayName}
       {@const day = week.startOf("week").add(weekDays.indexOf(dayName), "day")}
-      {@const dayHasManager: boolean = shifts.find((s) => dayjs(s.date).isSame(day, "day") && s.timeSlot == TimeSlot.DAGIS) != undefined}
+      {@const dayHasManager: boolean = shifts.find((s) => dayjs(s.date).isSame(day, "day") && s.timeSlot == "DAYMANAGER") != undefined}
 
       {#snippet DayForm(
         timeSlot: TimeSlot,
@@ -129,8 +128,8 @@
 
         <p class="gap-1 text-center font-bold text-primary">Day Manager</p>
         {@render DayForm(
-          TimeSlot.DAGIS,
-          !isDayManager && !hasShift(day, TimeSlot.DAGIS, user),
+          TimeSlot.DAYMANAGER,
+          !isDayManager && !hasShift(day, TimeSlot.DAYMANAGER, user),
           user,
           false,
         )}
@@ -147,14 +146,14 @@
           kl 11-12
         </p>
         {@render DayForm(
-          TimeSlot.EARLY_1,
-          !dayHasManager && !hasShift(day, TimeSlot.EARLY_1, user),
+          TimeSlot.SHIFT_1,
+          !dayHasManager && !hasShift(day, TimeSlot.SHIFT_1, user),
           user,
         )}
 
         {@render DayForm(
-          TimeSlot.EARLY_2,
-          !dayHasManager && !hasShift(day, TimeSlot.EARLY_2, user),
+          TimeSlot.SHIFT_2,
+          !dayHasManager && !hasShift(day, TimeSlot.SHIFT_2, user),
           user,
         )}
 
@@ -168,8 +167,8 @@
           kl 12-13
         </p>
         {@render DayForm(
-          TimeSlot.LATE,
-          !dayHasManager && !hasShift(day, TimeSlot.LATE, user),
+          TimeSlot.SHIFT_3,
+          !dayHasManager && !hasShift(day, TimeSlot.SHIFT_3, user),
           user,
         )}
       </div>

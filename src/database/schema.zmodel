@@ -1233,7 +1233,7 @@ model CafeShift {
   @@allow("create",
     (
       (workerId == auth().memberId
-      && !(timeSlot in [DAGIS]))
+      && !(timeSlot in [DAYMANAGER]))
       || (workerId == auth().memberId
       && has(auth().policies, "cafe:day_manager"))
     )
@@ -1253,10 +1253,9 @@ model CafeShift {
 }
 
 enum TimeSlot {
-  DAGIS
-  EARLY_1
-  EARLY_2
-  LATE
-
+  DAYMANAGER
+  SHIFT_1
+  SHIFT_2
+  SHIFT_3
   @@map("time_slots")
 }

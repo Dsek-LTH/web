@@ -44,10 +44,10 @@ enum ShoppableType {
 }
 
 enum TimeSlot {
-  DAGIS
-  EARLY_1
-  EARLY_2
-  LATE
+  DAYMANAGER
+  SHIFT_1
+  SHIFT_2
+  SHIFT_3
 
   @@map("time_slots")
 }

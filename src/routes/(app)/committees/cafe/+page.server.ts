@@ -126,12 +126,12 @@ export const actions: Actions = {
       }
       // TODO: check for permissions here so we don't fail
       const cafeShift = await prisma.cafeShift.findFirst({ where: { date: date, timeSlot: timeSlot }, include: { worker: { select: { studentId: true } } } })
-      const isDagis = isAuthorized(apiNames.CAFE.DAY_MANAGER, user);
+      const isDayManager = isAuthorized(apiNames.CAFE.DAY_MANAGER, user);
       if (!cafeShift) {
-        if (timeSlot == TimeSlot.DAGIS && !isDagis) {
+        if (timeSlot == TimeSlot.DAYMANAGER && !isDayManager) {
           //TODO: ERROR here
           return message(form, {
-            message: "only dagisar can sign up there",
+            message: "only day managers can sign up there",
             type: "error",
           })
         }

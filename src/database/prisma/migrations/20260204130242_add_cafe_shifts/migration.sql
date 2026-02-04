@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "time_slots" AS ENUM ('DAGIS', 'EARLY_1', 'EARLY_2', 'LATE');
+CREATE TYPE "time_slots" AS ENUM ('DAYMANAGER', 'SHIFT_1', 'SHIFT_2', 'SHIFT_3');
 
 -- CreateTable
 CREATE TABLE "cafe_shifts" (
