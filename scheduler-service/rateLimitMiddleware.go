@@ -10,12 +10,10 @@ import (
 	"golang.org/x/time/rate"
 )
 
-type rateLimiterManager struct {
+var limiterManager = struct {
 	limiters map[string]*trackedLimiter
 	mu       sync.Mutex
-}
-
-var limiterManager = rateLimiterManager{
+}{
 	limiters: make(map[string]*trackedLimiter),
 }
 

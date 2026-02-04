@@ -26,12 +26,10 @@ type createScheduledTaskResponse struct {
 	ScheduledTaskID uint `json:"scheduledTaskID"`
 }
 
-type taskTimerManager struct {
+var timerManager = struct {
 	timers   map[uint]*time.Timer
 	timersMu sync.Mutex
-}
-
-var timerManager = taskTimerManager{
+}{
 	timers: make(map[uint]*time.Timer),
 }
 
