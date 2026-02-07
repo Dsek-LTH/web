@@ -9,11 +9,17 @@
   import MemberBio from "./MemberBio.svelte";
   import { Button, buttonVariants } from "$lib/components/ui/button";
   import Pen from "@lucide/svelte/icons/pen";
+  import DoorOpen from "@lucide/svelte/icons/door-open";
+  import DoorClosed from "@lucide/svelte/icons/door-closed";
   import Copy from "@lucide/svelte/icons/copy";
   import * as Dialog from "$lib/components/ui/dialog";
   import MemberForm from "./MemberForm.svelte";
   import { cn } from "$lib/utils";
   import dayjs from "dayjs";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
+  import { getFullName } from "$lib/utils/client/member";
+  import SEO from "$lib/seo/SEO.svelte";
+  import PhadderGroupModal from "./PhadderGroupModal.svelte";
 
   let { data } = $props();
 
@@ -52,7 +58,28 @@
     Dokt: "outline",
     "?": "rosa",
   };
+
+  let doorAccess = $derived(data.doorAccess);
+
+  const mobileBackgrounds = [
+    "https://files.dsek.se/albums/public/2025/2025-08-27%20L.I.G.G./LIGG59jpg.webp",
+    "https://files.dsek.se/albums/public/2025/2025-09-02%20DIVERSE/diverse25DSC07227jpg.webp",
+    "https://files.dsek.se/albums/public/2025/2025-09-09%20Waderloo/Waderloo9jpg.webp",
+  ];
+
+  let mobileBackground = mobileBackgrounds[Math.floor(Math.random() * 3)];
 </script>
+
+<SetPageTitle title={getFullName(member)} />
+<SEO data={{ type: "profile", member }} />
+
+<PhadderGroupModal
+  isEditing={true}
+  data={data.phadderGroupForm}
+  phadderGroups={data.phadderGroups}
+  viewedMember={member}
+  showModal={data.showPhadderGroupModal}
+/>
 
 {@render mobile("md:hidden")}
 
@@ -63,7 +90,7 @@
 {#snippet mobile(klass: string)}
   <div class={klass}>
     <header
-      style="background-size:150%;background-image:url(https://files.dsek.se/albums/public/2025/2025-08-27%20L.I.G.G./LIGG59jpg.webp)"
+      style="background-size:150%;background-image:url({mobileBackground})"
       class="bg-rosa-300 h-44 bg-contain bg-center"
     ></header>
     <section
@@ -86,19 +113,27 @@
           >
         </Avatar.Root>
       </div>
-      <span class="-mt-12 flex flex-row items-center gap-0"
-        ><code>{member.studentId}</code><Button
-          onclick={() => navigator.clipboard.writeText(member.studentId ?? "")}
+      <span class="-mt-12 flex flex-row items-center gap-0 text-xs"
+        ><code class="text-xs">{member.email}</code><Button
+          onclick={() => navigator.clipboard.writeText(member.email ?? "")}
           variant="ghost"
-          size="icon-sm"><Copy /></Button
+          size="icon-sm"
+          class="ml-1.5 size-4"><Copy /></Button
         ></span
       >
       <div class="flex flex-row items-center gap-2">
         <h3>{member.firstName} {member.lastName}</h3>
-        <Badge variant={programmeColors[member.classProgramme ?? "?"] ?? "rosa"}
-          >{(member.classProgramme ?? "?") +
-            (member.classYear?.toString().slice(-2) ?? "??")}</Badge
+        <a
+          href={member.classYear && member.classProgramme
+            ? `/members?year=${member.classYear}&programme=${member.classProgramme}`
+            : "/members"}
         >
+          <Badge
+            variant={programmeColors[member.classProgramme ?? "?"] ?? "rosa"}
+            >{(member.classProgramme ?? "?") +
+              (member.classYear?.toString().slice(-2) ?? "??")}</Badge
+          >
+        </a>
       </div>
       <p class="text-rosa-500 mt-0">"{member.nickname}"</p>
       {#if member.bio}
@@ -109,15 +144,14 @@
     <section class="layout-container flex flex-col gap-8 py-4">
       <div class="flex flex-col items-baseline">
         {#if Object.keys(mandatesByYear).length > 0}
-          <h2 class="self-center">{m.positions()}</h2>
+          <h3 class="self-center">{m.positions()}</h3>
           {#each Object.entries(mandatesByYear)
             .toSorted()
             .toReversed() as [year, mandates] (year)}
             <div
-              class="animate-in slide-in-from-bottom-[1rem] pl-6 duration-400"
+              class="animate-in slide-in-from-bottom-[0.5rem] pl-6 duration-400"
               style="animation-delay: {(new Date().getFullYear() -
                 parseInt(year)) *
-                25 +
                 50}ms"
             >
               <h5 class="my-2">{year}</h5>
@@ -165,7 +199,7 @@
       </div>
       {#if medals.length > 0}
         <div class="flex flex-col items-center">
-          <h2 class="my-4 self-center">{m.medals()}</h2>
+          <h3 class="my-4 self-center">{m.medals()}</h3>
           {#each medals as medal (medal.medal)}
             <div class="inline-flex flex-col items-center gap-2">
               <CommitteeIcon class="size-32" committee={null} />
@@ -180,6 +214,26 @@
                 </p>
               </div>
             </div>
+          {/each}
+        </div>
+      {/if}
+      {#if doorAccess.length > 0}
+        <div class="flex flex-col items-baseline pl-6">
+          <h3 class="my-4 self-center">{m.doors()}</h3>
+          <!-- eslint-disable-next-line svelte/require-each-key -->
+          {#each doorAccess as doorAccess}
+            <details class="group">
+              <summary class="flex cursor-pointer flex-row items-center gap-1">
+                <DoorClosed class="text-rosa-400 group-open:hidden" />
+                <DoorOpen class="text-rosa-400 hidden group-open:inline" />
+                <span class="hover:text-muted-foreground transition-all">
+                  {doorAccess.verboseName}
+                </span>
+              </summary>
+              {#each doorAccess.roles as role (role)}
+                <span class="text-muted-foreground">{role}</span>
+              {/each}
+            </details>
           {/each}
         </div>
       {/if}
@@ -199,20 +253,23 @@
         >
       </Avatar.Root>
       <span class="flex flex-row items-center gap-0"
-        ><code>{member.studentId}</code><Button
-          onclick={() => navigator.clipboard.writeText(member.studentId ?? "")}
+        ><code class="text-xs">{member.email}</code><Button
+          onclick={() => navigator.clipboard.writeText(member.email ?? "")}
           variant="ghost"
           size="icon-sm"><Copy /></Button
         ></span
       >
     </div>
-    <div class="flex flex-col">
-      <h6>Bio</h6>
-      <MemberBio bio={member.bio} />
-    </div>
-    <div class="inline-flex flex-col items-start gap-1">
-      <h6>{m.medals()}</h6>
-      {#if medals.length > 0}
+    {#if member.bio}
+      <div class="flex flex-col">
+        <h6>Bio</h6>
+        <MemberBio bio={member.bio} />
+      </div>
+    {/if}
+    {#if medals.length > 0}
+      <div class="inline-flex flex-col items-start gap-1">
+        <h6>{m.medals()}</h6>
+
         <section class="inline-flex flex-col gap-2">
           {#each medals as medal (medal.medal)}
             <div
@@ -232,21 +289,47 @@
             </div>
           {/each}
         </section>
-      {/if}
-    </div>
+      </div>
+    {/if}
+    {#if doorAccess.length > 0}
+      <div class="flex flex-col">
+        <h6 class="mb-1">{m.doors()}</h6>
+        <!-- eslint-disable-next-line svelte/require-each-key -->
+        {#each doorAccess as doorAccess}
+          <details class="group">
+            <summary class="flex cursor-pointer flex-row items-center gap-1">
+              <DoorClosed class="text-rosa-400 size-5 group-open:hidden" />
+              <DoorOpen class="text-rosa-400 hidden size-5 group-open:inline" />
+              <span class="hover:text-muted-foreground transition-all">
+                {doorAccess.verboseName}
+              </span>
+            </summary>
+            {#each doorAccess.roles as role (role)}
+              <span class="text-muted-foreground">{role}</span>
+            {/each}
+          </details>
+        {/each}
+      </div>
+    {/if}
   </aside>
 
   <main class="md:w-9/12">
     <!-- <h4>Riddare</h4> -->
     <div class="flex flex-row items-end gap-1 pt-7">
       <h1>{member.firstName} {member.lastName}</h1>
-      <Badge
-        variant={programmeColors[member.classProgramme ?? "?"] ?? "rosa"}
-        class="mb-2 ml-3"
-        size="lg"
-        >{(member.classProgramme ?? "?") +
-          (member.classYear?.toString().slice(-2) ?? "??")}</Badge
+      <a
+        href={member.classYear && member.classProgramme
+          ? `/members?year=${member.classYear}&programme=${member.classProgramme}`
+          : "/members"}
       >
+        <Badge
+          variant={programmeColors[member.classProgramme ?? "?"] ?? "rosa"}
+          class="mb-2 ml-3"
+          size="lg"
+          >{(member.classProgramme ?? "?") +
+            (member.classYear?.toString().slice(-2) ?? "??")}</Badge
+        >
+      </a>
       <Dialog.Root>
         <div class="ml-auto self-center">
           <Dialog.Trigger
@@ -280,10 +363,9 @@
             .toSorted()
             .toReversed() as [year, mandates] (year)}
             <div
-              class="animate-in slide-in-from-bottom-[1rem] duration-400"
+              class="animate-in slide-in-from-bottom-[0.5rem] duration-400"
               style="animation-delay: {(new Date().getFullYear() -
                 parseInt(year)) *
-                25 +
                 50}ms"
             >
               <h6 class="my-2">{year}</h6>

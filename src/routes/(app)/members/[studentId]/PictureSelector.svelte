@@ -18,7 +18,7 @@
 
   let { data }: { data: PageData | EditPageData } = $props();
 
-  let member = $derived(data.member);
+  let member = $derived(data.viewedMember);
 
   let avatar: string | undefined = $state(undefined);
 
