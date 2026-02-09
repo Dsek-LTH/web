@@ -71,4 +71,3 @@ jobs:
           context: "{{defaultContext}}:scheduler-service"
           push: true
           tags: registry.dsek.se/web-staging/scheduler:${{ github.ref_name }},registry.dsek.se/web-staging/scheduler:latest
-

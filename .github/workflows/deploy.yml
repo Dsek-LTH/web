@@ -50,7 +50,6 @@ jobs:
           push: true
           tags: registry.dsek.se/web/poppler:${{ github.ref_name }},registry.dsek.se/web/poppler:latest
 
-
   scheduler:
     runs-on: ubuntu-latest
     steps:
@@ -69,4 +68,3 @@ jobs:
           context: "{{defaultContext}}:scheduler-service"
           push: true
           tags: registry.dsek.se/web/scheduler:${{ github.ref_name }},registry.dsek.se/web/scheduler:latest
-
