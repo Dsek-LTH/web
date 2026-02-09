@@ -438,6 +438,8 @@
   "news_scheduled": "scheduled",
   "news_scheduledNews": "Scheduled news",
   "news_scheduledFor": "Scheduled for",
+  "news_share": "Share",
+  "news_share_copy_url": "URL copied to clipboard!",
   "events_create": "Create",
   "events_createEvent": "Create event",
   "events_title": "Title",
