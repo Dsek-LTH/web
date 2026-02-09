@@ -98,8 +98,8 @@ const apiNames = {
   },
   CAFE: {
     EDIT_WORKERS: "cafe:edit_workers",
-    DAY_MANAGER: "cafe:day_manager"
-  }
+    DAY_MANAGER: "cafe:day_manager",
+  },
 } as const;
 
 export default apiNames;
