@@ -2,19 +2,24 @@ import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
 import { uploadFile } from "$lib/files/uploadFiles";
 import { createSchema, updateSchema } from "$lib/news/schema";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
-import sendNotification from "$lib/utils/notifications";
-import { NotificationType } from "$lib/utils/notifications/types";
 import { redirect } from "$lib/utils/redirect";
 import { slugWithCount, slugify } from "$lib/utils/slugify";
 import * as m from "$paraglide/messages";
 import { Prisma } from "@prisma/client";
-import type { Action } from "@sveltejs/kit";
+import { isActionFailure, type Action } from "@sveltejs/kit";
 import type { AuthUser } from "@zenstackhq/runtime";
 import { zod } from "sveltekit-superforms/adapters";
 import { message, superValidate, fail } from "sveltekit-superforms";
 import DOMPurify from "isomorphic-dompurify";
-import { markdownToTxt } from "markdown-to-txt";
-import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+import {
+  scheduleExecution,
+  type ScheduleSuccess,
+} from "$lib/server/scheduleExecution";
+import { sendNewArticleNotification } from "./notifications";
+import { env } from "$env/dynamic/public";
+import { env as privateEnv } from "$env/dynamic/private";
+import { sendNewArticleWebhook } from "./webhooks";
+import { getDecryptedJWT } from "$lib/server/getDecryptedJWT";
 
 const uploadImage = async (user: AuthUser, image: File, slug: string) => {
   const randomName = (Math.random() + 1).toString(36).substring(2);
@@ -31,170 +36,6 @@ const uploadImage = async (user: AuthUser, image: File, slug: string) => {
     },
   );
   return imageUrl;
-};
-
-const sendNewArticleNotification = async (
-  article: ExtendedPrismaModel<"Article"> & {
-    tags: Array<Pick<ExtendedPrismaModel<"Tag">, "id">>;
-    author: ExtendedPrismaModel<"Author">;
-  },
-  notificationText: string | null | undefined,
-) => {
-  console.log("notifications: getting members");
-  const subscribedMembers = await authorizedPrismaClient.member.findMany({
-    where: {
-      subscribedTags: {
-        some: {
-          id: {
-            in: article.tags.map(({ id }) => id),
-          },
-        },
-      },
-    },
-    select: {
-      id: true,
-    },
-  });
-
-  console.log("notifications: sending");
-  await sendNotification({
-    title: article.header,
-    message: notificationText
-      ? notificationText
-      : markdownToTxt(article.body).slice(0, 254),
-    type: NotificationType.NEW_ARTICLE,
-    link: `/news/${article.slug}`,
-    fromAuthor: article.author,
-    memberIds: subscribedMembers.map(({ id }) => id),
-  });
-};
-
-const limitDescription = (text: string): string => {
-  let description = text.replace(/\n/g, " ").slice(0, 256 - 3);
-  description += description.length == 256 - 3 ? "..." : "";
-
-  const rows = description.split("\n");
-  if (rows.length > 4) {
-    description = rows.slice(0, 4).join("\n") + "...";
-  }
-  return description;
-};
-
-const sendNewArticleWebhook = async (
-  article: ExtendedPrismaModel<"Article"> & {
-    tags: Array<Pick<ExtendedPrismaModel<"Tag">, "id">>;
-    author: ExtendedPrismaModel<"Author">;
-  },
-  notificationText: string | null | undefined,
-) => {
-  const member = await authorizedPrismaClient.member.findUnique({
-    where: {
-      id: article.author.memberId,
-    },
-  });
-  const tags = await authorizedPrismaClient.tag.findMany({
-    where: {
-      id: {
-        in: article.tags.map((tag) => tag.id),
-      },
-    },
-  });
-
-  let title: string | undefined = undefined;
-  if (article.author.mandateId !== null) {
-    const mandate = await authorizedPrismaClient.mandate.findUnique({
-      where: {
-        id: article.author.mandateId ?? undefined,
-      },
-    });
-    if (mandate) {
-      const position = await authorizedPrismaClient.position.findUnique({
-        where: {
-          id: mandate?.positionId,
-        },
-      });
-      title = position?.nameSv;
-    }
-  }
-
-  // Create an object mapping key -> value of the following
-  // keys. Removes potential duplicates (if possible)
-  const settings = Object.fromEntries(
-    (
-      await authorizedPrismaClient.adminSetting.findMany({
-        where: {
-          key: {
-            in: ["discord_webhook_se", "webhook_tags_se"],
-          },
-        },
-        select: {
-          key: true,
-          value: true,
-        },
-      })
-    ).map((row) => [row.key, row.value]),
-  );
-
-  if (!settings["discord_webhook_se"]) return; // No webhook to call
-
-  // If webhook_tags is not set, we allow through all news
-  if (settings["webhook_tags_se"]) {
-    const webhookTags = new Set(settings["webhook_tags_se"].split(","));
-
-    // Otherwise, webhook_tags acts as a filter. Only allow articles that
-    // have any of the tags. We assume that the article has very few tags
-    if (!article.tags.some((tag) => webhookTags.has(tag.id))) return;
-  }
-
-  // In most cases, an event will only have one tag. For the others,
-  // we just pick an arbitrary tag
-  let color = undefined;
-  let footer = undefined;
-  if (article.tags.length > 0) {
-    const tag = tags.find((tag) => tag.id === article.tags[0]?.id);
-    if (tag !== undefined) {
-      footer = tag.nameSv;
-    }
-
-    if (typeof tag?.color === "string") {
-      // Convert HEX-string in the form #FFFFFF to an integer for Discord API
-      color = parseInt(tag.color.slice(1), 16);
-    }
-  }
-
-  // Limit news description to first few characters as a preview, although
-  // you could technically fit the entire article within the 4096 character limit
-  const description = limitDescription(article.bodySv);
-
-  const body = {
-    content: notificationText,
-    embeds: [
-      {
-        title: article.headerSv,
-        author: {
-          name: `${member?.firstName} ${member?.lastName} ${title ? "| " + title : ""}`,
-          icon_url: member?.picturePath,
-        },
-        // Default to development URL
-        url: `${process.env["ORIGIN"] ?? "http://localhost:5173"}/news/${article.slug}`,
-        description: description,
-        color: color,
-        footer: {
-          text: footer,
-        },
-        timestamp: article.createdAt,
-      },
-    ],
-  };
-
-  const res = await fetch(settings["discord_webhook_se"], {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  if (res.status != 204) {
-    console.log(`notifications: failed Discord webhook (${res.status})`);
-  }
 };
 
 export const createArticle: Action = async (event) => {
@@ -214,6 +55,7 @@ export const createArticle: Action = async (event) => {
     images,
     bodySv,
     bodyEn,
+    publishTime,
     ...rest
   } = form.data;
   const existingAuthor = await prisma.author.findFirst({
@@ -246,6 +88,8 @@ export const createArticle: Action = async (event) => {
       bodySv: DOMPurify.sanitize(bodySv),
       bodyEn: bodyEn ? DOMPurify.sanitize(bodyEn) : bodyEn,
       ...rest,
+      shouldSendNotification,
+      notificationText,
       author: {
         connect: existingAuthor
           ? {
@@ -280,12 +124,45 @@ export const createArticle: Action = async (event) => {
             id: tag.id,
           })),
       },
-      publishedAt: new Date(),
+      publishedAt: publishTime ?? new Date(),
     },
     include: {
       author: true,
     },
   });
+
+  const pubishTimeIsInFuture = publishTime && publishTime > new Date();
+  if (pubishTimeIsInFuture && shouldSendNotification) {
+    const scheduledResult = await scheduleExecution(
+      request,
+      `${env.PUBLIC_APP_URL}/api/schedule/news`,
+      { ...result, tags, notificationText },
+      publishTime,
+      form,
+      m.news_errors_schedulingFailed(),
+      m.news_articleScheduled(),
+      "/news",
+      event,
+    );
+
+    if (isActionFailure(scheduledResult)) {
+      return scheduledResult;
+    }
+
+    const { redirectFunction, scheduledId } =
+      scheduledResult as ScheduleSuccess;
+
+    await prisma.article.update({
+      where: {
+        id: result.id,
+      },
+      data: {
+        scheduledId,
+      },
+    });
+
+    throw redirectFunction();
+  }
 
   // fetch the created author,
   if (shouldSendNotification) {
@@ -307,7 +184,7 @@ export const createArticle: Action = async (event) => {
   }
 
   throw redirect(
-    `/news/${result.slug}`,
+    pubishTimeIsInFuture ? "/news" : `/news/${result.slug}`,
     {
       message: m.news_articleCreated(),
       type: "success",
@@ -315,6 +192,7 @@ export const createArticle: Action = async (event) => {
     event,
   );
 };
+
 export const updateArticle: Action<{ slug: string }> = async (event) => {
   const { request, locals } = event;
   const { prisma, user } = locals;
@@ -322,7 +200,18 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
     allowFiles: true,
   });
   if (!form.valid) return fail(400, { form });
-  const { slug, author, tags, images, bodySv, bodyEn, ...rest } = form.data;
+  const {
+    slug,
+    author,
+    tags,
+    images,
+    bodySv,
+    bodyEn,
+    publishTime,
+    sendNotification,
+    notificationText,
+    ...rest
+  } = form.data;
   const existingAuthor = await prisma.author.findFirst({
     where: {
       member: { id: author.memberId },
@@ -344,6 +233,103 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
       : [...rest.imageUrls, ...newImages];
 
   try {
+    const article = await prisma.article.findUnique({
+      where: {
+        slug,
+      },
+      include: {
+        author: true,
+        tags: true,
+      },
+    });
+
+    if (
+      article?.publishedAt &&
+      article.publishedAt > new Date() &&
+      (article.shouldSendNotification || sendNotification)
+    ) {
+      const jwt = await getDecryptedJWT(request);
+      let ok = false;
+      try {
+        if (article.shouldSendNotification && !sendNotification) {
+          // previously scheduled -> delete scheduled task
+
+          ok = (
+            await fetch(
+              `${privateEnv.SCHEDULER_ENDPOINT}?password=${privateEnv.SCHEDULER_PASSWORD}&scheduledTaskID=${article.scheduledId}`,
+              {
+                method: "DELETE",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${jwt?.id_token}`,
+                },
+              },
+            )
+          ).ok;
+        } else if (!article.shouldSendNotification && sendNotification) {
+          // previously no notification -> schedule sending
+
+          const scheduleResult = await scheduleExecution(
+            request,
+            `${env.PUBLIC_APP_URL}/api/schedule/news`,
+            { ...article, tags, notificationText },
+            publishTime ?? new Date(),
+            form,
+            m.news_errors_schedulingFailed(),
+            m.news_articleScheduled(),
+            `/news/${slug}`,
+            event,
+          );
+
+          if (isActionFailure(scheduleResult)) {
+            return scheduleResult;
+          } else {
+            await prisma.article.update({
+              where: {
+                slug: slug,
+              },
+              data: {
+                scheduledId: (scheduleResult as ScheduleSuccess).scheduledId,
+              },
+            });
+
+            ok = true;
+          }
+        } else {
+          // no change in notification -> update scheduled task
+
+          ok = (
+            await fetch(
+              `${privateEnv.SCHEDULER_ENDPOINT}?password=${privateEnv.SCHEDULER_PASSWORD}`,
+              {
+                method: "PATCH",
+                body: JSON.stringify({
+                  scheduledTaskID: parseInt(article.scheduledId!),
+                  body: JSON.stringify(article),
+                  runTimestamp: publishTime ?? new Date(),
+                }),
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${jwt?.id_token}`,
+                },
+              },
+            )
+          ).ok;
+        }
+      } catch (error) {
+        return fail(500, {
+          form,
+          message: `${m.news_errors_schedulingFailed()}: ${error instanceof Error ? error.message : String(error)}`,
+        });
+      }
+      if (!ok) {
+        return fail(500, {
+          form,
+          message: m.news_errors_schedulingFailed(),
+        });
+      }
+    }
+
     await prisma.article.update({
       where: {
         slug: slug,
@@ -351,6 +337,9 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
       data: {
         bodySv: DOMPurify.sanitize(bodySv),
         bodyEn: bodyEn ? DOMPurify.sanitize(bodyEn) : bodyEn,
+        publishedAt: publishTime,
+        shouldSendNotification: sendNotification,
+        notificationText: notificationText,
         ...rest,
         author: {
           connect: existingAuthor
@@ -400,7 +389,7 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
   }
 
   throw redirect(
-    `/news/${event.params.slug}`,
+    `/news/${publishTime && publishTime < new Date() ? event.params.slug : ""}`,
     {
       message: m.news_articleUpdated(),
       type: "success",

@@ -1807,6 +1807,48 @@
           "maxLength": null
         },
         {
+          "id": "public.articles.notification_text",
+          "name": "notification_text",
+          "columnName": "notification_text",
+          "type": "varchar",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": 255
+        },
+        {
+          "id": "public.articles.scheduled_id",
+          "name": "scheduled_id",
+          "columnName": "scheduled_id",
+          "type": "text",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.articles.should_send_notification",
+          "name": "should_send_notification",
+          "columnName": "should_send_notification",
+          "type": "bool",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": true,
+          "isId": false,
+          "maxLength": null
+        },
+        {
           "name": "authors",
           "type": "authors",
           "isRequired": true,
