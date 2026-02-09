@@ -24,7 +24,7 @@
       title: article?.header ?? "<title missing>",
       text: article?.body ?? "<body missing>",
       url: window.location.href,
-    }
+    };
 
     if (navigator.share) {
       try {
