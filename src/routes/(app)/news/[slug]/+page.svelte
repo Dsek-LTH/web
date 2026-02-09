@@ -119,6 +119,7 @@
         <!-- share button -->
         <button
           type="button"
+          aria-label="share"
           onclick={share}
           class="i-mdi-share mt-2 size-12 hover:opacity-50 hover:transition-opacity"
         >
