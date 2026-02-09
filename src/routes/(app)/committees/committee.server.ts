@@ -1,7 +1,7 @@
 import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 import { compareCommitteePositions } from "$lib/utils/committee-ordering/sort";
 import * as m from "$paraglide/messages";
-import { error, fail, type Actions } from "@sveltejs/kit";
+import { type Actions, error, fail } from "@sveltejs/kit";
 import { zod } from "sveltekit-superforms/adapters";
 import { message, superValidate, withFiles } from "sveltekit-superforms/server";
 import { updateSchema } from "./types";
@@ -84,8 +84,8 @@ export const committeeLoad = async (
   if (!committee) {
     throw error(404, m.committees_errors_committeeNotFound());
   }
-  const [uniqueMembersInCommittee, numberOfMandates, markdown] =
-    await Promise.allSettled([
+  const [uniqueMembersInCommittee, numberOfMandates, markdown] = await Promise
+    .allSettled([
       prisma.member.count({
         where: {
           mandates: {

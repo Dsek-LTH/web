@@ -13,8 +13,10 @@ import { loadTicketData } from "./loadTicketData";
 import { consumeConsumable } from "$lib/server/shop/consumable";
 import { type ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
-export type ManagedTicket = ExtendedPrismaModel<"Ticket"> &
-  ExtendedPrismaModel<"Shoppable"> & {
+export type ManagedTicket =
+  & ExtendedPrismaModel<"Ticket">
+  & ExtendedPrismaModel<"Shoppable">
+  & {
     questions: Array<ExtendedPrismaModel<"ItemQuestion">>;
     event: ExtendedPrismaModel<"Event">;
   };
@@ -33,13 +35,15 @@ export const load = async ({ locals, params }) => {
   const consumablesInCart = consumables.filter((c) => c.purchasedAt === null);
   const reservations = ticket.shoppable.reservations;
   // Typing just so we can remove consumables and reservations from shoppable
-  const shoppable: Omit<
-    ExtendedPrismaModel<"Shoppable">,
-    "consumables" | "reservations"
-  > & {
-    consumables?: unknown;
-    reservations?: unknown;
-  } = ticket.shoppable;
+  const shoppable:
+    & Omit<
+      ExtendedPrismaModel<"Shoppable">,
+      "consumables" | "reservations"
+    >
+    & {
+      consumables?: unknown;
+      reservations?: unknown;
+    } = ticket.shoppable;
   delete shoppable.consumables;
   delete shoppable.reservations;
   const mergedTicket: ManagedTicket & {
@@ -95,11 +99,12 @@ export const actions = {
         },
       });
     } catch (e) {
-      if (e instanceof Error)
+      if (e instanceof Error) {
         return message(form, {
           message: e.message,
           type: "error",
         });
+      }
       return message(form, {
         message: "Kunde inte avkonsumera biljetten.",
         type: "error",
@@ -158,11 +163,12 @@ export const actions = {
         type: "success",
       });
     } catch (e) {
-      if (e instanceof Error)
+      if (e instanceof Error) {
         return message(form, {
           message: e.message,
           type: "error",
         });
+      }
       return message(form, {
         message: "Kunde inte återbetala biljetten.",
         type: "error",

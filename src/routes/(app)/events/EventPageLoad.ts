@@ -10,8 +10,7 @@ import { zod } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
 
 const eventPageLoad =
-  (adminMode = false) =>
-  async ({ locals, url }: ServerLoadEvent) => {
+  (adminMode = false) => async ({ locals, url }: ServerLoadEvent) => {
     const { prisma } = locals;
     const eventCount = await prisma.event.count();
     const pageSize = getPageSizeOrThrowSvelteError(url);

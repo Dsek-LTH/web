@@ -77,7 +77,9 @@ function writePDFToFile(
   // for testing
   const pdfDir = path.join(process.cwd(), "data", "expense-pdfs");
   fs.mkdirSync(pdfDir, { recursive: true });
-  const pdfFilename = `expense_${expense.id}_${dayjs(expense.date).format("YYYY-MM-DD")}.pdf`;
+  const pdfFilename = `expense_${expense.id}_${
+    dayjs(expense.date).format("YYYY-MM-DD")
+  }.pdf`;
   const pdfPath = path.join(pdfDir, pdfFilename);
 
   // Write the PDF to disk
@@ -127,7 +129,9 @@ export async function sendExpenseToBookkeeping(
       `,
     attachments: [
       {
-        filename: `expense_${expense.id}_${dayjs(expense.date).format("YYYY-MM-DD")}.pdf`,
+        filename: `expense_${expense.id}_${
+          dayjs(expense.date).format("YYYY-MM-DD")
+        }.pdf`,
         content: pdfBytes,
       },
     ],

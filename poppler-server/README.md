@@ -1,6 +1,7 @@
 # poppler-server
 
-Poppler is a PDF rendering library. This project wraps the `pdftotext` utility provided by Poppler's `poppler-utils` package in a simple HTTP server.
+Poppler is a PDF rendering library. This project wraps the `pdftotext` utility
+provided by Poppler's `poppler-utils` package in a simple HTTP server.
 
 ## Development
 

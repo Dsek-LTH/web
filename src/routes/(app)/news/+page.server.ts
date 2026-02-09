@@ -3,7 +3,7 @@ import { getAllTags } from "$lib/news/tags";
 import { zod } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
 import type { Actions, PageServerLoad } from "./$types";
-import { likeSchema, likesAction } from "./likes";
+import { likesAction, likeSchema } from "./likes";
 import {
   getPageOrThrowSvelteError,
   getPageSizeOrThrowSvelteError,

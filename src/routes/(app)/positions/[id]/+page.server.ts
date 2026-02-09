@@ -1,10 +1,10 @@
 import { error, fail } from "@sveltejs/kit";
 import { redirect } from "$lib/utils/redirect";
 import {
+  type Infer,
   message,
   setError,
   superValidate,
-  type Infer,
 } from "sveltekit-superforms/server";
 import { zod } from "sveltekit-superforms/adapters";
 import { z } from "zod";
@@ -61,10 +61,9 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   //The months that need to be added in this case is a full year minus the difference between the months:
   //12 - Math.abs(position.endMonth - position.startMonth)
 
-  const addMandateMonthDifference =
-    position.endMonth > position.startMonth
-      ? position.endMonth - position.startMonth
-      : 12 - Math.abs(position.endMonth - position.startMonth);
+  const addMandateMonthDifference = position.endMonth > position.startMonth
+    ? position.endMonth - position.startMonth
+    : 12 - Math.abs(position.endMonth - position.startMonth);
 
   return {
     updateForm: superValidate(position, zod(updateSchema)),
@@ -122,13 +121,13 @@ export type DeleteMandateSchema = Infer<typeof deleteMandateSchema>;
 
 const genitiveCase = (base: string): string => {
   if (languageTag() === "sv") {
-    if (base.endsWith("s") || base.endsWith("x"))
+    if (base.endsWith("s") || base.endsWith("x")) {
       return base; // Måns or Max => Måns and Max
-    else return base + "s"; // Adam => Adams
+    } else return base + "s"; // Adam => Adams
   } else {
-    if (base.endsWith("s"))
+    if (base.endsWith("s")) {
       return base + "'"; // Måns => Måns'
-    else return base + "'s"; // Adam => Adam's
+    } else return base + "'s"; // Adam => Adam's
   }
 };
 
@@ -171,8 +170,9 @@ export const actions: Actions = {
     const member = await prisma.member.findUnique({
       where: { id: form.data.memberId },
     });
-    if (!member)
+    if (!member) {
       return setError(form, "memberId", m.positions_errors_memberNotFound());
+    }
     await prisma.mandate.create({
       data: {
         positionId: params.id,
@@ -203,12 +203,13 @@ export const actions: Actions = {
         },
       },
     });
-    if (!member)
+    if (!member) {
       return message(
         form,
         { message: m.positions_errors_mandateNotFound(), type: "error" },
         { status: 400 },
       );
+    }
     await prisma.mandate.update({
       where: { id: form.data.mandateId, positionId: params.id },
       data: {
@@ -240,12 +241,13 @@ export const actions: Actions = {
         },
       },
     });
-    if (!member)
+    if (!member) {
       return message(
         form,
         { message: m.positions_errors_mandateNotFound(), type: "error" },
         { status: 400 },
       );
+    }
     await prisma.mandate.delete({
       where: { id: form.data.mandateId, positionId: params.id },
     });

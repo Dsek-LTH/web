@@ -14,11 +14,12 @@ export const consumeConsumable = async (
       },
     });
   } catch (e) {
-    if (e instanceof Error)
+    if (e instanceof Error) {
       return {
         message: e.message,
         type: "error",
       };
+    }
     return {
       message: "Kunde inte konsumera biljetten.",
       type: "error",

@@ -5,9 +5,9 @@ import servePdf from "$lib/utils/servePdf";
 import { error, type NumericRange } from "@sveltejs/kit";
 import { meilisearch } from "./meilisearch";
 import {
-  meilisearchConstants,
   type GoverningDocumentDataInMeilisearch,
   type MeetingDocumentDataInMeilisearch,
+  meilisearchConstants,
   type SearchableIndex,
 } from "./searchTypes";
 import { addDataToIndex, resetIndex, setRulesForIndex } from "./syncHelpers";
@@ -185,7 +185,9 @@ const getFileContent = async (url: string, fileName: string) => {
     const now = new Date();
     const popplerResponse = await pdfToText(buffer, fileName);
     console.log(
-      `Poppler: Received content from ${url} from Poppler server. Took ${new Date().getTime() - now.getTime()} ms`,
+      `Poppler: Received content from ${url} from Poppler server. Took ${
+        new Date().getTime() - now.getTime()
+      } ms`,
     );
     // Filter the content to remove unnecessary characters
     return filterContent(popplerResponse);

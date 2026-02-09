@@ -74,10 +74,11 @@ export const uploadFile = async (
       method: "PUT",
       body: dataToUpload,
     });
-    if (!res.ok)
+    if (!res.ok) {
       throw new Error(
         `${m.members_errors_couldntUploadFile()}: ${await res.text()}`,
       );
+    }
     return `${MINIO_BASE_URL}${bucket}/${filePath}`;
   } catch (e) {
     console.error(e);

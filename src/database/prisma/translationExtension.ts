@@ -13,7 +13,7 @@ type PayloadToModel<T> = T extends OperationPayload
   ? Types.Result.DefaultSelection<T>
   : T extends OperationPayload[]
     ? Array<Types.Result.DefaultSelection<T[number]>>
-    : never;
+  : never;
 
 type WithRelation<T extends keyof Prisma.TypeMap["model"]> = PayloadToModel<
   Prisma.TypeMap["model"][T]["payload"]
@@ -70,10 +70,12 @@ type ModelFields = {
 };
 
 type ComputedModelFields<Model extends Models> = {
-  [Field in RemoveSuffix<
-    Extract<Fields<Model>, `${string}Sv`>,
-    "Sv"
-  >]: MostPrecise<
+  [
+    Field in RemoveSuffix<
+      Extract<Fields<Model>, `${string}Sv`>,
+      "Sv"
+    >
+  ]: MostPrecise<
     FieldTypeLang<Model, Field, "Sv">,
     FieldTypeLang<Model, Field, "En">
   >;
@@ -129,9 +131,11 @@ const modelFields = (lang: AvailableLanguageTag): ModelFields => {
  * `ExtendedPrismaModel<"Article">` will have every field on the `Article`
  * model and the computed fields from the translation extension.
  */
-export type ExtendedPrismaModel<Model extends keyof Prisma.TypeMap["model"]> = {
-  [Field in keyof WithRelation<Model>]: FieldType<Model, Field>;
-} & ComputedModelFields<Uncapitalize<Model>>;
+export type ExtendedPrismaModel<Model extends keyof Prisma.TypeMap["model"]> =
+  & {
+    [Field in keyof WithRelation<Model>]: FieldType<Model, Field>;
+  }
+  & ComputedModelFields<Uncapitalize<Model>>;
 
 /**
  * This Prisma extension redirects all read operations to the translated fields.

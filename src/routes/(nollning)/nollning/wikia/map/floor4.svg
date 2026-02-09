@@ -1,319 +1,928 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg id="uuid-8e009308-2f0c-46a2-9b19-31e5e4308e80" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+<svg
+  id="uuid-8e009308-2f0c-46a2-9b19-31e5e4308e80"
+  data-name="Layer 1"
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 1000 1000"
+>
   <defs>
     <style>
-      .uuid-d9cb65a8-1ef2-48c7-a25b-481ee1b1eaa0 {
-        stroke-dasharray: 10.818 10.818;
-      }
+    .uuid-d9cb65a8-1ef2-48c7-a25b-481ee1b1eaa0 {
+      stroke-dasharray: 10.818 10.818;
+    }
 
-      .uuid-d9cb65a8-1ef2-48c7-a25b-481ee1b1eaa0, .uuid-358a79c3-6b15-4415-b434-56bfece25709, .uuid-80ca289e-40ba-4ddd-a2c0-3e146e6116b9, .uuid-fdaef5c9-b683-4f71-a87a-490c14d9b489, .uuid-c3bf6af2-3063-4283-b6da-7258d58bd475, .uuid-8457f339-612d-4234-ae79-56c4ba106e4b, .uuid-6416429c-6bee-4349-996a-152a0d9bc5c2, .uuid-13cd0022-7592-4310-9137-5113dfad17d5, .uuid-71defa08-e202-4481-b9b8-c0066694cb48, .uuid-697422dc-f833-48cf-8cd7-6916f08ca66a, .uuid-51ebfaf2-c630-42a4-a7df-7f477f9470b7, .uuid-3d9c40a2-03aa-4601-bed8-961e92889ca7, .uuid-f50adec2-5b0a-44cd-88a3-ec44a9f6e57e, .uuid-e89ae1e6-7c26-4388-a3a1-80b85a5d11ed, .uuid-6bc1a9bd-23b6-4e54-9e2e-fa651fb93a90, .uuid-0320b3ce-13a2-4833-abfa-b64d22121540, .uuid-dd792c24-49c9-4634-9948-d9c09e469549, .uuid-ddc8d800-1e62-46c8-a43f-57c44f7d481e, .uuid-7e224de1-ea5d-4bee-811c-ae26fce8c61d, .uuid-de73c445-8fa1-4896-a95b-2bcaf84fec2a, .uuid-ee12db76-9c80-49e1-bf47-e2079b9bea7d, .uuid-adcd8b32-26bb-4729-9454-b2f85595936d, .uuid-fcc2c1ba-11e9-468b-a861-2078c37c95fa, .uuid-806ab686-40ae-4484-a750-ea73cdfaa7f6, .uuid-21ebad6f-d779-4820-a644-735a6435403b, .uuid-a86b09c5-a2f0-4638-baef-bef32787930a, .uuid-e80b03a5-a1af-427e-8554-c5536f745e0a, .uuid-51396022-fc96-44a8-8b96-d8394d57b945, .uuid-0c067eff-4f10-415e-b42a-f6fb9e40f5e0, .uuid-14944d0e-2d64-4bfc-9deb-ffdfe668033d, .uuid-03d25b93-d484-4089-9733-95bc0064c6ad, .uuid-61ad0eda-c492-4bed-bc74-0f8b6f2afd6b, .uuid-950dc58f-1173-44e6-b619-1043ac522426, .uuid-651c1742-14f8-40f4-b144-d8b3b47e028c, .uuid-52e06769-7e40-470d-b897-fa100a259e34, .uuid-6eb8da88-6898-41c2-9c3a-1cd148d1a0d1, .uuid-dc8e665e-8151-4dac-9fc2-87e903b95c84, .uuid-ccea0dec-2f3d-4abf-a0c8-1b44791aa9a2, .uuid-25d649c6-5cf9-4f9a-a8fc-5d755a1a975c, .uuid-bcd73787-289e-4333-94e3-f6f2080dc19c {
-        fill: none;
-        stroke: #4f4a45;
-        stroke-miterlimit: 10;
-        stroke-width: 3px;
-      }
+    .uuid-d9cb65a8-1ef2-48c7-a25b-481ee1b1eaa0,
+    .uuid-358a79c3-6b15-4415-b434-56bfece25709,
+    .uuid-80ca289e-40ba-4ddd-a2c0-3e146e6116b9,
+    .uuid-fdaef5c9-b683-4f71-a87a-490c14d9b489,
+    .uuid-c3bf6af2-3063-4283-b6da-7258d58bd475,
+    .uuid-8457f339-612d-4234-ae79-56c4ba106e4b,
+    .uuid-6416429c-6bee-4349-996a-152a0d9bc5c2,
+    .uuid-13cd0022-7592-4310-9137-5113dfad17d5,
+    .uuid-71defa08-e202-4481-b9b8-c0066694cb48,
+    .uuid-697422dc-f833-48cf-8cd7-6916f08ca66a,
+    .uuid-51ebfaf2-c630-42a4-a7df-7f477f9470b7,
+    .uuid-3d9c40a2-03aa-4601-bed8-961e92889ca7,
+    .uuid-f50adec2-5b0a-44cd-88a3-ec44a9f6e57e,
+    .uuid-e89ae1e6-7c26-4388-a3a1-80b85a5d11ed,
+    .uuid-6bc1a9bd-23b6-4e54-9e2e-fa651fb93a90,
+    .uuid-0320b3ce-13a2-4833-abfa-b64d22121540,
+    .uuid-dd792c24-49c9-4634-9948-d9c09e469549,
+    .uuid-ddc8d800-1e62-46c8-a43f-57c44f7d481e,
+    .uuid-7e224de1-ea5d-4bee-811c-ae26fce8c61d,
+    .uuid-de73c445-8fa1-4896-a95b-2bcaf84fec2a,
+    .uuid-ee12db76-9c80-49e1-bf47-e2079b9bea7d,
+    .uuid-adcd8b32-26bb-4729-9454-b2f85595936d,
+    .uuid-fcc2c1ba-11e9-468b-a861-2078c37c95fa,
+    .uuid-806ab686-40ae-4484-a750-ea73cdfaa7f6,
+    .uuid-21ebad6f-d779-4820-a644-735a6435403b,
+    .uuid-a86b09c5-a2f0-4638-baef-bef32787930a,
+    .uuid-e80b03a5-a1af-427e-8554-c5536f745e0a,
+    .uuid-51396022-fc96-44a8-8b96-d8394d57b945,
+    .uuid-0c067eff-4f10-415e-b42a-f6fb9e40f5e0,
+    .uuid-14944d0e-2d64-4bfc-9deb-ffdfe668033d,
+    .uuid-03d25b93-d484-4089-9733-95bc0064c6ad,
+    .uuid-61ad0eda-c492-4bed-bc74-0f8b6f2afd6b,
+    .uuid-950dc58f-1173-44e6-b619-1043ac522426,
+    .uuid-651c1742-14f8-40f4-b144-d8b3b47e028c,
+    .uuid-52e06769-7e40-470d-b897-fa100a259e34,
+    .uuid-6eb8da88-6898-41c2-9c3a-1cd148d1a0d1,
+    .uuid-dc8e665e-8151-4dac-9fc2-87e903b95c84,
+    .uuid-ccea0dec-2f3d-4abf-a0c8-1b44791aa9a2,
+    .uuid-25d649c6-5cf9-4f9a-a8fc-5d755a1a975c,
+    .uuid-bcd73787-289e-4333-94e3-f6f2080dc19c {
+      fill: none;
+      stroke: #4f4a45;
+      stroke-miterlimit: 10;
+      stroke-width: 3px;
+    }
 
-      .uuid-358a79c3-6b15-4415-b434-56bfece25709 {
-        stroke-dasharray: 11.134 11.134;
-      }
+    .uuid-358a79c3-6b15-4415-b434-56bfece25709 {
+      stroke-dasharray: 11.134 11.134;
+    }
 
-      .uuid-80ca289e-40ba-4ddd-a2c0-3e146e6116b9 {
-        stroke-dasharray: 12.217 12.217;
-      }
+    .uuid-80ca289e-40ba-4ddd-a2c0-3e146e6116b9 {
+      stroke-dasharray: 12.217 12.217;
+    }
 
-      .uuid-fdaef5c9-b683-4f71-a87a-490c14d9b489 {
-        stroke-dasharray: 13.201 13.201;
-      }
+    .uuid-fdaef5c9-b683-4f71-a87a-490c14d9b489 {
+      stroke-dasharray: 13.201 13.201;
+    }
 
-      .uuid-c3bf6af2-3063-4283-b6da-7258d58bd475 {
-        stroke-dasharray: 12.71 12.71;
-      }
+    .uuid-c3bf6af2-3063-4283-b6da-7258d58bd475 {
+      stroke-dasharray: 12.71 12.71;
+    }
 
-      .uuid-8457f339-612d-4234-ae79-56c4ba106e4b {
-        stroke-dasharray: 11.482 11.482;
-      }
+    .uuid-8457f339-612d-4234-ae79-56c4ba106e4b {
+      stroke-dasharray: 11.482 11.482;
+    }
 
-      .uuid-6416429c-6bee-4349-996a-152a0d9bc5c2 {
-        stroke-dasharray: 11.112 11.112;
-      }
+    .uuid-6416429c-6bee-4349-996a-152a0d9bc5c2 {
+      stroke-dasharray: 11.112 11.112;
+    }
 
-      .uuid-71defa08-e202-4481-b9b8-c0066694cb48 {
-        stroke-dasharray: 13.165 13.165;
-      }
+    .uuid-71defa08-e202-4481-b9b8-c0066694cb48 {
+      stroke-dasharray: 13.165 13.165;
+    }
 
-      .uuid-697422dc-f833-48cf-8cd7-6916f08ca66a {
-        stroke-dasharray: 11.843 11.843;
-      }
+    .uuid-697422dc-f833-48cf-8cd7-6916f08ca66a {
+      stroke-dasharray: 11.843 11.843;
+    }
 
-      .uuid-51ebfaf2-c630-42a4-a7df-7f477f9470b7 {
-        stroke-dasharray: 11.48 11.48;
-      }
+    .uuid-51ebfaf2-c630-42a4-a7df-7f477f9470b7 {
+      stroke-dasharray: 11.48 11.48;
+    }
 
-      .uuid-3d9c40a2-03aa-4601-bed8-961e92889ca7 {
-        stroke-dasharray: 11.307 11.307;
-      }
+    .uuid-3d9c40a2-03aa-4601-bed8-961e92889ca7 {
+      stroke-dasharray: 11.307 11.307;
+    }
 
-      .uuid-f50adec2-5b0a-44cd-88a3-ec44a9f6e57e {
-        stroke-dasharray: 11.028 11.028;
-      }
+    .uuid-f50adec2-5b0a-44cd-88a3-ec44a9f6e57e {
+      stroke-dasharray: 11.028 11.028;
+    }
 
-      .uuid-e89ae1e6-7c26-4388-a3a1-80b85a5d11ed {
-        stroke-dasharray: 10.905 10.905;
-      }
+    .uuid-e89ae1e6-7c26-4388-a3a1-80b85a5d11ed {
+      stroke-dasharray: 10.905 10.905;
+    }
 
-      .uuid-6bc1a9bd-23b6-4e54-9e2e-fa651fb93a90 {
-        stroke-dasharray: 11.795 11.795;
-      }
+    .uuid-6bc1a9bd-23b6-4e54-9e2e-fa651fb93a90 {
+      stroke-dasharray: 11.795 11.795;
+    }
 
-      .uuid-0320b3ce-13a2-4833-abfa-b64d22121540 {
-        stroke-dasharray: 12.218 12.218;
-      }
+    .uuid-0320b3ce-13a2-4833-abfa-b64d22121540 {
+      stroke-dasharray: 12.218 12.218;
+    }
 
-      .uuid-dd792c24-49c9-4634-9948-d9c09e469549 {
-        stroke-dasharray: 12.218 12.218;
-      }
+    .uuid-dd792c24-49c9-4634-9948-d9c09e469549 {
+      stroke-dasharray: 12.218 12.218;
+    }
 
-      .uuid-ddc8d800-1e62-46c8-a43f-57c44f7d481e {
-        stroke-dasharray: 12.028 12.028;
-      }
+    .uuid-ddc8d800-1e62-46c8-a43f-57c44f7d481e {
+      stroke-dasharray: 12.028 12.028;
+    }
 
-      .uuid-7e224de1-ea5d-4bee-811c-ae26fce8c61d {
-        stroke-dasharray: 12.428 12.428;
-      }
+    .uuid-7e224de1-ea5d-4bee-811c-ae26fce8c61d {
+      stroke-dasharray: 12.428 12.428;
+    }
 
-      .uuid-de73c445-8fa1-4896-a95b-2bcaf84fec2a {
-        stroke-dasharray: 12.346 12.346;
-      }
+    .uuid-de73c445-8fa1-4896-a95b-2bcaf84fec2a {
+      stroke-dasharray: 12.346 12.346;
+    }
 
-      .uuid-ee12db76-9c80-49e1-bf47-e2079b9bea7d {
-        stroke-dasharray: 12.403 12.403;
-      }
+    .uuid-ee12db76-9c80-49e1-bf47-e2079b9bea7d {
+      stroke-dasharray: 12.403 12.403;
+    }
 
-      .uuid-adcd8b32-26bb-4729-9454-b2f85595936d {
-        stroke-dasharray: 11.035 11.035;
-      }
+    .uuid-adcd8b32-26bb-4729-9454-b2f85595936d {
+      stroke-dasharray: 11.035 11.035;
+    }
 
-      .uuid-fcc2c1ba-11e9-468b-a861-2078c37c95fa {
-        stroke-dasharray: 13.937 13.937;
-      }
+    .uuid-fcc2c1ba-11e9-468b-a861-2078c37c95fa {
+      stroke-dasharray: 13.937 13.937;
+    }
 
-      .uuid-806ab686-40ae-4484-a750-ea73cdfaa7f6 {
-        stroke-dasharray: 10.991 10.991;
-      }
+    .uuid-806ab686-40ae-4484-a750-ea73cdfaa7f6 {
+      stroke-dasharray: 10.991 10.991;
+    }
 
-      .uuid-21ebad6f-d779-4820-a644-735a6435403b {
-        stroke-dasharray: 10.99 10.99;
-      }
+    .uuid-21ebad6f-d779-4820-a644-735a6435403b {
+      stroke-dasharray: 10.99 10.99;
+    }
 
-      .uuid-a86b09c5-a2f0-4638-baef-bef32787930a {
-        stroke-dasharray: 12.666 12.666;
-      }
+    .uuid-a86b09c5-a2f0-4638-baef-bef32787930a {
+      stroke-dasharray: 12.666 12.666;
+    }
 
-      .uuid-e80b03a5-a1af-427e-8554-c5536f745e0a {
-        stroke-dasharray: 12.51 12.51;
-      }
+    .uuid-e80b03a5-a1af-427e-8554-c5536f745e0a {
+      stroke-dasharray: 12.51 12.51;
+    }
 
-      .uuid-51396022-fc96-44a8-8b96-d8394d57b945 {
-        stroke-dasharray: 12.433 12.433;
-      }
+    .uuid-51396022-fc96-44a8-8b96-d8394d57b945 {
+      stroke-dasharray: 12.433 12.433;
+    }
 
-      .uuid-0c067eff-4f10-415e-b42a-f6fb9e40f5e0 {
-        stroke-dasharray: 12.933 12.933;
-      }
+    .uuid-0c067eff-4f10-415e-b42a-f6fb9e40f5e0 {
+      stroke-dasharray: 12.933 12.933;
+    }
 
-      .uuid-14944d0e-2d64-4bfc-9deb-ffdfe668033d {
-        stroke-dasharray: 10.871 10.871;
-      }
+    .uuid-14944d0e-2d64-4bfc-9deb-ffdfe668033d {
+      stroke-dasharray: 10.871 10.871;
+    }
 
-      .uuid-ca4c7543-861e-497c-8af9-8e219ac65922 {
-        fill: #4f4a45;
-      }
+    .uuid-ca4c7543-861e-497c-8af9-8e219ac65922 {
+      fill: #4f4a45;
+    }
 
-      .uuid-03d25b93-d484-4089-9733-95bc0064c6ad {
-        stroke-dasharray: 12.359 12.359;
-      }
+    .uuid-03d25b93-d484-4089-9733-95bc0064c6ad {
+      stroke-dasharray: 12.359 12.359;
+    }
 
-      .uuid-61ad0eda-c492-4bed-bc74-0f8b6f2afd6b {
-        stroke-dasharray: 11.235 11.235;
-      }
+    .uuid-61ad0eda-c492-4bed-bc74-0f8b6f2afd6b {
+      stroke-dasharray: 11.235 11.235;
+    }
 
-      .uuid-950dc58f-1173-44e6-b619-1043ac522426 {
-        stroke-dasharray: 11.237 11.237;
-      }
+    .uuid-950dc58f-1173-44e6-b619-1043ac522426 {
+      stroke-dasharray: 11.237 11.237;
+    }
 
-      .uuid-651c1742-14f8-40f4-b144-d8b3b47e028c {
-        stroke-dasharray: 11.24 11.24;
-      }
+    .uuid-651c1742-14f8-40f4-b144-d8b3b47e028c {
+      stroke-dasharray: 11.24 11.24;
+    }
 
-      .uuid-52e06769-7e40-470d-b897-fa100a259e34 {
-        stroke-dasharray: 11.726 11.726;
-      }
+    .uuid-52e06769-7e40-470d-b897-fa100a259e34 {
+      stroke-dasharray: 11.726 11.726;
+    }
 
-      .uuid-6eb8da88-6898-41c2-9c3a-1cd148d1a0d1 {
-        stroke-dasharray: 10.007 10.007;
-      }
+    .uuid-6eb8da88-6898-41c2-9c3a-1cd148d1a0d1 {
+      stroke-dasharray: 10.007 10.007;
+    }
 
-      .uuid-dc8e665e-8151-4dac-9fc2-87e903b95c84 {
-        stroke-dasharray: 13.345 13.345;
-      }
+    .uuid-dc8e665e-8151-4dac-9fc2-87e903b95c84 {
+      stroke-dasharray: 13.345 13.345;
+    }
 
-      .uuid-ccea0dec-2f3d-4abf-a0c8-1b44791aa9a2 {
-        stroke-dasharray: 12.39 12.39;
-      }
+    .uuid-ccea0dec-2f3d-4abf-a0c8-1b44791aa9a2 {
+      stroke-dasharray: 12.39 12.39;
+    }
 
-      .uuid-25d649c6-5cf9-4f9a-a8fc-5d755a1a975c {
-        stroke-dasharray: 10.867 10.867;
-      }
+    .uuid-25d649c6-5cf9-4f9a-a8fc-5d755a1a975c {
+      stroke-dasharray: 10.867 10.867;
+    }
 
-      .uuid-bcd73787-289e-4333-94e3-f6f2080dc19c {
-        stroke-dasharray: 11.727 11.727;
-      }
+    .uuid-bcd73787-289e-4333-94e3-f6f2080dc19c {
+      stroke-dasharray: 11.727 11.727;
+    }
     </style>
   </defs>
   <g>
-    <path class="uuid-ca4c7543-861e-497c-8af9-8e219ac65922" d="M230.493,587.826h4.438v15.197h2.84v3.84h-2.84v5.839h-4.479v-5.839h-10.719v-3.08l10.759-15.957ZM224.894,603.023h5.56v-8.198l-5.56,8.198Z"/>
-    <path class="uuid-ca4c7543-861e-497c-8af9-8e219ac65922" d="M254.093,587.826h4.438v15.197h2.84v3.84h-2.84v5.839h-4.479v-5.839h-10.719v-3.08l10.759-15.957ZM248.493,603.023h5.56v-8.198l-5.56,8.198Z"/>
-    <path class="uuid-ca4c7543-861e-497c-8af9-8e219ac65922" d="M282.411,587.826h5.439l-7.759,11.519,8.998,13.357h-5.398l-6.319-9.358-6.319,9.358h-5.398l8.998-13.357-7.759-11.519h5.439l5.039,7.519,5.039-7.519Z"/>
-    <path class="uuid-ca4c7543-861e-497c-8af9-8e219ac65922" d="M308.172,587.826h5.439l-7.759,11.519,8.998,13.357h-5.399l-6.318-9.358-6.319,9.358h-5.398l8.998-13.357-7.759-11.519h5.439l5.039,7.519,5.039-7.519Z"/>
+    <path
+      class="uuid-ca4c7543-861e-497c-8af9-8e219ac65922"
+      d="M230.493,587.826h4.438v15.197h2.84v3.84h-2.84v5.839h-4.479v-5.839h-10.719v-3.08l10.759-15.957ZM224.894,603.023h5.56v-8.198l-5.56,8.198Z"
+    />
+    <path
+      class="uuid-ca4c7543-861e-497c-8af9-8e219ac65922"
+      d="M254.093,587.826h4.438v15.197h2.84v3.84h-2.84v5.839h-4.479v-5.839h-10.719v-3.08l10.759-15.957ZM248.493,603.023h5.56v-8.198l-5.56,8.198Z"
+    />
+    <path
+      class="uuid-ca4c7543-861e-497c-8af9-8e219ac65922"
+      d="M282.411,587.826h5.439l-7.759,11.519,8.998,13.357h-5.398l-6.319-9.358-6.319,9.358h-5.398l8.998-13.357-7.759-11.519h5.439l5.039,7.519,5.039-7.519Z"
+    />
+    <path
+      class="uuid-ca4c7543-861e-497c-8af9-8e219ac65922"
+      d="M308.172,587.826h5.439l-7.759,11.519,8.998,13.357h-5.399l-6.318-9.358-6.319,9.358h-5.398l8.998-13.357-7.759-11.519h5.439l5.039,7.519,5.039-7.519Z"
+    />
   </g>
   <g>
     <g>
       <g>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="334.952 464.985 340.952 464.985 340.952 470.985"/>
-        <line class="uuid-dc8e665e-8151-4dac-9fc2-87e903b95c84" x1="340.952" y1="484.329" x2="340.952" y2="557.726"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="340.952 564.399 340.952 570.399 334.952 570.399"/>
-        <line class="uuid-ccea0dec-2f3d-4abf-a0c8-1b44791aa9a2" x1="322.562" y1="570.399" x2="130.513" y2="570.399"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="124.318 570.399 118.318 570.399 118.318 564.399"/>
-        <line class="uuid-dc8e665e-8151-4dac-9fc2-87e903b95c84" x1="118.318" y1="551.054" x2="118.318" y2="477.657"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="118.318 470.985 118.318 464.985 124.318 464.985"/>
-        <line class="uuid-ccea0dec-2f3d-4abf-a0c8-1b44791aa9a2" x1="136.708" y1="464.985" x2="328.757" y2="464.985"/>
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="334.952 464.985 340.952 464.985 340.952 470.985"
+        />
+        <line
+          class="uuid-dc8e665e-8151-4dac-9fc2-87e903b95c84"
+          x1="340.952"
+          y1="484.329"
+          x2="340.952"
+          y2="557.726"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="340.952 564.399 340.952 570.399 334.952 570.399"
+        />
+        <line
+          class="uuid-ccea0dec-2f3d-4abf-a0c8-1b44791aa9a2"
+          x1="322.562"
+          y1="570.399"
+          x2="130.513"
+          y2="570.399"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="124.318 570.399 118.318 570.399 118.318 564.399"
+        />
+        <line
+          class="uuid-dc8e665e-8151-4dac-9fc2-87e903b95c84"
+          x1="118.318"
+          y1="551.054"
+          x2="118.318"
+          y2="477.657"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="118.318 470.985 118.318 464.985 124.318 464.985"
+        />
+        <line
+          class="uuid-ccea0dec-2f3d-4abf-a0c8-1b44791aa9a2"
+          x1="136.708"
+          y1="464.985"
+          x2="328.757"
+          y2="464.985"
+        />
       </g>
       <g>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="905.538 464.985 911.538 464.985 911.538 470.985"/>
-        <line class="uuid-dc8e665e-8151-4dac-9fc2-87e903b95c84" x1="911.538" y1="484.329" x2="911.538" y2="557.726"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="911.538 564.399 911.538 570.399 905.538 570.399"/>
-        <line class="uuid-51396022-fc96-44a8-8b96-d8394d57b945" x1="893.104" y1="570.399" x2="700.387" y2="570.399"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="694.17 570.399 688.17 570.399 688.17 564.399"/>
-        <line class="uuid-dc8e665e-8151-4dac-9fc2-87e903b95c84" x1="688.17" y1="551.054" x2="688.17" y2="477.657"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="688.17 470.985 688.17 464.985 694.17 464.985"/>
-        <line class="uuid-51396022-fc96-44a8-8b96-d8394d57b945" x1="706.604" y1="464.985" x2="899.321" y2="464.985"/>
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="905.538 464.985 911.538 464.985 911.538 470.985"
+        />
+        <line
+          class="uuid-dc8e665e-8151-4dac-9fc2-87e903b95c84"
+          x1="911.538"
+          y1="484.329"
+          x2="911.538"
+          y2="557.726"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="911.538 564.399 911.538 570.399 905.538 570.399"
+        />
+        <line
+          class="uuid-51396022-fc96-44a8-8b96-d8394d57b945"
+          x1="893.104"
+          y1="570.399"
+          x2="700.387"
+          y2="570.399"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="694.17 570.399 688.17 570.399 688.17 564.399"
+        />
+        <line
+          class="uuid-dc8e665e-8151-4dac-9fc2-87e903b95c84"
+          x1="688.17"
+          y1="551.054"
+          x2="688.17"
+          y2="477.657"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="688.17 470.985 688.17 464.985 694.17 464.985"
+        />
+        <line
+          class="uuid-51396022-fc96-44a8-8b96-d8394d57b945"
+          x1="706.604"
+          y1="464.985"
+          x2="899.321"
+          y2="464.985"
+        />
       </g>
       <g>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="124.318 399.369 118.318 399.369 118.318 393.369"/>
-        <line class="uuid-697422dc-f833-48cf-8cd7-6916f08ca66a" x1="118.318" y1="381.526" x2="118.318" y2="269.019"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="118.318 263.097 118.318 257.097 112.318 257.097"/>
-        <line class="uuid-6416429c-6bee-4349-996a-152a0d9bc5c2" x1="101.206" y1="257.097" x2="84.538" y2="257.097"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="78.982 257.097 72.982 257.097 72.982 263.097"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="72.982 266.578 72.982 272.578 66.982 272.578"/>
-        <line class="uuid-25d649c6-5cf9-4f9a-a8fc-5d755a1a975c" x1="56.115" y1="272.578" x2="39.815" y2="272.578"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="34.382 272.578 28.382 272.578 28.382 278.578"/>
-        <line class="uuid-8457f339-612d-4234-ae79-56c4ba106e4b" x1="28.382" y1="290.059" x2="28.382" y2="536.917"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="28.382 542.657 28.382 548.657 22.382 548.657"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="6 548.655 0 548.655 0 554.655"/>
-        <line class="uuid-950dc58f-1173-44e6-b619-1043ac522426" y1="565.892" y2="605.221"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="0 610.84 0 616.84 6 616.841"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="22.382 616.844 28.382 616.845 28.382 622.845"/>
-        <line class="uuid-bcd73787-289e-4333-94e3-f6f2080dc19c" x1="28.382" y1="634.572" x2="28.382" y2="652.163"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="28.382 658.027 28.382 664.027 34.382 664.027"/>
-        <line class="uuid-25d649c6-5cf9-4f9a-a8fc-5d755a1a975c" x1="45.248" y1="664.027" x2="61.548" y2="664.027"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="66.982 664.027 72.982 664.027 72.982 670.027"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="72.982 682.35 72.982 688.35 78.982 688.35"/>
-        <line class="uuid-6416429c-6bee-4349-996a-152a0d9bc5c2" x1="90.094" y1="688.35" x2="106.762" y2="688.35"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="112.318 688.35 118.318 688.35 118.318 682.35"/>
-        <line class="uuid-fcc2c1ba-11e9-468b-a861-2078c37c95fa" x1="118.318" y1="668.412" x2="118.318" y2="647.506"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="118.318 640.538 118.318 634.538 124.318 634.538"/>
-        <line class="uuid-21ebad6f-d779-4820-a644-735a6435403b" x1="135.308" y1="634.538" x2="151.792" y2="634.538"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="157.287 634.538 163.287 634.538 163.287 640.538"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="163.287 658.027 163.287 664.027 169.287 664.027"/>
-        <line class="uuid-e89ae1e6-7c26-4388-a3a1-80b85a5d11ed" x1="180.193" y1="664.027" x2="283.794" y2="664.027"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="289.247 664.027 295.247 664.027 295.247 670.027"/>
-        <line class="uuid-dd792c24-49c9-4634-9948-d9c09e469549" x1="295.247" y1="682.245" x2="295.247" y2="700.571"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="295.247 706.68 295.247 712.68 301.247 712.68"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="307.678 712.68 313.678 712.68 313.678 718.68"/>
-        <line class="uuid-358a79c3-6b15-4415-b434-56bfece25709" x1="313.677" y1="729.814" x2="313.674" y2="791.05"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="313.673 796.617 313.673 802.617 319.673 802.617"/>
-        <line class="uuid-adcd8b32-26bb-4729-9454-b2f85595936d" x1="330.708" y1="802.617" x2="413.471" y2="802.617"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="418.989 802.617 424.989 802.617 424.989 796.617"/>
-        <line class="uuid-358a79c3-6b15-4415-b434-56bfece25709" x1="424.988" y1="785.483" x2="424.982" y2="724.247"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="424.982 718.68 424.981 712.68 430.981 712.68"/>
-        <line class="uuid-ddc8d800-1e62-46c8-a43f-57c44f7d481e" x1="443.01" y1="712.68" x2="605.387" y2="712.68"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="611.401 712.68 617.401 712.68 617.401 718.68"/>
-        <line class="uuid-0c067eff-4f10-415e-b42a-f6fb9e40f5e0" x1="617.4" y1="731.614" x2="617.397" y2="776.88"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="617.396 783.346 617.396 789.346 623.396 789.346"/>
-        <line class="uuid-d9cb65a8-1ef2-48c7-a25b-481ee1b1eaa0" x1="634.214" y1="789.346" x2="693.711" y2="789.346"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="699.12 789.346 705.12 789.346 705.12 783.346"/>
-        <line class="uuid-0c067eff-4f10-415e-b42a-f6fb9e40f5e0" x1="705.121" y1="770.413" x2="705.124" y2="725.147"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="705.125 718.68 705.125 712.68 711.125 712.68"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="723.45 712.68 729.45 712.68 729.45 706.68"/>
-        <line class="uuid-dd792c24-49c9-4634-9948-d9c09e469549" x1="729.45" y1="694.463" x2="729.45" y2="676.136"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="729.45 670.027 729.45 664.027 735.45 664.027"/>
-        <line class="uuid-71defa08-e202-4481-b9b8-c0066694cb48" x1="748.615" y1="664.027" x2="847.353" y2="664.027"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="853.936 664.027 859.936 664.027 859.936 658.027"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="859.936 640.538 859.936 634.538 865.936 634.538"/>
-        <line class="uuid-fdaef5c9-b683-4f71-a87a-490c14d9b489" x1="879.136" y1="634.538" x2="898.938" y2="634.538"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="905.538 634.538 911.538 634.538 911.538 640.538"/>
-        <line class="uuid-14944d0e-2d64-4bfc-9deb-ffdfe668033d" x1="911.538" y1="651.409" x2="911.538" y2="732.941"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="911.538 738.377 911.538 744.377 917.538 744.377"/>
-        <line class="uuid-6eb8da88-6898-41c2-9c3a-1cd148d1a0d1" x1="927.545" y1="744.377" x2="942.555" y2="744.377"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="947.559 744.377 953.559 744.377 953.559 738.377"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="953.559 729 953.559 723 959.559 723"/>
-        <line class="uuid-51ebfaf2-c630-42a4-a7df-7f477f9470b7" x1="971.039" y1="723" x2="988.26" y2="723"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="994 723 1000 723 1000 717"/>
-        <line class="uuid-03d25b93-d484-4089-9733-95bc0064c6ad" x1="1000" y1="704.641" x2="1000" y2="340.044"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="1000 333.864 1000 327.864 994 327.864"/>
-        <line class="uuid-51ebfaf2-c630-42a4-a7df-7f477f9470b7" x1="982.52" y1="327.864" x2="965.299" y2="327.864"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="959.559 327.864 953.559 327.864 953.559 321.864"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="953.559 316.171 953.559 310.171 947.559 310.171"/>
-        <line class="uuid-6eb8da88-6898-41c2-9c3a-1cd148d1a0d1" x1="937.552" y1="310.171" x2="922.542" y2="310.171"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="917.538 310.171 911.538 310.171 911.538 316.171"/>
-        <line class="uuid-f50adec2-5b0a-44cd-88a3-ec44a9f6e57e" x1="911.538" y1="327.199" x2="911.538" y2="387.855"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="911.538 393.369 911.538 399.369 905.538 399.369"/>
-        <line class="uuid-7e224de1-ea5d-4bee-811c-ae26fce8c61d" x1="893.11" y1="399.369" x2="799.901" y2="399.369"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="793.688 399.369 787.688 399.369 787.688 393.369"/>
-        <line class="uuid-a86b09c5-a2f0-4638-baef-bef32787930a" x1="787.688" y1="380.703" x2="787.688" y2="209.716"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="787.688 203.383 787.688 197.383 781.688 197.383"/>
-        <line class="uuid-61ad0eda-c492-4bed-bc74-0f8b6f2afd6b" x1="770.452" y1="197.383" x2="753.6" y2="197.383"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="747.982 197.383 741.982 197.383 741.982 203.383"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="741.982 220.132 741.982 226.132 735.982 226.132"/>
-        <line class="uuid-0320b3ce-13a2-4833-abfa-b64d22121540" x1="723.764" y1="226.132" x2="705.438" y2="226.132"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="699.329 226.132 693.329 226.132 693.329 232.132"/>
-        <line class="uuid-ee12db76-9c80-49e1-bf47-e2079b9bea7d" x1="693.329" y1="244.534" x2="693.329" y2="387.167"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="693.329 393.369 693.329 399.369 687.329 399.369"/>
-        <line class="uuid-e80b03a5-a1af-427e-8554-c5536f745e0a" x1="674.819" y1="399.369" x2="580.997" y2="399.369"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="574.742 399.369 568.742 399.369 568.742 393.369"/>
-        <line class="uuid-a86b09c5-a2f0-4638-baef-bef32787930a" x1="568.742" y1="380.703" x2="568.742" y2="209.716"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="568.742 203.383 568.742 197.383 562.742 197.383"/>
-        <line class="uuid-c3bf6af2-3063-4283-b6da-7258d58bd475" x1="550.032" y1="197.383" x2="530.967" y2="197.383"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="524.612 197.383 518.612 197.383 518.612 203.383"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="518.612 212.763 518.612 218.763 512.612 218.763"/>
-        <line class="uuid-52e06769-7e40-470d-b897-fa100a259e34" x1="500.885" y1="218.763" x2="483.296" y2="218.763"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="477.433 218.763 471.433 218.763 471.433 224.763"/>
-        <line class="uuid-651c1742-14f8-40f4-b144-d8b3b47e028c" x1="471.433" y1="236.003" x2="471.433" y2="387.749"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="471.433 393.369 471.433 399.369 465.433 399.369"/>
-        <line class="uuid-de73c445-8fa1-4896-a95b-2bcaf84fec2a" x1="453.087" y1="399.369" x2="360.496" y2="399.369"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="354.323 399.369 348.323 399.369 348.323 393.369"/>
-        <line class="uuid-a86b09c5-a2f0-4638-baef-bef32787930a" x1="348.323" y1="380.703" x2="348.323" y2="209.716"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="348.323 203.383 348.323 197.383 342.323 197.383"/>
-        <line class="uuid-806ab686-40ae-4484-a750-ea73cdfaa7f6" x1="331.333" y1="197.383" x2="314.846" y2="197.383"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="309.351 197.383 303.351 197.383 303.351 203.383"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="303.351 212.763 303.351 218.763 297.351 218.763"/>
-        <line class="uuid-80ca289e-40ba-4ddd-a2c0-3e146e6116b9" x1="285.134" y1="218.763" x2="266.809" y2="218.763"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="260.7 218.763 254.7 218.763 254.7 224.763"/>
-        <line class="uuid-651c1742-14f8-40f4-b144-d8b3b47e028c" x1="254.7" y1="236.003" x2="254.7" y2="387.749"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="254.7 393.369 254.7 399.369 248.7 399.369"/>
-        <line class="uuid-3d9c40a2-03aa-4601-bed8-961e92889ca7" x1="237.393" y1="399.369" x2="129.971" y2="399.369"/>
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="124.318 399.369 118.318 399.369 118.318 393.369"
+        />
+        <line
+          class="uuid-697422dc-f833-48cf-8cd7-6916f08ca66a"
+          x1="118.318"
+          y1="381.526"
+          x2="118.318"
+          y2="269.019"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="118.318 263.097 118.318 257.097 112.318 257.097"
+        />
+        <line
+          class="uuid-6416429c-6bee-4349-996a-152a0d9bc5c2"
+          x1="101.206"
+          y1="257.097"
+          x2="84.538"
+          y2="257.097"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="78.982 257.097 72.982 257.097 72.982 263.097"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="72.982 266.578 72.982 272.578 66.982 272.578"
+        />
+        <line
+          class="uuid-25d649c6-5cf9-4f9a-a8fc-5d755a1a975c"
+          x1="56.115"
+          y1="272.578"
+          x2="39.815"
+          y2="272.578"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="34.382 272.578 28.382 272.578 28.382 278.578"
+        />
+        <line
+          class="uuid-8457f339-612d-4234-ae79-56c4ba106e4b"
+          x1="28.382"
+          y1="290.059"
+          x2="28.382"
+          y2="536.917"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="28.382 542.657 28.382 548.657 22.382 548.657"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="6 548.655 0 548.655 0 554.655"
+        />
+        <line
+          class="uuid-950dc58f-1173-44e6-b619-1043ac522426"
+          y1="565.892"
+          y2="605.221"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="0 610.84 0 616.84 6 616.841"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="22.382 616.844 28.382 616.845 28.382 622.845"
+        />
+        <line
+          class="uuid-bcd73787-289e-4333-94e3-f6f2080dc19c"
+          x1="28.382"
+          y1="634.572"
+          x2="28.382"
+          y2="652.163"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="28.382 658.027 28.382 664.027 34.382 664.027"
+        />
+        <line
+          class="uuid-25d649c6-5cf9-4f9a-a8fc-5d755a1a975c"
+          x1="45.248"
+          y1="664.027"
+          x2="61.548"
+          y2="664.027"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="66.982 664.027 72.982 664.027 72.982 670.027"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="72.982 682.35 72.982 688.35 78.982 688.35"
+        />
+        <line
+          class="uuid-6416429c-6bee-4349-996a-152a0d9bc5c2"
+          x1="90.094"
+          y1="688.35"
+          x2="106.762"
+          y2="688.35"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="112.318 688.35 118.318 688.35 118.318 682.35"
+        />
+        <line
+          class="uuid-fcc2c1ba-11e9-468b-a861-2078c37c95fa"
+          x1="118.318"
+          y1="668.412"
+          x2="118.318"
+          y2="647.506"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="118.318 640.538 118.318 634.538 124.318 634.538"
+        />
+        <line
+          class="uuid-21ebad6f-d779-4820-a644-735a6435403b"
+          x1="135.308"
+          y1="634.538"
+          x2="151.792"
+          y2="634.538"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="157.287 634.538 163.287 634.538 163.287 640.538"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="163.287 658.027 163.287 664.027 169.287 664.027"
+        />
+        <line
+          class="uuid-e89ae1e6-7c26-4388-a3a1-80b85a5d11ed"
+          x1="180.193"
+          y1="664.027"
+          x2="283.794"
+          y2="664.027"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="289.247 664.027 295.247 664.027 295.247 670.027"
+        />
+        <line
+          class="uuid-dd792c24-49c9-4634-9948-d9c09e469549"
+          x1="295.247"
+          y1="682.245"
+          x2="295.247"
+          y2="700.571"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="295.247 706.68 295.247 712.68 301.247 712.68"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="307.678 712.68 313.678 712.68 313.678 718.68"
+        />
+        <line
+          class="uuid-358a79c3-6b15-4415-b434-56bfece25709"
+          x1="313.677"
+          y1="729.814"
+          x2="313.674"
+          y2="791.05"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="313.673 796.617 313.673 802.617 319.673 802.617"
+        />
+        <line
+          class="uuid-adcd8b32-26bb-4729-9454-b2f85595936d"
+          x1="330.708"
+          y1="802.617"
+          x2="413.471"
+          y2="802.617"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="418.989 802.617 424.989 802.617 424.989 796.617"
+        />
+        <line
+          class="uuid-358a79c3-6b15-4415-b434-56bfece25709"
+          x1="424.988"
+          y1="785.483"
+          x2="424.982"
+          y2="724.247"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="424.982 718.68 424.981 712.68 430.981 712.68"
+        />
+        <line
+          class="uuid-ddc8d800-1e62-46c8-a43f-57c44f7d481e"
+          x1="443.01"
+          y1="712.68"
+          x2="605.387"
+          y2="712.68"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="611.401 712.68 617.401 712.68 617.401 718.68"
+        />
+        <line
+          class="uuid-0c067eff-4f10-415e-b42a-f6fb9e40f5e0"
+          x1="617.4"
+          y1="731.614"
+          x2="617.397"
+          y2="776.88"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="617.396 783.346 617.396 789.346 623.396 789.346"
+        />
+        <line
+          class="uuid-d9cb65a8-1ef2-48c7-a25b-481ee1b1eaa0"
+          x1="634.214"
+          y1="789.346"
+          x2="693.711"
+          y2="789.346"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="699.12 789.346 705.12 789.346 705.12 783.346"
+        />
+        <line
+          class="uuid-0c067eff-4f10-415e-b42a-f6fb9e40f5e0"
+          x1="705.121"
+          y1="770.413"
+          x2="705.124"
+          y2="725.147"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="705.125 718.68 705.125 712.68 711.125 712.68"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="723.45 712.68 729.45 712.68 729.45 706.68"
+        />
+        <line
+          class="uuid-dd792c24-49c9-4634-9948-d9c09e469549"
+          x1="729.45"
+          y1="694.463"
+          x2="729.45"
+          y2="676.136"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="729.45 670.027 729.45 664.027 735.45 664.027"
+        />
+        <line
+          class="uuid-71defa08-e202-4481-b9b8-c0066694cb48"
+          x1="748.615"
+          y1="664.027"
+          x2="847.353"
+          y2="664.027"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="853.936 664.027 859.936 664.027 859.936 658.027"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="859.936 640.538 859.936 634.538 865.936 634.538"
+        />
+        <line
+          class="uuid-fdaef5c9-b683-4f71-a87a-490c14d9b489"
+          x1="879.136"
+          y1="634.538"
+          x2="898.938"
+          y2="634.538"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="905.538 634.538 911.538 634.538 911.538 640.538"
+        />
+        <line
+          class="uuid-14944d0e-2d64-4bfc-9deb-ffdfe668033d"
+          x1="911.538"
+          y1="651.409"
+          x2="911.538"
+          y2="732.941"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="911.538 738.377 911.538 744.377 917.538 744.377"
+        />
+        <line
+          class="uuid-6eb8da88-6898-41c2-9c3a-1cd148d1a0d1"
+          x1="927.545"
+          y1="744.377"
+          x2="942.555"
+          y2="744.377"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="947.559 744.377 953.559 744.377 953.559 738.377"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="953.559 729 953.559 723 959.559 723"
+        />
+        <line
+          class="uuid-51ebfaf2-c630-42a4-a7df-7f477f9470b7"
+          x1="971.039"
+          y1="723"
+          x2="988.26"
+          y2="723"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="994 723 1000 723 1000 717"
+        />
+        <line
+          class="uuid-03d25b93-d484-4089-9733-95bc0064c6ad"
+          x1="1000"
+          y1="704.641"
+          x2="1000"
+          y2="340.044"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="1000 333.864 1000 327.864 994 327.864"
+        />
+        <line
+          class="uuid-51ebfaf2-c630-42a4-a7df-7f477f9470b7"
+          x1="982.52"
+          y1="327.864"
+          x2="965.299"
+          y2="327.864"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="959.559 327.864 953.559 327.864 953.559 321.864"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="953.559 316.171 953.559 310.171 947.559 310.171"
+        />
+        <line
+          class="uuid-6eb8da88-6898-41c2-9c3a-1cd148d1a0d1"
+          x1="937.552"
+          y1="310.171"
+          x2="922.542"
+          y2="310.171"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="917.538 310.171 911.538 310.171 911.538 316.171"
+        />
+        <line
+          class="uuid-f50adec2-5b0a-44cd-88a3-ec44a9f6e57e"
+          x1="911.538"
+          y1="327.199"
+          x2="911.538"
+          y2="387.855"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="911.538 393.369 911.538 399.369 905.538 399.369"
+        />
+        <line
+          class="uuid-7e224de1-ea5d-4bee-811c-ae26fce8c61d"
+          x1="893.11"
+          y1="399.369"
+          x2="799.901"
+          y2="399.369"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="793.688 399.369 787.688 399.369 787.688 393.369"
+        />
+        <line
+          class="uuid-a86b09c5-a2f0-4638-baef-bef32787930a"
+          x1="787.688"
+          y1="380.703"
+          x2="787.688"
+          y2="209.716"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="787.688 203.383 787.688 197.383 781.688 197.383"
+        />
+        <line
+          class="uuid-61ad0eda-c492-4bed-bc74-0f8b6f2afd6b"
+          x1="770.452"
+          y1="197.383"
+          x2="753.6"
+          y2="197.383"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="747.982 197.383 741.982 197.383 741.982 203.383"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="741.982 220.132 741.982 226.132 735.982 226.132"
+        />
+        <line
+          class="uuid-0320b3ce-13a2-4833-abfa-b64d22121540"
+          x1="723.764"
+          y1="226.132"
+          x2="705.438"
+          y2="226.132"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="699.329 226.132 693.329 226.132 693.329 232.132"
+        />
+        <line
+          class="uuid-ee12db76-9c80-49e1-bf47-e2079b9bea7d"
+          x1="693.329"
+          y1="244.534"
+          x2="693.329"
+          y2="387.167"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="693.329 393.369 693.329 399.369 687.329 399.369"
+        />
+        <line
+          class="uuid-e80b03a5-a1af-427e-8554-c5536f745e0a"
+          x1="674.819"
+          y1="399.369"
+          x2="580.997"
+          y2="399.369"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="574.742 399.369 568.742 399.369 568.742 393.369"
+        />
+        <line
+          class="uuid-a86b09c5-a2f0-4638-baef-bef32787930a"
+          x1="568.742"
+          y1="380.703"
+          x2="568.742"
+          y2="209.716"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="568.742 203.383 568.742 197.383 562.742 197.383"
+        />
+        <line
+          class="uuid-c3bf6af2-3063-4283-b6da-7258d58bd475"
+          x1="550.032"
+          y1="197.383"
+          x2="530.967"
+          y2="197.383"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="524.612 197.383 518.612 197.383 518.612 203.383"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="518.612 212.763 518.612 218.763 512.612 218.763"
+        />
+        <line
+          class="uuid-52e06769-7e40-470d-b897-fa100a259e34"
+          x1="500.885"
+          y1="218.763"
+          x2="483.296"
+          y2="218.763"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="477.433 218.763 471.433 218.763 471.433 224.763"
+        />
+        <line
+          class="uuid-651c1742-14f8-40f4-b144-d8b3b47e028c"
+          x1="471.433"
+          y1="236.003"
+          x2="471.433"
+          y2="387.749"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="471.433 393.369 471.433 399.369 465.433 399.369"
+        />
+        <line
+          class="uuid-de73c445-8fa1-4896-a95b-2bcaf84fec2a"
+          x1="453.087"
+          y1="399.369"
+          x2="360.496"
+          y2="399.369"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="354.323 399.369 348.323 399.369 348.323 393.369"
+        />
+        <line
+          class="uuid-a86b09c5-a2f0-4638-baef-bef32787930a"
+          x1="348.323"
+          y1="380.703"
+          x2="348.323"
+          y2="209.716"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="348.323 203.383 348.323 197.383 342.323 197.383"
+        />
+        <line
+          class="uuid-806ab686-40ae-4484-a750-ea73cdfaa7f6"
+          x1="331.333"
+          y1="197.383"
+          x2="314.846"
+          y2="197.383"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="309.351 197.383 303.351 197.383 303.351 203.383"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="303.351 212.763 303.351 218.763 297.351 218.763"
+        />
+        <line
+          class="uuid-80ca289e-40ba-4ddd-a2c0-3e146e6116b9"
+          x1="285.134"
+          y1="218.763"
+          x2="266.809"
+          y2="218.763"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="260.7 218.763 254.7 218.763 254.7 224.763"
+        />
+        <line
+          class="uuid-651c1742-14f8-40f4-b144-d8b3b47e028c"
+          x1="254.7"
+          y1="236.003"
+          x2="254.7"
+          y2="387.749"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="254.7 393.369 254.7 399.369 248.7 399.369"
+        />
+        <line
+          class="uuid-3d9c40a2-03aa-4601-bed8-961e92889ca7"
+          x1="237.393"
+          y1="399.369"
+          x2="129.971"
+          y2="399.369"
+        />
       </g>
       <g>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="639.411 464.985 645.411 464.985 645.411 470.985"/>
-        <line class="uuid-dc8e665e-8151-4dac-9fc2-87e903b95c84" x1="645.411" y1="484.329" x2="645.411" y2="557.726"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="645.411 564.399 645.411 570.399 639.411 570.399"/>
-        <line class="uuid-6bc1a9bd-23b6-4e54-9e2e-fa651fb93a90" x1="627.616" y1="570.399" x2="397.621" y2="570.399"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="391.723 570.399 385.723 570.399 385.723 564.399"/>
-        <line class="uuid-dc8e665e-8151-4dac-9fc2-87e903b95c84" x1="385.723" y1="551.054" x2="385.723" y2="477.657"/>
-        <polyline class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="385.723 470.985 385.723 464.985 391.723 464.985"/>
-        <line class="uuid-6bc1a9bd-23b6-4e54-9e2e-fa651fb93a90" x1="403.518" y1="464.985" x2="633.514" y2="464.985"/>
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="639.411 464.985 645.411 464.985 645.411 470.985"
+        />
+        <line
+          class="uuid-dc8e665e-8151-4dac-9fc2-87e903b95c84"
+          x1="645.411"
+          y1="484.329"
+          x2="645.411"
+          y2="557.726"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="645.411 564.399 645.411 570.399 639.411 570.399"
+        />
+        <line
+          class="uuid-6bc1a9bd-23b6-4e54-9e2e-fa651fb93a90"
+          x1="627.616"
+          y1="570.399"
+          x2="397.621"
+          y2="570.399"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="391.723 570.399 385.723 570.399 385.723 564.399"
+        />
+        <line
+          class="uuid-dc8e665e-8151-4dac-9fc2-87e903b95c84"
+          x1="385.723"
+          y1="551.054"
+          x2="385.723"
+          y2="477.657"
+        />
+        <polyline
+          class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+          points="385.723 470.985 385.723 464.985 391.723 464.985"
+        />
+        <line
+          class="uuid-6bc1a9bd-23b6-4e54-9e2e-fa651fb93a90"
+          x1="403.518"
+          y1="464.985"
+          x2="633.514"
+          y2="464.985"
+        />
       </g>
     </g>
-    <polygon class="uuid-13cd0022-7592-4310-9137-5113dfad17d5" points="910.762 570.099 117.843 570.162 117.843 613.421 162.815 613.421 162.815 663.79 859.459 663.79 859.459 613.421 910.762 613.421 910.762 570.099"/>
+    <polygon
+      class="uuid-13cd0022-7592-4310-9137-5113dfad17d5"
+      points="910.762 570.099 117.843 570.162 117.843 613.421 162.815 613.421 162.815 663.79 859.459 663.79 859.459 613.421 910.762 613.421 910.762 570.099"
+    />
   </g>
 </svg>

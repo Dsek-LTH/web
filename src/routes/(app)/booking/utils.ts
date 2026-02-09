@@ -59,13 +59,13 @@ export async function getSuperValidatedForm(
     name: bookingRequest.event ?? undefined,
     start: bookingRequest.start
       ? dayjs(bookingRequest.start)
-          .tz("Europe/Stockholm")
-          .format("YYYY-MM-DDTHH:mm")
+        .tz("Europe/Stockholm")
+        .format("YYYY-MM-DDTHH:mm")
       : undefined,
     end: bookingRequest.end
       ? dayjs(bookingRequest.end)
-          .tz("Europe/Stockholm")
-          .format("YYYY-MM-DDTHH:mm")
+        .tz("Europe/Stockholm")
+        .format("YYYY-MM-DDTHH:mm")
       : undefined,
     bookables: bookingRequest.bookables?.map((bookable) => bookable.id),
   };
@@ -102,7 +102,8 @@ async function performAction(event: RequestEvent, accepted: boolean) {
     if (request && request.bookerId != null && user && user.memberId) {
       sendNotification({
         title: `Booking request ${status.toLowerCase()}`,
-        message: `Your booking request for ${request.event} has been ${status.toLowerCase()}`,
+        message:
+          `Your booking request for ${request.event} has been ${status.toLowerCase()}`,
         type: NotificationType.BOOKING_REQUEST,
         link: `/booking`,
         memberIds: [request.bookerId],

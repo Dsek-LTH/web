@@ -1,5 +1,5 @@
 import { cancel, isCancel, spinner } from "@clack/prompts";
-import { type ExecException, exec } from "child_process";
+import { exec, type ExecException } from "child_process";
 import { randomBytes } from "crypto";
 import { access, writeFile } from "fs/promises";
 import { resolve } from "path";
@@ -41,9 +41,11 @@ async function writeEnvFile(
 ) {
   await writeFile(
     ENV_FILE_PATH,
-    `DATABASE_URL=${String(
-      url,
-    )}\nAUTH_SECRET=${authSecret}\nKEYCLOAK_CLIENT_SECRET=${keycloakClientSecret}`,
+    `DATABASE_URL=${
+      String(
+        url,
+      )
+    }\nAUTH_SECRET=${authSecret}\nKEYCLOAK_CLIENT_SECRET=${keycloakClientSecret}`,
   );
 }
 
@@ -140,11 +142,11 @@ function onError(error: ExecException | null) {
 }
 
 export {
-  POSTGRES_DOCKER_URL,
   envFileExists,
   generateSecret,
   handleCancellation,
   onCancel,
+  POSTGRES_DOCKER_URL,
   runWithSpinner,
   setupDatabase,
   spin,

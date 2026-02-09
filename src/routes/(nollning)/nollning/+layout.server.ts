@@ -15,24 +15,24 @@ export const load = async ({ locals, cookies }) => {
 
   const revealTheme = REVEAL_LAUNCH_DATE <= new Date();
   const notificationsPromise = getNollaGroupedNotifications(user, prisma);
-  const phadderGroup =
-    member?.classYear == new Date().getFullYear() &&
-    member.nollningGroupId !== null
-      ? prisma.phadderGroup.findUnique({
-          where: {
-            id: member.nollningGroupId!,
-          },
-          select: {
-            name: true,
-          },
-        })
-      : null;
+  const phadderGroup = member?.classYear == new Date().getFullYear() &&
+      member.nollningGroupId !== null
+    ? prisma.phadderGroup.findUnique({
+      where: {
+        id: member.nollningGroupId!,
+      },
+      select: {
+        name: true,
+      },
+    })
+    : null;
 
-  if (locals.isApp)
+  if (locals.isApp) {
     cookies.set(APP_PREFERRED_PAGE_COOKIE, "nollning", {
       path: "/",
       expires: afterNollning,
     });
+  }
 
   return {
     revealTheme,

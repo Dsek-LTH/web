@@ -6,9 +6,9 @@ import { fileHandler } from "$lib/files";
 import type { FileData } from "$lib/files/fileHandler";
 import { error, fail } from "@sveltejs/kit";
 import {
+  type Infer,
   message,
   superValidate,
-  type Infer,
 } from "sveltekit-superforms/server";
 import { zod } from "sveltekit-superforms/adapters";
 import { z } from "zod";
@@ -63,8 +63,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     case "guild-meeting":
       filteredFiles = files.filter((file) => {
         const fileParts = file.id.split("/");
-        const meeting =
-          fileParts[fileParts.length - 2] ?? m.documents_unknown();
+        const meeting = fileParts[fileParts.length - 2] ??
+          m.documents_unknown();
         return meeting.startsWith("HTM") || meeting.startsWith("VTM");
       });
       break;
@@ -72,8 +72,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     case "SRD-meeting":
       SRDfiles.forEach((file) => {
         const fileParts = file.id.split("/");
-        const meeting =
-          fileParts[fileParts.length - 2] ?? m.documents_unknown();
+        const meeting = fileParts[fileParts.length - 2] ??
+          m.documents_unknown();
         if (meeting.startsWith("Möte")) {
           filteredFiles.push(file);
         } else {
@@ -85,8 +85,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     case "other":
       filteredFiles = files.filter((file) => {
         const fileParts = file.id.split("/");
-        const meeting =
-          fileParts[fileParts.length - 2] ?? m.documents_unknown();
+        const meeting = fileParts[fileParts.length - 2] ??
+          m.documents_unknown();
         return (
           !meeting.startsWith("HTM") &&
           !meeting.startsWith("VTM") &&

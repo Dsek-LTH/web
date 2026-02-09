@@ -29,30 +29,30 @@ type BaseSendNotificationProps = {
   link: string;
   memberIds?: string[];
 };
-export type SendNotificationProps = BaseSendNotificationProps &
-  (
+export type SendNotificationProps =
+  & BaseSendNotificationProps
+  & (
     | {
-        // Send as author (e.g. Jane Smith, Källarmästare)
-        fromAuthor: ExtendedPrismaModel<"Author">;
-        fromMemberId?: never;
-      }
+      // Send as author (e.g. Jane Smith, Källarmästare)
+      fromAuthor: ExtendedPrismaModel<"Author">;
+      fromMemberId?: never;
+    }
     | {
-        // Send as member (e.g. Jane Smith)
-        fromAuthor?: never;
-        fromMemberId: string;
-      }
+      // Send as member (e.g. Jane Smith)
+      fromAuthor?: never;
+      fromMemberId: string;
+    }
     | {
-        // Send as system (e.g. D-sek)
-        fromAuthor?: never;
-        fromMemberId?: never;
-      }
+      // Send as system (e.g. D-sek)
+      fromAuthor?: never;
+      fromMemberId?: never;
+    }
   );
 
 // Need permissions to read expo tokens and send notifications without sharing expo tokens to the public
 const prisma = authorizedPrismaClient;
 
 /**
- *
  * @param title Title for the notification
  * @param message Body of the message
  * @param type NotificationType
@@ -81,48 +81,42 @@ const sendNotification = async ({
   if (!settingType) throw new Error(`Unknown notification type: ${type}`);
 
   // Who sent the notification, as an Author
-  const existingAuthor =
-    fromAuthor ??
+  const existingAuthor = fromAuthor ??
     (fromMemberId
       ? await prisma.author.findFirst({
-          where: { memberId: fromMemberId, mandateId: null, customId: null },
-        })
+        where: { memberId: fromMemberId, mandateId: null, customId: null },
+      })
       : undefined);
 
   // If member doesn't have author since before, create one
-  const notificationAuthor =
-    existingAuthor ??
+  const notificationAuthor = existingAuthor ??
     (fromMemberId
       ? await prisma.author.create({
-          data: { memberId: fromMemberId! },
-        })
+        data: { memberId: fromMemberId! },
+      })
       : undefined);
 
   const shouldReceiveDuplicates = DUPLICATE_ALLOWED_TYPES.includes(type); // if the notification type allows for duplicates
   const receivingMembers = await prisma.member.findMany({
     where: {
-      subscriptionSettings:
-        settingType == NOTIFICATION_SETTINGS_ALWAYS_ON
-          ? undefined
-          : {
-              some: {
-                type: settingType,
-              },
-            },
-      notifications: shouldReceiveDuplicates
+      subscriptionSettings: settingType == NOTIFICATION_SETTINGS_ALWAYS_ON
         ? undefined
         : {
-            none: {
-              type,
-              link,
-              fromAuthorId: notificationAuthor?.id,
-            },
+          some: {
+            type: settingType,
           },
+        },
+      notifications: shouldReceiveDuplicates ? undefined : {
+        none: {
+          type,
+          link,
+          fromAuthorId: notificationAuthor?.id,
+        },
+      },
       id: {
-        not:
-          process.env["NODE_ENV"] === "development"
-            ? undefined
-            : notificationAuthor?.memberId,
+        not: process.env["NODE_ENV"] === "development"
+          ? undefined
+          : notificationAuthor?.memberId,
         ...(memberIds !== undefined && memberIds.length > 0
           ? { in: memberIds }
           : {}),
@@ -144,7 +138,11 @@ const sendNotification = async ({
     return;
   }
   console.log(
-    `Sending ${type} notification to ${receivingMembers.length === 1 ? `member ${receivingMembers[0]?.id}` : `${receivingMembers.length} members`} ${
+    `Sending ${type} notification to ${
+      receivingMembers.length === 1
+        ? `member ${receivingMembers[0]?.id}`
+        : `${receivingMembers.length} members`
+    } ${
       notificationAuthor
         ? `, sent from author:${notificationAuthor.id} [${notificationAuthor.type}, member: ${notificationAuthor.memberId}]`
         : ""

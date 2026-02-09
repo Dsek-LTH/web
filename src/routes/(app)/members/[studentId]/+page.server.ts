@@ -7,9 +7,9 @@ import * as m from "$paraglide/messages";
 import { error, fail, isHttpError, type NumericRange } from "@sveltejs/kit";
 import { zod } from "sveltekit-superforms/adapters";
 import {
+  type Infer,
   message,
   superValidate,
-  type Infer,
 } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
@@ -70,31 +70,31 @@ export const load: PageServerLoad = async ({ locals, params, cookies }) => {
         },
       }),
     ]);
-  if (memberResult.status === "rejected")
+  if (memberResult.status === "rejected") {
     throw error(500, m.members_errors_couldntFetchMember());
-  if (publishedArticlesResult.status === "rejected")
+  }
+  if (publishedArticlesResult.status === "rejected") {
     throw error(500, m.members_errors_couldntFetchArticles());
+  }
   if (!memberResult.value) throw error(404, m.members_errors_memberNotFound());
-  if (phadderGroupsResult.status === "rejected")
+  if (phadderGroupsResult.status === "rejected") {
     throw error(505, phadderGroupsResult.reason);
+  }
 
   const member = memberResult.value;
 
-  const showPhadderGroupModal =
-    member.nollningGroupId === null &&
+  const showPhadderGroupModal = member.nollningGroupId === null &&
     cookies.get("phadder_group_modal_skipped") !== "1" &&
     cookies.get("phadder_group_modal_never") !== "1";
 
-  const doorAccess =
-    member.id === user?.memberId
-      ? await getCurrentDoorPoliciesForMember(prisma, studentId)
-      : [];
+  const doorAccess = member.id === user?.memberId
+    ? await getCurrentDoorPoliciesForMember(prisma, studentId)
+    : [];
 
-  const email =
-    user.studentId === studentId ||
-    isAuthorized(apiNames.MEMBER.SEE_EMAIL, user)
-      ? member.email
-      : undefined;
+  const email = user.studentId === studentId ||
+      isAuthorized(apiNames.MEMBER.SEE_EMAIL, user)
+    ? member.email
+    : undefined;
 
   try {
     return {
@@ -113,19 +113,19 @@ export const load: PageServerLoad = async ({ locals, params, cookies }) => {
       phadderGroups: phadderGroupsResult.value,
       ping: user
         ? await prisma.ping.findFirst({
-            where: {
-              OR: [
-                {
-                  fromMemberId: member.id,
-                  toMemberId: user.memberId,
-                },
-                {
-                  fromMemberId: user.memberId,
-                  toMemberId: member.id,
-                },
-              ],
-            },
-          })
+          where: {
+            OR: [
+              {
+                fromMemberId: member.id,
+                toMemberId: user.memberId,
+              },
+              {
+                fromMemberId: user.memberId,
+                toMemberId: member.id,
+              },
+            ],
+          },
+        })
         : null,
       showPhadderGroupModal: showPhadderGroupModal,
     };
@@ -207,12 +207,12 @@ export const actions: Actions = {
         break;
     }
 
-    if (form.data.nollningGroupId !== null)
+    if (form.data.nollningGroupId !== null) {
       return message(form, {
         message: m.members_memberUpdated(),
         type: "success",
       });
-    else return null;
+    } else return null;
   },
   update: async ({ params, locals, request }) => {
     const { prisma } = locals;

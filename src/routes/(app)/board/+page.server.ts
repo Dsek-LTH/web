@@ -45,7 +45,7 @@ export const load: PageServerLoad = async ({ locals }) => {
     where: {
       id: {
         in: boardPositions.flatMap((c) =>
-          c.positions.flatMap((p) => p.mandates.flatMap((m) => m.memberId)),
+          c.positions.flatMap((p) => p.mandates.flatMap((m) => m.memberId))
         ),
       },
     },
@@ -75,7 +75,7 @@ export const load: PageServerLoad = async ({ locals }) => {
   const mergedBoardPositions = [];
   for (const boardPos of boardPositions.flatMap((c) => c.positions)) {
     const boardMember = boardMembers.find((m) =>
-      m.mandates.some((mandate) => mandate.positionId === boardPos.id),
+      m.mandates.some((mandate) => mandate.positionId === boardPos.id)
     );
     if (!boardMember) {
       // still add the board position, but with no member, render as vacant
@@ -99,7 +99,7 @@ export const load: PageServerLoad = async ({ locals }) => {
   }
 
   mergedBoardPositions.sort((a, b) =>
-    compareBoardPositions(a.position.id, b.position.id),
+    compareBoardPositions(a.position.id, b.position.id)
   );
   if (!isAuthorized(apiNames.MEMBER.SEE_STABEN, user)) {
     return {

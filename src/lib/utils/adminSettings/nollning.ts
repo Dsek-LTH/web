@@ -13,8 +13,9 @@ export const isNollningPeriod = async () => {
   if (
     cache !== null &&
     cache.lastFetched.valueOf() + CACHE_TIME > now.valueOf()
-  )
+  ) {
     return cache.value;
+  }
   const rows = await authorizedPrismaClient.adminSetting.findMany({
     where: {
       OR: [

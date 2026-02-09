@@ -5,23 +5,22 @@ import type { Prisma } from "@prisma/client";
 export const BASIC_EVENT_FILTER = (
   showNollningEventsInstead: boolean | null = false,
 ): Prisma.EventWhereInput => ({
-  tags:
-    showNollningEventsInstead !== null
-      ? showNollningEventsInstead
-        ? {
-            some: {
-              nameSv: {
-                startsWith: NOLLNING_TAG_PREFIX,
-              },
-            },
-          }
-        : {
-            none: {
-              nameSv: {
-                startsWith: NOLLNING_TAG_PREFIX,
-              },
-            },
-          }
-      : undefined,
+  tags: showNollningEventsInstead !== null
+    ? showNollningEventsInstead
+      ? {
+        some: {
+          nameSv: {
+            startsWith: NOLLNING_TAG_PREFIX,
+          },
+        },
+      }
+      : {
+        none: {
+          nameSv: {
+            startsWith: NOLLNING_TAG_PREFIX,
+          },
+        },
+      }
+    : undefined,
   OR: [{ removedAt: { gt: new Date() } }, { removedAt: null }],
 });

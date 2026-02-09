@@ -1,11 +1,11 @@
 import { meilisearch } from "$lib/search/meilisearch";
 import { prismaIdToMeiliId } from "$lib/search/searchHelpers";
 import {
-  availableSearchIndexes,
-  meilisearchConstants,
   type ArticleDataInMeilisearch,
+  availableSearchIndexes,
   type CommitteeDataInMeilisearch,
   type EventDataInMeilisearch,
+  meilisearchConstants,
   type MemberDataInMeilisearch,
   type PositionDataInMeilisearch,
   type SongDataInMeilisearch,
@@ -68,32 +68,32 @@ async function syncMembers() {
   const membersIndex = await meilisearch.getIndex("members");
   await resetIndex(membersIndex, meilisearchConstants.member);
   for (let i = 0; i < numMembers; i += BATCH_SIZE) {
-    const members: MemberDataInMeilisearch[] =
-      await authorizedPrismaClient.member
-        .findMany({
-          select: {
-            id: true,
-            studentId: true,
-            firstName: true,
-            lastName: true,
-            nickname: true,
-            picturePath: true,
-            classYear: true,
-            classProgramme: true,
-          },
-          skip: i,
-          take: BATCH_SIZE,
-          orderBy: {
-            studentId: "asc",
-          },
-        })
-        .then((members) =>
-          members.map((member) => ({
-            ...member,
-            fullName: `${member.firstName} ${member.lastName}`,
-            id: prismaIdToMeiliId(member.id),
-          })),
-        );
+    const members: MemberDataInMeilisearch[] = await authorizedPrismaClient
+      .member
+      .findMany({
+        select: {
+          id: true,
+          studentId: true,
+          firstName: true,
+          lastName: true,
+          nickname: true,
+          picturePath: true,
+          classYear: true,
+          classProgramme: true,
+        },
+        skip: i,
+        take: BATCH_SIZE,
+        orderBy: {
+          studentId: "asc",
+        },
+      })
+      .then((members) =>
+        members.map((member) => ({
+          ...member,
+          fullName: `${member.firstName} ${member.lastName}`,
+          id: prismaIdToMeiliId(member.id),
+        }))
+      );
     await addDataToIndex(membersIndex, members);
   }
   await setRulesForIndex(membersIndex, meilisearchConstants.member);
@@ -127,7 +127,7 @@ async function syncSongs() {
         songs.map((song) => ({
           ...song,
           id: prismaIdToMeiliId(song.id),
-        })),
+        }))
       );
     await addDataToIndex(songsIndex, songs);
   }
@@ -139,42 +139,42 @@ async function syncArticles() {
   const articlesIndex = await meilisearch.getIndex("articles");
   await resetIndex(articlesIndex, meilisearchConstants.article);
   for (let i = 0; i < numArticles; i += BATCH_SIZE) {
-    const articles: ArticleDataInMeilisearch[] =
-      await authorizedPrismaClient.article
-        .findMany({
-          select: {
-            id: true,
-            bodySv: true,
-            bodyEn: true,
-            headerSv: true,
-            headerEn: true,
-            slug: true,
-            publishedAt: true,
-          },
-          where: {
-            AND: [
-              {
-                removedAt: null,
+    const articles: ArticleDataInMeilisearch[] = await authorizedPrismaClient
+      .article
+      .findMany({
+        select: {
+          id: true,
+          bodySv: true,
+          bodyEn: true,
+          headerSv: true,
+          headerEn: true,
+          slug: true,
+          publishedAt: true,
+        },
+        where: {
+          AND: [
+            {
+              removedAt: null,
+            },
+            {
+              publishedAt: {
+                not: null,
               },
-              {
-                publishedAt: {
-                  not: null,
-                },
-              },
-            ],
-          },
-          skip: i,
-          take: BATCH_SIZE,
-          orderBy: {
-            publishedAt: "asc",
-          },
-        })
-        .then((articles) =>
-          articles.map((article) => ({
-            ...article,
-            id: prismaIdToMeiliId(article.id),
-          })),
-        );
+            },
+          ],
+        },
+        skip: i,
+        take: BATCH_SIZE,
+        orderBy: {
+          publishedAt: "asc",
+        },
+      })
+      .then((articles) =>
+        articles.map((article) => ({
+          ...article,
+          id: prismaIdToMeiliId(article.id),
+        }))
+      );
     await addDataToIndex(articlesIndex, articles);
   }
   await setRulesForIndex(articlesIndex, meilisearchConstants.article);
@@ -213,7 +213,7 @@ async function syncEvents() {
         events.map((event) => ({
           ...event,
           id: prismaIdToMeiliId(event.id),
-        })),
+        }))
       );
     await addDataToIndex(eventsIndex, events);
   }
@@ -225,34 +225,34 @@ async function syncPositions() {
   const positionsIndex = await meilisearch.getIndex("positions");
   await resetIndex(positionsIndex, meilisearchConstants.position);
   for (let i = 0; i < numPositions; i += BATCH_SIZE) {
-    const positions: PositionDataInMeilisearch[] =
-      await authorizedPrismaClient.position
-        .findMany({
-          select: {
-            id: true,
-            committeeId: true,
-            committee: true,
-            descriptionSv: true,
-            descriptionEn: true,
-            nameSv: true,
-            nameEn: true,
-          },
-          skip: i,
-          take: BATCH_SIZE,
-          orderBy: {
-            nameSv: "asc",
-          },
-        })
-        .then((positions) =>
-          positions.map((position) => ({
-            ...position,
-            // ID is reserved in Meilisearch, so we use dsekId instead
-            dsekId: position.id,
-            committeeNameSv: position.committee?.nameSv ?? "",
-            committeeNameEn: position.committee?.nameEn ?? "",
-            id: prismaIdToMeiliId(position.id),
-          })),
-        );
+    const positions: PositionDataInMeilisearch[] = await authorizedPrismaClient
+      .position
+      .findMany({
+        select: {
+          id: true,
+          committeeId: true,
+          committee: true,
+          descriptionSv: true,
+          descriptionEn: true,
+          nameSv: true,
+          nameEn: true,
+        },
+        skip: i,
+        take: BATCH_SIZE,
+        orderBy: {
+          nameSv: "asc",
+        },
+      })
+      .then((positions) =>
+        positions.map((position) => ({
+          ...position,
+          // ID is reserved in Meilisearch, so we use dsekId instead
+          dsekId: position.id,
+          committeeNameSv: position.committee?.nameSv ?? "",
+          committeeNameEn: position.committee?.nameEn ?? "",
+          id: prismaIdToMeiliId(position.id),
+        }))
+      );
     await addDataToIndex(positionsIndex, positions);
   }
   await setRulesForIndex(positionsIndex, meilisearchConstants.position);
@@ -287,7 +287,7 @@ async function syncCommittees() {
           committees.map((committee) => ({
             ...committee,
             id: prismaIdToMeiliId(committee.id),
-          })),
+          }))
         );
     await addDataToIndex(committeesIndex, committees);
   }

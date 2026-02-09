@@ -11,9 +11,11 @@ export const sendNotificationToSigner = async (
   try {
     await sendNotification({
       title: "Nytt utlägg",
-      message: `${getFullName(member, {
-        hideNickname: true,
-      })} har skickat in ett nytt utlägg: ${expense.description}`,
+      message: `${
+        getFullName(member, {
+          hideNickname: true,
+        })
+      } har skickat in ett nytt utlägg: ${expense.description}`,
       link: `/expenses`,
       type: NotificationType.EXPENSES,
       memberIds: memberIds,

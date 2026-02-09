@@ -1,8 +1,8 @@
 import {
+  coveredSemesters,
+  endDate,
   type Semester,
   startDate,
-  endDate,
-  coveredSemesters,
 } from "$lib/utils/semesters";
 import { languageTag } from "$paraglide/runtime";
 import * as m from "$paraglide/messages";
@@ -26,8 +26,9 @@ const countMandateSemesters = (
   mandates.reduce((acc, curr) => {
     const set = acc.get(curr.memberId) ?? new Set<Semester>();
 
-    for (const s of coveredSemesters(curr.startDate, curr.endDate))
+    for (const s of coveredSemesters(curr.startDate, curr.endDate)) {
       if (s <= now) set.add(s);
+    }
 
     acc.set(curr.memberId, set);
 
@@ -137,8 +138,9 @@ const gammalOchÄckligSemester = (
       volunteerSemesters.length >= 8 ||
       (volunteerSemesters.length >= 6 && boardSemesters.length >= 2)
     )
-  )
+  ) {
     return undefined;
+  }
   const vs = volunteerSemesters.toSorted();
   const bs = boardSemesters.toSorted();
   const b = bs[1];
@@ -220,17 +222,19 @@ export const memberMedals = async (
 
   const res: Array<{ medal: string; after: Semester }> = [];
 
-  if (volunteerMedalSem)
+  if (volunteerMedalSem) {
     res.push({
       medal: m.medals_volunteerMedal(),
       after: volunteerMedalSem,
     });
+  }
 
-  if (gammalOchÄckligSem)
+  if (gammalOchÄckligSem) {
     res.push({
       medal: m.medals_gammalOchÄcklig(),
       after: gammalOchÄckligSem,
     });
+  }
 
   return res.concat(committeeSems);
 };
@@ -297,11 +301,12 @@ export const medalRecipients = async (
       volunteerMedalSemester([...(volunteerSemesters.get(id) ?? [])]) === after,
   );
 
-  if (volunteerMedalRecipients.length > 0)
+  if (volunteerMedalRecipients.length > 0) {
     res.push({
       medal: m.medals_volunteerMedal(),
       recipients: await getMembers(prisma, volunteerMedalRecipients),
     });
+  }
 
   const gammalOchÄckligRecipients = memberIds.filter(
     (id) =>
@@ -311,11 +316,12 @@ export const medalRecipients = async (
       ) === after,
   );
 
-  if (gammalOchÄckligRecipients.length > 0)
+  if (gammalOchÄckligRecipients.length > 0) {
     res.push({
       medal: m.medals_gammalOchÄcklig(),
       recipients: await getMembers(prisma, gammalOchÄckligRecipients),
     });
+  }
 
   const committees = await committeesWithMedals(prisma);
 
@@ -334,17 +340,15 @@ export const medalRecipients = async (
         const recipients = memberIds.filter(
           (id) =>
             committeeMedalSemester([...(committeeSemesters.get(id) ?? [])]) ===
-            after,
+              after,
         );
 
-        return recipients.length < 1
-          ? []
-          : [
-              {
-                medal: committeeMedalName(committee),
-                recipients: await getMembers(prisma, recipients),
-              },
-            ];
+        return recipients.length < 1 ? [] : [
+          {
+            medal: committeeMedalName(committee),
+            recipients: await getMembers(prisma, recipients),
+          },
+        ];
       }),
     )
   ).flat();

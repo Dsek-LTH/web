@@ -29,10 +29,10 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   const isRecurring = event.recurringParentId !== null;
   const recurringEvent = isRecurring
     ? await prisma.recurringEvent.findUnique({
-        where: {
-          id: event.recurringParentId ?? "",
-        },
-      })
+      where: {
+        id: event.recurringParentId ?? "",
+      },
+    })
     : null;
   if (isRecurring && !recurringEvent) {
     error(500, m.events_errors_recurringParentNotFound());

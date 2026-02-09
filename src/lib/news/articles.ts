@@ -7,19 +7,19 @@ export const BASIC_ARTICLE_FILTER = (
 ): Prisma.ArticleWhereInput => ({
   tags: showNollningEventsInstead
     ? {
-        some: {
-          nameSv: {
-            startsWith: NOLLNING_TAG_PREFIX,
-          },
-        },
-      }
-    : {
-        none: {
-          nameSv: {
-            startsWith: NOLLNING_TAG_PREFIX,
-          },
+      some: {
+        nameSv: {
+          startsWith: NOLLNING_TAG_PREFIX,
         },
       },
+    }
+    : {
+      none: {
+        nameSv: {
+          startsWith: NOLLNING_TAG_PREFIX,
+        },
+      },
+    },
   publishedAt: {
     lte: new Date(),
     not: null,

@@ -99,15 +99,17 @@ export const actions: Actions = {
         method: "PUT",
         body: buffer,
       });
-      if (!res.ok)
+      if (!res.ok) {
         return message(
           form,
           {
-            message: `${m.members_errors_couldntUploadFile()}: ${await res.text()}`,
+            message: `${m.members_errors_couldntUploadFile()}: ${await res
+              .text()}`,
             type: "error",
           },
           { status: 500 },
         );
+      }
     } catch (e) {
       console.log(e);
       const errMsg = e instanceof Error ? e.message : String(e);

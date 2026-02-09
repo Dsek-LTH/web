@@ -2,9 +2,9 @@ import apiNames from "$lib/utils/apiNames";
 import { Prisma } from "@prisma/client";
 import { fail } from "@sveltejs/kit";
 import {
+  type Infer,
   message,
   superValidate,
-  type Infer,
 } from "sveltekit-superforms/server";
 import { zod } from "sveltekit-superforms/adapters";
 import { z } from "zod";

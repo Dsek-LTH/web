@@ -7,13 +7,11 @@ export const getAllTags = (
 ) =>
   prisma.tag.findMany({
     orderBy: { nameSv: "asc" },
-    where: includeNollningTag
-      ? undefined
-      : {
-          NOT: {
-            nameSv: {
-              startsWith: NOLLNING_TAG_PREFIX,
-            },
-          },
+    where: includeNollningTag ? undefined : {
+      NOT: {
+        nameSv: {
+          startsWith: NOLLNING_TAG_PREFIX,
         },
+      },
+    },
   });

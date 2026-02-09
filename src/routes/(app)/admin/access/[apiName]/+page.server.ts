@@ -1,10 +1,10 @@
 import apiNames from "$lib/utils/apiNames";
 import { fail } from "@sveltejs/kit";
 import {
+  type Infer,
   message,
   setError,
   superValidate,
-  type Infer,
 } from "sveltekit-superforms/server";
 import { zod } from "sveltekit-superforms/adapters";
 import { z } from "zod";
@@ -60,8 +60,8 @@ export const actions: Actions = {
     if (
       form.data.studentId &&
       (await prisma.member.count({
-        where: { studentId: form.data.studentId },
-      })) === 0
+          where: { studentId: form.data.studentId },
+        })) === 0
     ) {
       return setError(form, "studentId", "Medlem hittades inte");
     }

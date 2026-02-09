@@ -1,5 +1,5 @@
 import { beforeAll, beforeEach, expect, test, vi } from "vitest";
-import { type MockProxy, mockDeep } from "vitest-mock-extended";
+import { mockDeep, type MockProxy } from "vitest-mock-extended";
 import { GET } from "./+server";
 import { BACKUP_LIST_OF_STUDENT_IDS } from "./constants";
 import mockedPrisma from "$lib/server/__mocks__/authorizedPrisma";

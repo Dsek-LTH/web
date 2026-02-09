@@ -23,13 +23,12 @@ export const load: PageServerLoad = async ({ locals }) => {
   )?.value;
   return {
     settings,
-    nollning:
-      nollningStartStr && nollningEndStr
-        ? {
-            start: new Date(nollningStartStr),
-            end: new Date(nollningEndStr),
-          }
-        : undefined,
+    nollning: nollningStartStr && nollningEndStr
+      ? {
+        start: new Date(nollningStartStr),
+        end: new Date(nollningEndStr),
+      }
+      : undefined,
     updateForm: await superValidate(zod(updateSchema)),
     updateNollningForm: await superValidate(zod(updateNollningPeriodSchema)),
   };

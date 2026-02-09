@@ -16,7 +16,7 @@ export async function promiseAllInBatches<A, B>(
   while (position < items.length) {
     const itemsForBatch: A[] = items.slice(position, position + batchSize);
     const promises: Array<Promise<B>> = itemsForBatch.map((item: A) =>
-      task(item),
+      task(item)
     );
     results = [...results, ...(await Promise.all(promises))];
     position += batchSize;

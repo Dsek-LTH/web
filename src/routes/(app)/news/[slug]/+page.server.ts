@@ -17,7 +17,7 @@ import * as m from "$paraglide/messages";
 import { error } from "@sveltejs/kit";
 import { zod } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
-import { likeSchema, likesAction } from "../likes";
+import { likesAction, likeSchema } from "../likes";
 import type { Actions, PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
@@ -32,9 +32,8 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     throw redirect(302, `${POST_REVEAL_PREFIX}/messages`);
   }
   const allTaggedMembers = await getAllTaggedMembers(prisma, article.comments);
-  const canEdit =
-    (isAuthorized(apiNames.NEWS.MANAGE, user) &&
-      isAuthorized(apiNames.NEWS.UPDATE, user)) ||
+  const canEdit = (isAuthorized(apiNames.NEWS.MANAGE, user) &&
+    isAuthorized(apiNames.NEWS.UPDATE, user)) ||
     article.author.memberId === user.memberId;
   const canDelete = isAuthorized(apiNames.NEWS.DELETE, user);
   return {

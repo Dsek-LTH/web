@@ -22,8 +22,8 @@ import { authorize } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
 import { convertPriceToCents } from "$lib/utils/convertPrice";
 import { error } from "@sveltejs/kit";
-import { isFileImage, isFilePDF, getNameOfFile } from "$lib/files/utils";
-import { PDFDocument, PageSizes } from "pdf-lib";
+import { getNameOfFile, isFileImage, isFilePDF } from "$lib/files/utils";
+import { PageSizes, PDFDocument } from "pdf-lib";
 import type { Actions, PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ locals: { user } }) => {
@@ -153,10 +153,11 @@ export const actions: Actions = {
       allowFiles: true,
     });
     if (!form.valid) return fail(400, { form });
-    if (!member)
+    if (!member) {
       throw error(401, {
         message: "Du måste vara inloggad för att skapa utlägg",
       });
+    }
     const expense = await prisma.expense.create({
       data: {
         date: form.data.date,
@@ -210,10 +211,9 @@ export const actions: Actions = {
           // it is clearer for the user to show the error message from "uploadReceipt" rather than this method
         }
         return message(form, {
-          message:
-            promiseResult.reason instanceof Error
-              ? promiseResult.reason.message
-              : promiseResult.reason,
+          message: promiseResult.reason instanceof Error
+            ? promiseResult.reason.message
+            : promiseResult.reason,
           type: "error",
         });
       }

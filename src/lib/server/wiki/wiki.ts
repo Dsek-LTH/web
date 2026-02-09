@@ -73,7 +73,7 @@ async function getWikiData(): Promise<WikiDataItem[]> {
     );
 
     wikiData = changes.map((c) =>
-      Object.assign(c, wikiExtracts.query.pages[c.pageid]),
+      Object.assign(c, wikiExtracts.query.pages[c.pageid])
     );
   }
 

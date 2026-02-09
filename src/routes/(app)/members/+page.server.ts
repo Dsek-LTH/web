@@ -18,16 +18,15 @@ export const load: PageServerLoad = async (request) => {
   const members = await prisma.member.findMany({
     where: {
       classYear,
-      classProgramme:
-        classProgramme === "all"
-          ? {
-              // dont actually show ALL members in db, only those in the specified programmes
-              // we have some members for other programmes, but they are not part of the guild
-              in: allowedProgrammes,
-            }
-          : {
-              equals: classProgramme,
-            },
+      classProgramme: classProgramme === "all"
+        ? {
+          // dont actually show ALL members in db, only those in the specified programmes
+          // we have some members for other programmes, but they are not part of the guild
+          in: allowedProgrammes,
+        }
+        : {
+          equals: classProgramme,
+        },
     },
     orderBy: [
       {

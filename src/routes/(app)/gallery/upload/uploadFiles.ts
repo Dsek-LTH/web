@@ -4,8 +4,8 @@ import type { UploadSchema } from "./types";
 import { PUBLIC_BUCKETS_ALBUMS } from "$env/static/public";
 
 export const uploadAlbumFiles = async (user: AuthUser, data: UploadSchema) => {
-  const prefix =
-    "public/" + data.date.split("-")[0] + "/" + data.date + " " + data.name;
+  const prefix = "public/" + data.date.split("-")[0] + "/" + data.date + " " +
+    data.name;
   const bucket = PUBLIC_BUCKETS_ALBUMS;
 
   const tasks: Array<Promise<string>> = [];

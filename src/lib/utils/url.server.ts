@@ -91,8 +91,9 @@ export const getIntegerParamOrThrowSvelteError = (
     url.searchParams.get(param) || options.fallbackValue.toString(),
   );
   if (isNaN(value)) throw error(400, options.errorMessage);
-  if (value < options.lowerBound || value > options.upperBound)
+  if (value < options.lowerBound || value > options.upperBound) {
     throw error(400, options.errorMessage);
+  }
   return value;
 };
 
@@ -102,8 +103,9 @@ export const getSemesterOrThrowSvelteError = (
 ): Semester => {
   const semester = url.searchParams.get("semester");
   if (semester === null) return fallbackValue;
-  const parsed = parseSemesterFromString(semester, () =>
-    error(400, m.error_invalid_semester()),
+  const parsed = parseSemesterFromString(
+    semester,
+    () => error(400, m.error_invalid_semester()),
   );
   return parsed;
 };

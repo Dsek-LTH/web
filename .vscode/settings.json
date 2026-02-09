@@ -19,7 +19,7 @@
   "prettier.documentSelectors": ["**/*.svelte"],
   "tailwindCSS.experimental.classRegex": [
     "class:(.+)", // for svelte class: directive
-    ".*icon: \"(.+)\"", // for icon property in routes.ts
+    ".*icon: \"(.+)\"" // for icon property in routes.ts
   ],
   "workbench.editor.labelFormat": "short", // show filename + route in tab
   "explorer.compactFolders": false, // present folders in explorer as a tree
@@ -29,7 +29,7 @@
     "**/.git": true,
     "**/node_modules": true,
     "**/.svelte-kit": true,
-    "**/pnpm-lock.yaml": true,
+    "**/pnpm-lock.yaml": true
   },
   "typescript.preferences.importModuleSpecifierEnding": "minimal",
   "typescript.preferences.importModuleSpecifier": "non-relative"

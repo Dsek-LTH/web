@@ -1,4 +1,4 @@
-import type { Index, EnqueuedTask } from "meilisearch";
+import type { EnqueuedTask, Index } from "meilisearch";
 import { meilisearch } from "./meilisearch";
 import type { MeilisearchConstants } from "./searchTypes";
 
@@ -25,7 +25,9 @@ export async function waitForTask(
     })
     .catch((e) => {
       console.log(
-        `Meilisearch: "${taskName}" failed after ${Date.now() - currentTime} ms`,
+        `Meilisearch: "${taskName}" failed after ${
+          Date.now() - currentTime
+        } ms`,
         e,
       );
       return e as Error;

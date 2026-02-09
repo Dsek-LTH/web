@@ -16,9 +16,9 @@ export const updateMarkdown = async (
 ) => {
   // we cannot do page-specific access in zenstack so we have to do it like this
   const prismaToUse = isAuthorized(
-    apiNames.MARKDOWNS.PAGE(markdown.name).UPDATE,
-    user,
-  )
+      apiNames.MARKDOWNS.PAGE(markdown.name).UPDATE,
+      user,
+    )
     ? authorizedPrismaClient
     : prisma;
   return await prismaToUse.markdown.update({

@@ -9,13 +9,17 @@ export const purchaseForm = z.object({
 export type PurchaseForm = Infer<typeof purchaseForm>;
 
 type ItemMetadata = {
-  shoppable: ExtendedPrismaModel<"Shoppable"> &
-    ExtendedPrismaModel<"Ticket"> & {
+  shoppable:
+    & ExtendedPrismaModel<"Shoppable">
+    & ExtendedPrismaModel<"Ticket">
+    & {
       event: ExtendedPrismaModel<"Event">;
     };
 };
-export type CartItem = ExtendedPrismaModel<"Consumable"> &
-  ItemMetadata & {
+export type CartItem =
+  & ExtendedPrismaModel<"Consumable">
+  & ItemMetadata
+  & {
     shoppable: {
       questions: Array<
         ExtendedPrismaModel<"ItemQuestion"> & {
@@ -26,8 +30,10 @@ export type CartItem = ExtendedPrismaModel<"Consumable"> &
     };
     questionResponses: Array<ExtendedPrismaModel<"ItemQuestionResponse">>;
   };
-export type CartReservation = ExtendedPrismaModel<"ConsumableReservation"> &
-  ItemMetadata & {
+export type CartReservation =
+  & ExtendedPrismaModel<"ConsumableReservation">
+  & ItemMetadata
+  & {
     shoppable: {
       gracePeriodEndsAt: Date;
     };

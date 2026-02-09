@@ -11,8 +11,8 @@ const minio = new Client({
   port: PUBLIC_MINIO_PORT
     ? Number.parseInt(PUBLIC_MINIO_PORT, 10)
     : PUBLIC_MINIO_USE_SSL === "true"
-      ? 443
-      : 80,
+    ? 443
+    : 80,
   useSSL: PUBLIC_MINIO_USE_SSL === "true",
   accessKey: env.MINIO_ROOT_USER || "",
   secretKey: env.MINIO_ROOT_PASSWORD || "",

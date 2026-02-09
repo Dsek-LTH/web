@@ -44,7 +44,7 @@ const main = async () => {
   await seed.bookingRequest((x) =>
     x(25, {
       _booking_requests_bookables: (x) => x({ min: 1, max: 5 }),
-    }),
+    })
   );
 
   await seed.committee(

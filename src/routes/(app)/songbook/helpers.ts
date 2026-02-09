@@ -21,11 +21,9 @@ export async function getExistingCategories(
       select: {
         category: true,
       },
-      where: includeDeleted
-        ? {}
-        : {
-            deletedAt: null,
-          },
+      where: includeDeleted ? {} : {
+        deletedAt: null,
+      },
     })
   ).reduce<Array<NonNullable<ExtendedPrismaModel<"Song">["category"]>>>(
     (acc, cur) => {
@@ -56,11 +54,9 @@ export async function getExistingMelodies(
       select: {
         melody: true,
       },
-      where: includeDeleted
-        ? {}
-        : {
-            deletedAt: null,
-          },
+      where: includeDeleted ? {} : {
+        deletedAt: null,
+      },
     })
   ).reduce<Array<NonNullable<ExtendedPrismaModel<"Song">["melody"]>>>(
     (acc, cur) => {

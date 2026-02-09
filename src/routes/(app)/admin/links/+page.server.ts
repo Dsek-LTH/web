@@ -3,7 +3,7 @@ import { ShlinkApiClient } from "@shlinkio/shlink-js-sdk";
 import type { ProblemDetailsError } from "@shlinkio/shlink-js-sdk/api-contract";
 import { env } from "$env/dynamic/private";
 import { NodeHttpClient } from "@shlinkio/shlink-js-sdk/node";
-import { error, fail, type Actions, type NumericRange } from "@sveltejs/kit";
+import { type Actions, error, fail, type NumericRange } from "@sveltejs/kit";
 import { authorize } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
 import { z } from "zod";

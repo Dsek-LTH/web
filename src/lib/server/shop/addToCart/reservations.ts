@@ -105,7 +105,8 @@ export const removeExpiredConsumables = async (
     // Notify users of expired consumables
     queuedNotifications.push({
       title: "Produkt i kundvagnen har löpt ut",
-      message: `Den reserverade tiden du hade för att skaffa produkten har löpt ut, om det finns lager kvar kan du försöka skaffa den igen här.`,
+      message:
+        `Den reserverade tiden du hade för att skaffa produkten har löpt ut, om det finns lager kvar kan du försöka skaffa den igen här.`,
       link: "/shop/tickets",
       memberIds: toBeRemoved
         .map((item) => item.memberId)
@@ -136,8 +137,8 @@ let pruneTimeout: ReturnType<typeof setTimeout> | null = null;
 // Queues a timeout to call removeExpiredConsumables when next consumable expires
 export const queueNextExpiredConsumablesPruning = async () => {
   if (pruneTimeout) return;
-  const nextConsumableToExpire =
-    await authorizedPrismaClient.consumable.findFirst({
+  const nextConsumableToExpire = await authorizedPrismaClient.consumable
+    .findFirst({
       where: {
         expiresAt: {
           not: null,
@@ -148,8 +149,9 @@ export const queueNextExpiredConsumablesPruning = async () => {
         expiresAt: "asc",
       },
     });
-  if (nextConsumableToExpire == null || !nextConsumableToExpire.expiresAt)
+  if (nextConsumableToExpire == null || !nextConsumableToExpire.expiresAt) {
     return;
+  }
   pruneTimeout = setTimeout(async () => {
     const now = new Date();
     await withHandledNotificationQueue(
@@ -211,7 +213,7 @@ const updateAllNecessaryQueues = async (
             shoppable: ticket.shoppable,
           })),
           ticket.shoppable.consumables,
-        ),
+        )
       ),
     )
   ).flatMap((notifications) => notifications);
@@ -405,7 +407,7 @@ const moveReservationsToCart = async (
       },
     },
   });
-  if (updateOrder)
+  if (updateOrder) {
     await prisma.consumableReservation.updateMany({
       where: {
         shoppableId,
@@ -416,6 +418,7 @@ const moveReservationsToCart = async (
         },
       },
     });
+  }
 
   if (shouldQueueNotifications) {
     // Queue notification to tell people that they can now purchase their item
@@ -527,7 +530,7 @@ const performReservationLottery = async (
         data: {
           order: i,
         },
-      }),
+      })
     ),
   );
   // Queue notifications to winners of lottery, and to losers, telling them what happened
@@ -595,9 +598,9 @@ export const sendQueuedNotifications = async (
   );
   if (results.some((result) => result.status === "rejected")) {
     console.error(
-      `${results.filter((results) => results.status === "rejected")} out of ${
-        results.length
-      } notification send-outs failed`,
+      `${
+        results.filter((results) => results.status === "rejected")
+      } out of ${results.length} notification send-outs failed`,
     );
     throw new Error(`An error was thrown when trying to send notifications.`);
   }

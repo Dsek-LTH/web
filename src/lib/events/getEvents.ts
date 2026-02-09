@@ -37,76 +37,76 @@ export const getAllEvents = async (
       {
         endDatetime: filters.pastEvents
           ? {
-              lte: new Date(),
-            }
+            lte: new Date(),
+          }
           : {
-              gte: new Date(),
-            },
+            gte: new Date(),
+          },
         // search:
         ...(filters.search && filters.search.length > 0
           ? {
-              OR: [
-                {
-                  titleSv: {
-                    contains: filters.search,
-                    mode: "insensitive",
-                  },
+            OR: [
+              {
+                titleSv: {
+                  contains: filters.search,
+                  mode: "insensitive",
                 },
-                {
-                  titleEn: {
-                    contains: filters.search,
-                    mode: "insensitive",
-                  },
+              },
+              {
+                titleEn: {
+                  contains: filters.search,
+                  mode: "insensitive",
                 },
-                {
-                  shortDescriptionSv: {
-                    contains: filters.search,
-                    mode: "insensitive",
-                  },
+              },
+              {
+                shortDescriptionSv: {
+                  contains: filters.search,
+                  mode: "insensitive",
                 },
-                {
-                  shortDescriptionEn: {
-                    contains: filters.search,
-                    mode: "insensitive",
-                  },
+              },
+              {
+                shortDescriptionEn: {
+                  contains: filters.search,
+                  mode: "insensitive",
                 },
-                {
-                  descriptionSv: {
-                    contains: filters.search,
-                    mode: "insensitive",
-                  },
+              },
+              {
+                descriptionSv: {
+                  contains: filters.search,
+                  mode: "insensitive",
                 },
-                {
-                  descriptionEn: {
-                    contains: filters.search,
-                    mode: "insensitive",
-                  },
+              },
+              {
+                descriptionEn: {
+                  contains: filters.search,
+                  mode: "insensitive",
                 },
-              ],
-            }
+              },
+            ],
+          }
           : {}),
         // tags
         ...(filters.tags && filters.tags.length > 0
           ? {
-              tags: {
-                some: {
-                  OR: [
-                    {
-                      nameSv: {
-                        in: filters.tags,
-                        mode: "insensitive",
-                      },
+            tags: {
+              some: {
+                OR: [
+                  {
+                    nameSv: {
+                      in: filters.tags,
+                      mode: "insensitive",
                     },
-                    {
-                      nameEn: {
-                        in: filters.tags,
-                        mode: "insensitive",
-                      },
+                  },
+                  {
+                    nameEn: {
+                      in: filters.tags,
+                      mode: "insensitive",
                     },
-                  ],
-                },
+                  },
+                ],
               },
-            }
+            },
+          }
           : {}),
       },
     ],

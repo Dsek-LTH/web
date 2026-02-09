@@ -5,13 +5,13 @@ import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import sendNotification from "$lib/utils/notifications";
 import { NotificationType } from "$lib/utils/notifications/types";
 import { redirect } from "$lib/utils/redirect";
-import { slugWithCount, slugify } from "$lib/utils/slugify";
+import { slugify, slugWithCount } from "$lib/utils/slugify";
 import * as m from "$paraglide/messages";
 import { Prisma } from "@prisma/client";
 import type { Action } from "@sveltejs/kit";
 import type { AuthUser } from "@zenstackhq/runtime";
 import { zod } from "sveltekit-superforms/adapters";
-import { message, superValidate, fail } from "sveltekit-superforms";
+import { fail, message, superValidate } from "sveltekit-superforms";
 import DOMPurify from "isomorphic-dompurify";
 import { markdownToTxt } from "markdown-to-txt";
 import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
@@ -172,11 +172,15 @@ const sendNewArticleWebhook = async (
       {
         title: article.headerSv,
         author: {
-          name: `${member?.firstName} ${member?.lastName} ${title ? "| " + title : ""}`,
+          name: `${member?.firstName} ${member?.lastName} ${
+            title ? "| " + title : ""
+          }`,
           icon_url: member?.picturePath,
         },
         // Default to development URL
-        url: `${process.env["ORIGIN"] ?? "http://localhost:5173"}/news/${article.slug}`,
+        url: `${
+          process.env["ORIGIN"] ?? "http://localhost:5173"
+        }/news/${article.slug}`,
         description: description,
         color: color,
         footer: {
@@ -249,28 +253,28 @@ export const createArticle: Action = async (event) => {
       author: {
         connect: existingAuthor
           ? {
-              id: existingAuthor.id,
-            }
+            id: existingAuthor.id,
+          }
           : undefined,
         create: !existingAuthor
           ? {
-              member: {
-                connect: { studentId: user?.studentId },
-              },
-              mandate: author.mandateId
-                ? {
-                    connect: {
-                      member: { studentId: user?.studentId },
-                      id: author.mandateId,
-                    },
-                  }
-                : undefined,
-              customAuthor: author.customId
-                ? {
-                    connect: { id: author.customId },
-                  }
-                : undefined,
-            }
+            member: {
+              connect: { studentId: user?.studentId },
+            },
+            mandate: author.mandateId
+              ? {
+                connect: {
+                  member: { studentId: user?.studentId },
+                  id: author.mandateId,
+                },
+              }
+              : undefined,
+            customAuthor: author.customId
+              ? {
+                connect: { id: author.customId },
+              }
+              : undefined,
+          }
           : undefined,
       },
       tags: {
@@ -338,10 +342,9 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
 
   await Promise.resolve();
   const newImages = await Promise.all(tasks);
-  rest.imageUrls =
-    rest.imageUrls === undefined
-      ? newImages
-      : [...rest.imageUrls, ...newImages];
+  rest.imageUrls = rest.imageUrls === undefined
+    ? newImages
+    : [...rest.imageUrls, ...newImages];
 
   try {
     await prisma.article.update({
@@ -355,28 +358,28 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
         author: {
           connect: existingAuthor
             ? {
-                id: existingAuthor.id,
-              }
+              id: existingAuthor.id,
+            }
             : undefined,
           create: existingAuthor
             ? {
-                member: {
-                  connect: { studentId: user?.studentId },
-                },
-                mandate: author.mandateId
-                  ? {
-                      connect: {
-                        member: { studentId: user?.studentId },
-                        id: author.mandateId,
-                      },
-                    }
-                  : undefined,
-                customAuthor: author.customId
-                  ? {
-                      connect: { id: author.customId },
-                    }
-                  : undefined,
-              }
+              member: {
+                connect: { studentId: user?.studentId },
+              },
+              mandate: author.mandateId
+                ? {
+                  connect: {
+                    member: { studentId: user?.studentId },
+                    id: author.mandateId,
+                  },
+                }
+                : undefined,
+              customAuthor: author.customId
+                ? {
+                  connect: { id: author.customId },
+                }
+                : undefined,
+            }
             : undefined,
         },
         tags: {

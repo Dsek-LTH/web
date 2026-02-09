@@ -12,8 +12,9 @@ export const load = async ({ locals, cookies }) => {
     return {
       redirect: "/nollning",
     } as const;
-  } else
+  } else {
     return {
       redirect: "/app/home",
     } as const;
+  }
 };

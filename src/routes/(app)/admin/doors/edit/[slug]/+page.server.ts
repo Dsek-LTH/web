@@ -73,8 +73,8 @@ export const actions: Actions = {
     if (
       studentId &&
       (await prisma.member.count({
-        where: { studentId },
-      })) <= 0
+          where: { studentId },
+        })) <= 0
     ) {
       return setError(form, "studentId", "Medlemmen finns inte");
     }
@@ -98,8 +98,8 @@ export const actions: Actions = {
     if (
       studentId &&
       (await prisma.member.count({
-        where: { studentId },
-      })) <= 0
+          where: { studentId },
+        })) <= 0
     ) {
       return setError(form, "studentId", "Medlemmen finns inte");
     }

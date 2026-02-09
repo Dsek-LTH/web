@@ -66,8 +66,8 @@ export const interestedAction =
         isInterested
           ? "intresserad av"
           : isGoing
-            ? "kommer på"
-            : "kommer inte/är inte intresserad av"
+          ? "kommer på"
+          : "kommer inte/är inte intresserad av"
       } event`,
       type: "hidden",
     });

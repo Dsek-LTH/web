@@ -236,9 +236,7 @@ export const appBottomNavRoutes = (routes: Route[]): Route[] =>
   ]
     .concat(
       routes
-        .flatMap((route) =>
-          route.children ? [route, ...route.children] : route,
-        )
+        .flatMap((route) => route.children ? [route, ...route.children] : route)
         .filter((route) => {
           return route.appBehaviour === "bottom-nav";
         }),

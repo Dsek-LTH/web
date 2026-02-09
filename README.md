@@ -21,7 +21,7 @@
 
 <h3 align="center">Web</h3>
 
-  <p align="center">
+<p align="center">
     The main web page for the D-guild
     <br />
     <a href="https://www.dsek.se/"><strong>dsek.se</strong></a>
@@ -37,34 +37,34 @@
 
 ## About
 
-This project is the main web page for the D-guild within TLTH, a non-profit organization for students and alumni of the Computer Science and Information/Communication Technologies programmes in Lund, Sweden. It is maintained by the DWWW committee.
+This project is the main web page for the D-guild within TLTH, a non-profit
+organization for students and alumni of the Computer Science and
+Information/Communication Technologies programmes in Lund, Sweden. It is
+maintained by the DWWW committee.
 
-![builtwith][builtwith]
-[![svelte][svelte]][svelte-url]
-[![daisy][daisy]][daisy-url]
-[![typescript][typescript]][typescript-url]
-[![prisma][prisma]][prisma-url]
-[![zenstack][zenstack]][zenstack-url]
+![builtwith][builtwith] [![svelte][svelte]][svelte-url]
+[![daisy][daisy]][daisy-url] [![typescript][typescript]][typescript-url]
+[![prisma][prisma]][prisma-url] [![zenstack][zenstack]][zenstack-url]
 
 <!-- [![expo][expo]][expo-url] -->
 
-![using][using]
-[![node][node]][node-url]
-[![pnpm][pnpm]][pnpm-url]
-[![docker][docker]][docker-url]
-[![pm2][pm2]][pm2-url]
+![using][using] [![node][node]][node-url] [![pnpm][pnpm]][pnpm-url]
+[![docker][docker]][docker-url] [![pm2][pm2]][pm2-url]
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Getting started
 
-The best way to get started is to visit the [Getting started](https://cpu.dsek.se/doc/getting-started-VImh85Ngwa) guide in the documentation.
+The best way to get started is to visit the
+[Getting started](https://cpu.dsek.se/doc/getting-started-VImh85Ngwa) guide in
+the documentation.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Documentation
 
-Everything you need to know about the project can be found in the [documentation](https://cpu.dsek.se/home).
+Everything you need to know about the project can be found in the
+[documentation](https://cpu.dsek.se/home).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -72,7 +72,9 @@ Everything you need to know about the project can be found in the [documentation
 
 ![Alt](https://repobeats.axiom.co/api/embed/916fb19a36522679037520fd8c4c688d047162fb.svg "Repobeats analytics image")
 
-Any contributions you make are **greatly appreciated**. If you have a suggestion, please fork the repo and create a pull request. You can also simply open an issue using the links at the top.
+Any contributions you make are **greatly appreciated**. If you have a
+suggestion, please fork the repo and create a pull request. You can also simply
+open an issue using the links at the top.
 
 1. Fork the Project
 2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)

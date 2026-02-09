@@ -2,9 +2,9 @@ import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 import { redirect } from "$lib/utils/redirect";
 import * as m from "$paraglide/messages";
-import { error, fail, type Action } from "@sveltejs/kit";
+import { type Action, error, fail } from "@sveltejs/kit";
 import { zod } from "sveltekit-superforms/adapters";
-import { superValidate, type Infer } from "sveltekit-superforms/server";
+import { type Infer, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import { actionType } from "../schema";
 

@@ -23,37 +23,35 @@ export const searchForMembers = async (
     where: {
       OR: [
         {
-          firstName:
-            firstName || (!studentId && !nickname)
-              ? {
-                  search: firstName ?? search,
-                  mode: "insensitive",
-                }
-              : undefined,
+          firstName: firstName || (!studentId && !nickname)
+            ? {
+              search: firstName ?? search,
+              mode: "insensitive",
+            }
+            : undefined,
         },
         {
-          lastName:
-            lastName || (!studentId && !nickname)
-              ? {
-                  search: lastName ?? search,
-                  mode: "insensitive",
-                }
-              : undefined,
+          lastName: lastName || (!studentId && !nickname)
+            ? {
+              search: lastName ?? search,
+              mode: "insensitive",
+            }
+            : undefined,
         },
         {
           nickname: nickname
             ? {
-                search: nickname,
-                mode: "insensitive",
-              }
+              search: nickname,
+              mode: "insensitive",
+            }
             : undefined,
         },
         {
           studentId: studentId
             ? {
-                search: studentId,
-                mode: "insensitive",
-              }
+              search: studentId,
+              mode: "insensitive",
+            }
             : undefined,
         },
       ],
@@ -62,12 +60,12 @@ export const searchForMembers = async (
     orderBy: [
       studentId
         ? {
-            _relevance: {
-              fields: ["studentId"],
-              search: studentId,
-              sort: "desc",
-            },
-          }
+          _relevance: {
+            fields: ["studentId"],
+            search: studentId,
+            sort: "desc",
+          },
+        }
         : {},
       {
         _relevance: {

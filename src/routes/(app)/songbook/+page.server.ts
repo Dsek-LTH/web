@@ -16,39 +16,38 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   const search = url.searchParams.get("search");
   const categories = url.searchParams.getAll("category");
   const accessPolicies = user?.policies ?? [];
-  const showDeleted =
-    canAccessDeletedSongs(accessPolicies) &&
+  const showDeleted = canAccessDeletedSongs(accessPolicies) &&
     url.searchParams.get("show-deleted") === "true";
 
   let where: Prisma.SongWhereInput = search
     ? {
-        OR: [
-          {
-            title: {
-              contains: search,
-              mode: "insensitive",
-            },
+      OR: [
+        {
+          title: {
+            contains: search,
+            mode: "insensitive",
           },
-          {
-            lyrics: {
-              contains: search,
-              mode: "insensitive",
-            },
+        },
+        {
+          lyrics: {
+            contains: search,
+            mode: "insensitive",
           },
-          {
-            category: {
-              contains: search,
-              mode: "insensitive",
-            },
+        },
+        {
+          category: {
+            contains: search,
+            mode: "insensitive",
           },
-          {
-            melody: {
-              contains: search,
-              mode: "insensitive",
-            },
+        },
+        {
+          melody: {
+            contains: search,
+            mode: "insensitive",
           },
-        ],
-      }
+        },
+      ],
+    }
     : {};
 
   if (categories.length > 0) {

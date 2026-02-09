@@ -15,7 +15,7 @@ export const load: PageServerLoad = async ({ locals }) => {
     policies
       .map((policy) => policy.apiName)
       .filter((value, index, self) => self.indexOf(value) === index)
-      .sort(),
+      .sort()
   );
   const form = await superValidate(zod(createSchema));
   return {

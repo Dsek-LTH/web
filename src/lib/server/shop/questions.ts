@@ -5,7 +5,7 @@ import {
 } from "$lib/server/shop/types";
 import { z } from "zod";
 import * as m from "$paraglide/messages";
-import { QuestionType, type questionForm } from "$lib/utils/shop/types";
+import { type questionForm, QuestionType } from "$lib/utils/shop/types";
 
 type AnswerQuestionData = z.infer<typeof questionForm>;
 
@@ -62,8 +62,9 @@ export const answerQuestion = async (
       if (
         answerObj.answer !== data.answer &&
         answerObj.answerEn !== data.answer
-      )
+      ) {
         throw new Error("Corrupt answer");
+      }
 
       // all checks clear, good answer!
       extraPrice = answerObj.extraPrice ?? 0;

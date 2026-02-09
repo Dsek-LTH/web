@@ -19,7 +19,7 @@ export const GET = async ({ locals, url }) => {
         member.studentId,
         medal,
       ].join(",");
-    }),
+    })
   );
 
   const csv: string = ["Namn,StilID,Medalj", ...recipientLines].join("\n");
@@ -28,9 +28,11 @@ export const GET = async ({ locals, url }) => {
   const res = new Response(csv, {
     headers: {
       "Content-Type": "text/csv",
-      "Content-Disposition": `attachment; filename=medals-${toString(
-        semester,
-      ).replace(" ", "-")}.csv`,
+      "Content-Disposition": `attachment; filename=medals-${
+        toString(
+          semester,
+        ).replace(" ", "-")
+      }.csv`,
     },
   });
   return res;

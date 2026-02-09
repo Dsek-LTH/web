@@ -3,9 +3,9 @@ import sendNotification from "$lib/utils/notifications";
 import { NotificationType } from "$lib/utils/notifications/types";
 import { fail, type RequestEvent } from "@sveltejs/kit";
 import {
+  type Infer,
   message,
   superValidate,
-  type Infer,
 } from "sveltekit-superforms/server";
 import { zod } from "sveltekit-superforms/adapters";
 import { z } from "zod";

@@ -121,15 +121,15 @@ export const GET: RequestHandler = async ({ params }) => {
 
     const studentsFromWildcard = positionIds.includes("*")
       ? authorizedPrismaClient.member
-          .findMany({
-            where: { classYear: { gte: new Date().getFullYear() - 10 } },
-            select: { studentId: true },
-          })
-          .then((members) =>
-            members
-              .map((member) => member.studentId)
-              .filter((id): id is string => id !== null),
-          )
+        .findMany({
+          where: { classYear: { gte: new Date().getFullYear() - 10 } },
+          select: { studentId: true },
+        })
+        .then((members) =>
+          members
+            .map((member) => member.studentId)
+            .filter((id): id is string => id !== null)
+        )
       : [];
 
     const positions = await fetchMatchingPositions(
@@ -153,10 +153,9 @@ export const GET: RequestHandler = async ({ params }) => {
       ...(await studentsFromWildcard),
     ].filter((studentId) => !bannedStudents.has(studentId));
 
-    const finalList =
-      allowedStudents.length > 0
-        ? Array.from(new Set(allowedStudents))
-        : BACKUP_LIST_OF_STUDENT_IDS;
+    const finalList = allowedStudents.length > 0
+      ? Array.from(new Set(allowedStudents))
+      : BACKUP_LIST_OF_STUDENT_IDS;
 
     return new Response(finalList.join("\n"));
   } catch {

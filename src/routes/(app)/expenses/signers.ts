@@ -74,6 +74,8 @@ export const resolveSignerLogic = (
   if (signer !== userMemberId && signer !== undefined) return signer;
   // user is PRESIDENT AND TREASURER (OR: President is vacant, user is treasurer, OR: treasurer is vacant and user is president)
   throw new Error(
-    `Signer logic could not be resolved for cost center ${costCenterName}. Treasurer: ${getSigner(TREASURER)}, President: ${getSigner(PRESIDENT)}, User: ${userMemberId}`,
+    `Signer logic could not be resolved for cost center ${costCenterName}. Treasurer: ${
+      getSigner(TREASURER)
+    }, President: ${getSigner(PRESIDENT)}, User: ${userMemberId}`,
   );
 };

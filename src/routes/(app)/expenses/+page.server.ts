@@ -36,7 +36,7 @@ export const load = async ({ locals }) => {
     include: expensesInclusion,
   });
   const expensesToSign = allExpenses.filter((e) =>
-    e.items.some((i) => i.signerMemberId === member.id),
+    e.items.some((i) => i.signerMemberId === member.id)
   );
   const myExpenses = allExpenses.filter((e) => e.memberId === member.id);
 

@@ -89,17 +89,17 @@ declare module "@event-calendar/core" {
       | durationHMS
       | durationInSeconds
       | {
-          year?: number;
-          years?: number;
-          month?: number;
-          months?: number;
-          day?: number;
-          days?: number;
-          minute?: number;
-          minutes?: number;
-          second?: number;
-          seconds?: number;
-        };
+        year?: number;
+        years?: number;
+        month?: number;
+        months?: number;
+        day?: number;
+        days?: number;
+        minute?: number;
+        minutes?: number;
+        second?: number;
+        seconds?: number;
+      };
 
     interface Duration {
       years: number;
@@ -280,13 +280,13 @@ declare module "@event-calendar/core" {
     ) => Promise<Array<Event | EventInput>>;
     type EventSource =
       | {
-          url: string;
-          method: string;
-          extraParams?: object | (() => object);
-        }
+        url: string;
+        method: string;
+        extraParams?: object | (() => object);
+      }
       | {
-          events: EventSourceFunc | EventSourceFuncPromise;
-        };
+        events: EventSourceFunc | EventSourceFuncPromise;
+      };
 
     type dayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
     type isoDateString = string;

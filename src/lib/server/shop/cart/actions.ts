@@ -12,7 +12,7 @@ import { authorize } from "$lib/utils/authorization";
 import { redirect } from "$lib/utils/redirect";
 import { questionForm } from "$lib/utils/shop/types";
 import * as m from "$paraglide/messages";
-import { error, fail, type Actions } from "@sveltejs/kit";
+import { type Actions, error, fail } from "@sveltejs/kit";
 import { zod } from "sveltekit-superforms/adapters";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
@@ -89,12 +89,13 @@ const cartActions: Actions = {
           id: reservation.id,
         },
       });
-      if (reservation.order !== null)
+      if (reservation.order !== null) {
         await moveQueueForwardOneStep(
           tx,
           reservation.shoppableId,
           reservation.order,
         );
+      }
     });
 
     return message(form, {
@@ -117,11 +118,9 @@ const cartActions: Actions = {
     try {
       await answerQuestion(
         prisma,
-        memberId
-          ? { memberId }
-          : {
-              externalCode: externalCode!,
-            },
+        memberId ? { memberId } : {
+          externalCode: externalCode!,
+        },
         form.data,
       );
     } catch (e) {
@@ -152,11 +151,11 @@ const cartActions: Actions = {
         prisma,
         user.memberId
           ? {
-              memberId: user.memberId,
-            }
+            memberId: user.memberId,
+          }
           : {
-              externalCode: user.externalCode!,
-            },
+            externalCode: user.externalCode!,
+          },
         form.data.idempotencyKey,
       );
       redirectUrl = redirect;

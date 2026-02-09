@@ -40,7 +40,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
       const fileParts = file.id.split("/");
       const folder = //get the folder structure starting 2 "steps" in, we don't want the requirements/[year] part of the filepath
         fileParts.slice(2, fileParts.length - 1).join("/") ??
-        m.documents_unknown();
+          m.documents_unknown();
       if (!acc[folder]) acc[folder] = [];
       acc[folder]?.push(file);
       return acc;

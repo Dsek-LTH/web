@@ -1,7 +1,7 @@
 import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 import type { TransactionClient } from "$lib/server/shop/types";
 import { SUBSCRIPTION_SETTINGS_MAP } from "$lib/utils/notifications/types";
-import { ShoppableType, type Member } from "@prisma/client";
+import { type Member, ShoppableType } from "@prisma/client";
 
 export const MOCK_EVENT_1 = {
   titleSv: "Event 1",
@@ -136,14 +136,16 @@ export const addMockTickets = async (
       },
     });
     const tickets = [];
-    for (const ticket of [
-      MOCK_ACTIVE_TICKET,
-      MOCK_ACTIVE_TICKET_2,
-      MOCK_FREE_ACTIVE_TICKET,
-      MOCK_ACTIVE_EARLY_TICKET,
-      MOCK_PAST_TICKET,
-      MOCK_UPCOMING_TICKET,
-    ]) {
+    for (
+      const ticket of [
+        MOCK_ACTIVE_TICKET,
+        MOCK_ACTIVE_TICKET_2,
+        MOCK_FREE_ACTIVE_TICKET,
+        MOCK_ACTIVE_EARLY_TICKET,
+        MOCK_PAST_TICKET,
+        MOCK_UPCOMING_TICKET,
+      ]
+    ) {
       const createdTicket = await prisma.ticket.create({
         data: {
           ...ticket,

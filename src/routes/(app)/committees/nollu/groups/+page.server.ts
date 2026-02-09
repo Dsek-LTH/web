@@ -179,12 +179,13 @@ export const actions = {
       group.year,
     ).then((mandates) => mandates?.[0]); // get first
 
-    if (!mandate)
+    if (!mandate) {
       return setError(
         form,
         "memberId",
         "Personen hittas inte som phadder det året",
       );
+    }
     await prisma.phadderGroup.update({
       where: {
         id: form.data.groupId,
@@ -217,12 +218,13 @@ export const actions = {
       form.data.memberId,
       group?.year,
     );
-    if (mandates.length === 0)
+    if (mandates.length === 0) {
       return setError(
         form,
         "memberId",
         "Personen hittas inte som phadder det året",
       );
+    }
     await prisma.phadderGroup.update({
       where: {
         id: form.data.groupId,

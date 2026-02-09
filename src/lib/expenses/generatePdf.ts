@@ -1,12 +1,12 @@
 import { getFullName } from "$lib/utils/client/member";
 import dayjs from "dayjs";
 import {
+  PageSizes,
   PDFDocument,
   PDFFont,
   PDFPage,
-  PageSizes,
-  StandardFonts,
   rgb,
+  StandardFonts,
 } from "pdf-lib";
 import sharp from "sharp";
 import type { ExpandedExpenseForPdf } from "./sendToBookkeeping";
@@ -129,8 +129,8 @@ async function drawExpenseInfo(
     font: fonts.regular,
   });
 
-  const descriptionX =
-    MARGIN + fonts.regular.widthOfTextAtSize(descriptionLabel, 12);
+  const descriptionX = MARGIN +
+    fonts.regular.widthOfTextAtSize(descriptionLabel, 12);
   const wrappedDescription = wrapText(
     expense.description,
     fonts.regular,
@@ -275,7 +275,7 @@ async function embedReceipt(
       .rotate()
       .jpeg()
       .toBuffer()
-      .then((buffer) => doc.embedJpg(new Uint8Array(buffer))),
+      .then((buffer) => doc.embedJpg(new Uint8Array(buffer)))
   );
 
   // Calculate dimensions to fit the image on the page
@@ -338,8 +338,9 @@ export async function generateExpensePdf(
       await embedReceipt(pdfDoc, item.receiptUrl);
     } catch (error) {
       const errorPage = pdfDoc.addPage(PageSizes.A4);
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
+      const errorMessage = error instanceof Error
+        ? error.message
+        : "Unknown error";
       errorPage.drawText(errorMessage, {
         x: MARGIN,
         y: errorPage.getHeight() - 100,

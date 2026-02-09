@@ -3,12 +3,12 @@ import { env as envPublic } from "$env/dynamic/public";
 import { i18n } from "$lib/utils/i18n";
 import { createMember } from "$lib/utils/member";
 import { redirect } from "$lib/utils/redirect";
-import { themes, type Theme } from "$lib/utils/themes";
+import { type Theme, themes } from "$lib/utils/themes";
 import {
+  type AvailableLanguageTag,
   isAvailableLanguageTag,
   setLanguageTag,
   sourceLanguageTag,
-  type AvailableLanguageTag,
 } from "$paraglide/runtime";
 import Authentik, {
   type AuthentikProfile,
@@ -95,10 +95,10 @@ const { handle: authHandle } = SvelteKitAuth({
           if (!response.ok) throw tokensOrError;
 
           token.id_token = tokensOrError.id_token;
-          token.expires_at =
-            Math.floor(Date.now() / 1000) + tokensOrError.expires_in;
-          token.refresh_token =
-            tokensOrError.refresh_token ?? token.refresh_token;
+          token.expires_at = Math.floor(Date.now() / 1000) +
+            tokensOrError.expires_in;
+          token.refresh_token = tokensOrError.refresh_token ??
+            token.refresh_token;
 
           return token;
         } catch (error) {
@@ -167,11 +167,9 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
     member?.language,
   ];
 
-  const lang =
-    langCandidates.find(
-      (tag): tag is AvailableLanguageTag =>
-        !!tag && isAvailableLanguageTag(tag),
-    ) ?? sourceLanguageTag;
+  const lang = langCandidates.find(
+    (tag): tag is AvailableLanguageTag => !!tag && isAvailableLanguageTag(tag),
+  ) ?? sourceLanguageTag;
   event.locals.language = lang;
   setLanguageTag(lang);
   const prisma = getExtendedPrismaClient(lang, session?.user.student_id);
@@ -204,8 +202,7 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
     const existingMember = await prisma.member.findUnique({
       where: { studentId: session.user.student_id },
     });
-    const member =
-      existingMember ||
+    const member = existingMember ||
       (await createMember(prisma, {
         studentId: session.user.student_id,
         firstName: session.user.given_name,

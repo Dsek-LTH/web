@@ -46,12 +46,14 @@ export const actions = {
   updateReceipt: async ({ params, request, locals }) => {
     const { prisma, member } = locals;
     const form = await superValidate(request, zod(updateItemSchema));
-    if (params.id.length === 0 || Number.isNaN(Number(params.id)))
+    if (params.id.length === 0 || Number.isNaN(Number(params.id))) {
       throw error(404, "Expense id should be a number");
+    }
 
     if (!form.valid) return fail(400, { form });
-    if (!member)
+    if (!member) {
       throw error(401, "Du måste vara inloggad för att uppdatera utlägg");
+    }
 
     const data = form.data;
     await updateSignersCacheIfNecessary();
@@ -103,8 +105,9 @@ export const actions = {
   update: async ({ params, request, locals }) => {
     const { prisma } = locals;
     const form = await superValidate(request, zod(updateExpenseSchema));
-    if (params.id.length === 0 || Number.isNaN(Number(params.id)))
+    if (params.id.length === 0 || Number.isNaN(Number(params.id))) {
       throw error(404, "Expense id should be a number");
+    }
 
     if (!form.valid) return fail(400, { form });
 
@@ -127,8 +130,9 @@ export const actions = {
   delete: async (event) => {
     const { locals, params } = event;
     const { prisma } = locals;
-    if (params.id.length === 0 || Number.isNaN(Number(params.id)))
+    if (params.id.length === 0 || Number.isNaN(Number(params.id))) {
       throw error(404, "Expense id should be a number");
+    }
     await prisma.expense.update({
       where: {
         id: Number(params.id),
@@ -149,11 +153,12 @@ export const actions = {
   disapproveReceipt: async (event) => {
     const { locals, request } = event;
     const { prisma, user } = locals;
-    if (!user?.memberId)
+    if (!user?.memberId) {
       throw fail(401, {
         fail,
         message: "Du måste vara inloggad för att av-godkänna utlägg",
       });
+    }
     const form = await superValidate(request, zod(approveReceiptSchema));
     if (!form.valid) return fail(400, { form });
     const canAlwaysSign = isAuthorized(apiNames.EXPENSES.CERTIFICATION, user);
@@ -161,16 +166,14 @@ export const actions = {
       await prisma.expenseItem.update({
         where: {
           id: form.data.itemId,
-          OR: canAlwaysSign
-            ? undefined
-            : [
-                {
-                  signedByMemberId: user.memberId,
-                },
-                {
-                  signerMemberId: user.memberId,
-                },
-              ],
+          OR: canAlwaysSign ? undefined : [
+            {
+              signedByMemberId: user.memberId,
+            },
+            {
+              signerMemberId: user.memberId,
+            },
+          ],
           signedAt: {
             not: null,
           },
@@ -194,10 +197,12 @@ export const actions = {
   approveReceipt: async (event) => {
     const { locals, params, request } = event;
     const { prisma, user } = locals;
-    if (!user?.memberId)
+    if (!user?.memberId) {
       throw error(401, "Du måste vara inloggad för att godkänna utlägg");
-    if (params.id.length === 0 || Number.isNaN(Number(params.id)))
+    }
+    if (params.id.length === 0 || Number.isNaN(Number(params.id))) {
       throw error(404, "Expense id should be a number");
+    }
     const form = await superValidate(request, zod(approveReceiptSchema));
     if (!form.valid) return fail(400, { form });
     const canAlwaysSign = isAuthorized(apiNames.EXPENSES.CERTIFICATION, user);
@@ -229,10 +234,12 @@ export const actions = {
   approveAll: async (event) => {
     const { locals, params } = event;
     const { prisma, user } = locals;
-    if (!user?.memberId)
+    if (!user?.memberId) {
       throw error(401, "Du måste vara inloggad för att godkänna utlägg");
-    if (params.id.length === 0 || Number.isNaN(Number(params.id)))
+    }
+    if (params.id.length === 0 || Number.isNaN(Number(params.id))) {
       throw error(404, "Expense id should be a number");
+    }
     const canAlwaysSign = isAuthorized(apiNames.EXPENSES.CERTIFICATION, user);
     const result = await prisma.expenseItem.updateMany({
       where: {

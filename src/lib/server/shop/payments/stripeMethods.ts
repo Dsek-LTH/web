@@ -10,8 +10,10 @@ import stripe from "./stripe";
 import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
 type RequiredProps = "amount" | "metadata" | "customer";
-type Props = Pick<Stripe.PaymentIntentCreateParams, RequiredProps> &
-  Partial<Omit<Stripe.PaymentIntentCreateParams, RequiredProps>> & {
+type Props =
+  & Pick<Stripe.PaymentIntentCreateParams, RequiredProps>
+  & Partial<Omit<Stripe.PaymentIntentCreateParams, RequiredProps>>
+  & {
     idempotencyKey: string;
   };
 

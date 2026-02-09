@@ -9,11 +9,11 @@ import {
   vi,
 } from "vitest";
 import { GRACE_PERIOD_WINDOW } from "../types";
-import { AddToCartStatus, addTicketToCart } from "./addToCart";
+import { addTicketToCart, AddToCartStatus } from "./addToCart";
 
 import { getDerivedRoles } from "$lib/utils/authorization";
 import { NotificationType } from "$lib/utils/notifications/types";
-import { enhance, type AuthUser } from "@zenstackhq/runtime";
+import { type AuthUser, enhance } from "@zenstackhq/runtime";
 import { getAccessPolicies } from "../../../../hooks.server.helpers";
 import {
   addMockTickets,
@@ -184,9 +184,7 @@ const addTicketsTestForUser = (
       });
     });
 
-    it("adds reservation if all available tickets are in cart(s)", async ({
-      tickets,
-    }) => {
+    it("adds reservation if all available tickets are in cart(s)", async ({ tickets }) => {
       const ticket = tickets.activeTicket;
       expect(
         (
@@ -295,9 +293,7 @@ const addTicketsTestForUser = (
         },
       });
     });
-    it("places new reservation last after initial lottery", async ({
-      tickets,
-    }) => {
+    it("places new reservation last after initial lottery", async ({ tickets }) => {
       const ticket = tickets.activeTicket;
       expect(
         (
@@ -359,8 +355,8 @@ const addTicketsTestForUser = (
       await expectReservationCount(ticket.id, 1);
 
       vi.advanceTimersByTime(GRACE_PERIOD_WINDOW / 2);
-      const timeAfter =
-        vi.getMockedSystemTime()!.valueOf() + GRACE_PERIOD_WINDOW / 2;
+      const timeAfter = vi.getMockedSystemTime()!.valueOf() +
+        GRACE_PERIOD_WINDOW / 2;
       vi.setSystemTime(timeAfter);
       vi.useRealTimers();
       vi.setSystemTime(timeAfter);
@@ -384,9 +380,7 @@ const addTicketsTestForUser = (
       await expectConsumableCount(ticket.id, 1);
     });
 
-    it("ensures users adding after grace period are placed last", async ({
-      tickets,
-    }) => {
+    it("ensures users adding after grace period are placed last", async ({ tickets }) => {
       const ticket = tickets.activeEarlyTicket;
       for (let i = 0; i < ticket.stock + 5; i++) {
         const newMember = await addMockUser(prisma, SUITE_PREFIX);
@@ -421,9 +415,10 @@ const addTicketsTestForUser = (
       await expectReservationCount(ticket.id, 5);
       const result = await addTicketToCart(prismaWithAccess, ticket.id, user);
       expect(result.status).toBe(AddToCartStatus.PutInQueue);
-      if (result.status === AddToCartStatus.PutInQueue)
+      if (result.status === AddToCartStatus.PutInQueue) {
         // if statement for typescript
         expect(result.queuePosition).toBe(6); // tell user they are in position 6
+      }
       await expectConsumableCount(ticket.id, ticket.stock);
       await expectReservationCount(ticket.id, 6);
       const reservations = await prisma.consumableReservation.findMany({

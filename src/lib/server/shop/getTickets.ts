@@ -8,13 +8,15 @@ import { error } from "@sveltejs/kit";
 import type { AuthUser } from "@zenstackhq/runtime";
 import dayjs from "dayjs";
 import {
-  GRACE_PERIOD_WINDOW,
   dbIdentification,
   type DBShopIdentification,
+  GRACE_PERIOD_WINDOW,
 } from "./types";
 
-export type TicketWithMoreInfo = ExtendedPrismaModel<"Ticket"> &
-  ExtendedPrismaModel<"Shoppable"> & {
+export type TicketWithMoreInfo =
+  & ExtendedPrismaModel<"Ticket">
+  & ExtendedPrismaModel<"Shoppable">
+  & {
     userItemsInCart: Array<ExtendedPrismaModel<"Consumable">>;
     userReservations: Array<ExtendedPrismaModel<"ConsumableReservation">>;
     event: ExtendedPrismaModel<"Event"> & {
@@ -78,33 +80,36 @@ type TicketFromPrisma = NonNullable<
 >;
 
 export const formatTicket = (ticket: TicketFromPrisma): TicketWithMoreInfo => {
-  const base: TicketWithMoreInfo &
-    Partial<
-      Pick<
+  const base:
+    & TicketWithMoreInfo
+    & Partial<
+      & Pick<
         TicketFromPrisma["shoppable"],
         "consumables" | "reservations" | "_count"
-      > &
-        Pick<TicketFromPrisma, "shoppable">
+      >
+      & Pick<TicketFromPrisma, "shoppable">
     > = {
-    ...ticket.shoppable,
-    ...ticket,
-    userItemsInCart: ticket.shoppable.consumables.filter((c) => !c.purchasedAt),
-    userReservations: ticket.shoppable.reservations,
-    gracePeriodEndsAt: new Date(
-      ticket.shoppable.availableFrom.valueOf() + GRACE_PERIOD_WINDOW,
-    ),
-    isInUsersCart:
-      ticket.shoppable.consumables.filter((c) => !c.purchasedAt).length > 0 ||
-      ticket.shoppable.reservations.length > 0,
-    userAlreadyHasMax:
-      ticket.shoppable.consumables.filter((c) => c.purchasedAt !== null)
-        .length >= ticket.maxAmountPerUser,
-    ticketsLeft: Math.min(
-      ticket.stock - ticket.shoppable._count.consumables,
-      10,
-    ), // don't show more resolution to the client than > 10 or the exact number left (so people can't see how many other people buy tickets)
-    hasQueue: ticket.shoppable._count.reservations > 0,
-  };
+      ...ticket.shoppable,
+      ...ticket,
+      userItemsInCart: ticket.shoppable.consumables.filter((c) =>
+        !c.purchasedAt
+      ),
+      userReservations: ticket.shoppable.reservations,
+      gracePeriodEndsAt: new Date(
+        ticket.shoppable.availableFrom.valueOf() + GRACE_PERIOD_WINDOW,
+      ),
+      isInUsersCart:
+        ticket.shoppable.consumables.filter((c) => !c.purchasedAt).length > 0 ||
+        ticket.shoppable.reservations.length > 0,
+      userAlreadyHasMax:
+        ticket.shoppable.consumables.filter((c) => c.purchasedAt !== null)
+          .length >= ticket.maxAmountPerUser,
+      ticketsLeft: Math.min(
+        ticket.stock - ticket.shoppable._count.consumables,
+        10,
+      ), // don't show more resolution to the client than > 10 or the exact number left (so people can't see how many other people buy tickets)
+      hasQueue: ticket.shoppable._count.reservations > 0,
+    };
   // do not show the following info to the client
   delete base.consumables;
   delete base.reservations;
@@ -125,8 +130,8 @@ const shoppableAccessPolicyFilter = (
       accessPolicies: {
         some: studentId
           ? {
-              OR: [{ role: { in: userRoles } }, { studentId }],
-            }
+            OR: [{ role: { in: userRoles } }, { studentId }],
+          }
           : { role: { in: userRoles } },
       },
     },
@@ -142,11 +147,11 @@ export const getTicket = async (
   if (!memberId && !externalCode) throw error(401);
   const identification = memberId
     ? {
-        memberId: memberId,
-      }
+      memberId: memberId,
+    }
     : {
-        externalCode: externalCode!,
-      };
+      externalCode: externalCode!,
+    };
   const dbId = dbIdentification(identification);
   const ticket = await prisma.ticket.findFirst({
     where: {
@@ -176,31 +181,29 @@ export const getTickets = async (
   if (!memberId && !externalCode) throw error(401);
   const identification = memberId
     ? {
-        memberId: memberId,
-      }
+      memberId: memberId,
+    }
     : {
-        externalCode: externalCode!,
-      };
+      externalCode: externalCode!,
+    };
   const dbId = dbIdentification(identification);
   const tenDaysAgo = dayjs().subtract(10, "days").toDate();
   const tickets = await prisma.ticket.findMany({
-    where: getAll
-      ? undefined
-      : {
-          shoppable: {
-            AND: [
-              { OR: [{ removedAt: null }, { removedAt: { lt: new Date() } }] },
-              {
-                // show items which were available in the last 10 days
-                OR: [
-                  { availableTo: null },
-                  { availableTo: { gt: tenDaysAgo } },
-                ],
-              },
+    where: getAll ? undefined : {
+      shoppable: {
+        AND: [
+          { OR: [{ removedAt: null }, { removedAt: { lt: new Date() } }] },
+          {
+            // show items which were available in the last 10 days
+            OR: [
+              { availableTo: null },
+              { availableTo: { gt: tenDaysAgo } },
             ],
-            ...shoppableAccessPolicyFilter(user.roles, user.studentId),
           },
-        },
+        ],
+        ...shoppableAccessPolicyFilter(user.roles, user.studentId),
+      },
+    },
     include: ticketIncludedFields(dbId),
     orderBy: {
       shoppable: { availableFrom: getAll ? "desc" : "asc" },
@@ -225,11 +228,11 @@ export const getEventsWithTickets = async (
   if (!memberId && !externalCode) throw error(401);
   const identification = memberId
     ? {
-        memberId: memberId,
-      }
+      memberId: memberId,
+    }
     : {
-        externalCode: externalCode!,
-      };
+      externalCode: externalCode!,
+    };
   const dbId = dbIdentification(identification);
 
   const events = await prisma.event.findMany({

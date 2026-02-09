@@ -10,7 +10,7 @@ import {
   onPaymentSuccess,
 } from "$lib/server/shop/payments/stripeWebhooks";
 import { type Member } from "@prisma/client";
-import { enhance, type AuthUser } from "@zenstackhq/runtime";
+import { type AuthUser, enhance } from "@zenstackhq/runtime";
 import type Stripe from "stripe";
 import {
   afterAll,
@@ -22,18 +22,18 @@ import {
   vi,
 } from "vitest";
 import {
-  MOCK_ACTIVE_TICKET,
-  MOCK_ACTIVE_TICKET_2,
   addMockTickets,
   addMockUsers,
+  MOCK_ACTIVE_TICKET,
+  MOCK_ACTIVE_TICKET_2,
   removeAllTestData,
   removeMockTickets,
   removeMockUsers,
 } from "../mock";
 import {
-  TIME_TO_BUY,
   dbIdentification,
   type ShopIdentification,
+  TIME_TO_BUY,
 } from "../types";
 import apiNames from "$lib/utils/apiNames";
 import { NotificationType } from "$lib/utils/notifications/types";
@@ -119,7 +119,7 @@ const addPurchaseTestForUser = (
   afterEach(async ({ tickets }) => {
     const ticketIds = Object.values(tickets).map((t) => t.id);
     await removeMockTickets(prisma, ticketIds).catch(() =>
-      expect.fail("Failed to remove tickets"),
+      expect.fail("Failed to remove tickets")
     );
     vi.clearAllMocks();
     if (user.memberId) {
@@ -268,8 +268,8 @@ const addPurchaseTestForUser = (
     await addTicketToCart(prismaWithAccess, tickets.activeTicket2.id, user);
     await purchaseCart(prismaWithAccess, identification, "idempotency-key");
     expect(mockFns.paymentIntents.create).toHaveBeenCalledOnce();
-    const price =
-      MOCK_ACTIVE_TICKET.shoppable.price + MOCK_ACTIVE_TICKET_2.shoppable.price;
+    const price = MOCK_ACTIVE_TICKET.shoppable.price +
+      MOCK_ACTIVE_TICKET_2.shoppable.price;
     expect(mockFns.paymentIntents.create.mock.calls[0]?.[0].amount).toBe(price);
 
     expect(
@@ -402,9 +402,9 @@ const addPurchaseTestForUser = (
       });
       expect(consumables.length, message).toBe(count);
       if (count !== 0) {
-        if (purchased)
+        if (purchased) {
           expect(consumables[0]!.purchasedAt, message).toBeDefined();
-        else expect(consumables[0]!.purchasedAt, message).toBeNull();
+        } else expect(consumables[0]!.purchasedAt, message).toBeNull();
       }
     };
     beforeEach(async ({ tickets }) => {

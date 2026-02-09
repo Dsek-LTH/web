@@ -26,14 +26,13 @@ export const createTicket = async (
             availableTo: data.availableTo,
             type: ShoppableType.TICKET,
             authorId: authorId,
-            accessPolicies:
-              (data.accessPolicies?.length ?? 0) > 0
-                ? {
-                    createMany: {
-                      data: data.accessPolicies!,
-                    },
-                  }
-                : undefined,
+            accessPolicies: (data.accessPolicies?.length ?? 0) > 0
+              ? {
+                createMany: {
+                  data: data.accessPolicies!,
+                },
+              }
+              : undefined,
           },
         },
         event: {
@@ -53,20 +52,17 @@ export const createTicket = async (
           titleSv: question.titleSv,
           descriptionSv: question.descriptionSv,
           id: undefined,
-          options:
-            question.options === undefined
-              ? undefined
-              : {
-                  createMany: {
-                    data: question.options.map((o) => ({
-                      ...o,
-                      answerSv: o.answerSv,
-                      extraPrice: o.extraPrice
-                        ? convertPriceToCents(o.extraPrice)
-                        : o.extraPrice,
-                    })),
-                  },
-                },
+          options: question.options === undefined ? undefined : {
+            createMany: {
+              data: question.options.map((o) => ({
+                ...o,
+                answerSv: o.answerSv,
+                extraPrice: o.extraPrice
+                  ? convertPriceToCents(o.extraPrice)
+                  : o.extraPrice,
+              })),
+            },
+          },
         },
       });
     }
@@ -100,21 +96,20 @@ export const updateTicket = async (
             availableFrom: data.availableFrom,
             availableTo: data.availableTo,
             type: ShoppableType.TICKET,
-            accessPolicies:
-              updatedPolicies && updatedPolicies.length > 0
-                ? {
-                    updateMany: updatedPolicies.map((p) => ({
-                      data: {
-                        ...p,
-                      },
-                      where: {
-                        id: p.id!,
-                      },
-                    })),
-                  }
-                : {
-                    deleteMany: {},
+            accessPolicies: updatedPolicies && updatedPolicies.length > 0
+              ? {
+                updateMany: updatedPolicies.map((p) => ({
+                  data: {
+                    ...p,
                   },
+                  where: {
+                    id: p.id!,
+                  },
+                })),
+              }
+              : {
+                deleteMany: {},
+              },
           },
         },
         event: {
@@ -194,20 +189,17 @@ const updateQuestions = async (
       data: {
         ...question,
         id: undefined,
-        options:
-          question.options === undefined
-            ? undefined
-            : {
-                createMany: {
-                  data: question.options.map((o) => ({
-                    ...o,
-                    answerSv: o.answerSv,
-                    extraPrice: o.extraPrice
-                      ? convertPriceToCents(o.extraPrice)
-                      : o.extraPrice,
-                  })),
-                },
-              },
+        options: question.options === undefined ? undefined : {
+          createMany: {
+            data: question.options.map((o) => ({
+              ...o,
+              answerSv: o.answerSv,
+              extraPrice: o.extraPrice
+                ? convertPriceToCents(o.extraPrice)
+                : o.extraPrice,
+            })),
+          },
+        },
       },
     });
   }
@@ -222,20 +214,17 @@ const updateQuestions = async (
           descriptionSv: question.descriptionSv,
           id: undefined,
           shoppableId: ticketId,
-          options:
-            question.options === undefined
-              ? undefined
-              : {
-                  createMany: {
-                    data: question.options.map((o) => ({
-                      ...o,
-                      answerSv: o.answerSv,
-                      extraPrice: o.extraPrice
-                        ? convertPriceToCents(o.extraPrice)
-                        : o.extraPrice,
-                    })),
-                  },
-                },
+          options: question.options === undefined ? undefined : {
+            createMany: {
+              data: question.options.map((o) => ({
+                ...o,
+                answerSv: o.answerSv,
+                extraPrice: o.extraPrice
+                  ? convertPriceToCents(o.extraPrice)
+                  : o.extraPrice,
+              })),
+            },
+          },
         },
       });
     }

@@ -1,9 +1,9 @@
 import {
-  toString,
-  semesterRange,
-  startDate,
   endDate,
   parseSemesterFromString,
+  semesterRange,
+  startDate,
+  toString,
 } from "./semesters";
 
 import { describe, expect, it } from "vitest";
@@ -42,21 +42,16 @@ describe("parseSemester", () => {
     expect(parseSemesterFromString("HT 2026", () => new Error())).toBe(4053));
 
   it("throws on invalid semester", () => {
-    expect(() =>
-      parseSemesterFromString("VT 202", () => new Error()),
-    ).toThrow();
-    expect(() =>
-      parseSemesterFromString("VT 2024a", () => new Error()),
-    ).toThrow();
-    expect(() =>
-      parseSemesterFromString("VT 2024 ", () => new Error()),
-    ).toThrow();
-    expect(() =>
-      parseSemesterFromString("XT 2024", () => new Error()),
-    ).toThrow();
-    expect(() =>
-      parseSemesterFromString("VT 2024 2024", () => new Error()),
-    ).toThrow();
+    expect(() => parseSemesterFromString("VT 202", () => new Error()))
+      .toThrow();
+    expect(() => parseSemesterFromString("VT 2024a", () => new Error()))
+      .toThrow();
+    expect(() => parseSemesterFromString("VT 2024 ", () => new Error()))
+      .toThrow();
+    expect(() => parseSemesterFromString("XT 2024", () => new Error()))
+      .toThrow();
+    expect(() => parseSemesterFromString("VT 2024 2024", () => new Error()))
+      .toThrow();
     expect(() => parseSemesterFromString("VT24", () => new Error())).toThrow();
     expect(() => parseSemesterFromString("VT", () => new Error())).toThrow();
     expect(() => parseSemesterFromString("2024", () => new Error())).toThrow();

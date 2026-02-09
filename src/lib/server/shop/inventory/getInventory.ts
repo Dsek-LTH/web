@@ -21,11 +21,11 @@ export const inventoryLoadFunction = async ({
   const userId = dbIdentification(
     memberId
       ? {
-          memberId,
-        }
+        memberId,
+      }
       : {
-          externalCode: externalCode!,
-        },
+        externalCode: externalCode!,
+      },
   );
   const consumables = await prisma.consumable.findMany({
     where: {
@@ -86,11 +86,11 @@ export const inventoryItemLoadFunction = async ({
   const userId = dbIdentification(
     memberId
       ? {
-          memberId,
-        }
+        memberId,
+      }
       : {
-          externalCode: externalCode!,
-        },
+        externalCode: externalCode!,
+      },
   );
   depends("consumables");
   const consumable = await prisma.consumable.findUnique({

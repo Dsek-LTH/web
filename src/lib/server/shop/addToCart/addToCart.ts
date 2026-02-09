@@ -4,9 +4,9 @@ import * as m from "$paraglide/messages";
 import { type Shoppable, type Ticket } from "@prisma/client";
 import type { AuthUser } from "@zenstackhq/runtime";
 import {
+  dbIdentification,
   GRACE_PERIOD_WINDOW,
   TIME_TO_BUY,
-  dbIdentification,
   type TransactionClient,
 } from "../types";
 import {
@@ -27,12 +27,12 @@ export enum AddToCartStatus {
 
 export type AddToCartResult =
   | {
-      status: Exclude<AddToCartStatus, AddToCartStatus.PutInQueue>;
-    }
+    status: Exclude<AddToCartStatus, AddToCartStatus.PutInQueue>;
+  }
   | {
-      status: AddToCartStatus.PutInQueue;
-      queuePosition: number;
-    };
+    status: AddToCartStatus.PutInQueue;
+    queuePosition: number;
+  };
 export const addTicketToCart = async (
   prisma: ExtendedPrisma,
   ticketId: string,
@@ -47,11 +47,11 @@ export const addTicketToCart = async (
   const idPart = dbIdentification(
     user.memberId
       ? {
-          memberId: user.memberId,
-        }
+        memberId: user.memberId,
+      }
       : {
-          externalCode: user.externalCode!,
-        },
+        externalCode: user.externalCode!,
+      },
   );
 
   await authorizedPrismaClient.$transaction(async (prisma) => {
@@ -109,19 +109,22 @@ export const addTicketToCart = async (
     ) {
       throw new Error(m.tickets_addToCart_errors_notAllowed());
     }
-    if (ticket.shoppable.availableTo && ticket.shoppable.availableTo < now)
+    if (ticket.shoppable.availableTo && ticket.shoppable.availableTo < now) {
       throw new Error(m.tickets_addToCart_errors_salePeriodEnded());
-    if (ticket.shoppable.availableFrom > now)
+    }
+    if (ticket.shoppable.availableFrom > now) {
       throw new Error(m.tickets_addToCart_errors_salePeriodNotStarted());
-    if (ticket.shoppable._count.consumables >= ticket.stock)
+    }
+    if (ticket.shoppable._count.consumables >= ticket.stock) {
       // purchased items
       throw new Error(m.tickets_addToCart_errors_ticketSoldOut());
+    }
 
     await checkUserMaxAmount(tx, idPart, ticket);
 
     if (
       now.valueOf() - ticket.shoppable.availableFrom.valueOf() <
-      GRACE_PERIOD_WINDOW
+        GRACE_PERIOD_WINDOW
     ) {
       return await addReservationInReserveWindow(
         tx,
@@ -175,10 +178,11 @@ const checkUserMaxAmount = async (
       shoppableId: ticket.shoppable.id,
     },
   });
-  if (ticket.maxAmountPerUser == 1 && currentlyInCart > 0)
+  if (ticket.maxAmountPerUser == 1 && currentlyInCart > 0) {
     throw new Error(m.tickets_addToCart_errors_alreadyOwned());
-  else if (currentlyInCart >= ticket.maxAmountPerUser)
+  } else if (currentlyInCart >= ticket.maxAmountPerUser) {
     throw new Error(m.tickets_addToCart_errors_alreadyOwnsMax());
+  }
 
   const currentlyReserved = await prisma.consumableReservation.count({
     where: {
@@ -186,8 +190,9 @@ const checkUserMaxAmount = async (
       shoppableId: ticket.shoppable.id,
     },
   });
-  if (currentlyReserved > 0)
+  if (currentlyReserved > 0) {
     throw new Error(m.tickets_addToCart_errors_alreadyReserved());
+  }
 };
 
 const addToQueue = async (
@@ -243,8 +248,9 @@ const addReservationInReserveWindow = async (
       shoppableId,
     },
   });
-  if (existingReservation)
+  if (existingReservation) {
     throw new Error(m.tickets_addToCart_errors_alreadyReserved());
+  }
   await prisma.consumableReservation.create({
     data: {
       ...id,

@@ -159,16 +159,15 @@ export const getCurrentDoorPoliciesForMember = async (
             (role) =>
               pos.id.startsWith(role) ||
               (pos.boardMember && role === "dsek.styr"),
-          ),
+          )
         )
         .map((pos) => pos.name);
       positionsMappedToThisDoor.sort();
       return {
         ...policy,
-        roles:
-          positionsMappedToThisDoor.length > 0
-            ? positionsMappedToThisDoor
-            : ["Du"],
+        roles: positionsMappedToThisDoor.length > 0
+          ? positionsMappedToThisDoor
+          : ["Du"],
       };
     },
   );

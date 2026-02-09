@@ -48,58 +48,58 @@ export const getAllArticles = async (
     ...baseFilter,
     ...(filters.search && filters.search.length > 0
       ? {
-          OR: [
-            {
-              headerSv: {
-                contains: filters.search,
-                mode: "insensitive",
-              },
+        OR: [
+          {
+            headerSv: {
+              contains: filters.search,
+              mode: "insensitive",
             },
-            {
-              headerEn: {
-                contains: filters.search,
-                mode: "insensitive",
-              },
+          },
+          {
+            headerEn: {
+              contains: filters.search,
+              mode: "insensitive",
             },
-            {
-              bodySv: {
-                contains: filters.search,
-                mode: "insensitive",
-              },
+          },
+          {
+            bodySv: {
+              contains: filters.search,
+              mode: "insensitive",
             },
-            {
-              bodyEn: {
-                contains: filters.search,
-                mode: "insensitive",
-              },
+          },
+          {
+            bodyEn: {
+              contains: filters.search,
+              mode: "insensitive",
             },
-          ],
-        }
+          },
+        ],
+      }
       : {}),
     // tags
     ...(filters.tags && filters.tags.length > 0
       ? {
-          tags: {
-            ...baseFilter.tags,
-            some: {
-              OR: [
-                {
-                  nameSv: {
-                    in: filters.tags,
-                    mode: "insensitive",
-                  },
+        tags: {
+          ...baseFilter.tags,
+          some: {
+            OR: [
+              {
+                nameSv: {
+                  in: filters.tags,
+                  mode: "insensitive",
                 },
-                {
-                  nameEn: {
-                    in: filters.tags,
-                    mode: "insensitive",
-                  },
+              },
+              {
+                nameEn: {
+                  in: filters.tags,
+                  mode: "insensitive",
                 },
-                ...(baseFilter.tags?.some ? [baseFilter.tags.some] : []),
-              ],
-            },
+              },
+              ...(baseFilter.tags?.some ? [baseFilter.tags.some] : []),
+            ],
           },
-        }
+        },
+      }
       : {}),
   };
   // Don't run as transaction, a little read only data race is fine
@@ -139,8 +139,8 @@ export type AuthorOption = ExtendedPrismaModel<"Author"> & {
   member: ExtendedPrismaModel<"Member">;
   mandate:
     | (ExtendedPrismaModel<"Mandate"> & {
-        position: ExtendedPrismaModel<"Position">;
-      })
+      position: ExtendedPrismaModel<"Position">;
+    })
     | null;
   customAuthor: ExtendedPrismaModel<"CustomAuthor"> | null;
 };

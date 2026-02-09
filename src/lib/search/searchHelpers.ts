@@ -168,9 +168,8 @@ export function mapIndexToMessage(index: SearchableIndex) {
 }
 
 function bytesToBase64(bytes: ArrayLike<number>): string {
-  const binString = Array.from(bytes, (byte) =>
-    String.fromCodePoint(byte),
-  ).join("");
+  const binString = Array.from(bytes, (byte) => String.fromCodePoint(byte))
+    .join("");
   return btoa(binString);
 }
 

@@ -1,10 +1,10 @@
 import { fail } from "@sveltejs/kit";
-import type { PageServerLoad, Actions } from "./$types";
+import type { Actions, PageServerLoad } from "./$types";
 import { z } from "zod";
 import {
+  type Infer,
   message,
   superValidate,
-  type Infer,
 } from "sveltekit-superforms/server";
 import { zod } from "sveltekit-superforms/adapters";
 import softDelete from "$lib/utils/softDelete";
@@ -69,7 +69,7 @@ export const actions = {
         data: {
           removedAt: new Date(),
         },
-      }),
+      })
     );
     return message(form, {
       message: m.admin_alerts_alertRemoved(),

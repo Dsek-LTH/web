@@ -17,16 +17,17 @@ export function useQRScanner() {
       }
 
       // Try to get the back camera first, then front camera, then first available camera
-      const selectedDevice =
+      const selectedDevice = videoInputDevices.find((device) =>
+        device.label.toLowerCase().includes("back")
+      ) ||
         videoInputDevices.find((device) =>
-          device.label.toLowerCase().includes("back"),
-        ) ||
-        videoInputDevices.find((device) =>
-          device.label.toLowerCase().includes("front"),
+          device.label.toLowerCase().includes("front")
         ) ||
         videoInputDevices[0];
 
-      if (!selectedDevice) throw new Error("No suitable camera device found");
+      if (!selectedDevice) {
+        throw new Error("No suitable camera device found");
+      }
 
       await codeReader.decodeFromVideoDevice(
         selectedDevice.deviceId,

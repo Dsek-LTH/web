@@ -14,7 +14,11 @@ if (process.env["REQUEST_LOGGING"] === "true") {
       const duration = Date.now() - startTime;
 
       console.log(
-        `[${new Date().toISOString()}] ${req.method} ${req.originalUrl} | Status: ${res.statusCode} | Response Time: ${duration}ms | User-Agent: ${req.headers["user-agent"]}`,
+        `[${
+          new Date().toISOString()
+        }] ${req.method} ${req.originalUrl} | Status: ${res.statusCode} | Response Time: ${duration}ms | User-Agent: ${
+          req.headers["user-agent"]
+        }`,
       );
     });
 

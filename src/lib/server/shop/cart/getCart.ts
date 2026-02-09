@@ -161,11 +161,11 @@ export const cartLoadFunction = async ({
     prisma,
     user?.memberId
       ? {
-          memberId: user.memberId,
-        }
+        memberId: user.memberId,
+      }
       : {
-          externalCode: user.externalCode!,
-        },
+        externalCode: user.externalCode!,
+      },
   );
 };
 export type CartLoadData = Awaited<ReturnType<typeof cartLoadFunction>>;

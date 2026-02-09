@@ -1,5 +1,5 @@
 import { memberSchema } from "$lib/zod/schemas";
-import { superValidate, type Infer } from "sveltekit-superforms/server";
+import { type Infer, superValidate } from "sveltekit-superforms/server";
 import { zod } from "sveltekit-superforms/adapters";
 import type { Actions, PageServerLoad } from "./$types";
 import { error, fail } from "@sveltejs/kit";
@@ -26,11 +26,12 @@ export const load: PageServerLoad = async ({ locals }) => {
   if (!memberResult.value) {
     throw error(404, m.onboarding_errors_memberNotFound());
   }
-  if (phadderGroupsResult.status === "rejected")
+  if (phadderGroupsResult.status === "rejected") {
     throw error(
       500,
       phadderGroupsResult.reason ?? "Couldn't fetch phadder groups",
     );
+  }
   const member = memberResult.value;
   const phadderGroups = phadderGroupsResult.value;
   return {

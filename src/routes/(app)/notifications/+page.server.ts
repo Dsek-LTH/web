@@ -19,12 +19,11 @@ export const actions: Actions = {
     }
     const form = await superValidate(request, zod(notificationSchema));
     if (!form.valid) return fail(400, { form });
-    const idFilter =
-      form.data.notificationId ??
+    const idFilter = form.data.notificationId ??
       (form.data.notificationIds !== null
         ? {
-            in: form.data.notificationIds!,
-          }
+          in: form.data.notificationIds!,
+        }
         : undefined);
     await prisma.notification.updateMany({
       where: {

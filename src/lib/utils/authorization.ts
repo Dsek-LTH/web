@@ -48,12 +48,13 @@ export const getDerivedRoles = (
   groupList?.forEach((group) =>
     group
       .split(".")
-      .forEach((_, i, arr) => splitGroups.add(arr.slice(0, i + 1).join("."))),
+      .forEach((_, i, arr) => splitGroups.add(arr.slice(0, i + 1).join(".")))
   );
   splitGroups.add("*"); // all users
   if (groupList?.length || signedIn) splitGroups.add("_"); // logged in users
-  if (classYear && classYear === new Date().getFullYear())
+  if (classYear && classYear === new Date().getFullYear()) {
     splitGroups.add("nolla");
+  }
   if (classYear) {
     const shortYear = String(classYear % 100);
     splitGroups.add(classProgramme + shortYear);

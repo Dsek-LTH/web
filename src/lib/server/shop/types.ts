@@ -6,13 +6,13 @@ export type TransactionClient = Parameters<
 
 export type ShopIdentification =
   | {
-      memberId: string;
-      externalCode?: never;
-    }
+    memberId: string;
+    externalCode?: never;
+  }
   | {
-      memberId?: never;
-      externalCode: string;
-    };
+    memberId?: never;
+    externalCode: string;
+  };
 
 export type DBShopIdentification = ReturnType<typeof dbIdentification>;
 export const dbIdentification = ({

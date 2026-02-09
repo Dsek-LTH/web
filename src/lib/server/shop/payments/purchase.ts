@@ -8,8 +8,8 @@ import {
 } from "$lib/server/shop/addToCart/reservations";
 import { obtainStripeCustomer } from "$lib/server/shop/payments/customer";
 import {
-  priceWithTransactionFee,
   passOnTransactionFee,
+  priceWithTransactionFee,
 } from "$lib/utils/payments/transactionFee";
 import { getFullName } from "$lib/utils/client/member";
 import { ShoppableType } from "@prisma/client";
@@ -159,9 +159,9 @@ const purchaseCart = async (
         consumable.stripeIntentId,
       );
       if (intent.status === "succeeded") didUpdateAlreadyPaidFor = true;
-      else if (!canRetryPayment)
+      else if (!canRetryPayment) {
         await removePaymentIntent(consumable.stripeIntentId);
-      else existingPaymentIntents[intent.id] = intent;
+      } else existingPaymentIntents[intent.id] = intent;
     }
   }
   if (didUpdateAlreadyPaidFor) {
@@ -183,7 +183,7 @@ const purchaseCart = async (
           (q) =>
             // check if no response exists for this question
             consumable.questionResponses.some((r) => r.questionId === q.id) ===
-            false,
+              false,
         ),
     )
   ) {
@@ -219,10 +219,10 @@ const purchaseCart = async (
 
   const member = identification.memberId
     ? await prisma.member.findUnique({
-        where: {
-          id: identification.memberId,
-        },
-      })
+      where: {
+        id: identification.memberId,
+      },
+    })
     : null;
   const customer = member ? await obtainStripeCustomer(member) : null;
 
@@ -237,9 +237,9 @@ const purchaseCart = async (
       customerStudentId: member ? member.studentId : null,
       customerName: member
         ? getFullName({
-            ...member,
-            nickname: null,
-          })
+          ...member,
+          nickname: null,
+        })
         : null,
       ...creteConsumableMetadata(userConsumables),
     },
@@ -300,7 +300,7 @@ const purchaseCart = async (
               stripeIntentId: intent.id,
               priceAtPurchase: calculateConsumablePrice(consumable),
             },
-          }),
+          })
         ),
       );
       if (results.some((result) => result.status === "rejected")) {

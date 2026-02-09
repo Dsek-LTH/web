@@ -1,10 +1,10 @@
 import { confirm, group, intro, outro, select, text } from "@clack/prompts";
 import {
-  POSTGRES_DOCKER_URL,
   envFileExists,
   generateSecret,
   handleCancellation,
   onCancel,
+  POSTGRES_DOCKER_URL,
   runWithSpinner,
   setupDatabase,
   spin,

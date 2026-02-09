@@ -10,13 +10,13 @@ import type {
 
 type MemberIdentification =
   | {
-      memberId: string;
-      studentId?: undefined;
-    }
+    memberId: string;
+    studentId?: undefined;
+  }
   | {
-      memberId?: undefined;
-      studentId: string;
-    };
+    memberId?: undefined;
+    studentId: string;
+  };
 type SendPingProps = {
   link: string; // link to the page where the ping is sent from
   fromMemberId: MemberIdentification; // the member that sends the ping
@@ -80,11 +80,9 @@ const assertMemberExists = async (
 ) => {
   try {
     const foundMember = await prisma.member.findFirst({
-      where: member.memberId
-        ? { id: { equals: member.memberId } }
-        : {
-            studentId: member.studentId,
-          },
+      where: member.memberId ? { id: { equals: member.memberId } } : {
+        studentId: member.studentId,
+      },
       select: {
         id: true,
         firstName: true,

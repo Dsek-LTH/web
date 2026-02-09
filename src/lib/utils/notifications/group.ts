@@ -9,28 +9,32 @@ import {
 export type ExpandedNotification = ExtendedPrismaModel<"Notification"> & {
   fromAuthor:
     | (Pick<ExtendedPrismaModel<"Author">, "id" | "type"> & {
-        member: Pick<
-          ExtendedPrismaModel<"Member">,
-          "firstName" | "nickname" | "lastName" | "picturePath"
-        >;
-        mandate: {
-          position: Pick<ExtendedPrismaModel<"Position">, "name">;
-        } | null;
-        customAuthor: Pick<
+      member: Pick<
+        ExtendedPrismaModel<"Member">,
+        "firstName" | "nickname" | "lastName" | "picturePath"
+      >;
+      mandate: {
+        position: Pick<ExtendedPrismaModel<"Position">, "name">;
+      } | null;
+      customAuthor:
+        | Pick<
           ExtendedPrismaModel<"CustomAuthor">,
           "name" | "imageUrl"
-        > | null;
-      })
+        >
+        | null;
+    })
     | null;
 };
 // Grouped notifications, as to be shown in the frontend.
-export type NotificationGroup = Omit<
-  ExpandedNotification,
-  "fromAuthor" | "fromAuthorId"
-> & {
-  authors: Array<ExpandedNotification["fromAuthor"]>;
-  individualIds: Array<ExpandedNotification["id"]>;
-};
+export type NotificationGroup =
+  & Omit<
+    ExpandedNotification,
+    "fromAuthor" | "fromAuthorId"
+  >
+  & {
+    authors: Array<ExpandedNotification["fromAuthor"]>;
+    individualIds: Array<ExpandedNotification["id"]>;
+  };
 
 /**
  * Gets the "person identifier" for a notification group.
@@ -52,17 +56,19 @@ function groupAuthorNames(group: NotificationGroup) {
   const secondAuthorName = getAuthorName(secondAuthor);
 
   if (authorCount === 2) return `${firstAuthorName} och ${secondAuthorName}`;
-  if (authorCount > 3)
+  if (authorCount > 3) {
     return `${firstAuthorName}, ${secondAuthorName} och ${
       authorCount - 2
     } andra`;
+  }
 
   // exactly 3 authors
   const thirdAuthor = authors[2];
-  if (!thirdAuthor)
+  if (!thirdAuthor) {
     return `${firstAuthorName}, ${secondAuthorName} och ${
       authorCount - 2
     } andra`;
+  }
   const thirdAuthorName = getAuthorName(secondAuthor);
   return `${firstAuthorName}, ${secondAuthorName} och ${thirdAuthorName}`;
 }
@@ -132,13 +138,12 @@ const convertToGroup = (
   const authors = notifications
     .map((n) => n.fromAuthor)
     .filter(Boolean) as Array<NonNullable<ExpandedNotification["fromAuthor"]>>;
-  const uniqueAuthors =
-    authors.length > 1
-      ? authors.filter(
-          (author, index) =>
-            authors.findIndex((other) => other.id === author.id) === index,
-        )
-      : authors;
+  const uniqueAuthors = authors.length > 1
+    ? authors.filter(
+      (author, index) =>
+        authors.findIndex((other) => other.id === author.id) === index,
+    )
+    : authors;
   return {
     ...notifications[0]!,
     readAt: notifications.some((n) => n.readAt === null)
@@ -156,14 +161,17 @@ const mergeNotifications = (
   notifications: ExpandedNotification[],
   // Returns a list because some notifications can't merge "perfectly" (i.e. into a single notification)
 ): NotificationGroup | NotificationGroup[] => {
-  if (notifications.length === 1)
+  if (notifications.length === 1) {
     return convertSingleToGroup(notifications[0]!);
+  }
   const mostRecentNotification = notifications[0]!; // will always be first, because it's ordered from the database
   const type = mostRecentNotification.type;
-  if (!(type in SHOULD_MERGE_NOTIFICATIONS))
+  if (!(type in SHOULD_MERGE_NOTIFICATIONS)) {
     throw new Error(`unknown notification type: ${type}`);
-  if (!SHOULD_MERGE_NOTIFICATIONS[type as NotificationType])
+  }
+  if (!SHOULD_MERGE_NOTIFICATIONS[type as NotificationType]) {
     return notifications.map(convertSingleToGroup);
+  }
   const group = convertToGroup(notifications);
   const texts = getGroupTexts(group);
   group.title = texts.title;
@@ -197,7 +205,7 @@ export const groupNotifications = (
   }
   // Merge the groups into NotificationGroup objects, some groups might lead to multiple group objects
   const groupList = Object.values(groups).flatMap((group) =>
-    mergeNotifications(group),
+    mergeNotifications(group)
   );
   // Since we loop over an object, the initial ordering is lost and we have to sort again
   return sortNotificationGroups(groupList);

@@ -1,6 +1,6 @@
 import {
-  groupNotifications,
   type ExpandedNotification,
+  groupNotifications,
 } from "$lib/utils/notifications/group";
 import type { AuthUser } from "@zenstackhq/runtime";
 import type { ExtendedPrisma } from "$lib/server/extendedPrisma";

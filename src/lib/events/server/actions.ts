@@ -11,7 +11,7 @@ import { z } from "zod";
 import { redirect } from "$lib/utils/redirect";
 import { slugify, slugWithCount } from "$lib/utils/slugify";
 import * as m from "$paraglide/messages";
-import { error, type Action } from "@sveltejs/kit";
+import { type Action, error } from "@sveltejs/kit";
 import type { AuthUser } from "@zenstackhq/runtime";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -264,10 +264,9 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
     const eventsToBeUpdated = await prisma.event.findMany({
       where: {
         recurringParentId: existingEvent.recurringParentId,
-        startDatetime:
-          editType === "FUTURE"
-            ? { gte: existingEvent.startDatetime }
-            : undefined,
+        startDatetime: editType === "FUTURE"
+          ? { gte: existingEvent.startDatetime }
+          : undefined,
       },
     });
 

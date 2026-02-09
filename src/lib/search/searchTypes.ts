@@ -50,9 +50,11 @@ type OnlySwedishAttributes<T> = ObjectKeysNotEndingWith<T, "En">;
 /**
  * https://www.totaltypescript.com/concepts/the-prettify-helper
  */
-type Prettify<T> = {
-  [K in keyof T]: T[K];
-} & {};
+type Prettify<T> =
+  & {
+    [K in keyof T]: T[K];
+  }
+  & {};
 
 export const availableSearchIndexes = [
   "members",
@@ -94,15 +96,17 @@ export type MemberDataInMeilisearch = Prettify<
     | "classProgramme"
     | "picturePath"
   > & {
-    fullName: `${ExtendedPrismaModel<"Member">["firstName"]} ${ExtendedPrismaModel<"Member">["lastName"]}`;
+    fullName: `${ExtendedPrismaModel<
+      "Member"
+    >["firstName"]} ${ExtendedPrismaModel<"Member">["lastName"]}`;
   }
 >;
 export type MemberSearchReturnAttributes = OnlySwedishAttributes<
-  SearchableMemberAttributes &
-    Pick<
-      MemberDataInMeilisearch,
-      "picturePath" | "classYear" | "classProgramme"
-    >
+  & SearchableMemberAttributes
+  & Pick<
+    MemberDataInMeilisearch,
+    "picturePath" | "classYear" | "classProgramme"
+  >
 >;
 
 // --------------------------------------------------
@@ -132,8 +136,9 @@ export type EventDataInMeilisearch = Prettify<
     | "startDatetime"
   >
 >;
-export type EventSearchReturnAttributes = SearchableEventAttributes &
-  Pick<EventDataInMeilisearch, "slug">;
+export type EventSearchReturnAttributes =
+  & SearchableEventAttributes
+  & Pick<EventDataInMeilisearch, "slug">;
 
 // --------------------------------------------------
 // ARTICLE
@@ -155,8 +160,9 @@ export type ArticleDataInMeilisearch = Pick<
   ExtendedPrismaModel<"Article">,
   "headerSv" | "headerEn" | "bodySv" | "bodyEn" | "slug" | "publishedAt"
 >;
-export type ArticleSearchReturnAttributes = SearchableArticleAttributes &
-  Pick<ArticleDataInMeilisearch, "slug">;
+export type ArticleSearchReturnAttributes =
+  & SearchableArticleAttributes
+  & Pick<ArticleDataInMeilisearch, "slug">;
 
 // --------------------------------------------------
 // POSITION
@@ -182,17 +188,20 @@ export type PositionDataInMeilisearch = Prettify<
     ExtendedPrismaModel<"Position">,
     "nameSv" | "nameEn" | "descriptionSv" | "descriptionEn"
   > & {
-    committee: Omit<
-      ExtendedPrismaModel<"Committee">,
-      "name" | "description"
-    > | null;
+    committee:
+      | Omit<
+        ExtendedPrismaModel<"Committee">,
+        "name" | "description"
+      >
+      | null;
     dsekId: string;
     committeeNameSv: ExtendedPrismaModel<"Committee">["nameSv"];
     committeeNameEn: ExtendedPrismaModel<"Committee">["nameEn"];
   }
 >;
-export type PositionSearchReturnAttributes = SearchablePositionAttributes &
-  Pick<PositionDataInMeilisearch, "committee" | "dsekId">;
+export type PositionSearchReturnAttributes =
+  & SearchablePositionAttributes
+  & Pick<PositionDataInMeilisearch, "committee" | "dsekId">;
 
 // --------------------------------------------------
 // COMMITTEE
@@ -223,8 +232,9 @@ export type CommitteeDataInMeilisearch = Prettify<
     | "monoImageUrl"
   >
 >;
-export type CommitteeSearchReturnAttributes = SearchableCommitteeAttributes &
-  Pick<
+export type CommitteeSearchReturnAttributes =
+  & SearchableCommitteeAttributes
+  & Pick<
     CommitteeDataInMeilisearch,
     "shortName" | "darkImageUrl" | "lightImageUrl" | "monoImageUrl"
   >;
@@ -275,8 +285,8 @@ export type GoverningDocumentDataInMeilisearch = Prettify<
   }
 >;
 export type GoverningDocumentSearchReturnAttributes =
-  SearchableGoverningDocumentAttributes &
-    Pick<GoverningDocumentDataInMeilisearch, "url">;
+  & SearchableGoverningDocumentAttributes
+  & Pick<GoverningDocumentDataInMeilisearch, "url">;
 
 // --------------------------------------------------
 // MEETING DOCUMENT
@@ -299,8 +309,8 @@ export type MeetingDocumentDataInMeilisearch = Prettify<{
   content: string;
 }>;
 export type MeetingDocumentSearchReturnAttributes =
-  SearchableMeetingDocumentAttributes &
-    Pick<MeetingDocumentDataInMeilisearch, "url">;
+  & SearchableMeetingDocumentAttributes
+  & Pick<MeetingDocumentDataInMeilisearch, "url">;
 
 export type AnySearchReturnAttributes =
   | SongSearchReturnAttributes
@@ -314,37 +324,37 @@ export type AnySearchReturnAttributes =
 
 export type SearchDataWithType =
   | {
-      type: "members";
-      data: MemberSearchReturnAttributes;
-    }
+    type: "members";
+    data: MemberSearchReturnAttributes;
+  }
   | {
-      type: "events";
-      data: EventSearchReturnAttributes;
-    }
+    type: "events";
+    data: EventSearchReturnAttributes;
+  }
   | {
-      type: "articles";
-      data: ArticleSearchReturnAttributes;
-    }
+    type: "articles";
+    data: ArticleSearchReturnAttributes;
+  }
   | {
-      type: "songs";
-      data: SongSearchReturnAttributes;
-    }
+    type: "songs";
+    data: SongSearchReturnAttributes;
+  }
   | {
-      type: "positions";
-      data: PositionSearchReturnAttributes;
-    }
+    type: "positions";
+    data: PositionSearchReturnAttributes;
+  }
   | {
-      type: "committees";
-      data: CommitteeSearchReturnAttributes;
-    }
+    type: "committees";
+    data: CommitteeSearchReturnAttributes;
+  }
   | {
-      type: "governingDocuments";
-      data: GoverningDocumentSearchReturnAttributes;
-    }
+    type: "governingDocuments";
+    data: GoverningDocumentSearchReturnAttributes;
+  }
   | {
-      type: "meetingDocuments";
-      data: MeetingDocumentSearchReturnAttributes;
-    };
+    type: "meetingDocuments";
+    data: MeetingDocumentSearchReturnAttributes;
+  };
 
 /**
  * The server slices strings before sending them to the client
@@ -371,8 +381,9 @@ export const attributesUsedAsLink = {
   meetingDocuments: Array<keyof MeetingDocumentSearchReturnAttributes>;
 };
 
-export const listOfAttributesUsedAsLink: string[] =
-  Object.values(attributesUsedAsLink).flat();
+export const listOfAttributesUsedAsLink: string[] = Object.values(
+  attributesUsedAsLink,
+).flat();
 
 type DefaultRankingRules =
   | "words"
@@ -498,8 +509,8 @@ const songMeilisearchConstants: SongConstantsMeilisearch = {
   rankingRules: defaultRankingRules,
 };
 
-const governingDocumentMeilisearchConstants: GoverningDocumentConstantsMeilisearch =
-  {
+const governingDocumentMeilisearchConstants:
+  GoverningDocumentConstantsMeilisearch = {
     searchableAttributes: governingDocumentSearchableAttributes,
     rankingRules: defaultRankingRules,
   };
@@ -523,34 +534,34 @@ export const meilisearchConstants = {
 
 export type MeilisearchConstants =
   | {
-      constants: MemberConstantsMeilisearch;
-      data: MemberDataInMeilisearch;
-    }
+    constants: MemberConstantsMeilisearch;
+    data: MemberDataInMeilisearch;
+  }
   | {
-      constants: ArticleConstantsMeilisearch;
-      data: ArticleDataInMeilisearch;
-    }
+    constants: ArticleConstantsMeilisearch;
+    data: ArticleDataInMeilisearch;
+  }
   | {
-      constants: EventConstantsMeilisearch;
-      data: EventDataInMeilisearch;
-    }
+    constants: EventConstantsMeilisearch;
+    data: EventDataInMeilisearch;
+  }
   | {
-      constants: PositionConstantsMeilisearch;
-      data: PositionDataInMeilisearch;
-    }
+    constants: PositionConstantsMeilisearch;
+    data: PositionDataInMeilisearch;
+  }
   | {
-      constants: CommitteeConstantsMeilisearch;
-      data: CommitteeDataInMeilisearch;
-    }
+    constants: CommitteeConstantsMeilisearch;
+    data: CommitteeDataInMeilisearch;
+  }
   | {
-      constants: SongConstantsMeilisearch;
-      data: SongDataInMeilisearch;
-    }
+    constants: SongConstantsMeilisearch;
+    data: SongDataInMeilisearch;
+  }
   | {
-      constants: GoverningDocumentConstantsMeilisearch;
-      data: GoverningDocumentDataInMeilisearch;
-    }
+    constants: GoverningDocumentConstantsMeilisearch;
+    data: GoverningDocumentDataInMeilisearch;
+  }
   | {
-      constants: MeetingDocumentConstantsMeilisearch;
-      data: MeetingDocumentDataInMeilisearch;
-    };
+    constants: MeetingDocumentConstantsMeilisearch;
+    data: MeetingDocumentDataInMeilisearch;
+  };
