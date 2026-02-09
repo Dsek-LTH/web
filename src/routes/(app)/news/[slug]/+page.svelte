@@ -11,7 +11,6 @@
   import Article from "../Article.svelte";
   import LikeButton from "../LikeButton.svelte";
   import LikersList from "../LikersList.svelte";
-  import { env } from "$env/dynamic/public";
 
   let { data } = $props();
 
@@ -22,13 +21,15 @@
 
   const shareData = $derived({
     title: article?.header ?? "pizza",
-    url: `${env["PUBLIC_APP_URL"]}/news/${article?.slug ?? "melker"}`,
   });
 
   async function share() {
     if (navigator.share) {
       try {
-        await navigator.share(shareData);
+        await navigator.share({
+          title: article?.header ?? "SOMETHING WENT TO SHIT!",
+          url: window.location.href,
+        });
       } catch (err) {
         console.error(err);
       }
