@@ -354,7 +354,6 @@
     <Tabs.Root value="positions">
       <Tabs.List>
         <Tabs.Trigger value="positions">{m.positions()}</Tabs.Trigger>
-        <Tabs.Trigger disabled value="pictures">{m.pictures()}</Tabs.Trigger>
         <Tabs.Trigger value="articles">{m.news()}</Tabs.Trigger>
       </Tabs.List>
       <Tabs.Content value="positions">

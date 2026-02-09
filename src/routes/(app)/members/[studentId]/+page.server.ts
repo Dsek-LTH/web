@@ -314,7 +314,6 @@ export const actions: Actions = {
   },
   update: async ({ params, locals, request }) => {
     const { prisma } = locals;
-    //console.log(await request.formData());
     const form = await superValidate(request, zod4(updateSchema));
     if (!form.valid) return fail(400, { form });
     const { studentId } = params;
