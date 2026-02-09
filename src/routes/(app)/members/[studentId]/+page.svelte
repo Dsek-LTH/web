@@ -106,7 +106,7 @@
           class="border-background relative top-[-50%] size-24 border-4"
         >
           <Avatar.Image src={member.picturePath} alt="Member image" />
-          <Avatar.Fallback
+          <Avatar.Fallback class="text-xl"
             >{member.firstName && member.lastName
               ? member.firstName?.charAt(0) + member.lastName?.charAt(0)
               : "NN"}</Avatar.Fallback
@@ -246,7 +246,7 @@
     <div class="flex flex-col items-center gap-4">
       <Avatar.Root class="relative size-44">
         <Avatar.Image src={member.picturePath} alt="Member image" />
-        <Avatar.Fallback
+        <Avatar.Fallback class="text-4xl"
           >{member.firstName && member.lastName
             ? member.firstName?.charAt(0) + member.lastName?.charAt(0)
             : "NN"}</Avatar.Fallback
