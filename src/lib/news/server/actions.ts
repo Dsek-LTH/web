@@ -16,8 +16,7 @@ import {
   type ScheduleSuccess,
 } from "$lib/server/scheduleExecution";
 import { sendNewArticleNotification } from "./notifications";
-import { env } from "$env/dynamic/public";
-import { env as privateEnv } from "$env/dynamic/private";
+import { env } from "$env/dynamic/private";
 import { sendNewArticleWebhook } from "./webhooks";
 import { getDecryptedJWT } from "$lib/server/getDecryptedJWT";
 
@@ -39,7 +38,7 @@ const uploadImage = async (user: AuthUser, image: File, slug: string) => {
 };
 
 export const createArticle: Action = async (event) => {
-  const { request, locals } = event;
+  const { request, locals, url } = event;
   const { prisma, user } = locals;
   const form = await superValidate(request, zod(createSchema), {
     allowFiles: true,
@@ -135,7 +134,7 @@ export const createArticle: Action = async (event) => {
   if (pubishTimeIsInFuture && shouldSendNotification) {
     const scheduledResult = await scheduleExecution(
       request,
-      `${env.PUBLIC_APP_URL}/api/schedule/news`,
+      `${url.origin}/api/schedule/news`,
       { ...result, tags, notificationText },
       publishTime,
       form,
@@ -194,7 +193,7 @@ export const createArticle: Action = async (event) => {
 };
 
 export const updateArticle: Action<{ slug: string }> = async (event) => {
-  const { request, locals } = event;
+  const { request, locals, url } = event;
   const { prisma, user } = locals;
   const form = await superValidate(request, zod(updateSchema), {
     allowFiles: true,
@@ -256,7 +255,7 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
 
           ok = (
             await fetch(
-              `${privateEnv.SCHEDULER_ENDPOINT}?password=${privateEnv.SCHEDULER_PASSWORD}&scheduledTaskID=${article.scheduledId}`,
+              `${env.SCHEDULER_ENDPOINT}?password=${env.SCHEDULER_PASSWORD}&scheduledTaskID=${article.scheduledId}`,
               {
                 method: "DELETE",
                 headers: {
@@ -271,7 +270,7 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
 
           const scheduleResult = await scheduleExecution(
             request,
-            `${env.PUBLIC_APP_URL}/api/schedule/news`,
+            `${url.origin}/api/schedule/news`,
             { ...article, tags, notificationText },
             publishTime ?? new Date(),
             form,
@@ -300,7 +299,7 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
 
           ok = (
             await fetch(
-              `${privateEnv.SCHEDULER_ENDPOINT}?password=${privateEnv.SCHEDULER_PASSWORD}`,
+              `${env.SCHEDULER_ENDPOINT}?password=${env.SCHEDULER_PASSWORD}`,
               {
                 method: "PATCH",
                 body: JSON.stringify({
