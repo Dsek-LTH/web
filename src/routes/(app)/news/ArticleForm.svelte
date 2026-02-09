@@ -21,6 +21,7 @@
   import type { AuthorOption } from "$lib/news/getArticles";
   import type { Snippet } from "svelte";
   import { Spinner } from "$lib/components/ui/spinner";
+  import { goto } from "$lib/utils/redirect";
 
   let {
     allTags,
@@ -186,7 +187,14 @@
       placeholder="https://youtube.com/v/..."><Pen /></Input
     >
   </div>
-  <Button type="submit"
-    >{m.save()}{#if $delayed}<Spinner />{/if}</Button
-  >
+  <div class="flex w-full flex-row justify-between gap-1.5">
+    <Button
+      onclick={formEnd ? () => goto("/news") : () => history.back()}
+      variant="outline">{m.cancel()}</Button
+    >
+    <Button type="submit" class="block grow"
+      >{formEnd ? m.news_publish() : m.save()}{#if $delayed}<Spinner
+        />{/if}</Button
+    >
+  </div>
 </form>
