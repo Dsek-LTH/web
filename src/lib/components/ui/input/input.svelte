@@ -7,7 +7,6 @@
   import CircleAlert from "@lucide/svelte/icons/circle-alert";
   import CloudUpload from "@lucide/svelte/icons/cloud-upload";
   import * as m from "$paraglide/messages";
-
   type InputType = Exclude<HTMLInputTypeAttribute, "file">;
 
   export type Props = WithElementRef<

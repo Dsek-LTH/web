@@ -30,8 +30,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 const addAlertSchema = z.object({
   severity: z.enum(["info", "success", "warning", "error"]),
-  messageSv: z.string().min(1),
-  messageEn: z.string().min(1),
+  message_sv: z.string().min(1),
+  message_en: z.string().min(1),
 });
 export type addAlertSchema = Infer<typeof addAlertSchema>;
 
@@ -49,12 +49,12 @@ export const actions = {
     await prisma.alert.create({
       data: {
         severity: form.data.severity,
-        messageSv: form.data.messageSv,
-        messageEn: form.data.messageEn,
+        messageSv: form.data.message_sv,
+        messageEn: form.data.message_en,
       },
     });
     return message(form, {
-      message: m.admin_alerts_alertCreated(),
+      message: m.admin_alerts_alert_created(),
       type: "success",
     });
   },
@@ -72,7 +72,7 @@ export const actions = {
       }),
     );
     return message(form, {
-      message: m.admin_alerts_alertRemoved(),
+      message: m.admin_alerts_alert_removed(),
       type: "success",
     });
   },
