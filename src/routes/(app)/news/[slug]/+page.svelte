@@ -6,50 +6,39 @@
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import AuthorSignature from "$lib/components/socials/AuthorSignature.svelte";
   import CommentSection from "$lib/components/socials/CommentSection.svelte";
-  import { toast } from "$lib/stores/toast.ts";
+  import { toast } from "$lib/stores/toast";
   import * as m from "$paraglide/messages";
   import Article from "../Article.svelte";
   import LikeButton from "../LikeButton.svelte";
   import LikersList from "../LikersList.svelte";
   import { env } from "$env/dynamic/public";
-  import type { PageData } from "./$types";
 
-  let { data }: { PageData } = $props();
+  let { data } = $props();
 
-  // Old shit forced migration by Simon and Melker
-  // export let data: PageData;
-
-  // $: article = data.article;
-  // $: author = article.author;
   let article = $state(data.article);
   let author = $state(article?.author);
 
-  let isRemoving = false;
+  let isRemoving = $state(false);
 
   const shareData = $derived({
     title: article?.header ?? "pizza",
-    url: `${env.PUBLIC_APP_URL}/news/${article?.slug ?? "melker"}`,
+    url: `${env["PUBLIC_APP_URL"]}/news/${article?.slug ?? "melker"}`,
   });
 
   async function share() {
-    console.log(shareData);
-    console.log(article);
-
-    if (!navigator.share) {
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.error(err);
+      }
+    } else {
       try {
         await navigator.clipboard.writeText(shareData.url);
         toast("Copied to clipboard.");
       } catch (err) {
         console.error(err);
       }
-
-      return;
-    }
-
-    try {
-      await navigator.share(shareData);
-    } catch (err) {
-      console.error(err);
     }
   }
 </script>
