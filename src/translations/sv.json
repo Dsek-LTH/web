@@ -437,6 +437,8 @@
   "news_scheduled": "schemalagda",
   "news_scheduledNews": "Schemalagda nyheter",
   "news_scheduledFor": "Schemalagd för",
+  "news_share": "Dela",
+  "news_share_copy_url": "URL kopierad till urklipp!",
   "events_create": "Skapa",
   "events_createEvent": "Skapa evenemang",
   "events_title": "Titel",

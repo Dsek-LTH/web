@@ -19,24 +19,23 @@
 
   let isRemoving = $state(false);
 
-  const shareData = $derived({
-    title: article?.header ?? "pizza",
-  });
-
   async function share() {
+    const shareData = {
+      title: article?.header ?? "<title missing>",
+      text: article?.body ?? "<body missing>",
+      url: window.location.href,
+    }
+
     if (navigator.share) {
       try {
-        await navigator.share({
-          title: article?.header ?? "SOMETHING WENT TO SHIT!",
-          url: window.location.href,
-        });
+        await navigator.share(shareData);
       } catch (err) {
         console.error(err);
       }
     } else {
       try {
         await navigator.clipboard.writeText(shareData.url);
-        toast("Copied to clipboard.");
+        toast(m.news_share_copy_url());
       } catch (err) {
         console.error(err);
       }
@@ -119,7 +118,7 @@
         <!-- share button -->
         <button
           type="button"
-          aria-label="share"
+          aria-label={m.news_share()}
           onclick={share}
           class="i-mdi-share mt-2 size-12 hover:opacity-50 hover:transition-opacity"
         >
