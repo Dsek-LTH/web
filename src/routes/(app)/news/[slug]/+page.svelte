@@ -106,23 +106,23 @@
       {/each}
     </div>
     <div slot="after-body" class="mt-4">
-      <div class="flex flex-row">
-        <div class="flex flex-col items-start gap-2">
-          <LikersList likers={article.likers} />
+      <div class="flex flex-col items-start gap-2">
+        <LikersList likers={article.likers} />
+        <div class="flex flex-row">
           <LikeButton
             likers={article.likers}
             likeForm={data.likeForm}
             articleId={article.id}
           />
+          <!-- share button -->
+          <button
+            type="button"
+            aria-label={m.news_share()}
+            onclick={share}
+            class="i-mdi-share mt-2 size-12 hover:opacity-50 hover:transition-opacity"
+          >
+          </button>
         </div>
-        <!-- share button -->
-        <button
-          type="button"
-          aria-label={m.news_share()}
-          onclick={share}
-          class="i-mdi-share mt-2 size-12 hover:opacity-50 hover:transition-opacity"
-        >
-        </button>
       </div>
       <div class="mt-4 flex flex-col gap-2">
         <CommentSection
