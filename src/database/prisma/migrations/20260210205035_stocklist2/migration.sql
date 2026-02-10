@@ -12,6 +12,8 @@ CREATE TABLE "drinkitem" (
     "price" INTEGER NOT NULL,
     "group" "DrinkGroup" NOT NULL,
     "systembolaget_id" INTEGER NOT NULL,
+    "bottle_empty_weight" INTEGER,
+    "bottle_full_weight" INTEGER,
 
     CONSTRAINT "drinkitem_pkey" PRIMARY KEY ("id")
 );
@@ -20,10 +22,22 @@ CREATE TABLE "drinkitem" (
 CREATE TABLE "drinkitembatch" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "drink_item_id" UUID NOT NULL,
-    "best_before_date" TIMESTAMP(3) NOT NULL,
-    "quantity" INTEGER NOT NULL,
+    "quantityIn" INTEGER,
+    "quantityOut" INTEGER,
+    "user" TEXT NOT NULL,
+    "date" TIMESTAMP(3) NOT NULL,
+    "nrBottles" INTEGER,
 
     CONSTRAINT "drinkitembatch_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "sexetinventoryvaluelog" (
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "date" TIMESTAMP(3) NOT NULL,
+    "value" INTEGER NOT NULL,
+
+    CONSTRAINT "sexetinventoryvaluelog_pkey" PRIMARY KEY ("id")
 );
 
 -- AddForeignKey
