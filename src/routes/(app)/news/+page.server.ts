@@ -10,7 +10,8 @@ import {
 } from "$lib/utils/url.server";
 
 export const load: PageServerLoad = async ({ locals, url }) => {
-  const { prisma } = locals;
+  const { prisma, member } = locals;
+
   const articleCount = await prisma.article.count();
   const pageSize = getPageSizeOrThrowSvelteError(url);
   const page = getPageOrThrowSvelteError(url, {
@@ -18,6 +19,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     lowerBound: 1,
     upperBound: Math.ceil(articleCount / pageSize),
   });
+
   const [[articles, pageCount], allTags] = await Promise.all([
     getAllArticles(prisma, {
       tags: url.searchParams.getAll("tags"),
@@ -27,11 +29,28 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     }),
     getAllTags(prisma),
   ]);
+
+  const scheduledArticles = member
+    ? await prisma.article.findMany({
+        where: {
+          publishedAt: {
+            gt: new Date(),
+          },
+          author: {
+            member: {
+              id: member.id,
+            },
+          },
+        },
+      })
+    : [];
+
   return {
     articles,
     pageCount,
     allTags,
     likeForm: await superValidate(zod(likeSchema)),
+    scheduledArticles,
   };
 };
 

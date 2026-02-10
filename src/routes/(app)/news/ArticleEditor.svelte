@@ -61,6 +61,9 @@
         imageUrls: $form.imageUrls ?? articleImages,
         imageUrl: $form.imageUrl ?? null,
         youtubeUrl: articleVideo ?? $form.youtubeUrl ?? null,
+        notificationText: null,
+        scheduledId: null,
+        shouldSendNotification: false,
       }}
     >
       <AuthorSignature
