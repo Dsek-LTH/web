@@ -6,7 +6,6 @@ import { fail, message, superValidate } from "sveltekit-superforms";
 import { zod } from "sveltekit-superforms/adapters";
 import { redirect } from "@sveltejs/kit";
 import dayjs from "dayjs";
-import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 
 const deleteSchema = z.object({
   id: z.string(),
@@ -108,7 +107,7 @@ export const load: PageServerLoad = async (event) => {
 
 export const actions: Actions = {
   deleteEntry: async (event) => {
-    const { prisma, user } = event.locals;
+    const { prisma } = event.locals;
     const form = await superValidate(event.request, zod(deleteSchema));
 
     if (!form.valid) return fail(400, { form });
@@ -136,8 +135,8 @@ export const actions: Actions = {
           productStock.set(itemId, currentTotal + quantity);
         }
 
-        for (const [itemId, stock] of productStock) {
-          if (stock < 0) {
+        for (const stock of productStock) {
+          if (stock[1] < 0) {
             throw new Error("PRODUCT_NEGATIVE");
           }
         }
@@ -188,8 +187,8 @@ export const actions: Actions = {
           productStock.set(itemId, currentTotal + quantity);
         }
 
-        for (const [itemId, stock] of productStock) {
-          if (stock < 0) {
+        for (const stock of productStock) {
+          if (stock[1] < 0) {
             throw new Error("PRODUCT_NEGATIVE");
           }
         }
@@ -218,7 +217,7 @@ export const actions: Actions = {
           quantityOut: form.data.quantityOut,
         },
       });
-    } catch (err) {
+    } catch (_) {
       return fail(500, { message: "Failed to update" });
     }
 

@@ -3,12 +3,8 @@
   import { invalidateAll } from "$app/navigation";
 
   const { data } = $props();
-  const { enhance: deleteFormEnhance, form: deleteForm } = superForm(
-    data.deleteForm,
-  );
-  const { enhance: updateFormEnhance, form: updateForm } = superForm(
-    data.updateForm,
-  );
+  const { enhance: deleteFormEnhance } = superForm(data.deleteForm);
+  const { enhance: updateFormEnhance } = superForm(data.updateForm);
 
   const { form: dateForm } = superForm(data.dateForm);
   let dateFormElement: HTMLFormElement;
@@ -20,11 +16,9 @@
     console.log(data);
   });
 
-  function toggleEdit(id: any) {
+  function toggleEdit(id: string) {
     if (editingId === id) {
       editingId = null;
-    } else {
-      editingId = id;
     }
   }
 </script>
@@ -103,7 +97,7 @@
                 id={formId}
                 style="display:none"
                 use:updateFormEnhance={{
-                  onResult: ({ result }) => {
+                  onResult: () => {
                     invalidateAll();
                   },
                 }}

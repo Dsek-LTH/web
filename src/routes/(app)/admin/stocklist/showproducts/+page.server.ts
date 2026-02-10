@@ -27,7 +27,7 @@ export const actions: Actions = {
       await prisma.drinkItem.delete({
         where: { id: form.data.id },
       });
-    } catch (error) {
+    } catch (_) {
       return message(form, { message: `Produkt finns i lager` });
     }
 

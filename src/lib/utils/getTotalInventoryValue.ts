@@ -1,5 +1,5 @@
 import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
-import { DrinkQuantityType, Prisma } from "@prisma/client";
+import { DrinkQuantityType } from "@prisma/client";
 
 export async function getTotalInventoryValue(prisma: ExtendedPrisma) {
   const items = await prisma.drinkItemBatch.findMany({

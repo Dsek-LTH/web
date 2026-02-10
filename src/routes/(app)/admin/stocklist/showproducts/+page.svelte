@@ -3,9 +3,7 @@
   import { superForm } from "sveltekit-superforms";
 
   const { data } = $props();
-  const { enhance: deleteFormEnhance, form: deleteForm } = superForm(
-    data.deleteForm,
-  );
+  const { enhance: deleteFormEnhance } = superForm(data.deleteForm);
 </script>
 
 <div
