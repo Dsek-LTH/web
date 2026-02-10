@@ -6,12 +6,13 @@ import { redirect } from "$lib/utils/redirect";
 import { slugWithCount, slugify } from "$lib/utils/slugify";
 import * as m from "$paraglide/messages";
 import { Prisma } from "@prisma/client";
-import { isActionFailure, type Action } from "@sveltejs/kit";
+import { type Action } from "@sveltejs/kit";
 import type { AuthUser } from "@zenstackhq/runtime";
 import { zod } from "sveltekit-superforms/adapters";
 import { message, superValidate, fail } from "sveltekit-superforms";
 import DOMPurify from "isomorphic-dompurify";
 import {
+  isScheduleFailure,
   scheduleExecution,
   type ScheduleSuccess,
 } from "$lib/server/scheduleExecution";
@@ -132,7 +133,7 @@ export const createArticle: Action = async (event) => {
 
   const pubishTimeIsInFuture = publishTime && publishTime > new Date();
   if (pubishTimeIsInFuture && shouldSendNotification) {
-    const scheduledResult = await scheduleExecution(
+    const scheduleResult = await scheduleExecution(
       request,
       `${url.origin}/api/schedule/news`,
       { ...result, tags, notificationText },
@@ -144,12 +145,18 @@ export const createArticle: Action = async (event) => {
       event,
     );
 
-    if (isActionFailure(scheduledResult)) {
-      return scheduledResult;
+    if (isScheduleFailure(scheduleResult)) {
+      throw redirect(
+        `/news/${result.slug}/edit`,
+        {
+          message: scheduleResult.data.message,
+          type: "error",
+        },
+        event,
+      );
     }
 
-    const { redirectFunction, scheduledId } =
-      scheduledResult as ScheduleSuccess;
+    const { redirectFunction, scheduledId } = scheduleResult as ScheduleSuccess;
 
     await prisma.article.update({
       where: {
@@ -280,8 +287,15 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
             event,
           );
 
-          if (isActionFailure(scheduleResult)) {
-            return scheduleResult;
+          if (isScheduleFailure(scheduleResult)) {
+            throw redirect(
+              `/news/${slug}/edit`,
+              {
+                message: scheduleResult.data.message,
+                type: "error",
+              },
+              event,
+            );
           } else {
             await prisma.article.update({
               where: {
@@ -316,16 +330,26 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
           ).ok;
         }
       } catch (error) {
-        return fail(500, {
-          form,
-          message: `${m.news_errors_schedulingFailed()}: ${error instanceof Error ? error.message : String(error)}`,
-        });
+        throw redirect(
+          `/news/${slug}/edit`,
+          {
+            message: `${m.news_errors_schedulingFailed()}: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+            type: "error",
+          },
+          event,
+        );
       }
       if (!ok) {
-        return fail(500, {
-          form,
-          message: m.news_errors_schedulingFailed(),
-        });
+        throw redirect(
+          `/news/${slug}/edit`,
+          {
+            message: m.news_errors_schedulingFailed(),
+            type: "error",
+          },
+          event,
+        );
       }
     }
 
