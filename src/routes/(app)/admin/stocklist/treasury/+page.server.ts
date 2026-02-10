@@ -6,10 +6,7 @@ import { fail, message, superValidate } from "sveltekit-superforms";
 import { zod } from "sveltekit-superforms/adapters";
 import { redirect } from "@sveltejs/kit";
 import dayjs from "dayjs";
-
-type DrinkItemBatchWithItem = Prisma.DrinkItemBatchGetPayload<{
-  include: { item: true };
-}>;
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 
 const deleteSchema = z.object({
   id: z.string(),
@@ -122,7 +119,7 @@ export const actions: Actions = {
           where: { id: form.data.id },
         });
 
-        const inventoryResult = await getTotalInventoryValue(tx);
+        const inventoryResult = await getTotalInventoryValue(prisma);
 
         if (inventoryResult.totalInventoryValue < 0) {
           throw new Error("INVENTORY_NEGATIVE");
@@ -174,7 +171,7 @@ export const actions: Actions = {
           where: { id: form.data.id },
         });
 
-        const inventoryResult = await getTotalInventoryValue(tx);
+        const inventoryResult = await getTotalInventoryValue(prisma);
 
         if (inventoryResult.totalInventoryValue < 0) {
           throw new Error("INVENTORY_NEGATIVE");

@@ -1,11 +1,8 @@
 <script lang="ts">
   import { superForm } from "sveltekit-superforms";
-
   import Input from "$lib/components/Input.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
   import { DrinkQuantityType, type DrinkItem } from "@prisma/client";
-  import FormDateInput from "$lib/components/forms/FormDateInput.svelte";
-  import dayjs from "dayjs";
 
   const { data } = $props();
   const { form, enhance } = superForm(data.form);

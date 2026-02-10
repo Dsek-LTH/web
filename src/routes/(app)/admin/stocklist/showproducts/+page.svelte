@@ -62,7 +62,10 @@
                 use:deleteFormEnhance
               >
                 <input type="hidden" name="id" value={item.id} />
-                <button class="btn btn-error btn-sm text-white">
+                <button
+                  class="btn btn-error btn-sm text-white"
+                  aria-label="deleteButton"
+                >
                   <span class="i-mdi-delete"></span>
                 </button>
               </form>
@@ -84,7 +87,10 @@
                 use:deleteFormEnhance
               >
                 <input type="hidden" name="id" value={item.id} />
-                <button class="btn btn-error btn-sm text-white">
+                <button
+                  class="btn btn-error btn-sm text-white"
+                  aria-label="deleteButton"
+                >
                   <span class="i-mdi-delete"></span>
                 </button>
               </form>

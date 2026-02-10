@@ -11,7 +11,6 @@ const zDrinkGroup = z.nativeEnum(DrinkGroup);
 const zDrinkQuantityType = z.nativeEnum(DrinkQuantityType);
 
 export const load: PageServerLoad = async (event) => {
-  const { prisma } = event.locals;
   const form = await superValidate(event.request, zod(DrinkItemSchema));
   return { form };
 };

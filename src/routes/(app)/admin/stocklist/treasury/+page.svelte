@@ -1,9 +1,7 @@
 <script lang="ts">
   import { superForm } from "sveltekit-superforms";
   import { invalidateAll } from "$app/navigation";
-  import { DrinkQuantityType, type Prisma } from "@prisma/client";
-  import dayjs from "dayjs";
-  import { isEmptyObject } from "@tiptap/core";
+
   const { data } = $props();
   const { enhance: deleteFormEnhance, form: deleteForm } = superForm(
     data.deleteForm,
@@ -22,7 +20,7 @@
     console.log(data);
   });
 
-  function toggleEdit(id) {
+  function toggleEdit(id: any) {
     if (editingId === id) {
       editingId = null;
     } else {
@@ -168,6 +166,7 @@
                 type="submit"
                 form={formId}
                 onclick={() => invalidateAll()}
+                aria-label="check"
               >
                 <span class="i-mdi-check"></span>
               </button>
@@ -198,6 +197,7 @@
               <button
                 class="btn btn-primary btn-sm"
                 onclick={() => toggleEdit(entry.id)}
+                aria-label="createButton"
               >
                 <span class="i-mdi-create"></span>
               </button>
@@ -211,7 +211,10 @@
                 use:deleteFormEnhance
               >
                 <input type="hidden" name="id" value={entry.id} />
-                <button class="btn btn-error btn-sm text-white">
+                <button
+                  class="btn btn-error btn-sm text-white"
+                  aria-label="deleteButton"
+                >
                   <span class="i-mdi-delete"></span>
                 </button>
               </form>
