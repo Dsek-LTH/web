@@ -19,7 +19,7 @@
     main,
   }: {
     data: CommitteeLoadData & typeof page.data;
-    isEditing: boolean;
+    isEditing?: boolean;
     beforeMarkdown?: Snippet;
     afterMarkdown?: Snippet;
     main?: Snippet;
@@ -47,7 +47,7 @@
   committee={data.committee}
   uniqueMemberCount={data.uniqueMemberCount}
   numberOfMandates={data.numberOfMandates}
-  editing={isEditing}
+  editing={isEditing ? isEditing : false}
   toggleEditing={() => (isEditing = !isEditing)}
 />
 
