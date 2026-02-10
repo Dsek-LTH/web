@@ -217,7 +217,7 @@ export const actions: Actions = {
           quantityOut: form.data.quantityOut,
         },
       });
-    } catch (_) {
+    } catch {
       return fail(500, { message: "Failed to update" });
     }
 
