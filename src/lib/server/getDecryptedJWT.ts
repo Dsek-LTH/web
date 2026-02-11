@@ -13,7 +13,12 @@ import { getToken, type JWT } from "@auth/core/jwt";
  */
 export const getDecryptedJWT = async (req: Request): Promise<JWT | null> => {
   console.log("[DEBUG] AUTH_SECRET:", env.AUTH_SECRET);
-  const token = await getToken({ req, secret: env.AUTH_SECRET });
+  console.log("[DEBUG] Incoming request:", req);
+  const token = await getToken({
+    req,
+    secret: env.AUTH_SECRET,
+    secureCookie: env.NODE_ENV === "production",
+  });
   console.log("[DEBUG] Decrypted JWT:", token);
 
   return token;
