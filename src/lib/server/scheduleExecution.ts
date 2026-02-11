@@ -51,6 +51,19 @@ export const scheduleExecution = async <T>(
         },
       },
     );
+    const payload = JSON.stringify({
+      method: "POST",
+      body: JSON.stringify({
+        body: JSON.stringify(data),
+        endpointURL,
+        runTimestamp: publishTime,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${jwt?.id_token}`,
+      },
+    });
+    console.log("[DEBUG] Scheduler request payload:", payload);
   } catch (error) {
     return fail(500, {
       form,
