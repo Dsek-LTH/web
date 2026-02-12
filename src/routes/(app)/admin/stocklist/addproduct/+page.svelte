@@ -1,11 +1,11 @@
 <script lang="ts">
   import Input from "$lib/components/Input.svelte";
-  import { DrinkQuantityType, DrinkGroup } from "@prisma/client";
+
   import { superForm } from "$lib/utils/client/superForms";
   import type { PageData } from "./$types";
   import Labeled from "$lib/components/Labeled.svelte";
 
-  const drinkGroup = Object.values(DrinkGroup);
+  const drinkGroup = ["S1", "S2", "S3", "S4"];
 
   export let data: PageData;
 
@@ -36,19 +36,15 @@
 
 <div class="mg mt-4">
   <select class="select select-bordered w-52" bind:value={$form.quantityType}>
-    <option value={DrinkQuantityType.NONE} disabled selected
-      >Välj kategori</option
-    >
-    <option value={DrinkQuantityType.COUNTS}>Öl/Cider/Vin/Annat</option>
-    <option value={DrinkQuantityType.WEIGHT}>Sprit</option>
+    <option value={"NONE"} disabled selected>Välj kategori</option>
+    <option value={"COUNTS"}>Öl/Cider/Vin/Annat</option>
+    <option value={"WEIGHT"}>Sprit</option>
   </select>
 </div>
-{#if $form.quantityType != DrinkQuantityType.NONE}
+{#if $form.quantityType != "NONE"}
   <div class=" mt-10 w-6/12 rounded-lg border-2 border-primary p-4">
     <h2 class="font-bold">
-      {$form.quantityType == DrinkQuantityType.COUNTS
-        ? "Öl/Cider/Vin/Annat"
-        : "Sprit"}
+      {$form.quantityType == "COUNTS" ? "Öl/Cider/Vin/Annat" : "Sprit"}
     </h2>
     <form
       class="flex flex-col"
@@ -90,7 +86,7 @@
         class="input bg-base-300"
         bind:value={$form.price}
       />
-      {#if $form.quantityType === DrinkQuantityType.WEIGHT}
+      {#if $form.quantityType === "WEIGHT"}
         <Input
           label="Flaska tomvikt (g)"
           type="number"
