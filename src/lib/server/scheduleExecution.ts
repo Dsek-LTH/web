@@ -1,7 +1,7 @@
 import { redirect } from "$lib/utils/redirect";
 import { getDecryptedJWT } from "$lib/server/getDecryptedJWT";
 import { env } from "$env/dynamic/private";
-import { type SuperValidated, fail } from "sveltekit-superforms";
+import { fail } from "sveltekit-superforms";
 import type { ActionFailure, RequestEvent } from "@sveltejs/kit";
 
 export type ScheduleSuccess = {
@@ -9,24 +9,30 @@ export type ScheduleSuccess = {
   scheduledId: string;
 };
 
-export type ScheduleResult =
+export type ScheduleResult<T> =
   | ActionFailure<{
-      form: SuperValidated<Record<string, unknown>>;
+      form: T;
       message: string;
     }>
   | ScheduleSuccess;
 
-export const scheduleExecution = async (
+export const isScheduleFailure = <T>(
+  result: ScheduleResult<T>,
+): result is ActionFailure<{ form: T; message: string }> => {
+  return "status" in result;
+};
+
+export const scheduleExecution = async <T>(
   request: Request,
   endpointURL: string,
   data: Record<string, unknown>,
   publishTime: Date,
-  form: SuperValidated<Record<string, unknown>>,
+  form: T,
   errorMessage: string,
   successMessage: string,
   redirectEndpoint: string,
   event: RequestEvent,
-): Promise<ScheduleResult> => {
+): Promise<ScheduleResult<T>> => {
   const jwt = await getDecryptedJWT(request);
   let result;
   try {
