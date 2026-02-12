@@ -2,7 +2,6 @@
   import type { PageData } from "./$types";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import SEO from "$lib/seo/SEO.svelte";
-  import { DrinkQuantityType } from "@prisma/client";
   export let data: PageData;
 </script>
 
@@ -55,7 +54,7 @@
     </thead>
     <tbody>
       {#each data.grouped as item}
-        {#if item.item.quantityType === DrinkQuantityType.COUNTS}
+        {#if item.item.quantityType === "COUNTS"}
           <tr>
             <th>{item.item.systembolagetID}</th>
             <td>{item.item.name}</td>
