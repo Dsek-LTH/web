@@ -542,6 +542,68 @@ model Markdown {
   @@map("markdowns")
 }
 
+
+model DrinkItem {
+  id                String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  quantityType      DrinkQuantityType @map("quantity_type")
+  name              String
+  price             Int
+  group             DrinkGroup
+  systembolagetID   Int               @map("systembolaget_id")
+  bottleEmptyWeight Int?              @map("bottle_empty_weight")
+  bottleFullWeight  Int?              @map("bottle_full_weight")
+
+  stockLists        DrinkItemBatch[]
+
+  @@allow("read", true)
+  @@allow("create", has(auth().policies, "drinkitem:create"))
+  @@allow("update", has(auth().policies, "drinkitem:update"))
+  @@allow("delete", has(auth().policies, "drinkitem:delete"))
+  @@map("drinkitem")
+}
+
+model DrinkItemBatch {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  drinkItemId String    @map("drink_item_id") @db.Uuid
+  item        DrinkItem @relation(fields: [drinkItemId], references: [id])
+  quantityIn  Int?
+  quantityOut Int?
+  user        String
+  date        DateTime
+  nrBottles   Int?
+
+  @@allow("read", true)
+  @@allow("create", has(auth().policies, "drinkitembatch:create"))
+  @@allow("update", has(auth().policies, "drinkitembatch:update"))
+  @@allow("delete", has(auth().policies, "drinkitembatch:delete"))
+  @@map("drinkitembatch")
+}
+
+model SexetInventoryValueLog {
+  id    String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  date  DateTime
+  value Int
+
+  @@allow("read", true)
+  @@allow("create", has(auth().policies, "drinkitembatch:create"))
+  @@allow("update", has(auth().policies, "drinkitembatch:update"))
+  @@allow("delete", has(auth().policies, "drinkitembatch:delete"))
+  @@map("sexetinventoryvaluelog")
+}
+
+enum DrinkQuantityType {
+  NONE
+  WEIGHT
+  COUNTS
+}
+
+enum DrinkGroup {
+  S1
+  S2
+  S3
+  S4
+}
+
 model Meeting {
   id    String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   title String   @db.VarChar(255)
