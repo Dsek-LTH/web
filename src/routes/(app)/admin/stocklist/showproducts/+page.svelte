@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { DrinkQuantityType } from "@prisma/client";
   import { superForm } from "sveltekit-superforms";
 
   const { data } = $props();
@@ -44,7 +43,7 @@
     </thead>
     <tbody>
       {#each data.drinkItems as item}
-        {#if item.quantityType === DrinkQuantityType.COUNTS}
+        {#if item.quantityType === "COUNTS"}
           <tr>
             <th>{item.systembolagetID}</th>
             <td>{item.name}</td>

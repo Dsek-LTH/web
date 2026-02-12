@@ -2,7 +2,7 @@
   import { superForm } from "sveltekit-superforms";
   import Input from "$lib/components/Input.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
-  import { DrinkQuantityType, type DrinkItem } from "@prisma/client";
+  import { type DrinkItem } from "@prisma/client";
 
   const { data } = $props();
   const { form, enhance } = superForm(data.form);
@@ -70,7 +70,7 @@
         <Input type="hidden" name="inOut" bind:value={$form.inOut} />
 
         {#if selectedDrinkItem}
-          {#if selectedDrinkItem!.quantityType === DrinkQuantityType.COUNTS}
+          {#if selectedDrinkItem!.quantityType === "COUNTS"}
             <Labeled
               label={`Tillgängligt: ${data.entriesIn.filter((i) => i.drinkItemId === selectedDrinkItem!.id).reduce((sum, i) => sum + i.quantityIn!, 0) - data.entriesOut.filter((i) => i.drinkItemId === selectedDrinkItem!.id).reduce((sum, i) => sum + i.quantityOut!, 0)}`}
             />
@@ -153,7 +153,7 @@
           {/each}
         </select>
         {#if selectedDrinkItem}
-          {#if selectedDrinkItem!.quantityType === DrinkQuantityType.COUNTS}
+          {#if selectedDrinkItem!.quantityType === "COUNTS"}
             <Labeled
               label={`Tillgängligt: ${data.entriesIn.filter((i) => i.drinkItemId === selectedDrinkItem!.id).reduce((sum, i) => sum + i.quantityIn!, 0) - data.entriesOut.filter((i) => i.drinkItemId === selectedDrinkItem!.id).reduce((sum, i) => sum + i.quantityOut!, 0)}`}
             />
