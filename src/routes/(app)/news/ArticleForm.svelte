@@ -21,7 +21,8 @@
   import type { AuthorOption } from "$lib/news/getArticles";
   import type { Snippet } from "svelte";
   import { Spinner } from "$lib/components/ui/spinner";
-  import { goto } from "$lib/utils/redirect";
+  import { goto } from "$app/navigation";
+  import { resolve } from "$app/paths";
 
   let {
     allTags,
@@ -189,7 +190,7 @@
   </div>
   <div class="flex w-full flex-row justify-between gap-1.5">
     <Button
-      onclick={formEnd ? () => goto("/news") : () => history.back()}
+      onclick={formEnd ? () => goto(resolve("/news")) : () => history.back()}
       variant="outline">{m.cancel()}</Button
     >
     <Button type="submit" class="block grow"
