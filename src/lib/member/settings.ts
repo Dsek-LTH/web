@@ -1,5 +1,4 @@
 import { getAllTags } from "$lib/news/tags";
-import { getLocale } from "$paraglide/runtime";
 import {
   error,
   fail,
