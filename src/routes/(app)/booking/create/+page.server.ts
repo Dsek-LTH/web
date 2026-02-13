@@ -1,7 +1,6 @@
 import { fail } from "@sveltejs/kit";
 import { superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
-import { redirect } from "$lib/utils/redirect";
 import * as m from "$paraglide/messages";
 import { bookingSchema } from "../schema";
 import dayjs from "dayjs";
@@ -13,6 +12,7 @@ import type {
   ExtendedPrisma,
   ExtendedPrismaModel,
 } from "$lib/server/extendedPrisma";
+import { redirect } from "sveltekit-flash-message/server";
 
 export const load = async ({ locals }) => {
   const { prisma } = locals;

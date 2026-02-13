@@ -1,7 +1,4 @@
 <script lang="ts">
-  import { i18n } from "$lib/utils/i18n";
-  import { languageTag } from "$paraglide/runtime";
-  import { ParaglideJS } from "@inlang/paraglide-js-adapter-sveltekit";
   import dayjs from "dayjs";
   import "../app.css";
   import { ModeWatcher } from "mode-watcher";
@@ -9,13 +6,11 @@
   import "@stripe/stripe-js";
   import { setContext } from "svelte";
   import { writable } from "svelte/store";
+  import { getLocale } from "$paraglide/runtime";
 
   const { children, data } = $props();
 
-  $effect(() => {
-    const locale = languageTag();
-    dayjs.locale(locale);
-  });
+  dayjs.locale(getLocale());
   let pageTitle = writable("D-sektionen");
   setContext("pageTitle", pageTitle);
 </script>
@@ -27,6 +22,4 @@
   {/if}
 </svelte:head>
 
-<ParaglideJS {i18n}>
-  {@render children?.()}
-</ParaglideJS>
+{@render children?.()}

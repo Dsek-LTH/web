@@ -1,7 +1,7 @@
+import { eventLink } from "$lib/events/events";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
-import { eventLink, redirect } from "$lib/utils/redirect";
 import { slugWithCount, slugify } from "$lib/utils/slugify";
-import { error } from "@sveltejs/kit";
+import { error, redirect } from "@sveltejs/kit";
 
 /**
  * This endpoint is a backup in case an event doesn't have a slug.

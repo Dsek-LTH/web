@@ -8,7 +8,7 @@ import {
   type RecurringType,
 } from "$lib/utils/events";
 import { z } from "zod";
-import { redirect } from "$lib/utils/redirect";
+import { redirect } from "sveltekit-flash-message/server";
 import { slugify, slugWithCount } from "$lib/utils/slugify";
 import * as m from "$paraglide/messages";
 import { error, type Action } from "@sveltejs/kit";
