@@ -1,4 +1,5 @@
 import { getAllTags } from "$lib/news/tags";
+import { getLocale } from "$paraglide/runtime";
 import {
   error,
   fail,
@@ -31,6 +32,7 @@ export const settingsLoad = async ({ locals }: ServerLoadEvent) => {
       subscribedTags: {},
     },
   });
+
   return {
     tags: await getAllTags(prisma),
     subscribedTags,

@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { fail } from "@sveltejs/kit";
 import { form, getRequestEvent } from "$app/server";
 import { NotificationSettingType } from "$lib/utils/notifications/types";
 
@@ -29,8 +28,7 @@ const settingsSchema = z.object(schemaFields).and(
 
 export const updateSettings = form(settingsSchema, async (data) => {
   const { user, prisma } = getRequestEvent().locals;
-  if (!user) return fail(401, { message: "Unauthorized" });
-  console.log(data);
+  if (!user) return { message: "401 Unauthorized", success: false };
 
   // Extract subscription types that are enabled
   const subscriptions: NotificationSettingType[] = [];
@@ -79,9 +77,9 @@ export const updateSettings = form(settingsSchema, async (data) => {
         },
       },
     });
-    console.log("hi");
   } catch (err) {
     console.error("Error updating notification settings:", err);
-    return fail(400, { message: "Failed to update settings" });
+    return { message: "Failed updating settings: " + err, success: false };
   }
+  return { message: "Updated settings", success: true };
 });

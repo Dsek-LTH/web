@@ -28,6 +28,7 @@
   --secondary-hover: oklch(96.7% 0.001 286.375);
   --accent: oklch(0.967 0.001 286.375);
   --accent-foreground: oklch(0.21 0.006 285.885);
+  --card: var(--muted-background);
 }
 
 .dark {
@@ -53,6 +54,7 @@
   --secondary-hover: oklch(21% 0.006 285.885);
   --accent: oklch(0.274 0.006 286.033);
   --accent-foreground: oklch(0.985 0 0);
+  --card: var(--muted-background);
 }
 
 @font-face {
@@ -116,6 +118,7 @@
   --color-secondary-hover: var(--secondary-hover);
   --color-primary: var(--primary);
   --color-input: var(--input);
+  --color-card: var(--card);
 
   /* TODO: change to oklch colors (except #f280a1, #9966cc, and #99cc66)? */
   --color-rosa-50: #fef2f5;

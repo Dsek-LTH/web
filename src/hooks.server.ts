@@ -313,6 +313,7 @@ const paraglideHandle: Handle = ({ event, resolve }) =>
         // If the server-determined locale exists (from your custom-server strategy)
         // and the user is logged in, set the cookie if it is missing or different.
         if (session?.user && locale && existing !== locale) {
+          console.log("hook", locale);
           event.cookies.set(cookieName, locale, {
             path: "/",
             httpOnly: false, // client JS must read it

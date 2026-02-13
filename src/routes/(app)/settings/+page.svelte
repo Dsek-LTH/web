@@ -7,9 +7,8 @@
   import { Switch } from "$lib/components/ui/switch/index.js";
   import Button from "$lib/components/ui/button/button.svelte";
   import { updateSettings } from "./settings.remote";
-  import { setLanguage } from "$lib/utils/languages.remote";
   import * as Table from "$lib/components/ui/table/index.js";
-  import { getLocale, locales, setLocale } from "$paraglide/runtime";
+  import { toast } from "$lib/stores/toast";
 
   const { data } = $props();
 
@@ -29,13 +28,28 @@
       value: tag.id,
     })),
   );
-  let selectedLanguage = $state<"en" | "sv">(
-    (data.member?.language ?? getLocale()) as "en" | "sv",
-  );
-
-  const languageTranslation = (lang: "en" | "sv") => {
-    return lang === "en" ? m.language_english() : m.language_swedish();
-  };
+  // This is very cursed TODO: fix
+  // const initialLocale = getLocale();
+  // console.log(initialLocale);
+  // let selectedLanguage = $state<"en" | "sv">(initialLocale);
+  // let languageInitialized = false;
+  // $effect(() => {
+  //   const fun = async () => {
+  //     const lang = selectedLanguage;
+  //     console.log(selectedLanguage);
+  //     if (!languageInitialized) {
+  //       languageInitialized = true;
+  //       return;
+  //     }
+  //
+  //     await setLanguage(lang);
+  //     setLocale(lang as "en" | "sv");
+  //   };
+  //   fun();
+  // });
+  // const languageTranslation = (lang: "en" | "sv") => {
+  // return lang === "en" ? m.language_english() : m.language_swedish();
+  // };
 
   const modeTranslation = (mode: "dark" | "light" | "system") => {
     switch (mode) {
@@ -62,7 +76,7 @@
   } as const;
 
   const getNotificationText = (text: NotificationSettingType) => {
-    return notificationText[text](); // Type cast string to string literal
+    return notificationText[text]();
   };
 
   // Create reactive state for each switch that syncs with form fields and server data
@@ -101,17 +115,11 @@
 <div class="flex flex-col [&_h2]:mt-10 [&_h2]:mb-6 [&_h4]:mb-3">
   <h2 class="!mt-0">{m.setting_appearance()}</h2>
   <div class="flex flex-row">
+    <!--
+    TODO: Fix this
     <div>
       <h4>{m.setting_language()}</h4>
-      <Select.Root
-        type="single"
-        name="language"
-        onValueChange={async (e) => {
-          await setLanguage(e);
-          setLocale(e as "sv" | "en");
-        }}
-        bind:value={selectedLanguage}
-      >
+      <Select.Root type="single" name="language" bind:value={selectedLanguage}>
         <Select.Trigger class="w-36">
           {languageTranslation(selectedLanguage)}
         </Select.Trigger>
@@ -125,7 +133,8 @@
         </Select.Content>
       </Select.Root>
     </div>
-    <div class="ml-10">
+    -->
+    <div>
       <h4>{m.setting_mode()}</h4>
       <Select.Root
         type="single"
@@ -147,7 +156,17 @@
     </div>
   </div>
   <h2>{m.setting_notification()}</h2>
-  <form {...updateSettings}>
+  <form
+    {...updateSettings.enhance(async ({ submit }) => {
+      // By default the form is reset when submitted, and if you click it again your subscription settings will be cleared
+      // This takes over the form lifecycle so that the reset doesn't happen
+      await submit();
+      toast(
+        updateSettings.result?.message ?? "No status message found",
+        updateSettings.result?.success ? "success" : "error",
+      );
+    })}
+  >
     <div class="flex flex-col gap-8 md:flex-row">
       <div class="flex h-[400px] min-h-[400px] w-full flex-col md:w-[400px]">
         <h4>{m.setting_subscriptions()}</h4>
@@ -183,6 +202,7 @@
                   {#if updateSettings.fields[pushKey]}
                     <Switch
                       name={pushKey}
+                      disabled={!switchStates[settingType].subscription}
                       bind:checked={switchStates[settingType].push}
                     />
                   {/if}
