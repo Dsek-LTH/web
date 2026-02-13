@@ -83,7 +83,7 @@
 
 {@render mobile("md:hidden")}
 
-<div class="layout-container hidden flex-row md:flex">
+<div class="layout-container hidden flex-row py-0 md:flex">
   {@render desktop()}
 </div>
 
@@ -94,7 +94,7 @@
       class="bg-rosa-300 h-44 bg-contain bg-center"
     ></header>
     <section
-      class="layout-container bg-muted-background relative flex flex-col border-b-[1px] py-0 pb-4"
+      class="layout-container bg-muted-background relative flex flex-col border-l-[1px] py-0 pb-4"
     >
       <a href={member.studentId + "/edit"}>
         <Button variant="outline" class="absolute top-2 right-2" size="sm"
@@ -242,7 +242,9 @@
 {/snippet}
 
 {#snippet desktop()}
-  <aside class="flex w-5/12 flex-col gap-4 lg:w-3/12">
+  <aside
+    class="bg-muted-background border-border flex w-5/12 flex-col gap-4 border-x-[1px] pt-8 pr-6 pb-4 pl-6 lg:w-3/12"
+  >
     <div class="flex flex-col items-center gap-4">
       <Avatar.Root class="relative size-44">
         <Avatar.Image src={member.picturePath} alt="Member image" />
@@ -270,10 +272,10 @@
       <div class="inline-flex flex-col items-start gap-1">
         <h6>{m.medals()}</h6>
 
-        <section class="inline-flex flex-col gap-2">
+        <section class="inline-flex w-full flex-col gap-2">
           {#each medals as medal (medal.medal)}
             <div
-              class="inline-flex flex-row items-center gap-4 rounded-md border-[1px] p-3 pr-4"
+              class="inline-flex min-w-10/12 flex-row items-center gap-4 rounded-md border-[1px] p-3 pr-4"
             >
               <CommitteeIcon class="size-8" committee={null} />
               <div class="flex flex-col justify-center">
@@ -313,45 +315,49 @@
     {/if}
   </aside>
 
-  <main class="md:w-9/12">
+  <main class="bg-background border-r-[1px] md:w-9/12">
     <!-- <h4>Riddare</h4> -->
-    <div class="flex flex-row items-end gap-1 pt-7">
-      <h1>{member.firstName} {member.lastName}</h1>
-      <a
-        href={member.classYear && member.classProgramme
-          ? `/members?year=${member.classYear}&programme=${member.classProgramme}`
-          : "/members"}
-      >
-        <Badge
-          variant={programmeColors[member.classProgramme ?? "?"] ?? "rosa"}
-          class="mb-2 ml-3"
-          size="lg"
-          >{(member.classProgramme ?? "?") +
-            (member.classYear?.toString().slice(-2) ?? "??")}</Badge
+    <div class="border-b-[1px] pr-4 pl-8">
+      <div class="flex flex-row items-end gap-1 pt-7">
+        <h1>{member.firstName} {member.lastName}</h1>
+        <a
+          href={member.classYear && member.classProgramme
+            ? `/members?year=${member.classYear}&programme=${member.classProgramme}`
+            : "/members"}
         >
-      </a>
-      <Dialog.Root>
-        <div class="ml-auto self-center">
-          <Dialog.Trigger
-            class={cn(
-              buttonVariants({ variant: "outline", size: "sm" }),
-              "ml-auto self-center",
-            )}><Pen /> {m.member_edit_profile()}</Dialog.Trigger
+          <Badge
+            variant={programmeColors[member.classProgramme ?? "?"] ?? "rosa"}
+            class="mb-2 ml-3"
+            size="lg"
+            >{(member.classProgramme ?? "?") +
+              (member.classYear?.toString().slice(-2) ?? "??")}</Badge
           >
-          <Dialog.Content
-            class="z-51 max-h-[90vh] overflow-y-scroll sm:max-w-[425px]"
-          >
-            <Dialog.Header>
-              <Dialog.Title>{m.member_edit_profile()}</Dialog.Title>
-            </Dialog.Header>
-            <MemberForm {data} dialog />
-          </Dialog.Content>
-        </div>
-      </Dialog.Root>
+        </a>
+        <Dialog.Root>
+          <div class="ml-auto self-center">
+            <Dialog.Trigger
+              class={cn(
+                buttonVariants({ variant: "outline", size: "sm" }),
+                "ml-auto self-center",
+              )}><Pen /> {m.member_edit_profile()}</Dialog.Trigger
+            >
+            <Dialog.Content
+              class="z-51 max-h-[90vh] overflow-y-scroll sm:max-w-[425px]"
+            >
+              <Dialog.Header>
+                <Dialog.Title>{m.member_edit_profile()}</Dialog.Title>
+              </Dialog.Header>
+              <MemberForm {data} dialog />
+            </Dialog.Content>
+          </div>
+        </Dialog.Root>
+      </div>
+      <h4 class="mb-8">
+        {member.nickname ? "“" + member.nickname + "”" : ""}
+      </h4>
     </div>
-    <h4 class="mb-12">{member.nickname ? "“" + member.nickname + "”" : ""}</h4>
 
-    <Tabs.Root value="positions">
+    <Tabs.Root value="positions" class="mt-4 pr-4 pl-8">
       <Tabs.List>
         <Tabs.Trigger value="positions">{m.positions()}</Tabs.Trigger>
         <Tabs.Trigger value="articles">{m.news()}</Tabs.Trigger>
