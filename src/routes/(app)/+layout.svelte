@@ -1,4 +1,5 @@
 <script>
+  import Toast from "../Toast.svelte";
   import Alert from "$lib/components/Alert.svelte";
   import { languageTag } from "$paraglide/runtime";
   import Footer from "./Footer.svelte";
@@ -20,5 +21,5 @@
 {/each}
 
 {@render children?.()}
-
+<Toast />
 <Footer />
