@@ -315,7 +315,7 @@
     {/if}
   </aside>
 
-  <main class="bg-background border-r-[1px] md:w-9/12">
+  <main class="bg-background border-r-[1px] pb-4 md:w-9/12">
     <!-- <h4>Riddare</h4> -->
     <div class="border-b-[1px] pr-4 pl-8">
       <div class="flex flex-row items-end gap-1 pt-7">
