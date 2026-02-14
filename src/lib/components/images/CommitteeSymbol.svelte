@@ -1,50 +1,78 @@
 <script lang="ts">
   import { getFileUrl } from "$lib/files/client";
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+  import { cn } from "$lib/utils";
 
-  export let committee: Pick<
-    ExtendedPrismaModel<"Committee">,
-    "symbolUrl" | "name"
-  >;
-  $: dark = committee.symbolUrl?.endsWith("light.svg")
-    ? committee.symbolUrl.slice(0, -9) + "dark.svg"
-    : committee.symbolUrl;
-  $: light = committee.symbolUrl?.endsWith("dark.svg")
-    ? committee.symbolUrl.slice(0, -8) + "light.svg"
-    : committee.symbolUrl;
+  let {
+    committee,
+    size = "default",
+  }: {
+    committee: ExtendedPrismaModel<"Committee">;
+    size?: "default" | "sm";
+  } = $props();
 
-  $: differentDarkLight = dark !== light;
+  const FALLBACK_URL =
+    "https://raw.githubusercontent.com/Dsek-LTH/grafik/refs/heads/main/guild/dsek/symbol/symbol_rosa.svg";
+
+  let other = $derived(committee.shortName == "other");
+
+  let dark = $derived(
+    other
+      ? FALLBACK_URL
+      : committee.symbolUrl?.endsWith("light.svg")
+        ? committee.symbolUrl.slice(0, -9) + "dark.svg"
+        : committee.symbolUrl,
+  );
+  let light = $derived(
+    other
+      ? FALLBACK_URL
+      : committee.symbolUrl?.endsWith("dark.svg")
+        ? committee.symbolUrl.slice(0, -8) + "light.svg"
+        : committee.symbolUrl,
+  );
+
+  let symbolUrl = $derived(other ? FALLBACK_URL : committee.symbolUrl);
+
+  let differentDarkLight = $derived(dark !== light);
+
+  let klass = $derived(size == "default" ? "w-8" : "w-6");
 </script>
 
 {#if differentDarkLight}
   <object
-    data="https://raw.githubusercontent.com/Dsek-LTH/grafik/main/guild/d_sektionen/symbol/d.svg"
-    type="“image/svg"
+    type="image/svg"
     title="{committee.name} symbol"
-    class="relative aspect-square"
+    class="relative flex aspect-square justify-center"
   >
     <img
       src={getFileUrl(dark)}
       alt="{committee.name} symbol"
-      class="absolute inset-0 hidden h-full w-full object-contain dark:block"
+      class={cn(klass, "hidden dark:block")}
     />
     <img
       src={getFileUrl(light)}
       alt="{committee.name} symbol"
-      class="absolute inset-0 h-full w-full object-contain dark:hidden"
+      class={cn(klass, "dark:hidden")}
     />
   </object>
 {:else}
   <object
-    data="https://raw.githubusercontent.com/Dsek-LTH/grafik/main/guild/d_sektionen/symbol/d.svg"
-    type="“image/svg"
+    type="image/svg"
     title="{committee.name} symbol"
-    class="aspect-square"
+    data={getFileUrl(symbolUrl)}
+    class={cn("flex justify-center overflow-visible", other ? "mx-1" : "")}
   >
-    <img
-      src={getFileUrl(committee.symbolUrl)}
-      alt="{committee.name} symbol"
-      class="h-full w-full object-contain"
-    />
+    {#if other}
+      <img
+        src={FALLBACK_URL}
+        alt="{committee.name} symbol"
+        class={cn(klass, "text-rosa-400")}
+      />{:else}
+      <img
+        src={getFileUrl(symbolUrl)}
+        alt="{committee.name} symbol"
+        class={cn(klass, "text-rosa-400")}
+      />
+    {/if}
   </object>
 {/if}
