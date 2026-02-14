@@ -75,12 +75,12 @@
 
     <AlertDialog.Root>
       <AlertDialog.Trigger
+        type="button"
         class={cn(
           "bg-secondary-background text-secondary-foreground hover:bg-secondary-hover dark:bg-input/30 dark:border-input dark:hover:bg-input/50 w-26 border shadow-xs",
           "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
           "h-9 px-4 py-2 has-[>svg]:px-3",
         )}
-        type="button"
       >
         <Link />{m.fileupload_choose_url()}
       </AlertDialog.Trigger>
@@ -97,8 +97,11 @@
           </AlertDialog.Description>
         </AlertDialog.Header>
         <AlertDialog.Footer>
-          <AlertDialog.Cancel>{m.dialog_cancel()}</AlertDialog.Cancel>
+          <AlertDialog.Cancel type="button"
+            >{m.dialog_cancel()}</AlertDialog.Cancel
+          >
           <AlertDialog.Action
+            type="button"
             onclick={async () => {
               let res = await fetch(urlInput!.value).catch(() => {
                 urlError = m.fileupload_error();

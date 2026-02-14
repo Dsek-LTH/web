@@ -28,10 +28,6 @@
     children: childProps,
     ...restProps
   }: Props = $props();
-
-  if (childProps) {
-    className += " indent-6";
-  }
 </script>
 
 <div class="relative flex w-full flex-col">
@@ -51,6 +47,7 @@
           "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
           " aria-invalid:border-rosa-500 dark:aria-invalid:bg-rosa-950 aria-invalid:bg-rosa-50 aria-invalid:text-rosa-500 dark:aria-invalid:text-rosa-500 aria-invalid:border-[1px]",
           className,
+          childProps ? "indent-6" : "",
         )}
         ><CloudUpload class="h-[16px] w-[16px]" />{m.fileupload_choose()}<input
           bind:this={ref}
@@ -71,6 +68,7 @@
           "focus-visible:border-muted-foreground focus-visible:ring-muted-foreground/20 focus-visible:ring-[3px]",
           "aria-invalid:border-rosa-500 dark:aria-invalid:bg-rosa-950 aria-invalid:bg-rosa-50 aria-invalid:text-rosa-500 dark:aria-invalid:text-rosa-500 aria-invalid:border-[1px]",
           className,
+          childProps ? "indent-6" : "",
         )}
         {type}
         bind:value

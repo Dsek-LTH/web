@@ -63,7 +63,7 @@
     "@typescript-eslint/eslint-plugin": "^8.46.3",
     "@typescript-eslint/parser": "^8.46.3",
     "@zenstackhq/openapi": "^2.10.0",
-    "bits-ui": "^2.15.4",
+    "bits-ui": "^2.15.5",
     "clsx": "^2.1.1",
     "concurrently": "^9.1.0",
     "eslint": "^9.39.1",
