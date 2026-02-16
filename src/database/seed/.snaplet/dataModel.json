@@ -1262,6 +1262,20 @@
           "maxLength": null
         },
         {
+          "id": "public.albums.description",
+          "name": "description",
+          "columnName": "description",
+          "type": "text",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
           "id": "public.albums.date",
           "name": "date",
           "columnName": "date",

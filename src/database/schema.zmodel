@@ -1363,6 +1363,7 @@ model CiabattaOfTheWeek {
 model Album {
     id            String   @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
     title         String
+    description   String?
     date          DateTime @db.Date
     createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
     updatedAt     DateTime @map("updated_at") @db.Timestamptz(6)

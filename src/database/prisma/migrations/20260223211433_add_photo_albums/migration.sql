@@ -2,6 +2,7 @@
 CREATE TABLE "albums" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "title" TEXT NOT NULL,
+    "description" TEXT,
     "date" DATE NOT NULL,
     "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ(6) NOT NULL,
