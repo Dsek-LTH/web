@@ -26,7 +26,7 @@ export const actions: Actions = {
 
     const items = await readCSV(prisma, file);
 
-    for (var item of items) {
+    for (let item of items) {
       await prisma.drinkItem.create({
         data: {
           name: item.name,

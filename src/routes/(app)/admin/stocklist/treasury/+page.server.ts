@@ -2,10 +2,10 @@ import type { Actions, PageServerLoad } from "../$types";
 import { z } from "zod";
 import { fail, message, superValidate } from "sveltekit-superforms";
 import { zod } from "sveltekit-superforms/adapters";
-import { redirect } from "@sveltejs/kit";
 import dayjs from "dayjs";
 import { authorize } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
+import { redirect } from "$lib/utils/redirect";
 
 const deleteSchema = z.object({
   id: z.string(),
@@ -76,8 +76,8 @@ export const actions: Actions = {
         });
 
         const newAmount =
-          batch?.item.quantityAvailable! -
-          batch?.quantityDelta! +
+          batch!.item.quantityAvailable! -
+          batch!.quantityDelta +
           requestedDelta;
 
         if (newAmount < 0) {
@@ -121,7 +121,7 @@ export const actions: Actions = {
           },
         });
         const newAmount =
-          batch?.item.quantityAvailable! - batch?.quantityDelta!;
+          batch!.item.quantityAvailable! - batch!.quantityDelta!;
 
         if (newAmount < 0) {
           throw new Error("Totalt antal blir negativt");

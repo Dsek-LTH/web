@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { superForm } from "sveltekit-superforms";
+  import { superForm } from "$lib/utils/client/superForms";
   import Navbuttons from "../navbuttons.svelte";
   import type { PageData } from "./$types";
   import type { DrinkItemBatch } from "@prisma/client";
@@ -18,7 +18,7 @@
   const { form: dateForm } = superForm(data.dateForm);
   let dateFormElement: HTMLFormElement;
 
-  let editId: string = "";
+  let editId = "";
 
   function enableEdit(drinkBatch: DrinkItemBatch) {
     editId = drinkBatch.id;

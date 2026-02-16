@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { superForm } from "sveltekit-superforms";
+  import { superForm } from "$lib/utils/client/superForms";
   import Navbuttons from "../navbuttons.svelte";
   import type { PageData } from "./$types";
   import Input from "$lib/components/Input.svelte";
@@ -15,7 +15,7 @@
   } = superForm(data.updateForm);
   const drinkGroup = ["S1", "S2", "S3", "S4"];
 
-  let editId: string = "";
+  let editId = "";
 
   function enableEdit(item: DrinkItem) {
     editId = item.id;

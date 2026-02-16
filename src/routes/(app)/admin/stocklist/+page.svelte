@@ -44,7 +44,7 @@
       </tr>
     </thead>
     <tbody>
-      {#each data.drinkItems as item: DrinkItem}
+      {#each data.drinkItems as item}
         {#if item.quantityType === "COUNTS"}
           <tr>
             <th>{item.systembolagetID}</th>

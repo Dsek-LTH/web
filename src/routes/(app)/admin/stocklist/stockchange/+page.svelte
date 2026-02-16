@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { superForm } from "sveltekit-superforms";
   import Input from "$lib/components/Input.svelte";
   import Labeled from "$lib/components/Labeled.svelte";
   import type { PageData } from "./$types";
   import { type DrinkItem } from "@prisma/client";
   import Navbuttons from "../navbuttons.svelte";
+  import { superForm } from "$lib/utils/client/superForms";
 
   export let data: PageData;
 
