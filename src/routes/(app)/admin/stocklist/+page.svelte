@@ -3,6 +3,7 @@
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import SEO from "$lib/seo/SEO.svelte";
   export let data: PageData;
+  import Navbuttons from "./navbuttons.svelte";
 </script>
 
 <SetPageTitle title="Stocklist" />
@@ -14,31 +15,20 @@
     },
   }}
 />
-
 <div
   style="display: flex; justify-content: space-between; align-items: center;"
 >
-  <div>
-    <ul style="list-style: none;">
-      <a href="/admin/stocklist" style="margin-right:15px">
-        <button class="btn btn-primary"> Överblick </button>
-      </a>
-      <a href="/admin/stocklist/addproduct" style="margin-right:15px">
-        <button class="btn btn-primary"> Lägg till produkt </button>
-      </a>
-      <a href="/admin/stocklist/stockchange" style="margin-right:15px">
-        <button class=" btn btn-primary"> Skriv in/ut </button>
-      </a>
-      <a href="/admin/stocklist/treasury" style="margin-right:15px">
-        <button class=" btn btn-primary"> Action Logs </button>
-      </a>
-      <a href="/admin/stocklist/showproducts" style="margin-right:15px">
-        <button class=" btn btn-primary"> Show Products </button>
-      </a>
-    </ul>
+  <div
+    style="display: flex; justify-content: space-between; align-items: center;"
+  >
+    <Navbuttons currentPage="overview"></Navbuttons>
+    <form method="POST" enctype="multipart/form-data" action="?/readFile">
+      <input type="file" name="upload" class="file-input file-input-primary" />
+      <button type="submit" class="btn btn-primary">Upload</button>
+    </form>
   </div>
   <h1 style="font-size: large;">
-    Totalt lagervärde: {data.totalInventoryValue / 100} kr
+    Totalt lagervärde: {data.currentInventoryValue.toFixed(0)} kr
   </h1>
 </div>
 <div class="overflow-x-auto">
@@ -47,28 +37,36 @@
       <tr>
         <th>Id </th>
         <th>Namn</th>
-        <th>Pris</th>
-        <th>Antal/Vikt</th>
+        <th>Kategori</th>
+        <th>Inköpspris</th>
+        <th>Antal</th>
         <th>Group</th>
       </tr>
     </thead>
     <tbody>
-      {#each data.grouped as item}
-        {#if item.item.quantityType === "COUNTS"}
+      {#each data.drinkItems as item}
+        {#if item.quantityType === "COUNTS"}
           <tr>
-            <th>{item.item.systembolagetID}</th>
-            <td>{item.item.name}</td>
-            <td>{item.item.price / 100} kr</td>
-            <td>{(item.quantityIn ?? 0) - (item.quantityOut ?? 0)}</td>
-            <td>{item.item.group}</td>
+            <th>{item.systembolagetID}</th>
+            <td>{item.name}</td>
+            <td>Öl/Cider</td>
+            <td>{item.price / 100} kr</td>
+            <td>{item.quantityAvailable} st</td>
+            <td>{item.group}</td>
           </tr>
         {:else}
           <tr>
-            <th>{item.item.systembolagetID}</th>
-            <td>{item.item.name}</td>
-            <td>{item.item.price / 100} kr</td>
-            <td>{(item.quantityIn ?? 0) - (item.quantityOut ?? 0)} g</td>
-            <td>{item.item.group}</td>
+            <th>{item.systembolagetID}</th>
+            <td>{item.name}</td>
+            <td>Sprit</td>
+            <td>{item.price / 100} kr</td>
+            <td
+              >{(
+                (item.quantityAvailable! - item.bottleEmptyWeight!) /
+                (item.bottleFullWeight! - item.bottleEmptyWeight!)
+              ).toFixed(2)} flaskor</td
+            >
+            <td>{item.group}</td>
           </tr>
         {/if}
       {/each}
