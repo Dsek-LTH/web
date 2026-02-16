@@ -2,7 +2,7 @@ import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 import sendNotification from "$lib/utils/notifications";
 import { NotificationType } from "$lib/utils/notifications/types";
-import markdownToTxt from "markdown-to-txt";
+import { markdownToTxt } from "markdown-to-txt";
 
 export const sendNewArticleNotification = async (
   article: ExtendedPrismaModel<"Article"> & {
