@@ -469,20 +469,20 @@ model DrinkItem {
   systembolagetID   Int               @map("systembolaget_id")
   bottleEmptyWeight Int?              @map("bottle_empty_weight")
   bottleFullWeight  Int?              @map("bottle_full_weight")
+  quantityAvailable Int?              @default(0) @map("quantity_available")
   stockLists        DrinkItemBatch[]
 
   @@map("drinkitem")
 }
 
 model DrinkItemBatch {
-  id          String    @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  drinkItemId String    @map("drink_item_id") @db.Uuid()
-  item        DrinkItem @relation(fields: [drinkItemId], references: [id])
-  quantityIn  Int?
-  quantityOut Int?
-  user        String
-  date        DateTime
-  nrBottles   Int?
+  id            String    @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  drinkItemId   String    @map("drink_item_id") @db.Uuid()
+  item          DrinkItem @relation(fields: [drinkItemId], references: [id])
+  quantityDelta Int       @map("quantity_delta")
+  user          String
+  date          DateTime
+  nrBottles     Int?
 
   @@map("drinkitembatch")
 }
