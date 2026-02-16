@@ -218,6 +218,168 @@
         }
       ]
     },
+    "_album_editor": {
+      "id": "public._album_editor",
+      "schemaName": "public",
+      "tableName": "_album_editor",
+      "fields": [
+        {
+          "id": "public._album_editor.A",
+          "name": "A",
+          "columnName": "A",
+          "type": "uuid",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": true,
+          "maxLength": null
+        },
+        {
+          "id": "public._album_editor.B",
+          "name": "B",
+          "columnName": "B",
+          "type": "uuid",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": true,
+          "maxLength": null
+        },
+        {
+          "name": "albums",
+          "type": "albums",
+          "isRequired": true,
+          "kind": "object",
+          "relationName": "_album_editorToalbums",
+          "relationFromFields": [
+            "A"
+          ],
+          "relationToFields": [
+            "id"
+          ],
+          "isList": false,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        },
+        {
+          "name": "members",
+          "type": "members",
+          "isRequired": true,
+          "kind": "object",
+          "relationName": "_album_editorTomembers",
+          "relationFromFields": [
+            "B"
+          ],
+          "relationToFields": [
+            "id"
+          ],
+          "isList": false,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        }
+      ],
+      "uniqueConstraints": [
+        {
+          "name": "_album_editor_AB_pkey",
+          "fields": [
+            "A",
+            "B"
+          ],
+          "nullNotDistinct": false
+        }
+      ]
+    },
+    "_album_photographer": {
+      "id": "public._album_photographer",
+      "schemaName": "public",
+      "tableName": "_album_photographer",
+      "fields": [
+        {
+          "id": "public._album_photographer.A",
+          "name": "A",
+          "columnName": "A",
+          "type": "uuid",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": true,
+          "maxLength": null
+        },
+        {
+          "id": "public._album_photographer.B",
+          "name": "B",
+          "columnName": "B",
+          "type": "uuid",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": true,
+          "maxLength": null
+        },
+        {
+          "name": "albums",
+          "type": "albums",
+          "isRequired": true,
+          "kind": "object",
+          "relationName": "_album_photographerToalbums",
+          "relationFromFields": [
+            "A"
+          ],
+          "relationToFields": [
+            "id"
+          ],
+          "isList": false,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        },
+        {
+          "name": "members",
+          "type": "members",
+          "isRequired": true,
+          "kind": "object",
+          "relationName": "_album_photographerTomembers",
+          "relationFromFields": [
+            "B"
+          ],
+          "relationToFields": [
+            "id"
+          ],
+          "isList": false,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        }
+      ],
+      "uniqueConstraints": [
+        {
+          "name": "_album_photographer_AB_pkey",
+          "fields": [
+            "A",
+            "B"
+          ],
+          "nullNotDistinct": false
+        }
+      ]
+    },
     "_alerts_closed_by": {
       "id": "public._alerts_closed_by",
       "schemaName": "public",
@@ -1061,6 +1223,148 @@
           "name": "admin_settings_pkey",
           "fields": [
             "key"
+          ],
+          "nullNotDistinct": false
+        }
+      ]
+    },
+    "albums": {
+      "id": "public.albums",
+      "schemaName": "public",
+      "tableName": "albums",
+      "fields": [
+        {
+          "id": "public.albums.id",
+          "name": "id",
+          "columnName": "id",
+          "type": "uuid",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": true,
+          "isId": true,
+          "maxLength": null
+        },
+        {
+          "id": "public.albums.title",
+          "name": "title",
+          "columnName": "title",
+          "type": "text",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.albums.date",
+          "name": "date",
+          "columnName": "date",
+          "type": "date",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.albums.created_at",
+          "name": "created_at",
+          "columnName": "created_at",
+          "type": "timestamptz",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": true,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.albums.updated_at",
+          "name": "updated_at",
+          "columnName": "updated_at",
+          "type": "timestamptz",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.albums.photos_directory",
+          "name": "photos_directory",
+          "columnName": "photos_directory",
+          "type": "text",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.albums.image_count",
+          "name": "image_count",
+          "columnName": "image_count",
+          "type": "int4",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": true,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "name": "_album_editor",
+          "type": "_album_editor",
+          "isRequired": false,
+          "kind": "object",
+          "relationName": "_album_editorToalbums",
+          "relationFromFields": [],
+          "relationToFields": [],
+          "isList": true,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        },
+        {
+          "name": "_album_photographer",
+          "type": "_album_photographer",
+          "isRequired": false,
+          "kind": "object",
+          "relationName": "_album_photographerToalbums",
+          "relationFromFields": [],
+          "relationToFields": [],
+          "isList": true,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        }
+      ],
+      "uniqueConstraints": [
+        {
+          "name": "albums_pkey",
+          "fields": [
+            "id"
           ],
           "nullNotDistinct": false
         }
@@ -6213,6 +6517,34 @@
           "isRequired": false,
           "kind": "object",
           "relationName": "RecurringEventTomembers",
+          "relationFromFields": [],
+          "relationToFields": [],
+          "isList": true,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        },
+        {
+          "name": "_album_editor",
+          "type": "_album_editor",
+          "isRequired": false,
+          "kind": "object",
+          "relationName": "_album_editorTomembers",
+          "relationFromFields": [],
+          "relationToFields": [],
+          "isList": true,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        },
+        {
+          "name": "_album_photographer",
+          "type": "_album_photographer",
+          "isRequired": false,
+          "kind": "object",
+          "relationName": "_album_photographerTomembers",
           "relationFromFields": [],
           "relationToFields": [],
           "isList": true,
