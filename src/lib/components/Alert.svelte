@@ -43,10 +43,11 @@
   class={`flex h-16 w-full flex-row items-center justify-between pr-4 pl-4 ${colour}`}
   role="alert"
 >
-  <svelte:component this={icon} size={48} />
+  <svelte:component this={icon} size={40} />
 
   <span class="text-2xl font-bold">{message}</span>
 
-  <!-- <CloseIcon onclick={closeAlert} /> -->
-  <Button onclick={closeAlert}><CloseIcon /></Button>
+  <Button class="text-foreground" variant="ghost" onclick={closeAlert}
+    ><CloseIcon strokeWidth={5} /></Button
+  >
 </div>
