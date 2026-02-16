@@ -8,10 +8,9 @@ import {
 import { isAuthorized } from "$lib/utils/authorization";
 import type { PageServerLoad } from "./$types";
 import apiNames from "$lib/utils/apiNames";
+import { getAlbums } from "./getAlbums";
 
 export const load: PageServerLoad = async ({ locals }) => {
-  const { user } = locals;
-
   const files: FileData[] = await fileHandler
     .getInBucket(user, PUBLIC_BUCKETS_ALBUMS, "public/", true)
     .catch((err) => {
@@ -43,6 +42,6 @@ export const load: PageServerLoad = async ({ locals }) => {
   }
 
   return {
-    albums: albumEntries,
+    albums: await albumEntries,
   };
 };
