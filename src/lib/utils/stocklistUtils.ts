@@ -20,7 +20,7 @@ export async function inventoryValue(prisma: ExtendedPrisma) {
 
   let value = 0;
 
-  for (let item of items) {
+  for (const item of items) {
     if (item.quantityType === "COUNTS") {
       value += (item.price / 100) * item.quantityAvailable!;
     } else {

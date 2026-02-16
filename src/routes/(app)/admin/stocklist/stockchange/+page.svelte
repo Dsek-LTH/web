@@ -24,7 +24,7 @@
   });
 
   let possibleMatches: DrinkItem[] = [];
-  let search: string = "";
+  let search = "";
   let selectedItem: DrinkItem | undefined;
 
   function checkIfSame(search: string, target: string): boolean {
