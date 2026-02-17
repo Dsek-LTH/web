@@ -19,7 +19,8 @@
 
   interface SeverityData {
     icon: Component<IconProps>;
-    colour: string;
+    foreground: string;
+    background: string;
   }
 
   let data: Record<string, SeverityData> = {
