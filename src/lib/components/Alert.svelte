@@ -1,6 +1,7 @@
 <script lang="ts">
   import { invalidate } from "$app/navigation";
   import { Button } from "$lib/components/ui/button";
+  import { cn } from "$lib/utils";
 
   import { type IconProps } from "@lucide/svelte";
 
@@ -22,13 +23,29 @@
   }
 
   let data: Record<string, SeverityData> = {
-    success: { icon: SuccessIcon, colour: "bg-pistachio-400" },
-    info: { icon: InfoIcon, colour: "bg-alert-info" },
-    warning: { icon: WarningIcon, colour: "bg-alert-warning" },
-    error: { icon: ErrorIcon, colour: "bg-alert-error" },
+    success: {
+      icon: SuccessIcon,
+      background: "bg-pistachio-background",
+      foreground: "text-pistachio-foreground",
+    },
+    info: {
+      icon: InfoIcon,
+      background: "bg-alert-info-background",
+      foreground: "text-alert-info-foreground",
+    },
+    warning: {
+      icon: WarningIcon,
+      background: "bg-alert-warning-background",
+      foreground: "text-alert-warning-foreground",
+    },
+    error: {
+      icon: ErrorIcon,
+      background: "bg-alert-error-background",
+      foreground: "text-alert-error-foreground",
+    },
   };
 
-  let { icon, colour } = data[severity]!;
+  let { icon, foreground, background } = data[severity]!;
 
   let closeAlert = () =>
     fetch("/api/closeAlert", {
@@ -40,14 +57,18 @@
 </script>
 
 <div
-  class={`flex h-16 w-full flex-row items-center justify-between pr-4 pl-4 ${colour}`}
+  class={cn(
+    "flex h-16 flex-row items-center justify-between pr-4 pl-4",
+    foreground,
+    background,
+  )}
   role="alert"
 >
-  <svelte:component this={icon} size={40} />
+  <svelte:component this={icon} size={24} strokeWidth={3} />
 
   <span class="text-2xl font-bold">{message}</span>
 
-  <Button class="text-foreground" variant="ghost" onclick={closeAlert}>
+  <Button class={foreground} variant="ghost" onclick={closeAlert}>
     <CloseIcon strokeWidth={5} />
   </Button>
 </div>
