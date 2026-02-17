@@ -24,6 +24,7 @@
   import Languages from "@lucide/svelte/icons/languages";
 
   let { data }: { data: PageData } = $props();
+  // svelte-ignore state_referenced_locally
   const { form, errors, constraints, enhance } = superForm<UpdateSchema>(
     data.form,
   );

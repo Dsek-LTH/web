@@ -6,6 +6,7 @@
 
   let { data } = $props();
 
+  // svelte-ignore state_referenced_locally
   let article = $state(data.article);
 </script>
 
