@@ -47,7 +47,7 @@
 
   <span class="text-2xl font-bold">{message}</span>
 
-  <Button class="text-foreground" variant="ghost" onclick={closeAlert}
-    ><CloseIcon strokeWidth={5} /></Button
-  >
+  <Button class="text-foreground" variant="ghost" onclick={closeAlert}>
+    <CloseIcon strokeWidth={5} />
+  </Button>
 </div>
