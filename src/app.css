@@ -139,6 +139,13 @@
 
   --color-pistachio-400: #99cc66;
 
+  /* This is derived from Rosa, with a 240° hue shift (in OkLab). */
+  --color-alert-info: oklch(0.7356 0.1431 242.79);
+  /* This is derived from Pistachio, with a -30° hue shift (in OkLab). */
+  --color-alert-warning: oklch(0.7869 0.143 100.93);
+  /* This is derived from Lila, with a 60° hue shift (in OkLab). */
+  --color-alert-error: oklch(0.6076 0.1561 5.32);
+
   --breakpoint-md-nav: 56rem;
 }
 
