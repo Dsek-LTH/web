@@ -27,6 +27,17 @@
 
   let pathInfo = $derived(typeToPath[$form.type]);
   let fileErrors = $derived($errors.file as string | string[] | undefined);
+
+  let meetingPlaceholder = $derived.by(() => {
+    switch ($form.type) {
+        case "requirement":
+            return "Øverphøs, Aktivitetsansvarig...";
+        case "srd":
+            return "SRD67";
+        default:
+            return "S18, HTM1, VTM-extra...";
+    }
+  });
 </script>
 
 <SetPageTitle title={m.documents_uploadDocument()} />
@@ -57,9 +68,7 @@
       class="input input-bordered"
       bind:value={$form.folder}
       type="text"
-      placeholder={$form.type === "requirement"
-        ? "Øverphøs, Aktivitetsanssvarig..."
-        : "S18, HTM1, VTM-extra..."}
+      placeholder={meetingPlaceholder}
       {...$constraints.folder}
     />
   </Labeled>
