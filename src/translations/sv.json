@@ -548,7 +548,7 @@
   "documents_uploadDocument": "Ladda upp dokument",
   "documents_chooseDocumentType": "Välj dokumenttyp",
   "documents_writePositionName": "Skriv postnam",
-  "documents_writeMeetingName": "Skriv mötesnamn",
+  "documents_writeMeetingName": "Ange namn på mötet som filen tillhör",
   "documents_enterDocumentName": "Sätt namn på dokumentet",
   "documents_pickMeetingYear": "Välj mötesår",
   "documents_upload": "Ladda upp",
