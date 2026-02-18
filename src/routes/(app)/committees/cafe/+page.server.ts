@@ -44,7 +44,7 @@ export type Ciabatta = {
   year: number;
   week: number;
   ciabatta: string;
-}
+};
 
 export const load: PageServerLoad = async ({ locals, url }) => {
   const weekShift = Number(
@@ -91,8 +91,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     where: {
       year: targetWeek.year(),
       week: targetWeek.weekYear(),
-    }
-  })
+    },
+  });
 
   return committeeLoad(prisma, "cafe", url).then(async (data) => ({
     ...data,
