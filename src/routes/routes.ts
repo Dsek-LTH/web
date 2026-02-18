@@ -214,6 +214,13 @@ export const getRoutes = (): Route[] =>
           appBehaviour: "home-link",
         },
         {
+          title: m.stocklist(),
+          path: "/admin/stocklist",
+          icon: "i-mdi-text-box-edit",
+          accessRequired: apiNames.DRINKITEM.READ,
+          appBehaviour: "home-link",
+        },
+        {
           title: m.qr_code(),
           path: "/admin/qr",
           icon: "i-mdi-qrcode-scan",

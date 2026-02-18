@@ -20,6 +20,7 @@ export const articleSchema = z.object({
   imageUrls: z.string().array().optional(),
   imageUrl: z.string().optional().nullable(),
   youtubeUrl: z.string().optional().nullable(),
+  publishTime: z.date().optional().nullable(),
   // https://github.com/colinhacks/zod/pull/3118
   images: z
     .instanceof(File, { message: "Please upload a file." })
@@ -45,4 +46,13 @@ export const createSchema = articleSchema
     path: ["tags"],
   });
 
-export const updateSchema = articleSchema;
+export const updateSchema = articleSchema
+  .extend({
+    notificationText: z.string().max(255).optional().nullable(),
+    sendNotification: z.boolean(),
+  })
+  .refine((data) => data.sendNotification === false || data.tags.length > 0, {
+    message:
+      "Tags cannot be empty if you want to send a notification. No notifications will be sent",
+    path: ["tags"],
+  });

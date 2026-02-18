@@ -112,26 +112,29 @@ model ArticleRequest {
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model Article {
-  id          String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  headerSv    String           @map("header_sv") @db.VarChar(255)
-  headerEn    String?          @map("header_en") @db.VarChar(255)
-  bodySv      String           @map("body_sv")
-  bodyEn      String?          @map("body_en")
-  imageUrls   String[]         @map("image_urls")
-  imageUrl    String?          @map("image_url") @db.Text
-  youtubeUrl  String?          @map("youtube_url") @db.Text
-  authorId    String           @map("author_id") @db.Uuid
-  publishedAt DateTime?        @map("published_datetime") @db.Timestamptz(6)
-  updatedAt   DateTime?        @map("latest_edit_datetime") @db.Timestamptz(6)
-  slug        String           @unique(map: "articles_slug_unique") @db.VarChar(255)
-  removedAt   DateTime?        @map("removed_at") @db.Timestamptz(6) @allow("update", has(auth().policies, "news:article:delete"))
-  status      String?          @default("approved")
-  createdAt   DateTime         @default(now()) @map("created_datetime") @db.Timestamptz(6)
-  comments    ArticleComment[]
-  request     ArticleRequest?
-  tags        Tag[]            @relation("article_tags")
-  author      Author           @relation(fields: [authorId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "articles_author_id_foreign")
-  likers      Member[]         @relation("article_likes")
+  id                     String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  headerSv               String           @map("header_sv") @db.VarChar(255)
+  headerEn               String?          @map("header_en") @db.VarChar(255)
+  bodySv                 String           @map("body_sv")
+  bodyEn                 String?          @map("body_en")
+  imageUrls              String[]         @map("image_urls")
+  imageUrl               String?          @map("image_url") @db.Text
+  youtubeUrl             String?          @map("youtube_url") @db.Text
+  authorId               String           @map("author_id") @db.Uuid
+  publishedAt            DateTime?        @map("published_datetime") @db.Timestamptz(6)
+  updatedAt              DateTime?        @map("latest_edit_datetime") @db.Timestamptz(6)
+  slug                   String           @unique(map: "articles_slug_unique") @db.VarChar(255)
+  removedAt              DateTime?        @map("removed_at") @db.Timestamptz(6) @allow("update", has(auth().policies, "news:article:delete"))
+  status                 String?          @default("approved")
+  createdAt              DateTime         @default(now()) @map("created_datetime") @db.Timestamptz(6)
+  comments               ArticleComment[]
+  request                ArticleRequest?
+  tags                   Tag[]            @relation("article_tags")
+  author                 Author           @relation(fields: [authorId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "articles_author_id_foreign")
+  likers                 Member[]         @relation("article_likes")
+  shouldSendNotification Boolean?         @default(false) @map("should_send_notification")
+  notificationText       String?          @map("notification_text") @db.VarChar(255)
+  scheduledId            String?          @map("scheduled_id")
 
   @@allow("create", has(auth().policies, "news:article:create"))
   @@allow("read", has(auth().policies, "news:article:read"))
@@ -537,6 +540,68 @@ model Markdown {
   @@allow("update", has(auth().policies, "markdown:update"))
   @@allow("delete", has(auth().policies, "markdown:delete"))
   @@map("markdowns")
+}
+
+
+model DrinkItem {
+  id                String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  quantityType      DrinkQuantityType @map("quantity_type")
+  name              String
+  price             Int
+  group             DrinkGroup
+  systembolagetID   Int               @map("systembolaget_id")
+  bottleEmptyWeight Int?              @map("bottle_empty_weight")
+  bottleFullWeight  Int?              @map("bottle_full_weight")
+  quantityAvailable Int?              @map("quantity_available") @default(0)
+
+  stockLists        DrinkItemBatch[]
+
+  @@allow("read", true)
+  @@allow("create", has(auth().policies, "drinkitem:create"))
+  @@allow("update", has(auth().policies, "drinkitem:update"))
+  @@allow("delete", has(auth().policies, "drinkitem:delete"))
+  @@map("drinkitem")
+}
+
+model DrinkItemBatch {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  drinkItemId   String    @map("drink_item_id") @db.Uuid
+  item          DrinkItem @relation(fields: [drinkItemId], references: [id])
+  quantityDelta Int       @map("quantity_delta")
+  user          String
+  date          DateTime
+  nrBottles     Int?
+
+  @@allow("read", true)
+  @@allow("create", has(auth().policies, "drinkitembatch:create"))
+  @@allow("update", has(auth().policies, "drinkitembatch:update"))
+  @@allow("delete", has(auth().policies, "drinkitembatch:delete"))
+  @@map("drinkitembatch")
+}
+
+model SexetInventoryValueLog {
+  id    String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  date  DateTime
+  value Int
+
+  @@allow("read", true)
+  @@allow("create", has(auth().policies, "drinkitembatch:create"))
+  @@allow("update", has(auth().policies, "drinkitembatch:update"))
+  @@allow("delete", has(auth().policies, "drinkitembatch:delete"))
+  @@map("sexetinventoryvaluelog")
+}
+
+enum DrinkQuantityType {
+  NONE
+  WEIGHT
+  COUNTS
+}
+
+enum DrinkGroup {
+  S1
+  S2
+  S3
+  S4
 }
 
 model Meeting {
