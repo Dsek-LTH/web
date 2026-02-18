@@ -56,6 +56,15 @@ enum ShoppableType {
   TICKET
 }
 
+enum TimeSlot {
+  DAYMANAGER
+  SHIFT_1
+  SHIFT_2
+  SHIFT_3
+
+  @@map("time_slots")
+}
+
 model User {
   studentId    String   @id()
   memberId     String
@@ -550,6 +559,7 @@ model Member {
   expensesToSign          ExpenseItem[]           @relation("expense_item_signer")
   signedExpenses          ExpenseItem[]           @relation("expense_item_signed_by")
   closedAlerts            Alert[]                 @relation("alerts_closed_by")
+  cafeShifts              CafeShift[]
 
   @@map("members")
 }
@@ -968,4 +978,25 @@ model Readme {
   publishedAt DateTime? @map("published_at") @db.Timestamptz(6)
 
   @@map("readme")
+}
+
+model CafeShift {
+  id       String   @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  date     DateTime
+  workerId String   @db.Uuid()
+  worker   Member   @relation(fields: [workerId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "worker_id_foreign")
+  timeSlot TimeSlot @map("time_slot")
+
+  @@unique([date, timeSlot], map: "date_timeslot_unique")
+  @@map("cafe_shifts")
+}
+
+model CiabattaOfTheWeek {
+  id       String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  year     Int
+  week     Int
+  ciabatta String
+
+  @@unique([year, week], map: "week_year_unique")
+  @@map("ciabatta_of_the_week")
 }
