@@ -5,7 +5,7 @@
   import weekOfYear from "dayjs/plugin/weekOfYear";
   import { enhance } from "$app/forms";
   import { TimeSlot } from "@prisma/client";
-  import type { ShiftWithWorker } from "./+page.server";
+  import type { Ciabatta, ShiftWithWorker } from "./+page.server";
   import Pagination from "$lib/components/Pagination.svelte";
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
@@ -24,10 +24,12 @@
     week = $bindable(),
     shifts,
     user,
+    ciabattaOfTheWeek,
   }: {
     week: dayjs.Dayjs;
     shifts: ShiftWithWorker[];
     user: AuthUser;
+    ciabattaOfTheWeek: Ciabatta;
   } = $props();
   const now = dayjs();
   const windowStartWeek = now.week();
@@ -63,13 +65,22 @@
   class="i-mdi-border-radius:25px relative col-span-2 m-2 grid gap-2 rounded-lg border border-primary bg-zinc-300 p-2 dark:bg-zinc-800"
 >
   <div
-    class="flex flex-wrap gap-2 overflow-x-auto pl-3 pr-3 pt-3 align-middle text-primary"
+    class="flex flex-col flex-wrap gap-2 overflow-x-auto pl-3 pr-3 pt-3 align-middle"
   >
-    <p class="pl-3 text-4xl font-bold leading-snug">
+    <p class="pl-3 text-4xl font-bold leading-snug text-primary">
       {m.booking_week()}
       {week.week()}
     </p>
+    <article class="pl-3">
+      <h2 class="text-xl font-bold text-primary">
+        {m.cafe_ciabatta()}
+      </h2>
+      <h2 class="text-xl font-bold">
+        {ciabattaOfTheWeek || m.errors_notImplemented()}
+      </h2>
+    </article>
     <Pagination
+      class="pl-1 pr-1"
       count={canEditWorkers ? 52 : 3}
       fieldName="week"
       getPageName={(index) => {

@@ -1259,3 +1259,20 @@ enum TimeSlot {
   SHIFT_3
   @@map("time_slots")
 }
+
+model CiabattaOfTheWeek {
+    id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    year        Int
+    week        Int
+    ciabatta    String
+
+    @@map("ciabatta_of_the_week")
+    @@allow("read", true)
+
+    @@allow("create", has(auth().policies, "cafe:edit_ciabatta"))
+
+    @@allow("update", has(auth().policies, "cafe:edit_ciabatta"))
+
+    @@allow("delete", has(auth().policies, "cafe:edit_ciabatta"))
+    @@unique([year, week], map: "week_year_unique")
+}

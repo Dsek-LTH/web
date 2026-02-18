@@ -39,6 +39,13 @@ export type ShiftWithWorker = {
   };
 };
 
+export type Ciabatta = {
+  id: string;
+  year: number;
+  week: number;
+  ciabatta: string;
+}
+
 export const load: PageServerLoad = async ({ locals, url }) => {
   const weekShift = Number(
     url.searchParams.get("week") ?? dayjs().startOf("week").week(),
@@ -59,6 +66,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   const targetWeek = dayjs()
     .startOf("year")
     .add(weekShift - 1, "week");
+
   const shifts = prisma.cafeShift.findMany({
     where: {
       date: {
@@ -79,10 +87,18 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     orderBy: { date: "asc" },
   });
 
+  const ciabattaOfTheWeek = prisma.ciabattaOfTheWeek.findFirst({
+    where: {
+      year: targetWeek.year(),
+      week: targetWeek.weekYear(),
+    }
+  })
+
   return committeeLoad(prisma, "cafe", url).then(async (data) => ({
     ...data,
     openingHours: await openingHours,
     shifts: (await shifts) as ShiftWithWorker[],
+    ciabattaOfTheWeek: (await ciabattaOfTheWeek) as Ciabatta,
     weekShift,
   }));
 };

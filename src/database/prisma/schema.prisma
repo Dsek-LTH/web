@@ -939,3 +939,13 @@ model CafeShift {
   @@unique([date, timeSlot], map: "date_timeslot_unique")
   @@map("cafe_shifts")
 }
+
+model CiabattaOfTheWeek {
+  id       String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  year     Int
+  week     Int
+  ciabatta String
+
+  @@unique([year, week], map: "week_year_unique")
+  @@map("ciabatta_of_the_week")
+}

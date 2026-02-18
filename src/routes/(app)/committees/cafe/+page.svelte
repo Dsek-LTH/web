@@ -38,6 +38,7 @@
   });
 
   let shifts = $derived(data.shifts);
+  let ciabattaOfTheWeek = $derived(data.ciabattaOfTheWeek);
 </script>
 
 <CommitteePage bind:data bind:isEditing>
@@ -102,22 +103,14 @@
     </div>
   {/snippet}
 
-  {#snippet afterMarkdown()}
-    <div>
-      <br />
-      <hr />
-      <br />
-      <article>
-        <h2 class="text-xl font-bold text-primary">
-          {m.cafe_ciabatta()}
-        </h2>
-        <!-- TODO: Get data from database here -->
-        <h2 class="text-xl font-bold">Köttbullar & Falaffel</h2>
-      </article>
-    </div>
-  {/snippet}
+  {#snippet afterMarkdown()}{/snippet}
 
   {#snippet main()}
-    <CafeBookingCalendar bind:week {shifts} user={data.user} />
+    <CafeBookingCalendar
+      bind:week
+      {shifts}
+      user={data.user}
+      {ciabattaOfTheWeek}
+    />
   {/snippet}
 </CommitteePage>
