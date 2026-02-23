@@ -1807,6 +1807,20 @@
           "maxLength": null
         },
         {
+          "id": "public.articles.committee_id",
+          "name": "committee_id",
+          "columnName": "committee_id",
+          "type": "uuid",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
           "name": "authors",
           "type": "authors",
           "isRequired": true,
@@ -1814,6 +1828,24 @@
           "relationName": "articlesToauthors",
           "relationFromFields": [
             "author_id"
+          ],
+          "relationToFields": [
+            "id"
+          ],
+          "isList": false,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        },
+        {
+          "name": "committees",
+          "type": "committees",
+          "isRequired": false,
+          "kind": "object",
+          "relationName": "articlesTocommittees",
+          "relationFromFields": [
+            "committee_id"
           ],
           "relationToFields": [
             "id"
@@ -2868,6 +2900,62 @@
           "hasDefaultValue": false,
           "isId": false,
           "maxLength": null
+        },
+        {
+          "id": "public.committees.banner_url",
+          "name": "banner_url",
+          "columnName": "banner_url",
+          "type": "text",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.committees.is_banner_text_light",
+          "name": "is_banner_text_light",
+          "columnName": "is_banner_text_light",
+          "type": "bool",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": true,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.committees.preview_url",
+          "name": "preview_url",
+          "columnName": "preview_url",
+          "type": "text",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "name": "articles",
+          "type": "articles",
+          "isRequired": false,
+          "kind": "object",
+          "relationName": "articlesTocommittees",
+          "relationFromFields": [],
+          "relationToFields": [],
+          "isList": true,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
         },
         {
           "name": "elections",
