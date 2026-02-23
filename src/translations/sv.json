@@ -937,8 +937,18 @@
   "news_notification_text": "Notistext",
   "news_youtube_url": "Youtube-URL",
   "news_notification_explanation": "Texten som visas i notisen, om fältet lämnas tomt kommer nyhetens inledning att visas.",
+  "news_committee": "Utskott",
   "member_edit_profile": "Redigera profil",
   "pictures": "Bilder",
   "member_removePicture_title": "Är du säker på att du vill ta bort din profilbild?",
-  "member_removePicture_desc": "Detta kan inte ångras."
+  "member_removePicture_desc": "Detta kan inte ångras.",
+  "committees_about": "Om utskottet",
+  "committees_members": "Medlemmar",
+  "committees_news": "Nyheter och event",
+  "committees_edit_content": "Redigera innehåll",
+  "committees_edit_committee": "Redigera utskott",
+  "committees_card_image": "Kortbild (i utskottslitan)",
+  "committees_banner_image": "Bannerbild",
+  "committees_invert_text": "Invertera text/logo",
+  "committees_edit_links": "Redigera länkar"
 }

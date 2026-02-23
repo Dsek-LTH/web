@@ -935,8 +935,18 @@
   "news_notification_text": "Notification text",
   "news_youtube_url": "Youtube URL",
   "news_notification_explanation": "The notification text. If left empty, the beginning of the article body will be used.",
+  "news_committee": "Committee",
   "member_edit_profile": "Edit profile",
   "pictures": "Pictures",
   "member_removePicture_title": "Are you sure you want to remove your profile picture?",
-  "member_removePicture_desc": "This cannot be undone."
+  "member_removePicture_desc": "This cannot be undone.",
+  "committees_about": "About the committee",
+  "committees_members": "Members",
+  "committees_news": "News and events",
+  "committees_edit_content": "Edit content",
+  "committees_edit_committee": "Redigera utskott",
+  "committees_card_image": "Card image (in the committee list)",
+  "committees_banner_image": "Banner image",
+  "committees_invert_text": "Invert text/logo",
+  "commitees_edit_links": "Redigera länkar"
 }
