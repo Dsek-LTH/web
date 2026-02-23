@@ -38,7 +38,7 @@
     formEnd?: Snippet;
   } = $props();
 
-  const { form, errors, enhance, delayed } = superform;
+  const { form, errors, enhance, delayed } = $derived(superform);
 
   const sameAuthorOption = (
     a: Pick<AuthorOption, "memberId" | "mandateId" | "customId" | "type">,
@@ -93,6 +93,7 @@
         {/if}
         <ButtonGroup.Root>
           <Button
+            type="button"
             class={activeTab == "sv"
               ? "bg-neutral-100 dark:bg-neutral-900"
               : ""}
@@ -100,6 +101,7 @@
             variant="outline">{m.language_swedish()}</Button
           >
           <Button
+            type="button"
             class={activeTab == "en"
               ? "bg-neutral-100 dark:bg-neutral-900"
               : ""}

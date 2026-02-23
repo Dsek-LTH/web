@@ -14,6 +14,7 @@
     siYoutube,
     siGithub,
   } from "simple-icons";
+  import { page } from "$app/state";
 </script>
 
 <div
@@ -68,17 +69,19 @@
   <div
     class={twMerge("text-muted-foreground mt-5 flex flex-row *:mx-3", klass)}
   >
-    <a href="https://discord.com/invite/wxHQcvZ38p"
-      ><svg
-        role="img"
-        fill="var(--muted-foreground)"
-        height="16"
-        width="16"
-        viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg"
-        ><title>Discord</title><path d={siDiscord.path} /></svg
-      >
-    </a>
+    {#if page.data.member}
+      <a href="https://discord.com/invite/wxHQcvZ38p"
+        ><svg
+          role="img"
+          fill="var(--muted-foreground)"
+          height="16"
+          width="16"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+          ><title>Discord</title><path d={siDiscord.path} /></svg
+        >
+      </a>
+    {/if}
     <a href="https://instagram.com/dseklth">
       <svg
         role="img"
