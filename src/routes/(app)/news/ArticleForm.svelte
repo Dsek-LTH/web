@@ -22,6 +22,7 @@
   import type { Snippet } from "svelte";
   import { Spinner } from "$lib/components/ui/spinner";
   import { goto } from "$lib/utils/redirect";
+  import Users from "@lucide/svelte/icons/users";
 
   let {
     allTags,
@@ -29,12 +30,14 @@
     activeTab = $bindable(),
     authorOptions,
     formEnd,
+    committees,
   }: {
     allTags: Array<ExtendedPrismaModel<"Tag">>;
     activeTab: "sv" | "en";
     superform: SuperForm<ArticleSchema>;
     authorOptions: AuthorOption[];
     formEnd?: Snippet;
+    committees: Array<Pick<ExtendedPrismaModel<"Committee">, "id" | "name">>;
   } = $props();
 
   const { form, errors, enhance, delayed } = $derived(superform);
@@ -170,6 +173,25 @@
       bind:selectedTags={$form.tags}
       {allTags}
     />
+  </div>
+
+  <div class="flex w-full flex-col gap-1.5">
+    <Label for="committee">{m.news_committee()}</Label>
+    <Select.Root
+      type="single"
+      bind:value={$form.committeeId as unknown as string}
+      name="committeeId"
+    >
+      <Select.Trigger class="w-full"
+        ><Users />{committees.find((_) => _.id == $form.committeeId)?.name ??
+          ""}</Select.Trigger
+      >
+      <Select.Content side="bottom">
+        {#each committees.sort( (c1, c2) => c1.name.localeCompare(c2.name), ) as committee (committee.id)}
+          <Select.Item value={committee.id}>{committee.name}</Select.Item>
+        {/each}
+      </Select.Content>
+    </Select.Root>
   </div>
 
   <FileUpload
