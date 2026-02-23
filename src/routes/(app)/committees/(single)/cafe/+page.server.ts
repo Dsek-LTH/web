@@ -5,7 +5,7 @@ import { fail } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { updateMarkdown } from "$lib/news/markdown/mutations.server";
-import { updateSchema } from "../types";
+import { updateSchema } from "../../types";
 
 export const load: PageServerLoad = async ({ locals, url }) => {
   const { prisma } = locals;
