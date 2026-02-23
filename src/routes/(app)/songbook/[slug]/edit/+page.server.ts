@@ -1,4 +1,4 @@
-import { redirect } from "$lib/utils/redirect";
+import { redirect } from "sveltekit-flash-message/server";
 import * as m from "$paraglide/messages";
 import { error, fail } from "@sveltejs/kit";
 import DOMPurify from "isomorphic-dompurify";

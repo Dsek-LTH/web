@@ -2,7 +2,7 @@
 // What it does is handles which version of the app is "saved", ie when I open the app, should I go to /nollning or /home
 
 import { APP_PREFERRED_PAGE_COOKIE } from "$lib/components/postReveal/types";
-import { redirect } from "$lib/utils/redirect";
+import { redirect } from "@sveltejs/kit";
 
 export const load = async ({ locals, cookies }) => {
   if (!locals.isApp) {

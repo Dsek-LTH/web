@@ -3,7 +3,7 @@
   import * as Avatar from "$lib/components/ui/avatar/index.js";
 
   import type { ArticleSearchReturnAttributes } from "$lib/search/searchTypes";
-  import { languageTag } from "$paraglide/runtime";
+  import { getLocale } from "$paraglide/runtime";
   const { data }: { data: ArticleSearchReturnAttributes } = $props();
   import dayjs from "dayjs";
 </script>
@@ -16,7 +16,7 @@
   <div class="flex w-full flex-col">
     <div class="flex w-full flex-row justify-between">
       <span class="line-clamp-1 font-medium">
-        {languageTag() === "sv" ? data.headerSv : data.headerEn}
+        {getLocale() === "sv" ? data.headerSv : data.headerEn}
       </span>
       <div class="text-muted-foreground">
         {dayjs(data.publishedAt).format("YYYY-MM-DD")}

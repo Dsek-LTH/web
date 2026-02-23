@@ -1,20 +1,23 @@
 import { env } from "$env/dynamic/private";
 import { env as envPublic } from "$env/dynamic/public";
-import { i18n } from "$lib/utils/i18n";
 import { createMember } from "$lib/utils/member";
-import { redirect } from "$lib/utils/redirect";
 import { themes, type Theme } from "$lib/utils/themes";
 import {
-  isAvailableLanguageTag,
-  setLanguageTag,
-  sourceLanguageTag,
-  type AvailableLanguageTag,
+  cookieName,
+  defineCustomServerStrategy,
+  getLocale,
 } from "$paraglide/runtime";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import Authentik, {
   type AuthentikProfile,
 } from "@auth/core/providers/authentik";
 import { SvelteKitAuth } from "@auth/sveltekit";
-import { error, type Handle, type HandleServerError } from "@sveltejs/kit";
+import {
+  error,
+  redirect,
+  type Handle,
+  type HandleServerError,
+} from "@sveltejs/kit";
 import { sequence } from "@sveltejs/kit/hooks";
 import { enhance } from "@zenstackhq/runtime";
 import RPCApiHandler from "@zenstackhq/server/api/rpc";
@@ -29,7 +32,8 @@ import {
 import { verifyCostCenterData } from "./routes/(app)/expenses/verification";
 import { getExtendedPrismaClient } from "$lib/server/extendedPrisma";
 import { dev } from "$app/environment";
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import { paraglideMiddleware } from "$paraglide/server";
+import { getRequestEvent } from "$app/server";
 import {
   httpRequestsTotal,
   httpRequestDurationMs,
@@ -156,32 +160,12 @@ const { handle: authHandle } = SvelteKitAuth({
 
 const databaseHandle: Handle = async ({ event, resolve }) => {
   const session = await event.locals.auth();
-  const studentId = session?.user.student_id;
-
-  const aClient = authorizedPrismaClient;
-  let member;
-  if (studentId) {
-    member = await aClient.member.findUnique({
-      where: { studentId },
-      select: { language: true },
-    });
-  }
-
-  const langCandidates = [
-    event.cookies.get("languageOverride"),
-    member?.language,
-  ];
-
-  const lang =
-    langCandidates.find(
-      (tag): tag is AvailableLanguageTag =>
-        !!tag && isAvailableLanguageTag(tag),
-    ) ?? sourceLanguageTag;
-  event.locals.language = lang;
-  setLanguageTag(lang);
-  const prisma = getExtendedPrismaClient(lang, session?.user.student_id);
 
   if (!session?.user) {
+    const prisma = getExtendedPrismaClient(
+      getLocale(),
+      session?.user.student_id,
+    );
     let externalCode = event.cookies.get("externalCode"); // Retrieve the externalCode from cookies
     if (!externalCode) {
       // Generate a new externalCode if it doesn't exist
@@ -206,9 +190,14 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
     });
     event.locals.user = user;
   } else {
-    const existingMember = await prisma.member.findUnique({
+    const existingMember = await authorizedPrismaClient.member.findUnique({
       where: { studentId: session.user.student_id },
     });
+
+    const prisma = getExtendedPrismaClient(
+      getLocale(),
+      session?.user.student_id,
+    );
     const member =
       existingMember ||
       (await createMember(prisma, {
@@ -219,7 +208,7 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
       }));
 
     if (
-      i18n.route(event.url.pathname) != "/onboarding" &&
+      event.url.pathname != "/onboarding" &&
       (!member.classProgramme || !member.classYear) // consider adding email here, but make sure to fix onboarding as well
     ) {
       redirect(302, "/onboarding");
@@ -311,6 +300,57 @@ export const handleError: HandleServerError = ({ error }) => {
   };
 };
 
+const paraglideHandle: Handle = ({ event, resolve }) =>
+  paraglideMiddleware(
+    event.request,
+    async ({ request: localizedRequest, locale }) => {
+      event.request = localizedRequest;
+
+      try {
+        const session = await event.locals.auth?.();
+        const existing = event.cookies.get(cookieName);
+
+        // If the server-determined locale exists (from your custom-server strategy)
+        // and the user is logged in, set the cookie if it is missing or different.
+        if (session?.user && locale && existing !== locale) {
+          console.log("hook", locale);
+          event.cookies.set(cookieName, locale, {
+            path: "/",
+            httpOnly: false, // client JS must read it
+            sameSite: "lax",
+            maxAge: 60 * 60 * 24 * 365, // 1 year
+          });
+        }
+      } catch (err) {
+        // don't fail the whole request if cookie write or auth check fails
+        console.error("paraglide: failed to set locale cookie", err);
+      }
+      return resolve(event, {
+        transformPageChunk: ({ html }) => {
+          return html.replace(
+            "%lang%",
+            (event.locals.member?.language as "sv" | "en") ?? locale,
+          );
+        },
+      });
+    },
+  );
+
+defineCustomServerStrategy("custom-userPreference", {
+  getLocale: async () => {
+    const data = getRequestEvent();
+    const studentId = (await data.locals.auth())?.user.student_id;
+    if (studentId) {
+      const lang = await authorizedPrismaClient.member.findFirst({
+        where: { studentId },
+        select: { language: true },
+      });
+      return lang?.language ?? undefined;
+    }
+    return undefined;
+  },
+});
+
 export const handle = sequence(
   async ({ event, resolve }) => {
     const route = event.url.pathname || "-";
@@ -329,7 +369,7 @@ export const handle = sequence(
     }
   },
   authHandle,
-  i18n.handle(),
+  paraglideHandle,
   databaseHandle,
   apiHandle,
   appHandle,

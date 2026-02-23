@@ -1,7 +1,7 @@
 import { fail, superValidate } from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { bookingSchema } from "../../schema";
-import { redirect } from "$lib/utils/redirect";
+import { redirect } from "sveltekit-flash-message/server";
 import * as m from "$paraglide/messages";
 import { isAuthorized } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";

@@ -3,7 +3,7 @@
   import * as Avatar from "$lib/components/ui/avatar/index.js";
   import type { PositionSearchReturnAttributes } from "$lib/search/searchTypes";
   import CommitteeIcon from "../images/CommitteeIcon.svelte";
-  import { languageTag } from "$paraglide/runtime";
+  import { getLocale } from "$paraglide/runtime";
   const { data }: { data: PositionSearchReturnAttributes } = $props();
 </script>
 
@@ -18,10 +18,10 @@
     </Avatar.Root>
     <div class="flex flex-col">
       <span class="font-medium"
-        >{languageTag() === "sv" ? data.nameSv : data.nameEn}</span
+        >{getLocale() === "sv" ? data.nameSv : data.nameEn}</span
       >
       <span class="text-muted-foreground line-clamp-1">
-        {languageTag() === "sv" ? data.descriptionSv : data.descriptionEn}
+        {getLocale() === "sv" ? data.descriptionSv : data.descriptionEn}
       </span>
     </div>
   </div>

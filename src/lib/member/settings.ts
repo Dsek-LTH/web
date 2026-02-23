@@ -31,6 +31,7 @@ export const settingsLoad = async ({ locals }: ServerLoadEvent) => {
       subscribedTags: {},
     },
   });
+
   return {
     tags: await getAllTags(prisma),
     subscribedTags,

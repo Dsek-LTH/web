@@ -2,7 +2,7 @@ import { error, fail } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 import { superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
-import { redirect } from "$lib/utils/redirect";
+import { redirect } from "sveltekit-flash-message/server";
 import { governingDocumentSchema } from "../../schemas";
 import * as m from "$paraglide/messages";
 import { DocumentType } from "@prisma/client";

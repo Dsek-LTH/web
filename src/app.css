@@ -6,6 +6,7 @@
 @custom-variant aria-invalid (&[aria-invalid="true"]);
 
 :root {
+  --primary: #f280a1;
   --background: oklch(1 0 0);
   --foreground: oklch(14.1% 0.005 285.823);
   --muted-background: oklch(98.5% 0 0);
@@ -27,9 +28,11 @@
   --secondary-hover: oklch(96.7% 0.001 286.375);
   --accent: oklch(0.967 0.001 286.375);
   --accent-foreground: oklch(0.21 0.006 285.885);
+  --card: var(--muted-background);
 }
 
 .dark {
+  --primary: var(--color-rosa-400);
   --background: oklch(23% 0.004 0);
   --secondary-background: oklch(23% 0.003 0);
   --foreground: oklch(90% 0.002 0);
@@ -50,6 +53,7 @@
   --pistachio-background: #99cc66;
   --pistachio-foreground: oklch(18% 0 0);
   --pistachio-hover: #457200;
+  --card: var(--muted-background);
 }
 
 @font-face {
@@ -111,6 +115,9 @@
   --color-secondary-background: var(--secondary-background);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-secondary-hover: var(--secondary-hover);
+  --color-primary: var(--primary);
+  --color-input: var(--input);
+  --color-card: var(--card);
 
   /* TODO: change to oklch colors (except #f280a1, #9966cc, and #99cc66)? */
   --color-rosa-50: #fef2f5;
