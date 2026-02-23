@@ -10,15 +10,15 @@
   import * as m from "$paraglide/messages";
   import { Input } from "$lib/components/ui/input";
   import SEO from "$lib/seo/SEO.svelte";
-  import type { CommitteeLoadData } from "./committee.server";
   import { page } from "$app/state";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
+  import type { PageData } from "./[shortName]/$types";
 
-  let { data }: { data: CommitteeLoadData } = $props();
+  let { data }: { data: PageData } = $props();
 
   const { form, errors, enhance } = $derived(
-    superForm(data.markdownForm, { id: "markdown" }),
+    superForm(data.markdownForm!, { id: "markdown" }),
   );
 
   let activeTab = $state("sv");
@@ -26,7 +26,9 @@
   let canEdit = $state(isAuthorized(apiNames.COMMITTEE.UPDATE, page.data.user));
 </script>
 
-<SEO data={{ type: "committee", committee }} />
+{#if committee}
+  <SEO data={{ type: "committee", committee }} />
+{/if}
 
 <div class="flex flex-row">
   <h2 class="mb-2">{m.committees_about()}</h2>

@@ -65,6 +65,7 @@
       imageUrl: $form.imageUrl ?? null,
       youtubeUrl: $form.youtubeUrl ?? null,
       tags: allTags.filter((t) => tagIds.includes(t.id)),
+      committeeId: $form.committeeId == undefined ? null : $form.committeeId,
     }}
     canEdit={false}
     canDelete={false}
