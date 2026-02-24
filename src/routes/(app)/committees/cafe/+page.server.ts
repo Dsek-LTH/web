@@ -30,7 +30,7 @@ const editWeeklyCiabattaSchema = z.object({
   week: z.number(),
   ciabatta: z.string(),
 })
-const weekForm = z.object({ week: z.number() });
+// const weekForm = z.object({ week: z.number() });
 
 export type ShiftWithWorker = {
   id: string;
@@ -95,7 +95,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   const ciabattaOfTheWeek = prisma.ciabattaOfTheWeek.findFirst({
     where: {
       year: targetWeek.year(),
-      week: targetWeek.weekYear(),
+      week: targetWeek.week(),
     },
   });
 
@@ -199,14 +199,14 @@ export const actions: Actions = {
     }
   },
 
-  changeWeek: async ({ request }) => {
-    // TODO: Investigate if this is even used at all
-    const form = await superValidate(request, zod(weekForm));
-    if (!form.valid) return fail(400, { form });
-
-    const week = Number(form.data.week);
-    return { week };
-  },
+  // changeWeek: async ({ request }) => {
+  //   // TODO: Investigate if this is even used at all
+  //   const form = await superValidate(request, zod(weekForm));
+  //   if (!form.valid) return fail(400, { form });
+  //
+  //   const week = Number(form.data.week);
+  //   return { week };
+  // },
 
   // TODO: make this two tables, one look up table,
   // and a second table with two ciabattas

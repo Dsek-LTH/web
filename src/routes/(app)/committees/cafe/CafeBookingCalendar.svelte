@@ -32,16 +32,6 @@
     ciabattaOfTheWeek: Ciabatta;
   } = $props();
 
-  let editing: boolean = $state(false);
-
-  const now = dayjs();
-  const windowStartWeek = now.week();
-  const year = now.year();
-  const weeksInYear = dayjs(`$windowYear-12-31`).week();
-  const isDayManager = isAuthorized(apiNames.CAFE.DAY_MANAGER, user);
-  const canEditWorkers = isAuthorized(apiNames.CAFE.EDIT_WORKERS, user);
-  const canEditCiabattas = isAuthorized(apiNames.CAFE.EDIT_CIABATTAS, user);
-
   function hasShift(day: dayjs.Dayjs, timeSlot: TimeSlot, user: AuthUser) {
     return shifts.find(
       (s) =>
@@ -63,11 +53,17 @@
       return "-----";
     }
   }
-  //TODO: This for some reason doesn't take into account the current week, and
-  //has to be re-looked at. It does write to the database properly though!
-  // I believe that the Pagination component doesn't properly updates state
-  // from the backend so it never reaches here, and thus can't drive our
-  // derived variables
+
+  const now = dayjs();
+  const windowStartWeek = now.week();
+  const year = now.year();
+  const weeksInYear = dayjs(`$windowYear-12-31`).week();
+  const isDayManager = isAuthorized(apiNames.CAFE.DAY_MANAGER, user);
+  const canEditWorkers = isAuthorized(apiNames.CAFE.EDIT_WORKERS, user);
+  const canEditCiabattas = isAuthorized(apiNames.CAFE.EDIT_CIABATTAS, user);
+
+  let editing: boolean = $state(false);
+
   let ciabattaString = $derived(
     ciabattaOfTheWeek?.ciabatta ?? m.errors_notImplemented(),
   );
@@ -198,8 +194,6 @@
 
         <hr class="mb-2 mt-2 border-base-content" />
 
-        <!-- TODO: Rename all timeslots to just be indexes or similar to allow
-                   for changing how many timeslots are before or after lunch -->
         <p
           class="gap-1 text-center font-medium {dayHasManager
             ? ''

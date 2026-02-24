@@ -38,7 +38,6 @@
   });
 
   let shifts = $derived(data.shifts);
-  let ciabattaOfTheWeek = $derived(data.ciabattaOfTheWeek);
 </script>
 
 <CommitteePage bind:data bind:isEditing>
@@ -110,7 +109,7 @@
       bind:week
       {shifts}
       user={data.user}
-      {ciabattaOfTheWeek}
+      ciabattaOfTheWeek={data.ciabattaOfTheWeek}
     />
   {/snippet}
 </CommitteePage>
