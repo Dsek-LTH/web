@@ -32,12 +32,30 @@
     ciabattaOfTheWeek: Ciabatta;
   } = $props();
 
+  function canSignUpForShift(
+    day: dayjs.Dayjs,
+    timeSlot: TimeSlot,
+    user: AuthUser,
+  ) {
+    let w = shifts.find(
+      (s) => dayjs(s.date).isSame(day, "day") && s.timeSlot === timeSlot,
+    )?.worker;
+    if (!w) {
+      return true;
+    }
+    if (w.studentId === user.studentId) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   function hasShift(day: dayjs.Dayjs, timeSlot: TimeSlot, user: AuthUser) {
     return shifts.find(
       (s) =>
         dayjs(s.date).isSame(day, "day") &&
-        s.timeSlot == timeSlot &&
-        s.worker.studentId == user.studentId,
+        s.timeSlot === timeSlot &&
+        s.worker.studentId === user.studentId,
     )
       ? true
       : false;
@@ -45,13 +63,20 @@
 
   function getName(day: dayjs.Dayjs, timeSlot: TimeSlot) {
     let shift = shifts.find(
-      (s) => dayjs(s.date).isSame(day, "day") && s.timeSlot == timeSlot,
+      (s) => dayjs(s.date).isSame(day, "day") && s.timeSlot === timeSlot,
     );
     if (shift) {
       return shift.worker.firstName + " " + shift.worker.lastName;
     } else {
       return "-----";
     }
+  }
+
+  function getStilId(day: dayjs.Dayjs, timeSlot: TimeSlot) {
+    let shift = shifts.find(
+      (s) => dayjs(s.date).isSame(day, "day") && s.timeSlot === timeSlot,
+    );
+    return shift?.worker.studentId ?? "";
   }
 
   function toggleEdit() {
@@ -101,7 +126,7 @@
         </h2>
         {#if canEditCiabattas && editing}
           <form
-            class="flex w-full text-xl font-bold"
+            class="flex w-full gap-3 text-xl font-bold"
             action="?/editWeeklyCiabatta"
             method="POST"
             use:enhance={() => {
@@ -109,7 +134,6 @@
             }}
           >
             <input
-              size={ciabattaString.length || 1}
               name="ciabatta"
               class="w-full min-w-0 flex-1 rounded border px-2"
               bind:value={ciabattaString}
@@ -119,9 +143,11 @@
             <input hidden type="number" name="week" value={week.week()} />
             <button
               type="submit"
+              class="btn btn-primary btn-sm pl-3"
               aria-label="submit new ciabatta name"
-              class="hidden"
-            ></button>
+            >
+              {m.committees_save()}
+            </button>
           </form>
         {:else}
           <h2 class="text-xl font-bold">
@@ -155,7 +181,7 @@
   <div class="mt-1 grid grid-cols-1 gap-3 p-3 md:grid-cols-5 md:gap-0">
     {#each weekDays as dayName}
       {@const day = week.startOf("week").add(weekDays.indexOf(dayName), "day")}
-      {@const dayHasManager: boolean = shifts.find((s) => dayjs(s.date).isSame(day, "day") && s.timeSlot == "DAYMANAGER") != undefined}
+      {@const dayHasManager: boolean = shifts.find((s) => dayjs(s.date).isSame(day, "day") && s.timeSlot === "DAYMANAGER") != undefined}
 
       {#snippet DayForm(
         timeSlot: TimeSlot,
@@ -171,17 +197,26 @@
         >
           <input type="hidden" name="date" value={day} />
           <input type="hidden" name="timeSlot" value={timeSlot} />
-          <button
-            class="border-1 m-1 w-full rounded border border-base-300 p-2 enabled:bg-base-300 enabled:hover:border-primary
-            {dayHasManager ||
-            !checkForDayManager ||
-            hasShift(day, timeSlot, user)
-              ? ''
-              : 'text-slate-500'}"
-            {disabled}
-          >
-            {getName(day, timeSlot)}
-          </button>
+          {#if canEditWorkers && editing}
+            <input
+              name="worker"
+              class="border-1 m-1 w-full rounded border p-2 text-center"
+              value={getStilId(day, timeSlot)}
+              type="text"
+            />
+          {:else}
+            <button
+              class="border-1 m-1 w-full rounded border border-base-300 p-2 enabled:bg-base-300 enabled:hover:border-primary
+              {dayHasManager ||
+              !checkForDayManager ||
+              canSignUpForShift(day, timeSlot, user)
+                ? ''
+                : 'text-slate-500'}"
+              {disabled}
+            >
+              {getName(day, timeSlot)}
+            </button>
+          {/if}
         </form>
       {/snippet}
 
@@ -191,7 +226,9 @@
         <p class="gap-1 text-center font-bold text-primary">Day Manager</p>
         {@render DayForm(
           TimeSlot.DAYMANAGER,
-          !isDayManager && !hasShift(day, TimeSlot.DAYMANAGER, user),
+          !canEditWorkers &&
+            !(isDayManager && canSignUpForShift(day, TimeSlot.SHIFT_2, user)) &&
+            !hasShift(day, TimeSlot.SHIFT_1, user),
           user,
           false,
         )}
@@ -207,13 +244,15 @@
         </p>
         {@render DayForm(
           TimeSlot.SHIFT_1,
-          !dayHasManager && !hasShift(day, TimeSlot.SHIFT_1, user),
+          !(dayHasManager && canSignUpForShift(day, TimeSlot.SHIFT_1, user)) &&
+            !hasShift(day, TimeSlot.SHIFT_1, user),
           user,
         )}
 
         {@render DayForm(
           TimeSlot.SHIFT_2,
-          !dayHasManager && !hasShift(day, TimeSlot.SHIFT_2, user),
+          !(dayHasManager && canSignUpForShift(day, TimeSlot.SHIFT_2, user)) &&
+            !hasShift(day, TimeSlot.SHIFT_2, user),
           user,
         )}
 
@@ -228,7 +267,8 @@
         </p>
         {@render DayForm(
           TimeSlot.SHIFT_3,
-          !dayHasManager && !hasShift(day, TimeSlot.SHIFT_3, user),
+          !(dayHasManager && canSignUpForShift(day, TimeSlot.SHIFT_3, user)) &&
+            !hasShift(day, TimeSlot.SHIFT_3, user),
           user,
         )}
       </div>

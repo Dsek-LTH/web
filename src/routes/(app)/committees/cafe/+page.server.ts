@@ -15,6 +15,7 @@ import dayjs from "dayjs";
 
 import weekYear from "dayjs/plugin/weekYear";
 import weekOfYear from "dayjs/plugin/weekOfYear";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 dayjs.extend(weekOfYear);
 dayjs.extend(weekYear);
@@ -141,6 +142,14 @@ export const actions: Actions = {
 
     if (date && timeSlot) {
       const member = worker || user.studentId;
+      if (member != user.studentId) {
+        if (!isAuthorized(apiNames.CAFE.EDIT_WORKERS, user)) {
+          return message(form, {
+            message: "Error, you don't have permissions to sign up for other people",
+            type: "error",
+          })
+        }
+      }
       if (!member) {
         //TODO: These don't seem to do a lot, take a look and fix:
         return fail(400, { form });
@@ -159,17 +168,27 @@ export const actions: Actions = {
             type: "error",
           });
         }
-        await prisma.cafeShift.create({
-          data: {
-            date: date,
-            worker: {
-              connect: {
-                studentId: member,
+        //TODO: This will fail if user doesn't exist.
+        try {
+          await prisma.cafeShift.create({
+            data: {
+              date: date,
+              worker: {
+                connect: {
+                  studentId: member,
+                },
               },
+              timeSlot: timeSlot,
             },
-            timeSlot: timeSlot,
-          },
-        });
+          });
+        } catch (error: unknown) {
+          if (error instanceof PrismaClientKnownRequestError && error.code === "p2025") {
+            return message(form, {
+              message: "Worker " + member + " does not exist",
+              type: error,
+            });
+          }
+        }
       } else {
         // There is already a shift and we might be able to delete it:
         if (cafeShift.worker.studentId === user.studentId) {
