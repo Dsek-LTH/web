@@ -43,7 +43,7 @@
 <CommitteePage bind:data bind:isEditing>
   {#snippet beforeMarkdown()}
     <div
-      class="card mb-5 w-full border border-primary bg-base-100 p-6 shadow-xl md:mb-0 md:ml-20 lg:max-w-80"
+      class="card mb-5 w-full border border-primary bg-zinc-300 p-6 shadow-xl dark:bg-zinc-800 md:mb-0 md:ml-20 lg:max-w-80"
     >
       <h2 class="mb-2 p-2 font-bold lg:text-xl">
         {m.committees_cafe_openinghours()}
