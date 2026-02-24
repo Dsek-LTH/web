@@ -31,11 +31,16 @@
     user: AuthUser;
     ciabattaOfTheWeek: Ciabatta;
   } = $props();
+
+  let editing: boolean = $state(false);
+
   const now = dayjs();
   const windowStartWeek = now.week();
+  const year = now.year();
   const weeksInYear = dayjs(`$windowYear-12-31`).week();
   const isDayManager = isAuthorized(apiNames.CAFE.DAY_MANAGER, user);
   const canEditWorkers = isAuthorized(apiNames.CAFE.EDIT_WORKERS, user);
+  const canEditCiabattas = isAuthorized(apiNames.CAFE.EDIT_CIABATTAS, user);
 
   function hasShift(day: dayjs.Dayjs, timeSlot: TimeSlot, user: AuthUser) {
     return shifts.find(
@@ -58,6 +63,14 @@
       return "-----";
     }
   }
+  //TODO: This for some reason doesn't take into account the current week, and
+  //has to be re-looked at. It does write to the database properly though!
+  // I believe that the Pagination component doesn't properly updates state
+  // from the backend so it never reaches here, and thus can't drive our
+  // derived variables
+  let ciabattaString = $derived(
+    ciabattaOfTheWeek?.ciabatta ?? m.errors_notImplemented(),
+  );
 </script>
 
 <!-- The bg-zinc here is very ugly, but I couldn't find better fitting colours...-->
@@ -65,20 +78,58 @@
   class="i-mdi-border-radius:25px relative col-span-2 m-2 grid gap-2 rounded-lg border border-primary bg-zinc-300 p-2 dark:bg-zinc-800"
 >
   <div
-    class="flex flex-col flex-wrap gap-2 overflow-x-auto pl-3 pr-3 pt-3 align-middle"
+    class="flex flex-row flex-wrap gap-2 overflow-x-auto pl-3 pr-3 pt-3 align-middle"
   >
-    <p class="pl-3 text-4xl font-bold leading-snug text-primary">
-      {m.booking_week()}
-      {week.week()}
-    </p>
-    <article class="pl-3">
-      <h2 class="text-xl font-bold text-primary">
-        {m.cafe_ciabatta()}
-      </h2>
-      <h2 class="text-xl font-bold">
-        {ciabattaOfTheWeek || m.errors_notImplemented()}
-      </h2>
-    </article>
+    <div class="flex w-full flex-col">
+      <div class="flex w-full flex-row items-center">
+        <p class="pl-3 text-4xl font-bold text-primary">
+          {m.booking_week()}
+          {week.week()}
+        </p>
+        {#if canEditCiabattas || canEditWorkers}
+          <button
+            class="btn btn-secondary btn-sm ml-auto"
+            onclick={() => (editing = !editing)}
+          >
+            {editing ? m.committees_stopEditing() : m.committees_edit()}</button
+          >
+        {/if}
+      </div>
+      <article class="pl-3">
+        <h2 class="text-xl font-bold text-primary">
+          {m.cafe_ciabatta()}
+        </h2>
+        {#if canEditCiabattas && editing}
+          <form
+            class="flex w-full text-xl font-bold"
+            action="?/editWeeklyCiabatta"
+            method="POST"
+            use:enhance={() => {
+              return ({ update }) => update({ reset: false });
+            }}
+          >
+            <input
+              size={ciabattaString.length || 1}
+              name="ciabatta"
+              class="w-full min-w-0 flex-1 rounded border px-2"
+              bind:value={ciabattaString}
+              type="text"
+            />
+            <input hidden type="number" name="year" value={year} />
+            <input hidden type="number" name="week" value={week.week()} />
+            <button
+              type="submit"
+              aria-label="submit new ciabatta name"
+              class="hidden"
+            ></button>
+          </form>
+        {:else}
+          <h2 class="text-xl font-bold">
+            {ciabattaString}
+          </h2>
+        {/if}
+      </article>
+    </div>
     <Pagination
       class="pl-1 pr-1"
       count={canEditWorkers ? 52 : 3}

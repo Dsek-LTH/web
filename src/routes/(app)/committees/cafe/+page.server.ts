@@ -25,6 +25,11 @@ const scheduleForm = z.object({
   timeSlot: z.nativeEnum(TimeSlot),
 });
 
+const editWeeklyCiabattaSchema = z.object({
+  year: z.number(),
+  week: z.number(),
+  ciabatta: z.string(),
+})
 const weekForm = z.object({ week: z.number() });
 
 export type ShiftWithWorker = {
@@ -194,12 +199,42 @@ export const actions: Actions = {
     }
   },
 
-  //TODO: Make this update live and change weekShift from CafeBookingCalendar!
   changeWeek: async ({ request }) => {
+    // TODO: Investigate if this is even used at all
     const form = await superValidate(request, zod(weekForm));
     if (!form.valid) return fail(400, { form });
 
     const week = Number(form.data.week);
     return { week };
+  },
+
+  // TODO: make this two tables, one look up table,
+  // and a second table with two ciabattas
+  // (this one we're indexing in here).
+  editWeeklyCiabatta: async ({ request, locals }) => {
+    const { user, prisma } = locals;
+    const form = await superValidate(request, zod(editWeeklyCiabattaSchema))
+    if (!form.valid) return fail(400, { form });
+    if (!isAuthorized(apiNames.CAFE.EDIT_CIABATTAS, user)) return fail(405, { form });
+    await prisma.ciabattaOfTheWeek.upsert({
+      where: {
+        year_week: {
+          year: form.data.year,
+          week: form.data.week
+        },
+      },
+      update: {
+        ciabatta: form.data.ciabatta,
+      },
+      create: {
+        year: form.data.year,
+        week: form.data.week,
+        ciabatta: form.data.ciabatta
+      },
+    });
+    return message(form, {
+      message: "success!",
+      type: "success",
+    });
   },
 };

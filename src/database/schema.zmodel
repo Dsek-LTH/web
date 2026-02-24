@@ -1334,10 +1334,10 @@ model CiabattaOfTheWeek {
     @@map("ciabatta_of_the_week")
     @@allow("read", true)
 
-    @@allow("create", has(auth().policies, "cafe:edit_ciabatta"))
+    @@allow("create", has(auth().policies, "cafe:edit_ciabattas"))
 
-    @@allow("update", has(auth().policies, "cafe:edit_ciabatta"))
+    @@allow("update", has(auth().policies, "cafe:edit_ciabattas"))
 
-    @@allow("delete", has(auth().policies, "cafe:edit_ciabatta"))
+    @@allow("delete", has(auth().policies, "cafe:edit_ciabattas"))
     @@unique([year, week], map: "week_year_unique")
 }
