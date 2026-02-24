@@ -142,8 +142,10 @@ export const actions: Actions = {
 
     if (date && timeSlot) {
       const member = worker || user.studentId;
+      let isSetByAdmin = isAuthorized(apiNames.CAFE.EDIT_WORKERS, user);
       if (member != user.studentId) {
         if (!isAuthorized(apiNames.CAFE.EDIT_WORKERS, user)) {
+          // TODO: Translate
           return message(form, {
             message: "Error, you don't have permissions to sign up for other people",
             type: "error",
@@ -161,14 +163,13 @@ export const actions: Actions = {
       });
       const isDayManager = isAuthorized(apiNames.CAFE.DAY_MANAGER, user);
       if (!cafeShift) {
-        if (timeSlot == TimeSlot.DAYMANAGER && !isDayManager) {
-          //TODO: ERROR here
+        if ((timeSlot == TimeSlot.DAYMANAGER && !isDayManager) && !isSetByAdmin) {
+          // TODO: Translate
           return message(form, {
             message: "only day managers can sign up there",
             type: "error",
           });
         }
-        //TODO: This will fail if user doesn't exist.
         try {
           await prisma.cafeShift.create({
             data: {
@@ -182,23 +183,24 @@ export const actions: Actions = {
             },
           });
         } catch (error: unknown) {
-          if (error instanceof PrismaClientKnownRequestError && error.code === "p2025") {
+          if (error instanceof PrismaClientKnownRequestError && error.code === "P2025") {
+            // TODO: Translate
             return message(form, {
               message: "Worker " + member + " does not exist",
-              type: error,
+              type: "error",
             });
           }
+          throw (error)
         }
       } else {
         // There is already a shift and we might be able to delete it:
-        if (cafeShift.worker.studentId === user.studentId) {
+        if (cafeShift.worker.studentId === member) {
           await prisma.cafeShift.delete({ where: { id: cafeShift.id } });
           return message(form, {
-            message: m.cafe_quit_shift(),
+            message: member === user.studentId ? m.cafe_quit_shift() : m.cafe_quit_shift_for_other({ name: member }),
             type: "success",
           });
         } else {
-          //TODO: ERROR here
           return message(form, {
             message: "something went wrong!",
             type: "error",
@@ -207,8 +209,7 @@ export const actions: Actions = {
       }
 
       return message(form, {
-        //TODO: fix this to be it's own translation string
-        message: m.cafe_signed_up(),
+        message: member === user.studentId ? m.cafe_signed_up() : m.cafe_signed_up_for_other({ name: member }),
         type: "success",
       });
     } else {

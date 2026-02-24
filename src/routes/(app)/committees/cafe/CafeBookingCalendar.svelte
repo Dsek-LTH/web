@@ -72,11 +72,11 @@
     }
   }
 
-  function getStilId(day: dayjs.Dayjs, timeSlot: TimeSlot) {
+  function getStilId(day: dayjs.Dayjs, timeSlot: TimeSlot): string | undefined {
     let shift = shifts.find(
       (s) => dayjs(s.date).isSame(day, "day") && s.timeSlot === timeSlot,
     );
-    return shift?.worker.studentId ?? "";
+    return shift?.worker.studentId;
   }
 
   function toggleEdit() {
@@ -205,6 +205,13 @@
               type="text"
             />
           {:else}
+            <input
+              name="worker"
+              class="border-1 m-1 w-full rounded border p-2 text-center"
+              value={getStilId(day, timeSlot)}
+              type="text"
+              hidden
+            />
             <button
               class="border-1 m-1 w-full rounded border border-base-300 p-2 enabled:bg-base-300 enabled:hover:border-primary
               {dayHasManager ||
@@ -236,7 +243,7 @@
         <hr class="mb-2 mt-2 border-base-content" />
 
         <p
-          class="gap-1 text-center font-medium {dayHasManager
+          class="gap-1 text-center font-medium {dayHasManager || canEditWorkers
             ? ''
             : 'text-slate-500'}"
         >
@@ -245,21 +252,25 @@
         {@render DayForm(
           TimeSlot.SHIFT_1,
           !(dayHasManager && canSignUpForShift(day, TimeSlot.SHIFT_1, user)) &&
-            !hasShift(day, TimeSlot.SHIFT_1, user),
+            !hasShift(day, TimeSlot.SHIFT_1, user) &&
+            !canEditWorkers,
           user,
+          !canEditWorkers,
         )}
 
         {@render DayForm(
           TimeSlot.SHIFT_2,
           !(dayHasManager && canSignUpForShift(day, TimeSlot.SHIFT_2, user)) &&
-            !hasShift(day, TimeSlot.SHIFT_2, user),
+            !hasShift(day, TimeSlot.SHIFT_2, user) &&
+            !canEditWorkers,
           user,
+          !canEditWorkers,
         )}
 
         <hr class="mb-2 mt-2 border-base-content" />
 
         <p
-          class="gap-1 text-center font-medium {dayHasManager
+          class="gap-1 text-center font-medium {dayHasManager || canEditWorkers
             ? ''
             : 'text-slate-500'}"
         >
@@ -268,8 +279,10 @@
         {@render DayForm(
           TimeSlot.SHIFT_3,
           !(dayHasManager && canSignUpForShift(day, TimeSlot.SHIFT_3, user)) &&
-            !hasShift(day, TimeSlot.SHIFT_3, user),
+            !hasShift(day, TimeSlot.SHIFT_3, user) &&
+            !canEditWorkers,
           user,
+          !canEditWorkers,
         )}
       </div>
     {/each}
