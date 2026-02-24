@@ -54,6 +54,13 @@
     }
   }
 
+  function toggleEdit() {
+    editing = !editing;
+    if (!editing) {
+      ciabattaString = ciabattaOfTheWeek?.ciabatta ?? m.errors_notImplemented();
+    }
+  }
+
   const now = dayjs();
   const windowStartWeek = now.week();
   const year = now.year();
@@ -83,10 +90,7 @@
           {week.week()}
         </p>
         {#if canEditCiabattas || canEditWorkers}
-          <button
-            class="btn btn-secondary btn-sm ml-auto"
-            onclick={() => (editing = !editing)}
-          >
+          <button class="btn btn-secondary btn-sm ml-auto" onclick={toggleEdit}>
             {editing ? m.committees_stopEditing() : m.committees_edit()}</button
           >
         {/if}
