@@ -49,7 +49,7 @@
           <tr>
             <th>{item.systembolagetID}</th>
             <td>{item.name}</td>
-            <td>Öl/Cider</td>
+            <td>{item.group === "S3" ? "Vin" : "Öl/Cider"}</td>
             <td>{item.price / 100} kr</td>
             <td>{item.quantityAvailable} st</td>
             <td>{item.group}</td>
