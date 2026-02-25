@@ -3,7 +3,7 @@ import apiNames from "$lib/utils/apiNames";
 import { isAuthorized } from "$lib/utils/authorization";
 import { committeeActions, committeeLoad } from "../committee.server";
 import * as m from "$paraglide/messages";
-import { fail } from "@sveltejs/kit";
+import { error, fail } from "@sveltejs/kit";
 import { TimeSlot } from "@prisma/client";
 import { zod } from "sveltekit-superforms/adapters";
 import { z } from "zod";
@@ -50,7 +50,8 @@ function getWeek(weekString: string | null, user: AuthUser): dayjs.Dayjs {
   const weekNum = Number(weekString ?? currentWeek.week());
   if (!isAuthorized(apiNames.CAFE.SEE_ALL_WEEKS, user)) {
     if (weekNum < currentWeek.week() || weekNum > currentWeek.week() + 2) {
-      return currentWeek;
+      // TODO: translate
+      error(403, { message: "You are not permitted to view this week" });
     }
   }
   return dayjs()
@@ -163,7 +164,6 @@ export const actions: Actions = {
         }
       }
       if (!member) {
-        //TODO: These don't seem to do a lot, take a look and fix:
         return fail(400, { form });
       }
       // TODO: check for permissions here so we don't fail
@@ -233,7 +233,6 @@ export const actions: Actions = {
         type: "success",
       });
     } else {
-      //TODO: These don't seem to do a lot, take a look and fix:
       return fail(400, { form });
     }
   },
@@ -246,8 +245,11 @@ export const actions: Actions = {
     const form = await superValidate(request, zod(editWeeklyCiabattaSchema));
     if (!form.valid) return fail(400, { form });
     if (!isAuthorized(apiNames.CAFE.EDIT_CIABATTAS, user)) {
-      // TODO: Maybe make this a message?
-      return fail(405, { form });
+      // TODO: Translate
+      return message(form, {
+        message: "You are not permitted to edit ciabattas",
+        type: "error",
+      });
     }
     await prisma.ciabattaOfTheWeek.upsert({
       where: {
