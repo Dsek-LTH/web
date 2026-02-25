@@ -1,0 +1,95 @@
+<script lang="ts">
+  import { Button, buttonVariants } from "$lib/components/ui/button/";
+  import Pen from "@lucide/svelte/icons/pen";
+
+  import * as Dialog from "$lib/components/ui/dialog";
+  import { cn } from "$lib/utils";
+  import Editor from "$lib/components/Editor.svelte";
+  import { superForm } from "$lib/utils/client/superForms";
+  import * as ButtonGroup from "$lib/components/ui/button-group";
+  import * as m from "$paraglide/messages";
+  import { Input } from "$lib/components/ui/input";
+  import type { CommitteeLoadData } from "./committee.server";
+
+  let { data }: { data: CommitteeLoadData } = $props();
+
+  const { form, errors, enhance } = $derived(
+    superForm(data.linksForm, { id: "links" }),
+  );
+
+  let activeTab = $state("sv");
+</script>
+
+<Dialog.Root>
+  <Dialog.Trigger
+    class={cn(buttonVariants({ size: "sm", variant: "outline" }), "ml-auto")}
+    ><Pen /> {m.committees_edit_links()}</Dialog.Trigger
+  >
+  <Dialog.Content class="mt-4 sm:max-w-2xl">
+    <form
+      action="/committees/{data.committee.shortName}/?/updateCommitteeMarkdown"
+      id="links"
+      use:enhance
+      method="POST"
+    >
+      <Dialog.Header
+        class="space-between mb-2 flex w-full flex-row items-center"
+        ><Dialog.Title>{m.committees_edit_links()}</Dialog.Title
+        ><ButtonGroup.Root class="mr-6 ml-auto">
+          <Button
+            type="button"
+            class={activeTab == "sv"
+              ? "bg-neutral-200 dark:bg-neutral-900"
+              : ""}
+            onclick={() => (activeTab = "sv")}
+            variant="outline">{m.language_swedish()}</Button
+          >
+          <Button
+            type="button"
+            class={activeTab == "en"
+              ? "bg-neutral-100 dark:bg-neutral-900"
+              : ""}
+            onclick={() => (activeTab = "en")}
+            variant="outline">{m.language_english()}</Button
+          >
+        </ButtonGroup.Root></Dialog.Header
+      >
+      <div class="p-4 pt-2">
+        <div class={activeTab == "sv" ? "block" : "hidden"}>
+          <Editor
+            placeholder="**Rubrik**
+[länk](/committees/utskott/sida)"
+            name="markdownSv"
+            bind:value={$form.markdownSv}
+            aria-invalid={$errors.markdownSv ? true : false}
+          />
+        </div>
+        <div class={activeTab == "en" ? "block" : "hidden"}>
+          <Editor
+            placeholder="**Heading**
+[link](/committees/committee/page)"
+            bind:value={$form.markdownEn as string | undefined}
+            aria-invalid={$errors.markdownEn ? true : false}
+          />
+        </div>
+        <div class="hidden">
+          <Input
+            type="text"
+            hidden
+            name="markdownSlug"
+            bind:value={$form.markdownSlug}
+          />
+        </div>
+      </div>
+
+      <Dialog.Footer>
+        <Dialog.Close class={buttonVariants({ variant: "outline" })}
+          >{m.cancel()}</Dialog.Close
+        >
+        <Dialog.Close class={buttonVariants({ variant: "rosa" })} type="submit"
+          >{m.save()}</Dialog.Close
+        >
+      </Dialog.Footer>
+    </form>
+  </Dialog.Content>
+</Dialog.Root>

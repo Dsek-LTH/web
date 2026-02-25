@@ -26,6 +26,7 @@
   authorOptions={data.authorOptions}
   data={data.form as unknown as SuperValidated<ArticleSchema>}
   superform={superform as unknown as SuperForm<ArticleSchema>}
+  committees={data.committees}
 >
   {#snippet formEnd()}
     <div class="flex w-full flex-col gap-1.5">

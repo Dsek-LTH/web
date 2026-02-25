@@ -15,12 +15,14 @@
     authorOptions,
     superform = superForm(data, { dataType: "json", delayMs: 500 }),
     formEnd,
+    committees,
   }: {
     allTags: Array<ExtendedPrismaModel<"Tag">>;
     authorOptions: AuthorOption[];
     data: SuperValidated<ArticleSchema>;
     superform?: SuperForm<ArticleSchema>;
     formEnd?: Snippet;
+    committees: Array<Pick<ExtendedPrismaModel<"Committee">, "id" | "name">>;
   } = $props();
 
   const { form } = superform;
@@ -34,7 +36,14 @@
 </script>
 
 <div class="flex flex-col gap-4 sm:flex-row sm:*:w-1/2">
-  <ArticleForm bind:activeTab {authorOptions} {superform} {allTags} {formEnd} />
+  <ArticleForm
+    bind:activeTab
+    {authorOptions}
+    {superform}
+    {allTags}
+    {formEnd}
+    {committees}
+  />
   <Article
     article={{
       id: "",
@@ -56,6 +65,7 @@
       imageUrl: $form.imageUrl ?? null,
       youtubeUrl: $form.youtubeUrl ?? null,
       tags: allTags.filter((t) => tagIds.includes(t.id)),
+      committeeId: $form.committeeId == undefined ? null : $form.committeeId,
     }}
     canEdit={false}
     canDelete={false}
