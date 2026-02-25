@@ -22,7 +22,7 @@
     name="selectType"
     role="tab"
     class="tab text-base"
-    aria-label="Öl/Cider"
+    aria-label="Öl/Cider/Vin"
     checked
     on:click={() => {
       reset();

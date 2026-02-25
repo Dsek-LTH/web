@@ -553,6 +553,7 @@ model DrinkItem {
   bottleEmptyWeight Int?              @map("bottle_empty_weight")
   bottleFullWeight  Int?              @map("bottle_full_weight")
   quantityAvailable Int?              @map("quantity_available") @default(0)
+  nrBottles         Int?              @map("nr_bottles") @default(0)
 
   stockLists        DrinkItemBatch[]
 
@@ -570,7 +571,7 @@ model DrinkItemBatch {
   quantityDelta Int       @map("quantity_delta")
   user          String
   date          DateTime
-  nrBottles     Int?
+
 
   @@allow("read", true)
   @@allow("create", has(auth().policies, "drinkitembatch:create"))
