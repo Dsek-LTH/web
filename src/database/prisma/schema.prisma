@@ -477,12 +477,13 @@ model DrinkItem {
 }
 
 model DrinkItemBatch {
-  id            String    @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  drinkItemId   String    @map("drink_item_id") @db.Uuid()
-  item          DrinkItem @relation(fields: [drinkItemId], references: [id])
-  quantityDelta Int       @map("quantity_delta")
-  user          String
-  date          DateTime
+  id             String    @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  drinkItemId    String    @map("drink_item_id") @db.Uuid()
+  item           DrinkItem @relation(fields: [drinkItemId], references: [id])
+  quantityDelta  Int       @map("quantity_delta")
+  user           String
+  date           DateTime
+  nrBottlesDelta Int?      @map("nr_bottles_delta")
 
   @@map("drinkitembatch")
 }
