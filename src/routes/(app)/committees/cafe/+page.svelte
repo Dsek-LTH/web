@@ -26,16 +26,11 @@
   dayjs.extend(weekYear);
 
   //  TODO: Handle going over years
-  let week = $state(
+  let week = $derived(
     dayjs()
       .startOf("year")
-      .add(data.weekShift - 1, "week"),
+      .add(data.week - 1, "week"),
   );
-  $effect(() => {
-    week = dayjs()
-      .startOf("year")
-      .add(data.weekShift - 1, "week");
-  });
 
   let shifts = $derived(data.shifts);
 </script>

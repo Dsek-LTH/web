@@ -16,7 +16,6 @@ import dayjs from "dayjs";
 import weekYear from "dayjs/plugin/weekYear";
 import weekOfYear from "dayjs/plugin/weekOfYear";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import type { SearchParams } from "meilisearch";
 import type { AuthUser } from "@zenstackhq/runtime";
 
 dayjs.extend(weekOfYear);
@@ -46,19 +45,17 @@ export type ShiftWithWorker = {
   };
 };
 
-function getWeek(weekString: string | null, user: AuthUser): number {
-  const currentWeek = dayjs().startOf("week").week();
-  const weekShift = Number(weekString) ?? currentWeek;
-  console.log(currentWeek);
-  console.log(weekShift);
-
+function getWeek(weekString: string | null, user: AuthUser): dayjs.Dayjs {
+  const currentWeek = dayjs().startOf("week");
+  const weekNum = Number(weekString ?? currentWeek.week());
   if (!isAuthorized(apiNames.CAFE.SEE_ALL_WEEKS, user)) {
-    if (weekShift < currentWeek || weekShift > currentWeek + 2) {
-      return currentWeek
+    if (weekNum < currentWeek.week() || weekNum > currentWeek.week() + 2) {
+      return currentWeek;
     }
   }
-
-  return dayjs().startOf("year").add(weekShift - 1, "week").week();
+  return dayjs()
+    .startOf("year")
+    .add(weekNum - 1, "week");
 }
 
 export type Ciabatta = {
@@ -71,8 +68,7 @@ export type Ciabatta = {
 export const load: PageServerLoad = async ({ locals, url }) => {
   const { user, prisma } = locals;
 
-  const weekShift = getWeek(url.searchParams.get("week"), user)
-  console.log("updated week");
+  const targetWeek = getWeek(url.searchParams.get("week"), user);
 
   const openingHours = prisma.markdown.findMany({
     where: {
@@ -84,10 +80,6 @@ export const load: PageServerLoad = async ({ locals, url }) => {
       name: "asc",
     },
   });
-
-  const targetWeek = dayjs()
-    .startOf("year")
-    .add(weekShift - 1, "week");
 
   const shifts = prisma.cafeShift.findMany({
     where: {
@@ -121,7 +113,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     openingHours: await openingHours,
     shifts: (await shifts) as ShiftWithWorker[],
     ciabattaOfTheWeek: (await ciabattaOfTheWeek) as Ciabatta,
-    weekShift,
+    week: targetWeek.week(),
   }));
 };
 
@@ -257,7 +249,6 @@ export const actions: Actions = {
       // TODO: Maybe make this a message?
       return fail(405, { form });
     }
-    console.log(form.data)
     await prisma.ciabattaOfTheWeek.upsert({
       where: {
         year_week: {
