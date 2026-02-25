@@ -105,6 +105,7 @@ const apiNames = {
   CAFE: {
     EDIT_WORKERS: "cafe:edit_workers",
     EDIT_CIABATTAS: "cafe:edit_ciabattas",
+    SEE_ALL_WEEKS: "cafe:see_all_weeks",
     DAY_MANAGER: "cafe:day_manager",
   },
 } as const;

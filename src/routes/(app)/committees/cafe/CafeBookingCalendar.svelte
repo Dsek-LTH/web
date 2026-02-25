@@ -93,6 +93,7 @@
   const isDayManager = isAuthorized(apiNames.CAFE.DAY_MANAGER, user);
   const canEditWorkers = isAuthorized(apiNames.CAFE.EDIT_WORKERS, user);
   const canEditCiabattas = isAuthorized(apiNames.CAFE.EDIT_CIABATTAS, user);
+  const canSeeAllWeeks = isAuthorized(apiNames.CAFE.SEE_ALL_WEEKS, user);
 
   let editing: boolean = $state(false);
 
@@ -158,10 +159,10 @@
     </div>
     <Pagination
       class="pl-1 pr-1"
-      count={canEditWorkers ? 52 : 3}
+      count={canSeeAllWeeks ? 52 : 3}
       fieldName="week"
       getPageName={(index) => {
-        const week = canEditWorkers ? index + 1 : windowStartWeek + index;
+        const week = canSeeAllWeeks ? index + 1 : windowStartWeek + index;
         return week > weeksInYear
           ? (week - weeksInYear).toString()
           : week.toString();
@@ -170,7 +171,7 @@
         const week = Number(weekString);
 
         // map absolute week → window index
-        let index = canEditWorkers ? week - 1 : week - windowStartWeek;
+        let index = canSeeAllWeeks ? week - 1 : week - windowStartWeek;
         if (index < 0) index += weeksInYear;
 
         return index;
