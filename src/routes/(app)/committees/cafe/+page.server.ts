@@ -30,7 +30,7 @@ const editWeeklyCiabattaSchema = z.object({
   year: z.number(),
   week: z.number(),
   ciabatta: z.string(),
-})
+});
 
 export type ShiftWithWorker = {
   id: string;
@@ -142,14 +142,15 @@ export const actions: Actions = {
 
     if (date && timeSlot) {
       const member = worker || user.studentId;
-      let isSetByAdmin = isAuthorized(apiNames.CAFE.EDIT_WORKERS, user);
+      const isSetByAdmin = isAuthorized(apiNames.CAFE.EDIT_WORKERS, user);
       if (member != user.studentId) {
         if (!isAuthorized(apiNames.CAFE.EDIT_WORKERS, user)) {
           // TODO: Translate
           return message(form, {
-            message: "Error, you don't have permissions to sign up for other people",
+            message:
+              "Error, you don't have permissions to sign up for other people",
             type: "error",
-          })
+          });
         }
       }
       if (!member) {
@@ -163,7 +164,7 @@ export const actions: Actions = {
       });
       const isDayManager = isAuthorized(apiNames.CAFE.DAY_MANAGER, user);
       if (!cafeShift) {
-        if ((timeSlot == TimeSlot.DAYMANAGER && !isDayManager) && !isSetByAdmin) {
+        if (timeSlot == TimeSlot.DAYMANAGER && !isDayManager && !isSetByAdmin) {
           // TODO: Translate
           return message(form, {
             message: "only day managers can sign up there",
@@ -183,21 +184,27 @@ export const actions: Actions = {
             },
           });
         } catch (error: unknown) {
-          if (error instanceof PrismaClientKnownRequestError && error.code === "P2025") {
+          if (
+            error instanceof PrismaClientKnownRequestError &&
+            error.code === "P2025"
+          ) {
             // TODO: Translate
             return message(form, {
               message: "Worker " + member + " does not exist",
               type: "error",
             });
           }
-          throw (error)
+          throw error;
         }
       } else {
         // There is already a shift and we might be able to delete it:
         if (cafeShift.worker.studentId === member) {
           await prisma.cafeShift.delete({ where: { id: cafeShift.id } });
           return message(form, {
-            message: member === user.studentId ? m.cafe_quit_shift() : m.cafe_quit_shift_for_other({ name: member }),
+            message:
+              member === user.studentId
+                ? m.cafe_quit_shift()
+                : m.cafe_quit_shift_for_other({ name: member }),
             type: "success",
           });
         } else {
@@ -210,7 +217,10 @@ export const actions: Actions = {
       }
 
       return message(form, {
-        message: member === user.studentId ? m.cafe_signed_up() : m.cafe_signed_up_for_other({ name: member }),
+        message:
+          member === user.studentId
+            ? m.cafe_signed_up()
+            : m.cafe_signed_up_for_other({ name: member }),
         type: "success",
       });
     } else {
@@ -219,20 +229,20 @@ export const actions: Actions = {
     }
   },
 
-
   // TODO: make this two tables, one look up table,
   // and a second table with two ciabattas
   // (this one we're indexing in here).
   editWeeklyCiabatta: async ({ request, locals }) => {
     const { user, prisma } = locals;
-    const form = await superValidate(request, zod(editWeeklyCiabattaSchema))
+    const form = await superValidate(request, zod(editWeeklyCiabattaSchema));
     if (!form.valid) return fail(400, { form });
-    if (!isAuthorized(apiNames.CAFE.EDIT_CIABATTAS, user)) return fail(405, { form });
+    if (!isAuthorized(apiNames.CAFE.EDIT_CIABATTAS, user))
+      return fail(405, { form });
     await prisma.ciabattaOfTheWeek.upsert({
       where: {
         year_week: {
           year: form.data.year,
-          week: form.data.week
+          week: form.data.week,
         },
       },
       update: {
@@ -241,7 +251,7 @@ export const actions: Actions = {
       create: {
         year: form.data.year,
         week: form.data.week,
-        ciabatta: form.data.ciabatta
+        ciabatta: form.data.ciabatta,
       },
     });
     return message(form, {
