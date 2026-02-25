@@ -16,6 +16,8 @@ import dayjs from "dayjs";
 import weekYear from "dayjs/plugin/weekYear";
 import weekOfYear from "dayjs/plugin/weekOfYear";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import type { SearchParams } from "meilisearch";
+import type { AuthUser } from "@zenstackhq/runtime";
 
 dayjs.extend(weekOfYear);
 dayjs.extend(weekYear);
@@ -44,6 +46,21 @@ export type ShiftWithWorker = {
   };
 };
 
+function getWeek(weekString: string | null, user: AuthUser): number {
+  const currentWeek = dayjs().startOf("week").week();
+  const weekShift = Number(weekString) ?? currentWeek;
+  console.log(currentWeek);
+  console.log(weekShift);
+
+  if (!isAuthorized(apiNames.CAFE.SEE_ALL_WEEKS, user)) {
+    if (weekShift < currentWeek || weekShift > currentWeek + 2) {
+      return currentWeek
+    }
+  }
+
+  return dayjs().startOf("year").add(weekShift - 1, "week").week();
+}
+
 export type Ciabatta = {
   id: string;
   year: number;
@@ -52,11 +69,11 @@ export type Ciabatta = {
 };
 
 export const load: PageServerLoad = async ({ locals, url }) => {
-  const weekShift = Number(
-    url.searchParams.get("week") ?? dayjs().startOf("week").week(),
-  );
+  const { user, prisma } = locals;
 
-  const { prisma } = locals;
+  const weekShift = getWeek(url.searchParams.get("week"), user)
+  console.log("updated week");
+
   const openingHours = prisma.markdown.findMany({
     where: {
       name: {
@@ -236,8 +253,11 @@ export const actions: Actions = {
     const { user, prisma } = locals;
     const form = await superValidate(request, zod(editWeeklyCiabattaSchema));
     if (!form.valid) return fail(400, { form });
-    if (!isAuthorized(apiNames.CAFE.EDIT_CIABATTAS, user))
+    if (!isAuthorized(apiNames.CAFE.EDIT_CIABATTAS, user)) {
+      // TODO: Maybe make this a message?
       return fail(405, { form });
+    }
+    console.log(form.data)
     await prisma.ciabattaOfTheWeek.upsert({
       where: {
         year_week: {

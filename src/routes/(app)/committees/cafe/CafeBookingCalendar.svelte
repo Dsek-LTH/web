@@ -157,6 +157,7 @@
         {/if}
       </article>
     </div>
+    <!-- NOTE: The amount of weeks you can see when logged in is checked server-side in the page.server.ts file in the getWeek function -->
     <Pagination
       class="pl-1 pr-1"
       count={canSeeAllWeeks ? 52 : 3}
