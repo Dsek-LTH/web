@@ -25,7 +25,7 @@ const createOutBatchSchema = z.object({
     .string()
     .date()
     .default(() => new Date().toLocaleDateString("se-SE")),
-  nrBottles: z.number().nonnegative(),
+  nrBottles: z.number().nonnegative().default(0),
 });
 
 const createInBatchSchema = z.object({
@@ -35,7 +35,7 @@ const createInBatchSchema = z.object({
     .string()
     .date()
     .default(() => new Date().toLocaleDateString("se-SE")),
-  nrBottles: z.number().nonnegative(),
+  nrBottles: z.number().nonnegative().default(0),
 });
 
 export const actions: Actions = {
@@ -53,7 +53,6 @@ export const actions: Actions = {
       data: {
         drinkItemId: form.data.drinkItemId,
         quantityDelta: form.data.quantityDelta,
-        nrBottles: form.data.nrBottles,
         date: dayjs(form.data.date).toDate(),
         user: user.studentId!,
       },
@@ -64,6 +63,9 @@ export const actions: Actions = {
       data: {
         quantityAvailable: {
           increment: form.data.quantityDelta,
+        },
+        nrBottles: {
+          increment: form.data.nrBottles,
         },
       },
     });
@@ -89,6 +91,9 @@ export const actions: Actions = {
         quantityAvailable: {
           decrement: form.data.quantityDelta,
         },
+        nrBottles: {
+          decrement: form.data.nrBottles,
+        },
       },
     });
 
@@ -100,7 +105,6 @@ export const actions: Actions = {
       data: {
         drinkItemId: form.data.drinkItemId,
         quantityDelta: -form.data.quantityDelta,
-        nrBottles: form.data.nrBottles,
         date: dayjs(form.data.date).toDate(),
         user: user.studentId!,
       },

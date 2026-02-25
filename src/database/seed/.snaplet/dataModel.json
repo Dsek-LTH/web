@@ -4055,6 +4055,20 @@
           "maxLength": null
         },
         {
+          "id": "public.drinkitem.nr_bottles",
+          "name": "nr_bottles",
+          "columnName": "nr_bottles",
+          "type": "int4",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": true,
+          "isId": false,
+          "maxLength": null
+        },
+        {
           "name": "drinkitembatch",
           "type": "drinkitembatch",
           "isRequired": false,
@@ -4132,20 +4146,6 @@
           "columnName": "date",
           "type": "timestamp",
           "isRequired": true,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": null
-        },
-        {
-          "id": "public.drinkitembatch.nrBottles",
-          "name": "nrBottles",
-          "columnName": "nrBottles",
-          "type": "int4",
-          "isRequired": false,
           "kind": "scalar",
           "isList": false,
           "isGenerated": false,
