@@ -4169,6 +4169,20 @@
           "maxLength": null
         },
         {
+          "id": "public.drinkitembatch.nr_bottles_delta",
+          "name": "nr_bottles_delta",
+          "columnName": "nr_bottles_delta",
+          "type": "int4",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
           "name": "drinkitem",
           "type": "drinkitem",
           "isRequired": true,

@@ -53,6 +53,7 @@ export const actions: Actions = {
       data: {
         drinkItemId: form.data.drinkItemId,
         quantityDelta: form.data.quantityDelta,
+        nrBottlesDelta: form.data.nrBottles,
         date: dayjs(form.data.date).toDate(),
         user: user.studentId!,
       },
@@ -105,6 +106,7 @@ export const actions: Actions = {
       data: {
         drinkItemId: form.data.drinkItemId,
         quantityDelta: -form.data.quantityDelta,
+        nrBottlesDelta: -form.data.nrBottles,
         date: dayjs(form.data.date).toDate(),
         user: user.studentId!,
       },
