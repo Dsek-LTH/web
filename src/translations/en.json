@@ -902,5 +902,17 @@
   "positions_all_positions": "See all positions",
   "positions_historical_mandate_distribution_per_study_year": "Historical mandate distribution per study year",
   "positions_study_year": "Year",
-  "positions_years": "years"
+  "positions_years": "years",
+  "cafe_ciabatta": "Ciabatta of the week:",
+  "cafe_signed_up": "Signed up for shift",
+  "cafe_signed_up_for_other": "Assigned {name} to the shift.",
+  "cafe_quit_shift": "Abandoned the shift",
+  "cafe_quit_shift_for_other": "Removed {name} from the shift",
+  "monday": "Monday",
+  "tuesday": "Tuesday",
+  "wednesday": "Wednesday",
+  "thursday": "Thursday",
+  "friday": "Friday",
+  "saturday": "Saturday",
+  "sunday": "Sunday"
 }

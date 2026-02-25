@@ -899,5 +899,17 @@
   "positions_all_positions": "Se alla poster",
   "positions_historical_mandate_distribution_per_study_year": "Historisk mandatfördelning per årskurs",
   "positions_study_year": "Åk",
-  "positions_years": "år"
+  "positions_years": "år",
+  "cafe_ciabatta": "Veckans Ciabatta:",
+  "cafe_signed_up": "Anmälde dig till arbetspasset.",
+  "cafe_signed_up_for_other": "Anmälde {name} till arbetspasset.",
+  "cafe_quit_shift": "Avanmälde dig från arbetspasset",
+  "cafe_quit_shift_for_other": "Avanmälde {name} från arbetspasset",
+  "monday": "måndag",
+  "tuesday": "tisdag",
+  "wednesday": "onsdag",
+  "thursday": "torsdag",
+  "friday": "fredag",
+  "saturday": "lördag",
+  "sunday": "söndag"
 }
