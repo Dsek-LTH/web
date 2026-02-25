@@ -6,10 +6,8 @@
 
   let { data }: { data: CommitteeLoadData } = $props();
 
-  let leftRow = $derived(data.committee.positions.filter((_, i) => i % 2 == 0));
-  let rightRow = $derived(
-    data.committee.positions.filter((_, i) => i % 2 == 1),
-  );
+  let leftRow = $derived(data.positions.filter((_, i) => i % 2 == 0));
+  let rightRow = $derived(data.positions.filter((_, i) => i % 2 == 1));
 </script>
 
 <h2>{m.committees_members()}</h2>
