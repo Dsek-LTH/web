@@ -8,6 +8,7 @@
     committee,
     useMono,
     class: klass,
+    override,
   }: {
     committee: Pick<
       ExtendedPrismaModel<"Committee">,
@@ -15,6 +16,7 @@
     > | null;
     useMono?: boolean;
     class?: string;
+    override?: "light" | "dark";
   } = $props();
 
   const FALLBACK = {
@@ -34,6 +36,20 @@
         event.target.src = imageUrl;
       }
     };
+
+  let lightClass = $derived(
+    cn(
+      override ? "hidden" : "block dark:hidden",
+      override == "dark" ? "block" : "",
+    ),
+  );
+
+  let darkClass = $derived(
+    cn(
+      override ? "hidden" : "hidden dark:block",
+      override == "light" ? "block" : "",
+    ),
+  );
 </script>
 
 <!-- 
@@ -58,14 +74,14 @@
   <!-- dark/light support -->
   <img
     src={getFileUrl(committee?.darkImageUrl) ?? FALLBACK.color}
-    alt="{committee?.nameSv} icon"
-    class={cn("hidden dark:block", klass)}
+    alt="{committee?.nameSv} dark theme icon"
+    class={cn(darkClass, klass)}
     onerror={onError(FALLBACK.color)}
   />
   <img
     src={getFileUrl(committee?.lightImageUrl) ?? FALLBACK.color}
-    alt="{committee?.nameSv} icon"
-    class={cn("block dark:hidden", klass)}
+    alt="{committee?.nameSv} light theme icon"
+    class={cn(lightClass, klass)}
     onerror={onError(FALLBACK.color)}
   />
 {/if}

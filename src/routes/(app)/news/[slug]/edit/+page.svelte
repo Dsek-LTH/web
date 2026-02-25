@@ -9,4 +9,5 @@
   allTags={data.allTags}
   authorOptions={data.authorOptions}
   data={data.form}
+  committees={data.committees}
 />

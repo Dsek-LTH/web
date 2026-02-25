@@ -1849,6 +1849,20 @@
           "maxLength": null
         },
         {
+          "id": "public.articles.committee_id",
+          "name": "committee_id",
+          "columnName": "committee_id",
+          "type": "uuid",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
           "name": "authors",
           "type": "authors",
           "isRequired": true,

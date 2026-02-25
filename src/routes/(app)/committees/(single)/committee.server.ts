@@ -4,7 +4,7 @@ import * as m from "$paraglide/messages";
 import { error, fail, type Actions } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { message, superValidate, withFiles } from "sveltekit-superforms/server";
-import { updateSchema } from "./types";
+import { updateCommitteeBody, updateCommitteeSchema } from "../types";
 import { updateMarkdown } from "$lib/news/markdown/mutations.server";
 import { getYearOrThrowSvelteError } from "$lib/utils/url.server";
 
@@ -84,7 +84,7 @@ export const committeeLoad = async (
   if (!committee) {
     throw error(404, m.committees_errors_committeeNotFound());
   }
-  const [uniqueMembersInCommittee, numberOfMandates, markdown] =
+  const [uniqueMembersInCommittee, numberOfMandates, markdown, links] =
     await Promise.allSettled([
       prisma.member.count({
         where: {
@@ -125,9 +125,9 @@ export const committeeLoad = async (
           name: shortName,
         },
       }),
-      prisma.committee.findUnique({
+      prisma.markdown.findUnique({
         where: {
-          shortName,
+          name: shortName + "_links",
         },
       }),
     ]);
@@ -140,15 +140,32 @@ export const committeeLoad = async (
   if (markdown.status === "rejected") {
     error(500, m.committees_errors_fetchMarkdown());
   }
+  if (links.status === "rejected") {
+    error(500, m.committees_errors_fetchMarkdown());
+  }
 
   const form = await superValidate(
     {
       ...committee,
-      markdownSlug: markdown.value?.name,
+      /*markdownSlug: markdown.value?.name,
       markdownSv: markdown.value?.markdown,
-      markdownEn: markdown.value?.markdownEn,
+      markdownEn: markdown.value?.markdownEn,*/
     },
-    zod4(updateSchema),
+    zod4(updateCommitteeSchema),
+  );
+
+  const markdownForm = await superValidate(
+    { ...markdown.value, markdownSlug: markdown?.value?.name ?? "" },
+    zod4(updateCommitteeBody),
+  );
+
+  const linksForm = await superValidate(
+    {
+      markdownSv: links?.value?.markdownSv ?? "",
+      markdownEn: links.value?.markdownEn ?? "",
+      markdownSlug: links?.value?.name ?? committee.shortName + "_links",
+    },
+    zod4(updateCommitteeBody),
   );
 
   return {
@@ -160,7 +177,10 @@ export const committeeLoad = async (
     uniqueMemberCount: uniqueMembersInCommittee.value,
     numberOfMandates: numberOfMandates.value,
     markdown: markdown.value,
+    links: links.value,
     form,
+    markdownForm,
+    linksForm,
     year,
   };
 };
@@ -168,21 +188,30 @@ export const committeeLoad = async (
 export const committeeActions = (
   shortName?: string,
 ): Actions<{ shortName: string }> => ({
-  update: async ({ params, request, locals }) => {
+  updateCommitteeMarkdown: async ({ request, locals }) => {
     const { user, prisma } = locals;
-    const form = await superValidate(request, zod4(updateSchema), {
-      allowFiles: true,
-    });
-    if (!form.valid) return fail(400, withFiles({ form }));
+    const form = await superValidate(request, zod4(updateCommitteeBody));
+    if (!form.valid) return fail(400);
 
-    const { markdownSv, markdownEn, markdownSlug, ...rest } = form.data;
+    const { markdownSv, markdownEn, markdownSlug } = form.data;
 
-    await prisma.committee.update({
-      where: { shortName: shortName ?? params.shortName },
-      data: {
-        ...rest,
-      },
+    const current = await prisma.markdown.count({
+      where: { name: markdownSlug },
     });
+    if (current == 0 && markdownSlug && markdownSv) {
+      await prisma.markdown.create({
+        data: {
+          name: markdownSlug,
+          markdownSv,
+          markdownEn,
+        },
+      });
+
+      return message(form, {
+        message: m.committees_committeeUpdated(),
+        type: "success",
+      });
+    }
 
     if (markdownSlug && markdownSv) {
       await updateMarkdown(user, prisma, {
@@ -191,6 +220,27 @@ export const committeeActions = (
         markdownEn: markdownEn ?? null,
       });
     }
+    return message(form, {
+      message: m.committees_committeeUpdated(),
+      type: "success",
+    });
+  },
+  updateCommitteeDetails: async ({ params, request, locals }) => {
+    const { prisma } = locals;
+    const form = await superValidate(request, zod4(updateCommitteeSchema), {
+      allowFiles: true,
+    });
+    if (!form.valid) return fail(400, withFiles({ form }));
+
+    const { ...rest } = form.data;
+
+    await prisma.committee.update({
+      where: { shortName: shortName ?? params.shortName },
+      data: {
+        ...rest,
+      },
+    });
+
     return message(form, {
       message: m.committees_committeeUpdated(),
       type: "success",

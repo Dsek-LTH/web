@@ -55,6 +55,7 @@ export const createArticle: Action = async (event) => {
     images,
     bodySv,
     bodyEn,
+    committeeId,
     publishTime,
     ...rest
   } = form.data;
@@ -122,6 +123,13 @@ export const createArticle: Action = async (event) => {
             id: tag.id,
           })),
       },
+      committee: committeeId
+        ? {
+            connect: {
+              id: committeeId,
+            },
+          }
+        : undefined,
       publishedAt: publishTime ?? new Date(),
     },
     include: {
@@ -211,6 +219,7 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
     images,
     bodySv,
     bodyEn,
+    committeeId,
     publishTime,
     sendNotification,
     notificationText,
@@ -391,6 +400,13 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
               }
             : undefined,
         },
+        committee: committeeId
+          ? {
+              connect: {
+                id: committeeId,
+              },
+            }
+          : undefined,
         tags: {
           set: tags.map(({ id }) => ({ id })),
         },
