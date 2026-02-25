@@ -7,19 +7,19 @@
  * @param batchSize
  */
 export async function promiseAllInBatches<A, B>(
-  items: A[],
-  task: (item: A) => Promise<B>,
-  batchSize: number,
+	items: A[],
+	task: (item: A) => Promise<B>,
+	batchSize: number,
 ): Promise<B[]> {
-  let position = 0;
-  let results: B[] = [];
-  while (position < items.length) {
-    const itemsForBatch: A[] = items.slice(position, position + batchSize);
-    const promises: Array<Promise<B>> = itemsForBatch.map((item: A) =>
-      task(item),
-    );
-    results = [...results, ...(await Promise.all(promises))];
-    position += batchSize;
-  }
-  return results;
+	let position = 0;
+	let results: B[] = [];
+	while (position < items.length) {
+		const itemsForBatch: A[] = items.slice(position, position + batchSize);
+		const promises: Array<Promise<B>> = itemsForBatch.map((item: A) =>
+			task(item),
+		);
+		results = [...results, ...(await Promise.all(promises))];
+		position += batchSize;
+	}
+	return results;
 }

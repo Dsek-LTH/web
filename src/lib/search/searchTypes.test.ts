@@ -1,8 +1,8 @@
 import { expect, test } from "vitest";
 import {
-  attributesUsedAsLink,
-  availableSearchIndexes,
-  listOfAttributesUsedAsLink,
+	attributesUsedAsLink,
+	availableSearchIndexes,
+	listOfAttributesUsedAsLink,
 } from "./searchTypes";
 
 /**
@@ -14,16 +14,16 @@ import {
  * All indexes should have at least one such attribute
  */
 test("all indexes has attribute that doesn't get sliced", () => {
-  for (const index of availableSearchIndexes) {
-    const indexAttributes = attributesUsedAsLink[index];
-    expect(
-      indexAttributes,
-      `Index "${index}" has no attributes that doesn't get sliced`,
-    ).not.toBeUndefined();
-    expect(Array.isArray(indexAttributes)).toBe(true);
-    expect(indexAttributes.length > 0).toBe(true);
-  }
-  expect(listOfAttributesUsedAsLink.length).toBeGreaterThanOrEqual(
-    availableSearchIndexes.length,
-  );
+	for (const index of availableSearchIndexes) {
+		const indexAttributes = attributesUsedAsLink[index];
+		expect(
+			indexAttributes,
+			`Index "${index}" has no attributes that doesn't get sliced`,
+		).not.toBeUndefined();
+		expect(Array.isArray(indexAttributes)).toBe(true);
+		expect(indexAttributes.length > 0).toBe(true);
+	}
+	expect(listOfAttributesUsedAsLink.length).toBeGreaterThanOrEqual(
+		availableSearchIndexes.length,
+	);
 });

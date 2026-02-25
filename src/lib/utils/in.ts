@@ -6,8 +6,8 @@
  * See https://github.com/microsoft/TypeScript/issues/43284.
  */
 const in_ = <K extends string, O extends object>(
-  key: K,
-  object: O,
+	key: K,
+	object: O,
 ): key is K & keyof O => key in object;
 
 export default in_;

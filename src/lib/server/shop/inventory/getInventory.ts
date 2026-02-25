@@ -7,134 +7,134 @@ import { authorize } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
 
 export const inventoryLoadFunction = async ({
-  locals,
-  depends,
+	locals,
+	depends,
 }: ServerLoadEvent) => {
-  const { prisma, user } = locals;
+	const { prisma, user } = locals;
 
-  const { memberId, externalCode } = user ?? {};
-  if (!memberId && !externalCode) {
-    error(401, m.inventory_errors_unauthorized());
-  }
-  depends("consumables");
+	const { memberId, externalCode } = user ?? {};
+	if (!memberId && !externalCode) {
+		error(401, m.inventory_errors_unauthorized());
+	}
+	depends("consumables");
 
-  const userId = dbIdentification(
-    memberId
-      ? {
-          memberId,
-        }
-      : {
-          externalCode: externalCode!,
-        },
-  );
-  const consumables = await prisma.consumable.findMany({
-    where: {
-      ...userId,
-      purchasedAt: {
-        not: null,
-        lte: new Date(),
-      },
-    },
-    orderBy: {
-      purchasedAt: "desc",
-    },
-    include: {
-      shoppable: {
-        include: {
-          ticket: {
-            include: { event: true },
-          },
-        },
-      },
-    },
-  });
-  if (!memberId && consumables) {
-    throw error(403, m.inventory_errors_unauthorized());
-  }
-  authorize(apiNames.WEBSHOP.PURCHASE, user);
-  const consumablesWithMoreInfo: ConsumableWithMoreInfo[] = consumables.map(
-    (consumable) => {
-      if (consumable.shoppable.type !== ShoppableType.TICKET) {
-        throw new Error(m.errors_notImplemented());
-      }
-      return {
-        ...consumable,
-        shoppable: {
-          ...consumable.shoppable,
-          ...consumable.shoppable.ticket!,
-          event: consumable.shoppable.ticket!.event,
-        },
-      };
-    },
-  );
-  return {
-    consumables: consumablesWithMoreInfo,
-  };
+	const userId = dbIdentification(
+		memberId
+			? {
+					memberId,
+				}
+			: {
+					externalCode: externalCode!,
+				},
+	);
+	const consumables = await prisma.consumable.findMany({
+		where: {
+			...userId,
+			purchasedAt: {
+				not: null,
+				lte: new Date(),
+			},
+		},
+		orderBy: {
+			purchasedAt: "desc",
+		},
+		include: {
+			shoppable: {
+				include: {
+					ticket: {
+						include: { event: true },
+					},
+				},
+			},
+		},
+	});
+	if (!memberId && consumables) {
+		throw error(403, m.inventory_errors_unauthorized());
+	}
+	authorize(apiNames.WEBSHOP.PURCHASE, user);
+	const consumablesWithMoreInfo: ConsumableWithMoreInfo[] = consumables.map(
+		(consumable) => {
+			if (consumable.shoppable.type !== ShoppableType.TICKET) {
+				throw new Error(m.errors_notImplemented());
+			}
+			return {
+				...consumable,
+				shoppable: {
+					...consumable.shoppable,
+					...consumable.shoppable.ticket!,
+					event: consumable.shoppable.ticket!.event,
+				},
+			};
+		},
+	);
+	return {
+		consumables: consumablesWithMoreInfo,
+	};
 };
 
 export const inventoryItemLoadFunction = async ({
-  locals,
-  depends,
-  params,
+	locals,
+	depends,
+	params,
 }: ServerLoadEvent<{ id: string }>) => {
-  const { prisma, user } = locals;
+	const { prisma, user } = locals;
 
-  const { memberId, externalCode } = user ?? {};
-  if (!memberId && !externalCode) {
-    error(401, m.inventory_errors_unauthorized());
-  }
-  const userId = dbIdentification(
-    memberId
-      ? {
-          memberId,
-        }
-      : {
-          externalCode: externalCode!,
-        },
-  );
-  depends("consumables");
-  const consumable = await prisma.consumable.findUnique({
-    where: {
-      ...userId,
-      id: params.id,
-      purchasedAt: {
-        not: null,
-        lte: new Date(),
-      },
-    },
-    include: {
-      questionResponses: {
-        include: {
-          question: true,
-        },
-      },
-      shoppable: {
-        include: {
-          ticket: {
-            include: { event: true },
-          },
-        },
-      },
-    },
-  });
-  if (!consumable) {
-    error(404, m.inventory_errors_consumableNotFound());
-  }
-  return {
-    consumable: {
-      ...consumable,
-      shoppable: {
-        ...consumable.shoppable,
-        ...consumable.shoppable.ticket!,
-        event: consumable.shoppable.ticket!.event,
-      },
-    },
-  };
+	const { memberId, externalCode } = user ?? {};
+	if (!memberId && !externalCode) {
+		error(401, m.inventory_errors_unauthorized());
+	}
+	const userId = dbIdentification(
+		memberId
+			? {
+					memberId,
+				}
+			: {
+					externalCode: externalCode!,
+				},
+	);
+	depends("consumables");
+	const consumable = await prisma.consumable.findUnique({
+		where: {
+			...userId,
+			id: params.id,
+			purchasedAt: {
+				not: null,
+				lte: new Date(),
+			},
+		},
+		include: {
+			questionResponses: {
+				include: {
+					question: true,
+				},
+			},
+			shoppable: {
+				include: {
+					ticket: {
+						include: { event: true },
+					},
+				},
+			},
+		},
+	});
+	if (!consumable) {
+		error(404, m.inventory_errors_consumableNotFound());
+	}
+	return {
+		consumable: {
+			...consumable,
+			shoppable: {
+				...consumable.shoppable,
+				...consumable.shoppable.ticket!,
+				event: consumable.shoppable.ticket!.event,
+			},
+		},
+	};
 };
 
 export type InventoryLoadData = Awaited<
-  ReturnType<typeof inventoryLoadFunction>
+	ReturnType<typeof inventoryLoadFunction>
 >;
 export type InventoryItemLoadData = Awaited<
-  ReturnType<typeof inventoryItemLoadFunction>
+	ReturnType<typeof inventoryItemLoadFunction>
 >;

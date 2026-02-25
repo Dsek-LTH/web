@@ -22,57 +22,57 @@
 @tailwind utilities;
 
 @layer base {
-  @font-face {
-    font-family: "Texas Tango";
-    src: local("Texas Tango"), local("Texas-Tango"), local("texas tango"),
-      local("texas-tango"), url("/fonts/TexasTango.otf");
-    font-weight: normal;
-    font-display: swap;
-  }
-  @font-face {
-    font-family: "Legendary Runes";
-    src: local("Legenday Runes"), local("Legendary-Runes"),
-      local("legendary runes"), local("legendary-runes"),
-      url("/fonts/LegendaryRunes.ttf");
-    font-weight: normal;
-    font-display: swap;
-  }
-  @font-face {
-    font-family: "Mason Sans";
-    src: local("Mason Sans"), local("Mason-Sans"), local("mason sans"),
-      local("mason-sans"), url("/fonts/MasonSans.otf");
-    font-weight: normal;
-    font-display: swap;
-  }
-  @font-face {
-    font-family: "Genty";
-    src: local("Genty"), local("genty"), url("/fonts/Genty.otf");
-    font-weight: normal;
-    font-display: swap;
-  }
-  .layout-container {
-    @apply container mx-auto px-4 py-8 xl:px-32;
-  }
+	@font-face {
+		font-family: "Texas Tango";
+		src: local("Texas Tango"), local("Texas-Tango"), local("texas tango"),
+			local("texas-tango"), url("/fonts/TexasTango.otf");
+		font-weight: normal;
+		font-display: swap;
+	}
+	@font-face {
+		font-family: "Legendary Runes";
+		src: local("Legenday Runes"), local("Legendary-Runes"),
+			local("legendary runes"), local("legendary-runes"),
+			url("/fonts/LegendaryRunes.ttf");
+		font-weight: normal;
+		font-display: swap;
+	}
+	@font-face {
+		font-family: "Mason Sans";
+		src: local("Mason Sans"), local("Mason-Sans"), local("mason sans"),
+			local("mason-sans"), url("/fonts/MasonSans.otf");
+		font-weight: normal;
+		font-display: swap;
+	}
+	@font-face {
+		font-family: "Genty";
+		src: local("Genty"), local("genty"), url("/fonts/Genty.otf");
+		font-weight: normal;
+		font-display: swap;
+	}
+	.layout-container {
+		@apply container mx-auto px-4 py-8 xl:px-32;
+	}
 
-  .pop-out {
-    @apply transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:bg-base-200 hover:shadow-xl;
-  }
-  /* For Webkit-based browsers (Chrome, Safari and Opera) */
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
+	.pop-out {
+		@apply hover:bg-base-200 transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:shadow-xl;
+	}
+	/* For Webkit-based browsers (Chrome, Safari and Opera) */
+	.scrollbar-hide::-webkit-scrollbar {
+		display: none;
+	}
 
-  /* For IE, Edge and Firefox */
-  .scrollbar-hide {
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
-  }
+	/* For IE, Edge and Firefox */
+	.scrollbar-hide {
+		-ms-overflow-style: none; /* IE and Edge */
+		scrollbar-width: none; /* Firefox */
+	}
 }
 
 [data-theme="dark"] {
-  color-scheme: dark;
+	color-scheme: dark;
 }
 
 [data-theme="light"] {
-  color-scheme: light;
+	color-scheme: light;
 }

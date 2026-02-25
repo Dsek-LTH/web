@@ -30,7 +30,7 @@ import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
  * ensuring compatibility with an existing type (T), while accounting for missing keys.
  */
 type FilterKeys<T extends Record<string, unknown>, Keys extends string> = {
-  [Key in Keys]: Key extends keyof T ? T[Key] : string;
+	[Key in Keys]: Key extends keyof T ? T[Key] : string;
 };
 
 /**
@@ -39,10 +39,10 @@ type FilterKeys<T extends Record<string, unknown>, Keys extends string> = {
  * Used to exclude language specific fields from search attributes.
  */
 type ObjectKeysNotEndingWith<T, Suffix extends string> = Pick<
-  T,
-  {
-    [K in keyof T]: K extends `${string}${Suffix}` ? never : K;
-  }[keyof T]
+	T,
+	{
+		[K in keyof T]: K extends `${string}${Suffix}` ? never : K;
+	}[keyof T]
 >;
 
 type OnlySwedishAttributes<T> = ObjectKeysNotEndingWith<T, "En">;
@@ -51,18 +51,18 @@ type OnlySwedishAttributes<T> = ObjectKeysNotEndingWith<T, "En">;
  * https://www.totaltypescript.com/concepts/the-prettify-helper
  */
 type Prettify<T> = {
-  [K in keyof T]: T[K];
+	[K in keyof T]: T[K];
 } & {};
 
 export const availableSearchIndexes = [
-  "members",
-  "events",
-  "articles",
-  "positions",
-  "songs",
-  "committees",
-  "governingDocuments",
-  "meetingDocuments",
+	"members",
+	"events",
+	"articles",
+	"positions",
+	"songs",
+	"committees",
+	"governingDocuments",
+	"meetingDocuments",
 ] as const;
 export type SearchableIndex = (typeof availableSearchIndexes)[number];
 
@@ -73,36 +73,36 @@ export type SearchableIndex = (typeof availableSearchIndexes)[number];
 // The order of the attributes in the array is important for ranking
 // The lower the index, the higher the weight
 export const memberSearchableAttributes = [
-  "fullName",
-  "firstName",
-  "lastName",
-  "nickname",
-  "studentId",
+	"fullName",
+	"firstName",
+	"lastName",
+	"nickname",
+	"studentId",
 ] as const satisfies Array<keyof MemberDataInMeilisearch>;
 export type SearchableMemberAttributes = FilterKeys<
-  ExtendedPrismaModel<"Member">,
-  (typeof memberSearchableAttributes)[number]
+	ExtendedPrismaModel<"Member">,
+	(typeof memberSearchableAttributes)[number]
 >;
 export type MemberDataInMeilisearch = Prettify<
-  Pick<
-    ExtendedPrismaModel<"Member">,
-    | "firstName"
-    | "lastName"
-    | "nickname"
-    | "studentId"
-    | "classYear"
-    | "classProgramme"
-    | "picturePath"
-  > & {
-    fullName: `${ExtendedPrismaModel<"Member">["firstName"]} ${ExtendedPrismaModel<"Member">["lastName"]}`;
-  }
+	Pick<
+		ExtendedPrismaModel<"Member">,
+		| "firstName"
+		| "lastName"
+		| "nickname"
+		| "studentId"
+		| "classYear"
+		| "classProgramme"
+		| "picturePath"
+	> & {
+		fullName: `${ExtendedPrismaModel<"Member">["firstName"]} ${ExtendedPrismaModel<"Member">["lastName"]}`;
+	}
 >;
 export type MemberSearchReturnAttributes = OnlySwedishAttributes<
-  SearchableMemberAttributes &
-    Pick<
-      MemberDataInMeilisearch,
-      "picturePath" | "classYear" | "classProgramme"
-    >
+	SearchableMemberAttributes &
+		Pick<
+			MemberDataInMeilisearch,
+			"picturePath" | "classYear" | "classProgramme"
+		>
 >;
 
 // --------------------------------------------------
@@ -112,28 +112,28 @@ export type MemberSearchReturnAttributes = OnlySwedishAttributes<
 // The order of the attributes in the array is important for ranking
 // The lower the index, the higher the weight
 export const eventSearchableAttributes = [
-  "titleSv",
-  "titleEn",
-  "descriptionSv",
-  "descriptionEn",
+	"titleSv",
+	"titleEn",
+	"descriptionSv",
+	"descriptionEn",
 ] as const satisfies Array<keyof EventDataInMeilisearch>;
 export type SearchableEventAttributes = Pick<
-  ExtendedPrismaModel<"Event">,
-  (typeof eventSearchableAttributes)[number]
+	ExtendedPrismaModel<"Event">,
+	(typeof eventSearchableAttributes)[number]
 >;
 export type EventDataInMeilisearch = Prettify<
-  Pick<
-    ExtendedPrismaModel<"Event">,
-    | "titleSv"
-    | "titleEn"
-    | "descriptionSv"
-    | "descriptionEn"
-    | "slug"
-    | "startDatetime"
-  >
+	Pick<
+		ExtendedPrismaModel<"Event">,
+		| "titleSv"
+		| "titleEn"
+		| "descriptionSv"
+		| "descriptionEn"
+		| "slug"
+		| "startDatetime"
+	>
 >;
 export type EventSearchReturnAttributes = SearchableEventAttributes &
-  Pick<EventDataInMeilisearch, "slug">;
+	Pick<EventDataInMeilisearch, "slug">;
 
 // --------------------------------------------------
 // ARTICLE
@@ -142,21 +142,21 @@ export type EventSearchReturnAttributes = SearchableEventAttributes &
 // The order of the attributes in the array is important for ranking
 // The lower the index, the higher the weight
 export const articleSearchableAttributes = [
-  "headerSv",
-  "headerEn",
-  "bodySv",
-  "bodyEn",
+	"headerSv",
+	"headerEn",
+	"bodySv",
+	"bodyEn",
 ] as const satisfies Array<keyof ArticleDataInMeilisearch>;
 export type SearchableArticleAttributes = Pick<
-  ExtendedPrismaModel<"Article">,
-  (typeof articleSearchableAttributes)[number]
+	ExtendedPrismaModel<"Article">,
+	(typeof articleSearchableAttributes)[number]
 >;
 export type ArticleDataInMeilisearch = Pick<
-  ExtendedPrismaModel<"Article">,
-  "headerSv" | "headerEn" | "bodySv" | "bodyEn" | "slug" | "publishedAt"
+	ExtendedPrismaModel<"Article">,
+	"headerSv" | "headerEn" | "bodySv" | "bodyEn" | "slug" | "publishedAt"
 >;
 export type ArticleSearchReturnAttributes = SearchableArticleAttributes &
-  Pick<ArticleDataInMeilisearch, "slug">;
+	Pick<ArticleDataInMeilisearch, "slug">;
 
 // --------------------------------------------------
 // POSITION
@@ -165,34 +165,34 @@ export type ArticleSearchReturnAttributes = SearchableArticleAttributes &
 // The order of the attributes in the array is important for ranking
 // The lower the index, the higher the weight
 export const positionSearchableAttributes = [
-  "nameSv",
-  "nameEn",
-  "descriptionSv",
-  "descriptionEn",
-  "committeeNameSv",
-  "committeeNameEn",
-  "dsekId",
+	"nameSv",
+	"nameEn",
+	"descriptionSv",
+	"descriptionEn",
+	"committeeNameSv",
+	"committeeNameEn",
+	"dsekId",
 ] as const satisfies Array<keyof PositionDataInMeilisearch>;
 export type SearchablePositionAttributes = FilterKeys<
-  ExtendedPrismaModel<"Position">,
-  (typeof positionSearchableAttributes)[number]
+	ExtendedPrismaModel<"Position">,
+	(typeof positionSearchableAttributes)[number]
 >;
 export type PositionDataInMeilisearch = Prettify<
-  Pick<
-    ExtendedPrismaModel<"Position">,
-    "nameSv" | "nameEn" | "descriptionSv" | "descriptionEn"
-  > & {
-    committee: Omit<
-      ExtendedPrismaModel<"Committee">,
-      "name" | "description"
-    > | null;
-    dsekId: string;
-    committeeNameSv: ExtendedPrismaModel<"Committee">["nameSv"];
-    committeeNameEn: ExtendedPrismaModel<"Committee">["nameEn"];
-  }
+	Pick<
+		ExtendedPrismaModel<"Position">,
+		"nameSv" | "nameEn" | "descriptionSv" | "descriptionEn"
+	> & {
+		committee: Omit<
+			ExtendedPrismaModel<"Committee">,
+			"name" | "description"
+		> | null;
+		dsekId: string;
+		committeeNameSv: ExtendedPrismaModel<"Committee">["nameSv"];
+		committeeNameEn: ExtendedPrismaModel<"Committee">["nameEn"];
+	}
 >;
 export type PositionSearchReturnAttributes = SearchablePositionAttributes &
-  Pick<PositionDataInMeilisearch, "committee" | "dsekId">;
+	Pick<PositionDataInMeilisearch, "committee" | "dsekId">;
 
 // --------------------------------------------------
 // COMMITTEE
@@ -201,33 +201,33 @@ export type PositionSearchReturnAttributes = SearchablePositionAttributes &
 // The order of the attributes in the array is important for ranking
 // The lower the index, the higher the weight
 export const committeeSearchableAttributes = [
-  "nameSv",
-  "nameEn",
-  "descriptionSv",
-  "descriptionEn",
+	"nameSv",
+	"nameEn",
+	"descriptionSv",
+	"descriptionEn",
 ] as const satisfies Array<keyof CommitteeDataInMeilisearch>;
 export type SearchableCommitteeAttributes = Pick<
-  ExtendedPrismaModel<"Committee">,
-  (typeof committeeSearchableAttributes)[number]
+	ExtendedPrismaModel<"Committee">,
+	(typeof committeeSearchableAttributes)[number]
 >;
 export type CommitteeDataInMeilisearch = Prettify<
-  Pick<
-    ExtendedPrismaModel<"Committee">,
-    | "nameSv"
-    | "nameEn"
-    | "descriptionSv"
-    | "descriptionEn"
-    | "shortName"
-    | "darkImageUrl"
-    | "lightImageUrl"
-    | "monoImageUrl"
-  >
+	Pick<
+		ExtendedPrismaModel<"Committee">,
+		| "nameSv"
+		| "nameEn"
+		| "descriptionSv"
+		| "descriptionEn"
+		| "shortName"
+		| "darkImageUrl"
+		| "lightImageUrl"
+		| "monoImageUrl"
+	>
 >;
 export type CommitteeSearchReturnAttributes = SearchableCommitteeAttributes &
-  Pick<
-    CommitteeDataInMeilisearch,
-    "shortName" | "darkImageUrl" | "lightImageUrl" | "monoImageUrl"
-  >;
+	Pick<
+		CommitteeDataInMeilisearch,
+		"shortName" | "darkImageUrl" | "lightImageUrl" | "monoImageUrl"
+	>;
 
 // --------------------------------------------------
 // SONG
@@ -236,23 +236,23 @@ export type CommitteeSearchReturnAttributes = SearchableCommitteeAttributes &
 // The order of the attributes in the array is important for ranking
 // The lower the index, the higher the weight
 export const songSearchableAttributes = [
-  "title",
-  "lyrics",
-  "melody",
-  "category",
+	"title",
+	"lyrics",
+	"melody",
+	"category",
 ] as const satisfies Array<keyof SongDataInMeilisearch>;
 export type SearchableSongAttributes = Pick<
-  ExtendedPrismaModel<"Song">,
-  (typeof songSearchableAttributes)[number]
+	ExtendedPrismaModel<"Song">,
+	(typeof songSearchableAttributes)[number]
 >;
 export type SongDataInMeilisearch = Prettify<
-  Pick<
-    ExtendedPrismaModel<"Song">,
-    "title" | "lyrics" | "melody" | "category" | "slug"
-  >
+	Pick<
+		ExtendedPrismaModel<"Song">,
+		"title" | "lyrics" | "melody" | "category" | "slug"
+	>
 >;
 export type SongSearchReturnAttributes = OnlySwedishAttributes<
-  SearchableSongAttributes & Pick<SongDataInMeilisearch, "slug">
+	SearchableSongAttributes & Pick<SongDataInMeilisearch, "slug">
 >;
 
 // --------------------------------------------------
@@ -262,21 +262,21 @@ export type SongSearchReturnAttributes = OnlySwedishAttributes<
 // The order of the attributes in the array is important for ranking
 // The lower the index, the higher the weight
 export const governingDocumentSearchableAttributes = [
-  "title",
-  "content",
+	"title",
+	"content",
 ] as const satisfies Array<keyof GoverningDocumentDataInMeilisearch>;
 export type SearchableGoverningDocumentAttributes = Pick<
-  GoverningDocumentDataInMeilisearch,
-  (typeof governingDocumentSearchableAttributes)[number]
+	GoverningDocumentDataInMeilisearch,
+	(typeof governingDocumentSearchableAttributes)[number]
 >;
 export type GoverningDocumentDataInMeilisearch = Prettify<
-  Pick<ExtendedPrismaModel<"Document">, "id" | "title" | "url" | "type"> & {
-    content: string;
-  }
+	Pick<ExtendedPrismaModel<"Document">, "id" | "title" | "url" | "type"> & {
+		content: string;
+	}
 >;
 export type GoverningDocumentSearchReturnAttributes =
-  SearchableGoverningDocumentAttributes &
-    Pick<GoverningDocumentDataInMeilisearch, "url">;
+	SearchableGoverningDocumentAttributes &
+		Pick<GoverningDocumentDataInMeilisearch, "url">;
 
 // --------------------------------------------------
 // MEETING DOCUMENT
@@ -285,66 +285,66 @@ export type GoverningDocumentSearchReturnAttributes =
 // The order of the attributes in the array is important for ranking
 // The lower the index, the higher the weight
 export const meetingDocumentSearchableAttributes = [
-  "title",
-  "content",
+	"title",
+	"content",
 ] as const satisfies Array<keyof MeetingDocumentDataInMeilisearch>;
 export type SearchableMeetingDocumentAttributes = Pick<
-  MeetingDocumentDataInMeilisearch,
-  (typeof meetingDocumentSearchableAttributes)[number]
+	MeetingDocumentDataInMeilisearch,
+	(typeof meetingDocumentSearchableAttributes)[number]
 >;
 export type MeetingDocumentDataInMeilisearch = Prettify<{
-  id: string;
-  title?: string;
-  url: string;
-  content: string;
+	id: string;
+	title?: string;
+	url: string;
+	content: string;
 }>;
 export type MeetingDocumentSearchReturnAttributes =
-  SearchableMeetingDocumentAttributes &
-    Pick<MeetingDocumentDataInMeilisearch, "url">;
+	SearchableMeetingDocumentAttributes &
+		Pick<MeetingDocumentDataInMeilisearch, "url">;
 
 export type AnySearchReturnAttributes =
-  | SongSearchReturnAttributes
-  | ArticleSearchReturnAttributes
-  | EventSearchReturnAttributes
-  | MemberSearchReturnAttributes
-  | PositionSearchReturnAttributes
-  | CommitteeSearchReturnAttributes
-  | GoverningDocumentSearchReturnAttributes
-  | MeetingDocumentSearchReturnAttributes;
+	| SongSearchReturnAttributes
+	| ArticleSearchReturnAttributes
+	| EventSearchReturnAttributes
+	| MemberSearchReturnAttributes
+	| PositionSearchReturnAttributes
+	| CommitteeSearchReturnAttributes
+	| GoverningDocumentSearchReturnAttributes
+	| MeetingDocumentSearchReturnAttributes;
 
 export type SearchDataWithType =
-  | {
-      type: "members";
-      data: MemberSearchReturnAttributes;
-    }
-  | {
-      type: "events";
-      data: EventSearchReturnAttributes;
-    }
-  | {
-      type: "articles";
-      data: ArticleSearchReturnAttributes;
-    }
-  | {
-      type: "songs";
-      data: SongSearchReturnAttributes;
-    }
-  | {
-      type: "positions";
-      data: PositionSearchReturnAttributes;
-    }
-  | {
-      type: "committees";
-      data: CommitteeSearchReturnAttributes;
-    }
-  | {
-      type: "governingDocuments";
-      data: GoverningDocumentSearchReturnAttributes;
-    }
-  | {
-      type: "meetingDocuments";
-      data: MeetingDocumentSearchReturnAttributes;
-    };
+	| {
+			type: "members";
+			data: MemberSearchReturnAttributes;
+	  }
+	| {
+			type: "events";
+			data: EventSearchReturnAttributes;
+	  }
+	| {
+			type: "articles";
+			data: ArticleSearchReturnAttributes;
+	  }
+	| {
+			type: "songs";
+			data: SongSearchReturnAttributes;
+	  }
+	| {
+			type: "positions";
+			data: PositionSearchReturnAttributes;
+	  }
+	| {
+			type: "committees";
+			data: CommitteeSearchReturnAttributes;
+	  }
+	| {
+			type: "governingDocuments";
+			data: GoverningDocumentSearchReturnAttributes;
+	  }
+	| {
+			type: "meetingDocuments";
+			data: MeetingDocumentSearchReturnAttributes;
+	  };
 
 /**
  * The server slices strings before sending them to the client
@@ -352,40 +352,40 @@ export type SearchDataWithType =
  * since they are used to link to the entry, or e.g. as a image
  */
 export const attributesUsedAsLink = {
-  members: ["studentId", "picturePath"],
-  events: ["slug"],
-  articles: ["slug"],
-  songs: ["slug"],
-  positions: ["dsekId"],
-  committees: ["shortName", "darkImageUrl", "lightImageUrl", "monoImageUrl"],
-  governingDocuments: ["url"],
-  meetingDocuments: ["url"],
+	members: ["studentId", "picturePath"],
+	events: ["slug"],
+	articles: ["slug"],
+	songs: ["slug"],
+	positions: ["dsekId"],
+	committees: ["shortName", "darkImageUrl", "lightImageUrl", "monoImageUrl"],
+	governingDocuments: ["url"],
+	meetingDocuments: ["url"],
 } as const satisfies {
-  members: Array<keyof MemberSearchReturnAttributes>;
-  events: Array<keyof EventSearchReturnAttributes>;
-  articles: Array<keyof ArticleSearchReturnAttributes>;
-  songs: Array<keyof SongSearchReturnAttributes>;
-  positions: Array<keyof PositionSearchReturnAttributes>;
-  committees: Array<keyof CommitteeSearchReturnAttributes>;
-  governingDocuments: Array<keyof GoverningDocumentSearchReturnAttributes>;
-  meetingDocuments: Array<keyof MeetingDocumentSearchReturnAttributes>;
+	members: Array<keyof MemberSearchReturnAttributes>;
+	events: Array<keyof EventSearchReturnAttributes>;
+	articles: Array<keyof ArticleSearchReturnAttributes>;
+	songs: Array<keyof SongSearchReturnAttributes>;
+	positions: Array<keyof PositionSearchReturnAttributes>;
+	committees: Array<keyof CommitteeSearchReturnAttributes>;
+	governingDocuments: Array<keyof GoverningDocumentSearchReturnAttributes>;
+	meetingDocuments: Array<keyof MeetingDocumentSearchReturnAttributes>;
 };
 
 export const listOfAttributesUsedAsLink: string[] =
-  Object.values(attributesUsedAsLink).flat();
+	Object.values(attributesUsedAsLink).flat();
 
 type DefaultRankingRules =
-  | "words"
-  | "typo"
-  | "proximity"
-  | "attribute"
-  | "exactness";
+	| "words"
+	| "typo"
+	| "proximity"
+	| "attribute"
+	| "exactness";
 const defaultRankingRules = [
-  "words",
-  "typo",
-  "proximity",
-  "attribute",
-  "exactness",
+	"words",
+	"typo",
+	"proximity",
+	"attribute",
+	"exactness",
 ] as const satisfies DefaultRankingRules[];
 
 /**
@@ -395,162 +395,162 @@ const defaultRankingRules = [
  * This may need to be updated if the Meilisearch package changes its namings/APIs.
  */
 interface IndexConstantsMeilisearch<Searchable, DataInMeilisearch> {
-  searchableAttributes: Array<keyof Searchable>;
-  rankingRules: Array<
-    | DefaultRankingRules
-    | `${Extract<keyof DataInMeilisearch, string>}:${"asc" | "desc"}`
-  >;
-  sortableAttributes?: Array<keyof DataInMeilisearch>;
-  typoTolerance?: {
-    disableOnAttributes: Array<keyof Searchable>;
-    minWordSizeForTypos: {
-      oneTypo: number;
-      twoTypos: number;
-    };
-  };
+	searchableAttributes: Array<keyof Searchable>;
+	rankingRules: Array<
+		| DefaultRankingRules
+		| `${Extract<keyof DataInMeilisearch, string>}:${"asc" | "desc"}`
+	>;
+	sortableAttributes?: Array<keyof DataInMeilisearch>;
+	typoTolerance?: {
+		disableOnAttributes: Array<keyof Searchable>;
+		minWordSizeForTypos: {
+			oneTypo: number;
+			twoTypos: number;
+		};
+	};
 }
 
 type MemberConstantsMeilisearch = Prettify<
-  IndexConstantsMeilisearch<SearchableMemberAttributes, MemberDataInMeilisearch>
+	IndexConstantsMeilisearch<SearchableMemberAttributes, MemberDataInMeilisearch>
 >;
 type ArticleConstantsMeilisearch = Prettify<
-  IndexConstantsMeilisearch<
-    SearchableArticleAttributes,
-    ArticleDataInMeilisearch
-  >
+	IndexConstantsMeilisearch<
+		SearchableArticleAttributes,
+		ArticleDataInMeilisearch
+	>
 >;
 type EventConstantsMeilisearch = Prettify<
-  IndexConstantsMeilisearch<SearchableEventAttributes, EventDataInMeilisearch>
+	IndexConstantsMeilisearch<SearchableEventAttributes, EventDataInMeilisearch>
 >;
 type PositionConstantsMeilisearch = Prettify<
-  IndexConstantsMeilisearch<
-    SearchablePositionAttributes,
-    PositionDataInMeilisearch
-  >
+	IndexConstantsMeilisearch<
+		SearchablePositionAttributes,
+		PositionDataInMeilisearch
+	>
 >;
 type CommitteeConstantsMeilisearch = Prettify<
-  IndexConstantsMeilisearch<
-    SearchableCommitteeAttributes,
-    CommitteeDataInMeilisearch
-  >
+	IndexConstantsMeilisearch<
+		SearchableCommitteeAttributes,
+		CommitteeDataInMeilisearch
+	>
 >;
 type SongConstantsMeilisearch = Prettify<
-  IndexConstantsMeilisearch<SearchableSongAttributes, SongDataInMeilisearch>
+	IndexConstantsMeilisearch<SearchableSongAttributes, SongDataInMeilisearch>
 >;
 type GoverningDocumentConstantsMeilisearch = Prettify<
-  IndexConstantsMeilisearch<
-    SearchableGoverningDocumentAttributes,
-    GoverningDocumentDataInMeilisearch
-  >
+	IndexConstantsMeilisearch<
+		SearchableGoverningDocumentAttributes,
+		GoverningDocumentDataInMeilisearch
+	>
 >;
 type MeetingDocumentConstantsMeilisearch = Prettify<
-  IndexConstantsMeilisearch<
-    SearchableMeetingDocumentAttributes,
-    MeetingDocumentDataInMeilisearch
-  >
+	IndexConstantsMeilisearch<
+		SearchableMeetingDocumentAttributes,
+		MeetingDocumentDataInMeilisearch
+	>
 >;
 
 const memberMeilisearchConstants: MemberConstantsMeilisearch = {
-  searchableAttributes: memberSearchableAttributes,
-  rankingRules: [
-    ...defaultRankingRules,
-    "classYear:desc", // Give a higher weight to newer members
-  ],
-  sortableAttributes: ["classYear"],
-  typoTolerance: {
-    disableOnAttributes: ["studentId"], // Student ID should not have typos
-    minWordSizeForTypos: {
-      // Default is 5 for one, and 9 for two
-      // A query like "Maja" should still match "Maya", and "Erik" should match "Eric"
-      oneTypo: 4,
-      twoTypos: 6,
-    },
-  },
+	searchableAttributes: memberSearchableAttributes,
+	rankingRules: [
+		...defaultRankingRules,
+		"classYear:desc", // Give a higher weight to newer members
+	],
+	sortableAttributes: ["classYear"],
+	typoTolerance: {
+		disableOnAttributes: ["studentId"], // Student ID should not have typos
+		minWordSizeForTypos: {
+			// Default is 5 for one, and 9 for two
+			// A query like "Maja" should still match "Maya", and "Erik" should match "Eric"
+			oneTypo: 4,
+			twoTypos: 6,
+		},
+	},
 };
 
 const articleMeilisearchConstants: ArticleConstantsMeilisearch = {
-  searchableAttributes: articleSearchableAttributes,
-  rankingRules: defaultRankingRules,
-  sortableAttributes: ["publishedAt"],
+	searchableAttributes: articleSearchableAttributes,
+	rankingRules: defaultRankingRules,
+	sortableAttributes: ["publishedAt"],
 };
 
 const eventMeilisearchConstants: EventConstantsMeilisearch = {
-  searchableAttributes: eventSearchableAttributes,
-  rankingRules: [
-    ...defaultRankingRules,
-    "startDatetime:desc", // Give a higher weight to newer events
-  ],
-  sortableAttributes: ["startDatetime"],
+	searchableAttributes: eventSearchableAttributes,
+	rankingRules: [
+		...defaultRankingRules,
+		"startDatetime:desc", // Give a higher weight to newer events
+	],
+	sortableAttributes: ["startDatetime"],
 };
 
 const positionMeilisearchConstants: PositionConstantsMeilisearch = {
-  searchableAttributes: positionSearchableAttributes,
-  rankingRules: defaultRankingRules,
+	searchableAttributes: positionSearchableAttributes,
+	rankingRules: defaultRankingRules,
 };
 
 const committeeMeilisearchConstants: CommitteeConstantsMeilisearch = {
-  searchableAttributes: committeeSearchableAttributes,
-  rankingRules: defaultRankingRules,
+	searchableAttributes: committeeSearchableAttributes,
+	rankingRules: defaultRankingRules,
 };
 
 const songMeilisearchConstants: SongConstantsMeilisearch = {
-  searchableAttributes: songSearchableAttributes,
-  rankingRules: defaultRankingRules,
+	searchableAttributes: songSearchableAttributes,
+	rankingRules: defaultRankingRules,
 };
 
 const governingDocumentMeilisearchConstants: GoverningDocumentConstantsMeilisearch =
-  {
-    searchableAttributes: governingDocumentSearchableAttributes,
-    rankingRules: defaultRankingRules,
-  };
+	{
+		searchableAttributes: governingDocumentSearchableAttributes,
+		rankingRules: defaultRankingRules,
+	};
 
 const meetingDocumentMeilisearchConstants: MeetingDocumentConstantsMeilisearch =
-  {
-    searchableAttributes: meetingDocumentSearchableAttributes,
-    rankingRules: defaultRankingRules,
-  };
+	{
+		searchableAttributes: meetingDocumentSearchableAttributes,
+		rankingRules: defaultRankingRules,
+	};
 
 export const meilisearchConstants = {
-  member: memberMeilisearchConstants,
-  article: articleMeilisearchConstants,
-  event: eventMeilisearchConstants,
-  position: positionMeilisearchConstants,
-  committee: committeeMeilisearchConstants,
-  song: songMeilisearchConstants,
-  governingDocument: governingDocumentMeilisearchConstants,
-  meetingDocument: meetingDocumentMeilisearchConstants,
+	member: memberMeilisearchConstants,
+	article: articleMeilisearchConstants,
+	event: eventMeilisearchConstants,
+	position: positionMeilisearchConstants,
+	committee: committeeMeilisearchConstants,
+	song: songMeilisearchConstants,
+	governingDocument: governingDocumentMeilisearchConstants,
+	meetingDocument: meetingDocumentMeilisearchConstants,
 };
 
 export type MeilisearchConstants =
-  | {
-      constants: MemberConstantsMeilisearch;
-      data: MemberDataInMeilisearch;
-    }
-  | {
-      constants: ArticleConstantsMeilisearch;
-      data: ArticleDataInMeilisearch;
-    }
-  | {
-      constants: EventConstantsMeilisearch;
-      data: EventDataInMeilisearch;
-    }
-  | {
-      constants: PositionConstantsMeilisearch;
-      data: PositionDataInMeilisearch;
-    }
-  | {
-      constants: CommitteeConstantsMeilisearch;
-      data: CommitteeDataInMeilisearch;
-    }
-  | {
-      constants: SongConstantsMeilisearch;
-      data: SongDataInMeilisearch;
-    }
-  | {
-      constants: GoverningDocumentConstantsMeilisearch;
-      data: GoverningDocumentDataInMeilisearch;
-    }
-  | {
-      constants: MeetingDocumentConstantsMeilisearch;
-      data: MeetingDocumentDataInMeilisearch;
-    };
+	| {
+			constants: MemberConstantsMeilisearch;
+			data: MemberDataInMeilisearch;
+	  }
+	| {
+			constants: ArticleConstantsMeilisearch;
+			data: ArticleDataInMeilisearch;
+	  }
+	| {
+			constants: EventConstantsMeilisearch;
+			data: EventDataInMeilisearch;
+	  }
+	| {
+			constants: PositionConstantsMeilisearch;
+			data: PositionDataInMeilisearch;
+	  }
+	| {
+			constants: CommitteeConstantsMeilisearch;
+			data: CommitteeDataInMeilisearch;
+	  }
+	| {
+			constants: SongConstantsMeilisearch;
+			data: SongDataInMeilisearch;
+	  }
+	| {
+			constants: GoverningDocumentConstantsMeilisearch;
+			data: GoverningDocumentDataInMeilisearch;
+	  }
+	| {
+			constants: MeetingDocumentConstantsMeilisearch;
+			data: MeetingDocumentDataInMeilisearch;
+	  };

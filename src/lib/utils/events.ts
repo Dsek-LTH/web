@@ -4,35 +4,35 @@ import type { recurringType } from "@prisma/client";
 
 export type RecurringType = recurringType;
 export const recurringTypeValues: Record<RecurringType, RecurringType> = {
-  DAILY: "DAILY",
-  WEEKLY: "WEEKLY",
-  MONTHLY: "MONTHLY",
-  YEARLY: "YEARLY",
+	DAILY: "DAILY",
+	WEEKLY: "WEEKLY",
+	MONTHLY: "MONTHLY",
+	YEARLY: "YEARLY",
 } as const;
 export const recurringTypes: Record<RecurringType, string> = {
-  DAILY: "Dagsvis",
-  WEEKLY: "Veckovis",
-  MONTHLY: "Månadsvis",
-  YEARLY: "Årsvis",
+	DAILY: "Dagsvis",
+	WEEKLY: "Veckovis",
+	MONTHLY: "Månadsvis",
+	YEARLY: "Årsvis",
 };
 export const recurringTypesList = Object.keys(recurringTypeValues);
 export function isRecurringType(str: string): str is RecurringType {
-  return !!recurringTypesList.find((recurringType) => str === recurringType);
+	return !!recurringTypesList.find((recurringType) => str === recurringType);
 }
 
 export function getIncrementType(type: RecurringType) {
-  switch (type) {
-    case recurringTypeValues.DAILY:
-      return "day";
+	switch (type) {
+		case recurringTypeValues.DAILY:
+			return "day";
 
-    case recurringTypeValues.WEEKLY:
-      return "week";
+		case recurringTypeValues.WEEKLY:
+			return "week";
 
-    case recurringTypeValues.MONTHLY:
-      return "month";
+		case recurringTypeValues.MONTHLY:
+			return "month";
 
-    case recurringTypeValues.YEARLY:
-      return "year";
-  }
-  throw new Error("Invalid recurring type");
+		case recurringTypeValues.YEARLY:
+			return "year";
+	}
+	throw new Error("Invalid recurring type");
 }

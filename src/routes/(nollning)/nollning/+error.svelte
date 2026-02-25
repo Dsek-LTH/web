@@ -1,5 +1,5 @@
 <script>
-  import ErrorPage from "$lib/components/layout/ErrorPage.svelte";
+	import ErrorPage from "$lib/components/layout/ErrorPage.svelte";
 </script>
 
 <ErrorPage />

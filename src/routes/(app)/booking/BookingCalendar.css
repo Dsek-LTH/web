@@ -1,14 +1,14 @@
 .ec {
-  --ec-border-color: theme(borderColor.neutral-600);
-  --ec-today-bg-color: rgb(242, 128, 161, 0.15);
+	--ec-border-color: theme(borderColor.neutral-600);
+	--ec-today-bg-color: rgb(242, 128, 161, 0.15);
 }
 
 .ec-event {
-  box-shadow: none;
-  --ec-event-bg-color: theme(backgroundColor.transparent);
+	box-shadow: none;
+	--ec-event-bg-color: theme(backgroundColor.transparent);
 }
 
 .ec-timeline .ec-time,
 .ec-timeline .ec-line {
-  width: var(--slot-width, 72px);
+	width: var(--slot-width, 72px);
 }

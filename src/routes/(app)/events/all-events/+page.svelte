@@ -1,7 +1,7 @@
 <script lang="ts">
-  import EventPage from "../EventPage.svelte";
+	import EventPage from "../EventPage.svelte";
 
-  export let data;
+	export let data;
 </script>
 
 <EventPage {data} />

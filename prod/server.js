@@ -5,21 +5,21 @@ import express from "express";
 const app = express();
 
 if (process.env["REQUEST_LOGGING"] === "true") {
-  // Logging middleware
-  app.use((req, res, next) => {
-    const startTime = Date.now();
+	// Logging middleware
+	app.use((req, res, next) => {
+		const startTime = Date.now();
 
-    // Capture response finish event to log details
-    res.on("finish", () => {
-      const duration = Date.now() - startTime;
+		// Capture response finish event to log details
+		res.on("finish", () => {
+			const duration = Date.now() - startTime;
 
-      console.log(
-        `[${new Date().toISOString()}] ${req.method} ${req.originalUrl} | Status: ${res.statusCode} | Response Time: ${duration}ms | User-Agent: ${req.headers["user-agent"]}`,
-      );
-    });
+			console.log(
+				`[${new Date().toISOString()}] ${req.method} ${req.originalUrl} | Status: ${res.statusCode} | Response Time: ${duration}ms | User-Agent: ${req.headers["user-agent"]}`,
+			);
+		});
 
-    next();
-  });
+		next();
+	});
 }
 
 app.use(handler);

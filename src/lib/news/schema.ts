@@ -4,55 +4,55 @@ import type { Infer } from "sveltekit-superforms";
 import { z } from "zod";
 
 export const articleSchema = z.object({
-  slug: z.string(),
-  headerSv: z.string().min(1, "Title cannot be empty"),
-  headerEn: z.string().nullable(),
-  bodySv: z.string().default(""),
-  bodyEn: z.string().nullable(),
-  author: authorSchema,
-  tags: z
-    .array(
-      tagSchema.pick({
-        id: true,
-      }),
-    )
-    .default([]),
-  imageUrls: z.string().array().optional(),
-  imageUrl: z.string().optional().nullable(),
-  youtubeUrl: z.string().optional().nullable(),
-  publishTime: z.date().optional().nullable(),
-  // https://github.com/colinhacks/zod/pull/3118
-  images: z
-    .instanceof(File, { message: "Please upload a file." })
-    .refine((file) => !file || isFileImage(file), {
-      message: "Måste vara en bild",
-    })
-    .array()
-    .default([]),
+	slug: z.string(),
+	headerSv: z.string().min(1, "Title cannot be empty"),
+	headerEn: z.string().nullable(),
+	bodySv: z.string().default(""),
+	bodyEn: z.string().nullable(),
+	author: authorSchema,
+	tags: z
+		.array(
+			tagSchema.pick({
+				id: true,
+			}),
+		)
+		.default([]),
+	imageUrls: z.string().array().optional(),
+	imageUrl: z.string().optional().nullable(),
+	youtubeUrl: z.string().optional().nullable(),
+	publishTime: z.date().optional().nullable(),
+	// https://github.com/colinhacks/zod/pull/3118
+	images: z
+		.instanceof(File, { message: "Please upload a file." })
+		.refine((file) => !file || isFileImage(file), {
+			message: "Måste vara en bild",
+		})
+		.array()
+		.default([]),
 });
 export type ArticleSchema = Infer<typeof articleSchema>;
 
 export const createSchema = articleSchema
-  .omit({
-    slug: true,
-  })
-  .extend({
-    notificationText: z.string().max(255).optional().nullable(),
-    sendNotification: z.boolean(),
-  })
-  .refine((data) => data.sendNotification === false || data.tags.length > 0, {
-    message:
-      "Tags cannot be empty if you want to send a notification. No notifications will be sent",
-    path: ["tags"],
-  });
+	.omit({
+		slug: true,
+	})
+	.extend({
+		notificationText: z.string().max(255).optional().nullable(),
+		sendNotification: z.boolean(),
+	})
+	.refine((data) => data.sendNotification === false || data.tags.length > 0, {
+		message:
+			"Tags cannot be empty if you want to send a notification. No notifications will be sent",
+		path: ["tags"],
+	});
 
 export const updateSchema = articleSchema
-  .extend({
-    notificationText: z.string().max(255).optional().nullable(),
-    sendNotification: z.boolean(),
-  })
-  .refine((data) => data.sendNotification === false || data.tags.length > 0, {
-    message:
-      "Tags cannot be empty if you want to send a notification. No notifications will be sent",
-    path: ["tags"],
-  });
+	.extend({
+		notificationText: z.string().max(255).optional().nullable(),
+		sendNotification: z.boolean(),
+	})
+	.refine((data) => data.sendNotification === false || data.tags.length > 0, {
+		message:
+			"Tags cannot be empty if you want to send a notification. No notifications will be sent",
+		path: ["tags"],
+	});

@@ -21,83 +21,83 @@
 
 -->
 <script lang="ts">
-  import { enhance } from "$app/forms";
-  import * as m from "$paraglide/messages";
-  import { twMerge } from "tailwind-merge";
+	import { enhance } from "$app/forms";
+	import * as m from "$paraglide/messages";
+	import { twMerge } from "tailwind-merge";
 
-  /** The title of the dialog displayed at the top. */
-  export let title = "Are you sure?";
+	/** The title of the dialog displayed at the top. */
+	export let title = "Are you sure?";
 
-  /** The description of the dialog displayed below the title. */
-  export let description = "";
+	/** The description of the dialog displayed below the title. */
+	export let description = "";
 
-  /** The text of the confirm button. */
-  export let confirmText = m.ok();
+	/** The text of the confirm button. */
+	export let confirmText = m.ok();
 
-  /** The text of the cancel button. */
-  export let cancelText = m.cancel();
+	/** The text of the cancel button. */
+	export let cancelText = m.cancel();
 
-  /** The target URL for the confirm button. */
-  export let formTarget: string | undefined = undefined;
+	/** The target URL for the confirm button. */
+	export let formTarget: string | undefined = undefined;
 
-  /** The form data to submit with the confirm button. */
-  export let formData: Record<string, string> = {};
+	/** The form data to submit with the confirm button. */
+	export let formData: Record<string, string> = {};
 
-  /** Not recommended. Prefer using `formTarget` and `formData`. */
-  export let onClose: (() => void) | undefined = undefined;
+	/** Not recommended. Prefer using `formTarget` and `formData`. */
+	export let onClose: (() => void) | undefined = undefined;
 
-  /** Not recommended. Prefer using `formTarget` and `formData`. */
-  export let onConfirm: (() => void) | undefined = undefined;
+	/** Not recommended. Prefer using `formTarget` and `formData`. */
+	export let onConfirm: (() => void) | undefined = undefined;
 
-  /** Classes to apply to the confirm button. */
-  export let confirmClass: string | undefined = undefined;
+	/** Classes to apply to the confirm button. */
+	export let confirmClass: string | undefined = undefined;
 
-  /** The dialog element. */
-  export let modal: HTMLDialogElement;
+	/** The dialog element. */
+	export let modal: HTMLDialogElement;
 </script>
 
 <dialog bind:this={modal} class="modal modal-bottom sm:modal-middle">
-  <div class="modal-box">
-    <slot name="title">
-      <h1 class="mb-4 text-lg font-bold">{title}</h1>
-    </slot>
+	<div class="modal-box">
+		<slot name="title">
+			<h1 class="mb-4 text-lg font-bold">{title}</h1>
+		</slot>
 
-    <slot name="description">
-      <p>{description}</p>
-    </slot>
+		<slot name="description">
+			<p>{description}</p>
+		</slot>
 
-    <div class="modal-action">
-      <slot name="action">
-        <button
-          class="btn"
-          on:click={() => {
-            modal?.close();
-            onClose?.();
-          }}
-        >
-          {cancelText}
-        </button>
-        <form method="POST" action={formTarget} use:enhance>
-          {#each Object.entries(formData) as [name, value]}
-            <input type="hidden" {name} {value} />
-          {/each}
-          <button
-            type="submit"
-            class={twMerge("btn btn-primary", confirmClass)}
-            on:click={() => {
-              modal?.close();
-              onConfirm?.();
-            }}
-          >
-            {confirmText}
-          </button>
-        </form>
-      </slot>
-    </div>
-  </div>
+		<div class="modal-action">
+			<slot name="action">
+				<button
+					class="btn"
+					on:click={() => {
+						modal?.close();
+						onClose?.();
+					}}
+				>
+					{cancelText}
+				</button>
+				<form method="POST" action={formTarget} use:enhance>
+					{#each Object.entries(formData) as [name, value]}
+						<input type="hidden" {name} {value} />
+					{/each}
+					<button
+						type="submit"
+						class={twMerge("btn btn-primary", confirmClass)}
+						on:click={() => {
+							modal?.close();
+							onConfirm?.();
+						}}
+					>
+						{confirmText}
+					</button>
+				</form>
+			</slot>
+		</div>
+	</div>
 
-  <!-- svelte-ignore a11y_consider_explicit_label -->
-  <form method="dialog" class="modal-backdrop">
-    <button class="cursor-auto"></button>
-  </form>
+	<!-- svelte-ignore a11y_consider_explicit_label -->
+	<form method="dialog" class="modal-backdrop">
+		<button class="cursor-auto"></button>
+	</form>
 </dialog>

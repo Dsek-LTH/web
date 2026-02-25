@@ -11,5 +11,5 @@ import type { PageServerLoad } from "./$types";
  */
 
 export const load: PageServerLoad = async ({ url }) => {
-  error(404, `${url.pathname} not found`);
+	error(404, `${url.pathname} not found`);
 };

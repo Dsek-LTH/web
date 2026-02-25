@@ -1,7 +1,7 @@
 import { PUBLIC_PURCHASE_PASS_ON_TRANSACTION_FEE } from "$env/static/public";
 
 export const passOnTransactionFee =
-  PUBLIC_PURCHASE_PASS_ON_TRANSACTION_FEE === "true";
+	PUBLIC_PURCHASE_PASS_ON_TRANSACTION_FEE === "true";
 // SWISH: 1% + 3kr (most common, cap of 7 kr fee)
 // Cards: 1.5% + 1.8kr
 // Klarna: 2.99% + 4kr
@@ -17,14 +17,14 @@ const STRIPE_PERCENTAGE_FEE_MODIFIER = 1 / (1 - STRIPE_PERCENTAGE_FEE); // 1/(1-
 export const transactionFee = (price: number) => swishTransactionFee(price);
 
 export const cardTranscationFee = (price: number) =>
-  price === 0 ? 0 : Math.floor(price * 0.015 + 180);
+	price === 0 ? 0 : Math.floor(price * 0.015 + 180);
 export const swishTransactionFee = (price: number) =>
-  price === 0 ? 0 : Math.min(Math.floor(price * 0.01 + 300), 700);
+	price === 0 ? 0 : Math.min(Math.floor(price * 0.01 + 300), 700);
 
 /**
  * Calculates the required price to charge the user for us to receive `price` after Stripe takes its cut.
  */
 export const priceWithTransactionFee = (price: number) =>
-  price === 0
-    ? 0
-    : Math.floor((price + STRIPE_FIXED_FEE) * STRIPE_PERCENTAGE_FEE_MODIFIER);
+	price === 0
+		? 0
+		: Math.floor((price + STRIPE_FIXED_FEE) * STRIPE_PERCENTAGE_FEE_MODIFIER);

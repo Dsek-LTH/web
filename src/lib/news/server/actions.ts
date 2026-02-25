@@ -12,9 +12,9 @@ import { zod } from "sveltekit-superforms/adapters";
 import { message, superValidate, fail } from "sveltekit-superforms";
 import DOMPurify from "isomorphic-dompurify";
 import {
-  isScheduleFailure,
-  scheduleExecution,
-  type ScheduleSuccess,
+	isScheduleFailure,
+	scheduleExecution,
+	type ScheduleSuccess,
 } from "$lib/server/scheduleExecution";
 import { sendNewArticleNotification } from "./notifications";
 import { env } from "$env/dynamic/private";
@@ -22,401 +22,401 @@ import { sendNewArticleWebhook } from "./webhooks";
 import { getDecryptedJWT } from "$lib/server/getDecryptedJWT";
 
 const uploadImage = async (user: AuthUser, image: File, slug: string) => {
-  const randomName = (Math.random() + 1).toString(36).substring(2);
-  const imageUrl = await uploadFile(
-    user,
-    image,
-    `public/news/${slug}`,
-    PUBLIC_BUCKETS_FILES,
-    randomName,
-    {
-      resize: {
-        width: 1920,
-      },
-    },
-  );
-  return imageUrl;
+	const randomName = (Math.random() + 1).toString(36).substring(2);
+	const imageUrl = await uploadFile(
+		user,
+		image,
+		`public/news/${slug}`,
+		PUBLIC_BUCKETS_FILES,
+		randomName,
+		{
+			resize: {
+				width: 1920,
+			},
+		},
+	);
+	return imageUrl;
 };
 
 export const createArticle: Action = async (event) => {
-  const { request, locals, url } = event;
-  const { prisma, user } = locals;
-  const form = await superValidate(request, zod(createSchema), {
-    allowFiles: true,
-  });
-  if (!form.valid) return fail(400, { form });
-  const {
-    author,
-    tags,
-    headerSv,
-    headerEn,
-    sendNotification: shouldSendNotification,
-    notificationText,
-    images,
-    bodySv,
-    bodyEn,
-    publishTime,
-    ...rest
-  } = form.data;
-  const existingAuthor = await prisma.author.findFirst({
-    where: {
-      member: { studentId: user?.studentId },
-      mandateId: author.mandateId,
-      customId: author.customId,
-    },
-  });
-  let slug = slugify(headerSv);
-  // authorized so we actually count all
-  const slugCount = await authorizedPrismaClient.article.count({
-    where: {
-      slug: { startsWith: slug },
-    },
-  });
-  slug = slugWithCount(slug, slugCount);
-  const tasks: Array<Promise<string>> = [];
-  Array.from(images).forEach((image) => {
-    tasks.push(uploadImage(user, image, slug));
-  });
-  await Promise.resolve();
-  rest.imageUrls = await Promise.all(tasks);
+	const { request, locals, url } = event;
+	const { prisma, user } = locals;
+	const form = await superValidate(request, zod(createSchema), {
+		allowFiles: true,
+	});
+	if (!form.valid) return fail(400, { form });
+	const {
+		author,
+		tags,
+		headerSv,
+		headerEn,
+		sendNotification: shouldSendNotification,
+		notificationText,
+		images,
+		bodySv,
+		bodyEn,
+		publishTime,
+		...rest
+	} = form.data;
+	const existingAuthor = await prisma.author.findFirst({
+		where: {
+			member: { studentId: user?.studentId },
+			mandateId: author.mandateId,
+			customId: author.customId,
+		},
+	});
+	let slug = slugify(headerSv);
+	// authorized so we actually count all
+	const slugCount = await authorizedPrismaClient.article.count({
+		where: {
+			slug: { startsWith: slug },
+		},
+	});
+	slug = slugWithCount(slug, slugCount);
+	const tasks: Array<Promise<string>> = [];
+	Array.from(images).forEach((image) => {
+		tasks.push(uploadImage(user, image, slug));
+	});
+	await Promise.resolve();
+	rest.imageUrls = await Promise.all(tasks);
 
-  const result = await prisma.article.create({
-    data: {
-      slug,
-      headerSv: headerSv,
-      headerEn: headerEn,
-      bodySv: DOMPurify.sanitize(bodySv),
-      bodyEn: bodyEn ? DOMPurify.sanitize(bodyEn) : bodyEn,
-      ...rest,
-      shouldSendNotification,
-      notificationText,
-      author: {
-        connect: existingAuthor
-          ? {
-              id: existingAuthor.id,
-            }
-          : undefined,
-        create: !existingAuthor
-          ? {
-              member: {
-                connect: { studentId: user?.studentId },
-              },
-              mandate: author.mandateId
-                ? {
-                    connect: {
-                      member: { studentId: user?.studentId },
-                      id: author.mandateId,
-                    },
-                  }
-                : undefined,
-              customAuthor: author.customId
-                ? {
-                    connect: { id: author.customId },
-                  }
-                : undefined,
-            }
-          : undefined,
-      },
-      tags: {
-        connect: tags
-          .filter((tag) => !!tag)
-          .map((tag) => ({
-            id: tag.id,
-          })),
-      },
-      publishedAt: publishTime ?? new Date(),
-    },
-    include: {
-      author: true,
-    },
-  });
+	const result = await prisma.article.create({
+		data: {
+			slug,
+			headerSv: headerSv,
+			headerEn: headerEn,
+			bodySv: DOMPurify.sanitize(bodySv),
+			bodyEn: bodyEn ? DOMPurify.sanitize(bodyEn) : bodyEn,
+			...rest,
+			shouldSendNotification,
+			notificationText,
+			author: {
+				connect: existingAuthor
+					? {
+							id: existingAuthor.id,
+						}
+					: undefined,
+				create: !existingAuthor
+					? {
+							member: {
+								connect: { studentId: user?.studentId },
+							},
+							mandate: author.mandateId
+								? {
+										connect: {
+											member: { studentId: user?.studentId },
+											id: author.mandateId,
+										},
+									}
+								: undefined,
+							customAuthor: author.customId
+								? {
+										connect: { id: author.customId },
+									}
+								: undefined,
+						}
+					: undefined,
+			},
+			tags: {
+				connect: tags
+					.filter((tag) => !!tag)
+					.map((tag) => ({
+						id: tag.id,
+					})),
+			},
+			publishedAt: publishTime ?? new Date(),
+		},
+		include: {
+			author: true,
+		},
+	});
 
-  const pubishTimeIsInFuture = publishTime && publishTime > new Date();
-  if (pubishTimeIsInFuture && shouldSendNotification) {
-    const scheduleResult = await scheduleExecution(
-      request,
-      `${url.origin}/api/schedule/news`,
-      { ...result, tags, notificationText },
-      publishTime,
-      form,
-      m.news_errors_schedulingFailed(),
-      m.news_articleScheduled(),
-      "/news",
-      event,
-    );
+	const pubishTimeIsInFuture = publishTime && publishTime > new Date();
+	if (pubishTimeIsInFuture && shouldSendNotification) {
+		const scheduleResult = await scheduleExecution(
+			request,
+			`${url.origin}/api/schedule/news`,
+			{ ...result, tags, notificationText },
+			publishTime,
+			form,
+			m.news_errors_schedulingFailed(),
+			m.news_articleScheduled(),
+			"/news",
+			event,
+		);
 
-    if (isScheduleFailure(scheduleResult)) {
-      throw redirect(
-        `/news/${result.slug}/edit`,
-        {
-          message: scheduleResult.data.message,
-          type: "error",
-        },
-        event,
-      );
-    }
+		if (isScheduleFailure(scheduleResult)) {
+			throw redirect(
+				`/news/${result.slug}/edit`,
+				{
+					message: scheduleResult.data.message,
+					type: "error",
+				},
+				event,
+			);
+		}
 
-    const { redirectFunction, scheduledId } = scheduleResult as ScheduleSuccess;
+		const { redirectFunction, scheduledId } = scheduleResult as ScheduleSuccess;
 
-    await prisma.article.update({
-      where: {
-        id: result.id,
-      },
-      data: {
-        scheduledId,
-      },
-    });
+		await prisma.article.update({
+			where: {
+				id: result.id,
+			},
+			data: {
+				scheduledId,
+			},
+		});
 
-    throw redirectFunction();
-  }
+		throw redirectFunction();
+	}
 
-  // fetch the created author,
-  if (shouldSendNotification) {
-    console.log("send notifications");
-    await sendNewArticleNotification(
-      {
-        ...result,
-        tags,
-      },
-      notificationText,
-    );
-    await sendNewArticleWebhook(
-      {
-        ...result,
-        tags,
-      },
-      notificationText,
-    );
-  }
+	// fetch the created author,
+	if (shouldSendNotification) {
+		console.log("send notifications");
+		await sendNewArticleNotification(
+			{
+				...result,
+				tags,
+			},
+			notificationText,
+		);
+		await sendNewArticleWebhook(
+			{
+				...result,
+				tags,
+			},
+			notificationText,
+		);
+	}
 
-  throw redirect(
-    pubishTimeIsInFuture ? "/news" : `/news/${result.slug}`,
-    {
-      message: m.news_articleCreated(),
-      type: "success",
-    },
-    event,
-  );
+	throw redirect(
+		pubishTimeIsInFuture ? "/news" : `/news/${result.slug}`,
+		{
+			message: m.news_articleCreated(),
+			type: "success",
+		},
+		event,
+	);
 };
 
 export const updateArticle: Action<{ slug: string }> = async (event) => {
-  const { request, locals, url } = event;
-  const { prisma, user } = locals;
-  const form = await superValidate(request, zod(updateSchema), {
-    allowFiles: true,
-  });
-  if (!form.valid) return fail(400, { form });
-  const {
-    slug,
-    author,
-    tags,
-    images,
-    bodySv,
-    bodyEn,
-    publishTime,
-    sendNotification,
-    notificationText,
-    ...rest
-  } = form.data;
-  const existingAuthor = await prisma.author.findFirst({
-    where: {
-      member: { id: author.memberId },
-      mandateId: author.mandateId,
-      customId: author.customId,
-    },
-  });
+	const { request, locals, url } = event;
+	const { prisma, user } = locals;
+	const form = await superValidate(request, zod(updateSchema), {
+		allowFiles: true,
+	});
+	if (!form.valid) return fail(400, { form });
+	const {
+		slug,
+		author,
+		tags,
+		images,
+		bodySv,
+		bodyEn,
+		publishTime,
+		sendNotification,
+		notificationText,
+		...rest
+	} = form.data;
+	const existingAuthor = await prisma.author.findFirst({
+		where: {
+			member: { id: author.memberId },
+			mandateId: author.mandateId,
+			customId: author.customId,
+		},
+	});
 
-  const tasks: Array<Promise<string>> = [];
-  Array.from(images).forEach((image) => {
-    tasks.push(uploadImage(user, image, slug));
-  });
+	const tasks: Array<Promise<string>> = [];
+	Array.from(images).forEach((image) => {
+		tasks.push(uploadImage(user, image, slug));
+	});
 
-  await Promise.resolve();
-  const newImages = await Promise.all(tasks);
-  rest.imageUrls =
-    rest.imageUrls === undefined
-      ? newImages
-      : [...rest.imageUrls, ...newImages];
+	await Promise.resolve();
+	const newImages = await Promise.all(tasks);
+	rest.imageUrls =
+		rest.imageUrls === undefined
+			? newImages
+			: [...rest.imageUrls, ...newImages];
 
-  try {
-    const article = await prisma.article.findUnique({
-      where: {
-        slug,
-      },
-      include: {
-        author: true,
-        tags: true,
-      },
-    });
+	try {
+		const article = await prisma.article.findUnique({
+			where: {
+				slug,
+			},
+			include: {
+				author: true,
+				tags: true,
+			},
+		});
 
-    if (
-      article?.publishedAt &&
-      article.publishedAt > new Date() &&
-      (article.shouldSendNotification || sendNotification)
-    ) {
-      const jwt = await getDecryptedJWT(request);
-      let ok = false;
-      try {
-        if (article.shouldSendNotification && !sendNotification) {
-          // previously scheduled -> delete scheduled task
+		if (
+			article?.publishedAt &&
+			article.publishedAt > new Date() &&
+			(article.shouldSendNotification || sendNotification)
+		) {
+			const jwt = await getDecryptedJWT(request);
+			let ok = false;
+			try {
+				if (article.shouldSendNotification && !sendNotification) {
+					// previously scheduled -> delete scheduled task
 
-          ok = (
-            await fetch(
-              `${env.SCHEDULER_ENDPOINT}?password=${env.SCHEDULER_PASSWORD}&scheduledTaskID=${article.scheduledId}`,
-              {
-                method: "DELETE",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${jwt?.id_token}`,
-                },
-              },
-            )
-          ).ok;
-        } else if (!article.shouldSendNotification && sendNotification) {
-          // previously no notification -> schedule sending
+					ok = (
+						await fetch(
+							`${env.SCHEDULER_ENDPOINT}?password=${env.SCHEDULER_PASSWORD}&scheduledTaskID=${article.scheduledId}`,
+							{
+								method: "DELETE",
+								headers: {
+									"Content-Type": "application/json",
+									Authorization: `Bearer ${jwt?.id_token}`,
+								},
+							},
+						)
+					).ok;
+				} else if (!article.shouldSendNotification && sendNotification) {
+					// previously no notification -> schedule sending
 
-          const scheduleResult = await scheduleExecution(
-            request,
-            `${url.origin}/api/schedule/news`,
-            { ...article, tags, notificationText },
-            publishTime ?? new Date(),
-            form,
-            m.news_errors_schedulingFailed(),
-            m.news_articleScheduled(),
-            `/news/${slug}`,
-            event,
-          );
+					const scheduleResult = await scheduleExecution(
+						request,
+						`${url.origin}/api/schedule/news`,
+						{ ...article, tags, notificationText },
+						publishTime ?? new Date(),
+						form,
+						m.news_errors_schedulingFailed(),
+						m.news_articleScheduled(),
+						`/news/${slug}`,
+						event,
+					);
 
-          if (isScheduleFailure(scheduleResult)) {
-            throw redirect(
-              `/news/${slug}/edit`,
-              {
-                message: scheduleResult.data.message,
-                type: "error",
-              },
-              event,
-            );
-          } else {
-            await prisma.article.update({
-              where: {
-                slug: slug,
-              },
-              data: {
-                scheduledId: (scheduleResult as ScheduleSuccess).scheduledId,
-              },
-            });
+					if (isScheduleFailure(scheduleResult)) {
+						throw redirect(
+							`/news/${slug}/edit`,
+							{
+								message: scheduleResult.data.message,
+								type: "error",
+							},
+							event,
+						);
+					} else {
+						await prisma.article.update({
+							where: {
+								slug: slug,
+							},
+							data: {
+								scheduledId: (scheduleResult as ScheduleSuccess).scheduledId,
+							},
+						});
 
-            ok = true;
-          }
-        } else {
-          // no change in notification -> update scheduled task
+						ok = true;
+					}
+				} else {
+					// no change in notification -> update scheduled task
 
-          ok = (
-            await fetch(
-              `${env.SCHEDULER_ENDPOINT}?password=${env.SCHEDULER_PASSWORD}`,
-              {
-                method: "PATCH",
-                body: JSON.stringify({
-                  scheduledTaskID: parseInt(article.scheduledId!),
-                  body: JSON.stringify(article),
-                  runTimestamp: publishTime ?? new Date(),
-                }),
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${jwt?.id_token}`,
-                },
-              },
-            )
-          ).ok;
-        }
-      } catch (error) {
-        throw redirect(
-          `/news/${slug}/edit`,
-          {
-            message: `${m.news_errors_schedulingFailed()}: ${
-              error instanceof Error ? error.message : String(error)
-            }`,
-            type: "error",
-          },
-          event,
-        );
-      }
-      if (!ok) {
-        throw redirect(
-          `/news/${slug}/edit`,
-          {
-            message: m.news_errors_schedulingFailed(),
-            type: "error",
-          },
-          event,
-        );
-      }
-    }
+					ok = (
+						await fetch(
+							`${env.SCHEDULER_ENDPOINT}?password=${env.SCHEDULER_PASSWORD}`,
+							{
+								method: "PATCH",
+								body: JSON.stringify({
+									scheduledTaskID: parseInt(article.scheduledId!),
+									body: JSON.stringify(article),
+									runTimestamp: publishTime ?? new Date(),
+								}),
+								headers: {
+									"Content-Type": "application/json",
+									Authorization: `Bearer ${jwt?.id_token}`,
+								},
+							},
+						)
+					).ok;
+				}
+			} catch (error) {
+				throw redirect(
+					`/news/${slug}/edit`,
+					{
+						message: `${m.news_errors_schedulingFailed()}: ${
+							error instanceof Error ? error.message : String(error)
+						}`,
+						type: "error",
+					},
+					event,
+				);
+			}
+			if (!ok) {
+				throw redirect(
+					`/news/${slug}/edit`,
+					{
+						message: m.news_errors_schedulingFailed(),
+						type: "error",
+					},
+					event,
+				);
+			}
+		}
 
-    await prisma.article.update({
-      where: {
-        slug: slug,
-      },
-      data: {
-        bodySv: DOMPurify.sanitize(bodySv),
-        bodyEn: bodyEn ? DOMPurify.sanitize(bodyEn) : bodyEn,
-        publishedAt: publishTime,
-        shouldSendNotification: sendNotification,
-        notificationText: notificationText,
-        ...rest,
-        author: {
-          connect: existingAuthor
-            ? {
-                id: existingAuthor.id,
-              }
-            : undefined,
-          create: existingAuthor
-            ? {
-                member: {
-                  connect: { studentId: user?.studentId },
-                },
-                mandate: author.mandateId
-                  ? {
-                      connect: {
-                        member: { studentId: user?.studentId },
-                        id: author.mandateId,
-                      },
-                    }
-                  : undefined,
-                customAuthor: author.customId
-                  ? {
-                      connect: { id: author.customId },
-                    }
-                  : undefined,
-              }
-            : undefined,
-        },
-        tags: {
-          set: tags.map(({ id }) => ({ id })),
-        },
-        updatedAt: new Date(),
-      },
-    });
-  } catch (e) {
-    if (e instanceof Prisma.PrismaClientKnownRequestError) {
-      return message(
-        form,
-        {
-          message: m.news_errors_articleNotFound(),
-          type: "error",
-        },
-        { status: 400 },
-      );
-    }
-    throw e;
-  }
+		await prisma.article.update({
+			where: {
+				slug: slug,
+			},
+			data: {
+				bodySv: DOMPurify.sanitize(bodySv),
+				bodyEn: bodyEn ? DOMPurify.sanitize(bodyEn) : bodyEn,
+				publishedAt: publishTime,
+				shouldSendNotification: sendNotification,
+				notificationText: notificationText,
+				...rest,
+				author: {
+					connect: existingAuthor
+						? {
+								id: existingAuthor.id,
+							}
+						: undefined,
+					create: existingAuthor
+						? {
+								member: {
+									connect: { studentId: user?.studentId },
+								},
+								mandate: author.mandateId
+									? {
+											connect: {
+												member: { studentId: user?.studentId },
+												id: author.mandateId,
+											},
+										}
+									: undefined,
+								customAuthor: author.customId
+									? {
+											connect: { id: author.customId },
+										}
+									: undefined,
+							}
+						: undefined,
+				},
+				tags: {
+					set: tags.map(({ id }) => ({ id })),
+				},
+				updatedAt: new Date(),
+			},
+		});
+	} catch (e) {
+		if (e instanceof Prisma.PrismaClientKnownRequestError) {
+			return message(
+				form,
+				{
+					message: m.news_errors_articleNotFound(),
+					type: "error",
+				},
+				{ status: 400 },
+			);
+		}
+		throw e;
+	}
 
-  throw redirect(
-    `/news/${publishTime && publishTime < new Date() ? event.params.slug : ""}`,
-    {
-      message: m.news_articleUpdated(),
-      type: "success",
-    },
-    event,
-  );
+	throw redirect(
+		`/news/${publishTime && publishTime < new Date() ? event.params.slug : ""}`,
+		{
+			message: m.news_articleUpdated(),
+			type: "success",
+		},
+		event,
+	);
 };

@@ -1,7 +1,7 @@
 <script lang="ts">
-  import CartPage from "$lib/components/shop/cart/CartPage.svelte";
+	import CartPage from "$lib/components/shop/cart/CartPage.svelte";
 
-  export let data;
+	export let data;
 </script>
 
 <CartPage {data} />

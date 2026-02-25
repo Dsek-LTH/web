@@ -7,5 +7,5 @@ import { env } from "$env/dynamic/public";
 import { injectSpeedInsights } from "@vercel/speed-insights/sveltekit";
 
 if (env["PUBLIC_VERCEL_ENV"]) {
-  injectSpeedInsights();
+	injectSpeedInsights();
 }

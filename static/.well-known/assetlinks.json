@@ -1,43 +1,43 @@
 [
-  {
-    "relation": ["delegate_permission/common.handle_all_urls"],
-    "target": {
-      "namespace": "android_app",
-      "package_name": "se.dsek",
-      "sha256_cert_fingerprints": [
-        "4F:68:7D:76:D7:5C:60:B7:65:C5:9A:84:68:1F:7D:16:BE:5A:71:9B:3D:D7:71:F7:44:7D:3B:24:EE:CC:A0:60"
-      ]
-    }
-  },
-  {
-    "relation": ["delegate_permission/common.get_login_creds"],
-    "target": {
-      "namespace": "web",
-      "site": "https://dsek.se"
-    }
-  },
-  {
-    "relation": ["delegate_permission/common.get_login_creds"],
-    "target": {
-      "namespace": "web",
-      "site": "https://www.dsek.se"
-    }
-  },
-  {
-    "relation": ["delegate_permission/common.get_login_creds"],
-    "target": {
-      "namespace": "web",
-      "site": "https://portal.dsek.se"
-    }
-  },
-  {
-    "relation": ["delegate_permission/common.get_login_creds"],
-    "target": {
-      "namespace": "android_app",
-      "package_name": "se.dsek",
-      "sha256_cert_fingerprints": [
-        "4F:68:7D:76:D7:5C:60:B7:65:C5:9A:84:68:1F:7D:16:BE:5A:71:9B:3D:D7:71:F7:44:7D:3B:24:EE:CC:A0:60"
-      ]
-    }
-  }
+	{
+		"relation": ["delegate_permission/common.handle_all_urls"],
+		"target": {
+			"namespace": "android_app",
+			"package_name": "se.dsek",
+			"sha256_cert_fingerprints": [
+				"4F:68:7D:76:D7:5C:60:B7:65:C5:9A:84:68:1F:7D:16:BE:5A:71:9B:3D:D7:71:F7:44:7D:3B:24:EE:CC:A0:60"
+			]
+		}
+	},
+	{
+		"relation": ["delegate_permission/common.get_login_creds"],
+		"target": {
+			"namespace": "web",
+			"site": "https://dsek.se"
+		}
+	},
+	{
+		"relation": ["delegate_permission/common.get_login_creds"],
+		"target": {
+			"namespace": "web",
+			"site": "https://www.dsek.se"
+		}
+	},
+	{
+		"relation": ["delegate_permission/common.get_login_creds"],
+		"target": {
+			"namespace": "web",
+			"site": "https://portal.dsek.se"
+		}
+	},
+	{
+		"relation": ["delegate_permission/common.get_login_creds"],
+		"target": {
+			"namespace": "android_app",
+			"package_name": "se.dsek",
+			"sha256_cert_fingerprints": [
+				"4F:68:7D:76:D7:5C:60:B7:65:C5:9A:84:68:1F:7D:16:BE:5A:71:9B:3D:D7:71:F7:44:7D:3B:24:EE:CC:A0:60"
+			]
+		}
+	}
 ]

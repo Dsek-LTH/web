@@ -2,7 +2,7 @@ import { getMyGroupedNotifications } from "$lib/utils/notifications/myNotificati
 import type { RequestHandler } from "./$types";
 
 export const GET: RequestHandler = async ({ locals }) => {
-  const { user, prisma } = locals;
-  const groupedNotifications = getMyGroupedNotifications(user, prisma);
-  return new Response(JSON.stringify(groupedNotifications));
+	const { user, prisma } = locals;
+	const groupedNotifications = getMyGroupedNotifications(user, prisma);
+	return new Response(JSON.stringify(groupedNotifications));
 };

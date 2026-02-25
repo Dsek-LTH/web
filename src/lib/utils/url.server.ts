@@ -1,16 +1,16 @@
 import { error } from "@sveltejs/kit";
 import * as m from "$paraglide/messages";
 import {
-  dateToSemester,
-  parseSemesterFromString,
-  type Semester,
+	dateToSemester,
+	parseSemesterFromString,
+	type Semester,
 } from "$lib/utils/semesters";
 
 interface Options {
-  fallbackValue: number;
-  lowerBound: number;
-  upperBound: number;
-  errorMessage: string;
+	fallbackValue: number;
+	lowerBound: number;
+	upperBound: number;
+	errorMessage: string;
 }
 
 /**
@@ -22,15 +22,15 @@ interface Options {
  * @throws Svelte error if `year` is invalid
  */
 export const getYearOrThrowSvelteError = (
-  url: URL,
-  options?: Partial<Options>,
+	url: URL,
+	options?: Partial<Options>,
 ) => {
-  return getIntegerParamOrThrowSvelteError(url, "year", {
-    fallbackValue: options?.fallbackValue ?? new Date().getFullYear(),
-    lowerBound: options?.lowerBound ?? 1982,
-    upperBound: options?.upperBound ?? new Date().getFullYear(),
-    errorMessage: options?.errorMessage ?? m.error_invalid_year(),
-  });
+	return getIntegerParamOrThrowSvelteError(url, "year", {
+		fallbackValue: options?.fallbackValue ?? new Date().getFullYear(),
+		lowerBound: options?.lowerBound ?? 1982,
+		upperBound: options?.upperBound ?? new Date().getFullYear(),
+		errorMessage: options?.errorMessage ?? m.error_invalid_year(),
+	});
 };
 
 /**
@@ -42,15 +42,15 @@ export const getYearOrThrowSvelteError = (
  * @throws Svelte error if `page` is invalid
  */
 export const getPageOrThrowSvelteError = (
-  url: URL,
-  options?: Partial<Options>,
+	url: URL,
+	options?: Partial<Options>,
 ) => {
-  return getIntegerParamOrThrowSvelteError(url, "page", {
-    fallbackValue: options?.fallbackValue ?? 1,
-    lowerBound: options?.lowerBound ?? 1,
-    upperBound: options?.upperBound ?? Number.MAX_SAFE_INTEGER,
-    errorMessage: options?.errorMessage ?? m.error_invalid_page(),
-  });
+	return getIntegerParamOrThrowSvelteError(url, "page", {
+		fallbackValue: options?.fallbackValue ?? 1,
+		lowerBound: options?.lowerBound ?? 1,
+		upperBound: options?.upperBound ?? Number.MAX_SAFE_INTEGER,
+		errorMessage: options?.errorMessage ?? m.error_invalid_page(),
+	});
 };
 
 /**
@@ -62,15 +62,15 @@ export const getPageOrThrowSvelteError = (
  * @throws Svelte error if `pageSize` is invalid
  */
 export const getPageSizeOrThrowSvelteError = (
-  url: URL,
-  options?: Partial<Options>,
+	url: URL,
+	options?: Partial<Options>,
 ) => {
-  return getIntegerParamOrThrowSvelteError(url, "pageSize", {
-    fallbackValue: options?.fallbackValue ?? 10,
-    lowerBound: options?.lowerBound ?? 1,
-    upperBound: options?.upperBound ?? 100,
-    errorMessage: options?.errorMessage ?? m.error_invalid_page_size(),
-  });
+	return getIntegerParamOrThrowSvelteError(url, "pageSize", {
+		fallbackValue: options?.fallbackValue ?? 10,
+		lowerBound: options?.lowerBound ?? 1,
+		upperBound: options?.upperBound ?? 100,
+		errorMessage: options?.errorMessage ?? m.error_invalid_page_size(),
+	});
 };
 
 /**
@@ -83,27 +83,27 @@ export const getPageSizeOrThrowSvelteError = (
  * @throws Svelte error if the parameter is invalid
  */
 export const getIntegerParamOrThrowSvelteError = (
-  url: URL,
-  param: string,
-  options: Options,
+	url: URL,
+	param: string,
+	options: Options,
 ): number => {
-  const value = parseInt(
-    url.searchParams.get(param) || options.fallbackValue.toString(),
-  );
-  if (isNaN(value)) throw error(400, options.errorMessage);
-  if (value < options.lowerBound || value > options.upperBound)
-    throw error(400, options.errorMessage);
-  return value;
+	const value = parseInt(
+		url.searchParams.get(param) || options.fallbackValue.toString(),
+	);
+	if (isNaN(value)) throw error(400, options.errorMessage);
+	if (value < options.lowerBound || value > options.upperBound)
+		throw error(400, options.errorMessage);
+	return value;
 };
 
 export const getSemesterOrThrowSvelteError = (
-  url: URL,
-  fallbackValue = dateToSemester(new Date()),
+	url: URL,
+	fallbackValue = dateToSemester(new Date()),
 ): Semester => {
-  const semester = url.searchParams.get("semester");
-  if (semester === null) return fallbackValue;
-  const parsed = parseSemesterFromString(semester, () =>
-    error(400, m.error_invalid_semester()),
-  );
-  return parsed;
+	const semester = url.searchParams.get("semester");
+	if (semester === null) return fallbackValue;
+	const parsed = parseSemesterFromString(semester, () =>
+		error(400, m.error_invalid_semester()),
+	);
+	return parsed;
 };

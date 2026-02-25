@@ -1,7 +1,7 @@
 <script lang="ts">
-  import InventoryPage from "$lib/components/shop/inventory/InventoryPage.svelte";
+	import InventoryPage from "$lib/components/shop/inventory/InventoryPage.svelte";
 
-  export let data;
+	export let data;
 </script>
 
 <InventoryPage {data} />

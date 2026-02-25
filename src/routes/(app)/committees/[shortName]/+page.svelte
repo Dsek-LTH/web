@@ -1,7 +1,7 @@
 <script lang="ts">
-  import CommitteePage from "../CommitteePage.svelte";
+	import CommitteePage from "../CommitteePage.svelte";
 
-  export let data;
+	export let data;
 </script>
 
 <CommitteePage {data} />

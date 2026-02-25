@@ -11,41 +11,41 @@ const zDrinkGroup = z.nativeEnum(DrinkGroup);
 const zDrinkQuantityType = z.nativeEnum(DrinkQuantityType);
 
 export const load: PageServerLoad = async (event) => {
-  const form = await superValidate(event.request, zod(DrinkItemSchema));
+	const form = await superValidate(event.request, zod(DrinkItemSchema));
 
-  form.data.quantityType = "COUNTS";
-  return { form };
+	form.data.quantityType = "COUNTS";
+	return { form };
 };
 
 const DrinkItemSchema = z.object({
-  quantityType: zDrinkQuantityType,
-  name: z.string().min(1),
-  price: z.number(),
-  group: zDrinkGroup,
-  systembolagetID: z.number().int(),
-  bottleEmptyWeight: z.number().int(),
-  bottleFullWeight: z.number().int(),
+	quantityType: zDrinkQuantityType,
+	name: z.string().min(1),
+	price: z.number(),
+	group: zDrinkGroup,
+	systembolagetID: z.number().int(),
+	bottleEmptyWeight: z.number().int(),
+	bottleFullWeight: z.number().int(),
 });
 
 export const actions: Actions = {
-  createDrinkItem: async (event) => {
-    const { user, prisma } = event.locals;
-    authorize(apiNames.DRINKITEM.CREATE, user);
-    const form = await superValidate(event.request, zod(DrinkItemSchema));
-    if (!form.valid) return fail(400, { form });
+	createDrinkItem: async (event) => {
+		const { user, prisma } = event.locals;
+		authorize(apiNames.DRINKITEM.CREATE, user);
+		const form = await superValidate(event.request, zod(DrinkItemSchema));
+		if (!form.valid) return fail(400, { form });
 
-    await prisma.drinkItem.create({
-      data: {
-        quantityType: form.data.quantityType,
-        name: form.data.name,
-        price: form.data.price * 100,
-        group: form.data.group,
-        systembolagetID: form.data.systembolagetID,
-        bottleEmptyWeight: form.data.bottleEmptyWeight,
-        bottleFullWeight: form.data.bottleFullWeight,
-      },
-    });
+		await prisma.drinkItem.create({
+			data: {
+				quantityType: form.data.quantityType,
+				name: form.data.name,
+				price: form.data.price * 100,
+				group: form.data.group,
+				systembolagetID: form.data.systembolagetID,
+				bottleEmptyWeight: form.data.bottleEmptyWeight,
+				bottleFullWeight: form.data.bottleFullWeight,
+			},
+		});
 
-    return message(form, { message: "Produkt tillagd" });
-  },
+		return message(form, { message: "Produkt tillagd" });
+	},
 };

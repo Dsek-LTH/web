@@ -8,12 +8,12 @@ import * as m from "$paraglide/messages";
  * @returns Whether the user is authorized.
  */
 export const isAuthorized = (
-  apiName: string,
-  user: AuthUser | undefined,
+	apiName: string,
+	user: AuthUser | undefined,
 ): boolean => {
-  if (dev && !!user?.studentId) return true;
-  if (user?.policies.includes(apiName)) return true;
-  return false;
+	if (dev && !!user?.studentId) return true;
+	if (user?.policies.includes(apiName)) return true;
+	return false;
 };
 
 /**
@@ -21,15 +21,15 @@ export const isAuthorized = (
  * @throws {HttpError} If the user is not authorized.
  */
 export const authorize = (
-  apiName: string | string[],
-  user: AuthUser | undefined,
+	apiName: string | string[],
+	user: AuthUser | undefined,
 ) => {
-  const apiNames = Array.isArray(apiName) ? apiName : [apiName];
-  for (const name of apiNames) {
-    if (!isAuthorized(name, user)) {
-      throw error(403, `${m.errors_missingPermissions()} ${name}`);
-    }
-  }
+	const apiNames = Array.isArray(apiName) ? apiName : [apiName];
+	for (const name of apiNames) {
+		if (!isAuthorized(name, user)) {
+			throw error(403, `${m.errors_missingPermissions()} ${name}`);
+		}
+	}
 };
 
 /**
@@ -39,28 +39,28 @@ export const authorize = (
  * @returns e.g. `["*", "_", "dsek", "dsek.infu", "dsek.infu.mdlm", "dsek.ordf"]`
  */
 export const getDerivedRoles = (
-  groupList?: string[],
-  signedIn = false,
-  classYear: number | undefined = undefined,
-  classProgramme: string | undefined = undefined,
+	groupList?: string[],
+	signedIn = false,
+	classYear: number | undefined = undefined,
+	classProgramme: string | undefined = undefined,
 ) => {
-  const splitGroups = new Set<string>();
-  groupList?.forEach((group) =>
-    group
-      .split(".")
-      .forEach((_, i, arr) => splitGroups.add(arr.slice(0, i + 1).join("."))),
-  );
-  splitGroups.add("*"); // all users
-  if (groupList?.length || signedIn) splitGroups.add("_"); // logged in users
-  if (classYear && classYear === new Date().getFullYear())
-    splitGroups.add("nolla");
-  if (classYear !== undefined) {
-    const shortYear = String(classYear % 100);
-    splitGroups.add(classProgramme + shortYear);
-  }
-  if (classProgramme !== undefined) {
-    splitGroups.add(classProgramme);
-  }
+	const splitGroups = new Set<string>();
+	groupList?.forEach((group) =>
+		group
+			.split(".")
+			.forEach((_, i, arr) => splitGroups.add(arr.slice(0, i + 1).join("."))),
+	);
+	splitGroups.add("*"); // all users
+	if (groupList?.length || signedIn) splitGroups.add("_"); // logged in users
+	if (classYear && classYear === new Date().getFullYear())
+		splitGroups.add("nolla");
+	if (classYear !== undefined) {
+		const shortYear = String(classYear % 100);
+		splitGroups.add(classProgramme + shortYear);
+	}
+	if (classProgramme !== undefined) {
+		splitGroups.add(classProgramme);
+	}
 
-  return [...splitGroups];
+	return [...splitGroups];
 };

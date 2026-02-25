@@ -4,12 +4,12 @@ import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import type { AvailableLanguageTag } from "$paraglide/runtime";
 
 export function getExtendedPrismaClient(
-  lang: AvailableLanguageTag,
-  studentId?: string,
+	lang: AvailableLanguageTag,
+	studentId?: string,
 ) {
-  return authorizedPrismaClient
-    .$extends(translatedExtension(lang))
-    .$extends(loggingExtension(studentId));
+	return authorizedPrismaClient
+		.$extends(translatedExtension(lang))
+		.$extends(loggingExtension(studentId));
 }
 
 export type ExtendedPrisma = ReturnType<typeof getExtendedPrismaClient>;

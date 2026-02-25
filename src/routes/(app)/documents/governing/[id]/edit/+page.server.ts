@@ -8,61 +8,61 @@ import * as m from "$paraglide/messages";
 import { DocumentType } from "@prisma/client";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
-  const { prisma } = locals;
-  const governingDocument = await prisma.document.findFirst({
-    where: {
-      id: params.id,
-      type: {
-        in: [DocumentType.POLICY, DocumentType.GUIDELINE],
-      },
-    },
-  });
+	const { prisma } = locals;
+	const governingDocument = await prisma.document.findFirst({
+		where: {
+			id: params.id,
+			type: {
+				in: [DocumentType.POLICY, DocumentType.GUIDELINE],
+			},
+		},
+	});
 
-  if (!governingDocument) {
-    throw error(404, m.documents_governing_errors_notFound());
-  }
+	if (!governingDocument) {
+		throw error(404, m.documents_governing_errors_notFound());
+	}
 
-  return {
-    governingDocument,
-    form: await superValidate(
-      {
-        url: governingDocument.url,
-        title: governingDocument.title,
-        type: governingDocument.type as
-          | typeof DocumentType.POLICY
-          | typeof DocumentType.GUIDELINE,
-      },
-      zod(governingDocumentSchema),
-    ),
-  };
+	return {
+		governingDocument,
+		form: await superValidate(
+			{
+				url: governingDocument.url,
+				title: governingDocument.title,
+				type: governingDocument.type as
+					| typeof DocumentType.POLICY
+					| typeof DocumentType.GUIDELINE,
+			},
+			zod(governingDocumentSchema),
+		),
+	};
 };
 
 export const actions: Actions = {
-  update: async (event) => {
-    const { request, locals, params } = event;
-    const { prisma } = locals;
-    const form = await superValidate(request, zod(governingDocumentSchema));
-    if (!form.valid) return fail(400, { form });
-    const id = params.id;
-    const { url, title, type } = form.data;
-    await prisma.document.update({
-      where: {
-        id,
-      },
-      data: {
-        url,
-        title,
-        type,
-        updatedAt: new Date(),
-      },
-    });
-    throw redirect(
-      "/documents/governing",
-      {
-        message: m.documents_governing_documentUpdated(),
-        type: "success",
-      },
-      event,
-    );
-  },
+	update: async (event) => {
+		const { request, locals, params } = event;
+		const { prisma } = locals;
+		const form = await superValidate(request, zod(governingDocumentSchema));
+		if (!form.valid) return fail(400, { form });
+		const id = params.id;
+		const { url, title, type } = form.data;
+		await prisma.document.update({
+			where: {
+				id,
+			},
+			data: {
+				url,
+				title,
+				type,
+				updatedAt: new Date(),
+			},
+		});
+		throw redirect(
+			"/documents/governing",
+			{
+				message: m.documents_governing_documentUpdated(),
+				type: "success",
+			},
+			event,
+		);
+	},
 };

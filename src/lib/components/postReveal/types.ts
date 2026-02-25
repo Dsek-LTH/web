@@ -6,9 +6,9 @@ export const APP_PREFERRED_PAGE_COOKIE = "APP-preferred-page";
 
 // they will check if a link starts with one of these and then redirect to nollning copy
 export const OVERRIDEN_POST_REVEAL_ROUTES = [
-  { from: "/shop/tickets", to: `${POST_REVEAL_PREFIX}/events` },
-  { from: "/shop/cart" },
-  { from: "/shop/inventory" },
-  { from: "/shop/success" },
-  { from: "/settings" },
+	{ from: "/shop/tickets", to: `${POST_REVEAL_PREFIX}/events` },
+	{ from: "/shop/cart" },
+	{ from: "/shop/inventory" },
+	{ from: "/shop/success" },
+	{ from: "/settings" },
 ];

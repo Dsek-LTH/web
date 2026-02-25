@@ -1,3 +1,3 @@
 <div class="md:layout-container">
-  <slot />
+	<slot />
 </div>

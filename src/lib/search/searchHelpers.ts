@@ -1,20 +1,20 @@
 import type { AvailableLanguageTag } from "$paraglide/runtime";
 import {
-  availableSearchIndexes,
-  type SearchableArticleAttributes,
-  type SearchableCommitteeAttributes,
-  type SearchableEventAttributes,
-  type SearchableGoverningDocumentAttributes,
-  type SearchableIndex,
-  type SearchableMeetingDocumentAttributes,
-  type SearchableMemberAttributes,
-  type SearchablePositionAttributes,
-  type SearchableSongAttributes,
+	availableSearchIndexes,
+	type SearchableArticleAttributes,
+	type SearchableCommitteeAttributes,
+	type SearchableEventAttributes,
+	type SearchableGoverningDocumentAttributes,
+	type SearchableIndex,
+	type SearchableMeetingDocumentAttributes,
+	type SearchableMemberAttributes,
+	type SearchablePositionAttributes,
+	type SearchableSongAttributes,
 } from "./searchTypes";
 import * as m from "$paraglide/messages";
 
 export type SearchIndex =
-  (typeof availableSearchIndexes)[keyof typeof availableSearchIndexes];
+	(typeof availableSearchIndexes)[keyof typeof availableSearchIndexes];
 
 /**
  * Get the federated weight for a given index
@@ -24,26 +24,26 @@ export type SearchIndex =
  * a higher weight.
  */
 export function getFederatedWeight(index: SearchableIndex): number {
-  switch (index) {
-    case "members":
-      return 1.5;
-    case "events":
-      return 1;
-    case "articles":
-      return 1;
-    case "positions":
-      return 1.5;
-    case "songs":
-      return 1;
-    case "committees":
-      return 2;
-    case "governingDocuments":
-      return 1;
-    case "meetingDocuments":
-      return 1;
-    default:
-      return 0;
-  }
+	switch (index) {
+		case "members":
+			return 1.5;
+		case "events":
+			return 1;
+		case "articles":
+			return 1;
+		case "positions":
+			return 1.5;
+		case "songs":
+			return 1;
+		case "committees":
+			return 2;
+		case "governingDocuments":
+			return 1;
+		case "meetingDocuments":
+			return 1;
+		default:
+			return 0;
+	}
 }
 
 /**
@@ -52,126 +52,126 @@ export function getFederatedWeight(index: SearchableIndex): number {
  * systems fail to provide a language, swedish will be used as default.
  */
 export function getSearchableAttributes(
-  index: SearchableIndex,
-  language: AvailableLanguageTag,
+	index: SearchableIndex,
+	language: AvailableLanguageTag,
 ) {
-  switch (index) {
-    case "members": {
-      // no language specific fields
-      const res: Array<keyof SearchableMemberAttributes> = [
-        "fullName",
-        "firstName",
-        "lastName",
-        "nickname",
-        "studentId",
-      ];
-      return res;
-    }
-    case "events": {
-      // default is swedish
-      let res: Array<keyof SearchableEventAttributes> = [
-        "titleSv",
-        "descriptionSv",
-      ];
-      if (language === "en") {
-        res = ["titleEn", "descriptionEn"];
-      }
-      return res;
-    }
-    case "articles": {
-      // default is swedish
-      let res: Array<keyof SearchableArticleAttributes> = [
-        "headerSv",
-        "bodySv",
-      ];
-      if (language === "en") {
-        res = ["headerEn", "bodyEn"];
-      }
-      return res;
-    }
-    case "positions": {
-      // default is swedish
-      let res: Array<keyof SearchablePositionAttributes> = [
-        "nameSv",
-        "descriptionSv",
-        "committeeNameSv",
-        "dsekId",
-      ];
-      if (language === "en") {
-        res = ["nameEn", "descriptionEn", "committeeNameEn", "dsekId"];
-      }
-      return res;
-    }
-    case "songs": {
-      // no language specific fields
-      const res: Array<keyof SearchableSongAttributes> = [
-        "title",
-        "lyrics",
-        "melody",
-        "category",
-      ];
-      return res;
-    }
-    case "committees": {
-      // default is swedish
-      let res: Array<keyof SearchableCommitteeAttributes> = [
-        "nameSv",
-        "descriptionSv",
-      ];
-      if (language === "en") {
-        res = ["nameEn", "descriptionEn"];
-      }
-      return res;
-    }
-    case "governingDocuments": {
-      // no language specific fields
-      const res: Array<keyof SearchableGoverningDocumentAttributes> = [
-        "title",
-        "content",
-      ];
-      return res;
-    }
-    case "meetingDocuments": {
-      // no language specific fields
-      const res: Array<keyof SearchableMeetingDocumentAttributes> = [
-        "title",
-        "content",
-      ];
-      return res;
-    }
-    default:
-      return [];
-  }
+	switch (index) {
+		case "members": {
+			// no language specific fields
+			const res: Array<keyof SearchableMemberAttributes> = [
+				"fullName",
+				"firstName",
+				"lastName",
+				"nickname",
+				"studentId",
+			];
+			return res;
+		}
+		case "events": {
+			// default is swedish
+			let res: Array<keyof SearchableEventAttributes> = [
+				"titleSv",
+				"descriptionSv",
+			];
+			if (language === "en") {
+				res = ["titleEn", "descriptionEn"];
+			}
+			return res;
+		}
+		case "articles": {
+			// default is swedish
+			let res: Array<keyof SearchableArticleAttributes> = [
+				"headerSv",
+				"bodySv",
+			];
+			if (language === "en") {
+				res = ["headerEn", "bodyEn"];
+			}
+			return res;
+		}
+		case "positions": {
+			// default is swedish
+			let res: Array<keyof SearchablePositionAttributes> = [
+				"nameSv",
+				"descriptionSv",
+				"committeeNameSv",
+				"dsekId",
+			];
+			if (language === "en") {
+				res = ["nameEn", "descriptionEn", "committeeNameEn", "dsekId"];
+			}
+			return res;
+		}
+		case "songs": {
+			// no language specific fields
+			const res: Array<keyof SearchableSongAttributes> = [
+				"title",
+				"lyrics",
+				"melody",
+				"category",
+			];
+			return res;
+		}
+		case "committees": {
+			// default is swedish
+			let res: Array<keyof SearchableCommitteeAttributes> = [
+				"nameSv",
+				"descriptionSv",
+			];
+			if (language === "en") {
+				res = ["nameEn", "descriptionEn"];
+			}
+			return res;
+		}
+		case "governingDocuments": {
+			// no language specific fields
+			const res: Array<keyof SearchableGoverningDocumentAttributes> = [
+				"title",
+				"content",
+			];
+			return res;
+		}
+		case "meetingDocuments": {
+			// no language specific fields
+			const res: Array<keyof SearchableMeetingDocumentAttributes> = [
+				"title",
+				"content",
+			];
+			return res;
+		}
+		default:
+			return [];
+	}
 }
 
 export function mapIndexToMessage(index: SearchableIndex) {
-  switch (index) {
-    case "members":
-      return m.search_members();
-    case "positions":
-      return m.search_positions();
-    case "articles":
-      return m.search_articles();
-    case "events":
-      return m.search_events();
-    case "songs":
-      return m.search_songs();
-    case "committees":
-      return m.search_committees();
-    case "governingDocuments":
-      return m.search_governing_documents();
-    case "meetingDocuments":
-      return m.search_meeting_documents();
-    default:
-      return "";
-  }
+	switch (index) {
+		case "members":
+			return m.search_members();
+		case "positions":
+			return m.search_positions();
+		case "articles":
+			return m.search_articles();
+		case "events":
+			return m.search_events();
+		case "songs":
+			return m.search_songs();
+		case "committees":
+			return m.search_committees();
+		case "governingDocuments":
+			return m.search_governing_documents();
+		case "meetingDocuments":
+			return m.search_meeting_documents();
+		default:
+			return "";
+	}
 }
 
 function bytesToBase64(bytes: ArrayLike<number>): string {
-  const binString = Array.from(bytes, (byte) =>
-    String.fromCodePoint(byte),
-  ).join("");
-  return btoa(binString);
+	const binString = Array.from(bytes, (byte) =>
+		String.fromCodePoint(byte),
+	).join("");
+	return btoa(binString);
 }
 
 /**
@@ -182,10 +182,10 @@ function bytesToBase64(bytes: ArrayLike<number>): string {
  * It contains dots (.) and possibly swedish characters (åäö).
  */
 export function prismaIdToMeiliId(id: string) {
-  // btoa cannot handle characters larger than 1 byte
-  // https://developer.mozilla.org/en-US/docs/Web/API/Window/btoa#exceptions
-  const result = bytesToBase64(new TextEncoder().encode(id))
-    .replace(/[^a-zA-Z0-9_-]/g, "")
-    .trim();
-  return result;
+	// btoa cannot handle characters larger than 1 byte
+	// https://developer.mozilla.org/en-US/docs/Web/API/Window/btoa#exceptions
+	const result = bytesToBase64(new TextEncoder().encode(id))
+		.replace(/[^a-zA-Z0-9_-]/g, "")
+		.trim();
+	return result;
 }

@@ -1,14 +1,14 @@
 import {
-  type Semester,
-  startDate,
-  endDate,
-  coveredSemesters,
+	type Semester,
+	startDate,
+	endDate,
+	coveredSemesters,
 } from "$lib/utils/semesters";
 import { languageTag } from "$paraglide/runtime";
 import * as m from "$paraglide/messages";
 import type {
-  ExtendedPrisma,
-  ExtendedPrismaModel,
+	ExtendedPrisma,
+	ExtendedPrismaModel,
 } from "$lib/server/extendedPrisma";
 
 /**
@@ -20,19 +20,19 @@ import type {
  * `mandates` belonging to them cover.
  */
 const countMandateSemesters = (
-  mandates: Array<ExtendedPrismaModel<"Mandate">>,
-  now: Semester,
+	mandates: Array<ExtendedPrismaModel<"Mandate">>,
+	now: Semester,
 ): Map<ExtendedPrismaModel<"Member">["id"], Set<Semester>> =>
-  mandates.reduce((acc, curr) => {
-    const set = acc.get(curr.memberId) ?? new Set<Semester>();
+	mandates.reduce((acc, curr) => {
+		const set = acc.get(curr.memberId) ?? new Set<Semester>();
 
-    for (const s of coveredSemesters(curr.startDate, curr.endDate))
-      if (s <= now) set.add(s);
+		for (const s of coveredSemesters(curr.startDate, curr.endDate))
+			if (s <= now) set.add(s);
 
-    acc.set(curr.memberId, set);
+		acc.set(curr.memberId, set);
 
-    return acc;
-  }, new Map<ExtendedPrismaModel<"Member">["id"], Set<Semester>>());
+		return acc;
+	}, new Map<ExtendedPrismaModel<"Member">["id"], Set<Semester>>());
 
 /**
  * Get what semesters are covered by a collection of mandates.
@@ -42,12 +42,12 @@ const countMandateSemesters = (
  * `mandates`.
  */
 const getSemesters = (
-  mandates: Array<ExtendedPrismaModel<"Mandate">>,
+	mandates: Array<ExtendedPrismaModel<"Mandate">>,
 ): Semester[] => [
-  ...mandates.reduce((acc, curr) => {
-    coveredSemesters(curr.startDate, curr.endDate).forEach((x) => acc.add(x));
-    return acc;
-  }, new Set<Semester>()),
+	...mandates.reduce((acc, curr) => {
+		coveredSemesters(curr.startDate, curr.endDate).forEach((x) => acc.add(x));
+		return acc;
+	}, new Set<Semester>()),
 ];
 
 /**
@@ -59,16 +59,16 @@ const getSemesters = (
  * @returns An array of the Member objects corresponding to `ids`.
  */
 const getMembers = async (
-  prisma: ExtendedPrisma,
-  ids: Array<ExtendedPrismaModel<"Member">["id"]>,
+	prisma: ExtendedPrisma,
+	ids: Array<ExtendedPrismaModel<"Member">["id"]>,
 ): Promise<Array<ExtendedPrismaModel<"Member">>> =>
-  await prisma.member.findMany({
-    where: {
-      id: {
-        in: ids,
-      },
-    },
-  });
+	await prisma.member.findMany({
+		where: {
+			id: {
+				in: ids,
+			},
+		},
+	});
 
 /**
  * Fetch the committees that have a committee medal from prisma.
@@ -77,17 +77,17 @@ const getMembers = async (
  * @returns An array of the Committees that have committee medals.
  */
 const committeesWithMedals = async (
-  prisma: ExtendedPrisma,
+	prisma: ExtendedPrisma,
 ): Promise<Array<ExtendedPrismaModel<"Committee">>> =>
-  await prisma.committee.findMany({
-    where: {
-      NOT: {
-        shortName: {
-          in: ["valb", "other", "dchip", "medalj"],
-        },
-      },
-    },
-  });
+	await prisma.committee.findMany({
+		where: {
+			NOT: {
+				shortName: {
+					in: ["valb", "other", "dchip", "medalj"],
+				},
+			},
+		},
+	});
 
 /**
  * Calculate after which semester a volunteer should have been awarded their
@@ -99,7 +99,7 @@ const committeesWithMedals = async (
  * one (yet).
  */
 const volunteerMedalSemester = (
-  volunteerSemesters: Semester[],
+	volunteerSemesters: Semester[],
 ): Semester | undefined => volunteerSemesters.toSorted()[1];
 
 /**
@@ -113,7 +113,7 @@ const volunteerMedalSemester = (
  * have been awarded one (yet).
  */
 const committeeMedalSemester = (
-  committeeSemesters: Semester[],
+	committeeSemesters: Semester[],
 ): Semester | undefined => committeeSemesters.toSorted()[5];
 
 /**
@@ -129,20 +129,20 @@ const committeeMedalSemester = (
  * (yet).
  */
 const gammalOchÄckligSemester = (
-  boardSemesters: Semester[],
-  volunteerSemesters: Semester[],
+	boardSemesters: Semester[],
+	volunteerSemesters: Semester[],
 ): Semester | undefined => {
-  if (
-    !(
-      volunteerSemesters.length >= 8 ||
-      (volunteerSemesters.length >= 6 && boardSemesters.length >= 2)
-    )
-  )
-    return undefined;
-  const vs = volunteerSemesters.toSorted();
-  const bs = boardSemesters.toSorted();
-  const b = bs[1];
-  return b !== undefined ? vs[Math.min(7, Math.max(vs.indexOf(b), 5))] : vs[7];
+	if (
+		!(
+			volunteerSemesters.length >= 8 ||
+			(volunteerSemesters.length >= 6 && boardSemesters.length >= 2)
+		)
+	)
+		return undefined;
+	const vs = volunteerSemesters.toSorted();
+	const bs = boardSemesters.toSorted();
+	const b = bs[1];
+	return b !== undefined ? vs[Math.min(7, Math.max(vs.indexOf(b), 5))] : vs[7];
 };
 
 /**
@@ -153,11 +153,11 @@ const gammalOchÄckligSemester = (
  * @returns a string with the name.
  */
 const committeeMedalName = (
-  committee: ExtendedPrismaModel<"Committee">,
+	committee: ExtendedPrismaModel<"Committee">,
 ): string =>
-  m.medals_committeeMedal() +
-  " — " +
-  (languageTag() === "sv" ? committee.nameSv : committee.nameEn);
+	m.medals_committeeMedal() +
+	" — " +
+	(languageTag() === "sv" ? committee.nameSv : committee.nameEn);
 
 /**
  * Calculate after which semesters a certain member deserved their different
@@ -173,66 +173,66 @@ const committeeMedalName = (
  * semester after which they should have been awarded the medal.
  */
 export const memberMedals = async (
-  prisma: ExtendedPrisma,
-  memberId: ExtendedPrismaModel<"Member">["id"],
-  after: Semester,
+	prisma: ExtendedPrisma,
+	memberId: ExtendedPrismaModel<"Member">["id"],
+	after: Semester,
 ): Promise<Array<{ medal: string; after: Semester }>> => {
-  const mandates = await prisma.mandate.findMany({
-    where: {
-      memberId: memberId,
-    },
-    include: {
-      position: {
-        select: {
-          boardMember: true,
-          committeeId: true,
-        },
-      },
-    },
-  });
+	const mandates = await prisma.mandate.findMany({
+		where: {
+			memberId: memberId,
+		},
+		include: {
+			position: {
+				select: {
+					boardMember: true,
+					committeeId: true,
+				},
+			},
+		},
+	});
 
-  const volunteerSems = getSemesters(mandates).filter((x) => x <= after);
-  const boardSems = getSemesters(
-    mandates.filter((x) => x.position.boardMember),
-  ).filter((x) => x <= after);
+	const volunteerSems = getSemesters(mandates).filter((x) => x <= after);
+	const boardSems = getSemesters(
+		mandates.filter((x) => x.position.boardMember),
+	).filter((x) => x <= after);
 
-  const committeeSems = (await committeesWithMedals(prisma))
-    .map((committee) => {
-      const id = committee.id;
+	const committeeSems = (await committeesWithMedals(prisma))
+		.map((committee) => {
+			const id = committee.id;
 
-      const committeeMandates = mandates.filter(
-        (x) => x.position.committeeId === id,
-      );
+			const committeeMandates = mandates.filter(
+				(x) => x.position.committeeId === id,
+			);
 
-      return {
-        medal: committeeMedalName(committee),
-        after: getSemesters(committeeMandates)
-          .filter((x) => x <= after)
-          .toSorted()[5],
-      };
-    })
-    .filter(
-      (x): x is { medal: string; after: Semester } => x.after !== undefined,
-    );
+			return {
+				medal: committeeMedalName(committee),
+				after: getSemesters(committeeMandates)
+					.filter((x) => x <= after)
+					.toSorted()[5],
+			};
+		})
+		.filter(
+			(x): x is { medal: string; after: Semester } => x.after !== undefined,
+		);
 
-  const volunteerMedalSem = volunteerMedalSemester(volunteerSems);
-  const gammalOchÄckligSem = gammalOchÄckligSemester(boardSems, volunteerSems);
+	const volunteerMedalSem = volunteerMedalSemester(volunteerSems);
+	const gammalOchÄckligSem = gammalOchÄckligSemester(boardSems, volunteerSems);
 
-  const res: Array<{ medal: string; after: Semester }> = [];
+	const res: Array<{ medal: string; after: Semester }> = [];
 
-  if (volunteerMedalSem)
-    res.push({
-      medal: m.medals_volunteerMedal(),
-      after: volunteerMedalSem,
-    });
+	if (volunteerMedalSem)
+		res.push({
+			medal: m.medals_volunteerMedal(),
+			after: volunteerMedalSem,
+		});
 
-  if (gammalOchÄckligSem)
-    res.push({
-      medal: m.medals_gammalOchÄcklig(),
-      after: gammalOchÄckligSem,
-    });
+	if (gammalOchÄckligSem)
+		res.push({
+			medal: m.medals_gammalOchÄcklig(),
+			after: gammalOchÄckligSem,
+		});
 
-  return res.concat(committeeSems);
+	return res.concat(committeeSems);
 };
 
 /**
@@ -248,106 +248,106 @@ export const memberMedals = async (
  * an array of members that should have recived that medal after `after`.
  */
 export const medalRecipients = async (
-  prisma: ExtendedPrisma,
-  after: Semester,
+	prisma: ExtendedPrisma,
+	after: Semester,
 ): Promise<
-  Array<{ medal: string; recipients: Array<ExtendedPrismaModel<"Member">> }>
+	Array<{ medal: string; recipients: Array<ExtendedPrismaModel<"Member">> }>
 > => {
-  const mandatesInAfter = await prisma.mandate.findMany({
-    where: {
-      startDate: {
-        lt: endDate(after),
-      },
-      endDate: {
-        gte: startDate(after),
-      },
-    },
-  });
+	const mandatesInAfter = await prisma.mandate.findMany({
+		where: {
+			startDate: {
+				lt: endDate(after),
+			},
+			endDate: {
+				gte: startDate(after),
+			},
+		},
+	});
 
-  const memberIds = mandatesInAfter.map((x) => x.memberId);
+	const memberIds = mandatesInAfter.map((x) => x.memberId);
 
-  const allMandates = await prisma.mandate.findMany({
-    where: {
-      memberId: {
-        in: memberIds,
-      },
-      startDate: {
-        lt: endDate(after),
-      },
-    },
-    include: {
-      position: {
-        select: {
-          boardMember: true,
-          committeeId: true,
-        },
-      },
-    },
-  });
+	const allMandates = await prisma.mandate.findMany({
+		where: {
+			memberId: {
+				in: memberIds,
+			},
+			startDate: {
+				lt: endDate(after),
+			},
+		},
+		include: {
+			position: {
+				select: {
+					boardMember: true,
+					committeeId: true,
+				},
+			},
+		},
+	});
 
-  const volunteerSemesters = countMandateSemesters(allMandates, after);
-  const boardSemesters = countMandateSemesters(
-    allMandates.filter((x) => x.position.boardMember),
-    after,
-  );
+	const volunteerSemesters = countMandateSemesters(allMandates, after);
+	const boardSemesters = countMandateSemesters(
+		allMandates.filter((x) => x.position.boardMember),
+		after,
+	);
 
-  const res = [];
-  const volunteerMedalRecipients = memberIds.filter(
-    (id) =>
-      volunteerMedalSemester([...(volunteerSemesters.get(id) ?? [])]) === after,
-  );
+	const res = [];
+	const volunteerMedalRecipients = memberIds.filter(
+		(id) =>
+			volunteerMedalSemester([...(volunteerSemesters.get(id) ?? [])]) === after,
+	);
 
-  if (volunteerMedalRecipients.length > 0)
-    res.push({
-      medal: m.medals_volunteerMedal(),
-      recipients: await getMembers(prisma, volunteerMedalRecipients),
-    });
+	if (volunteerMedalRecipients.length > 0)
+		res.push({
+			medal: m.medals_volunteerMedal(),
+			recipients: await getMembers(prisma, volunteerMedalRecipients),
+		});
 
-  const gammalOchÄckligRecipients = memberIds.filter(
-    (id) =>
-      gammalOchÄckligSemester(
-        [...(boardSemesters.get(id) ?? [])],
-        [...(volunteerSemesters.get(id) ?? [])],
-      ) === after,
-  );
+	const gammalOchÄckligRecipients = memberIds.filter(
+		(id) =>
+			gammalOchÄckligSemester(
+				[...(boardSemesters.get(id) ?? [])],
+				[...(volunteerSemesters.get(id) ?? [])],
+			) === after,
+	);
 
-  if (gammalOchÄckligRecipients.length > 0)
-    res.push({
-      medal: m.medals_gammalOchÄcklig(),
-      recipients: await getMembers(prisma, gammalOchÄckligRecipients),
-    });
+	if (gammalOchÄckligRecipients.length > 0)
+		res.push({
+			medal: m.medals_gammalOchÄcklig(),
+			recipients: await getMembers(prisma, gammalOchÄckligRecipients),
+		});
 
-  const committees = await committeesWithMedals(prisma);
+	const committees = await committeesWithMedals(prisma);
 
-  const committeeMedalRecipients = (
-    await Promise.all(
-      committees.map(async (committee) => {
-        const committeeMandates = allMandates.filter(
-          (x) => x.position.committeeId === committee.id,
-        );
+	const committeeMedalRecipients = (
+		await Promise.all(
+			committees.map(async (committee) => {
+				const committeeMandates = allMandates.filter(
+					(x) => x.position.committeeId === committee.id,
+				);
 
-        const committeeSemesters = countMandateSemesters(
-          committeeMandates,
-          after,
-        );
+				const committeeSemesters = countMandateSemesters(
+					committeeMandates,
+					after,
+				);
 
-        const recipients = memberIds.filter(
-          (id) =>
-            committeeMedalSemester([...(committeeSemesters.get(id) ?? [])]) ===
-            after,
-        );
+				const recipients = memberIds.filter(
+					(id) =>
+						committeeMedalSemester([...(committeeSemesters.get(id) ?? [])]) ===
+						after,
+				);
 
-        return recipients.length < 1
-          ? []
-          : [
-              {
-                medal: committeeMedalName(committee),
-                recipients: await getMembers(prisma, recipients),
-              },
-            ];
-      }),
-    )
-  ).flat();
+				return recipients.length < 1
+					? []
+					: [
+							{
+								medal: committeeMedalName(committee),
+								recipients: await getMembers(prisma, recipients),
+							},
+						];
+			}),
+		)
+	).flat();
 
-  return res.concat(committeeMedalRecipients);
+	return res.concat(committeeMedalRecipients);
 };

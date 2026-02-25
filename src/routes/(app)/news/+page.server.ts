@@ -5,56 +5,56 @@ import { superValidate } from "sveltekit-superforms/server";
 import type { Actions, PageServerLoad } from "./$types";
 import { likeSchema, likesAction } from "./likes";
 import {
-  getPageOrThrowSvelteError,
-  getPageSizeOrThrowSvelteError,
+	getPageOrThrowSvelteError,
+	getPageSizeOrThrowSvelteError,
 } from "$lib/utils/url.server";
 
 export const load: PageServerLoad = async ({ locals, url }) => {
-  const { prisma, member } = locals;
+	const { prisma, member } = locals;
 
-  const articleCount = await prisma.article.count();
-  const pageSize = getPageSizeOrThrowSvelteError(url);
-  const page = getPageOrThrowSvelteError(url, {
-    fallbackValue: 1,
-    lowerBound: 1,
-    upperBound: Math.ceil(articleCount / pageSize),
-  });
+	const articleCount = await prisma.article.count();
+	const pageSize = getPageSizeOrThrowSvelteError(url);
+	const page = getPageOrThrowSvelteError(url, {
+		fallbackValue: 1,
+		lowerBound: 1,
+		upperBound: Math.ceil(articleCount / pageSize),
+	});
 
-  const [[articles, pageCount], allTags] = await Promise.all([
-    getAllArticles(prisma, {
-      tags: url.searchParams.getAll("tags"),
-      search: url.searchParams.get("search") ?? undefined,
-      page,
-      pageSize,
-    }),
-    getAllTags(prisma),
-  ]);
+	const [[articles, pageCount], allTags] = await Promise.all([
+		getAllArticles(prisma, {
+			tags: url.searchParams.getAll("tags"),
+			search: url.searchParams.get("search") ?? undefined,
+			page,
+			pageSize,
+		}),
+		getAllTags(prisma),
+	]);
 
-  const scheduledArticles = member
-    ? await prisma.article.findMany({
-        where: {
-          publishedAt: {
-            gt: new Date(),
-          },
-          author: {
-            member: {
-              id: member.id,
-            },
-          },
-        },
-      })
-    : [];
+	const scheduledArticles = member
+		? await prisma.article.findMany({
+				where: {
+					publishedAt: {
+						gt: new Date(),
+					},
+					author: {
+						member: {
+							id: member.id,
+						},
+					},
+				},
+			})
+		: [];
 
-  return {
-    articles,
-    pageCount,
-    allTags,
-    likeForm: await superValidate(zod(likeSchema)),
-    scheduledArticles,
-  };
+	return {
+		articles,
+		pageCount,
+		allTags,
+		likeForm: await superValidate(zod(likeSchema)),
+		scheduledArticles,
+	};
 };
 
 export const actions: Actions = {
-  like: likesAction(true),
-  dislike: likesAction(false),
+	like: likesAction(true),
+	dislike: likesAction(false),
 };

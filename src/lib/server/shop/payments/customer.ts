@@ -4,57 +4,57 @@ import { getFullName } from "$lib/utils/client/member";
 import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
 const createStripeCustomer = async ({
-  member,
+	member,
 }: {
-  member: ExtendedPrismaModel<"Member">;
+	member: ExtendedPrismaModel<"Member">;
 }) => {
-  const { id, studentId } = member;
-  try {
-    const customer = await stripe.customers.create({
-      name: getFullName({ ...member, nickname: null }),
-      description: `D-sek member: ${studentId}`,
-      metadata: {
-        member: id,
-      },
-    });
-    try {
-      await authorizedPrismaClient.member.update({
-        where: { id },
-        data: { stripeCustomerId: customer.id },
-      });
-      return customer;
-    } catch (error) {
-      console.error(
-        `Could not save customer stripe info: ${member.id}, ${customer.id}`,
-      );
-      throw new Error(`Could not save customer info: ${error}`);
-    }
-  } catch (error) {
-    throw new Error(`Failed to create stripe customer: ${error}`);
-  }
+	const { id, studentId } = member;
+	try {
+		const customer = await stripe.customers.create({
+			name: getFullName({ ...member, nickname: null }),
+			description: `D-sek member: ${studentId}`,
+			metadata: {
+				member: id,
+			},
+		});
+		try {
+			await authorizedPrismaClient.member.update({
+				where: { id },
+				data: { stripeCustomerId: customer.id },
+			});
+			return customer;
+		} catch (error) {
+			console.error(
+				`Could not save customer stripe info: ${member.id}, ${customer.id}`,
+			);
+			throw new Error(`Could not save customer info: ${error}`);
+		}
+	} catch (error) {
+		throw new Error(`Failed to create stripe customer: ${error}`);
+	}
 };
 
 /**
  * Gets stripe customer connected to member, or creates a new one if none exists.
  */
 export const obtainStripeCustomer = async (
-  member: ExtendedPrismaModel<"Member">,
+	member: ExtendedPrismaModel<"Member">,
 ) => {
-  const { stripeCustomerId } = member;
-  if (!stripeCustomerId) {
-    return await createStripeCustomer({ member });
-  }
+	const { stripeCustomerId } = member;
+	if (!stripeCustomerId) {
+		return await createStripeCustomer({ member });
+	}
 
-  try {
-    // check that customer exists and is not deleted
-    const customer = await stripe.customers.retrieve(stripeCustomerId);
-    if (!customer.deleted) {
-      return customer;
-    }
-    // customer deleted, create new
-    return await createStripeCustomer({ member });
-  } catch {
-    // customer not found
-    return await createStripeCustomer({ member });
-  }
+	try {
+		// check that customer exists and is not deleted
+		const customer = await stripe.customers.retrieve(stripeCustomerId);
+		if (!customer.deleted) {
+			return customer;
+		}
+		// customer deleted, create new
+		return await createStripeCustomer({ member });
+	} catch {
+		// customer not found
+		return await createStripeCustomer({ member });
+	}
 };

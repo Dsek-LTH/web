@@ -5,26 +5,26 @@ import { access, writeFile } from "fs/promises";
 import { resolve } from "path";
 
 const POSTGRES_DOCKER_URL =
-  "postgresql://postgres:postgres@localhost:5432/dsek_prod?schema=public";
+	"postgresql://postgres:postgres@localhost:5432/dsek_prod?schema=public";
 const POSTGRES_DOCKER_COMMAND =
-  "docker run --name dsek-database -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=dsek_prod -d postgres:14-alpine";
+	"docker run --name dsek-database -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=dsek_prod -d postgres:14-alpine";
 const POSTGRES_URL_REGEX =
-  /^(postgres|postgresql):\/\/([^\s:]+):([^\s@]+)@([^\s:]+):(\d+)\/([^\s?]+)(\?schema=([^\s]+))?$/;
+	/^(postgres|postgresql):\/\/([^\s:]+):([^\s@]+)@([^\s:]+):(\d+)\/([^\s?]+)(\?schema=([^\s]+))?$/;
 const ENV_FILE_PATH = resolve(__dirname, "..", ".env.local");
 
 const spin = spinner();
 
 async function fileExists(filePath: string): Promise<boolean> {
-  try {
-    await access(filePath);
-    return true;
-  } catch {
-    return false;
-  }
+	try {
+		await access(filePath);
+		return true;
+	} catch {
+		return false;
+	}
 }
 
 function envFileExists() {
-  return fileExists(ENV_FILE_PATH);
+	return fileExists(ENV_FILE_PATH);
 }
 
 /**
@@ -35,16 +35,16 @@ function envFileExists() {
  * @returns A promise that resolves when the file is written
  */
 async function writeEnvFile(
-  url: string,
-  authSecret: string,
-  keycloakClientSecret: string,
+	url: string,
+	authSecret: string,
+	keycloakClientSecret: string,
 ) {
-  await writeFile(
-    ENV_FILE_PATH,
-    `DATABASE_URL=${String(
-      url,
-    )}\nAUTH_SECRET=${authSecret}\nKEYCLOAK_CLIENT_SECRET=${keycloakClientSecret}`,
-  );
+	await writeFile(
+		ENV_FILE_PATH,
+		`DATABASE_URL=${String(
+			url,
+		)}\nAUTH_SECRET=${authSecret}\nKEYCLOAK_CLIENT_SECRET=${keycloakClientSecret}`,
+	);
 }
 
 /**
@@ -52,17 +52,17 @@ async function writeEnvFile(
  * @param value The value returned from the prompt
  */
 function handleCancellation<T>(value: T) {
-  if (isCancel(value)) {
-    onCancel();
-  }
+	if (isCancel(value)) {
+		onCancel();
+	}
 }
 
 /**
  * Print a message and exit the process.
  */
 function onCancel() {
-  cancel("Setup aborted.");
-  process.exit(0);
+	cancel("Setup aborted.");
+	process.exit(0);
 }
 
 /**
@@ -71,12 +71,12 @@ function onCancel() {
  * @returns A promise that resolves when the command is done
  */
 function run(command: string): Promise<void> {
-  return new Promise((resolve) => {
-    exec(command, {}, (error) => {
-      if (error) onError(error);
-      resolve();
-    });
-  });
+	return new Promise((resolve) => {
+		exec(command, {}, (error) => {
+			if (error) onError(error);
+			resolve();
+		});
+	});
 }
 
 /**
@@ -87,12 +87,12 @@ function run(command: string): Promise<void> {
  * @returns
  */
 function runWithSpinner(
-  command: string,
-  startMessage?: string,
-  stopMessage?: string,
+	command: string,
+	startMessage?: string,
+	stopMessage?: string,
 ): Promise<void> {
-  spin.start(startMessage);
-  return run(command).finally(() => spin.stop(stopMessage));
+	spin.start(startMessage);
+	return run(command).finally(() => spin.stop(stopMessage));
 }
 
 /**
@@ -100,11 +100,11 @@ function runWithSpinner(
  * @returns A promise that resolves when the database is ready.
  */
 function setupDatabase() {
-  return runWithSpinner(
-    POSTGRES_DOCKER_COMMAND,
-    "Setting up PostgreSQL",
-    "PostgreSQL setup complete!",
-  );
+	return runWithSpinner(
+		POSTGRES_DOCKER_COMMAND,
+		"Setting up PostgreSQL",
+		"PostgreSQL setup complete!",
+	);
 }
 
 /**
@@ -113,8 +113,8 @@ function setupDatabase() {
  * @returns An error message if the URL is invalid
  */
 function validateDbUrl(value: string) {
-  if (POSTGRES_URL_REGEX.test(value)) return;
-  return "Please provide a valid PostgreSQL URL";
+	if (POSTGRES_URL_REGEX.test(value)) return;
+	return "Please provide a valid PostgreSQL URL";
 }
 
 /**
@@ -123,7 +123,7 @@ function validateDbUrl(value: string) {
  * @returns A random secret in hex format
  */
 function generateSecret(N = 32) {
-  return randomBytes(N / 2).toString("hex");
+	return randomBytes(N / 2).toString("hex");
 }
 
 /**
@@ -131,23 +131,23 @@ function generateSecret(N = 32) {
  * @param error The error from `exec`
  */
 function onError(error: ExecException | null) {
-  // If the error is that the container already exists, we can ignore it
-  if (error && !error.message.includes("is already in use")) {
-    console.error(); // New line
-    console.error(error);
-    process.exit(1);
-  }
+	// If the error is that the container already exists, we can ignore it
+	if (error && !error.message.includes("is already in use")) {
+		console.error(); // New line
+		console.error(error);
+		process.exit(1);
+	}
 }
 
 export {
-  POSTGRES_DOCKER_URL,
-  envFileExists,
-  generateSecret,
-  handleCancellation,
-  onCancel,
-  runWithSpinner,
-  setupDatabase,
-  spin,
-  validateDbUrl,
-  writeEnvFile,
+	POSTGRES_DOCKER_URL,
+	envFileExists,
+	generateSecret,
+	handleCancellation,
+	onCancel,
+	runWithSpinner,
+	setupDatabase,
+	spin,
+	validateDbUrl,
+	writeEnvFile,
 };

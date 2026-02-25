@@ -1,35 +1,35 @@
 <script lang="ts">
-  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
-  import { twMerge } from "tailwind-merge";
+	import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+	import { twMerge } from "tailwind-merge";
 
-  export let member: Pick<ExtendedPrismaModel<"Member">, "picturePath"> | null =
-    null;
-  export let lazy = false;
-  // export let uniqueCode: string | null = null; // unused for now, might use for creating better unique "backup images" later
-  let clazz = "";
-  export { clazz as class };
+	export let member: Pick<ExtendedPrismaModel<"Member">, "picturePath"> | null =
+		null;
+	export let lazy = false;
+	// export let uniqueCode: string | null = null; // unused for now, might use for creating better unique "backup images" later
+	let clazz = "";
+	export { clazz as class };
 
-  $: backupUrl = "https://gravatar.com/avatar?s=100&d=mp";
+	$: backupUrl = "https://gravatar.com/avatar?s=100&d=mp";
 </script>
 
 <div
-  class={twMerge(
-    "avatar aspect-square w-8 overflow-hidden rounded-full",
-    clazz,
-  )}
+	class={twMerge(
+		"avatar aspect-square w-8 overflow-hidden rounded-full",
+		clazz,
+	)}
 >
-  <figure class="relative w-full">
-    <img
-      loading={lazy ? "lazy" : "eager"}
-      src={member?.picturePath || backupUrl}
-      on:error|preventDefault={(e) => {
-        const imgElement = e.currentTarget;
-        if (imgElement && "src" in imgElement && imgElement.src !== backupUrl) {
-          imgElement.src = backupUrl;
-        }
-      }}
-      alt=""
-    />
-    <slot />
-  </figure>
+	<figure class="relative w-full">
+		<img
+			loading={lazy ? "lazy" : "eager"}
+			src={member?.picturePath || backupUrl}
+			on:error|preventDefault={(e) => {
+				const imgElement = e.currentTarget;
+				if (imgElement && "src" in imgElement && imgElement.src !== backupUrl) {
+					imgElement.src = backupUrl;
+				}
+			}}
+			alt=""
+		/>
+		<slot />
+	</figure>
 </div>

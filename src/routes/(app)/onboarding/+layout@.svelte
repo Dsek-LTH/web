@@ -1,5 +1,5 @@
 <script>
-  import Toast from "../../Toast.svelte";
+	import Toast from "../../Toast.svelte";
 </script>
 
 <slot />

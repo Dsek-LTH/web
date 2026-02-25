@@ -7,59 +7,59 @@
 }
 
 @layer components {
-  .post-reveal {
-    scroll-behavior: smooth;
-    @apply font-nolla-post-reveal;
-    font-display: auto;
-  }
-  .post-reveal * {
-    scroll-behavior: smooth;
-  }
+	.post-reveal {
+		scroll-behavior: smooth;
+		@apply font-nolla-post-reveal;
+		font-display: auto;
+	}
+	.post-reveal * {
+		scroll-behavior: smooth;
+	}
 
-  .post-reveal {
-    @apply font-nolla-post-reveal text-sm leading-tight md:text-base;
-  }
-  .post-reveal .page-title {
-    /* figma: page title */
-    @apply text-xl font-medium tracking-wider;
-  }
+	.post-reveal {
+		@apply font-nolla-post-reveal text-sm leading-tight md:text-base;
+	}
+	.post-reveal .page-title {
+		/* figma: page title */
+		@apply text-xl font-medium tracking-wider;
+	}
 
-  .post-reveal .nolla-list-item {
-    @apply text-base;
-  }
+	.post-reveal .nolla-list-item {
+		@apply text-base;
+	}
 
-  .post-reveal .btn {
-    /* text button */
-    @apply h-auto min-h-0 px-4 py-2 font-medium text-base-content;
-  }
+	.post-reveal .btn {
+		/* text button */
+		@apply text-base-content h-auto min-h-0 px-4 py-2 font-medium;
+	}
 
-  .post-reveal .btn.btn-secondary-beige {
-    /* secondary bg, beige text */
-    @apply btn-secondary text-base-100;
-  }
+	.post-reveal .btn.btn-secondary-beige {
+		/* secondary bg, beige text */
+		@apply btn-secondary text-base-100;
+	}
 
-  .post-reveal .btn.btn-primary-dark {
-    /* secondary bg, beige text */
-    @apply btn-primary text-base-100;
-  }
+	.post-reveal .btn.btn-primary-dark {
+		/* secondary bg, beige text */
+		@apply btn-primary text-base-100;
+	}
 
-  .post-reveal .btn.btn-base-content {
-    /* base bg, content text */
-    @apply bg-transparent text-base-content;
-  }
-  .post-reveal .btn-outline {
-    /* transparent bg, text otherwise */
-    @apply hover:text-base-100;
-  }
+	.post-reveal .btn.btn-base-content {
+		/* base bg, content text */
+		@apply text-base-content bg-transparent;
+	}
+	.post-reveal .btn-outline {
+		/* transparent bg, text otherwise */
+		@apply hover:text-base-100;
+	}
 
-  .post-reveal .nolla-prose {
-    @apply my-4;
-  }
+	.post-reveal .nolla-prose {
+		@apply my-4;
+	}
 }
 
 [data-theme="nollningPostReveal"] {
-  scroll-behavior: smooth;
-  @apply font-nolla-post-reveal;
-  font-display: auto;
-  color-scheme: dark;
+	scroll-behavior: smooth;
+	@apply font-nolla-post-reveal;
+	font-display: auto;
+	color-scheme: dark;
 }

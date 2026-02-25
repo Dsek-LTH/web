@@ -4,7 +4,7 @@ import eventPageLoad from "./EventPageLoad";
 
 export const load = eventPageLoad();
 export const actions: Actions = {
-  interested: interestedAction(true, false),
-  going: interestedAction(false, true),
-  none: interestedAction(false, false),
+	interested: interestedAction(true, false),
+	going: interestedAction(false, true),
+	none: interestedAction(false, false),
 };

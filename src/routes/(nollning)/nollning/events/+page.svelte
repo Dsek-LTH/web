@@ -1,121 +1,121 @@
 <script lang="ts">
-  // import { browser } from "$app/environment";
-  // import { invalidateAll } from "$app/navigation";
-  import { page } from "$app/stores";
-  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
-  // import ScrollingNumber from "$lib/components/Timer/ScrollingNumber.svelte";
-  // import Timer from "$lib/components/Timer/Timer.svelte";
-  // import { now } from "$lib/stores/date";
-  import { toast } from "$lib/stores/toast";
-  import * as m from "$paraglide/messages";
-  import Event from "./Event.svelte";
-  import PostRevealSelect from "./PostRevealSelect.svelte";
+	// import { browser } from "$app/environment";
+	// import { invalidateAll } from "$app/navigation";
+	import { page } from "$app/stores";
+	import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
+	// import ScrollingNumber from "$lib/components/Timer/ScrollingNumber.svelte";
+	// import Timer from "$lib/components/Timer/Timer.svelte";
+	// import { now } from "$lib/stores/date";
+	import { toast } from "$lib/stores/toast";
+	import * as m from "$paraglide/messages";
+	import Event from "./Event.svelte";
+	import PostRevealSelect from "./PostRevealSelect.svelte";
 
-  export let data;
-  $: events = data.events;
-  let weekCollapseOpen = false;
-  $: weeks = Array(data.weeks)
-    .fill(0)
-    .map((_, i) => i);
-  $: eventsSubscribeUrl = `${$page.url.origin}${$page.url.pathname}/subscribe`;
+	export let data;
+	$: events = data.events;
+	let weekCollapseOpen = false;
+	$: weeks = Array(data.weeks)
+		.fill(0)
+		.map((_, i) => i);
+	$: eventsSubscribeUrl = `${$page.url.origin}${$page.url.pathname}/subscribe`;
 
-  // $: userTickets = events
-  //   .flatMap((events) => events.tickets)
-  //   .filter((ticket) => ticket.isInUsersCart);
-  // $: itemsToPay = userTickets.flatMap((ticket) => ticket.userItemsInCart);
-  // function firstTimer(timers: Array<Date | null>): [Date | null, number] {
-  //   let first = timers[0];
-  //   let index = 0;
-  //   for (let [i, timer] of timers.entries()) {
-  //     if (!first || (timer && timer < first)) {
-  //       first = timer;
-  //       index = i;
-  //     }
-  //   }
-  //   return [first ?? null, index];
-  // }
+	// $: userTickets = events
+	//   .flatMap((events) => events.tickets)
+	//   .filter((ticket) => ticket.isInUsersCart);
+	// $: itemsToPay = userTickets.flatMap((ticket) => ticket.userItemsInCart);
+	// function firstTimer(timers: Array<Date | null>): [Date | null, number] {
+	//   let first = timers[0];
+	//   let index = 0;
+	//   for (let [i, timer] of timers.entries()) {
+	//     if (!first || (timer && timer < first)) {
+	//       first = timer;
+	//       index = i;
+	//     }
+	//   }
+	//   return [first ?? null, index];
+	// }
 
-  // $: inQueue = userTickets
-  //   .filter(
-  //     (ticket) => ticket.gracePeriodEndsAt.valueOf() + 1000 < $now.valueOf(),
-  //   )
-  //   .flatMap((ticket) => ticket.userReservations);
-  // $: inLottery = userTickets.filter(
-  //   (ticket) =>
-  //     /* Some extra padding */
-  //     ticket.gracePeriodEndsAt.valueOf() + 1000 >= $now.valueOf(),
-  // );
+	// $: inQueue = userTickets
+	//   .filter(
+	//     (ticket) => ticket.gracePeriodEndsAt.valueOf() + 1000 < $now.valueOf(),
+	//   )
+	//   .flatMap((ticket) => ticket.userReservations);
+	// $: inLottery = userTickets.filter(
+	//   (ticket) =>
+	//     /* Some extra padding */
+	//     ticket.gracePeriodEndsAt.valueOf() + 1000 >= $now.valueOf(),
+	// );
 
-  // $: if (
-  //   (browser && inLottery.some((ticket) => ticket.gracePeriodEndsAt >= $now)) ||
-  //   inQueue.some((t) => t.order === null)
-  // ) {
-  //   setTimeout(() => {
-  //     invalidateAll();
-  //   }, 500);
-  // }
+	// $: if (
+	//   (browser && inLottery.some((ticket) => ticket.gracePeriodEndsAt >= $now)) ||
+	//   inQueue.some((t) => t.order === null)
+	// ) {
+	//   setTimeout(() => {
+	//     invalidateAll();
+	//   }, 500);
+	// }
 </script>
 
 <div class="mx-auto max-w-4xl">
-  <SetPageTitle title={m.events()} />
+	<SetPageTitle title={m.events()} />
 
-  <div class="mb-4 flex items-start justify-between">
-    <details
-      class="dropdown"
-      on:toggle={(event) => {
-        if (event.target instanceof HTMLDetailsElement && event.target.open) {
-          navigator.clipboard.writeText(eventsSubscribeUrl);
-          toast(m.events_calendar_subscribe_copyToClipboard(), "success");
-        }
-      }}
-    >
-      <summary class="btn-base-content btn btn-lg !h-10 border-2"
-        >{m.events_calendar_subscribe()}
-        <span class="i-mdi-calendar-sync"></span>
-      </summary>
-      <div
-        class="dropdown-content z-20 -ml-8 w-[calc(100dvw-1rem)] {data.revealTheme
-          ? 'text-base-100'
-          : ''} rounded-box bg-base-300 p-4 shadow md:max-w-2xl"
-      >
-        <p>
-          {m.events_calendar_subscribe_details()}
-        </p>
-        <p
-          class="my-2 w-full select-all overflow-x-auto rounded border p-2 font-mono text-sm"
-        >
-          {eventsSubscribeUrl}
-        </p>
-      </div>
-    </details>
-    <PostRevealSelect
-      title="{m.events_calendar_week().toLowerCase()} {data.week}"
-      bind:checked={weekCollapseOpen}
-    >
-      <ul class="flex flex-col">
-        {#each weeks as i}
-          {@const isCurrent = i === data.week}
-          <li class:bg-primary={isCurrent} class="px-2 py-1 last:pb-2">
-            <a
-              class="font-medium"
-              href="?week={i}"
-              on:click={() => (weekCollapseOpen = false)}
-              >{m.events_calendar_week().toLowerCase()} {i}</a
-            >
-          </li>
-        {/each}
-      </ul>
-    </PostRevealSelect>
-  </div>
-  <div class="flex flex-col gap-4">
-    {#if events.length > 0}
-      {#each events as event (event.id)}
-        <Event {event} />
-      {/each}
-    {:else}
-      <span class="mt-8 text-center text-4xl">🤫</span>
-    {/if}
-  </div>
+	<div class="mb-4 flex items-start justify-between">
+		<details
+			class="dropdown"
+			on:toggle={(event) => {
+				if (event.target instanceof HTMLDetailsElement && event.target.open) {
+					navigator.clipboard.writeText(eventsSubscribeUrl);
+					toast(m.events_calendar_subscribe_copyToClipboard(), "success");
+				}
+			}}
+		>
+			<summary class="btn-base-content btn btn-lg !h-10 border-2"
+				>{m.events_calendar_subscribe()}
+				<span class="i-mdi-calendar-sync"></span>
+			</summary>
+			<div
+				class="dropdown-content z-20 -ml-8 w-[calc(100dvw-1rem)] {data.revealTheme
+					? 'text-base-100'
+					: ''} rounded-box bg-base-300 p-4 shadow md:max-w-2xl"
+			>
+				<p>
+					{m.events_calendar_subscribe_details()}
+				</p>
+				<p
+					class="my-2 w-full overflow-x-auto rounded border p-2 font-mono text-sm select-all"
+				>
+					{eventsSubscribeUrl}
+				</p>
+			</div>
+		</details>
+		<PostRevealSelect
+			title="{m.events_calendar_week().toLowerCase()} {data.week}"
+			bind:checked={weekCollapseOpen}
+		>
+			<ul class="flex flex-col">
+				{#each weeks as i}
+					{@const isCurrent = i === data.week}
+					<li class:bg-primary={isCurrent} class="px-2 py-1 last:pb-2">
+						<a
+							class="font-medium"
+							href="?week={i}"
+							on:click={() => (weekCollapseOpen = false)}
+							>{m.events_calendar_week().toLowerCase()} {i}</a
+						>
+					</li>
+				{/each}
+			</ul>
+		</PostRevealSelect>
+	</div>
+	<div class="flex flex-col gap-4">
+		{#if events.length > 0}
+			{#each events as event (event.id)}
+				<Event {event} />
+			{/each}
+		{:else}
+			<span class="mt-8 text-center text-4xl">🤫</span>
+		{/if}
+	</div>
 </div>
 
 <!-- <div class="sticky inset-x-0 bottom-0 mt-8 flex flex-col">

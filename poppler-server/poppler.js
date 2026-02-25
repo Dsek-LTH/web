@@ -25,53 +25,53 @@ SOFTWARE.
 */
 
 const errorMessages = {
-  0: "No Error",
-  1: "Error opening a PDF file",
-  2: "Error opening an output file",
-  3: "Error related to PDF permissions",
-  4: "Error related to ICC profile",
-  99: "Other error",
-  3221226505: "Internal process error",
+	0: "No Error",
+	1: "Error opening a PDF file",
+	2: "Error opening an output file",
+	3: "Error related to PDF permissions",
+	4: "Error related to ICC profile",
+	99: "Other error",
+	3221226505: "Internal process error",
 };
 
 export async function pdfToText(buffer) {
-  try {
-    return new Promise((resolve, reject) => {
-      const args = ["-", "-"]; // Read from stdin, write to stdout
-      const child = spawn("pdftotext", args);
+	try {
+		return new Promise((resolve, reject) => {
+			const args = ["-", "-"]; // Read from stdin, write to stdout
+			const child = spawn("pdftotext", args);
 
-      child.stdin.write(buffer);
-      child.stdin.end();
+			child.stdin.write(buffer);
+			child.stdin.end();
 
-      let stdOut = "";
-      let stdErr = "";
+			let stdOut = "";
+			let stdErr = "";
 
-      child.stdout.on("data", (data) => {
-        stdOut += data;
-      });
+			child.stdout.on("data", (data) => {
+				stdOut += data;
+			});
 
-      child.stderr.on("data", (data) => {
-        stdErr += data;
-      });
+			child.stderr.on("data", (data) => {
+				stdErr += data;
+			});
 
-      child.on("close", (code) => {
-        if (stdOut !== "") {
-          resolve(stdOut.trim());
-        } else if (code === 0) {
-          resolve(errorMessages[code]);
-        } else if (stdErr !== "") {
-          reject(new Error(stdErr.trim()));
-        } else {
-          reject(
-            new Error(
-              errorMessages[code] ||
-                `pdftotext ${args.join(" ")} exited with code ${code}`,
-            ),
-          );
-        }
-      });
-    });
-  } catch (error) {
-    Promise.reject(error);
-  }
+			child.on("close", (code) => {
+				if (stdOut !== "") {
+					resolve(stdOut.trim());
+				} else if (code === 0) {
+					resolve(errorMessages[code]);
+				} else if (stdErr !== "") {
+					reject(new Error(stdErr.trim()));
+				} else {
+					reject(
+						new Error(
+							errorMessages[code] ||
+								`pdftotext ${args.join(" ")} exited with code ${code}`,
+						),
+					);
+				}
+			});
+		});
+	} catch (error) {
+		Promise.reject(error);
+	}
 }

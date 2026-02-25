@@ -1,20 +1,20 @@
 <script lang="ts">
-  import * as m from "$paraglide/messages";
+	import * as m from "$paraglide/messages";
 </script>
 
 <a
-  class="pop-out flex gap-6 rounded-2xl bg-base-300 px-6 py-3"
-  href="https://link.dsek.se/srd"
-  target="_blank"
-  rel="noreferrer noopener"
+	class="pop-out bg-base-300 flex gap-6 rounded-2xl px-6 py-3"
+	href="https://link.dsek.se/srd"
+	target="_blank"
+	rel="noreferrer noopener"
 >
-  <span class="i-mdi-pencil self-center text-2xl text-secondary lg:text-primary"
-  ></span>
+	<span class="i-mdi-pencil text-secondary lg:text-primary self-center text-2xl"
+	></span>
 
-  <article>
-    <p>{m.home_feedbackSRD()}</p>
-    <h2 class="text-xl font-bold text-secondary lg:text-primary">
-      {m.home_contactSRD()}
-    </h2>
-  </article>
+	<article>
+		<p>{m.home_feedbackSRD()}</p>
+		<h2 class="text-secondary lg:text-primary text-xl font-bold">
+			{m.home_contactSRD()}
+		</h2>
+	</article>
 </a>

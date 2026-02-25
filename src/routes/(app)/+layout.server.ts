@@ -9,41 +9,41 @@ import type { ExtendedPrismaModel } from "../../database/prisma/translationExten
 import type { Member } from "@prisma/client";
 
 const alertsCache: {
-  alerts: Array<ExtendedPrismaModel<"Alert"> & { closedByMember: Member[] }>;
-  lastUpdated: number | null;
+	alerts: Array<ExtendedPrismaModel<"Alert"> & { closedByMember: Member[] }>;
+	lastUpdated: number | null;
 } = {
-  alerts: [],
-  lastUpdated: null,
+	alerts: [],
+	lastUpdated: null,
 };
 
 export const load = loadFlash(async ({ locals, depends }) => {
-  depends("/api/notifications/my");
-  depends("cart");
-  depends("alerts");
+	depends("/api/notifications/my");
+	depends("cart");
+	depends("alerts");
 
-  const { user, prisma } = locals;
-  const notificationsPromise = user?.memberId
-    ? getMyGroupedNotifications(user, prisma)
-    : null;
-  const shopItemCounts = countUserShopItems(prisma, user);
+	const { user, prisma } = locals;
+	const notificationsPromise = user?.memberId
+		? getMyGroupedNotifications(user, prisma)
+		: null;
+	const shopItemCounts = countUserShopItems(prisma, user);
 
-  alertsCache.alerts = await prisma.alert.findMany({
-    where: {
-      removedAt: null,
-    },
-    include: {
-      closedByMember: true,
-    },
-  });
-  alertsCache.lastUpdated = Date.now();
+	alertsCache.alerts = await prisma.alert.findMany({
+		where: {
+			removedAt: null,
+		},
+		include: {
+			closedByMember: true,
+		},
+	});
+	alertsCache.lastUpdated = Date.now();
 
-  return {
-    alerts: alertsCache.alerts,
-    notificationsPromise,
-    mutateNotificationForm: await superValidate(zod(notificationSchema)),
-    readNotificationForm: await superValidate(zod(emptySchema)),
-    shopItemCounts,
-  };
+	return {
+		alerts: alertsCache.alerts,
+		notificationsPromise,
+		mutateNotificationForm: await superValidate(zod(notificationSchema)),
+		readNotificationForm: await superValidate(zod(emptySchema)),
+		shopItemCounts,
+	};
 });
 
 export type GlobalAppLoadData = Awaited<ReturnType<typeof load>>;

@@ -4,25 +4,25 @@ import { cjsInterop } from "vite-plugin-cjs-interop";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
-  plugins: [
-    sveltekit(),
-    paraglide({
-      project: "./project.inlang",
-      outdir: "./src/translations/paraglide",
-    }),
-    cjsInterop({
-      dependencies: ["@zenstackhq/server/**"],
-    }),
-  ],
-  define: {
-    SUPERFORMS_LEGACY: true, // due to breaking changes in superforms v2
-  },
-  test: {
-    include: ["src/**/*.test.{js,ts}"],
-  },
-  resolve: {
-    alias: {
-      lib: "/src/lib",
-    },
-  },
+	plugins: [
+		sveltekit(),
+		paraglide({
+			project: "./project.inlang",
+			outdir: "./src/translations/paraglide",
+		}),
+		cjsInterop({
+			dependencies: ["@zenstackhq/server/**"],
+		}),
+	],
+	define: {
+		SUPERFORMS_LEGACY: true, // due to breaking changes in superforms v2
+	},
+	test: {
+		include: ["src/**/*.test.{js,ts}"],
+	},
+	resolve: {
+		alias: {
+			lib: "/src/lib",
+		},
+	},
 });

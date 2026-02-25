@@ -8,173 +8,173 @@ import apiNames from "$lib/utils/apiNames";
 import { redirect } from "$lib/utils/redirect";
 
 const deleteSchema = z.object({
-  id: z.string(),
+	id: z.string(),
 });
 
 const dateSchema = z.object({
-  date: z.string().nullable(),
+	date: z.string().nullable(),
 });
 
 const updateSchema = z.object({
-  id: z.string(),
-  quantityDelta: z.number(),
-  nrBottlesDelta: z.number(),
+	id: z.string(),
+	quantityDelta: z.number(),
+	nrBottlesDelta: z.number(),
 });
 
 export const load: PageServerLoad = async (event) => {
-  const { prisma } = event.locals;
-  const date = event.url.searchParams.get("date");
-  const deleteForm = await superValidate(zod(deleteSchema));
-  const updateForm = await superValidate(zod(updateSchema));
-  const dateForm = await superValidate({ date: date ?? null }, zod(dateSchema));
+	const { prisma } = event.locals;
+	const date = event.url.searchParams.get("date");
+	const deleteForm = await superValidate(zod(deleteSchema));
+	const updateForm = await superValidate(zod(updateSchema));
+	const dateForm = await superValidate({ date: date ?? null }, zod(dateSchema));
 
-  let entries;
+	let entries;
 
-  if (date) {
-    entries = await prisma.drinkItemBatch.findMany({
-      where: {
-        date: { lte: new Date(date) },
-      },
-      include: { item: true },
-      orderBy: { date: "desc" },
-    });
-  } else {
-    entries = await prisma.drinkItemBatch.findMany({
-      include: { item: true },
-      orderBy: { date: "desc" },
-    });
-  }
+	if (date) {
+		entries = await prisma.drinkItemBatch.findMany({
+			where: {
+				date: { lte: new Date(date) },
+			},
+			include: { item: true },
+			orderBy: { date: "desc" },
+		});
+	} else {
+		entries = await prisma.drinkItemBatch.findMany({
+			include: { item: true },
+			orderBy: { date: "desc" },
+		});
+	}
 
-  const entriesOnDate =
-    date == null
-      ? entries
-      : entries.filter((i) => dayjs(i.date).format("YYYY-MM-DD") === date!);
+	const entriesOnDate =
+		date == null
+			? entries
+			: entries.filter((i) => dayjs(i.date).format("YYYY-MM-DD") === date!);
 
-  return {
-    entriesOnDate,
-    deleteForm,
-    updateForm,
-    dateForm,
-  };
+	return {
+		entriesOnDate,
+		deleteForm,
+		updateForm,
+		dateForm,
+	};
 };
 
 export const actions: Actions = {
-  updateEntry: async (event) => {
-    const { prisma, user } = event.locals;
-    authorize(apiNames.DRINKITEMBATCH.UPDATE, user);
-    const form = await superValidate(event.request, zod(updateSchema));
-    if (!form.valid) return fail(400, { form });
+	updateEntry: async (event) => {
+		const { prisma, user } = event.locals;
+		authorize(apiNames.DRINKITEMBATCH.UPDATE, user);
+		const form = await superValidate(event.request, zod(updateSchema));
+		if (!form.valid) return fail(400, { form });
 
-    const batchId = form.data.id;
-    const requestedQuantityDelta = form.data.quantityDelta;
-    const requestedNrBottlesDelta = form.data.nrBottlesDelta;
-    try {
-      await prisma.$transaction(async (tx) => {
-        const batch = await tx.drinkItemBatch.findUnique({
-          where: { id: batchId },
-          include: {
-            item: true,
-          },
-        });
+		const batchId = form.data.id;
+		const requestedQuantityDelta = form.data.quantityDelta;
+		const requestedNrBottlesDelta = form.data.nrBottlesDelta;
+		try {
+			await prisma.$transaction(async (tx) => {
+				const batch = await tx.drinkItemBatch.findUnique({
+					where: { id: batchId },
+					include: {
+						item: true,
+					},
+				});
 
-        const newQuantity =
-          batch!.item.quantityAvailable! -
-          batch!.quantityDelta +
-          requestedQuantityDelta;
+				const newQuantity =
+					batch!.item.quantityAvailable! -
+					batch!.quantityDelta +
+					requestedQuantityDelta;
 
-        const newNrBottles =
-          batch!.item.nrBottles! -
-          batch!.nrBottlesDelta! +
-          requestedNrBottlesDelta
-            ? batch!.item.nrBottles! -
-              batch!.nrBottlesDelta! +
-              requestedNrBottlesDelta
-            : 0;
+				const newNrBottles =
+					batch!.item.nrBottles! -
+					batch!.nrBottlesDelta! +
+					requestedNrBottlesDelta
+						? batch!.item.nrBottles! -
+							batch!.nrBottlesDelta! +
+							requestedNrBottlesDelta
+						: 0;
 
-        if (newQuantity < 0 || newNrBottles < 0) {
-          throw new Error("Totalt antal blir negativt");
-        }
+				if (newQuantity < 0 || newNrBottles < 0) {
+					throw new Error("Totalt antal blir negativt");
+				}
 
-        await tx.drinkItemBatch.update({
-          where: { id: batchId },
-          data: {
-            quantityDelta: requestedQuantityDelta,
-            nrBottlesDelta: requestedNrBottlesDelta,
-          },
-        });
+				await tx.drinkItemBatch.update({
+					where: { id: batchId },
+					data: {
+						quantityDelta: requestedQuantityDelta,
+						nrBottlesDelta: requestedNrBottlesDelta,
+					},
+				});
 
-        await tx.drinkItem.update({
-          where: { id: batch?.item.id },
-          data: {
-            quantityAvailable: newQuantity,
-            nrBottles: newNrBottles,
-          },
-        });
-      });
-    } catch {
-      return message(form, { message: "Totalt antal blir negativt" });
-    }
+				await tx.drinkItem.update({
+					where: { id: batch?.item.id },
+					data: {
+						quantityAvailable: newQuantity,
+						nrBottles: newNrBottles,
+					},
+				});
+			});
+		} catch {
+			return message(form, { message: "Totalt antal blir negativt" });
+		}
 
-    return message(form, { message: `Logg uppdaterad` });
-  },
+		return message(form, { message: `Logg uppdaterad` });
+	},
 
-  deleteEntry: async (event) => {
-    const { prisma, user } = event.locals;
-    authorize(apiNames.DRINKITEMBATCH.DELETE, user);
-    const form = await superValidate(event.request, zod(deleteSchema));
-    if (!form.valid) return fail(400, { form });
+	deleteEntry: async (event) => {
+		const { prisma, user } = event.locals;
+		authorize(apiNames.DRINKITEMBATCH.DELETE, user);
+		const form = await superValidate(event.request, zod(deleteSchema));
+		if (!form.valid) return fail(400, { form });
 
-    const batchId = form.data.id;
-    try {
-      await prisma.$transaction(async (tx) => {
-        const batch = await tx.drinkItemBatch.findUnique({
-          where: { id: batchId },
-          include: {
-            item: true,
-          },
-        });
-        const newQuantity =
-          batch!.item.quantityAvailable! - batch!.quantityDelta!;
+		const batchId = form.data.id;
+		try {
+			await prisma.$transaction(async (tx) => {
+				const batch = await tx.drinkItemBatch.findUnique({
+					where: { id: batchId },
+					include: {
+						item: true,
+					},
+				});
+				const newQuantity =
+					batch!.item.quantityAvailable! - batch!.quantityDelta!;
 
-        const newNrBottles =
-          batch!.item.nrBottles! - batch!.nrBottlesDelta!
-            ? batch!.item.nrBottles! - batch!.nrBottlesDelta!
-            : 0;
+				const newNrBottles =
+					batch!.item.nrBottles! - batch!.nrBottlesDelta!
+						? batch!.item.nrBottles! - batch!.nrBottlesDelta!
+						: 0;
 
-        if (newQuantity < 0 || newNrBottles < 0) {
-          throw new Error("Totalt antal blir negativt");
-        }
+				if (newQuantity < 0 || newNrBottles < 0) {
+					throw new Error("Totalt antal blir negativt");
+				}
 
-        await tx.drinkItem.update({
-          where: { id: batch?.item.id },
-          data: {
-            quantityAvailable: newQuantity,
-            nrBottles: newNrBottles,
-          },
-        });
+				await tx.drinkItem.update({
+					where: { id: batch?.item.id },
+					data: {
+						quantityAvailable: newQuantity,
+						nrBottles: newNrBottles,
+					},
+				});
 
-        await tx.drinkItemBatch.delete({
-          where: { id: batchId },
-        });
-      });
-    } catch {
-      return message(form, { message: "Totalt antal blir negativt" });
-    }
-    return message(form, { message: `Logg borttagen` });
-  },
+				await tx.drinkItemBatch.delete({
+					where: { id: batchId },
+				});
+			});
+		} catch {
+			return message(form, { message: "Totalt antal blir negativt" });
+		}
+		return message(form, { message: `Logg borttagen` });
+	},
 
-  redirectDate: async (event) => {
-    const form = await superValidate(event.request, zod(dateSchema));
+	redirectDate: async (event) => {
+		const form = await superValidate(event.request, zod(dateSchema));
 
-    if (!form.valid) return fail(400, { form });
+		if (!form.valid) return fail(400, { form });
 
-    if (form.data.date === null) {
-      redirect(302, "treasury");
-    }
+		if (form.data.date === null) {
+			redirect(302, "treasury");
+		}
 
-    const date = dayjs(form.data.date).format("YYYY-MM-DD");
-    event.url.searchParams.set("date", date);
-    event.url.searchParams.delete("/redirectDate");
-    redirect(302, event.url);
-  },
+		const date = dayjs(form.data.date).format("YYYY-MM-DD");
+		event.url.searchParams.set("date", date);
+		event.url.searchParams.delete("/redirectDate");
+		redirect(302, event.url);
+	},
 };
