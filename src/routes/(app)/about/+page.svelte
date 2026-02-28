@@ -21,47 +21,34 @@
   };
 </script>
 
-<SetPageTitle title={m.nav_about_guild()} />
+<SetPageTitle title={m.about_guild()} />
 
 <div class="layout-container">
   <div class="flex flex-row items-center justify-between">
     <div class="md:w-7/12">
-      <h1>Om sektionen</h1>
-      <p>
-        D-sektionen inom TLTH är en ideell organisation för studenter och
-        alumner vid LTHs civilingenjörsprogram Datateknik och InfoCom. Sektionen
-        har sociala arrangemang, näringslivskontakter, studiebevakning, och allt
-        annat som hjälper studenter och alumner.
-      </p>
+      <h1>{m.about_guild()}</h1>
 
-      <p>
-        Sektionen är indelad i 15 utskott, som alla har olika verksamhet och
-        områden. Nedan kan du hitta information om alla och få veta hur du kan
-        engagera dig i dem!
-      </p>
-
-      <p>
-        D-sektionen är del av Teknologkåren vid LTH, som representerar alla
-        studenter vid Lunds Tekniska Högskola.
-      </p>
+      <p>{m.about_guild_prose_guild()}</p>
+      <p>{m.about_guild_prose_committees()}</p>
+      <p>{m.about_guild_prose_union()}</p>
     </div>
     <div class="hidden w-4/12 md:block">
       <div class="bg-muted-background rounded-md border-[1px] p-4 shadow-xl">
         <img
           src="https://files.dsek.se/files/public/photos/stock3.jpg"
-          alt="bild"
+          alt="guild"
         />
       </div>
     </div>
   </div>
   <span id="committees" class="mb-12 h-0"></span>
-  <h2 class="mt-12 mb-4">Utskott</h2>
+  <h2 class="mt-12 mb-4">{m.committees()}</h2>
 
   <div
     class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
   >
     {#each data.committees
-      .filter((e) => e.shortName != "dchip") //remove before merge?
+      .filter((e) => e.shortName != "dchip")
       .sort( (e1, e2) => e1.name.localeCompare(e2.name), ) as committee (committee.id)}
       <a class="group block" href="/committees/{committee.shortName}">
         <div
@@ -90,13 +77,13 @@
   </div>
 
   <a class="mt-12 block" href="https://dchip.se">
-    <div class="border-border flex h-32 flex-row rounded-md border-[1px]">
+    <div
+      class="border-border hover:bg-muted-background flex h-32 flex-row rounded-md border-[1px] transition-all"
+    >
       <div class="relative flex w-1/2 flex-col gap-1 p-4">
-        <h3>D-chip</h3>
+        <h3>{m.dchip()}</h3>
         <span>
-          D-Chip är en ideell, studentdriven förening som studenterna på
-          Datateknik och InfoCom på LTH hör till. Alla kvinnliga och icke-binära
-          studenter på de två programmen kan vara med i D-Chip.
+          {m.about_guild_prose_dchip()}
         </span>
       </div>
       <div
