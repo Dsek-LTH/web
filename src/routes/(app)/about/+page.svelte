@@ -1,6 +1,8 @@
 <script lang="ts">
   import CommitteeIcon from "$lib/components/images/CommitteeIcon.svelte";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import DOMPurify from "isomorphic-dompurify";
+  import * as m from "$paraglide/messages";
 
   let { data } = $props();
 
@@ -18,6 +20,8 @@
     return DOMPurify.sanitize(output);
   };
 </script>
+
+<SetPageTitle title={m.nav_about_guild()} />
 
 <div class="layout-container">
   <div class="flex flex-row items-center justify-between">
@@ -44,7 +48,7 @@
     <div class="hidden w-4/12 md:block">
       <div class="bg-muted-background rounded-md border-[1px] p-4 shadow-xl">
         <img
-          src="https://files.dsek.se/albums/public/2025/2025-08-27%20L.I.G.G./LIGG58jpg.webp"
+          src="https://files.dsek.se/files/public/photos/stock3.jpg"
           alt="bild"
         />
       </div>
