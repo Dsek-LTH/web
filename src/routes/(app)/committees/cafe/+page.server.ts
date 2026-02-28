@@ -50,8 +50,7 @@ function getWeek(weekString: string | null, user: AuthUser): dayjs.Dayjs {
   const weekNum = Number(weekString ?? currentWeek.week());
   if (!isAuthorized(apiNames.CAFE.SEE_ALL_WEEKS, user)) {
     if (weekNum < currentWeek.week() || weekNum > currentWeek.week() + 2) {
-      // TODO: translate
-      error(403, { message: "You are not permitted to view this week" });
+      error(403, { message: m.cafe_error_no_week_viewing_perms() });
     }
   }
   return dayjs()
@@ -155,10 +154,8 @@ export const actions: Actions = {
       const isSetByAdmin = isAuthorized(apiNames.CAFE.EDIT_WORKERS, user);
       if (member != user.studentId) {
         if (!isAuthorized(apiNames.CAFE.EDIT_WORKERS, user)) {
-          // TODO: Translate
           return message(form, {
-            message:
-              "Error, you don't have permissions to sign up for other people",
+            message: m.cafe_error_no_edit_worker_perms(),
             type: "error",
           });
         }
@@ -177,18 +174,16 @@ export const actions: Actions = {
       const isDayManager = isAuthorized(apiNames.CAFE.DAY_MANAGER, user);
       if (!cafeShift) {
         if (timeSlot == TimeSlot.DAYMANAGER && !isDayManager && !isSetByAdmin) {
-          // TODO: Translate
           return message(form, {
-            message: "only day managers can sign up there",
+            message: m.cafe_error_only_daymanagers(),
             type: "error",
           });
         }
         // Check if the user already has a shift
-        // TODO: Translate
         const tempShift = dayShifts.filter((shift) => shift.timeSlot != timeSlot && shift.worker.studentId == user.studentId)
         if (!isSetByAdmin && tempShift.length === 1) {
           return message(form, {
-            message: "Can't sign up, you already have a shift that day.",
+            message: m.cafe_error_already_have_shift(),
             type: "error",
           })
 
@@ -206,13 +201,14 @@ export const actions: Actions = {
             },
           });
         } catch (error: unknown) {
+          // Ugly (but afaik only) way to catch specifically when a valid member studentId isn't passed in.
+          // This requires less db calls then first checking the member.
           if (
             error instanceof PrismaClientKnownRequestError &&
             error.code === "P2025"
           ) {
-            // TODO: Translate
             return message(form, {
-              message: "Worker " + member + " does not exist",
+              message: m.cafe_error_worker_not_exist({ name: member }),
               type: "error",
             });
           }
@@ -231,8 +227,7 @@ export const actions: Actions = {
           });
         } else {
           return message(form, {
-            // TODO: Translate
-            message: "something went wrong!",
+            message: m.generic_error(),
             type: "error",
           });
         }
@@ -258,9 +253,8 @@ export const actions: Actions = {
     const form = await superValidate(request, zod(editWeeklyCiabattaSchema));
     if (!form.valid) return fail(400, { form });
     if (!isAuthorized(apiNames.CAFE.EDIT_CIABATTAS, user)) {
-      // TODO: Translate
       return message(form, {
-        message: "You are not permitted to edit ciabattas",
+        message: m.cafe_error_no_ciabatta_edit_perms(),
         type: "error",
       });
     }
@@ -281,7 +275,7 @@ export const actions: Actions = {
       },
     });
     return message(form, {
-      message: "success!",
+      message: m.cafe_changed_ciabatta(),
       type: "success",
     });
   },
