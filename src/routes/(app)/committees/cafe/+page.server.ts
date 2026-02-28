@@ -182,6 +182,7 @@ export const actions: Actions = {
         // Check if the user already has a shift
         const tempShift = dayShifts.filter((shift) => shift.timeSlot != timeSlot && shift.worker.studentId == user.studentId)
         if (!isSetByAdmin && tempShift.length === 1) {
+          //TODO: Check the role name for vice head of cafe in this translation string
           return message(form, {
             message: m.cafe_error_already_have_shift(),
             type: "error",
