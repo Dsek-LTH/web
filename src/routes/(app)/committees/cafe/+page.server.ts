@@ -167,10 +167,13 @@ export const actions: Actions = {
         return fail(400, { form });
       }
       // TODO: check for permissions here so we don't fail
-      const cafeShift = await prisma.cafeShift.findFirst({
-        where: { date: date, timeSlot: timeSlot },
+      const dayShifts = await prisma.cafeShift.findMany({
+        where: { date: date },
         include: { worker: { select: { studentId: true } } },
       });
+
+      const cafeShift = dayShifts.find((shift) => shift.timeSlot == timeSlot);
+
       const isDayManager = isAuthorized(apiNames.CAFE.DAY_MANAGER, user);
       if (!cafeShift) {
         if (timeSlot == TimeSlot.DAYMANAGER && !isDayManager && !isSetByAdmin) {
@@ -179,6 +182,16 @@ export const actions: Actions = {
             message: "only day managers can sign up there",
             type: "error",
           });
+        }
+        // Check if the user already has a shift
+        // TODO: Translate
+        const tempShift = dayShifts.filter((shift) => shift.timeSlot != timeSlot && shift.worker.studentId == user.studentId)
+        if (!isSetByAdmin && tempShift.length === 1) {
+          return message(form, {
+            message: "Can't sign up, you already have a shift that day.",
+            type: "error",
+          })
+
         }
         try {
           await prisma.cafeShift.create({
