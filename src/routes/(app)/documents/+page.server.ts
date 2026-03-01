@@ -74,9 +74,12 @@ export const load: PageServerLoad = async ({ locals, url }) => {
         const fileParts = file.id.split("/");
         const meetingName =
           fileParts[fileParts.length - 2] ?? m.documents_unknown();
-        const isSrdMeeting = meetingName.startsWith("SRD");
 
-        const targetFiles = isSrdMeeting ? filteredFiles : oldFormatSRDFiles;
+        const isSrdMeeting = meetingName.startsWith("SRD");
+        const oldStyle = meetingName.startsWith("Möte");
+        const isCorrectFormat = isSrdMeeting || oldStyle;
+
+        const targetFiles = isCorrectFormat ? filteredFiles : oldFormatSRDFiles;
         targetFiles.push(file);
       });
       break;
