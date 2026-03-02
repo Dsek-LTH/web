@@ -32,9 +32,10 @@
       <p>{m.about_guild_prose_committees()}</p>
       <p>{m.about_guild_prose_union()}</p>
     </div>
-    <div class="hidden w-4/12 md:block">
-      <div class="bg-muted-background rounded-md border-[1px] p-4 shadow-xl">
+    <div class="hidden w-4/12 rounded-md md:block">
+      <div class="bg-muted-background rounded-md border-[1px] shadow-xl">
         <img
+          class="rounded-md"
           src="https://files.dsek.se/files/public/photos/stock3.jpg"
           alt="guild"
         />
