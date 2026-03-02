@@ -117,6 +117,7 @@
             <Label for="classProgramme">{m.onboarding_programme()}</Label>
             <Select.Root
               type="single"
+              name="classProgramme"
               bind:value={$form.classProgramme as string | undefined}
             >
               <Select.Trigger class="w-full"
@@ -153,6 +154,7 @@
           <Label for="nollningGroupId">{m.onboarding_phadderGroup()}</Label>
           <Select.Root
             type="single"
+            name="nollningGroupId"
             bind:value={$form.nollningGroupId as string | undefined}
           >
             <Select.Trigger class="w-full"

@@ -138,6 +138,8 @@ model Article {
   tags        Tag[]            @relation("article_tags")
   author      Author           @relation(fields: [authorId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "articles_author_id_foreign")
   likers      Member[]         @relation("article_likes")
+  committeeId String?          @map("committee_id") @db.Uuid()
+  committee   Committee?       @relation(fields: [committeeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "articles_committee_id_foreign")
 
   @@map("articles")
 }
@@ -241,19 +243,23 @@ model CartItem {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Committees{
 model Committee {
-  id            String        @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  nameSv        String        @map("name_sv") @db.VarChar(255)
-  nameEn        String?       @map("name_en") @db.VarChar(255)
-  shortName     String?       @unique() @map("short_name") @db.VarChar(255)
-  positions     Position[]
-  darkImageUrl  String?       @map("dark_image_url") @db.Text()
-  lightImageUrl String?       @map("light_image_url") @db.Text()
-  monoImageUrl  String?       @map("mono_image_url") @db.Text()
-  symbolUrl     String?       @map("symbol_url") @db.Text()
-  descriptionSv String?       @map("description_sv") @db.VarChar(255)
-  descriptionEn String?       @map("description_en") @db.VarChar(255)
-  expenseItems  ExpenseItem[]
-  election      Election[]
+  id                String        @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  nameSv            String        @map("name_sv") @db.VarChar(255)
+  nameEn            String?       @map("name_en") @db.VarChar(255)
+  shortName         String?       @unique() @map("short_name") @db.VarChar(255)
+  positions         Position[]
+  darkImageUrl      String?       @map("dark_image_url") @db.Text()
+  lightImageUrl     String?       @map("light_image_url") @db.Text()
+  monoImageUrl      String?       @map("mono_image_url") @db.Text()
+  symbolUrl         String?       @map("symbol_url") @db.Text()
+  descriptionSv     String?       @map("description_sv") @db.VarChar(255)
+  descriptionEn     String?       @map("description_en") @db.VarChar(255)
+  expenseItems      ExpenseItem[]
+  bannerUrl         String?       @map("banner_url") @db.Text()
+  previewUrl        String?       @map("preview_url") @db.Text()
+  isBannerTextLight Boolean       @default(false) @map("is_banner_text_light")
+  election          Election[]
+  article           Article[]
 
   @@map("committees")
 }

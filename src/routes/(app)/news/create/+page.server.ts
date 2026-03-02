@@ -14,27 +14,36 @@ export const load: PageServerLoad = async ({ locals }) => {
   const { prisma, user } = locals;
   authorize(apiNames.NEWS.CREATE, user);
 
-  const allTags = await getAllTags(prisma, true);
-  const currentMemberWithMandates = await prisma.member.findUnique({
-    where: {
-      studentId: user?.studentId,
-    },
-    include: {
-      mandates: {
-        where: {
-          startDate: {
-            lte: new Date(),
+  const [allTags, currentMemberWithMandates, committees] = await Promise.all([
+    getAllTags(prisma, true),
+    prisma.member.findUnique({
+      where: {
+        studentId: user?.studentId,
+      },
+      include: {
+        mandates: {
+          where: {
+            startDate: {
+              lte: new Date(),
+            },
+            endDate: {
+              gte: new Date(),
+            },
           },
-          endDate: {
-            gte: new Date(),
+          include: {
+            position: true,
           },
-        },
-        include: {
-          position: true,
         },
       },
-    },
-  });
+    }),
+    prisma.committee.findMany({
+      select: {
+        id: true,
+        name: true,
+      },
+    }),
+  ]);
+
   if (!currentMemberWithMandates)
     throw error(500, m.news_errors_memberNotFound());
   const authorOptions = await getArticleAuthorOptions(
@@ -54,6 +63,7 @@ export const load: PageServerLoad = async ({ locals }) => {
         errors: false,
       },
     ),
+    committees,
   };
 };
 

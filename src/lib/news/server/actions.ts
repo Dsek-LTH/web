@@ -86,6 +86,7 @@ export const createArticle: Action = async (event) => {
     images,
     bodySv,
     bodyEn,
+    committeeId,
     ...rest
   } = form.data;
   const existingAuthor = await prisma.author.findFirst({
@@ -153,6 +154,13 @@ export const createArticle: Action = async (event) => {
             id: tag.id,
           })),
       },
+      committee: committeeId
+        ? {
+            connect: {
+              id: committeeId,
+            },
+          }
+        : undefined,
       publishedAt: new Date(),
     },
     include: {
@@ -188,7 +196,8 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
     allowFiles: true,
   });
   if (!form.valid) return fail(400, { form });
-  const { slug, author, tags, images, bodySv, bodyEn, ...rest } = form.data;
+  const { slug, author, tags, images, bodySv, bodyEn, committeeId, ...rest } =
+    form.data;
   const existingAuthor = await prisma.author.findFirst({
     where: {
       member: { id: author.memberId },
@@ -247,6 +256,13 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
               }
             : undefined,
         },
+        committee: committeeId
+          ? {
+              connect: {
+                id: committeeId,
+              },
+            }
+          : undefined,
         tags: {
           set: tags.map(({ id }) => ({ id })),
         },

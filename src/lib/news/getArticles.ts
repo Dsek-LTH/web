@@ -33,6 +33,7 @@ const include = {
   },
   likers: true,
   tags: true,
+  committee: true,
 };
 
 export const getAllArticles = async (

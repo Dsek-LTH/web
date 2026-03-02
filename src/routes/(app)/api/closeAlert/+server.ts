@@ -1,21 +1,23 @@
-import { fail, superValidate } from "sveltekit-superforms";
 import type { RequestHandler } from "./$types";
 import { z } from "zod";
-import { zod4 } from "sveltekit-superforms/adapters";
 
-export const _closeAlertSchema = z.object({
-  alertId: z.string(),
+const closeAlert = z.object({
+  id: z.string(),
 });
 
 export const POST: RequestHandler = async ({ request, locals }) => {
   const { prisma } = locals;
-  const form = await superValidate(request, zod4(_closeAlertSchema));
-  if (!form.valid) throw fail(400, { form });
+
+  const json = await request.json();
+
+  const alert = closeAlert.parse(json);
+
   await prisma.alert.update({
-    where: { id: form.data.alertId },
+    where: { id: alert.id },
     data: {
       closedByMember: { connect: { id: locals.user?.memberId } },
     },
   });
+
   return new Response();
 };

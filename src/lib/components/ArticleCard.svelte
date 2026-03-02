@@ -5,7 +5,16 @@
   import { Marked } from "marked";
   import type { Tokens } from "marked";
 
-  let { article, index }: { article: Article; index: number } = $props();
+  let {
+    article,
+    index,
+  }: {
+    article: Pick<
+      Article,
+      "author" | "slug" | "imageUrl" | "header" | "body" | "createdAt"
+    >;
+    index: number;
+  } = $props();
 
   const renderer = {
     // this removes links in the article preview, preventing svelte hydration issues

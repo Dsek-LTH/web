@@ -70,7 +70,7 @@
   {#each mobileDays as day, index (index)}
     <div class="col-span-1 flex flex-row items-center">
       <div class="flex flex-row">
-        <h3 class={day.isSame(dayjs(new Date()), "day") ? "text-pink-400" : ""}>
+        <h3 class={day.isSame(dayjs(new Date()), "day") ? "text-rosa-400" : ""}>
           {day.get("date")}
         </h3>
         <div
@@ -106,7 +106,7 @@
   {#each allDays as day (day)}
     <div class="col-span-1 flex flex-row items-center">
       <div class="flex flex-row">
-        <h3 class={day.isSame(dayjs(new Date()), "day") ? "text-pink-400" : ""}>
+        <h3 class={day.isSame(dayjs(new Date()), "day") ? "text-rosa-400" : ""}>
           {day.get("date")}
         </h3>
         <div
