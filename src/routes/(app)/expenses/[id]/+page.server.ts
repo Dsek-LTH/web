@@ -1,6 +1,6 @@
 import apiNames from "$lib/utils/apiNames";
 import { isAuthorized } from "$lib/utils/authorization";
-import { redirect } from "$lib/utils/redirect";
+import { redirect } from "sveltekit-flash-message/server";
 import { error } from "@sveltejs/kit";
 import { fail, message, superValidate } from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";

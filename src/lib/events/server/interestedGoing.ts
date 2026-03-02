@@ -1,8 +1,8 @@
+import { eventLink } from "$lib/events/events";
 import { interestedGoingSchema } from "$lib/events/schema";
 import { getFullName } from "$lib/utils/client/member";
 import sendNotification from "$lib/utils/notifications";
 import { NotificationType } from "$lib/utils/notifications/types";
-import { eventLink } from "$lib/utils/redirect";
 import { fail, type Action } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { message, superValidate } from "sveltekit-superforms/server";

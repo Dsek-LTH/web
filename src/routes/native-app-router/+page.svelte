@@ -1,16 +1,17 @@
 <script lang="ts">
   import { REVEAL_LAUNCH_DATE } from "$lib/components/postReveal/types";
-  import { goto } from "$lib/utils/redirect";
   import { colors } from "$lib/utils/themes";
   import { onMount } from "svelte";
   import { fade } from "svelte/transition";
   // eslint-disable-next-line no-restricted-imports -- eh what the hell why not
   import logo25 from "../(nollning)/nollning/(photos)/logo25.svg";
   import type { PageData } from "./$types";
+  import { goto } from "$app/navigation";
+  import { resolve } from "$app/paths";
 
   let { data }: { data: PageData } = $props();
   onMount(() => {
-    goto(data.redirect, {
+    goto(resolve(data.redirect), {
       replaceState: true,
     });
   });

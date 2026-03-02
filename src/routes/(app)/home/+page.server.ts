@@ -1,4 +1,4 @@
-import { redirect } from "$lib/utils/redirect";
+import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 import { loadHomeData } from "$lib/server/loadHomeData";
 import { APP_PREFERRED_PAGE_COOKIE } from "$lib/components/postReveal/types";

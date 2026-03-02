@@ -1,6 +1,6 @@
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
-import { redirect } from "$lib/utils/redirect";
+import { redirect } from "sveltekit-flash-message/server";
 import { fail } from "@sveltejs/kit";
 import dayjs from "dayjs";
 import { message, superValidate } from "sveltekit-superforms/server";

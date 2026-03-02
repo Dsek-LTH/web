@@ -2,7 +2,7 @@ import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
 import { removeFilesWithoutAccessCheck } from "$lib/files/fileHandler";
 import { uploadFile } from "$lib/files/uploadFiles";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
-import { redirect } from "$lib/utils/redirect";
+import { redirect } from "sveltekit-flash-message/server";
 import * as m from "$paraglide/messages";
 import type { Prisma } from "@prisma/client";
 import type { AuthUser } from "@zenstackhq/runtime";

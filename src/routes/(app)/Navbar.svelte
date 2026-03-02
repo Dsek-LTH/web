@@ -16,11 +16,11 @@
   import User from "@lucide/svelte/icons/user";
 
   import { getRoutes } from "../routes";
-  import { navigationMenuTriggerStyle } from "$lib/components/ui/navigation-menu/navigation-menu-trigger.svelte";
   import { page } from "$app/state";
-  import { i18n } from "$lib/utils/i18n";
+  import { navigationMenuTriggerStyle } from "$lib/components/ui/navigation-menu/navigation-menu-trigger.svelte";
+  import { getLocale, setLocale } from "$paraglide/runtime";
+  import { setLanguage } from "$lib/utils/languages.remote";
   import * as m from "$paraglide/messages";
-  import { languageTag } from "$paraglide/runtime";
   import * as Drawer from "$lib/components/ui/drawer";
   import { onMount } from "svelte";
   import { getFullName, getInitials } from "$lib/utils/client/member";
@@ -87,17 +87,16 @@
         class="p-1.5"
         onclick={() => (commandDialogOpen = true)}><Search /></Button
       >
-      <a
-        href={i18n.route(page.url.pathname)}
-        hreflang={languageTag() === "sv" ? "en" : "sv"}
-        class="md-nav:inline-flex hidden"
-      >
-        <Button
-          aria-label="languages"
-          size="icon-lg"
-          variant="ghost"
-          class="p-1.5"><Languages /></Button
-        ></a
+      <Button
+        aria-label="languages"
+        onclick={async () => {
+          const lang = getLocale() === "en" ? "sv" : "en";
+          await setLanguage(lang);
+          setLocale(lang);
+        }}
+        size="icon-lg"
+        variant="ghost"
+        class="p-1.5"><Languages /></Button
       >
       <Button
         aria-label="notifications"
@@ -251,17 +250,16 @@
                 {@render mobileLinks()}
               </div>
               <div class="flex flex-col justify-end gap-1">
-                <a
-                  href={i18n.route(page.url.pathname)}
-                  hreflang={languageTag() === "sv" ? "en" : "sv"}
-                >
-                  <Button
-                    aria-label="languages"
-                    size="icon-lg"
-                    variant="outline"
-                    class="text-muted-foreground size-9 p-1.5"
-                    ><Languages /></Button
-                  ></a
+                <Button
+                  aria-label="languages"
+                  onclick={async () => {
+                    const lang = getLocale() === "en" ? "sv" : "en";
+                    await setLanguage(lang);
+                    setLocale(lang);
+                  }}
+                  size="icon-lg"
+                  variant="ghost"
+                  class="p-1.5"><Languages /></Button
                 >
               </div></Drawer.Description
             >

@@ -1,4 +1,4 @@
-import type { AvailableLanguageTag } from "$paraglide/runtime";
+import type { Locale } from "$paraglide/runtime";
 import { Prisma } from "@prisma/client";
 import type { OperationPayload, Types } from "@prisma/client/runtime/library";
 
@@ -90,7 +90,7 @@ type TranslatedModelField = Record<
 const models = Prisma.dmmf.datamodel.models;
 const translatedModelFields: Record<string, TranslatedModelField> = {};
 
-const modelFields = (lang: AvailableLanguageTag): ModelFields => {
+const modelFields = (lang: Locale): ModelFields => {
   models.forEach((model) => {
     const modelName = model.name.charAt(0).toLowerCase() + model.name.slice(1);
     const fieldsWithTranslations: TranslatedModelField = {};
@@ -138,5 +138,5 @@ export type ExtendedPrismaModel<Model extends keyof Prisma.TypeMap["model"]> = {
  * For example, if the language is English then reading from the
  * `alert.message` field will read from `alert.messageEn`.
  */
-export default (lang: AvailableLanguageTag) =>
+export default (lang: Locale) =>
   Prisma.defineExtension({ name: "translations", result: modelFields(lang) });

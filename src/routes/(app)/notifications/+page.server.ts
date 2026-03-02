@@ -1,6 +1,6 @@
 import { notificationSchema } from "$lib/zod/schemas";
 import { error, fail } from "@sveltejs/kit";
-import { redirect } from "$lib/utils/redirect";
+import { redirect } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
 import type { Actions } from "./$types";

@@ -9,7 +9,7 @@ import purchaseCart from "$lib/server/shop/payments/purchase";
 import { answerQuestion } from "$lib/server/shop/questions";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
-import { redirect } from "$lib/utils/redirect";
+import { redirect } from "sveltekit-flash-message/server";
 import { questionForm } from "$lib/utils/shop/types";
 import * as m from "$paraglide/messages";
 import { error, fail, type Actions } from "@sveltejs/kit";

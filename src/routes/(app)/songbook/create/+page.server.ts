@@ -1,6 +1,5 @@
 import apiNames from "$lib/utils/apiNames";
 import { fail } from "@sveltejs/kit";
-import { redirect } from "$lib/utils/redirect";
 import { superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { createSongSchema } from "../schema";
@@ -10,6 +9,7 @@ import { getExistingCategories, getExistingMelodies } from "../helpers";
 import { authorize } from "$lib/utils/authorization";
 import * as m from "$paraglide/messages";
 import DOMPurify from "isomorphic-dompurify";
+import { redirect } from "sveltekit-flash-message/server";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma, user } = locals;
