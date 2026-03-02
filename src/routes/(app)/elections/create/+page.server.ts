@@ -2,7 +2,7 @@ import { fail } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 import { superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
-import { redirect } from "$lib/utils/redirect";
+import { redirect } from "sveltekit-flash-message/server";
 import { electionSchema } from "../schemas";
 import * as m from "$paraglide/messages";
 import dayjs from "dayjs";

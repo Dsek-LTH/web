@@ -1,7 +1,7 @@
 import { getCurrentDoorPoliciesForMember } from "$lib/utils/member";
 import { memberSchema } from "$lib/zod/schemas";
 import * as m from "$paraglide/messages";
-import { error, fail } from "@sveltejs/kit";
+import { error, fail, redirect } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";
 import {
   message,
@@ -17,7 +17,6 @@ import type { Actions, PageServerLoad } from "./$types";
 import { deletePictureSchema, uploadPictureSchema } from "../types";
 import { removeMyProfilePicture } from "$lib/files/photos/profilePictures";
 import DOMPurify from "isomorphic-dompurify";
-import { redirect } from "$lib/utils/redirect";
 
 const PROFILE_PICTURE_PREFIX = (studentId: string) =>
   `public/${studentId}/profile-picture`;

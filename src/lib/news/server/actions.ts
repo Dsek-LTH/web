@@ -4,7 +4,7 @@ import { createSchema, updateSchema } from "$lib/news/schema";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import sendNotification from "$lib/utils/notifications";
 import { NotificationType } from "$lib/utils/notifications/types";
-import { redirect } from "$lib/utils/redirect";
+import { redirect } from "sveltekit-flash-message/server";
 import { slugWithCount, slugify } from "$lib/utils/slugify";
 import * as m from "$paraglide/messages";
 import { Prisma } from "@prisma/client";

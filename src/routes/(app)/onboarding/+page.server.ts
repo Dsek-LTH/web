@@ -3,7 +3,7 @@ import { superValidate, type Infer } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
 import type { Actions, PageServerLoad } from "./$types";
 import { error, fail } from "@sveltejs/kit";
-import { redirect } from "$lib/utils/redirect";
+import { redirect } from "sveltekit-flash-message/server";
 import * as m from "$paraglide/messages";
 
 export const load: PageServerLoad = async ({ locals }) => {

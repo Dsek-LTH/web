@@ -6,7 +6,7 @@ import { getArticle } from "$lib/news/getArticles";
 import apiNames from "$lib/utils/apiNames";
 import { authorize, isAuthorized } from "$lib/utils/authorization";
 import { getAllTaggedMembers } from "$lib/utils/commentTagging";
-import { redirect } from "$lib/utils/redirect";
+import { redirect } from "sveltekit-flash-message/server";
 import {
   commentAction,
   commentSchema,

@@ -1,5 +1,5 @@
 import { fail } from "@sveltejs/kit";
-import { redirect } from "$lib/utils/redirect";
+import { redirect } from "sveltekit-flash-message/server";
 import { superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { governingDocumentSchema } from "../schemas";

@@ -349,9 +349,7 @@ const addTicketsTestForUser = (
       const first = await addTicketToCart(prismaWithAccess, ticket.id, user);
       expect(first.status).toBe(AddToCartStatus.Reserved);
       vi.advanceTimersByTime(GRACE_PERIOD_WINDOW / 2);
-      vi.setSystemTime(
-        vi.getMockedSystemTime()!.valueOf() + GRACE_PERIOD_WINDOW / 2,
-      );
+      vi.setSystemTime(vi.getMockedSystemTime()!);
       await expect(
         addTicketToCart(prismaWithAccess, ticket.id, user),
       ).rejects.toThrow();

@@ -1,4 +1,4 @@
-import { redirect } from "$lib/utils/redirect";
+import { redirect } from "@sveltejs/kit";
 
 const CUTOFF_DATE = Date.parse("2025-08-24T12:00:00"); // this will be in prod: 2025-08-25
 export const load = () => {

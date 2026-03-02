@@ -1,4 +1,4 @@
-import { redirect } from "$lib/utils/redirect";
+import { redirect } from "@sveltejs/kit";
 import { POST_REVEAL_PREFIX } from "$lib/components/postReveal/types";
 
 export const load = async () => {

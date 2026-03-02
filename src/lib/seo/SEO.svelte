@@ -3,7 +3,6 @@
   It uses Open Graph protocol to define how the page should be represented on social media platforms.
   https://ogp.me/
 -->
-
 <script lang="ts">
   import { page } from "$app/state";
   import { getFileUrl } from "$lib/files/client";
