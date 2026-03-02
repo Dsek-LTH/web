@@ -14,7 +14,7 @@
     class: klass,
     ...restProps
   }: {
-    files?: FileList;
+    files?: FileList | null;
     url?: string;
     class?: string;
   } & WithoutChildren<WithElementRef<HTMLInputAttributes>> = $props();

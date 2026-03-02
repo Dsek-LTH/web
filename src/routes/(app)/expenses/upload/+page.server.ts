@@ -7,7 +7,7 @@ import * as m from "$paraglide/messages";
 import type { Prisma } from "@prisma/client";
 import type { AuthUser } from "@zenstackhq/runtime";
 import { fail } from "sveltekit-superforms";
-import { zod4 } from "sveltekit-superforms/adapters";
+import { zod } from "sveltekit-superforms/adapters";
 import { message, superValidate } from "sveltekit-superforms/server";
 import createBasicReceipt from "../baseItem";
 import { getCostCenter } from "../config";
@@ -28,19 +28,6 @@ import type { Actions, PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ locals: { user } }) => {
   authorize(apiNames.EXPENSES.CREATE, user);
-  return {
-    form: await superValidate(
-      {
-        date: new Date(),
-        isGuildCard: false,
-        receipts: [createBasicReceipt()],
-      },
-      zod4(expenseSchema),
-      {
-        errors: false,
-      },
-    ),
-  };
 };
 const months = [
   "January",
@@ -149,7 +136,7 @@ export const actions: Actions = {
   default: async (event) => {
     const { locals, request } = event;
     const { prisma, user, member } = locals;
-    const form = await superValidate(request, zod4(expenseSchema), {
+    const form = await superValidate(request, zod(expenseSchema), {
       allowFiles: true,
     });
     if (!form.valid) return fail(400, { form });
