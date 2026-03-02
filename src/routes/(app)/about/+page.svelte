@@ -3,6 +3,8 @@
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import DOMPurify from "isomorphic-dompurify";
   import * as m from "$paraglide/messages";
+  import { Button } from "$lib/components/ui/button";
+  import { ArrowRight } from "@lucide/svelte";
 
   let { data } = $props();
 
@@ -46,7 +48,7 @@
   <h2 class="mt-12 mb-4">{m.committees()}</h2>
 
   <div
-    class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+    class="grid grid-cols-1 gap-6 px-12 sm:grid-cols-2 sm:px-0 md:grid-cols-3 lg:grid-cols-4"
   >
     {#each data.committees
       .filter((e) => e.shortName != "dchip")
@@ -77,18 +79,21 @@
     {/each}
   </div>
 
-  <a class="mt-12 block" href="https://dchip.se">
+  <a class="mt-12 block px-12 sm:px-0" href="https://dchip.se">
     <div
-      class="border-border hover:bg-muted-background flex h-32 flex-row rounded-md border-[1px] transition-all"
+      class="border-border hover:bg-muted-background flex flex-col rounded-md border-[1px] transition-all sm:flex-row lg:h-32"
     >
-      <div class="relative flex w-1/2 flex-col gap-1 p-4">
+      <div class="relative flex flex-col gap-1 p-4 sm:w-1/2">
         <h3>{m.dchip()}</h3>
         <span>
           {m.about_guild_prose_dchip()}
         </span>
       </div>
+      <Button class="mb-4 ml-4 flex w-fit sm:hidden" variant="rosa"
+        >www.dchip.se <ArrowRight /></Button
+      >
       <div
-        class="before:to-[rgba(0, 0, 0, 1)] before:from-accent bg-rosa-300 relative w-1/2 rounded-r-md bg-cover bg-center before:absolute before:left-0 before:mr-0 before:h-full before:w-60 before:bg-linear-to-r"
+        class="before:to-[rgba(0, 0, 0, 1)] before:from-accent bg-rosa-300 relative hidden w-1/2 rounded-r-md bg-cover bg-center before:absolute before:left-0 before:mr-0 before:h-full before:w-60 before:bg-linear-to-r sm:block"
         style="background-image: url('https://files.dsek.se/files/public/photos/dchip.jpg')"
       >
         <img
