@@ -5,6 +5,7 @@
   import * as m from "$paraglide/messages";
   import { Button } from "$lib/components/ui/button";
   import { ArrowRight } from "@lucide/svelte";
+  import { type ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
   let { data } = $props();
 
@@ -51,11 +52,11 @@
     class="grid grid-cols-1 gap-6 px-12 sm:grid-cols-2 sm:px-0 md:grid-cols-3 lg:grid-cols-4"
   >
     {#each data.committees
-      .filter((e) => e.shortName != "dchip")
-      .sort( (e1, e2) => e1.name.localeCompare(e2.name), ) as committee (committee.id)}
+      .filter((e: ExtendedPrismaModel<"Committee">) => e.shortName != "dchip")
+      .sort( (e1: ExtendedPrismaModel<"Committee">, e2: ExtendedPrismaModel<"Committee">) => e1.name.localeCompare(e2.name), ) as committee (committee.id)}
       <a class="group block" href="/committees/{committee.shortName}">
         <div
-          class="border-border flex h-full w-full flex-grow flex-col rounded-md border-[1px]"
+          class="border-border group-hover:bg-muted-background flex h-full w-full flex-grow flex-col rounded-md border-[1px]"
         >
           <div
             class="bg-rosa-300 relative aspect-square rounded-t-md bg-cover bg-center"
@@ -67,9 +68,7 @@
               class="absolute top-2 left-2 size-16"
             />
           </div>
-          <div
-            class="group-hover:bg-muted-background flex flex-col gap-1 p-3 transition-all"
-          >
+          <div class="flex flex-col gap-1 p-3 transition-all">
             <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized before output -->
             <h3>{@html breakName(committee.name)}</h3>
             <span>{committee.description}</span>
