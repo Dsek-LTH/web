@@ -1,63 +1,99 @@
 import apiNames from "$lib/utils/apiNames";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
-import { message, setError, superValidate } from "sveltekit-superforms/server";
+import { message, superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
-import { fail } from "@sveltejs/kit";
+import { error, fail } from "@sveltejs/kit";
 import { authorize } from "$lib/utils/authorization";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import * as m from "$paraglide/messages";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
-export const load: PageServerLoad = async ({ locals, params }) => {
+export const load: PageServerLoad = async ({ locals, params, parent }) => {
   const { prisma, user } = locals;
   authorize(apiNames.DOOR.READ, user);
+
+  const { doors } = await parent();
+  const door = doors.find((door) => door.name === params.slug);
+
+  if (!door) error(404, m.admin_doors_notFound());
 
   const doorAccessPolicies = await prisma.doorAccessPolicy.findMany({
     where: {
       doorName: params.slug,
-      OR: [
-        {
-          endDatetime: {
-            gte: new Date(),
-          },
-        },
-        {
-          endDatetime: null,
-        },
-      ],
+      OR: [{ endDatetime: { gte: new Date() } }, { endDatetime: null }],
     },
-    include: {
-      member: true,
-    },
-    orderBy: [
-      {
-        startDatetime: "asc",
-      },
-      {
-        role: "asc",
-      },
-      {
-        studentId: "asc",
-      },
-    ],
+    include: { member: true },
+    orderBy: [{ startDatetime: "asc" }, { role: "asc" }, { studentId: "asc" }],
   });
+
   return {
+    door,
     doorAccessPolicies,
-    createForm: await superValidate(zod4(createSchema), { id: "createForm" }),
-    banForm: await superValidate(zod4(createSchema), { id: "banForm" }),
-    deleteForm: await superValidate(zod4(deleteSchema)),
+    createForm: await superValidate(zod4(createSchema)),
   };
 };
 
 const createSchema = z
   .object({
-    studentId: z.string().min(1).optional(),
-    role: z.string().min(1).optional(),
-    startDatetime: z.date().optional(),
-    endDatetime: z.date().optional(),
-    information: z.string().optional(),
+    subject: z.string().min(1),
+    type: z.enum(["member", "role"]).default("member"),
+    mode: z.enum(["allow", "deny"]).default("allow"),
+    startDatetime: z.iso.datetime({ local: true }).optional(),
+    endDatetime: z.iso.datetime({ local: true }).optional(),
+    reason: z.string().optional(),
   })
-  .refine((data) => data.studentId != null || data.role != null, {
-    message: "Du måste ange roll eller student id",
-  });
+  // These refinements return true for valid data, but it's
+  // easier to express them in terms of what is invalid.
+  .refine(
+    // Require the start date to be before the end date
+    ({ startDatetime: start, endDatetime: end }) =>
+      !(start && end && dayjs(end).isBefore(start)),
+    { message: m.admin_doors_endDateBeforeStart(), path: ["endDatetime"] },
+  )
+  .refine(
+    // Require an end date for member rules
+    (data) => !(data.type === "member" && !data.endDatetime),
+    { message: m.admin_doors_memberRuleRequireEnd(), path: ["endDatetime"] },
+  )
+  .refine(
+    // Require a reason for member rules
+    (data) => !(data.type === "member" && !data.reason),
+    { message: m.admin_doors_memberRuleRequireReason(), path: ["reason"] },
+  )
+  .refine(
+    // Require a reason for bans
+    (data) => !(data.mode === "deny" && !data.reason),
+    { message: m.admin_doors_banRuleRequireReason(), path: ["reason"] },
+  )
+  .refine(
+    // TODO: Banning groups is not implemented
+    (data) => !(data.type === "role" && data.mode === "deny"),
+    { message: "Not implemented", path: ["mode"] },
+  )
+  .refine(
+    async (data) => {
+      if (data.type === "member") {
+        // check if member exists
+        return await authorizedPrismaClient.member.findFirst({
+          where: { studentId: data.subject },
+        });
+      } else {
+        // check if role exists
+        return (
+          data.subject === "*" ||
+          (await authorizedPrismaClient.position.findFirst({
+            where: { id: { startsWith: `${data.subject}%` } },
+          }))
+        );
+      }
+    },
+    { message: m.admin_doors_memberOrRoleNotFound(), path: ["subject"] },
+  );
 
 const deleteSchema = z.object({
   id: z.string(),
@@ -69,49 +105,24 @@ export const actions: Actions = {
     const form = await superValidate(request, zod4(createSchema));
     if (!form.valid) return fail(400, { form });
     const doorName = params.slug;
-    const { studentId } = form.data;
-    if (
-      studentId &&
-      (await prisma.member.count({
-        where: { studentId },
-      })) <= 0
-    ) {
-      return setError(form, "studentId", "Medlemmen finns inte");
-    }
+    const { mode, subject, type, startDatetime, endDatetime, reason } =
+      form.data;
+
     await prisma.doorAccessPolicy.create({
       data: {
         doorName,
-        ...form.data,
+        startDatetime:
+          startDatetime && dayjs.tz(startDatetime, "Europe/Stockholm").toDate(),
+        endDatetime:
+          endDatetime && dayjs.tz(endDatetime, "Europe/Stockholm").toDate(),
+        isBan: mode === "deny",
+        information: reason,
+        ...(type === "member" ? { studentId: subject } : { role: subject }),
       },
     });
+
     return message(form, {
-      message: "Dörrpolicy skapad",
-      type: "success",
-    });
-  },
-  ban: async ({ request, locals, params }) => {
-    const { prisma } = locals;
-    const form = await superValidate(request, zod4(createSchema));
-    if (!form.valid) return fail(400, { form });
-    const doorName = params.slug;
-    const { studentId } = form.data;
-    if (
-      studentId &&
-      (await prisma.member.count({
-        where: { studentId },
-      })) <= 0
-    ) {
-      return setError(form, "studentId", "Medlemmen finns inte");
-    }
-    await prisma.doorAccessPolicy.create({
-      data: {
-        doorName,
-        isBan: true,
-        ...form.data,
-      },
-    });
-    return message(form, {
-      message: "Dörrpolicy skapad",
+      message: m.admin_doors_ruleCreated(),
       type: "success",
     });
   },
@@ -124,7 +135,7 @@ export const actions: Actions = {
       where: { id },
     });
     return message(form, {
-      message: "Dörrpolicy raderad",
+      message: m.admin_doors_ruleDeleted(),
       type: "success",
     });
   },

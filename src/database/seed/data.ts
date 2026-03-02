@@ -218,7 +218,6 @@ export const models: SeedClientOptions["models"] = {
   },
   doorAccessPolicy: {
     data: {
-      role: "dsek",
       startDatetime: () => faker.helpers.maybe(() => faker.date.past()) ?? null,
       endDatetime: (ctx) =>
         ctx.data.startDatetime && Math.random() > 0.5
