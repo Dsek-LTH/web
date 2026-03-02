@@ -12,6 +12,21 @@
   import * as m from "$paraglide/messages";
   import type { AriaAttributes } from "svelte/elements";
   import type { ClassValue } from "clsx";
+  import dayjs from "dayjs";
+  let {
+    value = $bindable(),
+    weekStartsOn = 1,
+    class: className,
+    error = false,
+    displayCompact = false,
+    ...restProps
+  }: AriaAttributes & {
+    value: CalendarDate;
+    weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+    class: ClassValue;
+    error?: boolean;
+    displayCompact?: boolean;
+  } = $props();
 
   const df = new DateFormatter(m.locale(), {
     dateStyle: "full",
@@ -22,6 +37,9 @@
   }
 
   function format(date: Date): string {
+    if (displayCompact) {
+      return dayjs(date).format("YYYY-MM-DD");
+    }
     let parts = df.formatToParts(date);
     let text = "";
     text += capitalize(parts.find((p) => p.type == "weekday")?.value ?? "");
@@ -36,18 +54,6 @@
     return text;
   }
 
-  let {
-    value = $bindable(),
-    weekStartsOn = 1,
-    class: className,
-    error = false,
-    ...restProps
-  }: AriaAttributes & {
-    value: CalendarDate;
-    weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
-    class: ClassValue;
-    error?: boolean;
-  } = $props();
   let contentRef = $state<HTMLElement | null>(null);
 </script>
 
@@ -56,7 +62,7 @@
     class={cn(
       buttonVariants({
         variant: "outline",
-        class: "w-[280px] justify-start text-left font-normal",
+        class: `${!displayCompact ? "w-[280px]" : ""} justify-start text-left font-normal`,
       }),
       !value && "text-muted-foreground",
       error && "bg-rosa-50 dark:bg-rosa-950 border-rosa-background",

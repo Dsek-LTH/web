@@ -1,7 +1,6 @@
 <script lang="ts">
   import * as NavigationMenu from "$lib/components/ui/navigation-menu/index.js";
   import DsekLogo from "$lib/components/DsekLogo.svelte";
-  import * as Avatar from "$lib/components/ui/avatar/index.js";
   import { Button } from "$lib/components/ui/button";
   import CommandDialog from "$lib/components/search/CommandDialog.svelte";
   import Search from "@lucide/svelte/icons/search";
@@ -23,12 +22,13 @@
   import { languageTag } from "$paraglide/runtime";
   import * as Drawer from "$lib/components/ui/drawer";
   import { onMount } from "svelte";
-  import { getFullName, getInitials } from "$lib/utils/client/member";
+  import { getFullName } from "$lib/utils/client/member";
   import { signIn, signOut } from "$lib/utils/auth";
   import ChevronUp from "@lucide/svelte/icons/chevron-up";
 
   import * as Popover from "$lib/components/ui/popover";
   import { cn } from "$lib/utils";
+  import MemberAvatar from "$lib/components/MemberAvatar.svelte";
 
   let commandDialogOpen = $state(false);
 
@@ -121,26 +121,14 @@
             onmouseover={() => (userPopover = true)}
             onmouseleave={() => closePopover()}
           >
-            <Avatar.Root class="md-nav:flex hidden">
-              <Avatar.Image
-                src={page.data.member?.picturePath}
-                alt="profile picture"
-              />
-              <Avatar.Fallback>{getInitials(page.data.member)}</Avatar.Fallback>
-            </Avatar.Root>
+            <MemberAvatar member={page.data.member}></MemberAvatar>
           </Popover.Trigger>
           <Popover.Content
             onmouseleave={() => (userPopover = false)}
             onmouseenter={() => (popoverMove = true)}
             class="z-150 flex max-w-[200px] flex-col items-center gap-2"
           >
-            <Avatar.Root class="size-12">
-              <Avatar.Image
-                src={page.data.member?.picturePath}
-                alt="profile picture"
-              />
-              <Avatar.Fallback>{getInitials(page.data.member)}</Avatar.Fallback>
-            </Avatar.Root>
+            <MemberAvatar member={page.data.member}></MemberAvatar>
             <h5 class="text-center break-all">
               {getFullName(page.data.member)}
             </h5>
@@ -206,15 +194,7 @@
                       href="/members/me"
                       class="hover:bg-secondary-hover flex flex-row items-center gap-2 rounded-md px-2"
                     >
-                      <Avatar.Root>
-                        <Avatar.Image
-                          src={page.data.member?.picturePath}
-                          alt="profile picture"
-                        />
-                        <Avatar.Fallback
-                          >{getInitials(page.data.member)}</Avatar.Fallback
-                        >
-                      </Avatar.Root>
+                      <MemberAvatar member={page.data.member}></MemberAvatar>
                       <p class="text-muted-foreground mt-0 font-medium">
                         <span>{getFullName(page.data.member)}</span>
                       </p>

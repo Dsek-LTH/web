@@ -7,5 +7,7 @@
 <nav class="contents">
   <Navbar />
 </nav>
-<NotImplemented />
+<main class="flex-1">
+  <NotImplemented />
+</main>
 <Footer />
