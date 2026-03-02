@@ -71,8 +71,9 @@
     <aside
       class="bg-muted-background flex flex-col gap-4 border-r-[1px] border-b-[1px] border-l-[1px] p-8 sm:w-64 sm:border-r-0 sm:border-b-0"
     >
-      <a class="flex flex-row items-center gap-1 font-medium" href="/committees"
-        ><ArrowLeft class="size-4" />{m.back()}</a
+      <a
+        class="flex flex-row items-center gap-1 font-medium"
+        href="/about#committees"><ArrowLeft class="size-4" />{m.back()}</a
       >
       <div
         class="[&_a]:text-muted-foreground [&_a]:hover:text-foreground flex flex-col gap-1 [&_a]:transition-all [&_strong]:font-medium"

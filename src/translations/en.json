@@ -979,5 +979,11 @@
   "committees_card_image": "Card image (in the committee list)",
   "committees_banner_image": "Banner image",
   "committees_invert_text": "Invert text/logo",
-  "commitees_edit_links": "Edit links"
+  "commitees_edit_links": "Edit links",
+  "about_guild": "About the guild",
+  "about_guild_prose_guild": "The D-guild within TLTH is a non-profit organization for students and alumni of the programs Computer Science and Information and Communication Technology . The guild has social arrangements, business contacts, study supervision, and everything else that helps students and alumni.",
+  "about_guild_prose_committees": "The guild is divided into 15 commmittees, which all have different areas of operation. Below, you can find information about all of them and get to know how you can become a volunteer!",
+  "about_guild_prose_union": "The D-guild is a part of Teknologkåren at LTH, which is the student union representing all students at the Faculty of Engineering.",
+  "dchip": "D-Chip",
+  "about_guild_prose_dchip": "D-Chip is a non-profit, student-driven association that students in Computer Science and InfoCom at LTH belong to. All female and non-binary students in the two programmes can join D-Chip."
 }
