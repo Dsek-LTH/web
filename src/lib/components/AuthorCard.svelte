@@ -1,4 +1,5 @@
 <script lang="ts">
+  import MemberAvatar from "$lib/components/MemberAvatar.svelte";
   import * as Avatar from "$lib/components/ui/avatar";
 
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
@@ -43,14 +44,7 @@
         ? ''
         : 'pointer-events-none'}"
     >
-      <Avatar.Root class="relative">
-        <Avatar.Image {lazy} src={member.picturePath} alt="Member image" />
-        <Avatar.Fallback
-          >{member.firstName && member.lastName
-            ? member.firstName?.charAt(0) + member.lastName?.charAt(0)
-            : "NN"}</Avatar.Fallback
-        >
-      </Avatar.Root>
+      <MemberAvatar {member}></MemberAvatar>
     </a>
   {/if}
 

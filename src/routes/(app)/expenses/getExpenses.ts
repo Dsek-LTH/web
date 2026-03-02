@@ -30,4 +30,8 @@ export const expensesInclusion = {
       id: Prisma.SortOrder.desc,
     },
   },
-};
+} satisfies Prisma.ExpenseInclude;
+
+export type ExpandedExpense = Prisma.ExpenseGetPayload<{
+  include: typeof expensesInclusion;
+}>;

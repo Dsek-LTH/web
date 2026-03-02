@@ -54,6 +54,4 @@ export const load = async ({ locals }) => {
   };
 };
 
-export type ExpandedExpense = Awaited<
-  ReturnType<typeof load>
->["myExpenses"][number];
+export type { ExpandedExpense } from "./getExpenses";

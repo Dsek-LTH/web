@@ -1,4 +1,5 @@
 <script lang="ts">
+  import MemberAvatar from "$lib/components/MemberAvatar.svelte";
   import * as Avatar from "$lib/components/ui/avatar/index.js";
 
   import type { ArticleSearchReturnAttributes } from "$lib/search/searchTypes";
@@ -23,15 +24,7 @@
       </div>
 
       <div class="flex flex-row items-center gap-1">
-        <Avatar.Root class="size-4">
-          <Avatar.Image src={data.author.picturePath} alt="profile picture" />
-          <Avatar.Fallback
-            >{data.author.firstName && data.author.lastName
-              ? data.author.firstName?.charAt(0) +
-                data.author.lastName?.charAt(0)
-              : "NN"}</Avatar.Fallback
-          >
-        </Avatar.Root>
+        <MemberAvatar member={data.author}></MemberAvatar>
 
         <span class="text-muted-foreground line-clamp-1"
           >{`${data.author.firstName} "${data.author.nickname}" ${data.author.lastName}`}</span

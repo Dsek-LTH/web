@@ -1,9 +1,9 @@
 <script lang="ts">
   import * as Command from "$lib/components/ui/command/index.js";
-  import * as Avatar from "$lib/components/ui/avatar/index.js";
   import { getBadgeVariantFromProgramme } from "../ui/badge/badge.svelte";
   import { Badge } from "$lib/components/ui/badge/index.js";
   import type { MemberSearchReturnAttributes } from "$lib/search/searchTypes";
+  import MemberAvatar from "$lib/components/MemberAvatar.svelte";
   const { data }: { data: MemberSearchReturnAttributes } = $props();
 </script>
 
@@ -13,10 +13,7 @@
   data-search-result
 >
   <div class="flex flex-row items-center gap-2">
-    <Avatar.Root>
-      <Avatar.Image src="https://picsum.photos/200" alt="profile picture" />
-      <Avatar.Fallback>IK</Avatar.Fallback>
-    </Avatar.Root>
+    <MemberAvatar member={data}></MemberAvatar>
     <div class="flex flex-col">
       <span class="font-medium">{`${data.fullName}`}</span>
       <span class="text-muted-foreground">

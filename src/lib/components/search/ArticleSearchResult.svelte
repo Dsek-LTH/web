@@ -6,6 +6,7 @@
   import { getLocale } from "$paraglide/runtime";
   const { data }: { data: ArticleSearchReturnAttributes } = $props();
   import dayjs from "dayjs";
+  import MemberAvatar from "$lib/components/MemberAvatar.svelte";
 </script>
 
 <Command.LinkItem
@@ -24,10 +25,7 @@
     </div>
 
     <div class="flex flex-row items-center gap-1">
-      <Avatar.Root class="size-4">
-        <Avatar.Image src="https://picsum.photos/200" alt="profile picture" />
-        <Avatar.Fallback>IK</Avatar.Fallback>
-      </Avatar.Root>
+      <MemberAvatar member={data.author}></MemberAvatar>
 
       <span class="text-muted-foreground line-clamp-1"
         >{`${data.author.firstName} "${data.author.nickname}" ${data.author.lastName}`}</span
