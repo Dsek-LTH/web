@@ -10,6 +10,8 @@
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
   import type { AuthUser } from "@zenstackhq/runtime";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+  import MemberSearchInput from "$lib/components/forms/MemberSearchInput.svelte";
 
   dayjs.extend(weekOfYear);
   dayjs.extend(weekYear);
@@ -72,7 +74,10 @@
     }
   }
 
-  function getStilId(day: dayjs.Dayjs, timeSlot: TimeSlot): string | undefined {
+  function getStilId(
+    day: dayjs.Dayjs,
+    timeSlot: TimeSlot,
+  ): string | null | undefined {
     let shift = shifts.find(
       (s) => dayjs(s.date).isSame(day, "day") && s.timeSlot === timeSlot,
     );
@@ -86,16 +91,32 @@
     }
   }
 
+  function getKey(day: dayjs.Dayjs, timeSlot: TimeSlot) {
+    return `${day.format("YYYY-MM-DD")}-${timeSlot}`;
+  }
+
   const now = dayjs();
   const windowStartWeek = now.week();
   const year = now.year();
-  const weeksInYear = dayjs(`$windowYear-12-31`).week();
+  const weeksInYear = dayjs(`${year}-12-31`).week();
   const isDayManager = isAuthorized(apiNames.CAFE.DAY_MANAGER, user);
   const canEditWorkers = isAuthorized(apiNames.CAFE.EDIT_WORKERS, user);
   const canEditCiabattas = isAuthorized(apiNames.CAFE.EDIT_CIABATTAS, user);
   const canSeeAllWeeks = isAuthorized(apiNames.CAFE.SEE_ALL_WEEKS, user);
 
   let editing: boolean = $state(false);
+
+  type Member = ExtendedPrismaModel<"Member">;
+
+  const memberMap: Record<string, Member | undefined> = $derived.by(() => {
+    const map: Record<string, Member | undefined> = {};
+    for (const shift of shifts) {
+      map[getKey(dayjs(shift.date), shift.timeSlot)] = shift.worker;
+    }
+    return map;
+  });
+
+  let formRef: HTMLFormElement | undefined = $state();
 
   let ciabattaString = $derived(
     ciabattaOfTheWeek?.ciabatta ?? m.errors_notImplemented(),
@@ -196,16 +217,24 @@
           action="?/updateSchedule"
           class="flex w-full"
           use:enhance
+          bind:this={formRef}
         >
           <input type="hidden" name="date" value={day} />
           <input type="hidden" name="timeSlot" value={timeSlot} />
           {#if canEditWorkers && editing}
-            <input
-              name="worker"
-              class="border-1 m-1 w-full rounded border p-2 text-center"
-              value={getStilId(day, timeSlot)}
-              type="text"
+            <MemberSearchInput
+              bind:member={memberMap[getKey(day, timeSlot)]}
+              onSelect={(selectedMember: Member) => {
+                memberMap[getKey(day, timeSlot)] = selectedMember;
+                formRef?.requestSubmit();
+              }}
             />
+            <input
+              type="hidden"
+              name="worker"
+              value={memberMap[getKey(day, timeSlot)]?.studentId ?? ""}
+            />
+            <button class="btn btn-primary">⏎</button>
           {:else}
             <input
               name="worker"

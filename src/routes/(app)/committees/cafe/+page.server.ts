@@ -4,7 +4,7 @@ import { isAuthorized } from "$lib/utils/authorization";
 import { committeeActions, committeeLoad } from "../committee.server";
 import * as m from "$paraglide/messages";
 import { error, fail } from "@sveltejs/kit";
-import { TimeSlot } from "@prisma/client";
+import { Prisma, TimeSlot } from "@prisma/client";
 import { zod } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import { message, superValidate } from "sveltekit-superforms/server";
@@ -33,17 +33,9 @@ const editWeeklyCiabattaSchema = z.object({
   ciabatta: z.string(),
 });
 
-export type ShiftWithWorker = {
-  id: string;
-  date: Date;
-  timeSlot: TimeSlot;
-  worker: {
-    firstName: string;
-    lastName: string;
-    nickname: string | null;
-    studentId: string;
-  };
-};
+export type ShiftWithWorker = Prisma.CafeShiftGetPayload<{
+  include: { worker: true };
+}>;
 
 function getWeek(weekString: string | null, user: AuthUser): dayjs.Dayjs {
   const currentWeek = dayjs().startOf("week");
@@ -89,14 +81,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
       },
     },
     include: {
-      worker: {
-        select: {
-          firstName: true,
-          lastName: true,
-          nickname: true,
-          studentId: true,
-        },
-      },
+      worker: true,
     },
     orderBy: { date: "asc" },
   });
@@ -180,14 +165,17 @@ export const actions: Actions = {
           });
         }
         // Check if the user already has a shift
-        const tempShift = dayShifts.filter((shift) => shift.timeSlot != timeSlot && shift.worker.studentId == user.studentId)
+        const tempShift = dayShifts.filter(
+          (shift) =>
+            shift.timeSlot != timeSlot &&
+            shift.worker.studentId == user.studentId,
+        );
         if (!isSetByAdmin && tempShift.length === 1) {
           //TODO: Check the role name for vice head of cafe in this translation string
           return message(form, {
             message: m.cafe_error_already_have_shift(),
             type: "error",
-          })
-
+          });
         }
         try {
           await prisma.cafeShift.create({
