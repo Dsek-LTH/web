@@ -18,7 +18,7 @@
       {#if cafeOpen}
         {cafeOpen.markdown}
       {:else}
-        N/A
+        closed
       {/if}
     </h2>
   </article>
