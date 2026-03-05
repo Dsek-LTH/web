@@ -114,6 +114,7 @@
               <Input
                 type="number"
                 name="price"
+                step="0.1"
                 class="input w-36 bg-base-300"
                 form="updateForm"
                 bind:value={$updateForm.price}
