@@ -40,6 +40,12 @@
     }
   });
 
+  $effect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- Requried to close drawer on url update
+    page.url.href;
+    navOpen = false;
+  });
+
   let oldScroll: number;
   let visible = $state(true);
 
