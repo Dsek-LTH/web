@@ -1041,5 +1041,17 @@
   "cafe_error_worker_not_exist": "Worker {name} does not exist.",
   "cafe_error_no_ciabatta_edit_perms": "You are not permitted to edit ciabattas.",
   "cafe_error_no_week_viewing_perms": "You are not permitted to view this week",
-  "cafe_closed": "Closed"
+  "cafe_closed": "Closed",
+  "contact_contact": "Contact",
+  "contact_vice_president": "For general questions, contact the Vice President.",
+  "contact_president": "For questions about the guild structure and board, contact the President.",
+  "contact_business": "For companies, you are welcome to contact the Business manager.",
+  "contact_teknikfokus_prose": "Teknikfokus is the annual career fair organized by the D- and E-guild, which is aimed towards students on the engineering programmes Computer Science and Engineering, Information and Communication Technologies Engineering, Electrical Engineering and Biomedical Engineering. Teknikfokus is one of the biggest events during the year for the guilds and an excellent opportunity to present yourselves to the students.",
+  "contact_wellbeing": "We are here for your well-being, in everything from the study environment to equal treament. We work continuously to make sure that the guild has an including environment where you always feel welcome, regardless of who you are. You as a student must be heard! Therefore, do not hesitate to contact us if something happens or if you have thoughts on how we can improve the well-being of the guild!",
+  "contact_pm_prose": "For help on how to use the website correctly, or to make sure you have the right permissions, contact the Head Processor.",
+  "contact_root_prose": "For technical support, or in cases related to IT Security, contact the server responsible, root.",
+  "contact_organization_number": "Organization number",
+  "contact_visitor_address": "Visitor address",
+  "contact_postal_address": "Postal address",
+  "contact_guild_information": "Guild information"
 }
