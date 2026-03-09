@@ -1298,13 +1298,14 @@ model CafeShift {
 
   @@allow("create",
     (
-      (workerId == auth().memberId
-      && !(timeSlot in [DAYMANAGER]))
-      || (workerId == auth().memberId
-      && has(auth().policies, "cafe:day_manager"))
+      workerId == auth().memberId &&
+      (
+      !(timeSlot in [DAYMANAGER])
+      || has(auth().policies, "cafe:day_manager")
+      )
     )
     || has(auth().policies, "cafe:edit_workers")
-    )
+  )
 
   @@allow("update", (
     workerId == auth().memberId 
