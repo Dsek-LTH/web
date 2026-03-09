@@ -52,22 +52,16 @@
     if (!w) {
       return true;
     }
-    if (w.studentId === user.studentId) {
-      return true;
-    } else {
-      return false;
-    }
+    return w.studentId === user.studentId;
   }
 
   function hasShift(day: dayjs.Dayjs, timeSlot: TimeSlot, user: AuthUser) {
-    return shifts.find(
+    return !!shifts.find(
       (s) =>
         dayjs(s.date).isSame(day, "day") &&
         s.timeSlot === timeSlot &&
         s.worker.studentId === user.studentId,
-    )
-      ? true
-      : false;
+    );
   }
 
   function getName(day: dayjs.Dayjs, timeSlot: TimeSlot) {
