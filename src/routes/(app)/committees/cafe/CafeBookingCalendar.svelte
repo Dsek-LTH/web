@@ -129,12 +129,9 @@
     };
   }
 
-  let ciabattaString = $state(
-    ciabattaOfTheWeek?.name ?? m.errors_notImplemented,
+  let ciabattaString = $derived(
+    ciabattaOfTheWeek?.name ?? m.errors_notImplemented(),
   );
-  $effect(() => {
-    ciabattaString = ciabattaOfTheWeek?.name ?? m.errors_notImplemented();
-  });
 </script>
 
 <!-- The bg-zinc here is very ugly, but I couldn't find better fitting colours...-->
