@@ -981,5 +981,11 @@
   "committees_card_image": "Kortbild (i utskottslitan)",
   "committees_banner_image": "Bannerbild",
   "committees_invert_text": "Invertera text/logo",
-  "committees_edit_links": "Redigera länkar"
+  "committees_edit_links": "Redigera länkar",
+  "about_guild": "Om sektionen",
+  "about_guild_prose_guild": "D-sektionen inom TLTH är en ideell organisation för studenter och alumner vid LTHs civilingenjörsprogram Datateknik och InfoCom. Sektionen har sociala arrangemang, näringslivskontakter, studiebevakning, och allt annat som hjälper studenter och alumner.",
+  "about_guild_prose_committees": "Sektionen är indelad i 15 utskott, som alla har olika verksamhet och områden. Nedan kan du hitta information om alla och få veta hur du kan engagera dig i dem!",
+  "about_guild_prose_union": "D-sektionen är del av Teknologkåren vid LTH, som representerar alla studenter vid Lunds Tekniska Högskola.",
+  "dchip": "D-Chip",
+  "about_guild_prose_dchip": "D-Chip är en ideell, studentdriven förening som studenterna på Datateknik och InfoCom på LTH hör till. Alla kvinnliga och icke-binära studenter på de två programmen kan vara med i D-Chip."
 }
