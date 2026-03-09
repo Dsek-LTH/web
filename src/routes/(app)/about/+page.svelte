@@ -49,7 +49,7 @@
   <h2 class="mt-12 mb-4">{m.committees()}</h2>
 
   <div
-    class="grid grid-cols-1 gap-6 px-12 sm:grid-cols-2 sm:px-0 md:grid-cols-3 lg:grid-cols-4"
+    class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
   >
     {#each data.committees
       .filter((e: ExtendedPrismaModel<"Committee">) => e.shortName != "dchip")
@@ -59,7 +59,7 @@
           class="border-border group-hover:bg-muted-background flex h-full w-full flex-grow flex-col rounded-md border-[1px]"
         >
           <div
-            class="bg-rosa-300 relative aspect-square rounded-t-md bg-cover bg-center"
+            class="bg-rosa-300 relative aspect-[5/2] rounded-t-md bg-cover bg-center sm:aspect-square"
             style="background-image: url('{committee.previewUrl}')"
           >
             <CommitteeIcon
@@ -78,7 +78,7 @@
     {/each}
   </div>
 
-  <a class="mt-12 block px-12 sm:px-0" href="https://dchip.se">
+  <a class="mt-12 block" href="https://dchip.se">
     <div
       class="border-border hover:bg-muted-background flex flex-col rounded-md border-[1px] transition-all sm:flex-row lg:h-32"
     >
