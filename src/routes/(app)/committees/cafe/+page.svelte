@@ -25,7 +25,6 @@
   dayjs.extend(weekOfYear);
   dayjs.extend(weekYear);
 
-  //  TODO: Handle going over years
   let week = $derived(
     dayjs()
       .startOf("year")

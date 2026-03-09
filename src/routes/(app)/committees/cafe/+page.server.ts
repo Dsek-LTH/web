@@ -129,7 +129,6 @@ export const actions: Actions = {
   updateSchedule: async ({ request, locals }) => {
     const { user, prisma } = locals;
     const form = await superValidate(request, zod(scheduleForm));
-    //TODO: Maybe make this a message too?
     if (!form.valid) return fail(400, { form });
 
     const { date, worker, timeSlot } = form.data;
@@ -148,7 +147,6 @@ export const actions: Actions = {
       if (!member) {
         return fail(400, { form });
       }
-      // TODO: check for permissions here so we don't fail
       const dayShifts = await prisma.cafeShift.findMany({
         where: { date: date },
         include: { worker: { select: { studentId: true } } },
@@ -171,7 +169,6 @@ export const actions: Actions = {
             shift.worker.studentId == user.studentId,
         );
         if (!isSetByAdmin && tempShift.length === 1) {
-          //TODO: Check the role name for vice head of cafe in this translation string
           return message(form, {
             message: m.cafe_error_already_have_shift(),
             type: "error",
@@ -234,9 +231,6 @@ export const actions: Actions = {
     }
   },
 
-  // TODO: make this two tables, one look up table,
-  // and a second table with two ciabattas
-  // (this one we're indexing in here).
   editWeeklyCiabatta: async ({ request, locals }) => {
     const { user, prisma } = locals;
     const form = await superValidate(request, zod(editWeeklyCiabattaSchema));
