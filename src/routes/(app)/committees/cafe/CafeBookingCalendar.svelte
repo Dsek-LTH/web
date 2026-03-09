@@ -109,12 +109,14 @@
 
   type Member = ExtendedPrismaModel<"Member">;
 
-  const memberMap: Record<string, Member | undefined> = $derived.by(() => {
-    const map: Record<string, Member | undefined> = {};
+  let memberMap: Record<string, Member | undefined> = $state({});
+
+  $effect(() => {
+    const newMap: Record<string, Member | undefined> = {};
     for (const shift of shifts) {
-      map[getKey(dayjs(shift.date), shift.timeSlot)] = shift.worker;
+      newMap[getKey(dayjs(shift.date), shift.timeSlot)] = shift.worker;
     }
-    return map;
+    memberMap = newMap;
   });
 
   const formRefs: Record<string, HTMLFormElement> = {};
@@ -225,7 +227,9 @@
           method="POST"
           action="?/updateSchedule"
           class="flex w-full"
-          use:enhance
+          use:enhance={() =>
+            ({ update }) =>
+              update({ reset: false })}
           use:registerForm={getKey(day, timeSlot)}
         >
           <input type="hidden" name="date" value={day} />
