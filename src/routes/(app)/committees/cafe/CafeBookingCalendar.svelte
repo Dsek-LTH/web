@@ -196,9 +196,7 @@
       fieldName="week"
       getPageName={(index) => {
         const week = canSeeAllWeeks ? index + 1 : windowStartWeek + index;
-        return week > weeksInYear
-          ? (week - weeksInYear).toString()
-          : week.toString();
+        return (week % weeksInYear).toString();
       }}
       getPageNumber={(weekString) => {
         const week = Number(weekString);
