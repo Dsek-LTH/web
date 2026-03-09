@@ -7,9 +7,10 @@
   import CommitteePage from "../CommitteePage.svelte";
   import CafeBookingCalendar from "./CafeBookingCalendar.svelte";
   import type { PageData } from "./$types";
-  let { data }: { data: PageData } = $props();
   import weekYear from "dayjs/plugin/weekYear";
   import weekOfYear from "dayjs/plugin/weekOfYear";
+
+  let { data }: { data: PageData } = $props();
   let isEditing = $state(false);
 
   const getWeekdayName = (weekday: number): string => {
