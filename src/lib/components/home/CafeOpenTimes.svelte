@@ -18,6 +18,7 @@
       {#if cafeOpen}
         {cafeOpen.markdown}
       {:else}
+        {m.cafe_closed()}
         closed
       {/if}
     </h2>

@@ -917,6 +917,7 @@
   "cafe_error_worker_not_exist": "Worker {name} does not exist.",
   "cafe_error_no_ciabatta_edit_perms": "You are not permitted to edit ciabattas.",
   "cafe_error_no_week_viewing_perms": "You are not permitted to view this week",
+  "cafe_closed": "Closed",
   "monday": "Monday",
   "tuesday": "Tuesday",
   "wednesday": "Wednesday",
