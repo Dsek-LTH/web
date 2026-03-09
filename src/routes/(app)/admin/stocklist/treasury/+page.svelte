@@ -23,6 +23,9 @@
   function enableEdit(drinkBatch: DrinkItemBatch) {
     editId = drinkBatch.id;
     $updateForm.quantityDelta = drinkBatch.quantityDelta;
+    $updateForm.nrBottlesDelta = drinkBatch.nrBottlesDelta
+      ? drinkBatch.nrBottlesDelta
+      : 0;
     $updateForm.id = drinkBatch.id;
   }
 
@@ -81,6 +84,7 @@
         <th>Datum</th>
         <th>Namn</th>
         <th>Antal/Vikt</th>
+        <th>Antal flaskor</th>
         <th>Användare</th>
         <th>Ändra</th>
         <th>Ta bort</th>
@@ -107,6 +111,19 @@
                 bind:value={$updateForm.id}
               />
             </td>
+            {#if entry.item.quantityType === "WEIGHT"}
+              <td>
+                <Input
+                  type="number"
+                  name="nrBottlesDelta"
+                  class="input w-20 bg-base-300"
+                  form="updateForm"
+                  bind:value={$updateForm.nrBottlesDelta}
+                />
+              </td>
+            {:else}
+              <td>-</td>
+            {/if}
             <td>{entry.user}</td>
             <td>
               <button
@@ -133,6 +150,7 @@
             <td>{new Date(entry.date).toLocaleDateString("sv-SE")}</td>
             <td>{entry.item.name}</td>
             <td>{entry.quantityDelta}</td>
+            <td>{entry.nrBottlesDelta ? entry.nrBottlesDelta : "-"}</td>
             <td>{entry.user}</td>
             <td>
               <button

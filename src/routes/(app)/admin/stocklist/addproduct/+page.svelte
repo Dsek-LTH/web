@@ -22,7 +22,7 @@
     name="selectType"
     role="tab"
     class="tab text-base"
-    aria-label="Öl/Cider"
+    aria-label="Öl/Cider/Vin"
     checked
     on:click={() => {
       reset();
@@ -76,7 +76,11 @@
         bind:value={$form.price}
       />
       <div class="flex justify-end">
-        <button type="submit" class=" btn btn-primary mt-2 w-4/12">Add</button>
+        <button
+          type="submit"
+          on:click={() => ($form.quantityType = "COUNTS")}
+          class="btn btn-primary mt-2 w-4/12">Add</button
+        >
       </div>
     </form>
   </div>
@@ -148,7 +152,11 @@
         bind:value={$form.bottleFullWeight}
       />
       <div class="flex justify-end">
-        <button type="submit" class=" btn btn-primary mt-2 w-4/12">Add</button>
+        <button
+          type="submit"
+          on:click={() => ($form.quantityType = "WEIGHT")}
+          class="btn btn-primary mt-2 w-4/12">Add</button
+        >
       </div>
     </form>
   </div>

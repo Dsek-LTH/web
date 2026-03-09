@@ -23,9 +23,15 @@ export async function inventoryValue(prisma: ExtendedPrisma) {
   for (const item of items) {
     if (item.quantityType === "COUNTS") {
       value += (item.price / 100) * item.quantityAvailable!;
+    } else if (
+      (item.quantityType === "WEIGHT" && item.bottleEmptyWeight == 0) ||
+      item.bottleFullWeight == 0
+    ) {
+      continue;
     } else {
       const bottleWeight = item.bottleEmptyWeight!;
-      const liquidWeight = item.quantityAvailable! - bottleWeight;
+      const liquidWeight =
+        item.quantityAvailable! - item.nrBottles! * bottleWeight;
       const bottlePrice = item.price / 100;
       const fullBottleLiquidWeight = item.bottleFullWeight! - bottleWeight;
       value += (liquidWeight / fullBottleLiquidWeight) * bottlePrice;

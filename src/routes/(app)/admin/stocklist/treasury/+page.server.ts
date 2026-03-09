@@ -18,6 +18,7 @@ const dateSchema = z.object({
 const updateSchema = z.object({
   id: z.string(),
   quantityDelta: z.number(),
+  nrBottlesDelta: z.number(),
 });
 
 export const load: PageServerLoad = async (event) => {
@@ -65,7 +66,8 @@ export const actions: Actions = {
     if (!form.valid) return fail(400, { form });
 
     const batchId = form.data.id;
-    const requestedDelta = form.data.quantityDelta;
+    const requestedQuantityDelta = form.data.quantityDelta;
+    const requestedNrBottlesDelta = form.data.nrBottlesDelta;
     try {
       await prisma.$transaction(async (tx) => {
         const batch = await tx.drinkItemBatch.findUnique({
@@ -75,26 +77,37 @@ export const actions: Actions = {
           },
         });
 
-        const newAmount =
+        const newQuantity =
           batch!.item.quantityAvailable! -
           batch!.quantityDelta +
-          requestedDelta;
+          requestedQuantityDelta;
 
-        if (newAmount < 0) {
+        const newNrBottles =
+          batch!.item.nrBottles! -
+          batch!.nrBottlesDelta! +
+          requestedNrBottlesDelta
+            ? batch!.item.nrBottles! -
+              batch!.nrBottlesDelta! +
+              requestedNrBottlesDelta
+            : 0;
+
+        if (newQuantity < 0 || newNrBottles < 0) {
           throw new Error("Totalt antal blir negativt");
         }
 
         await tx.drinkItemBatch.update({
           where: { id: batchId },
           data: {
-            quantityDelta: requestedDelta,
+            quantityDelta: requestedQuantityDelta,
+            nrBottlesDelta: requestedNrBottlesDelta,
           },
         });
 
         await tx.drinkItem.update({
           where: { id: batch?.item.id },
           data: {
-            quantityAvailable: newAmount,
+            quantityAvailable: newQuantity,
+            nrBottles: newNrBottles,
           },
         });
       });
@@ -120,17 +133,23 @@ export const actions: Actions = {
             item: true,
           },
         });
-        const newAmount =
+        const newQuantity =
           batch!.item.quantityAvailable! - batch!.quantityDelta!;
 
-        if (newAmount < 0) {
+        const newNrBottles =
+          batch!.item.nrBottles! - batch!.nrBottlesDelta!
+            ? batch!.item.nrBottles! - batch!.nrBottlesDelta!
+            : 0;
+
+        if (newQuantity < 0 || newNrBottles < 0) {
           throw new Error("Totalt antal blir negativt");
         }
 
         await tx.drinkItem.update({
           where: { id: batch?.item.id },
           data: {
-            quantityAvailable: newAmount,
+            quantityAvailable: newQuantity,
+            nrBottles: newNrBottles,
           },
         });
 
