@@ -88,7 +88,7 @@
   function toggleEdit() {
     editing = !editing;
     if (!editing) {
-      ciabattaString = ciabattaOfTheWeek?.ciabatta ?? m.errors_notImplemented();
+      ciabattaString = ciabattaOfTheWeek?.name ?? m.errors_notImplemented();
     }
   }
 
@@ -130,7 +130,7 @@
   }
 
   let ciabattaString = $derived(
-    ciabattaOfTheWeek?.ciabatta ?? m.errors_notImplemented(),
+    ciabattaOfTheWeek?.name ?? m.errors_notImplemented(),
   );
 </script>
 

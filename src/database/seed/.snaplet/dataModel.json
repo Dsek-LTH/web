@@ -2912,9 +2912,9 @@
           "maxLength": null
         },
         {
-          "id": "public.ciabatta_of_the_week.ciabatta",
-          "name": "ciabatta",
-          "columnName": "ciabatta",
+          "id": "public.ciabatta_of_the_week.name",
+          "name": "name",
+          "columnName": "name",
           "type": "text",
           "isRequired": true,
           "kind": "scalar",

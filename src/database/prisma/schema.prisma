@@ -993,10 +993,10 @@ model CafeShift {
 }
 
 model CiabattaOfTheWeek {
-  id       String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  year     Int
-  week     Int
-  ciabatta String
+  id   String @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  year Int
+  week Int
+  name String
 
   @@unique([year, week], map: "week_year_unique")
   @@map("ciabatta_of_the_week")

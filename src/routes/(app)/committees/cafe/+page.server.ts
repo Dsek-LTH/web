@@ -30,7 +30,7 @@ const scheduleForm = z.object({
 const editWeeklyCiabattaSchema = z.object({
   year: z.number(),
   week: z.number(),
-  ciabatta: z.string(),
+  name: z.string(),
 });
 
 export type ShiftWithWorker = Prisma.CafeShiftGetPayload<{
@@ -54,7 +54,7 @@ export type Ciabatta = {
   id: string;
   year: number;
   week: number;
-  ciabatta: string;
+  name: string;
 };
 
 export const load: PageServerLoad = async ({ locals, url }) => {
@@ -249,12 +249,12 @@ export const actions: Actions = {
         },
       },
       update: {
-        ciabatta: form.data.ciabatta,
+        name: form.data.name,
       },
       create: {
         year: form.data.year,
         week: form.data.week,
-        ciabatta: form.data.ciabatta,
+        name: form.data.name,
       },
     });
     return message(form, {

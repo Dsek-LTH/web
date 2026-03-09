@@ -3,7 +3,7 @@ CREATE TABLE "ciabatta_of_the_week" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "year" INTEGER NOT NULL,
     "week" INTEGER NOT NULL,
-    "ciabatta" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
 
     CONSTRAINT "ciabatta_of_the_week_pkey" PRIMARY KEY ("id")
 );
