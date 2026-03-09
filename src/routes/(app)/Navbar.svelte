@@ -40,6 +40,11 @@
     }
   });
 
+  $effect(() => {
+    void page.url.href;
+    navOpen = false;
+  });
+
   let oldScroll: number;
   let visible = $state(true);
 
