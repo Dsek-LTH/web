@@ -6,6 +6,7 @@
   import { enhance } from "$app/forms";
   import { TimeSlot } from "@prisma/client";
   import type { Ciabatta, ShiftWithWorker } from "./+page.server";
+  import { languageTag } from "$paraglide/runtime";
   import Pagination from "$lib/components/Pagination.svelte";
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
@@ -16,13 +17,18 @@
 
   dayjs.extend(weekOfYear);
   dayjs.extend(weekYear);
-  const weekDays = [
-    m.monday(),
-    m.tuesday(),
-    m.wednesday(),
-    m.thursday(),
-    m.friday(),
-  ];
+
+  const getWeekdayName = (weekday: number): string => {
+    let date = new Date();
+    // we assign monday to 0, not sunday
+    while (date.getDay() - 1 !== weekday) {
+      date.setDate(date.getDate() + 1);
+    }
+    return date.toLocaleString(languageTag(), {
+      weekday: "long",
+    });
+  };
+
   let {
     week = $bindable(),
     shifts,
@@ -213,10 +219,9 @@
     />
   </div>
   <div class="mt-1 grid grid-cols-1 gap-3 p-3 md:grid-cols-5 md:gap-0">
-    {#each weekDays as dayName}
-      {@const day = week.startOf("week").add(weekDays.indexOf(dayName), "day")}
+    {#each { length: 5 }, dayIndex}
+      {@const day = week.startOf("week").add(dayIndex, "day")}
       {@const dayHasManager: boolean = shifts.find((s) => dayjs(s.date).isSame(day, "day") && s.timeSlot === "DAYMANAGER") != undefined}
-
       {#snippet DayForm(timeSlot: TimeSlot, disabled: boolean)}
         <form
           method="POST"
@@ -262,7 +267,7 @@
       {/snippet}
 
       <div class="m-1 grid rounded bg-base-200 p-2">
-        <p class="gap-1 text-center font-medium">{dayName}</p>
+        <p class="gap-1 text-center font-medium">{getWeekdayName(dayIndex)}</p>
 
         <p class="gap-1 text-center font-bold text-primary">Day Manager</p>
         {@render DayForm(
