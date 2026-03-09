@@ -59,15 +59,15 @@
 
 <div
   class={cn(
-    "flex h-16 flex-row items-center justify-between pr-4 pl-4",
+    "flex flex-row items-center justify-between gap-4 px-4 py-2",
     foreground,
     background,
   )}
   role="alert"
 >
-  <svelte:component this={icon} size={24} strokeWidth={3} />
+  <svelte:component this={icon} size={24} class="shrink-0" strokeWidth={3} />
 
-  <span class="text-2xl font-bold">{message}</span>
+  <span class="text-lg font-bold">{message}</span>
 
   <Button class={foreground} variant="ghost" onclick={closeAlert}>
     <CloseIcon strokeWidth={5} />
