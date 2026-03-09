@@ -167,7 +167,7 @@
             }}
           >
             <input
-              name="ciabatta"
+              name="name"
               class="w-full min-w-0 flex-1 rounded border px-2"
               bind:value={ciabattaString}
               type="text"
