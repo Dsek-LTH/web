@@ -257,11 +257,7 @@
             />
             <button
               class="border-1 m-1 w-full rounded border border-base-300 p-2 enabled:bg-base-300 enabled:hover:border-primary
-              {dayHasManager ||
-              !checkForDayManager ||
-              canSignUpForShift(day, timeSlot, user)
-                ? ''
-                : 'text-slate-500'}"
+              {disabled ? 'text-slate-500' : ''}"
               {disabled}
             >
               {getName(day, timeSlot)}
