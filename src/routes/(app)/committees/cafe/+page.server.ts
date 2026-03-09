@@ -133,102 +133,98 @@ export const actions: Actions = {
 
     const { date, worker, timeSlot } = form.data;
 
-    if (date && timeSlot) {
-      const member = worker || user.studentId;
-      const isSetByAdmin = isAuthorized(apiNames.CAFE.EDIT_WORKERS, user);
-      if (member != user.studentId) {
-        if (!isAuthorized(apiNames.CAFE.EDIT_WORKERS, user)) {
-          return message(form, {
-            message: m.cafe_error_no_edit_worker_perms(),
-            type: "error",
-          });
-        }
+    const member = worker || user.studentId;
+    const isSetByAdmin = isAuthorized(apiNames.CAFE.EDIT_WORKERS, user);
+    if (member != user.studentId) {
+      if (!isAuthorized(apiNames.CAFE.EDIT_WORKERS, user)) {
+        return message(form, {
+          message: m.cafe_error_no_edit_worker_perms(),
+          type: "error",
+        });
       }
-      if (!member) {
-        return fail(400, { form });
-      }
-      const dayShifts = await prisma.cafeShift.findMany({
-        where: { date: date },
-        include: { worker: { select: { studentId: true } } },
-      });
-
-      const cafeShift = dayShifts.find((shift) => shift.timeSlot == timeSlot);
-
-      const isDayManager = isAuthorized(apiNames.CAFE.DAY_MANAGER, user);
-      if (!cafeShift) {
-        if (timeSlot == TimeSlot.DAYMANAGER && !isDayManager && !isSetByAdmin) {
-          return message(form, {
-            message: m.cafe_error_only_daymanagers(),
-            type: "error",
-          });
-        }
-        // Check if the user already has a shift
-        const tempShift = dayShifts.filter(
-          (shift) =>
-            shift.timeSlot != timeSlot &&
-            shift.worker.studentId == user.studentId,
-        );
-        if (!isSetByAdmin && tempShift.length === 1) {
-          return message(form, {
-            message: m.cafe_error_already_have_shift(),
-            type: "error",
-          });
-        }
-        try {
-          await prisma.cafeShift.create({
-            data: {
-              date: date,
-              worker: {
-                connect: {
-                  studentId: member,
-                },
-              },
-              timeSlot: timeSlot,
-            },
-          });
-        } catch (error: unknown) {
-          // Ugly (but afaik only) way to catch specifically when a valid member studentId isn't passed in.
-          // This requires less db calls then first checking the member.
-          if (
-            error instanceof PrismaClientKnownRequestError &&
-            error.code === "P2025"
-          ) {
-            return message(form, {
-              message: m.cafe_error_worker_not_exist({ name: member }),
-              type: "error",
-            });
-          }
-          throw error;
-        }
-      } else {
-        // There is already a shift and we might be able to delete it:
-        if (cafeShift.worker.studentId === member) {
-          await prisma.cafeShift.delete({ where: { id: cafeShift.id } });
-          return message(form, {
-            message:
-              member === user.studentId
-                ? m.cafe_quit_shift()
-                : m.cafe_quit_shift_for_other({ name: member }),
-            type: "success",
-          });
-        } else {
-          return message(form, {
-            message: m.generic_error(),
-            type: "error",
-          });
-        }
-      }
-
-      return message(form, {
-        message:
-          member === user.studentId
-            ? m.cafe_signed_up()
-            : m.cafe_signed_up_for_other({ name: member }),
-        type: "success",
-      });
-    } else {
+    }
+    if (!member) {
       return fail(400, { form });
     }
+    const dayShifts = await prisma.cafeShift.findMany({
+      where: { date: date },
+      include: { worker: { select: { studentId: true } } },
+    });
+
+    const cafeShift = dayShifts.find((shift) => shift.timeSlot == timeSlot);
+
+    const isDayManager = isAuthorized(apiNames.CAFE.DAY_MANAGER, user);
+    if (!cafeShift) {
+      if (timeSlot == TimeSlot.DAYMANAGER && !isDayManager && !isSetByAdmin) {
+        return message(form, {
+          message: m.cafe_error_only_daymanagers(),
+          type: "error",
+        });
+      }
+      // Check if the user already has a shift
+      const tempShift = dayShifts.filter(
+        (shift) =>
+          shift.timeSlot != timeSlot &&
+          shift.worker.studentId == user.studentId,
+      );
+      if (!isSetByAdmin && tempShift.length === 1) {
+        return message(form, {
+          message: m.cafe_error_already_have_shift(),
+          type: "error",
+        });
+      }
+      try {
+        await prisma.cafeShift.create({
+          data: {
+            date: date,
+            worker: {
+              connect: {
+                studentId: member,
+              },
+            },
+            timeSlot: timeSlot,
+          },
+        });
+      } catch (error: unknown) {
+        // Ugly (but afaik only) way to catch specifically when a valid member studentId isn't passed in.
+        // This requires less db calls then first checking the member.
+        if (
+          error instanceof PrismaClientKnownRequestError &&
+          error.code === "P2025"
+        ) {
+          return message(form, {
+            message: m.cafe_error_worker_not_exist({ name: member }),
+            type: "error",
+          });
+        }
+        throw error;
+      }
+    } else {
+      // There is already a shift and we might be able to delete it:
+      if (cafeShift.worker.studentId === member) {
+        await prisma.cafeShift.delete({ where: { id: cafeShift.id } });
+        return message(form, {
+          message:
+            member === user.studentId
+              ? m.cafe_quit_shift()
+              : m.cafe_quit_shift_for_other({ name: member }),
+          type: "success",
+        });
+      } else {
+        return message(form, {
+          message: m.generic_error(),
+          type: "error",
+        });
+      }
+    }
+
+    return message(form, {
+      message:
+        member === user.studentId
+          ? m.cafe_signed_up()
+          : m.cafe_signed_up_for_other({ name: member }),
+      type: "success",
+    });
   },
 
   editWeeklyCiabatta: async ({ request, locals }) => {
