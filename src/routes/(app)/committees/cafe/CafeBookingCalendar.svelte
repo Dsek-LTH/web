@@ -241,17 +241,16 @@
                 await tick();
                 formRefs[getKey(day, timeSlot)]?.requestSubmit();
               }}
+              class="pb-1.5"
             />
             <input
-              type="hidden"
               name="worker"
+              hidden
               value={memberMap[getKey(day, timeSlot)]?.studentId ?? ""}
             />
-            <button class="btn btn-primary">⏎</button>
           {:else}
             <input
               name="worker"
-              class="border-1 m-1 w-full rounded border p-2 text-center"
               value={getStilId(day, timeSlot)}
               type="text"
               hidden
