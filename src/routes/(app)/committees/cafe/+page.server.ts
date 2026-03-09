@@ -8,7 +8,7 @@ import { TimeSlot } from "./types";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { updateMarkdown } from "$lib/news/markdown/mutations.server";
-import { updateSchema } from "../../types";
+import { updateSchema } from "../types";
 
 import dayjs from "dayjs";
 
