@@ -24,7 +24,7 @@
     </div>
   </div>
 
-  <div class="text-background flex flex-col gap-2 rounded-md bg-[#14273e] p-4">
+  <div class="flex flex-col gap-2 rounded-md bg-[#14273e] p-4 text-white">
     <div class="flex flex-row items-center gap-1">
       <svg
         class="w-16"
