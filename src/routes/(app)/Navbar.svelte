@@ -41,8 +41,7 @@
   });
 
   $effect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- Requried to close drawer on url update
-    page.url.href;
+    void page.url.href;
     navOpen = false;
   });
 
