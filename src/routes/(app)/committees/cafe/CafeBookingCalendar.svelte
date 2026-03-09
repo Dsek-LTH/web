@@ -217,12 +217,7 @@
       {@const day = week.startOf("week").add(weekDays.indexOf(dayName), "day")}
       {@const dayHasManager: boolean = shifts.find((s) => dayjs(s.date).isSame(day, "day") && s.timeSlot === "DAYMANAGER") != undefined}
 
-      {#snippet DayForm(
-        timeSlot: TimeSlot,
-        disabled: boolean,
-        user: AuthUser,
-        checkForDayManager: boolean = true,
-      )}
+      {#snippet DayForm(timeSlot: TimeSlot, disabled: boolean)}
         <form
           method="POST"
           action="?/updateSchedule"
@@ -277,8 +272,6 @@
               isDayManager && canSignUpForShift(day, TimeSlot.DAYMANAGER, user)
             ) &&
             !hasShift(day, TimeSlot.DAYMANAGER, user),
-          user,
-          false,
         )}
 
         <hr class="mb-2 mt-2 border-base-content" />
@@ -295,8 +288,6 @@
           !(dayHasManager && canSignUpForShift(day, TimeSlot.SHIFT_1, user)) &&
             !hasShift(day, TimeSlot.SHIFT_1, user) &&
             !canEditWorkers,
-          user,
-          !canEditWorkers,
         )}
 
         {@render DayForm(
@@ -304,8 +295,6 @@
           !(dayHasManager && canSignUpForShift(day, TimeSlot.SHIFT_2, user)) &&
             !hasShift(day, TimeSlot.SHIFT_2, user) &&
             !canEditWorkers,
-          user,
-          !canEditWorkers,
         )}
 
         <hr class="mb-2 mt-2 border-base-content" />
@@ -322,8 +311,6 @@
           !(dayHasManager && canSignUpForShift(day, TimeSlot.SHIFT_3, user)) &&
             !hasShift(day, TimeSlot.SHIFT_3, user) &&
             !canEditWorkers,
-          user,
-          !canEditWorkers,
         )}
       </div>
     {/each}
