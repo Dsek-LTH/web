@@ -1055,5 +1055,7 @@
   "contact_organization_number": "Organisationsnummer",
   "contact_visitor_address": "Besöksadress",
   "contact_postal_address": "Postadress",
-  "contact_guild_information": "Sektions&shy;information"
+  "contact_guild_information": "Sektions&shy;information",
+  "contact_media": "Press och media",
+  "contact_media_prose": "Press och media hänvisas till Kår&shy;ordförande,"
 }

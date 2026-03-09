@@ -1053,5 +1053,7 @@
   "contact_organization_number": "Organization number",
   "contact_visitor_address": "Visitor address",
   "contact_postal_address": "Postal address",
-  "contact_guild_information": "Guild information"
+  "contact_guild_information": "Guild information",
+  "contact_media": "Press and media",
+  "contact_media_prose": "Press and media should contact the Union President,"
 }

@@ -71,7 +71,7 @@
   </div>
 
   <div class="flex flex-row justify-between gap-4">
-    <div class=" flex w-72 flex-col gap-4 rounded-md border-[1px] p-4">
+    <div class=" flex w-78 flex-col gap-4 rounded-md border-[1px] p-4">
       <div class="flex flex-row items-center justify-between">
         <h3>{data.trivsel?.name}</h3>
         <CommitteeIcon class="w-12 self-baseline" committee={data.trivsel} />
@@ -83,7 +83,7 @@
       >
     </div>
 
-    <div class="flex w-72 flex-col gap-4 rounded-md border-[1px] p-4">
+    <div class="flex w-78 flex-col gap-4 rounded-md border-[1px] p-4">
       <div class="flex flex-row items-center justify-between">
         <h3>
           <!-- eslint-disable-next-line svelte/no-at-html-tags -->
@@ -120,7 +120,7 @@
         >
       </div>
     </div>
-    <div class="flex w-72 flex-col gap-4 rounded-md border-[1px] p-4">
+    <div class="flex w-78 flex-col gap-4 rounded-md border-[1px] p-4">
       <div class="flex flex-row items-center justify-between">
         <h3>
           <!-- eslint-disable-next-line svelte/no-at-html-tags -->
@@ -144,6 +144,13 @@
       <div class="flex flex-col">
         <span class="font-bold">{m.contact_organization_number()}</span>
         <span>805003-2878</span>
+      </div>
+
+      <div class="flex flex-col">
+        <span class="font-bold">{m.contact_media()}</span>
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+        <span>{@html m.contact_media_prose()}</span>
+        <a href="mailto:ko@tlth.se" class="link">ko@tlth.se</a>
       </div>
     </div>
   </div>
