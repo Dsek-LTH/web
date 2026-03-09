@@ -12,6 +12,7 @@
   import type { AuthUser } from "@zenstackhq/runtime";
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import MemberSearchInput from "$lib/components/forms/MemberSearchInput.svelte";
+  import { tick } from "svelte";
 
   dayjs.extend(weekOfYear);
   dayjs.extend(weekYear);
@@ -116,7 +117,15 @@
     return map;
   });
 
-  let formRef: HTMLFormElement | undefined = $state();
+  const formRefs: Record<string, HTMLFormElement> = {};
+  function registerForm(node: HTMLFormElement, key: string) {
+    formRefs[key] = node;
+    return {
+      destroy() {
+        delete formRefs[key];
+      },
+    };
+  }
 
   let ciabattaString = $derived(
     ciabattaOfTheWeek?.ciabatta ?? m.errors_notImplemented(),
@@ -217,16 +226,16 @@
           action="?/updateSchedule"
           class="flex w-full"
           use:enhance
-          bind:this={formRef}
+          use:registerForm={getKey(day, timeSlot)}
         >
           <input type="hidden" name="date" value={day} />
           <input type="hidden" name="timeSlot" value={timeSlot} />
           {#if canEditWorkers && editing}
             <MemberSearchInput
               bind:member={memberMap[getKey(day, timeSlot)]}
-              onSelect={(selectedMember: Member) => {
-                memberMap[getKey(day, timeSlot)] = selectedMember;
-                formRef?.requestSubmit();
+              onSelect={async () => {
+                await tick();
+                formRefs[getKey(day, timeSlot)]?.requestSubmit();
               }}
             />
             <input
