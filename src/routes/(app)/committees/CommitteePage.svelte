@@ -8,7 +8,7 @@
   import type { CommitteeLoadData } from "./committee.server";
   import SEO from "$lib/seo/SEO.svelte";
   import type { Snippet } from "svelte";
-  import type { PageData } from "./$types";
+  import type { page } from "$app/state";
 
   let {
     data = $bindable(),
@@ -17,7 +17,7 @@
     afterMarkdown,
     main,
   }: {
-    data: CommitteeLoadData & PageData;
+    data: CommitteeLoadData & typeof page.data;
     isEditing?: boolean;
     beforeMarkdown?: Snippet;
     afterMarkdown?: Snippet;
