@@ -200,7 +200,7 @@ export const actions: Actions = {
         throw error;
       }
     } else {
-      // There is already a shift and we might be able to delete it:
+      // There is already a shift.
       if (cafeShift.worker.studentId === member) {
         await prisma.cafeShift.delete({ where: { id: cafeShift.id } });
         return message(form, {
@@ -211,10 +211,21 @@ export const actions: Actions = {
           type: "success",
         });
       } else {
-        return message(form, {
-          message: m.generic_error(),
-          type: "error",
-        });
+        // There is already a shift in this location, but it is not attributed to the user we are trying to edit.
+        if (isSetByAdmin) {
+          await prisma.cafeShift.update({
+            where: { id: cafeShift.id },
+            data: {
+              worker: {
+                connect: {
+                  studentId: member,
+                },
+              },
+            },
+          });
+        } else {
+          return fail(403, { message: m.cafe_error_no_edit_worker_perms(), type: "error" });
+        }
       }
     }
 
