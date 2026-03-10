@@ -16,10 +16,7 @@ import weekYear from "dayjs/plugin/weekYear";
 import weekOfYear from "dayjs/plugin/weekOfYear";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import type { AuthUser } from "@zenstackhq/runtime";
-import {
-  editWeeklyCiabattaSchema,
-  scheduleForm,
-} from "./types";
+import { editWeeklyCiabattaSchema, scheduleForm } from "./types";
 
 dayjs.extend(weekOfYear);
 dayjs.extend(weekYear);
