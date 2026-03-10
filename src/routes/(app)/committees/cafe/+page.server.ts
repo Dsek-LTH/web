@@ -5,7 +5,7 @@ import { fail } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { updateMarkdown } from "$lib/news/markdown/mutations.server";
-import { updateSchema } from "../../types";
+import { updateSchema } from "../types";
 
 export const load: PageServerLoad = async ({ locals, url }) => {
   const { prisma } = locals;
@@ -40,10 +40,16 @@ export const actions = {
         markdownSv,
         markdownEn,
       });
+
+      return message(form, {
+        message: m.committees_committeeUpdated(),
+        type: "success",
+      });
     }
+
     return message(form, {
-      message: m.committees_committeeUpdated(),
-      type: "success",
+      message: m.committees_errors_fetchMarkdown(),
+      type: "error",
     });
   },
 };

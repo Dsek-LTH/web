@@ -1,3 +1,4 @@
+import apiNames from "$lib/utils/apiNames";
 import * as m from "$paraglide/messages";
 
 import nollningImage from "./(nollning)/nollning/(photos)/staben25_9x16.webp";
@@ -52,7 +53,7 @@ export const getRoutes = (): Route[] =>
           description: m.nav_about_guild_desc(),
           accessRequired: null,
           appBehaviour: "none",
-          path: "/about-guild",
+          path: "/about",
         },
       ],
     },
@@ -73,7 +74,7 @@ export const getRoutes = (): Route[] =>
           description: m.nav_about_guild_desc(),
           accessRequired: null,
           appBehaviour: "none",
-          path: "/about-guild",
+          path: "/about",
         },
         {
           title: m.nav_board(),
@@ -163,7 +164,7 @@ export const getFooterRoutes = (): Route[] =>
           title: m.nav_about_guild(),
           accessRequired: null,
           appBehaviour: "none",
-          path: "/news",
+          path: "/about",
         },
         {
           title: m.nav_trivia(),
@@ -213,7 +214,7 @@ export const getFooterRoutes = (): Route[] =>
           title: m.nav_committees(),
           accessRequired: null,
           appBehaviour: "none",
-          path: "/events",
+          path: "/about#committees",
         },
       ],
     },
@@ -234,6 +235,18 @@ export const getFooterRoutes = (): Route[] =>
           accessRequired: null,
           appBehaviour: "none",
           path: "/events",
+        },
+        {
+          title: m.stocklist(),
+          path: "/admin/stocklist",
+          accessRequired: apiNames.DRINKITEM.READ,
+          appBehaviour: "home-link",
+        },
+        {
+          title: m.qr_code(),
+          path: "/admin/qr",
+          accessRequired: apiNames.WEBSHOP.MANAGE,
+          appBehaviour: "home-link",
         },
       ],
     },

@@ -16,7 +16,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/Dsek-LTH/web">
-    <img src="https://raw.githubusercontent.com/Dsek-LTH/grafik/main/guild/d_sektionen/symbol/d.svg" alt="Logo" width="200" height="200">
+    <img src="https://raw.githubusercontent.com/Dsek-LTH/grafik/refs/heads/main/guild/dsek/color.svg" alt="Logo" width="200" height="200">
   </a>
 
 <h3 align="center">Web</h3>
