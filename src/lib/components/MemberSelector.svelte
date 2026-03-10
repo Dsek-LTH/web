@@ -232,7 +232,7 @@
   </Button>
 
   {#if filteredResults.length > 0}
-    <Command.List class={"rounded-b-md border-[1px]"}>
+    <Command.List class="rounded-b-md border-[1px]">
       <Command.Group class="p-2 pb-0">
         {#each filteredResults as result}
           <Command.Item
