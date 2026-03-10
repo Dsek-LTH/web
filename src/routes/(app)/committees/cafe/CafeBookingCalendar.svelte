@@ -3,10 +3,10 @@
   import dayjs from "dayjs";
   import weekYear from "dayjs/plugin/weekYear";
   import weekOfYear from "dayjs/plugin/weekOfYear";
+  import localeData from "dayjs/plugin/localeData";
   import { enhance } from "$app/forms";
   import { TimeSlot } from "@prisma/client";
   import type { Ciabatta, ShiftWithWorker } from "./+page.server";
-  import { languageTag } from "$paraglide/runtime";
   import Pagination from "$lib/components/Pagination.svelte";
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
@@ -17,12 +17,10 @@
 
   dayjs.extend(weekOfYear);
   dayjs.extend(weekYear);
+  dayjs.extend(localeData);
 
   const getWeekdayName = (weekday: number): string => {
-    let date = new Date(1970, 0, 5 + weekday);
-    return date.toLocaleString(languageTag(), {
-      weekday: "long",
-    });
+    return dayjs.weekdays(false)[weekday + 1] ?? "";
   };
 
   let {
