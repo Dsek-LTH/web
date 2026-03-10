@@ -66,6 +66,9 @@
       youtubeUrl: $form.youtubeUrl ?? null,
       tags: allTags.filter((t) => tagIds.includes(t.id)),
       committeeId: $form.committeeId == undefined ? null : $form.committeeId,
+      notificationText: null,
+      scheduledId: null,
+      shouldSendNotification: false,
     }}
     canEdit={false}
     canDelete={false}

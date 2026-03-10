@@ -1,4 +1,4 @@
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import type { Actions, PageServerLoad } from "../$types";
 import { z } from "zod";
 import { fail, message, superValidate } from "sveltekit-superforms";
@@ -28,8 +28,8 @@ export const load: PageServerLoad = async ({ locals }) => {
   const drinkItems = (await prisma.drinkItem.findMany()).sort((a, b) =>
     a.name.localeCompare(b.name),
   );
-  const deleteForm = await superValidate(zod(deleteSchema));
-  const updateForm = await superValidate(zod(updateSchema));
+  const deleteForm = await superValidate(zod4(deleteSchema));
+  const updateForm = await superValidate(zod4(updateSchema));
 
   return { drinkItems, deleteForm, updateForm };
 };
@@ -38,7 +38,7 @@ export const actions: Actions = {
   deleteEntry: async (event) => {
     const { prisma, user } = event.locals;
     authorize(apiNames.DRINKITEM.DELETE, user);
-    const form = await superValidate(event.request, zod(deleteSchema));
+    const form = await superValidate(event.request, zod4(deleteSchema));
     if (!form.valid) return fail(400, { form });
 
     try {
@@ -55,7 +55,7 @@ export const actions: Actions = {
   updateEntry: async (event) => {
     const { prisma, user } = event.locals;
     authorize(apiNames.DRINKITEM.UPDATE, user);
-    const form = await superValidate(event.request, zod(updateSchema));
+    const form = await superValidate(event.request, zod4(updateSchema));
     if (!form.valid) return fail(400, { form });
 
     await prisma.drinkItem.update({

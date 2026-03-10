@@ -1,3 +1,4 @@
+import apiNames from "$lib/utils/apiNames";
 import * as m from "$paraglide/messages";
 
 import nollningImage from "./(nollning)/nollning/(photos)/staben25_9x16.webp";
@@ -234,6 +235,18 @@ export const getFooterRoutes = (): Route[] =>
           accessRequired: null,
           appBehaviour: "none",
           path: "/events",
+        },
+        {
+          title: m.stocklist(),
+          path: "/admin/stocklist",
+          accessRequired: apiNames.DRINKITEM.READ,
+          appBehaviour: "home-link",
+        },
+        {
+          title: m.qr_code(),
+          path: "/admin/qr",
+          accessRequired: apiNames.WEBSHOP.MANAGE,
+          appBehaviour: "home-link",
         },
       ],
     },

@@ -1,11 +1,11 @@
 import type { Actions, PageServerLoad } from "../$types";
 import { z } from "zod";
 import { fail, message, superValidate } from "sveltekit-superforms";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import dayjs from "dayjs";
 import { authorize } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
-import { redirect } from "$lib/utils/redirect";
+import { redirect } from "@sveltejs/kit";
 
 const deleteSchema = z.object({
   id: z.string(),
@@ -24,9 +24,12 @@ const updateSchema = z.object({
 export const load: PageServerLoad = async (event) => {
   const { prisma } = event.locals;
   const date = event.url.searchParams.get("date");
-  const deleteForm = await superValidate(zod(deleteSchema));
-  const updateForm = await superValidate(zod(updateSchema));
-  const dateForm = await superValidate({ date: date ?? null }, zod(dateSchema));
+  const deleteForm = await superValidate(zod4(deleteSchema));
+  const updateForm = await superValidate(zod4(updateSchema));
+  const dateForm = await superValidate(
+    { date: date ?? null },
+    zod4(dateSchema),
+  );
 
   let entries;
 
@@ -62,7 +65,7 @@ export const actions: Actions = {
   updateEntry: async (event) => {
     const { prisma, user } = event.locals;
     authorize(apiNames.DRINKITEMBATCH.UPDATE, user);
-    const form = await superValidate(event.request, zod(updateSchema));
+    const form = await superValidate(event.request, zod4(updateSchema));
     if (!form.valid) return fail(400, { form });
 
     const batchId = form.data.id;
@@ -121,7 +124,7 @@ export const actions: Actions = {
   deleteEntry: async (event) => {
     const { prisma, user } = event.locals;
     authorize(apiNames.DRINKITEMBATCH.DELETE, user);
-    const form = await superValidate(event.request, zod(deleteSchema));
+    const form = await superValidate(event.request, zod4(deleteSchema));
     if (!form.valid) return fail(400, { form });
 
     const batchId = form.data.id;
@@ -164,7 +167,7 @@ export const actions: Actions = {
   },
 
   redirectDate: async (event) => {
-    const form = await superValidate(event.request, zod(dateSchema));
+    const form = await superValidate(event.request, zod4(dateSchema));
 
     if (!form.valid) return fail(400, { form });
 

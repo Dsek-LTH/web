@@ -1,8 +1,8 @@
-import { redirect } from "$lib/utils/redirect";
 import { getDecryptedJWT } from "$lib/server/getDecryptedJWT";
 import { env } from "$env/dynamic/private";
 import { fail } from "sveltekit-superforms";
-import type { ActionFailure, RequestEvent } from "@sveltejs/kit";
+import { type ActionFailure, type RequestEvent } from "@sveltejs/kit";
+import { redirect } from "sveltekit-flash-message/server";
 
 export type ScheduleSuccess = {
   redirectFunction: () => never;
