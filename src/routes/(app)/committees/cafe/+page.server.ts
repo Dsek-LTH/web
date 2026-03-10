@@ -114,6 +114,9 @@ export const actions: Actions = {
     const { date, worker, timeSlot } = form.data;
 
     const member = worker || user.studentId;
+    if (!member) {
+      return fail(400, { form });
+    }
     const isSetByAdmin = isAuthorized(apiNames.CAFE.EDIT_WORKERS, user);
     if (member != user.studentId) {
       if (!isAuthorized(apiNames.CAFE.EDIT_WORKERS, user)) {
@@ -122,9 +125,6 @@ export const actions: Actions = {
           type: "error",
         });
       }
-    }
-    if (!member) {
-      return fail(400, { form });
     }
     const dayShifts = await prisma.cafeShift.findMany({
       where: { date: date },
