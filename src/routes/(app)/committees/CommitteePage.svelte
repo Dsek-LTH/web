@@ -6,11 +6,10 @@
 
   import Pagination from "$lib/components/Pagination.svelte";
   import type { CommitteeLoadData } from "./committee.server";
-  import { page } from "$app/state";
   import SEO from "$lib/seo/SEO.svelte";
   import type { Snippet } from "svelte";
-  // export let data: CommitteeLoadData & typeof $page.data;
-  // export let isEditing = false;
+  import type { PageData } from "./$types";
+
   let {
     data = $bindable(),
     isEditing = $bindable(),
@@ -18,7 +17,7 @@
     afterMarkdown,
     main,
   }: {
-    data: CommitteeLoadData & typeof page.data;
+    data: CommitteeLoadData & PageData;
     isEditing?: boolean;
     beforeMarkdown?: Snippet;
     afterMarkdown?: Snippet;
