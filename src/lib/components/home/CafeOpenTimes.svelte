@@ -18,7 +18,8 @@
       {#if cafeOpen}
         {cafeOpen.markdown}
       {:else}
-        N/A
+        <!-- The cafeOpen field isn't nullable when it's set, so this will never be shown -->
+        {m.cafe_closed()}
       {/if}
     </h2>
   </article>
