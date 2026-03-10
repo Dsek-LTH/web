@@ -979,5 +979,8 @@
   "committees_card_image": "Card image (in the committee list)",
   "committees_banner_image": "Banner image",
   "committees_invert_text": "Invert text/logo",
-  "commitees_edit_links": "Edit links"
+  "commitees_edit_links": "Edit links",
+  "search member": "Search members...",
+  "select_member": "Select member",
+  "select_members": "Select members"
 }

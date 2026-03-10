@@ -973,6 +973,8 @@
   "pictures": "Bilder",
   "member_removePicture_title": "Är du säker på att du vill ta bort din profilbild?",
   "member_removePicture_desc": "Detta kan inte ångras.",
+  "gallery_upload_photographers": "Fotografer",
+  "gallery_upload_editors": "Redigerare",
   "committees_about": "Om utskottet",
   "committees_members": "Medlemmar",
   "committees_news": "Nyheter och event",
@@ -981,5 +983,7 @@
   "committees_card_image": "Kortbild (i utskottslitan)",
   "committees_banner_image": "Bannerbild",
   "committees_invert_text": "Invertera text/logo",
-  "committees_edit_links": "Redigera länkar"
+  "committees_edit_links": "Redigera länkar",
+  "select_member": "Välj medlem",
+  "select_members": "Välj medlemmar"
 }
