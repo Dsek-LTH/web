@@ -4,9 +4,8 @@ import { isAuthorized } from "$lib/utils/authorization";
 import { committeeActions, committeeLoad } from "../committee.server";
 import * as m from "$paraglide/messages";
 import { error, fail } from "@sveltejs/kit";
-import { Prisma, TimeSlot } from "@prisma/client";
+import { TimeSlot } from "@prisma/client";
 import { zod } from "sveltekit-superforms/adapters";
-import { z } from "zod";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { updateMarkdown } from "$lib/news/markdown/mutations.server";
 import { updateSchema } from "../types";
@@ -17,25 +16,11 @@ import weekYear from "dayjs/plugin/weekYear";
 import weekOfYear from "dayjs/plugin/weekOfYear";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import type { AuthUser } from "@zenstackhq/runtime";
+import { editWeeklyCiabattaSchema, scheduleForm, type ShiftWithWorker } from "./types";
 
 dayjs.extend(weekOfYear);
 dayjs.extend(weekYear);
 
-const scheduleForm = z.object({
-  date: z.date(),
-  worker: z.string().optional(),
-  timeSlot: z.nativeEnum(TimeSlot),
-});
-
-const editWeeklyCiabattaSchema = z.object({
-  year: z.number(),
-  week: z.number(),
-  name: z.string(),
-});
-
-export type ShiftWithWorker = Prisma.CafeShiftGetPayload<{
-  include: { worker: true };
-}>;
 
 function getWeek(weekString: string | null, user: AuthUser): dayjs.Dayjs {
   const currentWeek = dayjs().startOf("week");
