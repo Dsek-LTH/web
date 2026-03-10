@@ -42,13 +42,13 @@
     timeSlot: TimeSlot,
     user: AuthUser,
   ) {
-    let w = shifts.find(
+    let worker = shifts.find(
       (s) => dayjs(s.date).isSame(day, "day") && s.timeSlot === timeSlot,
     )?.worker;
-    if (!w) {
+    if (!worker) {
       return true;
     }
-    return w.studentId === user.studentId;
+    return worker.studentId === user.studentId;
   }
 
   function hasShift(day: dayjs.Dayjs, timeSlot: TimeSlot, user: AuthUser) {
