@@ -224,7 +224,10 @@ export const actions: Actions = {
             },
           });
         } else {
-          return fail(403, { message: m.cafe_error_no_edit_worker_perms(), type: "error" });
+          return fail(403, {
+            message: m.cafe_error_no_edit_worker_perms(),
+            type: "error",
+          });
         }
       }
     }
