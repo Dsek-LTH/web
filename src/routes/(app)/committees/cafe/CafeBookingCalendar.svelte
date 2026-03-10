@@ -122,14 +122,6 @@
   });
 
   const formRefs: Record<string, HTMLFormElement> = {};
-  function registerForm(node: HTMLFormElement, key: string) {
-    formRefs[key] = node;
-    return {
-      destroy() {
-        delete formRefs[key];
-      },
-    };
-  }
 
   let ciabattaString = $derived(
     ciabattaOfTheWeek?.name ?? m.errors_notImplemented(),
@@ -232,7 +224,6 @@
           use:enhance={() =>
             ({ update }) =>
               update({ reset: false })}
-          use:registerForm={getKey(day, timeSlot)}
         >
           <input type="hidden" name="date" value={day} />
           <input type="hidden" name="timeSlot" value={timeSlot} />
