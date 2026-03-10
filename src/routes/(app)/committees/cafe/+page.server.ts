@@ -35,13 +35,6 @@ function getWeek(weekString: string | null, user: AuthUser): dayjs.Dayjs {
     .add(weekNum - 1, "week");
 }
 
-export type Ciabatta = {
-  id: string;
-  year: number;
-  week: number;
-  name: string;
-};
-
 export const load: PageServerLoad = async ({ locals, url }) => {
   const { user, prisma } = locals;
 
@@ -82,7 +75,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     ...data,
     openingHours: await openingHours,
     shifts: (await shifts) as ShiftWithWorker[],
-    ciabattaOfTheWeek: (await ciabattaOfTheWeek) as Ciabatta,
+    ciabattaOfTheWeek: (await ciabattaOfTheWeek),
     week: targetWeek.week(),
   }));
 };
