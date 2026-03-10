@@ -60,6 +60,13 @@
     );
   }
 
+  function shiftExists(day: dayjs.Dayjs, timeSlot: TimeSlot) {
+    return !!shifts.find(
+      (shift) =>
+        dayjs(shift.date).isSame(day, "day") && shift.timeSlot === timeSlot,
+    );
+  }
+
   function getName(day: dayjs.Dayjs, timeSlot: TimeSlot) {
     let shift = shifts.find(
       (s) => dayjs(s.date).isSame(day, "day") && s.timeSlot === timeSlot,
@@ -214,7 +221,11 @@
           to the commented out line -->
       {@const day = week.startOf("week").add(dayIndex, "day")}
       {@const dayHasManager: boolean = shifts.find((s) => dayjs(s.date).isSame(day, "day") && s.timeSlot === "DAYMANAGER") != undefined}
-      {#snippet DayForm(timeSlot: TimeSlot, disabled: boolean)}
+      {#snippet DayForm(
+        timeSlot: TimeSlot,
+        disabled: boolean,
+        name_color_override: boolean = false,
+      )}
         <form
           method="POST"
           action="?/updateSchedule"
@@ -249,7 +260,7 @@
             />
             <button
               class="border-1 m-1 w-full rounded border border-base-300 p-2 enabled:bg-base-300 enabled:hover:border-primary
-              {disabled ? 'text-slate-500' : ''}"
+              {disabled && !name_color_override ? 'text-slate-500' : ''}"
               {disabled}
             >
               {getName(day, timeSlot)}
@@ -268,9 +279,11 @@
       {/snippet}
 
       <div class="m-1 grid rounded bg-base-200 p-2">
-        <p class="gap-1 text-center font-medium">{getWeekdayName(dayIndex)}</p>
+        <p class="gap-1 text-center font-medium text-primary">
+          {getWeekdayName(dayIndex)}
+        </p>
 
-        <p class="gap-1 text-center font-bold text-primary">Day Manager</p>
+        <p class="gap-1 text-center font-bold">Day Manager</p>
         {@render DayForm(
           TimeSlot.DAYMANAGER,
           !canEditWorkers &&
@@ -278,6 +291,7 @@
               isDayManager && canSignUpForShift(day, TimeSlot.DAYMANAGER, user)
             ) &&
             !hasShift(day, TimeSlot.DAYMANAGER, user),
+          shiftExists(day, TimeSlot.DAYMANAGER),
         )}
 
         <hr class="mb-2 mt-2 border-base-content" />
@@ -287,7 +301,7 @@
             ? ''
             : 'text-slate-500'}"
         >
-          kl 11-12
+          11:00 - 12:00
         </p>
         {@render DayWorkerForm(TimeSlot.SHIFT_1)}
 
@@ -300,7 +314,7 @@
             ? ''
             : 'text-slate-500'}"
         >
-          kl 12-13
+          12:00 - 13:00
         </p>
         {@render DayWorkerForm(TimeSlot.SHIFT_3)}
       </div>
