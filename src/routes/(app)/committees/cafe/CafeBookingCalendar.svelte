@@ -258,6 +258,15 @@
         </form>
       {/snippet}
 
+      {#snippet DayWorkerForm(timeSlot: TimeSlot)}
+        {@render DayForm(
+          timeSlot,
+          !(dayHasManager && canSignUpForShift(day, TimeSlot.SHIFT_1, user)) &&
+            !hasShift(day, timeSlot, user) &&
+            !canEditWorkers,
+        )}
+      {/snippet}
+
       <div class="m-1 grid rounded bg-base-200 p-2">
         <p class="gap-1 text-center font-medium">{getWeekdayName(dayIndex)}</p>
 
@@ -280,19 +289,9 @@
         >
           kl 11-12
         </p>
-        {@render DayForm(
-          TimeSlot.SHIFT_1,
-          !(dayHasManager && canSignUpForShift(day, TimeSlot.SHIFT_1, user)) &&
-            !hasShift(day, TimeSlot.SHIFT_1, user) &&
-            !canEditWorkers,
-        )}
+        {@render DayWorkerForm(TimeSlot.SHIFT_1)}
 
-        {@render DayForm(
-          TimeSlot.SHIFT_2,
-          !(dayHasManager && canSignUpForShift(day, TimeSlot.SHIFT_2, user)) &&
-            !hasShift(day, TimeSlot.SHIFT_2, user) &&
-            !canEditWorkers,
-        )}
+        {@render DayWorkerForm(TimeSlot.SHIFT_2)}
 
         <hr class="mb-2 mt-2 border-base-content" />
 
@@ -303,12 +302,7 @@
         >
           kl 12-13
         </p>
-        {@render DayForm(
-          TimeSlot.SHIFT_3,
-          !(dayHasManager && canSignUpForShift(day, TimeSlot.SHIFT_3, user)) &&
-            !hasShift(day, TimeSlot.SHIFT_3, user) &&
-            !canEditWorkers,
-        )}
+        {@render DayWorkerForm(TimeSlot.SHIFT_3)}
       </div>
     {/each}
   </div>
