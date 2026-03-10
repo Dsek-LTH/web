@@ -207,7 +207,11 @@
     />
   </div>
   <div class="mt-1 grid grid-cols-1 gap-3 p-3 md:grid-cols-5 md:gap-0">
-    {#each { length: 5 }, dayIndex}
+    <!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -- ESLint is missing functionality -->
+    {#each { length: 5 } as _, dayIndex}
+      <!-- {#each { length: 5}, dayIndex} -->
+      <!-- TODO: Fix this when we update our eslint plugins by swapping
+          to the commented out line -->
       {@const day = week.startOf("week").add(dayIndex, "day")}
       {@const dayHasManager: boolean = shifts.find((s) => dayjs(s.date).isSame(day, "day") && s.timeSlot === "DAYMANAGER") != undefined}
       {#snippet DayForm(timeSlot: TimeSlot, disabled: boolean)}
