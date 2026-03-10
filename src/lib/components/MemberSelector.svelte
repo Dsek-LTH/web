@@ -15,16 +15,12 @@
   import { cn } from "$lib/utils";
 
   let {
-    onChange = () => (input = ""),
-    name = undefined,
     selectedMembers = $bindable([]),
     selectedMember = $bindable(null),
     multiple = false,
     class: clazz = "",
     ...restProps
   }: {
-    onChange?: () => void;
-    name?: string | undefined;
     selectedMembers?: MemberSearchReturnAttributes[];
     selectedMember?: MemberSearchReturnAttributes | null;
     multiple: boolean;
@@ -234,7 +230,7 @@
   {#if filteredResults.length > 0}
     <Command.List class="rounded-b-md border-[1px]">
       <Command.Group class="p-2 pb-0">
-        {#each filteredResults as result}
+        {#each filteredResults as result (result.studentId)}
           <Command.Item
             onclick={() => addMember(result)}
             class={cn("mb-2 w-full cursor-pointer rounded-full p-0")}

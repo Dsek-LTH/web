@@ -3,13 +3,13 @@
 
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import { getFullName } from "$lib/utils/client/member";
+  import type { Snippet } from "svelte";
   import { twMerge } from "tailwind-merge";
 
   let {
     class: klass,
     member,
     links = true,
-    lazy = false,
     children = undefined,
   }: {
     class?: string;
@@ -19,8 +19,7 @@
     >;
     type?: ExtendedPrismaModel<"Author">["type"];
     links?: boolean;
-    lazy?: boolean;
-    children?: any;
+    children?: Snippet;
   } = $props();
 </script>
 
