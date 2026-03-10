@@ -33,7 +33,7 @@
     week: dayjs.Dayjs;
     shifts: ShiftWithWorker[];
     user: AuthUser;
-    ciabattaOfTheWeek: Ciabatta;
+    ciabattaOfTheWeek: Ciabatta | null;
   } = $props();
 
   function canSignUpForShift(

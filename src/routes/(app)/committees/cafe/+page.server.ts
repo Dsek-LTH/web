@@ -16,11 +16,13 @@ import weekYear from "dayjs/plugin/weekYear";
 import weekOfYear from "dayjs/plugin/weekOfYear";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import type { AuthUser } from "@zenstackhq/runtime";
-import { editWeeklyCiabattaSchema, scheduleForm, type ShiftWithWorker } from "./types";
+import {
+  editWeeklyCiabattaSchema,
+  scheduleForm,
+} from "./types";
 
 dayjs.extend(weekOfYear);
 dayjs.extend(weekYear);
-
 
 function getWeek(weekString: string | null, user: AuthUser): dayjs.Dayjs {
   const currentWeek = dayjs().startOf("week");
@@ -74,8 +76,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   return committeeLoad(prisma, "cafe", url).then(async (data) => ({
     ...data,
     openingHours: await openingHours,
-    shifts: (await shifts) as ShiftWithWorker[],
-    ciabattaOfTheWeek: (await ciabattaOfTheWeek),
+    shifts: await shifts,
+    ciabattaOfTheWeek: await ciabattaOfTheWeek,
     week: targetWeek.week(),
   }));
 };
