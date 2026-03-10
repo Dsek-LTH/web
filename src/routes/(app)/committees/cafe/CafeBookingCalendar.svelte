@@ -19,11 +19,7 @@
   dayjs.extend(weekYear);
 
   const getWeekdayName = (weekday: number): string => {
-    let date = new Date();
-    // we assign monday to 0, not sunday
-    while (date.getDay() - 1 !== weekday) {
-      date.setDate(date.getDate() + 1);
-    }
+    let date = new Date(1970, 0, 5 + weekday);
     return date.toLocaleString(languageTag(), {
       weekday: "long",
     });
@@ -201,7 +197,7 @@
       getPageNumber={(weekString) => {
         const week = Number(weekString);
 
-        // map absolute week → window index
+        // Map absolute week -> window index.
         let index = canSeeAllWeeks ? week - 1 : week - windowStartWeek;
         if (index < 0) index += weeksInYear;
 
