@@ -4,7 +4,7 @@ import * as m from "$paraglide/messages";
 import { error, fail, type Actions } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { message, superValidate, withFiles } from "sveltekit-superforms/server";
-import { updateCommitteeBody, updateCommitteeSchema } from "../types";
+import { updateCommitteeBody, updateCommitteeSchema } from "./types";
 import { updateMarkdown } from "$lib/news/markdown/mutations.server";
 import { getYearOrThrowSvelteError } from "$lib/utils/url.server";
 
