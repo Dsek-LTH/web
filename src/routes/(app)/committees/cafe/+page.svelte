@@ -100,11 +100,11 @@
   {#snippet afterMarkdown()}{/snippet}
 
   {#snippet main()}
-    <CafeBookingCalendar
-      bind:week
-      {shifts}
-      user={data.user}
-      ciabattaOfTheWeek={data.ciabattaOfTheWeek}
-    />
+    <!-- <CafeBookingCalendar -->
+    <!--   bind:week -->
+    <!--   {shifts} -->
+    <!--   user={data.user} -->
+    <!--   ciabattaOfTheWeek={data.ciabattaOfTheWeek} -->
+    <!-- /> -->
   {/snippet}
 </CommitteePage>
