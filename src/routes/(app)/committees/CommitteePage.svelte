@@ -55,12 +55,10 @@
 
 <div class="flex flex-col place-content-start md:flex-row-reverse">
   {@render beforeMarkdown?.()}
-  <div>
-    {#if data.markdown?.markdown}
-      <MarkdownBody body={data.markdown.markdown} />
-    {/if}
-    {@render afterMarkdown?.()}
-  </div>
+  {#if data.markdown?.markdown}
+    <MarkdownBody body={data.markdown.markdown} />
+  {/if}
+  {@render afterMarkdown?.()}
 </div>
 <br />
 {@render main?.()}
