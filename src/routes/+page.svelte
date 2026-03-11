@@ -45,7 +45,6 @@
       imageSize: "250%",
     },
   ] as const;
-  console.log(getFileUrl("minio/files/public/photos/hero.jpg"));
 </script>
 
 <nav class="contents">
