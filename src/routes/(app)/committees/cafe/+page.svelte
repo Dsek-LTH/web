@@ -5,7 +5,7 @@
   import dayjs from "dayjs";
 
   import CommitteePage from "../CommitteePage.svelte";
-  import CafeBookingCalendar from "./CafeBookingCalendar.svelte";
+  //import CafeBookingCalendar from "./CafeBookingCalendar.svelte";
   import type { PageData } from "./$types";
   import weekYear from "dayjs/plugin/weekYear";
   import weekOfYear from "dayjs/plugin/weekOfYear";
@@ -26,13 +26,13 @@
   dayjs.extend(weekOfYear);
   dayjs.extend(weekYear);
 
-  let week = $derived(
-    dayjs()
-      .startOf("year")
-      .add(data.week - 1, "week"),
-  );
+  // let week = $derived(
+  //   dayjs()
+  //     .startOf("year")
+  //     .add(data.week - 1, "week"),
+  // );
 
-  let shifts = $derived(data.shifts);
+  // let shifts = $derived(data.shifts);
 </script>
 
 <CommitteePage bind:data bind:isEditing>
@@ -100,11 +100,11 @@
   {#snippet afterMarkdown()}{/snippet}
 
   {#snippet main()}
-    <!-- <CafeBookingCalendar -->
-    <!--   bind:week -->
-    <!--   {shifts} -->
-    <!--   user={data.user} -->
-    <!--   ciabattaOfTheWeek={data.ciabattaOfTheWeek} -->
-    <!-- /> -->
+    <!-- <CafeBookingCalendar
+            bind:week
+            {shifts}
+            user={data.user}
+            ciabattaOfTheWeek={data.ciabattaOfTheWeek}
+          /> -->
   {/snippet}
 </CommitteePage>
