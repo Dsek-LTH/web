@@ -5,7 +5,6 @@
   import weekOfYear from "dayjs/plugin/weekOfYear";
   import localeData from "dayjs/plugin/localeData";
   import { enhance } from "$app/forms";
-  import { TimeSlot } from "@prisma/client";
   import Pagination from "$lib/components/Pagination.svelte";
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
@@ -13,8 +12,8 @@
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import MemberSearchInput from "$lib/components/forms/MemberSearchInput.svelte";
   import { tick } from "svelte";
-  import type { ShiftWithWorker } from "./types";
-  import type { CiabattaOfTheWeek as Ciabatta } from "@prisma/client";
+  import type { ShiftWithWorker, Ciabatta } from "./types";
+  import { TimeSlot } from "./types";
 
   dayjs.extend(weekOfYear);
   dayjs.extend(weekYear);
