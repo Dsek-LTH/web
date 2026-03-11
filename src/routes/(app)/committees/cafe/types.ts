@@ -11,7 +11,6 @@ export const TimeSlot = {
 } as const satisfies Record<string, PrismaTimeSlot>;
 export type TimeSlot = (typeof TimeSlot)[keyof typeof TimeSlot];
 
-
 export const scheduleForm = z.object({
   date: z.date(),
   worker: z.string().optional(),
