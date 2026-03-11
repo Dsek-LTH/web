@@ -1030,5 +1030,18 @@
   "about_guild_prose_committees": "Sektionen är indelad i 15 utskott, som alla har olika verksamhet och områden. Nedan kan du hitta information om alla och få veta hur du kan engagera dig i dem!",
   "about_guild_prose_union": "D-sektionen är del av Teknologkåren vid LTH, som representerar alla studenter vid Lunds Tekniska Högskola.",
   "dchip": "D-Chip",
-  "about_guild_prose_dchip": "D-Chip är en ideell, studentdriven förening som studenterna på Datateknik och InfoCom på LTH hör till. Alla kvinnliga och icke-binära studenter på de två programmen kan vara med i D-Chip."
+  "about_guild_prose_dchip": "D-Chip är en ideell, studentdriven förening som studenterna på Datateknik och InfoCom på LTH hör till. Alla kvinnliga och icke-binära studenter på de två programmen kan vara med i D-Chip.",
+  "cafe_ciabatta": "Veckans Ciabatta:",
+  "cafe_signed_up": "Anmälde dig till arbetspasset.",
+  "cafe_signed_up_for_other": "Anmälde {name} till arbetspasset.",
+  "cafe_quit_shift": "Avanmälde dig från arbetspasset.",
+  "cafe_quit_shift_for_other": "Avanmälde {name} från arbetspasset.",
+  "cafe_changed_ciabatta": "Ändrade veckans ciabatta.",
+  "cafe_error_already_have_shift": "Kan inte anmäla dig till passet! Du har redan ett pass den dagen. Om du behöver anmäla dig till fler pass, kontakta Vice Cafémästare",
+  "cafe_error_only_daymanagers": "Bara dagisar kan anmäla sig till det passet.",
+  "cafe_error_no_edit_worker_perms": "Du har inte tillåtelse att registrera andra personer.",
+  "cafe_error_worker_not_exist": "Jobbare {name} existerar inte.",
+  "cafe_error_no_ciabatta_edit_perms": "Du har inte tillåtelse att redigera ciabattas.",
+  "cafe_error_no_week_viewing_perms": "Du har inte tillåtelse att se denna veckan.",
+  "cafe_closed": "Stängt"
 }
