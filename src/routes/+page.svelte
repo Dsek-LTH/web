@@ -126,7 +126,7 @@
     <div class="flex flex-col gap-14 lg:flex-row lg:justify-center">
       {#each ARTICLES as article, i (i)}
         <article
-          class="flex h-[500px] flex-col items-center justify-end gap-5 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,#0d0d0d_50%),var(--url)] bg-no-repeat px-8 py-[50px]"
+          class="flex h-[500px] flex-col items-center justify-end gap-5 bg-[linear-gradient(180deg,transparent_0%,var(--muted-background)_50%),var(--url)] bg-no-repeat px-8 py-[50px]"
           style:background-size={article.imageSize}
           style:background-position={article.imagePosition}
           style:--url="url({getFileUrl(
@@ -137,7 +137,7 @@
             {article.title}
           </h1>
           <p
-            class="max-w-prose text-sm font-medium text-[#BFBFBF] lg:max-w-[300px] lg:text-base"
+            class="max-w-prose text-sm font-medium lg:max-w-[300px] lg:text-base"
           >
             {article.description}
           </p>
