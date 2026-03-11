@@ -127,9 +127,9 @@
     <div class="flex flex-col gap-14 lg:flex-row lg:justify-center">
       {#each ARTICLES as article, i (i)}
         <article
+          class="flex h-[500px] flex-col items-center justify-end gap-5 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,#0d0d0d_50%),var(--url)] bg-no-repeat px-8 py-[50px]"
           style:background-size={article.imageSize}
           style:background-position={article.imagePosition}
-          style:background-repeat="no-repeat"
           style:--url="url({getFileUrl(
             `minio/files/public/photos/${article.image}`,
           )})"
@@ -149,19 +149,3 @@
 </main>
 
 <Footer />
-
-<style>
-  article {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    align-items: center;
-    padding: 50px 32px;
-    gap: 20px;
-
-    height: 500px;
-
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, #0d0d0d 50%),
-      var(--url);
-  }
-</style>
