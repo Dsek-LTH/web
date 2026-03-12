@@ -6,10 +6,23 @@
 
   import Pagination from "$lib/components/Pagination.svelte";
   import type { CommitteeLoadData } from "./committee.server";
-  import type { page } from "$app/stores";
   import SEO from "$lib/seo/SEO.svelte";
-  export let data: CommitteeLoadData & typeof $page.data;
-  export let isEditing = false;
+  import type { Snippet } from "svelte";
+  import type { page } from "$app/state";
+
+  let {
+    data = $bindable(),
+    isEditing = $bindable(),
+    beforeMarkdown,
+    afterMarkdown,
+    main,
+  }: {
+    data: CommitteeLoadData & typeof page.data;
+    isEditing?: boolean;
+    beforeMarkdown?: Snippet;
+    afterMarkdown?: Snippet;
+    main?: Snippet;
+  } = $props();
   const thisYear = new Date().getFullYear();
 </script>
 
@@ -33,19 +46,21 @@
   committee={data.committee}
   uniqueMemberCount={data.uniqueMemberCount}
   numberOfMandates={data.numberOfMandates}
-  editing={isEditing}
+  editing={isEditing ? isEditing : false}
   toggleEditing={() => (isEditing = !isEditing)}
 />
 
 <EditCommitteeForm form={data.form} open={isEditing} />
 
-<div class="">
-  <slot name="before" />
+<div class="flex flex-col place-content-start md:flex-row-reverse">
+  {@render beforeMarkdown?.()}
   {#if data.markdown?.markdown}
     <MarkdownBody body={data.markdown.markdown} />
   {/if}
-  <slot />
+  {@render afterMarkdown?.()}
 </div>
+<br />
+{@render main?.()}
 
 <Pagination
   count={thisYear - 1982 + 1}
