@@ -18,12 +18,14 @@
     selectedMembers = $bindable([]),
     selectedMember = $bindable(null),
     multiple = false,
+    limit = 0,
     class: clazz = "",
     ...restProps
   }: {
     selectedMembers?: MemberSearchReturnAttributes[];
     selectedMember?: MemberSearchReturnAttributes | null;
     multiple: boolean;
+    limit?: number;
     class?: string;
   } & InputProps = $props();
 
@@ -208,13 +210,15 @@
           </button>
         </li>
       {/each}
-      {#if multiple || selectedMembers.length === 0}
+      {#if (multiple && (limit == 0 || selectedMembers.length < limit)) || selectedMembers.length === 0}
         <li class="relative m-0 flex w-full flex-1 list-none p-0">
           <Input
             name="input"
             type="none"
             class="mx-0 h-full w-full border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
-            placeholder={multiple ? m.select_members() : m.select_member()}
+            placeholder={multiple
+              ? m.select_members().concat(limit > 0 ? ` (max ${limit})` : "")
+              : m.select_member()}
             bind:value={input}
             bind:ref={inputElement}
             oninput={handleSearch}
