@@ -29,6 +29,7 @@
     class?: string;
   } & InputProps = $props();
 
+  let componentElement: HTMLElement | null = $state(null);
   let inputElement: HTMLInputElement | null = $state(null);
   let selectedItemsElement: HTMLElement | null = $state(null);
   let searchResultElement: HTMLElement | null = $state(null);
@@ -233,6 +234,22 @@
     };
   });
 
+  function handleComponentFocusOut(event: FocusEvent) {
+    const next = event.relatedTarget as Node | null;
+
+    // Still inside the component -> keep results open
+    if (next && componentElement?.contains(next)) return;
+
+    // Wait one tick so activeElement is updated (mouse/tab)
+    setTimeout(() => {
+      if (!componentElement?.contains(document.activeElement)) {
+        input = "";
+        results = [];
+        currentIndex = -1;
+      }
+    }, 0);
+  }
+
   function addMember(member: MemberSearchReturnAttributes) {
     selectedMembers = [...selectedMembers, member];
     input = "";
@@ -248,72 +265,78 @@
   }
 </script>
 
-<Command.Root
-  shouldFilter={false}
-  class={cn("bg-popover p-0", clazz, multiple ? " w-full" : " w-fit")}
-  {...restProps}
->
-  <Button
-    variant="outline"
+<div bind:this={componentElement} onfocusout={handleComponentFocusOut}>
+  <Command.Root
+    shouldFilter={false}
     class={cn(
-      "align-center flex h-fit cursor-text flex-row flex-wrap justify-start p-1 pl-2",
-      filteredResults.length > 0 ? "rounded-b-none" : "",
+      "bg-background relative overflow-visible p-0",
+      clazz,
+      multiple ? " w-full" : " w-fit",
     )}
-    onclick={() => {
-      inputElement?.focus();
-    }}
+    {...restProps}
   >
-    <ul
-      class="m-0 flex w-full list-none flex-row flex-wrap gap-2"
-      bind:this={selectedItemsElement}
+    <Button
+      variant="outline"
+      class={cn(
+        "align-center flex h-fit cursor-text flex-row flex-wrap justify-start p-1 pl-2",
+        filteredResults.length > 0 ? "rounded-b-none" : "",
+      )}
+      onclick={() => {
+        inputElement?.focus();
+      }}
     >
-      {#each selectedMembers as member (member.studentId)}
-        <li class="relative m-0 list-none">
-          <Button
-            variant="ghost"
-            class="added-item hover:bg-muted bg-background h-full cursor-pointer rounded-full p-0"
-            onclick={() => removeMember(member)}
-          >
-            <MemberCard {member} links={false} class="rounded-full p-1 pr-2">
-              <X class="h-4 w-4" />
-            </MemberCard>
-          </Button>
-        </li>
-      {/each}
-      {#if (multiple && (limit == 0 || selectedMembers.length < limit)) || selectedMembers.length === 0}
-        <li class="relative m-0 flex w-full flex-1 list-none p-0">
-          <Input
-            name="input"
-            type="none"
-            class="mx-0 h-full w-full border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
-            placeholder={multiple
-              ? m.select_members().concat(limit > 0 ? ` (max ${limit})` : "")
-              : m.select_member()}
-            bind:value={input}
-            bind:ref={inputElement}
-            oninput={handleSearch}
-            autocomplete="off"
-          />
-        </li>
-      {/if}
-    </ul>
-  </Button>
-
-  {#if filteredResults.length > 0}
-    <Command.List
-      class="max-h-64 rounded-b-md border-[1px] border-t-0"
-      bind:ref={searchResultElement}
-    >
-      <Command.Group class="p-2 pb-0">
-        {#each filteredResults as result (result.studentId)}
-          <Command.Item
-            onclick={() => addMember(result)}
-            class={cn("mb-2 w-full cursor-pointer rounded-full p-0")}
-          >
-            <MemberResult data={result} class="w-full" />
-          </Command.Item>
+      <ul
+        class="m-0 flex w-full list-none flex-row flex-wrap gap-2"
+        bind:this={selectedItemsElement}
+      >
+        {#each selectedMembers as member (member.studentId)}
+          <li class="relative m-0 list-none">
+            <Button
+              variant="ghost"
+              class="added-item hover:bg-muted bg-background h-full cursor-pointer rounded-full p-0"
+              onclick={() => removeMember(member)}
+            >
+              <MemberCard {member} links={false} class="rounded-full p-1 pr-2">
+                <X class="h-4 w-4" />
+              </MemberCard>
+            </Button>
+          </li>
         {/each}
-      </Command.Group>
-    </Command.List>
-  {/if}
-</Command.Root>
+        {#if (multiple && (limit == 0 || selectedMembers.length < limit)) || selectedMembers.length === 0}
+          <li class="relative m-0 flex w-full flex-1 list-none p-0">
+            <Input
+              name="input"
+              type="none"
+              class="mx-0 h-full w-full border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
+              placeholder={multiple
+                ? m.select_members().concat(limit > 0 ? ` (max ${limit})` : "")
+                : m.select_member()}
+              bind:value={input}
+              bind:ref={inputElement}
+              oninput={handleSearch}
+              autocomplete="off"
+            />
+          </li>
+        {/if}
+      </ul>
+    </Button>
+
+    {#if filteredResults.length > 0}
+      <Command.List
+        class="bg-background absolute top-full left-0 z-50 max-h-64 w-full overflow-auto rounded-b-md border-[1px] border-t-0 shadow-md"
+        bind:ref={searchResultElement}
+      >
+        <Command.Group class="p-2 pb-0">
+          {#each filteredResults as result (result.studentId)}
+            <Command.Item
+              onclick={() => addMember(result)}
+              class={cn("mb-2 w-full cursor-pointer rounded-full p-0")}
+            >
+              <MemberResult data={result} class="w-full" />
+            </Command.Item>
+          {/each}
+        </Command.Group>
+      </Command.List>
+    {/if}
+  </Command.Root>
+</div>
