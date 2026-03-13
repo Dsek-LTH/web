@@ -301,7 +301,7 @@
 
   {#if filteredResults.length > 0}
     <Command.List
-      class="rounded-b-md border-[1px]"
+      class="rounded-b-md border-[1px] border-t-0"
       bind:ref={searchResultElement}
     >
       <Command.Group class="p-2 pb-0">
