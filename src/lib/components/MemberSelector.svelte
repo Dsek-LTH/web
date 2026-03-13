@@ -30,10 +30,13 @@
   } & InputProps = $props();
 
   let inputElement: HTMLInputElement | null = $state(null);
+  let selectedItemsElement: HTMLElement | null = $state(null);
+  let searchResultElement: HTMLElement | null = $state(null);
   let listItems: HTMLElement[] = $state([]);
-  let advancedSearchElement: HTMLElement | null = $state(null);
+  let addedItems: HTMLElement[] = $state([]);
 
   let currentIndex = $state(-1);
+  let addedItemsIndex = $state(-1);
 
   $effect(() => {
     selectedMember = selectedMembers.length > 0 ? selectedMembers[0]! : null;
@@ -86,20 +89,33 @@
 
   function captureListItems() {
     // Capture all the search results, and the advanced search link
-    const resultElements = Array.from(
-      document.querySelectorAll("[data-search-result]"),
+    listItems = Array.from(
+      searchResultElement?.querySelectorAll("[data-search-result]") || [],
     ) as HTMLElement[];
+  }
 
-    listItems = advancedSearchElement
-      ? [...resultElements, advancedSearchElement]
-      : resultElements;
+  function captureAddedItems() {
+    // Capture all the added members
+    addedItems = Array.from(
+      selectedItemsElement?.querySelectorAll(".added-item") || [],
+    ).reverse() as HTMLElement[];
+    if (document.activeElement) {
+      const index = addedItems.findIndex(
+        (item) => item === document.activeElement,
+      );
+      addedItemsIndex = index;
+    } else {
+      addedItemsIndex = -1;
+    }
   }
 
   function handleKeydown(event: KeyboardEvent) {
     if (
       document.activeElement !== inputElement &&
-      document.activeElement !== advancedSearchElement &&
-      !listItems.includes(document.activeElement as HTMLElement)
+      document.activeElement !== searchResultElement &&
+      document.activeElement !== selectedItemsElement &&
+      !listItems.includes(document.activeElement as HTMLElement) &&
+      !addedItems.includes(document.activeElement as HTMLElement)
     ) {
       return;
     }
@@ -140,6 +156,37 @@
       return;
     }
 
+    if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
+      captureAddedItems();
+      if (document.activeElement === inputElement) {
+        const start = inputElement?.selectionStart ?? 0;
+        const end = inputElement?.selectionEnd ?? 0;
+
+        // Only hijack arrow keys when caret is at the very start and no selection.
+        // Otherwise let normal input caret movement happen.
+        if (event.key === "ArrowRight" || start !== 0 || end !== 0) {
+          return;
+        }
+      }
+      // Move focus to the right or left based on the key pressed
+      if (event.key === "ArrowLeft") {
+        if (addedItemsIndex + 1 < addedItems.length) {
+          addedItemsIndex++;
+          addedItems[addedItemsIndex]?.focus();
+        }
+      } else if (event.key === "ArrowRight") {
+        if (addedItemsIndex > 0) {
+          addedItemsIndex--;
+          addedItems[addedItemsIndex]?.focus();
+        } else {
+          // Focus the input if we're at the start of the list
+          addedItemsIndex = -1;
+          inputElement?.focus();
+        }
+      }
+      event.preventDefault();
+    }
+
     // User presses enter
     if (event.key === "Enter") {
       captureListItems();
@@ -153,8 +200,28 @@
 
     if (event.key === "Backspace" || event.key === "Delete") {
       if (input.length === 0 && selectedMembers.length > 0) {
-        // Remove the last member if input is empty
-        selectedMembers = selectedMembers.slice(0, -1);
+        if (addedItemsIndex !== -1) {
+          // If we have a current added item index, remove that member
+          const memberToRemove =
+            selectedMembers[selectedMembers.length - 1 - addedItemsIndex];
+          if (memberToRemove) {
+            removeMember(memberToRemove);
+          }
+          if (addedItemsIndex > 0) {
+            addedItemsIndex--;
+            console.log(addedItems[addedItemsIndex]);
+            addedItems[addedItemsIndex]?.focus();
+          } else {
+            addedItemsIndex = -1;
+            inputElement?.focus();
+          }
+        } else {
+          // Otherwise, remove the last member
+          const memberToRemove = selectedMembers[selectedMembers.length - 1];
+          if (memberToRemove) {
+            removeMember(memberToRemove);
+          }
+        }
       }
     }
   }
@@ -196,18 +263,21 @@
       inputElement?.focus();
     }}
   >
-    <ul class="m-0 flex w-full list-none flex-row flex-wrap gap-2">
+    <ul
+      class="m-0 flex w-full list-none flex-row flex-wrap gap-2"
+      bind:this={selectedItemsElement}
+    >
       {#each selectedMembers as member (member.studentId)}
         <li class="relative m-0 list-none">
-          <button
-            type="button"
-            class="hover:bg-muted h-full cursor-pointer"
+          <Button
+            variant="ghost"
+            class="added-item hover:bg-muted bg-background h-full cursor-pointer rounded-full p-0"
             onclick={() => removeMember(member)}
           >
             <MemberCard {member} links={false} class="rounded-full p-1 pr-2">
               <X class="h-4 w-4" />
             </MemberCard>
-          </button>
+          </Button>
         </li>
       {/each}
       {#if (multiple && (limit == 0 || selectedMembers.length < limit)) || selectedMembers.length === 0}
@@ -230,7 +300,10 @@
   </Button>
 
   {#if filteredResults.length > 0}
-    <Command.List class="rounded-b-md border-[1px]">
+    <Command.List
+      class="rounded-b-md border-[1px]"
+      bind:ref={searchResultElement}
+    >
       <Command.Group class="p-2 pb-0">
         {#each filteredResults as result (result.studentId)}
           <Command.Item
