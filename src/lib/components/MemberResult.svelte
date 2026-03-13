@@ -9,5 +9,11 @@
 </script>
 
 <div data-search-result class={clazz}>
-  <MemberCard member={data} links={false} class="rounded-xl p-1 pr-3" />
+  <MemberCard
+    member={data}
+    links={false}
+    showId
+    showClass
+    class="rounded-xl p-1 pr-2"
+  />
 </div>

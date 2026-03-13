@@ -11,7 +11,7 @@
   import type { InputProps } from "$lib/components/ui/input";
   import { Button } from "$lib/components/ui/button";
   import MemberResult from "./MemberResult.svelte";
-  import { onMount } from "svelte";
+  import { onMount, tick } from "svelte";
   import { cn } from "$lib/utils";
 
   let {
@@ -35,7 +35,7 @@
   let searchResultElement: HTMLElement | null = $state(null);
   let listItems: HTMLElement[] = $state([]);
   let addedItems: HTMLElement[] = $state([]);
-
+  let triggerElement: HTMLElement | null = $state(null);
   let currentIndex = $state(-1);
   let addedItemsIndex = $state(-1);
 
@@ -57,6 +57,36 @@
         : [data];
     }),
   );
+
+  let dropdownIsWider = $state(false);
+
+  function updateDropdownShape() {
+    const triggerWidth =
+      triggerElement instanceof Element
+        ? triggerElement.getBoundingClientRect().width
+        : 0;
+    const dropdownWidth =
+      searchResultElement instanceof Element
+        ? searchResultElement.getBoundingClientRect().width
+        : 0;
+
+    console.log("Trigger width:", triggerWidth);
+    console.log("Dropdown width:", dropdownWidth);
+
+    // small epsilon to avoid subpixel jitter
+    dropdownIsWider = dropdownWidth - triggerWidth > 0.5;
+  }
+
+  $effect(() => {
+    filteredResults.length;
+
+    if (filteredResults.length === 0) {
+      dropdownIsWider = false;
+      return;
+    }
+
+    tick().then(updateDropdownShape);
+  });
 
   async function handleSearch() {
     if (timeout) clearTimeout(timeout);
@@ -265,21 +295,22 @@
   }
 </script>
 
-<div bind:this={componentElement} onfocusout={handleComponentFocusOut}>
+<div
+  bind:this={componentElement}
+  onfocusout={handleComponentFocusOut}
+  class="w-fit"
+>
   <Command.Root
     shouldFilter={false}
-    class={cn(
-      "bg-background relative overflow-visible p-0",
-      clazz,
-      multiple ? " w-full" : " w-fit",
-    )}
+    class={cn("bg-background relative w-fit overflow-visible p-0", clazz)}
     {...restProps}
   >
     <Button
+      bind:ref={triggerElement}
       variant="outline"
       class={cn(
-        "align-center flex h-fit cursor-text flex-row flex-wrap justify-start p-1 pl-2",
-        filteredResults.length > 0 ? "rounded-b-none" : "",
+        "align-center w-max-full flex h-fit cursor-text flex-row flex-wrap justify-start p-1 pl-2",
+        filteredResults.length > 0 ? "rounded-b-none border-b-0" : "",
       )}
       onclick={() => {
         inputElement?.focus();
@@ -323,10 +354,13 @@
 
     {#if filteredResults.length > 0}
       <Command.List
-        class="bg-background absolute top-full left-0 z-50 max-h-64 w-full overflow-auto rounded-b-md border-[1px] border-t-0 shadow-md"
+        class={cn(
+          "bg-background absolute top-full left-0 z-50 max-h-64 w-max min-w-full overflow-auto rounded-b-md border-[1px] shadow-md",
+          dropdownIsWider ? "rounded-tr-md" : "",
+        )}
         bind:ref={searchResultElement}
       >
-        <Command.Group class="p-2 pb-0">
+        <Command.Group class="w-full p-2 pb-0">
           {#each filteredResults as result (result.studentId)}
             <Command.Item
               onclick={() => addMember(result)}
