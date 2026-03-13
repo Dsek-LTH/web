@@ -65,7 +65,7 @@
       class="transition-opacity hover:opacity-80 focus:opacity-80"
       class:pointer-events-none={!links}
     >
-      <h6 class="line-clamp-1">
+      <h6 class="line-clamp-none">
         {getFullName(member)}
       </h6>
     </a>

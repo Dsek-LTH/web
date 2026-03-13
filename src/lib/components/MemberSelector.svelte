@@ -353,7 +353,7 @@
     {#if filteredResults.length > 0}
       <Command.List
         class={cn(
-          "bg-background absolute top-full left-0 z-50 max-h-64 w-max min-w-full overflow-auto rounded-b-md border-[1px] shadow-md",
+          "bg-background absolute top-full left-0 z-50 max-h-64 w-max max-w-[calc(100vw-2rem)] min-w-full overflow-auto rounded-b-md border-[1px] shadow-md sm:right-auto sm:left-0",
           dropdownIsWider ? "rounded-tr-md" : "",
         )}
         bind:ref={searchResultElement}
