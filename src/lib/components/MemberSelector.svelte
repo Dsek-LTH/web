@@ -78,8 +78,6 @@
   }
 
   $effect(() => {
-    filteredResults.length;
-
     if (filteredResults.length === 0) {
       dropdownIsWider = false;
       return;
