@@ -2,12 +2,12 @@
   import * as Avatar from "$lib/components/ui/avatar";
 
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+  import { cn } from "$lib/utils";
   import { getFullName } from "$lib/utils/client/member";
   import type { Snippet } from "svelte";
-  import { twMerge } from "tailwind-merge";
 
   let {
-    class: klass,
+    class: clazz,
     member,
     links = true,
     children = undefined,
@@ -24,9 +24,9 @@
 </script>
 
 <div
-  class={twMerge(
+  class={cn(
     "flex h-fit flex-row items-center gap-2 rounded-sm border-[1px]",
-    klass,
+    clazz,
   )}
 >
   <a

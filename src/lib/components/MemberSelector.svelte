@@ -43,15 +43,13 @@
   let filteredResults: MemberSearchReturnAttributes[] = $derived<
     MemberSearchReturnAttributes[]
   >(
-    results
-      .filter((result: SearchDataWithType) => result.type === "members")
-      .map((result) => result.data as MemberSearchReturnAttributes)
-      .filter(
-        (result) =>
-          !selectedMembers.some(
-            (member) => member.studentId === result.studentId,
-          ),
-      ),
+    results.flatMap((result) => {
+      if (result.type !== "members") return [];
+      const data = result.data as MemberSearchReturnAttributes;
+      return selectedMembers.some((m) => m.studentId === data.studentId)
+        ? []
+        : [data];
+    }),
   );
 
   async function handleSearch() {
