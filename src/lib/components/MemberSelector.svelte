@@ -11,7 +11,7 @@
   import type { InputProps } from "$lib/components/ui/input";
   import { Button } from "$lib/components/ui/button";
   import MemberResult from "./MemberResult.svelte";
-  import { onMount, tick } from "svelte";
+  import { onMount } from "svelte";
   import { cn } from "$lib/utils";
 
   let {
@@ -272,21 +272,19 @@
 >
   <Command.Root
     shouldFilter={false}
-    class={cn("bg-background relative w-fit overflow-visible p-0", clazz)}
+    class={cn("relative w-fit overflow-visible p-0", clazz)}
     {...restProps}
   >
     <Button
       bind:ref={triggerElement}
       variant="outline"
-      class={cn(
-        "align-center w-max-full flex h-fit cursor-text flex-row flex-wrap justify-start p-1 px-2",
-      )}
+      class={cn("align-center h-fit w-fit cursor-text justify-start p-1 px-2")}
       onclick={() => {
         inputElement?.focus();
       }}
     >
       <ul
-        class="m-0 flex w-full list-none flex-row flex-wrap gap-2"
+        class="m-0 flex w-fit list-none flex-row flex-wrap gap-2"
         bind:this={selectedItemsElement}
       >
         {#each selectedMembers as member (member.studentId)}
@@ -303,11 +301,11 @@
           </li>
         {/each}
         {#if (multiple && (limit == 0 || selectedMembers.length < limit)) || selectedMembers.length === 0}
-          <li class="relative m-0 flex w-full flex-1 list-none p-0">
+          <li class="relative m-0 flex max-w-full list-none p-0">
             <Input
               name="input"
               type="none"
-              class="mx-0 h-full w-full border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
+              class="mx-0 h-full w-fit border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
               placeholder={multiple
                 ? m.select_members().concat(limit > 0 ? ` (max ${limit})` : "")
                 : m.select_member()}
@@ -316,29 +314,37 @@
               oninput={handleSearch}
               autocomplete="off"
             />
+            {#if filteredResults.length > 0}
+              <Command.List
+                class="bg-popover absolute top-full z-50 mt-2 max-h-64 w-max overflow-auto rounded-md border-[1px] shadow-md"
+                style="
+                  max-width: calc(100vw - 2rem);
+                  margin-left:
+                    min(
+                      -0.5rem,
+                      calc(100vw - {searchResultElement?.getBoundingClientRect()
+                  .width ?? 0}px - {inputElement?.getBoundingClientRect()
+                  .left ?? 0}px - 1rem)
+                  );
+                "
+                bind:ref={searchResultElement}
+              >
+                <Command.Group class="w-full p-2 pb-0">
+                  {#each filteredResults as result (result.studentId)}
+                    <Command.Item
+                      data-search-result
+                      onclick={() => addMember(result)}
+                      class="mb-2 w-full cursor-pointer rounded-full p-0"
+                    >
+                      <MemberResult data={result} class="w-full" />
+                    </Command.Item>
+                  {/each}
+                </Command.Group>
+              </Command.List>
+            {/if}
           </li>
         {/if}
       </ul>
     </Button>
-
-    {#if filteredResults.length > 0}
-      <Command.List
-        class={cn(
-          "bg-popover absolute top-full left-0 z-50 mt-1 max-h-64 w-max max-w-[92vw] min-w-[18rem] overflow-auto rounded-md border-[1px] shadow-md sm:right-auto sm:left-0",
-        )}
-        bind:ref={searchResultElement}
-      >
-        <Command.Group class="w-full p-2 pb-0">
-          {#each filteredResults as result (result.studentId)}
-            <Command.Item
-              onclick={() => addMember(result)}
-              class={cn("mb-2 w-full cursor-pointer rounded-full p-0")}
-            >
-              <MemberResult data={result} class="w-full" />
-            </Command.Item>
-          {/each}
-        </Command.Group>
-      </Command.List>
-    {/if}
   </Command.Root>
 </div>
