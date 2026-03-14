@@ -1044,5 +1044,6 @@
   "cafe_error_worker_not_exist": "Jobbare {name} existerar inte.",
   "cafe_error_no_ciabatta_edit_perms": "Du har inte tillåtelse att redigera ciabattas.",
   "cafe_error_no_week_viewing_perms": "Du har inte tillåtelse att se denna veckan.",
-  "cafe_closed": "Stängt"
+  "cafe_closed": "Stängt",
+  "search_searching": "Söker..."
 }

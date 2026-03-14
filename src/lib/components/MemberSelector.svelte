@@ -38,6 +38,8 @@
   let triggerElement: HTMLElement | null = $state(null);
   let currentIndex = $state(-1);
   let addedItemsIndex = $state(-1);
+  let isSearching = $state(false);
+  let isFocused = $state(false);
 
   $effect(() => {
     selectedMember = selectedMembers.length > 0 ? selectedMembers[0]! : null;
@@ -62,6 +64,7 @@
     if (timeout) clearTimeout(timeout);
 
     if (!input) {
+      isSearching = false;
       results = [];
       return;
     } else {
@@ -84,7 +87,9 @@
         } else {
           results = [];
         }
+        isSearching = false;
       }, 300);
+      isSearching = true;
     }
   }
 
@@ -111,8 +116,7 @@
   }
 
   function handleKeydown(event: KeyboardEvent) {
-    const active = document.activeElement;
-    if (!active || !componentElement?.contains(active)) {
+    if (!isFocused) {
       return;
     }
 
@@ -123,6 +127,7 @@
       ((event.key === "Backspace" || event.key === "Delete") &&
         input.length > 0)
     ) {
+      isSearching = true;
       inputElement?.focus();
       return;
     }
@@ -239,11 +244,13 @@
       if (!componentElement?.contains(document.activeElement)) {
         results = [];
         currentIndex = -1;
+        isFocused = false;
       }
     }, 0);
   }
 
   function handleFocusIn() {
+    isFocused = true;
     if (input) {
       handleSearch();
     }
@@ -314,7 +321,7 @@
               oninput={handleSearch}
               autocomplete="off"
             />
-            {#if filteredResults.length > 0}
+            {#if input && isFocused}
               <Command.List
                 class="bg-popover absolute top-full z-50 mt-2 max-h-64 w-max overflow-auto rounded-md border-[1px] shadow-md"
                 style="
@@ -329,6 +336,9 @@
                 "
                 bind:ref={searchResultElement}
               >
+                <Command.Empty class="p-4 pb-2 text-center text-sm">
+                  {isSearching ? m.search_searching() : m.search_noResults()}
+                </Command.Empty>
                 <Command.Group class="w-full p-2 pb-0">
                   {#each filteredResults as result (result.studentId)}
                     <Command.Item
