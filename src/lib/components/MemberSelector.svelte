@@ -69,10 +69,6 @@
       searchResultElement instanceof Element
         ? searchResultElement.getBoundingClientRect().width
         : 0;
-
-    console.log("Trigger width:", triggerWidth);
-    console.log("Dropdown width:", dropdownWidth);
-
     // small epsilon to avoid subpixel jitter
     dropdownIsWider = dropdownWidth - triggerWidth > 0.5;
   }
@@ -238,7 +234,6 @@
           }
           if (addedItemsIndex > 0) {
             addedItemsIndex--;
-            console.log(addedItems[addedItemsIndex]);
             addedItems[addedItemsIndex]?.focus();
           } else {
             addedItemsIndex = -1;
@@ -271,11 +266,16 @@
     // Wait one tick so activeElement is updated (mouse/tab)
     setTimeout(() => {
       if (!componentElement?.contains(document.activeElement)) {
-        input = "";
         results = [];
         currentIndex = -1;
       }
     }, 0);
+  }
+
+  function handleFocusIn() {
+    if (input) {
+      handleSearch();
+    }
   }
 
   function addMember(member: MemberSearchReturnAttributes) {
@@ -296,6 +296,7 @@
 <div
   bind:this={componentElement}
   onfocusout={handleComponentFocusOut}
+  onfocusin={handleFocusIn}
   class="w-fit"
 >
   <Command.Root
