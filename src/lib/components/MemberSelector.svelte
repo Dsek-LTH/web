@@ -10,7 +10,6 @@
   import MemberCard from "$lib/components/MemberCard.svelte";
   import type { InputProps } from "$lib/components/ui/input";
   import { Button } from "$lib/components/ui/button";
-  import MemberResult from "./MemberResult.svelte";
   import { onMount } from "svelte";
   import { cn } from "$lib/utils";
 
@@ -33,10 +32,8 @@
   let inputElement: HTMLInputElement | null = $state(null);
   let selectedItemsElement: HTMLElement | null = $state(null);
   let searchResultElement: HTMLElement | null = $state(null);
-  let listItems: HTMLElement[] = $state([]);
   let addedItems: HTMLElement[] = $state([]);
   let triggerElement: HTMLElement | null = $state(null);
-  let currentIndex = $state(-1);
   let addedItemsIndex = $state(-1);
   let isSearching = $state(false);
   let isFocused = $state(false);
@@ -88,16 +85,9 @@
           results = [];
         }
         isSearching = false;
-      }, 300);
+      }, 200);
       isSearching = true;
     }
-  }
-
-  function captureListItems() {
-    // Capture all the search results, and the advanced search link
-    listItems = Array.from(
-      searchResultElement?.querySelectorAll("[data-search-result]") || [],
-    ) as HTMLElement[];
   }
 
   function captureAddedItems() {
@@ -123,37 +113,12 @@
     // Most probable case first: user just presses a key
     // We should then start searching
     if (
-      (currentIndex !== -1 && event.key.length === 1) ||
+      event.key.length === 1 ||
       ((event.key === "Backspace" || event.key === "Delete") &&
         input.length > 0)
     ) {
       isSearching = true;
       inputElement?.focus();
-      return;
-    }
-
-    // Second most probable case: user presses arrow keys
-    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
-      captureListItems();
-      event.preventDefault();
-
-      // Move the index based on the key pressed
-      if (event.key === "ArrowDown") {
-        if (currentIndex + 1 < listItems.length) {
-          currentIndex++;
-        }
-      } else if (event.key === "ArrowUp") {
-        if (currentIndex > 0) {
-          currentIndex--;
-        } else {
-          // Focus the input if we're at the top of the list
-          currentIndex = -1;
-          inputElement?.focus();
-          return;
-        }
-      }
-      // Update focus
-      listItems[currentIndex]?.focus();
       return;
     }
 
@@ -186,17 +151,6 @@
         }
       }
       event.preventDefault();
-    }
-
-    // User presses enter
-    if (event.key === "Enter") {
-      captureListItems();
-      // If we have a current index, click it
-      if (currentIndex !== -1) {
-        listItems[currentIndex]?.click();
-      }
-      event.preventDefault();
-      return;
     }
 
     if (event.key === "Backspace" || event.key === "Delete") {
@@ -243,7 +197,6 @@
     setTimeout(() => {
       if (!componentElement?.contains(document.activeElement)) {
         results = [];
-        currentIndex = -1;
         isFocused = false;
       }
     }, 0);
@@ -279,6 +232,7 @@
 >
   <Command.Root
     shouldFilter={false}
+    loop
     class={cn("relative w-fit overflow-visible p-0", clazz)}
     {...restProps}
   >
@@ -344,9 +298,15 @@
                     <Command.Item
                       data-search-result
                       onclick={() => addMember(result)}
-                      class="mb-2 w-full cursor-pointer rounded-full p-0"
+                      class="mb-2 w-full cursor-pointer rounded-full p-0 opacity-80 data-selected:opacity-100"
                     >
-                      <MemberResult data={result} class="w-full" />
+                      <MemberCard
+                        member={result}
+                        links={false}
+                        showId
+                        showClass
+                        class="w-full rounded-full p-1 pr-2  "
+                      />
                     </Command.Item>
                   {/each}
                 </Command.Group>
