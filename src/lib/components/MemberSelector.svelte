@@ -58,30 +58,6 @@
     }),
   );
 
-  let dropdownIsWider = $state(false);
-
-  function updateDropdownShape() {
-    const triggerWidth =
-      triggerElement instanceof Element
-        ? triggerElement.getBoundingClientRect().width
-        : 0;
-    const dropdownWidth =
-      searchResultElement instanceof Element
-        ? searchResultElement.getBoundingClientRect().width
-        : 0;
-    // small epsilon to avoid subpixel jitter
-    dropdownIsWider = dropdownWidth - triggerWidth > 0.5;
-  }
-
-  $effect(() => {
-    if (filteredResults.length === 0) {
-      dropdownIsWider = false;
-      return;
-    }
-
-    tick().then(updateDropdownShape);
-  });
-
   async function handleSearch() {
     if (timeout) clearTimeout(timeout);
 
@@ -308,8 +284,7 @@
       bind:ref={triggerElement}
       variant="outline"
       class={cn(
-        "align-center w-max-full flex h-fit cursor-text flex-row flex-wrap justify-start p-1 pl-2",
-        filteredResults.length > 0 ? "rounded-b-none border-b-0" : "",
+        "align-center w-max-full flex h-fit cursor-text flex-row flex-wrap justify-start p-1 px-2",
       )}
       onclick={() => {
         inputElement?.focus();
@@ -354,8 +329,7 @@
     {#if filteredResults.length > 0}
       <Command.List
         class={cn(
-          "bg-background absolute top-full left-0 z-50 max-h-64 w-max max-w-[calc(100vw-2rem)] min-w-full overflow-auto rounded-b-md border-[1px] shadow-md sm:right-auto sm:left-0",
-          dropdownIsWider ? "rounded-tr-md" : "",
+          "bg-popover absolute top-full left-0 z-50 mt-1 max-h-64 w-max max-w-[92vw] min-w-[18rem] overflow-auto rounded-md border-[1px] shadow-md sm:right-auto sm:left-0",
         )}
         bind:ref={searchResultElement}
       >
