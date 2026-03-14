@@ -111,13 +111,8 @@
   }
 
   function handleKeydown(event: KeyboardEvent) {
-    if (
-      document.activeElement !== inputElement &&
-      document.activeElement !== searchResultElement &&
-      document.activeElement !== selectedItemsElement &&
-      !listItems.includes(document.activeElement as HTMLElement) &&
-      !addedItems.includes(document.activeElement as HTMLElement)
-    ) {
+    const active = document.activeElement;
+    if (!active || !componentElement?.contains(active)) {
       return;
     }
 
