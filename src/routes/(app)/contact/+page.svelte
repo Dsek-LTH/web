@@ -65,7 +65,9 @@
     <span>
       {m.contact_teknikfokus_prose()}
     </span>
-    <a class="transition-all hover:opacity-80" href="https://teknikfokus.se"
+    <a
+      class="underline transition-all hover:opacity-80"
+      href="https://teknikfokus.se"
       >www.teknikfokus.se <ExternalLink class="mb-[4px] inline h-[0.8lh]" /></a
     >
   </div>
