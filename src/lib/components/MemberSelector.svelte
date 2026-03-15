@@ -225,97 +225,93 @@
   }
 </script>
 
-<div
-  bind:this={componentElement}
+<Command.Root
+  bind:ref={componentElement}
   onfocusout={handleComponentFocusOut}
   onfocusin={handleFocusIn}
-  class="w-fit"
+  shouldFilter={false}
+  loop
+  class={cn("relative w-fit overflow-visible p-0", clazz)}
+  {...restProps}
 >
-  <Command.Root
-    shouldFilter={false}
-    loop
-    class={cn("relative w-fit overflow-visible p-0", clazz)}
-    {...restProps}
+  <Button
+    bind:ref={triggerElement}
+    variant="outline"
+    class={cn("align-center h-fit w-full cursor-text justify-start p-1 px-2")}
+    onclick={() => {
+      inputElement?.focus();
+    }}
   >
-    <Button
-      bind:ref={triggerElement}
-      variant="outline"
-      class={cn("align-center h-fit w-fit cursor-text justify-start p-1 px-2")}
-      onclick={() => {
-        inputElement?.focus();
-      }}
+    <ul
+      class="m-0 flex w-fit list-none flex-row flex-wrap gap-2"
+      bind:this={selectedItemsElement}
     >
-      <ul
-        class="m-0 flex w-fit list-none flex-row flex-wrap gap-2"
-        bind:this={selectedItemsElement}
-      >
-        {#each selectedMembers as member (member.studentId)}
-          <li class="relative m-0 list-none">
-            <Button
-              variant="ghost"
-              class="added-item hover:bg-muted bg-background h-full cursor-pointer rounded-full p-0"
-              onclick={() => removeMember(member)}
-            >
-              <MemberCard {member} links={false} class="rounded-full p-1 pr-2">
-                <X class="h-4 w-4" />
-              </MemberCard>
-            </Button>
-          </li>
-        {/each}
-        {#if (multiple && (limit == 0 || selectedMembers.length < limit)) || selectedMembers.length === 0}
-          <li class="relative m-0 flex max-w-full list-none p-0">
-            <Input
-              name="input"
-              type="none"
-              class="mx-0 h-full w-fit border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
-              placeholder={multiple
-                ? m.select_members().concat(limit > 0 ? ` (max ${limit})` : "")
-                : m.select_member()}
-              bind:value={input}
-              bind:ref={inputElement}
-              oninput={handleSearch}
-              autocomplete="off"
-            />
-            {#if input && isFocused()}
-              <Command.List
-                class="bg-popover absolute top-full z-50 mt-2 max-h-64 w-max overflow-auto rounded-md border-[1px] shadow-md"
-                style="
+      {#each selectedMembers as member (member.studentId)}
+        <li class="relative m-0 list-none">
+          <Button
+            variant="ghost"
+            class="added-item hover:bg-muted bg-background h-full cursor-pointer rounded-full p-0"
+            onclick={() => removeMember(member)}
+          >
+            <MemberCard {member} links={false} class="rounded-full p-1 pr-2">
+              <X class="h-4 w-4" />
+            </MemberCard>
+          </Button>
+        </li>
+      {/each}
+      {#if (multiple && (limit == 0 || selectedMembers.length < limit)) || selectedMembers.length === 0}
+        <li class="relative m-0 flex max-w-full list-none p-0">
+          <Input
+            name="input"
+            type="none"
+            class="mx-0 h-full w-fit border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
+            placeholder={multiple
+              ? m.select_members().concat(limit > 0 ? ` (max ${limit})` : "")
+              : m.select_member()}
+            bind:value={input}
+            bind:ref={inputElement}
+            oninput={handleSearch}
+            autocomplete="off"
+          />
+          {#if input && isFocused()}
+            <Command.List
+              class="bg-popover absolute top-full z-50 mt-2 max-h-64 w-max overflow-auto rounded-md border-[1px] shadow-md"
+              style="
                   max-width: calc(100vw - 2rem);
                   margin-left:
                     min(
                       -0.5rem,
                       calc(100vw - {searchResultElement?.getBoundingClientRect()
-                  .width ?? 0}px - {inputElement?.getBoundingClientRect()
-                  .left ?? 0}px - 1rem)
+                .width ?? 0}px - {inputElement?.getBoundingClientRect().left ??
+                0}px - 1rem)
                   );
                 "
-                bind:ref={searchResultElement}
-              >
-                <Command.Empty class="p-4 pb-2 text-center text-sm">
-                  {isSearching ? m.search_searching() : m.search_noResults()}
-                </Command.Empty>
-                <Command.Group class="w-full p-2 pb-0">
-                  {#each filteredResults as result (result.studentId)}
-                    <Command.Item
-                      data-search-result
-                      onclick={() => addMember(result)}
-                      class="mb-2 w-full cursor-pointer rounded-full p-0 opacity-80 data-selected:opacity-100"
-                    >
-                      <MemberCard
-                        member={result}
-                        links={false}
-                        showId
-                        showClass
-                        class="w-full rounded-full p-1 pr-2  "
-                      />
-                    </Command.Item>
-                  {/each}
-                </Command.Group>
-              </Command.List>
-            {/if}
-          </li>
-        {/if}
-      </ul>
-    </Button>
-  </Command.Root>
-</div>
+              bind:ref={searchResultElement}
+            >
+              <Command.Empty class="p-4 pb-2 text-center text-sm">
+                {isSearching ? m.search_searching() : m.search_noResults()}
+              </Command.Empty>
+              <Command.Group class="w-full p-2 pb-0">
+                {#each filteredResults as result (result.studentId)}
+                  <Command.Item
+                    data-search-result
+                    onclick={() => addMember(result)}
+                    class="mb-2 w-full cursor-pointer rounded-full p-0 opacity-80 data-selected:opacity-100"
+                  >
+                    <MemberCard
+                      member={result}
+                      links={false}
+                      showId
+                      showClass
+                      class="w-full rounded-full p-1 pr-2  "
+                    />
+                  </Command.Item>
+                {/each}
+              </Command.Group>
+            </Command.List>
+          {/if}
+        </li>
+      {/if}
+    </ul>
+  </Button>
+</Command.Root>
