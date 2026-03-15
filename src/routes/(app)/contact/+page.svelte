@@ -100,7 +100,7 @@
         <span
           >{data.pm
             ? data.pm.member.firstName + " " + data.pm.member.lastName
-            : ""}</span
+            : m.vacant()}</span
         >
         <a class="link" href="mailto:{data.pm?.position?.email}"
           >{data.pm?.position?.email ?? ""}</a
@@ -113,7 +113,7 @@
         <span
           >{data.root
             ? data.root.member.firstName + " " + data.root.member.lastName
-            : ""}</span
+            : m.vacant()}</span
         >
         <a class="link" href="mailto:{data.root?.position?.email ?? ''}"
           >{data.root?.position?.email ?? ""}</a
@@ -165,23 +165,26 @@
     | null,
   description: string,
 )}
-  <div class="flex w-64 flex-col rounded-md border-[1px] p-4">
-    <Avatar.Root class="border-border m-3 size-40 self-center border-[1px]">
-      <Avatar.Image
-        src={position?.member?.picturePath ?? ""}
-        alt="Member image"
-      />
-      <Avatar.Fallback class="text-xl"
-        >{getInitials(position?.member)}</Avatar.Fallback
-      >
-    </Avatar.Root>
-    <h3>{position?.position.name}</h3>
-    <h6>{position?.member?.firstName} {position?.member?.lastName}</h6>
-    <div class="mt-3">
-      <span>{description}</span>
-      <a class="link mt-2 break-words" href="mailto:{position?.position.email}"
-        >{position?.position.email}</a
-      >
+  {#if position}
+    <div class="flex w-64 flex-col rounded-md border-[1px] p-4">
+      <Avatar.Root class="border-border m-3 size-40 self-center border-[1px]">
+        <Avatar.Image
+          src={position?.member?.picturePath ?? ""}
+          alt="Member image"
+        />
+        <Avatar.Fallback class="text-xl"
+          >{getInitials(position?.member)}</Avatar.Fallback
+        >
+      </Avatar.Root>
+      <h3>{position?.position.name}</h3>
+      <h6>{position?.member?.firstName} {position?.member?.lastName}</h6>
+      <div class="mt-3">
+        <span>{description}</span>
+        <a
+          class="link mt-2 break-words"
+          href="mailto:{position?.position.email}">{position?.position.email}</a
+        >
+      </div>
     </div>
-  </div>
+  {/if}
 {/snippet}

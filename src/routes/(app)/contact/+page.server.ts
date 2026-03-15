@@ -1,6 +1,6 @@
 export const load = async ({ locals }) => {
   const { prisma } = locals;
-  const [vordf, ordf, nara, trivsel, cpu, pm, root] = await Promise.all([
+  const [vordf, ordf, nara, pm, root, trivsel, cpu] = await Promise.all([
     prisma.mandate.findFirst({
       where: {
         AND: [
@@ -40,32 +40,6 @@ export const load = async ({ locals }) => {
         position: true,
       },
     }),
-    prisma.committee.findFirst({
-      where: {
-        shortName: "trivsel",
-      },
-      select: {
-        darkImageUrl: true,
-        lightImageUrl: true,
-        monoImageUrl: true,
-        nameSv: true,
-        nameEn: true,
-        name: true,
-      },
-    }),
-    prisma.committee.findFirst({
-      where: {
-        shortName: "cpu",
-      },
-      select: {
-        darkImageUrl: true,
-        lightImageUrl: true,
-        monoImageUrl: true,
-        nameSv: true,
-        nameEn: true,
-        name: true,
-      },
-    }),
     prisma.mandate.findFirst({
       where: {
         AND: [
@@ -92,7 +66,33 @@ export const load = async ({ locals }) => {
         position: true,
       },
     }),
+    prisma.committee.findFirst({
+      where: {
+        shortName: "trivsel",
+      },
+      select: {
+        darkImageUrl: true,
+        lightImageUrl: true,
+        monoImageUrl: true,
+        nameSv: true,
+        nameEn: true,
+        name: true,
+      },
+    }),
+    prisma.committee.findFirst({
+      where: {
+        shortName: "cpu",
+      },
+      select: {
+        darkImageUrl: true,
+        lightImageUrl: true,
+        monoImageUrl: true,
+        nameSv: true,
+        nameEn: true,
+        name: true,
+      },
+    }),
   ]);
 
-  return { vordf, ordf, nara, trivsel, cpu, pm, root };
+  return { vordf, ordf, nara, pm, root, trivsel, cpu };
 };

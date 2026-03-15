@@ -1055,5 +1055,6 @@
   "contact_postal_address": "Postal address",
   "contact_guild_information": "Guild information",
   "contact_media": "Press and media",
-  "contact_media_prose": "Press and media should contact the Union President,"
+  "contact_media_prose": "Press and media should contact the Union President,",
+  "vacant": "Vacant"
 }
