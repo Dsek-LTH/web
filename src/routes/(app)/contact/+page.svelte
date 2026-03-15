@@ -17,7 +17,9 @@
   <h1>{m.contact_contact()}</h1>
 
   <div class="flex flex-col">
-    <div class="flex flex-row justify-around gap-4">
+    <div
+      class="flex flex-col flex-wrap items-center justify-around gap-4 sm:flex-row"
+    >
       {@render positionCard(vordf, m.contact_vice_president())}
       {@render positionCard(ordf, m.contact_president())}
       {@render positionCard(nara, m.contact_business())}
@@ -72,7 +74,9 @@
     >
   </div>
 
-  <div class="flex flex-row justify-between gap-4">
+  <div
+    class="flex flex-col flex-wrap items-center justify-between gap-4 sm:flex-row"
+  >
     <div class=" flex w-78 flex-col gap-4 rounded-md border-[1px] p-4">
       <div class="flex flex-row items-center justify-between">
         <h3>{data.trivsel?.name}</h3>
@@ -168,7 +172,7 @@
   description: string,
 )}
   {#if position}
-    <div class="flex w-64 flex-col rounded-md border-[1px] p-4">
+    <div class="flex w-72 flex-col rounded-md border-[1px] p-4 sm:w-64">
       <Avatar.Root class="border-border m-3 size-40 self-center border-[1px]">
         <Avatar.Image
           src={position?.member?.picturePath ?? ""}
