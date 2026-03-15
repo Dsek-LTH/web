@@ -18,7 +18,7 @@
 
   <div class="flex flex-col">
     <div
-      class="flex flex-col flex-wrap items-center justify-around gap-4 sm:flex-row"
+      class="md-nav:grid md-nav:grid-cols-3 flex flex-col flex-wrap items-center justify-around gap-4 sm:flex-row"
     >
       {@render positionCard(vordf, m.contact_vice_president())}
       {@render positionCard(ordf, m.contact_president())}
@@ -75,7 +75,7 @@
   </div>
 
   <div
-    class="flex flex-col flex-wrap items-center justify-between gap-4 sm:flex-row"
+    class="flex flex-wrap items-center justify-center gap-4 sm:flex-row lg:grid lg:grid-cols-3 lg:items-baseline lg:justify-between"
   >
     <div class=" flex w-78 flex-col gap-4 rounded-md border-[1px] p-4">
       <div class="flex flex-row items-center justify-between">
@@ -172,7 +172,7 @@
   description: string,
 )}
   {#if position}
-    <div class="flex w-72 flex-col rounded-md border-[1px] p-4 sm:w-64">
+    <div class="flex h-full w-72 flex-col rounded-md border-[1px] p-4 sm:w-64">
       <Avatar.Root class="border-border m-3 size-40 self-center border-[1px]">
         <Avatar.Image
           src={position?.member?.picturePath ?? ""}
