@@ -222,7 +222,7 @@ export const getFooterRoutes = (): Route[] =>
       title: m.nav_contact(),
       accessRequired: null,
       appBehaviour: "none",
-      path: "/contact",
+      path: null,
       children: [
         {
           title: m.nav_for_companies(),
