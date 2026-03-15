@@ -36,7 +36,10 @@
   let triggerElement: HTMLElement | null = $state(null);
   let addedItemsIndex = $state(-1);
   let isSearching = $state(false);
-  let isFocused = $state(false);
+
+  function isFocused(): boolean {
+    return componentElement?.contains(document.activeElement) ?? false;
+  }
 
   $effect(() => {
     selectedMember = selectedMembers.length > 0 ? selectedMembers[0]! : null;
@@ -106,7 +109,7 @@
   }
 
   function handleKeydown(event: KeyboardEvent) {
-    if (!isFocused) {
+    if (!isFocused()) {
       return;
     }
 
@@ -197,13 +200,11 @@
     setTimeout(() => {
       if (!componentElement?.contains(document.activeElement)) {
         results = [];
-        isFocused = false;
       }
     }, 0);
   }
 
   function handleFocusIn() {
-    isFocused = true;
     if (input) {
       handleSearch();
     }
@@ -275,7 +276,7 @@
               oninput={handleSearch}
               autocomplete="off"
             />
-            {#if input && isFocused}
+            {#if input && isFocused()}
               <Command.List
                 class="bg-popover absolute top-full z-50 mt-2 max-h-64 w-max overflow-auto rounded-md border-[1px] shadow-md"
                 style="
