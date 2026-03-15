@@ -37,7 +37,7 @@
 
 <div
   class={cn(
-    "flex h-fit w-full min-w-0 flex-row items-center gap-2 rounded-sm border-[1px]",
+    "flex h-fit w-fit min-w-0 flex-row items-center gap-2 rounded-md border-[1px] p-1 px-2",
     clazz,
   )}
 >
@@ -48,7 +48,7 @@
       ? ''
       : 'pointer-events-none'}"
   >
-    <Avatar.Root class="relative h-7 w-7">
+    <Avatar.Root class="relative h-6 w-6">
       <Avatar.Image src={member.picturePath} alt="Member image" />
       <Avatar.Fallback class="text-xs"
         >{member.firstName && member.lastName
