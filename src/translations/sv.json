@@ -1050,5 +1050,20 @@
   "about_guild_prose_committees": "Sektionen är indelad i 15 utskott, som alla har olika verksamhet och områden. Nedan kan du hitta information om alla och få veta hur du kan engagera dig i dem!",
   "about_guild_prose_union": "D-sektionen är del av Teknologkåren vid LTH, som representerar alla studenter vid Lunds Tekniska Högskola.",
   "dchip": "D-Chip",
-  "about_guild_prose_dchip": "D-Chip är en ideell, studentdriven förening som studenterna på Datateknik och InfoCom på LTH hör till. Alla kvinnliga och icke-binära studenter på de två programmen kan vara med i D-Chip."
+  "about_guild_prose_dchip": "D-Chip är en ideell, studentdriven förening som studenterna på Datateknik och InfoCom på LTH hör till. Alla kvinnliga och icke-binära studenter på de två programmen kan vara med i D-Chip.",
+  "contact_contact": "Kontakt",
+  "contact_vice_president": "För generella frågor, kontakta Vice ordförande.",
+  "contact_president": "För frågor om sektionens struktur och styrelsen, kontakta Ordförande.",
+  "contact_business": "För företags- och näringslivskontakter, kontakta Näringslivsansvarig.",
+  "contact_teknikfokus_prose": "Teknikfokus är D-sektionens och E-sektionens årliga arbetsmarknadsmässa och riktar sig till studenter på civilingenjörsprogrammen Datateknik, Informations- och kommunikationsteknik, Elektroteknik samt Medicin och Teknik. Teknikfokus är en av de största händelserna under året för sektionerna och det är ett utmärkt tillfälle att visa upp sig mot studenter.",
+  "contact_wellbeing": "Vi är här för ditt välmående, i allt från studiero till likabehandling. Vi arbetar kontinuerligt för att se till att sektionen har en inkluderande känsla där du alltid känner dig välkommen oavsett vem du är. Du som student måste höras! Tveka därför inte att ta kontakt om något händer eller om du har tankar på hur vi kan öka sektionens välmående!",
+  "contact_pm_prose": "För hjälp om hur du använder hemsidan korrekt, eller för att se till så att du har korrekta behörigheter, kontakta Processmästaren.",
+  "contact_root_prose": "För teknisk support, eller i fall relaterade till IT-säkerhet, kontakta serveransvarig, root.",
+  "contact_organization_number": "Organisationsnummer",
+  "contact_visitor_address": "Besöksadress",
+  "contact_postal_address": "Postadress",
+  "contact_guild_information": "Sektions&shy;information",
+  "contact_media": "Press och media",
+  "contact_media_prose": "Press och media hänvisas till Kår&shy;ordförande,",
+  "vacant": "Vakant"
 }

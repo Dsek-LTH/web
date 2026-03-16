@@ -6,13 +6,26 @@
   let {
     committee,
     size = "default",
+    class: klass,
   }: {
-    committee: ExtendedPrismaModel<"Committee">;
+    committee?: Pick<
+      ExtendedPrismaModel<"Committee">,
+      "symbolUrl" | "shortName" | "name"
+    >;
     size?: "default" | "sm";
+    class?: string;
   } = $props();
 
   const FALLBACK_URL =
     "https://raw.githubusercontent.com/Dsek-LTH/grafik/refs/heads/main/guild/dsek/symbol/symbol_rosa.svg";
+
+  if (committee == undefined) {
+    committee = {
+      symbolUrl: "",
+      shortName: "other",
+      name: "",
+    };
+  }
 
   let other = $derived(committee.shortName == "other");
 
@@ -35,24 +48,24 @@
 
   let differentDarkLight = $derived(dark !== light);
 
-  let klass = $derived(size == "default" ? "w-8" : "w-6");
+  let sizeClass = $derived(size == "default" ? "w-8" : "w-6");
 </script>
 
 {#if differentDarkLight}
   <object
     type="image/svg"
     title="{committee.name} symbol"
-    class="relative flex aspect-square justify-center"
+    class={cn("relative flex aspect-square justify-center", klass)}
   >
     <img
       src={getFileUrl(dark)}
       alt="{committee.name} symbol"
-      class={cn(klass, "hidden dark:block")}
+      class={cn(sizeClass, "hidden dark:block")}
     />
     <img
       src={getFileUrl(light)}
       alt="{committee.name} symbol"
-      class={cn(klass, "dark:hidden")}
+      class={cn(sizeClass, "dark:hidden")}
     />
   </object>
 {:else}
@@ -60,18 +73,22 @@
     type="image/svg"
     title="{committee.name} symbol"
     data={getFileUrl(symbolUrl)}
-    class={cn("flex justify-center overflow-visible", other ? "mx-1" : "")}
+    class={cn(
+      "flex justify-center overflow-visible",
+      other ? "mx-1" : "",
+      klass,
+    )}
   >
     {#if other}
       <img
         src={FALLBACK_URL}
         alt="{committee.name} symbol"
-        class={cn(klass, "text-rosa-400")}
+        class={cn(sizeClass, "text-rosa-400")}
       />{:else}
       <img
         src={getFileUrl(symbolUrl)}
         alt="{committee.name} symbol"
-        class={cn(klass, "text-rosa-400")}
+        class={cn(sizeClass, "text-rosa-400")}
       />
     {/if}
   </object>
