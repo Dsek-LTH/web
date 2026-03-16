@@ -906,6 +906,7 @@
   "cafe_signed_up_for_other": "Anmälde {name} till arbetspasset.",
   "cafe_quit_shift": "Avanmälde dig från arbetspasset.",
   "cafe_quit_shift_for_other": "Avanmälde {name} från arbetspasset.",
+  "cafe_day_manager": "Dagis",
   "cafe_changed_ciabatta": "Ändrade veckans ciabatta.",
   "cafe_error_already_have_shift": "Kan inte anmäla dig till passet! Du har redan ett pass den dagen. Om du behöver anmäla dig till fler pass, kontakta Vice Cafémästare",
   "cafe_error_only_daymanagers": "Bara dagisar kan anmäla sig till det passet.",
