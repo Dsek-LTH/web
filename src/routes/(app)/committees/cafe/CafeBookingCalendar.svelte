@@ -248,8 +248,10 @@
               hidden
             />
             <button
-              class="border-1 m-1 w-full rounded border border-base-300 p-2 enabled:bg-base-300 enabled:hover:border-primary
-              {disabled && !name_color_override ? 'text-slate-500' : ''}"
+              class="border-1 m-1 w-full rounded p-2 enabled:bg-base-300 enabled:hover:border-primary
+              {disabled && !name_color_override
+                ? 'text-slate-500'
+                : 'border border-base-300'}"
               {disabled}
             >
               {getName(day, timeSlot)}
@@ -272,7 +274,7 @@
           {getWeekdayName(dayIndex)}
         </p>
 
-        <p class="gap-1 text-center font-bold">Day Manager</p>
+        <p class="gap-1 text-center font-bold">{m.cafe_day_manager()}</p>
         {@render DayForm(
           TimeSlot.DAYMANAGER,
           !canEditWorkers &&
