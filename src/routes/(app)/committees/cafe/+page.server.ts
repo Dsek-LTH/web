@@ -179,14 +179,25 @@ export const actions: Actions = {
     } else {
       // There is already a shift.
       if (cafeShift.worker.studentId === member) {
-        await prisma.cafeShift.delete({ where: { id: cafeShift.id } });
-        return message(form, {
-          message:
-            member === user.studentId
-              ? m.cafe_quit_shift()
-              : m.cafe_quit_shift_for_other({ name: member }),
-          type: "success",
-        });
+        const shiftDate = dayjs(cafeShift.date);
+        if (isSetByAdmin || shiftDate > dayjs().add(1, "day")) {
+          await prisma.cafeShift.delete({ where: { id: cafeShift.id } });
+          return message(form, {
+            message:
+              member === user.studentId
+                ? m.cafe_quit_shift()
+                : m.cafe_quit_shift_for_other({ name: member }),
+            type: "success",
+          });
+        } else {
+          return message(form, {
+            message:
+              shiftDate > dayjs().subtract(1, "day")
+                ? "Not permitted to sign off a shift so close in time"
+                : "Not permitted to sign off an already completed shift",
+            type: "error",
+          });
+        }
       } else {
         // There is already a shift in this location, but it is not attributed to the user we are trying to edit.
         if (isSetByAdmin) {
