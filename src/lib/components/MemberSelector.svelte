@@ -17,6 +17,8 @@
     selectedMembers = $bindable([]),
     selectedMember = $bindable(null),
     multiple = false,
+    showId = true,
+    showClass = true,
     limit = 0,
     class: clazz = "",
     ...restProps
@@ -24,6 +26,8 @@
     selectedMembers?: MemberSearchReturnAttributes[];
     selectedMember?: MemberSearchReturnAttributes | null;
     multiple: boolean;
+    showId: boolean;
+    showClass: boolean;
     limit?: number;
     class?: string;
   } & InputProps = $props();
@@ -301,8 +305,8 @@
                     <MemberCard
                       member={result}
                       links={false}
-                      showId
-                      showClass
+                      {showId}
+                      {showClass}
                       class="w-full rounded-full p-1 pr-2  "
                     />
                   </Command.Item>
