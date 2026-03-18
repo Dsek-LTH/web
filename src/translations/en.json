@@ -1063,5 +1063,8 @@
   "contact_guild_information": "Guild information",
   "contact_media": "Press and media",
   "contact_media_prose": "Press and media should contact the Union President,",
-  "vacant": "Vacant"
+  "vacant": "Vacant",
+  "select_member": "Select member",
+  "select_members": "Select members",
+  "search_searching": "Searching..."
 }

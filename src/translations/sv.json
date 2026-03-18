@@ -1065,5 +1065,8 @@
   "contact_guild_information": "Sektions&shy;information",
   "contact_media": "Press och media",
   "contact_media_prose": "Press och media hänvisas till Kår&shy;ordförande,",
-  "vacant": "Vakant"
+  "vacant": "Vakant",
+  "select_member": "Välj medlem",
+  "select_members": "Välj medlemmar",
+  "search_searching": "Söker..."
 }
