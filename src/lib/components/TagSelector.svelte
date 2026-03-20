@@ -52,7 +52,7 @@
         <div
           class={cn(
             "flex overflow-x-scroll overflow-y-hidden",
-            "selection:bg-primary dark:bg-input/30 selection:text-primary-foreground border-input ring-offset-background placeholder:text-muted-foreground flex h-9 w-full min-w-0 rounded-md border bg-transparent text-sm font-medium shadow-xs transition-[color,box-shadow] outline-none disabled:cursor-not-allowed disabled:opacity-50",
+            "selection:bg-primary dark:bg-input/30 selection:text-primary-foreground ring-offset-background placeholder:text-muted-foreground flex h-9 w-full min-w-0 rounded-md border bg-transparent text-sm font-medium shadow-xs transition-[color,box-shadow] outline-none disabled:cursor-not-allowed disabled:opacity-50",
             "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
             "aria-invalid:border-rosa-500 dark:aria-invalid:bg-rosa-950 aria-invalid:bg-rosa-50 aria-invalid:text-rosa-500 dark:aria-invalid:text-rosa-500 aria-invalid:border-[1px]",
           )}
