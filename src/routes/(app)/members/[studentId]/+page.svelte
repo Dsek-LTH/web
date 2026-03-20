@@ -15,11 +15,11 @@
   import * as Dialog from "$lib/components/ui/dialog";
   import MemberForm from "./MemberForm.svelte";
   import { cn } from "$lib/utils";
-  import dayjs from "dayjs";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import { getFullName } from "$lib/utils/client/member";
   import SEO from "$lib/seo/SEO.svelte";
   import PhadderGroupModal from "./PhadderGroupModal.svelte";
+  import ArticleCard from "$lib/components/ArticleCard.svelte";
 
   let { data } = $props();
 
@@ -419,22 +419,11 @@
       </Tabs.Content>
       <Tabs.Content value="articles">
         <div class="flex flex-col gap-2">
-          {#each data.publishedArticles as article, index (article.id)}
-            <a href="/news/{article.slug}">
-              <div
-                class="hover:prose-h5:text-muted-foreground hover:prose-p:text-muted-foreground bg-background hover:bg-muted-background animate-in slide-in-from-bottom-[0.5rem] flex w-full flex-col rounded-md border p-4 transition-all duration-500"
-                style="animation-delay: {index * 30}ms"
-              >
-                <div class="flex flex-row justify-between">
-                  <h5>{article.header}</h5>
-                  <span class="text-muted-foreground"
-                    >{dayjs(article.createdAt).format("YYYY-MM-DD")}</span
-                  >
-                </div>
-                <p class="line-clamp-2 overflow-ellipsis">{article.body}</p>
-              </div>
-            </a>
-          {/each}
+          <div class="grid w-full grid-cols-1 gap-4 md:grid-cols-2">
+            {#each data.publishedArticles as article, index (article.id)}
+              <ArticleCard {article} {index} />
+            {/each}
+          </div>
         </div>
       </Tabs.Content>
     </Tabs.Root>
