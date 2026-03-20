@@ -255,11 +255,11 @@
         >
       </Avatar.Root>
       <span class="flex flex-row items-center gap-0"
-        ><code class="text-xs">{member.email}</code><Button
-          onclick={() => navigator.clipboard.writeText(member.email ?? "")}
-          variant="ghost"
-          size="icon-sm"><Copy /></Button
-        ></span
+        ><code class="text-xs">{member.email}</code>{#if member.email}<Button
+            onclick={() => navigator.clipboard.writeText(member.email ?? "")}
+            variant="ghost"
+            size="icon-sm"><Copy /></Button
+          >{/if}</span
       >
     </div>
     {#if member.bio}
