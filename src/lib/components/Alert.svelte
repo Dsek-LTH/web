@@ -13,9 +13,11 @@
   import X from "@lucide/svelte/icons/x";
   import type { Component } from "svelte";
 
-  export let id: string;
-  export let message: string;
-  export let severity: string;
+  let {
+    id,
+    message,
+    severity,
+  }: { id: string; message: string; severity: string } = $props();
 
   interface SeverityData {
     icon: Component<IconProps>;
@@ -46,7 +48,8 @@
     },
   };
 
-  let { icon, foreground, background } = data[severity]!;
+  let { icon, foreground, background } = $derived(data[severity])!;
+  const Icon = $derived(icon);
 
   let closeAlert = () =>
     fetch("/api/closeAlert", {
@@ -65,7 +68,7 @@
   )}
   role="alert"
 >
-  <svelte:component this={icon} size={24} class="shrink-0" strokeWidth={3} />
+  <Icon size={24} class="shrink-0" strokeWidth={3} />
 
   <span class="text-lg font-bold">{message}</span>
 
