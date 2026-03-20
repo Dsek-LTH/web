@@ -75,7 +75,7 @@
   </div>
 
   <div
-    class="flex flex-wrap items-center justify-center gap-4 *:justify-self-center lg:grid lg:grid-cols-3 lg:items-start lg:justify-between"
+    class="flex flex-row flex-wrap items-start justify-center gap-4 lg:justify-between"
   >
     <div class=" flex w-78 flex-col gap-4 rounded-md border-[1px] p-4">
       <div class="flex flex-row items-center justify-between">
