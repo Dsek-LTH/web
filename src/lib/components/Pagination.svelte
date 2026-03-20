@@ -45,9 +45,13 @@
         {/if}
       {/each}
       <Pagination.Item data-sveltekit-preload-data="off">
-        <a href={`?page=${thisPage + 1}`}>
+        {#if thisPage < pageCount}
+          <a data-sveltekit-preload-code="off" href={`?page=${thisPage + 1}`}>
+            <Pagination.NextButton />
+          </a>
+        {:else}
           <Pagination.NextButton />
-        </a>
+        {/if}
       </Pagination.Item>
     </Pagination.Content>
   {/snippet}
