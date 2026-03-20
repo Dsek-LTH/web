@@ -5,12 +5,12 @@
 
   import { type IconProps } from "@lucide/svelte";
 
-  import SuccessIcon from "@lucide/svelte/icons/check";
-  import InfoIcon from "@lucide/svelte/icons/info";
-  import WarningIcon from "@lucide/svelte/icons/triangle-alert";
-  import ErrorIcon from "@lucide/svelte/icons/octagon-alert";
+  import Check from "@lucide/svelte/icons/check";
+  import Info from "@lucide/svelte/icons/info";
+  import TriangleAlert from "@lucide/svelte/icons/triangle-alert";
+  import OctagonAlert from "@lucide/svelte/icons/octagon-alert";
 
-  import CloseIcon from "@lucide/svelte/icons/x";
+  import X from "@lucide/svelte/icons/x";
   import type { Component } from "svelte";
 
   export let id: string;
@@ -25,22 +25,22 @@
 
   let data: Record<string, SeverityData> = {
     success: {
-      icon: SuccessIcon,
+      icon: Check,
       background: "bg-pistachio-background",
       foreground: "text-pistachio-foreground",
     },
     info: {
-      icon: InfoIcon,
+      icon: Info,
       background: "bg-alert-info-background",
       foreground: "text-alert-info-foreground",
     },
     warning: {
-      icon: WarningIcon,
+      icon: TriangleAlert,
       background: "bg-alert-warning-background",
       foreground: "text-alert-warning-foreground",
     },
     error: {
-      icon: ErrorIcon,
+      icon: OctagonAlert,
       background: "bg-alert-error-background",
       foreground: "text-alert-error-foreground",
     },
@@ -70,6 +70,6 @@
   <span class="text-lg font-bold">{message}</span>
 
   <Button class={foreground} variant="ghost" onclick={closeAlert}>
-    <CloseIcon strokeWidth={5} />
+    <X strokeWidth={5} />
   </Button>
 </div>
