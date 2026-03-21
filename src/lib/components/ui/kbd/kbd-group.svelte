@@ -1,4 +1,17 @@
 <script lang="ts">
+  /**
+   * Groups multiple keyboard keys together to display combinations and shortcuts.
+   *
+   * @example
+   * <KbdGroup>
+   *   <Kbd symbol="Ctrl" trigger="Control" />
+   *   <span>+</span>
+   *   <Kbd symbol="Shift" trigger="Shift" />
+   *   <span>+</span>
+   *   <Kbd symbol="A" caseInsensitive />
+   * </KbdGroup>
+   */
+
   import { cn, type WithElementRef } from "$lib/utils.js";
   import type { HTMLAttributes } from "svelte/elements";
 
