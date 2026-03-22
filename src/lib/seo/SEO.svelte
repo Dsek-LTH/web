@@ -1,4 +1,4 @@
-<!-- 
+<!--
   This component adds metadata to a page for search engine optimization reasons.
   It uses Open Graph protocol to define how the page should be represented on social media platforms.
   https://ogp.me/
@@ -9,8 +9,6 @@
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
   let { image, data }: OpenGraphProps = $props();
-
-  let actualImage = $state<ImageAttributes | null>(null);
 
   // https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/MIME_types#image_types
   type ImageMimeType =
@@ -127,54 +125,64 @@
     return props;
   }
 
-  let attributesProps: Array<[string, string]> = $state([]);
-  if (data.type === "article") {
-    attributesProps = articleToOpenGraphProps(data.article);
-  } else if (data.type === "profile") {
-    attributesProps = profileToOpenGraphProps(data.member);
-  } else if (data.type === "committee") {
-    attributesProps = committeeToOpenGraphProps(data.committee);
-  } else {
-    attributesProps = websiteToOpenGraphProps(data.props);
-  }
-  if (image) actualImage = image;
-  else if (data.type === "article" && data.article.imageUrl) {
-    actualImage = {
-      url: data.article.imageUrl,
-      secure_url: data.article.imageUrl,
-      alt: data.article.header,
-      mime_type: "image/jpeg",
-      height: 1500,
-      width: 1500,
-    };
-  } else if (data.type === "profile" && data.member.picturePath) {
-    actualImage = {
-      url: data.member.picturePath,
-      secure_url: data.member.picturePath,
-      alt: `${data.member.firstName} ${data.member.lastName}`,
-      mime_type: "image/jpeg",
-      height: 1500,
-      width: 1500,
-    };
-  } else if (data.type === "committee" && data.committee.lightImageUrl) {
-    actualImage = {
-      url: data.committee.lightImageUrl,
-      secure_url: data.committee.lightImageUrl,
-      alt: data.committee.name,
-      mime_type: "image/svg+xml",
-      height: 1500,
-      width: 1500,
-    };
-  } else {
-    actualImage = {
-      url: getFileUrl("minio/photos/public/assets/guild-logo-full.svg"),
-      secure_url: getFileUrl("minio/photos/public/assets/guild-logo-full.svg"),
-      alt: "D-sektionen logo",
-      mime_type: "image/svg+xml",
-      height: 1500,
-      width: 1500,
-    };
-  }
+  let attributesProps: Array<[string, string]> = $derived(
+    (() => {
+      if (data.type === "article") {
+        return articleToOpenGraphProps(data.article);
+      } else if (data.type === "profile") {
+        return profileToOpenGraphProps(data.member);
+      } else if (data.type === "committee") {
+        return committeeToOpenGraphProps(data.committee);
+      } else {
+        return websiteToOpenGraphProps(data.props);
+      }
+    })(),
+  );
+
+  let actualImage = $derived(
+    (() => {
+      if (image) return image;
+      else if (data.type === "article" && data.article.imageUrl) {
+        return {
+          url: data.article.imageUrl,
+          secure_url: data.article.imageUrl,
+          alt: data.article.header,
+          mime_type: "image/jpeg",
+          height: 1500,
+          width: 1500,
+        };
+      } else if (data.type === "profile" && data.member.picturePath) {
+        return {
+          url: data.member.picturePath,
+          secure_url: data.member.picturePath,
+          alt: `${data.member.firstName} ${data.member.lastName}`,
+          mime_type: "image/jpeg",
+          height: 1500,
+          width: 1500,
+        };
+      } else if (data.type === "committee" && data.committee.lightImageUrl) {
+        return {
+          url: data.committee.lightImageUrl,
+          secure_url: data.committee.lightImageUrl,
+          alt: data.committee.name,
+          mime_type: "image/svg+xml",
+          height: 1500,
+          width: 1500,
+        };
+      } else {
+        return {
+          url: getFileUrl("minio/photos/public/assets/guild-logo-full.svg"),
+          secure_url: getFileUrl(
+            "minio/photos/public/assets/guild-logo-full.svg",
+          ),
+          alt: "D-sektionen logo",
+          mime_type: "image/svg+xml",
+          height: 1500,
+          width: 1500,
+        };
+      }
+    })(),
+  );
 </script>
 
 <svelte:head>
