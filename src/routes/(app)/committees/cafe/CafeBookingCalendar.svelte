@@ -270,7 +270,7 @@
       {#snippet DayWorkerForm(timeSlot: TimeSlot)}
         {@render DayForm(
           timeSlot,
-          !(dayHasManager && canSignUpForShift(day, TimeSlot.SHIFT_1, user)) &&
+          !(dayHasManager && canSignUpForShift(day, timeSlot, user)) &&
             !hasShift(day, timeSlot, user) &&
             !canEditWorkers,
         )}
