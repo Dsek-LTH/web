@@ -138,6 +138,12 @@ export const actions: Actions = {
           type: "error",
         });
       }
+      if (!isSetByAdmin && dayjs(date) < dayjs()) {
+        return message(form, {
+          message: m.cafe_error_sign_on_after(),
+          type: "error",
+        });
+      }
       // Check if the user already has a shift
       const tempShift = dayShifts.filter(
         (shift) =>
@@ -193,8 +199,8 @@ export const actions: Actions = {
           return message(form, {
             message:
               shiftDate > dayjs().subtract(1, "day")
-                ? "Not permitted to sign off a shift so close in time"
-                : "Not permitted to sign off an already completed shift",
+                ? m.cafe_error_sign_off_close()
+                : m.cafe_error_sign_off_after(),
             type: "error",
           });
         }
