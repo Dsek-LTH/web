@@ -7,13 +7,17 @@
 
 :root {
   --primary: #f280a1;
+  --primary-foreground: oklch(1 0 0);
   --background: oklch(1 0 0);
   --foreground: oklch(14.1% 0.005 285.823);
+  --muted: oklch(96.7% 0.001 286.375);
   --muted-background: oklch(98.5% 0 0);
   --muted-foreground: oklch(44.2% 0.017 285.786);
   --border: oklch(87.1% 0.006 286.286);
+  --input: oklch(87.1% 0.006 286.286);
   --ring: #f280a1;
   --destructive: var(--color-rosa-500);
+  --destructive-foreground: oklch(1 0 0);
   --rosa-background: #e74c7c;
   --rosa-foreground: oklch(1 0 0);
   --rosa-hover: #d32b68;
@@ -29,21 +33,27 @@
   --accent: oklch(0.967 0.001 286.375);
   --accent-foreground: oklch(0.21 0.006 285.885);
   --card: var(--muted-background);
+  --card-foreground: oklch(14.1% 0.005 285.823);
 }
 
 .dark {
   --primary: var(--color-rosa-400);
+  --primary-foreground: oklch(18% 0 0);
   --background: oklch(22.771% 0.00577 285.875);
   --secondary-background: oklch(23% 0.003 0);
   --foreground: oklch(90% 0.002 0);
+  --muted: oklch(28% 0.004 0);
   --muted-background: oklch(20.5% 0.006 285.885);
   --muted-foreground: oklch(72% 0.006 0);
   --border: oklch(42% 0.005 0);
+  --input: oklch(42% 0.005 0);
   --secondary-foreground: oklch(90% 0.002 0);
   --secondary-hover: oklch(28% 0.004 0);
   --accent: oklch(30% 0.006 0);
   --accent-foreground: oklch(94% 0.002 0);
   --ring: #d32b68;
+  --destructive: var(--color-rosa-500);
+  --destructive-foreground: oklch(1 0 0);
   --rosa-background: #f280a1;
   --rosa-foreground: oklch(18% 0 0);
   --rosa-hover: #e74c7c;
@@ -59,6 +69,7 @@
   --accent: oklch(0.274 0.006 286.033);
   --accent-foreground: oklch(0.985 0 0);
   --card: var(--muted-background);
+  --card-foreground: oklch(90% 0.002 0);
 }
 
 @font-face {
@@ -106,7 +117,10 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
+  --color-input: var(--input);
   --color-ring: var(--ring);
   --color-rosa-background: var(--rosa-background);
   --color-rosa-foreground: var(--rosa-foreground);
@@ -121,8 +135,10 @@
   --color-secondary-foreground: var(--secondary-foreground);
   --color-secondary-hover: var(--secondary-hover);
   --color-primary: var(--primary);
-  --color-input: var(--input);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted: var(--muted);
   --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
 
   /* TODO: change to oklch colors (except #f280a1, #9966cc, and #99cc66)? */
   --color-rosa-50: #fef2f5;
