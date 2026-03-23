@@ -11,19 +11,21 @@
       slug: string;
     }>;
   } = $props();
-  const mapped = events.map((e) => ({
-    ...e,
-    diff: dayjs(e.endDate).diff(dayjs(e.startDate), "day"),
-    // Calculate which column the event should start in (1-7) based on days from today
-    startDateNumber: Math.max(
-      1,
-      Math.min(7, dayjs(e.startDate).diff(dayjs().startOf("day"), "day") + 1),
-    ),
-    endDateNumber: Math.min(
-      8,
-      dayjs(e.endDate).diff(dayjs().startOf("day"), "day") + 2,
-    ),
-  }));
+  const mapped = $derived(
+    events.map((e) => ({
+      ...e,
+      diff: dayjs(e.endDate).diff(dayjs(e.startDate), "day"),
+      // Calculate which column the event should start in (1-7) based on days from today
+      startDateNumber: Math.max(
+        1,
+        Math.min(7, dayjs(e.startDate).diff(dayjs().startOf("day"), "day") + 1),
+      ),
+      endDateNumber: Math.min(
+        8,
+        dayjs(e.endDate).diff(dayjs().startOf("day"), "day") + 2,
+      ),
+    })),
+  );
 
   const allDays = Array.from(Array(7).keys()).map((i) => dayjs().add(i, "day"));
 

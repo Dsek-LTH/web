@@ -30,8 +30,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 const addAlertSchema = z.object({
   severity: z.enum(["info", "success", "warning", "error"]),
-  message_sv: z.string().min(1),
-  message_en: z.string().min(1),
+  messageSv: z.string().min(1),
+  messageEn: z.string().min(1),
 });
 export type addAlertSchema = Infer<typeof addAlertSchema>;
 
@@ -47,11 +47,7 @@ export const actions = {
     const form = await superValidate(request, zod4(addAlertSchema));
     if (!form.valid) return fail(400, { form });
     await prisma.alert.create({
-      data: {
-        severity: form.data.severity,
-        messageSv: form.data.message_sv,
-        messageEn: form.data.message_en,
-      },
+      data: form.data,
     });
     return message(form, {
       message: m.admin_alerts_alert_created(),

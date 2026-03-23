@@ -254,20 +254,7 @@
               <div class="flex w-full flex-col">
                 {@render mobileLinks()}
               </div>
-              <div class="flex flex-col justify-end gap-1">
-                <Button
-                  aria-label="languages"
-                  onclick={async () => {
-                    const lang = getLocale() === "en" ? "sv" : "en";
-                    await setLanguage(lang);
-                    setLocale(lang);
-                  }}
-                  size="icon-lg"
-                  variant="ghost"
-                  class="p-1.5"><Languages /></Button
-                >
-              </div></Drawer.Description
-            >
+            </Drawer.Description>
           </Drawer.Header>
         </Drawer.Content>
       </Drawer.Root>

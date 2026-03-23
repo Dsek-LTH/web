@@ -17,6 +17,7 @@
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
   import { page } from "$app/state";
+  import { getFileUrl } from "$lib/files/client";
 
   let { data, children }: { data: CommitteeLoadData; children: Snippet } =
     $props();
@@ -29,8 +30,14 @@
 <div class="sm:layout-container sm:py-0">
   <div class="border-x-[1px] border-t-[1px] border-b-[1px] p-2 sm:border-t-0">
     <header
-      style="background-image: url({committee.bannerUrl});"
-      class="bg-rosa-300 relative h-60 rounded-md bg-cover bg-center"
+      style:background-image={committee.bannerUrl
+        ? `url(${committee.bannerUrl})`
+        : `url(${getFileUrl(
+            "minio/files/public/photos/backgrounds/dsek-bg.png",
+          )})`}
+      style:background-size={committee.bannerUrl || "60%"}
+      class="bg-rosa-300 {committee.bannerUrl ||
+        'border-rosa-300 border-[1px]'} relative h-60 rounded-md bg-cover bg-center"
     >
       <div
         class="absolute bottom-1 left-4 flex flex-col sm:bottom-4 sm:flex-row sm:gap-4"

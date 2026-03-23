@@ -73,6 +73,15 @@ export const load: PageServerLoad = async ({ locals, params, cookies }) => {
         orderBy: {
           publishedAt: "desc",
         },
+        include: {
+          author: {
+            include: {
+              customAuthor: true,
+              member: true,
+              mandate: { include: { position: true } },
+            },
+          },
+        },
         take: 5,
       }),
       prisma.phadderGroup.findMany({

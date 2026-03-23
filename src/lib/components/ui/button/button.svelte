@@ -13,7 +13,7 @@
         rosa: "bg-rosa-background text-rosa-foreground shadow-xs hover:bg-rosa-hover",
         lila: "bg-lila-background text-lila-foreground shadow-xs hover:bg-lila-hover",
         outline:
-          "bg-secondary-background text-secondary-foreground shadow-xs hover:bg-secondary-hover dark:bg-input/30 dark:border-input dark:hover:bg-input/50 border",
+          "bg-secondary-background text-secondary-foreground shadow-xs hover:bg-secondary-hover border",
         ghost:
           "hover:bg-secondary-hover hover:text-accent-foreground text-muted-foreground hover:text-secondary-foreground",
       },

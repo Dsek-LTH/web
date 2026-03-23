@@ -17,7 +17,7 @@
     checked: boolean;
     color: string | null;
     value: string;
-  }> = $state(
+  }> = $derived(
     data.tags.map((tag) => ({
       title: tag.name,
       color: tag.color,

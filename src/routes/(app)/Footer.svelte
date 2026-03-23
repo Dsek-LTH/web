@@ -1,6 +1,5 @@
 <script lang="ts">
   import DsekLogo from "$lib/components/DsekLogo.svelte";
-  import { twMerge } from "tailwind-merge";
 
   import { getFooterRoutes } from "../routes";
   import ExternalLink from "@lucide/svelte/icons/external-link";
@@ -15,6 +14,7 @@
     siGithub,
   } from "simple-icons";
   import { page } from "$app/state";
+  import { cn } from "$lib/utils";
 </script>
 
 <div
@@ -66,9 +66,7 @@
 </div>
 
 {#snippet socialIcons(klass: string)}
-  <div
-    class={twMerge("text-muted-foreground mt-5 flex flex-row *:mx-3", klass)}
-  >
+  <div class={cn("text-muted-foreground mt-5 flex flex-row *:mx-3", klass)}>
     {#if page.data.member}
       <a href="https://discord.com/invite/wxHQcvZ38p"
         ><svg
@@ -149,9 +147,7 @@
 {/snippet}
 
 {#snippet mobileFooterLinks(klass: string)}
-  <div
-    class={twMerge(klass, "flex flex-col justify-between *:mx-4 lg:flex-row")}
-  >
+  <div class={cn(klass, "flex flex-col justify-between *:mx-4 lg:flex-row")}>
     {#each getFooterRoutes() as route (route.title)}
       <details class="group my-1 w-50 text-left">
         <summary class="cursor-pointer list-none">
@@ -206,7 +202,7 @@
 {/snippet}
 
 {#snippet desktopFooterLinks(klass: string)}
-  <div class={twMerge(klass, "flex-col justify-between *:mx-4 lg:flex-row")}>
+  <div class={cn(klass, "flex-col justify-between *:mx-4 lg:flex-row")}>
     {#each getFooterRoutes() as route (route.title)}
       <div class="flex flex-col">
         <h3 class="text-foreground mb-1">{route.title}</h3>

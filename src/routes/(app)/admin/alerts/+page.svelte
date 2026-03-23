@@ -1,11 +1,11 @@
 <script lang="ts">
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
-  import { Button } from "$lib/components/ui/button/index";
-  import * as Dialogue from "$lib/components/ui/dialog/index";
-  import { Input } from "$lib/components/ui/input/index";
-  import { Label } from "$lib/components/ui/label/index";
-  import * as Select from "$lib/components/ui/select/index";
-  import * as Table from "$lib/components/ui/table/index";
+  import { Button } from "$lib/components/ui/button/";
+  import * as Dialog from "$lib/components/ui/dialog/";
+  import { Input } from "$lib/components/ui/input/";
+  import { Label } from "$lib/components/ui/label/";
+  import * as Select from "$lib/components/ui/select/";
+  import * as Table from "$lib/components/ui/table/";
   import TrashIcon from "@lucide/svelte/icons/trash";
   import * as messages from "$paraglide/messages";
   import dayjs from "dayjs";
@@ -36,15 +36,15 @@
   class="flex w-full flex-col items-center gap-8 pt-4 pb-8"
 >
   <div class="flex w-lg flex-col items-center gap-4">
-    <Label for="message_sv">
+    <Label for="messageSv">
       {messages.admin_alerts_message_swedish()}
     </Label>
-    <Input type="text" name="message_sv" minlength={1} required />
+    <Input type="text" name="messageSv" minlength={1} required />
 
-    <Label for="message_en">
+    <Label for="messageEn">
       {messages.admin_alerts_message_english()}
     </Label>
-    <Input type="text" name="message_en" minlength={1} required />
+    <Input type="text" name="messageEn" minlength={1} required />
 
     <Label for="severity">
       {messages.admin_alerts_severity()}
@@ -84,30 +84,30 @@
           >{dayjs(alert.createdAt).format("YYYY-MM-DD HH:mm:ss")}</Table.Cell
         >
         <Table.Cell class="center">
-          <Dialogue.Root>
-            <Dialogue.Trigger>
+          <Dialog.Root>
+            <Dialog.Trigger>
               <TrashIcon />
-            </Dialogue.Trigger>
+            </Dialog.Trigger>
 
-            <Dialogue.Content>
-              <Dialogue.Header>
-                <Dialogue.Title
-                  >{messages.admin_alerts_remove_alert()}</Dialogue.Title
+            <Dialog.Content>
+              <Dialog.Header>
+                <Dialog.Title
+                  >{messages.admin_alerts_remove_alert()}</Dialog.Title
                 >
-                <Dialogue.Description>
+                <Dialog.Description>
                   {messages.admin_alerts_remove_are_you_sure()}
-                </Dialogue.Description>
-              </Dialogue.Header>
-              <Dialogue.Footer>
+                </Dialog.Description>
+              </Dialog.Header>
+              <Dialog.Footer>
                 <form method="POST" action="?/delete">
                   <input type="hidden" name="id" value={alert.id} />
                   <Button type="submit"
                     >{messages.admin_alerts_remove_alert()}</Button
                   >
                 </form>
-              </Dialogue.Footer>
-            </Dialogue.Content>
-          </Dialogue.Root>
+              </Dialog.Footer>
+            </Dialog.Content>
+          </Dialog.Root>
         </Table.Cell>
       </Table.Row>
     {/each}

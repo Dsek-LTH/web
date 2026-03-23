@@ -4,6 +4,7 @@
   import AuthorCard from "./AuthorCard.svelte";
   import { Marked } from "marked";
   import type { Tokens } from "marked";
+  import { getFileUrl } from "$lib/files/client";
 
   let {
     article,
@@ -53,8 +54,10 @@
       ></div>
     {:else}
       <div
-        style="background-image: url(https://raw.githubusercontent.com/Dsek-LTH/grafik/refs/heads/main/guild/dsek/color.svg);"
-        class="aspect-[2/1] w-full shrink-0 rounded-md bg-[#eee] bg-size-[30%] bg-center bg-no-repeat"
+        style:background-image={`url(${getFileUrl(
+          "minio/files/public/photos/backgrounds/dsek-bg.png",
+        )})`}
+        class="border-rosa-300 aspect-[2/1] w-full shrink-0 rounded-md border-[1px] bg-[#eee] bg-size-[100%]"
       ></div>
     {/if}
     <h3 class="mt-2 px-2">
