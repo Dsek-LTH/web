@@ -60,7 +60,7 @@
         >
           <div
             class="bg-rosa-300 relative aspect-[5/2] rounded-t-md bg-cover bg-center sm:aspect-square"
-            style="background-image: url('{committee.previewUrl}')"
+            style:background-image={`url('${committee.previewUrl}')`}
           >
             <CommitteeIcon
               override={committee.isBannerTextLight ? "light" : "dark"}
