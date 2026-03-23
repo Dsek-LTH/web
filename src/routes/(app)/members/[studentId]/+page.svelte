@@ -83,7 +83,7 @@
 
 {@render mobile("md:hidden")}
 
-<div class="layout-container hidden flex-row py-0 md:flex">
+<div class="layout-container hidden min-h-0 flex-1 flex-row py-0 md:flex">
   {@render desktop()}
 </div>
 
