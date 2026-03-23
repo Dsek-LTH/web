@@ -911,6 +911,7 @@
   "gallery_upload_date": "Date",
   "gallery_upload_name": "Name",
   "gallery_upload_files": "Files",
+  "gallery_upload_cover": "Cover",
   "gallery_upload_upload": "Upload",
   "gallery_photographer": "Photographer",
   "gallery_editor": "Editor",
@@ -1014,6 +1015,7 @@
   "pictures": "Pictures",
   "member_removePicture_title": "Are you sure you want to remove your profile picture?",
   "member_removePicture_desc": "This cannot be undone.",
+  "gallery_upload_photographers": "",
   "committees_about": "About the committee",
   "committees_members": "Members",
   "committees_news": "News and events",
@@ -1059,5 +1061,6 @@
   "contact_guild_information": "Guild information",
   "contact_media": "Press and media",
   "contact_media_prose": "Press and media should contact the Union President,",
-  "vacant": "Vacant"
+  "vacant": "Vacant",
+  "gallery_upload_errors_invalidDate": "Invalid date"
 }

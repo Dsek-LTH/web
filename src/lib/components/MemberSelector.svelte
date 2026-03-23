@@ -11,7 +11,8 @@
   import type { InputProps } from "$lib/components/ui/input";
   import { Button } from "$lib/components/ui/button";
   import { onMount } from "svelte";
-  import { cn } from "$lib/utils";
+  import { cn, type WithElementRef, type WithoutChildren } from "$lib/utils";
+  import type { HTMLInputAttributes } from "svelte/elements";
 
   let {
     selectedMembers = $bindable([]),
@@ -21,16 +22,18 @@
     showClass = true,
     limit = 0,
     class: clazz = "",
+    name = undefined,
     ...restProps
   }: {
     selectedMembers?: MemberSearchReturnAttributes[];
     selectedMember?: MemberSearchReturnAttributes | null;
-    multiple: boolean;
-    showId: boolean;
-    showClass: boolean;
+    multiple?: boolean;
+    showId?: boolean;
+    showClass?: boolean;
     limit?: number;
     class?: string;
-  } & InputProps = $props();
+    name?: string | undefined;
+  } & WithoutChildren<WithElementRef<HTMLInputAttributes>> = $props();
 
   let componentElement: HTMLElement | null = $state(null);
   let inputElement: HTMLInputElement | null = $state(null);
@@ -236,10 +239,11 @@
   shouldFilter={false}
   loop
   class={cn("relative w-fit overflow-visible p-0", clazz)}
-  {...restProps}
+  {...restProps as InputProps}
 >
   <Button
     bind:ref={triggerElement}
+    {name}
     variant="outline"
     class={cn("align-center h-fit w-full cursor-text justify-start p-1 px-2")}
     onclick={() => {
@@ -266,7 +270,6 @@
       {#if (multiple && (limit == 0 || selectedMembers.length < limit)) || selectedMembers.length === 0}
         <li class="relative m-0 flex max-w-full list-none p-0">
           <Input
-            name="input"
             type="none"
             class="mx-0 h-full w-fit border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
             placeholder={multiple

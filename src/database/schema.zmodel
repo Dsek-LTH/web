@@ -1308,6 +1308,10 @@ model Album {
     photographers Member[] @relation("album_photographer")
     editors       Member[] @relation("album_editor")
 
+    @@allow("create", has(auth().policies, "gallery:create"))
+    @@allow("read", true)
+    @@allow("update", has(auth().policies, "gallery:update"))
+    @@allow("delete", has(auth().policies, "gallery:delete"))
     @@map("albums")
 }
 
