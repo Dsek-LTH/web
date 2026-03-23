@@ -11,7 +11,7 @@
 <div class="flex min-h-screen flex-col">
   <Navbar />
 
-  <main class="flex-1">
+  <main class="flex min-h-0 flex-1 flex-col">
     {#each data.alerts as alert (alert.id)}
       {#if !alert.closedByMember.some((member) => member.id === data.member?.id)}
         <Alert
