@@ -110,6 +110,13 @@ export const actions: Actions = {
 
     const { date, worker, timeSlot } = form.data;
 
+    const parsedDate = dayjs(date, "YYYY-MM-DD", true);
+    if (!parsedDate.isValid()) {
+      return fail(400, { form });
+    }
+    const startOfDay = parsedDate.startOf("day").toDate();
+    const nextDay = parsedDate.add(1, "day").startOf("day").toDate();
+
     const member = worker || user.studentId;
     if (!member) {
       return fail(400, { form });
@@ -124,7 +131,7 @@ export const actions: Actions = {
       }
     }
     const dayShifts = await prisma.cafeShift.findMany({
-      where: { date: date },
+      where: { date: { gte: startOfDay, lt: nextDay } },
       include: { worker: { select: { studentId: true } } },
     });
 
@@ -138,7 +145,7 @@ export const actions: Actions = {
           type: "error",
         });
       }
-      if (!isSetByAdmin && dayjs(date) < dayjs()) {
+      if (!isSetByAdmin && parsedDate.isBefore(dayjs(), "day")) {
         return message(form, {
           message: m.cafe_error_sign_on_after(),
           type: "error",
@@ -159,7 +166,7 @@ export const actions: Actions = {
       try {
         await prisma.cafeShift.create({
           data: {
-            date: date,
+            date: startOfDay,
             worker: {
               connect: {
                 studentId: member,

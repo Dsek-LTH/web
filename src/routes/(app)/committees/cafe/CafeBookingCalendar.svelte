@@ -14,10 +14,14 @@
   import { tick } from "svelte";
   import type { ShiftWithWorker, Ciabatta } from "./types";
   import { TimeSlot } from "./types";
+  import "dayjs/locale/en-gb";
 
   dayjs.extend(weekOfYear);
   dayjs.extend(weekYear);
   dayjs.extend(localeData);
+
+  // Hardcode locale so our weeks start on Mondays
+  dayjs.locale("en-gb");
 
   const getWeekdayName = (weekday: number): string => {
     return dayjs.weekdays(false)[weekday + 1] ?? "";
@@ -224,7 +228,7 @@
             ({ update }) =>
               update({ reset: false })}
         >
-          <input type="hidden" name="date" value={day} />
+          <input type="hidden" name="date" value={day.format("YYYY-MM-DD")} />
           <input type="hidden" name="timeSlot" value={timeSlot} />
           {#if canEditWorkers && editing}
             <MemberSearchInput

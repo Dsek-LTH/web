@@ -1,5 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { TimeSlot as PrismaTimeSlot } from "@prisma/client";
+import dayjs from "dayjs";
 import { z } from "zod";
 export type { CiabattaOfTheWeek as Ciabatta } from "@prisma/client";
 
@@ -12,8 +13,11 @@ export const TimeSlot = {
 export type TimeSlot = (typeof TimeSlot)[keyof typeof TimeSlot];
 
 export const scheduleForm = z.object({
-  date: z.date(),
-  worker: z.string().optional(),
+  date: z.string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .refine((val) => dayjs(val, "YYYY-MM-DD", true).isValid(), {
+      message: "Invalid date, expected format YYYY-MM-DD",
+    }), worker: z.string().optional(),
   timeSlot: z.nativeEnum(TimeSlot),
 });
 
