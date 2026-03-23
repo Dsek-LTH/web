@@ -1296,6 +1296,26 @@ model Readme {
     @@allow("read", true)
 }
 
+model Album {
+    id            String   @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+    title         String
+    description   String?
+    date          DateTime @db.Date
+    createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt     DateTime @map("updated_at") @db.Timestamptz(6)
+    slug          String   @map("photos_directory")
+    imageCount    Int      @default(0) @map("image_count")
+    photographers Member[] @relation("album_photographer")
+    editors       Member[] @relation("album_editor")
+
+    @@allow("create", has(auth().policies, "gallery:create"))
+    @@allow("read", true)
+    @@allow("update", has(auth().policies, "gallery:update"))
+    @@allow("delete", has(auth().policies, "gallery:delete"))
+    @@map("albums")
+}
+
+
 
 model CafeShift {
     id       String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -1360,17 +1380,4 @@ model CiabattaOfTheWeek {
     @@allow("delete", has(auth().policies, "cafe:edit_ciabattas"))
     @@unique([year, week], map: "week_year_unique")
 }
-model Album {
-    id            String   @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-    title         String
-    description   String?
-    date          DateTime @db.Date
-    createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-    updatedAt     DateTime @map("updated_at") @db.Timestamptz(6)
-    slug          String   @map("photos_directory")
-    imageCount    Int      @default(0) @map("image_count")
-    photographers Member[] @relation("album_photographer")
-    editors       Member[] @relation("album_editor")
 
-    @@map("albums")
-}

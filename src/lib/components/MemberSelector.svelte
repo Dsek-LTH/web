@@ -11,8 +11,9 @@
   import type { InputProps } from "$lib/components/ui/input";
   import { Button } from "$lib/components/ui/button";
   import { onMount } from "svelte";
-  import { cn } from "$lib/utils";
   import { debounce } from "$lib/utils/debounce";
+  import { cn, type WithElementRef, type WithoutChildren } from "$lib/utils";
+  import type { HTMLInputAttributes } from "svelte/elements";
 
   let {
     selectedMembers = $bindable([]),
@@ -25,6 +26,7 @@
     limit = 0,
     class: klass = "",
     inputClass = "",
+    name = undefined,
     ...restProps
   }: {
     selectedMembers?: Array<MemberSearchReturnAttributes & { id?: string }>;
@@ -37,6 +39,7 @@
     limit?: number;
     class?: string;
     inputClass?: string;
+    name?: string | undefined;
   } & InputProps = $props();
 
   let componentElement: HTMLElement | null = $state(null);
@@ -253,11 +256,12 @@
   onfocusin={handleFocusIn}
   shouldFilter={false}
   loop
-  class={cn(klass, "relative w-fit overflow-visible p-0")}
-  {...restProps}
+  class={cn("relative w-fit overflow-visible p-0", klass)}
+  {...restProps as InputProps}
 >
   <Button
     bind:ref={triggerElement}
+    {name}
     variant="outline"
     class={cn(
       "align-center h-fit w-full cursor-text justify-start p-1 px-2",
@@ -287,7 +291,6 @@
       {#if (multiple && (limit == 0 || selectedMembers.length < limit)) || selectedMembers.length === 0}
         <li class="relative m-0 flex max-w-full list-none p-0">
           <Input
-            name="input"
             type="none"
             class="mx-0 h-full w-fit border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
             placeholder={multiple

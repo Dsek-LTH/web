@@ -193,6 +193,7 @@
 
 <Command.Dialog bind:open shouldFilter={false}>
   <form
+    id="search-form"
     method="POST"
     action="/search"
     bind:this={formElement}

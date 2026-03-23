@@ -6,6 +6,9 @@ import { uploadSchema } from "./types";
 import { uploadAlbumFiles, uploadCoverFile } from "./uploadFiles";
 import { redirect } from "@sveltejs/kit";
 import { slugify, slugWithCount } from "$lib/utils/slugify";
+import apiNames from "$lib/utils/apiNames";
+import { authorize } from "$lib/utils/authorization";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 
 export const load: PageServerLoad = async () => {
   const form = await superValidate(zod4(uploadSchema));
@@ -14,15 +17,20 @@ export const load: PageServerLoad = async () => {
 
 export const actions: Actions = {
   default: async ({ request, locals }) => {
-    const { prisma, user } = locals;
+    const { user, prisma } = locals;
+    authorize(apiNames.GALLERY.CREATE, user);
 
-    const form = await superValidate(request, zod4(uploadSchema), {
+    const rawFormData = await request.formData();
+
+    const form = await superValidate(rawFormData, zod4(uploadSchema), {
       allowFiles: true,
     });
 
-    const { title, date, photographers, editors, albumFiles } = form.data;
+    const { title, date, description, photographers, editors, albumFiles } =
+      form.data;
 
     let slug = slugify(title);
+    console.log("Generated slug:", slug);
     const existingAlbum = await prisma.album.findFirst({
       where: { slug: slug },
     });
@@ -47,32 +55,66 @@ export const actions: Actions = {
       );
     }
 
-    const result = await prisma.album.create({
-      data: {
-        title: title,
-        date: new Date(date),
-        updatedAt: new Date(date),
-        slug: slug,
-        imageCount: albumFiles.length,
-        photographers: {
-          connect: photographers
-            .filter((p) => p?.studentId != null)
-            .map((p) => ({ studentId: p.studentId! })),
-        },
-        editors: {
-          connect: editors
-            .filter((e) => e?.studentId != null)
-            .map((e) => ({ studentId: e.studentId! })),
-        },
-      },
-    });
+    const photographerConnect = photographers
+      .filter((p) => p?.studentId != null)
+      .map((p) => ({ studentId: p.studentId! }));
+    const editorConnect = editors
+      .filter((e) => e?.studentId != null)
+      .map((e) => ({ studentId: e.studentId! }));
 
-    await prisma.album.update({
-      where: { id: result.id },
-      data: {
-        slug: slug,
-      },
-    });
+    let result: { id: string };
+    try {
+      console.log("1 Creating album with slug:", slug);
+      result = await authorizedPrismaClient.album.create({
+        data: {
+          title,
+          description,
+          date: new Date(date),
+          updatedAt: new Date(date),
+          slug,
+          imageCount: albumFiles.length,
+        },
+        select: { id: true },
+      });
+      console.log("2 Album created with ID:", result.id);
+    } catch (e) {
+      return message(
+        form,
+        {
+          message: `Album create failed: ${e instanceof Error ? e.message : `${e}`}`,
+          type: "error",
+        },
+        { status: 500 },
+      );
+    }
+
+    if (photographerConnect.length > 0 || editorConnect.length > 0) {
+      try {
+        await authorizedPrismaClient.album.update({
+          where: { id: result.id },
+          data: {
+            photographers:
+              photographerConnect.length > 0
+                ? { connect: photographerConnect }
+                : undefined,
+            editors:
+              editorConnect.length > 0 ? { connect: editorConnect } : undefined,
+          },
+        });
+      } catch (e) {
+        return message(
+          form,
+          {
+            message: `Album member connect failed: ${e instanceof Error ? e.message : `${e}`}`,
+            type: "error",
+          },
+          { status: 500 },
+        );
+      }
+    }
+
+    console.log("Album created with ID:", result.id);
+    console.log("Redirecting to album page with slug:", slug);
 
     redirect(303, "/gallery/album/" + slug);
   },
