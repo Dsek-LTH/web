@@ -1807,6 +1807,48 @@
           "maxLength": null
         },
         {
+          "id": "public.articles.notification_text",
+          "name": "notification_text",
+          "columnName": "notification_text",
+          "type": "varchar",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": 255
+        },
+        {
+          "id": "public.articles.scheduled_id",
+          "name": "scheduled_id",
+          "columnName": "scheduled_id",
+          "type": "text",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.articles.should_send_notification",
+          "name": "should_send_notification",
+          "columnName": "should_send_notification",
+          "type": "bool",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": true,
+          "isId": false,
+          "maxLength": null
+        },
+        {
           "id": "public.articles.committee_id",
           "name": "committee_id",
           "columnName": "committee_id",
@@ -2485,6 +2527,104 @@
         }
       ]
     },
+    "cafe_shifts": {
+      "id": "public.cafe_shifts",
+      "schemaName": "public",
+      "tableName": "cafe_shifts",
+      "fields": [
+        {
+          "id": "public.cafe_shifts.id",
+          "name": "id",
+          "columnName": "id",
+          "type": "uuid",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": true,
+          "isId": true,
+          "maxLength": null
+        },
+        {
+          "id": "public.cafe_shifts.date",
+          "name": "date",
+          "columnName": "date",
+          "type": "timestamp",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.cafe_shifts.workerId",
+          "name": "workerId",
+          "columnName": "workerId",
+          "type": "uuid",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.cafe_shifts.time_slot",
+          "name": "time_slot",
+          "columnName": "time_slot",
+          "type": "time_slots",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "name": "members",
+          "type": "members",
+          "isRequired": true,
+          "kind": "object",
+          "relationName": "cafe_shiftsTomembers",
+          "relationFromFields": [
+            "workerId"
+          ],
+          "relationToFields": [
+            "id"
+          ],
+          "isList": false,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        }
+      ],
+      "uniqueConstraints": [
+        {
+          "name": "cafe_shifts_pkey",
+          "fields": [
+            "id"
+          ],
+          "nullNotDistinct": false
+        },
+        {
+          "name": "date_timeslot_unique",
+          "fields": [
+            "date",
+            "time_slot"
+          ],
+          "nullNotDistinct": false
+        }
+      ]
+    },
     "cart": {
       "id": "public.cart",
       "schemaName": "public",
@@ -2751,6 +2891,86 @@
           "name": "cart_item_product_inventory_id_key",
           "fields": [
             "product_inventory_id"
+          ],
+          "nullNotDistinct": false
+        }
+      ]
+    },
+    "ciabatta_of_the_week": {
+      "id": "public.ciabatta_of_the_week",
+      "schemaName": "public",
+      "tableName": "ciabatta_of_the_week",
+      "fields": [
+        {
+          "id": "public.ciabatta_of_the_week.id",
+          "name": "id",
+          "columnName": "id",
+          "type": "uuid",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": true,
+          "isId": true,
+          "maxLength": null
+        },
+        {
+          "id": "public.ciabatta_of_the_week.year",
+          "name": "year",
+          "columnName": "year",
+          "type": "int4",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.ciabatta_of_the_week.week",
+          "name": "week",
+          "columnName": "week",
+          "type": "int4",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.ciabatta_of_the_week.name",
+          "name": "name",
+          "columnName": "name",
+          "type": "text",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        }
+      ],
+      "uniqueConstraints": [
+        {
+          "name": "ciabatta_of_the_week_pkey",
+          "fields": [
+            "id"
+          ],
+          "nullNotDistinct": false
+        },
+        {
+          "name": "week_year_unique",
+          "fields": [
+            "week",
+            "year"
           ],
           "nullNotDistinct": false
         }
@@ -3964,6 +4184,294 @@
           "name": "doors_pkey",
           "fields": [
             "name"
+          ],
+          "nullNotDistinct": false
+        }
+      ]
+    },
+    "drinkitem": {
+      "id": "public.drinkitem",
+      "schemaName": "public",
+      "tableName": "drinkitem",
+      "fields": [
+        {
+          "id": "public.drinkitem.id",
+          "name": "id",
+          "columnName": "id",
+          "type": "uuid",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": true,
+          "isId": true,
+          "maxLength": null
+        },
+        {
+          "id": "public.drinkitem.quantity_type",
+          "name": "quantity_type",
+          "columnName": "quantity_type",
+          "type": "DrinkQuantityType",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.drinkitem.name",
+          "name": "name",
+          "columnName": "name",
+          "type": "text",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.drinkitem.price",
+          "name": "price",
+          "columnName": "price",
+          "type": "int4",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.drinkitem.group",
+          "name": "group",
+          "columnName": "group",
+          "type": "DrinkGroup",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.drinkitem.systembolaget_id",
+          "name": "systembolaget_id",
+          "columnName": "systembolaget_id",
+          "type": "int4",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.drinkitem.bottle_empty_weight",
+          "name": "bottle_empty_weight",
+          "columnName": "bottle_empty_weight",
+          "type": "int4",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.drinkitem.bottle_full_weight",
+          "name": "bottle_full_weight",
+          "columnName": "bottle_full_weight",
+          "type": "int4",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.drinkitem.quantity_available",
+          "name": "quantity_available",
+          "columnName": "quantity_available",
+          "type": "int4",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": true,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.drinkitem.nr_bottles",
+          "name": "nr_bottles",
+          "columnName": "nr_bottles",
+          "type": "int4",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": true,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "name": "drinkitembatch",
+          "type": "drinkitembatch",
+          "isRequired": false,
+          "kind": "object",
+          "relationName": "drinkitembatchTodrinkitem",
+          "relationFromFields": [],
+          "relationToFields": [],
+          "isList": true,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        }
+      ],
+      "uniqueConstraints": [
+        {
+          "name": "drinkitem_pkey",
+          "fields": [
+            "id"
+          ],
+          "nullNotDistinct": false
+        }
+      ]
+    },
+    "drinkitembatch": {
+      "id": "public.drinkitembatch",
+      "schemaName": "public",
+      "tableName": "drinkitembatch",
+      "fields": [
+        {
+          "id": "public.drinkitembatch.id",
+          "name": "id",
+          "columnName": "id",
+          "type": "uuid",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": true,
+          "isId": true,
+          "maxLength": null
+        },
+        {
+          "id": "public.drinkitembatch.drink_item_id",
+          "name": "drink_item_id",
+          "columnName": "drink_item_id",
+          "type": "uuid",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.drinkitembatch.user",
+          "name": "user",
+          "columnName": "user",
+          "type": "text",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.drinkitembatch.date",
+          "name": "date",
+          "columnName": "date",
+          "type": "timestamp",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.drinkitembatch.quantity_delta",
+          "name": "quantity_delta",
+          "columnName": "quantity_delta",
+          "type": "int4",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.drinkitembatch.nr_bottles_delta",
+          "name": "nr_bottles_delta",
+          "columnName": "nr_bottles_delta",
+          "type": "int4",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "name": "drinkitem",
+          "type": "drinkitem",
+          "isRequired": true,
+          "kind": "object",
+          "relationName": "drinkitembatchTodrinkitem",
+          "relationFromFields": [
+            "drink_item_id"
+          ],
+          "relationToFields": [
+            "id"
+          ],
+          "isList": false,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        }
+      ],
+      "uniqueConstraints": [
+        {
+          "name": "drinkitembatch_pkey",
+          "fields": [
+            "id"
           ],
           "nullNotDistinct": false
         }
@@ -6450,6 +6958,20 @@
           "hasDefaultValue": false
         },
         {
+          "name": "cafe_shifts",
+          "type": "cafe_shifts",
+          "isRequired": false,
+          "kind": "object",
+          "relationName": "cafe_shiftsTomembers",
+          "relationFromFields": [],
+          "relationToFields": [],
+          "isList": true,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        },
+        {
           "name": "consumable",
           "type": "consumable",
           "isRequired": false,
@@ -8661,6 +9183,64 @@
         }
       ]
     },
+    "sexetinventoryvaluelog": {
+      "id": "public.sexetinventoryvaluelog",
+      "schemaName": "public",
+      "tableName": "sexetinventoryvaluelog",
+      "fields": [
+        {
+          "id": "public.sexetinventoryvaluelog.id",
+          "name": "id",
+          "columnName": "id",
+          "type": "uuid",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": true,
+          "isId": true,
+          "maxLength": null
+        },
+        {
+          "id": "public.sexetinventoryvaluelog.date",
+          "name": "date",
+          "columnName": "date",
+          "type": "timestamp",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.sexetinventoryvaluelog.value",
+          "name": "value",
+          "columnName": "value",
+          "type": "int4",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        }
+      ],
+      "uniqueConstraints": [
+        {
+          "name": "sexetinventoryvaluelog_pkey",
+          "fields": [
+            "id"
+          ],
+          "nullNotDistinct": false
+        }
+      ]
+    },
     "shoppable": {
       "id": "public.shoppable",
       "schemaName": "public",
@@ -9199,6 +9779,20 @@
           "hasDefaultValue": false,
           "isId": false,
           "maxLength": 255
+        },
+        {
+          "id": "public.songs.video",
+          "name": "video",
+          "columnName": "video",
+          "type": "text",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
         }
       ],
       "uniqueConstraints": [
@@ -9945,6 +10539,37 @@
         }
       ]
     },
+    "DrinkGroup": {
+      "schemaName": "public",
+      "values": [
+        {
+          "name": "S1"
+        },
+        {
+          "name": "S2"
+        },
+        {
+          "name": "S3"
+        },
+        {
+          "name": "S4"
+        }
+      ]
+    },
+    "DrinkQuantityType": {
+      "schemaName": "public",
+      "values": [
+        {
+          "name": "COUNTS"
+        },
+        {
+          "name": "NONE"
+        },
+        {
+          "name": "WEIGHT"
+        }
+      ]
+    },
     "ShoppableType": {
       "schemaName": "public",
       "values": [
@@ -9993,6 +10618,23 @@
         },
         {
           "name": "YEARLY"
+        }
+      ]
+    },
+    "time_slots": {
+      "schemaName": "public",
+      "values": [
+        {
+          "name": "DAYMANAGER"
+        },
+        {
+          "name": "SHIFT_1"
+        },
+        {
+          "name": "SHIFT_2"
+        },
+        {
+          "name": "SHIFT_3"
         }
       ]
     }
