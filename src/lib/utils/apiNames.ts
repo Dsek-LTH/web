@@ -79,6 +79,9 @@ const apiNames = {
   ELECTION: {
     ...crud("election"),
   },
+  GALLERY: {
+    ...crud("gallery"),
+  },
   DOOR: {
     ...crud("core:access:door"),
   },
