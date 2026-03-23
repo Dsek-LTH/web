@@ -103,13 +103,13 @@
         variant="ghost"
         class="p-1.5"><Languages /></Button
       >
-      <Button
-        aria-label="notifications"
-        size="icon-lg"
-        variant="ghost"
-        class="p-1.5"><Bell /></Button
-      >
       {#if page.data.member}
+        <Button
+          aria-label="notifications"
+          size="icon-lg"
+          variant="ghost"
+          class="p-1.5"><Bell /></Button
+        >
         <HoverCard.Root openDelay={0} closeDelay={125}>
           <HoverCard.Trigger>
             <Avatar.Root class="md-nav:flex hidden">
