@@ -259,6 +259,13 @@
               hidden
               value={memberMap[getKey(day, timeSlot)]?.studentId ?? ""}
             />
+            <button
+              class="btn btn-success"
+              aria-label="Submit changed worker"
+              type="submit"
+            >
+              <span class="i-mdi-send"> </span>
+            </button>
           {:else}
             <input
               name="worker"
@@ -282,7 +289,7 @@
       {#snippet DayWorkerForm(timeSlot: TimeSlot)}
         {@render DayForm(
           timeSlot,
-          !(dayHasManager && canSignUpForShift(day, TimeSlot.SHIFT_1, user)) &&
+          !(dayHasManager && canSignUpForShift(day, timeSlot, user)) &&
             !hasShift(day, timeSlot, user) &&
             !canEditWorkers,
         )}
