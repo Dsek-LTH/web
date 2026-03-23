@@ -52,7 +52,7 @@ export const getRoutes = (): Route[] =>
           description: m.nav_about_guild_desc(),
           accessRequired: null,
           appBehaviour: "none",
-          path: "/about-guild",
+          path: "/about",
         },
       ],
     },
@@ -73,7 +73,7 @@ export const getRoutes = (): Route[] =>
           description: m.nav_about_guild_desc(),
           accessRequired: null,
           appBehaviour: "none",
-          path: "/about-guild",
+          path: "/about",
         },
         {
           title: m.nav_board(),
@@ -163,7 +163,7 @@ export const getFooterRoutes = (): Route[] =>
           title: m.nav_about_guild(),
           accessRequired: null,
           appBehaviour: "none",
-          path: "/news",
+          path: "/about",
         },
         {
           title: m.nav_trivia(),
@@ -213,7 +213,7 @@ export const getFooterRoutes = (): Route[] =>
           title: m.nav_committees(),
           accessRequired: null,
           appBehaviour: "none",
-          path: "/events",
+          path: "/about#committees",
         },
       ],
     },
@@ -221,7 +221,7 @@ export const getFooterRoutes = (): Route[] =>
       title: m.nav_contact(),
       accessRequired: null,
       appBehaviour: "none",
-      path: "/news",
+      path: null,
       children: [
         {
           title: m.nav_for_companies(),
@@ -233,7 +233,7 @@ export const getFooterRoutes = (): Route[] =>
           title: m.nav_contact_details(),
           accessRequired: null,
           appBehaviour: "none",
-          path: "/events",
+          path: "/contact",
         },
       ],
     },
