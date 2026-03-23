@@ -10,6 +10,7 @@ type ExtendedUserFields = {
 
 declare module "@auth/core/jwt" {
   interface JWT extends ExtendedUserFields, DefaultJWT {
+    access_token?: string;
     id_token?: string;
     refresh_token?: string;
     expires_at?: number;
