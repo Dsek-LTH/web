@@ -12,6 +12,8 @@
       variant: {
         rosa: "bg-rosa-background text-rosa-foreground shadow-xs hover:bg-rosa-hover",
         lila: "bg-lila-background text-lila-foreground shadow-xs hover:bg-lila-hover",
+        destructive:
+          "bg-destructive text-destructive-foreground shadow-xs hover:bg-destructive/90",
         outline:
           "text-secondary-foreground shadow-xs hover:bg-secondary-hover border",
         ghost:

@@ -14,7 +14,7 @@
   bind:ref
   data-slot="radio-group-item"
   class={cn(
-    "border-input aria-checked:border-rosa-background text-primary focus-visible:border-rosa-background focus-visible:ring-ring/50 aria-invalid:ring-rosa-background/20 dark:aria-invalid:ring-rosa-background/40 aria-invalid:border-rosa/20 dark:bg-input/30 aspect-square size-4 shrink-0 rounded-full border shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:ring-[3px]",
+    "border-input aria-checked:border-primary text-primary focus-visible:border-primary focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 aspect-square size-4 shrink-0 rounded-full border shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:ring-[3px]",
     className,
   )}
   {...restProps}
@@ -26,7 +26,7 @@
     >
       {#if checked}
         <CircleIcon
-          class="fill-rosa-background text-rosa-background absolute top-1/2 left-1/2 size-[10px] -translate-x-1/2 -translate-y-1/2"
+          class="fill-primary text-primary absolute top-1/2 left-1/2 size-[10px] -translate-x-1/2 -translate-y-1/2"
         />
       {/if}
     </div>
