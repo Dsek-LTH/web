@@ -1,102 +1,151 @@
 <script lang="ts">
-  import { filesProxy, type SuperForm } from "sveltekit-superforms/client";
-  import { superForm } from "$lib/utils/client/superForms";
   import {
-    Card,
-    CardHeader,
-    CardTitle,
-    CardContent,
-  } from "$lib/components/ui/card/index.js";
-  import { Input } from "$lib/components/ui/input/index.js";
-  import { Label } from "$lib/components/ui/label/index.js";
-  import { Button } from "$lib/components/ui/button/index.js";
-  import { Spinner } from "$lib/components/ui/spinner";
+    type SuperForm,
+    type SuperValidated,
+  } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
+  import * as m from "$paraglide/messages";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
-  import * as m from "$paraglide/messages.js";
-  import ArrowLeft from "@lucide/svelte/icons/arrow-left";
-  import Upload from "@lucide/svelte/icons/upload";
-  import type { UploadSchema } from "./types";
+  import { type SmallMemberSchema, type UploadSchema } from "./types";
+  import Input from "$lib/components/ui/input/input.svelte";
+  import Label from "$lib/components/ui/label/label.svelte";
+  import Button from "$lib/components/ui/button/button.svelte";
+  import FileUpload from "$lib/components/FileUpload.svelte";
+  import { Textarea } from "$lib/components/ui/textarea";
+  import MemberSelector from "$lib/components/MemberSelector.svelte";
+  import SuperDebug from "sveltekit-superforms";
 
-  let { data } = $props();
+  let { data }: { data: { form: SuperValidated<UploadSchema> } } = $props();
 
-  // svelte-ignore state_referenced_locally
-  const { form, errors, enhance, delayed } = superForm(data.form, {
-    delayMs: 300,
-  }) as SuperForm<UploadSchema>;
-  const files = $derived(filesProxy(form, "files"));
+  let { form, constraints, errors, enhance } = $derived(
+    superForm(data.form, {
+      resetForm: false,
+      dataType: "json",
+    }) as SuperForm<UploadSchema>,
+  );
+
+  let coverFiles: FileList | undefined = $state();
+  let albumFiles: FileList | undefined = $state();
+
+  function onCoverFileUpload() {
+    $form.coverFile = coverFiles ? coverFiles[0] : undefined;
+  }
+
+  function onAlbumFileUpload() {
+    // @ts-expect-error -- expected
+    $form.albumFiles = [...albumFiles];
+  }
 </script>
 
 <SetPageTitle title={m.gallery_uploadAlbum()} />
-
-<div class="mx-auto w-full max-w-4xl px-4 py-8">
-  <Button variant="ghost" href="/gallery" class="mb-6 flex items-center gap-2">
-    <ArrowLeft class="h-4 w-4" />
-    {m.gallery_back()}
-  </Button>
-
-  <Card class="border-border shadow-xl">
-    <CardHeader class="bg-primary/5 border-border border-b-[1px] pb-6">
-      <CardTitle class="text-3xl font-bold">{m.gallery_uploadAlbum()}</CardTitle
+<div class="layout-container">
+  <a href="/gallery" class="btn btn-outline btn-sm my-2">{m.gallery_back()}</a>
+  <h1 class="text-2xl font-bold">{m.gallery_uploadAlbum()}</h1>
+  <form
+    id="upload-album"
+    class="form-control items-stretch gap-4"
+    method="POST"
+    enctype="multipart/form-data"
+    use:enhance
+  >
+    <div class="flex flex-col gap-1.5">
+      <Label class="mb-1 text-lg font-medium" for="date"
+        >{m.gallery_upload_date()}</Label
       >
-    </CardHeader>
-    <CardContent class="pt-6">
-      <form
-        method="POST"
-        enctype="multipart/form-data"
-        use:enhance
-        class="flex flex-col gap-6"
+
+      <Input
+        id="date"
+        name="date"
+        class="input input-bordered"
+        bind:value={$form.date}
+        type="text"
+        placeholder="2025-01-01"
+        aria-invalid={$errors.date ? true : false}
+        aria-errormessage={$errors.date?.at(0)}
+        {...$constraints.date}
+      />
+    </div>
+
+    <div class="flex flex-col gap-1.5">
+      <Label class="mb-1 text-lg font-medium" for="title"
+        >{m.gallery_upload_name()}</Label
       >
-        <div class="flex flex-col gap-2">
-          <Label for="name">{m.gallery_upload_name()}</Label>
-          <Input id="name" name="name" bind:value={$form.name} required />
-          {#if $errors.name}
-            <p class="text-destructive text-sm font-medium">{$errors.name}</p>
-          {/if}
-        </div>
+      <Input
+        id="title"
+        name="title"
+        class="input input-bordered"
+        bind:value={$form.title}
+        type="text"
+        placeholder="Nollefredagen"
+        {...$constraints.title}
+      />
+    </div>
 
-        <div class="flex flex-col gap-2">
-          <Label for="date">{m.gallery_upload_date()}</Label>
-          <Input
-            id="date"
-            name="date"
-            type="date"
-            bind:value={$form.date}
-            required
-          />
-          {#if $errors.date}
-            <p class="text-destructive text-sm font-medium">{$errors.date}</p>
-          {/if}
-        </div>
+    <div class="flex flex-col gap-1.5">
+      <Label class="mb-1 text-lg font-medium" for="photographers"
+        >{m.gallery_upload_photographers()}</Label
+      >
+      <MemberSelector
+        name="photographers"
+        bind:selectedMembers={$form.photographers as SmallMemberSchema[]}
+        multiple
+      />
+    </div>
 
-        <div class="flex flex-col gap-2">
-          <Label for="files">{m.gallery_upload_files()}</Label>
-          <Input
-            id="files"
-            name="files"
-            type="file"
-            multiple
-            bind:files={$files}
-          />
-          {#if $errors.files}
-            <p class="text-destructive text-sm font-medium">{$errors.files}</p>
-          {/if}
-        </div>
+    <div class="flex flex-col gap-1.5">
+      <Label class="mb-1 text-lg font-medium" for="editors"
+        >{m.gallery_upload_editors()}</Label
+      >
+      <MemberSelector
+        name="editors"
+        bind:selectedMembers={$form.editors as SmallMemberSchema[]}
+        multiple
+      />
+    </div>
 
-        <div class="mt-4 flex items-center justify-end">
-          <Button
-            type="submit"
-            disabled={$delayed}
-            class="flex min-w-32 items-center gap-2"
-          >
-            {#if $delayed}
-              <Spinner class="h-4 w-4" />
-            {:else}
-              <Upload class="h-4 w-4" />
-              {m.gallery_upload_upload()}
-            {/if}
-          </Button>
-        </div>
-      </form>
-    </CardContent>
-  </Card>
+    <div class="flex flex-col gap-1.5">
+      <Label class="mb-1 text-lg font-medium" for="description"
+        >Beskrivning</Label
+      >
+      <Textarea
+        id="description"
+        name="description"
+        class="input input-bordered"
+        bind:value={$form.description}
+        placeholder="En kort beskrivning av albumet"
+      />
+    </div>
+
+    <div class="flex flex-col gap-1.5">
+      <Label class="mb-1 text-lg font-medium" for="files">
+        {m.gallery_upload_cover()}
+      </Label>
+      <FileUpload
+        multiple={false}
+        name="coverFile"
+        onchange={() => onCoverFileUpload()}
+        bind:files={() => coverFiles, (f) => (coverFiles = f)}
+      />
+    </div>
+
+    <div class="flex flex-col gap-1.5">
+      <Label class="mb-1 text-lg font-medium" for="files">
+        {m.gallery_upload_files()}
+      </Label>
+      <FileUpload
+        multiple
+        name="albumFiles"
+        onchange={() => onAlbumFileUpload()}
+        bind:files={() => albumFiles, (f) => (albumFiles = f)}
+      />
+    </div>
+
+    <Button
+      class="btn btn-primary"
+      type="submit"
+      onclick={() => console.log("Submitting form with data:", $form)}
+    >
+      {m.gallery_upload_upload()}
+    </Button>
+  </form>
 </div>
