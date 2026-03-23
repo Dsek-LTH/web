@@ -27,7 +27,7 @@
       title: m.landing_guild_title(),
       description: m.landing_guild_description(),
       image: "guild.jpg",
-      imagePosition: "50% 80%",
+      imagePosition: "50% 40%",
       imageSize: "125%",
     },
     {
@@ -41,7 +41,7 @@
       title: m.landing_dchip_title(),
       description: m.landing_dchip_description(),
       image: "dchip.jpg",
-      imagePosition: "50% 180%",
+      imagePosition: "50% 80%",
       imageSize: "250%",
     },
   ] as const;
@@ -59,18 +59,20 @@
     >
       {m.dsektionen()}
     </h1>
-    <p class="mb-10 max-w-prose text-white lg:mb-9 lg:text-xl">
+    <p class="mb-10 max-w-prose font-medium text-white lg:mb-9 lg:text-xl">
       {m.landing_intro()}
     </p>
 
-    <div class="flex flex-row items-start gap-10 lg:items-center">
+    <div
+      class="flex flex-col items-start gap-4 lg:flex-row lg:items-center lg:gap-10"
+    >
       <Button href="/sokande" size="lg" class="text-lg">
         <GraduationCap class="size-6" />{m.landing_forStudents()}
       </Button>
       <Button
         href="/info/for-foretag"
         size="lg"
-        class="text-lg"
+        class="hover:bg-secondary-background/30 text-lg text-white"
         variant="outline"
       >
         <Building class="size-6" />{m.home_forCompanies()}
@@ -82,13 +84,13 @@
 <main class="flex flex-col gap-2">
   {#each SECTIONS as section, i (section.title)}
     <section
-      class="flex flex-col gap-14 lg:flex-row"
+      class="flex w-full flex-col lg:flex-row"
       class:lg:flex-row-reverse={i === 1}
     >
-      <Carousel.Root opts={{ loop: true }}>
-        <Carousel.Content class="h-80 w-full lg:h-[500px]">
+      <Carousel.Root opts={{ loop: true }} class="lg:w-3/5">
+        <Carousel.Content class="ms-0 h-80 w-full lg:h-[500px]">
           {#each section.images as image, i (i)}
-            <Carousel.Item>
+            <Carousel.Item class="ps-0">
               <img
                 src={getFileUrl(`minio/files/public/photos/${image}`)}
                 class="h-full w-full object-cover"
@@ -98,51 +100,75 @@
           {/each}
         </Carousel.Content>
         <Carousel.Previous
-          class="hover:bg-background/50 absolute ml-16 size-14"
+          class="hover:bg-secondary-background/30 ml-16 size-10 text-white"
         />
-        <Carousel.Next class="hover:bg-background/50 absolute mr-20 size-14" />
+        <Carousel.Next
+          class="hover:bg-secondary-background/30 mr-16 size-10 text-white"
+        />
       </Carousel.Root>
 
-      <div class="mx-10 flex flex-col gap-7 lg:mx-16 xl:mx-28">
-        <h2 class="pt-6 font-bold uppercase lg:text-2xl xl:text-3xl">
+      <div
+        class="text-md flex flex-col px-10 lg:w-2/5 lg:items-start lg:gap-7 lg:px-16 xl:px-24"
+      >
+        <h2 class="pt-6 text-xl font-bold uppercase lg:text-2xl xl:text-3xl">
           {section.title}
         </h2>
         <h1
-          class="text-4xl font-bold text-balance uppercase lg:text-5xl xl:text-6xl"
+          class="text-4xl font-bold text-balance uppercase lg:text-left lg:text-5xl xl:text-6xl"
         >
           {section.slogan}
         </h1>
-        <p class="max-w-prose text-sm lg:text-lg xl:text-xl">
+        <p class="mb-8 max-w-prose text-sm font-medium lg:text-lg xl:text-xl">
           {section.description}
         </p>
       </div>
     </section>
   {/each}
 
-  <section class="mx-10 mt-6">
+  <section class="mx-10 mt-6 flex flex-col items-center">
     <h2 class="mb-8 text-center font-bold uppercase lg:text-3xl">
       {m.landing_community_title()}
     </h2>
-    <div class="flex flex-col gap-14 lg:flex-row lg:justify-center">
+    <div
+      class="flex flex-col gap-x-14 lg:grid lg:w-5/6 lg:grid-flow-col lg:grid-cols-3 lg:grid-rows-2 lg:gap-y-0"
+    >
       {#each ARTICLES as article, i (i)}
-        <article
-          class="flex h-[500px] flex-col items-center justify-end gap-5 bg-[linear-gradient(180deg,transparent_0%,var(--muted-background)_50%),var(--url)] bg-no-repeat px-8 py-[50px]"
-          style:background-size={article.imageSize}
-          style:background-position={article.imagePosition}
-          style:--url="url({getFileUrl(
-            `minio/files/public/photos/${article.image}`,
-          )})"
-        >
-          <h1 class="text-xl font-bold uppercase lg:text-4xl">
+        <article class="contents">
+          <h1
+            class="w-full self-end bg-[linear-gradient(180deg,transparent_0%,var(--muted-background)_85%),var(--url)] bg-no-repeat px-8 pt-[200px] pb-4 text-4xl font-bold uppercase"
+            style:background-size={article.imageSize}
+            style:background-position={article.imagePosition}
+            style:--url="url({getFileUrl(
+              `minio/files/public/photos/${article.image}`,
+            )})"
+          >
             {article.title}
           </h1>
           <p
-            class="max-w-prose text-sm font-medium lg:max-w-[300px] lg:text-base"
+            class="bg-muted-background mt-0 mb-6 w-full max-w-prose px-8 pb-6 text-sm font-medium lg:pb-0 lg:text-base"
           >
             {article.description}
           </p>
         </article>
       {/each}
+
+      <!-- <article
+        class="flex flex-col items-center justify-end gap-5 bg-[linear-gradient(180deg,transparent_0%,var(--muted-background)_50%),var(--url)] bg-no-repeat px-8 py-[50px] pt-[200px]"
+        style:background-size={article.imageSize}
+        style:background-position={article.imagePosition}
+        style:--url="url({getFileUrl(
+          `minio/files/public/photos/${article.image}`,
+        )})"
+      >
+        <h1 class="text-4xl font-bold uppercase">
+          {article.title}
+        </h1>
+        <p
+          class="max-w-prose text-sm font-medium lg:max-w-[300px] lg:text-base"
+        >
+          {article.description}
+        </p>
+      </article> -->
     </div>
   </section>
 </main>
