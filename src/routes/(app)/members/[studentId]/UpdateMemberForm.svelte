@@ -140,31 +140,31 @@
           })),
       ]}
     />
-    <div>
-      <Labeled label={m.members_hasGraduated()}>
+  </div>
+  <div class="flex w-full flex-wrap gap-2 *:flex-1">
+    <Labeled label={m.members_hasGraduated()}>
+      <input
+        type="checkbox"
+        class="checkbox-primary checkbox"
+        bind:checked={isEditingGraduationYear}
+        {...$constraints.graduationYear}
+      />
+    </Labeled>
+    {#if isEditingGraduationYear}
+      <Labeled
+        label={m.members_graduationYear()}
+        error={$errors.graduationYear}
+      >
         <input
-          type="checkbox"
-          class="checkbox-primary checkbox"
-          bind:checked={isEditingGraduationYear}
+          type="number"
+          name="graduationYear"
+          id="graduationYear"
+          class="input input-bordered"
+          bind:value={$form.graduationYear}
           {...$constraints.graduationYear}
         />
       </Labeled>
-      {#if isEditingGraduationYear}
-        <Labeled
-          label={m.members_graduationYear()}
-          error={$errors.graduationYear}
-        >
-          <input
-            type="number"
-            name="graduationYear"
-            id="graduationYear"
-            class="input input-bordered"
-            bind:value={$form.graduationYear}
-            {...$constraints.graduationYear}
-          />
-        </Labeled>
-      {/if}
-    </div>
+    {/if}
   </div>
   <div class="mt-4 flex flex-wrap gap-2 *:flex-1">
     <a href="{page.params['studentId']}/edit-bio" class="btn">
