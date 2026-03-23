@@ -168,7 +168,7 @@
     })}
   >
     <div class="flex flex-col gap-8 md:flex-row">
-      <div class="flex h-[400px] min-h-[400px] w-full flex-col md:w-[400px]">
+      <div class="flex h-[400px] min-h-[400px] w-full flex-col md:w-[600px]">
         <h4>{m.setting_subscriptions()}</h4>
         <DualSelect bind:items name="tags" />
       </div>
