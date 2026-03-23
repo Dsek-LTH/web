@@ -3,7 +3,6 @@
   import dayjs from "dayjs";
   import weekYear from "dayjs/plugin/weekYear";
   import weekOfYear from "dayjs/plugin/weekOfYear";
-  import localeData from "dayjs/plugin/localeData";
   import { enhance } from "$app/forms";
   import Pagination from "$lib/components/Pagination.svelte";
   import { isAuthorized } from "$lib/utils/authorization";
@@ -15,16 +14,32 @@
   import type { ShiftWithWorker, Ciabatta } from "./types";
   import { TimeSlot } from "./types";
   import "dayjs/locale/en-gb";
+  import { languageTag } from "$paraglide/runtime";
 
   dayjs.extend(weekOfYear);
   dayjs.extend(weekYear);
-  dayjs.extend(localeData);
-
-  // Hardcode locale so our weeks start on Mondays
-  dayjs.locale("en-gb");
 
   const getWeekdayName = (weekday: number): string => {
-    return dayjs.weekdays(false)[weekday + 1] ?? "";
+    let locale: string;
+    switch (languageTag()) {
+      case "sv": {
+        locale = "sv-SE";
+        break;
+      }
+      case "en": {
+        locale = "en-GB";
+        break;
+      }
+      default: {
+        locale = "sv-SE";
+        break;
+      }
+    }
+    if (weekday < 0 || weekday > 6) return "";
+
+    // Reference Monday: Jan 5, 1970 was a Monday
+    const referenceMonday = new Date(Date.UTC(1970, 0, 5 + weekday));
+    return referenceMonday.toLocaleDateString(locale, { weekday: "long" });
   };
 
   let {
