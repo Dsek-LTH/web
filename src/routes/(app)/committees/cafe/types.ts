@@ -13,11 +13,13 @@ export const TimeSlot = {
 export type TimeSlot = (typeof TimeSlot)[keyof typeof TimeSlot];
 
 export const scheduleForm = z.object({
-  date: z.string()
+  date: z
+    .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/)
     .refine((val) => dayjs(val, "YYYY-MM-DD", true).isValid(), {
       message: "Invalid date, expected format YYYY-MM-DD",
-    }), worker: z.string().optional(),
+    }),
+  worker: z.string().optional(),
   timeSlot: z.nativeEnum(TimeSlot),
 });
 
