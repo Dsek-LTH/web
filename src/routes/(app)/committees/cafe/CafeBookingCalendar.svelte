@@ -15,6 +15,7 @@
   import { TimeSlot } from "./types";
   import "dayjs/locale/en-gb";
   import { languageTag } from "$paraglide/runtime";
+  import { page } from "$app/state";
 
   dayjs.extend(weekOfYear);
   dayjs.extend(weekYear);
@@ -59,6 +60,9 @@
     timeSlot: TimeSlot,
     user: AuthUser,
   ) {
+    if (!page.data.user?.memberId) {
+      return false;
+    }
     let worker = shifts.find(
       (s) => dayjs(s.date).isSame(day, "day") && s.timeSlot === timeSlot,
     )?.worker;
