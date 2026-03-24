@@ -914,5 +914,8 @@
   "cafe_error_worker_not_exist": "Jobbare {name} existerar inte.",
   "cafe_error_no_ciabatta_edit_perms": "Du har inte tillåtelse att redigera ciabattas.",
   "cafe_error_no_week_viewing_perms": "Du har inte tillåtelse att se denna veckan.",
+  "cafe_error_sign_off_close": "Du har inte tillåtelse att avanmäla dig så tätt inpå. Om du måste, kontaka Vice Cafémästare.",
+  "cafe_error_sign_off_after": "Du har inte tillåtelse att avanmäla dig från avklarade skift.",
+  "cafe_error_sign_on_after": "Du kan inte anmäla dig till ett pass som redan hänt.",
   "cafe_closed": "Stängt"
 }

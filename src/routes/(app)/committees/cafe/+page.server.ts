@@ -110,6 +110,13 @@ export const actions: Actions = {
 
     const { date, worker, timeSlot } = form.data;
 
+    const parsedDate = dayjs(date, "YYYY-MM-DD", true);
+    if (!parsedDate.isValid()) {
+      return fail(400, { form });
+    }
+    const startOfDay = parsedDate.startOf("day").toDate();
+    const nextDay = parsedDate.add(1, "day").startOf("day").toDate();
+
     const member = worker || user.studentId;
     if (!member) {
       return fail(400, { form });
@@ -124,7 +131,7 @@ export const actions: Actions = {
       }
     }
     const dayShifts = await prisma.cafeShift.findMany({
-      where: { date: date },
+      where: { date: { gte: startOfDay, lt: nextDay } },
       include: { worker: { select: { studentId: true } } },
     });
 
@@ -135,6 +142,12 @@ export const actions: Actions = {
       if (timeSlot == TimeSlot.DAYMANAGER && !isDayManager && !isSetByAdmin) {
         return message(form, {
           message: m.cafe_error_only_daymanagers(),
+          type: "error",
+        });
+      }
+      if (!isSetByAdmin && parsedDate.isBefore(dayjs(), "day")) {
+        return message(form, {
+          message: m.cafe_error_sign_on_after(),
           type: "error",
         });
       }
@@ -153,7 +166,7 @@ export const actions: Actions = {
       try {
         await prisma.cafeShift.create({
           data: {
-            date: date,
+            date: startOfDay,
             worker: {
               connect: {
                 studentId: member,
@@ -179,14 +192,25 @@ export const actions: Actions = {
     } else {
       // There is already a shift.
       if (cafeShift.worker.studentId === member) {
-        await prisma.cafeShift.delete({ where: { id: cafeShift.id } });
-        return message(form, {
-          message:
-            member === user.studentId
-              ? m.cafe_quit_shift()
-              : m.cafe_quit_shift_for_other({ name: member }),
-          type: "success",
-        });
+        const shiftDate = dayjs(cafeShift.date);
+        if (isSetByAdmin || shiftDate > dayjs().add(1, "day")) {
+          await prisma.cafeShift.delete({ where: { id: cafeShift.id } });
+          return message(form, {
+            message:
+              member === user.studentId
+                ? m.cafe_quit_shift()
+                : m.cafe_quit_shift_for_other({ name: member }),
+            type: "success",
+          });
+        } else {
+          return message(form, {
+            message:
+              shiftDate > dayjs().subtract(1, "day")
+                ? m.cafe_error_sign_off_close()
+                : m.cafe_error_sign_off_after(),
+            type: "error",
+          });
+        }
       } else {
         // There is already a shift in this location, but it is not attributed to the user we are trying to edit.
         if (isSetByAdmin) {
