@@ -557,6 +557,7 @@
   "documents_deleteFile": "Delete file",
   "documents_deleteAreYouSure": "Are you sure you want to delete the file <strong>{fileName}</strong>?",
   "documents_delete": "Delete",
+  "documents_modal_subtitle": "Detta kan inte ångras.",
   "documents_governing": "Governing documents",
   "documents_edit": "Edit",
   "documents_stopEditing": "Stop editing",

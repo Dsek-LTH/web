@@ -556,6 +556,7 @@
   "documents_deleteFile": "Radera fil",
   "documents_deleteAreYouSure": "Är du säker på att du vill radera filen <strong>{fileName}</strong>?",
   "documents_delete": "Radera",
+  "documents_modal_subtitle": "Detta kan inte ångras.",
   "documents_governing": "Styrdokument",
   "documents_edit": "Redigera",
   "documents_stopEditing": "Sluta redigera",
