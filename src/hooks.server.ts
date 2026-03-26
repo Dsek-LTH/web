@@ -1,3 +1,4 @@
+import "temporal-polyfill/global";
 import { env } from "$env/dynamic/private";
 import { env as envPublic } from "$env/dynamic/public";
 import { createMember } from "$lib/utils/member";

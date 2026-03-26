@@ -56,9 +56,33 @@ importers:
       '@playwright/test':
         specifier: ^1.49.0
         version: 1.49.0
+      '@preact/signals':
+        specifier: ^2.8.2
+        version: 2.8.2(preact@10.29.0)
       '@prisma/client':
         specifier: ^6.0.1
         version: 6.0.1(prisma@6.0.1)
+      '@schedule-x/calendar':
+        specifier: ^3.0.0
+        version: 3.7.3(@preact/signals@2.8.2(preact@10.29.0))(preact@10.29.0)(temporal-polyfill@0.3.0)
+      '@schedule-x/calendar-controls':
+        specifier: ^4.3.1
+        version: 4.3.1
+      '@schedule-x/current-time':
+        specifier: ^4.3.1
+        version: 4.3.1
+      '@schedule-x/event-modal':
+        specifier: ^4.3.1
+        version: 4.3.1(@preact/signals@2.8.2(preact@10.29.0))(preact@10.29.0)
+      '@schedule-x/scroll-controller':
+        specifier: ^4.3.1
+        version: 4.3.1(@preact/signals@2.8.2(preact@10.29.0))
+      '@schedule-x/svelte':
+        specifier: ^3.0.0
+        version: 3.0.0(@schedule-x/calendar@3.7.3(@preact/signals@2.8.2(preact@10.29.0))(preact@10.29.0)(temporal-polyfill@0.3.0))(@schedule-x/shared@3.7.3(@preact/signals@2.8.2(preact@10.29.0)))(svelte@5.56.3(@typescript-eslint/types@8.46.3))
+      '@schedule-x/theme-default':
+        specifier: ^3.0.0
+        version: 3.7.3
       '@shlinkio/shlink-js-sdk':
         specifier: ^1.3.0
         version: 1.3.0
@@ -140,8 +164,11 @@ importers:
       pdf-lib:
         specifier: ^1.17.1
         version: 1.17.1
+      preact:
+        specifier: ^10.29.0
+        version: 10.29.0
       prom-client:
-        specifier: ^14.2.0
+        specifier: ^14.0.0
         version: 14.2.0
       sharp:
         specifier: ^0.33.5
@@ -158,6 +185,9 @@ importers:
       svelte-stripe:
         specifier: ^1.3.0
         version: 1.3.0(@stripe/stripe-js@5.2.0)(svelte@5.56.3(@typescript-eslint/types@8.46.3))
+      temporal-polyfill:
+        specifier: 0.3.0
+        version: 0.3.0
       tiptap-markdown:
         specifier: ^0.8.10
         version: 0.8.10(@tiptap/core@2.10.3(@tiptap/pm@2.10.3))
@@ -1796,6 +1826,14 @@ packages:
   '@poppinss/macroable@1.1.0':
     resolution: {integrity: sha512-y/YKzZDuG8XrpXpM7Z1RdQpiIc0MAKyva24Ux1PB4aI7RiSI/79K8JVDcdyubriTm7vJ1LhFs8CrZpmPnx/8Pw==}
 
+  '@preact/signals-core@1.14.0':
+    resolution: {integrity: sha512-AowtCcCU/33lFlh1zRFf/u+12rfrhtNakj7UpaGEsmMwUKpKWMVvcktOGcwBBNiB4lWrZWc01LhiyyzVklJyaQ==}
+
+  '@preact/signals@2.8.2':
+    resolution: {integrity: sha512-gym5yoa64c+0w2kL7zRAAjY548qzWXbbuOfjsK9F1nWrEqooDwyWnih5SNdonjhQSp27zUqYh7UrxIRnkCyFCA==}
+    peerDependencies:
+      preact: '>= 10.25.0 || >=11.0.0-0'
+
   '@prisma/client@6.0.1':
     resolution: {integrity: sha512-60w7kL6bUxz7M6Gs/V+OWMhwy94FshpngVmOY05TmGD0Lhk+Ac0ZgtjlL6Wll9TD4G03t4Sq1wZekNVy+Xdlbg==}
     engines: {node: '>=18.18'}
@@ -2040,6 +2078,45 @@ packages:
 
   '@scaleleap/pg-format@1.0.0':
     resolution: {integrity: sha512-gFkcYMnpeylF2OJ30FsDBjwICB9JTiZ5i3guPwdiBDrJFwIKr+Zk6jwI8Mg22a4FwXn5ezd5cHEFMKqBqBz4RQ==}
+
+  '@schedule-x/calendar-controls@4.3.1':
+    resolution: {integrity: sha512-GkCwiXfIlwOBMZujbl1f6KVP1l/4W4T24shTU+QO7GN3LDXQWvrKbovMM1Wngu6HcfX7RGikCzuRfes4yzB8GQ==}
+
+  '@schedule-x/calendar@3.7.3':
+    resolution: {integrity: sha512-plVdesJSaz5I2ukAoIqgC6Dro4UkbQZvMll2OEdoSURgUX9Hk5abCHV4S2O/+8oRvmEX4wXQeHIapYYIY8/GIg==}
+    peerDependencies:
+      '@preact/signals': ^2.0.2
+      preact: ^10.19.2
+      temporal-polyfill: 0.3.0
+
+  '@schedule-x/current-time@4.3.1':
+    resolution: {integrity: sha512-mV0sLZ66BF6qjcpo87Yd95DNFuyl57QPq6KZOmbbHXg7jV2REV3r4QsGUIwZrLEQF7QlWKQl+NN97XD6oYAY7g==}
+
+  '@schedule-x/event-modal@4.3.1':
+    resolution: {integrity: sha512-lN74n0t76MaFTgpdR5nb7ejbGutsNig5798MCulgB6UuLlEIHb0X+DS/VBViUWHyaWuB7bJ1kpUAShKCpJrOMg==}
+    peerDependencies:
+      '@preact/signals': ^2.0.2
+      preact: ^10.19.2
+
+  '@schedule-x/scroll-controller@4.3.1':
+    resolution: {integrity: sha512-s3BHaa4huM3mKmAVJMnv3JnwKU/V81YOkxjvqrJMgnLg0MgcTB485fh7wsJNbRPt9B2NO+CDaNhWd2l1c8hjAg==}
+    peerDependencies:
+      '@preact/signals': ^2.0.2
+
+  '@schedule-x/shared@3.7.3':
+    resolution: {integrity: sha512-VjDnL+3onIynplHqfsQK/eplQl/bsD2XjqnzKQFo6Ji2FYmusALP3Vmtww1brJSAzc+aV9ML2fWCHi14AR/YBg==}
+    peerDependencies:
+      '@preact/signals': ^2.0.2
+
+  '@schedule-x/svelte@3.0.0':
+    resolution: {integrity: sha512-/p91n/sl3iR/pdgvu3QwWTU3OiQoZCm4ftchU8NUcG1exReSxyKnWkiLWc00eK0eS2oTC+cG2v8H8pwggIzIng==}
+    peerDependencies:
+      '@schedule-x/calendar': ^3.0.0
+      '@schedule-x/shared': ^3.0.0
+      svelte: ^4 || ^5
+
+  '@schedule-x/theme-default@3.7.3':
+    resolution: {integrity: sha512-suJs+AyQT6OhTq7e752Psg5IwaGE4EzPOSBhp7L8e9FgmluxOvnzlfbWod2i9mfYAsdkzX+WMIlCfBFkRu1o1A==}
 
   '@shlinkio/shlink-js-sdk@1.3.0':
     resolution: {integrity: sha512-apkKzyAVY2cD0MUOZTtu3wO3sHT2dncE8KTgYFj+HKIbf/F455W32F2VydwM0R3KFH1P5X7mNfLn0m8HPPTiBA==}
@@ -5242,6 +5319,9 @@ packages:
   preact@10.24.3:
     resolution: {integrity: sha512-Z2dPnBnMUfyQfSQ+GBdsGa16hz35YmLmtTLhM169uW944hYL6xzTYkJjC07j+Wosz733pMWx0fgON3JNw1jJQA==}
 
+  preact@10.29.0:
+    resolution: {integrity: sha512-wSAGyk2bYR1c7t3SZ3jHcM6xy0lcBcDel6lODcs9ME6Th++Dx2KU+6D3HD8wMMKGA8Wpw7OMd3/4RGzYRpzwRg==}
+
   prelude-ls@1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
@@ -6027,6 +6107,12 @@ packages:
   temp-write@4.0.0:
     resolution: {integrity: sha512-HIeWmj77uOOHb0QX7siN3OtwV3CTntquin6TNVg6SHOqCP3hYKmox90eeFOGaY1MqJ9WYDDjkyZrW6qS5AWpbw==}
     engines: {node: '>=8'}
+
+  temporal-polyfill@0.3.0:
+    resolution: {integrity: sha512-qNsTkX9K8hi+FHDfHmf22e/OGuXmfBm9RqNismxBrnSmZVJKegQ+HYYXT+R7Ha8F/YSm2Y34vmzD4cxMu2u95g==}
+
+  temporal-spec@0.3.0:
+    resolution: {integrity: sha512-n+noVpIqz4hYgFSMOSiINNOUOMFtV5cZQNCmmszA6GiVFVRt3G7AqVyhXjhCSmowvQn+NsGn+jMDMKJYHd3bSQ==}
 
   tempy@1.0.1:
     resolution: {integrity: sha512-biM9brNqxSc04Ee71hzFbryD11nX7VPhQQY32AdDmjFvodsRFz/3ufeoTZ6uYkRFfGo188tENcASNs3vTdsM0w==}
@@ -8364,6 +8450,13 @@ snapshots:
   '@poppinss/macroable@1.1.0':
     optional: true
 
+  '@preact/signals-core@1.14.0': {}
+
+  '@preact/signals@2.8.2(preact@10.29.0)':
+    dependencies:
+      '@preact/signals-core': 1.14.0
+      preact: 10.29.0
+
   '@prisma/client@6.0.1(prisma@6.0.1)':
     optionalDependencies:
       prisma: 6.0.1
@@ -8655,6 +8748,37 @@ snapshots:
       ebnf: 1.9.1
 
   '@scaleleap/pg-format@1.0.0': {}
+
+  '@schedule-x/calendar-controls@4.3.1': {}
+
+  '@schedule-x/calendar@3.7.3(@preact/signals@2.8.2(preact@10.29.0))(preact@10.29.0)(temporal-polyfill@0.3.0)':
+    dependencies:
+      '@preact/signals': 2.8.2(preact@10.29.0)
+      preact: 10.29.0
+      temporal-polyfill: 0.3.0
+
+  '@schedule-x/current-time@4.3.1': {}
+
+  '@schedule-x/event-modal@4.3.1(@preact/signals@2.8.2(preact@10.29.0))(preact@10.29.0)':
+    dependencies:
+      '@preact/signals': 2.8.2(preact@10.29.0)
+      preact: 10.29.0
+
+  '@schedule-x/scroll-controller@4.3.1(@preact/signals@2.8.2(preact@10.29.0))':
+    dependencies:
+      '@preact/signals': 2.8.2(preact@10.29.0)
+
+  '@schedule-x/shared@3.7.3(@preact/signals@2.8.2(preact@10.29.0))':
+    dependencies:
+      '@preact/signals': 2.8.2(preact@10.29.0)
+
+  '@schedule-x/svelte@3.0.0(@schedule-x/calendar@3.7.3(@preact/signals@2.8.2(preact@10.29.0))(preact@10.29.0)(temporal-polyfill@0.3.0))(@schedule-x/shared@3.7.3(@preact/signals@2.8.2(preact@10.29.0)))(svelte@5.56.3(@typescript-eslint/types@8.46.3))':
+    dependencies:
+      '@schedule-x/calendar': 3.7.3(@preact/signals@2.8.2(preact@10.29.0))(preact@10.29.0)(temporal-polyfill@0.3.0)
+      '@schedule-x/shared': 3.7.3(@preact/signals@2.8.2(preact@10.29.0))
+      svelte: 5.56.3(@typescript-eslint/types@8.46.3)
+
+  '@schedule-x/theme-default@3.7.3': {}
 
   '@shlinkio/shlink-js-sdk@1.3.0': {}
 
@@ -12168,6 +12292,8 @@ snapshots:
 
   preact@10.24.3: {}
 
+  preact@10.29.0: {}
+
   prelude-ls@1.2.1: {}
 
   prettier-plugin-svelte@3.3.2(prettier@3.4.2)(svelte@5.56.3(@typescript-eslint/types@8.46.3)):
@@ -13102,6 +13228,12 @@ snapshots:
       make-dir: 3.1.0
       temp-dir: 1.0.0
       uuid: 3.4.0
+
+  temporal-polyfill@0.3.0:
+    dependencies:
+      temporal-spec: 0.3.0
+
+  temporal-spec@0.3.0: {}
 
   tempy@1.0.1:
     dependencies:
