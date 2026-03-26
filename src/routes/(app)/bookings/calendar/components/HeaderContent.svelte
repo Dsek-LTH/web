@@ -51,8 +51,8 @@
       <ChevronRight class="size-5" />
     </Button>
     <Button
-      class="p-4 uppercase"
-      variant="outline"
+      class="-ml-3 p-4 uppercase"
+      variant="ghost"
       onclick={() =>
         (currentDate = Temporal.Now.plainDateISO("Europe/Stockholm"))}
       >{m.booking_today()}</Button
