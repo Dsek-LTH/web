@@ -110,6 +110,9 @@
       defaultView: viewWeek.name,
       showWeekNumbers: true,
       calendars: categoriesConfig,
+      weekOptions: {
+        gridHeight: 1250,
+      },
       events: [
         {
           id: "1",
