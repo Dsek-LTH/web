@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { days } from "./utils";
+  import { days } from "../../utils";
 
   const { date }: { date: string } = $props();
 
@@ -15,6 +15,7 @@
   >
   <span
     class={`text-2xl font-bold ${today.equals(temporalDate) ? "text-primary underline decoration-3 underline-offset-3" : ""}`}
-    >{temporalDate.day}</span
   >
+    {temporalDate.day}
+  </span>
 </div>

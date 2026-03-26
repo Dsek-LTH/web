@@ -11,14 +11,13 @@
   import { createScrollControllerPlugin } from "@schedule-x/scroll-controller";
   import { createEventModalPlugin } from "@schedule-x/event-modal";
   import { createCalendarControlsPlugin } from "@schedule-x/calendar-controls";
-  // import "@schedule-x/theme-default/dist/index.css";
   import { onMount } from "svelte";
   import { Skeleton } from "$lib/components/ui/skeleton";
   import { mode } from "mode-watcher";
-  import TimeGridEvent from "./components/TimeGridEvent.svelte";
-  import WeekGridDate from "./components/WeekGridDate.svelte";
-  import HeaderContent from "./components/HeaderContent.svelte";
-  import EventModal from "./components/EventModal.svelte";
+  import TimeGridEvent from "./components/grid/TimeGridEvent.svelte";
+  import WeekGridDate from "./components/grid/WeekGridDate.svelte";
+  import HeaderContent from "./components/header/HeaderContent.svelte";
+  import EventModal from "./components/modal/EventModal.svelte";
 
   let calendarApp: ReturnType<typeof createCalendar> | undefined = $state();
   const now = Temporal.Now.zonedDateTimeISO("Europe/Stockholm");
@@ -29,6 +28,7 @@
     }
   });
 
+  // TODO: Refactor and clean up
   const categoriesConfig = {
     personal: {
       colorName: "personal",
@@ -170,6 +170,9 @@
   });
 </script>
 
+<!-- TODO: Make mobile version of EventModal -->
+<!-- TODO: Make mobile version of HeaderContent -->
+<!-- TODO: Change colour of DateGridEvents based on category -->
 {#if !calendarApp}
   <Skeleton class="sx-svelte-calendar-wrapper" />
 {:else}
