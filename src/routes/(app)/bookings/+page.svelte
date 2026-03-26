@@ -22,27 +22,36 @@
   );
 </script>
 
-<Button onclick={() => setMode(mode.current === "dark" ? "light" : "dark")}
+<!-- TODO: Remove -->
+<Button
+  class="sx-calendar:block hidden"
+  onclick={() => setMode(mode.current === "dark" ? "light" : "dark")}
   >SWITCH MODE/THEME</Button
 >
 
+<!-- TODO: Read actual data -->
 <div
-  class="mx-auto mt-10 mb-6 flex w-[var(--sx-calendar-width)] max-w-full flex-col gap-6"
+  class="sx-calendar:gap-6 sx-calendar:mt-10 mx-auto mt-6 mb-6 flex w-[var(--sx-calendar-width)] max-w-[var(--sx-calendar-max-width)] flex-col gap-5"
 >
+  <!-- HEADER -->
   <div class="flex w-full items-center justify-between">
-    <div class="flex flex-col gap-3">
+    <div class="sx-calendar:gap-3 flex flex-col gap-2.5">
       <span
-        class="text-foreground -ml-1 text-6xl leading-none font-semibold tracking-tighter uppercase"
+        class="text-foreground sx-calendar:text-6xl sx-calendar:-ml-1 sx-calendar:tracking-tighter -ml-0.5 text-5xl leading-none font-semibold tracking-tight uppercase"
       >
         Bookings
         <span class="text-primary italic">Dashboard</span>
       </span>
-      <span class="text-muted-foreground max-w-lg text-lg font-light">
+      <span
+        class="text-muted-foreground sx-calendar:text-lg max-w-lg text-base leading-tight font-light"
+      >
         Någon kort introducerande text om bokningar etc. etc. etc. etc. etc.
         etc. etc. etc. etc. etc. etc. etc. etc. etc. etc.
       </span>
     </div>
-    <div class="flex gap-3.5">
+
+    <!-- STATUS BLOCKS - DESKTOP -->
+    <div class="sx-calendar:flex hidden gap-3.5">
       {#snippet statusItem(
         title: string,
         titleColour: string,
@@ -71,9 +80,13 @@
       )}
     </div>
   </div>
-  <div class="flex items-center gap-4">
+
+  <!-- FILTER DROP-DOWN -->
+  <div
+    class="not-sx-calendar:flex-col sx-calendar:items-center sx-calendar:gap-4 not-sx-calendar:mt-1 flex gap-2"
+  >
     <span
-      class="text-muted-foreground text-xs font-semibold tracking-wide uppercase"
+      class="text-muted-foreground sx-calendar:tracking-wide text-xs font-semibold tracking-widest uppercase"
     >
       Filter by:
     </span>
@@ -86,7 +99,7 @@
       </Select.Item>
     {/snippet}
     <Select.Root type="single" bind:value={currentCategory}>
-      <Select.Trigger class="!h-fit w-fit">
+      <Select.Trigger class="sx-calendar:w-fit !h-fit w-full">
         <div class="flex w-full items-center justify-center">
           <ListFilter class="text-primary size-4 self-center" />
           <div
@@ -105,8 +118,41 @@
     </Select.Root>
   </div>
 
+  <!-- STATUS BLOCKS - MOBILE -->
+  <div class="sx-calendar:hidden flex justify-between gap-3">
+    {#snippet statusItem(
+      title: string,
+      titleColour: string,
+      content: string,
+      bodyColour?: string,
+    )}
+      <Item.Root class="py-4" variant="muted">
+        <Item.Content>
+          <Item.Description
+            class={`mx-auto text-3xl font-bold ${bodyColour ?? "text-foreground"}`}
+            >{content}</Item.Description
+          >
+          <Item.Title
+            class={`${titleColour} mx-auto mt-0.5 text-[0.7rem] leading-none tracking-wide uppercase`}
+            >{title}</Item.Title
+          >
+        </Item.Content>
+      </Item.Root>
+    {/snippet}
+    {@render statusItem("accepted", "text-primary", "4")}
+    {@render statusItem("pending", "text-lila-400", "2")}
+    {@render statusItem(
+      "rejected",
+      "text-destructive",
+      "0",
+      "text-destructive",
+    )}
+  </div>
+
+  <!-- CALENDAR -->
   <BookingsCalendar />
 
+  <!-- INFO BLOCKS -->
   {#snippet infoItem(
     IconComponent: Component,
     title: string,
@@ -128,7 +174,7 @@
       </div>
     </Item.Root>
   {/snippet}
-  <div class="flex w-full justify-between gap-4">
+  <div class="not-sx-calendar:flex-col flex w-full justify-between gap-4">
     {@render infoItem(
       Info,
       "Viktig allmän info kanske?",
