@@ -29,6 +29,7 @@
   });
 
   // TODO: Refactor and clean up
+  // TODO: Dynamically load events (for example, list view seems to display all loaded events)
   const categoriesConfig = {
     personal: {
       colorName: "personal",
@@ -170,8 +171,7 @@
   });
 </script>
 
-<!-- TODO: Make mobile version of EventModal -->
-<!-- TODO: Make mobile version of HeaderContent -->
+<!-- TODO: Make custom design for listView -->
 <!-- TODO: Change colour of DateGridEvents based on category -->
 {#if !calendarApp}
   <Skeleton class="sx-svelte-calendar-wrapper" />

@@ -1,11 +1,15 @@
 <script lang="ts">
+  import * as m from "$paraglide/messages";
   import { days } from "../../utils";
 
   const { date }: { date: string } = $props();
 
   const today = Temporal.Now.plainDateISO("Europe/Stockholm");
-  let temporalDate = $derived(Temporal.PlainDate.from(date));
-  let currentDay = $derived(days[temporalDate.dayOfWeek - 1]?.substring(0, 3));
+  const temporalDate = $derived(Temporal.PlainDate.from(date));
+  const currentDay = $derived(
+    days[temporalDate.dayOfWeek - 1]?.substring(0, 3),
+  );
+  const currentWeek = $derived(temporalDate.weekOfYear);
 </script>
 
 <div class="text-center">
@@ -17,5 +21,11 @@
     class={`text-2xl font-bold ${today.equals(temporalDate) ? "text-primary underline decoration-3 underline-offset-3" : ""}`}
   >
     {temporalDate.day}
+  </span>
+  <span
+    class="sx-calendar:hidden font-headline absolute top-12 left-4 text-[0.65rem] font-medium tracking-tight uppercase opacity-75"
+  >
+    ({m.booking_week()}
+    {currentWeek})
   </span>
 </div>
