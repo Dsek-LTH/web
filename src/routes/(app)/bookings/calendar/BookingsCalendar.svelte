@@ -171,7 +171,6 @@
   });
 </script>
 
-<!-- TODO: Make custom design for listView -->
 <!-- TODO: Change colour of DateGridEvents based on category -->
 {#if !calendarApp}
   <Skeleton class="sx-svelte-calendar-wrapper" />

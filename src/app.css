@@ -325,7 +325,7 @@ details summary::-webkit-details-marker {
   --sx-color-surface-container: var(--muted-background);
   --sx-color-surface-container-low: color-mix(
     in oklab,
-    var(--muted-background) 70%,
+    var(--muted-background) 80%,
     white
   );
   --sx-color-surface-container-high: var(--muted);
@@ -343,7 +343,7 @@ details summary::-webkit-details-marker {
   --sx-color-surface-tint: var(--primary);
 
   /* NEUTRALS */
-  --sx-color-neutral: var(--border);
+  --sx-color-neutral: color-mix(in oklab, var(--muted-foreground) 75%, white);
   --sx-color-neutral-variant: var(--sx-color-outline-variant);
 
   /* INTERNAL */
@@ -380,7 +380,7 @@ details summary::-webkit-details-marker {
   --sx-color-surface-container: var(--muted-background);
   --sx-color-surface-container-low: color-mix(
     in oklab,
-    var(--muted-background) 80%,
+    var(--muted-background) 90%,
     black
   );
   --sx-color-surface-container-high: var(--muted);
@@ -398,7 +398,7 @@ details summary::-webkit-details-marker {
   --sx-color-surface-tint: var(--primary);
 
   /* NEUTRALS */
-  --sx-color-neutral: var(--border);
+  --sx-color-neutral: color-mix(in oklab, var(--muted-foreground) 85%, black);
   --sx-color-neutral-variant: var(--sx-color-outline-variant);
 
   /* INTERNAL */
