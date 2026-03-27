@@ -29,6 +29,16 @@
 
   import * as HoverCard from "$lib/components/ui/hover-card";
   import { cn } from "$lib/utils";
+  import Spinner from "$lib/components/ui/spinner/spinner.svelte";
+  import type { NotificationGroup } from "$lib/utils/notifications/group";
+  import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
+  import MemberAvatars from "$lib/components/member/MemberAvatars.svelte";
+  import dayjs from "dayjs";
+  import { Trash } from "@lucide/svelte";
+
+  const {
+    notificationsPromise,
+  }: { notificationsPromise?: Promise<NotificationGroup[]> } = $props();
 
   let commandDialogOpen = $state(false);
 
@@ -104,21 +114,50 @@
         class="p-1.5"><Languages /></Button
       >
       {#if page.data.member}
-        <Button
-          aria-label="notifications"
-          size="icon-lg"
-          variant="ghost"
-          class="p-1.5"><Bell /></Button
-        >
         <HoverCard.Root openDelay={0} closeDelay={125}>
           <HoverCard.Trigger>
-            <Avatar.Root class="md-nav:flex hidden">
-              <Avatar.Image
-                src={page.data.member?.picturePath}
-                alt="profile picture"
-              />
-              <Avatar.Fallback>{getInitials(page.data.member)}</Avatar.Fallback>
-            </Avatar.Root>
+            <Button
+              aria-label="notifications"
+              size="icon-lg"
+              variant="ghost"
+              class="p-1.5"><Bell /></Button
+            >
+          </HoverCard.Trigger>
+          <HoverCard.Content class="w-[450px]">
+            {#await notificationsPromise}
+              <Spinner />
+            {:then notifications}
+              <div class="flex flex-col gap-2">
+                {#each notifications as notification (notification.id)}
+                  <div
+                    class="flex w-full flex-row items-center justify-between"
+                  >
+                    <div class="flex flex-row items-center">
+                      <div class="w-12">
+                        <MemberAvatars
+                          members={notification.authors
+                            .filter((author) => author?.member)
+                            .map((author) => author!.member)}
+                        />
+                      </div>
+                      <div class="flex flex-col pl-2">
+                        <span class="font-semibold">{notification.title}</span>
+                        <span class="text-sm">{notification.message}</span>
+                        <span class="text-xs font-light">
+                          {dayjs(notification.createdAt).format("YYYY-MM-DD")}
+                        </span>
+                      </div>
+                    </div>
+                    <Trash size="20" />
+                  </div>
+                {/each}
+              </div>
+            {/await}
+          </HoverCard.Content>
+        </HoverCard.Root>
+        <HoverCard.Root openDelay={0} closeDelay={125}>
+          <HoverCard.Trigger>
+            <MemberAvatar member={page.data.member} />
           </HoverCard.Trigger>
           <HoverCard.Content
             side="bottom"
