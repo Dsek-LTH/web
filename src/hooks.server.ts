@@ -46,7 +46,7 @@ const { handle: authHandle } = SvelteKitAuth({
         return {
           id: profile.sub,
           given_name: profile.given_name,
-          family_name: profile.sn,
+          family_name: profile.family_name,
           email: profile.email,
           student_id: profile.preferred_username,
           group_list: profile.groups,
