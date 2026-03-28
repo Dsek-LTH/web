@@ -66,7 +66,6 @@
         <Label>
           {m.documents_chooseDocumentType()}
         </Label>
-        <!--<DocumentTypeSelector bind:type={$form.type} />-->
         <Select.Root required type="single" name="type" bind:value={$form.type}>
           <Select.Trigger
             aria-invalid={$errors.type ? true : false}
