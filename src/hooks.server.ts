@@ -46,14 +46,14 @@ const { handle: authHandle } = SvelteKitAuth({
         return {
           id: profile.sub,
           given_name: profile.given_name,
-          family_name: profile.family_name,
+          family_name: profile.sn,
           email: profile.email,
           student_id: profile.preferred_username,
           group_list: profile.groups,
         };
       },
       authorization: {
-        params: { scope: "openid profile email offline_access" },
+        params: { scope: "openid profile email offline_access splitname" },
       },
     }),
   ],
