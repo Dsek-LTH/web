@@ -1,16 +1,23 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button";
   import { X } from "@lucide/svelte";
+  import {
+    bgColoursModal,
+    shadowColoursModal,
+    type CalendarStatusCategory,
+  } from "../../config";
 
-  const { title }: { title: string } = $props();
+  const { title, calendarId }: { title: string; calendarId?: string } =
+    $props();
+
+  const status = $derived((calendarId ?? "pending") as CalendarStatusCategory);
+  const bgColour = $derived(bgColoursModal[status]);
+  const shadow = $derived(shadowColoursModal[status]);
 </script>
 
-<!-- TODO: Change colour based on category -->
 <div class="mb-6 flex items-start justify-between">
   <div class="flex items-center gap-2 pt-1">
-    <div
-      class="bg-primary h-3 w-3 rounded-[3px] shadow-[0_0_4px_var(--primary)]"
-    ></div>
+    <div class={`h-3 w-3 rounded-[3px] ${bgColour} ${shadow}`}></div>
     <span
       class="-mt-[1px] text-lg leading-none font-black tracking-tight uppercase"
     >

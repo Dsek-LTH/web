@@ -17,7 +17,6 @@
   } = $props();
 </script>
 
-<!-- TODO: Change colour based on category -->
 <div class={cn("text-primary flex items-center gap-3", className)}>
   <Icon class="size-4" />
   <div>

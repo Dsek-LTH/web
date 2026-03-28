@@ -92,6 +92,11 @@
   font-weight: 100 800;
 }
 
+:root {
+  --color-rosa-500: #e74c7c;
+  --color-lila-400: #be9be5;
+}
+
 /* TODO: remove default tailwind stuff? */
 @theme inline {
   --font-display: "IBM Plex Sans Condensed", sans-serif;
@@ -140,7 +145,7 @@
   --color-rosa-200: #fbd0dc;
   --color-rosa-300: #f7aabf;
   --color-rosa-400: #f280a1;
-  --color-rosa-500: #e74c7c;
+  --color-rosa-500: var(--color-rosa-500);
   --color-rosa-600: #d32b68;
   --color-rosa-700: #b21e57;
   --color-rosa-800: #951c4e;
@@ -151,7 +156,7 @@
   --color-lila-100: #f3ecfb;
   --color-lila-200: #e8ddf7;
   --color-lila-300: #d7c2f0;
-  --color-lila-400: #be9be5;
+  --color-lila-400: var(--color-lila-400);
   --color-lila-500: #a574d8;
   --color-lila-600: #9966cc;
   --color-lila-700: #7943ad;
@@ -428,13 +433,6 @@ details summary::-webkit-details-marker {
 }
 
 .sx__date-grid-event {
-  background-color: color-mix(
-    in oklab,
-    var(--primary) 15%,
-    transparent
-  ) !important;
-  border-color: var(--primary) !important;
-  color: var(--primary) !important;
   cursor: pointer;
 }
 
@@ -446,22 +444,6 @@ details summary::-webkit-details-marker {
   transition-property: all;
   transition-duration: 200ms;
   transition-timing-function: var(--ease-out);
-}
-
-.sx__date-grid-event--right-overflow {
-  background-color: color-mix(
-    in oklab,
-    var(--primary) 15%,
-    transparent
-  ) !important;
-}
-
-.sx__date-grid-event--left-overflow {
-  background-color: color-mix(
-    in oklab,
-    var(--primary) 15%,
-    transparent
-  ) !important;
 }
 
 .sx__event-modal {

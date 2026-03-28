@@ -2,19 +2,30 @@
   import * as Avatar from "$lib/components/ui/avatar";
   import type { CalendarEventExternal } from "@schedule-x/calendar";
   import { getTime } from "../../utils";
+  import {
+    calendarStatusCategoriesTailwind,
+    type CalendarStatusCategory,
+  } from "../../config";
 
   const { calendarEvent }: { calendarEvent: CalendarEventExternal } = $props();
 
   const startTime = $derived(getTime(calendarEvent.start));
   const endTime = $derived(getTime(calendarEvent.end));
+
+  const category = $derived(
+    calendarStatusCategoriesTailwind[
+      calendarEvent.calendarId as CalendarStatusCategory
+    ] ?? calendarStatusCategoriesTailwind.pending,
+  );
+  const colours = $derived(category.darkColors ?? category.lightColors);
+  const colourClasses = $derived(Object.values(colours ?? {}).join(" "));
 </script>
 
-<!-- TODO: Change colour based on category -->
 <div
-  class="bg-primary/15 text-primary before:bg-primary relative size-full cursor-pointer overflow-hidden rounded-md py-1 pl-2
+  class={`${colourClasses} relative size-full cursor-pointer overflow-hidden rounded-xs py-1 pl-2
          transition-all duration-200 ease-out before:absolute before:top-0 before:left-0
          before:h-full before:w-1 before:rounded-l-md before:content-[''] hover:-translate-x-[1px] hover:-translate-y-0.5
-         hover:shadow-md"
+         hover:shadow-md`}
 >
   <div class="flex min-w-0 flex-col">
     <span class="text-[0.6rem] font-medium">

@@ -18,7 +18,10 @@
 <div
   class="bg-background border-border/40 w-[340px] rounded-2xl border p-6 shadow-2xl"
 >
-  <Header title={calendarEvent.title ?? "-"} />
+  <Header
+    title={calendarEvent.title ?? "-"}
+    calendarId={calendarEvent.calendarId}
+  />
 
   <div class="space-y-4">
     <Duration {startDate} {endDate} />
