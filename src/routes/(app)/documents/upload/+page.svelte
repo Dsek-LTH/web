@@ -11,14 +11,12 @@
   import Input from "$lib/components/ui/input/input.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import * as Select from "$lib/components/ui/select";
-  import type { SvelteComponent } from "svelte";
-  import SuperDebug from "sveltekit-superforms";
 
   let { data }: { data: PageData } = $props();
   const { form, constraints, errors, enhance } = $derived(
     superForm(data.form, {
       onResult: (event) => {
-        if (event.result.type === "success") {
+        if (event.result.type === "success" && fileInput) {
           // On successful upload, set files to undefined and clear the filename
           // year and meeting is still kept as to easily upload more files for the same meeting
           fileInput.value = "";
@@ -29,7 +27,7 @@
     }) as SuperForm<UploadSchema>,
   );
   const file = $derived(fileProxy(form, "file"));
-  let fileInput: HTMLInputElement = $state(null);
+  let fileInput: HTMLInputElement | null = $state(null);
 
   let pathInfo = $derived(typeToPath[$form.type]);
   let fileErrors = $derived($errors.file as string | string[] | undefined);
