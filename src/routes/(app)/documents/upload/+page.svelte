@@ -172,8 +172,13 @@
         )}/{$form.name}</pre>
     {/if}
 
-    <Button type="submit" form="upload-file">
-      {m.documents_upload()}
-    </Button>
+    <div class="flex flex-row gap-2">
+      <Button class="px-8" onclick={() => history.back()} variant="outline"
+        >{m.cancel()}</Button
+      >
+      <Button type="submit" class="block grow" form="upload-file">
+        {m.documents_upload()}
+      </Button>
+    </div>
   </form>
 </div>

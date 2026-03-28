@@ -21,7 +21,7 @@
   "documents_requirementProfiles": "Kravprofiler",
   "documents_guildMeetings": "Sektionsmöten",
   "documents_boardMeetings": "Styrelsemöten",
-  "documents_srdMeetings": "SRD-möte",
+  "documents_srdMeetings": "SRD-möten",
   "documents_other": "Övrigt",
   "documents_errors_invalidType": "Ogiltig dokumenttyp",
   "theGuild": "Sektionen",
@@ -1075,5 +1075,11 @@
   "contact_guild_information": "Sektions&shy;information",
   "contact_media": "Press och media",
   "contact_media_prose": "Press och media hänvisas till Kår&shy;ordförande,",
-  "vacant": "Vakant"
+  "vacant": "Vakant",
+  "documents_guildMeetings_prose": "Sektionsmöten hålls ungefär fyra gånger om året och är sektionens högsta beslutande organ. På sektionsmöten tas större beslut, som om budget, styrdokument och val av styrelsen. Alla medlemmar har rösträtt på sektionsmöten.",
+  "documents_boardMeetings_prose": "Styrelsemöten hålls på tisdag lunch varje läsvecka i E:1124. Här tas beslut om t.ex. riktlinjer och val av funktionärer. Alla medlemmar är välkomna att närvara och diskutera, men endast styrelsen har rösträtt.",
+  "documents_srdMeetings_prose": "Studierådsmöten hålls varje onsdag under läsveckorna i E:1124. Här är alla studenter välkomna att diskutera utbildningen och tycka till kring t.ex. hur kurserna fungerar.",
+  "documents_notice": "Kallelse",
+  "documents_agenda": "Föredragningslista",
+  "documents_minutes": "Protokoll"
 }

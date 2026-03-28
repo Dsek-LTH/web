@@ -48,31 +48,18 @@
 <div class="layout-container">
   <div class="flex flex-row justify-between gap-8 *:w-full">
     <div class="flex flex-col gap-2 rounded-md border-[1px] p-4">
-      <h3>Sektionsmöten</h3>
-      <p class="mt-0">
-        Sektionsmöten hålls ungefär fyra gånger om året och är sektionens högsta
-        beslutande organ. På sektionsmöten tas större beslut, som om budget,
-        styrdokument och val av styrelsen. Alla medlemmar har rösträtt på
-        sektionsmöten.
-      </p>
+      <h3>{m.documents_guildMeetings()}</h3>
+      <p class="mt-0">{m.documents_guildMeetings_prose()}</p>
     </div>
 
     <div class="flex flex-col gap-2 rounded-md border-[1px] p-4">
-      <h3>Styrelsemöten</h3>
-      <p class="mt-0">
-        Styrelsemöten hålls på tisdag lunch varje läsvecka i E:1124. Här tas
-        beslut om t.ex. riktlinjer och val av funktionärer. Alla medlemmar är
-        välkomna att närvara och prata, men endast styrelsen har rösträtt.
-      </p>
+      <h3>{m.documents_boardMeetings()}</h3>
+      <p class="mt-0">{m.documents_boardMeetings_prose()}</p>
     </div>
 
     <div class="flex flex-col gap-2 rounded-md border-[1px] p-4">
-      <h3>SRD-möten</h3>
-      <p class="mt-0">
-        Studierådsmöten hålls varje onsdag under läsveckorna i E:1123. Här är
-        alla medlemmar välkomna att diskutera utbildningen och tycka till kring
-        t.ex. hur kurserna fungerar.
-      </p>
+      <h3>{m.documents_srdMeetings()}</h3>
+      <p class="mt-0">{m.documents_srdMeetings_prose()}</p>
     </div>
   </div>
 
@@ -80,13 +67,19 @@
     <Tabs.Root value={page.url.searchParams.get("type") ?? "board-meeting"}>
       <Tabs.List>
         <a href={generateLink("guild-meeting")}>
-          <Tabs.Trigger value="guild-meeting">Sektionsmöten</Tabs.Trigger></a
+          <Tabs.Trigger value="guild-meeting"
+            >{m.documents_guildMeetings()}</Tabs.Trigger
+          ></a
         >
         <a href={generateLink("board-meeting")}
-          ><Tabs.Trigger value="board-meeting">Styrelsemöten</Tabs.Trigger></a
+          ><Tabs.Trigger value="board-meeting"
+            >{m.documents_boardMeetings()}</Tabs.Trigger
+          ></a
         >
         <a href={generateLink("SRD-meeting")}
-          ><Tabs.Trigger value="SRD-meeting">SRD-möten</Tabs.Trigger></a
+          ><Tabs.Trigger value="SRD-meeting"
+            >{m.documents_srdMeetings()}</Tabs.Trigger
+          ></a
         >
       </Tabs.List>
     </Tabs.Root>

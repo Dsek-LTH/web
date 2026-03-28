@@ -10,6 +10,7 @@
   import type { SuperValidated } from "sveltekit-superforms";
   import type { DeleteSchema } from "./+page.server";
   import { isAuthorized } from "$lib/utils/authorization";
+  import * as m from "$paraglide/messages";
 
   let {
     deleteForm,
@@ -57,7 +58,8 @@
         ><Button
           disabled={!notice}
           variant="outline"
-          class="cursor-pointer rounded-sm"><FileText /> Kallelse</Button
+          class="cursor-pointer rounded-sm"
+          ><FileText /> {m.documents_notice()}</Button
         ></a
       >
       <a href={agenda && agenda.thumbnailUrl!}
@@ -65,14 +67,15 @@
           variant="outline"
           disabled={!agenda}
           class="cursor-pointer rounded-sm"
-          ><FileText /> Föredragningslista</Button
+          ><FileText /> {m.documents_agenda()}</Button
         ></a
       >
       <a href={minutes && minutes.thumbnailUrl!}
         ><Button
           variant="outline"
           disabled={!minutes}
-          class="cursor-pointer rounded-sm"><FileText /> Protokoll</Button
+          class="cursor-pointer rounded-sm"
+          ><FileText /> {m.documents_minutes()}</Button
         ></a
       >
     </div>

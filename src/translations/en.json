@@ -21,7 +21,7 @@
   "documents_requirementProfiles": "Requirement Profile",
   "documents_guildMeetings": "Guild Meetings",
   "documents_boardMeetings": "Board Meetings",
-  "documents_srdMeetings": "SRD Meeting",
+  "documents_srdMeetings": "SRD Meetings",
   "documents_errors_invalidType": "Invalid document type",
   "documents_other": "Other",
   "theGuild": "The Guild",
@@ -1073,5 +1073,11 @@
   "contact_guild_information": "Guild information",
   "contact_media": "Press and media",
   "contact_media_prose": "Press and media should contact the Union President,",
-  "vacant": "Vacant"
+  "vacant": "Vacant",
+  "documents_guildMeetings_prose": "Guild meetings are held approximately four times per year and is the highest decision-making body of the guild. On the guild meetings, larger decisions are made, such as budget, governing documents and electing the board. All members have voting rights at the guild meetings.",
+  "documents_boardMeetings_prose": "Board meetings are held every Tuesday lunch during the study weeks in E:1124. Here, decisions are made about e.g. guidelines and election of volunteers. All members are welcome to attend and discuss, but only the board may vote.",
+  "documents_srdMeetings_prose": "The Student Council meetings are held every Wednesday during the study weeks in E:1124. Here, all students are welcome to discuss the education and have opinions about how e.g. the courses are functioning.",
+  "documents_notice": "Notice",
+  "documents_agenda": "Agenda",
+  "documents_minutes": "Minutes"
 }
