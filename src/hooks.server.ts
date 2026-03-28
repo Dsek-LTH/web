@@ -53,7 +53,7 @@ const { handle: authHandle } = SvelteKitAuth({
         };
       },
       authorization: {
-        params: { scope: "openid profile email offline_access" },
+        params: { scope: "openid profile email offline_access splitname" },
       },
     }),
   ],
