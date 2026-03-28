@@ -10,14 +10,15 @@
 
   import * as m from "$paraglide/messages";
   import { Button } from "$lib/components/ui/button";
+  import YearSelector from "$lib/components/YearSelector.svelte";
 
   let { data }: { data: PageData } = $props();
 
   let isEditing = $state(false);
 
-  let generateLink = $derived((field: string, value: string) => {
+  const generateLink = $derived((value: string) => {
     const searchParams = new SvelteURLSearchParams(page.url.searchParams);
-    searchParams.set(field, value.toString());
+    searchParams.set("type", value.toString());
     return `?${searchParams.toString()}`;
   });
 
@@ -78,30 +79,19 @@
   <div class="mt-4 flex flex-row gap-8">
     <Tabs.Root value={page.url.searchParams.get("type") ?? "board-meeting"}>
       <Tabs.List>
-        <a href={generateLink("type", "guild-meeting")}>
+        <a href={generateLink("guild-meeting")}>
           <Tabs.Trigger value="guild-meeting">Sektionsmöten</Tabs.Trigger></a
         >
-        <a href={generateLink("type", "board-meeting")}
+        <a href={generateLink("board-meeting")}
           ><Tabs.Trigger value="board-meeting">Styrelsemöten</Tabs.Trigger></a
         >
-        <a href={generateLink("type", "SRD-meeting")}
+        <a href={generateLink("SRD-meeting")}
           ><Tabs.Trigger value="SRD-meeting">SRD-möten</Tabs.Trigger></a
         >
       </Tabs.List>
     </Tabs.Root>
 
-    <Tabs.Root
-      class="border-box overflow-y-scroll"
-      value={page.url.searchParams.get("year") ?? "2026"}
-    >
-      <Tabs.List>
-        {#each Array.from({ length: new Date().getFullYear() - 1982 + 1 }, (value, index) => 1982 + index).toReversed() as n (n)}
-          <a href={generateLink("year", n + "")}>
-            <Tabs.Trigger value={"" + n}>{n}</Tabs.Trigger></a
-          >
-        {/each}
-      </Tabs.List>
-    </Tabs.Root>
+    <YearSelector />
   </div>
 
   {#if canCreate || canEdit}
