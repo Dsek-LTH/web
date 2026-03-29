@@ -48,7 +48,7 @@
     </Avatar.Root>
 
     <span class="w-full truncate rounded text-xs font-medium text-nowrap">
-      {calendarEvent.people}
+      {calendarEvent.people?.[0]}
     </span>
   </div>
 </div>
