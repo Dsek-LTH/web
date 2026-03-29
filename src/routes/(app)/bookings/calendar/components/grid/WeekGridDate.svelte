@@ -1,13 +1,13 @@
 <script lang="ts">
   import * as m from "$paraglide/messages";
-  import { days } from "../../utils";
+  import { bookingWeekdayLabels } from "$lib/bookings/calendarDateUtils";
 
   const { date }: { date: string } = $props();
 
   const today = Temporal.Now.plainDateISO("Europe/Stockholm");
   const temporalDate = $derived(Temporal.PlainDate.from(date));
   const currentDay = $derived(
-    days[temporalDate.dayOfWeek - 1]?.substring(0, 3),
+    bookingWeekdayLabels[temporalDate.dayOfWeek - 1]?.substring(0, 3),
   );
   const currentWeek = $derived(temporalDate.weekOfYear);
 </script>

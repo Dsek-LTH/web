@@ -7,6 +7,7 @@
   import { Spring } from "svelte/motion";
   import { goto } from "$app/navigation";
   import { page } from "$app/state";
+  import { setBookingViewFilter } from "$lib/bookings/filters";
 
   const options = [
     { value: "all", label: m.booking_allBookings() },
@@ -37,11 +38,7 @@
 
   const setFilter = (filter: "all" | "my") => {
     const url = new URL(page.url);
-    if (filter === "all") {
-      url.searchParams.delete("mine");
-    } else {
-      url.searchParams.set("mine", "1");
-    }
+    setBookingViewFilter(url, filter);
 
     // eslint-disable-next-line svelte/no-navigation-without-resolve -- the url is correct
     goto(url, {

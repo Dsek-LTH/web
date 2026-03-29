@@ -1,7 +1,14 @@
 <script lang="ts">
   import BookingsCalendar from "./calendar/BookingsCalendar.svelte";
-  import { createBookingEvent } from "$lib/bookings/createBookingEvent";
-  import type { BookingCalendarEvent } from "$lib/bookings/eventTypes";
+  import {
+    filterBookingEvents,
+    getBookingStatusCount,
+    mapBookingsToCalendarEvents,
+  } from "$lib/bookings/mappers";
+  import {
+    getCategoryFilterValue,
+    isMineFilterActive,
+  } from "$lib/bookings/filters";
   import { createEventsServicePlugin } from "@schedule-x/events-service";
   import { BellRing, Info, KeyRound } from "@lucide/svelte";
   import Button from "$lib/components/ui/button/button.svelte";
@@ -24,61 +31,14 @@
   let calendarApp: CalendarApp | undefined = $state();
   const eventsServicePlugin = createEventsServicePlugin();
 
-  type ServerBooking = PageData["bookings"][number];
-
-  const toStockholmTime = (date: Date | string) =>
-    Temporal.Instant.from(
-      date instanceof Date ? date.toISOString() : date,
-    ).toZonedDateTimeISO("Europe/Stockholm");
-
-  const getDisplayName = (booking: ServerBooking) => {
-    const fullName = [booking.booker?.firstName, booking.booker?.lastName]
-      .filter(Boolean)
-      .join(" ")
-      .trim();
-    return fullName || "Unknown";
-  };
-
-  const getDisplayInitials = (booking: ServerBooking) => {
-    const firstInitial = booking.booker?.firstName?.charAt(0);
-    const lastInitial = booking.booker?.lastName?.charAt(0);
-    if (firstInitial && lastInitial) return `${firstInitial}${lastInitial}`;
-    return "NN";
-  };
-
-  const toCalendarBooking = (
-    booking: ServerBooking,
-  ): BookingCalendarEvent | null => {
-    if (!booking.start || !booking.end) return null;
-
-    const location = booking.bookables[0]?.name ?? "Unknown";
-
-    return createBookingEvent({
-      id: booking.id,
-      title: booking.event ?? "Booking",
-      start: toStockholmTime(booking.start),
-      end: toStockholmTime(booking.end),
-      calendarId: booking.status,
-      description: booking.event ?? "",
-      location,
-      bookerName: getDisplayName(booking),
-      bookerStudentId: booking.booker?.studentId ?? "Unknown",
-      bookerAvatarUrl: booking.booker?.picturePath ?? "",
-      bookerInitials: getDisplayInitials(booking),
-    });
-  };
-
   const bookings = $derived.by(() =>
-    data.bookings
-      .map(toCalendarBooking)
-      .filter((booking): booking is BookingCalendarEvent => booking !== null),
+    mapBookingsToCalendarEvents(data.bookings),
   );
 
   onMount(() => {
     sessionStorage.setItem("bookings", JSON.stringify(bookings));
   });
 
-  // TODO: Pass actual categories from server
   const defaultCategory = {
     value: "all categories",
     label: m.booking_allCategories(),
@@ -87,39 +47,25 @@
   const activeBookingIds = new SvelteSet<CalendarEventExternal["id"]>();
   const currentStudentId = $derived(page.data.user?.studentId ?? null);
   const currentCategoryValue = $derived(
-    page.url.searchParams.get("category") ?? defaultCategory.value,
+    getCategoryFilterValue(page.url.searchParams, defaultCategory.value),
   );
   const filteredBookings = $derived.by(() => {
-    const isMyBookingsFilter = page.url.searchParams.has("mine");
-    const isDefaultCategory = currentCategoryValue === defaultCategory.value;
-
-    return bookings.filter((booking) => {
-      if (!isDefaultCategory && booking.location !== currentCategoryValue) {
-        return false;
-      }
-
-      if (
-        isMyBookingsFilter &&
-        (!currentStudentId || booking.bookerStudentId !== currentStudentId)
-      ) {
-        return false;
-      }
-
-      return true;
+    return filterBookingEvents(bookings, {
+      categoryValue: currentCategoryValue,
+      defaultCategoryValue: defaultCategory.value,
+      mineOnly: isMineFilterActive(page.url.searchParams),
+      currentStudentId,
     });
   });
 
   const acceptedCount = $derived(
-    filteredBookings.filter((booking) => booking.calendarId === "ACCEPTED")
-      .length,
+    getBookingStatusCount(filteredBookings, "ACCEPTED"),
   );
   const pendingCount = $derived(
-    filteredBookings.filter((booking) => booking.calendarId === "PENDING")
-      .length,
+    getBookingStatusCount(filteredBookings, "PENDING"),
   );
   const deniedCount = $derived(
-    filteredBookings.filter((booking) => booking.calendarId === "DENIED")
-      .length,
+    getBookingStatusCount(filteredBookings, "DENIED"),
   );
 
   $effect(() => {

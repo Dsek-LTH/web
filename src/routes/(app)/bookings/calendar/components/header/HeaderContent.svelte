@@ -4,8 +4,9 @@
   import Separator from "$lib/components/ui/separator/separator.svelte";
   import Navigation from "./Navigation.svelte";
   import Filters from "./Filters.svelte";
-  import { months } from "../../utils";
+  import { bookingMonthLabels } from "$lib/bookings/calendarDateUtils";
   import { page } from "$app/state";
+  import { getBookingViewFilter } from "$lib/bookings/filters";
   import * as m from "$paraglide/messages";
   import { Plus } from "@lucide/svelte";
   import { Button } from "$lib/components/ui/button";
@@ -21,7 +22,7 @@
     >,
   );
   let currentDate = $derived(calendarControls.getDate());
-  const currentMonth = $derived(months[currentDate.month - 1]);
+  const currentMonth = $derived(bookingMonthLabels[currentDate.month - 1]);
   const currentYear = $derived(currentDate.year);
 
   let currentView = $derived(calendarControls.getView());
@@ -50,7 +51,7 @@
     step = calculateStep();
   });
 
-  const initialFilter = page.url.searchParams.get("mine") ? "my" : "all";
+  const initialFilter = getBookingViewFilter(page.url.searchParams);
 </script>
 
 <div class="sx-calendar:p-4">

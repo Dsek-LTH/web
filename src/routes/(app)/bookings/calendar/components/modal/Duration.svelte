@@ -1,7 +1,11 @@
 <script lang="ts">
   import * as m from "$paraglide/messages";
   import { Clock } from "@lucide/svelte";
-  import { getTime, days, months } from "../../utils";
+  import {
+    formatBookingTime,
+    bookingMonthLabels,
+    bookingWeekdayLabels,
+  } from "$lib/bookings/calendarDateUtils";
   import Section from "./Section.svelte";
 
   type PropDate = Temporal.ZonedDateTime | Temporal.PlainDate;
@@ -9,15 +13,15 @@
   const { startDate, endDate }: { startDate: PropDate; endDate: PropDate } =
     $props();
 
-  const startTime = $derived(getTime(startDate));
+  const startTime = $derived(formatBookingTime(startDate));
   const startDay = $derived(startDate.day);
-  const startWeekday = $derived(days[startDate.dayOfWeek - 1]);
-  const startMonth = $derived(months[startDate.month - 1]);
+  const startWeekday = $derived(bookingWeekdayLabels[startDate.dayOfWeek - 1]);
+  const startMonth = $derived(bookingMonthLabels[startDate.month - 1]);
   const startYear = $derived(startDate.year);
 
-  const endTime = $derived(getTime(endDate));
+  const endTime = $derived(formatBookingTime(endDate));
   const endDay = $derived(endDate.day);
-  const endMonth = $derived(months[endDate.month - 1]);
+  const endMonth = $derived(bookingMonthLabels[endDate.month - 1]);
   const endYear = $derived(endDate.year);
 
   let header = $state("");

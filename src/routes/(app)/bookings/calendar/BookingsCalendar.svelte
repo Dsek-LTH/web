@@ -41,8 +41,6 @@
     }
   });
 
-  // TODO: Refactor and clean up
-  // TODO: Dynamically load events (for example, list view seems to display all loaded events)
   onMount(() => {
     calendarApp = createCalendar({
       views: [createViewDay(), createViewWeek(), createViewList()],

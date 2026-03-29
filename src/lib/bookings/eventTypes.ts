@@ -1,6 +1,9 @@
 import type { CalendarEventExternal } from "@schedule-x/calendar";
 
+export type BookingStatus = "ACCEPTED" | "PENDING" | "DENIED";
+
 export type BookingCalendarEvent = CalendarEventExternal & {
+  calendarId: BookingStatus;
   bookerName: string;
   bookerStudentId: string;
   bookerAvatarUrl: string;
@@ -12,7 +15,7 @@ export interface CreateBookingOptions {
   title: string;
   start: Temporal.PlainDate | Temporal.ZonedDateTime;
   end: Temporal.PlainDate | Temporal.ZonedDateTime;
-  calendarId: string;
+  calendarId: BookingStatus;
   description?: string;
   location?: string;
   bookerName?: string;

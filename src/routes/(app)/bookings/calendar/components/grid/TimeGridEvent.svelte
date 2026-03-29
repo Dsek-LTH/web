@@ -3,7 +3,7 @@
   import * as Avatar from "$lib/components/ui/avatar";
   import type { CalendarEventExternal } from "@schedule-x/calendar";
   import type { BookingCalendarEvent } from "$lib/bookings/eventTypes";
-  import { getTime } from "../../utils";
+  import { formatBookingTime } from "$lib/bookings/calendarDateUtils";
   import {
     calendarStatusCategoriesTailwind,
     type CalendarStatusCategory,
@@ -12,8 +12,8 @@
   const { calendarEvent }: { calendarEvent: CalendarEventExternal } = $props();
   const bookingEvent = $derived(calendarEvent as BookingCalendarEvent);
 
-  const startTime = $derived(getTime(calendarEvent.start));
-  const endTime = $derived(getTime(calendarEvent.end));
+  const startTime = $derived(formatBookingTime(calendarEvent.start));
+  const endTime = $derived(formatBookingTime(calendarEvent.end));
 
   const category = $derived(
     calendarStatusCategoriesTailwind[
@@ -75,7 +75,7 @@
           src={bookingEvent.bookerAvatarUrl ?? ""}
           alt={bookingEvent.bookerName ?? "Booker avatar"}
         />
-        <Avatar.Fallback class="text-[0.5rem]">
+        <Avatar.Fallback class="text-[0.4rem]">
           {bookingEvent.bookerInitials ?? "NN"}
         </Avatar.Fallback>
       </Avatar.Root>

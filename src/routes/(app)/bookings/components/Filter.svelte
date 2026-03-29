@@ -1,10 +1,12 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { page } from "$app/state";
+  import type { BookingCalendarEvent } from "$lib/bookings/eventTypes";
+  import { getCategoryOptions } from "$lib/bookings/mappers";
+  import { setCategoryFilter } from "$lib/bookings/filters";
   import * as Select from "$lib/components/ui/select";
   import * as m from "$paraglide/messages";
   import { ListFilter } from "@lucide/svelte";
-  import type { CalendarEventExternal } from "@schedule-x/calendar";
 
   let {
     defaultCategory,
@@ -13,20 +15,10 @@
   }: {
     defaultCategory: { value: string; label: string };
     currentCategoryValue: string;
-    bookings: CalendarEventExternal[];
+    bookings: BookingCalendarEvent[];
   } = $props();
 
-  // TODO: Load categories from db. Or maybe you only want to be able to filter by categories with at least one booking?
-  const categories = $derived(
-    [defaultCategory].concat(
-      Array.from(
-        new Set(bookings.map((booking) => booking.location).filter(Boolean)),
-      ).map((location) => ({
-        value: location!,
-        label: location!,
-      })),
-    ),
-  );
+  const categories = $derived(getCategoryOptions(bookings, defaultCategory));
 
   const categoryTriggerContent = $derived(
     categories.find((category) => category.value === currentCategoryValue)
@@ -35,11 +27,7 @@
 
   const setCategory = (category: string) => {
     const url = new URL(page.url);
-    if (category === defaultCategory.value) {
-      url.searchParams.delete("category");
-    } else {
-      url.searchParams.set("category", category);
-    }
+    setCategoryFilter(url, category, defaultCategory.value);
 
     // eslint-disable-next-line svelte/no-navigation-without-resolve -- the url is correct
     goto(url, {

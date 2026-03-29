@@ -1,6 +1,6 @@
 import * as m from "$paraglide/messages";
 
-export const getTime = (
+export const formatBookingTime = (
   timestamp: Temporal.ZonedDateTime | Temporal.PlainDate,
 ) =>
   timestamp
@@ -8,7 +8,7 @@ export const getTime = (
     .toPlainTime()
     .toString({ smallestUnit: "minute" });
 
-export const months = [
+export const bookingMonthLabels = [
   m.january(),
   m.february(),
   m.march(),
@@ -18,11 +18,12 @@ export const months = [
   m.july(),
   m.august(),
   m.september(),
+  m.october(),
   m.november(),
   m.december(),
 ];
 
-export const days = [
+export const bookingWeekdayLabels = [
   m.monday(),
   m.tuesday(),
   m.wednesday(),
