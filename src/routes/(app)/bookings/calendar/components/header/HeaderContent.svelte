@@ -49,6 +49,8 @@
     calendarControls.setView(currentView);
     step = calculateStep();
   });
+
+  const initialFilter = page.url.searchParams.get("showAll") ? "my" : "all";
 </script>
 
 <div class="sx-calendar:p-4">
@@ -56,6 +58,7 @@
   <div class="sx-calendar:hidden mb-5">
     <Filters
       class="flex w-full justify-center rounded-md border border-[var(--sx-color-outline-variant)]"
+      currentValue={initialFilter}
     />
   </div>
 
@@ -85,7 +88,7 @@
 
     <div class="flex-1"></div>
 
-    <Filters />
+    <Filters currentValue={initialFilter} />
 
     <div class="h-6 w-fit">
       <Separator class="opacity-50" orientation="vertical" />

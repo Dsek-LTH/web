@@ -5,15 +5,21 @@
   import * as m from "$paraglide/messages";
   import type { HTMLBaseAttributes } from "svelte/elements";
   import { Spring } from "svelte/motion";
-
-  const { class: className }: WithElementRef<HTMLBaseAttributes> = $props();
+  import { goto } from "$app/navigation";
+  import { page } from "$app/state";
 
   const options = [
     { value: "all", label: m.booking_allBookings() },
     { value: "my", label: m.booking_myBookings() },
-  ];
-  let currentValue = $state(options[0]!.value);
-  let oldValue: string;
+  ] as const;
+  type Value = (typeof options)[number]["value"] | "";
+
+  let {
+    currentValue,
+    class: className,
+  }: WithElementRef<HTMLBaseAttributes> & {
+    currentValue: Value;
+  } = $props();
 
   const x = new Spring(0, { stiffness: 0.4, damping: 0.67, precision: 1 });
   let isSmallScreen = $state(false);
@@ -29,6 +35,23 @@
     window.addEventListener("resize", () => checkScreenSize());
   });
 
+  const setFilter = (filter: "all" | "my") => {
+    const url = new URL(page.url);
+    if (filter === "all") {
+      url.searchParams.delete("showAll");
+    } else {
+      url.searchParams.set("showAll", "false");
+    }
+
+    // eslint-disable-next-line svelte/no-navigation-without-resolve -- the url is correct
+    goto(url, {
+      replaceState: true,
+      keepFocus: true,
+      noScroll: true,
+    });
+  };
+
+  let oldValue: Value;
   $effect(() => {
     if (currentValue === "") {
       currentValue = oldValue;
@@ -37,19 +60,22 @@
     }
 
     x.set(
-      (currentValue === options[0]?.value ? 0 : 1) *
-        (isSmallScreen ? 100 : 111),
+      (currentValue === options[0].value ? 0 : 1) * (isSmallScreen ? 100 : 111),
     );
   });
 </script>
 
-<!-- TODO: Add functionality -->
 <ToggleGroup.Root
   type="single"
   variant="default"
   spacing={3}
   size="lg"
   bind:value={currentValue}
+  onValueChange={(value) => {
+    if (value === "") return;
+
+    setFilter(value as Exclude<Value, "">);
+  }}
   class={className}
 >
   <div

@@ -1,15 +1,17 @@
 <script lang="ts">
+  import { goto } from "$app/navigation";
+  import { page } from "$app/state";
   import * as Select from "$lib/components/ui/select";
   import { ListFilter } from "@lucide/svelte";
   import type { CalendarEventExternal } from "@schedule-x/calendar";
 
   let {
-    currentCategory = $bindable(),
     defaultCategory,
+    currentCategoryValue,
     bookings,
   }: {
-    currentCategory: string;
     defaultCategory: { value: string; label: string };
+    currentCategoryValue: string;
     bookings: CalendarEventExternal[];
   } = $props();
 
@@ -26,9 +28,25 @@
   );
 
   const categoryTriggerContent = $derived(
-    categories.find((category) => category.value === currentCategory)?.label ??
-      defaultCategory.label,
+    categories.find((category) => category.value === currentCategoryValue)
+      ?.label ?? defaultCategory.label,
   );
+
+  const setCategory = (category: string) => {
+    const url = new URL(page.url);
+    if (category === defaultCategory.value) {
+      url.searchParams.delete("category");
+    } else {
+      url.searchParams.set("category", category);
+    }
+
+    // eslint-disable-next-line svelte/no-navigation-without-resolve -- the url is correct
+    goto(url, {
+      replaceState: true,
+      keepFocus: true,
+      noScroll: true,
+    });
+  };
 </script>
 
 <!-- TODO: Add translations -->
@@ -50,7 +68,11 @@
     </Select.Item>
   {/snippet}
 
-  <Select.Root type="single" bind:value={currentCategory}>
+  <Select.Root
+    type="single"
+    bind:value={currentCategoryValue}
+    onValueChange={setCategory}
+  >
     <Select.Trigger class="sx-calendar:w-fit !h-fit w-full">
       <div class="flex w-full items-center justify-center">
         <ListFilter class="text-primary size-4 self-center" />

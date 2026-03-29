@@ -11,8 +11,9 @@
     CalendarApp,
     CalendarEventExternal,
   } from "@schedule-x/calendar";
-  import { untrack } from "svelte";
+  import { onMount, untrack } from "svelte";
   import { SvelteSet } from "svelte/reactivity";
+  import { page } from "$app/state";
 
   let calendarApp: CalendarApp | undefined = $state();
   const eventsServicePlugin = createEventsServicePlugin();
@@ -27,7 +28,7 @@
       calendarId: "accepted",
       description: "Pub",
       location: "iDét",
-      people: ["Test Testsson"],
+      people: ["Test Testsson", "not me"],
     },
     {
       id: "2",
@@ -39,7 +40,7 @@
       calendarId: "accepted",
       description: "Pub",
       location: "iDét",
-      people: ["Test Testsson"],
+      people: ["Test Testsson", "stil-id"],
     },
     {
       id: "3",
@@ -51,7 +52,7 @@
       calendarId: "rejected",
       description: "Test description",
       location: "Styrelserummet",
-      people: ["Test Testsson"],
+      people: ["Test Testsson", "stil-id"],
     },
     {
       id: "4",
@@ -63,31 +64,41 @@
       calendarId: "pending",
       description: "Test description",
       location: "Styrelserummet",
-      people: ["Test Testsson"],
+      people: ["Test Testsson", "not me"],
     },
   ];
+  onMount(() => {
+    sessionStorage.setItem("bookings", JSON.stringify(bookings));
+  });
 
   // TODO: Pass actual categories from server
   const defaultCategory = { value: "all categories", label: "all categories" };
-  let currentCategory = $state(defaultCategory.value);
 
   const activeBookingIds = new SvelteSet<CalendarEventExternal["id"]>();
 
+  const currentCategoryValue = $derived(
+    page.url.searchParams.get("category") ?? defaultCategory.value,
+  );
   $effect(() => {
     if (!untrack(() => calendarApp)) return;
 
+    const shouldShowOthers = !page.url.searchParams.has("showAll");
+
+    const isDefaultCategory = currentCategoryValue === defaultCategory.value;
+    const isOwnerOnly = !shouldShowOthers;
+
     if (activeBookingIds.size === 0) {
       const existingEvents = eventsServicePlugin.getAll();
-      existingEvents.forEach((event) => {
-        activeBookingIds.add(event.id);
-      });
+      existingEvents.forEach((event) => activeBookingIds.add(event.id));
     }
 
-    const shouldShowAll = currentCategory === defaultCategory.value;
-
-    const nextVisibleBookings = bookings.filter(
-      (booking) => shouldShowAll || booking.location === currentCategory,
-    );
+    const nextVisibleBookings = bookings.filter((booking) => {
+      if (!isDefaultCategory && booking.location !== currentCategoryValue)
+        return false;
+      // TODO: Use actual stil-id
+      if (isOwnerOnly && booking.people?.[1] !== "stil-id") return false;
+      return true;
+    });
 
     const nextVisibleIds = new Set(
       nextVisibleBookings.map((booking) => booking.id),
@@ -143,7 +154,7 @@
     </div>
   </div>
 
-  <Filter bind:currentCategory {bookings} {defaultCategory} />
+  <Filter {bookings} {defaultCategory} {currentCategoryValue} />
 
   <div class="sx-calendar:hidden flex justify-between gap-3">
     <StatusItem mode="mobile" variant="accepted" count={4} />
