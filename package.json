@@ -118,6 +118,7 @@
     "@schedule-x/calendar-controls": "^4.3.1",
     "@schedule-x/current-time": "^4.3.1",
     "@schedule-x/event-modal": "^4.3.1",
+    "@schedule-x/events-service": "^4.3.1",
     "@schedule-x/scroll-controller": "^4.3.1",
     "@schedule-x/svelte": "^3.0.0",
     "@schedule-x/theme-default": "^3.0.0",

@@ -1,23 +1,37 @@
 <script lang="ts">
   import * as Select from "$lib/components/ui/select";
   import { ListFilter } from "@lucide/svelte";
+  import type { CalendarEventExternal } from "@schedule-x/calendar";
 
-  let { currentCategory = $bindable() }: { currentCategory: string } = $props();
-
-  const defaultCategory = { value: "all", label: "all categories" };
-  const categories = [
+  let {
+    currentCategory = $bindable(),
     defaultCategory,
-    { value: "styrelserummet", label: "styrelserummet" },
-    { value: "bil", label: "sektionsbilen" },
-  ];
+    bookings,
+  }: {
+    currentCategory: string;
+    defaultCategory: { value: string; label: string };
+    bookings: CalendarEventExternal[];
+  } = $props();
+
+  // TODO: Load categories from db. Or maybe you only want to be able to filter by categories with at least one booking?
+  const categories = $derived(
+    [defaultCategory].concat(
+      Array.from(
+        new Set(bookings.map((booking) => booking.location).filter(Boolean)),
+      ).map((location) => ({
+        value: location!,
+        label: location!,
+      })),
+    ),
+  );
 
   const categoryTriggerContent = $derived(
     categories.find((category) => category.value === currentCategory)?.label ??
-      defaultCategory,
+      defaultCategory.label,
   );
 </script>
 
-<!-- TODO: Add functionality -->
+<!-- TODO: Add translations -->
 <div
   class="not-sx-calendar:flex-col sx-calendar:items-center sx-calendar:gap-4 not-sx-calendar:mt-1 flex gap-2"
 >

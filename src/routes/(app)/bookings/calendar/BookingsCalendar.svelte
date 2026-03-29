@@ -1,11 +1,14 @@
 <script lang="ts">
   import { ScheduleXCalendar } from "@schedule-x/svelte";
   import {
+    type CalendarApp,
     createCalendar,
     createViewDay,
     createViewList,
     createViewWeek,
     viewWeek,
+    type PluginBase,
+    type CalendarEventExternal,
   } from "@schedule-x/calendar";
   import { createCurrentTimePlugin } from "@schedule-x/current-time";
   import { createScrollControllerPlugin } from "@schedule-x/scroll-controller";
@@ -20,7 +23,16 @@
   import EventModal from "./components/modal/EventModal.svelte";
   import { calendarStatusCategoriesCSS } from "./config";
 
-  let calendarApp: ReturnType<typeof createCalendar> | undefined = $state();
+  let {
+    calendarApp = $bindable(),
+    plugins,
+    bookings,
+  }: {
+    calendarApp: CalendarApp | undefined;
+    bookings: CalendarEventExternal[];
+    plugins?: Array<PluginBase<string>>;
+  } = $props();
+
   const now = Temporal.Now.zonedDateTimeISO("Europe/Stockholm");
 
   $effect(() => {
@@ -34,7 +46,7 @@
   onMount(() => {
     calendarApp = createCalendar({
       views: [createViewDay(), createViewWeek(), createViewList()],
-      plugins: [
+      plugins: (plugins ?? []).concat([
         createCurrentTimePlugin(),
         createScrollControllerPlugin({
           initialScroll: now
@@ -50,7 +62,7 @@
         }),
         createEventModalPlugin(),
         createCalendarControlsPlugin(),
-      ],
+      ]),
       isDark: mode.current === "dark",
       locale: "sv-SE",
       timezone: "Europe/Stockholm",
@@ -60,60 +72,7 @@
       weekOptions: {
         gridHeight: 1250,
       },
-      events: [
-        {
-          id: "1",
-          title: "Event 1",
-          start: Temporal.PlainDate.from("2026-03-27"),
-          end: Temporal.PlainDate.from("2026-03-30"),
-          calendarId: "accepted",
-          description: "Pub",
-          location: "iDét",
-          people: ["Test Testsson"],
-        },
-        {
-          id: "2",
-          title: "Event 2",
-          start: Temporal.ZonedDateTime.from(
-            "2026-03-26T01:00:00[Europe/Stockholm]",
-          ),
-          end: Temporal.ZonedDateTime.from(
-            "2026-03-26T04:00:00[Europe/Stockholm]",
-          ),
-          calendarId: "accepted",
-          description: "Pub",
-          location: "iDét",
-          people: ["Test Testsson"],
-        },
-        {
-          id: "3",
-          title: "Styrelsemöte",
-          start: Temporal.ZonedDateTime.from(
-            "2026-03-26T02:00:00[Europe/Stockholm]",
-          ),
-          end: Temporal.ZonedDateTime.from(
-            "2026-03-26T06:00:00[Europe/Stockholm]",
-          ),
-          calendarId: "rejected",
-          description: "Test description",
-          location: "Styrelserummet",
-          people: ["Test Testsson"],
-        },
-        {
-          id: "4",
-          title: "Event 4",
-          start: Temporal.ZonedDateTime.from(
-            "2026-03-27T02:00:00[Europe/Stockholm]",
-          ),
-          end: Temporal.ZonedDateTime.from(
-            "2026-03-28T06:00:00[Europe/Stockholm]",
-          ),
-          calendarId: "pending",
-          description: "Test description",
-          location: "Styrelserummet",
-          people: ["Test Testsson"],
-        },
-      ],
+      events: bookings,
     });
   });
 </script>
