@@ -14,6 +14,7 @@
   import { onMount, untrack } from "svelte";
   import { SvelteSet } from "svelte/reactivity";
   import { page } from "$app/state";
+  import * as m from "$paraglide/messages";
 
   let calendarApp: CalendarApp | undefined = $state();
   const eventsServicePlugin = createEventsServicePlugin();
@@ -114,7 +115,10 @@
   });
 
   // TODO: Pass actual categories from server
-  const defaultCategory = { value: "all categories", label: "all categories" };
+  const defaultCategory = {
+    value: "all categories",
+    label: m.booking_allCategories(),
+  };
 
   const activeBookingIds = new SvelteSet<CalendarEventExternal["id"]>();
 

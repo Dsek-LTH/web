@@ -7,6 +7,7 @@
   import Section from "./Section.svelte";
   import Header from "./Header.svelte";
   import { createEvent } from "ics";
+  import * as m from "$paraglide/messages";
 
   const { calendarEvent }: { calendarEvent: CalendarEventExternal } = $props();
 
@@ -60,7 +61,6 @@
   }
 </script>
 
-<!-- TODO: Add translations -->
 <div
   class="bg-background border-border/40 w-[340px] rounded-2xl border p-6 shadow-2xl"
 >
@@ -96,7 +96,7 @@
       onclick={() => exportBookingToCalendar(calendarEvent)}
     >
       <CalendarPlus class="size-4" />
-      <span class="uppercase"> Add to my calendar </span>
+      <span class="uppercase">{m.booking_addToMyCalendar()}</span>
     </Button>
   </div>
 </div>

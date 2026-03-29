@@ -2,6 +2,7 @@
   import { goto } from "$app/navigation";
   import { page } from "$app/state";
   import * as Select from "$lib/components/ui/select";
+  import * as m from "$paraglide/messages";
   import { ListFilter } from "@lucide/svelte";
   import type { CalendarEventExternal } from "@schedule-x/calendar";
 
@@ -49,14 +50,13 @@
   };
 </script>
 
-<!-- TODO: Add translations -->
 <div
   class="not-sx-calendar:flex-col sx-calendar:items-center sx-calendar:gap-4 not-sx-calendar:mt-1 flex gap-2"
 >
   <span
     class="text-muted-foreground sx-calendar:tracking-wide text-xs font-semibold tracking-widest uppercase"
   >
-    Filter by:
+    {m.booking_filterBy()}:
   </span>
 
   {#snippet selectItem(item: { value: string; label: string })}
@@ -79,7 +79,7 @@
         <div
           class="font-base text-foreground flex w-full justify-center gap-2 py-1.5 pr-1 pl-3 text-sm leading-none font-medium tracking-wide uppercase"
         >
-          Category:
+          {m.booking_category()}:
           <span class="text-primary mt-0">{categoryTriggerContent}</span>
         </div>
       </div>

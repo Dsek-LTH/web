@@ -21,6 +21,7 @@
   const colourClasses = $derived(Object.values(colours ?? {}).join(" "));
 </script>
 
+<!-- TODO: Use actual avatars -->
 <div
   class={`${colourClasses} relative size-full cursor-pointer overflow-hidden rounded-xs py-1 pl-2
          transition-all duration-200 ease-out before:absolute before:top-0 before:left-0
