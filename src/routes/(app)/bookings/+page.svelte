@@ -18,10 +18,53 @@
   let calendarApp: CalendarApp | undefined = $state();
   const eventsServicePlugin = createEventsServicePlugin();
 
-  // TODO: Show location on DateGridEvents instead of title
+  let bookingIdCounter = 1;
+
+  interface CreateBookingOptions {
+    title: string;
+    start: Temporal.PlainDate | Temporal.ZonedDateTime;
+    end: Temporal.PlainDate | Temporal.ZonedDateTime;
+    calendarId: string;
+    description?: string;
+    location?: string;
+    people?: [string, string];
+  }
+
+  export function createBooking(
+    opts: CreateBookingOptions,
+  ): CalendarEventExternal {
+    const id = (bookingIdCounter++).toString();
+    const { title, start, end, calendarId, description, location, people } =
+      opts;
+
+    let timeLabel = "";
+    if (start instanceof Temporal.ZonedDateTime) {
+      const h = start.hour.toString().padStart(2, "0");
+      const m = start.minute.toString().padStart(2, "0");
+      timeLabel = `${h}:${m}`;
+    }
+
+    const customContent = {
+      dateGrid: `<div class="space-x-1.5"><span>${location}</span>${
+        timeLabel ? `<span class="font-normal">${timeLabel}</span>` : ""
+      }</div>`,
+    };
+
+    return {
+      id,
+      title,
+      start,
+      end,
+      calendarId,
+      description,
+      location,
+      people: people ?? ["Unknown", "Unknown"],
+      _customContent: customContent,
+    };
+  }
+
   const bookings: CalendarEventExternal[] = [
-    {
-      id: "1",
+    createBooking({
       title: "Event 1",
       start: Temporal.PlainDate.from("2026-03-27"),
       end: Temporal.PlainDate.from("2026-03-30"),
@@ -29,9 +72,8 @@
       description: "Pub",
       location: "iDét",
       people: ["Test Testsson", "not me"],
-    },
-    {
-      id: "2",
+    }),
+    createBooking({
       title: "Event 2",
       start: Temporal.ZonedDateTime.from(
         "2026-03-26T01:00:00[Europe/Stockholm]",
@@ -41,9 +83,8 @@
       description: "Pub",
       location: "iDét",
       people: ["Test Testsson", "stil-id"],
-    },
-    {
-      id: "3",
+    }),
+    createBooking({
       title: "Styrelsemöte",
       start: Temporal.ZonedDateTime.from(
         "2026-03-26T02:00:00[Europe/Stockholm]",
@@ -53,9 +94,8 @@
       description: "Test description",
       location: "Styrelserummet",
       people: ["Test Testsson", "stil-id"],
-    },
-    {
-      id: "4",
+    }),
+    createBooking({
       title: "Event 4",
       start: Temporal.ZonedDateTime.from(
         "2026-03-27T02:00:00[Europe/Stockholm]",
@@ -65,8 +105,10 @@
       description: "Test description",
       location: "Styrelserummet",
       people: ["Test Testsson", "not me"],
-    },
+    }),
   ];
+  console.log(bookings);
+
   onMount(() => {
     sessionStorage.setItem("bookings", JSON.stringify(bookings));
   });
