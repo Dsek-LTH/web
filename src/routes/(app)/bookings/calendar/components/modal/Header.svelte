@@ -10,7 +10,7 @@
   const { title, calendarId }: { title: string; calendarId?: string } =
     $props();
 
-  const status = $derived((calendarId ?? "pending") as CalendarStatusCategory);
+  const status = $derived((calendarId ?? "PENDING") as CalendarStatusCategory);
   const bgColour = $derived(bgColoursModal[status]);
   const shadow = $derived(shadowColoursModal[status]);
 </script>

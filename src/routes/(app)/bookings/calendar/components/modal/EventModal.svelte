@@ -2,6 +2,7 @@
   import Button from "$lib/components/ui/button/button.svelte";
   import { TextAlignStart, MapPin, User, CalendarPlus } from "@lucide/svelte";
   import type { CalendarEventExternal } from "@schedule-x/calendar";
+  import type { BookingCalendarEvent } from "$lib/bookings/eventTypes";
   import Separator from "$lib/components/ui/separator/separator.svelte";
   import Duration from "./Duration.svelte";
   import Section from "./Section.svelte";
@@ -10,6 +11,7 @@
   import * as m from "$paraglide/messages";
 
   const { calendarEvent }: { calendarEvent: CalendarEventExternal } = $props();
+  const bookingEvent = $derived(calendarEvent as BookingCalendarEvent);
 
   const startDate = $derived(calendarEvent.start);
   const endDate = $derived(calendarEvent.end);
@@ -72,7 +74,7 @@
   <div class="space-y-4">
     <Duration {startDate} {endDate} />
 
-    <Section Icon={User} header={calendarEvent.people?.[0] ?? "-"} />
+    <Section Icon={User} header={bookingEvent.bookerName ?? "-"} />
 
     <Section Icon={MapPin} header={calendarEvent.location ?? "-"} />
 

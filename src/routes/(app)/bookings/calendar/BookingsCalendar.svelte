@@ -70,7 +70,7 @@
       showWeekNumbers: true,
       calendars: calendarStatusCategoriesCSS,
       weekOptions: {
-        gridHeight: 1250,
+        gridHeight: 900,
       },
       events: bookings,
     });

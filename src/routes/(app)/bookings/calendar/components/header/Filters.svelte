@@ -38,9 +38,9 @@
   const setFilter = (filter: "all" | "my") => {
     const url = new URL(page.url);
     if (filter === "all") {
-      url.searchParams.delete("showAll");
+      url.searchParams.delete("mine");
     } else {
-      url.searchParams.set("showAll", "false");
+      url.searchParams.set("mine", "1");
     }
 
     // eslint-disable-next-line svelte/no-navigation-without-resolve -- the url is correct

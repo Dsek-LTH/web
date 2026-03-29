@@ -50,7 +50,7 @@
     step = calculateStep();
   });
 
-  const initialFilter = page.url.searchParams.get("showAll") ? "my" : "all";
+  const initialFilter = page.url.searchParams.get("mine") ? "my" : "all";
 </script>
 
 <div class="sx-calendar:p-4">

@@ -1,14 +1,15 @@
 <script lang="ts">
   import * as Item from "$lib/components/ui/item";
+  import * as m from "$paraglide/messages";
   import { tv, type VariantProps } from "tailwind-variants";
 
   const variants = tv({
     base: "uppercase",
     variants: {
       variant: {
-        accepted: "text-primary",
-        pending: "text-lila-400",
-        rejected: "text-destructive",
+        ACCEPTED: "text-primary",
+        PENDING: "text-lila-400",
+        DENIED: "text-destructive",
       },
       mode: {
         mobile: "mx-auto mt-0.5 text-[0.7rem] leading-none tracking-wide",
@@ -31,14 +32,22 @@
   } = $props();
 
   const descriptionColour = $derived(
-    variant === "rejected" ? "text-destructive" : "text-foreground",
+    variant === "DENIED" ? "text-destructive" : "text-foreground",
   );
+
+  const translatedTitle = $derived.by(() => {
+    if (variant === "ACCEPTED") return m.booking_accepted();
+    if (variant === "PENDING") return m.booking_pending();
+    return m.booking_denied();
+  });
 </script>
 
 {#if mode === "desktop"}
   <Item.Root class="w-36 px-6 py-4" variant="muted">
     <Item.Content>
-      <Item.Title class={variants({ variant, mode })}>{variant}</Item.Title>
+      <Item.Title class={variants({ variant, mode })}
+        >{translatedTitle}</Item.Title
+      >
       <Item.Description class={`mt-0 text-4xl font-bold ${descriptionColour}`}>
         {count}
       </Item.Description>
@@ -51,7 +60,9 @@
         class={`mx-auto text-3xl font-bold ${descriptionColour}`}
         >{count}</Item.Description
       >
-      <Item.Title class={variants({ variant, mode })}>{variant}</Item.Title>
+      <Item.Title class={variants({ variant, mode })}
+        >{translatedTitle}</Item.Title
+      >
     </Item.Content>
   </Item.Root>
 {/if}

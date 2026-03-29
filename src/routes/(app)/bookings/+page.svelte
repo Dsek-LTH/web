@@ -1,5 +1,7 @@
 <script lang="ts">
   import BookingsCalendar from "./calendar/BookingsCalendar.svelte";
+  import { createBookingEvent } from "$lib/bookings/createBookingEvent";
+  import type { BookingCalendarEvent } from "$lib/bookings/eventTypes";
   import { createEventsServicePlugin } from "@schedule-x/events-service";
   import { BellRing, Info, KeyRound } from "@lucide/svelte";
   import Button from "$lib/components/ui/button/button.svelte";
@@ -14,101 +16,63 @@
   import { onMount, untrack } from "svelte";
   import { SvelteSet } from "svelte/reactivity";
   import { page } from "$app/state";
+  import type { PageData } from "./$types";
   import * as m from "$paraglide/messages";
+
+  let { data }: { data: PageData } = $props();
 
   let calendarApp: CalendarApp | undefined = $state();
   const eventsServicePlugin = createEventsServicePlugin();
 
-  let bookingIdCounter = 1;
+  type ServerBooking = PageData["bookings"][number];
 
-  interface CreateBookingOptions {
-    title: string;
-    start: Temporal.PlainDate | Temporal.ZonedDateTime;
-    end: Temporal.PlainDate | Temporal.ZonedDateTime;
-    calendarId: string;
-    description?: string;
-    location?: string;
-    people?: [string, string];
-  }
+  const toStockholmTime = (date: Date | string) =>
+    Temporal.Instant.from(
+      date instanceof Date ? date.toISOString() : date,
+    ).toZonedDateTimeISO("Europe/Stockholm");
 
-  export function createBooking(
-    opts: CreateBookingOptions,
-  ): CalendarEventExternal {
-    const id = (bookingIdCounter++).toString();
-    const { title, start, end, calendarId, description, location, people } =
-      opts;
+  const getDisplayName = (booking: ServerBooking) => {
+    const fullName = [booking.booker?.firstName, booking.booker?.lastName]
+      .filter(Boolean)
+      .join(" ")
+      .trim();
+    return fullName || "Unknown";
+  };
 
-    let timeLabel = "";
-    if (start instanceof Temporal.ZonedDateTime) {
-      const h = start.hour.toString().padStart(2, "0");
-      const m = start.minute.toString().padStart(2, "0");
-      timeLabel = `${h}:${m}`;
-    }
+  const getDisplayInitials = (booking: ServerBooking) => {
+    const firstInitial = booking.booker?.firstName?.charAt(0);
+    const lastInitial = booking.booker?.lastName?.charAt(0);
+    if (firstInitial && lastInitial) return `${firstInitial}${lastInitial}`;
+    return "NN";
+  };
 
-    const customContent = {
-      dateGrid: `<div class="space-x-1.5"><span>${location}</span>${
-        timeLabel ? `<span class="font-normal">${timeLabel}</span>` : ""
-      }</div>`,
-    };
+  const toCalendarBooking = (
+    booking: ServerBooking,
+  ): BookingCalendarEvent | null => {
+    if (!booking.start || !booking.end) return null;
 
-    return {
-      id,
-      title,
-      start,
-      end,
-      calendarId,
-      description,
+    const location = booking.bookables[0]?.name ?? "Unknown";
+
+    return createBookingEvent({
+      id: booking.id,
+      title: booking.event ?? "Booking",
+      start: toStockholmTime(booking.start),
+      end: toStockholmTime(booking.end),
+      calendarId: booking.status,
+      description: booking.event ?? "",
       location,
-      people: people ?? ["Unknown", "Unknown"],
-      _customContent: customContent,
-    };
-  }
+      bookerName: getDisplayName(booking),
+      bookerStudentId: booking.booker?.studentId ?? "Unknown",
+      bookerAvatarUrl: booking.booker?.picturePath ?? "",
+      bookerInitials: getDisplayInitials(booking),
+    });
+  };
 
-  const bookings: CalendarEventExternal[] = [
-    createBooking({
-      title: "Event 1",
-      start: Temporal.PlainDate.from("2026-03-27"),
-      end: Temporal.PlainDate.from("2026-03-30"),
-      calendarId: "accepted",
-      description: "Pub",
-      location: "iDét",
-      people: ["Test Testsson", "not me"],
-    }),
-    createBooking({
-      title: "Event 2",
-      start: Temporal.ZonedDateTime.from(
-        "2026-03-26T01:00:00[Europe/Stockholm]",
-      ),
-      end: Temporal.ZonedDateTime.from("2026-03-26T04:00:00[Europe/Stockholm]"),
-      calendarId: "accepted",
-      description: "Pub",
-      location: "iDét",
-      people: ["Test Testsson", "stil-id"],
-    }),
-    createBooking({
-      title: "Styrelsemöte",
-      start: Temporal.ZonedDateTime.from(
-        "2026-03-26T02:00:00[Europe/Stockholm]",
-      ),
-      end: Temporal.ZonedDateTime.from("2026-03-26T06:00:00[Europe/Stockholm]"),
-      calendarId: "rejected",
-      description: "Test description",
-      location: "Styrelserummet",
-      people: ["Test Testsson", "stil-id"],
-    }),
-    createBooking({
-      title: "Event 4",
-      start: Temporal.ZonedDateTime.from(
-        "2026-03-27T02:00:00[Europe/Stockholm]",
-      ),
-      end: Temporal.ZonedDateTime.from("2026-03-28T06:00:00[Europe/Stockholm]"),
-      calendarId: "pending",
-      description: "Test description",
-      location: "Styrelserummet",
-      people: ["Test Testsson", "not me"],
-    }),
-  ];
-  console.log(bookings);
+  const bookings = $derived.by(() =>
+    data.bookings
+      .map(toCalendarBooking)
+      .filter((booking): booking is BookingCalendarEvent => booking !== null),
+  );
 
   onMount(() => {
     sessionStorage.setItem("bookings", JSON.stringify(bookings));
@@ -121,33 +85,53 @@
   };
 
   const activeBookingIds = new SvelteSet<CalendarEventExternal["id"]>();
-
+  const currentStudentId = $derived(page.data.user?.studentId ?? null);
   const currentCategoryValue = $derived(
     page.url.searchParams.get("category") ?? defaultCategory.value,
   );
+  const filteredBookings = $derived.by(() => {
+    const isMyBookingsFilter = page.url.searchParams.has("mine");
+    const isDefaultCategory = currentCategoryValue === defaultCategory.value;
+
+    return bookings.filter((booking) => {
+      if (!isDefaultCategory && booking.location !== currentCategoryValue) {
+        return false;
+      }
+
+      if (
+        isMyBookingsFilter &&
+        (!currentStudentId || booking.bookerStudentId !== currentStudentId)
+      ) {
+        return false;
+      }
+
+      return true;
+    });
+  });
+
+  const acceptedCount = $derived(
+    filteredBookings.filter((booking) => booking.calendarId === "ACCEPTED")
+      .length,
+  );
+  const pendingCount = $derived(
+    filteredBookings.filter((booking) => booking.calendarId === "PENDING")
+      .length,
+  );
+  const deniedCount = $derived(
+    filteredBookings.filter((booking) => booking.calendarId === "DENIED")
+      .length,
+  );
+
   $effect(() => {
     if (!untrack(() => calendarApp)) return;
-
-    const shouldShowOthers = !page.url.searchParams.has("showAll");
-
-    const isDefaultCategory = currentCategoryValue === defaultCategory.value;
-    const isOwnerOnly = !shouldShowOthers;
 
     if (activeBookingIds.size === 0) {
       const existingEvents = eventsServicePlugin.getAll();
       existingEvents.forEach((event) => activeBookingIds.add(event.id));
     }
 
-    const nextVisibleBookings = bookings.filter((booking) => {
-      if (!isDefaultCategory && booking.location !== currentCategoryValue)
-        return false;
-      // TODO: Use actual stil-id
-      if (isOwnerOnly && booking.people?.[1] !== "stil-id") return false;
-      return true;
-    });
-
     const nextVisibleIds = new Set(
-      nextVisibleBookings.map((booking) => booking.id),
+      filteredBookings.map((booking) => booking.id),
     );
 
     for (const id of activeBookingIds) {
@@ -157,7 +141,7 @@
       }
     }
 
-    for (const booking of nextVisibleBookings) {
+    for (const booking of filteredBookings) {
       if (!activeBookingIds.has(booking.id)) {
         eventsServicePlugin.add(booking);
         activeBookingIds.add(booking.id);
@@ -173,7 +157,6 @@
   >SWITCH MODE/THEME</Button
 >
 
-<!-- TODO: Read actual data -->
 <div
   class="sx-calendar:gap-6 sx-calendar:mt-10 mx-auto mt-6 mb-6 flex w-[var(--sx-calendar-width)] max-w-[var(--sx-calendar-max-width)] flex-col gap-5"
 >
@@ -194,18 +177,18 @@
     </div>
 
     <div class="sx-calendar:flex hidden gap-3.5">
-      <StatusItem mode="desktop" variant="accepted" count={4} />
-      <StatusItem mode="desktop" variant="pending" count={2} />
-      <StatusItem mode="desktop" variant="rejected" count={0} />
+      <StatusItem mode="desktop" variant="ACCEPTED" count={acceptedCount} />
+      <StatusItem mode="desktop" variant="PENDING" count={pendingCount} />
+      <StatusItem mode="desktop" variant="DENIED" count={deniedCount} />
     </div>
   </div>
 
   <Filter {bookings} {defaultCategory} {currentCategoryValue} />
 
   <div class="sx-calendar:hidden flex justify-between gap-3">
-    <StatusItem mode="mobile" variant="accepted" count={4} />
-    <StatusItem mode="mobile" variant="pending" count={2} />
-    <StatusItem mode="mobile" variant="rejected" count={0} />
+    <StatusItem mode="mobile" variant="ACCEPTED" count={acceptedCount} />
+    <StatusItem mode="mobile" variant="PENDING" count={pendingCount} />
+    <StatusItem mode="mobile" variant="DENIED" count={deniedCount} />
   </div>
 
   <BookingsCalendar
