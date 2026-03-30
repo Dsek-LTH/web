@@ -90,9 +90,7 @@
 
       <div class="flex w-full flex-col gap-1.5">
         <Label for="folder">
-          {$form.type === "requirement"
-            ? m.documents_writePositionName()
-            : m.documents_writeMeetingName()}
+          {m.documents_writeMeetingName()}
         </Label>
 
         <Input
@@ -100,15 +98,19 @@
           name="folder"
           bind:value={$form.folder}
           type="text"
-          placeholder={meetingPlaceholder}
+          placeholder={$form.type !== "requirement"
+            ? meetingPlaceholder
+            : "HTM1, VTM-extra..."}
           aria-invalid={$errors.folder ? true : false}
           aria-errormessage={$errors.folder?.at(0)}
           {...$constraints.folder}
         />
 
-        <p class="text-base-content/70 mt-0 text-sm italic">
-          {m.documents_uploadInfo()}
-        </p>
+        {#if $form.type !== "requirement"}
+          <p class="text-base-content/70 mt-0 text-sm italic">
+            {m.documents_uploadInfo()}
+          </p>
+        {/if}
       </div>
     </div>
 
@@ -138,14 +140,20 @@
     </div>
 
     <div class="flex flex-col gap-1.5">
-      <Label>{m.documents_fileName()}</Label>
+      <Label
+        >{$form.type === "requirement"
+          ? m.documents_writePositionName()
+          : m.documents_fileName()}</Label
+      >
       <Input
         id="name"
         name="name"
         aria-invalid={$errors.name ? true : false}
         aria-errormessage={$errors.name?.at(0)}
         type="text"
-        placeholder={m.documents_filePlaceholder()}
+        placeholder={$form.type !== "requirement"
+          ? m.documents_filePlaceholder()
+          : meetingPlaceholder}
         bind:value={$form.name}
         {...$constraints.name}
       />
