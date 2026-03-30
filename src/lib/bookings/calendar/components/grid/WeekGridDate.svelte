@@ -1,6 +1,6 @@
 <script lang="ts">
   import * as m from "$paraglide/messages";
-  import { bookingWeekdayLabels } from "$lib/bookings/calendarDateUtils";
+  import { bookingWeekdayLabels } from "$lib/bookings/calendar/dateUtils";
 
   const { date }: { date: string } = $props();
 

@@ -3,7 +3,7 @@
   import * as Avatar from "$lib/components/ui/avatar";
   import type { CalendarEventExternal } from "@schedule-x/calendar";
   import type { BookingCalendarEvent } from "$lib/bookings/eventTypes";
-  import { formatBookingTime } from "$lib/bookings/calendarDateUtils";
+  import { formatBookingTime } from "$lib/bookings/calendar/dateUtils";
   import {
     calendarStatusCategoriesTailwind,
     type CalendarStatusCategory,

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import BookingsCalendar from "./calendar/BookingsCalendar.svelte";
+  import BookingsCalendar from "$lib/bookings/calendar/BookingsCalendar.svelte";
   import {
     filterBookingEvents,
     getBookingStatusCount,
@@ -13,9 +13,9 @@
   import { BellRing, Info, KeyRound } from "@lucide/svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import { mode, setMode } from "mode-watcher";
-  import StatusItem from "./components/StatusItem.svelte";
-  import Filter from "./components/Filter.svelte";
-  import InfoItem from "./components/InfoItem.svelte";
+  import StatusItem from "$lib/bookings/components/StatusItem.svelte";
+  import Filter from "$lib/bookings/components/Filter.svelte";
+  import InfoItem from "$lib/bookings/components/InfoItem.svelte";
   import type {
     CalendarApp,
     CalendarEventExternal,

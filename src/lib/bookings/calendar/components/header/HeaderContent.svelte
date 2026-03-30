@@ -4,7 +4,7 @@
   import Separator from "$lib/components/ui/separator/separator.svelte";
   import Navigation from "./Navigation.svelte";
   import Filters from "./Filters.svelte";
-  import { bookingMonthLabels } from "$lib/bookings/calendarDateUtils";
+  import { bookingMonthLabels } from "$lib/bookings/calendar/dateUtils";
   import { page } from "$app/state";
   import { getBookingViewFilter } from "$lib/bookings/filters";
   import * as m from "$paraglide/messages";

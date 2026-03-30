@@ -5,7 +5,7 @@
     formatBookingTime,
     bookingMonthLabels,
     bookingWeekdayLabels,
-  } from "$lib/bookings/calendarDateUtils";
+  } from "$lib/bookings/calendar/dateUtils";
   import Section from "./Section.svelte";
 
   type PropDate = Temporal.ZonedDateTime | Temporal.PlainDate;
