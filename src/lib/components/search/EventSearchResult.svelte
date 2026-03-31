@@ -5,7 +5,7 @@
   const { data }: { data: EventSearchReturnAttributes } = $props();
   import MapPin from "@lucide/svelte/icons/map-pin";
   import dayjs from "dayjs";
-  const dayjsStartDateTime = dayjs(data.startDatetime);
+  const dayjsStartDateTime = $derived(dayjs(data.startDatetime));
 </script>
 
 <Command.LinkItem
