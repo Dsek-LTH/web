@@ -124,9 +124,8 @@
       </h1>
 
       {#each data.files.next.slice(0, 4) as file}
-        <li class="inline-block max-w-full">
+        <li class="block max-w-full">
           <a href={file.thumbnailUrl}>
-            <span class="i-mdi-document size-6 text-secondary"></span>
             <span class="overflow-x-hidden text-ellipsis whitespace-nowrap">
               {file.name}
             </span>
