@@ -67,18 +67,6 @@ export const loadHomeData = async ({
     where: {
       ...BASIC_ARTICLE_FILTER(),
     },
-    include: {
-      author: {
-        include: {
-          member: true,
-          mandate: {
-            include: {
-              position: true,
-            },
-          },
-        },
-      },
-    },
     orderBy: {
       createdAt: "desc",
     },
@@ -163,8 +151,6 @@ export const loadHomeData = async ({
     take: 4,
   });
 
-  const committeePromise = prisma.committee.findMany();
-
   const [
     news,
     events,
@@ -174,7 +160,6 @@ export const loadHomeData = async ({
     commitData,
     hasActiveMandate,
     readme,
-    committees,
   ] = await Promise.allSettled([
     newsPromise,
     eventsPromise,
@@ -184,7 +169,6 @@ export const loadHomeData = async ({
     commitPromise,
     hasActiveMandatePromise,
     readmePromise,
-    committeePromise,
   ]);
   if (news.status === "rejected") {
     throw error(500, "Failed to fetch news");
@@ -210,9 +194,7 @@ export const loadHomeData = async ({
   if (readme.status === "rejected") {
     throw error(500, "Failed to fetch readme");
   }
-  if (committees.status === "rejected") {
-    throw error(500, "Failed to fetch committees");
-  }
+
   // WIKI
 
   const minecraftStatus = async () => {
@@ -240,6 +222,5 @@ export const loadHomeData = async ({
     readmeIssues: readme.value,
     wikiData: await wikiDataCache.get(),
     minecraftStatus: minecraftStatus(),
-    committees: committees.value,
   };
 };
