@@ -103,6 +103,7 @@
   >SWITCH MODE/THEME</Button
 >
 
+<!-- TODO: Dynamically load older bookings when changing dates -->
 <div
   class="sx-calendar:gap-6 sx-calendar:mt-10 mx-auto mt-6 mb-6 flex w-[var(--sx-calendar-width)] max-w-[var(--sx-calendar-max-width)] flex-col gap-5"
 >
