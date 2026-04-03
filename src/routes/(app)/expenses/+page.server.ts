@@ -1,4 +1,4 @@
-import { redirect } from "$lib/utils/redirect";
+import { redirect } from "@sveltejs/kit";
 import { error } from "@sveltejs/kit";
 import { expensesInclusion } from "./getExpenses";
 import { isAuthorized } from "$lib/utils/authorization";

@@ -2,13 +2,13 @@ import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
 import { uploadFile } from "$lib/files/uploadFiles";
 import { createSchema, updateSchema } from "$lib/news/schema";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
-import { redirect } from "$lib/utils/redirect";
+import { redirect } from "sveltekit-flash-message/server";
 import { slugWithCount, slugify } from "$lib/utils/slugify";
 import * as m from "$paraglide/messages";
 import { Prisma } from "@prisma/client";
 import { type Action } from "@sveltejs/kit";
 import type { AuthUser } from "@zenstackhq/runtime";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { message, superValidate, fail } from "sveltekit-superforms";
 import DOMPurify from "isomorphic-dompurify";
 import {
@@ -41,7 +41,7 @@ const uploadImage = async (user: AuthUser, image: File, slug: string) => {
 export const createArticle: Action = async (event) => {
   const { request, locals, url } = event;
   const { prisma, user } = locals;
-  const form = await superValidate(request, zod(createSchema), {
+  const form = await superValidate(request, zod4(createSchema), {
     allowFiles: true,
   });
   if (!form.valid) return fail(400, { form });
@@ -55,6 +55,7 @@ export const createArticle: Action = async (event) => {
     images,
     bodySv,
     bodyEn,
+    committeeId,
     publishTime,
     ...rest
   } = form.data;
@@ -79,6 +80,7 @@ export const createArticle: Action = async (event) => {
   });
   await Promise.resolve();
   rest.imageUrls = await Promise.all(tasks);
+  rest.imageUrl = rest.imageUrls[0];
 
   const result = await prisma.article.create({
     data: {
@@ -124,6 +126,13 @@ export const createArticle: Action = async (event) => {
             id: tag.id,
           })),
       },
+      committee: committeeId
+        ? {
+            connect: {
+              id: committeeId,
+            },
+          }
+        : undefined,
       publishedAt: publishTime ?? new Date(),
     },
     include: {
@@ -202,7 +211,7 @@ export const createArticle: Action = async (event) => {
 export const updateArticle: Action<{ slug: string }> = async (event) => {
   const { request, locals, url } = event;
   const { prisma, user } = locals;
-  const form = await superValidate(request, zod(updateSchema), {
+  const form = await superValidate(request, zod4(updateSchema), {
     allowFiles: true,
   });
   if (!form.valid) return fail(400, { form });
@@ -213,6 +222,7 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
     images,
     bodySv,
     bodyEn,
+    committeeId,
     publishTime,
     sendNotification,
     notificationText,
@@ -370,15 +380,17 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
                 id: existingAuthor.id,
               }
             : undefined,
-          create: existingAuthor
+          create: !existingAuthor
             ? {
                 member: {
-                  connect: { studentId: user?.studentId },
+                  connect: {
+                    studentId: author.member.studentId as string | undefined,
+                  },
                 },
                 mandate: author.mandateId
                   ? {
                       connect: {
-                        member: { studentId: user?.studentId },
+                        member: { studentId: author.member.studentId },
                         id: author.mandateId,
                       },
                     }
@@ -391,6 +403,13 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
               }
             : undefined,
         },
+        committee: committeeId
+          ? {
+              connect: {
+                id: committeeId,
+              },
+            }
+          : undefined,
         tags: {
           set: tags.map(({ id }) => ({ id })),
         },

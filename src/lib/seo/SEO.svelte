@@ -3,7 +3,6 @@
   It uses Open Graph protocol to define how the page should be represented on social media platforms.
   https://ogp.me/
 -->
-
 <script lang="ts">
   import { page } from "$app/state";
   import { getFileUrl } from "$lib/files/client";
@@ -181,7 +180,7 @@
 <svelte:head>
   <meta property="og:site_name" content="D-sektionen" />
   <meta property="og:locale" content={locale} />
-  {#each locale_alternate as loc}
+  {#each locale_alternate as loc (loc)}
     <meta property="og:locale:alternate" content={loc} />
   {/each}
   <meta property="og:url" content={page.url.toString()} />
@@ -194,7 +193,7 @@
     <meta property="og:image:type" content={actualImage.mime_type} />
   {/if}
 
-  {#each attributesProps as [key, value]}
+  {#each attributesProps as [key, value] (key)}
     <meta property={key} content={value} />
   {/each}
 </svelte:head>

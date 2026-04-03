@@ -1,4 +1,3 @@
-import type { AvailableLanguageTag } from "$paraglide/runtime";
 import {
   availableSearchIndexes,
   type SearchableArticleAttributes,
@@ -12,6 +11,7 @@ import {
   type SearchableSongAttributes,
 } from "./searchTypes";
 import * as m from "$paraglide/messages";
+import type { Locale } from "$paraglide/runtime";
 
 export type SearchIndex =
   (typeof availableSearchIndexes)[keyof typeof availableSearchIndexes];
@@ -53,7 +53,7 @@ export function getFederatedWeight(index: SearchableIndex): number {
  */
 export function getSearchableAttributes(
   index: SearchableIndex,
-  language: AvailableLanguageTag,
+  language: Locale,
 ) {
   switch (index) {
     case "members": {

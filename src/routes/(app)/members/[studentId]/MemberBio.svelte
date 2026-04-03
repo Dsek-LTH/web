@@ -7,14 +7,12 @@
 
 <script lang="ts">
   import { browser, dev } from "$app/environment";
-  import { page } from "$app/stores";
   import { onMount } from "svelte";
   import { marked } from "marked";
   import bioFrame from "./bio.html?raw";
+  import { mode } from "mode-watcher";
 
-  export let bio: string;
-
-  $: theme = $page.data.theme;
+  let { bio = "" }: { bio: string | null } = $props();
 
   let stylesheets = "";
   let css = "";
@@ -46,7 +44,7 @@
       if (typeof event.data === "object" && "height" in event.data) {
         // Set the height of the iframe to the height of the content
         // It is initially set to 0 to avoid a flash of content.
-        iframeEl.style.height = `${event.data.height ?? 0}px`;
+        iframeEl.style.height = `${(event.data.height ?? 0) + 8}px`;
       }
     }
 
@@ -55,11 +53,13 @@
     return () => window.removeEventListener("message", handleMessage);
   });
 
-  $: srcdoc = bioFrame
-    .replace("%STYLESHEETS%", stylesheets)
-    .replace("%CSS%", css)
-    .replace("%BIO%", marked(bio) as string)
-    .replace("%THEME%", theme);
+  let srcdoc = $derived(
+    bioFrame
+      .replace("%STYLESHEETS%", stylesheets)
+      .replace("%CSS%", css)
+      .replace("%BIO%", marked(bio ?? "") as string)
+      .replace("%THEME%", mode.current ?? "light"),
+  );
 </script>
 
 <iframe

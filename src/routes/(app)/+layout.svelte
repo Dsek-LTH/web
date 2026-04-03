@@ -1,71 +1,30 @@
 <script lang="ts">
-  import { env } from "$env/dynamic/public";
-  import GlobalAlert from "$lib/components/GlobalAlert.svelte";
-  import AppNotificationTokenHandler from "$lib/components/utils/AppNotificationTokenHandler.svelte";
-  import AppUnreadNotificationHandler from "$lib/components/utils/AppUnreadNotificationHandler.svelte";
-  import { languageTag } from "$paraglide/runtime";
-  import "dayjs/locale/sv";
-  import AppBottomNav from "../AppBottomNav.svelte";
-  import AppHeader from "../AppHeader.svelte";
-  import Drawer from "../Drawer.svelte";
-  import Footer from "../Footer.svelte";
-  import Navbar from "../Navbar.svelte";
   import Toast from "../Toast.svelte";
+  import Alert from "$lib/components/Alert.svelte";
+  import Footer from "./Footer.svelte";
+  import Navbar from "./Navbar.svelte";
+  import { getLocale } from "$paraglide/runtime";
 
-  export let data;
+  const { data, children } = $props();
 </script>
 
-<svelte:head>
-  <script
-    defer
-    src={env.PUBLIC_UMAMI_SRC}
-    data-website-id={env.PUBLIC_UMAMI_WEBSITE_ID}
-  ></script>
-</svelte:head>
+<div class="flex min-h-screen flex-col">
+  <Navbar />
 
-{#if !data.isApp}
-  <nav class="contents">
-    <Navbar />
-    <Drawer />
-  </nav>
-{:else}
-  {#await data.notificationsPromise then notifications}
-    <AppUnreadNotificationHandler
-      notificationCount={notifications?.filter((n) => !n.readAt).length}
-    />
-  {/await}
-  <AppNotificationTokenHandler />
-  <AppHeader />
-{/if}
+  <main class="flex min-h-0 flex-1 flex-col">
+    {#each data.alerts as alert (alert.id)}
+      {#if !alert.closedByMember.some((member) => member.id === data.member?.id)}
+        <Alert
+          id={alert.id}
+          message={getLocale() === "sv" ? alert.messageSv : alert.messageEn}
+          severity={alert.severity}
+        />
+      {/if}
+    {/each}
 
-{#each data.alerts as alert}
-  {#if !alert.closedByMember.find((member) => member.id === data.member?.id)}
-    <GlobalAlert
-      id={alert.id}
-      message={languageTag() === "sv" ? alert.message : alert.messageEn}
-      severity={alert.severity}
-    />
-  {/if}
-{/each}
+    {@render children?.()}
+  </main>
 
-<main class="w-full flex-1 overflow-x-auto" class:pb-16={data.isApp}>
-  <slot />
-</main>
-<Toast />
-{#if !data.isApp}
-  <Footer {data} />
-{:else}
-  <AppBottomNav />
-
-  <style>
-    /* hide scrollbar everywhere. It's usually not present in apps*/
-
-    * {
-      scrollbar-width: none;
-    }
-
-    *::-webkit-scrollbar {
-      display: none; /* Safari and Chrome */
-    }
-  </style>
-{/if}
+  <Toast />
+  <Footer />
+</div>

@@ -4,7 +4,7 @@ import {
   superValidate,
   type Infer,
 } from "sveltekit-superforms/server";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import * as m from "$paraglide/messages";
 import type { Actions, PageServerLoad } from "./$types";
@@ -20,7 +20,7 @@ export const load: PageServerLoad = async ({ locals }) => {
   const updateForms = Object.fromEntries(
     positions.map((pos) => [
       pos.id,
-      superValidate(pos, zod(updateSchema), { id: pos.id }),
+      superValidate(pos, zod4(updateSchema), { id: pos.id }),
     ]),
   );
 
@@ -40,7 +40,7 @@ export type UpdatePositionAttributeSchema = Infer<typeof updateSchema>;
 export const actions: Actions = {
   update: async ({ request, locals }) => {
     const { prisma } = locals;
-    const form = await superValidate(request, zod(updateSchema));
+    const form = await superValidate(request, zod4(updateSchema));
     if (!form.valid) return fail(400, { form });
     await prisma.position.update({
       where: { id: form.data.id },

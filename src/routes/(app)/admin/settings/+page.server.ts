@@ -7,7 +7,7 @@ import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 import { fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import type { PageServerLoad } from "./$types";
 
@@ -30,8 +30,8 @@ export const load: PageServerLoad = async ({ locals }) => {
             end: new Date(nollningEndStr),
           }
         : undefined,
-    updateForm: await superValidate(zod(updateSchema)),
-    updateNollningForm: await superValidate(zod(updateNollningPeriodSchema)),
+    updateForm: await superValidate(zod4(updateSchema)),
+    updateNollningForm: await superValidate(zod4(updateNollningPeriodSchema)),
   };
 };
 
@@ -50,7 +50,7 @@ const updateNollningPeriodSchema = z.object({
 export const actions = {
   async update({ locals, request }) {
     const { prisma } = locals;
-    const form = await superValidate(request, zod(updateSchema));
+    const form = await superValidate(request, zod4(updateSchema));
     if (!form.valid) return fail(400, { form });
     await prisma.adminSetting.upsert({
       where: { key: form.data.key },
@@ -64,7 +64,7 @@ export const actions = {
   },
   async remove({ locals, request }) {
     const { prisma } = locals;
-    const form = await superValidate(request, zod(removeSchema));
+    const form = await superValidate(request, zod4(removeSchema));
     if (!form.valid) return fail(400, { form });
     await prisma.adminSetting.delete({ where: { key: form.data.key } });
     return message(form, {
@@ -74,7 +74,7 @@ export const actions = {
   },
   async updateNollning({ locals, request }) {
     const { prisma } = locals;
-    const form = await superValidate(request, zod(updateNollningPeriodSchema));
+    const form = await superValidate(request, zod4(updateNollningPeriodSchema));
     if (!form.valid) return fail(400, { form });
     await updateNollningPeriod(prisma, form.data.start, form.data.end);
     return message(form, {

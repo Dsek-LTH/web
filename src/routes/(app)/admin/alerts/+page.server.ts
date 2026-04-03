@@ -6,7 +6,7 @@ import {
   superValidate,
   type Infer,
 } from "sveltekit-superforms/server";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import softDelete from "$lib/utils/softDelete";
 import { authorize } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
@@ -44,24 +44,20 @@ export const actions = {
   create: async ({ request, locals }) => {
     const { prisma } = locals;
     authorize(apiNames.ALERT, locals.user);
-    const form = await superValidate(request, zod(addAlertSchema));
+    const form = await superValidate(request, zod4(addAlertSchema));
     if (!form.valid) return fail(400, { form });
     await prisma.alert.create({
-      data: {
-        severity: form.data.severity,
-        messageSv: form.data.messageSv,
-        messageEn: form.data.messageEn,
-      },
+      data: form.data,
     });
     return message(form, {
-      message: m.admin_alerts_alertCreated(),
+      message: m.admin_alerts_alert_created(),
       type: "success",
     });
   },
   delete: async ({ request, locals }) => {
     const { prisma } = locals;
     authorize(apiNames.ALERT, locals.user);
-    const form = await superValidate(request, zod(deleteAlertSchema));
+    const form = await superValidate(request, zod4(deleteAlertSchema));
     if (!form.valid) return fail(400, { form });
     softDelete(() =>
       prisma.alert.update({
@@ -72,7 +68,7 @@ export const actions = {
       }),
     );
     return message(form, {
-      message: m.admin_alerts_alertRemoved(),
+      message: m.admin_alerts_alert_removed(),
       type: "success",
     });
   },

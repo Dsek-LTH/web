@@ -1,22 +1,25 @@
 <script lang="ts">
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import { twMerge } from "tailwind-merge";
+  import { Badge } from "./ui/badge";
 
-  export let tag:
-    | Pick<ExtendedPrismaModel<"Tag">, "color" | "name">
-    | undefined = undefined;
-  let clazz = "";
-  export { clazz as class };
+  let {
+    tag = undefined,
+    class: klass,
+  }: {
+    tag: Pick<ExtendedPrismaModel<"Tag">, "color" | "name"> | undefined;
+    class?: string;
+  } = $props();
 </script>
 
 {#if tag}
-  <span
+  <Badge
     class={twMerge(
-      "badge badge-md relative cursor-pointer overflow-hidden whitespace-nowrap border-[--tag-color] text-xs before:absolute before:inset-0 before:bg-[--tag-color] before:opacity-10 before:content-['']",
-      clazz,
+      "relative cursor-pointer overflow-hidden border-[var(--tag-color)] bg-[var(--tag-color)] text-xs whitespace-nowrap before:absolute before:inset-0 before:opacity-10 before:content-['']",
+      klass,
     )}
     style="--tag-color: {tag.color || 'var(--bc)'}"
   >
     {tag.name}
-  </span>
+  </Badge>
 {/if}

@@ -1,48 +1,16 @@
 <script lang="ts">
-  import { page } from "$app/stores";
-  import apiNames from "$lib/utils/apiNames";
-  import { isAuthorized } from "$lib/utils/authorization";
-  import type { PageData } from "./$types";
+  import { Card, CardContent } from "$lib/components/ui/card";
+  import DoorClosed from "@lucide/svelte/icons/door-closed";
   import * as m from "$paraglide/messages";
-  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
-  import SEO from "$lib/seo/SEO.svelte";
-  export let data: PageData;
 </script>
 
-<SetPageTitle title="Doors" />
-<SEO
-  data={{
-    type: "website",
-    props: {
-      title: "Doors",
-    },
-  }}
-/>
-
-<div class="overflow-x-auto">
-  <table class="table">
-    <!-- head -->
-    <thead>
-      <tr class="bg-base-200">
-        <th>{m.admin_doors_door()}</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      {#each data.doors as door (door.name)}
-        <tr>
-          <td class="font-medium">
-            {door.verboseName}
-          </td>
-          {#if isAuthorized(apiNames.DOOR.UPDATE, $page.data.user)}
-            <td class="text-right">
-              <a class="btn btn-xs px-8" href="doors/edit/{door.name}"
-                >{m.admin_doors_edit()}</a
-              >
-            </td>
-          {/if}
-        </tr>
-      {/each}
-    </tbody>
-  </table>
-</div>
+<Card>
+  <CardContent>
+    <div class="flex flex-col items-center gap-8 py-8">
+      <DoorClosed size={96} class="text-muted-foreground" />
+      <p class="text-muted-foreground">
+        {m.admin_doors_choose()}
+      </p>
+    </div>
+  </CardContent>
+</Card>

@@ -29,6 +29,7 @@ export const articleSchema = z.object({
     })
     .array()
     .default([]),
+  committeeId: z.uuid().nullable(),
 });
 export type ArticleSchema = Infer<typeof articleSchema>;
 

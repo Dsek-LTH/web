@@ -5,7 +5,7 @@ import { committeeActions, committeeLoad } from "../committee.server";
 import * as m from "$paraglide/messages";
 import { error, fail } from "@sveltejs/kit";
 import { TimeSlot } from "./types";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { updateMarkdown } from "$lib/news/markdown/mutations.server";
 import { updateSchema } from "../types";
@@ -83,7 +83,7 @@ export const actions: Actions = {
   ...committeeActions("cafe"),
   updateHours: async ({ request, locals }) => {
     const { user, prisma } = locals;
-    const form = await superValidate(request, zod(updateSchema));
+    const form = await superValidate(request, zod4(updateSchema));
     if (!form.valid) return fail(400, { form });
 
     const { markdownSv, markdownEn, markdownSlug } = form.data;
@@ -105,7 +105,7 @@ export const actions: Actions = {
 
   updateSchedule: async ({ request, locals }) => {
     const { user, prisma } = locals;
-    const form = await superValidate(request, zod(scheduleForm));
+    const form = await superValidate(request, zod4(scheduleForm));
     if (!form.valid) return fail(400, { form });
 
     const { date, worker, timeSlot } = form.data;
@@ -244,7 +244,7 @@ export const actions: Actions = {
 
   editWeeklyCiabatta: async ({ request, locals }) => {
     const { user, prisma } = locals;
-    const form = await superValidate(request, zod(editWeeklyCiabattaSchema));
+    const form = await superValidate(request, zod4(editWeeklyCiabattaSchema));
     if (!form.valid) return fail(400, { form });
     if (!isAuthorized(apiNames.CAFE.EDIT_CIABATTAS, user)) {
       return message(form, {

@@ -1,18 +1,18 @@
 import { error, fail } from "@sveltejs/kit";
-import { redirect } from "$lib/utils/redirect";
 import {
   message,
   setError,
   superValidate,
   type Infer,
 } from "sveltekit-superforms/server";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
-import { languageTag } from "$paraglide/runtime";
+import { getLocale } from "$paraglide/runtime";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import { redirect } from "sveltekit-flash-message/server";
 
 dayjs.extend(utc);
 
@@ -67,8 +67,8 @@ export const load: PageServerLoad = async ({ locals, params }) => {
       : 12 - Math.abs(position.endMonth - position.startMonth);
 
   return {
-    updateForm: superValidate(position, zod(updateSchema)),
-    addMandateForm: superValidate(zod(addManadateSchema), {
+    updateForm: superValidate(position, zod4(updateSchema)),
+    addMandateForm: superValidate(zod4(addManadateSchema), {
       defaults: {
         memberId: "",
         startDate: dayjs()
@@ -85,8 +85,8 @@ export const load: PageServerLoad = async ({ locals, params }) => {
           .toDate(),
       },
     }),
-    updateMandateForm: superValidate(zod(updateMandateSchema)),
-    deleteMandateForm: superValidate(zod(deleteMandateSchema)),
+    updateMandateForm: superValidate(zod4(updateMandateSchema)),
+    deleteMandateForm: superValidate(zod4(deleteMandateSchema)),
     position,
     mandates: position.mandates,
   };
@@ -121,7 +121,7 @@ const deleteMandateSchema = z.object({
 export type DeleteMandateSchema = Infer<typeof deleteMandateSchema>;
 
 const genitiveCase = (base: string): string => {
-  if (languageTag() === "sv") {
+  if (getLocale() === "sv") {
     if (base.endsWith("s") || base.endsWith("x"))
       return base; // Måns or Max => Måns and Max
     else return base + "s"; // Adam => Adams
@@ -135,9 +135,9 @@ const genitiveCase = (base: string): string => {
 export const actions: Actions = {
   update: async ({ params, request, locals }) => {
     const { prisma } = locals;
-    const form = await superValidate(request, zod(updateSchema));
+    const form = await superValidate(request, zod4(updateSchema));
     if (!form.valid) return fail(400, { form });
-    switch (languageTag()) {
+    switch (getLocale()) {
       case "sv":
         await prisma.position.update({
           where: { id: params.id },
@@ -166,7 +166,7 @@ export const actions: Actions = {
   },
   addMandate: async ({ params, request, locals }) => {
     const { prisma } = locals;
-    const form = await superValidate(request, zod(addManadateSchema));
+    const form = await superValidate(request, zod4(addManadateSchema));
     if (!form.valid) return fail(400, { form });
     const member = await prisma.member.findUnique({
       where: { id: form.data.memberId },
@@ -192,7 +192,7 @@ export const actions: Actions = {
   updateMandate: async (event) => {
     const { params, request, locals } = event;
     const { prisma } = locals;
-    const form = await superValidate(request, zod(updateMandateSchema));
+    const form = await superValidate(request, zod4(updateMandateSchema));
     if (!form.valid) return fail(400, { form });
     const member = await prisma.member.findFirst({
       where: {
@@ -229,7 +229,7 @@ export const actions: Actions = {
   },
   deleteMandate: async ({ params, request, locals }) => {
     const { prisma } = locals;
-    const form = await superValidate(request, zod(deleteMandateSchema));
+    const form = await superValidate(request, zod4(deleteMandateSchema));
     if (!form.valid) return fail(400, { form });
     const member = await prisma.member.findFirst({
       where: {

@@ -1,6 +1,6 @@
 import type { Actions } from "@sveltejs/kit";
 import { fail, message, superValidate } from "sveltekit-superforms";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import type { PageServerLoad } from "./$types";
 import apiNames from "$lib/utils/apiNames";
@@ -9,8 +9,8 @@ import dayjs from "dayjs";
 
 export const load: PageServerLoad = async (event) => {
   const { prisma } = event.locals;
-  const inForm = await superValidate(zod(createInBatchSchema));
-  const outForm = await superValidate(zod(createOutBatchSchema));
+  const inForm = await superValidate(zod4(createInBatchSchema));
+  const outForm = await superValidate(zod4(createOutBatchSchema));
   const drinkItems = (await prisma.drinkItem.findMany()).sort((a, b) =>
     a.name.localeCompare(b.name),
   );
@@ -42,7 +42,7 @@ export const actions: Actions = {
   createInBatch: async (event) => {
     const { prisma, user } = event.locals;
     authorize(apiNames.DRINKITEMBATCH.CREATE, user);
-    const form = await superValidate(event.request, zod(createInBatchSchema));
+    const form = await superValidate(event.request, zod4(createInBatchSchema));
     if (!form.valid) return fail(400, { form });
 
     if (form.data.quantityDelta === 0) {
@@ -76,7 +76,7 @@ export const actions: Actions = {
   createOutBatch: async (event) => {
     const { prisma, user } = event.locals;
     authorize(apiNames.DRINKITEMBATCH.CREATE, user);
-    const form = await superValidate(event.request, zod(createOutBatchSchema));
+    const form = await superValidate(event.request, zod4(createOutBatchSchema));
     if (!form.valid) return fail(400, { form });
 
     if (form.data.quantityDelta === 0) {

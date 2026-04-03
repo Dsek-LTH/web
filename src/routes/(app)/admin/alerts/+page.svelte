@@ -1,108 +1,116 @@
 <script lang="ts">
-  import { enhance } from "$app/forms";
-  import dayjs from "dayjs";
-  import * as m from "$paraglide/messages";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
-  import SEO from "$lib/seo/SEO.svelte";
-  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+  import { Button } from "$lib/components/ui/button/";
+  import * as Dialog from "$lib/components/ui/dialog/";
+  import { Input } from "$lib/components/ui/input/";
+  import { Label } from "$lib/components/ui/label/";
+  import * as Select from "$lib/components/ui/select/";
+  import * as Table from "$lib/components/ui/table/";
+  import TrashIcon from "@lucide/svelte/icons/trash";
+  import * as messages from "$paraglide/messages";
+  import dayjs from "dayjs";
 
-  export let data;
+  let { data } = $props();
 
-  let removeModal: HTMLDialogElement | undefined = undefined;
-  let selectedAlert: ExtendedPrismaModel<"Alert"> | undefined = undefined;
+  let severityNames: Record<string, string> = {
+    success: messages.admin_alerts_severity_success(),
+    info: messages.admin_alerts_severity_info(),
+    warning: messages.admin_alerts_severity_warning(),
+    error: messages.admin_alerts_severity_error(),
+  };
+
+  // This is only used to display the selected severity.
+  let severity = $state(undefined);
+  let selectionTrigger = $derived(
+    severity ? severityNames[severity] : messages.admin_alerts_severity(),
+  );
 </script>
 
-<SetPageTitle title="Alerts" />
-<SEO
-  data={{
-    type: "website",
-    props: {
-      title: "Alerts",
-    },
-  }}
-/>
+<SetPageTitle title={messages.alerts()} />
+
+<h1 class="w-full text-center">{messages.admin_alerts_title()}</h1>
 
 <form
   method="POST"
-  class="flex w-full flex-col items-center gap-2"
   action="?/create"
+  class="flex w-full flex-col items-center gap-8 pt-4 pb-8"
 >
-  <h1 class="mb-6 text-2xl font-semibold">{m.admin_alerts_title()}</h1>
-  <input
-    type="text"
-    name="messageSv"
-    placeholder={m.admin_alerts_messageSwedish()}
-    class="input input-bordered w-full max-w-lg"
-  />
-  <input
-    type="text"
-    name="messageEn"
-    placeholder={m.admin_alerts_messageEnglish()}
-    class="input input-bordered w-full max-w-lg"
-  />
-  <select name="severity" class="select select-bordered w-full max-w-lg">
-    <option disabled selected>{m.admin_alerts_severity()}</option>
-    <option value="info">{m.admin_alerts_severityInfo()}</option>
-    <option value="success">{m.admin_alerts_severitySuccess()}</option>
-    <option value="warning">{m.admin_alerts_severityWarning()}</option>
-    <option value="error">{m.admin_alerts_severityError()}</option>
-  </select>
-  <button class="btn w-full max-w-lg">{m.admin_alerts_create()}</button>
-</form>
-<div class="divider">{m.admin_alerts_activeAlerts()}</div>
-<table class="table">
-  <thead>
-    <tr>
-      <th>{m.admin_alerts_severity()}</th>
-      <th>{m.admin_alerts_message()}</th>
-      <th>{m.admin_alerts_created()}</th>
-      <th></th>
-    </tr>
-  </thead>
+  <div class="flex w-lg flex-col items-center gap-4">
+    <Label for="messageSv">
+      {messages.admin_alerts_message_swedish()}
+    </Label>
+    <Input type="text" name="messageSv" minlength={1} required />
 
-  <tbody>
-    {#each data.alert as alert}
-      <tr>
-        <th class="capitalize">{alert.severity}</th>
-        <td>{alert.message}</td>
-        <td>{dayjs(alert.createdAt).format("YYYY-MM-DD HH:mm:ss")}</td>
-        <td>
-          <!-- svelte-ignore a11y_consider_explicit_label -->
-          <button
-            class="btn btn-square"
-            on:click={() => {
-              selectedAlert = alert;
-              removeModal?.showModal();
-            }}
-          >
-            <span class="i-mdi-delete text-xl"></span>
-          </button>
-        </td>
-      </tr>
-    {/each}
-  </tbody>
-</table>
+    <Label for="messageEn">
+      {messages.admin_alerts_message_english()}
+    </Label>
+    <Input type="text" name="messageEn" minlength={1} required />
 
-<dialog bind:this={removeModal} class="modal modal-bottom sm:modal-middle">
-  <div class="modal-box">
-    <h3 class="text-lg font-bold">{m.admin_alerts_removeAlert()}</h3>
-    <p class="py-4">{m.admin_alerts_removeAreYouSure()}</p>
-    <p class="text-xs text-base-content/60">{selectedAlert?.message}</p>
-    <div class="modal-action">
-      <form method="POST" action="?/delete" use:enhance>
-        <input type="hidden" name="id" value={selectedAlert?.id} />
-        <button
-          type="submit"
-          class="btn btn-error"
-          on:click={() => removeModal?.close()}
-        >
-          {m.admin_alerts_remove()}
-        </button>
-      </form>
-    </div>
+    <Label for="severity">
+      {messages.admin_alerts_severity()}
+    </Label>
+    <Select.Root type="single" name="severity" required bind:value={severity}>
+      <Select.Trigger class="w-full">
+        {selectionTrigger}
+      </Select.Trigger>
+      <Select.Content>
+        {#each Object.entries(severityNames) as [identifier, name] (identifier)}
+          <Select.Item value={identifier}>
+            {name}
+          </Select.Item>
+        {/each}
+      </Select.Content>
+    </Select.Root>
   </div>
-  <form method="dialog" class="modal-backdrop">
-    <!-- svelte-ignore a11y_consider_explicit_label -->
-    <button class="cursor-auto"></button>
-  </form>
-</dialog>
+
+  <Button type="submit">{messages.admin_alerts_create()}</Button>
+</form>
+
+{#if data.alert.length > 0}
+  <Table.Root>
+    <Table.Header>
+      <Table.Row>
+        <Table.Head>{messages.admin_alerts_severity()}</Table.Head>
+        <Table.Head>{messages.admin_alerts_message()}</Table.Head>
+        <Table.Head>{messages.admin_alerts_created()}</Table.Head>
+        <Table.Head></Table.Head>
+      </Table.Row>
+    </Table.Header>
+    {#each data.alert as alert (alert.id)}
+      <Table.Row>
+        <Table.Head>{severityNames[alert.severity]}</Table.Head>
+        <Table.Cell>{alert.message}</Table.Cell>
+        <Table.Cell
+          >{dayjs(alert.createdAt).format("YYYY-MM-DD HH:mm:ss")}</Table.Cell
+        >
+        <Table.Cell class="center">
+          <Dialog.Root>
+            <Dialog.Trigger>
+              <TrashIcon />
+            </Dialog.Trigger>
+
+            <Dialog.Content>
+              <Dialog.Header>
+                <Dialog.Title
+                  >{messages.admin_alerts_remove_alert()}</Dialog.Title
+                >
+                <Dialog.Description>
+                  {messages.admin_alerts_remove_are_you_sure()}
+                </Dialog.Description>
+              </Dialog.Header>
+              <Dialog.Footer>
+                <form method="POST" action="?/delete">
+                  <input type="hidden" name="id" value={alert.id} />
+                  <Button type="submit"
+                    >{messages.admin_alerts_remove_alert()}</Button
+                  >
+                </form>
+              </Dialog.Footer>
+            </Dialog.Content>
+          </Dialog.Root>
+        </Table.Cell>
+      </Table.Row>
+    {/each}
+    <Table.Body></Table.Body>
+  </Table.Root>
+{/if}

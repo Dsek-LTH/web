@@ -1,98 +1,122 @@
 <script lang="ts">
-  import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
-  import Pagination from "$lib/components/Pagination.svelte";
-  import Tabs from "./Tabs.svelte";
-  import apiNames from "$lib/utils/apiNames";
-  import type { DocumentType } from "./+page.server";
+  import * as Tabs from "$lib/components/ui/tabs";
+  import { page } from "$app/state";
+  import { SvelteURLSearchParams } from "svelte/reactivity";
   import Meeting from "./Meeting.svelte";
-  import { isAuthorized } from "$lib/utils/authorization";
-  import * as m from "$paraglide/messages";
-
   import type { PageData } from "./$types";
-  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
-  export let data: PageData;
+  import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
+  import { isAuthorized } from "$lib/utils/authorization";
+  import apiNames from "$lib/utils/apiNames";
 
-  let isEditing = false;
+  import * as m from "$paraglide/messages";
+  import { Button } from "$lib/components/ui/button";
+  import YearSelector from "$lib/components/YearSelector.svelte";
 
-  const currentYear = new Date().getFullYear();
-  let type: DocumentType = "board-meeting";
-  const typeOptions: Array<{ name: string; value: DocumentType }> = [
-    {
-      name: m.documents_guildMeetings(),
-      value: "guild-meeting",
-    },
-    {
-      name: m.documents_boardMeetings(),
-      value: "board-meeting",
-    },
-    {
-      name: m.documents_srdMeetings(),
-      value: "SRD-meeting",
-    },
-    {
-      name: m.documents_other(),
-      value: "other",
-    },
-  ];
-  $: meetings = Object.keys(data.meetings).sort((a, b) =>
-    type === "board-meeting" || type === "SRD-meeting"
-      ? b.localeCompare(a, "sv")
-      : a.localeCompare(b, "sv"),
+  let { data }: { data: PageData } = $props();
+
+  let isEditing = $state(false);
+
+  const generateLink = $derived((value: string) => {
+    const searchParams = new SvelteURLSearchParams(page.url.searchParams);
+    searchParams.set("type", value.toString());
+    return `?${searchParams.toString()}`;
+  });
+
+  let meetings = $derived(
+    Object.keys(data.meetings).sort((a, b) =>
+      page.url.searchParams.get("type") === "board-meeting" ||
+      page.url.searchParams.get("type") === "SRD-meeting"
+        ? b.localeCompare(a, "sv")
+        : a.localeCompare(b, "sv"),
+    ),
   );
-  $: canCreate = isAuthorized(
-    apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).CREATE,
-    data.user,
+
+  let canCreate = $derived(
+    isAuthorized(
+      apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).CREATE,
+      data.user,
+    ),
   );
-  $: canEdit = isAuthorized(
-    apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).DELETE,
-    data.user,
+  let canEdit = $derived(
+    isAuthorized(
+      apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).DELETE,
+      data.user,
+    ),
   );
 </script>
 
-<SetPageTitle title={m.documents()} />
+<div class="layout-container">
+  <div class="flex flex-row justify-between gap-8 *:w-full">
+    <div class="flex flex-col gap-2 rounded-md border-[1px] p-4">
+      <h3>{m.documents_guildMeetings()}</h3>
+      <p class="mt-0">{m.documents_guildMeetings_prose()}</p>
+    </div>
 
-<div class="flex flex-row flex-wrap justify-between">
-  <div class="mb-4 flex w-full flex-col items-start gap-2">
-    <span class="text-lg">{m.documents_filterByYear()}</span>
-    <Pagination
-      class="max-w-prose"
-      count={currentYear - 1981}
-      getPageName={(pageNumber) => (currentYear - pageNumber).toString()}
-      getPageNumber={(pageName) => currentYear - +pageName}
-      fieldName="year"
-    />
-    <span class="text-lg">{m.documents_filterByType()}</span>
-    <Tabs options={typeOptions} bind:currentTab={type} fieldName="type" />
+    <div class="flex flex-col gap-2 rounded-md border-[1px] p-4">
+      <h3>{m.documents_boardMeetings()}</h3>
+      <p class="mt-0">{m.documents_boardMeetings_prose()}</p>
+    </div>
+
+    <div class="flex flex-col gap-2 rounded-md border-[1px] p-4">
+      <h3>{m.documents_srdMeetings()}</h3>
+      <p class="mt-0">{m.documents_srdMeetings_prose()}</p>
+    </div>
+  </div>
+
+  <div class="mt-4 flex flex-row gap-8">
+    <Tabs.Root value={page.url.searchParams.get("type") ?? "board-meeting"}>
+      <Tabs.List>
+        <a href={generateLink("guild-meeting")}>
+          <Tabs.Trigger value="guild-meeting"
+            >{m.documents_guildMeetings()}</Tabs.Trigger
+          ></a
+        >
+        <a href={generateLink("board-meeting")}
+          ><Tabs.Trigger value="board-meeting"
+            >{m.documents_boardMeetings()}</Tabs.Trigger
+          ></a
+        >
+        <a href={generateLink("SRD-meeting")}
+          ><Tabs.Trigger value="SRD-meeting"
+            >{m.documents_srdMeetings()}</Tabs.Trigger
+          ></a
+        >
+      </Tabs.List>
+    </Tabs.Root>
+
+    <YearSelector />
   </div>
 
   {#if canCreate || canEdit}
-    <div class="mb-4 flex flex-row gap-1">
+    <div class="mt-2 mb-4 flex flex-row gap-2">
       {#if canCreate}
-        <a class="btn btn-primary btn-sm" href="/documents/upload"
-          >{m.documents_uploadFile()}</a
+        <a href="/documents/upload"
+          ><Button variant="rosa" size="sm">{m.documents_uploadFile()}</Button
+          ></a
         >
       {/if}
       {#if canEdit}
-        <button
-          class="btn btn-secondary btn-sm"
-          on:click={() => {
+        <Button
+          variant="lila"
+          size="sm"
+          onclick={() => {
             isEditing = !isEditing;
           }}
         >
           {isEditing ? m.documents_stopEditing() : m.documents_edit()}
-        </button>
+        </Button>
       {/if}
     </div>
   {/if}
-</div>
 
-<div class="flex flex-col gap-4">
-  {#each meetings as meeting (meeting)}
-    <Meeting
-      name={meeting}
-      files={data.meetings[meeting] ?? []}
-      {isEditing}
-      deleteForm={data.deleteForm}
-    />
-  {/each}
+  <div class="mt-2 flex flex-col gap-4">
+    {#each meetings as meeting (meeting)}
+      <Meeting
+        name={meeting}
+        files={data.meetings[meeting] ?? []}
+        {isEditing}
+        deleteForm={data.deleteForm}
+      />
+    {/each}
+  </div>
 </div>

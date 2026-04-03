@@ -11,6 +11,7 @@ import type { GetCommitDataResponse } from "../../routes/(app)/api/home/+server"
 import * as m from "$paraglide/messages";
 import { pingUri } from "minecraft-server-ping";
 import { wikiDataCache } from "./wiki/wiki";
+import dayjs from "dayjs";
 
 type Fetch = typeof fetch;
 export const loadHomeData = async ({
@@ -73,18 +74,31 @@ export const loadHomeData = async ({
     take: 3,
   });
 
+  const startDate = dayjs(now).startOf("day").toDate();
+  const endDate = dayjs(now).add(6, "day").endOf("day").toDate();
+
   // EVENTS
   const eventsPromise = prisma.event.findMany({
     where: {
       ...BASIC_EVENT_FILTER(),
-      startDatetime: {
-        gt: now,
-      },
+      OR: [
+        {
+          startDatetime: {
+            gt: startDate,
+            lt: endDate,
+          },
+        },
+        {
+          endDatetime: {
+            gt: startDate,
+            lt: endDate,
+          },
+        },
+      ],
     },
     orderBy: {
       startDatetime: "asc",
     },
-    take: 3,
   });
 
   // MEETINGS
@@ -117,9 +131,9 @@ export const loadHomeData = async ({
   });
 
   // COMMIT DATA
-  const commitPromise = fetch(
-    `${locals.language === "en" ? "/en" : ""}/api/home`,
-  ).then((res) => res.json()) as Promise<GetCommitDataResponse>;
+  const commitPromise = fetch(`/api/home`).then((res) =>
+    res.json(),
+  ) as Promise<GetCommitDataResponse>;
 
   // RANDOM WELLBEING MESSAGE
   const wellbeing_random_sentence = [

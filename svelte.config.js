@@ -16,6 +16,8 @@ const config = {
     // See https://kit.svelte.dev/docs/adapters for more information about adapters.
     adapter: adapter(),
 
+    appDir: "_redesign",
+
     alias: {
       $paraglide: "./src/translations/paraglide", // same as outdir for paraglide in vite.config.ts
     },
@@ -23,6 +25,20 @@ const config = {
       name: env.VERSION
         ? env.VERSION
         : execSync("git describe --tags").toString().trim(),
+    },
+    experimental: {
+      remoteFunctions: true,
+      tracing: {
+        server: true,
+      },
+      instrumentation: {
+        server: true,
+      },
+    },
+  },
+  compilerOptions: {
+    experimental: {
+      async: true,
     },
   },
 };

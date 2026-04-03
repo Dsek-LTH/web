@@ -6,6 +6,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import js from "@eslint/js";
 import { FlatCompat } from "@eslint/eslintrc";
+import svelte from "eslint-plugin-svelte";
+import eslintComments from "@eslint-community/eslint-plugin-eslint-comments/configs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -33,15 +35,15 @@ export default [
       "**/yarn.lock",
     ],
   },
+  js.configs.recommended,
+  eslintComments.recommended,
   ...compat.extends(
-    "eslint:recommended",
-    "plugin:eslint-comments/recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:@typescript-eslint/stylistic",
-    "plugin:svelte/recommended",
-    "plugin:svelte/prettier",
     "prettier",
   ),
+  ...svelte.configs.recommended,
+  ...svelte.configs.prettier,
   {
     plugins: {
       "@typescript-eslint": typescriptEslint,
@@ -67,7 +69,7 @@ export default [
     },
 
     rules: {
-      "eslint-comments/require-description": "warn",
+      "@eslint-community/eslint-comments/require-description": "warn",
 
       "no-restricted-imports": [
         "warn",
@@ -77,16 +79,6 @@ export default [
               group: ["../**/*[a-zA-Z0-9_-]*/*"],
               message:
                 "\nIt looks like you're importing from a different subtree. Consider whether the imported code should really be shared. Suggestions:\n1) Write new code specific to your usage.\n2) Move the imported code to a shared location, e.g. a parent folder.\n3) Verify that you're using the correct path alias, e.g. $lib.",
-            },
-            {
-              importNamePattern: "^(goto|redirect)",
-              group: [
-                "$app/navigation",
-                "sveltekit-flash-message/server",
-                "@sveltejs/kit",
-              ],
-              message:
-                "Use the goto and redirect wrappers from $lib/utils/redirect instead",
             },
             {
               importNamePattern: "^(superForm)",
@@ -106,6 +98,9 @@ export default [
           default: "array-simple",
         },
       ],
+
+      // TODO: turn on after upgrading to SvelteKit >= 2.26
+      "svelte/no-navigation-without-resolve": ["warn", { ignoreLinks: true }],
     },
   },
   {

@@ -2,7 +2,7 @@ import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 import * as m from "$paraglide/messages";
 import { error } from "@sveltejs/kit";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
 import { getArticleAuthorOptions } from "$lib/news/getArticles";
 import type { Actions, PageServerLoad } from "./$types";
@@ -13,26 +13,35 @@ import { getAllTags } from "$lib/news/tags";
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
 
-  const allTags = await getAllTags(prisma, true);
-  const article = await prisma.article.findUnique({
-    where: {
-      slug: params.slug,
-    },
-    include: {
-      author: {
-        include: {
-          member: true,
-          mandate: {
-            include: {
-              position: true,
-            },
-          },
-          customAuthor: true,
-        },
+  const [allTags, article, committees] = await Promise.all([
+    getAllTags(prisma, true),
+    prisma.article.findUnique({
+      where: {
+        slug: params.slug,
       },
-      tags: true,
-    },
-  });
+      include: {
+        author: {
+          include: {
+            member: true,
+            mandate: {
+              include: {
+                position: true,
+              },
+            },
+            customAuthor: true,
+          },
+        },
+        tags: true,
+      },
+    }),
+    prisma.committee.findMany({
+      select: {
+        id: true,
+        name: true,
+      },
+    }),
+  ]);
+
   if (article?.author.id !== undefined) article.author.id = "";
   if (!article) throw error(404, m.news_errors_articleNotFound());
   if (article.author.memberId !== user.memberId)
@@ -66,16 +75,11 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     memberWithMandtes,
   );
 
-  const articleForm = {
-    ...article,
-    sendNotification: article.shouldSendNotification ?? undefined,
-    publishTime: article.publishedAt ?? null,
-  };
-
   return {
     allTags,
     authorOptions,
-    form: await superValidate(articleForm, zod(updateSchema)),
+    form: await superValidate(article, zod4(updateSchema)),
+    committees,
   };
 };
 

@@ -1,7 +1,7 @@
 import { fail, superValidate } from "sveltekit-superforms";
-import { zod } from "sveltekit-superforms/adapters";
+import { zod4 } from "sveltekit-superforms/adapters";
 import { bookingSchema } from "../../schema";
-import { redirect } from "$lib/utils/redirect";
+import { redirect } from "sveltekit-flash-message/server";
 import * as m from "$paraglide/messages";
 import { isAuthorized } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
@@ -27,7 +27,7 @@ export const actions = {
 
     const isAdmin = isAuthorized(apiNames.BOOKABLES.UPDATE, user);
 
-    const form = await superValidate(request, zod(bookingSchema));
+    const form = await superValidate(request, zod4(bookingSchema));
     if (!form.valid) return fail(400, { form });
     const { start, end, name, bookables } = form.data;
 

@@ -1,18 +1,28 @@
 <script lang="ts">
   import { getFileUrl } from "$lib/files/client";
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+  import { cn } from "$lib/utils";
   import type { EventHandler } from "svelte/elements";
 
-  export let committee: Pick<
-    ExtendedPrismaModel<"Committee">,
-    "darkImageUrl" | "lightImageUrl" | "monoImageUrl" | "nameSv"
-  >;
-  export let useMono = false;
+  let {
+    committee,
+    useMono,
+    class: klass,
+    override,
+  }: {
+    committee: Pick<
+      ExtendedPrismaModel<"Committee">,
+      "darkImageUrl" | "lightImageUrl" | "monoImageUrl" | "nameSv"
+    > | null;
+    useMono?: boolean;
+    class?: string;
+    override?: "light" | "dark";
+  } = $props();
 
   const FALLBACK = {
-    mono: "https://raw.githubusercontent.com/Dsek-LTH/grafik/main/guild/dsek/bw.svg",
+    mono: "https://raw.githubusercontent.com/Dsek-LTH/grafik/refs/heads/main/guild/dsek/bw.svg",
     color:
-      "https://raw.githubusercontent.com/Dsek-LTH/grafik/main/guild/dsek/color.svg",
+      "https://raw.githubusercontent.com/Dsek-LTH/grafik/refs/heads/main/guild/dsek/color.svg",
   };
 
   /** Fallback to D-sektionen icon if the committee icon is not found */
@@ -21,12 +31,25 @@
     (event) => {
       if (
         event.target instanceof HTMLImageElement &&
-        event.target.src != FALLBACK.color &&
-        event.target.src != FALLBACK.mono
+        (imageUrl != FALLBACK.mono || imageUrl != FALLBACK.color)
       ) {
         event.target.src = imageUrl;
       }
     };
+
+  let lightClass = $derived(
+    cn(
+      override ? "hidden" : "block dark:hidden",
+      override == "dark" ? "block" : "",
+    ),
+  );
+
+  let darkClass = $derived(
+    cn(
+      override ? "hidden" : "hidden dark:block",
+      override == "light" ? "block" : "",
+    ),
+  );
 </script>
 
 <!-- 
@@ -42,22 +65,23 @@
 
 {#if useMono}
   <img
-    src={getFileUrl(committee.monoImageUrl) ?? FALLBACK.mono}
-    alt="{committee.nameSv} icon"
-    on:error={onError(FALLBACK.mono)}
+    src={getFileUrl(committee?.monoImageUrl) ?? FALLBACK.mono}
+    alt="{committee?.nameSv} icon"
+    onerror={onError(FALLBACK.mono)}
+    class={klass}
   />
 {:else}
   <!-- dark/light support -->
   <img
-    src={getFileUrl(committee.darkImageUrl) ?? FALLBACK.color}
-    alt="{committee.nameSv} icon"
-    class="hidden dark:block"
-    on:error={onError(FALLBACK.color)}
+    src={getFileUrl(committee?.darkImageUrl) ?? FALLBACK.color}
+    alt="{committee?.nameSv} dark theme icon"
+    class={cn(darkClass, klass)}
+    onerror={onError(FALLBACK.color)}
   />
   <img
-    src={getFileUrl(committee.lightImageUrl) ?? FALLBACK.color}
-    alt="{committee.nameSv} icon"
-    class="block dark:hidden"
-    on:error={onError(FALLBACK.color)}
+    src={getFileUrl(committee?.lightImageUrl) ?? FALLBACK.color}
+    alt="{committee?.nameSv} light theme icon"
+    class={cn(lightClass, klass)}
+    onerror={onError(FALLBACK.color)}
   />
 {/if}
