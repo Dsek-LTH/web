@@ -43,10 +43,11 @@
     error = false,
     ...restProps
   }: AriaAttributes & {
-    value: CalendarDate;
+    value?: CalendarDate;
     weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
-    class: ClassValue;
+    class?: ClassValue;
     error?: boolean;
+    name?: string;
   } = $props();
   let contentRef = $state<HTMLElement | null>(null);
 </script>
