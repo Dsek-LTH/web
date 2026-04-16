@@ -19,6 +19,7 @@ export type Route = {
   pictureDescription?: string;
   picturePath?: string;
   children?: Route[];
+  list?: boolean;
   isCurrentRoute?: (currentPathname: string) => boolean;
 };
 export const getRoutes = (): Route[] =>
@@ -96,6 +97,21 @@ export const getRoutes = (): Route[] =>
       accessRequired: null,
       appBehaviour: "none",
       path: "/volunteer",
+      list: true,
+      children: [
+        {
+          title: m.nav_volunteer(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/volunteer",
+        },
+        {
+          title: m.openElections(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/elections",
+        },
+      ],
     },
     {
       title: m.nav_member(),
