@@ -9,21 +9,25 @@ import dayjs from "dayjs";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma } = locals;
-  const electionPromise = prisma.election.findFirst({
-    where: { id: params.id },
-  });
 
-  const committeesPromise = prisma.committee.findMany({
-    orderBy: [{ shortName: "asc" }],
-    select: {
-      id: true,
-      name: true,
-      nameSv: true,
-      nameEn: true,
-    },
-  });
+  const [election, committees] = await Promise.all([
+    prisma.election.findFirst({
+      where: { id: params.id },
+    }),
 
-  const election = await electionPromise;
+    prisma.committee.findMany({
+      orderBy: [{ shortName: "asc" }],
+      select: {
+        id: true,
+        name: true,
+        nameSv: true,
+        nameEn: true,
+        darkImageUrl: true,
+        lightImageUrl: true,
+        monoImageUrl: true,
+      },
+    }),
+  ]);
 
   if (!election) {
     throw error(404, m.elections_notFound());
@@ -31,7 +35,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
   return {
     election,
-    committees: await committeesPromise,
+    committees,
     form: await superValidate(
       {
         ...election,
