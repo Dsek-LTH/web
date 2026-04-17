@@ -69,14 +69,14 @@
               <Editor
                 name="markdownSv"
                 bind:value={$form.markdownSv}
-                aria-invalid={$errors.markdownSv ? true : false}
+                aria-invalid={!!$errors.markdownSv}
               />
             </div>
             <div class={activeTab == "en" ? "block" : "hidden"}>
               <Editor
                 name="markdownEn"
                 bind:value={$form.markdownEn as string | undefined}
-                aria-invalid={$errors.markdownEn ? true : false}
+                aria-invalid={!!$errors.markdownEn}
               />
             </div>
             <div class="hidden">

@@ -80,7 +80,7 @@
             type="text"
             id="headerSv"
             name="headerSv"
-            aria-invalid={$errors.headerSv ? true : false}
+            aria-invalid={!!$errors.headerSv}
             aria-errormessage={$errors.headerSv?.at(0)}
             placeholder={m.news_header()}><Pen /></Input
           >{:else}
@@ -89,7 +89,7 @@
             type="text"
             id="headerEn"
             name="headerEn"
-            aria-invalid={$errors.headerEn ? true : false}
+            aria-invalid={!!$errors.headerEn}
             aria-errormessage={$errors.headerEn?.at(0)}
             placeholder={m.news_header()}><Pen /></Input
           >
@@ -118,14 +118,14 @@
 
   {#if activeTab == "sv"}
     <Editor
-      aria-invalid={$errors.bodySv ? true : false}
+      aria-invalid={!!$errors.bodySv}
       aria-errormessage={$errors.bodySv?.at(0)}
       name="bodySv"
       bind:value={$form.bodySv}
     />
   {:else}
     <Editor
-      aria-invalid={$errors.bodyEn ? true : false}
+      aria-invalid={!!$errors.bodyEn}
       aria-errormessage={$errors.bodyEn?.at(0)}
       name="bodyEn"
       bind:value={$form.bodyEn as string | undefined}
@@ -168,7 +168,7 @@
   <div class="flex w-full flex-col gap-1.5">
     <Label for="tags">{m.news_tags()}</Label>
     <TagSelector
-      aria-invalid={$errors.tags ? true : false}
+      aria-invalid={!!$errors.tags}
       aria-errormessage={$errors.tags?._errors?.at(0)}
       name="tags"
       bind:selectedTags={$form.tags}

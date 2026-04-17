@@ -60,7 +60,7 @@
           role="combobox"
           aria-controls="tags-panel"
           aria-expanded="false"
-          aria-invalid={restProps["aria-invalid"] ? true : false}
+          aria-invalid={!!restProps["aria-invalid"]}
         >
           <div class="flex w-full flex-row items-center gap-1">
             <Tags class="text-muted-foreground ml-3 size-4 shrink-0" />

@@ -68,7 +68,7 @@
         </Label>
         <Select.Root required type="single" name="type" bind:value={$form.type}>
           <Select.Trigger
-            aria-invalid={$errors.type ? true : false}
+            aria-invalid={!!$errors.type}
             aria-errormessage={$errors.type?.at(0)}
             class="min-w-64"
           >
@@ -101,7 +101,7 @@
           placeholder={$form.type !== "requirement"
             ? meetingPlaceholder
             : "HTM1, VTM-extra..."}
-          aria-invalid={$errors.folder ? true : false}
+          aria-invalid={!!$errors.folder}
           aria-errormessage={$errors.folder?.at(0)}
           {...$constraints.folder}
         />
@@ -123,7 +123,7 @@
         id="file"
         type="file"
         name="file"
-        aria-invalid={$errors.file || fileErrors ? true : false}
+        aria-invalid={!!$errors.file || !!fileErrors}
         aria-errormessage={fileErrors?.at(0) ?? $errors.file?.at(0)}
         bind:files={$file}
         oninput={(e) => {
@@ -148,7 +148,7 @@
       <Input
         id="name"
         name="name"
-        aria-invalid={$errors.name ? true : false}
+        aria-invalid={!!$errors.name}
         aria-errormessage={$errors.name?.at(0)}
         type="text"
         placeholder={$form.type !== "requirement"
@@ -165,7 +165,7 @@
         id="year"
         name="year"
         type="number"
-        aria-invalid={$errors.year ? true : false}
+        aria-invalid={!!$errors.year}
         aria-errormessage={$errors.year?.at(0)}
         bind:value={$form.year}
         {...$constraints.year}

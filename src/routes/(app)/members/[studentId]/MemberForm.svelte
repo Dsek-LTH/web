@@ -64,7 +64,7 @@
             id="firstName"
             name="firstName"
             placeholder="Råsa"
-            aria-invalid={$errors.firstName ? true : false}
+            aria-invalid={!!$errors.firstName}
             aria-errormessage={$errors.firstName?.at(0)}><Pen /></Input
           >
         </div>
@@ -75,7 +75,7 @@
             id="lastName"
             name="lastName"
             placeholder="Pantern"
-            aria-invalid={$errors.lastName ? true : false}
+            aria-invalid={!!$errors.lastName}
             aria-errormessage={$errors.lastName?.at(0)}><Pen /></Input
           >
         </div>
@@ -87,7 +87,7 @@
           id="nickname"
           name="nickname"
           placeholder=""
-          aria-invalid={$errors.nickname ? true : false}
+          aria-invalid={!!$errors.nickname}
           aria-errormessage={$errors.nickname?.at(0)}><Pen /></Input
         >
       </div>
@@ -98,7 +98,7 @@
           id="foodPreference"
           name="foodPreference"
           placeholder={m.onboarding_foodPreferencePlaceholder()}
-          aria-invalid={$errors.foodPreference ? true : false}
+          aria-invalid={!!$errors.foodPreference}
           aria-errormessage={$errors.foodPreference?.at(0)}><Pen /></Input
         >
       </div>
@@ -147,7 +147,7 @@
             name="classYear"
             required
             type="number"
-            aria-invalid={$errors.classYear ? true : false}
+            aria-invalid={!!$errors.classYear}
             bind:value={$form.classYear}
             {...$constraints.classYear}
             aria-errormessage={$errors.classYear?.at(0)}
@@ -182,7 +182,7 @@
           name="bio"
           bind:value={$form.bio}
           {...$constraints.bio}
-          aria-invalid={$errors.bio ? true : false}
+          aria-invalid={!!$errors.bio}
           aria-errormessage={$errors.bio?.at(0)}
         />
       </div>
