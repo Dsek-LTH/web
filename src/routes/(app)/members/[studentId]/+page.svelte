@@ -129,7 +129,9 @@
           >
         </a>
       </div>
-      <p class="text-rosa-500 mt-0">"{member.nickname}"</p>
+      {#if member.nickname}<p class="text-rosa-500 mt-0">
+          "{member.nickname}"
+        </p>{/if}
       {#if member.bio}
         <h6 class="mt-1">Bio</h6>
         <MemberBio bio={member.bio} />
