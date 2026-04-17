@@ -1,27 +1,13 @@
 <script lang="ts">
   import CommitteeIcon from "$lib/components/images/CommitteeIcon.svelte";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
-  import DOMPurify from "isomorphic-dompurify";
   import * as m from "$paraglide/messages";
   import { Button } from "$lib/components/ui/button";
   import { ArrowRight } from "@lucide/svelte";
   import { type ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+  import { breakName } from "$lib/utils/committee";
 
   let { data } = $props();
-
-  const breakName = (name: string) => {
-    let output = "";
-    if (name.includes("utskottet"))
-      output = `${name.split("utskottet")[0]}&shy;utskottet`;
-    else if (name.includes("kommittén"))
-      output = `${name.split("kommittén")[0]}&shy;kommittén`;
-    else if (name.includes("mästeriet"))
-      output = `${name.split("mästeriet")[0]}&shy;mästeriet`;
-    else if (name.includes("rådet"))
-      output = `${name.split("rådet")[0]}&shy;rådet`;
-    else output = name;
-    return DOMPurify.sanitize(output);
-  };
 </script>
 
 <SetPageTitle title={m.about_guild()} />
