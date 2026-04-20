@@ -139,7 +139,7 @@
       </div>
     </form>
     <div class="w-[300px]">
-      <h3 class="my-4">Förhandsvisning</h3>
+      <h3 class="my-4">{m.elections_preview()}</h3>
       <ElectionCard
         election={{
           markdown: $form.markdownSv || "",

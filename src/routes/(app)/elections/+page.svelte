@@ -19,7 +19,8 @@
   <div class="flex flex-row">
     <h1>{m.openElections()}</h1>
     {#if isAuthorized(apiNames.ELECTION.CREATE, data.user)}
-      <a href="/elections/create" class="ml-auto"><Button>+ Nytt val</Button></a
+      <Button href="/elections/create" class="ml-auto"
+        >+ {m.elections_new()}</Button
       >
     {/if}
   </div>
