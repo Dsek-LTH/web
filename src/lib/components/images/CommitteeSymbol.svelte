@@ -4,7 +4,11 @@
   import { cn } from "$lib/utils";
 
   let {
-    committee,
+    committee = {
+      symbolUrl: "",
+      shortName: "other",
+      name: "",
+    },
     size = "default",
     class: klass,
   }: {
@@ -18,14 +22,6 @@
 
   const FALLBACK_URL =
     "https://raw.githubusercontent.com/Dsek-LTH/grafik/refs/heads/main/guild/dsek/symbol/symbol_rosa.svg";
-
-  if (committee == undefined) {
-    committee = {
-      symbolUrl: "",
-      shortName: "other",
-      name: "",
-    };
-  }
 
   let other = $derived(committee.shortName == "other");
 
