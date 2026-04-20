@@ -22,6 +22,9 @@ export const load: PageServerLoad = async ({ locals }) => {
       name: true,
       nameSv: true,
       nameEn: true,
+      darkImageUrl: true,
+      lightImageUrl: true,
+      monoImageUrl: true,
     },
   });
 

@@ -1082,5 +1082,7 @@
   "documents_srdMeetings_prose": "The Student Council meetings are held every Wednesday during the study weeks in E:1124. Here, all students are welcome to discuss the education and have opinions about how e.g. the courses are functioning.",
   "documents_notice": "Notice",
   "documents_agenda": "Agenda",
-  "documents_minutes": "Minutes"
+  "documents_minutes": "Minutes",
+  "elections_preview": "Preview",
+  "elections_new": "Create election"
 }

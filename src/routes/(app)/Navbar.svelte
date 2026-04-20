@@ -253,7 +253,9 @@
 
         <NavigationMenu.Content>
           <ul
-            class="ml-0 grid list-none gap-2 p-2 md:w-[400px] lg:w-[472px] lg:grid-cols-[.75fr_1fr]"
+            class={route.list
+              ? "ml-0 grid w-[200px] gap-4 p-2"
+              : "ml-0 grid list-none gap-2 p-2 md:w-[400px] lg:w-[472px] lg:grid-cols-[.75fr_1fr]"}
           >
             {#if route.pictureUrl}
               <li class="row-span-3">
@@ -271,11 +273,18 @@
               </li>
             {/if}
             {#each route.children as child (child.title)}
-              <NavigationMenu.Link href={child.path}>
-                <NavigationMenu.ContentItem
-                  title={child.title}
-                  description={child.description ?? ""}
-                />
+              <NavigationMenu.Link
+                class="text-foreground font-medium"
+                href={child.path}
+              >
+                {#if route.list}
+                  {child.title}
+                {:else}
+                  <NavigationMenu.ContentItem
+                    title={child.title}
+                    description={child.description ?? ""}
+                  />
+                {/if}
               </NavigationMenu.Link>
             {/each}
           </ul>

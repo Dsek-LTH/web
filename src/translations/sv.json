@@ -1084,5 +1084,7 @@
   "documents_srdMeetings_prose": "Studierådsmöten hålls varje onsdag under läsveckorna i E:1124. Här är alla studenter välkomna att diskutera utbildningen och tycka till kring t.ex. hur kurserna fungerar.",
   "documents_notice": "Kallelse",
   "documents_agenda": "Föredragningslista",
-  "documents_minutes": "Protokoll"
+  "documents_minutes": "Protokoll",
+  "elections_preview": "Förhandsvisning",
+  "elections_new": "Nytt val"
 }
