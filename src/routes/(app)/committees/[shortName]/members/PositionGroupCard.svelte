@@ -1,8 +1,8 @@
 <script lang="ts">
-  import * as Avatar from "$lib/components/ui/avatar";
+  import MemberAvatar from "$lib/components/MemberAvatar.svelte";
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import { cn } from "$lib/utils";
-  import { getFullName, getInitials } from "$lib/utils/client/member";
+  import { getFullName } from "$lib/utils/client/member";
   import dayjs from "dayjs";
 
   let {
@@ -46,14 +46,7 @@
         href="/members/{mandate.member.studentId}"
         class="flex flex-row items-center gap-2 p-1 transition-opacity hover:opacity-80 focus:opacity-80"
       >
-        <Avatar.Root class="relative">
-          <Avatar.Image
-            lazy
-            src={mandate.member.picturePath}
-            alt="Member image"
-          />
-          <Avatar.Fallback>{getInitials(mandate.member)}</Avatar.Fallback>
-        </Avatar.Root>
+        <MemberAvatar member={mandate.member} lazy class="relative" />
 
         <div class="flex flex-col gap-0">
           <h6 class="mb-0 line-clamp-3 leading-4.5 break-words">
