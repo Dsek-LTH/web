@@ -1,6 +1,5 @@
 <script lang="ts">
   import PositionCard from "$lib/components/PositionCard.svelte";
-  import * as Avatar from "$lib/components/ui/avatar/index";
   import * as Tabs from "$lib/components/ui/tabs/index";
   import { Badge } from "$lib/components/ui/badge";
   import * as m from "$paraglide/messages";
@@ -20,6 +19,7 @@
   import SEO from "$lib/seo/SEO.svelte";
   import PhadderGroupModal from "./PhadderGroupModal.svelte";
   import ArticleCard from "$lib/components/ArticleCard.svelte";
+  import MemberAvatar from "$lib/components/MemberAvatar.svelte";
 
   let { data } = $props();
 
@@ -102,16 +102,10 @@
         ></a
       >
       <div class="field-sizing-content h-24">
-        <Avatar.Root
-          class="border-background relative top-[-50%] size-24 border-4"
-        >
-          <Avatar.Image src={member.picturePath} alt="Member image" />
-          <Avatar.Fallback class="text-xl"
-            >{member.firstName && member.lastName
-              ? member.firstName?.charAt(0) + member.lastName?.charAt(0)
-              : "NN"}</Avatar.Fallback
-          >
-        </Avatar.Root>
+        <MemberAvatar
+          {member}
+          class="border-background relative top-[-50%] size-24 border-4 *:text-xl"
+        />
       </div>
       <span class="-mt-12 flex flex-row items-center gap-0 text-xs"
         ><code class="text-xs">{member.email}</code><Button
@@ -135,7 +129,9 @@
           >
         </a>
       </div>
-      <p class="text-rosa-500 mt-0">"{member.nickname}"</p>
+      {#if member.nickname}<p class="text-rosa-500 mt-0">
+          "{member.nickname}"
+        </p>{/if}
       {#if member.bio}
         <h6 class="mt-1">Bio</h6>
         <MemberBio bio={member.bio} />
@@ -246,14 +242,7 @@
     class="bg-muted-background border-border flex w-5/12 flex-col gap-4 border-x-[1px] pt-8 pr-6 pb-4 pl-6 lg:w-3/12"
   >
     <div class="flex flex-col items-center gap-4">
-      <Avatar.Root class="relative size-44">
-        <Avatar.Image src={member.picturePath} alt="Member image" />
-        <Avatar.Fallback class="text-4xl"
-          >{member.firstName && member.lastName
-            ? member.firstName?.charAt(0) + member.lastName?.charAt(0)
-            : "NN"}</Avatar.Fallback
-        >
-      </Avatar.Root>
+      <MemberAvatar class="relative size-44! *:text-4xl" {member} />
       <span class="flex flex-row items-center gap-0"
         ><code class="text-xs">{member.email}</code>{#if member.email}<Button
             onclick={() => navigator.clipboard.writeText(member.email ?? "")}

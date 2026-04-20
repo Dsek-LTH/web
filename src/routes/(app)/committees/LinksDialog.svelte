@@ -61,7 +61,7 @@
 [länk](/committees/utskott/sida)"
             name="markdownSv"
             bind:value={$form.markdownSv}
-            aria-invalid={$errors.markdownSv ? true : false}
+            aria-invalid={!!$errors.markdownSv}
           />
         </div>
         <div class={activeTab == "en" ? "block" : "hidden"}>
@@ -69,7 +69,7 @@
             placeholder="**Heading**
 [link](/committees/committee/page)"
             bind:value={$form.markdownEn as string | undefined}
-            aria-invalid={$errors.markdownEn ? true : false}
+            aria-invalid={!!$errors.markdownEn}
           />
         </div>
         <div class="hidden">

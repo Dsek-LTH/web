@@ -1,12 +1,11 @@
 <script lang="ts">
-  import * as Avatar from "$lib/components/ui/avatar";
-  import { getInitials } from "$lib/utils/client/member";
   import ExternalLink from "@lucide/svelte/icons/external-link";
   import type { PageData } from "./$types";
   import CommitteeIcon from "$lib/components/images/CommitteeIcon.svelte";
   import CommitteeSymbol from "$lib/components/images/CommitteeSymbol.svelte";
   import * as m from "$paraglide/messages";
   import { type ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+  import MemberAvatar from "$lib/components/MemberAvatar.svelte";
 
   let { data }: { data: PageData } = $props();
 
@@ -173,15 +172,10 @@
 )}
   {#if position}
     <div class="flex h-full w-72 flex-col rounded-md border-[1px] p-4 sm:w-64">
-      <Avatar.Root class="border-border m-3 size-40 self-center border-[1px]">
-        <Avatar.Image
-          src={position?.member?.picturePath ?? ""}
-          alt="Member image"
-        />
-        <Avatar.Fallback class="text-xl"
-          >{getInitials(position?.member)}</Avatar.Fallback
-        >
-      </Avatar.Root>
+      <MemberAvatar
+        member={position?.member}
+        class="border-border m-3 size-40 self-center border-[1px]"
+      />
       <h3>{position?.position.name}</h3>
       <h6>{position?.member?.firstName} {position?.member?.lastName}</h6>
       <div class="mt-3">

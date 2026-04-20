@@ -33,7 +33,7 @@
       <Label>{m.committees_name()}</Label>
       <Input
         name="nameSv"
-        aria-invalid={$errors.nameSv ? true : false}
+        aria-invalid={!!$errors.nameSv}
         aria-errormessage={$errors.nameSv?.at(0)}
         bind:value={$form.nameSv}
         type="text"
@@ -44,7 +44,7 @@
       <Label>{m.committees_name_en()}</Label>
       <Input
         name="nameEn"
-        aria-invalid={$errors.nameEn ? true : false}
+        aria-invalid={!!$errors.nameEn}
         aria-errormessage={$errors.nameEn?.at(0)}
         bind:value={$form.nameEn}
         type="text"
@@ -55,7 +55,7 @@
       <Label>{m.committees_description()}</Label>
       <Textarea
         name="descriptionSv"
-        aria-invalid={$errors.descriptionSv ? true : false}
+        aria-invalid={!!$errors.descriptionSv}
         aria-errormessage={$errors.descriptionSv?.at(0)}
         bind:value={$form.descriptionSv}
       />
@@ -65,7 +65,7 @@
       <Label>{m.committees_description_en()}</Label>
       <Textarea
         name="descriptionEn"
-        aria-invalid={$errors.descriptionEn ? true : false}
+        aria-invalid={!!$errors.descriptionEn}
         aria-errormessage={$errors.descriptionEn?.at(0)}
         bind:value={$form.descriptionEn}
       />
@@ -75,7 +75,7 @@
       <Label>{m.committees_committeeImage_light()}</Label>
       <Input
         name="lightImageUrl"
-        aria-invalid={$errors.lightImageUrl ? true : false}
+        aria-invalid={!!$errors.lightImageUrl}
         aria-errormessage={$errors.lightImageUrl?.at(0)}
         bind:value={$form.lightImageUrl}
         type="text"
@@ -87,7 +87,7 @@
       <Label>{m.committees_committeeImage_dark()}</Label>
       <Input
         name="darkImageUrl"
-        aria-invalid={$errors.darkImageUrl ? true : false}
+        aria-invalid={!!$errors.darkImageUrl}
         aria-errormessage={$errors.darkImageUrl?.at(0)}
         bind:value={$form.darkImageUrl}
         type="text"
@@ -99,7 +99,7 @@
       <Label>{m.committees_committeeImage_mono()}</Label>
       <Input
         name="monoImageUrl"
-        aria-invalid={$errors.monoImageUrl ? true : false}
+        aria-invalid={!!$errors.monoImageUrl}
         aria-errormessage={$errors.monoImageUrl?.at(0)}
         bind:value={$form.monoImageUrl}
         type="text"
@@ -111,7 +111,7 @@
       <Label>{m.committees_committeeImage_symbol()}</Label>
       <Input
         name="symbolUrl"
-        aria-invalid={$errors.symbolUrl ? true : false}
+        aria-invalid={!!$errors.symbolUrl}
         aria-errormessage={$errors.symbolUrl?.at(0)}
         bind:value={$form.symbolUrl}
         type="text"
@@ -123,7 +123,7 @@
       <Label>{m.committees_card_image()}</Label>
       <Input
         name="previewUrl"
-        aria-invalid={$errors.previewUrl ? true : false}
+        aria-invalid={!!$errors.previewUrl}
         aria-errormessage={$errors.previewUrl?.at(0)}
         bind:value={$form.previewUrl}
         type="text"
@@ -136,7 +136,7 @@
         <Label>{m.committees_banner_image()}</Label>
         <Input
           name="bannerUrl"
-          aria-invalid={$errors.bannerUrl ? true : false}
+          aria-invalid={!!$errors.bannerUrl}
           aria-errormessage={$errors.bannerUrl?.at(0)}
           bind:value={$form.bannerUrl}
           type="text"
