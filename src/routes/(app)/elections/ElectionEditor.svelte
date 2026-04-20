@@ -82,7 +82,7 @@
           <Textarea
             name="markdownSv"
             bind:value={$form.markdownSv}
-            aria-invalid={$errors.markdownSv ? true : false}
+            aria-invalid={!!$errors.markdownSv}
             aria-errormessage={$errors.markdownSv?.at(0)}
             class="h-full"
             placeholder="- Post 1&#13;- Post 2&#13;- Post 3"
@@ -94,7 +94,7 @@
           <Textarea
             name="markdownEn"
             bind:value={$form.markdownEn}
-            aria-invalid={$errors.markdownEn ? true : false}
+            aria-invalid={!!$errors.markdownEn}
             aria-errormessage={$errors.markdownEn?.at(0)}
             class="h-full"
             placeholder="- Position 1&#13;- Position 2&#13;- Position 3"
@@ -107,7 +107,7 @@
         <Input
           name="link"
           bind:value={$form.link}
-          aria-invalid={$errors.link ? true : false}
+          aria-invalid={!!$errors.link}
           aria-errormessage={$errors.link?.at(0)}
           class="h-full"
           placeholder={m.elections_link_placeholder()}
@@ -124,7 +124,7 @@
               ? parseDate($form.expiresAt)
               : (null as unknown as undefined), // I would like to apologize for this
           (date) => ($form.expiresAt = date!.toString())}
-          error={$errors.expiresAt ? true : false}
+          error={!!$errors.expiresAt}
         />
         <input type="hidden" value={$form.expiresAt} name="expiresAt" />
       </div>
