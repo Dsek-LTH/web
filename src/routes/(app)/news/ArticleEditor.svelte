@@ -25,7 +25,7 @@
     committees: Array<Pick<ExtendedPrismaModel<"Committee">, "id" | "name">>;
   } = $props();
 
-  const { form } = superform;
+  const { form } = $derived(superform);
   let activeTab: "sv" | "en" = $state("sv");
 
   let tagIds = $form.tags
