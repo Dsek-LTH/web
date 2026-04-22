@@ -47,7 +47,9 @@
   class="transition-all hover:opacity-85"
   href="/committees/{data.committee?.shortName}/members"
 >
-  <div class="flex flex-row gap-4 overflow-x-scroll">
+  <div
+    class="after:to-background relative flex flex-row gap-4 overflow-x-scroll after:fixed after:top-0 after:right-0 after:z-100 after:h-full after:w-8 after:bg-linear-to-r after:from-transparent after:pl-10"
+  >
     {#each previewPositions as position (position.id)}
       <div
         class="bg-muted-background inline-flex shrink-0 grow-0 flex-row items-center gap-2 rounded-md border-[1px] p-3"
@@ -85,7 +87,7 @@
   </div>
 </a>
 
-<div class="flex flex-row">
+<div class="mt-2 flex flex-row">
   <h2 class="mb-2">{m.committees_about()}</h2>
   {#if canEdit}
     <Dialog.Root>
