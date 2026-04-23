@@ -1,9 +1,9 @@
 <script lang="ts">
   import CalendarIcon from "@lucide/svelte/icons/calendar";
   import {
-    CalendarDate,
     DateFormatter,
     getLocalTimeZone,
+    parseDate,
   } from "@internationalized/date";
   import { cn } from "$lib/utils.js";
   import { buttonVariants } from "$lib/components/ui/button";
@@ -41,15 +41,18 @@
     weekStartsOn = 1,
     class: className,
     error = false,
+    name,
     ...restProps
   }: AriaAttributes & {
-    value?: CalendarDate;
+    value?: string;
     weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
     class?: ClassValue;
     error?: boolean;
     name?: string;
   } = $props();
   let contentRef = $state<HTMLElement | null>(null);
+
+  //let value: string | null | undefined = $state();
 </script>
 
 <Popover.Root>
@@ -66,13 +69,15 @@
   >
     <CalendarIcon />
     {value
-      ? format(value.toDate(getLocalTimeZone()))
+      ? format(parseDate(value).toDate(getLocalTimeZone()))
       : m.datepicker_pick_date()}
   </Popover.Trigger>
   <Popover.Content bind:ref={contentRef} class="bg-background w-auto p-0">
     <Calendar
       type="single"
-      bind:value
+      bind:value={() =>
+        value ? parseDate(value) : (null as unknown as undefined), // I would like to apologize for this
+      (date) => (value = date!.toString())}
       captionLayout="dropdown"
       {weekStartsOn}
       class="rounded-md border shadow-sm"
@@ -80,3 +85,4 @@
     />
   </Popover.Content>
 </Popover.Root>
+<input type="hidden" bind:value {name} />

@@ -12,9 +12,9 @@
   import dayjs from "dayjs";
   import utc from "dayjs/plugin/utc";
   import timezone from "dayjs/plugin/timezone";
-  import { parseDate } from "@internationalized/date";
   import type { PageData as CreatePageData } from "./create/$types";
   import type { PageData as EditPageData } from "./[id]/edit/$types";
+  import SuperDebug from "sveltekit-superforms";
 
   dayjs.extend(utc);
   dayjs.extend(timezone);
@@ -119,14 +119,10 @@
         <Label>{m.elections_expiryDate()}</Label>
         <DatePicker
           class="w-full"
-          bind:value={() =>
-            $form.expiresAt
-              ? parseDate($form.expiresAt)
-              : (null as unknown as undefined), // I would like to apologize for this
-          (date) => ($form.expiresAt = date!.toString())}
+          name="expiresAt"
+          bind:value={$form.expiresAt}
           error={!!$errors.expiresAt}
         />
-        <input type="hidden" value={$form.expiresAt} name="expiresAt" />
       </div>
 
       <div class="flex w-full flex-row justify-between gap-1.5">
@@ -156,3 +152,4 @@
     </div>
   </div>
 </div>
+<SuperDebug data={$form} />
