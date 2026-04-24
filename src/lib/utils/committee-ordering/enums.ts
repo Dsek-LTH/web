@@ -88,11 +88,14 @@ export enum Naru {
   "old.dsek.nari.industrikontaktman",
   "dsek.nari.vice_mastare",
   "old.dsek.viceindustrikontakt",
+  "dsek.delta.projgr.general",
+  "dsek.delta.projgr.mdlm",
   "dsek.teknik.projgr.ansv",
   "dsek.teknik.projgr.mdlm",
   "dsek.nari.mentorsansv",
   "dsek.nari.alu.ansv",
   "dsek.nari.alu.mdlm",
+  "dsek.delta.vard",
   "dsek.nari.funk",
 }
 export enum Km {
