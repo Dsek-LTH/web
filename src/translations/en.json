@@ -1081,5 +1081,6 @@
   "documents_agenda": "Agenda",
   "documents_minutes": "Minutes",
   "elections_preview": "Preview",
-  "elections_new": "Create election"
+  "elections_new": "Create election",
+  "committees_all_members": "All members"
 }
