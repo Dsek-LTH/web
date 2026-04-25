@@ -20,6 +20,9 @@
   import PhadderGroupModal from "./PhadderGroupModal.svelte";
   import ArticleCard from "$lib/components/ArticleCard.svelte";
   import MemberAvatar from "$lib/components/MemberAvatar.svelte";
+  import { isAuthorized } from "$lib/utils/authorization";
+  import apiNames from "$lib/utils/apiNames";
+  import { page } from "$app/state";
 
   let { data } = $props();
 
@@ -68,6 +71,11 @@
   ];
 
   let mobileBackground = mobileBackgrounds[Math.floor(Math.random() * 3)];
+
+  let canEdit = $derived(
+    page.data.user?.studentId === member.studentId ||
+      isAuthorized(apiNames.MEMBER.UPDATE, page.data.user),
+  );
 </script>
 
 <SetPageTitle title={getFullName(member)} />
@@ -96,11 +104,12 @@
     <section
       class="layout-container bg-muted-background relative flex flex-col border-l-[1px] py-0 pb-4"
     >
-      <a href={member.studentId + "/edit"}>
-        <Button variant="outline" class="absolute top-2 right-2" size="sm"
-          ><Pen /> {m.member_edit_profile()}</Button
-        ></a
-      >
+      {#if canEdit}
+        <a href={member.studentId + "/edit"}>
+          <Button variant="outline" class="absolute top-2 right-2" size="sm"
+            ><Pen /> {m.member_edit_profile()}</Button
+          ></a
+        >{/if}
       <div class="field-sizing-content h-24">
         <MemberAvatar
           {member}
@@ -322,24 +331,26 @@
               (member.classYear?.toString().slice(-2) ?? "??")}</Badge
           >
         </a>
-        <Dialog.Root>
-          <div class="ml-auto self-center">
-            <Dialog.Trigger
-              class={cn(
-                buttonVariants({ variant: "outline", size: "sm" }),
-                "ml-auto self-center",
-              )}><Pen /> {m.member_edit_profile()}</Dialog.Trigger
-            >
-            <Dialog.Content
-              class="z-51 max-h-[90vh] overflow-y-scroll sm:max-w-[425px]"
-            >
-              <Dialog.Header>
-                <Dialog.Title>{m.member_edit_profile()}</Dialog.Title>
-              </Dialog.Header>
-              <MemberForm {data} dialog />
-            </Dialog.Content>
-          </div>
-        </Dialog.Root>
+        {#if canEdit}
+          <Dialog.Root>
+            <div class="ml-auto self-center">
+              <Dialog.Trigger
+                class={cn(
+                  buttonVariants({ variant: "outline", size: "sm" }),
+                  "ml-auto self-center",
+                )}><Pen /> {m.member_edit_profile()}</Dialog.Trigger
+              >
+              <Dialog.Content
+                class="z-51 max-h-[90vh] overflow-y-scroll sm:max-w-[425px]"
+              >
+                <Dialog.Header>
+                  <Dialog.Title>{m.member_edit_profile()}</Dialog.Title>
+                </Dialog.Header>
+                <MemberForm {data} dialog />
+              </Dialog.Content>
+            </div>
+          </Dialog.Root>
+        {/if}
       </div>
       <h4 class="mb-8">
         {member.nickname ? "“" + member.nickname + "”" : ""}
