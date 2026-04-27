@@ -3,6 +3,7 @@
   import AuthorCard from "./AuthorCard.svelte";
   import type { EventWithIncludes } from "$lib/events/getEvents";
   import TagChip from "./TagChip.svelte";
+  import * as messages from "$paraglide/messages";
 
   let {
     event,
@@ -25,17 +26,20 @@
       ></div>
     {/if}
 
-    <h3 class="mt-2 px-2">
+    <h3 class="mt-2 px-2" class:line-through={event.isCancelled}>
       {event.title}
     </h3>
 
-    <div class="flex flex-row items-center pl-2 py-2 gap-2">
+    <div class="flex flex-row items-center gap-2 py-2 pl-2">
       {#each event.tags as tag (tag.id)}
         <TagChip {tag} />
       {/each}
     </div>
 
-    <div class="prose-p:text-foreground line-clamp-2 px-2 overflow-ellipsis">
+    <div
+      class="prose-p:text-foreground line-clamp-2 px-2 overflow-ellipsis"
+      class:line-through={event.isCancelled}
+    >
       {event.description}
     </div></a
   >
@@ -45,7 +49,7 @@
       customAuthor={null}
       position={undefined}
     />
-    <span class="text-muted-foreground"
+    <span class="text-muted-foreground" class:line-through={event.isCancelled}
       >{dayjs(event.startDatetime).format("YYYY-MM-DD")}</span
     >
   </div>
