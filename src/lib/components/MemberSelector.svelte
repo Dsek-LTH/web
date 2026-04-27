@@ -48,14 +48,14 @@
   let isSearching = $state(false);
 
   $effect(() => {
-    if (selectedMember) {
+    if (selectedMember?.id) {
       selectedMemberId = new TextDecoder().decode(
         base64ToBytes(selectedMember?.id),
       );
     }
     if (selectedMembers) {
       selectedMembersId = selectedMembers.map((m) =>
-        new TextDecoder().decode(base64ToBytes(m.id)),
+        new TextDecoder().decode(base64ToBytes(m.id!)),
       );
     }
   });
