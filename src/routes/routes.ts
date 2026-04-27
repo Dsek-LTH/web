@@ -1,6 +1,5 @@
 import * as m from "$paraglide/messages";
 
-import nollningImage from "./(nollning)/nollning/(photos)/staben25_9x16.webp";
 // bottom-nav: Show in the bottom navigation bar
 // home-link: Show on the home page
 // none: Don't show anywhere
@@ -25,43 +24,56 @@ export type Route = {
 export const getRoutes = (): Route[] =>
   [
     {
-      title: m.applicant(),
-      pictureUrl: nollningImage,
-      path: null,
-      accessRequired: null,
-      pictureTitle: m.nollning_nav_picture_title(),
-      pictureDescription: m.nollning_theme(),
-      picturePath: "/nollning",
-      appBehaviour: "none",
-      children: [
-        {
-          title: m.applicant(),
-          description: m.nav_applicant_description(),
-          accessRequired: null,
-          appBehaviour: "none",
-          path: "/sokande",
-        },
-        {
-          title: m.nav_nollning(),
-          description: m.nav_nollning_description(),
-          accessRequired: null,
-          appBehaviour: "none",
-          path: "/nollning",
-        },
-        {
-          title: m.nav_about_guild(),
-          description: m.nav_about_guild_desc(),
-          accessRequired: null,
-          appBehaviour: "none",
-          path: "/about",
-        },
-      ],
-    },
-    {
       title: m.news(),
       accessRequired: null,
       appBehaviour: "none",
       path: "/news",
+    },
+    {
+      title: m.events(),
+      accessRequired: null,
+      appBehaviour: "none",
+      path: "/events",
+    },
+    {
+      title: m.tickets(),
+      accessRequired: null,
+      appBehaviour: "none",
+      path: "/shop/tickets",
+    },
+    {
+      title: m.documents(),
+      description: m.documents_desc(),
+      accessRequired: null,
+      appBehaviour: "none",
+      path: "/documents",
+      list: true,
+      children: [
+        {
+          title: m.documents_governingDocuments(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/documents/governing",
+        },
+        {
+          title: m.documents_meetingDocuments(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/documents/meeting",
+        },
+        {
+          title: m.documents_requirementProfiles(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/documents/requirements",
+        },
+        {
+          title: "Gerda",
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "gerda.dsek.se",
+        },
+      ],
     },
     {
       title: m.nav_guild(),
@@ -70,13 +82,6 @@ export const getRoutes = (): Route[] =>
       path: null,
       children: [
         {
-          title: m.nav_about_guild(),
-          description: m.nav_about_guild_desc(),
-          accessRequired: null,
-          appBehaviour: "none",
-          path: "/about",
-        },
-        {
           title: m.nav_board(),
           description: m.nav_board_desc(),
           accessRequired: null,
@@ -84,26 +89,10 @@ export const getRoutes = (): Route[] =>
           path: "/board",
         },
         {
-          title: m.documents(),
-          description: m.documents_desc(),
+          title: m.nav_committees(),
           accessRequired: null,
           appBehaviour: "none",
-          path: "/documents",
-        },
-      ],
-    },
-    {
-      title: m.nav_volunteer(),
-      accessRequired: null,
-      appBehaviour: "none",
-      path: "/volunteer",
-      list: true,
-      children: [
-        {
-          title: m.nav_volunteer(),
-          accessRequired: null,
-          appBehaviour: "none",
-          path: "/volunteer",
+          path: "/committees",
         },
         {
           title: m.openElections(),
@@ -111,25 +100,91 @@ export const getRoutes = (): Route[] =>
           appBehaviour: "none",
           path: "/elections",
         },
-      ],
-    },
-    {
-      title: m.nav_member(),
-      accessRequired: null,
-      appBehaviour: "none",
-      path: null,
-      children: [
         {
-          title: "Bokningar",
+          title: m.bookings(),
           accessRequired: null,
           appBehaviour: "none",
-          path: "/bookings",
+          path: "/booking",
         },
         {
-          title: "Utlägg",
+          title: m.expenses(),
           accessRequired: null,
           appBehaviour: "none",
           path: "/expenses",
+        },
+        {
+          title: m.songBook(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/songbook",
+        },
+        {
+          title: m.medals(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/medals",
+        },
+        {
+          title: m.gallery(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/gallery",
+        },
+      ],
+    },
+    {
+      title: m.admin(),
+      accessRequired: null,
+      appBehaviour: "none",
+      path: "/admin",
+      children: [
+        {
+          title: m.access(),
+          path: "/admin/access",
+          accessRequired: null,
+          appBehaviour: "none",
+        },
+        {
+          title: m.doors(),
+          path: "/admin/doors",
+          accessRequired: null,
+          appBehaviour: "none",
+        },
+        {
+          title: m.alerts(),
+          path: "/admin/alerts",
+          accessRequired: null,
+          appBehaviour: "none",
+        },
+        {
+          title: m.linkShortener(),
+          path: "/admin/links",
+          accessRequired: null,
+          appBehaviour: "none",
+        },
+        {
+          title: m.adminSettings(),
+          path: "/admin/settings",
+          accessRequired: null,
+          appBehaviour: "none",
+        },
+        {
+          title: m.files(),
+          path: "/admin/minio",
+          accessRequired: null,
+          appBehaviour: "none",
+        },
+        {
+          title: m.info(),
+          path: "/admin/info",
+          accessRequired: null,
+          appBehaviour: "none",
+        },
+        {
+          title: m.qr_code(),
+          path: "/admin/qr",
+          accessRequired: null,
+          appBehaviour: "none",
         },
       ],
     },
