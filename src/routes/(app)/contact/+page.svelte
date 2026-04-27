@@ -61,7 +61,7 @@
       <h3>DELTA</h3>
     </div>
     <span>
-      {m.contact_teknikfokus_prose()}
+      {m.contact_delta_prose()}
     </span>
     <span
       >{m.contact_delta_email()}<a
