@@ -26,8 +26,8 @@
     inputClass = "",
     ...restProps
   }: {
-    selectedMembers?: MemberSearchReturnAttributes[];
-    selectedMember?: MemberSearchReturnAttributes | null;
+    selectedMembers?: Array<MemberSearchReturnAttributes & { id: string }>;
+    selectedMember?: (MemberSearchReturnAttributes & { id: string }) | null;
     selectedMemberId?: string | null;
     selectedMembersId?: string[] | null;
     multiple: boolean;
