@@ -3,8 +3,9 @@
   import NotImplemented from "$lib/components/NotImplemented.svelte";
   import * as ButtonGroup from "$lib/components/ui/button-group/index";
   import Button from "$lib/components/ui/button/button.svelte";
-  const { data } = $props();
   import * as messages from "$paraglide/messages";
+
+  const { data } = $props();
 
   type CalendarKind = "week" | "month" | "list";
 
