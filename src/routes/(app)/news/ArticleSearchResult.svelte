@@ -1,5 +1,5 @@
 <script lang="ts">
-  import MemberAvatar from "$lib/components/MemberAvatar.svelte";
+  import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
 
   import type { ArticleSearchReturnAttributes } from "$lib/search/searchTypes";
   import { getLocale } from "$paraglide/runtime";

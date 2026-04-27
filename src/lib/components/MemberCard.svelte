@@ -1,5 +1,5 @@
 <script lang="ts">
-  import MemberAvatar from "$lib/components/MemberAvatar.svelte";
+  import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
   import { Badge } from "$lib/components/ui/badge";
   import { getBadgeVariantFromProgramme } from "$lib/components/ui/badge/badge.svelte";
 

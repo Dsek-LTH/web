@@ -56,7 +56,6 @@ export const deleteNotification = form(
       .transform((val) => (val ? val.split(",").map(Number) : [])),
   }),
   async (data) => {
-    console.log("ayooo", data);
     const { user, prisma } = getRequestEvent().locals;
     if (data.notificationIds.length > 0) {
       await prisma.notification.deleteMany({

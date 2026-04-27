@@ -9,7 +9,7 @@
 </script>
 
 {#if members.length === 1}
-  <MemberAvatar class="size-10" member={members[0]} />
+  <MemberAvatar class="size-10" member={members[0]!} />
 {:else}
   <div class="ml-6 flex w-fit flex-row">
     {#each members.slice(0, 3) as member (member.firstName)}

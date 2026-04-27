@@ -1,18 +1,23 @@
 <script lang="ts">
-  import * as Avatar from "$lib/components/ui/avatar/index.js";
-  import type { MemberNames } from "$lib/utils/client/member";
+  import * as Avatar from "$lib/components/ui/avatar";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import { getInitials } from "$lib/utils/client/member";
 
-  const {
+  let {
     member,
     class: klass,
+    lazy,
   }: {
-    member: (MemberNames & { picturePath: string | null }) | undefined;
+    member: Pick<
+      ExtendedPrismaModel<"Member">,
+      "picturePath" | "firstName" | "lastName"
+    >;
     class?: string;
+    lazy?: boolean;
   } = $props();
 </script>
 
 <Avatar.Root class={klass}>
-  <Avatar.Image src={member?.picturePath} alt="profile picture" />
-  <Avatar.Fallback>{getInitials(member)}</Avatar.Fallback>
+  <Avatar.Image {lazy} src={member?.picturePath} alt="Member image" />
+  <Avatar.Fallback class="text-xs">{getInitials(member)}</Avatar.Fallback>
 </Avatar.Root>
