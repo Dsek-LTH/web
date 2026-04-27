@@ -1065,7 +1065,7 @@
   "contact_vice_president": "För generella frågor, kontakta Vice ordförande.",
   "contact_president": "För frågor om sektionens struktur och styrelsen, kontakta Ordförande.",
   "contact_business": "För företags- och näringslivskontakter, kontakta Näringslivsansvarig.",
-  "contact_teknikfokus_prose": "Teknikfokus är D-sektionens och E-sektionens årliga arbetsmarknadsmässa och riktar sig till studenter på civilingenjörsprogrammen Datateknik, Informations- och kommunikationsteknik, Elektroteknik samt Medicin och Teknik. Teknikfokus är en av de största händelserna under året för sektionerna och det är ett utmärkt tillfälle att visa upp sig mot studenter.",
+  "contact_teknikfokus_prose": "DELTA är D-sektionens årliga arbetsmarknadsmässa och riktar sig till studenter på civilingenjörsprogrammen Datateknik och Informations- och kommunikationsteknik. DELTA är en av de största händelserna under året för sektionen och ett utmärkt tillfälle att visa upp sig mot studenter.",
   "contact_wellbeing": "Vi är här för ditt välmående, i allt från studiero till likabehandling. Vi arbetar kontinuerligt för att se till att sektionen har en inkluderande känsla där du alltid känner dig välkommen oavsett vem du är. Du som student måste höras! Tveka därför inte att ta kontakt om något händer eller om du har tankar på hur vi kan öka sektionens välmående!",
   "contact_pm_prose": "För hjälp om hur du använder hemsidan korrekt, eller för att se till så att du har korrekta behörigheter, kontakta Processmästaren.",
   "contact_root_prose": "För teknisk support, eller i fall relaterade till IT-säkerhet, kontakta serveransvarig, root.",
@@ -1084,5 +1084,6 @@
   "documents_minutes": "Protokoll",
   "elections_preview": "Förhandsvisning",
   "elections_new": "Nytt val",
-  "committees_all_members": "Alla medlemmar"
+  "committees_all_members": "Alla medlemmar",
+  "contact_delta_email": "Är du nyfiken? Hör av dig till "
 }
