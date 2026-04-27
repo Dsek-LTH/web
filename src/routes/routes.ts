@@ -59,7 +59,7 @@ export const getRoutes = (): Route[] =>
           title: m.documents_meetingDocuments(),
           accessRequired: null,
           appBehaviour: "none",
-          path: "/documents/meeting",
+          path: "/documents",
         },
         {
           title: m.documents_requirementProfiles(),
@@ -92,7 +92,7 @@ export const getRoutes = (): Route[] =>
           title: m.nav_committees(),
           accessRequired: null,
           appBehaviour: "none",
-          path: "/committees",
+          path: "/about",
         },
         {
           title: m.openElections(),
