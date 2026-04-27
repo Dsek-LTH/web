@@ -42,6 +42,7 @@
     class: className,
     error = false,
     name,
+    iso,
     ...restProps
   }: AriaAttributes & {
     value?: string;
@@ -49,6 +50,7 @@
     class?: ClassValue;
     error?: boolean;
     name?: string;
+    iso?: boolean;
   } = $props();
   let contentRef = $state<HTMLElement | null>(null);
 
@@ -60,7 +62,7 @@
     class={cn(
       buttonVariants({
         variant: "outline",
-        class: "w-[280px] justify-start text-left font-normal",
+        class: "justify-start text-left font-normal",
       }),
       !value && "text-muted-foreground",
       error && "bg-rosa-50 dark:bg-rosa-950 border-rosa-background",
@@ -69,7 +71,9 @@
   >
     <CalendarIcon />
     {value
-      ? format(parseDate(value).toDate(getLocalTimeZone()))
+      ? iso
+        ? parseDate(value).toString()
+        : format(parseDate(value).toDate(getLocalTimeZone()))
       : m.datepicker_pick_date()}
   </Popover.Trigger>
   <Popover.Content bind:ref={contentRef} class="bg-background w-auto p-0">
