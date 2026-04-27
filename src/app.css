@@ -276,3 +276,7 @@ details summary::-webkit-details-marker {
 .article-body td {
   padding: 0.5rem;
 }
+
+progress {
+  @apply bg-muted-background rounded-sm border-[1px];
+}

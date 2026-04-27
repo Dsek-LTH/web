@@ -1,7 +1,6 @@
 import { error, fail } from "@sveltejs/kit";
 import {
   message,
-  setError,
   superValidate,
   type Infer,
 } from "sveltekit-superforms/server";
@@ -68,9 +67,9 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
   return {
     updateForm: superValidate(position, zod4(updateSchema)),
-    addMandateForm: superValidate(zod4(addManadateSchema), {
+    addMandateForm: superValidate(zod4(addMandateSchema), {
       defaults: {
-        memberId: "",
+        memberIds: [],
         startDate: dayjs()
           .month(position.startMonth)
           .utc()
@@ -101,12 +100,12 @@ export type UpdatePositionSchema = Infer<typeof updateSchema>;
 
 const END_OF_YEAR = new Date(`${new Date().getFullYear()}-12-31T23:59:59`);
 
-const addManadateSchema = z.object({
-  memberId: z.string().uuid(),
+const addMandateSchema = z.object({
+  memberIds: z.uuid().array(),
   startDate: z.coerce.date().default(new Date()),
   endDate: z.coerce.date().default(END_OF_YEAR),
 });
-export type AddMandateSchema = Infer<typeof addManadateSchema>;
+export type AddMandateSchema = Infer<typeof addMandateSchema>;
 
 const updateMandateSchema = z.object({
   mandateId: z.string().uuid(),
@@ -166,25 +165,31 @@ export const actions: Actions = {
   },
   addMandate: async ({ params, request, locals }) => {
     const { prisma } = locals;
-    const form = await superValidate(request, zod4(addManadateSchema));
+    const form = await superValidate(request, zod4(addMandateSchema));
     if (!form.valid) return fail(400, { form });
-    const member = await prisma.member.findUnique({
-      where: { id: form.data.memberId },
-    });
-    if (!member)
-      return setError(form, "memberId", m.positions_errors_memberNotFound());
-    await prisma.mandate.create({
-      data: {
-        positionId: params.id,
-        memberId: form.data.memberId,
-        startDate: form.data.startDate,
-        endDate: form.data.endDate,
-        lastSynced: new Date("1970"),
-      },
+    console.log(form.data.memberIds);
+    form.data.memberIds.forEach(async (id) => {
+      const member = await prisma.member.findUnique({ where: { id: id } });
+      if (!member)
+        return message(
+          form,
+          { message: m.positions_errors_memberNotFound() },
+          { status: 400 },
+        );
+
+      await prisma.mandate.create({
+        data: {
+          positionId: params.id,
+          memberId: id,
+          startDate: form.data.startDate,
+          endDate: form.data.endDate,
+          lastSynced: new Date("1970"),
+        },
+      });
     });
     return message(form, {
       message: m.positions_newMandateGivenTo({
-        name: member.firstName ?? m.positions_theMember(),
+        name: m.positions_theMember(),
       }),
       type: "success",
     });
