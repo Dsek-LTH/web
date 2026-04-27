@@ -1,4 +1,5 @@
 <script lang="ts">
+  import EventCard from "$lib/components/EventCard.svelte";
   import HomeCalendar from "$lib/components/homeCalendar/HomeCalendar.svelte";
   import NotImplemented from "$lib/components/NotImplemented.svelte";
   import * as ButtonGroup from "$lib/components/ui/button-group/index";
@@ -51,5 +52,9 @@
 {:else if calendarKind === "month"}
   <NotImplemented />
 {:else}
-  <NotImplemented />
+  <div class="flex flex-col gap-2 pt-2">
+    {#each data.events as event, index (event.id)}
+      <EventCard {event} {index} />
+    {/each}
+  </div>
 {/if}
