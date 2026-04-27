@@ -16,20 +16,26 @@
   let {
     selectedMembers = $bindable([]),
     selectedMember = $bindable(null),
+    selectedMemberId = $bindable(null),
+    selectedMembersId = $bindable([]),
     multiple = false,
     showId = true,
     showClass = true,
     limit = 0,
     class: clazz = "",
+    inputClass = "",
     ...restProps
   }: {
     selectedMembers?: MemberSearchReturnAttributes[];
     selectedMember?: MemberSearchReturnAttributes | null;
+    selectedMemberId?: string | null;
+    selectedMembersId?: string[] | null;
     multiple: boolean;
     showId: boolean;
     showClass: boolean;
     limit?: number;
     class?: string;
+    inputClass?: string;
   } & InputProps = $props();
 
   let componentElement: HTMLElement | null = $state(null);
@@ -40,6 +46,22 @@
   let triggerElement: HTMLElement | null = $state(null);
   let addedItemsIndex = $state(-1);
   let isSearching = $state(false);
+
+  $effect(() => {
+    if (selectedMember) {
+      selectedMemberId = new TextDecoder().decode(
+        base64ToBytes(selectedMember?.id),
+      );
+    }
+    if (selectedMembers) {
+      selectedMembersId = selectedMembers.map((m) =>
+        new TextDecoder().decode(base64ToBytes(m.id)),
+      );
+    }
+  });
+
+  const base64ToBytes = (input: string) =>
+    Uint8Array.from(atob(input), (c) => c.charCodeAt(0)).buffer;
 
   function isFocused(): boolean {
     return componentElement?.contains(document.activeElement) ?? false;
@@ -235,13 +257,16 @@
   onfocusin={handleFocusIn}
   shouldFilter={false}
   loop
-  class={cn("relative w-fit overflow-visible p-0", clazz)}
+  class={cn(clazz, "relative w-fit overflow-visible p-0")}
   {...restProps}
 >
   <Button
     bind:ref={triggerElement}
     variant="outline"
-    class={cn("align-center h-fit w-full cursor-text justify-start p-1 px-2")}
+    class={cn(
+      "align-center h-fit w-full cursor-text justify-start p-1 px-2",
+      inputClass,
+    )}
     onclick={() => {
       inputElement?.focus();
     }}
