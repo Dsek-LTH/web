@@ -1,5 +1,4 @@
 <script lang="ts">
-  import ExternalLink from "@lucide/svelte/icons/external-link";
   import type { PageData } from "./$types";
   import CommitteeIcon from "$lib/components/images/CommitteeIcon.svelte";
   import CommitteeSymbol from "$lib/components/images/CommitteeSymbol.svelte";
@@ -25,7 +24,7 @@
     </div>
   </div>
 
-  <div class="flex flex-col gap-2 rounded-md bg-[#000000] p-4 text-white">
+  <div class="flex flex-col gap-2 rounded-md bg-black p-4 text-white">
     <div class="flex flex-row items-center gap-3">
       <svg
         width="48px"
