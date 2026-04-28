@@ -37,7 +37,7 @@
 
 ## About
 
-This project is the main web page for the D-guild within TLTH, a non-profit organization for students and alumni of the Computer Science and Information/Communication Technologies programmes in Lund, Sweden. It is maintained by the DWWW committee.
+This project is the main web page for the D-guild within TLTH, a non-profit organization for students and alumni of the Computer Science and Engineering; Information and Communication Engineering; or Master in VR/AR programmes in Lund, Sweden. It is maintained by the Central Processing Unit.
 
 ![builtwith][builtwith]
 [![svelte][svelte]][svelte-url]
