@@ -18,6 +18,6 @@
 </script>
 
 <Avatar.Root class={klass}>
-  <Avatar.Image {lazy} src={member.picturePath} alt="Member image" />
+  <Avatar.Image {lazy} src={member?.picturePath} alt="Member image" />
   <Avatar.Fallback class="text-xs">{getInitials(member)}</Avatar.Fallback>
 </Avatar.Root>

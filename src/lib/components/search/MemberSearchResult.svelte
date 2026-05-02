@@ -3,7 +3,7 @@
   import { getBadgeVariantFromProgramme } from "../ui/badge/badge.svelte";
   import { Badge } from "$lib/components/ui/badge/index.js";
   import type { MemberSearchReturnAttributes } from "$lib/search/searchTypes";
-  import MemberAvatar from "$lib/components/MemberAvatar.svelte";
+  import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
   const { data }: { data: MemberSearchReturnAttributes } = $props();
 </script>
 

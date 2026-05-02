@@ -4,7 +4,7 @@
   import CommitteeSymbol from "$lib/components/images/CommitteeSymbol.svelte";
   import * as m from "$paraglide/messages";
   import { type ExtendedPrismaModel } from "$lib/server/extendedPrisma";
-  import MemberAvatar from "$lib/components/MemberAvatar.svelte";
+  import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
 
   let { data }: { data: PageData } = $props();
 

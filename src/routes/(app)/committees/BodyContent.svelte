@@ -1,7 +1,6 @@
 <script lang="ts">
   import { Button, buttonVariants } from "$lib/components/ui/button/";
   import Pen from "@lucide/svelte/icons/pen";
-
   import * as Dialog from "$lib/components/ui/dialog";
   import { cn } from "$lib/utils";
   import Editor from "$lib/components/Editor.svelte";
@@ -14,7 +13,7 @@
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
   import type { PageData } from "./[shortName]/$types";
-  import MemberAvatar from "$lib/components/MemberAvatar.svelte";
+  import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
   import * as Avatar from "$lib/components/ui/avatar";
 
   let { data }: { data: PageData } = $props();
