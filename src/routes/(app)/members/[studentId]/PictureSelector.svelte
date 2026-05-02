@@ -13,7 +13,7 @@
   import Trash from "@lucide/svelte/icons/trash";
   import * as AlertDialog from "$lib/components/ui/alert-dialog";
   import { enhance as svEnhance } from "$app/forms";
-  import MemberAvatar from "$lib/components/MemberAvatar.svelte";
+  import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
 
   let { data }: { data: PageData | EditPageData } = $props();
 

@@ -5,7 +5,6 @@
   import CommandDialog from "$lib/components/search/CommandDialog.svelte";
   import Search from "@lucide/svelte/icons/search";
   import Languages from "@lucide/svelte/icons/languages";
-  import Bell from "@lucide/svelte/icons/bell";
   import Menu from "@lucide/svelte/icons/menu";
   import ChevronDown from "@lucide/svelte/icons/chevron-down";
   import X from "@lucide/svelte/icons/x";
@@ -28,7 +27,13 @@
 
   import * as HoverCard from "$lib/components/ui/hover-card";
   import { cn } from "$lib/utils";
-  import MemberAvatar from "$lib/components/MemberAvatar.svelte";
+  import type { NotificationGroup } from "$lib/utils/notifications/group";
+  import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
+  import NotificationBell from "./notifications/NotificationBell.svelte";
+
+  const {
+    notificationsPromise,
+  }: { notificationsPromise?: Promise<NotificationGroup[]> } = $props();
 
   let commandDialogOpen = $state(false);
 
@@ -104,12 +109,7 @@
         class="p-1.5"><Languages /></Button
       >
       {#if page.data.member}
-        <Button
-          aria-label="notifications"
-          size="icon-lg"
-          variant="ghost"
-          class="p-1.5"><Bell /></Button
-        >
+        <NotificationBell {notificationsPromise} />
         <HoverCard.Root openDelay={0} closeDelay={125}>
           <HoverCard.Trigger>
             <MemberAvatar

@@ -19,7 +19,7 @@
   import SEO from "$lib/seo/SEO.svelte";
   import PhadderGroupModal from "./PhadderGroupModal.svelte";
   import ArticleCard from "$lib/components/ArticleCard.svelte";
-  import MemberAvatar from "$lib/components/MemberAvatar.svelte";
+  import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
   import { page } from "$app/state";

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import MemberAvatar from "$lib/components/MemberAvatar.svelte";
+  import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
   import * as Avatar from "$lib/components/ui/avatar";
 
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";

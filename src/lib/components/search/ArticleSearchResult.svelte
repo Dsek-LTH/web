@@ -5,7 +5,7 @@
   import { getLocale } from "$paraglide/runtime";
   const { data }: { data: ArticleSearchReturnAttributes } = $props();
   import dayjs from "dayjs";
-  import MemberAvatar from "$lib/components/MemberAvatar.svelte";
+  import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
 </script>
 
 <Command.LinkItem

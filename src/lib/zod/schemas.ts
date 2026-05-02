@@ -68,7 +68,7 @@ export const tagSchema = z.object({
   isDefault: z.boolean().nullable(),
 });
 export const notificationSchema = z.object({
-  notificationId: z.number().nullable(),
+  notificationId: z.number().optional(),
   notificationIds: z.number().array(),
 });
 export type NotificationSchema = Infer<typeof notificationSchema>;
