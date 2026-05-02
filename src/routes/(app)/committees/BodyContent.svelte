@@ -1,7 +1,6 @@
 <script lang="ts">
   import { Button, buttonVariants } from "$lib/components/ui/button/";
   import Pen from "@lucide/svelte/icons/pen";
-
   import * as Dialog from "$lib/components/ui/dialog";
   import { cn } from "$lib/utils";
   import Editor from "$lib/components/Editor.svelte";
