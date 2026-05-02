@@ -13,7 +13,7 @@
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
   import type { PageData } from "./[shortName]/$types";
-  import MemberAvatar from "$lib/components/MemberAvatar.svelte";
+  import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
   import * as Avatar from "$lib/components/ui/avatar";
 
   let { data }: { data: PageData } = $props();
