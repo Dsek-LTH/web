@@ -22,7 +22,7 @@
     showId = true,
     showClass = true,
     limit = 0,
-    class: clazz = "",
+    class: klass = "",
     inputClass = "",
     ...restProps
   }: {
@@ -257,7 +257,7 @@
   onfocusin={handleFocusIn}
   shouldFilter={false}
   loop
-  class={cn(clazz, "relative w-fit overflow-visible p-0")}
+  class={cn(klass, "relative w-fit overflow-visible p-0")}
   {...restProps}
 >
   <Button
