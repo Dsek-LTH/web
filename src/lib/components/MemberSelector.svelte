@@ -15,9 +15,9 @@
 
   let {
     selectedMembers = $bindable([]),
+    selectedMembersId = $bindable([]),
     selectedMember = $bindable(null),
     selectedMemberId = $bindable(null),
-    selectedMembersId = $bindable([]),
     multiple = false,
     showId = true,
     showClass = true,
@@ -27,9 +27,9 @@
     ...restProps
   }: {
     selectedMembers?: Array<MemberSearchReturnAttributes & { id?: string }>;
+    selectedMembersId?: string[] | null;
     selectedMember?: (MemberSearchReturnAttributes & { id?: string }) | null;
     selectedMemberId?: string | null;
-    selectedMembersId?: string[] | null;
     multiple: boolean;
     showId: boolean;
     showClass: boolean;
