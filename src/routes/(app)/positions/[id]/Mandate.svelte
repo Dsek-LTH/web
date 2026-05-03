@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { Badge } from "$lib/components/ui/badge";
   import MemberAvatar from "$lib/components/MemberAvatar.svelte";
   import UpdateMandateForm from "./UpdateMandateForm.svelte";
   import DeleteMandateForm from "./DeleteMandateForm.svelte";
@@ -10,42 +9,20 @@
   import Pen from "@lucide/svelte/icons/pen";
   import X from "@lucide/svelte/icons/x";
   import * as Tooltip from "$lib/components/ui/tooltip";
+  import ProgrammeBadge from "$lib/components/member/ProgrammeBadge.svelte";
 
   let { data, mandate }: { data: PageData; mandate: PageData["mandates"][0] } =
     $props();
 
   let isEditing = $state(false);
-  let container: Node;
-
-  /*onMount(() =>
-    document.addEventListener("pointerdown", (event) => {
-      if (!container?.contains(event.target as Node)) {
-        isEditing = false;
-      }
-    }),
-  );*/
 
   let startDate = $derived(mandate.startDate.toLocaleDateString("sv-SE"));
   let endDate = $derived(mandate.endDate.toLocaleDateString("sv-SE"));
-
-  const programmeColors: Record<
-    string,
-    "rosa" | "lila" | "pistachio" | "outline"
-  > = {
-    D: "rosa",
-    C: "lila",
-    "VR/AR": "pistachio",
-    E: "outline",
-    BME: "outline",
-    Dokt: "outline",
-    "?": "rosa",
-  };
 </script>
 
 <Tooltip.Root>
   <Tooltip.Trigger>
     <div
-      bind:this={container}
       class="relative flex flex-row items-center gap-2 before:whitespace-pre"
     >
       <a
@@ -59,12 +36,7 @@
           {getFullName(mandate.member)}
         </span>
       </a>
-      <Badge
-        variant={programmeColors[mandate.member.classProgramme ?? "?"] ??
-          "rosa"}
-        >{(mandate.member.classProgramme ?? "?") +
-          (mandate.member.classYear?.toString().slice(-2) ?? "??")}</Badge
-      >
+      <ProgrammeBadge member={mandate.member} />
 
       <!-- Edit button -->
       {#if isAuthorized(apiNames.MANDATE.UPDATE, data.user) || isAuthorized(apiNames.MANDATE.DELETE, data.user)}
@@ -102,9 +74,6 @@
               <DeleteMandateForm mandateId={mandate.id} data={form} />
             {/await}
           {/if}
-          <!--<span class="text-xs">
-        {startDate} - {endDate}
-      </span>-->
         </div>{/if}
     </div>
   </Tooltip.Trigger>

@@ -21,7 +21,6 @@
 
 <form action="?/deleteMandate" method="POST" use:enhance>
   <input type="hidden" name="mandateId" value={mandateId} />
-  <!-- on:click|stopPropagation -->
   <Button variant="lila" type="submit" size="sm">
     <Trash />
     {m.positions_removeMandate()}
