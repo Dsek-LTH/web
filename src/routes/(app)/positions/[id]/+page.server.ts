@@ -167,7 +167,9 @@ export const actions: Actions = {
     const { prisma } = locals;
     const form = await superValidate(request, zod4(addMandateSchema));
     if (!form.valid) return fail(400, { form });
-    console.log(form.data.memberIds);
+
+    const memberNames: string[] | undefined = [];
+
     form.data.memberIds.forEach(async (id) => {
       const member = await prisma.member.findUnique({ where: { id: id } });
       if (!member)
@@ -186,10 +188,17 @@ export const actions: Actions = {
           lastSynced: new Date("1970"),
         },
       });
+
+      memberNames.push(member?.firstName ?? "");
     });
     return message(form, {
       message: m.positions_newMandateGivenTo({
-        name: m.positions_theMember(),
+        name:
+          memberNames.length > 0
+            ? memberNames.map((n, i) =>
+                i == memberNames.length - 1 ? n : n + ", ",
+              )
+            : m.positions_theMember(),
       }),
       type: "success",
     });
