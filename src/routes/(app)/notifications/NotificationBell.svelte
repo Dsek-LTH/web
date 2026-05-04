@@ -5,6 +5,7 @@
   import type { NotificationGroup } from "$lib/utils/notifications/group";
   import { readAllNotifications } from "./data.remote";
   import NotificationList from "./NotificationList.svelte";
+  import { enhanceWithToast } from "$lib/stores/toast";
 
   const {
     notificationsPromise,
@@ -74,7 +75,7 @@
 </script>
 
 <form
-  {...readAllNotifications}
+  {...enhanceWithToast(readAllNotifications)}
   bind:this={readForm}
   class="hidden"
   aria-hidden="true"

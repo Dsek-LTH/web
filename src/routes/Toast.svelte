@@ -1,29 +1,7 @@
 <script lang="ts">
   import * as Alert from "$lib/components/ui/alert/index.js";
   import { page } from "$app/state";
-  import { page as pageStore } from "$app/stores";
-  import { toast, toasts } from "$lib/stores/toast";
-  import { getFlash } from "sveltekit-flash-message";
-
-  const flash = getFlash(pageStore);
-
-  // Message from form (not redirect)
-  $effect(() => {
-    if (page.form?.form?.message && page.form.form.message.type !== "hidden") {
-      toast(
-        page.form.form.message.message,
-        page.form.form.message.type,
-        page.form.form.message.id,
-      );
-    }
-  });
-
-  // Message from form on redirect
-  $effect(() => {
-    if ($flash && $flash.type !== "hidden") {
-      toast($flash.message, $flash.type, $flash.id);
-    }
-  });
+  import { toasts } from "$lib/stores/toast";
 
   const toastLocationClasses = $derived(
     !page.data.isApp
@@ -40,13 +18,40 @@
       : ""}
   >
     {#each $toasts as t (t.id)}
-      <Alert.Root
-        class="mt-5"
-        variant={t.type === "error" ? "destructive" : "default"}
-      >
-        <Alert.Title>{t.type}</Alert.Title>
-        <Alert.Description>{t.message}</Alert.Description>
-      </Alert.Root>
+      <div class="blop">
+        <Alert.Root
+          class="mt-5"
+          variant={t.type === "error" ? "destructive" : "success"}
+        >
+          <Alert.Title class="text-xl"
+            >{t.type.charAt(0).toUpperCase() + t.type.slice(1)}</Alert.Title
+          >
+          <Alert.Description class="text-lg">{t.message}</Alert.Description>
+        </Alert.Root>
+      </div>
     {/each}
   </div>
 {/if}
+
+<style>
+  @keyframes blop {
+    0% {
+      transform: scale(0);
+      opacity: 0;
+    }
+    60% {
+      transform: scale(1.12);
+      opacity: 1;
+    }
+    80% {
+      transform: scale(0.95);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .blop {
+    animation: blop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+</style>

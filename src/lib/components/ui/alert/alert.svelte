@@ -8,6 +8,8 @@
         default: "bg-card text-card-foreground",
         destructive:
           "text-destructive bg-card *:data-[slot=alert-description]:text-destructive/90 [&>svg]:text-current",
+        success:
+          "bg-card text-pistachio-400 *:data-[slot=alert-description]:text-pistachio-400/90 [&>svg]:text-current",
       },
     },
     defaultVariants: {
