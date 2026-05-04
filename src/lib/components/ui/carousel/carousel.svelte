@@ -24,12 +24,18 @@
     api: undefined,
     scrollPrev,
     scrollNext,
-    orientation,
+    get orientation() {
+      return orientation;
+    },
     canScrollNext: false,
     canScrollPrev: false,
     handleKeyDown,
-    options: opts,
-    plugins,
+    get options() {
+      return opts;
+    },
+    get plugins() {
+      return plugins;
+    },
     onInit,
     scrollSnaps: [],
     selectedIndex: 0,
