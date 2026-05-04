@@ -1,4 +1,3 @@
-import { getFullName } from "$lib/utils/client/member";
 import dayjs from "dayjs";
 import {
   PDFDocument,
@@ -105,12 +104,15 @@ async function drawExpenseInfo(
     font: fonts.bold,
   });
 
-  page.drawText(`Name: ${getFullName(expense.member)}`, {
-    x: rightCol,
-    y: startY - 25,
-    size: 12,
-    font: fonts.regular,
-  });
+  page.drawText(
+    `Name: ${expense.member.firstName} ${expense.member.lastName}`,
+    {
+      x: rightCol,
+      y: startY - 25,
+      size: 12,
+      font: fonts.regular,
+    },
+  );
 
   page.drawText(`StiL-ID: ${expense.member.studentId}`, {
     x: rightCol,
@@ -225,7 +227,9 @@ async function drawItemsTable(
       `${i + 1}: ${item.costCenter}`,
       `${(item.amount / 100).toFixed(2)} SEK`,
       item.comment || "-",
-      item.signedBy ? getFullName(item.signedBy) : "-",
+      item.signedBy
+        ? item.signedBy.firstName + " " + item.signedBy.lastName
+        : "-",
       item.signedAt ? dayjs(item.signedAt).format("YYYY-MM-DD") : "-",
     ];
 
