@@ -5,7 +5,6 @@ import type {
 import { dev } from "$app/environment";
 import { env } from "$env/dynamic/private";
 import { sendEmail } from "$lib/email/emailService";
-import { getFullName } from "$lib/utils/client/member";
 import dayjs from "dayjs";
 import fs from "fs";
 import path from "path";
@@ -114,10 +113,10 @@ export async function sendExpenseToBookkeeping(
     from: BOOKKEEPING_EMAIL_FROM_ADDRESS,
     to: BOOKKEEPING_EMAIL_TO_ADDRESS,
     cc: BOOKKEEPING_CC_TO_ADDRESS?.split(","),
-    subject: `Expense Report #${expense.id} - ${getFullName(expense.member)}`,
+    subject: `Expense Report #${expense.id} - ${expense.member.firstName} ${expense.member.lastName}`,
     text: `
   Expense Report #${expense.id}
-  Member: ${getFullName(expense.member)}
+  Member: ${expense.member.firstName} ${expense.member.lastName}
   Date: ${dayjs(expense.date).format("YYYY-MM-DD")}
   Description: ${expense.description}
   Total Amount: ${(totalAmount / 100).toFixed(2)} SEK
