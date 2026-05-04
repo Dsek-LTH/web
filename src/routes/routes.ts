@@ -1,10 +1,10 @@
+import { getFileUrl } from "$lib/files/client";
 import * as m from "$paraglide/messages";
 
 // bottom-nav: Show in the bottom navigation bar
 // home-link: Show on the home page
 // none: Don't show anywhere
 type AppBehaviour = "bottom-nav" | "home-link" | "none";
-import nollningImage from "./(nollning)/nollning/(photos)/staben25_9x16.webp";
 // Special behaviours. cart-badge shows a badge with the amount of items in cart, when shown in AppBottomNav.
 type RouteSpecialBehaviour = "cart-badge";
 export type Route = {
@@ -26,7 +26,8 @@ export const getRoutes = (): Route[] =>
   [
     {
       title: m.applicant(),
-      pictureUrl: nollningImage,
+      pictureUrl:
+        getFileUrl("minio/files/public/photos/staben25_9x16.webp") ?? "",
       path: null,
       accessRequired: null,
       pictureTitle: m.nollning_nav_picture_title(),
@@ -127,12 +128,14 @@ export const getRoutes = (): Route[] =>
           title: m.nav_volunteer(),
           accessRequired: null,
           appBehaviour: "none",
+          description: m.nav_volunteer_desc(),
           path: "/volunteer",
         },
         {
           title: m.openElections(),
           accessRequired: null,
           appBehaviour: "none",
+          description: m.nav_elections_desc(),
           path: "/elections",
         },
       ],
@@ -148,18 +151,21 @@ export const getRoutes = (): Route[] =>
           title: m.tickets(),
           accessRequired: null,
           appBehaviour: "none",
+          description: m.nav_tickets_desc(),
           path: "/shop/tickets",
         },
         {
           title: "Bokningar",
           accessRequired: null,
           appBehaviour: "none",
+          description: m.nav_bookings_desc(),
           path: "/bookings",
         },
         {
           title: "Utlägg",
           accessRequired: null,
           appBehaviour: "none",
+          description: m.nav_expenses_desc(),
           path: "/expenses",
         },
       ],
