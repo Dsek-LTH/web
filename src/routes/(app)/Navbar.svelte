@@ -255,7 +255,7 @@
           <ul
             class={route.list
               ? "ml-0 grid w-[200px] gap-4 p-2"
-              : "ml-0 grid list-none gap-2 p-2 md:w-[400px] lg:w-[472px] lg:grid-cols-[.75fr_1fr]"}
+              : "ml-0 grid list-none gap-2 p-2 md:w-[400px] lg:w-[472px] lg:grid-cols-[1fr_1fr]"}
           >
             {#if route.pictureUrl}
               <li class="row-span-3">

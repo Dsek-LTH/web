@@ -4,6 +4,7 @@ import * as m from "$paraglide/messages";
 // home-link: Show on the home page
 // none: Don't show anywhere
 type AppBehaviour = "bottom-nav" | "home-link" | "none";
+import nollningImage from "./(nollning)/nollning/(photos)/staben25_9x16.webp";
 // Special behaviours. cart-badge shows a badge with the amount of items in cart, when shown in AppBottomNav.
 type RouteSpecialBehaviour = "cart-badge";
 export type Route = {
@@ -24,63 +25,74 @@ export type Route = {
 export const getRoutes = (): Route[] =>
   [
     {
+      title: m.applicant(),
+      pictureUrl: nollningImage,
+      path: null,
+      accessRequired: null,
+      pictureTitle: m.nollning_nav_picture_title(),
+      pictureDescription: m.nollning_theme(),
+      picturePath: "/nollning",
+      appBehaviour: "none",
+      children: [
+        {
+          title: m.applicant(),
+          description: m.nav_applicant_description(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/sokande",
+        },
+        {
+          title: m.nav_nollning(),
+          description: m.nav_nollning_description(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/nollning",
+        },
+        {
+          title: m.nav_about_guild(),
+          description: m.nav_about_guild_desc(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/about",
+        },
+      ],
+    },
+    {
       title: m.news(),
       accessRequired: null,
       appBehaviour: "none",
       path: "/news",
-    },
-    {
-      title: m.events(),
-      accessRequired: null,
-      appBehaviour: "none",
-      path: "/events",
-    },
-    {
-      title: m.tickets(),
-      accessRequired: null,
-      appBehaviour: "none",
-      path: "/shop/tickets",
-    },
-    {
-      title: m.documents(),
-      description: m.documents_desc(),
-      accessRequired: null,
-      appBehaviour: "none",
-      path: "/documents",
-      list: true,
       children: [
         {
-          title: m.documents_governingDocuments(),
+          title: m.news(),
+          description: m.nav_news_feed_desc(),
           accessRequired: null,
           appBehaviour: "none",
-          path: "/documents/governing",
+          path: "/news",
         },
         {
-          title: m.documents_meetingDocuments(),
+          title: m.events(),
+          description: m.nav_events_desc(),
           accessRequired: null,
           appBehaviour: "none",
-          path: "/documents",
-        },
-        {
-          title: m.documents_requirementProfiles(),
-          accessRequired: null,
-          appBehaviour: "none",
-          path: "/documents/requirements",
-        },
-        {
-          title: "Gerda",
-          accessRequired: null,
-          appBehaviour: "none",
-          path: "gerda.dsek.se",
+          path: "/events",
         },
       ],
     },
+
     {
       title: m.nav_guild(),
       accessRequired: null,
       appBehaviour: "none",
       path: null,
       children: [
+        {
+          title: m.nav_about_guild(),
+          description: m.nav_about_guild_desc(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/about",
+        },
         {
           title: m.nav_board(),
           description: m.nav_board_desc(),
@@ -89,10 +101,33 @@ export const getRoutes = (): Route[] =>
           path: "/board",
         },
         {
-          title: m.nav_committees(),
+          title: m.documents_meetingDocuments(),
+          description: m.documents_desc(),
           accessRequired: null,
           appBehaviour: "none",
-          path: "/about",
+          path: "/documents",
+        },
+        {
+          title: m.documents_governing(),
+          description: m.documents_governing_desc(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/documents/governing",
+        },
+      ],
+    },
+    {
+      title: m.nav_volunteer(),
+      accessRequired: null,
+      appBehaviour: "none",
+      path: "/volunteer",
+      list: true,
+      children: [
+        {
+          title: m.nav_volunteer(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/volunteer",
         },
         {
           title: m.openElections(),
@@ -100,35 +135,32 @@ export const getRoutes = (): Route[] =>
           appBehaviour: "none",
           path: "/elections",
         },
+      ],
+    },
+    {
+      title: m.nav_member(),
+      accessRequired: null,
+      appBehaviour: "none",
+      path: null,
+      list: true,
+      children: [
         {
-          title: m.bookings(),
+          title: m.tickets(),
           accessRequired: null,
           appBehaviour: "none",
-          path: "/booking",
+          path: "/shop/tickets",
         },
         {
-          title: m.expenses(),
+          title: "Bokningar",
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/bookings",
+        },
+        {
+          title: "Utlägg",
           accessRequired: null,
           appBehaviour: "none",
           path: "/expenses",
-        },
-        {
-          title: m.songBook(),
-          accessRequired: null,
-          appBehaviour: "none",
-          path: "/songbook",
-        },
-        {
-          title: m.medals(),
-          accessRequired: null,
-          appBehaviour: "none",
-          path: "/medals",
-        },
-        {
-          title: m.gallery(),
-          accessRequired: null,
-          appBehaviour: "none",
-          path: "/gallery",
         },
       ],
     },
