@@ -1,5 +1,5 @@
 <script lang="ts">
-  import MemberAvatar from "$lib/components/MemberAvatar.svelte";
+  import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
   import UpdateMandateForm from "./UpdateMandateForm.svelte";
   import DeleteMandateForm from "./DeleteMandateForm.svelte";
   import apiNames from "$lib/utils/apiNames";
