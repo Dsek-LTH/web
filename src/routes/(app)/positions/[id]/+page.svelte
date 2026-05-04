@@ -14,6 +14,7 @@
   import * as Dialog from "$lib/components/ui/dialog";
   import { cn } from "$lib/utils";
   import Pen from "@lucide/svelte/icons/pen";
+  import { Progress } from "$lib/components/ui/progress";
 
   let { data }: { data: PageData } = $props();
 
@@ -186,7 +187,7 @@
               <div class="w-24">
                 {m.positions_study_year()}&nbsp;{studyYear}
               </div>
-              <progress value={percentage} max="100"></progress>
+              <Progress value={percentage} max={100} />
               <div class="text-muted-foreground w-16 text-right text-xs">
                 {percentage.toFixed(1)}%
               </div>
@@ -213,11 +214,14 @@
   {/if}
 
   <!-- List of mandates -->
+  <h3 class="mb-4">{m.positions_history()}</h3>
   {#each years as year (year)}
-    <section class="mb-4">
-      <h1 class="mb-2 text-xl font-semibold">{year}</h1>
+    <section
+      class="bg-muted-background mb-4 flex flex-col gap-4 rounded-md border-[1px] p-4"
+    >
+      <h4>{year}</h4>
 
-      <div class="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-2">
+      <div class="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
         {#each groupedByYear[year] ?? [] as mandate (mandate.id)}
           <Mandate {data} {mandate} />
         {/each}
