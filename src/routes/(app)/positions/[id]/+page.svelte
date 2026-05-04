@@ -198,9 +198,6 @@
     </div>
   </div>
 
-  <!-- Edit position form -->
-  {#if isEditing}{/if}
-
   <!-- Add mandate form -->
   {#if isAdding}
     {#await data.addMandateForm then form}
