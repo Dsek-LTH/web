@@ -28,7 +28,7 @@
           data: {
             id: item.id,
             costCenter: item.costCenter,
-            amount: item.amount,
+            amount: item.amount / 100,
             comment: item.comment,
           },
         },
