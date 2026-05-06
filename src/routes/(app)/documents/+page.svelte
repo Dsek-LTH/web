@@ -49,11 +49,6 @@
       return a.localeCompare(b, "sv");
     }
   });
-  /*
-    type === "board-meeting" || type === "SRD-meeting"
-      ? b.localeCompare(a, "sv")
-      : a.localeCompare(b, "sv"),
-  );*/
   $: canCreate = isAuthorized(
     apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).CREATE,
     data.user,
