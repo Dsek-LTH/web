@@ -34,11 +34,21 @@
       value: "other",
     },
   ];
-  $: meetings = Object.keys(data.meetings).sort((a, b) =>
-    type === "board-meeting" || type === "SRD-meeting"
-      ? b.localeCompare(a, "sv")
-      : a.localeCompare(b, "sv"),
-  );
+  $: meetings = Object.keys(data.meetings).sort((a, b) => {
+    if (type === "board-meeting") {
+      return b.localeCompare(a, "sv");
+    } else if (type === "SRD-meeting" && a.startsWith("SRD")) {
+      return (
+        // Current format
+        Number.parseInt(b.split("SRD")[1] ?? "0") -
+        Number.parseInt(a.split("SRD")[1] ?? "0")
+      );
+    } else if (type === "SRD-meeting") {
+      return ("T" + a).localeCompare(b, "sv"); // Sort other SRD meetings below current format
+    } else {
+      return a.localeCompare(b, "sv");
+    }
+  });
   $: canCreate = isAuthorized(
     apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).CREATE,
     data.user,
