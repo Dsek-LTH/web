@@ -11,39 +11,40 @@
   import type { PageData } from "./$types";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   export let data: PageData;
+  import { documentTypes, documentTypes as dt } from "./types";
 
   let isEditing = false;
 
   const currentYear = new Date().getFullYear();
-  let type: DocumentType = "board-meeting";
+  let type: documentTypes = dt.boardMeeting;
   const typeOptions: Array<{ name: string; value: DocumentType }> = [
     {
       name: m.documents_guildMeetings(),
-      value: "guild-meeting",
+      value: dt.guildMeeting,
     },
     {
       name: m.documents_boardMeetings(),
-      value: "board-meeting",
+      value: dt.boardMeeting,
     },
     {
       name: m.documents_srdMeetings(),
-      value: "SRD-meeting",
+      value: dt.SRDMeeting,
     },
     {
       name: m.documents_other(),
-      value: "other",
+      value: dt.other,
     },
   ];
   $: meetings = Object.keys(data.meetings).sort((a, b) => {
-    if (type === "board-meeting") {
+    if (type === dt.boardMeeting) {
       return b.localeCompare(a, "sv");
-    } else if (type === "SRD-meeting" && a.startsWith("SRD")) {
+    } else if (type === dt.SRDMeeting && a.startsWith("SRD")) {
       return (
         // Current format
         Number.parseInt(b.split("SRD")[1] ?? "0") -
         Number.parseInt(a.split("SRD")[1] ?? "0")
       );
-    } else if (type === "SRD-meeting") {
+    } else if (type === dt.SRDMeeting) {
       return ("T" + a).localeCompare(b, "sv"); // Sort other SRD meetings below current format
     } else {
       return a.localeCompare(b, "sv");
