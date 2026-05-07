@@ -12,6 +12,7 @@ import { getLocale } from "$paraglide/runtime";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { redirect } from "sveltekit-flash-message/server";
+import { committeeToPositionMap } from "$lib/utils/positions";
 
 dayjs.extend(utc);
 
@@ -20,7 +21,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
   let position = await prisma.position.findFirst({
     where: {
-      id: `dsek.${params.shortName}.${params.positionId}`,
+      id: `dsek.${committeeToPositionMap[params.shortName as keyof typeof committeeToPositionMap]}.${params.positionId}`,
     },
     include: {
       committee: true,
