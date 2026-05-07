@@ -15,7 +15,7 @@ import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
 import { getYearOrThrowSvelteError } from "$lib/utils/url.server";
-import { documentTypes, documentTypes as dt } from "./types";
+import { DocumentTypes as dt } from "./types";
 
 const validDocumentTypes = [
   dt.boardMeeting,
@@ -25,7 +25,7 @@ const validDocumentTypes = [
 ] as const;
 export type DocumentType = (typeof validDocumentTypes)[number];
 
-const prefixByType: Record<documentTypes, string> = {
+const prefixByType: Record<dt, string> = {
   [dt.boardMeeting]: "S",
   [dt.guildMeeting]: "",
   [dt.SRDMeeting]: "Möte ",

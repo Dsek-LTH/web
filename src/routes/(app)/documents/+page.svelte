@@ -11,12 +11,12 @@
   import type { PageData } from "./$types";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   export let data: PageData;
-  import { documentTypes, documentTypes as dt } from "./types";
+  import { DocumentTypes as dt } from "./types";
 
   let isEditing = false;
 
   const currentYear = new Date().getFullYear();
-  let type: documentTypes = dt.boardMeeting;
+  let type: dt = dt.boardMeeting;
   const typeOptions: Array<{ name: string; value: DocumentType }> = [
     {
       name: m.documents_guildMeetings(),
