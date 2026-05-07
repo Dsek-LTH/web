@@ -1,6 +1,7 @@
 <script lang="ts">
   import CommitteeSymbol from "$lib/components/images/CommitteeSymbol.svelte";
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+  import { getPositionLink } from "$lib/utils/positions";
 
   let {
     mandate,
@@ -25,7 +26,7 @@
       ><CommitteeSymbol size="sm" committee={mandate.position.committee} /></a
     >{/if}
   <div class="flex flex-col justify-center">
-    <a href="/positions/{mandate.position.id}">
+    <a href={getPositionLink(mandate.position.id)}>
       {#if compact}
         <h5 class="hover:text-muted-foreground transition-all">
           {mandate.position?.name}
