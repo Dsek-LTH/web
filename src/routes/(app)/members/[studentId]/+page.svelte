@@ -17,7 +17,7 @@
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import { getFullName } from "$lib/utils/client/member";
   import SEO from "$lib/seo/SEO.svelte";
-  import PhadderGroupModal from "./PhadderGroupModal.svelte";
+  import MentorGroupModal from "./MentorGroupModal.svelte";
   import ArticleCard from "$lib/components/ArticleCard.svelte";
   import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
   import { isAuthorized } from "$lib/utils/authorization";
@@ -81,12 +81,12 @@
 <SetPageTitle title={getFullName(member)} />
 <SEO data={{ type: "profile", member }} />
 
-<PhadderGroupModal
+<MentorGroupModal
   isEditing={true}
-  data={data.phadderGroupForm}
-  phadderGroups={data.phadderGroups}
+  data={data.mentorGroupForm}
+  mentorGroups={data.mentorGroups}
   viewedMember={member}
-  showModal={data.showPhadderGroupModal}
+  showModal={data.showMentorGroupModal}
 />
 
 {@render mobile("md:hidden")}

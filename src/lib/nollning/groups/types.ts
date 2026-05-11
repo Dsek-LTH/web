@@ -2,7 +2,7 @@ import type { Prisma } from "@prisma/client";
 import type { Infer } from "sveltekit-superforms";
 import { z } from "zod";
 
-export const phadderGroupSchema = z.object({
+export const mentorGroupSchema = z.object({
   id: z.string().uuid(),
   name: z.string(),
   description: z.string().nullable(),
@@ -14,14 +14,14 @@ export const phadderGroupSchema = z.object({
   imageUrl: z.string().nullable(),
 });
 
-export type PhadderGroupSchema = Infer<typeof phadderGroupSchema>;
+export type MentorGroupSchema = Infer<typeof mentorGroupSchema>;
 
-export const phadderMandateFilter = (
+export const mentorMandateFilter = (
   year: number,
 ): Prisma.MandateWhereInput => ({
   OR: [
     {
-      positionId: "dsek.noll.phadder",
+      positionId: "dsek.noll.mentor",
     },
     {
       positionId: "dsek.noll.uppdrag",

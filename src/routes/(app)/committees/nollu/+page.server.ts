@@ -9,7 +9,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   const year = getYearOrThrowSvelteError(url, {
     upperBound: currentYear + 1,
   });
-  const phadderGroups = prisma.phadderGroup.findMany({
+  const mentorGroups = prisma.mentorGroup.findMany({
     where: {
       year,
     },
@@ -27,7 +27,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   });
   return committeeLoad(prisma, "nollu", url).then(async (data) => ({
     ...data,
-    phadderGroups: await phadderGroups,
+    mentorGroups: await mentorGroups,
   }));
 };
 

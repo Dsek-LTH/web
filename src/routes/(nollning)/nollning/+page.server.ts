@@ -1,6 +1,6 @@
 export const load = async ({ locals }) => {
   const { prisma } = locals;
-  const phadderGroups = await prisma.phadderGroup.findMany({
+  const mentorGroups = await prisma.mentorGroup.findMany({
     where: {
       year: 2025,
     },
@@ -17,6 +17,6 @@ export const load = async ({ locals }) => {
     },
   });
   return {
-    phadderGroups,
+    mentorGroups,
   };
 };

@@ -31,7 +31,7 @@ const PROFILE_PICTURE_PREFIX = (studentId: string) =>
 export const load: PageServerLoad = async ({ locals, params, cookies }) => {
   const { prisma, user } = locals;
   const { studentId } = params;
-  const [memberResult, publishedArticlesResult, phadderGroupsResult] =
+  const [memberResult, publishedArticlesResult, mentorGroupsResult] =
     await Promise.allSettled([
       prisma.member.findUnique({
         where: {
@@ -41,7 +41,7 @@ export const load: PageServerLoad = async ({ locals, params, cookies }) => {
           nollaIn: true,
           mandates: {
             include: {
-              phadderIn: true,
+              mentorIn: true,
               position: {
                 include: {
                   committee: true,
@@ -84,7 +84,7 @@ export const load: PageServerLoad = async ({ locals, params, cookies }) => {
         },
         take: 5,
       }),
-      prisma.phadderGroup.findMany({
+      prisma.mentorGroup.findMany({
         orderBy: {
           year: "asc",
         },
@@ -95,15 +95,15 @@ export const load: PageServerLoad = async ({ locals, params, cookies }) => {
   if (publishedArticlesResult.status === "rejected")
     throw error(500, m.members_errors_couldntFetchArticles());
   if (!memberResult.value) throw error(404, m.members_errors_memberNotFound());
-  if (phadderGroupsResult.status === "rejected")
-    throw error(505, phadderGroupsResult.reason);
+  if (mentorGroupsResult.status === "rejected")
+    throw error(505, mentorGroupsResult.reason);
 
   const member = memberResult.value;
 
-  const showPhadderGroupModal =
+  const showMentorGroupModal =
     member.nollningGroupId === null &&
-    cookies.get("phadder_group_modal_skipped") !== "1" &&
-    cookies.get("phadder_group_modal_never") !== "1";
+    cookies.get("mentor_group_modal_skipped") !== "1" &&
+    cookies.get("mentor_group_modal_never") !== "1";
 
   const doorAccess =
     member.id === user?.memberId
@@ -120,7 +120,7 @@ export const load: PageServerLoad = async ({ locals, params, cookies }) => {
     return {
       form: await superValidate(member, zod4(memberSchema)),
       pingForm: await superValidate(zod4(emptySchema)),
-      phadderGroupForm: await superValidate(member, zod4(phadderGroupSchema)),
+      mentorGroupForm: await superValidate(member, zod4(mentorGroupSchema)),
       viewedMember: member, // https://github.com/Dsek-LTH/web/issues/194
       doorAccess,
       publishedArticles: publishedArticlesResult.value ?? [],
@@ -130,7 +130,7 @@ export const load: PageServerLoad = async ({ locals, params, cookies }) => {
         member.id,
         dateToSemester(new Date()) - 1,
       ),
-      phadderGroups: phadderGroupsResult.value,
+      mentorGroups: mentorGroupsResult.value,
       ping: user
         ? await prisma.ping.findFirst({
             where: {
@@ -147,7 +147,7 @@ export const load: PageServerLoad = async ({ locals, params, cookies }) => {
             },
           })
         : null,
-      showPhadderGroupModal: showPhadderGroupModal,
+      showMentorGroupModal: showMentorGroupModal,
       uploadForm: await superValidate(zod4(uploadPictureSchema)),
       deleteForm: await superValidate(zod4(deletePictureSchema)),
     };
@@ -173,7 +173,7 @@ const updateSchema = memberSchema
 
 export type UpdateSchema = Infer<typeof updateSchema>;
 
-const phadderGroupSchema = memberSchema
+const mentorGroupSchema = memberSchema
   .pick({
     classYear: true,
     nollningGroupId: true,
@@ -182,7 +182,7 @@ const phadderGroupSchema = memberSchema
   .extend({
     skipAction: z.enum(["skip", "never", "none"]).optional().default("none"),
   });
-export type PhadderGroupSchema = Infer<typeof phadderGroupSchema>;
+export type MentorGroupSchema = Infer<typeof mentorGroupSchema>;
 
 export const actions: Actions = {
   uploadPicture: async ({ params, locals, request }) => {
@@ -288,21 +288,21 @@ export const actions: Actions = {
       type: "success",
     });
   },
-  updatePhadderGroup: async ({ params, locals, request, cookies }) => {
+  updateMentorGroup: async ({ params, locals, request, cookies }) => {
     const { prisma } = locals;
-    const form = await superValidate(request, zod4(phadderGroupSchema));
+    const form = await superValidate(request, zod4(mentorGroupSchema));
     if (!form.valid) return fail(400, { form });
     const { studentId } = params;
 
     switch (form.data.skipAction) {
       case "skip":
-        cookies.set("phadder_group_modal_skipped", "1", {
+        cookies.set("mentor_group_modal_skipped", "1", {
           path: "/",
           maxAge: 12 * 60 * 60,
         });
         break;
       case "never":
-        cookies.set("phadder_group_modal_never", "1", { path: "/" });
+        cookies.set("mentor_group_modal_never", "1", { path: "/" });
         break;
       default:
         await prisma.member.update({

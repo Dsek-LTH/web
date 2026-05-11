@@ -1,10 +1,10 @@
 import { error } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { searchForMembers } from "../membersSearch";
-import { phadderMandateFilter } from "$lib/nollning/groups/types";
+import { mentorMandateFilter } from "$lib/nollning/groups/types";
 import { getYearOrThrowSvelteError } from "$lib/utils/url.server";
 
-// Like member search but filters on members who were phadders during the given year
+// Like member search but filters on members who were mentors during the given year
 export const GET: RequestHandler = async ({ locals, url }) => {
   const { prisma } = locals;
   const search = url.searchParams.get("search")?.toLowerCase();
@@ -17,7 +17,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
     JSON.stringify(
       await searchForMembers(prisma, search, {
         mandates: {
-          some: phadderMandateFilter(year),
+          some: mentorMandateFilter(year),
         },
       }),
     ),
