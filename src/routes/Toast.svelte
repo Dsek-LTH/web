@@ -2,6 +2,7 @@
   import * as Alert from "$lib/components/ui/alert/index.js";
   import { page } from "$app/state";
   import { toasts } from "$lib/stores/toast";
+  import { CircleCheck, CircleX, Info, TriangleAlert } from "@lucide/svelte";
 
   const toastLocationClasses = $derived(
     !page.data.isApp
@@ -9,6 +10,20 @@
       : "toast-top toast-center w-full flex-col-reverse items-center",
   );
 </script>
+
+{#snippet icon(
+  type: "hidden" | "error" | "success" | "info" | "warning" | "primary",
+)}
+  {#if type == "success"}
+    <CircleCheck />
+  {:else if type == "error"}
+    <CircleX />
+  {:else if type == "info"}
+    <Info />
+  {:else if type == "warning"}
+    <TriangleAlert />
+  {/if}
+{/snippet}
 
 {#if $toasts.length > 0}
   <div
@@ -19,12 +34,12 @@
   >
     {#each $toasts as t (t.id)}
       <div class="blop">
-        <Alert.Root
-          class="mt-5"
-          variant={t.type === "error" ? "destructive" : "success"}
-        >
+        <Alert.Root class="mt-5" variant={t.type}>
           <Alert.Title class="text-xl"
-            >{t.type.charAt(0).toUpperCase() + t.type.slice(1)}</Alert.Title
+            ><span class="flex items-center gap-2"
+              >{@render icon(t.type)}{t.type.charAt(0).toUpperCase() +
+                t.type.slice(1)}</span
+            ></Alert.Title
           >
           <Alert.Description class="text-lg">{t.message}</Alert.Description>
         </Alert.Root>

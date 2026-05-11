@@ -72,8 +72,6 @@ export function enhanceWithToast(
       await helpers.submit();
     }
     const result = remoteForm.result;
-    if (result?.message && result?.type !== "hidden") {
-      toast(result.message, result.type === "error" ? "error" : "success");
-    }
+    if (result) toast(result.message, result.type);
   });
 }
