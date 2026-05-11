@@ -255,12 +255,13 @@
           <ul
             class={route.list
               ? "ml-0 grid w-[200px] gap-4 p-2"
-              : "ml-0 grid list-none gap-2 p-2 md:w-[400px] lg:w-[472px] lg:grid-cols-[.75fr_1fr]"}
+              : "ml-0 grid list-none gap-2 p-2 md:w-[400px] lg:w-[472px] lg:grid-cols-[1fr_1fr]"}
           >
             {#if route.pictureUrl}
               <li class="row-span-3">
                 <NavigationMenu.Link
-                  class={`flex h-full w-full flex-col justify-end rounded-md bg-linear-to-t bg-[linear-gradient(to_top,rgba(0,0,0,1),rgba(0,0,0,0)),url('${route.pictureUrl}')] bg-cover bg-center p-6 no-underline outline-hidden select-none focus:shadow-md`}
+                  class="flex h-full w-full flex-col justify-end rounded-md bg-cover bg-center p-6 no-underline outline-hidden select-none focus:shadow-md"
+                  style="background-image: linear-gradient(to top,rgba(0,0,0,1),rgba(0,0,0,0)),url('{route.pictureUrl}');"
                   href={route.picturePath}
                 >
                   <div class="mt-4 mb-2 text-xl font-semibold text-[#ffffff]">
@@ -279,6 +280,9 @@
               >
                 {#if route.list}
                   {child.title}
+                  <span class="text-muted-foreground text-xs"
+                    >{child.description}</span
+                  >
                 {:else}
                   <NavigationMenu.ContentItem
                     title={child.title}
