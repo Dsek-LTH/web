@@ -10,7 +10,7 @@ import type {
 // See https://kit.svelte.dev/docs/types#app
 // for information about these interfaces
 declare global {
-  type MessageType = ToastNotification["type"] | "hidden";
+  type MessageType = ToastNotification["type"];
   type Message = {
     type: MessageType;
     message: string;
