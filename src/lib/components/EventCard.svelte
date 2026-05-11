@@ -49,8 +49,12 @@
       customAuthor={null}
       position={undefined}
     />
-    <span class="text-muted-foreground" class:line-through={event.isCancelled}
-      >{dayjs(event.startDatetime).format("YYYY-MM-DD")}</span
-    >
+    <span class="text-muted-foreground" class:line-through={event.isCancelled}>
+      {dayjs(event.startDatetime).format("YYYY-MM-DD")}
+      {#if event.startDatetime.getDate() !== event.endDatetime.getDate()}
+        <br />
+        {dayjs(event.endDatetime).format("YYYY-MM-DD")}
+      {/if}
+    </span>
   </div>
 </div>

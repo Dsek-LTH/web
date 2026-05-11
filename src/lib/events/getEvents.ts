@@ -7,7 +7,6 @@ type EventFilters = {
   search?: string;
   page?: number;
   pageSize?: number;
-  pastEvents?: boolean;
 };
 
 const include = {
@@ -35,13 +34,6 @@ export const getAllEvents = async (
     AND: [
       baseFilter ? base : {},
       {
-        endDatetime: filters.pastEvents
-          ? {
-              lte: new Date(),
-            }
-          : {
-              gte: new Date(),
-            },
         // search:
         ...(filters.search && filters.search.length > 0
           ? {
@@ -116,7 +108,7 @@ export const getAllEvents = async (
     prisma.event.findMany({
       where,
       orderBy: {
-        startDatetime: filters.pastEvents ? "desc" : "asc",
+        startDatetime: "desc",
       },
       skip: Math.max(pageNumber - 1, 0) * pageSize,
       take: pageSize,

@@ -14,12 +14,14 @@ const eventPageLoad =
   async ({ locals, url }: ServerLoadEvent) => {
     const { prisma } = locals;
     const eventCount = await prisma.event.count();
+
     const pageSize = getPageSizeOrThrowSvelteError(url);
     const page = getPageOrThrowSvelteError(url, {
       fallbackValue: 1,
       lowerBound: 1,
       upperBound: Math.ceil(eventCount / pageSize),
     });
+
     const [[events, pageCount], allTags] = await Promise.all([
       getAllEvents(
         prisma,
@@ -28,12 +30,12 @@ const eventPageLoad =
           search: url.searchParams.get("search") ?? undefined,
           page,
           pageSize,
-          pastEvents: url.searchParams.get("past") === "on",
         },
         !adminMode,
       ),
       getAllTags(prisma, adminMode),
     ]);
+
     return {
       events,
       pageCount,
