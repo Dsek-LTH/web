@@ -5,7 +5,10 @@ RUN apt-get update && apt-get install -y \
   && rm -rf /var/lib/apt/lists/*
 
 # pnpm via Corepack
-RUN corepack enable pnpm && echo store-dir=/pnpm/store > /home/node/.npmrc
+RUN corepack enable pnpm \
+  && echo store-dir=/pnpm/store > /home/node/.npmrc \
+  && mkdir -p /pnpm/store \
+  && chown -R node:node /pnpm/
 
 ENV VERSION=dev
 
