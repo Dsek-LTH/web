@@ -1,0 +1,20 @@
+FROM node:22-trixie
+
+RUN apt-get update && apt-get install -y \
+  openssl \
+  && rm -rf /var/lib/apt/lists/*
+
+# pnpm via Corepack
+RUN corepack enable pnpm && echo store-dir=/pnpm/store > /home/node/.npmrc
+
+ENV VERSION=dev
+
+# Use built-in rootless user
+USER node
+
+VOLUME /workspace
+VOLUME /pnpm/store
+
+WORKDIR /workspace
+ENTRYPOINT ["/usr/bin/bash"]
+

@@ -1,0 +1,36 @@
+services:
+  web:
+    userns_mode: "keep-id"
+    build:
+      context: ..
+      dockerfile: .devcontainer/Containerfile
+    container_name: dsek-web-dev
+    volumes:
+      - ..:/workspace:Z
+      - pnpm-store:/pnpm/store:Z
+    ports:
+      - "5173:5173"
+      - "5555:5555" # prima studio
+    command: ["-c", "yes | pnpm install && pnpm dev --host"]
+    environment:
+      POSTGRES_URL: "postgresql://postgres:postgres@db:5432/dsek?schema=public"
+      POSTGRES_URL_NON_POOLING: "postgresql://postgres:postgres@db:5432/dsek?schema=public"
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16-alpine
+    container_name: dsek-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: dsek
+    ports:
+      - "5432:5432"
+    volumes:
+      - db:/var/lib/postgresql/data
+
+volumes:
+  db:
+  pnpm-store:
