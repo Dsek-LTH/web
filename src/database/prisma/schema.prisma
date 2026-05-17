@@ -539,8 +539,8 @@ model Member {
   stripeCustomerId        String?                 @map("stripe_customer_id")
   nollningGroupId         String?                 @map("nollning_group_id") @db.Uuid()
   nollaIn                 MentorGroup?            @relation(fields: [nollningGroupId], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "members_nollning_group_id_foreign")
-  pingsFromMe             Ping[]                  @relation("pings_from_memberTomembers")
-  pingsToMe               Ping[]                  @relation("pings_to_memberTomembers")
+  pingsFromMe             Ping[]                  @relation("pings_from_member_to_members")
+  pingsToMe               Ping[]                  @relation("pings_to_member_to_members")
   likedArticles           Article[]               @relation("article_likes")
   articleComments         ArticleComment[]
   articleRequests         ArticleRequest[]
@@ -641,8 +641,8 @@ model Ping {
   toSentAt     DateTime? @map("to_sent_at") @db.Timestamptz(6)
   createdAt    DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
   count        Int?      @default(1)
-  fromMember   Member?   @relation("pings_from_memberTomembers", fields: [fromMemberId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "pings_from_member_foreign")
-  toMember     Member?   @relation("pings_to_memberTomembers", fields: [toMemberId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "pings_to_member_foreign")
+  fromMember   Member?   @relation("pings_from_member_to_members", fields: [fromMemberId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "pings_from_member_foreign")
+  toMember     Member?   @relation("pings_to_member_to_members", fields: [toMemberId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "pings_to_member_foreign")
 
   @@unique([fromMemberId, toMemberId], map: "pings_from_member_to_member_unique")
   @@map("pings")
@@ -960,7 +960,7 @@ model ExpenseItem {
   expenseId          Int       @map("expense_id")
   expense            Expense   @relation(fields: [expenseId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "expense_item_expense_id_foreign")
   committeeShortName String
-  commitee           Committee @relation(fields: [committeeShortName], references: [shortName])
+  committee          Committee @relation(fields: [committeeShortName], references: [shortName])
   amount             Int
   costCenter         String
   comment            String?
