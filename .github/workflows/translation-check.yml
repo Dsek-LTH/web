@@ -1,0 +1,17 @@
+# This workflow performs validity check on translations.
+
+name: Translations CI
+
+on:
+  push:
+    branches: ["main", "new-design"]
+  pull_request:
+    branches: ["main", "new-design"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+      - run: dev/check_translations.sh
