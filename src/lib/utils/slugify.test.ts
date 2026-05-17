@@ -23,11 +23,11 @@ test("slugify 'Debatt - SåS 17' should equal 'debatt-sas-17'", () => {
   expect(slugify("Debatt - SåS 17")).toBe("debatt-sas-17");
 });
 
-test("slugifing long string should be truncated", () => {
+test("slugifying long string should be truncated", () => {
   expect(slugify("a".repeat(100), 25)).toBe("a".repeat(25));
 });
 
-test("slugifing short string should be unchanged", () => {
+test("slugifying short string should be unchanged", () => {
   const str = "a".repeat(5);
   expect(slugify(str, 25)).toBe(str);
 });

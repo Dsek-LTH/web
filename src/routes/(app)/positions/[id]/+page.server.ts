@@ -54,10 +54,10 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
   //Logic for startMonth and endMonth that can wrap over new years
 
-  //If the mandateperiod is within a year the endMonth will be greater than the startMonth which gives the difference:
+  //If the mandate period is within a year the endMonth will be greater than the startMonth which gives the difference:
   //(position.endMonth - position.startMonth) to be added.
 
-  //If the mandateperiod wraps into a new year (and is a year or less) the endMonth will be smaller than the startMonth.
+  //If the mandate period wraps into a new year (and is a year or less) the endMonth will be smaller than the startMonth.
   //The months that need to be added in this case is a full year minus the difference between the months:
   //12 - Math.abs(position.endMonth - position.startMonth)
 
@@ -68,7 +68,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
   return {
     updateForm: superValidate(position, zod4(updateSchema)),
-    addMandateForm: superValidate(zod4(addManadateSchema), {
+    addMandateForm: superValidate(zod4(addMandateSchema), {
       defaults: {
         memberId: "",
         startDate: dayjs()
@@ -101,12 +101,12 @@ export type UpdatePositionSchema = Infer<typeof updateSchema>;
 
 const END_OF_YEAR = new Date(`${new Date().getFullYear()}-12-31T23:59:59`);
 
-const addManadateSchema = z.object({
+const addMandateSchema = z.object({
   memberId: z.string().uuid(),
   startDate: z.coerce.date().default(new Date()),
   endDate: z.coerce.date().default(END_OF_YEAR),
 });
-export type AddMandateSchema = Infer<typeof addManadateSchema>;
+export type AddMandateSchema = Infer<typeof addMandateSchema>;
 
 const updateMandateSchema = z.object({
   mandateId: z.string().uuid(),
@@ -166,7 +166,7 @@ export const actions: Actions = {
   },
   addMandate: async ({ params, request, locals }) => {
     const { prisma } = locals;
-    const form = await superValidate(request, zod4(addManadateSchema));
+    const form = await superValidate(request, zod4(addMandateSchema));
     if (!form.valid) return fail(400, { form });
     const member = await prisma.member.findUnique({
       where: { id: form.data.memberId },

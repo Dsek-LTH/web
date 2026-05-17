@@ -40,14 +40,7 @@
       >
         <g transform="matrix(1,0,0,1,-47.022574,-834.387208)">
           <g>
-            <rect
-              id="Artboard1"
-              x="0"
-              y="0"
-              width="2500"
-              height="2500"
-              style="fill:none;"
-            />
+            <rect x="0" y="0" width="2500" height="2500" style="fill:none;" />
             <g
               transform="matrix(0.74219,0.428504,-0.428504,0.74219,-65.528367,-232.763917)"
             >
