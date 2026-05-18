@@ -22,7 +22,8 @@
     "migrate": "zenstack generate && prisma migrate dev && snaplet-seed sync",
     "seed": "prisma db seed",
     "prisma-case-format": "prisma-case-format -f src/database/prisma/schema.prisma",
-    "paraglide": "paraglide-js compile --project ./project.inlang --outdir ./src/translations/paraglide"
+    "paraglide": "paraglide-js compile --project ./project.inlang --outdir ./src/translations/paraglide",
+    "check-translations": "./dev/check_translations.sh"
   },
   "zenstack": {
     "schema": "src/database/schema.zmodel"

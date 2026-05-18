@@ -50,4 +50,5 @@ jobs:
       - run: pnpm run format
       - run: pnpm run test
       - run: pnpm run check --fail-on-warnings
+      - run: pnpm run check-translations
       - run: pnpm run build
