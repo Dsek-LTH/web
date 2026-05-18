@@ -1,0 +1,21 @@
+{
+  "name": "D-sek web (default)",
+  "dockerComposeFile": "../compose.yaml",
+  "service": "web",
+  "runServices": ["web", "db"],
+  "workspaceFolder": "/workspace",
+  "forwardPorts": [5173, 5555],
+  "onCreateCommand": "yes | pnpm install && pnpm migrate && pnpm seed",
+  "remoteUser": "node",
+  "updateRemoteUserUID": true,
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "svelte.svelte-vscode",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "Prisma.prisma"
+      ]
+    }
+  }
+}

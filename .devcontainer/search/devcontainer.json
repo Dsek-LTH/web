@@ -1,11 +1,13 @@
 {
-  "name": "D-sek web",
-  "dockerComposeFile": "compose.yaml",
+  "name": "D-sek web (with search)",
+  "dockerComposeFile": "../compose.yaml",
   "service": "web",
+  "runServices": ["web", "db", "meilisearch", "poppler-server"],
   "workspaceFolder": "/workspace",
-  "forwardPorts": [5173, 5555],
+  "forwardPorts": [5173, 5555, 7700],
   "onCreateCommand": "yes | pnpm install && pnpm migrate && pnpm seed",
   "remoteUser": "node",
+  "updateRemoteUserUID": true,
   "customizations": {
     "vscode": {
       "extensions": [

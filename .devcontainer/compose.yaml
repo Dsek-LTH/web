@@ -15,6 +15,8 @@ services:
     environment:
       POSTGRES_URL: "postgresql://postgres:postgres@db:5432/dsek?schema=public"
       POSTGRES_URL_NON_POOLING: "postgresql://postgres:postgres@db:5432/dsek?schema=public"
+      MEILISEARCH_HOST: http://meilisearch:7700
+      POPPLER_SERVER_URL: http://poppler-server:8800
     depends_on:
       - db
 
@@ -29,6 +31,28 @@ services:
     volumes:
       - db:/var/lib/postgresql/data
 
+  meilisearch:
+    container_name: dsek-meilisearch-dev
+    image: getmeili/meilisearch:latest
+    profiles:
+      - search
+    environment:
+      - MEILI_MASTER_KEY=masterKey
+      - MEILI_NO_ANALYTICS=true
+    volumes:
+      - meilisearch:/data.ms
+
+  poppler-server:
+    container_name: dsek-poppler-dev
+    profiles:
+      - search
+    build:
+      context: ../poppler-server
+      dockerfile: Dockerfile
+    environment:
+      - PORT=8800
+
 volumes:
   db:
   pnpm-store:
+  meilisearch:
