@@ -15,8 +15,8 @@
 <SetPageTitle title={m.theBoard()} />
 
 <div class="layout-container">
-  <div class="flex flex-row items-center justify-between">
-    <div class="hidden w-4/12 rounded-lg md:block">
+  <div class="flex flex-col items-center justify-between md:flex-row">
+    <div class="block w-9/12 rounded-lg md:w-4/12">
       <div class="bg-muted-background rounded-lg border-[1px] shadow-xl">
         <img
           class="rounded-lg"
@@ -25,12 +25,12 @@
         />
       </div>
     </div>
-    <div class="pl-8 md:w-8/12">
+    <div class="gap-2 px-4 md:w-8/12 md:gap-0 md:pl-8">
       <h1>{m.theBoard()}</h1>
 
       <p>{m.board_prose()}</p>
 
-      <div class="mt-4 flex flex-row gap-2">
+      <div class="mt-4 flex flex-col gap-2 md:flex-row">
         <Button disabled size="sm" variant="rosa"
           ><Pen /> Läs verksamhetsplanen <ArrowRight /></Button
         >
