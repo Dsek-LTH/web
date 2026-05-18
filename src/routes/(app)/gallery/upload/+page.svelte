@@ -14,6 +14,7 @@
   import { Textarea } from "$lib/components/ui/textarea";
   import MemberSelector from "$lib/components/MemberSelector.svelte";
   import SuperDebug from "sveltekit-superforms";
+  import { Spinner } from "$lib/components/ui/spinner";
 
   let { data }: { data: { form: SuperValidated<UploadSchema> } } = $props();
 
@@ -26,6 +27,7 @@
 
   let coverFiles: FileList | undefined = $state();
   let albumFiles: FileList | undefined = $state();
+  let uploading = $state(false);
 
   function onCoverFileUpload() {
     $form.coverFile = coverFiles ? coverFiles[0] : undefined;
@@ -43,7 +45,7 @@
   <h1 class="text-2xl font-bold">{m.gallery_uploadAlbum()}</h1>
   <form
     id="upload-album"
-    class="form-control items-stretch gap-4"
+    class="form-control flex flex-col items-stretch gap-4"
     method="POST"
     enctype="multipart/form-data"
     use:enhance
@@ -140,12 +142,24 @@
       />
     </div>
 
-    <Button
-      class="btn btn-primary"
-      type="submit"
-      onclick={() => console.log("Submitting form with data:", $form)}
-    >
-      {m.gallery_upload_upload()}
-    </Button>
+    {#if !uploading}
+      <Button
+        class="btn btn-primary"
+        type="submit"
+        onclick={() => {
+          uploading = true;
+          console.log("Upload started, uploading state set to:", uploading);
+        }}
+      >
+        {m.gallery_upload_upload()}
+      </Button>
+    {:else}
+      <Button class="btn btn-primary" disabled>
+        <Spinner />
+        {m.gallery_upload_uploading()}
+      </Button>
+    {/if}
   </form>
 </div>
+
+<SuperDebug data={$form} />

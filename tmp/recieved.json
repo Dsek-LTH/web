@@ -1,0 +1,5 @@
+{
+  "type": "success",
+  "status": 200,
+  "data": "[{\"results\":1},[2],{\"data\":3,\"type\":14},{\"id\":4,\"studentId\":5,\"firstName\":6,\"lastName\":7,\"nickname\":8,\"picturePath\":9,\"classYear\":10,\"classProgramme\":11,\"fullName\":12,\"_federation\":13,\"_rankingScoreDetails\":17},\"ZjQ5YjIwYzAtNTVhYi01NWFmLTllMTEtOWRkODZjODM5Nzc2\",\"st9817su-s\",\"Stig\",\"Sundberg\",\"back-end\",\"https://avatars.githubusercontent.com/u/71284410\",2003,\"C\",\"Stig Sundberg\",{\"indexUid\":14,\"queriesPosition\":15,\"weightedRankingScore\":16},\"members\",0,1.5,{\"words\":18,\"typo\":20,\"proximity\":21,\"attribute\":23,\"exactness\":25,\"classYear:desc\":28},{\"order\":15,\"matchingWords\":19,\"maxMatchingWords\":19,\"score\":19},1,{\"order\":19,\"typoCount\":15,\"maxTypoCount\":19,\"score\":19},{\"order\":22,\"score\":19},2,{\"order\":24,\"attributeRankingOrderScore\":19,\"queryWordDistanceScore\":19,\"score\":19},3,{\"order\":26,\"matchType\":27,\"score\":19},4,\"exactMatch\",{\"order\":29,\"value\":10},5]"
+}

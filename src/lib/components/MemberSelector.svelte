@@ -244,8 +244,12 @@
   <Button
     bind:ref={triggerElement}
     {name}
+    tabindex={-1}
     variant="outline"
-    class={cn("align-center h-fit w-full cursor-text justify-start p-1 px-2")}
+    class={cn(
+      "align-center bg-background h-fit w-full cursor-text justify-start p-1 px-2 transition-all ",
+      "focus-within:border-muted-foreground focus-within:ring-muted-foreground/20 hover:bg-background focus-within:ring-[3px]",
+    )}
     onclick={() => {
       inputElement?.focus();
     }}
