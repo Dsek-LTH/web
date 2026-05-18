@@ -95,7 +95,7 @@ const apiNames = {
     MANAGE: "webshop:manage",
   },
   NOLLNING: {
-    MANAGE_PHADDER_GROUPS: "nollning:phaddrar:groups:manage",
+    MANAGE_MENTOR_GROUPS: "nollning:phaddrar:groups:manage",
   },
   EXPENSES: {
     CREATE: "expenses:create", // who can create expenses, probably all volunteers or logged in

@@ -255,7 +255,7 @@ export const getFooterRoutes = (): Route[] =>
           path: "https://lth.se",
         },
         {
-          title: m.nav_footer_lunduni(),
+          title: m.nav_footer_lund_uni(),
           accessRequired: null,
           appBehaviour: "none",
           path: "https://lu.se",
@@ -281,7 +281,7 @@ export const getFooterRoutes = (): Route[] =>
           path: "/events",
         },
         {
-          title: m.nav_studybank(),
+          title: m.nav_study_bank(),
           accessRequired: null,
           appBehaviour: "none",
           path: "/events",

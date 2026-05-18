@@ -58,7 +58,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     }),
   ]);
   if (memberResult.status === "rejected")
-    throw error(500, m.members_errors_couldntFetchMember());
+    throw error(500, m.members_errors_could_notFetchMember());
   if (!memberResult.value) throw error(404, m.members_errors_memberNotFound());
   if (mentorGroupsResult.status === "rejected")
     throw error(505, mentorGroupsResult.reason);
@@ -79,7 +79,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
       deleteForm: await superValidate(zod4(deletePictureSchema)),
     };
   } catch {
-    throw error(500, m.members_errors_couldntFetchPings());
+    throw error(500, m.members_errors_could_notFetchPings());
   }
 };
 
@@ -143,7 +143,7 @@ export const actions: Actions = {
         return message(
           form,
           {
-            message: `${m.members_errors_couldntUploadFile()}: ${await res.text()}`,
+            message: `${m.members_errors_could_notUploadFile()}: ${await res.text()}`,
             type: "error",
           },
           { status: 500 },
@@ -154,7 +154,7 @@ export const actions: Actions = {
       return message(
         form,
         {
-          message: `${m.members_errors_couldntUploadFile()}: ${errMsg}`,
+          message: `${m.members_errors_could_notUploadFile()}: ${errMsg}`,
           type: "error",
         },
         { status: 500 },

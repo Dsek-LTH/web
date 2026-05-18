@@ -148,7 +148,7 @@ export const createEvent: Action = async (event) => {
             ...eventData,
             recurringParentId: recurringEventParent.id,
             startDatetime: event.start,
-            isDetatched: false,
+            isDetached: false,
             authorId: user?.memberId ?? error(500, "No user"),
             endDatetime: event.end,
             slug: slugWithCount(slug, slugCount),

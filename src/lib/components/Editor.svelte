@@ -125,7 +125,7 @@
           }}><title>{m.editor_link()}</title></Link
         >
         <Code
-          aria-label={m.editor_inlinecode()}
+          aria-label={m.editor_inline_code()}
           role="button"
           onclick={() => {
             toggleInlineCode(textarea);
@@ -169,7 +169,7 @@
         class="border-border flex flex-row items-center justify-between border-r-[1px] *:mx-[12px] *:size-4 *:cursor-pointer"
       >
         <List
-          aria-label={m.editor_ulist()}
+          aria-label={m.editor_unordered_list()}
           role="button"
           onclick={() => {
             toggleUList(textarea);
@@ -185,7 +185,7 @@
           }}><title>{m.editor_ordered_list()}</title></ListOrdered
         >
         <ListTodo
-          aria-label={m.editor_tasklist()}
+          aria-label={m.editor_task_list()}
           role="button"
           onclick={() => {
             toggleTaskList(textarea);

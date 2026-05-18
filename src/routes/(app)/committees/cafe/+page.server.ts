@@ -139,9 +139,9 @@ export const actions: Actions = {
 
     const isDayManager = isAuthorized(apiNames.CAFE.DAY_MANAGER, user);
     if (!cafeShift) {
-      if (timeSlot == TimeSlot.DAYMANAGER && !isDayManager && !isSetByAdmin) {
+      if (timeSlot == TimeSlot.DAYCARER && !isDayManager && !isSetByAdmin) {
         return message(form, {
-          message: m.cafe_error_only_daymanagers(),
+          message: m.cafe_error_only_daycarers(),
           type: "error",
         });
       }

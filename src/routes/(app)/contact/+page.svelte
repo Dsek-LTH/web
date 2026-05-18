@@ -73,7 +73,7 @@
         <CommitteeIcon class="w-12 self-baseline" committee={data.trivsel} />
       </div>
 
-      <span>{m.contact_wellbeing()} </span>
+      <span>{m.contact_well_being()} </span>
       <a class="link" href="https://bit.ly/trivselkontakt"
         >bit.ly/trivselkontakt</a
       >
