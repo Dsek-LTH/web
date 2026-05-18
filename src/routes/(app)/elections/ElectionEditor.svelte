@@ -14,7 +14,6 @@
   import timezone from "dayjs/plugin/timezone";
   import type { PageData as CreatePageData } from "./create/$types";
   import type { PageData as EditPageData } from "./[id]/edit/$types";
-  import SuperDebug from "sveltekit-superforms";
 
   dayjs.extend(utc);
   dayjs.extend(timezone);
