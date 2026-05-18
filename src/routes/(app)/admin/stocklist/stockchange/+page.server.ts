@@ -41,7 +41,7 @@ const createInBatchSchema = z.object({
 export const actions: Actions = {
   createInBatch: async (event) => {
     const { prisma, user } = event.locals;
-    authorize(apiNames.DRINKITEMBATCH.CREATE, user);
+    authorize(apiNames.DRINK_ITEM_BATCH.CREATE, user);
     const form = await superValidate(event.request, zod4(createInBatchSchema));
     if (!form.valid) return fail(400, { form });
 
@@ -75,7 +75,7 @@ export const actions: Actions = {
 
   createOutBatch: async (event) => {
     const { prisma, user } = event.locals;
-    authorize(apiNames.DRINKITEMBATCH.CREATE, user);
+    authorize(apiNames.DRINK_ITEM_BATCH.CREATE, user);
     const form = await superValidate(event.request, zod4(createOutBatchSchema));
     if (!form.valid) return fail(400, { form });
 

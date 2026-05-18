@@ -30,7 +30,7 @@ const DrinkItemSchema = z.object({
 export const actions: Actions = {
   createDrinkItem: async (event) => {
     const { user, prisma } = event.locals;
-    authorize(apiNames.DRINKITEM.CREATE, user);
+    authorize(apiNames.DRINK_ITEM.CREATE, user);
     const form = await superValidate(event.request, zod4(DrinkItemSchema));
     if (!form.valid) return fail(400, { form });
 

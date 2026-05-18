@@ -64,7 +64,7 @@ export const load: PageServerLoad = async (event) => {
 export const actions: Actions = {
   updateEntry: async (event) => {
     const { prisma, user } = event.locals;
-    authorize(apiNames.DRINKITEMBATCH.UPDATE, user);
+    authorize(apiNames.DRINK_ITEM_BATCH.UPDATE, user);
     const form = await superValidate(event.request, zod4(updateSchema));
     if (!form.valid) return fail(400, { form });
 
@@ -123,7 +123,7 @@ export const actions: Actions = {
 
   deleteEntry: async (event) => {
     const { prisma, user } = event.locals;
-    authorize(apiNames.DRINKITEMBATCH.DELETE, user);
+    authorize(apiNames.DRINK_ITEM_BATCH.DELETE, user);
     const form = await superValidate(event.request, zod4(deleteSchema));
     if (!form.valid) return fail(400, { form });
 
