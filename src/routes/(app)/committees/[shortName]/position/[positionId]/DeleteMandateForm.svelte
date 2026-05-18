@@ -5,21 +5,34 @@
   import type { DeleteMandateSchema } from "./+page.server";
   import { Button } from "$lib/components/ui/button";
   import Trash from "@lucide/svelte/icons/trash";
+  import { setContext } from "svelte";
 
   let {
     data,
     mandateId,
-  }: { data: SuperValidated<DeleteMandateSchema>; mandateId: string } =
-    $props();
+    onsubmit,
+  }: {
+    data: SuperValidated<DeleteMandateSchema>;
+    mandateId: string;
+    onsubmit: () => void;
+  } = $props();
 
   const { errors, enhance } = $derived(
     superForm(data, {
       id: mandateId,
+      onResult() {
+        onsubmit();
+      },
     }),
   );
 </script>
 
-<form action="?/deleteMandate" method="POST" use:enhance>
+<form
+  action="?/deleteMandate"
+  method="POST"
+  use:enhance
+  onsubmit={() => setContext("mandateSubmit", true)}
+>
   <input type="hidden" name="mandateId" value={mandateId} />
   <Button variant="lila" type="submit" size="sm">
     <Trash />

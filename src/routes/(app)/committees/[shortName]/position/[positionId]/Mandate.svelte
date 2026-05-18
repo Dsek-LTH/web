@@ -10,6 +10,8 @@
   import X from "@lucide/svelte/icons/x";
   import * as Tooltip from "$lib/components/ui/tooltip";
   import ProgrammeBadge from "$lib/components/member/ProgrammeBadge.svelte";
+  import { page } from "$app/state";
+  import { getContext } from "svelte";
 
   let { data, mandate }: { data: PageData; mandate: PageData["mandates"][0] } =
     $props();
@@ -18,6 +20,13 @@
 
   let startDate = $derived(mandate.startDate.toLocaleDateString("sv-SE"));
   let endDate = $derived(mandate.endDate.toLocaleDateString("sv-SE"));
+
+  $effect(() => {
+    console.log(getContext("mandateSubmit"));
+    if (page.form) {
+      isEditing = false;
+    }
+  });
 </script>
 
 <Tooltip.Root>
@@ -60,6 +69,9 @@
         >
           {#await data.updateMandateForm then form}
             <UpdateMandateForm
+              onsubmit={() => {
+                isEditing = false;
+              }}
               data={((f) => {
                 // This works well enough
                 f.data.startDate = mandate.startDate;
@@ -71,7 +83,13 @@
           {/await}
           {#if isAuthorized(apiNames.MANDATE.DELETE, data.user)}
             {#await data.deleteMandateForm then form}
-              <DeleteMandateForm mandateId={mandate.id} data={form} />
+              <DeleteMandateForm
+                mandateId={mandate.id}
+                data={form}
+                onsubmit={() => {
+                  isEditing = false;
+                }}
+              />
             {/await}
           {/if}
         </div>{/if}

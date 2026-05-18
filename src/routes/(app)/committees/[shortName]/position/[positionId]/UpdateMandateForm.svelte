@@ -7,9 +7,19 @@
   import { Button } from "$lib/components/ui/button";
   import DatePicker from "$lib/components/datetime-selector/DatePicker.svelte";
 
-  let { data }: { data: SuperValidated<UpdateMandateSchema> } = $props();
+  let {
+    data,
+    onsubmit,
+  }: { data: SuperValidated<UpdateMandateSchema>; onsubmit: () => void } =
+    $props();
 
-  const { form, errors, constraints, enhance } = $derived(superForm(data));
+  const { form, errors, constraints, enhance } = $derived(
+    superForm(data, {
+      onResult() {
+        onsubmit();
+      },
+    }),
+  );
 </script>
 
 <form
