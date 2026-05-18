@@ -49,18 +49,20 @@
 
       <!-- Edit button -->
       {#if isAuthorized(apiNames.MANDATE.UPDATE, data.user) || isAuthorized(apiNames.MANDATE.DELETE, data.user)}
-        <button
-          class="aspect-square h-2/3"
-          onclick={() => (isEditing = !isEditing)}
-          ><span
+        <div class="aspect-square h-2/3">
+          <span
             class=" {isEditing
               ? 'opacity-80'
               : 'opacity-20'} transition-opacity hover:opacity-100"
-            >{#if isEditing}<X class="h-5" />{:else}<Pen
+            >{#if isEditing}<X
+                onclick={() => (isEditing = !isEditing)}
+                class="h-5"
+              />{:else}<Pen
+                onclick={() => (isEditing = !isEditing)}
                 class="h-5"
               />{/if}</span
-          ></button
-        >
+          >
+        </div>
       {/if}
 
       <!-- Edit modal -->
