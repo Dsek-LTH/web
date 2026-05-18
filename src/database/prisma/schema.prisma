@@ -57,7 +57,7 @@ enum ShoppableType {
 }
 
 enum TimeSlot {
-  DAYMANAGER
+  DAYCARER
   SHIFT_1
   SHIFT_2
   SHIFT_3
@@ -378,7 +378,7 @@ model RecurringEvent {
 model Event {
   id                   String          @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
   recurringParentId    String?         @map("recurring_parent_id") @db.Uuid()
-  isDetatched          Boolean         @default(false) @map("is_detatched")
+  isDetached           Boolean         @default(false) @map("is_detached")
   titleSv              String          @map("title_sv") @db.VarChar(255)
   titleEn              String?         @map("title_en") @db.VarChar(255)
   descriptionSv        String          @map("description_sv")
@@ -488,7 +488,7 @@ model DrinkItem {
   nrBottles         Int?              @default(0) @map("nr_bottles")
   stockLists        DrinkItemBatch[]
 
-  @@map("drinkitem")
+  @@map("drink_item")
 }
 
 model DrinkItemBatch {
@@ -500,7 +500,7 @@ model DrinkItemBatch {
   date           DateTime
   nrBottlesDelta Int?      @map("nr_bottles_delta")
 
-  @@map("drinkitembatch")
+  @@map("drink_item_batch")
 }
 
 model SexetInventoryValueLog {
@@ -508,7 +508,7 @@ model SexetInventoryValueLog {
   date  DateTime
   value Int
 
-  @@map("sexetinventoryvaluelog")
+  @@map("sexet_inventory_value_log")
 }
 
 model Meeting {

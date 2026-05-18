@@ -130,7 +130,7 @@
           onclick={() => {
             toggleInlineCode(textarea);
             countChar();
-          }}><title>{m.editor_inlinecode()}</title></Code
+          }}><title>{m.editor_inline_code()}</title></Code
         >
         <SquareCode
           aria-label={m.editor_codeblock()}
@@ -174,15 +174,15 @@
           onclick={() => {
             toggleUList(textarea);
             countChar();
-          }}><title>{m.editor_ulist()}</title></List
+          }}><title>{m.editor_unordered_list()}</title></List
         >
         <ListOrdered
-          aria-label={m.editor_olist()}
+          aria-label={m.editor_ordered_list()}
           role="button"
           onclick={() => {
             toggleOList(textarea);
             countChar();
-          }}><title>{m.editor_olist()}</title></ListOrdered
+          }}><title>{m.editor_ordered_list()}</title></ListOrdered
         >
         <ListTodo
           aria-label={m.editor_tasklist()}
@@ -190,7 +190,7 @@
           onclick={() => {
             toggleTaskList(textarea);
             countChar();
-          }}><title>{m.editor_tasklist()}</title></ListTodo
+          }}><title>{m.editor_task_list()}</title></ListTodo
         >
       </div>
     </div>

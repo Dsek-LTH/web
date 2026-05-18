@@ -105,7 +105,7 @@
   </div>
   <DatePicker error={err} bind:value={toDate} class="w-full"></DatePicker>
   {#if err}<p class="text-rosa-background">
-      {m.datetimeselector_range_error()}
+      {m.datetime_selector_range_error()}
     </p>{/if}
   <input type="hidden" name="fromCalendarDateTime" value={fromDateTime} />
   <input type="hidden" name="toCalendarDateTime" value={toDateTime} />
