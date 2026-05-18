@@ -6,20 +6,24 @@ import {
 } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { z } from "zod";
-import type { Actions, PageServerLoad } from "./$types";
+import type { Actions, PageServerLoad, RouteParams } from "./$types";
 import * as m from "$paraglide/messages";
 import { getLocale } from "$paraglide/runtime";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { redirect } from "sveltekit-flash-message/server";
-import { committeeToPositionMap } from "$lib/utils/positions";
+import {
+  committeeToPositionMap,
+  getPositionLink,
+  positionPrefixes,
+} from "$lib/utils/positions";
 
 dayjs.extend(utc);
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma } = locals;
 
-  let position = await prisma.position.findFirst({
+  let position = await prisma.position.findUnique({
     where: {
       id: `dsek.${committeeToPositionMap[params.shortName as keyof typeof committeeToPositionMap]}.${params.positionId}`,
     },
@@ -178,14 +182,18 @@ const genitiveCase = (base: string): string => {
   }
 };
 
+const getLocalSearchId = (params: RouteParams) => {
+  if (!positionPrefixes.some((v) => params.positionId.includes(v))) {
+    return `dsek.${committeeToPositionMap[params.shortName as keyof typeof committeeToPositionMap]}.${params.positionId}`;
+  }
+  return params.positionId;
+};
+
 export const actions: Actions = {
   update: async ({ params, request, locals }) => {
     const { prisma } = locals;
 
-    let searchId = params.positionId;
-    if (!params.positionId.startsWith("dsek." + params.shortName)) {
-      searchId = `dsek.${params.shortName}.${params.positionId}`;
-    }
+    const searchId = getLocalSearchId(params);
 
     const form = await superValidate(request, zod4(updateSchema));
     if (!form.valid) return fail(400, { form });
@@ -219,10 +227,7 @@ export const actions: Actions = {
   addMandate: async ({ params, request, locals }) => {
     const { prisma } = locals;
 
-    let searchId = params.positionId;
-    if (!params.positionId.startsWith("dsek." + params.shortName)) {
-      searchId = `dsek.${params.shortName}.${params.positionId}`;
-    }
+    const searchId = getLocalSearchId(params);
 
     const form = await superValidate(request, zod4(addMandateSchema));
     if (!form.valid) return fail(400, { form });
@@ -266,10 +271,7 @@ export const actions: Actions = {
     const { params, request, locals } = event;
     const { prisma } = locals;
 
-    let searchId = params.positionId;
-    if (!params.positionId.startsWith("dsek." + params.shortName)) {
-      searchId = `dsek.${params.shortName}.${params.positionId}`;
-    }
+    const searchId = getLocalSearchId(params);
 
     const form = await superValidate(request, zod4(updateMandateSchema));
     if (!form.valid) return fail(400, { form });
@@ -296,7 +298,7 @@ export const actions: Actions = {
       },
     });
     throw redirect(
-      `/committees/${params.shortName}/position/${searchId}`,
+      getPositionLink(searchId),
       {
         message: m.positions_mandateUpdated({
           names: genitiveCase(member.firstName ?? m.positions_theMember()),
@@ -309,10 +311,7 @@ export const actions: Actions = {
   deleteMandate: async ({ params, request, locals }) => {
     const { prisma } = locals;
 
-    let searchId = params.positionId;
-    if (!params.positionId.startsWith("dsek." + params.shortName)) {
-      searchId = `dsek.${params.shortName}.${params.positionId}`;
-    }
+    const searchId = getLocalSearchId(params);
 
     const form = await superValidate(request, zod4(deleteMandateSchema));
     if (!form.valid) return fail(400, { form });
