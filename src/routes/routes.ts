@@ -165,6 +165,13 @@ export const getRoutes = (): Route[] =>
           path: "/songbook",
           icon: Music,
         },
+        {
+          title: m.gallery(),
+          description: m.gallery_desc(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/gallery",
+        },
       ],
     },
     {
