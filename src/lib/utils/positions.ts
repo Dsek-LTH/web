@@ -36,6 +36,8 @@ export const committeeToPositionMap = {
   valb: "val",
 };
 
+export const positionPrefixes = ["dsek", "esek", "fsek", "dchip"];
+
 export const getPositionLink = (positionId: string) => {
   const parts = positionId.split(".");
   if (
