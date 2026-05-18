@@ -1,122 +1,131 @@
 <script lang="ts">
-  import { Button } from "$lib/components/ui/button/index.js";
-  import * as Dialog from "$lib/components/ui/dialog/index.js";
+  import * as m from "$paraglide/messages";
+  import type { PageProps } from "./$types";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
-  import * as m from "$paraglide/messages.js";
-  import ArrowLeft from "@lucide/svelte/icons/arrow-left";
-  import ChevronLeft from "@lucide/svelte/icons/chevron-left";
-  import ChevronRight from "@lucide/svelte/icons/chevron-right";
-  import X from "@lucide/svelte/icons/x";
+  import MemberCard from "$lib/components/MemberCard.svelte";
+  import * as Dialog from "$lib/components/ui/dialog/index.js";
+  import { Button } from "$lib/components/ui/button";
+  import { MoveLeft, MoveRight } from "@lucide/svelte";
 
-  let { data } = $props();
+  let { data }: PageProps = $props();
 
-  let selectedIndex = $state<number | null>(null);
-  let lightboxOpen = $derived(selectedIndex !== null);
-
-  function next() {
-    if (selectedIndex === null) return;
-    selectedIndex = (selectedIndex + 1) % data.pictures.length;
-  }
-  function prev() {
-    if (selectedIndex === null) return;
-    selectedIndex =
-      (selectedIndex - 1 + data.pictures.length) % data.pictures.length;
-  }
-
+  let selectedModalPicture = $state(0);
   $effect(() => {
-    if (!lightboxOpen) return;
-    const handleKeydown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight") next();
-      else if (e.key === "ArrowLeft") prev();
-    };
-    window.addEventListener("keydown", handleKeydown);
-    return () => window.removeEventListener("keydown", handleKeydown);
+    if (selectedModalPicture < 0) {
+      selectedModalPicture = 0;
+    }
+    if (selectedModalPicture > pictures.length - 1 && pictures.length > 0) {
+      selectedModalPicture = pictures.length - 1;
+    }
+    selectedModalUrl = pictures[selectedModalPicture]?.thumbnailUrl;
   });
+  let selectedModalUrl: string | undefined = $state();
+
+  let pictures = $derived(data.pictures);
+
+  let modalPrev: HTMLButtonElement | null = $state(null);
+  let modalNext: HTMLButtonElement | null = $state(null);
+
+  function onKeyDown(e: { key: string }) {
+    switch (e.key) {
+      case "ArrowLeft":
+        modalPrev?.click();
+        break;
+      case "ArrowRight":
+        modalNext?.click();
+        break;
+    }
+  }
 </script>
 
-<SetPageTitle title={data.album} />
+<svelte:window on:keydown={onKeyDown} />
 
-<div class="mx-auto w-full max-w-5xl px-4 py-8">
-  <Button variant="ghost" href="/gallery" class="mb-6 flex items-center gap-2">
-    <ArrowLeft class="h-4 w-4" />
-    {m.gallery_back()}
-  </Button>
+<SetPageTitle title={m.gallery_album() + " - " + data.album?.title} />
 
-  <div class="mb-6 flex flex-wrap items-center justify-between gap-2">
-    <h1 class="text-3xl font-bold">{data.album}</h1>
-    {#if data.metadata?.photographer || data.metadata?.editor}
-      <div class="text-muted-foreground text-sm">
-        {#if data.metadata.photographer}
-          <p>{m.gallery_photographer()}: {data.metadata.photographer}</p>
+<div class="layout-container">
+  <a href="/gallery" class="btn btn-outline btn-sm m-2">{m.gallery_back()}</a>
+  <div class="bg-base-300 rounded-xl p-7">
+    <div class="flex flex-col">
+      <div class="flex flex-row items-center justify-between p-3">
+        <h1 class="text-2xl">{data.album?.title}</h1>
+        <span class="">{data.album?.date.split("T")[0]}</span>
+      </div>
+      {#if data.album?.description}
+        <div class="px-3">
+          <p class="whitespace-pre-wrap">{data.album?.description}</p>
+        </div>
+      {/if}
+      <div class="flex flex-col gap-1 px-3">
+        {#if data.album?.photographers}
+          <h2 class="text-lg font-semibold">
+            {data.album.photographers.length > 1
+              ? m.gallery_photographers()
+              : m.gallery_photographer()}
+          </h2>
+          <div class="flex flex-row flex-wrap items-center gap-2">
+            {#each data.album?.photographers as p (p.studentId)}
+              <MemberCard member={p} />
+            {/each}
+          </div>
         {/if}
-        {#if data.metadata.editor}
-          <p>{m.gallery_editor()}: {data.metadata.editor}</p>
+        {#if data.album?.editors}
+          <h2 class="text-lg font-semibold">
+            {data.album.editors.length > 1
+              ? m.gallery_editors()
+              : m.gallery_editor()}
+          </h2>
+          <div class="flex flex-row flex-wrap items-center gap-2">
+            {#each data.album?.editors as p (p.studentId)}
+              <MemberCard member={p} />
+            {/each}
+          </div>
         {/if}
       </div>
-    {/if}
-  </div>
-
-  <div class="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
-    {#each data.pictures as picture, index (picture.id)}
-      {#if picture.thumbnailUrl}
-        <button
-          type="button"
-          class="bg-muted-background aspect-square overflow-hidden rounded-md"
-          onclick={() => (selectedIndex = index)}
-        >
+    </div>
+    <Dialog.Root>
+      <div
+        class="flex flex-col items-center gap-4 sm:block sm:columns-2 md:columns-3"
+      >
+        {#each pictures as picture, index (picture)}
+          <Dialog.Trigger
+            type="button"
+            onclick={() => {
+              selectedModalPicture = index;
+            }}
+            class="block text-left leading-[unset]"
+            ><img
+              class="relative my-2 block object-contain"
+              src={picture.thumbnailUrl}
+              alt="display"
+            />
+          </Dialog.Trigger>
+        {/each}
+      </div>
+      <Dialog.Content class="w-fit !max-w-[90vw]">
+        <div class="flex flex-col items-center justify-center">
           <img
-            src={picture.thumbnailUrl}
-            alt={picture.name}
-            class="h-full w-full object-cover transition-transform hover:scale-105"
+            src={selectedModalUrl}
+            class="h-fill w-fill relative block max-h-[calc(90vh-50px)] max-w-[90vw] rounded-lg object-contain p-3"
+            alt="display"
           />
-        </button>
-      {/if}
-    {/each}
+          <div class="m-2 -mt-1 flex flex-row items-center justify-center">
+            <Button
+              bind:ref={modalPrev}
+              type="button"
+              variant="ghost"
+              class="btn"
+              onclick={() => selectedModalPicture--}><MoveLeft /></Button
+            >
+            <Button
+              bind:ref={modalNext}
+              type="button"
+              variant="ghost"
+              class="btn"
+              onclick={() => selectedModalPicture++}><MoveRight /></Button
+            >
+          </div>
+        </div>
+      </Dialog.Content>
+    </Dialog.Root>
   </div>
 </div>
-
-<Dialog.Root
-  open={lightboxOpen}
-  onOpenChange={(open) => {
-    if (!open) selectedIndex = null;
-  }}
->
-  <Dialog.Content
-    showCloseButton={false}
-    class="flex h-[100dvh] max-h-none w-screen max-w-none items-center justify-center rounded-none border-none bg-transparent p-0 shadow-none sm:max-w-none"
-  >
-    {#if selectedIndex !== null}
-      <Dialog.Close
-        type="button"
-        aria-label={m.gallery_close()}
-        class="absolute top-4 right-4 z-10 inline-flex h-10 w-10 items-center justify-center rounded-md text-white hover:bg-white/10"
-      >
-        <X class="h-6 w-6" />
-      </Dialog.Close>
-
-      <Button
-        variant="ghost"
-        size="icon"
-        class="absolute left-2 z-10 text-white hover:bg-white/10 hover:text-white sm:left-4"
-        aria-label={m.gallery_previous()}
-        onclick={prev}
-      >
-        <ChevronLeft class="h-8 w-8" />
-      </Button>
-      <img
-        src={data.pictures[selectedIndex]!.thumbnailUrl}
-        alt={data.pictures[selectedIndex]!.name}
-        class="max-h-[92dvh] max-w-[92vw] object-contain"
-      />
-      <Button
-        variant="ghost"
-        size="icon"
-        class="absolute right-2 z-10 text-white hover:bg-white/10 hover:text-white sm:right-4"
-        aria-label={m.gallery_next()}
-        onclick={next}
-      >
-        <ChevronRight class="h-8 w-8" />
-      </Button>
-    {/if}
-  </Dialog.Content>
-</Dialog.Root>
