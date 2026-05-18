@@ -1092,5 +1092,10 @@
   "elections_new": "Create election",
   "committees_all_members": "All members",
   "contact_delta_prose": "DELTA is the annual career fair organized by the D-guild, which is aimed towards students on the engineering programmes Computer Science and Engineering and Information and Communication Engineering. DELTA is one of the biggest events during the year for the guild and an excellent opportunity to present yourselves to the students.",
-  "contact_delta_email": "Interested? Contact us at "
+  "contact_delta_email": "Interested? Reach out to ",
+  "positions_updating": "Updating position info",
+  "positions_adding": "Adding mandate",
+  "positions_member": "Member",
+  "positions_date_error": "End date must be after start date",
+  "board_prose": "The board are responsible for the operations of the guild, and consists of the Guild President, Vice Guild President, and most of the committee heads. They make decisions regarding what the guild should do, elect volunteers, and represent the guild externally. Many decisions are made on board meetings every Tuesday during the study weeks in E:1124, where all members are welcome."
 }
