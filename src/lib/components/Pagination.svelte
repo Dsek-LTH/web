@@ -38,7 +38,7 @@
           <Pagination.Item data-sveltekit-preload-data="off">
             <Pagination.Link
               page={pageItem}
-              href={getPageLink(thisPage)}
+              href={getPageLink(pageItem.value)}
               isActive={thisPage == pageItem.value}
             >
               {#snippet child({ props })}
