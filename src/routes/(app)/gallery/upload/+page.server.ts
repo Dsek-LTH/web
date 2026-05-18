@@ -17,6 +17,7 @@ export const load: PageServerLoad = async () => {
 
 export const actions: Actions = {
   default: async ({ request, locals }) => {
+    console.log("Received album upload request");
     const { user, prisma } = locals;
     authorize(apiNames.GALLERY.CREATE, user);
 
@@ -42,8 +43,11 @@ export const actions: Actions = {
 
     if (!form.valid) return fail(400, withFiles({ form }));
     try {
+      console.log("Uploading album files for slug:", slug);
       await uploadAlbumFiles(user, form.data, slug);
+      console.log("Uploading cover file for slug:", slug);
       await uploadCoverFile(user, form.data, slug);
+      console.log("File uploads completed for slug:", slug);
     } catch (e) {
       return message(
         form,
@@ -64,7 +68,7 @@ export const actions: Actions = {
 
     let result: { id: string };
     try {
-      console.log("1 Creating album with slug:", slug);
+      console.log("Creating album in database with title:", title);
       result = await authorizedPrismaClient.album.create({
         data: {
           title,
@@ -73,11 +77,18 @@ export const actions: Actions = {
           updatedAt: new Date(date),
           slug,
           imageCount: albumFiles.length,
+          photographers:
+            photographerConnect.length > 0
+              ? { connect: photographerConnect }
+              : undefined,
+          editors:
+            editorConnect.length > 0 ? { connect: editorConnect } : undefined,
         },
         select: { id: true },
       });
-      console.log("2 Album created with ID:", result.id);
+      console.log("Album created in database with ID:", result.id);
     } catch (e) {
+      console.error("Error creating album in database:", e);
       return message(
         form,
         {
@@ -88,34 +99,8 @@ export const actions: Actions = {
       );
     }
 
-    if (photographerConnect.length > 0 || editorConnect.length > 0) {
-      try {
-        await authorizedPrismaClient.album.update({
-          where: { id: result.id },
-          data: {
-            photographers:
-              photographerConnect.length > 0
-                ? { connect: photographerConnect }
-                : undefined,
-            editors:
-              editorConnect.length > 0 ? { connect: editorConnect } : undefined,
-          },
-        });
-      } catch (e) {
-        return message(
-          form,
-          {
-            message: `Album member connect failed: ${e instanceof Error ? e.message : `${e}`}`,
-            type: "error",
-          },
-          { status: 500 },
-        );
-      }
-    }
-
     console.log("Album created with ID:", result.id);
     console.log("Redirecting to album page with slug:", slug);
-
     redirect(303, "/gallery/album/" + slug);
   },
 };

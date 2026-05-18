@@ -116,6 +116,13 @@ export const getRoutes = (): Route[] =>
           appBehaviour: "none",
           path: "/documents/governing",
         },
+        {
+          title: m.gallery(),
+          description: m.gallery_desc(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/gallery",
+        },
       ],
     },
     {

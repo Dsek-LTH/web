@@ -1,0 +1,60 @@
+{
+  "type": "success",
+  "status": 200,
+  "data": {
+    "results": [
+      {
+        "data": {
+          "id": "ZjQ5YjIwYzAtNTVhYi01NWFmLTllMTEtOWRkODZjODM5Nzc2",
+          "studentId": "st9817su-s",
+          "firstName": "Stig",
+          "lastName": "Sundberg",
+          "nickname": "back-end",
+          "picturePath": "https://avatars.githubusercontent.com/u/71284410",
+          "classYear": 2003,
+          "classProgramme": "C",
+          "fullName": "Stig Sundberg",
+          "_federation": {
+            "indexUid": "members",
+            "queriesPosition": 0,
+            "weightedRankingScore": 1.5
+          },
+          "_rankingScoreDetails": {
+            "words": {
+              "order": 0,
+              "matchingWords": 1,
+              "maxMatchingWords": 1,
+              "score": 1
+            },
+            "typo": {
+              "order": 1,
+              "typoCount": 0,
+              "maxTypoCount": 1,
+              "score": 1
+            },
+            "proximity": {
+              "order": 2,
+              "score": 1
+            },
+            "attribute": {
+              "order": 3,
+              "attributeRankingOrderScore": 1,
+              "queryWordDistanceScore": 1,
+              "score": 1
+            },
+            "exactness": {
+              "order": 4,
+              "matchType": "exactMatch",
+              "score": 1
+            },
+            "classYear:desc": {
+              "order": 5,
+              "value": 2003
+            }
+          }
+        },
+        "type": "members"
+      }
+    ]
+  }
+}

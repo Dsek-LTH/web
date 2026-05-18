@@ -61,8 +61,8 @@ export const availableSearchIndexes = [
   "positions",
   "songs",
   "committees",
-  "governingDocuments",
-  "meetingDocuments",
+  //"governingDocuments",
+  //"meetingDocuments",
 ] as const;
 export type SearchableIndex = (typeof availableSearchIndexes)[number];
 
