@@ -1,4 +1,4 @@
-import { getAllEvents } from "$lib/events/getEvents";
+import { getEvents } from "$lib/events/getEvents";
 import { interestedGoingSchema } from "$lib/events/schema";
 import { getAllTags } from "$lib/news/tags";
 import {
@@ -23,7 +23,7 @@ const eventPageLoad =
     });
 
     const [[events, pageCount], allTags] = await Promise.all([
-      getAllEvents(
+      getEvents(
         prisma,
         {
           tags: url.searchParams.getAll("tags"),
