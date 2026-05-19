@@ -1,4 +1,4 @@
-FROM node:22.14.0-alpine3.21 AS base
+FROM docker.io/node:22.14.0-alpine3.21 AS base
 RUN apk --no-cache add git
 RUN apk --no-cache add openssl
 ENV PNPM_HOME="/pnpm"

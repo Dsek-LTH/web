@@ -1,5 +1,5 @@
 # Use a lightweight Node.js image
-FROM node:24-alpine
+FROM docker.io/node:24-alpine
 ENV NODE_ENV=production
 
 # Install pdftotext (from poppler-utils)
