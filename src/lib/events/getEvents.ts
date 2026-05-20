@@ -3,12 +3,12 @@ import { BASIC_EVENT_FILTER } from "$lib/events/events";
 import type { Prisma } from "@prisma/client";
 import dayjs from "dayjs";
 
-type EventFilters = {
+export type EventFilters = {
   tags?: string[];
   search?: string;
 } & EventSpan;
 
-type EventSpan =
+export type EventSpan =
   | {
       page: number;
       pageSize: number;
