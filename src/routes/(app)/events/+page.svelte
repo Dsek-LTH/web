@@ -8,24 +8,21 @@
   import * as messages from "$paraglide/messages";
   import { page } from "$app/state";
   import { goto } from "$app/navigation";
+  import type { Display } from "./EventPageLoad.js";
 
   const { data } = $props();
 
-  type CalendarKind = "week" | "month" | "list";
+  const display = $derived(data.display);
 
-  const calendarKind = $derived(
-    page.url.searchParams.get("calendarKind") ?? "week",
-  );
-
-  const setCalendarKind = (kind: CalendarKind) => {
+  const setCalendarKind = (display: Display) => {
     const url = new URL(page.url);
-    url.searchParams.set("calendarKind", kind);
+    url.searchParams.set("display", display);
     // eslint-disable-next-line svelte/no-navigation-without-resolve -- we use `page.url`
     goto(url);
   };
 
-  const kindSelectorVariant = (buttonKind: CalendarKind) =>
-    calendarKind == buttonKind ? "rosa" : "outline";
+  const kindSelectorVariant = (buttonKind: Display) =>
+    display === buttonKind ? "rosa" : "outline";
 </script>
 
 <div class="flex w-full flex-row justify-between">
@@ -42,17 +39,22 @@
     <Button
       variant={kindSelectorVariant("month")}
       onclick={() => setCalendarKind("month")}
-      >{messages.events_calendar_month("month")}</Button
+      >{messages.events_calendar_month()}</Button
     >
     <Button
-      variant={kindSelectorVariant("list")}
-      onclick={() => setCalendarKind("list")}
-      >{messages.events_calendar_list("list")}</Button
+      variant={kindSelectorVariant("upcoming")}
+      onclick={() => setCalendarKind("upcoming")}
+      >{messages.events_calendar_upcoming()}</Button
+    >
+    <Button
+      variant={kindSelectorVariant("past")}
+      onclick={() => setCalendarKind("past")}
+      >{messages.events_calendar_past()}</Button
     >
   </ButtonGroup.Root>
 </div>
 
-{#if calendarKind === "week"}
+{#if display === "week"}
   <HomeCalendar
     events={data.events.map((event) => ({
       startDate: event.startDatetime,
@@ -61,7 +63,7 @@
       title: event.title,
     }))}
   />
-{:else if calendarKind === "month"}
+{:else if display === "month"}
   <!-- TODO: Implement this when the month calendar gets added. -->
   <NotImplemented />
 {:else}
