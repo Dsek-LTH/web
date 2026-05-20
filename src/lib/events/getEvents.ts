@@ -104,9 +104,11 @@ export const getEvents = async (
 ): Promise<[EventWithIncludes[], number]> => {
   const is_paginated = "page" in filters;
 
+  const now = new Date();
+
   let page = undefined;
   let pageSize = undefined;
-  let order: "asc" | "desc" = "desc";
+  let order: "asc" | "desc" = "asc";
   let after = undefined;
   let before = undefined;
 
@@ -115,7 +117,10 @@ export const getEvents = async (
     pageSize = filters.pageSize;
 
     if (filters.span == "past") {
-      order = "asc";
+      before = now;
+      order = "desc";
+    } else {
+      after = now;
     }
   } else {
     if ("weekStartingAt" in filters) {

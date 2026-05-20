@@ -17,6 +17,7 @@
   const setCalendarKind = (display: Display) => {
     const url = new URL(page.url);
     url.searchParams.set("display", display);
+    url.searchParams.delete("page");
     // eslint-disable-next-line svelte/no-navigation-without-resolve -- we use `page.url`
     goto(url);
   };
