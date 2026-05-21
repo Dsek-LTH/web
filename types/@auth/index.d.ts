@@ -9,12 +9,19 @@ type ExtendedUserFields = {
 };
 
 declare module "@auth/core/jwt" {
-  interface JWT extends ExtendedUserFields, DefaultJWT {}
+  interface JWT extends ExtendedUserFields, DefaultJWT {
+    access_token?: string;
+    id_token?: string;
+    refresh_token?: string;
+    expires_at?: number;
+    error?: "RefreshTokenError";
+  }
 }
 
 declare module "@auth/core/types" {
   interface User extends ExtendedUserFields, BaseUser {}
   interface Session extends DefaultSession {
     user: ExtendedUserFields & DefaultSession["user"];
+    error?: "RefreshTokenError";
   }
 }

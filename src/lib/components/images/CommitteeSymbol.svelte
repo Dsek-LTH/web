@@ -18,7 +18,7 @@
 
 {#if differentDarkLight}
   <object
-    data="https://raw.githubusercontent.com/Dsek-LTH/grafik/main/guild/d_sektionen/symbol/d.svg"
+    data="https://raw.githubusercontent.com/Dsek-LTH/grafik/refs/heads/main/guild/dsek/symbol/symbol_rosa.svg"
     type="“image/svg"
     title="{committee.name} symbol"
     class="relative aspect-square"
@@ -36,7 +36,7 @@
   </object>
 {:else}
   <object
-    data="https://raw.githubusercontent.com/Dsek-LTH/grafik/main/guild/d_sektionen/symbol/d.svg"
+    data="https://raw.githubusercontent.com/Dsek-LTH/grafik/refs/heads/main/guild/dsek/symbol/symbol_rosa.svg"
     type="“image/svg"
     title="{committee.name} symbol"
     class="aspect-square"

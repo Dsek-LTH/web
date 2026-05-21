@@ -12,7 +12,9 @@
   import apiNames from "$lib/utils/apiNames";
   import { page } from "$app/state";
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
-  import { goto } from "$lib/utils/redirect";
+  /* eslint-disable no-restricted-imports -- This is needed for the language to be set correctly */
+  import { goto } from "$app/navigation";
+  /* eslint-enable no-restricted-imports -- Enable again */
   import { i18n } from "$lib/utils/i18n";
 
   interface PageProps {
@@ -138,31 +140,31 @@
           })),
       ]}
     />
-    <div>
-      <Labeled label={m.members_hasGraduated()}>
+  </div>
+  <div class="flex w-full flex-wrap gap-2 *:flex-1">
+    <Labeled label={m.members_hasGraduated()}>
+      <input
+        type="checkbox"
+        class="checkbox-primary checkbox"
+        bind:checked={isEditingGraduationYear}
+        {...$constraints.graduationYear}
+      />
+    </Labeled>
+    {#if isEditingGraduationYear}
+      <Labeled
+        label={m.members_graduationYear()}
+        error={$errors.graduationYear}
+      >
         <input
-          type="checkbox"
-          class="checkbox-primary checkbox"
-          bind:checked={isEditingGraduationYear}
+          type="number"
+          name="graduationYear"
+          id="graduationYear"
+          class="input input-bordered"
+          bind:value={$form.graduationYear}
           {...$constraints.graduationYear}
         />
       </Labeled>
-      {#if isEditingGraduationYear}
-        <Labeled
-          label={m.members_graduationYear()}
-          error={$errors.graduationYear}
-        >
-          <input
-            type="number"
-            name="graduationYear"
-            id="graduationYear"
-            class="input input-bordered"
-            bind:value={$form.graduationYear}
-            {...$constraints.graduationYear}
-          />
-        </Labeled>
-      {/if}
-    </div>
+    {/if}
   </div>
   <div class="mt-4 flex flex-wrap gap-2 *:flex-1">
     <a href="{page.params['studentId']}/edit-bio" class="btn">

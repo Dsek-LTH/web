@@ -1,11 +1,11 @@
 <script lang="ts">
   import { goto } from "$lib/utils/redirect";
-  import { page } from "$app/stores";
   import { tick } from "svelte";
   import { i18n } from "$lib/utils/i18n";
   import * as m from "$paraglide/messages";
+  import { page } from "$app/state";
 
-  let isLoading = false;
+  let isLoading = $state(false);
 
   let debouncerTimeout: number;
   let inputField: HTMLInputElement;
@@ -13,11 +13,11 @@
     isLoading = true;
     clearTimeout(debouncerTimeout);
     debouncerTimeout = window.setTimeout(async () => {
-      const urlParams = new URLSearchParams($page.url.searchParams);
+      const urlParams = new URLSearchParams(page.url.searchParams);
       if (search !== undefined) urlParams.set("search", search);
       else urlParams.delete("search");
       urlParams.delete("page");
-      await goto(`${i18n.route($page.url.pathname)}?${urlParams.toString()}`, {
+      await goto(`${i18n.route(page.url.pathname)}?${urlParams.toString()}`, {
         replaceState: true,
         keepFocus: true,
         noScroll: true,
@@ -37,8 +37,8 @@
     type="text"
     placeholder={m.search_search()}
     class="input input-bordered w-full"
-    value={$page.url.searchParams.get("search") ?? ""}
-    on:input={(e) => {
+    value={page.url.searchParams.get("search") ?? ""}
+    oninput={(e) => {
       refetchArticles(e.currentTarget.value);
     }}
   />

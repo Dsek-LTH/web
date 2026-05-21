@@ -145,7 +145,7 @@
       </Labeled>
       <Labeled
         class="md:flex-1"
-        label="Nollning start"
+        label="Nollning end"
         error={$nollningErrors.end}
         {...$nollningConstraints.end}
       >

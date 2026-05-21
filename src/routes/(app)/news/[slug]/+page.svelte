@@ -6,17 +6,40 @@
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import AuthorSignature from "$lib/components/socials/AuthorSignature.svelte";
   import CommentSection from "$lib/components/socials/CommentSection.svelte";
+  import { toast } from "$lib/stores/toast";
   import * as m from "$paraglide/messages";
   import Article from "../Article.svelte";
   import LikeButton from "../LikeButton.svelte";
   import LikersList from "../LikersList.svelte";
-  import type { PageData } from "./$types";
 
-  export let data: PageData;
+  let { data } = $props();
 
-  $: article = data.article;
-  $: author = article.author;
-  let isRemoving = false;
+  let article = $state(data.article);
+  let author = $state(article?.author);
+
+  let isRemoving = $state(false);
+
+  async function share() {
+    const shareData = {
+      title: article?.header ?? "<title missing>",
+      url: window.location.href,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.error(err);
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(shareData.url);
+        toast(m.news_share_copy_url());
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }
 </script>
 
 <SetPageTitle title={article.header} />
@@ -84,11 +107,21 @@
     <div slot="after-body" class="mt-4">
       <div class="flex flex-col items-start gap-2">
         <LikersList likers={article.likers} />
-        <LikeButton
-          likers={article.likers}
-          likeForm={data.likeForm}
-          articleId={article.id}
-        />
+        <div class="flex flex-row">
+          <LikeButton
+            likers={article.likers}
+            likeForm={data.likeForm}
+            articleId={article.id}
+          />
+          <!-- share button -->
+          <button
+            type="button"
+            aria-label={m.news_share()}
+            onclick={share}
+            class="i-mdi-share mt-2 size-12 hover:opacity-50 hover:transition-opacity"
+          >
+          </button>
+        </div>
       </div>
       <div class="mt-4 flex flex-col gap-2">
         <CommentSection

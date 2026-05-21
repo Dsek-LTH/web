@@ -11,6 +11,9 @@
   let handleSearch: (search: string) => void;
   export let endpoint: string | undefined = undefined;
   export let year: number | undefined = undefined;
+  export let onSelect:
+    | ((member: ExtendedPrismaModel<"Member">) => void)
+    | undefined = undefined;
 </script>
 
 <MemberSearch
@@ -20,6 +23,7 @@
   class={clazz}
   onSelect={(selectedMember) => {
     member = selectedMember;
+    onSelect?.(selectedMember);
   }}
   {year}
 >

@@ -18,6 +18,8 @@
   );
 
   let form: HTMLFormElement;
+  const { scheduledArticles } = data;
+  let showScheduled = false;
 </script>
 
 <SetPageTitle title={m.news()} />
@@ -54,8 +56,81 @@
       {#if isAuthorized(apiNames.NEWS.CREATE, data.user)}
         <a class="btn btn-primary" href="/news/create">+ {m.news_create()}</a>
       {/if}
+      {#if scheduledArticles.length > 0}
+        <button
+          class="btn btn-secondary"
+          on:click={() => (showScheduled = !showScheduled)}
+          >{`${!showScheduled ? m.news_show() : m.news_hide()} ${m.news_scheduled()}`}</button
+        >
+      {/if}
     </form>
   </section>
+
+  {#if showScheduled}
+    <section class="space-y-4 rounded-lg bg-base-200 p-6">
+      <h2 class="text-xl font-semibold">{m.news_scheduledNews()}</h2>
+
+      <div class="space-y-3">
+        {#each scheduledArticles as article (article.id)}
+          <div class="flex gap-5 rounded-xl bg-base-300 p-5 shadow-sm">
+            <div
+              class="flex w-20 flex-col items-center justify-center rounded-lg bg-base-100 p-3 text-center"
+            >
+              <span class="text-3xl font-bold leading-none">
+                {article.publishedAt?.getDate()}
+              </span>
+              <span class="text-sm uppercase opacity-70">
+                {article.publishedAt
+                  ? article.publishedAt.toLocaleString("default", {
+                      month: "short",
+                    })
+                  : ""}
+              </span>
+              <span class="mt-1 text-xs font-medium opacity-60">
+                {article.publishedAt
+                  ? article.publishedAt.toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                  : ""}
+              </span>
+            </div>
+
+            <div class="flex-1 space-y-2">
+              <h3 class="text-lg font-semibold leading-tight">
+                {article.header}
+              </h3>
+
+              <p class="text-sm opacity-80">
+                {article.body.length > 200
+                  ? `${article.body.slice(0, 200)}…`
+                  : article.body}
+              </p>
+
+              {#if article.publishedAt}
+                <p class="text-xs opacity-60">
+                  {m.news_scheduledFor() + " "}
+                  {article.publishedAt.toLocaleString([], {
+                    dateStyle: "medium",
+                    timeStyle: "short",
+                  })}
+                </p>
+              {/if}
+            </div>
+
+            <div class="flex items-start">
+              <a
+                class="btn btn-primary btn-sm"
+                href={`/news/${article.slug}/edit`}
+              >
+                {m.news_edit()}
+              </a>
+            </div>
+          </div>
+        {/each}
+      </div>
+    </section>
+  {/if}
 
   <section class="grid grid-cols-1 gap-8 md:grid-cols-2">
     {#each data.articles as article (article.id)}

@@ -32,4 +32,5 @@
     "**/pnpm-lock.yaml": true,
   },
   "typescript.preferences.importModuleSpecifierEnding": "minimal",
+  "typescript.preferences.importModuleSpecifier": "non-relative"
 }

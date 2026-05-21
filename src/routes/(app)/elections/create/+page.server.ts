@@ -7,8 +7,10 @@ import { electionSchema } from "../schemas";
 import * as m from "$paraglide/messages";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 
 dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma } = locals;
@@ -50,7 +52,10 @@ export const actions: Actions = {
         markdownSv,
         markdownEn,
         link,
-        expiresAt: dayjs(expiresAt).endOf("day").utc().toDate(),
+        expiresAt: dayjs
+          .tz(`${expiresAt} 23:59:59`, "Europe/Stockholm")
+          .utc()
+          .toDate(),
         committeeId,
       },
     });

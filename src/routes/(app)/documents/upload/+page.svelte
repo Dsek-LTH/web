@@ -27,6 +27,17 @@
 
   let pathInfo = $derived(typeToPath[$form.type]);
   let fileErrors = $derived($errors.file as string | string[] | undefined);
+
+  let meetingPlaceholder = $derived.by(() => {
+    switch ($form.type) {
+      case "requirement":
+        return "Øverphøs, Aktivitetsansvarig...";
+      case "srd":
+        return "SRD67";
+      default:
+        return "S18, HTM1, VTM-extra...";
+    }
+  });
 </script>
 
 <SetPageTitle title={m.documents_uploadDocument()} />
@@ -46,20 +57,23 @@
   </div>
 
   <Labeled error={$errors.folder}>
-    <label class="mb-5 text-lg font-medium" for="folder">
+    <label class="text-lg font-medium" for="folder">
       2. {$form.type === "requirement"
         ? m.documents_writePositionName()
         : m.documents_writeMeetingName()}
     </label>
+
+    <p class="mb-5 text-sm italic text-base-content/70">
+      {m.documents_uploadInfo()}
+    </p>
+
     <input
       id="folder"
       name="folder"
       class="input input-bordered"
       bind:value={$form.folder}
       type="text"
-      placeholder={$form.type === "requirement"
-        ? "Øverphøs, Aktivitetsanssvarig..."
-        : "S18, HTM1, VTM-extra..."}
+      placeholder={meetingPlaceholder}
       {...$constraints.folder}
     />
   </Labeled>

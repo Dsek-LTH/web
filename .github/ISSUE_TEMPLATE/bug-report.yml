@@ -1,28 +1,93 @@
-name: Bug report
-description: Create a report to help us fix problems
+name: 🐛 Bug report
+description: Report a bug
 labels:
   - bug
+
 body:
-  - type: textarea
-    id: description
+  - type: markdown
     attributes:
-      label: Description
-      description: >-
-        Describe the problem. What is happening? What did you expect to happen
-        instead? Screenshots and videos are welcome.
+      value: |
+        ⚠️ This template is for technical **bug reports**.
+        For feature proposals, use the dedicated feature template instead.
+
+        Other general ideas, feedback, and questions are more than welcome in the discord channel or the form on the website.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: 📝 Summary
+      description: |
+        A concise description of what is broken or not working as expected.
+
+        📌 Tip: It is often easiest to write this part last.
     validations:
       required: true
+
   - type: textarea
-    id: reproduce
+    id: affected_areas
     attributes:
-      label: Steps to reproduce
-      description: If we want to experience this bug for ourselves, what should we do?
-      placeholder: >-
-        Step 1. Go to dsek.se/booking.
-        Step 2. ...
-        Step 3. ...
+      label: 📍 Affected area(s)
+      description: |
+        Pages, routes, components, APIs, services, or other relevant parts.
+    validations:
+      required: true
+
   - type: textarea
-    id: other
+    id: expected
     attributes:
-      label: Further information
-      description: Anything else we should know?
+      label: ✅ Expected behavior
+      description: What should happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: ❌ Actual behavior
+      description: |
+        What actually happens?
+        Feel free to provide screenshots if relevant.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 🔁 Reproduction steps
+      description: |
+        Steps to reliably reproduce the issue.
+        If reproduction is intermittent or unclear, describe the known conditions.
+      placeholder: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: 🌍 Scope & impact
+      description: |
+        Who is affected (all users, specific roles, etc.)?
+        Note any known workarounds.
+    validations:
+      required: false
+
+  - type: textarea
+    id: technical_notes
+    attributes:
+      label: 🛠️ Technical notes
+      description: |
+        Any observations, logs, suspected cause, or pointers to relevant code.
+        Links to related issues, PRs, or commits if known.
+    validations:
+      required: false
+
+  - type: textarea
+    id: open_questions
+    attributes:
+      label: ❓ Next steps/open questions
+      description: Anything that needs clarification before work can begin.
+    validations:
+      required: false

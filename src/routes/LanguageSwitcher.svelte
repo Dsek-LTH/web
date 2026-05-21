@@ -11,6 +11,7 @@
 
   if (browser) {
     onSetLanguageTag(() => {
+      document.cookie = `languageOverride=${languageTag()}; path=/`;
       invalidateAll();
     });
   }

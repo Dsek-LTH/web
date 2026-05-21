@@ -10,16 +10,20 @@
   export let useMono = false;
 
   const FALLBACK = {
-    mono: "https://raw.githubusercontent.com/Dsek-LTH/grafik/main/guild/d_sektionen/full/bw.svg",
+    mono: "https://raw.githubusercontent.com/Dsek-LTH/grafik/main/guild/dsek/bw.svg",
     color:
-      "https://raw.githubusercontent.com/Dsek-LTH/grafik/main/guild/d_sektionen/full/color.svg",
+      "https://raw.githubusercontent.com/Dsek-LTH/grafik/main/guild/dsek/color.svg",
   };
 
   /** Fallback to D-sektionen icon if the committee icon is not found */
   const onError =
     (imageUrl: string): EventHandler =>
     (event) => {
-      if (event.target instanceof HTMLImageElement) {
+      if (
+        event.target instanceof HTMLImageElement &&
+        event.target.src != FALLBACK.color &&
+        event.target.src != FALLBACK.mono
+      ) {
         event.target.src = imageUrl;
       }
     };

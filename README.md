@@ -16,7 +16,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/Dsek-LTH/web">
-    <img src="https://raw.githubusercontent.com/Dsek-LTH/grafik/main/guild/d_sektionen/symbol/d.svg" alt="Logo" width="200" height="200">
+    <img src="https://raw.githubusercontent.com/Dsek-LTH/grafik/refs/heads/main/guild/dsek/color.svg" alt="Logo" width="200" height="200">
   </a>
 
 <h3 align="center">Web</h3>
@@ -37,7 +37,7 @@
 
 ## About
 
-This project is the main web page for the D-guild within TLTH, a non-profit organization for students and alumni of the Computer Science and Information/Communication Technologies programmes in Lund, Sweden. It is maintained by the DWWW committee.
+This project is the main web page for the D-guild within TLTH, a non-profit organization for students and alumni of the Computer Science and Engineering; Information and Communication Engineering; or Master in VR/AR programmes in Lund, Sweden. It is maintained by [CPU (the Central Processing Unit)](https://www.dsek.se/committees/cpu).
 
 ![builtwith][builtwith]
 [![svelte][svelte]][svelte-url]

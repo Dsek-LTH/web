@@ -21,6 +21,12 @@ const apiNames = {
   TAGS: {
     ...crud("tags"),
   },
+  DRINKITEM: {
+    ...crud("drinkitem"),
+  },
+  DRINKITEMBATCH: {
+    ...crud("drinkitembatch"),
+  },
   EVENT: {
     ...crud("event"),
     COMMENT: "event:comment",
@@ -95,6 +101,12 @@ const apiNames = {
     CREATE: "expenses:create", // who can create expenses, probably all volunteers or logged in
     CERTIFICATION: "expenses:certification", // who can ALWAYS certify/sign expenses. As of writing this is treasurer and president.
     BOOKKEEPING: "expenses:bookkeeping", // who can manage expenses for bookkeeping
+  },
+  CAFE: {
+    EDIT_WORKERS: "cafe:edit_workers",
+    EDIT_CIABATTAS: "cafe:edit_ciabattas",
+    SEE_ALL_WEEKS: "cafe:see_all_weeks",
+    DAY_MANAGER: "cafe:day_manager",
   },
 } as const;
 

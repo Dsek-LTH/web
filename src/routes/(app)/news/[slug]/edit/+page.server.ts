@@ -66,10 +66,16 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     memberWithMandtes,
   );
 
+  const articleForm = {
+    ...article,
+    sendNotification: article.shouldSendNotification ?? undefined,
+    publishTime: article.publishedAt ?? null,
+  };
+
   return {
     allTags,
     authorOptions,
-    form: await superValidate(article, zod(updateSchema)),
+    form: await superValidate(articleForm, zod(updateSchema)),
   };
 };
 

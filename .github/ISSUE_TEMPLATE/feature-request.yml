@@ -1,23 +1,68 @@
-name: Feature Request
-description: Suggest an idea for this project
+name: ✨ Feature request
+description: Propose a new feature or significant improvement
 labels:
   - enhancement
+
 body:
-  - type: textarea
+  - type: markdown
     attributes:
-      label: Description
-      description: >-
-        A clear and concise description. Make sure to include any relevant
-        background. Why is this enhancement needed and who would it benefit?
+      value: |
+        ⚠️ This template is for detailed **feature proposals**.
+        For bugs, use the dedicated bug template instead.
+
+        Other general ideas, feedback, and questions are more than welcome in the discord channel or the form on the website.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: 🧩 Problem statement
+      description: |
+        What problem does this feature solve?
+        Describe the current limitation or missing capability.
     validations:
       required: true
+
   - type: textarea
+    id: solution
     attributes:
-      label: Describe the solution you'd like
-      description: If you have a solution in mind, please describe it.
+      label: 💡 Proposed solution
+      description: |
+        Describe the intended behaviour.
+        Include user flows, system behavior, or examples if helpful.
+    validations:
+      required: true
+
   - type: textarea
+    id: affected_areas
     attributes:
-      label: Describe alternatives you've considered
-      description: >-
-        Have you considered any alternative solutions or workarounds? How is
-        this need currently being addressed?
+      label: 📍 Affected area(s)
+      description: |
+        Pages, routes, components, APIs, services, or other relevant parts.
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: ✅ Acceptance criteria
+      description: What is required in order for the feature to be considered complete?
+      value: |-
+        - [ ] ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 🗳️ Alternatives considered
+      description: Other approaches considered and why they were rejected.
+    validations:
+      required: false
+
+  - type: textarea
+    id: open_questions
+    attributes:
+      label: ❓ Next steps/open questions
+      description: Anything that needs clarification before work can begin.
+    validations:
+      required: false
