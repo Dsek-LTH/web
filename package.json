@@ -5,7 +5,7 @@
   "scripts": {
     "prepare": "svelte-kit sync && zenstack generate && prisma generate && pnpm paraglide && pnpm snaplet-seed generate",
     "setup-dev": "vite-node dev/setup.ts",
-    "ci-check": "concurrently 'pnpm:lint' 'pnpm:format' 'pnpm:check' --prefix-colors 'auto' --group",
+    "ci-check": "concurrently 'pnpm:lint --max-warnings 0' 'pnpm:format' 'pnpm:test' 'pnpm:check --fail-on-warnings' 'pnpm:check-translations' --prefix-colors 'auto' --group",
     "dev": "vite dev",
     "build": "vite build",
     "preview": "pm2 start prod/ecosystem.config.cjs --no-daemon",
@@ -22,7 +22,8 @@
     "migrate": "zenstack generate && prisma migrate dev && snaplet-seed sync",
     "seed": "prisma db seed",
     "prisma-case-format": "prisma-case-format -f src/database/prisma/schema.prisma",
-    "paraglide": "paraglide-js compile --project ./project.inlang --outdir ./src/translations/paraglide"
+    "paraglide": "paraglide-js compile --project ./project.inlang --outdir ./src/translations/paraglide",
+    "check-translations": "./dev/check_translations.sh"
   },
   "zenstack": {
     "schema": "src/database/schema.zmodel"
