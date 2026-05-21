@@ -1,6 +1,5 @@
 services:
   web:
-    userns_mode: "keep-id"
     build:
       context: ..
       dockerfile: .devcontainer/Containerfile
@@ -11,7 +10,7 @@ services:
     ports:
       - "5173:5173"
       - "5555:5555" # prima studio
-    command: ["-c", "yes | pnpm install && pnpm dev --host"]
+    command: ["-c", "pnpm install && pnpm dev --host"]
     environment:
       POSTGRES_URL: "postgresql://postgres:postgres@db:5432/dsek?schema=public"
       POSTGRES_URL_NON_POOLING: "postgresql://postgres:postgres@db:5432/dsek?schema=public"

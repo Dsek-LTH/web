@@ -6,18 +6,16 @@ RUN apt-get update && apt-get install -y \
 
 # pnpm via Corepack
 RUN corepack enable pnpm \
-  && echo store-dir=/pnpm/store > /home/node/.npmrc \
-  && mkdir -p /pnpm/store \
-  && chown -R node:node /pnpm/
+  && mkdir -p /pnpm/store
 
+ENV NPM_CONFIG_STORE_DIR=/pnpm/store
+ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+
+# Set version so git isn't required
 ENV VERSION=dev
-
-# Use built-in rootless user
-USER node
 
 VOLUME /workspace
 VOLUME /pnpm/store
 
 WORKDIR /workspace
-ENTRYPOINT ["/usr/bin/bash"]
 
