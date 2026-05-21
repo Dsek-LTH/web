@@ -303,7 +303,6 @@
   "committees_committees": "Committees",
   "committees_volunteers": "volunteers",
   "committees_boardMember": "Board Member",
-  "committees_committeeImage": "Committee image",
   "committees_committeeImageExplanation": "This should be in the SVG format, without background color, without whitespace and with white text.",
   "committees_save": "Save",
   "committees_description": "Description",
@@ -633,7 +632,6 @@
   "songbook_remove": "Remove",
   "songbook_save": "Save",
   "songbook_errors_songNotFound": "Song not found",
-  "songbook_errors_missingId": "Missing ID",
   "songbook_errors_invalidID": "Invalid ID",
   "members_all": "All",
   "members_noMembers": "No members found",
@@ -644,7 +642,6 @@
   "members_save": "Save",
   "members_cancel": "Cancel",
   "members_edit": "Edit",
-  "members_stopEditing": "Stop editing",
   "members_heldPositions": "Held positions",
   "members_memberUpdated": "Member updated",
   "members_pingSent": "Ping sent",
@@ -1053,7 +1050,6 @@
   "committees_card_image": "Card image (in the committee list)",
   "committees_banner_image": "Banner image",
   "committees_invert_text": "Invert text/logo",
-  "commitees_edit_links": "Edit links",
   "about_guild": "About the guild",
   "about_guild_prose_guild": "The D-guild within TLTH is a non-profit organization for students and alumni of the programs Computer Science and Information and Communication Technology . The guild has social arrangements, business contacts, study supervision, and everything else that helps students and alumni.",
   "about_guild_prose_committees": "The guild is divided into 15 commmittees, which all have different areas of operation. Below, you can find information about all of them and get to know how you can become a volunteer!",
@@ -1097,5 +1093,9 @@
   "positions_adding": "Adding mandate",
   "positions_member": "Member",
   "positions_date_error": "End date must be after start date",
-  "board_prose": "The board are responsible for the operations of the guild, and consists of the Guild President, Vice Guild President, and most of the committee heads. They make decisions regarding what the guild should do, elect volunteers, and represent the guild externally. Many decisions are made on board meetings every Tuesday during the study weeks in E:1124, where all members are welcome."
+  "board_prose": "The board are responsible for the operations of the guild, and consists of the Guild President, Vice Guild President, and most of the committee heads. They make decisions regarding what the guild should do, elect volunteers, and represent the guild externally. Many decisions are made on board meetings every Tuesday during the study weeks in E:1124, where all members are welcome.",
+  "nav_news_feed_desc": "See the latest news from the D-guild.",
+  "nav_events_desc": "See current events at the D-guild.",
+  "datepicker_pick_date": "Pick a date",
+  "committees_edit_links": "Edit links"
 }
