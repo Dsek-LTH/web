@@ -259,9 +259,7 @@ export const actions: Actions = {
       message: m.positions_newMandateGivenTo({
         name:
           memberNames.length > 0
-            ? memberNames.map((n, i) =>
-                i == memberNames.length - 1 ? n : n + ", ",
-              )
+            ? memberNames.join(", ")
             : m.positions_theMember(),
       }),
       type: "success",
