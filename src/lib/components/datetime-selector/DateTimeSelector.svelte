@@ -99,7 +99,7 @@
 
 <div class="flex w-min min-w-[16rem] flex-col gap-2">
   <DatePicker
-    bind:value={() => fromDate.toString(), (d) => (fromDate = parseDate(d))}
+    bind:value={fromDate.toString, (d) => (fromDate = parseDate(d))}
     class="w-full"
   ></DatePicker>
   <div class="flex items-center gap-2">
@@ -109,7 +109,7 @@
   </div>
   <DatePicker
     error={err}
-    bind:value={() => toDate.toString(), (d) => (toDate = parseDate(d))}
+    bind:value={toDate.toString, (d) => (toDate = parseDate(d))}
     class="w-full"
   ></DatePicker>
   {#if err}<p class="text-rosa-background">
