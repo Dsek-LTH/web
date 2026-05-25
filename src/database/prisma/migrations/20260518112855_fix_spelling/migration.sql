@@ -8,6 +8,7 @@
   - You are about to drop the `drinkitembatch` table. If the table is not empty, all the data it contains will be lost.
   - You are about to drop the `phadder_groups` table. If the table is not empty, all the data it contains will be lost.
   - You are about to drop the `sexetinventoryvaluelog` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the column `nollning_group_id` on the `members` table. All the data in the column will be lost.
 
 */
 
@@ -61,12 +62,12 @@ CREATE TABLE "mentor_groups" (
     CONSTRAINT "mentor_groups_pkey" PRIMARY KEY ("id")
 );
 
-CREATE TABLE "sexet_inventory_value_log" (
+CREATE TABLE "festivities_committee_inventory_value_log" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "date" TIMESTAMP(3) NOT NULL,
     "value" INTEGER NOT NULL,
 
-    CONSTRAINT "sexet_inventory_value_log_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "festivities_committee_inventory_value_log_pkey" PRIMARY KEY ("id")
 );
 
 ALTER TABLE "drinkitembatch" DROP CONSTRAINT "drinkitembatch_drink_item_id_fkey";
@@ -74,11 +75,12 @@ ALTER TABLE "mandates" DROP CONSTRAINT "mandates_phadderInId_fkey";
 ALTER TABLE "members" DROP CONSTRAINT "members_nollning_group_id_foreign";
 
 ALTER TABLE "events" RENAME COLUMN "is_detatched" TO "is_detached";
+ALTER TABLE "members" RENAME COLUMN "nollning_group_id" TO "mentor_group_id";
 ALTER TABLE "mandates" RENAME COLUMN "phadderInId" TO "mentorInId";
 
 INSERT INTO "drink_item" SELECT * FROM "drinkitem";
 INSERT INTO "mentor_groups" SELECT * FROM "phadder_groups";
-INSERT INTO "sexet_inventory_value_log" SELECT * FROM "sexetinventoryvaluelog";
+INSERT INTO "festivities_committee_inventory_value_log" SELECT * FROM "sexetinventoryvaluelog";
 
 INSERT INTO "drink_item_batch"
       ("id", "drink_item_id", "quantity_delta", "user", "date", "nr_bottles_delta")
@@ -86,7 +88,7 @@ SELECT "id", "drink_item_id", "quantity_delta", "user", "date", "nr_bottles_delt
 
 ALTER TABLE "drink_item_batch" ADD CONSTRAINT "drink_item_batch_drink_item_id_fkey" FOREIGN KEY ("drink_item_id") REFERENCES "drink_item"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "mandates" ADD CONSTRAINT "mandates_mentorInId_fkey" FOREIGN KEY ("mentorInId") REFERENCES "mentor_groups"("id") ON DELETE SET NULL ON UPDATE NO ACTION;
-ALTER TABLE "members" ADD CONSTRAINT "members_nollning_group_id_foreign" FOREIGN KEY ("nollning_group_id") REFERENCES "mentor_groups"("id") ON DELETE SET NULL ON UPDATE NO ACTION;
+ALTER TABLE "members" ADD CONSTRAINT "members_mentor_group_id_foreign" FOREIGN KEY ("mentor_group_id") REFERENCES "mentor_groups"("id") ON DELETE SET NULL ON UPDATE NO ACTION;
 
 DROP TABLE "drinkitem";
 DROP TABLE "drinkitembatch";

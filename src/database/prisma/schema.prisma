@@ -503,12 +503,12 @@ model DrinkItemBatch {
   @@map("drink_item_batch")
 }
 
-model SexetInventoryValueLog {
+model FestivitiesCommitteeInventoryValueLog {
   id    String   @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
   date  DateTime
   value Int
 
-  @@map("sexet_inventory_value_log")
+  @@map("festivities_committee_inventory_value_log")
 }
 
 model Meeting {
@@ -537,8 +537,8 @@ model Member {
   foodPreference          String?                 @map("food_preference") @db.VarChar(255)
   language                String?                 @map("language") @db.VarChar(255)
   stripeCustomerId        String?                 @map("stripe_customer_id")
-  nollningGroupId         String?                 @map("nollning_group_id") @db.Uuid()
-  nollaIn                 MentorGroup?            @relation(fields: [nollningGroupId], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "members_nollning_group_id_foreign")
+  mentorGroupId           String?                 @map("mentor_group_id") @db.Uuid()
+  menteeIn                MentorGroup?            @relation(fields: [mentorGroupId], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "members_mentor_group_id_foreign")
   pingsFromMe             Ping[]                  @relation("pings_from_member_to_members")
   pingsToMe               Ping[]                  @relation("pings_to_member_to_members")
   likedArticles           Article[]               @relation("article_likes")
@@ -655,8 +655,8 @@ model MentorGroup {
   year        Int
   imageUrl    String?   @map("image_url") @db.Text()
   createdAt   DateTime  @default(now())
-  nollor      Member[]
-  phaddrar    Mandate[]
+  mentees     Member[]
+  mentors     Mandate[]
 
   @@map("mentor_groups")
 }
