@@ -36,8 +36,8 @@ export const load = async ({ locals }) => {
 
   const mentorGroups = await prisma.mentorGroup.findMany({
     include: {
-      nollor: true,
-      phaddrar: {
+      mentees: true,
+      mentors: {
         include: {
           member: true,
         },
@@ -130,7 +130,7 @@ export const actions = {
         id: form.data.groupId,
       },
       data: {
-        nollor: {
+        mentees: {
           connect: {
             id: form.data.memberId,
           },
@@ -151,7 +151,7 @@ export const actions = {
         id: form.data.groupId,
       },
       data: {
-        nollor: {
+        mentees: {
           disconnect: {
             id: form.data.memberId,
           },
@@ -190,7 +190,7 @@ export const actions = {
         id: form.data.groupId,
       },
       data: {
-        phaddrar: {
+        mentors: {
           connect: {
             id: mandate.id,
           },
@@ -228,7 +228,7 @@ export const actions = {
         id: form.data.groupId,
       },
       data: {
-        phaddrar: {
+        mentors: {
           disconnect: mandates.map((m) => ({
             id: m.id,
           })),

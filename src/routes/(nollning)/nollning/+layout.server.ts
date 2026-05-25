@@ -17,10 +17,10 @@ export const load = async ({ locals, cookies }) => {
   const notificationsPromise = getNollaGroupedNotifications(user, prisma);
   const mentorGroup =
     member?.classYear == new Date().getFullYear() &&
-    member.nollningGroupId !== null
+    member.mentorGroupId !== null
       ? prisma.mentorGroup.findUnique({
           where: {
-            id: member.nollningGroupId!,
+            id: member.mentorGroupId!,
           },
           select: {
             name: true,

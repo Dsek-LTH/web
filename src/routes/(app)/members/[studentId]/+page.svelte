@@ -38,8 +38,8 @@
       return `${startDate.getFullYear()}-${endDate.getFullYear()}`;
     });
 
-    if (member.nollaIn) {
-      res[member.nollaIn.year] ??= [];
+    if (member.menteeIn) {
+      res[member.menteeIn.year] ??= [];
     }
 
     return res;
@@ -193,7 +193,7 @@
                   </a>
                   <div class="flex flex-col justify-center">
                     <h5>
-                      Nolla i {member.nollaIn.name}
+                      Nolla i {member.menteeIn.name}
                     </h5>
                   </div>
                 </div>
@@ -381,14 +381,14 @@
                     <PositionCard {mandate} />
                   {/each}
                 {/if}
-                {#if member.nollaIn?.year.toString() === year}
+                {#if member.menteeIn?.year.toString() === year}
                   <div
                     class="inline-flex w-84 flex-row items-center gap-4 rounded-md border-[1px] p-3"
                   >
-                    <a href="/committees/nollu?year={member.nollaIn.year}">
-                      {#if member.nollaIn.imageUrl}
+                    <a href="/committees/nollu?year={member.menteeIn.year}">
+                      {#if member.menteeIn.imageUrl}
                         <figure class="size-7 overflow-hidden rounded-sm">
-                          <img src={member.nollaIn.imageUrl} alt="Group logo" />
+                          <img src={member.menteeIn.imageUrl} alt="Group logo" />
                         </figure>
                       {:else}
                         <CommitteeIcon
@@ -407,7 +407,7 @@
                     </a>
                     <div class="flex flex-col justify-center">
                       <h6>
-                        Nolla i {member.nollaIn.name}
+                        Nolla i {member.menteeIn.name}
                       </h6>
                     </div>
                   </div>

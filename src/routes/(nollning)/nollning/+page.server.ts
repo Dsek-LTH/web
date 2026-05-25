@@ -5,8 +5,8 @@ export const load = async ({ locals }) => {
       year: 2025,
     },
     include: {
-      nollor: true,
-      phaddrar: {
+      mentees: true,
+      mentors: {
         include: {
           member: true,
         },

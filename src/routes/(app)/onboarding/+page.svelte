@@ -151,10 +151,10 @@
           </div>
         </div>
         <div class="flex w-full flex-col gap-1.5">
-          <Label for="nollningGroupId">{m.onboarding_mentorGroup()}</Label>
+          <Label for="mentorGroupId">{m.onboarding_mentorGroup()}</Label>
           <Select.Root
             type="single"
-            name="nollningGroupId"
+            name="mentorGroupId"
             bind:value={$form.mentorGroupId as string | undefined}
           >
             <Select.Trigger class="w-full"

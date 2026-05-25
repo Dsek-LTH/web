@@ -4,7 +4,7 @@ import {
 } from "$lib/utils/notifications/types";
 import { error } from "@sveltejs/kit";
 import { getDerivedRoles } from "./authorization";
-import { isNollningPeriod } from "$lib/utils/adminSettings/introduction";
+import { isIntroductionPeriod } from "$lib/utils/adminSettings/introduction";
 import { NOLLNING_TAG_PREFIX } from "$lib/components/postReveal/types";
 import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 
@@ -189,7 +189,7 @@ export const createMember = async (
     email: string | null | undefined;
   },
 ) => {
-  if (await isNollningPeriod()) {
+  if (await isIntroductionPeriod()) {
     const defaultTag = await prisma.tag.findFirst({
       where: {
         nameSv: {

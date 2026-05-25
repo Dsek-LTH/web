@@ -167,7 +167,7 @@ export const models: SeedClientOptions["models"] = {
         ) ?? null,
       visible: true,
       stripeCustomerId: null,
-      nollningGroupId: null,
+      mentorGroupId: null,
     },
   },
   article: {

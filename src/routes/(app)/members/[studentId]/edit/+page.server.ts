@@ -31,7 +31,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
         studentId: studentId,
       },
       include: {
-        nollaIn: true,
+        menteeIn: true,
         mandates: {
           include: {
             mentorIn: true,
@@ -92,7 +92,7 @@ const updateSchema = memberSchema
     classProgramme: true,
     classYear: true,
     graduationYear: true,
-    nollningGroupId: true,
+    mentorGroupId: true,
     language: true,
     bio: true,
   })

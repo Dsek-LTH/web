@@ -38,7 +38,7 @@ export const load: PageServerLoad = async ({ locals, params, cookies }) => {
           studentId: studentId,
         },
         include: {
-          nollaIn: true,
+          menteeIn: true,
           mandates: {
             include: {
               mentorIn: true,
@@ -101,7 +101,7 @@ export const load: PageServerLoad = async ({ locals, params, cookies }) => {
   const member = memberResult.value;
 
   const showMentorGroupModal =
-    member.nollningGroupId === null &&
+    member.mentorGroupId === null &&
     cookies.get("mentor_group_modal_skipped") !== "1" &&
     cookies.get("mentor_group_modal_never") !== "1";
 
@@ -165,7 +165,7 @@ const updateSchema = memberSchema
     classProgramme: true,
     classYear: true,
     graduationYear: true,
-    nollningGroupId: true,
+    mentorGroupId: true,
     language: true,
     bio: true,
   })
@@ -176,7 +176,7 @@ export type UpdateSchema = Infer<typeof updateSchema>;
 const mentorGroupSchema = memberSchema
   .pick({
     classYear: true,
-    nollningGroupId: true,
+    mentorGroupId: true,
   })
   .partial()
   .extend({

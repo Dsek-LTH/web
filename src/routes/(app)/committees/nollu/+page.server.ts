@@ -15,7 +15,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     },
     include: {
       mentees: true,
-      phaddrar: {
+      mentors: {
         include: {
           member: true,
         },

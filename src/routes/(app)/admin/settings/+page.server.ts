@@ -1,8 +1,8 @@
 import {
-  NOLLNING_END_KEY,
-  NOLLNING_START_KEY,
-  updateNollningPeriod,
-} from "$lib/utils/adminSettings/nollning";
+  INTRODUCTION_END_KEY,
+  INTRODUCTION_START_KEY,
+  updateIntroductionPeriod,
+} from "$lib/utils/adminSettings/introduction";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 import { fail } from "@sveltejs/kit";
@@ -16,10 +16,10 @@ export const load: PageServerLoad = async ({ locals }) => {
   authorize(apiNames.ADMIN.SETTINGS.READ, user);
   const settings = await prisma.adminSetting.findMany();
   const introductionStartStr = settings.find(
-    (setting) => setting.key === NOLLNING_START_KEY,
+    (setting) => setting.key === INTRODUCTION_START_KEY,
   )?.value;
   const introductionEndStr = settings.find(
-    (setting) => setting.key === NOLLNING_END_KEY,
+    (setting) => setting.key === INTRODUCTION_END_KEY,
   )?.value;
   return {
     settings,
@@ -76,7 +76,7 @@ export const actions = {
     const { prisma } = locals;
     const form = await superValidate(request, zod4(updateIntroductionPeriodSchema));
     if (!form.valid) return fail(400, { form });
-    await updateNollningPeriod(prisma, form.data.start, form.data.end);
+    await updateIntroductionPeriod(prisma, form.data.start, form.data.end);
     return message(form, {
       message: `Nollningsperiod uppdaterad`,
       type: "success",

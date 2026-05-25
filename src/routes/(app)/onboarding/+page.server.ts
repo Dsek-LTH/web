@@ -55,7 +55,7 @@ const updateSchema = memberSchema.pick({
   foodPreference: true,
   classProgramme: true,
   classYear: true,
-  nollningGroupId: true,
+  mentorGroupId: true,
 });
 
 export type UpdateSchema = Infer<typeof updateSchema>;

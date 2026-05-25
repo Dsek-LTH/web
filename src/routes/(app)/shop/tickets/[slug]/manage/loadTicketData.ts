@@ -49,7 +49,7 @@ export const loadTicketData = async (
       },
     },
     include: {
-      nollaIn: true,
+      menteeIn: true,
       mandates: {
         where: {
           ...mentorMandateFilter(ticketYear),
@@ -66,14 +66,14 @@ export const loadTicketData = async (
   const consumables = ticket.shoppable.consumables.map((c) => {
     const member = memberWithMentorGroups.find((m) => m.id === c.member?.id);
     const mentorIn = member?.mandates[0]?.mentorIn ?? null;
-    const nollaIn =
-      member?.nollaIn?.year === ticketYear ? member.nollaIn : null;
+    const mentee =
+      member?.menteeIn?.year === ticketYear ? member.menteeIn : null;
     return {
       ...c,
       member: c.member
         ? {
             ...c.member,
-            mentorGroup: mentorIn ?? nollaIn,
+            mentorGroup: mentorIn ?? mentee,
           }
         : c.member,
     };
