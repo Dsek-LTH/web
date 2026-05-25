@@ -30,6 +30,8 @@
   import type { NotificationGroup } from "$lib/utils/notifications/group";
   import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
   import NotificationBell from "./notifications/NotificationBell.svelte";
+  import { CircleUserRound } from "@lucide/svelte";
+  import { Spinner } from "$lib/components/ui/spinner";
 
   const {
     notificationsPromise,
@@ -52,6 +54,7 @@
 
   let oldScroll: number;
   let visible = $state(true);
+  let loggingIn = $state(false);
 
   onMount(() => {
     window.onscroll = () => {
@@ -152,11 +155,21 @@
       {:else}
         <Button
           aria-label="sign in"
-          variant="ghost"
-          size="icon-lg"
-          class="text-muted-foreground"
-          onclick={signIn}><LogIn /></Button
+          variant="outline"
+          class="text-muted-foreground hover:text-foreground hover:border-foreground rounded-full"
+          disabled={loggingIn}
+          onclick={() => {
+            loggingIn = true;
+            signIn();
+          }}
         >
+          {#if loggingIn}
+            <Spinner class="-ml-2 size-7" />
+          {:else}
+            <CircleUserRound class="-ml-2 size-7" />
+          {/if}
+          {m.navbar_logIn()}
+        </Button>
       {/if}
       <Drawer.Root bind:open={navOpen} direction="bottom">
         {#if navOpen}
