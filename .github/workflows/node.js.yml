@@ -50,4 +50,6 @@ jobs:
       - run: pnpm run format
       - run: pnpm run test
       - run: pnpm run check --fail-on-warnings
+      - run: pnpm run check-translations
       - run: pnpm run build
+      # When adding a step to the list above, please consider adding it to the `ci-check` script in `package.json`.

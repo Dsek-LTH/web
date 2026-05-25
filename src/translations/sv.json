@@ -938,9 +938,7 @@
   "nav_nollning_description": "Ett sammanhang inom vilket du kan lära känna studentlivet och nya människor",
   "nav_about_guild": "Om sektionen",
   "nav_about_guild_desc": "Sektionen består av 15 utskott med olika ansvarsområden.",
-  "nav_news_feed": "Nyhetsflöde",
   "nav_news_feed_desc": "Se de senaste nyheterna på D-sektionen.",
-  "nav_events": "Evenemang",
   "nav_events_desc": "Se aktuella evenemang på D-sektionen.",
   "nav_guild": "Sektionen",
   "nav_board": "Styrelsen",
@@ -1001,7 +999,7 @@
   "file_upload_error": "Sidan tillåter inte nedladdning av filer.",
   "datetime_selector_range_error": "Intervall slutar innan det börjar ",
   "time_picker_invalid_time": " Ogiltig tid",
-  "datepicker_pick_date": "Pick a date",
+  "datepicker_pick_date": "Välj ett datum",
   "datepicker_weekday_separator": ", den ",
   "locale": "sv-SE",
   "setting_appearance": "Utseende",
@@ -1091,5 +1089,10 @@
   "elections_preview": "Förhandsvisning",
   "elections_new": "Nytt val",
   "committees_all_members": "Alla medlemmar",
-  "contact_delta_email": "Är du nyfiken? Hör av dig till "
+  "contact_delta_email": "Är du nyfiken? Hör av dig till ",
+  "positions_updating": "Uppdaterar postinformation",
+  "positions_adding": "Lägger till mandat",
+  "positions_member": "Medlem",
+  "positions_date_error": "Slutdatum måste vara efter startdatum",
+  "board_prose": "Styrelsen är ansvariga för sektionens verksamhet, och består av ordförande, vice ordförande, samt de flesta utskottsordförande. De tar beslut om hur verksamheten ska fungera, väljer in funktionärer, och representerar ibland sektionen utåt. Många beslut tas på styrelsemöten varje tisdag under läsveckorna i E:1124, där alla medlemmar är välkomna."
 }
