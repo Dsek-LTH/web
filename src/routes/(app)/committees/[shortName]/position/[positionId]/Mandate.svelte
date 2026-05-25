@@ -88,9 +88,7 @@
         </div>{/if}
     </div>
   </Tooltip.Trigger>
-  <Tooltip.Content>
-    {isEditing
-      ? undefined // remove tooltip when editing
-      : getFullName(mandate.member) + `\n${startDate} - ${endDate}`}
+  <Tooltip.Content class={isEditing ? "hidden" : ""}>
+    {getFullName(mandate.member) + `\n${startDate} - ${endDate}`}
   </Tooltip.Content>
 </Tooltip.Root>
