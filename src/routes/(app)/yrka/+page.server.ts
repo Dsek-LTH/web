@@ -21,7 +21,7 @@ const transporter = nodemailer.createTransport({
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { user } = locals;
-  authorize(apiNames.YRKA.SEND, user);
+  authorize(apiNames.MOVE.SEND, user);
   return {
     form: await superValidate(zod4(createSchema)),
   };

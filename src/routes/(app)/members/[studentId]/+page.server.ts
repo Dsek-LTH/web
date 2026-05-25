@@ -308,13 +308,13 @@ export const actions: Actions = {
         await prisma.member.update({
           where: { studentId },
           data: {
-            nollningGroupId: form.data.nollningGroupId ?? null,
+            mentorGroupId: form.data.mentorGroupId ?? null,
           },
         });
         break;
     }
 
-    if (form.data.nollningGroupId !== null)
+    if (form.data.mentorGroupId !== null)
       return message(form, {
         message: m.members_memberUpdated(),
         type: "success",

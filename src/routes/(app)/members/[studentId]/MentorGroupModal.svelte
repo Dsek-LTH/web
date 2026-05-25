@@ -67,12 +67,12 @@
         <Label for="nollningGroupId">{m.onboarding_mentorGroup()}</Label>
         <Select.Root
           type="single"
-          bind:value={$form.nollningGroupId as string | undefined}
+          bind:value={$form.mentorGroupId as string | undefined}
           name="nollningGroupId"
         >
           <Select.Trigger class="w-full"
-            ><Users />{$form.nollningGroupId
-              ? mentorGroups.find((g) => g.id == $form.nollningGroupId)!.name
+            ><Users />{$form.mentorGroupId
+              ? mentorGroups.find((g) => g.id == $form.mentorGroupId)!.name
               : ""}</Select.Trigger
           >
           <Select.Content>

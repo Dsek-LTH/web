@@ -145,7 +145,7 @@
               {...$constraints.classYear}
               aria-errormessage={$errors.classYear?.at(0)}
               onchange={() => {
-                $form.nollningGroupId = null;
+                $form.mentorGroupId = null;
               }}><Calendar /></Input
             >
           </div>
@@ -155,11 +155,11 @@
           <Select.Root
             type="single"
             name="nollningGroupId"
-            bind:value={$form.nollningGroupId as string | undefined}
+            bind:value={$form.mentorGroupId as string | undefined}
           >
             <Select.Trigger class="w-full"
-              ><Users />{$form.nollningGroupId
-                ? mentorGroups.find((g) => g.id == $form.nollningGroupId)!.name
+              ><Users />{$form.mentorGroupId
+                ? mentorGroups.find((g) => g.id == $form.mentorGroupId)!.name
                 : ""}</Select.Trigger
             >
             <Select.Content>

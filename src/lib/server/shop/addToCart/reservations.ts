@@ -181,7 +181,7 @@ const updateAllNecessaryQueues = async (
           some: {}, // 'some' ensures that there is at least one reservation
           every: {
             order: {
-              not: null, // if there is a null order, lotter should have been performed or should be performed
+              not: null, // if there is a null order, a lottery should have been performed or should be performed
             },
           },
         },

@@ -4,7 +4,7 @@ import {
 } from "$lib/utils/notifications/types";
 import { error } from "@sveltejs/kit";
 import { getDerivedRoles } from "./authorization";
-import { isNollningPeriod } from "$lib/utils/adminSettings/nollning";
+import { isNollningPeriod } from "$lib/utils/adminSettings/introduction";
 import { NOLLNING_TAG_PREFIX } from "$lib/components/postReveal/types";
 import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 

@@ -29,14 +29,14 @@
   out:fade
 >
   {#if data.redirect === "/nollning" && revealTheme}
-    <!-- TODO: Replace with nollnings logo -->
+    <!-- TODO: Replace with the introduction logo -->
     <div
       class="absolute top-1/2 left-1/2 size-60 max-h-[50%] max-w-[50%] -translate-x-1/2 -translate-y-1/2 md:size-80"
     >
       <img
         src={logo25}
         class="animate-scale-fade absolute inset-0"
-        alt="Nollning logo spinning"
+        alt="Introduction logo spinning"
       />
     </div>
   {:else}

@@ -1,14 +1,14 @@
 import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 
-export const NOLLNING_START_KEY = "nollning_start";
-export const NOLLNING_END_KEY = "nollning_end";
+export const INTRODUCTION_START_KEY = "introduction_start";
+export const INTRODUCTION_END_KEY = "introduction_end";
 let cache: {
   value: boolean;
   lastFetched: Date;
 } | null = null;
 const CACHE_TIME = 3600 * 1000; // 1 hour
-export const isNollningPeriod = async () => {
+export const isIntroductionPeriod = async () => {
   const now = new Date();
   if (
     cache !== null &&
@@ -19,60 +19,62 @@ export const isNollningPeriod = async () => {
     where: {
       OR: [
         {
-          key: NOLLNING_START_KEY,
+          key: INTRODUCTION_START_KEY,
         },
         {
-          key: NOLLNING_END_KEY,
+          key: INTRODUCTION_END_KEY,
         },
       ],
     },
   });
-  const startStr = rows.find((row) => row.key === NOLLNING_START_KEY)?.value;
-  const endStr = rows.find((row) => row.key === NOLLNING_END_KEY)?.value;
+  const startStr = rows.find(
+    (row) => row.key === INTRODUCTION_START_KEY,
+  )?.value;
+  const endStr = rows.find((row) => row.key === INTRODUCTION_END_KEY)?.value;
   if (!startStr || !endStr) return false;
   const start = new Date(startStr);
   const end = new Date(endStr);
-  const isNollningPeriod = start < now && now < end;
+  const isIntroductionPeriod = start < now && now < end;
   cache = {
-    value: isNollningPeriod,
+    value: isIntroductionPeriod,
     lastFetched: now,
   };
-  return isNollningPeriod;
+  return isIntroductionPeriod;
 };
 
-export const updateNollningPeriod = async (
+export const updateIntroductionPeriod = async (
   prisma: ExtendedPrisma,
   start: Date,
   end: Date,
 ) => {
   await prisma.adminSetting.upsert({
     where: {
-      key: NOLLNING_START_KEY,
+      key: INTRODUCTION_START_KEY,
     },
     update: {
       value: start.toISOString(),
     },
     create: {
-      key: NOLLNING_START_KEY,
+      key: INTRODUCTION_START_KEY,
       value: start.toISOString(),
     },
   });
   await prisma.adminSetting.upsert({
     where: {
-      key: NOLLNING_END_KEY,
+      key: INTRODUCTION_END_KEY,
     },
     update: {
       value: end.toISOString(),
     },
     create: {
-      key: NOLLNING_END_KEY,
+      key: INTRODUCTION_END_KEY,
       value: end.toISOString(),
     },
   });
   const now = new Date();
-  const isNollningPeriod = start < now && now < end;
+  const isIntroductionPeriod = start < now && now < end;
   cache = {
-    value: isNollningPeriod,
+    value: isIntroductionPeriod,
     lastFetched: now,
   };
 };

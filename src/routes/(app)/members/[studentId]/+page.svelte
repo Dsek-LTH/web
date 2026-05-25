@@ -169,12 +169,12 @@
                 </div>
               {/if}
 
-              {#if member.nollaIn?.year.toString() === year}
+              {#if member.menteeIn?.year.toString() === year}
                 <div class="inline-flex flex-row items-center gap-2 rounded-md">
-                  <a href="/committees/nollu?year={member.nollaIn.year}">
-                    {#if member.nollaIn.imageUrl}
+                  <a href="/committees/nollu?year={member.menteeIn.year}">
+                    {#if member.menteeIn.imageUrl}
                       <figure class="size-7 overflow-hidden rounded-sm">
-                        <img src={member.nollaIn.imageUrl} alt="Group logo" />
+                        <img src={member.menteeIn.imageUrl} alt="Group logo" />
                       </figure>
                     {:else}
                       <CommitteeIcon

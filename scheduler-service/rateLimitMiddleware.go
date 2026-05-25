@@ -38,18 +38,18 @@ func getLimiter(ip string) *rate.Limiter {
 	cleanupLimiters(10 * time.Minute)
 	log.Println("Current limiters:", len(limiterManager.limiters))
 
-	lim, exists := limiterManager.limiters[ip]
+	limiter, exists := limiterManager.limiters[ip]
 	if !exists {
-		lim = &trackedLimiter{
+		limiter = &trackedLimiter{
 			Limiter:  rate.NewLimiter(1, 5),
 			lastSeen: time.Now(),
 		}
-		limiterManager.limiters[ip] = lim
+		limiterManager.limiters[ip] = limiter
 	} else {
-		lim.lastSeen = time.Now()
+		limiter.lastSeen = time.Now()
 	}
 
-	return lim.Limiter
+	return limiter.Limiter
 }
 
 func rateLimitMiddleware(next http.Handler) http.Handler {

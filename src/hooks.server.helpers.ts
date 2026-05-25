@@ -1,5 +1,5 @@
 import { dev } from "$app/environment";
-import { isNollningPeriod } from "$lib/utils/adminSettings/nollning";
+import { isNollningPeriod } from "$lib/utils/adminSettings/introduction";
 import apiNames from "$lib/utils/apiNames";
 import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 

@@ -81,8 +81,8 @@ const apiNames = {
   DOOR: {
     ...crud("core:access:door"),
   },
-  YRKA: {
-    SEND: "yrka:send",
+  MOVE: {
+    SEND: "move:send",
   },
   SONG: {
     ...crud("song"),
@@ -94,8 +94,8 @@ const apiNames = {
     CONSUME: "webshop:consume",
     MANAGE: "webshop:manage",
   },
-  NOLLNING: {
-    MANAGE_MENTOR_GROUPS: "nollning:phaddrar:groups:manage",
+  INTRODUCTION: {
+    MANAGE_MENTOR_GROUPS: "introduction:mentors:groups:manage",
   },
   EXPENSES: {
     CREATE: "expenses:create", // who can create expenses, probably all volunteers or logged in

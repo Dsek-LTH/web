@@ -22,7 +22,7 @@ const getMentorMandates = async (
     },
     orderBy: [
       {
-        positionId: "asc", // regular mentor comes before uppdrag
+        positionId: "asc", // regular mentor comes before mission mentors
       },
       {
         startDate: "asc",
@@ -32,7 +32,7 @@ const getMentorMandates = async (
 
 export const load = async ({ locals }) => {
   const { user, prisma } = locals;
-  authorize(apiNames.NOLLNING.MANAGE_MENTOR_GROUPS, user);
+  authorize(apiNames.INTRODUCTION.MANAGE_MENTOR_GROUPS, user);
 
   const mentorGroups = await prisma.mentorGroup.findMany({
     include: {
