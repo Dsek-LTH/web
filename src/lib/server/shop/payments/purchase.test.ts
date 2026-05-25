@@ -59,10 +59,12 @@ const mockFunctions = vi.hoisted(() => ({
 vi.mock("./stripe", () => ({
   default: {
     customers: {
-      create: (...args: any) => mockFunctions.customers.create(...args) as unknown,
+      create: (...args: any) =>
+        mockFunctions.customers.create(...args) as unknown,
       retrieve: (...args: any) =>
         mockFunctions.customers.retrieve(...args) as unknown,
-      update: (...args: any) => mockFunctions.customers.update(...args) as unknown,
+      update: (...args: any) =>
+        mockFunctions.customers.update(...args) as unknown,
       del: (...args: any) => mockFunctions.customers.del(...args) as unknown,
     },
     paymentIntents: {
@@ -218,7 +220,9 @@ const addPurchaseTestForUser = (
     expect(mockFunctions.paymentIntents.update).toHaveBeenCalledOnce();
     expect(mockFunctions.paymentIntents.retrieve).toHaveBeenCalledOnce();
     expect(mockFunctions.paymentIntents.cancel).not.toHaveBeenCalled();
-    expect(mockFunctions.paymentIntents.update.mock.calls[0]?.[0]).toBe("intent-id");
+    expect(mockFunctions.paymentIntents.update.mock.calls[0]?.[0]).toBe(
+      "intent-id",
+    );
     expect(mockFunctions.paymentIntents.update.mock.calls[0]?.[1].amount).toBe(
       MOCK_ACTIVE_TICKET.shoppable.price,
     );
@@ -270,7 +274,9 @@ const addPurchaseTestForUser = (
     expect(mockFunctions.paymentIntents.create).toHaveBeenCalledOnce();
     const price =
       MOCK_ACTIVE_TICKET.shoppable.price + MOCK_ACTIVE_TICKET_2.shoppable.price;
-    expect(mockFunctions.paymentIntents.create.mock.calls[0]?.[0].amount).toBe(price);
+    expect(mockFunctions.paymentIntents.create.mock.calls[0]?.[0].amount).toBe(
+      price,
+    );
 
     expect(
       mockFunctions.paymentIntents.create.mock.calls[0]?.[1].idempotencyKey,

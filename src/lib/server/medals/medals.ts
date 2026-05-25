@@ -215,7 +215,10 @@ export const memberMedals = async (
     );
 
   const volunteerMedalSem = volunteerMedalSemester(volunteerSemesters);
-  const gammalOchÄckligSem = gammalOchÄckligSemester(boardSemesters, volunteerSemesters);
+  const gammalOchÄckligSem = gammalOchÄckligSemester(
+    boardSemesters,
+    volunteerSemesters,
+  );
 
   const res: Array<{ medal: string; after: Semester }> = [];
 

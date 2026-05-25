@@ -31,7 +31,9 @@ export const load: PageServerLoad = async ({ locals }) => {
           }
         : undefined,
     updateForm: await superValidate(zod4(updateSchema)),
-    updateIntroductionForm: await superValidate(zod4(updateIntroductionPeriodSchema)),
+    updateIntroductionForm: await superValidate(
+      zod4(updateIntroductionPeriodSchema),
+    ),
   };
 };
 
@@ -74,7 +76,10 @@ export const actions = {
   },
   async updateIntroduction({ locals, request }) {
     const { prisma } = locals;
-    const form = await superValidate(request, zod4(updateIntroductionPeriodSchema));
+    const form = await superValidate(
+      request,
+      zod4(updateIntroductionPeriodSchema),
+    );
     if (!form.valid) return fail(400, { form });
     await updateIntroductionPeriod(prisma, form.data.start, form.data.end);
     return message(form, {

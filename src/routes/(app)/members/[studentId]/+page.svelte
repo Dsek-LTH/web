@@ -388,7 +388,10 @@
                     <a href="/committees/nollu?year={member.menteeIn.year}">
                       {#if member.menteeIn.imageUrl}
                         <figure class="size-7 overflow-hidden rounded-sm">
-                          <img src={member.menteeIn.imageUrl} alt="Group logo" />
+                          <img
+                            src={member.menteeIn.imageUrl}
+                            alt="Group logo"
+                          />
                         </figure>
                       {:else}
                         <CommitteeIcon
