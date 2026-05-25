@@ -10,45 +10,20 @@
   - You are about to drop the `sexetinventoryvaluelog` table. If the table is not empty, all the data it contains will be lost.
 
 */
--- AlterEnum
+
 BEGIN;
 CREATE TYPE "time_slots_new" AS ENUM ('DAYCARER', 'SHIFT_1', 'SHIFT_2', 'SHIFT_3');
-ALTER TABLE "cafe_shifts" ALTER COLUMN "time_slot" TYPE "time_slots_new" USING ("time_slot"::text::"time_slots_new");
+ALTER TABLE "cafe_shifts" ALTER COLUMN "time_slot" TYPE "time_slots_new" USING (
+    CASE "time_slot"::text
+        WHEN 'DAYMANAGER' THEN 'DAYCARER'
+        ELSE "time_slot"::text
+    END::"time_slots_new"
+);
 ALTER TYPE "time_slots" RENAME TO "time_slots_old";
 ALTER TYPE "time_slots_new" RENAME TO "time_slots";
 DROP TYPE "time_slots_old";
 COMMIT;
 
--- DropForeignKey
-ALTER TABLE "drinkitembatch" DROP CONSTRAINT "drinkitembatch_drink_item_id_fkey";
-
--- DropForeignKey
-ALTER TABLE "mandates" DROP CONSTRAINT "mandates_phadderInId_fkey";
-
--- DropForeignKey
-ALTER TABLE "members" DROP CONSTRAINT "members_nollning_group_id_foreign";
-
--- AlterTable
-ALTER TABLE "events" DROP COLUMN "is_detatched",
-ADD COLUMN     "is_detached" BOOLEAN NOT NULL DEFAULT false;
-
--- AlterTable
-ALTER TABLE "mandates" DROP COLUMN "phadderInId",
-ADD COLUMN     "mentorInId" UUID;
-
--- DropTable
-DROP TABLE "drinkitem";
-
--- DropTable
-DROP TABLE "drinkitembatch";
-
--- DropTable
-DROP TABLE "phadder_groups";
-
--- DropTable
-DROP TABLE "sexetinventoryvaluelog";
-
--- CreateTable
 CREATE TABLE "drink_item" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "quantity_type" "DrinkQuantityType" NOT NULL,
@@ -64,7 +39,6 @@ CREATE TABLE "drink_item" (
     CONSTRAINT "drink_item_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
 CREATE TABLE "drink_item_batch" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "drink_item_id" UUID NOT NULL,
@@ -76,16 +50,6 @@ CREATE TABLE "drink_item_batch" (
     CONSTRAINT "drink_item_batch_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
-CREATE TABLE "sexet_inventory_value_log" (
-    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
-    "date" TIMESTAMP(3) NOT NULL,
-    "value" INTEGER NOT NULL,
-
-    CONSTRAINT "sexet_inventory_value_log_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "mentor_groups" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "name" VARCHAR(255) NOT NULL,
@@ -97,11 +61,31 @@ CREATE TABLE "mentor_groups" (
     CONSTRAINT "mentor_groups_pkey" PRIMARY KEY ("id")
 );
 
--- AddForeignKey
-ALTER TABLE "mandates" ADD CONSTRAINT "mandates_mentorInId_fkey" FOREIGN KEY ("mentorInId") REFERENCES "mentor_groups"("id") ON DELETE SET NULL ON UPDATE NO ACTION;
+CREATE TABLE "sexet_inventory_value_log" (
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "date" TIMESTAMP(3) NOT NULL,
+    "value" INTEGER NOT NULL,
 
--- AddForeignKey
+    CONSTRAINT "sexet_inventory_value_log_pkey" PRIMARY KEY ("id")
+);
+
+ALTER TABLE "drinkitembatch" DROP CONSTRAINT "drinkitembatch_drink_item_id_fkey";
+ALTER TABLE "mandates" DROP CONSTRAINT "mandates_phadderInId_fkey";
+ALTER TABLE "members" DROP CONSTRAINT "members_nollning_group_id_foreign";
+
+ALTER TABLE "events" RENAME COLUMN "is_detatched" TO "is_detached";
+ALTER TABLE "mandates" RENAME COLUMN "phadderInId" TO "mentorInId";
+
+INSERT INTO "drink_item" SELECT * FROM "drinkitem";
+INSERT INTO "drink_item_batch" SELECT * FROM "drinkitembatch";
+INSERT INTO "mentor_groups" SELECT * FROM "phadder_groups";
+INSERT INTO "sexet_inventory_value_log" SELECT * FROM "sexetinventoryvaluelog";
+
 ALTER TABLE "drink_item_batch" ADD CONSTRAINT "drink_item_batch_drink_item_id_fkey" FOREIGN KEY ("drink_item_id") REFERENCES "drink_item"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
+ALTER TABLE "mandates" ADD CONSTRAINT "mandates_mentorInId_fkey" FOREIGN KEY ("mentorInId") REFERENCES "mentor_groups"("id") ON DELETE SET NULL ON UPDATE NO ACTION;
 ALTER TABLE "members" ADD CONSTRAINT "members_nollning_group_id_foreign" FOREIGN KEY ("nollning_group_id") REFERENCES "mentor_groups"("id") ON DELETE SET NULL ON UPDATE NO ACTION;
+
+DROP TABLE "drinkitem";
+DROP TABLE "drinkitembatch";
+DROP TABLE "phadder_groups";
+DROP TABLE "sexetinventoryvaluelog";
