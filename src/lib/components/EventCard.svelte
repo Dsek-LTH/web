@@ -3,7 +3,6 @@
   import AuthorCard from "./AuthorCard.svelte";
   import type { EventWithIncludes } from "$lib/events/getEvents";
   import TagChip from "./TagChip.svelte";
-  import * as messages from "$paraglide/messages";
 
   let {
     event,
