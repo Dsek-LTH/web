@@ -39,7 +39,7 @@
         class="w-full! min-w-96 grow"
         inputClass="min-h-12 w-full"
         multiple={true}
-        bind:selectedMembersId={$form.memberIds}
+        bind:selectedMembersIds={$form.memberIds}
       />
       {#if $errors.memberIds}
         <p class="text-rosa-500">{$errors.memberIds}</p>

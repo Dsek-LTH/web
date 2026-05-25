@@ -15,7 +15,7 @@
 
   let {
     selectedMembers = $bindable([]),
-    selectedMembersId = $bindable([]),
+    selectedMembersIds = $bindable([]),
     selectedMember = $bindable(null),
     selectedMemberId = $bindable(null),
     multiple = false,
@@ -27,7 +27,7 @@
     ...restProps
   }: {
     selectedMembers?: Array<MemberSearchReturnAttributes & { id?: string }>;
-    selectedMembersId?: string[] | null;
+    selectedMembersIds?: string[] | null;
     selectedMember?: (MemberSearchReturnAttributes & { id?: string }) | null;
     selectedMemberId?: string | null;
     multiple: boolean;
@@ -54,7 +54,7 @@
       );
     }
     if (selectedMembers) {
-      selectedMembersId = selectedMembers.map((m) =>
+      selectedMembersIds = selectedMembers.map((m) =>
         new TextDecoder().decode(base64ToBytes(m.id!)),
       );
     }
