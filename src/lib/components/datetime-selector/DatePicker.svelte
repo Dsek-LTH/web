@@ -53,8 +53,6 @@
     iso?: boolean;
   } = $props();
   let contentRef = $state<HTMLElement | null>(null);
-
-  //let value: string | null | undefined = $state();
 </script>
 
 <Popover.Root>
