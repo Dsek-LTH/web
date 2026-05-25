@@ -1,6 +1,6 @@
+import { getFileUrl } from "$lib/files/client";
 import * as m from "$paraglide/messages";
 
-import nollningImage from "./(nollning)/nollning/(photos)/staben25_9x16.webp";
 // bottom-nav: Show in the bottom navigation bar
 // home-link: Show on the home page
 // none: Don't show anywhere
@@ -19,13 +19,15 @@ export type Route = {
   pictureDescription?: string;
   picturePath?: string;
   children?: Route[];
+  list?: boolean;
   isCurrentRoute?: (currentPathname: string) => boolean;
 };
 export const getRoutes = (): Route[] =>
   [
     {
       title: m.applicant(),
-      pictureUrl: nollningImage,
+      pictureUrl:
+        getFileUrl("minio/files/public/photos/staben25_9x16.webp") ?? "",
       path: null,
       accessRequired: null,
       pictureTitle: m.nollning_nav_picture_title(),
@@ -61,7 +63,24 @@ export const getRoutes = (): Route[] =>
       accessRequired: null,
       appBehaviour: "none",
       path: "/news",
+      children: [
+        {
+          title: m.news(),
+          description: m.nav_news_feed_desc(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/news",
+        },
+        {
+          title: m.events(),
+          description: m.nav_events_desc(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/events",
+        },
+      ],
     },
+
     {
       title: m.nav_guild(),
       accessRequired: null,
@@ -83,11 +102,18 @@ export const getRoutes = (): Route[] =>
           path: "/board",
         },
         {
-          title: m.documents(),
+          title: m.documents_meetingDocuments(),
           description: m.documents_desc(),
           accessRequired: null,
           appBehaviour: "none",
           path: "/documents",
+        },
+        {
+          title: m.documents_governing(),
+          description: m.documents_governing_desc(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/documents/governing",
         },
         {
           title: m.gallery(),
@@ -103,24 +129,107 @@ export const getRoutes = (): Route[] =>
       accessRequired: null,
       appBehaviour: "none",
       path: "/volunteer",
+      list: true,
+      children: [
+        {
+          title: m.nav_volunteer(),
+          accessRequired: null,
+          appBehaviour: "none",
+          description: m.nav_volunteer_desc(),
+          path: "/volunteer",
+        },
+        {
+          title: m.openElections(),
+          accessRequired: null,
+          appBehaviour: "none",
+          description: m.nav_elections_desc(),
+          path: "/elections",
+        },
+      ],
     },
     {
       title: m.nav_member(),
       accessRequired: null,
       appBehaviour: "none",
       path: null,
+      list: true,
       children: [
+        {
+          title: m.tickets(),
+          accessRequired: null,
+          appBehaviour: "none",
+          description: m.nav_tickets_desc(),
+          path: "/shop/tickets",
+        },
         {
           title: "Bokningar",
           accessRequired: null,
           appBehaviour: "none",
+          description: m.nav_bookings_desc(),
           path: "/bookings",
         },
         {
           title: "Utlägg",
           accessRequired: null,
           appBehaviour: "none",
+          description: m.nav_expenses_desc(),
           path: "/expenses",
+        },
+      ],
+    },
+    {
+      title: m.admin(),
+      accessRequired: null,
+      appBehaviour: "none",
+      path: "/admin",
+      children: [
+        {
+          title: m.access(),
+          path: "/admin/access",
+          accessRequired: null,
+          appBehaviour: "none",
+        },
+        {
+          title: m.doors(),
+          path: "/admin/doors",
+          accessRequired: null,
+          appBehaviour: "none",
+        },
+        {
+          title: m.alerts(),
+          path: "/admin/alerts",
+          accessRequired: null,
+          appBehaviour: "none",
+        },
+        {
+          title: m.linkShortener(),
+          path: "/admin/links",
+          accessRequired: null,
+          appBehaviour: "none",
+        },
+        {
+          title: m.adminSettings(),
+          path: "/admin/settings",
+          accessRequired: null,
+          appBehaviour: "none",
+        },
+        {
+          title: m.files(),
+          path: "/admin/minio",
+          accessRequired: null,
+          appBehaviour: "none",
+        },
+        {
+          title: m.info(),
+          path: "/admin/info",
+          accessRequired: null,
+          appBehaviour: "none",
+        },
+        {
+          title: m.qr_code(),
+          path: "/admin/qr",
+          accessRequired: null,
+          appBehaviour: "none",
         },
       ],
     },

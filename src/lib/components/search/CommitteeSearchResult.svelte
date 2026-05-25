@@ -2,7 +2,7 @@
   import * as Command from "$lib/components/ui/command/index.js";
   import * as Avatar from "$lib/components/ui/avatar/index.js";
   import type { CommitteeSearchReturnAttributes } from "$lib/search/searchTypes";
-  import CommitteeIcon from "../images/CommitteeIcon.svelte";
+  import CommitteeIcon from "$lib/components/images/CommitteeIcon.svelte";
   import { getLocale } from "$paraglide/runtime";
   const { data }: { data: CommitteeSearchReturnAttributes } = $props();
 </script>

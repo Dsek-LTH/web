@@ -25,6 +25,7 @@
   import ArticleSearchResult from "./ArticleSearchResult.svelte";
   import SongSearchResult from "./SongSearchResult.svelte";
   import DocumentSearchResult from "./DocumentSearchResult.svelte";
+  import { resolve } from "$app/paths";
 
   let { open = $bindable(false) } = $props();
 
@@ -309,7 +310,8 @@
           bind:ref={advancedSearchElement}
           onSelect={() => {
             open = false;
-            goto(`/search?q=${encodeURIComponent(input)}`);
+            // eslint-disable-next-line svelte/no-navigation-without-resolve -- resolve is used, we only add parameters, see sveltejs/kit#14750
+            goto(`${resolve("/search")}?q=${encodeURIComponent(input)}`);
           }}
         >
           <Search />

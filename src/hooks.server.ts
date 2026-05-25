@@ -103,6 +103,17 @@ const { handle: authHandle } = SvelteKitAuth({
 
           if (!response.ok) throw tokensOrError;
 
+          const accessToken = tokensOrError.access_token as string;
+          const [, payload] = accessToken.split(".");
+
+          if (!payload) throw new Error("Invalid JWT format");
+
+          const decodedAccessTokenData = JSON.parse(
+            Buffer.from(payload, "base64").toString("utf-8"),
+          );
+
+          token.access_token = accessToken;
+          token.group_list = decodedAccessTokenData.groups ?? [];
           token.id_token = tokensOrError.id_token;
           token.expires_at =
             Math.floor(Date.now() / 1000) + tokensOrError.expires_in;

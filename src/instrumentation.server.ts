@@ -6,11 +6,10 @@ import { register } from "module";
 import { env } from "$env/dynamic/public";
 
 const { registerOptions } = createAddHookMessageChannel();
-// registerOptions has a shape incompatible with current types; cast to any
 register(
   "import-in-the-middle/hook.mjs",
   import.meta.url,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- registerOptions has a shape incompatible with current types; cast to any
   registerOptions as any,
 );
 

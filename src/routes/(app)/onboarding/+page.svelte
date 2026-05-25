@@ -24,8 +24,8 @@
   import { resolve } from "$app/paths";
 
   let { data }: { data: PageData } = $props();
-  const { form, errors, constraints, enhance } = superForm<UpdateSchema>(
-    data.form,
+  const { form, errors, constraints, enhance } = $derived(
+    superForm<UpdateSchema>(data.form),
   );
   onMount(() => {
     if (
@@ -140,7 +140,7 @@
               name="classYear"
               required
               type="number"
-              aria-invalid={$errors.classYear ? true : false}
+              aria-invalid={!!$errors.classYear}
               bind:value={$form.classYear}
               {...$constraints.classYear}
               aria-errormessage={$errors.classYear?.at(0)}

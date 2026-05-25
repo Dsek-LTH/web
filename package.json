@@ -5,7 +5,7 @@
   "scripts": {
     "prepare": "svelte-kit sync && zenstack generate && prisma generate && pnpm paraglide && pnpm snaplet-seed generate",
     "setup-dev": "vite-node dev/setup.ts",
-    "ci-check": "concurrently 'pnpm:lint' 'pnpm:format' 'pnpm:check' --prefix-colors 'auto' --group",
+    "ci-check": "concurrently 'pnpm:lint --max-warnings 0' 'pnpm:format' 'pnpm:test' 'pnpm:check --fail-on-warnings' 'pnpm:check-translations' --prefix-colors 'auto' --group",
     "dev": "vite dev",
     "build": "vite build",
     "preview": "pm2 start prod/ecosystem.config.cjs --no-daemon",
@@ -22,7 +22,8 @@
     "migrate": "zenstack generate && prisma migrate dev && snaplet-seed sync",
     "seed": "prisma db seed",
     "prisma-case-format": "prisma-case-format -f src/database/prisma/schema.prisma",
-    "paraglide": "paraglide-js compile --project ./project.inlang --outdir ./src/translations/paraglide"
+    "paraglide": "paraglide-js compile --project ./project.inlang --outdir ./src/translations/paraglide",
+    "check-translations": "./dev/check_translations.sh"
   },
   "zenstack": {
     "schema": "src/database/schema.zmodel"
@@ -65,6 +66,7 @@
     "bits-ui": "^2.15.5",
     "clsx": "^2.1.1",
     "concurrently": "^9.1.0",
+    "embla-carousel-svelte": "^8.6.0",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-svelte": "^3.13.0",
@@ -123,7 +125,6 @@
     "croppie": "^2.6.5",
     "dayjs": "^1.11.19",
     "embla-carousel-autoplay": "^8.5.1",
-    "embla-carousel-svelte": "^8.5.1",
     "expo-server-sdk": "^3.13.0",
     "express": "^4.21.1",
     "ics": "^3.8.1",

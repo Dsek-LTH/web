@@ -1,8 +1,6 @@
 <script lang="ts">
-  import * as Avatar from "$lib/components/ui/avatar";
   import type { PageData } from "./$types";
   import type { PageData as EditPageData } from "./edit/$types";
-  import { getInitials } from "$lib/utils/client/member";
   import { cn } from "$lib/utils";
   import CloudUpload from "@lucide/svelte/icons/cloud-upload";
   import { fileProxy } from "sveltekit-superforms/client";
@@ -15,6 +13,7 @@
   import Trash from "@lucide/svelte/icons/trash";
   import * as AlertDialog from "$lib/components/ui/alert-dialog";
   import { enhance as svEnhance } from "$app/forms";
+  import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
 
   let { data }: { data: PageData | EditPageData } = $props();
 
@@ -67,10 +66,7 @@
     ? 'flex flex-col items-center gap-2 rounded-md border-[1px] p-4'
     : ''}"
 >
-  <Avatar.Root class="relative size-24">
-    <Avatar.Image src={member?.picturePath ?? ""} alt="Member image" />
-    <Avatar.Fallback>{getInitials(member)}</Avatar.Fallback>
-  </Avatar.Root>
+  <MemberAvatar {member} class="relative size-24" />
   <form
     id="upload"
     method="POST"

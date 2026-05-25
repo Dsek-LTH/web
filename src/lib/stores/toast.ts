@@ -3,7 +3,7 @@ import { writable } from "svelte/store";
 
 export type ToastNotification = {
   message: string;
-  type: "success" | "error" | "info" | "warning" | "primary";
+  type: "success" | "error" | "info" | "warning" | "primary" | "hidden";
   id: string;
 };
 
@@ -42,5 +42,36 @@ export function toast(
 function removeToast() {
   toasts.update((state) => {
     return state.slice(1);
+  });
+}
+
+type RemoteFormResult = {
+  message: string;
+  type: MessageType;
+};
+
+type RemoteForm = {
+  enhance: (
+    callback: (helpers: { submit: () => Promise<void> }) => Promise<void>,
+  ) => Record<string, unknown>;
+  result?: RemoteFormResult;
+};
+
+/**
+ * Wraps a remote function's `.enhance()` to auto-toast the result.
+ * Remote functions should return `{ message, type }` matching `MessageType`.
+ */
+export function enhanceWithToast(
+  remoteForm: RemoteForm,
+  callback?: (helpers: { submit: () => Promise<void> }) => Promise<void>,
+) {
+  return remoteForm.enhance(async (helpers) => {
+    if (callback) {
+      await callback(helpers);
+    } else {
+      await helpers.submit();
+    }
+    const result = remoteForm.result;
+    if (result) toast(result.message, result.type);
   });
 }

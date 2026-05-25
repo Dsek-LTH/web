@@ -1,5 +1,5 @@
 <script lang="ts">
-  import * as Avatar from "$lib/components/ui/avatar/index.js";
+  import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
 
   import type { ArticleSearchReturnAttributes } from "$lib/search/searchTypes";
   import { getLocale } from "$paraglide/runtime";
@@ -23,15 +23,7 @@
       </div>
 
       <div class="flex flex-row items-center gap-1">
-        <Avatar.Root class="size-4">
-          <Avatar.Image src={data.author.picturePath} alt="profile picture" />
-          <Avatar.Fallback
-            >{data.author.firstName && data.author.lastName
-              ? data.author.firstName?.charAt(0) +
-                data.author.lastName?.charAt(0)
-              : "NN"}</Avatar.Fallback
-          >
-        </Avatar.Root>
+        <MemberAvatar member={data.author} class="size-4" />
 
         <span class="text-muted-foreground line-clamp-1"
           >{`${data.author.firstName} "${data.author.nickname}" ${data.author.lastName}`}</span

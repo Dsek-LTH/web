@@ -1,12 +1,10 @@
 <script lang="ts">
   import * as NavigationMenu from "$lib/components/ui/navigation-menu/index.js";
   import DsekLogo from "$lib/components/DsekLogo.svelte";
-  import * as Avatar from "$lib/components/ui/avatar/index.js";
   import { Button } from "$lib/components/ui/button";
   import CommandDialog from "$lib/components/search/CommandDialog.svelte";
   import Search from "@lucide/svelte/icons/search";
   import Languages from "@lucide/svelte/icons/languages";
-  import Bell from "@lucide/svelte/icons/bell";
   import Menu from "@lucide/svelte/icons/menu";
   import ChevronDown from "@lucide/svelte/icons/chevron-down";
   import X from "@lucide/svelte/icons/x";
@@ -23,12 +21,19 @@
   import * as m from "$paraglide/messages";
   import * as Drawer from "$lib/components/ui/drawer";
   import { onMount } from "svelte";
-  import { getFullName, getInitials } from "$lib/utils/client/member";
+  import { getFullName } from "$lib/utils/client/member";
   import { signIn, signOut } from "$lib/utils/auth";
   import ChevronUp from "@lucide/svelte/icons/chevron-up";
 
   import * as HoverCard from "$lib/components/ui/hover-card";
   import { cn } from "$lib/utils";
+  import type { NotificationGroup } from "$lib/utils/notifications/group";
+  import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
+  import NotificationBell from "./notifications/NotificationBell.svelte";
+
+  const {
+    notificationsPromise,
+  }: { notificationsPromise?: Promise<NotificationGroup[]> } = $props();
 
   let commandDialogOpen = $state(false);
 
@@ -103,34 +108,20 @@
         variant="ghost"
         class="p-1.5"><Languages /></Button
       >
-      <Button
-        aria-label="notifications"
-        size="icon-lg"
-        variant="ghost"
-        class="p-1.5"><Bell /></Button
-      >
       {#if page.data.member}
+        <NotificationBell {notificationsPromise} />
         <HoverCard.Root openDelay={0} closeDelay={125}>
           <HoverCard.Trigger>
-            <Avatar.Root class="md-nav:flex hidden">
-              <Avatar.Image
-                src={page.data.member?.picturePath}
-                alt="profile picture"
-              />
-              <Avatar.Fallback>{getInitials(page.data.member)}</Avatar.Fallback>
-            </Avatar.Root>
+            <MemberAvatar
+              member={page.data.member}
+              class="md-nav:flex hidden"
+            />
           </HoverCard.Trigger>
           <HoverCard.Content
             side="bottom"
             class="z-150 flex max-w-[200px] flex-col items-center gap-2"
           >
-            <Avatar.Root class="size-12">
-              <Avatar.Image
-                src={page.data.member?.picturePath}
-                alt="profile picture"
-              />
-              <Avatar.Fallback>{getInitials(page.data.member)}</Avatar.Fallback>
-            </Avatar.Root>
+            <MemberAvatar member={page.data.member} class="size-12!" />
             <h5 class="text-center break-all">
               {getFullName(page.data.member)}
             </h5>
@@ -196,15 +187,7 @@
                       href="/members/me"
                       class="hover:bg-secondary-hover flex flex-row items-center gap-2 rounded-md px-2"
                     >
-                      <Avatar.Root>
-                        <Avatar.Image
-                          src={page.data.member?.picturePath}
-                          alt="profile picture"
-                        />
-                        <Avatar.Fallback
-                          >{getInitials(page.data.member)}</Avatar.Fallback
-                        >
-                      </Avatar.Root>
+                      <MemberAvatar member={page.data.member} />
                       <p class="text-muted-foreground mt-0 font-medium">
                         <span>{getFullName(page.data.member)}</span>
                       </p>
@@ -270,12 +253,15 @@
 
         <NavigationMenu.Content>
           <ul
-            class="ml-0 grid list-none gap-2 p-2 md:w-[400px] lg:w-[472px] lg:grid-cols-[.75fr_1fr]"
+            class={route.list
+              ? "ml-0 grid w-[200px] gap-4 p-2"
+              : "ml-0 grid list-none gap-2 p-2 md:w-[400px] lg:w-[472px] lg:grid-cols-[1fr_1fr]"}
           >
             {#if route.pictureUrl}
               <li class="row-span-3">
                 <NavigationMenu.Link
-                  class={`flex h-full w-full flex-col justify-end rounded-md bg-linear-to-t bg-[linear-gradient(to_top,rgba(0,0,0,1),rgba(0,0,0,0)),url('${route.pictureUrl}')] bg-cover bg-center p-6 no-underline outline-hidden select-none focus:shadow-md`}
+                  class="flex h-full w-full flex-col justify-end rounded-md bg-cover bg-center p-6 no-underline outline-hidden select-none focus:shadow-md"
+                  style="background-image: linear-gradient(to top,rgba(0,0,0,1),rgba(0,0,0,0)),url('{route.pictureUrl}');"
                   href={route.picturePath}
                 >
                   <div class="mt-4 mb-2 text-xl font-semibold text-[#ffffff]">
@@ -288,11 +274,21 @@
               </li>
             {/if}
             {#each route.children as child (child.title)}
-              <NavigationMenu.Link href={child.path}>
-                <NavigationMenu.ContentItem
-                  title={child.title}
-                  description={child.description ?? ""}
-                />
+              <NavigationMenu.Link
+                class="text-foreground font-medium"
+                href={child.path}
+              >
+                {#if route.list}
+                  {child.title}
+                  <span class="text-muted-foreground text-xs"
+                    >{child.description}</span
+                  >
+                {:else}
+                  <NavigationMenu.ContentItem
+                    title={child.title}
+                    description={child.description ?? ""}
+                  />
+                {/if}
               </NavigationMenu.Link>
             {/each}
           </ul>

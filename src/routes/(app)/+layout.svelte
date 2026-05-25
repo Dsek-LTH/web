@@ -8,18 +8,23 @@
   const { data, children } = $props();
 </script>
 
-<Navbar />
+<div class="flex min-h-screen flex-col">
+  <Navbar notificationsPromise={data.notificationsPromise} />
 
-{#each data.alerts as alert (alert.id)}
-  {#if !alert.closedByMember.some((member) => member.id === data.member?.id)}
-    <Alert
-      id={alert.id}
-      message={getLocale() === "sv" ? alert.messageSv : alert.messageEn}
-      severity={alert.severity}
-    />
-  {/if}
-{/each}
+  <main class="flex min-h-0 flex-1 flex-col">
+    {#each data.alerts as alert (alert.id)}
+      {#if !alert.closedByMember.some((member) => member.id === data.member?.id)}
+        <Alert
+          id={alert.id}
+          message={getLocale() === "sv" ? alert.messageSv : alert.messageEn}
+          severity={alert.severity}
+        />
+      {/if}
+    {/each}
 
-{@render children?.()}
-<Toast />
-<Footer />
+    {@render children?.()}
+  </main>
+
+  <Toast />
+  <Footer />
+</div>

@@ -1,6 +1,5 @@
 <script lang="ts">
   import PositionCard from "$lib/components/PositionCard.svelte";
-  import * as Avatar from "$lib/components/ui/avatar/index";
   import * as Tabs from "$lib/components/ui/tabs/index";
   import { Badge } from "$lib/components/ui/badge";
   import * as m from "$paraglide/messages";
@@ -20,6 +19,10 @@
   import SEO from "$lib/seo/SEO.svelte";
   import PhadderGroupModal from "./PhadderGroupModal.svelte";
   import ArticleCard from "$lib/components/ArticleCard.svelte";
+  import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
+  import { isAuthorized } from "$lib/utils/authorization";
+  import apiNames from "$lib/utils/apiNames";
+  import { page } from "$app/state";
 
   let { data } = $props();
 
@@ -68,6 +71,11 @@
   ];
 
   let mobileBackground = mobileBackgrounds[Math.floor(Math.random() * 3)];
+
+  let canEdit = $derived(
+    page.data.user?.studentId === member.studentId ||
+      isAuthorized(apiNames.MEMBER.UPDATE, page.data.user),
+  );
 </script>
 
 <SetPageTitle title={getFullName(member)} />
@@ -83,7 +91,7 @@
 
 {@render mobile("md:hidden")}
 
-<div class="layout-container hidden flex-row py-0 md:flex">
+<div class="layout-container hidden min-h-0 flex-1 flex-row py-0 md:flex">
   {@render desktop()}
 </div>
 
@@ -96,22 +104,17 @@
     <section
       class="layout-container bg-muted-background relative flex flex-col border-l-[1px] py-0 pb-4"
     >
-      <a href={member.studentId + "/edit"}>
-        <Button variant="outline" class="absolute top-2 right-2" size="sm"
-          ><Pen /> {m.member_edit_profile()}</Button
-        ></a
-      >
+      {#if canEdit}
+        <a href={member.studentId + "/edit"}>
+          <Button variant="outline" class="absolute top-2 right-2" size="sm"
+            ><Pen /> {m.member_edit_profile()}</Button
+          ></a
+        >{/if}
       <div class="field-sizing-content h-24">
-        <Avatar.Root
-          class="border-background relative top-[-50%] size-24 border-4"
-        >
-          <Avatar.Image src={member.picturePath} alt="Member image" />
-          <Avatar.Fallback class="text-xl"
-            >{member.firstName && member.lastName
-              ? member.firstName?.charAt(0) + member.lastName?.charAt(0)
-              : "NN"}</Avatar.Fallback
-          >
-        </Avatar.Root>
+        <MemberAvatar
+          {member}
+          class="border-background relative top-[-50%] size-24 border-4 *:text-xl"
+        />
       </div>
       <span class="-mt-12 flex flex-row items-center gap-0 text-xs"
         ><code class="text-xs">{member.email}</code><Button
@@ -135,7 +138,9 @@
           >
         </a>
       </div>
-      <p class="text-rosa-500 mt-0">"{member.nickname}"</p>
+      {#if member.nickname}<p class="text-rosa-500 mt-0">
+          "{member.nickname}"
+        </p>{/if}
       {#if member.bio}
         <h6 class="mt-1">Bio</h6>
         <MemberBio bio={member.bio} />
@@ -246,14 +251,7 @@
     class="bg-muted-background border-border flex w-5/12 flex-col gap-4 border-x-[1px] pt-8 pr-6 pb-4 pl-6 lg:w-3/12"
   >
     <div class="flex flex-col items-center gap-4">
-      <Avatar.Root class="relative size-44">
-        <Avatar.Image src={member.picturePath} alt="Member image" />
-        <Avatar.Fallback class="text-4xl"
-          >{member.firstName && member.lastName
-            ? member.firstName?.charAt(0) + member.lastName?.charAt(0)
-            : "NN"}</Avatar.Fallback
-        >
-      </Avatar.Root>
+      <MemberAvatar class="relative size-44! *:text-4xl" {member} />
       <span class="flex flex-row items-center gap-0"
         ><code class="text-xs">{member.email}</code>{#if member.email}<Button
             onclick={() => navigator.clipboard.writeText(member.email ?? "")}
@@ -333,24 +331,26 @@
               (member.classYear?.toString().slice(-2) ?? "??")}</Badge
           >
         </a>
-        <Dialog.Root>
-          <div class="ml-auto self-center">
-            <Dialog.Trigger
-              class={cn(
-                buttonVariants({ variant: "outline", size: "sm" }),
-                "ml-auto self-center",
-              )}><Pen /> {m.member_edit_profile()}</Dialog.Trigger
-            >
-            <Dialog.Content
-              class="z-51 max-h-[90vh] overflow-y-scroll sm:max-w-[425px]"
-            >
-              <Dialog.Header>
-                <Dialog.Title>{m.member_edit_profile()}</Dialog.Title>
-              </Dialog.Header>
-              <MemberForm {data} dialog />
-            </Dialog.Content>
-          </div>
-        </Dialog.Root>
+        {#if canEdit}
+          <Dialog.Root>
+            <div class="ml-auto self-center">
+              <Dialog.Trigger
+                class={cn(
+                  buttonVariants({ variant: "outline", size: "sm" }),
+                  "ml-auto self-center",
+                )}><Pen /> {m.member_edit_profile()}</Dialog.Trigger
+              >
+              <Dialog.Content
+                class="z-51 max-h-[90vh] overflow-y-scroll sm:max-w-[425px]"
+              >
+                <Dialog.Header>
+                  <Dialog.Title>{m.member_edit_profile()}</Dialog.Title>
+                </Dialog.Header>
+                <MemberForm {data} dialog />
+              </Dialog.Content>
+            </div>
+          </Dialog.Root>
+        {/if}
       </div>
       <h4 class="mb-8">
         {member.nickname ? "“" + member.nickname + "”" : ""}

@@ -35,16 +35,16 @@
         aria-hidden="true"
         class={cn(
           "text-muted-foreground absolute left-3 flex h-full w-4 items-center overflow-hidden",
-          restProps["aria-errormessage"] ? "text-rosa-500" : "",
+          restProps["aria-errormessage"] ? "text-destructive" : "",
         )}>{@render childProps()}</span
       >{/if}
     {#if type === "file"}
       <label
         class={cn(
           "hover:bg-secondary-hover flex flex-row items-center justify-center gap-2 transition-[background-color,box-shadow]",
-          "selection:bg-primary dark:bg-input/30 selection:text-primary-foreground ring-offset-background placeholder:text-muted-foreground flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 text-right text-sm font-medium shadow-xs transition-[color,box-shadow] outline-none disabled:cursor-not-allowed disabled:opacity-50",
+          "selection:bg-primary dark:bg-input/30 selection:text-primary-foreground placeholder:text-muted-foreground flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 text-right text-sm font-medium shadow-xs transition-[color,box-shadow] outline-none disabled:cursor-not-allowed disabled:opacity-50",
           "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
-          " aria-invalid:border-rosa-500 dark:aria-invalid:bg-rosa-950 aria-invalid:bg-rosa-50 aria-invalid:text-rosa-500 dark:aria-invalid:text-rosa-500 aria-invalid:border-[1px]",
+          " aria-invalid:border-destructive dark:aria-invalid:bg-destructive/10 aria-invalid:bg-destructive/10 aria-invalid:text-destructive aria-invalid:border-[1px]",
           className,
           childProps ? "indent-6" : "",
         )}
@@ -63,9 +63,9 @@
         bind:this={ref}
         data-slot={dataSlot}
         class={cn(
-          "bg-background selection:bg-primary selection:text-primary-foreground ring-offset-background placeholder:text-muted-foreground flex w-full min-w-0 rounded-md border px-3 py-1 shadow-xs transition-[color,box-shadow] outline-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+          "bg-background selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground flex w-full min-w-0 rounded-md border px-3 py-1 shadow-xs transition-[color,box-shadow] outline-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
           "focus-visible:border-muted-foreground focus-visible:ring-muted-foreground/20 focus-visible:ring-[3px]",
-          "aria-invalid:border-rosa-500 dark:aria-invalid:bg-rosa-950 aria-invalid:bg-rosa-50 aria-invalid:text-rosa-500 dark:aria-invalid:text-rosa-500 aria-invalid:border-[1px]",
+          "aria-invalid:border-destructive dark:aria-invalid:bg-destructive/10 aria-invalid:bg-destructive/10 aria-invalid:text-destructive aria-invalid:border-[1px]",
           className,
           childProps ? "indent-6" : "",
         )}
@@ -77,7 +77,7 @@
   </label>
 
   {#if restProps["aria-errormessage"]}
-    <p class="text-rosa-500 mt-1 text-xs font-semibold">
+    <p class="text-destructive mt-1 text-xs font-semibold">
       <CircleAlert class="mb-[2px] inline h-[1rem] w-[1rem]" />
       {restProps["aria-errormessage"]}
     </p>

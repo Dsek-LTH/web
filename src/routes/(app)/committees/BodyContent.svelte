@@ -1,7 +1,6 @@
 <script lang="ts">
   import { Button, buttonVariants } from "$lib/components/ui/button/";
   import Pen from "@lucide/svelte/icons/pen";
-
   import * as Dialog from "$lib/components/ui/dialog";
   import { cn } from "$lib/utils";
   import Editor from "$lib/components/Editor.svelte";
@@ -14,6 +13,8 @@
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
   import type { PageData } from "./[shortName]/$types";
+  import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
+  import * as Avatar from "$lib/components/ui/avatar";
 
   let { data }: { data: PageData } = $props();
 
@@ -24,13 +25,68 @@
   let activeTab = $state("sv");
   let committee = $derived(data.committee);
   let canEdit = $state(isAuthorized(apiNames.COMMITTEE.UPDATE, page.data.user));
+
+  let previewPositions = $derived(
+    data.positions?.filter((p) => p.mandates.length == 1).slice(0, 3),
+  );
+  let previewMembers = $derived(
+    data.positions
+      ?.toReversed()
+      .filter((p) => p.mandates.length > 0)[0]
+      ?.mandates.map((m) => m.member)
+      .slice(0, 4),
+  );
 </script>
 
 {#if committee}
   <SEO data={{ type: "committee", committee }} />
 {/if}
 
-<div class="flex flex-row">
+<a
+  class="transition-all hover:opacity-85"
+  href="/committees/{data.committee?.shortName}/members"
+>
+  <div
+    class="after:to-background relative flex flex-row gap-4 overflow-x-scroll after:fixed after:top-0 after:right-0 after:z-100 after:h-full after:w-8 after:bg-linear-to-r after:from-transparent after:pl-10"
+  >
+    {#each previewPositions as position (position.id)}
+      <div
+        class="bg-muted-background inline-flex shrink-0 grow-0 flex-row items-center gap-2 rounded-md border-[1px] p-3"
+      >
+        <MemberAvatar member={position.mandates[0]!.member} />
+        <div class="flex flex-col">
+          <h6>
+            {position.mandates[0]!.member.firstName +
+              " " +
+              position.mandates[0]!.member.lastName}
+          </h6>
+          <span>{position.name}</span>
+        </div>
+      </div>
+    {/each}
+    <div
+      class="bg-muted-background inline-flex shrink-0 grow-0 flex-row items-center gap-2 rounded-md border-[1px] p-3"
+    >
+      <div class="mr-3 flex flex-row *:-mr-3">
+        {#each previewMembers as member (member.id)}
+          <MemberAvatar {member} />
+        {/each}
+        <Avatar.Root>
+          <Avatar.Fallback class="text-xs"
+            >+{(data.uniqueMemberCount ?? 0) -
+              (previewMembers?.length ?? 0)}</Avatar.Fallback
+          ></Avatar.Root
+        >
+      </div>
+      <div class="flex flex-col">
+        <h6>{m.committees_all_members()}</h6>
+        <span>{data.uniqueMemberCount} {m.committees_volunteers()}</span>
+      </div>
+    </div>
+  </div>
+</a>
+
+<div class="mt-2 flex flex-row">
   <h2 class="mb-2">{m.committees_about()}</h2>
   {#if canEdit}
     <Dialog.Root>
@@ -69,14 +125,14 @@
               <Editor
                 name="markdownSv"
                 bind:value={$form.markdownSv}
-                aria-invalid={$errors.markdownSv ? true : false}
+                aria-invalid={!!$errors.markdownSv}
               />
             </div>
             <div class={activeTab == "en" ? "block" : "hidden"}>
               <Editor
                 name="markdownEn"
                 bind:value={$form.markdownEn as string | undefined}
-                aria-invalid={$errors.markdownEn ? true : false}
+                aria-invalid={!!$errors.markdownEn}
               />
             </div>
             <div class="hidden">

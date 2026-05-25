@@ -5,7 +5,7 @@ import { emptySchema, notificationSchema } from "$lib/zod/schemas";
 import { loadFlash } from "sveltekit-flash-message/server";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
-import type { ExtendedPrismaModel } from "../../database/prisma/translationExtension";
+import type { ExtendedPrismaModel } from "$database/prisma/translationExtension";
 import type { Member } from "@prisma/client";
 
 const alertsCache: {
@@ -24,7 +24,7 @@ export const load = loadFlash(async ({ locals, depends }) => {
   const { user, prisma } = locals;
   const notificationsPromise = user?.memberId
     ? getMyGroupedNotifications(user, prisma)
-    : null;
+    : undefined;
   const shopItemCounts = countUserShopItems(prisma, user);
 
   alertsCache.alerts = await prisma.alert.findMany({

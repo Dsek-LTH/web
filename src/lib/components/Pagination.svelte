@@ -2,6 +2,7 @@
   import { page } from "$app/state";
   import * as Pagination from "$lib/components/ui/pagination";
   import { cn } from "$lib/utils";
+  import { SvelteURLSearchParams } from "svelte/reactivity";
 
   let { pageCount = 10, class: klass }: { pageCount?: number; class?: string } =
     $props();
@@ -9,6 +10,11 @@
   let thisPage = $derived(
     Number.parseInt(page.url.searchParams?.get("page") ?? "1"),
   );
+  const getPageLink = $derived((pageNum: number) => {
+    const searchParams = new SvelteURLSearchParams(page.url.searchParams);
+    searchParams.set("page", pageNum.toString());
+    return `?${searchParams.toString()}`;
+  });
 </script>
 
 <Pagination.Root class={cn(klass, "w-full")} count={pageCount} perPage={1}>
@@ -16,7 +22,7 @@
     <Pagination.Content>
       <Pagination.Item data-sveltekit-preload-data="off">
         {#if thisPage > 1}
-          <a data-sveltekit-preload-code="off" href={`?page=${thisPage - 1}`}>
+          <a data-sveltekit-preload-code="off" href={getPageLink(thisPage - 1)}>
             <Pagination.PrevButton />
           </a>
         {:else}
@@ -32,7 +38,7 @@
           <Pagination.Item data-sveltekit-preload-data="off">
             <Pagination.Link
               page={pageItem}
-              href={`?page=${pageItem.value}`}
+              href={getPageLink(pageItem.value)}
               isActive={thisPage == pageItem.value}
             >
               {#snippet child({ props })}
@@ -46,7 +52,7 @@
       {/each}
       <Pagination.Item data-sveltekit-preload-data="off">
         {#if thisPage < pageCount}
-          <a data-sveltekit-preload-code="off" href={`?page=${thisPage + 1}`}>
+          <a data-sveltekit-preload-code="off" href={getPageLink(thisPage + 1)}>
             <Pagination.NextButton />
           </a>
         {:else}

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import * as Avatar from "$lib/components/ui/avatar";
+  import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
   import { Badge } from "$lib/components/ui/badge";
   import { getBadgeVariantFromProgramme } from "$lib/components/ui/badge/badge.svelte";
 
@@ -48,14 +48,7 @@
       ? ''
       : 'pointer-events-none'}"
   >
-    <Avatar.Root class="relative h-6 w-6">
-      <Avatar.Image src={member.picturePath} alt="Member image" />
-      <Avatar.Fallback class="text-xs"
-        >{member.firstName && member.lastName
-          ? member.firstName?.charAt(0) + member.lastName?.charAt(0)
-          : "NN"}</Avatar.Fallback
-      >
-    </Avatar.Root>
+    <MemberAvatar {member} />
   </a>
 
   <div class="min-w-0 flex-1 text-left">
