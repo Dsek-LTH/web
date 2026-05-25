@@ -102,7 +102,7 @@ export const ticketSchema = z
           titleEn: z.string().nullable().optional(),
           description: z.string().default(""),
           descriptionEn: z.string().nullable().optional(),
-          // type can be any of "multple-choice" or "text"
+          // type can be any of "multiple-choice" or "text"
           type: z.nativeEnum(QuestionType).default(QuestionType.Text),
           forExternalsOnly: z.boolean().default(false),
           options: z
