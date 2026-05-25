@@ -77,9 +77,12 @@ ALTER TABLE "events" RENAME COLUMN "is_detatched" TO "is_detached";
 ALTER TABLE "mandates" RENAME COLUMN "phadderInId" TO "mentorInId";
 
 INSERT INTO "drink_item" SELECT * FROM "drinkitem";
-INSERT INTO "drink_item_batch" SELECT * FROM "drinkitembatch";
 INSERT INTO "mentor_groups" SELECT * FROM "phadder_groups";
 INSERT INTO "sexet_inventory_value_log" SELECT * FROM "sexetinventoryvaluelog";
+
+INSERT INTO "drink_item_batch"
+      ("id", "drink_item_id", "quantity_delta", "user", "date", "nr_bottles_delta")
+SELECT "id", "drink_item_id", "quantity_delta", "user", "date", "nr_bottles_delta" FROM "drinkitembatch";
 
 ALTER TABLE "drink_item_batch" ADD CONSTRAINT "drink_item_batch_drink_item_id_fkey" FOREIGN KEY ("drink_item_id") REFERENCES "drink_item"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "mandates" ADD CONSTRAINT "mandates_mentorInId_fkey" FOREIGN KEY ("mentorInId") REFERENCES "mentor_groups"("id") ON DELETE SET NULL ON UPDATE NO ACTION;
