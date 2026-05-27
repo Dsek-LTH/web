@@ -920,5 +920,8 @@
   "cafe_error_sign_off_close": "Not permitted to abandon a shift so close in time. If you need to, contact the Vice Head of the Cafe.",
   "cafe_error_sign_off_after": "Not permitted to abandon an already completed shift.",
   "cafe_error_sign_on_after": "You can't sign up for a shift that's already happened.",
-  "cafe_closed": "Closed"
+  "cafe_closed": "Closed",
+  "documents_governing_not_finding_intro": "Not finding what you're looking for? Keep in mind that our governing documents are subordinate to the ",
+  "documents_governing_union_governing_documents": "governing documents of the Union",
+  "documents_governing_not_finding_outro": ". Perhaps you might find what you seek there?"
 }

@@ -917,5 +917,8 @@
   "cafe_error_sign_off_close": "Du har inte tillåtelse att avanmäla dig så tätt inpå. Om du måste, kontaka Vice Cafémästare.",
   "cafe_error_sign_off_after": "Du har inte tillåtelse att avanmäla dig från avklarade skift.",
   "cafe_error_sign_on_after": "Du kan inte anmäla dig till ett pass som redan hänt.",
-  "cafe_closed": "Stängt"
+  "cafe_closed": "Stängt",
+  "documents_governing_not_finding_intro": "Hittar du inte vad du söker? Kom ihåg att våra styrdokument är underordnade ",
+  "documents_governing_union_governing_documents": "Kårens styrdokument",
+  "documents_governing_not_finding_outro": ". Kanske hittar du det du letar efter där?"
 }

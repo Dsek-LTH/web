@@ -60,6 +60,15 @@
       styrelsen@dsek.se
     </a>
   </p>
+  <p>
+    {m.documents_governing_not_finding_intro()}
+    <a
+      href="https://www.tlth.se/styrdokument"
+      class="link link-primary no-underline hover:underline"
+    >
+      {m.documents_governing_union_governing_documents()}
+    </a>{m.documents_governing_not_finding_outro()}
+  </p>
   <div class="flex max-w-28 items-center gap-5">
     <FileWithDownload
       name={m.documents_governing_statutes()}
