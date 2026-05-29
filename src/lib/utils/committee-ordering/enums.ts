@@ -151,10 +151,10 @@ export enum Nollu {
   "old.dsek.nollu.staben",
   "dsek.noll.pepp.op",
   "dsek.noll.pepp.p",
-  "dsek.noll.mentor",
+  "dsek.noll.phadder",
   "dsek.noll.funk",
   "dsek.noll.uppdrag",
-  "dsek.noll.study_mentor",
+  "dsek.noll.pluggphadder",
 }
 export enum Fram {
   "dsek.fram.ordf",

@@ -21,7 +21,7 @@ export const mentorMandateFilter = (
 ): Prisma.MandateWhereInput => ({
   OR: [
     {
-      positionId: "dsek.noll.mentor",
+      positionId: "dsek.noll.phadder",
     },
     {
       positionId: "dsek.noll.uppdrag",
