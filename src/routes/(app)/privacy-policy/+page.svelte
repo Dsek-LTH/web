@@ -214,7 +214,7 @@ följande:
 
 Förfrågan om att verkställa ovan nämnda rättigheter ska besvaras inom en
 månad. Begäran görs genom kontakt direkt med styrelsen via e-post:
-styrelsen@dsek.se
+[styrelsen@dsek.se](mailto:styrelsen@dsek.se)
 
 # Cookies
 
@@ -223,7 +223,7 @@ standardinformation om internetloggar och besökares beteende. Vid besök
 på våra webbplatser kan vi komma att automatiskt samla in information
 från genom cookies eller liknande teknik.
 
-För mer information, besök allaboutcookies.org.
+För mer information, besök [allaboutcookies.org](https://allaboutcookies.org).
 
 ## Hur använder vi cookies?
 
@@ -270,14 +270,14 @@ insamling, lagring och hantering på rätt sätt.
 Vid frågor om D-sektionens policy för hantering av personuppgifter, den
 data vi har samlat in om dig eller om utövandet av ovan nämnda
 dataskyddsrättigheter kan styrelsen kontaktas på följande e-postadress:
-styrelsen@dsek.se
+[styrelsen@dsek.se](mailto:styrelsen@dsek.se)
 
 ## Hur lämpliga myndigheter kontaktas
 
 Vid rapportering av klagomål gällande hantering av personuppgifter eller
 kring ärenden som relaterar till personuppgiftshantering kan
 Integritetsskyddsmyndigheten kontaktas på följande e-postadress:
-imy@imy.se
+[imy@imy.se](mailto:imy@imy.se)
 `;
 </script>
 
