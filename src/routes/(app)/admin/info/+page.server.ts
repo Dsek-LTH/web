@@ -6,10 +6,15 @@ import { infoPageSchema } from "./schemas";
 import type { Actions, PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
 import { slugify } from "$lib/utils/slugify";
+import { authorize } from "$lib/utils/authorization";
+import apiNames from "$lib/utils/apiNames";
 
-export const load: PageServerLoad = async () => ({
-  form: await superValidate(zod(infoPageSchema)),
-});
+export const load: PageServerLoad = async ({ locals }) => {
+  const { user } = locals;
+  authorize(apiNames.MARKDOWN.CREATE, user);
+
+  return { form: await superValidate(zod(infoPageSchema)) };
+};
 
 export const actions: Actions = {
   create: async (event) => {

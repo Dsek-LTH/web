@@ -9,7 +9,7 @@ import * as m from "$paraglide/messages";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma, user } = locals;
-  authorize(apiNames.ACCESS_POLICY.READ, user);
+  authorize(apiNames.ACCESS_POLICY.UPDATE, user);
 
   const accessPolicies = await prisma.accessPolicy.findMany().then((policies) =>
     policies
