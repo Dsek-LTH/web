@@ -1,7 +1,13 @@
 import { PUBLIC_BUCKETS_ALBUMS } from "$env/static/public";
 import { fileHandler } from "$lib/files";
 import type { FileData } from "$lib/files/fileHandler";
+import {
+  getNollningStart,
+  isNollningPeriod,
+} from "$lib/utils/adminSettings/nollning";
+import { isAuthorized } from "$lib/utils/authorization";
 import type { PageServerLoad } from "./$types";
+import apiNames from "$lib/utils/apiNames";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { user } = locals;
@@ -24,7 +30,18 @@ export const load: PageServerLoad = async ({ locals }) => {
     {},
   );
 
-  const albumEntries = Object.entries(filesGroupedByAlbum);
+  let albumEntries = Object.entries(filesGroupedByAlbum);
+  const nollningPeriod = await isNollningPeriod();
+  const nollningStart = await getNollningStart();
+
+  if (nollningPeriod && !isAuthorized(apiNames.MEMBER.SEE_STABEN, user)) {
+    albumEntries = albumEntries.filter(
+      (a) =>
+        Date.parse(a[0].split(" ")[0]!) >
+        (nollningStart ?? new Date(0)).getTime(),
+    );
+  }
+
   return {
     albums: albumEntries,
   };
