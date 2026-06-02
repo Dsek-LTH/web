@@ -4,12 +4,13 @@
   import type { PositionSearchReturnAttributes } from "$lib/search/searchTypes";
   import CommitteeIcon from "$lib/components/images/CommitteeIcon.svelte";
   import { getLocale } from "$paraglide/runtime";
+  import { getPositionLink } from "$lib/utils/positions";
   const { data }: { data: PositionSearchReturnAttributes } = $props();
 </script>
 
 <Command.LinkItem
   class="flex flex-row justify-between"
-  href={`/positions/${data.dsekId}`}
+  href={getPositionLink(data.dsekId)}
   data-search-result
 >
   <div class="flex flex-row items-center gap-2">
