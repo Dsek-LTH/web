@@ -1097,5 +1097,7 @@
   "positions_adding": "Lägger till mandat",
   "positions_member": "Medlem",
   "positions_date_error": "Slutdatum måste vara efter startdatum",
-  "board_prose": "Styrelsen är ansvariga för sektionens verksamhet, och består av ordförande, vice ordförande, samt de flesta utskottsordförande. De tar beslut om hur verksamheten ska fungera, väljer in funktionärer, och representerar ibland sektionen utåt. Många beslut tas på styrelsemöten varje tisdag under läsveckorna i E:1124, där alla medlemmar är välkomna."
+  "board_prose": "Styrelsen är ansvariga för sektionens verksamhet, och består av ordförande, vice ordförande, samt de flesta utskottsordförande. De tar beslut om hur verksamheten ska fungera, väljer in funktionärer, och representerar ibland sektionen utåt. Många beslut tas på styrelsemöten varje tisdag under läsveckorna i E:1124, där alla medlemmar är välkomna.",
+  "committees_committeeImage": "Utskottsbild",
+  "positions_history": "Historik"
 }

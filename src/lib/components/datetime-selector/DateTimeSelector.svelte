@@ -4,6 +4,7 @@
     toCalendarDate,
     toTime as toTimeConv,
     toCalendarDateTime,
+    parseDate,
   } from "@internationalized/date";
   import DatePicker from "./DatePicker.svelte";
   import TimePicker from "./TimePicker.svelte";
@@ -97,13 +98,20 @@
 </script>
 
 <div class="flex w-min min-w-[16rem] flex-col gap-2">
-  <DatePicker bind:value={fromDate} class="w-full"></DatePicker>
+  <DatePicker
+    bind:value={fromDate.toString, (d) => (fromDate = parseDate(d))}
+    class="w-full"
+  ></DatePicker>
   <div class="flex items-center gap-2">
     <TimePicker bind:value={fromTime}></TimePicker>
     <div class="bg-border h-px flex-1"></div>
     <TimePicker bind:value={toTime}></TimePicker>
   </div>
-  <DatePicker error={err} bind:value={toDate} class="w-full"></DatePicker>
+  <DatePicker
+    error={err}
+    bind:value={toDate.toString, (d) => (toDate = parseDate(d))}
+    class="w-full"
+  ></DatePicker>
   {#if err}<p class="text-rosa-background">
       {m.datetimeselector_range_error()}
     </p>{/if}

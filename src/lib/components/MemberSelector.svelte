@@ -15,21 +15,27 @@
 
   let {
     selectedMembers = $bindable([]),
+    selectedMembersIds = $bindable([]),
     selectedMember = $bindable(null),
+    selectedMemberId = $bindable(null),
     multiple = false,
     showId = true,
     showClass = true,
     limit = 0,
-    class: clazz = "",
+    class: klass = "",
+    inputClass = "",
     ...restProps
   }: {
-    selectedMembers?: MemberSearchReturnAttributes[];
-    selectedMember?: MemberSearchReturnAttributes | null;
+    selectedMembers?: Array<MemberSearchReturnAttributes & { id?: string }>;
+    selectedMembersIds?: string[] | null;
+    selectedMember?: (MemberSearchReturnAttributes & { id?: string }) | null;
+    selectedMemberId?: string | null;
     multiple: boolean;
     showId: boolean;
     showClass: boolean;
     limit?: number;
     class?: string;
+    inputClass?: string;
   } & InputProps = $props();
 
   let componentElement: HTMLElement | null = $state(null);
@@ -40,6 +46,22 @@
   let triggerElement: HTMLElement | null = $state(null);
   let addedItemsIndex = $state(-1);
   let isSearching = $state(false);
+
+  $effect(() => {
+    if (selectedMember?.id) {
+      selectedMemberId = new TextDecoder().decode(
+        base64ToBytes(selectedMember?.id),
+      );
+    }
+    if (selectedMembers) {
+      selectedMembersIds = selectedMembers.map((m) =>
+        new TextDecoder().decode(base64ToBytes(m.id!)),
+      );
+    }
+  });
+
+  const base64ToBytes = (input: string) =>
+    Uint8Array.from(atob(input), (c) => c.charCodeAt(0)).buffer;
 
   function isFocused(): boolean {
     return componentElement?.contains(document.activeElement) ?? false;
@@ -235,13 +257,16 @@
   onfocusin={handleFocusIn}
   shouldFilter={false}
   loop
-  class={cn("relative w-fit overflow-visible p-0", clazz)}
+  class={cn(klass, "relative w-fit overflow-visible p-0")}
   {...restProps}
 >
   <Button
     bind:ref={triggerElement}
     variant="outline"
-    class={cn("align-center h-fit w-full cursor-text justify-start p-1 px-2")}
+    class={cn(
+      "align-center h-fit w-full cursor-text justify-start p-1 px-2",
+      inputClass,
+    )}
     onclick={() => {
       inputElement?.focus();
     }}

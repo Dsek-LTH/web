@@ -1097,5 +1097,7 @@
   "nav_news_feed_desc": "See the latest news from the D-guild.",
   "nav_events_desc": "See current events at the D-guild.",
   "datepicker_pick_date": "Pick a date",
-  "committees_edit_links": "Edit links"
+  "committees_edit_links": "Edit links",
+  "committees_committeeImage": "Committee image",
+  "positions_history": "History"
 }

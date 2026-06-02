@@ -3,6 +3,7 @@
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import { cn } from "$lib/utils";
   import { getFullName } from "$lib/utils/client/member";
+  import { getPositionLink } from "$lib/utils/positions";
   import dayjs from "dayjs";
 
   let {
@@ -31,7 +32,7 @@
   style="animation-delay:{(index ? index + 1 : 0) * 50}ms"
 >
   <a
-    href="/positions/{position.id}"
+    href={getPositionLink(position.id)}
     class="hover:text-muted-foreground transition-all"
     ><h4>{position.name}</h4></a
   >

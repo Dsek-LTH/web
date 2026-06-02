@@ -196,8 +196,8 @@ importers:
         specifier: 2.9.1
         version: 2.9.1
       '@internationalized/date':
-        specifier: ^3.10.1
-        version: 3.10.1
+        specifier: ^3.12.1
+        version: 3.12.1
       '@lucide/svelte':
         specifier: ^0.561.0
         version: 0.561.0(svelte@5.46.4)
@@ -250,8 +250,8 @@ importers:
         specifier: ^2.10.0
         version: 2.10.0(@prisma/client@6.0.1(prisma@6.0.1))
       bits-ui:
-        specifier: ^2.15.5
-        version: 2.15.5(@internationalized/date@3.10.1)(@sveltejs/kit@2.49.5(@opentelemetry/api@1.4.1)(@sveltejs/vite-plugin-svelte@5.0.1(svelte@5.46.4)(vite@7.3.1(@types/node@22.10.1)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.6.1)))(svelte@5.46.4)(typescript@5.7.2)(vite@7.3.1(@types/node@22.10.1)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.6.1)))(svelte@5.46.4)
+        specifier: ^2.18.0
+        version: 2.18.0(@internationalized/date@3.12.1)(@sveltejs/kit@2.49.5(@opentelemetry/api@1.4.1)(@sveltejs/vite-plugin-svelte@5.0.1(svelte@5.46.4)(vite@7.3.1(@types/node@22.10.1)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.6.1)))(svelte@5.46.4)(typescript@5.7.2)(vite@7.3.1(@types/node@22.10.1)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.6.1)))(svelte@5.46.4)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -1070,8 +1070,8 @@ packages:
     resolution: {integrity: sha512-XvJRx+2KR3YXyYtPUUy+qd9i7p+GO9Ko6VIIpWlBrpWwXDv8WLFeHTxz35CfQFUiBMLXlGHhGzys7lqit9gWag==}
     engines: {node: '>=18'}
 
-  '@internationalized/date@3.10.1':
-    resolution: {integrity: sha512-oJrXtQiAXLvT9clCf1K4kxp3eKsQhIaZqxEyowkBcsvZDdZkbWrVmnGknxs5flTD0VGsxrxKgBCZty1EzoiMzA==}
+  '@internationalized/date@3.12.1':
+    resolution: {integrity: sha512-6IedsVWXyq4P9Tj+TxuU8WGWM70hYLl12nbYU8jkikVpa6WXapFazPUcHUMDMoWftIDE2ILDkFFte6W2nFCkRQ==}
 
   '@isaacs/cliui@8.0.2':
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
@@ -2889,8 +2889,8 @@ packages:
   bintrees@1.0.2:
     resolution: {integrity: sha512-VOMgTMwjAaUG580SXn3LacVgjurrbMme7ZZNYGSSV7mmtY6QQRh0Eg3pwIcntQ77DErK1L0NxkbetjcoXzVwKw==}
 
-  bits-ui@2.15.5:
-    resolution: {integrity: sha512-WhS+P+E//ClLfKU6KqjKC17nGDRLnz+vkwoP6ClFUPd5m1fFVDxTElPX8QVsduLj5V1KFDxlnv6sW2G5Lqk+vw==}
+  bits-ui@2.18.0:
+    resolution: {integrity: sha512-GLOBZRVy3hxNHIQ2MpD/+5aK9KcBFZRhUJtZ1UDABXdlVR4K6zFpgt4T+Rwuhf2sQzlc6yK1q/DprHPjwT4Pjw==}
     engines: {node: '>=20'}
     peerDependencies:
       '@internationalized/date': ^3.8.1
@@ -7279,7 +7279,7 @@ snapshots:
     dependencies:
       mute-stream: 1.0.0
 
-  '@internationalized/date@3.10.1':
+  '@internationalized/date@3.12.1':
     dependencies:
       '@swc/helpers': 0.5.17
 
@@ -9662,11 +9662,11 @@ snapshots:
 
   bintrees@1.0.2: {}
 
-  bits-ui@2.15.5(@internationalized/date@3.10.1)(@sveltejs/kit@2.49.5(@opentelemetry/api@1.4.1)(@sveltejs/vite-plugin-svelte@5.0.1(svelte@5.46.4)(vite@7.3.1(@types/node@22.10.1)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.6.1)))(svelte@5.46.4)(typescript@5.7.2)(vite@7.3.1(@types/node@22.10.1)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.6.1)))(svelte@5.46.4):
+  bits-ui@2.18.0(@internationalized/date@3.12.1)(@sveltejs/kit@2.49.5(@opentelemetry/api@1.4.1)(@sveltejs/vite-plugin-svelte@5.0.1(svelte@5.46.4)(vite@7.3.1(@types/node@22.10.1)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.6.1)))(svelte@5.46.4)(typescript@5.7.2)(vite@7.3.1(@types/node@22.10.1)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.6.1)))(svelte@5.46.4):
     dependencies:
       '@floating-ui/core': 1.7.3
       '@floating-ui/dom': 1.7.4
-      '@internationalized/date': 3.10.1
+      '@internationalized/date': 3.12.1
       esm-env: 1.2.2
       runed: 0.35.1(@sveltejs/kit@2.49.5(@opentelemetry/api@1.4.1)(@sveltejs/vite-plugin-svelte@5.0.1(svelte@5.46.4)(vite@7.3.1(@types/node@22.10.1)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.6.1)))(svelte@5.46.4)(typescript@5.7.2)(vite@7.3.1(@types/node@22.10.1)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.6.1)))(svelte@5.46.4)
       svelte: 5.46.4
