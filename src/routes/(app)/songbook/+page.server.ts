@@ -5,9 +5,16 @@ import {
   getPageOrThrowSvelteError,
   getPageSizeOrThrowSvelteError,
 } from "$lib/utils/url.server";
+import { error } from "@sveltejs/kit";
+import * as m from "$paraglide/messages";
 
 export const load: PageServerLoad = async ({ locals, url }) => {
   const { prisma, user } = locals;
+
+  if (!user.studentId) {
+    throw error(403, m.errors_missingPermissions());
+  }
+
   const songCount = await prisma.song.count();
   const pageSize = getPageSizeOrThrowSvelteError(url);
   const page = getPageOrThrowSvelteError(url, {

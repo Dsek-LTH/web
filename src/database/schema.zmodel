@@ -632,7 +632,7 @@ model Member {
   classYear               Int?                    @map("class_year")
   graduationYear          Int?                    @map("graduation_year")
   visible                 Boolean                 @default(true)
-  foodPreference          String?                 @map("food_preference") @db.VarChar(255)
+  foodPreference          String?                 @map("food_preference") @db.VarChar(255) @allow("read", (auth().memberId == id) || (has(auth().policies, "webshop:manage")) || has(auth().policies, "core:member:update"))
   language                String?                 @map("language") @db.VarChar(255)
   stripeCustomerId        String?                 @map("stripe_customer_id")
 
@@ -1287,11 +1287,11 @@ model Readme {
 }
 
 model CafeShift {
-  id            String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  date          DateTime
-  workerId      String      @db.Uuid
-  worker        Member      @relation(fields: [workerId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "worker_id_foreign")
-  timeSlot      TimeSlot    @map("time_slot")
+  id       String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  date     DateTime
+  workerId String   @db.Uuid
+  worker   Member   @relation(fields: [workerId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "worker_id_foreign")
+  timeSlot TimeSlot @map("time_slot")
 
   @@map("cafe_shifts")
   @@allow("read", true)
@@ -1334,18 +1334,18 @@ enum TimeSlot {
 }
 
 model CiabattaOfTheWeek {
-    id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-    year        Int
-    week        Int
-    name        String
+  id   String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  year Int
+  week Int
+  name String
 
-    @@map("ciabatta_of_the_week")
-    @@allow("read", true)
+  @@map("ciabatta_of_the_week")
+  @@allow("read", true)
 
-    @@allow("create", has(auth().policies, "cafe:edit_ciabattas"))
+  @@allow("create", has(auth().policies, "cafe:edit_ciabattas"))
 
-    @@allow("update", has(auth().policies, "cafe:edit_ciabattas"))
+  @@allow("update", has(auth().policies, "cafe:edit_ciabattas"))
 
-    @@allow("delete", has(auth().policies, "cafe:edit_ciabattas"))
-    @@unique([year, week], map: "week_year_unique")
+  @@allow("delete", has(auth().policies, "cafe:edit_ciabattas"))
+  @@unique([year, week], map: "week_year_unique")
 }

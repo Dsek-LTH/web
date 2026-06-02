@@ -138,7 +138,7 @@ export const getRoutes = (): Route[] =>
           title: m.songBook(),
           path: "/songbook",
           icon: "i-mdi-library-music",
-          accessRequired: null,
+          accessRequired: "_",
           appBehaviour: "home-link",
         },
         {
