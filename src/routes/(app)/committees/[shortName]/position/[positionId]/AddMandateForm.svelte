@@ -23,7 +23,9 @@
   );
 </script>
 
-<div class="bg-muted-background relative rounded-md border-[1px] p-4">
+<div
+  class="bg-muted-background animate-in slide-in-from-top-2 relative mb-2 rounded-md border-[1px] p-4 duration-300"
+>
   <h5>{m.positions_adding()}</h5>
   <form
     action="?/addMandate"

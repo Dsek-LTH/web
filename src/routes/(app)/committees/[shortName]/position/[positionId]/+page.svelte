@@ -203,9 +203,10 @@
 
 <!-- List of mandates -->
 <h3 class="mb-4">{m.positions_history()}</h3>
-{#each years as year (year)}
+{#each years as year, index (year)}
   <section
-    class="bg-muted-background mb-4 flex flex-col gap-4 rounded-md border-[1px] p-4"
+    class="bg-muted-background animate-in fade-in fill-mode-backwards slide-in-from-bottom-[1rem] mb-4 flex flex-col gap-4 rounded-md border-[1px] p-4 duration-300"
+    style:animation-delay={(index ?? 0) * 50 + "ms"}
   >
     <h4>{year}</h4>
 
