@@ -29,14 +29,14 @@
     action="?/addMandate"
     method="POST"
     use:enhance
-    class="my-2 flex flex-row items-end gap-2"
+    class="my-2 flex flex-col items-end gap-2 sm:flex-row"
   >
     <div class="flex w-full flex-col gap-1.5">
       <Label>{m.positions_member()}</Label>
       <MemberSelector
         showId={false}
         showClass={true}
-        class="w-full! min-w-96 grow"
+        class="w-full! grow sm:min-w-96"
         inputClass="min-h-12 w-full"
         multiple={true}
         bind:selectedMembersIds={$form.memberIds}
@@ -45,7 +45,7 @@
         <p class="text-rosa-500">{$errors.memberIds}</p>
       {/if}
     </div>
-    <div class="flex flex-col gap-1.5">
+    <div class="flex w-full flex-col gap-1.5">
       <Label>{m.positions_startDate()}</Label>
 
       <DatePicker
@@ -58,7 +58,7 @@
       />
     </div>
 
-    <div class="flex flex-col gap-1.5">
+    <div class="flex w-full flex-col gap-1.5">
       <Label>{m.positions_endDate()}</Label>
       <DatePicker
         name="endDate"

@@ -22,9 +22,7 @@
 
 <Tooltip.Root>
   <Tooltip.Trigger>
-    <div
-      class="relative flex flex-row items-center gap-2 before:whitespace-pre"
-    >
+    <div class="relative flex items-center gap-2 before:whitespace-pre">
       <a
         href="/members/{mandate.member.studentId}"
         class="flex flex-1 place-items-center gap-2 overflow-hidden normal-case"
@@ -58,7 +56,7 @@
 
       <!-- Edit modal -->
       {#if isEditing}<div
-          class="bg-muted-background absolute top-full right-0 z-10 flex flex-col items-center rounded-md border-[1px] p-4"
+          class="bg-muted-background absolute top-full -left-15 z-10 flex flex-col items-center rounded-md border-[1px] p-4 sm:right-0 sm:left-0 sm:w-fit"
         >
           {#await data.updateMandateForm then form}
             <UpdateMandateForm
