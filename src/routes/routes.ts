@@ -27,7 +27,7 @@ export const getRoutes = (): Route[] =>
     {
       title: m.applicant(),
       pictureUrl:
-        getFileUrl("minio/files/public/photos/staben25_9x16.webp") ?? "",
+        getFileUrl("minio/files/public/photos/infinityfest.webp") ?? "",
       path: null,
       accessRequired: null,
       pictureTitle: m.nollning_nav_picture_title(),
@@ -40,7 +40,7 @@ export const getRoutes = (): Route[] =>
           description: m.nav_applicant_description(),
           accessRequired: null,
           appBehaviour: "none",
-          path: "/sokande",
+          path: "/applying",
         },
         {
           title: m.nav_nollning(),
