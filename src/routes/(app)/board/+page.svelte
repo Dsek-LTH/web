@@ -8,6 +8,7 @@
   import Pen from "@lucide/svelte/icons/pen";
   import ArrowRight from "@lucide/svelte/icons/arrow-right";
   import * as Avatar from "$lib/components/ui/avatar";
+  import { getFileUrl } from "$lib/files/client";
 
   let { data }: { data: PageData } = $props();
 </script>
@@ -20,7 +21,7 @@
       <div class="bg-muted-background rounded-lg border-[1px] shadow-xl">
         <img
           class="rounded-lg"
-          src="https://files.dsek.se/files/public/photos/styr26.jpg"
+          src={getFileUrl("minio/files/public/photos/styr26.webp")}
           alt="guild"
         />
       </div>
