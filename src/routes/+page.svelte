@@ -84,7 +84,7 @@
 <header
   class="relative h-screen bg-linear-to-t bg-[linear-gradient(to_right,rgba(0,0,0,0.9),rgba(0,0,0,0.7),rgba(0,0,0,0)),url('https://files.dsek.se/files/public/photos/hero2.jpg')] bg-cover bg-center"
 >
-  <div class="absolute top-1/3 px-10 lg:pl-44">
+  <div class="absolute top-1/4 px-10 pl-6 md:top-1/3 md:pl-10 lg:pl-44">
     <h1
       class="font-sans text-5xl font-bold break-keep text-white uppercase sm:mb-10 sm:text-7xl lg:text-9xl xl:text-[125px]"
     >
