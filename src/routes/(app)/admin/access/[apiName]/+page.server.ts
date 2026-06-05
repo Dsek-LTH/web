@@ -33,7 +33,7 @@ export type DeleteSchema = Infer<typeof deleteSchema>;
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
-  authorize(apiNames.ACCESS_POLICY.UPDATE, user);
+  authorize(apiNames.ACCESS_POLICY.CREATE, user);
 
   const policies = await prisma.accessPolicy.findMany({
     where: {

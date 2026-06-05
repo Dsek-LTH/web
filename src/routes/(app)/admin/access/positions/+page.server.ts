@@ -15,7 +15,7 @@ const createPolicySchema = z.object({
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma, user } = locals;
 
-  authorize(apiNames.ACCESS_POLICY.UPDATE, user);
+  authorize(apiNames.ACCESS_POLICY.CREATE, user);
 
   const accesspolicies = await prisma.accessPolicy.findMany({
     select: { role: true, apiName: true, id: true },
