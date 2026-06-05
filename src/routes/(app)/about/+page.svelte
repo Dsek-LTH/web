@@ -6,6 +6,7 @@
   import { ArrowRight } from "@lucide/svelte";
   import { type ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import { breakName } from "$lib/utils/committee";
+  import { getFileUrl } from "$lib/files/client";
 
   let { data } = $props();
 </script>
@@ -25,7 +26,7 @@
       <div class="bg-muted-background rounded-lg border-[1px] shadow-xl">
         <img
           class="rounded-lg"
-          src="https://files.dsek.se/files/public/photos/stock3.jpg"
+          src={getFileUrl("minio/files/public/photos/stock3.webp")}
           alt="guild"
         />
       </div>
