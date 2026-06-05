@@ -59,7 +59,7 @@
   onMount(() => {
     window.onscroll = () => {
       if (window.innerWidth < 896) {
-        if (window.scrollY > oldScroll) {
+        if (window.scrollY > oldScroll && window.scrollY > 1) {
           visible = false;
         } else {
           visible = true;
@@ -156,7 +156,7 @@
         <Button
           aria-label="sign in"
           variant="outline"
-          class="text-muted-foreground hover:text-foreground hover:border-foreground rounded-full"
+          class="md-nav:flex text-muted-foreground hover:text-foreground hover:border-foreground hidden rounded-full"
           disabled={loggingIn}
           onclick={() => {
             loggingIn = true;
