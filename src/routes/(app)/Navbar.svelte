@@ -41,6 +41,8 @@
 
   let navOpen: boolean = $state(false);
 
+  let memberOpen: boolean = $state(false);
+
   $effect(() => {
     if (navOpen == false) {
       setTimeout(() => (visible = true), 20);
@@ -113,8 +115,8 @@
       >
       {#if page.data.member}
         <NotificationBell {notificationsPromise} />
-        <HoverCard.Root openDelay={0} closeDelay={125}>
-          <HoverCard.Trigger>
+        <HoverCard.Root bind:open={memberOpen} openDelay={0} closeDelay={125}>
+          <HoverCard.Trigger onclick={() => (memberOpen = !memberOpen)}>
             <MemberAvatar
               member={page.data.member}
               class="md-nav:flex hidden"
