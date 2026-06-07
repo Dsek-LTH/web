@@ -12,7 +12,6 @@
   import * as m from "$paraglide/messages";
   import type { AriaAttributes } from "svelte/elements";
   import type { ClassValue } from "clsx";
-  import dayjs from "dayjs";
 
   let {
     value = $bindable(),
@@ -21,7 +20,6 @@
     error = false,
     name,
     iso,
-    displayCompact = false,
     ...restProps
   }: AriaAttributes & {
     value?: string;
@@ -30,7 +28,6 @@
     error?: boolean;
     name?: string;
     iso?: boolean;
-    displayCompact?: boolean;
   } = $props();
 
   const df = new DateFormatter(m.locale(), {
@@ -42,9 +39,6 @@
   }
 
   function format(date: Date): string {
-    if (displayCompact) {
-      return dayjs(date).format("YYYY-MM-DD");
-    }
     let parts = df.formatToParts(date);
     let text = "";
     text += capitalize(parts.find((p) => p.type == "weekday")?.value ?? "");
@@ -67,7 +61,7 @@
     class={cn(
       buttonVariants({
         variant: "outline",
-        class: `${!displayCompact ? "w-[280px]" : ""} justify-start text-left font-normal`,
+        class: `${!iso ? "w-[280px]" : ""} justify-start text-left font-normal`,
       }),
       !value && "text-muted-foreground",
       error && "bg-rosa-50 dark:bg-rosa-950 border-rosa-background",
