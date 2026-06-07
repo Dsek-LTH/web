@@ -2,12 +2,11 @@
   import DatePicker from "$lib/components/datetime-selector/DatePicker.svelte";
   import { Checkbox } from "$lib/components/ui/checkbox/index";
   import Input from "$lib/components/ui/input/input.svelte";
-  import { CalendarDate } from "@internationalized/date";
   import { createExpense } from "./upload.remote";
   import FileUpload from "$lib/components/FileUpload.svelte";
   import * as m from "$paraglide/messages";
   import * as Select from "$lib/components/ui/select";
-  import createBasicReceipt from "../baseItem";
+  import createBasicReceipt, { createBasicReceiptRow } from "../baseItem";
   import { COST_CENTERS } from "../config";
   import dayjs from "dayjs";
   import { Label } from "$lib/components/ui/label";
@@ -16,6 +15,10 @@
   import PiggyBank from "@lucide/svelte/icons/piggy-bank";
   import Coins from "@lucide/svelte/icons/coins";
   import Pen from "@lucide/svelte/icons/pen";
+  import Trash from "@lucide/svelte/icons/trash";
+  import X from "@lucide/svelte/icons/x";
+  import Separator from "$lib/components/ui/separator/separator.svelte";
+  import * as Tooltip from "$lib/components/ui/tooltip";
 
   const { date, description, isGuildCard, receipts } = createExpense.fields;
   receipts.set([createBasicReceipt()]);
@@ -30,9 +33,14 @@
 </script>
 
 <div>
-  <form {...createExpense} enctype="multipart/form-data">
-    <div>
-      Datum på kvitto: <DatePicker
+  <form
+    class="flex flex-col gap-2"
+    {...createExpense}
+    enctype="multipart/form-data"
+  >
+    <div class="flex flex-col gap-1.5">
+      <Label>{m.receipt_date()}</Label>
+      <DatePicker
         {...{
           ...date.as("date"),
           value: dayjs(today).format("YYYY-MM-DD"),
@@ -42,55 +50,114 @@
       />
     </div>
 
-    <div>
-      Är sektionskort: <Checkbox
-        {...isGuildCard.as("checkbox")}
-        type={undefined}
-      />
+    <div class="flex flex-col gap-1.5">
+      <Label>{m.is_guildCard()}</Label>
+      <Checkbox {...isGuildCard.as("checkbox")} type={undefined} />
     </div>
-    <div>
-      Beskrivning: <Input {...description.as("text")} />
+    <div class="flex flex-col gap-1.5">
+      <Label>{m.expense_description()}</Label>
+      <Input {...description.as("text")} />
     </div>
-    {#each receipts.value() as receipt, i (receipt)}
-      <Card.Root>
-        <Card.Content class="flex flex-col gap-2">
-          <FileUpload allowUrl={false} {...receipts[i]!.image.as("file")} />
-          {#each receipts[i]!.rows.value() as row, j (row)}
-            {@const receipt = receipts[i]!.rows[j]!}
-            <div class="flex flex-col gap-1.5">
-              <Label>{m.expense_type()}</Label>
-              <Select.Root
-                {...receipts[i]!.rows[j]!.costCenter.as("text")}
-                items={costCenters}
-                type="single"
-                bind:value={receipt.costCenter.as("select").value
-                  ? receipt.costCenter.as("select").value.toString
-                  : () => undefined,
-                (v) => receipt.costCenter.set(v ?? "")}
-                ><Select.Trigger class="w-full"
-                  ><PiggyBank />{receipt.costCenter
-                    .as("select")
-                    .value.toString()}</Select.Trigger
-                >
-                <Select.Content>
-                  {#each costCenters as item (item.value)}
-                    <Select.Item value={item.value}>{item.label}</Select.Item>
-                  {/each}
-                </Select.Content></Select.Root
+    <div class="flex flex-row flex-wrap gap-4">
+      {#each receipts.value() as receipt, i (receipt)}
+        <Card.Root>
+          <Card.Content class="relative flex flex-col gap-2">
+            <Tooltip.Provider>
+              <Tooltip.Root>
+                <Tooltip.Trigger class="absolute -top-4 right-2 ">
+                  <Button
+                    onclick={() =>
+                      receipts.set([
+                        ...receipts.value().filter((_, index) => index != i),
+                      ])}
+                    variant="outline"
+                    size="icon-sm"
+                    class="bg-background"><Trash /></Button
+                  ></Tooltip.Trigger
+                ><Tooltip.Content>
+                  {m.remove_receipt()}
+                </Tooltip.Content></Tooltip.Root
               >
-            </div>
-            <div class="flex flex-col gap-1.5">
-              <Label>{m.expense_amount()}</Label>
-              <Input {...receipt.amount.as("number")}><Coins /></Input>
-            </div>
-            <div class="flex flex-col gap-1.5">
-              <Label>{m.receipt_comment()}</Label>
-              <Input {...receipt.comment.as("text")}><Pen /></Input>
-            </div>
-          {/each}
-        </Card.Content>
-      </Card.Root>
-    {/each}
+            </Tooltip.Provider>
+            <FileUpload allowUrl={false} {...receipts[i]!.image.as("file")} />
+
+            {#each receipts[i]!.rows.value() as row, j (row)}
+              {@const receiptRow = receipts[i]!.rows[j]!}
+              <div class="flex flex-row gap-1">
+                <div class="flex w-full flex-col gap-1.5">
+                  <Label>{m.expense_type()}</Label>
+                  <Select.Root
+                    {...receiptRow.costCenter.as("text")}
+                    items={costCenters}
+                    type="single"
+                    bind:value={receiptRow.costCenter.as("select").value
+                      ? receiptRow.costCenter.as("select").value.toString
+                      : () => undefined,
+                    (v) => receiptRow.costCenter.set(v ?? "")}
+                  >
+                    <Select.Trigger class="bg-background w-full"
+                      ><PiggyBank />{receiptRow.costCenter
+                        .as("select")
+                        .value.toString()}
+                    </Select.Trigger>
+                    <Select.Content>
+                      {#each costCenters as item (item.value)}
+                        <Select.Item value={item.value}
+                          >{item.label}</Select.Item
+                        >
+                      {/each}
+                    </Select.Content>
+                  </Select.Root>
+                </div>
+                <Separator orientation="vertical" class="mx-4 h-9! self-end" />
+                <Tooltip.Provider>
+                  <Tooltip.Root>
+                    <Tooltip.Trigger class="mb-1 self-end">
+                      <Button
+                        onclick={() =>
+                          receipts[i]!.rows.set([
+                            ...receipts[i]!.rows.value().filter(
+                              (_, i) => i != j,
+                            ),
+                          ])}
+                        variant="outline"
+                        size="icon-sm"
+                        class="bg-background"><X /></Button
+                      ></Tooltip.Trigger
+                    ><Tooltip.Content>
+                      {m.remove_row()}
+                    </Tooltip.Content></Tooltip.Root
+                  >
+                </Tooltip.Provider>
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <Label>{m.expense_amount()}</Label>
+                <Input {...receiptRow.amount.as("number")}><Coins /></Input>
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <Label>{m.receipt_comment()}</Label>
+                <Input {...receiptRow.comment.as("text")}><Pen /></Input>
+              </div>
+            {/each}
+            <Button
+              variant="outline"
+              class="bg-background"
+              onclick={() =>
+                receipts[i]!.rows.set([
+                  ...receipts[i]!.rows.value(),
+                  createBasicReceiptRow(),
+                ])}>+ {m.add_row()}</Button
+            >
+          </Card.Content>
+        </Card.Root>
+      {/each}
+    </div>
+
+    <Button
+      variant="outline"
+      onclick={() => receipts.set([...receipts.value(), createBasicReceipt()])}
+      >+ {m.add_receipt()}</Button
+    >
     <Button>Submit</Button>
   </form>
 </div>
