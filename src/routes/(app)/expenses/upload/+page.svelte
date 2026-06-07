@@ -35,7 +35,18 @@
 <div>
   <form
     class="flex flex-col gap-2"
-    {...createExpense}
+    oninput={() => createExpense.validate()}
+    {...createExpense.enhance(async (form) => {
+      console.log(receipts[0]?.rows[0]?.costCenter.value());
+      console.log(form.data.receipts[0]?.rows[0]?.costCenter);
+      console.log(form.data.receipts[0]?.rows[0]?.amount);
+      console.log(form.data);
+      try {
+        await form.submit();
+      } catch (e) {
+        console.log(e);
+      }
+    })}
     enctype="multipart/form-data"
   >
     <div class="flex flex-col gap-1.5">
@@ -52,7 +63,10 @@
 
     <div class="flex flex-col gap-1.5">
       <Label>{m.is_guildCard()}</Label>
-      <Checkbox {...isGuildCard.as("checkbox")} type={undefined} />
+      <Checkbox
+        {...{ ...isGuildCard.as("checkbox"), checked: false }}
+        type={undefined}
+      />
     </div>
     <div class="flex flex-col gap-1.5">
       <Label>{m.expense_description()}</Label>
@@ -83,21 +97,25 @@
 
             {#each receipts[i]!.rows.value() as row, j (row)}
               {@const receiptRow = receipts[i]!.rows[j]!}
+              <Separator
+                orientation="horizontal"
+                class={j == 0 ? "hidden" : ""}
+              />
               <div class="flex flex-row gap-1">
                 <div class="flex w-full flex-col gap-1.5">
                   <Label>{m.expense_type()}</Label>
+                  {createExpense.fields.receipts[i]!.rows[
+                    j
+                  ]!.costCenter.value()}
                   <Select.Root
-                    {...receiptRow.costCenter.as("text")}
-                    items={costCenters}
+                    name="receipts[{i}].rows[{j}].costCenter"
                     type="single"
-                    bind:value={receiptRow.costCenter.as("select").value
-                      ? receiptRow.costCenter.as("select").value.toString
-                      : () => undefined,
-                    (v) => receiptRow.costCenter.set(v ?? "")}
+                    bind:value={receiptRow.costCenter.value,
+                    (v) => receiptRow.costCenter.set(v ?? "INVALID")}
                   >
                     <Select.Trigger class="bg-background w-full"
                       ><PiggyBank />{receiptRow.costCenter
-                        .as("select")
+                        .as("text")
                         .value.toString()}
                     </Select.Trigger>
                     <Select.Content>
@@ -134,6 +152,10 @@
                 <Label>{m.expense_amount()}</Label>
                 <Input {...receiptRow.amount.as("number")}><Coins /></Input>
               </div>
+              <!--<div class="flex flex-col gap-1.5">
+                <Label>{m.expense_amount()}</Label>
+                <Input {...receiptRow.costCenter.as("text")}></Input>
+              </div>-->
               <div class="flex flex-col gap-1.5">
                 <Label>{m.receipt_comment()}</Label>
                 <Input {...receiptRow.comment.as("text")}><Pen /></Input>
@@ -158,6 +180,6 @@
       onclick={() => receipts.set([...receipts.value(), createBasicReceipt()])}
       >+ {m.add_receipt()}</Button
     >
-    <Button>Submit</Button>
+    <Button type="submit">Submit</Button>
   </form>
 </div>

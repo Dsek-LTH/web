@@ -22,7 +22,7 @@ const receiptSchema = z.object({
 export const expenseSchema = z.object({
   date: z.string(),
   description: z.string(),
-  isGuildCard: z.boolean(),
+  isGuildCard: z.boolean().default(false).optional(),
   receipts: z.array(receiptSchema).nonempty(),
 });
 export type ExpenseSchema = Infer<typeof expenseSchema>;

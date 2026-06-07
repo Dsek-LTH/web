@@ -63,7 +63,8 @@
   class={twMerge(
     klass,
     allowUrl ? "h-[256px]" : "p-8",
-    "bg-secondary-background border-border flex flex-col items-center justify-center rounded-md border-[1px] text-center",
+
+    "aria-invalid:border-destructive bg-secondary-background border-border flex flex-col items-center justify-center rounded-md border-[1px] text-center aria-invalid:bg-amber-500",
   )}
 >
   <div class="mb-4 flex flex-col">

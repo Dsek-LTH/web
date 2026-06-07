@@ -61,7 +61,7 @@
     class={cn(
       buttonVariants({
         variant: "outline",
-        class: `${!iso ? "w-[280px]" : ""} justify-start text-left font-normal`,
+        class: `${!iso ? "w-[280px]" : ""} aria-invalid:border-destructive justify-start text-left font-normal`,
       }),
       !value && "text-muted-foreground",
       error && "bg-rosa-50 dark:bg-rosa-950 border-rosa-background",
