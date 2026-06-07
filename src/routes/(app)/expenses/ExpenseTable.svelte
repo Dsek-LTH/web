@@ -25,50 +25,53 @@
 </script>
 
 <div class="rounded-md border">
-  <Table.Root>
-    <Table.Header>
-      {#each table.getHeaderGroups() as headerGroup (headerGroup.id)}
-        <Table.Row>
-          {#each headerGroup.headers as header (header.id)}
-            <Table.Head colspan={header.colSpan}>
-              {#if !header.isPlaceholder}
-                <FlexRender
-                  content={header.column.columnDef.header}
-                  context={header.getContext()}
-                />
-              {/if}
-            </Table.Head>
-          {/each}
-        </Table.Row>
-      {/each}
-    </Table.Header>
-    <Table.Body>
-      {#each table.getRowModel().rows as row (row.id)}
-        <Dialog.Root>
-          <Dialog.Trigger class="contents">
-            <Table.Row
-              class="cursor-pointer"
-              data-state={row.getIsSelected() && "selected"}
-            >
-              {#each row.getVisibleCells() as cell (cell.id)}
-                <Table.Cell>
+  <Dialog.Root>
+    <Table.Root>
+      <Table.Header>
+        {#each table.getHeaderGroups() as headerGroup (headerGroup.id)}
+          <Table.Row>
+            {#each headerGroup.headers as header (header.id)}
+              <Table.Head colspan={header.colSpan}>
+                {#if !header.isPlaceholder}
                   <FlexRender
-                    content={cell.column.columnDef.cell}
-                    context={cell.getContext()}
+                    content={header.column.columnDef.header}
+                    context={header.getContext()}
                   />
-                </Table.Cell>
-              {/each}
-            </Table.Row>
+                {/if}
+              </Table.Head>
+            {/each}
+          </Table.Row>
+        {/each}
+      </Table.Header>
+      <Table.Body>
+        {#each table.getRowModel().rows as row (row.id)}
+          <Dialog.Trigger class="contents">
+            {#snippet child({ props })}
+              <Table.Row
+                {...props}
+                class="cursor-pointer"
+                data-state={row.getIsSelected() && "selected"}
+              >
+                {#each row.getVisibleCells() as cell (cell.id)}
+                  <Table.Cell>
+                    <FlexRender
+                      content={cell.column.columnDef.cell}
+                      context={cell.getContext()}
+                    />
+                  </Table.Cell>
+                {/each}
+              </Table.Row>
+            {/snippet}
           </Dialog.Trigger>
           <ExpenseDialog expense={row.original} />
-        </Dialog.Root>
-      {:else}
-        <Table.Row>
-          <Table.Cell colspan={columns.length} class="h-24 text-center">
-            No results.
-          </Table.Cell>
-        </Table.Row>
-      {/each}
-    </Table.Body>
-  </Table.Root>
+        {:else}
+          <Table.Row>
+            <Table.Cell colspan={columns.length} class="h-24 text-center">
+              No results.
+            </Table.Cell>
+          </Table.Row>
+        {/each}
+      </Table.Body>
+    </Table.Root>
+  </Dialog.Root>
 </div>
