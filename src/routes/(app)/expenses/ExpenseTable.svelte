@@ -6,6 +6,7 @@
   } from "$lib/components/ui/data-table/index.js";
   import * as Table from "$lib/components/ui/table/index.js";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
+  import ExpenseDialog from "./ExpenseDialog.svelte";
 
   type ExpenseTableProps<TData, TValue> = {
     columns: Array<ColumnDef<TData, TValue>>;
@@ -43,16 +44,24 @@
     </Table.Header>
     <Table.Body>
       {#each table.getRowModel().rows as row (row.id)}
-        <Table.Row data-state={row.getIsSelected() && "selected"}>
-          {#each row.getVisibleCells() as cell (cell.id)}
-            <Table.Cell>
-              <FlexRender
-                content={cell.column.columnDef.cell}
-                context={cell.getContext()}
-              />
-            </Table.Cell>
-          {/each}
-        </Table.Row>
+        <Dialog.Root>
+          <Dialog.Trigger class="contents">
+            <Table.Row
+              class="cursor-pointer"
+              data-state={row.getIsSelected() && "selected"}
+            >
+              {#each row.getVisibleCells() as cell (cell.id)}
+                <Table.Cell>
+                  <FlexRender
+                    content={cell.column.columnDef.cell}
+                    context={cell.getContext()}
+                  />
+                </Table.Cell>
+              {/each}
+            </Table.Row>
+          </Dialog.Trigger>
+          <ExpenseDialog expense={row.original} />
+        </Dialog.Root>
       {:else}
         <Table.Row>
           <Table.Cell colspan={columns.length} class="h-24 text-center">

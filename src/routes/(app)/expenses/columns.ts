@@ -16,7 +16,7 @@ export const columns: Array<ColumnDef<ExpandedExpense>> = [
     id: "details",
   },
   {
-    accessorFn: (originalRow) => dayjs(originalRow.date).format("DD/MM/YYYY"),
+    accessorFn: (originalRow) => dayjs(originalRow.date).format("YYYY-MM-DD"),
     header: "Datum",
   },
   {
