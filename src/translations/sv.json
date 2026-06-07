@@ -894,7 +894,7 @@
   "is_guildCard": "Är sektionskort?",
   "expense_description": "Beskrivning",
   "receipt": "Kvitto",
-  "expense_type": "Kostnadcenter",
+  "expense_type": "Kostnadsställe",
   "expense_amount": "Belopp",
   "receipt_comment": "Kommentar",
   "create_expense": "Skapa",
