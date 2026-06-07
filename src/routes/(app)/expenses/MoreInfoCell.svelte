@@ -32,7 +32,7 @@
         </div>
       </Dialog.Description>
     </Dialog.Header>
-    <div class="mx-8 grid grid-cols-1 gap-2 sm:grid-cols-2">
+    <div class="mx-8 grid grid-cols-1 gap-2 pb-4 sm:grid-cols-2">
       {#each expense.items as item (item.id)}
         <Card.Root>
           <Card.Content>

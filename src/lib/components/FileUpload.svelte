@@ -12,11 +12,13 @@
     files = $bindable(),
     url = $bindable(),
     class: klass,
+    allowUrl = true,
     ...restProps
   }: {
     files?: FileList | null;
     url?: string;
     class?: string;
+    allowUrl?: boolean;
   } & WithoutChildren<WithElementRef<HTMLInputAttributes>> = $props();
 
   let uploads: string[] = $state([]);
@@ -60,7 +62,8 @@
   id="fileupload-form"
   class={twMerge(
     klass,
-    "bg-secondary-background border-border flex h-[256px] flex-col items-center justify-center rounded-md border-[1px] text-center",
+    allowUrl ? "h-[256px]" : "p-8",
+    "bg-secondary-background border-border flex flex-col items-center justify-center rounded-md border-[1px] text-center",
   )}
 >
   <div class="mb-4 flex flex-col">
@@ -71,58 +74,60 @@
   </div>
   <div class="flex flex-col gap-4 px-16">
     <Input {...restProps} bind:files class="w-26" type="file" />
-    <Separator text={m.fileupload_or()} textClass="font-medium" />
+    {#if allowUrl}
+      <Separator text={m.fileupload_or()} textClass="font-medium" />
 
-    <AlertDialog.Root>
-      <AlertDialog.Trigger
-        type="button"
-        class={cn(
-          "bg-secondary-background text-secondary-foreground hover:bg-secondary-hover dark:bg-input/30 dark:border-input dark:hover:bg-input/50 w-26 border shadow-xs",
-          "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-          "h-9 px-4 py-2 has-[>svg]:px-3",
-        )}
-      >
-        <Link />{m.fileupload_choose_url()}
-      </AlertDialog.Trigger>
-      <AlertDialog.Content>
-        <AlertDialog.Header>
-          <AlertDialog.Title>{m.fileupload_dialog_title()}</AlertDialog.Title>
-          <AlertDialog.Description>
-            <Input
-              bind:ref={urlInput}
-              aria-errormessage={urlError}
-              type="text"
-              placeholder="https://example.com/image.png"
-            />
-          </AlertDialog.Description>
-        </AlertDialog.Header>
-        <AlertDialog.Footer>
-          <AlertDialog.Cancel type="button"
-            >{m.dialog_cancel()}</AlertDialog.Cancel
-          >
-          <AlertDialog.Action
-            type="button"
-            onclick={async () => {
-              let res = await fetch(urlInput!.value).catch(() => {
-                urlError = m.fileupload_error();
-              });
-              if (res != null) {
-                urlError = "";
-                let blob = await res.blob();
-                let file = new File(
-                  [blob],
-                  res.headers.get("content-disposition") ??
-                    "upload_" + Date.now(),
-                );
-                const dt = new DataTransfer();
-                dt.items.add(file);
-                files = dt.files;
-              }
-            }}>{m.dialog_submit()}</AlertDialog.Action
-          >
-        </AlertDialog.Footer>
-      </AlertDialog.Content>
-    </AlertDialog.Root>
+      <AlertDialog.Root>
+        <AlertDialog.Trigger
+          type="button"
+          class={cn(
+            "bg-secondary-background text-secondary-foreground hover:bg-secondary-hover dark:bg-input/30 dark:border-input dark:hover:bg-input/50 w-26 border shadow-xs",
+            "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+            "h-9 px-4 py-2 has-[>svg]:px-3",
+          )}
+        >
+          <Link />{m.fileupload_choose_url()}
+        </AlertDialog.Trigger>
+        <AlertDialog.Content>
+          <AlertDialog.Header>
+            <AlertDialog.Title>{m.fileupload_dialog_title()}</AlertDialog.Title>
+            <AlertDialog.Description>
+              <Input
+                bind:ref={urlInput}
+                aria-errormessage={urlError}
+                type="text"
+                placeholder="https://example.com/image.png"
+              />
+            </AlertDialog.Description>
+          </AlertDialog.Header>
+          <AlertDialog.Footer>
+            <AlertDialog.Cancel type="button"
+              >{m.dialog_cancel()}</AlertDialog.Cancel
+            >
+            <AlertDialog.Action
+              type="button"
+              onclick={async () => {
+                let res = await fetch(urlInput!.value).catch(() => {
+                  urlError = m.fileupload_error();
+                });
+                if (res != null) {
+                  urlError = "";
+                  let blob = await res.blob();
+                  let file = new File(
+                    [blob],
+                    res.headers.get("content-disposition") ??
+                      "upload_" + Date.now(),
+                  );
+                  const dt = new DataTransfer();
+                  dt.items.add(file);
+                  files = dt.files;
+                }
+              }}>{m.dialog_submit()}</AlertDialog.Action
+            >
+          </AlertDialog.Footer>
+        </AlertDialog.Content>
+      </AlertDialog.Root>
+    {/if}
   </div>
 </div>
 {#if uploads.length > 0}
