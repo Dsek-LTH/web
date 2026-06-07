@@ -25,26 +25,26 @@
 </script>
 
 <div class="rounded-md border">
-  <Dialog.Root>
-    <Table.Root>
-      <Table.Header>
-        {#each table.getHeaderGroups() as headerGroup (headerGroup.id)}
-          <Table.Row>
-            {#each headerGroup.headers as header (header.id)}
-              <Table.Head colspan={header.colSpan}>
-                {#if !header.isPlaceholder}
-                  <FlexRender
-                    content={header.column.columnDef.header}
-                    context={header.getContext()}
-                  />
-                {/if}
-              </Table.Head>
-            {/each}
-          </Table.Row>
-        {/each}
-      </Table.Header>
-      <Table.Body>
-        {#each table.getRowModel().rows as row (row.id)}
+  <Table.Root>
+    <Table.Header>
+      {#each table.getHeaderGroups() as headerGroup (headerGroup.id)}
+        <Table.Row>
+          {#each headerGroup.headers as header (header.id)}
+            <Table.Head colspan={header.colSpan}>
+              {#if !header.isPlaceholder}
+                <FlexRender
+                  content={header.column.columnDef.header}
+                  context={header.getContext()}
+                />
+              {/if}
+            </Table.Head>
+          {/each}
+        </Table.Row>
+      {/each}
+    </Table.Header>
+    <Table.Body>
+      {#each table.getRowModel().rows as row (row.id)}
+        <Dialog.Root>
           <Dialog.Trigger class="contents">
             {#snippet child({ props })}
               <Table.Row
@@ -64,14 +64,14 @@
             {/snippet}
           </Dialog.Trigger>
           <ExpenseDialog expense={row.original} />
-        {:else}
-          <Table.Row>
-            <Table.Cell colspan={columns.length} class="h-24 text-center">
-              No results.
-            </Table.Cell>
-          </Table.Row>
-        {/each}
-      </Table.Body>
-    </Table.Root>
-  </Dialog.Root>
+        </Dialog.Root>
+      {:else}
+        <Table.Row>
+          <Table.Cell colspan={columns.length} class="h-24 text-center">
+            No results.
+          </Table.Cell>
+        </Table.Row>
+      {/each}
+    </Table.Body>
+  </Table.Root>
 </div>

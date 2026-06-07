@@ -123,9 +123,7 @@ const removeReceiptImages = (user: AuthUser, date: Date, id: number) =>
     expensePhotoUrl(date, id),
   ]);
 
-export const createExpense = form(expenseSchema, async (data, issue) => {
-  console.log(issue);
-  console.log(data);
+export const createExpense = form(expenseSchema, async (data) => {
   const { user, prisma, member } = getRequestEvent().locals;
   if (!user?.memberId || !member?.id) {
     return {

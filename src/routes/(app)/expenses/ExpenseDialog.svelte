@@ -6,8 +6,23 @@
   import Download from "@lucide/svelte/icons/download";
   import Price from "./Price.svelte";
   import type { ExpandedExpense } from "./getExpenses";
+  import apiNames from "$lib/utils/apiNames";
+  import { isAuthorized } from "$lib/utils/authorization";
+  import { page } from "$app/state";
+  import { Button } from "$lib/components/ui/button";
+  import Check from "@lucide/svelte/icons/check";
+  import FileText from "@lucide/svelte/icons/file-text";
+  import { approveAll } from "./sign.remote";
+  import { sendToBookkeeping } from "./bookkeeping.remote";
 
   let { expense }: { expense: ExpandedExpense } = $props();
+
+  let user = $derived(page.data.user);
+  let canSign = $derived(
+    expense.items.some((item) => !item.signedAt) &&
+      (expense.items.some((item) => item.signerMemberId === user?.memberId) ||
+        isAuthorized(apiNames.EXPENSES.CERTIFICATION, user)),
+  );
 </script>
 
 <Dialog.Content class="max-h-3/4 overflow-scroll  ">
@@ -26,6 +41,22 @@
       </div>
     </Dialog.Description>
   </Dialog.Header>
+
+  <div class="mx-4">
+    {#if canSign}
+      <Button onclick={() => approveAll(expense.id)}
+        ><Check /> Godkänn allt</Button
+      >
+    {/if}
+
+    {#if isAuthorized(apiNames.EXPENSES.BOOKKEEPING, user) && !expense.hasBeenSentToBookkeeping && expense.items.every((item) => item.signedAt)}
+      <Button onclick={() => sendToBookkeeping(expense.id)} variant="lila">
+        <FileText />
+        Skicka till bokföring
+      </Button>
+    {/if}
+  </div>
+
   <div class="mx-8 grid grid-cols-1 gap-2 pb-4 sm:grid-cols-2">
     {#each expense.items as item (item.id)}
       <Card.Root>
