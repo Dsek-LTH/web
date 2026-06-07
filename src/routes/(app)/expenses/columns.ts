@@ -17,17 +17,17 @@ export const columns: Array<ColumnDef<ExpandedExpense>> = [
   },
   {
     accessorFn: (originalRow) => dayjs(originalRow.date).format("DD/MM/YYYY"),
-    header: "Date",
+    header: "Datum",
   },
   {
     accessorFn: (originalRow) => {
       return [...new Set(originalRow.items.map((item) => item.costCenter))];
     },
-    header: "Kostnadsställe(n)",
+    header: "Kostnadsställe",
   },
   {
     accessorKey: "description",
-    header: "Description",
+    header: "Beskrivning",
   },
   {
     accessorFn: (originalRow) => {
@@ -46,7 +46,7 @@ export const columns: Array<ColumnDef<ExpandedExpense>> = [
           .map((signer) => `${signer.firstName} ${signer.lastName}`),
       );
     },
-    header: "Assigned to",
+    header: "Ansvarig",
   },
   {
     accessorFn: (originalRow) => {
@@ -57,7 +57,7 @@ export const columns: Array<ColumnDef<ExpandedExpense>> = [
       }
       return "unsigned";
     },
-    header: "Signed",
+    header: "Attesterad",
     cell: (cell) => {
       const signedStatus = cell.getValue() as
         | "signed"
@@ -77,7 +77,7 @@ export const columns: Array<ColumnDef<ExpandedExpense>> = [
   },
   {
     accessorFn: (originalRow) => !originalRow.isGuildCard,
-    header: "Private",
+    header: "Privat",
     cell: (cell) => {
       const isPrivate = cell.getValue() as boolean;
 

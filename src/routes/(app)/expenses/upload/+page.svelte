@@ -104,14 +104,11 @@
               <div class="flex flex-row gap-1">
                 <div class="flex w-full flex-col gap-1.5">
                   <Label>{m.expense_type()}</Label>
-                  {createExpense.fields.receipts[i]!.rows[
-                    j
-                  ]!.costCenter.value()}
                   <Select.Root
                     name="receipts[{i}].rows[{j}].costCenter"
                     type="single"
                     bind:value={receiptRow.costCenter.value,
-                    (v) => receiptRow.costCenter.set(v ?? "INVALID")}
+                    (v) => receiptRow.costCenter.set(v ?? "")}
                   >
                     <Select.Trigger class="bg-background w-full"
                       ><PiggyBank />{receiptRow.costCenter
@@ -152,10 +149,6 @@
                 <Label>{m.expense_amount()}</Label>
                 <Input {...receiptRow.amount.as("number")}><Coins /></Input>
               </div>
-              <!--<div class="flex flex-col gap-1.5">
-                <Label>{m.expense_amount()}</Label>
-                <Input {...receiptRow.costCenter.as("text")}></Input>
-              </div>-->
               <div class="flex flex-col gap-1.5">
                 <Label>{m.receipt_comment()}</Label>
                 <Input {...receiptRow.comment.as("text")}><Pen /></Input>
