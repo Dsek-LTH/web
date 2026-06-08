@@ -102,7 +102,7 @@ export const getEvents = async (
   filters: EventFilters = { page: 1, pageSize: 10, span: "upcoming" },
   baseFilter = true,
 ): Promise<[EventWithIncludes[], number]> => {
-  const is_paginated = "page" in filters;
+  const isPaginated = "page" in filters;
 
   const now = new Date();
 
@@ -112,7 +112,7 @@ export const getEvents = async (
   let after = undefined;
   let before = undefined;
 
-  if (is_paginated) {
+  if (isPaginated) {
     page = filters.page;
     pageSize = filters.pageSize;
 
