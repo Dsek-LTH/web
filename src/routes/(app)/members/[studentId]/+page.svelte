@@ -10,7 +10,7 @@
   import ProgrammeBadge from "$lib/components/member/ProgrammeBadge.svelte";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
 
-  import PhadderGroupModal from "./PhadderGroupModal.svelte";
+  import MentorGroupModal from "./MentorGroupModal.svelte";
   import MemberBio from "./MemberBio.svelte";
   import MemberForm from "./MemberForm.svelte";
 
