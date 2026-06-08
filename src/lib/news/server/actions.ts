@@ -99,14 +99,11 @@ export const createArticle: Action = async (event) => {
         create: !existingAuthor
           ? {
               member: {
-                connect: { studentId: user?.studentId },
+                connect: { id: author.memberId },
               },
               mandate: author.mandateId
                 ? {
-                    connect: {
-                      member: { studentId: user?.studentId },
-                      id: author.mandateId,
-                    },
+                    connect: { id: author.mandateId },
                   }
                 : undefined,
               customAuthor: author.customId
@@ -370,17 +367,14 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
                 id: existingAuthor.id,
               }
             : undefined,
-          create: existingAuthor
+          create: !existingAuthor
             ? {
                 member: {
-                  connect: { studentId: user?.studentId },
+                  connect: { id: author.memberId },
                 },
                 mandate: author.mandateId
                   ? {
-                      connect: {
-                        member: { studentId: user?.studentId },
-                        id: author.mandateId,
-                      },
+                      connect: { id: author.mandateId },
                     }
                   : undefined,
                 customAuthor: author.customId
