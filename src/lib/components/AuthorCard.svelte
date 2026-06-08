@@ -4,6 +4,7 @@
 
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import { getFullName } from "$lib/utils/client/member";
+  import { getPositionLink } from "$lib/utils/positions";
   import { twMerge } from "tailwind-merge";
 
   let {
@@ -68,7 +69,7 @@
 
     {#if (type !== "Custom" || customAuthor == null) && position}
       <a
-        href="/positions/{position.id}"
+        href={getPositionLink(position.id)}
         tabindex={links ? 0 : -1}
         class="text-muted-foreground hover:opacity-80 focus:opacity-80 {links
           ? ''

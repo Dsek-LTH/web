@@ -1,28 +1,32 @@
 <script lang="ts">
-  import PositionCard from "$lib/components/PositionCard.svelte";
   import * as Tabs from "$lib/components/ui/tabs/index";
-  import { Badge } from "$lib/components/ui/badge";
-  import * as m from "$paraglide/messages";
-  import { toString, type Semester } from "$lib/utils/semesters";
-  import CommitteeIcon from "$lib/components/images/CommitteeIcon.svelte";
-  import MemberBio from "./MemberBio.svelte";
   import { Button, buttonVariants } from "$lib/components/ui/button";
+  import * as Dialog from "$lib/components/ui/dialog";
+
+  import CommitteeIcon from "$lib/components/images/CommitteeIcon.svelte";
+  import ArticleCard from "$lib/components/ArticleCard.svelte";
+  import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
+  import PositionCard from "$lib/components/PositionCard.svelte";
+  import ProgrammeBadge from "$lib/components/member/ProgrammeBadge.svelte";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
+
+  import PhadderGroupModal from "./PhadderGroupModal.svelte";
+  import MemberBio from "./MemberBio.svelte";
+  import MemberForm from "./MemberForm.svelte";
+
   import Pen from "@lucide/svelte/icons/pen";
   import DoorOpen from "@lucide/svelte/icons/door-open";
   import DoorClosed from "@lucide/svelte/icons/door-closed";
   import Copy from "@lucide/svelte/icons/copy";
-  import * as Dialog from "$lib/components/ui/dialog";
-  import MemberForm from "./MemberForm.svelte";
+
   import { cn } from "$lib/utils";
-  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
+  import { toString, type Semester } from "$lib/utils/semesters";
   import { getFullName } from "$lib/utils/client/member";
   import SEO from "$lib/seo/SEO.svelte";
-  import MentorGroupModal from "./MentorGroupModal.svelte";
-  import ArticleCard from "$lib/components/ArticleCard.svelte";
-  import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
   import { page } from "$app/state";
+  import * as m from "$paraglide/messages";
 
   let { data } = $props();
 
@@ -48,19 +52,6 @@
   const medals = $derived(data.medals);
   const getMedalLink = (semester: Semester) =>
     `/medals?semester=${toString(semester)}`;
-
-  const programmeColors: Record<
-    string,
-    "rosa" | "lila" | "pistachio" | "outline"
-  > = {
-    D: "rosa",
-    C: "lila",
-    "VR/AR": "pistachio",
-    E: "outline",
-    BME: "outline",
-    Dokt: "outline",
-    "?": "rosa",
-  };
 
   let doorAccess = $derived(data.doorAccess);
 
@@ -131,11 +122,7 @@
             ? `/members?year=${member.classYear}&programme=${member.classProgramme}`
             : "/members"}
         >
-          <Badge
-            variant={programmeColors[member.classProgramme ?? "?"] ?? "rosa"}
-            >{(member.classProgramme ?? "?") +
-              (member.classYear?.toString().slice(-2) ?? "??")}</Badge
-          >
+          <ProgrammeBadge {member} />
         </a>
       </div>
       {#if member.nickname}<p class="text-rosa-500 mt-0">
@@ -323,13 +310,7 @@
             ? `/members?year=${member.classYear}&programme=${member.classProgramme}`
             : "/members"}
         >
-          <Badge
-            variant={programmeColors[member.classProgramme ?? "?"] ?? "rosa"}
-            class="mb-2 ml-3"
-            size="lg"
-            >{(member.classProgramme ?? "?") +
-              (member.classYear?.toString().slice(-2) ?? "??")}</Badge
-          >
+          <ProgrammeBadge {member} size="lg" />
         </a>
         {#if canEdit}
           <Dialog.Root>

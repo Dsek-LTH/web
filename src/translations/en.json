@@ -303,6 +303,7 @@
   "committees_committees": "Committees",
   "committees_volunteers": "volunteers",
   "committees_boardMember": "Board Member",
+  "committees_committeeImage": "Committee image",
   "committees_committeeImageExplanation": "This should be in the SVG format, without background color, without whitespace and with white text.",
   "committees_save": "Save",
   "committees_description": "Description",
@@ -930,6 +931,7 @@
   "positions_historical_mandate_distribution_per_study_year": "Historical mandate distribution per study year",
   "positions_study_year": "Year",
   "positions_years": "years",
+  "positions_history": "History",
   "applicant": "Applicant",
   "introduction_nav_picture_title": "Introduction 2025",
   "introduction_theme": "An Introduction from the Celestial Sphere",
@@ -1039,6 +1041,7 @@
   "committees_banner_image": "Banner image",
   "committees_invert_text": "Invert text/logo",
   "committees_edit_links": "Edit links",
+  "committees_all_members": "All members",
   "select_member": "Select member",
   "select_members": "Select members",
   "about_guild": "About the guild",
@@ -1088,11 +1091,10 @@
   "documents_minutes": "Minutes",
   "elections_preview": "Preview",
   "elections_new": "Create election",
-  "committees_all_members": "All members",
+  "positions_date_error": "End date must be after start date",
+  "board_prose": "The board are responsible for the operations of the guild, and consists of the Guild President, Vice Guild President, and most of the committee heads. They make decisions regarding what the guild should do, elect volunteers, and represent the guild externally. Many decisions are made on board meetings every Tuesday during the study weeks in E:1124, where all members are welcome.",
   "contact_delta_email": "Interested? Reach out to ",
   "positions_updating": "Updating position info",
   "positions_adding": "Adding mandate",
-  "positions_member": "Member",
-  "positions_date_error": "End date must be after start date",
-  "board_prose": "The board are responsible for the operations of the guild, and consists of the Guild President, Vice Guild President, and most of the committee heads. They make decisions regarding what the guild should do, elect volunteers, and represent the guild externally. Many decisions are made on board meetings every Tuesday during the study weeks in E:1124, where all members are welcome."
+  "positions_member": "Member"
 }
