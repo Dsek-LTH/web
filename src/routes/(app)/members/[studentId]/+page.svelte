@@ -10,7 +10,7 @@
   import ProgrammeBadge from "$lib/components/member/ProgrammeBadge.svelte";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
 
-  import PhadderGroupModal from "./PhadderGroupModal.svelte";
+  import MentorGroupModal from "./MentorGroupModal.svelte";
   import MemberBio from "./MemberBio.svelte";
   import MemberForm from "./MemberForm.svelte";
 
@@ -42,8 +42,8 @@
       return `${startDate.getFullYear()}-${endDate.getFullYear()}`;
     });
 
-    if (member.nollaIn) {
-      res[member.nollaIn.year] ??= [];
+    if (member.menteeIn) {
+      res[member.menteeIn.year] ??= [];
     }
 
     return res;
@@ -72,12 +72,12 @@
 <SetPageTitle title={getFullName(member)} />
 <SEO data={{ type: "profile", member }} />
 
-<PhadderGroupModal
+<MentorGroupModal
   isEditing={true}
-  data={data.phadderGroupForm}
-  phadderGroups={data.phadderGroups}
+  data={data.mentorGroupForm}
+  mentorGroups={data.mentorGroups}
   viewedMember={member}
-  showModal={data.showPhadderGroupModal}
+  showModal={data.showMentorGroupModal}
 />
 
 {@render mobile("md:hidden")}
@@ -156,12 +156,12 @@
                 </div>
               {/if}
 
-              {#if member.nollaIn?.year.toString() === year}
+              {#if member.menteeIn?.year.toString() === year}
                 <div class="inline-flex flex-row items-center gap-2 rounded-md">
-                  <a href="/committees/nollu?year={member.nollaIn.year}">
-                    {#if member.nollaIn.imageUrl}
+                  <a href="/committees/nollu?year={member.menteeIn.year}">
+                    {#if member.menteeIn.imageUrl}
                       <figure class="size-7 overflow-hidden rounded-sm">
-                        <img src={member.nollaIn.imageUrl} alt="Group logo" />
+                        <img src={member.menteeIn.imageUrl} alt="Group logo" />
                       </figure>
                     {:else}
                       <CommitteeIcon
@@ -180,7 +180,7 @@
                   </a>
                   <div class="flex flex-col justify-center">
                     <h5>
-                      Nolla i {member.nollaIn.name}
+                      Nolla i {member.menteeIn.name}
                     </h5>
                   </div>
                 </div>
@@ -362,14 +362,17 @@
                     <PositionCard {mandate} />
                   {/each}
                 {/if}
-                {#if member.nollaIn?.year.toString() === year}
+                {#if member.menteeIn?.year.toString() === year}
                   <div
                     class="inline-flex w-84 flex-row items-center gap-4 rounded-md border-[1px] p-3"
                   >
-                    <a href="/committees/nollu?year={member.nollaIn.year}">
-                      {#if member.nollaIn.imageUrl}
+                    <a href="/committees/nollu?year={member.menteeIn.year}">
+                      {#if member.menteeIn.imageUrl}
                         <figure class="size-7 overflow-hidden rounded-sm">
-                          <img src={member.nollaIn.imageUrl} alt="Group logo" />
+                          <img
+                            src={member.menteeIn.imageUrl}
+                            alt="Group logo"
+                          />
                         </figure>
                       {:else}
                         <CommitteeIcon
@@ -388,7 +391,7 @@
                     </a>
                     <div class="flex flex-col justify-center">
                       <h6>
-                        Nolla i {member.nollaIn.name}
+                        Nolla i {member.menteeIn.name}
                       </h6>
                     </div>
                   </div>

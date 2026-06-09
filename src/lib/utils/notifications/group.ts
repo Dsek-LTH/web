@@ -84,12 +84,12 @@ const getGroupTexts = (group: NotificationGroup): NotificationTexts => {
     case NotificationType.COMMENT:
       return {
         title: group.title, // is the article header
-        message: `${groupAuthorNames(group)} har kommentaret`,
+        message: `${groupAuthorNames(group)} har kommenterat`,
       };
     case NotificationType.EVENT_COMMENT:
       return {
         title: group.title, // is the event title
-        message: `${groupAuthorNames(group)} har kommentaret`,
+        message: `${groupAuthorNames(group)} har kommenterat`,
       };
     case NotificationType.MENTION:
       return {
@@ -109,7 +109,7 @@ const getGroupTexts = (group: NotificationGroup): NotificationTexts => {
     case NotificationType.PING:
       return {
         title: group.title, // says PING!
-        message: `${groupAuthorNames(group)} har pingat dig`,
+        message: `${groupAuthorNames(group)} har ping:at dig`,
       };
     default:
       throw new Error(

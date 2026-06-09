@@ -91,10 +91,10 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
   //Logic for startMonth and endMonth that can wrap over new years
 
-  //If the mandateperiod is within a year the endMonth will be greater than the startMonth which gives the difference:
+  //If the mandate period is within a year the endMonth will be greater than the startMonth which gives the difference:
   //(position.endMonth - position.startMonth) to be added.
 
-  //If the mandateperiod wraps into a new year (and is a year or less) the endMonth will be smaller than the startMonth.
+  //If the mandate period wraps into a new year (and is a year or less) the endMonth will be smaller than the startMonth.
   //The months that need to be added in this case is a full year minus the difference between the months:
   //12 - Math.abs(position.endMonth - position.startMonth)
 

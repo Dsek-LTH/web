@@ -25,16 +25,16 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
   const { studentId } = params;
 
-  const [memberResult, phadderGroupsResult] = await Promise.allSettled([
+  const [memberResult, mentorGroupsResult] = await Promise.allSettled([
     prisma.member.findUnique({
       where: {
         studentId: studentId,
       },
       include: {
-        nollaIn: true,
+        menteeIn: true,
         mandates: {
           include: {
-            phadderIn: true,
+            mentorIn: true,
             position: {
               include: {
                 committee: true,
@@ -51,17 +51,17 @@ export const load: PageServerLoad = async ({ locals, params }) => {
         doorAccessPolicies: {},
       },
     }),
-    prisma.phadderGroup.findMany({
+    prisma.mentorGroup.findMany({
       orderBy: {
         year: "asc",
       },
     }),
   ]);
   if (memberResult.status === "rejected")
-    throw error(500, m.members_errors_couldntFetchMember());
+    throw error(500, m.members_errors_could_notFetchMember());
   if (!memberResult.value) throw error(404, m.members_errors_memberNotFound());
-  if (phadderGroupsResult.status === "rejected")
-    throw error(505, phadderGroupsResult.reason);
+  if (mentorGroupsResult.status === "rejected")
+    throw error(505, mentorGroupsResult.reason);
   const member = memberResult.value;
 
   const doorAccess =
@@ -74,12 +74,12 @@ export const load: PageServerLoad = async ({ locals, params }) => {
       form: await superValidate(member, zod4(memberSchema)),
       viewedMember: member, // https://github.com/Dsek-LTH/web/issues/194
       doorAccess,
-      phadderGroups: phadderGroupsResult.value,
+      mentorGroups: mentorGroupsResult.value,
       uploadForm: await superValidate(zod4(uploadPictureSchema)),
       deleteForm: await superValidate(zod4(deletePictureSchema)),
     };
   } catch {
-    throw error(500, m.members_errors_couldntFetchPings());
+    throw error(500, m.members_errors_could_notFetchPings());
   }
 };
 
@@ -92,7 +92,7 @@ const updateSchema = memberSchema
     classProgramme: true,
     classYear: true,
     graduationYear: true,
-    nollningGroupId: true,
+    mentorGroupId: true,
     language: true,
     bio: true,
   })
@@ -143,7 +143,7 @@ export const actions: Actions = {
         return message(
           form,
           {
-            message: `${m.members_errors_couldntUploadFile()}: ${await res.text()}`,
+            message: `${m.members_errors_could_notUploadFile()}: ${await res.text()}`,
             type: "error",
           },
           { status: 500 },
@@ -154,7 +154,7 @@ export const actions: Actions = {
       return message(
         form,
         {
-          message: `${m.members_errors_couldntUploadFile()}: ${errMsg}`,
+          message: `${m.members_errors_could_notUploadFile()}: ${errMsg}`,
           type: "error",
         },
         { status: 500 },

@@ -142,7 +142,7 @@ export const GET: RequestHandler = async ({ params }) => {
       authorizedPrismaClient,
     );
 
-    // Fpr no we are only interested in the studentIds that are banned,
+    // For no we are only interested in the studentIds that are banned,
     // but we might want to use the positionIdsBanned in the future.
     const bannedStudents = new Set(studentIdsBanned);
 

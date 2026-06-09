@@ -1,5 +1,5 @@
 <!-- @component
-  This component takes a markdown string, buils a HTML page around
+  This component takes a markdown string, builds a HTML page around
   the markdown content and finally renders it all in an iframe.
   It also includes all stylesheets from the parent document,
   so that the iframe looks the same as the parent document.

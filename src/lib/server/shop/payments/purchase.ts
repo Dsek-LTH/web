@@ -267,7 +267,7 @@ const purchaseCart = async (
     });
   }
   try {
-    // there is a race condition error here. If two calls to this method are done simultaneously, both will succeed, but one will be overwritten by another. COuld lead to an intent not connected to a consumable.
+    // there is a race condition error here. If two calls to this method are done simultaneously, both will succeed, but one will be overwritten by another. Could lead to an intent not connected to a consumable.
     await authorizedPrismaClient.$transaction(async (tx): Promise<void> => {
       // ensure all of the consumables are still without a stripeIntentId, and not removed
       const consumables = await tx.consumable.findMany({

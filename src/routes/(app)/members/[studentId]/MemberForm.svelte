@@ -35,8 +35,8 @@
     en: m.language_english(),
   };
 
-  let phaddergroups = $derived(
-    data.phadderGroups
+  let mentorGroups = $derived(
+    data.mentorGroups
       .filter(
         (group) => group.year === ($form.classYear ?? new Date().getFullYear),
       )
@@ -44,7 +44,7 @@
   );
 </script>
 
-<main class="overflow-y-scoll flex flex-col items-center gap-2">
+<main class="flex flex-col items-center gap-2 overflow-y-scroll">
   <PictureSelector {data} />
   <form
     id="member"
@@ -152,25 +152,25 @@
             {...$constraints.classYear}
             aria-errormessage={$errors.classYear?.at(0)}
             onchange={() => {
-              $form.nollningGroupId = null;
+              $form.mentorGroupId = null;
             }}><Calendar /></Input
           >
         </div>
       </div>
       <div class="flex w-full flex-col gap-1.5">
-        <Label for="nollningGroupId">{m.onboarding_phadderGroup()}</Label>
+        <Label for="mentorGroupId">{m.onboarding_mentorGroup()}</Label>
         <Select.Root
           type="single"
-          bind:value={$form.nollningGroupId as string | undefined}
-          name="nollningGroupId"
+          bind:value={$form.mentorGroupId as string | undefined}
+          name="mentorGroupId"
         >
           <Select.Trigger class="w-full"
-            ><Users />{$form.nollningGroupId
-              ? phaddergroups.find((g) => g.id == $form.nollningGroupId)!.name
+            ><Users />{$form.mentorGroupId
+              ? mentorGroups.find((g) => g.id == $form.mentorGroupId)!.name
               : ""}</Select.Trigger
           >
           <Select.Content>
-            {#each phaddergroups as group (group.id)}
+            {#each mentorGroups as group (group.id)}
               <Select.Item value={group.id}>{group.name}</Select.Item>
             {/each}
           </Select.Content>

@@ -1,6 +1,6 @@
 import {
-  phadderGroupSchema,
-  phadderMandateFilter,
+  mentorGroupSchema,
+  mentorMandateFilter,
 } from "$lib/nollning/groups/types";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
@@ -10,7 +10,7 @@ import { zod4 } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 
-const getPhadderMandates = async (
+const getMentorMandates = async (
   prisma: ExtendedPrisma,
   memberId: string,
   year: number,
@@ -18,11 +18,11 @@ const getPhadderMandates = async (
   prisma.mandate.findMany({
     where: {
       memberId,
-      ...phadderMandateFilter(year),
+      ...mentorMandateFilter(year),
     },
     orderBy: [
       {
-        positionId: "asc", // regular phadder comes before uppdrag
+        positionId: "asc", // regular mentor comes before mission mentors
       },
       {
         startDate: "asc",
@@ -32,12 +32,12 @@ const getPhadderMandates = async (
 
 export const load = async ({ locals }) => {
   const { user, prisma } = locals;
-  authorize(apiNames.NOLLNING.MANAGE_PHADDER_GROUPS, user);
+  authorize(apiNames.INTRODUCTION.MANAGE_MENTOR_GROUPS, user);
 
-  const phadderGroups = await prisma.phadderGroup.findMany({
+  const mentorGroups = await prisma.mentorGroup.findMany({
     include: {
-      nollor: true,
-      phaddrar: {
+      mentees: true,
+      mentors: {
         include: {
           member: true,
         },
@@ -50,20 +50,20 @@ export const load = async ({ locals }) => {
 
   return {
     groups: await Promise.all(
-      phadderGroups.map(async (group) => ({
+      mentorGroups.map(async (group) => ({
         ...group,
-        form: await superValidate(group, zod4(phadderGroupSchema)),
+        form: await superValidate(group, zod4(mentorGroupSchema)),
       })),
     ),
-    form: await superValidate(zod4(createPhadderGroupSchema)),
+    form: await superValidate(zod4(createMentorGroupSchema)),
   };
 };
 
-const createPhadderGroupSchema = phadderGroupSchema.omit({
+const createMentorGroupSchema = mentorGroupSchema.omit({
   id: true,
 });
-const updatePhadderGroupSchema = phadderGroupSchema;
-const deletePhadderGroupSchema = phadderGroupSchema.pick({
+const updateMentorGroupSchema = mentorGroupSchema;
+const deleteMentorGroupSchema = mentorGroupSchema.pick({
   id: true,
 });
 
@@ -74,13 +74,13 @@ const personSchema = z.object({
 
 export const actions = {
   create: async ({ locals, request }) => {
-    const form = await superValidate(request, zod4(createPhadderGroupSchema));
+    const form = await superValidate(request, zod4(createMentorGroupSchema));
     if (!form.valid) return fail(400, { form });
     const { prisma } = locals;
     form.data.description = form.data.description
       ? DOMPurify.sanitize(form.data.description)
       : form.data.description;
-    await prisma.phadderGroup.create({
+    await prisma.mentorGroup.create({
       data: form.data,
     });
     return message(form, {
@@ -89,13 +89,13 @@ export const actions = {
     });
   },
   update: async ({ locals, request }) => {
-    const form = await superValidate(request, zod4(updatePhadderGroupSchema));
+    const form = await superValidate(request, zod4(updateMentorGroupSchema));
     if (!form.valid) return fail(400, { form });
     const { prisma } = locals;
     form.data.description = form.data.description
       ? DOMPurify.sanitize(form.data.description)
       : form.data.description;
-    const res = await prisma.phadderGroup.update({
+    const res = await prisma.mentorGroup.update({
       where: {
         id: form.data.id,
       },
@@ -108,10 +108,10 @@ export const actions = {
     });
   },
   delete: async ({ locals, request }) => {
-    const form = await superValidate(request, zod4(deletePhadderGroupSchema));
+    const form = await superValidate(request, zod4(deleteMentorGroupSchema));
     if (!form.valid) return fail(400, { form });
     const { prisma } = locals;
-    await prisma.phadderGroup.delete({
+    await prisma.mentorGroup.delete({
       where: {
         id: form.data.id,
       },
@@ -125,12 +125,12 @@ export const actions = {
     const form = await superValidate(request, zod4(personSchema));
     if (!form.valid) return fail(400, { form });
     const { prisma } = locals;
-    await prisma.phadderGroup.update({
+    await prisma.mentorGroup.update({
       where: {
         id: form.data.groupId,
       },
       data: {
-        nollor: {
+        mentees: {
           connect: {
             id: form.data.memberId,
           },
@@ -146,12 +146,12 @@ export const actions = {
     const form = await superValidate(request, zod4(personSchema));
     if (!form.valid) return fail(400, { form });
     const { prisma } = locals;
-    await prisma.phadderGroup.update({
+    await prisma.mentorGroup.update({
       where: {
         id: form.data.groupId,
       },
       data: {
-        nollor: {
+        mentees: {
           disconnect: {
             id: form.data.memberId,
           },
@@ -163,17 +163,17 @@ export const actions = {
       type: "success",
     });
   },
-  addPhadder: async ({ locals, request }) => {
+  addMentor: async ({ locals, request }) => {
     const form = await superValidate(request, zod4(personSchema));
     if (!form.valid) return fail(400, { form });
     const { prisma } = locals;
-    const group = await prisma.phadderGroup.findUnique({
+    const group = await prisma.mentorGroup.findUnique({
       where: {
         id: form.data.groupId,
       },
     });
     if (!group) return setError(form, "groupId", "Group not found");
-    const mandate = await getPhadderMandates(
+    const mandate = await getMentorMandates(
       prisma,
       form.data.memberId,
       group.year,
@@ -185,12 +185,12 @@ export const actions = {
         "memberId",
         "Personen hittas inte som phadder det året",
       );
-    await prisma.phadderGroup.update({
+    await prisma.mentorGroup.update({
       where: {
         id: form.data.groupId,
       },
       data: {
-        phaddrar: {
+        mentors: {
           connect: {
             id: mandate.id,
           },
@@ -202,17 +202,17 @@ export const actions = {
       type: "success",
     });
   },
-  removePhadder: async ({ locals, request }) => {
+  removeMentor: async ({ locals, request }) => {
     const form = await superValidate(request, zod4(personSchema));
     if (!form.valid) return fail(400, { form });
     const { prisma } = locals;
-    const group = await prisma.phadderGroup.findUnique({
+    const group = await prisma.mentorGroup.findUnique({
       where: {
         id: form.data.groupId,
       },
     });
     if (!group) return setError(form, "groupId", "Group not found");
-    const mandates = await getPhadderMandates(
+    const mandates = await getMentorMandates(
       prisma,
       form.data.memberId,
       group?.year,
@@ -223,12 +223,12 @@ export const actions = {
         "memberId",
         "Personen hittas inte som phadder det året",
       );
-    await prisma.phadderGroup.update({
+    await prisma.mentorGroup.update({
       where: {
         id: form.data.groupId,
       },
       data: {
-        phaddrar: {
+        mentors: {
           disconnect: mandates.map((m) => ({
             id: m.id,
           })),

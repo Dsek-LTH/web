@@ -31,8 +31,8 @@ export const getRoutes = (): Route[] =>
         getFileUrl("minio/files/public/photos/staben25_9x16.webp") ?? "",
       path: null,
       accessRequired: null,
-      pictureTitle: m.nollning_nav_picture_title(),
-      pictureDescription: m.nollning_theme(),
+      pictureTitle: m.introduction_nav_picture_title(),
+      pictureDescription: m.introduction_theme(),
       picturePath: "/nollning",
       appBehaviour: "none",
       children: [
@@ -44,8 +44,8 @@ export const getRoutes = (): Route[] =>
           path: "/sokande",
         },
         {
-          title: m.nav_nollning(),
-          description: m.nav_nollning_description(),
+          title: m.nav_introduction(),
+          description: m.nav_introduction_description(),
           accessRequired: null,
           appBehaviour: "none",
           path: "/nollning",
@@ -238,7 +238,7 @@ export const getFooterRoutes = (): Route[] =>
       appBehaviour: "none",
       children: [
         {
-          title: m.nav_footer_nollning(),
+          title: m.nav_footer_introduction(),
           accessRequired: null,
           appBehaviour: "none",
           path: "/nollning",
@@ -256,7 +256,7 @@ export const getFooterRoutes = (): Route[] =>
           path: "https://lth.se",
         },
         {
-          title: m.nav_footer_lunduni(),
+          title: m.nav_footer_lund_uni(),
           accessRequired: null,
           appBehaviour: "none",
           path: "https://lu.se",
@@ -282,7 +282,7 @@ export const getFooterRoutes = (): Route[] =>
           path: "/events",
         },
         {
-          title: m.nav_studybank(),
+          title: m.nav_study_bank(),
           accessRequired: null,
           appBehaviour: "none",
           path: "/events",

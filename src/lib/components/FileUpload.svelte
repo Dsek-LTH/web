@@ -64,14 +64,14 @@
   )}
 >
   <div class="mb-4 flex flex-col">
-    <h6>{m.fileupload_title()}</h6>
+    <h6>{m.file_upload_title()}</h6>
     <p class="text-muted-foreground mt-0">
-      {m.fileupload_filetypes()}
+      {m.file_upload_filetypes()}
     </p>
   </div>
   <div class="flex flex-col gap-4 px-16">
     <Input {...restProps} bind:files class="w-26" type="file" />
-    <Separator text={m.fileupload_or()} textClass="font-medium" />
+    <Separator text={m.file_upload_or()} textClass="font-medium" />
 
     <AlertDialog.Root>
       <AlertDialog.Trigger
@@ -82,11 +82,11 @@
           "h-9 px-4 py-2 has-[>svg]:px-3",
         )}
       >
-        <Link />{m.fileupload_choose_url()}
+        <Link />{m.file_upload_choose_url()}
       </AlertDialog.Trigger>
       <AlertDialog.Content>
         <AlertDialog.Header>
-          <AlertDialog.Title>{m.fileupload_dialog_title()}</AlertDialog.Title>
+          <AlertDialog.Title>{m.file_upload_dialog_title()}</AlertDialog.Title>
           <AlertDialog.Description>
             <Input
               bind:ref={urlInput}
@@ -104,7 +104,7 @@
             type="button"
             onclick={async () => {
               let res = await fetch(urlInput!.value).catch(() => {
-                urlError = m.fileupload_error();
+                urlError = m.file_upload_error();
               });
               if (res != null) {
                 urlError = "";

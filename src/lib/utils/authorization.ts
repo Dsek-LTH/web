@@ -53,7 +53,7 @@ export const getDerivedRoles = (
   splitGroups.add("*"); // all users
   if (groupList?.length || signedIn) splitGroups.add("_"); // logged in users
   if (classYear && classYear === new Date().getFullYear())
-    splitGroups.add("nolla");
+    splitGroups.add("mentee");
   if (classYear !== undefined) {
     const shortYear = String(classYear % 100);
     splitGroups.add(classProgramme + shortYear);

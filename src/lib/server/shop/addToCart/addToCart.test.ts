@@ -110,7 +110,7 @@ const addTicketsTestForUser = (
       await expectConsumableCount(ticket.id, 0);
       await expectReservationCount(ticket.id, 0);
     });
-    it("purchases free item immidiately", async ({ tickets }) => {
+    it("purchases free item immediately", async ({ tickets }) => {
       const ticket = tickets.freeActiveTicket;
       const before = new Date();
       const result = await addTicketToCart(prismaWithAccess, ticket.id, user);

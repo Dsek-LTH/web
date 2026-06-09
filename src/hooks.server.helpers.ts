@@ -1,5 +1,5 @@
 import { dev } from "$app/environment";
-import { isNollningPeriod } from "$lib/utils/adminSettings/nollning";
+import { isIntroductionPeriod } from "$lib/utils/adminSettings/introduction";
 import apiNames from "$lib/utils/apiNames";
 import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 
@@ -8,7 +8,7 @@ const fetchAccessPolicies = async (
   roles: string[],
   studentId?: string,
 ) => {
-  const isNollning = await isNollningPeriod();
+  const isIntroduction = await isIntroductionPeriod();
   return prisma.accessPolicy
     .findMany({
       where: {
@@ -22,7 +22,7 @@ const fetchAccessPolicies = async (
        * access policy "SEE_STABEN", but during nollning only those who get it
        * due to their roles can see staben.
        */
-      if (!isNollning && !policies.includes(apiNames.MEMBER.SEE_STABEN)) {
+      if (!isIntroduction && !policies.includes(apiNames.MEMBER.SEE_STABEN)) {
         policies.push(apiNames.MEMBER.SEE_STABEN);
       }
       return policies;

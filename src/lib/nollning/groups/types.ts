@@ -2,7 +2,7 @@ import type { Prisma } from "@prisma/client";
 import type { Infer } from "sveltekit-superforms";
 import { z } from "zod";
 
-export const phadderGroupSchema = z.object({
+export const mentorGroupSchema = z.object({
   id: z.string().uuid(),
   name: z.string(),
   description: z.string().nullable(),
@@ -14,9 +14,9 @@ export const phadderGroupSchema = z.object({
   imageUrl: z.string().nullable(),
 });
 
-export type PhadderGroupSchema = Infer<typeof phadderGroupSchema>;
+export type MentorGroupSchema = Infer<typeof mentorGroupSchema>;
 
-export const phadderMandateFilter = (
+export const mentorMandateFilter = (
   year: number,
 ): Prisma.MandateWhereInput => ({
   OR: [
@@ -28,9 +28,9 @@ export const phadderMandateFilter = (
     },
   ],
   startDate: {
-    lte: new Date(year, 9, 1), // 1st of october is kind of end of nollning each year
+    lte: new Date(year, 9, 1), // 1st of october is kind of end of the introduction each year
   },
   endDate: {
-    gte: new Date(year, 7, 1), // 1st of august is a bit before the nollning but I would say that works
+    gte: new Date(year, 7, 1), // 1st of august is a bit before the introduction but I would say that works
   },
 });

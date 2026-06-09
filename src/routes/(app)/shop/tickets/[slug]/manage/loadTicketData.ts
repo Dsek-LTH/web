@@ -1,5 +1,5 @@
 import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
-import { phadderMandateFilter } from "$lib/nollning/groups/types";
+import { mentorMandateFilter } from "$lib/nollning/groups/types";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 import { error } from "@sveltejs/kit";
@@ -40,7 +40,7 @@ export const loadTicketData = async (
     authorize(apiNames.WEBSHOP.MANAGE, user);
   }
   const ticketYear = ticket.event.startDatetime.getFullYear();
-  const memberWithPhadderGroups = await prisma.member.findMany({
+  const memberWithMentorGroups = await prisma.member.findMany({
     where: {
       id: {
         in: ticket.shoppable.consumables
@@ -49,31 +49,31 @@ export const loadTicketData = async (
       },
     },
     include: {
-      nollaIn: true,
+      menteeIn: true,
       mandates: {
         where: {
-          ...phadderMandateFilter(ticketYear),
+          ...mentorMandateFilter(ticketYear),
           NOT: {
-            phadderIn: null,
+            mentorIn: null,
           },
         },
         include: {
-          phadderIn: true,
+          mentorIn: true,
         },
       },
     },
   });
   const consumables = ticket.shoppable.consumables.map((c) => {
-    const member = memberWithPhadderGroups.find((m) => m.id === c.member?.id);
-    const phadderIn = member?.mandates[0]?.phadderIn ?? null;
-    const nollaIn =
-      member?.nollaIn?.year === ticketYear ? member.nollaIn : null;
+    const member = memberWithMentorGroups.find((m) => m.id === c.member?.id);
+    const mentorIn = member?.mandates[0]?.mentorIn ?? null;
+    const mentee =
+      member?.menteeIn?.year === ticketYear ? member.menteeIn : null;
     return {
       ...c,
       member: c.member
         ? {
             ...c.member,
-            phadderGroup: phadderIn ?? nollaIn,
+            mentorGroup: mentorIn ?? mentee,
           }
         : c.member,
     };

@@ -5,7 +5,7 @@ import { z } from "zod";
 export type { CiabattaOfTheWeek as Ciabatta } from "@prisma/client";
 
 export const TimeSlot = {
-  DAYMANAGER: "DAYMANAGER",
+  DAYCARER: "DAYCARER",
   SHIFT_1: "SHIFT_1",
   SHIFT_2: "SHIFT_2",
   SHIFT_3: "SHIFT_3",

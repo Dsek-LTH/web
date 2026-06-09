@@ -135,8 +135,8 @@ export const loadHomeData = async ({
     res.json(),
   ) as Promise<GetCommitDataResponse>;
 
-  // RANDOM WELLBEING MESSAGE
-  const wellbeing_random_sentence = [
+  // RANDOM WELL-BEING MESSAGE
+  const well_being_random_sentence = [
     m.home_happened(),
     m.home_weird(),
     m.home_talk(),
@@ -221,7 +221,7 @@ export const loadHomeData = async ({
   };
 
   return {
-    wellbeing: wellbeing_random_sentence,
+    well_being: well_being_random_sentence,
     files: { next: nextBoardMeetingFiles, last: lastBoardMeetingFiles },
     news: news.value,
     events: events.value,

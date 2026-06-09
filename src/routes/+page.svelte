@@ -88,7 +88,7 @@
     <h1
       class="font-sans text-5xl font-bold break-keep text-white uppercase sm:mb-10 sm:text-7xl lg:text-9xl xl:text-[125px]"
     >
-      {m.dsektionen()}
+      {m.d_guild()}
     </h1>
     <p class="mb-10 max-w-prose font-medium text-white lg:mb-9 lg:text-xl">
       {m.landing_intro()}

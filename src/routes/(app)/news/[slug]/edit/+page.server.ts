@@ -47,7 +47,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   if (article.author.memberId !== user.memberId)
     authorize(apiNames.NEWS.UPDATE, user);
   const at = article.createdAt;
-  const memberWithMandtes = await prisma.member.findUnique({
+  const memberWithMandates = await prisma.member.findUnique({
     where: {
       id: article?.author.memberId,
     },
@@ -68,11 +68,11 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     },
   });
 
-  if (!memberWithMandtes)
+  if (!memberWithMandates)
     throw error(500, m.news_errors_authorMemberNotFound());
   const authorOptions = await getArticleAuthorOptions(
     prisma,
-    memberWithMandtes,
+    memberWithMandates,
   );
 
   return {

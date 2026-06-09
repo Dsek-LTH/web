@@ -40,7 +40,7 @@ const sendNotificationToKM = async (
   },
   prisma: ExtendedPrisma,
 ) => {
-  const kallarMastare = await prisma.member.findFirstOrThrow({
+  const headOfFacilitiesCommittee = await prisma.member.findFirstOrThrow({
     where: {
       mandates: {
         some: {
@@ -67,7 +67,7 @@ const sendNotificationToKM = async (
     message: `${booker.firstName} ${booker.lastName} wants to book '${bookablesString}' from ${dayjs(bookingRequest.start).format("DD/MM HH:mm")} until ${dayjs(bookingRequest.end).format("DD/MM HH:mm")}.`,
     type: NotificationType.BOOKING_REQUEST,
     link: `/booking/admin/${bookingRequest.id}`,
-    memberIds: [kallarMastare.id],
+    memberIds: [headOfFacilitiesCommittee.id],
   });
 };
 

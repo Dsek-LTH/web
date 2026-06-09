@@ -1,4 +1,4 @@
-// These are to be used internally within the website to seperate different types of notifications.
+// These are to be used internally within the website to separate different types of notifications.
 // You can add as many as you like, but make sure to map them to notification settings.
 export enum NotificationType {
   NEWS_LIKE = "NEWS_LIKE",
@@ -22,8 +22,8 @@ export enum NotificationType {
 }
 
 // These represent which settings users can turn on and off. The reason why we have fewer of these than NotificationTypes is that user's shouldn't be overwhelmed with too many settings.
-// We have a map to mape a NotificationSettingType to a list of NotificationTypes.
-// For example, "LIKE" represents all types of likes, but internally we might want to seperate between news and events.
+// We have a map to map a NotificationSettingType to a list of NotificationTypes.
+// For example, "LIKE" represents all types of likes, but internally we might want to separate between news and events.
 // These are also specified WITHIN THE APP, because on android these channels let both us and users specify notification-specific settings like if they should make a sound or not. Also letting the user disable different types of notifications directly in their OS settings.
 // Thus, if you add a new setting type here, you also HAVE TO add it to the app in its respective repo.
 export enum NotificationSettingType {
@@ -85,7 +85,7 @@ export const SUBSCRIPTION_SETTINGS_MAP: Record<
     NotificationType.EVENT_COMMENT,
     // I think using "COMMENT" for ARTICLE_REQUEST_UPDATE makes sense.
     // We don't want to overwhelm user with TOO many notification options, and I feel like
-    // the same demographic want notifications for comments and approvements.
+    // the same demographic wants notifications for comments and approvements.
     NotificationType.ARTICLE_REQUEST_UPDATE,
   ],
   [NotificationSettingType.MENTION]: [NotificationType.MENTION],
@@ -142,7 +142,7 @@ export const DEFAULT_SUBSCRIPTION_SETTINGS: Array<{
     type: NotificationSettingType.PURCHASES,
     pushNotification: true,
   },
-  // PURCHASES, NEW_ARTICLE ([NOLLNING] tagg), MENTION, kanse PING (icke-push)
+  // PURCHASES, NEW_ARTICLE ([NOLLNING] tagg), MENTION, kanske PING (icke-push)
 ];
 
 export const NOLLA_DEFAULT_SUBSCRIPTION_SETTINGS: Array<{

@@ -7,7 +7,7 @@ export type MandateWithPositionAndCommitte = Pick<
   ExtendedPrismaModel<"Mandate">,
   "id" | "startDate" | "endDate"
 > & {
-  phadderIn: ExtendedPrismaModel<"PhadderGroup"> | null;
+  mentorIn: ExtendedPrismaModel<"MentorGroup"> | null;
   position: Pick<ExtendedPrismaModel<"Position">, "id" | "name"> & {
     committee: Pick<
       ExtendedPrismaModel<"Committee">,

@@ -4189,13 +4189,13 @@
         }
       ]
     },
-    "drinkitem": {
-      "id": "public.drinkitem",
+    "drink_item": {
+      "id": "public.drink_item",
       "schemaName": "public",
-      "tableName": "drinkitem",
+      "tableName": "drink_item",
       "fields": [
         {
-          "id": "public.drinkitem.id",
+          "id": "public.drink_item.id",
           "name": "id",
           "columnName": "id",
           "type": "uuid",
@@ -4209,7 +4209,7 @@
           "maxLength": null
         },
         {
-          "id": "public.drinkitem.quantity_type",
+          "id": "public.drink_item.quantity_type",
           "name": "quantity_type",
           "columnName": "quantity_type",
           "type": "DrinkQuantityType",
@@ -4223,7 +4223,7 @@
           "maxLength": null
         },
         {
-          "id": "public.drinkitem.name",
+          "id": "public.drink_item.name",
           "name": "name",
           "columnName": "name",
           "type": "text",
@@ -4237,7 +4237,7 @@
           "maxLength": null
         },
         {
-          "id": "public.drinkitem.price",
+          "id": "public.drink_item.price",
           "name": "price",
           "columnName": "price",
           "type": "int4",
@@ -4251,7 +4251,7 @@
           "maxLength": null
         },
         {
-          "id": "public.drinkitem.group",
+          "id": "public.drink_item.group",
           "name": "group",
           "columnName": "group",
           "type": "DrinkGroup",
@@ -4265,7 +4265,7 @@
           "maxLength": null
         },
         {
-          "id": "public.drinkitem.systembolaget_id",
+          "id": "public.drink_item.systembolaget_id",
           "name": "systembolaget_id",
           "columnName": "systembolaget_id",
           "type": "int4",
@@ -4279,7 +4279,7 @@
           "maxLength": null
         },
         {
-          "id": "public.drinkitem.bottle_empty_weight",
+          "id": "public.drink_item.bottle_empty_weight",
           "name": "bottle_empty_weight",
           "columnName": "bottle_empty_weight",
           "type": "int4",
@@ -4293,7 +4293,7 @@
           "maxLength": null
         },
         {
-          "id": "public.drinkitem.bottle_full_weight",
+          "id": "public.drink_item.bottle_full_weight",
           "name": "bottle_full_weight",
           "columnName": "bottle_full_weight",
           "type": "int4",
@@ -4307,7 +4307,7 @@
           "maxLength": null
         },
         {
-          "id": "public.drinkitem.quantity_available",
+          "id": "public.drink_item.quantity_available",
           "name": "quantity_available",
           "columnName": "quantity_available",
           "type": "int4",
@@ -4321,7 +4321,7 @@
           "maxLength": null
         },
         {
-          "id": "public.drinkitem.nr_bottles",
+          "id": "public.drink_item.nr_bottles",
           "name": "nr_bottles",
           "columnName": "nr_bottles",
           "type": "int4",
@@ -4335,11 +4335,11 @@
           "maxLength": null
         },
         {
-          "name": "drinkitembatch",
-          "type": "drinkitembatch",
+          "name": "drink_item_batch",
+          "type": "drink_item_batch",
           "isRequired": false,
           "kind": "object",
-          "relationName": "drinkitembatchTodrinkitem",
+          "relationName": "drink_item_batchTodrink_item",
           "relationFromFields": [],
           "relationToFields": [],
           "isList": true,
@@ -4351,7 +4351,7 @@
       ],
       "uniqueConstraints": [
         {
-          "name": "drinkitem_pkey",
+          "name": "drink_item_pkey",
           "fields": [
             "id"
           ],
@@ -4359,13 +4359,13 @@
         }
       ]
     },
-    "drinkitembatch": {
-      "id": "public.drinkitembatch",
+    "drink_item_batch": {
+      "id": "public.drink_item_batch",
       "schemaName": "public",
-      "tableName": "drinkitembatch",
+      "tableName": "drink_item_batch",
       "fields": [
         {
-          "id": "public.drinkitembatch.id",
+          "id": "public.drink_item_batch.id",
           "name": "id",
           "columnName": "id",
           "type": "uuid",
@@ -4379,7 +4379,7 @@
           "maxLength": null
         },
         {
-          "id": "public.drinkitembatch.drink_item_id",
+          "id": "public.drink_item_batch.drink_item_id",
           "name": "drink_item_id",
           "columnName": "drink_item_id",
           "type": "uuid",
@@ -4393,35 +4393,7 @@
           "maxLength": null
         },
         {
-          "id": "public.drinkitembatch.user",
-          "name": "user",
-          "columnName": "user",
-          "type": "text",
-          "isRequired": true,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": null
-        },
-        {
-          "id": "public.drinkitembatch.date",
-          "name": "date",
-          "columnName": "date",
-          "type": "timestamp",
-          "isRequired": true,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": null
-        },
-        {
-          "id": "public.drinkitembatch.quantity_delta",
+          "id": "public.drink_item_batch.quantity_delta",
           "name": "quantity_delta",
           "columnName": "quantity_delta",
           "type": "int4",
@@ -4435,7 +4407,35 @@
           "maxLength": null
         },
         {
-          "id": "public.drinkitembatch.nr_bottles_delta",
+          "id": "public.drink_item_batch.user",
+          "name": "user",
+          "columnName": "user",
+          "type": "text",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.drink_item_batch.date",
+          "name": "date",
+          "columnName": "date",
+          "type": "timestamp",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.drink_item_batch.nr_bottles_delta",
           "name": "nr_bottles_delta",
           "columnName": "nr_bottles_delta",
           "type": "int4",
@@ -4449,11 +4449,11 @@
           "maxLength": null
         },
         {
-          "name": "drinkitem",
-          "type": "drinkitem",
+          "name": "drink_item",
+          "type": "drink_item",
           "isRequired": true,
           "kind": "object",
-          "relationName": "drinkitembatchTodrinkitem",
+          "relationName": "drink_item_batchTodrink_item",
           "relationFromFields": [
             "drink_item_id"
           ],
@@ -4469,7 +4469,7 @@
       ],
       "uniqueConstraints": [
         {
-          "name": "drinkitembatch_pkey",
+          "name": "drink_item_batch_pkey",
           "fields": [
             "id"
           ],
@@ -5065,9 +5065,9 @@
           "maxLength": null
         },
         {
-          "id": "public.events.is_detatched",
-          "name": "is_detatched",
-          "columnName": "is_detatched",
+          "id": "public.events.is_detached",
+          "name": "is_detached",
+          "columnName": "is_detached",
           "type": "bool",
           "isRequired": true,
           "kind": "scalar",
@@ -5771,6 +5771,64 @@
         }
       ]
     },
+    "festivities_committee_inventory_value_log": {
+      "id": "public.festivities_committee_inventory_value_log",
+      "schemaName": "public",
+      "tableName": "festivities_committee_inventory_value_log",
+      "fields": [
+        {
+          "id": "public.festivities_committee_inventory_value_log.id",
+          "name": "id",
+          "columnName": "id",
+          "type": "uuid",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": true,
+          "isId": true,
+          "maxLength": null
+        },
+        {
+          "id": "public.festivities_committee_inventory_value_log.date",
+          "name": "date",
+          "columnName": "date",
+          "type": "timestamp",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.festivities_committee_inventory_value_log.value",
+          "name": "value",
+          "columnName": "value",
+          "type": "int4",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        }
+      ],
+      "uniqueConstraints": [
+        {
+          "name": "festivities_committee_inventory_value_log_pkey",
+          "fields": [
+            "id"
+          ],
+          "nullNotDistinct": false
+        }
+      ]
+    },
     "item_question": {
       "id": "public.item_question",
       "schemaName": "public",
@@ -6313,9 +6371,9 @@
           "maxLength": null
         },
         {
-          "id": "public.mandates.phadderInId",
-          "name": "phadderInId",
-          "columnName": "phadderInId",
+          "id": "public.mandates.mentorInId",
+          "name": "mentorInId",
+          "columnName": "mentorInId",
           "type": "uuid",
           "isRequired": false,
           "kind": "scalar",
@@ -6359,13 +6417,13 @@
           "hasDefaultValue": false
         },
         {
-          "name": "phadder_groups",
-          "type": "phadder_groups",
+          "name": "mentor_groups",
+          "type": "mentor_groups",
           "isRequired": false,
           "kind": "object",
-          "relationName": "mandatesTophadder_groups",
+          "relationName": "mandatesTomentor_groups",
           "relationFromFields": [
-            "phadderInId"
+            "mentorInId"
           ],
           "relationToFields": [
             "id"
@@ -6744,9 +6802,9 @@
           "maxLength": 255
         },
         {
-          "id": "public.members.nollning_group_id",
-          "name": "nollning_group_id",
-          "columnName": "nollning_group_id",
+          "id": "public.members.mentor_group_id",
+          "name": "mentor_group_id",
+          "columnName": "mentor_group_id",
           "type": "uuid",
           "isRequired": false,
           "kind": "scalar",
@@ -6786,13 +6844,13 @@
           "maxLength": 255
         },
         {
-          "name": "phadder_groups",
-          "type": "phadder_groups",
+          "name": "mentor_groups",
+          "type": "mentor_groups",
           "isRequired": false,
           "kind": "object",
-          "relationName": "membersTophadder_groups",
+          "relationName": "membersTomentor_groups",
           "relationFromFields": [
-            "nollning_group_id"
+            "mentor_group_id"
           ],
           "relationToFields": [
             "id"
@@ -7215,6 +7273,134 @@
           "name": "members_student_id_unique",
           "fields": [
             "student_id"
+          ],
+          "nullNotDistinct": false
+        }
+      ]
+    },
+    "mentor_groups": {
+      "id": "public.mentor_groups",
+      "schemaName": "public",
+      "tableName": "mentor_groups",
+      "fields": [
+        {
+          "id": "public.mentor_groups.id",
+          "name": "id",
+          "columnName": "id",
+          "type": "uuid",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": true,
+          "isId": true,
+          "maxLength": null
+        },
+        {
+          "id": "public.mentor_groups.name",
+          "name": "name",
+          "columnName": "name",
+          "type": "varchar",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": 255
+        },
+        {
+          "id": "public.mentor_groups.description",
+          "name": "description",
+          "columnName": "description",
+          "type": "text",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.mentor_groups.year",
+          "name": "year",
+          "columnName": "year",
+          "type": "int4",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.mentor_groups.image_url",
+          "name": "image_url",
+          "columnName": "image_url",
+          "type": "text",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "id": "public.mentor_groups.createdAt",
+          "name": "createdAt",
+          "columnName": "createdAt",
+          "type": "timestamp",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": true,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "name": "mandates",
+          "type": "mandates",
+          "isRequired": false,
+          "kind": "object",
+          "relationName": "mandatesTomentor_groups",
+          "relationFromFields": [],
+          "relationToFields": [],
+          "isList": true,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        },
+        {
+          "name": "members",
+          "type": "members",
+          "isRequired": false,
+          "kind": "object",
+          "relationName": "membersTomentor_groups",
+          "relationFromFields": [],
+          "relationToFields": [],
+          "isList": true,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        }
+      ],
+      "uniqueConstraints": [
+        {
+          "name": "mentor_groups_pkey",
+          "fields": [
+            "id"
           ],
           "nullNotDistinct": false
         }
@@ -7870,134 +8056,6 @@
           "name": "payment_swish_id_unique",
           "fields": [
             "swish_id"
-          ],
-          "nullNotDistinct": false
-        }
-      ]
-    },
-    "phadder_groups": {
-      "id": "public.phadder_groups",
-      "schemaName": "public",
-      "tableName": "phadder_groups",
-      "fields": [
-        {
-          "id": "public.phadder_groups.id",
-          "name": "id",
-          "columnName": "id",
-          "type": "uuid",
-          "isRequired": true,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": true,
-          "isId": true,
-          "maxLength": null
-        },
-        {
-          "id": "public.phadder_groups.name",
-          "name": "name",
-          "columnName": "name",
-          "type": "varchar",
-          "isRequired": true,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": 255
-        },
-        {
-          "id": "public.phadder_groups.description",
-          "name": "description",
-          "columnName": "description",
-          "type": "text",
-          "isRequired": false,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": null
-        },
-        {
-          "id": "public.phadder_groups.year",
-          "name": "year",
-          "columnName": "year",
-          "type": "int4",
-          "isRequired": true,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": null
-        },
-        {
-          "id": "public.phadder_groups.image_url",
-          "name": "image_url",
-          "columnName": "image_url",
-          "type": "text",
-          "isRequired": false,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": null
-        },
-        {
-          "id": "public.phadder_groups.createdAt",
-          "name": "createdAt",
-          "columnName": "createdAt",
-          "type": "timestamp",
-          "isRequired": true,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": true,
-          "isId": false,
-          "maxLength": null
-        },
-        {
-          "name": "mandates",
-          "type": "mandates",
-          "isRequired": false,
-          "kind": "object",
-          "relationName": "mandatesTophadder_groups",
-          "relationFromFields": [],
-          "relationToFields": [],
-          "isList": true,
-          "isId": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false
-        },
-        {
-          "name": "members",
-          "type": "members",
-          "isRequired": false,
-          "kind": "object",
-          "relationName": "membersTophadder_groups",
-          "relationFromFields": [],
-          "relationToFields": [],
-          "isList": true,
-          "isId": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false
-        }
-      ],
-      "uniqueConstraints": [
-        {
-          "name": "phadder_groups_pkey",
-          "fields": [
-            "id"
           ],
           "nullNotDistinct": false
         }
@@ -9176,64 +9234,6 @@
       "uniqueConstraints": [
         {
           "name": "readme_pkey",
-          "fields": [
-            "id"
-          ],
-          "nullNotDistinct": false
-        }
-      ]
-    },
-    "sexetinventoryvaluelog": {
-      "id": "public.sexetinventoryvaluelog",
-      "schemaName": "public",
-      "tableName": "sexetinventoryvaluelog",
-      "fields": [
-        {
-          "id": "public.sexetinventoryvaluelog.id",
-          "name": "id",
-          "columnName": "id",
-          "type": "uuid",
-          "isRequired": true,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": true,
-          "isId": true,
-          "maxLength": null
-        },
-        {
-          "id": "public.sexetinventoryvaluelog.date",
-          "name": "date",
-          "columnName": "date",
-          "type": "timestamp",
-          "isRequired": true,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": null
-        },
-        {
-          "id": "public.sexetinventoryvaluelog.value",
-          "name": "value",
-          "columnName": "value",
-          "type": "int4",
-          "isRequired": true,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": null
-        }
-      ],
-      "uniqueConstraints": [
-        {
-          "name": "sexetinventoryvaluelog_pkey",
           "fields": [
             "id"
           ],
@@ -10625,7 +10625,7 @@
       "schemaName": "public",
       "values": [
         {
-          "name": "DAYMANAGER"
+          "name": "DAYCARER"
         },
         {
           "name": "SHIFT_1"

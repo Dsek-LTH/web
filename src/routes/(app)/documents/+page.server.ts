@@ -50,7 +50,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
       console.error("Error fetching files", err);
       return [];
     });
-  const SRDfiles = await fileHandler
+  const SRDFiles = await fileHandler
     .getInBucket(user, PUBLIC_BUCKETS_FILES, "public/srd/" + year, true)
     .catch((err) => {
       console.error("Error fetching files", err);
@@ -70,7 +70,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
       break;
 
     case "SRD-meeting":
-      SRDfiles.forEach((file) => {
+      SRDFiles.forEach((file) => {
         const fileParts = file.id.split("/");
         const meetingName =
           fileParts[fileParts.length - 2] ?? m.documents_unknown();

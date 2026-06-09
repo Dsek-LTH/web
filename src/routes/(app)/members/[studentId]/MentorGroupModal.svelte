@@ -2,9 +2,9 @@
   import type { SuperValidated } from "sveltekit-superforms";
   import { superForm } from "$lib/utils/client/superForms";
   import * as m from "$paraglide/messages";
-  import type { Member, PhadderGroup } from "@prisma/client";
+  import type { Member, MentorGroup } from "@prisma/client";
   import { page } from "$app/state";
-  import type { PhadderGroupSchema } from "./+page.server";
+  import type { MentorGroupSchema } from "./+page.server";
   import { marked } from "marked";
 
   import * as Dialog from "$lib/components/ui/dialog";
@@ -16,20 +16,20 @@
 
   let {
     isEditing = $bindable(),
-    phadderGroups,
+    mentorGroups,
     data,
     viewedMember,
     showModal,
   }: {
     isEditing: boolean;
-    phadderGroups: PhadderGroup[];
-    data: SuperValidated<PhadderGroupSchema>;
+    mentorGroups: MentorGroup[];
+    data: SuperValidated<MentorGroupSchema>;
     viewedMember: Member;
     showModal: boolean;
   } = $props();
 
   const superform = $derived(
-    superForm<PhadderGroupSchema>(data, {
+    superForm<MentorGroupSchema>(data, {
       onResult: (event) => {
         console.log(event.result.type);
         if (event.result.type === "success") {
@@ -48,35 +48,35 @@
   <Dialog.Content>
     <Dialog.Header>
       <Dialog.Title>
-        {m.members_phadder_group_modal_title()}
+        {m.members_mentor_group_modal_title()}
       </Dialog.Title>
       <Dialog.Description>
         <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized client-side -->
-        {@html marked(m.members_phadder_group_modal_subtitle())}
+        {@html marked(m.members_mentor_group_modal_subtitle())}
       </Dialog.Description>
     </Dialog.Header>
 
     <form
-      id="edit-phadder-group"
+      id="edit-mentor-group"
       method="POST"
-      action="?/updatePhadderGroup"
+      action="?/updateMentorGroup"
       use:enhance
       class="gap-2"
     >
       <div class="flex w-full flex-col gap-1.5 px-4">
-        <Label for="nollningGroupId">{m.onboarding_phadderGroup()}</Label>
+        <Label for="mentorGroupId">{m.onboarding_mentorGroup()}</Label>
         <Select.Root
           type="single"
-          bind:value={$form.nollningGroupId as string | undefined}
-          name="nollningGroupId"
+          bind:value={$form.mentorGroupId as string | undefined}
+          name="mentorGroupId"
         >
           <Select.Trigger class="w-full"
-            ><Users />{$form.nollningGroupId
-              ? phadderGroups.find((g) => g.id == $form.nollningGroupId)!.name
+            ><Users />{$form.mentorGroupId
+              ? mentorGroups.find((g) => g.id == $form.mentorGroupId)!.name
               : ""}</Select.Trigger
           >
           <Select.Content>
-            {#each phadderGroups.filter((g) => g.year == member?.classYear) as group (group.id)}
+            {#each mentorGroups.filter((g) => g.year == member?.classYear) as group (group.id)}
               <Select.Item value={group.id}>{group.name}</Select.Item>
             {/each}
           </Select.Content>
@@ -90,7 +90,7 @@
           name="skipAction"
           value="never"
         >
-          {m.members_phadder_group_modal_never()}
+          {m.members_mentor_group_modal_never()}
         </Dialog.Close>
         <Dialog.Close
           type="submit"
@@ -98,7 +98,7 @@
           name="skipAction"
           value="skip"
         >
-          {m.members_phadder_group_modal_skip()}
+          {m.members_mentor_group_modal_skip()}
         </Dialog.Close>
 
         <Dialog.Close class={buttonVariants({ variant: "rosa" })} type="submit">

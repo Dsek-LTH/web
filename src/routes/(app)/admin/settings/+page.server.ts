@@ -1,8 +1,8 @@
 import {
-  NOLLNING_END_KEY,
-  NOLLNING_START_KEY,
-  updateNollningPeriod,
-} from "$lib/utils/adminSettings/nollning";
+  INTRODUCTION_END_KEY,
+  INTRODUCTION_START_KEY,
+  updateIntroductionPeriod,
+} from "$lib/utils/adminSettings/introduction";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 import { fail } from "@sveltejs/kit";
@@ -15,23 +15,25 @@ export const load: PageServerLoad = async ({ locals }) => {
   const { prisma, user } = locals;
   authorize(apiNames.ADMIN.SETTINGS.READ, user);
   const settings = await prisma.adminSetting.findMany();
-  const nollningStartStr = settings.find(
-    (setting) => setting.key === NOLLNING_START_KEY,
+  const introductionStartStr = settings.find(
+    (setting) => setting.key === INTRODUCTION_START_KEY,
   )?.value;
-  const nollningEndStr = settings.find(
-    (setting) => setting.key === NOLLNING_END_KEY,
+  const introductionEndStr = settings.find(
+    (setting) => setting.key === INTRODUCTION_END_KEY,
   )?.value;
   return {
     settings,
-    nollning:
-      nollningStartStr && nollningEndStr
+    introduction:
+      introductionStartStr && introductionEndStr
         ? {
-            start: new Date(nollningStartStr),
-            end: new Date(nollningEndStr),
+            start: new Date(introductionStartStr),
+            end: new Date(introductionEndStr),
           }
         : undefined,
     updateForm: await superValidate(zod4(updateSchema)),
-    updateNollningForm: await superValidate(zod4(updateNollningPeriodSchema)),
+    updateIntroductionForm: await superValidate(
+      zod4(updateIntroductionPeriodSchema),
+    ),
   };
 };
 
@@ -42,7 +44,7 @@ const updateSchema = z.object({
 const removeSchema = z.object({
   key: z.string().min(1),
 });
-const updateNollningPeriodSchema = z.object({
+const updateIntroductionPeriodSchema = z.object({
   start: z.date(),
   end: z.date(),
 });
@@ -72,11 +74,14 @@ export const actions = {
       type: "success",
     });
   },
-  async updateNollning({ locals, request }) {
+  async updateIntroduction({ locals, request }) {
     const { prisma } = locals;
-    const form = await superValidate(request, zod4(updateNollningPeriodSchema));
+    const form = await superValidate(
+      request,
+      zod4(updateIntroductionPeriodSchema),
+    );
     if (!form.valid) return fail(400, { form });
-    await updateNollningPeriod(prisma, form.data.start, form.data.end);
+    await updateIntroductionPeriod(prisma, form.data.start, form.data.end);
     return message(form, {
       message: `Nollningsperiod uppdaterad`,
       type: "success",

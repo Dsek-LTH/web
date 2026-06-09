@@ -190,12 +190,12 @@ export const memberMedals = async (
     },
   });
 
-  const volunteerSems = getSemesters(mandates).filter((x) => x <= after);
-  const boardSems = getSemesters(
+  const volunteerSemesters = getSemesters(mandates).filter((x) => x <= after);
+  const boardSemesters = getSemesters(
     mandates.filter((x) => x.position.boardMember),
   ).filter((x) => x <= after);
 
-  const committeeSems = (await committeesWithMedals(prisma))
+  const committeeSemesters = (await committeesWithMedals(prisma))
     .map((committee) => {
       const id = committee.id;
 
@@ -214,8 +214,11 @@ export const memberMedals = async (
       (x): x is { medal: string; after: Semester } => x.after !== undefined,
     );
 
-  const volunteerMedalSem = volunteerMedalSemester(volunteerSems);
-  const gammalOchÄckligSem = gammalOchÄckligSemester(boardSems, volunteerSems);
+  const volunteerMedalSem = volunteerMedalSemester(volunteerSemesters);
+  const gammalOchÄckligSem = gammalOchÄckligSemester(
+    boardSemesters,
+    volunteerSemesters,
+  );
 
   const res: Array<{ medal: string; after: Semester }> = [];
 
@@ -231,7 +234,7 @@ export const memberMedals = async (
       after: gammalOchÄckligSem,
     });
 
-  return res.concat(committeeSems);
+  return res.concat(committeeSemesters);
 };
 
 /**
@@ -244,7 +247,7 @@ export const memberMedals = async (
  * @param prisma - The prisma client to query for mandates and committees.
  * @param after - The last semester to check for.
  * @returns An array of objects containing the name of the medal and the
- * an array of members that should have recived that medal after `after`.
+ * an array of members that should have received that medal after `after`.
  */
 export const medalRecipients = async (
   prisma: ExtendedPrisma,

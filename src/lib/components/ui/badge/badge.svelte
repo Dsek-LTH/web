@@ -26,9 +26,9 @@
   export type BadgeVariant = VariantProps<typeof badgeVariants>["variant"];
   export type BadgeSize = VariantProps<typeof badgeVariants>["size"];
   export const getBadgeVariantFromProgramme = (
-    programmme: "D" | "C" | "VR/AR" | string | null,
+    programme: "D" | "C" | "VR/AR" | string | null,
   ): BadgeVariant => {
-    switch (programmme) {
+    switch (programme) {
       case "D":
         return "rosa";
       case "C":

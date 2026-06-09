@@ -15,12 +15,12 @@ export const load = async ({ locals, cookies }) => {
 
   const revealTheme = REVEAL_LAUNCH_DATE <= new Date();
   const notificationsPromise = getNollaGroupedNotifications(user, prisma);
-  const phadderGroup =
+  const mentorGroup =
     member?.classYear == new Date().getFullYear() &&
-    member.nollningGroupId !== null
-      ? prisma.phadderGroup.findUnique({
+    member.mentorGroupId !== null
+      ? prisma.mentorGroup.findUnique({
           where: {
-            id: member.nollningGroupId!,
+            id: member.mentorGroupId!,
           },
           select: {
             name: true,
@@ -42,7 +42,7 @@ export const load = async ({ locals, cookies }) => {
       cart: `${POST_REVEAL_PREFIX}/shop/cart`,
       purchaseRedirect: `${POST_REVEAL_PREFIX}/shop/success`,
     },
-    phadderGroup,
+    mentorGroup,
     theme: (revealTheme ? "nollningPostReveal" : "light") as Theme,
   };
 };

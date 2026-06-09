@@ -125,12 +125,12 @@
           }}><title>{m.editor_link()}</title></Link
         >
         <Code
-          aria-label={m.editor_inlinecode()}
+          aria-label={m.editor_inline_code()}
           role="button"
           onclick={() => {
             toggleInlineCode(textarea);
             countChar();
-          }}><title>{m.editor_inlinecode()}</title></Code
+          }}><title>{m.editor_inline_code()}</title></Code
         >
         <SquareCode
           aria-label={m.editor_codeblock()}
@@ -169,28 +169,28 @@
         class="border-border flex flex-row items-center justify-between border-r-[1px] *:mx-[12px] *:size-4 *:cursor-pointer"
       >
         <List
-          aria-label={m.editor_ulist()}
+          aria-label={m.editor_unordered_list()}
           role="button"
           onclick={() => {
             toggleUList(textarea);
             countChar();
-          }}><title>{m.editor_ulist()}</title></List
+          }}><title>{m.editor_unordered_list()}</title></List
         >
         <ListOrdered
-          aria-label={m.editor_olist()}
+          aria-label={m.editor_ordered_list()}
           role="button"
           onclick={() => {
             toggleOList(textarea);
             countChar();
-          }}><title>{m.editor_olist()}</title></ListOrdered
+          }}><title>{m.editor_ordered_list()}</title></ListOrdered
         >
         <ListTodo
-          aria-label={m.editor_tasklist()}
+          aria-label={m.editor_task_list()}
           role="button"
           onclick={() => {
             toggleTaskList(textarea);
             countChar();
-          }}><title>{m.editor_tasklist()}</title></ListTodo
+          }}><title>{m.editor_task_list()}</title></ListTodo
         >
       </div>
     </div>

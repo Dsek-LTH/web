@@ -15,7 +15,7 @@
   // svelte-ignore state_referenced_locally
   const superform = superForm(data.form, {
     dataType: "json",
-    id: "createpage",
+    id: "create_page",
     delayMs: 500,
   });
 

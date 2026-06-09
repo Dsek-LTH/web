@@ -60,10 +60,10 @@ const generateCSV = (
     const foodPreference = member
       ? (member?.foodPreference?.replace(",", " ") ?? "")
       : "Anonym användare";
-    const phadderGroup = member
-      ? (member?.phadderGroup?.name.replace(",", " ") ?? "")
+    const mentorGroup = member
+      ? (member?.mentorGroup?.name.replace(",", " ") ?? "")
       : "Anonym användare";
-    let row = `${name},${stilId},${email},${foodPreference},${phadderGroup},${paidAmount},${dayjs(
+    let row = `${name},${stilId},${email},${foodPreference},${mentorGroup},${paidAmount},${dayjs(
       consumable.purchasedAt,
     ).format("YYYY-MM-DD HH:mm:ss")},${
       consumable.stripeIntentId?.replace(",", " ") ?? "N/A"

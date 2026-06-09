@@ -40,7 +40,7 @@ import { NotificationType } from "$lib/utils/notifications/types";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 
-const mockFns = vi.hoisted(() => ({
+const mockFunctions = vi.hoisted(() => ({
   customers: {
     create: vi.fn(),
     retrieve: vi.fn(),
@@ -59,21 +59,23 @@ const mockFns = vi.hoisted(() => ({
 vi.mock("./stripe", () => ({
   default: {
     customers: {
-      create: (...args: any) => mockFns.customers.create(...args) as unknown,
+      create: (...args: any) =>
+        mockFunctions.customers.create(...args) as unknown,
       retrieve: (...args: any) =>
-        mockFns.customers.retrieve(...args) as unknown,
-      update: (...args: any) => mockFns.customers.update(...args) as unknown,
-      del: (...args: any) => mockFns.customers.del(...args) as unknown,
+        mockFunctions.customers.retrieve(...args) as unknown,
+      update: (...args: any) =>
+        mockFunctions.customers.update(...args) as unknown,
+      del: (...args: any) => mockFunctions.customers.del(...args) as unknown,
     },
     paymentIntents: {
       create: (...args: any) =>
-        mockFns.paymentIntents.create(...args) as unknown,
+        mockFunctions.paymentIntents.create(...args) as unknown,
       retrieve: (...args: any) =>
-        mockFns.paymentIntents.retrieve(...args) as unknown,
+        mockFunctions.paymentIntents.retrieve(...args) as unknown,
       update: (...args: any) =>
-        mockFns.paymentIntents.update(...args) as unknown,
+        mockFunctions.paymentIntents.update(...args) as unknown,
       cancel: (...args: any) =>
-        mockFns.paymentIntents.cancel(...args) as unknown,
+        mockFunctions.paymentIntents.cancel(...args) as unknown,
     },
   },
 }));
@@ -98,19 +100,19 @@ const addPurchaseTestForUser = (
     ).catch((e) => expect.fail(`Failed to add ticket to cart: ${e}`));
 
     if (user.memberId) {
-      mockFns.customers.create.mockResolvedValue({
+      mockFunctions.customers.create.mockResolvedValue({
         id: "customer-id",
       });
-      mockFns.customers.retrieve.mockResolvedValue({
+      mockFunctions.customers.retrieve.mockResolvedValue({
         deleted: false,
         id: "customer-id",
       });
     }
-    mockFns.paymentIntents.create.mockResolvedValue({
+    mockFunctions.paymentIntents.create.mockResolvedValue({
       client_secret: "abc",
       id: "intent-id",
     });
-    mockFns.paymentIntents.retrieve.mockResolvedValue({
+    mockFunctions.paymentIntents.retrieve.mockResolvedValue({
       id: "intent-id",
       status: "requires_payment_method",
     });
@@ -139,12 +141,12 @@ const addPurchaseTestForUser = (
     const customer = await stripe.customers.retrieve("customer-id");
     expect(customer).toBeDefined();
     expect(customer.id).toBe("customer-id");
-    expect(mockFns.customers.retrieve).toHaveBeenCalledOnce();
-    mockFns.customers.retrieve.mockClear();
-    mockFns.customers.retrieve.mockResolvedValueOnce(false);
+    expect(mockFunctions.customers.retrieve).toHaveBeenCalledOnce();
+    mockFunctions.customers.retrieve.mockClear();
+    mockFunctions.customers.retrieve.mockResolvedValueOnce(false);
     const customer2 = await stripe.customers.retrieve("customer-id");
     expect(customer2).toBe(false);
-    expect(mockFns.customers.retrieve).toHaveBeenCalledOnce();
+    expect(mockFunctions.customers.retrieve).toHaveBeenCalledOnce();
   });
 
   it("calculates transaction fee correctly", () => {
@@ -175,13 +177,13 @@ const addPurchaseTestForUser = (
     );
     expect(res).toBeDefined();
     expect(res.clientSecret).toBe("abc");
-    expect(mockFns.paymentIntents.create).toHaveBeenCalledOnce();
-    expect(mockFns.paymentIntents.create.mock.calls[0]?.[0].amount).toBe(
+    expect(mockFunctions.paymentIntents.create).toHaveBeenCalledOnce();
+    expect(mockFunctions.paymentIntents.create.mock.calls[0]?.[0].amount).toBe(
       MOCK_ACTIVE_TICKET.shoppable.price,
     );
 
     expect(
-      mockFns.paymentIntents.create.mock.calls[0]?.[1].idempotencyKey,
+      mockFunctions.paymentIntents.create.mock.calls[0]?.[1].idempotencyKey,
     ).toBe("idempotency-key");
     const consumable = await prisma.consumable.findFirst({
       where: {
@@ -199,11 +201,11 @@ const addPurchaseTestForUser = (
     } catch (err) {
       expect.fail(`Failed to purchase cart ${err}`);
     }
-    mockFns.paymentIntents.update.mockResolvedValueOnce({
+    mockFunctions.paymentIntents.update.mockResolvedValueOnce({
       client_secret: "def",
       id: "intent-id",
     });
-    mockFns.paymentIntents.retrieve.mockResolvedValueOnce({
+    mockFunctions.paymentIntents.retrieve.mockResolvedValueOnce({
       status: "requires_payment_method",
       id: "intent-id",
     });
@@ -214,12 +216,14 @@ const addPurchaseTestForUser = (
     );
     expect(res2).toBeDefined();
     expect(res2.clientSecret, res2.message).toBe("def");
-    expect(mockFns.paymentIntents.create).toHaveBeenCalledOnce();
-    expect(mockFns.paymentIntents.update).toHaveBeenCalledOnce();
-    expect(mockFns.paymentIntents.retrieve).toHaveBeenCalledOnce();
-    expect(mockFns.paymentIntents.cancel).not.toHaveBeenCalled();
-    expect(mockFns.paymentIntents.update.mock.calls[0]?.[0]).toBe("intent-id");
-    expect(mockFns.paymentIntents.update.mock.calls[0]?.[1].amount).toBe(
+    expect(mockFunctions.paymentIntents.create).toHaveBeenCalledOnce();
+    expect(mockFunctions.paymentIntents.update).toHaveBeenCalledOnce();
+    expect(mockFunctions.paymentIntents.retrieve).toHaveBeenCalledOnce();
+    expect(mockFunctions.paymentIntents.cancel).not.toHaveBeenCalled();
+    expect(mockFunctions.paymentIntents.update.mock.calls[0]?.[0]).toBe(
+      "intent-id",
+    );
+    expect(mockFunctions.paymentIntents.update.mock.calls[0]?.[1].amount).toBe(
       MOCK_ACTIVE_TICKET.shoppable.price,
     );
 
@@ -230,21 +234,21 @@ const addPurchaseTestForUser = (
     ).catch(() => expect.fail("Failed to add ticket to cart"));
 
     vi.clearAllMocks();
-    mockFns.paymentIntents.update.mockResolvedValueOnce({
+    mockFunctions.paymentIntents.update.mockResolvedValueOnce({
       client_secret: "ghi",
       id: "intent-id",
     });
-    mockFns.paymentIntents.retrieve.mockResolvedValueOnce({
+    mockFunctions.paymentIntents.retrieve.mockResolvedValueOnce({
       status: "requires_payment_method",
       id: "intent-id",
     });
     await purchaseCart(prismaWithAccess, identification, "idempotency-key");
 
-    expect(mockFns.paymentIntents.create).not.toHaveBeenCalled();
-    expect(mockFns.paymentIntents.update).toHaveBeenCalledOnce();
-    expect(mockFns.paymentIntents.retrieve).toHaveBeenCalledOnce();
-    expect(mockFns.paymentIntents.cancel).not.toHaveBeenCalled();
-    expect(mockFns.paymentIntents.update.mock.calls[0]?.[1].amount).toBe(
+    expect(mockFunctions.paymentIntents.create).not.toHaveBeenCalled();
+    expect(mockFunctions.paymentIntents.update).toHaveBeenCalledOnce();
+    expect(mockFunctions.paymentIntents.retrieve).toHaveBeenCalledOnce();
+    expect(mockFunctions.paymentIntents.cancel).not.toHaveBeenCalled();
+    expect(mockFunctions.paymentIntents.update.mock.calls[0]?.[1].amount).toBe(
       MOCK_ACTIVE_TICKET.shoppable.price + MOCK_ACTIVE_TICKET_2.shoppable.price,
     );
 
@@ -267,13 +271,15 @@ const addPurchaseTestForUser = (
   it("creates a payment intent with multiple items", async ({ tickets }) => {
     await addTicketToCart(prismaWithAccess, tickets.activeTicket2.id, user);
     await purchaseCart(prismaWithAccess, identification, "idempotency-key");
-    expect(mockFns.paymentIntents.create).toHaveBeenCalledOnce();
+    expect(mockFunctions.paymentIntents.create).toHaveBeenCalledOnce();
     const price =
       MOCK_ACTIVE_TICKET.shoppable.price + MOCK_ACTIVE_TICKET_2.shoppable.price;
-    expect(mockFns.paymentIntents.create.mock.calls[0]?.[0].amount).toBe(price);
+    expect(mockFunctions.paymentIntents.create.mock.calls[0]?.[0].amount).toBe(
+      price,
+    );
 
     expect(
-      mockFns.paymentIntents.create.mock.calls[0]?.[1].idempotencyKey,
+      mockFunctions.paymentIntents.create.mock.calls[0]?.[1].idempotencyKey,
     ).toBe("idempotency-key");
     const consumables = await prisma.consumable.findMany({
       where: {
@@ -338,7 +344,7 @@ const addPurchaseTestForUser = (
       status: "payment_method_required",
     };
 
-    mockFns.paymentIntents.create.mockResolvedValueOnce(intent);
+    mockFunctions.paymentIntents.create.mockResolvedValueOnce(intent);
     await purchaseCart(prismaWithAccess, identification, "idempotency-key");
     const before = new Date();
     await onPaymentSuccess({
@@ -410,7 +416,7 @@ const addPurchaseTestForUser = (
     beforeEach(async ({ tickets }) => {
       ticketId = tickets.activeTicket.id;
 
-      mockFns.paymentIntents.create.mockResolvedValueOnce(intent);
+      mockFunctions.paymentIntents.create.mockResolvedValueOnce(intent);
       vi.useFakeTimers();
       vi.setSystemTime(vi.getRealSystemTime());
       await prisma.consumable.updateMany({
@@ -477,18 +483,18 @@ const addPurchaseTestForUser = (
 
       vi.setSystemTime(vi.getMockedSystemTime()!.valueOf() + TIME_TO_BUY); // 2 seconds later
 
-      const queuedNotfications = await removeExpiredConsumables(
+      const queuedNotifications = await removeExpiredConsumables(
         prisma,
         new Date(),
       ).then((res) => res.queuedNotifications); // SHOULD remove the consumable
-      expect(queuedNotfications.length).toBe(1);
-      expect(queuedNotfications[0]?.type).toBe(
+      expect(queuedNotifications.length).toBe(1);
+      expect(queuedNotifications[0]?.type).toBe(
         NotificationType.PURCHASE_CONSUMABLE_EXPIRED,
       );
       if (user.memberId) {
-        expect(queuedNotfications[0]!.memberIds!.length).toBe(1);
+        expect(queuedNotifications[0]!.memberIds!.length).toBe(1);
       } else {
-        expect(queuedNotfications[0]!.memberIds!.length).toBe(0);
+        expect(queuedNotifications[0]!.memberIds!.length).toBe(0);
       }
       await expectConsumableCount(
         0,
@@ -505,7 +511,7 @@ const addPurchaseTestForUser = (
         status: "payment_method_required",
       };
 
-      mockFns.paymentIntents.create.mockResolvedValueOnce(intent);
+      mockFunctions.paymentIntents.create.mockResolvedValueOnce(intent);
       await purchaseCart(prismaWithAccess, identification, "idempotency-key");
       await onPaymentFailure({
         id: intent.id,
@@ -523,7 +529,7 @@ const addPurchaseTestForUser = (
       expect(consumables[0]!.purchasedAt).toBeNull();
     });
 
-    it("throw error if stripe webhook towards nonexisting intent", async () => {
+    it("throw error if stripe webhook towards nonexistent intent", async () => {
       await expect(
         onPaymentSuccess({
           id: "non-existing-intent-1",
@@ -546,8 +552,8 @@ const addPurchaseTestForUser = (
     if (user.memberId) {
       it("creates a stripe customer if no stripe is in db", async () => {
         await purchaseCart(prismaWithAccess, identification, "idempotency-key");
-        expect(mockFns.customers.retrieve).not.toHaveBeenCalled();
-        expect(mockFns.customers.create).toHaveBeenCalledOnce();
+        expect(mockFunctions.customers.retrieve).not.toHaveBeenCalled();
+        expect(mockFunctions.customers.create).toHaveBeenCalledOnce();
       });
 
       it("creates a stripe customer if not found in stripe", async () => {
@@ -559,12 +565,12 @@ const addPurchaseTestForUser = (
             stripeCustomerId: "customer-id",
           },
         });
-        mockFns.customers.retrieve.mockRejectedValueOnce(
+        mockFunctions.customers.retrieve.mockRejectedValueOnce(
           new Error("Customer not found"),
         );
         await purchaseCart(prismaWithAccess, identification, "idempotency-key");
-        expect(mockFns.customers.create).toHaveBeenCalledOnce();
-        expect(mockFns.customers.retrieve).toHaveBeenCalledOnce();
+        expect(mockFunctions.customers.create).toHaveBeenCalledOnce();
+        expect(mockFunctions.customers.retrieve).toHaveBeenCalledOnce();
       });
 
       it("does not create a stripe customer if found in stripe", async () => {
@@ -577,14 +583,14 @@ const addPurchaseTestForUser = (
           },
         });
         await purchaseCart(prismaWithAccess, identification, "idempotency-key");
-        expect(mockFns.customers.create).not.toHaveBeenCalled();
-        expect(mockFns.customers.retrieve).toHaveBeenCalledOnce();
+        expect(mockFunctions.customers.create).not.toHaveBeenCalled();
+        expect(mockFunctions.customers.retrieve).toHaveBeenCalledOnce();
       });
     } else {
       it("does not create a stripe customer if not logged in", async () => {
         await purchaseCart(prismaWithAccess, identification, "idempotency-key");
-        expect(mockFns.customers.create).not.toHaveBeenCalled();
-        expect(mockFns.customers.retrieve).not.toHaveBeenCalled();
+        expect(mockFunctions.customers.create).not.toHaveBeenCalled();
+        expect(mockFunctions.customers.retrieve).not.toHaveBeenCalled();
       });
     }
   });
