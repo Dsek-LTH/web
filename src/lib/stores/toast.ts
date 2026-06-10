@@ -50,7 +50,7 @@ type RemoteFormResult = {
   type: MessageType;
 };
 
-type RemoteForm = {
+export type RemoteForm = {
   enhance: (
     callback: (helpers: { submit: () => Promise<void> }) => Promise<void>,
   ) => Record<string, unknown>;

@@ -7,6 +7,7 @@
   import * as Table from "$lib/components/ui/table/index.js";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
   import ExpenseDialog from "./ExpenseDialog.svelte";
+  import { type ExpandedExpense } from "./getExpenses";
 
   type ExpenseTableProps<TData, TValue> = {
     columns: Array<ColumnDef<TData, TValue>>;
@@ -63,7 +64,7 @@
               </Table.Row>
             {/snippet}
           </Dialog.Trigger>
-          <ExpenseDialog expense={row.original} />
+          <ExpenseDialog expense={row.original as ExpandedExpense} />
         </Dialog.Root>
       {:else}
         <Table.Row>

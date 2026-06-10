@@ -5,23 +5,18 @@ import Check from "@lucide/svelte/icons/check";
 import Minus from "@lucide/svelte/icons/minus";
 import X from "@lucide/svelte/icons/x";
 import { renderComponent } from "$lib/components/ui/data-table";
-import MoreInfoCell from "./MoreInfoCell.svelte";
+import ExpenseLink from "./upload/ExpenseLink.svelte";
 
 export const columns: Array<ColumnDef<ExpandedExpense>> = [
-  {
-    header: "",
-    cell: (cell) => {
-      return renderComponent(MoreInfoCell, { expense: cell.row.original });
-    },
-    id: "details",
-  },
   {
     accessorFn: (originalRow) => dayjs(originalRow.date).format("YYYY-MM-DD"),
     header: "Datum",
   },
   {
     accessorFn: (originalRow) => {
-      return [...new Set(originalRow.items.map((item) => item.costCenter))];
+      return [
+        ...new Set(originalRow.items.map((item) => item.costCenter)),
+      ].join(", ");
     },
     header: "Kostnadsställe",
   },
@@ -44,7 +39,7 @@ export const columns: Array<ColumnDef<ExpandedExpense>> = [
         signerMap
           .values()
           .map((signer) => `${signer.firstName} ${signer.lastName}`),
-      );
+      ).join(", ");
     },
     header: "Ansvarig",
   },
@@ -57,7 +52,7 @@ export const columns: Array<ColumnDef<ExpandedExpense>> = [
       }
       return "unsigned";
     },
-    header: "Attesterad",
+    header: "Signerad",
     cell: (cell) => {
       const signedStatus = cell.getValue() as
         | "signed"
@@ -94,5 +89,12 @@ export const columns: Array<ColumnDef<ExpandedExpense>> = [
         .reduce((acc, item) => acc + item.amount / 100, 0)
         .toLocaleString()} kr`,
     header: "Totalbelopp",
+  },
+  {
+    header: "",
+    cell: (cell) => {
+      return renderComponent(ExpenseLink, { expense: cell.row.original });
+    },
+    id: "details",
   },
 ];

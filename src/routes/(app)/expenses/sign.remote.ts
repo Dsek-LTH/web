@@ -3,6 +3,7 @@ import apiNames from "$lib/utils/apiNames";
 import { isAuthorized } from "$lib/utils/authorization";
 import { error, fail } from "@sveltejs/kit";
 import z from "zod";
+import { getExpense, getExpenses } from "./expense.remote";
 
 export const approveAll = command(z.number(), async (id) => {
   const { locals } = getRequestEvent();
@@ -113,6 +114,9 @@ export const approveReceipt = command(
         type: "error",
       };
     }
+    void getExpense(data.expenseId).refresh();
+    void getExpenses().refresh();
+
     return {
       message: "Kvitto godkänd",
       type: "success",

@@ -7,7 +7,7 @@
   import * as m from "$paraglide/messages";
   import * as Select from "$lib/components/ui/select";
   import createBasicReceipt, { createBasicReceiptRow } from "../baseItem";
-  import { COST_CENTERS } from "../config";
+  import { costCenters } from "../config";
   import dayjs from "dayjs";
   import { Label } from "$lib/components/ui/label";
   import Button from "$lib/components/ui/button/button.svelte";
@@ -23,13 +23,6 @@
   const { date, description, isGuildCard, receipts } = createExpense.fields;
   receipts.set([createBasicReceipt()]);
   const today = new Date();
-  const costCenters = [
-    { label: "Välj kostnadsställe", value: "" },
-    ...COST_CENTERS.map((center) => ({
-      label: `${center.name} - ${center.description} (${center.example})`,
-      value: center.name,
-    })),
-  ];
 </script>
 
 <div>
@@ -37,10 +30,6 @@
     class="flex flex-col gap-2"
     oninput={() => createExpense.validate()}
     {...createExpense.enhance(async (form) => {
-      console.log(receipts[0]?.rows[0]?.costCenter.value());
-      console.log(form.data.receipts[0]?.rows[0]?.costCenter);
-      console.log(form.data.receipts[0]?.rows[0]?.amount);
-      console.log(form.data);
       try {
         await form.submit();
       } catch (e) {
@@ -52,10 +41,7 @@
     <div class="flex flex-col gap-1.5">
       <Label>{m.receipt_date()}</Label>
       <DatePicker
-        {...{
-          ...date.as("date"),
-          value: dayjs(today).format("YYYY-MM-DD"),
-        }}
+        {...date.as("date", dayjs(today).format("YYYY-MM-DD"))}
         class=""
         iso
       />
@@ -63,10 +49,7 @@
 
     <div class="flex flex-col gap-1.5">
       <Label>{m.is_guildCard()}</Label>
-      <Checkbox
-        {...{ ...isGuildCard.as("checkbox"), checked: false }}
-        type={undefined}
-      />
+      <Checkbox {...isGuildCard.as("checkbox", false)} type={undefined} />
     </div>
     <div class="flex flex-col gap-1.5">
       <Label>{m.expense_description()}</Label>
@@ -147,7 +130,9 @@
               </div>
               <div class="flex flex-col gap-1.5">
                 <Label>{m.expense_amount()}</Label>
-                <Input {...receiptRow.amount.as("number")}><Coins /></Input>
+                <Input {...receiptRow.amount.as("number")} step="0.01"
+                  ><Coins /></Input
+                >
               </div>
               <div class="flex flex-col gap-1.5">
                 <Label>{m.receipt_comment()}</Label>

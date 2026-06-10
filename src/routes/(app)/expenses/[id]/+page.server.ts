@@ -1,9 +1,7 @@
-import { redirect } from "sveltekit-flash-message/server";
 import { error } from "@sveltejs/kit";
 import { fail, message, superValidate } from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { getCostCenter } from "../config";
-import { expensesInclusion } from "../getExpenses";
 import { sendNotificationToSigner } from "../helper";
 import {
   getSigner,
@@ -11,27 +9,6 @@ import {
   updateSignersCacheIfNecessary,
 } from "../signers";
 import { updateExpenseSchema, updateItemSchema } from "../types";
-
-export const load = async ({ locals, params }) => {
-  const { prisma } = locals;
-  if (params.id.length === 0 || Number.isNaN(Number(params.id))) {
-    throw error(404, "Expense id should be a number");
-  }
-  const expense = await prisma.expense.findUnique({
-    where: {
-      id: Number(params.id),
-    },
-    include: expensesInclusion,
-  });
-  if (!expense) {
-    throw error(404, "Expense not found");
-  }
-  return {
-    expense,
-    updateItemForm: await superValidate(zod4(updateItemSchema)),
-    updateForm: await superValidate(expense, zod4(updateExpenseSchema)),
-  };
-};
 
 export const actions = {
   updateReceipt: async ({ params, request, locals }) => {
@@ -115,27 +92,5 @@ export const actions = {
       message: "Utlägg uppdaterat",
       type: "success",
     });
-  },
-  delete: async (event) => {
-    const { locals, params } = event;
-    const { prisma } = locals;
-    if (params.id.length === 0 || Number.isNaN(Number(params.id)))
-      throw error(404, "Expense id should be a number");
-    await prisma.expense.update({
-      where: {
-        id: Number(params.id),
-      },
-      data: {
-        removedAt: new Date(),
-      },
-    });
-    return redirect(
-      "/expenses",
-      {
-        message: "Utlägg borttaget",
-        type: "success",
-      },
-      event,
-    );
   },
 };
