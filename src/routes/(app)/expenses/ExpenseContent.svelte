@@ -34,15 +34,16 @@
 
   let user = $derived(page.data.user);
   let canSign = $derived(
-    expense.items.some((item) => item.signerMemberId === user?.memberId) ||
-      isAuthorized(apiNames.EXPENSES.CERTIFICATION, user),
+    !expense.hasBeenSentToBookkeeping &&
+      (expense.items.some((item) => item.signerMemberId === user?.memberId) ||
+        isAuthorized(apiNames.EXPENSES.CERTIFICATION, user)),
   );
 
   let editingId: string | undefined = $state(undefined);
 </script>
 
 <div class={dialog ? "mx-4" : ""}>
-  <div class="flex flex-row">
+  <div class={cn("flex flex-row", dialog ? "" : "mb-2")}>
     {#if canSign && expense.items.some((item) => !item.signedBy)}
       <Button onclick={() => approveAll(expense.id)}
         ><Check /> {m.expense_approveAll()}</Button
@@ -85,9 +86,7 @@
   </div>
 </div>
 
-<div
-  class="{dialog ? 'mx-8' : ''} mt-2 grid grid-cols-1 gap-2 pb-4 sm:grid-cols-2"
->
+<div class="{dialog ? 'mx-8' : ''} grid grid-cols-1 gap-2 pb-4 sm:grid-cols-2">
   {#each expense.items as item (item.id)}
     <Card.Root>
       <Card.Content class="relative flex flex-col gap-0.5">

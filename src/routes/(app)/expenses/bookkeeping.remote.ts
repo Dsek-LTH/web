@@ -2,8 +2,8 @@ import { command, getRequestEvent } from "$app/server";
 import { sendExpenseToBookkeeping } from "$lib/expenses/sendToBookkeeping";
 import apiNames from "$lib/utils/apiNames";
 import { isAuthorized } from "$lib/utils/authorization";
-import { error, fail } from "@sveltejs/kit";
-import { redirect, setFlash } from "sveltekit-flash-message/server";
+import { error } from "@sveltejs/kit";
+import { redirect } from "sveltekit-flash-message/server";
 import z from "zod";
 
 export const sendToBookkeeping = command(z.number(), async (id) => {
@@ -33,13 +33,9 @@ export const sendToBookkeeping = command(z.number(), async (id) => {
       getRequestEvent(),
     );
   } catch (e) {
-    setFlash(
-      {
-        message: e instanceof Error ? e.message : "Ett fel uppstod",
-        type: "error",
-      },
-      getRequestEvent(),
-    );
-    return fail(400);
+    return {
+      message: e instanceof Error ? e.message : "Ett fel uppstod",
+      type: "error",
+    };
   }
 });
