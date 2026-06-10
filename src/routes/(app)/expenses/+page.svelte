@@ -1,17 +1,24 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button";
   import { columns } from "./columns";
-  import { getExpenses } from "./expense.remote";
+  import { getMyExpenses } from "./expense.remote";
   import ExpenseTable from "./ExpenseTable.svelte";
+  import List from "@lucide/svelte/icons/list";
+  import * as m from "$paraglide/messages";
 
-  let { myExpenses } = $derived(await getExpenses());
+  let { myExpenses } = $derived(await getMyExpenses());
 </script>
 
-<h1 class="pb-5">Utlägg</h1>
+<h1 class="pb-5">{m.expenses()}</h1>
 
-<a href="/expenses/upload"
-  ><Button class="border-rosa-400">Skapa utlägg</Button></a
->
+<div class="flex flex-row gap-1">
+  <a href="/expenses/upload"
+    ><Button variant="rosa">+ {m.expense_create()}</Button></a
+  >
+  <a href="/expenses/all"
+    ><Button variant="lila"><List /> {m.expense_allExpenses()}</Button></a
+  >
+</div>
 
-<h2 class="py-5">Mina utlägg</h2>
+<h2 class="py-5">{m.expense_myExpenses()}</h2>
 <ExpenseTable {columns} data={myExpenses} />

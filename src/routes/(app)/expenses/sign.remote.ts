@@ -3,7 +3,11 @@ import apiNames from "$lib/utils/apiNames";
 import { isAuthorized } from "$lib/utils/authorization";
 import { error, fail } from "@sveltejs/kit";
 import z from "zod";
-import { getExpense, getExpenses } from "./expense.remote";
+import {
+  getExpense,
+  getFilteredExpenses,
+  getMyExpenses,
+} from "./expense.remote";
 
 export const approveAll = command(z.number(), async (id) => {
   const { locals } = getRequestEvent();
@@ -26,15 +30,21 @@ export const approveAll = command(z.number(), async (id) => {
   if (result.count === 0) {
     throw error(400, "Utlägget kunde inte godkännas");
   }
+
+  void getExpense(id).refresh();
+  void getMyExpenses().refresh();
+  void getFilteredExpenses().refresh();
+
   return {
     message: "Utlägg godkänt",
     type: "success",
   };
 });
 
-export const disapproveReceipt = command(
+export const unapproveReceipt = command(
   z.object({
     itemId: z.string(),
+    expenseId: z.number(),
   }),
   async (data) => {
     const { locals } = getRequestEvent();
@@ -75,6 +85,11 @@ export const disapproveReceipt = command(
         type: "error",
       };
     }
+
+    void getExpense(data.expenseId).refresh();
+    void getMyExpenses().refresh();
+    void getFilteredExpenses().refresh();
+
     return {
       message: "Kvitto av-godkänt",
       type: "success",
@@ -114,11 +129,13 @@ export const approveReceipt = command(
         type: "error",
       };
     }
+
     void getExpense(data.expenseId).refresh();
-    void getExpenses().refresh();
+    void getMyExpenses().refresh();
+    void getFilteredExpenses().refresh();
 
     return {
-      message: "Kvitto godkänd",
+      message: "Kvitto godkänt",
       type: "success",
     };
   },

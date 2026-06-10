@@ -4,6 +4,7 @@
   import dayjs from "dayjs";
   import type { ExpandedExpense } from "./getExpenses";
   import ExpenseContent from "./ExpenseContent.svelte";
+  import * as m from "$paraglide/messages";
 
   let { expense }: { expense: ExpandedExpense } = $props();
 </script>
@@ -11,7 +12,9 @@
 <Dialog.Content class="max-h-3/4 overflow-scroll  ">
   <Dialog.Header>
     <Dialog.Title
-      >{expense.isGuildCard ? "Sektionskort" : "Privat utlägg"}</Dialog.Title
+      >{expense.isGuildCard
+        ? m.expense_guildcard()
+        : m.expense_private_expense()}</Dialog.Title
     >
     <Dialog.Description>
       <div class="flex flex-row items-center justify-between pt-2">

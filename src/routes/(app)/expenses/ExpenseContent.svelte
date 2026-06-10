@@ -46,14 +46,14 @@
   <div class="flex flex-row">
     {#if canSign}
       <Button onclick={() => approveAll(expense.id)}
-        ><Check /> Godkänn allt</Button
+        ><Check /> {m.expense_approveAll()}</Button
       >
     {/if}
 
     {#if isAuthorized(apiNames.EXPENSES.BOOKKEEPING, user) && !expense.hasBeenSentToBookkeeping && expense.items.every((item) => item.signedAt)}
       <Button onclick={() => sendToBookkeeping(expense.id)} variant="lila">
         <FileText />
-        Skicka till bokföring
+        {m.expense_sendToBookkeeping()}
       </Button>
     {/if}
 
@@ -69,15 +69,15 @@
         </AlertDialog.Trigger>
         <AlertDialog.Content class="z-200">
           <AlertDialog.Header>
-            <AlertDialog.Title>Är du säker?</AlertDialog.Title>
+            <AlertDialog.Title>{m.expense_remove_header()}</AlertDialog.Title>
             <AlertDialog.Description>
-              Detta kommer att ta bort utlägget och uppladdade kvitton.
+              {m.expense_remove_description()}
             </AlertDialog.Description>
           </AlertDialog.Header>
           <AlertDialog.Footer>
-            <AlertDialog.Cancel>Avbryt</AlertDialog.Cancel>
+            <AlertDialog.Cancel>{m.cancel()}</AlertDialog.Cancel>
             <AlertDialog.Action onclick={() => deleteExpense(expense.id)}
-              >Radera</AlertDialog.Action
+              >{m.delete_delete()}</AlertDialog.Action
             >
           </AlertDialog.Footer>
         </AlertDialog.Content>
@@ -103,8 +103,8 @@
                 : (editingId = item.id)}
             >{#if editingId == item.id}<X />{:else}<Pen />{/if}{!dialog
               ? editingId == item.id
-                ? "Avbryt"
-                : "Redigera"
+                ? m.cancel()
+                : m.expense_edit()
               : ""}</Button
           >
         {/if}
@@ -112,7 +112,7 @@
           href={item.receiptUrl}
           target="_blank"
           class="flex flex-row gap-1 underline"
-          ><Download size="18" />Ladda ner kvitto</a
+          ><Download size="18" />{m.expense_download_receipt()}</a
         >
 
         {#if editingId == item.id}
@@ -171,39 +171,41 @@
                 ><Pen /></Input
               >
             </div>
-            <Button class="mt-1.5" type="submit" variant="lila">Spara</Button>
+            <Button class="mt-1.5" type="submit" variant="lila"
+              >{m.save()}</Button
+            >
           </form>
         {:else}
           <div>
-            <div class="font-bold opacity-60">Kronor</div>
+            <div class="font-bold opacity-60">{m.expense_amount()}</div>
             <Price price={item.amount} />
           </div>
           <div>
-            <div class="font-bold opacity-60">Kostnadsställe</div>
+            <div class="font-bold opacity-60">{m.expense_type()}</div>
             {item.costCenter}
           </div>
           {#if item.comment}
             <div>
-              <div class="font-bold opacity-60">Kommentar</div>
+              <div class="font-bold opacity-60">{m.expense_comment()}</div>
               {item.comment}
             </div>
           {/if}
         {/if}
 
         <div>
-          <div class="font-bold opacity-60">Signerad</div>
+          <div class="font-bold opacity-60">{m.expense_signed()}</div>
           {item.signedAt
             ? dayjs(item.signedAt).format("D MMM YYYY, HH:mm")
-            : "Ej signerad"}
+            : m.expense_notSigned()}
         </div>
 
         <div>
           {#if item.signedBy}
-            <div class="font-bold opacity-60">Signerad av</div>
+            <div class="font-bold opacity-60">{m.expense_signedBy()}</div>
             {item.signedBy.firstName}
             {item.signedBy.lastName}
           {:else}
-            <div class="font-bold opacity-60">Signeras av</div>
+            <div class="font-bold opacity-60">{m.expense_signer()}</div>
             {item.signer.firstName}
             {item.signer.lastName}
           {/if}
@@ -213,7 +215,7 @@
             class="mt-2 self-center"
             onclick={() =>
               approveReceipt({ itemId: item.id, expenseId: expense.id })}
-            ><Check /> Godkänn</Button
+            ><Check /> {m.expense_approve()}</Button
           >
         {/if}
       </Card.Content>

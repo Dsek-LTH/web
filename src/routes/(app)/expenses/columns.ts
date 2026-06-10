@@ -6,11 +6,12 @@ import X from "@lucide/svelte/icons/x";
 import { renderComponent } from "$lib/components/ui/data-table";
 import ExpenseLink from "./upload/ExpenseLink.svelte";
 import type { ExpandedExpense } from "./getExpenses";
+import * as m from "$paraglide/messages";
 
 export const columns: Array<ColumnDef<ExpandedExpense>> = [
   {
     accessorFn: (originalRow) => dayjs(originalRow.date).format("YYYY-MM-DD"),
-    header: "Datum",
+    header: m.expense_date(),
   },
   {
     accessorFn: (originalRow) => {
@@ -18,11 +19,11 @@ export const columns: Array<ColumnDef<ExpandedExpense>> = [
         ...new Set(originalRow.items.map((item) => item.costCenter)),
       ].join(", ");
     },
-    header: "Kostnadsställe",
+    header: m.expense_type(),
   },
   {
     accessorKey: "description",
-    header: "Beskrivning",
+    header: m.expense_description(),
   },
   {
     accessorFn: (originalRow) => {
@@ -41,7 +42,7 @@ export const columns: Array<ColumnDef<ExpandedExpense>> = [
           .map((signer) => `${signer.firstName} ${signer.lastName}`),
       ).join(", ");
     },
-    header: "Ansvarig",
+    header: m.expense_responsible(),
   },
   {
     accessorFn: (originalRow) => {
@@ -52,7 +53,7 @@ export const columns: Array<ColumnDef<ExpandedExpense>> = [
       }
       return "unsigned";
     },
-    header: "Signerad",
+    header: m.expense_signed(),
     cell: (cell) => {
       const signedStatus = cell.getValue() as
         | "signed"
@@ -72,7 +73,7 @@ export const columns: Array<ColumnDef<ExpandedExpense>> = [
   },
   {
     accessorFn: (originalRow) => !originalRow.isGuildCard,
-    header: "Privat",
+    header: m.expense_private(),
     cell: (cell) => {
       const isPrivate = cell.getValue() as boolean;
 
@@ -88,7 +89,7 @@ export const columns: Array<ColumnDef<ExpandedExpense>> = [
       `${originalRow.items
         .reduce((acc, item) => acc + item.amount / 100, 0)
         .toLocaleString()} kr`,
-    header: "Totalbelopp",
+    header: m.expense_total(),
   },
   {
     header: "",

@@ -8,6 +8,7 @@
   import * as Dialog from "$lib/components/ui/dialog/index.js";
   import ExpenseDialog from "./ExpenseDialog.svelte";
   import { type ExpandedExpense } from "./getExpenses";
+  import * as m from "$paraglide/messages";
 
   type ExpenseTableProps<TData, TValue> = {
     columns: Array<ColumnDef<TData, TValue>>;
@@ -69,7 +70,7 @@
       {:else}
         <Table.Row>
           <Table.Cell colspan={columns.length} class="h-24 text-center">
-            No results.
+            {m.expense_noResults()}
           </Table.Cell>
         </Table.Row>
       {/each}
