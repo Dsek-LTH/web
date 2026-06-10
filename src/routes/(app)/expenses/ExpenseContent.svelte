@@ -11,7 +11,7 @@
   import Check from "@lucide/svelte/icons/check";
   import FileText from "@lucide/svelte/icons/file-text";
   import Trash from "@lucide/svelte/icons/trash";
-  import { approveAll, approveReceipt } from "./sign.remote";
+  import { approveAll, approveReceipt, unapproveReceipt } from "./sign.remote";
   import { sendToBookkeeping } from "./bookkeeping.remote";
   import { deleteExpense, updateReceipt } from "./expense.remote";
   import * as AlertDialog from "$lib/components/ui/alert-dialog";
@@ -34,9 +34,8 @@
 
   let user = $derived(page.data.user);
   let canSign = $derived(
-    expense.items.some((item) => !item.signedAt) &&
-      (expense.items.some((item) => item.signerMemberId === user?.memberId) ||
-        isAuthorized(apiNames.EXPENSES.CERTIFICATION, user)),
+    expense.items.some((item) => item.signerMemberId === user?.memberId) ||
+      isAuthorized(apiNames.EXPENSES.CERTIFICATION, user),
   );
 
   let editingId: string | undefined = $state(undefined);
@@ -44,7 +43,7 @@
 
 <div class={dialog ? "mx-4" : ""}>
   <div class="flex flex-row">
-    {#if canSign}
+    {#if canSign && expense.items.some((item) => !item.signedBy)}
       <Button onclick={() => approveAll(expense.id)}
         ><Check /> {m.expense_approveAll()}</Button
       >
@@ -210,13 +209,23 @@
             {item.signer.lastName}
           {/if}
         </div>
-        {#if !item.signedBy && canSign}
-          <Button
-            class="mt-2 self-center"
-            onclick={() =>
-              approveReceipt({ itemId: item.id, expenseId: expense.id })}
-            ><Check /> {m.expense_approve()}</Button
-          >
+        {#if canSign}
+          {#if item.signedBy}
+            <Button
+              variant="lila"
+              class="mt-2 self-center"
+              onclick={() =>
+                unapproveReceipt({ itemId: item.id, expenseId: expense.id })}
+              ><X /> {m.expense_unapprove()}</Button
+            >
+          {:else}
+            <Button
+              class="mt-2 self-center"
+              onclick={() =>
+                approveReceipt({ itemId: item.id, expenseId: expense.id })}
+              ><Check /> {m.expense_approve()}</Button
+            >
+          {/if}
         {/if}
       </Card.Content>
     </Card.Root>

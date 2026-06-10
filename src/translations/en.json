@@ -912,6 +912,7 @@
   "expense_private_expense": "Private expense",
   "expense_approve": "Approve",
   "expense_approveAll": "Approve all",
+  "expense_unapprove": "Disapprove",
   "expense_sendToBookkeeping": "Send to bookkeeping",
   "expense_remove_header": "Are you sure that you want to delete the expense?",
   "expense_remove_description": "This will delete the expense and uploaded receipts. This action cannot be undone.",

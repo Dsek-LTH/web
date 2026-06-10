@@ -912,6 +912,7 @@
   "expense_private_expense": "Privat utlägg",
   "expense_approve": "Godkänn",
   "expense_approveAll": "Godkänn allt",
+  "expense_unapprove": "Av-godkänn",
   "expense_sendToBookkeeping": "Skicka till bokföring",
   "expense_remove_header": "Är du säker på att du vill ta bort utlägget?",
   "expense_remove_description": "Detta kommer att ta bort utlägget och uppladdade kvitton. Åtgärden kan inte ångras.",
