@@ -3,7 +3,11 @@ import apiNames from "$lib/utils/apiNames";
 import { isAuthorized } from "$lib/utils/authorization";
 import { redirect } from "sveltekit-flash-message/server";
 import z from "zod";
-import { expensesInclusion } from "./getExpenses";
+import {
+  expensesInclusion,
+  extractFilter,
+  whereGivenFilter,
+} from "./getExpenses";
 import { error } from "@sveltejs/kit";
 import { updateItemSchema } from "./types";
 import {
@@ -14,8 +18,41 @@ import {
 import { getCostCenter } from "./config";
 import { sendNotificationToSigner } from "./helper";
 import { convertPriceToCents } from "$lib/utils/convertPrice";
+import {
+  getPageOrThrowSvelteError,
+  getPageSizeOrThrowSvelteError,
+} from "$lib/utils/url.server";
 
-export const getExpenses = query(async () => {
+export const getFilteredExpenses = query(async () => {
+  const { locals, url } = getRequestEvent();
+  const { prisma } = locals;
+
+  const allExpensesCount = await prisma.expense.count();
+  const pageSize = getPageSizeOrThrowSvelteError(url);
+  const pageCount = Math.max(Math.ceil(allExpensesCount / pageSize), 1);
+  const page = getPageOrThrowSvelteError(url, {
+    fallbackValue: 1,
+    lowerBound: 1,
+    upperBound: pageCount,
+  });
+  const filter = extractFilter(url);
+
+  const allExpenses = await prisma.expense.findMany({
+    where: whereGivenFilter(filter),
+    orderBy: {
+      date: "desc",
+    },
+    include: expensesInclusion,
+    take: pageSize,
+    skip: Math.max(page - 1, 0) * pageSize,
+  });
+  return {
+    allExpenses,
+    pageCount,
+  };
+});
+
+export const getMyExpenses = query(async () => {
   const { locals } = getRequestEvent();
   const { prisma, user, member } = locals;
 
@@ -148,7 +185,8 @@ export const updateReceipt = form(updateItemSchema, async (data, issue) => {
     ]);
   }
   void getExpense(expenseItem.expense.id).refresh();
-  void getExpenses().refresh();
+  void getMyExpenses().refresh();
+  void getFilteredExpenses().refresh();
 
   for (const { query } of requested(getExpense, 1)) {
     void query.refresh();
@@ -173,7 +211,8 @@ export const deleteExpense = command(z.number(), async (id) => {
     },
   });
 
-  void getExpenses().refresh();
+  void getMyExpenses().refresh();
+  void getFilteredExpenses().refresh();
 
   return redirect(
     "/expenses",
