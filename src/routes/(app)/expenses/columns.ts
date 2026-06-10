@@ -1,11 +1,11 @@
 import type { ColumnDef } from "@tanstack/table-core";
-import type { ExpandedExpense } from "./+page.server";
 import dayjs from "dayjs";
 import Check from "@lucide/svelte/icons/check";
 import Minus from "@lucide/svelte/icons/minus";
 import X from "@lucide/svelte/icons/x";
 import { renderComponent } from "$lib/components/ui/data-table";
 import ExpenseLink from "./upload/ExpenseLink.svelte";
+import type { ExpandedExpense } from "./getExpenses";
 
 export const columns: Array<ColumnDef<ExpandedExpense>> = [
   {
