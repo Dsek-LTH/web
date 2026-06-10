@@ -4,7 +4,7 @@ import Check from "@lucide/svelte/icons/check";
 import Minus from "@lucide/svelte/icons/minus";
 import X from "@lucide/svelte/icons/x";
 import { renderComponent } from "$lib/components/ui/data-table";
-import ExpenseLink from "./upload/ExpenseLink.svelte";
+import ExpenseLink from "./ExpenseLink.svelte";
 import type { ExpandedExpense } from "./getExpenses";
 import * as m from "$paraglide/messages";
 
