@@ -51,7 +51,7 @@
     "@snaplet/seed": "0.98.0",
     "@sveltejs/adapter-node": "^5.4.0",
     "@sveltejs/adapter-vercel": "^6.1.1",
-    "@sveltejs/kit": "^2.49.5",
+    "@sveltejs/kit": "^2.63.1",
     "@sveltejs/vite-plugin-svelte": "^5.0.1",
     "@tailwindcss/postcss": "^4.1.12",
     "@tailwindcss/typography": "^0.5.19",
@@ -79,7 +79,7 @@
     "prettier-plugin-tailwindcss": "^0.6.14",
     "prisma": "^6.0.1",
     "prisma-case-format": "^2.2.1",
-    "svelte": "^5.46.4",
+    "svelte": "^5.56.3",
     "svelte-check": "^4.3.4",
     "sveltekit-flash-message": "^2.4.6",
     "sveltekit-superforms": "^2.29.1",
@@ -140,7 +140,7 @@
     "node-schedule": "^2.1.1",
     "nodemailer": "^6.9.16",
     "pdf-lib": "^1.17.1",
-    "prom-client": "^14.0.0",
+    "prom-client": "^14.2.0",
     "sharp": "^0.33.5",
     "simple-icons": "^15.21.0",
     "stripe": "^17.4.0",
@@ -160,7 +160,7 @@
       "@prisma/internals@5.14.0-dev.34": "^6.0.0"
     },
     "patchedDependencies": {
-      "devalue@5.6.2": "patches/devalue@5.6.2.patch"
+      "devalue@5.8.1": "patches/devalue@5.8.1.patch"
     }
   }
 }

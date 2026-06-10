@@ -1,0 +1,30 @@
+diff --git a/src/stringify.js b/src/stringify.js
+index 35dadffb9b8140180957cfe3d8a950acbf5d4a5c..b55644c990584377b9d4f72e63b3360b408ed60b 100644
+--- a/src/stringify.js
++++ b/src/stringify.js
+@@ -330,10 +330,6 @@ function run(async, value, reducers) {
+ 						throw new DevalueError(`Cannot stringify arbitrary non-POJOs`, keys, thing, value);
+ 					}
+ 
+-					if (enumerable_symbols(thing).length > 0) {
+-						throw new DevalueError(`Cannot stringify POJOs with symbolic keys`, keys, thing, value);
+-					}
+-
+ 					if (Object.getPrototypeOf(thing) === null) {
+ 						str = '["null"';
+ 						for (const key of Object.keys(thing)) {
+diff --git a/src/uneval.js b/src/uneval.js
+index 5c1f39e323cf3f77958498986640eb0b9d073b87..0a3690fc5261c8d9c49607dfa3666844275dd90c 100644
+--- a/src/uneval.js
++++ b/src/uneval.js
+@@ -118,10 +118,6 @@ export function uneval(value, replacer) {
+ 						throw new DevalueError(`Cannot stringify arbitrary non-POJOs`, keys, thing, value);
+ 					}
+ 
+-					if (enumerable_symbols(thing).length > 0) {
+-						throw new DevalueError(`Cannot stringify POJOs with symbolic keys`, keys, thing, value);
+-					}
+-
+ 					for (const key of Object.keys(thing)) {
+ 						if (key === '__proto__') {
+ 							throw new DevalueError(
