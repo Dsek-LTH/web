@@ -10,7 +10,9 @@
   import { costCenters } from "../config";
   import dayjs from "dayjs";
   import { Label } from "$lib/components/ui/label";
-  import Button from "$lib/components/ui/button/button.svelte";
+  import Button, {
+    buttonVariants,
+  } from "$lib/components/ui/button/button.svelte";
   import * as Card from "$lib/components/ui/card";
   import PiggyBank from "@lucide/svelte/icons/piggy-bank";
   import Coins from "@lucide/svelte/icons/coins";
@@ -19,6 +21,7 @@
   import X from "@lucide/svelte/icons/x";
   import Separator from "$lib/components/ui/separator/separator.svelte";
   import * as Tooltip from "$lib/components/ui/tooltip";
+  import { cn } from "$lib/utils";
 
   const { date, description, isGuildCard, receipts } = createExpense.fields;
   receipts.set([createBasicReceipt()]);
@@ -61,22 +64,27 @@
           <Card.Content class="relative flex flex-col gap-2">
             <Tooltip.Provider>
               <Tooltip.Root>
-                <Tooltip.Trigger class="absolute -top-4 right-2 ">
-                  <Button
-                    onclick={() =>
-                      receipts.set([
-                        ...receipts.value().filter((_, index) => index != i),
-                      ])}
-                    variant="outline"
-                    size="icon-sm"
-                    class="bg-background"><Trash /></Button
-                  ></Tooltip.Trigger
+                <Tooltip.Trigger
+                  onclick={() =>
+                    receipts.set([
+                      ...receipts.value().filter((_, index) => index != i),
+                    ])}
+                  class={cn(
+                    buttonVariants({ size: "icon-sm", variant: "outline" }),
+                    "bg-background absolute -top-4 right-2 ",
+                  )}
+                >
+                  <Trash /></Tooltip.Trigger
                 ><Tooltip.Content>
                   {m.remove_receipt()}
                 </Tooltip.Content></Tooltip.Root
               >
             </Tooltip.Provider>
-            <FileUpload allowUrl={false} {...receipts[i]!.image.as("file")} />
+            <FileUpload
+              aria-errormessage={receipts[i]?.image.issues()?.at(0)?.message}
+              allowUrl={false}
+              {...receipts[i]!.image.as("file")}
+            />
 
             {#each receipts[i]!.rows.value() as row, j (row)}
               {@const receiptRow = receipts[i]!.rows[j]!}
@@ -93,7 +101,11 @@
                     bind:value={receiptRow.costCenter.value,
                     (v) => receiptRow.costCenter.set(v ?? "")}
                   >
-                    <Select.Trigger class="bg-background w-full"
+                    <Select.Trigger
+                      aria-invalid={!!receiptRow.costCenter.issues()?.at(0)}
+                      aria-errormessage={receiptRow.costCenter.issues()?.at(0)
+                        ?.message}
+                      class="bg-background w-full"
                       ><PiggyBank />{receiptRow.costCenter
                         .as("text")
                         .value.toString()}
@@ -110,18 +122,17 @@
                 <Separator orientation="vertical" class="mx-4 h-9! self-end" />
                 <Tooltip.Provider>
                   <Tooltip.Root>
-                    <Tooltip.Trigger class="mb-1 self-end">
-                      <Button
-                        onclick={() =>
-                          receipts[i]!.rows.set([
-                            ...receipts[i]!.rows.value().filter(
-                              (_, i) => i != j,
-                            ),
-                          ])}
-                        variant="outline"
-                        size="icon-sm"
-                        class="bg-background"><X /></Button
-                      ></Tooltip.Trigger
+                    <Tooltip.Trigger
+                      onclick={() =>
+                        receipts[i]!.rows.set([
+                          ...receipts[i]!.rows.value().filter((_, i) => i != j),
+                        ])}
+                      class={cn(
+                        buttonVariants({ size: "icon-sm", variant: "outline" }),
+                        "bg-background mb-1 self-end ",
+                      )}
+                    >
+                      <X /></Tooltip.Trigger
                     ><Tooltip.Content>
                       {m.remove_row()}
                     </Tooltip.Content></Tooltip.Root

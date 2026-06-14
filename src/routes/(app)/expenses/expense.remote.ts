@@ -214,12 +214,8 @@ export const deleteExpense = command(z.number(), async (id) => {
   void getMyExpenses().refresh();
   void getFilteredExpenses().refresh();
 
-  return redirect(
-    "/expenses",
-    {
-      message: "Utlägg borttaget",
-      type: "success",
-    },
-    getRequestEvent(),
-  );
+  return {
+    message: "Utlägg borttaget",
+    type: "success",
+  };
 });

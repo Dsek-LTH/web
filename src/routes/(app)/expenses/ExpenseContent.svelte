@@ -30,7 +30,10 @@
   let {
     expense,
     dialog = false,
-  }: { expense: ExpandedExpense; dialog?: boolean } = $props();
+  }: {
+    expense: ExpandedExpense;
+    dialog?: boolean;
+  } = $props();
 
   let user = $derived(page.data.user);
   let canSign = $derived(
@@ -40,6 +43,7 @@
   );
 
   let editingId: string | undefined = $state(undefined);
+  let deleteDialogOpen = $state(false);
 </script>
 
 <div class={dialog ? "mx-4" : ""}>
@@ -58,7 +62,7 @@
     {/if}
 
     {#if !expense.items.some((item) => item.signedAt) && !expense.hasBeenSentToBookkeeping}
-      <AlertDialog.Root>
+      <AlertDialog.Root bind:open={deleteDialogOpen}>
         <AlertDialog.Trigger
           class={cn(
             "ml-auto",
@@ -76,8 +80,18 @@
           </AlertDialog.Header>
           <AlertDialog.Footer>
             <AlertDialog.Cancel>{m.cancel()}</AlertDialog.Cancel>
-            <AlertDialog.Action onclick={() => deleteExpense(expense.id)}
-              >{m.delete_delete()}</AlertDialog.Action
+            <AlertDialog.Action
+              onclick={() => {
+                deleteExpense(expense.id);
+                deleteDialogOpen = false;
+                setTimeout(
+                  () =>
+                    document.dispatchEvent(
+                      new KeyboardEvent("keydown", { key: "Escape" }),
+                    ),
+                  200,
+                ); // close the dialog
+              }}>{m.delete_delete()}</AlertDialog.Action
             >
           </AlertDialog.Footer>
         </AlertDialog.Content>
