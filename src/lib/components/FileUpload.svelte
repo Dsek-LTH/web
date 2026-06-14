@@ -51,6 +51,7 @@
 </script>
 
 <div
+  aria-invalid={restProps["aria-invalid"]}
   ondrop={(e) => {
     e.preventDefault();
     files = e.dataTransfer?.files;
@@ -64,7 +65,7 @@
     klass,
     allowUrl ? "h-[256px]" : "p-8",
 
-    "aria-invalid:border-destructive bg-secondary-background border-border flex flex-col items-center justify-center rounded-md border-[1px] text-center aria-invalid:bg-amber-500",
+    "aria-invalid:border-destructive dark:aria-invalid:bg-rosa-950 aria-invalid:bg-rosa-50 bg-secondary-background border-border flex flex-col items-center justify-center rounded-md border-[1px] text-center",
   )}
 >
   <div class="mb-4 flex flex-col">
@@ -74,7 +75,7 @@
     </p>
   </div>
   <div class="flex flex-col gap-4 px-16">
-    <Input {...restProps} bind:files class="w-26" type="file" />
+    <Input {...restProps} bind:files class="bg-background w-26" type="file" />
     {#if allowUrl}
       <Separator text={m.fileupload_or()} textClass="font-medium" />
 
