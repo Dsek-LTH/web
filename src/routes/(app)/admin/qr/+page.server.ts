@@ -6,7 +6,7 @@ import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ locals, url }) => {
   const { prisma, user } = locals;
-  authorize(apiNames.EVENT.READ, user);
+  authorize(apiNames.WEBSHOP.CONSUME, user);
 
   // Get page number from URL query params (default to 1)
   const page = parseInt(url.searchParams.get("page") || "1");

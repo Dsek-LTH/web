@@ -16,6 +16,7 @@ import {
 } from "../signers";
 import { updateExpenseSchema, updateItemSchema } from "../types";
 import { setFlash } from "sveltekit-flash-message/server";
+import { convertPriceToCents } from "$lib/utils/convertPrice";
 
 export const load = async ({ locals, params }) => {
   const { prisma } = locals;
@@ -76,6 +77,7 @@ export const actions = {
       where: { id: data.id },
       data: {
         ...data,
+        amount: convertPriceToCents(data.amount),
         committeeShortName: costCenter.committee,
         signerMemberId: signer,
       },
