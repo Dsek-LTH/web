@@ -8,6 +8,6 @@
 </script>
 
 {#if isRemoved}
-  <Badge class="bg-red-500"><Trash /> {m.expense_removed()}</Badge>
+  <Badge class="bg-red-500 text-white"><Trash /> {m.expense_removed()}</Badge>
 {/if}
 {description}

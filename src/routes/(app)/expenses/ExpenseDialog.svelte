@@ -18,7 +18,9 @@
         ? m.expense_guildcard()
         : m.expense_private_expense()}
       {#if expense.removedAt}
-        <Badge class="bg-red-500"><Trash /> {m.expense_removed()}</Badge>
+        <Badge class="bg-red-500 text-white"
+          ><Trash /> {m.expense_removed()}</Badge
+        >
       {/if}</Dialog.Title
     >
     <Dialog.Description>
