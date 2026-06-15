@@ -22,6 +22,7 @@
   import Separator from "$lib/components/ui/separator/separator.svelte";
   import * as Tooltip from "$lib/components/ui/tooltip";
   import { cn } from "$lib/utils";
+  import { Spinner } from "$lib/components/ui/spinner";
 
   const { date, description, isGuildCard, receipts } = createExpense.fields;
   receipts.set([createBasicReceipt()]);
@@ -169,6 +170,8 @@
       onclick={() => receipts.set([...receipts.value(), createBasicReceipt()])}
       >+ {m.add_receipt()}</Button
     >
-    <Button type="submit">Submit</Button>
+    <Button type="submit"
+      >{#if createExpense.pending > 0}<Spinner />{/if}{m.save()}</Button
+    >
   </form>
 </div>
