@@ -38,6 +38,7 @@ export function createSvelteTable<TData extends RowData>(
   const resolvedOptions: TableOptionsResolved<TData> = mergeObjects(
     {
       state: {},
+      // eslint-disable-next-line @typescript-eslint/no-empty-function -- Part of library
       onStateChange() {},
       renderFallbackValue: null,
       mergeOptions: (
@@ -58,7 +59,7 @@ export function createSvelteTable<TData extends RowData>(
       return mergeObjects(prev, options, {
         state: mergeObjects(state, options.state || {}),
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Part of library
         onStateChange: (updater: any) => {
           if (updater instanceof Function) state = updater(state);
           else state = mergeObjects(state, updater);
@@ -92,8 +93,8 @@ type Intersection<T extends readonly unknown[]> = (T extends [
  *
  * Proxy-based to avoid known WebKit recursion issue.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function mergeObjects<Sources extends readonly MaybeThunk<any>[]>(
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Part of library
+export function mergeObjects<Sources extends ReadonlyArray<MaybeThunk<any>>>(
   ...sources: Sources
 ): Intersection<{ [K in keyof Sources]: Sources[K] }> {
   const resolve = <T extends object>(src: MaybeThunk<T>): T | undefined =>
@@ -118,13 +119,13 @@ export function mergeObjects<Sources extends readonly MaybeThunk<any>[]>(
       return !!findSourceWithKey(key);
     },
 
-    ownKeys(): (string | symbol)[] {
-      // eslint-disable-next-line svelte/prefer-svelte-reactivity
+    ownKeys(): Array<string | symbol> {
+      // eslint-disable-next-line svelte/prefer-svelte-reactivity -- Part of library
       const all = new Set<string | symbol>();
       for (const s of sources) {
         const obj = resolve(s);
         if (obj) {
-          for (const k of Reflect.ownKeys(obj) as (string | symbol)[]) {
+          for (const k of Reflect.ownKeys(obj) as Array<string | symbol>) {
             all.add(k);
           }
         }
@@ -138,7 +139,7 @@ export function mergeObjects<Sources extends readonly MaybeThunk<any>[]>(
       return {
         configurable: true,
         enumerable: true,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Part of library
         value: (src as any)[key],
         writable: true,
       };
