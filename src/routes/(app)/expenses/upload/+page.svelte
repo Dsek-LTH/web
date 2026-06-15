@@ -23,6 +23,8 @@
   import * as Tooltip from "$lib/components/ui/tooltip";
   import { cn } from "$lib/utils";
   import { Spinner } from "$lib/components/ui/spinner";
+  import { goto } from "$app/navigation";
+  import { resolve } from "$app/paths";
 
   const { date, description, isGuildCard, receipts } = createExpense.fields;
   receipts.set([createBasicReceipt()]);
@@ -45,9 +47,9 @@
     <div class="flex flex-col gap-1.5">
       <Label>{m.receipt_date()}</Label>
       <DatePicker
-        {...date.as("date", dayjs(today).format("YYYY-MM-DD"))}
-        value={date.as("date", dayjs(today).format("YYYY-MM-DD"))
-          .value as string}
+        {...date.as("date", dayjs(today).format("YYYY-MM-DD")) as {
+          value: string;
+        }}
         class=""
         iso
       />
@@ -172,8 +174,13 @@
       onclick={() => receipts.set([...receipts.value(), createBasicReceipt()])}
       >+ {m.add_receipt()}</Button
     >
-    <Button type="submit"
-      >{#if createExpense.pending > 0}<Spinner />{/if}{m.save()}</Button
-    >
+    <div class="flex w-full flex-row justify-between gap-1.5">
+      <Button onclick={() => goto(resolve("/expenses"))} variant="outline"
+        >{m.cancel()}</Button
+      >
+      <Button type="submit" class="block grow"
+        >{#if createExpense.pending > 0}<Spinner />{/if}{m.save()}</Button
+      >
+    </div>
   </form>
 </div>
