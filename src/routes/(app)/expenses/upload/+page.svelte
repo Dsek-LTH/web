@@ -46,6 +46,8 @@
       <Label>{m.receipt_date()}</Label>
       <DatePicker
         {...date.as("date", dayjs(today).format("YYYY-MM-DD"))}
+        value={date.as("date", dayjs(today).format("YYYY-MM-DD"))
+          .value as string}
         class=""
         iso
       />

@@ -274,7 +274,7 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
                 method: "DELETE",
                 headers: {
                   "Content-Type": "application/json",
-                  Authorization: `Bearer ${jwt?.id_token}`,
+                  Authorization: `Bearer ${jwt?.["id_token"]}`,
                 },
               },
             )
@@ -330,7 +330,7 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
                 }),
                 headers: {
                   "Content-Type": "application/json",
-                  Authorization: `Bearer ${jwt?.id_token}`,
+                  Authorization: `Bearer ${jwt?.["id_token"]}`,
                 },
               },
             )

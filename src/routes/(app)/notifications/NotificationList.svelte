@@ -6,7 +6,7 @@
   import type { NotificationGroup } from "$lib/utils/notifications/group";
   import { deleteAllNotifications } from "./data.remote";
   import NotificationItem from "./NotificationItem.svelte";
-  import { enhanceWithToast } from "$lib/stores/toast";
+  import { enhanceWithToast, type RemoteForm } from "$lib/stores/toast";
 
   const {
     notificationsPromise,
@@ -32,7 +32,9 @@
     {/if}
   </div>
   <div class="border-t p-2">
-    <form {...enhanceWithToast(deleteAllNotifications)}>
+    <form
+      {...enhanceWithToast(deleteAllNotifications as unknown as RemoteForm)}
+    >
       <Button
         aria-label={m.navbar_bell_deleteAll()}
         variant="ghost"

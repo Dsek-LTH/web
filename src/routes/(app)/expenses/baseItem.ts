@@ -3,7 +3,7 @@ export const createBasicReceiptRow = (costCenter: string | null = null) =>
   ({
     costCenter,
     amount: 0,
-    comment: null,
+    comment: undefined,
   }) as ReceiptRowSchema;
 const createBasicReceipt = (): ReceiptSchema => ({
   image: null as unknown as File,

@@ -15,7 +15,7 @@
     allowUrl = true,
     ...restProps
   }: {
-    files?: FileList | null;
+    files?: FileList | undefined | null;
     url?: string;
     class?: string;
     allowUrl?: boolean;
@@ -50,6 +50,7 @@
   });
 </script>
 
+<!-- svelte-ignore a11y_role_supports_aria_props -->
 <div
   aria-invalid={restProps["aria-invalid"]}
   ondrop={(e) => {
@@ -75,7 +76,12 @@
     </p>
   </div>
   <div class="flex flex-col gap-4 px-16">
-    <Input {...restProps} bind:files class="bg-background w-26" type="file" />
+    <Input
+      {...restProps}
+      bind:files={files as FileList | undefined}
+      class="bg-background w-26"
+      type="file"
+    />
     {#if allowUrl}
       <Separator text={m.fileupload_or()} textClass="font-medium" />
 

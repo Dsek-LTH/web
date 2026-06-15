@@ -17,13 +17,15 @@
 
   let { data, columns }: ExpenseTableProps<TData, TValue> = $props();
 
-  const table = createSvelteTable({
-    get data() {
-      return data;
-    },
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-  });
+  const table = $derived(
+    createSvelteTable({
+      get data() {
+        return data;
+      },
+      columns,
+      getCoreRowModel: getCoreRowModel(),
+    }),
+  );
 </script>
 
 <div class="rounded-md border">

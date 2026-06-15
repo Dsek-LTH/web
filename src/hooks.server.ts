@@ -1,3 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment -- Lots of errors since OAuth responses aren't typed
+// @ts-nocheck
+// TODO: fix this
 import { env } from "$env/dynamic/private";
 import { env as envPublic } from "$env/dynamic/public";
 import { createMember } from "$lib/utils/member";
