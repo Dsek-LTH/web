@@ -15,7 +15,7 @@
 
   let { allExpenses, pageCount } = $derived(await getFilteredExpenses());
 
-  const getFilterLink = async (filter: string) => {
+  const setFilterLink = async (filter: string) => {
     if (!browser) return;
     const searchParams = new SvelteURLSearchParams(page.url.searchParams);
     searchParams.set("expense-filter", filter.toString());
@@ -43,16 +43,16 @@
   value={page.url.searchParams.get("expense-filter") ?? "all"}
 >
   <Tabs.List>
-    <Tabs.Trigger onclick={() => getFilterLink("all")} value="all"
+    <Tabs.Trigger onclick={() => setFilterLink("all")} value="all"
       >{m.expense_allExpenses()}</Tabs.Trigger
     >
-    <Tabs.Trigger onclick={() => getFilterLink("not-signed")} value="not-signed"
+    <Tabs.Trigger onclick={() => setFilterLink("not-signed")} value="not-signed"
       >{m.expense_unsigned()}</Tabs.Trigger
     >
-    <Tabs.Trigger onclick={() => getFilterLink("signed")} value="signed"
+    <Tabs.Trigger onclick={() => setFilterLink("signed")} value="signed"
       >{m.expense_unbooked()}</Tabs.Trigger
     >
-    <Tabs.Trigger onclick={() => getFilterLink("in-book")} value="in-book"
+    <Tabs.Trigger onclick={() => setFilterLink("in-book")} value="in-book"
       >{m.expense_booked()}</Tabs.Trigger
     >
   </Tabs.List>
