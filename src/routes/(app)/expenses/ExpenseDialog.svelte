@@ -5,6 +5,8 @@
   import type { ExpandedExpense } from "./getExpenses";
   import ExpenseContent from "./ExpenseContent.svelte";
   import * as m from "$paraglide/messages";
+  import { Badge } from "$lib/components/ui/badge";
+  import Trash from "@lucide/svelte/icons/trash";
 
   let { expense }: { expense: ExpandedExpense } = $props();
 </script>
@@ -14,7 +16,10 @@
     <Dialog.Title
       >{expense.isGuildCard
         ? m.expense_guildcard()
-        : m.expense_private_expense()}</Dialog.Title
+        : m.expense_private_expense()}
+      {#if expense.removedAt}
+        <Badge class="bg-red-500"><Trash /> {m.expense_removed()}</Badge>
+      {/if}</Dialog.Title
     >
     <Dialog.Description>
       <div class="flex flex-row items-center justify-between pt-2">

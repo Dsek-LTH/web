@@ -7,6 +7,7 @@ import { renderComponent } from "$lib/components/ui/data-table";
 import ExpenseLink from "./ExpenseLink.svelte";
 import type { ExpandedExpense } from "./getExpenses";
 import * as m from "$paraglide/messages";
+import CellDescription from "./CellDescription.svelte";
 
 export const columns: Array<ColumnDef<ExpandedExpense>> = [
   {
@@ -24,6 +25,14 @@ export const columns: Array<ColumnDef<ExpandedExpense>> = [
   {
     accessorKey: "description",
     header: m.expense_description(),
+    cell: (cell) => {
+      const isRemoved = !!cell.row.original.removedAt;
+
+      return renderComponent(CellDescription, {
+        isRemoved: isRemoved,
+        description: cell.getValue() as string,
+      });
+    },
   },
   {
     accessorFn: (originalRow) => {

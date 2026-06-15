@@ -26,6 +26,8 @@
   import { costCenters } from "./config";
   import { PiggyBank } from "@lucide/svelte";
   import { enhanceWithToast, type RemoteForm } from "$lib/stores/toast";
+  import { goto } from "$app/navigation";
+  import { resolve } from "$app/paths";
 
   let {
     expense,
@@ -61,7 +63,7 @@
       </Button>
     {/if}
 
-    {#if !expense.items.some((item) => item.signedAt) && !expense.hasBeenSentToBookkeeping}
+    {#if !expense.items.some((item) => item.signedAt) && !expense.hasBeenSentToBookkeeping && !expense.removedAt}
       <AlertDialog.Root bind:open={deleteDialogOpen}>
         <AlertDialog.Trigger
           class={cn(
@@ -83,6 +85,7 @@
             <AlertDialog.Action
               onclick={() => {
                 deleteExpense(expense.id);
+                if (!dialog) goto(resolve("/expenses"));
                 deleteDialogOpen = false;
                 setTimeout(
                   () =>

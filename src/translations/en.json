@@ -929,6 +929,7 @@
   "expense_unsigned": "Unsigned expenses",
   "expense_unbooked": "Signed, not booked",
   "expense_booked": "Booked",
+  "expense_removed": "Removed",
   "stocklist": "Stocklist",
   "minecraft_server_description": "Join the Guild's Minecraft Server, shared with the F-Guild! To join the server you have to sign up with the button below.",
   "minecraft_dynmap": "Dynmap",

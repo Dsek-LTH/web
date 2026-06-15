@@ -929,6 +929,7 @@
   "expense_unsigned": "Ej signerade utlägg",
   "expense_unbooked": "Signerade, ej bokförda",
   "expense_booked": "Bokförda",
+  "expense_removed": "Borttagen",
   "stocklist": "Stocklist",
   "minecraft_server_description": "Gå med i Sektionens Minecraft Server, delad med F-sektionen! För att kunna gå med måste du registrera dig nedan.",
   "minecraft_dynmap": "Dynmap",
