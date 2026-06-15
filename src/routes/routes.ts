@@ -31,7 +31,7 @@ export const getRoutes = (): Route[] =>
       path: null,
       accessRequired: null,
       pictureTitle: m.nollning_nav_picture_title(),
-      pictureDescription: m.nollning_theme(),
+      pictureDescription: m.nollning_nav_picture_subtitle(),
       picturePath: "/nollning",
       appBehaviour: "none",
       children: [
