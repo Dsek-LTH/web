@@ -8,6 +8,7 @@ import ExpenseLink from "./ExpenseLink.svelte";
 import type { ExpandedExpense } from "./getExpenses";
 import * as m from "$paraglide/messages";
 import CellDescription from "./CellDescription.svelte";
+import Price from "./Price.svelte";
 
 export const columns: Array<ColumnDef<ExpandedExpense>> = [
   {
@@ -95,10 +96,15 @@ export const columns: Array<ColumnDef<ExpandedExpense>> = [
   },
   {
     accessorFn: (originalRow) =>
-      `${originalRow.items
-        .reduce((acc, item) => acc + item.amount / 100, 0)
-        .toLocaleString()} kr`,
+      originalRow.items.reduce((acc, item) => acc + item.amount, 0),
+
     header: m.expense_total(),
+    cell: (cell) => {
+      return renderComponent(Price, {
+        price: cell.getValue() as number,
+        class: "font-normal text-foreground",
+      });
+    },
   },
   {
     header: "",
