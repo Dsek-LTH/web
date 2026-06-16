@@ -8,12 +8,12 @@ import {
   getFilteredExpenses,
   getMyExpenses,
 } from "./expense.remote";
+import * as m from "$paraglide/messages";
 
 export const approveAll = command(z.number(), async (id) => {
   const { locals } = getRequestEvent();
   const { prisma, user } = locals;
-  if (!user?.memberId)
-    throw error(401, "Du måste vara inloggad för att godkänna utlägg");
+  if (!user?.memberId) throw error(401, m.expense_error_logged_in_sign());
   const canAlwaysSign = isAuthorized(apiNames.EXPENSES.CERTIFICATION, user);
   const result = await prisma.expenseItem.updateMany({
     where: {
@@ -28,7 +28,7 @@ export const approveAll = command(z.number(), async (id) => {
     },
   });
   if (result.count === 0) {
-    throw error(400, "Utlägget kunde inte godkännas");
+    throw error(400, m.expense_error_approving());
   }
 
   void getExpense(id).refresh();
@@ -36,7 +36,7 @@ export const approveAll = command(z.number(), async (id) => {
   void getFilteredExpenses().refresh();
 
   return {
-    message: "Utlägg godkänt",
+    message: m.expense_was_approved(),
     type: "success",
   };
 });
@@ -52,7 +52,7 @@ export const unapproveReceipt = command(
     if (!user?.memberId)
       throw fail(401, {
         fail,
-        message: "Du måste vara inloggad för att av-godkänna utlägg",
+        message: m.expense_error_logged_in_unapprove(),
       });
 
     const canAlwaysSign = isAuthorized(apiNames.EXPENSES.CERTIFICATION, user);
@@ -81,7 +81,7 @@ export const unapproveReceipt = command(
       });
     } catch {
       return {
-        message: "Kunde inte av-godkänna kvitto",
+        message: m.expense_error_unapproving(),
         type: "error",
       };
     }
@@ -91,7 +91,7 @@ export const unapproveReceipt = command(
     void getFilteredExpenses().refresh();
 
     return {
-      message: "Kvitto av-godkänt",
+      message: m.expense_was_unapproved(),
       type: "success",
     };
   },
@@ -105,8 +105,7 @@ export const approveReceipt = command(
   async (data) => {
     const { locals } = getRequestEvent();
     const { prisma, user } = locals;
-    if (!user?.memberId)
-      throw error(401, "Du måste vara inloggad för att godkänna utlägg");
+    if (!user?.memberId) throw error(401, m.expense_error_logged_in_sign());
 
     const canAlwaysSign = isAuthorized(apiNames.EXPENSES.CERTIFICATION, user);
     try {
@@ -125,7 +124,7 @@ export const approveReceipt = command(
       });
     } catch {
       return {
-        message: "Kunde inte godkänna kvitto",
+        message: m.expense_error_receipt(),
         type: "error",
       };
     }
@@ -135,7 +134,7 @@ export const approveReceipt = command(
     void getFilteredExpenses().refresh();
 
     return {
-      message: "Kvitto godkänt",
+      message: m.expense_receipt_was_approved(),
       type: "success",
     };
   },

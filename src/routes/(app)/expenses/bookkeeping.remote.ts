@@ -5,20 +5,18 @@ import { isAuthorized } from "$lib/utils/authorization";
 import { error } from "@sveltejs/kit";
 import { redirect } from "sveltekit-flash-message/server";
 import z from "zod";
+import * as m from "$paraglide/messages";
 
 export const sendToBookkeeping = command(z.number(), async (id) => {
   const { locals } = getRequestEvent();
   const { prisma, user } = locals;
 
   if (!user?.memberId) {
-    throw error(
-      401,
-      "Du måste vara inloggad för att skicka utlägg till bokföring",
-    );
+    throw error(401, m.expense_error_logged_in_bookkeeping());
   }
 
   if (!isAuthorized(apiNames.EXPENSES.BOOKKEEPING, user)) {
-    throw error(403, "Du har inte behörighet att skicka utlägg till bokföring");
+    throw error(403, m.expense_error_permission());
   }
 
   try {
@@ -27,14 +25,14 @@ export const sendToBookkeeping = command(z.number(), async (id) => {
     return redirect(
       "/expenses/all",
       {
-        message: "Utlägg skickat till bokföring",
+        message: m.expense_sent(),
         type: "success",
       },
       getRequestEvent(),
     );
   } catch (e) {
     return {
-      message: e instanceof Error ? e.message : "Ett fel uppstod",
+      message: e instanceof Error ? e.message : m.expense_errorOccurred(),
       type: "error",
     };
   }

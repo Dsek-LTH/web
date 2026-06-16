@@ -22,6 +22,7 @@ import {
   getPageOrThrowSvelteError,
   getPageSizeOrThrowSvelteError,
 } from "$lib/utils/url.server";
+import * as m from "$paraglide/messages";
 
 export const getFilteredExpenses = query(async () => {
   const { locals, url } = getRequestEvent();
@@ -56,7 +57,7 @@ export const getMyExpenses = query(async () => {
   const { locals } = getRequestEvent();
   const { prisma, user, member } = locals;
 
-  if (!member) throw error(401, "You must be logged in to handle expenses");
+  if (!member) throw error(401, m.expense_error_logged_in());
 
   const allExpenses = await prisma.expense.findMany({
     where: {
@@ -115,7 +116,7 @@ export const getExpense = query(z.coerce.number(), async (id) => {
     include: expensesInclusion,
   });
   if (!expense) {
-    throw error(404, "Expense not found");
+    throw error(404, m.expense_not_found());
   }
   return expense;
 });
@@ -124,8 +125,7 @@ export const getExpenseItem = query(z.uuid(), async (itemId) => {
   const { locals } = getRequestEvent();
   const { prisma, member } = locals;
 
-  if (!member)
-    throw error(401, "Du måste vara inloggad för att uppdatera utlägg");
+  if (!member) throw error(401, m.expense_error_logged_in_update());
 
   const expenseItem = await prisma.expenseItem.findUnique({
     where: { id: itemId },
@@ -141,8 +141,7 @@ export const updateReceipt = form(updateItemSchema, async (data, issue) => {
   console.log(data);
   console.log(issue);
 
-  if (!member)
-    throw error(401, "Du måste vara inloggad för att uppdatera utlägg");
+  if (!member) throw error(401, m.expense_error_logged_in_update());
 
   await updateSignersCacheIfNecessary();
   const before = await prisma.expenseItem.findUnique({
@@ -155,7 +154,7 @@ export const updateReceipt = form(updateItemSchema, async (data, issue) => {
       },
     },
   });
-  if (!before) throw error(404, "Utlägget hittades inte");
+  if (!before) throw error(404, m.expense_not_found());
   const costCenter = getCostCenter(data.costCenter ?? before?.costCenter);
   const signer = resolveSignerLogic(
     getSigner(costCenter.signer),
@@ -193,7 +192,7 @@ export const updateReceipt = form(updateItemSchema, async (data, issue) => {
   }
 
   return {
-    message: "Utlägg uppdaterat",
+    message: m.expense_was_updated(),
     type: "success",
   };
 });
@@ -215,7 +214,7 @@ export const deleteExpense = command(z.number(), async (id) => {
   void getFilteredExpenses().refresh();
 
   return {
-    message: "Utlägg borttaget",
+    message: m.expense_was_removed(),
     type: "success",
   };
 });
