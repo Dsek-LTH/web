@@ -101,7 +101,7 @@
   <div class="w-full">
     <div class="flex w-full flex-wrap items-center justify-between gap-x-2">
       <h3>{data.position.name}</h3>
-      <div class="flex flex-row gap-2">
+      <div class="mt-2 flex flex-row gap-2 lg:mt-0">
         {#if isAuthorized(apiNames.MANDATE.CREATE, data.user)}
           <Button
             size="sm"
@@ -167,7 +167,7 @@
     {/if}
     {#if mandateYearRatios.length !== 0}
       <div class="mt-4 w-full border-t pt-4">
-        <h2 class="flex items-center gap-2 text-lg">
+        <h2 class="items-center gap-2 text-lg leading-snug md:flex">
           {m.positions_historical_mandate_distribution_per_study_year()}
           <span class="text-muted-foreground text-sm">
             ({mandateStatsCutoffYears}&nbsp;{m.positions_years()})
@@ -203,13 +203,14 @@
 
 <!-- List of mandates -->
 <h3 class="mb-4">{m.positions_history()}</h3>
-{#each years as year (year)}
+{#each years as year, index (year)}
   <section
-    class="bg-muted-background mb-4 flex flex-col gap-4 rounded-md border-[1px] p-4"
+    class="bg-muted-background animate-in fade-in fill-mode-backwards slide-in-from-bottom-[1rem] mb-4 flex flex-col gap-4 rounded-md border-[1px] p-4 duration-300"
+    style:animation-delay={(index ?? 0) * 50 + "ms"}
   >
     <h4>{year}</h4>
 
-    <div class="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
+    <div class="grid grid-cols-1 gap-2 lg:grid-cols-2">
       {#each groupedByYear[year] ?? [] as mandate (mandate.id)}
         <Mandate {data} {mandate} />
       {/each}

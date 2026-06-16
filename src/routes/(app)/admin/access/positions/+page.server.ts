@@ -2,6 +2,8 @@ import { fail, superValidate } from "sveltekit-superforms";
 import type { Actions, PageServerLoad } from "./$types";
 import { z } from "zod";
 import { zod4 } from "sveltekit-superforms/adapters";
+import apiNames from "$lib/utils/apiNames";
+import { authorize } from "$lib/utils/authorization";
 
 const deletePolicySchema = z.object({ policyId: z.string() });
 const createPolicySchema = z.object({
@@ -11,7 +13,10 @@ const createPolicySchema = z.object({
 });
 
 export const load: PageServerLoad = async ({ locals }) => {
-  const { prisma } = locals;
+  const { prisma, user } = locals;
+
+  authorize(apiNames.ACCESS_POLICY.CREATE, user);
+
   const accesspolicies = await prisma.accessPolicy.findMany({
     select: { role: true, apiName: true, id: true },
   });

@@ -101,14 +101,11 @@ export const createArticle: Action = async (event) => {
         create: !existingAuthor
           ? {
               member: {
-                connect: { studentId: user?.studentId },
+                connect: { id: author.memberId },
               },
               mandate: author.mandateId
                 ? {
-                    connect: {
-                      member: { studentId: user?.studentId },
-                      id: author.mandateId,
-                    },
+                    connect: { id: author.mandateId },
                   }
                 : undefined,
               customAuthor: author.customId

@@ -7,7 +7,14 @@ let cache: {
   value: boolean;
   lastFetched: Date;
 } | null = null;
+
+let startCache: {
+  value: Date;
+  lastFetched: Date;
+} | null = null;
+
 const CACHE_TIME = 3600 * 1000; // 1 hour
+
 export const isNollningPeriod = async () => {
   const now = new Date();
   if (
@@ -38,6 +45,30 @@ export const isNollningPeriod = async () => {
     lastFetched: now,
   };
   return isNollningPeriod;
+};
+
+export const getNollningStart = async () => {
+  const now = new Date();
+  if (
+    startCache !== null &&
+    startCache.lastFetched.valueOf() + CACHE_TIME > now.valueOf()
+  )
+    return startCache.value;
+  const row = await authorizedPrismaClient.adminSetting.findUnique({
+    where: {
+      key: NOLLNING_START_KEY,
+    },
+  });
+  const startStr = row?.value;
+  if (!startStr) {
+    return null;
+  }
+  const start = new Date(startStr);
+  startCache = {
+    value: start,
+    lastFetched: now,
+  };
+  return start;
 };
 
 export const updateNollningPeriod = async (

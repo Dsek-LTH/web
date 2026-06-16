@@ -1,4 +1,5 @@
 import { getFileUrl } from "$lib/files/client";
+import apiNames from "$lib/utils/apiNames";
 import * as m from "$paraglide/messages";
 
 // bottom-nav: Show in the bottom navigation bar
@@ -172,7 +173,7 @@ export const getRoutes = (): Route[] =>
     },
     {
       title: m.admin(),
-      accessRequired: null,
+      accessRequired: apiNames.ADMIN.READ,
       appBehaviour: "none",
       path: "/admin",
       children: [

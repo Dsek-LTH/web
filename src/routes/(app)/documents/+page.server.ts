@@ -15,26 +15,27 @@ import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
 import { getYearOrThrowSvelteError } from "$lib/utils/url.server";
+import { DocumentTypes as dt } from "./types";
 
 const validDocumentTypes = [
-  "board-meeting",
-  "guild-meeting",
-  "SRD-meeting",
-  "other",
+  dt.boardMeeting,
+  dt.guildMeeting,
+  dt.SRDMeeting,
+  dt.other,
 ] as const;
 export type DocumentType = (typeof validDocumentTypes)[number];
 
-const prefixByType: Record<DocumentType, string> = {
-  "board-meeting": "S",
-  "guild-meeting": "",
-  "SRD-meeting": "Möte ",
-  other: "",
+const prefixByType: Record<dt, string> = {
+  [dt.boardMeeting]: "S",
+  [dt.guildMeeting]: "",
+  [dt.SRDMeeting]: "Möte ",
+  [dt.other]: "",
 };
 export const load: PageServerLoad = async ({ locals, url }) => {
   const { user } = locals;
   const year = getYearOrThrowSvelteError(url);
 
-  const type = url.searchParams.get("type") || "board-meeting";
+  const type = url.searchParams.get("type") || dt.boardMeeting;
   if (!isValidDocumentType(type)) {
     throw error(400, m.documents_errors_invalidType());
   }
@@ -60,7 +61,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   let filteredFiles = files;
   const oldFormatSRDFiles: FileData[] = [];
   switch (type) {
-    case "guild-meeting":
+    case dt.guildMeeting:
       filteredFiles = files.filter((file) => {
         const fileParts = file.id.split("/");
         const meeting =
@@ -69,7 +70,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
       });
       break;
 
-    case "SRD-meeting":
+    case dt.SRDMeeting:
       SRDfiles.forEach((file) => {
         const fileParts = file.id.split("/");
         const meetingName =
@@ -84,7 +85,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
       });
       break;
 
-    case "other":
+    case dt.other:
       filteredFiles = files.filter((file) => {
         const fileParts = file.id.split("/");
         const meeting =

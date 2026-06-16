@@ -6,6 +6,7 @@
   import { ArrowRight } from "@lucide/svelte";
   import { type ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import { breakName } from "$lib/utils/committee";
+  import { getFileUrl } from "$lib/files/client";
 
   let { data } = $props();
 </script>
@@ -25,7 +26,7 @@
       <div class="bg-muted-background rounded-lg border-[1px] shadow-xl">
         <img
           class="rounded-lg"
-          src="https://files.dsek.se/files/public/photos/stock3.jpg"
+          src={getFileUrl("minio/files/public/photos/stock3.webp")}
           alt="guild"
         />
       </div>
@@ -39,10 +40,11 @@
   >
     {#each data.committees
       .filter((e: ExtendedPrismaModel<"Committee">) => e.shortName != "dchip")
-      .sort( (e1: ExtendedPrismaModel<"Committee">, e2: ExtendedPrismaModel<"Committee">) => e1.name.localeCompare(e2.name), ) as committee (committee.id)}
+      .sort( (e1: ExtendedPrismaModel<"Committee">, e2: ExtendedPrismaModel<"Committee">) => e1.nameSv.localeCompare(e2.nameSv), ) as committee, index (committee.id)}
       <a class="group block" href="/committees/{committee.shortName}">
         <div
-          class="border-border group-hover:bg-muted-background flex h-full w-full flex-grow flex-col rounded-md border-[1px]"
+          class="border-border animate-in fade-in fill-mode-backwards slide-in-from-bottom-[1rem] group-hover:bg-muted-background flex h-full w-full flex-grow flex-col rounded-md border-[1px] duration-300"
+          style:animation-delay={(index ?? 0) * 50 + "ms"}
         >
           <div
             class="bg-rosa-300 relative aspect-[5/2] rounded-t-md bg-cover bg-center sm:aspect-square"

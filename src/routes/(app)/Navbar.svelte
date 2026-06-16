@@ -41,6 +41,8 @@
 
   let navOpen: boolean = $state(false);
 
+  let memberOpen: boolean = $state(false);
+
   $effect(() => {
     if (navOpen == false) {
       setTimeout(() => (visible = true), 20);
@@ -59,7 +61,7 @@
   onMount(() => {
     window.onscroll = () => {
       if (window.innerWidth < 896) {
-        if (window.scrollY > oldScroll) {
+        if (window.scrollY > oldScroll && window.scrollY > 1) {
           visible = false;
         } else {
           visible = true;
@@ -113,8 +115,8 @@
       >
       {#if page.data.member}
         <NotificationBell {notificationsPromise} />
-        <HoverCard.Root openDelay={0} closeDelay={125}>
-          <HoverCard.Trigger>
+        <HoverCard.Root bind:open={memberOpen} openDelay={0} closeDelay={125}>
+          <HoverCard.Trigger onclick={() => (memberOpen = !memberOpen)}>
             <MemberAvatar
               member={page.data.member}
               class="md-nav:flex hidden"
@@ -156,7 +158,7 @@
         <Button
           aria-label="sign in"
           variant="outline"
-          class="text-muted-foreground hover:text-foreground hover:border-foreground rounded-full"
+          class="md-nav:flex text-muted-foreground hover:text-foreground hover:border-foreground hidden rounded-full"
           disabled={loggingIn}
           onclick={() => {
             loggingIn = true;
