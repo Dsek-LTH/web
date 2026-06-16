@@ -121,19 +121,6 @@ export const getExpense = query(z.coerce.number(), async (id) => {
   return expense;
 });
 
-export const getExpenseItem = query(z.uuid(), async (itemId) => {
-  const { locals } = getRequestEvent();
-  const { prisma, member } = locals;
-
-  if (!member) throw error(401, m.expense_error_logged_in_update());
-
-  const expenseItem = await prisma.expenseItem.findUnique({
-    where: { id: itemId },
-  });
-
-  return expenseItem;
-});
-
 export const updateReceipt = form(updateItemSchema, async (data) => {
   const { locals } = getRequestEvent();
   const { prisma, member } = locals;

@@ -141,9 +141,6 @@
                 editingId = undefined;
               },
             )}
-            onload={() => {
-              receiptForm.fields.costCenter.set(item.costCenter);
-            }}
           >
             <div class="flex flex-col gap-1.5">
               <Label>{m.expense_amount()}</Label>
