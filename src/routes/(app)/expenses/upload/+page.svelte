@@ -178,7 +178,7 @@
       <Button onclick={() => goto(resolve("/expenses"))} variant="outline"
         >{m.cancel()}</Button
       >
-      <Button type="submit" class="block grow"
+      <Button type="submit" class="flex grow flex-row gap-1"
         >{#if createExpense.pending > 0}<Spinner />{/if}{m.save()}</Button
       >
     </div>
