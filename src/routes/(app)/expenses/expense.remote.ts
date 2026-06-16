@@ -138,9 +138,6 @@ export const updateReceipt = form(updateItemSchema, async (data, issue) => {
   const { locals } = getRequestEvent();
   const { prisma, member } = locals;
 
-  console.log(data);
-  console.log(issue);
-
   if (!member) throw error(401, m.expense_error_logged_in_update());
 
   await updateSignersCacheIfNecessary();
