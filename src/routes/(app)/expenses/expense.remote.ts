@@ -1,4 +1,4 @@
-import { command, form, getRequestEvent, query, requested } from "$app/server";
+import { command, form, getRequestEvent, query } from "$app/server";
 import apiNames from "$lib/utils/apiNames";
 import { isAuthorized } from "$lib/utils/authorization";
 import { redirect } from "sveltekit-flash-message/server";
@@ -134,7 +134,7 @@ export const getExpenseItem = query(z.uuid(), async (itemId) => {
   return expenseItem;
 });
 
-export const updateReceipt = form(updateItemSchema, async (data, issue) => {
+export const updateReceipt = form(updateItemSchema, async (data) => {
   const { locals } = getRequestEvent();
   const { prisma, member } = locals;
 
