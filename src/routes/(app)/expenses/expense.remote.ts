@@ -184,10 +184,6 @@ export const updateReceipt = form(updateItemSchema, async (data, issue) => {
   void getMyExpenses().refresh();
   void getFilteredExpenses().refresh();
 
-  for (const { query } of requested(getExpense, 1)) {
-    void query.refresh();
-  }
-
   return {
     message: m.expense_was_updated(),
     type: "success",
