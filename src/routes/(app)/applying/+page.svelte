@@ -38,6 +38,7 @@
       description: m.applying_student_desc(),
       link: m.applying_student_link(),
       cta: m.applying_student_cta(),
+      variant: "rosa" as const,
       image: getFileUrl("minio/files/public/photos/studies3.webp"),
     },
     {
@@ -45,6 +46,7 @@
       description: m.applying_housing_desc(),
       link: "https://www.studentlund.se/boende/",
       cta: m.applying_housing_cta(),
+      variant: "lila" as const,
       image:
         "https://afbostader.se/globalassets/bostadsomraden/hippocampus/br_hc_ff.jpg",
     },
@@ -53,6 +55,7 @@
       description: m.applying_studentlund_desc(),
       link: "https://www.studentlund.se/",
       cta: "studentlund.se",
+      variant: "rosa" as const,
       image:
         "https://www.studentlund.se/wp-content/uploads/2023/02/Kopia-av-AFborgen42_ljus_crop-kopia-2.jpg",
     },
@@ -106,7 +109,7 @@
       <p class="mt-0 w-84">
         {info.description}
       </p>
-      <Button class="w-fit" variant="lila" href={info.link}
+      <Button class="w-fit" variant={info.variant} href={info.link}
         >{info.cta} <ArrowRight /></Button
       >
     </div>
