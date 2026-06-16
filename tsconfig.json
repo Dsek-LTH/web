@@ -20,6 +20,7 @@
     "noUnusedLocals": false, // eslint no-unused-vars is more configurable
     "noUnusedParameters": false, // eslint no-unused-vars is more configurable
     "typeRoots": ["types", "./node_modules/@types"],
+    "types": ["node", "@auth"],
     "strictNullChecks": true,
     "noErrorTruncation": true
   }
