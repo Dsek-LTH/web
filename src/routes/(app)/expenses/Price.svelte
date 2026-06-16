@@ -1,9 +1,19 @@
 <script lang="ts">
-  import { twMerge } from "tailwind-merge";
+  import { cn } from "$lib/utils";
+  import type { Snippet } from "svelte";
 
-  let clazz = "";
-  export { clazz as class };
-  export let price: number;
+  let {
+    price,
+    class: klass,
+    prefix,
+    suffix,
+  }: {
+    price: number;
+    class?: string;
+    prefix?: Snippet;
+    suffix?: Snippet;
+  } = $props();
+
   const formatter = new Intl.NumberFormat("sv-SE", {
     style: "currency",
     currency: "SEK",
@@ -13,8 +23,8 @@
   });
 </script>
 
-<span class={twMerge("font-semibold text-green-600", clazz)}>
-  <slot name="prefix" />
+<span class={cn("font-semibold text-green-600", klass)}>
+  {@render prefix?.()}
   {formatter.format(price / 100)}
-  <slot name="suffix" />
+  {@render suffix?.()}
 </span>
