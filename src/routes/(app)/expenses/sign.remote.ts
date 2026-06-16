@@ -1,7 +1,7 @@
 import { command, getRequestEvent } from "$app/server";
 import apiNames from "$lib/utils/apiNames";
 import { isAuthorized } from "$lib/utils/authorization";
-import { error, fail } from "@sveltejs/kit";
+import { error } from "@sveltejs/kit";
 import z from "zod";
 import {
   getExpense,
