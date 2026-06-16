@@ -50,10 +50,10 @@ export const unapproveReceipt = command(
     const { locals } = getRequestEvent();
     const { prisma, user } = locals;
     if (!user?.memberId)
-      throw fail(401, {
-        fail,
+      return {
         message: m.expense_error_logged_in_unapprove(),
-      });
+        type: "error",
+      };
 
     const canAlwaysSign = isAuthorized(apiNames.EXPENSES.CERTIFICATION, user);
     try {

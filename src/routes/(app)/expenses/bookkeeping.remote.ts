@@ -3,7 +3,6 @@ import { sendExpenseToBookkeeping } from "$lib/expenses/sendToBookkeeping";
 import apiNames from "$lib/utils/apiNames";
 import { isAuthorized } from "$lib/utils/authorization";
 import { error } from "@sveltejs/kit";
-import { redirect } from "sveltekit-flash-message/server";
 import z from "zod";
 import * as m from "$paraglide/messages";
 
@@ -22,14 +21,10 @@ export const sendToBookkeeping = command(z.number(), async (id) => {
   try {
     await sendExpenseToBookkeeping(prisma, id);
 
-    return redirect(
-      "/expenses/all",
-      {
-        message: m.expense_sent(),
-        type: "success",
-      },
-      getRequestEvent(),
-    );
+    return {
+      message: m.expense_sent(),
+      type: "success",
+    };
   } catch (e) {
     return {
       message: e instanceof Error ? e.message : m.expense_errorOccurred(),
