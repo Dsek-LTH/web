@@ -27,6 +27,11 @@
   let urlError: string | undefined = $state();
 
   $effect(() => {
+    if (!files) {
+      uploads = [];
+      return;
+    }
+    let pendingUploads: string[] = [];
     Array.from(files ?? []).forEach((upload) => {
       const reader = new FileReader();
       reader.onload = () => {
@@ -39,11 +44,12 @@
             datatype.includes("octet-stream") ||
             datatype.includes("webp")
           ) {
-            uploads = [...uploads, result];
+            pendingUploads.push(result);
           } else {
-            uploads = [...uploads, upload.name];
+            pendingUploads.push(upload.name);
           }
         }
+        if (pendingUploads.length == files?.length) uploads = pendingUploads;
       };
       reader.readAsDataURL(upload);
     });
@@ -142,7 +148,8 @@
   <div
     class="bg-muted-background border-border mt-2 flex w-full flex-row flex-wrap rounded-md border-[1px] p-2"
   >
-    {#each uploads as file (file)}
+    <!-- eslint-disable-next-line svelte/require-each-key -- Duplicate file names shouldn't cause issues -->
+    {#each uploads as file}
       <img class="m-1 max-h-24" src={file} alt={file} />
     {/each}
   </div>
