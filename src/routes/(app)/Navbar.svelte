@@ -279,10 +279,10 @@
                   style="background-image: linear-gradient(to top,rgba(0,0,0,1),rgba(0,0,0,0)),url('{route.pictureUrl}');"
                   href={route.picturePath}
                 >
-                  <div class="mt-4 mb-2 text-xl font-semibold text-[#ffffff]">
+                  <div class="mt-4 text-xl font-semibold text-[#ffffff]">
                     {route.pictureTitle}
                   </div>
-                  <p class="text-sm leading-tight text-[#ffffff]">
+                  <p class="mt-1 text-sm leading-tight text-[#ffffff]">
                     {route.pictureDescription}
                   </p>
                 </NavigationMenu.Link>

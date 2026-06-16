@@ -97,7 +97,7 @@
     <div
       class="flex flex-col items-start gap-4 lg:flex-row lg:items-center lg:gap-10"
     >
-      <Button href="/sokande" size="lg" class="text-lg">
+      <Button href="/applying" size="lg" class="text-lg">
         <GraduationCap class="size-6" />{m.landing_forStudents()}
       </Button>
       <Button
