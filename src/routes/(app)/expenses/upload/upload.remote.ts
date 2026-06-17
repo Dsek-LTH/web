@@ -42,13 +42,14 @@ const uploadReceipt = async (
   date: Date,
   id: number,
 ) => {
+  const randomName = (Math.random() + 1).toString(36).substring(6);
   if (isFilePDF(image)) {
     const url = await uploadFile(
       user,
       image,
       expensePhotoUrl(date, id),
       PUBLIC_BUCKETS_FILES,
-      undefined,
+      getNameOfFile(image.name) + "_" + randomName,
       false,
     );
     return url;
@@ -109,7 +110,7 @@ const uploadReceipt = async (
       pdfFile,
       expensePhotoUrl(date, id),
       PUBLIC_BUCKETS_FILES,
-      undefined,
+      getNameOfFile(image.name) + "_" + randomName,
       false,
     );
     return url;
