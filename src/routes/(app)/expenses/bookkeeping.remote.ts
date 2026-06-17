@@ -5,6 +5,11 @@ import { isAuthorized } from "$lib/utils/authorization";
 import { error } from "@sveltejs/kit";
 import z from "zod";
 import * as m from "$paraglide/messages";
+import {
+  getExpense,
+  getMyExpenses,
+  getFilteredExpenses,
+} from "./expense.remote";
 
 export const sendToBookkeeping = command(z.number(), async (id) => {
   const { locals } = getRequestEvent();
@@ -20,6 +25,10 @@ export const sendToBookkeeping = command(z.number(), async (id) => {
 
   try {
     await sendExpenseToBookkeeping(prisma, id);
+
+    void getExpense(id).refresh();
+    void getMyExpenses().refresh();
+    void getFilteredExpenses().refresh();
 
     return {
       message: m.expense_sent(),

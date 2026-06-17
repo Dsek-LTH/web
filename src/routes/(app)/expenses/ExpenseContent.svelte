@@ -25,7 +25,12 @@
   import * as Select from "$lib/components/ui/select";
   import { costCenters } from "./config";
   import { PiggyBank } from "@lucide/svelte";
-  import { enhanceWithToast, type RemoteForm } from "$lib/stores/toast";
+  import {
+    enhanceWithToast,
+    toast,
+    type RemoteForm,
+    type ToastNotification,
+  } from "$lib/stores/toast";
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
 
@@ -57,7 +62,13 @@
     {/if}
 
     {#if isAuthorized(apiNames.EXPENSES.BOOKKEEPING, user) && !expense.hasBeenSentToBookkeeping && expense.items.every((item) => item.signedAt)}
-      <Button onclick={() => sendToBookkeeping(expense.id)} variant="lila">
+      <Button
+        onclick={async () => {
+          const result = await sendToBookkeeping(expense.id);
+          toast(result.message, result.type as ToastNotification["type"]);
+        }}
+        variant="lila"
+      >
         <FileText />
         {m.expense_sendToBookkeeping()}
       </Button>
