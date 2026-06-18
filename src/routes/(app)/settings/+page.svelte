@@ -8,7 +8,7 @@
   import Button from "$lib/components/ui/button/button.svelte";
   import { updateSettings } from "./settings.remote";
   import * as Table from "$lib/components/ui/table/index.js";
-  import { enhanceWithToast, type RemoteForm } from "$lib/stores/toast";
+  import { enhanceWithToast } from "$lib/stores/toast";
 
   const { data } = $props();
 
@@ -157,14 +157,11 @@
   </div>
   <h2>{m.setting_notification()}</h2>
   <form
-    {...enhanceWithToast(
-      updateSettings as unknown as RemoteForm,
-      async ({ submit }) => {
-        // By default the form is reset when submitted, and if you click it again your subscription settings will be cleared
-        // This takes over the form lifecycle so that the reset doesn't happen
-        await submit();
-      },
-    )}
+    {...enhanceWithToast(updateSettings, async ({ submit }) => {
+      // By default the form is reset when submitted, and if you click it again your subscription settings will be cleared
+      // This takes over the form lifecycle so that the reset doesn't happen
+      await submit();
+    })}
   >
     <div class="flex flex-col gap-8 md:flex-row">
       <div class="flex h-[400px] min-h-[400px] w-full flex-col md:w-[600px]">

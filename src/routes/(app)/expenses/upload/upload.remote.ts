@@ -190,7 +190,7 @@ export const createExpense = form(expenseSchema, async (data) => {
           promiseResult.reason instanceof Error
             ? promiseResult.reason.message
             : promiseResult.reason,
-        type: "error",
+        type: "error" as const,
       };
     }
   }
@@ -215,7 +215,7 @@ export const createExpense = form(expenseSchema, async (data) => {
     }
     return {
       message: e instanceof Error ? e.message : e,
-      type: "error",
+      type: "error" as const,
     };
   }
 
@@ -232,7 +232,7 @@ export const createExpense = form(expenseSchema, async (data) => {
     `/expenses`,
     {
       message: m.expenseCreated(),
-      type: "success",
+      type: "success" as const,
     },
     getRequestEvent(),
   );

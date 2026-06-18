@@ -37,7 +37,7 @@ export const approveAll = command(z.number(), async (id) => {
 
   return {
     message: m.expense_was_approved(),
-    type: "success",
+    type: "success" as const,
   };
 });
 
@@ -52,7 +52,7 @@ export const unapproveReceipt = command(
     if (!user?.memberId)
       return {
         message: m.expense_error_logged_in_unapprove(),
-        type: "error",
+        type: "error" as const,
       };
 
     const canAlwaysSign = isAuthorized(apiNames.EXPENSES.CERTIFICATION, user);
@@ -82,7 +82,7 @@ export const unapproveReceipt = command(
     } catch {
       return {
         message: m.expense_error_unapproving(),
-        type: "error",
+        type: "error" as const,
       };
     }
 
@@ -92,7 +92,7 @@ export const unapproveReceipt = command(
 
     return {
       message: m.expense_was_unapproved(),
-      type: "success",
+      type: "success" as const,
     };
   },
 );
@@ -125,7 +125,7 @@ export const approveReceipt = command(
     } catch {
       return {
         message: m.expense_error_receipt(),
-        type: "error",
+        type: "error" as const,
       };
     }
 
@@ -135,7 +135,7 @@ export const approveReceipt = command(
 
     return {
       message: m.expense_receipt_was_approved(),
-      type: "success",
+      type: "success" as const,
     };
   },
 );

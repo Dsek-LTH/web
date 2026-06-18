@@ -173,7 +173,7 @@ export const updateReceipt = form(updateItemSchema, async (data) => {
 
   return {
     message: m.expense_was_updated(),
-    type: "success",
+    type: "success" as const,
   };
 });
 
@@ -195,6 +195,6 @@ export const deleteExpense = command(z.number(), async (id) => {
 
   return {
     message: m.expense_was_removed(),
-    type: "success",
+    type: "success" as const,
   };
 });

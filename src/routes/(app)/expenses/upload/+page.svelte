@@ -25,7 +25,7 @@
   import { Spinner } from "$lib/components/ui/spinner";
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
-  import { enhanceWithToast, type RemoteForm } from "$lib/stores/toast";
+  import { enhanceWithToast } from "$lib/stores/toast";
 
   const { date, description, isGuildCard, receipts } = createExpense.fields;
   receipts.set([createBasicReceipt()]);
@@ -36,12 +36,9 @@
   <form
     class="flex flex-col gap-2"
     oninput={() => createExpense.validate()}
-    {...enhanceWithToast(
-      createExpense as unknown as RemoteForm,
-      async (form) => {
-        await form.submit();
-      },
-    )}
+    {...enhanceWithToast(createExpense, async (form) => {
+      await form.submit();
+    })}
     enctype="multipart/form-data"
   >
     <div class="flex flex-col gap-1.5">

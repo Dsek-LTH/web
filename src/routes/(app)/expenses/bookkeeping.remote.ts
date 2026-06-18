@@ -32,12 +32,12 @@ export const sendToBookkeeping = command(z.number(), async (id) => {
 
     return {
       message: m.expense_sent(),
-      type: "success",
+      type: "success" as const,
     };
   } catch (e) {
     return {
       message: e instanceof Error ? e.message : m.expense_errorOccurred(),
-      type: "error",
+      type: "error" as const,
     };
   }
 });

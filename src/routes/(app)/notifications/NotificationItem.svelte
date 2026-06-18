@@ -5,7 +5,7 @@
   import dayjs from "dayjs";
   import type { NotificationGroup } from "$lib/utils/notifications/group";
   import { deleteNotification } from "./data.remote";
-  import { enhanceWithToast, type RemoteForm } from "$lib/stores/toast";
+  import { enhanceWithToast } from "$lib/stores/toast";
 
   const { notification }: { notification: NotificationGroup } = $props();
 </script>
@@ -29,11 +29,7 @@
       </span>
     </div>
   </a>
-  <form
-    {...enhanceWithToast(
-      deleteNotification.for(notification.id) as unknown as RemoteForm,
-    )}
-  >
+  <form {...enhanceWithToast(deleteNotification.for(notification.id))}>
     {#if notification.individualIds.length > 1}
       <input
         type="hidden"

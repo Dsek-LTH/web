@@ -25,12 +25,7 @@
   import * as Select from "$lib/components/ui/select";
   import { costCenters } from "./config";
   import { PiggyBank } from "@lucide/svelte";
-  import {
-    enhanceWithToast,
-    toast,
-    type RemoteForm,
-    type ToastNotification,
-  } from "$lib/stores/toast";
+  import { enhanceWithToast, toast } from "$lib/stores/toast";
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
 
@@ -65,7 +60,7 @@
       <Button
         onclick={async () => {
           const result = await sendToBookkeeping(expense.id);
-          toast(result.message, result.type as ToastNotification["type"]);
+          toast(result.message, result.type);
         }}
         variant="lila"
       >
@@ -145,13 +140,10 @@
           {@const receiptForm = updateReceipt.for(item.id)}
           {@const krAmount = item.amount / 100}
           <form
-            {...enhanceWithToast(
-              receiptForm as unknown as RemoteForm,
-              async (form) => {
-                await form.submit();
-                editingId = undefined;
-              },
-            )}
+            {...enhanceWithToast(receiptForm, async (form) => {
+              await form.submit();
+              editingId = undefined;
+            })}
           >
             <div class="flex flex-col gap-1.5">
               <Label>{m.expense_amount()}</Label>
