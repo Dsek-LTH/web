@@ -431,3 +431,11 @@ export const getCostCenter = (costCenterName: string) => {
   if (!center) throw new Error("Cost center not found");
   return center;
 };
+
+export const costCenters = [
+  { label: "Välj kostnadsställe", value: "" },
+  ...COST_CENTERS.map((center) => ({
+    label: `${center.name} - ${center.description} (${center.example})`,
+    value: center.name,
+  })),
+];

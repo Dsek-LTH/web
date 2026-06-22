@@ -50,9 +50,9 @@ type RemoteFormResult = {
   type: MessageType;
 };
 
-type RemoteForm = {
+export type RemoteForm = {
   enhance: (
-    callback: (helpers: { submit: () => Promise<void> }) => Promise<void>,
+    callback: (helpers: { submit: () => Promise<boolean> }) => Promise<void>,
   ) => Record<string, unknown>;
   result?: RemoteFormResult;
 };
@@ -63,7 +63,7 @@ type RemoteForm = {
  */
 export function enhanceWithToast(
   remoteForm: RemoteForm,
-  callback?: (helpers: { submit: () => Promise<void> }) => Promise<void>,
+  callback?: (helpers: { submit: () => Promise<boolean> }) => Promise<void>,
 ) {
   return remoteForm.enhance(async (helpers) => {
     if (callback) {

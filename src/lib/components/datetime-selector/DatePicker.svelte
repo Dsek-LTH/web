@@ -13,6 +13,23 @@
   import type { AriaAttributes } from "svelte/elements";
   import type { ClassValue } from "clsx";
 
+  let {
+    value = $bindable(),
+    weekStartsOn = 1,
+    class: className,
+    error = false,
+    name,
+    iso,
+    ...restProps
+  }: AriaAttributes & {
+    value?: string;
+    weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+    class?: ClassValue;
+    error?: boolean;
+    name?: string;
+    iso?: boolean;
+  } = $props();
+
   const df = new DateFormatter(m.locale(), {
     dateStyle: "full",
   });
@@ -36,22 +53,6 @@
     return text;
   }
 
-  let {
-    value = $bindable(),
-    weekStartsOn = 1,
-    class: className,
-    error = false,
-    name,
-    iso,
-    ...restProps
-  }: AriaAttributes & {
-    value?: string;
-    weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
-    class?: ClassValue;
-    error?: boolean;
-    name?: string;
-    iso?: boolean;
-  } = $props();
   let contentRef = $state<HTMLElement | null>(null);
 </script>
 
@@ -60,7 +61,7 @@
     class={cn(
       buttonVariants({
         variant: "outline",
-        class: "justify-start text-left font-normal",
+        class: `${!iso ? "w-[280px]" : ""} aria-invalid:border-destructive justify-start text-left font-normal`,
       }),
       !value && "text-muted-foreground",
       error && "bg-rosa-50 dark:bg-rosa-950 border-rosa-background",

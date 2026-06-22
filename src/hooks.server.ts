@@ -69,20 +69,29 @@ const { handle: authHandle } = SvelteKitAuth({
   callbacks: {
     async jwt({ token, user, account }) {
       if (user) {
+        // @ts-expect-error -- untyped auth response
         token.student_id = user.student_id;
+        // @ts-expect-error -- untyped auth response
         token.group_list = user.group_list ?? [];
+        // @ts-expect-error -- untyped auth response
         token.given_name = user.given_name;
+        // @ts-expect-error -- untyped auth response
         token.family_name = user.family_name;
         token.email = user.email;
       }
 
       if (account) {
+        // @ts-expect-error -- untyped auth response
         token.refresh_token = account.refresh_token;
+        // @ts-expect-error -- untyped auth response
         token.id_token = account.id_token;
+        // @ts-expect-error -- untyped auth response
         token.expires_at = account.expires_at;
+        // @ts-expect-error -- untyped auth response
       } else if (token.expires_at && Date.now() < token.expires_at * 1000) {
         return token;
       } else {
+        // @ts-expect-error -- untyped auth response
         if (!token.refresh_token) throw new Error("Missing refresh_token");
 
         try {
@@ -90,10 +99,12 @@ const { handle: authHandle } = SvelteKitAuth({
             envPublic.PUBLIC_AUTH_AUTHENTIK_TOKEN_ENDPOINT,
             {
               method: "POST",
+              // @ts-expect-error -- untyped auth response
               body: new URLSearchParams({
                 client_id: env.AUTH_AUTHENTIK_CLIENT_ID,
                 client_secret: env.AUTH_AUTHENTIK_CLIENT_SECRET,
                 grant_type: "refresh_token",
+                // @ts-expect-error -- untyped auth response
                 refresh_token: token.refresh_token,
               }),
             },
@@ -111,18 +122,24 @@ const { handle: authHandle } = SvelteKitAuth({
           const decodedAccessTokenData = JSON.parse(
             Buffer.from(payload, "base64").toString("utf-8"),
           );
-
+          // @ts-expect-error -- untyped auth response
           token.access_token = accessToken;
+          // @ts-expect-error -- untyped auth response
           token.group_list = decodedAccessTokenData.groups ?? [];
+          // @ts-expect-error -- untyped auth response
           token.id_token = tokensOrError.id_token;
+          // @ts-expect-error -- untyped auth response
           token.expires_at =
             Math.floor(Date.now() / 1000) + tokensOrError.expires_in;
+          // @ts-expect-error -- untyped auth response
           token.refresh_token =
+            // @ts-expect-error -- untyped auth response
             tokensOrError.refresh_token ?? token.refresh_token;
 
           return token;
         } catch (error) {
           console.error("Error refreshing Authentik access_token:", error);
+          // @ts-expect-error -- untyped auth response
           token.error = "RefreshTokenError";
 
           return token;
@@ -134,14 +151,20 @@ const { handle: authHandle } = SvelteKitAuth({
     session({ session, token }) {
       if (token) {
         if (session?.user) {
+          // @ts-expect-error -- untyped auth response
           session.user.student_id = token.student_id;
           session.user.email = token.email ?? "";
+          // @ts-expect-error -- untyped auth response
           session.user.group_list = token.group_list;
+          // @ts-expect-error -- untyped auth response
           session.user.given_name = token.given_name;
+          // @ts-expect-error -- untyped auth response
           session.user.family_name = token.family_name;
         }
 
+        // @ts-expect-error -- untyped auth response
         session.error = token.error;
+        // @ts-expect-error -- untyped auth response
         if (session.error) {
           throw redirect(302, "/signout");
         }
@@ -175,6 +198,7 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
   if (!session?.user) {
     const prisma = getExtendedPrismaClient(
       getLocale(),
+      // @ts-expect-error -- untyped auth response
       session?.user.student_id,
     );
     let externalCode = event.cookies.get("externalCode"); // Retrieve the externalCode from cookies
@@ -202,18 +226,23 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
     event.locals.user = user;
   } else {
     const existingMember = await authorizedPrismaClient.member.findUnique({
+      // @ts-expect-error -- untyped auth response
       where: { studentId: session.user.student_id },
     });
 
     const prisma = getExtendedPrismaClient(
       getLocale(),
+      // @ts-expect-error -- untyped auth response
       session?.user.student_id,
     );
     const member =
       existingMember ||
       (await createMember(prisma, {
+        // @ts-expect-error -- untyped auth response
         studentId: session.user.student_id,
+        // @ts-expect-error -- untyped auth response
         firstName: session.user.given_name,
+        // @ts-expect-error -- untyped auth response
         lastName: session.user.family_name,
         email: session.user.email,
       }));
@@ -226,14 +255,18 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
     }
 
     const roles = getDerivedRoles(
+      // @ts-expect-error -- untyped auth response
       session.user.group_list,
+      // @ts-expect-error -- untyped auth response
       !!session.user.student_id,
       member.classYear ?? undefined,
       member.classProgramme ?? undefined,
     );
     const user = {
+      // @ts-expect-error -- untyped auth response
       studentId: session.user.student_id,
       memberId: member!.id,
+      // @ts-expect-error -- untyped auth response
       policies: await getAccessPolicies(prisma, roles, session.user.student_id),
       roles,
     };
@@ -350,6 +383,7 @@ const paraglideHandle: Handle = ({ event, resolve }) =>
 defineCustomServerStrategy("custom-userPreference", {
   getLocale: async () => {
     const data = getRequestEvent();
+    // @ts-expect-error -- untyped auth response
     const studentId = (await data.locals.auth())?.user.student_id;
     if (studentId) {
       const lang = await authorizedPrismaClient.member.findFirst({

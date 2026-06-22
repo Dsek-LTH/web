@@ -8,7 +8,7 @@ const itemSchema = z.object({
     .string({ message: "Välj kostnadsställe" })
     .refine(isValidCostCenter, { message: "Ogiltigt kostnadscenter" }),
   amount: z.number(),
-  comment: z.string().nullable(),
+  comment: z.string().optional(),
 });
 const receiptSchema = z.object({
   image: z
@@ -20,9 +20,9 @@ const receiptSchema = z.object({
 });
 
 export const expenseSchema = z.object({
-  date: z.date(),
+  date: z.string(),
   description: z.string(),
-  isGuildCard: z.boolean(),
+  isGuildCard: z.boolean().default(false).optional(),
   receipts: z.array(receiptSchema).nonempty(),
 });
 export type ExpenseSchema = Infer<typeof expenseSchema>;
