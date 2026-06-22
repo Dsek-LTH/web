@@ -209,20 +209,20 @@
           {/each}
         </div>
       {/if}
-      {#if doorAccess.length > 0}
+      {#if doorAccess && doorAccess.length > 0}
         <div class="flex flex-col items-baseline pl-6">
           <h3 class="my-4 self-center">{m.doors()}</h3>
           <!-- eslint-disable-next-line svelte/require-each-key -->
-          {#each doorAccess as doorAccess}
+          {#each doorAccess as door}
             <details class="group">
               <summary class="flex cursor-pointer flex-row items-center gap-1">
                 <DoorClosed class="text-rosa-400 group-open:hidden" />
                 <DoorOpen class="text-rosa-400 hidden group-open:inline" />
                 <span class="hover:text-muted-foreground transition-all">
-                  {doorAccess.verboseName}
+                  {door?.verboseName ?? ""}
                 </span>
               </summary>
-              {#each doorAccess.roles as role (role)}
+              {#each door.roles as role (role)}
                 <span class="text-muted-foreground">{role}</span>
               {/each}
             </details>
@@ -278,20 +278,20 @@
         </section>
       </div>
     {/if}
-    {#if doorAccess.length > 0}
+    {#if doorAccess && doorAccess.length > 0}
       <div class="flex flex-col">
         <h6 class="mb-1">{m.doors()}</h6>
         <!-- eslint-disable-next-line svelte/require-each-key -->
-        {#each doorAccess as doorAccess}
+        {#each doorAccess as door}
           <details class="group">
             <summary class="flex cursor-pointer flex-row items-center gap-1">
               <DoorClosed class="text-rosa-400 size-5 group-open:hidden" />
               <DoorOpen class="text-rosa-400 hidden size-5 group-open:inline" />
               <span class="hover:text-muted-foreground transition-all">
-                {doorAccess.verboseName}
+                {door.verboseName ?? ""}
               </span>
             </summary>
-            {#each doorAccess.roles as role (role)}
+            {#each door.roles as role (role)}
               <span class="text-muted-foreground">{role}</span>
             {/each}
           </details>

@@ -47,7 +47,7 @@ export const scheduleExecution = async <T>(
         }),
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${jwt?.id_token}`,
+          Authorization: `Bearer ${jwt?.["id_token"]}`,
         },
       },
     );
