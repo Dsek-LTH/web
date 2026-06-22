@@ -1,5 +1,5 @@
 import type { DefaultJWT } from "@auth/core/jwt";
-import type { User as BaseUser } from "@auth/core/types";
+import type { DefaultSession, User as BaseUser } from "@auth/core/types";
 
 type ExtendedUserFields = {
   student_id: string;
