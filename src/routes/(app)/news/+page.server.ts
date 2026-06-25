@@ -42,6 +42,23 @@ export const load: PageServerLoad = async ({ locals, url }) => {
             },
           },
         },
+        include: {
+          author: {
+            include: {
+              member: true,
+              mandate: {
+                include: {
+                  position: true,
+                },
+              },
+              customAuthor: true,
+            },
+          },
+          tags: true,
+        },
+        orderBy: {
+          publishedAt: "asc",
+        },
       })
     : [];
 

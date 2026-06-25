@@ -9,6 +9,18 @@
   import { superForm } from "$lib/utils/client/superForms";
   import Pen from "@lucide/svelte/icons/pen";
   import * as m from "$paraglide/messages";
+  import DatePicker from "$lib/components/datetime-selector/DatePicker.svelte";
+  import TimePicker from "$lib/components/datetime-selector/TimePicker.svelte";
+  import {
+    CalendarDateTime,
+    fromDate,
+    getLocalTimeZone,
+    parseDate,
+    parseTime,
+    toCalendarDate,
+    toTime,
+  } from "@internationalized/date";
+  import type { Time } from "@internationalized/date";
 
   let { data }: { data: PageData } = $props();
 
@@ -20,6 +32,35 @@
   });
 
   let { form } = superform;
+
+  const tz = getLocalTimeZone();
+
+  let publishDate = $state<string | undefined>(
+    $form.publishTime
+      ? toCalendarDate(fromDate($form.publishTime, tz)).toString()
+      : undefined,
+  );
+  let publishTimeValue = $state<Time>(
+    $form.publishTime
+      ? toTime(fromDate($form.publishTime, tz))
+      : parseTime("12:00"),
+  );
+
+  $effect(() => {
+    if (publishDate) {
+      const parsed = parseDate(publishDate);
+      const dt = new CalendarDateTime(
+        parsed.year,
+        parsed.month,
+        parsed.day,
+        publishTimeValue.hour,
+        publishTimeValue.minute,
+      );
+      $form.publishTime = dt.toDate(tz);
+    } else {
+      $form.publishTime = null;
+    }
+  });
 </script>
 
 <ArticleEditor
@@ -30,6 +71,13 @@
   committees={data.committees}
 >
   {#snippet formEnd()}
+    <div class="flex w-full flex-col gap-1.5">
+      <Label>{m.news_schedule_publish_time()}</Label>
+      <div class="flex flex-row items-center gap-2">
+        <DatePicker bind:value={publishDate} />
+        <TimePicker bind:value={publishTimeValue} />
+      </div>
+    </div>
     <div class="flex w-full flex-col gap-1.5">
       <Label for="sendNotification">{m.news_notification_send()}</Label
       ><Checkbox
