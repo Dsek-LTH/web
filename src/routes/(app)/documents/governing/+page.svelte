@@ -35,24 +35,29 @@
 {#snippet documentList(documents: typeof data.policies)}
   <ul class="mt-2 space-y-2">
     {#each documents as doc (doc.id)}
-      <li class="flex items-center gap-2">
-        <FileLink name={doc.title} url={doc.url} host={true} />
+      <li class="flex items-center justify-between gap-4">
+        <div class="min-w-0 flex-1">
+          <FileLink name={doc.title} url={doc.url} host={true} />
+        </div>
         {#if isEditing}
-          {#if canUpdate}
-            <a
-              href={`/documents/governing/${doc.id}/edit`}
-              class="text-muted-foreground hover:text-foreground"
-            >
-              <Pencil class="size-4" />
-            </a>
-          {/if}
-          {#if canDelete}
-            <DeleteFileForm
-              data={data.deleteForm}
-              fileId={doc.id}
-              fileName={doc.title}
-            />
-          {/if}
+          <div class="flex shrink-0 items-center gap-2">
+            {#if canUpdate}
+              <Button
+                href={`/documents/governing/${doc.id}/edit`}
+                variant="outline"
+                size="icon"
+              >
+                <Pencil class="size-4" />
+              </Button>
+            {/if}
+            {#if canDelete}
+              <DeleteFileForm
+                data={data.deleteForm}
+                fileId={doc.id}
+                fileName={doc.title}
+              />
+            {/if}
+          </div>
         {/if}
       </li>
     {/each}
@@ -162,7 +167,7 @@
       </div>
     </div>
 
-    <div class="bg-background flex flex-row flex-wrap gap-2 rounded-t-md border-[1px] p-2 {isEditing ? 'rounded-b-none' : 'rounded-b-md border-b-[1px]'}">
+    <div class="flex flex-row flex-wrap gap-2">
       <a href={data.plansOfOperations[0]?.url}>
         <Button
           disabled={!data.plansOfOperations[0]}
@@ -193,7 +198,7 @@
     </div>
 
     {#if isEditing}
-      <div class="bg-muted-background flex flex-col gap-4 rounded-b-md border-[1px] border-t-0 p-4">
+      <div class="mt-2 flex flex-col gap-4 border-t-[1px] pt-4">
         {#if data.plansOfOperations.length > 0}
           <div>
             <h3 class="text-lg font-semibold">{m.documents_plansOfOperations()}</h3>
