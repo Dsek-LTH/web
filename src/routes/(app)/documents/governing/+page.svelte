@@ -98,11 +98,11 @@
     <a
       href="/stadgar"
       target="_blank"
-      class="group flex flex-col justify-center gap-4 rounded-md border-[1px] border-l-4 border-l-primary bg-primary/5 p-6 shadow-sm transition-all hover:-translate-y-1 hover:bg-primary/10 hover:shadow-md"
+      class="group border-l-primary bg-primary/5 hover:bg-primary/10 flex flex-col justify-center gap-4 rounded-md border-[1px] border-l-4 p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
     >
       <div class="flex items-center gap-4">
-        <div class="rounded-full bg-background p-3 shadow-sm">
-          <Scale class="size-8 text-primary" />
+        <div class="bg-background rounded-full p-3 shadow-sm">
+          <Scale class="text-primary size-8" />
         </div>
         <h2 class="text-2xl font-bold group-hover:underline">
           {m.documents_governing_statutes()}
@@ -112,11 +112,11 @@
     <a
       href="/reglemente"
       target="_blank"
-      class="group flex flex-col justify-center gap-4 rounded-md border-[1px] border-l-4 border-l-primary bg-primary/5 p-6 shadow-sm transition-all hover:-translate-y-1 hover:bg-primary/10 hover:shadow-md"
+      class="group border-l-primary bg-primary/5 hover:bg-primary/10 flex flex-col justify-center gap-4 rounded-md border-[1px] border-l-4 p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
     >
       <div class="flex items-center gap-4">
-        <div class="rounded-full bg-background p-3 shadow-sm">
-          <BookOpen class="size-8 text-primary" />
+        <div class="bg-background rounded-full p-3 shadow-sm">
+          <BookOpen class="text-primary size-8" />
         </div>
         <h2 class="text-2xl font-bold group-hover:underline">
           {m.documents_governing_regulations()}
@@ -127,19 +127,19 @@
 
   <div class="mb-8 grid grid-cols-1 gap-8 md:grid-cols-2">
     <div
-      class="flex flex-col gap-4 rounded-md border-[1px] border-l-4 border-l-primary p-4 shadow-sm"
+      class="border-l-primary flex flex-col gap-4 rounded-md border-[1px] border-l-4 p-4 shadow-sm"
     >
       <h2 class="flex items-center gap-2 text-2xl font-bold">
-        <ShieldCheck class="size-6 text-primary" />
+        <ShieldCheck class="text-primary size-6" />
         {m.documents_governing_policies()}
       </h2>
       {@render documentList(data.policies)}
     </div>
     <div
-      class="flex flex-col gap-4 rounded-md border-[1px] border-l-4 border-l-primary p-4 shadow-sm"
+      class="border-l-primary flex flex-col gap-4 rounded-md border-[1px] border-l-4 p-4 shadow-sm"
     >
       <h2 class="flex items-center gap-2 text-2xl font-bold">
-        <Map class="size-6 text-primary" />
+        <Map class="text-primary size-6" />
         {m.documents_governing_guidelines()}
       </h2>
       {@render documentList(data.guidelines)}
@@ -147,11 +147,13 @@
   </div>
 
   <div
-    class="flex flex-col gap-4 rounded-md border-[1px] border-l-4 border-l-primary p-4 shadow-sm"
+    class="border-l-primary flex flex-col gap-4 rounded-md border-[1px] border-l-4 p-4 shadow-sm"
   >
-    <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <div
+      class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
+    >
       <h2 class="flex shrink-0 items-center gap-2 text-2xl font-bold">
-        <Calendar class="size-6 shrink-0 text-primary" />
+        <Calendar class="text-primary size-6 shrink-0" />
         {m.documents_governing_yearSpecificDocuments()}
       </h2>
       <div class="w-full min-w-0 md:max-w-xs lg:max-w-sm xl:max-w-md">

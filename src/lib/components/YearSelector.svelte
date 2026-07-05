@@ -13,7 +13,7 @@
   const minYear = 1982;
 
   let selectedYearStr = $derived(
-    page.url.searchParams.get("year") ?? currentYear.toString()
+    page.url.searchParams.get("year") ?? currentYear.toString(),
   );
 
   let selectedYearNum = $derived(parseInt(selectedYearStr, 10));
@@ -21,7 +21,11 @@
   function handleYearChange(value: string) {
     const url = new URL(page.url);
     url.searchParams.set("year", value);
-    goto(url.toString(), { keepFocus: true, noScroll: true, replaceState: true });
+    goto(url.toString(), {
+      keepFocus: true,
+      noScroll: true,
+      replaceState: true,
+    });
   }
 
   function decrementYear() {
@@ -41,15 +45,20 @@
   <Button
     variant="outline"
     size="icon"
-    class="h-10 w-10 shrink-0"
     disabled={selectedYearNum <= minYear}
     onclick={decrementYear}
+    class="size-9 shrink-0"
   >
+    <!-- size-9 is same height as Select.Trigger with size="default" -->
     <ChevronLeft class="size-4" />
   </Button>
 
-  <Select.Root type="single" value={selectedYearStr} onValueChange={handleYearChange}>
-    <Select.Trigger class="h-10 w-[120px]">
+  <Select.Root
+    type="single"
+    value={selectedYearStr}
+    onValueChange={handleYearChange}
+  >
+    <Select.Trigger class="w-[120px]" size="default">
       {selectedYearStr}
     </Select.Trigger>
     <Select.Content class="max-h-[300px]">
@@ -66,7 +75,7 @@
   <Button
     variant="outline"
     size="icon"
-    class="h-10 w-10 shrink-0"
+    class="size-9 shrink-0"
     disabled={selectedYearNum >= currentYear}
     onclick={incrementYear}
   >
