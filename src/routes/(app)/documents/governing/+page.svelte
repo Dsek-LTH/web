@@ -156,7 +156,7 @@
         <Calendar class="text-primary size-6 shrink-0" />
         {m.documents_governing_yearSpecificDocuments()}
       </h2>
-      <div class="w-full min-w-0 md:max-w-xs lg:max-w-sm xl:max-w-md">
+      <div class="flex w-full min-w-0 justify-end md:max-w-xs lg:max-w-sm xl:max-w-md">
         <YearSelector />
       </div>
     </div>
