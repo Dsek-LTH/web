@@ -13,6 +13,7 @@
   import ShieldCheck from "@lucide/svelte/icons/shield-check";
   import Map from "@lucide/svelte/icons/map";
   import Calendar from "@lucide/svelte/icons/calendar";
+  import FileText from "@lucide/svelte/icons/file-text";
   import type { PageData } from "./$types";
 
   let { data }: { data: PageData } = $props();
@@ -161,8 +162,57 @@
       </div>
     </div>
 
-    {@render documentList(data.plansOfOperations)}
-    {@render documentList(data.frameworkBudgets)}
-    {@render documentList(data.strategicGoals)}
+    <div class="bg-background flex flex-row flex-wrap gap-2 rounded-t-md border-[1px] p-2 {isEditing ? 'rounded-b-none' : 'rounded-b-md border-b-[1px]'}">
+      <a href={data.plansOfOperations[0]?.url}>
+        <Button
+          disabled={!data.plansOfOperations[0]}
+          variant="outline"
+          class="cursor-pointer rounded-sm"
+        >
+          <FileText class="size-4 mr-2" /> {m.documents_plansOfOperations()}
+        </Button>
+      </a>
+      <a href={data.frameworkBudgets[0]?.url}>
+        <Button
+          disabled={!data.frameworkBudgets[0]}
+          variant="outline"
+          class="cursor-pointer rounded-sm"
+        >
+          <FileText class="size-4 mr-2" /> {m.documents_frameworkBudgets()}
+        </Button>
+      </a>
+      <a href={data.strategicGoals[0]?.url}>
+        <Button
+          disabled={!data.strategicGoals[0]}
+          variant="outline"
+          class="cursor-pointer rounded-sm"
+        >
+          <FileText class="size-4 mr-2" /> {m.documents_strategicGoals()}
+        </Button>
+      </a>
+    </div>
+
+    {#if isEditing}
+      <div class="bg-muted-background flex flex-col gap-4 rounded-b-md border-[1px] border-t-0 p-4">
+        {#if data.plansOfOperations.length > 0}
+          <div>
+            <h3 class="text-lg font-semibold">{m.documents_plansOfOperations()}</h3>
+            {@render documentList(data.plansOfOperations)}
+          </div>
+        {/if}
+        {#if data.frameworkBudgets.length > 0}
+          <div>
+            <h3 class="text-lg font-semibold">{m.documents_frameworkBudgets()}</h3>
+            {@render documentList(data.frameworkBudgets)}
+          </div>
+        {/if}
+        {#if data.strategicGoals.length > 0}
+          <div>
+            <h3 class="text-lg font-semibold">{m.documents_strategicGoals()}</h3>
+            {@render documentList(data.strategicGoals)}
+          </div>
+        {/if}
+      </div>
+    {/if}
   </div>
 </div>

@@ -76,7 +76,7 @@
     </div>
   </div>
 
-  <div class="mt-4 flex flex-row gap-8">
+  <div class="mt-4 flex flex-row items-center justify-between gap-8">
     <Tabs.Root value={page.url.searchParams.get("type") ?? "board-meeting"}>
       <Tabs.List class="flex-col px-4 sm:flex-row sm:px-1">
         <a href={generateLink("guild-meeting")}>
