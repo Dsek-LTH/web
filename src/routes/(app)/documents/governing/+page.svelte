@@ -162,7 +162,9 @@
         <Calendar class="text-primary size-6 shrink-0" />
         {m.documents_governing_yearSpecificDocuments()}
       </h2>
-      <div class="flex w-full min-w-0 justify-end md:max-w-xs lg:max-w-sm xl:max-w-md">
+      <div
+        class="flex w-full min-w-0 md:max-w-xs md:justify-end lg:max-w-sm xl:max-w-md"
+      >
         <YearSelector />
       </div>
     </div>
@@ -174,7 +176,8 @@
           variant="outline"
           class="cursor-pointer rounded-sm"
         >
-          <FileText class="size-4 mr-2" /> {m.documents_plansOfOperations()}
+          <FileText class="mr-2 size-4" />
+          {m.documents_plansOfOperations()}
         </Button>
       </a>
       <a href={data.frameworkBudgets[0]?.url}>
@@ -183,7 +186,8 @@
           variant="outline"
           class="cursor-pointer rounded-sm"
         >
-          <FileText class="size-4 mr-2" /> {m.documents_frameworkBudgets()}
+          <FileText class="mr-2 size-4" />
+          {m.documents_frameworkBudgets()}
         </Button>
       </a>
       <a href={data.strategicGoals[0]?.url}>
@@ -192,28 +196,35 @@
           variant="outline"
           class="cursor-pointer rounded-sm"
         >
-          <FileText class="size-4 mr-2" /> {m.documents_strategicGoals()}
+          <FileText class="mr-2 size-4" />
+          {m.documents_strategicGoals()}
         </Button>
       </a>
     </div>
 
     {#if isEditing}
-      <div class="mt-2 flex flex-col gap-4 border-t-[1px] pt-4">
+      <div class="flex flex-col gap-4">
         {#if data.plansOfOperations.length > 0}
           <div>
-            <h3 class="text-lg font-semibold">{m.documents_plansOfOperations()}</h3>
+            <h3 class="text-lg font-semibold">
+              {m.documents_plansOfOperations()}
+            </h3>
             {@render documentList(data.plansOfOperations)}
           </div>
         {/if}
         {#if data.frameworkBudgets.length > 0}
           <div>
-            <h3 class="text-lg font-semibold">{m.documents_frameworkBudgets()}</h3>
+            <h3 class="text-lg font-semibold">
+              {m.documents_frameworkBudgets()}
+            </h3>
             {@render documentList(data.frameworkBudgets)}
           </div>
         {/if}
         {#if data.strategicGoals.length > 0}
           <div>
-            <h3 class="text-lg font-semibold">{m.documents_strategicGoals()}</h3>
+            <h3 class="text-lg font-semibold">
+              {m.documents_strategicGoals()}
+            </h3>
             {@render documentList(data.strategicGoals)}
           </div>
         {/if}
