@@ -1,5 +1,6 @@
 <script lang="ts">
   import { page } from "$app/state";
+  import { SvelteURLSearchParams } from "svelte/reactivity";
   import { goto } from "$app/navigation";
   import * as Select from "$lib/components/ui/select";
   import { Button } from "$lib/components/ui/button";
@@ -19,9 +20,10 @@
   let selectedYearNum = $derived(parseInt(selectedYearStr, 10));
 
   function handleYearChange(value: string) {
-    const url = new URL(page.url);
-    url.searchParams.set("year", value);
-    goto(url.toString(), {
+    const searchParams = new SvelteURLSearchParams(page.url.searchParams);
+    searchParams.set("year", value);
+    // eslint-disable-next-line svelte/no-navigation-without-resolve -- Navigation uses relative search params
+    goto(`?${searchParams.toString()}`, {
       keepFocus: true,
       noScroll: true,
       replaceState: true,
