@@ -19,6 +19,8 @@
     toTime,
   } from "@internationalized/date";
   import type { Time } from "@internationalized/date";
+  import type { ArticleSchema } from "$lib/news/schema";
+  import type { SuperForm } from "sveltekit-superforms";
 
   let { data }: { data: PageData } = $props();
 
@@ -66,7 +68,7 @@
   allTags={data.allTags}
   authorOptions={data.authorOptions}
   data={data.form}
-  {superform}
+  superform={superform as unknown as SuperForm<ArticleSchema>}
   committees={data.committees}
 >
   {#snippet formEnd()}
