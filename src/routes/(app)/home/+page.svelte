@@ -23,32 +23,32 @@
       <MemberAvatar member={data.member!} class="size-14" />
       <div class="flex flex-col">
         <h1 class="font-sans whitespace-nowrap">
-          Hej, {data.member?.firstName}!
+          {m.home_greeting({ name: data.member?.firstName ?? "" })}
         </h1>
-        Du har {#await data.notificationsPromise}
-          ?
+        {#await data.notificationsPromise}
+          {m.home_notificationCount({ count: "?" })}
         {:then notifications}
-          {notifications?.length}
-        {/await} notifikationer
+          {m.home_notificationCount({ count: notifications?.length ?? 0 })}
+        {/await}
       </div>
     </div>
     <div class="grid grid-cols-2 gap-2 pt-2">
       <div class="flex min-w-0 flex-col">
         <span class="p-2 font-light">{data.wellbeing}</span>
         <Button variant="outline" class="h-auto w-full whitespace-normal"
-          ><UsersRound class="shrink-0" />Kontakta trivselrådet</Button
+          ><UsersRound class="shrink-0" />{m.home_contactWellbeing()}</Button
         >
       </div>
       <div class="flex min-w-0 flex-col">
-        <span class="p-2 font-light">Åsikter om utbildningen?</span>
+        <span class="p-2 font-light">{m.home_feedbackSRD()}</span>
         <Button variant="outline" class="h-auto w-full whitespace-normal"
-          ><BookOpen class="shrink-0" />Kontakta Studierådet</Button
+          ><BookOpen class="shrink-0" />{m.home_contactSRD()}</Button
         >
       </div>
     </div>
   </div>
   <div>
-    <h3>Öppna val</h3>
+    <h3>{m.openElections()}</h3>
     <div class="mt-2 grid grid-cols-2 gap-4 sm:flex sm:flex-row">
       {#each data.elections as election, i (election.id)}
         <Card.Root
@@ -67,7 +67,7 @@
               .tz(dayjs.tz.guess())
               .format("YYYY-MM-DD")}</span
           >
-          <Button href={election.link} class="mt-4">Ansök</Button>
+          <Button href={election.link} class="mt-4">{m.elections_apply()}</Button>
         </Card.Root>
       {/each}
     </div>
@@ -75,7 +75,7 @@
 </div>
 
 <div>
-  <h2>Event</h2>
+  <h2>{m.events()}</h2>
   <HomeCalendar
     events={data.events.map((e) => ({
       startDate: e.startDatetime,
@@ -86,7 +86,7 @@
   />
 </div>
 <div>
-  <h2>Nyheter</h2>
+  <h2>{m.news()}</h2>
   <div class="mt-4 flex flex-col gap-4 lg:flex-row">
     {#each data.news as newsArticle, i (newsArticle.id)}
       <a
