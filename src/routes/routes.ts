@@ -33,7 +33,7 @@ export const getRoutes = (): Route[] =>
       accessRequired: null,
       pictureTitle: m.nollning_nav_picture_title(),
       pictureDescription: m.nollning_nav_picture_subtitle(),
-      picturePath: "/nollning",
+      picturePath: "/nolla",
       appBehaviour: "none",
       children: [
         {
@@ -48,7 +48,7 @@ export const getRoutes = (): Route[] =>
           description: m.nav_nollning_description(),
           accessRequired: null,
           appBehaviour: "none",
-          path: "/nollning",
+          path: "/nolla",
         },
         {
           title: m.nav_about_guild(),
