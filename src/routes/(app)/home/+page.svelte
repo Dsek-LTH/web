@@ -1,7 +1,6 @@
 <script lang="ts">
   import HomeCalendar from "$lib/components/homeCalendar/HomeCalendar.svelte";
   import CommitteeIcon from "$lib/components/images/CommitteeIcon.svelte";
-  import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import * as Card from "$lib/components/ui/card/index";
@@ -67,7 +66,9 @@
               .tz(dayjs.tz.guess())
               .format("YYYY-MM-DD")}</span
           >
-          <Button href={election.link} class="mt-4">{m.elections_apply()}</Button>
+          <Button href={election.link} class="mt-4"
+            >{m.elections_apply()}</Button
+          >
         </Card.Root>
       {/each}
     </div>

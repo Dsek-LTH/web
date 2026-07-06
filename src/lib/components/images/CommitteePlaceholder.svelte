@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { getFileUrl } from "$lib/files/client";
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import { cn } from "$lib/utils";
   import type { Snippet } from "svelte";
