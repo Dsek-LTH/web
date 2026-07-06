@@ -42,7 +42,7 @@
           href="/news/{article.slug}/edit"
           class="hover:bg-muted/50 flex items-center justify-between rounded-md border px-4 py-3 text-sm transition-colors"
         >
-          <span class="font-medium">{article.headerSv}</span>
+          <span class="font-medium">{article.header}</span>
           <span class="text-muted-foreground ml-4 shrink-0">
             {m.news_scheduledFor()}
             {dayjs(article.publishedAt).format("YYYY-MM-DD HH:mm")}
