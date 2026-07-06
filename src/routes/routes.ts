@@ -160,7 +160,7 @@ export const getRoutes = (): Route[] =>
           accessRequired: null,
           appBehaviour: "none",
           description: m.nav_bookings_desc(),
-          path: "/bookings",
+          path: "/booking",
         },
         {
           title: "Utlägg",
