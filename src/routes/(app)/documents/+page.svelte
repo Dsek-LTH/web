@@ -22,13 +22,24 @@
     return `?${searchParams.toString()}`;
   });
 
+  let type = $derived(page.url.searchParams.get("type"));
+
   let meetings = $derived(
-    Object.keys(data.meetings).sort((a, b) =>
-      page.url.searchParams.get("type") === "board-meeting" ||
-      page.url.searchParams.get("type") === "SRD-meeting"
-        ? b.localeCompare(a, "sv")
-        : a.localeCompare(b, "sv"),
-    ),
+    Object.keys(data.meetings).sort((a, b) => {
+      if (type === "board-meeting" || type === null) {
+        return b.localeCompare(a, "sv");
+      } else if (type === "SRD-meeting" && a.startsWith("SRD")) {
+        return (
+          // Current format
+          Number.parseInt(b.split("SRD")[1] ?? "0") -
+          Number.parseInt(a.split("SRD")[1] ?? "0")
+        );
+      } else if (type === "SRD-meeting") {
+        return ("T" + a).localeCompare(b, "sv"); // Sort other SRD meetings below current format
+      } else {
+        return a.localeCompare(b, "sv");
+      }
+    }),
   );
 
   let canCreate = $derived(
