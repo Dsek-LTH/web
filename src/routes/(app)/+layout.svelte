@@ -9,7 +9,7 @@
 </script>
 
 <div class="flex min-h-screen flex-col">
-  <Navbar notificationsPromise={data.notificationsPromise} />
+  <Navbar notificationsPromise={data.notificationsPromise} isApp={data.isApp} />
 
   <main class="flex min-h-0 flex-1 flex-col">
     {#each data.alerts as alert (alert.id)}

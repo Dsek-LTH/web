@@ -36,7 +36,9 @@
 
   const {
     notificationsPromise,
-  }: { notificationsPromise?: Promise<NotificationGroup[]> } = $props();
+    isApp,
+  }: { notificationsPromise?: Promise<NotificationGroup[]>; isApp: boolean } =
+    $props();
 
   const canAccess = (accessRequired: string | null) =>
     accessRequired === null || isAuthorized(accessRequired, page.data.user);
@@ -243,15 +245,19 @@
                       class="text-muted-foreground size-9"><LogOut /></Button
                     >
                   {:else}
-                    <a href="https://auth.dsek.se/if/flow/lu-signup/?next=%2F">
-                      <Button
-                        onclick={signIn}
-                        aria-label="sign in"
-                        variant="outline"
-                        class="text-muted-foreground h-9"
-                        ><User /> {m.navbar_register()}</Button
-                      ></a
-                    >
+                    {#if !isApp}
+                      <a
+                        href="https://auth.dsek.se/if/flow/lu-signup/?next=%2F"
+                      >
+                        <Button
+                          onclick={signIn}
+                          aria-label="sign in"
+                          variant="outline"
+                          class="text-muted-foreground h-9"
+                          ><User /> {m.navbar_register()}
+                        </Button>
+                      </a>
+                    {/if}
                     <Button
                       onclick={signIn}
                       aria-label="sign in"

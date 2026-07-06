@@ -14,6 +14,8 @@
   import Heart from "@lucide/svelte/icons/heart";
   import Link from "@lucide/svelte/icons/link";
 
+  const { data } = $props();
+
   const SECTIONS = [
     {
       title: m.landing_party_title(),
@@ -79,7 +81,7 @@
 </script>
 
 <nav class="contents">
-  <Navbar />
+  <Navbar isApp={data.isApp} />
 </nav>
 <header
   class="relative h-screen bg-linear-to-t bg-[linear-gradient(to_right,rgba(0,0,0,0.9),rgba(0,0,0,0.7),rgba(0,0,0,0)),url('https://files.dsek.se/files/public/photos/hero2.jpg')] bg-cover bg-center"
@@ -152,7 +154,7 @@
         <!-- eslint-disable-next-line svelte/no-at-html-tags -->
         <a class="mt-0" href={section.link}
           ><Button variant={section.variant} class="w-fit"
-            ><svelte:component this={section.icon} />{section.cta}
+            ><section.icon />{section.cta}
             <ArrowRight /></Button
           ></a
         >
@@ -183,7 +185,7 @@
             </p>
             <a href={article.link} class="mt-auto">
               <Button class="mt-auto w-fit"
-                ><svelte:component this={article.icon} />
+                ><article.icon />
                 {article.cta}
                 <ArrowRight /></Button
               ></a
