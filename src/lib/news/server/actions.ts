@@ -225,6 +225,8 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
     notificationText,
     ...rest
   } = form.data;
+  // No scheduled time means publish immediately.
+  const publishedAt = publishTime ?? new Date();
   const existingAuthor = await prisma.author.findFirst({
     where: {
       member: { id: author.memberId },
@@ -367,7 +369,7 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
       data: {
         bodySv: DOMPurify.sanitize(bodySv),
         bodyEn: bodyEn ? DOMPurify.sanitize(bodyEn) : bodyEn,
-        publishedAt: publishTime,
+        publishedAt,
         shouldSendNotification: sendNotification,
         notificationText: notificationText,
         ...rest,
@@ -428,7 +430,7 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
   }
 
   throw redirect(
-    `/news/${publishTime && publishTime < new Date() ? event.params.slug : ""}`,
+    `/news/${publishedAt < new Date() ? event.params.slug : ""}`,
     {
       message: m.news_articleUpdated(),
       type: "success",
