@@ -996,6 +996,8 @@
   "nav_volunteer_desc": "Läs om hur du kan engagera dig i sektionen.",
   "nav_elections_desc": "Se vilka utskott som har val öppna.",
   "nav_tickets_desc": "Köp biljetter för event.",
+  "nav_booking": "Bokningar",
+  "nav_expenses": "Utlägg",
   "nav_bookings_desc": "Boka lokaler och inventarier.",
   "nav_expenses_desc": "Registrera privata utlägg.",
   "close": "Stäng",

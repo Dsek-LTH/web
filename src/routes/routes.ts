@@ -143,7 +143,7 @@ export const getRoutes = (): Route[] =>
     },
     {
       title: m.nav_member(),
-      accessRequired: null,
+      accessRequired: "_",
       appBehaviour: "none",
       path: null,
       list: true,
@@ -156,14 +156,14 @@ export const getRoutes = (): Route[] =>
           path: "/shop/tickets",
         },
         {
-          title: "Bokningar",
+          title: m.nav_booking(),
           accessRequired: null,
           appBehaviour: "none",
           description: m.nav_bookings_desc(),
           path: "/booking",
         },
         {
-          title: "Utlägg",
+          title: m.nav_expenses(),
           accessRequired: null,
           appBehaviour: "none",
           description: m.nav_expenses_desc(),
