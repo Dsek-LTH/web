@@ -1,5 +1,6 @@
 <script lang="ts">
   import dayjs from "dayjs";
+  import { m } from "$paraglide/messages";
 
   const {
     events,
@@ -99,6 +100,13 @@
       ),
     })}
   {/each}
+  {#if mapped.filter(isEventInMobileRange).length === 0}
+    <h3
+      class="text-foreground/50 col-start-1 col-end-4 flex flex-row justify-center p-5"
+    >
+      {m.home_calendarEmpty()}
+    </h3>
+  {/if}
 </div>
 
 <div
@@ -122,4 +130,11 @@
   {#each mapped as event (event.slug)}
     {@render eventCard(event)}
   {/each}
+  {#if mapped.length === 0}
+    <h2
+      class="text-foreground/50 col-start-1 col-end-8 flex flex-row justify-center p-5"
+    >
+      {m.home_calendarEmpty()}
+    </h2>
+  {/if}
 </div>
