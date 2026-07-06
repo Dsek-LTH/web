@@ -10,7 +10,7 @@
   }: {
     committee: Pick<
       ExtendedPrismaModel<"Committee">,
-      "darkImageUrl" | "lightImageUrl" | "shortName" | "symbolUrl" | "name"
+      "shortName" | "symbolUrl" | "name"
     > | null;
     class?: string;
     /** Optional content rendered on top of the pattern (e.g. an overlay). */

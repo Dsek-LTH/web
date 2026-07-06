@@ -100,11 +100,13 @@
       ),
     })}
   {/each}
-  <h3
-    class="text-foreground/50 col-start-1 col-end-4 flex flex-row justify-center p-5"
-  >
-    {m.home_calendarEmpty()}
-  </h3>
+  {#if mapped.filter(isEventInMobileRange).length === 0}
+    <h3
+      class="text-foreground/50 col-start-1 col-end-4 flex flex-row justify-center p-5"
+    >
+      {m.home_calendarEmpty()}
+    </h3>
+  {/if}
 </div>
 
 <div

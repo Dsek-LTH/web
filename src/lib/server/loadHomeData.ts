@@ -173,7 +173,6 @@ export const loadHomeData = async ({
     where: { expiresAt: { gt: new Date() } },
     select: {
       committee: true,
-      markdown: true,
       link: true,
       id: true,
       expiresAt: true,
@@ -243,7 +242,6 @@ export const loadHomeData = async ({
       return null;
     }
   };
-  console.log(news.value);
 
   return {
     wellbeing: wellbeing_random_sentence,
