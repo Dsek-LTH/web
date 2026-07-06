@@ -43,8 +43,10 @@
       : parseTime("12:00"),
   );
 
+  let schedulePublish = $state<boolean>(!!$form.publishTime);
+
   $effect(() => {
-    if (publishDate) {
+    if (schedulePublish && publishDate) {
       const parsed = parseDate(publishDate);
       const dt = new CalendarDateTime(
         parsed.year,
@@ -69,11 +71,23 @@
 >
   {#snippet formEnd()}
     <div class="flex w-full flex-col gap-1.5">
-      <Label>{m.news_schedule_publish_time()}</Label>
       <div class="flex flex-row items-center gap-2">
-        <DatePicker bind:value={publishDate} />
-        <TimePicker bind:value={publishTimeValue} />
+        <Checkbox
+          bind:checked={schedulePublish}
+          id="schedulePublish"
+          class="p-2"
+          onCheckedChange={(checked) => {
+            if (!checked) publishDate = undefined;
+          }}
+        />
+        <Label for="schedulePublish">{m.news_schedule_publish_time()}</Label>
       </div>
+      {#if schedulePublish}
+        <div class="flex flex-row items-center gap-2">
+          <DatePicker bind:value={publishDate} />
+          <TimePicker bind:value={publishTimeValue} />
+        </div>
+      {/if}
     </div>
     <div class="flex w-full flex-col gap-1.5">
       <Label for="sendNotification">{m.news_notification_send()}</Label
