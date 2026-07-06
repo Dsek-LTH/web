@@ -8,9 +8,14 @@ import {
   getPageOrThrowSvelteError,
   getPageSizeOrThrowSvelteError,
 } from "$lib/utils/url.server";
+import { isAuthorized } from "$lib/utils/authorization";
+import apiNames from "$lib/utils/apiNames";
 
 export const load: PageServerLoad = async ({ locals, url }) => {
-  const { prisma, member } = locals;
+  const { prisma, member, user } = locals;
+
+  // News admins can see everyone's scheduled articles, not just their own.
+  const canSeeAllScheduled = isAuthorized(apiNames.NEWS.UPDATE, user);
 
   const articleCount = await prisma.article.count();
   const pageSize = getPageSizeOrThrowSvelteError(url);
@@ -36,11 +41,15 @@ export const load: PageServerLoad = async ({ locals, url }) => {
           publishedAt: {
             gt: new Date(),
           },
-          author: {
-            member: {
-              id: member.id,
-            },
-          },
+          ...(canSeeAllScheduled
+            ? {}
+            : {
+                author: {
+                  member: {
+                    id: member.id,
+                  },
+                },
+              }),
         },
         include: {
           author: {
