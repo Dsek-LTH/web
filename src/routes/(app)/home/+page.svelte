@@ -25,9 +25,9 @@
           {m.home_greeting({ name: data.member?.firstName ?? "" })}
         </h1>
         {#await data.notificationsPromise}
-          {m.home_notificationCount({ count: "?" })}
+          {m.home_notificationCount({ count: 0 })}
         {:then notifications}
-          {m.home_notificationCount({ count: notifications?.length ?? 0 })}
+          {m.home_notificationCount({ count: notifications?.filter((n) => n.readAt === null).length ?? 0 })}
         {/await}
       </div>
     </div>
@@ -123,7 +123,7 @@
             newsArticle.imageUrl && "text-white",
           ]}
         >
-          <h2 class="line line-clamp-2 overflow-hidden">
+          <h2 class="line-clamp-2 overflow-hidden">
             {newsArticle.header}
           </h2>
           <span class="text-right font-light">

@@ -170,7 +170,7 @@ export const loadHomeData = async ({
 
   // Elections
   const electionsPromise = prisma.election.findMany({
-    where: { expiresAt: { gt: new Date() } },
+    where: { expiresAt: { gt: now } },
     select: {
       committee: true,
       link: true,
