@@ -3,7 +3,7 @@ import type { PageServerLoad } from "./$types";
 export const load: PageServerLoad = async ({ locals }) => {
   const { user, isApp } = locals;
   if (isApp) {
-    redirect(302, "/app/home");
+    // redirect(302, "/app/home"); not implemented yet
   }
   if (user?.memberId) {
     redirect(302, "/home");
