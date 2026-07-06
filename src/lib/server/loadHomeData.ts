@@ -72,6 +72,9 @@ export const loadHomeData = async ({
       createdAt: "desc",
     },
     take: 3,
+    include: {
+      committee: true,
+    },
   });
 
   const startDate = dayjs(now).startOf("day").toDate();
@@ -165,6 +168,22 @@ export const loadHomeData = async ({
     take: 4,
   });
 
+  // Elections
+  const electionsPromise = prisma.election.findMany({
+    where: { expiresAt: { gt: new Date() } },
+    select: {
+      committee: true,
+      markdown: true,
+      link: true,
+      id: true,
+      expiresAt: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: 3,
+  });
+
   const [
     news,
     events,
@@ -174,6 +193,7 @@ export const loadHomeData = async ({
     commitData,
     hasActiveMandate,
     readme,
+    elections,
   ] = await Promise.allSettled([
     newsPromise,
     eventsPromise,
@@ -183,6 +203,7 @@ export const loadHomeData = async ({
     commitPromise,
     hasActiveMandatePromise,
     readmePromise,
+    electionsPromise,
   ]);
   if (news.status === "rejected") {
     throw error(500, "Failed to fetch news");
@@ -208,6 +229,9 @@ export const loadHomeData = async ({
   if (readme.status === "rejected") {
     throw error(500, "Failed to fetch readme");
   }
+  if (elections.status === "rejected") {
+    throw error(500, "Failed to fetch elections");
+  }
 
   // WIKI
 
@@ -219,6 +243,7 @@ export const loadHomeData = async ({
       return null;
     }
   };
+  console.log(news.value);
 
   return {
     wellbeing: wellbeing_random_sentence,
@@ -236,5 +261,6 @@ export const loadHomeData = async ({
     readmeIssues: readme.value,
     wikiData: await wikiDataCache.get(),
     minecraftStatus: minecraftStatus(),
+    elections: elections.value,
   };
 };
