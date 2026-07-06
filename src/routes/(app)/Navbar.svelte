@@ -14,6 +14,7 @@
   import User from "@lucide/svelte/icons/user";
 
   import { getRoutes } from "../routes";
+  import { isAuthorized } from "$lib/utils/authorization";
   import { page } from "$app/state";
   import { navigationMenuTriggerStyle } from "$lib/components/ui/navigation-menu/navigation-menu-trigger.svelte";
   import { getLocale, setLocale } from "$paraglide/runtime";
@@ -36,6 +37,20 @@
   const {
     notificationsPromise,
   }: { notificationsPromise?: Promise<NotificationGroup[]> } = $props();
+
+  const canAccess = (accessRequired: string | null) =>
+    accessRequired === null || isAuthorized(accessRequired, page.data.user);
+
+  const visibleRoutes = $derived(
+    getRoutes()
+      .filter((route) => canAccess(route.accessRequired))
+      .map((route) => ({
+        ...route,
+        children: route.children?.filter((child) =>
+          canAccess(child.accessRequired),
+        ),
+      })),
+  );
 
   let commandDialogOpen = $state(false);
 
@@ -261,7 +276,7 @@
 </div>
 
 {#snippet desktopLinks()}
-  {#each getRoutes() as route (route.title)}
+  {#each visibleRoutes as route (route.title)}
     <NavigationMenu.Item class="md-nav:block hidden">
       {#if route.children}
         <NavigationMenu.Trigger>{route.title}</NavigationMenu.Trigger>
@@ -322,7 +337,7 @@
 
 {#snippet mobileLinks()}
   <div class="">
-    {#each getRoutes() as route (route.title)}
+    {#each visibleRoutes as route (route.title)}
       {#if route.children}
         <details open class="group list-none">
           <summary class="list-none">
