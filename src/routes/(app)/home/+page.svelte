@@ -27,7 +27,9 @@
         {#await data.notificationsPromise}
           {m.home_notificationCount({ count: 0 })}
         {:then notifications}
-          {m.home_notificationCount({ count: notifications?.filter((n) => n.readAt === null).length ?? 0 })}
+          {m.home_notificationCount({
+            count: notifications?.filter((n) => n.readAt === null).length ?? 0,
+          })}
         {/await}
       </div>
     </div>
