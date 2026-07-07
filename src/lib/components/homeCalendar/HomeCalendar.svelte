@@ -101,11 +101,11 @@
     })}
   {/each}
   {#if mapped.filter(isEventInMobileRange).length === 0}
-    <h3
-      class="text-foreground/50 col-start-1 col-end-4 flex flex-row justify-center p-5"
+    <div
+      class="text-muted-foreground col-start-1 col-end-4 flex w-full flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 text-center"
     >
-      {m.home_calendarEmpty()}
-    </h3>
+      <span class="font-medium">{m.home_calendarEmpty()}</span>
+    </div>
   {/if}
 </div>
 
@@ -131,10 +131,10 @@
     {@render eventCard(event)}
   {/each}
   {#if mapped.length === 0}
-    <h2
-      class="text-foreground/50 col-start-1 col-end-8 flex flex-row justify-center p-5"
+    <div
+      class="text-muted-foreground col-start-1 col-end-8 flex w-full flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 text-center"
     >
-      {m.home_calendarEmpty()}
-    </h2>
+      <span class="font-medium">{m.home_calendarEmpty()}</span>
+    </div>
   {/if}
 </div>
