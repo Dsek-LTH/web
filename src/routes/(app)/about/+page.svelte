@@ -40,7 +40,7 @@
   >
     {#each data.committees
       .filter((e: ExtendedPrismaModel<"Committee">) => e.shortName != "dchip")
-      .sort( (e1: ExtendedPrismaModel<"Committee">, e2: ExtendedPrismaModel<"Committee">) => e1.nameSv.localeCompare(e2.nameSv), ) as committee, index (committee.id)}
+      .sort( (e1: ExtendedPrismaModel<"Committee">, e2: ExtendedPrismaModel<"Committee">) => e1.nameSv.localeCompare(e2.nameSv, "sv"), ) as committee, index (committee.id)}
       <a class="group block" href="/committees/{committee.shortName}">
         <div
           class="border-border animate-in fade-in fill-mode-backwards slide-in-from-bottom-[1rem] group-hover:bg-muted-background flex h-full w-full flex-grow flex-col rounded-md border-[1px] duration-300"
