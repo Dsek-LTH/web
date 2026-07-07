@@ -17,24 +17,26 @@
   import { cn } from "$lib/utils";
 </script>
 
-<div class="bg-muted-background text-muted-foreground mt-auto border-t-[1px]">
+<footer
+  class="bg-muted-background text-muted-foreground mt-auto border-t-[1px]"
+>
   <div class="container mx-auto py-0 md:px-8 md:py-4 xl:px-32">
     <section
       class="flex flex-col justify-center py-11 md:flex-row md:justify-between"
     >
-      <aside class="mx-8 mb-4 md:mb-0">
-        <div>
-          <h1
+      <div class="mx-8 mb-4 md:mb-0">
+        <blockquote>
+          <p
             class="text-foreground text-3xl leading-9 font-bold md:text-5xl md:leading-[56px]"
           >
             Er linje,<br class="hidden md:inline" /> Er färg!
-          </h1>
-          <p class="m-0 md:mt-2">– Evert Taube</p>
-        </div>
+          </p>
+        </blockquote>
+        <p class="m-0 md:mt-2">– Evert Taube</p>
         {@render socialIcons("hidden md:flex")}
-      </aside>
-      {@render mobileFooterLinks("lg:hidden")}
+      </div>
       {@render desktopFooterLinks("lg:flex hidden")}
+      {@render mobileFooterLinks("lg:hidden")}
     </section>
 
     <section
@@ -61,7 +63,7 @@
       </div>
     </section>
   </div>
-</div>
+</footer>
 
 {#snippet socialIcons(klass: string)}
   <div class={cn("text-muted-foreground mt-5 flex flex-row *:mx-3", klass)}>
