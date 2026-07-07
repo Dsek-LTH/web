@@ -41,9 +41,7 @@
     $props();
 
   const canAccess = (accessRequired: string | null) =>
-    accessRequired == "_"
-      ? page.data.user
-      : accessRequired === null || isAuthorized(accessRequired, page.data.user);
+    accessRequired === null || isAuthorized(accessRequired, page.data.user);
 
   const visibleRoutes = $derived(
     getRoutes()

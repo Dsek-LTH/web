@@ -68,6 +68,7 @@ const apiNames = {
     SEE_STABEN: "member:see_staben",
     SEE_EMAIL: "member:see_email",
     PING: "core:member:ping",
+    USER: "member:user",
   },
   GOVERNING_DOCUMENT: {
     CREATE: "governing_document:write",

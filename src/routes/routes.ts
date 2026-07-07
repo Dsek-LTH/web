@@ -143,7 +143,7 @@ export const getRoutes = (): Route[] =>
     },
     {
       title: m.nav_member(),
-      accessRequired: "_",
+      accessRequired: apiNames.MEMBER.USER,
       appBehaviour: "none",
       path: null,
       list: true,
