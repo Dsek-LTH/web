@@ -38,15 +38,23 @@
       <div class="grid grid-cols-2 gap-2 pt-2">
         <div class="flex min-w-0 flex-col">
           <span class="p-2 font-light">{data.wellbeing}</span>
-          <Button variant="outline" class="h-auto w-full whitespace-normal"
-            ><UsersRound class="shrink-0" />{m.home_contactWellbeing()}</Button
+          <Button
+            variant="outline"
+            class="h-auto w-full whitespace-normal"
+            href="https://bit.ly/trivselkontakt"
           >
+            <UsersRound class="shrink-0" />{m.home_contactWellbeing()}
+          </Button>
         </div>
         <div class="flex min-w-0 flex-col">
           <span class="p-2 font-light">{m.home_feedbackSRD()}</span>
-          <Button variant="outline" class="h-auto w-full whitespace-normal"
-            ><BookOpen class="shrink-0" />{m.home_contactSRD()}</Button
+          <Button
+            variant="outline"
+            class="h-auto w-full whitespace-normal"
+            href="mailto:srdordforande@dsek.se"
           >
+            <BookOpen class="shrink-0" />{m.home_contactSRD()}
+          </Button>
         </div>
       </div>
     </div>
