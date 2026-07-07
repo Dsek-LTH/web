@@ -33,7 +33,7 @@
       />
     {/each}
   </div>
-  <div class="flex w-full flex-col gap-4 lg:hidden" id="test">
+  <div class="flex w-full flex-col gap-4 lg:hidden">
     {#each data.positions as position, index (position.id)}
       <PositionGroupCard
         class="w-full"
