@@ -149,6 +149,12 @@
             </span>
           </div>
         </a>
+      {:else}
+        <div
+          class="flex w-full flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 text-center text-muted-foreground"
+        >
+          <span class="font-medium">{m.home_newsEmpty()}</span>
+        </div>
       {/each}
     </div>
   </div>
