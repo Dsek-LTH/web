@@ -57,7 +57,9 @@
 </script>
 
 <div class="layout-container">
-  <div class="flex flex-row justify-between gap-8 *:w-full">
+  <div
+    class="flex flex-col justify-between gap-4 *:w-full md:flex-row md:gap-8"
+  >
     <div class="flex flex-col gap-2 rounded-md border-[1px] p-4">
       <h3>{m.documents_guildMeetings()}</h3>
       <p class="mt-0">{m.documents_guildMeetings_prose()}</p>
@@ -76,7 +78,7 @@
 
   <div class="mt-4 flex flex-row gap-8">
     <Tabs.Root value={page.url.searchParams.get("type") ?? "board-meeting"}>
-      <Tabs.List>
+      <Tabs.List class="flex-col px-4 sm:flex-row sm:px-1">
         <a href={generateLink("guild-meeting")}>
           <Tabs.Trigger value="guild-meeting"
             >{m.documents_guildMeetings()}</Tabs.Trigger
