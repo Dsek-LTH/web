@@ -18,7 +18,7 @@
       <ul
         class="m-0 flex items-stretch gap-2 overflow-x-auto p-1 lg:flex-col lg:overflow-x-visible lg:p-0"
       >
-        {#each doors as door (door.id)}
+        {#each doors as door (door.name)}
           {@const isCurrent = door.name == selectedDoor}
           <a href="/admin/doors/edit/{door.name}" class="block">
             <li
