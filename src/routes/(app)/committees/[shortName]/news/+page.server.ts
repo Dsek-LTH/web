@@ -26,6 +26,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
           customAuthor: true,
         },
       },
+      committee: true,
     },
   });
   return { articles };
