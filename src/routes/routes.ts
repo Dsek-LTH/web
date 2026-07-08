@@ -143,7 +143,7 @@ export const getRoutes = (): Route[] =>
     },
     {
       title: m.nav_member(),
-      accessRequired: "_",
+      accessRequired: apiNames.MEMBER.USER,
       appBehaviour: "none",
       path: null,
       list: true,
@@ -168,6 +168,13 @@ export const getRoutes = (): Route[] =>
           appBehaviour: "none",
           description: m.nav_expenses_desc(),
           path: "/expenses",
+        },
+        {
+          title: m.stocklist(),
+          accessRequired: "drinkitem:read",
+          appBehaviour: "none",
+          description: m.nav_stocklist_desc(),
+          path: "/admin/stocklist",
         },
       ],
     },

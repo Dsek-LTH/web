@@ -81,6 +81,7 @@ export const load: PageServerLoad = async ({ locals, params, cookies }) => {
               mandate: { include: { position: true } },
             },
           },
+          committee: true,
         },
         take: 5,
       }),
