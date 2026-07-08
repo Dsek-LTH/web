@@ -1,5 +1,6 @@
 <script lang="ts">
   import CommitteeIcon from "$lib/components/images/CommitteeIcon.svelte";
+  import CommitteePlaceholder from "$lib/components/images/CommitteePlaceholder.svelte";
   import type { Snippet } from "svelte";
   import type { CommitteeLoadData } from "./committee.server";
 
@@ -17,7 +18,6 @@
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
   import { page } from "$app/state";
-  import { getFileUrl } from "$lib/files/client";
 
   let { data, children }: { data: CommitteeLoadData; children: Snippet } =
     $props();
@@ -29,27 +29,34 @@
 
 <div class="sm:layout-container sm:py-0">
   <div class="border-x-[1px] border-t-[1px] border-b-[1px] p-2 sm:border-t-0">
-    <header
-      style:background-image={committee.bannerUrl
-        ? `url(${committee.bannerUrl})`
-        : `url(${getFileUrl(
-            "minio/files/public/photos/backgrounds/dsek-bg.png",
-          )})`}
-      style:background-size={committee.bannerUrl || "60%"}
-      class="bg-rosa-300 {committee.bannerUrl ||
-        'border-rosa-300 border-[1px]'} relative h-60 rounded-md bg-cover bg-center"
-    >
+    <header class="relative h-60 overflow-hidden rounded-md">
+      {#if committee.bannerUrl}
+        <div
+          style:background-image={`url(${committee.bannerUrl})`}
+          class="bg-rosa-300 absolute inset-0 bg-cover bg-center"
+        ></div>
+      {:else}
+        <CommitteePlaceholder {committee} class="absolute inset-0 size-full" />
+      {/if}
       <div
         class="absolute bottom-1 left-4 flex flex-col sm:bottom-4 sm:flex-row sm:gap-4"
       >
         <CommitteeIcon
-          override={committee.isBannerTextLight ? "light" : "dark"}
+          override={committee.bannerUrl
+            ? committee.isBannerTextLight
+              ? "light"
+              : "dark"
+            : undefined}
           class="size-16"
           {committee}
         />
         <h1
           class={cn(
-            committee.isBannerTextLight ? "text-white" : "text-black",
+            committee.bannerUrl
+              ? committee.isBannerTextLight
+                ? "text-white"
+                : "text-black"
+              : "text-foreground",
             "text-3xl sm:text-[48px]",
           )}
         >
