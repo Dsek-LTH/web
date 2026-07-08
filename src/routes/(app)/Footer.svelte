@@ -25,12 +25,10 @@
       class="flex flex-col justify-center py-11 md:flex-row md:justify-between"
     >
       <div class="mx-8 mb-4 md:mb-0">
-        <blockquote>
-          <p
-            class="text-foreground text-3xl leading-9 font-bold md:text-5xl md:leading-[56px]"
-          >
-            Er linje,<br class="hidden md:inline" /> Er färg!
-          </p>
+        <blockquote
+          class="text-foreground text-3xl leading-9 font-medium tracking-tight md:text-5xl md:leading-[56px]"
+        >
+          <p>Er linje,<br class="hidden md:inline" /> Er färg!</p>
         </blockquote>
         <p class="m-0 md:mt-2">– Evert Taube</p>
         {@render socialIcons("hidden md:flex")}
