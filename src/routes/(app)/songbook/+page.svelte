@@ -88,7 +88,7 @@
     <div class="flex-1 md:flex-row md:items-end">
       <Input
         type="text"
-        placeholder={m.search_search ? m.search_search() : "Search"}
+        placeholder={m.songbook_searchPlaceholder()}
         value={data.search}
         oninput={handleSearch}
       >
