@@ -85,7 +85,7 @@
 </div>
 
 <main>
-  <section
+  <header
     class="relative h-screen bg-linear-to-t bg-[linear-gradient(to_right,rgba(0,0,0,0.9),rgba(0,0,0,0.7),rgba(0,0,0,0)),url('https://files.dsek.se/files/public/photos/hero2.jpg')] bg-cover bg-center"
   >
     <div class="absolute top-1/4 px-10 pl-6 md:top-1/3 md:pl-10 lg:pl-44">
@@ -114,7 +114,7 @@
         </Button>
       </div>
     </div>
-  </section>
+  </header>
 
   <div class="flex flex-col gap-2">
     {#each SECTIONS as section, i (section.title)}
