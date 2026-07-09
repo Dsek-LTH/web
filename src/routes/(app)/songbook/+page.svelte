@@ -4,7 +4,6 @@
     Card,
     CardHeader,
     CardTitle,
-    CardDescription,
     CardContent,
   } from "$lib/components/ui/card/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
@@ -116,19 +115,23 @@
   <Pagination pageCount={data.pageCount} class="pb-2" />
 
   <div class="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-    {#each data.songs as song (song.id)}
+    {#each data.songs as song, index (song.id)}
       <a
         href={resolve(`/songbook/${song.slug}`)}
-        class="block h-full transition-transform hover:scale-[1.02]"
+        class="block h-full transition-transform"
       >
-        <Card class="hover:bg-muted/50 h-full cursor-pointer">
+        <Card
+          class="hover:bg-muted/50 animate-in fade-in fill-mode-backwards slide-in-from-bottom-[2rem] h-full cursor-pointer duration-300"
+          style="animation-delay:{index * 50}ms"
+        >
           <CardHeader>
-            <CardTitle>{song.title}</CardTitle>
-            {#if song.category}
-              <CardDescription>
-                <Badge variant="outline" class="mt-2">{song.category}</Badge>
-              </CardDescription>
-            {/if}
+            <div class="flex items-start justify-between gap-4">
+              <CardTitle>{song.title}</CardTitle>
+              {#if song.category}
+                <Badge variant="outline" class="shrink-0">{song.category}</Badge
+                >
+              {/if}
+            </div>
           </CardHeader>
           <CardContent>
             <p

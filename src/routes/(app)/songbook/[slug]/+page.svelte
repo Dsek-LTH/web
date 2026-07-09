@@ -9,6 +9,7 @@
   } from "$lib/components/ui/card/index.js";
   import { Button } from "$lib/components/ui/button/index.js";
   import ArrowLeft from "@lucide/svelte/icons/arrow-left";
+  import * as m from "$paraglide/messages.js";
 
   let { data } = $props();
   let song = $derived(data.song);
@@ -17,7 +18,7 @@
 <div class="mx-auto max-w-3xl">
   <Button variant="ghost" href="/songbook" class="mb-4">
     <ArrowLeft class="mr-2 h-4 w-4" />
-    Back to Songbook
+    {m.back()}
   </Button>
 
   <Card>
