@@ -1,6 +1,12 @@
 <script lang="ts">
   import * as m from "$paraglide/messages.js";
-  import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "$lib/components/ui/card/index.js";
+  import {
+    Card,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+    CardContent,
+  } from "$lib/components/ui/card/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
   import { Badge } from "$lib/components/ui/badge/index.js";
   import { resolve } from "$app/paths";
@@ -8,6 +14,7 @@
   import { page } from "$app/state";
   import Pagination from "$lib/components/Pagination.svelte";
   import SearchIcon from "@lucide/svelte/icons/search";
+  import MusicIcon from "@lucide/svelte/icons/music";
 
   let { data } = $props();
 
@@ -24,7 +31,10 @@
         url.searchParams.delete("search");
       }
       url.searchParams.set("page", "1");
-      goto(resolve(url.pathname + "?" + url.searchParams.toString()), { keepFocus: true, replaceState: true });
+      goto(resolve(url.pathname + "?" + url.searchParams.toString()), {
+        keepFocus: true,
+        replaceState: true,
+      });
     }, 300);
   }
 
@@ -33,35 +43,48 @@
     if (currentSelected) {
       // Removing category: we need to reconstruct the URLSearchParams
       // because delete() removes all instances of the key
-      const newCategories = data.categoryFilter.filter(c => c !== category);
+      const newCategories = data.categoryFilter.filter((c) => c !== category);
       url.searchParams.delete("category");
-      newCategories.forEach(c => url.searchParams.append("category", c));
+      newCategories.forEach((c) => url.searchParams.append("category", c));
     } else {
       url.searchParams.append("category", category);
     }
     url.searchParams.set("page", "1");
-    goto(resolve(url.pathname + "?" + url.searchParams.toString()), { keepFocus: true, replaceState: true });
+    goto(resolve(url.pathname + "?" + url.searchParams.toString()), {
+      keepFocus: true,
+      replaceState: true,
+    });
   }
 </script>
 
 <div class="flex flex-col gap-0">
-  <h1 class="mb-4 text-3xl font-bold">{m.songBook()}</h1>
-  <p class="text-muted-foreground mb-4">{m.songbook_hereYouWillFind ? m.songbook_hereYouWillFind() : m.songbook_hereYoullFind ? (m as any).songbook_hereYoullFind() : ""}</p>
-
-  <div class="flex flex-col gap-4 mb-8">
-    <div class="flex-1 md:flex-row md:items-end">
-      <!-- Shadcn input might not natively support slot for icon in this project, but we can wrap it if needed.
-           The news page used <Input><Search/></Input>. We'll use a relative wrapper to mimic typical search boxes or just the input. -->
-      <div class="relative max-w-md">
-        <SearchIcon class="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-        <Input
-          type="text"
-          placeholder={m.search_search ? m.search_search() : "Search"}
-          value={data.search}
-          oninput={handleSearch}
-          class="pl-8"
+  <div class="mb-8 flex flex-row items-center justify-between">
+    <div class="md:w-7/12">
+      <h1>{m.songBook()}</h1>
+      <p>{m.songbook_hereYoullFind()}</p>
+      <p class="text-muted-foreground italic">{m.songbook_disclaimer()}</p>
+    </div>
+    <div class="hidden w-4/12 rounded-lg md:block">
+      <div
+        class="bg-primary/5 flex aspect-[4/3] items-center justify-center rounded-lg border-[1px] shadow-xl"
+      >
+        <MusicIcon
+          class="text-primary h-32 w-32 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]"
         />
       </div>
+    </div>
+  </div>
+
+  <div class="mb-8 flex flex-col gap-4">
+    <div class="flex-1 md:flex-row md:items-end">
+      <Input
+        type="text"
+        placeholder={m.search_search ? m.search_search() : "Search"}
+        value={data.search}
+        oninput={handleSearch}
+      >
+        <SearchIcon />
+      </Input>
     </div>
 
     <div class="flex flex-wrap gap-2">
@@ -88,7 +111,7 @@
         href={resolve(`/songbook/${song.slug}`)}
         class="block h-full transition-transform hover:scale-[1.02]"
       >
-        <Card class="h-full cursor-pointer hover:bg-muted/50">
+        <Card class="hover:bg-muted/50 h-full cursor-pointer">
           <CardHeader>
             <CardTitle>{song.title}</CardTitle>
             {#if song.category}
@@ -98,7 +121,11 @@
             {/if}
           </CardHeader>
           <CardContent>
-            <p class="text-sm text-muted-foreground line-clamp-3 whitespace-pre-wrap">{song.lyrics}</p>
+            <p
+              class="text-muted-foreground line-clamp-3 text-sm whitespace-pre-wrap"
+            >
+              {song.lyrics}
+            </p>
           </CardContent>
         </Card>
       </a>
@@ -108,8 +135,4 @@
   </div>
 
   <Pagination pageCount={data.pageCount} />
-
-  <p class="text-muted-foreground mt-8 text-sm italic">
-    {m.songbook_disclaimer()}
-  </p>
 </div>

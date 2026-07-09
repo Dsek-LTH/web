@@ -15,7 +15,6 @@ export const load: PageServerLoad = async ({ locals, url }) => {
             { title: { contains: search, mode: "insensitive" as const } },
             { lyrics: { contains: search, mode: "insensitive" as const } },
             { melody: { contains: search, mode: "insensitive" as const } },
-            { category: { contains: search, mode: "insensitive" as const } },
           ],
         }
       : {}),
