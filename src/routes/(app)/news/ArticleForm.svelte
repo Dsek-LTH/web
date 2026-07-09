@@ -14,12 +14,25 @@
   import Pen from "@lucide/svelte/icons/pen";
   import User from "@lucide/svelte/icons/user";
 
+  import { Checkbox } from "$lib/components/ui/checkbox";
+  import DatePicker from "$lib/components/datetime-selector/DatePicker.svelte";
+  import TimePicker from "$lib/components/datetime-selector/TimePicker.svelte";
+  import {
+    CalendarDateTime,
+    fromDate,
+    getLocalTimeZone,
+    parseDate,
+    parseTime,
+    toCalendarDate,
+    toTime,
+  } from "@internationalized/date";
+  import type { Time } from "@internationalized/date";
+
   import { type SuperForm } from "sveltekit-superforms";
 
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import type { ArticleSchema } from "$lib/news/schema";
   import type { AuthorOption } from "$lib/news/getArticles";
-  import type { Snippet } from "svelte";
   import { Spinner } from "$lib/components/ui/spinner";
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
@@ -30,18 +43,49 @@
     superform,
     activeTab = $bindable(),
     authorOptions,
-    formEnd,
     committees,
   }: {
     allTags: Array<ExtendedPrismaModel<"Tag">>;
     activeTab: "sv" | "en";
     superform: SuperForm<ArticleSchema>;
     authorOptions: AuthorOption[];
-    formEnd?: Snippet;
     committees: Array<Pick<ExtendedPrismaModel<"Committee">, "id" | "name">>;
   } = $props();
 
   const { form, errors, enhance, delayed } = $derived(superform);
+
+  const tz = getLocalTimeZone();
+
+  // These are immutable objects that are only re-assigned,
+  // so using $state.raw avoids overhead.
+  let publishDate = $state.raw<string | undefined>(
+    $form.publishTime
+      ? toCalendarDate(fromDate($form.publishTime, tz)).toString()
+      : undefined,
+  );
+  let publishTimeValue = $state.raw<Time>(
+    $form.publishTime
+      ? toTime(fromDate($form.publishTime, tz))
+      : parseTime("12:00"),
+  );
+
+  let schedulePublish = $state<boolean>(!!$form.publishTime);
+
+  function updatePublishTime() {
+    if (schedulePublish && publishDate) {
+      const parsed = parseDate(publishDate);
+      const dt = new CalendarDateTime(
+        parsed.year,
+        parsed.month,
+        parsed.day,
+        publishTimeValue.hour,
+        publishTimeValue.minute,
+      );
+      $form.publishTime = dt.toDate(tz);
+    } else {
+      $form.publishTime = null;
+    }
+  }
 
   const sameAuthorOption = (
     a: Pick<AuthorOption, "memberId" | "mandateId" | "customId" | "type">,
@@ -201,7 +245,56 @@
     bind:files={() => filelist, (f) => (filelist = f)}
   />
 
-  {@render formEnd?.()}
+  <div class="flex w-full flex-col gap-1.5">
+    <div class="flex flex-row items-center gap-2">
+      <Checkbox
+        bind:checked={schedulePublish}
+        id="schedulePublish"
+        class="p-2"
+        onCheckedChange={(checked) => {
+          if (!checked) publishDate = undefined;
+          updatePublishTime();
+        }}
+      />
+      <Label for="schedulePublish">{m.news_schedule_publish_time()}</Label>
+    </div>
+    {#if schedulePublish}
+      <div class="flex flex-row items-center gap-2">
+        <DatePicker
+          bind:value={() => publishDate,
+          (value) => {
+            publishDate = value;
+            updatePublishTime();
+          }}
+        />
+        <TimePicker
+          bind:value={() => publishTimeValue,
+          (value) => {
+            publishTimeValue = value;
+            updatePublishTime();
+          }}
+        />
+      </div>
+    {/if}
+  </div>
+  <div class="flex w-full flex-col gap-1.5">
+    <Label for="sendNotification">{m.news_notification_send()}</Label><Checkbox
+      bind:checked={$form.sendNotification}
+      id="sendNotification"
+      name="sendNotification"
+      class="p-2"
+    />
+  </div>
+  <div class="flex w-full flex-col gap-1.5">
+    <Label for="notificationText">{m.news_notification_text()}</Label><Input
+      bind:value={$form.notificationText}
+      type="text"
+      id="notificationText"
+      name="notificationText"
+      placeholder="Notistext"><Pen /></Input
+    >
+    <span class="text-xs">{m.news_notification_explanation()}</span>
+  </div>
 
   <div class="flex w-full flex-col gap-1.5">
     <Label for="youtubeUrl">{m.news_youtube_url()}</Label><Input
@@ -213,13 +306,11 @@
     >
   </div>
   <div class="flex w-full flex-row justify-between gap-1.5">
-    <Button
-      onclick={formEnd ? () => goto(resolve("/news")) : () => history.back()}
-      variant="outline">{m.cancel()}</Button
+    <Button onclick={() => goto(resolve("/news"))} variant="outline"
+      >{m.cancel()}</Button
     >
     <Button type="submit" class="block grow"
-      >{formEnd ? m.news_publish() : m.save()}{#if $delayed}<Spinner
-        />{/if}</Button
+      >{m.news_publish()}{#if $delayed}<Spinner />{/if}</Button
     >
   </div>
 </form>
