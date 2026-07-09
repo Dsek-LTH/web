@@ -32,7 +32,7 @@
         searchParams.delete("search");
       }
       searchParams.set("page", "1");
-      
+
       // eslint-disable-next-line svelte/no-navigation-without-resolve -- Navigation uses relative search params
       goto(`?${searchParams.toString()}`, {
         keepFocus: true,
@@ -47,14 +47,14 @@
     if (currentSelected) {
       // Removing category: we need to reconstruct the URLSearchParams
       // because delete() removes all instances of the key
-      const newCategories = data.categoryFilter.filter(c => c !== category);
+      const newCategories = data.categoryFilter.filter((c) => c !== category);
       searchParams.delete("category");
-      newCategories.forEach(c => searchParams.append("category", c));
+      newCategories.forEach((c) => searchParams.append("category", c));
     } else {
       searchParams.append("category", category);
     }
     searchParams.set("page", "1");
-    
+
     // eslint-disable-next-line svelte/no-navigation-without-resolve -- Navigation uses relative search params
     goto(`?${searchParams.toString()}`, {
       keepFocus: true,
@@ -63,7 +63,7 @@
     });
   }
 
-  const showTopPagination = $derived(data.songs.length > 2);
+  const showBottomPagination = $derived(data.songs.length > 2);
 </script>
 
 <div class="flex flex-col gap-0">
@@ -112,10 +112,7 @@
     </div>
   </div>
 
-  <Pagination
-    pageCount={data.pageCount}
-    class={["pb-2", showTopPagination ? "visible" : "hidden"]}
-  />
+  <Pagination pageCount={data.pageCount} class="pb-2" />
 
   <div class="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
     {#each data.songs as song (song.id)}
@@ -146,5 +143,8 @@
     {/each}
   </div>
 
-  <Pagination pageCount={data.pageCount} />
+  <Pagination
+    pageCount={data.pageCount}
+    class={showBottomPagination ? "visible" : "hidden"}
+  />
 </div>
