@@ -169,6 +169,13 @@ export const getRoutes = (): Route[] =>
           description: m.nav_expenses_desc(),
           path: "/expenses",
         },
+        {
+          title: m.stocklist(),
+          accessRequired: "drinkitem:read",
+          appBehaviour: "none",
+          description: m.nav_stocklist_desc(),
+          path: "/admin/stocklist",
+        },
       ],
     },
     {
