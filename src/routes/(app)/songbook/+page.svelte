@@ -9,12 +9,13 @@
   } from "$lib/components/ui/card/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
   import { Badge } from "$lib/components/ui/badge/index.js";
-  import { resolve } from "$app/paths";
   import { goto } from "$app/navigation";
   import { page } from "$app/state";
+  import { SvelteURLSearchParams } from "svelte/reactivity";
   import Pagination from "$lib/components/Pagination.svelte";
   import SearchIcon from "@lucide/svelte/icons/search";
   import MusicIcon from "@lucide/svelte/icons/music";
+  import { resolve } from "$app/paths";
 
   let { data } = $props();
 
@@ -24,34 +25,40 @@
     if (timeout) clearTimeout(timeout);
     const value = (e.target as HTMLInputElement).value;
     timeout = setTimeout(() => {
-      const url = new URL(page.url);
+      const searchParams = new SvelteURLSearchParams(page.url.searchParams);
       if (value) {
-        url.searchParams.set("search", value);
+        searchParams.set("search", value);
       } else {
-        url.searchParams.delete("search");
+        searchParams.delete("search");
       }
-      url.searchParams.set("page", "1");
-      goto(resolve(url.pathname + "?" + url.searchParams.toString()), {
+      searchParams.set("page", "1");
+      
+      // eslint-disable-next-line svelte/no-navigation-without-resolve -- Navigation uses relative search params
+      goto(`?${searchParams.toString()}`, {
         keepFocus: true,
+        noScroll: true,
         replaceState: true,
       });
     }, 300);
   }
 
   function toggleCategory(category: string, currentSelected: boolean) {
-    const url = new URL(page.url);
+    const searchParams = new SvelteURLSearchParams(page.url.searchParams);
     if (currentSelected) {
       // Removing category: we need to reconstruct the URLSearchParams
       // because delete() removes all instances of the key
-      const newCategories = data.categoryFilter.filter((c) => c !== category);
-      url.searchParams.delete("category");
-      newCategories.forEach((c) => url.searchParams.append("category", c));
+      const newCategories = data.categoryFilter.filter(c => c !== category);
+      searchParams.delete("category");
+      newCategories.forEach(c => searchParams.append("category", c));
     } else {
-      url.searchParams.append("category", category);
+      searchParams.append("category", category);
     }
-    url.searchParams.set("page", "1");
-    goto(resolve(url.pathname + "?" + url.searchParams.toString()), {
+    searchParams.set("page", "1");
+    
+    // eslint-disable-next-line svelte/no-navigation-without-resolve -- Navigation uses relative search params
+    goto(`?${searchParams.toString()}`, {
       keepFocus: true,
+      noScroll: true,
       replaceState: true,
     });
   }
