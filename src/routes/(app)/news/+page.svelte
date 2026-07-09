@@ -8,6 +8,7 @@
   import ArticleCard from "$lib/components/ArticleCard.svelte";
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
+  import dayjs from "dayjs";
 
   let { data } = $props();
 </script>
@@ -31,6 +32,27 @@
     <a href="/news/create"><Button>+ {m.news_create()}</Button></a>
   {/if}
 </div>
+
+{#if data.scheduledArticles.length > 0}
+  <section class="mb-6">
+    <h2 class="mb-3 text-lg font-semibold">{m.news_scheduledNews()}</h2>
+    <div class="flex flex-col gap-2">
+      {#each data.scheduledArticles as article (article.id)}
+        <a
+          href="/news/{article.slug}/edit"
+          class="hover:bg-muted/50 flex items-center justify-between rounded-md border px-4 py-3 text-sm transition-colors"
+        >
+          <span class="font-medium">{article.header}</span>
+          <span class="text-muted-foreground ml-4 shrink-0">
+            {m.news_scheduledFor()}
+            {dayjs(article.publishedAt).format("YYYY-MM-DD HH:mm")}
+          </span>
+        </a>
+      {/each}
+    </div>
+  </section>
+{/if}
+
 <Pagination pageCount={data.pageCount} class="pb-2" />
 <div class="space-y-4">
   <section class="grid grid-cols-1 gap-8 md:grid-cols-2">

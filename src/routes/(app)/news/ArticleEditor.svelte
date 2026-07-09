@@ -7,21 +7,18 @@
   import AuthorCard from "$lib/components/AuthorCard.svelte";
   import type { AuthorOption } from "$lib/news/getArticles";
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
-  import type { Snippet } from "svelte";
 
   let {
     data,
     allTags,
     authorOptions,
     superform = superForm(data, { dataType: "json", delayMs: 500 }),
-    formEnd,
     committees,
   }: {
     allTags: Array<ExtendedPrismaModel<"Tag">>;
     authorOptions: AuthorOption[];
     data: SuperValidated<ArticleSchema>;
     superform?: SuperForm<ArticleSchema>;
-    formEnd?: Snippet;
     committees: Array<Pick<ExtendedPrismaModel<"Committee">, "id" | "name">>;
   } = $props();
 
@@ -41,7 +38,6 @@
     {authorOptions}
     {superform}
     {allTags}
-    {formEnd}
     {committees}
   />
   <Article

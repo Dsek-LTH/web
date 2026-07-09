@@ -225,6 +225,8 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
     notificationText,
     ...rest
   } = form.data;
+  // No scheduled time means publish immediately.
+  const publishedAt = publishTime ?? new Date();
   const existingAuthor = await prisma.author.findFirst({
     where: {
       member: { id: author.memberId },
@@ -246,128 +248,19 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
       : [...rest.imageUrls, ...newImages];
 
   try {
-    const article = await prisma.article.findUnique({
-      where: {
-        slug,
-      },
-      include: {
-        author: true,
-        tags: true,
-      },
+    const existingArticle = await prisma.article.findUnique({
+      where: { slug },
+      select: { scheduledId: true, publishedAt: true },
     });
 
-    if (
-      article?.publishedAt &&
-      article.publishedAt > new Date() &&
-      (article.shouldSendNotification || sendNotification)
-    ) {
-      const jwt = await getDecryptedJWT(request);
-      let ok = false;
-      try {
-        if (article.shouldSendNotification && !sendNotification) {
-          // previously scheduled -> delete scheduled task
-
-          ok = (
-            await fetch(
-              `${env.SCHEDULER_ENDPOINT}?password=${env.SCHEDULER_PASSWORD}&scheduledTaskID=${article.scheduledId}`,
-              {
-                method: "DELETE",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${jwt?.["id_token"]}`,
-                },
-              },
-            )
-          ).ok;
-        } else if (!article.shouldSendNotification && sendNotification) {
-          // previously no notification -> schedule sending
-
-          const scheduleResult = await scheduleExecution(
-            request,
-            `${url.origin}/api/schedule/news`,
-            { ...article, tags, notificationText },
-            publishTime ?? new Date(),
-            form,
-            m.news_errors_schedulingFailed(),
-            m.news_articleScheduled(),
-            `/news/${slug}`,
-            event,
-          );
-
-          if (isScheduleFailure(scheduleResult)) {
-            throw redirect(
-              `/news/${slug}/edit`,
-              {
-                message: scheduleResult.data.message,
-                type: "error",
-              },
-              event,
-            );
-          } else {
-            await prisma.article.update({
-              where: {
-                slug: slug,
-              },
-              data: {
-                scheduledId: (scheduleResult as ScheduleSuccess).scheduledId,
-              },
-            });
-
-            ok = true;
-          }
-        } else {
-          // no change in notification -> update scheduled task
-
-          ok = (
-            await fetch(
-              `${env.SCHEDULER_ENDPOINT}?password=${env.SCHEDULER_PASSWORD}`,
-              {
-                method: "PATCH",
-                body: JSON.stringify({
-                  scheduledTaskID: parseInt(article.scheduledId!),
-                  body: JSON.stringify(article),
-                  runTimestamp: publishTime ?? new Date(),
-                }),
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${jwt?.["id_token"]}`,
-                },
-              },
-            )
-          ).ok;
-        }
-      } catch (error) {
-        throw redirect(
-          `/news/${slug}/edit`,
-          {
-            message: `${m.news_errors_schedulingFailed()}: ${
-              error instanceof Error ? error.message : String(error)
-            }`,
-            type: "error",
-          },
-          event,
-        );
-      }
-      if (!ok) {
-        throw redirect(
-          `/news/${slug}/edit`,
-          {
-            message: m.news_errors_schedulingFailed(),
-            type: "error",
-          },
-          event,
-        );
-      }
-    }
-
-    await prisma.article.update({
+    const updatedArticle = await prisma.article.update({
       where: {
         slug: slug,
       },
       data: {
         bodySv: DOMPurify.sanitize(bodySv),
         bodyEn: bodyEn ? DOMPurify.sanitize(bodyEn) : bodyEn,
-        publishedAt: publishTime,
+        publishedAt,
         shouldSendNotification: sendNotification,
         notificationText: notificationText,
         ...rest,
@@ -412,7 +305,125 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
         },
         updatedAt: new Date(),
       },
+      include: {
+        author: true,
+        tags: true,
+      },
     });
+
+    const shouldSchedule =
+      sendNotification && publishTime != null && publishTime > new Date();
+
+    const hadPendingTask =
+      existingArticle?.scheduledId != null &&
+      existingArticle.publishedAt != null &&
+      existingArticle.publishedAt > new Date();
+
+    if (shouldSchedule || hadPendingTask) {
+      const notificationPayload = {
+        ...updatedArticle,
+        tags,
+        notificationText,
+      };
+
+      if (shouldSchedule && !hadPendingTask) {
+        const scheduleResult = await scheduleExecution(
+          request,
+          `${url.origin}/api/schedule/news`,
+          notificationPayload,
+          publishedAt,
+          form,
+          m.news_errors_schedulingFailed(),
+          m.news_articleScheduled(),
+          `/news/${slug}`,
+          event,
+        );
+
+        if (isScheduleFailure(scheduleResult)) {
+          throw redirect(
+            `/news/${slug}/edit`,
+            {
+              message: scheduleResult.data.message,
+              type: "error",
+            },
+            event,
+          );
+        }
+
+        await prisma.article.update({
+          where: { slug: slug },
+          data: {
+            scheduledId: (scheduleResult as ScheduleSuccess).scheduledId,
+          },
+        });
+      } else if (hadPendingTask) {
+        const jwt = await getDecryptedJWT(request);
+        let ok = false;
+        try {
+          if (shouldSchedule) {
+            ok = (
+              await fetch(
+                `${env.SCHEDULER_ENDPOINT}?password=${env.SCHEDULER_PASSWORD}`,
+                {
+                  method: "PATCH",
+                  body: JSON.stringify({
+                    scheduledTaskID: parseInt(existingArticle!.scheduledId!),
+                    body: JSON.stringify(notificationPayload),
+                    runTimestamp: publishedAt,
+                  }),
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${jwt?.["id_token"]}`,
+                  },
+                },
+              )
+            ).ok;
+          } else {
+            ok = (
+              await fetch(
+                `${env.SCHEDULER_ENDPOINT}?password=${env.SCHEDULER_PASSWORD}&scheduledTaskID=${existingArticle!.scheduledId}`,
+                {
+                  method: "DELETE",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${jwt?.["id_token"]}`,
+                  },
+                },
+              )
+            ).ok;
+          }
+        } catch (error) {
+          throw redirect(
+            `/news/${slug}/edit`,
+            {
+              message: `${m.news_errors_schedulingFailed()}: ${
+                error instanceof Error ? error.message : String(error)
+              }`,
+              type: "error",
+            },
+            event,
+          );
+        }
+
+        if (!ok) {
+          throw redirect(
+            `/news/${slug}/edit`,
+            {
+              message: m.news_errors_schedulingFailed(),
+              type: "error",
+            },
+            event,
+          );
+        }
+
+        if (!shouldSchedule) {
+          await prisma.article.update({
+            where: { slug: slug },
+            data: { scheduledId: null },
+          });
+        }
+      }
+    }
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
       return message(
@@ -428,7 +439,7 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
   }
 
   throw redirect(
-    `/news/${publishTime && publishTime < new Date() ? event.params.slug : ""}`,
+    `/news/${publishedAt < new Date() ? event.params.slug : ""}`,
     {
       message: m.news_articleUpdated(),
       type: "success",

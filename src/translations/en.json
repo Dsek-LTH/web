@@ -465,6 +465,7 @@
   "news_scheduled": "scheduled",
   "news_scheduledNews": "Scheduled news",
   "news_scheduledFor": "Scheduled for",
+  "news_schedule_publish_time": "Schedule publishing",
   "news_share": "Share",
   "news_share_copy_url": "URL copied to clipboard!",
   "events_create": "Create",

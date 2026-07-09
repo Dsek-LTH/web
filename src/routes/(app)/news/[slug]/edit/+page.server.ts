@@ -78,7 +78,14 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   return {
     allTags,
     authorOptions,
-    form: await superValidate(article, zod4(updateSchema)),
+    form: await superValidate(
+      {
+        ...article,
+        publishTime: article.publishedAt,
+        sendNotification: article.shouldSendNotification ?? false,
+      },
+      zod4(updateSchema),
+    ),
     committees,
   };
 };
