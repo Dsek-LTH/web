@@ -34,20 +34,23 @@
 
   const tz = getLocalTimeZone();
 
-  let publishDate = $state<string | undefined>(
+  // These are immutable objects that are only re-assigned,
+  // so using $state.raw avoids overhead.
+  let publishDate = $state.raw<string | undefined>(
     $form.publishTime
       ? toCalendarDate(fromDate($form.publishTime, tz)).toString()
       : undefined,
   );
-  let publishTimeValue = $state<Time>(
+  let publishTimeValue = $state.raw<Time>(
     $form.publishTime
       ? toTime(fromDate($form.publishTime, tz))
       : parseTime("12:00"),
   );
 
+
   let schedulePublish = $state<boolean>(!!$form.publishTime);
 
-  $effect(() => {
+  function updatePublishTime() {
     if (schedulePublish && publishDate) {
       const parsed = parseDate(publishDate);
       const dt = new CalendarDateTime(
@@ -61,7 +64,7 @@
     } else {
       $form.publishTime = null;
     }
-  });
+  }
 </script>
 
 <ArticleEditor
@@ -80,14 +83,27 @@
           class="p-2"
           onCheckedChange={(checked) => {
             if (!checked) publishDate = undefined;
+            updatePublishTime();
           }}
         />
         <Label for="schedulePublish">{m.news_schedule_publish_time()}</Label>
       </div>
       {#if schedulePublish}
         <div class="flex flex-row items-center gap-2">
-          <DatePicker bind:value={publishDate} />
-          <TimePicker bind:value={publishTimeValue} />
+          <DatePicker
+            bind:value={() => publishDate,
+            (value) => {
+              publishDate = value;
+              updatePublishTime();
+            }}
+          />
+          <TimePicker
+            bind:value={() => publishTimeValue,
+            (value) => {
+              publishTimeValue = value;
+              updatePublishTime();
+            }}
+          />
         </div>
       {/if}
     </div>
