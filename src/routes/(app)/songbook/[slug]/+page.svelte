@@ -14,7 +14,7 @@
   let song = $derived(data.song);
 </script>
 
-<div class="container mx-auto max-w-3xl py-8">
+<div class="mx-auto max-w-3xl">
   <Button variant="ghost" href="/songbook" class="mb-4">
     <ArrowLeft class="mr-2 h-4 w-4" />
     Back to Songbook
