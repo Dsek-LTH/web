@@ -63,6 +63,7 @@
     });
   }
 
+  // Having two rows of pagination buttons looks weird with few results.
   const showBottomPagination = $derived(data.songs.length > 2);
 </script>
 
