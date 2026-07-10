@@ -12,6 +12,7 @@ const zDrinkQuantityType = z.nativeEnum(DrinkQuantityType);
 
 export const load: PageServerLoad = async (event) => {
   const form = await superValidate(event.request, zod(DrinkItemSchema));
+  authorize(apiNames.DRINKITEM.READ, event.locals.user);
 
   form.data.quantityType = "COUNTS";
   return { form };
