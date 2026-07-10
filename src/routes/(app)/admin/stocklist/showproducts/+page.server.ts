@@ -24,7 +24,6 @@ const updateSchema = z.object({
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma } = locals;
-  authorize(apiNames.DRINKITEM.READ, locals.user);
 
   const drinkItems = (await prisma.drinkItem.findMany()).sort((a, b) =>
     a.name.localeCompare(b.name),

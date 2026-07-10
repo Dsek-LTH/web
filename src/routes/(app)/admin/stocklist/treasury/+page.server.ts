@@ -23,7 +23,6 @@ const updateSchema = z.object({
 
 export const load: PageServerLoad = async (event) => {
   const { prisma } = event.locals;
-  authorize(apiNames.DRINKITEM.READ, event.locals.user);
   const date = event.url.searchParams.get("date");
   const deleteForm = await superValidate(zod(deleteSchema));
   const updateForm = await superValidate(zod(updateSchema));

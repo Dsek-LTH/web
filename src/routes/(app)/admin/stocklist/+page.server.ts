@@ -1,11 +1,8 @@
 import { inventoryValue, readCSV } from "$lib/utils/stocklistUtils";
 import { fail } from "sveltekit-superforms";
 import type { Actions, PageServerLoad } from "./$types";
-import { authorize } from "$lib/utils/authorization";
-import apiNames from "$lib/utils/apiNames";
 
 export const load: PageServerLoad = async ({ locals }) => {
-  authorize(apiNames.DRINKITEM.READ, locals.user);
   const { prisma } = locals;
   const drinkItems = await prisma.drinkItem.findMany({
     where: {

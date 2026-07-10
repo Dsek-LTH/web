@@ -9,8 +9,6 @@ import dayjs from "dayjs";
 
 export const load: PageServerLoad = async (event) => {
   const { prisma } = event.locals;
-  authorize(apiNames.DRINKITEM.READ, event.locals.user);
-
   const inForm = await superValidate(zod(createInBatchSchema));
   const outForm = await superValidate(zod(createOutBatchSchema));
   const drinkItems = (await prisma.drinkItem.findMany()).sort((a, b) =>
