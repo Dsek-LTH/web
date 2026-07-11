@@ -12,6 +12,7 @@ import Authentik, {
   type AuthentikProfile,
 } from "@auth/core/providers/authentik";
 import { SvelteKitAuth } from "@auth/sveltekit";
+import { isTokenValid, refreshToken, decodeToken } from "$lib/utils/auth";
 import {
   error,
   redirect,
@@ -42,8 +43,6 @@ import {
 
 // TODO: This function should perhaps only be called during dev? Build? I'm not sure
 if (dev) verifyCostCenterData();
-
-const refreshPromises = new Map<string, Promise<Response>>();
 
 const { handle: authHandle } = SvelteKitAuth({
   secret: env.AUTH_SECRET,
@@ -82,66 +81,40 @@ const { handle: authHandle } = SvelteKitAuth({
         token.refresh_token = account.refresh_token;
         token.id_token = account.id_token;
         token.expires_at = account.expires_at;
-      } else if (token.expires_at && Date.now() < token.expires_at * 1000) {
         return token;
-      } else {
-        if (!token.refresh_token) throw new Error("Missing refresh_token");
-
-        let promise = refreshPromises.get(token.refresh_token);
-        if (!promise) {
-          promise = fetch(envPublic.PUBLIC_AUTH_AUTHENTIK_TOKEN_ENDPOINT, {
-            method: "POST",
-            body: new URLSearchParams({
-              client_id: env.AUTH_AUTHENTIK_CLIENT_ID,
-              client_secret: env.AUTH_AUTHENTIK_CLIENT_SECRET,
-              grant_type: "refresh_token",
-              refresh_token: token.refresh_token,
-            }),
-          })
-            .then(async (response) => {
-              const tokensOrError = await response.json();
-              if (!response.ok) throw tokensOrError;
-              return tokensOrError;
-            })
-            .finally(() => {
-              setTimeout(() => {
-                refreshPromises.delete(token.refresh_token as string);
-              }, 10000);
-            });
-          refreshPromises.set(token.refresh_token, promise);
-        }
-
-        try {
-          const tokensOrError = await promise;
-
-          const accessToken = tokensOrError.access_token as string;
-          const [, payload] = accessToken.split(".");
-
-          if (!payload) throw new Error("Invalid JWT format");
-
-          const decodedAccessTokenData = JSON.parse(
-            Buffer.from(payload, "base64").toString("utf-8"),
-          );
-          token.access_token = accessToken;
-          token.group_list = decodedAccessTokenData.groups ?? [];
-          token.id_token = tokensOrError.id_token;
-          token.expires_at =
-            Math.floor(Date.now() / 1000) + tokensOrError.expires_in;
-          token.refresh_token =
-            tokensOrError.refresh_token ?? token.refresh_token;
-
-          delete token.error;
-
-          return token;
-        } catch (error) {
-          console.error("Error refreshing Authentik access_token:", error);
-          token.error = "RefreshTokenError";
-
-          return token;
-        }
       }
 
-      return token;
+      if (isTokenValid(token)) {
+        return token;
+      }
+
+      try {
+        const tokensOrError = await refreshToken(token, {
+          clientId: env.AUTH_AUTHENTIK_CLIENT_ID,
+          clientSecret: env.AUTH_AUTHENTIK_CLIENT_SECRET,
+          tokenEndpoint: envPublic.PUBLIC_AUTH_AUTHENTIK_TOKEN_ENDPOINT,
+        });
+
+        const accessToken = tokensOrError.access_token as string;
+        const decodedAccessTokenData = decodeToken(accessToken);
+
+        token.access_token = accessToken;
+        token.group_list = decodedAccessTokenData.groups ?? [];
+        token.id_token = tokensOrError.id_token;
+        token.expires_at =
+          Math.floor(Date.now() / 1000) + tokensOrError.expires_in;
+        token.refresh_token =
+          tokensOrError.refresh_token ?? token.refresh_token;
+
+        delete token.error;
+
+        return token;
+      } catch (error) {
+        console.error("Error refreshing Authentik access_token:", error);
+        token.error = "RefreshTokenError";
+
+        return token;
+      }
     },
     session({ session, token }) {
       if (token) {

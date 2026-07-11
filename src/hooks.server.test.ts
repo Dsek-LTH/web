@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import { SvelteKitAuth } from '@auth/sveltekit';
 
 // We will mock @auth/sveltekit to capture the config
@@ -75,8 +75,8 @@ describe('Auth Hook Token Refresh', () => {
 
   it('should not fail on concurrent token refresh requests', async () => {
     // Import hooks.server to trigger SvelteKitAuth
-    const hooks = await import('./hooks.server');
-    const config = (SvelteKitAuth as any).mock.calls[0][0];
+    await import('./hooks.server');
+    const config = (SvelteKitAuth as Mock).mock.calls[0]![0];
 
     // Create a mock token that has expired
     const token1 = {
@@ -90,7 +90,7 @@ describe('Auth Hook Token Refresh', () => {
 
     // Mock fetch to simulate a delayed response, so concurrent requests overlap
     let fetchCallCount = 0;
-    (global.fetch as any).mockImplementation(async () => {
+    (global.fetch as Mock).mockImplementation(async () => {
       fetchCallCount++;
       await new Promise(r => setTimeout(r, 50));
       
