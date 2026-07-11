@@ -43,6 +43,8 @@ import {
 // TODO: This function should perhaps only be called during dev? Build? I'm not sure
 if (dev) verifyCostCenterData();
 
+const refreshPromises = new Map<string, Promise<Response>>();
+
 const { handle: authHandle } = SvelteKitAuth({
   secret: env.AUTH_SECRET,
   trustHost: true,
@@ -85,23 +87,32 @@ const { handle: authHandle } = SvelteKitAuth({
       } else {
         if (!token.refresh_token) throw new Error("Missing refresh_token");
 
+        let promise = refreshPromises.get(token.refresh_token);
+        if (!promise) {
+          promise = fetch(envPublic.PUBLIC_AUTH_AUTHENTIK_TOKEN_ENDPOINT, {
+            method: "POST",
+            body: new URLSearchParams({
+              client_id: env.AUTH_AUTHENTIK_CLIENT_ID,
+              client_secret: env.AUTH_AUTHENTIK_CLIENT_SECRET,
+              grant_type: "refresh_token",
+              refresh_token: token.refresh_token,
+            }),
+          })
+            .then(async (response) => {
+              const tokensOrError = await response.json();
+              if (!response.ok) throw tokensOrError;
+              return tokensOrError;
+            })
+            .finally(() => {
+              setTimeout(() => {
+                refreshPromises.delete(token.refresh_token as string);
+              }, 10000);
+            });
+          refreshPromises.set(token.refresh_token, promise);
+        }
+
         try {
-          const response = await fetch(
-            envPublic.PUBLIC_AUTH_AUTHENTIK_TOKEN_ENDPOINT,
-            {
-              method: "POST",
-              body: new URLSearchParams({
-                client_id: env.AUTH_AUTHENTIK_CLIENT_ID,
-                client_secret: env.AUTH_AUTHENTIK_CLIENT_SECRET,
-                grant_type: "refresh_token",
-                refresh_token: token.refresh_token,
-              }),
-            },
-          );
-
-          const tokensOrError = await response.json();
-
-          if (!response.ok) throw tokensOrError;
+          const tokensOrError = await promise;
 
           const accessToken = tokensOrError.access_token as string;
           const [, payload] = accessToken.split(".");
@@ -118,6 +129,8 @@ const { handle: authHandle } = SvelteKitAuth({
             Math.floor(Date.now() / 1000) + tokensOrError.expires_in;
           token.refresh_token =
             tokensOrError.refresh_token ?? token.refresh_token;
+
+          delete token.error;
 
           return token;
         } catch (error) {
