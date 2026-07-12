@@ -645,6 +645,7 @@
   "songbook_errors_songNotFound": "Kunde inte hitta sången",
   "songbook_errors_invalidID": "Ogiltigt ID",
   "songbook_noSongsFound": "Inga sånger hittades.",
+  "songbook_noSongsMatchingSearchDescription": "Vi kunde inte hitta några sånger som matchar din sökning.",
   "songbook_videoPerformance": "Videouppspelning",
   "songbook_videoUrlLabel": "Video-URL (YouTube/Direktlänk)",
   "songbook_videoPlaceholder": "t.ex. https://www.youtube.com/watch?v=...",

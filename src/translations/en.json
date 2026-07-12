@@ -645,6 +645,7 @@
   "songbook_errors_songNotFound": "Song not found",
   "songbook_errors_invalidID": "Invalid ID",
   "songbook_noSongsFound": "No songs found.",
+  "songbook_noSongsMatchingSearchDescription": "We couldn't find any songs matching your search.",
   "songbook_videoPerformance": "Video Performance",
   "songbook_videoUrlLabel": "Video URL (YouTube/Direct Link)",
   "songbook_videoPlaceholder": "e.g. https://www.youtube.com/watch?v=...",

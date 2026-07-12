@@ -215,7 +215,21 @@
         </Card>
       </a>
     {:else}
-      <p class="text-muted-foreground">{m.songbook_noSongsFound()}</p>
+      <div
+        class="col-span-full flex flex-col items-center justify-center rounded-xl border border-dashed border-muted-foreground/20 bg-muted/5 py-16 px-4 text-center shadow-sm animate-in fade-in duration-500"
+      >
+        <div
+          class="animate-float bg-primary/10 text-primary mb-6 flex h-16 w-16 items-center justify-center rounded-full border border-primary/20 shadow-lg shadow-primary/5"
+        >
+          <MusicIcon class="h-8 w-8" />
+        </div>
+        <h3 class="text-xl font-bold tracking-tight">
+          {m.songbook_noSongsFound()}
+        </h3>
+        <p class="text-muted-foreground mt-2 max-w-sm text-sm">
+          {m.songbook_noSongsMatchingSearchDescription()}
+        </p>
+      </div>
     {/each}
   </div>
 
@@ -224,3 +238,17 @@
     class={{ hidden: !showBottomPagination }}
   />
 </div>
+
+<style>
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+</style>
