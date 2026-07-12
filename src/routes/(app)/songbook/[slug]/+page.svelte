@@ -38,7 +38,7 @@
       </div>
     </CardHeader>
     <CardContent>
-      <div class="mt-6 whitespace-pre-wrap font-serif text-lg leading-relaxed">
+      <div class="mt-6 font-serif text-lg leading-relaxed whitespace-pre-wrap">
         {song.lyrics}
       </div>
     </CardContent>
