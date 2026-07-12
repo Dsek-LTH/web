@@ -50,29 +50,25 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     getExistingCategories(prismaClient, accessPolicies, showDeleted),
   ]);
 
+  // Map each category to a group ID and display name.
+  // -> "SåS ..." categories are grouped by their first two words (e.g. "SåS Fria").
+  //    If "SåS" has no second word, it's grouped by itself.
+  // -> All other categories are grouped by their first word (e.g. "Nollningen").
+  // The first category seen for a group is used as its display name; if a
+  // second category maps to the same group, the display name falls back to
+  // the group ID itself (since a single category name would no longer be accurate).
   const categoryMap: Record<string, string> = {};
 
   for (const category of rawCategories) {
-    const split = category.split(" ");
+    const words = category.split(" ");
+    const firstWord = words[0];
+    if (!firstWord) continue;
 
-    let id;
-    if (split) {
-      if (split[0] === "SåS") {
-        id = split.slice(0, 2).join(" ");
-      } else {
-        id = split ? split[0] : undefined;
-      }
-    } else {
-      id = undefined;
-    }
+    const groupId =
+      firstWord === "SåS" ? words.slice(0, 2).join(" ") : firstWord;
 
-    if (id) {
-      if (categoryMap[id]) {
-        categoryMap[id] = id;
-      } else {
-        categoryMap[id] = category ?? id;
-      }
-    }
+    categoryMap[groupId] =
+      categoryMap[groupId] !== undefined ? groupId : category;
   }
 
   const categories = Object.keys(categoryMap);
