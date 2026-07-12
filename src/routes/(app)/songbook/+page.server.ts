@@ -16,7 +16,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   const skip = (page - 1) * take;
 
   const where = {
-    ...(showDeleted ? {} : { deletedAt: null }),
+    ...(showDeleted ? { deletedAt: { not: null } } : { deletedAt: null }),
     ...(search
       ? {
           OR: [
@@ -42,7 +42,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     }),
     prismaClient.song.count({ where }),
     prismaClient.song.findMany({
-      where: showDeleted ? {} : { deletedAt: null },
+      where: showDeleted ? { deletedAt: { not: null } } : { deletedAt: null },
       select: { category: true },
       distinct: ["category"],
     }),
