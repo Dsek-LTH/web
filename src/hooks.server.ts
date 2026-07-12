@@ -12,7 +12,11 @@ import Authentik, {
   type AuthentikProfile,
 } from "@auth/core/providers/authentik";
 import { SvelteKitAuth } from "@auth/sveltekit";
-import { isTokenValid, refreshToken, decodeToken } from "$lib/utils/auth";
+import {
+  isTokenValid,
+  fetchNewToken,
+  decodeAccessToken,
+} from "$lib/utils/auth";
 import {
   error,
   redirect,
@@ -89,23 +93,20 @@ const { handle: authHandle } = SvelteKitAuth({
       }
 
       try {
-        const tokensOrError = await refreshToken(token, {
+        const newToken = await fetchNewToken(token, {
           clientId: env.AUTH_AUTHENTIK_CLIENT_ID,
           clientSecret: env.AUTH_AUTHENTIK_CLIENT_SECRET,
           tokenEndpoint: envPublic.PUBLIC_AUTH_AUTHENTIK_TOKEN_ENDPOINT,
         });
 
-        const accessToken = tokensOrError.access_token as string;
-        const decodedAccessTokenData = decodeToken(accessToken);
+        const accessToken = newToken.access_token as string;
+        const decodedToken = decodeAccessToken(accessToken);
 
         token.access_token = accessToken;
-        token.group_list = decodedAccessTokenData.groups ?? [];
-        token.id_token = tokensOrError.id_token;
-        token.expires_at =
-          Math.floor(Date.now() / 1000) + tokensOrError.expires_in;
-        token.refresh_token =
-          tokensOrError.refresh_token ?? token.refresh_token;
-
+        token.group_list = (decodedToken["groups"] as string[]) ?? [];
+        token.id_token = newToken.id_token;
+        token.expires_at = Math.floor(Date.now() / 1000) + newToken.expires_in;
+        token.refresh_token = newToken.refresh_token ?? token.refresh_token;
         delete token.error;
 
         return token;

@@ -19,58 +19,65 @@ export function isTokenValid(token: JWT) {
   return token.expires_at && Date.now() < (token.expires_at as number) * 1000;
 }
 
-export interface TokenRefreshResponse {
-  access_token: string;
-  expires_in: number;
-  refresh_token?: string;
-  id_token?: string;
-}
-
-const refreshPromises = new Map<string, Promise<TokenRefreshResponse>>();
-
-export function refreshToken(token: JWT, {
-  clientId,
-  clientSecret,
-  tokenEndpoint,
-}: {
+type TokenRefreshOptions = {
   clientId: string;
   clientSecret: string;
   tokenEndpoint: string;
-}) {
-  if (!token.refresh_token) throw new Error("Missing refresh_token");
+};
 
-  let promise = refreshPromises.get(token.refresh_token as string);
-  if (!promise) {
-    promise = fetch(tokenEndpoint, {
+type TokenRefreshResponse = {
+  access_token: string;
+  token_type: string;
+  scope: string;
+  expires_in: number;
+  id_token?: string;
+  refresh_token?: string;
+};
+
+// Deduplicates concurrent refresh requests for the same refresh_token,
+// so multiple simultaneous calls don't trigger multiple network requests.
+const pendingRefreshesByToken = new Map<
+  string,
+  Promise<TokenRefreshResponse>
+>();
+
+export function fetchNewToken(
+  token: JWT,
+  { clientId, clientSecret, tokenEndpoint }: TokenRefreshOptions,
+) {
+  const refreshToken = token.refresh_token;
+  if (!refreshToken) throw new Error("Missing refresh_token");
+
+  let pendingRefresh = pendingRefreshesByToken.get(refreshToken);
+  if (!pendingRefresh) {
+    pendingRefresh = fetch(tokenEndpoint, {
       method: "POST",
       body: new URLSearchParams({
         client_id: clientId,
         client_secret: clientSecret,
         grant_type: "refresh_token",
-        refresh_token: token.refresh_token as string,
+        refresh_token: refreshToken,
       }),
     })
       .then(async (response) => {
-        const tokensOrError = await response.json();
-        if (!response.ok) throw tokensOrError;
-        return tokensOrError;
+        const body = await response.json();
+        if (!response.ok) throw body;
+        return body;
       })
       .finally(() => {
         setTimeout(() => {
-          refreshPromises.delete(token.refresh_token as string);
+          pendingRefreshesByToken.delete(refreshToken);
         }, 10000);
       });
-    refreshPromises.set(token.refresh_token as string, promise);
+    pendingRefreshesByToken.set(refreshToken, pendingRefresh);
   }
 
-  return promise;
+  return pendingRefresh;
 }
 
-export function decodeToken(accessToken: string) {
+export function decodeAccessToken(accessToken: string): JWT {
   const [, payload] = accessToken.split(".");
   if (!payload) throw new Error("Invalid JWT format");
 
-  return JSON.parse(
-    Buffer.from(payload, "base64").toString("utf-8"),
-  );
+  return JSON.parse(Buffer.from(payload, "base64").toString("utf-8"));
 }
