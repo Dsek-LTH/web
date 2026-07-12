@@ -166,7 +166,7 @@
           onclick={() => toggleCategory(category, isSelected)}
         >
           <Badge variant={isSelected ? "lila" : "outline"}>
-            {category}
+            {data.categoryMap[category]}
           </Badge>
         </button>
       {/each}
