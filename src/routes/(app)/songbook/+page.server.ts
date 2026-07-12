@@ -1,6 +1,10 @@
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import type { PageServerLoad } from "./$types";
-import { canAccessDeletedSongs, getExistingCategories } from "./helpers";
+import {
+  canAccessDeletedSongs,
+  getExistingCategories,
+  groupCategories,
+} from "./helpers";
 
 export const load: PageServerLoad = async ({ locals, url }) => {
   const { user } = locals;
@@ -50,27 +54,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     getExistingCategories(prismaClient, accessPolicies, showDeleted),
   ]);
 
-  // Map each category to a group ID and display name.
-  // -> "SåS ..." categories are grouped by their first two words (e.g. "SåS Fria").
-  //    If "SåS" has no second word, it's grouped by itself.
-  // -> All other categories are grouped by their first word (e.g. "Nollningen").
-  // The first category seen for a group is used as its display name; if a
-  // second category maps to the same group, the display name falls back to
-  // the group ID itself (since a single category name would no longer be accurate).
-  const categoryMap: Record<string, string> = {};
-
-  for (const category of rawCategories) {
-    const words = category.split(" ");
-    const firstWord = words[0];
-    if (!firstWord) continue;
-
-    const groupId =
-      firstWord === "SåS" ? words.slice(0, 2).join(" ") : firstWord;
-
-    categoryMap[groupId] =
-      categoryMap[groupId] !== undefined ? groupId : category;
-  }
-
+  const categoryMap = groupCategories(rawCategories);
   const categories = Object.keys(categoryMap);
 
   return {
