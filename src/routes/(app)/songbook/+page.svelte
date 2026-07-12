@@ -173,7 +173,9 @@
     </div>
   </div>
 
-  <Pagination pageCount={data.pageCount} class="pb-2" />
+  {#if data.songs.length > 0}
+    <Pagination pageCount={data.pageCount} class="pb-2" />
+  {/if}
 
   <div class="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
     {#each data.songs as song, index (song.id)}
@@ -233,10 +235,12 @@
     {/each}
   </div>
 
-  <Pagination
-    pageCount={data.pageCount}
-    class={{ hidden: !showBottomPagination }}
-  />
+  {#if data.songs.length > 0}
+    <Pagination
+      pageCount={data.pageCount}
+      class={{ hidden: !showBottomPagination }}
+    />
+  {/if}
 </div>
 
 <style>
