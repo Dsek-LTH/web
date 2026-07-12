@@ -65,9 +65,7 @@
 {/snippet}
 
 <div class="layout-container">
-  <div class="flex flex-row justify-between gap-8 *:w-full">
-    <PageHeader title={m.documents_governing()} />
-  </div>
+  <PageHeader title={m.documents_governing()} class="mb-4" />
 
   {#if canCreate || canEdit}
     <div class="mb-4 flex gap-2">
@@ -170,36 +168,33 @@
     </div>
 
     <div class="flex flex-row flex-wrap gap-2">
-      <a href={data.plansOfOperations[0]?.url}>
-        <Button
-          disabled={!data.plansOfOperations[0]}
-          variant="outline"
-          class="cursor-pointer rounded-sm"
-        >
-          <FileText class="mr-2 size-4" />
-          {m.documents_plansOfOperations()}
-        </Button>
-      </a>
-      <a href={data.frameworkBudgets[0]?.url}>
-        <Button
-          disabled={!data.frameworkBudgets[0]}
-          variant="outline"
-          class="cursor-pointer rounded-sm"
-        >
-          <FileText class="mr-2 size-4" />
-          {m.documents_frameworkBudgets()}
-        </Button>
-      </a>
-      <a href={data.strategicGoals[0]?.url}>
-        <Button
-          disabled={!data.strategicGoals[0]}
-          variant="outline"
-          class="cursor-pointer rounded-sm"
-        >
-          <FileText class="mr-2 size-4" />
-          {m.documents_strategicGoals()}
-        </Button>
-      </a>
+      <Button
+        href={data.plansOfOperations[0]?.url}
+        disabled={!data.plansOfOperations[0]}
+        variant="outline"
+        class="cursor-pointer rounded-sm"
+      >
+        <FileText class="mr-2 size-4" />
+        {m.documents_plansOfOperations()}
+      </Button>
+      <Button
+        href={data.frameworkBudgets[0]?.url}
+        disabled={!data.frameworkBudgets[0]}
+        variant="outline"
+        class="cursor-pointer rounded-sm"
+      >
+        <FileText class="mr-2 size-4" />
+        {m.documents_frameworkBudgets()}
+      </Button>
+      <Button
+        href={data.strategicGoals[0]?.url}
+        disabled={!data.strategicGoals[0]}
+        variant="outline"
+        class="cursor-pointer rounded-sm"
+      >
+        <FileText class="mr-2 size-4" />
+        {m.documents_strategicGoals()}
+      </Button>
     </div>
 
     {#if isEditing}

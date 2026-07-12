@@ -16,11 +16,11 @@
 
   let isEditing = $state(false);
 
-  const generateLink = $derived((value: string) => {
+  function generateLink(value: string) {
     const searchParams = new SvelteURLSearchParams(page.url.searchParams);
-    searchParams.set("type", value.toString());
+    searchParams.set("type", value);
     return `?${searchParams.toString()}`;
-  });
+  }
 
   let type = $derived(page.url.searchParams.get("type"));
 

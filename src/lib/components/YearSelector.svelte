@@ -13,11 +13,22 @@
   const currentYear = new Date().getFullYear();
   const minYear = 1982;
 
-  let selectedYearStr = $derived(
-    page.url.searchParams.get("year") ?? currentYear.toString(),
+  const years = Array.from(
+    { length: currentYear - minYear + 1 },
+    (_, i) => currentYear - i,
   );
 
-  let selectedYearNum = $derived(parseInt(selectedYearStr, 10));
+  function parseYear(param: string | null) {
+    const year = Number(param);
+    const valid =
+      Number.isInteger(year) && year >= minYear && year <= currentYear;
+    return valid ? year : currentYear;
+  }
+
+  let selectedYearNum: number = $derived(
+    parseYear(page.url.searchParams.get("year")),
+  );
+  let selectedYearStr: string = $derived(String(selectedYearNum));
 
   function handleYearChange(value: string) {
     const searchParams = new SvelteURLSearchParams(page.url.searchParams);
@@ -66,7 +77,7 @@
     <Select.Content class="max-h-[300px]">
       <Select.ScrollUpButton />
       <Select.Group>
-        {#each Array.from({ length: currentYear - minYear + 1 }, (_, index) => minYear + index).toReversed() as n (n)}
+        {#each years as n (n)}
           <Select.Item value={n.toString()}>{n}</Select.Item>
         {/each}
       </Select.Group>
