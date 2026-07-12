@@ -111,7 +111,9 @@
       {#if canWatchVideo && song.video}
         <Separator class="my-8" />
         <div class="flex flex-col gap-4">
-          <h3 class="text-xl font-bold tracking-tight">Video Performance</h3>
+          <h3 class="text-xl font-bold tracking-tight">
+            {m.songbook_videoPerformance()}
+          </h3>
           <div
             class="border-border overflow-hidden rounded-lg border shadow-md"
           >

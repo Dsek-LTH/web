@@ -215,7 +215,7 @@
         </Card>
       </a>
     {:else}
-      <p class="text-muted-foreground">No songs found.</p>
+      <p class="text-muted-foreground">{m.songbook_noSongsFound()}</p>
     {/each}
   </div>
 

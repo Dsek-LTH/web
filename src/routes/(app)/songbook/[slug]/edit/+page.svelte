@@ -144,14 +144,14 @@
 
         <div class="flex flex-col gap-2">
           <Label for="video" class="text-base font-medium"
-            >Video URL (YouTube/Direct Link)</Label
+            >{m.songbook_videoUrlLabel()}</Label
           >
           <Input
             id="video"
             name="video"
             type="url"
             bind:value={$form.video}
-            placeholder="e.g. https://www.youtube.com/watch?v=..."
+            placeholder={m.songbook_videoPlaceholder()}
             class={$errors.video
               ? "border-destructive focus-visible:ring-destructive"
               : ""}
