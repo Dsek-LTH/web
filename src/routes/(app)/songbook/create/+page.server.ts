@@ -29,18 +29,21 @@ export const load: PageServerLoad = async ({ locals }) => {
 export const actions: Actions = {
   create: async (event) => {
     const { request, locals } = event;
-    const { prisma } = locals;
+    const { prisma, user } = locals;
+    authorize(apiNames.SONG.CREATE, user);
+
     const form = await superValidate(request, zod4(createSongSchema));
     if (!form.valid) return fail(400, { form });
-    const { title, melody, category, lyrics } = form.data;
+    const { title, melody, category, lyrics, video } = form.data;
     const now = new Date();
     const result = await prisma.song.create({
       data: {
         title: DOMPurify.sanitize(title),
         slug: await slugifySongTitle(prisma, title),
-        melody: melody,
-        category: category,
+        melody: melody.trim(),
+        category: category.trim(),
         lyrics: DOMPurify.sanitize(lyrics),
+        video: video?.trim() || null,
         createdAt: now,
         updatedAt: now,
       },

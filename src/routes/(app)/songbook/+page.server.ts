@@ -1,6 +1,14 @@
+import apiNames from "$lib/utils/apiNames";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ locals, url }) => {
+  const { user } = locals;
+  const showDeleted =
+    user?.policies?.includes(apiNames.SONG.DELETE) &&
+    url.searchParams.get("show-deleted") === "true";
+  const prismaClient = showDeleted ? authorizedPrismaClient : locals.prisma;
+
   const search = url.searchParams.get("search") || "";
   const categoryFilter = url.searchParams.getAll("category");
   const page = parseInt(url.searchParams.get("page") || "1", 10);
@@ -8,7 +16,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   const skip = (page - 1) * take;
 
   const where = {
-    deletedAt: null,
+    ...(showDeleted ? {} : { deletedAt: null }),
     ...(search
       ? {
           OR: [
@@ -26,15 +34,15 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   };
 
   const [songs, totalCount, distinctCategories] = await Promise.all([
-    locals.prisma.song.findMany({
+    prismaClient.song.findMany({
       where,
       take,
       skip,
       orderBy: { title: "asc" },
     }),
-    locals.prisma.song.count({ where }),
-    locals.prisma.song.findMany({
-      where: { deletedAt: null },
+    prismaClient.song.count({ where }),
+    prismaClient.song.findMany({
+      where: showDeleted ? {} : { deletedAt: null },
       select: { category: true },
       distinct: ["category"],
     }),
@@ -51,5 +59,6 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     currentPage: page,
     search,
     categoryFilter,
+    showDeleted,
   };
 };

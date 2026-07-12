@@ -87,3 +87,12 @@ export function fixSongText(s: string): string {
     .replaceAll("|:", "𝄆")
     .replaceAll(":|", "𝄇");
 }
+
+export function mayWatchVideos(user?: { roles: string[] } | null): boolean {
+  if (!user) return false;
+  return (
+    user.roles.includes("C") ||
+    user.roles.includes("D") ||
+    user.roles.includes("VR/AR")
+  );
+}
