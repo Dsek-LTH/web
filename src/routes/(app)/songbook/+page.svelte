@@ -221,6 +221,6 @@
 
   <Pagination
     pageCount={data.pageCount}
-    class={showBottomPagination ? "visible" : "hidden"}
+    class={{ hidden: !showBottomPagination }}
   />
 </div>
