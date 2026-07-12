@@ -20,10 +20,9 @@
   import Plus from "@lucide/svelte/icons/plus";
   import { resolve } from "$app/paths";
   import apiNames from "$lib/utils/apiNames";
+  import { debounce } from "$lib/utils/debounce";
 
   let { data } = $props();
-
-  let timeout: ReturnType<typeof setTimeout> | null = null;
 
   const canCreate = $derived(
     data.user?.policies?.includes(apiNames.SONG.CREATE),
@@ -32,25 +31,26 @@
     data.user?.policies?.includes(apiNames.SONG.DELETE),
   );
 
-  function handleSearch(e: Event) {
-    if (timeout) clearTimeout(timeout);
-    const value = (e.target as HTMLInputElement).value;
-    timeout = setTimeout(() => {
-      const searchParams = new SvelteURLSearchParams(page.url.searchParams);
-      if (value) {
-        searchParams.set("search", value);
-      } else {
-        searchParams.delete("search");
-      }
-      searchParams.set("page", "1");
+  const debouncedSearch = debounce((value: string) => {
+    const searchParams = new SvelteURLSearchParams(page.url.searchParams);
+    if (value) {
+      searchParams.set("search", value);
+    } else {
+      searchParams.delete("search");
+    }
+    searchParams.set("page", "1");
 
-      // eslint-disable-next-line svelte/no-navigation-without-resolve -- Navigation uses relative search params
-      goto(`?${searchParams.toString()}`, {
-        keepFocus: true,
-        noScroll: true,
-        replaceState: true,
-      });
-    }, 300);
+    // eslint-disable-next-line svelte/no-navigation-without-resolve -- Navigation uses relative search params
+    goto(`?${searchParams.toString()}`, {
+      keepFocus: true,
+      noScroll: true,
+      replaceState: true,
+    });
+  }, 300);
+
+  function handleSearch(e: Event) {
+    const value = (e.target as HTMLInputElement).value;
+    debouncedSearch(value);
   }
 
   function handleShowDeletedChange(checked: boolean) {

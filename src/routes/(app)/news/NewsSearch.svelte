@@ -10,6 +10,7 @@
   import ArticleSearchResult from "./ArticleSearchResult.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
   import { ScrollArea } from "$lib/components/ui/scroll-area";
+  import { debounce } from "$lib/utils/debounce";
 
   import Search from "@lucide/svelte/icons/search";
 
@@ -19,7 +20,6 @@
   let inputElement: HTMLInputElement | null = $state(null);
 
   let input = $state("");
-  let timeout: ReturnType<typeof setTimeout> | null = null;
   let results: SearchDataWithType[] = $state([]);
 
   let groupedResults = $derived<{
@@ -28,22 +28,17 @@
     articles: results.filter((r) => r.type === "articles"),
   });
 
-  function handleSearch() {
-    // Cancel the previous timeout
-    if (timeout) clearTimeout(timeout);
+  const debouncedSearch = debounce(() => {
+    formElement?.requestSubmit();
+  }, 300);
 
-    // When user requests a search with empty string
-    // Happens when the user deletes the last key of the input
-    // We shouldn't search then
+  function handleSearch() {
     if (!input) {
+      debouncedSearch.cancel();
       results = [];
       return;
-    } else {
-      // Do the search after 300ms
-      timeout = setTimeout(() => {
-        formElement?.requestSubmit();
-      }, 300);
     }
+    debouncedSearch();
   }
 </script>
 
