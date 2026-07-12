@@ -8,18 +8,18 @@ import { updateSongSchema } from "../../schema";
 import type { Actions, PageServerLoad } from "./$types";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 
 export const load: PageServerLoad = async ({ locals }) => {
   authorize(apiNames.SONG.UPDATE, locals.user);
-  return {};
+  const form = await superValidate(zod4(updateSongSchema));
+  return { form };
 };
 
 export const actions: Actions = {
   update: async (event) => {
     const { request, locals } = event;
     authorize(apiNames.SONG.UPDATE, locals.user);
-
+    const { prisma } = locals;
     const formData = await request.formData();
     const form = await superValidate(formData, zod4(updateSongSchema));
     if (!form.valid) return fail(400, { form });
@@ -36,8 +36,7 @@ export const actions: Actions = {
     if (data.melody == null) {
       return setError(form, "melody", m.songbook_missingMelody());
     }
-
-    const updatedSong = await authorizedPrismaClient.song.update({
+    const updatedSong = await prisma.song.update({
       where: {
         id: data.id,
       },
@@ -50,7 +49,6 @@ export const actions: Actions = {
         updatedAt: new Date(),
       },
     });
-
     throw redirect(
       encodeURI(`/songbook/${updatedSong.slug}`),
       {
@@ -63,8 +61,8 @@ export const actions: Actions = {
 
   delete: async (event) => {
     const { locals, request } = event;
+    const { prisma } = locals;
     authorize(apiNames.SONG.DELETE, locals.user);
-
     const data = await request.formData();
     const id = data.get("id");
     if (id == null) {
@@ -77,8 +75,7 @@ export const actions: Actions = {
         message: m.songbook_errors_invalidID(),
       });
     }
-
-    const song = await authorizedPrismaClient.song.update({
+    const song = await prisma.song.update({
       where: {
         id: id,
       },
@@ -99,8 +96,8 @@ export const actions: Actions = {
 
   restore: async (event) => {
     const { locals, request } = event;
+    const { prisma } = locals;
     authorize(apiNames.SONG.DELETE, locals.user);
-
     const data = await request.formData();
     const id = data.get("id");
     if (id == null) {
@@ -113,8 +110,7 @@ export const actions: Actions = {
         message: m.songbook_errors_invalidID(),
       });
     }
-
-    const song = await authorizedPrismaClient.song.update({
+    const song = await prisma.song.update({
       where: {
         id: id,
       },
@@ -122,7 +118,6 @@ export const actions: Actions = {
         deletedAt: null,
       },
     });
-
     throw redirect(
       encodeURI(`/songbook/${song.slug}`),
       {

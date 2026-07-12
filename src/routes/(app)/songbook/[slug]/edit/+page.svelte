@@ -79,9 +79,10 @@
             bind:value={$form.title}
             placeholder={m.songbook_title()}
             required
-            class={$errors.title
-              ? "border-destructive focus-visible:ring-destructive"
-              : ""}
+            class={{
+              "border-destructive focus-visible:ring-destructive":
+                $errors.title,
+            }}
           />
           {#if $errors.title}
             <p class="text-destructive text-sm font-medium">{$errors.title}</p>
@@ -99,9 +100,10 @@
               list="category-options"
               bind:value={$form.category}
               placeholder={m.songbook_categoryExplanation()}
-              class={$errors.category
-                ? "border-destructive focus-visible:ring-destructive"
-                : ""}
+              class={{
+                "border-destructive focus-visible:ring-destructive":
+                  $errors.category,
+              }}
             />
             <datalist id="category-options">
               {#each data.existingCategories as category (category)}
@@ -125,9 +127,10 @@
               list="melody-options"
               bind:value={$form.melody}
               placeholder={m.songbook_melodyExplanation()}
-              class={$errors.melody
-                ? "border-destructive focus-visible:ring-destructive"
-                : ""}
+              class={{
+                "border-destructive focus-visible:ring-destructive":
+                  $errors.melody,
+              }}
             />
             <datalist id="melody-options">
               {#each data.existingMelodies as melody (melody)}
@@ -152,9 +155,10 @@
             type="url"
             bind:value={$form.video}
             placeholder={m.songbook_videoPlaceholder()}
-            class={$errors.video
-              ? "border-destructive focus-visible:ring-destructive"
-              : ""}
+            class={{
+              "border-destructive focus-visible:ring-destructive":
+                $errors.video,
+            }}
           />
           {#if $errors.video}
             <p class="text-destructive text-sm font-medium">{$errors.video}</p>
@@ -172,9 +176,11 @@
             bind:value={$form.lyrics}
             placeholder={m.songbook_lyrics()}
             required
-            class="font-serif text-base leading-relaxed {$errors.lyrics
-              ? 'border-destructive focus-visible:ring-destructive'
-              : ''}"
+            class={[
+              "font-serif text-base leading-relaxed",
+              $errors.lyrics &&
+                "border-destructive focus-visible:ring-destructive",
+            ]}
           />
           {#if $errors.lyrics}
             <p class="text-destructive text-sm font-medium">{$errors.lyrics}</p>
