@@ -310,7 +310,7 @@
             ? `/members?year=${member.classYear}&programme=${member.classProgramme}`
             : "/members"}
         >
-          <ProgrammeBadge {member} size="lg" />
+          <ProgrammeBadge {member} class="mb-2 ml-1" size="lg" />
         </a>
         {#if canEdit}
           <Dialog.Root>
