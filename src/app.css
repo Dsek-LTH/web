@@ -74,6 +74,13 @@
 }
 
 @font-face {
+  font-family: "IBM Plex Sans";
+  src: url("/fonts/IBMPlexSans-Italic-VariableFont_wdth,wght.ttf")
+    format("truetype-variations");
+  font-style: italic;
+}
+
+@font-face {
   font-family: "IBM Plex Sans Condensed";
   src: url("/fonts/IBMPlexSansCondensed-Regular.ttf") format("truetype");
   font-weight: 400;
