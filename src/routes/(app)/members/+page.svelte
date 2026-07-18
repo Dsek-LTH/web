@@ -14,26 +14,12 @@
   let programme = $derived(data.programme as keyof typeof programmes);
   let year = $derived(data.year);
 
-  const thisYear = new Date().getFullYear();
-
-  function getProgrammeYear(programme: string): number {
-    let count = 0;
-    switch (programme) {
-      case "D":
-        count = thisYear - 1982 + 1;
-        break;
-      case "C":
-        count = thisYear - 2001 + 1;
-        break;
-      case "VR/AR":
-        count = thisYear - 2021 + 1;
-        break;
-      default:
-        count = thisYear - 1982 + 1;
-        break;
-    }
-    return count;
-  }
+  const programmeYears = {
+    all: 1982,
+    D: 1982,
+    C: 2001,
+    "VR/AR": 2021,
+  } as const;
 
   const programmes = {
     all: m.members_all(),
@@ -75,7 +61,9 @@
       </Select.Content>
     </Select.Root>
 
-    <YearSelector min={getProgrammeYear(programme)} />
+    <YearSelector
+      min={new Date().getFullYear() - programmeYears[programme] + 1}
+    />
   </div>
 
   <div class="my-4 flex items-center gap-4">
