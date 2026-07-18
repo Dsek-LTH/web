@@ -84,6 +84,8 @@
           visible = true;
         }
         oldScroll = window.scrollY;
+      } else {
+        visible = true;
       }
     };
   });
