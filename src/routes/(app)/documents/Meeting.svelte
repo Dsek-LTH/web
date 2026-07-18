@@ -52,7 +52,7 @@
   <h4 class="ml-2 pb-1">{name}</h4>
   <section class="flex flex-col rounded-md">
     <div
-      class="bg-background flex flex-row gap-2 rounded-t-md border-[1px] p-2"
+      class="bg-background flex flex-row flex-wrap gap-2 rounded-t-md border-[1px] p-2"
     >
       <a href={notice && notice.thumbnailUrl!}
         ><Button
