@@ -1,5 +1,10 @@
-<script>
-  import NotImplemented from "$lib/components/NotImplemented.svelte";
+<script lang="ts">
+  import { type PageData } from "./$types";
+  import PhadderGroup from "./PhadderGroup.svelte";
+
+  let { data }: { data: PageData } = $props();
 </script>
 
-<NotImplemented />
+{#each data.phadderGroups as phadderGroup (phadderGroup.id)}
+  <PhadderGroup group={phadderGroup} />
+{/each}
