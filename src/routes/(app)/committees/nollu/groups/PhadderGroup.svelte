@@ -2,6 +2,7 @@
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import MembersList from "$lib/components/MembersList.svelte";
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+  import * as m from "$paraglide/messages";
 
   let {
     group,
@@ -22,8 +23,10 @@
     <img
       src={group.imageUrl}
       alt="Group logo"
-      class="rounded-box max-h-24 max-w-full object-contain object-top"
+      class="max-h-24 max-w-full rounded-md object-contain object-top"
     />
+  {:else}
+    <div class="bg-border/45 size-24 rounded-lg"></div>
   {/if}
   <div>
     <h4>{group.name}</h4>
@@ -33,13 +36,14 @@
     <div class="mt-2 flex justify-center gap-2">
       <MembersList
         variant="outline"
-        title="Nollor i {group.name}"
-        members={group.nollor}>Nollor</MembersList
+        title="{m.nollor_in()} {group.name}"
+        members={group.nollor}>{m.nollor()}</MembersList
       >
       <MembersList
         variant="outline"
-        title="Phaddrar i {group.name}"
-        members={group.phaddrar.map((p) => p.member)}>Phaddrar</MembersList
+        title="{m.phaddrar_in()}  {group.name}"
+        members={group.phaddrar.map((p) => p.member)}
+        >{m.phaddrar()}</MembersList
       >
     </div>
   </div>
