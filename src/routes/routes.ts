@@ -282,23 +282,25 @@ export const getFooterRoutes = (): Route[] =>
           appBehaviour: "none",
           path: "/about",
         },
+        /* Here, an act of cowardice has been performed: I did not dare remove these completely in the event that someone wants to make these pages.
         {
           title: m.nav_trivia(),
           accessRequired: null,
           appBehaviour: "none",
-          path: "/events",
+          path: "/trivia",
         },
         {
           title: m.nav_studybank(),
           accessRequired: null,
           appBehaviour: "none",
-          path: "/events",
+          path: "/study-bank",
         },
+        */
         {
           title: m.nav_songbook(),
           accessRequired: null,
           appBehaviour: "none",
-          path: "/documents",
+          path: "/songbook",
         },
         {
           title: m.nav_documents(),
@@ -318,13 +320,13 @@ export const getFooterRoutes = (): Route[] =>
           title: m.nav_engage_yourself(),
           accessRequired: null,
           appBehaviour: "none",
-          path: "/news",
+          path: "/volunteer#engage",
         },
         {
           title: m.nav_volunteer_benefits(),
           accessRequired: null,
           appBehaviour: "none",
-          path: "/events",
+          path: "/volunteer#benefits",
         },
         {
           title: m.nav_committees(),
@@ -344,7 +346,7 @@ export const getFooterRoutes = (): Route[] =>
           title: m.nav_for_companies(),
           accessRequired: null,
           appBehaviour: "none",
-          path: "/news",
+          path: "/info/for-foretag",
         },
         {
           title: m.nav_contact_details(),
