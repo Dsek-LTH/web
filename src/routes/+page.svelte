@@ -171,7 +171,7 @@
             class="bg-background flex h-full w-[332px] flex-col rounded-md text-center"
           >
             <div
-              class="w-full self-end rounded-t-md bg-[var(--url)] bg-no-repeat px-8 pt-[200px] pb-4 text-4xl font-bold uppercase"
+              class="w-full self-end rounded-t-md border-[1px] border-b-0 bg-[var(--url)] bg-no-repeat px-8 pt-[200px] pb-4 text-4xl font-bold uppercase"
               style:background-size={article.imageSize}
               style:background-position={article.imagePosition}
               style:background-image="url({getFileUrl(
