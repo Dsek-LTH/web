@@ -1,14 +1,25 @@
 import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 import { BASIC_EVENT_FILTER } from "$lib/events/events";
 import type { Prisma } from "@prisma/client";
+import dayjs from "dayjs";
 
-type EventFilters = {
+export type EventFilters = {
   tags?: string[];
   search?: string;
-  page?: number;
-  pageSize?: number;
-  pastEvents?: boolean;
-};
+} & EventSpan;
+
+export type EventSpan =
+  | {
+      page: number;
+      pageSize: number;
+      span: "past" | "upcoming";
+    }
+  | {
+      weekStartingAt: Date;
+    }
+  | {
+      monthStartingAt: Date;
+    };
 
 const include = {
   author: true,
@@ -22,109 +33,132 @@ const include = {
   tags: true,
 };
 
-export const getAllEvents = async (
+/// Returns a filter for events containing the search string anywhere in the event text.
+const searchFilter = (search: string): Prisma.EventWhereInput => ({
+  OR: [
+    {
+      titleSv: {
+        contains: search,
+        mode: "insensitive",
+      },
+    },
+    {
+      titleEn: {
+        contains: search,
+        mode: "insensitive",
+      },
+    },
+    {
+      shortDescriptionSv: {
+        contains: search,
+        mode: "insensitive",
+      },
+    },
+    {
+      shortDescriptionEn: {
+        contains: search,
+        mode: "insensitive",
+      },
+    },
+    {
+      descriptionSv: {
+        contains: search,
+        mode: "insensitive",
+      },
+    },
+    {
+      descriptionEn: {
+        contains: search,
+        mode: "insensitive",
+      },
+    },
+  ],
+});
+
+/// Returns a filter for events matching any of the tags.
+const tagFilter = (tags: string[]): Prisma.EventWhereInput => ({
+  tags: {
+    some: {
+      OR: [
+        {
+          nameSv: {
+            in: tags,
+            mode: "insensitive",
+          },
+        },
+        {
+          nameEn: {
+            in: tags,
+            mode: "insensitive",
+          },
+        },
+      ],
+    },
+  },
+});
+
+export const getEvents = async (
   prisma: ExtendedPrisma,
-  filters: EventFilters = { page: 0, pageSize: 10 },
+  filters: EventFilters = { page: 1, pageSize: 10, span: "upcoming" },
   baseFilter = true,
 ): Promise<[EventWithIncludes[], number]> => {
-  const pageNumber = filters.page ?? 0;
-  const pageSize = filters.pageSize ?? 10;
+  const isPaginated = "page" in filters;
 
-  const base = BASIC_EVENT_FILTER();
+  const now = new Date();
+
+  let page = undefined;
+  let pageSize = undefined;
+  let order: "asc" | "desc" = "asc";
+  let after = undefined;
+  let before = undefined;
+
+  if (isPaginated) {
+    page = filters.page;
+    pageSize = filters.pageSize;
+
+    if (filters.span == "past") {
+      before = now;
+      order = "desc";
+    } else {
+      after = now;
+    }
+  } else {
+    if ("weekStartingAt" in filters) {
+      after = filters.weekStartingAt;
+      before = dayjs(filters.weekStartingAt).add(1, "week").toDate();
+    } else {
+      after = filters.monthStartingAt;
+      before = dayjs(filters.monthStartingAt).add(1, "month").toDate();
+    }
+  }
+
   const where: Prisma.EventWhereInput = {
     AND: [
-      baseFilter ? base : {},
-      {
-        endDatetime: filters.pastEvents
-          ? {
-              lte: new Date(),
-            }
-          : {
-              gte: new Date(),
-            },
-        // search:
-        ...(filters.search && filters.search.length > 0
-          ? {
-              OR: [
-                {
-                  titleSv: {
-                    contains: filters.search,
-                    mode: "insensitive",
-                  },
-                },
-                {
-                  titleEn: {
-                    contains: filters.search,
-                    mode: "insensitive",
-                  },
-                },
-                {
-                  shortDescriptionSv: {
-                    contains: filters.search,
-                    mode: "insensitive",
-                  },
-                },
-                {
-                  shortDescriptionEn: {
-                    contains: filters.search,
-                    mode: "insensitive",
-                  },
-                },
-                {
-                  descriptionSv: {
-                    contains: filters.search,
-                    mode: "insensitive",
-                  },
-                },
-                {
-                  descriptionEn: {
-                    contains: filters.search,
-                    mode: "insensitive",
-                  },
-                },
-              ],
-            }
-          : {}),
-        // tags
-        ...(filters.tags && filters.tags.length > 0
-          ? {
-              tags: {
-                some: {
-                  OR: [
-                    {
-                      nameSv: {
-                        in: filters.tags,
-                        mode: "insensitive",
-                      },
-                    },
-                    {
-                      nameEn: {
-                        in: filters.tags,
-                        mode: "insensitive",
-                      },
-                    },
-                  ],
-                },
-              },
-            }
-          : {}),
-      },
+      baseFilter ? BASIC_EVENT_FILTER() : {},
+      filters.search && filters.search.length > 0
+        ? searchFilter(filters.search)
+        : {},
+      filters.tags && filters.tags.length > 0 ? tagFilter(filters.tags) : {},
+      after !== undefined ? { endDatetime: { gt: after } } : {},
+      before !== undefined ? { startDatetime: { lt: before } } : {},
     ],
   };
+
   // Don't run as transaction, a little read only data race is fine
   const [events, count] = await Promise.all([
     prisma.event.findMany({
       where,
       orderBy: {
-        startDatetime: filters.pastEvents ? "desc" : "asc",
+        startDatetime: order,
       },
-      skip: Math.max(pageNumber - 1, 0) * pageSize,
+      skip: (page ?? 0) * (pageSize ?? 0),
       take: pageSize,
       include,
     }),
     prisma.event.count({ where }),
   ]);
-  return [events, Math.ceil(count / pageSize)];
+
+  return [events, Math.ceil(count / (pageSize ?? 1))];
 };
 
 export const getEvent = async (prisma: ExtendedPrisma, slug: string) => {
