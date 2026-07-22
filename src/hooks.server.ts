@@ -13,6 +13,11 @@ import Authentik, {
 } from "@auth/core/providers/authentik";
 import { SvelteKitAuth } from "@auth/sveltekit";
 import {
+  isTokenValid,
+  fetchNewToken,
+  decodeAccessToken,
+} from "$lib/utils/auth";
+import {
   error,
   redirect,
   type Handle,
@@ -80,55 +85,37 @@ const { handle: authHandle } = SvelteKitAuth({
         token.refresh_token = account.refresh_token;
         token.id_token = account.id_token;
         token.expires_at = account.expires_at;
-      } else if (token.expires_at && Date.now() < token.expires_at * 1000) {
         return token;
-      } else {
-        if (!token.refresh_token) throw new Error("Missing refresh_token");
-
-        try {
-          const response = await fetch(
-            envPublic.PUBLIC_AUTH_AUTHENTIK_TOKEN_ENDPOINT,
-            {
-              method: "POST",
-              body: new URLSearchParams({
-                client_id: env.AUTH_AUTHENTIK_CLIENT_ID,
-                client_secret: env.AUTH_AUTHENTIK_CLIENT_SECRET,
-                grant_type: "refresh_token",
-                refresh_token: token.refresh_token,
-              }),
-            },
-          );
-
-          const tokensOrError = await response.json();
-
-          if (!response.ok) throw tokensOrError;
-
-          const accessToken = tokensOrError.access_token as string;
-          const [, payload] = accessToken.split(".");
-
-          if (!payload) throw new Error("Invalid JWT format");
-
-          const decodedAccessTokenData = JSON.parse(
-            Buffer.from(payload, "base64").toString("utf-8"),
-          );
-          token.access_token = accessToken;
-          token.group_list = decodedAccessTokenData.groups ?? [];
-          token.id_token = tokensOrError.id_token;
-          token.expires_at =
-            Math.floor(Date.now() / 1000) + tokensOrError.expires_in;
-          token.refresh_token =
-            tokensOrError.refresh_token ?? token.refresh_token;
-
-          return token;
-        } catch (error) {
-          console.error("Error refreshing Authentik access_token:", error);
-          token.error = "RefreshTokenError";
-
-          return token;
-        }
       }
 
-      return token;
+      if (isTokenValid(token)) {
+        return token;
+      }
+
+      try {
+        const newToken = await fetchNewToken(token, {
+          clientId: env.AUTH_AUTHENTIK_CLIENT_ID,
+          clientSecret: env.AUTH_AUTHENTIK_CLIENT_SECRET,
+          tokenEndpoint: envPublic.PUBLIC_AUTH_AUTHENTIK_TOKEN_ENDPOINT,
+        });
+
+        const accessToken = newToken.access_token as string;
+        const decodedToken = decodeAccessToken(accessToken);
+
+        token.access_token = accessToken;
+        token.group_list = (decodedToken["groups"] as string[]) ?? [];
+        token.id_token = newToken.id_token;
+        token.expires_at = Math.floor(Date.now() / 1000) + newToken.expires_in;
+        token.refresh_token = newToken.refresh_token ?? token.refresh_token;
+        delete token.error;
+
+        return token;
+      } catch (error) {
+        console.error("Error refreshing Authentik access_token:", error);
+        token.error = "RefreshTokenError";
+
+        return token;
+      }
     },
     session({ session, token }) {
       if (token) {
