@@ -5,7 +5,11 @@
   import { cn } from "$lib/utils";
   import { SvelteURLSearchParams } from "svelte/reactivity";
 
-  let { class: klass }: { class?: string } = $props();
+  let {
+    class: klass,
+    max = new Date().getFullYear(),
+    min = 1982,
+  }: { class?: string; max?: number; min?: number } = $props();
 
   const generateLink = $derived((value: string) => {
     const searchParams = new SvelteURLSearchParams(page.url.searchParams);
@@ -45,7 +49,7 @@
   value={page.url.searchParams.get("year") ?? "2026"}
 >
   <Tabs.List bind:ref={tabList}>
-    {#each Array.from({ length: new Date().getFullYear() - 1982 + 1 }, (value, index) => 1982 + index).toReversed() as n (n)}
+    {#each Array.from({ length: max - min + 1 }, (value, index) => min + index).toReversed() as n (n)}
       <a href={generateLink(n + "")}>
         <!-- eslint-disable-next-line @typescript-eslint/no-this-alias -->
         <Tabs.Trigger value={"" + n}>{n}</Tabs.Trigger></a
