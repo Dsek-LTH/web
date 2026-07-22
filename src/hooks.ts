@@ -1,4 +1,5 @@
 import "./dayjs-plugins";
+import "temporal-polyfill/global";
 
 import { browser, dev } from "$app/environment";
 import type { Reroute } from "@sveltejs/kit";
