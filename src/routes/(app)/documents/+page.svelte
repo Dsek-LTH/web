@@ -16,11 +16,11 @@
 
   let isEditing = $state(false);
 
-  const generateLink = $derived((value: string) => {
+  function generateLink(value: string) {
     const searchParams = new SvelteURLSearchParams(page.url.searchParams);
-    searchParams.set("type", value.toString());
+    searchParams.set("type", value);
     return `?${searchParams.toString()}`;
-  });
+  }
 
   let type = $derived(page.url.searchParams.get("type"));
 
@@ -76,7 +76,7 @@
     </div>
   </div>
 
-  <div class="mt-4 flex flex-row gap-8">
+  <div class="mt-4 flex flex-row items-center justify-between gap-8">
     <Tabs.Root value={page.url.searchParams.get("type") ?? "board-meeting"}>
       <Tabs.List class="flex-col px-4 sm:flex-row sm:px-1">
         <a href={generateLink("guild-meeting")}>
