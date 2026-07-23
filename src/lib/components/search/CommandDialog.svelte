@@ -26,6 +26,7 @@
   import SongSearchResult from "./SongSearchResult.svelte";
   import DocumentSearchResult from "./DocumentSearchResult.svelte";
   import { resolve } from "$app/paths";
+  import { debounce } from "$lib/utils/debounce";
 
   let { open = $bindable(false) } = $props();
 
@@ -37,7 +38,6 @@
   let input = $state("");
   let currentIndex = $state(-1);
   let isSearching = $state(false);
-  let timeout: ReturnType<typeof setTimeout> | null = null;
   let results: SearchDataWithType[] = $state([]);
 
   let groupedResults = $derived<{
@@ -72,25 +72,20 @@
     songs: results.filter((r) => r.type === "songs"),
   });
 
-  function handleSearch() {
-    // Cancel the previous timeout
-    if (timeout) clearTimeout(timeout);
+  const debouncedSearch = debounce(() => {
+    formElement?.requestSubmit();
+    currentIndex = -1;
+  }, 300);
 
-    // When user requests a search with empty string
-    // Happens when the user deletes the last key of the input
-    // We shouldn't search then
+  function handleSearch() {
     if (!input) {
+      debouncedSearch.cancel();
       isSearching = false;
       results = [];
       return;
-    } else {
-      // Do the search after 300ms
-      timeout = setTimeout(() => {
-        formElement?.requestSubmit();
-        currentIndex = -1;
-      }, 300);
-      isSearching = true;
     }
+    isSearching = true;
+    debouncedSearch();
   }
 
   function captureListItems() {
@@ -186,6 +181,7 @@
   // Reset input when dialog closes
   $effect(() => {
     if (!open) {
+      debouncedSearch.cancel();
       input = "";
       results = [];
       currentIndex = -1;
