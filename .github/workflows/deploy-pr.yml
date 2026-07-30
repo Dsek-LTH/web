@@ -1,0 +1,97 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/SchemaStore/schemastore/refs/heads/master/src/schemas/json/github-workflow.json
+name: Deploy pr
+permissions:
+  contents: read
+  pull-requests: write
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened, labeled]
+
+jobs:
+  website:
+    if: >
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      contains(github.event.pull_request.labels.*.name, 'preview')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to image registry
+        id: registry-login
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.IMAGEREPO_USERNAME }}
+          password: ${{ secrets.IMAGEREPO_PASSWORD }}
+          registry: registry.dsek.se
+      - name: Build and push website
+        uses: docker/build-push-action@v6
+        with:
+          build-args: |
+            "PUBLIC_MINIO_ENDPOINT=files-sandbox.dsek.se"
+            "PUBLIC_MINIO_PORT=443"
+            "PUBLIC_MINIO_USE_SSL=true"
+            "PUBLIC_BUCKETS_DOCUMENTS=documents"
+            "PUBLIC_BUCKETS_FILES=files"
+            "PUBLIC_BUCKETS_MEMBERS=members"
+            "VERSION=${{ github.ref_name }}"
+          push: true
+          tags: registry.dsek.se/web-pr-${{ github.event.number }}/website:latest
+      - name: Comment preview URL
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request.number;
+            const url = `https://web-pr-${pr}.apps.okd.dsek.se`;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr,
+              body: `Preview image built. ArgoCD should deploy it shortly:\n\n${url}`
+            });
+  poppler:
+    if: >
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      contains(github.event.pull_request.labels.*.name, 'preview')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to image registry
+        id: registry-login
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.IMAGEREPO_USERNAME }}
+          password: ${{ secrets.IMAGEREPO_PASSWORD }}
+          registry: registry.dsek.se
+      - name: Build and push poppler
+        uses: docker/build-push-action@v6
+        with:
+          context: "{{defaultContext}}:poppler-server"
+          push: true
+          tags: registry.dsek.se/web-pr-${{ github.event.number }}/poppler:latest
+
+  scheduler:
+    if: >
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      contains(github.event.pull_request.labels.*.name, 'preview')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to image registry
+        id: registry-login
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.IMAGEREPO_USERNAME }}
+          password: ${{ secrets.IMAGEREPO_PASSWORD }}
+          registry: registry.dsek.se
+      - name: Build and push scheduler
+        uses: docker/build-push-action@v6
+        with:
+          context: "{{defaultContext}}:scheduler-service"
+          push: true
+          tags: registry.dsek.se/web-pr-${{ github.event.number }}/scheduler:latest
