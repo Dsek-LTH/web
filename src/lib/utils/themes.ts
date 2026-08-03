@@ -28,14 +28,14 @@ export const colors = {
     error: "#f87272",
   },
   nollningPostReveal: {
-    primary: "#F280A1",
+    primary: "#2b141b",
     secondary: "#921010",
     neutral: "#FFFFFF", // "comment"
     accent: "#1dcdbc", // unused in figma
-    "base-100": "#E6D3B1", // "new background"
+    "base-100": "#081238", // "new background"
     "base-200": "#4E4A45", // "backround"
     "base-300": "#44475A", // "current line"
-    "base-content": "#4E4A45", // "foreground"
+    "base-content": "#a0a0dc", // "foreground"
     // unused in figma below
     info: "#3abff8",
     success: "#36d399",

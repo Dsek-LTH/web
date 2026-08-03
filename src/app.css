@@ -45,13 +45,10 @@
     font-display: swap;
   }
   @font-face {
-    font-family: "Genty";
-    src: local("Genty"), local("genty"), url("/fonts/Genty.otf");
+    font-family: "CircusWorldDemoRegular";
+    src: url("/fonts/CircusWorldDemoRegular.ttf");
     font-weight: normal;
     font-display: swap;
-  }
-  .layout-container {
-    @apply container mx-auto px-4 py-8 xl:px-32;
   }
 
   .pop-out {
