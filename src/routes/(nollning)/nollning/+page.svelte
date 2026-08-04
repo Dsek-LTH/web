@@ -4,7 +4,7 @@
   import MembersList from "$lib/components/socials/MembersList.svelte";
   import PersonCarouselItem from "./PersonCarouselItem.svelte";
   import * as m from "$paraglide/messages";
-  import logo from "./(photos)/Pink_Panther.png";
+  import logo from "./(photos)/logo26.png";
 
   import veloria from "./(photos)/Pink_Panther.png";
   import knyx from "./(photos)/Pink_Panther.png";
@@ -14,7 +14,8 @@
   import kryon from "./(photos)/Pink_Panther.png";
   import groupProfile from "./(photos)/Pink_Panther.png";
   import groupLandscape from "./(photos)/snostorm.jpg";
-  import heavenBG from "./(photos)/Pink_Panther.png";
+  import heavenBG from "./(photos)/logo26.png";
+  import SnowEffect from "$lib/components/postReveal/SnowEffect.svelte";
 
   import oscar from "./(photos)/showdelapepp.png";
   import vincent from "./(photos)/showdelapepp.png";
@@ -27,12 +28,13 @@
   import alva from "./(photos)/showdelapepp.png";
   import anna from "./(photos)/showdelapepp.png";
   import hilda from "./(photos)/showdelapepp.png";
-  import tiger from "./(photos)/tigerprint.jpg";
+  import tiger from "./(photos)/tigerprint-recolored.png";
   import pepp from "./(photos)/showdelapepp.png";
   import { languageTag } from "$paraglide/runtime";
   import { getFileUrl } from "$lib/files/client";
 
   export let data;
+  let snowActive = false;
   $: topInsets = ($page.data.appInfo?.insets?.top ?? 0) + 8;
   $: bottomInsets = $page.data.appInfo?.insets?.bottom ?? 0;
   $: headerAndFooterHeight = 128 + topInsets + bottomInsets;
@@ -231,14 +233,20 @@
       </div>
     </section>
     {#if data.revealTheme}
+      <script>
+        let snowActive = $state(false);
+      </script>
+
+      <SnowEffect bind:active={snowActive} />
       <div
-        class="relative mx-auto mb-12 aspect-square max-h-[420px] max-w-[420px] rounded-full border-8 border-secondary bg-[#1f1f1c] max-md:scale-75"
+        class="relative mx-auto mb-12 aspect-square max-h-[500px] max-w-[500px] rounded-full border-8 border-secondary bg-[#080817] max-md:scale-75"
       >
         <div class="size-60 md:size-80">
           <img
             src={logo}
-            class="absolute left-1/2 top-1/2 size-60 -translate-x-1/2 -translate-y-1/2 md:size-80"
+            class="absolute left-1/2 top-1/2 size-60 -translate-x-1/2 -translate-y-1/2 md:size-[480px]"
             alt="Nollning logo non-spinning"
+            onclick={() => (snowActive = !snowActive)}
           />
         </div>
       </div>
