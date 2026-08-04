@@ -1,7 +1,7 @@
 <script lang="ts">
   import NavigationLoader from "$lib/components/utils/NavigationLoader.svelte";
-  import favicon from "./(photos)/favicon.svg";
-  import logo25 from "./(photos)/logo25.svg";
+  import favicon from "./(photos)/Pink_Panther.png";
+  import logo25 from "./(photos)/Pink_Panther.png";
   import AppNotificationTokenHandler from "$lib/components/utils/AppNotificationTokenHandler.svelte";
   import AppUnreadNotificationHandler from "$lib/components/utils/AppUnreadNotificationHandler.svelte";
   import { languageTag } from "$paraglide/runtime";

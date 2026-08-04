@@ -2,7 +2,7 @@ export const themes = ["dark", "light", "nollningPostReveal"] as const;
 export type Theme = (typeof themes)[number];
 export const colors = {
   light: {
-    primary: "#CC5E80",
+    primary: "#F280A1",
     secondary: "#9966CC",
     accent: "#1fb2a6",
     neutral: "#ededed",
@@ -28,18 +28,17 @@ export const colors = {
     error: "#f87272",
   },
   nollningPostReveal: {
-    primary: "#F280A1",
-    secondary: "#921010",
-    neutral: "#FFFFFF", // "comment"
-    accent: "#1dcdbc", // unused in figma
-    "base-100": "#E6D3B1", // "new background"
-    "base-200": "#4E4A45", // "backround"
-    "base-300": "#44475A", // "current line"
-    "base-content": "#4E4A45", // "foreground"
-    // unused in figma below
-    info: "#3abff8",
-    success: "#36d399",
-    warning: "#fbbd23",
-    error: "#FF5555",
-  },
+  primary: "#aab4c8",       
+  secondary: "#3d5a8a",     
+  neutral: "#e8ecf2",       
+  accent: "#6b8cae",        
+  "base-100": "#141e3c",   
+  "base-200": "#6f778e",    
+  "base-300": "#000010",    
+  "base-content": "#c8d0e0", 
+  info: "#3abff8",
+  success: "#36d399",
+  warning: "#fbbd23",
+  error: "#FF5555",
+},
 } as const;
