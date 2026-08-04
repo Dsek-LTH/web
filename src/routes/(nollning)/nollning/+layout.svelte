@@ -1,7 +1,7 @@
 <script lang="ts">
   import NavigationLoader from "$lib/components/utils/NavigationLoader.svelte";
   import favicon from "./(photos)/Pink_Panther.png";
-  import logo25 from "./(photos)/Pink_Panther.png";
+  import logo26 from "./(photos)/Pink_Panther.png";
   import AppNotificationTokenHandler from "$lib/components/utils/AppNotificationTokenHandler.svelte";
   import AppUnreadNotificationHandler from "$lib/components/utils/AppUnreadNotificationHandler.svelte";
   import { languageTag } from "$paraglide/runtime";
@@ -96,7 +96,7 @@
     {#if data.revealTheme}
       <div class="relative size-60 md:size-80">
         <img
-          src={logo25}
+          src={logo26}
           class="absolute inset-0 animate-scale-fade"
           alt="Nollning logo scale-fade"
         />
