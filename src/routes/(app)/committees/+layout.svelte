@@ -108,7 +108,7 @@
         <LinksDialog {data} />
       {/if}
     </aside>
-    <main class="w-full border-x-[1px] p-8">
+    <main class="w-full min-w-0 flex-1 border-x-[1px] p-8">
       {@render children?.()}
     </main>
   </div>
