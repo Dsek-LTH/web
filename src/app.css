@@ -38,9 +38,9 @@
     font-display: swap;
   }
   @font-face {
-    font-family: "Mason Sans";
-    src: local("Mason Sans"), local("Mason-Sans"), local("mason sans"),
-      local("mason-sans"), url("/fonts/MasonSans.otf");
+    font-family: "FairyDustB";
+    src: local("FairyDustB"), local("FairyDustB"), local("fairy dust b"),
+      local("fairy-dust-b"), url("/fonts/FairyDustB.ttf");
     font-weight: normal;
     font-display: swap;
   }

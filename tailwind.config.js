@@ -26,7 +26,7 @@ export default {
         "nolla-sans": ["Inter", "ui-sans-serif", "sans-serif"],
         "nolla-mono": ['"IBM Plex Mono"', "ui-monospace", "monospace"],
         "nolla-post-reveal": ["Lexend", "ui-sans-serif", "sans-serif"],
-        "nolla-stab": ["Mason Sans", "ui-serif", "serif"],
+        "nolla-stab": ["FairyDustB", "ui-serif", "serif"],
         "nolla-pepp": ["CircusWorldDemoRegular", "ui-sans-serif", "sans-serif"],
       },
       keyframes: {
@@ -135,7 +135,7 @@ export default {
           "-webkit-text-stroke-color": "black",
         },
         ".text-stroke-secondary": {
-          "-webkit-text-stroke-color": "#921010",
+          "-webkit-text-stroke-color": "#aab9cb",
           "paint-order": "stroke fill",
         },
         ".text-stroke-0": {

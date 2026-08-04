@@ -13,7 +13,7 @@
   import orion from "./(photos)/Pink_Panther.png";
   import kryon from "./(photos)/Pink_Panther.png";
   import groupProfile from "./(photos)/Pink_Panther.png";
-  import groupLandscape from "./(photos)/bakgrund.jpg";
+  import groupLandscape from "./(photos)/snostorm.jpg";
   import heavenBG from "./(photos)/Pink_Panther.png";
 
   import oscar from "./(photos)/showdelapepp.png";
@@ -27,7 +27,8 @@
   import alva from "./(photos)/showdelapepp.png";
   import anna from "./(photos)/showdelapepp.png";
   import hilda from "./(photos)/showdelapepp.png";
-  import tiger from "./(photos)/tigerprints.png";
+  import tiger from "./(photos)/tigerprint.jpg";
+  import pepp from "./(photos)/showdelapepp.png";
   import { languageTag } from "$paraglide/runtime";
   import { getFileUrl } from "$lib/files/client";
 
@@ -101,7 +102,7 @@
       bodyEn: `lorum ipsum`,
     },
     {
-      name: "Alexandra",
+      name: "Alexander",
       imageUrl: alexander,
       body: `lorum ipsum`,
       bodyEn: `lorum ipsum`,
@@ -294,25 +295,44 @@
       class:!mt-16={data.revealTheme}
     >
       <div
-        class="absolute -inset-x-[50dvw] -inset-y-10 -z-0 opacity-30 bg-repeat-space max-md:bg-[length:30rem] max-md:bg-scroll md:bg-[length:40rem] md:bg-fixed"
+        class="absolute -inset-x-[50dvw] -inset-y-10 z-0 opacity-70 bg-cover bg-center bg-no-repeat bg-scroll md:bg-fixed"
         style={`background-image: url('${tiger}')`}
       ></div>
+      <div class="relative z-10 mb-4 flex justify-center">
+        <img
+          src={pepp}
+          alt="Show de la pepp logga"
+          class="relativez -10 h-64 w-64 rounded-full object-cover md:h-128 md:w-128"
+        />
+      </div>
       <h1
-        class="z-10 mb-4 p-2 text-center font-nolla-pepp text-5xl tracking-widest text-[#F280A1] text-stroke-gray text-stroke-4 max-md:text-stroke-2 md:text-8xl"
+        class="relative z-10 mb-4 p-2 text-center font-nolla-pepp text-5xl tracking-widest text-[#F280A1] text-stroke-gray text-stroke-4 max-md:text-stroke-2 md:text-8xl"
       >
         Show De La Pepp
       </h1>
-      <div
-        class="-mt-20 w-full scroll-m-20 pt-20 max-md:carousel max-md:!flex md:grid md:grid-cols-2 md:gap-4 lg:w-[calc(100%+8rem)] lg:grid-cols-3"
-      >
-        {#each peppers as pepper, index (pepper.name)}
-          <PersonCarouselItem
-            name={pepper.name}
-            {index}
-            imageUrl={pepper.imageUrl}
-            body={languageTag() === "en" ? pepper.bodyEn : pepper.body}
-          />
-        {/each}
+      <div class="-mt-20 w-full scroll-m-20 pt-20">
+        <div
+          class="mx-auto grid max-w-md grid-cols-2 gap-8 justify-items-center md:max-w-lg"
+        >
+          {#each peppers.slice(0, 2) as pepper, index (pepper.name)}
+            <PersonCarouselItem
+              name={pepper.name}
+              {index}
+              imageUrl={pepper.imageUrl}
+              body={languageTag() === "en" ? pepper.bodyEn : pepper.body}
+            />
+          {/each}
+        </div>
+        <div class="mt-4 grid grid-cols-3 gap-8">
+          {#each peppers.slice(2) as pepper, index (pepper.name)}
+            <PersonCarouselItem
+              name={pepper.name}
+              index={index + 2}
+              imageUrl={pepper.imageUrl}
+              body={languageTag() === "en" ? pepper.bodyEn : pepper.body}
+            />
+          {/each}
+        </div>
       </div>
     </section>
     {#if data.revealTheme}
