@@ -59,7 +59,8 @@
           disabled={!notice}
           variant="outline"
           class="cursor-pointer rounded-sm"
-          ><FileText /> {m.documents_notice()}</Button
+          ><FileText class="text-rosa-background" />
+          {m.documents_notice()}</Button
         ></a
       >
       <a href={agenda && agenda.thumbnailUrl!}
@@ -67,7 +68,8 @@
           variant="outline"
           disabled={!agenda}
           class="cursor-pointer rounded-sm"
-          ><FileText /> {m.documents_agenda()}</Button
+          ><FileText class="text-rosa-background" />
+          {m.documents_agenda()}</Button
         ></a
       >
       <a href={minutes && minutes.thumbnailUrl!}
@@ -75,7 +77,8 @@
           variant="outline"
           disabled={!minutes}
           class="cursor-pointer rounded-sm"
-          ><FileText /> {m.documents_minutes()}</Button
+          ><FileText class="text-rosa-background" />
+          {m.documents_minutes()}</Button
         ></a
       >
     </div>
