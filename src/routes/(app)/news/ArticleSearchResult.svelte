@@ -2,6 +2,7 @@
   import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
 
   import type { ArticleSearchReturnAttributes } from "$lib/search/searchTypes";
+  import { getFullName } from "$lib/utils/client/member";
   import { getLocale } from "$paraglide/runtime";
   const { data }: { data: ArticleSearchReturnAttributes } = $props();
   import dayjs from "dayjs";
@@ -26,7 +27,7 @@
         <MemberAvatar member={data.author} class="size-4" />
 
         <span class="text-muted-foreground line-clamp-1"
-          >{`${data.author.firstName} "${data.author.nickname}" ${data.author.lastName}`}</span
+          >{getFullName(data.author)}</span
         >
       </div>
     </div>
