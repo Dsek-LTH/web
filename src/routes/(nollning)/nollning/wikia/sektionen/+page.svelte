@@ -1,6 +1,6 @@
 <script lang="ts">
   import * as m from "$paraglide/messages";
-  import board from "./board.webp";
+  import board from "$lib/nollning/sektionen/styrelsen.jpg";
   import dchip from "./d-chip.webp";
 </script>
 

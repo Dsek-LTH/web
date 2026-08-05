@@ -3,7 +3,7 @@
   import slasque from "$lib/nollning/slasque.webp";
   import mixed from "$lib/nollning/mixed.webp";
   import suit from "$lib/nollning/suit.webp";
-  import frack from "$lib/nollning/frack.webp";
+  import frack from "$lib/nollning/hogtids.jpg";
 </script>
 
 <!-- eslint-disable svelte/no-at-html-tags -->

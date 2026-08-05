@@ -14,7 +14,7 @@
   import kryon from "./(photos)/Pink_Panther.png";
   import groupProfile from "./(photos)/Pink_Panther.png";
   import groupLandscape from "./(photos)/snostorm.jpg";
-  import heavenBG from "./(photos)/logo26.png";
+  import heavenBG from "./(photos)/bakgrund.jpg";
   import SnowEffect from "$lib/components/postReveal/SnowEffect.svelte";
 
   import oscar from "./(photos)/showdelapepp.png";
@@ -310,13 +310,14 @@
         <img
           src={pepp}
           alt="Show de la pepp logga"
-          class="relativez -10 h-64 w-64 rounded-full object-cover md:h-128 md:w-128"
+          class="relativez -10 h-64 w-64 object-cover md:h-[480px] md:w-[480px]"
         />
       </div>
       <h1
-        class="relative z-10 mb-4 p-2 text-center font-nolla-pepp text-5xl tracking-widest text-[#F280A1] text-stroke-gray text-stroke-4 max-md:text-stroke-2 md:text-8xl"
+        class="relative z-10 mb-4 p-2 text-center font-nolla-pepp text-5xl tracking-widest text-[#ffc23d] leading-loose md:text-8xl"
+        style="-webkit-text-stroke: 5px #d84850; line-height: 1.2;"
       >
-        Show De La Pepp
+        Show De<br />La Pepp
       </h1>
       <div class="-mt-20 w-full scroll-m-20 pt-20">
         <div
@@ -346,7 +347,7 @@
     {#if data.revealTheme}
       <iframe
         class="aspect-video w-full"
-        src="https://www.youtube.com/embed/njDZ3X2rscQ"
+        src="https://www.youtube.com/embed/rRPQs_kM_nw"
         title="Nolledans film"
         frameborder="0"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
