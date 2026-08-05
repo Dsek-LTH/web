@@ -9,6 +9,7 @@
   import ArrowRight from "@lucide/svelte/icons/arrow-right";
   import * as Avatar from "$lib/components/ui/avatar";
   import { getFileUrl } from "$lib/files/client";
+  import { getPositionLink } from "$lib/utils/positions";
 
   let { data }: { data: PageData } = $props();
 </script>
@@ -59,7 +60,7 @@
           </a>
           <a
             class="mt-1 hover:underline"
-            href="/positions/{boardMember.position.id}"
+            href={getPositionLink(boardMember.position.id)}
             ><h6>
               {boardMember.position.name}
             </h6></a
@@ -84,7 +85,7 @@
           </div>
           <a
             class="mt-1 hover:underline"
-            href="/positions/{boardMember.position.id}"
+            href={getPositionLink(boardMember.position.id)}
             ><h6>
               {boardMember.position.name}
             </h6></a
