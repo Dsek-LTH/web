@@ -12,6 +12,7 @@
   import { Button } from "$lib/components/ui/button";
   import { onMount } from "svelte";
   import { cn } from "$lib/utils";
+  import { debounce } from "$lib/utils/debounce";
 
   let {
     selectedMembers = $bindable([]),
@@ -72,7 +73,6 @@
   });
 
   let input = $state("");
-  let timeout: ReturnType<typeof setTimeout> | null = null;
   let results: SearchDataWithType[] = $state([]);
   let filteredResults: MemberSearchReturnAttributes[] = $derived<
     MemberSearchReturnAttributes[]
@@ -86,37 +86,33 @@
     }),
   );
 
-  async function handleSearch() {
-    if (timeout) clearTimeout(timeout);
+  const debouncedSearch = debounce(async (searchQuery: string) => {
+    const url = new URL("/api/search", window.location.origin);
+    url.searchParams.set("query", searchQuery);
+    url.searchParams.set("indexes", JSON.stringify(["members"]));
+    url.searchParams.set("limit", "10");
+    url.searchParams.set("offset", "0");
+    const response = await fetch(url, {
+      method: "GET",
+    });
 
+    if (response.ok) {
+      results = [...(await response.json())];
+    } else {
+      results = [];
+    }
+    isSearching = false;
+  }, 200);
+
+  function handleSearch() {
     if (!input) {
+      debouncedSearch.cancel();
       isSearching = false;
       results = [];
       return;
-    } else {
-      timeout = setTimeout(async () => {
-        if (!input) {
-          results = [];
-          return;
-        }
-        const url = new URL("/api/search", window.location.origin);
-        url.searchParams.set("query", input);
-        url.searchParams.set("indexes", JSON.stringify(["members"]));
-        url.searchParams.set("limit", "10");
-        url.searchParams.set("offset", "0");
-        const response = await fetch(url, {
-          method: "GET",
-        });
-
-        if (response.ok) {
-          results = [...(await response.json())];
-        } else {
-          results = [];
-        }
-        isSearching = false;
-      }, 200);
-      isSearching = true;
     }
+    isSearching = true;
+    debouncedSearch(input);
   }
 
   function captureAddedItems() {
