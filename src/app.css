@@ -39,14 +39,13 @@
   }
   @font-face {
     font-family: "FairyDustB";
-    src: local("FairyDustB"), local("FairyDustB"), local("fairy dust b"),
-      local("fairy-dust-b"), url("/fonts/FairyDustB.ttf");
+    src: url("/fonts/FairydustB-Regular.ttf");
     font-weight: normal;
     font-display: swap;
   }
   @font-face {
-    font-family: "CircusWorldDemoRegular";
-    src: url("/fonts/CircusWorldDemoRegular.ttf");
+    font-family: "AKAPOSSE";
+    src: local("AKAPOSSE"), url("/fonts/AKAPOSSE.ttf");
     font-weight: normal;
     font-display: swap;
   }

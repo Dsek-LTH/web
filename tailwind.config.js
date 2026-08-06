@@ -27,7 +27,7 @@ export default {
         "nolla-mono": ['"IBM Plex Mono"', "ui-monospace", "monospace"],
         "nolla-post-reveal": ["Lexend", "ui-sans-serif", "sans-serif"],
         "nolla-stab": ["FairyDustB", "ui-serif", "serif"],
-        "nolla-pepp": ["CircusWorldDemoRegular", "ui-sans-serif", "sans-serif"],
+        "nolla-pepp": ["AKAPOSSE", "ui-sans-serif", "sans-serif"],
       },
       keyframes: {
         "reverse-spin": {
@@ -70,11 +70,11 @@ export default {
       },
       {
         nollningPreReveal: {
-          primary: "#ffb4e5",
-          secondary: "#e2c6ff",
+          primary: "#ffb800",
+          secondary: "#ba8715",
           accent: "#1dcdbc",
           neutral: "#bbb6b6",
-          "base-100": "#efefef",
+          "base-100": "#7b111b",
           info: "#3abff8",
           success: "#36d399",
           warning: "#fbbd23",
