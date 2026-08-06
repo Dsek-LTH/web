@@ -70,11 +70,11 @@ export default {
       },
       {
         nollningPreReveal: {
-          primary: "#ffb800",
-          secondary: "#ba8715",
+          primary: "#ffb4e5",
+          secondary: "#e2c6ff",
           accent: "#1dcdbc",
           neutral: "#bbb6b6",
-          "base-100": "#7b111b",
+          "base-100": "#efefef",
           info: "#3abff8",
           success: "#36d399",
           warning: "#fbbd23",
