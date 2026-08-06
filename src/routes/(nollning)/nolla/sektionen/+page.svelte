@@ -1,6 +1,6 @@
 <script lang="ts">
   import GuildImage from "./guildOnHill.jpeg";
-  import BoardImage from "./styr.webp";
+  import BoardImage from "./styrelsen.jpg";
   import DChipLogo from "./d-chip_logo.webp";
   import DChipImage from "./d-chip.webp";
   import * as m from "$paraglide/messages";
