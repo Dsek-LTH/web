@@ -27,7 +27,7 @@ export default {
         "nolla-mono": ['"IBM Plex Mono"', "ui-monospace", "monospace"],
         "nolla-post-reveal": ["Lexend", "ui-sans-serif", "sans-serif"],
         "nolla-stab": ["FairyDustB", "ui-serif", "serif"],
-        "nolla-pepp": ["CircusWorldDemoRegular", "ui-sans-serif", "sans-serif"],
+        "nolla-pepp": ["AKAPOSSE", "ui-sans-serif", "sans-serif"],
       },
       keyframes: {
         "reverse-spin": {

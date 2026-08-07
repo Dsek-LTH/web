@@ -43,37 +43,37 @@
     {
       name: "Øverphøs\nVe||oria PolarIX",
       imageUrl: veloria,
-      body: "stab",
+      body: "Ve||ORia PolarIX är urfrostens väktare och Stabens orubbliga kärna. När kylan svepte över Lund och frös tidens flöde, stod hon kvar i iskristallernas mitt som en ledstjärna i polarnatten. Hon bär kylan som en sköld och genom hennes kalla, klara blick hålls Staben enad i det djupaste mörker. Så länge Ve||oria vägleder från sin frosttron förblir nollan trygg och skyddad mot permafrostens osynliga vindar.",
       bodyEn: "stab",
     },
     {
       name: "Nevira Aete||na",
       imageUrl: nevira,
-      body: "stab",
+      body: "Ur mörka glaciärsprickor och uråldrig tjäla formar Nevira Aete||na tingens ordning. Hon väver samman materia som härdats under tusenårigt tryck och förvandlar det råa elementet till föremål med dold mening. I Neviras händer blir varje ting en länk som binder Staben till permafrostens eviga substans. Hon är den tysta kraften som ser till att allt har sin plats och att grunden aldrig ger vika.",
       bodyEn: "stab",
     },
     {
       name: "OriOn Silentíum",
       imageUrl: orion,
-      body: "stab",
+      body: "I permafrostens tystnad och under det flammande norrskenet vandrar OriOn Silentium. Med en blick som skär igenom täta snöbyar böjer han köldens magi för att samla överflöd och resurser från svåråtkomliga vidder. Orion är arkitekten bakom de stunder då kylan viker undan och förvandlas till strålande sammankomster, där nollans gemenskap förseglas i frostens klara sken.",
       bodyEn: "stab",
     },
     {
       name: "Kryon TiberiOS",
       imageUrl: kryon,
-      body: "stab",
+      body: "KryON TiberiOS är runden av norrskenets budbärare, länken mellan permafrostens kärna och världen utanför. Ur ovisshetens dimma tränger hans röst igenom som en klar fläkt av frostluft och ger vägledning åt alla sökande själar, oavsett varifrån de färdats. Med sitt obrytbara lugn raderar KryON ut all oro och väver samman nollorna till en helhet. ",
       bodyEn: "stab",
     },
     {
       name: "Ymir AmorIoT",
       imageUrl: ymir,
-      body: "stab",
+      body: "Sprungen ur permafrostens renaste formspråk ristar Ymir AmorIoT tidens mönster och utmaningar. Ur glaciärernas dolda djup mejslar han fram visuella symboler och prövningar skapade för att härda och förena nollorna. Genom Ymirs känsla för form blir varje skapelse ett avskalat konstverk av frusen skönhet, skapat för att bäras genom alla skeden.",
       bodyEn: "stab",
     },
     {
       name: "Knyx Gelator",
       imageUrl: knyx,
-      body: "stab",
+      body: "Väckt ur permafrostens djupaste skikt står Knyx Gelator som en oböjlig mur och vakar över rets gränser. För honom är kölden ett värn som skyddar och bevarar. Med ett vakande öga över alla vägar ser Knyx till att isen bär och att inga sprickor uppstår i Stabens struktur. Han bär nyckeln till tryggheten och ser till att nollan rör sig säkert över den frusna marken.",
       bodyEn: "stab",
     },
   ];
@@ -314,8 +314,8 @@
         />
       </div>
       <h1
-        class="relative z-10 mb-4 p-2 text-center font-nolla-pepp text-5xl tracking-widest text-[#ffc23d] leading-loose md:text-8xl"
-        style="-webkit-text-stroke: 5px #d84850; line-height: 1.2;"
+        class="relative z-10 mb-4 p-2 text-center font-nolla-pepp text-5xl tracking-widest text-[#ffb800] leading-loose md:text-8xl"
+        style="-webkit-text-stroke: 5px #ff3347; line-height: 1.2;"
       >
         Show De<br />La Pepp
       </h1>
