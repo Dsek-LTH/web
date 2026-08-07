@@ -303,7 +303,7 @@
       class:!mt-16={data.revealTheme}
     >
       <div
-        class="absolute -inset-x-[50dvw] -inset-y-10 z-0 opacity-70 bg-cover bg-center bg-no-repeat bg-scroll md:bg-fixed"
+        class="absolute -inset-x-[50dvw] -inset-y-10 z-0 bg-cover bg-scroll bg-center bg-no-repeat opacity-70 md:bg-fixed"
         style={`background-image: url('${tiger}')`}
       ></div>
       <div class="relative z-10 mb-4 flex justify-center">
@@ -314,14 +314,14 @@
         />
       </div>
       <h1
-        class="relative z-10 mb-4 p-2 text-center font-nolla-pepp text-5xl tracking-widest text-[#ffb800] leading-loose md:text-8xl"
+        class="relative z-10 mb-4 p-2 text-center font-nolla-pepp text-5xl leading-loose tracking-widest text-[#ffb800] md:text-8xl"
         style="-webkit-text-stroke: 5px #ff3347; line-height: 1.2;"
       >
         Show De<br />La Pepp
       </h1>
       <div class="-mt-20 w-full scroll-m-20 pt-20">
         <div
-          class="mx-auto grid max-w-md grid-cols-2 gap-8 justify-items-center md:max-w-lg"
+          class="mx-auto grid max-w-md grid-cols-2 justify-items-center gap-8 md:max-w-lg"
         >
           {#each peppers.slice(0, 2) as pepper, index (pepper.name)}
             <PersonCarouselItem

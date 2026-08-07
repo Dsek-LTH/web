@@ -11,7 +11,8 @@ try {
   vercelAdapter = null;
 }
 
-const adapter = process.env.VERCEL_ENV && vercelAdapter ? vercelAdapter : nodeAdapter;
+const adapter =
+  process.env.VERCEL_ENV && vercelAdapter ? vercelAdapter : nodeAdapter;
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
