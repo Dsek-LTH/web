@@ -744,6 +744,8 @@
   "nolla_guild_board_kallarm_description": "responsible for the guild's premises, hardware, and car.",
   "nolla_guild_board_activities": "Head of activities",
   "nolla_guild_board_activities_description": "organizes everything between sports and games.",
+  "nolla_guild_board_cpu": "Head Processor",
+  "nolla_guild_board_cpu_description": "is responsible for the guild's website, servers, and other technical operations.",
   "nolla_guild_dchip_description": "D-Chip is a non-profit, student-driven association at the D-guild to which students of Computer Science and InfoCom at LTH belong. All female and non-binary students in the two programs can join D-Chip. We exist to promote your well-being in the guild and to work for more female and non-binary engagement. On the Sunday before the nollning starts (25th of August) D-Chip will organize a free lunch for all new students at the D-guild who identify as female or non-binary, more info will be given to you by your phadder before the 19th of august!",
   "nolla_guild_dchip_link": "D-Chip's website",
   "nolla_guild_header": "The D-guild",
