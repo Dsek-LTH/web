@@ -69,7 +69,7 @@
       </h3>
       <p class="nolla-prose">
         {@html m.nolla_guild_board_description()}
-        <a href="/committees" class="link">{@html m.nolla_readMore()}</a>
+        <a href="/about" class="link">{@html m.nolla_readMore()}</a>
       </p>
     </div>
 
@@ -121,6 +121,10 @@
         <b>{@html m.nolla_guild_board_activities()}</b>
         {@html m.nolla_guild_board_activities_description()}
       </li>
+      <li>
+        <b>{@html m.nolla_guild_board_cpu()}</b>
+        {@html m.nolla_guild_board_cpu_description()}
+      </li>
     </ul>
   </section>
 
@@ -138,7 +142,7 @@
 
       <a
         class="neo-brutal-btn-flat w-min whitespace-nowrap"
-        href="https://dchip.dsek.se"
+        href="https://dchip.se"
       >
         {@html m.nolla_guild_dchip_link()}
       </a>

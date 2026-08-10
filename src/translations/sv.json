@@ -742,6 +742,8 @@
   "nolla_guild_board_kallarm_description": "ansvarar för sektionens lokaler, hårdvara och bil.",
   "nolla_guild_board_activities": "Aktivitetsansvarig",
   "nolla_guild_board_activities_description": "håller i allt mellan sport och spel.",
+  "nolla_guild_board_cpu": "Processmästaren",
+  "nolla_guild_board_cpu_description": "ansvarar för sektionens hemsida, servrar och annan teknisk verksamhet.",
   "nolla_guild_dchip_description": "D-Chip är en ideell, studentdriven förening vid D-sektionen som studenterna på Datateknik och InfoCom på LTH hör till. Alla kvinnliga och icke-binära studenter på de två programmen kan vara med i D-Chip. Vi finns för att främja er trivsel på sektionen samt att verka för mer kvinnligt och icke-binärt engagemang. På söndagen innan nollningen börjar (25e augusti) kommer D-chip att anordna en gratis lunch för alla nyantagna studenter på D-sektionen som identifierar sig som kvinna eller icke-binär, mer info kommer du få av dina phaddrar innan den 19e augusti!",
   "nolla_guild_dchip_link": "D-Chips hemsida",
   "nolla_guild_header": "D-sektionen",
