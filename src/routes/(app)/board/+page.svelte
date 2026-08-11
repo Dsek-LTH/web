@@ -33,10 +33,17 @@
       <p>{m.board_prose()}</p>
 
       <div class="mt-4 flex flex-col gap-2 md:flex-row">
-        <Button disabled size="sm" variant="rosa"
-          ><Pen /> Läs verksamhetsplanen <ArrowRight /></Button
+        <Button
+          href="https://files.dsek.se/documents/public/2025/HTM2/Verksamhetsplan_2026.pdf"
+          target="_blank"
+          size="sm"
+          variant="rosa"><Pen /> Läs verksamhetsplanen <ArrowRight /></Button
         >
-        <Button disabled size="sm" variant="lila"
+        <Button
+          href="https://files.dsek.se/documents/public/2026/S11/Likabehandlingsplan_styrelsen.pdf"
+          target="_blank"
+          size="sm"
+          variant="lila"
           ><Pen /> Styrelsens likabehandlingsplan <ArrowRight /></Button
         >
       </div>
