@@ -23,7 +23,7 @@
       cta: m.landing_party_cta(),
       icon: Calendar,
       variant: "rosa",
-      images: ["party-2.jpg", "party-1.jpg", "party-3.jpg"],
+      images: ["party-2.webp", "party-1.webp", "party-3.webp"],
       link: "/events",
     },
     {
@@ -32,7 +32,7 @@
       cta: m.landing_activity_cta(),
       icon: House,
       variant: "lila",
-      images: ["activity-1.jpg", "activity-2.jpg", "activity-3.jpg"],
+      images: ["activity-1.webp", "activity-2.webp", "activity-3.webp"],
       link: "/about",
     },
     {
@@ -41,7 +41,7 @@
       cta: m.landing_study_cta(),
       icon: GraduationCap,
       variant: "pistachio",
-      images: ["studies.jpg", "studies.jpg"],
+      images: ["studies.webp", "studies.webp"],
       link: "/committees/srd",
     },
   ] as const;
@@ -50,7 +50,7 @@
     {
       title: m.landing_companies_title(),
       description: m.landing_companies_description(),
-      image: "naru.jpg",
+      image: "naru.webp",
       imagePosition: "50% 40%",
       imageSize: "125%",
       cta: m.landing_companies_cta(),
@@ -60,7 +60,7 @@
     {
       title: m.landing_dchip_title(),
       description: m.landing_dchip_description(),
-      image: "dchip.jpg",
+      image: "dchip.webp",
       imagePosition: "50% 60%",
       imageSize: "250%",
       cta: m.landing_dchip_cta(),
@@ -70,7 +70,7 @@
     {
       title: m.landing_contact_title(),
       description: m.landing_contact_description(),
-      image: "studies2.jpg",
+      image: "studies2.webp",
       imagePosition: "50% 80%",
       imageSize: "150%",
       cta: m.landing_contact_cta(),
@@ -86,7 +86,7 @@
 
 <main>
   <header
-    class="relative h-screen bg-linear-to-t bg-[linear-gradient(to_right,rgba(0,0,0,0.9),rgba(0,0,0,0.7),rgba(0,0,0,0)),url('https://files.dsek.se/files/public/photos/hero2.jpg')] bg-cover bg-center"
+    class="relative h-screen bg-linear-to-t bg-[linear-gradient(to_right,rgba(0,0,0,0.9),rgba(0,0,0,0.7),rgba(0,0,0,0)),url('https://files.dsek.se/files/public/photos/hero2.webp')] bg-cover bg-center"
   >
     <div class="absolute top-1/4 px-10 pl-6 md:top-1/3 md:pl-10 lg:pl-44">
       <h1
