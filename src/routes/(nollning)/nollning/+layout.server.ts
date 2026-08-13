@@ -13,7 +13,7 @@ import { PRE_NOLLNING_DATE } from "$env/static/private";
 
 const afterNollning = new Date("2026-10-06");
 export const load = async ({ locals, cookies }) => {
-  const CUTOFF_DATE = Date.parse("PRE_NOLLNING_DATE"); // this will be in prod: 2026-08-23
+  const CUTOFF_DATE = Date.parse(PRE_NOLLNING_DATE); // this will be in prod: 2026-08-23
   if (Date.now() < CUTOFF_DATE) {
     redirect(302, "/nolla");
   }
