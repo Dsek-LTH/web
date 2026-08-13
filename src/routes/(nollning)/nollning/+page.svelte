@@ -61,7 +61,7 @@
     {
       name: "Kryon TiberiOS",
       imageUrl: kryon,
-      body: "KryON TiberiOS är runden av norrskenets budbärare, länken mellan permafrostens kärna och världen utanför. Ur ovisshetens dimma tränger hans röst igenom som en klar fläkt av frostluft och ger vägledning åt alla sökande själar, oavsett varifrån de färdats. Med sitt obrytbara lugn raderar KryON ut all oro och väver samman nollorna till en helhet. ",
+      body: "KryON TiberiOS är skapt till norrskenets budbärare, länken mellan permafrostens kärna och världen utanför. Ur ovisshetens dimma från toppen av isarnas murar tränger hans röst igenom som en klar fläkt av frostluft och ger vägledning åt alla sökande själar. Som en väktare i polarnatten spanar han ut över de frusna vidderna för att hålla hoten borta och väver samman nollorna till en helhet.",
       bodyEn: "stab",
     },
     {
