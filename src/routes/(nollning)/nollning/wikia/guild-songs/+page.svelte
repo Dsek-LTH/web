@@ -25,7 +25,7 @@ Nolla, nolla, nolla FÄLADEN!
     </pre>
     </li>
   {/if}
-  <li class="bg-primary" style="background-image: url('/d.webp')">
+  <li class="bg-[#f280a1]" style="background-image: url('/d.webp')">
     <h1>D</h1>
     <ul class="list-disc">
       <li>

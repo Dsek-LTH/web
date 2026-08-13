@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 4167 4167" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <g transform="matrix(1,0,0,1,-4687.5,0)">
+        <g id="Page-2" serif:id="Page 2" transform="matrix(4.166667,0,0,4.166667,4687.5,0)">
+            <rect x="0" y="0" width="1000" height="1000" style="fill:none;"/>
+            <clipPath id="_clip1">
+                <rect x="0" y="0" width="1000" height="1000"/>
+            </clipPath>
+            <g clip-path="url(#_clip1)">
+                <g id="Layer-1" serif:id="Layer 1">
+                    <text x="464.818px" y="440.576px" style="font-family:'FairydustB-Regular', 'FairydustB';font-size:40px;fill:white;stroke:white;stroke-width:0.24px;">3<tspan x="481.731px 498.644px 527.042px " y="440.576px 440.576px 440.576px ">3XX</tspan></text>
+                    <text x="180.978px" y="440.576px" style="font-family:'FairydustB-Regular', 'FairydustB';font-size:40px;fill:white;stroke:white;stroke-width:0.24px;">3<tspan x="197.891px 214.804px 243.202px " y="440.576px 440.576px 440.576px ">3XX</tspan></text>
+                    <text x="751.178px" y="440.576px" style="font-family:'FairydustB-Regular', 'FairydustB';font-size:40px;fill:white;stroke:white;stroke-width:0.24px;">3<tspan x="768.091px 785.004px 813.402px " y="440.576px 440.576px 440.576px ">3XX</tspan></text>
+                    <path d="M645.411,570.402L385.721,570.402L385.721,464.985L645.411,464.985L645.411,570.402ZM118.318,399.373L118.318,257.096L72.979,257.096L72.979,272.579L28.382,272.579L28.382,548.659L0,548.656L0,616.841L28.382,616.846L28.382,664.028L72.979,664.028L72.979,688.351L118.318,688.351L118.318,634.539L163.287,634.539L163.287,664.028L295.244,664.028L295.244,712.682L313.678,712.682L313.673,802.618L424.989,802.618L424.982,712.682L617.404,712.682L617.399,789.35L705.12,789.35L705.125,712.682L729.45,712.682L729.45,664.028L859.936,664.028L859.936,634.539L911.538,634.539L911.538,744.378L953.559,744.378L953.559,723.001L1000,723.001L1000,327.865L953.559,327.865L953.559,310.172L911.538,310.172L911.538,399.373L787.687,399.373L787.687,197.382L741.982,197.382L741.982,226.13L693.329,226.13L693.329,399.373L568.745,399.373L568.745,197.382L518.612,197.382L518.612,218.764L471.433,218.764L471.433,399.373L348.323,399.373L348.323,197.382L303.351,197.382L303.351,218.764L254.698,218.764L254.698,399.373L118.318,399.373ZM911.538,570.402L688.17,570.402L688.17,464.985L911.538,464.985L911.538,570.402ZM340.952,570.402L118.318,570.402L118.318,464.985L340.952,464.985L340.952,570.402Z" style="fill:none;fill-rule:nonzero;stroke:white;stroke-width:3px;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:12,12;"/>
+                    <g transform="matrix(-1,0,0,1,1025.759,-137.119)">
+                        <rect x="72.597" y="535.675" width="880.565" height="65.769" style="fill:none;stroke:white;stroke-width:3px;stroke-linejoin:miter;stroke-miterlimit:10;"/>
+                    </g>
+                    <g transform="matrix(1,0,0,1,911.0959,711.8197)">
+                        <path d="M0,-142.347L-792.919,-142.282L-792.919,-78.143L-747.949,-78.143L-747.949,-48.654L-615.99,-48.654L-615.99,0L-181.784,0L-181.784,-48.654L-51.303,-48.654L-51.303,-78.143L-17.58,-77.992L-17.58,-95.18L0,-95.268L0,-142.347Z" style="fill:none;fill-rule:nonzero;stroke:white;stroke-width:3px;stroke-linejoin:miter;stroke-miterlimit:10;"/>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

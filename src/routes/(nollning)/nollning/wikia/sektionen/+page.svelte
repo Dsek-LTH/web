@@ -1,7 +1,7 @@
 <script lang="ts">
   import * as m from "$paraglide/messages";
   import board from "$lib/nollning/sektionen/styrelsen.jpg";
-  import dchip from "./d-chip.webp";
+  import dchip from "./d-chip.jpg";
 </script>
 
 <!-- limit width and center -->

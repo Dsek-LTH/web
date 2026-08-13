@@ -28,7 +28,7 @@
   import alva from "./(photos)/showdelapepp.png";
   import anna from "./(photos)/showdelapepp.png";
   import hilda from "./(photos)/showdelapepp.png";
-  import tiger from "./(photos)/tigerprint-recolored.png";
+  import tiger from "./(photos)/tigerprint-remade.webp";
   import pepp from "./(photos)/showdelapepp.png";
   import { languageTag } from "$paraglide/runtime";
   import { getFileUrl } from "$lib/files/client";
@@ -161,11 +161,11 @@
       >
         <div
           class="h-full w-full bg-cover bg-center bg-no-repeat max-md:bg-scroll md:hidden md:bg-fixed"
-          style="background-image: url('{groupProfile}'); box-shadow: inset 0 -100px 100px -100px #E6D3B1;"
+          style="background-image: url('{groupProfile}'); box-shadow: inset 0 -100px 100px -100px #3e619e;"
         ></div>
         <div
           class="hidden h-full w-full bg-cover bg-center bg-no-repeat max-md:bg-scroll md:block md:bg-fixed"
-          style="background-image: url('{groupLandscape}'); box-shadow: inset 0 -100px 75px -100px #E6D3B1;"
+          style="background-image: url('{groupLandscape}'); box-shadow: inset 0 -100px 75px -100px #3e619e;"
         ></div>
 
         <span
