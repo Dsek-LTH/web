@@ -28,7 +28,7 @@
   import alva from "./(photos)/showdelapepp.png";
   import anna from "./(photos)/showdelapepp.png";
   import hilda from "./(photos)/showdelapepp.png";
-  import tiger from "./(photos)/tigerprint-recolored.png";
+  import tiger from "./(photos)/tigerprint-remade.webp";
   import pepp from "./(photos)/showdelapepp.png";
   import { languageTag } from "$paraglide/runtime";
   import { getFileUrl } from "$lib/files/client";

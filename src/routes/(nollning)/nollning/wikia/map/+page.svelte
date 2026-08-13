@@ -1,15 +1,15 @@
 <script lang="ts">
-  import map from "./map.svg";
-  import cellar from "./cellar.svg";
-  import floor1 from "./floor1.svg";
-  import floor2 from "./floor2.svg";
-  import floor3 from "./floor3.svg";
-  import floor4 from "./floor4.svg";
+  import map from "./campus2026.svg";
+  import cellar from "./cellar2026.svg";
+  import floor1 from "./floor12026.svg";
+  import floor2 from "./floor22026.svg";
+  import floor3 from "./floor32026.svg";
+  import floor4 from "./floor42026.svg";
   import * as m from "$paraglide/messages";
 </script>
 
 <div class="flex flex-col md:flex-row">
-  <img class="w-full max-w-sm" alt="Map of campus" src={map} />
+  <img class="w-full max-w-md" alt="Map of campus" src={map} />
   <div
     class="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3 [&_h3]:text-center"
   >

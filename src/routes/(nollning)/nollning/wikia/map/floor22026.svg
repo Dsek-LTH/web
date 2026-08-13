@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 4167 4167" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-miterlimit:10;">
+    <g transform="matrix(1,0,0,1,-4687.5,-4687.5)">
+        <g id="Page-6" serif:id="Page 6" transform="matrix(4.166667,0,0,4.166667,4687.5,4687.5)">
+            <rect x="0" y="0" width="1000" height="1000" style="fill:none;"/>
+            <clipPath id="_clip1">
+                <rect x="0" y="0" width="1000" height="1000"/>
+            </clipPath>
+            <g clip-path="url(#_clip1)">
+                <g id="Layer-1" serif:id="Layer 1">
+                    <path d="M645.411,570.4L385.723,570.4L385.723,464.983L645.411,464.983L645.411,570.4ZM118.318,399.37L118.318,257.096L72.982,257.096L72.982,272.576L28.382,272.576L28.382,548.656L0,548.654L0,616.841L28.382,616.844L28.382,664.026L72.982,664.026L72.982,688.351L118.318,688.351L118.318,634.536L163.287,634.536L163.287,664.026L295.247,664.026L295.247,712.679L313.678,712.679L313.676,802.618L424.989,802.618L424.984,712.679L617.404,712.679L617.399,789.348L705.12,789.348L705.125,712.679L729.45,712.679L729.45,664.026L859.936,664.026L859.936,634.536L911.538,634.536L911.538,744.378L953.559,744.378L953.559,722.999L1000,722.999L1000,327.865L953.559,327.865L953.559,310.172L911.538,310.172L911.538,399.37L787.687,399.37L787.687,197.382L741.982,197.382L741.982,226.13L693.329,226.13L693.329,399.37L568.745,399.37L568.745,197.382L518.612,197.382L518.612,218.762L471.433,218.762L471.433,399.37L348.323,399.37L348.323,197.382L303.351,197.382L303.351,218.762L254.7,218.762L254.7,399.37L118.318,399.37ZM911.538,570.4L688.17,570.4L688.17,464.983L911.538,464.983L911.538,570.4ZM340.952,570.4L118.318,570.4L118.318,464.983L340.952,464.983L340.952,570.4Z" style="fill:none;fill-rule:nonzero;stroke:white;stroke-width:3px;"/>
+                    <text x="385.723px" y="607.031px" style="font-family:'FairydustB-Regular', 'FairydustB';font-size:40px;fill:white;">A<tspan x="413.753px 422.857px 433.876px 448.176px 458.101px 481.155px 506.236px 522.157px 532.317px 546.616px 556.541px 565.2px 592.977px 607.277px 639.35px 671.423px " y="607.031px 607.031px 607.031px 607.031px 607.031px 607.031px 607.031px 607.031px 607.031px 607.031px 607.031px 607.031px 607.031px 607.031px 607.031px 607.031px ">lfa, Beta, Gamma</tspan></text>
+                    <g transform="matrix(0,-1,1,0,0,0)">
+                        <text x="-434.297px" y="81.874px" style="font-family:'FairydustB-Regular', 'FairydustB';font-size:40px;fill:white;">S<tspan x="-415.315px -408.696px -391.335px -376.025px -362.023px -355.404px -340.094px " y="81.874px 81.874px 81.874px 81.874px 81.874px 81.874px 81.874px ">iberien</tspan></text>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
