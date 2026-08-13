@@ -18,7 +18,7 @@
   <div class="drawer-content flex flex-col">
     <!-- Navbar -->
     <div
-      class="navbar sticky top-0 z-20 bg-base-100 shadow-[0_4px_4px_#191B2740]"
+      class="navbar sticky top-0 z-20 bg-base-100 shadow-[0_4px_4px_#040e1f]"
     >
       <label
         for="my-drawer-3"
