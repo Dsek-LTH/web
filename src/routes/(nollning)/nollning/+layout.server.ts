@@ -9,10 +9,11 @@ import { redirect } from "$lib/utils/redirect";
 import { notificationSchema } from "$lib/zod/schemas";
 import { superValidate } from "sveltekit-superforms";
 import { zod } from "sveltekit-superforms/adapters";
+import { PRE_NOLLNING_DATE } from "$env/static/private";
 
 const afterNollning = new Date("2026-10-06");
 export const load = async ({ locals, cookies }) => {
-  const CUTOFF_DATE = Date.parse("2026-08-23T12:00:00"); // this will be in prod: 2026-08-23
+  const CUTOFF_DATE = Date.parse("PRE_NOLLNING_DATE"); // this will be in prod: 2026-08-23
   if (Date.now() < CUTOFF_DATE) {
     redirect(302, "/nolla");
   }
