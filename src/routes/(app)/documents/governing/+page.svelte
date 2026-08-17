@@ -15,6 +15,7 @@
   import Calendar from "@lucide/svelte/icons/calendar";
   import FileText from "@lucide/svelte/icons/file-text";
   import type { PageData } from "./$types";
+  import { ExternalLink } from "@lucide/svelte";
 
   let { data }: { data: PageData } = $props();
 
@@ -102,46 +103,48 @@
     <a
       href="/stadgar"
       target="_blank"
-      class="group border-l-primary bg-primary/5 hover:bg-primary/10 flex flex-col justify-center gap-4 rounded-md border-[1px] border-l-4 p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
+      class="group bg-primary/5 hover:bg-primary/10 flex flex-col justify-center gap-4 rounded-md border p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
     >
-      <div class="flex items-center gap-4">
-        <div class="bg-background rounded-full p-3 shadow-sm">
-          <Scale class="text-primary size-8" />
+      <div class="flex flex-row items-center justify-between">
+        <div class="flex items-center gap-4">
+          <div class="bg-background rounded-full p-3 shadow-sm">
+            <Scale class="text-primary size-8" />
+          </div>
+          <h2 class="text-2xl font-bold group-hover:underline">
+            {m.documents_governing_statutes()}
+          </h2>
         </div>
-        <h2 class="text-2xl font-bold group-hover:underline">
-          {m.documents_governing_statutes()}
-        </h2>
+        <ExternalLink />
       </div>
     </a>
     <a
       href="/reglemente"
       target="_blank"
-      class="group border-l-primary bg-primary/5 hover:bg-primary/10 flex flex-col justify-center gap-4 rounded-md border-[1px] border-l-4 p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
+      class="group bg-primary/5 hover:bg-primary/10 flex flex-col justify-center gap-4 rounded-md border p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
     >
-      <div class="flex items-center gap-4">
-        <div class="bg-background rounded-full p-3 shadow-sm">
-          <BookOpen class="text-primary size-8" />
+      <div class="flex flex-row items-center justify-between">
+        <div class="flex items-center gap-4">
+          <div class="bg-background rounded-full p-3 shadow-sm">
+            <BookOpen class="text-primary size-8" />
+          </div>
+          <h2 class="text-2xl font-bold group-hover:underline">
+            {m.documents_governing_regulations()}
+          </h2>
         </div>
-        <h2 class="text-2xl font-bold group-hover:underline">
-          {m.documents_governing_regulations()}
-        </h2>
+        <ExternalLink />
       </div>
     </a>
   </div>
 
   <div class="mb-8 grid grid-cols-1 gap-8 md:grid-cols-2">
-    <div
-      class="border-l-primary flex flex-col gap-4 rounded-md border-[1px] border-l-4 p-4 shadow-sm"
-    >
+    <div class="flex flex-col gap-4 rounded-md border p-4 shadow-sm">
       <h2 class="flex items-center gap-2 text-2xl font-bold">
         <ShieldCheck class="text-primary size-6" />
         {m.documents_governing_policies()}
       </h2>
       {@render documentList(data.policies)}
     </div>
-    <div
-      class="border-l-primary flex flex-col gap-4 rounded-md border-[1px] border-l-4 p-4 shadow-sm"
-    >
+    <div class="flex flex-col gap-4 rounded-md border p-4 shadow-sm">
       <h2 class="flex items-center gap-2 text-2xl font-bold">
         <Map class="text-primary size-6" />
         {m.documents_governing_guidelines()}
@@ -150,9 +153,7 @@
     </div>
   </div>
 
-  <div
-    class="border-l-primary flex flex-col gap-4 rounded-md border-[1px] border-l-4 p-4 shadow-sm"
-  >
+  <div class="flex flex-col gap-4 rounded-md border p-4 shadow-sm">
     <div
       class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
     >
