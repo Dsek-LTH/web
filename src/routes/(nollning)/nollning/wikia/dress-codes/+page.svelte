@@ -4,7 +4,7 @@
   import mixed from "$lib/nollning/mixed.webp";
   import suit from "$lib/nollning/suit.webp";
   import frack from "$lib/nollning/hogtids.jpg";
-  import ouvve from "$lib/nollning/slasque.webp";
+  import ouvve from "$lib/nollning/ouvve.jpg";
 </script>
 
 <!-- eslint-disable svelte/no-at-html-tags -->
@@ -60,7 +60,7 @@
       <img
         src={ouvve}
         alt="Bild på en ouvve"
-        class="relativez -10 h-64 w-64 object-cover md:h-[480px] md:w-[480px]"
+        class="h-64 w-64 rounded-lg object-cover md:h-[480px] md:w-[700px]"
       />
     </div>
     <h2 class="mt-8 text-center text-2x1 font-semibold">

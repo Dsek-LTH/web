@@ -44,37 +44,43 @@
       name: "Øverphøs\nVe||oria PolarIX",
       imageUrl: veloria,
       body: "Ve||ORia PolarIX är urfrostens väktare och Stabens orubbliga kärna. När kylan svepte över Lund och frös tidens flöde, stod hon kvar i iskristallernas mitt som en ledstjärna i polarnatten. Hon bär kylan som en sköld och genom hennes kalla, klara blick hålls Staben enad i det djupaste mörker. Så länge Ve||oria vägleder från sin frosttron förblir nollan trygg och skyddad mot permafrostens osynliga vindar.",
-      bodyEn: "stab",
+      bodyEn:
+        "Ve||ORia PolarIX is the guardian of the primal frost and the unyielding core of Staben. When the cold swept over Lund and froze the flow of time, she remained in the midst of the ice crystals like a guiding star in the polar night. She wears the cold as a shield, and through her cold, clear gaze, Staben is kept united in the deepest darkness. As long as Ve||oria guides from her throne of frost, the Nolla remains safe and protected against the invisible winds of the permafrost.",
     },
     {
       name: "Nevira Aete||na",
       imageUrl: nevira,
       body: "Ur mörka glaciärsprickor och uråldrig tjäla formar Nevira Aete||na tingens ordning. Hon väver samman materia som härdats under tusenårigt tryck och förvandlar det råa elementet till föremål med dold mening. I Neviras händer blir varje ting en länk som binder Staben till permafrostens eviga substans. Hon är den tysta kraften som ser till att allt har sin plats och att grunden aldrig ger vika.",
-      bodyEn: "stab",
+      bodyEn:
+        "From dark glacier crevasses and ancient frost, Nevira Aete||na shapes the order of things. She weaves together matter hardened under millennial pressure, transforming the raw elements into objects of hidden meaning. In Nevira's hands, every object becomes a link that binds Staben to the eternal substance of the permafrost. She is the silent force ensuring that everything has its place and that the foundation never gives way.",
     },
     {
       name: "OriOn Silentíum",
       imageUrl: orion,
       body: "I permafrostens tystnad och under det flammande norrskenet vandrar OriOn Silentium. Med en blick som skär igenom täta snöbyar böjer han köldens magi för att samla överflöd och resurser från svåråtkomliga vidder. Orion är arkitekten bakom de stunder då kylan viker undan och förvandlas till strålande sammankomster, där nollans gemenskap förseglas i frostens klara sken.",
-      bodyEn: "stab",
+      bodyEn:
+        "In the silence of the permafrost and beneath the flaming northern lights wanders OriOn Silentium. With a gaze that cuts through dense snow squalls, he bends the magic of the cold to gather abundance and resources from inaccessible expanses. Orion is the architect behind those moments when the cold recedes and transforms into radiant gatherings, where the Nolla's fellowship is sealed in the clear glow of the frost.",
     },
     {
       name: "Kryon TiberiOS",
       imageUrl: kryon,
       body: "KryON TiberiOS är runden av norrskenets budbärare, länken mellan permafrostens kärna och världen utanför. Ur ovisshetens dimma tränger hans röst igenom som en klar fläkt av frostluft och ger vägledning åt alla sökande själar, oavsett varifrån de färdats. Med sitt obrytbara lugn raderar KryON ut all oro och väver samman nollorna till en helhet. ",
-      bodyEn: "stab",
+      bodyEn:
+        "KryON TiberiOS was created as the messenger of the aurora, the link between the core of the permafrost and the world beyond. From the mist of uncertainty atop the walls of ice, his voice pierces through like a crisp gust of frost-air, offering guidance to all searching souls. Like a watcher in the polar night, he scans the frozen wastes to keep threats at bay, weaving the nollor into a unified whole.",
     },
     {
       name: "Ymir AmorIoT",
       imageUrl: ymir,
       body: "Sprungen ur permafrostens renaste formspråk ristar Ymir AmorIoT tidens mönster och utmaningar. Ur glaciärernas dolda djup mejslar han fram visuella symboler och prövningar skapade för att härda och förena nollorna. Genom Ymirs känsla för form blir varje skapelse ett avskalat konstverk av frusen skönhet, skapat för att bäras genom alla skeden.",
-      bodyEn: "stab",
+      bodyEn:
+        "Born from the purest expressions of the permafrost, Ymir AmorIoT carves the patterns and challenges of time. From the hidden depths of the glaciers, he chisels forth visual symbols and trials created to forge and unite the Nollas. Through Ymir's sense of form, every creation becomes a minimalist masterpiece of frozen beauty, made to be carried through every phase.",
     },
     {
       name: "Knyx Gelator",
       imageUrl: knyx,
       body: "Väckt ur permafrostens djupaste skikt står Knyx Gelator som en oböjlig mur och vakar över rets gränser. För honom är kölden ett värn som skyddar och bevarar. Med ett vakande öga över alla vägar ser Knyx till att isen bär och att inga sprickor uppstår i Stabens struktur. Han bär nyckeln till tryggheten och ser till att nollan rör sig säkert över den frusna marken.",
-      bodyEn: "stab",
+      bodyEn:
+        "Awakened from the deepest layers of the permafrost, Knyx Gelator stands as an unbending wall, watching over the boundaries. To him, the cold is a bulwark that protects and preserves. With a watchful eye over all paths, Knyx ensures that the ice holds and that no cracks appear in the structure of Staben. He holds the key to safety and ensures that the Nolla moves securely across the frozen ground.",
     },
   ];
 

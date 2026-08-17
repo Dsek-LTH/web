@@ -9,29 +9,33 @@
             </clipPath>
             <g clip-path="url(#_clip1)">
                 <g id="Layer-1" serif:id="Layer 1">
-                    <text x="338.385px" y="767.538px" style="font-family:'FairydustB-Regular', 'FairydustB';font-size:40px;fill:white;">E<tspan x="365.031px 368.903px " y="767.538px 767.538px ">:A</tspan></text>
-                    <text x="630.745px" y="760.898px" style="font-family:'FairydustB-Regular', 'FairydustB';font-size:40px;fill:white;">E<tspan x="657.391px 661.263px " y="760.898px 760.898px ">:B</tspan></text>
-                    <g transform="matrix(0,-1,1,0,1.616206,0)">
-                        <text x="-623.998px" y="675.69px" style="font-family:'FairydustB-Regular', 'FairydustB';font-size:40px;fill:white;">G<tspan x="-598.568px -579.036px -556.535px -537.824px -519.112px -499.58px -477.08px " y="675.69px 675.69px 675.69px 675.69px 675.69px 675.69px 675.69px ">RUPPRUM</tspan></text>
+                    <text x="338.385px" y="767.538px" style="font-family:'Elephant-Regular', 'Elephant', serif;font-size:40px;fill:white;">E<tspan x="371.508px 382.392px " y="767.538px 767.538px ">:A</tspan></text>
+                    <g transform="matrix(1,0,0,1,-7.947916,2.3119)">
+                        <text x="630.745px" y="760.898px" style="font-family:'Elephant-Regular', 'Elephant', serif;font-size:40px;fill:white;">E<tspan x="663.868px 674.752px " y="760.898px 760.898px ">:B</tspan></text>
                     </g>
-                    <text x="421.288px" y="510.691px" style="font-family:'FairydustB-Regular', 'FairydustB';font-size:40px;fill:white;">T<tspan x="446.271px 464.886px 477.759px 487.214px 498.5px 523.483px 542.098px 554.971px 564.426px 574.771px " y="510.691px 510.691px 510.691px 510.691px 510.691px 510.691px 510.691px 510.691px 510.691px 510.691px ">yst Tyst &amp;</tspan></text>
-                    <text x="433.008px" y="558.691px" style="font-family:'FairydustB-Regular', 'FairydustB';font-size:40px;fill:white;">L<tspan x="453.968px 469.421px 480.947px 493.197px 503.703px 524.663px 540.116px 551.643px " y="558.691px 558.691px 558.691px 558.691px 558.691px 558.691px 558.691px 558.691px ">äsa Läsa</tspan></text>
+                    <text x="421.288px" y="510.691px" style="font-family:'Elephant-Regular', 'Elephant', serif;font-size:40px;fill:white;">T<tspan x="451.613px 470.258px 488.663px 503.828px 512.52px 542.845px 561.49px 579.895px 595.06px 602.81px " y="510.691px 510.691px 510.691px 510.691px 510.691px 510.691px 510.691px 510.691px 510.691px 510.691px ">yst Tyst &amp;</tspan></text>
+                    <text x="433.008px" y="558.691px" style="font-family:'Elephant-Regular', 'Elephant', serif;font-size:40px;fill:white;">L<tspan x="463.467px 484.165px 501.224px 521.922px 530.437px 560.895px 581.594px 598.652px " y="558.691px 558.691px 558.691px 558.691px 558.691px 558.691px 558.691px 558.691px ">äsa Läsa</tspan></text>
+                    <g transform="matrix(0,-0.686449,0.686449,0,118.402848,176.16508)">
+                        <text x="-623.998px" y="372.069px" style="font-family:'Elephant-Regular', 'Elephant', serif;font-size:40px;fill:white;">G<tspan x="-590.235px -556.352px -524.829px -494.906px -464.983px -431.1px -399.578px " y="372.069px 372.069px 372.069px 372.069px 372.069px 372.069px 372.069px ">RUPPRUM</tspan></text>
+                    </g>
+                    <g transform="matrix(0,-0.686449,0.686449,0,416.66857,176.16508)">
+                        <text x="-623.998px" y="372.069px" style="font-family:'Elephant-Regular', 'Elephant', serif;font-size:40px;fill:white;">G<tspan x="-590.235px -556.352px -524.829px -494.906px -464.983px -431.1px -399.578px " y="372.069px 372.069px 372.069px 372.069px 372.069px 372.069px 372.069px ">RUPPRUM</tspan></text>
+                    </g>
+                    <g transform="matrix(1,0,0,1,-50.8616,0)">
+                        <text x="810.989px" y="559.29px" style="font-family:'Elephant-Regular', 'Elephant', serif;font-size:40px;fill:white;">1<tspan x="830.825px 857.581px 886.897px " y="559.29px 559.29px 559.29px ">4XX</tspan></text>
+                    </g>
+                    <text x="450.309px" y="682.17px" style="font-family:'Elephant-Regular', 'Elephant', serif;font-size:40px;fill:white;">F<tspan x="478.732px 501.434px 524.337px 537.439px " y="682.17px 682.17px 682.17px 682.17px ">oajé</tspan>n</text>
+                    <text x="446.589px" y="744.37px" style="font-family:'Elephant-Regular', 'Elephant', serif;font-size:40px;fill:white;">H<tspan x="487.184px 513.659px 534.254px 560.729px 585.964px " y="744.37px 744.37px 744.37px 744.37px 744.37px ">uvud-</tspan></text>
+                    <text x="469.389px" y="792.37px" style="font-family:'Elephant-Regular', 'Elephant', serif;font-size:40px;fill:white;">e<tspan x="492.168px 519.866px 537.565px 559.624px " y="792.37px 792.37px 792.37px 792.37px ">ntré</tspan></text>
                     <g transform="matrix(0,-1,1,0,0,0)">
-                        <text x="-623.998px" y="372.069px" style="font-family:'FairydustB-Regular', 'FairydustB';font-size:40px;fill:white;">G<tspan x="-598.568px -579.036px -556.535px -537.824px -519.112px -499.58px -477.08px " y="372.069px 372.069px 372.069px 372.069px 372.069px 372.069px 372.069px ">RUPPRUM</tspan></text>
+                        <text x="-638.018px" y="105.184px" style="font-family:'Elephant-Regular', 'Elephant', serif;font-size:40px;fill:white;">Gl<tspan x="-588.308px -565.533px -546.238px -526.503px -505.369px -485.514px -462.579px -436.524px -411.749px " y="105.184px 105.184px 105.184px 105.184px 105.184px 105.184px 105.184px 105.184px 105.184px ">asveranda</tspan>n</text>
                     </g>
-                    <text x="810.989px" y="559.29px" style="font-family:'FairydustB-Regular', 'FairydustB';font-size:40px;fill:white;">1<tspan x="820.488px 838.345px 865.382px " y="559.29px 559.29px 559.29px ">4XX</tspan></text>
-                    <text x="450.309px" y="682.17px" style="font-family:'FairydustB-Regular', 'FairydustB';font-size:40px;fill:white;">Fo<tspan x="497.165px 511.618px 520.153px " y="682.17px 682.17px 682.17px ">ajé</tspan>n</text>
-                    <text x="446.589px" y="744.37px" style="font-family:'FairydustB-Regular', 'FairydustB';font-size:40px;fill:white;">H<tspan x="476.008px 494px 512.95px 530.943px 548.564px " y="744.37px 744.37px 744.37px 744.37px 744.37px ">uvud-</tspan></text>
-                    <text x="469.389px" y="792.37px" style="font-family:'FairydustB-Regular', 'FairydustB';font-size:40px;fill:white;">e<tspan x="487.14px 507.878px 519.867px 536.309px " y="792.37px 792.37px 792.37px 792.37px ">ntré</tspan></text>
-                    <g transform="matrix(0,-1,1,0,0,0)">
-                        <text x="-638.018px" y="105.184px" style="font-family:'FairydustB-Regular', 'FairydustB';font-size:40px;fill:white;">Gl<tspan x="-600.765px -586.28px -572.517px -554.027px -537.92px -523.122px -508.637px -489.542px -472.38px " y="105.184px 105.184px 105.184px 105.184px 105.184px 105.184px 105.184px 105.184px 105.184px ">asveranda</tspan>n</text>
-                    </g>
-                    <text x="204.755px" y="606.691px" style="font-family:'FairydustB-Regular', 'FairydustB';font-size:40px;fill:white;">1<tspan x="213.403px 222.051px 248.237px " y="606.691px 606.691px 606.691px ">1XX</tspan></text>
-                    <text x="168.635px" y="651.851px" style="font-family:'FairydustB-Regular', 'FairydustB';font-size:40px;fill:white;">G<tspan x="197.082px 212.366px 230.384px 249.574px 268.763px 284.047px 302.065px " y="651.851px 651.851px 651.851px 651.851px 651.851px 651.851px 651.851px ">rupprum</tspan></text>
+                    <text x="204.755px" y="606.691px" style="font-family:'Elephant-Regular', 'Elephant', serif;font-size:40px;fill:white;">1<tspan x="223.741px 242.726px 271.192px " y="606.691px 606.691px 606.691px ">1XX</tspan></text>
+                    <text x="168.635px" y="651.851px" style="font-family:'Elephant-Regular', 'Elephant', serif;font-size:40px;fill:white;">G<tspan x="205.415px 226.315px 252.816px 277.996px 303.176px 324.076px 350.577px " y="651.851px 651.851px 651.851px 651.851px 651.851px 651.851px 651.851px ">rupprum</tspan></text>
                     <g transform="matrix(1,0,0,1,18.16655,3.269981)">
-                        <text x="679.355px" y="605.251px" style="font-family:'FairydustB-Regular', 'FairydustB';font-size:40px;fill:white;">F<tspan x="705.36px 712.049px 731.277px 745.036px 755.115px 781.12px 787.809px 807.037px 820.796px 830.875px " y="605.251px 605.251px 605.251px 605.251px 605.251px 605.251px 605.251px 605.251px 605.251px 605.251px ">ika Fika &amp;</tspan></text>
+                        <text x="679.355px" y="605.251px" style="font-family:'Elephant-Regular', 'Elephant', serif;font-size:40px;fill:white;">F<tspan x="709.443px 722.252px 746.58px 768.788px 776.875px 806.964px 819.772px 844.1px 866.309px 874.396px " y="605.251px 605.251px 605.251px 605.251px 605.251px 605.251px 605.251px 605.251px 605.251px 605.251px ">ika Fika &amp;</tspan></text>
                     </g>
-                    <text x="697.515px" y="653.251px" style="font-family:'FairydustB-Regular', 'FairydustB';font-size:40px;fill:white;">L<tspan x="720.934px 749.333px 777.986px 803.064px 817.772px 829.198px " y="653.251px 653.251px 653.251px 653.251px 653.251px 653.251px ">EDCafé</tspan></text>
+                    <text x="697.515px" y="653.251px" style="font-family:'Elephant-Regular', 'Elephant', serif;font-size:40px;fill:white;">L<tspan x="730.432px 765.309px 803.106px 834.503px 857.659px 872.216px " y="653.251px 653.251px 653.251px 653.251px 653.251px 653.251px ">EDCafé</tspan></text>
                     <g transform="matrix(1,0,0,1,617.3783,789.3451)">
                         <path d="M0,-76.668L-0.005,0L87.719,0L87.724,-76.668" style="fill:none;fill-rule:nonzero;stroke:white;stroke-width:3px;stroke-dasharray:12,12;"/>
                     </g>
