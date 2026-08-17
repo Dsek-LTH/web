@@ -14,7 +14,9 @@
     min = 1982,
   }: { class?: string; max?: number; min?: number } = $props();
 
-  const years = Array.from({ length: max - min + 1 }, (_, i) => max - i);
+  let years = $derived(
+    Array.from({ length: max - min + 1 }, (_, i) => max - i),
+  );
 
   function parseYear(param: string | null) {
     const year = Number(param);
