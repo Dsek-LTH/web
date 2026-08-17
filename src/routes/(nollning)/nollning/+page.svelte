@@ -4,7 +4,7 @@
   import MembersList from "$lib/components/socials/MembersList.svelte";
   import PersonCarouselItem from "./PersonCarouselItem.svelte";
   import * as m from "$paraglide/messages";
-  import logo from "./(photos)/logo26.png";
+  import logo from "./(photos)/logga.png";
 
   import veloria from "./(photos)/Pink_Panther.png";
   import knyx from "./(photos)/Pink_Panther.png";
