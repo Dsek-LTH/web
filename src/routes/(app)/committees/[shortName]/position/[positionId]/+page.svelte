@@ -92,7 +92,7 @@
 <SetPageTitle title={data.position.name} />
 <a
   class="mb-2 flex flex-row items-center gap-1 font-medium"
-  href="/committees/{data.position.committee?.shortName}/members"
+  href="/committees/{data.position.committee?.shortName ?? 'other'}/members"
   ><ArrowLeft class="size-4" />{m.committees_members()}</a
 >
 <div
