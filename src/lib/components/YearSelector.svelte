@@ -75,13 +75,9 @@
       {selectedYearStr}
     </Select.Trigger>
     <Select.Content class="max-h-[300px]">
-      <Select.ScrollUpButton />
-      <Select.Group>
-        {#each years as n (n)}
-          <Select.Item value={n.toString()}>{n}</Select.Item>
-        {/each}
-      </Select.Group>
-      <Select.ScrollDownButton />
+      {#each years as n (n)}
+        <Select.Item value={n.toString()}>{n}</Select.Item>
+      {/each}
     </Select.Content>
   </Select.Root>
 
