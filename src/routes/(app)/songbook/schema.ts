@@ -6,6 +6,7 @@ export const createSongSchema = z.object({
   lyrics: z.string().default(""),
   melody: z.string().default(""),
   category: z.string().default(""),
+  video: z.string().optional().default(""),
 });
 
 export type CreateSongSchema = Infer<typeof createSongSchema>;
@@ -16,6 +17,7 @@ export const updateSongSchema = z.object({
   lyrics: z.string().optional(),
   melody: z.string().optional().nullable(),
   category: z.string().optional().nullable(),
+  video: z.string().optional().nullable(),
 });
 
 export type UpdateSongSchema = Infer<typeof updateSongSchema>;
