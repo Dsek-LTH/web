@@ -1,11 +1,21 @@
-name: Deployment
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/SchemaStore/schemastore/refs/heads/master/src/schemas/json/github-workflow.json
+name: Deploy pr
+permissions:
+  contents: read
+  pull-requests: write
 
 on:
-  release:
-    types: [published]
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened, labeled]
 
 jobs:
   website:
+    if: >
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      contains(github.event.pull_request.labels.*.name, 'preview')
     runs-on: ubuntu-latest
     steps:
       - name: Set up Docker Buildx
@@ -21,7 +31,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           build-args: |
-            "PUBLIC_MINIO_ENDPOINT=files.dsek.se"
+            "PUBLIC_MINIO_ENDPOINT=files-sandbox.dsek.se"
             "PUBLIC_MINIO_PORT=443"
             "PUBLIC_MINIO_USE_SSL=true"
             "PUBLIC_BUCKETS_DOCUMENTS=documents"
@@ -29,9 +39,23 @@ jobs:
             "PUBLIC_BUCKETS_MEMBERS=members"
             "VERSION=${{ github.ref_name }}"
           push: true
-          tags: registry.dsek.se/web/website:latest
-
+          tags: registry.dsek.se/web-pr-${{ github.event.number }}/website:latest
+      - name: Comment preview URL
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request.number;
+            const url = `https://web-pr-${pr}.apps.okd.dsek.se`;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr,
+              body: `Preview image built. ArgoCD should deploy it shortly:\n\n${url}`
+            });
   poppler:
+    if: >
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      contains(github.event.pull_request.labels.*.name, 'preview')
     runs-on: ubuntu-latest
     steps:
       - name: Set up Docker Buildx
@@ -48,9 +72,12 @@ jobs:
         with:
           context: "{{defaultContext}}:poppler-server"
           push: true
-          tags: registry.dsek.se/web/poppler:latest
+          tags: registry.dsek.se/web-pr-${{ github.event.number }}/poppler:latest
 
   scheduler:
+    if: >
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      contains(github.event.pull_request.labels.*.name, 'preview')
     runs-on: ubuntu-latest
     steps:
       - name: Set up Docker Buildx
@@ -67,4 +94,4 @@ jobs:
         with:
           context: "{{defaultContext}}:scheduler-service"
           push: true
-          tags: registry.dsek.se/web/scheduler:latest
+          tags: registry.dsek.se/web-pr-${{ github.event.number }}/scheduler:latest

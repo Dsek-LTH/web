@@ -91,7 +91,7 @@
       >
       <div
         class="before:to-[rgba(0, 0, 0, 1)] before:from-accent bg-rosa-300 relative hidden w-1/2 rounded-r-md bg-cover bg-center before:absolute before:left-0 before:mr-0 before:h-full before:w-60 before:bg-linear-to-r sm:block"
-        style="background-image: url('https://files.dsek.se/files/public/photos/dchip.jpg')"
+        style="background-image: url('https://files.dsek.se/files/public/photos/dchip.webp')"
       >
         <img
           src="https://www.dchip.se/images/rosa_panter.png"

@@ -51,7 +51,7 @@
 <SetPageTitle title={m.onboarding()} />
 <div
   class="hero-image min-h-screen bg-cover bg-center"
-  style:--url="url({getFileUrl('minio/files/public/photos/stock2.jpg')})"
+  style:--url="url({getFileUrl('minio/files/public/photos/stock2.webp')})"
 >
   <div class="min-h-screen bg-cover py-16 md:bg-transparent">
     <div

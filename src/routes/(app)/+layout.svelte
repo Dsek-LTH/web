@@ -4,11 +4,17 @@
   import Header from "./Header.svelte";
   import Footer from "./Footer.svelte";
   import { getLocale } from "$paraglide/runtime";
+  import { page } from "$app/state";
 
   const { data, children } = $props();
 </script>
 
-<div class="flex min-h-screen flex-col">
+<div
+  class="flex min-h-screen flex-col"
+  style:padding-top={(data.isApp
+    ? (page.data.appInfo?.insets?.top ?? 0) + 8
+    : 0) + "px"}
+>
   <Header notificationsPromise={data.notificationsPromise} isApp={data.isApp} />
 
   <main class="flex min-h-0 flex-1 flex-col">
@@ -26,5 +32,7 @@
   </main>
 
   <Toast />
-  <Footer />
+  {#if !data.isApp}
+    <Footer />
+  {/if}
 </div>

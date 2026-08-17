@@ -1,6 +1,5 @@
-FROM node:22.14.0-alpine3.21 AS base
-RUN apk --no-cache add git
-RUN apk --no-cache add openssl
+FROM node:22.14.0-slim AS base
+RUN apt update && apt install -y git
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN npm install -g pnpm@9.12.2

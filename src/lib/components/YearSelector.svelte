@@ -8,21 +8,18 @@
   import ChevronLeft from "@lucide/svelte/icons/chevron-left";
   import ChevronRight from "@lucide/svelte/icons/chevron-right";
 
-  let { class: klass }: { class?: string } = $props();
+  let {
+    class: klass,
+    max = new Date().getFullYear(),
+    min = 1982,
+  }: { class?: string; max?: number; min?: number } = $props();
 
-  const currentYear = new Date().getFullYear();
-  const minYear = 1982;
-
-  const years = Array.from(
-    { length: currentYear - minYear + 1 },
-    (_, i) => currentYear - i,
-  );
+  const years = Array.from({ length: max - min + 1 }, (_, i) => max - i);
 
   function parseYear(param: string | null) {
     const year = Number(param);
-    const valid =
-      Number.isInteger(year) && year >= minYear && year <= currentYear;
-    return valid ? year : currentYear;
+    const valid = Number.isInteger(year) && year >= min && year <= max;
+    return valid ? year : max;
   }
 
   let selectedYearNum: number = $derived(
@@ -42,13 +39,13 @@
   }
 
   function decrementYear() {
-    if (selectedYearNum > minYear) {
+    if (selectedYearNum > min) {
       handleYearChange((selectedYearNum - 1).toString());
     }
   }
 
   function incrementYear() {
-    if (selectedYearNum < currentYear) {
+    if (selectedYearNum < max) {
       handleYearChange((selectedYearNum + 1).toString());
     }
   }
@@ -58,7 +55,7 @@
   <Button
     variant="outline"
     size="icon"
-    disabled={selectedYearNum <= minYear}
+    disabled={selectedYearNum <= min}
     onclick={decrementYear}
     class="size-9 shrink-0"
   >
@@ -85,7 +82,7 @@
     variant="outline"
     size="icon"
     class="size-9 shrink-0"
-    disabled={selectedYearNum >= currentYear}
+    disabled={selectedYearNum >= max}
     onclick={incrementYear}
   >
     <ChevronRight class="size-4" />

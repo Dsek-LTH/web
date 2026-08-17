@@ -90,7 +90,7 @@
 
   {#if groupedResults.articles.length > 0}
     <ScrollArea
-      class="bg-background absolute! mr-4 max-h-48 max-w-108 overflow-scroll rounded-md border-[1px] sm:mr-0 sm:max-w-128 sm:min-w-128"
+      class="bg-background absolute! z-50 mr-4 max-h-48 max-w-108 overflow-scroll rounded-md border-[1px] sm:mr-0 sm:max-w-128 sm:min-w-128"
     >
       {#each groupedResults.articles as result, i (`article-${i}`)}
         <ArticleSearchResult data={result.data} />
