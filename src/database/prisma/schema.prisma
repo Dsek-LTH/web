@@ -503,14 +503,6 @@ model DrinkItemBatch {
   @@map("drinkitembatch")
 }
 
-model SexetInventoryValueLog {
-  id    String   @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  date  DateTime
-  value Int
-
-  @@map("sexetinventoryvaluelog")
-}
-
 model Meeting {
   id    String   @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
   title String   @db.VarChar(255)

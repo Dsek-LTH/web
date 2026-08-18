@@ -586,17 +586,6 @@ model DrinkItemBatch {
     @@map("drinkitembatch")
 }
 
-model SexetInventoryValueLog {
-    id    String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-    date  DateTime
-    value Int
-
-    @@allow("read", true)
-    @@allow("create", has(auth().policies, "drinkitembatch:create"))
-    @@allow("update", has(auth().policies, "drinkitembatch:update"))
-    @@allow("delete", has(auth().policies, "drinkitembatch:delete"))
-    @@map("sexetinventoryvaluelog")
-}
 
 enum DrinkQuantityType {
     NONE
