@@ -1,4 +1,4 @@
-import { meilisearch } from "$lib/search/meilisearch";
+import { getMeilisearch } from "$lib/search/meilisearch";
 import { prismaIdToMeiliId } from "$lib/search/searchHelpers";
 import {
   availableSearchIndexes,
@@ -41,7 +41,7 @@ const sync = async () => {
     console.log("Meilisearch: Initializing");
     for (const index of availableSearchIndexes) {
       await waitForTask(
-        () => meilisearch.createIndex(index),
+        () => getMeilisearch().createIndex(index),
         `Creating index ${index}`,
       );
     }
@@ -65,7 +65,7 @@ export default sync;
 
 async function syncMembers() {
   const numMembers = await authorizedPrismaClient.member.count();
-  const membersIndex = await meilisearch.getIndex("members");
+  const membersIndex = await getMeilisearch().getIndex("members");
   await resetIndex(membersIndex, meilisearchConstants.member);
   for (let i = 0; i < numMembers; i += BATCH_SIZE) {
     const members: MemberDataInMeilisearch[] =
@@ -101,7 +101,7 @@ async function syncMembers() {
 
 async function syncSongs() {
   const numSongs = await authorizedPrismaClient.song.count();
-  const songsIndex = await meilisearch.getIndex("songs");
+  const songsIndex = await getMeilisearch().getIndex("songs");
   await resetIndex(songsIndex, meilisearchConstants.song);
   for (let i = 0; i < numSongs; i += BATCH_SIZE) {
     const songs: SongDataInMeilisearch[] = await authorizedPrismaClient.song
@@ -136,7 +136,7 @@ async function syncSongs() {
 
 async function syncArticles() {
   const numArticles = await authorizedPrismaClient.article.count();
-  const articlesIndex = await meilisearch.getIndex("articles");
+  const articlesIndex = await getMeilisearch().getIndex("articles");
   await resetIndex(articlesIndex, meilisearchConstants.article);
   for (let i = 0; i < numArticles; i += BATCH_SIZE) {
     const articles: ArticleDataInMeilisearch[] =
@@ -200,7 +200,7 @@ async function syncArticles() {
 
 async function syncEvents() {
   const numEvents = await authorizedPrismaClient.event.count();
-  const eventsIndex = await meilisearch.getIndex("events");
+  const eventsIndex = await getMeilisearch().getIndex("events");
   await resetIndex(eventsIndex, meilisearchConstants.event);
   for (let i = 0; i < numEvents; i += BATCH_SIZE) {
     const events: EventDataInMeilisearch[] = await authorizedPrismaClient.event
@@ -242,7 +242,7 @@ async function syncEvents() {
 
 async function syncPositions() {
   const numPositions = await authorizedPrismaClient.position.count();
-  const positionsIndex = await meilisearch.getIndex("positions");
+  const positionsIndex = await getMeilisearch().getIndex("positions");
   await resetIndex(positionsIndex, meilisearchConstants.position);
   for (let i = 0; i < numPositions; i += BATCH_SIZE) {
     const positions: PositionDataInMeilisearch[] =
@@ -280,7 +280,7 @@ async function syncPositions() {
 
 async function syncCommittees() {
   const numCommittees = await authorizedPrismaClient.committee.count();
-  const committeesIndex = await meilisearch.getIndex("committees");
+  const committeesIndex = await getMeilisearch().getIndex("committees");
   await resetIndex(committeesIndex, meilisearchConstants.committee);
   for (let i = 0; i < numCommittees; i += BATCH_SIZE) {
     const committees: CommitteeDataInMeilisearch[] =
