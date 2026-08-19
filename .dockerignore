@@ -1,3 +1,35 @@
+# Environment files and secrets
 .env
+.env.*
+!.env.example
+.env.sentry-build-plugin
+
+# Dependencies and generated output
 node_modules
+.svelte-kit
+build
+package
+
+# Version control, CI, and local tooling
 .git
+.github
+.husky
+.vscode
+.idea
+
+# Test artifacts and test sources are not needed for production builds
+coverage
+test-results
+playwright-report
+blob-report
+playwright/.cache
+**/*.test.ts
+**/*.spec.ts
+
+# Other services and local-development resources
+dev
+poppler-server
+scheduler-service
+docker-compose.yml
+podman-dev.yaml
+shell.nix
