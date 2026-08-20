@@ -37,7 +37,7 @@ export const load: PageServerLoad = async ({ locals }) => {
     form: await superValidate(
       {
         ...member,
-        classProgramme: member.classProgramme ?? "D",
+        classProgramme: member.classProgramme,
         classYear: member.classYear ?? new Date().getFullYear(),
       },
       zod4(memberSchema),

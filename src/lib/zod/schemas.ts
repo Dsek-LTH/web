@@ -24,7 +24,6 @@ export const memberSchema = z.object({
   classProgramme: z
     .string()
     .nullable()
-    .default("D")
     .refine((p) => p == null || programmes.some((c) => c.id === p), {
       message: "Ogiltigt program",
     }),
