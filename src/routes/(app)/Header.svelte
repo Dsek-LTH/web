@@ -31,7 +31,7 @@
   import type { NotificationGroup } from "$lib/utils/notifications/group";
   import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
   import NotificationBell from "./notifications/NotificationBell.svelte";
-  import { CircleUserRound } from "@lucide/svelte";
+  import { CircleUserRound, UserRoundPlus } from "@lucide/svelte";
   import { Spinner } from "$lib/components/ui/spinner";
 
   const {
@@ -178,23 +178,34 @@
           </HoverCard.Content>
         </HoverCard.Root>
       {:else}
-        <Button
-          aria-label="sign in"
-          variant="outline"
-          class="md-nav:flex text-muted-foreground hover:text-foreground hover:border-foreground hidden rounded-full"
-          disabled={loggingIn}
-          onclick={() => {
-            loggingIn = true;
-            signIn();
-          }}
-        >
-          {#if loggingIn}
-            <Spinner class="-ml-2 size-7" />
-          {:else}
-            <CircleUserRound class="-ml-2 size-7" />
-          {/if}
-          {m.navbar_logIn()}
-        </Button>
+        <div class="flex flex-row">
+          <Button
+            aria-label="sign in"
+            variant="outline"
+            class="md-nav:flex text-muted-foreground hover:text-foreground hover:border-foreground hidden rounded-l-full"
+            disabled={loggingIn}
+            onclick={() => {
+              loggingIn = true;
+              signIn();
+            }}
+          >
+            {#if loggingIn}
+              <Spinner class="-ml-2 size-7" />
+            {:else}
+              <CircleUserRound class="-ml-2 size-7" />
+            {/if}
+            {m.navbar_logIn()}
+          </Button>
+          <Button
+            onclick={signIn}
+            aria-label="sign in"
+            href="https://auth.dsek.se/if/flow/lu-signup/?next=%2F"
+            variant="outline"
+            class="text-muted-foreground md-nav:flex hover:text-foreground hover:border-foreground hidden h-9 rounded-r-full border-l-0 hover:border-l-[1px]"
+          >
+            {m.navbar_register()}<UserRoundPlus class="size-5" />
+          </Button>
+        </div>
       {/if}
       <Drawer.Root bind:open={navOpen} direction="bottom">
         {#if navOpen}
