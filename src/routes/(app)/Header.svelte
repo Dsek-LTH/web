@@ -71,19 +71,23 @@
     navOpen = false;
   });
 
+  let scroll = $state(0);
   let oldScroll: number;
   let visible = $state(true);
   let loggingIn = $state(false);
 
   onMount(() => {
     window.onscroll = () => {
-      if (window.innerWidth < 896) {
-        if (window.scrollY > oldScroll && window.scrollY > 1) {
+      if (!navOpen) {
+        scroll = window.scrollY;
+      }
+      if (window.innerWidth < 896 && !navOpen) {
+        if (scroll > oldScroll && scroll > 1) {
           visible = false;
         } else {
           visible = true;
         }
-        oldScroll = window.scrollY;
+        oldScroll = scroll;
       } else {
         visible = true;
       }
@@ -271,7 +275,10 @@
                 </div>
               </div>
             </Drawer.Title>
-            <Drawer.Description class="flex flex-row justify-between">
+            <Drawer.Description
+              data-vaul-no-drag
+              class="flex flex-row justify-between"
+            >
               <div class="flex w-full flex-col">
                 {@render mobileLinks()}
               </div>
