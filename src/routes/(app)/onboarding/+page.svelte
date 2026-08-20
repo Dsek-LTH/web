@@ -121,8 +121,11 @@
               bind:value={$form.classProgramme as string | undefined}
             >
               <Select.Trigger class="w-full"
-                ><span class="flex flex-row items-center gap-1.5"
-                  ><Book />{$form.classProgramme}</span
+                ><span
+                  class="flex flex-row items-center gap-1.5 {$form.classProgramme
+                    ? 'text-foreground'
+                    : 'text-muted-foreground'}"
+                  ><Book />{$form.classProgramme ?? m.onboarding_choose()}</span
                 ></Select.Trigger
               >
               <Select.Content>
@@ -157,10 +160,13 @@
             name="nollningGroupId"
             bind:value={$form.nollningGroupId as string | undefined}
           >
-            <Select.Trigger class="w-full"
+            <Select.Trigger
+              class="w-full {$form.nollningGroupId
+                ? 'text-foreground'
+                : 'text-muted-foreground'}"
               ><Users />{$form.nollningGroupId
                 ? phaddergroups.find((g) => g.id == $form.nollningGroupId)!.name
-                : ""}</Select.Trigger
+                : m.onboarding_choose()}</Select.Trigger
             >
             <Select.Content>
               {#each phaddergroups as group (group.id)}
