@@ -14,6 +14,9 @@
   style:padding-top={(data.isApp
     ? (page.data.appInfo?.insets?.top ?? 0) + 8
     : 0) + "px"}
+  style:padding-bottom={(data.isApp
+    ? (page.data.appInfo?.insets?.bottom ?? 0) + 64
+    : 0) + "px"}
 >
   <Header notificationsPromise={data.notificationsPromise} isApp={data.isApp} />
 
