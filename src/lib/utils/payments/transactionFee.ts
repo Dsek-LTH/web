@@ -1,7 +1,7 @@
-import { PUBLIC_PURCHASE_PASS_ON_TRANSACTION_FEE } from "$env/static/public";
+import { env } from "$env/dynamic/private";
 
 export const passOnTransactionFee =
-  PUBLIC_PURCHASE_PASS_ON_TRANSACTION_FEE === "true";
+  env.PURCHASE_PASS_ON_TRANSACTION_FEE === "true";
 // SWISH: 1% + 3kr (most common, cap of 7 kr fee)
 // Cards: 1.5% + 1.8kr
 // Klarna: 2.99% + 4kr
