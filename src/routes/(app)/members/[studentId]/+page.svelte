@@ -27,6 +27,7 @@
   import apiNames from "$lib/utils/apiNames";
   import { page } from "$app/state";
   import * as m from "$paraglide/messages";
+  import CommitteePlaceholder from "$lib/components/images/CommitteePlaceholder.svelte";
 
   let { data } = $props();
 
@@ -55,18 +56,12 @@
 
   let doorAccess = $derived(data.doorAccess);
 
-  const mobileBackgrounds = [
-    "https://files.dsek.se/albums/public/2025/2025-08-27%20L.I.G.G./LIGG59jpg.webp",
-    "https://files.dsek.se/albums/public/2025/2025-09-02%20DIVERSE/diverse25DSC07227jpg.webp",
-    "https://files.dsek.se/albums/public/2025/2025-09-09%20Waderloo/Waderloo9jpg.webp",
-  ];
-
-  let mobileBackground = mobileBackgrounds[Math.floor(Math.random() * 3)];
-
   let canEdit = $derived(
     page.data.user?.studentId === member.studentId ||
       isAuthorized(apiNames.MEMBER.UPDATE, page.data.user),
   );
+
+  const logoUrl = { D: "datateknik", C: "infocom", "VR/AR": "vr_ar" } as const;
 </script>
 
 <SetPageTitle title={getFullName(member)} />
@@ -88,10 +83,13 @@
 
 {#snippet mobile(klass: string)}
   <div class={klass}>
-    <header
-      style="background-size:150%;background-image:url({mobileBackground})"
-      class="bg-rosa-300 h-44 bg-contain bg-center"
-    ></header>
+    <CommitteePlaceholder
+      committee={null}
+      class="h-44"
+      imageOverride="https://raw.githubusercontent.com/Dsek-LTH/grafik/refs/heads/main/guild/{logoUrl[
+        member.classProgramme as keyof typeof logoUrl
+      ]}/color.svg"
+    />
     <section
       class="layout-container bg-muted-background relative flex flex-col border-l-[1px] py-0 pb-4"
     >
