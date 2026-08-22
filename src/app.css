@@ -283,3 +283,7 @@ details summary::-webkit-details-marker {
 .article-body td {
   padding: 0.5rem;
 }
+
+body[data-vaul-drawer-wrapper] {
+  touch-action: none;
+}

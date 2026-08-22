@@ -96,7 +96,7 @@
 </script>
 
 <header
-  class:visible
+  class:visible={visible || navOpen}
   class="nav-mobile bg-muted-background md-nav:top-0 md-nav:bottom-[unset] md-nav:h-[unset]! md-nav:sticky md-nav:z-20 fixed bottom-0 z-100 h-[64px] w-full max-w-screen flex-row justify-center border-t-[1px] border-b-[1px] font-[1.25rem]"
 >
   <nav
@@ -207,7 +207,13 @@
           </Button>
         </div>
       {/if}
-      <Drawer.Root bind:open={navOpen} direction="bottom">
+      <Drawer.Root
+        preventScrollRestoration={true}
+        shouldScaleBackground={false}
+        repositionInputs={false}
+        bind:open={navOpen}
+        direction="bottom"
+      >
         {#if navOpen}
           <Drawer.Close
             ><Button
@@ -226,7 +232,7 @@
             )}
             aria-label="menubar"><Menu /></Drawer.Trigger
           >{/if}
-        <Drawer.Content class="mb-[64px]" compact>
+        <Drawer.Content class="mb-[64px] overscroll-contain" compact>
           <Drawer.Header class="overflow-y-scroll">
             <Drawer.Title class="flex flex-col"
               ><div class="flex flex-row justify-between">
