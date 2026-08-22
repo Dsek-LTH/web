@@ -45,4 +45,6 @@
     </div>
   </div>
 </main>
-<Footer />
+{#if !data.isApp}
+  <Footer />
+{/if}
