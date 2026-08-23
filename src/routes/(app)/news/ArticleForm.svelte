@@ -44,12 +44,14 @@
     activeTab = $bindable(),
     authorOptions,
     committees,
+    action,
   }: {
     allTags: Array<ExtendedPrismaModel<"Tag">>;
     activeTab: "sv" | "en";
     superform: SuperForm<ArticleSchema>;
     authorOptions: AuthorOption[];
     committees: Array<Pick<ExtendedPrismaModel<"Committee">, "id" | "name">>;
+    action?: string;
   } = $props();
 
   const { form, errors, enhance, delayed } = $derived(superform);
@@ -111,6 +113,7 @@
 
 <form
   method="POST"
+  action={action}
   class="form-control mb-8 flex w-full flex-col gap-4"
   enctype="multipart/form-data"
   use:enhance

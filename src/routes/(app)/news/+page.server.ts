@@ -10,6 +10,7 @@ import {
 } from "$lib/utils/url.server";
 import { isAuthorized } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
+import { NOLLNING_TAG_PREFIX } from "$lib/components/postReveal/types";
 
 export const load: PageServerLoad = async ({ locals, url }) => {
   const { prisma, member, user } = locals;
@@ -41,6 +42,13 @@ export const load: PageServerLoad = async ({ locals, url }) => {
           publishedAt: {
             gt: new Date(),
           },
+          tags: {
+            none: {
+              nameSv: {
+                startsWith: NOLLNING_TAG_PREFIX,
+              },
+            },
+          },
           ...(canSeeAllScheduled
             ? {}
             : {
@@ -71,12 +79,53 @@ export const load: PageServerLoad = async ({ locals, url }) => {
       })
     : [];
 
+  // Nollning articles authored by current member – hidden by BASIC_ARTICLE_FILTER by default
+  // Includes both published (lte now) and scheduled (gt now), filtered same way as /nollning/messages
+  const nollningArticles = member
+    ? await prisma.article.findMany({
+        where: {
+          publishedAt: {
+            not: null,
+          },
+          OR: [{ removedAt: { gt: new Date() } }, { removedAt: null }],
+          tags: {
+            some: {
+              nameSv: {
+                startsWith: NOLLNING_TAG_PREFIX,
+              },
+            },
+          },
+          author: {
+            memberId: member.id,
+          },
+        },
+        include: {
+          author: {
+            include: {
+              member: true,
+              mandate: {
+                include: {
+                  position: true,
+                },
+              },
+              customAuthor: true,
+            },
+          },
+          tags: true,
+        },
+        orderBy: {
+          publishedAt: "desc",
+        },
+      })
+    : [];
+
   return {
     articles,
     pageCount,
     allTags,
     likeForm: await superValidate(zod4(likeSchema)),
     scheduledArticles,
+    nollningArticles,
   };
 };
 

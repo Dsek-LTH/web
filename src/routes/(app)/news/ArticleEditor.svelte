@@ -14,12 +14,14 @@
     authorOptions,
     superform = superForm(data, { dataType: "json", delayMs: 500 }),
     committees,
+    formAction,
   }: {
     allTags: Array<ExtendedPrismaModel<"Tag">>;
     authorOptions: AuthorOption[];
     data: SuperValidated<ArticleSchema>;
     superform?: SuperForm<ArticleSchema>;
     committees: Array<Pick<ExtendedPrismaModel<"Committee">, "id" | "name">>;
+    formAction?: string;
   } = $props();
 
   const { form } = $derived(superform);
@@ -39,6 +41,7 @@
     {superform}
     {allTags}
     {committees}
+    action={formAction}
   />
   <Article
     article={{
