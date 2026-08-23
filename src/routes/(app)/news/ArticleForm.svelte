@@ -113,7 +113,7 @@
 
 <form
   method="POST"
-  action={action}
+  {action}
   class="form-control mb-8 flex w-full flex-col gap-4"
   enctype="multipart/form-data"
   use:enhance

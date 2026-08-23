@@ -4,7 +4,7 @@
   import { superForm } from "$lib/utils/client/superForms";
   import type { ArticleSchema } from "$lib/news/schema";
   import type { SuperForm } from "sveltekit-superforms";
-  import { Button, buttonVariants } from "$lib/components/ui/button";
+  import { buttonVariants } from "$lib/components/ui/button";
   import * as AlertDialog from "$lib/components/ui/alert-dialog";
   import Trash from "@lucide/svelte/icons/trash";
   import * as m from "$paraglide/messages";
