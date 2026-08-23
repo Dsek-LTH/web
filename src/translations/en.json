@@ -710,7 +710,7 @@
   "nolla_packing_needle": "Needle and thread",
   "nolla_packing_needle_description": "Your lovely ouvve is not supposed to be worn blank, it should be decorated with a bunch of patches! You will receive a lot of patches during the nollning, and to put this on your ouvve it's nice to have a simple sewing kit close to hand. You can of course use textile glue, it's a popular choice by some lazier students, but it's not as robust.",
   "nolla_packing_money": "Money",
-  "nolla_packing_money_description": "In the start of the school year there are quite a few expenses. Course literature, first rent, furniture, Ouvve, event during the nollning to name a few. If you are eligible for CSN, even it will not arrive in your account until after a few weeks, so keeping extra money on hand at the start is recommended!",
+  "nolla_packing_money_description": "In the start of the school year there are quite a few expenses. Course literature, first rent, furniture, Ouvve, event during the nollning to name a few. If you are eligible for <a href=\"wordlist#csn\" class=\"link\">CSN</a>,  even it will not arrive in your account until after a few weeks, so keeping extra money on hand at the start is recommended!",
   "nolla_packing_bike": "Bike",
   "nolla_packing_bike_description": "A bike is the Lund student's best friend. The whole town is made to be biked around and you rarely travel any distance longer than 15 minutes on a bike. In the start of the school year the pressure is high on bikes so if you are able to bring your own it will be more convenient.",
   "nolla_ouvve_titel": "Ouvve",
