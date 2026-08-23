@@ -6,14 +6,14 @@
   import * as m from "$paraglide/messages";
   import logo from "./(photos)/logga.png";
 
-  import veloria from "./(photos)/Pink_Panther.png";
-  import knyx from "./(photos)/Pink_Panther.png";
-  import ymir from "./(photos)/Pink_Panther.png";
-  import nevira from "./(photos)/Pink_Panther.png";
-  import orion from "./(photos)/Pink_Panther.png";
-  import kryon from "./(photos)/Pink_Panther.png";
-  import groupProfile from "./(photos)/Pink_Panther.png";
-  import groupLandscape from "./(photos)/snostorm.jpg";
+  import veloria from "./(photos)/staben/veloria.png";
+  import knyx from "./(photos)/staben/knyx.png";
+  import ymir from "./(photos)/staben/ymir.png";
+  import nevira from "./(photos)/staben/nevira.png";
+  import orion from "./(photos)/staben/orion.png";
+  import kryon from "./(photos)/staben/kryon.png";
+  import groupProfile from "./(photos)/staben/header-mobile.png";
+  import groupLandscape from "./(photos)/staben/header.png";
   import heavenBG from "./(photos)/bakgrund.jpg";
   import SnowEffect from "$lib/components/postReveal/SnowEffect.svelte";
 
@@ -320,38 +320,33 @@
         />
       </div>
       <h1
-        class="relative z-10 mb-4 p-2 text-center font-nolla-pepp text-5xl leading-loose tracking-widest text-[#ffb800] md:text-8xl"
-        style="-webkit-text-stroke: 5px #ff3347; line-height: 1.2;"
+        class="relative z-10 mb-4 p-2 text-center font-nolla-pepp text-5xl leading-loose tracking-widest text-[#ffb800] md:text-8xl stroke-text"
       >
         Show De<br />La Pepp
       </h1>
       <div class="-mt-20 w-full scroll-m-20 pt-20">
         <div
-          class="mx-auto grid max-w-md grid-cols-2 justify-items-center gap-8 md:max-w-lg"
+          class="max-md:carousel max-md:!flex md:grid md:grid-cols-6 md:gap-8"
         >
-          {#each peppers.slice(0, 2) as pepper, index (pepper.name)}
-            <PersonCarouselItem
-              name={pepper.name}
-              {index}
-              imageUrl={pepper.imageUrl}
-              body={languageTag() === "en" ? pepper.bodyEn : pepper.body}
-            />
-          {/each}
-        </div>
-        <div class="mt-4 grid grid-cols-3 gap-8">
-          {#each peppers.slice(2) as pepper, index (pepper.name)}
-            <PersonCarouselItem
-              name={pepper.name}
-              index={index + 2}
-              imageUrl={pepper.imageUrl}
-              body={languageTag() === "en" ? pepper.bodyEn : pepper.body}
-            />
+          {#each peppers as pepper, index (pepper.name)}
+            <div
+              class="max-md:contents md:col-span-2 {index === 0
+                ? 'md:col-start-2'
+                : ''} {index === 1 ? 'md:col-start-4' : ''}"
+            >
+              <PersonCarouselItem
+                name={pepper.name}
+                {index}
+                imageUrl={pepper.imageUrl}
+                body={languageTag() === "en" ? pepper.bodyEn : pepper.body}
+              />
+            </div>
           {/each}
         </div>
       </div>
     </section>
     {#if data.revealTheme}
-      <iframe
+      <!--<iframe
         class="aspect-video w-full"
         src="https://www.youtube.com/embed/rRPQs_kM_nw"
         title="Nolledans film"
@@ -359,7 +354,22 @@
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         referrerpolicy="strict-origin-when-cross-origin"
         allowfullscreen
-      ></iframe>
+      ></iframe>-->
+
+      <div class="mx-auto max-w-3xl">
+        <div
+          class="aspect-[8/5] w-full overflow-hidden rounded-lg border-4 border-secondary"
+        >
+          <iframe
+            bind:this={iframeEl}
+            src="/STABEN26_Web/index.html"
+            title="STABEN26 spel"
+            class="h-full w-full"
+            allow="fullscreen"
+            allowfullscreen
+          ></iframe>
+        </div>
+      </div>
     {/if}
     <section class="mt-16 flex flex-col items-center">
       <h1 class="mb-16 text-3xl font-medium">
@@ -396,3 +406,16 @@
     </section>
   </div>
 </article>
+
+<style>
+  .stroke-text {
+    -webkit-text-stroke: 2px #ff3347;
+    line-height: 1.2;
+  }
+
+  @media (min-width: 768px) {
+    .stroke-text {
+      -webkit-text-stroke: 5px #ff3347;
+    }
+  }
+</style>
