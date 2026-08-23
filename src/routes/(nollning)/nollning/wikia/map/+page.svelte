@@ -1,10 +1,10 @@
 <script lang="ts">
-  import map from "./campus2026.svg";
-  import cellar from "./cellar2026.svg";
-  import floor1 from "./floor12026.svg";
-  import floor2 from "./floor22026.svg";
-  import floor3 from "./floor32026.svg";
-  import floor4 from "./floor42026.svg";
+  import map from "./preKarta/campus2026.svg";
+  import cellar from "./preKarta/cellar2026.svg";
+  import floor1 from "./preKarta/floor12026.svg";
+  import floor2 from "./preKarta/floor22026.svg";
+  import floor3 from "./preKarta/floor32026.svg";
+  import floor4 from "./preKarta/floor42026.svg";
   import * as m from "$paraglide/messages";
 </script>
 

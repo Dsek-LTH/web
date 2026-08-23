@@ -6,28 +6,28 @@
   import * as m from "$paraglide/messages";
   import logo from "./(photos)/logga.png";
 
-  import veloria from "./(photos)/Pink_Panther.png";
-  import knyx from "./(photos)/Pink_Panther.png";
-  import ymir from "./(photos)/Pink_Panther.png";
-  import nevira from "./(photos)/Pink_Panther.png";
-  import orion from "./(photos)/Pink_Panther.png";
-  import kryon from "./(photos)/Pink_Panther.png";
-  import groupProfile from "./(photos)/Pink_Panther.png";
-  import groupLandscape from "./(photos)/snostorm.jpg";
+  import veloria from "./(photos)/staben/veloria.png";
+  import knyx from "./(photos)/staben/knyx.png";
+  import ymir from "./(photos)/staben/ymir.png";
+  import nevira from "./(photos)/staben/nevira.png";
+  import orion from "./(photos)/staben/orion.png";
+  import kryon from "./(photos)/staben/kryon.png";
+  import groupProfile from "./(photos)/staben/header-mobile.png";
+  import groupLandscape from "./(photos)/staben/header.png";
   import heavenBG from "./(photos)/bakgrund.jpg";
   import SnowEffect from "$lib/components/postReveal/SnowEffect.svelte";
 
-  import oscar from "./(photos)/showdelapepp.png";
-  import vincent from "./(photos)/showdelapepp.png";
-  import clara from "./(photos)/showdelapepp.png";
-  import frida from "./(photos)/showdelapepp.png";
-  import isac from "./(photos)/showdelapepp.png";
-  import ella from "./(photos)/showdelapepp.png";
-  import alexander from "./(photos)/showdelapepp.png";
-  import love from "./(photos)/showdelapepp.png";
-  import alva from "./(photos)/showdelapepp.png";
-  import anna from "./(photos)/showdelapepp.png";
-  import hilda from "./(photos)/showdelapepp.png";
+  import oscar from "./(photos)/pepp/oscar.jpg";
+  import vincent from "./(photos)/pepp/vincent.jpg";
+  import clara from "./(photos)/pepp/clara.jpg";
+  import frida from "./(photos)/pepp/frida.jpg";
+  import isac from "./(photos)/pepp/isac.jpg";
+  import ella from "./(photos)/pepp/ella.jpg";
+  import alexander from "./(photos)/pepp/alex.jpg";
+  import love from "./(photos)/pepp/love.jpg";
+  import alva from "./(photos)/pepp/alva.jpg";
+  import anna from "./(photos)/pepp/anna.jpeg";
+  import hilda from "./(photos)/pepp/hilda.jpg";
   import tiger from "./(photos)/tigerprint-remade.webp";
   import pepp from "./(photos)/showdelapepp.png";
   import { languageTag } from "$paraglide/runtime";
@@ -88,68 +88,174 @@
     {
       name: "Vincent",
       imageUrl: vincent,
-      body: `lorum ipsum`,
-      bodyEn: `lorum ipsum`,
+      body: `Hallöö 😛
+
+Vincent (med T på slutet) här 🤩😮‍💨Jag är från storstaden Eslöv (din huvudstad 👑) och har precis blivit introllad på mitt fjärde år här på data 🩷🪄 
+
+Efter mina 22 år på cirkusen har jag lärt mig att det ibland kan bli svårt när man har väldigt många bollar i luften 🤹‍🥎Därför kan det vara väldigt skönt att istället lägga bollarna på marken, och lira lite fotboll med sektionens alldeles egna fotbollslag, DICK ⚽️🤏
+
+Peace out 🫶
+`,
+      bodyEn: `Hellöö 😛
+Vincent (with a T at the end) here 🤩😮‍💨 I’m from the big city of Eslöv, and I’ve just been magically initiated into my fourth year here at Computer Science 🩷🪄
+After my 22 years in the circus, I’ve learned that things can get a little tricky when you have too many balls in the air 🤹‍🥎 That’s why it can be nice to put the balls on the ground instead and play some football with the guild’s very own football team, DICK ⚽️🤏
+Peace out 🫶
+`,
     },
     {
       name: "Alva",
       imageUrl: alva,
-      body: `lorum ipsum`,
-      bodyEn: `lorum ipsum`,
+      body: `Hejsan Hoppsan!!
+Alva heter jag och ska börja mitt tredje år på Datateknik!🩷🩷 Jag är 21 år ung och kommer ursprungligen från Astrid Lindgrens egna hemtrakter, nämligen lilla lilla Vimmerby!!🤏
+
+Ibland kan livet på cirkusen kännas både lite svårt och läskigt till en början. Ny stad, nytt boende, nya studier och nya människor är väldigt många olika bollar att jonglera samtidigt!🤹🤹Du får därför inte glömma bort att vara lite extra snäll mot både dig själv och alla andra så här i början🫶 Låt saker få ta lite tid men glöm inte heller bort att enda sättet att ta reda på hur långt du kan gå, är genom att våga dig ut på linan!🤸‍♀️ 
+
+Vi ses på cirkusen!🎪🩷💜
+`,
+      bodyEn: `Hello Hello!!!
+My name is Alva and I’m about to start my third year of Computer Engineering! 🩷🩷 I’m 21 years young and originally from Astrid Lindgren’s very own home region, the tiny little town of Vimmerby!!
+Sometimes life at the circus can feel both difficult and a little scary, especially in the beginning. A new city, a new home, new studies and new people are a lot of balls to juggle all at once 🤹🤹 So don’t forget to be a little extra kind to both yourself and everyone around you during this time 🫶 Give things some time, but don’t forget that the only way to find out how far you can go is to dare to step out onto the tightrope! 🤸‍♀️
+See you at the circus! 🎪🩷💜
+`,
     },
     {
       name: "Oscar",
       imageUrl: oscar,
-      body: `lorum ipsum`,
-      bodyEn: `lorum ipsum`,
+      body: `Halloj!
+
+Oscar heter jag och jag är 21 bast. Jag härstammar från en liten ort som heter Stockholm och startar andra året på D.
+
+Under nollningen väntas många långa äventyr och shower. Där bland dem kan man ofta finna sig på en cykel eller voi. Men från en erfaren cirkus uppträdare till en annan rekommenderar jag att vid brist på egen cykel att ta en lundahoj. Absolut hidden gem 🔍💎
+
+ Ses på scenen!  🎪
+`,
+      bodyEn: `Hey everyone!
+My name is Oscar, I’m 21 years old, and I come from a small town called Stockholm. I’m starting my second year at D.
+During the introduction weeks, there are plenty of long adventures and shows to look forward to. Along the way, you’ll often find yourself on a bike or a Voi. But from one experienced circus performer to another, in absence of your own bike, use a lundahoj. Absolute hidden gem 🔍💎
+`,
     },
     {
       name: "Ella",
       imageUrl: ella,
-      body: `lorum ipsum`,
-      bodyEn: `lorum ipsum`,
+      body: `Hallå eller! Jag heter Ella, är 23 år och kommer från gbg! Jag pluggar infocom och börjar nu mitt andra år på LTH! 💜
+Studentlivet är lite av en cirkuskonst, och det gäller att lära sig hur man ska kasta runt sina pengar🤹💸Mitt tips är att leta efter begagnad kurslitteratur innan ni köper sprillans nytt! Fråga era phaddrar, andra pluggkompisar eller oss i Peppet! Man kan spara massor av pengar som man kan lägga på annat kul! 🎟️🍿
+Släpp loss på cirkusen!🎪
+`,
+      bodyEn: `Hey there! My name is Ella, I’m 23 years old and I’m from Gothenburg! I study Infocom and I’m now starting my second year at LTH! 💜
+Student life is a bit of a circus act, and one thing you’ll have to learn is how to juggle your money! 🤹💸 My tip is to always look for second-hand course literature before buying it brand new! Ask your mentors, fellow students, or us in Peppet! You can save loads of money that you can spend on other fun things instead! 🎟️🍿
+Come join the circus! 🎪
+`,
     },
     {
       name: "Alexander",
       imageUrl: alexander,
-      body: `lorum ipsum`,
-      bodyEn: `lorum ipsum`,
+      body: `Tjena tjena! 👋
+
+Jag heter Alexander, kallas även "Hyllan", kommer från Stockholm och är 22 år gammal. Nu till hösten börjar jag mitt tredje år på Data 👨‍🎓👨‍💻
+
+Cirkusen är stor och här finns en plats för alla! Oavsett om du vill röja på dansgolvet, spela brädspel, idrotta eller koda i lugn och ro. Det finns garanterat en cirkusakt just för dig. Hitta något du tycker är kul och gör showen till din egen! 🎪✨
+
+Hoppas vi ses! 🎠🍿
+`,
+      bodyEn: `Hey there! 👋
+My name is Alexander, also known as "Hyllan", I’m from Stockholm and I’m 22 years old. This fall, I’m starting my third year of Computer Science 👨‍🎓👨‍💻
+The circus is big and there’s a spot for everyone here! Whether you want to tear up the dance floor, play board games, do sports, or code in peace. There is guaranteed to be a circus act just for you. Find something you enjoy and make the show your own! 🎪✨
+Hope to see you! 🎠🍿
+`,
     },
     {
       name: "Hilda",
       imageUrl: hilda,
-      body: `lorum ipsum`,
-      bodyEn: `lorum ipsum`,
+      body: `Hallådääär! Det är jag som är Hilda och jag kommer från den kära staden Göteborg🙌 Jag är 20 år gammal och går mitt 2:a år på Infocom!
+
+En dag på cirkusen råkade jag tappa min mobil i en magikers trollhatt, och när jag skulle leta efter den var den helt plötsligt borta! 😔Tack och lov hade jag vänner som jag delat min telefons plats med på Hitta så med hjälp av dem gick det fort att få tillbaka den! För en person som lätt tappar bort sin mobil har det varit enormt hjälpsamt att dela plats med någon man litar på🙏🔥
+`,
+      bodyEn: `Hellooo!! Hilda is my name, and I’m from the lovely city of Gothenburg 🙌 I’m 20 years old and currently in my second year studying Infocom!
+One day at the circus, I accidentally dropped my phone into a magician’s hat, and when I went to look for it, it had completely disappeared! 😔 Luckily, I had friends that I shared my location with through Hitta, and with their help, it didn’t take long to get my phone back! For someone who tends to lose their phone quite easily, sharing my location with someone I trust has been incredibly helpful 🙏🔥
+`,
     },
     {
       name: "Isac",
       imageUrl: isac,
-      body: `lorum ipsum`,
-      bodyEn: `lorum ipsum`,
+      body: `Hejsan svejsan!
+Isac heter jag och är 23 vintrar ung. Jag har kommit med cirkuståget hela vägen från självaste huvfudstaden STHLM och ska nu börja mitt andra år på Data! 💻✨
+Våga bjuda på sig själv! Det kan kännas läskigt att kliva ut i rampljuset, men kom ihåg att alla på cirkusen är lika nervösa 🎪🫣 Efter showen kommer ingen minnas att man misslyckade sitt magitrick, men alla kommer att minnas hur kul man hade tillsammans! 🚀🎉
+Tagga bästa showen någonsin! 🎪🍿
+`,
+      bodyEn: `Hi and hello!
+My name is Isac and I am 23 winters young! I’ve come all the way from Stockholm together with the circus and I’m about to start my second year studying Computer Science! 💻✨
+Dare to put yourself out there! Stepping into the spotlight can definitely feel scary, but just remember that everyone at the circus are all equally nervous 🎪🫣 Once the show is over, nobody is going to care if you failed your magic trick, but everyone will remember how much crazy fun you had together! 🚀🎉
+Get ready for the best show ever! 🎪🍿
+`,
     },
     {
       name: "Clara",
       imageUrl: clara,
-      body: `lorum ipsum`,
-      bodyEn: `lorum ipsum`,
+      body: `Halloj!
+
+Mitt namn är Clara, jag är 25 år gammal och kommer från Lunds bästa grannstad, Malmö! Jag pluggar data och kommer nu att börja mitt fjärde år! 😛
+
+På cirkusen har jag lärt mig att det mesta blir bättre om man gör det tillsammans! Så jag tipsar verkligen om att våga ta hjälp av dem runt omkring er nu i början även om det kan kännas läskigt!🫶🏼
+
+Ha det gött! 😗
+`,
+      bodyEn: `Hi there!
+
+My name is Clara, I am 25 years old and I’m from Lunds best neighbouring city, Malmö! I study Computer Science and I am about to start my fourth year! 😛
+
+During my time at the circus, I’ve learned that most things turn out better when you do them together. So, my biggest tip is to dare to ask the people around you for help right from the start, even if it might feel a bit scary!🫶🏼
+
+Take care! 😗
+`,
     },
     {
       name: "Anna",
       imageUrl: anna,
-      body: `lorum ipsum`,
-      bodyEn: `lorum ipsum`,
+      body: `Tjabba tjena hallå!
+Jag heter Anna, har 23 år på nacken och är ursprungligen från Stockholm! Jag är nu inne på mitt fjärde år på data. 😋💘
+På cirkusen kan vad som helst hända så det gäller att vara redo! 🎪Jag tycker att du ska köpa en balklänning eller frack som du känner dig fin i! Så skönt att ha till hands, du kommer få mycket användning av det under ditt studentliv! 🕺🏼🫶🏻
+PoK 💞🎠
+`,
+      bodyEn: `Hiiiiiiiii!
+My name is Anna, I’m 23 years old and I’m originally from Stockholm! I’m now starting my fourth year in Computer Science. 😋💘
+Anything can happen at the circus, so you better be prepared! 🎪 I recommend you buying a prom dress or a suit that you feel nice in! It’s good to have on hand, and you will get a lot of use of it! 🕺🏼🫶🏻
+Xoxo 💞🎠
+`,
     },
     {
       name: "Frida",
       imageUrl: frida,
-      body: `lorum ipsum`,
-      bodyEn: `lorum ipsum`,
+      body: `Hej alla fina!!! 
+
+Jag heter Frida och ska börja mitt tredje år på InfoCom💜🕺 Jag kommer från underbara Stockholm och är 22 år gammal 🙌
+
+Mitt bästa tips för en oförglömlig nollning är att föreviga 🤳 alla minnen ni skapar på cirkusen!!! Ta måååånga bilder och dela dem med alla i phaddergruppen så kan ni se tillbaka på dem när cirkusen rullar vidare 🎠🎪❤️
+
+Vi ses! 😇
+`,
+      bodyEn: `Hi everyone!!!
+My name is Frida and I’m about to start my third year of InfoCom 💜🕺 I’m from the wonderful city of Stockholm and I’m 22 years old 🙌
+My best tip for an unforgettable nollning is to capture 🤳 all the amazing memories you make at the circus!!! Take looooots of pictures and share them with everyone in your phadder group, so you can look back on all the fun memories once the circus has moved on 🎠🎪❤️
+See you around! 😇
+`,
     },
     {
       name: "Love",
       imageUrl: love,
-      body: `lorum ipsum`,
-      bodyEn: `lorum ipsum`,
+      body: `Hej hej!
+Jag heter Love och är en 22 år gammal Östgöte! Jag kommer (nääästan) från Linköping, och ska nu börja mitt tredje år på data! 💖🤹
+Cirkuslivet har lärt mig att saker sällan blir exakt som man tänkt sig, men att det faktiskt brukar lösa sig ändå. Som student så kan det vara lätt att snöa in sig på plugget, men missa inte allt roligt! 🤩
+Som en vis man en gång sa:
+ "Det finns omtentor, men inga omfester"
+Vi ses! ✌️
+`,
+      bodyEn: `Wassup!
+My name is Love, and I’m a 22-year-old Östergötland native! I’m (almoooost) from Linköping, and I’m now starting my third year of Computer Science! 💖🤹
+Circus life has taught me that things rarely turn out exactly as planned, but that somehow, things usually work out anyway. As a student, it can be easy to get completely caught up in your studies, but don’t miss out on all the fun! 🤩
+As a wise man once said:
+ "There are re-exams, but no re-parties."
+See you! ✌️
+`,
     },
   ];
 </script>
@@ -248,12 +354,13 @@
         class="relative mx-auto mb-12 aspect-square max-h-[500px] max-w-[500px] rounded-full border-8 border-secondary bg-[#080817] max-md:scale-75"
       >
         <div class="size-60 md:size-80">
-          <img
-            src={logo}
-            class="absolute left-1/2 top-1/2 size-60 -translate-x-1/2 -translate-y-1/2 md:size-[480px]"
-            alt="Nollning logo non-spinning"
-            onclick={() => (snowActive = !snowActive)}
-          />
+          <button onclick={() => (snowActive = !snowActive)}>
+            <img
+              src={logo}
+              class="absolute left-1/2 top-1/2 size-60 -translate-x-1/2 -translate-y-1/2 md:size-[480px]"
+              alt="Nollning logo non-spinning"
+            />
+          </button>
         </div>
       </div>
       <section>
@@ -320,38 +427,36 @@
         />
       </div>
       <h1
-        class="relative z-10 mb-4 p-2 text-center font-nolla-pepp text-5xl leading-loose tracking-widest text-[#ffb800] md:text-8xl"
-        style="-webkit-text-stroke: 5px #ff3347; line-height: 1.2;"
+        class="stroke-text relative z-10 mb-4 p-2 text-center font-nolla-pepp text-5xl leading-loose tracking-widest text-[#ffb800] md:text-8xl"
       >
         Show De<br />La Pepp
       </h1>
       <div class="-mt-20 w-full scroll-m-20 pt-20">
         <div
-          class="mx-auto grid max-w-md grid-cols-2 justify-items-center gap-8 md:max-w-lg"
+          class="max-md:carousel max-md:!flex md:grid md:grid-cols-6 md:gap-[8rem]"
         >
-          {#each peppers.slice(0, 2) as pepper, index (pepper.name)}
-            <PersonCarouselItem
-              name={pepper.name}
-              {index}
-              imageUrl={pepper.imageUrl}
-              body={languageTag() === "en" ? pepper.bodyEn : pepper.body}
-            />
-          {/each}
-        </div>
-        <div class="mt-4 grid grid-cols-3 gap-8">
-          {#each peppers.slice(2) as pepper, index (pepper.name)}
-            <PersonCarouselItem
-              name={pepper.name}
-              index={index + 2}
-              imageUrl={pepper.imageUrl}
-              body={languageTag() === "en" ? pepper.bodyEn : pepper.body}
-            />
+          {#each peppers as pepper, index (pepper.name)}
+            <div
+              class="max-md:contents md:col-span-2 {index === 0
+                ? 'md:col-start-2'
+                : ''} {index === 1 ? 'md:col-start-4' : ''}"
+            >
+              <PersonCarouselItem
+                name={pepper.name}
+                {index}
+                imageUrl={pepper.imageUrl}
+                body={languageTag() === "en" ? pepper.bodyEn : pepper.body}
+                textColor="text-[#FFFFFF]"
+                maxWidth="max-w-8x1"
+                backgroundBox={true}
+              />
+            </div>
           {/each}
         </div>
       </div>
     </section>
     {#if data.revealTheme}
-      <iframe
+      <!--<iframe
         class="aspect-video w-full"
         src="https://www.youtube.com/embed/rRPQs_kM_nw"
         title="Nolledans film"
@@ -359,7 +464,21 @@
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         referrerpolicy="strict-origin-when-cross-origin"
         allowfullscreen
-      ></iframe>
+      ></iframe>-->
+
+      <div class="mx-auto max-w-3xl">
+        <div
+          class="aspect-[8/5] w-full overflow-hidden rounded-lg border-4 border-secondary"
+        >
+          <iframe
+            src="/STABEN26_Web/index.html"
+            title="STABEN26 spel"
+            class="h-full w-full"
+            allow="fullscreen"
+            allowfullscreen
+          ></iframe>
+        </div>
+      </div>
     {/if}
     <section class="mt-16 flex flex-col items-center">
       <h1 class="mb-16 text-3xl font-medium">
@@ -396,3 +515,16 @@
     </section>
   </div>
 </article>
+
+<style>
+  .stroke-text {
+    -webkit-text-stroke: 2px #ff3347;
+    line-height: 1.2;
+  }
+
+  @media (min-width: 768px) {
+    .stroke-text {
+      -webkit-text-stroke: 5px #ff3347;
+    }
+  }
+</style>

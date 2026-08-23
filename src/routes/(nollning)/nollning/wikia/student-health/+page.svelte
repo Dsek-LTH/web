@@ -1,5 +1,6 @@
 <script lang="ts">
   import * as m from "$paraglide/messages";
+  import { languageTag } from "$paraglide/runtime";
 </script>
 
 <!-- limit width and center -->
@@ -18,6 +19,24 @@
     >
   </section>
   <div class="divider"></div>
+  <section>
+    <h3 class="page-title">
+      {m.nollning_wikia_mentee_rights_header()}
+    </h3>
+    <p class="nolla-prose">
+      {m.nollning_wikia_mentee_rights_body()}
+    </p>
+    <button
+      class="btn-primary-dark btn"
+      on:click={() =>
+        window.open(
+          `/nollning/documents/newStudentRights${languageTag() === "en" ? "Eng" : ""}.pdf`,
+          "_blank",
+        )}
+    >
+      {m.nollning_wikia_mentee_rights_btn()}
+    </button>
+  </section>
   <section>
     <h3 class="page-title">
       {m.nollning_wikia_studentHealth_kurator_header()}

@@ -6,6 +6,9 @@
   export let index: number;
   export let max = stab ? 6 : 11;
   export let prefix = `${stab ? "stab" : "pepp"}slide`;
+  export let textColor = "";
+  export let maxWidth = "max-w-prose";
+  export let backgroundBox = false;
   export let font = stab
     ? "font-nolla-stab text-3xl tracking-widest"
     : "font-nolla-pepp tracking-wider text-4xl";
@@ -55,16 +58,28 @@
       class:rounded-btn={!rounded}
     />
   </figure>
-  <h3
-    class="mb-4 text-center font-medium {font} rounded-btn p-2"
-    style="margin-top: -{newLines * 1.2}em"
-  >
-    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-    {@html name.replaceAll("\n", "<br />")}
-  </h3>
-  <p class="nolla-prose max-w-prose rounded-btn p-2 text-center max-md:mx-6">
-    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-    {@html body.replaceAll("\n", "<br />")}
-  </p>
+  <div class="w-full" class:pepper-box={backgroundBox}>
+    <h3
+      class="mb-4 text-center font-medium {font} {textColor} rounded-btn p-2"
+      style="margin-top: -{newLines * 1.2}em"
+    >
+      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+      {@html name.replaceAll("\n", "<br />")}
+    </h3>
+    <p
+      class="nolla-prose {maxWidth} {textColor} rounded-btn p-2 text-center max-md:mx-6"
+    >
+      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+      {@html body.replaceAll("\n", "<br />")}
+    </p>
+  </div>
   <slot />
 </div>
+
+<style>
+  .pepper-box {
+    width: 270px;
+    border-radius: 0.5rem;
+    background-color: rgba(20, 30, 60, 0.7);
+  }
+</style>

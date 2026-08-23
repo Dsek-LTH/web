@@ -63,27 +63,27 @@
         class="h-64 w-64 rounded-lg object-cover md:h-[480px] md:w-[700px]"
       />
     </div>
-    <h2 class="mt-8 text-center text-2x1 font-semibold">
+    <h2 class="text-2x1 mt-8 text-center font-semibold">
       {@html m.nolla_ouvve_reason_titel()}
     </h2>
 
-    <p class="mx-auto mt-4 max-w-3x1 text-center">
+    <p class="max-w-3x1 mx-auto mt-4 text-center">
       {@html m.nolla_ouvve_reason_text()}
     </p>
 
-    <h2 class="mt-8 text-center text-2x1 font-semibold">
+    <h2 class="text-2x1 mt-8 text-center font-semibold">
       {@html m.nolla_ouvve_tradition_titel()}
     </h2>
 
-    <p class="mx-auto mt-4 max-w-3x1 text-center">
+    <p class="max-w-3x1 mx-auto mt-4 text-center">
       {@html m.nolla_ouvve_tradition_text()}
     </p>
 
-    <h2 class="mt-8 text-center text-2x1 font-semibold">
+    <h2 class="text-2x1 mt-8 text-center font-semibold">
       {@html m.nolla_ouvve_marken_titel()}
     </h2>
 
-    <p class="mx-auto mt-4 max-w-3x1 text-center">
+    <p class="max-w-3x1 mx-auto mt-4 text-center">
       {@html m.nolla_ouvve_marken_text()}
     </p>
   </section>
