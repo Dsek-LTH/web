@@ -1,6 +1,5 @@
 <script lang="ts">
   import * as m from "$paraglide/messages";
-  import rights from "$lib/nollning/documents/newStudentRights.pdf";
   import { languageTag } from "$paraglide/runtime";
 </script>
 
@@ -27,9 +26,16 @@
     <p class="nolla-prose">
       {m.nollning_wikia_mentee_rights_body()}
     </p>
-    <a class="btn-primary-dark btn" href={rights} target="_blank"
-      >{m.nollning_wikia_mentee_rights_btn()}</a
+    <button
+      class="btn-primary-dark btn"
+      on:click={() =>
+        window.open(
+          `/nollning/documents/newStudentRights${languageTag() === "en" ? "Eng" : ""}.pdf`,
+          "_blank",
+        )}
     >
+      {m.nollning_wikia_mentee_rights_btn()}
+    </button>
   </section>
   <section>
     <h3 class="page-title">

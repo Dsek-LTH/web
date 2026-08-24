@@ -354,12 +354,13 @@ See you! ✌️
         class="relative mx-auto mb-12 aspect-square max-h-[500px] max-w-[500px] rounded-full border-8 border-secondary bg-[#080817] max-md:scale-75"
       >
         <div class="size-60 md:size-80">
-          <img
-            src={logo}
-            class="absolute left-1/2 top-1/2 size-60 -translate-x-1/2 -translate-y-1/2 md:size-[480px]"
-            alt="Nollning logo non-spinning"
-            onclick={() => (snowActive = !snowActive)}
-          />
+          <button onclick={() => (snowActive = !snowActive)}>
+            <img
+              src={logo}
+              class="absolute left-1/2 top-1/2 size-60 -translate-x-1/2 -translate-y-1/2 md:size-[480px]"
+              alt="Nollning logo non-spinning"
+            />
+          </button>
         </div>
       </div>
       <section>
@@ -426,7 +427,7 @@ See you! ✌️
         />
       </div>
       <h1
-        class="relative z-10 mb-4 p-2 text-center font-nolla-pepp text-5xl leading-loose tracking-widest text-[#ffb800] md:text-8xl stroke-text"
+        class="stroke-text relative z-10 mb-4 p-2 text-center font-nolla-pepp text-5xl leading-loose tracking-widest text-[#ffb800] md:text-8xl"
       >
         Show De<br />La Pepp
       </h1>
@@ -448,7 +449,6 @@ See you! ✌️
                 textColor="text-[#FFFFFF]"
                 maxWidth="max-w-8x1"
                 backgroundBox={true}
-                ;
               />
             </div>
           {/each}
@@ -471,7 +471,6 @@ See you! ✌️
           class="aspect-[8/5] w-full overflow-hidden rounded-lg border-4 border-secondary"
         >
           <iframe
-            bind:this={iframeEl}
             src="/STABEN26_Web/index.html"
             title="STABEN26 spel"
             class="h-full w-full"
