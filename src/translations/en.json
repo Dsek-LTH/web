@@ -701,6 +701,8 @@
   "nolla_packing_happy_mood": "A happy mood",
   "nolla_packing_slasque": "Slasque",
   "nolla_packing_slasque_description": "Put on the ouvve! Sometimes there is also a theme for the slasque. Then you can add theme-appropriate clothing on top of the ouvve.",
+  "nolla_packing_broken": "Dressed Ouvve",
+  "nolla_packing_broken_description": "This is a dress code we very seldom use, similar to jacket it is an ouvve with a nicer top part.",
   "nolla_packing_mixed_suit": "Jacket",
   "nolla_packing_mixed_suit_description": "Nicer everyday clothes. A blazer combined with something else, or just something that makes you feel good.<br/><i>(We rarely have this dress code)</i>",
   "nolla_packing_dark_suit": "Dark suit",
