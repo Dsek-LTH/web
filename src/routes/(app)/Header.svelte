@@ -12,6 +12,7 @@
   import LogIn from "@lucide/svelte/icons/log-in";
   import LogOut from "@lucide/svelte/icons/log-out";
   import User from "@lucide/svelte/icons/user";
+  import ArrowRight from "@lucide/svelte/icons/arrow-right";
 
   import { getRoutes } from "../routes";
   import { isAuthorized } from "$lib/utils/authorization";
@@ -291,6 +292,10 @@
               class="flex flex-row justify-between"
             >
               <div class="flex w-full flex-col">
+                <Button class="mx-4 my-1" variant="outline">
+                  Nollning
+                  <ArrowRight class="shrink-0" />
+                </Button>
                 {@render mobileLinks()}
               </div>
             </Drawer.Description>
