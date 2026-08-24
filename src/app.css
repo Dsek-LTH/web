@@ -45,7 +45,7 @@
   }
   @font-face {
     font-family: "AKAPOSSE";
-    src: local("AKAPOSSE"), url("/fonts/AKAPOSSE.ttf");
+    src: local("AKAPOSSE"), url("/fonts/AKAPOSSE.TTF");
     font-weight: normal;
     font-display: swap;
   }
