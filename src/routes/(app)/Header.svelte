@@ -25,6 +25,7 @@
   import { getFullName } from "$lib/utils/client/member";
   import { signIn, signOut } from "$lib/utils/auth";
   import ChevronUp from "@lucide/svelte/icons/chevron-up";
+  import ArrowRight from "@lucide/svelte/icons/arrow-right";
 
   import * as HoverCard from "$lib/components/ui/hover-card";
   import { cn } from "$lib/utils";
@@ -297,6 +298,9 @@
               class="flex flex-row justify-between"
             >
               <div class="flex w-full flex-col">
+                <Button variant="outline" href="/nollning"
+                  >Nollning <ArrowRight /></Button
+                >
                 {@render mobileLinks()}
               </div>
             </Drawer.Description>
