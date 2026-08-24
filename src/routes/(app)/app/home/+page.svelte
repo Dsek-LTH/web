@@ -5,6 +5,7 @@
   import BookOpen from "@lucide/svelte/icons/book-open";
   import UsersRound from "@lucide/svelte/icons/users-round";
   import CircleUserRound from "@lucide/svelte/icons/circle-user-round";
+  import SquareArrowOutUpRight from "@lucide/svelte/icons/square-arrow-out-up-right";
 
   import dayjs from "dayjs";
   import { signIn } from "$lib/utils/auth";
@@ -68,6 +69,16 @@
         <hr />
       {/if}
       <div class="flex flex-col items-start justify-start">
+        <div>
+          <Button
+            variant="outline"
+            class="bg-primary h-auto whitespace-normal"
+            href="/nolla"
+          >
+            <SquareArrowOutUpRight class="shrink-0" />
+            Nollning
+          </Button>
+        </div>
         <div class="grid grid-cols-2 gap-2">
           <div class="flex min-w-0 flex-col">
             <span class="p-2 font-light">{data.wellbeing}</span>
