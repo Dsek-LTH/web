@@ -39,7 +39,7 @@
   }
   @font-face {
     font-family: "FairyDustB";
-    src: url("/fonts/FairydustB-Regular.ttf");
+    src: local("FairyDustB"), url("/fonts/FairydustB-Regular.ttf");
     font-weight: normal;
     font-display: swap;
   }
