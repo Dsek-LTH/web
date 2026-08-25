@@ -461,7 +461,7 @@ See you! ✌️
         allowfullscreen
       ></iframe>-->
 
-      <div class="mx-auto max-w-3xl">
+      <!--<div class="mx-auto max-w-3xl">
         <div
           class="aspect-[8/5] w-full overflow-hidden rounded-lg border-4 border-secondary"
         >
@@ -473,7 +473,7 @@ See you! ✌️
             allowfullscreen
           ></iframe>
         </div>
-      </div>
+      </div>-->
     {/if}
     <section class="mt-16 flex flex-col items-center">
       <h1 class="mb-16 text-3xl font-medium">
