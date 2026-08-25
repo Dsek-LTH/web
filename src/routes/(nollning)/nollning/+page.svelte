@@ -510,16 +510,3 @@ See you! ✌️
     </section>
   </div>
 </article>
-
-<style>
-  .stroke-text {
-    -webkit-text-stroke: 2px #ff3347;
-    line-height: 1.2;
-  }
-
-  @media (min-width: 768px) {
-    .stroke-text {
-      -webkit-text-stroke: 5px #ff3347;
-    }
-  }
-</style>
