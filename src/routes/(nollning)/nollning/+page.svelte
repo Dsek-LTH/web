@@ -426,11 +426,6 @@ See you! ✌️
           class="relativez -10 h-64 w-64 object-cover md:h-[480px] md:w-[480px]"
         />
       </div>
-      <h1
-        class="stroke-text relative z-10 mb-4 p-2 text-center font-nolla-pepp text-5xl leading-loose tracking-widest text-[#ffb800] md:text-8xl"
-      >
-        Show De<br />La Pepp
-      </h1>
       <div class="-mt-20 w-full scroll-m-20 pt-20">
         <div
           class="max-md:carousel max-md:!flex md:grid md:grid-cols-6 md:gap-[8rem]"

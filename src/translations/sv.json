@@ -698,6 +698,8 @@
   "nolla_packing_happy_mood": "Ett glatt humör",
   "nolla_packing_slasque": "Slasque",
   "nolla_packing_slasque_description": "På med <a class='link' href='wordlist#ouvve'>ouvven</a>! Ibland är det dessutom ett tema för slasquen. Då får man gärna addera temaenlig klädsel utöver ouvven.",
+  "nolla_packing_broken": "Bruten Ouvve",
+  "nolla_packing_broken_description": "Detta är en klädkod vi väldigt sällan använder men likt bruten kavaj så är det ouvve plus en finare ovandel.",
   "nolla_packing_mixed_suit": "Bruten kavaj",
   "nolla_packing_mixed_suit_description": "Finare vardagskläder. En kavaj kombinerat med något annat, eller bara något som du känner dig snygg i.<br/><i>(Vi har väldigt sällan denna klädkoden)</i>",
   "nolla_packing_dark_suit": "Mörk kostym",

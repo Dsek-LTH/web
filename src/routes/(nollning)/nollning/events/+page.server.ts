@@ -4,12 +4,12 @@ import { error } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types.js";
 
 const weekStarts = [
-  "2025-08-25",
-  "2025-09-01",
-  "2025-09-08",
-  "2025-09-15",
-  "2025-09-22",
-  "2025-09-29",
+  "2026-08-24",
+  "2026-08-31",
+  "2026-09-07",
+  "2026-09-14",
+  "2026-09-21",
+  "2026-09-28",
 ];
 
 const getWeekInterval = (week: number) => {
