@@ -8,10 +8,10 @@
 </script>
 
 <div
-  class="mb-8 flex w-full flex-col justify-between gap-8 overflow-x-hidden md:flex-row"
+  class="mb-8 flex w-full flex-col justify-between gap-2 md:flex-row md:gap-8"
 >
   <h2>{m.phadderGroups()}</h2>
-  <YearSelector class="min-w-0 flex-1" />
+  <YearSelector />
 </div>
 
 <div class="flex flex-row flex-wrap justify-center gap-4 md:justify-start">
