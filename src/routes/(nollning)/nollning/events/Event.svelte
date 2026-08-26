@@ -10,7 +10,6 @@
   import { NOLLNING_TAG_PREFIX } from "$lib/components/postReveal/types";
   import * as m from "$paraglide/messages";
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
-  $: revealTheme = $page.data["revealTheme"];
 
   export let event: ExtendedPrismaModel<"Event"> & {
     tags: Array<ExtendedPrismaModel<"Tag">>;
@@ -20,9 +19,7 @@
 </script>
 
 <div
-  class="collapse collapse-arrow rounded-btn border-2 border-base-200 {revealTheme
-    ? 'bg-[#ECDDBC]'
-    : 'bg-base-100'}  has-[input[type='radio']:checked]:border-base-content"
+  class="collapse collapse-arrow rounded-btn border-2 border-base-200 bg-base-100 has-[input[type='radio']:checked]:border-base-content"
 >
   <input type="checkbox" name="nolla-event-list" />
   <div class="collapse-title flex flex-col">

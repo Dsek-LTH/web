@@ -1,9 +1,7 @@
 <script lang="ts">
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
-  import { page } from "$app/stores";
   import dayjs from "dayjs";
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
-  $: revealTheme = $page.data["revealTheme"];
   export let message: ExtendedPrismaModel<"Article"> & {
     author: ExtendedPrismaModel<"Author"> & {
       member: ExtendedPrismaModel<"Member">;
@@ -32,11 +30,7 @@
       {dayjs(new Date(message.publishedAt)).format("DD MMM HH:mm")}
     {/if} -->
   </div>
-  <div
-    class="rounded-btn {revealTheme
-      ? 'bg-[#ECDDBC]'
-      : 'border-2 border-base-200 bg-base-100'}  p-4"
-  >
+  <div class="rounded-btn border-2 border-base-200 bg-base-100 p-4">
     <h2 class=" text-xl text-secondary">{message.header}</h2>
     <h5 class="mb-2 font-medium text-base-content">{authorName}</h5>
     <MarkdownBody body={message.body} class="leading-tight" />
