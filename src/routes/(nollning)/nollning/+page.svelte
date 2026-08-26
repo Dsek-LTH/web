@@ -6,14 +6,14 @@
   import * as m from "$paraglide/messages";
   import logo from "./(photos)/logga.png";
 
-  import veloria from "./(photos)/staben/veloria.png";
-  import knyx from "./(photos)/staben/knyx.png";
-  import ymir from "./(photos)/staben/ymir.png";
-  import nevira from "./(photos)/staben/nevira.png";
-  import orion from "./(photos)/staben/orion.png";
-  import kryon from "./(photos)/staben/kryon.png";
-  import groupProfile from "./(photos)/staben/header-mobile.png";
-  import groupLandscape from "./(photos)/staben/header.png";
+  import veloria from "./(photos)/staben/veloria.webp";
+  import knyx from "./(photos)/staben/knyx.webp";
+  import ymir from "./(photos)/staben/ymir.webp";
+  import nevira from "./(photos)/staben/nevira.webp";
+  import orion from "./(photos)/staben/orion.webp";
+  import kryon from "./(photos)/staben/kryon.webp";
+  import groupProfile from "./(photos)/staben/header-mobile.webp";
+  import groupLandscape from "./(photos)/staben/header.webp";
   import heavenBG from "./(photos)/bakgrund.jpg";
   import SnowEffect from "$lib/components/postReveal/SnowEffect.svelte";
 
