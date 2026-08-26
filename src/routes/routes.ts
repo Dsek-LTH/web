@@ -28,12 +28,12 @@ export const getRoutes = (): Route[] =>
     {
       title: m.applicant(),
       pictureUrl:
-        getFileUrl("minio/files/public/photos/infinityfest.webp") ?? "",
+        getFileUrl("minio/files/public/photos/staben26_mobile.webp") ?? "",
       path: null,
       accessRequired: null,
       pictureTitle: m.nollning_nav_picture_title(),
       pictureDescription: m.nollning_nav_picture_subtitle(),
-      picturePath: "/nolla",
+      picturePath: "/nollning",
       appBehaviour: "none",
       children: [
         {

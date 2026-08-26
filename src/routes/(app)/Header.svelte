@@ -34,6 +34,7 @@
   import NotificationBell from "./notifications/NotificationBell.svelte";
   import { CircleUserRound, UserRoundPlus } from "@lucide/svelte";
   import { Spinner } from "$lib/components/ui/spinner";
+  import { getFileUrl } from "$lib/files/client";
 
   const {
     notificationsPromise,
@@ -298,8 +299,17 @@
               class="flex flex-row justify-between"
             >
               <div class="flex w-full flex-col">
-                <Button variant="outline" href="/nollning"
-                  >Nollning <ArrowRight /></Button
+                <Button
+                  class="flex flex-row items-center"
+                  variant="outline"
+                  href="/nollning"
+                  ><img
+                    class="h-lh"
+                    src={getFileUrl(
+                      "minio/files/public/photos/staben26_logo.webp",
+                    )}
+                    alt="nollning"
+                  />Nollning <ArrowRight /></Button
                 >
                 {@render mobileLinks()}
               </div>
