@@ -31,7 +31,6 @@
   import tiger from "./(photos)/tigerprint-remade.webp";
   import pepp from "./(photos)/showdelapepp.png";
   import { languageTag } from "$paraglide/runtime";
-  import { getFileUrl } from "$lib/files/client";
 
   export let data;
   let snowActive = false;
@@ -326,14 +325,16 @@ See you! ✌️
         {m.nollning_landing_policy_readMore()}
       </p>
       <div>
-        <a
-          href={getFileUrl(
-            `minio/files/public/miscellaneous/rights-sv-2025.pdf`,
-          )}
+        <button
+          onclick={() =>
+            window.open(
+              `/nollning/documents/newStudentRights${languageTag() === "en" ? "Eng" : ""}.pdf`,
+              "_blank",
+            )}
           class="{data.revealTheme
             ? 'btn-secondary-beige'
             : 'btn-primary-dark'}  btn self-start"
-          >{m.nollning_landing_policy_read()}</a
+          >{m.nollning_landing_policy_read()}</button
         >
         <a
           href={"http://bit.ly/trivselkontakt"}
