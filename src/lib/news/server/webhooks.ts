@@ -1,3 +1,4 @@
+import { NOLLNING_TAG_PREFIX } from "$lib/components/postReveal/types";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
@@ -31,6 +32,8 @@ export const sendNewArticleWebhook = async (
       },
     },
   });
+  // Don't send webhooks for nollning messages
+  if (tags.some((tag) => tag.name.startsWith(NOLLNING_TAG_PREFIX))) return;
 
   let title: string | undefined = undefined;
   if (article.author.mandateId !== null) {
