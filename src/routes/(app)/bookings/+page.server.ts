@@ -1,4 +1,5 @@
-import type { PageServerLoad } from "./$types";
+import { bookingReviewActions } from "$lib/bookings/server/actions";
+import type { Actions, PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const bookings = await locals.prisma.bookingRequest.findMany({
@@ -20,3 +21,5 @@ export const load: PageServerLoad = async ({ locals }) => {
 
   return { bookings };
 };
+
+export const actions: Actions = bookingReviewActions;

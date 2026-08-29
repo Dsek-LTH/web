@@ -10,9 +10,8 @@
     isMineFilterActive,
   } from "$lib/bookings/filters";
   import { createEventsServicePlugin } from "@schedule-x/events-service";
-  import { BellRing, Info, KeyRound } from "@lucide/svelte";
+  import { BellRing, Info, KeyRound, SettingsIcon } from "@lucide/svelte";
   import Button from "$lib/components/ui/button/button.svelte";
-  import { mode, setMode } from "mode-watcher";
   import StatusItem from "$lib/bookings/components/StatusItem.svelte";
   import Filter from "$lib/bookings/components/Filter.svelte";
   import InfoItem from "$lib/bookings/components/InfoItem.svelte";
@@ -25,8 +24,14 @@
   import { page } from "$app/state";
   import type { PageData } from "./$types";
   import * as m from "$paraglide/messages";
+  import apiNames from "$lib/utils/apiNames";
+  import { isAuthorized } from "$lib/utils/authorization";
 
   let { data }: { data: PageData } = $props();
+
+  const isAdmin = $derived(
+    isAuthorized(apiNames.BOOKINGS.UPDATE, page.data.user),
+  );
 
   let calendarApp: CalendarApp | undefined = $state();
   const eventsServicePlugin = createEventsServicePlugin();
@@ -88,20 +93,17 @@
     }
 
     for (const booking of filteredBookings) {
-      if (!activeBookingIds.has(booking.id)) {
+      if (activeBookingIds.has(booking.id)) {
+        // Push the latest data (e.g. status/colour after accept/reject)
+        // into an already-tracked event, since add() only applies to new ones.
+        eventsServicePlugin.update(booking);
+      } else {
         eventsServicePlugin.add(booking);
         activeBookingIds.add(booking.id);
       }
     }
   });
 </script>
-
-<!-- TODO: Remove -->
-<Button
-  class="sx-calendar:block hidden"
-  onclick={() => setMode(mode.current === "dark" ? "light" : "dark")}
-  >SWITCH MODE/THEME</Button
->
 
 <!-- TODO: Dynamically load older bookings when changing dates -->
 <div
@@ -123,10 +125,19 @@
       </span>
     </div>
 
-    <div class="sx-calendar:flex hidden gap-3.5">
-      <StatusItem mode="desktop" variant="ACCEPTED" count={acceptedCount} />
-      <StatusItem mode="desktop" variant="PENDING" count={pendingCount} />
-      <StatusItem mode="desktop" variant="DENIED" count={deniedCount} />
+    <div class="flex flex-col items-end gap-3">
+      {#if isAdmin}
+        <Button variant="outline" size="sm" href="/bookings/admin">
+          <SettingsIcon class="size-4" />
+          {m.booking_manageBookings()}
+        </Button>
+      {/if}
+
+      <div class="sx-calendar:flex hidden gap-3.5">
+        <StatusItem mode="desktop" variant="ACCEPTED" count={acceptedCount} />
+        <StatusItem mode="desktop" variant="PENDING" count={pendingCount} />
+        <StatusItem mode="desktop" variant="DENIED" count={deniedCount} />
+      </div>
     </div>
   </div>
 

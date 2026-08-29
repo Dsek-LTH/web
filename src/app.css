@@ -450,6 +450,7 @@ details summary::-webkit-details-marker {
   height: fit-content !important;
   width: fit-content !important;
   background-color: transparent !important;
+  z-index: 50 !important;
 }
 
 .sx__calendar {
