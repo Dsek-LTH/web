@@ -167,7 +167,7 @@ export const getRoutes = (): Route[] =>
           accessRequired: null,
           appBehaviour: "none",
           description: m.nav_expenses_desc(),
-          path: "/expenses",
+          path: "https://ekonomi.dsek.se/",
         },
         {
           title: m.stocklist(),
