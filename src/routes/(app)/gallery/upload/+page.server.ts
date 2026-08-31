@@ -59,17 +59,22 @@ export const actions: Actions = {
       );
     }
 
+    console.log("Preparing photographer coonnections for database insertion: ", photographers);
     const photographerConnect = photographers
       .filter((p) => p?.studentId != null)
       .map((p) => ({ studentId: p.studentId! }));
+    console.log("Photographer connections prepared: ", photographerConnect);
+    console.log("Preparing editor connections for database insertion: ", editors);
     const editorConnect = editors
       .filter((e) => e?.studentId != null)
       .map((e) => ({ studentId: e.studentId! }));
+    console.log("Editor connections prepared: ", editorConnect);
 
     // Verify photographers and editors exist before connecting
     let validPhotographers: Array<{ studentId: string }> = [];
     let validEditors: Array<{ studentId: string }> = [];
 
+    console.log("Verifying photographers exist in database: ", photographerConnect);
     if (photographerConnect.length > 0) {
       const existingPhotographers = await locals.prisma.member.findMany({
         where: {
@@ -82,7 +87,10 @@ export const actions: Actions = {
         existingIds.has(p.studentId),
       );
     }
+    console.log("Valid photographers after verification: ", validPhotographers);
 
+
+    console.log("Verifying editors exist in database: ", editorConnect);
     if (editorConnect.length > 0) {
       const existingEditors = await locals.prisma.member.findMany({
         where: {
@@ -93,6 +101,8 @@ export const actions: Actions = {
       const existingIds = new Set(existingEditors.map((e) => e.studentId));
       validEditors = editorConnect.filter((e) => existingIds.has(e.studentId));
     }
+    console.log("Valid editors after verification: ", validEditors);
+
 
     let result: { id: string };
     try {
