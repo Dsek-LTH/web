@@ -33,9 +33,7 @@
     ),
   );
   let years = $state(
-    Object.keys(groupedByYear).sort((a, b) =>
-      b.localeCompare(a, getLocale()),
-    ),
+    Object.keys(groupedByYear).sort((a, b) => b.localeCompare(a, getLocale())),
   );
 
   // Mandates per study year

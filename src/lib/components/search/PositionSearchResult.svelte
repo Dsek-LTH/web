@@ -23,9 +23,7 @@
         {getLocale() === "sv" ? position.nameSv : position.nameEn}
       </h4>
       <p class="line-clamp-1 text-gray-500">
-        {getLocale() === "sv"
-          ? position.descriptionSv
-          : position.descriptionEn}
+        {getLocale() === "sv" ? position.descriptionSv : position.descriptionEn}
       </p>
     </div>
   </a>

@@ -19,7 +19,7 @@ export default defineConfig({
         "preferredLanguage",
         "baseLocale",
       ],
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- see comment above
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- see comment above
     }) as any,
     cjsInterop({
       dependencies: ["@zenstackhq/server/**"],
