@@ -10,7 +10,7 @@ import { zod } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
-import { languageTag } from "$paraglide/runtime";
+import { getLocale } from "$paraglide/runtime";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 
@@ -121,7 +121,7 @@ const deleteMandateSchema = z.object({
 export type DeleteMandateSchema = Infer<typeof deleteMandateSchema>;
 
 const genitiveCase = (base: string): string => {
-  if (languageTag() === "sv") {
+  if (getLocale() === "sv") {
     if (base.endsWith("s") || base.endsWith("x"))
       return base; // Måns or Max => Måns and Max
     else return base + "s"; // Adam => Adams
@@ -137,7 +137,7 @@ export const actions: Actions = {
     const { prisma } = locals;
     const form = await superValidate(request, zod(updateSchema));
     if (!form.valid) return fail(400, { form });
-    switch (languageTag()) {
+    switch (getLocale()) {
       case "sv":
         await prisma.position.update({
           where: { id: params.id },

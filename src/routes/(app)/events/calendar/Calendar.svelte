@@ -2,10 +2,9 @@
   import { page } from "$app/stores";
   import "$lib/FullCalendar.css";
   import { toast } from "$lib/stores/toast";
-  import { i18n } from "$lib/utils/i18n";
   import { eventLink, goto } from "$lib/utils/redirect";
   import * as m from "$paraglide/messages";
-  import { languageTag } from "$paraglide/runtime";
+  import { getLocale } from "$paraglide/runtime";
   import { Calendar } from "@fullcalendar/core";
   import daygridPlugin from "@fullcalendar/daygrid";
   import dayjs from "dayjs";
@@ -84,7 +83,7 @@
         color: event.isCancelled ? "rgb(250, 43, 43)" : "#f280a1",
         className: event.isCancelled ? "!line-through" : "",
       })),
-      locale: languageTag(),
+      locale: getLocale(),
 
       firstDay: 1,
       headerToolbar: {
@@ -103,8 +102,7 @@
           text: m.events_calendar_subscribe(),
           click: () => {
             navigator.clipboard.writeText(
-              $page.url.origin +
-                i18n.resolveRoute("/events/subscribe", languageTag()),
+              $page.url.origin + "/events/subscribe",
             );
             toast(m.events_calendar_subscribe_copyToClipboard(), "success");
           },
@@ -126,7 +124,7 @@
         urlParams.set("startDate", startDate);
         urlParams.set("endDate", endDate);
         urlParams.set("view", view);
-        goto(`${i18n.route($page.url.pathname)}?${urlParams.toString()}`, {
+        goto(`${$page.url.pathname}?${urlParams.toString()}`, {
           replaceState: true,
         });
       },

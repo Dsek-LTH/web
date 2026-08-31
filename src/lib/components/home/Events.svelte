@@ -1,6 +1,6 @@
 <script lang="ts">
   import { markdownToTxt } from "markdown-to-txt";
-  import { languageTag } from "$paraglide/runtime";
+  import { getLocale } from "$paraglide/runtime";
   import * as m from "$paraglide/messages";
   import { eventLink } from "$lib/utils/redirect";
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
@@ -30,7 +30,7 @@
           <div
             class="place-items-center rounded-l-lg bg-base-300 px-4 py-2 text-center text-xl font-bold capitalize text-primary"
           >
-            {event.startDatetime.toLocaleString(languageTag(), {
+            {event.startDatetime.toLocaleString(getLocale(), {
               weekday: "long",
             })}
           </div>

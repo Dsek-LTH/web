@@ -1,8 +1,8 @@
 <script lang="ts">
   // As to avoid cluttering up the translation file, all words in the word list are part of a single translation value
   // The format is like this: Definition - description\nDefinition - description
-  import { availableLanguageTags, languageTag } from "$paraglide/runtime";
-  type Lang = (typeof availableLanguageTags)[number];
+  import { locales, getLocale } from "$paraglide/runtime";
+  type Lang = (typeof locales)[number];
 
   // TODO: Translate
 
@@ -182,7 +182,7 @@
   ];
   const wordList = wordBank
     .map((item) => {
-      const word = item[languageTag()];
+      const word = item[getLocale()];
       if (!word) return null;
       const [definition, ...rest] = word.split(" - ");
       const description = rest.join(" - "); // in case it contains multiple " - "

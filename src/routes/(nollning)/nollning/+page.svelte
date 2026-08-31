@@ -30,7 +30,7 @@
   import hilda from "./(photos)/pepp/hilda.jpg";
   import tiger from "./(photos)/tigerprint-remade.webp";
   import pepp from "./(photos)/showdelapepp.png";
-  import { languageTag } from "$paraglide/runtime";
+  import { getLocale } from "$paraglide/runtime";
 
   export let data;
   let snowActive = false;
@@ -328,7 +328,7 @@ See you! ✌️
         <button
           onclick={() =>
             window.open(
-              `/nollning/documents/newStudentRights${languageTag() === "en" ? "Eng" : ""}.pdf`,
+              `/nollning/documents/newStudentRights${getLocale() === "en" ? "Eng" : ""}.pdf`,
               "_blank",
             )}
           class="{data.revealTheme
@@ -404,7 +404,7 @@ See you! ✌️
               name={stab.name}
               {index}
               imageUrl={stab.imageUrl}
-              body={languageTag() === "en" ? stab.bodyEn : stab.body}
+              body={getLocale() === "en" ? stab.bodyEn : stab.body}
             />
           {/each}
         </div>
@@ -441,7 +441,7 @@ See you! ✌️
                 name={pepper.name}
                 {index}
                 imageUrl={pepper.imageUrl}
-                body={languageTag() === "en" ? pepper.bodyEn : pepper.body}
+                body={getLocale() === "en" ? pepper.bodyEn : pepper.body}
                 textColor="text-[#FFFFFF]"
                 maxWidth="max-w-8x1"
                 backgroundBox={true}

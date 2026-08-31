@@ -3,7 +3,6 @@
   import LoadingButton from "$lib/components/LoadingButton.svelte";
   import NavIcon from "$lib/components/NavIcon.svelte";
   import NotificationModal from "$lib/components/NotificationModal.svelte";
-  import { i18n } from "$lib/utils/i18n";
   import { signIn } from "$lib/utils/auth";
   import NotificationBell from "../../NotificationBell.svelte";
   import AccountDrawer from "./AccountDrawer.svelte";
@@ -16,7 +15,7 @@
 
   $: routes = getRoutes();
   $: bottomNavRoutes = appBottomNavRoutes(routes);
-  $: currentRoute = getPostRevealRoute(i18n.route($page.url.pathname));
+  $: currentRoute = getPostRevealRoute($page.url.pathname);
   $: canGoBack = !bottomNavRoutes.some((route) =>
     route.isCurrentRoute
       ? route.isCurrentRoute(currentRoute)

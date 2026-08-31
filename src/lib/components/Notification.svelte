@@ -5,7 +5,6 @@
   import { page } from "$app/stores";
   import LiveTimeSince from "$lib/components/LiveTimeSince.svelte";
   import AuthorAvatars from "$lib/components/socials/AuthorAvatars.svelte";
-  import { i18n } from "$lib/utils/i18n";
   import type { NotificationGroup } from "$lib/utils/notifications/group";
 
   type NotificationItem = Pick<
@@ -36,7 +35,7 @@
 
   // Handle "reading" notification when visiting relevant link
   $: isUnread = notification.readAt === null;
-  $: isPathSame = i18n.route($page.url.pathname) === notification.link;
+  $: isPathSame = $page.url.pathname === notification.link;
   $: (() => {
     if (isUnread && isPathSame) {
       setTimeout(() => {

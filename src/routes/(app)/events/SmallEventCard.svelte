@@ -7,7 +7,7 @@
   import type { EventWithIncludes } from "$lib/events/getEvents";
   import type { SuperValidated } from "sveltekit-superforms";
   import { eventLink } from "$lib/utils/redirect";
-  import { languageTag } from "$paraglide/runtime";
+  import { getLocale } from "$paraglide/runtime";
   import * as m from "$paraglide/messages";
 
   export let event: EventWithIncludes;
@@ -50,11 +50,11 @@
       {#if Math.abs(event.startDatetime.valueOf() - event.endDatetime.valueOf()) < 24 * 60 * 60 * 1000}
         <span class="font-semibold">{relativeDate(event.startDatetime)}</span>
         <br />
-        {event.startDatetime?.toLocaleTimeString([languageTag()], {
+        {event.startDatetime?.toLocaleTimeString([getLocale()], {
           hour: "2-digit",
           minute: "2-digit",
         })} →
-        {event.endDatetime?.toLocaleTimeString([languageTag()], {
+        {event.endDatetime?.toLocaleTimeString([getLocale()], {
           hour: "2-digit",
           minute: "2-digit",
         })}
@@ -65,7 +65,7 @@
               >{relativeDate(event.startDatetime)}</span
             >
             <br />
-            {event.startDatetime?.toLocaleTimeString([languageTag()], {
+            {event.startDatetime?.toLocaleTimeString([getLocale()], {
               hour: "2-digit",
               minute: "2-digit",
             })}
@@ -74,7 +74,7 @@
           <div>
             <span class="font-semibold">{relativeDate(event.endDatetime)}</span>
             <br />
-            {event.endDatetime?.toLocaleTimeString([languageTag()], {
+            {event.endDatetime?.toLocaleTimeString([getLocale()], {
               hour: "2-digit",
               minute: "2-digit",
             })}

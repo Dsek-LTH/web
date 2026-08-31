@@ -8,6 +8,7 @@
   import { page } from "$app/state";
   import { getFileUrl } from "$lib/files/client";
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+  import { getLocale } from "$paraglide/runtime";
 
   let { image, data }: OpenGraphProps = $props();
 
@@ -79,9 +80,10 @@
     image?: ImageAttributes;
   };
 
-  let { locale, locale_alternate } = page.url.pathname.includes("/en")
-    ? { locale: "en_US", locale_alternate: ["se_SE"] }
-    : { locale: "se_SE", locale_alternate: ["en_US"] };
+  let { locale, locale_alternate } =
+    getLocale() === "en"
+      ? { locale: "en_US", locale_alternate: ["se_SE"] }
+      : { locale: "se_SE", locale_alternate: ["en_US"] };
 
   function articleToOpenGraphProps(article: ArticleOpenGraphProps) {
     let props: Array<[string, string]> = [];

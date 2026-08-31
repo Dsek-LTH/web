@@ -2,7 +2,6 @@
   import { browser } from "$app/environment";
   import { page } from "$app/stores";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
-  import { i18n } from "$lib/utils/i18n";
   import { POST_REVEAL_PREFIX } from "$lib/components/postReveal/types";
   import * as m from "$paraglide/messages";
 
@@ -40,9 +39,7 @@
       link: "literature",
     },
   ];
-  $: path = i18n
-    .route($page.url.pathname)
-    .replace(`${POST_REVEAL_PREFIX}/wikia/`, "");
+  $: path = $page.url.pathname.replace(`${POST_REVEAL_PREFIX}/wikia/`, "");
   $: currentLink = links.find((link) => link.link === path) ?? links[0];
   $: currentLinkIndex = currentLink ? links.indexOf(currentLink) : undefined;
   let elements: HTMLAnchorElement[] = [];

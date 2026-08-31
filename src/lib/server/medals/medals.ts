@@ -4,8 +4,9 @@ import {
   endDate,
   coveredSemesters,
 } from "$lib/utils/semesters";
-import { languageTag } from "$paraglide/runtime";
+import { getLocale } from "$paraglide/runtime";
 import * as m from "$paraglide/messages";
+import type { LocalizedString } from "@inlang/paraglide-js";
 import type {
   ExtendedPrisma,
   ExtendedPrismaModel,
@@ -152,12 +153,10 @@ const gammalOchÄckligSemester = (
  * @param committee - The committee.
  * @returns a string with the name.
  */
-const committeeMedalName = (
-  committee: ExtendedPrismaModel<"Committee">,
-): string =>
+const committeeMedalName = (committee: ExtendedPrismaModel<"Committee">) =>
   m.medals_committeeMedal() +
   " — " +
-  (languageTag() === "sv" ? committee.nameSv : committee.nameEn);
+  (getLocale() === "sv" ? committee.nameSv : committee.nameEn);
 
 /**
  * Calculate after which semesters a certain member deserved their different
@@ -341,7 +340,7 @@ export const medalRecipients = async (
           ? []
           : [
               {
-                medal: committeeMedalName(committee),
+                medal: committeeMedalName(committee) as LocalizedString,
                 recipients: await getMembers(prisma, recipients),
               },
             ];

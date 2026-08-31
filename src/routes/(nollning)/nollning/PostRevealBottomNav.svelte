@@ -1,6 +1,5 @@
 <script lang="ts">
   import { page } from "$app/stores";
-  import { i18n } from "$lib/utils/i18n";
   import {
     appBottomNavRoutes,
     getIcon,
@@ -10,7 +9,7 @@
   $: routes = getRoutes();
   $: routesToShow = appBottomNavRoutes(routes);
   const prefix = "/nollning";
-  $: currentRoute = getPostRevealRoute(i18n.route($page.url.pathname));
+  $: currentRoute = getPostRevealRoute($page.url.pathname);
   $: bottomInsets = $page.data.appInfo?.insets?.bottom ?? 0;
 </script>
 

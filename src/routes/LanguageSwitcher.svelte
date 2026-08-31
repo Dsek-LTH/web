@@ -1,28 +1,32 @@
 <script lang="ts">
-  import { languageTag, onSetLanguageTag } from "$paraglide/runtime";
+  import { getLocale, setLocale } from "$paraglide/runtime";
   import { page } from "$app/stores";
-  import { i18n } from "$lib/utils/i18n";
-  import { invalidateAll } from "$app/navigation";
   import { twMerge } from "tailwind-merge";
-  import { browser } from "$app/environment";
 
   let clazz = "";
   export { clazz as class };
 
-  if (browser) {
-    onSetLanguageTag(() => {
-      document.cookie = `languageOverride=${languageTag()}; path=/`;
-      invalidateAll();
-    });
-  }
+  const switchLocale = async () => {
+    const next = getLocale() === "sv" ? "en" : "sv";
+    // Persist to the member's account so the custom-userPreference strategy
+    // (which takes priority over the cookie) doesn't snap back on next request.
+    if ($page.data.user?.studentId) {
+      await fetch("/api/language", {
+        method: "POST",
+        body: JSON.stringify({ language: next }),
+      });
+    }
+    setLocale(next);
+  };
 </script>
 
 <a
   class={twMerge("btn btn-ghost", clazz)}
-  href={i18n.route($page.url.pathname)}
-  hreflang={languageTag() === "sv" ? "en" : "sv"}
+  href={$page.url.pathname}
+  hreflang={getLocale() === "sv" ? "en" : "sv"}
+  on:click|preventDefault={switchLocale}
 >
   <slot>
-    {languageTag() === "sv" ? "EN" : "SV"}
+    {getLocale() === "sv" ? "EN" : "SV"}
   </slot>
 </a>

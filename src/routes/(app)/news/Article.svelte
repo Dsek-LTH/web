@@ -1,7 +1,7 @@
 <script lang="ts">
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import * as m from "$paraglide/messages";
-  import { languageTag } from "$paraglide/runtime";
+  import { getLocale } from "$paraglide/runtime";
   import Carousel from "$lib/components/Carousel.svelte";
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
@@ -38,7 +38,7 @@
   <slot name="tags" />
   <p class="my-4 text-sm text-gray-600">
     {m.news_published({
-      date: article.publishedAt?.toLocaleDateString(languageTag()) ?? "???",
+      date: article.publishedAt?.toLocaleDateString(getLocale()) ?? "???",
     })}
   </p>
 </section>
