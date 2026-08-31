@@ -9,7 +9,7 @@
   import { PUBLIC_BUCKETS_ALBUMS } from "$env/static/public";
 
   let { data }: PageProps = $props();
-  let albums: AlbumSchema[] = $derived(data.albums);
+  let albums: AlbumSchema[] = $derived(data.albums as AlbumSchema[]);
   let canCreate = $derived(
     isAuthorized(
       apiNames.FILES.BUCKET(PUBLIC_BUCKETS_ALBUMS).CREATE,

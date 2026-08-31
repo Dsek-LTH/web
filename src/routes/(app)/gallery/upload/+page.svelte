@@ -22,6 +22,9 @@
     superForm(data.form, {
       resetForm: false,
       dataType: "json",
+      onResult: ({ result }) => {
+        uploading = false;
+      },
     }) as SuperForm<UploadSchema>,
   );
 
@@ -91,6 +94,8 @@
         name="photographers"
         bind:selectedMembers={$form.photographers as SmallMemberSchema[]}
         multiple
+        showId
+        showClass
       />
     </div>
 
@@ -102,6 +107,8 @@
         name="editors"
         bind:selectedMembers={$form.editors as SmallMemberSchema[]}
         multiple
+        showId
+        showClass
       />
     </div>
 
@@ -148,7 +155,6 @@
         type="submit"
         onclick={() => {
           uploading = true;
-          console.log("Upload started, uploading state set to:", uploading);
         }}
       >
         {m.gallery_upload_upload()}
