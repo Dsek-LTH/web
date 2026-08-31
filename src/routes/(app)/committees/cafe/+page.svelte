@@ -1,7 +1,7 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
   import * as m from "$paraglide/messages";
-  import { languageTag } from "$paraglide/runtime";
+  import { getLocale } from "$paraglide/runtime";
   import dayjs from "dayjs";
 
   import CommitteePage from "../CommitteePage.svelte";
@@ -19,7 +19,7 @@
     while (date.getDay() - 1 !== weekday) {
       date.setDate(date.getDate() + 1);
     }
-    return date.toLocaleString(languageTag(), {
+    return date.toLocaleString(getLocale(), {
       weekday: "long",
     });
   };

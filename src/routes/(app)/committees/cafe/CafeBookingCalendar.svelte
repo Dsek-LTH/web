@@ -14,7 +14,7 @@
   import type { ShiftWithWorker, Ciabatta } from "./types";
   import { TimeSlot } from "./types";
   import "dayjs/locale/en-gb";
-  import { languageTag } from "$paraglide/runtime";
+  import { getLocale } from "$paraglide/runtime";
   import { page } from "$app/state";
 
   dayjs.extend(weekOfYear);
@@ -22,7 +22,7 @@
 
   const getWeekdayName = (weekday: number): string => {
     let locale: string;
-    switch (languageTag()) {
+    switch (getLocale()) {
       case "sv": {
         locale = "sv-SE";
         break;

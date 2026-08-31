@@ -3,7 +3,7 @@
   import GlobalAlert from "$lib/components/GlobalAlert.svelte";
   import AppNotificationTokenHandler from "$lib/components/utils/AppNotificationTokenHandler.svelte";
   import AppUnreadNotificationHandler from "$lib/components/utils/AppUnreadNotificationHandler.svelte";
-  import { languageTag } from "$paraglide/runtime";
+  import { getLocale } from "$paraglide/runtime";
   import "dayjs/locale/sv";
   import AppBottomNav from "../AppBottomNav.svelte";
   import AppHeader from "../AppHeader.svelte";
@@ -42,7 +42,7 @@
   {#if !alert.closedByMember.find((member) => member.id === data.member?.id)}
     <GlobalAlert
       id={alert.id}
-      message={languageTag() === "sv" ? alert.message : alert.messageEn}
+      message={getLocale() === "sv" ? alert.message : alert.messageEn}
       severity={alert.severity}
     />
   {/if}

@@ -12,10 +12,6 @@
   import apiNames from "$lib/utils/apiNames";
   import { page } from "$app/state";
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
-  /* eslint-disable no-restricted-imports -- This is needed for the language to be set correctly */
-  import { goto } from "$app/navigation";
-  /* eslint-enable no-restricted-imports -- Enable again */
-  import { i18n } from "$lib/utils/i18n";
 
   interface PageProps {
     isEditing: boolean;
@@ -30,7 +26,8 @@
       if (event.result.type === "success") {
         isEditing = false;
         const language = event.result.data?.["form"]["data"]["language"];
-        await goto(i18n.resolveRoute(i18n.route(page.url.pathname), language));
+        // Full reload so translations reflect the newly saved locale preference
+        if (language) window.location.reload();
       }
     },
   });

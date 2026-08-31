@@ -3,7 +3,7 @@
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
   import * as m from "$paraglide/messages";
-  import { languageTag } from "$paraglide/runtime";
+  import { getLocale } from "$paraglide/runtime";
   import type { Prisma } from "@prisma/client";
   import AddMandateForm from "./AddMandateForm.svelte";
   import UpdatePositionForm from "./UpdatePositionForm.svelte";
@@ -34,7 +34,7 @@
   );
   let years = $state(
     Object.keys(groupedByYear).sort((a, b) =>
-      b.localeCompare(a, languageTag()),
+      b.localeCompare(a, getLocale()),
     ),
   );
 

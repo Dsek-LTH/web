@@ -1,10 +1,8 @@
 <script lang="ts">
-  import { invalidateAll } from "$app/navigation";
   import { page } from "$app/stores";
   import DsekLogo from "$lib/components/DsekLogo.svelte";
-  import { i18n } from "$lib/utils/i18n";
   import * as m from "$paraglide/messages";
-  import { languageTag } from "$paraglide/runtime";
+  import { getLocale, setLocale } from "$paraglide/runtime";
   import "./nolla.css";
 
   let checked = false;
@@ -58,13 +56,14 @@
         <!-- svelte-ignore a11y_consider_explicit_label -->
         <a
           class="neo-brutal-btn aspect-square"
-          href={i18n.route($page.url.pathname)}
-          hreflang={languageTag() === "sv" ? "en" : "sv"}
-          on:click={() => invalidateAll()}
+          href={$page.url.pathname}
+          hreflang={getLocale() === "sv" ? "en" : "sv"}
+          on:click|preventDefault={() =>
+            setLocale(getLocale() === "sv" ? "en" : "sv")}
         >
           <span
-            class:i-flag-gb-4x3={languageTag() !== "sv"}
-            class:i-flag-se-4x3={languageTag() === "sv"}
+            class:i-flag-gb-4x3={getLocale() !== "sv"}
+            class:i-flag-se-4x3={getLocale() === "sv"}
             class="h-8 w-8"
           ></span>
         </a>

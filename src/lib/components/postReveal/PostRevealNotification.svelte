@@ -9,7 +9,6 @@
     POST_REVEAL_PREFIX,
   } from "$lib/components/postReveal/types";
   import AuthorAvatars from "$lib/components/socials/AuthorAvatars.svelte";
-  import { i18n } from "$lib/utils/i18n";
   import type { NotificationGroup } from "$lib/utils/notifications/group";
 
   const overrideLink = (link: string) => {
@@ -52,11 +51,9 @@
   // Handle "reading" notification when visiting relevant link
   $: isUnread = notification.readAt === null;
   $: isPathSame =
-    i18n.route($page.url.pathname) === link ||
+    $page.url.pathname === link ||
     (link.startsWith("/news/") &&
-      i18n
-        .route($page.url.pathname)
-        .startsWith(`${POST_REVEAL_PREFIX}/messages`));
+      $page.url.pathname.startsWith(`${POST_REVEAL_PREFIX}/messages`));
   $: (() => {
     if (isUnread && isPathSame) {
       setTimeout(() => {

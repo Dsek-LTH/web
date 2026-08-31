@@ -10,7 +10,7 @@
   import MemberBio from "./MemberBio.svelte";
   import * as m from "$paraglide/messages";
   import UpdateMemberForm from "./UpdateMemberForm.svelte";
-  import { languageTag } from "$paraglide/runtime";
+  import { getLocale } from "$paraglide/runtime";
   import PingButton from "./PingButton.svelte";
   import type { PageData } from "./$types";
   import SEO from "$lib/seo/SEO.svelte";
@@ -187,8 +187,8 @@
                 class="text-[var(--text-pink)] lg:tooltip before:text-balance"
                 data-tip={mandate.position.committee?.name +
                   `\n${mandate.startDate.toLocaleDateString(
-                    languageTag(),
-                  )} - ${mandate.endDate.toLocaleDateString(languageTag())}`}
+                    getLocale(),
+                  )} - ${mandate.endDate.toLocaleDateString(getLocale())}`}
               >
                 {#if mandate.phadderIn}
                   {mandate.position.name} i {mandate.phadderIn.name}

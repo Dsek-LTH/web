@@ -4,7 +4,7 @@
   import { page } from "$app/stores";
   import type { PageData } from "./$types";
   import { relativeDate } from "$lib/utils/client/datetime";
-  import { languageTag } from "$paraglide/runtime";
+  import { getLocale } from "$paraglide/runtime";
   import * as m from "$paraglide/messages";
   import { z } from "zod";
 
@@ -47,11 +47,11 @@
       {/if}
       <div>
         <span class="font-semibold">{relativeDate(event.startDatetime)}</span>
-        {event.startDatetime?.toLocaleTimeString([languageTag()], {
+        {event.startDatetime?.toLocaleTimeString([getLocale()], {
           hour: "2-digit",
           minute: "2-digit",
         })} →
-        {event.endDatetime?.toLocaleTimeString([languageTag()], {
+        {event.endDatetime?.toLocaleTimeString([getLocale()], {
           hour: "2-digit",
           minute: "2-digit",
         })}

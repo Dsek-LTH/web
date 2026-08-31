@@ -6,7 +6,7 @@
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
   import { getFullName } from "$lib/utils/client/member";
-  import { languageTag } from "$paraglide/runtime";
+  import { getLocale } from "$paraglide/runtime";
   import type { PageData } from "./$types";
   import { onMount } from "svelte";
   export let data: PageData;
@@ -23,8 +23,8 @@
     }),
   );
 
-  $: startDate = mandate.startDate.toLocaleDateString(languageTag());
-  $: endDate = mandate.endDate.toLocaleDateString(languageTag());
+  $: startDate = mandate.startDate.toLocaleDateString(getLocale());
+  $: endDate = mandate.endDate.toLocaleDateString(getLocale());
 </script>
 
 <div

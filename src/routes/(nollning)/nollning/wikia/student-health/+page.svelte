@@ -1,6 +1,6 @@
 <script lang="ts">
   import * as m from "$paraglide/messages";
-  import { languageTag } from "$paraglide/runtime";
+  import { getLocale } from "$paraglide/runtime";
 </script>
 
 <!-- limit width and center -->
@@ -30,7 +30,7 @@
       class="btn-primary-dark btn"
       on:click={() =>
         window.open(
-          `/nollning/documents/newStudentRights${languageTag() === "en" ? "Eng" : ""}.pdf`,
+          `/nollning/documents/newStudentRights${getLocale() === "en" ? "Eng" : ""}.pdf`,
           "_blank",
         )}
     >

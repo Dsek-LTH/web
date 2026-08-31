@@ -4,7 +4,7 @@
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
   import * as m from "$paraglide/messages";
-  import { languageTag } from "$paraglide/runtime";
+  import { getLocale } from "$paraglide/runtime";
   import { twMerge } from "tailwind-merge";
   export let song: ExtendedPrismaModel<"Song">;
   let clazz = "";
@@ -31,8 +31,8 @@
     </h2>
 
     <p class="text-right text-xs text-gray-500">
-      {song.createdAt?.toLocaleDateString([languageTag()]) ?? ""} <br />
-      {song.createdAt?.toLocaleTimeString([languageTag()], {
+      {song.createdAt?.toLocaleDateString([getLocale()]) ?? ""} <br />
+      {song.createdAt?.toLocaleTimeString([getLocale()], {
         hour: "2-digit",
         minute: "2-digit",
       }) ?? ""}

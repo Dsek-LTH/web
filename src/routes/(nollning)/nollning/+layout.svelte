@@ -4,7 +4,7 @@
   import logo26 from "./(photos)/Pink_Panther.png";
   import AppNotificationTokenHandler from "$lib/components/utils/AppNotificationTokenHandler.svelte";
   import AppUnreadNotificationHandler from "$lib/components/utils/AppUnreadNotificationHandler.svelte";
-  import { languageTag } from "$paraglide/runtime";
+  import { getLocale } from "$paraglide/runtime";
   import "@fontsource/lexend";
   import lexend400 from "@fontsource/lexend/files/lexend-latin-400-normal.woff2?url";
   import lexend500 from "@fontsource/lexend/files/lexend-latin-500-normal.woff2?url";
@@ -19,7 +19,7 @@
   export let data;
 
   $: (() => {
-    const locale = languageTag();
+    const locale = getLocale();
     dayjs.locale(locale);
   })();
 </script>

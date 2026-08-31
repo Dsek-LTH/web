@@ -3,7 +3,7 @@
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
   import * as m from "$paraglide/messages";
-  import { languageTag } from "$paraglide/runtime";
+  import { getLocale } from "$paraglide/runtime";
   import type { Committee, Prisma } from "@prisma/client";
 
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
@@ -12,7 +12,7 @@
   export let data: PageData;
   let positions = data.positions;
   const getCommitteeDisplayName = (c: Committee | null | undefined) => {
-    let preferred = languageTag() == "en" ? c?.nameEn : c?.nameSv;
+    let preferred = getLocale() == "en" ? c?.nameEn : c?.nameSv;
     return preferred ?? c?.nameSv ?? c?.id ?? "undefined";
   };
   let groupedByCommitte = positions

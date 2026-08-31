@@ -3,7 +3,6 @@
   import LoadingButton from "$lib/components/LoadingButton.svelte";
   import NavIcon from "$lib/components/NavIcon.svelte";
   import NotificationModal from "$lib/components/NotificationModal.svelte";
-  import { i18n } from "$lib/utils/i18n";
   import type { NotificationGroup } from "$lib/utils/notifications/group";
   import { signIn } from "$lib/utils/auth";
   import type { GlobalAppLoadData } from "./(app)/+layout.server";
@@ -19,7 +18,7 @@
   $: mutateNotificationForm = pageData["mutateNotificationForm"];
   $: routes = getRoutes();
   $: bottomNavRoutes = appBottomNavRoutes(routes).map((route) => route.path);
-  $: canGoBack = !bottomNavRoutes.includes(i18n.route($page.url.pathname));
+  $: canGoBack = !bottomNavRoutes.includes($page.url.pathname);
   $: topInsets = $page.data.appInfo?.insets?.top ?? 0;
 
   let notificationModal: HTMLDialogElement;

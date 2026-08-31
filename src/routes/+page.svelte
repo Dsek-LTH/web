@@ -1,10 +1,8 @@
 <script lang="ts">
   import { getFileUrl } from "$lib/files/client";
   import * as m from "$paraglide/messages";
-  import { i18n } from "$lib/utils/i18n";
   import { page } from "$app/stores";
-  import { languageTag } from "$paraglide/runtime";
-  import { invalidateAll } from "$app/navigation";
+  import { getLocale, setLocale } from "$paraglide/runtime";
   import SEO from "$lib/seo/SEO.svelte";
   import { signIn } from "$lib/utils/auth";
 
@@ -162,11 +160,12 @@
 
       <div class="hidden items-center gap-4 lg:flex">
         <a
-          href={i18n.route($page.url.pathname)}
-          hreflang={languageTag() === "sv" ? "en" : "sv"}
-          on:click={() => invalidateAll()}
+          href={$page.url.pathname}
+          hreflang={getLocale() === "sv" ? "en" : "sv"}
+          on:click|preventDefault={() =>
+            setLocale(getLocale() === "sv" ? "en" : "sv")}
         >
-          {languageTag() === "sv" ? "EN" : "SV"}
+          {getLocale() === "sv" ? "EN" : "SV"}
         </a>
         <button
           class="bg-[#433C3F]/60 px-8 py-4 uppercase text-white"
@@ -373,20 +372,20 @@
       </li>
       <li class="flex flex-row self-center pt-4">
         <a
-          href={i18n.route($page.url.pathname)}
+          href={$page.url.pathname}
           hreflang="sv"
           class="h-full rounded-full"
-          class:badge={languageTag() === "sv"}
-          on:click={() => invalidateAll()}
+          class:badge={getLocale() === "sv"}
+          on:click|preventDefault={() => setLocale("sv")}
         >
           SV
         </a>
         <a
-          href={i18n.route($page.url.pathname)}
+          href={$page.url.pathname}
           hreflang="en"
           class="h-full rounded-full"
-          class:badge={languageTag() === "en"}
-          on:click={() => invalidateAll()}
+          class:badge={getLocale() === "en"}
+          on:click|preventDefault={() => setLocale("en")}
         >
           EN
         </a>
