@@ -10,6 +10,7 @@
   import { goto } from "$app/navigation";
   import type { Display } from "./EventPageLoad.js";
   import dayjs from "dayjs";
+  import { resolve } from "$app/paths";
 
   const { data } = $props();
 
@@ -35,7 +36,7 @@
 </script>
 
 <div class="flex w-full flex-row justify-between">
-  <Button>
+  <Button href={resolve("/events/create")}>
     {messages.events_createEvent()}
   </Button>
 
