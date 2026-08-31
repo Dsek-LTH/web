@@ -129,7 +129,7 @@ export const getRoutes = (): Route[] =>
         },
         {
           title: m.expenses(),
-          path: "/expenses",
+          path: "https://ekonomi.dsek.se/",
           icon: "i-mdi-cash-multiple",
           accessRequired: apiNames.EXPENSES.CREATE,
           appBehaviour: "home-link",
