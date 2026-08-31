@@ -66,6 +66,34 @@ export const actions: Actions = {
       .filter((e) => e?.studentId != null)
       .map((e) => ({ studentId: e.studentId! }));
 
+    // Verify photographers and editors exist before connecting
+    let validPhotographers: Array<{ studentId: string }> = [];
+    let validEditors: Array<{ studentId: string }> = [];
+
+    if (photographerConnect.length > 0) {
+      const existingPhotographers = await locals.prisma.member.findMany({
+        where: {
+          studentId: { in: photographerConnect.map((p) => p.studentId) },
+        },
+        select: { studentId: true },
+      });
+      const existingIds = new Set(existingPhotographers.map((p) => p.studentId));
+      validPhotographers = photographerConnect.filter((p) =>
+        existingIds.has(p.studentId),
+      );
+    }
+
+    if (editorConnect.length > 0) {
+      const existingEditors = await locals.prisma.member.findMany({
+        where: {
+          studentId: { in: editorConnect.map((e) => e.studentId) },
+        },
+        select: { studentId: true },
+      });
+      const existingIds = new Set(existingEditors.map((e) => e.studentId));
+      validEditors = editorConnect.filter((e) => existingIds.has(e.studentId));
+    }
+
     let result: { id: string };
     try {
       console.log("Creating album in database with title:", title);
@@ -78,11 +106,10 @@ export const actions: Actions = {
           slug,
           imageCount: albumFiles.length,
           photographers:
-            photographerConnect.length > 0
-              ? { connect: photographerConnect }
+            validPhotographers.length > 0
+              ? { connect: validPhotographers }
               : undefined,
-          editors:
-            editorConnect.length > 0 ? { connect: editorConnect } : undefined,
+          editors: validEditors.length > 0 ? { connect: validEditors } : undefined,
         },
         select: { id: true },
       });
