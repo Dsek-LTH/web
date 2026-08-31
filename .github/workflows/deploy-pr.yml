@@ -31,7 +31,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           build-args: |
-            "PUBLIC_MINIO_BASE_URL=https://files-sandbox.dsek.se/"
+            "PUBLIC_MINIO_BASE_URL=https://files-sandbox.dsek.se"
             "PUBLIC_BUCKETS_ALBUMS=albums"
             "PUBLIC_BUCKETS_DOCUMENTS=documents"
             "PUBLIC_BUCKETS_FILES=files"
