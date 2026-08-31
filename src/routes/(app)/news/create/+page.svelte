@@ -45,7 +45,7 @@
         type="text"
         id="notificationText"
         name="notificationText"
-        placeholder="Notistext"><Pen /></Input
+        placeholder={m.news_notification_text()}><Pen /></Input
       >
       <span class="text-xs">{m.news_notification_explanation()}</span>
     </div>{/snippet}</ArticleEditor

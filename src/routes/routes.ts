@@ -155,14 +155,14 @@ export const getRoutes = (): Route[] =>
           path: "/shop/tickets",
         },
         {
-          title: "Bokningar",
+          title: m.bookings(),
           accessRequired: null,
           appBehaviour: "none",
           description: m.nav_bookings_desc(),
           path: "/bookings",
         },
         {
-          title: "Utlägg",
+          title: m.expenses(),
           accessRequired: null,
           appBehaviour: "none",
           description: m.nav_expenses_desc(),
@@ -351,7 +351,7 @@ export const getFooterRoutes = (): Route[] =>
 export const appBottomNavRoutes = (routes: Route[]): Route[] =>
   [
     {
-      title: "Hem",
+      title: m.home(),
       icon: "dsek-icon",
       path: "/app/home",
       accessRequired: null,
@@ -369,7 +369,7 @@ export const appBottomNavRoutes = (routes: Route[]): Route[] =>
     )
     .concat([
       {
-        title: "Konto",
+        title: m.account(),
         // icon: "i-mdi-account-circle",
         path: "/app/account",
         accessRequired: null,

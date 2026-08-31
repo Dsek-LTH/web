@@ -11,7 +11,7 @@ export const GET = async ({ locals, params }) => {
     params.slug,
   );
   const csv = generateCSV(ticket, consumables);
-  // return csv as file
+  // return CSV as file
   const res = new Response(csv, {
     headers: {
       "Content-Type": "text/csv",
