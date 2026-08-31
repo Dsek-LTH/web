@@ -22,7 +22,10 @@
     superForm(data.form, {
       resetForm: false,
       dataType: "json",
-      onResult: ({ result }) => {
+      onSubmit: () => {
+        uploading = true;
+      },
+      onResult: () => {
         uploading = false;
       },
     }) as SuperForm<UploadSchema>,
@@ -153,9 +156,6 @@
       <Button
         class="btn btn-primary"
         type="submit"
-        onclick={() => {
-          uploading = true;
-        }}
       >
         {m.gallery_upload_upload()}
       </Button>
