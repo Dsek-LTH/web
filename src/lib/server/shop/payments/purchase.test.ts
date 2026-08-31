@@ -57,7 +57,7 @@ const mockFns = vi.hoisted(() => ({
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- For mocking*/
 vi.mock("./stripe", () => ({
-  default: {
+  getStripe: () => ({
     customers: {
       create: (...args: any) => mockFns.customers.create(...args) as unknown,
       retrieve: (...args: any) =>
@@ -75,7 +75,7 @@ vi.mock("./stripe", () => ({
       cancel: (...args: any) =>
         mockFns.paymentIntents.cancel(...args) as unknown,
     },
-  },
+  }),
 }));
 /* eslint-enable @typescript-eslint/no-explicit-any -- End of mocking*/
 
@@ -135,7 +135,8 @@ const addPurchaseTestForUser = (
   });
 
   it("mocks stripe correctly", async () => {
-    const { default: stripe } = await import("./stripe");
+    const { getStripe } = await import("./stripe");
+    const stripe = getStripe();
     const customer = await stripe.customers.retrieve("customer-id");
     expect(customer).toBeDefined();
     expect(customer.id).toBe("customer-id");

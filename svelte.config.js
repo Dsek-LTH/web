@@ -2,9 +2,15 @@ import vercelAdapter from "@sveltejs/adapter-vercel";
 import nodeAdapter from "@sveltejs/adapter-node";
 import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
 import { execSync } from "child_process";
+import { existsSync } from "fs";
 import { env } from "process";
 
 const adapter = process.env.VERCEL_ENV ? vercelAdapter : nodeAdapter;
+const version =
+  env.VERSION ||
+  (existsSync(".git")
+    ? execSync("git describe --tags").toString().trim()
+    : undefined);
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -22,11 +28,7 @@ const config = {
       $paraglide: "./src/translations/paraglide", // same as outdir for paraglide in vite.config.ts
       $database: "./src/database",
     },
-    version: {
-      name: env.VERSION
-        ? env.VERSION
-        : execSync("git describe --tags").toString().trim(),
-    },
+    version: version ? { name: version } : {},
     experimental: {
       remoteFunctions: true,
       tracing: {

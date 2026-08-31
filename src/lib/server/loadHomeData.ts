@@ -1,7 +1,5 @@
-import {
-  PUBLIC_BUCKETS_DOCUMENTS,
-  PUBLIC_MINECRAFT_URL,
-} from "$env/static/public";
+import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
+import { env } from "$env/dynamic/private";
 import { BASIC_EVENT_FILTER } from "$lib/events/events";
 import { fileHandler } from "$lib/files";
 import { BASIC_ARTICLE_FILTER } from "$lib/news/articles";
@@ -236,7 +234,7 @@ export const loadHomeData = async ({
 
   const minecraftStatus = async () => {
     try {
-      return await pingUri(PUBLIC_MINECRAFT_URL, { timeout: 2000 });
+      return await pingUri(env.MINECRAFT_URL, { timeout: 2000 });
     } catch {
       console.log("Error, minecraft timed out");
       return null;

@@ -1,4 +1,3 @@
-import { PUBLIC_MEDIAWIKI_ENDPOINT } from "$env/static/public";
 import { env } from "$env/dynamic/private";
 import { withCache } from "$lib/utils/cache";
 
@@ -91,13 +90,10 @@ async function wikiLoginToken() {
   });
 
   try {
-    const res = await fetch(
-      `${PUBLIC_MEDIAWIKI_ENDPOINT}?${params.toString()}`,
-      {
-        method: "GET",
-        credentials: "include",
-      },
-    );
+    const res = await fetch(`${env.MEDIAWIKI_ENDPOINT}?${params.toString()}`, {
+      method: "GET",
+      credentials: "include",
+    });
 
     const data = await res.json();
 
@@ -140,7 +136,7 @@ async function wikiLoginSession(
     };
   }
 
-  const res = await fetch(PUBLIC_MEDIAWIKI_ENDPOINT, {
+  const res = await fetch(env.MEDIAWIKI_ENDPOINT, {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
@@ -185,7 +181,7 @@ async function wikiApiRecentChanges(
     ),
   );
 
-  const res = await fetch(PUBLIC_MEDIAWIKI_ENDPOINT, {
+  const res = await fetch(env.MEDIAWIKI_ENDPOINT, {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
@@ -201,7 +197,7 @@ async function wikiApiExtract(
   cookies: string,
   pageIDs: number[],
 ): Promise<{ query: { pages: Record<string, WikiExtractItem> } }> {
-  const res = await fetch(PUBLIC_MEDIAWIKI_ENDPOINT, {
+  const res = await fetch(env.MEDIAWIKI_ENDPOINT, {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
