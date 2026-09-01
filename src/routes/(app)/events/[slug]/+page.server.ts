@@ -1,21 +1,8 @@
 import { getAllTaggedMembers } from "$lib/utils/commentTagging";
-import {
-  commentAction,
-  commentSchema,
-  removeCommentAction,
-  removeCommentSchema,
-} from "$lib/zod/comments";
 import { error } from "@sveltejs/kit";
-import { superValidate } from "sveltekit-superforms/server";
-import { zod4 } from "sveltekit-superforms/adapters";
 import { api } from "$lib/api/client";
-import type { Actions, PageServerLoad } from "./$types";
-import {
-  removeEventAction,
-  removeEventSchema,
-} from "$lib/events/server/removeEventAction";
+import type { PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
-import { interestedGoingSchema } from "$lib/events/schema";
 
 // Server-only load, not +page.ts - a documented exception (see DESIGN.md's
 // "Principles going forward": "server-only load is a stopgap for routes
@@ -43,21 +30,10 @@ export const load: PageServerLoad = async ({ fetch, locals, params }) => {
   return {
     event,
     allTaggedMembers,
-    // Go's auth.Require is the only real gate and it's currently the
-    // all-permissions mock, so approximating a signal for a check that
-    // always passes anyway is pointless - same reasoning as the article
-    // detail page's canEdit/canDelete (see DESIGN.md's Auth section).
-    canEdit: true,
-    canDelete: true,
-    commentForm: await superValidate(zod4(commentSchema)),
-    removeCommentForm: await superValidate(zod4(removeCommentSchema)),
-    removeEventForm: await superValidate(zod4(removeEventSchema)),
-    interestedGoingForm: await superValidate(zod4(interestedGoingSchema)),
+    // From Go (EventDetail.canEdit/canDelete), computed server-side from
+    // the same checks Update/Delete themselves enforce - see the article
+    // detail page's +page.ts and DESIGN.md's "Principles going forward" #5.
+    canEdit: event.canEdit,
+    canDelete: event.canDelete,
   };
-};
-
-export const actions: Actions = {
-  comment: commentAction("EVENT"),
-  removeComment: removeCommentAction("EVENT"),
-  removeEvent: removeEventAction,
 };

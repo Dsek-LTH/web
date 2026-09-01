@@ -783,7 +783,23 @@ func (s *Service) detail(ctx context.Context, row db.ListArticlesRow) (*ArticleD
 		}
 	}
 
-	return &ArticleDetail{ArticleSummary: summary, Comments: comments}, nil
+	canEdit, canDelete := false, false
+	if identity, ok := auth.FromContext(ctx); ok {
+		// Mirrors Update's author-or-policy bypass and Delete's
+		// policy-only check exactly (see those methods) - one
+		// implementation of "can this identity touch this article",
+		// read here instead of duplicated.
+		canEdit = dbutil.UUIDStr(row.MemberID) == identity.MemberID ||
+			identity.Has(apinames.NewsArticleUpdate)
+		canDelete = identity.Has(apinames.NewsArticleDelete)
+	}
+
+	return &ArticleDetail{
+		ArticleSummary: summary,
+		Comments:       comments,
+		CanEdit:        canEdit,
+		CanDelete:      canDelete,
+	}, nil
 }
 
 func (s *Service) tagsByArticle(ctx context.Context, ids []pgtype.UUID) (map[string][]Tag, error) {

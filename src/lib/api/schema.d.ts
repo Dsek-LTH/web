@@ -298,6 +298,8 @@ export interface components {
             body: string;
             bodyEn?: string;
             bodySv: string;
+            canDelete: boolean;
+            canEdit: boolean;
             /** Format: int64 */
             commentCount: number;
             comments: components["schemas"]["Comment"][] | null;
@@ -489,6 +491,8 @@ export interface components {
             readonly $schema?: string;
             alarmActive: boolean;
             author: components["schemas"]["Member"];
+            canDelete: boolean;
+            canEdit: boolean;
             /** Format: int64 */
             commentCount: number;
             comments: components["schemas"]["Comment"][] | null;

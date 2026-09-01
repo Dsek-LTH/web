@@ -1,8 +1,5 @@
 import { error } from "@sveltejs/kit";
 import { api } from "$lib/api/client";
-import { interestedGoingSchema } from "$lib/events/schema";
-import { zod4 } from "sveltekit-superforms/adapters";
-import { superValidate } from "sveltekit-superforms/server";
 import type { PageLoad } from "./$types";
 
 function intParam(
@@ -53,6 +50,5 @@ export const load: PageLoad = async ({ fetch, url }) => {
     events: events ?? [],
     pageCount,
     allTags: tagsRes.data ?? [],
-    interestedGoingForm: await superValidate(zod4(interestedGoingSchema)),
   };
 };

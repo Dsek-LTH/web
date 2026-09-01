@@ -56,6 +56,16 @@ type EventDetail struct {
 	Comments   []Comment `json:"comments"`
 	Going      []Member  `json:"going"`
 	Interested []Member  `json:"interested"`
+	// CanEdit/CanDelete are the acting identity's own permissions on this
+	// event, computed server-side from the same checks Update/Delete
+	// themselves enforce (see Service.detail) - CanEdit mirrors Update's
+	// author-or-EventUpdate bypass, CanDelete mirrors Delete's
+	// EventDelete-only check (no author bypass - see Delete's doc comment).
+	// See articles.ArticleDetail's identical fields and DESIGN.md's
+	// "Principles going forward" #5 for why the frontend must read these
+	// rather than recompute them.
+	CanEdit   bool `json:"canEdit"`
+	CanDelete bool `json:"canDelete"`
 }
 
 // EditScope selects how a write to one occurrence of a recurring series

@@ -691,11 +691,24 @@ func (s *Service) detail(ctx context.Context, row db.ListEventsRow) (*EventDetai
 		}
 	}
 
+	canEdit, canDelete := false, false
+	if identity, ok := auth.FromContext(ctx); ok {
+		// Mirrors Update's author-or-EventUpdate bypass and Delete's
+		// EventDelete-only check (no author bypass, see Delete's doc
+		// comment) exactly - one implementation of "can this identity
+		// touch this event", read here instead of duplicated.
+		canEdit = dbutil.UUIDStr(row.AuthorMemberID) == identity.MemberID ||
+			identity.Has(apinames.EventUpdate)
+		canDelete = identity.Has(apinames.EventDelete)
+	}
+
 	return &EventDetail{
 		EventSummary: summary,
 		Comments:     comments,
 		Going:        orEmptyMembers(goingMembers),
 		Interested:   orEmptyMembers(interestedMembers),
+		CanEdit:      canEdit,
+		CanDelete:    canDelete,
 	}, nil
 }
 

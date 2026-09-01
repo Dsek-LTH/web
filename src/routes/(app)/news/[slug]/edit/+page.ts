@@ -92,10 +92,8 @@ export const load: PageLoad = async ({ fetch, params, parent }) => {
       zod4(updateSchema),
     ),
     committees: committeesRes.data ?? [],
-    // Hardcoded true, matching the article detail page's canEdit/canDelete -
-    // Go's auth.Require is the only real gate and it's currently the
-    // all-permissions mock, so approximating a signal for a check that
-    // always passes anyway is pointless. See DESIGN.md's Auth section.
-    canDelete: true,
+    // From Go (ArticleDetail.canDelete) - see the article detail page's
+    // +page.ts and DESIGN.md's "Principles going forward" #5.
+    canDelete: article.canDelete,
   };
 };

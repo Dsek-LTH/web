@@ -460,6 +460,12 @@ to be an oversight, not a considered choice):
     still the all-permissions mock from the Auth section above. The
     frontend shape should look like the finished design even though the
     backend enforcement behind it is still a stand-in.
+    **Superseded 2026-09-01 by "Real auth" below, which was never
+    circled back to fix this bullet's downstream effects** - see the
+    `canEdit`/`canDelete` correction further down and "Known gap:
+    frontend authorization must not be reimplemented, anywhere" in
+    "Principles going forward" for the accurate current state and the
+    open fix.
 - **Leftover Prisma calls in already-"ported" article pages are being
   removed, not kept.** These existed because porting them fully would have
   meant expanding Go's scope beyond articles - that reasoning turned out to
@@ -533,6 +539,51 @@ to be an oversight, not a considered choice):
   always passes anyway is pointless indirection - just say `true` and mock
   it plainly, matching the rest of the mocking principle. Revisit once Go
   exposes the acting identity's policies to the frontend for real.
+  **STALE - confirmed wrong 2026-09-01, not yet fixed.** The condition
+  this bullet names for revisiting ("once Go exposes the acting identity's
+  policies to the frontend for real") has been true since "Real auth"
+  below landed *the same day* this was written: `GET /me` returns real
+  resolved `policies`, and `hooks.server.ts` already stores them on
+  `locals.user.policies`, propagated to every page via the root
+  `+layout.server.ts` → `parent()`. Mock auth (`AUTH_MOCK=true`) is not
+  the default - `.env` has real Authentik credentials configured and
+  nothing sets `AUTH_MOCK`, so `RealAuthenticator` (real per-member
+  policies via `ListPoliciesForRolesOrStudentID`) is what actually runs
+  unless a developer explicitly opts into the mock for local testing (as
+  happened repeatedly this session, which is what created the impression
+  auth was still mocked - it wasn't, that was a testing shortcut, not the
+  shipped default). Nobody went back to fix this bullet once its own
+  stated condition became true. The same hardcoded-`true` pattern was then
+  **copied into `internal/events`'s equivalent fields** when events was
+  ported, carrying the stale reasoning forward a second time without
+  re-checking it.
+  **Not simply "swap in `isAuthorized(apiNames.EVENT.UPDATE, user)`
+  client-side," though — see "Known gap: frontend authorization must not
+  be reimplemented, anywhere" in "Principles going forward" for why that
+  particular fix was rejected and what the right shape is instead.**
+  **FIXED 2026-09-01, same day it was flagged.** `ArticleDetail`/
+  `EventDetail` now carry real `canEdit`/`canDelete` fields
+  (`backend/internal/articles/types.go`, `backend/internal/events/types.go`),
+  computed in each `Service.detail` from the exact author-or-policy checks
+  `Update`/`Delete` already run (`identity.MemberID == article's author` OR
+  the `*Update` policy, for `canEdit`; the `*Delete` policy alone, for
+  `canDelete` - matching articles' and events' own `Update`/`Delete`
+  bypass rules precisely, including events' no-author-bypass-on-delete
+  divergence). Anonymous requests get a real (non-privileged, unless the
+  `*` wildcard role grants otherwise - see below) `Identity` from
+  `RealAuthenticator.anonymousIdentity`, not a missing one, so the
+  zero-value `false`/`false` only applies when policy lookup genuinely
+  finds nothing. All four frontend call sites
+  (`src/routes/(app)/news/[slug]/+page.ts`,
+  `.../news/[slug]/edit/+page.ts`, `.../events/[slug]/+page.server.ts`,
+  `.../events/[slug]/edit/+page.ts`) now read `article.canEdit`/
+  `event.canDelete` etc. straight off the API response instead of
+  hardcoding `true` - zero authorization logic left in TypeScript, per
+  Principle #5. Verified against the live dev DB: an anonymous request
+  currently gets `canEdit`/`canDelete: true` for articles too, but that's
+  the dev DB's own seed data (`api_access_policies` grants the `*`
+  wildcard role every `news:article:*` policy - `psql`-verified, not a
+  code bug) showing through correctly, not a hole in this fix.
 - **Shared low-level components take local structural prop types**
   (`{name: string; color?: string}` etc.) instead of importing either
   backend's types directly - this is prop-shape typing for reusable UI,
@@ -849,3 +900,88 @@ ported).
 4. **SSR via SvelteKit universal load (`+page.ts`)** once the API supports
    client-authenticated calls; server-only load (`+page.server.ts`) is a
    stopgap for routes that can't do that yet, not the destination.
+5. **Go is the sole source of truth for both validation and authorization
+   - the frontend must never reimplement either, even client-side-only.**
+   (Decided 2026-09-01, prompted by two things found in the same
+   conversation: the articles/events like/RSVP/delete actions running
+   zod validation through a SvelteKit server action before forwarding to
+   Go, which re-validates anyway; and `canEdit`/`canDelete` being
+   hardcoded `true` on both detail pages - see the correction above -
+   because whoever would fix it reached for `isAuthorized`/`apiNames.ts`/
+   `getDerivedRoles`, a TypeScript reimplementation of policy logic Go
+   already has its own copy of.) The API is public and callable directly
+   from the browser already (see "API shape and frontend integration"
+   above), and a mobile app will call it too, going through none of
+   SvelteKit's code at all - so any validation or authorization logic
+   living in TypeScript is either (a) redundant, since Go has to enforce
+   it for real regardless of what the frontend decided, or (b) a second,
+   drifting copy of a rule the mobile app never sees and Go's tests never
+   cover. Neither is acceptable as the target shape, even though today's
+   TS-side checks are harmless in practice (Go's own enforcement doesn't
+   weaken if the frontend's copy is wrong).
+   - **Validation**: pure-proxy mutations (like/unlike, going/interested,
+     delete, comment add/remove) should call the Go API directly from the
+     client component - no SvelteKit server action, no zod schema for
+     them. This isn't a new CSRF exposure: the session cookie is
+     `SameSite=Lax`, which browsers withhold on cross-site requests
+     regardless of whether the call goes through a SvelteKit action or
+     straight to Go. Content-authoring forms (create/edit article/event)
+     may keep client-side zod, but only as instant-feedback UX, not as a
+     correctness or security boundary - Go's own validation is what
+     actually decides whether a save succeeds, unconditionally.
+     **IMPLEMENTED 2026-09-01.** The one mutation that actually had a live
+     frontend consumer - article delete (`Article.svelte`'s delete
+     dialog, and the same dialog on the edit page) - now calls
+     `DELETE /articles/{slug}` directly from a shared
+     `src/routes/(app)/news/RemoveArticleDialog.svelte` client component
+     (toast + `goto` on completion), replacing the `removeArticle`
+     SvelteKit action. Every *other* pure-proxy action
+     (articles' like/dislike/comment/removeComment; events'
+     comment/removeComment/removeEvent/going/interested) turned out to
+     have **zero live frontend consumers** - not just under-tested, no
+     `<form action="?/...">` or button anywhere referenced them (checked
+     by grepping every route under `news`/`events` for the action names
+     before deleting anything), a direct consequence of events' UI still
+     being `<NotImplemented />` stubs and no like/comment UI ever having
+     shipped for articles (see "Likes/comments are wired up... but
+     unused" elsewhere in this file). Deleted rather than left in place:
+     `src/routes/(app)/news/likes.ts`,
+     `src/routes/(app)/news/[slug]/+page.server.ts` and
+     `.../news/+page.server.ts` (both became empty once their only
+     actions were removed), `src/lib/zod/comments.ts`,
+     `src/lib/events/server/interestedGoing.ts`,
+     `src/lib/events/server/removeEventAction.ts`, and
+     `src/routes/(app)/events/+page.server.ts` (same "nothing left but an
+     empty actions export" situation). Kept deliberately: `interestedGoingSchema`
+     in `src/lib/events/schema.ts` (still used by the untouched
+     Prisma-backed `all-events` admin page's form scaffolding - out of
+     scope here, see "Not ported this pass" in the Events section) and
+     `src/lib/news/server/actions.ts` / `src/lib/events/server/actions.ts`
+     (create/update - real authoring forms with actual server-side work
+     - image upload sequencing, redirect logic - not pure proxies, so
+     Principle #5 doesn't apply to them; they keep their SvelteKit
+     actions and zod). When like/comment/going-interested/event-delete UI
+     eventually gets built, it should follow `RemoveArticleDialog.svelte`'s
+     pattern (direct client call, no new SvelteKit action, no zod) rather
+     than reintroducing the deleted action files.
+   - **Authorization**: **FIXED 2026-09-01, same day it was flagged** -
+     `canEdit`/`canDelete` (articles and events detail pages) are not
+     "fixed" by calling `isAuthorized(apiNames.X, user)` client-side, even
+     though `user.policies` is technically reachable there
+     (`hooks.server.ts` → root `+layout.server.ts` → `parent()`) - that
+     would have been the same reimplementation problem, just moved from
+     `+page.server.ts` to `+page.ts`. Recall that Update/Delete already
+     enforce a resource-specific bypass ("own article/event, or the
+     `*Update`/`*Delete` policy") entirely inside `articles.Service`/
+     `events.Service` - that's the one real implementation of "can this
+     identity touch this resource." The actual fix: Go computes and
+     returns that same answer as part of the resource response itself
+     (`canEdit`/`canDelete` fields on `ArticleDetail`/`EventDetail`,
+     computed in `Service.detail` from the exact logic `Update`/`Delete`
+     already run - see the correction earlier in this file for the full
+     detail), and all four frontend call sites read those fields instead
+     of hardcoding `true` - zero authorization logic of any kind left in
+     TypeScript. `src/lib/utils/authorization.ts`'s
+     `isAuthorized`/`authorize`/`getDerivedRoles` are **not** deleted yet -
+     still genuinely needed by the (unported) rest of the app - revisit
+     once nothing else calls them.

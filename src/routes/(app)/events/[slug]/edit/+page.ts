@@ -55,9 +55,8 @@ export const load: PageLoad = async ({ fetch, params }) => {
       },
       zod4(eventSchema.and(z.object({ editType: actionType }))),
     ),
-    // Go's auth.Require is the only real gate and it's currently the
-    // all-permissions mock - same reasoning as the event/article detail
-    // pages' canEdit/canDelete (see DESIGN.md's Auth section).
-    canDelete: true,
+    // From Go (EventDetail.canDelete) - see the event detail page's
+    // +page.server.ts and DESIGN.md's "Principles going forward" #5.
+    canDelete: event.canDelete,
   };
 };

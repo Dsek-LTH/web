@@ -96,6 +96,15 @@ type ArticleSummary struct {
 type ArticleDetail struct {
 	ArticleSummary
 	Comments []Comment `json:"comments"`
+	// CanEdit/CanDelete are the acting identity's own permissions on this
+	// article, computed server-side from the exact same author-or-policy
+	// checks Update/Delete themselves enforce (see Service.detail) - the
+	// frontend reads these instead of recomputing authorization itself. See
+	// DESIGN.md's "Principles going forward" #5 for why this exists: Go is
+	// the sole source of truth for authorization, even client-side-only
+	// reads of a policy array count as a forbidden reimplementation.
+	CanEdit   bool `json:"canEdit"`
+	CanDelete bool `json:"canDelete"`
 }
 
 // AuthorInput identifies which byline to attach, on top of the acting

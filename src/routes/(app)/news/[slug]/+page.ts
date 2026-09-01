@@ -21,10 +21,9 @@ export const load: PageLoad = async ({ fetch, params }) => {
     throw redirect(302, `${POST_REVEAL_PREFIX}/messages`);
   }
 
-  // Go's mock auth authorizes every request as if every policy were
-  // granted (see backend/CLAUDE.md's Auth section) - matching that here
-  // rather than reading the SvelteKit session for a real gate, since this
-  // page no longer touches that session for anything else. Revisit once
-  // Go exposes the acting identity's policies to the frontend.
-  return { article, canEdit: true, canDelete: true };
+  // canEdit/canDelete come straight from Go (ArticleDetail.canEdit/
+  // canDelete), computed server-side from the same author-or-policy check
+  // Update/Delete themselves enforce - see DESIGN.md's "Principles going
+  // forward" #5. Nothing here reimplements authorization.
+  return { article, canEdit: article.canEdit, canDelete: article.canDelete };
 };
