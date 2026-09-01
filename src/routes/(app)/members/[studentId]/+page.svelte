@@ -65,7 +65,18 @@
 </script>
 
 <SetPageTitle title={getFullName(member)} />
-<SEO data={{ type: "profile", member }} />
+<SEO
+  data={{
+    type: "profile",
+    member: {
+      firstName: member.firstName ?? null,
+      lastName: member.lastName ?? null,
+      studentId: member.studentId ?? null,
+      picturePath: member.picturePath ?? null,
+      bio: member.bio ?? null,
+    },
+  }}
+/>
 
 <PhadderGroupModal
   isEditing={true}
@@ -128,7 +139,7 @@
         </p>{/if}
       {#if member.bio}
         <h6 class="mt-1">Bio</h6>
-        <MemberBio bio={member.bio} />
+        <MemberBio bio={member.bio ?? null} />
       {/if}
     </section>
     <section class="layout-container flex flex-col gap-8 py-4">
@@ -149,7 +160,16 @@
               {#if mandates}
                 <div class="flex flex-col gap-2">
                   {#each mandates as mandate (mandate.id)}
-                    <PositionCard compact {mandate} />
+                    <PositionCard
+                      compact
+                      mandate={{
+                        id: mandate.id,
+                        position: {
+                          ...mandate.position!,
+                          committee: mandate.position?.committee ?? null,
+                        },
+                      }}
+                    />
                   {/each}
                 </div>
               {/if}
@@ -248,7 +268,7 @@
     {#if member.bio}
       <div class="flex flex-col">
         <h6>Bio</h6>
-        <MemberBio bio={member.bio} />
+        <MemberBio bio={member.bio ?? null} />
       </div>
     {/if}
     {#if medals.length > 0}
@@ -357,7 +377,15 @@
               <div class="inline-grid grid-cols-1 gap-4 lg:grid-cols-2">
                 {#if mandates}
                   {#each mandates as mandate (mandate.id)}
-                    <PositionCard {mandate} />
+                    <PositionCard
+                    mandate={{
+                      id: mandate.id,
+                      position: {
+                        ...mandate.position!,
+                        committee: mandate.position?.committee ?? null,
+                      },
+                    }}
+                  />
                   {/each}
                 {/if}
                 {#if member.nollaIn?.year.toString() === year}

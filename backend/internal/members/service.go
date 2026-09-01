@@ -98,8 +98,20 @@ func (s *Service) Profile(ctx context.Context, studentID string) (*MemberProfile
 	if err != nil {
 		return nil, fmt.Errorf("list mandates: %w", err)
 	}
+	loc := locale.FromContext(ctx)
 	mandates := make([]Mandate, len(mandateRows))
 	for i, m := range mandateRows {
+		var committee *apitypes.Committee
+		if m.CommitteeID.Valid {
+			committeeNameEn := dbutil.TextPtr(m.CommitteeNameEn)
+			committee = &apitypes.Committee{
+				ID:        dbutil.UUIDStr(m.CommitteeID),
+				Name:      dbutil.ResolveName(m.CommitteeNameSv.String, committeeNameEn, loc),
+				NameSv:    m.CommitteeNameSv.String,
+				NameEn:    committeeNameEn,
+				ShortName: dbutil.TextPtr(m.CommitteeShortName),
+			}
+		}
 		mandates[i] = Mandate{
 			ID:        dbutil.UUIDStr(m.ID),
 			StartDate: dbutil.DatePtr(m.StartDate),
@@ -109,11 +121,12 @@ func (s *Service) Profile(ctx context.Context, studentID string) (*MemberProfile
 				Name: dbutil.ResolveName(
 					m.PositionNameSv,
 					dbutil.TextPtr(m.PositionNameEn),
-					locale.FromContext(ctx),
+					loc,
 				),
 				NameSv:      m.PositionNameSv,
 				NameEn:      dbutil.TextPtr(m.PositionNameEn),
 				CommitteeID: dbutil.UUIDStrPtr(m.CommitteeID),
+				Committee:   committee,
 			},
 		}
 	}

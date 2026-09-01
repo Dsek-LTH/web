@@ -4,6 +4,58 @@
  */
 
 export interface paths {
+    "/access-policies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List access policy grants, optionally filtered by apiName */
+        get: operations["list-access-policies"];
+        put?: never;
+        /** Grant an apiName to a role or a specific member (exactly one) */
+        post: operations["create-access-policy"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/access-policies/api-names": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List the distinct apiName values already in use */
+        get: operations["list-access-policy-api-names"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/access-policies/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Revoke an access policy grant */
+        delete: operations["delete-access-policy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/articles": {
         parameters: {
             query?: never;
@@ -117,9 +169,61 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List committees, optionally filtered to one by shortName */
+        /** List committees with descriptions/images and currently-active mandate/member counts */
         get: operations["list-committees"];
         put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/committees/{shortName}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a committee's positions (for the given year, default current), mandates, and about/links content */
+        get: operations["get-committee"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Replace a committee's descriptions/images/banner */
+        patch: operations["update-committee"];
+        trace?: never;
+    };
+    "/committees/{shortName}/links": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Replace a committee's sidebar links content */
+        put: operations["update-committee-links"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/committees/{shortName}/markdown": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Replace a committee's about-text */
+        put: operations["update-committee-markdown"];
         post?: never;
         delete?: never;
         options?: never;
@@ -232,6 +336,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/mandates/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete a mandate */
+        delete: operations["delete-mandate"];
+        options?: never;
+        head?: never;
+        /** Replace a mandate's start/end dates */
+        patch: operations["update-mandate"];
+        trace?: never;
+    };
+    "/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List members, optionally filtered by classYear/classProgramme */
+        get: operations["list-members"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/members/{id}/mandates": {
         parameters: {
             query?: never;
@@ -243,6 +382,93 @@ export interface paths {
         get: operations["list-member-mandates"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/members/{studentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a member's full profile */
+        get: operations["get-member"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Replace a member's profile fields (full-replace, not a partial patch) */
+        patch: operations["update-member-profile"];
+        trace?: never;
+    };
+    "/members/{studentId}/food-preference": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Replace a member's food preference */
+        patch: operations["update-member-food-preference"];
+        trace?: never;
+    };
+    "/positions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List every position */
+        get: operations["list-positions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/positions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a position's full mandate history and email aliases */
+        get: operations["get-position"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Replace a position's fields and active/boardMember flags */
+        patch: operations["update-position"];
+        trace?: never;
+    };
+    "/positions/{positionId}/mandates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create a mandate on this position for each of the given memberIds */
+        post: operations["create-mandates"];
         delete?: never;
         options?: never;
         head?: never;
@@ -287,6 +513,22 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AccessPolicy: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/AccessPolicy.json
+             */
+            readonly $schema?: string;
+            apiName: string;
+            /** Format: date-time */
+            createdAt: string;
+            id: string;
+            memberFirstName?: string;
+            memberLastName?: string;
+            role?: string;
+            studentId?: string;
+        };
         ArticleDetail: {
             /**
              * Format: uri
@@ -403,12 +645,63 @@ export interface components {
             published: string;
         };
         Committee: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/Committee.json
+             */
+            readonly $schema?: string;
+            bannerUrl?: string;
+            darkImageUrl?: string;
+            description?: string;
+            descriptionEn?: string;
+            descriptionSv?: string;
             id: string;
+            isBannerTextLight?: boolean;
+            lightImageUrl?: string;
+            /** Format: int64 */
+            mandateCount?: number;
+            /** Format: int64 */
+            memberCount?: number;
+            monoImageUrl?: string;
             name: string;
             nameEn?: string;
             nameSv: string;
+            previewUrl?: string;
             shortName?: string;
             symbolUrl?: string;
+        };
+        CommitteeDetail: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/CommitteeDetail.json
+             */
+            readonly $schema?: string;
+            aboutMarkdown: components["schemas"]["MarkdownContent"];
+            bannerUrl?: string;
+            darkImageUrl?: string;
+            description?: string;
+            descriptionEn?: string;
+            descriptionSv?: string;
+            id: string;
+            isBannerTextLight?: boolean;
+            lightImageUrl?: string;
+            linksMarkdown: components["schemas"]["MarkdownContent"];
+            /** Format: int64 */
+            mandateCount?: number;
+            /** Format: int64 */
+            memberCount?: number;
+            monoImageUrl?: string;
+            name: string;
+            nameEn?: string;
+            nameSv: string;
+            positions: components["schemas"]["PositionDetail"][] | null;
+            previewUrl?: string;
+            shortName?: string;
+            symbolUrl?: string;
+            /** Format: int32 */
+            year: number;
         };
         CreateCommentInputBody: {
             /**
@@ -427,6 +720,28 @@ export interface components {
              */
             readonly $schema?: string;
             content: string;
+        };
+        CreateInput: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/CreateInput.json
+             */
+            readonly $schema?: string;
+            apiName: string;
+            role?: string;
+            studentId?: string;
+        };
+        CreateMandateInput: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/CreateMandateInput.json
+             */
+            readonly $schema?: string;
+            endDate: string;
+            memberIds: string[] | null;
+            startDate: string;
         };
         CustomAuthor: {
             id: string;
@@ -606,10 +921,33 @@ export interface components {
             pageCount: number;
         };
         Mandate: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/Mandate.json
+             */
+            readonly $schema?: string;
+            endDate?: string;
             id: string;
-            position: components["schemas"]["Position"];
+            member?: components["schemas"]["Member"];
+            position?: components["schemas"]["Position"];
+            startDate?: string;
+        };
+        MarkdownContent: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/MarkdownContent.json
+             */
+            readonly $schema?: string;
+            markdown: string;
+            markdownEn?: string;
+            markdownSv: string;
         };
         Member: {
+            classProgramme?: string;
+            /** Format: int32 */
+            classYear?: number;
             firstName?: string;
             id: string;
             lastName?: string;
@@ -617,11 +955,83 @@ export interface components {
             picturePath?: string;
             studentId?: string;
         };
+        MemberProfile: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/MemberProfile.json
+             */
+            readonly $schema?: string;
+            bio?: string;
+            classProgramme?: string;
+            /** Format: int32 */
+            classYear?: number;
+            email?: string;
+            firstName?: string;
+            foodPreference?: string;
+            /** Format: int32 */
+            graduationYear?: number;
+            id: string;
+            language?: string;
+            lastName?: string;
+            mandates?: components["schemas"]["Mandate"][] | null;
+            nickname?: string;
+            picturePath?: string;
+            studentId?: string;
+            visible: boolean;
+        };
         Position: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/Position.json
+             */
+            readonly $schema?: string;
+            active?: boolean;
+            boardMember?: boolean;
+            committee?: components["schemas"]["Committee"];
+            committeeId?: string;
+            description?: string;
+            descriptionEn?: string;
+            descriptionSv?: string;
+            email?: string;
+            emailAliases?: string[] | null;
+            /** Format: int32 */
+            endMonth?: number;
             id: string;
             name: string;
             nameEn?: string;
             nameSv: string;
+            /** Format: int32 */
+            startMonth?: number;
+        };
+        PositionDetail: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/PositionDetail.json
+             */
+            readonly $schema?: string;
+            active?: boolean;
+            boardMember?: boolean;
+            committee?: components["schemas"]["Committee"];
+            committeeId?: string;
+            description?: string;
+            descriptionEn?: string;
+            descriptionSv?: string;
+            email?: string;
+            emailAliases?: string[] | null;
+            /** Format: int32 */
+            endMonth?: number;
+            id: string;
+            mandates: components["schemas"]["Mandate"][] | null;
+            name: string;
+            nameEn?: string;
+            nameSv: string;
+            /** Format: int32 */
+            startMonth?: number;
+            /** Format: int32 */
+            year?: number;
         };
         RecurringInput: {
             /** Format: date-time */
@@ -657,6 +1067,87 @@ export interface components {
             nameEn?: string;
             nameSv: string;
         };
+        UpdateCommitteeInput: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/UpdateCommitteeInput.json
+             */
+            readonly $schema?: string;
+            bannerUrl?: string;
+            darkImageUrl?: string;
+            descriptionEn?: string;
+            descriptionSv?: string;
+            isBannerTextLight: boolean;
+            lightImageUrl?: string;
+            monoImageUrl?: string;
+            nameEn?: string;
+            nameSv: string;
+            previewUrl?: string;
+            symbolUrl?: string;
+        };
+        UpdateFoodPreferenceInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/UpdateFoodPreferenceInputBody.json
+             */
+            readonly $schema?: string;
+            foodPreference?: string;
+        };
+        UpdateMandateInput: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/UpdateMandateInput.json
+             */
+            readonly $schema?: string;
+            endDate: string;
+            startDate: string;
+        };
+        UpdateMarkdownInput: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/UpdateMarkdownInput.json
+             */
+            readonly $schema?: string;
+            markdownEn?: string;
+            markdownSv: string;
+        };
+        UpdatePositionInput: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/UpdatePositionInput.json
+             */
+            readonly $schema?: string;
+            active: boolean;
+            boardMember: boolean;
+            descriptionEn?: string;
+            descriptionSv?: string;
+            email?: string;
+            nameEn?: string;
+            nameSv: string;
+        };
+        UpdateProfileInput: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/UpdateProfileInput.json
+             */
+            readonly $schema?: string;
+            bio?: string;
+            classProgramme?: string;
+            /** Format: int32 */
+            classYear?: number;
+            firstName: string;
+            /** Format: int32 */
+            graduationYear?: number;
+            language?: string;
+            lastName: string;
+            nickname?: string;
+        };
         UploadOutputBody: {
             /**
              * Format: uri
@@ -675,6 +1166,128 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    "list-access-policies": {
+        parameters: {
+            query?: {
+                apiName?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccessPolicy"][] | null;
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "create-access-policy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateInput"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccessPolicy"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "list-access-policy-api-names": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string[] | null;
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "delete-access-policy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
     "list-articles": {
         parameters: {
             query?: {
@@ -1003,9 +1616,7 @@ export interface operations {
     };
     "list-committees": {
         parameters: {
-            query?: {
-                shortName?: string;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -1019,6 +1630,145 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Committee"][] | null;
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "get-committee": {
+        parameters: {
+            query?: {
+                /** @description defaults to the current year */
+                year?: number;
+            };
+            header?: never;
+            path: {
+                shortName: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommitteeDetail"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "update-committee": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                shortName: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateCommitteeInput"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Committee"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "update-committee-links": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                shortName: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateMarkdownInput"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MarkdownContent"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "update-committee-markdown": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                shortName: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateMarkdownInput"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MarkdownContent"];
                 };
             };
             /** @description Error */
@@ -1335,6 +2085,102 @@ export interface operations {
             };
         };
     };
+    "delete-mandate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "update-mandate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateMandateInput"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Mandate"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "list-members": {
+        parameters: {
+            query?: {
+                classYear?: number;
+                classProgramme?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberProfile"][] | null;
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
     "list-member-mandates": {
         parameters: {
             query?: never;
@@ -1348,6 +2194,237 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Mandate"][] | null;
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "get-member": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                studentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberProfile"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "update-member-profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                studentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateProfileInput"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberProfile"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "update-member-food-preference": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                studentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateFoodPreferenceInputBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberProfile"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "list-positions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Position"][] | null;
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "get-position": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PositionDetail"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "update-position": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdatePositionInput"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Position"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "create-mandates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                positionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateMandateInput"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };

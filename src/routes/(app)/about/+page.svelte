@@ -5,8 +5,10 @@
   import * as m from "$paraglide/messages";
   import { Button } from "$lib/components/ui/button";
   import { ArrowRight } from "@lucide/svelte";
-  import { type ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import { breakName } from "$lib/utils/committee";
+  import type { components } from "$lib/api/schema";
+
+  type Committee = components["schemas"]["Committee"];
   import { getFileUrl } from "$lib/files/client";
   import { mode } from "mode-watcher";
 
@@ -41,8 +43,8 @@
     class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
   >
     {#each data.committees
-      .filter((e: ExtendedPrismaModel<"Committee">) => e.shortName != "dchip")
-      .sort( (e1: ExtendedPrismaModel<"Committee">, e2: ExtendedPrismaModel<"Committee">) => e1.nameSv.localeCompare(e2.nameSv, "sv"), ) as committee, index (committee.id)}
+      .filter((e: Committee) => e.shortName != "dchip")
+      .sort( (e1: Committee, e2: Committee) => e1.nameSv.localeCompare(e2.nameSv, "sv"), ) as committee, index (committee.id)}
       <a class="group block" href="/committees/{committee.shortName}">
         <div
           class="border-border animate-in fade-in fill-mode-backwards slide-in-from-bottom-[1rem] group-hover:bg-muted-background flex h-full w-full flex-grow flex-col rounded-md border-[1px] duration-300"
@@ -103,7 +105,7 @@
   </a>
 </div>
 
-{#snippet committeeIcon(committee: ExtendedPrismaModel<"Committee">)}
+{#snippet committeeIcon(committee: Committee)}
   <CommitteeIcon
     override={committee.isBannerTextLight ? "light" : "dark"}
     {committee}

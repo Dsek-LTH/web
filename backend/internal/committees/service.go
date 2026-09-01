@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/dsek-lth/web/backend/internal/apinames"
 	"github.com/dsek-lth/web/backend/internal/auth"
@@ -26,6 +27,16 @@ var (
 
 func invalidf(format string, args ...any) error {
 	return fmt.Errorf("%w: "+format, append([]any{ErrInvalidInput}, args...)...)
+}
+
+// resolveDescription mirrors dbutil.ResolveName, but descriptionSv is
+// itself nullable in the DB (unlike name_sv) - nil in, nil out.
+func resolveDescription(descriptionSv, descriptionEn pgtype.Text, loc string) *string {
+	if !descriptionSv.Valid {
+		return nil
+	}
+	resolved := dbutil.ResolveName(descriptionSv.String, dbutil.TextPtr(descriptionEn), loc)
+	return &resolved
 }
 
 type Service struct {
@@ -53,6 +64,7 @@ func (s *Service) ListCommittees(ctx context.Context) ([]Committee, error) {
 			NameEn:            nameEn,
 			ShortName:         dbutil.TextPtr(r.ShortName),
 			SymbolURL:         dbutil.TextPtr(r.SymbolUrl),
+			Description:       resolveDescription(r.DescriptionSv, r.DescriptionEn, loc),
 			DescriptionSv:     dbutil.TextPtr(r.DescriptionSv),
 			DescriptionEn:     dbutil.TextPtr(r.DescriptionEn),
 			DarkImageURL:      dbutil.TextPtr(r.DarkImageUrl),
@@ -91,7 +103,7 @@ func (s *Service) GetByShortName(
 		return nil, fmt.Errorf("list positions: %w", err)
 	}
 
-	positions := make([]Position, 0, len(positionRows))
+	positions := make([]PositionDetail, 0, len(positionRows))
 	for _, p := range positionRows {
 		if !p.CommitteeID.Valid || dbutil.UUIDStr(p.CommitteeID) != dbutil.UUIDStr(row.ID) {
 			continue
@@ -108,24 +120,29 @@ func (s *Service) GetByShortName(
 			return nil, err
 		}
 		nameEn := dbutil.TextPtr(p.NameEn)
-		positions = append(positions, Position{
-			ID:            p.ID,
-			Name:          dbutil.ResolveName(p.NameSv, nameEn, loc),
-			NameSv:        p.NameSv,
-			NameEn:        nameEn,
-			CommitteeID:   dbutil.UUIDStrPtr(p.CommitteeID),
-			Email:         dbutil.TextPtr(p.Email),
-			Active:        &p.Active,
-			BoardMember:   &p.BoardMember,
-			DescriptionSv: dbutil.TextPtr(p.DescriptionSv),
-			DescriptionEn: dbutil.TextPtr(p.DescriptionEn),
-			StartMonth:    &p.StartMonth,
-			EndMonth:      &p.EndMonth,
-			EmailAliases:  aliases,
+		positions = append(positions, PositionDetail{
+			Position: Position{
+				ID:            p.ID,
+				Name:          dbutil.ResolveName(p.NameSv, nameEn, loc),
+				NameSv:        p.NameSv,
+				NameEn:        nameEn,
+				CommitteeID:   dbutil.UUIDStrPtr(p.CommitteeID),
+				Email:         dbutil.TextPtr(p.Email),
+				Active:        &p.Active,
+				BoardMember:   &p.BoardMember,
+				Description:   resolveDescription(p.DescriptionSv, p.DescriptionEn, loc),
+				DescriptionSv: dbutil.TextPtr(p.DescriptionSv),
+				DescriptionEn: dbutil.TextPtr(p.DescriptionEn),
+				StartMonth:    &p.StartMonth,
+				EndMonth:      &p.EndMonth,
+				EmailAliases:  aliases,
+			},
+			Year:     year,
+			Mandates: mandates,
 		})
 	}
 	shortNameStr := dbutil.StringOr(dbutil.TextPtr(row.ShortName), shortName)
-	SortCommitteePositions(positions, shortNameStr)
+	SortCommitteePositions(positions, shortNameStr, func(p PositionDetail) string { return p.ID })
 
 	about, err := s.markdown(ctx, shortNameStr)
 	if err != nil {
@@ -137,6 +154,7 @@ func (s *Service) GetByShortName(
 	}
 
 	nameEn := dbutil.TextPtr(row.NameEn)
+	mandateCount, memberCount := row.MandateCount, row.MemberCount
 	return &CommitteeDetail{
 		Committee: Committee{
 			ID:                dbutil.UUIDStr(row.ID),
@@ -145,6 +163,7 @@ func (s *Service) GetByShortName(
 			NameEn:            nameEn,
 			ShortName:         dbutil.TextPtr(row.ShortName),
 			SymbolURL:         dbutil.TextPtr(row.SymbolUrl),
+			Description:       resolveDescription(row.DescriptionSv, row.DescriptionEn, loc),
 			DescriptionSv:     dbutil.TextPtr(row.DescriptionSv),
 			DescriptionEn:     dbutil.TextPtr(row.DescriptionEn),
 			DarkImageURL:      dbutil.TextPtr(row.DarkImageUrl),
@@ -153,6 +172,8 @@ func (s *Service) GetByShortName(
 			BannerURL:         dbutil.TextPtr(row.BannerUrl),
 			IsBannerTextLight: &row.IsBannerTextLight,
 			PreviewURL:        dbutil.TextPtr(row.PreviewUrl),
+			MandateCount:      &mandateCount,
+			MemberCount:       &memberCount,
 		},
 		Year:          year,
 		Positions:     positions,
@@ -169,9 +190,11 @@ func (s *Service) markdown(ctx context.Context, name string) (MarkdownContent, e
 		}
 		return MarkdownContent{}, fmt.Errorf("get markdown %q: %w", name, err)
 	}
+	markdownEn := dbutil.TextPtr(row.MarkdownEn)
 	return MarkdownContent{
+		Markdown:   dbutil.ResolveName(row.MarkdownSv, markdownEn, locale.FromContext(ctx)),
 		MarkdownSv: row.MarkdownSv,
-		MarkdownEn: dbutil.TextPtr(row.MarkdownEn),
+		MarkdownEn: markdownEn,
 	}, nil
 }
 
@@ -185,6 +208,8 @@ func (s *Service) UpdateCommittee(
 	}
 	row, err := s.queries.UpdateCommittee(ctx, db.UpdateCommitteeParams{
 		ShortName:         dbutil.ToText(&shortName),
+		NameSv:            in.NameSv,
+		NameEn:            dbutil.ToText(in.NameEn),
 		DescriptionSv:     dbutil.ToText(in.DescriptionSv),
 		DescriptionEn:     dbutil.ToText(in.DescriptionEn),
 		DarkImageUrl:      dbutil.ToText(in.DarkImageURL),
@@ -210,6 +235,7 @@ func (s *Service) UpdateCommittee(
 		NameEn:            nameEn,
 		ShortName:         dbutil.TextPtr(row.ShortName),
 		SymbolURL:         dbutil.TextPtr(row.SymbolUrl),
+		Description:       resolveDescription(row.DescriptionSv, row.DescriptionEn, loc),
 		DescriptionSv:     dbutil.TextPtr(row.DescriptionSv),
 		DescriptionEn:     dbutil.TextPtr(row.DescriptionEn),
 		DarkImageURL:      dbutil.TextPtr(row.DarkImageUrl),
@@ -253,9 +279,11 @@ func (s *Service) upsertMarkdown(
 	if err != nil {
 		return nil, fmt.Errorf("upsert markdown %q: %w", name, err)
 	}
+	markdownEn := dbutil.TextPtr(row.MarkdownEn)
 	return &MarkdownContent{
+		Markdown:   dbutil.ResolveName(row.MarkdownSv, markdownEn, locale.FromContext(ctx)),
 		MarkdownSv: row.MarkdownSv,
-		MarkdownEn: dbutil.TextPtr(row.MarkdownEn),
+		MarkdownEn: markdownEn,
 	}, nil
 }
 
@@ -277,6 +305,7 @@ func (s *Service) ListPositions(ctx context.Context) ([]Position, error) {
 			Email:         dbutil.TextPtr(p.Email),
 			Active:        &p.Active,
 			BoardMember:   &p.BoardMember,
+			Description:   resolveDescription(p.DescriptionSv, p.DescriptionEn, loc),
 			DescriptionSv: dbutil.TextPtr(p.DescriptionSv),
 			DescriptionEn: dbutil.TextPtr(p.DescriptionEn),
 			StartMonth:    &p.StartMonth,
@@ -286,7 +315,11 @@ func (s *Service) ListPositions(ctx context.Context) ([]Position, error) {
 	return positions, nil
 }
 
-func (s *Service) GetPosition(ctx context.Context, id string, year int32) (*PositionDetail, error) {
+// GetPosition returns a position's full (unscoped, not year-filtered)
+// mandate history - the position detail page groups it client-side by
+// year for historical study-year statistics, unlike the committee detail
+// page's single-year view (GetByShortName).
+func (s *Service) GetPosition(ctx context.Context, id string) (*PositionDetail, error) {
 	row, err := s.queries.GetPosition(ctx, id)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -294,15 +327,48 @@ func (s *Service) GetPosition(ctx context.Context, id string, year int32) (*Posi
 		}
 		return nil, fmt.Errorf("get position: %w", err)
 	}
-	mandates, err := s.mandatesForPosition(ctx, id, year)
+	loc := locale.FromContext(ctx)
+
+	mandateRows, err := s.queries.ListAllMandatesForPosition(ctx, id)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("list mandates for position: %w", err)
 	}
+	mandates := make([]Mandate, len(mandateRows))
+	for i, m := range mandateRows {
+		mandates[i] = Mandate{
+			ID:        dbutil.UUIDStr(m.ID),
+			StartDate: dbutil.DatePtr(m.StartDate),
+			EndDate:   dbutil.DatePtr(m.EndDate),
+			Member: &Member{
+				ID:             dbutil.UUIDStr(m.MemberID),
+				StudentID:      dbutil.TextPtr(m.StudentID),
+				FirstName:      dbutil.TextPtr(m.FirstName),
+				Nickname:       dbutil.TextPtr(m.Nickname),
+				LastName:       dbutil.TextPtr(m.LastName),
+				PicturePath:    dbutil.TextPtr(m.PicturePath),
+				ClassYear:      dbutil.Int4Ptr(m.ClassYear),
+				ClassProgramme: dbutil.TextPtr(m.ClassProgramme),
+			},
+		}
+	}
+
 	aliases, err := s.emailAliasesForPosition(ctx, id)
 	if err != nil {
 		return nil, err
 	}
-	loc := locale.FromContext(ctx)
+
+	var committee *Committee
+	if row.CommitteeID.Valid {
+		committeeNameEn := dbutil.TextPtr(row.CommitteeNameEn)
+		committee = &Committee{
+			ID:        dbutil.UUIDStr(row.CommitteeID),
+			Name:      dbutil.ResolveName(row.CommitteeNameSv.String, committeeNameEn, loc),
+			NameSv:    row.CommitteeNameSv.String,
+			NameEn:    committeeNameEn,
+			ShortName: dbutil.TextPtr(row.CommitteeShortName),
+		}
+	}
+
 	nameEn := dbutil.TextPtr(row.NameEn)
 	return &PositionDetail{
 		Position: Position{
@@ -311,16 +377,17 @@ func (s *Service) GetPosition(ctx context.Context, id string, year int32) (*Posi
 			NameSv:        row.NameSv,
 			NameEn:        nameEn,
 			CommitteeID:   dbutil.UUIDStrPtr(row.CommitteeID),
+			Committee:     committee,
 			Email:         dbutil.TextPtr(row.Email),
 			Active:        &row.Active,
 			BoardMember:   &row.BoardMember,
+			Description:   resolveDescription(row.DescriptionSv, row.DescriptionEn, loc),
 			DescriptionSv: dbutil.TextPtr(row.DescriptionSv),
 			DescriptionEn: dbutil.TextPtr(row.DescriptionEn),
 			StartMonth:    &row.StartMonth,
 			EndMonth:      &row.EndMonth,
 			EmailAliases:  aliases,
 		},
-		Year:     year,
 		Mandates: mandates,
 	}, nil
 }
@@ -360,6 +427,7 @@ func (s *Service) UpdatePosition(
 		Email:         dbutil.TextPtr(row.Email),
 		Active:        &row.Active,
 		BoardMember:   &row.BoardMember,
+		Description:   resolveDescription(row.DescriptionSv, row.DescriptionEn, loc),
 		DescriptionSv: dbutil.TextPtr(row.DescriptionSv),
 		DescriptionEn: dbutil.TextPtr(row.DescriptionEn),
 		StartMonth:    &row.StartMonth,

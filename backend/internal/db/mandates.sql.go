@@ -95,6 +95,67 @@ func (q *Queries) ListActiveMandatesForMember(ctx context.Context, memberID pgty
 	return items, nil
 }
 
+const listAllMandatesForPosition = `-- name: ListAllMandatesForPosition :many
+SELECT m.id, m.start_date, m.end_date, mem.id AS member_id, mem.student_id,
+       mem.first_name, mem.nickname, mem.last_name, mem.picture_path,
+       mem.class_year, mem.class_programme
+FROM mandates m
+JOIN members mem ON mem.id = m.member_id
+WHERE m.position_id = $1
+ORDER BY m.start_date DESC
+`
+
+type ListAllMandatesForPositionRow struct {
+	ID             pgtype.UUID `json:"id"`
+	StartDate      pgtype.Date `json:"start_date"`
+	EndDate        pgtype.Date `json:"end_date"`
+	MemberID       pgtype.UUID `json:"member_id"`
+	StudentID      pgtype.Text `json:"student_id"`
+	FirstName      pgtype.Text `json:"first_name"`
+	Nickname       pgtype.Text `json:"nickname"`
+	LastName       pgtype.Text `json:"last_name"`
+	PicturePath    pgtype.Text `json:"picture_path"`
+	ClassYear      pgtype.Int4 `json:"class_year"`
+	ClassProgramme pgtype.Text `json:"class_programme"`
+}
+
+// Unscoped (full history, not year-scoped) - the position detail page
+// groups a position's entire mandate history client-side by year for
+// historical study-year statistics, unlike the committee detail page's
+// single-year view. Includes class_year/class_programme for that stats
+// computation and the member's programme badge.
+func (q *Queries) ListAllMandatesForPosition(ctx context.Context, positionID string) ([]ListAllMandatesForPositionRow, error) {
+	rows, err := q.db.Query(ctx, listAllMandatesForPosition, positionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListAllMandatesForPositionRow{}
+	for rows.Next() {
+		var i ListAllMandatesForPositionRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.StartDate,
+			&i.EndDate,
+			&i.MemberID,
+			&i.StudentID,
+			&i.FirstName,
+			&i.Nickname,
+			&i.LastName,
+			&i.PicturePath,
+			&i.ClassYear,
+			&i.ClassProgramme,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listMandatesForMember = `-- name: ListMandatesForMember :many
 SELECT m.id, m.start_date, m.end_date,
        p.id AS position_id, p.name_sv AS position_name_sv, p.name_en AS position_name_en,
@@ -183,7 +244,7 @@ type ListMandatesForPositionRow struct {
 }
 
 // Year-scoped (overlapping [year-01-01, year-12-31]), joined to member -
-// mirrors the old committee/position detail pages' year filter.
+// mirrors the committee detail page's year filter (GET /committees/{shortName}?year=).
 func (q *Queries) ListMandatesForPosition(ctx context.Context, arg ListMandatesForPositionParams) ([]ListMandatesForPositionRow, error) {
 	rows, err := q.db.Query(ctx, listMandatesForPosition, arg.PositionID, arg.Year)
 	if err != nil {

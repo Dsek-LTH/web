@@ -9,7 +9,7 @@
   import * as ButtonGroup from "$lib/components/ui/button-group";
   import * as m from "$paraglide/messages";
   import { Input } from "$lib/components/ui/input";
-  import type { CommitteeLoadData } from "./committee.server";
+  import type { CommitteeLoadData } from "./committee";
 
   let { data }: { data: CommitteeLoadData } = $props();
 

@@ -12,26 +12,34 @@ import (
 )
 
 const getPosition = `-- name: GetPosition :one
-SELECT id, name_sv, name_en, committee_id, email, active, board_member,
-       description_sv, description_en, start_month, end_month
-FROM positions
-WHERE id = $1
+SELECT p.id, p.name_sv, p.name_en, p.committee_id, p.email, p.active, p.board_member,
+       p.description_sv, p.description_en, p.start_month, p.end_month,
+       c.name_sv AS committee_name_sv, c.name_en AS committee_name_en, c.short_name AS committee_short_name
+FROM positions p
+LEFT JOIN committees c ON c.id = p.committee_id
+WHERE p.id = $1
 `
 
 type GetPositionRow struct {
-	ID            string      `json:"id"`
-	NameSv        string      `json:"name_sv"`
-	NameEn        pgtype.Text `json:"name_en"`
-	CommitteeID   pgtype.UUID `json:"committee_id"`
-	Email         pgtype.Text `json:"email"`
-	Active        bool        `json:"active"`
-	BoardMember   bool        `json:"board_member"`
-	DescriptionSv pgtype.Text `json:"description_sv"`
-	DescriptionEn pgtype.Text `json:"description_en"`
-	StartMonth    int32       `json:"start_month"`
-	EndMonth      int32       `json:"end_month"`
+	ID                 string      `json:"id"`
+	NameSv             string      `json:"name_sv"`
+	NameEn             pgtype.Text `json:"name_en"`
+	CommitteeID        pgtype.UUID `json:"committee_id"`
+	Email              pgtype.Text `json:"email"`
+	Active             bool        `json:"active"`
+	BoardMember        bool        `json:"board_member"`
+	DescriptionSv      pgtype.Text `json:"description_sv"`
+	DescriptionEn      pgtype.Text `json:"description_en"`
+	StartMonth         int32       `json:"start_month"`
+	EndMonth           int32       `json:"end_month"`
+	CommitteeNameSv    pgtype.Text `json:"committee_name_sv"`
+	CommitteeNameEn    pgtype.Text `json:"committee_name_en"`
+	CommitteeShortName pgtype.Text `json:"committee_short_name"`
 }
 
+// Joins the committee (name/shortName), unlike ListPositions/UpdatePosition -
+// the position detail page links/displays the committee without a second
+// request.
 func (q *Queries) GetPosition(ctx context.Context, id string) (GetPositionRow, error) {
 	row := q.db.QueryRow(ctx, getPosition, id)
 	var i GetPositionRow
@@ -47,6 +55,9 @@ func (q *Queries) GetPosition(ctx context.Context, id string) (GetPositionRow, e
 		&i.DescriptionEn,
 		&i.StartMonth,
 		&i.EndMonth,
+		&i.CommitteeNameSv,
+		&i.CommitteeNameEn,
+		&i.CommitteeShortName,
 	)
 	return i, err
 }

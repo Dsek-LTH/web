@@ -1,4 +1,5 @@
-import { fail } from "@sveltejs/kit";
+import { error, fail } from "@sveltejs/kit";
+import { api } from "$lib/api/client";
 import {
   message,
   superValidate,
@@ -9,13 +10,10 @@ import { z } from "zod";
 import * as m from "$paraglide/messages";
 import type { Actions, PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async ({ locals }) => {
-  const { prisma } = locals;
-  const positions = await prisma.position.findMany({
-    include: {
-      committee: true,
-    },
-  });
+export const load: PageServerLoad = async ({ fetch }) => {
+  const res = await api.GET("/positions", { fetch });
+  if (res.error) throw error(500, "Failed to load positions");
+  const positions = res.data ?? [];
 
   const updateForms = Object.fromEntries(
     positions.map((pos) => [
@@ -26,7 +24,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 
   return {
     updateForms,
-    positions: positions,
+    positions,
   };
 };
 
@@ -38,17 +36,34 @@ const updateSchema = z.object({
 export type UpdatePositionAttributeSchema = Infer<typeof updateSchema>;
 
 export const actions: Actions = {
-  update: async ({ request, locals }) => {
-    const { prisma } = locals;
+  update: async ({ request, fetch }) => {
     const form = await superValidate(request, zod4(updateSchema));
     if (!form.valid) return fail(400, { form });
-    await prisma.position.update({
-      where: { id: form.data.id },
-      data: {
-        active: form.data.active,
+
+    // Full-replace: fetch the current position so its name/email/description
+    // fields aren't wiped by this active/boardMember-only form.
+    const currentRes = await api.GET("/positions/{id}", {
+      fetch,
+      params: { path: { id: form.data.id } },
+    });
+    if (currentRes.error) return fail(404, { form });
+    const current = currentRes.data;
+
+    const res = await api.PATCH("/positions/{id}", {
+      fetch,
+      params: { path: { id: form.data.id } },
+      body: {
+        nameSv: current.nameSv ?? "",
+        nameEn: current.nameEn,
+        email: current.email,
+        descriptionSv: current.descriptionSv,
+        descriptionEn: current.descriptionEn,
+        active: form.data.active ?? current.active ?? true,
         boardMember: form.data.boardMember,
       },
     });
+    if (res.error) return fail(500, { form });
+
     return message(form, {
       message: m.positions_positionUpdated(),
       type: "success",

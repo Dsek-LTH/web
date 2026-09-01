@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { CommitteeLoadData } from "../../committee.server";
+  import type { CommitteeLoadData } from "../../committee";
   import type { PageData } from "./$types";
   import ArticleCard from "$lib/components/ArticleCard.svelte";
 

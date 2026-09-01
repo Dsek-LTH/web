@@ -1,6 +1,6 @@
 import apiNames from "$lib/utils/apiNames";
 import { api } from "$lib/api/client";
-import { authorize, isAuthorized } from "$lib/utils/authorization";
+import { authorize } from "$lib/utils/authorization";
 import { getCurrentDoorPoliciesForMember } from "$lib/utils/member";
 import { emptySchema, memberSchema } from "$lib/zod/schemas";
 import * as m from "$paraglide/messages";
@@ -23,40 +23,30 @@ import { v4 as uuid } from "uuid";
 import type { Actions, PageServerLoad } from "./$types";
 import { deletePictureSchema, uploadPictureSchema } from "./types";
 import { removeMyProfilePicture } from "$lib/files/photos/profilePictures";
-import DOMPurify from "isomorphic-dompurify";
 
 const PROFILE_PICTURE_PREFIX = (studentId: string) =>
   `public/${studentId}/profile-picture`;
 
-export const load: PageServerLoad = async ({ locals, params, cookies, fetch }) => {
+// Server-only load, not +page.ts - a documented exception (see DESIGN.md's
+// "Principles going forward"): doorAccess/medals/ping/phadderGroups/nollaIn
+// aren't part of the directory-foundation port (each belongs to a
+// different, later phase - see backend/CLAUDE.md's "Directory routes"
+// section) and are still real Prisma lookups, so this can't move to a
+// universal load the way the fully-ported fields below could on their own.
+export const load: PageServerLoad = async ({
+  locals,
+  params,
+  cookies,
+  fetch,
+}) => {
   const { prisma, user } = locals;
   const { studentId } = params;
-  const [memberResult, publishedArticlesResult, phadderGroupsResult] =
+
+  const [memberRes, publishedArticlesResult, phadderGroupsResult, nollaResult] =
     await Promise.allSettled([
-      prisma.member.findUnique({
-        where: {
-          studentId: studentId,
-        },
-        include: {
-          nollaIn: true,
-          mandates: {
-            include: {
-              phadderIn: true,
-              position: {
-                include: {
-                  committee: true,
-                },
-              },
-            },
-          },
-          authoredEvents: {
-            orderBy: {
-              startDatetime: "desc",
-            },
-            take: 5,
-          },
-          doorAccessPolicies: {},
-        },
+      api.GET("/members/{studentId}", {
+        fetch,
+        params: { path: { studentId } },
       }),
       // Fetches 5 and filters out Custom-byline articles client-side rather
       // than server-side (the Go API's authorStudentId filter matches on
@@ -77,36 +67,47 @@ export const load: PageServerLoad = async ({ locals, params, cookies, fetch }) =
             ) ?? [],
         ),
       prisma.phadderGroup.findMany({
-        orderBy: {
-          year: "asc",
-        },
+        orderBy: { year: "asc" },
+      }),
+      // nollningGroupId/nollaIn aren't part of the Go member API yet (owned
+      // by the Phase 2 nollning redesign, see DESIGN.md's roadmap) - kept
+      // as a narrow, explicit Prisma read, not a broader bridge for the
+      // ported member domain.
+      prisma.member.findUnique({
+        where: { studentId },
+        select: { nollaIn: true },
       }),
     ]);
-  if (memberResult.status === "rejected")
+  if (memberRes.status === "rejected" || memberRes.value.error)
     throw error(500, m.members_errors_couldntFetchMember());
   if (publishedArticlesResult.status === "rejected")
     throw error(500, m.members_errors_couldntFetchArticles());
-  if (!memberResult.value) throw error(404, m.members_errors_memberNotFound());
   if (phadderGroupsResult.status === "rejected")
     throw error(505, phadderGroupsResult.reason);
+  if (nollaResult.status === "rejected") throw error(505, nollaResult.reason);
 
-  const member = memberResult.value;
+  const profile = memberRes.value.data;
+  if (!profile) throw error(404, m.members_errors_memberNotFound());
 
-  const showPhadderGroupModal =
-    member.nollningGroupId === null &&
-    cookies.get("phadder_group_modal_skipped") !== "1" &&
-    cookies.get("phadder_group_modal_never") !== "1";
+  const member = {
+    ...profile,
+    mandates: (profile.mandates ?? []).map((mandate) => ({
+      ...mandate,
+      startDate: new Date(mandate.startDate!),
+      endDate: new Date(mandate.endDate!),
+    })),
+    nollaIn: nollaResult.value?.nollaIn ?? null,
+  };
 
   const doorAccess =
     member.id === user?.memberId
       ? await getCurrentDoorPoliciesForMember(prisma, studentId)
       : [];
 
-  const email =
-    user.studentId === studentId ||
-    isAuthorized(apiNames.MEMBER.SEE_EMAIL, user)
-      ? member.email
-      : undefined;
+  const showPhadderGroupModal =
+    member.nollaIn === null &&
+    cookies.get("phadder_group_modal_skipped") !== "1" &&
+    cookies.get("phadder_group_modal_never") !== "1";
 
   try {
     return {
@@ -116,7 +117,6 @@ export const load: PageServerLoad = async ({ locals, params, cookies, fetch }) =
       viewedMember: member, // https://github.com/Dsek-LTH/web/issues/194
       doorAccess,
       publishedArticles: publishedArticlesResult.value ?? [],
-      email,
       medals: await memberMedals(
         prisma,
         member.id,
@@ -127,14 +127,8 @@ export const load: PageServerLoad = async ({ locals, params, cookies, fetch }) =
         ? await prisma.ping.findFirst({
             where: {
               OR: [
-                {
-                  fromMemberId: member.id,
-                  toMemberId: user.memberId,
-                },
-                {
-                  fromMemberId: user.memberId,
-                  toMemberId: member.id,
-                },
+                { fromMemberId: member.id, toMemberId: user.memberId },
+                { fromMemberId: user.memberId, toMemberId: member.id },
               ],
             },
           })
@@ -261,20 +255,24 @@ export const actions: Actions = {
       type: "success",
     });
   },
-  updateFoodPreference: async ({ params, locals, request }) => {
-    const { prisma } = locals;
+  updateFoodPreference: async ({ params, fetch, request }) => {
     const form = await superValidate(
       request,
       zod4(z.object({ foodPreference: z.string() })),
     );
     if (!form.valid) return fail(400, { form });
     const { studentId } = params;
-    await prisma.member.update({
-      where: { studentId },
-      data: {
-        foodPreference: form.data.foodPreference,
-      },
+    const res = await api.PATCH("/members/{studentId}/food-preference", {
+      fetch,
+      params: { path: { studentId } },
+      body: { foodPreference: form.data.foodPreference },
     });
+    if (res.error)
+      return message(
+        form,
+        { message: m.members_errors_couldntFetchMember(), type: "error" },
+        { status: (res.response.status as NumericRange<400, 599>) ?? 500 },
+      );
     return message(form, {
       message: m.members_memberUpdated(),
       type: "success",
@@ -313,19 +311,47 @@ export const actions: Actions = {
       });
     else return null;
   },
-  update: async ({ params, locals, request }) => {
-    const { prisma } = locals;
+  update: async ({ params, locals, fetch, request }) => {
     const form = await superValidate(request, zod4(updateSchema));
     if (!form.valid) return fail(400, { form });
     const { studentId } = params;
+    const { nollningGroupId, foodPreference, ...profileFields } = form.data;
 
-    const { bio, ...rest } = form.data;
-    await prisma.member.update({
-      where: { studentId },
-      data: {
-        bio: bio ? DOMPurify.sanitize(bio) : bio,
-        ...rest,
+    const res = await api.PATCH("/members/{studentId}", {
+      fetch,
+      params: { path: { studentId } },
+      body: {
+        firstName: profileFields.firstName ?? "",
+        lastName: profileFields.lastName ?? "",
+        nickname: profileFields.nickname ?? undefined,
+        classProgramme: profileFields.classProgramme ?? undefined,
+        classYear: profileFields.classYear ?? undefined,
+        graduationYear: profileFields.graduationYear ?? undefined,
+        language: profileFields.language ?? undefined,
+        bio: profileFields.bio ?? undefined,
       },
+    });
+    if (foodPreference !== undefined) {
+      await api.PATCH("/members/{studentId}/food-preference", {
+        fetch,
+        params: { path: { studentId } },
+        body: { foodPreference: foodPreference ?? undefined },
+      });
+    }
+    if (res.error)
+      return message(
+        form,
+        { message: m.members_errors_couldntFetchMember(), type: "error" },
+        { status: (res.response.status as NumericRange<400, 599>) ?? 500 },
+      );
+
+    // nollningGroupId isn't part of the Go member API yet (owned by the
+    // Phase 2 nollning redesign, see DESIGN.md's roadmap) - narrow,
+    // explicit, temporary direct write, not a broader Prisma bridge for the
+    // rest of the (now Go-backed) member domain.
+    await locals.prisma.member.update({
+      where: { studentId },
+      data: { nollningGroupId: nollningGroupId ?? null },
     });
 
     return message(form, {

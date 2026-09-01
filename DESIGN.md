@@ -1062,22 +1062,31 @@ nollning itself needs real, deliberate design, not permanent exclusion.
    management. Almost everything below displays or authorizes off member/
    mandate/committee data, including nollning's own role derivation -
    this has to be solid before nollning or anything else builds on it.
-   **Status: Go backend implemented 2026-09-01** (`backend/internal/members`,
-   `backend/internal/committees`, `backend/internal/accesspolicies` -
-   see `backend/CLAUDE.md`'s "Directory routes" section for the exact
-   endpoint list and every scope cut). SvelteKit frontend wiring is a
-   planned fast-follow, not done yet - every route above is real and
-   tested via curl against the live dev DB, but nothing in `src/` calls
-   any of it. Two small gaps deliberately left for that fast-follow to
-   resolve: the frontend still needs either `src/lib/utils/positions.ts`'s
-   `positionToCommitteeMap` ported wholesale or a switch to full position
-   IDs in routes (Go itself doesn't need that map - it resolves committee
-   identity via a real FK); and onboarding's field subset includes `email`,
-   which the new member-update endpoints don't support editing (matches
-   profile-edit's own restriction, but onboarding hasn't been re-pointed at
-   the new endpoints yet to notice). Board-page porting (SEE_STABEN
-   staben-hiding) stayed deferred to Phase 2 exactly as planned below, not
-   ported as a half-hack.
+   **Status: implemented 2026-09-01, backend and SvelteKit frontend wiring
+   both done** (`backend/internal/members`, `backend/internal/committees`,
+   `backend/internal/accesspolicies` - see `backend/CLAUDE.md`'s "Directory
+   routes" section for the exact endpoint list, every scope cut, and the
+   frontend-wiring notes). Verified via `svelte-check`/`eslint` (0 errors)
+   and live SSR + a real mutation round-trip against the dev DB, matching
+   the standard the articles/events ports were held to.
+   `positionToCommitteeMap` turned out not to need any change at all once
+   actually wired up - Go addresses positions by full ID, and the
+   frontend's existing short-URL scheme keeps working unmodified since
+   position IDs themselves didn't change; the anticipated "port the map or
+   switch URL schemes" fork never had to be taken. `apitypes.Committee`/
+   `Position` gained a resolved `description` field (mirroring `Name`) and
+   `Position.committee`/`Mandate.member` gained full sub-objects in the
+   specific contexts that render them (a member's mandate history; a
+   position's mandate-holder list) - gaps the backend-only pass hadn't
+   surfaced yet, found once real frontend consumers existed. Two small
+   accepted gaps remain, both pre-existing rather than introduced by this
+   pass: `nollningGroupId`/onboarding's `email` field stay on a narrow,
+   explicit direct Prisma write (see backend/CLAUDE.md); mandate
+   update/delete flash messages no longer personalize with the member's
+   name (Go has no single-mandate lookup, not worth a round-trip just for
+   a display string). Board-page porting (SEE_STABEN staben-hiding) stayed
+   deferred to Phase 2 exactly as planned below, not ported as a
+   half-hack.
 2. **Nollning redesign** (see below) - deliberately placed right after
    foundation and before any other feature phase, so nothing built from
    here on needs to route around nollning special-cases the way the

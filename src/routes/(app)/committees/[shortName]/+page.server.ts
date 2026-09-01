@@ -1,3 +1,3 @@
-import { committeeActions } from "../committee.server";
+import { committeeActions } from "../committee";
 
 export const actions = committeeActions();

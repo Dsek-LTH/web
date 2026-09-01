@@ -1,8 +1,8 @@
 import type { PageServerLoad } from "./$types";
-import { committeeActions, committeeLoad } from "../../committee.server";
+import { committeeActions, committeeLoad } from "../../committee";
 import { getYearOrThrowSvelteError } from "$lib/utils/url.server";
 
-export const load: PageServerLoad = async ({ locals, url }) => {
+export const load: PageServerLoad = async ({ locals, url, fetch }) => {
   const { prisma } = locals;
   const currentYear = new Date().getFullYear();
   // Allow to see committees from 1982 to the NEXT year
@@ -25,7 +25,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
       createdAt: "asc",
     },
   });
-  return committeeLoad(prisma, "nollu", url).then(async (data) => ({
+  return committeeLoad(fetch, "nollu", url).then(async (data) => ({
     ...data,
     phadderGroups: await phadderGroups,
   }));

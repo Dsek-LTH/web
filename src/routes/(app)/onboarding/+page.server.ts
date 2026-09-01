@@ -1,4 +1,5 @@
 import { memberSchema } from "$lib/zod/schemas";
+import { api } from "$lib/api/client";
 import { superValidate, type Infer } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
 import type { Actions, PageServerLoad } from "./$types";
@@ -6,24 +7,21 @@ import { error, fail } from "@sveltejs/kit";
 import { redirect } from "sveltekit-flash-message/server";
 import * as m from "$paraglide/messages";
 
-export const load: PageServerLoad = async ({ locals }) => {
-  const { prisma } = locals;
-  const [memberResult, phadderGroupsResult] = await Promise.allSettled([
-    prisma.member.findUnique({
-      where: {
-        studentId: locals.user?.studentId,
-      },
-    }),
-    prisma.phadderGroup.findMany({
-      orderBy: {
-        createdAt: "asc",
-      },
-    }),
+// Server-only load, not +page.ts - `phadderGroups` isn't part of the Go
+// member API yet (Phase 2 nollning redesign, see DESIGN.md's roadmap).
+export const load: PageServerLoad = async ({ locals, fetch }) => {
+  const studentId = locals.user?.studentId;
+  if (!studentId) redirect(302, "/");
+
+  const [memberRes, phadderGroupsResult] = await Promise.allSettled([
+    api.GET("/members/{studentId}", { fetch, params: { path: { studentId } } }),
+    locals.prisma.phadderGroup.findMany({ orderBy: { createdAt: "asc" } }),
   ]);
-  if (memberResult.status === "rejected") {
+  if (memberRes.status === "rejected" || memberRes.value.error) {
     redirect(302, "/");
   }
-  if (!memberResult.value) {
+  const profile = memberRes.value.data;
+  if (!profile) {
     throw error(404, m.onboarding_errors_memberNotFound());
   }
   if (phadderGroupsResult.status === "rejected")
@@ -31,18 +29,17 @@ export const load: PageServerLoad = async ({ locals }) => {
       500,
       phadderGroupsResult.reason ?? "Couldn't fetch phadder groups",
     );
-  const member = memberResult.value;
   const phadderGroups = phadderGroupsResult.value;
   return {
     form: await superValidate(
       {
-        ...member,
-        classProgramme: member.classProgramme,
-        classYear: member.classYear ?? new Date().getFullYear(),
+        ...profile,
+        classProgramme: profile.classProgramme,
+        classYear: profile.classYear ?? new Date().getFullYear(),
       },
       zod4(memberSchema),
     ),
-    member,
+    member: profile,
     phadderGroups,
   };
 };
@@ -61,21 +58,50 @@ const updateSchema = memberSchema.pick({
 export type UpdateSchema = Infer<typeof updateSchema>;
 
 export const actions: Actions = {
-  update: async ({ locals, request, cookies }) => {
-    const { prisma } = locals;
+  update: async ({ locals, fetch, request, cookies }) => {
     const form = await superValidate(request, zod4(updateSchema));
     if (!form.valid) return fail(400, { form });
     const studentId = locals.user?.studentId;
-    if (studentId) {
-      await prisma.member.update({
-        where: { studentId },
-        data: {
-          ...form.data,
-        },
-      });
-    } else {
+    if (!studentId) {
       throw error(500, m.onboarding_errors_studentIDNotFound());
     }
+
+    const { email, nollningGroupId, foodPreference, ...profileFields } =
+      form.data;
+
+    const profileRes = await api.PATCH("/members/{studentId}", {
+      fetch,
+      params: { path: { studentId } },
+      body: {
+        firstName: profileFields.firstName ?? "",
+        lastName: profileFields.lastName ?? "",
+        nickname: profileFields.nickname ?? undefined,
+        classProgramme: profileFields.classProgramme ?? undefined,
+        classYear: profileFields.classYear ?? undefined,
+      },
+    });
+    if (profileRes.error) {
+      throw error(500, m.onboarding_errors_studentIDNotFound());
+    }
+    if (foodPreference !== null) {
+      await api.PATCH("/members/{studentId}/food-preference", {
+        fetch,
+        params: { path: { studentId } },
+        body: { foodPreference },
+      });
+    }
+
+    // email/nollningGroupId aren't part of the Go member API yet (email:
+    // real auth already sets it from Authentik claims at first login, see
+    // DESIGN.md's Auth section - this form field may already be redundant,
+    // not confirmed yet; nollningGroupId: owned by the Phase 2 nollning
+    // redesign). Narrow, explicit, temporary direct write, not a broader
+    // Prisma bridge for the rest of the (now Go-backed) member domain.
+    await locals.prisma.member.update({
+      where: { studentId },
+      data: { email, nollningGroupId },
+    });
+
     return redirect(
       "/",
       {

@@ -17,16 +17,21 @@
     children = undefined,
   }: {
     class?: string;
-    member: Pick<
-      ExtendedPrismaModel<"Member">,
-      | "firstName"
-      | "lastName"
-      | "nickname"
-      | "studentId"
-      | "picturePath"
-      | "classProgramme"
-      | "classYear"
-    >;
+    // TEMPORARY dual-shape (Prisma `| null` vs Go API `| undefined`) - pure
+    // type widening, no conversion logic. Still-Prisma consumers:
+    // MemberSelector.svelte, MembersList.svelte. Narrow to
+    // `string | undefined` once those are ported too - see
+    // CommitteeSymbol's identical note.
+    member: {
+      [K in
+        | "firstName"
+        | "lastName"
+        | "nickname"
+        | "studentId"
+        | "picturePath"
+        | "classProgramme"
+        | "classYear"]?: ExtendedPrismaModel<"Member">[K] | undefined;
+    };
     type?: ExtendedPrismaModel<"Author">["type"];
     links?: boolean;
     showId?: boolean;
@@ -78,7 +83,7 @@
     <div class="ml-0 shrink-0 gap-2">
       <Badge
         class="shrink-0"
-        variant={getBadgeVariantFromProgramme(member.classProgramme)}
+        variant={getBadgeVariantFromProgramme(member.classProgramme ?? null)}
       >
         {`${member.classProgramme}${member.classYear?.toString().slice(2)}`}
       </Badge>

@@ -22,6 +22,11 @@ type Member struct {
 	LastName    *string `json:"lastName,omitempty"`
 	Nickname    *string `json:"nickname,omitempty"`
 	PicturePath *string `json:"picturePath,omitempty"`
+	// ClassYear/ClassProgramme are only populated where a consumer needs
+	// them (e.g. a position's mandate-holder list, for study-year
+	// statistics and programme badges) - nil elsewhere.
+	ClassYear      *int32  `json:"classYear,omitempty"`
+	ClassProgramme *string `json:"classProgramme,omitempty"`
 }
 
 type Tag struct {
@@ -50,12 +55,15 @@ type Comment struct {
 // internal/articles keeps working unchanged, just getting back a shared
 // value with fewer fields populated.
 type Committee struct {
-	ID                string  `json:"id"`
-	Name              string  `json:"name"`
-	NameSv            string  `json:"nameSv"`
-	NameEn            *string `json:"nameEn,omitempty"`
-	ShortName         *string `json:"shortName,omitempty"`
-	SymbolURL         *string `json:"symbolUrl,omitempty"`
+	ID        string  `json:"id"`
+	Name      string  `json:"name"`
+	NameSv    string  `json:"nameSv"`
+	NameEn    *string `json:"nameEn,omitempty"`
+	ShortName *string `json:"shortName,omitempty"`
+	SymbolURL *string `json:"symbolUrl,omitempty"`
+	// Description is DescriptionEn if resolved-locale is "en" and set,
+	// DescriptionSv otherwise - same resolution rule as Name, see above.
+	Description       *string `json:"description,omitempty"`
 	DescriptionSv     *string `json:"descriptionSv,omitempty"`
 	DescriptionEn     *string `json:"descriptionEn,omitempty"`
 	DarkImageURL      *string `json:"darkImageUrl,omitempty"`
@@ -71,20 +79,29 @@ type Committee struct {
 }
 
 type Position struct {
-	ID            string  `json:"id"`
-	Name          string  `json:"name"`
-	NameSv        string  `json:"nameSv"`
-	NameEn        *string `json:"nameEn,omitempty"`
-	CommitteeID   *string `json:"committeeId,omitempty"`
-	Email         *string `json:"email,omitempty"`
-	Active        *bool   `json:"active,omitempty"`
-	BoardMember   *bool   `json:"boardMember,omitempty"`
+	ID          string  `json:"id"`
+	Name        string  `json:"name"`
+	NameSv      string  `json:"nameSv"`
+	NameEn      *string `json:"nameEn,omitempty"`
+	CommitteeID *string `json:"committeeId,omitempty"`
+	Email       *string `json:"email,omitempty"`
+	Active      *bool   `json:"active,omitempty"`
+	BoardMember *bool   `json:"boardMember,omitempty"`
+	// Description is DescriptionEn if resolved-locale is "en" and set,
+	// DescriptionSv otherwise - same resolution rule as Name.
+	Description   *string `json:"description,omitempty"`
 	DescriptionSv *string `json:"descriptionSv,omitempty"`
 	DescriptionEn *string `json:"descriptionEn,omitempty"`
 	StartMonth    *int32  `json:"startMonth,omitempty"`
 	EndMonth      *int32  `json:"endMonth,omitempty"`
 	// EmailAliases is only populated on a position detail fetch.
 	EmailAliases []string `json:"emailAliases,omitempty"`
+	// Committee is only populated where a consumer needs to render/link a
+	// position's committee without a second request (e.g. a member's
+	// mandate history) - nil elsewhere (CommitteeID alone is enough when
+	// the position is already being shown in the context of its own
+	// committee, e.g. GET /committees/{shortName}).
+	Committee *Committee `json:"committee,omitempty"`
 }
 
 // Mandate is a member's hold on a Position, for one of two contexts:

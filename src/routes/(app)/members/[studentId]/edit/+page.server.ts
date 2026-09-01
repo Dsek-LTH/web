@@ -1,7 +1,7 @@
-import { getCurrentDoorPoliciesForMember } from "$lib/utils/member";
 import { memberSchema } from "$lib/zod/schemas";
+import { api } from "$lib/api/client";
 import * as m from "$paraglide/messages";
-import { error, fail, redirect } from "@sveltejs/kit";
+import { error, fail, redirect, type NumericRange } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";
 import {
   message,
@@ -16,64 +16,36 @@ import { v4 as uuid } from "uuid";
 import type { Actions, PageServerLoad } from "./$types";
 import { deletePictureSchema, uploadPictureSchema } from "../types";
 import { removeMyProfilePicture } from "$lib/files/photos/profilePictures";
-import DOMPurify from "isomorphic-dompurify";
 
 const PROFILE_PICTURE_PREFIX = (studentId: string) =>
   `public/${studentId}/profile-picture`;
 
-export const load: PageServerLoad = async ({ locals, params }) => {
-  const { prisma, user } = locals;
+// Server-only load, not +page.ts - same exception as the profile view page
+// (see its own comment): `phadderGroups` isn't part of the Go member API
+// yet (Phase 2 nollning redesign), so this can't move to a universal load.
+export const load: PageServerLoad = async ({ locals, fetch, params }) => {
+  const { prisma } = locals;
   const { studentId } = params;
 
-  const [memberResult, phadderGroupsResult] = await Promise.allSettled([
-    prisma.member.findUnique({
-      where: {
-        studentId: studentId,
-      },
-      include: {
-        nollaIn: true,
-        mandates: {
-          include: {
-            phadderIn: true,
-            position: {
-              include: {
-                committee: true,
-              },
-            },
-          },
-        },
-        authoredEvents: {
-          orderBy: {
-            startDatetime: "desc",
-          },
-          take: 5,
-        },
-        doorAccessPolicies: {},
-      },
+  const [memberRes, phadderGroupsResult] = await Promise.allSettled([
+    api.GET("/members/{studentId}", {
+      fetch,
+      params: { path: { studentId } },
     }),
-    prisma.phadderGroup.findMany({
-      orderBy: {
-        year: "asc",
-      },
-    }),
+    prisma.phadderGroup.findMany({ orderBy: { year: "asc" } }),
   ]);
-  if (memberResult.status === "rejected")
+  if (memberRes.status === "rejected" || memberRes.value.error)
     throw error(500, m.members_errors_couldntFetchMember());
-  if (!memberResult.value) throw error(404, m.members_errors_memberNotFound());
   if (phadderGroupsResult.status === "rejected")
     throw error(505, phadderGroupsResult.reason);
-  const member = memberResult.value;
 
-  const doorAccess =
-    member.id === user?.memberId
-      ? await getCurrentDoorPoliciesForMember(prisma, studentId)
-      : [];
+  const profile = memberRes.value.data;
+  if (!profile) throw error(404, m.members_errors_memberNotFound());
 
   try {
     return {
-      form: await superValidate(member, zod4(memberSchema)),
-      viewedMember: member, // https://github.com/Dsek-LTH/web/issues/194
-      doorAccess,
+      form: await superValidate(profile, zod4(memberSchema)),
+      viewedMember: profile, // https://github.com/Dsek-LTH/web/issues/194
       phadderGroups: phadderGroupsResult.value,
       uploadForm: await superValidate(zod4(uploadPictureSchema)),
       deleteForm: await superValidate(zod4(deletePictureSchema)),
@@ -103,7 +75,6 @@ export type UpdateSchema = Infer<typeof updateSchema>;
 export const actions: Actions = {
   uploadPicture: async ({ params, locals, request }) => {
     const formData = await request.formData();
-    console.log(formData);
     const form = await superValidate(formData, zod4(uploadPictureSchema), {
       allowFiles: true,
     });
@@ -166,7 +137,6 @@ export const actions: Actions = {
     });
   },
   deletePicture: async ({ params, locals, request }) => {
-    console.log("trying to delete picture");
     const form = await superValidate(request, zod4(deletePictureSchema));
     if (!form.valid) {
       return fail(400, { form });
@@ -187,20 +157,47 @@ export const actions: Actions = {
       type: "success",
     });
   },
-  update: async ({ params, locals, request }) => {
-    const { prisma } = locals;
-    //console.log(await request.formData());
+  update: async ({ params, locals, fetch, request }) => {
     const form = await superValidate(request, zod4(updateSchema));
     if (!form.valid) return fail(400, { form });
     const { studentId } = params;
+    const { nollningGroupId, foodPreference, ...profileFields } = form.data;
 
-    const { bio, ...rest } = form.data;
-    await prisma.member.update({
-      where: { studentId },
-      data: {
-        bio: bio ? DOMPurify.sanitize(bio) : bio,
-        ...rest,
+    const res = await api.PATCH("/members/{studentId}", {
+      fetch,
+      params: { path: { studentId } },
+      body: {
+        firstName: profileFields.firstName ?? "",
+        lastName: profileFields.lastName ?? "",
+        nickname: profileFields.nickname ?? undefined,
+        classProgramme: profileFields.classProgramme ?? undefined,
+        classYear: profileFields.classYear ?? undefined,
+        graduationYear: profileFields.graduationYear ?? undefined,
+        language: profileFields.language ?? undefined,
+        bio: profileFields.bio ?? undefined,
       },
+    });
+    if (foodPreference !== undefined) {
+      await api.PATCH("/members/{studentId}/food-preference", {
+        fetch,
+        params: { path: { studentId } },
+        body: { foodPreference: foodPreference ?? undefined },
+      });
+    }
+    if (res.error)
+      return message(
+        form,
+        { message: m.members_errors_couldntFetchMember(), type: "error" },
+        { status: (res.response.status as NumericRange<400, 599>) ?? 500 },
+      );
+
+    // nollningGroupId isn't part of the Go member API yet (owned by the
+    // Phase 2 nollning redesign, see DESIGN.md's roadmap) - narrow,
+    // explicit, temporary direct write, not a broader Prisma bridge for the
+    // rest of the (now Go-backed) member domain.
+    await locals.prisma.member.update({
+      where: { studentId },
+      data: { nollningGroupId: nollningGroupId ?? null },
     });
 
     throw redirect(302, `/members/${params.studentId}`);

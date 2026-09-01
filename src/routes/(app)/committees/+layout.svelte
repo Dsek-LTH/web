@@ -2,7 +2,7 @@
   import CommitteeIcon from "$lib/components/images/CommitteeIcon.svelte";
   import CommitteePlaceholder from "$lib/components/images/CommitteePlaceholder.svelte";
   import type { Snippet } from "svelte";
-  import type { CommitteeLoadData } from "./committee.server";
+  import type { CommitteeLoadData } from "./committee";
 
   import ArrowLeft from "@lucide/svelte/icons/arrow-left";
   import Pen from "@lucide/svelte/icons/pen";

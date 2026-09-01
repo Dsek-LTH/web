@@ -13,12 +13,13 @@ type (
 	Member    = apitypes.Member
 )
 
-// MarkdownContent is the raw Sv/En pair for a piece of named markdown
-// content (see internal/db/schema.sql's markdowns table doc comment) -
-// resolution to a single display string happens the same way as
-// article/event bodies (internal/locale), left to the caller here since
-// edit forms need the raw pair.
+// MarkdownContent is a piece of named markdown content (see
+// internal/db/schema.sql's markdowns table doc comment). Markdown is
+// MarkdownEn if resolved-locale is "en" and set, MarkdownSv otherwise -
+// same resolution rule as Name/Description elsewhere in this package;
+// display code reads Markdown, edit forms read the Sv/En pair.
 type MarkdownContent struct {
+	Markdown   string  `json:"markdown"`
 	MarkdownSv string  `json:"markdownSv"`
 	MarkdownEn *string `json:"markdownEn,omitempty"`
 }
@@ -28,17 +29,19 @@ type MarkdownContent struct {
 // and email aliases), and the about/links markdown content.
 type CommitteeDetail struct {
 	Committee
-	Year          int32           `json:"year"`
-	Positions     []Position      `json:"positions"`
-	AboutMarkdown MarkdownContent `json:"aboutMarkdown"`
-	LinksMarkdown MarkdownContent `json:"linksMarkdown"`
+	Year          int32            `json:"year"`
+	Positions     []PositionDetail `json:"positions"`
+	AboutMarkdown MarkdownContent  `json:"aboutMarkdown"`
+	LinksMarkdown MarkdownContent  `json:"linksMarkdown"`
 }
 
-// PositionDetail is a single position with its mandates for Year and email
-// aliases populated (Position.EmailAliases).
+// PositionDetail is a single position with its mandates and email aliases
+// (Position.EmailAliases) populated. Year is only set in the context of a
+// committee detail fetch (GetByShortName) - GetPosition itself returns a
+// position's full, unscoped mandate history instead of a single year.
 type PositionDetail struct {
 	Position
-	Year     int32     `json:"year"`
+	Year     int32     `json:"year,omitempty"`
 	Mandates []Mandate `json:"mandates"`
 }
 
@@ -47,6 +50,8 @@ type PositionDetail struct {
 // three independently-submitted forms on the old committee page (see
 // UpdateMarkdownInput/UpdateLinksInput for the other two).
 type UpdateCommitteeInput struct {
+	NameSv            string  `json:"nameSv"`
+	NameEn            *string `json:"nameEn,omitempty"`
 	DescriptionSv     *string `json:"descriptionSv,omitempty"`
 	DescriptionEn     *string `json:"descriptionEn,omitempty"`
 	DarkImageURL      *string `json:"darkImageUrl,omitempty"`

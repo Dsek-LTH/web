@@ -117,11 +117,16 @@ func indexOf(order []string, id string) (int, bool) {
 }
 
 // sortByOrder stably sorts positions in place per order, leaving positions
-// absent from order in their original relative position (query order).
-func sortByOrder(positions []Position, order []string) {
+// absent from order in their original relative position (query order). id
+// extracts a position's ID - generic over both bare Position (committee
+// list) and the richer PositionDetail (committee/position detail), which
+// can't share a method-based constraint since Position is a type alias for
+// apitypes.Position and Go forbids defining methods on aliased external
+// types.
+func sortByOrder[T any](positions []T, order []string, id func(T) string) {
 	sort.SliceStable(positions, func(i, j int) bool {
-		iIdx, iOk := indexOf(order, positions[i].ID)
-		jIdx, jOk := indexOf(order, positions[j].ID)
+		iIdx, iOk := indexOf(order, id(positions[i]))
+		jIdx, jOk := indexOf(order, id(positions[j]))
 		if !iOk || !jOk {
 			return false
 		}
@@ -131,17 +136,17 @@ func sortByOrder(positions []Position, order []string) {
 
 // SortBoardPositions sorts board-flagged positions per the hand-curated
 // board display order.
-func SortBoardPositions(positions []Position) {
-	sortByOrder(positions, boardOrder)
+func SortBoardPositions[T any](positions []T, id func(T) string) {
+	sortByOrder(positions, boardOrder, id)
 }
 
 // SortCommitteePositions sorts a committee's positions per its own
 // hand-curated order, if one exists for committeeShortName - a committee
 // with no entry in committeeOrder keeps its query order entirely.
-func SortCommitteePositions(positions []Position, committeeShortName string) {
+func SortCommitteePositions[T any](positions []T, committeeShortName string, id func(T) string) {
 	order, ok := committeeOrder[committeeShortName]
 	if !ok {
 		return
 	}
-	sortByOrder(positions, order)
+	sortByOrder(positions, order, id)
 }

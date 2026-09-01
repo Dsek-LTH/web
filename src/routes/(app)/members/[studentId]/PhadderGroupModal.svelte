@@ -2,7 +2,7 @@
   import type { SuperValidated } from "sveltekit-superforms";
   import { superForm } from "$lib/utils/client/superForms";
   import * as m from "$paraglide/messages";
-  import type { Member, PhadderGroup } from "@prisma/client";
+  import type { PhadderGroup } from "@prisma/client";
   import { page } from "$app/state";
   import type { PhadderGroupSchema } from "./+page.server";
   import { marked } from "marked";
@@ -24,7 +24,10 @@
     isEditing: boolean;
     phadderGroups: PhadderGroup[];
     data: SuperValidated<PhadderGroupSchema>;
-    viewedMember: Member;
+    // Only `.id` is actually read (see the Dialog.Root open condition below)
+    // - loosened from the full Prisma `Member` type since this page is now
+    // Go-backed for its core profile fields.
+    viewedMember: { id: string };
     showModal: boolean;
   } = $props();
 

@@ -1,7 +1,7 @@
 import type { PageServerLoad, Actions } from "./$types";
 import apiNames from "$lib/utils/apiNames";
 import { isAuthorized } from "$lib/utils/authorization";
-import { committeeActions, committeeLoad } from "../committee.server";
+import { committeeActions, committeeLoad } from "../committee";
 import * as m from "$paraglide/messages";
 import { error, fail } from "@sveltejs/kit";
 import { TimeSlot } from "./types";
@@ -34,7 +34,7 @@ function getWeek(weekString: string | null, user: AuthUser): dayjs.Dayjs {
     .add(weekNum - 1, "week");
 }
 
-export const load: PageServerLoad = async ({ locals, url }) => {
+export const load: PageServerLoad = async ({ locals, url, fetch }) => {
   const { user, prisma } = locals;
 
   const targetWeek = getWeek(url.searchParams.get("week"), user);
@@ -70,7 +70,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     },
   });
 
-  return committeeLoad(prisma, "cafe", url).then(async (data) => ({
+  return committeeLoad(fetch, "cafe", url).then(async (data) => ({
     ...data,
     openingHours: await openingHours,
     shifts: await shifts,

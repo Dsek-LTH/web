@@ -48,8 +48,7 @@ type listPositionsOutput struct {
 }
 
 type getPositionInput struct {
-	ID   string `path:"id"`
-	Year int32  `          query:"year" doc:"defaults to the current year"`
+	ID string `path:"id"`
 }
 
 type positionDetailOutput struct {
@@ -181,9 +180,9 @@ func registerCommitteeRoutes(api huma.API, svc *committees.Service) {
 		OperationID: "get-position",
 		Method:      http.MethodGet,
 		Path:        "/positions/{id}",
-		Summary:     "Get a position's mandates (for the given year, default current) and email aliases",
+		Summary:     "Get a position's full mandate history and email aliases",
 	}, func(ctx context.Context, input *getPositionInput) (*positionDetailOutput, error) {
-		detail, err := svc.GetPosition(ctx, input.ID, yearOrCurrent(input.Year))
+		detail, err := svc.GetPosition(ctx, input.ID)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}

@@ -5,10 +5,15 @@ FROM positions
 ORDER BY name_sv;
 
 -- name: GetPosition :one
-SELECT id, name_sv, name_en, committee_id, email, active, board_member,
-       description_sv, description_en, start_month, end_month
-FROM positions
-WHERE id = $1;
+-- Joins the committee (name/shortName), unlike ListPositions/UpdatePosition -
+-- the position detail page links/displays the committee without a second
+-- request.
+SELECT p.id, p.name_sv, p.name_en, p.committee_id, p.email, p.active, p.board_member,
+       p.description_sv, p.description_en, p.start_month, p.end_month,
+       c.name_sv AS committee_name_sv, c.name_en AS committee_name_en, c.short_name AS committee_short_name
+FROM positions p
+LEFT JOIN committees c ON c.id = p.committee_id
+WHERE p.id = $1;
 
 -- name: UpdatePosition :one
 UPDATE positions

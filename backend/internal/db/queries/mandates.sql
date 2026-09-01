@@ -14,7 +14,7 @@ ORDER BY m.start_date DESC;
 
 -- name: ListMandatesForPosition :many
 -- Year-scoped (overlapping [year-01-01, year-12-31]), joined to member -
--- mirrors the old committee/position detail pages' year filter.
+-- mirrors the committee detail page's year filter (GET /committees/{shortName}?year=).
 SELECT m.id, m.start_date, m.end_date, mem.id AS member_id, mem.student_id,
        mem.first_name, mem.nickname, mem.last_name, mem.picture_path
 FROM mandates m
@@ -22,6 +22,20 @@ JOIN members mem ON mem.id = m.member_id
 WHERE m.position_id = $1
   AND m.start_date <= make_date(sqlc.arg('year')::int, 12, 31)
   AND m.end_date >= make_date(sqlc.arg('year')::int, 1, 1)
+ORDER BY m.start_date DESC;
+
+-- name: ListAllMandatesForPosition :many
+-- Unscoped (full history, not year-scoped) - the position detail page
+-- groups a position's entire mandate history client-side by year for
+-- historical study-year statistics, unlike the committee detail page's
+-- single-year view. Includes class_year/class_programme for that stats
+-- computation and the member's programme badge.
+SELECT m.id, m.start_date, m.end_date, mem.id AS member_id, mem.student_id,
+       mem.first_name, mem.nickname, mem.last_name, mem.picture_path,
+       mem.class_year, mem.class_programme
+FROM mandates m
+JOIN members mem ON mem.id = m.member_id
+WHERE m.position_id = $1
 ORDER BY m.start_date DESC;
 
 -- name: CreateMandate :one

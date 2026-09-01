@@ -65,7 +65,9 @@ type Querier interface {
 	// so this is no more exposed than the existing unauthenticated mutations;
 	// see backend/CLAUDE.md.
 	GetArticleRowBySlug(ctx context.Context, slug string) (GetArticleRowBySlugRow, error)
-	GetCommitteeByShortName(ctx context.Context, shortName pgtype.Text) (Committee, error)
+	// Currently-active mandate/unique-member counts, same as
+	// ListCommitteesWithCounts - the committee detail page shows these too.
+	GetCommitteeByShortName(ctx context.Context, shortName pgtype.Text) (GetCommitteeByShortNameRow, error)
 	// Public lookup: hides soft-removed events, same visibility rule as
 	// ListEvents. The old TS getEvent() applied no such filter at all (see
 	// DESIGN.md's events section) - fixed here rather than replicated.
@@ -85,6 +87,9 @@ type Querier interface {
 	// GetMemberByStudentID's minimal projection (built only for author
 	// resolution).
 	GetMemberProfile(ctx context.Context, studentID pgtype.Text) (GetMemberProfileRow, error)
+	// Joins the committee (name/shortName), unlike ListPositions/UpdatePosition -
+	// the position detail page links/displays the committee without a second
+	// request.
 	GetPosition(ctx context.Context, id string) (GetPositionRow, error)
 	GetRecurringEvent(ctx context.Context, id pgtype.UUID) (RecurringEvent, error)
 	// Optional apiName filter; joins member first/last name for studentId-scoped
@@ -93,6 +98,12 @@ type Querier interface {
 	// "Active" mirrors the old TS backend's author-options query: currently
 	// within the mandate's start/end date range.
 	ListActiveMandatesForMember(ctx context.Context, memberID pgtype.UUID) ([]ListActiveMandatesForMemberRow, error)
+	// Unscoped (full history, not year-scoped) - the position detail page
+	// groups a position's entire mandate history client-side by year for
+	// historical study-year statistics, unlike the committee detail page's
+	// single-year view. Includes class_year/class_programme for that stats
+	// computation and the member's programme badge.
+	ListAllMandatesForPosition(ctx context.Context, positionID string) ([]ListAllMandatesForPositionRow, error)
 	ListArticleComments(ctx context.Context, articleID pgtype.UUID) ([]ListArticleCommentsRow, error)
 	// Shared column list for the "joined article" shape: article + committee +
 	// author (member / mandate+position / custom author) + comment & like
@@ -134,7 +145,7 @@ type Querier interface {
 	// position+committee for display.
 	ListMandatesForMember(ctx context.Context, memberID pgtype.UUID) ([]ListMandatesForMemberRow, error)
 	// Year-scoped (overlapping [year-01-01, year-12-31]), joined to member -
-	// mirrors the old committee/position detail pages' year filter.
+	// mirrors the committee detail page's year filter (GET /committees/{shortName}?year=).
 	ListMandatesForPosition(ctx context.Context, arg ListMandatesForPositionParams) ([]ListMandatesForPositionRow, error)
 	// Mirrors the old members-directory page's filter: both params are
 	// optional (a NULL narg matches everything) - the old TS route required
