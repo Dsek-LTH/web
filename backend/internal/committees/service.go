@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/dsek-lth/web/backend/internal/apinames"
 	"github.com/dsek-lth/web/backend/internal/auth"
@@ -27,16 +26,6 @@ var (
 
 func invalidf(format string, args ...any) error {
 	return fmt.Errorf("%w: "+format, append([]any{ErrInvalidInput}, args...)...)
-}
-
-// resolveDescription mirrors dbutil.ResolveName, but descriptionSv is
-// itself nullable in the DB (unlike name_sv) - nil in, nil out.
-func resolveDescription(descriptionSv, descriptionEn pgtype.Text, loc string) *string {
-	if !descriptionSv.Valid {
-		return nil
-	}
-	resolved := dbutil.ResolveName(descriptionSv.String, dbutil.TextPtr(descriptionEn), loc)
-	return &resolved
 }
 
 type Service struct {
@@ -55,27 +44,24 @@ func (s *Service) ListCommittees(ctx context.Context) ([]Committee, error) {
 	loc := locale.FromContext(ctx)
 	committees := make([]Committee, len(rows))
 	for i, r := range rows {
-		nameEn := dbutil.TextPtr(r.NameEn)
 		mandateCount, memberCount := r.MandateCount, r.MemberCount
-		committees[i] = Committee{
-			ID:                dbutil.UUIDStr(r.ID),
-			Name:              dbutil.ResolveName(r.NameSv, nameEn, loc),
+		committees[i] = toCommittee(committeeRow{
+			ID:                r.ID,
 			NameSv:            r.NameSv,
-			NameEn:            nameEn,
-			ShortName:         dbutil.TextPtr(r.ShortName),
-			SymbolURL:         dbutil.TextPtr(r.SymbolUrl),
-			Description:       resolveDescription(r.DescriptionSv, r.DescriptionEn, loc),
-			DescriptionSv:     dbutil.TextPtr(r.DescriptionSv),
-			DescriptionEn:     dbutil.TextPtr(r.DescriptionEn),
-			DarkImageURL:      dbutil.TextPtr(r.DarkImageUrl),
-			LightImageURL:     dbutil.TextPtr(r.LightImageUrl),
-			MonoImageURL:      dbutil.TextPtr(r.MonoImageUrl),
-			BannerURL:         dbutil.TextPtr(r.BannerUrl),
+			NameEn:            r.NameEn,
+			ShortName:         r.ShortName,
+			DescriptionSv:     r.DescriptionSv,
+			DescriptionEn:     r.DescriptionEn,
+			DarkImageUrl:      r.DarkImageUrl,
+			LightImageUrl:     r.LightImageUrl,
+			MonoImageUrl:      r.MonoImageUrl,
+			SymbolUrl:         r.SymbolUrl,
+			BannerUrl:         r.BannerUrl,
 			IsBannerTextLight: &r.IsBannerTextLight,
-			PreviewURL:        dbutil.TextPtr(r.PreviewUrl),
+			PreviewUrl:        r.PreviewUrl,
 			MandateCount:      &mandateCount,
 			MemberCount:       &memberCount,
-		}
+		}, loc)
 	}
 	return committees, nil
 }
@@ -119,24 +105,22 @@ func (s *Service) GetByShortName(
 		if err != nil {
 			return nil, err
 		}
-		nameEn := dbutil.TextPtr(p.NameEn)
+		position := toPosition(positionRow{
+			ID:            p.ID,
+			NameSv:        p.NameSv,
+			NameEn:        p.NameEn,
+			CommitteeID:   p.CommitteeID,
+			Email:         p.Email,
+			Active:        p.Active,
+			BoardMember:   p.BoardMember,
+			DescriptionSv: p.DescriptionSv,
+			DescriptionEn: p.DescriptionEn,
+			StartMonth:    p.StartMonth,
+			EndMonth:      p.EndMonth,
+		}, loc)
+		position.EmailAliases = aliases
 		positions = append(positions, PositionDetail{
-			Position: Position{
-				ID:            p.ID,
-				Name:          dbutil.ResolveName(p.NameSv, nameEn, loc),
-				NameSv:        p.NameSv,
-				NameEn:        nameEn,
-				CommitteeID:   dbutil.UUIDStrPtr(p.CommitteeID),
-				Email:         dbutil.TextPtr(p.Email),
-				Active:        &p.Active,
-				BoardMember:   &p.BoardMember,
-				Description:   resolveDescription(p.DescriptionSv, p.DescriptionEn, loc),
-				DescriptionSv: dbutil.TextPtr(p.DescriptionSv),
-				DescriptionEn: dbutil.TextPtr(p.DescriptionEn),
-				StartMonth:    &p.StartMonth,
-				EndMonth:      &p.EndMonth,
-				EmailAliases:  aliases,
-			},
+			Position: position,
 			Year:     year,
 			Mandates: mandates,
 		})
@@ -153,28 +137,25 @@ func (s *Service) GetByShortName(
 		return nil, err
 	}
 
-	nameEn := dbutil.TextPtr(row.NameEn)
 	mandateCount, memberCount := row.MandateCount, row.MemberCount
 	return &CommitteeDetail{
-		Committee: Committee{
-			ID:                dbutil.UUIDStr(row.ID),
-			Name:              dbutil.ResolveName(row.NameSv, nameEn, loc),
+		Committee: toCommittee(committeeRow{
+			ID:                row.ID,
 			NameSv:            row.NameSv,
-			NameEn:            nameEn,
-			ShortName:         dbutil.TextPtr(row.ShortName),
-			SymbolURL:         dbutil.TextPtr(row.SymbolUrl),
-			Description:       resolveDescription(row.DescriptionSv, row.DescriptionEn, loc),
-			DescriptionSv:     dbutil.TextPtr(row.DescriptionSv),
-			DescriptionEn:     dbutil.TextPtr(row.DescriptionEn),
-			DarkImageURL:      dbutil.TextPtr(row.DarkImageUrl),
-			LightImageURL:     dbutil.TextPtr(row.LightImageUrl),
-			MonoImageURL:      dbutil.TextPtr(row.MonoImageUrl),
-			BannerURL:         dbutil.TextPtr(row.BannerUrl),
+			NameEn:            row.NameEn,
+			ShortName:         row.ShortName,
+			DescriptionSv:     row.DescriptionSv,
+			DescriptionEn:     row.DescriptionEn,
+			DarkImageUrl:      row.DarkImageUrl,
+			LightImageUrl:     row.LightImageUrl,
+			MonoImageUrl:      row.MonoImageUrl,
+			SymbolUrl:         row.SymbolUrl,
+			BannerUrl:         row.BannerUrl,
 			IsBannerTextLight: &row.IsBannerTextLight,
-			PreviewURL:        dbutil.TextPtr(row.PreviewUrl),
+			PreviewUrl:        row.PreviewUrl,
 			MandateCount:      &mandateCount,
 			MemberCount:       &memberCount,
-		},
+		}, loc),
 		Year:          year,
 		Positions:     positions,
 		AboutMarkdown: about,
@@ -226,25 +207,22 @@ func (s *Service) UpdateCommittee(
 		}
 		return nil, fmt.Errorf("update committee: %w", err)
 	}
-	loc := locale.FromContext(ctx)
-	nameEn := dbutil.TextPtr(row.NameEn)
-	return &Committee{
-		ID:                dbutil.UUIDStr(row.ID),
-		Name:              dbutil.ResolveName(row.NameSv, nameEn, loc),
+	committee := toCommittee(committeeRow{
+		ID:                row.ID,
 		NameSv:            row.NameSv,
-		NameEn:            nameEn,
-		ShortName:         dbutil.TextPtr(row.ShortName),
-		SymbolURL:         dbutil.TextPtr(row.SymbolUrl),
-		Description:       resolveDescription(row.DescriptionSv, row.DescriptionEn, loc),
-		DescriptionSv:     dbutil.TextPtr(row.DescriptionSv),
-		DescriptionEn:     dbutil.TextPtr(row.DescriptionEn),
-		DarkImageURL:      dbutil.TextPtr(row.DarkImageUrl),
-		LightImageURL:     dbutil.TextPtr(row.LightImageUrl),
-		MonoImageURL:      dbutil.TextPtr(row.MonoImageUrl),
-		BannerURL:         dbutil.TextPtr(row.BannerUrl),
+		NameEn:            row.NameEn,
+		ShortName:         row.ShortName,
+		DescriptionSv:     row.DescriptionSv,
+		DescriptionEn:     row.DescriptionEn,
+		DarkImageUrl:      row.DarkImageUrl,
+		LightImageUrl:     row.LightImageUrl,
+		MonoImageUrl:      row.MonoImageUrl,
+		SymbolUrl:         row.SymbolUrl,
+		BannerUrl:         row.BannerUrl,
 		IsBannerTextLight: &row.IsBannerTextLight,
-		PreviewURL:        dbutil.TextPtr(row.PreviewUrl),
-	}, nil
+		PreviewUrl:        row.PreviewUrl,
+	}, locale.FromContext(ctx))
+	return &committee, nil
 }
 
 func (s *Service) UpdateCommitteeMarkdown(
@@ -295,22 +273,19 @@ func (s *Service) ListPositions(ctx context.Context) ([]Position, error) {
 	loc := locale.FromContext(ctx)
 	positions := make([]Position, len(rows))
 	for i, p := range rows {
-		nameEn := dbutil.TextPtr(p.NameEn)
-		positions[i] = Position{
+		positions[i] = toPosition(positionRow{
 			ID:            p.ID,
-			Name:          dbutil.ResolveName(p.NameSv, nameEn, loc),
 			NameSv:        p.NameSv,
-			NameEn:        nameEn,
-			CommitteeID:   dbutil.UUIDStrPtr(p.CommitteeID),
-			Email:         dbutil.TextPtr(p.Email),
-			Active:        &p.Active,
-			BoardMember:   &p.BoardMember,
-			Description:   resolveDescription(p.DescriptionSv, p.DescriptionEn, loc),
-			DescriptionSv: dbutil.TextPtr(p.DescriptionSv),
-			DescriptionEn: dbutil.TextPtr(p.DescriptionEn),
-			StartMonth:    &p.StartMonth,
-			EndMonth:      &p.EndMonth,
-		}
+			NameEn:        p.NameEn,
+			CommitteeID:   p.CommitteeID,
+			Email:         p.Email,
+			Active:        p.Active,
+			BoardMember:   p.BoardMember,
+			DescriptionSv: p.DescriptionSv,
+			DescriptionEn: p.DescriptionEn,
+			StartMonth:    p.StartMonth,
+			EndMonth:      p.EndMonth,
+		}, loc)
 	}
 	return positions, nil
 }
@@ -359,35 +334,37 @@ func (s *Service) GetPosition(ctx context.Context, id string) (*PositionDetail, 
 
 	var committee *Committee
 	if row.CommitteeID.Valid {
-		committeeNameEn := dbutil.TextPtr(row.CommitteeNameEn)
-		committee = &Committee{
-			ID:        dbutil.UUIDStr(row.CommitteeID),
-			Name:      dbutil.ResolveName(row.CommitteeNameSv.String, committeeNameEn, loc),
+		// Only name/shortName are joined by GetPosition's query (see its SQL
+		// doc comment) - the rest of committeeRow's fields are left at their
+		// zero value, which toCommittee already treats the same as "not
+		// fetched" (dbutil.TextPtr on an invalid pgtype.Text is nil).
+		c := toCommittee(committeeRow{
+			ID:        row.CommitteeID,
 			NameSv:    row.CommitteeNameSv.String,
-			NameEn:    committeeNameEn,
-			ShortName: dbutil.TextPtr(row.CommitteeShortName),
-		}
+			NameEn:    row.CommitteeNameEn,
+			ShortName: row.CommitteeShortName,
+		}, loc)
+		committee = &c
 	}
 
-	nameEn := dbutil.TextPtr(row.NameEn)
+	position := toPosition(positionRow{
+		ID:            row.ID,
+		NameSv:        row.NameSv,
+		NameEn:        row.NameEn,
+		CommitteeID:   row.CommitteeID,
+		Email:         row.Email,
+		Active:        row.Active,
+		BoardMember:   row.BoardMember,
+		DescriptionSv: row.DescriptionSv,
+		DescriptionEn: row.DescriptionEn,
+		StartMonth:    row.StartMonth,
+		EndMonth:      row.EndMonth,
+	}, loc)
+	position.Committee = committee
+	position.EmailAliases = aliases
+
 	return &PositionDetail{
-		Position: Position{
-			ID:            row.ID,
-			Name:          dbutil.ResolveName(row.NameSv, nameEn, loc),
-			NameSv:        row.NameSv,
-			NameEn:        nameEn,
-			CommitteeID:   dbutil.UUIDStrPtr(row.CommitteeID),
-			Committee:     committee,
-			Email:         dbutil.TextPtr(row.Email),
-			Active:        &row.Active,
-			BoardMember:   &row.BoardMember,
-			Description:   resolveDescription(row.DescriptionSv, row.DescriptionEn, loc),
-			DescriptionSv: dbutil.TextPtr(row.DescriptionSv),
-			DescriptionEn: dbutil.TextPtr(row.DescriptionEn),
-			StartMonth:    &row.StartMonth,
-			EndMonth:      &row.EndMonth,
-			EmailAliases:  aliases,
-		},
+		Position: position,
 		Mandates: mandates,
 	}, nil
 }
@@ -416,23 +393,20 @@ func (s *Service) UpdatePosition(
 		}
 		return nil, fmt.Errorf("update position: %w", err)
 	}
-	loc := locale.FromContext(ctx)
-	nameEn := dbutil.TextPtr(row.NameEn)
-	return &Position{
+	position := toPosition(positionRow{
 		ID:            row.ID,
-		Name:          dbutil.ResolveName(row.NameSv, nameEn, loc),
 		NameSv:        row.NameSv,
-		NameEn:        nameEn,
-		CommitteeID:   dbutil.UUIDStrPtr(row.CommitteeID),
-		Email:         dbutil.TextPtr(row.Email),
-		Active:        &row.Active,
-		BoardMember:   &row.BoardMember,
-		Description:   resolveDescription(row.DescriptionSv, row.DescriptionEn, loc),
-		DescriptionSv: dbutil.TextPtr(row.DescriptionSv),
-		DescriptionEn: dbutil.TextPtr(row.DescriptionEn),
-		StartMonth:    &row.StartMonth,
-		EndMonth:      &row.EndMonth,
-	}, nil
+		NameEn:        row.NameEn,
+		CommitteeID:   row.CommitteeID,
+		Email:         row.Email,
+		Active:        row.Active,
+		BoardMember:   row.BoardMember,
+		DescriptionSv: row.DescriptionSv,
+		DescriptionEn: row.DescriptionEn,
+		StartMonth:    row.StartMonth,
+		EndMonth:      row.EndMonth,
+	}, locale.FromContext(ctx))
+	return &position, nil
 }
 
 func (s *Service) mandatesForPosition(

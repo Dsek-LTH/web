@@ -112,6 +112,19 @@ func ResolveName(sv string, en *string, locale string) string {
 	return sv
 }
 
+// ResolveNullableName is ResolveName for a translated pair where the sv
+// column is itself nullable (unlike e.g. articles/events/committees' name
+// fields, always NOT NULL) - description-style fields being the common
+// case. nil in (sv unset), nil out, rather than resolving against an empty
+// string.
+func ResolveNullableName(sv, en pgtype.Text, locale string) *string {
+	if !sv.Valid {
+		return nil
+	}
+	resolved := ResolveName(sv.String, TextPtr(en), locale)
+	return &resolved
+}
+
 func StringOr(s *string, fallback string) string {
 	if s == nil {
 		return fallback
