@@ -197,6 +197,33 @@ coexistence" framing above. Concretely:
   reach the browser, and - if Authentik rotates refresh tokens - the next
   refresh attempt would fail outright using the now-stale token still sitting
   in the browser's cookie.
+- **Concurrent refresh races: fixed 2026-09-01.** `OIDCClient.Refresh`
+  (`backend/internal/auth/oidc.go`) is called synchronously, per-request,
+  whenever `RealAuthenticator.Authenticate` sees an expired session - there's
+  no proactive/background refresh. Several requests can therefore land with
+  the same expired session at once (e.g. a page load firing off a few
+  parallel API calls), each independently trying to exchange the same
+  refresh token. Because Authentik rotates refresh tokens, the first
+  exchange to land invalidates the token for the rest, and those requests
+  would see a hard refresh failure - `RealAuthenticator` treats that as
+  logged-out and clears the session cookie, so this was a real spurious
+  user-visible logout under nothing worse than a couple of concurrent
+  requests. (The old `hooks.server.ts` code had this same failure mode in
+  theory, but almost never hit it in practice as a single-request-at-a-time
+  server action; it avoided it anyway via `lib/utils/auth.ts`'s
+  `pendingRefreshesByToken` map.) Fixed by collapsing concurrent `Refresh`
+  calls that share a refresh token into one upstream exchange via
+  `golang.org/x/sync/singleflight`, keyed on the refresh token, with all
+  waiters getting the same result. The shared exchange deliberately runs on
+  a **detached context** (10s timeout, not any caller's `ctx`) rather than
+  whichever request happens to be the "leader" - `singleflight.Do` runs the
+  function once on behalf of every waiter, so using a caller's own `ctx`
+  would mean that caller's browser tab closing mid-refresh cancels the
+  refresh for every other concurrent request too, reintroducing the same
+  spurious-logout failure just relocated to leader-cancellation instead of
+  the token race. Each caller still respects its own `ctx` when waiting on
+  the shared result, so a slow/cancelled caller doesn't block, but doesn't
+  disrupt the shared work for the others either.
 - **Known gap: new members no longer get default tag subscriptions /
   notification settings on first login.** `src/lib/utils/member.ts`'s
   `createMember()` (subscription_settings + default/nollning tag

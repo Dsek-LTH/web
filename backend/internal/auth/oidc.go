@@ -14,6 +14,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"golang.org/x/oauth2"
+	"golang.org/x/sync/singleflight"
 
 	"github.com/dsek-lth/web/backend/internal/db"
 )
@@ -56,6 +57,9 @@ type OIDCClient struct {
 	queries       *db.Queries
 	endSessionURL string
 	frontendURL   string
+	// refreshGroup collapses concurrent Refresh calls that share the same
+	// refresh token into a single upstream call - see Refresh's doc comment.
+	refreshGroup singleflight.Group
 }
 
 // NewOIDCClient discovers the issuer's endpoints/JWKS via OIDC discovery.
@@ -232,28 +236,67 @@ func (c *OIDCClient) CallbackHandler(w http.ResponseWriter, r *http.Request) {
 // a fidelity requirement, since auth is exactly the place not to copy a
 // known-hacky shortcut. If Authentik doesn't return a new id_token on
 // refresh, the group list carries over unchanged.
-func (c *OIDCClient) Refresh(ctx context.Context, session SessionData) (SessionData, error) {
-	token, err := c.oauth2Config.TokenSource(ctx, &oauth2.Token{
-		RefreshToken: session.RefreshToken,
-	}).Token()
-	if err != nil {
-		return SessionData{}, err
-	}
+//
+// Concurrent calls sharing the same refresh token (e.g. several requests
+// from the same browser arriving right as the session expires) are
+// collapsed via refreshGroup into a single upstream exchange, and all
+// callers get its result. This matters because Authentik rotates refresh
+// tokens: without collapsing, two simultaneous exchanges would race to
+// consume the same (single-use) token, and the loser's request would see
+// a hard refresh failure and get treated as logged out - a spurious,
+// user-visible logout under nothing worse than two concurrent tabs/
+// requests. The old TS code (lib/utils/auth.ts's fetchNewToken) avoided
+// this the same way, with a hand-rolled map instead of singleflight.
+//
+// The exchange itself deliberately runs on a detached context (bounded by
+// refreshTimeout) rather than ctx: singleflight.Do runs the function once
+// on behalf of every waiter, so if it used whichever caller's ctx happened
+// to be "leader", that caller disconnecting (context.Canceled) would abort
+// the refresh for every other concurrent request too - the same spurious
+// logout this is meant to prevent, just moved to the leader's cancellation
+// instead of the race. ctx is still honored below: if the caller's own
+// context is done before the (possibly shared) exchange finishes, this
+// returns promptly without waiting the full refreshTimeout, but without
+// cancelling the in-flight exchange out from under any other waiter.
+const refreshTimeout = 10 * time.Second
 
-	updated := session
-	updated.ExpiresAt = token.Expiry
-	if token.RefreshToken != "" {
-		updated.RefreshToken = token.RefreshToken
-	}
-	if rawIDToken, ok := token.Extra("id_token").(string); ok {
-		if idToken, err := c.verifier.Verify(ctx, rawIDToken); err == nil {
-			var profile AuthentikProfile
-			if err := idToken.Claims(&profile); err == nil {
-				updated.GroupList = profile.Groups
+func (c *OIDCClient) Refresh(ctx context.Context, session SessionData) (SessionData, error) {
+	done := c.refreshGroup.DoChan(session.RefreshToken, func() (any, error) {
+		refreshCtx, cancel := context.WithTimeout(context.Background(), refreshTimeout)
+		defer cancel()
+
+		token, err := c.oauth2Config.TokenSource(refreshCtx, &oauth2.Token{
+			RefreshToken: session.RefreshToken,
+		}).Token()
+		if err != nil {
+			return SessionData{}, err
+		}
+
+		updated := session
+		updated.ExpiresAt = token.Expiry
+		if token.RefreshToken != "" {
+			updated.RefreshToken = token.RefreshToken
+		}
+		if rawIDToken, ok := token.Extra("id_token").(string); ok {
+			if idToken, err := c.verifier.Verify(refreshCtx, rawIDToken); err == nil {
+				var profile AuthentikProfile
+				if err := idToken.Claims(&profile); err == nil {
+					updated.GroupList = profile.Groups
+				}
 			}
 		}
+		return updated, nil
+	})
+
+	select {
+	case res := <-done:
+		if res.Err != nil {
+			return SessionData{}, res.Err
+		}
+		return res.Val.(SessionData), nil
+	case <-ctx.Done():
+		return SessionData{}, ctx.Err()
 	}
-	return updated, nil
 }
 
 // LogoutHandler clears the session cookie and redirects to Authentik's
