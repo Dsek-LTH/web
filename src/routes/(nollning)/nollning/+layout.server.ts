@@ -1,6 +1,5 @@
 import {
   APP_PREFERRED_PAGE_COOKIE,
-  POST_REVEAL_PREFIX,
   REVEAL_LAUNCH_DATE,
 } from "$lib/components/postReveal/types";
 import { getNollaGroupedNotifications } from "$lib/utils/notifications/nollaNotifications";
@@ -38,10 +37,6 @@ export const load = async ({ locals, cookies }) => {
     revealTheme,
     notificationsPromise,
     mutateNotificationForm: await superValidate(zod4(notificationSchema)),
-    paths: {
-      cart: `${POST_REVEAL_PREFIX}/shop/cart`,
-      purchaseRedirect: `${POST_REVEAL_PREFIX}/shop/success`,
-    },
     phadderGroup,
     theme: (revealTheme ? "nollningPostReveal" : "light") as Theme,
   };

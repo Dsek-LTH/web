@@ -72,7 +72,6 @@
     CREATE_MANDATE: m.setting_create_mandate,
     BOOKING_REQUEST: m.setting_booking_request,
     PING: m.setting_ping,
-    PURCHASES: m.setting_purchases,
   } as const;
 
   const getNotificationText = (text: NotificationSettingType) => {

@@ -144,6 +144,94 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List events */
+        get: operations["list-events"];
+        put?: never;
+        /** Create an event, or a recurring series if Body.recurring is set */
+        post: operations["create-event"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/events/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get an event by slug */
+        get: operations["get-event"];
+        put?: never;
+        post?: never;
+        /** Soft-delete an event */
+        delete: operations["delete-event"];
+        options?: never;
+        head?: never;
+        /** Replace an event (full-replace, not a partial patch) */
+        patch: operations["update-event"];
+        trace?: never;
+    };
+    "/events/{slug}/attendance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Set the acting member's going/interested/none status */
+        patch: operations["set-event-attendance"];
+        trace?: never;
+    };
+    "/events/{slug}/comments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Comment on an event as the acting member */
+        post: operations["create-event-comment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/events/{slug}/comments/{commentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete a comment */
+        delete: operations["delete-event-comment"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/members/{id}/mandates": {
         parameters: {
             query?: never;
@@ -329,6 +417,15 @@ export interface components {
             readonly $schema?: string;
             content: string;
         };
+        CreateEventCommentInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/CreateEventCommentInputBody.json
+             */
+            readonly $schema?: string;
+            content: string;
+        };
         CustomAuthor: {
             id: string;
             imageUrl?: string;
@@ -383,6 +480,105 @@ export interface components {
              */
             type: string;
         };
+        EventDetail: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/EventDetail.json
+             */
+            readonly $schema?: string;
+            alarmActive: boolean;
+            author: components["schemas"]["Member"];
+            /** Format: int64 */
+            commentCount: number;
+            comments: components["schemas"]["Comment"][] | null;
+            description: string;
+            descriptionEn?: string;
+            descriptionSv: string;
+            /** Format: date-time */
+            endAt: string;
+            going: components["schemas"]["Member"][] | null;
+            /** Format: int64 */
+            goingCount: number;
+            id: string;
+            imageUrl?: string;
+            interested: components["schemas"]["Member"][] | null;
+            /** Format: int64 */
+            interestedCount: number;
+            isCancelled: boolean;
+            link?: string;
+            location?: string;
+            organizer: string;
+            recurringParentId?: string;
+            shortDescription?: string;
+            shortDescriptionEn?: string;
+            shortDescriptionSv?: string;
+            slug: string;
+            /** Format: date-time */
+            startAt: string;
+            tags: components["schemas"]["Tag"][] | null;
+            title: string;
+            titleEn?: string;
+            titleSv: string;
+        };
+        EventInput: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/EventInput.json
+             */
+            readonly $schema?: string;
+            alarmActive: boolean;
+            descriptionEn: string | null;
+            descriptionSv: string;
+            /** Format: date-time */
+            endAt: string;
+            imageUrl: string | null;
+            isCancelled: boolean;
+            link: string | null;
+            location: string | null;
+            organizer: string;
+            recurring?: components["schemas"]["RecurringInput"];
+            shortDescriptionEn: string | null;
+            shortDescriptionSv: string | null;
+            /** Format: date-time */
+            startAt: string;
+            tagIds: string[] | null;
+            titleEn: string | null;
+            titleSv: string;
+        };
+        EventSummary: {
+            alarmActive: boolean;
+            author: components["schemas"]["Member"];
+            /** Format: int64 */
+            commentCount: number;
+            description: string;
+            descriptionEn?: string;
+            descriptionSv: string;
+            /** Format: date-time */
+            endAt: string;
+            /** Format: int64 */
+            goingCount: number;
+            id: string;
+            imageUrl?: string;
+            /** Format: int64 */
+            interestedCount: number;
+            isCancelled: boolean;
+            link?: string;
+            location?: string;
+            organizer: string;
+            recurringParentId?: string;
+            shortDescription?: string;
+            shortDescriptionEn?: string;
+            shortDescriptionSv?: string;
+            slug: string;
+            /** Format: date-time */
+            startAt: string;
+            tags: components["schemas"]["Tag"][] | null;
+            title: string;
+            titleEn?: string;
+            titleSv: string;
+        };
         ListArticlesOutputBody: {
             /**
              * Format: uri
@@ -391,6 +587,17 @@ export interface components {
              */
             readonly $schema?: string;
             articles: components["schemas"]["ArticleSummary"][] | null;
+            /** Format: int64 */
+            pageCount: number;
+        };
+        ListEventsOutputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/ListEventsOutputBody.json
+             */
+            readonly $schema?: string;
+            events: components["schemas"]["EventSummary"][] | null;
             /** Format: int64 */
             pageCount: number;
         };
@@ -411,6 +618,23 @@ export interface components {
             name: string;
             nameEn?: string;
             nameSv: string;
+        };
+        RecurringInput: {
+            /** Format: date-time */
+            endAt: string;
+            /** Format: int64 */
+            separationCount: number;
+            type: string;
+        };
+        SetAttendanceInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/SetAttendanceInputBody.json
+             */
+            readonly $schema?: string;
+            /** @enum {string} */
+            status: "going" | "interested" | "none";
         };
         SetScheduleInputBody: {
             /**
@@ -821,6 +1045,280 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["CustomAuthor"][] | null;
                 };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "list-events": {
+        parameters: {
+            query?: {
+                /** @description free-text search over title/description */
+                search?: string;
+                /** @description tag UUIDs, ANY-match */
+                tags?: string[] | null;
+                /** @description list past events (ended) instead of upcoming ones */
+                past?: boolean;
+                /** @description 1-based */
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListEventsOutputBody"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "create-event": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EventInput"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EventDetail"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "get-event": {
+        parameters: {
+            query?: {
+                /** @description pass 'any' to bypass the removed filter, for an editor viewing a soft-removed event */
+                status?: "any";
+            };
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EventDetail"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "delete-event": {
+        parameters: {
+            query?: {
+                /** @description how a recurring series is affected; defaults to THIS */
+                scope?: "THIS" | "FUTURE" | "ALL";
+            };
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "update-event": {
+        parameters: {
+            query?: {
+                /** @description how a recurring series is affected; defaults to THIS */
+                scope?: "THIS" | "FUTURE" | "ALL";
+            };
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EventInput"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EventDetail"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "set-event-attendance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetAttendanceInputBody"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "create-event-comment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateEventCommentInputBody"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Comment"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "delete-event-comment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+                commentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Error */
             default: {

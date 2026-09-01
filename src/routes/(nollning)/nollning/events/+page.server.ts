@@ -1,5 +1,3 @@
-import { getEventsWithTickets } from "$lib/server/shop/getTickets";
-import { ticketPageActions } from "$lib/server/shop/tickets/actions";
 import { error } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types.js";
 
@@ -29,14 +27,8 @@ const getCurrentWeek = () => {
   return 0;
 };
 
-export const load: PageServerLoad = async ({
-  locals,
-  url,
-  depends,
-  parent,
-}) => {
+export const load: PageServerLoad = async ({ locals, url }) => {
   const { prisma } = locals;
-  const { revealTheme } = await parent();
 
   const week = Number.parseInt(
     url.searchParams.get("week") ?? getCurrentWeek().toString(),
@@ -47,11 +39,13 @@ export const load: PageServerLoad = async ({
   }
   const { weekStart, weekEnd } = getWeekInterval(week);
 
-  depends("tickets");
-  const events = await getEventsWithTickets(
-    prisma,
-    locals.user,
-    {
+  // Ticket data used to be joined in here (getEventsWithTickets) - removed
+  // along with the rest of the shop/ticket feature (see DESIGN.md's "Shop /
+  // tickets: cut from scope entirely"). This page is currently a
+  // <NotImplemented /> stub regardless (+page.svelte), so a plain event
+  // list is enough to keep the load function itself from erroring.
+  const events = await prisma.event.findMany({
+    where: {
       startDatetime: {
         gte: weekStart,
       },
@@ -59,14 +53,11 @@ export const load: PageServerLoad = async ({
         lte: weekEnd,
       },
     },
-    revealTheme,
-  );
+  });
 
   return {
     week,
-    events: events,
+    events,
     weeks: weekStarts.length,
   };
 };
-
-export const actions = ticketPageActions("shop/");

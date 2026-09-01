@@ -29,9 +29,9 @@ mid-migration, no need for a zero-downtime cutover. This is what licenses
 mocking missing dependencies (starting with auth, see below) instead of
 deferring real work until they exist.
 
-## Shop / tickets: cut from scope entirely (decided 2026-09-01)
+## Shop / tickets: cut from scope entirely (decided 2026-09-01, SvelteKit-side removal implemented 2026-09-01)
 
-**Status: decided.** The shop/ticket/payment domain (Prisma models
+**Status: decided and implemented on the SvelteKit side** (the Go-side non-porting was already true by construction - there was never anything to remove there). The shop/ticket/payment domain (Prisma models
 `Shoppable`, `Ticket`, `Consumable`, `ConsumableReservation`,
 `ShoppableAccessPolicy`, `Order`, `OrderItem`, `Payment` —
 `src/lib/server/shop/`, `src/lib/utils/shop/`, `src/routes/(app)/shop`,
@@ -55,21 +55,46 @@ Concretely:
   way `Scheduler`/`Notifier` got one for articles. Events keep `going`/
   `interested` (RSVP, no purchase involved) since that's a plain
   Member↔Event relation with nothing shop-related in it.
-- **SvelteKit-side removal is immediate and complete, not deferred.**
-  `src/lib/server/shop/`, `src/lib/utils/shop/`, the `/shop` and
-  `/shop/tickets` routes, the event scan/check-in route, and the nollning
-  shop route are deleted along with their nav links and any component that
-  exists only to render ticket/purchase UI — not left in place "in case
-  something still imports them." Same standard as the rest of this doc:
-  confirm dead (no remaining importers) before deleting, don't leave a
-  Prisma-backed path alive for a feature that isn't coming back.
-- **Open follow-up, not yet decided:** whether the underlying Postgres
-  tables (`shoppables`, `tickets`, `orders`, `order_items`, `payments`,
-  `consumables`, `consumable_reservations`, `shoppable_access_policies`)
-  get dropped via a real Prisma migration, or just left in place, unused,
-  in the live dev DB. Dropping tables in the shared live database is a
-  more consequential, harder-to-reverse step than deleting application
-  code, so it's being treated as a separate decision to make explicitly
+- **SvelteKit-side removal is immediate and complete, not deferred - done.**
+  `src/lib/server/shop/`, `src/lib/utils/shop/`, `src/lib/utils/payments/`,
+  the `/shop` and `/shop/tickets` routes, the event scan/check-in route
+  (plus `/admin/qr`, whose sole purpose was linking to it), the Stripe
+  webhook route, the nollning shop route, and `src/lib/hooks/useQRScanner.ts`
+  (its only caller was the deleted scan route) are deleted, along with
+  their nav links (`routes.ts`, `postReveal/types.ts`'s
+  `OVERRIDEN_POST_REVEAL_ROUTES`), the `WEBSHOP` policy block in
+  `apiNames.ts`, the dead purchase/payment `NotificationType`/
+  `NotificationSettingType` members and the "Purchases" settings toggle,
+  the root layout's `@stripe/stripe-js` import and `shopItemCounts`/
+  `depends("cart")`, and the `stripe`/`@stripe/stripe-js`/`svelte-stripe`/
+  `@zxing/library` dependencies from `package.json`. Verified via
+  `svelte-check` (0 errors) and `eslint` (0 errors) after removal - nothing
+  left dangling. Same standard as the rest of this doc: confirmed dead (no
+  remaining importers, checked file-by-file) before deleting, not left in
+  place "in case something still imports them," don't leave a Prisma-backed
+  path alive for a feature that isn't coming back.
+  - The nollning events page (`src/routes/(nollning)/nollning/events/+page.server.ts`)
+    used a ticket-joined event query (`getEventsWithTickets`) for its
+    weekly schedule view; replaced with a plain `prisma.event.findMany`
+    over the same date range, dropping ticket enrichment. Safe because the
+    page's own `+page.svelte` is already a `<NotImplemented />` stub (this
+    load function's output has no current consumer) - not a design
+    decision to revisit later so much as "keep the load function from
+    erroring."
+  - `src/database/prisma/schema.prisma`'s `Shoppable`/`Ticket`/`Order`/
+    `OrderItem`/`Payment`/`Consumable`/`ConsumableReservation`/
+    `ShoppableAccessPolicy` model definitions are deliberately **not**
+    touched by this pass, consistent with the "keep the underlying
+    Postgres tables in place for now" decision below - removing them from
+    `schema.prisma` risks Prisma treating it as a migration wanting to
+    drop those tables, which is exactly what hasn't been decided yet.
+- **Decided 2026-09-01: the underlying Postgres tables** (`shoppables`,
+  `tickets`, `orders`, `order_items`, `payments`, `consumables`,
+  `consumable_reservations`, `shoppable_access_policies`) **stay in place
+  for now, unused** - not dropped via a migration. Dropping tables in the
+  shared live database is a more consequential, harder-to-reverse step
+  than deleting application code, so it's being treated as a separate
+  decision to make explicitly
   later rather than bundled into this one.
 
 ## DB migrations, once Prisma is gone (decided 2026-09-01)
@@ -670,6 +695,84 @@ events-specific but surfaced by needing the same logic twice:**
   new one. **Any future domain package must check its DTO type names
   against every other registered package's for this reason** - it's a
   whole-API constraint, not a per-package one.
+
+### Events frontend wiring (implemented 2026-09-01)
+
+**Status: implemented**, as a follow-up pass to the backend port above -
+same "data layer only" scope as the articles frontend integration
+originally was: convert `src/lib/events/*` and
+`src/routes/(app)/events/*`'s load functions/actions from Prisma to the
+Go API, following the exact `+page.ts`/`+page.server.ts` split and
+`$lib/api/client` conventions articles already established (see "API
+shape and frontend integration" above). **Explicitly not in scope**:
+designing or building the UI itself - `/events`, `/events/[slug]`,
+`/events/all-events`, `/events/calendar` are all `<NotImplemented />`
+stubs, and `create`/`[slug]/edit` have no `+page.svelte` at all (only
+orphaned server logic) - discovered mid-pass, not something this work
+changes. That's a substantially larger, separate UI-design effort.
+
+Converted: list (`+page.ts`), detail (`[slug]/+page.server.ts` - kept
+server-only rather than moved to `+page.ts`, see below), create
+(`create/+page.ts`), edit (`[slug]/edit/+page.ts`), delete
+(`removeEventAction`), going/interested (`interestedAction`), comments
+(the `EVENT` branch of `$lib/zod/comments.ts`, which already had a `NEWS`
+branch calling Go - this just added the matching call). All actions and
+loads verified against a live Go backend + dev DB (create, recurring
+series, edit, delete, going/interested toggle, comment) before considering
+this done, same as the backend port itself was.
+
+**Deliberately still Prisma-backed, not touched by this pass** - each
+because its backing Go endpoint doesn't exist yet (see the Events section
+above's "not ported this pass" list), not because it was missed:
+`all-events` (admin bypass listing), `calendar`, `tv`, `subscribe` (ICS
+feed), `id/[id]` (legacy slug-backfill redirect), and the nollning events
+page. `src/lib/events/getEvents.ts` (`getAllEvents`/`getEvent`) and
+`src/lib/events/events.ts` (`BASIC_EVENT_FILTER`, `eventLink`) stay in the
+codebase for exactly these routes - don't delete them thinking they're
+now dead, they aren't.
+
+**One deviation from "every page moves to `+page.ts`," and why it's a
+sanctioned exception, not a violation**: the event detail page
+(`[slug]/+page.server.ts`) stayed a server-only load rather than moving to
+`+page.ts`. It calls `getAllTaggedMembers` (`$lib/utils/commentTagging.ts`,
+a real Prisma lookup for comment `@mention` resolution, shared with
+articles - see the API shape section's note on this), which needs the
+event's `comments` array as input - but that array only exists after
+fetching the event from Go. A universal `+page.ts` load has no way to
+sequence a Prisma call after a Go API call like that (server loads run
+*before* universal loads and hand data forward, never the reverse). This
+is exactly the case this doc's "Principles going forward" section already
+carved out room for: "server-only load is a stopgap for routes that can't
+do that yet, not the destination." `getAllTaggedMembers`'s own doc comment
+already anticipated this exact migration (it was written to accept a
+`{content}[]` shape matching the Go API's `Comment`, not a full Prisma
+model), so nothing there needed to change.
+
+**Two known gaps, both accepted because nothing currently renders the
+pages that would surface them**:
+- Push notifications to an event's organizer on going/interested aren't
+  replicated client-side either, matching the backend's own "not ported
+  this pass" decision - there's no member data to build the notification
+  from on the frontend side of a Go API call anyway.
+- The edit page's `+page.ts` can't prefill a recurring series' own
+  settings (`recurringType`/`separationCount`/`recurringEndDatetime`) -
+  Go's `EventDetail` only exposes `recurringParentId`, not the
+  `RecurringEvent` row itself. `internal/db/queries/events.sql`'s
+  `GetRecurringEvent` query exists but isn't wired to any HTTP route.
+  Left as a documented gap rather than adding a new Go endpoint, since
+  that would be expanding backend scope beyond what this pass was asked to
+  do and nothing renders the edit form yet regardless. Revisit together
+  once a real edit UI is built.
+
+**Two small, deliberate behavior fixes surfaced in this pass** (beyond the
+"real bugs" list already recorded in the Events section above, which were
+fixed on the Go side): `interestedGoingSchema`'s field was renamed from
+`eventId` to `slug` - the old Prisma code updated by id, but Go's
+attendance endpoint is slug-keyed, and there was no consumer of the old
+field name anywhere (`<NotImplemented />` stub pages) to break by renaming
+it. The create-event form's schema previously also required an `editType`
+field it never actually read (a copy-paste leftover from the update
+schema) - dropped now that `createEvent`'s action no longer needs it.
 
 ## Mocking out-of-scope dependencies (generalized 2026-09-01)
 

@@ -13,12 +13,6 @@ const DUPLICATE_ALLOWED_TYPES = [
   NotificationType.CREATE_MANDATE,
   NotificationType.ARTICLE_REQUEST_UPDATE,
   NotificationType.BOOKING_REQUEST,
-  NotificationType.PAYMENT_STATUS,
-  NotificationType.PURCHASE_TIME_TO_BUY,
-  NotificationType.PURCHASE_SOLD_OUT,
-  NotificationType.PURCHASE_IN_QUEUE,
-  NotificationType.PURCHASE_CONSUMABLE_EXPIRED,
-  NotificationType.PAYMENT_STATUS,
   NotificationType.EXPENSES,
 ];
 

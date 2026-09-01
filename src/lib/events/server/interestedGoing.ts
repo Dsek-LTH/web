@@ -1,66 +1,27 @@
-import { eventLink } from "$lib/events/events";
 import { interestedGoingSchema } from "$lib/events/schema";
-import { getFullName } from "$lib/utils/client/member";
-import sendNotification from "$lib/utils/notifications";
-import { NotificationType } from "$lib/utils/notifications/types";
 import { fail, type Action } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { message, superValidate } from "sveltekit-superforms/server";
+import { api } from "$lib/api/client";
 
+// The acting member is resolved server-side in Go from the (currently
+// mocked) request identity - see $lib/api/client and ../../../DESIGN.md's
+// Auth section. Notifying the event's organizer on going/interested isn't
+// ported yet (see DESIGN.md's events section's "not ported this pass"
+// list), so that side effect - present in the old Prisma version - is
+// simply gone for now, not replicated client-side.
 export const interestedAction =
   (isInterested: boolean, isGoing: boolean): Action =>
-  async ({ request, locals }) => {
-    const { prisma, user, member } = locals;
+  async ({ request }) => {
     const form = await superValidate(request, zod4(interestedGoingSchema));
     if (!form.valid) return fail(400, { form });
 
-    const event = await prisma.event.update({
-      where: { id: form.data.eventId },
-      data: {
-        interested: {
-          [isInterested ? "connect" : "disconnect"]: {
-            studentId: user?.studentId,
-          },
-        },
-        going: {
-          [isGoing ? "connect" : "disconnect"]: {
-            studentId: user?.studentId,
-          },
-        },
-      },
-      select: {
-        id: true,
-        slug: true,
-        title: true,
-        author: {
-          select: {
-            id: true,
-          },
-        },
-      },
+    const status = isGoing ? "going" : isInterested ? "interested" : "none";
+    await api.PATCH("/events/{slug}/attendance", {
+      params: { path: { slug: form.data.slug } },
+      body: { status },
     });
 
-    if (member) {
-      if (isGoing) {
-        await sendNotification({
-          title: `${event.title}`,
-          message: `${getFullName(member)} kommer på ditt event.`,
-          type: NotificationType.EVENT_GOING,
-          link: eventLink(event),
-          memberIds: [event.author.id],
-          fromMemberId: member.id,
-        });
-      } else if (isInterested) {
-        await sendNotification({
-          title: `${event.title}`,
-          message: `${getFullName(member)} är intresserad av ditt event.`,
-          type: NotificationType.EVENT_INTERESTED,
-          link: eventLink(event),
-          memberIds: [event.author.id],
-          fromMemberId: member.id,
-        });
-      }
-    }
     return message(form, {
       message: `${
         isInterested
