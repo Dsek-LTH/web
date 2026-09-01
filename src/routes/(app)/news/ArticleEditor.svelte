@@ -5,8 +5,8 @@
   import type { ArticleSchema } from "$lib/news/schema";
   import { superForm } from "$lib/utils/client/superForms";
   import AuthorCard from "$lib/components/AuthorCard.svelte";
-  import type { AuthorOption } from "$lib/news/getArticles";
-  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+  import type { components } from "$lib/api/schema";
+  import type { AuthorOptionSchema } from "$lib/news/schema";
 
   let {
     data,
@@ -16,11 +16,11 @@
     committees,
     formAction,
   }: {
-    allTags: Array<ExtendedPrismaModel<"Tag">>;
-    authorOptions: AuthorOption[];
+    allTags: Array<components["schemas"]["Tag"]>;
+    authorOptions: AuthorOptionSchema[];
     data: SuperValidated<ArticleSchema>;
     superform?: SuperForm<ArticleSchema>;
-    committees: Array<Pick<ExtendedPrismaModel<"Committee">, "id" | "name">>;
+    committees: Array<Pick<components["schemas"]["Committee"], "id" | "name">>;
     formAction?: string;
   } = $props();
 
@@ -45,39 +45,17 @@
   />
   <Article
     article={{
-      id: "",
       slug: "",
       header:
         activeTab === "en" && $form.headerEn ? $form.headerEn : $form.headerSv,
-      headerSv: $form.headerSv,
-      headerEn: $form.headerEn,
       body: activeTab === "en" && $form.bodyEn ? $form.bodyEn : $form.bodySv,
-      bodySv: $form.bodySv,
-      bodyEn: $form.bodyEn,
-      authorId: $form.author.id,
-      publishedAt: new Date(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      removedAt: null,
-      status: "draft",
+      createdAt: new Date().toISOString(),
       imageUrls: $form.imageUrls ?? [],
-      imageUrl: $form.imageUrl ?? null,
-      youtubeUrl: $form.youtubeUrl ?? null,
       tags: allTags.filter((t) => tagIds.includes(t.id)),
-      committeeId: $form.committeeId == undefined ? null : $form.committeeId,
-      notificationText: null,
-      scheduledId: null,
-      shouldSendNotification: false,
     }}
     canEdit={false}
     canDelete={false}
   >
-    <AuthorCard
-      links={false}
-      member={$form.author.member}
-      position={$form.author.mandate?.position}
-      customAuthor={$form.author.customAuthor}
-      type={$form.author.type}
-    /></Article
+    <AuthorCard links={false} author={$form.author} /></Article
   >
 </div>

@@ -1,5 +1,4 @@
 <script lang="ts">
-  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import { cn } from "$lib/utils";
   import type { Snippet } from "svelte";
 
@@ -9,10 +8,19 @@
     imageOverride,
     children,
   }: {
-    committee: Pick<
-      ExtendedPrismaModel<"Committee">,
-      "shortName" | "symbolUrl" | "name"
-    > | null;
+    // TEMPORARY dual-shape (Prisma `| null` vs Go API `| undefined`) -
+    // pure type widening, no conversion logic. Still-Prisma consumers:
+    // committees/+layout.svelte, about/+page.svelte. Narrow to
+    // `string | undefined` once those are ported (or their call sites
+    // coerce null->undefined themselves).
+    committee:
+      | {
+          shortName?: string | null;
+          symbolUrl?: string | null;
+          name: string;
+        }
+      | null
+      | undefined;
     class?: string;
     /** An image url to use instead of a committee*/
     imageOverride?: string;

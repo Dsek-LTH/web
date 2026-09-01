@@ -2,7 +2,7 @@ import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
 import { env } from "$env/dynamic/private";
 import { BASIC_EVENT_FILTER } from "$lib/events/events";
 import { fileHandler } from "$lib/files";
-import { BASIC_ARTICLE_FILTER } from "$lib/news/articles";
+import { api } from "$lib/api/client";
 import { error } from "@sveltejs/kit";
 // eslint-disable-next-line no-restricted-imports -- problem with lib and api, feels unnecessary to create a bunch of helper files just to structure this one thing
 import type { GetCommitDataResponse } from "../../routes/(app)/api/home/+server";
@@ -62,18 +62,12 @@ export const loadHomeData = async ({
   /* files ends */
 
   // NEWS
-  const newsPromise = prisma.article.findMany({
-    where: {
-      ...BASIC_ARTICLE_FILTER(),
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-    take: 3,
-    include: {
-      committee: true,
-    },
-  });
+  // Ordered by publishedAt (the Go API's only order), not createdAt like
+  // the old query - these only diverge for an article edited well after a
+  // scheduled publish, which doesn't matter for a 3-item homepage widget.
+  const newsPromise = api
+    .GET("/articles", { fetch, params: { query: { pageSize: 3 } } })
+    .then((res) => res.data?.articles ?? []);
 
   const startDate = dayjs(now).startOf("day").toDate();
   const endDate = dayjs(now).add(6, "day").endOf("day").toDate();

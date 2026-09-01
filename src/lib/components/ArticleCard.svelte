@@ -1,17 +1,19 @@
 <script lang="ts">
-  import type { Article } from "$lib/news/getArticles";
   import dayjs from "dayjs";
   import AuthorCard from "./AuthorCard.svelte";
   import { Marked } from "marked";
   import type { Tokens } from "marked";
   import CommitteePlaceholder from "$lib/components/images/CommitteePlaceholder.svelte";
+  import type { components } from "$lib/api/schema";
+
+  type ArticleSummary = components["schemas"]["ArticleSummary"];
 
   let {
     article,
     index,
   }: {
     article: Pick<
-      Article,
+      ArticleSummary,
       | "author"
       | "slug"
       | "imageUrl"
@@ -73,11 +75,7 @@
     </div></a
   >
   <div class="mt-auto flex flex-row items-center justify-between pt-2">
-    <AuthorCard
-      member={article.author.member}
-      customAuthor={article.author.customAuthor}
-      position={article.author.mandate?.position}
-    />
+    <AuthorCard author={article.author} />
     <span class="text-muted-foreground"
       >{dayjs(article.createdAt).format("YYYY-MM-DD")}</span
     >

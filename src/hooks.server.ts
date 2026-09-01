@@ -1,5 +1,4 @@
 import { env } from "$env/dynamic/private";
-import { env as envPublic } from "$env/dynamic/public";
 import { createMember } from "$lib/utils/member";
 import { themes, type Theme } from "$lib/utils/themes";
 import {
@@ -8,15 +7,7 @@ import {
   getLocale,
 } from "$paraglide/runtime";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
-import Authentik, {
-  type AuthentikProfile,
-} from "@auth/core/providers/authentik";
-import { SvelteKitAuth } from "@auth/sveltekit";
-import {
-  isTokenValid,
-  fetchNewToken,
-  decodeAccessToken,
-} from "$lib/utils/auth";
+import { fetchIdentity } from "$lib/server/goAuth";
 import {
   error,
   redirect,
@@ -28,8 +19,6 @@ import { enhance } from "@zenstackhq/runtime";
 import RPCApiHandler from "@zenstackhq/server/api/rpc";
 import zenstack from "@zenstackhq/server/sveltekit";
 import { randomBytes } from "crypto";
-import { getAccessPolicies } from "./hooks.server.helpers";
-import { getDerivedRoles } from "$lib/utils/authorization";
 import {
   PrismaClientKnownRequestError,
   PrismaClientValidationError,
@@ -48,121 +37,16 @@ import {
 // TODO: This function should perhaps only be called during dev? Build? I'm not sure
 if (dev) verifyCostCenterData();
 
-const { handle: authHandle } = SvelteKitAuth({
-  secret: env.AUTH_SECRET,
-  trustHost: true,
-  providers: [
-    Authentik({
-      clientId: env.AUTH_AUTHENTIK_CLIENT_ID,
-      clientSecret: env.AUTH_AUTHENTIK_CLIENT_SECRET,
-      issuer: envPublic.PUBLIC_AUTH_AUTHENTIK_ISSUER,
-      profile: (profile: AuthentikProfile) => {
-        return {
-          id: profile.sub,
-          given_name: profile.given_name,
-          family_name: profile.family_name,
-          email: profile.email,
-          student_id: profile.preferred_username,
-          group_list: profile.groups,
-        };
-      },
-      authorization: {
-        params: { scope: "openid profile email offline_access splitname" },
-      },
-    }),
-  ],
-  callbacks: {
-    async jwt({ token, user, account }) {
-      if (user) {
-        token.student_id = user.student_id;
-        token.group_list = user.group_list ?? [];
-        token.given_name = user.given_name;
-        token.family_name = user.family_name;
-        token.email = user.email;
-      }
-
-      if (account) {
-        token.refresh_token = account.refresh_token;
-        token.id_token = account.id_token;
-        token.expires_at = account.expires_at;
-        return token;
-      }
-
-      if (isTokenValid(token)) {
-        return token;
-      }
-
-      try {
-        const newToken = await fetchNewToken(token, {
-          clientId: env.AUTH_AUTHENTIK_CLIENT_ID,
-          clientSecret: env.AUTH_AUTHENTIK_CLIENT_SECRET,
-          tokenEndpoint: envPublic.PUBLIC_AUTH_AUTHENTIK_TOKEN_ENDPOINT,
-        });
-
-        const accessToken = newToken.access_token as string;
-        const decodedToken = decodeAccessToken(accessToken);
-
-        token.access_token = accessToken;
-        token.group_list = (decodedToken["groups"] as string[]) ?? [];
-        token.id_token = newToken.id_token;
-        token.expires_at = Math.floor(Date.now() / 1000) + newToken.expires_in;
-        token.refresh_token = newToken.refresh_token ?? token.refresh_token;
-        delete token.error;
-
-        return token;
-      } catch (error) {
-        console.error("Error refreshing Authentik access_token:", error);
-        token.error = "RefreshTokenError";
-
-        return token;
-      }
-    },
-    session({ session, token }) {
-      if (token) {
-        if (session?.user) {
-          session.user.student_id = token.student_id;
-          session.user.email = token.email ?? "";
-          session.user.group_list = token.group_list;
-          session.user.given_name = token.given_name;
-          session.user.family_name = token.family_name;
-        }
-
-        session.error = token.error;
-        if (session.error) {
-          throw redirect(302, "/signout");
-        }
-      }
-
-      return session;
-    },
-    /**
-     * Controls which URLs are allowed for redirection after authentication.
-     * - Allows relative callback URLs for internal navigation.
-     * - Only permits absolute URLs if their hostname matches trusted domains (e.g., localhost, dsek.se).
-     *   This prevents open redirect vulnerabilities by restricting redirects to known safe domains.
-     */
-    redirect({ url, baseUrl }) {
-      // Handle relative callback URLs
-      if (url.startsWith("/")) return `${baseUrl}${url}`;
-
-      // Handle callback URLs to trusted domains
-      const hostname = new URL(url).hostname;
-      const allowedHostnames = ["localhost", "dsek.se"];
-      if (allowedHostnames.some((h) => hostname.endsWith(h))) return url;
-
-      return baseUrl;
-    },
-  },
-});
-
+// Identity/session resolution (login, refresh, roles/policies) is now owned
+// entirely by the Go backend (backend/internal/auth) - see
+// backend/DESIGN.md's Auth section. This handle just asks Go who the caller
+// is (via the shared dsek_session cookie) and builds locals.user/locals.prisma
+// from that, the same shape the old Auth.js-based version produced.
 const databaseHandle: Handle = async ({ event, resolve }) => {
-  const session = await event.locals.auth();
+  const identity = await fetchIdentity(event);
 
-  if (!session?.user) {
-    const prisma = getExtendedPrismaClient(
-      getLocale(),
-      session?.user.student_id,
-    );
+  if (!identity.studentId) {
+    const prisma = getExtendedPrismaClient(getLocale(), undefined);
     let externalCode = event.cookies.get("externalCode"); // Retrieve the externalCode from cookies
     if (!externalCode) {
       // Generate a new externalCode if it doesn't exist
@@ -173,35 +57,35 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
         secure: process.env["NODE_ENV"] === "production", // Only send cookie over HTTPS in production
       });
     }
-    const roles = getDerivedRoles(undefined, false);
-    const policies = await getAccessPolicies(prisma, roles);
     const user = {
       studentId: undefined,
       memberId: undefined,
-      policies,
+      policies: identity.policies,
       externalCode: externalCode, // For anonymous users
-      roles,
+      roles: identity.roles,
     };
     event.locals.prisma = enhance(prisma, {
       user,
     });
     event.locals.user = user;
   } else {
+    const prisma = getExtendedPrismaClient(getLocale(), identity.studentId);
     const existingMember = await authorizedPrismaClient.member.findUnique({
-      where: { studentId: session.user.student_id },
+      where: { studentId: identity.studentId },
     });
-
-    const prisma = getExtendedPrismaClient(
-      getLocale(),
-      session?.user.student_id,
-    );
+    // Go's /auth/callback already resolves-or-creates the Member row on
+    // login (see backend/internal/auth's resolveOrCreateMember) - this
+    // fallback only matters if that's ever bypassed (e.g. AUTH_MOCK), and
+    // deliberately uses the full createMember (subscription defaults, tag
+    // subscriptions) that Go's minimal port doesn't replicate - see
+    // DESIGN.md's Auth section for that gap.
     const member =
       existingMember ||
       (await createMember(prisma, {
-        studentId: session.user.student_id,
-        firstName: session.user.given_name,
-        lastName: session.user.family_name,
-        email: session.user.email,
+        studentId: identity.studentId,
+        firstName: identity.givenName,
+        lastName: identity.familyName,
+        email: identity.email,
       }));
 
     if (
@@ -211,17 +95,11 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
       redirect(302, "/onboarding");
     }
 
-    const roles = getDerivedRoles(
-      session.user.group_list,
-      !!session.user.student_id,
-      member.classYear ?? undefined,
-      member.classProgramme ?? undefined,
-    );
     const user = {
-      studentId: session.user.student_id,
-      memberId: member!.id,
-      policies: await getAccessPolicies(prisma, roles, session.user.student_id),
-      roles,
+      studentId: identity.studentId,
+      memberId: identity.memberId,
+      policies: identity.policies,
+      roles: identity.roles,
     };
 
     event.locals.prisma = enhance(prisma, { user });
@@ -304,12 +182,15 @@ const paraglideHandle: Handle = ({ event, resolve }) =>
       event.request = localizedRequest;
 
       try {
-        const session = await event.locals.auth?.();
+        // A cheap presence check, not a full identity resolution (that's
+        // databaseHandle's job, running after this) - just enough to know
+        // whether to sync the locale cookie for a logged-in visitor.
+        const hasSession = event.cookies.get("dsek_session") !== undefined;
         const existing = event.cookies.get(cookieName);
 
         // If the server-determined locale exists (from your custom-server strategy)
         // and the user is logged in, set the cookie if it is missing or different.
-        if (session?.user && locale && existing !== locale) {
+        if (hasSession && locale && existing !== locale) {
           console.log("hook", locale);
           event.cookies.set(cookieName, locale, {
             path: "/",
@@ -335,11 +216,16 @@ const paraglideHandle: Handle = ({ event, resolve }) =>
 
 defineCustomServerStrategy("custom-userPreference", {
   getLocale: async () => {
-    const data = getRequestEvent();
-    const studentId = (await data.locals.auth())?.user.student_id;
-    if (studentId) {
+    const event = getRequestEvent();
+    // Same fetchIdentity call databaseHandle makes further down the chain -
+    // duplicated here since this strategy fires from inside paraglideHandle,
+    // which runs before databaseHandle populates locals.user. Not cached
+    // across the two; an accepted minor inefficiency, not a correctness gap
+    // (fetchIdentity's Set-Cookie forwarding is idempotent either way).
+    const identity = await fetchIdentity(event);
+    if (identity.studentId) {
       const lang = await authorizedPrismaClient.member.findFirst({
-        where: { studentId },
+        where: { studentId: identity.studentId },
         select: { language: true },
       });
       return lang?.language ?? undefined;
@@ -365,7 +251,6 @@ export const handle = sequence(
       inflightRequests.dec();
     }
   },
-  authHandle,
   paraglideHandle,
   databaseHandle,
   apiHandle,

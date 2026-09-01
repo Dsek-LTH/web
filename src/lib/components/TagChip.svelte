@@ -1,5 +1,4 @@
 <script lang="ts">
-  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import { twMerge } from "tailwind-merge";
   import { Badge } from "./ui/badge";
 
@@ -7,7 +6,9 @@
     tag = undefined,
     class: klass,
   }: {
-    tag: Pick<ExtendedPrismaModel<"Tag">, "color" | "name"> | undefined;
+    // Matches the Go API's Tag shape - both consumers (TagSelector,
+    // Article.svelte) are article-feature, Go-backed.
+    tag: { color?: string; name: string } | undefined;
     class?: string;
   } = $props();
 </script>

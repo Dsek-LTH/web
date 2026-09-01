@@ -30,9 +30,9 @@
 
   import { type SuperForm } from "sveltekit-superforms";
 
-  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
-  import type { ArticleSchema } from "$lib/news/schema";
-  import type { AuthorOption } from "$lib/news/getArticles";
+  import type { components } from "$lib/api/schema";
+  import type { ArticleSchema, AuthorOptionSchema } from "$lib/news/schema";
+  import { sameAuthorOption } from "$lib/news/authorOptions";
   import { Spinner } from "$lib/components/ui/spinner";
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
@@ -46,11 +46,11 @@
     committees,
     action,
   }: {
-    allTags: Array<ExtendedPrismaModel<"Tag">>;
+    allTags: Array<components["schemas"]["Tag"]>;
     activeTab: "sv" | "en";
     superform: SuperForm<ArticleSchema>;
-    authorOptions: AuthorOption[];
-    committees: Array<Pick<ExtendedPrismaModel<"Committee">, "id" | "name">>;
+    authorOptions: AuthorOptionSchema[];
+    committees: Array<Pick<components["schemas"]["Committee"], "id" | "name">>;
     action?: string;
   } = $props();
 
@@ -88,15 +88,6 @@
       $form.publishTime = null;
     }
   }
-
-  const sameAuthorOption = (
-    a: Pick<AuthorOption, "memberId" | "mandateId" | "customId" | "type">,
-    b: Pick<AuthorOption, "memberId" | "mandateId" | "customId" | "type">,
-  ) =>
-    a.memberId === b.memberId &&
-    a.mandateId === b.mandateId &&
-    a.customId === b.customId &&
-    a.type === b.type;
 
   let filelist: FileList | undefined = $state();
 
@@ -187,12 +178,12 @@
         />{#if $form.author.type === "Custom" && $form.author.customAuthor != null}{$form
             .author.customAuthor.name}{:else}{$form.author.member.firstName}
           {$form.author.member
-            .lastName}{#if $form.author.mandate?.position.name},
-            {$form.author.mandate?.position.name}
+            .lastName}{#if $form.author.position?.name},
+            {$form.author.position?.name}
           {/if}{/if}</Select.Trigger
       >
       <Select.Content>
-        {#each authorOptions as authorOption (authorOption.id)}
+        {#each authorOptions as authorOption, i (i)}
           <Select.Item
             value={sameAuthorOption(authorOption, $form.author)
               ? ($form.author as unknown as string)
@@ -202,8 +193,8 @@
             {:else}
               {authorOption.member.firstName}
               {authorOption.member
-                .lastName}{#if authorOption.mandate?.position.name},
-                {authorOption.mandate?.position.name}
+                .lastName}{#if authorOption.position?.name},
+                {authorOption.position?.name}
               {/if}
             {/if}</Select.Item
           >

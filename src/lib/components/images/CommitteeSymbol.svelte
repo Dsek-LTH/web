@@ -1,6 +1,5 @@
 <script lang="ts">
   import { getFileUrl } from "$lib/files/client";
-  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import { cn } from "$lib/utils";
 
   let {
@@ -12,10 +11,16 @@
     size = "default",
     class: klass,
   }: {
-    committee?: Pick<
-      ExtendedPrismaModel<"Committee">,
-      "symbolUrl" | "shortName" | "name"
-    >;
+    // TEMPORARY dual-shape (Prisma `| null` vs Go API `| undefined`) -
+    // pure type widening, no conversion logic. Still-Prisma consumers:
+    // PositionCard, contact/+page.svelte. Narrow to `string | undefined`
+    // once those are ported (or their call sites coerce null->undefined
+    // themselves).
+    committee?: {
+      symbolUrl?: string | null;
+      shortName?: string | null;
+      name: string;
+    };
     size?: "default" | "sm";
     class?: string;
   } = $props();

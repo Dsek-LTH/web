@@ -10,7 +10,9 @@
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import TagChip from "$lib/components/TagChip.svelte";
   import type { Snippet } from "svelte";
-  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+  import type { components } from "$lib/api/schema";
+
+  type ArticleSummary = components["schemas"]["ArticleSummary"];
 
   let {
     article,
@@ -18,9 +20,10 @@
     canDelete,
     children,
   }: {
-    article: ExtendedPrismaModel<"Article"> & {
-      tags: Array<ExtendedPrismaModel<"Tag">>;
-    };
+    article: Pick<
+      ArticleSummary,
+      "header" | "slug" | "createdAt" | "tags" | "body" | "imageUrls"
+    >;
     canEdit: boolean;
     canDelete: boolean;
     children?: Snippet;
@@ -49,12 +52,12 @@
     </div>
   </div>
   <div class="flex flex-row flex-wrap gap-2">
-    {#each article.tags as tag (tag.id)}
+    {#each article.tags ?? [] as tag (tag.id)}
       <TagChip {tag} />
     {/each}
   </div>
   <MarkdownBody class="text-foreground article-body" body={article.body} />
-  {#if article.imageUrls}
+  {#if article.imageUrls?.length}
     <ImageList images={article.imageUrls} />
   {/if}
 </main>

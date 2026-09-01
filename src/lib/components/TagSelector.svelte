@@ -1,5 +1,4 @@
 <script lang="ts">
-  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import { cn } from "$lib/utils";
   import TagChip from "./TagChip.svelte";
   import { Input } from "./ui/input";
@@ -10,6 +9,10 @@
   import type { Props as InputProps } from "$lib/components/ui/input/input.svelte";
   import CircleAlert from "@lucide/svelte/icons/circle-alert";
 
+  // Matches the Go API's Tag shape (id/name/color, resolved name rather
+  // than nameSv/nameEn) - see backend/CLAUDE.md.
+  type TagLike = { id: string; name: string; color?: string };
+
   let {
     onChange = () => (searchValue = ""),
     name = undefined,
@@ -19,11 +22,8 @@
   }: {
     onChange?: () => void;
     name?: string | undefined;
-    allTags?: Array<ExtendedPrismaModel<"Tag">>;
-    selectedTags?: Array<
-      Pick<ExtendedPrismaModel<"Tag">, "id"> &
-        Partial<Omit<ExtendedPrismaModel<"Tag">, "id">>
-    >;
+    allTags?: TagLike[];
+    selectedTags?: Array<Pick<TagLike, "id"> & Partial<Omit<TagLike, "id">>>;
   } & InputProps = $props();
 
   const internalOnChange: () => void = () => {

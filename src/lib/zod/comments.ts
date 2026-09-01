@@ -8,6 +8,7 @@ import { zod4 } from "sveltekit-superforms/adapters";
 
 import { z } from "zod";
 import DOMPurify from "isomorphic-dompurify";
+import { api } from "$lib/api/client";
 
 export const commentSchema = z.object({
   content: z.string().min(1),
@@ -22,32 +23,38 @@ export type RemoveCommentSchema = Infer<typeof removeCommentSchema>;
 export const commentAction =
   (entityType: "NEWS" | "EVENT"): Action =>
   async ({ locals, request, params }) => {
-    const { prisma, user } = locals;
+    const { prisma, member } = locals;
     const form = await superValidate(request, zod4(commentSchema));
     if (!form.valid) return fail(400, { form });
-    const args = {
-      where: { slug: params["slug"] },
-      data: {
-        comments: {
-          create: {
-            member: {
-              connect: {
-                studentId: user?.studentId,
-              },
-            },
-            content: DOMPurify.sanitize(form.data.content),
-            published: new Date(),
-          },
-        },
-      },
-    };
-    // I tried just changing the "prisma.article" part into something like "prisma[entityType === ...]" but it doesn't work so instead I did this
+    const slug = params["slug"] ?? "";
+
     switch (entityType) {
       case "NEWS":
-        await prisma.article.update(args);
+        // The acting member is resolved server-side in Go from the
+        // (currently mocked) request identity - see $lib/api/client and
+        // ../../DESIGN.md's Auth section - and content is sanitized there
+        // too (backend/internal/articles), so neither happens here.
+        await api.POST("/articles/{slug}/comments", {
+          params: { path: { slug } },
+          body: { content: form.data.content },
+        });
         break;
       case "EVENT":
-        await prisma.event.update(args);
+        // Events aren't ported to Go yet, so this still goes through
+        // Prisma directly and needs a real session member.
+        if (!member) return fail(401, { form });
+        await prisma.event.update({
+          where: { slug },
+          data: {
+            comments: {
+              create: {
+                member: { connect: { id: member.id } },
+                content: DOMPurify.sanitize(form.data.content),
+                published: new Date(),
+              },
+            },
+          },
+        });
         break;
       default:
         return message(
@@ -73,22 +80,25 @@ export const removeCommentAction =
     const { prisma } = locals;
     const form = await superValidate(request, zod4(removeCommentSchema));
     if (!form.valid) return fail(400, { form });
-    const args = {
-      where: { slug: params["slug"] },
-      data: {
-        comments: {
-          delete: {
-            id: form.data.commentId,
-          },
-        },
-      },
-    };
+    const slug = params["slug"] ?? "";
+
     switch (entityType) {
       case "NEWS":
-        await prisma.article.update(args);
+        await api.DELETE("/articles/{slug}/comments/{commentId}", {
+          params: { path: { slug, commentId: form.data.commentId } },
+        });
         break;
       case "EVENT":
-        await prisma.event.update(args);
+        await prisma.event.update({
+          where: { slug },
+          data: {
+            comments: {
+              delete: {
+                id: form.data.commentId,
+              },
+            },
+          },
+        });
         break;
       default:
         return message(

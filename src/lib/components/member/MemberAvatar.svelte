@@ -1,17 +1,16 @@
 <script lang="ts">
   import * as Avatar from "$lib/components/ui/avatar";
-  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
-  import { getInitials } from "$lib/utils/client/member";
+  import { getInitials, type MemberNames } from "$lib/utils/client/member";
 
   let {
     member,
     class: klass,
     lazy,
   }: {
-    member: Pick<
-      ExtendedPrismaModel<"Member">,
-      "picturePath" | "firstName" | "lastName"
-    >;
+    // TEMPORARY dual-shape (Prisma `| null` + Go `| undefined`) - see the
+    // comment on MemberNames in $lib/utils/client/member.ts for why and
+    // when to narrow this back to Go-only.
+    member: MemberNames & { picturePath?: string | null | undefined };
     class?: string;
     lazy?: boolean;
   } = $props();

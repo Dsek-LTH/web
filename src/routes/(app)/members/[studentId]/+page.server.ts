@@ -1,5 +1,5 @@
 import apiNames from "$lib/utils/apiNames";
-import { BASIC_ARTICLE_FILTER } from "$lib/news/articles";
+import { api } from "$lib/api/client";
 import { authorize, isAuthorized } from "$lib/utils/authorization";
 import { getCurrentDoorPoliciesForMember } from "$lib/utils/member";
 import { emptySchema, memberSchema } from "$lib/zod/schemas";
@@ -28,7 +28,7 @@ import DOMPurify from "isomorphic-dompurify";
 const PROFILE_PICTURE_PREFIX = (studentId: string) =>
   `public/${studentId}/profile-picture`;
 
-export const load: PageServerLoad = async ({ locals, params, cookies }) => {
+export const load: PageServerLoad = async ({ locals, params, cookies, fetch }) => {
   const { prisma, user } = locals;
   const { studentId } = params;
   const [memberResult, publishedArticlesResult, phadderGroupsResult] =
@@ -58,33 +58,24 @@ export const load: PageServerLoad = async ({ locals, params, cookies }) => {
           doorAccessPolicies: {},
         },
       }),
-      prisma.article.findMany({
-        where: {
-          ...BASIC_ARTICLE_FILTER(),
-          author: {
-            type: {
-              not: "Custom",
-            },
-            member: {
-              studentId: studentId,
-            },
-          },
-        },
-        orderBy: {
-          publishedAt: "desc",
-        },
-        include: {
-          author: {
-            include: {
-              customAuthor: true,
-              member: true,
-              mandate: { include: { position: true } },
-            },
-          },
-          committee: true,
-        },
-        take: 5,
-      }),
+      // Fetches 5 and filters out Custom-byline articles client-side rather
+      // than server-side (the Go API's authorStudentId filter matches on
+      // the underlying member regardless of byline type, since a custom
+      // byline still has a real member behind it) - this can under-fill to
+      // fewer than 5 on a profile with several custom-authored articles,
+      // which is an acceptable trade for not widening the Go API's filter
+      // surface for this one profile-page widget.
+      api
+        .GET("/articles", {
+          fetch,
+          params: { query: { authorStudentId: studentId, pageSize: 5 } },
+        })
+        .then(
+          (res) =>
+            res.data?.articles?.filter(
+              (article) => article.author.type !== "Custom",
+            ) ?? [],
+        ),
       prisma.phadderGroup.findMany({
         orderBy: {
           year: "asc",

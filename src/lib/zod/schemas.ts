@@ -32,33 +32,6 @@ export const memberSchema = z.object({
   nollningGroupId: z.string().uuid().nullable().default(null),
   language: z.string().nullable().default(null),
 });
-export const positionSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  nameSv: z.string(),
-  nameEn: z.string().nullable(),
-});
-export const mandateSchema = z.object({
-  id: z.string().uuid(),
-  position: positionSchema,
-});
-export const customAuthorSchema = z.object({
-  id: z.string().uuid(),
-  name: z.string(),
-  nameSv: z.string(),
-  nameEn: z.string().nullable(),
-  imageUrl: z.string().nullable(),
-});
-export const authorSchema = z.object({
-  id: z.string(),
-  memberId: z.string().uuid(),
-  mandateId: z.string().uuid().nullable(),
-  customId: z.string().uuid().nullable(),
-  type: z.string().nullable(),
-  member: memberSchema,
-  mandate: mandateSchema.nullable(),
-  customAuthor: customAuthorSchema.nullable(),
-});
 export const tagSchema = z.object({
   id: z.string().uuid(),
   nameSv: z.string(),
