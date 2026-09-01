@@ -9,7 +9,7 @@
 
 <Command.LinkItem
   class="flex flex-row justify-between"
-  href={`/comittees/${data.shortName}`}
+  href={`/committees/${data.shortName}`}
   data-search-result
 >
   <div class="flex flex-row items-center gap-2">
