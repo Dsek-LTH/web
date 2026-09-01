@@ -27,10 +27,19 @@
 
 <h1 class="pb-5">{m.expenses()}</h1>
 
+<div
+  class="bg-muted-background m-3 ml-0 flex flex-col gap-1 rounded-md border-[1px] p-3"
+>
+  <h4>Nytt utläggssystem</h4>
+  <span>
+    Utläggssystemet har flyttat till <a
+      class="link"
+      href="https://ekonomi.dsek.se">ekonomi.dsek.se</a
+    >.<br />Denna sida finns kvar för arkivering av gamla utlägg.
+  </span>
+</div>
+
 <div class="flex flex-row gap-1">
-  <a href="/expenses/upload"
-    ><Button variant="rosa">+ {m.expense_create()}</Button></a
-  >
   <a href="/expenses"
     ><Button variant="lila"><List /> {m.expense_myExpenses()}</Button></a
   >
