@@ -8,18 +8,19 @@ import (
 
 	"github.com/dsek-lth/web/backend/internal/articles"
 	"github.com/dsek-lth/web/backend/internal/auth"
+	"github.com/dsek-lth/web/backend/internal/events"
 )
 
-// humaServiceError maps an internal/articles or internal/auth error to a
-// huma.StatusError, mirroring writeServiceError (json.go) for the
-// stdlib-handled routes during the huma migration - see
+// humaServiceError maps an internal/articles, internal/events, or
+// internal/auth error to a huma.StatusError, mirroring writeServiceError
+// (json.go) for the stdlib-handled routes during the huma migration - see
 // ../../DESIGN.md's "Migration sequencing" note. Once every route is on
 // huma, writeServiceError/json.go can be deleted.
 func humaServiceError(err error) error {
 	switch {
-	case errors.Is(err, articles.ErrNotFound):
+	case errors.Is(err, articles.ErrNotFound), errors.Is(err, events.ErrNotFound):
 		return huma.Error404NotFound("not found")
-	case errors.Is(err, articles.ErrInvalidInput):
+	case errors.Is(err, articles.ErrInvalidInput), errors.Is(err, events.ErrInvalidInput):
 		return huma.Error400BadRequest(err.Error())
 	case errors.Is(err, auth.ErrUnauthenticated):
 		return huma.Error401Unauthorized("unauthenticated")

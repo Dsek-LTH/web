@@ -1,4 +1,7 @@
-package articles
+// Package slug ports ../../../src/lib/utils/slugify.ts's slug generation -
+// shared by internal/articles and internal/events, since both features
+// need the same "slugify, then suffix with a count on collision" pattern.
+package slug
 
 import (
 	"fmt"
@@ -18,7 +21,7 @@ var (
 	edgeHyphenPattern = regexp.MustCompile(`^-+|-+$`)
 )
 
-// Slugify mirrors ../../src/lib/utils/slugify.ts: NFKD-normalize, strip
+// Slugify mirrors ../../../src/lib/utils/slugify.ts: NFKD-normalize, strip
 // diacritics and quotes, collapse everything else into hyphens, truncate,
 // then trim stray edge hyphens left by truncation.
 func Slugify(s string) string {

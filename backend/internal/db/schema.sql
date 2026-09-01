@@ -1,6 +1,7 @@
 -- Schema for the subset of the site's Postgres database that the Go backend
--- currently owns: articles, and everything articles depend on (authors,
--- members, committees, positions, mandates, tags, phadder groups).
+-- currently owns: articles and events, and everything they depend on
+-- (authors, members, committees, positions, mandates, tags, phadder
+-- groups).
 --
 -- This mirrors tables that already exist in the shared database (previously
 -- managed by ../../src/database/schema.zmodel / Prisma migrations) — column
@@ -202,3 +203,78 @@ CREATE TABLE _article_likes (
 );
 CREATE UNIQUE INDEX _article_likes_ab_unique ON _article_likes ("A", "B");
 CREATE INDEX _article_likes_b_index ON _article_likes ("B");
+
+CREATE TYPE "recurringType" AS ENUM ('DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY');
+
+-- One row per recurring series; individual occurrences are pre-materialized
+-- as ordinary rows in `events` (see recurring_parent_id below) at creation
+-- time, not expanded at read time - see DESIGN.md's events section.
+-- No snake_case mapping on the table name itself, same situation as
+-- phadder_groups."createdAt" noted above - trust `psql \d`, not schema.prisma.
+CREATE TABLE "RecurringEvent" (
+    id               UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    separation_count INTEGER NOT NULL,
+    recurring_type   "recurringType" NOT NULL,
+    author_id        UUID NOT NULL REFERENCES members (id),
+    start_datetime   TIMESTAMPTZ NOT NULL,
+    end_datetime     TIMESTAMPTZ NOT NULL
+);
+
+CREATE TABLE events (
+    id                    UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    title_sv              VARCHAR(255) NOT NULL,
+    title_en              VARCHAR(255),
+    description_sv        TEXT NOT NULL,
+    description_en        TEXT,
+    link                  VARCHAR(255),
+    location              VARCHAR(255),
+    organizer             VARCHAR(255) NOT NULL,
+    author_id             UUID NOT NULL REFERENCES members (id),
+    short_description_sv  VARCHAR(255),
+    short_description_en  VARCHAR(255),
+    start_datetime        TIMESTAMPTZ NOT NULL,
+    end_datetime          TIMESTAMPTZ NOT NULL,
+    number_of_updates     INTEGER DEFAULT 0,
+    slug                  VARCHAR(255) UNIQUE,
+    alarm_active          BOOLEAN DEFAULT false,
+    removed_at            TIMESTAMPTZ,
+    "imageUrl"            TEXT,
+    is_detatched          BOOLEAN NOT NULL DEFAULT false,
+    recurring_parent_id   UUID REFERENCES "RecurringEvent" (id),
+    is_cancelled          BOOLEAN DEFAULT false
+    -- Ticket relation deliberately not modeled - see DESIGN.md's "Shop /
+    -- tickets: cut from scope entirely".
+);
+
+CREATE TABLE event_comments (
+    id         UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    event_id   UUID NOT NULL REFERENCES events (id) ON DELETE CASCADE,
+    member_id  UUID NOT NULL REFERENCES members (id) ON DELETE CASCADE,
+    content    TEXT,
+    published  TIMESTAMPTZ NOT NULL
+);
+
+-- Implicit Prisma many-to-many join tables (named "_event_tags" /
+-- "_event_going" / "_event_interested" in the live DB), same pattern as
+-- _article_tags/_article_likes above - reuses the same `tags` table
+-- articles already uses (one physical table, two relations).
+CREATE TABLE _event_tags (
+    "A" UUID NOT NULL REFERENCES events (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    "B" UUID NOT NULL REFERENCES tags (id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+CREATE UNIQUE INDEX _event_tags_ab_unique ON _event_tags ("A", "B");
+CREATE INDEX _event_tags_b_index ON _event_tags ("B");
+
+CREATE TABLE _event_going (
+    "A" UUID NOT NULL REFERENCES events (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    "B" UUID NOT NULL REFERENCES members (id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+CREATE UNIQUE INDEX _event_going_ab_unique ON _event_going ("A", "B");
+CREATE INDEX _event_going_b_index ON _event_going ("B");
+
+CREATE TABLE _event_interested (
+    "A" UUID NOT NULL REFERENCES events (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    "B" UUID NOT NULL REFERENCES members (id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+CREATE UNIQUE INDEX _event_interested_ab_unique ON _event_interested ("A", "B");
+CREATE INDEX _event_interested_b_index ON _event_interested ("B");

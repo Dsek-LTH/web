@@ -5,8 +5,55 @@
 package db
 
 import (
+	"database/sql/driver"
+	"fmt"
+
 	"github.com/jackc/pgx/v5/pgtype"
 )
+
+type RecurringType string
+
+const (
+	RecurringTypeDAILY   RecurringType = "DAILY"
+	RecurringTypeWEEKLY  RecurringType = "WEEKLY"
+	RecurringTypeMONTHLY RecurringType = "MONTHLY"
+	RecurringTypeYEARLY  RecurringType = "YEARLY"
+)
+
+func (e *RecurringType) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = RecurringType(s)
+	case string:
+		*e = RecurringType(s)
+	default:
+		return fmt.Errorf("unsupported scan type for RecurringType: %T", src)
+	}
+	return nil
+}
+
+type NullRecurringType struct {
+	RecurringType RecurringType `json:"recurringType"`
+	Valid         bool          `json:"valid"` // Valid is true if RecurringType is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullRecurringType) Scan(value interface{}) error {
+	if value == nil {
+		ns.RecurringType, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.RecurringType.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullRecurringType) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.RecurringType), nil
+}
 
 type ApiAccessPolicy struct {
 	ID        pgtype.UUID        `json:"id"`
@@ -111,6 +158,53 @@ type CustomAuthorRole struct {
 	UpdatedAt      pgtype.Timestamptz `json:"updated_at"`
 }
 
+type Event struct {
+	ID                 pgtype.UUID        `json:"id"`
+	TitleSv            string             `json:"title_sv"`
+	TitleEn            pgtype.Text        `json:"title_en"`
+	DescriptionSv      string             `json:"description_sv"`
+	DescriptionEn      pgtype.Text        `json:"description_en"`
+	Link               pgtype.Text        `json:"link"`
+	Location           pgtype.Text        `json:"location"`
+	Organizer          string             `json:"organizer"`
+	AuthorID           pgtype.UUID        `json:"author_id"`
+	ShortDescriptionSv pgtype.Text        `json:"short_description_sv"`
+	ShortDescriptionEn pgtype.Text        `json:"short_description_en"`
+	StartDatetime      pgtype.Timestamptz `json:"start_datetime"`
+	EndDatetime        pgtype.Timestamptz `json:"end_datetime"`
+	NumberOfUpdates    pgtype.Int4        `json:"number_of_updates"`
+	Slug               pgtype.Text        `json:"slug"`
+	AlarmActive        pgtype.Bool        `json:"alarm_active"`
+	RemovedAt          pgtype.Timestamptz `json:"removed_at"`
+	ImageUrl           pgtype.Text        `json:"imageUrl"`
+	IsDetatched        bool               `json:"is_detatched"`
+	RecurringParentID  pgtype.UUID        `json:"recurring_parent_id"`
+	IsCancelled        pgtype.Bool        `json:"is_cancelled"`
+}
+
+type EventComment struct {
+	ID        pgtype.UUID        `json:"id"`
+	EventID   pgtype.UUID        `json:"event_id"`
+	MemberID  pgtype.UUID        `json:"member_id"`
+	Content   pgtype.Text        `json:"content"`
+	Published pgtype.Timestamptz `json:"published"`
+}
+
+type EventGoing struct {
+	A pgtype.UUID `json:"A"`
+	B pgtype.UUID `json:"B"`
+}
+
+type EventInterested struct {
+	A pgtype.UUID `json:"A"`
+	B pgtype.UUID `json:"B"`
+}
+
+type EventTag struct {
+	A pgtype.UUID `json:"A"`
+	B pgtype.UUID `json:"B"`
+}
+
 type Mandate struct {
 	ID          pgtype.UUID `json:"id"`
 	MemberID    pgtype.UUID `json:"member_id"`
@@ -161,6 +255,15 @@ type Position struct {
 	DescriptionEn pgtype.Text `json:"description_en"`
 	EndMonth      int32       `json:"end_month"`
 	StartMonth    int32       `json:"start_month"`
+}
+
+type RecurringEvent struct {
+	ID              pgtype.UUID        `json:"id"`
+	SeparationCount int32              `json:"separation_count"`
+	RecurringType   RecurringType      `json:"recurring_type"`
+	AuthorID        pgtype.UUID        `json:"author_id"`
+	StartDatetime   pgtype.Timestamptz `json:"start_datetime"`
+	EndDatetime     pgtype.Timestamptz `json:"end_datetime"`
 }
 
 type Tag struct {

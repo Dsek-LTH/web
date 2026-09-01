@@ -14,8 +14,10 @@ import (
 	"github.com/dsek-lth/web/backend/internal/apinames"
 	"github.com/dsek-lth/web/backend/internal/auth"
 	"github.com/dsek-lth/web/backend/internal/db"
+	"github.com/dsek-lth/web/backend/internal/dbutil"
 	"github.com/dsek-lth/web/backend/internal/integrations"
 	"github.com/dsek-lth/web/backend/internal/locale"
+	"github.com/dsek-lth/web/backend/internal/slug"
 )
 
 // ErrNotFound is returned when an article, comment, or tag lookup by
@@ -69,16 +71,16 @@ func (s *Service) List(ctx context.Context, params ListParams) ([]ArticleSummary
 		pageSize = defaultPageSize
 	}
 
-	tagIDs, err := parseUUIDs(params.TagIDs)
+	tagIDs, err := dbutil.ParseUUIDs(params.TagIDs)
 	if err != nil {
 		return nil, 0, invalidf("invalid tag id: %v", err)
 	}
-	committeeID, err := parseUUIDPtr(params.CommitteeID)
+	committeeID, err := dbutil.ParseUUIDPtr(params.CommitteeID)
 	if err != nil {
 		return nil, 0, invalidf("invalid committee id: %v", err)
 	}
-	search := textOrInvalid(params.Search)
-	authorStudentID := textOrInvalid(params.AuthorStudentID)
+	search := dbutil.TextOrInvalid(params.Search)
+	authorStudentID := dbutil.TextOrInvalid(params.AuthorStudentID)
 
 	rows, err := s.queries.ListArticles(ctx, db.ListArticlesParams{
 		Search:          search,
@@ -153,12 +155,12 @@ func (s *Service) Create(ctx context.Context, in ArticleInput) (*ArticleDetail, 
 		return nil, err
 	}
 
-	committeeID, err := parseUUIDPtr(in.CommitteeID)
+	committeeID, err := dbutil.ParseUUIDPtr(in.CommitteeID)
 	if err != nil {
 		return nil, invalidf("invalid committee id: %v", err)
 	}
 
-	tagIDs, err := parseUUIDs(in.TagIDs)
+	tagIDs, err := dbutil.ParseUUIDs(in.TagIDs)
 	if err != nil {
 		return nil, invalidf("invalid tag id: %v", err)
 	}
@@ -182,16 +184,16 @@ func (s *Service) Create(ctx context.Context, in ArticleInput) (*ArticleDetail, 
 
 	created, err := s.queries.CreateArticle(ctx, db.CreateArticleParams{
 		HeaderSv:               in.HeaderSv,
-		HeaderEn:               toText(in.HeaderEn),
+		HeaderEn:               dbutil.ToText(in.HeaderEn),
 		BodySv:                 s.sanitizer.Sanitize(in.BodySv),
-		BodyEn:                 toText(sanitizePtr(s.sanitizer, in.BodyEn)),
-		ImageUrl:               toText(imageURL),
+		BodyEn:                 dbutil.ToText(sanitizePtr(s.sanitizer, in.BodyEn)),
+		ImageUrl:               dbutil.ToText(imageURL),
 		ImageUrls:              in.ImageURLs,
-		YoutubeUrl:             toText(in.YoutubeURL),
+		YoutubeUrl:             dbutil.ToText(in.YoutubeURL),
 		AuthorID:               authorID,
-		PublishedDatetime:      toTimestamptz(publishedAt),
+		PublishedDatetime:      dbutil.ToTimestamptz(publishedAt),
 		ShouldSendNotification: pgtype.Bool{Bool: in.ShouldSendNotification, Valid: true},
-		NotificationText:       toText(in.NotificationText),
+		NotificationText:       dbutil.ToText(in.NotificationText),
 		CommitteeID:            committeeID,
 		Slug:                   slug,
 	})
@@ -206,7 +208,7 @@ func (s *Service) Create(ctx context.Context, in ArticleInput) (*ArticleDetail, 
 	if err := s.syncNotifications(
 		ctx,
 		created.Slug,
-		uuidStr(created.ID),
+		dbutil.UUIDStr(created.ID),
 		identity.MemberID,
 		in,
 		nil,
@@ -239,7 +241,7 @@ func (s *Service) Update(
 		return nil, fmt.Errorf("get article: %w", err)
 	}
 
-	if uuidStr(current.MemberID) != identity.MemberID {
+	if dbutil.UUIDStr(current.MemberID) != identity.MemberID {
 		if err := auth.Require(ctx, apinames.NewsArticleUpdate); err != nil {
 			return nil, err
 		}
@@ -250,12 +252,12 @@ func (s *Service) Update(
 		return nil, err
 	}
 
-	committeeID, err := parseUUIDPtr(in.CommitteeID)
+	committeeID, err := dbutil.ParseUUIDPtr(in.CommitteeID)
 	if err != nil {
 		return nil, invalidf("invalid committee id: %v", err)
 	}
 
-	tagIDs, err := parseUUIDs(in.TagIDs)
+	tagIDs, err := dbutil.ParseUUIDs(in.TagIDs)
 	if err != nil {
 		return nil, invalidf("invalid tag id: %v", err)
 	}
@@ -268,16 +270,16 @@ func (s *Service) Update(
 	updated, err := s.queries.UpdateArticle(ctx, db.UpdateArticleParams{
 		Slug:                   slug,
 		HeaderSv:               in.HeaderSv,
-		HeaderEn:               toText(in.HeaderEn),
+		HeaderEn:               dbutil.ToText(in.HeaderEn),
 		BodySv:                 s.sanitizer.Sanitize(in.BodySv),
-		BodyEn:                 toText(sanitizePtr(s.sanitizer, in.BodyEn)),
-		ImageUrl:               toText(imageURL),
+		BodyEn:                 dbutil.ToText(sanitizePtr(s.sanitizer, in.BodyEn)),
+		ImageUrl:               dbutil.ToText(imageURL),
 		ImageUrls:              in.ImageURLs,
-		YoutubeUrl:             toText(in.YoutubeURL),
+		YoutubeUrl:             dbutil.ToText(in.YoutubeURL),
 		AuthorID:               authorID,
-		PublishedDatetime:      toTimestamptz(in.PublishedAt),
+		PublishedDatetime:      dbutil.ToTimestamptz(in.PublishedAt),
 		ShouldSendNotification: pgtype.Bool{Bool: in.ShouldSendNotification, Valid: true},
-		NotificationText:       toText(in.NotificationText),
+		NotificationText:       dbutil.ToText(in.NotificationText),
 		CommitteeID:            committeeID,
 	})
 	if err != nil {
@@ -298,7 +300,7 @@ func (s *Service) Update(
 	if err := s.syncNotifications(
 		ctx,
 		updated.Slug,
-		uuidStr(updated.ID),
+		dbutil.UUIDStr(updated.ID),
 		identity.MemberID,
 		in,
 		prevScheduledID,
@@ -363,7 +365,7 @@ func (s *Service) Like(ctx context.Context, slug string) error {
 		}
 		return fmt.Errorf("find article: %w", err)
 	}
-	memberUUID, err := parseUUID(identity.MemberID)
+	memberUUID, err := dbutil.ParseUUID(identity.MemberID)
 	if err != nil {
 		return invalidf("invalid member id: %v", err)
 	}
@@ -377,9 +379,9 @@ func (s *Service) Like(ctx context.Context, slug string) error {
 
 	if err := s.notifier.NotifyLike(
 		ctx,
-		uuidStr(row.ID),
+		dbutil.UUIDStr(row.ID),
 		identity.MemberID,
-		uuidStr(row.MemberID),
+		dbutil.UUIDStr(row.MemberID),
 	); err != nil {
 		return fmt.Errorf("notify like: %w", err)
 	}
@@ -399,7 +401,7 @@ func (s *Service) Unlike(ctx context.Context, slug string) error {
 		}
 		return fmt.Errorf("find article: %w", err)
 	}
-	memberUUID, err := parseUUID(identity.MemberID)
+	memberUUID, err := dbutil.ParseUUID(identity.MemberID)
 	if err != nil {
 		return invalidf("invalid member id: %v", err)
 	}
@@ -426,7 +428,7 @@ func (s *Service) AddComment(ctx context.Context, slug, content string) (*Commen
 		}
 		return nil, fmt.Errorf("find article: %w", err)
 	}
-	memberUUID, err := parseUUID(identity.MemberID)
+	memberUUID, err := dbutil.ParseUUID(identity.MemberID)
 	if err != nil {
 		return nil, invalidf("invalid member id: %v", err)
 	}
@@ -442,7 +444,7 @@ func (s *Service) AddComment(ctx context.Context, slug, content string) (*Commen
 	}
 
 	return &Comment{
-		ID:        uuidStr(created.ID),
+		ID:        dbutil.UUIDStr(created.ID),
 		Content:   &sanitized,
 		Published: created.Published.Time,
 		Member:    Member{ID: identity.MemberID},
@@ -460,7 +462,7 @@ func (s *Service) RemoveComment(ctx context.Context, slug, commentID string) err
 		}
 		return fmt.Errorf("find article: %w", err)
 	}
-	commentUUID, err := parseUUID(commentID)
+	commentUUID, err := dbutil.ParseUUID(commentID)
 	if err != nil {
 		return invalidf("invalid comment id: %v", err)
 	}
@@ -481,13 +483,13 @@ func (s *Service) ListTags(ctx context.Context) ([]Tag, error) {
 	loc := locale.FromContext(ctx)
 	tags := make([]Tag, len(rows))
 	for i, r := range rows {
-		nameEn := textPtr(r.NameEn)
+		nameEn := dbutil.TextPtr(r.NameEn)
 		tags[i] = Tag{
-			ID:        uuidStr(r.ID),
-			Name:      resolveName(r.NameSv, nameEn, loc),
+			ID:        dbutil.UUIDStr(r.ID),
+			Name:      dbutil.ResolveName(r.NameSv, nameEn, loc),
 			NameSv:    r.NameSv,
 			NameEn:    nameEn,
-			Color:     textPtr(r.Color),
+			Color:     dbutil.TextPtr(r.Color),
 			IsDefault: r.IsDefault.Bool,
 		}
 	}
@@ -497,21 +499,21 @@ func (s *Service) ListTags(ctx context.Context) ([]Tag, error) {
 // ListCommittees lists committees, optionally filtered to one by shortName
 // (e.g. for the committee-news page resolving a URL slug to a committee).
 func (s *Service) ListCommittees(ctx context.Context, shortName *string) ([]Committee, error) {
-	rows, err := s.queries.ListCommittees(ctx, textOrInvalid(shortName))
+	rows, err := s.queries.ListCommittees(ctx, dbutil.TextOrInvalid(shortName))
 	if err != nil {
 		return nil, fmt.Errorf("list committees: %w", err)
 	}
 	loc := locale.FromContext(ctx)
 	committees := make([]Committee, len(rows))
 	for i, r := range rows {
-		nameEn := textPtr(r.NameEn)
+		nameEn := dbutil.TextPtr(r.NameEn)
 		committees[i] = Committee{
-			ID:        uuidStr(r.ID),
-			Name:      resolveName(r.NameSv, nameEn, loc),
+			ID:        dbutil.UUIDStr(r.ID),
+			Name:      dbutil.ResolveName(r.NameSv, nameEn, loc),
 			NameSv:    r.NameSv,
 			NameEn:    nameEn,
-			ShortName: textPtr(r.ShortName),
-			SymbolURL: textPtr(r.SymbolUrl),
+			ShortName: dbutil.TextPtr(r.ShortName),
+			SymbolURL: dbutil.TextPtr(r.SymbolUrl),
 		}
 	}
 	return committees, nil
@@ -524,7 +526,7 @@ func (s *Service) ListActiveMandatesForMember(
 	ctx context.Context,
 	memberID string,
 ) ([]Mandate, error) {
-	memberUUID, err := parseUUID(memberID)
+	memberUUID, err := dbutil.ParseUUID(memberID)
 	if err != nil {
 		return nil, invalidf("invalid member id: %v", err)
 	}
@@ -535,12 +537,12 @@ func (s *Service) ListActiveMandatesForMember(
 	loc := locale.FromContext(ctx)
 	mandates := make([]Mandate, len(rows))
 	for i, r := range rows {
-		nameEn := textPtr(r.PositionNameEn)
+		nameEn := dbutil.TextPtr(r.PositionNameEn)
 		mandates[i] = Mandate{
-			ID: uuidStr(r.ID),
+			ID: dbutil.UUIDStr(r.ID),
 			Position: Position{
 				ID:     r.PositionID,
-				Name:   resolveName(r.PositionNameSv, nameEn, loc),
+				Name:   dbutil.ResolveName(r.PositionNameSv, nameEn, loc),
 				NameSv: r.PositionNameSv,
 				NameEn: nameEn,
 			},
@@ -560,13 +562,13 @@ func (s *Service) ListCustomAuthors(ctx context.Context) ([]CustomAuthor, error)
 	loc := locale.FromContext(ctx)
 	customAuthors := make([]CustomAuthor, len(rows))
 	for i, r := range rows {
-		nameEn := textPtr(r.NameEn)
+		nameEn := dbutil.TextPtr(r.NameEn)
 		customAuthors[i] = CustomAuthor{
-			ID:       uuidStr(r.ID),
-			Name:     resolveName(r.NameSv, nameEn, loc),
+			ID:       dbutil.UUIDStr(r.ID),
+			Name:     dbutil.ResolveName(r.NameSv, nameEn, loc),
 			NameSv:   r.NameSv,
 			NameEn:   nameEn,
-			ImageURL: textPtr(r.ImageUrl),
+			ImageURL: dbutil.TextPtr(r.ImageUrl),
 		}
 	}
 	return customAuthors, nil
@@ -602,15 +604,15 @@ func (s *Service) resolveAuthor(
 	memberID string,
 	in AuthorInput,
 ) (pgtype.UUID, error) {
-	memberUUID, err := parseUUID(memberID)
+	memberUUID, err := dbutil.ParseUUID(memberID)
 	if err != nil {
 		return pgtype.UUID{}, invalidf("invalid member id: %v", err)
 	}
-	mandateID, err := parseUUIDPtr(in.MandateID)
+	mandateID, err := dbutil.ParseUUIDPtr(in.MandateID)
 	if err != nil {
 		return pgtype.UUID{}, invalidf("invalid mandate id: %v", err)
 	}
-	customID, err := parseUUIDPtr(in.CustomID)
+	customID, err := dbutil.ParseUUIDPtr(in.CustomID)
 	if err != nil {
 		return pgtype.UUID{}, invalidf("invalid custom author id: %v", err)
 	}
@@ -623,7 +625,7 @@ func (s *Service) resolveAuthor(
 			}
 			return pgtype.UUID{}, fmt.Errorf("check mandate ownership: %w", err)
 		}
-		if uuidStr(owner) != memberID {
+		if dbutil.UUIDStr(owner) != memberID {
 			return pgtype.UUID{}, auth.ErrForbidden
 		}
 	}
@@ -732,12 +734,12 @@ func (s *Service) syncNotifications(
 // the header, then suffix with a count if that slug prefix is already in
 // use.
 func (s *Service) uniqueSlug(ctx context.Context, headerSv string) (string, error) {
-	base := Slugify(headerSv)
+	base := slug.Slugify(headerSv)
 	count, err := s.queries.CountArticleSlugsWithPrefix(ctx, pgtype.Text{String: base, Valid: true})
 	if err != nil {
 		return "", fmt.Errorf("count slugs: %w", err)
 	}
-	return SlugWithCount(base, int(count)), nil
+	return slug.SlugWithCount(base, int(count)), nil
 }
 
 func (s *Service) getBySlugUnfiltered(ctx context.Context, slug string) (*ArticleDetail, error) {
@@ -767,16 +769,16 @@ func (s *Service) detail(ctx context.Context, row db.ListArticlesRow) (*ArticleD
 	comments := make([]Comment, len(commentRows))
 	for i, c := range commentRows {
 		comments[i] = Comment{
-			ID:        uuidStr(c.ID),
-			Content:   textPtr(c.Content),
+			ID:        dbutil.UUIDStr(c.ID),
+			Content:   dbutil.TextPtr(c.Content),
 			Published: c.Published.Time,
 			Member: Member{
-				ID:          uuidStr(c.MemberID),
-				StudentID:   textPtr(c.MemberStudentID),
-				FirstName:   textPtr(c.MemberFirstName),
-				LastName:    textPtr(c.MemberLastName),
-				Nickname:    textPtr(c.MemberNickname),
-				PicturePath: textPtr(c.MemberPicturePath),
+				ID:          dbutil.UUIDStr(c.MemberID),
+				StudentID:   dbutil.TextPtr(c.MemberStudentID),
+				FirstName:   dbutil.TextPtr(c.MemberFirstName),
+				LastName:    dbutil.TextPtr(c.MemberLastName),
+				Nickname:    dbutil.TextPtr(c.MemberNickname),
+				PicturePath: dbutil.TextPtr(c.MemberPicturePath),
 			},
 		}
 	}
@@ -795,14 +797,14 @@ func (s *Service) tagsByArticle(ctx context.Context, ids []pgtype.UUID) (map[str
 	}
 	loc := locale.FromContext(ctx)
 	for _, r := range rows {
-		articleID := uuidStr(r.ArticleID)
-		nameEn := textPtr(r.NameEn)
+		articleID := dbutil.UUIDStr(r.ArticleID)
+		nameEn := dbutil.TextPtr(r.NameEn)
 		result[articleID] = append(result[articleID], Tag{
-			ID:        uuidStr(r.ID),
-			Name:      resolveName(r.NameSv, nameEn, loc),
+			ID:        dbutil.UUIDStr(r.ID),
+			Name:      dbutil.ResolveName(r.NameSv, nameEn, loc),
 			NameSv:    r.NameSv,
 			NameEn:    nameEn,
-			Color:     textPtr(r.Color),
+			Color:     dbutil.TextPtr(r.Color),
 			IsDefault: r.IsDefault.Bool,
 		})
 	}

@@ -29,6 +29,135 @@ mid-migration, no need for a zero-downtime cutover. This is what licenses
 mocking missing dependencies (starting with auth, see below) instead of
 deferring real work until they exist.
 
+## Shop / tickets: cut from scope entirely (decided 2026-09-01)
+
+**Status: decided.** The shop/ticket/payment domain (Prisma models
+`Shoppable`, `Ticket`, `Consumable`, `ConsumableReservation`,
+`ShoppableAccessPolicy`, `Order`, `OrderItem`, `Payment` —
+`src/lib/server/shop/`, `src/lib/utils/shop/`, `src/routes/(app)/shop`,
+`src/routes/(app)/shop/tickets`, `src/routes/(app)/events/[slug]/scan/[consumable]`,
+`src/routes/(nollning)/nollning/shop`) is **not being ported to Go, and is
+not being mocked either** — it is being removed from the product. This is
+a different treatment than every other out-of-scope dependency in this
+doc: mocking (see "Mocking out-of-scope dependencies" below) exists to
+preserve a real call shape for something that will come back later; this
+is a decision that the feature itself doesn't come back.
+
+Concretely:
+
+- **Go never gains a shop/ticket/order/payment schema or endpoints.**
+  These tables stay out of `internal/db/schema.sql` entirely — nothing
+  ports them, not even as an articles/events-style dependency.
+- **Events port without tickets.** The `Event` → `Ticket` relation and
+  everything downstream of it (ticket purchase, ticket scanning/check-in
+  at `events/[slug]/scan`, `Order`/`Payment`) is dropped, not mocked —
+  there's no `TicketService` interface with a no-op implementation the
+  way `Scheduler`/`Notifier` got one for articles. Events keep `going`/
+  `interested` (RSVP, no purchase involved) since that's a plain
+  Member↔Event relation with nothing shop-related in it.
+- **SvelteKit-side removal is immediate and complete, not deferred.**
+  `src/lib/server/shop/`, `src/lib/utils/shop/`, the `/shop` and
+  `/shop/tickets` routes, the event scan/check-in route, and the nollning
+  shop route are deleted along with their nav links and any component that
+  exists only to render ticket/purchase UI — not left in place "in case
+  something still imports them." Same standard as the rest of this doc:
+  confirm dead (no remaining importers) before deleting, don't leave a
+  Prisma-backed path alive for a feature that isn't coming back.
+- **Open follow-up, not yet decided:** whether the underlying Postgres
+  tables (`shoppables`, `tickets`, `orders`, `order_items`, `payments`,
+  `consumables`, `consumable_reservations`, `shoppable_access_policies`)
+  get dropped via a real Prisma migration, or just left in place, unused,
+  in the live dev DB. Dropping tables in the shared live database is a
+  more consequential, harder-to-reverse step than deleting application
+  code, so it's being treated as a separate decision to make explicitly
+  later rather than bundled into this one.
+
+## DB migrations, once Prisma is gone (decided 2026-09-01)
+
+**Status: decided, not yet implemented.** Today `internal/db/schema.sql` is
+a hand-maintained *description* of tables Prisma actually owns and
+migrates (see "Database" in `backend/CLAUDE.md`) — kept in sync against
+`psql \d` by hand, which is exactly the drift risk that file's own doc
+comments warn about. That's fine only as long as Prisma is still the real
+migration authority. It stops being fine once a table Go owns needs a
+schema change and Prisma is deleted (per "Scope of the rewrite" above,
+Prisma has no place in the end state) — Go needs a real migration story
+before that happens, not after.
+
+- **Tool: [`golang-migrate/migrate`](https://github.com/golang-migrate/migrate)**,
+  added as a `go tool` dependency (`go.mod`'s `tool (...)` block) alongside
+  `air`/`sqlc`/`golines`/`goimports`/`gofumpt`, invoked via
+  `go tool migrate` — same pattern as every other tool in this repo, not a
+  globally-installed binary. Plain versioned `.sql` files, tracked via a
+  `schema_migrations` table `migrate` manages itself in Postgres.
+- **Prisma's existing migration history is carried forward as a baseline
+  snapshot, not discarded — but copied, not moved.** Prisma's migrations
+  (`src/database/prisma/migrations/<timestamp>_<description>/migration.sql`,
+  68 of them going back to `0_init`) are already exactly what
+  `golang-migrate` wants: plain SQL, one file per change, already
+  chronologically ordered by timestamp. Each
+  `<timestamp>_<description>/migration.sql` is copied to
+  `<timestamp>_<description>.up.sql` in `backend/internal/db/migrations/`
+  (same repo — `backend/` is a subdirectory of this same git repo, not a
+  separate one). **Copy, deliberately not `git mv`**: Prisma is still the
+  live, active migration path for every table Go hasn't ported yet (its
+  migrations directory has entries as recent as this year), so removing
+  its history out from under it would break `prisma migrate dev` for
+  everything not yet ported. Prisma's own directory stays fully intact and
+  operative until the real end-state cutover (Prisma deleted entirely,
+  per "Scope of the rewrite"); Go's copy is an independent starting point,
+  not a replacement of Prisma's copy. The two histories are expected to
+  diverge from this point forward — Prisma keeps gaining migrations for
+  tables Go doesn't own yet, Go gains migrations only for tables it does —
+  and that's fine; when a table currently on the Prisma side gets ported
+  later, that port is what reconciles Go's schema with whatever Prisma did
+  to it in the meantime (same as today's manual `schema.sql` catch-up, just
+  via a real migration instead of hand-editing a description file).
+  - None of the carried-forward files get a matching `.down.sql` — Prisma
+    never generated down migrations, so there's nothing to carry forward
+    on that side. This is a property of the old history, not a new
+    limitation being introduced; **new, Go-authored migrations going
+    forward should include real down files**, breaking from that old habit
+    rather than perpetuating it.
+  - Since the live dev DB already has all 68 Prisma migrations applied,
+    `migrate`'s tracking table is **bootstrapped to the latest version
+    directly (`migrate force <version>`), not replayed from scratch**.
+    Prisma's own tracking table (`_prisma_migrations`) is left in place,
+    inert, once Prisma itself is gone — dropping it is a low-stakes
+    follow-up, not part of this change.
+  - Emergent benefit, not just history preservation: because the actual
+    bootstrap SQL (`0_init` onward) now lives in `migrate`'s directory
+    verbatim, **a brand-new Postgres instance can be created from nothing
+    but `migrate up`** — today that only works via `prisma migrate
+    deploy`. That capability transfers without Prisma in the loop.
+- **`internal/db/schema.sql` stays hand-maintained — tried pointing `sqlc`
+  at the migrations directory instead, reverted after actually testing
+  it.** The theory was the same "structurally can't drift" argument as
+  above: point `sqlc.yaml`'s `sql[0].schema` at `internal/db/migrations`
+  and let the migration files be the one schema source for both the live
+  DB and codegen. In practice, `sqlc` has no notion of "model only these
+  tables" — it generates a Go struct for *every* table visible in whatever
+  it's given as schema, with no way to scope that down. Pointed at the
+  full migration history, that's every table in the entire live database:
+  `models.go` grew by ~800 lines, including `Order`, `Payment`, `Shoppable`,
+  `Ticket`, `Consumable` (the exact tables "Shop / tickets: cut from scope
+  entirely" above just decided never to model in Go) plus bookings,
+  elections, cafe shifts, drink inventory, and everything else no Go code
+  touches. That's a straightforward regression against both this doc's
+  shop/tickets decision and `backend/CLAUDE.md`'s existing "extend
+  `schema.sql` incrementally as more tables get ported" pattern — reverted,
+  `sqlc.yaml` still points at `schema.sql`. The drift risk that motivated
+  trying this is unchanged from before: `schema.sql` remains a hand-curated
+  subset, manually kept in sync against reality. What *did* land from this
+  section (the `migrate` tool itself, the converted migration files) is
+  still worth having independent of this — it's the real migration story
+  regardless of what sqlc reads from.
+- **Not yet decided:** whether/when to drop the shop/ticket/order/payment
+  tables from the live DB (see "Shop / tickets: cut from scope entirely"
+  above) — deliberately left open there, unaffected by this decision.
+  Once it is decided, it becomes a normal `migrate`-authored migration
+  like any other schema change from that point forward.
+
 ## Architecture decided so far
 
 - **Go module**: `backend/`, Go 1.26, layout is `internal/db` (data access),
@@ -401,6 +530,146 @@ to be an oversight, not a considered choice):
   change, since those pages stay Prisma-backed regardless. Narrow these
   back to Go-only as each real consumer gets ported - don't let the
   comment go stale once that starts happening.
+
+## Events (ported 2026-09-01)
+
+**Status: decided and implemented.** `backend/internal/events` +
+`backend/internal/api/huma_events.go`, following articles' precedent as
+the second feature ported per this doc's "Scope of the rewrite" framing.
+Routes: `GET/POST /events`, `GET/PATCH/DELETE /events/{slug}`, `PATCH
+/events/{slug}/attendance` (body `{"status": "going"|"interested"|"none"}`),
+`POST /events/{slug}/comments`, `DELETE /events/{slug}/comments/{commentId}`.
+Ported from `src/lib/events/*` and `src/routes/(app)/events/*`: listing
+with search/tag/past-vs-upcoming filters and pagination, CRUD, recurring
+series (create/edit-series/delete-series), going/interested, comments, and
+tags (reusing the same `tags` table articles already uses, via a second
+`_event_tags` join table).
+
+**Cut per "Shop / tickets: cut from scope entirely" above**: the `Ticket`
+relation, `events/[slug]/scan` + `scan/[consumable]` routes, and the
+`canScan`/`WEBSHOP.MANAGE` field on the old detail page - none of it is
+modeled in Go, not even as a mocked interface, since the feature itself
+isn't coming back.
+
+**Not ported this pass** (no interface/method exists because nothing
+depends on it yet - same "extend incrementally" stance as articles' still-
+missing moderation workflow):
+- Push notifications to an event's organizer when a member marks
+  going/interested (`sendNotification` in the old
+  `src/lib/events/server/interestedGoing.ts`).
+- The calendar range endpoint (`/events/calendar`), the ICS subscribe feed
+  (`/events/subscribe`), and the full-text typeahead search endpoint
+  (`/api/events`) - all additive read-only endpoints the frontend can keep
+  calling against Prisma for now without blocking anything else in this
+  pass.
+- The admin "all events" bypass-filter listing (`all-events`, which
+  disables `BASIC_EVENT_FILTER` for admins) and the TV/kiosk view - both
+  just need a thin frontend wrapper around the existing `GET /events`
+  once someone needs them; no new Go surface is obviously required.
+- Nollning-specific event visibility (`showNollningEventsInstead`,
+  `BASIC_EVENT_FILTER`'s nollning tag-prefix gate) - out of scope for the
+  same reason nollning is out of scope everywhere else in this rewrite.
+
+**Real bugs found in the old TS implementation, fixed rather than
+replicated** (surfaced by a research pass before porting - see the git
+history around this section for the full comparison):
+- `removeCommentAction("EVENT")` (`src/lib/zod/comments.ts`) had **no
+  authorization check at all** - any visitor could delete any comment on
+  any event, despite `apiNames.EVENT.COMMENT_DELETE` existing and never
+  being referenced. Go's `Service.RemoveComment` gates on
+  `apinames.EventCommentDelete`, matching articles'
+  `RemoveComment`/`NewsArticleCommentDelete` (which was already correct).
+- `removeEventAction`'s `FUTURE` branch (`src/lib/events/server/removeEventAction.ts`)
+  never redirected - it fell through with no return, unlike `ALL`/`THIS`.
+  Go's `Service.Delete` completes uniformly for every scope.
+- The old `getEvent(prisma, slug)` applied no `removed_at` filter at all,
+  unlike `getAllEvents`'s list view - a soft-removed event was directly
+  loadable by slug. Go's `Get` applies the same visibility rule as `List`;
+  `GetAny` (unfiltered, for an editor) exists separately, mirroring
+  articles' `Get`/`GetAny` split.
+
+**Deliberate behaviors preserved, not simplified away:**
+- **Recurring series are pre-materialized, not expanded at read time.**
+  `Service.Create`, given `EventInput.Recurring`, inserts one
+  `RecurringEvent` row plus one `Event` row per occurrence up front (same
+  as the old `prisma.$transaction` loop) - list/detail reads never
+  compute occurrences on the fly.
+- **DST-safe wall-clock reconstruction.** Each occurrence's start/end keep
+  the template's Europe/Stockholm wall-clock time-of-day (verified against
+  the 2026-10-25 CEST→CET transition: occurrences on both sides of it keep
+  the same local hour, with the UTC offset changing underneath). Go's
+  `time.Date` does this correctly given a real `*time.Location`, unlike a
+  naive UTC-arithmetic approach - no manual DST correction needed, unlike
+  the old dayjs.tz(...).hour(...).minute(...) code which had to do this
+  explicitly.
+- **Series-edit semantics**: a `FUTURE`/`ALL`-scoped `Update` gives every
+  affected occurrence the same new content, but each keeps its **own
+  original date** - only the submitted start/end **time-of-day** shifts
+  (`Service.retimeOccurrence`). Verified end-to-end: editing occurrence 3
+  of a 5-occurrence weekly series with `scope=FUTURE` left 1-2 untouched
+  and retimed 3-5 to the new time while preserving their original dates,
+  including across the DST boundary.
+- **Sequential per-occurrence slugs** (`my-event`, `my-event-2`, ...), not
+  one shared slug across a series - verified in the same test.
+
+**Deliberate divergences from the articles precedent, not oversights:**
+- **`author_id` is never reassigned on `Update`**, unlike articles'
+  documented "editing always re-attributes to whoever saves the edit."
+  Events never had a mandate/custom-author byline picker to begin with -
+  `author_id` here is purely a permission anchor (the "original author can
+  still edit" bypass in `Service.Update`), not a displayed byline the way
+  articles' `Author` is. Reassigning it on every edit would silently let
+  any editor accumulate standing edit rights over other people's events
+  and would strip the true organizer of their own bypass - actively
+  harmful here in a way it isn't for articles. The free-text `organizer`
+  field (unrelated to `author_id`) is what actually displays as "hosted
+  by" and is freely editable like any other content field.
+- **`Delete` has no author bypass**, only `apinames.EventDelete` - matches
+  the old `removeEventAction`'s real permission check exactly (its
+  `canEdit`-style author bypass was edit-only in the old code too, not an
+  oversight to fix).
+- **List/Get return summary-shaped attendance** (`goingCount`/
+  `interestedCount`/`commentCount`, not full lists) - `EventDetail` adds
+  the full `going`/`interested`/`comments` lists. The old Prisma
+  `getAllEvents`/`getEvent` both eagerly loaded full lists even for list
+  views (one shared `include`); this splits list/detail the same way
+  articles' `ArticleSummary`/`ArticleDetail` already do, for the same
+  reason (a list view has no business paying for full attendee lists).
+
+**Mutual exclusivity of going/interested is enforced in code, not left to
+convention.** The old TS only kept `going`/`interested` mutually exclusive
+because exactly three fixed call sites always wrote both relations
+together - nothing in the schema or a shared write path actually enforced
+it. `PATCH /events/{slug}/attendance` is the *only* write path to either
+relation, so `Service.setAttendance` enforces exclusivity structurally
+instead of by convention. Verified end-to-end (going → interested cleared
+`goingCount` and set `interestedCount`).
+
+**Two refactors extracted from `internal/articles` while porting, not
+events-specific but surfaced by needing the same logic twice:**
+- `internal/slug` - `Slugify`/`SlugWithCount` moved out of
+  `internal/articles` verbatim (events' recurring-series slugging needed
+  the same functions).
+- `internal/dbutil` - the ~10 small pgtype↔Go conversion helpers
+  (`UUIDStr`, `TextPtr`, `ParseUUID`, `ResolveName`, ...) that
+  `internal/articles/convert.go` had accumulated, exported and moved so
+  `internal/events` didn't need its own copies.
+- `internal/apitypes` (`Member`, `Tag`, `Comment`) - **not a refactor for
+  its own sake, a required fix.** Both packages originally defined their
+  own identically-shaped `Member`/`Tag`/`Comment` structs. That's fine for
+  Go, but huma's OpenAPI schema registry names a component after the bare
+  Go type name (not package-qualified), so registering both
+  `registerArticleRoutes` and `registerEventRoutes` on one `huma.API`
+  **panicked at startup** with "duplicate name: Member, new type:
+  events.Member, existing type: articles.Member" - only caught by actually
+  running the server, not by `go build`/`go vet`. Fixed by moving the three
+  identical-shaped types into `internal/apitypes` and having both packages
+  reference them via a type alias (`type Member = apitypes.Member`) rather
+  than a new struct - every existing call site in both packages kept
+  compiling unchanged, since an alias is the same underlying type, not a
+  new one. **Any future domain package must check its DTO type names
+  against every other registered package's for this reason** - it's a
+  whole-API constraint, not a per-package one.
 
 ## Mocking out-of-scope dependencies (generalized 2026-09-01)
 

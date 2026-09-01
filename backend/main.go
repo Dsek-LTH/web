@@ -16,6 +16,7 @@ import (
 	"github.com/dsek-lth/web/backend/internal/articles"
 	"github.com/dsek-lth/web/backend/internal/auth"
 	"github.com/dsek-lth/web/backend/internal/db"
+	"github.com/dsek-lth/web/backend/internal/events"
 	"github.com/dsek-lth/web/backend/internal/integrations"
 )
 
@@ -74,7 +75,15 @@ func main() {
 		integrations.MockWebhooker{},
 		integrations.MockUploader{},
 	)
-	router := api.NewRouter(articleSvc, authenticator, oidcClient, queries, frontendOrigin)
+	eventSvc := events.NewService(pool)
+	router := api.NewRouter(
+		articleSvc,
+		eventSvc,
+		authenticator,
+		oidcClient,
+		queries,
+		frontendOrigin,
+	)
 
 	addr := os.Getenv("ADDR")
 	if addr == "" {

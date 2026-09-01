@@ -1,6 +1,20 @@
 package articles
 
-import "time"
+import (
+	"time"
+
+	"github.com/dsek-lth/web/backend/internal/apitypes"
+)
+
+// Member/Tag/Comment are aliased from internal/apitypes rather than defined
+// here - see that package's doc comment for why (huma's OpenAPI schema
+// registry panics on two same-named-but-distinct Go structs once both
+// internal/articles and internal/events register routes on one huma.API).
+type (
+	Member  = apitypes.Member
+	Tag     = apitypes.Tag
+	Comment = apitypes.Comment
+)
 
 // Name fields throughout this file come in pairs: NameSv/NameEn are the raw
 // stored values (needed by bilingual edit forms), and Name is NameEn if the
@@ -39,15 +53,6 @@ type CustomAuthor struct {
 	ImageURL *string `json:"imageUrl,omitempty"`
 }
 
-type Member struct {
-	ID          string  `json:"id"`
-	StudentID   *string `json:"studentId,omitempty"`
-	FirstName   *string `json:"firstName,omitempty"`
-	LastName    *string `json:"lastName,omitempty"`
-	Nickname    *string `json:"nickname,omitempty"`
-	PicturePath *string `json:"picturePath,omitempty"`
-}
-
 // Author is one of: a plain member, a member acting under a mandate (Position
 // is set), or a custom byline (CustomAuthor is set) - mirrors the
 // authors.type generated column in the DB.
@@ -57,22 +62,6 @@ type Author struct {
 	Member       Member        `json:"member"`
 	Position     *Position     `json:"position,omitempty"`
 	CustomAuthor *CustomAuthor `json:"customAuthor,omitempty"`
-}
-
-type Tag struct {
-	ID        string  `json:"id"`
-	Name      string  `json:"name"`
-	NameSv    string  `json:"nameSv"`
-	NameEn    *string `json:"nameEn,omitempty"`
-	Color     *string `json:"color,omitempty"`
-	IsDefault bool    `json:"isDefault"`
-}
-
-type Comment struct {
-	ID        string    `json:"id"`
-	Content   *string   `json:"content,omitempty"`
-	Published time.Time `json:"published"`
-	Member    Member    `json:"member"`
 }
 
 type ArticleSummary struct {

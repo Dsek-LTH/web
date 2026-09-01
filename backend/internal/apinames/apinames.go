@@ -13,6 +13,13 @@ const (
 	NewsArticleLike          = "news:article:like"
 	NewsArticleComment       = "news:article:comment"
 	NewsArticleCommentDelete = "news:article:comment:delete"
+
+	EventCreate        = "event:create"
+	EventRead          = "event:read"
+	EventUpdate        = "event:update"
+	EventDelete        = "event:delete"
+	EventComment       = "event:comment"
+	EventCommentDelete = "event:comment:delete"
 )
 
 // All lists every policy this API currently checks - used to build the
@@ -28,5 +35,11 @@ func All() []string {
 		NewsArticleLike,
 		NewsArticleComment,
 		NewsArticleCommentDelete,
+		EventCreate,
+		EventRead,
+		EventUpdate,
+		EventDelete,
+		EventComment,
+		EventCommentDelete,
 	}
 }

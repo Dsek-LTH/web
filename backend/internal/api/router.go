@@ -15,6 +15,7 @@ import (
 	"github.com/dsek-lth/web/backend/internal/articles"
 	"github.com/dsek-lth/web/backend/internal/auth"
 	"github.com/dsek-lth/web/backend/internal/db"
+	"github.com/dsek-lth/web/backend/internal/events"
 	"github.com/dsek-lth/web/backend/internal/locale"
 )
 
@@ -26,6 +27,7 @@ import (
 // registered in that case, same as a real deployment never mocking auth.
 func NewRouter(
 	articleSvc *articles.Service,
+	eventSvc *events.Service,
 	authenticator auth.Authenticator,
 	oidcClient *auth.OIDCClient,
 	queries *db.Queries,
@@ -35,6 +37,7 @@ func NewRouter(
 	api := humago.New(mux, huma.DefaultConfig("Dsek Articles API", "0.1.0"))
 	registerArticleRoutes(api, articleSvc)
 	registerDirectoryRoutes(api, articleSvc)
+	registerEventRoutes(api, eventSvc)
 
 	mux.HandleFunc("GET /me", auth.MeHandler(queries))
 	if oidcClient != nil {

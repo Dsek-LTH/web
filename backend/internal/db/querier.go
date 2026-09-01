@@ -13,12 +13,26 @@ import (
 type Querier interface {
 	AddArticleLike(ctx context.Context, arg AddArticleLikeParams) error
 	AddArticleTags(ctx context.Context, arg AddArticleTagsParams) error
+	// Going/interested are mutually exclusive in the UI (see
+	// internal/events.Service.SetGoing/SetInterested/ClearAttendance), but that
+	// exclusivity isn't a DB constraint - same situation as the old Prisma
+	// code, which only enforced it by always writing both relations together
+	// from three fixed call sites. Each pair of queries below is called
+	// together for that reason.
+	AddEventGoing(ctx context.Context, arg AddEventGoingParams) error
+	AddEventInterested(ctx context.Context, arg AddEventInterestedParams) error
+	AddEventTags(ctx context.Context, arg AddEventTagsParams) error
 	ClearArticleTags(ctx context.Context, articleID pgtype.UUID) error
+	ClearEventTags(ctx context.Context, eventID pgtype.UUID) error
 	CountArticleSlugsWithPrefix(ctx context.Context, dollar_1 pgtype.Text) (int64, error)
 	CountArticles(ctx context.Context, arg CountArticlesParams) (int64, error)
+	CountEventSlugsWithPrefix(ctx context.Context, dollar_1 pgtype.Text) (int64, error)
+	CountEvents(ctx context.Context, arg CountEventsParams) (int64, error)
 	CreateArticle(ctx context.Context, arg CreateArticleParams) (CreateArticleRow, error)
 	CreateArticleComment(ctx context.Context, arg CreateArticleCommentParams) (CreateArticleCommentRow, error)
 	CreateAuthor(ctx context.Context, arg CreateAuthorParams) (pgtype.UUID, error)
+	CreateEvent(ctx context.Context, arg CreateEventParams) (CreateEventRow, error)
+	CreateEventComment(ctx context.Context, arg CreateEventCommentParams) (CreateEventCommentRow, error)
 	// Minimal port of src/lib/utils/member.ts's createMember: this backend
 	// doesn't own subscription_settings or tag subscriptions (nollning-period
 	// defaults included), so this only creates the bare Member row those
@@ -26,7 +40,9 @@ type Querier interface {
 	// oversight, consistent with nollning being out of scope elsewhere in this
 	// rewrite (see DESIGN.md).
 	CreateMember(ctx context.Context, arg CreateMemberParams) (CreateMemberRow, error)
+	CreateRecurringEvent(ctx context.Context, arg CreateRecurringEventParams) (pgtype.UUID, error)
 	DeleteArticleComment(ctx context.Context, arg DeleteArticleCommentParams) error
+	DeleteEventComment(ctx context.Context, arg DeleteEventCommentParams) error
 	// Authors are reused across articles: an author row is the (member,
 	// mandate, custom-author) triple, so the same byline is only created once.
 	FindAuthor(ctx context.Context, arg FindAuthorParams) (pgtype.UUID, error)
@@ -45,11 +61,21 @@ type Querier interface {
 	// so this is no more exposed than the existing unauthenticated mutations;
 	// see backend/CLAUDE.md.
 	GetArticleRowBySlug(ctx context.Context, slug string) (GetArticleRowBySlugRow, error)
+	// Public lookup: hides soft-removed events, same visibility rule as
+	// ListEvents. The old TS getEvent() applied no such filter at all (see
+	// DESIGN.md's events section) - fixed here rather than replicated.
+	GetEventBySlug(ctx context.Context, slug pgtype.Text) (GetEventBySlugRow, error)
+	GetEventIDBySlug(ctx context.Context, slug pgtype.Text) (pgtype.UUID, error)
+	// Unfiltered lookup: no removed_at filter. Used internally after
+	// create/update, and by GetAny for callers - like an edit page - that need
+	// to load an event regardless of soft-delete status.
+	GetEventRowBySlug(ctx context.Context, slug pgtype.Text) (GetEventRowBySlugRow, error)
 	// Used to verify a caller posting "as" a mandate actually holds it.
 	// custom_authors has no owner column in the schema (they're shared
 	// personas, e.g. "Styrelsen"), so there's no equivalent check for those.
 	GetMandateMemberID(ctx context.Context, id pgtype.UUID) (pgtype.UUID, error)
 	GetMemberByStudentID(ctx context.Context, studentID pgtype.Text) (GetMemberByStudentIDRow, error)
+	GetRecurringEvent(ctx context.Context, id pgtype.UUID) (RecurringEvent, error)
 	// "Active" mirrors the old TS backend's author-options query: currently
 	// within the mandate's start/end date range.
 	ListActiveMandatesForMember(ctx context.Context, memberID pgtype.UUID) ([]ListActiveMandatesForMemberRow, error)
@@ -67,6 +93,24 @@ type Querier interface {
 	// every member can choose from every custom author. Revisit once real
 	// roles exist.
 	ListCustomAuthors(ctx context.Context) ([]ListCustomAuthorsRow, error)
+	ListEventComments(ctx context.Context, eventID pgtype.UUID) ([]ListEventCommentsRow, error)
+	ListEventGoing(ctx context.Context, eventID pgtype.UUID) ([]ListEventGoingRow, error)
+	ListEventInterested(ctx context.Context, eventID pgtype.UUID) ([]ListEventInterestedRow, error)
+	// Every other occurrence in a recurring series, for a FUTURE/ALL edit or
+	// delete. min_start_datetime narg'd out entirely (not just NULL) for ALL,
+	// set for FUTURE (see internal/events.Service.Update/Delete).
+	ListEventSiblings(ctx context.Context, arg ListEventSiblingsParams) ([]ListEventSiblingsRow, error)
+	// Shared column list for the "joined event" shape: event + author (plain
+	// member - events have no mandate/custom-author byline, see internal/events
+	// doc comments) + comment/going/interested counts. Duplicated across
+	// ListEvents/GetEventBySlug/GetEventRowBySlug because sqlc has no
+	// macro/fragment support (same situation as articles.sql).
+	// Ordering direction depends on 'past': upcoming events sort soonest-first
+	// (ASC), past events sort most-recent-first (DESC). sqlc can't parameterize
+	// ORDER BY directly, so both directions are expressed as CASE'd sort keys -
+	// exactly one is non-null per row depending on 'past', the other ties (NULL)
+	// and is ignored.
+	ListEvents(ctx context.Context, arg ListEventsParams) ([]ListEventsRow, error)
 	// Mirrors hooks.server.helpers.ts's getAccessPolicies: a policy applies if
 	// it's granted to any of the caller's derived roles, or to their
 	// student_id specifically. Pass a NULL student_id for an anonymous caller
@@ -76,14 +120,28 @@ type Querier interface {
 	ListPoliciesForRolesOrStudentID(ctx context.Context, arg ListPoliciesForRolesOrStudentIDParams) ([]string, error)
 	ListTags(ctx context.Context) ([]Tag, error)
 	ListTagsForArticles(ctx context.Context, dollar_1 []pgtype.UUID) ([]ListTagsForArticlesRow, error)
+	ListTagsForEvents(ctx context.Context, dollar_1 []pgtype.UUID) ([]ListTagsForEventsRow, error)
 	RemoveArticleLike(ctx context.Context, arg RemoveArticleLikeParams) error
+	RemoveEventGoing(ctx context.Context, arg RemoveEventGoingParams) error
+	RemoveEventInterested(ctx context.Context, arg RemoveEventInterestedParams) error
 	// Targeted single-field write: the caller's external scheduler task id,
 	// recorded after scheduling a future publish succeeds. Deliberately
 	// separate from UpdateArticle (which is full-replace) since this needs to
 	// happen without the caller re-submitting the whole article.
 	SetArticleScheduledID(ctx context.Context, arg SetArticleScheduledIDParams) error
 	SoftDeleteArticle(ctx context.Context, slug string) error
+	SoftDeleteEvent(ctx context.Context, id pgtype.UUID) error
+	// Powers both FUTURE (min_start_datetime set) and ALL (narg'd out) series
+	// deletes in one statement, unlike the per-row loop UpdateEvent needs (a
+	// plain removed_at write has no per-row content to vary).
+	SoftDeleteEventSeries(ctx context.Context, arg SoftDeleteEventSeriesParams) error
 	UpdateArticle(ctx context.Context, arg UpdateArticleParams) (UpdateArticleRow, error)
+	// Full-replace of content fields (same PUT-not-PATCH convention as
+	// articles), plus this occurrence's own start/end datetime. author_id is
+	// deliberately never reassigned here - see internal/events doc comments on
+	// why events diverge from articles' "always re-attribute to the editor"
+	// rule.
+	UpdateEvent(ctx context.Context, arg UpdateEventParams) (UpdateEventRow, error)
 }
 
 var _ Querier = (*Queries)(nil)

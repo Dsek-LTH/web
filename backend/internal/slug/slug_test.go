@@ -1,9 +1,9 @@
-package articles
+package slug
 
 import "testing"
 
-// Cases taken from ../../src/lib/utils/slugify.test.ts to keep parity with
-// the TS implementation this replaces.
+// Cases taken from ../../../src/lib/utils/slugify.test.ts to keep parity
+// with the TS implementation this replaces.
 func TestSlugify(t *testing.T) {
 	cases := map[string]string{
 		"Diss #2 till 10 staben":       "diss-2-till-10-staben",

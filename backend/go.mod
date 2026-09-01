@@ -4,6 +4,7 @@ go 1.26.0
 
 tool (
 	github.com/air-verse/air
+	github.com/dsek-lth/web/backend/cmd/migrate
 	github.com/golangci/golines
 	github.com/sqlc-dev/sqlc/cmd/sqlc
 	golang.org/x/tools/cmd/goimports
@@ -14,6 +15,7 @@ require (
 	github.com/coreos/go-oidc/v3 v3.20.0
 	github.com/danielgtaylor/huma/v2 v2.39.1
 	github.com/go-jose/go-jose/v4 v4.1.4
+	github.com/golang-migrate/migrate/v4 v4.19.1
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/securecookie v1.1.2
 	github.com/jackc/pgx/v5 v5.10.0
@@ -58,6 +60,7 @@ require (
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/ldez/structtags v0.6.1 // indirect
+	github.com/lib/pq v1.12.3 // indirect
 	github.com/mattn/go-colorable v0.1.15 // indirect
 	github.com/mattn/go-isatty v0.0.23 // indirect
 	github.com/ncruces/go-sqlite3 v0.32.0 // indirect

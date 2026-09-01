@@ -10,7 +10,7 @@ import (
 
 // NewPool creates a connection pool and verifies it can reach the database.
 func NewPool(ctx context.Context, dsn string) (*pgxpool.Pool, error) {
-	dsn, err := normalizeDSN(dsn)
+	dsn, err := NormalizeDSN(dsn)
 	if err != nil {
 		return nil, fmt.Errorf("parse dsn: %w", err)
 	}
@@ -28,11 +28,13 @@ func NewPool(ctx context.Context, dsn string) (*pgxpool.Pool, error) {
 	return pool, nil
 }
 
-// normalizeDSN rewrites Prisma-style connection strings for pgx. Prisma
+// NormalizeDSN rewrites Prisma-style connection strings for pgx. Prisma
 // encodes the target schema as a "schema" query param, which pgx forwards
 // verbatim to Postgres as an unknown startup parameter and the server
-// rejects; the real GUC for that is "search_path".
-func normalizeDSN(dsn string) (string, error) {
+// rejects; the real GUC for that is "search_path". Exported so cmd/migrate
+// (a separate database/sql-based connection, not pgx, but hitting the same
+// Postgres) can apply the same rewrite.
+func NormalizeDSN(dsn string) (string, error) {
 	u, err := url.Parse(dsn)
 	if err != nil {
 		return "", err
