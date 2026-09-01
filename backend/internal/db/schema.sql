@@ -51,13 +51,30 @@ CREATE TABLE email_aliases (
     email        VARCHAR(255) NOT NULL
 );
 
+-- Go-owned from creation (see internal/db/migrations/20260901220000_...) -
+-- one row per nollning year, replacing the old AdminSetting-backed time
+-- window plus every hardcoded per-year date scattered across the TS app.
+-- See DESIGN.md's "Nollning: proposed redesign".
+CREATE TABLE nollning_seasons (
+    id                      UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    year                    INTEGER NOT NULL UNIQUE,
+    nolla_start_at          TIMESTAMPTZ NOT NULL,
+    reveal_at               TIMESTAMPTZ NOT NULL,
+    end_at                  TIMESTAMPTZ NOT NULL,
+    organizing_committee_id UUID REFERENCES committees (id)
+);
+
 CREATE TABLE phadder_groups (
     id           UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
     name         VARCHAR(255) NOT NULL,
     description  TEXT,
-    year         INTEGER NOT NULL,
     image_url    TEXT,
-    "createdAt"  TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    "createdAt"  TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    -- Replaces a bare `year int` (see migration
+    -- 20260901220200_phadder_groups_season_id) - column sits last because
+    -- Postgres always appends ADD COLUMN at the end and DROP COLUMN doesn't
+    -- renumber the rest; this must match the live table's actual order.
+    season_id    UUID NOT NULL REFERENCES nollning_seasons (id)
 );
 
 CREATE TABLE members (
@@ -161,7 +178,10 @@ CREATE TABLE articles (
     committee_id             UUID REFERENCES committees (id),
     CONSTRAINT enforce_status_type CHECK (
         status = 'draft' OR status = 'approved' OR status = 'rejected'
-    )
+    ),
+    -- Added by migration 20260901220100_add_nollning_season_id_to_content -
+    -- see DESIGN.md's "Content classification" decision.
+    nollning_season_id       UUID REFERENCES nollning_seasons (id)
 );
 
 CREATE TABLE article_comments (
@@ -258,9 +278,11 @@ CREATE TABLE events (
     "imageUrl"            TEXT,
     is_detatched          BOOLEAN NOT NULL DEFAULT false,
     recurring_parent_id   UUID REFERENCES "RecurringEvent" (id),
-    is_cancelled          BOOLEAN DEFAULT false
+    is_cancelled          BOOLEAN DEFAULT false,
     -- Ticket relation deliberately not modeled - see DESIGN.md's "Shop /
     -- tickets: cut from scope entirely".
+    -- Added by migration 20260901220100_add_nollning_season_id_to_content.
+    nollning_season_id    UUID REFERENCES nollning_seasons (id)
 );
 
 CREATE TABLE event_comments (

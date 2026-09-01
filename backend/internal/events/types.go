@@ -49,6 +49,10 @@ type EventSummary struct {
 	CommentCount       int       `json:"commentCount"`
 	GoingCount         int       `json:"goingCount"`
 	InterestedCount    int       `json:"interestedCount"`
+	// NollningSeasonID associates this event with a nollning season - see
+	// articles.ArticleSummary's identical field and DESIGN.md's nollning
+	// section.
+	NollningSeasonID *string `json:"nollningSeasonId,omitempty"`
 }
 
 type EventDetail struct {
@@ -110,12 +114,14 @@ type EventInput struct {
 	IsCancelled        bool            `json:"isCancelled"`
 	TagIDs             []string        `json:"tagIds"`
 	Recurring          *RecurringInput `json:"recurring,omitempty"`
+	NollningSeasonID   *string         `json:"nollningSeasonId"`
 }
 
 type ListParams struct {
-	Search   *string
-	TagIDs   []string
-	Past     bool
-	Page     int
-	PageSize int
+	Search           *string
+	TagIDs           []string
+	Past             bool
+	NollningSeasonID *string
+	Page             int
+	PageSize         int
 }

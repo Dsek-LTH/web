@@ -12,6 +12,20 @@ import (
 	"github.com/dsek-lth/web/backend/internal/db"
 )
 
+// StabenInjector is the one piece of internal/nollning RealAuthenticator
+// needs: whether/how to grant apinames.MemberSeeStaben by default, and
+// which year auth.DerivedRoles' "nolla" pseudo-role should use. Declared
+// here (rather than RealAuthenticator taking a *nollning.Service directly)
+// so this package doesn't import internal/nollning - internal/nollning's
+// own Service methods use auth.Require/auth.FromContext like every other
+// domain service, and importing it back from here would create an import
+// cycle. nollning.Service satisfies this interface structurally; main.go
+// wires the concrete value in.
+type StabenInjector interface {
+	InjectStabenPolicy(ctx context.Context, policies []string) ([]string, error)
+	NollaYear(ctx context.Context) (int, error)
+}
+
 // RealAuthenticator resolves an Identity from the session cookie set by
 // OIDCClient.CallbackHandler - see DESIGN.md's Auth section. A missing or
 // invalid session resolves to an anonymous Identity rather than an error;
@@ -21,14 +35,21 @@ type RealAuthenticator struct {
 	sessionCodec *SessionCodec
 	oidcClient   *OIDCClient
 	queries      *db.Queries
+	nollning     StabenInjector
 }
 
 func NewRealAuthenticator(
 	sessionCodec *SessionCodec,
 	oidcClient *OIDCClient,
 	queries *db.Queries,
+	nollning StabenInjector,
 ) *RealAuthenticator {
-	return &RealAuthenticator{sessionCodec: sessionCodec, oidcClient: oidcClient, queries: queries}
+	return &RealAuthenticator{
+		sessionCodec: sessionCodec,
+		oidcClient:   oidcClient,
+		queries:      queries,
+		nollning:     nollning,
+	}
 }
 
 func (a *RealAuthenticator) Authenticate(
@@ -64,7 +85,10 @@ func (a *RealAuthenticator) Authenticate(
 }
 
 func (a *RealAuthenticator) anonymousIdentity(ctx context.Context) (*Identity, error) {
-	roles := DerivedRoles(nil, false, nil, nil)
+	// classYear is nil for an anonymous identity, so the nolla year never
+	// actually matters here - passed as 0 purely to satisfy DerivedRoles'
+	// signature.
+	roles := DerivedRoles(nil, false, nil, nil, 0)
 	policies, err := a.queries.ListPoliciesForRolesOrStudentID(
 		ctx,
 		db.ListPoliciesForRolesOrStudentIDParams{
@@ -72,6 +96,10 @@ func (a *RealAuthenticator) anonymousIdentity(ctx context.Context) (*Identity, e
 			StudentID: pgtype.Text{Valid: false},
 		},
 	)
+	if err != nil {
+		return nil, err
+	}
+	policies, err = a.nollning.InjectStabenPolicy(ctx, policies)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +128,11 @@ func (a *RealAuthenticator) resolveIdentity(
 		classProgramme = &member.ClassProgramme.String
 	}
 
-	roles := DerivedRoles(session.GroupList, true, classYear, classProgramme)
+	nollaYear, err := a.nollning.NollaYear(ctx)
+	if err != nil {
+		return nil, err
+	}
+	roles := DerivedRoles(session.GroupList, true, classYear, classProgramme, nollaYear)
 	policies, err := a.queries.ListPoliciesForRolesOrStudentID(
 		ctx,
 		db.ListPoliciesForRolesOrStudentIDParams{
@@ -108,6 +140,10 @@ func (a *RealAuthenticator) resolveIdentity(
 			StudentID: pgtype.Text{String: session.StudentID, Valid: true},
 		},
 	)
+	if err != nil {
+		return nil, err
+	}
+	policies, err = a.nollning.InjectStabenPolicy(ctx, policies)
 	if err != nil {
 		return nil, err
 	}

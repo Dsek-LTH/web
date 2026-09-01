@@ -62,6 +62,93 @@ func (q *Queries) GetPosition(ctx context.Context, id string) (GetPositionRow, e
 	return i, err
 }
 
+const listBoard = `-- name: ListBoard :many
+SELECT p.id, p.name_sv, p.name_en, p.committee_id, p.email, p.active, p.board_member,
+       p.description_sv, p.description_en, p.start_month, p.end_month,
+       mem.id AS member_id, mem.student_id, mem.first_name, mem.nickname,
+       mem.last_name, mem.picture_path, mem.class_year, mem.class_programme
+FROM positions p
+LEFT JOIN LATERAL (
+    SELECT m.member_id
+    FROM mandates m
+    WHERE m.position_id = p.id
+      AND m.start_date <= CURRENT_DATE AND m.end_date >= CURRENT_DATE
+    ORDER BY m.start_date DESC
+    LIMIT 1
+) active_mandate ON true
+LEFT JOIN members mem ON mem.id = active_mandate.member_id
+WHERE p.board_member = true AND p.active = true
+ORDER BY p.id
+`
+
+type ListBoardRow struct {
+	ID             string      `json:"id"`
+	NameSv         string      `json:"name_sv"`
+	NameEn         pgtype.Text `json:"name_en"`
+	CommitteeID    pgtype.UUID `json:"committee_id"`
+	Email          pgtype.Text `json:"email"`
+	Active         bool        `json:"active"`
+	BoardMember    bool        `json:"board_member"`
+	DescriptionSv  pgtype.Text `json:"description_sv"`
+	DescriptionEn  pgtype.Text `json:"description_en"`
+	StartMonth     int32       `json:"start_month"`
+	EndMonth       int32       `json:"end_month"`
+	MemberID       pgtype.UUID `json:"member_id"`
+	StudentID      pgtype.Text `json:"student_id"`
+	FirstName      pgtype.Text `json:"first_name"`
+	Nickname       pgtype.Text `json:"nickname"`
+	LastName       pgtype.Text `json:"last_name"`
+	PicturePath    pgtype.Text `json:"picture_path"`
+	ClassYear      pgtype.Int4 `json:"class_year"`
+	ClassProgramme pgtype.Text `json:"class_programme"`
+}
+
+// Board positions (board_member=true, active=true) with their current
+// holder, one row per position (LEFT JOIN LATERAL picks at most the most
+// recently-started active mandate; NULL member fields mean vacant) - backs
+// GET /board. Staben redaction (hiding organizing-committee positions from
+// viewers without MemberSeeStaben) happens in committees.Service.ListBoard,
+// not here - this query returns the unredacted set.
+func (q *Queries) ListBoard(ctx context.Context) ([]ListBoardRow, error) {
+	rows, err := q.db.Query(ctx, listBoard)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListBoardRow{}
+	for rows.Next() {
+		var i ListBoardRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.NameSv,
+			&i.NameEn,
+			&i.CommitteeID,
+			&i.Email,
+			&i.Active,
+			&i.BoardMember,
+			&i.DescriptionSv,
+			&i.DescriptionEn,
+			&i.StartMonth,
+			&i.EndMonth,
+			&i.MemberID,
+			&i.StudentID,
+			&i.FirstName,
+			&i.Nickname,
+			&i.LastName,
+			&i.PicturePath,
+			&i.ClassYear,
+			&i.ClassProgramme,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listPositions = `-- name: ListPositions :many
 SELECT id, name_sv, name_en, committee_id, email, active, board_member,
        description_sv, description_en, start_month, end_month

@@ -81,24 +81,30 @@ func (s *Service) List(ctx context.Context, params ListParams) ([]ArticleSummary
 	}
 	search := dbutil.TextOrInvalid(params.Search)
 	authorStudentID := dbutil.TextOrInvalid(params.AuthorStudentID)
+	nollningSeasonID, err := dbutil.ParseUUIDPtr(params.NollningSeasonID)
+	if err != nil {
+		return nil, 0, invalidf("invalid nollning season id: %v", err)
+	}
 
 	rows, err := s.queries.ListArticles(ctx, db.ListArticlesParams{
-		Search:          search,
-		TagIds:          tagIDs,
-		CommitteeID:     committeeID,
-		AuthorStudentID: authorStudentID,
-		Limit:           int32(pageSize),
-		Offset:          int32((page - 1) * pageSize),
+		Search:           search,
+		TagIds:           tagIDs,
+		CommitteeID:      committeeID,
+		AuthorStudentID:  authorStudentID,
+		NollningSeasonID: nollningSeasonID,
+		Limit:            int32(pageSize),
+		Offset:           int32((page - 1) * pageSize),
 	})
 	if err != nil {
 		return nil, 0, fmt.Errorf("list articles: %w", err)
 	}
 
 	total, err := s.queries.CountArticles(ctx, db.CountArticlesParams{
-		Search:          search,
-		TagIds:          tagIDs,
-		CommitteeID:     committeeID,
-		AuthorStudentID: authorStudentID,
+		Search:           search,
+		TagIds:           tagIDs,
+		CommitteeID:      committeeID,
+		AuthorStudentID:  authorStudentID,
+		NollningSeasonID: nollningSeasonID,
 	})
 	if err != nil {
 		return nil, 0, fmt.Errorf("count articles: %w", err)
@@ -170,6 +176,16 @@ func (s *Service) Create(ctx context.Context, in ArticleInput) (*ArticleDetail, 
 		imageURL = &in.ImageURLs[0]
 	}
 
+	nollningSeasonID, err := dbutil.ParseUUIDPtr(in.NollningSeasonID)
+	if err != nil {
+		return nil, invalidf("invalid nollning season id: %v", err)
+	}
+	if in.NollningSeasonID != nil {
+		if err := auth.Require(ctx, apinames.NollningContentAssociate); err != nil {
+			return nil, err
+		}
+	}
+
 	slug, err := s.uniqueSlug(ctx, in.HeaderSv)
 	if err != nil {
 		return nil, err
@@ -196,6 +212,7 @@ func (s *Service) Create(ctx context.Context, in ArticleInput) (*ArticleDetail, 
 		NotificationText:       dbutil.ToText(in.NotificationText),
 		CommitteeID:            committeeID,
 		Slug:                   slug,
+		NollningSeasonID:       nollningSeasonID,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("create article: %w", err)
@@ -267,6 +284,21 @@ func (s *Service) Update(
 		imageURL = &in.ImageURLs[0]
 	}
 
+	nollningSeasonID, err := dbutil.ParseUUIDPtr(in.NollningSeasonID)
+	if err != nil {
+		return nil, invalidf("invalid nollning season id: %v", err)
+	}
+	// Only require the permission when the value is actually changing -
+	// resubmitting the article's current nollningSeasonId (every save
+	// resubmits every field, since Update is full-replace) doesn't need
+	// it, only setting/changing it to something new does. See DESIGN.md's
+	// nollning section.
+	if nollningSeasonID != current.NollningSeasonID {
+		if err := auth.Require(ctx, apinames.NollningContentAssociate); err != nil {
+			return nil, err
+		}
+	}
+
 	updated, err := s.queries.UpdateArticle(ctx, db.UpdateArticleParams{
 		Slug:                   slug,
 		HeaderSv:               in.HeaderSv,
@@ -281,6 +313,7 @@ func (s *Service) Update(
 		ShouldSendNotification: pgtype.Bool{Bool: in.ShouldSendNotification, Valid: true},
 		NotificationText:       dbutil.ToText(in.NotificationText),
 		CommitteeID:            committeeID,
+		NollningSeasonID:       nollningSeasonID,
 	})
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {

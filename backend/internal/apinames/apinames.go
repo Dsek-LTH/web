@@ -23,6 +23,10 @@ const (
 
 	MemberUpdate   = "core:member:update"
 	MemberSeeEmail = "member:see_email"
+	// MemberSeeStaben mirrors the old apiNames.MEMBER.SEE_STABEN exactly -
+	// granted to everyone outside a nollning season, opt-in only during one
+	// (see internal/nollning.Service.InjectStabenPolicy).
+	MemberSeeStaben = "member:see_staben"
 
 	CommitteeUpdate = "core:committee:update"
 
@@ -35,6 +39,20 @@ const (
 	AccessPolicyRead   = "core:access:api:read"
 	AccessPolicyCreate = "core:access:api:create"
 	AccessPolicyDelete = "core:access:api:delete"
+
+	// NollningContentAssociate gates setting/changing an article's or
+	// event's nollning_season_id - one shared policy across both domains
+	// (decided 2026-09-01, see ../../DESIGN.md's nollning section) rather
+	// than a per-domain pair, since it's the same real-world permission
+	// ("can mark content as nollning-related") regardless of content type.
+	NollningContentAssociate = "nollning:content:associate"
+	// NollningSeasonManage gates nollning_seasons admin CRUD - new, the old
+	// TS app had no dedicated policy for this (the AdminSetting rows it
+	// replace were gated generically by admin:settings:*).
+	NollningSeasonManage = "nollning:season:manage"
+	// NollningPhadderGroupsManage mirrors the old
+	// apiNames.NOLLNING.MANAGE_PHADDER_GROUPS exactly.
+	NollningPhadderGroupsManage = "nollning:phaddrar:groups:manage"
 )
 
 // All lists every policy this API currently checks - used to build the
@@ -58,6 +76,7 @@ func All() []string {
 		EventCommentDelete,
 		MemberUpdate,
 		MemberSeeEmail,
+		MemberSeeStaben,
 		CommitteeUpdate,
 		PositionUpdate,
 		MandateCreate,
@@ -66,5 +85,8 @@ func All() []string {
 		AccessPolicyRead,
 		AccessPolicyCreate,
 		AccessPolicyDelete,
+		NollningContentAssociate,
+		NollningSeasonManage,
+		NollningPhadderGroupsManage,
 	}
 }

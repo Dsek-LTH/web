@@ -47,6 +47,10 @@ type listPositionsOutput struct {
 	Body []committees.Position
 }
 
+type listBoardOutput struct {
+	Body []committees.BoardPosition
+}
+
 type getPositionInput struct {
 	ID string `path:"id"`
 }
@@ -174,6 +178,20 @@ func registerCommitteeRoutes(api huma.API, svc *committees.Service) {
 			return nil, humaServiceError(err)
 		}
 		return &listPositionsOutput{Body: items}, nil
+	})
+
+	huma.Register(api, huma.Operation{
+		OperationID: "list-board",
+		Method:      http.MethodGet,
+		Path:        "/board",
+		Summary:     "List board-flagged positions with their current holder",
+		Description: "Replaces the old board page's own Prisma query - positions belonging to the current nollning season's organizing committee are omitted unless the caller holds member:see_staben (see backend/DESIGN.md's nollning section).",
+	}, func(ctx context.Context, _ *struct{}) (*listBoardOutput, error) {
+		items, err := svc.ListBoard(ctx)
+		if err != nil {
+			return nil, humaServiceError(err)
+		}
+		return &listBoardOutput{Body: items}, nil
 	})
 
 	huma.Register(api, huma.Operation{

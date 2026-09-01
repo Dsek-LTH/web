@@ -32,7 +32,7 @@ func TestDerivedRoles(t *testing.T) {
 
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
-			got := DerivedRoles(c.groupList, c.signedIn, nil, nil)
+			got := DerivedRoles(c.groupList, c.signedIn, nil, nil, 0)
 			if !reflect.DeepEqual(got, c.want) {
 				t.Errorf("DerivedRoles(%v, %v) = %v, want %v", c.groupList, c.signedIn, got, c.want)
 			}

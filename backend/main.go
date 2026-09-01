@@ -21,6 +21,7 @@ import (
 	"github.com/dsek-lth/web/backend/internal/events"
 	"github.com/dsek-lth/web/backend/internal/integrations"
 	"github.com/dsek-lth/web/backend/internal/members"
+	"github.com/dsek-lth/web/backend/internal/nollning"
 )
 
 func main() {
@@ -48,6 +49,7 @@ func main() {
 	log.Println("connected to database")
 
 	queries := db.New(pool)
+	nollningSvc := nollning.NewService(pool)
 
 	var authenticator auth.Authenticator
 	var oidcClient *auth.OIDCClient
@@ -58,7 +60,7 @@ func main() {
 		}
 		authenticator = auth.NewMockAuthenticator(identity)
 	} else {
-		oidcClient, authenticator, err = newRealAuth(ctx, queries)
+		oidcClient, authenticator, err = newRealAuth(ctx, queries, nollningSvc)
 		if err != nil {
 			log.Fatalf("set up real auth: %v", err)
 		}
@@ -80,7 +82,7 @@ func main() {
 	)
 	eventSvc := events.NewService(pool)
 	memberSvc := members.NewService(pool)
-	committeeSvc := committees.NewService(pool)
+	committeeSvc := committees.NewService(pool, nollningSvc)
 	accessPolicySvc := accesspolicies.NewService(pool)
 	router := api.NewRouter(
 		articleSvc,
@@ -88,6 +90,7 @@ func main() {
 		memberSvc,
 		committeeSvc,
 		accessPolicySvc,
+		nollningSvc,
 		authenticator,
 		oidcClient,
 		queries,
@@ -141,6 +144,7 @@ func mockIdentity(ctx context.Context, queries *db.Queries) (*auth.Identity, err
 func newRealAuth(
 	ctx context.Context,
 	queries *db.Queries,
+	nollningSvc auth.StabenInjector,
 ) (*auth.OIDCClient, auth.Authenticator, error) {
 	required := []struct{ name, value string }{
 		{"AUTH_SECRET", os.Getenv("AUTH_SECRET")},
@@ -180,5 +184,10 @@ func newRealAuth(
 		return nil, nil, fmt.Errorf("discover OIDC provider: %w", err)
 	}
 
-	return oidcClient, auth.NewRealAuthenticator(sessionCodec, oidcClient, queries), nil
+	return oidcClient, auth.NewRealAuthenticator(
+		sessionCodec,
+		oidcClient,
+		queries,
+		nollningSvc,
+	), nil
 }

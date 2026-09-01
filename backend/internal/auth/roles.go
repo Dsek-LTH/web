@@ -3,7 +3,6 @@ package auth
 import (
 	"strconv"
 	"strings"
-	"time"
 )
 
 // DerivedRoles ports src/lib/utils/authorization.ts's getDerivedRoles:
@@ -11,11 +10,19 @@ import (
 // into every dot-separated prefix, in first-seen order, plus "*" (everyone),
 // "_" (signed in), and year/programme-based pseudo-roles that access
 // policies (see ListPoliciesForRolesOrStudentID) can be granted against.
+//
+// nollaYear replaces the TS original's bare time.Now().Year() for the
+// "nolla" role - callers pass internal/nollning.Service.NollaYear(ctx) so a
+// nollning season crossing a calendar year (e.g. starting in August)
+// resolves consistently with every other nollning date check (see
+// DESIGN.md's nollning section, decision #3) instead of each call site
+// computing the calendar year independently.
 func DerivedRoles(
 	groupList []string,
 	signedIn bool,
 	classYear *int,
 	classProgramme *string,
+	nollaYear int,
 ) []string {
 	seen := make(map[string]bool)
 	var roles []string
@@ -38,7 +45,7 @@ func DerivedRoles(
 	if len(groupList) > 0 || signedIn {
 		add("_")
 	}
-	if classYear != nil && *classYear == time.Now().Year() {
+	if classYear != nil && *classYear == nollaYear {
 		add("nolla")
 	}
 	if classYear != nil {

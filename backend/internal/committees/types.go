@@ -95,3 +95,14 @@ type UpdateMandateInput struct {
 	StartDate string `json:"startDate"`
 	EndDate   string `json:"endDate"`
 }
+
+// BoardPosition is one board-flagged, active position with its current
+// holder (Member nil means vacant) - backs GET /board, replacing the old
+// board/+page.server.ts's own Prisma query + merge loop. Sorted per
+// ordering.SortBoardPositions and redacted per Service.ListBoard's doc
+// comment before being returned - a row present here has already passed
+// both.
+type BoardPosition struct {
+	Position Position `json:"position"`
+	Member   *Member  `json:"member,omitempty"`
+}

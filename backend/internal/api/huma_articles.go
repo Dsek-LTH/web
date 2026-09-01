@@ -15,12 +15,13 @@ import (
 )
 
 type listArticlesInput struct {
-	Search          string   `query:"search"          doc:"free-text search over header/body"`
-	Tags            []string `query:"tags,explode"    doc:"tag UUIDs, ANY-match"`
-	CommitteeID     string   `query:"committeeId"`
-	AuthorStudentID string   `query:"authorStudentId"`
-	Page            int      `query:"page"            doc:"1-based"`
-	PageSize        int      `query:"pageSize"`
+	Search           string   `query:"search"           doc:"free-text search over header/body"`
+	Tags             []string `query:"tags,explode"     doc:"tag UUIDs, ANY-match"`
+	CommitteeID      string   `query:"committeeId"`
+	AuthorStudentID  string   `query:"authorStudentId"`
+	NollningSeasonID string   `query:"nollningSeasonId"`
+	Page             int      `query:"page"             doc:"1-based"`
+	PageSize         int      `query:"pageSize"`
 }
 
 type listArticlesOutput struct {
@@ -117,6 +118,9 @@ func registerArticleRoutes(api huma.API, svc *articles.Service) {
 		}
 		if input.AuthorStudentID != "" {
 			params.AuthorStudentID = &input.AuthorStudentID
+		}
+		if input.NollningSeasonID != "" {
+			params.NollningSeasonID = &input.NollningSeasonID
 		}
 
 		items, pageCount, err := svc.List(ctx, params)

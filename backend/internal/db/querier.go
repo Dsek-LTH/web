@@ -24,6 +24,15 @@ type Querier interface {
 	AddEventTags(ctx context.Context, arg AddEventTagsParams) error
 	ClearArticleTags(ctx context.Context, articleID pgtype.UUID) error
 	ClearEventTags(ctx context.Context, eventID pgtype.UUID) error
+	// Mirrors the old removePhadder action: clears every one of this member's
+	// mandates currently tagged to this group (not just the single "active"
+	// one FindActivePhadderMandate would pick), matching the old code's
+	// `mandates.map(...)` bulk-disconnect over every matching mandate.
+	ClearMandatePhadderGroupForMember(ctx context.Context, arg ClearMandatePhadderGroupForMemberParams) error
+	// Only clears if the member is currently in exactly this group - mirrors
+	// the old Prisma `disconnect`, which is a no-op unless the relation
+	// actually exists.
+	ClearMemberPhadderGroup(ctx context.Context, arg ClearMemberPhadderGroupParams) error
 	CountArticleSlugsWithPrefix(ctx context.Context, dollar_1 pgtype.Text) (int64, error)
 	CountArticles(ctx context.Context, arg CountArticlesParams) (int64, error)
 	CountEventSlugsWithPrefix(ctx context.Context, dollar_1 pgtype.Text) (int64, error)
@@ -42,11 +51,19 @@ type Querier interface {
 	// oversight, consistent with nollning being out of scope elsewhere in this
 	// rewrite (see DESIGN.md).
 	CreateMember(ctx context.Context, arg CreateMemberParams) (CreateMemberRow, error)
+	CreatePhadderGroup(ctx context.Context, arg CreatePhadderGroupParams) (PhadderGroup, error)
 	CreateRecurringEvent(ctx context.Context, arg CreateRecurringEventParams) (pgtype.UUID, error)
+	CreateSeason(ctx context.Context, arg CreateSeasonParams) (NollningSeason, error)
 	DeleteAccessPolicy(ctx context.Context, id pgtype.UUID) error
 	DeleteArticleComment(ctx context.Context, arg DeleteArticleCommentParams) error
 	DeleteEventComment(ctx context.Context, arg DeleteEventCommentParams) error
 	DeleteMandate(ctx context.Context, id pgtype.UUID) error
+	DeletePhadderGroup(ctx context.Context, id pgtype.UUID) error
+	// The member's phadder/uppdrag mandate overlapping the group's season
+	// window, ordered like the old getPhadderMandates (position id asc, i.e.
+	// "phadder" before "uppdrag", then start_date asc) so the first row is the
+	// same one the old TS picked with `mandates?.[0]`.
+	FindActivePhadderMandate(ctx context.Context, arg FindActivePhadderMandateParams) (FindActivePhadderMandateRow, error)
 	// Authors are reused across articles: an author row is the (member,
 	// mandate, custom-author) triple, so the same byline is only created once.
 	FindAuthor(ctx context.Context, arg FindAuthorParams) (pgtype.UUID, error)
@@ -68,6 +85,11 @@ type Querier interface {
 	// Currently-active mandate/unique-member counts, same as
 	// ListCommitteesWithCounts - the committee detail page shows these too.
 	GetCommitteeByShortName(ctx context.Context, shortName pgtype.Text) (GetCommitteeByShortNameRow, error)
+	// The season whose window covers right now, if any - internal/nollning
+	// treats "at most one season active at a time" as an invariant (not
+	// enforced at the DB level, since overlapping seasons would be an admin
+	// data error, not a normal state).
+	GetCurrentSeason(ctx context.Context) (NollningSeason, error)
 	// Public lookup: hides soft-removed events, same visibility rule as
 	// ListEvents. The old TS getEvent() applied no such filter at all (see
 	// DESIGN.md's events section) - fixed here rather than replicated.
@@ -83,15 +105,25 @@ type Querier interface {
 	GetMandateMemberID(ctx context.Context, id pgtype.UUID) (pgtype.UUID, error)
 	GetMarkdown(ctx context.Context, name string) (Markdown, error)
 	GetMemberByStudentID(ctx context.Context, studentID pgtype.Text) (GetMemberByStudentIDRow, error)
+	// Backs PhadderRoleFor's "nolla" branch.
+	GetMemberNollaGroupID(ctx context.Context, id pgtype.UUID) (pgtype.UUID, error)
+	// Backs PhadderRoleFor's "phadder" branch: which group (if any) this
+	// member holds an active phadder/uppdrag mandate pointed at.
+	GetMemberPhadderGroupID(ctx context.Context, memberID pgtype.UUID) (pgtype.UUID, error)
 	// Full column set for a member's own profile page, unlike
 	// GetMemberByStudentID's minimal projection (built only for author
 	// resolution).
 	GetMemberProfile(ctx context.Context, studentID pgtype.Text) (GetMemberProfileRow, error)
+	GetPhadderGroup(ctx context.Context, id pgtype.UUID) (PhadderGroup, error)
 	// Joins the committee (name/shortName), unlike ListPositions/UpdatePosition -
 	// the position detail page links/displays the committee without a second
 	// request.
 	GetPosition(ctx context.Context, id string) (GetPositionRow, error)
 	GetRecurringEvent(ctx context.Context, id pgtype.UUID) (RecurringEvent, error)
+	GetSeason(ctx context.Context, id pgtype.UUID) (NollningSeason, error)
+	// Backs IsStaben: does memberID hold a mandate, active today, on a position
+	// belonging to committeeID.
+	IsMemberActiveOnCommittee(ctx context.Context, arg IsMemberActiveOnCommitteeParams) (bool, error)
 	// Optional apiName filter; joins member first/last name for studentId-scoped
 	// rows (role-scoped rows have no member to join).
 	ListAccessPolicies(ctx context.Context, apiName pgtype.Text) ([]ListAccessPoliciesRow, error)
@@ -110,6 +142,13 @@ type Querier interface {
 	// counts. Duplicated across ListArticles/GetArticleBySlug/GetArticleRowBySlug
 	// because sqlc has no macro/fragment support.
 	ListArticles(ctx context.Context, arg ListArticlesParams) ([]ListArticlesRow, error)
+	// Board positions (board_member=true, active=true) with their current
+	// holder, one row per position (LEFT JOIN LATERAL picks at most the most
+	// recently-started active mandate; NULL member fields mean vacant) - backs
+	// GET /board. Staben redaction (hiding organizing-committee positions from
+	// viewers without MemberSeeStaben) happens in committees.Service.ListBoard,
+	// not here - this query returns the unredacted set.
+	ListBoard(ctx context.Context) ([]ListBoardRow, error)
 	// Full fields + currently-active mandate/unique-member counts, for the
 	// committee overview page (mirrors the old "about" page's query).
 	ListCommitteesWithCounts(ctx context.Context) ([]ListCommitteesWithCountsRow, error)
@@ -152,6 +191,13 @@ type Querier interface {
 	// classYear, but that was a SvelteKit-page UX constraint (it needed a
 	// value to pre-fill a dropdown), not an intentional API restriction.
 	ListMembers(ctx context.Context, arg ListMembersParams) ([]ListMembersRow, error)
+	ListNollorForGroup(ctx context.Context, nollningGroupID pgtype.UUID) ([]ListNollorForGroupRow, error)
+	// Nolla/phadder counts alongside each group, mirroring
+	// ListCommitteesWithCounts' count-subquery pattern.
+	ListPhadderGroups(ctx context.Context, seasonID pgtype.UUID) ([]ListPhadderGroupsRow, error)
+	// Distinct members holding a mandate tagged to this group (a member can in
+	// principle hold more than one such mandate - see FindActivePhadderMandate).
+	ListPhaddrarForGroup(ctx context.Context, phadderinid pgtype.UUID) ([]ListPhaddrarForGroupRow, error)
 	// Mirrors hooks.server.helpers.ts's getAccessPolicies: a policy applies if
 	// it's granted to any of the caller's derived roles, or to their
 	// student_id specifically. Pass a NULL student_id for an anonymous caller
@@ -160,6 +206,7 @@ type Querier interface {
 	// an undefined filter.
 	ListPoliciesForRolesOrStudentID(ctx context.Context, arg ListPoliciesForRolesOrStudentIDParams) ([]string, error)
 	ListPositions(ctx context.Context) ([]ListPositionsRow, error)
+	ListSeasons(ctx context.Context) ([]NollningSeason, error)
 	ListTags(ctx context.Context) ([]Tag, error)
 	ListTagsForArticles(ctx context.Context, dollar_1 []pgtype.UUID) ([]ListTagsForArticlesRow, error)
 	ListTagsForEvents(ctx context.Context, dollar_1 []pgtype.UUID) ([]ListTagsForEventsRow, error)
@@ -171,6 +218,8 @@ type Querier interface {
 	// separate from UpdateArticle (which is full-replace) since this needs to
 	// happen without the caller re-submitting the whole article.
 	SetArticleScheduledID(ctx context.Context, arg SetArticleScheduledIDParams) error
+	SetMandatePhadderGroup(ctx context.Context, arg SetMandatePhadderGroupParams) error
+	SetMemberPhadderGroup(ctx context.Context, arg SetMemberPhadderGroupParams) error
 	SoftDeleteArticle(ctx context.Context, slug string) error
 	SoftDeleteEvent(ctx context.Context, id pgtype.UUID) error
 	// Powers both FUTURE (min_start_datetime set) and ALL (narg'd out) series
@@ -188,7 +237,9 @@ type Querier interface {
 	UpdateMandate(ctx context.Context, arg UpdateMandateParams) (UpdateMandateRow, error)
 	UpdateMemberFoodPreference(ctx context.Context, arg UpdateMemberFoodPreferenceParams) (UpdateMemberFoodPreferenceRow, error)
 	UpdateMemberProfile(ctx context.Context, arg UpdateMemberProfileParams) (UpdateMemberProfileRow, error)
+	UpdatePhadderGroup(ctx context.Context, arg UpdatePhadderGroupParams) (PhadderGroup, error)
 	UpdatePosition(ctx context.Context, arg UpdatePositionParams) (UpdatePositionRow, error)
+	UpdateSeason(ctx context.Context, arg UpdateSeasonParams) (NollningSeason, error)
 	UpsertMarkdown(ctx context.Context, arg UpsertMarkdownParams) (Markdown, error)
 }
 

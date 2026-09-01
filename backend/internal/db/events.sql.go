@@ -45,16 +45,26 @@ WHERE (e.removed_at IS NULL OR e.removed_at > now())
         WHERE t."A" = e.id AND t."B" = ANY($3::uuid[])
     )
   )
+  AND (
+    $4::uuid IS NULL
+    OR e.nollning_season_id = $4::uuid
+  )
 `
 
 type CountEventsParams struct {
-	Past   bool          `json:"past"`
-	Search pgtype.Text   `json:"search"`
-	TagIds []pgtype.UUID `json:"tag_ids"`
+	Past             bool          `json:"past"`
+	Search           pgtype.Text   `json:"search"`
+	TagIds           []pgtype.UUID `json:"tag_ids"`
+	NollningSeasonID pgtype.UUID   `json:"nollning_season_id"`
 }
 
 func (q *Queries) CountEvents(ctx context.Context, arg CountEventsParams) (int64, error) {
-	row := q.db.QueryRow(ctx, countEvents, arg.Past, arg.Search, arg.TagIds)
+	row := q.db.QueryRow(ctx, countEvents,
+		arg.Past,
+		arg.Search,
+		arg.TagIds,
+		arg.NollningSeasonID,
+	)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
@@ -65,9 +75,9 @@ INSERT INTO events (
     title_sv, title_en, description_sv, description_en, link, location,
     organizer, author_id, short_description_sv, short_description_en,
     start_datetime, end_datetime, slug, "imageUrl", alarm_active,
-    is_cancelled, recurring_parent_id
+    is_cancelled, recurring_parent_id, nollning_season_id
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18
 ) RETURNING id, slug
 `
 
@@ -89,6 +99,7 @@ type CreateEventParams struct {
 	AlarmActive        pgtype.Bool        `json:"alarm_active"`
 	IsCancelled        pgtype.Bool        `json:"is_cancelled"`
 	RecurringParentID  pgtype.UUID        `json:"recurring_parent_id"`
+	NollningSeasonID   pgtype.UUID        `json:"nollning_season_id"`
 }
 
 type CreateEventRow struct {
@@ -115,6 +126,7 @@ func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) (Creat
 		arg.AlarmActive,
 		arg.IsCancelled,
 		arg.RecurringParentID,
+		arg.NollningSeasonID,
 	)
 	var i CreateEventRow
 	err := row.Scan(&i.ID, &i.Slug)
@@ -156,7 +168,7 @@ SELECT
     e.location, e.organizer, e.author_id, e.short_description_sv,
     e.short_description_en, e.start_datetime, e.end_datetime, e.slug,
     e.alarm_active, e.removed_at, e."imageUrl", e.is_cancelled,
-    e.recurring_parent_id,
+    e.recurring_parent_id, e.nollning_season_id,
     m.id AS author_member_id, m.student_id AS author_student_id,
     m.first_name AS author_first_name, m.last_name AS author_last_name,
     m.nickname AS author_nickname, m.picture_path AS author_picture_path,
@@ -198,6 +210,7 @@ type GetEventBySlugRow struct {
 	ImageUrl           pgtype.Text        `json:"imageUrl"`
 	IsCancelled        pgtype.Bool        `json:"is_cancelled"`
 	RecurringParentID  pgtype.UUID        `json:"recurring_parent_id"`
+	NollningSeasonID   pgtype.UUID        `json:"nollning_season_id"`
 	AuthorMemberID     pgtype.UUID        `json:"author_member_id"`
 	AuthorStudentID    pgtype.Text        `json:"author_student_id"`
 	AuthorFirstName    pgtype.Text        `json:"author_first_name"`
@@ -235,6 +248,7 @@ func (q *Queries) GetEventBySlug(ctx context.Context, slug pgtype.Text) (GetEven
 		&i.ImageUrl,
 		&i.IsCancelled,
 		&i.RecurringParentID,
+		&i.NollningSeasonID,
 		&i.AuthorMemberID,
 		&i.AuthorStudentID,
 		&i.AuthorFirstName,
@@ -265,7 +279,7 @@ SELECT
     e.location, e.organizer, e.author_id, e.short_description_sv,
     e.short_description_en, e.start_datetime, e.end_datetime, e.slug,
     e.alarm_active, e.removed_at, e."imageUrl", e.is_cancelled,
-    e.recurring_parent_id,
+    e.recurring_parent_id, e.nollning_season_id,
     m.id AS author_member_id, m.student_id AS author_student_id,
     m.first_name AS author_first_name, m.last_name AS author_last_name,
     m.nickname AS author_nickname, m.picture_path AS author_picture_path,
@@ -306,6 +320,7 @@ type GetEventRowBySlugRow struct {
 	ImageUrl           pgtype.Text        `json:"imageUrl"`
 	IsCancelled        pgtype.Bool        `json:"is_cancelled"`
 	RecurringParentID  pgtype.UUID        `json:"recurring_parent_id"`
+	NollningSeasonID   pgtype.UUID        `json:"nollning_season_id"`
 	AuthorMemberID     pgtype.UUID        `json:"author_member_id"`
 	AuthorStudentID    pgtype.Text        `json:"author_student_id"`
 	AuthorFirstName    pgtype.Text        `json:"author_first_name"`
@@ -343,6 +358,7 @@ func (q *Queries) GetEventRowBySlug(ctx context.Context, slug pgtype.Text) (GetE
 		&i.ImageUrl,
 		&i.IsCancelled,
 		&i.RecurringParentID,
+		&i.NollningSeasonID,
 		&i.AuthorMemberID,
 		&i.AuthorStudentID,
 		&i.AuthorFirstName,
@@ -434,7 +450,7 @@ SELECT
     e.location, e.organizer, e.author_id, e.short_description_sv,
     e.short_description_en, e.start_datetime, e.end_datetime, e.slug,
     e.alarm_active, e.removed_at, e."imageUrl", e.is_cancelled,
-    e.recurring_parent_id,
+    e.recurring_parent_id, e.nollning_season_id,
     m.id AS author_member_id, m.student_id AS author_student_id,
     m.first_name AS author_first_name, m.last_name AS author_last_name,
     m.nickname AS author_nickname, m.picture_path AS author_picture_path,
@@ -473,18 +489,23 @@ WHERE (e.removed_at IS NULL OR e.removed_at > now())
         WHERE t."A" = e.id AND t."B" = ANY($3::uuid[])
     )
   )
+  AND (
+    $4::uuid IS NULL
+    OR e.nollning_season_id = $4::uuid
+  )
 ORDER BY
     (CASE WHEN $1::bool THEN e.start_datetime END) DESC NULLS LAST,
     (CASE WHEN NOT $1::bool THEN e.start_datetime END) ASC NULLS LAST
-LIMIT $5 OFFSET $4
+LIMIT $6 OFFSET $5
 `
 
 type ListEventsParams struct {
-	Past   bool          `json:"past"`
-	Search pgtype.Text   `json:"search"`
-	TagIds []pgtype.UUID `json:"tag_ids"`
-	Offset int32         `json:"offset"`
-	Limit  int32         `json:"limit"`
+	Past             bool          `json:"past"`
+	Search           pgtype.Text   `json:"search"`
+	TagIds           []pgtype.UUID `json:"tag_ids"`
+	NollningSeasonID pgtype.UUID   `json:"nollning_season_id"`
+	Offset           int32         `json:"offset"`
+	Limit            int32         `json:"limit"`
 }
 
 type ListEventsRow struct {
@@ -507,6 +528,7 @@ type ListEventsRow struct {
 	ImageUrl           pgtype.Text        `json:"imageUrl"`
 	IsCancelled        pgtype.Bool        `json:"is_cancelled"`
 	RecurringParentID  pgtype.UUID        `json:"recurring_parent_id"`
+	NollningSeasonID   pgtype.UUID        `json:"nollning_season_id"`
 	AuthorMemberID     pgtype.UUID        `json:"author_member_id"`
 	AuthorStudentID    pgtype.Text        `json:"author_student_id"`
 	AuthorFirstName    pgtype.Text        `json:"author_first_name"`
@@ -533,6 +555,7 @@ func (q *Queries) ListEvents(ctx context.Context, arg ListEventsParams) ([]ListE
 		arg.Past,
 		arg.Search,
 		arg.TagIds,
+		arg.NollningSeasonID,
 		arg.Offset,
 		arg.Limit,
 	)
@@ -563,6 +586,7 @@ func (q *Queries) ListEvents(ctx context.Context, arg ListEventsParams) ([]ListE
 			&i.ImageUrl,
 			&i.IsCancelled,
 			&i.RecurringParentID,
+			&i.NollningSeasonID,
 			&i.AuthorMemberID,
 			&i.AuthorStudentID,
 			&i.AuthorFirstName,
@@ -629,7 +653,8 @@ UPDATE events SET
     end_datetime = $12,
     "imageUrl" = $13,
     alarm_active = $14,
-    is_cancelled = $15
+    is_cancelled = $15,
+    nollning_season_id = $16
 WHERE id = $1
 RETURNING id, slug
 `
@@ -650,6 +675,7 @@ type UpdateEventParams struct {
 	ImageUrl           pgtype.Text        `json:"imageUrl"`
 	AlarmActive        pgtype.Bool        `json:"alarm_active"`
 	IsCancelled        pgtype.Bool        `json:"is_cancelled"`
+	NollningSeasonID   pgtype.UUID        `json:"nollning_season_id"`
 }
 
 type UpdateEventRow struct {
@@ -679,6 +705,7 @@ func (q *Queries) UpdateEvent(ctx context.Context, arg UpdateEventParams) (Updat
 		arg.ImageUrl,
 		arg.AlarmActive,
 		arg.IsCancelled,
+		arg.NollningSeasonID,
 	)
 	var i UpdateEventRow
 	err := row.Scan(&i.ID, &i.Slug)

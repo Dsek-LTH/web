@@ -17,6 +17,7 @@ import (
 	"github.com/dsek-lth/web/backend/internal/db"
 	"github.com/dsek-lth/web/backend/internal/dbutil"
 	"github.com/dsek-lth/web/backend/internal/locale"
+	"github.com/dsek-lth/web/backend/internal/nollning"
 )
 
 var (
@@ -29,11 +30,17 @@ func invalidf(format string, args ...any) error {
 }
 
 type Service struct {
-	queries *db.Queries
+	queries  *db.Queries
+	nollning *nollning.Service
 }
 
-func NewService(dbtx db.DBTX) *Service {
-	return &Service{queries: db.New(dbtx)}
+// nollning is used by ListBoard to know which committee's positions to
+// redact from viewers without apinames.MemberSeeStaben (see DESIGN.md's
+// nollning section) - no import-cycle risk the way internal/auth's
+// dependency on internal/nollning has, since internal/nollning never
+// imports this package.
+func NewService(dbtx db.DBTX, nollningSvc *nollning.Service) *Service {
+	return &Service{queries: db.New(dbtx), nollning: nollningSvc}
 }
 
 func (s *Service) ListCommittees(ctx context.Context) ([]Committee, error) {
@@ -287,6 +294,79 @@ func (s *Service) ListPositions(ctx context.Context) ([]Position, error) {
 			EndMonth:      p.EndMonth,
 		}, loc)
 	}
+	return positions, nil
+}
+
+// ListBoard returns every board-flagged, active position with its current
+// holder, sorted per the hand-curated board display order (ordering.go) -
+// backs GET /board, replacing board/+page.server.ts's own query+merge.
+//
+// Redaction: a position belonging to the current nollning season's
+// organizing committee is omitted unless the caller holds
+// apinames.MemberSeeStaben - outside any active season (or once nollning
+// has no organizing committee configured) internal/nollning.
+// InjectStabenPolicy has already granted everyone that policy by default,
+// so this is a no-op filter then. Replaces the old TS board page's
+// `position.id.startsWith("dsek.noll")` hack with a real committee_id
+// comparison (see DESIGN.md's nollning section).
+func (s *Service) ListBoard(ctx context.Context) ([]BoardPosition, error) {
+	rows, err := s.queries.ListBoard(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("list board: %w", err)
+	}
+
+	season, err := s.nollning.Current(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("get current nollning season: %w", err)
+	}
+	var organizingCommitteeID *string
+	if season != nil {
+		organizingCommitteeID = season.OrganizingCommitteeID
+	}
+	canSeeStaben := false
+	if identity, ok := auth.FromContext(ctx); ok {
+		canSeeStaben = identity.Has(apinames.MemberSeeStaben)
+	}
+
+	loc := locale.FromContext(ctx)
+	positions := make([]BoardPosition, 0, len(rows))
+	for _, r := range rows {
+		position := toPosition(positionRow{
+			ID:            r.ID,
+			NameSv:        r.NameSv,
+			NameEn:        r.NameEn,
+			CommitteeID:   r.CommitteeID,
+			Email:         r.Email,
+			Active:        r.Active,
+			BoardMember:   r.BoardMember,
+			DescriptionSv: r.DescriptionSv,
+			DescriptionEn: r.DescriptionEn,
+			StartMonth:    r.StartMonth,
+			EndMonth:      r.EndMonth,
+		}, loc)
+
+		if !canSeeStaben && organizingCommitteeID != nil &&
+			position.CommitteeID != nil && *position.CommitteeID == *organizingCommitteeID {
+			continue
+		}
+
+		bp := BoardPosition{Position: position}
+		if r.MemberID.Valid {
+			bp.Member = &Member{
+				ID:             dbutil.UUIDStr(r.MemberID),
+				StudentID:      dbutil.TextPtr(r.StudentID),
+				FirstName:      dbutil.TextPtr(r.FirstName),
+				LastName:       dbutil.TextPtr(r.LastName),
+				Nickname:       dbutil.TextPtr(r.Nickname),
+				PicturePath:    dbutil.TextPtr(r.PicturePath),
+				ClassYear:      dbutil.Int4Ptr(r.ClassYear),
+				ClassProgramme: dbutil.TextPtr(r.ClassProgramme),
+			}
+		}
+		positions = append(positions, bp)
+	}
+
+	SortBoardPositions(positions, func(bp BoardPosition) string { return bp.Position.ID })
 	return positions, nil
 }
 

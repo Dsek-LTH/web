@@ -33,6 +33,7 @@ func toArticleSummary(row db.ListArticlesRow, loc string) ArticleSummary {
 		ShouldSendNotification: row.ShouldSendNotification.Bool,
 		NotificationText:       dbutil.TextPtr(row.NotificationText),
 		ScheduledID:            dbutil.TextPtr(row.ScheduledID),
+		NollningSeasonID:       dbutil.UUIDStrPtr(row.NollningSeasonID),
 		Author: Author{
 			ID:   dbutil.UUIDStr(row.AuthorID),
 			Type: dbutil.StringOr(dbutil.TextPtr(row.AuthorType), "Member"),

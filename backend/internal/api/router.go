@@ -20,6 +20,7 @@ import (
 	"github.com/dsek-lth/web/backend/internal/events"
 	"github.com/dsek-lth/web/backend/internal/locale"
 	"github.com/dsek-lth/web/backend/internal/members"
+	"github.com/dsek-lth/web/backend/internal/nollning"
 )
 
 // NewRouter registers every endpoint. Every request is authenticated via
@@ -34,6 +35,7 @@ func NewRouter(
 	memberSvc *members.Service,
 	committeeSvc *committees.Service,
 	accessPolicySvc *accesspolicies.Service,
+	nollningSvc *nollning.Service,
 	authenticator auth.Authenticator,
 	oidcClient *auth.OIDCClient,
 	queries *db.Queries,
@@ -47,6 +49,7 @@ func NewRouter(
 	registerMemberRoutes(api, memberSvc)
 	registerCommitteeRoutes(api, committeeSvc)
 	registerAccessPolicyRoutes(api, accessPolicySvc)
+	registerNollningRoutes(api, nollningSvc)
 
 	mux.HandleFunc("GET /me", auth.MeHandler(queries))
 	if oidcClient != nil {

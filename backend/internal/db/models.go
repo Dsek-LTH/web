@@ -83,6 +83,7 @@ type Article struct {
 	ScheduledID            pgtype.Text        `json:"scheduled_id"`
 	ShouldSendNotification pgtype.Bool        `json:"should_send_notification"`
 	CommitteeID            pgtype.UUID        `json:"committee_id"`
+	NollningSeasonID       pgtype.UUID        `json:"nollning_season_id"`
 }
 
 type ArticleComment struct {
@@ -186,6 +187,7 @@ type Event struct {
 	IsDetatched        bool               `json:"is_detatched"`
 	RecurringParentID  pgtype.UUID        `json:"recurring_parent_id"`
 	IsCancelled        pgtype.Bool        `json:"is_cancelled"`
+	NollningSeasonID   pgtype.UUID        `json:"nollning_season_id"`
 }
 
 type EventComment struct {
@@ -246,13 +248,22 @@ type Member struct {
 	Language         pgtype.Text `json:"language"`
 }
 
+type NollningSeason struct {
+	ID                    pgtype.UUID        `json:"id"`
+	Year                  int32              `json:"year"`
+	NollaStartAt          pgtype.Timestamptz `json:"nolla_start_at"`
+	RevealAt              pgtype.Timestamptz `json:"reveal_at"`
+	EndAt                 pgtype.Timestamptz `json:"end_at"`
+	OrganizingCommitteeID pgtype.UUID        `json:"organizing_committee_id"`
+}
+
 type PhadderGroup struct {
 	ID          pgtype.UUID      `json:"id"`
 	Name        string           `json:"name"`
 	Description pgtype.Text      `json:"description"`
-	Year        int32            `json:"year"`
 	ImageUrl    pgtype.Text      `json:"image_url"`
 	CreatedAt   pgtype.Timestamp `json:"createdAt"`
+	SeasonID    pgtype.UUID      `json:"season_id"`
 }
 
 type Position struct {

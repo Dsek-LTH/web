@@ -9,6 +9,7 @@ SELECT
     a.author_id, a.published_datetime, a.latest_edit_datetime, a.slug,
     a.removed_at, a.status, a.created_datetime, a.youtube_url, a.image_urls,
     a.notification_text, a.should_send_notification, a.scheduled_id, a.committee_id,
+    a.nollning_season_id,
     c.name_sv AS committee_name_sv, c.name_en AS committee_name_en,
     c.short_name AS committee_short_name, c.symbol_url AS committee_symbol_url,
     au.type AS author_type,
@@ -52,6 +53,10 @@ WHERE a.published_datetime IS NOT NULL
   )
   AND (sqlc.narg('committee_id')::uuid IS NULL OR a.committee_id = sqlc.narg('committee_id')::uuid)
   AND (sqlc.narg('author_student_id')::text IS NULL OR m.student_id = sqlc.narg('author_student_id')::text)
+  AND (
+    sqlc.narg('nollning_season_id')::uuid IS NULL
+    OR a.nollning_season_id = sqlc.narg('nollning_season_id')::uuid
+  )
 ORDER BY a.published_datetime DESC
 LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
 
@@ -77,7 +82,11 @@ WHERE a.published_datetime IS NOT NULL
     )
   )
   AND (sqlc.narg('committee_id')::uuid IS NULL OR a.committee_id = sqlc.narg('committee_id')::uuid)
-  AND (sqlc.narg('author_student_id')::text IS NULL OR m.student_id = sqlc.narg('author_student_id')::text);
+  AND (sqlc.narg('author_student_id')::text IS NULL OR m.student_id = sqlc.narg('author_student_id')::text)
+  AND (
+    sqlc.narg('nollning_season_id')::uuid IS NULL
+    OR a.nollning_season_id = sqlc.narg('nollning_season_id')::uuid
+  );
 
 -- name: GetArticleBySlug :one
 -- Public lookup: only published, not (currently) removed articles.
@@ -86,6 +95,7 @@ SELECT
     a.author_id, a.published_datetime, a.latest_edit_datetime, a.slug,
     a.removed_at, a.status, a.created_datetime, a.youtube_url, a.image_urls,
     a.notification_text, a.should_send_notification, a.scheduled_id, a.committee_id,
+    a.nollning_season_id,
     c.name_sv AS committee_name_sv, c.name_en AS committee_name_en,
     c.short_name AS committee_short_name, c.symbol_url AS committee_symbol_url,
     au.type AS author_type,
@@ -128,6 +138,7 @@ SELECT
     a.author_id, a.published_datetime, a.latest_edit_datetime, a.slug,
     a.removed_at, a.status, a.created_datetime, a.youtube_url, a.image_urls,
     a.notification_text, a.should_send_notification, a.scheduled_id, a.committee_id,
+    a.nollning_season_id,
     c.name_sv AS committee_name_sv, c.name_en AS committee_name_en,
     c.short_name AS committee_short_name, c.symbol_url AS committee_symbol_url,
     au.type AS author_type,
@@ -164,9 +175,9 @@ SELECT count(*) FROM articles WHERE slug LIKE $1 || '%';
 INSERT INTO articles (
     header_sv, header_en, body_sv, body_en, image_url, image_urls,
     youtube_url, author_id, published_datetime, should_send_notification,
-    notification_text, committee_id, slug
+    notification_text, committee_id, slug, nollning_season_id
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
 ) RETURNING id, slug;
 
 -- name: UpdateArticle :one
@@ -183,6 +194,7 @@ UPDATE articles SET
     should_send_notification = $11,
     notification_text = $12,
     committee_id = $13,
+    nollning_season_id = $14,
     latest_edit_datetime = now()
 WHERE slug = $1
 RETURNING id, slug;

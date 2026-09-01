@@ -988,13 +988,20 @@ ported).
 
 ## Roadmap: migrating the remaining backend (proposed 2026-09-01, not yet implemented)
 
-**Status: proposed phase ordering, agreed 2026-09-01. Nollning redesign
-described below is a proposal, not yet decided in detail - implement it
-per this section's own open questions, don't treat it as settled the way
-the rest of this document is.** Everything past articles/events/auth is
-still on Prisma. This section records the agreed shape of the rest of the
-migration so it doesn't get re-litigated phase-by-phase the way this
-doc exists to prevent for everything else.
+**Status: proposed phase ordering, agreed 2026-09-01.** Phase 1 (directory
+foundation) and phase 2 (nollning redesign, backend only) are now
+implemented - see each phase's own status note below. **Superseded:** this
+paragraph originally flagged the nollning subsection as "a proposal, not
+yet decided in detail" with open questions to resolve during
+implementation; both of those questions (permission model, organizing-
+committee reference) were resolved when phase 2 was implemented - see the
+"Nollning: proposed redesign" subsection's own updated status line, kept
+as "proposed redesign" in its heading for historical continuity even
+though it now describes what was actually built. Everything past
+articles/events/auth/directory/nollning is still on Prisma. This section
+records the agreed shape of the rest of the migration so it doesn't get
+re-litigated phase-by-phase the way this doc exists to prevent for
+everything else.
 
 **Ground rules, carried over unchanged from articles/events:** huma +
 sqlc + `ServeMux`, `internal/<domain>` service layer wrapping
@@ -1092,6 +1099,26 @@ nollning itself needs real, deliberate design, not permanent exclusion.
    here on needs to route around nollning special-cases the way the
    current codebase does. Depends on mandates/positions (phadder-mandate
    detection) and access policies (`SEE_STABEN`) from phase 1.
+   **Status: backend implemented 2026-09-01** (`backend/internal/nollning`,
+   plus integration points in `internal/auth`, `internal/articles`,
+   `internal/events`, `internal/committees` - see `backend/CLAUDE.md`'s
+   "Nollning routes" section for the exact endpoint list). Every "proposed"
+   piece in the subsection below was built as designed, with the two
+   previously-open questions resolved (see that subsection for both).
+   Verified via `go build`/`go vet`/`go test ./...` and a live `AUTH_MOCK`
+   smoke test against the dev DB: season create/current-phase transition,
+   `GET /board` redaction wiring (mechanism verified by inspection - the
+   mock authenticator always holds every policy including
+   `member:see_staben`, so a live "viewer without the policy sees the
+   position redacted" run wasn't possible without a second, differently-
+   privileged mock identity), and a full article `PATCH` round-trip setting
+   `nollningSeasonId` plus the resulting `GET /articles?nollningSeasonId=`
+   filter. **Not part of this pass, deliberately** (scope was agreed
+   upfront as "full backend pass"): every frontend piece - the season
+   picker on article/event forms, the phadder-group management page, the
+   `/board` page's own route swapping to the new endpoint, and the
+   `(nollning)/` route tree itself (unchanged, still `<NotImplemented />`
+   stubs).
 3. **Simple standalone CRUD** - songbook, governing documents, medals,
    alerts. No dependencies beyond phase 1, low risk, good for keeping
    velocity up after the heavier nollning phase.
@@ -1149,6 +1176,16 @@ phase first has a real dependent, not in one dedicated pass.
   picks this up.
 
 ### Nollning: proposed redesign
+
+**Status: backend implemented 2026-09-01** (`backend/internal/nollning` -
+see `backend/CLAUDE.md`'s "Nollning routes" section for the endpoint list
+and any small deviations from the shape proposed below). Kept as "proposed
+redesign" in the heading since the rest of this subsection is left intact
+as the design record; where implementation resolved something this
+subsection originally left open, that's called out inline rather than
+silently rewritten. Frontend work (season picker, phadder-group management
+UI, the `/board` page, the `(nollning)/` route tree) is explicitly not
+part of this - see the phase-order list above.
 
 **Problem, per the 2026-09-01 codebase survey:** nollning is not one
 feature with a clean boundary - it's three independent, overlapping
@@ -1264,15 +1301,12 @@ each domain re-deriving its own answer:
     older content with a past season (e.g. fixing a miscategorized
     article), and this proposal doesn't add a special-case check to
     prevent that.
-  - **Open implementation detail, not resolved here**: whether the
-    associate-content permission is one policy shared by both domains
-    (e.g. `nollning:content:associate`, checked identically from
-    `articles.Service` and `events.Service`) or two domain-specific ones
-    following the existing `apinames` convention of mirroring old
-    `apiNames.*` strings per-domain. Lean toward one shared policy since
-    it's the same real-world permission ("can mark content as
-    nollning-related") regardless of content type, but flagged for
-    whoever implements phase 2 rather than decided in advance.
+  - **Resolved 2026-09-01 (was left open here): one shared policy**,
+    `apinames.NollningContentAssociate = "nollning:content:associate"`,
+    checked identically from `articles.Service.Create`/`Update` and
+    `events.Service.Create`/`Update` - the user confirmed this over the
+    per-domain alternative when phase 2 was implemented, matching the lean
+    already recorded below.
   - List/filter endpoints (`GET /articles`, `GET /events`) gain a
     `nollningSeasonId` query param, replacing today's boolean
     `showNollningEventsInstead` param and the tag-prefix filtering inside
@@ -1292,9 +1326,12 @@ each domain re-deriving its own answer:
   active mandate on a position belonging to *the* nollning organizing
   committee - resolved through the existing `committees`/`positions`/
   `mandates` tables, no new string convention needed. "Which committee is
-  that" is itself an explicit reference (e.g. `nollning_seasons.
-  organizing_committee_id`, or a single package-level setting if it's
-  genuinely never expected to change), not a `shortName == "nollu"` /
+  that" is itself an explicit reference - **implemented as the first
+  option floated here**: `nollning_seasons.organizing_committee_id`
+  (nullable FK to `committees`), defaulted at season-creation time to
+  whichever committee has `short_name = "nollu"` (looked up once, not
+  hardcoded elsewhere) but overridable per season, rather than a single
+  immutable package-level setting - not a `shortName == "nollu"` /
   `position.id.startsWith("dsek.noll")` comparison repeated at every call
   site - this retires the board page's prefix hack and is one more
   instance of the `"nollu"` string-matching problem (alongside
@@ -1348,19 +1385,25 @@ each domain re-deriving its own answer:
   out of scope for this backend redesign - port whatever of it is still
   wanted once someone's designing that UI for real, using the new API
   instead of the old scattered Prisma/constant reads.
-- **Migration note**: `PhadderGroup`/`Member.nollningGroupId`/
-  `Mandate.phadderInId` are already-live Prisma-owned tables/columns with
-  real data (past years' groups) - porting this phase means writing real
-  `golang-migrate` migrations (add `nollning_seasons`; add a nullable
-  `nollning_season_id` to `articles` and `events`, backfilling it from
-  existing `[NOLLNING]`-prefixed tags matched up against a season by
-  `publishedAt`/`startDatetime`, one synthetic season per past year that
-  can't be cleanly dated; change `phadder_groups.year` to `season_id` with
-  a backfill), not just adding
-  to `schema.sql` by hand the way articles/events' dependency tables were -
-  this is Go's first schema change to a table something else still reads,
-  so double-check nothing on the Prisma side breaks if phase 2 doesn't
-  also delete the old `year`/prefix-matching code in the same change (it
-  should, per this doc's "no bridge period" mocking principle, but flagging
-  since nollning's old code is more spread out than anything ported so
-  far).
+- **Migration note - done as described 2026-09-01**: three real
+  `golang-migrate` migrations landed in `backend/internal/db/migrations`
+  (`..._add_nollning_seasons`, `..._add_nollning_season_id_to_content`,
+  `..._phadder_groups_season_id`), each with a working `.down.sql`,
+  applied to the dev DB - exactly the shape described here (add
+  `nollning_seasons`; nullable `nollning_season_id` on `articles`/`events`
+  with a `[NOLLNING]`-tag-based backfill; `phadder_groups.year` →
+  `season_id` with a backfill), not just a hand-edit to `schema.sql`. The
+  backfills were written generically against real historical data, not
+  simplified for it - the dev DB happened to have zero `phadder_groups`
+  rows and zero `[NOLLNING]`-tagged content at implementation time, which
+  was used only to confirm the migrations don't error on an empty case,
+  never as a basis for the backfill logic itself. **Known gap, not closed
+  by this pass**: per this doc's "no bridge period" principle the old TS
+  code reading `year`/`nollningGroupId`/`phadderInId`/`[NOLLNING]`-prefix
+  conventions and the `AdminSetting`-backed `isNollningPeriod()` should be
+  deleted once Go's replacement exists - that SvelteKit-side deletion
+  didn't happen in this pass (scope was agreed as backend-only, see this
+  phase's status note above), so the old and new mechanisms currently
+  coexist unlinked rather than the old one being retired. Whoever does the
+  frontend wiring pass should delete the old TS mechanisms in that same
+  pass rather than leaving them as permanent dead code.

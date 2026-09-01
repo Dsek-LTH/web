@@ -12,11 +12,12 @@ import (
 )
 
 type listEventsInput struct {
-	Search   string   `query:"search"       doc:"free-text search over title/description"`
-	Tags     []string `query:"tags,explode" doc:"tag UUIDs, ANY-match"`
-	Past     bool     `query:"past"         doc:"list past events (ended) instead of upcoming ones"`
-	Page     int      `query:"page"         doc:"1-based"`
-	PageSize int      `query:"pageSize"`
+	Search           string   `query:"search"           doc:"free-text search over title/description"`
+	Tags             []string `query:"tags,explode"     doc:"tag UUIDs, ANY-match"`
+	Past             bool     `query:"past"             doc:"list past events (ended) instead of upcoming ones"`
+	NollningSeasonID string   `query:"nollningSeasonId"`
+	Page             int      `query:"page"             doc:"1-based"`
+	PageSize         int      `query:"pageSize"`
 }
 
 type listEventsOutput struct {
@@ -99,6 +100,9 @@ func registerEventRoutes(api huma.API, svc *events.Service) {
 		}
 		if input.Search != "" {
 			params.Search = &input.Search
+		}
+		if input.NollningSeasonID != "" {
+			params.NollningSeasonID = &input.NollningSeasonID
 		}
 
 		items, pageCount, err := svc.List(ctx, params)

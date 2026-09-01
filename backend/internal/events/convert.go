@@ -45,6 +45,7 @@ func toEventSummary(row db.ListEventsRow, loc string) EventSummary {
 		AlarmActive:        row.AlarmActive.Bool,
 		IsCancelled:        row.IsCancelled.Bool,
 		RecurringParentID:  dbutil.UUIDStrPtr(row.RecurringParentID),
+		NollningSeasonID:   dbutil.UUIDStrPtr(row.NollningSeasonID),
 		Tags:               []Tag{},
 		CommentCount:       int(row.CommentCount),
 		GoingCount:         int(row.GoingCount),

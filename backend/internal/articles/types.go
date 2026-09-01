@@ -76,6 +76,11 @@ type ArticleSummary struct {
 	ShouldSendNotification bool    `json:"sendNotification"`
 	NotificationText       *string `json:"notificationText,omitempty"`
 	ScheduledID            *string `json:"scheduledId,omitempty"`
+	// NollningSeasonID associates this article with a nollning season -
+	// see DESIGN.md's nollning section. Setting/changing it to a non-null
+	// value requires apinames.NollningContentAssociate (see Service.Create/
+	// Update); leaving it unset or resubmitting the current value doesn't.
+	NollningSeasonID *string `json:"nollningSeasonId,omitempty"`
 }
 
 type ArticleDetail struct {
@@ -121,13 +126,15 @@ type ArticleInput struct {
 	PublishedAt            *time.Time  `json:"publishedAt"`
 	ShouldSendNotification bool        `json:"sendNotification"`
 	NotificationText       *string     `json:"notificationText"`
+	NollningSeasonID       *string     `json:"nollningSeasonId"`
 }
 
 type ListParams struct {
-	Search          *string
-	TagIDs          []string
-	CommitteeID     *string
-	AuthorStudentID *string
-	Page            int
-	PageSize        int
+	Search           *string
+	TagIDs           []string
+	CommitteeID      *string
+	AuthorStudentID  *string
+	NollningSeasonID *string
+	Page             int
+	PageSize         int
 }

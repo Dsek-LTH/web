@@ -45,13 +45,18 @@ WHERE a.published_datetime IS NOT NULL
   )
   AND ($3::uuid IS NULL OR a.committee_id = $3::uuid)
   AND ($4::text IS NULL OR m.student_id = $4::text)
+  AND (
+    $5::uuid IS NULL
+    OR a.nollning_season_id = $5::uuid
+  )
 `
 
 type CountArticlesParams struct {
-	Search          pgtype.Text   `json:"search"`
-	TagIds          []pgtype.UUID `json:"tag_ids"`
-	CommitteeID     pgtype.UUID   `json:"committee_id"`
-	AuthorStudentID pgtype.Text   `json:"author_student_id"`
+	Search           pgtype.Text   `json:"search"`
+	TagIds           []pgtype.UUID `json:"tag_ids"`
+	CommitteeID      pgtype.UUID   `json:"committee_id"`
+	AuthorStudentID  pgtype.Text   `json:"author_student_id"`
+	NollningSeasonID pgtype.UUID   `json:"nollning_season_id"`
 }
 
 func (q *Queries) CountArticles(ctx context.Context, arg CountArticlesParams) (int64, error) {
@@ -60,6 +65,7 @@ func (q *Queries) CountArticles(ctx context.Context, arg CountArticlesParams) (i
 		arg.TagIds,
 		arg.CommitteeID,
 		arg.AuthorStudentID,
+		arg.NollningSeasonID,
 	)
 	var count int64
 	err := row.Scan(&count)
@@ -70,9 +76,9 @@ const createArticle = `-- name: CreateArticle :one
 INSERT INTO articles (
     header_sv, header_en, body_sv, body_en, image_url, image_urls,
     youtube_url, author_id, published_datetime, should_send_notification,
-    notification_text, committee_id, slug
+    notification_text, committee_id, slug, nollning_season_id
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
 ) RETURNING id, slug
 `
 
@@ -90,6 +96,7 @@ type CreateArticleParams struct {
 	NotificationText       pgtype.Text        `json:"notification_text"`
 	CommitteeID            pgtype.UUID        `json:"committee_id"`
 	Slug                   string             `json:"slug"`
+	NollningSeasonID       pgtype.UUID        `json:"nollning_season_id"`
 }
 
 type CreateArticleRow struct {
@@ -112,6 +119,7 @@ func (q *Queries) CreateArticle(ctx context.Context, arg CreateArticleParams) (C
 		arg.NotificationText,
 		arg.CommitteeID,
 		arg.Slug,
+		arg.NollningSeasonID,
 	)
 	var i CreateArticleRow
 	err := row.Scan(&i.ID, &i.Slug)
@@ -124,6 +132,7 @@ SELECT
     a.author_id, a.published_datetime, a.latest_edit_datetime, a.slug,
     a.removed_at, a.status, a.created_datetime, a.youtube_url, a.image_urls,
     a.notification_text, a.should_send_notification, a.scheduled_id, a.committee_id,
+    a.nollning_season_id,
     c.name_sv AS committee_name_sv, c.name_en AS committee_name_en,
     c.short_name AS committee_short_name, c.symbol_url AS committee_symbol_url,
     au.type AS author_type,
@@ -174,6 +183,7 @@ type GetArticleBySlugRow struct {
 	ShouldSendNotification pgtype.Bool        `json:"should_send_notification"`
 	ScheduledID            pgtype.Text        `json:"scheduled_id"`
 	CommitteeID            pgtype.UUID        `json:"committee_id"`
+	NollningSeasonID       pgtype.UUID        `json:"nollning_season_id"`
 	CommitteeNameSv        pgtype.Text        `json:"committee_name_sv"`
 	CommitteeNameEn        pgtype.Text        `json:"committee_name_en"`
 	CommitteeShortName     pgtype.Text        `json:"committee_short_name"`
@@ -220,6 +230,7 @@ func (q *Queries) GetArticleBySlug(ctx context.Context, slug string) (GetArticle
 		&i.ShouldSendNotification,
 		&i.ScheduledID,
 		&i.CommitteeID,
+		&i.NollningSeasonID,
 		&i.CommitteeNameSv,
 		&i.CommitteeNameEn,
 		&i.CommitteeShortName,
@@ -261,6 +272,7 @@ SELECT
     a.author_id, a.published_datetime, a.latest_edit_datetime, a.slug,
     a.removed_at, a.status, a.created_datetime, a.youtube_url, a.image_urls,
     a.notification_text, a.should_send_notification, a.scheduled_id, a.committee_id,
+    a.nollning_season_id,
     c.name_sv AS committee_name_sv, c.name_en AS committee_name_en,
     c.short_name AS committee_short_name, c.symbol_url AS committee_symbol_url,
     au.type AS author_type,
@@ -308,6 +320,7 @@ type GetArticleRowBySlugRow struct {
 	ShouldSendNotification pgtype.Bool        `json:"should_send_notification"`
 	ScheduledID            pgtype.Text        `json:"scheduled_id"`
 	CommitteeID            pgtype.UUID        `json:"committee_id"`
+	NollningSeasonID       pgtype.UUID        `json:"nollning_season_id"`
 	CommitteeNameSv        pgtype.Text        `json:"committee_name_sv"`
 	CommitteeNameEn        pgtype.Text        `json:"committee_name_en"`
 	CommitteeShortName     pgtype.Text        `json:"committee_short_name"`
@@ -360,6 +373,7 @@ func (q *Queries) GetArticleRowBySlug(ctx context.Context, slug string) (GetArti
 		&i.ShouldSendNotification,
 		&i.ScheduledID,
 		&i.CommitteeID,
+		&i.NollningSeasonID,
 		&i.CommitteeNameSv,
 		&i.CommitteeNameEn,
 		&i.CommitteeShortName,
@@ -391,6 +405,7 @@ SELECT
     a.author_id, a.published_datetime, a.latest_edit_datetime, a.slug,
     a.removed_at, a.status, a.created_datetime, a.youtube_url, a.image_urls,
     a.notification_text, a.should_send_notification, a.scheduled_id, a.committee_id,
+    a.nollning_season_id,
     c.name_sv AS committee_name_sv, c.name_en AS committee_name_en,
     c.short_name AS committee_short_name, c.symbol_url AS committee_symbol_url,
     au.type AS author_type,
@@ -434,17 +449,22 @@ WHERE a.published_datetime IS NOT NULL
   )
   AND ($3::uuid IS NULL OR a.committee_id = $3::uuid)
   AND ($4::text IS NULL OR m.student_id = $4::text)
+  AND (
+    $5::uuid IS NULL
+    OR a.nollning_season_id = $5::uuid
+  )
 ORDER BY a.published_datetime DESC
-LIMIT $6 OFFSET $5
+LIMIT $7 OFFSET $6
 `
 
 type ListArticlesParams struct {
-	Search          pgtype.Text   `json:"search"`
-	TagIds          []pgtype.UUID `json:"tag_ids"`
-	CommitteeID     pgtype.UUID   `json:"committee_id"`
-	AuthorStudentID pgtype.Text   `json:"author_student_id"`
-	Offset          int32         `json:"offset"`
-	Limit           int32         `json:"limit"`
+	Search           pgtype.Text   `json:"search"`
+	TagIds           []pgtype.UUID `json:"tag_ids"`
+	CommitteeID      pgtype.UUID   `json:"committee_id"`
+	AuthorStudentID  pgtype.Text   `json:"author_student_id"`
+	NollningSeasonID pgtype.UUID   `json:"nollning_season_id"`
+	Offset           int32         `json:"offset"`
+	Limit            int32         `json:"limit"`
 }
 
 type ListArticlesRow struct {
@@ -467,6 +487,7 @@ type ListArticlesRow struct {
 	ShouldSendNotification pgtype.Bool        `json:"should_send_notification"`
 	ScheduledID            pgtype.Text        `json:"scheduled_id"`
 	CommitteeID            pgtype.UUID        `json:"committee_id"`
+	NollningSeasonID       pgtype.UUID        `json:"nollning_season_id"`
 	CommitteeNameSv        pgtype.Text        `json:"committee_name_sv"`
 	CommitteeNameEn        pgtype.Text        `json:"committee_name_en"`
 	CommitteeShortName     pgtype.Text        `json:"committee_short_name"`
@@ -499,6 +520,7 @@ func (q *Queries) ListArticles(ctx context.Context, arg ListArticlesParams) ([]L
 		arg.TagIds,
 		arg.CommitteeID,
 		arg.AuthorStudentID,
+		arg.NollningSeasonID,
 		arg.Offset,
 		arg.Limit,
 	)
@@ -529,6 +551,7 @@ func (q *Queries) ListArticles(ctx context.Context, arg ListArticlesParams) ([]L
 			&i.ShouldSendNotification,
 			&i.ScheduledID,
 			&i.CommitteeID,
+			&i.NollningSeasonID,
 			&i.CommitteeNameSv,
 			&i.CommitteeNameEn,
 			&i.CommitteeShortName,
@@ -601,6 +624,7 @@ UPDATE articles SET
     should_send_notification = $11,
     notification_text = $12,
     committee_id = $13,
+    nollning_season_id = $14,
     latest_edit_datetime = now()
 WHERE slug = $1
 RETURNING id, slug
@@ -620,6 +644,7 @@ type UpdateArticleParams struct {
 	ShouldSendNotification pgtype.Bool        `json:"should_send_notification"`
 	NotificationText       pgtype.Text        `json:"notification_text"`
 	CommitteeID            pgtype.UUID        `json:"committee_id"`
+	NollningSeasonID       pgtype.UUID        `json:"nollning_season_id"`
 }
 
 type UpdateArticleRow struct {
@@ -642,6 +667,7 @@ func (q *Queries) UpdateArticle(ctx context.Context, arg UpdateArticleParams) (U
 		arg.ShouldSendNotification,
 		arg.NotificationText,
 		arg.CommitteeID,
+		arg.NollningSeasonID,
 	)
 	var i UpdateArticleRow
 	err := row.Scan(&i.ID, &i.Slug)

@@ -10,7 +10,7 @@ SELECT
     e.location, e.organizer, e.author_id, e.short_description_sv,
     e.short_description_en, e.start_datetime, e.end_datetime, e.slug,
     e.alarm_active, e.removed_at, e."imageUrl", e.is_cancelled,
-    e.recurring_parent_id,
+    e.recurring_parent_id, e.nollning_season_id,
     m.id AS author_member_id, m.student_id AS author_student_id,
     m.first_name AS author_first_name, m.last_name AS author_last_name,
     m.nickname AS author_nickname, m.picture_path AS author_picture_path,
@@ -48,6 +48,10 @@ WHERE (e.removed_at IS NULL OR e.removed_at > now())
         SELECT 1 FROM _event_tags t
         WHERE t."A" = e.id AND t."B" = ANY(sqlc.narg('tag_ids')::uuid[])
     )
+  )
+  AND (
+    sqlc.narg('nollning_season_id')::uuid IS NULL
+    OR e.nollning_season_id = sqlc.narg('nollning_season_id')::uuid
   )
 -- Ordering direction depends on 'past': upcoming events sort soonest-first
 -- (ASC), past events sort most-recent-first (DESC). sqlc can't parameterize
@@ -81,6 +85,10 @@ WHERE (e.removed_at IS NULL OR e.removed_at > now())
         SELECT 1 FROM _event_tags t
         WHERE t."A" = e.id AND t."B" = ANY(sqlc.narg('tag_ids')::uuid[])
     )
+  )
+  AND (
+    sqlc.narg('nollning_season_id')::uuid IS NULL
+    OR e.nollning_season_id = sqlc.narg('nollning_season_id')::uuid
   );
 
 -- name: GetEventBySlug :one
@@ -92,7 +100,7 @@ SELECT
     e.location, e.organizer, e.author_id, e.short_description_sv,
     e.short_description_en, e.start_datetime, e.end_datetime, e.slug,
     e.alarm_active, e.removed_at, e."imageUrl", e.is_cancelled,
-    e.recurring_parent_id,
+    e.recurring_parent_id, e.nollning_season_id,
     m.id AS author_member_id, m.student_id AS author_student_id,
     m.first_name AS author_first_name, m.last_name AS author_last_name,
     m.nickname AS author_nickname, m.picture_path AS author_picture_path,
@@ -122,7 +130,7 @@ SELECT
     e.location, e.organizer, e.author_id, e.short_description_sv,
     e.short_description_en, e.start_datetime, e.end_datetime, e.slug,
     e.alarm_active, e.removed_at, e."imageUrl", e.is_cancelled,
-    e.recurring_parent_id,
+    e.recurring_parent_id, e.nollning_season_id,
     m.id AS author_member_id, m.student_id AS author_student_id,
     m.first_name AS author_first_name, m.last_name AS author_last_name,
     m.nickname AS author_nickname, m.picture_path AS author_picture_path,
@@ -153,9 +161,9 @@ INSERT INTO events (
     title_sv, title_en, description_sv, description_en, link, location,
     organizer, author_id, short_description_sv, short_description_en,
     start_datetime, end_datetime, slug, "imageUrl", alarm_active,
-    is_cancelled, recurring_parent_id
+    is_cancelled, recurring_parent_id, nollning_season_id
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18
 ) RETURNING id, slug;
 
 -- name: UpdateEvent :one
@@ -178,7 +186,8 @@ UPDATE events SET
     end_datetime = $12,
     "imageUrl" = $13,
     alarm_active = $14,
-    is_cancelled = $15
+    is_cancelled = $15,
+    nollning_season_id = $16
 WHERE id = $1
 RETURNING id, slug;
 

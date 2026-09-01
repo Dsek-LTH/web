@@ -77,22 +77,28 @@ func (s *Service) List(ctx context.Context, params ListParams) ([]EventSummary, 
 		return nil, 0, invalidf("invalid tag id: %v", err)
 	}
 	search := dbutil.TextOrInvalid(params.Search)
+	nollningSeasonID, err := dbutil.ParseUUIDPtr(params.NollningSeasonID)
+	if err != nil {
+		return nil, 0, invalidf("invalid nollning season id: %v", err)
+	}
 
 	rows, err := s.queries.ListEvents(ctx, db.ListEventsParams{
-		Past:   params.Past,
-		Search: search,
-		TagIds: tagIDs,
-		Limit:  int32(pageSize),
-		Offset: int32((page - 1) * pageSize),
+		Past:             params.Past,
+		Search:           search,
+		TagIds:           tagIDs,
+		NollningSeasonID: nollningSeasonID,
+		Limit:            int32(pageSize),
+		Offset:           int32((page - 1) * pageSize),
 	})
 	if err != nil {
 		return nil, 0, fmt.Errorf("list events: %w", err)
 	}
 
 	total, err := s.queries.CountEvents(ctx, db.CountEventsParams{
-		Past:   params.Past,
-		Search: search,
-		TagIds: tagIDs,
+		Past:             params.Past,
+		Search:           search,
+		TagIds:           tagIDs,
+		NollningSeasonID: nollningSeasonID,
 	})
 	if err != nil {
 		return nil, 0, fmt.Errorf("count events: %w", err)
@@ -161,6 +167,15 @@ func (s *Service) Create(ctx context.Context, in EventInput) (*EventDetail, erro
 	if err != nil {
 		return nil, invalidf("invalid tag id: %v", err)
 	}
+	nollningSeasonID, err := dbutil.ParseUUIDPtr(in.NollningSeasonID)
+	if err != nil {
+		return nil, invalidf("invalid nollning season id: %v", err)
+	}
+	if in.NollningSeasonID != nil {
+		if err := auth.Require(ctx, apinames.NollningContentAssociate); err != nil {
+			return nil, err
+		}
+	}
 
 	base := slug.Slugify(in.TitleSv)
 	slugCount, err := s.queries.CountEventSlugsWithPrefix(
@@ -175,7 +190,7 @@ func (s *Service) Create(ctx context.Context, in EventInput) (*EventDetail, erro
 		firstSlug := slug.SlugWithCount(base, int(slugCount))
 		created, err := s.queries.CreateEvent(
 			ctx,
-			s.createParams(in, authorID, firstSlug, pgtype.UUID{}),
+			s.createParams(in, authorID, firstSlug, pgtype.UUID{}, nollningSeasonID),
 		)
 		if err != nil {
 			return nil, fmt.Errorf("create event: %w", err)
@@ -224,7 +239,10 @@ func (s *Service) Create(ctx context.Context, in EventInput) (*EventDetail, erro
 		occIn := in
 		occIn.StartAt = occ.Start
 		occIn.EndAt = occ.End
-		created, err := qtx.CreateEvent(ctx, s.createParams(occIn, authorID, occSlug, recurringID))
+		created, err := qtx.CreateEvent(
+			ctx,
+			s.createParams(occIn, authorID, occSlug, recurringID, nollningSeasonID),
+		)
 		if err != nil {
 			return nil, fmt.Errorf("create occurrence %d: %w", i, err)
 		}
@@ -249,6 +267,7 @@ func (s *Service) createParams(
 	authorID pgtype.UUID,
 	eventSlug string,
 	recurringParentID pgtype.UUID,
+	nollningSeasonID pgtype.UUID,
 ) db.CreateEventParams {
 	return db.CreateEventParams{
 		TitleSv:            in.TitleSv,
@@ -268,6 +287,7 @@ func (s *Service) createParams(
 		AlarmActive:        pgtype.Bool{Bool: in.AlarmActive, Valid: true},
 		IsCancelled:        pgtype.Bool{Bool: in.IsCancelled, Valid: true},
 		RecurringParentID:  recurringParentID,
+		NollningSeasonID:   nollningSeasonID,
 	}
 }
 
@@ -315,6 +335,17 @@ func (s *Service) Update(
 	tagIDs, err := dbutil.ParseUUIDs(in.TagIDs)
 	if err != nil {
 		return nil, invalidf("invalid tag id: %v", err)
+	}
+	nollningSeasonID, err := dbutil.ParseUUIDPtr(in.NollningSeasonID)
+	if err != nil {
+		return nil, invalidf("invalid nollning season id: %v", err)
+	}
+	// Same "only gate an actual change" rule as articles.Service.Update -
+	// see DESIGN.md's nollning section.
+	if nollningSeasonID != current.NollningSeasonID {
+		if err := auth.Require(ctx, apinames.NollningContentAssociate); err != nil {
+			return nil, err
+		}
 	}
 
 	targets := []db.ListEventSiblingsRow{{
@@ -379,6 +410,7 @@ func (s *Service) Update(
 			ImageUrl:           dbutil.ToText(occIn.ImageURL),
 			AlarmActive:        pgtype.Bool{Bool: occIn.AlarmActive, Valid: true},
 			IsCancelled:        pgtype.Bool{Bool: occIn.IsCancelled, Valid: true},
+			NollningSeasonID:   nollningSeasonID,
 		})
 		if err != nil {
 			return nil, fmt.Errorf("update occurrence %d: %w", i, err)
