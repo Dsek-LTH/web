@@ -28,11 +28,13 @@ type Querier interface {
 	CountArticles(ctx context.Context, arg CountArticlesParams) (int64, error)
 	CountEventSlugsWithPrefix(ctx context.Context, dollar_1 pgtype.Text) (int64, error)
 	CountEvents(ctx context.Context, arg CountEventsParams) (int64, error)
+	CreateAccessPolicy(ctx context.Context, arg CreateAccessPolicyParams) (ApiAccessPolicy, error)
 	CreateArticle(ctx context.Context, arg CreateArticleParams) (CreateArticleRow, error)
 	CreateArticleComment(ctx context.Context, arg CreateArticleCommentParams) (CreateArticleCommentRow, error)
 	CreateAuthor(ctx context.Context, arg CreateAuthorParams) (pgtype.UUID, error)
 	CreateEvent(ctx context.Context, arg CreateEventParams) (CreateEventRow, error)
 	CreateEventComment(ctx context.Context, arg CreateEventCommentParams) (CreateEventCommentRow, error)
+	CreateMandate(ctx context.Context, arg CreateMandateParams) (CreateMandateRow, error)
 	// Minimal port of src/lib/utils/member.ts's createMember: this backend
 	// doesn't own subscription_settings or tag subscriptions (nollning-period
 	// defaults included), so this only creates the bare Member row those
@@ -41,8 +43,10 @@ type Querier interface {
 	// rewrite (see DESIGN.md).
 	CreateMember(ctx context.Context, arg CreateMemberParams) (CreateMemberRow, error)
 	CreateRecurringEvent(ctx context.Context, arg CreateRecurringEventParams) (pgtype.UUID, error)
+	DeleteAccessPolicy(ctx context.Context, id pgtype.UUID) error
 	DeleteArticleComment(ctx context.Context, arg DeleteArticleCommentParams) error
 	DeleteEventComment(ctx context.Context, arg DeleteEventCommentParams) error
+	DeleteMandate(ctx context.Context, id pgtype.UUID) error
 	// Authors are reused across articles: an author row is the (member,
 	// mandate, custom-author) triple, so the same byline is only created once.
 	FindAuthor(ctx context.Context, arg FindAuthorParams) (pgtype.UUID, error)
@@ -61,6 +65,7 @@ type Querier interface {
 	// so this is no more exposed than the existing unauthenticated mutations;
 	// see backend/CLAUDE.md.
 	GetArticleRowBySlug(ctx context.Context, slug string) (GetArticleRowBySlugRow, error)
+	GetCommitteeByShortName(ctx context.Context, shortName pgtype.Text) (Committee, error)
 	// Public lookup: hides soft-removed events, same visibility rule as
 	// ListEvents. The old TS getEvent() applied no such filter at all (see
 	// DESIGN.md's events section) - fixed here rather than replicated.
@@ -74,8 +79,17 @@ type Querier interface {
 	// custom_authors has no owner column in the schema (they're shared
 	// personas, e.g. "Styrelsen"), so there's no equivalent check for those.
 	GetMandateMemberID(ctx context.Context, id pgtype.UUID) (pgtype.UUID, error)
+	GetMarkdown(ctx context.Context, name string) (Markdown, error)
 	GetMemberByStudentID(ctx context.Context, studentID pgtype.Text) (GetMemberByStudentIDRow, error)
+	// Full column set for a member's own profile page, unlike
+	// GetMemberByStudentID's minimal projection (built only for author
+	// resolution).
+	GetMemberProfile(ctx context.Context, studentID pgtype.Text) (GetMemberProfileRow, error)
+	GetPosition(ctx context.Context, id string) (GetPositionRow, error)
 	GetRecurringEvent(ctx context.Context, id pgtype.UUID) (RecurringEvent, error)
+	// Optional apiName filter; joins member first/last name for studentId-scoped
+	// rows (role-scoped rows have no member to join).
+	ListAccessPolicies(ctx context.Context, apiName pgtype.Text) ([]ListAccessPoliciesRow, error)
 	// "Active" mirrors the old TS backend's author-options query: currently
 	// within the mandate's start/end date range.
 	ListActiveMandatesForMember(ctx context.Context, memberID pgtype.UUID) ([]ListActiveMandatesForMemberRow, error)
@@ -85,7 +99,9 @@ type Querier interface {
 	// counts. Duplicated across ListArticles/GetArticleBySlug/GetArticleRowBySlug
 	// because sqlc has no macro/fragment support.
 	ListArticles(ctx context.Context, arg ListArticlesParams) ([]ListArticlesRow, error)
-	ListCommittees(ctx context.Context, shortName pgtype.Text) ([]ListCommitteesRow, error)
+	// Full fields + currently-active mandate/unique-member counts, for the
+	// committee overview page (mirrors the old "about" page's query).
+	ListCommitteesWithCounts(ctx context.Context) ([]ListCommitteesWithCountsRow, error)
 	// Unfiltered: the old TS backend restricted this list to custom authors
 	// whose custom_author_roles matched one of the member's Keycloak-derived
 	// roles (getDerivedRoles) - that role-derivation system isn't ported to Go
@@ -93,6 +109,8 @@ type Querier interface {
 	// every member can choose from every custom author. Revisit once real
 	// roles exist.
 	ListCustomAuthors(ctx context.Context) ([]ListCustomAuthorsRow, error)
+	ListDistinctAPINames(ctx context.Context) ([]string, error)
+	ListEmailAliasesForPosition(ctx context.Context, positionID string) ([]EmailAlias, error)
 	ListEventComments(ctx context.Context, eventID pgtype.UUID) ([]ListEventCommentsRow, error)
 	ListEventGoing(ctx context.Context, eventID pgtype.UUID) ([]ListEventGoingRow, error)
 	ListEventInterested(ctx context.Context, eventID pgtype.UUID) ([]ListEventInterestedRow, error)
@@ -111,6 +129,18 @@ type Querier interface {
 	// exactly one is non-null per row depending on 'past', the other ties (NULL)
 	// and is ignored.
 	ListEvents(ctx context.Context, arg ListEventsParams) ([]ListEventsRow, error)
+	// Full mandate history (not just currently-active, unlike
+	// ListActiveMandatesForMember) for a member's profile page, joined to
+	// position+committee for display.
+	ListMandatesForMember(ctx context.Context, memberID pgtype.UUID) ([]ListMandatesForMemberRow, error)
+	// Year-scoped (overlapping [year-01-01, year-12-31]), joined to member -
+	// mirrors the old committee/position detail pages' year filter.
+	ListMandatesForPosition(ctx context.Context, arg ListMandatesForPositionParams) ([]ListMandatesForPositionRow, error)
+	// Mirrors the old members-directory page's filter: both params are
+	// optional (a NULL narg matches everything) - the old TS route required
+	// classYear, but that was a SvelteKit-page UX constraint (it needed a
+	// value to pre-fill a dropdown), not an intentional API restriction.
+	ListMembers(ctx context.Context, arg ListMembersParams) ([]ListMembersRow, error)
 	// Mirrors hooks.server.helpers.ts's getAccessPolicies: a policy applies if
 	// it's granted to any of the caller's derived roles, or to their
 	// student_id specifically. Pass a NULL student_id for an anonymous caller
@@ -118,6 +148,7 @@ type Querier interface {
 	// matches, which is the same no-op the old code got from Prisma ignoring
 	// an undefined filter.
 	ListPoliciesForRolesOrStudentID(ctx context.Context, arg ListPoliciesForRolesOrStudentIDParams) ([]string, error)
+	ListPositions(ctx context.Context) ([]ListPositionsRow, error)
 	ListTags(ctx context.Context) ([]Tag, error)
 	ListTagsForArticles(ctx context.Context, dollar_1 []pgtype.UUID) ([]ListTagsForArticlesRow, error)
 	ListTagsForEvents(ctx context.Context, dollar_1 []pgtype.UUID) ([]ListTagsForEventsRow, error)
@@ -136,12 +167,18 @@ type Querier interface {
 	// plain removed_at write has no per-row content to vary).
 	SoftDeleteEventSeries(ctx context.Context, arg SoftDeleteEventSeriesParams) error
 	UpdateArticle(ctx context.Context, arg UpdateArticleParams) (UpdateArticleRow, error)
+	UpdateCommittee(ctx context.Context, arg UpdateCommitteeParams) (Committee, error)
 	// Full-replace of content fields (same PUT-not-PATCH convention as
 	// articles), plus this occurrence's own start/end datetime. author_id is
 	// deliberately never reassigned here - see internal/events doc comments on
 	// why events diverge from articles' "always re-attribute to the editor"
 	// rule.
 	UpdateEvent(ctx context.Context, arg UpdateEventParams) (UpdateEventRow, error)
+	UpdateMandate(ctx context.Context, arg UpdateMandateParams) (UpdateMandateRow, error)
+	UpdateMemberFoodPreference(ctx context.Context, arg UpdateMemberFoodPreferenceParams) (UpdateMemberFoodPreferenceRow, error)
+	UpdateMemberProfile(ctx context.Context, arg UpdateMemberProfileParams) (UpdateMemberProfileRow, error)
+	UpdatePosition(ctx context.Context, arg UpdatePositionParams) (UpdatePositionRow, error)
+	UpsertMarkdown(ctx context.Context, arg UpsertMarkdownParams) (Markdown, error)
 }
 
 var _ Querier = (*Queries)(nil)

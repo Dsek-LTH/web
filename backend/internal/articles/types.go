@@ -6,14 +6,21 @@ import (
 	"github.com/dsek-lth/web/backend/internal/apitypes"
 )
 
-// Member/Tag/Comment are aliased from internal/apitypes rather than defined
-// here - see that package's doc comment for why (huma's OpenAPI schema
-// registry panics on two same-named-but-distinct Go structs once both
-// internal/articles and internal/events register routes on one huma.API).
+// Member/Tag/Comment/Committee/Position/Mandate are aliased from
+// internal/apitypes rather than defined here - see that package's doc
+// comment for why (huma's OpenAPI schema registry panics on two
+// same-named-but-distinct Go structs once both internal/articles and
+// another domain package register routes on one huma.API). Committee/
+// Position/Mandate originally were defined here as minimal author-picker-only
+// structs; internal/committees now owns the full-featured versions in
+// apitypes, and this package just uses a subset of their fields.
 type (
-	Member  = apitypes.Member
-	Tag     = apitypes.Tag
-	Comment = apitypes.Comment
+	Member    = apitypes.Member
+	Tag       = apitypes.Tag
+	Comment   = apitypes.Comment
+	Committee = apitypes.Committee
+	Position  = apitypes.Position
+	Mandate   = apitypes.Mandate
 )
 
 // Name fields throughout this file come in pairs: NameSv/NameEn are the raw
@@ -22,28 +29,6 @@ type (
 // replicating the old Prisma `translationExtension`'s fallback rule, but
 // resolved server-side now (see internal/locale) instead of by the
 // frontend. Display code should read Name; edit forms read the Sv/En pair.
-type Committee struct {
-	ID        string  `json:"id"`
-	Name      string  `json:"name"`
-	NameSv    string  `json:"nameSv"`
-	NameEn    *string `json:"nameEn,omitempty"`
-	ShortName *string `json:"shortName,omitempty"`
-	SymbolURL *string `json:"symbolUrl,omitempty"`
-}
-
-type Position struct {
-	ID     string  `json:"id"`
-	Name   string  `json:"name"`
-	NameSv string  `json:"nameSv"`
-	NameEn *string `json:"nameEn,omitempty"`
-}
-
-// Mandate is a member's (currently active) hold on a Position - used for
-// the "post as" author picker on create/edit.
-type Mandate struct {
-	ID       string   `json:"id"`
-	Position Position `json:"position"`
-}
 
 type CustomAuthor struct {
 	ID       string  `json:"id"`

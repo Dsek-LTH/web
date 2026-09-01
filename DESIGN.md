@@ -985,3 +985,373 @@ ported).
      `isAuthorized`/`authorize`/`getDerivedRoles` are **not** deleted yet -
      still genuinely needed by the (unported) rest of the app - revisit
      once nothing else calls them.
+
+## Roadmap: migrating the remaining backend (proposed 2026-09-01, not yet implemented)
+
+**Status: proposed phase ordering, agreed 2026-09-01. Nollning redesign
+described below is a proposal, not yet decided in detail - implement it
+per this section's own open questions, don't treat it as settled the way
+the rest of this document is.** Everything past articles/events/auth is
+still on Prisma. This section records the agreed shape of the rest of the
+migration so it doesn't get re-litigated phase-by-phase the way this
+doc exists to prevent for everything else.
+
+**Ground rules, carried over unchanged from articles/events:** huma +
+sqlc + `ServeMux`, `internal/<domain>` service layer wrapping
+`*db.Queries`, shared DTOs go in `internal/apitypes` (check new struct
+names against every existing domain package first - see the huma gotcha
+above), full-replace PATCH not partial-patch, acting identity from
+`auth.Require`/context never from the request body, `+page.ts` +
+`+page.server.ts`-actions-only on the frontend, no validation or
+authorization logic re-implemented in TypeScript (Principle #5). Mocks
+for out-of-scope dependencies (`Uploader`/`Notifier`/`Webhooker`/
+`Scheduler`) get replaced **just-in-time**, in whichever phase first
+needs them for real, not as a dedicated separate pass - see "Mock
+replacement, just-in-time" at the end of this section.
+
+**Explicitly out of scope, unchanged:** shop/tickets (never coming back,
+see above). **Nollning is explicitly *in* scope and high priority** -
+see its own subsection below; this reverses the treatment nollning has
+gotten everywhere else in this doc so far (excluded from events'
+visibility filtering, from auth's `SEE_STABEN` port, from the API shape
+work) - those were correct calls for *not blocking* articles/events, but
+nollning itself needs real, deliberate design, not permanent exclusion.
+
+### Remaining domains, by rough size and current Prisma models
+
+- **Directory/foundation**: fuller `members`/`mandates`/`positions`/
+  `committees` (profile pages, editing, mandate history, committee pages)
+  - partially in `schema.sql` already as an articles/events dependency,
+  but only enough columns/queries to satisfy those two features, not a
+  real member-facing feature. `AccessPolicy`, `EmailAlias` (admin-managed,
+  small).
+- **Nollning** (see below): `PhadderGroup`, nollning-specific fields on
+  `Member`/`Mandate`, the `AdminSetting` nollning-period rows, and every
+  scattered special-case inventoried below - not one Prisma model, a
+  cross-cutting concern.
+- **Simple standalone CRUD**: `Song` (songbook), `Markdown`/governing
+  documents, `Document` (requirements/uploads), `Alert`, medals
+  (`src/routes/(app)/medals`, no dedicated Prisma model - reads `Mandate`
+  history).
+- **File-storage-dependent**: gallery (photo albums - currently MinIO
+  paths on disk, no Prisma model at all, listed via directory read) and
+  `Document` uploads - both blocked on real `Uploader`, see mock
+  replacement below.
+- **Booking**: `Bookable`, `BookableCategory`, `BookingRequest`.
+- **Expenses**: `Expense`, `ExpenseItem` - receipt uploads, approval
+  workflow, blocked on real `Uploader` same as gallery/documents.
+- **Elections**: `Election`, `ItemQuestion`/`ItemQuestionOption`/
+  `ItemQuestionResponse` (the "yrka"/nomination workflow).
+- **Cafe**: `CafeShift`, `DrinkItem`, `DrinkItemBatch`, `CiabattaOfTheWeek`,
+  `SexetInventoryValueLog` - niche, low-traffic.
+- **Notifications/webhooks, for real**: `Notification`, `ExpoToken`,
+  `SubscriptionSetting` - replacing the `Notifier`/`Webhooker` mocks
+  articles/events already call into.
+- **Doors**: `Door`, `DoorAccessPolicy` - physical Salto hardware
+  integration, not just a DB-backed feature.
+- **Admin**: settings, links, minio browser, stocklist, debug, access
+  policy management UI - mostly thin wrappers over the domains above,
+  naturally lands after them.
+- **Search**: cross-entity (members/articles/events/documents/...) -
+  needs most of the above ported first to be worth doing for real.
+
+### Phase order (dependency-driven, agreed 2026-09-01)
+
+1. **Directory foundation** - full `members`/`mandates`/`positions`/
+   `committees` CRUD and profile pages, `AccessPolicy`/`EmailAlias` admin
+   management. Almost everything below displays or authorizes off member/
+   mandate/committee data, including nollning's own role derivation -
+   this has to be solid before nollning or anything else builds on it.
+   **Status: Go backend implemented 2026-09-01** (`backend/internal/members`,
+   `backend/internal/committees`, `backend/internal/accesspolicies` -
+   see `backend/CLAUDE.md`'s "Directory routes" section for the exact
+   endpoint list and every scope cut). SvelteKit frontend wiring is a
+   planned fast-follow, not done yet - every route above is real and
+   tested via curl against the live dev DB, but nothing in `src/` calls
+   any of it. Two small gaps deliberately left for that fast-follow to
+   resolve: the frontend still needs either `src/lib/utils/positions.ts`'s
+   `positionToCommitteeMap` ported wholesale or a switch to full position
+   IDs in routes (Go itself doesn't need that map - it resolves committee
+   identity via a real FK); and onboarding's field subset includes `email`,
+   which the new member-update endpoints don't support editing (matches
+   profile-edit's own restriction, but onboarding hasn't been re-pointed at
+   the new endpoints yet to notice). Board-page porting (SEE_STABEN
+   staben-hiding) stayed deferred to Phase 2 exactly as planned below, not
+   ported as a half-hack.
+2. **Nollning redesign** (see below) - deliberately placed right after
+   foundation and before any other feature phase, so nothing built from
+   here on needs to route around nollning special-cases the way the
+   current codebase does. Depends on mandates/positions (phadder-mandate
+   detection) and access policies (`SEE_STABEN`) from phase 1.
+3. **Simple standalone CRUD** - songbook, governing documents, medals,
+   alerts. No dependencies beyond phase 1, low risk, good for keeping
+   velocity up after the heavier nollning phase.
+4. **Real file storage + gallery + document uploads** - implement the
+   real `Uploader` (S3/MinIO) once something (gallery) actually needs
+   non-fake uploaded files to be useful; port document uploads at the
+   same time since it's the same storage dependency. Gallery's
+   staben-album date-filtering hack (see nollning section) gets replaced
+   with a real `nollning.Season` check here, not re-implemented as a
+   date-string folder parse.
+5. **Booking** - bookables + booking requests.
+6. **Expenses** - depends on phase 4's real uploader for receipts.
+7. **Elections** - nomination/voting workflow.
+8. **Cafe** - shifts + drink inventory.
+9. **Real notifications + Discord webhook** - replace `Notifier`/
+   `Webhooker` mocks for real, wired into every domain that already calls
+   them (articles, events) plus whichever of phases 3-8 turned out to
+   want notifications too. Nolla-specific default subscription settings
+   (see nollning section) get their permanent home here instead of the
+   current hardcoded-cutoff-date hack.
+10. **Doors/Salto** - physical access control integration; kept late
+    since it depends on real hardware/vendor API access, not just DB
+    work, and nothing else in this list depends on it.
+11. **Admin consolidation** - settings, links, minio browser, stocklist,
+    debug - thin wrappers over domains that need to exist first.
+12. **Search** - cross-entity search, deliberately last so it has
+    something real to search across.
+
+Not a numbered phase: rebuilding the actual nollning **frontend** UI.
+Every `(nollning)/` page is currently a `<NotImplemented />` stub (see
+inventory below) - phase 2 is about giving whichever team eventually
+designs that UI (or the native app) a clean, non-hacky API to build on,
+not about designing the UI itself. Treat that as a separate, later
+product effort, not blocked on this backend work being "finished," only
+on it existing.
+
+### Mock replacement, just-in-time
+
+Per the just-in-time decision: each mock gets replaced in whichever
+phase first has a real dependent, not in one dedicated pass.
+
+- **`Uploader`** (currently `MockUploader`, fake `mock-uploads.invalid`
+  URLs) - replaced in **phase 4**, first real need is gallery.
+- **`Notifier`/`Webhooker`** (log-only) - replaced in **phase 9**. Until
+  then, articles/events keep calling the mocks exactly as they do today -
+  no change needed to unblock earlier phases.
+- **`Scheduler`** (fake `mock-<hex>` ids, no real scheduling) - no phase
+  above obviously needs this for real; revisit only if a concrete need
+  shows up (e.g. someone actually depends on scheduled-publish firing).
+  Worth reconsidering **whether to keep an external scheduler-service at
+  all** when this does come up - Go already owns the DB and could run its
+  own cron-style check for due-to-publish articles internally, which
+  would remove a whole service from the architecture rather than
+  reimplementing its HTTP contract in Go. Not decided; flag for whoever
+  picks this up.
+
+### Nollning: proposed redesign
+
+**Problem, per the 2026-09-01 codebase survey:** nollning is not one
+feature with a clean boundary - it's three independent, overlapping
+mechanisms, none of them first-class, glued together by booleans threaded
+through unrelated query functions:
+
+1. **A time window**, stored as two `AdminSetting` key-value rows
+   (`nollning_start`/`nollning_end`) behind `isNollningPeriod()`
+   (`src/lib/utils/adminSettings/nollning.ts`), cached in **module-level
+   globals** with a 1-hour TTL (a staleness/test-isolation hazard, not
+   just a style complaint - a setting change doesn't take effect for up
+   to an hour, and tests sharing the module share the cache).
+2. **A tag-string convention** for content: `[NOLLNING]` as a literal
+   prefix (`src/lib/components/postReveal/types.ts:1`, note the
+   surprising location) matched via `startsWith` against `Tag.nameSv`
+   specifically (the Swedish name - not a dedicated field, not an enum,
+   no DB constraint), consumed independently by
+   `BASIC_EVENT_FILTER`/`BASIC_ARTICLE_FILTER`/`getAllTags`/
+   `createMember`'s default-subscription lookup/the article-detail
+   redirect-to-messages check. Nothing programmatically creates these
+   tags - staff type the prefix into a tag's name by convention, so a
+   typo or translation silently breaks every consumer at once.
+3. **A per-member/per-mandate relationship**: `Member.nollningGroupId` →
+   `PhadderGroup` (keyed by a bare `year: Int`, not tied to the time
+   window in #1), plus `Mandate.phadderInId` and a *second*, independent
+   phadder-detection path (`phadderMandateFilter`,
+   `src/lib/nollning/groups/types.ts:19-27`) that hardcodes position IDs
+   `dsek.noll.phadder`/`dsek.noll.uppdrag` plus a fixed Aug 1-Oct 1
+   window.
+
+On top of these three, at least **five separate hardcoded per-year
+dates** exist with no shared source (`REVEAL_LAUNCH_DATE`, `nolla`'s
+`CUTOFF_DATE`, the nollning-events page's `weekStarts` array, the phadder
+group listing's `year: 2025` filter, `nollaNotifications`'s
+`createdAt > 2025-06-26` cutoff) - each one is an independent
+yearly-maintenance landmine, and several are already stale relative to
+the current date. `SEE_STABEN` is injected as a side effect inside the
+*global* access-policy-fetch hook (`hooks.server.helpers.ts`) rather than
+being a visible, named part of any policy model. Phadder-group management
+(`committees/nollu/groups/manage`) lives structurally outside both
+`(nollning)/` and `admin/`, discoverable only by knowing it's there.
+
+**A fourth thing the policy alone doesn't explain: what `SEE_STABEN`
+actually hides.** The policy only controls who *has* it - the redaction
+itself is implemented twice, independently, by whichever page needed it:
+`board/+page.server.ts` filters out any board position whose `position.id`
+starts with the string `"dsek.noll"` unless the viewer has `SEE_STABEN`
+(a *third* hardcoded `dsek.noll*`-prefix convention, alongside
+`phadderMandateFilter`'s `dsek.noll.phadder`/`dsek.noll.uppdrag` and the
+`shortName === "nollu"` matches inventoried above); `gallery/+page.server.ts`
+separately hides any photo album whose folder name parses to a date
+*before* the active season's start, unless the viewer has `SEE_STABEN` (a
+date-parsed-from-a-filename heuristic, unrelated to the board page's
+mechanism even though both exist to keep the organizing committee's
+identity secret pre-reveal). Two different ad-hoc definitions of "this is
+staben" for what is conceptually one concern.
+
+**Proposed shape in Go** - a single `internal/nollning` domain package
+that every other domain depends on for nollning questions, instead of
+each domain re-deriving its own answer:
+
+- **`nollning_seasons` table** (new, Go-owned from the start - this is
+  exactly the kind of first-class concept `schema.sql` should model
+  rather than keep leaning on generic `AdminSetting` rows): one row per
+  year, holding every date currently hardcoded or split across
+  `AdminSetting`/`REVEAL_LAUNCH_DATE`/`CUTOFF_DATE`/`weekStarts` - at
+  minimum `year`, `nolla_start_at`, `reveal_at` (pre-reveal → post-reveal
+  transition), `end_at`. Adding next year's season becomes "insert one
+  row," not "grep for hardcoded 2025s and hope you found them all."
+- **`internal/nollning.Service`** is the only code in the whole backend
+  allowed to know today's season. It exposes something like
+  `Current(ctx) (*Season, bool)` (nil/false outside any season) and
+  `Phase(ctx) Phase` (`Off`/`PreReveal`/`PostReveal`), computed straight
+  from the DB (no module-global cache duplicating the current bug -
+  ordinary request-scoped DB reads are fast enough here; revisit only if
+  profiling says otherwise). Every other domain (events, articles,
+  members, gallery, notifications) calls into this service rather than
+  each computing "is it nollning right now" its own way.
+- **Content classification: decided 2026-09-01, direct FK not tags,
+  superseding an earlier tag-flag proposal floated in this same section.**
+  The earlier idea (an `is_nollning boolean` column on `tags`) was
+  rejected on reflection - a tag is a lightweight, user-assignable
+  *topical* label, and nollning membership is a structural fact about a
+  piece of content (which feed it belongs in, which year, what
+  visibility/redirect rules apply). Conflating the two is the same
+  category error the current `[NOLLNING]`-prefix convention already
+  makes, just with a boolean instead of a string prefix - it would fix
+  the typo/translation fragility but not the deeper problem. Decided
+  instead: `articles` and `events` each get a nullable
+  `nollning_season_id` FK straight to `nollning_seasons`. This gives real
+  referential integrity (can't point at a season that doesn't exist),
+  turns "this year's nollning content" into a direct indexed query
+  (`WHERE nollning_season_id = $1`) instead of a name-prefix scan, and
+  composes cleanly with ordinary tags - nollning content keeps whatever
+  normal topical tags it wants alongside the season FK, since those are
+  now orthogonal questions instead of the same mechanism doing double
+  duty.
+  - **Authoring workflow (as specified by the user 2026-09-01):** admins
+    manage `nollning_seasons` (create a season, set the dates it spans -
+    see the season fields above). Separately, whoever is authoring an
+    article/event and holds the right permission can associate that
+    content with a season - this is a normal field on the existing
+    create/update forms (a season picker), not a separate workflow or
+    endpoint. `articles.Service`/`events.Service`'s `Create`/`Update`
+    only need to check that permission when the caller is actually
+    setting/changing `nollning_season_id` to a non-null value - leaving
+    it null, or resubmitting an unchanged value (recall update is
+    full-replace, so every save resubmits the current value), doesn't
+    require it. **Permission-gated, not time-gated**: association isn't
+    restricted to "only while that season is currently active" - the
+    natural workflow is picking the live season while it's running, but
+    nothing stops an authorized editor from retroactively associating
+    older content with a past season (e.g. fixing a miscategorized
+    article), and this proposal doesn't add a special-case check to
+    prevent that.
+  - **Open implementation detail, not resolved here**: whether the
+    associate-content permission is one policy shared by both domains
+    (e.g. `nollning:content:associate`, checked identically from
+    `articles.Service` and `events.Service`) or two domain-specific ones
+    following the existing `apinames` convention of mirroring old
+    `apiNames.*` strings per-domain. Lean toward one shared policy since
+    it's the same real-world permission ("can mark content as
+    nollning-related") regardless of content type, but flagged for
+    whoever implements phase 2 rather than decided in advance.
+  - List/filter endpoints (`GET /articles`, `GET /events`) gain a
+    `nollningSeasonId` query param, replacing today's boolean
+    `showNollningEventsInstead` param and the tag-prefix filtering inside
+    `BASIC_EVENT_FILTER`/`BASIC_ARTICLE_FILTER` - "the nollning feed" for
+    a given year becomes an ordinary filtered list query instead of a
+    special boolean threaded through otherwise-generic filter functions.
+- **`SEE_STABEN` becomes a named, visible part of `internal/auth`'s
+  policy resolution** - a documented function
+  (`nollning.InjectStabenPolicy` or similar) called once from wherever
+  Go resolves an identity's policies, reading `nollning.Service.Phase`
+  instead of a side effect buried in a generic access-policy fetch. Same
+  behavior (default-on outside nollning, opt-in during), just discoverable
+  instead of hidden.
+- **Staben membership becomes one real relationship, not two ad-hoc
+  filters (decided 2026-09-01).** `internal/nollning` gets
+  `IsStaben(ctx, memberID) bool`: true iff the member holds a currently-
+  active mandate on a position belonging to *the* nollning organizing
+  committee - resolved through the existing `committees`/`positions`/
+  `mandates` tables, no new string convention needed. "Which committee is
+  that" is itself an explicit reference (e.g. `nollning_seasons.
+  organizing_committee_id`, or a single package-level setting if it's
+  genuinely never expected to change), not a `shortName == "nollu"` /
+  `position.id.startsWith("dsek.noll")` comparison repeated at every call
+  site - this retires the board page's prefix hack and is one more
+  instance of the `"nollu"` string-matching problem (alongside
+  `phadderMandateFilter`, `positions.ts`'s committee map, `expenses/config.ts`,
+  and the seed data) going away for good, not just for this one page.
+  Paired with `CanSeeStaben(ctx, identity) bool` (the `SEE_STABEN`-or-
+  season-inactive logic just above), the board listing's visibility
+  becomes `IsStaben(member) && !CanSeeStaben(viewer)` → redact, instead of
+  a prefix match. **Gallery's redaction stays a documented gap for
+  phase 4, not solved here**: albums aren't modeled in the DB at all
+  today (raw MinIO folder listings, no `Album` table), so there's nothing
+  yet to attach a real flag to. When phase 4 ports gallery for real, the
+  same pattern applies - give albums an explicit relationship (a
+  `nollning_season_id` and/or a `staben`/hidden-until-reveal flag, set by
+  whoever uploads it) instead of parsing a folder name as a date and
+  comparing it to the season start.
+- **Phadder-group membership becomes one function, not two independent
+  ones.** `internal/nollning` owns both the `PhadderGroup`↔`Member` FK
+  *and* the position-ID-based phaddrar detection
+  (`dsek.noll.phadder`/`dsek.noll.uppdrag`), exposed as a single
+  `PhadderRoleFor(ctx, memberID, season) Role` - today's two
+  independently-maintained paths (`nollningGroupId` lookup vs
+  `phadderMandateFilter`'s hardcoded position IDs + Aug-Oct window)
+  collapse into one. `PhadderGroup.year int` becomes a
+  `season_id` FK to `nollning_seasons`, fixing the "hardcoded `year: 2025`
+  filter" staleness bug in the same pass. Phadder-group CRUD
+  (`committees/nollu/groups/manage` today) moves into this package's
+  routes, not scattered under a committee sub-path.
+- **`getDerivedRoles`'s virtual `nolla` role** (classYear == current year)
+  ports into `internal/nollning` alongside everything else here, reading
+  the season table for "current year" instead of `new Date().getFullYear()`
+  directly - a season boundary that crosses a calendar year (nollning
+  starting in August) should resolve consistently with every other
+  nollning date check, not independently.
+- **New Go endpoints**, replacing the scattered `api/nollning`,
+  `nollning/settings`, `admin/settings` (nollning half), and
+  `committees/nollu/groups*` routes: `GET /nollning/current` (phase, active
+  season, reveal date - what the frontend needs to pick a theme and route
+  the native app, replacing `REVEAL_LAUNCH_DATE`/`CUTOFF_DATE`/
+  `APP_PREFERRED_PAGE_COOKIE`'s date logic with one API call),
+  `GET/POST/PATCH /nollning/seasons` (admin-managed, replacing the
+  `AdminSetting` rows), `GET/POST/PATCH/DELETE /nollning/groups` (phadder
+  group CRUD), `GET /members/{id}/phadder-role` or similar (replacing
+  `phadderMandateFilter`-based lookups like `api/members/phadders`).
+- **What this proposal deliberately does not touch**: the *frontend*
+  theme system (`nollningPostReveal` in `themes.ts`) and the native-app
+  routing cookie dance stay SvelteKit-side concerns - Go's job is to be
+  the one correct source for "what phase/season/role is this," not to
+  own theming. The `(nollning)/` route tree's actual UI content (wordlist,
+  packing lists, wellbeing info, wikia pages) is content/product work,
+  out of scope for this backend redesign - port whatever of it is still
+  wanted once someone's designing that UI for real, using the new API
+  instead of the old scattered Prisma/constant reads.
+- **Migration note**: `PhadderGroup`/`Member.nollningGroupId`/
+  `Mandate.phadderInId` are already-live Prisma-owned tables/columns with
+  real data (past years' groups) - porting this phase means writing real
+  `golang-migrate` migrations (add `nollning_seasons`; add a nullable
+  `nollning_season_id` to `articles` and `events`, backfilling it from
+  existing `[NOLLNING]`-prefixed tags matched up against a season by
+  `publishedAt`/`startDatetime`, one synthetic season per past year that
+  can't be cleanly dated; change `phadder_groups.year` to `season_id` with
+  a backfill), not just adding
+  to `schema.sql` by hand the way articles/events' dependency tables were -
+  this is Go's first schema change to a table something else still reads,
+  so double-check nothing on the Prisma side breaks if phase 2 doesn't
+  also delete the old `year`/prefix-matching code in the same change (it
+  should, per this doc's "no bridge period" mocking principle, but flagging
+  since nollning's old code is more spread out than anything ported so
+  far).

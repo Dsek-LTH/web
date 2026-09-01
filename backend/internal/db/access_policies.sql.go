@@ -11,6 +11,113 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const createAccessPolicy = `-- name: CreateAccessPolicy :one
+INSERT INTO api_access_policies (api_name, role, student_id)
+VALUES ($1, $2, $3)
+RETURNING id, api_name, role, student_id, created_at
+`
+
+type CreateAccessPolicyParams struct {
+	ApiName   string      `json:"api_name"`
+	Role      pgtype.Text `json:"role"`
+	StudentID pgtype.Text `json:"student_id"`
+}
+
+func (q *Queries) CreateAccessPolicy(ctx context.Context, arg CreateAccessPolicyParams) (ApiAccessPolicy, error) {
+	row := q.db.QueryRow(ctx, createAccessPolicy, arg.ApiName, arg.Role, arg.StudentID)
+	var i ApiAccessPolicy
+	err := row.Scan(
+		&i.ID,
+		&i.ApiName,
+		&i.Role,
+		&i.StudentID,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const deleteAccessPolicy = `-- name: DeleteAccessPolicy :exec
+DELETE FROM api_access_policies WHERE id = $1
+`
+
+func (q *Queries) DeleteAccessPolicy(ctx context.Context, id pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, deleteAccessPolicy, id)
+	return err
+}
+
+const listAccessPolicies = `-- name: ListAccessPolicies :many
+SELECT ap.id, ap.api_name, ap.role, ap.student_id, ap.created_at,
+       m.first_name AS member_first_name, m.last_name AS member_last_name
+FROM api_access_policies ap
+LEFT JOIN members m ON m.student_id = ap.student_id
+WHERE $1::text IS NULL OR ap.api_name = $1::text
+ORDER BY ap.api_name, ap.created_at
+`
+
+type ListAccessPoliciesRow struct {
+	ID              pgtype.UUID        `json:"id"`
+	ApiName         string             `json:"api_name"`
+	Role            pgtype.Text        `json:"role"`
+	StudentID       pgtype.Text        `json:"student_id"`
+	CreatedAt       pgtype.Timestamptz `json:"created_at"`
+	MemberFirstName pgtype.Text        `json:"member_first_name"`
+	MemberLastName  pgtype.Text        `json:"member_last_name"`
+}
+
+// Optional apiName filter; joins member first/last name for studentId-scoped
+// rows (role-scoped rows have no member to join).
+func (q *Queries) ListAccessPolicies(ctx context.Context, apiName pgtype.Text) ([]ListAccessPoliciesRow, error) {
+	rows, err := q.db.Query(ctx, listAccessPolicies, apiName)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListAccessPoliciesRow{}
+	for rows.Next() {
+		var i ListAccessPoliciesRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.ApiName,
+			&i.Role,
+			&i.StudentID,
+			&i.CreatedAt,
+			&i.MemberFirstName,
+			&i.MemberLastName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listDistinctAPINames = `-- name: ListDistinctAPINames :many
+SELECT DISTINCT api_name FROM api_access_policies ORDER BY api_name
+`
+
+func (q *Queries) ListDistinctAPINames(ctx context.Context) ([]string, error) {
+	rows, err := q.db.Query(ctx, listDistinctAPINames)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []string{}
+	for rows.Next() {
+		var api_name string
+		if err := rows.Scan(&api_name); err != nil {
+			return nil, err
+		}
+		items = append(items, api_name)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listPoliciesForRolesOrStudentID = `-- name: ListPoliciesForRolesOrStudentID :many
 SELECT api_name
 FROM api_access_policies

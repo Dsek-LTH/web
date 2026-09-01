@@ -12,11 +12,14 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humago"
 
+	"github.com/dsek-lth/web/backend/internal/accesspolicies"
 	"github.com/dsek-lth/web/backend/internal/articles"
 	"github.com/dsek-lth/web/backend/internal/auth"
+	"github.com/dsek-lth/web/backend/internal/committees"
 	"github.com/dsek-lth/web/backend/internal/db"
 	"github.com/dsek-lth/web/backend/internal/events"
 	"github.com/dsek-lth/web/backend/internal/locale"
+	"github.com/dsek-lth/web/backend/internal/members"
 )
 
 // NewRouter registers every endpoint. Every request is authenticated via
@@ -28,6 +31,9 @@ import (
 func NewRouter(
 	articleSvc *articles.Service,
 	eventSvc *events.Service,
+	memberSvc *members.Service,
+	committeeSvc *committees.Service,
+	accessPolicySvc *accesspolicies.Service,
 	authenticator auth.Authenticator,
 	oidcClient *auth.OIDCClient,
 	queries *db.Queries,
@@ -38,6 +44,9 @@ func NewRouter(
 	registerArticleRoutes(api, articleSvc)
 	registerDirectoryRoutes(api, articleSvc)
 	registerEventRoutes(api, eventSvc)
+	registerMemberRoutes(api, memberSvc)
+	registerCommitteeRoutes(api, committeeSvc)
+	registerAccessPolicyRoutes(api, accessPolicySvc)
 
 	mux.HandleFunc("GET /me", auth.MeHandler(queries))
 	if oidcClient != nil {

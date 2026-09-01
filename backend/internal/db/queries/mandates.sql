@@ -1,3 +1,43 @@
+-- name: ListMandatesForMember :many
+-- Full mandate history (not just currently-active, unlike
+-- ListActiveMandatesForMember) for a member's profile page, joined to
+-- position+committee for display.
+SELECT m.id, m.start_date, m.end_date,
+       p.id AS position_id, p.name_sv AS position_name_sv, p.name_en AS position_name_en,
+       c.id AS committee_id, c.name_sv AS committee_name_sv, c.name_en AS committee_name_en,
+       c.short_name AS committee_short_name
+FROM mandates m
+JOIN positions p ON p.id = m.position_id
+LEFT JOIN committees c ON c.id = p.committee_id
+WHERE m.member_id = $1
+ORDER BY m.start_date DESC;
+
+-- name: ListMandatesForPosition :many
+-- Year-scoped (overlapping [year-01-01, year-12-31]), joined to member -
+-- mirrors the old committee/position detail pages' year filter.
+SELECT m.id, m.start_date, m.end_date, mem.id AS member_id, mem.student_id,
+       mem.first_name, mem.nickname, mem.last_name, mem.picture_path
+FROM mandates m
+JOIN members mem ON mem.id = m.member_id
+WHERE m.position_id = $1
+  AND m.start_date <= make_date(sqlc.arg('year')::int, 12, 31)
+  AND m.end_date >= make_date(sqlc.arg('year')::int, 1, 1)
+ORDER BY m.start_date DESC;
+
+-- name: CreateMandate :one
+INSERT INTO mandates (member_id, position_id, start_date, end_date, last_synced)
+VALUES ($1, $2, $3, $4, CURRENT_DATE)
+RETURNING id, start_date, end_date;
+
+-- name: UpdateMandate :one
+UPDATE mandates
+SET start_date = $2, end_date = $3
+WHERE id = $1
+RETURNING id, start_date, end_date;
+
+-- name: DeleteMandate :exec
+DELETE FROM mandates WHERE id = $1;
+
 -- name: ListActiveMandatesForMember :many
 -- "Active" mirrors the old TS backend's author-options query: currently
 -- within the mandate's start/end date range.

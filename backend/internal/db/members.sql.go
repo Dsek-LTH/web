@@ -111,3 +111,231 @@ func (q *Queries) GetMemberByStudentID(ctx context.Context, studentID pgtype.Tex
 	)
 	return i, err
 }
+
+const getMemberProfile = `-- name: GetMemberProfile :one
+SELECT id, student_id, first_name, nickname, last_name, picture_path, class_programme,
+       class_year, visible, food_preference, bio, email, graduation_year, language
+FROM members
+WHERE student_id = $1
+`
+
+type GetMemberProfileRow struct {
+	ID             pgtype.UUID `json:"id"`
+	StudentID      pgtype.Text `json:"student_id"`
+	FirstName      pgtype.Text `json:"first_name"`
+	Nickname       pgtype.Text `json:"nickname"`
+	LastName       pgtype.Text `json:"last_name"`
+	PicturePath    pgtype.Text `json:"picture_path"`
+	ClassProgramme pgtype.Text `json:"class_programme"`
+	ClassYear      pgtype.Int4 `json:"class_year"`
+	Visible        bool        `json:"visible"`
+	FoodPreference pgtype.Text `json:"food_preference"`
+	Bio            pgtype.Text `json:"bio"`
+	Email          pgtype.Text `json:"email"`
+	GraduationYear pgtype.Int4 `json:"graduation_year"`
+	Language       pgtype.Text `json:"language"`
+}
+
+// Full column set for a member's own profile page, unlike
+// GetMemberByStudentID's minimal projection (built only for author
+// resolution).
+func (q *Queries) GetMemberProfile(ctx context.Context, studentID pgtype.Text) (GetMemberProfileRow, error) {
+	row := q.db.QueryRow(ctx, getMemberProfile, studentID)
+	var i GetMemberProfileRow
+	err := row.Scan(
+		&i.ID,
+		&i.StudentID,
+		&i.FirstName,
+		&i.Nickname,
+		&i.LastName,
+		&i.PicturePath,
+		&i.ClassProgramme,
+		&i.ClassYear,
+		&i.Visible,
+		&i.FoodPreference,
+		&i.Bio,
+		&i.Email,
+		&i.GraduationYear,
+		&i.Language,
+	)
+	return i, err
+}
+
+const listMembers = `-- name: ListMembers :many
+SELECT id, student_id, first_name, nickname, last_name, picture_path, class_programme, class_year
+FROM members
+WHERE ($1::int IS NULL OR class_year = $1::int)
+  AND ($2::text IS NULL OR class_programme = $2::text)
+ORDER BY first_name, last_name, class_programme
+`
+
+type ListMembersParams struct {
+	ClassYear      pgtype.Int4 `json:"class_year"`
+	ClassProgramme pgtype.Text `json:"class_programme"`
+}
+
+type ListMembersRow struct {
+	ID             pgtype.UUID `json:"id"`
+	StudentID      pgtype.Text `json:"student_id"`
+	FirstName      pgtype.Text `json:"first_name"`
+	Nickname       pgtype.Text `json:"nickname"`
+	LastName       pgtype.Text `json:"last_name"`
+	PicturePath    pgtype.Text `json:"picture_path"`
+	ClassProgramme pgtype.Text `json:"class_programme"`
+	ClassYear      pgtype.Int4 `json:"class_year"`
+}
+
+// Mirrors the old members-directory page's filter: both params are
+// optional (a NULL narg matches everything) - the old TS route required
+// classYear, but that was a SvelteKit-page UX constraint (it needed a
+// value to pre-fill a dropdown), not an intentional API restriction.
+func (q *Queries) ListMembers(ctx context.Context, arg ListMembersParams) ([]ListMembersRow, error) {
+	rows, err := q.db.Query(ctx, listMembers, arg.ClassYear, arg.ClassProgramme)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListMembersRow{}
+	for rows.Next() {
+		var i ListMembersRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.StudentID,
+			&i.FirstName,
+			&i.Nickname,
+			&i.LastName,
+			&i.PicturePath,
+			&i.ClassProgramme,
+			&i.ClassYear,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const updateMemberFoodPreference = `-- name: UpdateMemberFoodPreference :one
+UPDATE members
+SET food_preference = $2
+WHERE student_id = $1
+RETURNING id, student_id, first_name, nickname, last_name, picture_path, class_programme,
+          class_year, visible, food_preference, bio, email, graduation_year, language
+`
+
+type UpdateMemberFoodPreferenceParams struct {
+	StudentID      pgtype.Text `json:"student_id"`
+	FoodPreference pgtype.Text `json:"food_preference"`
+}
+
+type UpdateMemberFoodPreferenceRow struct {
+	ID             pgtype.UUID `json:"id"`
+	StudentID      pgtype.Text `json:"student_id"`
+	FirstName      pgtype.Text `json:"first_name"`
+	Nickname       pgtype.Text `json:"nickname"`
+	LastName       pgtype.Text `json:"last_name"`
+	PicturePath    pgtype.Text `json:"picture_path"`
+	ClassProgramme pgtype.Text `json:"class_programme"`
+	ClassYear      pgtype.Int4 `json:"class_year"`
+	Visible        bool        `json:"visible"`
+	FoodPreference pgtype.Text `json:"food_preference"`
+	Bio            pgtype.Text `json:"bio"`
+	Email          pgtype.Text `json:"email"`
+	GraduationYear pgtype.Int4 `json:"graduation_year"`
+	Language       pgtype.Text `json:"language"`
+}
+
+func (q *Queries) UpdateMemberFoodPreference(ctx context.Context, arg UpdateMemberFoodPreferenceParams) (UpdateMemberFoodPreferenceRow, error) {
+	row := q.db.QueryRow(ctx, updateMemberFoodPreference, arg.StudentID, arg.FoodPreference)
+	var i UpdateMemberFoodPreferenceRow
+	err := row.Scan(
+		&i.ID,
+		&i.StudentID,
+		&i.FirstName,
+		&i.Nickname,
+		&i.LastName,
+		&i.PicturePath,
+		&i.ClassProgramme,
+		&i.ClassYear,
+		&i.Visible,
+		&i.FoodPreference,
+		&i.Bio,
+		&i.Email,
+		&i.GraduationYear,
+		&i.Language,
+	)
+	return i, err
+}
+
+const updateMemberProfile = `-- name: UpdateMemberProfile :one
+UPDATE members
+SET first_name = $2, last_name = $3, nickname = $4, class_programme = $5,
+    class_year = $6, graduation_year = $7, language = $8, bio = $9
+WHERE student_id = $1
+RETURNING id, student_id, first_name, nickname, last_name, picture_path, class_programme,
+          class_year, visible, food_preference, bio, email, graduation_year, language
+`
+
+type UpdateMemberProfileParams struct {
+	StudentID      pgtype.Text `json:"student_id"`
+	FirstName      pgtype.Text `json:"first_name"`
+	LastName       pgtype.Text `json:"last_name"`
+	Nickname       pgtype.Text `json:"nickname"`
+	ClassProgramme pgtype.Text `json:"class_programme"`
+	ClassYear      pgtype.Int4 `json:"class_year"`
+	GraduationYear pgtype.Int4 `json:"graduation_year"`
+	Language       pgtype.Text `json:"language"`
+	Bio            pgtype.Text `json:"bio"`
+}
+
+type UpdateMemberProfileRow struct {
+	ID             pgtype.UUID `json:"id"`
+	StudentID      pgtype.Text `json:"student_id"`
+	FirstName      pgtype.Text `json:"first_name"`
+	Nickname       pgtype.Text `json:"nickname"`
+	LastName       pgtype.Text `json:"last_name"`
+	PicturePath    pgtype.Text `json:"picture_path"`
+	ClassProgramme pgtype.Text `json:"class_programme"`
+	ClassYear      pgtype.Int4 `json:"class_year"`
+	Visible        bool        `json:"visible"`
+	FoodPreference pgtype.Text `json:"food_preference"`
+	Bio            pgtype.Text `json:"bio"`
+	Email          pgtype.Text `json:"email"`
+	GraduationYear pgtype.Int4 `json:"graduation_year"`
+	Language       pgtype.Text `json:"language"`
+}
+
+func (q *Queries) UpdateMemberProfile(ctx context.Context, arg UpdateMemberProfileParams) (UpdateMemberProfileRow, error) {
+	row := q.db.QueryRow(ctx, updateMemberProfile,
+		arg.StudentID,
+		arg.FirstName,
+		arg.LastName,
+		arg.Nickname,
+		arg.ClassProgramme,
+		arg.ClassYear,
+		arg.GraduationYear,
+		arg.Language,
+		arg.Bio,
+	)
+	var i UpdateMemberProfileRow
+	err := row.Scan(
+		&i.ID,
+		&i.StudentID,
+		&i.FirstName,
+		&i.Nickname,
+		&i.LastName,
+		&i.PicturePath,
+		&i.ClassProgramme,
+		&i.ClassYear,
+		&i.Visible,
+		&i.FoodPreference,
+		&i.Bio,
+		&i.Email,
+		&i.GraduationYear,
+		&i.Language,
+	)
+	return i, err
+}

@@ -1,7 +1,8 @@
 -- Schema for the subset of the site's Postgres database that the Go backend
 -- currently owns: articles and events, and everything they depend on
 -- (authors, members, committees, positions, mandates, tags, phadder
--- groups).
+-- groups); plus the directory-foundation domain (members/committees/
+-- positions/mandates in full, email_aliases, markdowns, api_access_policies).
 --
 -- This mirrors tables that already exist in the shared database (previously
 -- managed by ../../src/database/schema.zmodel / Prisma migrations) — column
@@ -42,6 +43,12 @@ CREATE TABLE positions (
     description_en TEXT,
     end_month      INTEGER NOT NULL DEFAULT 11,
     start_month    INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE email_aliases (
+    id           UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    position_id  VARCHAR(255) NOT NULL REFERENCES positions (id),
+    email        VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE phadder_groups (
@@ -186,6 +193,16 @@ CREATE TABLE api_access_policies (
     role       VARCHAR(255),
     student_id VARCHAR(255) REFERENCES members (student_id),
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Generic named markdown content, keyed by an arbitrary string convention
+-- rather than a foreign key - e.g. a committee's about-text is stored at
+-- key `<shortName>`, its sidebar links at `<shortName>_links`. Not
+-- committee-specific; other future features read this table too.
+CREATE TABLE markdowns (
+    name         VARCHAR(255) NOT NULL PRIMARY KEY,
+    markdown_sv  TEXT NOT NULL,
+    markdown_en  TEXT
 );
 
 -- Implicit Prisma many-to-many join tables (named "_article_tags" /

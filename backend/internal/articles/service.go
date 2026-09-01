@@ -496,29 +496,6 @@ func (s *Service) ListTags(ctx context.Context) ([]Tag, error) {
 	return tags, nil
 }
 
-// ListCommittees lists committees, optionally filtered to one by shortName
-// (e.g. for the committee-news page resolving a URL slug to a committee).
-func (s *Service) ListCommittees(ctx context.Context, shortName *string) ([]Committee, error) {
-	rows, err := s.queries.ListCommittees(ctx, dbutil.TextOrInvalid(shortName))
-	if err != nil {
-		return nil, fmt.Errorf("list committees: %w", err)
-	}
-	loc := locale.FromContext(ctx)
-	committees := make([]Committee, len(rows))
-	for i, r := range rows {
-		nameEn := dbutil.TextPtr(r.NameEn)
-		committees[i] = Committee{
-			ID:        dbutil.UUIDStr(r.ID),
-			Name:      dbutil.ResolveName(r.NameSv, nameEn, loc),
-			NameSv:    r.NameSv,
-			NameEn:    nameEn,
-			ShortName: dbutil.TextPtr(r.ShortName),
-			SymbolURL: dbutil.TextPtr(r.SymbolUrl),
-		}
-	}
-	return committees, nil
-}
-
 // ListActiveMandatesForMember lists a member's currently-active mandates
 // (see ListActiveMandatesForMember's SQL doc comment for "active") - used
 // for the "post as" author picker.
@@ -540,7 +517,7 @@ func (s *Service) ListActiveMandatesForMember(
 		nameEn := dbutil.TextPtr(r.PositionNameEn)
 		mandates[i] = Mandate{
 			ID: dbutil.UUIDStr(r.ID),
-			Position: Position{
+			Position: &Position{
 				ID:     r.PositionID,
 				Name:   dbutil.ResolveName(r.PositionNameSv, nameEn, loc),
 				NameSv: r.PositionNameSv,

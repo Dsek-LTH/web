@@ -10,36 +10,15 @@ import (
 )
 
 // registerDirectoryRoutes registers the small set of non-article lookups
-// article features depend on (committees, a member's mandates, custom
-// authors) - added minimally to support the article "post as" picker and
-// committee-news page, not as a first step toward porting those domains in
-// full. See ../../DESIGN.md's "Leftover Prisma calls" note.
+// article features depend on (a member's mandates, custom authors) - added
+// minimally to support the article "post as" picker, not as a first step
+// toward porting those domains in full. See ../../DESIGN.md's "Leftover
+// Prisma calls" note. GET /committees itself moved to
+// registerCommitteeRoutes (huma_committees.go) once committees were ported
+// in full (Phase 1, directory foundation) - this package's own
+// ListCommittees method is unused by any route now but stays, since
+// nothing about removing the route requires removing the Service method.
 func registerDirectoryRoutes(api huma.API, svc *articles.Service) {
-	huma.Register(api, huma.Operation{
-		OperationID: "list-committees",
-		Method:      http.MethodGet,
-		Path:        "/committees",
-		Summary:     "List committees, optionally filtered to one by shortName",
-	}, func(ctx context.Context, input *struct {
-		ShortName string `query:"shortName"`
-	},
-	) (*struct {
-		Body []articles.Committee
-	}, error,
-	) {
-		var shortName *string
-		if input.ShortName != "" {
-			shortName = &input.ShortName
-		}
-		committees, err := svc.ListCommittees(ctx, shortName)
-		if err != nil {
-			return nil, humaServiceError(err)
-		}
-		return &struct {
-			Body []articles.Committee
-		}{Body: committees}, nil
-	})
-
 	huma.Register(api, huma.Operation{
 		OperationID: "list-member-mandates",
 		Method:      http.MethodGet,

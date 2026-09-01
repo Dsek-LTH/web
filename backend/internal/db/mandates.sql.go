@@ -11,6 +11,46 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const createMandate = `-- name: CreateMandate :one
+INSERT INTO mandates (member_id, position_id, start_date, end_date, last_synced)
+VALUES ($1, $2, $3, $4, CURRENT_DATE)
+RETURNING id, start_date, end_date
+`
+
+type CreateMandateParams struct {
+	MemberID   pgtype.UUID `json:"member_id"`
+	PositionID string      `json:"position_id"`
+	StartDate  pgtype.Date `json:"start_date"`
+	EndDate    pgtype.Date `json:"end_date"`
+}
+
+type CreateMandateRow struct {
+	ID        pgtype.UUID `json:"id"`
+	StartDate pgtype.Date `json:"start_date"`
+	EndDate   pgtype.Date `json:"end_date"`
+}
+
+func (q *Queries) CreateMandate(ctx context.Context, arg CreateMandateParams) (CreateMandateRow, error) {
+	row := q.db.QueryRow(ctx, createMandate,
+		arg.MemberID,
+		arg.PositionID,
+		arg.StartDate,
+		arg.EndDate,
+	)
+	var i CreateMandateRow
+	err := row.Scan(&i.ID, &i.StartDate, &i.EndDate)
+	return i, err
+}
+
+const deleteMandate = `-- name: DeleteMandate :exec
+DELETE FROM mandates WHERE id = $1
+`
+
+func (q *Queries) DeleteMandate(ctx context.Context, id pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, deleteMandate, id)
+	return err
+}
+
 const listActiveMandatesForMember = `-- name: ListActiveMandatesForMember :many
 SELECT m.id, p.id AS position_id, p.name_sv AS position_name_sv, p.name_en AS position_name_en
 FROM mandates m
@@ -53,4 +93,149 @@ func (q *Queries) ListActiveMandatesForMember(ctx context.Context, memberID pgty
 		return nil, err
 	}
 	return items, nil
+}
+
+const listMandatesForMember = `-- name: ListMandatesForMember :many
+SELECT m.id, m.start_date, m.end_date,
+       p.id AS position_id, p.name_sv AS position_name_sv, p.name_en AS position_name_en,
+       c.id AS committee_id, c.name_sv AS committee_name_sv, c.name_en AS committee_name_en,
+       c.short_name AS committee_short_name
+FROM mandates m
+JOIN positions p ON p.id = m.position_id
+LEFT JOIN committees c ON c.id = p.committee_id
+WHERE m.member_id = $1
+ORDER BY m.start_date DESC
+`
+
+type ListMandatesForMemberRow struct {
+	ID                 pgtype.UUID `json:"id"`
+	StartDate          pgtype.Date `json:"start_date"`
+	EndDate            pgtype.Date `json:"end_date"`
+	PositionID         string      `json:"position_id"`
+	PositionNameSv     string      `json:"position_name_sv"`
+	PositionNameEn     pgtype.Text `json:"position_name_en"`
+	CommitteeID        pgtype.UUID `json:"committee_id"`
+	CommitteeNameSv    pgtype.Text `json:"committee_name_sv"`
+	CommitteeNameEn    pgtype.Text `json:"committee_name_en"`
+	CommitteeShortName pgtype.Text `json:"committee_short_name"`
+}
+
+// Full mandate history (not just currently-active, unlike
+// ListActiveMandatesForMember) for a member's profile page, joined to
+// position+committee for display.
+func (q *Queries) ListMandatesForMember(ctx context.Context, memberID pgtype.UUID) ([]ListMandatesForMemberRow, error) {
+	rows, err := q.db.Query(ctx, listMandatesForMember, memberID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListMandatesForMemberRow{}
+	for rows.Next() {
+		var i ListMandatesForMemberRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.StartDate,
+			&i.EndDate,
+			&i.PositionID,
+			&i.PositionNameSv,
+			&i.PositionNameEn,
+			&i.CommitteeID,
+			&i.CommitteeNameSv,
+			&i.CommitteeNameEn,
+			&i.CommitteeShortName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listMandatesForPosition = `-- name: ListMandatesForPosition :many
+SELECT m.id, m.start_date, m.end_date, mem.id AS member_id, mem.student_id,
+       mem.first_name, mem.nickname, mem.last_name, mem.picture_path
+FROM mandates m
+JOIN members mem ON mem.id = m.member_id
+WHERE m.position_id = $1
+  AND m.start_date <= make_date($2::int, 12, 31)
+  AND m.end_date >= make_date($2::int, 1, 1)
+ORDER BY m.start_date DESC
+`
+
+type ListMandatesForPositionParams struct {
+	PositionID string `json:"position_id"`
+	Year       int32  `json:"year"`
+}
+
+type ListMandatesForPositionRow struct {
+	ID          pgtype.UUID `json:"id"`
+	StartDate   pgtype.Date `json:"start_date"`
+	EndDate     pgtype.Date `json:"end_date"`
+	MemberID    pgtype.UUID `json:"member_id"`
+	StudentID   pgtype.Text `json:"student_id"`
+	FirstName   pgtype.Text `json:"first_name"`
+	Nickname    pgtype.Text `json:"nickname"`
+	LastName    pgtype.Text `json:"last_name"`
+	PicturePath pgtype.Text `json:"picture_path"`
+}
+
+// Year-scoped (overlapping [year-01-01, year-12-31]), joined to member -
+// mirrors the old committee/position detail pages' year filter.
+func (q *Queries) ListMandatesForPosition(ctx context.Context, arg ListMandatesForPositionParams) ([]ListMandatesForPositionRow, error) {
+	rows, err := q.db.Query(ctx, listMandatesForPosition, arg.PositionID, arg.Year)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListMandatesForPositionRow{}
+	for rows.Next() {
+		var i ListMandatesForPositionRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.StartDate,
+			&i.EndDate,
+			&i.MemberID,
+			&i.StudentID,
+			&i.FirstName,
+			&i.Nickname,
+			&i.LastName,
+			&i.PicturePath,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const updateMandate = `-- name: UpdateMandate :one
+UPDATE mandates
+SET start_date = $2, end_date = $3
+WHERE id = $1
+RETURNING id, start_date, end_date
+`
+
+type UpdateMandateParams struct {
+	ID        pgtype.UUID `json:"id"`
+	StartDate pgtype.Date `json:"start_date"`
+	EndDate   pgtype.Date `json:"end_date"`
+}
+
+type UpdateMandateRow struct {
+	ID        pgtype.UUID `json:"id"`
+	StartDate pgtype.Date `json:"start_date"`
+	EndDate   pgtype.Date `json:"end_date"`
+}
+
+func (q *Queries) UpdateMandate(ctx context.Context, arg UpdateMandateParams) (UpdateMandateRow, error) {
+	row := q.db.QueryRow(ctx, updateMandate, arg.ID, arg.StartDate, arg.EndDate)
+	var i UpdateMandateRow
+	err := row.Scan(&i.ID, &i.StartDate, &i.EndDate)
+	return i, err
 }

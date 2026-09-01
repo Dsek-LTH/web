@@ -11,13 +11,16 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/joho/godotenv"
 
+	"github.com/dsek-lth/web/backend/internal/accesspolicies"
 	"github.com/dsek-lth/web/backend/internal/api"
 	"github.com/dsek-lth/web/backend/internal/apinames"
 	"github.com/dsek-lth/web/backend/internal/articles"
 	"github.com/dsek-lth/web/backend/internal/auth"
+	"github.com/dsek-lth/web/backend/internal/committees"
 	"github.com/dsek-lth/web/backend/internal/db"
 	"github.com/dsek-lth/web/backend/internal/events"
 	"github.com/dsek-lth/web/backend/internal/integrations"
+	"github.com/dsek-lth/web/backend/internal/members"
 )
 
 func main() {
@@ -76,9 +79,15 @@ func main() {
 		integrations.MockUploader{},
 	)
 	eventSvc := events.NewService(pool)
+	memberSvc := members.NewService(pool)
+	committeeSvc := committees.NewService(pool)
+	accessPolicySvc := accesspolicies.NewService(pool)
 	router := api.NewRouter(
 		articleSvc,
 		eventSvc,
+		memberSvc,
+		committeeSvc,
+		accessPolicySvc,
 		authenticator,
 		oidcClient,
 		queries,

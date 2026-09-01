@@ -11,35 +11,94 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const listCommittees = `-- name: ListCommittees :many
-SELECT id, name_sv, name_en, short_name, symbol_url FROM committees
-WHERE $1::text IS NULL OR short_name = $1::text
-ORDER BY name_sv
+const getCommitteeByShortName = `-- name: GetCommitteeByShortName :one
+SELECT id, name_sv, name_en, short_name, description_sv, description_en,
+       dark_image_url, light_image_url, mono_image_url, symbol_url,
+       banner_url, is_banner_text_light, preview_url
+FROM committees
+WHERE short_name = $1
 `
 
-type ListCommitteesRow struct {
-	ID        pgtype.UUID `json:"id"`
-	NameSv    string      `json:"name_sv"`
-	NameEn    pgtype.Text `json:"name_en"`
-	ShortName pgtype.Text `json:"short_name"`
-	SymbolUrl pgtype.Text `json:"symbol_url"`
+func (q *Queries) GetCommitteeByShortName(ctx context.Context, shortName pgtype.Text) (Committee, error) {
+	row := q.db.QueryRow(ctx, getCommitteeByShortName, shortName)
+	var i Committee
+	err := row.Scan(
+		&i.ID,
+		&i.NameSv,
+		&i.NameEn,
+		&i.ShortName,
+		&i.DescriptionSv,
+		&i.DescriptionEn,
+		&i.DarkImageUrl,
+		&i.LightImageUrl,
+		&i.MonoImageUrl,
+		&i.SymbolUrl,
+		&i.BannerUrl,
+		&i.IsBannerTextLight,
+		&i.PreviewUrl,
+	)
+	return i, err
 }
 
-func (q *Queries) ListCommittees(ctx context.Context, shortName pgtype.Text) ([]ListCommitteesRow, error) {
-	rows, err := q.db.Query(ctx, listCommittees, shortName)
+const listCommitteesWithCounts = `-- name: ListCommitteesWithCounts :many
+SELECT c.id, c.name_sv, c.name_en, c.short_name, c.description_sv, c.description_en,
+       c.dark_image_url, c.light_image_url, c.mono_image_url, c.symbol_url,
+       c.banner_url, c.is_banner_text_light, c.preview_url,
+       count(m.id) AS mandate_count,
+       count(DISTINCT m.member_id) AS member_count
+FROM committees c
+LEFT JOIN positions p ON p.committee_id = c.id
+LEFT JOIN mandates m ON m.position_id = p.id
+    AND m.start_date <= CURRENT_DATE AND m.end_date >= CURRENT_DATE
+GROUP BY c.id
+ORDER BY c.name_sv
+`
+
+type ListCommitteesWithCountsRow struct {
+	ID                pgtype.UUID `json:"id"`
+	NameSv            string      `json:"name_sv"`
+	NameEn            pgtype.Text `json:"name_en"`
+	ShortName         pgtype.Text `json:"short_name"`
+	DescriptionSv     pgtype.Text `json:"description_sv"`
+	DescriptionEn     pgtype.Text `json:"description_en"`
+	DarkImageUrl      pgtype.Text `json:"dark_image_url"`
+	LightImageUrl     pgtype.Text `json:"light_image_url"`
+	MonoImageUrl      pgtype.Text `json:"mono_image_url"`
+	SymbolUrl         pgtype.Text `json:"symbol_url"`
+	BannerUrl         pgtype.Text `json:"banner_url"`
+	IsBannerTextLight bool        `json:"is_banner_text_light"`
+	PreviewUrl        pgtype.Text `json:"preview_url"`
+	MandateCount      int64       `json:"mandate_count"`
+	MemberCount       int64       `json:"member_count"`
+}
+
+// Full fields + currently-active mandate/unique-member counts, for the
+// committee overview page (mirrors the old "about" page's query).
+func (q *Queries) ListCommitteesWithCounts(ctx context.Context) ([]ListCommitteesWithCountsRow, error) {
+	rows, err := q.db.Query(ctx, listCommitteesWithCounts)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []ListCommitteesRow{}
+	items := []ListCommitteesWithCountsRow{}
 	for rows.Next() {
-		var i ListCommitteesRow
+		var i ListCommitteesWithCountsRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.NameSv,
 			&i.NameEn,
 			&i.ShortName,
+			&i.DescriptionSv,
+			&i.DescriptionEn,
+			&i.DarkImageUrl,
+			&i.LightImageUrl,
+			&i.MonoImageUrl,
 			&i.SymbolUrl,
+			&i.BannerUrl,
+			&i.IsBannerTextLight,
+			&i.PreviewUrl,
+			&i.MandateCount,
+			&i.MemberCount,
 		); err != nil {
 			return nil, err
 		}
@@ -49,4 +108,60 @@ func (q *Queries) ListCommittees(ctx context.Context, shortName pgtype.Text) ([]
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateCommittee = `-- name: UpdateCommittee :one
+UPDATE committees
+SET description_sv = $2, description_en = $3, dark_image_url = $4, light_image_url = $5,
+    mono_image_url = $6, symbol_url = $7, banner_url = $8, is_banner_text_light = $9,
+    preview_url = $10
+WHERE short_name = $1
+RETURNING id, name_sv, name_en, short_name, description_sv, description_en,
+          dark_image_url, light_image_url, mono_image_url, symbol_url,
+          banner_url, is_banner_text_light, preview_url
+`
+
+type UpdateCommitteeParams struct {
+	ShortName         pgtype.Text `json:"short_name"`
+	DescriptionSv     pgtype.Text `json:"description_sv"`
+	DescriptionEn     pgtype.Text `json:"description_en"`
+	DarkImageUrl      pgtype.Text `json:"dark_image_url"`
+	LightImageUrl     pgtype.Text `json:"light_image_url"`
+	MonoImageUrl      pgtype.Text `json:"mono_image_url"`
+	SymbolUrl         pgtype.Text `json:"symbol_url"`
+	BannerUrl         pgtype.Text `json:"banner_url"`
+	IsBannerTextLight bool        `json:"is_banner_text_light"`
+	PreviewUrl        pgtype.Text `json:"preview_url"`
+}
+
+func (q *Queries) UpdateCommittee(ctx context.Context, arg UpdateCommitteeParams) (Committee, error) {
+	row := q.db.QueryRow(ctx, updateCommittee,
+		arg.ShortName,
+		arg.DescriptionSv,
+		arg.DescriptionEn,
+		arg.DarkImageUrl,
+		arg.LightImageUrl,
+		arg.MonoImageUrl,
+		arg.SymbolUrl,
+		arg.BannerUrl,
+		arg.IsBannerTextLight,
+		arg.PreviewUrl,
+	)
+	var i Committee
+	err := row.Scan(
+		&i.ID,
+		&i.NameSv,
+		&i.NameEn,
+		&i.ShortName,
+		&i.DescriptionSv,
+		&i.DescriptionEn,
+		&i.DarkImageUrl,
+		&i.LightImageUrl,
+		&i.MonoImageUrl,
+		&i.SymbolUrl,
+		&i.BannerUrl,
+		&i.IsBannerTextLight,
+		&i.PreviewUrl,
+	)
+	return i, err
 }

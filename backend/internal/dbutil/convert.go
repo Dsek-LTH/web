@@ -118,3 +118,39 @@ func StringOr(s *string, fallback string) string {
 	}
 	return *s
 }
+
+func Int4Ptr(i pgtype.Int4) *int32 {
+	if !i.Valid {
+		return nil
+	}
+	return &i.Int32
+}
+
+// ToInt4 converts an optional int32 into pgtype.Int4, distinguishing "not
+// provided" (nil) from an explicit value - same convention as ToText.
+func ToInt4(i *int32) pgtype.Int4 {
+	if i == nil {
+		return pgtype.Int4{}
+	}
+	return pgtype.Int4{Int32: *i, Valid: true}
+}
+
+// DatePtr formats a pgtype.Date as "YYYY-MM-DD" - dates are exchanged with
+// clients as plain date strings (no time-of-day/timezone), not RFC3339
+// timestamps.
+func DatePtr(d pgtype.Date) *string {
+	if !d.Valid {
+		return nil
+	}
+	s := d.Time.Format("2006-01-02")
+	return &s
+}
+
+// ParseDate parses a client-supplied "YYYY-MM-DD" date string.
+func ParseDate(s string) (pgtype.Date, error) {
+	t, err := time.Parse("2006-01-02", s)
+	if err != nil {
+		return pgtype.Date{}, err
+	}
+	return pgtype.Date{Time: t, Valid: true}, nil
+}

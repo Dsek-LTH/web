@@ -158,6 +158,12 @@ type CustomAuthorRole struct {
 	UpdatedAt      pgtype.Timestamptz `json:"updated_at"`
 }
 
+type EmailAlias struct {
+	ID         pgtype.UUID `json:"id"`
+	PositionID string      `json:"position_id"`
+	Email      string      `json:"email"`
+}
+
 type Event struct {
 	ID                 pgtype.UUID        `json:"id"`
 	TitleSv            string             `json:"title_sv"`
@@ -213,6 +219,12 @@ type Mandate struct {
 	EndDate     pgtype.Date `json:"end_date"`
 	PhadderInId pgtype.UUID `json:"phadderInId"`
 	LastSynced  pgtype.Date `json:"last_synced"`
+}
+
+type Markdown struct {
+	Name       string      `json:"name"`
+	MarkdownSv string      `json:"markdown_sv"`
+	MarkdownEn pgtype.Text `json:"markdown_en"`
 }
 
 type Member struct {

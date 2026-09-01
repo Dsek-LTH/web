@@ -20,6 +20,21 @@ const (
 	EventDelete        = "event:delete"
 	EventComment       = "event:comment"
 	EventCommentDelete = "event:comment:delete"
+
+	MemberUpdate   = "core:member:update"
+	MemberSeeEmail = "member:see_email"
+
+	CommitteeUpdate = "core:committee:update"
+
+	PositionUpdate = "core:position:update"
+
+	MandateCreate = "core:mandate:create"
+	MandateUpdate = "core:mandate:update"
+	MandateDelete = "core:mandate:delete"
+
+	AccessPolicyRead   = "core:access:api:read"
+	AccessPolicyCreate = "core:access:api:create"
+	AccessPolicyDelete = "core:access:api:delete"
 )
 
 // All lists every policy this API currently checks - used to build the
@@ -41,5 +56,15 @@ func All() []string {
 		EventDelete,
 		EventComment,
 		EventCommentDelete,
+		MemberUpdate,
+		MemberSeeEmail,
+		CommitteeUpdate,
+		PositionUpdate,
+		MandateCreate,
+		MandateUpdate,
+		MandateDelete,
+		AccessPolicyRead,
+		AccessPolicyCreate,
+		AccessPolicyDelete,
 	}
 }
