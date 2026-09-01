@@ -22,6 +22,7 @@
     >.<br />Denna sida finns kvar för arkivering av gamla utlägg.
   </span>
 </div>
+
 <div class="flex flex-row gap-1">
   <a href="/expenses/all"
     ><Button variant="lila"><List /> {m.expense_allExpenses()}</Button></a
