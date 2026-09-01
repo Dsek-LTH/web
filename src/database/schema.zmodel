@@ -191,7 +191,7 @@ model Author {
     // Hide author if the member behind it is currently stab, or if it was posted as a "stab" mandate, AND user does not "see staben"
     // There is one exception: If the author is of type "Custom Author" then it is fine to show, as the person behind it is not shown
     @@deny("read", type != "Custom" && (
-                  startsWith(mandate.positionId, "dsek.noll.stab.") 
+                  startsWith(mandate.positionId, "dsek.noll.stab.")
                   || member.mandates?[startDate < now() && now() < endDate && (startsWith(positionId, "dsek.noll.stab."))]
                   ) && !has(auth().policies, "member:see_staben") && auth().memberId != memberId)
 }
@@ -521,7 +521,7 @@ model Mandate {
     authors     Author[]
     member      Member        @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "mandates_member_id_foreign")
     position    Position      @relation(fields: [positionId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "mandates_position_id_foreign")
-  
+
     // Used on phadder mandates to connect to the phadder group
     phadderInId String?       @db.Uuid @allow("update", auth().memberId == memberId || has(auth().policies, "nollning:phaddrar:groups:manage"))
     phadderIn   PhadderGroup? @relation(fields: [phadderInId], references: [id], onDelete: SetNull, onUpdate: NoAction)
@@ -881,7 +881,7 @@ model ProductInventory {
     @@map("product_inventory")
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Songs{
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model Song {
     id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
     title     String    @db.VarChar(255)
@@ -894,11 +894,30 @@ model Song {
     deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
     video     String?
 
+    songBookEntry SongBookEntry?
+
     @@allow("create", has(auth().policies, "song:create"))
     @@allow("read", has(auth().policies, "song:read"))
     @@deny("read", deletedAt != null)
     @@allow("update", has(auth().policies, "song:update"))
     @@map("songs")
+}
+
+model SongBookEntry {
+    songId          String    @unique @db.Uuid
+    song            Song      @relation(fields: [songId], references: [id])
+    page            Int
+    numberOnPage    Int
+    createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+    deletedAt       DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+    @@id([page, numberOnPage])
+
+    @@allow("create", has(auth().policies, "song:create"))
+    @@allow("read", has(auth().policies, "song:read"))
+    @@deny("read", deletedAt != null)
+    @@allow("update", has(auth().policies, "song:update"))
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -1022,8 +1041,8 @@ model Shoppable {
     @@allow("update", auth().memberId == authorId || has(auth().policies, "webshop:manage"))
 
     // I would like to do something like this but it is not possible because has(list: Any[], literal: Any) requires a literal
-    // @@allow("read", isEmpty(accessPolicies) || 
-    //   accessPolicies?[exists(role != null && has(auth().roles, role)) || 
+    // @@allow("read", isEmpty(accessPolicies) ||
+    //   accessPolicies?[exists(role != null && has(auth().roles, role)) ||
     //                   (studentId != null && auth().studentId == studentId)])
     @@allow("read", true)
 
@@ -1259,7 +1278,7 @@ model ExpenseItem {
     @@allow("create", has(auth().policies, "expenses:create") /* && signerMemberId != expense.memberId (TODO: Uncomment this when we upgrade to zenstack v2) */ && signedByMemberId == null && signedAt == null)
     // copy auth from Expense
     @@allow("read", (
-    expense.memberId == auth().memberId 
+    expense.memberId == auth().memberId
     || expense.items?[signerMemberId == auth().memberId]
     || has(auth().policies, "expenses:bookkeeping")
   ))
@@ -1328,7 +1347,7 @@ model CafeShift {
   )
 
     @@allow("delete", (
-    workerId == auth().memberId 
+    workerId == auth().memberId
     || has(auth().policies, "cafe:edit_workers")
   ))
     @@unique([date, timeSlot], map: "date_timeslot_unique")
