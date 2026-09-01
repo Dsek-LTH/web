@@ -242,7 +242,22 @@ export const handle = sequence(
     inflightRequests.inc();
     const endTimer = httpRequestDurationMs.startTimer({ method, route });
     try {
-      const response = await resolve(event);
+      // openapi-fetch reads the Content-Length response header on every
+      // call (see openapi-fetch/src/index.js) to decide whether to parse
+      // an empty body - during SSR, SvelteKit patches Response.headers.get
+      // to throw on any header not explicitly allow-listed here (so
+      // sensitive headers from a server-side fetch() don't leak into the
+      // hydration payload). Go's responses sometimes carry a real
+      // Content-Length (buffered) and sometimes don't (chunked), so which
+      // pages 500 here is incidental to Go's transfer encoding, not to
+      // which load function runs - allow-listing this one non-sensitive
+      // header is the actual fix, not a per-route workaround. Per
+      // sequence()'s doc comment, filterSerializedResponseHeaders uses
+      // whichever handle defines it first in the chain, so it has to live
+      // on this outermost handle to take effect at all.
+      const response = await resolve(event, {
+        filterSerializedResponseHeaders: (name) => name === "content-length",
+      });
       const status = String(response.status);
       httpRequestsTotal.inc({ method, route, status_code: status });
       endTimer({ status_code: status });
