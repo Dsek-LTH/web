@@ -985,11 +985,59 @@ ported).
      `isAuthorized`/`authorize`/`getDerivedRoles` are **not** deleted yet -
      still genuinely needed by the (unported) rest of the app - revisit
      once nothing else calls them.
+6. **Every phase fully de-Prisma-ifies its own domain's SvelteKit-side
+   backend; only building the *visual* UI for a currently-stub page is
+   deferred (decided 2026-09-02, refined twice more the same day through
+   direct conversation before landing here - no earlier draft was ever
+   committed, so there's nothing to diff against; this is simply the
+   settled version).** Phases 3-12 are not "backend
+   only" in the sense of leaving SvelteKit's own `.server.ts`/`+server.ts`
+   files untouched - they cover the domain's entire backend, Go and
+   SvelteKit-side both:
+   - Go endpoints get built (as always).
+   - Every `.server.ts`/`+server.ts` for that domain gets ported to call
+     Go instead of Prisma, **including for routes whose `.svelte` is
+     currently `<NotImplemented />`** - same pattern already used for
+     `committees/nollu/groups/manage`, `admin/settings`, and
+     `(nollning)/nollning`'s `+page.server.ts` files in phase 2's frontend
+     pass: the load/actions get ported to the Go API even though nobody
+     can see the page yet, because leaving them silently broken (or
+     Prisma-drifted) until phase 13 is worse than porting logic nobody
+     renders yet. Dead old TS code this obsoletes (bespoke `+server.ts`
+     endpoints, zod schemas, helper modules) gets deleted in the same
+     pass once confirmed to have zero real callers.
+   - **If the route already has a real, working `.svelte` page**, that
+     page gets updated in the same phase too, matching what phase 1 and
+     phase 2 actually did. This isn't "building new UI" the way filling in
+     a stub is - it's finishing that page's plumbing (new response
+     shapes, dropping now-dead Prisma-derived types) while the domain's
+     data model is already front-of-mind, so there's no reason to
+     defer it.
+   - **If the route is currently `<NotImplemented />`**, its `.svelte`
+     stays exactly that until phase 13. Everything *behind* the stub
+     (Go endpoints, `.server.ts`) is ported now per the bullet above -
+     only the missing visual page waits. This is the actual
+     context-switching concern the earlier drafts of this principle were
+     reaching for: don't design/build *new* UI alongside backend porting,
+     but rewiring a page that already exists isn't new UI, so it doesn't
+     need to wait either.
+   - **Cannot wait for phase 13 regardless of the above**: if a phase's
+     migration changes or drops a column/table `src/database/schema.zmodel`
+     still declares, that file must be updated in the same pass as the
+     migration, every time, no exceptions - an out-of-sync Prisma model
+     breaks any untouched `prisma.*` call touching that model immediately,
+     for everyone, independent of any `.svelte` page's status (this
+     already happened once: phase 2's `phadder_groups.year` → `season_id`
+     migration broke every default-selecting `prisma.phadderGroup.*` call
+     for a full day before anyone had touched that phase's frontend at
+     all - see `backend/CLAUDE.md`'s "Prisma schema drift" note). Only a
+     phase that actually alters a shared table's live schema needs this;
+     tables a phase doesn't touch are unaffected.
 
 ## Roadmap: migrating the remaining backend (proposed 2026-09-01, not yet implemented)
 
 **Status: proposed phase ordering, agreed 2026-09-01.** Phase 1 (directory
-foundation) and phase 2 (nollning redesign, backend only) are now
+foundation) and phase 2 (nollning redesign, backend and frontend) are now
 implemented - see each phase's own status note below. **Superseded:** this
 paragraph originally flagged the nollning subsection as "a proposal, not
 yet decided in detail" with open questions to resolve during
@@ -1063,6 +1111,13 @@ nollning itself needs real, deliberate design, not permanent exclusion.
   needs most of the above ported first to be worth doing for real.
 
 ### Phase order (dependency-driven, agreed 2026-09-01)
+
+Each phase below covers its domain's whole backend - Go endpoints and
+SvelteKit's own `.server.ts`/`+server.ts` layer both, per principle #6
+above - not just the Go side. The only thing phases 3-12 defer to phase 13
+is building a *visual* `.svelte` page for a route that's currently
+`<NotImplemented />`; a route that already has a real page gets that page
+updated in its own phase, same as phase 1 and phase 2 already did.
 
 1. **Directory foundation** - full `members`/`mandates`/`positions`/
    `committees` CRUD and profile pages, `AccessPolicy`/`EmailAlias` admin
@@ -1159,6 +1214,47 @@ nollning itself needs real, deliberate design, not permanent exclusion.
     debug - thin wrappers over domains that need to exist first.
 12. **Search** - cross-entity search, deliberately last so it has
     something real to search across.
+13. **Frontend implementation sweep** - per principle #6, phases 3-12
+    already ported every domain's Go endpoints *and* SvelteKit-side
+    `.server.ts`/`+server.ts` layer, and already updated any route that
+    had a real working page. This phase's only job is the one thing that
+    was deliberately deferred: design and build a real `.svelte` page for
+    every route still showing `<NotImplemented />`, now that every
+    backend domain exists to build against and none of it needs to happen
+    alongside backend porting. Not "wire the frontend" (already done per
+    phase, see principle #6) - specifically the visual/product-design work
+    of replacing each remaining stub.
+14. **Principles compliance audit** - a dedicated pass confirming the
+    SvelteKit project actually satisfies everything decided in this
+    document, not just phase-by-phase spot checks. Concretely: Prisma/
+    ZenStack fully removed (no `@prisma/client`/`zenstack` imports,
+    `src/database/` deleted, `authorizedPrismaClient`/`extendedPrisma` and
+    their dependents gone - per "Full replacement, not a bridge" in
+    Principles going forward); no server-side (or client-side) validation
+    or authorization logic duplicating what Go already enforces, beyond
+    the one already-decided exception (instant-feedback zod on authoring
+    forms, never a correctness boundary - see principle #5); every
+    remaining `+page.server.ts`/`+layout.server.ts` audited against
+    principle #4 and justified as genuinely necessary (session/cookies,
+    file uploads, secrets - something a universal `+page.ts` truly can't
+    do), not just leftover from before the API supported
+    client-authenticated calls; no bespoke `+server.ts` endpoint
+    duplicating something Go now serves directly; `src/lib/utils/
+    authorization.ts`'s `isAuthorized`/`authorize`/`getDerivedRoles` (and
+    anything similar) deleted now that nothing should still call them (see
+    principle #5's own "revisit once nothing else calls them" note - this
+    is that revisit); and a grep sweep for markers like `TEMPORARY`,
+    `not confirmed`, `revisit once`, `TODO`, `FIXME`, `HACK`, `bridge`,
+    `stopgap`, `accepted gap`, `known gap` across the SvelteKit codebase,
+    with every hit either resolved (the condition it was waiting on is now
+    true) or re-justified explicitly as a permanent, deliberate exception -
+    e.g. `MemberCard.svelte`'s "TEMPORARY dual-shape" comment naming board/
+    member-profile/etc. as pending consumers is exactly the kind of marker
+    this phase exists to close out, not leave lingering past the point its
+    own comment says it should. Deliberately last: judging "is this
+    `.server.ts` truly necessary" or "is this dual-shape type still
+    needed" isn't reliable until phase 13's real pages exist to check
+    against.
 
 Not a numbered phase: rebuilding the actual nollning **frontend** UI.
 Every `(nollning)/` page is currently a `<NotImplemented />` stub (see
@@ -1166,7 +1262,27 @@ inventory below) - phase 2 is about giving whichever team eventually
 designs that UI (or the native app) a clean, non-hacky API to build on,
 not about designing the UI itself. Treat that as a separate, later
 product effort, not blocked on this backend work being "finished," only
-on it existing.
+on it existing. **This is the exemption phase 13 (the frontend
+implementation sweep) names explicitly, not a blanket exemption for
+nollning stubs in general**: it covers specifically the `(nollning)/`
+route tree's own content (wordlist, packing lists, wellbeing info, wikia
+pages) - real content/product design work that was never a working page
+in production either, so leaving it unbuilt doesn't regress anything. It
+does **not** cover pages that already had a real, working `.svelte` before
+this phase touched them - the board page and the *public* phadder-group
+listing (`committees/nollu/groups`) both did, so both got their `.svelte`
+updated the day after the backend landed (2026-09-02), matching principle
+#6's "already-working page" treatment. `committees/nollu/groups/manage`
+and `admin/settings` are a cleaner illustration of the *other* half of
+principle #6, worth naming explicitly since they're already-real examples
+rather than hypothetical ones: both `.svelte` files were **already**
+`<NotImplemented />` stubs before phase 2 touched them, so only their
+`.server.ts` load/actions got ported to Go (closing the same Prisma-drift
+risk as everywhere else) - their actual UI is still owed to phase 13, not
+built early. See `backend/CLAUDE.md`'s "Nollning routes" section for what
+got done in that pass, which turned out to be a day-after-the-fact,
+organic instance of exactly what principle #6 now writes down as the
+general rule for phases 3-12 going forward.
 
 ### Mock replacement, just-in-time
 
