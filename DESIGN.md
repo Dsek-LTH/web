@@ -1099,13 +1099,17 @@ nollning itself needs real, deliberate design, not permanent exclusion.
    here on needs to route around nollning special-cases the way the
    current codebase does. Depends on mandates/positions (phadder-mandate
    detection) and access policies (`SEE_STABEN`) from phase 1.
-   **Status: backend implemented 2026-09-01** (`backend/internal/nollning`,
-   plus integration points in `internal/auth`, `internal/articles`,
-   `internal/events`, `internal/committees` - see `backend/CLAUDE.md`'s
-   "Nollning routes" section for the exact endpoint list). Every "proposed"
-   piece in the subsection below was built as designed, with the two
-   previously-open questions resolved (see that subsection for both).
-   Verified via `go build`/`go vet`/`go test ./...` and a live `AUTH_MOCK`
+   **Status: backend implemented 2026-09-01, frontend wiring implemented
+   2026-09-02** (`backend/internal/nollning`, plus integration points in
+   `internal/auth`, `internal/articles`, `internal/events`,
+   `internal/committees`; SvelteKit side - board page, public/admin
+   phadder-group pages, member profile/edit/onboarding, the `(nollning)/`
+   phase-check layouts, `admin/settings`/`admin/debug` - see
+   `backend/CLAUDE.md`'s "Nollning routes" section for the exact endpoint
+   list and file list on both sides). Every "proposed" piece in the
+   subsection below was built as designed, with the two previously-open
+   questions resolved (see that subsection for both). Backend pass
+   verified via `go build`/`go vet`/`go test ./...` and a live `AUTH_MOCK`
    smoke test against the dev DB: season create/current-phase transition,
    `GET /board` redaction wiring (mechanism verified by inspection - the
    mock authenticator always holds every policy including
@@ -1113,12 +1117,21 @@ nollning itself needs real, deliberate design, not permanent exclusion.
    position redacted" run wasn't possible without a second, differently-
    privileged mock identity), and a full article `PATCH` round-trip setting
    `nollningSeasonId` plus the resulting `GET /articles?nollningSeasonId=`
-   filter. **Not part of this pass, deliberately** (scope was agreed
-   upfront as "full backend pass"): every frontend piece - the season
-   picker on article/event forms, the phadder-group management page, the
-   `/board` page's own route swapping to the new endpoint, and the
-   `(nollning)/` route tree itself (unchanged, still `<NotImplemented />`
-   stubs).
+   filter. Frontend pass verified via `svelte-check`/`eslint` (0 errors)
+   and a live SSR smoke test (both dev servers) of every rewired route.
+   The frontend pass also found and fixed a real bug the backend pass
+   introduced: `phadder_groups.year`'s removal (migrated by Go) had left
+   `src/database/schema.zmodel` still declaring it, breaking every
+   untouched `prisma.phadderGroup.*` call with no explicit `select` - see
+   `backend/CLAUDE.md`'s "Prisma schema drift" note. **Still not part of
+   any pass, deliberately**: a season picker UI on article/event
+   create/edit forms (events don't even have a create/edit `.svelte` yet;
+   articles' form sends `nollningSeasonId: null`, a valid value, until one
+   exists), and the `(nollning)/` route tree's actual product UI content
+   (unchanged, still `<NotImplemented />` stubs, including two pages whose
+   `load`/`actions` got ported to Go server-side without a matching
+   `.svelte` - same precedent as events' create/edit routes). Gallery's own
+   staben redaction remains the documented Phase 4 gap it always was.
 3. **Simple standalone CRUD** - songbook, governing documents, medals,
    alerts. No dependencies beyond phase 1, low risk, good for keeping
    velocity up after the heavier nollning phase.
@@ -1177,7 +1190,8 @@ phase first has a real dependent, not in one dedicated pass.
 
 ### Nollning: proposed redesign
 
-**Status: backend implemented 2026-09-01** (`backend/internal/nollning` -
+**Status: backend implemented 2026-09-01, frontend wiring implemented
+2026-09-02** (`backend/internal/nollning` -
 see `backend/CLAUDE.md`'s "Nollning routes" section for the endpoint list
 and any small deviations from the shape proposed below). Kept as "proposed
 redesign" in the heading since the rest of this subsection is left intact
@@ -1397,13 +1411,16 @@ each domain re-deriving its own answer:
   simplified for it - the dev DB happened to have zero `phadder_groups`
   rows and zero `[NOLLNING]`-tagged content at implementation time, which
   was used only to confirm the migrations don't error on an empty case,
-  never as a basis for the backfill logic itself. **Known gap, not closed
-  by this pass**: per this doc's "no bridge period" principle the old TS
-  code reading `year`/`nollningGroupId`/`phadderInId`/`[NOLLNING]`-prefix
-  conventions and the `AdminSetting`-backed `isNollningPeriod()` should be
-  deleted once Go's replacement exists - that SvelteKit-side deletion
-  didn't happen in this pass (scope was agreed as backend-only, see this
-  phase's status note above), so the old and new mechanisms currently
-  coexist unlinked rather than the old one being retired. Whoever does the
-  frontend wiring pass should delete the old TS mechanisms in that same
-  pass rather than leaving them as permanent dead code.
+  never as a basis for the backfill logic itself. **Closed 2026-09-02**:
+  per this doc's "no bridge period" principle, the old TS mechanisms this
+  phase replaces were deleted once Go's replacement existed and every real
+  consumer was rewired to it - see `backend/CLAUDE.md`'s "Nollning routes"
+  section for exactly what got deleted vs. what stays (gallery's own
+  `isNollningPeriod`/`getNollningStart` read, a genuine Phase 4
+  dependency, not a bridge). This pass also caught a real bug the backend
+  migration introduced: `phadder_groups.year`'s removal wasn't mirrored in
+  `src/database/schema.zmodel`, breaking any untouched Prisma query
+  against that table - see the same CLAUDE.md section's "Prisma schema
+  drift" note. A useful precedent: whenever a future phase takes over
+  migrations for another table Prisma still partially reads, check for
+  this exact class of drift as part of that phase, not as an afterthought.

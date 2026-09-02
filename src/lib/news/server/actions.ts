@@ -63,6 +63,9 @@ export const createArticle: Action = async (event) => {
     publishedAt: (publishTime ?? new Date()).toISOString(),
     sendNotification,
     notificationText: notificationText ?? null,
+    // No season picker UI exists yet for articles (see backend/CLAUDE.md's
+    // Nollning routes section) - always null here until one's built.
+    nollningSeasonId: null,
   };
 
   const created = await api.POST("/articles", { body: input });
@@ -120,6 +123,12 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
     publishedAt: publishTime ? publishTime.toISOString() : null,
     sendNotification,
     notificationText: notificationText ?? null,
+    // Always null (same as createArticle above, and events' identical
+    // note) - since this form can only ever have produced a null value on
+    // create, always sending null on update doesn't lose data yet. Once a
+    // season picker exists, this needs to round-trip the article's
+    // existing value instead of hardcoding null.
+    nollningSeasonId: null,
   };
 
   const updated = await api.PATCH("/articles/{slug}", {

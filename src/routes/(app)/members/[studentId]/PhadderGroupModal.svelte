@@ -2,7 +2,7 @@
   import type { SuperValidated } from "sveltekit-superforms";
   import { superForm } from "$lib/utils/client/superForms";
   import * as m from "$paraglide/messages";
-  import type { PhadderGroup } from "@prisma/client";
+  import type { components } from "$lib/api/schema";
   import { page } from "$app/state";
   import type { PhadderGroupSchema } from "./+page.server";
   import { marked } from "marked";
@@ -17,12 +17,18 @@
   let {
     isEditing = $bindable(),
     phadderGroups,
+    currentSeasonId,
     data,
     viewedMember,
     showModal,
   }: {
     isEditing: boolean;
-    phadderGroups: PhadderGroup[];
+    phadderGroups: Array<components["schemas"]["PhadderGroup"]>;
+    // Only groups belonging to the currently-active nollning season are
+    // offered - season is the real concept now, not classYear-matches-a-
+    // bare-year (see backend's Phase 2 nollning redesign). null outside
+    // any active season, in which case nothing is offered.
+    currentSeasonId: string | null;
     data: SuperValidated<PhadderGroupSchema>;
     // Only `.id` is actually read (see the Dialog.Root open condition below)
     // - loosened from the full Prisma `Member` type since this page is now
@@ -79,7 +85,7 @@
               : ""}</Select.Trigger
           >
           <Select.Content>
-            {#each phadderGroups.filter((g) => g.year == member?.classYear) as group (group.id)}
+            {#each phadderGroups.filter((g) => g.seasonId == currentSeasonId) as group (group.id)}
               <Select.Item value={group.id}>{group.name}</Select.Item>
             {/each}
           </Select.Content>

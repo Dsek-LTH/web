@@ -6,17 +6,21 @@ import type { Actions, PageServerLoad } from "./$types";
 import { error, fail } from "@sveltejs/kit";
 import { redirect } from "sveltekit-flash-message/server";
 import * as m from "$paraglide/messages";
+import { setNollningGroup } from "$lib/utils/member";
 
-// Server-only load, not +page.ts - `phadderGroups` isn't part of the Go
-// member API yet (Phase 2 nollning redesign, see DESIGN.md's roadmap).
 export const load: PageServerLoad = async ({ locals, fetch }) => {
   const studentId = locals.user?.studentId;
   if (!studentId) redirect(302, "/");
 
-  const [memberRes, phadderGroupsResult] = await Promise.allSettled([
-    api.GET("/members/{studentId}", { fetch, params: { path: { studentId } } }),
-    locals.prisma.phadderGroup.findMany({ orderBy: { createdAt: "asc" } }),
-  ]);
+  const [memberRes, phadderGroupsResult, currentNollningResult] =
+    await Promise.allSettled([
+      api.GET("/members/{studentId}", {
+        fetch,
+        params: { path: { studentId } },
+      }),
+      api.GET("/nollning/groups", { fetch }),
+      api.GET("/nollning/current", { fetch }),
+    ]);
   if (memberRes.status === "rejected" || memberRes.value.error) {
     redirect(302, "/");
   }
@@ -24,12 +28,14 @@ export const load: PageServerLoad = async ({ locals, fetch }) => {
   if (!profile) {
     throw error(404, m.onboarding_errors_memberNotFound());
   }
-  if (phadderGroupsResult.status === "rejected")
-    throw error(
-      500,
-      phadderGroupsResult.reason ?? "Couldn't fetch phadder groups",
-    );
-  const phadderGroups = phadderGroupsResult.value;
+  if (phadderGroupsResult.status === "rejected" || phadderGroupsResult.value.error)
+    throw error(500, "Couldn't fetch phadder groups");
+  if (
+    currentNollningResult.status === "rejected" ||
+    currentNollningResult.value.error
+  )
+    throw error(500, "Couldn't fetch current nollning season");
+  const phadderGroups = phadderGroupsResult.value.data ?? [];
   return {
     form: await superValidate(
       {
@@ -41,6 +47,7 @@ export const load: PageServerLoad = async ({ locals, fetch }) => {
     ),
     member: profile,
     phadderGroups,
+    currentSeasonId: currentNollningResult.value.data?.season?.id ?? null,
   };
 };
 
@@ -91,16 +98,16 @@ export const actions: Actions = {
       });
     }
 
-    // email/nollningGroupId aren't part of the Go member API yet (email:
-    // real auth already sets it from Authentik claims at first login, see
-    // DESIGN.md's Auth section - this form field may already be redundant,
-    // not confirmed yet; nollningGroupId: owned by the Phase 2 nollning
-    // redesign). Narrow, explicit, temporary direct write, not a broader
-    // Prisma bridge for the rest of the (now Go-backed) member domain.
+    // email isn't part of the Go member API yet - real auth already sets
+    // it from Authentik claims at first login, see DESIGN.md's Auth
+    // section, so this form field may already be redundant (not confirmed
+    // yet). Narrow, explicit, temporary direct write, not a broader Prisma
+    // bridge for the rest of the (now Go-backed) member domain.
     await locals.prisma.member.update({
       where: { studentId },
-      data: { email, nollningGroupId },
+      data: { email },
     });
+    await setNollningGroup(fetch, studentId, nollningGroupId ?? null);
 
     return redirect(
       "/",

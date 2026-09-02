@@ -16,7 +16,22 @@
     title,
     variant = "rosa",
   }: {
-    members: Array<ExtendedPrismaModel<"Member">>;
+    // Loosened to MemberCard's own dual-shape (Prisma `| null` vs Go API
+    // `| undefined`) - see MemberCard.svelte's identical comment. Narrow
+    // to `string | undefined` once every consumer of this component is
+    // Go-backed.
+    members: Array<
+      { id: string } & {
+        [K in
+          | "firstName"
+          | "lastName"
+          | "nickname"
+          | "studentId"
+          | "picturePath"
+          | "classProgramme"
+          | "classYear"]?: ExtendedPrismaModel<"Member">[K] | undefined;
+      }
+    >;
     class?: string;
     children?: Snippet;
     title?: string;

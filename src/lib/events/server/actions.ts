@@ -47,6 +47,9 @@ function toEventInput(
     alarmActive: data.alarmActive ?? false,
     isCancelled: data.isCancelled ?? false,
     tagIds: data.tags.filter((tag) => !!tag).map((tag) => tag.id),
+    // No season picker UI exists yet for events (see backend/CLAUDE.md's
+    // Nollning routes section) - always null here until one's built.
+    nollningSeasonId: null,
     recurring: data.isRecurring
       ? {
           type: data.recurringType,

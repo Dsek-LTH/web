@@ -82,6 +82,7 @@
   isEditing={true}
   data={data.phadderGroupForm}
   phadderGroups={data.phadderGroups}
+  currentSeasonId={data.currentSeasonId}
   viewedMember={member}
   showModal={data.showPhadderGroupModal}
 />

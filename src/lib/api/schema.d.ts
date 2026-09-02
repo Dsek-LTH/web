@@ -162,6 +162,26 @@ export interface paths {
         patch: operations["set-article-schedule"];
         trace?: never;
     };
+    "/board": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List board-flagged positions with their current holder
+         * @description Replaces the old board page's own Prisma query - positions belonging to the current nollning season's organizing committee are omitted unless the caller holds member:see_staben (see backend/DESIGN.md's nollning section).
+         */
+        get: operations["list-board"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/committees": {
         parameters: {
             query?: never;
@@ -423,6 +443,180 @@ export interface paths {
         patch: operations["update-member-food-preference"];
         trace?: never;
     };
+    "/members/{studentId}/phadder-role": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a member's PhadderRole (nolla/phadder/none) for the current season */
+        get: operations["get-phadder-role"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/nollning/current": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the current nollning phase and active season, if any */
+        get: operations["get-current-nollning"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/nollning/groups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List phadder groups, optionally filtered by seasonId */
+        get: operations["list-phadder-groups"];
+        put?: never;
+        /** Create a phadder group */
+        post: operations["create-phadder-group"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/nollning/groups/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a phadder group with its nollor and phaddrar */
+        get: operations["get-phadder-group"];
+        put?: never;
+        post?: never;
+        /** Delete a phadder group */
+        delete: operations["delete-phadder-group"];
+        options?: never;
+        head?: never;
+        /** Replace a phadder group's fields */
+        patch: operations["update-phadder-group"];
+        trace?: never;
+    };
+    "/nollning/groups/{id}/nollor": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add a member to a phadder group as a nolla */
+        post: operations["add-nolla"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/nollning/groups/{id}/nollor/{memberId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove a member from a phadder group's nollor */
+        delete: operations["remove-nolla"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/nollning/groups/{id}/phaddrar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Tag a member's active phadder/uppdrag mandate to a phadder group */
+        post: operations["add-phadder"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/nollning/groups/{id}/phaddrar/{memberId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Untag a member's mandate(s) from a phadder group */
+        delete: operations["remove-phadder"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/nollning/seasons": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List every nollning season */
+        get: operations["list-nollning-seasons"];
+        put?: never;
+        /** Create a nollning season */
+        post: operations["create-nollning-season"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/nollning/seasons/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Replace a nollning season's fields */
+        patch: operations["update-nollning-season"];
+        trace?: never;
+    };
     "/positions": {
         parameters: {
             query?: never;
@@ -556,6 +750,7 @@ export interface components {
             imageUrls?: string[] | null;
             /** Format: int64 */
             likeCount: number;
+            nollningSeasonId?: string;
             notificationText?: string;
             /** Format: date-time */
             publishedAt?: string;
@@ -583,6 +778,7 @@ export interface components {
             headerSv: string;
             imageUrl: string | null;
             imageUrls: string[] | null;
+            nollningSeasonId: string | null;
             notificationText: string | null;
             /** Format: date-time */
             publishedAt: string | null;
@@ -608,6 +804,7 @@ export interface components {
             imageUrls?: string[] | null;
             /** Format: int64 */
             likeCount: number;
+            nollningSeasonId?: string;
             notificationText?: string;
             /** Format: date-time */
             publishedAt?: string;
@@ -630,6 +827,10 @@ export interface components {
         AuthorInput: {
             customId?: string;
             mandateId?: string;
+        };
+        BoardPosition: {
+            member?: components["schemas"]["Member"];
+            position: components["schemas"]["Position"];
         };
         Comment: {
             /**
@@ -743,6 +944,16 @@ export interface components {
             memberIds: string[] | null;
             startDate: string;
         };
+        CurrentInfo: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/CurrentInfo.json
+             */
+            readonly $schema?: string;
+            phase: string;
+            season?: components["schemas"]["Season"];
+        };
         CustomAuthor: {
             id: string;
             imageUrl?: string;
@@ -827,6 +1038,7 @@ export interface components {
             isCancelled: boolean;
             link?: string;
             location?: string;
+            nollningSeasonId?: string;
             organizer: string;
             recurringParentId?: string;
             shortDescription?: string;
@@ -856,6 +1068,7 @@ export interface components {
             isCancelled: boolean;
             link: string | null;
             location: string | null;
+            nollningSeasonId: string | null;
             organizer: string;
             recurring?: components["schemas"]["RecurringInput"];
             shortDescriptionEn: string | null;
@@ -885,6 +1098,7 @@ export interface components {
             isCancelled: boolean;
             link?: string;
             location?: string;
+            nollningSeasonId?: string;
             organizer: string;
             recurringParentId?: string;
             shortDescription?: string;
@@ -897,6 +1111,15 @@ export interface components {
             title: string;
             titleEn?: string;
             titleSv: string;
+        };
+        GroupMemberInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/GroupMemberInputBody.json
+             */
+            readonly $schema?: string;
+            memberId: string;
         };
         ListArticlesOutputBody: {
             /**
@@ -980,6 +1203,49 @@ export interface components {
             studentId?: string;
             visible: boolean;
         };
+        PhadderGroup: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/PhadderGroup.json
+             */
+            readonly $schema?: string;
+            /** Format: date-time */
+            createdAt: string;
+            description?: string;
+            id: string;
+            imageUrl?: string;
+            name: string;
+            /** Format: int64 */
+            nollaCount?: number;
+            nollor?: components["schemas"]["Member"][] | null;
+            /** Format: int64 */
+            phadderCount?: number;
+            phaddrar?: components["schemas"]["Member"][] | null;
+            seasonId: string;
+        };
+        PhadderGroupInput: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/PhadderGroupInput.json
+             */
+            readonly $schema?: string;
+            description: string | null;
+            imageUrl: string | null;
+            name: string;
+            seasonId: string;
+        };
+        PhadderRoleInfo: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/PhadderRoleInfo.json
+             */
+            readonly $schema?: string;
+            groupId?: string;
+            role: string;
+        };
         Position: {
             /**
              * Format: uri
@@ -1039,6 +1305,41 @@ export interface components {
             /** Format: int64 */
             separationCount: number;
             type: string;
+        };
+        Season: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/Season.json
+             */
+            readonly $schema?: string;
+            /** Format: date-time */
+            endAt: string;
+            id: string;
+            /** Format: date-time */
+            nollaStartAt: string;
+            organizingCommitteeId?: string;
+            /** Format: date-time */
+            revealAt: string;
+            /** Format: int64 */
+            year: number;
+        };
+        SeasonInput: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/SeasonInput.json
+             */
+            readonly $schema?: string;
+            /** Format: date-time */
+            endAt: string;
+            /** Format: date-time */
+            nollaStartAt: string;
+            organizingCommitteeId: string | null;
+            /** Format: date-time */
+            revealAt: string;
+            /** Format: int64 */
+            year: number;
         };
         SetAttendanceInputBody: {
             /**
@@ -1297,6 +1598,7 @@ export interface operations {
                 tags?: string[] | null;
                 committeeId?: string;
                 authorStudentId?: string;
+                nollningSeasonId?: string;
                 /** @description 1-based */
                 page?: number;
                 pageSize?: number;
@@ -1614,6 +1916,35 @@ export interface operations {
             };
         };
     };
+    "list-board": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BoardPosition"][] | null;
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
     "list-committees": {
         parameters: {
             query?: never;
@@ -1820,6 +2151,7 @@ export interface operations {
                 tags?: string[] | null;
                 /** @description list past events (ended) instead of upcoming ones */
                 past?: boolean;
+                nollningSeasonId?: string;
                 /** @description 1-based */
                 page?: number;
                 pageSize?: number;
@@ -2300,6 +2632,448 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MemberProfile"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "get-phadder-role": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                studentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PhadderRoleInfo"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "get-current-nollning": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CurrentInfo"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "list-phadder-groups": {
+        parameters: {
+            query?: {
+                seasonId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PhadderGroup"][] | null;
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "create-phadder-group": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PhadderGroupInput"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PhadderGroup"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "get-phadder-group": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PhadderGroup"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "delete-phadder-group": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "update-phadder-group": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PhadderGroupInput"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PhadderGroup"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "add-nolla": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GroupMemberInputBody"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "remove-nolla": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                memberId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "add-phadder": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GroupMemberInputBody"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "remove-phadder": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                memberId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "list-nollning-seasons": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Season"][] | null;
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "create-nollning-season": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SeasonInput"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Season"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "update-nollning-season": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SeasonInput"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Season"];
                 };
             };
             /** @description Error */

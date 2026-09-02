@@ -81,12 +81,16 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
     // DESIGN.md's Auth section for that gap.
     const member =
       existingMember ||
-      (await createMember(prisma, {
-        studentId: identity.studentId,
-        firstName: identity.givenName,
-        lastName: identity.familyName,
-        email: identity.email,
-      }));
+      (await createMember(
+        prisma,
+        {
+          studentId: identity.studentId,
+          firstName: identity.givenName,
+          lastName: identity.familyName,
+          email: identity.email,
+        },
+        event.fetch,
+      ));
 
     if (
       event.url.pathname != "/onboarding" &&

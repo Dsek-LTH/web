@@ -1,20 +1,16 @@
 <script lang="ts">
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import MembersList from "$lib/components/MembersList.svelte";
-  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+  import type { components } from "$lib/api/schema";
   import * as m from "$paraglide/messages";
 
   let {
     group,
   }: {
-    group: ExtendedPrismaModel<"PhadderGroup"> & {
-      nollor: Array<ExtendedPrismaModel<"Member">>;
-      phaddrar: Array<
-        ExtendedPrismaModel<"Mandate"> & {
-          member: ExtendedPrismaModel<"Member">;
-        }
-      >;
-    };
+    // Go-backed (GET /nollning/groups/{id}) - phaddrar is already a flat
+    // Member[] (Go's ListPhaddrarForGroup returns the distinct members
+    // themselves, not mandate+member pairs), unlike the old Prisma shape.
+    group: components["schemas"]["PhadderGroup"];
   } = $props();
 </script>
 
@@ -37,13 +33,12 @@
       <MembersList
         variant="outline"
         title="{m.nollor_in()} {group.name}"
-        members={group.nollor}>{m.nollor()}</MembersList
+        members={group.nollor ?? []}>{m.nollor()}</MembersList
       >
       <MembersList
         variant="outline"
         title="{m.phaddrar_in()}  {group.name}"
-        members={group.phaddrar.map((p) => p.member)}
-        >{m.phaddrar()}</MembersList
+        members={group.phaddrar ?? []}>{m.phaddrar()}</MembersList
       >
     </div>
   </div>

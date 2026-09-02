@@ -15,29 +15,33 @@ import { withFiles } from "sveltekit-superforms/server";
 import { v4 as uuid } from "uuid";
 import type { Actions, PageServerLoad } from "./$types";
 import { deletePictureSchema, uploadPictureSchema } from "../types";
+import { setNollningGroup } from "$lib/utils/member";
 import { removeMyProfilePicture } from "$lib/files/photos/profilePictures";
 
 const PROFILE_PICTURE_PREFIX = (studentId: string) =>
   `public/${studentId}/profile-picture`;
 
-// Server-only load, not +page.ts - same exception as the profile view page
-// (see its own comment): `phadderGroups` isn't part of the Go member API
-// yet (Phase 2 nollning redesign), so this can't move to a universal load.
-export const load: PageServerLoad = async ({ locals, fetch, params }) => {
-  const { prisma } = locals;
+// Server-only load, not +page.ts - a documented exception (see the profile
+// view page's own comment): `phadderGroups` isn't part of the Go member
+// API itself, so this can't move to a universal load.
+export const load: PageServerLoad = async ({ fetch, params }) => {
   const { studentId } = params;
 
-  const [memberRes, phadderGroupsResult] = await Promise.allSettled([
-    api.GET("/members/{studentId}", {
-      fetch,
-      params: { path: { studentId } },
-    }),
-    prisma.phadderGroup.findMany({ orderBy: { year: "asc" } }),
-  ]);
+  const [memberRes, phadderGroupsResult, currentNollningResult] =
+    await Promise.allSettled([
+      api.GET("/members/{studentId}", {
+        fetch,
+        params: { path: { studentId } },
+      }),
+      api.GET("/nollning/groups", { fetch }),
+      api.GET("/nollning/current", { fetch }),
+    ]);
   if (memberRes.status === "rejected" || memberRes.value.error)
     throw error(500, m.members_errors_couldntFetchMember());
-  if (phadderGroupsResult.status === "rejected")
-    throw error(505, phadderGroupsResult.reason);
+  if (phadderGroupsResult.status === "rejected" || phadderGroupsResult.value.error)
+    throw error(505, "Failed to fetch phadder groups");
+  if (currentNollningResult.status === "rejected" || currentNollningResult.value.error)
+    throw error(505, "Failed to fetch current nollning season");
 
   const profile = memberRes.value.data;
   if (!profile) throw error(404, m.members_errors_memberNotFound());
@@ -46,7 +50,8 @@ export const load: PageServerLoad = async ({ locals, fetch, params }) => {
     return {
       form: await superValidate(profile, zod4(memberSchema)),
       viewedMember: profile, // https://github.com/Dsek-LTH/web/issues/194
-      phadderGroups: phadderGroupsResult.value,
+      phadderGroups: phadderGroupsResult.value.data ?? [],
+      currentSeasonId: currentNollningResult.value.data?.season?.id ?? null,
       uploadForm: await superValidate(zod4(uploadPictureSchema)),
       deleteForm: await superValidate(zod4(deletePictureSchema)),
     };
@@ -157,7 +162,7 @@ export const actions: Actions = {
       type: "success",
     });
   },
-  update: async ({ params, locals, fetch, request }) => {
+  update: async ({ params, fetch, request }) => {
     const form = await superValidate(request, zod4(updateSchema));
     if (!form.valid) return fail(400, { form });
     const { studentId } = params;
@@ -191,14 +196,7 @@ export const actions: Actions = {
         { status: (res.response.status as NumericRange<400, 599>) ?? 500 },
       );
 
-    // nollningGroupId isn't part of the Go member API yet (owned by the
-    // Phase 2 nollning redesign, see DESIGN.md's roadmap) - narrow,
-    // explicit, temporary direct write, not a broader Prisma bridge for the
-    // rest of the (now Go-backed) member domain.
-    await locals.prisma.member.update({
-      where: { studentId },
-      data: { nollningGroupId: nollningGroupId ?? null },
-    });
+    await setNollningGroup(fetch, studentId, nollningGroupId ?? null);
 
     throw redirect(302, `/members/${params.studentId}`);
   },

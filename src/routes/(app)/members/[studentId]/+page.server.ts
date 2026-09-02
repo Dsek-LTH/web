@@ -1,7 +1,10 @@
 import apiNames from "$lib/utils/apiNames";
 import { api } from "$lib/api/client";
 import { authorize } from "$lib/utils/authorization";
-import { getCurrentDoorPoliciesForMember } from "$lib/utils/member";
+import {
+  getCurrentDoorPoliciesForMember,
+  setNollningGroup,
+} from "$lib/utils/member";
 import { emptySchema, memberSchema } from "$lib/zod/schemas";
 import * as m from "$paraglide/messages";
 import { error, fail, isHttpError, type NumericRange } from "@sveltejs/kit";
@@ -42,52 +45,80 @@ export const load: PageServerLoad = async ({
   const { prisma, user } = locals;
   const { studentId } = params;
 
-  const [memberRes, publishedArticlesResult, phadderGroupsResult, nollaResult] =
-    await Promise.allSettled([
-      api.GET("/members/{studentId}", {
+  const [
+    memberRes,
+    publishedArticlesResult,
+    phadderGroupsResult,
+    phadderRoleResult,
+    currentNollningResult,
+    seasonsResult,
+  ] = await Promise.allSettled([
+    api.GET("/members/{studentId}", {
+      fetch,
+      params: { path: { studentId } },
+    }),
+    // Fetches 5 and filters out Custom-byline articles client-side rather
+    // than server-side (the Go API's authorStudentId filter matches on
+    // the underlying member regardless of byline type, since a custom
+    // byline still has a real member behind it) - this can under-fill to
+    // fewer than 5 on a profile with several custom-authored articles,
+    // which is an acceptable trade for not widening the Go API's filter
+    // surface for this one profile-page widget.
+    api
+      .GET("/articles", {
         fetch,
-        params: { path: { studentId } },
-      }),
-      // Fetches 5 and filters out Custom-byline articles client-side rather
-      // than server-side (the Go API's authorStudentId filter matches on
-      // the underlying member regardless of byline type, since a custom
-      // byline still has a real member behind it) - this can under-fill to
-      // fewer than 5 on a profile with several custom-authored articles,
-      // which is an acceptable trade for not widening the Go API's filter
-      // surface for this one profile-page widget.
-      api
-        .GET("/articles", {
-          fetch,
-          params: { query: { authorStudentId: studentId, pageSize: 5 } },
-        })
-        .then(
-          (res) =>
-            res.data?.articles?.filter(
-              (article) => article.author.type !== "Custom",
-            ) ?? [],
-        ),
-      prisma.phadderGroup.findMany({
-        orderBy: { year: "asc" },
-      }),
-      // nollningGroupId/nollaIn aren't part of the Go member API yet (owned
-      // by the Phase 2 nollning redesign, see DESIGN.md's roadmap) - kept
-      // as a narrow, explicit Prisma read, not a broader bridge for the
-      // ported member domain.
-      prisma.member.findUnique({
-        where: { studentId },
-        select: { nollaIn: true },
-      }),
-    ]);
+        params: { query: { authorStudentId: studentId, pageSize: 5 } },
+      })
+      .then(
+        (res) =>
+          res.data?.articles?.filter(
+            (article) => article.author.type !== "Custom",
+          ) ?? [],
+      ),
+    api.GET("/nollning/groups", { fetch }),
+    api.GET("/members/{studentId}/phadder-role", {
+      fetch,
+      params: { path: { studentId } },
+    }),
+    api.GET("/nollning/current", { fetch }),
+    api.GET("/nollning/seasons", { fetch }),
+  ]);
   if (memberRes.status === "rejected" || memberRes.value.error)
     throw error(500, m.members_errors_couldntFetchMember());
   if (publishedArticlesResult.status === "rejected")
     throw error(500, m.members_errors_couldntFetchArticles());
-  if (phadderGroupsResult.status === "rejected")
-    throw error(505, phadderGroupsResult.reason);
-  if (nollaResult.status === "rejected") throw error(505, nollaResult.reason);
+  if (phadderGroupsResult.status === "rejected" || phadderGroupsResult.value.error)
+    throw error(505, "Failed to fetch phadder groups");
+  if (phadderRoleResult.status === "rejected" || phadderRoleResult.value.error)
+    throw error(505, "Failed to fetch phadder role");
+  if (currentNollningResult.status === "rejected" || currentNollningResult.value.error)
+    throw error(505, "Failed to fetch current nollning season");
+  if (seasonsResult.status === "rejected" || seasonsResult.value.error)
+    throw error(505, "Failed to fetch nollning seasons");
 
   const profile = memberRes.value.data;
   if (!profile) throw error(404, m.members_errors_memberNotFound());
+
+  const phadderGroups = phadderGroupsResult.value.data ?? [];
+  const seasons = seasonsResult.value.data ?? [];
+  const phadderRole = phadderRoleResult.value.data;
+  const nollaGroupId =
+    phadderRole?.role === "nolla" ? (phadderRole.groupId ?? null) : null;
+  // The full display object the profile page needs ({name, imageUrl,
+  // year}), not just the bare id - the old Prisma shape (member.nollaIn as
+  // the PhadderGroup relation object) is reconstructed from the already-
+  // fetched groups/seasons lists rather than a third round-trip.
+  const nollaGroup = phadderGroups.find((g) => g.id === nollaGroupId);
+  const nollaSeason = seasons.find((s) => s.id === nollaGroup?.seasonId);
+  const nollaIn =
+    nollaGroup && nollaSeason
+      ? {
+          id: nollaGroup.id,
+          name: nollaGroup.name,
+          imageUrl: nollaGroup.imageUrl ?? null,
+          year: nollaSeason.year,
+        }
+      : null;
 
   const member = {
     ...profile,
@@ -96,7 +127,7 @@ export const load: PageServerLoad = async ({
       startDate: new Date(mandate.startDate!),
       endDate: new Date(mandate.endDate!),
     })),
-    nollaIn: nollaResult.value?.nollaIn ?? null,
+    nollaIn,
   };
 
   const doorAccess =
@@ -113,7 +144,10 @@ export const load: PageServerLoad = async ({
     return {
       form: await superValidate(member, zod4(memberSchema)),
       pingForm: await superValidate(zod4(emptySchema)),
-      phadderGroupForm: await superValidate(member, zod4(phadderGroupSchema)),
+      phadderGroupForm: await superValidate(
+        { classYear: member.classYear, nollningGroupId: nollaGroupId },
+        zod4(phadderGroupSchema),
+      ),
       viewedMember: member, // https://github.com/Dsek-LTH/web/issues/194
       doorAccess,
       publishedArticles: publishedArticlesResult.value ?? [],
@@ -122,7 +156,8 @@ export const load: PageServerLoad = async ({
         member.id,
         dateToSemester(new Date()) - 1,
       ),
-      phadderGroups: phadderGroupsResult.value,
+      phadderGroups,
+      currentSeasonId: currentNollningResult.value.data?.season?.id ?? null,
       ping: user
         ? await prisma.ping.findFirst({
             where: {
@@ -278,8 +313,7 @@ export const actions: Actions = {
       type: "success",
     });
   },
-  updatePhadderGroup: async ({ params, locals, request, cookies }) => {
-    const { prisma } = locals;
+  updatePhadderGroup: async ({ params, fetch, request, cookies }) => {
     const form = await superValidate(request, zod4(phadderGroupSchema));
     if (!form.valid) return fail(400, { form });
     const { studentId } = params;
@@ -295,12 +329,7 @@ export const actions: Actions = {
         cookies.set("phadder_group_modal_never", "1", { path: "/" });
         break;
       default:
-        await prisma.member.update({
-          where: { studentId },
-          data: {
-            nollningGroupId: form.data.nollningGroupId ?? null,
-          },
-        });
+        await setNollningGroup(fetch, studentId, form.data.nollningGroupId ?? null);
         break;
     }
 
@@ -311,7 +340,7 @@ export const actions: Actions = {
       });
     else return null;
   },
-  update: async ({ params, locals, fetch, request }) => {
+  update: async ({ params, fetch, request }) => {
     const form = await superValidate(request, zod4(updateSchema));
     if (!form.valid) return fail(400, { form });
     const { studentId } = params;
@@ -345,14 +374,7 @@ export const actions: Actions = {
         { status: (res.response.status as NumericRange<400, 599>) ?? 500 },
       );
 
-    // nollningGroupId isn't part of the Go member API yet (owned by the
-    // Phase 2 nollning redesign, see DESIGN.md's roadmap) - narrow,
-    // explicit, temporary direct write, not a broader Prisma bridge for the
-    // rest of the (now Go-backed) member domain.
-    await locals.prisma.member.update({
-      where: { studentId },
-      data: { nollningGroupId: nollningGroupId ?? null },
-    });
+    await setNollningGroup(fetch, studentId, nollningGroupId ?? null);
 
     return message(form, {
       message: m.members_memberUpdated(),

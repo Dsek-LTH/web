@@ -768,11 +768,17 @@ model Ping {
     @@map("pings")
 }
 
+// `year` was dropped from the live table (replaced by `season_id`) by the
+// Go backend's 20260901220200_phadder_groups_season_id migration - Go owns
+// this table's migrations from that point on (see backend/DESIGN.md's "DB
+// migrations, once Prisma is gone" section). No `seasonId` field is added
+// here: nothing in Prisma-land reads or writes phadder groups anymore,
+// only backend/internal/nollning does. This model stays declared only
+// because Member.nollaIn/Mandate.phadderIn still relate to it.
 model PhadderGroup {
     id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
     name        String    @db.VarChar(255)
     description String?   @db.Text
-    year        Int
     imageUrl    String?   @map("image_url") @db.Text
     createdAt   DateTime  @default(now())
 
