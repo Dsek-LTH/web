@@ -1037,8 +1037,10 @@ ported).
 ## Roadmap: migrating the remaining backend (proposed 2026-09-01, not yet implemented)
 
 **Status: proposed phase ordering, agreed 2026-09-01.** Phase 1 (directory
-foundation) and phase 2 (nollning redesign, backend and frontend) are now
-implemented - see each phase's own status note below. **Superseded:** this
+foundation), phase 2 (nollning redesign, backend and frontend), and phase 3
+(simple standalone CRUD - songbook/alerts/info-pages/governing-documents/
+medals, backend and frontend) are now implemented - see each phase's own
+status note below. **Superseded:** this
 paragraph originally flagged the nollning subsection as "a proposal, not
 yet decided in detail" with open questions to resolve during
 implementation; both of those questions (permission model, organizing-
@@ -1046,7 +1048,8 @@ committee reference) were resolved when phase 2 was implemented - see the
 "Nollning: proposed redesign" subsection's own updated status line, kept
 as "proposed redesign" in its heading for historical continuity even
 though it now describes what was actually built. Everything past
-articles/events/auth/directory/nollning is still on Prisma. This section
+articles/events/auth/directory/nollning/songs/alerts/markdown/governing-
+documents/medals is still on Prisma. This section
 records the agreed shape of the rest of the migration so it doesn't get
 re-litigated phase-by-phase the way this doc exists to prevent for
 everything else.
@@ -1088,9 +1091,25 @@ nollning itself needs real, deliberate design, not permanent exclusion.
   documents, `Document` (requirements/uploads), `Alert`, medals
   (`src/routes/(app)/medals`, no dedicated Prisma model - reads `Mandate`
   history).
+  **Correction (found during Phase 3 implementation, 2026-09-02):** this
+  bullet conflates two unrelated things under "governing documents"/
+  "`Document`". The actual governing-documents feature (styrdokument:
+  policies/guidelines/plans-of-operation/etc., `/documents/governing`) is
+  backed by the `Document` Prisma model - `url` is a plain string field,
+  no file storage involved, genuinely a "simple standalone CRUD" domain.
+  `Markdown` is unrelated to governing documents - it backs the generic
+  `/info/{slug}` CMS pages instead. What this bullet's parenthetical
+  "(requirements/uploads)" actually points at - the MinIO-backed
+  `/documents`, `/documents/requirements`, `/documents/upload`
+  file-browsing routes - has **no Prisma model at all** and is correctly
+  the file-storage-dependent thing the very next bullet describes; it was
+  just mislabeled as "`Document`" here too. See Phase 3's own updated
+  status note below for what was actually built once this was sorted out.
 - **File-storage-dependent**: gallery (photo albums - currently MinIO
   paths on disk, no Prisma model at all, listed via directory read) and
-  `Document` uploads - both blocked on real `Uploader`, see mock
+  the MinIO-backed `/documents`, `/documents/requirements`,
+  `/documents/upload` file-browsing routes (no Prisma model - see the
+  correction above) - both blocked on real `Uploader`, see mock
   replacement below.
 - **Booking**: `Bookable`, `BookableCategory`, `BookingRequest`.
 - **Expenses**: `Expense`, `ExpenseItem` - receipt uploads, approval
@@ -1190,6 +1209,48 @@ updated in its own phase, same as phase 1 and phase 2 already did.
 3. **Simple standalone CRUD** - songbook, governing documents, medals,
    alerts. No dependencies beyond phase 1, low risk, good for keeping
    velocity up after the heavier nollning phase.
+   **Status: backend and frontend both implemented 2026-09-02**
+   (`backend/internal/songs`, `internal/alerts`, `internal/markdown`,
+   `internal/governingdocs`, `internal/medals`, plus `internal/semesters` -
+   see `backend/CLAUDE.md`'s "Songbook routes"/"Alert routes"/"Info-pages
+   routes"/"Governing-documents routes"/"Medals routes" sections for the
+   exact endpoint list, migrations, and frontend files on both sides).
+   Scope was clarified before implementation (see the "Remaining domains"
+   correction above): "governing documents" is the `Document` model
+   (`/documents/governing`, no storage dependency), not `Markdown` (which
+   backs the unrelated `/info` CMS pages, ported alongside it here anyway
+   since it's equally simple); the MinIO-backed `/documents` file-browsing
+   family stays deferred to phase 4 as originally intended. Three
+   user-confirmed decisions going in: include `Document`/governing-docs in
+   this phase (it has no storage dependency, unlike the MinIO-backed
+   family it shares a URL prefix with); unify the old app's split Markdown
+   auth (`MARKDOWNS.CREATE`+`MARKDOWNS.PAGE(slug).UPDATE` vs. a separate
+   `MARKDOWN.CREATE` with no ACL auto-grant) into one policy pair plus a
+   per-page dynamic grant, used from both create paths; fix governing
+   documents' dead soft-delete column (schema had `deletedAt`, the old
+   delete action hard-deleted anyway) to a real soft-delete, matching
+   Song/Article/Event's existing convention. `medals` deliberately did
+   *not* get a "fix real bugs found" treatment for its missing
+   medals-specific auth check (`apiNames.MEDALS.MANAGE` exists but was
+   never referenced by the old routes) - replicated as "must be
+   authenticated only" exactly as-is, since there was no evidence it was a
+   bug rather than an intentional design (unlike e.g. events'
+   `removeCommentAction`, which had no owner-of-comment ambiguity at all).
+   All five domains' Go services and HTTP layers were verified against the
+   live dev DB (not just `go build`/`go vet`) - including a real
+   correctness bug caught this way: `internal/medals`'s first cut of two
+   multi-param SQL queries had swapped start/end date params (sqlc names
+   positional-param struct fields by which column each `$N` binds to, not
+   by textual order in the query - easy to misread), silently producing
+   empty results until tested against real seed-data mandate histories
+   instead of just structural checks. Fixed by switching to named
+   `sqlc.arg(...)` params - see `backend/CLAUDE.md`'s Medals routes
+   section for the general lesson. `internal/medals.Service.MemberMedals`
+   (a single member's own medals) is ported and ready but not wired to any
+   route yet - its real consumer, the member profile page's inline medals
+   display, is a pre-existing, separately-documented deferral (see
+   Principles going forward's directory-foundation exceptions), not this
+   phase's job to close.
 4. **Real file storage + gallery + document uploads** - implement the
    real `Uploader` (S3/MinIO) once something (gallery) actually needs
    non-fake uploaded files to be useful; port document uploads at the

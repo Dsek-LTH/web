@@ -6,32 +6,31 @@ import { infoPageSchema } from "./schemas";
 import type { Actions, PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
 import { slugify } from "$lib/utils/slugify";
-import { authorize } from "$lib/utils/authorization";
-import apiNames from "$lib/utils/apiNames";
+import { api } from "$lib/api/client";
 
-export const load: PageServerLoad = async ({ locals }) => {
-  const { user } = locals;
-  authorize(apiNames.MARKDOWN.CREATE, user);
-
+// markdown:create is enforced by the Go API itself - no authorize() call
+// here, matching DESIGN.md's Principle #5. Calls the same unified
+// POST /info/{slug} endpoint info/[slug]/edit's create action uses -
+// previously a second, divergent creation path with no ACL auto-grant; see
+// backend/CLAUDE.md's Markdown routes section.
+export const load: PageServerLoad = async () => {
   return { form: await superValidate(zod4(infoPageSchema)) };
 };
 
 export const actions: Actions = {
   create: async (event) => {
-    const { request, locals } = event;
-    const { prisma } = locals;
+    const { request } = event;
     const form = await superValidate(request, zod4(infoPageSchema));
     if (!form.valid) return fail(400, { form });
     const { name, markdownSv, markdownEn } = form.data;
-    await prisma.markdown.create({
-      data: {
-        name: slugify(name),
-        markdownSv,
-        markdownEn,
-      },
+    const slug = slugify(name);
+    const created = await api.POST("/info/{slug}", {
+      params: { path: { slug } },
+      body: { markdownSv, markdownEn },
     });
+    if (created.error) throw new Error("Failed to create info page");
     throw redirect(
-      `/info/${name}`,
+      `/info/${slug}`,
       {
         message: `${m.admin_info_infoPageCreated()}`,
         type: "success",

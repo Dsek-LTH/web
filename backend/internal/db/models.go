@@ -11,6 +11,53 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type DocumentType string
+
+const (
+	DocumentTypePOLICY           DocumentType = "POLICY"
+	DocumentTypeGUIDELINE        DocumentType = "GUIDELINE"
+	DocumentTypeMEETING          DocumentType = "MEETING"
+	DocumentTypeOTHER            DocumentType = "OTHER"
+	DocumentTypePLANOFOPERATIONS DocumentType = "PLAN_OF_OPERATIONS"
+	DocumentTypeFRAMEWORKBUDGET  DocumentType = "FRAMEWORK_BUDGET"
+	DocumentTypeSTRATEGICGOALS   DocumentType = "STRATEGIC_GOALS"
+)
+
+func (e *DocumentType) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = DocumentType(s)
+	case string:
+		*e = DocumentType(s)
+	default:
+		return fmt.Errorf("unsupported scan type for DocumentType: %T", src)
+	}
+	return nil
+}
+
+type NullDocumentType struct {
+	DocumentType DocumentType `json:"document_type"`
+	Valid        bool         `json:"valid"` // Valid is true if DocumentType is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullDocumentType) Scan(value interface{}) error {
+	if value == nil {
+		ns.DocumentType, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.DocumentType.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullDocumentType) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.DocumentType), nil
+}
+
 type RecurringType string
 
 const (
@@ -53,6 +100,20 @@ func (ns NullRecurringType) Value() (driver.Value, error) {
 		return nil, nil
 	}
 	return string(ns.RecurringType), nil
+}
+
+type Alert struct {
+	ID        pgtype.UUID        `json:"id"`
+	Severity  string             `json:"severity"`
+	MessageSv string             `json:"message_sv"`
+	MessageEn string             `json:"message_en"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	RemovedAt pgtype.Timestamptz `json:"removed_at"`
+}
+
+type AlertsClosedBy struct {
+	A pgtype.UUID `json:"A"`
+	B pgtype.UUID `json:"B"`
 }
 
 type ApiAccessPolicy struct {
@@ -157,6 +218,16 @@ type CustomAuthorRole struct {
 	Role           string             `json:"role"`
 	CreatedAt      pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt      pgtype.Timestamptz `json:"updated_at"`
+}
+
+type Document struct {
+	ID        pgtype.UUID        `json:"id"`
+	Title     string             `json:"title"`
+	Url       string             `json:"url"`
+	Type      DocumentType       `json:"type"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt pgtype.Timestamptz `json:"deleted_at"`
 }
 
 type EmailAlias struct {
@@ -287,6 +358,19 @@ type RecurringEvent struct {
 	AuthorID        pgtype.UUID        `json:"author_id"`
 	StartDatetime   pgtype.Timestamptz `json:"start_datetime"`
 	EndDatetime     pgtype.Timestamptz `json:"end_datetime"`
+}
+
+type Song struct {
+	ID        pgtype.UUID        `json:"id"`
+	Title     string             `json:"title"`
+	Lyrics    string             `json:"lyrics"`
+	Melody    pgtype.Text        `json:"melody"`
+	Category  pgtype.Text        `json:"category"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt pgtype.Timestamptz `json:"deleted_at"`
+	Slug      string             `json:"slug"`
+	Video     pgtype.Text        `json:"video"`
 }
 
 type Tag struct {

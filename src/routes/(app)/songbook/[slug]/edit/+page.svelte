@@ -19,6 +19,10 @@
   import { Spinner } from "$lib/components/ui/spinner";
   import * as AlertDialog from "$lib/components/ui/alert-dialog/index.js";
   import apiNames from "$lib/utils/apiNames";
+  import { api } from "$lib/api/client";
+  import { goto } from "$app/navigation";
+  import { resolve } from "$app/paths";
+  import { toast } from "$lib/stores/toast";
 
   let { data } = $props();
   let song = $derived(data.song);
@@ -31,6 +35,33 @@
   const canDelete = $derived(
     data.user?.policies?.includes(apiNames.SONG.DELETE),
   );
+
+  // Pure-proxy mutations (see DESIGN.md's Principle #5): call the Go API
+  // directly, no SvelteKit action - Go's own
+  // auth.Require(apinames.SongDelete) is the only real gate either way.
+  async function removeSong() {
+    const res = await api.DELETE("/songs/{slug}", {
+      params: { path: { slug: song.slug } },
+    });
+    if (res.error) {
+      toast(m.songbook_errors_songNotFound(), "error");
+      return;
+    }
+    toast(m.songbook_songRemoved(), "success");
+    await goto(resolve(`/songbook/${song.slug}`));
+  }
+
+  async function restoreSong() {
+    const res = await api.POST("/songs/{slug}/restore", {
+      params: { path: { slug: song.slug } },
+    });
+    if (res.error) {
+      toast(m.songbook_errors_songNotFound(), "error");
+      return;
+    }
+    toast(m.songbook_songRestored(), "success");
+    await goto(resolve(`/songbook/${song.slug}`));
+  }
 </script>
 
 <div class="mx-auto max-w-2xl px-4 py-8">
@@ -194,17 +225,15 @@
         <div>
           {#if canDelete}
             {#if song.deletedAt}
-              <form method="POST" action="?/restore" class="inline-block">
-                <input type="hidden" name="id" value={song.id} />
-                <Button
-                  type="submit"
-                  variant="outline"
-                  class="flex items-center gap-2"
-                >
-                  <RotateCcw class="h-4 w-4" />
-                  {m.songbook_restoreFromGarbageCan()}
-                </Button>
-              </form>
+              <Button
+                type="button"
+                variant="outline"
+                class="flex items-center gap-2"
+                onclick={restoreSong}
+              >
+                <RotateCcw class="h-4 w-4" />
+                {m.songbook_restoreFromGarbageCan()}
+              </Button>
             {:else}
               <AlertDialog.Root>
                 <AlertDialog.Trigger
@@ -226,15 +255,12 @@
                     <AlertDialog.Cancel
                       >{m.songbook_cancel()}</AlertDialog.Cancel
                     >
-                    <form action="?/delete" method="POST">
-                      <input type="hidden" name="id" value={song.id} />
-                      <AlertDialog.Action
-                        type="submit"
-                        class={buttonVariants({ variant: "destructive" })}
-                      >
-                        {m.songbook_removeSong()}
-                      </AlertDialog.Action>
-                    </form>
+                    <AlertDialog.Action
+                      onclick={removeSong}
+                      class={buttonVariants({ variant: "destructive" })}
+                    >
+                      {m.songbook_removeSong()}
+                    </AlertDialog.Action>
                   </AlertDialog.Footer>
                 </AlertDialog.Content>
               </AlertDialog.Root>

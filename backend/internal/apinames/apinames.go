@@ -53,6 +53,32 @@ const (
 	// NollningPhadderGroupsManage mirrors the old
 	// apiNames.NOLLNING.MANAGE_PHADDER_GROUPS exactly.
 	NollningPhadderGroupsManage = "nollning:phaddrar:groups:manage"
+
+	// Phase 3 ("Simple standalone CRUD" - see DESIGN.md's roadmap) below.
+
+	SongCreate = "song:create"
+	SongRead   = "song:read"
+	SongUpdate = "song:update"
+	SongDelete = "song:delete"
+
+	// AlertManage mirrors the old apiNames.ALERT exactly - a single flat
+	// policy gating all admin alert mutations, not a crud() group.
+	AlertManage = "alert"
+
+	// MarkdownCreate/MarkdownUpdate are the base (any-page) policies for the
+	// generic /info CMS pages, unifying the old app's split MARKDOWNS/
+	// MARKDOWN policy groups into one (see DESIGN.md's Phase 3 section).
+	// A page can also be edited via a per-page dynamic policy string
+	// ("markdowns:{slug}:update", plural, matching the live table/old TS
+	// naming) granted to that page's creator - built at call sites via
+	// fmt.Sprintf, not a const here, since it's per-instance.
+	MarkdownCreate = "markdown:create"
+	MarkdownUpdate = "markdown:update"
+
+	// GoverningDocumentRead/Write mirror the old apiNames.GOVERNING_DOCUMENT
+	// exactly - create/update/delete all share Write, only Read is separate.
+	GoverningDocumentRead  = "governing_document:read"
+	GoverningDocumentWrite = "governing_document:write"
 )
 
 // All lists every policy this API currently checks - used to build the
@@ -88,5 +114,14 @@ func All() []string {
 		NollningContentAssociate,
 		NollningSeasonManage,
 		NollningPhadderGroupsManage,
+		SongCreate,
+		SongRead,
+		SongUpdate,
+		SongDelete,
+		AlertManage,
+		MarkdownCreate,
+		MarkdownUpdate,
+		GoverningDocumentRead,
+		GoverningDocumentWrite,
 	}
 }

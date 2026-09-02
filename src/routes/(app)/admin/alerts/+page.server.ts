@@ -7,24 +7,17 @@ import {
   type Infer,
 } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
-import softDelete from "$lib/utils/softDelete";
-import { authorize } from "$lib/utils/authorization";
-import apiNames from "$lib/utils/apiNames";
 import * as m from "$paraglide/messages";
+import { api } from "$lib/api/client";
 
-export const load: PageServerLoad = async ({ locals }) => {
-  const { prisma } = locals;
-  authorize(apiNames.ALERT, locals.user);
-  const alert = prisma.alert.findMany({
-    where: {
-      removedAt: null,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+// alert:manage (Go's AlertManage) is enforced by the Go API itself on
+// create/delete - see backend/internal/alerts. No authorize() call here,
+// matching DESIGN.md's Principle #5.
+export const load: PageServerLoad = async ({ fetch }) => {
+  const res = await api.GET("/alerts", { fetch });
+  if (res.error) throw new Error("Failed to load alerts");
   return {
-    alert: await alert,
+    alert: res.data ?? [],
   };
 };
 
@@ -41,32 +34,23 @@ const deleteAlertSchema = z.object({
 export type deleteAlertSchema = Infer<typeof deleteAlertSchema>;
 
 export const actions = {
-  create: async ({ request, locals }) => {
-    const { prisma } = locals;
-    authorize(apiNames.ALERT, locals.user);
+  create: async ({ request }) => {
     const form = await superValidate(request, zod4(addAlertSchema));
     if (!form.valid) return fail(400, { form });
-    await prisma.alert.create({
-      data: form.data,
-    });
+    const created = await api.POST("/alerts", { body: form.data });
+    if (created.error) throw new Error("Failed to create alert");
     return message(form, {
       message: m.admin_alerts_alert_created(),
       type: "success",
     });
   },
-  delete: async ({ request, locals }) => {
-    const { prisma } = locals;
-    authorize(apiNames.ALERT, locals.user);
+  delete: async ({ request }) => {
     const form = await superValidate(request, zod4(deleteAlertSchema));
     if (!form.valid) return fail(400, { form });
-    softDelete(() =>
-      prisma.alert.update({
-        where: { id: form.data.id },
-        data: {
-          removedAt: new Date(),
-        },
-      }),
-    );
+    const deleted = await api.DELETE("/alerts/{id}", {
+      params: { path: { id: form.data.id } },
+    });
+    if (deleted.error) throw new Error("Failed to remove alert");
     return message(form, {
       message: m.admin_alerts_alert_removed(),
       type: "success",

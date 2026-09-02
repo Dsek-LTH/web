@@ -1,27 +1,23 @@
 import { redirect } from "sveltekit-flash-message/server";
 import * as m from "$paraglide/messages";
-import { error, fail } from "@sveltejs/kit";
-import DOMPurify from "isomorphic-dompurify";
+import { fail } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { setError, superValidate } from "sveltekit-superforms/server";
 import { updateSongSchema } from "../../schema";
-import type { Actions, PageServerLoad } from "./$types";
-import apiNames from "$lib/utils/apiNames";
-import { authorize } from "$lib/utils/authorization";
+import type { Actions } from "./$types";
+import { api } from "$lib/api/client";
 
-export const load: PageServerLoad = async ({ locals }) => {
-  authorize(apiNames.SONG.UPDATE, locals.user);
-  const form = await superValidate(zod4(updateSongSchema));
-  return { form };
-};
-
+// Only the update action stays a SvelteKit action (a real authoring form,
+// see DESIGN.md's Principle #5) - delete/restore are pure-proxy mutations
+// now called directly from the client (see +page.svelte and
+// [slug]/+page.svelte), matching RemoveArticleDialog.svelte's pattern. No
+// `load` here: song/existingCategories/existingMelodies/updateForm all
+// come from the parent +layout.ts, and song:update is enforced by Go
+// itself on save, not gated again here.
 export const actions: Actions = {
   update: async (event) => {
-    const { request, locals } = event;
-    authorize(apiNames.SONG.UPDATE, locals.user);
-    const { prisma } = locals;
-    const formData = await request.formData();
-    const form = await superValidate(formData, zod4(updateSongSchema));
+    const { request, params } = event;
+    const form = await superValidate(request, zod4(updateSongSchema));
     if (!form.valid) return fail(400, { form });
     const data = form.data;
     if (data.title == null) {
@@ -36,92 +32,23 @@ export const actions: Actions = {
     if (data.melody == null) {
       return setError(form, "melody", m.songbook_missingMelody());
     }
-    const updatedSong = await prisma.song.update({
-      where: {
-        id: data.id,
-      },
-      data: {
-        title: DOMPurify.sanitize(data.title.trim()),
-        lyrics: DOMPurify.sanitize(data.lyrics.trim()),
-        melody: data.melody.trim(),
-        category: data.category.trim(),
-        video: data.video?.trim() || null,
-        updatedAt: new Date(),
+
+    const updated = await api.PATCH("/songs/{slug}", {
+      params: { path: { slug: params.slug } },
+      body: {
+        title: data.title.trim(),
+        lyrics: data.lyrics.trim(),
+        melody: data.melody.trim() || undefined,
+        category: data.category.trim() || undefined,
+        video: data.video?.trim() || undefined,
       },
     });
+    if (updated.error) throw new Error("Failed to update song");
+
     throw redirect(
-      encodeURI(`/songbook/${updatedSong.slug}`),
+      encodeURI(`/songbook/${updated.data.slug}`),
       {
         message: m.songbook_songUpdated(),
-        type: "success",
-      },
-      event,
-    );
-  },
-
-  delete: async (event) => {
-    const { locals, request } = event;
-    const { prisma } = locals;
-    authorize(apiNames.SONG.DELETE, locals.user);
-    const data = await request.formData();
-    const id = data.get("id");
-    if (id == null) {
-      throw error(400, {
-        message: m.songbook_errors_missingID(),
-      });
-    }
-    if (typeof id !== "string") {
-      throw error(400, {
-        message: m.songbook_errors_invalidID(),
-      });
-    }
-    const song = await prisma.song.update({
-      where: {
-        id: id,
-      },
-      data: {
-        deletedAt: new Date(),
-      },
-    });
-
-    throw redirect(
-      encodeURI(`/songbook/${song.slug}`),
-      {
-        message: m.songbook_songRemoved(),
-        type: "success",
-      },
-      event,
-    );
-  },
-
-  restore: async (event) => {
-    const { locals, request } = event;
-    const { prisma } = locals;
-    authorize(apiNames.SONG.DELETE, locals.user);
-    const data = await request.formData();
-    const id = data.get("id");
-    if (id == null) {
-      throw error(400, {
-        message: m.songbook_errors_missingID(),
-      });
-    }
-    if (typeof id !== "string") {
-      throw error(400, {
-        message: m.songbook_errors_invalidID(),
-      });
-    }
-    const song = await prisma.song.update({
-      where: {
-        id: id,
-      },
-      data: {
-        deletedAt: null,
-      },
-    });
-    throw redirect(
-      encodeURI(`/songbook/${song.slug}`),
-      {
-        message: m.songbook_songRestored(),
         type: "success",
       },
       event,

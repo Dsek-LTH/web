@@ -95,6 +95,14 @@ func ToText(s *string) pgtype.Text {
 	return pgtype.Text{String: *s, Valid: true}
 }
 
+// ToBool wraps a plain bool as pgtype.Bool - for the `sqlc.narg('x')::bool`
+// pattern used by optional boolean query filters (e.g. an "include
+// soft-deleted rows" flag), always Valid since there's no "unset" bool at
+// the call site the way there is for ToText's nil string.
+func ToBool(b bool) pgtype.Bool {
+	return pgtype.Bool{Bool: b, Valid: true}
+}
+
 func ToTimestamptz(t *time.Time) pgtype.Timestamptz {
 	if t == nil {
 		return pgtype.Timestamptz{}

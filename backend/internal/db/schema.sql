@@ -2,7 +2,17 @@
 -- currently owns: articles and events, and everything they depend on
 -- (authors, members, committees, positions, mandates, tags, phadder
 -- groups); plus the directory-foundation domain (members/committees/
--- positions/mandates in full, email_aliases, markdowns, api_access_policies).
+-- positions/mandates in full, email_aliases, markdowns, api_access_policies);
+-- plus Phase 3's simple standalone CRUD domains (songs, alerts, documents/
+-- governing documents - markdowns already covered above, reused for the
+-- generic /info pages too).
+--
+-- songs/documents/alerts/_alerts_closed_by all pre-date this Go port (they
+-- were created by Prisma's own migration history, already applied to the
+-- live DB and already carried forward into internal/db/migrations as part
+-- of that baseline copy - see DESIGN.md's "DB migrations, once Prisma is
+-- gone"). No new migration was needed to add them here; they're just newly
+-- described in this file so sqlc can generate code against them.
 --
 -- This mirrors tables that already exist in the shared database (previously
 -- managed by ../../src/database/schema.zmodel / Prisma migrations) — column
@@ -317,3 +327,55 @@ CREATE TABLE _event_interested (
 );
 CREATE UNIQUE INDEX _event_interested_ab_unique ON _event_interested ("A", "B");
 CREATE INDEX _event_interested_b_index ON _event_interested ("B");
+
+CREATE TABLE songs (
+    id         UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    title      VARCHAR(255) NOT NULL,
+    lyrics     TEXT NOT NULL,
+    melody     VARCHAR(255),
+    category   VARCHAR(255),
+    created_at TIMESTAMPTZ,
+    updated_at TIMESTAMPTZ,
+    deleted_at TIMESTAMPTZ,
+    slug       VARCHAR(255) NOT NULL UNIQUE,
+    video      TEXT
+);
+
+CREATE TABLE alerts (
+    id         UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    severity   VARCHAR(255) NOT NULL,
+    message_sv VARCHAR(255) NOT NULL,
+    message_en VARCHAR(255) NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    removed_at TIMESTAMPTZ
+);
+
+-- Implicit Prisma many-to-many join table (named "_alerts_closed_by" in the
+-- live DB) - which members have individually dismissed which alert.
+CREATE TABLE _alerts_closed_by (
+    "A" UUID NOT NULL REFERENCES alerts (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    "B" UUID NOT NULL REFERENCES members (id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+CREATE UNIQUE INDEX _alerts_closed_by_ab_unique ON _alerts_closed_by ("A", "B");
+CREATE INDEX _alerts_closed_by_b_index ON _alerts_closed_by ("B");
+
+CREATE TYPE document_type AS ENUM (
+    'POLICY', 'GUIDELINE', 'MEETING', 'OTHER', 'PLAN_OF_OPERATIONS',
+    'FRAMEWORK_BUDGET', 'STRATEGIC_GOALS'
+);
+
+-- "documents" here is the governing-documents (styrdokument) feature at
+-- /documents/governing - url is a plain string the author pastes in, no
+-- real file storage involved, unlike the MinIO-backed /documents,
+-- /documents/requirements, /documents/upload browsing (no Prisma model at
+-- all, deferred to Phase 4 - see DESIGN.md's Phase 3 section for why these
+-- two "documents" things are unrelated despite the shared URL prefix).
+CREATE TABLE documents (
+    id         UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    title      VARCHAR(255) NOT NULL,
+    url        VARCHAR(255) NOT NULL,
+    type       document_type NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMPTZ
+);

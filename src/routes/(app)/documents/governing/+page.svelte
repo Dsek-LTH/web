@@ -1,13 +1,16 @@
 <script lang="ts">
   import PageHeader from "$lib/components/nav/PageHeader.svelte";
   import FileLink from "../FileLink.svelte";
-  import DeleteFileForm from "../DeleteFileForm.svelte";
   import YearSelector from "$lib/components/YearSelector.svelte";
-  import { Button } from "$lib/components/ui/button";
+  import { Button, buttonVariants } from "$lib/components/ui/button";
+  import * as AlertDialog from "$lib/components/ui/alert-dialog";
   import * as m from "$paraglide/messages";
-  import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
+  import { api } from "$lib/api/client";
+  import { invalidateAll } from "$app/navigation";
+  import { toast } from "$lib/stores/toast";
   import Pencil from "@lucide/svelte/icons/pencil";
+  import Trash from "@lucide/svelte/icons/trash";
   import Scale from "@lucide/svelte/icons/scale";
   import BookOpen from "@lucide/svelte/icons/book-open";
   import ShieldCheck from "@lucide/svelte/icons/shield-check";
@@ -21,16 +24,36 @@
 
   let isEditing = $state(false);
 
-  let canCreate = $derived(
-    isAuthorized(apiNames.GOVERNING_DOCUMENT.CREATE, data.user),
+  // governing_document:write gates create/update/delete alike in Go (see
+  // backend/internal/governingdocs) - matching the old app's single
+  // GOVERNING_DOCUMENT.CREATE/UPDATE/DELETE policy string exactly. A plain
+  // policies.includes() read, same as Song/Alert's own list pages already
+  // do - not the isAuthorized()/getDerivedRoles-style reimplementation
+  // DESIGN.md's Principle #5 rules out (that's about recomputing a
+  // per-resource "can this identity touch this thing" decision, not
+  // reading an already-resolved flat policy list for a visibility toggle).
+  let canWrite = $derived(
+    data.user?.policies?.includes(apiNames.GOVERNING_DOCUMENT.CREATE) ??
+      false,
   );
-  let canUpdate = $derived(
-    isAuthorized(apiNames.GOVERNING_DOCUMENT.UPDATE, data.user),
-  );
-  let canDelete = $derived(
-    isAuthorized(apiNames.GOVERNING_DOCUMENT.DELETE, data.user),
-  );
+  let canCreate = $derived(canWrite);
+  let canUpdate = $derived(canWrite);
+  let canDelete = $derived(canWrite);
   let canEdit = $derived(canUpdate || canDelete);
+
+  // Pure-proxy mutation (see DESIGN.md's Principle #5) - direct Go call, no
+  // SvelteKit action, matching RemoveArticleDialog.svelte's pattern.
+  async function removeDocument(id: string) {
+    const res = await api.DELETE("/governing-documents/{id}", {
+      params: { path: { id } },
+    });
+    if (res.error) {
+      toast("Failed to delete document", "error");
+      return;
+    }
+    toast(m.documents_governing_documentDeleted(), "success");
+    await invalidateAll();
+  }
 </script>
 
 {#snippet documentList(documents: typeof data.policies)}
@@ -52,11 +75,32 @@
               </Button>
             {/if}
             {#if canDelete}
-              <DeleteFileForm
-                data={data.deleteForm}
-                fileId={doc.id}
-                fileName={doc.title}
-              />
+              <AlertDialog.Root>
+                <AlertDialog.Trigger
+                  class={buttonVariants({ size: "icon", variant: "outline" })}
+                >
+                  <Trash class="size-4" />
+                </AlertDialog.Trigger>
+                <AlertDialog.Content>
+                  <AlertDialog.Header>
+                    <AlertDialog.Title
+                      ><!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                      {@html m.documents_deleteAreYouSure({
+                        fileName: doc.title,
+                      })}</AlertDialog.Title
+                    >
+                    <AlertDialog.Description>
+                      {m.documents_modal_subtitle()}
+                    </AlertDialog.Description>
+                  </AlertDialog.Header>
+                  <AlertDialog.Footer>
+                    <AlertDialog.Cancel>{m.cancel()}</AlertDialog.Cancel>
+                    <AlertDialog.Action onclick={() => removeDocument(doc.id)}
+                      >{m.delete_delete()}</AlertDialog.Action
+                    >
+                  </AlertDialog.Footer>
+                </AlertDialog.Content>
+              </AlertDialog.Root>
             {/if}
           </div>
         {/if}

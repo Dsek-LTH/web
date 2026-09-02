@@ -12,6 +12,7 @@ import (
 	"github.com/joho/godotenv"
 
 	"github.com/dsek-lth/web/backend/internal/accesspolicies"
+	"github.com/dsek-lth/web/backend/internal/alerts"
 	"github.com/dsek-lth/web/backend/internal/api"
 	"github.com/dsek-lth/web/backend/internal/apinames"
 	"github.com/dsek-lth/web/backend/internal/articles"
@@ -19,9 +20,13 @@ import (
 	"github.com/dsek-lth/web/backend/internal/committees"
 	"github.com/dsek-lth/web/backend/internal/db"
 	"github.com/dsek-lth/web/backend/internal/events"
+	"github.com/dsek-lth/web/backend/internal/governingdocs"
 	"github.com/dsek-lth/web/backend/internal/integrations"
+	"github.com/dsek-lth/web/backend/internal/markdown"
+	"github.com/dsek-lth/web/backend/internal/medals"
 	"github.com/dsek-lth/web/backend/internal/members"
 	"github.com/dsek-lth/web/backend/internal/nollning"
+	"github.com/dsek-lth/web/backend/internal/songs"
 )
 
 func main() {
@@ -84,6 +89,11 @@ func main() {
 	memberSvc := members.NewService(pool)
 	committeeSvc := committees.NewService(pool, nollningSvc)
 	accessPolicySvc := accesspolicies.NewService(pool)
+	songSvc := songs.NewService(pool)
+	alertSvc := alerts.NewService(pool)
+	markdownSvc := markdown.NewService(pool)
+	governingDocSvc := governingdocs.NewService(pool)
+	medalSvc := medals.NewService(pool)
 	router := api.NewRouter(
 		articleSvc,
 		eventSvc,
@@ -91,6 +101,11 @@ func main() {
 		committeeSvc,
 		accessPolicySvc,
 		nollningSvc,
+		songSvc,
+		alertSvc,
+		markdownSvc,
+		governingDocSvc,
+		medalSvc,
 		authenticator,
 		oidcClient,
 		queries,

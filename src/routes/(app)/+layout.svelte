@@ -3,7 +3,6 @@
   import Alert from "$lib/components/Alert.svelte";
   import Header from "./Header.svelte";
   import Footer from "./Footer.svelte";
-  import { getLocale } from "$paraglide/runtime";
   import { page } from "$app/state";
 
   const { data, children } = $props();
@@ -22,12 +21,8 @@
 
   <main class="flex min-h-0 flex-1 flex-col">
     {#each data.alerts as alert (alert.id)}
-      {#if !alert.closedByMember.some((member) => member.id === data.member?.id)}
-        <Alert
-          id={alert.id}
-          message={getLocale() === "sv" ? alert.messageSv : alert.messageEn}
-          severity={alert.severity}
-        />
+      {#if !alert.closedByMe}
+        <Alert id={alert.id} message={alert.message} severity={alert.severity} />
       {/if}
     {/each}
 

@@ -13,14 +13,19 @@ import (
 	"github.com/danielgtaylor/huma/v2/adapters/humago"
 
 	"github.com/dsek-lth/web/backend/internal/accesspolicies"
+	"github.com/dsek-lth/web/backend/internal/alerts"
 	"github.com/dsek-lth/web/backend/internal/articles"
 	"github.com/dsek-lth/web/backend/internal/auth"
 	"github.com/dsek-lth/web/backend/internal/committees"
 	"github.com/dsek-lth/web/backend/internal/db"
 	"github.com/dsek-lth/web/backend/internal/events"
+	"github.com/dsek-lth/web/backend/internal/governingdocs"
 	"github.com/dsek-lth/web/backend/internal/locale"
+	"github.com/dsek-lth/web/backend/internal/markdown"
+	"github.com/dsek-lth/web/backend/internal/medals"
 	"github.com/dsek-lth/web/backend/internal/members"
 	"github.com/dsek-lth/web/backend/internal/nollning"
+	"github.com/dsek-lth/web/backend/internal/songs"
 )
 
 // NewRouter registers every endpoint. Every request is authenticated via
@@ -36,6 +41,11 @@ func NewRouter(
 	committeeSvc *committees.Service,
 	accessPolicySvc *accesspolicies.Service,
 	nollningSvc *nollning.Service,
+	songSvc *songs.Service,
+	alertSvc *alerts.Service,
+	markdownSvc *markdown.Service,
+	governingDocSvc *governingdocs.Service,
+	medalSvc *medals.Service,
 	authenticator auth.Authenticator,
 	oidcClient *auth.OIDCClient,
 	queries *db.Queries,
@@ -50,8 +60,14 @@ func NewRouter(
 	registerCommitteeRoutes(api, committeeSvc)
 	registerAccessPolicyRoutes(api, accessPolicySvc)
 	registerNollningRoutes(api, nollningSvc)
+	registerSongRoutes(api, songSvc)
+	registerAlertRoutes(api, alertSvc)
+	registerMarkdownRoutes(api, markdownSvc)
+	registerGoverningDocumentRoutes(api, governingDocSvc)
+	registerMedalRoutes(api, medalSvc)
 
 	mux.HandleFunc("GET /me", auth.MeHandler(queries))
+	mux.HandleFunc("GET /medals/download-csv", MedalsCSVHandler(medalSvc))
 	if oidcClient != nil {
 		mux.HandleFunc("GET /auth/login", oidcClient.LoginHandler)
 		mux.HandleFunc("GET /auth/callback", oidcClient.CallbackHandler)

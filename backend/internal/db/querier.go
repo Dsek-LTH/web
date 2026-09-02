@@ -33,16 +33,21 @@ type Querier interface {
 	// the old Prisma `disconnect`, which is a no-op unless the relation
 	// actually exists.
 	ClearMemberPhadderGroup(ctx context.Context, arg ClearMemberPhadderGroupParams) error
+	CloseAlertForMember(ctx context.Context, arg CloseAlertForMemberParams) error
 	CountArticleSlugsWithPrefix(ctx context.Context, dollar_1 pgtype.Text) (int64, error)
 	CountArticles(ctx context.Context, arg CountArticlesParams) (int64, error)
 	CountEventSlugsWithPrefix(ctx context.Context, dollar_1 pgtype.Text) (int64, error)
 	CountEvents(ctx context.Context, arg CountEventsParams) (int64, error)
+	CountSongSlugsWithPrefix(ctx context.Context, dollar_1 pgtype.Text) (int64, error)
+	CountSongs(ctx context.Context, arg CountSongsParams) (int64, error)
 	CreateAccessPolicy(ctx context.Context, arg CreateAccessPolicyParams) (ApiAccessPolicy, error)
+	CreateAlert(ctx context.Context, arg CreateAlertParams) (Alert, error)
 	CreateArticle(ctx context.Context, arg CreateArticleParams) (CreateArticleRow, error)
 	CreateArticleComment(ctx context.Context, arg CreateArticleCommentParams) (CreateArticleCommentRow, error)
 	CreateAuthor(ctx context.Context, arg CreateAuthorParams) (pgtype.UUID, error)
 	CreateEvent(ctx context.Context, arg CreateEventParams) (CreateEventRow, error)
 	CreateEventComment(ctx context.Context, arg CreateEventCommentParams) (CreateEventCommentRow, error)
+	CreateGoverningDocument(ctx context.Context, arg CreateGoverningDocumentParams) (Document, error)
 	CreateMandate(ctx context.Context, arg CreateMandateParams) (CreateMandateRow, error)
 	// Minimal port of src/lib/utils/member.ts's createMember: this backend
 	// doesn't own subscription_settings or tag subscriptions (nollning-period
@@ -54,6 +59,7 @@ type Querier interface {
 	CreatePhadderGroup(ctx context.Context, arg CreatePhadderGroupParams) (PhadderGroup, error)
 	CreateRecurringEvent(ctx context.Context, arg CreateRecurringEventParams) (pgtype.UUID, error)
 	CreateSeason(ctx context.Context, arg CreateSeasonParams) (NollningSeason, error)
+	CreateSong(ctx context.Context, arg CreateSongParams) (Song, error)
 	DeleteAccessPolicy(ctx context.Context, id pgtype.UUID) error
 	DeleteArticleComment(ctx context.Context, arg DeleteArticleCommentParams) error
 	DeleteEventComment(ctx context.Context, arg DeleteEventCommentParams) error
@@ -67,6 +73,11 @@ type Querier interface {
 	// Authors are reused across articles: an author row is the (member,
 	// mandate, custom-author) triple, so the same byline is only created once.
 	FindAuthor(ctx context.Context, arg FindAuthorParams) (pgtype.UUID, error)
+	// Unconstrained by type, unlike GetGoverningDocumentByID above - the list
+	// page's delete action operates on any document by id regardless of type
+	// (MEETING/OTHER/etc. included), matching the old app's
+	// prisma.document.delete({where:{id}}) exactly.
+	GetAnyGoverningDocumentByID(ctx context.Context, id pgtype.UUID) (Document, error)
 	// Used only to seed the mock auth identity in dev when no specific member
 	// is configured (see internal/auth, main.go). Arbitrary but deterministic
 	// enough for local dev: whichever member sorts first by id.
@@ -99,6 +110,9 @@ type Querier interface {
 	// create/update, and by GetAny for callers - like an edit page - that need
 	// to load an event regardless of soft-delete status.
 	GetEventRowBySlug(ctx context.Context, slug pgtype.Text) (GetEventRowBySlugRow, error)
+	// Constrained to POLICY/GUIDELINE, matching the old app's edit-lookup
+	// query - the other enum values have no create/edit UI anywhere.
+	GetGoverningDocumentByID(ctx context.Context, id pgtype.UUID) (Document, error)
 	// Used to verify a caller posting "as" a mandate actually holds it.
 	// custom_authors has no owner column in the schema (they're shared
 	// personas, e.g. "Styrelsen"), so there's no equivalent check for those.
@@ -121,12 +135,19 @@ type Querier interface {
 	GetPosition(ctx context.Context, id string) (GetPositionRow, error)
 	GetRecurringEvent(ctx context.Context, id pgtype.UUID) (RecurringEvent, error)
 	GetSeason(ctx context.Context, id pgtype.UUID) (NollningSeason, error)
+	// include_deleted here means "also visible if deleted" (a union, unlike
+	// ListSongs' show_deleted above, which is an exclusive toggle) - mirrors the
+	// old app's detail-page load, which bypasses the deletedAt filter entirely
+	// for a caller holding song:delete rather than requiring a separate
+	// "viewing the trash" mode.
+	GetSongBySlug(ctx context.Context, arg GetSongBySlugParams) (Song, error)
 	// Backs IsStaben: does memberID hold a mandate, active today, on a position
 	// belonging to committeeID.
 	IsMemberActiveOnCommittee(ctx context.Context, arg IsMemberActiveOnCommitteeParams) (bool, error)
 	// Optional apiName filter; joins member first/last name for studentId-scoped
 	// rows (role-scoped rows have no member to join).
 	ListAccessPolicies(ctx context.Context, apiName pgtype.Text) ([]ListAccessPoliciesRow, error)
+	ListActiveAlerts(ctx context.Context) ([]Alert, error)
 	// "Active" mirrors the old TS backend's author-options query: currently
 	// within the mandate's start/end date range.
 	ListActiveMandatesForMember(ctx context.Context, memberID pgtype.UUID) ([]ListActiveMandatesForMemberRow, error)
@@ -149,9 +170,13 @@ type Querier interface {
 	// viewers without MemberSeeStaben) happens in committees.Service.ListBoard,
 	// not here - this query returns the unredacted set.
 	ListBoard(ctx context.Context) ([]ListBoardRow, error)
+	ListClosedAlertIDsForMember(ctx context.Context, b pgtype.UUID) ([]pgtype.UUID, error)
 	// Full fields + currently-active mandate/unique-member counts, for the
 	// committee overview page (mirrors the old "about" page's query).
 	ListCommitteesWithCounts(ctx context.Context) ([]ListCommitteesWithCountsRow, error)
+	// Committees eligible for a committee medal - excludes the same fixed
+	// short_name set the old app hardcoded (valb/other/dchip/medalj).
+	ListCommitteesWithMedals(ctx context.Context) ([]ListCommitteesWithMedalsRow, error)
 	// Unfiltered: the old TS backend restricted this list to custom authors
 	// whose custom_author_roles matched one of the member's Keycloak-derived
 	// roles (getDerivedRoles) - that role-derivation system isn't ported to Go
@@ -160,6 +185,8 @@ type Querier interface {
 	// roles exist.
 	ListCustomAuthors(ctx context.Context) ([]ListCustomAuthorsRow, error)
 	ListDistinctAPINames(ctx context.Context) ([]string, error)
+	ListDistinctSongCategories(ctx context.Context, includeDeleted pgtype.Bool) ([]pgtype.Text, error)
+	ListDistinctSongMelodies(ctx context.Context, includeDeleted pgtype.Bool) ([]pgtype.Text, error)
 	ListEmailAliasesForPosition(ctx context.Context, positionID string) ([]EmailAlias, error)
 	ListEventComments(ctx context.Context, eventID pgtype.UUID) ([]ListEventCommentsRow, error)
 	ListEventGoing(ctx context.Context, eventID pgtype.UUID) ([]ListEventGoingRow, error)
@@ -179,18 +206,33 @@ type Querier interface {
 	// exactly one is non-null per row depending on 'past', the other ties (NULL)
 	// and is ignored.
 	ListEvents(ctx context.Context, arg ListEventsParams) ([]ListEventsRow, error)
+	ListGoverningDocuments(ctx context.Context) ([]Document, error)
 	// Full mandate history (not just currently-active, unlike
 	// ListActiveMandatesForMember) for a member's profile page, joined to
 	// position+committee for display.
 	ListMandatesForMember(ctx context.Context, memberID pgtype.UUID) ([]ListMandatesForMemberRow, error)
+	// All mandates (not just active-during-the-window ones) for a given member
+	// set, that started before the cutoff - mirrors the old app's allMandates
+	// query, which only bounds start_date (no end_date filter) since award
+	// semesters are computed by intersecting with "after" in Go, not in SQL.
+	ListMandatesForMembersBefore(ctx context.Context, arg ListMandatesForMembersBeforeParams) ([]ListMandatesForMembersBeforeRow, error)
 	// Year-scoped (overlapping [year-01-01, year-12-31]), joined to member -
 	// mirrors the committee detail page's year filter (GET /committees/{shortName}?year=).
 	ListMandatesForPosition(ctx context.Context, arg ListMandatesForPositionParams) ([]ListMandatesForPositionRow, error)
+	// Distinct members who held any mandate active during [start, end) - the
+	// candidate set medalRecipients scopes its per-member computation to,
+	// mirroring the old app's mandatesInAfter query exactly.
+	ListMemberIDsWithMandateActiveDuring(ctx context.Context, arg ListMemberIDsWithMandateActiveDuringParams) ([]pgtype.UUID, error)
+	// Full mandate history for one member, joined to board_member/committee_id
+	// - everything memberMedals (src/lib/server/medals/medals.ts) needs to
+	// compute that member's own medal semesters.
+	ListMemberMandatesWithPosition(ctx context.Context, memberID pgtype.UUID) ([]ListMemberMandatesWithPositionRow, error)
 	// Mirrors the old members-directory page's filter: both params are
 	// optional (a NULL narg matches everything) - the old TS route required
 	// classYear, but that was a SvelteKit-page UX constraint (it needed a
 	// value to pre-fill a dropdown), not an intentional API restriction.
 	ListMembers(ctx context.Context, arg ListMembersParams) ([]ListMembersRow, error)
+	ListMembersByIDs(ctx context.Context, dollar_1 []pgtype.UUID) ([]ListMembersByIDsRow, error)
 	ListNollorForGroup(ctx context.Context, nollningGroupID pgtype.UUID) ([]ListNollorForGroupRow, error)
 	// Nolla/phadder counts alongside each group, mirroring
 	// ListCommitteesWithCounts' count-subquery pattern.
@@ -207,12 +249,19 @@ type Querier interface {
 	ListPoliciesForRolesOrStudentID(ctx context.Context, arg ListPoliciesForRolesOrStudentIDParams) ([]string, error)
 	ListPositions(ctx context.Context) ([]ListPositionsRow, error)
 	ListSeasons(ctx context.Context) ([]NollningSeason, error)
+	// show_deleted toggles between two mutually exclusive views (mirroring the
+	// old app's "show-deleted" query param on the songbook list page): the
+	// normal active-songs list (false/unset) or the trash view of only
+	// soft-deleted songs (true) - never both at once, unlike GetSongBySlug's
+	// include_deleted below, which unions.
+	ListSongs(ctx context.Context, arg ListSongsParams) ([]Song, error)
 	ListTags(ctx context.Context) ([]Tag, error)
 	ListTagsForArticles(ctx context.Context, dollar_1 []pgtype.UUID) ([]ListTagsForArticlesRow, error)
 	ListTagsForEvents(ctx context.Context, dollar_1 []pgtype.UUID) ([]ListTagsForEventsRow, error)
 	RemoveArticleLike(ctx context.Context, arg RemoveArticleLikeParams) error
 	RemoveEventGoing(ctx context.Context, arg RemoveEventGoingParams) error
 	RemoveEventInterested(ctx context.Context, arg RemoveEventInterestedParams) error
+	RestoreSong(ctx context.Context, id pgtype.UUID) error
 	// Targeted single-field write: the caller's external scheduler task id,
 	// recorded after scheduling a future publish succeeds. Deliberately
 	// separate from UpdateArticle (which is full-replace) since this needs to
@@ -220,12 +269,15 @@ type Querier interface {
 	SetArticleScheduledID(ctx context.Context, arg SetArticleScheduledIDParams) error
 	SetMandatePhadderGroup(ctx context.Context, arg SetMandatePhadderGroupParams) error
 	SetMemberPhadderGroup(ctx context.Context, arg SetMemberPhadderGroupParams) error
+	SoftDeleteAlert(ctx context.Context, id pgtype.UUID) error
 	SoftDeleteArticle(ctx context.Context, slug string) error
 	SoftDeleteEvent(ctx context.Context, id pgtype.UUID) error
 	// Powers both FUTURE (min_start_datetime set) and ALL (narg'd out) series
 	// deletes in one statement, unlike the per-row loop UpdateEvent needs (a
 	// plain removed_at write has no per-row content to vary).
 	SoftDeleteEventSeries(ctx context.Context, arg SoftDeleteEventSeriesParams) error
+	SoftDeleteGoverningDocument(ctx context.Context, id pgtype.UUID) error
+	SoftDeleteSong(ctx context.Context, id pgtype.UUID) error
 	UpdateArticle(ctx context.Context, arg UpdateArticleParams) (UpdateArticleRow, error)
 	UpdateCommittee(ctx context.Context, arg UpdateCommitteeParams) (Committee, error)
 	// Full-replace of content fields (same PUT-not-PATCH convention as
@@ -234,12 +286,14 @@ type Querier interface {
 	// why events diverge from articles' "always re-attribute to the editor"
 	// rule.
 	UpdateEvent(ctx context.Context, arg UpdateEventParams) (UpdateEventRow, error)
+	UpdateGoverningDocument(ctx context.Context, arg UpdateGoverningDocumentParams) (Document, error)
 	UpdateMandate(ctx context.Context, arg UpdateMandateParams) (UpdateMandateRow, error)
 	UpdateMemberFoodPreference(ctx context.Context, arg UpdateMemberFoodPreferenceParams) (UpdateMemberFoodPreferenceRow, error)
 	UpdateMemberProfile(ctx context.Context, arg UpdateMemberProfileParams) (UpdateMemberProfileRow, error)
 	UpdatePhadderGroup(ctx context.Context, arg UpdatePhadderGroupParams) (PhadderGroup, error)
 	UpdatePosition(ctx context.Context, arg UpdatePositionParams) (UpdatePositionRow, error)
 	UpdateSeason(ctx context.Context, arg UpdateSeasonParams) (NollningSeason, error)
+	UpdateSong(ctx context.Context, arg UpdateSongParams) (Song, error)
 	UpsertMarkdown(ctx context.Context, arg UpsertMarkdownParams) (Markdown, error)
 }
 
