@@ -1,16 +1,18 @@
-import { uploadFile } from "$lib/files/uploadFiles";
-import type { AuthUser } from "@zenstackhq/runtime";
+import { api } from "$lib/api/client";
 import type { UploadSchema } from "./types";
-import { PUBLIC_BUCKETS_ALBUMS } from "$env/static/public";
 
-export const uploadAlbumFiles = async (user: AuthUser, data: UploadSchema) => {
-  const prefix =
-    "public/" + data.date.split("-")[0] + "/" + data.date + " " + data.name;
-  const bucket = PUBLIC_BUCKETS_ALBUMS;
+// Forwards to the Go backend (backend/internal/gallery.Service.UploadAlbum)
+// instead of touching MinIO directly - see backend/CLAUDE.md's Phase 4
+// section. Go now awaits every file upload before returning, fixing the
+// old fire-and-forget bug this function used to have.
+export const uploadAlbumFiles = async (data: UploadSchema) => {
+  const form = new FormData();
+  form.append("name", data.name);
+  form.append("date", data.date);
+  Array.from(data.files).forEach((file) => form.append("files", file));
 
-  const tasks: Array<Promise<string>> = [];
-  Array.from(data.files).forEach((file) => {
-    tasks.push(uploadFile(user, file, prefix, bucket, file.name));
+  const res = await api.POST("/gallery/upload", {
+    body: form as unknown as { name: string; date: string; files: string[] },
   });
-  await Promise.resolve();
+  if (res.error) throw new Error("Failed to upload album");
 };

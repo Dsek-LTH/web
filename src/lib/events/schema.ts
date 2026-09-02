@@ -68,7 +68,7 @@ export const eventSchema = z
 export type EventSchema = Infer<typeof eventSchema>;
 
 export const interestedGoingSchema = z.object({
-  eventId: z.string(),
+  slug: z.string(),
 });
 export const actionType = z.enum(["THIS", "FUTURE", "ALL"]);
 

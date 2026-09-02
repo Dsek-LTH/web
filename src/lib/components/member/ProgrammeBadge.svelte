@@ -8,7 +8,17 @@
     size,
     class: klass,
   }: {
-    member: Pick<ExtendedPrismaModel<"Member">, "classProgramme" | "classYear">;
+    // TEMPORARY dual-shape (Prisma `| null` vs Go API `| undefined`) - pure
+    // type widening, no conversion logic. Still-Prisma consumers:
+    // Mandate.svelte (committees position page). Narrow to
+    // `string | undefined` once that's ported too - see CommitteeSymbol's
+    // identical note.
+    member: {
+      classProgramme?:
+        | ExtendedPrismaModel<"Member">["classProgramme"]
+        | undefined;
+      classYear?: ExtendedPrismaModel<"Member">["classYear"] | undefined;
+    };
     size?: BadgeSize;
     class?: string;
   } = $props();

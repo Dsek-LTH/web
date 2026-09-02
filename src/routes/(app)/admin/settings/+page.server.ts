@@ -1,37 +1,32 @@
-import {
-  NOLLNING_END_KEY,
-  NOLLNING_START_KEY,
-  updateNollningPeriod,
-} from "$lib/utils/adminSettings/nollning";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
+import { serverApi } from "$lib/server/apiClient";
 import { fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import type { PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async ({ locals }) => {
+// This page's +page.svelte is still <NotImplemented /> (no real admin UI
+// built yet) - the load/actions below are still ported to the Go backend
+// regardless, same "port the server logic even without a page.svelte"
+// precedent as committees/nollu/groups/manage (see its +page.server.ts's
+// own comment) - keeps this server code correct instead of leaving it on
+// the now-superseded AdminSetting-backed nollning_start/nollning_end keys.
+
+export const load: PageServerLoad = async (event) => {
+  const { locals } = event;
   const { prisma, user } = locals;
   authorize(apiNames.ADMIN.SETTINGS.READ, user);
   const settings = await prisma.adminSetting.findMany();
-  const nollningStartStr = settings.find(
-    (setting) => setting.key === NOLLNING_START_KEY,
-  )?.value;
-  const nollningEndStr = settings.find(
-    (setting) => setting.key === NOLLNING_END_KEY,
-  )?.value;
+
+  const seasonsRes = await serverApi(event).GET("/nollning/seasons", {});
+
   return {
     settings,
-    nollning:
-      nollningStartStr && nollningEndStr
-        ? {
-            start: new Date(nollningStartStr),
-            end: new Date(nollningEndStr),
-          }
-        : undefined,
+    nollningSeasons: seasonsRes.data ?? [],
     updateForm: await superValidate(zod4(updateSchema)),
-    updateNollningForm: await superValidate(zod4(updateNollningPeriodSchema)),
+    createNollningSeasonForm: await superValidate(zod4(seasonSchema)),
   };
 };
 
@@ -42,9 +37,13 @@ const updateSchema = z.object({
 const removeSchema = z.object({
   key: z.string().min(1),
 });
-const updateNollningPeriodSchema = z.object({
-  start: z.date(),
-  end: z.date(),
+const seasonSchema = z.object({
+  id: z.string().uuid().optional(),
+  year: z.number().int(),
+  nollaStartAt: z.date(),
+  revealAt: z.date(),
+  endAt: z.date(),
+  organizingCommitteeId: z.string().uuid().nullable().optional(),
 });
 
 export const actions = {
@@ -72,11 +71,24 @@ export const actions = {
       type: "success",
     });
   },
-  async updateNollning({ locals, request }) {
-    const { prisma } = locals;
-    const form = await superValidate(request, zod4(updateNollningPeriodSchema));
+  async upsertNollningSeason(event) {
+    const api = serverApi(event);
+    const form = await superValidate(event.request, zod4(seasonSchema));
     if (!form.valid) return fail(400, { form });
-    await updateNollningPeriod(prisma, form.data.start, form.data.end);
+    const body = {
+      year: form.data.year,
+      nollaStartAt: form.data.nollaStartAt.toISOString(),
+      revealAt: form.data.revealAt.toISOString(),
+      endAt: form.data.endAt.toISOString(),
+      organizingCommitteeId: form.data.organizingCommitteeId ?? null,
+    };
+    const res = form.data.id
+      ? await api.PATCH("/nollning/seasons/{id}", {
+          params: { path: { id: form.data.id } },
+          body,
+        })
+      : await api.POST("/nollning/seasons", { body });
+    if (res.error) return fail(400, { form });
     return message(form, {
       message: `Nollningsperiod uppdaterad`,
       type: "success",

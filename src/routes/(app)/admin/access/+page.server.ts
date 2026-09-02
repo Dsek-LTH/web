@@ -1,5 +1,6 @@
 import apiNames from "$lib/utils/apiNames";
-import { fail } from "@sveltejs/kit";
+import { error, fail } from "@sveltejs/kit";
+import { serverApi } from "$lib/server/apiClient";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { z } from "zod";
@@ -7,19 +8,17 @@ import type { Actions, PageServerLoad } from "./$types";
 import { authorize } from "$lib/utils/authorization";
 import * as m from "$paraglide/messages";
 
-export const load: PageServerLoad = async ({ locals }) => {
-  const { prisma, user } = locals;
+export const load: PageServerLoad = async (event) => {
+  const { locals } = event;
+  const { user } = locals;
   authorize(apiNames.ACCESS_POLICY.CREATE, user);
 
-  const accessPolicies = await prisma.accessPolicy.findMany().then((policies) =>
-    policies
-      .map((policy) => policy.apiName)
-      .filter((value, index, self) => self.indexOf(value) === index)
-      .sort(),
-  );
+  const res = await serverApi(event).GET("/access-policies/api-names", {});
+  if (res.error) throw error(500, "Failed to load access policies");
+
   const form = await superValidate(zod4(createSchema));
   return {
-    accessPolicies,
+    accessPolicies: res.data ?? [],
     form,
   };
 };
@@ -29,17 +28,15 @@ const createSchema = z.object({
 });
 
 export const actions: Actions = {
-  create: async ({ locals, request }) => {
-    const { prisma } = locals;
-    const form = await superValidate(request, zod4(createSchema));
+  create: async (event) => {
+    const form = await superValidate(event.request, zod4(createSchema));
     if (!form.valid) return fail(400, { form });
 
-    await prisma.accessPolicy.create({
-      data: {
-        apiName: form.data.apiName,
-        role: "*",
-      },
+    const res = await serverApi(event).POST("/access-policies", {
+      body: { apiName: form.data.apiName, role: "*" },
     });
+    if (res.error) return fail(400, { form });
+
     return message(form, {
       message: m.admin_access_policyCreated(),
       type: "success",

@@ -1,71 +1,58 @@
-import {
-  phadderGroupSchema,
-  phadderMandateFilter,
-} from "$lib/nollning/groups/types";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
+import { serverApi } from "$lib/server/apiClient";
 import DOMPurify from "isomorphic-dompurify";
 import { fail, message, setError, superValidate } from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { z } from "zod";
-import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 
-const getPhadderMandates = async (
-  prisma: ExtendedPrisma,
-  memberId: string,
-  year: number,
-) =>
-  prisma.mandate.findMany({
-    where: {
-      memberId,
-      ...phadderMandateFilter(year),
-    },
-    orderBy: [
-      {
-        positionId: "asc", // regular phadder comes before uppdrag
-      },
-      {
-        startDate: "asc",
-      },
-    ],
-  });
+// This page's +page.svelte is still <NotImplemented /> (no real UI built
+// yet for this admin flow) - the load/actions below are still ported to
+// the Go backend regardless, same "port the server logic even without a
+// page.svelte" precedent as events' create/[slug]/edit routes (see
+// backend/CLAUDE.md's events-routes section) - keeps this server code
+// correct instead of leaving it silently broken (it referenced
+// phadder_groups.year, which Go's Phase 2 nollning migration dropped)
+// until someone builds the real UI.
 
-export const load = async ({ locals }) => {
-  const { user, prisma } = locals;
+export const load = async (event) => {
+  const { locals } = event;
+  const api = serverApi(event);
+  const { user } = locals;
   authorize(apiNames.NOLLNING.MANAGE_PHADDER_GROUPS, user);
 
-  const phadderGroups = await prisma.phadderGroup.findMany({
-    include: {
-      nollor: true,
-      phaddrar: {
-        include: {
-          member: true,
-        },
-      },
-    },
-    orderBy: {
-      createdAt: "asc",
-    },
-  });
+  const summariesRes = await api.GET("/nollning/groups", {});
+  const summaries = summariesRes.data ?? [];
 
-  return {
-    groups: await Promise.all(
-      phadderGroups.map(async (group) => ({
+  const groups = await Promise.all(
+    summaries.map(async (summary) => {
+      const detailRes = await api.GET("/nollning/groups/{id}", {
+        params: { path: { id: summary.id } },
+      });
+      const group = detailRes.data ?? summary;
+      return {
         ...group,
         form: await superValidate(group, zod4(phadderGroupSchema)),
-      })),
-    ),
+      };
+    }),
+  );
+
+  return {
+    groups,
     form: await superValidate(zod4(createPhadderGroupSchema)),
   };
 };
 
-const createPhadderGroupSchema = phadderGroupSchema.omit({
-  id: true,
+const phadderGroupSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  description: z.string().nullable(),
+  seasonId: z.string().uuid(),
+  imageUrl: z.string().nullable(),
 });
+const createPhadderGroupSchema = phadderGroupSchema.omit({ id: true });
 const updatePhadderGroupSchema = phadderGroupSchema;
-const deletePhadderGroupSchema = phadderGroupSchema.pick({
-  id: true,
-});
+const deletePhadderGroupSchema = phadderGroupSchema.pick({ id: true });
 
 const personSchema = z.object({
   memberId: z.string().uuid(),
@@ -73,168 +60,106 @@ const personSchema = z.object({
 });
 
 export const actions = {
-  create: async ({ locals, request }) => {
-    const form = await superValidate(request, zod4(createPhadderGroupSchema));
+  create: async (event) => {
+    const api = serverApi(event);
+    const form = await superValidate(event.request, zod4(createPhadderGroupSchema));
     if (!form.valid) return fail(400, { form });
-    const { prisma } = locals;
-    form.data.description = form.data.description
+    const description = form.data.description
       ? DOMPurify.sanitize(form.data.description)
       : form.data.description;
-    await prisma.phadderGroup.create({
-      data: form.data,
+    const res = await api.POST("/nollning/groups", {
+      body: { ...form.data, description },
     });
+    if (res.error) return fail(400, { form });
     return message(form, {
       message: "Phaddergruppen skapades",
       type: "success",
     });
   },
-  update: async ({ locals, request }) => {
-    const form = await superValidate(request, zod4(updatePhadderGroupSchema));
+  update: async (event) => {
+    const api = serverApi(event);
+    const form = await superValidate(event.request, zod4(updatePhadderGroupSchema));
     if (!form.valid) return fail(400, { form });
-    const { prisma } = locals;
-    form.data.description = form.data.description
+    const description = form.data.description
       ? DOMPurify.sanitize(form.data.description)
       : form.data.description;
-    const res = await prisma.phadderGroup.update({
-      where: {
-        id: form.data.id,
-      },
-      data: form.data,
+    const res = await api.PATCH("/nollning/groups/{id}", {
+      params: { path: { id: form.data.id } },
+      body: { ...form.data, description },
     });
-    console.log(res);
+    if (res.error) return fail(400, { form });
     return message(form, {
       message: "Phaddergruppen uppdaterad",
       type: "success",
     });
   },
-  delete: async ({ locals, request }) => {
-    const form = await superValidate(request, zod4(deletePhadderGroupSchema));
+  delete: async (event) => {
+    const api = serverApi(event);
+    const form = await superValidate(event.request, zod4(deletePhadderGroupSchema));
     if (!form.valid) return fail(400, { form });
-    const { prisma } = locals;
-    await prisma.phadderGroup.delete({
-      where: {
-        id: form.data.id,
-      },
+    const res = await api.DELETE("/nollning/groups/{id}", {
+      params: { path: { id: form.data.id } },
     });
+    if (res.error) return fail(400, { form });
     return message(form, {
       message: "Phaddergruppen borttagen",
       type: "success",
     });
   },
-  addNolla: async ({ locals, request }) => {
-    const form = await superValidate(request, zod4(personSchema));
+  addNolla: async (event) => {
+    const api = serverApi(event);
+    const form = await superValidate(event.request, zod4(personSchema));
     if (!form.valid) return fail(400, { form });
-    const { prisma } = locals;
-    await prisma.phadderGroup.update({
-      where: {
-        id: form.data.groupId,
-      },
-      data: {
-        nollor: {
-          connect: {
-            id: form.data.memberId,
-          },
-        },
-      },
+    const res = await api.POST("/nollning/groups/{id}/nollor", {
+      params: { path: { id: form.data.groupId } },
+      body: { memberId: form.data.memberId },
     });
+    if (res.error) return setError(form, "memberId", res.error.detail ?? "");
     return message(form, {
       message: "Nolla tillagd",
       type: "success",
     });
   },
-  removeNolla: async ({ locals, request }) => {
-    const form = await superValidate(request, zod4(personSchema));
+  removeNolla: async (event) => {
+    const api = serverApi(event);
+    const form = await superValidate(event.request, zod4(personSchema));
     if (!form.valid) return fail(400, { form });
-    const { prisma } = locals;
-    await prisma.phadderGroup.update({
-      where: {
-        id: form.data.groupId,
-      },
-      data: {
-        nollor: {
-          disconnect: {
-            id: form.data.memberId,
-          },
-        },
-      },
+    const res = await api.DELETE("/nollning/groups/{id}/nollor/{memberId}", {
+      params: { path: { id: form.data.groupId, memberId: form.data.memberId } },
     });
+    if (res.error) return setError(form, "memberId", res.error.detail ?? "");
     return message(form, {
       message: "Nolla borttagen",
       type: "success",
     });
   },
-  addPhadder: async ({ locals, request }) => {
-    const form = await superValidate(request, zod4(personSchema));
+  addPhadder: async (event) => {
+    const api = serverApi(event);
+    const form = await superValidate(event.request, zod4(personSchema));
     if (!form.valid) return fail(400, { form });
-    const { prisma } = locals;
-    const group = await prisma.phadderGroup.findUnique({
-      where: {
-        id: form.data.groupId,
-      },
+    const res = await api.POST("/nollning/groups/{id}/phaddrar", {
+      params: { path: { id: form.data.groupId } },
+      body: { memberId: form.data.memberId },
     });
-    if (!group) return setError(form, "groupId", "Group not found");
-    const mandate = await getPhadderMandates(
-      prisma,
-      form.data.memberId,
-      group.year,
-    ).then((mandates) => mandates?.[0]); // get first
-
-    if (!mandate)
+    if (res.error)
       return setError(
         form,
         "memberId",
-        "Personen hittas inte som phadder det året",
+        res.error.detail ?? "Personen hittas inte som phadder det året",
       );
-    await prisma.phadderGroup.update({
-      where: {
-        id: form.data.groupId,
-      },
-      data: {
-        phaddrar: {
-          connect: {
-            id: mandate.id,
-          },
-        },
-      },
-    });
     return message(form, {
       message: "Phadder tillagd",
       type: "success",
     });
   },
-  removePhadder: async ({ locals, request }) => {
-    const form = await superValidate(request, zod4(personSchema));
+  removePhadder: async (event) => {
+    const api = serverApi(event);
+    const form = await superValidate(event.request, zod4(personSchema));
     if (!form.valid) return fail(400, { form });
-    const { prisma } = locals;
-    const group = await prisma.phadderGroup.findUnique({
-      where: {
-        id: form.data.groupId,
-      },
+    const res = await api.DELETE("/nollning/groups/{id}/phaddrar/{memberId}", {
+      params: { path: { id: form.data.groupId, memberId: form.data.memberId } },
     });
-    if (!group) return setError(form, "groupId", "Group not found");
-    const mandates = await getPhadderMandates(
-      prisma,
-      form.data.memberId,
-      group?.year,
-    );
-    if (mandates.length === 0)
-      return setError(
-        form,
-        "memberId",
-        "Personen hittas inte som phadder det året",
-      );
-    await prisma.phadderGroup.update({
-      where: {
-        id: form.data.groupId,
-      },
-      data: {
-        phaddrar: {
-          disconnect: mandates.map((m) => ({
-            id: m.id,
-          })),
-        },
-      },
-    });
+    if (res.error) return setError(form, "memberId", res.error.detail ?? "");
     return message(form, {
       message: "Phadder borttagen",
       type: "success",

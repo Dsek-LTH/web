@@ -13,11 +13,6 @@ export enum NotificationType {
   CREATE_MANDATE = "CREATE_MANDATE",
   BOOKING_REQUEST = "BOOKING_REQUEST",
   PING = "PING",
-  PAYMENT_STATUS = "PAYMENT_STATUS",
-  PURCHASE_TIME_TO_BUY = "PURCHASE_TIME_TO_BUY",
-  PURCHASE_IN_QUEUE = "PURCHASE_IN_QUEUE",
-  PURCHASE_CONSUMABLE_EXPIRED = "PURCHASE_CONSUMABLE_EXPIRED",
-  PURCHASE_SOLD_OUT = "PURCHASE_SOLD_OUT",
   EXPENSES = "EXPENSES",
 }
 
@@ -35,7 +30,6 @@ export enum NotificationSettingType {
   CREATE_MANDATE = "CREATE_MANDATE",
   BOOKING_REQUEST = "BOOKING_REQUEST",
   PING = "PING",
-  PURCHASES = "PURCHASES",
 }
 
 /**
@@ -57,11 +51,6 @@ export const SHOULD_MERGE_NOTIFICATIONS: Record<NotificationType, boolean> = {
   [NotificationType.CREATE_MANDATE]: false,
   [NotificationType.BOOKING_REQUEST]: false,
   [NotificationType.PING]: true,
-  [NotificationType.PAYMENT_STATUS]: false,
-  [NotificationType.PURCHASE_TIME_TO_BUY]: false,
-  [NotificationType.PURCHASE_IN_QUEUE]: false,
-  [NotificationType.PURCHASE_CONSUMABLE_EXPIRED]: false,
-  [NotificationType.PURCHASE_SOLD_OUT]: false,
   [NotificationType.EXPENSES]: false,
 };
 
@@ -97,13 +86,6 @@ export const SUBSCRIPTION_SETTINGS_MAP: Record<
   [NotificationSettingType.CREATE_MANDATE]: [NotificationType.CREATE_MANDATE],
   [NotificationSettingType.BOOKING_REQUEST]: [NotificationType.BOOKING_REQUEST],
   [NotificationSettingType.PING]: [NotificationType.PING],
-  [NotificationSettingType.PURCHASES]: [
-    NotificationType.PAYMENT_STATUS,
-    NotificationType.PURCHASE_TIME_TO_BUY,
-    NotificationType.PURCHASE_IN_QUEUE,
-    NotificationType.PURCHASE_CONSUMABLE_EXPIRED,
-    NotificationType.PURCHASE_SOLD_OUT,
-  ],
 };
 
 export const DEFAULT_SUBSCRIPTION_SETTINGS: Array<{
@@ -138,11 +120,7 @@ export const DEFAULT_SUBSCRIPTION_SETTINGS: Array<{
     type: NotificationSettingType.PING,
     pushNotification: false,
   },
-  {
-    type: NotificationSettingType.PURCHASES,
-    pushNotification: true,
-  },
-  // PURCHASES, NEW_ARTICLE ([NOLLNING] tagg), MENTION, kanse PING (icke-push)
+  // NEW_ARTICLE ([NOLLNING] tagg), MENTION, kanse PING (icke-push)
 ];
 
 export const NOLLA_DEFAULT_SUBSCRIPTION_SETTINGS: Array<{
@@ -160,9 +138,5 @@ export const NOLLA_DEFAULT_SUBSCRIPTION_SETTINGS: Array<{
   {
     type: NotificationSettingType.PING,
     pushNotification: false,
-  },
-  {
-    type: NotificationSettingType.PURCHASES,
-    pushNotification: true,
   },
 ];

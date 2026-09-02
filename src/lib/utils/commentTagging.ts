@@ -1,14 +1,12 @@
-import type {
-  ExtendedPrisma,
-  ExtendedPrismaModel,
-} from "$lib/server/extendedPrisma";
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 import { tagRegex } from "$lib/utils/client/commentTagging";
 
+// Deliberately just `content`, not the full Prisma comment models: this is
+// the only field read below, and article comments now come from the Go API
+// ($lib/api/client), which doesn't return the full Prisma shape.
 export const getAllTaggedMembers = async (
   prisma: ExtendedPrisma,
-  comments: Array<
-    ExtendedPrismaModel<"ArticleComment"> | ExtendedPrismaModel<"EventComment">
-  >,
+  comments: Array<{ content: string | null }>,
 ) => {
   return await prisma.member.findMany({
     where: {

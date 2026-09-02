@@ -15,6 +15,9 @@
   import apiNames from "$lib/utils/apiNames";
   import { mayWatchVideos } from "../helpers";
   import { Separator } from "$lib/components/ui/separator/index.js";
+  import { api } from "$lib/api/client";
+  import { invalidateAll } from "$app/navigation";
+  import { toast } from "$lib/stores/toast";
 
   let { data } = $props();
   let song = $derived(data.song);
@@ -22,7 +25,24 @@
   const canUpdate = $derived(
     data.user?.policies?.includes(apiNames.SONG.UPDATE),
   );
+  const canDelete = $derived(
+    data.user?.policies?.includes(apiNames.SONG.DELETE),
+  );
   const canWatchVideo = $derived(song.video && mayWatchVideos(data.user));
+
+  // Pure-proxy mutation (see DESIGN.md's Principle #5) - matches the same
+  // restore call the edit page's own restore button makes.
+  async function restoreSong() {
+    const res = await api.POST("/songs/{slug}/restore", {
+      params: { path: { slug: song.slug } },
+    });
+    if (res.error) {
+      toast(m.songbook_errors_songNotFound(), "error");
+      return;
+    }
+    toast(m.songbook_songRestored(), "success");
+    await invalidateAll();
+  }
 
   function getYoutubeEmbedUrl(url: string): string | null {
     if (!url) return null;
@@ -63,19 +83,17 @@
         <h3 class="text-lg font-bold">{m.songbook_deleted()}</h3>
         <p class="text-sm opacity-90">{m.songbook_deletedExplanation()}</p>
       </div>
-      {#if data.user?.policies?.includes(apiNames.SONG.DELETE)}
-        <form method="POST" action="/songbook/{song.slug}/edit?/restore">
-          <input type="hidden" name="id" value={song.id} />
-          <Button
-            type="submit"
-            variant="outline"
-            size="sm"
-            class="flex items-center gap-2"
-          >
-            <RotateCcw class="h-4 w-4" />
-            {m.songbook_restoreFromGarbageCan()}
-          </Button>
-        </form>
+      {#if canDelete}
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          class="flex items-center gap-2"
+          onclick={restoreSong}
+        >
+          <RotateCcw class="h-4 w-4" />
+          {m.songbook_restoreFromGarbageCan()}
+        </Button>
       {/if}
     </div>
   {/if}

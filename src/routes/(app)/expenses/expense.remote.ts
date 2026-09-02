@@ -21,7 +21,7 @@ import { convertPriceToCents } from "$lib/utils/convertPrice";
 import {
   getPageOrThrowSvelteError,
   getPageSizeOrThrowSvelteError,
-} from "$lib/utils/url.server";
+} from "$lib/utils/url";
 import * as m from "$paraglide/messages";
 
 export const getFilteredExpenses = query(async () => {

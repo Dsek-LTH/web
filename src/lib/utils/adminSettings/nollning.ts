@@ -1,6 +1,19 @@
-import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 
+// isNollningPeriod/getNollningStart's only remaining caller is
+// gallery/+page.server.ts's staben-album date-filtering hack, a
+// documented Phase 4 gap (see backend/DESIGN.md's nollning section -
+// gallery gets a real nollning_season_id/staben flag on albums once
+// Phase 4 ports real file storage; not solved here). Every other
+// consumer (admin/settings, hooks.server.helpers.ts, the (nollning)/
+// layouts, api/nollning, api/members/phadders) now calls the Go backend
+// instead - see backend/CLAUDE.md's "Nollning routes" section.
+// updateNollningPeriod (the write path) was deleted: nothing writes to
+// these AdminSetting rows anymore, admin/settings now creates/updates
+// real nollning_seasons rows via the Go API instead - these two rows are
+// permanently frozen at whatever value they last held, which is fine
+// since gallery's own read of them is already a known-stale gap pending
+// Phase 4, not something this leaves newly broken.
 export const NOLLNING_START_KEY = "nollning_start";
 export const NOLLNING_END_KEY = "nollning_end";
 let cache: {
@@ -69,41 +82,4 @@ export const getNollningStart = async () => {
     lastFetched: now,
   };
   return start;
-};
-
-export const updateNollningPeriod = async (
-  prisma: ExtendedPrisma,
-  start: Date,
-  end: Date,
-) => {
-  await prisma.adminSetting.upsert({
-    where: {
-      key: NOLLNING_START_KEY,
-    },
-    update: {
-      value: start.toISOString(),
-    },
-    create: {
-      key: NOLLNING_START_KEY,
-      value: start.toISOString(),
-    },
-  });
-  await prisma.adminSetting.upsert({
-    where: {
-      key: NOLLNING_END_KEY,
-    },
-    update: {
-      value: end.toISOString(),
-    },
-    create: {
-      key: NOLLNING_END_KEY,
-      value: end.toISOString(),
-    },
-  });
-  const now = new Date();
-  const isNollningPeriod = start < now && now < end;
-  cache = {
-    value: isNollningPeriod,
-    lastFetched: now,
-  };
 };

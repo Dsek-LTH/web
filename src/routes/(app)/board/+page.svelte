@@ -55,14 +55,14 @@
       <div
         class="bg-muted-background flex flex-col items-center rounded-md border-[1px] p-4 py-6 text-center"
       >
-        {#if boardMember.studentId}
+        {#if boardMember.member?.studentId}
           <a
-            href="/members/{boardMember.studentId}"
+            href="/members/{boardMember.member.studentId}"
             class="flex flex-col items-center"
           >
-            <MemberAvatar member={boardMember} class="size-24" />
+            <MemberAvatar member={boardMember.member} class="size-24" />
             <h4 class="mt-1.5">
-              {getFullName(boardMember)}
+              {getFullName(boardMember.member)}
             </h4>
           </a>
           <a

@@ -1,53 +1,39 @@
 import { getAllTaggedMembers } from "$lib/utils/commentTagging";
-import {
-  commentAction,
-  commentSchema,
-  removeCommentAction,
-  removeCommentSchema,
-} from "$lib/zod/comments";
 import { error } from "@sveltejs/kit";
-import { superValidate } from "sveltekit-superforms/server";
-import { zod4 } from "sveltekit-superforms/adapters";
-import { getEvent } from "$lib/events/getEvents";
-import type { Actions, PageServerLoad } from "./$types";
-import { isAuthorized } from "$lib/utils/authorization";
-import apiNames from "$lib/utils/apiNames";
-import {
-  removeEventAction,
-  removeEventSchema,
-} from "$lib/events/server/removeEventAction";
+import { serverApi } from "$lib/server/apiClient";
+import type { PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
-import { interestedGoingSchema } from "$lib/events/schema";
 
-export const load: PageServerLoad = async ({ locals, params }) => {
-  const { prisma, user } = locals;
-  const event = await getEvent(prisma, params.slug);
-  if (event == undefined) {
-    throw error(404, {
-      message: m.events_errors_eventNotFound(),
-    });
+// Server-only load, not +page.ts - a documented exception (see DESIGN.md's
+// "Principles going forward": "server-only load is a stopgap for routes
+// that can't do that yet"). This page needs getAllTaggedMembers, which is
+// a real Prisma lookup (@mention resolution, shared with articles - see
+// DESIGN.md's API shape section) that depends on the event's comments,
+// which only exist after fetching the event itself from Go - a universal
+// +page.ts load has no way to sequence a Prisma call after a Go API call
+// like that.
+export const load: PageServerLoad = async (requestEvent) => {
+  const { locals, params } = requestEvent;
+  const { prisma } = locals;
+  const res = await serverApi(requestEvent).GET("/events/{slug}", {
+    params: { path: { slug: params.slug } },
+  });
+  if (res.error) {
+    throw error(404, { message: m.events_errors_eventNotFound() });
   }
-  const allTaggedMembers = await getAllTaggedMembers(prisma, event.comments);
-  const canEdit =
-    isAuthorized(apiNames.EVENT.UPDATE, user) ||
-    event.authorId === user.memberId;
-  const canScan = isAuthorized(apiNames.WEBSHOP.MANAGE, user);
-  const canDelete = isAuthorized(apiNames.EVENT.DELETE, user);
+  const event = res.data;
+  const allTaggedMembers = await getAllTaggedMembers(
+    prisma,
+    (event.comments ?? []).map((c) => ({ content: c.content ?? null })),
+  );
+
   return {
     event,
     allTaggedMembers,
-    canEdit,
-    canScan,
-    canDelete,
-    commentForm: await superValidate(zod4(commentSchema)),
-    removeCommentForm: await superValidate(zod4(removeCommentSchema)),
-    removeEventForm: await superValidate(zod4(removeEventSchema)),
-    interestedGoingForm: await superValidate(zod4(interestedGoingSchema)),
+    // From Go (EventDetail.canEdit/canDelete), computed server-side from
+    // the same checks Update/Delete themselves enforce - see the article
+    // detail page's +page.ts and DESIGN.md's "Principles going forward" #5.
+    canEdit: event.canEdit,
+    canDelete: event.canDelete,
   };
-};
-
-export const actions: Actions = {
-  comment: commentAction("EVENT"),
-  removeComment: removeCommentAction("EVENT"),
-  removeEvent: removeEventAction,
 };

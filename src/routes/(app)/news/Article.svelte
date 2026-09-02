@@ -4,13 +4,14 @@
   import dayjs from "dayjs";
   import Pen from "@lucide/svelte/icons/pen";
   import Trash from "@lucide/svelte/icons/trash";
-  import * as AlertDialog from "$lib/components/ui/alert-dialog";
-  import * as m from "$paraglide/messages";
   import ImageList from "$lib/components/ImageList.svelte";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import TagChip from "$lib/components/TagChip.svelte";
+  import RemoveArticleDialog from "./RemoveArticleDialog.svelte";
   import type { Snippet } from "svelte";
-  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+  import type { components } from "$lib/api/schema";
+
+  type ArticleSummary = components["schemas"]["ArticleSummary"];
 
   let {
     article,
@@ -18,9 +19,10 @@
     canDelete,
     children,
   }: {
-    article: ExtendedPrismaModel<"Article"> & {
-      tags: Array<ExtendedPrismaModel<"Tag">>;
-    };
+    article: Pick<
+      ArticleSummary,
+      "header" | "slug" | "createdAt" | "tags" | "body" | "imageUrls"
+    >;
     canEdit: boolean;
     canDelete: boolean;
     children?: Snippet;
@@ -36,7 +38,14 @@
       {#if canEdit}<a href={"/news/" + article.slug + "/edit"}
           ><Button variant="outline"><Pen /></Button></a
         >{/if}
-      {#if canDelete}{@render removeArticle()}{/if}
+      {#if canDelete}
+        <RemoveArticleDialog
+          slug={article.slug}
+          triggerClass={buttonVariants({ variant: "outline" })}
+        >
+          <Trash />
+        </RemoveArticleDialog>
+      {/if}
     </div>
   </div>
 
@@ -49,36 +58,12 @@
     </div>
   </div>
   <div class="flex flex-row flex-wrap gap-2">
-    {#each article.tags as tag (tag.id)}
+    {#each article.tags ?? [] as tag (tag.id)}
       <TagChip {tag} />
     {/each}
   </div>
   <MarkdownBody class="text-foreground article-body" body={article.body} />
-  {#if article.imageUrls}
+  {#if article.imageUrls?.length}
     <ImageList images={article.imageUrls} />
   {/if}
 </main>
-
-{#snippet removeArticle()}
-  <AlertDialog.Root>
-    <AlertDialog.Trigger class={buttonVariants({ variant: "outline" })}>
-      <Trash />
-    </AlertDialog.Trigger>
-    <AlertDialog.Content>
-      <AlertDialog.Header>
-        <AlertDialog.Title>{m.news_dialog_title()}</AlertDialog.Title>
-        <AlertDialog.Description>
-          {m.news_dialog_desc()}
-        </AlertDialog.Description>
-      </AlertDialog.Header>
-      <AlertDialog.Footer>
-        <AlertDialog.Cancel>{m.cancel()}</AlertDialog.Cancel>
-        <form action="?/removeArticle" method="POST">
-          <AlertDialog.Action type="submit"
-            >{m.news_delete()}</AlertDialog.Action
-          >
-        </form>
-      </AlertDialog.Footer>
-    </AlertDialog.Content>
-  </AlertDialog.Root>
-{/snippet}

@@ -1,11 +1,12 @@
 import { env } from "$env/dynamic/private";
 import meilisearchSync from "$lib/search/sync";
-import { isNollningPeriod } from "$lib/utils/adminSettings/nollning";
+import { serverApi } from "$lib/server/apiClient";
 import { fileHandler } from "$lib/files";
 
-export const load = async () => {
+export const load = async (event) => {
+  const currentRes = await serverApi(event).GET("/nollning/current", {});
   return {
-    isNollning: await isNollningPeriod(),
+    isNollning: currentRes.data?.phase !== "off",
     prismaLogLevel: env.PRISMA_LOG_LEVEL,
     minIOHealthy: await fileHandler.isMinIOHealthy(),
   };

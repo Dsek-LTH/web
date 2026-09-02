@@ -1,15 +1,23 @@
 <script lang="ts">
   import CommitteeSymbol from "$lib/components/images/CommitteeSymbol.svelte";
-  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import { getPositionLink } from "$lib/utils/positions";
+  import type { components } from "$lib/api/schema";
 
+  // Sole consumer is the (Go-backed) member profile page - typed against
+  // the generated Go API shapes directly rather than
+  // ExtendedPrismaModel<...>, unlike CommitteeSymbol (which still has other
+  // Prisma consumers and keeps a TEMPORARY dual-shape - see its comment).
   let {
     mandate,
     compact = false,
   }: {
-    mandate: ExtendedPrismaModel<"Mandate"> & {
-      position: (ExtendedPrismaModel<"Position"> | null) & {
-        committee: ExtendedPrismaModel<"Committee"> | null;
+    // Only `.id` and `.position` are read - `startDate`/`endDate` are
+    // deliberately omitted from this type (the caller may hold real `Date`
+    // objects there for its own grouping logic, which would otherwise
+    // clash with the generated schema's `string` dates).
+    mandate: Pick<components["schemas"]["Mandate"], "id"> & {
+      position: Omit<components["schemas"]["Position"], "committee"> & {
+        committee: components["schemas"]["Committee"] | null;
       };
     };
     compact?: boolean;

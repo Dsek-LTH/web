@@ -1,4 +1,5 @@
 import { error, fail } from "@sveltejs/kit";
+import { serverApi } from "$lib/server/apiClient";
 import {
   message,
   superValidate,
@@ -20,74 +21,31 @@ import {
 
 dayjs.extend(utc);
 
-export const load: PageServerLoad = async ({ locals, params }) => {
-  const { prisma } = locals;
-
-  let position = await prisma.position.findUnique({
-    where: {
-      id: `dsek.${committeeToPositionMap[params.shortName as keyof typeof committeeToPositionMap]}.${params.positionId}`,
-    },
-    include: {
-      committee: true,
-      mandates: {
-        include: {
-          member: true,
-        },
-        orderBy: [
-          {
-            member: {
-              firstName: "asc",
-            },
-          },
-          {
-            member: {
-              lastName: "asc",
-            },
-          },
-        ],
-      },
-      emailAliases: {
-        select: {
-          email: true,
-        },
-      },
-    },
-  });
-  if (position == undefined) {
-    position = await prisma.position.findUnique({
-      where: {
-        id: params.positionId,
-      },
-      include: {
-        committee: true,
-        mandates: {
-          include: {
-            member: true,
-          },
-          orderBy: [
-            {
-              member: {
-                firstName: "asc",
-              },
-            },
-            {
-              member: {
-                lastName: "asc",
-              },
-            },
-          ],
-        },
-        emailAliases: {
-          select: {
-            email: true,
-          },
-        },
-      },
-    });
+const getLocalSearchId = (params: RouteParams) => {
+  if (!positionPrefixes.some((v) => params.positionId.includes(v))) {
+    return `dsek.${committeeToPositionMap[params.shortName as keyof typeof committeeToPositionMap]}.${params.positionId}`;
   }
-  if (!position) {
+  return params.positionId;
+};
+
+export const load: PageServerLoad = async (event) => {
+  const { params } = event;
+  const api = serverApi(event);
+  const searchId = getLocalSearchId(params);
+  const res = await api.GET("/positions/{id}", {
+    params: { path: { id: searchId } },
+  });
+  if (res.error) {
     throw error(404, m.positions_errors_positionNotFound());
   }
+  const position = res.data;
+
+  const mandates = (position.mandates ?? []).map((mandate) => ({
+    ...mandate,
+    startDate: new Date(mandate.startDate!),
+    endDate: new Date(mandate.endDate!),
+    member: mandate.member!,
+  }));
 
   //Logic for startMonth and endMonth that can wrap over new years
 
@@ -98,23 +56,26 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   //The months that need to be added in this case is a full year minus the difference between the months:
   //12 - Math.abs(position.endMonth - position.startMonth)
 
+  const startMonth = position.startMonth ?? 0;
+  const endMonth = position.endMonth ?? 11;
   const addMandateMonthDifference =
-    position.endMonth > position.startMonth
-      ? position.endMonth - position.startMonth
-      : 12 - Math.abs(position.endMonth - position.startMonth);
+    endMonth > startMonth ? endMonth - startMonth : 12 - Math.abs(endMonth - startMonth);
 
   return {
-    updateForm: superValidate(position, zod4(updateSchema)),
+    updateForm: superValidate(
+      {
+        name: position.name,
+        description: position.description ?? null,
+        email: position.email ?? null,
+      },
+      zod4(updateSchema),
+    ),
     addMandateForm: superValidate(zod4(addMandateSchema), {
       defaults: {
         memberIds: [],
-        startDate: dayjs()
-          .month(position.startMonth)
-          .utc()
-          .startOf("month")
-          .toDate(),
+        startDate: dayjs().month(startMonth).utc().startOf("month").toDate(),
         endDate: dayjs()
-          .month(position.startMonth)
+          .month(startMonth)
           .utc()
           .startOf("month")
           .add(addMandateMonthDifference, "months")
@@ -125,7 +86,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     updateMandateForm: superValidate(zod4(updateMandateSchema)),
     deleteMandateForm: superValidate(zod4(deleteMandateSchema)),
     position,
-    mandates: position.mandates,
+    mandates,
   };
 };
 
@@ -170,170 +131,131 @@ const deleteMandateSchema = z.object({
 });
 export type DeleteMandateSchema = Infer<typeof deleteMandateSchema>;
 
-const genitiveCase = (base: string): string => {
-  if (getLocale() === "sv") {
-    if (base.endsWith("s") || base.endsWith("x"))
-      return base; // Måns or Max => Måns and Max
-    else return base + "s"; // Adam => Adams
-  } else {
-    if (base.endsWith("s"))
-      return base + "'"; // Måns => Måns'
-    else return base + "'s"; // Adam => Adam's
-  }
-};
-
-const getLocalSearchId = (params: RouteParams) => {
-  if (!positionPrefixes.some((v) => params.positionId.includes(v))) {
-    return `dsek.${committeeToPositionMap[params.shortName as keyof typeof committeeToPositionMap]}.${params.positionId}`;
-  }
-  return params.positionId;
-};
+const toDateString = (d: Date) => d.toISOString().split("T")[0]!;
 
 export const actions: Actions = {
-  update: async ({ params, request, locals }) => {
-    const { prisma } = locals;
-
+  update: async (event) => {
+    const { params, request } = event;
+    const api = serverApi(event);
     const searchId = getLocalSearchId(params);
 
     const form = await superValidate(request, zod4(updateSchema));
     if (!form.valid) return fail(400, { form });
-    switch (getLocale()) {
-      case "sv":
-        await prisma.position.update({
-          where: { id: searchId },
-          data: {
-            nameSv: form.data.name,
-            descriptionSv: form.data.description,
-            email: form.data.email,
-          },
-        });
-        break;
-      case "en":
-        await prisma.position.update({
-          where: { id: searchId },
-          data: {
-            nameEn: form.data.name,
-            descriptionEn: form.data.description,
-            email: form.data.email,
-          },
-        });
-        break;
-    }
+
+    // Full-replace: fetch the current position so the locale not being
+    // edited right now keeps its existing value instead of being cleared.
+    const currentRes = await api.GET("/positions/{id}", {
+      params: { path: { id: searchId } },
+    });
+    if (currentRes.error) return fail(404, { form });
+    const current = currentRes.data;
+
+    const isSv = getLocale() === "sv";
+    const res = await api.PATCH("/positions/{id}", {
+      params: { path: { id: searchId } },
+      body: {
+        nameSv: isSv ? (form.data.name ?? "") : (current.nameSv ?? ""),
+        nameEn: isSv ? current.nameEn : form.data.name,
+        descriptionSv: isSv
+          ? (form.data.description ?? undefined)
+          : current.descriptionSv,
+        descriptionEn: isSv
+          ? current.descriptionEn
+          : (form.data.description ?? undefined),
+        email: form.data.email ?? undefined,
+        active: current.active ?? true,
+        boardMember: current.boardMember ?? false,
+      },
+    });
+    if (res.error) return fail(500, { form });
+
     return message(form, {
       message: m.positions_positionUpdated(),
       type: "success",
     });
   },
-  addMandate: async ({ params, request, locals }) => {
-    const { prisma } = locals;
-
+  addMandate: async (event) => {
+    const { params, request } = event;
+    const api = serverApi(event);
     const searchId = getLocalSearchId(params);
 
     const form = await superValidate(request, zod4(addMandateSchema));
     if (!form.valid) return fail(400, { form });
 
-    const memberNames: string[] | undefined = [];
-
-    form.data.memberIds.forEach(async (id) => {
-      const member = await prisma.member.findUnique({ where: { id: id } });
-      if (!member)
-        return message(
-          form,
-          { message: m.positions_errors_memberNotFound() },
-          { status: 400 },
-        );
-
-      await prisma.mandate.create({
-        data: {
-          positionId: searchId,
-          memberId: id,
-          startDate: form.data.startDate,
-          endDate: form.data.endDate,
-          lastSynced: new Date("1970"),
-        },
-      });
-
-      memberNames.push(member?.firstName ?? "");
+    const res = await api.POST("/positions/{positionId}/mandates", {
+      params: { path: { positionId: searchId } },
+      body: {
+        memberIds: form.data.memberIds,
+        startDate: toDateString(form.data.startDate),
+        endDate: toDateString(form.data.endDate),
+      },
     });
+    if (res.error) return fail(500, { form });
+
     return message(form, {
       message: m.positions_newMandateGivenTo({
-        name:
-          memberNames.length > 0
-            ? memberNames.join(", ")
-            : m.positions_theMember(),
+        name: m.positions_theMember(),
       }),
       type: "success",
     });
   },
   updateMandate: async (event) => {
-    const { params, request, locals } = event;
-    const { prisma } = locals;
-
+    const { params, request } = event;
+    const api = serverApi(event);
     const searchId = getLocalSearchId(params);
 
     const form = await superValidate(request, zod4(updateMandateSchema));
     if (!form.valid) return fail(400, { form });
-    const member = await prisma.member.findFirst({
-      where: {
-        mandates: {
-          some: {
-            id: form.data.mandateId,
-          },
-        },
+    if (!form.data.startDate || !form.data.endDate) return fail(400, { form });
+
+    const res = await api.PATCH("/mandates/{id}", {
+      params: { path: { id: form.data.mandateId } },
+      body: {
+        startDate: toDateString(form.data.startDate),
+        endDate: toDateString(form.data.endDate),
       },
     });
-    if (!member)
+    if (res.error)
       return message(
         form,
         { message: m.positions_errors_mandateNotFound(), type: "error" },
         { status: 400 },
       );
-    await prisma.mandate.update({
-      where: { id: form.data.mandateId, positionId: searchId },
-      data: {
-        startDate: form.data.startDate,
-        endDate: form.data.endDate,
-      },
-    });
+
+    // Unlike the old Prisma version, this doesn't personalize the flash
+    // message with the member's name - Go has no "get a single mandate"
+    // lookup, and fetching the whole position again just for a display
+    // string wasn't worth the extra round-trip.
     throw redirect(
       getPositionLink(searchId),
       {
         message: m.positions_mandateUpdated({
-          names: genitiveCase(member.firstName ?? m.positions_theMember()),
+          names: m.positions_theMember(),
         }),
         type: "success",
       },
       event,
     );
   },
-  deleteMandate: async ({ params, request, locals }) => {
-    const { prisma } = locals;
-
-    const searchId = getLocalSearchId(params);
-
+  deleteMandate: async (event) => {
+    const { request } = event;
+    const api = serverApi(event);
     const form = await superValidate(request, zod4(deleteMandateSchema));
     if (!form.valid) return fail(400, { form });
-    const member = await prisma.member.findFirst({
-      where: {
-        mandates: {
-          some: {
-            id: form.data.mandateId,
-          },
-        },
-      },
+
+    const res = await api.DELETE("/mandates/{id}", {
+      params: { path: { id: form.data.mandateId } },
     });
-    if (!member)
+    if (res.error)
       return message(
         form,
         { message: m.positions_errors_mandateNotFound(), type: "error" },
         { status: 400 },
       );
-    await prisma.mandate.delete({
-      where: { id: form.data.mandateId, positionId: searchId },
-    });
+
     return message(form, {
       message: m.positions_mandateRemoved({
-        names: genitiveCase(member.firstName ?? m.positions_theMember()),
+        names: m.positions_theMember(),
       }),
       type: "success",
     });

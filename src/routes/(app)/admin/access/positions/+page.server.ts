@@ -1,4 +1,6 @@
 import { fail, superValidate } from "sveltekit-superforms";
+import { error } from "@sveltejs/kit";
+import { serverApi } from "$lib/server/apiClient";
 import type { Actions, PageServerLoad } from "./$types";
 import { z } from "zod";
 import { zod4 } from "sveltekit-superforms/adapters";
@@ -12,19 +14,20 @@ const createPolicySchema = z.object({
   studentId: z.string().nullable(),
 });
 
-export const load: PageServerLoad = async ({ locals }) => {
-  const { prisma, user } = locals;
+export const load: PageServerLoad = async (event) => {
+  const { locals } = event;
+  const { user } = locals;
 
   authorize(apiNames.ACCESS_POLICY.CREATE, user);
 
-  const accesspolicies = await prisma.accessPolicy.findMany({
-    select: { role: true, apiName: true, id: true },
-  });
+  const res = await serverApi(event).GET("/access-policies", {});
+  if (res.error) throw error(500, "Failed to load access policies");
+
   const posToAccessPolicies = new Map<
     string,
     Array<{ apiName: string; id: string }>
   >();
-  accesspolicies.forEach((a) => {
+  (res.data ?? []).forEach((a) => {
     if (a.role) {
       posToAccessPolicies.set(a.role, [
         ...(posToAccessPolicies.get(a.role) ?? []),
@@ -38,25 +41,21 @@ export const load: PageServerLoad = async ({ locals }) => {
 };
 
 export const actions: Actions = {
-  deletePolicy: async ({ locals, request }) => {
-    const { prisma } = locals;
-    const form = await superValidate(request, zod4(deletePolicySchema));
+  deletePolicy: async (event) => {
+    const form = await superValidate(event.request, zod4(deletePolicySchema));
     if (!form.valid) return fail(400, { form });
-    await prisma.accessPolicy.delete({
-      where: {
-        id: form.data.policyId,
-      },
+    await serverApi(event).DELETE("/access-policies/{id}", {
+      params: { path: { id: form.data.policyId } },
     });
   },
-  createPolicy: async ({ locals, request }) => {
-    const { prisma } = locals;
-    const form = await superValidate(request, zod4(createPolicySchema));
+  createPolicy: async (event) => {
+    const form = await superValidate(event.request, zod4(createPolicySchema));
     if (!form.valid) return fail(400, { form });
-    await prisma.accessPolicy.create({
-      data: {
+    await serverApi(event).POST("/access-policies", {
+      body: {
         apiName: form.data.apiName,
-        role: form.data.position,
-        studentId: form.data.studentId,
+        role: form.data.position ?? undefined,
+        studentId: form.data.studentId ?? undefined,
       },
     });
   },

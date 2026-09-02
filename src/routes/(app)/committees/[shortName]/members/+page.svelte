@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { CommitteeLoadData } from "../../committee.server";
+  import type { CommitteeLoadData } from "../../committee";
   import PositionGroupCard from "./PositionGroupCard.svelte";
 
   import * as m from "$paraglide/messages";
@@ -23,7 +23,7 @@
         class="w-full"
         index={index * 2}
         {position}
-        mandates={position.mandates}
+        mandates={position.mandates ?? []}
       />
     {/each}
   </div>
@@ -33,7 +33,7 @@
         class="w-full"
         index={index * 2 + 1}
         {position}
-        mandates={position.mandates}
+        mandates={position.mandates ?? []}
       />
     {/each}
   </div>
@@ -43,7 +43,7 @@
         class="w-full"
         {index}
         {position}
-        mandates={position.mandates}
+        mandates={position.mandates ?? []}
       />
     {/each}
   </div>

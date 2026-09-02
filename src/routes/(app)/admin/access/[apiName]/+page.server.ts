@@ -1,5 +1,6 @@
 import apiNames from "$lib/utils/apiNames";
-import { fail } from "@sveltejs/kit";
+import { error, fail } from "@sveltejs/kit";
+import { serverApi } from "$lib/server/apiClient";
 import {
   message,
   setError,
@@ -31,61 +32,55 @@ const deleteSchema = z.object({
 });
 export type DeleteSchema = Infer<typeof deleteSchema>;
 
-export const load: PageServerLoad = async ({ locals, params }) => {
-  const { prisma, user } = locals;
+export const load: PageServerLoad = async (event) => {
+  const { locals, params } = event;
+  const { user } = locals;
   authorize(apiNames.ACCESS_POLICY.CREATE, user);
 
-  const policies = await prisma.accessPolicy.findMany({
-    where: {
-      apiName: params.apiName,
-    },
-    include: {
-      member: true,
-    },
+  const res = await serverApi(event).GET("/access-policies", {
+    params: { query: { apiName: params.apiName } },
   });
+  if (res.error) throw error(500, "Failed to load access policies");
+
   const createForm = await superValidate(zod4(createSchema));
   const deleteForm = await superValidate(zod4(deleteSchema));
   return {
-    policies,
+    policies: res.data ?? [],
     createForm,
     deleteForm,
   };
 };
 
 export const actions: Actions = {
-  create: async ({ params, request, locals }) => {
-    const { prisma } = locals;
+  create: async (event) => {
+    const { params, request } = event;
     const form = await superValidate(request, zod4(createSchema));
     if (!form.valid) return fail(400, { form });
-    if (
-      form.data.studentId &&
-      (await prisma.member.count({
-        where: { studentId: form.data.studentId },
-      })) === 0
-    ) {
-      return setError(form, "studentId", "Medlem hittades inte");
-    }
-    await prisma.accessPolicy.create({
-      data: {
+
+    const res = await serverApi(event).POST("/access-policies", {
+      body: {
         apiName: params.apiName,
-        role: form.data.role,
-        studentId: form.data.studentId,
+        role: form.data.role ?? undefined,
+        studentId: form.data.studentId ?? undefined,
       },
     });
+    if (res.error) {
+      return setError(form, "studentId", "Medlem hittades inte");
+    }
     return message(form, {
       message: "Access policy skapad",
       type: "success",
     });
   },
-  delete: async ({ request, locals }) => {
-    const { prisma } = locals;
-    const form = await superValidate(request, zod4(deleteSchema));
+  delete: async (event) => {
+    const form = await superValidate(event.request, zod4(deleteSchema));
     if (!form.valid) return fail(400, { form });
-    await prisma.accessPolicy.delete({
-      where: {
-        id: form.data.id,
-      },
+
+    const res = await serverApi(event).DELETE("/access-policies/{id}", {
+      params: { path: { id: form.data.id } },
     });
+    if (res.error) return fail(500, { form });
+
     return message(form, {
       message: "Policy borttagen",
       type: "success",

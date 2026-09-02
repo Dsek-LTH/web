@@ -4,7 +4,7 @@ import {
 } from "$lib/utils/notifications/types";
 import { error } from "@sveltejs/kit";
 import { getDerivedRoles } from "./authorization";
-import { isNollningPeriod } from "$lib/utils/adminSettings/nollning";
+import type { serverApi } from "$lib/server/apiClient";
 import { NOLLNING_TAG_PREFIX } from "$lib/components/postReveal/types";
 import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 
@@ -188,8 +188,15 @@ export const createMember = async (
     lastName: string;
     email: string | null | undefined;
   },
+  api: ReturnType<typeof serverApi>,
 ) => {
-  if (await isNollningPeriod()) {
+  // Boolean source only, swapped from the old AdminSetting-backed
+  // isNollningPeriod() - see backend's Phase 2 nollning redesign. The
+  // NOLLNING_TAG_PREFIX tag lookup and SubscriptionSetting defaulting
+  // below stay untouched; that's notification/subscription territory,
+  // Phase 9's job per DESIGN.md, not this pass's.
+  const currentRes = await api.GET("/nollning/current", {});
+  if (currentRes.data && currentRes.data.phase !== "off") {
     const defaultTag = await prisma.tag.findFirst({
       where: {
         nameSv: {
@@ -231,4 +238,42 @@ export const createMember = async (
       },
     },
   });
+};
+
+// Sets/clears a member's phadder group. A member can only be in one group
+// at a time (members.nollning_group_id is a single column), so setting a
+// new group is just a POST - no need to DELETE-from-old first, Go's
+// SetMemberPhadderGroup overwrites unconditionally. Clearing to null does
+// need the member's current group id first, since DELETE is scoped to
+// "remove from exactly this group" (a no-op if they're not in it). Shared
+// by the member profile/edit/onboarding pages' phadder-group actions.
+export const setNollningGroup = async (
+  api: ReturnType<typeof serverApi>,
+  studentId: string,
+  groupId: string | null,
+) => {
+  const memberRes = await api.GET("/members/{studentId}", {
+    params: { path: { studentId } },
+  });
+  if (memberRes.error) return;
+  const memberId = memberRes.data.id;
+
+  if (groupId) {
+    await api.POST("/nollning/groups/{id}/nollor", {
+      params: { path: { id: groupId } },
+      body: { memberId },
+    });
+    return;
+  }
+
+  const roleRes = await api.GET("/members/{studentId}/phadder-role", {
+    params: { path: { studentId } },
+  });
+  const currentGroupId =
+    roleRes.data?.role === "nolla" ? roleRes.data.groupId : undefined;
+  if (currentGroupId) {
+    await api.DELETE("/nollning/groups/{id}/nollor/{memberId}", {
+      params: { path: { id: currentGroupId, memberId } },
+    });
+  }
 };

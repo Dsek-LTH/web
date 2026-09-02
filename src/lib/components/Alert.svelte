@@ -2,6 +2,7 @@
   import { invalidate } from "$app/navigation";
   import { Button } from "$lib/components/ui/button";
   import { cn } from "$lib/utils";
+  import { api } from "$lib/api/client";
 
   import { type IconProps } from "@lucide/svelte";
 
@@ -51,13 +52,14 @@
   let { icon, foreground, background } = $derived(data[severity])!;
   const Icon = $derived(icon);
 
+  // Pure-proxy mutation (see DESIGN.md's Principle #5) - calls Go directly,
+  // no SvelteKit endpoint in between. Go's Service.Close is the only real
+  // gate (just "must be authenticated"), matching the old /api/closeAlert
+  // route's actual behavior exactly.
   let closeAlert = () =>
-    fetch("/api/closeAlert", {
-      method: "POST",
-      body: JSON.stringify({
-        id: id,
-      }),
-    }).then(() => invalidate("alerts"));
+    api
+      .POST("/alerts/{id}/close", { params: { path: { id } } })
+      .then(() => invalidate("alerts"));
 </script>
 
 <div

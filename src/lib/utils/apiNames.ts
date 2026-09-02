@@ -88,13 +88,6 @@ const apiNames = {
   SONG: {
     ...crud("song"),
   },
-  WEBSHOP: {
-    PURCHASE: "webshop:purchase",
-    CREATE: "webshop:create",
-    READ_PURCHASES: "webshop:read_purchases",
-    CONSUME: "webshop:consume",
-    MANAGE: "webshop:manage",
-  },
   NOLLNING: {
     MANAGE_PHADDER_GROUPS: "nollning:phaddrar:groups:manage",
   },

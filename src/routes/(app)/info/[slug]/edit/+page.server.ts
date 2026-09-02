@@ -1,68 +1,55 @@
-import apiNames from "$lib/utils/apiNames";
-import { authorize } from "$lib/utils/authorization";
 import { redirect } from "sveltekit-flash-message/server";
 import { fail } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
-import { updateMarkdown } from "$lib/news/markdown/mutations.server";
-import DOMPurify from "isomorphic-dompurify";
-
-export const load: PageServerLoad = async ({ locals, params }) => {
-  const { prisma, user } = locals;
-  const markdownPage = await prisma.markdown.findUnique({
-    where: {
-      name: params.slug,
-    },
-  });
-  if (markdownPage == undefined) {
-    authorize(apiNames.MARKDOWNS.CREATE, user);
-  } else {
-    authorize(apiNames.MARKDOWNS.PAGE(params.slug).UPDATE, user);
-  }
-
-  return {
-    form: await superValidate(
-      {
-        markdownSv: markdownPage?.markdown ?? "",
-        markdownEn: markdownPage?.markdownEn ?? null,
-      },
-      zod4(markdownSchema),
-    ),
-    isCreating: markdownPage == undefined,
-  };
-};
+import { serverApi } from "$lib/server/apiClient";
 
 const markdownSchema = z.object({
   markdownSv: z.string(),
   markdownEn: z.string().nullable(),
 });
 
+// markdown:create/markdown:update (or this page's own dynamic grant) are
+// enforced by the Go API itself (backend/internal/markdown) - no
+// authorize() call here, matching DESIGN.md's Principle #5. create/update
+// both now go through the same unified Go endpoints admin/info's create
+// form also uses - see backend/CLAUDE.md's Markdown routes section for the
+// policy-naming unification this replaced.
+export const load: PageServerLoad = async (event) => {
+  const { params } = event;
+  const res = await serverApi(event).GET("/info/{slug}", {
+    params: { path: { slug: params.slug } },
+  });
+  const page = res.data;
+
+  return {
+    form: await superValidate(
+      {
+        markdownSv: page?.markdownSv ?? "",
+        markdownEn: page?.markdownEn ?? null,
+      },
+      zod4(markdownSchema),
+    ),
+    isCreating: page == undefined,
+  };
+};
+
 export const actions: Actions = {
   create: async (event) => {
-    const { request, locals, params } = event;
-    const { prisma, user } = locals;
+    const { request, params } = event;
     const form = await superValidate(request, zod4(markdownSchema));
     if (!form.valid) return fail(400, { form });
     const name = params.slug;
-    form.data.markdownSv = DOMPurify.sanitize(form.data.markdownSv);
-    form.data.markdownEn = form.data.markdownEn
-      ? DOMPurify.sanitize(form.data.markdownEn)
-      : form.data.markdownEn;
-    // read the form data sent by the browser
-    await prisma.markdown.create({
-      data: {
-        name: name,
-        ...form.data,
+    const created = await serverApi(event).POST("/info/{slug}", {
+      params: { path: { slug: name } },
+      body: {
+        markdownSv: form.data.markdownSv,
+        markdownEn: form.data.markdownEn ?? undefined,
       },
     });
-    await prisma.accessPolicy.create({
-      data: {
-        apiName: apiNames.MARKDOWNS.PAGE(name).UPDATE,
-        studentId: user?.studentId,
-      },
-    });
+    if (created.error) throw new Error("Failed to create page");
     throw redirect(
       `/info/${name}`,
       {
@@ -73,13 +60,18 @@ export const actions: Actions = {
     );
   },
   update: async (event) => {
-    const { request, locals, params } = event;
-    const { user, prisma } = locals;
+    const { request, params } = event;
     const form = await superValidate(request, zod4(markdownSchema));
     if (!form.valid) return fail(400, { form });
     const name = params.slug;
-    // read the form data sent by the browser
-    await updateMarkdown(user, prisma, { ...form.data, name });
+    const updated = await serverApi(event).PATCH("/info/{slug}", {
+      params: { path: { slug: name } },
+      body: {
+        markdownSv: form.data.markdownSv,
+        markdownEn: form.data.markdownEn ?? undefined,
+      },
+    });
+    if (updated.error) throw new Error("Failed to update page");
     throw redirect(
       `/info/${name}`,
       {

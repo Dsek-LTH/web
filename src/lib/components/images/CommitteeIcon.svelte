@@ -10,10 +10,18 @@
     class: klass,
     override,
   }: {
-    committee: Pick<
-      ExtendedPrismaModel<"Committee">,
-      "darkImageUrl" | "lightImageUrl" | "monoImageUrl" | "nameSv"
-    > | null;
+    // TEMPORARY dual-shape (Prisma `| null` vs Go API `| undefined`) - pure
+    // type widening, no conversion logic. Still-Prisma consumers: contact,
+    // home, elections/ElectionCard, search result components. Narrow to
+    // `string | undefined` once those are ported too - see
+    // CommitteeSymbol's identical note.
+    committee: {
+      [K in
+        | "darkImageUrl"
+        | "lightImageUrl"
+        | "monoImageUrl"
+        | "nameSv"]?: ExtendedPrismaModel<"Committee">[K] | undefined;
+    } | null;
     useMono?: boolean;
     class?: string;
     override?: "light" | "dark";

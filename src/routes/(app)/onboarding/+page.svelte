@@ -39,11 +39,12 @@
     }
   });
 
+  // Season, not classYear, is the real eligibility concept now (see
+  // backend's Phase 2 nollning redesign) - only groups belonging to the
+  // currently-active nollning season are offered.
   let phaddergroups = $derived(
     data.phadderGroups
-      .filter(
-        (group) => group.year === ($form.classYear ?? new Date().getFullYear),
-      )
+      .filter((group) => group.seasonId === data.currentSeasonId)
       .map((group) => group),
   );
 </script>
@@ -146,10 +147,7 @@
               aria-invalid={!!$errors.classYear}
               bind:value={$form.classYear}
               {...$constraints.classYear}
-              aria-errormessage={$errors.classYear?.at(0)}
-              onchange={() => {
-                $form.nollningGroupId = null;
-              }}><Calendar /></Input
+              aria-errormessage={$errors.classYear?.at(0)}><Calendar /></Input
             >
           </div>
         </div>

@@ -1,9 +1,5 @@
 import { groupNotifications } from "$lib/utils/notifications/group";
-import {
-  NotificationSettingType,
-  NotificationType,
-  SUBSCRIPTION_SETTINGS_MAP,
-} from "$lib/utils/notifications/types";
+import { NotificationType } from "$lib/utils/notifications/types";
 import type { AuthUser } from "@zenstackhq/runtime";
 import { POST_REVEAL_PREFIX } from "$lib/components/postReveal/types";
 import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
@@ -22,11 +18,6 @@ const getNollaNotifications = (user: AuthUser, prisma: ExtendedPrisma) => {
       },
       memberId: user.memberId,
       OR: [
-        {
-          type: {
-            in: SUBSCRIPTION_SETTINGS_MAP[NotificationSettingType.PURCHASES],
-          },
-        },
         {
           type: NotificationType.NEW_ARTICLE,
         },

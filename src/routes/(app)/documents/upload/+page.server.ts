@@ -12,14 +12,13 @@ export const load: PageServerLoad = async () => {
 };
 
 export const actions: Actions = {
-  default: async ({ request, locals }) => {
-    const { user } = locals;
+  default: async ({ request }) => {
     const form = await superValidate(request, zod4(uploadSchema), {
       allowFiles: true,
     });
     if (!form.valid) return fail(400, withFiles({ form }));
     try {
-      await uploadDocumentsFile(user, form.data);
+      await uploadDocumentsFile(form.data);
     } catch (e) {
       return message(
         form,

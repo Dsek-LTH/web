@@ -1,8 +1,11 @@
 import { redirect } from "@sveltejs/kit";
+import { serverApi } from "$lib/server/apiClient";
 
-const CUTOFF_DATE = Date.parse("2026-08-23T12:00:00"); // this will be in prod: 2026-08-24
-export const load = () => {
-  if (Date.now() > CUTOFF_DATE) {
+// Replaces the old hardcoded CUTOFF_DATE - see backend's Phase 2 nollning
+// redesign.
+export const load = async (event) => {
+  const res = await serverApi(event).GET("/nollning/current", {});
+  if (res.data?.phase === "post_reveal") {
     redirect(302, "/nollning");
   }
 };

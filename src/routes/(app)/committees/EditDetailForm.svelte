@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { CommitteeLoadData } from "./committee.server";
+  import type { CommitteeLoadData } from "./committee";
 
   import { buttonVariants } from "$lib/components/ui/button";
   import { Input } from "$lib/components/ui/input";

@@ -27,19 +27,30 @@
   let canEdit = $state(isAuthorized(apiNames.COMMITTEE.UPDATE, page.data.user));
 
   let previewPositions = $derived(
-    data.positions?.filter((p) => p.mandates.length == 1).slice(0, 3),
+    data.positions
+      ?.filter((p) => (p.mandates ?? []).length == 1)
+      .slice(0, 3),
   );
   let previewMembers = $derived(
     data.positions
       ?.toReversed()
-      .filter((p) => p.mandates.length > 0)[0]
-      ?.mandates.map((m) => m.member)
+      .filter((p) => (p.mandates ?? []).length > 0)[0]
+      ?.mandates?.map((m) => m.member!)
       .slice(0, 4),
   );
 </script>
 
 {#if committee}
-  <SEO data={{ type: "committee", committee }} />
+  <SEO
+    data={{
+      type: "committee",
+      committee: {
+        name: committee.name,
+        description: committee.description ?? null,
+        lightImageUrl: committee.lightImageUrl ?? null,
+      },
+    }}
+  />
 {/if}
 
 <a
@@ -53,12 +64,12 @@
       <div
         class="bg-muted-background inline-flex shrink-0 grow-0 flex-row items-center gap-2 rounded-md border-[1px] p-3"
       >
-        <MemberAvatar member={position.mandates[0]!.member} />
+        <MemberAvatar member={position.mandates![0]!.member!} />
         <div class="flex flex-col">
           <h6>
-            {position.mandates[0]!.member.firstName +
+            {position.mandates![0]!.member!.firstName +
               " " +
-              position.mandates[0]!.member.lastName}
+              position.mandates![0]!.member!.lastName}
           </h6>
           <span>{position.name}</span>
         </div>

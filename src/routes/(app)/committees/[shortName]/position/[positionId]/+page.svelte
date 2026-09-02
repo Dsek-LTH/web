@@ -2,7 +2,6 @@
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
   import * as m from "$paraglide/messages";
-  import type { Prisma } from "@prisma/client";
   import AddMandateForm from "./AddMandateForm.svelte";
   import UpdatePositionForm from "./UpdatePositionForm.svelte";
   import Mandate from "./Mandate.svelte";
@@ -20,9 +19,7 @@
 
   const mandateStatsCutoffYears = 7;
 
-  type MandateWithMember = Prisma.MandateGetPayload<{
-    include: { member: true };
-  }>;
+  type MandateWithMember = PageData["mandates"][number];
 
   let groupedByYear = $derived(
     data.mandates.reduce<Record<string, MandateWithMember[]>>(
@@ -153,14 +150,14 @@
         </a>
       </section>
     {/if}
-    {#if data.position.emailAliases.length > 0}
+    {#if (data.position.emailAliases ?? []).length > 0}
       <h4 class="text-xs opacity-75">
         {m.positions_theFollowingAddresses()}
       </h4>
       <div class="mb-2 flex gap-2 text-xs opacity-75">
-        {#each data.position.emailAliases.filter((alias) => alias.email != data.position.email) as alias (alias.email)}
-          <a class="link-hover link link-primary" href="mailto:{alias.email}">
-            {alias.email}
+        {#each (data.position.emailAliases ?? []).filter((email) => email != data.position.email) as email (email)}
+          <a class="link-hover link link-primary" href="mailto:{email}">
+            {email}
           </a>
         {/each}
       </div>

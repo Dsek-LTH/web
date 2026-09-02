@@ -17,6 +17,9 @@
     type: "article",
     article: {
       ...article,
+      publishedAt: article.publishedAt ? new Date(article.publishedAt) : null,
+      updatedAt: article.updatedAt ? new Date(article.updatedAt) : null,
+      imageUrl: article.imageUrl ?? null,
       authorName: `${article.author.member.firstName} ${article.author.member.lastName}`,
     },
   }}
@@ -24,11 +27,9 @@
 
 <Article {article} canEdit={data.canEdit} canDelete={data.canDelete}
   ><div class="flex flex-row items-center gap-2">
-    <AuthorCard
-      member={article.author.member}
-      customAuthor={article.author.customAuthor}
-      position={article.author.mandate?.position}
-    />{#if article.committee}<div class="bg-border h-8 w-px"></div>
+    <AuthorCard author={article.author} />{#if article.committee}<div
+        class="bg-border h-8 w-px"
+      ></div>
       <div class="flex flex-row items-center gap-2">
         <CommitteeSymbol committee={article.committee} /><span
           class="text-muted-foreground">{article.committee.name}</span

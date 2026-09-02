@@ -1,37 +1,18 @@
-import { type Semester, toString } from "$lib/utils/semesters";
-import { medalRecipients } from "$lib/server/medals/medals";
-import { getSemesterOrThrowSvelteError } from "$lib/utils/url.server";
-import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+import { PUBLIC_GO_BACKEND_URL } from "$env/static/public";
 
-export const GET = async ({ locals, url }) => {
-  const { prisma } = locals;
+// A thin proxy to Go's GET /medals/download-csv (a plain non-huma endpoint,
+// see backend/internal/api/huma_medals.go's MedalsCSVHandler - CSV doesn't
+// fit the typed JSON client, so this forwards the request/response
+// directly rather than going through $lib/api/client). No page renders a
+// download link yet (the /medals route is still a stub), but the endpoint
+// itself is real, matching the "port server logic even without a
+// page.svelte" precedent used elsewhere in this port (see DESIGN.md's
+// Principle #6).
+export const GET = async ({ url, request, fetch }) => {
+  const target = new URL("/medals/download-csv", PUBLIC_GO_BACKEND_URL);
+  target.search = url.search;
 
-  const semester: Semester = getSemesterOrThrowSvelteError(url);
-
-  const recipientLines: string[] = (
-    await medalRecipients(prisma, semester)
-  ).flatMap((x) =>
-    x.recipients.map((y) => {
-      const medal: string = x.medal;
-      const member: ExtendedPrismaModel<"Member"> = y;
-      return [
-        `${member.firstName} ${member.lastName}`.replace(",", ""),
-        member.studentId,
-        medal,
-      ].join(",");
-    }),
-  );
-
-  const csv: string = ["Namn,StilID,Medalj", ...recipientLines].join("\n");
-
-  // return csv as file
-  const res = new Response(csv, {
-    headers: {
-      "Content-Type": "text/csv",
-      "Content-Disposition": `attachment; filename=medals-${toString(
-        semester,
-      ).replace(" ", "-")}.csv`,
-    },
+  return fetch(target, {
+    headers: { cookie: request.headers.get("cookie") ?? "" },
   });
-  return res;
 };
