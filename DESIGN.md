@@ -183,6 +183,45 @@ before that happens, not after.
   Once it is decided, it becomes a normal `migrate`-authored migration
   like any other schema change from that point forward.
 
+## DB seeding, needed eventually (flagged 2026-09-02, not yet designed)
+
+**Status: identified as a real gap, not yet scoped or scheduled a phase.**
+There is currently **no reproducible way to seed a fresh local dev DB with
+the `api_access_policies` rows real usage depends on** — `src/database/
+seed/main.ts`/`data.ts` (the existing Prisma-based seed script, still the
+only seeding this project has) populates `doorAccessPolicy` but never
+touches `api_access_policies` at all. Every row that table actually has
+locally (the `governing_document:read`/`news:article:*` wildcard grants
+referenced elsewhere in this file, plus whatever else) was added by hand,
+ad hoc, at some unrecorded point - not reproducible, not documented, and
+with no way to tell what's *supposed* to be there versus what one
+developer happened to insert once.
+
+**Concrete incident that surfaced this**: Phase 4's `/documents` returned
+403 against the local dev DB (not a code bug - the exact same policy
+check as the old TS app, verified byte-for-byte identical) purely because
+`fileHandler:documents:read`/`fileHandler:files:read`/
+`fileHandler:albums:read` had zero grants locally, despite presumably
+being granted in prod (prod's `/documents` works). Fixed ad hoc for now
+(`role='*'` rows inserted directly via `psql`, mirroring
+`governing_document:read`'s existing pattern) - exactly the kind of
+manual, undocumented fix this section exists to stop being necessary.
+
+**What's needed, roughly** (not fully designed yet - revisit when a phase
+naturally needs it, likely alongside Phase 11 "Admin consolidation" or
+whenever the next AccessPolicy-shaped gap causes real friction):
+a Go-owned seed path (a `go run` command or similar, per this project's
+existing `go tool`-based tooling conventions) that can populate a fresh
+Postgres instance with the baseline `api_access_policies` rows every
+phase's routes actually assume exist - `fileHandler:{albums,documents,
+files}:read` (this incident) belongs in that seed once it exists, along
+with an audit of what other policy strings are currently only "granted"
+by someone's untracked manual `psql` session. Whether this reuses/replaces
+the existing Prisma-based `faker`-driven seed script entirely, or is a
+narrower Go-only addition just for policy grants, is an open question -
+this note only establishes that the gap is real and worth fixing, not the
+shape of the fix.
+
 ## Architecture decided so far
 
 - **Go module**: `backend/`, Go 1.26, layout is `internal/db` (data access),
@@ -436,6 +475,26 @@ to be an oversight, not a considered choice):
     layer would be indirection around something already ergonomic. Only
     extract a named helper if the exact same call is genuinely duplicated
     across several call sites — after the fact, not planned up front.
+  - **Known gap, tracked for Phase 14 (found 2026-09-02, not fixed yet):**
+    every `+page.ts` load across every phase follows the same
+    `if (res.error) throw error(500, "Failed to load X")` shape - a fixed
+    500 regardless of what Go actually returned. This wasn't a deliberate
+    decision anyone wrote down; it's just what the first ported page did,
+    and every later phase copied the shape without revisiting it. The
+    real failure is often something else entirely - e.g. Phase 4's
+    `/documents` returns a genuine 403 (an unauthenticated/ungranted
+    caller failing `apinames.FileDocumentsRead`), but every load site
+    collapses that into an opaque "500, failed to load" with no way to
+    tell "you're not authorized" from "the server is broken" without
+    reading server logs. The fix is mechanical once someone does it -
+    surface `res.response.status` (openapi-fetch exposes the raw
+    `Response`) and `res.error.detail` (huma's `ErrorModel`) instead of
+    hardcoding 500 and a generic string, at every `+page.ts` call site -
+    but touches every phase's frontend code, so it's being tracked here
+    rather than fixed piecemeal mid-phase. Phase 14's own grep sweep
+    (see its bullet in the roadmap below) should catch every instance;
+    whoever does that pass should fix this as one of its findings rather
+    than treating it as separately deferred.
 - **Locale resolution moves into Go, additively.** Every translated field
   in a response includes *both* the raw pair (`headerSv`/`headerEn`) *and*
   one resolved field (`header`, chosen via `Accept-Language`/similar,
@@ -1323,6 +1382,17 @@ updated in its own phase, same as phase 1 and phase 2 already did.
    `POST /gallery/upload`, which does produce a correctly-groupable,
    correctly-gettable album) separately, which worked. Worth the
    attention of whoever eventually builds gallery's real UI in Phase 13.
+   **Local-dev-only issue found and fixed after initial verification,
+   2026-09-02**: `/documents` 403'd against the local dev DB - not a code
+   bug (the exact same `apinames.FileDocumentsRead`/etc. check the old TS
+   app enforced, byte-for-byte identical policy string), but because
+   `fileHandler:{albums,documents,files}:read` had zero grants locally
+   (prod, where `/documents` works, presumably has them). Fixed for now by
+   inserting `role='*'` rows directly, mirroring `governing_document:read`'s
+   existing pattern - see the new "DB seeding, needed eventually" section
+   above for the real fix this incident motivated (there's currently no
+   reproducible way to seed `api_access_policies`, this project-wide, not
+   specific to this phase).
    Two small accepted gaps, both explicit decisions rather than oversights:
    avatar/profile-picture upload (the `members` bucket) stays deferred, not
    pulled into this phase despite sharing the same `Uploader` dependency
