@@ -7,8 +7,8 @@ import {
   fixSongText,
   getExistingCategories,
   getExistingMelodies,
-} from "../helpers";
-import { updateSongSchema } from "../schema";
+} from "../../helpers";
+import { updateSongBookEntrySchema } from "../../schema";
 import type { LayoutServerLoad } from "./$types";
 import { getExtendedPrismaClient } from "$lib/server/extendedPrisma";
 
@@ -20,13 +20,19 @@ export const load: LayoutServerLoad = async ({ locals, params }) => {
     ? getExtendedPrismaClient(locals.language, user?.studentId)
     : prisma;
 
-  const song = await client.song.findUnique({
+  const songBookEntry = await client.songBookEntry.findUnique({
     where: {
-      slug: params.slug,
+      page_numberOnPage: {
+        page: Number(params.page),
+        numberOnPage: Number(params.numberOnPage),
+      },
+    },
+    include: {
+      song: true,
     },
   });
 
-  if (song == null) {
+  if (songBookEntry == null) {
     throw error(404, {
       message: m.songbook_errors_songNotFound(),
     });
@@ -37,14 +43,18 @@ export const load: LayoutServerLoad = async ({ locals, params }) => {
     getExistingMelodies(client, accessPolicies, isDeletedAccessible),
   ]);
 
-  const form = await superValidate(song, zod4(updateSongSchema));
+  const form = await superValidate(
+    songBookEntry,
+    zod4(updateSongBookEntrySchema),
+  );
 
   return {
     song: {
-      ...song,
-      title: fixSongText(song.title),
-      lyrics: fixSongText(song.lyrics),
+      ...songBookEntry.song,
+      title: fixSongText(songBookEntry.song.title),
+      lyrics: fixSongText(songBookEntry.song.lyrics),
     },
+    songBookEntry,
     updateForm: form,
     existingCategories,
     existingMelodies,

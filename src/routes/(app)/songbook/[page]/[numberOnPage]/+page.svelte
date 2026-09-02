@@ -13,7 +13,7 @@
   import RotateCcw from "@lucide/svelte/icons/rotate-ccw";
   import * as m from "$paraglide/messages.js";
   import apiNames from "$lib/utils/apiNames";
-  import { mayWatchVideos } from "../helpers";
+  import { mayWatchVideos } from "../../helpers";
   import { Separator } from "$lib/components/ui/separator/index.js";
 
   let { data } = $props();
@@ -48,7 +48,11 @@
     </Button>
 
     {#if canUpdate}
-      <Button href="/songbook/{song.slug}/edit" class="flex items-center gap-2">
+      <Button
+        href="/songbook/{data.songBookEntry.page}/{data.songBookEntry
+          .numberOnPage}/edit"
+        class="flex items-center gap-2"
+      >
         <Pen class="h-4 w-4" />
         {m.songbook_edit()}
       </Button>

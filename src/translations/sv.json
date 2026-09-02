@@ -656,6 +656,10 @@
   "songbook_videoPerformance": "Videouppspelning",
   "songbook_videoUrlLabel": "Video-URL (YouTube/Direktlänk)",
   "songbook_videoPlaceholder": "t.ex. https://www.youtube.com/watch?v=...",
+  "songbook_addSongToSongbook": "Lägg till sång i sångboken",
+  "songbook_addSongToSongbookMoreInfo": "En sång från sångarkivet kommer att läggas till i sångboken",
+  "songbook_addSongToSongbookReferencedSong": "Sång",
+
   "members_all": "Alla",
   "members_noMembers": "Inga medlemmar hittades",
   "members_members": "{x} medlemmar",

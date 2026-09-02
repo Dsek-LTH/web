@@ -2,9 +2,8 @@ import apiNames from "$lib/utils/apiNames";
 import { fail } from "@sveltejs/kit";
 import { superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
-import { createSongSchema } from "../schema";
+import { createSongBookEntrySchema } from "../schema";
 import type { PageServerLoad, Actions } from "./$types";
-import { slugifySongTitle } from "./helpers";
 import { getExistingCategories, getExistingMelodies } from "../helpers";
 import { authorize } from "$lib/utils/authorization";
 import * as m from "$paraglide/messages";
@@ -20,7 +19,7 @@ export const load: PageServerLoad = async ({ locals }) => {
     getExistingMelodies(prisma),
   ]);
   return {
-    form: await superValidate(zod4(createSongSchema)),
+    form: await superValidate(zod4(createSongBookEntrySchema)),
     existingCategories,
     existingMelodies,
   };
@@ -32,24 +31,18 @@ export const actions: Actions = {
     const { prisma, user } = locals;
     authorize(apiNames.SONG.CREATE, user);
 
-    const form = await superValidate(request, zod4(createSongSchema));
+    const form = await superValidate(request, zod4(createSongBookEntrySchema));
     if (!form.valid) return fail(400, { form });
-    const { title, melody, category, lyrics, video } = form.data;
-    const now = new Date();
-    const result = await prisma.song.create({
+    const { songId, page, numberOnPage } = form.data;
+    const result = await prisma.songBookEntry.create({
       data: {
-        title: DOMPurify.sanitize(title),
-        slug: await slugifySongTitle(prisma, title),
-        melody: melody.trim(),
-        category: category.trim(),
-        lyrics: DOMPurify.sanitize(lyrics),
-        video: video?.trim() || null,
-        createdAt: now,
-        updatedAt: now,
+        songId: DOMPurify.sanitize(songId),
+        page,
+        numberOnPage,
       },
     });
     throw redirect(
-      `/songbook/${result.slug}`,
+      `/songbook/${result.page}/${result.numberOnPage}`,
       {
         message: m.songbook_songCreated(),
         type: "success",

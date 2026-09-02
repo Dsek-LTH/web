@@ -125,51 +125,18 @@
     </div>
   </div>
 
-  <div class="mb-8 flex flex-col gap-4">
+  <div class="mb-4">
     <div class="flex flex-col gap-4 md:flex-row md:items-center">
       <div class="flex-1">
         <Input
           type="text"
-          placeholder={m.songbook_searchPlaceholder()}
+          placeholder="Search by song title or page"
           value={data.search}
           oninput={handleSearch}
         >
           <SearchIcon />
         </Input>
       </div>
-
-      {#if canDelete}
-        <div
-          class="border-border bg-card flex items-center gap-3 rounded-lg border px-4 py-2"
-        >
-          <Switch
-            id="show-deleted"
-            checked={data.showDeleted}
-            onCheckedChange={handleShowDeletedChange}
-          />
-          <Label
-            for="show-deleted"
-            class="cursor-pointer text-sm font-medium whitespace-nowrap"
-          >
-            {m.songbook_showDeleted()}
-          </Label>
-        </div>
-      {/if}
-    </div>
-
-    <div class="flex flex-wrap gap-2">
-      {#each data.categories as category (category)}
-        {@const isSelected = data.categoryFilter.includes(category)}
-        <button
-          type="button"
-          class="cursor-pointer"
-          onclick={() => toggleCategory(category, isSelected)}
-        >
-          <Badge variant={isSelected ? "lila" : "outline"}>
-            {data.categoryMap[category]}
-          </Badge>
-        </button>
-      {/each}
     </div>
   </div>
 
@@ -178,9 +145,9 @@
   {/if}
 
   <div class="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-    {#each data.songs as song, index (song.id)}
+    {#each data.songs as { song, page, numberOnPage }, index (song.id)}
       <a
-        href={resolve(`/songbook/${song.slug}`)}
+        href={resolve(`/songbook/${page}/${numberOnPage}`)}
         class="block h-full transition-transform"
       >
         <Card
@@ -203,10 +170,7 @@
                   </span>
                 {/if}
               </CardTitle>
-              {#if song.category}
-                <Badge variant="outline" class="shrink-0">{song.category}</Badge
-                >
-              {/if}
+              <Badge variant="outline" class="shrink-0">Sida {page}</Badge>
             </div>
           </CardHeader>
           <CardContent>

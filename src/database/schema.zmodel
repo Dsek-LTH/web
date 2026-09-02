@@ -910,14 +910,14 @@ model SongBookEntry {
     numberOnPage    Int
     createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
     updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-    deletedAt       DateTime? @map("deleted_at") @db.Timestamptz(6)
 
     @@id([page, numberOnPage])
 
     @@allow("create", has(auth().policies, "song:create"))
     @@allow("read", has(auth().policies, "song:read"))
-    @@deny("read", deletedAt != null)
     @@allow("update", has(auth().policies, "song:update"))
+    @@allow("delete", has(auth().policies, "song:delete"))
+    @@map("song_book_entries")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
