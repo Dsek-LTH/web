@@ -1,6 +1,6 @@
 import type { PageLoad } from "./$types";
 import { error } from "@sveltejs/kit";
-import { getSemesterOrThrowSvelteError } from "$lib/utils/url.server";
+import { getSemesterOrThrowSvelteError } from "$lib/utils/url";
 import { toString as semesterToString } from "$lib/utils/semesters";
 import { api } from "$lib/api/client";
 

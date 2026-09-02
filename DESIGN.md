@@ -1037,10 +1037,11 @@ ported).
 ## Roadmap: migrating the remaining backend (proposed 2026-09-01, not yet implemented)
 
 **Status: proposed phase ordering, agreed 2026-09-01.** Phase 1 (directory
-foundation), phase 2 (nollning redesign, backend and frontend), and phase 3
+foundation), phase 2 (nollning redesign, backend and frontend), phase 3
 (simple standalone CRUD - songbook/alerts/info-pages/governing-documents/
-medals, backend and frontend) are now implemented - see each phase's own
-status note below. **Superseded:** this
+medals, backend and frontend), and phase 4 (real file storage, gallery,
+document uploads, backend and frontend) are now implemented - see each
+phase's own status note below. **Superseded:** this
 paragraph originally flagged the nollning subsection as "a proposal, not
 yet decided in detail" with open questions to resolve during
 implementation; both of those questions (permission model, organizing-
@@ -1049,7 +1050,7 @@ committee reference) were resolved when phase 2 was implemented - see the
 as "proposed redesign" in its heading for historical continuity even
 though it now describes what was actually built. Everything past
 articles/events/auth/directory/nollning/songs/alerts/markdown/governing-
-documents/medals is still on Prisma. This section
+documents/medals/gallery/documents(file-browsing) is still on Prisma. This section
 records the agreed shape of the rest of the migration so it doesn't get
 re-litigated phase-by-phase the way this doc exists to prevent for
 everything else.
@@ -1258,6 +1259,81 @@ updated in its own phase, same as phase 1 and phase 2 already did.
    staben-album date-filtering hack (see nollning section) gets replaced
    with a real `nollning.Season` check here, not re-implemented as a
    date-string folder parse.
+   **Status: backend and frontend both implemented 2026-09-02**
+   (`backend/internal/storage`, `internal/gallery`, `internal/documents` -
+   see `backend/CLAUDE.md`'s "Gallery routes" and "Documents (file-browsing)
+   routes" sections for the exact endpoint list, bucket/prefix conventions,
+   and frontend files on both sides). `internal/storage.Store` wraps
+   `github.com/minio/minio-go/v7` (new dependency - no S3/MinIO client
+   existed in `go.mod` before this) and implements
+   `internal/integrations.Uploader` directly, so article image upload
+   (`POST /uploads`) became real as a side effect of this phase, not just
+   gallery/documents. Uploads are proxied through Go (client → Go multipart
+   → MinIO), not presigned URLs, matching the existing `/uploads`
+   endpoint's shape. Two real bugs from the old app were fixed while
+   porting, not replicated: gallery upload now awaits every file upload
+   before returning (the old code pushed upload promises into a list it
+   never awaited); document/requirement delete now derives its target
+   bucket from the document type server-side, instead of always hitting
+   the `documents` bucket regardless of tab (silently broken for SRD and
+   every requirement-profile file, which live in the `files` bucket - this
+   turned out to affect the *main* documents page's SRD tab too, not just
+   the requirements page, once traced through). Gallery's staben-album
+   redaction now uses a real `nollning.Service.Current` + `MemberSeeStaben`
+   check (same pattern as `committees.Service.ListBoard`), replacing the
+   `isNollningPeriod`/`getNollningStart` `AdminSetting`-based date-string
+   parse. **Correction discovered during implementation**: the dev `.env`'s
+   `MINIO_ROOT_USER`/`MINIO_ROOT_PASSWORD` are blank placeholders, not real
+   credentials as this section's planning assumed - requiring real MinIO
+   config unconditionally would have broken `go run .`/`make dev` for
+   every contributor without those filled in (previously always worked,
+   since `MockUploader` needed nothing). Fixed by adding `STORAGE_MOCK`
+   (default off), mirroring `AUTH_MOCK`'s exact "explicit opt-in, loud in
+   the log, must never run against a real deployment" shape - `main.go`
+   requires real MinIO config unless `STORAGE_MOCK=true`, and both
+   `internal/gallery`/`internal/documents`/`internal/articles` now depend
+   on `storage.Backend` (an interface), not `*storage.Store` directly, so
+   `storage.MockBackend` can stand in. Verified end-to-end against
+   `STORAGE_MOCK=true` (every route, including a real multipart upload
+   round-trip for both gallery and documents, and confirming the bucket-fix
+   by watching the mock log target `files` vs `documents` correctly per
+   type) plus `svelte-check`/`eslint` (0 errors) and live SSR of every
+   rewired route. **Also verified live against the real MinIO sandbox**
+   (`files-sandbox.dsek.se`) once real `MINIO_ROOT_USER`/`MINIO_ROOT_PASSWORD`
+   were filled in: a real gallery upload→list→get round-trip (including
+   fetching the resulting public URL directly, confirming the bucket is
+   actually publicly readable), and a real documents/requirements
+   upload→list→delete round-trip that specifically proved the bucket-fix
+   against live data - deleting a requirement-profile file via
+   `DELETE /documents/requirements` actually removed it from the `files`
+   bucket (its public URL 404s afterward), the exact case the old app's
+   bug silently failed. Test objects were cleaned up afterward via a
+   throwaway `internal/storage`-based script, not left in the shared
+   sandbox. **Real-data discovery, not a bug in this port**: the live
+   `albums` bucket's actual folders (`test3`, `test4`, `utedischot`, ...)
+   don't follow the `"{date} {name}"` convention `internal/gallery`'s
+   upload path assumes, and each contains `album/`/`cover/` subfolders -
+   `ListAlbums`' "second-to-last path segment" grouping (ported verbatim
+   from the old TS, which has the identical behavior) therefore groups by
+   `album`/`cover` across every pre-existing folder instead of by album,
+   and `GetAlbum`'s year-from-slug lookup doesn't resolve these folders at
+   all (they're not date-prefixed). This is a pre-existing property of the
+   old app's algorithm against this real data, not introduced by the port
+   - confirmed by testing the actual convention-following path (upload via
+   `POST /gallery/upload`, which does produce a correctly-groupable,
+   correctly-gettable album) separately, which worked. Worth the
+   attention of whoever eventually builds gallery's real UI in Phase 13.
+   Two small accepted gaps, both explicit decisions rather than oversights:
+   avatar/profile-picture upload (the `members` bucket) stays deferred, not
+   pulled into this phase despite sharing the same `Uploader` dependency
+   (Phase 1's own note already flagged it as Phase-4-adjacent, but the
+   roadmap bullet here only ever named gallery + documents); no server-side
+   image compression/webp conversion on upload (the old app's `sharp`-based
+   compression doesn't port this pass - files are stored as given). Gallery
+   itself never had a delete feature in the old app and doesn't gain one
+   here, and `move`/`rename` (unused by any live gallery/documents caller)
+   aren't ported either - both relevant only to a future admin MinIO
+   browser (Phase 11), not this phase's job.
 5. **Booking** - bookables + booking requests.
 6. **Expenses** - depends on phase 4's real uploader for receipts.
 7. **Elections** - nomination/voting workflow.
@@ -1350,8 +1426,14 @@ general rule for phases 3-12 going forward.
 Per the just-in-time decision: each mock gets replaced in whichever
 phase first has a real dependent, not in one dedicated pass.
 
-- **`Uploader`** (currently `MockUploader`, fake `mock-uploads.invalid`
-  URLs) - replaced in **phase 4**, first real need is gallery.
+- **`Uploader`** - **done, phase 4 (2026-09-02)**: `internal/storage.Store`
+  (real MinIO client) implements `Uploader` directly and replaced
+  `MockUploader` in `main.go`, so article image upload (`POST /uploads`)
+  became real too, not just gallery/documents (its first real dependent,
+  as planned). `MockUploader` itself still exists as
+  `storage.MockBackend`'s `Upload` method, now reachable only via
+  `STORAGE_MOCK=true` for local dev without MinIO credentials configured -
+  see `backend/CLAUDE.md`'s "Gallery routes" section.
 - **`Notifier`/`Webhooker`** (log-only) - replaced in **phase 9**. Until
   then, articles/events keep calling the mocks exactly as they do today -
   no change needed to unblock earlier phases.

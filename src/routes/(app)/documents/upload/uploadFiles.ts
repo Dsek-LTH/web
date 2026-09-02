@@ -1,20 +1,29 @@
-import { uploadFile } from "$lib/files/uploadFiles";
-import type { AuthUser } from "@zenstackhq/runtime";
-import { typeToPath } from "./helpers";
+import { api } from "$lib/api/client";
 import type { UploadSchema } from "./types";
 
-export const uploadDocumentsFile = async (
-  user: AuthUser,
-  data: UploadSchema,
-) => {
+// Forwards to the Go backend (backend/internal/documents.Service.Upload)
+// instead of touching MinIO directly - see backend/CLAUDE.md's Phase 4
+// section. Go resolves the bucket/prefix from `type`/`year`/`folder`
+// itself (see ./helpers.ts's typeToPath, still used here only for the
+// form's own path preview, not for any real storage call).
+export const uploadDocumentsFile = async (data: UploadSchema) => {
   const { folder, name, year, type, file } = data;
 
-  const { path, bucket } = typeToPath[type];
-  const prefix = path(year, folder);
-  // await prisma.meeting.upsert({
-  //   where: { url: folderPath },
-  //   update: {},
-  //   create: { title: meeting, date, url: folderPath },
-  // });
-  return uploadFile(user, file, prefix, bucket, name);
+  const form = new FormData();
+  form.append("type", type);
+  form.append("year", String(year));
+  form.append("folder", folder);
+  form.append("name", name);
+  form.append("file", file);
+
+  const res = await api.POST("/documents/upload", {
+    body: form as unknown as {
+      type: string;
+      year: number;
+      folder: string;
+      name: string;
+      file: string;
+    },
+  });
+  if (res.error) throw new Error("Failed to upload document");
 };

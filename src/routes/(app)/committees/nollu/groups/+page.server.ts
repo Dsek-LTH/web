@@ -2,7 +2,7 @@ import { error } from "@sveltejs/kit";
 import { api } from "$lib/api/client";
 import type { PageServerLoad } from "./$types";
 import { committeeActions, committeeLoad } from "../../committee";
-import { getYearOrThrowSvelteError } from "$lib/utils/url.server";
+import { getYearOrThrowSvelteError } from "$lib/utils/url";
 
 export const load: PageServerLoad = async ({ url, fetch }) => {
   const currentYear = new Date().getFullYear();

@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -19,7 +20,9 @@ import (
 	"github.com/dsek-lth/web/backend/internal/auth"
 	"github.com/dsek-lth/web/backend/internal/committees"
 	"github.com/dsek-lth/web/backend/internal/db"
+	"github.com/dsek-lth/web/backend/internal/documents"
 	"github.com/dsek-lth/web/backend/internal/events"
+	"github.com/dsek-lth/web/backend/internal/gallery"
 	"github.com/dsek-lth/web/backend/internal/governingdocs"
 	"github.com/dsek-lth/web/backend/internal/integrations"
 	"github.com/dsek-lth/web/backend/internal/markdown"
@@ -27,6 +30,7 @@ import (
 	"github.com/dsek-lth/web/backend/internal/members"
 	"github.com/dsek-lth/web/backend/internal/nollning"
 	"github.com/dsek-lth/web/backend/internal/songs"
+	"github.com/dsek-lth/web/backend/internal/storage"
 )
 
 func main() {
@@ -78,12 +82,25 @@ func main() {
 		)
 	}
 
+	var store storage.Backend
+	if os.Getenv("STORAGE_MOCK") == "true" {
+		log.Println(
+			"STORAGE_MOCK=true - using a no-op mock store; gallery/documents/article-image-upload will not actually store anything. This must never run against a real deployment.",
+		)
+		store = storage.MockBackend{}
+	} else {
+		store, err = newStorage()
+		if err != nil {
+			log.Fatalf("set up file storage (or set STORAGE_MOCK=true for local dev without MinIO): %v", err)
+		}
+	}
+
 	articleSvc := articles.NewService(
 		pool,
 		integrations.MockScheduler{},
 		integrations.MockNotifier{},
 		integrations.MockWebhooker{},
-		integrations.MockUploader{},
+		store,
 	)
 	eventSvc := events.NewService(pool)
 	memberSvc := members.NewService(pool)
@@ -94,6 +111,12 @@ func main() {
 	markdownSvc := markdown.NewService(pool)
 	governingDocSvc := governingdocs.NewService(pool)
 	medalSvc := medals.NewService(pool)
+	gallerySvc := gallery.NewService(store, nollningSvc, mustEnv("PUBLIC_BUCKETS_ALBUMS"))
+	documentSvc := documents.NewService(
+		store,
+		mustEnv("PUBLIC_BUCKETS_DOCUMENTS"),
+		mustEnv("PUBLIC_BUCKETS_FILES"),
+	)
 	router := api.NewRouter(
 		articleSvc,
 		eventSvc,
@@ -106,6 +129,8 @@ func main() {
 		markdownSvc,
 		governingDocSvc,
 		medalSvc,
+		gallerySvc,
+		documentSvc,
 		authenticator,
 		oidcClient,
 		queries,
@@ -205,4 +230,36 @@ func newRealAuth(
 		queries,
 		nollningSvc,
 	), nil
+}
+
+// mustEnv reads a required env var or fails fast - same "explicit opt-in,
+// never a silent fallback" stance newRealAuth already takes for its own
+// required vars.
+func mustEnv(name string) string {
+	value := os.Getenv(name)
+	if value == "" {
+		log.Fatalf("%s must be set", name)
+	}
+	return value
+}
+
+// newStorage builds the real MinIO-backed Store (see internal/storage and
+// ../../DESIGN.md's Phase 4 section) - the default unless STORAGE_MOCK=true
+// opts out for local dev without MinIO credentials configured, same
+// "explicit opt-in, never a silent fallback" shape as AUTH_MOCK.
+func newStorage() (*storage.Store, error) {
+	port := mustEnv("MINIO_PORT")
+	if _, err := strconv.Atoi(port); err != nil {
+		return nil, fmt.Errorf("MINIO_PORT must be numeric, got %q", port)
+	}
+	endpoint := mustEnv("MINIO_ENDPOINT") + ":" + port
+
+	return storage.New(storage.Config{
+		Endpoint:           endpoint,
+		UseSSL:             os.Getenv("MINIO_USE_SSL") == "true",
+		AccessKey:          mustEnv("MINIO_ROOT_USER"),
+		SecretKey:          mustEnv("MINIO_ROOT_PASSWORD"),
+		BaseURL:            mustEnv("PUBLIC_MINIO_BASE_URL"),
+		ArticleImageBucket: mustEnv("PUBLIC_BUCKETS_FILES"),
+	})
 }

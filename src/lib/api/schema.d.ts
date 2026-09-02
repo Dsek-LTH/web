@@ -320,6 +320,59 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/documents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List meeting documents (board/guild/SRD/other) for a year */
+        get: operations["list-meetings"];
+        put?: never;
+        post?: never;
+        /** Delete a meeting document */
+        delete: operations["delete-document"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/documents/requirements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List position/committee requirement-profile documents for a year */
+        get: operations["list-requirement-profiles"];
+        put?: never;
+        post?: never;
+        /** Delete a requirement-profile document */
+        delete: operations["delete-requirement-profile"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/documents/upload": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Upload a meeting/SRD/requirement-profile document */
+        post: operations["upload-document"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/events": {
         parameters: {
             query?: never;
@@ -403,6 +456,57 @@ export interface paths {
         post?: never;
         /** Delete a comment */
         delete: operations["delete-event-comment"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/gallery": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List gallery albums */
+        get: operations["list-albums"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/gallery/upload": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Upload one or more pictures to a gallery album */
+        post: operations["upload-album"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/gallery/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get one gallery album's pictures and metadata */
+        get: operations["get-album"];
+        put?: never;
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -953,6 +1057,22 @@ export interface components {
             role?: string;
             studentId?: string;
         };
+        Album: {
+            key: string;
+            pictures: components["schemas"]["Picture"][] | null;
+        };
+        AlbumDetail: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/AlbumDetail.json
+             */
+            readonly $schema?: string;
+            editor?: string;
+            key: string;
+            photographer?: string;
+            pictures: components["schemas"]["Picture"][] | null;
+        };
         Alert: {
             /**
              * Format: uri
@@ -1234,6 +1354,15 @@ export interface components {
             updatedAt: string;
             url: string;
         };
+        DocumentFile: {
+            id: string;
+            /** Format: date-time */
+            lastModified: string;
+            name: string;
+            /** Format: int64 */
+            size: number;
+            url: string;
+        };
         DocumentInput: {
             /**
              * Format: uri
@@ -1466,6 +1595,13 @@ export interface components {
             medal: string;
             recipients: components["schemas"]["Member"][] | null;
         };
+        Meeting: {
+            agenda?: components["schemas"]["DocumentFile"];
+            files: components["schemas"]["DocumentFile"][] | null;
+            minutes?: components["schemas"]["DocumentFile"];
+            name: string;
+            notice?: components["schemas"]["DocumentFile"];
+        };
         Member: {
             classProgramme?: string;
             /** Format: int32 */
@@ -1568,6 +1704,15 @@ export interface components {
             groupId?: string;
             role: string;
         };
+        Picture: {
+            id: string;
+            /** Format: date-time */
+            lastModified: string;
+            name: string;
+            /** Format: int64 */
+            size: number;
+            url: string;
+        };
         Position: {
             /**
              * Format: uri
@@ -1627,6 +1772,10 @@ export interface components {
             /** Format: int64 */
             separationCount: number;
             type: string;
+        };
+        RequirementFolder: {
+            files: components["schemas"]["DocumentFile"][] | null;
+            name: string;
         };
         Season: {
             /**
@@ -2618,6 +2767,170 @@ export interface operations {
             };
         };
     };
+    "list-meetings": {
+        parameters: {
+            query: {
+                /** @description one of board-meeting, guild-meeting, SRD-meeting, other */
+                type: string;
+                year: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Meeting"][] | null;
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "delete-document": {
+        parameters: {
+            query: {
+                /** @description one of board-meeting, guild-meeting, SRD-meeting, other */
+                type: string;
+                id: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "list-requirement-profiles": {
+        parameters: {
+            query: {
+                year: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RequirementFolder"][] | null;
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "delete-requirement-profile": {
+        parameters: {
+            query: {
+                id: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "upload-document": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                    folder: string;
+                    name: string;
+                    /** @description one of meeting, srd, requirement */
+                    type: string;
+                    /** Format: int64 */
+                    year: number;
+                };
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
     "list-events": {
         parameters: {
             query?: {
@@ -2881,6 +3194,101 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "list-albums": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Album"][] | null;
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "upload-album": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": {
+                    date: string;
+                    files: string[];
+                    name: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "get-album": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AlbumDetail"];
+                };
             };
             /** @description Error */
             default: {

@@ -4,9 +4,9 @@
   import { SvelteURLSearchParams } from "svelte/reactivity";
   import Meeting from "./Meeting.svelte";
   import type { PageData } from "./$types";
-  import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
-  import { isAuthorized } from "$lib/utils/authorization";
+  import { PUBLIC_BUCKETS_DOCUMENTS, PUBLIC_BUCKETS_FILES } from "$env/static/public";
   import apiNames from "$lib/utils/apiNames";
+  import { DocumentTypes as dt } from "./types";
 
   import * as m from "$paraglide/messages";
   import { Button } from "$lib/components/ui/button";
@@ -22,38 +22,49 @@
     return `?${searchParams.toString()}`;
   }
 
-  let type = $derived(page.url.searchParams.get("type"));
+  let type = $derived(page.url.searchParams.get("type") ?? dt.boardMeeting);
 
+  // Sort order stays a display-only concern (not authorization/validation,
+  // so Principle #5 doesn't apply) - ported verbatim from the old
+  // Object.keys(data.meetings).sort(...), now operating on
+  // Meeting[]/.name instead of the old Record<string, FileData[]>'s keys.
   let meetings = $derived(
-    Object.keys(data.meetings).sort((a, b) => {
-      if (type === "board-meeting" || type === null) {
-        return b.localeCompare(a, "sv");
-      } else if (type === "SRD-meeting" && a.startsWith("SRD")) {
+    [...data.meetings].sort((a, b) => {
+      if (type === dt.boardMeeting) {
+        return b.name.localeCompare(a.name, "sv");
+      } else if (type === dt.SRDMeeting && a.name.startsWith("SRD")) {
         return (
           // Current format
-          Number.parseInt(b.split("SRD")[1] ?? "0") -
-          Number.parseInt(a.split("SRD")[1] ?? "0")
+          Number.parseInt(b.name.split("SRD")[1] ?? "0") -
+          Number.parseInt(a.name.split("SRD")[1] ?? "0")
         );
-      } else if (type === "SRD-meeting") {
-        return ("T" + a).localeCompare(b, "sv"); // Sort other SRD meetings below current format
+      } else if (type === dt.SRDMeeting) {
+        return ("T" + a.name).localeCompare(b.name, "sv"); // Sort other SRD meetings below current format
       } else {
-        return a.localeCompare(b, "sv");
+        return a.name.localeCompare(b.name, "sv");
       }
     }),
   );
 
+  // Flat policy-list reads (see governing-documents' list page precedent),
+  // not the isAuthorized()/getDerivedRoles-style per-resource
+  // recomputation DESIGN.md's Principle #5 rules out. Delete's bucket -
+  // and therefore its policy - depends on the active tab, mirroring
+  // backend/internal/documents.Service.deleteTarget exactly (SRD lives in
+  // the files bucket, every other tab in documents).
   let canCreate = $derived(
-    isAuthorized(
+    data.user?.policies?.includes(
       apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).CREATE,
-      data.user,
-    ),
+    ) ?? false,
   );
-  let canEdit = $derived(
-    isAuthorized(
-      apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).DELETE,
-      data.user,
-    ),
+  let deleteBucket = $derived(
+    type === dt.SRDMeeting ? PUBLIC_BUCKETS_FILES : PUBLIC_BUCKETS_DOCUMENTS,
   );
+  let canDelete = $derived(
+    data.user?.policies?.includes(apiNames.FILES.BUCKET(deleteBucket).DELETE) ??
+      false,
+  );
+  let canEdit = $derived(canDelete);
 </script>
 
 <div class="layout-container">
@@ -123,13 +134,8 @@
   {/if}
 
   <div class="mt-2 flex flex-col gap-4">
-    {#each meetings as meeting (meeting)}
-      <Meeting
-        name={meeting}
-        files={data.meetings[meeting] ?? []}
-        {isEditing}
-        deleteForm={data.deleteForm}
-      />
+    {#each meetings as meeting (meeting.name)}
+      <Meeting {meeting} {type} {isEditing} {canDelete} />
     {/each}
   </div>
 </div>

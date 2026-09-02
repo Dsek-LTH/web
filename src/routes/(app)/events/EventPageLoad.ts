@@ -4,7 +4,7 @@ import { getAllTags } from "$lib/news/tags";
 import {
   getPageOrThrowSvelteError,
   getPageSizeOrThrowSvelteError,
-} from "$lib/utils/url.server";
+} from "$lib/utils/url";
 import type { ServerLoadEvent } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";

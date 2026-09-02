@@ -1,6 +1,6 @@
 import { api } from "$lib/api/client";
 import { error } from "@sveltejs/kit";
-import { getYearOrThrowSvelteError } from "$lib/utils/url.server";
+import { getYearOrThrowSvelteError } from "$lib/utils/url";
 import type { PageLoad } from "./$types";
 
 export const load: PageLoad = async ({ fetch, url }) => {

@@ -18,7 +18,9 @@ import (
 	"github.com/dsek-lth/web/backend/internal/auth"
 	"github.com/dsek-lth/web/backend/internal/committees"
 	"github.com/dsek-lth/web/backend/internal/db"
+	"github.com/dsek-lth/web/backend/internal/documents"
 	"github.com/dsek-lth/web/backend/internal/events"
+	"github.com/dsek-lth/web/backend/internal/gallery"
 	"github.com/dsek-lth/web/backend/internal/governingdocs"
 	"github.com/dsek-lth/web/backend/internal/locale"
 	"github.com/dsek-lth/web/backend/internal/markdown"
@@ -46,6 +48,8 @@ func NewRouter(
 	markdownSvc *markdown.Service,
 	governingDocSvc *governingdocs.Service,
 	medalSvc *medals.Service,
+	gallerySvc *gallery.Service,
+	documentSvc *documents.Service,
 	authenticator auth.Authenticator,
 	oidcClient *auth.OIDCClient,
 	queries *db.Queries,
@@ -65,6 +69,8 @@ func NewRouter(
 	registerMarkdownRoutes(api, markdownSvc)
 	registerGoverningDocumentRoutes(api, governingDocSvc)
 	registerMedalRoutes(api, medalSvc)
+	registerGalleryRoutes(api, gallerySvc)
+	registerDocumentRoutes(api, documentSvc)
 
 	mux.HandleFunc("GET /me", auth.MeHandler(queries))
 	mux.HandleFunc("GET /medals/download-csv", MedalsCSVHandler(medalSvc))

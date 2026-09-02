@@ -79,6 +79,20 @@ const (
 	// exactly - create/update/delete all share Write, only Read is separate.
 	GoverningDocumentRead  = "governing_document:read"
 	GoverningDocumentWrite = "governing_document:write"
+
+	// Phase 4 ("Real file storage + gallery + document uploads" - see
+	// DESIGN.md's roadmap) below. Naming mirrors the old
+	// apiNames.FILES.BUCKET(name) exactly ("fileHandler:{bucket}:{action}"),
+	// not a fresh scheme, so existing dev-DB AccessPolicy grants for these
+	// strings carry over unchanged.
+	FileAlbumsRead      = "fileHandler:albums:read"
+	FileAlbumsCreate    = "fileHandler:albums:create"
+	FileDocumentsRead   = "fileHandler:documents:read"
+	FileDocumentsCreate = "fileHandler:documents:create"
+	FileDocumentsDelete = "fileHandler:documents:delete"
+	FileFilesRead       = "fileHandler:files:read"
+	FileFilesCreate     = "fileHandler:files:create"
+	FileFilesDelete     = "fileHandler:files:delete"
 )
 
 // All lists every policy this API currently checks - used to build the
@@ -123,5 +137,13 @@ func All() []string {
 		MarkdownUpdate,
 		GoverningDocumentRead,
 		GoverningDocumentWrite,
+		FileAlbumsRead,
+		FileAlbumsCreate,
+		FileDocumentsRead,
+		FileDocumentsCreate,
+		FileDocumentsDelete,
+		FileFilesRead,
+		FileFilesCreate,
+		FileFilesDelete,
 	}
 }
