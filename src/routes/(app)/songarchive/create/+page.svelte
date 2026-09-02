@@ -25,7 +25,11 @@
 </script>
 
 <div class="mx-auto max-w-2xl px-4 py-8">
-  <Button variant="ghost" href="/songbook" class="mb-6 flex items-center gap-2">
+  <Button
+    variant="ghost"
+    href="/songarchive"
+    class="mb-6 flex items-center gap-2"
+  >
     <ArrowLeft class="h-4 w-4" />
     {m.back()}
   </Button>
@@ -163,7 +167,7 @@
         </div>
 
         <div class="mt-4 flex items-center justify-end gap-4">
-          <Button variant="outline" href="/songbook">
+          <Button variant="outline" href="/songarchive">
             {m.songbook_cancel()}
           </Button>
           <Button
