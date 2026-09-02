@@ -1,4 +1,4 @@
-import { api } from "$lib/api/client";
+import { serverApi } from "$lib/server/apiClient";
 
 // This page's +page.svelte is still <NotImplemented /> (part of the
 // (nollning)/ route tree's product UI, out of scope for this pass - see
@@ -7,12 +7,13 @@ import { api } from "$lib/api/client";
 // a page.svelte" precedent used elsewhere this pass. Replaces the old
 // hardcoded `year: 2025` filter (one of the landmine dates DESIGN.md's
 // nollning survey called out by name) with the actual current season.
-export const load = async ({ fetch }) => {
-  const currentRes = await api.GET("/nollning/current", { fetch });
+export const load = async (event) => {
+  const api = serverApi(event);
+  const currentRes = await api.GET("/nollning/current", {});
   const seasonId = currentRes.data?.season?.id;
 
   const summariesRes = seasonId
-    ? await api.GET("/nollning/groups", { fetch, params: { query: { seasonId } } })
+    ? await api.GET("/nollning/groups", { params: { query: { seasonId } } })
     : undefined;
   const summaries = summariesRes?.data ?? [];
 
@@ -20,7 +21,7 @@ export const load = async ({ fetch }) => {
     await Promise.all(
       summaries.map((g) =>
         api
-          .GET("/nollning/groups/{id}", { fetch, params: { path: { id: g.id } } })
+          .GET("/nollning/groups/{id}", { params: { path: { id: g.id } } })
           .then((res) => res.data),
       ),
     )

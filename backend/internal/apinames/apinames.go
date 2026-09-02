@@ -93,6 +93,22 @@ const (
 	FileFilesRead       = "fileHandler:files:read"
 	FileFilesCreate     = "fileHandler:files:create"
 	FileFilesDelete     = "fileHandler:files:delete"
+
+	// Phase 5 ("Booking" - see DESIGN.md's roadmap) below. Naming mirrors
+	// the old apiNames.BOOKINGS/BOOKABLES crud() groups exactly
+	// ("booking_request:*" / "booking_request:bookable:*"), so existing
+	// dev-DB AccessPolicy grants for these strings carry over unchanged.
+	// No BookableDelete: the old zmodel never had a delete @@allow for
+	// Bookable either (create/read/update only) - not replicated as a gap,
+	// there's just genuinely no delete operation to gate.
+	BookingRequestCreate = "booking_request:create"
+	BookingRequestRead   = "booking_request:read"
+	BookingRequestUpdate = "booking_request:update"
+	BookingRequestDelete = "booking_request:delete"
+
+	BookableCreate = "booking_request:bookable:create"
+	BookableRead   = "booking_request:bookable:read"
+	BookableUpdate = "booking_request:bookable:update"
 )
 
 // All lists every policy this API currently checks - used to build the
@@ -145,5 +161,12 @@ func All() []string {
 		FileFilesRead,
 		FileFilesCreate,
 		FileFilesDelete,
+		BookingRequestCreate,
+		BookingRequestRead,
+		BookingRequestUpdate,
+		BookingRequestDelete,
+		BookableCreate,
+		BookableRead,
+		BookableUpdate,
 	}
 }

@@ -5,7 +5,7 @@ import { zod4 } from "sveltekit-superforms/adapters";
 import { governingDocumentSchema } from "../schemas";
 import type { Actions, PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
-import { api } from "$lib/api/client";
+import { serverApi } from "$lib/server/apiClient";
 
 // governing_document:write is enforced by the Go API itself
 // (backend/internal/governingdocs) - a real, necessary explicit check Go
@@ -21,7 +21,7 @@ export const actions: Actions = {
     const form = await superValidate(request, zod4(governingDocumentSchema));
     if (!form.valid) return fail(400, { form });
     const { url, title, type } = form.data;
-    const created = await api.POST("/governing-documents", {
+    const created = await serverApi(event).POST("/governing-documents", {
       body: { url, title, type },
     });
     if (created.error) throw new Error("Failed to create governing document");

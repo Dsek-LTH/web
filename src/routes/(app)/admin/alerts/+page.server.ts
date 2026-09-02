@@ -8,13 +8,13 @@ import {
 } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
 import * as m from "$paraglide/messages";
-import { api } from "$lib/api/client";
+import { serverApi } from "$lib/server/apiClient";
 
 // alert:manage (Go's AlertManage) is enforced by the Go API itself on
 // create/delete - see backend/internal/alerts. No authorize() call here,
 // matching DESIGN.md's Principle #5.
-export const load: PageServerLoad = async ({ fetch }) => {
-  const res = await api.GET("/alerts", { fetch });
+export const load: PageServerLoad = async (event) => {
+  const res = await serverApi(event).GET("/alerts", {});
   if (res.error) throw new Error("Failed to load alerts");
   return {
     alert: res.data ?? [],
@@ -34,20 +34,20 @@ const deleteAlertSchema = z.object({
 export type deleteAlertSchema = Infer<typeof deleteAlertSchema>;
 
 export const actions = {
-  create: async ({ request }) => {
-    const form = await superValidate(request, zod4(addAlertSchema));
+  create: async (event) => {
+    const form = await superValidate(event.request, zod4(addAlertSchema));
     if (!form.valid) return fail(400, { form });
-    const created = await api.POST("/alerts", { body: form.data });
+    const created = await serverApi(event).POST("/alerts", { body: form.data });
     if (created.error) throw new Error("Failed to create alert");
     return message(form, {
       message: m.admin_alerts_alert_created(),
       type: "success",
     });
   },
-  delete: async ({ request }) => {
-    const form = await superValidate(request, zod4(deleteAlertSchema));
+  delete: async (event) => {
+    const form = await superValidate(event.request, zod4(deleteAlertSchema));
     if (!form.valid) return fail(400, { form });
-    const deleted = await api.DELETE("/alerts/{id}", {
+    const deleted = await serverApi(event).DELETE("/alerts/{id}", {
       params: { path: { id: form.data.id } },
     });
     if (deleted.error) throw new Error("Failed to remove alert");

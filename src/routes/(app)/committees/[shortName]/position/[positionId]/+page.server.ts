@@ -1,5 +1,5 @@
 import { error, fail } from "@sveltejs/kit";
-import { api } from "$lib/api/client";
+import { serverApi } from "$lib/server/apiClient";
 import {
   message,
   superValidate,
@@ -28,10 +28,11 @@ const getLocalSearchId = (params: RouteParams) => {
   return params.positionId;
 };
 
-export const load: PageServerLoad = async ({ params, fetch }) => {
+export const load: PageServerLoad = async (event) => {
+  const { params } = event;
+  const api = serverApi(event);
   const searchId = getLocalSearchId(params);
   const res = await api.GET("/positions/{id}", {
-    fetch,
     params: { path: { id: searchId } },
   });
   if (res.error) {
@@ -133,7 +134,9 @@ export type DeleteMandateSchema = Infer<typeof deleteMandateSchema>;
 const toDateString = (d: Date) => d.toISOString().split("T")[0]!;
 
 export const actions: Actions = {
-  update: async ({ params, request, fetch }) => {
+  update: async (event) => {
+    const { params, request } = event;
+    const api = serverApi(event);
     const searchId = getLocalSearchId(params);
 
     const form = await superValidate(request, zod4(updateSchema));
@@ -142,7 +145,6 @@ export const actions: Actions = {
     // Full-replace: fetch the current position so the locale not being
     // edited right now keeps its existing value instead of being cleared.
     const currentRes = await api.GET("/positions/{id}", {
-      fetch,
       params: { path: { id: searchId } },
     });
     if (currentRes.error) return fail(404, { form });
@@ -150,7 +152,6 @@ export const actions: Actions = {
 
     const isSv = getLocale() === "sv";
     const res = await api.PATCH("/positions/{id}", {
-      fetch,
       params: { path: { id: searchId } },
       body: {
         nameSv: isSv ? (form.data.name ?? "") : (current.nameSv ?? ""),
@@ -173,14 +174,15 @@ export const actions: Actions = {
       type: "success",
     });
   },
-  addMandate: async ({ params, request, fetch }) => {
+  addMandate: async (event) => {
+    const { params, request } = event;
+    const api = serverApi(event);
     const searchId = getLocalSearchId(params);
 
     const form = await superValidate(request, zod4(addMandateSchema));
     if (!form.valid) return fail(400, { form });
 
     const res = await api.POST("/positions/{positionId}/mandates", {
-      fetch,
       params: { path: { positionId: searchId } },
       body: {
         memberIds: form.data.memberIds,
@@ -198,7 +200,8 @@ export const actions: Actions = {
     });
   },
   updateMandate: async (event) => {
-    const { params, request, fetch } = event;
+    const { params, request } = event;
+    const api = serverApi(event);
     const searchId = getLocalSearchId(params);
 
     const form = await superValidate(request, zod4(updateMandateSchema));
@@ -206,7 +209,6 @@ export const actions: Actions = {
     if (!form.data.startDate || !form.data.endDate) return fail(400, { form });
 
     const res = await api.PATCH("/mandates/{id}", {
-      fetch,
       params: { path: { id: form.data.mandateId } },
       body: {
         startDate: toDateString(form.data.startDate),
@@ -235,12 +237,13 @@ export const actions: Actions = {
       event,
     );
   },
-  deleteMandate: async ({ request, fetch }) => {
+  deleteMandate: async (event) => {
+    const { request } = event;
+    const api = serverApi(event);
     const form = await superValidate(request, zod4(deleteMandateSchema));
     if (!form.valid) return fail(400, { form });
 
     const res = await api.DELETE("/mandates/{id}", {
-      fetch,
       params: { path: { id: form.data.mandateId } },
     });
     if (res.error)

@@ -379,3 +379,44 @@ CREATE TABLE documents (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMPTZ
 );
+
+CREATE TABLE bookable_categories (
+    id      UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    name_sv VARCHAR(255) NOT NULL,
+    name_en VARCHAR(255)
+);
+
+-- "isDisabled" is genuinely camelCase in the live table (renamed name ->
+-- name_sv by a later migration, but isDisabled predates that pass and was
+-- never touched) - same "don't trust schema.prisma/zmodel naming, trust
+-- psql \d" situation as phadder_groups."createdAt" noted above.
+CREATE TABLE bookables (
+    id          UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    name_sv     VARCHAR(255) NOT NULL,
+    name_en     VARCHAR(255),
+    "isDisabled" BOOLEAN NOT NULL DEFAULT false,
+    category_id UUID REFERENCES bookable_categories (id),
+    door        VARCHAR(255)
+);
+
+CREATE TYPE "BookingRequestStatus" AS ENUM ('ACCEPTED', 'DENIED', 'PENDING');
+
+CREATE TABLE booking_requests (
+    id        UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    booker_id UUID REFERENCES members (id),
+    start     TIMESTAMPTZ,
+    "end"     TIMESTAMPTZ,
+    created   TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    event     VARCHAR(255),
+    status    "BookingRequestStatus" NOT NULL DEFAULT 'PENDING'
+);
+
+-- Implicit Prisma many-to-many join table - which bookables ("A") a booking
+-- request ("B") asked for. Alphabetical-by-model-name column assignment,
+-- same convention as _article_tags/_event_tags.
+CREATE TABLE _booking_requests_bookables (
+    "A" UUID NOT NULL REFERENCES bookables (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    "B" UUID NOT NULL REFERENCES booking_requests (id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+CREATE UNIQUE INDEX _booking_requests_bookables_ab_pkey ON _booking_requests_bookables ("A", "B");
+CREATE INDEX _booking_requests_bookables_b_index ON _booking_requests_bookables ("B");

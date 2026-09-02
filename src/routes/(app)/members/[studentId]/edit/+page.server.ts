@@ -1,5 +1,5 @@
 import { memberSchema } from "$lib/zod/schemas";
-import { api } from "$lib/api/client";
+import { serverApi } from "$lib/server/apiClient";
 import * as m from "$paraglide/messages";
 import { error, fail, redirect, type NumericRange } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";
@@ -24,17 +24,18 @@ const PROFILE_PICTURE_PREFIX = (studentId: string) =>
 // Server-only load, not +page.ts - a documented exception (see the profile
 // view page's own comment): `phadderGroups` isn't part of the Go member
 // API itself, so this can't move to a universal load.
-export const load: PageServerLoad = async ({ fetch, params }) => {
+export const load: PageServerLoad = async (event) => {
+  const { params } = event;
+  const api = serverApi(event);
   const { studentId } = params;
 
   const [memberRes, phadderGroupsResult, currentNollningResult] =
     await Promise.allSettled([
       api.GET("/members/{studentId}", {
-        fetch,
         params: { path: { studentId } },
       }),
-      api.GET("/nollning/groups", { fetch }),
-      api.GET("/nollning/current", { fetch }),
+      api.GET("/nollning/groups", {}),
+      api.GET("/nollning/current", {}),
     ]);
   if (memberRes.status === "rejected" || memberRes.value.error)
     throw error(500, m.members_errors_couldntFetchMember());
@@ -162,14 +163,15 @@ export const actions: Actions = {
       type: "success",
     });
   },
-  update: async ({ params, fetch, request }) => {
+  update: async (event) => {
+    const { params, request } = event;
+    const api = serverApi(event);
     const form = await superValidate(request, zod4(updateSchema));
     if (!form.valid) return fail(400, { form });
     const { studentId } = params;
     const { nollningGroupId, foodPreference, ...profileFields } = form.data;
 
     const res = await api.PATCH("/members/{studentId}", {
-      fetch,
       params: { path: { studentId } },
       body: {
         firstName: profileFields.firstName ?? "",
@@ -184,7 +186,6 @@ export const actions: Actions = {
     });
     if (foodPreference !== undefined) {
       await api.PATCH("/members/{studentId}/food-preference", {
-        fetch,
         params: { path: { studentId } },
         body: { foodPreference: foodPreference ?? undefined },
       });
@@ -196,7 +197,7 @@ export const actions: Actions = {
         { status: (res.response.status as NumericRange<400, 599>) ?? 500 },
       );
 
-    await setNollningGroup(fetch, studentId, nollningGroupId ?? null);
+    await setNollningGroup(api, studentId, nollningGroupId ?? null);
 
     throw redirect(302, `/members/${params.studentId}`);
   },

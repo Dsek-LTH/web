@@ -16,6 +16,7 @@ import (
 	"github.com/dsek-lth/web/backend/internal/alerts"
 	"github.com/dsek-lth/web/backend/internal/articles"
 	"github.com/dsek-lth/web/backend/internal/auth"
+	"github.com/dsek-lth/web/backend/internal/booking"
 	"github.com/dsek-lth/web/backend/internal/committees"
 	"github.com/dsek-lth/web/backend/internal/db"
 	"github.com/dsek-lth/web/backend/internal/documents"
@@ -50,6 +51,7 @@ func NewRouter(
 	medalSvc *medals.Service,
 	gallerySvc *gallery.Service,
 	documentSvc *documents.Service,
+	bookingSvc *booking.Service,
 	authenticator auth.Authenticator,
 	oidcClient *auth.OIDCClient,
 	queries *db.Queries,
@@ -71,6 +73,7 @@ func NewRouter(
 	registerMedalRoutes(api, medalSvc)
 	registerGalleryRoutes(api, gallerySvc)
 	registerDocumentRoutes(api, documentSvc)
+	registerBookingRoutes(api, bookingSvc)
 
 	mux.HandleFunc("GET /me", auth.MeHandler(queries))
 	mux.HandleFunc("GET /medals/download-csv", MedalsCSVHandler(medalSvc))

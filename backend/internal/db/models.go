@@ -11,6 +11,49 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type BookingRequestStatus string
+
+const (
+	BookingRequestStatusACCEPTED BookingRequestStatus = "ACCEPTED"
+	BookingRequestStatusDENIED   BookingRequestStatus = "DENIED"
+	BookingRequestStatusPENDING  BookingRequestStatus = "PENDING"
+)
+
+func (e *BookingRequestStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = BookingRequestStatus(s)
+	case string:
+		*e = BookingRequestStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for BookingRequestStatus: %T", src)
+	}
+	return nil
+}
+
+type NullBookingRequestStatus struct {
+	BookingRequestStatus BookingRequestStatus `json:"BookingRequestStatus"`
+	Valid                bool                 `json:"valid"` // Valid is true if BookingRequestStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullBookingRequestStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.BookingRequestStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.BookingRequestStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullBookingRequestStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.BookingRequestStatus), nil
+}
+
 type DocumentType string
 
 const (
@@ -185,6 +228,36 @@ type Author struct {
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
 	Type      pgtype.Text        `json:"type"`
+}
+
+type Bookable struct {
+	ID         pgtype.UUID `json:"id"`
+	NameSv     string      `json:"name_sv"`
+	NameEn     pgtype.Text `json:"name_en"`
+	IsDisabled bool        `json:"isDisabled"`
+	CategoryID pgtype.UUID `json:"category_id"`
+	Door       pgtype.Text `json:"door"`
+}
+
+type BookableCategory struct {
+	ID     pgtype.UUID `json:"id"`
+	NameSv string      `json:"name_sv"`
+	NameEn pgtype.Text `json:"name_en"`
+}
+
+type BookingRequest struct {
+	ID       pgtype.UUID          `json:"id"`
+	BookerID pgtype.UUID          `json:"booker_id"`
+	Start    pgtype.Timestamptz   `json:"start"`
+	End      pgtype.Timestamptz   `json:"end"`
+	Created  pgtype.Timestamptz   `json:"created"`
+	Event    pgtype.Text          `json:"event"`
+	Status   BookingRequestStatus `json:"status"`
+}
+
+type BookingRequestsBookable struct {
+	A pgtype.UUID `json:"A"`
+	B pgtype.UUID `json:"B"`
 }
 
 type Committee struct {

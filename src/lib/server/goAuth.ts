@@ -39,7 +39,14 @@ export async function fetchIdentity(event: RequestEvent): Promise<GoIdentity> {
   return res.json();
 }
 
-function forwardSetCookies(response: Response, cookies: Cookies) {
+/**
+ * Parses a Go response's Set-Cookie header(s) (e.g. a re-issued
+ * dsek_session after a silent token refresh) back into SvelteKit's own
+ * cookie jar - shared with src/lib/server/apiClient.ts's serverApi, which
+ * needs the exact same forwarding for every other Go endpoint, not just
+ * /me.
+ */
+export function forwardSetCookies(response: Response, cookies: Cookies) {
   for (const header of response.headers.getSetCookie()) {
     const [pair = "", ...attrs] = header.split(";").map((s) => s.trim());
     const eq = pair.indexOf("=");

@@ -1,18 +1,19 @@
 import { APP_PREFERRED_PAGE_COOKIE } from "$lib/components/postReveal/types";
 import { getNollaGroupedNotifications } from "$lib/utils/notifications/nollaNotifications";
-import { api } from "$lib/api/client";
+import { serverApi } from "$lib/server/apiClient";
 import type { Theme } from "$lib/utils/themes";
 import { notificationSchema } from "$lib/zod/schemas";
 import { superValidate } from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";
 
 const afterNollning = new Date("2025-10-06");
-export const load = async ({ locals, cookies, fetch }) => {
+export const load = async (event) => {
+  const { locals, cookies } = event;
   const { prisma, user, member } = locals;
 
   // Replaces the old hardcoded REVEAL_LAUNCH_DATE - see backend's Phase 2
   // nollning redesign.
-  const currentRes = await api.GET("/nollning/current", { fetch });
+  const currentRes = await serverApi(event).GET("/nollning/current", {});
   const current = currentRes.data;
   const revealTheme = current?.phase === "post_reveal";
   const notificationsPromise = getNollaGroupedNotifications(user, prisma);

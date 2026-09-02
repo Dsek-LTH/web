@@ -1,6 +1,6 @@
 import { fail, superValidate } from "sveltekit-superforms";
 import { error } from "@sveltejs/kit";
-import { api } from "$lib/api/client";
+import { serverApi } from "$lib/server/apiClient";
 import type { Actions, PageServerLoad } from "./$types";
 import { z } from "zod";
 import { zod4 } from "sveltekit-superforms/adapters";
@@ -14,12 +14,13 @@ const createPolicySchema = z.object({
   studentId: z.string().nullable(),
 });
 
-export const load: PageServerLoad = async ({ locals, fetch }) => {
+export const load: PageServerLoad = async (event) => {
+  const { locals } = event;
   const { user } = locals;
 
   authorize(apiNames.ACCESS_POLICY.CREATE, user);
 
-  const res = await api.GET("/access-policies", { fetch });
+  const res = await serverApi(event).GET("/access-policies", {});
   if (res.error) throw error(500, "Failed to load access policies");
 
   const posToAccessPolicies = new Map<
@@ -40,19 +41,17 @@ export const load: PageServerLoad = async ({ locals, fetch }) => {
 };
 
 export const actions: Actions = {
-  deletePolicy: async ({ fetch, request }) => {
-    const form = await superValidate(request, zod4(deletePolicySchema));
+  deletePolicy: async (event) => {
+    const form = await superValidate(event.request, zod4(deletePolicySchema));
     if (!form.valid) return fail(400, { form });
-    await api.DELETE("/access-policies/{id}", {
-      fetch,
+    await serverApi(event).DELETE("/access-policies/{id}", {
       params: { path: { id: form.data.policyId } },
     });
   },
-  createPolicy: async ({ fetch, request }) => {
-    const form = await superValidate(request, zod4(createPolicySchema));
+  createPolicy: async (event) => {
+    const form = await superValidate(event.request, zod4(createPolicySchema));
     if (!form.valid) return fail(400, { form });
-    await api.POST("/access-policies", {
-      fetch,
+    await serverApi(event).POST("/access-policies", {
       body: {
         apiName: form.data.apiName,
         role: form.data.position ?? undefined,

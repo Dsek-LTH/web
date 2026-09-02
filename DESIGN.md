@@ -390,6 +390,48 @@ coexistence" framing above. Concretely:
   reach the browser, and - if Authentik rotates refresh tokens - the next
   refresh attempt would fail outright using the now-stale token still sitting
   in the browser's cookie.
+- **Cookie forwarding was missing from every `.server.ts` file except
+  `fetchIdentity` itself - found and fixed 2026-09-02, while wiring
+  Phase 5 (booking).** The bullet above only ever fixed cookie forwarding
+  for `hooks.server.ts`'s own call to `/me`; every other `.server.ts`
+  load/action across phases 1-4 called `$lib/api/client`'s shared `api`
+  singleton directly, which only sets `credentials: "include"` - a
+  browser-fetch concept with no effect in Node, since there's no ambient
+  cookie jar for it to draw from server-to-server. Under `AUTH_MOCK`
+  (used for every verification pass so far) this was invisible, since the
+  mock authenticator ignores cookies/identity entirely - but against real
+  auth, every privileged write from a `.server.ts` action (e.g.
+  `admin/alerts` create, `songbook/create`, `documents/governing/new`,
+  `members/[studentId]/edit`, and articles' own `createArticle`/
+  `updateArticle` - the very first domain ported) would have silently hit
+  Go as an anonymous caller and been rejected; several public-but-identity-
+  resolved reads (`GET /alerts`'s `closedByMe`, `GET /board`'s staben
+  redaction, `GET /events/{slug}`'s `canEdit`/`canDelete`) would have
+  silently rendered as if for an anonymous viewer during SSR. Fixed with
+  `src/lib/server/apiClient.ts`'s `serverApi(event)` - a per-request
+  client that forwards `event.cookies` onto the outgoing request and
+  parses any `Set-Cookie` back via the same `forwardSetCookies` helper
+  `fetchIdentity` already used (now exported from `goAuth.ts` for this
+  reuse) - swapped in at every affected `.server.ts` call site (~25 files)
+  plus the shared helpers they call through (`committee.ts`'s
+  `committeeActions`, `member.ts`'s `createMember`/`setNollningGroup`,
+  `news/server/actions.ts`'s `createArticle`/`updateArticle`,
+  `hooks.server.ts`'s own `createMember` call). **Universal `+page.ts`
+  loads were separately audited and found already correct**: every call
+  site already passed its own `fetch` parameter into `api.*()` calls
+  (`api.GET(..., { fetch })`), which is the right pattern - it lets
+  SvelteKit's own built-in same-site cookie passthrough on that fetch
+  apply during SSR - so nothing needed changing there. That passthrough
+  is still only best-effort (SvelteKit only forwards cookies cross-origin
+  when the target hostname is a subdomain specifically of the SvelteKit
+  app's own hostname - sibling subdomains of a shared parent don't
+  qualify - and never captures a cross-origin `Set-Cookie` back
+  regardless of that check), unlike `serverApi`'s explicit approach which
+  is correct independent of prod domain topology; this is an accepted,
+  narrow residual gap for `+page.ts` specifically; not revisited this
+  pass since fixing it fully would mean moving those loads server-side,
+  which was explicitly rejected as reversing the "fetch from the client"
+  decision above.
 - **Concurrent refresh races: fixed 2026-09-01.** `OIDCClient.Refresh`
   (`backend/internal/auth/oidc.go`) is called synchronously, per-request,
   whenever `RealAuthenticator.Authenticate` sees an expired session - there's
@@ -1405,6 +1447,63 @@ updated in its own phase, same as phase 1 and phase 2 already did.
    aren't ported either - both relevant only to a future admin MinIO
    browser (Phase 11), not this phase's job.
 5. **Booking** - bookables + booking requests.
+   **Status: backend and frontend both implemented 2026-09-02**
+   (`backend/internal/booking` - see `backend/CLAUDE.md`'s "Booking routes"
+   section for the exact endpoint list). `bookable_categories`, `bookables`,
+   `booking_requests`, and the implicit m2m join table all pre-date this
+   Go port (part of the original copied Prisma migration history, same as
+   songs/alerts/documents in Phase 3) - `schema.sql` additions only, no new
+   migration. Three decisions confirmed with the user before implementing:
+   fix the old edit action's `isAdmin` check (it tested
+   `apiNames.BOOKABLES.UPDATE`, a bookable-*resource* policy, instead of
+   `BOOKINGS.UPDATE`, the booking-*request* policy the underlying write was
+   actually gated on - almost certainly a bug, not intentional); add
+   non-blocking overlap detection as a genuinely new feature (the old app
+   never checked for double-bookings at all) - surfaced as a `conflicts`
+   list on create/update's response, never rejecting the request; and
+   build real minimal CRUD for `Bookable`/`BookableCategory` themselves
+   (list/get/create/update, no delete - matching the old zmodel's own
+   create/read/update-only `@@allow` set) since the old app's generic
+   ZenStack REST endpoint that would have served this was hard-restricted
+   to GET-only, making bookable-resource management previously
+   nonfunctional end-to-end.
+   - The `BOOKINGS.UPDATE` fix has a real consequence worth flagging: once
+     the isAdmin check uses the same policy the update write is itself
+     gated on, "isAdmin" and "is allowed to update at all" become the same
+     condition - collapsing the old app's actual behavior (isAdmin was
+     checking an unrelated, likely-ungranted policy, so it was false for
+     virtually everyone who could reach this action, meaning almost every
+     edit reset status to PENDING) into "only a `booking_request:update`
+     holder can update, and their edits never reset status." To keep the
+     status-reset-to-PENDING behavior meaningful at all, `Update` also
+     extends the zmodel's delete-only owner bypass
+     (`auth().memberId == bookerId`) to update: a booker editing their own
+     request is allowed (previously only true by the old code's accident)
+     and resets status to PENDING; an admin's edit preserves it. Flagged
+     explicitly here as a judgment call, not hidden in the diff.
+   - Verified via `go build`/`go vet` and a live `AUTH_MOCK` smoke test
+     against the dev DB: bookable/category CRUD, a real overlap-conflict
+     detection (two requests on the same bookable with overlapping times,
+     confirmed the second's response lists the first, and confirmed a
+     request never appears in its own conflict list), accept/reject
+     notifications firing (`integrations.MockNotifier`, two new methods:
+     `NotifyNewBookingRequest`/`NotifyBookingRequestStatus`), and delete.
+     Frontend verified via `svelte-check`/`eslint` (0 errors/warnings) and
+     a live round-trip through the actual SvelteKit dev server's form
+     actions (create → accept → delete) against the real Go backend, not
+     just direct-to-Go curl calls. All five `.svelte` pages were already
+     `<NotImplemented />` stubs before this phase (not introduced by it),
+     so per Principle #6 only their `.server.ts` load/action logic was
+     ported - no visual UI work was in scope.
+   - **Found and fixed while wiring this phase, but a cross-cutting bug
+     affecting every previously-ported phase, not specific to booking**:
+     every `.server.ts` file's calls to Go were silently running as an
+     anonymous caller (no session cookie forwarded, invisible under
+     `AUTH_MOCK`) - see the Auth section's "Cookie forwarding was missing
+     from every `.server.ts` file" bullet for the full writeup and fix
+     (`$lib/server/apiClient`'s `serverApi(event)`, retrofitted across
+     ~25 files spanning phases 1-4 in the same pass, at the user's
+     explicit request once the scope of the bug was clear).
 6. **Expenses** - depends on phase 4's real uploader for receipts.
 7. **Elections** - nomination/voting workflow.
 8. **Cafe** - shifts + drink inventory.

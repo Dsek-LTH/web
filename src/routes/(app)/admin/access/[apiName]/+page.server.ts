@@ -1,6 +1,6 @@
 import apiNames from "$lib/utils/apiNames";
 import { error, fail } from "@sveltejs/kit";
-import { api } from "$lib/api/client";
+import { serverApi } from "$lib/server/apiClient";
 import {
   message,
   setError,
@@ -32,12 +32,12 @@ const deleteSchema = z.object({
 });
 export type DeleteSchema = Infer<typeof deleteSchema>;
 
-export const load: PageServerLoad = async ({ locals, params, fetch }) => {
+export const load: PageServerLoad = async (event) => {
+  const { locals, params } = event;
   const { user } = locals;
   authorize(apiNames.ACCESS_POLICY.CREATE, user);
 
-  const res = await api.GET("/access-policies", {
-    fetch,
+  const res = await serverApi(event).GET("/access-policies", {
     params: { query: { apiName: params.apiName } },
   });
   if (res.error) throw error(500, "Failed to load access policies");
@@ -52,12 +52,12 @@ export const load: PageServerLoad = async ({ locals, params, fetch }) => {
 };
 
 export const actions: Actions = {
-  create: async ({ params, request, fetch }) => {
+  create: async (event) => {
+    const { params, request } = event;
     const form = await superValidate(request, zod4(createSchema));
     if (!form.valid) return fail(400, { form });
 
-    const res = await api.POST("/access-policies", {
-      fetch,
+    const res = await serverApi(event).POST("/access-policies", {
       body: {
         apiName: params.apiName,
         role: form.data.role ?? undefined,
@@ -72,12 +72,11 @@ export const actions: Actions = {
       type: "success",
     });
   },
-  delete: async ({ request, fetch }) => {
-    const form = await superValidate(request, zod4(deleteSchema));
+  delete: async (event) => {
+    const form = await superValidate(event.request, zod4(deleteSchema));
     if (!form.valid) return fail(400, { form });
 
-    const res = await api.DELETE("/access-policies/{id}", {
-      fetch,
+    const res = await serverApi(event).DELETE("/access-policies/{id}", {
       params: { path: { id: form.data.id } },
     });
     if (res.error) return fail(500, { form });

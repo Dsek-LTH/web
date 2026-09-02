@@ -1,5 +1,5 @@
 import { memberSchema } from "$lib/zod/schemas";
-import { api } from "$lib/api/client";
+import { serverApi } from "$lib/server/apiClient";
 import { superValidate, type Infer } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
 import type { Actions, PageServerLoad } from "./$types";
@@ -8,18 +8,19 @@ import { redirect } from "sveltekit-flash-message/server";
 import * as m from "$paraglide/messages";
 import { setNollningGroup } from "$lib/utils/member";
 
-export const load: PageServerLoad = async ({ locals, fetch }) => {
+export const load: PageServerLoad = async (event) => {
+  const { locals } = event;
+  const api = serverApi(event);
   const studentId = locals.user?.studentId;
   if (!studentId) redirect(302, "/");
 
   const [memberRes, phadderGroupsResult, currentNollningResult] =
     await Promise.allSettled([
       api.GET("/members/{studentId}", {
-        fetch,
         params: { path: { studentId } },
       }),
-      api.GET("/nollning/groups", { fetch }),
-      api.GET("/nollning/current", { fetch }),
+      api.GET("/nollning/groups", {}),
+      api.GET("/nollning/current", {}),
     ]);
   if (memberRes.status === "rejected" || memberRes.value.error) {
     redirect(302, "/");
@@ -65,7 +66,9 @@ const updateSchema = memberSchema.pick({
 export type UpdateSchema = Infer<typeof updateSchema>;
 
 export const actions: Actions = {
-  update: async ({ locals, fetch, request, cookies }) => {
+  update: async (event) => {
+    const { locals, request, cookies } = event;
+    const api = serverApi(event);
     const form = await superValidate(request, zod4(updateSchema));
     if (!form.valid) return fail(400, { form });
     const studentId = locals.user?.studentId;
@@ -77,7 +80,6 @@ export const actions: Actions = {
       form.data;
 
     const profileRes = await api.PATCH("/members/{studentId}", {
-      fetch,
       params: { path: { studentId } },
       body: {
         firstName: profileFields.firstName ?? "",
@@ -92,7 +94,6 @@ export const actions: Actions = {
     }
     if (foodPreference !== null) {
       await api.PATCH("/members/{studentId}/food-preference", {
-        fetch,
         params: { path: { studentId } },
         body: { foodPreference },
       });
@@ -107,7 +108,7 @@ export const actions: Actions = {
       where: { studentId },
       data: { email },
     });
-    await setNollningGroup(fetch, studentId, nollningGroupId ?? null);
+    await setNollningGroup(api, studentId, nollningGroupId ?? null);
 
     return redirect(
       "/",

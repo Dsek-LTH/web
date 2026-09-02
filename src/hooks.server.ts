@@ -8,6 +8,7 @@ import {
 } from "$paraglide/runtime";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import { fetchIdentity } from "$lib/server/goAuth";
+import { serverApi } from "$lib/server/apiClient";
 import {
   error,
   redirect,
@@ -89,7 +90,7 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
           lastName: identity.familyName,
           email: identity.email,
         },
-        event.fetch,
+        serverApi(event),
       ));
 
     if (

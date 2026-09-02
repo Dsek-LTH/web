@@ -41,10 +41,28 @@ type Scheduler interface {
 	Cancel(ctx context.Context, scheduledID string) error
 }
 
+// BookingRequestNotification is what a Notifier needs for booking's two
+// notification points: a new request (to the building manager, "km
+// mastare") and a status change (to the original booker). Status is only
+// set for the latter - real implementations ignore fields they don't need,
+// same as ArticleNotification above.
+type BookingRequestNotification struct {
+	BookingRequestID  string
+	Event             string
+	Start             time.Time
+	End               time.Time
+	BookableNames     []string
+	RequesterMemberID string
+	RecipientMemberID string
+	Status            string
+}
+
 // Notifier sends push notifications (e.g. to subscribed members' devices).
 type Notifier interface {
 	NotifyNewArticle(ctx context.Context, notification ArticleNotification) error
 	NotifyLike(ctx context.Context, articleID, likedByMemberID, articleAuthorMemberID string) error
+	NotifyNewBookingRequest(ctx context.Context, notification BookingRequestNotification) error
+	NotifyBookingRequestStatus(ctx context.Context, notification BookingRequestNotification) error
 }
 
 // Webhooker posts announcements to external chat systems (Discord).

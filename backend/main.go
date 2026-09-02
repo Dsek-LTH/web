@@ -18,6 +18,7 @@ import (
 	"github.com/dsek-lth/web/backend/internal/apinames"
 	"github.com/dsek-lth/web/backend/internal/articles"
 	"github.com/dsek-lth/web/backend/internal/auth"
+	"github.com/dsek-lth/web/backend/internal/booking"
 	"github.com/dsek-lth/web/backend/internal/committees"
 	"github.com/dsek-lth/web/backend/internal/db"
 	"github.com/dsek-lth/web/backend/internal/documents"
@@ -117,6 +118,7 @@ func main() {
 		mustEnv("PUBLIC_BUCKETS_DOCUMENTS"),
 		mustEnv("PUBLIC_BUCKETS_FILES"),
 	)
+	bookingSvc := booking.NewService(pool, integrations.MockNotifier{})
 	router := api.NewRouter(
 		articleSvc,
 		eventSvc,
@@ -131,6 +133,7 @@ func main() {
 		medalSvc,
 		gallerySvc,
 		documentSvc,
+		bookingSvc,
 		authenticator,
 		oidcClient,
 		queries,

@@ -1,6 +1,6 @@
 import apiNames from "$lib/utils/apiNames";
 import { error, fail } from "@sveltejs/kit";
-import { api } from "$lib/api/client";
+import { serverApi } from "$lib/server/apiClient";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { z } from "zod";
@@ -8,11 +8,12 @@ import type { Actions, PageServerLoad } from "./$types";
 import { authorize } from "$lib/utils/authorization";
 import * as m from "$paraglide/messages";
 
-export const load: PageServerLoad = async ({ locals, fetch }) => {
+export const load: PageServerLoad = async (event) => {
+  const { locals } = event;
   const { user } = locals;
   authorize(apiNames.ACCESS_POLICY.CREATE, user);
 
-  const res = await api.GET("/access-policies/api-names", { fetch });
+  const res = await serverApi(event).GET("/access-policies/api-names", {});
   if (res.error) throw error(500, "Failed to load access policies");
 
   const form = await superValidate(zod4(createSchema));
@@ -27,12 +28,11 @@ const createSchema = z.object({
 });
 
 export const actions: Actions = {
-  create: async ({ fetch, request }) => {
-    const form = await superValidate(request, zod4(createSchema));
+  create: async (event) => {
+    const form = await superValidate(event.request, zod4(createSchema));
     if (!form.valid) return fail(400, { form });
 
-    const res = await api.POST("/access-policies", {
-      fetch,
+    const res = await serverApi(event).POST("/access-policies", {
       body: { apiName: form.data.apiName, role: "*" },
     });
     if (res.error) return fail(400, { form });

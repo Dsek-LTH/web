@@ -5,13 +5,13 @@ import { zod4 } from "sveltekit-superforms/adapters";
 import { redirect } from "sveltekit-flash-message/server";
 import { governingDocumentSchema } from "../../schemas";
 import * as m from "$paraglide/messages";
-import { api } from "$lib/api/client";
+import { serverApi } from "$lib/server/apiClient";
 
 // governing_document:write is enforced by the Go API itself - same
 // "old app had no explicit check" note as the new/ page's create action.
-export const load: PageServerLoad = async ({ fetch, params }) => {
-  const res = await api.GET("/governing-documents/{id}", {
-    fetch,
+export const load: PageServerLoad = async (event) => {
+  const { params } = event;
+  const res = await serverApi(event).GET("/governing-documents/{id}", {
     params: { path: { id: params.id } },
   });
   if (res.error) {
@@ -38,7 +38,7 @@ export const actions: Actions = {
     const form = await superValidate(request, zod4(governingDocumentSchema));
     if (!form.valid) return fail(400, { form });
     const { url, title, type } = form.data;
-    const updated = await api.PATCH("/governing-documents/{id}", {
+    const updated = await serverApi(event).PATCH("/governing-documents/{id}", {
       params: { path: { id: params.id } },
       body: { url, title, type },
     });

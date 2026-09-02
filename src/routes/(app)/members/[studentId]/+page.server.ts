@@ -1,5 +1,5 @@
 import apiNames from "$lib/utils/apiNames";
-import { api } from "$lib/api/client";
+import { serverApi } from "$lib/server/apiClient";
 import { authorize } from "$lib/utils/authorization";
 import {
   getCurrentDoorPoliciesForMember,
@@ -36,12 +36,9 @@ const PROFILE_PICTURE_PREFIX = (studentId: string) =>
 // different, later phase - see backend/CLAUDE.md's "Directory routes"
 // section) and are still real Prisma lookups, so this can't move to a
 // universal load the way the fully-ported fields below could on their own.
-export const load: PageServerLoad = async ({
-  locals,
-  params,
-  cookies,
-  fetch,
-}) => {
+export const load: PageServerLoad = async (event) => {
+  const { locals, params, cookies } = event;
+  const api = serverApi(event);
   const { prisma, user } = locals;
   const { studentId } = params;
 
@@ -54,7 +51,6 @@ export const load: PageServerLoad = async ({
     seasonsResult,
   ] = await Promise.allSettled([
     api.GET("/members/{studentId}", {
-      fetch,
       params: { path: { studentId } },
     }),
     // Fetches 5 and filters out Custom-byline articles client-side rather
@@ -66,7 +62,6 @@ export const load: PageServerLoad = async ({
     // surface for this one profile-page widget.
     api
       .GET("/articles", {
-        fetch,
         params: { query: { authorStudentId: studentId, pageSize: 5 } },
       })
       .then(
@@ -75,13 +70,12 @@ export const load: PageServerLoad = async ({
             (article) => article.author.type !== "Custom",
           ) ?? [],
       ),
-    api.GET("/nollning/groups", { fetch }),
+    api.GET("/nollning/groups", {}),
     api.GET("/members/{studentId}/phadder-role", {
-      fetch,
       params: { path: { studentId } },
     }),
-    api.GET("/nollning/current", { fetch }),
-    api.GET("/nollning/seasons", { fetch }),
+    api.GET("/nollning/current", {}),
+    api.GET("/nollning/seasons", {}),
   ]);
   if (memberRes.status === "rejected" || memberRes.value.error)
     throw error(500, m.members_errors_couldntFetchMember());
@@ -290,15 +284,15 @@ export const actions: Actions = {
       type: "success",
     });
   },
-  updateFoodPreference: async ({ params, fetch, request }) => {
+  updateFoodPreference: async (event) => {
+    const { params, request } = event;
     const form = await superValidate(
       request,
       zod4(z.object({ foodPreference: z.string() })),
     );
     if (!form.valid) return fail(400, { form });
     const { studentId } = params;
-    const res = await api.PATCH("/members/{studentId}/food-preference", {
-      fetch,
+    const res = await serverApi(event).PATCH("/members/{studentId}/food-preference", {
       params: { path: { studentId } },
       body: { foodPreference: form.data.foodPreference },
     });
@@ -313,7 +307,8 @@ export const actions: Actions = {
       type: "success",
     });
   },
-  updatePhadderGroup: async ({ params, fetch, request, cookies }) => {
+  updatePhadderGroup: async (event) => {
+    const { params, request, cookies } = event;
     const form = await superValidate(request, zod4(phadderGroupSchema));
     if (!form.valid) return fail(400, { form });
     const { studentId } = params;
@@ -329,7 +324,11 @@ export const actions: Actions = {
         cookies.set("phadder_group_modal_never", "1", { path: "/" });
         break;
       default:
-        await setNollningGroup(fetch, studentId, form.data.nollningGroupId ?? null);
+        await setNollningGroup(
+          serverApi(event),
+          studentId,
+          form.data.nollningGroupId ?? null,
+        );
         break;
     }
 
@@ -340,14 +339,15 @@ export const actions: Actions = {
       });
     else return null;
   },
-  update: async ({ params, fetch, request }) => {
+  update: async (event) => {
+    const { params, request } = event;
+    const api = serverApi(event);
     const form = await superValidate(request, zod4(updateSchema));
     if (!form.valid) return fail(400, { form });
     const { studentId } = params;
     const { nollningGroupId, foodPreference, ...profileFields } = form.data;
 
     const res = await api.PATCH("/members/{studentId}", {
-      fetch,
       params: { path: { studentId } },
       body: {
         firstName: profileFields.firstName ?? "",
@@ -362,7 +362,6 @@ export const actions: Actions = {
     });
     if (foodPreference !== undefined) {
       await api.PATCH("/members/{studentId}/food-preference", {
-        fetch,
         params: { path: { studentId } },
         body: { foodPreference: foodPreference ?? undefined },
       });
@@ -374,7 +373,7 @@ export const actions: Actions = {
         { status: (res.response.status as NumericRange<400, 599>) ?? 500 },
       );
 
-    await setNollningGroup(fetch, studentId, nollningGroupId ?? null);
+    await setNollningGroup(api, studentId, nollningGroupId ?? null);
 
     return message(form, {
       message: m.members_memberUpdated(),

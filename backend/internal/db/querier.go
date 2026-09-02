@@ -13,6 +13,7 @@ import (
 type Querier interface {
 	AddArticleLike(ctx context.Context, arg AddArticleLikeParams) error
 	AddArticleTags(ctx context.Context, arg AddArticleTagsParams) error
+	AddBookingRequestBookables(ctx context.Context, arg AddBookingRequestBookablesParams) error
 	// Going/interested are mutually exclusive in the UI (see
 	// internal/events.Service.SetGoing/SetInterested/ClearAttendance), but that
 	// exclusivity isn't a DB constraint - same situation as the old Prisma
@@ -23,6 +24,7 @@ type Querier interface {
 	AddEventInterested(ctx context.Context, arg AddEventInterestedParams) error
 	AddEventTags(ctx context.Context, arg AddEventTagsParams) error
 	ClearArticleTags(ctx context.Context, articleID pgtype.UUID) error
+	ClearBookingRequestBookables(ctx context.Context, bookingRequestID pgtype.UUID) error
 	ClearEventTags(ctx context.Context, eventID pgtype.UUID) error
 	// Mirrors the old removePhadder action: clears every one of this member's
 	// mandates currently tagged to this group (not just the single "active"
@@ -45,6 +47,9 @@ type Querier interface {
 	CreateArticle(ctx context.Context, arg CreateArticleParams) (CreateArticleRow, error)
 	CreateArticleComment(ctx context.Context, arg CreateArticleCommentParams) (CreateArticleCommentRow, error)
 	CreateAuthor(ctx context.Context, arg CreateAuthorParams) (pgtype.UUID, error)
+	CreateBookable(ctx context.Context, arg CreateBookableParams) (CreateBookableRow, error)
+	CreateBookableCategory(ctx context.Context, arg CreateBookableCategoryParams) (BookableCategory, error)
+	CreateBookingRequest(ctx context.Context, arg CreateBookingRequestParams) (BookingRequest, error)
 	CreateEvent(ctx context.Context, arg CreateEventParams) (CreateEventRow, error)
 	CreateEventComment(ctx context.Context, arg CreateEventCommentParams) (CreateEventCommentRow, error)
 	CreateGoverningDocument(ctx context.Context, arg CreateGoverningDocumentParams) (Document, error)
@@ -62,6 +67,7 @@ type Querier interface {
 	CreateSong(ctx context.Context, arg CreateSongParams) (Song, error)
 	DeleteAccessPolicy(ctx context.Context, id pgtype.UUID) error
 	DeleteArticleComment(ctx context.Context, arg DeleteArticleCommentParams) error
+	DeleteBookingRequest(ctx context.Context, id pgtype.UUID) error
 	DeleteEventComment(ctx context.Context, arg DeleteEventCommentParams) error
 	DeleteMandate(ctx context.Context, id pgtype.UUID) error
 	DeletePhadderGroup(ctx context.Context, id pgtype.UUID) error
@@ -93,9 +99,16 @@ type Querier interface {
 	// so this is no more exposed than the existing unauthenticated mutations;
 	// see backend/CLAUDE.md.
 	GetArticleRowBySlug(ctx context.Context, slug string) (GetArticleRowBySlugRow, error)
+	GetBookableByID(ctx context.Context, id pgtype.UUID) (GetBookableByIDRow, error)
+	GetBookableCategoryByID(ctx context.Context, id pgtype.UUID) (BookableCategory, error)
+	GetBookingRequestByID(ctx context.Context, id pgtype.UUID) (GetBookingRequestByIDRow, error)
 	// Currently-active mandate/unique-member counts, same as
 	// ListCommitteesWithCounts - the committee detail page shows these too.
 	GetCommitteeByShortName(ctx context.Context, shortName pgtype.Text) (GetCommitteeByShortNameRow, error)
+	// The building-manager position holder, notified on every new booking
+	// request - a hardcoded position slug in the old app too (dsek.km.mastare),
+	// not configurable.
+	GetCurrentKarhusmastare(ctx context.Context) (GetCurrentKarhusmastareRow, error)
 	// The season whose window covers right now, if any - internal/nollning
 	// treats "at most one season active at a time" as an invariant (not
 	// enforced at the DB level, since overlapping seasons would be an admin
@@ -170,6 +183,9 @@ type Querier interface {
 	// viewers without MemberSeeStaben) happens in committees.Service.ListBoard,
 	// not here - this query returns the unredacted set.
 	ListBoard(ctx context.Context) ([]ListBoardRow, error)
+	ListBookableCategories(ctx context.Context) ([]BookableCategory, error)
+	ListBookables(ctx context.Context) ([]ListBookablesRow, error)
+	ListBookablesForBookingRequests(ctx context.Context, bookingRequestIds []pgtype.UUID) ([]ListBookablesForBookingRequestsRow, error)
 	ListClosedAlertIDsForMember(ctx context.Context, b pgtype.UUID) ([]pgtype.UUID, error)
 	// Full fields + currently-active mandate/unique-member counts, for the
 	// committee overview page (mirrors the old "about" page's query).
@@ -177,6 +193,12 @@ type Querier interface {
 	// Committees eligible for a committee medal - excludes the same fixed
 	// short_name set the old app hardcoded (valb/other/dchip/medalj).
 	ListCommitteesWithMedals(ctx context.Context) ([]ListCommitteesWithMedalsRow, error)
+	// Non-blocking overlap warning (2026-09-02 decision, see DESIGN.md's
+	// Booking section) - the old app never checked this at all; Go surfaces it
+	// as a warning on create/update rather than rejecting the request outright.
+	// DENIED requests never conflict; exclude_id lets an edit ignore its own
+	// pre-existing row (NULL/unset on create, where nothing to exclude yet).
+	ListConflictingBookingRequests(ctx context.Context, arg ListConflictingBookingRequestsParams) ([]ListConflictingBookingRequestsRow, error)
 	// Unfiltered: the old TS backend restricted this list to custom authors
 	// whose custom_author_roles matched one of the member's Keycloak-derived
 	// roles (getDerivedRoles) - that role-derivation system isn't ported to Go
@@ -258,6 +280,11 @@ type Querier interface {
 	ListTags(ctx context.Context) ([]Tag, error)
 	ListTagsForArticles(ctx context.Context, dollar_1 []pgtype.UUID) ([]ListTagsForArticlesRow, error)
 	ListTagsForEvents(ctx context.Context, dollar_1 []pgtype.UUID) ([]ListTagsForEventsRow, error)
+	// Mirrors the old app's getUpcomingBookingRequests: every request starting
+	// on or after `since` (callers pass now-1week, matching the old hardcoded
+	// window), regardless of booker - visibility is gated at the service layer
+	// (booking_request:read), not per-row ownership.
+	ListUpcomingBookingRequests(ctx context.Context, since pgtype.Timestamptz) ([]ListUpcomingBookingRequestsRow, error)
 	RemoveArticleLike(ctx context.Context, arg RemoveArticleLikeParams) error
 	RemoveEventGoing(ctx context.Context, arg RemoveEventGoingParams) error
 	RemoveEventInterested(ctx context.Context, arg RemoveEventInterestedParams) error
@@ -279,6 +306,15 @@ type Querier interface {
 	SoftDeleteGoverningDocument(ctx context.Context, id pgtype.UUID) error
 	SoftDeleteSong(ctx context.Context, id pgtype.UUID) error
 	UpdateArticle(ctx context.Context, arg UpdateArticleParams) (UpdateArticleRow, error)
+	UpdateBookable(ctx context.Context, arg UpdateBookableParams) (UpdateBookableRow, error)
+	UpdateBookableCategory(ctx context.Context, arg UpdateBookableCategoryParams) (BookableCategory, error)
+	// Full-replace of the editable fields, same PUT-dressed-as-PATCH
+	// convention as articles/events/songs. Status is passed through explicitly
+	// rather than left untouched - the service decides whether to reset it to
+	// PENDING (non-admin edit) or keep the caller-supplied value (admin edit),
+	// mirroring the old app's isAdmin branch exactly.
+	UpdateBookingRequest(ctx context.Context, arg UpdateBookingRequestParams) (BookingRequest, error)
+	UpdateBookingRequestStatus(ctx context.Context, arg UpdateBookingRequestStatusParams) (BookingRequest, error)
 	UpdateCommittee(ctx context.Context, arg UpdateCommitteeParams) (Committee, error)
 	// Full-replace of content fields (same PUT-not-PATCH convention as
 	// articles), plus this occurrence's own start/end datetime. author_id is

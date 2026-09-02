@@ -1,12 +1,20 @@
 import * as m from "$paraglide/messages";
 import { api } from "$lib/api/client";
+import { serverApi } from "$lib/server/apiClient";
 import { error, fail, type Actions } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { message, superValidate, withFiles } from "sveltekit-superforms/server";
 import { updateCommitteeBody, updateCommitteeSchema } from "./types";
 
 /**
- * Load all data that every committee load function needs
+ * Load all data that every committee load function needs. Kept generic
+ * over a plain `fetch` (rather than switching to $lib/server/apiClient's
+ * serverApi like committeeActions below) because it's called from both a
+ * universal `+layout.ts` (committees/+layout.ts) and `.server.ts` files -
+ * a universal load can't import server-only code at all. This is fine:
+ * GET /committees/{shortName} is a public read (see
+ * backend/CLAUDE.md's Directory routes section), so it doesn't need the
+ * acting identity to be correct.
  * @param fetch The SvelteKit-provided fetch (forwards cookies to the Go API)
  * @param shortName The committee's short name
  * @param url The URL object
@@ -71,7 +79,9 @@ export const committeeLoad = async (
 export const committeeActions = (
   shortName?: string,
 ): Actions<{ shortName: string }> => ({
-  updateCommitteeMarkdown: async ({ params, request, fetch }) => {
+  updateCommitteeMarkdown: async (event) => {
+    const { params, request } = event;
+    const api = serverApi(event);
     const sn = shortName ?? params.shortName;
     const form = await superValidate(request, zod4(updateCommitteeBody));
     if (!form.valid) return fail(400);
@@ -88,12 +98,10 @@ export const committeeActions = (
     const res =
       markdownSlug === sn + "_links"
         ? await api.PUT("/committees/{shortName}/links", {
-            fetch,
             params: { path: { shortName: sn } },
             body,
           })
         : await api.PUT("/committees/{shortName}/markdown", {
-            fetch,
             params: { path: { shortName: sn } },
             body,
           });
@@ -104,7 +112,9 @@ export const committeeActions = (
       type: "success",
     });
   },
-  updateCommitteeDetails: async ({ params, request, fetch }) => {
+  updateCommitteeDetails: async (event) => {
+    const { params, request } = event;
+    const api = serverApi(event);
     const sn = shortName ?? params.shortName;
     const form = await superValidate(request, zod4(updateCommitteeSchema), {
       allowFiles: true,
@@ -112,7 +122,6 @@ export const committeeActions = (
     if (!form.valid) return fail(400, withFiles({ form }));
 
     const res = await api.PATCH("/committees/{shortName}", {
-      fetch,
       params: { path: { shortName: sn } },
       body: {
         nameSv: form.data.nameSv ?? "",

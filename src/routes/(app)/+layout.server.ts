@@ -4,14 +4,15 @@ import { emptySchema, notificationSchema } from "$lib/zod/schemas";
 import { loadFlash } from "sveltekit-flash-message/server";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
-import { api } from "$lib/api/client";
+import { serverApi } from "$lib/server/apiClient";
 
 // alerts is fetched fresh from Go on every load (no module-level cache) -
 // the old alertsCache here was shared, mutable process-wide state with no
 // TTL of its own beyond the next `depends("alerts")` invalidation; a real
 // per-request read is simple enough now that this isn't a Prisma
 // round-trip DESIGN.md's mocking principle would have any reason to avoid.
-export const load = loadFlash(async ({ locals, depends, fetch }) => {
+export const load = loadFlash(async (event) => {
+  const { locals, depends } = event;
   depends("/api/notifications/my");
   depends("alerts");
 
@@ -20,7 +21,10 @@ export const load = loadFlash(async ({ locals, depends, fetch }) => {
     ? getMyGroupedNotifications(user, prisma)
     : undefined;
 
-  const alertsRes = await api.GET("/alerts", { fetch });
+  // serverApi (not $lib/api/client's plain `api`) so /alerts' closedByMe -
+  // resolved from the acting identity - is correct during SSR too, not
+  // just after client-side hydration re-fetches with real cookies.
+  const alertsRes = await serverApi(event).GET("/alerts", {});
 
   return {
     alerts: alertsRes.data ?? [],

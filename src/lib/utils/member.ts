@@ -4,7 +4,7 @@ import {
 } from "$lib/utils/notifications/types";
 import { error } from "@sveltejs/kit";
 import { getDerivedRoles } from "./authorization";
-import { api } from "$lib/api/client";
+import type { serverApi } from "$lib/server/apiClient";
 import { NOLLNING_TAG_PREFIX } from "$lib/components/postReveal/types";
 import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 
@@ -188,14 +188,14 @@ export const createMember = async (
     lastName: string;
     email: string | null | undefined;
   },
-  fetch: typeof globalThis.fetch,
+  api: ReturnType<typeof serverApi>,
 ) => {
   // Boolean source only, swapped from the old AdminSetting-backed
   // isNollningPeriod() - see backend's Phase 2 nollning redesign. The
   // NOLLNING_TAG_PREFIX tag lookup and SubscriptionSetting defaulting
   // below stay untouched; that's notification/subscription territory,
   // Phase 9's job per DESIGN.md, not this pass's.
-  const currentRes = await api.GET("/nollning/current", { fetch });
+  const currentRes = await api.GET("/nollning/current", {});
   if (currentRes.data && currentRes.data.phase !== "off") {
     const defaultTag = await prisma.tag.findFirst({
       where: {
@@ -248,12 +248,11 @@ export const createMember = async (
 // "remove from exactly this group" (a no-op if they're not in it). Shared
 // by the member profile/edit/onboarding pages' phadder-group actions.
 export const setNollningGroup = async (
-  fetch: typeof globalThis.fetch,
+  api: ReturnType<typeof serverApi>,
   studentId: string,
   groupId: string | null,
 ) => {
   const memberRes = await api.GET("/members/{studentId}", {
-    fetch,
     params: { path: { studentId } },
   });
   if (memberRes.error) return;
@@ -261,7 +260,6 @@ export const setNollningGroup = async (
 
   if (groupId) {
     await api.POST("/nollning/groups/{id}/nollor", {
-      fetch,
       params: { path: { id: groupId } },
       body: { memberId },
     });
@@ -269,14 +267,12 @@ export const setNollningGroup = async (
   }
 
   const roleRes = await api.GET("/members/{studentId}/phadder-role", {
-    fetch,
     params: { path: { studentId } },
   });
   const currentGroupId =
     roleRes.data?.role === "nolla" ? roleRes.data.groupId : undefined;
   if (currentGroupId) {
     await api.DELETE("/nollning/groups/{id}/nollor/{memberId}", {
-      fetch,
       params: { path: { id: currentGroupId, memberId } },
     });
   }

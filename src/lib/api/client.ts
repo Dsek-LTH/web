@@ -15,6 +15,25 @@ import type { paths } from "./schema";
  * call this API directly from the browser as well as the server (see
  * DESIGN.md's "Fetch from the client" decision) - a `$lib/server` module
  * cannot be imported from code that also runs client-side.
+ *
+ * `credentials: "include"` below only matters for a real browser fetch -
+ * the browser's own cookie jar attaches the session cookie and stores any
+ * Set-Cookie response automatically, no code needed. It does nothing when
+ * this same call executes inside the Node process itself (SSR of a
+ * `+page.ts`, or any `+page.server.ts` load/action) - there's no browser
+ * involved in a server-to-server request, so nothing forwards cookies
+ * either direction on its own (same reason goAuth.ts's fetchIdentity()
+ * has always forwarded /me's cookies by hand). `+page.server.ts` files
+ * use `$lib/server/apiClient`'s `serverApi(event)` instead, which
+ * forwards cookies explicitly (found and fixed 2026-09-02 - see
+ * backend/DESIGN.md's note on this). A `+page.ts` load can't do that (no
+ * server-only imports, no raw cookie access) - every call site here
+ * already passes its own `fetch` parameter into each `api.*()` call
+ * (`api.GET(..., { fetch })`), which is the correct, established
+ * pattern: it lets SvelteKit's built-in same-site cookie passthrough
+ * apply during SSR, best-effort. Keep doing this for any new `+page.ts`
+ * call site - it's free and can only help, even though (see DESIGN.md)
+ * it isn't a complete guarantee independent of prod domain topology.
  */
 export const api = createClient<paths>({
   baseUrl: PUBLIC_GO_BACKEND_URL,

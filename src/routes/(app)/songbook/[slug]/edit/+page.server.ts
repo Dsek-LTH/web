@@ -5,7 +5,7 @@ import { zod4 } from "sveltekit-superforms/adapters";
 import { setError, superValidate } from "sveltekit-superforms/server";
 import { updateSongSchema } from "../../schema";
 import type { Actions } from "./$types";
-import { api } from "$lib/api/client";
+import { serverApi } from "$lib/server/apiClient";
 
 // Only the update action stays a SvelteKit action (a real authoring form,
 // see DESIGN.md's Principle #5) - delete/restore are pure-proxy mutations
@@ -33,7 +33,7 @@ export const actions: Actions = {
       return setError(form, "melody", m.songbook_missingMelody());
     }
 
-    const updated = await api.PATCH("/songs/{slug}", {
+    const updated = await serverApi(event).PATCH("/songs/{slug}", {
       params: { path: { slug: params.slug } },
       body: {
         title: data.title.trim(),

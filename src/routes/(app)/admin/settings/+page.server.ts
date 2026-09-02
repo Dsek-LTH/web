@@ -1,6 +1,6 @@
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
-import { api } from "$lib/api/client";
+import { serverApi } from "$lib/server/apiClient";
 import { fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
@@ -14,12 +14,13 @@ import type { PageServerLoad } from "./$types";
 // own comment) - keeps this server code correct instead of leaving it on
 // the now-superseded AdminSetting-backed nollning_start/nollning_end keys.
 
-export const load: PageServerLoad = async ({ locals, fetch }) => {
+export const load: PageServerLoad = async (event) => {
+  const { locals } = event;
   const { prisma, user } = locals;
   authorize(apiNames.ADMIN.SETTINGS.READ, user);
   const settings = await prisma.adminSetting.findMany();
 
-  const seasonsRes = await api.GET("/nollning/seasons", { fetch });
+  const seasonsRes = await serverApi(event).GET("/nollning/seasons", {});
 
   return {
     settings,
@@ -70,8 +71,9 @@ export const actions = {
       type: "success",
     });
   },
-  async upsertNollningSeason({ fetch, request }) {
-    const form = await superValidate(request, zod4(seasonSchema));
+  async upsertNollningSeason(event) {
+    const api = serverApi(event);
+    const form = await superValidate(event.request, zod4(seasonSchema));
     if (!form.valid) return fail(400, { form });
     const body = {
       year: form.data.year,
@@ -82,11 +84,10 @@ export const actions = {
     };
     const res = form.data.id
       ? await api.PATCH("/nollning/seasons/{id}", {
-          fetch,
           params: { path: { id: form.data.id } },
           body,
         })
-      : await api.POST("/nollning/seasons", { fetch, body });
+      : await api.POST("/nollning/seasons", { body });
     if (res.error) return fail(400, { form });
     return message(form, {
       message: `Nollningsperiod uppdaterad`,

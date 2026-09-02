@@ -6,7 +6,7 @@ import { infoPageSchema } from "./schemas";
 import type { Actions, PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
 import { slugify } from "$lib/utils/slugify";
-import { api } from "$lib/api/client";
+import { serverApi } from "$lib/server/apiClient";
 
 // markdown:create is enforced by the Go API itself - no authorize() call
 // here, matching DESIGN.md's Principle #5. Calls the same unified
@@ -24,7 +24,7 @@ export const actions: Actions = {
     if (!form.valid) return fail(400, { form });
     const { name, markdownSv, markdownEn } = form.data;
     const slug = slugify(name);
-    const created = await api.POST("/info/{slug}", {
+    const created = await serverApi(event).POST("/info/{slug}", {
       params: { path: { slug } },
       body: { markdownSv, markdownEn },
     });

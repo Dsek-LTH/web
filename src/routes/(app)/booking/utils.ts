@@ -1,113 +1,62 @@
-import sendNotification from "$lib/utils/notifications";
-import { NotificationType } from "$lib/utils/notifications/types";
 import { error, type RequestEvent } from "@sveltejs/kit";
 import type { Actions } from "./$types";
-import dayjs from "dayjs";
 import { superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { bookingSchema } from "./schema";
 import * as m from "$paraglide/messages";
-import type {
-  ExtendedPrisma,
-  ExtendedPrismaModel,
-} from "$lib/server/extendedPrisma";
+import { serverApi } from "$lib/server/apiClient";
+import type { components } from "$lib/api/schema";
 
+type BookingRequest = components["schemas"]["BookingRequest"];
+
+// accept/reject just proxy to Go now (backend/internal/booking.Service.
+// SetStatus) - the booker notification that used to live in this file's
+// own performAction is handled entirely server-side by Go, see
+// backend/CLAUDE.md's Booking routes section.
 export const actions: Actions = {
-  accept: async (event: RequestEvent) => {
+  accept: async (event) => {
     await performAction(event, true);
   },
-  reject: async (event: RequestEvent) => {
+  reject: async (event) => {
     await performAction(event, false);
   },
 };
 
-export async function getUpcomingBookingRequests(prisma: ExtendedPrisma) {
-  return prisma.bookingRequest.findMany({
-    where: {
-      start: {
-        gte: dayjs().subtract(1, "week").toDate(),
-      },
-    },
-    orderBy: [{ start: "asc" }, { end: "asc" }, { status: "asc" }],
-    include: {
-      bookables: true,
-      booker: true,
-    },
-  });
+export async function getUpcomingBookingRequests(api: ReturnType<typeof serverApi>) {
+  const res = await api.GET("/booking-requests", {});
+  return res.data ?? [];
 }
 
 export async function getBookingRequestOrThrow(
-  prisma: ExtendedPrisma,
+  api: ReturnType<typeof serverApi>,
   id: string,
 ) {
-  return prisma.bookingRequest
-    .findUniqueOrThrow({
-      where: { id },
-      include: { bookables: true },
-    })
-    .catch(() => {
-      throw error(404, m.booking_errors_notFound());
-    });
+  const res = await api.GET("/booking-requests/{id}", {
+    params: { path: { id } },
+  });
+  if (res.error) throw error(404, m.booking_errors_notFound());
+  return res.data;
 }
 
-export async function getSuperValidatedForm(
-  bookingRequest: ExtendedPrismaModel<"BookingRequest"> & {
-    bookables: Array<ExtendedPrismaModel<"Bookable">>;
-  },
-) {
+export async function getSuperValidatedForm(bookingRequest: BookingRequest) {
   const initialData = {
     name: bookingRequest.event ?? undefined,
-    start: bookingRequest.start
-      ? dayjs(bookingRequest.start)
-          .tz("Europe/Stockholm")
-          .format("YYYY-MM-DDTHH:mm")
-      : undefined,
-    end: bookingRequest.end
-      ? dayjs(bookingRequest.end)
-          .tz("Europe/Stockholm")
-          .format("YYYY-MM-DDTHH:mm")
-      : undefined,
-    bookables: bookingRequest.bookables?.map((bookable) => bookable.id),
+    start: bookingRequest.start ? new Date(bookingRequest.start) : undefined,
+    end: bookingRequest.end ? new Date(bookingRequest.end) : undefined,
+    bookables: (bookingRequest.bookables ?? []).map((bookable) => bookable.id),
   };
   return await superValidate(initialData, zod4(bookingSchema));
 }
 
 async function performAction(event: RequestEvent, accepted: boolean) {
-  const { request, locals } = event;
-  const { prisma, user } = locals;
-  const formData = await request.formData();
+  const formData = await event.request.formData();
   const id = formData.get("id");
-  const status = accepted ? "ACCEPTED" : "DENIED";
+  if (!id || typeof id !== "string") return;
 
-  if (id && typeof id === "string") {
-    await prisma.bookingRequest.update({
-      where: {
-        id,
-      },
-      data: {
-        status,
-      },
-    });
-
-    const request = await prisma.bookingRequest.findFirst({
-      where: {
-        id,
-      },
-      select: {
-        bookerId: true,
-        event: true,
-      },
-    });
-
-    if (request && request.bookerId != null && user && user.memberId) {
-      sendNotification({
-        title: `Booking request ${status.toLowerCase()}`,
-        message: `Your booking request for ${request.event} has been ${status.toLowerCase()}`,
-        type: NotificationType.BOOKING_REQUEST,
-        link: `/booking`,
-        memberIds: [request.bookerId],
-        fromMemberId: user.memberId,
-      });
-    }
+  const api = serverApi(event);
+  if (accepted) {
+    await api.POST("/booking-requests/{id}/accept", { params: { path: { id } } });
+  } else {
+    await api.POST("/booking-requests/{id}/reject", { params: { path: { id } } });
   }
 }

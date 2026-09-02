@@ -1,6 +1,6 @@
 import { getAllTaggedMembers } from "$lib/utils/commentTagging";
 import { error } from "@sveltejs/kit";
-import { api } from "$lib/api/client";
+import { serverApi } from "$lib/server/apiClient";
 import type { PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
 
@@ -12,10 +12,10 @@ import * as m from "$paraglide/messages";
 // which only exist after fetching the event itself from Go - a universal
 // +page.ts load has no way to sequence a Prisma call after a Go API call
 // like that.
-export const load: PageServerLoad = async ({ fetch, locals, params }) => {
+export const load: PageServerLoad = async (requestEvent) => {
+  const { locals, params } = requestEvent;
   const { prisma } = locals;
-  const res = await api.GET("/events/{slug}", {
-    fetch,
+  const res = await serverApi(requestEvent).GET("/events/{slug}", {
     params: { path: { slug: params.slug } },
   });
   if (res.error) {

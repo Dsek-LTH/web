@@ -1,4 +1,4 @@
-import { api } from "$lib/api/client";
+import { serverApi } from "$lib/server/apiClient";
 import { updateArticle } from "$lib/news/server/actions";
 import * as m from "$paraglide/messages";
 import { redirect } from "sveltekit-flash-message/server";
@@ -12,7 +12,7 @@ export const actions: Actions = {
   removeArticle: async (event) => {
     const { params } = event;
 
-    const res = await api.DELETE("/articles/{slug}", {
+    const res = await serverApi(event).DELETE("/articles/{slug}", {
       params: { path: { slug: params.slug } },
     });
     if (res.error) {

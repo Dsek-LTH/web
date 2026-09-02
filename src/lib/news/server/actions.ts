@@ -5,12 +5,15 @@ import * as m from "$paraglide/messages";
 import { type Action } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { message, superValidate, fail } from "sveltekit-superforms";
-import { api } from "$lib/api/client";
+import { serverApi } from "$lib/server/apiClient";
 import type { components } from "$lib/api/schema";
 
 type ArticleInput = components["schemas"]["ArticleInput"];
 
-async function uploadImage(file: File): Promise<string> {
+async function uploadImage(
+  api: ReturnType<typeof serverApi>,
+  file: File,
+): Promise<string> {
   const form = new FormData();
   form.append("file", file);
   const res = await api.POST("/uploads", {
@@ -28,6 +31,7 @@ async function uploadImage(file: File): Promise<string> {
 
 export const createArticle: Action = async (event) => {
   const { request } = event;
+  const api = serverApi(event);
   const form = await superValidate(request, zod4(createSchema), {
     allowFiles: true,
   });
@@ -47,7 +51,9 @@ export const createArticle: Action = async (event) => {
     youtubeUrl,
   } = form.data;
 
-  const imageUrls = await Promise.all(Array.from(images).map((image) => uploadImage(image)));
+  const imageUrls = await Promise.all(
+    Array.from(images).map((image) => uploadImage(api, image)),
+  );
 
   const input: ArticleInput = {
     headerSv,
@@ -84,6 +90,7 @@ export const createArticle: Action = async (event) => {
 
 export const updateArticle: Action<{ slug: string }> = async (event) => {
   const { request } = event;
+  const api = serverApi(event);
   const form = await superValidate(request, zod4(updateSchema), {
     allowFiles: true,
   });
@@ -106,7 +113,9 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
     youtubeUrl,
   } = form.data;
 
-  const newImages = await Promise.all(Array.from(images).map((image) => uploadImage(image)));
+  const newImages = await Promise.all(
+    Array.from(images).map((image) => uploadImage(api, image)),
+  );
   const finalImageUrls = imageUrls === undefined ? newImages : [...imageUrls, ...newImages];
 
   const input: ArticleInput = {
