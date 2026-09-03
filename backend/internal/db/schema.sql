@@ -420,3 +420,13 @@ CREATE TABLE _booking_requests_bookables (
 );
 CREATE UNIQUE INDEX _booking_requests_bookables_ab_pkey ON _booking_requests_bookables ("A", "B");
 CREATE INDEX _booking_requests_bookables_b_index ON _booking_requests_bookables ("B");
+
+CREATE TABLE elections (
+    id           UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    committee_id UUID NOT NULL REFERENCES committees (id),
+    markdown_sv  TEXT NOT NULL,
+    markdown_en  TEXT,
+    link         TEXT NOT NULL,
+    created_at   TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    expires_at   TIMESTAMPTZ NOT NULL
+);

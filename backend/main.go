@@ -22,6 +22,7 @@ import (
 	"github.com/dsek-lth/web/backend/internal/committees"
 	"github.com/dsek-lth/web/backend/internal/db"
 	"github.com/dsek-lth/web/backend/internal/documents"
+	"github.com/dsek-lth/web/backend/internal/elections"
 	"github.com/dsek-lth/web/backend/internal/events"
 	"github.com/dsek-lth/web/backend/internal/gallery"
 	"github.com/dsek-lth/web/backend/internal/governingdocs"
@@ -92,7 +93,10 @@ func main() {
 	} else {
 		store, err = newStorage()
 		if err != nil {
-			log.Fatalf("set up file storage (or set STORAGE_MOCK=true for local dev without MinIO): %v", err)
+			log.Fatalf(
+				"set up file storage (or set STORAGE_MOCK=true for local dev without MinIO): %v",
+				err,
+			)
 		}
 	}
 
@@ -119,6 +123,7 @@ func main() {
 		mustEnv("PUBLIC_BUCKETS_FILES"),
 	)
 	bookingSvc := booking.NewService(pool, integrations.MockNotifier{})
+	electionSvc := elections.NewService(pool)
 	router := api.NewRouter(
 		articleSvc,
 		eventSvc,
@@ -134,6 +139,7 @@ func main() {
 		gallerySvc,
 		documentSvc,
 		bookingSvc,
+		electionSvc,
 		authenticator,
 		oidcClient,
 		queries,

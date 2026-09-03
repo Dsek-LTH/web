@@ -50,6 +50,7 @@ type Querier interface {
 	CreateBookable(ctx context.Context, arg CreateBookableParams) (CreateBookableRow, error)
 	CreateBookableCategory(ctx context.Context, arg CreateBookableCategoryParams) (BookableCategory, error)
 	CreateBookingRequest(ctx context.Context, arg CreateBookingRequestParams) (BookingRequest, error)
+	CreateElection(ctx context.Context, arg CreateElectionParams) (Election, error)
 	CreateEvent(ctx context.Context, arg CreateEventParams) (CreateEventRow, error)
 	CreateEventComment(ctx context.Context, arg CreateEventCommentParams) (CreateEventCommentRow, error)
 	CreateGoverningDocument(ctx context.Context, arg CreateGoverningDocumentParams) (Document, error)
@@ -68,6 +69,9 @@ type Querier interface {
 	DeleteAccessPolicy(ctx context.Context, id pgtype.UUID) error
 	DeleteArticleComment(ctx context.Context, arg DeleteArticleCommentParams) error
 	DeleteBookingRequest(ctx context.Context, id pgtype.UUID) error
+	// Hard delete - the elections table has no removed_at/deleted_at column at
+	// all, unlike Song/Article/GoverningDocument.
+	DeleteElection(ctx context.Context, id pgtype.UUID) (int64, error)
 	DeleteEventComment(ctx context.Context, arg DeleteEventCommentParams) error
 	DeleteMandate(ctx context.Context, id pgtype.UUID) error
 	DeletePhadderGroup(ctx context.Context, id pgtype.UUID) error
@@ -114,6 +118,10 @@ type Querier interface {
 	// enforced at the DB level, since overlapping seasons would be an admin
 	// data error, not a normal state).
 	GetCurrentSeason(ctx context.Context) (NollningSeason, error)
+	// Unconstrained by expiry (unlike ListOpenElections) - the edit page looks
+	// up an election by id regardless of whether it has already expired,
+	// matching prisma.election.findFirst({where: {id}}).
+	GetElectionByID(ctx context.Context, id pgtype.UUID) (GetElectionByIDRow, error)
 	// Public lookup: hides soft-removed events, same visibility rule as
 	// ListEvents. The old TS getEvent() applied no such filter at all (see
 	// DESIGN.md's events section) - fixed here rather than replicated.
@@ -256,6 +264,12 @@ type Querier interface {
 	ListMembers(ctx context.Context, arg ListMembersParams) ([]ListMembersRow, error)
 	ListMembersByIDs(ctx context.Context, dollar_1 []pgtype.UUID) ([]ListMembersByIDsRow, error)
 	ListNollorForGroup(ctx context.Context, nollningGroupID pgtype.UUID) ([]ListNollorForGroupRow, error)
+	// Only elections that haven't expired yet, soonest-closing first - matches
+	// the old /elections page's prisma.election.findMany({where: {expiresAt:
+	// {gte: now()}}, orderBy: [{expiresAt: "asc"}]}) exactly. Joins the small
+	// slice of committees columns the election card actually renders (icon +
+	// name), same fields the old page's committee `select` projected.
+	ListOpenElections(ctx context.Context) ([]ListOpenElectionsRow, error)
 	// Nolla/phadder counts alongside each group, mirroring
 	// ListCommitteesWithCounts' count-subquery pattern.
 	ListPhadderGroups(ctx context.Context, seasonID pgtype.UUID) ([]ListPhadderGroupsRow, error)
@@ -316,6 +330,7 @@ type Querier interface {
 	UpdateBookingRequest(ctx context.Context, arg UpdateBookingRequestParams) (BookingRequest, error)
 	UpdateBookingRequestStatus(ctx context.Context, arg UpdateBookingRequestStatusParams) (BookingRequest, error)
 	UpdateCommittee(ctx context.Context, arg UpdateCommitteeParams) (Committee, error)
+	UpdateElection(ctx context.Context, arg UpdateElectionParams) (Election, error)
 	// Full-replace of content fields (same PUT-not-PATCH convention as
 	// articles), plus this occurrence's own start/end datetime. author_id is
 	// deliberately never reassigned here - see internal/events doc comments on

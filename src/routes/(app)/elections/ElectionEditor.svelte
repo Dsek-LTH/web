@@ -135,19 +135,19 @@
     </form>
     <div class="w-[300px]">
       <h3 class="my-4">{m.elections_preview()}</h3>
-      <ElectionCard
-        election={{
-          markdown: $form.markdownSv || "",
-          markdownSv: $form.markdownSv || "",
-          markdownEn: $form.markdownEn || "",
-          expiresAt: dayjs($form.expiresAt).tz(dayjs.tz.guess()).toDate(),
-          committeeId: $form.committeeId,
-          link: $form.link,
-          committee: selectedCommittee,
-          id: "",
-          createdAt: new Date(),
-        }}
-      />
+      {#if selectedCommittee}
+        <ElectionCard
+          election={{
+            id: "",
+            markdown: $form.markdownSv || "",
+            expiresAt: dayjs($form.expiresAt)
+              .tz(dayjs.tz.guess())
+              .toISOString(),
+            link: $form.link,
+            committee: selectedCommittee,
+          }}
+        />
+      {/if}
     </div>
   </div>
 </div>

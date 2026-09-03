@@ -2,7 +2,7 @@
   import CommitteeIcon from "$lib/components/images/CommitteeIcon.svelte";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import { Button } from "$lib/components/ui/button";
-  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+  import type { components } from "$lib/api/schema";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
   import * as m from "$paraglide/messages";
@@ -16,23 +16,17 @@
   dayjs.extend(utc);
   dayjs.extend(timezone);
 
+  type Election = components["schemas"]["Election"];
+
   let {
     election,
     user,
     index,
   }: {
-    election: ExtendedPrismaModel<"Election"> & {
-      committee?: Pick<
-        ExtendedPrismaModel<"Committee">,
-        | "id"
-        | "name"
-        | "nameSv"
-        | "nameEn"
-        | "darkImageUrl"
-        | "lightImageUrl"
-        | "monoImageUrl"
-      >;
-    };
+    election: Pick<
+      Election,
+      "id" | "markdown" | "link" | "expiresAt" | "committee"
+    >;
     user?: AuthUser;
     index?: number;
   } = $props();

@@ -59,7 +59,10 @@ func (MockNotifier) NotifyNewBookingRequest(_ context.Context, n BookingRequestN
 	return nil
 }
 
-func (MockNotifier) NotifyBookingRequestStatus(_ context.Context, n BookingRequestNotification) error {
+func (MockNotifier) NotifyBookingRequestStatus(
+	_ context.Context,
+	n BookingRequestNotification,
+) error {
 	log.Printf(
 		"integrations: mock notifier - pretending to tell %s their booking request %q was %s",
 		n.RecipientMemberID, n.Event, n.Status,

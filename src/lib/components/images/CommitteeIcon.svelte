@@ -12,9 +12,10 @@
   }: {
     // TEMPORARY dual-shape (Prisma `| null` vs Go API `| undefined`) - pure
     // type widening, no conversion logic. Still-Prisma consumers: contact,
-    // home, elections/ElectionCard, search result components. Narrow to
-    // `string | undefined` once those are ported too - see
-    // CommitteeSymbol's identical note.
+    // search result components. Narrow to `string | undefined` once those
+    // are ported too - see CommitteeSymbol's identical note. (home and
+    // elections/ElectionCard were on this list until the Elections phase
+    // ported both off Prisma - 2026-09-02.)
     committee: {
       [K in
         | "darkImageUrl"

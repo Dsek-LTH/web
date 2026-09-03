@@ -303,6 +303,16 @@ type Document struct {
 	DeletedAt pgtype.Timestamptz `json:"deleted_at"`
 }
 
+type Election struct {
+	ID          pgtype.UUID        `json:"id"`
+	CommitteeID pgtype.UUID        `json:"committee_id"`
+	MarkdownSv  string             `json:"markdown_sv"`
+	MarkdownEn  pgtype.Text        `json:"markdown_en"`
+	Link        string             `json:"link"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+	ExpiresAt   pgtype.Timestamptz `json:"expires_at"`
+}
+
 type EmailAlias struct {
 	ID         pgtype.UUID `json:"id"`
 	PositionID string      `json:"position_id"`

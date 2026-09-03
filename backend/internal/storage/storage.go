@@ -278,7 +278,12 @@ var _ Backend = (*Store)(nil)
 // under this mode, same as they'd be with no backend at all.
 type MockBackend struct{}
 
-func (MockBackend) Put(_ context.Context, bucket, key string, _ io.Reader, _ int64) (string, error) {
+func (MockBackend) Put(
+	_ context.Context,
+	bucket, key string,
+	_ io.Reader,
+	_ int64,
+) (string, error) {
 	log.Printf("storage: STORAGE_MOCK - pretending to store %s/%s", bucket, key)
 	return "https://mock-storage.invalid/" + bucket + "/" + key, nil
 }
@@ -294,7 +299,11 @@ func (MockBackend) Get(_ context.Context, bucket, key string) ([]byte, error) {
 }
 
 func (MockBackend) Remove(_ context.Context, bucket string, keys []string) error {
-	log.Printf("storage: STORAGE_MOCK - pretending to remove %d object(s) from %s", len(keys), bucket)
+	log.Printf(
+		"storage: STORAGE_MOCK - pretending to remove %d object(s) from %s",
+		len(keys),
+		bucket,
+	)
 	return nil
 }
 

@@ -7,7 +7,7 @@ import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 // because MemberAvatar/getFullName/getInitials have ~20 consumers and only
 // one (AuthorCard) is Go-backed today. Narrow this back to the Go-only
 // shape (drop `| null`) once the rest of those consumers - bookings,
-// expenses, notifications, navbar, committees, board, member profile, etc.
+// notifications, navbar, committees, board, member profile, etc.
 // - are ported off Prisma; don't let this linger past that point.
 export type MemberNames = {
   firstName?: string | null;

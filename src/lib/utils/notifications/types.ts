@@ -13,7 +13,6 @@ export enum NotificationType {
   CREATE_MANDATE = "CREATE_MANDATE",
   BOOKING_REQUEST = "BOOKING_REQUEST",
   PING = "PING",
-  EXPENSES = "EXPENSES",
 }
 
 // These represent which settings users can turn on and off. The reason why we have fewer of these than NotificationTypes is that user's shouldn't be overwhelmed with too many settings.
@@ -51,7 +50,6 @@ export const SHOULD_MERGE_NOTIFICATIONS: Record<NotificationType, boolean> = {
   [NotificationType.CREATE_MANDATE]: false,
   [NotificationType.BOOKING_REQUEST]: false,
   [NotificationType.PING]: true,
-  [NotificationType.EXPENSES]: false,
 };
 
 export const NOTIFICATION_SETTINGS_ALWAYS_ON = "DEFAULT"; // Notifications all users will receive, can't be toggled
@@ -64,7 +62,7 @@ export const SUBSCRIPTION_SETTINGS_MAP: Record<
   NotificationType[]
 > = {
   // On for everyone
-  [NOTIFICATION_SETTINGS_ALWAYS_ON]: [NotificationType.EXPENSES],
+  [NOTIFICATION_SETTINGS_ALWAYS_ON]: [],
   [NotificationSettingType.LIKE]: [
     NotificationType.NEWS_LIKE,
     NotificationType.EVENT_LIKE,

@@ -97,6 +97,49 @@ Concretely:
   decision to make explicitly
   later rather than bundled into this one.
 
+## Expenses: cut from scope entirely (decided 2026-09-02, SvelteKit-side removal implemented 2026-09-02)
+
+**Status: decided and implemented**, same treatment as "Shop / tickets" above. Expenses (Prisma models `Expense`/`ExpenseItem` -
+`src/lib/expenses/`, `src/routes/(app)/expenses/*`) is no longer part of
+this product: expense/receipt handling moved to a separate external app
+(`https://ekonomi.dsek.se/`, already linked from the nav as of commit
+`7fe648e8`, "Change expenses link to new app"). This supersedes the
+roadmap's item 6 below ("Expenses - depends on phase 4's real uploader for
+receipts") - that phase is **skipped, not built**, and (unlike genuinely
+deferred later phases) never gets an `internal/integrations`-style mocked
+interface, since the feature itself isn't coming back to this codebase.
+
+Concretely:
+
+- **Go never gains an expenses schema or endpoints** - `internal/db/
+  schema.sql` never gets `expenses`/`expense_items`, same as shop/tickets
+  never getting their tables.
+- **SvelteKit-side removal is immediate and complete**: `src/lib/expenses/`
+  (`generatePdf.ts`, `sendToBookkeeping.ts`) and `src/routes/(app)/
+  expenses/` (list/detail/upload pages, remotes, config/helpers/types)
+  deleted; the `EXPENSES` policy block in `apiNames.ts`, the `EXPENSES`
+  `NotificationType`/`NotificationSettingType` entries (and the now-empty
+  `NOTIFICATION_SETTINGS_ALWAYS_ON` mapping that only ever contained it),
+  `hooks.server.ts`'s dev-mode `verifyCostCenterData()` call, the
+  `pdf-lib` dependency (its only consumer was expense-receipt PDF
+  generation - `sharp` stays, still used by avatar/gallery upload paths),
+  and every now-orphaned `expense_*`/receipt-form translation key (63
+  keys, both locales) removed. Verified via `svelte-check` (0 errors) and
+  `eslint` (0 errors/warnings) after removal - same standard as shop/
+  tickets.
+- **The nav link itself is untouched** - `routes.ts`'s "Expenses" entry
+  already pointed at `https://ekonomi.dsek.se/` before this pass (that
+  external redirect is *why* the internal feature is safe to delete
+  outright rather than needing a mock), so `nav_expenses`/
+  `nav_expenses_desc` are the only `expense`-related translation keys kept.
+- **`src/database/schema.zmodel`'s `Expense`/`ExpenseItem` models, their
+  relations on `Member`/`Committee`, and the underlying Postgres tables
+  are deliberately not touched** - identical reasoning to shop/tickets:
+  removing them from the Prisma schema risks a migration wanting to drop
+  live tables, which hasn't been decided. Whether the new external app
+  reads this same database or has its own is unconfirmed; dropping the
+  tables is out of scope for this pass regardless.
+
 ## DB migrations, once Prisma is gone (decided 2026-09-01)
 
 **Status: decided, not yet implemented.** Today `internal/db/schema.sql` is
@@ -1504,8 +1547,86 @@ updated in its own phase, same as phase 1 and phase 2 already did.
      (`$lib/server/apiClient`'s `serverApi(event)`, retrofitted across
      ~25 files spanning phases 1-4 in the same pass, at the user's
      explicit request once the scope of the bug was clear).
-6. **Expenses** - depends on phase 4's real uploader for receipts.
-7. **Elections** - nomination/voting workflow.
+6. ~~**Expenses** - depends on phase 4's real uploader for receipts.~~
+   **Cut from scope entirely, skipped (2026-09-02)** - see "Expenses: cut
+   from scope entirely" above; moved to a separate external app, not
+   ported or mocked.
+7. **Elections** - originally described here as a "nomination/voting
+   workflow" backed by `Election`, `ItemQuestion`/`ItemQuestionOption`/
+   `ItemQuestionResponse`. **Correction (found during Phase 7
+   implementation, 2026-09-02)**: that description conflates two unrelated
+   things, similar in shape to Phase 3's Markdown/governing-documents
+   correction above.
+   - `ItemQuestion`/`ItemQuestionOption`/`ItemQuestionResponse` are not
+     part of Elections at all - they belong to `Shoppable`/`Consumable`
+     (a shop item's custom purchase-time questions, e.g. "dietary
+     restriction?"). That's the already-cut-from-scope shop/ticket domain
+     (see "Shop / tickets: cut from scope entirely" above) - no new work
+     needed, they were already out of scope by that decision; this is
+     purely a roadmap wording fix; a bit ambiguity persisted only because
+     nobody had actually opened these three models until this phase.
+   - The real "nomination" mechanism, "yrka" (`src/routes/(app)/yrka`), has
+     **no database model at all** - it's a plain `nodemailer` email send to
+     `yrka@dsek.se`, with no `authorize()` call in the old app either (its
+     `load` gates on `apiNames.YRKA.SEND`, but the actual `actions.default`
+     that sends the email has no check). Since it never touches Prisma,
+     there is nothing to "port" here in the sense every other phase in this
+     document uses that word - it stays in SvelteKit indefinitely, same as
+     any other feature with no data-layer dependency. Not touched by this
+     phase.
+   - `Election` itself (`internal/elections`, `internal/api/
+     huma_elections.go`) is genuinely simple: a committee announcement
+     (`markdownSv`/`markdownEn`, an external `link` to a Google Form or
+     similar, an `expiresAt` date) - there is no in-house ballot/voting
+     mechanism anywhere in this codebase; actual voting happens entirely on
+     whatever external service `link` points to. **Backend and frontend
+     both implemented and verified** (`go build`/`go vet`, a live
+     `AUTH_MOCK` CRUD round-trip against the dev DB, `svelte-check`/`eslint`
+     at 0 errors, and a live round-trip through the actual SvelteKit dev
+     server's `create`/`update` form actions against the real Go backend,
+     same standard as every phase since Booking).
+   - `GET /elections` (public, only non-expired, soonest-closing first),
+     `GET /elections/{id}` (public, unconstrained by expiry - the edit
+     page's lookup), `POST /elections`/`PATCH /elections/{id}` (gated
+     `election:create`/`election:update` - **a real, necessary explicit
+     check Go adds**: the old app's create/update actions had no
+     `authorize()` call at all, relying purely on ZenStack's model-level
+     policy), `DELETE /elections/{id}` (gated `election:delete`, a hard
+     delete since the table has no soft-delete column). Policy strings
+     reused verbatim from the old `apiNames.ELECTION` `crud()` group so any
+     existing dev-DB grants carry over - no `ElectionRead` const exists
+     since the old ZModel's `@@allow("read", true)` never actually checked
+     one.
+   - **`DELETE` is a genuinely new capability, not a replicated gap** -
+     same call as Booking's bookable/category CRUD: the policy string
+     already existed unused in `apiNames.ts`, but no delete button exists
+     anywhere in the old app (once an election expires it simply
+     disappears from every list, including its own edit link - a pre-
+     existing UX gap replicated as-is, not fixed).
+   - **Frontend**: `elections/+page.ts` (converted from `+page.server.ts`,
+     a real working page - unlike most phases' stubs, Elections already had
+     a fully built UI before this port). `create`/`[id]/edit` keep their
+     `+page.server.ts` superforms actions (real authoring forms, same
+     "keep the action" precedent as articles/songbook) but now call Go
+     instead of Prisma; `[id]/edit`'s `expiresAt` conversion was
+     normalized to the same Stockholm-timezone end-of-day handling
+     `create`'s action already used (the old app's two actions disagreed -
+     `create` did `dayjs.tz(..., "Europe/Stockholm").utc()`, `update` did a
+     bare `dayjs(...).endOf("day")` with no explicit timezone - a small,
+     low-risk consistency fix bundled into the port, not a new behavior).
+     `$lib/server/loadHomeData.ts`'s `electionsPromise` converted the same
+     way `newsPromise` already had been (Prisma → `api.GET(...)`) -
+     **deliberate simplification**: the homepage widget now shows the same
+     soonest-closing-first order the full `/elections` page uses (sliced to
+     3) rather than newest-announced-first, since the Go endpoint only
+     supports one order and a second variant wasn't worth adding for a
+     3-item widget. `ElectionCard.svelte`'s prop type moved off
+     `ExtendedPrismaModel<"Election">` onto the generated Go schema type
+     directly (no dual-shape transition needed, unlike `MemberCard`/
+     `CommitteeIcon` elsewhere - Elections had exactly one old consumer
+     shape to replace, not several staggered ones) - `CommitteeIcon`'s own
+     "TEMPORARY dual-shape" comment updated to drop `home` and
+     `elections/ElectionCard` from its still-Prisma consumer list.
 8. **Cafe** - shifts + drink inventory.
 9. **Real notifications + Discord webhook** - replace `Notifier`/
    `Webhooker` mocks for real, wired into every domain that already calls

@@ -8,25 +8,19 @@ import * as m from "$paraglide/messages";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import { serverApi } from "$lib/server/apiClient";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-export const load: PageServerLoad = async ({ locals }) => {
-  const { prisma } = locals;
-
-  const committees = await prisma.committee.findMany({
-    orderBy: [{ shortName: "asc" }],
-    select: {
-      id: true,
-      name: true,
-      nameSv: true,
-      nameEn: true,
-      darkImageUrl: true,
-      lightImageUrl: true,
-      monoImageUrl: true,
-    },
-  });
+// election:create is enforced by the Go API itself - a real, necessary
+// explicit check Go adds that the old app's action never had (it relied
+// purely on ZenStack's model-level policy, with no fallback for a
+// Go-backed world).
+export const load: PageServerLoad = async (event) => {
+  const res = await serverApi(event).GET("/committees", {});
+  if (res.error) throw new Error("Failed to load committees");
+  const committees = res.data ?? [];
 
   const election = {
     markdownSv: "",
@@ -45,23 +39,23 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 export const actions: Actions = {
   create: async (event) => {
-    const { request, locals } = event;
-    const { prisma } = locals;
+    const { request } = event;
     const form = await superValidate(request, zod4(electionSchema));
     if (!form.valid) return fail(400, { form });
     const { markdownSv, markdownEn, link, expiresAt, committeeId } = form.data;
-    await prisma.election.create({
-      data: {
+    const created = await serverApi(event).POST("/elections", {
+      body: {
         markdownSv,
-        markdownEn,
+        markdownEn: markdownEn ?? undefined,
         link,
         expiresAt: dayjs
           .tz(`${expiresAt} 23:59:59`, "Europe/Stockholm")
           .utc()
-          .toDate(),
+          .toISOString(),
         committeeId,
       },
     });
+    if (created.error) throw new Error("Failed to create election");
     throw redirect(
       "/elections",
       {

@@ -200,7 +200,11 @@ func (s *Service) CreateBookable(ctx context.Context, in BookableInput) (*Bookab
 	return &b, nil
 }
 
-func (s *Service) UpdateBookable(ctx context.Context, id string, in BookableInput) (*Bookable, error) {
+func (s *Service) UpdateBookable(
+	ctx context.Context,
+	id string,
+	in BookableInput,
+) (*Bookable, error) {
 	if err := auth.Require(ctx, apinames.BookableUpdate); err != nil {
 		return nil, err
 	}
@@ -473,7 +477,11 @@ func (s *Service) Delete(ctx context.Context, id string) error {
 // (matches the old app's authorize(apiNames.BOOKINGS.UPDATE) gate on the
 // admin pages that call it; the plain booker never gets an accept/reject
 // button).
-func (s *Service) SetStatus(ctx context.Context, id string, accepted bool) (*BookingRequest, error) {
+func (s *Service) SetStatus(
+	ctx context.Context,
+	id string,
+	accepted bool,
+) (*BookingRequest, error) {
 	if err := auth.Require(ctx, apinames.BookingRequestUpdate); err != nil {
 		return nil, err
 	}
@@ -561,7 +569,10 @@ func (s *Service) notifyNewBookingRequest(
 ) {
 	km, err := s.queries.GetCurrentKarhusmastare(ctx)
 	if err != nil {
-		log.Printf("booking: no active karhusmastare found, skipping new-request notification: %v", err)
+		log.Printf(
+			"booking: no active karhusmastare found, skipping new-request notification: %v",
+			err,
+		)
 		return
 	}
 	names := make([]string, len(br.Bookables))
@@ -604,12 +615,15 @@ func (s *Service) conflicts(
 	if excludeID != nil {
 		exclude = *excludeID
 	}
-	rows, err := s.queries.ListConflictingBookingRequests(ctx, db.ListConflictingBookingRequestsParams{
-		BookableIds: bookableIDs,
-		ExcludeID:   exclude,
-		StartAt:     dbutil.ToTimestamptz(&start),
-		EndAt:       dbutil.ToTimestamptz(&end),
-	})
+	rows, err := s.queries.ListConflictingBookingRequests(
+		ctx,
+		db.ListConflictingBookingRequestsParams{
+			BookableIds: bookableIDs,
+			ExcludeID:   exclude,
+			StartAt:     dbutil.ToTimestamptz(&start),
+			EndAt:       dbutil.ToTimestamptz(&end),
+		},
+	)
 	if err != nil {
 		return nil, fmt.Errorf("list conflicting booking requests: %w", err)
 	}

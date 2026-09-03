@@ -19,13 +19,13 @@ type BookableCategoryInput struct {
 }
 
 type Bookable struct {
-	ID         string            `json:"id"`
-	Name       string            `json:"name"`
-	NameSv     string            `json:"nameSv"`
-	NameEn     *string           `json:"nameEn,omitempty"`
-	IsDisabled bool              `json:"isDisabled"`
-	Door       *string           `json:"door,omitempty"`
-	CategoryID *string           `json:"categoryId,omitempty"`
+	ID         string  `json:"id"`
+	Name       string  `json:"name"`
+	NameSv     string  `json:"nameSv"`
+	NameEn     *string `json:"nameEn,omitempty"`
+	IsDisabled bool    `json:"isDisabled"`
+	Door       *string `json:"door,omitempty"`
+	CategoryID *string `json:"categoryId,omitempty"`
 	// Category is only populated by List/Get (a joined read), nil on
 	// Create/Update's own RETURNING - same "nested object only where a real
 	// consumer needs it" pattern as apitypes.Position.Committee.

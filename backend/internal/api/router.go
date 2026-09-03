@@ -20,6 +20,7 @@ import (
 	"github.com/dsek-lth/web/backend/internal/committees"
 	"github.com/dsek-lth/web/backend/internal/db"
 	"github.com/dsek-lth/web/backend/internal/documents"
+	"github.com/dsek-lth/web/backend/internal/elections"
 	"github.com/dsek-lth/web/backend/internal/events"
 	"github.com/dsek-lth/web/backend/internal/gallery"
 	"github.com/dsek-lth/web/backend/internal/governingdocs"
@@ -52,6 +53,7 @@ func NewRouter(
 	gallerySvc *gallery.Service,
 	documentSvc *documents.Service,
 	bookingSvc *booking.Service,
+	electionSvc *elections.Service,
 	authenticator auth.Authenticator,
 	oidcClient *auth.OIDCClient,
 	queries *db.Queries,
@@ -74,6 +76,7 @@ func NewRouter(
 	registerGalleryRoutes(api, gallerySvc)
 	registerDocumentRoutes(api, documentSvc)
 	registerBookingRoutes(api, bookingSvc)
+	registerElectionRoutes(api, electionSvc)
 
 	mux.HandleFunc("GET /me", auth.MeHandler(queries))
 	mux.HandleFunc("GET /medals/download-csv", MedalsCSVHandler(medalSvc))

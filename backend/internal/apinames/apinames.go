@@ -109,6 +109,17 @@ const (
 	BookableCreate = "booking_request:bookable:create"
 	BookableRead   = "booking_request:bookable:read"
 	BookableUpdate = "booking_request:bookable:update"
+
+	// Phase 7 ("Elections" - see DESIGN.md's roadmap) below. Naming mirrors
+	// the old apiNames.ELECTION crud() group exactly - three separate policy
+	// strings (unlike GoverningDocument's shared Write), since that's how
+	// the live ZModel actually gated create/update/delete individually. No
+	// ElectionRead: the old ZModel's @@allow("read", true) makes reads fully
+	// public, with no policy ever checked for them - not a gap, there's
+	// nothing to gate.
+	ElectionCreate = "election:create"
+	ElectionUpdate = "election:update"
+	ElectionDelete = "election:delete"
 )
 
 // All lists every policy this API currently checks - used to build the
@@ -168,5 +179,8 @@ func All() []string {
 		BookableCreate,
 		BookableRead,
 		BookableUpdate,
+		ElectionCreate,
+		ElectionUpdate,
+		ElectionDelete,
 	}
 }

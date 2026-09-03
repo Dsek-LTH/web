@@ -6,39 +6,40 @@ import { redirect } from "sveltekit-flash-message/server";
 import { electionSchema } from "../../schemas";
 import * as m from "$paraglide/messages";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+import { serverApi } from "$lib/server/apiClient";
 
-export const load: PageServerLoad = async ({ locals, params }) => {
-  const { prisma } = locals;
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
-  const [election, committees] = await Promise.all([
-    prisma.election.findFirst({
-      where: { id: params.id },
+// election:update is enforced by the Go API itself - same "old app had no
+// explicit check" note as the create page's action.
+export const load: PageServerLoad = async (event) => {
+  const { params } = event;
+
+  const [electionRes, committeesRes] = await Promise.all([
+    serverApi(event).GET("/elections/{id}", {
+      params: { path: { id: params.id } },
     }),
-
-    prisma.committee.findMany({
-      orderBy: [{ shortName: "asc" }],
-      select: {
-        id: true,
-        name: true,
-        nameSv: true,
-        nameEn: true,
-        darkImageUrl: true,
-        lightImageUrl: true,
-        monoImageUrl: true,
-      },
-    }),
+    serverApi(event).GET("/committees", {}),
   ]);
 
-  if (!election) {
+  if (electionRes.error) {
     throw error(404, m.elections_notFound());
   }
+  const election = electionRes.data;
+  const committees = committeesRes.data ?? [];
 
   return {
     election,
     committees,
     form: await superValidate(
       {
-        ...election,
+        markdownSv: election.markdownSv,
+        markdownEn: election.markdownEn ?? null,
+        link: election.link,
+        committeeId: election.committeeId,
         expiresAt: dayjs(election.expiresAt).format("YYYY-MM-DD"),
       },
       zod4(electionSchema),
@@ -48,23 +49,24 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
 export const actions: Actions = {
   update: async (event) => {
-    const { request, locals, params } = event;
-    const { prisma } = locals;
+    const { request, params } = event;
     const form = await superValidate(request, zod4(electionSchema));
     if (!form.valid) return fail(400, { form });
-    const id = params.id;
-    console.log(form.data);
     const { markdownSv, markdownEn, link, expiresAt, committeeId } = form.data;
-    await prisma.election.update({
-      where: { id },
-      data: {
+    const updated = await serverApi(event).PATCH("/elections/{id}", {
+      params: { path: { id: params.id } },
+      body: {
         markdownSv,
-        markdownEn,
+        markdownEn: markdownEn ?? undefined,
         link,
-        expiresAt: dayjs(expiresAt).endOf("day").toDate(),
+        expiresAt: dayjs
+          .tz(`${expiresAt} 23:59:59`, "Europe/Stockholm")
+          .utc()
+          .toISOString(),
         committeeId,
       },
     });
+    if (updated.error) throw new Error("Failed to update election");
     throw redirect(
       "/elections",
       {

@@ -12,6 +12,7 @@ import (
 	"github.com/dsek-lth/web/backend/internal/auth"
 	"github.com/dsek-lth/web/backend/internal/booking"
 	"github.com/dsek-lth/web/backend/internal/committees"
+	"github.com/dsek-lth/web/backend/internal/elections"
 	"github.com/dsek-lth/web/backend/internal/events"
 	"github.com/dsek-lth/web/backend/internal/governingdocs"
 	"github.com/dsek-lth/web/backend/internal/markdown"
@@ -36,7 +37,8 @@ func humaServiceError(err error) error {
 		errors.Is(err, alerts.ErrNotFound),
 		errors.Is(err, markdown.ErrNotFound),
 		errors.Is(err, governingdocs.ErrNotFound),
-		errors.Is(err, booking.ErrNotFound):
+		errors.Is(err, booking.ErrNotFound),
+		errors.Is(err, elections.ErrNotFound):
 		return huma.Error404NotFound("not found")
 	case errors.Is(err, articles.ErrInvalidInput),
 		errors.Is(err, events.ErrInvalidInput),
@@ -47,7 +49,8 @@ func humaServiceError(err error) error {
 		errors.Is(err, alerts.ErrInvalidInput),
 		errors.Is(err, markdown.ErrInvalidInput),
 		errors.Is(err, governingdocs.ErrInvalidInput),
-		errors.Is(err, booking.ErrInvalidInput):
+		errors.Is(err, booking.ErrInvalidInput),
+		errors.Is(err, elections.ErrInvalidInput):
 		return huma.Error400BadRequest(err.Error())
 	case errors.Is(err, auth.ErrUnauthenticated):
 		return huma.Error401Unauthorized("unauthenticated")

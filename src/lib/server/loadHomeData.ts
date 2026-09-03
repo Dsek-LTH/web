@@ -161,19 +161,14 @@ export const loadHomeData = async ({
   });
 
   // Elections
-  const electionsPromise = prisma.election.findMany({
-    where: { expiresAt: { gt: now } },
-    select: {
-      committee: true,
-      link: true,
-      id: true,
-      expiresAt: true,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-    take: 3,
-  });
+  // Ordered soonest-closing first (the Go API's only order for this list),
+  // not newest-announced first like the old query - a deliberate
+  // simplification for a 3-item homepage widget rather than adding a
+  // second order variant to the endpoint (see DESIGN.md's "Elections"
+  // section).
+  const electionsPromise = api
+    .GET("/elections", { fetch })
+    .then((res) => (res.data ?? []).slice(0, 3));
 
   const [
     news,

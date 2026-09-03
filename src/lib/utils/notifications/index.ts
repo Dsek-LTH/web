@@ -13,7 +13,6 @@ const DUPLICATE_ALLOWED_TYPES = [
   NotificationType.CREATE_MANDATE,
   NotificationType.ARTICLE_REQUEST_UPDATE,
   NotificationType.BOOKING_REQUEST,
-  NotificationType.EXPENSES,
 ];
 
 type BaseSendNotificationProps = {
